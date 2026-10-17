@@ -1,0 +1,13 @@
+@page
+@model DMO.Alpha.Web.Pages.ErrorModel
+@{
+    Layout = "_DmoAccountLayout";
+    ViewData["Title"] = "Erro";
+}
+
+<section aria-labelledby="error-title" role="alert">
+    <h2 id="error-title">Não foi possível concluir o pedido</h2>
+    <p>Se o problema continuar, comunique esta referência ao responsável pelo Portal DMO.</p>
+    <p>Referência do erro: <code>@Model.RequestId</code></p>
+    <a class="dmo-button" asp-page="/Login">Voltar à entrada</a>
+</section>

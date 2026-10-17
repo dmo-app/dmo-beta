@@ -1,0 +1,30 @@
+@model FunctionPresentation
+@if (Model.Visible)
+{
+    if (Model.Children is { Count: > 0 } children)
+    {
+        @* Separador com dropdown (o «Funções» do Controlo): as entradas
+           continuam a ser links da mesma barra. *@
+        <details class="dmo-tab-menu @Model.CssClass" data-dmo-tab-menu>
+            <summary class="@(Model.Selected ? "active" : null)">@Model.Label<span class="dmo-tab-menu-caret" aria-hidden="true">▾</span></summary>
+            <div class="dmo-tab-menu-list">
+            @foreach (var child in children)
+            {
+                <partial name="_ModuleFunctionEntry" model="child" />
+            }
+            </div>
+        </details>
+    }
+    else if (Model.Href is not null)
+    {
+        <a href="@(Model.Enabled ? Model.Href : null)"
+           class="@Model.CssClass @(Model.Selected ? "active" : "")"
+           aria-current="@(Model.Selected ? "page" : null)"
+           aria-disabled="@(!Model.Enabled ? "true" : null)">@Model.Label</a>
+    }
+    else
+    {
+        <button type="button" class="tab @Model.CssClass @(Model.Selected ? "active" : "")"
+                data-view="@Model.PanelTarget" disabled="@(!Model.Enabled)">@Model.Label</button>
+    }
+}

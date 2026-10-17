@@ -1,0 +1,76 @@
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET local/user settings
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# User secrets / certificates / keys
+*.pfx
+*.p12
+*.pem
+*.key
+*.cer
+
+# Logs
+*.log
+logs/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Frontend dependencies/build output
+node_modules/
+dist/
+build/
+
+# Source-controlled MSBuild metadata; keep other build output ignored.
+!build/
+build/*
+!build/VersionMetadata.targets
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Runtime/generated files
+uploads/
+temp/
+tmp/
+
+# Durable DataProtection keyring (Dmo:DataProtectionKeyRingPath default,
+# content-root-adjacent): key material is never committed.
+data-protection/
+
+# Environment files
+.env
+.env.*
+!.env.example

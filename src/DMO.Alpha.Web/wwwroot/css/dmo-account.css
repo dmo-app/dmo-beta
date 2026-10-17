@@ -1,0 +1,202 @@
+/* Account pages only. */
+.dmo-account-page {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 28px;
+}
+
+.dmo-account-page .login-shell {
+    position: relative;
+    width: min(1120px, 100%);
+    min-height: 650px;
+    display: grid;
+    grid-template-columns: 38% 62%;
+    overflow: hidden;
+}
+
+/* Environment badge: Dmo:EnvironmentLabel, shown in the top-right corner
+   so the operator always knows which environment is on screen. */
+.dmo-account-page .env-badge {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.dmo-account-page .env-badge.is-dev {
+    background: #f7f0e7;
+    color: #a97943;
+    border: 1px solid #a9794333;
+}
+
+.dmo-account-page .env-badge.is-prod {
+    background: #e5f0eb;
+    color: #527c72;
+    border: 1px solid #527c7233;
+}
+
+.dmo-account-page .beta-tag {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--dmo-brand-700);
+    border: 1px solid var(--dmo-border);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.dmo-account-page .identity {
+    position: relative;
+    padding: 50px 44px;
+    background: linear-gradient(155deg, var(--dmo-brand-050), var(--dmo-brand-200));
+    display: flex;
+    flex-direction: column;
+}
+
+.dmo-account-page .brand-logo {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 22px;
+}
+
+.dmo-account-page .eyebrow {
+    font-size: 12px;
+    font-weight: 850;
+    letter-spacing: .14em;
+    color: var(--dmo-brand-600);
+}
+
+.dmo-account-page .identity h1 {
+    margin: 8px 0 4px;
+    font-size: 32px;
+    color: var(--dmo-brand-950);
+}
+
+.dmo-account-page .identity p {
+    margin: 0;
+    color: var(--dmo-brand-800);
+}
+
+.dmo-account-page .identity-foot {
+    margin-top: auto;
+    /* Sobre o fim do gradiente (--dmo-palette-sky) o cinzento ficava a 3,1:1. */
+    color: var(--dmo-brand-700);
+    font-size: 11px;
+}
+
+.dmo-account-page .identity-foot strong {
+    display: block;
+    margin-top: 12px;
+    color: var(--dmo-brand-700);
+}
+
+.dmo-account-page .login-side {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 58px;
+}
+
+.dmo-account-page .login-form {
+    width: min(410px, 100%);
+}
+
+.dmo-account-page .login-form h2 {
+    font-size: 28px;
+    margin: 0 0 6px;
+}
+
+.dmo-account-page .login-form > .lead {
+    margin: 0 0 18px;
+    color: var(--dmo-muted);
+}
+
+.dmo-account-page .login-form .dmo-field {
+    margin-bottom: 15px;
+}
+
+.dmo-account-page .password-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dmo-account-page .password-wrap input {
+    padding-right: 105px;
+}
+
+.dmo-account-page .password-toggle {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    min-width: 82px;
+    min-height: 30px;
+    height: calc(100% - 10px);
+    padding: 4px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.dmo-account-page .password-toggle[hidden] {
+    display: none;
+}
+
+/* The reference's final canonical cascade renders this control at 40px. */
+.dmo-account-page .submit {
+    width: 100%;
+    margin-top: 4px;
+}
+
+.dmo-account-page .form-message {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--dmo-danger-soft);
+    color: var(--dmo-danger);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.dmo-account-page .alert-warning {
+    background: #f7f0e7;
+    color: #a97943;
+}
+
+.dmo-account-page .recovery-note {
+    margin: 22px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--dmo-border);
+    color: var(--dmo-muted);
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.dmo-account-page .recovery-note a {
+    color: var(--dmo-brand-700);
+}
+
+.dmo-account-page :is(button, a):focus-visible {
+    outline: 2px solid var(--dmo-brand-500);
+    outline-offset: 2px;
+}

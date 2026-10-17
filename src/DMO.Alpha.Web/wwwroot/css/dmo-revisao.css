@@ -1,0 +1,63 @@
+/*
+ * Revisão do Controlo (17/10/2026): calendário e lista do dia à esquerda,
+ * o controlo escolhido à direita. As cores das máquinas são as do Job On.
+ */
+.revisao-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
+.revisao-side{display:grid;gap:14px;min-width:0}
+.revisao-undated-link{display:block;padding:10px 14px;border:1px dashed var(--dmo-warning);border-radius:8px;background:var(--dmo-warning-soft);color:var(--dmo-warning);font-size:13px;font-weight:800;text-decoration:none}
+.revisao-day{padding:16px 16px 18px}
+.revisao-day h2{margin:0;font-size:18px}
+.revisao-filters{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:8px 10px;align-items:end;margin:12px 0 4px}
+.revisao-filters .dmo-field:first-of-type{grid-column:1 / -1}
+.revisao-filters .dmo-field{min-width:0}
+.revisao-list{display:grid;gap:8px;margin-top:12px}
+.revisao-item{--dmo-machine-color:var(--dmo-brand-600);display:grid;gap:5px;padding:11px 12px 11px 14px;border:1px solid var(--dmo-border);border-left:5px solid var(--dmo-machine-color);border-radius:8px;background:#fff;color:var(--dmo-text);text-decoration:none}
+/* Hover e linha escolhida como nas outras tabelas (paleta); a máquina fica só na barra da esquerda (decisão do Diogo, 17/10/2026). */
+.revisao-item:hover,.revisao-item:focus-visible{background:var(--dmo-palette-sky);outline:none}
+.revisao-item.selected{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);border-left-color:var(--dmo-machine-color);color:#fff}
+.revisao-item.selected small,.revisao-item.selected .revisao-machine{color:#fff}
+.revisao-item.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
+.revisao-item.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
+.revisao-item.mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
+.revisao-item.mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
+.revisao-item.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
+.revisao-item.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
+.revisao-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.revisao-item-head strong{font-size:15px}
+.revisao-item small{color:var(--dmo-muted);font-size:12px}
+.revisao-machine{color:var(--dmo-machine-color)}
+.revisao-pill{flex:none;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800}
+.revisao-pill.pendente{background:var(--dmo-warning-soft);color:var(--dmo-warning)}
+.revisao-pill.aprovado{background:var(--dmo-success-soft);color:var(--dmo-success)}
+.revisao-pill.nao-aprovado{background:var(--dmo-danger-soft);color:var(--dmo-danger)}
+.revisao-pill.big{padding:7px 14px;font-size:13px}
+.revisao-detail{padding:18px 20px 20px;min-height:420px;min-width:0}
+.revisao-empty{margin:60px 0;text-align:center;color:var(--dmo-muted)}
+.revisao-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.revisao-detail-head h2{margin:0;font-size:22px}
+.revisao-detail-head p{margin:4px 0 0;color:var(--dmo-muted);font-size:13px}
+html body .revisao-detail h3.revisao-section{margin:20px 0 10px;padding:9px 12px;border-left:4px solid var(--dmo-brand-600);border-radius:6px;background:var(--dmo-subtle);font-size:14px}
+.revisao-facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.revisao-facts.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.revisao-facts>div{display:grid;align-content:start;gap:3px;min-width:0;padding:9px 11px;border-radius:8px;background:var(--dmo-subtle)}
+.revisao-facts span{color:var(--dmo-muted);font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.revisao-facts strong{font-size:16px;overflow-wrap:anywhere}
+.revisao-facts small{color:var(--dmo-muted);font-size:12px}
+.revisao-facts .destaque{background:var(--dmo-brand-050)}
+.revisao-facts .destaque strong{font-size:20px;color:var(--dmo-brand-600)}
+.revisao-line{margin:6px 0}
+.revisao-alerta{color:var(--dmo-danger);font-weight:800}
+.revisao-note{margin:6px 0 10px;padding:9px 12px;border-radius:8px;background:var(--dmo-subtle);white-space:pre-wrap}
+.revisao-decision{display:grid;gap:10px}
+.revisao-decision textarea{width:100%}
+.revisao-buttons{display:flex;justify-content:flex-end;gap:10px}
+@media(max-width:1100px){.revisao-facts{grid-template-columns:repeat(3,minmax(0,1fr))}.revisao-facts.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.revisao-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.revisao-facts,.revisao-facts.four{grid-template-columns:1fr 1fr}.revisao-buttons{flex-direction:column}}
+/* O link do mcaliper (Diogo, 17/10/2026): um clique no ícone copia. */
+.revisao-mcaliper { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.revisao-mcaliper > span { color: var(--dmo-muted); font-size: 12px; font-weight: 600; }
+.revisao-mcaliper-copy { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--dmo-border); border-radius: 999px; background: var(--dmo-card); color: var(--dmo-brand-700); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.revisao-mcaliper-copy svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.revisao-mcaliper-copy:is(:hover, :focus-visible) { border-color: var(--dmo-brand-600); background: var(--dmo-brand-050); outline: 0; }
+.revisao-mcaliper-copy.copied { border-color: #3d7a5a; color: #3d7a5a; }

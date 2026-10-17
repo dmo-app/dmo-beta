@@ -1,0 +1,44 @@
+@model IReadOnlyList<DMO.Alpha.Web.Pages.Boquilhas.BqSearchResult>
+@* As boquilhas encontradas ao escrever (Diogo, 17/10/2026): a BQ, o lote, as
+   máquinas em que trabalha e se está em produção. Um clique ou Enter abre
+   o registo (o da produção em máquina, senão o último). *@
+@if (Model.Count == 0)
+{
+  <p class="muted" role="status">Nenhuma boquilha encontrada.</p>
+}
+else
+{
+  <div class="dmo-table-wrap">
+    <table class="dmo-table" id="bqProcuraResultados" data-dmo-list="Boquilhas encontradas">
+      <thead>
+        <tr><th>Boquilha</th><th>Lote</th><th>Máquinas</th><th>Produção</th></tr>
+      </thead>
+      <tbody>
+        @foreach (var result in Model)
+        {
+          <tr data-dmo-row data-id="@result.ToolId" data-dmo-open="@result.OpenHref"
+              aria-label="BQ @result.Reference, lote @result.Lot — um clique abre">
+            <td><strong>@result.Reference</strong></td>
+            <td>@result.Lot</td>
+            <td>@(result.Machines.Count > 0 ? string.Join(", ", result.Machines) : "—")</td>
+            <td>
+              @if (result.InProduction)
+              {
+                <span class="dmo-pill active">Em produção</span>
+                <span>@result.ProductionMachine · @result.ProductionReference · @result.ProductionNumber</span>
+              }
+              else
+              {
+                <span class="dmo-pill inactive">Sem produção</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (Model.Count >= DMO.Alpha.Web.Pages.Boquilhas.IndexModel.BqSearchLimit)
+  {
+    <p class="muted">Mostram-se as primeiras @DMO.Alpha.Web.Pages.Boquilhas.IndexModel.BqSearchLimit. Escreva mais para afinar.</p>
+  }
+}

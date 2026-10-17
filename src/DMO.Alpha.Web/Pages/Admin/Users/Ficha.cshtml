@@ -1,0 +1,169 @@
+@page "/Admin/Users/Ficha"
+@model DMO.Alpha.Web.Pages.Admin.Users.FichaModel
+@{
+    Layout = "_DmoShellLayout";
+    var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
+}
+@section Head {
+<style>
+.dfu-page{max-width:1000px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.dfu-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.dfu-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.dfu-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.dfu-card{padding:18px}
+.dfu-card h3{margin:0 0 4px;font-size:16px}
+.dfu-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.dfu-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+.dfu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.dfu-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+/* A GRAMÁTICA DAS FOLHAS: os botões no INÍCIO — as ações vestem a linha
+   de cima da secção, o texto DIRETO (sem «Abrir»). */
+.dfu-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.dfu-actions form{display:flex;gap:8px;align-items:end;margin:0}
+.dfu-nota{padding:11px 13px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px;margin-top:14px}
+.dfu-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.dfu-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
+.dfu-select{min-width:220px}
+.dfu-danger{background:var(--dmo-danger,#9a625d)}
+.dfu-danger:hover{background:#7d4f4a}
+</style>
+}
+
+<main class="dfu-page" aria-labelledby="dfu-title">
+
+  <div class="page-head">
+    <div>
+      <h2 id="dfu-title">Ficha de utilizador</h2>
+    </div>
+    <a class="dfu-cancel" href="@Url.Page("/Admin/Users/Index")">Voltar à lista</a>
+  </div>
+
+  @* ------------------------------------------------------------------ *@
+  @* Sem operador: a ficha nasce da linha da lista — nada é inventado.    *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.SelectedUser is null && Model.RequestedOperatorId is null)
+  {
+    <section class="dmo-card dfu-card" aria-labelledby="dfu-empty-title">
+      <h3 id="dfu-empty-title">Ficha de utilizador</h3>
+      <div class="dfu-vazia">Nenhum utilizador selecionado. Abra a lista dos Utilizadores e escolha a linha — um clique abre a ficha.</div>
+    </section>
+  }
+  else if (Model.SelectedUser is null)
+  {
+    <section class="dmo-card dfu-card">
+      <div class="dfu-aviso" role="alert">O utilizador indicado não existe. Nenhuma ficha foi aberta e nenhum utilizador foi inventado.</div>
+    </section>
+  }
+
+  @if (Model.SelectedUser is { } user)
+  {
+    @* ------------------------------------------------------------------ *@
+    @* 1. OS FACTOS HUMANOS — o que o chão da fábrica reconhece.           *@
+    @* ------------------------------------------------------------------ *@
+    <section class="dmo-card dfu-card" aria-labelledby="dfu-facts-title">
+      <h3 id="dfu-facts-title">@user.Name — nº @user.OperatorId</h3>
+      <div class="dmo-facts">
+        <div class="dmo-fact-stack">
+          <div class="dmo-fact"><span>Nome</span><strong>@user.Name</strong></div>
+          <div class="dmo-fact"><span>Nº de operador</span><strong>@user.OperatorId</strong></div>
+        </div>
+        <div class="dmo-fact-stack">
+          <div class="dmo-fact"><span>Email</span><strong>@(user.Email ?? "sem email associado")</strong></div>
+          <div class="dmo-fact"><span>Criado em</span><strong>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(user.CreatedAt).ToString("g", pt)</strong></div>
+        </div>
+        <div class="dmo-fact-stack">
+          @* O cartão da template abre-a para editar (Diogo, 17/10/2026). *@
+          @if (!user.IsAdmin && user.CurrentTemplateKey is { } templateKey)
+          {
+            <a class="dmo-fact dmo-fact-link" href="@Url.Page("/Admin/Templates/Index", new { template = templateKey })"
+               aria-label="Editar a template @user.CurrentTemplateName"><span>Template atual</span><strong>@(user.CurrentTemplateName ?? templateKey)</strong><em>Editar template</em></a>
+          }
+          else
+          {
+            <div class="dmo-fact"><span>Template atual</span><strong>@(user.IsAdmin ? "ADMIN" : "Sem template")</strong></div>
+          }
+        </div>
+        <div class="dmo-fact-stack">
+          <div class="dmo-fact"><span>Estado</span><strong>@(user.IsStandBy ? "Arquivado" : "Ativo")</strong></div>
+          <div class="dmo-fact"><span>Mudança de palavra-passe</span><strong>@(user.RequiresPasswordChange ? "Obrigatória — PIN temporário" : "Palavra-passe definida")</strong></div>
+        </div>
+      </div>
+    </section>
+
+    @* ------------------------------------------------------------------ *@
+    @* 2. AS AÇÕES — os forms que viviam na tabela, o trabalho da folha.   *@
+    @*    A GRAMÁTICA GLOBAL: nas tabelas não existem botões — os botões  *@
+    @*    vivem FORA (aqui); os MESMOS handlers do Index, o PRG e as      *@
+    @*    recusas tipadas preservados (a recusa renderiza na lista, o     *@
+    @*    destino do redirect).                                           *@
+    @* ------------------------------------------------------------------ *@
+    <section class="dmo-card dfu-card" aria-labelledby="dfu-actions-title">
+      <h3 id="dfu-actions-title">Ações de acesso<partial name="_DmoHelp" model="@("A template aplica-se ao escolhê-la. Em «Opções», repor a palavra-passe gera um PIN temporário novo, mostrado uma vez na lista.")" /></h3>
+
+      @if (user.IsAdmin)
+      {
+        @* O boundary canónico (D1/D2): a identidade ADMIN nunca é gerida
+           como utilizador normal — sem ações aqui. *@
+        <div class="dfu-nota">Este utilizador é o ADMIN e não é gerido aqui.</div>
+      }
+      else
+      {
+        <div class="dfu-actions">
+          <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Template">
+            <input type="hidden" name="operator_id" value="@user.OperatorId" />
+            <div class="dmo-field">
+              <label for="dfu-template">Template de acesso</label>
+              <select id="dfu-template" class="dfu-select" name="template_key" data-dmo-autosubmit aria-label="Template de acesso de @user.Name">
+                <option value="">Sem template</option>
+                @foreach (var template in Model.Templates)
+                {
+                  <option value="@template.TemplateKey" selected="@(user.CurrentTemplateKey == template.TemplateKey)">@template.Name</option>
+                }
+              </select>
+            </div>
+          </form>
+          @* MENOS CLUTTER (Diogo, 17/10/2026): as ações raras ficam num só
+             botão «Opções» com dropdown. A template aplica-se ao escolhê-la no
+             dropdown, sem botão (Diogo, 17/10/2026). *@
+          <details class="dmo-options" data-dmo-tab-menu>
+            <summary class="dmo-button" aria-label="Opções do utilizador @user.Name">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
+            <div class="dmo-options-list">
+              <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="StandBy">
+                <input type="hidden" name="operator_id" value="@user.OperatorId" />
+                <input type="hidden" name="stand_by" value="@(user.IsStandBy ? "0" : "1")" />
+                <button type="submit" class="dmo-options-item">@(user.IsStandBy ? "Ativar" : "Arquivar")</button>
+              </form>
+              <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Reset">
+                <input type="hidden" name="operator_id" value="@user.OperatorId" />
+                <button type="submit" class="dmo-options-item">Repor palavra-passe</button>
+              </form>
+              @* O DELETE REAL (o Owner 2026-10-13): o primeiro clique só pede
+                 a confirmação (?confirm_delete=1); o segundo, à vista, apaga. *@
+              <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Delete">
+                <input type="hidden" name="operator_id" value="@user.OperatorId" />
+                <button type="submit" class="dmo-options-item">Eliminar utilizador</button>
+              </form>
+            </div>
+          </details>
+          @if (Model.ConfirmDelete)
+          {
+            <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Delete">
+              <input type="hidden" name="operator_id" value="@user.OperatorId" />
+              <input type="hidden" name="confirm_delete" value="1" />
+              <button type="submit" class="dmo-button dfu-danger">Eliminar mesmo (nº @user.OperatorId)</button>
+            </form>
+          }
+        </div>
+        @if (Model.ConfirmDelete)
+        {
+          <div class="dfu-aviso" role="alert">
+            <strong>Eliminar o utilizador @user.Name (nº @user.OperatorId)?</strong>
+            A linha sai da lista e o acesso dele morre com ela. Os registos passados que citam o
+            nº mantêm-no como texto congelado — o histórico não se reescreve. Esta ação não tem volta.
+          </div>
+        }
+      }
+    </section>
+  }
+
+</main>

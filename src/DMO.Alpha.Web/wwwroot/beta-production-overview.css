@@ -1,0 +1,57 @@
+/* Shared current-production rail and date selectors. */
+.beta-production-rail{background:var(--shell-blue-dark);color:var(--dmo-text-on-color);padding:17px 12px;min-width:0}
+.beta-production-rail-head{display:grid;gap:3px;padding:0 8px 12px}
+.beta-production-rail-head strong{font-size:13px;text-transform:uppercase;letter-spacing:.03em}
+.beta-production-rail-head span{font-size:11px;color:var(--dmo-brand-300)}
+.beta-production-lines{display:grid;gap:7px}
+.beta-production-lines :is(button,.dmo-rail-link){box-sizing:border-box;display:block;width:100%;height:72px;min-height:72px;margin:0;padding:10px 12px;background:var(--dmo-brand-800);color:#fff;border:1px solid var(--dmo-brand-700);border-radius:8px;text-align:left;font:inherit;cursor:pointer;overflow:hidden}
+/* A seleccao canónica da casa é a classe `selected` (é o que o
+   0_ASSET_CANONICAL_INTERACTIONS.js alterna); o rail das folhas antigas usava
+   `.active` (o fixture aceite). Aceitam-se as duas: um rail só, uma gramática,
+   sem obrigar quem já veste `.active` a ser reescrito à pressa. */
+.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):hover:not(.selected):not(.active):not(.bq-line-empty){border-color:var(--dmo-brand-300);background:var(--dmo-brand-800)}
+.beta-production-lines :is(button,.dmo-rail-link).active,.beta-production-lines :is(button,.dmo-rail-link).selected{border-color:var(--dmo-brand-600);background:var(--dmo-brand-100);color:var(--dmo-brand-700);outline:2px solid var(--dmo-brand-600);outline-offset:-2px}
+.beta-production-lines :is(button,.dmo-rail-link):is(.active,.selected) span{color:inherit}
+.beta-production-lines :is(button,.dmo-rail-link).bq-line-empty{opacity:.75;cursor:default}
+.beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover{background:var(--dmo-brand-800);border-color:var(--dmo-brand-700);outline:0}
+.beta-production-lines strong,.beta-production-lines span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.beta-production-lines strong{font-size:14px;line-height:20px}.beta-production-lines span{font-size:12px;line-height:18px;margin-top:3px;color:var(--dmo-brand-100)}
+.beta-production-lines :is(button,.dmo-rail-link):focus-visible{outline:2px solid #fff;outline-offset:-4px}
+
+@media(max-width:700px){.beta-production-rail{padding:10px}.beta-production-lines{display:flex;overflow-x:auto}.beta-production-lines :is(button,.dmo-rail-link){min-width:145px}}
+
+.beta-light-productions .beta-light-production{display:grid;grid-template-columns:46px max-content minmax(0,1fr) auto;min-height:48px;gap:12px;align-items:center;justify-content:normal}
+/* Altura fixa das linhas do dia (o proprietário, 16/10/2026): com ou sem produção, com ou sem nota de lote, a linha tem 48px e a página não salta ao mudar de dia. */
+@media(min-width:701px){.beta-light-productions .beta-light-production{height:48px;box-sizing:border-box;padding-block:0}.beta-light-productions .beta-light-machine-empty{display:flex;align-items:center;gap:4px;height:48px;box-sizing:border-box;padding-block:0}}
+.beta-light-productions .beta-light-machine-empty strong{font-size:14px}
+.beta-light-productions .beta-light-production>.beta-light-lot-note{font-size:12.5px;color:var(--dmo-muted,#66809a)}
+.beta-light-machine-row:has(input:checked) .beta-light-production>.beta-light-lot-note{color:var(--dmo-text-on-color)}
+.jobon-lote-form{display:grid;grid-template-columns:160px minmax(0,1fr) minmax(0,1.4fr);gap:12px;margin-top:12px}.jobon-lote-form label{font-size:13px;font-weight:750}.jobon-lote-form :is(input,select){display:block;width:100%;min-height:40px;margin-top:6px;padding:8px;border:1px solid var(--dmo-border);border-radius:8px;box-sizing:border-box}
+/* «O que mudou» (o proprietário, 17/10/2026): o resumo no topo da ficha, aberto, que se minimiza como o «Mais detalhes»; cada mudança com a sua ação; a marca na linha do dia. */
+.jobon-mudancas{margin:0 0 16px}.jobon-mudancas>summary{font-size:13px;cursor:pointer;color:var(--dmo-muted,#66809a)}
+.jobon-resumo{margin:10px 0 2px;padding:0;list-style:none;display:grid;gap:8px}.jobon-resumo li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:var(--dmo-subtle,#f1f6fa);border-left:4px solid var(--dmo-warning,#c98a14);border-radius:8px}.jobon-resumo li>div{display:grid;gap:3px;min-width:0}.jobon-resumo strong{font-size:14px}.jobon-resumo span{font-size:12.5px;color:var(--dmo-muted,#66809a)}
+/* A próxima mudança na máquina (o proprietário, 17/10/2026): informação de contexto, neutra, à frente da linha. */
+.beta-light-productions .beta-light-production>.beta-light-next{font-size:12.5px;color:var(--dmo-muted,#66809a)}
+.beta-light-machine-empty .beta-light-next{margin-left:auto;padding-right:4px;font-size:12.5px;color:var(--dmo-muted,#66809a)}
+.beta-light-machine-row:has(input:checked) .beta-light-next{color:var(--dmo-text-on-color)}
+@media(max-width:700px){.beta-light-productions .beta-light-production>.beta-light-next{white-space:normal}.beta-light-productions .beta-light-production>.beta-light-next:empty{display:none}.beta-light-machine-empty .beta-light-next{margin-left:10px}}
+.beta-light-changes{margin-left:8px;padding:2px 7px;font-size:11.5px;font-weight:700;color:#7a4f00;background:#fff1cc;border-radius:999px}
+.beta-light-machine-row:has(input:checked) .beta-light-changes{color:#7a4f00}
+@media(max-width:700px){.jobon-resumo li{flex-direction:column;align-items:stretch}}
+@media(max-width:700px){.jobon-lote-form{grid-template-columns:1fr}}
+.beta-light-productions .beta-light-production>strong{color:var(--dmo-brand-900);font-size:14px}.beta-light-productions .beta-light-production>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){.beta-light-productions .beta-light-production{grid-template-columns:38px minmax(0,1fr);gap:4px 10px}.beta-light-productions .beta-light-production>span{grid-column:2}.beta-light-productions .beta-light-production>.beta-light-lot-note:empty{display:none}}
+
+.beta-production-lines .dmo-rail-link{text-decoration:none}
+
+/* Sobreposição na máquina (o proprietário, 16/10/2026: grava com aviso e marca-se a vermelho no dia). */
+.beta-light-machine-row.overlap{background:#f3e9e7;box-shadow:inset 4px 0 0 var(--dmo-danger,#9a625d)}
+.beta-light-overlap{display:block;padding:8px 12px 0 16px;font-size:12.5px;font-weight:700;color:var(--dmo-danger,#9a625d)}
+
+/* O aviso nos módulos quando o Job On mudou depois do registo (o proprietário, 17/10/2026): só informa. */
+.jobon-change-notice{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:12px 0;padding:10px 14px;font-size:13px;background:#fff7e6;border-left:4px solid var(--dmo-warning,#c98a14);border-radius:8px}
+.jobon-change-notice ul{margin:0;padding-left:18px}
+.jobon-change-notice li span{color:var(--dmo-muted,#6b6b6b)}
+/* A máquina vazia do dia abre a criação do Job On (o Diogo, 17/10/2026). */
+a.beta-light-machine-empty{width:100%;box-sizing:border-box;border-radius:8px;text-decoration:none;cursor:pointer}
+a.beta-light-machine-empty:hover,a.beta-light-machine-empty:focus-visible{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}

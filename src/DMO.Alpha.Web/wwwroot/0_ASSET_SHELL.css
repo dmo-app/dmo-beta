@@ -1,0 +1,69 @@
+/*
+   BA DMO visual shell
+   Shared by the visual-authority pages. Page files own content and module
+   layout; this file owns the common frame, navigation, surfaces and controls.
+*/
+:root{
+  --shell-page:var(--dmo-page,#f6f9fc);
+  --shell-surface:var(--dmo-card,#fff);
+  --shell-subtle:var(--dmo-subtle,#f1f6fa);
+  --shell-line:var(--dmo-border,#d9e6f2);
+  --shell-text:var(--dmo-text,#172d42);
+  --shell-muted:var(--dmo-muted,#64778a);
+  --shell-blue:var(--dmo-brand-600,#3c73a8);
+  --shell-blue-dark:var(--dmo-brand-950,#0f1d2a);
+  --shell-rail:var(--dmo-sidebar-width,276px);
+  --shell-radius:var(--dmo-radius-card,12px);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--shell-page);color:var(--shell-text);font:16px/1.45 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+
+/* Application frame */
+.view{display:none}.view.active{display:block}
+
+.status,.dmo-pill{display:inline-flex;min-height:24px;align-items:center;justify-content:center;padding:4px 9px;border-radius:999px;background:var(--dmo-brand-100,#d9e6f2);color:var(--dmo-brand-700,#315d88);font-size:12px;font-weight:850;line-height:1;white-space:nowrap}.status.success{background:var(--dmo-success-soft,#e5f0eb);color:var(--dmo-success,#527c72)}.status.warning{background:var(--dmo-warning-soft,#f7f0e7);color:var(--dmo-warning,#a97943)}
+
+[data-dmo-list] [data-dmo-row]:focus-visible{outline:2px solid var(--dmo-brand-600,#3c73a8);outline-offset:-2px}
+/* Tabelas com seleção por linha: a regra única vive em css/dmo-normalize.css. */
+.dmo-list-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.dmo-list-actions [data-dmo-action][aria-disabled="true"]{pointer-events:none}
+[data-dmo-list] .lot[data-dmo-row]{cursor:pointer}
+[data-dmo-list] .lot[data-dmo-row].selected{background:var(--dmo-brand-100);outline:2px solid var(--dmo-brand-600);outline-offset:-2px}
+
+/* Elementos nativos de seleção continuam na árvore acessível. */
+.dmo-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.dmo-search-form{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* Detalhes próprios do Job On: só aparência; factos servidos por Razor. */
+body[data-beta-page="jobon"] .job-tool-facts{display:grid;gap:8px;margin-top:10px}
+body[data-beta-page="jobon"] .job-tool-fact{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;padding:10px 12px;font-size:12px;color:var(--dmo-muted,#64778a)}
+body[data-beta-page="jobon"] .job-tool-fact strong{color:var(--dmo-text,#172d42)}
+body[data-beta-page="jobon"] .job-tool-warnings{display:grid;gap:8px;margin-top:8px}
+
+/* Common calendars inherit the same rhythm. */
+.calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.day{position:relative;min-width:0;aspect-ratio:1;border:1px solid transparent;border-radius:8px;background:transparent;font-size:14px}.day.selected{border-color:var(--shell-blue);background:var(--shell-blue);color:#fff;font-weight:850}
+
+@media(max-width:600px){.button,.dmo-button,.btn{width:100%}}
+
+/* Ferramentas do Job On: campos e ações usam os componentes canónicos. */
+body[data-beta-page="jobon"] #lightTools{margin-top:12px}
+body[data-beta-page="jobon"] .job-tool-card{min-width:0;display:flex;flex-direction:column;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control)}
+body[data-beta-page="jobon"] .job-tool-card [hidden]{display:none!important}
+body[data-beta-page="jobon"] .job-tool-menu{display:block}
+body[data-beta-page="jobon"] .job-tool-card-head{display:flex!important;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--dmo-r-control);background:var(--dmo-subtle,#f1f6fa)}
+body[data-beta-page="jobon"] .job-tool-card-head:hover{background:var(--dmo-brand-050)}
+body[data-beta-page="jobon"] .job-tool-card-head strong{font-size:14px}
+body[data-beta-page="jobon"] .job-tool-badge{display:inline-block;min-width:32px;text-align:center;padding:6px 7px;border-radius:8px;background:var(--dmo-brand-600,#3c73a8);color:#fff;font-weight:800;font-size:11px}
+body[data-beta-page="jobon"] .job-tool-card-hint{margin-left:auto;color:var(--dmo-muted);font-size:12px}
+body[data-beta-page="jobon"] .job-tool-card-head .dmo-options-caret{color:var(--dmo-muted)}
+body[data-beta-page="jobon"] .job-tool-menu .dmo-options-list{left:auto;right:8px}
+body[data-beta-page="jobon"] .job-tool-chosen{padding:10px 12px 2px}
+body[data-beta-page="jobon"] .job-tool-card-title{display:block;margin-bottom:6px;font-size:15px;font-weight:650}
+body[data-beta-page="jobon"] .job-tool-input{padding:10px 12px}
+body[data-beta-page="jobon"] .job-tool-card-facts{display:flex;flex-wrap:wrap;gap:4px 12px;padding:0 0 10px;font-size:11.5px;color:var(--dmo-muted,#64778a)}body[data-beta-page="jobon"] .job-tool-card-facts:empty{display:none}body[data-beta-page="jobon"] .job-tool-card-facts b{color:var(--dmo-text,#172d42)}
+body[data-beta-page="jobon"] .job-tool-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding:10px 12px;border-top:1px solid var(--dmo-border)}
+body[data-beta-page="jobon"] .job-tool-actions .dmo-button{flex:1 1 140px;white-space:normal}
+
+body[data-beta-page="jobon"] .job-tool-filter-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;color:var(--dmo-muted);font-size:12px}
+body[data-beta-page="jobon"] .job-tool-filter-bar label{display:flex;align-items:center;gap:7px;color:var(--dmo-text);cursor:pointer}

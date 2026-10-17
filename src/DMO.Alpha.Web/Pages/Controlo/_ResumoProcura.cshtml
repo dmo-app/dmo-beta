@@ -1,0 +1,46 @@
+@model DMO.Alpha.Web.Pages.Controlo.ResumoProcuraView
+@* As produções encontradas na procura do Resumo (Diogo, 17/10/2026): as
+   últimas 5 do texto escrito; um clique na linha abre a produção. As mais
+   antigas veem-se pela paginação. *@
+@if (Model.Items.Count == 0)
+{
+  <div class="resumo-vazia" role="status">Nenhuma produção encontrada para «@Model.Term».</div>
+}
+else
+{
+  var lastPage = (int)Math.Ceiling(Model.Total / 5.0);
+  <div class="dmo-table-wrap">
+    <table class="dmo-table" data-dmo-list="Produções do Controlo" data-dmo-abrir-clique>
+      <thead>
+        <tr><th>Nº de produção</th><th>Referência</th><th>Máquina</th></tr>
+      </thead>
+      <tbody>
+        @foreach (var item in Model.Items)
+        {
+          <tr data-dmo-row data-id="@item.JobOnId"
+              data-dmo-open="@Url.Page("/Controlo/Resumo", new { jobon_id = item.JobOnId })"
+              aria-label="Produção @item.ProductionNumber — um clique abre">
+            <td>@item.ProductionNumber</td>
+            <td>@item.Reference</td>
+            <td>@item.Machine</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (Model.Total > 5)
+  {
+    var term = Uri.EscapeDataString(Model.Term);
+    <div class="resumo-pager">
+      @if (Model.Page > 1)
+      {
+        <a class="dmo-button" aria-label="Página mais recente" href="/Controlo/Resumo?pagina=@(Model.Page - 1)&reference=@term">‹</a>
+      }
+      <span class="resumo-pager-info">Página @Model.Page de @lastPage · @Model.Total produções</span>
+      @if (Model.Page < lastPage)
+      {
+        <a class="dmo-button" aria-label="Página mais antiga" href="/Controlo/Resumo?pagina=@(Model.Page + 1)&reference=@term">›</a>
+      }
+    </div>
+  }
+}

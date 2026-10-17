@@ -1,0 +1,224 @@
+
+.peso-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
+.peso-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.peso-card{padding:18px}
+
+.peso-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-top:10px}
+.peso-fact{padding:10px 12px;border-left:3px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-subtle,#f1f6fa);border-radius:8px}
+.peso-fact span{display:block;color:var(--dmo-muted);font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em}
+.peso-fact strong{display:block;font-size:14px;margin-top:3px;overflow-wrap:anywhere}
+.peso-fact small{display:block;color:var(--dmo-muted);font-size:10.5px;margin-top:2px}
+.peso-form-grid{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px;align-items:end}
+.peso-form-grid .wide{grid-column:1/-1}
+.peso-actions{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+.peso-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft,#f3e9e7);border-radius:8px;margin-top:12px}
+.peso-aviso::before{content:"⚠ ";}
+/* Aviso (o trabalho gravou; o texto diz o que ficou de fora) — o mesmo tom de .peg-aviso.warn e .jobon-aviso.warn. */
+.peso-aviso.warn{border-left-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
+.peso-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.peso-aviso-simples{padding:11px 13px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px;margin-top:12px;color:var(--dmo-brand-700,#193046)}
+/* Anatomia do mockup 22: a região viva é um contêiner branco com border 1px
+   + accent esquerdo 4px; as células interiores levam fundo subtle SEM accent.
+   O result-summary também usa células simples — a hierarquia distingue factos
+   de contexto (accented) de factos de resultado (plain). */
+.peso-live-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;padding:13px;border:1px solid var(--dmo-border,#d9e6f2);border-left:4px solid var(--dmo-brand-600,#3c73a8);border-radius:10px;background:var(--dmo-card,#fff)}
+.peso-live-strip .peso-fact,.peso-resumo .peso-fact{border-left:0;background:var(--dmo-subtle,#f1f6fa)}
+.peso-resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-top:12px}
+.peso-valor-negativo{color:var(--dmo-danger,#9a625d);font-weight:800}
+.peso-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+.peso-leitura-form{display:grid;grid-template-columns:130px 170px auto;gap:12px;align-items:end;margin-top:14px}
+.peso-live-region{margin-top:14px}
+.peso-pending{margin-top:14px}
+.peso-pending-rows{display:grid;gap:6px;margin-top:8px}
+.peso-pending-row{display:grid;grid-template-columns:minmax(110px,auto) 70px 1fr minmax(230px,1.5fr) auto;gap:10px;align-items:center;padding:8px 10px;background:var(--dmo-subtle,#f1f6fa);border-radius:8px;font-size:13px}
+.peso-pending-row.is-refused{border-left:3px solid var(--dmo-danger,#9a625d)}
+.peso-pending-recusa{color:var(--dmo-danger,#9a625d);font-weight:750}
+.peso-preview-refused{padding:10px 12px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft,#f3e9e7);border-radius:8px;margin-top:8px;font-size:12.5px;color:var(--dmo-danger,#9a625d)}
+.peso-preview-refused::before{content:"⚠ ";}
+@media(max-width:900px){.peso-form-grid{grid-template-columns:1fr}.peso-leitura-form{grid-template-columns:1fr}.peso-pending-row{grid-template-columns:1fr 1fr;row-gap:4px}.peso-pending-recusa{grid-column:1/-1}}
+.peso-page .page-head { margin:0 0 2px; }
+.peso-page .page-head h1 {
+  margin:0;
+  font-size:24px;
+  line-height:1.2;
+  font-weight:800;
+  color:var(--dmo-text);
+}
+.peso-page .page-head p { font-size:13px; }
+.peso-page .peso-card {
+  padding:16px 18px 18px;
+  overflow:hidden;
+}
+.peso-card-heading {
+  margin:-16px -18px 16px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:16px 18px;
+  border-bottom:1px solid var(--dmo-border);
+}
+.peso-card-heading p {
+  margin:4px 0 0;
+  font-size:12px;
+  color:var(--dmo-muted);
+}
+
+.peso-page .peso-context-grid {
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:1px;
+  margin:0;
+  overflow:hidden;
+  border:1px solid var(--dmo-border);
+  border-radius:9px;
+  background:var(--dmo-border);
+}
+.peso-page .peso-context-grid .peso-fact {
+  min-width:0;
+  border-left:3px solid var(--dmo-brand-600);
+  border-radius:0;
+  background:var(--dmo-subtle);
+}
+.peso-page .peso-fact { min-width:0; }
+.peso-page .peso-fact span {
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
+.peso-page .peso-fact strong {
+  font-size:14px;
+  line-height:1.35;
+}
+.peso-page .peso-form-grid {
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.peso-page .peso-form-grid > .dmo-field {
+  min-width:0;
+}
+.peso-page .peso-form-grid .dmo-field input,
+.peso-page .peso-form-grid .dmo-field select {
+  width:100%;
+}
+/* Os 4 factos da pesagem numa linha e as 6 conclusões em duas (o Owner 16/10/2026). */
+.peso-page .peso-live-strip {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  padding:12px;
+  gap:10px;
+  margin-top:12px;
+  border-radius:10px;
+}
+.peso-page .peso-resumo {
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+@media (max-width:900px){.peso-page .peso-live-strip,.peso-page .peso-resumo{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.peso-page .peso-live-strip .peso-fact,
+.peso-page .peso-resumo .peso-fact {
+  padding:12px 14px;
+  border-left:0;
+  border-radius:8px;
+}
+.peso-section-heading {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin:18px 0 12px;
+}
+.peso-section-heading h4 {
+  margin:0;
+  font-size:16px;
+  line-height:1.3;
+}
+.peso-section-heading p {
+  margin:4px 0 0;
+  font-size:12px;
+  color:var(--dmo-muted);
+}
+.peso-page .peso-leitura-form {
+  grid-template-columns:minmax(125px,180px) minmax(155px,220px) auto;
+  gap:12px;
+  align-items:end;
+  max-width:700px;
+  margin-top:16px;
+  padding:16px;
+  background:var(--dmo-subtle);
+  border:1px solid var(--dmo-border);
+  border-radius:9px;
+}
+.peso-leitura-form .dmo-field { min-width:0; }
+.peso-leitura-form .dmo-field > .dmo-button { white-space:nowrap; }
+.peso-page .dmo-table-wrap {
+  margin-top:10px;
+}
+.peso-page .peso-actions { margin:14px 0 0; }
+.peso-page .peso-vazia { margin-top:12px; }
+.peso-page .peso-hint {
+  font-size:12px;
+  line-height:1.45;
+}
+.peso-page .peso-compare {
+  background:var(--dmo-card);
+}
+.peso-page .peso-compare .peso-resumo {
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.peso-page .peso-compare .peso-fact {
+  border:1px solid var(--dmo-border);
+  border-left:3px solid var(--dmo-brand-600);
+  border-radius:9px;
+  background:var(--dmo-subtle);
+}
+
+/* Native presentation extracted from the Razor Head. */
+.peso-page .tp-support{margin-top:10px}
+    .peso-page .tp-support>summary.tp-button:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
+    .peso-page .tp-support>summary.tp-button{list-style:none;width:100%;text-align:left;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px;background:var(--dmo-brand-050,#e8eff7);cursor:pointer;padding:10px;color:var(--dmo-text,#1c2b3a)}
+    .peso-page .tp-support>summary.tp-button::-webkit-details-marker{display:none}
+    .peso-page .tp-button span,.peso-page .tp-button small{display:block;font-size:11px}
+    .peso-page .tp-button small{color:var(--dmo-muted,#5a6b7c)}
+    .peso-page .tp-button strong{display:block;font-size:14px;margin-top:2px}
+    .peso-page .tp-support-body{margin-top:10px;padding:12px 14px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:9px;background:var(--dmo-card,#fff)}
+    .peso-page .tp-support-body .peso-facts{margin-top:0}
+    .peso-page .tp-sim-form{display:grid;grid-template-columns:minmax(170px,240px) auto;gap:12px;align-items:end;margin-top:12px;max-width:520px}
+    .peso-page .tp-sim-form .dmo-field{min-width:0}
+    @media (max-width:900px){.peso-page .tp-sim-form{grid-template-columns:1fr}}
+.peso-linha-destaque td{background:var(--dmo-warn-050,#fff4e0);font-weight:600}
+
+/* «Comparar Pesos guardados»: a lista da procura ao escrever abre logo
+   por baixo do campo (Diogo, 17/10/2026). */
+.peso-procura-lista:not(:empty){margin-top:6px;max-height:360px;overflow:auto}
+.peso-procura-lista .muted{margin:6px 2px}
+.peso-procura-lista [data-dmo-row]{cursor:pointer}
+.dmo-filter-bar.peso-comparar-procura{align-items:flex-start}
+
+/* Leituras em linhas (o Owner 2026-10-17): «+» e «−» acrescentam e tiram
+   linhas; cada linha mostra o volume e o peso por baixo. */
+.peso-page .peso-leitura-form{display:block;max-width:none}
+.peso-page .peso-leitura-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.peso-page .peso-leitura-row{display:grid;grid-template-columns:76px 1fr;gap:6px 8px;align-content:start}
+.peso-page .peso-leitura-row .dmo-field{min-width:0}
+.peso-page .peso-leitura-row .dmo-field input{width:100%}
+.peso-page .peso-leitura-chip{grid-column:1/-1;min-height:26px;padding:5px 8px;border-radius:6px;background:var(--dmo-brand-050,#e8eff7);font-size:12px;color:var(--dmo-text,#1c2b3a)}
+.peso-page .peso-leitura-chip:empty{background:transparent}
+.peso-page .peso-leitura-chip.is-refused{color:var(--dmo-danger,#9a625d);font-weight:700}
+.peso-page .peso-leitura-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.peso-page .peso-row-button{min-width:42px;font-size:18px;line-height:1}
+/* Um campo e o botão na mesma linha («Aplicar», «Guardar»). */
+.peso-page .peso-inline-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:8px}
+.peso-page .peso-inline-form .dmo-field{min-width:200px;flex:0 1 300px;margin:0}
+.peso-page .peso-inline-form .dmo-field select,.peso-page .peso-inline-form .dmo-field input{width:100%}
+/* O registo das leituras em cartões, como na referência acordada (o Owner
+   2026-10-17): as gravadas lado a lado e a nova, tracejada, no fim. */
+.peso-page .peso-leitura-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-items:start}
+.peso-page .peso-leitura-grade .peso-leitura-rows{display:grid;grid-template-columns:1fr;gap:10px}
+.peso-page .peso-leitura-row.is-saved input{background:var(--dmo-card,#fff);pointer-events:none}
+.peso-page .peso-leitura-nova{padding:10px;border:1px dashed var(--dmo-brand-300,#9fb7d3);border-radius:8px}
+.peso-page .peso-leitura-nova .peso-leitura-actions{flex-wrap:wrap;margin-top:10px}
+.peso-page .peso-leitura-nova .peso-registar{flex:1 1 auto}
+.peso-page [data-peso-comparacao-medias] th,.peso-page [data-peso-comparacao-medias] td{border-top:2px solid var(--dmo-border,#d5e0eb);background:var(--dmo-subtle,#f1f6fa);font-weight:700;text-align:left}
+.peso-page .peso-procura-larga .dmo-field{flex:1 1 560px;max-width:none}

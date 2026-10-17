@@ -1,0 +1,5 @@
+# o que o Docker nunca copia (o build é limpo)
+bin/
+obj/
+.git/
+*.user

@@ -1,0 +1,408 @@
+@page "/Controlo/Puncoes"
+@model DMO.Alpha.Web.Pages.Controlo.PuncoesModel
+@using DMO.Alpha.Infrastructure.Controlo
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-puncoes.css" asp-append-version="true" />
+}
+
+<main class="pu-page dmo-workspace" aria-labelledby="pu-title">
+
+  <div class="page-head">
+    <div>
+      <h1 id="pu-title">PU NNPB</h1>
+      <p>Registo das punções e dos arrefecedores de uma produção NNPB.</p>
+    </div>
+  </div>
+
+  @if (Model.RequestedControloId is null && Model.RequestedPuncoesId is null)
+  {
+    <nav class="pu-modos" aria-label="Tipo de registo" data-pu-modo>
+      <a class="dmo-button" href="/Controlo/Puncoes" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
+      <a class="dmo-button" href="/Controlo/Puncoes?modo=@PuncoesModel.ModoJobOnValor" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar a um Job On</a>
+    </nav>
+
+    <section class="dmo-card pu-card" id="puncoes-novo" aria-labelledby="pu-escolha-title">
+      <div class="pu-section-head">
+        <div>
+          <h3 id="pu-escolha-title">@(Model.ModoJobOn ? "Produção do registo" : "Registo sem Job On")</h3>
+          <p>@(Model.ModoJobOn
+              ? "Procure a referência e escolha a produção. A produção e a CM vêm do Job On."
+              : "Procure a referência para abrir um registo já começado ou começar um novo. Associa-se depois à mão a uma produção.")</p>
+        </div>
+      </div>
+      @if (Model.Refusal is not null)
+      {
+        <div class="pu-aviso" role="alert">@Model.RefusalMessage</div>
+      }
+      @if (Model.JobOnRefusalMessage is { } jobOnRecusa)
+      {
+        <div class="pu-aviso" role="alert">@jobOnRecusa</div>
+      }
+      <form method="get" asp-page="/Controlo/Puncoes" class="pu-id-form">
+        @if (Model.ModoJobOn)
+        {
+          <input type="hidden" name="modo" value="@PuncoesModel.ModoJobOnValor" />
+        }
+        <div class="dmo-field">
+          <label for="pu-procura">Referência</label>
+          <input id="pu-procura" name="procura" value="@Model.ReferenciaProcurada" placeholder="Ex.: 1075C142" autocomplete="off" required data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+      </form>
+
+      @if (Model.ReferenciaProcurada is { } procurada)
+      {
+        @if (Model.ModoJobOn)
+        {
+          @if (Model.Producoes.Count == 0)
+          {
+            <div class="pu-vazia">Não há Job Ons da referência @procurada. Crie o Job On primeiro ou use «Sem Job On».</div>
+          }
+          else
+          {
+            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="AbrirJobOn" class="pu-id-form">
+              <div class="dmo-field">
+                <label for="pu-producao">Produção</label>
+                <select id="pu-producao" name="jobon_id" required data-dmo-autosubmit="valor">
+                  <option value="">Escolher a produção</option>
+                  @foreach (var producao in Model.Producoes)
+                  {
+                    <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+                  }
+                </select>
+              </div>
+            </form>
+          }
+        }
+        else
+        {
+          @if (Model.RegistosSemJobOn.Count > 0)
+          {
+            <div class="dmo-table-wrap">
+              <table class="dmo-table pu-table" data-dmo-list="Registos sem Job On">
+                <thead>
+                  <tr><th>Referência da punção</th><th>Lote</th><th>Punções</th><th>Última alteração</th></tr>
+                </thead>
+                <tbody>
+                  @foreach (var aberto in Model.RegistosSemJobOn)
+                  {
+                    <tr data-dmo-row data-id="@aberto.PuncoesId" data-dmo-open="/Controlo/Puncoes?puncoes_id=@aberto.PuncoesId"
+                        aria-label="Registo @aberto.PunchReference, lote @aberto.Lot — um clique abre">
+                      <td>@aberto.PunchReference</td>
+                      <td class="pu-lot">@aberto.Lot</td>
+                      <td>@aberto.Total</td>
+                      <td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(aberto.UpdatedAtUtc).ToString("dd/MM/yyyy HH:mm")@(aberto.UpdatedBy is { } quem ? $" · {quem}" : null)</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+          else
+          {
+            <div class="pu-vazia">Ainda não há registos sem Job On da referência @procurada.</div>
+          }
+
+          <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Create" class="pu-id-form">
+            <input type="hidden" name="referencia_total" value="@procurada" />
+            <div class="dmo-field">
+              <label for="pu-referencia">Referência da punção</label>
+              <input id="pu-referencia" name="referencia" maxlength="100" required value="@(Model.EchoPunchReference ?? PuncoesHandler.DefaultPunchReference(procurada))" placeholder="Ex.: 1075" />
+            </div>
+            <div class="dmo-field">
+              <label for="pu-lote">Lote</label>
+              <input id="pu-lote" name="lote" inputmode="numeric" pattern="[0-9]*" maxlength="12" required value="@Model.EchoLot" placeholder="Ex.: 1" />
+            </div>
+            <div class="dmo-field">
+              <label>&nbsp;</label>
+              <button type="submit" class="dmo-button">+ Novo registo</button>
+            </div>
+          </form>
+        }
+      }
+    </section>
+  }
+  else if (Model.ControloRequestedNotFound)
+  {
+    <div class="pu-aviso" role="alert">O controlo indicado não existe. Nenhuma folha foi aberta.</div>
+  }
+  else if (Model.RegistoRequestedNotFound)
+  {
+    <div class="pu-aviso" role="alert">O registo indicado não existe. Nenhuma folha foi aberta. <a href="/Controlo/Puncoes">Procurar um registo</a>.</div>
+  }
+
+  @if (Model.Standalone is { } standalone)
+  {
+    <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title">
+      <div class="pu-section-head">
+        <div>
+          <h3 id="pu-id-title">Identificação do registo</h3>
+          <p>Registo sem Job On. A referência da punção e o lote aplicam-se às próximas punções.</p>
+        </div>
+        <span class="pu-step">01</span>
+      </div>
+      <div class="pu-facts">
+        <div class="pu-fact"><span>Produção</span><strong>Sem Job On</strong></div>
+        <div class="pu-fact"><span>CM</span><strong>Por associar</strong></div>
+      </div>
+
+      @if (Model.Refusal is not null)
+      {
+        <div class="pu-aviso" role="alert">@Model.RefusalMessage</div>
+      }
+
+      <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Identification" class="pu-id-form" id="pu-id-form">
+        <input type="hidden" name="puncoes_id" value="@standalone.PuncoesId" />
+        <div class="dmo-field">
+          <label for="pu-referencia-total">Referência total</label>
+          <input id="pu-referencia-total" name="referencia_total" maxlength="100" required value="@Model.ShownReference" placeholder="Ex.: 1075C142" />
+        </div>
+        <div class="dmo-field">
+          <label for="pu-referencia">Referência da punção</label>
+          <input id="pu-referencia" name="referencia" maxlength="100" required value="@Model.ShownPunchReference" placeholder="Ex.: 1075" />
+        </div>
+        <div class="dmo-field">
+          <label for="pu-lote">Lote</label>
+          <input id="pu-lote" name="lote" inputmode="numeric" pattern="[0-9]*" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
+        </div>
+        <div class="dmo-field">
+          <label>&nbsp;</label>
+          <button type="submit" class="dmo-button">Guardar identificação</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (Model.Sheet is { } sheet)
+  {
+    <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title">
+      <div class="pu-section-head">
+        <div>
+          <h3 id="pu-id-title">Identificação da produção</h3>
+          <p>A produção e a CM vêm do Job On. A referência da punção e o lote aplicam-se às próximas punções.</p>
+        </div>
+        <span class="pu-step">01</span>
+      </div>
+      <div class="pu-facts">
+        <div class="pu-fact"><span>Produção</span><strong>@sheet.ProductionNumber</strong></div>
+        <div class="pu-fact"><span>Referência total</span><strong>@sheet.Reference</strong></div>
+        <div class="pu-fact"><span>Máquina</span><strong>@sheet.Machine</strong></div>
+        <div class="pu-fact"><span>CM</span><strong>@(sheet.CmReference ?? "—")@(sheet.CmLot is { } cmLot ? $" · Lote {cmLot}" : null)</strong></div>
+        <div class="pu-fact"><span>Processo da CM</span><strong>@(sheet.IsNnpb ? "NNPB" : sheet.CmProcess ?? "Por preencher")</strong>
+          @if (sheet.NnpbSource == PuncoesNnpbSource.NomeTecnico)
+          {
+            <small>pelo nome técnico da CM; a ficha não tem processo</small>
+          }
+        </div>
+      </div>
+
+      @if (Model.Refusal is not null)
+      {
+        <div class="pu-aviso" role="alert">@Model.RefusalMessage</div>
+      }
+
+      @if (!Model.CanRegister)
+      {
+        <div class="pu-aviso warn" role="status">
+          @(sheet.CmProcess is null
+              ? "A CM desta produção não tem o processo preenchido. Preencha «Processo» na ficha da CM (Ferramentas) para registar as punções NNPB."
+              : "Esta produção é PS. O registo das punções só existe para produções NNPB.")
+        </div>
+      }
+      else
+      {
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Identification" class="pu-id-form" id="pu-id-form">
+          <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
+          <div class="dmo-field">
+            <label for="pu-referencia">Referência da punção</label>
+            <input id="pu-referencia" name="referencia" maxlength="100" required value="@Model.ShownPunchReference" placeholder="Ex.: 1075" />
+          </div>
+          <div class="dmo-field">
+            <label for="pu-lote">Lote</label>
+            <input id="pu-lote" name="lote" inputmode="numeric" pattern="[0-9]*" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
+          </div>
+          <div class="dmo-field">
+            <label>&nbsp;</label>
+            <button type="submit" class="dmo-button">Guardar identificação</button>
+          </div>
+        </form>
+      }
+
+      @if (sheet.Registo is null && Model.RegistosSemJobOn.Count > 0)
+      {
+        <div class="pu-associar-lista">
+          <p class="pu-hint">Há registos sem Job On da referência @sheet.Reference. Associe à mão o desta produção:</p>
+          @foreach (var aberto in Model.RegistosSemJobOn)
+          {
+            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" class="pu-check-form">
+              <input type="hidden" name="puncoes_id" value="@aberto.PuncoesId" />
+              <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
+              <input type="hidden" name="origem" value="controlo" />
+              <button type="submit" class="dmo-button">Associar · punção @aberto.PunchReference · lote @aberto.Lot · @aberto.Total punção(ões)</button>
+            </form>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (Model.CanRegister && Model.TargetField is { } alvo)
+  {
+    var registo = Model.Registo;
+    {
+      <div class="pu-stats" aria-label="Totais">
+        <div class="pu-stat"><span>Total de punções</span><strong>@(registo?.Total ?? 0)</strong></div>
+        <div class="pu-stat"><span>Punções vistas</span><strong>@(registo?.PunchSeenCount ?? 0)</strong></div>
+        <div class="pu-stat"><span>Arrefecedores vistos</span><strong>@(registo?.CoolerSeenCount ?? 0)</strong></div>
+      </div>
+
+      <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title">
+        <div class="pu-section-head">
+          <div>
+            <h3 id="pu-list-title">Lista de punções</h3>
+            <p>Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração».</p>
+          </div>
+          <span class="pu-step">02</span>
+        </div>
+
+        @* O número junta-se à identificação do cartão de cima (o mesmo POST). *@
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Add" class="pu-add-form">
+          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+          <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
+          <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
+          <div class="dmo-field">
+            <label for="pu-numero">Número da punção</label>
+            <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
+          </div>
+          <div class="dmo-field">
+            <label>&nbsp;</label>
+            <button type="submit" class="dmo-button">+ Adicionar punção</button>
+          </div>
+        </form>
+
+        <div class="dmo-table-wrap">
+          <table class="dmo-table pu-table">
+            <thead>
+              <tr>
+                <th>N.º da punção</th>
+                <th>Lote</th>
+                <th>Punção visto</th>
+                <th>Arrefecedor visto</th>
+                <th class="pu-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (registo is null || registo.Rows.Count == 0)
+              {
+                <tr><td colspan="5" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
+              }
+              else
+              {
+                @foreach (var row in registo.Rows)
+                {
+                  <tr>
+                    <td class="pu-number">@row.Number@if (row.IsAlteracao) {<span class="pu-alteracao">Alteração</span>}</td>
+                    <td class="pu-lot">@row.Lot</td>
+                    @foreach (var (campo, visto) in new[] { ("puncao", row.PunchSeen), ("arrefecedor", row.CoolerSeen) })
+                    {
+                      <td>
+                        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Seen" class="pu-check-form">
+                          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+                          <input type="hidden" name="inspecao_id" value="@row.Id" />
+                          <input type="hidden" name="campo" value="@campo" />
+                          <input type="hidden" name="visto" value="@(visto ? "false" : "true")" />
+                          <button type="submit" class="pu-check @(visto ? "on" : null)" aria-pressed="@(visto ? "true" : "false")"
+                                  aria-label="@(campo == "puncao" ? "Punção" : "Arrefecedor da punção") @row.Number: @(visto ? "visto, carregar para desmarcar" : "por verificar, carregar para marcar")">
+                            <span class="pu-box" aria-hidden="true">@(visto ? "✓" : "")</span>@(visto ? "Visto" : "Por verificar")
+                          </button>
+                        </form>
+                      </td>
+                    }
+                    <td class="pu-right">
+                      <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Remove" class="pu-check-form">
+                        <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+                        <input type="hidden" name="inspecao_id" value="@row.Id" />
+                        <button type="submit" class="pu-remove" onclick="return confirm('Remover a punção @row.Number · lote @row.Lot deste registo?')">Remover</button>
+                      </form>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="pu-hint">@(registo?.Total ?? 0) número(s) registado(s). O lote de cima aplica-se às novas punções; as anteriores mantêm o seu.</p>
+      </section>
+
+      <div class="pu-export">
+        <div class="pu-pdf" aria-hidden="true">PDF</div>
+        <div class="pu-export-text">
+          <h3>Relatório A4 das punções</h3>
+          <p>A identificação, os três totais e as punções por ordem de registo.</p>
+        </div>
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf">
+          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+          <button type="submit" class="dmo-button" disabled="@(registo is null)">Descarregar PDF</button>
+        </form>
+      </div>
+    }
+  }
+
+  @if (Model.Standalone is { } semJobOn)
+  {
+    <section class="dmo-card pu-card" id="puncoes-associar" aria-labelledby="pu-associar-title">
+      <div class="pu-section-head">
+        <div>
+          <h3 id="pu-associar-title">Associar a uma produção</h3>
+          <p>As punções não ficam ligadas sozinhas a uma produção: escolha à mão a produção NNPB deste registo. Depois de associado, o registo passa para a folha da produção e para o PDF do Resumo.</p>
+        </div>
+        <span class="pu-step">03</span>
+      </div>
+      @if (Model.JobOnRefusalMessage is { } escolhaRecusa)
+      {
+        <div class="pu-aviso" role="alert">@escolhaRecusa</div>
+      }
+      <form method="get" asp-page="/Controlo/Puncoes" asp-fragment="puncoes-associar" class="pu-id-form">
+        <input type="hidden" name="puncoes_id" value="@semJobOn.PuncoesId" />
+        <div class="dmo-field">
+          <label for="pu-associar-procura">Referência</label>
+          <input id="pu-associar-procura" name="procura" value="@Model.ReferenciaProcurada" autocomplete="off" required data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+      </form>
+      @if (Model.Producoes.Count == 0)
+      {
+        <div class="pu-vazia">Não há Job Ons da referência @Model.ReferenciaProcurada. Quando a produção existir, associe-a aqui.</div>
+      }
+      else
+      {
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" class="pu-id-form">
+          <input type="hidden" name="puncoes_id" value="@semJobOn.PuncoesId" />
+          <div class="dmo-field">
+            <label for="pu-associar-producao">Produção</label>
+            <select id="pu-associar-producao" name="jobon_id" required>
+              @foreach (var producao in Model.Producoes)
+              {
+                <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field">
+            <label>&nbsp;</label>
+            <button type="submit" class="dmo-button">Associar à produção</button>
+          </div>
+        </form>
+      }
+    </section>
+  }
+</main>
+
+<script>
+  // O número junta-se à identificação escrita no cartão de cima, mesmo antes de a guardar.
+  document.querySelectorAll("[data-pu-mirror]").forEach(function (hidden) {
+    var source = document.getElementById(hidden.getAttribute("data-pu-mirror"));
+    if (!source) return;
+    source.addEventListener("input", function () { hidden.value = source.value; });
+  });
+</script>

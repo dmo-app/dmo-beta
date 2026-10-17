@@ -1,0 +1,123 @@
+@page "/Controlo/Approve/Detalhe"
+@model DMO.Alpha.Web.Pages.Controlo.ApproveDetalheModel
+@using DMO.Alpha.Core.Controlo
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
+}
+<main class="resumo-page dmo-workspace" aria-labelledby="approve-detail-title">
+  <div class="page-head">
+    <div>
+      <h1 id="approve-detail-title">@(Model.Tipo == "peso" ? "Consulta do Peso" : "Consulta dos Pegamentos")</h1>
+    </div>
+  </div>
+
+  @if (Model.Production is not { } production)
+  {
+    <section class="dmo-card resumo-card">
+      <p class="resumo-hint">Nenhuma produção válida selecionada para revisão.</p>
+      <a class="dmo-button" href="/Controlo/Approve">Voltar à revisão</a>
+    </section>
+  }
+  else
+  {
+    <a class="dmo-button" href="/Controlo/Approve?jobon_id=@production.JobOnId&reference=@Uri.EscapeDataString(production.Reference)">‹ Voltar ao Resumo da revisão</a>
+    <section class="dmo-card resumo-card resumo-sheet">
+      <div class="resumo-section-heading">
+        <div>
+          <h3>Produção @production.ProductionNumber · @production.Reference</h3>
+          <p>Máquina @production.Machine · Controlo @Model.ControloId</p>
+        </div>
+      </div>
+
+      @if (Model.Tipo == "peso")
+      {
+        @if (Model.Peso is { } peso)
+        {
+          <div class="resumo-linked">
+            <h4>Peso · CM @(peso.CmToolReference ?? "não registada")</h4>
+            <p>Lote @(peso.CmToolLot ?? "não registado") · @peso.Process · @peso.WaterTemperatureC °C</p>
+            <p>Peso médio do vidro: @(peso.Averages is { } avg ? avg.AverageGlassWeightGrams.ToString("N2", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " g" : "não registado")</p>
+            @if (peso.Measurements.Count > 0)
+            {
+              <div class="dmo-table-wrap">
+                <table class="dmo-table">
+                  <thead><tr><th>Posição</th><th>CM</th><th>Massa de água (g)</th><th>Capacidade (cm³)</th><th>Peso vidro (g)</th></tr></thead>
+                  <tbody>
+                    @foreach (var leitura in peso.Measurements)
+                    {
+                      <tr>
+                        <td>@leitura.RowPosition</td>
+                        <td>@leitura.CmSubject</td>
+                        <td>@leitura.WaterWeightGrams.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
+                        <td>@leitura.CapacityCm3.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
+                        <td>@leitura.GlassWeightGrams.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+            else
+            {
+              <p class="resumo-hint">Este Peso ainda não contém leituras.</p>
+            }
+          </div>
+        }
+        else
+        {
+          <p class="resumo-hint">Ainda não existe Peso registado nesta produção.</p>
+        }
+      }
+      else if (Model.Pegamentos is { } sheet)
+      {
+        <div class="resumo-linked">
+          <h4>Pegamentos · CM / BQ / MF<partial name="_DmoHelp" model="@("Os alertas são informativos.")" /></h4>
+          @if (sheet.Pegamentos is null)
+          {
+            <p class="resumo-hint">Esta produção ainda não tem medições de Pegamentos.</p>
+          }
+          @foreach (var component in sheet.Components)
+          {
+            var leituras = sheet.Pegamentos?.Measurements.Where(m => m.Component == component.Component).ToList()
+                ?? new List<PegamentosMeasurementReadModel>();
+            <article class="resumo-linked-card">
+              <h4>@component.Component.ToString().ToUpperInvariant() · @(component.ToolReference ?? "não registada")</h4>
+              <p>Lote @(component.ToolLot ?? "não registado") · Gargalo: @(component.DiametroGargaloMm?.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) ?? "não registado") mm</p>
+              @if (leituras.Count == 0)
+              {
+                <p class="resumo-hint">Nenhuma leitura registada.</p>
+              }
+              else
+              {
+                <div class="dmo-table-wrap">
+                  <table class="dmo-table">
+                    <thead><tr><th>Posição</th><th>Costura (mm)</th><th>Contra costura (mm)</th><th>Média (mm)</th><th>Avaliação</th></tr></thead>
+                    <tbody>
+                      @foreach (var leitura in leituras)
+                      {
+                        <tr>
+                          <td>@leitura.RowPosition</td>
+                          <td>@leitura.CosturaMm.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
+                          <td>@(leitura.ContraCosturaMm?.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) ?? "não registada")</td>
+                          <td>@leitura.Evaluation.MediaMm.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
+                          <td>@(leitura.Evaluation.IsNotEvaluable ? "Não avaliável" : leitura.Evaluation.HasAlert ? "Alerta dimensional" : "Sem alerta")</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+      else
+      {
+        <p class="resumo-hint">Não foi possível obter os Pegamentos desta produção.</p>
+      }
+    </section>
+  }
+</main>

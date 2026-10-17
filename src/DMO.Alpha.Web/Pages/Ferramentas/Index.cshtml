@@ -1,0 +1,251 @@
+@page "/Ferramentas"
+@model DMO.Alpha.Web.Pages.Ferramentas.IndexModel
+@using DMO.Alpha.Core.Tools
+@{
+    Layout = "_DmoShellLayout";
+    // FATOS HUMANOS: «CM · 5447 · lote 3 · B1» — o tool_id é a identidade
+    // opaca do backend (vive no URL, nunca como facto exibido da folha).
+    var tokenOf = new Func<ToolType, string>(IndexModel.TokenTypeFor);
+    var humanFacts = new Func<ToolCandidate, string>(c =>
+        $"{tokenOf(c.Type)} · {c.Reference} · lote {c.Lot}");
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-ferramentas.css" asp-append-version="true" />
+}
+
+<main class="ferr-page dmo-workspace" aria-labelledby="ferr-title">
+
+  <div class="page-head">
+    <div>
+      <h2 id="ferr-title">Ferramentas<partial name="_DmoHelp" model="@("Registo das ferramentas CM, BQ e MF.")" /></h2>
+    </div>
+  </div>
+
+  @if (Model.DeletedNote)
+  {
+    <div class="ferr-nota" role="status">Ferramenta eliminada. Os registos de consumo que a referiam foram reatribuídos à linha de removidos e conservam os factos humanos (referência e lote) congelados à criação — a verdade histórica intacta.</div>
+  }
+
+  @if (Model.CreateRefusal is not null)
+  {
+    <div class="ferr-aviso" role="alert">@Model.CreateRefusalMessage</div>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 1. Descoberta: filtros explícitos que apenas REDUZEM candidatos.     *@
+  @* ------------------------------------------------------------------ *@
+  @if (!Model.ShowCreate)
+  {
+  <section class="dmo-card ferr-card" aria-labelledby="ferr-filter-title">
+    <h3 id="ferr-filter-title">Filtrar ferramentas registadas<partial name="_DmoHelp" model="@("Os resultados mudam enquanto escreve; os dropdowns aplicam logo.")" /></h3>
+    <form method="get" asp-page="/Ferramentas/Index" class="ferr-filters" data-dmo-ao-escrever="ferrResultados">
+      @if (Model.ReturnTemplate is not null)
+      {
+        <input type="hidden" name="return" value="@Model.ReturnTemplate" />
+      }
+      <div class="dmo-field">
+        <label for="ferr-type">Tipo</label>
+        <select id="ferr-type" name="type" data-dmo-autosubmit>
+          <option value="">Todos</option>
+          <option value="CM" selected="@(Model.RequestedTypeToken == "CM")">CM — Contra-molde</option>
+          <option value="BQ" selected="@(Model.RequestedTypeToken == "BQ")">BQ — Boquilha</option>
+          <option value="MF" selected="@(Model.RequestedTypeToken == "MF")">MF — Molde final</option>
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="ferr-reference">Referência</label>
+        <input id="ferr-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.RequestedReference" placeholder="Ex.: 5447 ou T194" />
+      </div>
+      <div class="dmo-field">
+        <label for="ferr-lot">Lote</label>
+        <input id="ferr-lot" name="lot" value="@Model.RequestedLot" placeholder="Ex.: 3" />
+      </div>
+      <div class="dmo-field">
+        <label for="ferr-mf">Referência MF / produção</label>
+        <input id="ferr-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RequestedMfReference" placeholder="Ex.: 5810" />
+      </div>
+      <div class="dmo-field">
+        <label for="ferr-machine">Máquina / linha</label>
+        <select id="ferr-machine" name="machine_id" data-dmo-autosubmit>
+          <option value="">Todas</option>
+          @foreach (var machine in Model.Machines)
+          {
+            <option value="@machine.MachineId" selected="@(Model.RequestedMachineId == machine.MachineId)">@machine.Code</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="ferr-page-size">Por página</label>
+        <select id="ferr-page-size" name="por_pagina" data-dmo-autosubmit>
+          <option value="10" selected="@(Model.PageSize == 10)">10</option>
+          <option value="20" selected="@(Model.PageSize == 20)">20</option>
+        </select>
+      </div>
+      <div class="ferr-filter-actions">
+        <a class="dmo-button" href="@Url.Page("/Ferramentas/Index", new { @return = Model.ReturnTemplate, por_pagina = Model.PageSize })">Limpar filtros</a>
+      </div>
+    </form>
+  </section>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 2. Registo de uma ferramenta real — o ato canónico do Owner.         *@
+  @*    A TAB CRIAR (o Owner 2026-10-13: «um tab para criar e outro      *@
+  @*    para ver o que existe»): o form vive na ?criar=1; o VER (o       *@
+  @*    default) mostra a procura e a lista — nunca tudo misturado.      *@
+  @*    A criação é contextual: o ?return= (validado local-only) devolve *@
+  @*    o tool_id novo ao fluxo chamador, que nunca minta identidade.     *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.ShowCreate)
+  {
+  <section class="dmo-card ferr-card" aria-labelledby="ferr-create-title">
+    <h3 id="ferr-create-title">Registar ferramenta real<partial name="_DmoHelp" model="@(Model.ReturnTemplate is null ? "Formatos: CM = dígitos (5447) · BQ = 1 letra maiúscula + 3 dígitos (T194)." : "Formatos: CM = dígitos (5447) · BQ = 1 letra maiúscula + 3 dígitos (T194). Ao registar, regressa ao fluxo que abriu o Ferramentas com a ferramenta escolhida.")" /></h3>
+
+    @* beta.34: uma linha com os campos curtos, cada um com a largura do seu conteúdo
+       (lote até 3 dígitos, referência de 4 caracteres). A «Referência MF associada»
+       só existe para a CM; o servidor ignora-a nos outros tipos. *@
+    <form method="post" asp-page="/Ferramentas/Index" asp-page-handler="Create" class="ferr-create-form">
+      @if (Model.ReturnTemplate is not null)
+      {
+        <input type="hidden" name="return" value="@Model.ReturnTemplate" />
+      }
+      <div class="ferr-create-row">
+        <div class="dmo-field ferr-w-type">
+          <label for="ferr-new-type">Tipo</label>
+          <select id="ferr-new-type" name="type_token" required>
+            <option value="CM" selected="@(Model.RequestedTypeToken == "CM")">CM — Contra-molde</option>
+            <option value="BQ" selected="@(Model.RequestedTypeToken == "BQ")">BQ — Boquilha</option>
+            <option value="MF" selected="@(Model.RequestedTypeToken == "MF")">MF — Molde final</option>
+          </select>
+        </div>
+        <div class="dmo-field ferr-w-ref">
+          <label for="ferr-new-reference">Referência</label>
+          <input id="ferr-new-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.RequestedReference" required placeholder="5447 · T194" data-dmo-suggest="ferramentas" />
+        </div>
+        <div class="dmo-field ferr-w-lot">
+          <label for="ferr-new-lot">Lote</label>
+          <input id="ferr-new-lot" name="lot" value="@Model.RequestedLot" maxlength="3" inputmode="numeric" placeholder="3" title="Vazio grava «s/lote»" />
+        </div>
+        <div class="dmo-field ferr-w-ref" id="ferr-new-mf-field" hidden="@(Model.RequestedTypeToken is "BQ" or "MF")">
+          <label for="ferr-new-mf">Ref. MF associada</label>
+          <input id="ferr-new-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RequestedMfReference" placeholder="opcional" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
+        </div>
+        <div class="dmo-field ferr-w-qty">
+          <label for="ferr-new-qty">Quantidade do lote</label>
+          <input id="ferr-new-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.RequestedLotQuantity" placeholder="opcional" />
+          <input id="ferr-quantity-manual" type="hidden" name="quantity_manual" value="@(Model.RequestedQuantityManual ?? "0")" />
+        </div>
+        @* O NOME TÉCNICO (o código do desenho — o que está no SAP; o Owner:
+           «se introduzirmos o nome tecnico, ou seja o que esta no sap.
+           apresenta logo tudo»): ao escrever, O VIVO decodifica e preenche
+           o tipo e a referência; vazio = o formato simples. *@
+        <div class="dmo-field ferr-w-sap">
+          <label for="ferr-new-technical">Nome técnico (SAP)</label>
+          <input id="ferr-new-technical" data-dmo-maiusculas autocapitalize="characters" name="technical_name" value="@Model.RequestedTechnicalName" placeholder="opcional · Ex.: M107544MFNNV" />
+        </div>
+      </div>
+      <p class="ferr-hint" id="ferr-technical-notice" role="status" aria-live="polite"></p>
+      <div class="ferr-create-row ferr-create-row-machines">
+        <div class="dmo-field">
+          <label>Máquinas / linhas compatíveis (opcional)</label>
+          <div class="ferr-checks">
+            @if (Model.Machines.Count == 0)
+            {
+              <span class="ferr-hint" style="margin:0">Sem máquinas registadas — pode registar a ferramenta agora e associar máquinas depois, na sua ficha.</span>
+            }
+            @foreach (var machine in Model.Machines)
+            {
+              <label class="ferr-check">
+                <input type="checkbox" name="machine_ids" value="@machine.MachineId" checked="@(Model.RequestedMachineIds?.Contains(machine.MachineId.ToString()) == true)" />
+                <span>@machine.Code</span>
+              </label>
+            }
+          </div>
+        </div>
+        <div class="ferr-quantity-suggestion">
+          <p id="ferr-quantity-notice" class="ferr-hint" role="status" aria-live="polite">Escolha as máquinas para sugerir o total do lote.</p>
+          <div id="ferr-quantity-choices" class="ferr-quantity-choices"></div>
+          <button id="ferr-use-quantity-suggestion" class="dmo-button" type="button">Usar sugestão</button>
+        </div>
+      </div>
+      <div class="ferr-actions">
+        <button type="submit" class="dmo-button">Registar ferramenta</button>
+      </div>
+    </form>
+  </section>
+  }
+  else
+  {
+    @* O VER sem a tab CRIAR aberta: um atalho à criação (o card vazio da
+       lista também aponta) — o dono da ação decide quando abrir. *@
+    <p class="ferr-hint" style="margin:-4px 0 0">A registar uma nova? <a class="ferr-link" href="@Url.Page("/Ferramentas/Index", new { criar = 1, @return = Model.ReturnTemplate })">Abrir o Criar</a>.</p>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 3. Ferramentas registadas — A LISTA VIVE SÓ NO VER (o Owner
+  @*    2026-10-13: «deixaste a lista das ferramentas no criar») e à
+  @*    GRAMÁTICA GLOBAL (o Owner: «tem botoes abrir ficha, quando ja
+  @*    tinhamos falado no duplo click e no click carregar no botao fora»):
+  @*    NAS TABELAS NÃO EXISTEM BOTÕES — o radio escondido, a linha
+  @*    seleciona (o invertido), o DUPLO abre a ficha; o botão [Abrir
+  @*    ficha] vive FORA, com a linha escolhida. A coluna «Ficha» morre.  *@
+  @* ------------------------------------------------------------------ *@
+  @if (!Model.ShowCreate)
+  {
+  <section class="dmo-card ferr-card" id="ferrResultados" aria-labelledby="ferr-list-title">
+    <h3 id="ferr-list-title">Ferramentas registadas<partial name="_DmoHelp" model="@(Model.ReturnTemplate is null ? "Um clique abre a ficha." : "Um clique seleciona; duplo clique abre a ficha.")" /></h3>
+    <p class="card-note">@Model.TotalCandidates encontrada(s) · @Model.Candidates.Count nesta página</p>
+
+    @if (Model.Candidates.Count == 0)
+    {
+      <div class="ferr-vazia">Nenhuma ferramenta encontrada com os filtros atuais. Registe a ferramenta real em falta — a seleção nos outros fluxos é sempre sua.</div>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="ferrToolList" data-dmo-list="Ferramentas disponíveis">
+          <thead>
+            <tr>
+              <th style="width:0"></th>
+              <th>Ferramenta</th>
+              <th>Máquinas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var candidate in Model.Candidates)
+            {
+              <tr data-dmo-row data-id="@candidate.ToolId"
+                  data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = candidate.ToolId })"
+                  aria-label="Ferramenta @humanFacts(candidate) — @(Model.ReturnTemplate is null ? "um clique abre a ficha" : "um clique seleciona, duplo clique abre a ficha")">
+                <td><input type="radio" name="ferr_tool" value="@candidate.ToolId" aria-label="Ferramenta @humanFacts(candidate)" /></td>
+                <td><strong>@humanFacts(candidate)</strong></td>
+                <td>@(candidate.MachineCodes ?? "—")</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (Model.ReturnTemplate is { } template)
+      {
+        <div class="ferr-actions" data-dmo-for="ferrToolList">
+          <a class="dmo-button" data-dmo-action
+             data-href-template="@template.Replace("{tool_id}", "{id}")"
+             aria-disabled="true">Selecionar ferramenta</a>
+        </div>
+      }
+      
+    }
+    <nav class="ferr-pagination" aria-label="Paginação de ferramentas">
+      <a class="dmo-button dmo-arrow" href="@(Model.PageNumber > 1 ? Model.PageLink(Model.PageNumber - 1) : null)"
+         aria-label="Página anterior" aria-disabled="@(Model.PageNumber <= 1 ? "true" : null)">←</a>
+      <span role="status">Página @Model.PageNumber de @Model.TotalPages</span>
+      <a class="dmo-button dmo-arrow" href="@(Model.PageNumber < Model.TotalPages ? Model.PageLink(Model.PageNumber + 1) : null)"
+         aria-label="Página seguinte" aria-disabled="@(Model.PageNumber >= Model.TotalPages ? "true" : null)">→</a>
+    </nav>
+  </section>
+  }
+
+</main>
+
+<script src="@Url.Content("~/ferramentas-live.js")"></script>
+<script src="~/js/tool-lot-quantity.js" asp-append-version="true"></script>

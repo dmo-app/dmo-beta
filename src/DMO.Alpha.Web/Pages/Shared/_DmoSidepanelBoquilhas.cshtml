@@ -1,0 +1,51 @@
+@model IReadOnlyList<DMO.Alpha.Core.Boquilhas.MachineCurrentBq>
+@{
+    // O ADAPTADOR das Boquilhas: o read model das máquinas correntes veste o
+    // RAIL ÚNICO da casa (o _DmoRail). Até aqui este partial era uma das três
+    // verdades do rail — tinha <button onclick="location.href=..."> escrito à
+    // mão, enquanto o Job On tinha um <aside> próprio e o
+    // _DmoSidepanelPlaneamento tinha botões que nenhum script lia. O contrato
+    // de UI (regra 1) não admite variantes por página: «um partial + um CSS = a
+    // única fonte».
+    //
+    // Um clique na máquina abre a página das
+    // saídas e entradas (o proprietário, 16/10/2026).
+    // A máquina sem boquilha em máquina NÃO tem destino: nasce não-clicável
+    // («Sem produção»), que é o estado truthful do read model — nunca um botão
+    // que finge abrir seja o que for.
+    var linhas = Model
+        .Select(current =>
+        {
+            var abre = current.BqReference is not null && current.BqContextId is int contextoId
+                ? $"/Boquilhas?bq_id={contextoId}"
+                : null;
+            // A máquina sem nada em máquina diz «Sem produção» — com letras, não
+            // com «— · —». Foi o bug que este adaptador apanhou no primeiro
+            // correr: o rail antigo tinha a palavra, e perdê-la transformava um
+            // estado normal do trabalho numa incógnita para o operador.
+            var detalhe = abre is null
+                ? "Sem produção"
+                : $"{current.Reference ?? "—"} · {current.ProductionNumber ?? "—"}";
+            return new DMO.Alpha.Web.Presentation.DmoRailItem(
+                Code: current.MachineCode,
+                Detail: detalhe,
+                Href: abre,
+                AriaLabel: abre is null
+                    ? $"{current.MachineCode} sem produção"
+                    : $"Boquilha {current.BqReference} da produção {current.ProductionNumber ?? "—"} na {current.MachineCode}",
+                Key: current.BqContextId?.ToString());
+        })
+        .ToList();
+
+    var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
+        Title: "Linhas de produção",
+        Subtitle: "Estado atual em máquina",
+        AriaLabel: "Linhas de produção",
+        Items: linhas,
+        EmptyLabel: "Sem linhas registadas.",
+        // O id mantém-se: o layout do grid das Boquilhas ancora-se a
+        // #bqCurrentLines (beta-production-overview.css) — tirar o id desmonta
+        // a folha inteira, não é cosmético.
+        Id: "bqCurrentLines");
+}
+<partial name="_DmoRail" model="@rail" />

@@ -1,0 +1,1362 @@
+using DMO.Alpha.Web.Authorization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Encodings.Web;
+using DMO.Alpha.Core.Admin;
+using DMO.Alpha.Core.Paging;
+using DMO.Alpha.Core.Production;
+using DMO.Alpha.Core.Runtime;
+using DMO.Alpha.Core.Tools;
+using DMO.Alpha.Infrastructure.Data;
+using DMO.Alpha.Infrastructure.Production;
+using DMO.Alpha.Web.Presentation;
+using DMO.Alpha.Web.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+
+namespace DMO.Alpha.Web.Pages.JobOn;
+
+/// <summary>
+/// Planeamento · Job On: o rail da semana, o calendário do mês, o quadro do
+/// dia, a ficha da produção e a folha de criação/edição. Tudo é desenhado
+/// pelo servidor. Criar e editar validam no backend com recusas tipadas por
+/// query (PRG); o MF é obrigatório; a sobreposição e a calote ilegível
+/// avisam, não bloqueiam.
+/// </summary>
+[Authorize]
+[ModuleEntry(DmoCapabilities.JobOnCreate)]
+public sealed class IndexModel : PageModel
+{
+    private const string PagePath = "/JobOn";
+
+    private readonly ICreateJobOnHandler _createJobOn;
+    private readonly IUpdateJobOnHandler _updateJobOn;
+    private readonly IJobOnListQuery _jobOnList;
+    private readonly IProductionContextQuery _productionContext;
+    private readonly IMachineListQuery _machineList;
+    private readonly IToolCandidateQuery _toolCandidates;
+    private readonly IJobOnToolFactsQuery _toolFacts;
+    private readonly IProductionPickerQuery _productionPicker;
+    private readonly DmoDbContext _db;
+    private readonly ShellStateFactory _shellState;
+    private readonly CurrentUserCapabilities _capabilities;
+    private readonly JobOnLotNoteHandler _lotNotes;
+    private readonly JobOnChangeQuery _changes;
+
+    public IndexModel(
+        ICreateJobOnHandler createJobOn,
+        IUpdateJobOnHandler updateJobOn,
+        IJobOnListQuery jobOnList,
+        IProductionContextQuery productionContext,
+        IMachineListQuery machineList,
+        IToolCandidateQuery toolCandidates,
+        IJobOnToolFactsQuery toolFacts,
+        IProductionPickerQuery productionPicker,
+        DmoDbContext db,
+        ShellStateFactory shellState,
+        CurrentUserCapabilities capabilities,
+        JobOnLotNoteHandler lotNotes,
+        JobOnChangeQuery changes)
+    {
+        _createJobOn = createJobOn;
+        _updateJobOn = updateJobOn;
+        _jobOnList = jobOnList;
+        _productionContext = productionContext;
+        _machineList = machineList;
+        _toolCandidates = toolCandidates;
+        _toolFacts = toolFacts;
+        _productionPicker = productionPicker;
+        _db = db;
+        _shellState = shellState;
+        _capabilities = capabilities;
+        _lotNotes = lotNotes;
+        _changes = changes;
+    }
+
+    /// <summary>
+    /// O link dos avisos dos módulos (?jobon_id=N&amp;vista=alteracoes): a ficha
+    /// abre com o resumo «O que mudou» já aberto; sem ele, o resumo vem fechado
+    /// (o proprietário, 17/10/2026).
+    /// </summary>
+    public bool VistaAlteracoes { get; private set; }
+
+    /// <summary>O resumo «O que mudou» da produção aberta, do mais recente para o mais antigo.</summary>
+    public IReadOnlyList<JobOnSummaryEntry> FichaResumo { get; private set; } = Array.Empty<JobOnSummaryEntry>();
+
+    /// <summary>As mudanças de lote já registadas na produção aberta.</summary>
+    public IReadOnlyList<LotNoteView> FichaLotNotes { get; private set; } = Array.Empty<LotNoteView>();
+
+    /// <summary>Contexto de produção estabelecido do Job On aberto (?jobon_id); null fora desse contexto.</summary>
+    public ProductionContextReadModel? OpenJobOn { get; private set; }
+
+    /// <summary>
+    /// A FICHA DA PRODUÇÃO (o job-sheet do dmo-html): os fatos técnicos das
+    /// ferramentas da produção + os avisos informativos (a compatibilidade
+    /// da máquina registada e o uso paralelo noutra produção ativa —
+    /// nunca um bloqueio), calculados PELO BACKEND pela
+    /// <see cref="IJobOnToolFactsQuery"/>. Null fora da ficha.
+    /// </summary>
+    public IReadOnlyList<JobOnToolFacts> FichaFacts { get; private set; } = Array.Empty<JobOnToolFacts>();
+
+    /// <summary>
+    /// O MODO DUPLICAR (?jobon_id=N&duplicar=1): o html duplica o Job On
+    /// INTEIRO para uma produção nova (os dados copiados — mudar
+    /// datas/máquina sem voltar a criar; o nº e as datas ficam por
+    /// preencher, o mesmo espírito do duplicar-anterior). O jobon de
+    /// origem; o draft composto no ScriptData abre a folha em CRIAÇÃO.
+    /// </summary>
+    public int? DuplicarDe { get; private set; }
+
+    /// <summary>A calote submetida (o echo do POST recusado — o estado preservado).</summary>
+    public string? RequestedCaloteMm { get; private set; }
+
+    /// <summary>True quando foi pedido um jobon_id que não existe: recusa limpa, sem inventar contexto.</summary>
+    public bool JobOnRequestedNotFound { get; private set; }
+
+    /// <summary>
+    /// O AVISO INFORMATIVO da sobreposição de janelas na mesma máquina
+    /// (?overlap=1 — o PRG do POST que GRAVOU a produção com conflito): a
+    /// verdade persistida recomposta pela MESMA calculadora dos handlers
+    /// — as produções em conflito, as janelas, o período exato e como
+    /// resolver. O banner amarelo veste a folha DEPOIS do redirect
+    /// (nunca vermelho, nunca bloqueio: a produção está gravada); null
+    /// quando não há sobreposição real.
+    /// </summary>
+    public OverlapWarning? OverlapWarning { get; private set; }
+
+    /// <summary>
+    /// A calote escrita que não foi gravada (?calote_ignorada — o PRG do POST
+    /// que gravou o Job On sem ela): ilegível ou negativa. Ao criar, a
+    /// produção fica sem calote e vale a referência da ferramenta; ao
+    /// editar, mantém-se a calote que já estava gravada. O aviso amarelo diz
+    /// qual foi o valor ignorado (decisão do proprietário, 16/10/2026:
+    /// avisar em vez de recusar, sem perder dados).
+    /// </summary>
+    public string? CaloteIgnorada { get; private set; }
+
+    /// <summary>
+    /// A mensagem do aviso da calote ignorada, apenas apresentação. Lê a
+    /// calote gravada da produção aberta: com valor, foi uma edição que o
+    /// manteve; sem valor, a produção ficou sem calote.
+    /// </summary>
+    public string? CaloteIgnoradaMessage => CaloteIgnorada is not { } valor
+        ? null
+        : OpenJobOn?.CaloteMm is { } mantida
+            ? $"Job On guardado: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior ({mantida.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)} mm)."
+            : $"Job On guardado sem calote: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado. Vale a calote de referência da ferramenta; para a indicar, use Editar.";
+
+    /// <summary>A TAB do Histórico (?historico=1 — o padrão do Controlo/Peso): as produções anteriores e os sem dia.</summary>
+    public bool ShowHistory { get; private set; }
+
+    /// <summary>A página do histórico (?pagina — 25 produções por página), paginada na base; só lida depois de uma procura.</summary>
+    [BindProperty(SupportsGet = true, Name = "pagina")] public int? HistoryPageNumber { get; set; }
+    public PagedList<ProductionContextReadModel> HistoryPage { get; private set; } = PagedList<ProductionContextReadModel>.Empty;
+
+    /// <summary>Os filtros do histórico (?referencia, ?maquina, ?producao, ?desde, ?ate).</summary>
+    public string? HistoryReference { get; private set; }
+    public int? HistoryMachineId { get; private set; }
+    public string? HistoryProduction { get; private set; }
+    public DateOnly? HistoryDesde { get; private set; }
+    public DateOnly? HistoryAte { get; private set; }
+
+    /// <summary>As produções da referência procurada: o dropdown do histórico.</summary>
+    public IReadOnlyList<JobOnProductionOption> HistoryProductions { get; private set; } = Array.Empty<JobOnProductionOption>();
+
+    /// <summary>True quando há referência, máquina ou data; sem isso o histórico fica em branco e não lê nada.</summary>
+    public bool HistorySearchApplied { get; private set; }
+
+    /// <summary>Datas ilegíveis ignoradas ou trocadas (aviso amarelo, nunca recusa).</summary>
+    public IReadOnlyList<string> HistoryDateWarnings { get; private set; } = Array.Empty<string>();
+
+    public const string HistoryEmptyStateMessage = "Pesquise por referência ou data para ver as produções.";
+
+    /// <summary>
+    /// Sem dia escolhido (dia=0, o duplo clique no dia já escolhido do
+    /// calendário): o quadro do dia fica vazio, só com a indicação.
+    /// </summary>
+    public bool NoDaySelected { get; private set; }
+
+    /// <summary>A produção foi retirada das datas no POST anterior (aviso por query, PRG).</summary>
+    public bool RemovedNote { get; private set; }
+
+    /// <summary>
+    /// A FOLHA server-rendered (o referencial do Owner — sem js para
+    /// abrir): ?editar=1&jobon_id=N abre-a EM EDIÇÃO com os campos
+    /// preenchidos pela produção (a identidade read-only); ?novo=1 abre-a
+    /// em CRIAÇÃO (vazia); ?jobon_id=N&duplicar=1 abre-a em criação COM OS
+    /// DADOS COPIADOS (o html: o nº e as datas por preencher).
+    /// </summary>
+    public bool FolhaAberta { get; private set; }
+
+    /// <summary>True quando a folha aberta é MODO EDIÇÃO (o jobon_edit_id segue no POST).</summary>
+    public bool FolhaEdicao => OpenJobOn is not null && !DuplicarDe.HasValue && FolhaAberta;
+
+    /// <summary>A calote pré-preenchida na folha (o valor da produção em edição/duplicar).</summary>
+    public string? FolhaCalote { get; private set; }
+
+    /// <summary>O mês inicial do calendário (deep link ?ano&mes; omissão = hoje).</summary>
+    public int Year { get; private set; }
+
+    public int Month { get; private set; }
+
+    /// <summary>Dia validado, comum ao calendário e ao painel do dia.</summary>
+    public int SelectedDay { get; private set; }
+
+    /// <summary>Pesquisa submetida por GET, sem depender de script externo.</summary>
+    public string? SearchTerm { get; private set; }
+
+    /// <summary>
+    /// A procura ao escrever do Job On, em dois passos (Diogo, 17/10/2026:
+    /// «deveria ser referência e depois produções»): primeiro as referências,
+    /// encontradas por qualquer dado (referência, produção, máquina, lote ou
+    /// referência das ferramentas); um clique numa referência mostra as
+    /// produções dela (?procura_ref=). Sem script, o Enter no campo faz o
+    /// primeiro passo pelo servidor. Null sem procura.
+    /// </summary>
+    public JobOnProcura? SearchResults { get; private set; }
+
+    /// <summary>
+    /// A tabela de todas as produções da referência do Job On aberto
+    /// (?producoes_ref=1, na «Opções» da folha), paginada na base e lida só
+    /// quando se abre; null fechada.
+    /// </summary>
+    public PagedList<ProductionContextReadModel>? ReferenceProductionsPage { get; private set; }
+
+    /// <summary>A página da tabela das produções da referência (?pagina_ref).</summary>
+    [BindProperty(SupportsGet = true, Name = "pagina_ref")] public int? ReferenceProductionsPageNumber { get; set; }
+
+    /// <summary>As linhas por página da tabela das produções da referência.</summary>
+    public const int ReferenceProductionsPageSize = 10;
+
+    /// <summary>O QUADRO COMPLETO DAS LINHAS do dia (o shared element por Razor — o Owner: «quadro do dia pode ir»): as máquinas B1..C3 sempre visíveis, as com produção mostram-na, as livres ficam vazias.</summary>
+    public IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> DayRows { get; private set; } = Array.Empty<DMO.Alpha.Web.Presentation.DayMachineRow>();
+    public IReadOnlyList<ProductionContextReadModel> JobOns { get; private set; } = Array.Empty<ProductionContextReadModel>();
+
+    /// <summary>
+    /// O SIDEPANEL (a semântica do Owner 14/10: «o sidepanel mostra o que
+    /// vai entrar»): as próximas produções a entrar nas linhas — as
+    /// produções cujo InicioEm ainda não chegou (a fila à frente),
+    /// ordenadas pela data de entrada. Os factos humanos apenas; o clique
+    /// abre a ficha.
+    /// </summary>
+    public IReadOnlyList<ProductionContextReadModel> ProximasEntradas { get; private set; } = Array.Empty<ProductionContextReadModel>();
+
+    /// <summary>Máquinas persistidas para seleção explícita; lista vazia = registo ainda não povoado.</summary>
+    public IReadOnlyList<MachineOption> Machines { get; private set; } = Array.Empty<MachineOption>();
+
+    /// <summary>
+    /// Só as ferramentas que a página mostra: as escolhidas na folha e as do
+    /// histórico desta página. A escolha de outra é uma procura ao escrever
+    /// (?handler=ToolCandidates); o catálogo nunca é carregado inteiro.
+    /// </summary>
+    public IReadOnlyList<ToolCandidate> KnownTools { get; private set; } = Array.Empty<ToolCandidate>();
+
+    /// <summary>Quantas sugestões a procura de ferramentas devolve de cada vez.</summary>
+    public const int ToolSuggestionLimit = 20;
+
+    /// <summary>Valor submetido do nº de produção (estado do formulário preservado).</summary>
+    public string? RequestedProductionNumber { get; private set; }
+
+    /// <summary>Valor submetido da referência (estado do formulário preservado).</summary>
+    public string? RequestedReference { get; private set; }
+
+    /// <summary>Máquina submetida (estado do formulário preservado); null quando não escolhida.</summary>
+    public int? RequestedMachineId { get; private set; }
+
+    /// <summary>tool_id da CM explicitamente selecionado (null = não aplicável).</summary>
+    public string? RequestedCmToolId { get; private set; }
+
+    /// <summary>tool_id da MF explicitamente selecionado (null = não aplicável).</summary>
+    public string? RequestedMfToolId { get; private set; }
+
+    /// <summary>tool_id da BQ explicitamente selecionado (null = não aplicável).</summary>
+    public string? RequestedBqToolId { get; private set; }
+
+    /// <summary>O dia em que a produção entra em máquina (o corte B; null = em aberto).</summary>
+    public DateOnly? RequestedInicioEm { get; private set; }
+
+    /// <summary>O dia em que sai de máquina (null = até aviso).</summary>
+    public DateOnly? RequestedFimEm { get; private set; }
+
+    /// <summary>Recusa tipada do último POST de criação, transportada por query (PRG).</summary>
+    public CreateJobOnResult? CreateRefusal { get; private set; }
+
+    /// <summary>Recusa tipada do último POST de EDIÇÃO, transportada por query (PRG).</summary>
+    public UpdateJobOnResult? UpdateRefusal { get; private set; }
+
+    /// <summary>Mensagem da recusa tipada, apenas apresentação.</summary>
+    public string CreateRefusalMessage => CreateRefusal switch
+    {
+        CreateJobOnResult.MissingProductionNumber =>
+            "O nº de produção está em branco. Nenhum Job On foi criado.",
+        CreateJobOnResult.MissingReference =>
+            "A referência está em branco. Nenhum Job On foi criado.",
+        CreateJobOnResult.MachineNotFound =>
+            "A máquina indicada não existe. Nenhum Job On foi criado.",
+        CreateJobOnResult.MissingMfTool =>
+            "O MF (molde final) é obrigatório — sem ele não se fazem garrafas nem frascos. Selecione o MF do desenho. Nenhum Job On foi criado.",
+        CreateJobOnResult.CmToolNotFound =>
+            "A ferramenta CM selecionada não está registada no Ferramentas. Nenhum Job On foi criado.",
+        CreateJobOnResult.MfToolNotFound =>
+            "A ferramenta MF selecionada não está registada no Ferramentas. Nenhum Job On foi criado.",
+        CreateJobOnResult.BqToolNotFound =>
+            "A boquilha (BQ) selecionada não está registada no Ferramentas. Nenhum Job On foi criado.",
+        CreateJobOnResult.DuplicateProductionNumber =>
+            "Já existe um Job On com este nº de produção — uma produção nova tem nº próprio. Nenhum Job On foi criado.",
+        CreateJobOnResult.InvalidCalote =>
+            "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhum Job On foi criado.",
+        _ => string.Empty
+    };
+
+    /// <summary>Mensagem da recusa tipada da edição, apenas apresentação.</summary>
+    public string UpdateRefusalMessage => UpdateRefusal switch
+    {
+        UpdateJobOnResult.JobOnNotFound =>
+            "A produção indicada não existe. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.MachineNotFound =>
+            "A máquina indicada não existe. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.MissingMfTool =>
+            "O MF (molde final) é obrigatório — sem ele não se fazem garrafas nem frascos. Selecione o MF do desenho. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.CmToolNotFound =>
+            "A ferramenta CM selecionada não está registada no Ferramentas. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.MfToolNotFound =>
+            "A ferramenta MF selecionada não está registada no Ferramentas. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.BqToolNotFound =>
+            "A boquilha (BQ) selecionada não está registada no Ferramentas. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.InvalidCalote =>
+            "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhuma alteração foi guardada.",
+        _ => string.Empty
+    };
+
+    /// <summary>A calote da ficha duplicada (o echo para o form; null quando não há).</summary>
+    public string? FichaCaloteEcho { get; private set; }
+
+    private static readonly JsonSerializerOptions ScriptJsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Encoder = JavaScriptEncoder.Default,
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    private int InitialDay()
+    {
+        var today = DateOnly.FromDateTime(DmoBusinessTime.Now);
+        return today.Year == Year && today.Month == Month ? today.Day : 1;
+    }
+
+    /// <summary>Um record do calendário: os factos humanos da produção com as tools pelos nomes com lote.</summary>
+
+    /// <summary>O SHARED ELEMENT do calendário (o Owner 2026-10-14) — o viewmodel comum servido pelo partial _DmoCalendar; os dias com produção pela janela temporal.</summary>
+    public DMO.Alpha.Web.Pages.Shared.DmoCalendarPresentation? Calendar { get; private set; }
+
+        private DMO.Alpha.Web.Pages.Shared.DmoCalendarPresentation ComporJobOnCalendar(int year, int month, IReadOnlyList<ProductionContextReadModel> jobOns, int? diaSelecionado)
+    {
+        // A LINHA DO TEMPO COMPLETA (o Owner 14/10: «o calendário mostra
+        // tudo o que está a produzir, o que vai entrar — e ver o que
+        // esteve no passado naquele específico dia»): o dia marca com
+        // produção EM QUALQUER TEMPO — o passado (entrou e saiu), o
+        // presente e o futuro (a entrar); a produção «até aviso» (o
+        // FimEm null) cobre a partir do início.
+        // O partial gere ano/mes; repetir estes parâmetros invalida a navegação.
+        return DMO.Alpha.Web.Pages.Shared.DmoCalendarPresentation.ForMonth(
+            year, month,
+            data => jobOns.Count(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)),
+            diaSelecionado is { } dia && dia >= 1 && dia <= DateTime.DaysInMonth(year, month) ? new DateOnly(year, month, dia) : null,
+            "/JobOn/Index");
+    }
+
+    private static IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> ComporDayRows(IReadOnlyList<MachineOption> machines, IReadOnlyList<ProductionContextReadModel> jobOns, int ano, int mes, int? diaSelecionado, string? procura)
+    {
+        var q = procura?.Trim();
+        var cobre = new System.Collections.Generic.List<ProductionContextReadModel>();
+        // O DIA CONSULTADO (o painel do dia do dmo-html): o dia clicado no
+        // calendário — na omissão, o dia inicial da página (o hoje no mês
+        // corrente). A produção «até aviso» (o FimEm null) COBRE o dia a
+        // partir do início (a regra do corte B: as datas do Job On mandam).
+        var data = new DateOnly(ano, mes, Math.Clamp(diaSelecionado ?? 1, 1, DateTime.DaysInMonth(ano, mes)));
+        cobre.AddRange(jobOns.Where(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)));
+        if (!string.IsNullOrEmpty(q)) cobre = cobre.Where(j => ($"{j.Reference} {j.ProductionNumber} {j.Machine}").ToLowerInvariant().Contains(q.ToLowerInvariant())).ToList();
+        var rows = new System.Collections.Generic.List<DMO.Alpha.Web.Presentation.DayMachineRow>();
+        foreach (var machine in machines)
+        {
+            var doDia = cobre.Where(j => j.Machine == machine.Code).OrderBy(j => j.Reference).ToList();
+            rows.Add(new(machine.Code, doDia.Select(x => new DMO.Alpha.Web.Presentation.DayProduction(x.JobOnId, x.Reference, x.ProductionNumber)).ToList()));
+        }
+        return rows;
+    }
+
+    /// <summary>
+    /// O HISTÓRICO abre em branco (decisão do proprietário, 16/10/2026): só
+    /// lê produções depois de uma procura pela referência, máquina ou data.
+    /// A procura de uma produção faz-se em dois passos: a referência (e a
+    /// máquina, se quiser) e depois o dropdown só com as produções dela,
+    /// lido só para ela. Uma data ilegível é ignorada com um aviso amarelo,
+    /// não recusada.
+    /// </summary>
+    private async Task ComposeHistoryAsync(string? referencia, int? maquina, string? producao, string? desde, string? ate)
+    {
+        var cancellationToken = HttpContext.RequestAborted;
+        var warnings = new List<string>();
+        HistoryReference = Sanitize(referencia);
+        // Uma máquina que não existe não filtra.
+        HistoryMachineId = maquina is int id && Machines.Any(m => m.MachineId == id) ? id : null;
+        HistoryDesde = ParseHistoryDate(desde, "Desde", warnings);
+        HistoryAte = ParseHistoryDate(ate, "Até", warnings);
+        if (HistoryDesde is { } d && HistoryAte is { } a && d > a)
+        {
+            (HistoryDesde, HistoryAte) = (a, d);
+            warnings.Add("«Desde» era depois de «Até»: as datas foram trocadas.");
+        }
+        HistoryDateWarnings = warnings;
+
+        if (HistoryReference is { } reference)
+        {
+            HistoryProductions = await _jobOnList.ListProductionsOfReferenceAsync(reference, HistoryMachineId, cancellationToken);
+            // Uma produção que já não é desta referência (a referência mudou) não filtra.
+            var wanted = Sanitize(producao);
+            // O dropdown só tem as últimas produções; uma mais antiga pedida
+            // por link continua a filtrar e entra no dropdown.
+            if (wanted is not null && HistoryProductions.All(p => p.ProductionNumber != wanted))
+            {
+                var term = reference.ToUpper();
+                var antiga = await _db.JobOns.AsNoTracking()
+                    .Where(j => j.ProductionNumber == wanted && j.Reference.ToUpper().Contains(term)
+                        && (HistoryMachineId == null || j.MachineId == HistoryMachineId))
+                    .OrderByDescending(j => j.Id)
+                    .Select(j => new JobOnProductionOption(j.ProductionNumber, j.Reference))
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (antiga is not null)
+                {
+                    HistoryProductions = [.. HistoryProductions, antiga];
+                }
+            }
+            HistoryProduction = HistoryProductions.Any(p => p.ProductionNumber == wanted) ? wanted : null;
+        }
+
+        var filter = new JobOnHistoryFilter(HistoryReference, HistoryMachineId, HistoryProduction, HistoryDesde, HistoryAte);
+        HistorySearchApplied = !filter.IsEmpty;
+        if (HistorySearchApplied)
+        {
+            HistoryPage = await _jobOnList.SearchHistoryPageAsync(
+                filter, HistoryPageNumber, cancellationToken: cancellationToken);
+        }
+    }
+
+    private static DateOnly? ParseHistoryDate(string? value, string label, List<string> warnings)
+    {
+        var text = value?.Trim();
+        if (string.IsNullOrEmpty(text))
+        {
+            return null;
+        }
+        if (DateOnly.TryParseExact(text, new[] { "yyyy-MM-dd", "dd/MM/yyyy", "dd-MM-yyyy" },
+                System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var date))
+        {
+            return date;
+        }
+        warnings.Add($"«{label}» ignorada: «{text}» não é uma data válida.");
+        return null;
+    }
+
+    public async Task<IActionResult> OnGetAsync(
+        [FromQuery(Name = "jobon_id")] int? jobOnId,
+        [FromQuery(Name = "create_refusal")] string? createRefusal,
+        [FromQuery(Name = "update_refusal")] string? updateRefusal,
+        [FromQuery(Name = "production_number")] string? productionNumber,
+        [FromQuery(Name = "reference")] string? reference,
+        [FromQuery(Name = "machine_id")] int? machineId,
+        [FromQuery(Name = "cm_tool_id")] string? cmToolId,
+        [FromQuery(Name = "mf_tool_id")] string? mfToolId,
+        [FromQuery(Name = "bq_tool_id")] string? bqToolId,
+        [FromQuery(Name = "inicio_em")] string? inicioEm,
+        [FromQuery(Name = "fim_em")] string? fimEm,
+        [FromQuery(Name = "historico")] string? historico,
+        [FromQuery(Name = "ano")] int? ano,
+        [FromQuery(Name = "mes")] int? mes,
+        [FromQuery(Name = "removed")] string? removed,
+        [FromQuery(Name = "overlap")] string? overlap,
+        [FromQuery(Name = "dia")] int? diaSelected,
+        [FromQuery(Name = "procura")] string? procura,
+        [FromQuery(Name = "procura_ref")] string? procuraRef,
+        [FromQuery(Name = "producoes_ref")] string? producoesRef,
+        [FromQuery(Name = "duplicar")] string? duplicar,
+        [FromQuery(Name = "calote_mm")] string? caloteMm,
+        [FromQuery(Name = "calote_ignorada")] string? caloteIgnorada,
+        [FromQuery(Name = "editar")] string? editar,
+        [FromQuery(Name = "novo")] string? novo,
+        [FromQuery(Name = "referencia")] string? historicoReferencia,
+        [FromQuery(Name = "maquina")] int? historicoMaquina,
+        [FromQuery(Name = "producao")] string? historicoProducao,
+        [FromQuery(Name = "desde")] string? historicoDesde,
+        [FromQuery(Name = "ate")] string? historicoAte,
+        [FromQuery(Name = "vista")] string? vista = null)
+    {
+        ViewData["Title"] = "Job On";
+        // O JOB ON É UMA FUNÇÃO DO PLANEAMENTO (o Owner: «o jobon fica no
+        // tab do planeamento, aparece no segundo tab») — a barra principal
+        // seleciona o PLANEAMENTO; as funções: Job On · Histórico (o
+        // padrão ?historico=1 do Controlo/Peso).
+        ShowHistory = historico == "1";
+        ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
+        {
+            ActiveFunctionKey = ShowHistory ? "historico" : "jobon",
+            Functions = ShellStateFactory.PlanningFunctions(ShowHistory ? "historico" : "jobon")
+        };
+
+        // Recusa tipada do POST anterior, transportada por query (PRG) com o
+        // vocabulário fechado do enum — nunca texto livre.
+        if (createRefusal is not null
+            && Enum.TryParse(createRefusal, out CreateJobOnResult parsed)
+            && parsed != CreateJobOnResult.Success)
+        {
+            CreateRefusal = parsed;
+        }
+
+        // Recusa tipada do POST de EDIÇÃO anterior, o mesmo transporte por
+        // query (PRG) com o vocabulário fechado do seu enum.
+        if (updateRefusal is not null
+            && Enum.TryParse(updateRefusal, out UpdateJobOnResult parsedUpdate)
+            && parsedUpdate != UpdateJobOnResult.Success)
+        {
+            UpdateRefusal = parsedUpdate;
+        }
+
+        // Estado do formulário preservado (o POST recusado volta por query
+        // com os valores que o utilizador já tinha introduzido).
+        RequestedProductionNumber = Sanitize(productionNumber);
+        RequestedReference = Sanitize(reference);
+        RequestedMachineId = machineId;
+        RequestedCmToolId = Sanitize(cmToolId);
+        RequestedMfToolId = Sanitize(mfToolId);
+        RequestedBqToolId = Sanitize(bqToolId);
+        RequestedInicioEm = DateOnly.TryParse(inicioEm, out var inicioValue) ? inicioValue : null;
+        RequestedFimEm = DateOnly.TryParse(fimEm, out var fimValue) ? fimValue : null;
+
+        CaloteIgnorada = Sanitize(caloteIgnorada);
+
+        // O mês inicial do calendário (deep link ?ano&mes; omissão = hoje).
+        var today = DateOnly.FromDateTime(DmoBusinessTime.Now);
+        Year = ano is int y and > 1999 and < 3000 ? y : today.Year;
+        Month = mes is int m and >= 1 and <= 12 ? m : today.Month;
+        RemovedNote = removed == "1";
+        NoDaySelected = diaSelected == 0;
+        SelectedDay = diaSelected is int chosenDay && chosenDay >= 1 && chosenDay <= DateTime.DaysInMonth(Year, Month)
+            ? chosenDay : InitialDay();
+        SearchTerm = (string.IsNullOrWhiteSpace(procuraRef) ? procura : procuraRef)?.Trim();
+
+        // Job On aberto: o contexto de produção estabelecido, resolvido pela
+        // query canónica existente (a mesma que os módulos seguintes usam).
+        if (jobOnId is int canonicalJobOnId)
+        {
+            OpenJobOn = await _productionContext.GetAsync(canonicalJobOnId, HttpContext.RequestAborted);
+            JobOnRequestedNotFound = OpenJobOn is null;
+        }
+
+        // A procura ao escrever, desenhada pelo servidor quando chega pelo Enter.
+        if (!string.IsNullOrEmpty(SearchTerm))
+        {
+            SearchResults = await ProcurarProducoesAsync(
+                procura, procuraRef, Year, Month, NoDaySelected ? 0 : SelectedDay);
+        }
+
+        if (producoesRef == "1" && OpenJobOn is { } fichaReferencia)
+        {
+            ReferenceProductionsPage = await _jobOnList.ListPageOfReferenceAsync(
+                fichaReferencia.Reference, ReferenceProductionsPageNumber, ReferenceProductionsPageSize, HttpContext.RequestAborted);
+        }
+
+        // O AVISO DO OVERLAP (?overlap=1 — o PRG do POST que gravou a
+        // produção com sobreposição na máquina): a verdade persistida
+        // RECOMPOSTA pela MESMA calculadora dos handlers (determinística
+        // sobre os factos — um estado já resolvido simplesmente não
+        // gera aviso). O banner amarelo veste a folha; o detalhe (as
+        // produções em conflito, as janelas, o período exato, como
+        // resolver) vem todo no <see cref="OverlapWarning.Message"/>.
+        if (overlap == "1" && OpenJobOn is { } overlapOpen)
+        {
+            var overlapMachineId = await _db.JobOns
+                .AsNoTracking()
+                .Where(j => j.Id == overlapOpen.JobOnId)
+                .Select(j => j.MachineId)
+                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            if (overlapMachineId != 0)
+            {
+                var othersOnMachine = await _db.JobOns
+                    .AsNoTracking()
+                    .Where(j => j.MachineId == overlapMachineId && j.Id != overlapOpen.JobOnId)
+                    .Select(j => new OverlapCandidate(
+                        j.Id, j.Reference, j.ProductionNumber, j.InicioEm, j.FimEm))
+                    .ToListAsync(HttpContext.RequestAborted);
+                OverlapWarning = JobOnOverlap.Evaluate(
+                    overlapOpen.InicioEm, overlapOpen.FimEm, overlapOpen.Machine, othersOnMachine);
+            }
+        }
+
+        // Só as produções que o calendário do mês, o dia e o rail da semana
+        // mostram; o histórico pagina na base e só é lido na sua tab.
+        var primeiroDia = new DateOnly(Year, Month, 1);
+        var ultimoDia = primeiroDia.AddMonths(1).AddDays(-1);
+        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
+        JobOns = await _jobOnList.ListWindowAsync(
+            primeiroDia < hoje ? primeiroDia : hoje,
+            ultimoDia > domingo ? ultimoDia : domingo,
+            HttpContext.RequestAborted);
+
+        // Máquinas persistidas (o select da linha). As ferramentas não se
+        // carregam aqui: cada campo procura ao escrever.
+        Machines = await _machineList.ListAsync(HttpContext.RequestAborted);
+        if (ShowHistory)
+        {
+            await ComposeHistoryAsync(historicoReferencia, historicoMaquina, historicoProducao, historicoDesde, historicoAte);
+        }
+
+        // A FICHA DA PRODUÇÃO (?jobon_id — o job-sheet do dmo-html): os
+        // fatos técnicos das ferramentas da produção e os avisos
+        // informativos (a compatibilidade registada e o uso paralelo noutra
+        // produção ativa — NUNCA um bloqueio), calculados PELO BACKEND pela
+        // MESMA query que o endpoint do vivo usa. O MODO DUPLICAR
+        // (?jobon_id=N&duplicar=1) compõe o draft da produção nova (o html:
+        // o nº e as datas por preencher, as tools e a calote copiadas).
+        if (OpenJobOn is { } loteJobOn)
+        {
+            FichaLotNotes = await _lotNotes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted);
+            var resumo = JobOnSummaryEntry.Compose(
+                loteJobOn.JobOnId,
+                loteJobOn.InicioEm,
+                await _changes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted),
+                FichaLotNotes);
+            var permitidas = new HashSet<string>();
+            foreach (var capability in resumo.Select(e => e.ActionCapability).Distinct())
+            {
+                if (await _capabilities.HasAsync(capability, HttpContext.RequestAborted)) permitidas.Add(capability);
+            }
+            FichaResumo = JobOnSummaryEntry.ForCapabilities(resumo, permitidas.Contains);
+            VistaAlteracoes = vista == "alteracoes";
+        }
+
+        if (OpenJobOn is { } fichaJobOn)
+        {
+            FichaCaloteEcho = fichaJobOn.CaloteMm?.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            if (duplicar == "1")
+            {
+                DuplicarDe = fichaJobOn.JobOnId;
+                RequestedReference = fichaJobOn.Reference;
+                RequestedMachineId = Machines.FirstOrDefault(m => m.Code == fichaJobOn.Machine)?.MachineId;
+                RequestedCmToolId = fichaJobOn.CmToolId;
+                RequestedMfToolId = fichaJobOn.MfToolId;
+                RequestedBqToolId = fichaJobOn.BqToolId;
+                RequestedCaloteMm = FichaCaloteEcho;
+                FolhaAberta = true;
+                FolhaCalote = FichaCaloteEcho;
+            }
+            else if (editar == "1")
+            {
+                // A folha em edição. Depois de uma recusa, a máquina, as
+                // ferramentas, as datas e a calote são as submetidas; a
+                // referência e o nº não se editam e vêm da produção.
+                FolhaAberta = true;
+                RequestedReference = fichaJobOn.Reference;
+                RequestedProductionNumber = fichaJobOn.ProductionNumber;
+                if (UpdateRefusal is null)
+                {
+                    RequestedMachineId = Machines.FirstOrDefault(m => m.Code == fichaJobOn.Machine)?.MachineId;
+                    RequestedCmToolId = fichaJobOn.CmToolId;
+                    RequestedMfToolId = fichaJobOn.MfToolId;
+                    RequestedBqToolId = fichaJobOn.BqToolId;
+                    RequestedInicioEm = fichaJobOn.InicioEm;
+                    RequestedFimEm = fichaJobOn.FimEm;
+                    RequestedCaloteMm = FichaCaloteEcho;
+                    FolhaCalote = FichaCaloteEcho;
+                }
+                else
+                {
+                    RequestedCaloteMm = Sanitize(caloteMm);
+                    FolhaCalote = RequestedCaloteMm;
+                }
+            }
+
+            if (DuplicarDe is null)
+            {
+                var fichaToolIds = new[] { fichaJobOn.CmToolId, fichaJobOn.MfToolId, fichaJobOn.BqToolId }
+                    .Where(id => id is not null)
+                    .Select(id => id!)
+                    .ToList();
+                if (fichaToolIds.Count > 0)
+                {
+                    FichaFacts = await _toolFacts.FindAsync(
+                        fichaToolIds, fichaJobOn.Machine, fichaJobOn.JobOnId,
+                        fichaJobOn.InicioEm, fichaJobOn.FimEm, HttpContext.RequestAborted);
+                }
+            }
+        }
+
+        // O echo da calote submetida — apenas com recusa presente (nunca um
+        // valor velho a prefilar um form fresco).
+        if ((CreateRefusal is not null || UpdateRefusal is not null)
+            && Sanitize(caloteMm) is { } caloteEcho)
+        {
+            RequestedCaloteMm = caloteEcho;
+            FolhaAberta = true;
+            FolhaCalote = caloteEcho;
+        }
+
+        // O [Criar Job On]: a folha abre em CRIAÇÃO (server-render). Depois
+        // de uma recusa a folha reabre com o que foi submetido.
+        if (novo == "1" || CreateRefusal is not null || UpdateRefusal is not null)
+        {
+            FolhaAberta = true;
+        }
+
+        // Os factos das ferramentas que a página mostra (a folha e o
+        // histórico), lidos por tool_id.
+        var shownToolIds = new[] { RequestedCmToolId, RequestedMfToolId, RequestedBqToolId }
+            .Concat(HistoryPage.Items.SelectMany(j => new[] { j.CmToolId, j.MfToolId, j.BqToolId }))
+            .Concat((ReferenceProductionsPage?.Items ?? []).SelectMany(j => new[] { j.CmToolId, j.MfToolId, j.BqToolId }))
+            .Where(id => !string.IsNullOrEmpty(id))
+            .Select(id => id!)
+            .Distinct()
+            .ToList();
+        if (shownToolIds.Count > 0)
+        {
+            KnownTools = await _toolCandidates.FindCandidatesAsync(
+                new ToolCandidateFilter(ToolIds: shownToolIds), HttpContext.RequestAborted);
+        }
+
+        DayRows = ComporDayRows(Machines, JobOns, Year, Month, SelectedDay, SearchTerm);
+
+        // As mudanças de lote do dia entram na linha da máquina, no espaço
+        // entre a referência e o número (o proprietário, 16/10/2026).
+        var doDia = DayRows.SelectMany(r => r.Productions).Select(p => p.JobOnId).ToList();
+        var notasDoDia = await _lotNotes.ForDayAsync(new DateOnly(Year, Month, SelectedDay), doDia, HttpContext.RequestAborted);
+        // E quantas alterações tem cada produção: a linha mostra a marca que
+        // leva a «O que mudou» na ficha.
+        var alteracoes = await _changes.CountsAsync(doDia, HttpContext.RequestAborted);
+        if (notasDoDia.Count > 0 || alteracoes.Count > 0)
+        {
+            DayRows = DayRows
+                .Select(r => r with
+                {
+                    Productions = r.Productions
+                        .Select(p => p with
+                        {
+                            LotNotes = notasDoDia.Where(n => n.JobOnId == p.JobOnId).Select(n => n.Text).ToList(),
+                            ChangeCount = alteracoes.TryGetValue(p.JobOnId, out var total) ? total : 0
+                        })
+                        .ToList()
+                })
+                .ToList();
+        }
+
+        // A próxima mudança em cada máquina, depois do dia escolhido (o
+        // proprietário, 17/10/2026): a produção que entra a seguir ou a troca
+        // de um componente da produção atual, a que vier primeiro; no mesmo
+        // dia, a produção nova. Vai para a frente da linha.
+        if (!NoDaySelected)
+        {
+            var dia = new DateOnly(Year, Month, SelectedDay);
+            var proximas = await _jobOnList.ListNextPerMachineAsync(dia, HttpContext.RequestAborted);
+            var trocas = await _lotNotes.NextAfterAsync(dia, doDia, HttpContext.RequestAborted);
+            if (proximas.Count > 0 || trocas.Count > 0)
+            {
+                DayRows = DayRows
+                    .Select(r =>
+                    {
+                        var entra = proximas.FirstOrDefault(p => p.Machine == r.MachineCode) is { InicioEm: { } inicio } p
+                            ? new DMO.Alpha.Web.Presentation.NextChange(inicio, $"{p.Reference} {p.ProductionNumber}", true)
+                            : null;
+                        var troca = trocas
+                            .Where(t => r.Productions.Any(x => x.JobOnId == t.JobOnId))
+                            .OrderBy(t => t.Dia)
+                            .Select(t => new DMO.Alpha.Web.Presentation.NextChange(t.Dia, t.Texto, false))
+                            .FirstOrDefault();
+                        var next = entra is null ? troca
+                            : troca is null || entra.Dia <= troca.Dia ? entra
+                            : troca;
+                        return next is null ? r : r with { Next = next };
+                    })
+                    .ToList();
+            }
+        }
+
+        // O SIDEPANEL (o Owner: «o sidepanel mostra o que vai entrar»): a
+        // fila das próximas entradas da SEMANA CORRENTE (o renderRail em mode
+        // current-week), pela ordem em que entram.
+        ProximasEntradas = ProximasEntradasDaSemana(JobOns, hoje);
+        Calendar = ComporJobOnCalendar(Year, Month, JobOns, NoDaySelected ? null : SelectedDay);
+        return Page();
+    }
+
+    private static DateOnly hoje => DateOnly.FromDateTime(DmoBusinessTime.Now);
+
+    /// <summary>
+    /// As próximas entradas do sidepanel: só produções futuras (InicioEm de
+    /// hoje em diante) e só até ao domingo da semana corrente (Seg..Dom, como
+    /// o calendário). O que entra depois de domingo fica para a semana seguinte.
+    /// </summary>
+    public static IReadOnlyList<ProductionContextReadModel> ProximasEntradasDaSemana(
+        IEnumerable<ProductionContextReadModel> jobOns,
+        DateOnly dia)
+    {
+        var domingo = dia.AddDays((7 - (int)dia.DayOfWeek) % 7);
+        return jobOns
+            .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= domingo)
+            .OrderBy(j => j.InicioEm)
+            .ToList();
+    }
+
+    /// <summary>
+    /// POST nativo: criar um Job On. O browser submete os factos da
+    /// produção (nº, referência, máquina) e os tool_ids canónicos
+    /// explicitamente selecionados por slot; um slot sem seleção é não
+    /// aplicável. O backend emite todas as identidades (jobon_id e os
+    /// cm_id/mf_id/bq_id aplicáveis). Sucesso REDIRECIONA AO RESUMO da
+    /// produção (o comportamento canónico submit do js — o Guardar
+    /// leva ao resumo); a recusa é tipada e volta por query com os
+    /// valores já introduzidos preservados. A seam de conta é exigida
+    /// pelo [Authorize] da página: sem sessão autenticada o pedido é
+    /// desafiado antes de qualquer mutação.
+    /// </summary>
+    /// <summary>
+    /// A procura ao escrever (?handler=ProcurarProducao&amp;q=): o primeiro
+    /// passo, as referências que têm o texto nelas ou nas suas produções
+    /// (produção, máquina, ferramentas). Com &amp;procura_ref=, o segundo
+    /// passo: as produções dessa referência. Ambos no máximo
+    /// <see cref="IProductionPickerQuery.SearchLimit"/>. Devolve só a lista,
+    /// que a página mostra por baixo do campo.
+    /// </summary>
+    public async Task<IActionResult> OnGetProcurarProducaoAsync(
+        [FromQuery(Name = "q")] string? search,
+        [FromQuery(Name = "procura_ref")] string? procuraRef,
+        [FromQuery(Name = "ano")] int? ano,
+        [FromQuery(Name = "mes")] int? mes,
+        [FromQuery(Name = "dia")] int? dia)
+    {
+        var resultados = await ProcurarProducoesAsync(search, procuraRef, ano, mes, dia);
+        return Partial("_JobOnProcura", resultados);
+    }
+
+    private async Task<JobOnProcura> ProcurarProducoesAsync(string? search, string? procuraRef, int? ano, int? mes, int? dia)
+    {
+        var referencia = procuraRef?.Trim();
+        if (!string.IsNullOrEmpty(referencia))
+        {
+            // Segundo passo: um clique numa produção abre a folha no mesmo mês e dia.
+            var producoes = await _productionPicker.ListOfReferenceAsync(referencia, HttpContext.RequestAborted);
+            return new JobOnProcura(
+                referencia,
+                Array.Empty<JobOnProcuraReferencia>(),
+                referencia,
+                producoes.Select(item => new JobOnProcuraLinha(
+                        item,
+                        Url.Page("/JobOn/Index", null, new { ano, mes, dia, jobon_id = item.JobOnId }, null, null, "lightFicha")!))
+                    .ToList());
+        }
+
+        // Primeiro passo: um clique numa referência mostra as produções dela.
+        var termo = search?.Trim() ?? string.Empty;
+        var referencias = await _productionPicker.SearchReferencesAsync(termo, HttpContext.RequestAborted);
+        return new JobOnProcura(
+            termo,
+            referencias.Select(item => new JobOnProcuraReferencia(
+                    item,
+                    Url.Page("/JobOn/Index", null, new { ano, mes, dia, procura_ref = item.Reference }, null, null, "lightProcura")!))
+                .ToList(),
+            null,
+            Array.Empty<JobOnProcuraLinha>());
+    }
+
+    /// <summary>
+    /// A procura de um campo de ferramenta (CM, MF ou BQ) enquanto se escreve.
+    /// Só leitura e no máximo <see cref="ToolSuggestionLimit"/> sugestões.
+    /// Sem «Mostrar todas», os dados da folha filtram: a máquina e a
+    /// referência da produção; na CM, com uma MF escolhida, a máquina e a
+    /// referência dessa MF (se nada corresponder, volta à referência da
+    /// produção). Com «Mostrar todas», procura no catálogo inteiro. Nunca
+    /// muda a ferramenta já escolhida.
+    /// </summary>
+    public async Task<IActionResult> OnGetToolCandidatesAsync(
+        [FromQuery(Name = "type")] string? type,
+        [FromQuery(Name = "q")] string? search,
+        [FromQuery(Name = "machine_id")] int? machineId,
+        [FromQuery(Name = "reference")] string? reference,
+        [FromQuery(Name = "mf_tool_id")] string? mfToolId,
+        [FromQuery(Name = "all")] bool showAll = false)
+    {
+        ToolType? toolType = Sanitize(type)?.ToUpperInvariant() switch
+        {
+            "CM" => ToolType.Cm,
+            "MF" => ToolType.Mf,
+            "BQ" => ToolType.Bq,
+            _ => null
+        };
+        if (toolType is not { } slot)
+        {
+            return BadRequest();
+        }
+
+        var term = Sanitize(search);
+        ToolCandidatePage? page = null;
+        string filtro;
+        if (showAll)
+        {
+            filtro = "Catálogo completo";
+            page = await _toolCandidates.FindPageAsync(
+                new ToolCandidateFilter(Type: slot, Search: term), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+        }
+        else
+        {
+            filtro = machineId is null ? "Filtrado pela referência" : "Filtrado por máquina e referência";
+            if (slot == ToolType.Cm && Sanitize(mfToolId) is { } mfId)
+            {
+                var mfReference = await _db.Tools.AsNoTracking()
+                    .Where(tool => tool.ToolId == mfId && tool.Type == ToolType.Mf)
+                    .Select(tool => tool.Reference)
+                    .FirstOrDefaultAsync(HttpContext.RequestAborted);
+                if (mfReference is not null)
+                {
+                    var byMf = await _toolCandidates.FindPageAsync(
+                        new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term),
+                        1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    if (byMf.TotalCount > 0)
+                    {
+                        page = byMf;
+                        filtro = (machineId is null ? "Filtrado pela MF " : "Filtrado por máquina e pela MF ") + mfReference;
+                    }
+                }
+            }
+            page ??= await _toolCandidates.FindPageAsync(
+                new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term),
+                1, ToolSuggestionLimit, HttpContext.RequestAborted);
+        }
+
+        return new JsonResult(new { items = page.Items, total = page.TotalCount, filtro });
+    }
+
+    public async Task<IActionResult> OnPostCreateAsync(
+        [FromForm(Name = "production_number")] string? productionNumber,
+        [FromForm(Name = "reference")] string? reference,
+        [FromForm(Name = "machine_id")] string? machineId,
+        [FromForm(Name = "cm_tool_id")] string? cmToolId,
+        [FromForm(Name = "mf_tool_id")] string? mfToolId,
+        [FromForm(Name = "bq_tool_id")] string? bqToolId,
+        [FromForm(Name = "inicio_em")] string? inicioEm,
+        [FromForm(Name = "fim_em")] string? fimEm,
+        [FromForm(Name = "calote_mm")] string? caloteMm)
+    {
+        var sanitizedProductionNumber = Sanitize(productionNumber);
+        var sanitizedReference = Sanitize(reference)?.ToUpperInvariant();
+        var sanitizedCmToolId = Sanitize(cmToolId);
+        var sanitizedMfToolId = Sanitize(mfToolId);
+        var sanitizedBqToolId = Sanitize(bqToolId);
+
+        // A JANELA TEMPORAL (o corte B): os dias em que a produção
+        // entra/sai de máquina — inputs date nativos, DateOnly no
+        // comando; sem valor = a janela fica em aberto.
+        var parsedInicioEm = DateOnly.TryParse(inicioEm, out var inicioValue) ? inicioValue : (DateOnly?)null;
+        var parsedFimEm = DateOnly.TryParse(fimEm, out var fimValue) ? fimValue : (DateOnly?)null;
+
+        // A máquina chega como texto do select: um valor não utilizável não
+        // resolve âncora canónica nenhuma (MachineId 0 nunca existe) e a
+        // recusa tipada explica — nunca é auto-selecionada outra máquina.
+        var parsedMachineId = int.TryParse(machineId?.Trim(), out var machineIdValue)
+            ? machineIdValue
+            : 0;
+
+        // A CALOTE DESTA PRODUÇÃO (o campo j-calote da ficha): o parse
+        // FLEXÍVEL (ponto OU vírgula); vazia = a referência da Tool manda.
+        // Ilegível ou negativa já não recusa o Job On (decisão do
+        // proprietário, 16/10/2026): grava sem calote e o aviso diz qual foi
+        // o valor ignorado (0 é válido).
+        var parsedCalote = ParseCalote(caloteMm, out var caloteIgnorada);
+
+        var outcome = await _createJobOn.HandleAsync(
+            new CreateJobOn(
+                sanitizedProductionNumber ?? string.Empty,
+                sanitizedReference ?? string.Empty,
+                parsedMachineId,
+                sanitizedCmToolId,
+                sanitizedMfToolId,
+                sanitizedBqToolId,
+                parsedInicioEm,
+                parsedFimEm,
+                parsedCalote),
+            HttpContext.RequestAborted);
+
+        if (outcome.Result == CreateJobOnResult.Success)
+        {
+            // O OVERLAP NÃO BLOQUEIA (o Owner: «overlap da maquina deve
+            // dar um warning, nao deve bloquear»): a produção está
+            // GRAVADA — com sobreposição na máquina ou com a calote
+            // ignorada, o redirect fica na FOLHA do Job On para o aviso
+            // amarelo vestir a página; sem aviso, o GUARDAR LEVA AO RESUMO
+            // (o comportamento canónico submit do js) a quem tem o
+            // Controlo Criar.
+            return await SavedRedirectAsync(
+                outcome.JobOn!.JobOnId,
+                outcome.OverlapWarning is not null,
+                caloteIgnorada);
+        }
+
+        return CreateRefused(
+            sanitizedProductionNumber,
+            sanitizedReference,
+            parsedMachineId,
+            sanitizedCmToolId,
+            sanitizedMfToolId,
+            sanitizedBqToolId,
+            parsedInicioEm,
+            parsedFimEm,
+            outcome.Result,
+            caloteMm);
+    }
+
+    /// <summary>
+    /// POST nativo: EDITAR um Job On existente — a produção re-planeada
+    /// (a janela temporal, a linha e as tools) SEM criar outra produção.
+    /// O browser submete o jobon_edit_id (a folha em modo edição: o nº de
+    /// produção e a referência vão read-only e o POST não os precisa — a
+    /// identidade é imutável na edição), a máquina e os tool_ids
+    /// canônicos explícitos por slot. Sucesso REDIRECIONA AO RESUMO da
+    /// MESMA produção (o padrão do Create); a recusa é tipada e volta
+    /// por query com os valores submetidos preservados e o jobon_id — a
+    /// folha reabre em modo edição nos valores que o utilizador tentou
+    /// guardar. A seam de conta é exigida pelo [Authorize] da página.
+    /// </summary>
+    public async Task<IActionResult> OnPostUpdateAsync(
+        [FromForm(Name = "jobon_edit_id")] string? jobOnEditId,
+        [FromForm(Name = "machine_id")] string? machineId,
+        [FromForm(Name = "cm_tool_id")] string? cmToolId,
+        [FromForm(Name = "mf_tool_id")] string? mfToolId,
+        [FromForm(Name = "bq_tool_id")] string? bqToolId,
+        [FromForm(Name = "inicio_em")] string? inicioEm,
+        [FromForm(Name = "fim_em")] string? fimEm,
+        [FromForm(Name = "calote_mm")] string? caloteMm)
+    {
+        var sanitizedCmToolId = Sanitize(cmToolId);
+        var sanitizedMfToolId = Sanitize(mfToolId);
+        var sanitizedBqToolId = Sanitize(bqToolId);
+
+        // A janela temporal da produção re-planeada — os mesmos inputs
+        // date nativos do Create; sem valor = a janela em aberto.
+        var parsedInicioEm = DateOnly.TryParse(inicioEm, out var inicioValue) ? inicioValue : (DateOnly?)null;
+        var parsedFimEm = DateOnly.TryParse(fimEm, out var fimValue) ? fimValue : (DateOnly?)null;
+
+        // A máquina chega como texto do select (o padrão do Create): um
+        // valor não utilizável não resolve âncora canônica nenhuma.
+        var parsedMachineId = int.TryParse(machineId?.Trim(), out var machineIdValue)
+            ? machineIdValue
+            : 0;
+
+        // O jobon a editar: um valor não utilizável não resolve produção
+        // nenhuma — a recusa tipada JobOnNotFound explica (limpa, nunca
+        // um 500, nunca uma linha inventada).
+        var parsedJobOnId = int.TryParse(jobOnEditId?.Trim(), out var jobOnIdValue)
+            ? jobOnIdValue
+            : 0;
+
+        // A CALOTE DESTA PRODUÇÃO (o campo j-calote da ficha — editável):
+        // o mesmo parse flexível do Create; vazia = limpar (a referência
+        // da Tool manda). Ilegível ou negativa grava o resto da edição,
+        // MANTÉM a calote já gravada (não se perde um dado por um erro de
+        // escrita) e avisa qual foi o valor ignorado (decisão do
+        // proprietário, 16/10/2026). O handler recebe o valor guardado,
+        // que já é válido.
+        var parsedCalote = ParseCalote(caloteMm, out var caloteIgnorada);
+        if (caloteIgnorada is not null)
+        {
+            parsedCalote = await _db.JobOns
+                .AsNoTracking()
+                .Where(j => j.Id == parsedJobOnId)
+                .Select(j => j.CaloteMm)
+                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+        }
+
+        var outcome = await _updateJobOn.HandleAsync(
+            new UpdateJobOn(
+                parsedJobOnId,
+                parsedMachineId,
+                sanitizedCmToolId,
+                sanitizedMfToolId,
+                sanitizedBqToolId,
+                parsedInicioEm,
+                parsedFimEm,
+                parsedCalote,
+                CurrentActorName()),
+            HttpContext.RequestAborted);
+
+        if (outcome.Result == UpdateJobOnResult.Success)
+        {
+            // O OVERLAP NÃO BLOQUEIA (a edição gravou na mesma): o mesmo
+            // destino do Create; o jobon_id não muda na edição.
+            return await SavedRedirectAsync(
+                outcome.JobOn!.JobOnId,
+                outcome.OverlapWarning is not null,
+                caloteIgnorada);
+        }
+
+        return UpdateRefused(
+            parsedJobOnId,
+            parsedMachineId,
+            sanitizedCmToolId,
+            sanitizedMfToolId,
+            sanitizedBqToolId,
+            parsedInicioEm,
+            parsedFimEm,
+            outcome.Result,
+            caloteMm);
+    }
+
+    /// <summary>
+    /// POST do «Duplicar → Lote»: regista a mudança de lote como nota da
+    /// produção, sem mudar o Job On. Sucesso volta ao dia da mudança, onde a
+    /// nota aparece na linha da máquina; a recusa reabre o formulário.
+    /// </summary>
+    /// <summary>O nome de quem edita: o nome do utilizador, senão o nº de operador, senão o email.</summary>
+    private string? CurrentActorName() =>
+        User.FindFirst(DmoClaimTypes.DisplayName)?.Value is { Length: > 0 } name
+            ? name
+            : User.FindFirst(DmoClaimTypes.OperatorId)?.Value
+                ?? User.FindFirst(DmoClaimTypes.Email)?.Value;
+
+    /// <summary>
+    /// POST leve do «Retirar a produção das datas» (o duplo clique no dia
+    /// já escolhido, com uma produção escolhida na lista e confirmação —
+    /// Diogo, 17/10/2026): limpa APENAS a associação de datas
+    /// (a janela temporal inicio→fim) do Job On indicado — o registo em
+    /// si, os contextos de tools e o controlo associado ficam
+    /// INTACTOS (o Job On preservado). Sem dia, a produção cai aos SEM
+    /// DIA e continua no histórico.
+    /// PRG com removed=1 (o toast informativo — nunca um bloqueio).
+    /// </summary>
+    public async Task<IActionResult> OnPostRemoveDayAsync(
+        [FromForm(Name = "jobon_id")] int? jobOnId,
+        [FromForm(Name = "ano")] int? ano,
+        [FromForm(Name = "mes")] int? mes,
+        [FromForm(Name = "dia")] int? dia)
+    {
+        if (jobOnId is int canonicalJobOnId)
+        {
+            var jobOn = await _db.JobOns
+                .FirstOrDefaultAsync(j => j.Id == canonicalJobOnId, HttpContext.RequestAborted);
+
+            if (jobOn is not null)
+            {
+                jobOn.InicioEm = null;
+                jobOn.FimEm = null;
+                await _db.SaveChangesAsync(HttpContext.RequestAborted);
+                // Volta ao mesmo dia do calendário, já sem a produção.
+                return RedirectToPage("/JobOn/Index", new { removed = "1", ano, mes, dia });
+            }
+        }
+
+        // Um id que não existe (ou ausente) não retira nada: volta ao
+        // Job On sem inventar estado — a recusa é limpa, nunca um 500.
+        return RedirectToPage("/JobOn/Index");
+    }
+
+    /// <summary>
+    /// O destino depois de GRAVAR um Job On. Com um aviso (sobreposição na
+    /// máquina ou calote ignorada), fica na folha da produção gravada para o
+    /// aviso aparecer. Sem aviso, vai ao Resumo do Controlo só quando o
+    /// template dá o Controlo Criar; sem esse módulo, a entrada do Controlo
+    /// levava a pessoa para outra página e o registo parecia perdido, por
+    /// isso fica no Job On com a produção gravada selecionada.
+    /// </summary>
+    private async Task<IActionResult> SavedRedirectAsync(int jobOnId, bool overlap, string? caloteIgnorada)
+    {
+        if (!overlap
+            && caloteIgnorada is null
+            && await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted))
+        {
+            return RedirectToPage("/Controlo/Resumo", new { jobon_id = jobOnId });
+        }
+
+        return RedirectToPage("/JobOn/Index", new
+        {
+            jobon_id = jobOnId,
+            overlap = overlap ? "1" : null,
+            calote_ignorada = caloteIgnorada
+        });
+    }
+
+    private RedirectToPageResult CreateRefused(
+        string? productionNumber,
+        string? reference,
+        int machineId,
+        string? cmToolId,
+        string? mfToolId,
+        string? bqToolId,
+        DateOnly? inicioEm,
+        DateOnly? fimEm,
+        CreateJobOnResult result,
+        string? caloteMm = null)
+    {
+        // Os valores introduzidos voltam por query para o formulário se
+        // reabrir no estado em que estavam (preservação de estado — a
+        // auditoria do Codex: o form nunca volta vazio).
+        return RedirectToPage("/JobOn/Index", new
+        {
+            production_number = productionNumber,
+            reference,
+            machine_id = machineId > 0 ? machineId : (int?)null,
+            cm_tool_id = cmToolId,
+            mf_tool_id = mfToolId,
+            bq_tool_id = bqToolId,
+            inicio_em = inicioEm?.ToString("yyyy-MM-dd"),
+            fim_em = fimEm?.ToString("yyyy-MM-dd"),
+            calote_mm = caloteMm,
+            create_refusal = result.ToString()
+        });
+    }
+
+    private RedirectToPageResult UpdateRefused(
+        int jobOnId,
+        int machineId,
+        string? cmToolId,
+        string? mfToolId,
+        string? bqToolId,
+        DateOnly? inicioEm,
+        DateOnly? fimEm,
+        UpdateJobOnResult result,
+        string? caloteMm = null)
+    {
+        // Os valores submetidos voltam por query com o jobon_id pedido:
+        // a folha reabre em MODO EDIÇÃO nos valores que o utilizador
+        // tentou guardar (a janela temporal incluída — a edição mexe
+        // nela), nunca nos persistidos que a recusa impediu de gravar.
+        // O JobOnNotFound não leva jobon_id: a produção não existe —
+        // não há folha de edição a reabrer (o banner tipado explica).
+        var reabre = jobOnId > 0 && result != UpdateJobOnResult.JobOnNotFound;
+        return RedirectToPage("/JobOn/Index", new
+        {
+            jobon_id = reabre ? jobOnId : (int?)null,
+            editar = reabre ? "1" : null,
+            machine_id = machineId > 0 ? machineId : (int?)null,
+            cm_tool_id = cmToolId,
+            mf_tool_id = mfToolId,
+            bq_tool_id = bqToolId,
+            inicio_em = inicioEm?.ToString("yyyy-MM-dd"),
+            fim_em = fimEm?.ToString("yyyy-MM-dd"),
+            calote_mm = caloteMm,
+            update_refusal = result.ToString()
+        });
+    }
+
+    /// <summary>
+    /// O parse FLEXÍVEL da calote (ponto OU vírgula — a oficina): vazia =
+    /// null (a referência da Tool manda); presente mas ilegível ou negativa
+    /// também é null e devolve em <paramref name="ignorada"/> o texto
+    /// escrito, para o aviso (0 é válido: calote plana). O handler continua
+    /// a recusar uma calote negativa se for chamado diretamente; a página
+    /// nunca lha envia.
+    /// </summary>
+    private static decimal? ParseCalote(string? caloteMm, out string? ignorada)
+    {
+        ignorada = null;
+        var raw = Sanitize(caloteMm);
+        if (raw is null)
+        {
+            return null;
+        }
+
+        // Decimal inputs accept either separator, but never grouping. The
+        // default Number style treats "2,5" as 25 in InvariantCulture.
+        if (decimal.TryParse(raw.Replace(',', '.'),
+            System.Globalization.NumberStyles.AllowLeadingSign | System.Globalization.NumberStyles.AllowDecimalPoint,
+            System.Globalization.CultureInfo.InvariantCulture, out var parsed))
+        {
+            if (parsed < 0m)
+            {
+                ignorada = raw;
+                return null;
+            }
+
+            return parsed;
+        }
+
+        ignorada = raw;
+        return null;
+    }
+
+    /// <summary>
+    /// O PREVIEW dos fatos das ferramentas na escolha — ENDPOINT READ-ONLY
+    /// DO BACKEND (o padrão da B1): o showToolFacts do dmo-html ao vivo —
+    /// os fatos técnicos das tools selecionadas (o processo, os volumes, o
+    /// gargalo, os valores TP — o que o peso/pegamentos consomem) e os
+    /// avisos INFORMATIVOS (a compatibilidade registada e o uso paralelo
+    /// noutra produção nas mesmas datas) calculados pela MESMA query do render do
+    /// servidor. O browser nunca calcula regra de domínio; a escolha
+    /// nunca é bloqueada. Zero escrita.
+    /// </summary>
+    public async Task<IActionResult> OnGetToolFactsAsync(
+        [FromQuery(Name = "cm_tool_id")] string? cmToolId,
+        [FromQuery(Name = "mf_tool_id")] string? mfToolId,
+        [FromQuery(Name = "bq_tool_id")] string? bqToolId,
+        [FromQuery(Name = "machine_id")] int? machineId,
+        [FromQuery(Name = "jobon_id")] int? jobOnId,
+        [FromQuery(Name = "inicio_em")] DateOnly? inicioEm,
+        [FromQuery(Name = "fim_em")] DateOnly? fimEm)
+    {
+        var machineCode = machineId is int id
+            ? await _db.Machines
+                .AsNoTracking()
+                .Where(m => m.Id == id)
+                .Select(m => (string?)m.Code)
+                .FirstOrDefaultAsync(HttpContext.RequestAborted)
+            : null;
+
+        var toolIds = new[] { Sanitize(cmToolId), Sanitize(mfToolId), Sanitize(bqToolId) }
+            .Where(toolId => toolId is not null)
+            .Select(toolId => toolId!)
+            .ToList();
+
+        var facts = toolIds.Count == 0
+            ? Array.Empty<JobOnToolFacts>()
+            : await _toolFacts.FindAsync(toolIds, machineCode, jobOnId, inicioEm, fimEm, HttpContext.RequestAborted);
+
+        return new JsonResult(facts, ScriptJsonOptions);
+    }
+
+    private static string? Sanitize(string? value)
+    {
+        var trimmed = value?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? null : trimmed;
+    }
+}
+
+/// <summary>
+/// A procura ao escrever no Job On: no primeiro passo as referências
+/// encontradas para o texto; no segundo (<see cref="Referencia"/> preenchida)
+/// as produções dessa referência.
+/// </summary>
+public sealed record JobOnProcura(
+    string Termo,
+    IReadOnlyList<JobOnProcuraReferencia> Referencias,
+    string? Referencia,
+    IReadOnlyList<JobOnProcuraLinha> Linhas);
+
+/// <summary>Uma referência encontrada e o endereço que um clique abre: as produções dela.</summary>
+public sealed record JobOnProcuraReferencia(ReferenceSearchItem Item, string Abrir);
+
+/// <summary>Uma produção encontrada e o endereço da folha que um clique abre.</summary>
+public sealed record JobOnProcuraLinha(ProductionSearchItem Item, string Abrir);
+
+/// <summary>
+/// O formato das listas de produções do Job On (a procura ao escrever e o
+/// Histórico): as datas e as ferramentas escritas da mesma maneira.
+/// </summary>
+public static class JobOnProcuraFormato
+{
+    /// <summary>«02/03/2026 – 09/03/2026», só o início, ou «Sem dia associado».</summary>
+    public static string Datas(DateOnly? inicio, DateOnly? fim) => inicio switch
+    {
+        null => "Sem dia associado",
+        { } i when fim is { } f => $"{i:dd/MM/yyyy} – {f:dd/MM/yyyy}",
+        { } i => $"{i:dd/MM/yyyy}"
+    };
+
+    /// <summary>«5447 · lote 2»; sem lote, só a referência.</summary>
+    public static string Ferramenta(string reference, string? lot) =>
+        string.IsNullOrWhiteSpace(lot) ? reference : $"{reference} · lote {lot}";
+}

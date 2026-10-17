@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\DMO.Alpha.Core\DMO.Alpha.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.12" />
+    <!-- Pin Relational to the same EF patch level as the rest of the stack:
+         Npgsql 10.0.3 transitively asks for 10.0.4, which would mix EF patch
+         versions once Design (10.0.12) enters the graph via the Web project. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.12" />
+    <!-- O DmoDbContext guarda o keyring do DataProtection (DataProtectionKeys). -->
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.12" />
+    <!-- O DataProtection 10.0.12 pede System.Security.Cryptography.Xml/Pkcs
+         10.0.12, com avisos de segurança (NU1902/NU1903): fixar o patch
+         corrigido (10.0.13). -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.13" />
+    <PackageReference Include="QuestPDF" Version="2026.9.1" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Controlo/Assets/ba-logo.png" LogicalName="DMO.Pdf.Logo.png" />
+  </ItemGroup>
+</Project>

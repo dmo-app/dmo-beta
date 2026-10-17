@@ -1,0 +1,331 @@
+using System.Globalization;
+using DMO.Alpha.Core.Controlo;
+using DMO.Alpha.Core.Runtime;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using DMO.Alpha.Infrastructure.Pdf;
+
+namespace DMO.Alpha.Infrastructure.Controlo;
+
+public sealed class PesoPdfGenerator
+{
+    static PesoPdfGenerator() => QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
+    private static readonly CultureInfo Pt = DmoNumberFormat.Culture;
+
+    public sealed record Input(
+        string ProductionNumber,
+        string Reference,
+        string Machine,
+        string CmToolId,
+        string? CmReference,
+        string? CmLot,
+        string Process,
+        int WaterTemperatureC,
+        decimal WaterDensity,
+        decimal GlassDensity,
+        decimal VolumeMarisaCm3,
+        decimal VolumePuncaoCm3,
+        decimal? NominalWeightGrams,
+        IReadOnlyList<Reading> Readings,
+        PesoAveragesReadModel? Averages,
+        PesoComparisonView? Comparison,
+        string OutputFilePath,
+        /// <summary>O selo de aprovação (o corte D): o operador e o momento; null = não aprovado.</summary>
+        ControloApprovalReadModel? Approval = null,
+        /// <summary>Quem gerou o papel (o rodapé do alvo: «Diogo Oliveira 28/07/2026, 14:52:28»).</summary>
+        string? GeneratedBy = null,
+        PesoComparisonView? PreviousPesoComparison = null,
+        DateOnly? InicioEm = null, DateOnly? FimEm = null,
+        /// <summary>O volume do tampão desta produção (varia com a calote); null = tampão não registado na CM.</summary>
+        decimal? VolumeTampaoCm3 = null,
+        decimal? CaloteMm = null,
+        /// <summary>A produção anterior com o peso do SAP (o Owner 2026-10-17); null = por indicar.</summary>
+        PesoProducaoAnteriorReadModel? ProducaoAnterior = null);
+
+    public sealed record Reading(
+        int Position,
+        string CmSubject,
+        decimal WaterWeightGrams,
+        decimal CapacityCm3,
+        decimal GlassWeightGrams);
+
+    public byte[] GenerateBytes(Input input) =>
+        Document.Create(container => Compose(container, input)).GeneratePdf();
+
+    private static readonly byte[] Logo = LoadLogo();
+    private static byte[] LoadLogo()
+    {
+        using var stream = typeof(PesoPdfGenerator).Assembly.GetManifestResourceStream("DMO.Pdf.Logo.png")
+            ?? throw new InvalidOperationException("PDF logo resource is missing.");
+        using var buffer = new MemoryStream();
+        stream.CopyTo(buffer);
+        return buffer.ToArray();
+    }
+
+    private const string Ink = DmoPdfPalette.Ink;
+    private const string Muted = DmoPdfPalette.Muted;
+    private const string Line = DmoPdfPalette.Line;
+    private const string Blue = DmoPdfPalette.Accent;
+
+    public void Compose(IDocumentContainer container, Input input, bool combined = false)
+    {
+        container.Page(page =>
+        {
+            page.Size(PageSizes.A4);
+            page.Margin(16, Unit.Millimetre);
+            page.DefaultTextStyle(x => x.FontFamily("Lato").FontSize(10).FontColor(Ink));
+            page.Header().PaddingBottom(12).Column(header =>
+            {
+                header.Item().Row(row =>
+                {
+                    row.ConstantItem(35).Height(35).Image(Logo);
+                    row.RelativeItem().PaddingLeft(10).PaddingTop(3).Text("Controlo de Peso").FontSize(24).Bold();
+                });
+                header.Item().PaddingTop(5).Row(row =>
+                {
+                    row.RelativeItem().Text($"{input.Reference}     ·     {input.ProductionNumber}     ·     {input.Machine}").FontSize(10);
+                    row.ConstantItem(85).AlignRight().Text(DmoBusinessTime.Now.ToString("d", Pt)).FontColor(Muted);
+                });
+                header.Item().PaddingTop(9).LineHorizontal(0.7f).LineColor(Line);
+            });
+            page.Content().Column(content =>
+            {
+                content.Item().Section("peso");
+                content.Item().Row(row =>
+                {
+                    row.Spacing(8);
+                    row.RelativeItem(1.3f).Element(c => Box(c, DmoPdfPalette.Deep, DmoPdfPalette.Deep)).Padding(12).MinHeight(102).DefaultTextStyle(x => x.FontColor("#ffffff")).Column(c =>
+                    {
+                        c.Item().Text("Peso atual").FontSize(10).SemiBold();
+                        c.Item().PaddingTop(12).Text(t =>
+                        {
+                            t.Span(Avg(input.Averages?.AverageGlassWeightGrams)).FontSize(40).SemiBold();
+                            t.Span(" g").FontSize(20).SemiBold();
+                        });
+                        c.Item().PaddingTop(7).Text("Resultado das leituras deste controlo").FontSize(8).FontColor(DmoPdfPalette.OnDeep);
+                    });
+                    row.RelativeItem().Column(c =>
+                    {
+                        c.Spacing(7);
+                        c.Item().Element(x => Box(x, DmoPdfPalette.Soft)).Padding(9).MinHeight(42).Column(card =>
+                        {
+                            card.Item().Text("Controlo anterior").FontSize(9).FontColor(Muted);
+                            card.Item().PaddingTop(4).Text(input.Comparison?.HistoricalAverages is { } previous
+                                ? Fmt(previous.AverageGlassWeightGrams) + " g" : "Sem comparação").FontSize(input.Comparison is null ? 10 : 19).SemiBold();
+                        });
+                        c.Item().Element(x => Box(x, DmoPdfPalette.Tint, DmoPdfPalette.Sky)).Padding(9).MinHeight(42).Column(card =>
+                        {
+                            card.Item().Text("Diferença face ao controlo anterior").FontSize(8).FontColor(Ink);
+                            card.Item().PaddingTop(5).Text(t =>
+                            {
+                                t.Span(input.Comparison?.Deltas.GlassWeightDifferenceGrams is { } d
+                                    ? Signed(d) + " g" : "Diferença indisponível").FontSize(input.Comparison is null ? 10 : 19).SemiBold().FontColor(DmoPdfPalette.Ocean);
+                                if (input.Comparison?.Deltas.GlassWeightVariationPercent is { } variation)
+                                    t.Span(" · " + Signed(variation) + " %").FontSize(11).FontColor(Muted);
+                            });
+                        });
+                    });
+                });
+                content.Item().PaddingTop(8).Row(row =>
+                {
+                    row.Spacing(7);
+                    // A produção anterior: o peso usado nela (SAP, escrito à mão)
+                    // quando indicado; senão o segundo Peso escolhido, se houver.
+                    if (input.ProducaoAnterior is { PesoGramas: { } pesoSap } anterior)
+                    {
+                        var delta = anterior.Delta(input.Averages?.AverageGlassWeightGrams);
+                        PairedCard(row.RelativeItem(), "Produção anterior" + (anterior.ProductionNumber is { } n ? " · " + n : ""),
+                            Fmt(pesoSap) + " g", SignedOrDash(delta.Grams) + " g", SignedOrDash(delta.Percent) + " %");
+                    }
+                    else
+                    {
+                        var productionComparison = input.PreviousPesoComparison is { } previousProduction
+                            && !string.IsNullOrWhiteSpace(previousProduction.HistoricalProductionNumber) ? previousProduction : null;
+                        PairedCard(row.RelativeItem(), "Produção anterior",
+                            productionComparison?.HistoricalAverages is { } previous ? Fmt(previous.AverageGlassWeightGrams) + " g" : "Sem dados",
+                            SignedOrDash(productionComparison?.Deltas.GlassWeightDifferenceGrams) + " g",
+                            SignedOrDash(productionComparison?.Deltas.GlassWeightVariationPercent) + " %");
+                    }
+                    var deviation = PesoCalculation.NominalDeviation(input.Averages?.AverageGlassWeightGrams, input.NominalWeightGrams);
+                    PairedCard(row.RelativeItem(), "Nominal do desenho", Avg(input.NominalWeightGrams) + " g",
+                        SignedOrDash(deviation.Grams) + " g", SignedOrDash(deviation.Percent) + " %");
+                });
+
+                SectionTitle(content.Item().PaddingTop(13), "Comparação com o controlo anterior");
+                content.Item().PaddingTop(6).Element(c => Box(c)).Element(c => ComposeWeightTable(c, input, input.Comparison));
+                ComposeTechnicalContext(content.Item().PaddingTop(13), input);
+
+                // Capacity data on its own page, without compressing the reference sheet.
+                content.Item().PageBreak();
+                SectionTitle(content.Item(), "Volume e peso por contra-molde (CM)");
+                content.Item().PaddingTop(4).Text("Capacidade / volume em cm³. Grandeza distinta do peso.").FontSize(8).FontColor(Muted);
+                content.Item().PaddingTop(7).Element(c => Box(c)).Element(c => ComposeCapacityTable(c, input));
+            });
+            page.Footer().PaddingTop(8).BorderTop(.6f).BorderColor(Line).PaddingTop(6).Row(row =>
+            {
+                row.RelativeItem().Text(input.GeneratedBy is { } by ? "Gerado por " + by : "Gerado por: sem identificação").FontSize(7).FontColor(Muted);
+                if (combined) row.ConstantItem(80).AlignCenter().SectionLink("resumo").Text("← Voltar ao Resumo").FontSize(7).FontColor(Blue);
+                row.RelativeItem().AlignRight().DefaultTextStyle(x => x.FontSize(7).FontColor(Muted)).Text(t =>
+                {
+                    t.Span(DmoBusinessTime.Now.ToString("g", Pt) + " · ");
+                    t.CurrentPageNumber();
+                    t.Span(" / ");
+                    t.TotalPages();
+                });
+            });
+        });
+    }
+
+    private static IContainer Box(IContainer c, string background = "#ffffff", string border = Line) =>
+        c.Background(background).Border(.7f).BorderColor(border).CornerRadius(7);
+
+    private static void SmallCard(IContainer container, string label, string value, string caption) =>
+        container.Element(c => Box(c)).Padding(9).Column(c =>
+        {
+            c.Item().Text(label).FontSize(7).FontColor(Muted);
+            c.Item().PaddingTop(5).Text(value).FontSize(value.Length > 17 ? 11 : 15).SemiBold();
+            c.Item().PaddingTop(4).Text(caption).FontSize(7).FontColor(Muted);
+        });
+
+    private static void PairedCard(IContainer container, string label, string weight, string difference, string percent) =>
+        container.Element(c => Box(c)).Padding(9).Column(c =>
+        {
+            c.Item().Text(label).FontSize(7).FontColor(Muted);
+            c.Item().PaddingTop(6).Row(row =>
+            {
+                row.RelativeItem(.8f).Column(value =>
+                {
+                    value.Item().Text(label == "Nominal do desenho" ? "Peso nominal" : "Peso usado na produção").FontSize(7).FontColor(Muted);
+                    value.Item().PaddingTop(3).Text(weight).FontSize(17).SemiBold();
+                });
+                row.RelativeItem().Column(value =>
+                {
+                    value.Item().Text("Diferença").FontSize(8).FontColor(Muted);
+                    value.Item().PaddingTop(3).Text(t =>
+                    {
+                        t.Span(difference).FontSize(16).SemiBold().FontColor(DmoPdfPalette.Ocean);
+                        t.Span(" · " + percent).FontSize(10).FontColor(Muted);
+                    });
+                });
+            });
+        });
+
+    private static void SectionTitle(IContainer container, string title) =>
+        container.BorderLeft(3).BorderColor(Blue).PaddingLeft(8).Text(title).FontSize(13).SemiBold();
+
+    private static void ComposeTechnicalContext(IContainer container, Input input) => container.Column(c =>
+    {
+        SectionTitle(c.Item(), "Referências técnicas");
+        c.Item().PaddingTop(7).Row(row =>
+        {
+            row.Spacing(7);
+            SmallCard(row.RelativeItem(), "PROCESSO", input.Process, "Processo de fabrico");
+            SmallCard(row.RelativeItem(), "CONTRA-MOLDE · LOTE", (input.CmReference ?? input.CmToolId) + " · " + (input.CmLot ?? "—"), "Ferramenta utilizada");
+            SmallCard(row.RelativeItem(), "TEMPERATURA DA ÁGUA", input.WaterTemperatureC + " °C",
+                "Densidade da água " + Fmt(input.WaterDensity, "0.#####") + " g/cm³");
+        });
+        c.Item().PaddingTop(7).Row(row =>
+        {
+            row.Spacing(7);
+            SmallCard(row.RelativeItem(), "DENSIDADE DO VIDRO", Fmt(input.GlassDensity), "g/cm³");
+            SmallCard(row.RelativeItem(), "VOLUME MARISA / PUNÇÃO", Fmt(input.VolumeMarisaCm3) + " / " + Fmt(input.VolumePuncaoCm3), "cm³ · fixos");
+            SmallCard(row.RelativeItem(), "VOLUME DO TAMPÃO", input.VolumeTampaoCm3 is { } tampao ? Fmt(tampao) : "—",
+                input.VolumeTampaoCm3 is null ? "Tampão não registado na CM"
+                : "cm³" + (input.CaloteMm is { } calote ? " · calote " + Fmt(calote) + " mm" : ""));
+        });
+        c.Item().PaddingTop(6).Text("Produção atual · início: " + (input.InicioEm?.ToString("d", Pt) ?? "—") +
+            " · fim: " + (input.FimEm?.ToString("d", Pt) ?? "—")).FontSize(7).FontColor(Muted);
+        if (input.ProducaoAnterior is { ProductionNumber: { } anteriorNumero } anterior)
+        {
+            c.Item().PaddingTop(3).Text("Produção anterior " + anteriorNumero + " · " + (anterior.Machine ?? "—") +
+                " · início: " + (anterior.InicioEm?.ToString("d", Pt) ?? "—") +
+                " · fim: " + (anterior.FimEm?.ToString("d", Pt) ?? "—") +
+                " · peso usado (SAP): " + (anterior.PesoGramas is { } sap ? Fmt(sap) + " g" : "—")).FontSize(7).FontColor(Muted);
+        }
+        c.Item().PaddingTop(5).Text(input.Approval?.ApprovedByOperatorId is { } approver
+            ? "Aprovado por: operador " + approver + (input.Approval.ApprovedAtUtc is { } at ? " · " + DmoBusinessTime.ToLocal(at).ToString("g", Pt) : "")
+            : "Aprovação: sem registo").FontSize(8);
+    });
+
+    public static Input FromModel(PesoReadModel peso, string production, string reference, string machine,
+        string path, ControloApprovalReadModel? approval = null, string? generatedBy = null,
+        PesoComparisonView? comparison = null, PesoComparisonView? previousPesoComparison = null,
+        DateOnly? inicio = null, DateOnly? fim = null, PesoCapSupportReadModel? cap = null,
+        PesoProducaoAnteriorReadModel? producaoAnterior = null) =>
+        new(production, reference, machine, peso.CmToolId, peso.CmToolReference, peso.CmToolLot, peso.Process,
+            peso.WaterTemperatureC, peso.WaterDensityGramsPerCm3, peso.GlassDensityGramsPerCm3,
+            peso.VolumeMarisaCm3, peso.VolumePuncaoCm3, peso.NominalWeightGrams,
+            peso.Measurements.Select(m => new Reading(m.RowPosition, m.CmSubject, m.WaterWeightGrams,
+                m.CapacityCm3, m.GlassWeightGrams)).ToArray(), peso.Averages, comparison, path, approval,
+            generatedBy, previousPesoComparison, inicio, fim, cap?.VolumeEfetivoCm3, cap?.AlturaEfetivaMm, producaoAnterior);
+
+    // A tabela compara CM com CM pela ordem das leituras, sem exigir o mesmo
+    // número de CM (o Owner 2026-10-17: «comparando cm com cm, não precisa de
+    // ser par»): o volume, o peso e a diferença, e as médias no fim.
+    private static void ComposeWeightTable(IContainer container, Input input, PesoComparisonView? comparison) => container.Table(t =>
+    {
+        t.ColumnsDefinition(c => { for (var k = 0; k < 8; k++) c.RelativeColumn(); });
+        t.Header(h =>
+        {
+            foreach (var title in new[] { "CM\nATUAL", "VOLUME\nATUAL (CM³)", "PESO\nATUAL (G)", "CM\nANTERIOR", "VOLUME\nANTERIOR (CM³)", "PESO\nANTERIOR (G)", "Δ VOLUME\n(CM³)", "Δ PESO\n(G)" })
+                h.Cell().Element(HeaderCell).Text(title).FontSize(6.5f).SemiBold();
+        });
+        int index = 0;
+        foreach (var reading in input.Readings)
+        {
+            var anterior = comparison?.Rows.FirstOrDefault(r => r.Position == reading.Position);
+            foreach (var value in new[] { reading.CmSubject, Fmt(reading.CapacityCm3, "0.000"), Fmt(reading.GlassWeightGrams),
+                anterior?.HistoricalCmSubject is { Length: > 0 } cmAnterior ? cmAnterior : "—",
+                Avg3(anterior?.HistoricalCapacityCm3), Avg(anterior?.HistoricalGlassWeightGrams),
+                anterior?.HistoricalCapacityCm3 is { } hcap ? Signed(reading.CapacityCm3 - hcap) : "—",
+                anterior is not null ? Signed(reading.GlassWeightGrams - anterior.HistoricalGlassWeightGrams) : "—" })
+                t.Cell().Element(c => BodyCell(c, index % 2 == 0 ? "#ffffff" : DmoPdfPalette.Soft)).Text(value).FontSize(8.5f);
+            index++;
+        }
+        foreach (var value in new[] { "Média", Avg3(input.Averages?.AverageCapacityCm3), Avg(input.Averages?.AverageGlassWeightGrams), "",
+            Avg3(comparison?.HistoricalAverages?.AverageCapacityCm3), Avg(comparison?.HistoricalAverages?.AverageGlassWeightGrams),
+            SignedOrDash(comparison?.Deltas.CapacityDifferenceCm3),
+            SignedOrDash(comparison?.Deltas.GlassWeightDifferenceGrams) + (comparison?.Deltas.GlassWeightVariationPercent is { } pct ? " (" + Signed(pct) + " %)" : "") })
+            t.Cell().Element(c => BodyCell(c, DmoPdfPalette.Tint)).Text(value).FontSize(8.5f).SemiBold();
+    });
+
+    // O volume e o peso de cada CM controlada (o volume vai para o mcaliper).
+    private static void ComposeCapacityTable(IContainer container, Input input) => container.Table(t =>
+    {
+        t.ColumnsDefinition(c => { c.RelativeColumn(.8f); c.RelativeColumn(); c.RelativeColumn(); });
+        t.Header(h =>
+        {
+            foreach (var title in new[] { "CM", "VOLUME\n(CM³)", "PESO DO VIDRO\n(G)" })
+                h.Cell().Element(HeaderCell).Text(title).FontSize(7).SemiBold();
+        });
+        int index = 0;
+        foreach (var reading in input.Readings)
+        {
+            foreach (var value in new[] { "CM " + reading.CmSubject, Fmt(reading.CapacityCm3, "0.000"), Fmt(reading.GlassWeightGrams) })
+                t.Cell().Element(c => BodyCell(c, index % 2 == 0 ? "#ffffff" : DmoPdfPalette.Soft)).Text(value).FontSize(9);
+            index++;
+        }
+        foreach (var value in new[] { "Média dos CM", Avg3(input.Averages?.AverageCapacityCm3), Avg(input.Averages?.AverageGlassWeightGrams) })
+            t.Cell().Element(c => BodyCell(c, DmoPdfPalette.Tint)).Text(value).FontSize(9).SemiBold();
+    });
+
+    private static string Avg3(decimal? v) => v is { } value ? Fmt(value, "0.000") : "—";
+
+    private static string SignedOrDash(decimal? value) => value is { } v ? Signed(v) : "—";
+
+    private static string Fmt(decimal v, string pattern = "0.00") => v.ToString(pattern, Pt);
+
+    private static string Signed(decimal v) => DmoNumberFormat.Signed(v);
+
+    private static string Avg(decimal? v) => v is { } value ? Fmt(value) : "—";
+
+    private static IContainer HeaderCell(IContainer c) => c
+        .Background(DmoPdfPalette.Tint).BorderBottom(.7f).BorderRight(.3f).BorderColor(Line)
+        .PaddingHorizontal(7).PaddingVertical(9);
+
+    private static IContainer BodyCell(IContainer c, string background) => c
+        .Background(background).BorderBottom(.4f).BorderRight(.3f).BorderColor(Line)
+        .PaddingHorizontal(7).PaddingVertical(7);
+}

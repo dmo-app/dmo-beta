@@ -1,0 +1,59 @@
+@page
+@model HomeModel
+@{
+    ViewData["Title"] = "Início";
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.dmo-home-modules{margin-top:18px;display:grid;gap:12px}
+.dmo-home-modules h2{margin:0;font-size:16px}
+.dmo-home-intro{margin:4px 0 0;color:var(--dmo-muted)}
+.dmo-home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+.dmo-home-card{padding:16px;display:grid;gap:6px;align-content:start;text-decoration:none}
+.dmo-home-card h3{margin:0;font-size:15px;color:var(--dmo-brand-700,#315d88)}
+.dmo-home-card p{margin:0;color:var(--dmo-muted);font-size:12.5px}
+.dmo-home-card:hover,.dmo-home-card:focus-visible{border-color:var(--dmo-brand-600,#3c73a8)}
+.dmo-home-functions{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.dmo-home-functions a{font-size:12.5px;color:var(--dmo-brand-700,#315d88);text-decoration:underline;text-underline-offset:2px}
+.dmo-home-note{margin:6px 0 0;color:var(--dmo-muted);font-size:12px}
+</style>
+}
+
+<div class="dmo-shell-page">
+<h1>Módulo Início</h1>
+
+@if (Model.Actor.IsAuthenticated)
+{
+    <p>Sessão iniciada como @Model.Actor.DisplayName</p>
+    @if (Model.Actor.IsAdmin)
+    {
+        <p>ADMIN</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.Actor.ProfileLabel))
+    {
+        <p>Perfil: @Model.Actor.ProfileLabel</p>
+    }
+
+    @* A página de quem ainda não tem módulos (ou está em stand-by): os
+       módulos vêm do template, e cada um abre as suas páginas. *@
+    <section class="dmo-home-modules" aria-labelledby="dmo-home-modules-title">
+        <h2 id="dmo-home-modules-title">Módulos</h2>
+        @if (Model.Modules.Count == 0)
+        {
+            <p class="dmo-home-intro">A sua template ainda não inclui módulos. Peça ao administrador para a atribuir.</p>
+        }
+        else
+        {
+            <div class="dmo-home-grid">
+                @foreach (var module in Model.Modules)
+                {
+                    <a class="dmo-card dmo-home-card" href="@module.Home">
+                        <h3>@module.Label</h3>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+}
+</div>

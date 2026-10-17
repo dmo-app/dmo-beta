@@ -1,0 +1,74 @@
+@page
+@model DMO.Alpha.Web.Pages.Admin.Ferramentas.IndexModel
+@inject DMO.Alpha.Web.Services.ShellStateFactory ShellStateFactory
+@{
+    ViewData["Title"] = "Ferramentas — Administração";
+    Layout = "_DmoShellLayout";
+    var shell = (await ShellStateFactory.ForDestinationAsync("admin", new ModulePresentation("admin", "Administração")));
+    ViewData["Shell"] = shell with
+    {
+        ActiveFunctionKey = DMO.Alpha.Web.Pages.Admin.AdminAreaNavigation.FerramentasFunctionKey,
+        Functions = DMO.Alpha.Web.Pages.Admin.AdminAreaNavigation.Functions(
+            DMO.Alpha.Web.Pages.Admin.AdminAreaNavigation.FerramentasFunctionKey,
+            Url.Page("/Admin/Users/Index"),
+            Url.Page("/Admin/Templates/Index")),
+        Planeamento = shell.Planeamento with { Visible = false }
+    };
+}
+
+@section Head {
+<style>
+.adm-page{max-width:1000px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.adm-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.adm-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.adm-card{padding:18px}
+.adm-card h3{margin:0 0 4px;font-size:16px}
+.adm-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.adm-falta{margin:4px 0 12px;font-size:13px;color:var(--dmo-muted)}
+</style>
+}
+
+<main class="adm-page" aria-labelledby="tool-quantities-title">
+    <div class="page-head">
+        <h2 id="tool-quantities-title">Ferramentas — total do lote por máquina<partial name="_DmoHelp" model="@("O total habitual de cada lote de CM, MF e BQ em cada máquina (por exemplo, um lote de BQ da B1 tem 120). Ao criar uma ferramenta, a quantidade vem preenchida com este total e pode ser alterada. Se as máquinas escolhidas tiverem totais diferentes, quem cria a ferramenta escolhe. Campo vazio: sem total. Guardar não altera ferramentas já registadas.")" /></h2>
+    </div>
+
+    <section class="dmo-card adm-card" aria-label="Totais de lote por máquina">
+        @if (Model.ToolQuantityMessage is { } quantityMessage)
+        {
+            <p role="status">@quantityMessage</p>
+        }
+        @if (Model.ToolQuantityWarning is { } quantityWarning)
+        {
+            <div class="adm-aviso" role="status">@quantityWarning</div>
+        }
+        @if (Model.ToolQuantities.Count == 0)
+        {
+            <p>Ainda não há máquinas registadas.</p>
+        }
+        else
+        {
+            <p class="adm-falta">@(Model.MissingCount == 0 ? "Todos os totais estão definidos." : $"{Model.MissingCount} de {Model.ToolQuantities.Count} totais por definir.")</p>
+            <form method="post" asp-page-handler="SaveToolLotQuantities">
+                <div class="dmo-table-wrap">
+                    <table class="dmo-table">
+                        <thead><tr><th>Máquina</th><th>CM</th><th>MF</th><th>BQ</th></tr></thead>
+                        <tbody>
+                        @foreach (var group in Model.ToolQuantities.GroupBy(d => d.MachineCode))
+                        {
+                            <tr><th scope="row">@group.Key</th>
+                            @foreach (var item in group)
+                            {
+                                var text = Model.ToolQuantityDraft is { } draft && draft.TryGetValue(item.SettingKey, out var submitted) ? submitted : item.Quantity?.ToString();
+                                <td><div class="dmo-field"><input name="quantities[@item.SettingKey]" value="@text" inputmode="numeric" aria-label="Total do lote de @item.Type.ToString().ToUpperInvariant() na @item.MachineCode" placeholder="Por definir" /></div></td>
+                            }
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <button type="submit" class="dmo-button">Guardar totais</button>
+            </form>
+        }
+    </section>
+</main>

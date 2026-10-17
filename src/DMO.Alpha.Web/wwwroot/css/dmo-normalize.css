@@ -1,0 +1,268 @@
+/*
+ * Normalização geral da interface DMO.
+ * Carregado em último lugar pelos layouts: define uma única tipografia,
+ * escala de tamanhos, pesos, botões e campos para todas as páginas.
+ * Ecrã de trabalho de referência: 1366 x 768.
+ */
+
+/* Inter servida pela app (OFL, fonts/Inter-OFL.txt): o mesmo tipo de letra
+   em Windows, onde a Inter não vem instalada e o peso 800 caía na Segoe UI Black.
+   Os overrides fixam a subida e a descida da Inter (as do hhea): o Windows lia
+   outras e a letra ficava fora do centro nos botões e nos campos. */
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;ascent-override:96.875%;descent-override:24.121%;line-gap-override:0%;src:url("../fonts/inter-latin-wght-normal.woff2") format("woff2")}
+
+:root{
+  --dmo-font:"Inter",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --dmo-fs-xs:12px;   /* cabeçalhos de tabela, etiquetas */
+  --dmo-fs-sm:13px;   /* notas, texto secundário */
+  --dmo-fs-base:14px; /* texto, campos, botões, navegação */
+  --dmo-fs-md:16px;   /* títulos de cartão */
+  --dmo-fs-lg:22px;   /* título da página */
+  --dmo-fw-regular:400;
+  --dmo-fw-medium:500;
+  --dmo-fw-semibold:600;
+  --dmo-fw-bold:700;
+}
+
+/* Base */
+html body{font-family:var(--dmo-font);font-size:var(--dmo-fs-base);line-height:1.45;-webkit-font-smoothing:antialiased}
+html body :is(button,input,select,textarea){font-family:inherit}
+html body :is(h1,h2,h3,h4){font-family:inherit}
+
+/* Cabeçalho e navegação */
+html body .dmo-shell-header{font-family:var(--dmo-font)}
+html body .dmo-shell-header .dmo-shell-identity strong{font-weight:var(--dmo-fw-bold)}
+html body .dmo-shell-header .dmo-shell-user strong{font-size:var(--dmo-fs-sm);font-weight:var(--dmo-fw-semibold)}
+html body .dmo-shell-header :is(.dmo-shell-logout,.dmo-shell-change-password,.dmo-shell-settings){font-size:var(--dmo-fs-sm);font-weight:var(--dmo-fw-semibold)}
+html body :is(.dmo-primary-nav,.dmo-secondary-nav) :is(a,button),
+html body .dmo-shell-navigation :is(.dmo-primary-nav,.dmo-secondary-nav) :is(a,button){font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold)}
+
+/* Títulos */
+html body :is(.dmo-page-head,.page-head,.page-heading) :is(h1,h2){font-size:var(--dmo-fs-lg) !important;font-weight:var(--dmo-fw-bold) !important;letter-spacing:-.01em}
+html body :is(.dmo-page-head,.page-head,.page-heading) p{font-size:var(--dmo-fs-sm) !important}
+html body :is(.dmo-card,.beta-bq-layout .card,.resumo-card,.ferr-card) :is(h2,h3){font-size:var(--dmo-fs-md);font-weight:var(--dmo-fw-semibold)}
+html body :is(.dmo-card,.beta-bq-layout .card) h4{font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold)}
+
+/* Botões: um só tamanho e peso e UMA só aparência (Diogo, 16/10/2026): azul
+   com letra branca; o hover inverte (branco com letra azul). O «ghost» antigo
+   (branco) deixa de ser uma variante: fica igual a todos os outros.
+   Texto ao centro (Diogo, 17/10/2026): o text-box corta a caixa da letra à
+   altura das maiúsculas e à linha de base, para o flex a centrar sem depender
+   das métricas do tipo de letra em cada sistema. */
+html body :is(.dmo-button,.button,.btn){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 16px;white-space:nowrap;font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);letter-spacing:0;line-height:1;text-box:trim-both cap alphabetic}
+html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-brand-600));color:var(--dmo-text-on-color);border:1px solid var(--button-color,var(--dmo-brand-600))}
+/* Só a linha fina do botão, sem a segunda borda à volta (Diogo, 17/10/2026).
+   O hover inverte as cores; o foco do teclado é um halo suave da paleta. */
+html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600));outline:0}
+html body :is(.dmo-button,.button,.btn):focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+/* Um só tamanho de botão (Diogo, 17/10/2026): a altura e a letra dos campos
+   de filtragem (--dmo-control-height, --dmo-fs-base) em toda a app. As setas
+   (paginação, mês do calendário) são quadradas com a mesma altura. */
+html body :is(.dmo-button,.button,.btn).dmo-arrow,
+html body .dmo-calendar .icon-btn{box-sizing:border-box;width:var(--dmo-control-height);min-width:var(--dmo-control-height);height:var(--dmo-control-height);padding:0;font-size:var(--dmo-fs-base);line-height:1}
+/* «Sair»: só a palavra, sem caixa (Diogo, 17/10/2026: o botão era intrusivo no
+   cabeçalho). Azul como os links; o hover sublinha. */
+html body .dmo-shell-header .dmo-shell-logout{min-height:0;margin-left:18px;padding:4px 2px;border:0;border-radius:4px;background:none;color:var(--dmo-brand-700);font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);line-height:1.2;text-decoration:none}
+html body .dmo-shell-header .dmo-shell-logout:is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);text-decoration:underline;text-underline-offset:3px;outline:0}
+html body .dmo-shell-header .dmo-shell-logout:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
+/* Indisponível (desativado ou sem seleção): cinzento, sem hover. */
+html body :is(.dmo-button,.button,.btn):is(:disabled,[aria-disabled="true"]),
+html body :is(.dmo-button,.button,.btn):is(:disabled,[aria-disabled="true"]):hover{background:var(--dmo-disabled);border-color:var(--dmo-disabled);color:var(--dmo-text-on-color);outline:0;opacity:1;cursor:not-allowed;pointer-events:none}
+/* Seta desativada da paginação: cinzenta mas legível (contraste ≥ 3:1; teste de carga 17/10/2026). */
+html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="true"]){color:var(--dmo-muted)}
+
+/* Campos: todos os selects nativos com o aspeto dos campos da app */
+html body :is(.dmo-field,.beta-light-fields) label{font-size:var(--dmo-fs-xs);font-weight:var(--dmo-fw-semibold)}
+html body .beta-light-fields :is(input,select){font-weight:var(--dmo-fw-regular)}
+html body select:not([multiple]):not([size]){box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-card);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2;-webkit-appearance:none;appearance:none}
+/* A seta é obrigatória: as regras de campo antigas têm seletores mais fortes e repunham o fundo. */
+html body select:not([multiple]):not([size]){padding-right:32px !important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364778a' stroke-width='1.6'/%3E%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:right 11px center !important}
+html body select:not([multiple]):not([size]):focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
+html body select:disabled{background-color:var(--dmo-subtle);color:var(--dmo-muted);cursor:not-allowed}
+html body :is(.dmo-field,.beta-light-fields) :is(input:not([type=radio]):not([type=checkbox]),textarea){font-size:var(--dmo-fs-base)}
+
+/* Preenchimento automático do browser (Diogo, 17/10/2026: no login a letra
+   das credenciais muda de tamanho ao carregar em «Entrar»). Ao abrir a página
+   o Chrome mostra as credenciais guardadas como sugestão, desenhada com
+   «font:-webkit-small-control !important» (letra do sistema, 13,33px), que o
+   CSS da página não consegue mudar; no primeiro clique passa o valor para o
+   campo. Por isso o valor preenchido usa essa mesma letra e não muda nesse
+   clique. Fora do preenchimento automático os campos continuam na Inter. */
+html body input:-webkit-autofill,
+html body input:-webkit-autofill:is(:hover,:focus,:active){-webkit-text-fill-color:var(--dmo-text);caret-color:var(--dmo-text);-webkit-box-shadow:0 0 0 1000px var(--dmo-card) inset;box-shadow:0 0 0 1000px var(--dmo-card) inset;font:-webkit-small-control !important;line-height:1.2 !important;transition:background-color 99999s}
+
+/* Notas e texto secundário: um só tamanho */
+html body :is(.card-note,.ferr-hint,.peso-hint,.peg-hint,.resumo-hint,.dmu-hint,.dfu-hint,.dmt-hint,.adm-hint,.muted){font-size:var(--dmo-fs-sm);line-height:1.45}
+
+/* Tabelas */
+html body table th{font-size:var(--dmo-fs-xs);font-weight:var(--dmo-fw-semibold)}
+
+/* Pesos fortes reduzidos a semibold/bold */
+html body :is(strong,b){font-weight:var(--dmo-fw-semibold)}
+html body :is(.dmo-pill,.status){font-weight:var(--dmo-fw-semibold)}
+/* Pills: o texto centrado na horizontal e na vertical, mesmo quando a página
+   força display:block nos spans (ex.: a contagem de utilizadores nos Templates). */
+html body :is(.dmo-pill,.status){display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2}
+/* Alinhamento vertical do texto (Diogo, 17/10/2026: «font ligeiramente
+   desalinhado»): a Inter tem mais espaço por cima das letras do que por baixo,
+   por isso o texto ficava descaído. Altura fixa e a caixa do texto cortada às
+   maiúsculas e à linha de base: as letras ficam ao centro do pill. */
+html body :is(.dmo-pill,.status,.pill,.revisao-pill){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:24px;min-height:24px;padding:0 10px;font-size:var(--dmo-fs-xs);line-height:1;text-box:trim-both cap alphabetic;white-space:nowrap}
+html body .revisao-pill.big{height:32px;min-height:32px;padding:0 14px;font-size:var(--dmo-fs-sm)}
+
+/* Barra de filtros: os campos partilham uma linha e o botão fica no fim dela. */
+html body .dmo-filter-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 12px}
+html body .dmo-filter-bar>.dmo-field{flex:1 1 150px;min-width:0}
+html body .dmo-filter-bar>.dmo-field:has(>.dmo-button){flex:0 0 auto;display:flex;gap:8px}
+html body .dmo-filter-bar>.dmo-field:has(>.dmo-button)>label{display:none}
+
+/* Formulários em grelha: os campos alinham pelo rótulo; as notas por baixo
+   de um campo crescem para baixo sem empurrar o campo para cima. */
+html body :is(.ferr-form-grid,.peso-form-grid){align-items:start}
+html body :is(.ferr-form-grid,.peso-form-grid)>.dmo-field>label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Tabelas: UMA só regra para toda a app (Diogo, 16/10/2026). As linhas são
+   brancas; o hover é azul-claro; a linha selecionada inverte como os botões
+   (fundo azul, letra branca). Um clique seleciona, o duplo clique ou o Enter
+   abrem. Não há círculo de seleção visível: o rádio fica no markup (é o valor
+   submetido) mas escondido, e a sua coluna não ocupa espaço. */
+html body .dmo-table tbody tr{background:var(--dmo-card)}
+html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio]),[data-dmo-row]){cursor:pointer;transition:background var(--dmo-fast),color var(--dmo-fast)}
+/* O destaque da linha (Diogo, 17/10/2026: «a forma como encaixa no
+   background»): desenhado nas células, com cantos arredondados nas pontas e
+   uma barra fina à esquerda, dentro da tabela, que tem uma pequena margem
+   para o destaque nunca tocar na borda do cartão. Rato por cima: o azul claro da paleta (--dmo-row-hover);
+   linha escolhida: o azul da paleta com letra branca. */
+html body .dmo-table-wrap:has(>.dmo-table tbody [data-dmo-row]){padding:4px}
+html body .dmo-table-wrap:has(>.dmo-table tbody [data-dmo-row]) thead th:first-child{border-radius:7px 0 0 7px}
+html body .dmo-table-wrap:has(>.dmo-table tbody [data-dmo-row]) thead th:last-child{border-radius:0 7px 7px 0}
+html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:var(--dmo-row-hover)}
+html body .dmo-table tbody :is(tr,[data-dmo-row]):is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked)){color:var(--dmo-text-on-color);outline:0}
+html body .dmo-table tbody :is(tr,[data-dmo-row]):is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked))>td{background:var(--dmo-brand-600)}
+html body .dmo-table tbody :is(tr,[data-dmo-row]):is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked)) :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:inherit}
+html body .dmo-table tbody tr:is(:is([data-dmo-row],:has(>td>input[type=radio])):hover,.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked))>td:is(:first-child:not(:has(>input[type=radio])),:first-child:has(>input[type=radio])+td){border-radius:7px 0 0 7px;box-shadow:inset 3px 0 0 var(--dmo-brand-600)}
+html body .dmo-table tbody tr:is(:is([data-dmo-row],:has(>td>input[type=radio])):hover,.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked))>td:last-child{border-radius:0 7px 7px 0}
+html body .dmo-table tbody tr:is(:is([data-dmo-row],:has(>td>input[type=radio])):hover,.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked))>td:is(:first-child:not(:has(>input[type=radio])),:first-child:has(>input[type=radio])+td):last-child{border-radius:7px}
+/* As linhas de separação não atravessam o destaque. */
+html body .dmo-table tbody tr:is(:is([data-dmo-row],:has(>td>input[type=radio])):hover,.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked))>td,
+html body .dmo-table tbody tr:is(:is([data-dmo-row],:has(>td>input[type=radio])):hover,.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked))+tr>td{border-top-color:transparent}
+html body .dmo-table tbody :is(tr,[data-dmo-row]):focus-visible{outline:2px solid var(--dmo-brand-700);outline-offset:-2px}
+html body .dmo-table td>input[type=radio]{position:absolute;opacity:0;width:0;height:0;margin:0;pointer-events:none}
+html body .dmo-table :is(th,td):first-child:has(>input[type=radio]),
+html body .dmo-table:has(td:first-child>input[type=radio]) thead th:first-child:empty{width:1px;padding:0}
+html body .resumo-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+
+/* Sugestões ao escrever (DMO-044, js/dmo-suggest.js): a lista por baixo do
+   campo e o select longo transformado em filtro, com o aspeto dos campos. */
+html body .dmo-suggest{position:relative;display:block;min-width:0}
+html body .dmo-suggest > input{width:100%}
+html body .dmo-suggest-native{position:absolute !important;width:1px !important;height:1px !important;min-height:0 !important;padding:0 !important;border:0 !important;opacity:0;pointer-events:none;bottom:0;left:0}
+html body input.dmo-suggest-input{box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-card);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2}
+html body input.dmo-suggest-combo{padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364778a' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+html body input.dmo-suggest-input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
+html body input.dmo-suggest-input:disabled{background-color:var(--dmo-subtle);color:var(--dmo-muted);cursor:not-allowed}
+html body .dmo-suggest-list{position:fixed;z-index:200;min-width:220px;max-height:min(320px,50vh);overflow-y:auto;margin:0;padding:4px;list-style:none;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow-menu)}
+html body .dmo-suggest-list li{padding:8px 10px;border-radius:6px;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);color:var(--dmo-text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .dmo-suggest-list li:hover,
+html body .dmo-suggest-list li.active{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
+html body .dmo-suggest-list li[aria-selected="true"]{font-weight:var(--dmo-fw-semibold)}
+html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:default;background:none}
+
+/* A dica de ajuda (partial _DmoHelp): triângulo da paleta junto ao elemento,
+   assente na linha de base e da altura das maiúsculas do texto ao lado; ao
+   passar o rato inverte a cor (preenchido ↔ contorno) e mostra o texto.
+   Num cartão sem título, .dmo-help-corner põe-no no canto de cima. */
+.dmo-help{position:relative;display:inline-flex;vertical-align:baseline;margin-left:.4em;cursor:help;outline:none;line-height:1}
+.dmo-help-mark{display:block;overflow:visible;width:12px;height:10.5px}
+.dmo-help-mark path{fill:var(--dmo-palette-mist);stroke:var(--dmo-palette-mist);stroke-width:1.5;stroke-linejoin:round;transition:fill var(--dmo-fast),stroke var(--dmo-fast)}
+.dmo-help:hover .dmo-help-mark path,.dmo-help:focus .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}
+.dmo-help:focus-visible{outline:2px solid var(--dmo-palette-mist);outline-offset:2px;border-radius:2px}
+.dmo-help-tip{display:none;position:absolute;z-index:50;top:calc(100% + 6px);left:-8px;width:max-content;max-width:320px;padding:8px 10px;border-radius:var(--dmo-r-control);background:var(--dmo-palette-slate);color:#fff;font-size:var(--dmo-fs-sm);font-weight:var(--dmo-fw-regular);letter-spacing:0;text-transform:none;text-align:left;line-height:1.4;white-space:normal;box-shadow:var(--dmo-shadow-menu)}
+.dmo-help:hover .dmo-help-tip,.dmo-help:focus .dmo-help-tip,.dmo-help:focus-within .dmo-help-tip{display:block}
+/* O texto da dica é sempre branco, mesmo dentro de blocos que pintam os <span> (como o cabeçalho da lista do Job On). */
+html body .dmo-help .dmo-help-tip{color:#fff}
+.card:has(>.dmo-help-corner){position:relative}
+.dmo-help-corner{position:absolute;top:14px;right:14px}
+.dmo-help-corner .dmo-help{margin-left:0}
+.dmo-help-corner .dmo-help-tip{left:auto;right:-8px}
+/* O título com dica fica com o espaço que a nota por baixo dele ocupava. */
+html body :is(.dmo-card,.beta-bq-layout .card) h3:has(>.dmo-help){margin-bottom:12px}
+html body :is(.dmo-card,.beta-bq-layout .card) h3:has(>.dmo-help)+:is(.card-note,.muted){margin-top:-8px}
+
+/* Separador com dropdown na barra de funções (o «Funções» do Controlo). */
+html body .dmo-shell-navigation>.dmo-secondary-nav:has(.dmo-tab-menu){overflow:visible}
+html body .dmo-secondary-nav .dmo-tab-menu{position:relative;display:flex;align-items:stretch}
+html body .dmo-secondary-nav .dmo-tab-menu>summary{display:inline-flex;align-items:center;gap:6px;padding:0 5px;border-bottom:3px solid transparent;color:var(--dmo-muted);font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);cursor:pointer;list-style:none;white-space:nowrap;user-select:none}
+html body .dmo-secondary-nav .dmo-tab-menu>summary::-webkit-details-marker{display:none}
+html body .dmo-secondary-nav .dmo-tab-menu>summary:hover,
+html body .dmo-secondary-nav .dmo-tab-menu>summary.active,
+html body .dmo-secondary-nav .dmo-tab-menu[open]>summary{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600)}
+html body .dmo-secondary-nav .dmo-tab-menu-caret{font-size:11px;transition:transform var(--dmo-fast)}
+html body .dmo-secondary-nav .dmo-tab-menu[open] .dmo-tab-menu-caret{transform:rotate(180deg)}
+html body .dmo-secondary-nav .dmo-tab-menu-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:190px;margin-top:1px;padding:6px;background:#fff;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
+html body .dmo-secondary-nav .dmo-tab-menu-list a{display:block;padding:9px 10px;border:0;border-radius:6px;color:var(--dmo-text);white-space:nowrap}
+html body .dmo-secondary-nav .dmo-tab-menu-list a:hover{background:var(--dmo-subtle);color:var(--dmo-brand-700)}
+html body .dmo-secondary-nav .dmo-tab-menu-list a.active{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
+/* «Opções»: as ações raras de uma folha num só botão com dropdown (menos
+   clutter, Diogo 17/10/2026). Fecha ao clicar fora ou com Esc (dmo-live.js). */
+html body .dmo-options{position:relative;display:inline-block}
+html body .dmo-options>summary{display:inline-flex;align-items:center;gap:6px;list-style:none;cursor:pointer;user-select:none}
+html body .dmo-options>summary::-webkit-details-marker{display:none}
+html body .dmo-options-caret{font-size:11px;transition:transform var(--dmo-fast)}
+html body .dmo-options[open] .dmo-options-caret{transform:rotate(180deg)}
+html body .dmo-options-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:210px;margin-top:4px;padding:6px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
+html body .dmo-options-list form{display:block;margin:0}
+html body .dmo-options-item{display:block;width:100%;min-height:0;padding:9px 10px;border:0;border-radius:6px;background:none;color:var(--dmo-text);font:inherit;font-size:var(--dmo-fs-base);text-align:left;white-space:nowrap;cursor:pointer}
+html body .dmo-options-item:is(:hover,:focus-visible){background:var(--dmo-brand-050);color:var(--dmo-brand-700);outline:0}
+/* Cartões de informação (componente partilhado, Diogo 17/10/2026): um rótulo
+   curto em maiúsculas e o valor por baixo, com a barra azul à esquerda.
+   Modelo em docs/ui-reference/componentes-partilhados.md. */
+html body .dmo-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px;margin-top:10px}
+html body .dmo-fact{padding:10px 12px;border-left:3px solid var(--dmo-brand-600);background:var(--dmo-subtle);border-radius:8px;min-width:0}
+html body .dmo-fact>span{display:block;color:var(--dmo-muted);font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em}
+html body .dmo-fact>strong{display:block;margin-top:3px;font-size:14px;overflow-wrap:anywhere}
+/* Barras de ações afastadas dos campos e das tabelas à volta (Diogo 17/10/2026:
+   «ter atenção aos botões que ficam colados a outros elementos»). */
+html body .dmo-list-actions{margin:12px 0}
+html body .dmo-list-actions form{margin:0}
+html body .dmo-fact>small{display:block;margin-top:2px;color:var(--dmo-muted);font-size:10.5px}
+/* Cartões curtos empilhados na mesma coluna; um cartão sozinho estica. */
+html body .dmo-fact-stack{display:grid;gap:9px;grid-auto-rows:1fr}
+/* Um cartão que abre outra página: o hover inverte, como os botões. */
+html body a.dmo-fact.dmo-fact-link{display:block;text-decoration:none;color:inherit;cursor:pointer}
+html body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible){background:var(--dmo-brand-600);color:var(--dmo-text-on-color)}
+html body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>span{color:inherit}
+html body a.dmo-fact.dmo-fact-link>em{display:block;margin-top:4px;font-style:normal;font-size:11.5px;font-weight:700;color:var(--dmo-brand-600)}
+html body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>em{color:inherit}
+/* Job On: o dropdown das produções da procura em dois passos, a «Opções» da
+   folha alinhada à direita e a tabela das produções da referência. */
+html body .dmo-search-form select{box-sizing:border-box;flex:0 1 210px;min-width:0;min-height:var(--dmo-control-height);padding:9px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:14px}
+html body .beta-light-actions .dmo-options-list{left:auto;right:0}
+html body .jobon-ref-productions{margin-top:18px}
+html body .jobon-ref-productions h3{margin:0;font-size:15px}
+html body .jobon-ref-productions .dmo-table-wrap{margin-top:10px}
+html body .jobon-ref-productions tr[data-dmo-row]{cursor:pointer}
+html body .jobon-ref-productions tr.jobon-ref-current td{background:var(--dmo-brand-050)}
+html body .beta-light-actions .dmo-options-list{top:auto;bottom:100%;margin:0 0 4px}
+html body a.dmo-options-item{text-decoration:none}
+html body .beta-light-productions .beta-light-card-head h2{white-space:nowrap}
+html body .beta-light-productions .dmo-search-form{flex-wrap:nowrap}
+html body .beta-light-productions .dmo-search-form input[type="search"]{flex:0 1 170px;width:170px}
+html body .beta-light-productions .dmo-search-form select{flex:0 1 220px}
+@media(max-width:700px){html body .beta-light-productions .dmo-search-form{flex-wrap:wrap;width:100%}html body .beta-light-productions .dmo-search-form :is(input[type="search"],select){flex:1 1 160px;width:auto}}
+/* A janela pequena (Diogo, 17/10/2026): as ações de correção abrem numa
+   janela, sem empurrar a página. */
+html body .dmo-dialog{width:min(520px,calc(100vw - 32px));padding:20px;border:1px solid var(--dmo-border);border-radius:12px;background:var(--dmo-card);color:var(--dmo-text);box-shadow:var(--dmo-shadow)}
+html body .dmo-dialog::backdrop{background:rgba(20,45,70,.45)}
+html body .dmo-dialog h3{margin:0 0 12px;font-size:16px}
+html body .dmo-dialog form{display:grid;gap:10px;margin:0}
+html body .dmo-dialog input[type=url]{width:100%;min-height:40px;padding:8px 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);font:inherit}
+html body .dmo-dialog textarea{width:100%;padding:8px 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);font:inherit;font-size:var(--dmo-fs-base);line-height:1.45;resize:vertical}
+html body .dmo-dialog textarea:focus{border-color:var(--dmo-brand-600);outline:0}
+html body .dmo-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+html body .dmo-dialog .dmo-dialog-cancel{background:none;border-color:var(--dmo-border);color:var(--dmo-brand-700)}
+/* Job On: as produções encontradas ao escrever, por baixo do campo e afastadas dele. */
+html body .beta-light-productions .jobon-procura:not(:empty){margin:12px 0}
+html body .beta-light-productions .jobon-procura .dmo-table{white-space:normal}
+html body .beta-light-productions .jobon-procura .dmo-table :is(th,td){padding:9px 8px}
+html body .beta-light-productions .jobon-procura .jobon-procura-titulo{margin:0 0 8px;font-size:14px}

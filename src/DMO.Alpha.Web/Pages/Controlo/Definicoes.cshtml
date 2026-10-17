@@ -1,0 +1,51 @@
+@page "/Controlo/Definicoes"
+@model DMO.Alpha.Web.Pages.Controlo.DefinicoesModel
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.ctl-def-page{display:flex;flex-direction:column;gap:14px}
+.ctl-def-card{padding:18px}
+.ctl-def-card h3{margin:0 0 10px;font-size:16px}
+.ctl-def-acoes{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+</style>
+}
+
+<main class="ctl-def-page dmo-workspace" aria-labelledby="ctl-def-title">
+
+  <div class="page-head">
+    <div>
+      <h1 id="ctl-def-title">Definições do Controlo</h1>
+    </div>
+  </div>
+
+  <section class="dmo-card ctl-def-card" aria-labelledby="pasta-pdf-title" data-dmo-pasta-pdf>
+    <h3 id="pasta-pdf-title">Pasta partilhada dos PDFs<partial name="_DmoHelp" model="@("A pasta partilhada do servidor da fábrica (por exemplo «Controlo 2026»). Os PDFs do Resumo, do Peso, dos Pegamentos e das PU NNPB gravam-se lá, em referência\\produção, e a app cria as pastas que faltarem. O PDF nunca fica no servidor da app. A pasta associa-se uma vez em cada computador (Chrome ou Edge); sem pasta, o PDF vai para as Transferências.")" /></h3>
+    <p><strong>Pasta:</strong> <span data-dmo-pasta-pdf-nome>Nenhuma (Transferências)</span></p>
+    <p data-dmo-pasta-pdf-sem-suporte hidden>Use o Chrome ou o Edge para associar a pasta.</p>
+    <div class="ctl-def-acoes">
+      <button type="button" class="dmo-button" data-dmo-pasta-pdf-escolher hidden>Associar</button>
+      <button type="button" class="dmo-button" data-dmo-pasta-pdf-esquecer hidden>Remover</button>
+    </div>
+  </section>
+
+  <section class="dmo-card ctl-def-card" aria-labelledby="pegamentos-settings-title">
+    <h3 id="pegamentos-settings-title">Pegamentos — tolerância<partial name="_DmoHelp" model="@("A tolerância (± mm) à volta do gargalo do CM, BQ e MF. A norma é 0,20 mm. Cada registo de Pegamentos guarda a tolerância com que foi criado: mudar este valor não altera registos já feitos.")" /></h3>
+    @if (Model.SaveResultMessage.Length > 0)
+    {
+      <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+    }
+    <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePegamentosTolerance" class="ctl-def-acoes">
+      <div class="dmo-field">
+        <label for="pegamentosTolerance">Tolerância (± mm)</label>
+        <input id="pegamentosTolerance" name="tolerance_mm" inputmode="decimal" value="@Model.PegamentosToleranceMm.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" required />
+        @if (Model.PegamentosToleranceIsDefault)
+        {
+          <small>Sem valor guardado: vale a norma de 0,20 mm.</small>
+        }
+      </div>
+      <button type="submit" class="dmo-button">Guardar tolerância</button>
+    </form>
+  </section>
+</main>

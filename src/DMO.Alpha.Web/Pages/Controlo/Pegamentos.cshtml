@@ -1,0 +1,464 @@
+@page "/Controlo/Pegamentos"
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosModel
+@using DMO.Alpha.Core.Controlo
+@{
+    Layout = "_DmoShellLayout";
+    var fmt = new Func<decimal, string>(value =>
+        value.ToString("0.00", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture));
+    var fmtOptional = new Func<decimal?, string>(value =>
+        value is null ? "—" : fmt(value.Value));
+    var fmtSigned = new Func<decimal?, string>(value =>
+        value is null ? "—" : DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(value.Value));
+    // Coordenadas SVG com ponto decimal independente da cultura do servidor.
+    var fd = new Func<double, string>(value =>
+        value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture));
+    // A tolerância efetiva exibida: a congelada no registo quando existe, a
+    // corrente (config ?? default) antes da primeira medição — o que a
+    // criação do registo congelará.
+    var shownTolerance = Model.Sheet?.Pegamentos?.ToleranceMm ?? Model.Sheet?.CurrentToleranceMm ?? PegamentosCalculation.DefaultToleranceMm;
+    var componentLabel = new Func<PegamentosComponent, string>(component => component switch
+    {
+        PegamentosComponent.Cm => "CM — Contra-molde",
+        PegamentosComponent.Bq => "Boquilha (BQ)",
+        PegamentosComponent.Mf => "Molde final (MF)",
+        _ => component.ToString()
+    });
+    var axisAlert = new Func<PegamentosRowEvaluation, PegamentosEvaluatedAxis, bool>((evaluation, axis) =>
+        evaluation.Values.FirstOrDefault(v => v.Axis == axis) is { } value && value.Alert);
+    var stateLabel = new Func<PegamentosRowEvaluation, string>(evaluation => evaluation switch
+    {
+        { IsNotEvaluable: true } => "não avaliável",
+        { HasAlert: true } => "fora",
+        _ => "dentro"
+    });
+}
+@inject DMO.Alpha.Web.Services.CurrentUserCapabilities UserCapabilities
+@{
+    // A ficha da ferramenta só abre para quem tem o módulo Ferramentas.
+    var podeAbrirFicha = (await UserCapabilities.GetAsync()).Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas, StringComparer.Ordinal);
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-pegamentos-prototype.css" asp-append-version="true" />
+}
+
+<main class="peg-page dmo-workspace" aria-labelledby="peg-title">
+
+  <div class="page-head">
+    <div>
+      <h1 id="peg-title">Pegamentos</h1>
+      <p>Costura (0°) e contra costura (90°) da combinação CM + BQ + MF.</p>
+    </div>
+  </div>
+
+  @* ------------------------------------------------------------------ *@
+  @* 0. Sem controlo selecionado: a folha vive sob um controlo_id —      *@
+  @*    a produção seleciona-se no Resumo e o link traz o controlo_id.   *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.Sheet is null && Model.RequestedControloId is null && Model.RequestedPegamentosId is null)
+  {
+    <nav class="peg-document-actions" aria-label="Tipo de Pegamentos" style="margin-bottom:14px" data-peg-modo>
+      <a class="dmo-button" href="/Controlo/Pegamentos" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
+      <a class="dmo-button" href="/Controlo/Pegamentos?modo=@PegamentosModel.ModoJobOnValor" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar a um Job On</a>
+    </nav>
+    @if (Model.EscolhaRefusalMessage is { } recusaEscolha)
+    {
+      <div class="peg-aviso" role="alert">@recusaEscolha</div>
+    }
+
+    @if (Model.ModoJobOn)
+    {
+      <section class="dmo-card peg-card" aria-labelledby="peg-jobon-title">
+        <div class="peg-section-head"><div>
+          <h3 id="peg-jobon-title">Job On dos Pegamentos</h3>
+          <p class="card-note">CM, boquilha (BQ) e molde final (MF) vêm do Job On escolhido.</p>
+        </div></div>
+        <partial name="_PegamentosEscolhaJobOn" model="Model" />
+      </section>
+    }
+    else
+    {
+      <section class="dmo-card peg-card" aria-labelledby="peg-tools-title">
+        <div class="peg-section-head"><div>
+          <h3 id="peg-tools-title">Ferramentas dos Pegamentos</h3>
+          <p class="card-note">Sem Job On: escreva as referências da CM, da BQ e do MF (os Pegamentos medem sempre os três). Pode associar o Job On mais tarde.</p>
+        </div></div>
+        <form method="get" asp-page="/Controlo/Pegamentos" class="dmo-filter-bar">
+          <div class="dmo-field">
+            <label for="pegCmRef">CM — referência</label>
+            <input id="pegCmRef" name="cm_ref" value="@Model.RequestedCmReference" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-submit />
+          </div>
+          <div class="dmo-field">
+            <label for="pegBqRef">Boquilha (BQ) — referência</label>
+            <input id="pegBqRef" name="bq_ref" value="@Model.RequestedBqReference" placeholder="Ex.: T194" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
+          </div>
+          <div class="dmo-field">
+            <label for="pegMfRef">Molde final (MF) — referência</label>
+            <input id="pegMfRef" name="mf_ref" value="@Model.RequestedMfReference" placeholder="Ex.: 5810" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" data-dmo-suggest-submit />
+          </div>
+          @* Escolher a sugestão mostra logo a referência e o lote, sem botão
+             (Diogo, 17/10/2026: os campos de procura aplicam ao escolher). *@
+          <noscript><button type="submit" class="dmo-button">Ferramentas</button></noscript>
+        </form>
+        @if (Model.CmTool is not null || Model.BqTool is not null || Model.MfTool is not null)
+        {
+          <div class="dmo-facts peg-context-grid" style="margin-top:12px">
+            <div class="dmo-fact"><span>CM</span><strong>@(Model.CmTool?.Reference ?? "—")@(Model.CmTool?.Lot is { } novoCmLot ? $" · Lote {novoCmLot}" : null)</strong></div>
+            <div class="dmo-fact"><span>BQ</span><strong>@(Model.BqTool?.Reference ?? "—")@(Model.BqTool?.Lot is { } novoBqLot ? $" · Lote {novoBqLot}" : null)</strong></div>
+            <div class="dmo-fact"><span>MF</span><strong>@(Model.MfTool?.Reference ?? "—")@(Model.MfTool?.Lot is { } novoMfLot ? $" · Lote {novoMfLot}" : null)</strong></div>
+          </div>
+        }
+        @if (Model.CmToolRequestedNotFound)
+        {
+          <div class="peg-aviso" role="alert">A referência da CM indicada não está registada no Ferramentas.</div>
+        }
+        @if (Model.BqToolRequestedNotFound)
+        {
+          <div class="peg-aviso" role="alert">A referência da boquilha (BQ) indicada não está registada no Ferramentas.</div>
+        }
+        @if (Model.MfToolRequestedNotFound)
+        {
+          <div class="peg-aviso" role="alert">A referência do molde final (MF) indicada não está registada no Ferramentas.</div>
+        }
+        @if (Model.FerramentasProntas)
+        {
+          <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="CreateToolScoped" class="peg-document-actions" style="margin-top:12px">
+            <input type="hidden" name="cm_tool_id" value="@Model.CmTool?.ToolId" />
+            <input type="hidden" name="bq_tool_id" value="@Model.BqTool?.ToolId" />
+            <input type="hidden" name="mf_tool_id" value="@Model.MfTool?.ToolId" />
+            <input type="hidden" name="cm_ref" value="@Model.RequestedCmReference" />
+            <input type="hidden" name="bq_ref" value="@Model.RequestedBqReference" />
+            <input type="hidden" name="mf_ref" value="@Model.RequestedMfReference" />
+            <button type="submit" class="dmo-button">Criar Pegamentos</button>
+          </form>
+        }
+      </section>
+    }
+  }
+  else if (Model.ControloRequestedNotFound)
+  {
+    <div class="peg-aviso" role="alert">O controlo indicado não existe. Nenhuma folha foi aberta.</div>
+  }
+  @if (Model.PdfRefusalMessage is { Length: > 0 } pdfRefusalMessage)
+  {
+    <div class="peg-aviso" role="alert">@pdfRefusalMessage</div>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 1. Contexto do Job On: herdado, composto no momento da leitura.     *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.Sheet is { } sheet)
+  {
+    <section class="dmo-card peg-card" aria-labelledby="peg-context-title">
+      <div class="peg-section-head">
+        <div>
+          <h3 id="peg-context-title">@(sheet.SemJobOn ? "Pegamentos sem Job On" : "Contexto da produção")</h3>
+          <p>@(sheet.SemJobOn ? "As ferramentas foram escolhidas à mão. Associe o Job On quando a produção existir." : "A produção e as ferramentas vêm do Job On selecionado no Resumo do Controlo.")</p>
+        </div>
+        <span class="peg-step">1 · Contexto</span>
+      </div>
+      @if (Model.JobOnNotice is { } jobOnNotice)
+      {
+        <partial name="_JobOnChangeNotice" model="jobOnNotice" />
+      }
+      @* OS CARDS DOS PEGAMENTOS (o Owner 2026-10-13: «pegamentos podem ter
+         os cards com o que é relevante para os pegamentos: cm bq mf e os
+         lotes»): os COMPONENTES MEDIDOS com as referências e os lotes —
+         a cruz mede a CM, a BQ e o MF; o corredor. Nada mais. *@
+      <div class="dmo-facts peg-context-grid">
+        <div class="dmo-fact"><span>Nº de produção</span><strong>@sheet.ProductionNumber</strong></div>
+        @if (!sheet.SemJobOn)
+        {
+          <div class="dmo-fact"><span>Máquina</span><strong>@sheet.Machine</strong></div>
+        }
+        <div class="dmo-fact"><span>CM</span><strong>@(Model.CmTool?.Reference ?? "—")@(Model.CmTool?.Lot is { } cmLot ? $" · Lote {cmLot}" : null)</strong></div>
+        <div class="dmo-fact"><span>BQ</span><strong>@(Model.BqTool?.Reference ?? "—")@(Model.BqTool?.Lot is { } bqLot ? $" · Lote {bqLot}" : null)</strong></div>
+        <div class="dmo-fact"><span>MF</span><strong>@(Model.MfTool?.Reference ?? (sheet.MfToolId is null ? "não aplicável" : "—"))@(Model.MfTool?.Lot is { } mfLot ? $" · Lote {mfLot}" : null)</strong></div>
+        @* O operador que fez os Pegamentos (Diogo, 17/10/2026): ocupa o
+           lugar da máquina nos Pegamentos sem Job On. *@
+        @if (sheet.SemJobOn)
+        {
+          <div class="dmo-fact"><span>Operador</span><strong>@(sheet.Pegamentos?.RegistadoPor ?? "—")</strong></div>
+        }
+        <div class="dmo-fact">
+          <span>Corredor de tolerância</span>
+          <strong>nominal ± @fmt(shownTolerance) mm</strong>
+          <small>@(sheet.Pegamentos is null ? "tolerância predefinida (±0.20 mm) — fica congelada no registo na primeira medição" : sheet.SemJobOn ? "congelada neste registo" : "congelada no registo desta produção")</small>
+        </div>
+      </div>
+      <div class="peg-context-notes">
+      @if (sheet.Pegamentos is null)
+      {
+        <p class="peg-hint">Ainda sem medições nesta produção. O PDF sai em branco (ferramentas, nominal e tolerância) para preencher à mão.</p>
+      }
+      @if (Model.Associado)
+      {
+        <p class="peg-hint" role="status">Pegamentos associados a esta produção. As medições já registadas ficaram como estavam.</p>
+      }
+
+      </div>
+
+      @* O PDF DA FOLHA (o corte PDF estendido aos Pegamentos): as fichas
+         congeladas + as medições por componente com o gesto em cruz + as
+         médias — por download local com o nome canónico. Sem medições
+         ainda, a folha sai em branco para preencher à mão. *@
+      <div class="peg-document-actions">
+      <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
+        <partial name="_PegamentosAncora" model="sheet" />
+        <button type="submit" class="dmo-button">@(sheet.Pegamentos is null ? "Descarregar folha de Pegamentos em branco (PDF)" : "Descarregar PDF de Pegamentos separado")</button>
+      </form>
+      @if (sheet.SemJobOn && !Model.AssociarAberto)
+      {
+        <a class="dmo-button" href="/Controlo/Pegamentos?pegamentos_id=@sheet.Pegamentos?.PegamentosId&associar=1#peg-associar-title">Associar Job On</a>
+      }
+      </div>
+    </section>
+
+    @if (sheet.SemJobOn && Model.AssociarAberto)
+    {
+      <section class="dmo-card peg-card" aria-labelledby="peg-associar-title">
+        <div class="peg-section-head"><div>
+          <h3 id="peg-associar-title">Associar Job On</h3>
+          <p class="card-note">As ferramentas destes Pegamentos têm de ser as do Job On. As medições ficam como estão.</p>
+        </div></div>
+        @if (Model.EscolhaRefusalMessage is { } recusaAssociar)
+        {
+          <div class="peg-aviso" role="alert">@recusaAssociar</div>
+        }
+        <partial name="_PegamentosEscolhaJobOn" model="Model" />
+      </section>
+    }
+
+    @if (Model.MeasurementRefusal is not null)
+    {
+      <div class="peg-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
+    }
+    @if (Model.CorrecaoMessage is { } correcaoMessage)
+    {
+      <div class="peg-aviso" role="alert">@correcaoMessage</div>
+    }
+    @foreach (var noticeMessage in Model.MeasurementNoticeMessages)
+    {
+      <div class="peg-aviso warn" role="status">@noticeMessage</div>
+    }
+
+    @* ---------------------------------------------------------------- *@
+    @* 2. Um card por componente aplicável da combinação.                *@
+    @* ---------------------------------------------------------------- *@
+    @foreach (var componentContext in sheet.Components)
+    {
+      var component = componentContext.Component;
+      var componentToken = component == PegamentosComponent.Cm ? "CM" : component == PegamentosComponent.Bq ? "BQ" : "MF";
+      var measurementsOfComponent = (sheet.Pegamentos?.Measurements ?? new List<PegamentosMeasurementReadModel>())
+          .Where(m => m.Component == component)
+          .ToList();
+      var averages = (sheet.Pegamentos?.ComponentAverages ?? new List<PegamentosComponentAveragesReadModel>())
+          .FirstOrDefault(a => a.Component == component);
+      var nominal = measurementsOfComponent.Count > 0 ? measurementsOfComponent[0].NominalGargaloMm : componentContext.DiametroGargaloMm;
+      var recordedReference = component switch
+      {
+          PegamentosComponent.Cm => sheet.Pegamentos?.CmToolReference,
+          PegamentosComponent.Bq => sheet.Pegamentos?.BqToolReference,
+          _ => sheet.Pegamentos?.MfToolReference
+      };
+      var recordedLot = component switch
+      {
+          PegamentosComponent.Cm => sheet.Pegamentos?.CmToolLot,
+          PegamentosComponent.Bq => sheet.Pegamentos?.BqToolLot,
+          _ => sheet.Pegamentos?.MfToolLot
+      };
+      var shownReference = recordedReference ?? componentContext.ToolReference;
+      var shownLot = recordedLot ?? componentContext.ToolLot;
+      var toolSemNominal = componentContext.DiametroGargaloMm is null;
+      var formId = $"peg-registar-{componentToken}";
+      var sheetHref = sheet.ControloId is int sheetControlo ? $"/Controlo/Pegamentos?controlo_id={sheetControlo}" : $"/Controlo/Pegamentos?pegamentos_id={sheet.Pegamentos?.PegamentosId}";
+      var fichaHref = $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(componentContext.ToolId)}&tecnica=1&continuar={Uri.EscapeDataString(sheetHref)}";
+      <section class="dmo-card peg-card@(toolSemNominal ? " peg-card-sem-nominal" : "")" aria-labelledby="peg-comp-@component-title" data-peg-component="@componentToken">
+        <div class="peg-section-head">
+          <div>
+            <h3 id="peg-comp-@component-title">@componentLabel(component)<partial name="_DmoHelp" model="@($"Cada eixo é comparado com o nominal ± {fmt(shownTolerance)} mm; um alerta é só um aviso. A ovalização mantém o sinal e fica vazia com um só eixo. Na linha AVG, a contra costura e a ovalização contam só as leituras que as têm.")" /></h3>
+          </div>
+          <span class="peg-step">2 · Medições</span>
+        </div>
+
+        @* O registo na própria tabela, como na folha original do Diogo
+           (17/10/2026): a última linha é a medição nova, a ovalização e a
+           média calculam-se ao escrever. O nominal e o permitido são
+           contexto da ferramenta e ficam neutros, sem verde. Sem nominal na
+           ferramenta, o card fica amarelo e o nominal escreve-se aqui. *@
+        <dl class="peg-ferramenta-linha">
+          <div><dt>Referência</dt><dd>@if (podeAbrirFicha)
+              {<a class="peg-ficha-link" href="@fichaHref" title="Abrir a ficha da ferramenta">@(shownReference ?? "—")</a>}
+              else
+              {@(shownReference ?? "—")}</dd></div>
+          <div><dt>Lote</dt><dd>@(shownLot ?? "—")</dd></div>
+          @if (!toolSemNominal && (nominal ?? componentContext.DiametroGargaloMm) is { } nominalValue)
+          {
+            <div><dt>Nominal (mm)</dt><dd>@fmt(nominalValue)</dd></div>
+            <div><dt>Permitido (± @fmt(shownTolerance))</dt><dd>@fmt(nominalValue - shownTolerance) – @fmt(nominalValue + shownTolerance)</dd></div>
+          }
+          else
+          {
+            <div><dt>Nominal (mm)</dt><dd>em falta</dd></div>
+          }
+        </dl>
+        @* Sem nominal do gargalo não há Pegamentos (Diogo, 17/10/2026): o
+           nominal preenche-se na ficha da ferramenta, na informação
+           técnica, e a ficha volta a esta folha. *@
+        @if (toolSemNominal)
+        {
+          <div class="peg-aviso warn peg-aviso-nominal" role="status">A ferramenta @(shownReference ?? componentLabel(component)) não tem nominal do gargalo. @if (podeAbrirFicha)
+            {<a href="@fichaHref">Abrir a ficha da ferramenta</a><text> e preenchê-lo na informação técnica; depois volta-se aqui para medir.</text>}
+            else
+            {<text>Peça a quem gere as Ferramentas para o preencher na informação técnica da ficha.</text>}</div>
+        }
+
+        <h4 class="peg-readings-title">Leituras de @componentLabel(component)</h4>
+        <div class="dmo-table-wrap" style="margin-top:12px">
+          <table class="dmo-table peg-registo-tabela" data-peg-registo data-peg-tolerancia="@fmt(shownTolerance)" data-peg-nominal-valor="@(nominal is { } nominalTabela ? fmt(nominalTabela) : "")">
+            <thead>
+              <tr>
+                <th>N.º</th>
+                <th>Costura (0°) mm</th>
+                <th>Contra costura (90°) mm</th>
+                <th>Ovalização mm</th>
+                <th>Média mm</th>
+                <th>Estado</th>
+                <th class="peg-col-x"><span class="dmo-visually-hidden">Apagar</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @* Sem botões nas linhas (Diogo, 17/10/2026): carregar num valor
+                 abre a linha para o corrigir (Enter guarda, Esc cancela) e o
+                 pequeno × apaga a leitura. *@
+              @foreach (var (measurement, numero) in measurementsOfComponent.Select((m, i) => (m, i + 1)))
+              {
+                if (Model.EditarMedicaoId == measurement.MeasurementId)
+                {
+                  var editFormId = $"peg-editar-{measurement.MeasurementId}";
+                  <tr id="peg-linha-@measurement.MeasurementId" class="peg-linha-nova peg-linha-editar" data-peg-linha-nova data-peg-cancelar="@sheetHref">
+                    <td>@numero</td>
+                    <td><input id="editar-costura-@measurement.MeasurementId" name="costura" form="@editFormId" aria-label="Costura 0° (mm) da leitura @numero" type="text" inputmode="decimal" lang="en" required autofocus="@(Model.EditarCampo != "contra" ? "autofocus" : null)" value="@fmt(measurement.CosturaMm)" data-peg-costura /></td>
+                    <td><input id="editar-contra-@measurement.MeasurementId" name="contra_costura" form="@editFormId" aria-label="Contra costura 90° (mm) da leitura @numero" type="text" inputmode="decimal" lang="en" autofocus="@(Model.EditarCampo == "contra" ? "autofocus" : null)" value="@(measurement.ContraCosturaMm is { } contraAtual ? fmt(contraAtual) : "")" data-peg-contra /></td>
+                    <td data-peg-oval>—</td>
+                    <td data-peg-media>—</td>
+                    <td class="peg-dica">Enter guarda · Esc cancela</td>
+                    <td></td>
+                  </tr>
+                  continue;
+                }
+                var editarHref = $"{sheetHref}&editar_medicao={measurement.MeasurementId}";
+                <tr id="peg-linha-@measurement.MeasurementId">
+                  <td>@numero</td>
+                  <td class="@(axisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.Costura) ? "peg-cell-bad" : null)">@fmt(measurement.CosturaMm)<a class="peg-valor" href="@($"{editarHref}&campo=costura#peg-linha-{measurement.MeasurementId}")" title="Corrigir" aria-label="Corrigir a costura da leitura @numero"></a></td>
+                  <td class="@(axisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.ContraCostura) ? "peg-cell-bad" : null)">@fmtOptional(measurement.ContraCosturaMm)<a class="peg-valor" href="@($"{editarHref}&campo=contra#peg-linha-{measurement.MeasurementId}")" title="Corrigir" aria-label="Corrigir a contra costura da leitura @numero"></a></td>
+                  @* A ovalização também tem o seu corredor (± tolerância). *@
+                  <td class="@(measurement.Evaluation.OvalizacaoMm is { } oval && Math.Abs(oval) > shownTolerance ? "peg-cell-bad" : null)">@fmtSigned(measurement.Evaluation.OvalizacaoMm)</td>
+                  <td class="@(axisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.Media) ? "peg-cell-bad" : null)">@fmt(measurement.Evaluation.MediaMm)</td>
+                  <td>
+                    @if (measurement.Evaluation.IsNotEvaluable)
+                    {
+                      <span class="peg-state-na">@stateLabel(measurement.Evaluation)</span>
+                    }
+                    else if (measurement.Evaluation.HasAlert)
+                    {
+                      <span class="peg-state-bad">@stateLabel(measurement.Evaluation)</span>
+                    }
+                    else
+                    {
+                      <span class="peg-state-ok">@stateLabel(measurement.Evaluation)</span>
+                    }
+                  </td>
+                  <td class="peg-col-x"><button type="submit" form="peg-apagar-@componentToken" name="measurement_id" value="@measurement.MeasurementId" class="peg-x" aria-label="Apagar a leitura @numero" title="Apagar" data-peg-apagar>×</button></td>
+                </tr>
+              }
+              @if (!toolSemNominal)
+              {
+              <tr class="peg-linha-nova" data-peg-linha-nova>
+                <td>@(measurementsOfComponent.Count + 1)</td>
+                <td><input id="costura-@component" name="costura" form="@formId" aria-label="Costura 0° (mm)" type="@Model.DraftInputType(componentToken, Model.DraftCostura)" lang="en" step="0.01" required placeholder="@(nominal is { } nomCostura ? fmt(nomCostura) : null)" data-peg-costura value="@Model.DraftValue(componentToken, Model.DraftCostura)" /></td>
+                <td><input id="contra-@component" name="contra_costura" form="@formId" aria-label="Contra costura 90° (mm)" type="@Model.DraftInputType(componentToken, Model.DraftContra)" lang="en" step="0.01" placeholder="@(nominal is { } nomContra ? fmt(nomContra) : null)" data-peg-contra value="@Model.DraftValue(componentToken, Model.DraftContra)" /></td>
+                <td data-peg-oval>—</td>
+                <td data-peg-media>—</td>
+                <td class="peg-dica">Enter regista</td>
+                <td></td>
+              </tr>
+              }
+            </tbody>
+            @if (averages is { } componentAverages)
+            {
+              <tfoot>
+                <tr class="peg-average-row">
+                  <td><strong>AVG</strong></td>
+                  <td>@fmtOptional(componentAverages.AverageCosturaMm)</td>
+                  <td>@fmtOptional(componentAverages.AverageContraCosturaMm)</td>
+                  <td>@fmtSigned(componentAverages.AverageOvalizacaoMm)</td>
+                  <td>@fmtOptional(componentAverages.AverageMediaMm)</td>
+                  <td>@componentAverages.SampleCount @(componentAverages.SampleCount == 1 ? "amostra" : "amostras")@(componentAverages.AlertCount > 0 ? $" · {componentAverages.AlertCount} fora" : "")</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            }
+          </table>
+        </div>
+        @if (!toolSemNominal)
+        {
+          @* Mais linhas de medição de uma vez (Diogo, 17/10/2026): o Enter
+             grava todas as linhas preenchidas. *@
+          <button type="button" class="peg-mais-linha" data-peg-mais-linha hidden>+ Linha</button>
+        }
+        @* Os formulários da tabela: os campos ligam-se pelo atributo form.
+           O botão escondido é o envio do Enter. *@
+        <form id="@formId" method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="RegisterMeasurement" class="peg-registo-form">
+          <partial name="_PegamentosAncora" model="sheet" />
+          <input type="hidden" name="component" value="@componentToken" />
+          <button type="submit" tabindex="-1" aria-hidden="true">Registar medição</button>
+        </form>
+        @if (measurementsOfComponent.Count > 0)
+        {
+          <form id="peg-apagar-@componentToken" method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="DeleteMeasurement" class="peg-registo-form">
+            <partial name="_PegamentosAncora" model="sheet" />
+          </form>
+        }
+        @if (measurementsOfComponent.FirstOrDefault(m => m.MeasurementId == Model.EditarMedicaoId) is { } emEdicao)
+        {
+          <form id="peg-editar-@emEdicao.MeasurementId" method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="EditMeasurement" class="peg-registo-form">
+            <partial name="_PegamentosAncora" model="sheet" />
+            <input type="hidden" name="measurement_id" value="@emEdicao.MeasurementId" />
+            <button type="submit" tabindex="-1" aria-hidden="true">Guardar</button>
+          </form>
+        }
+      </section>
+    }
+
+    @* ---------------------------------------------------------------- *@
+    @* 3. Mapa de limites — o «gráfico todo» do mockup, projetado no     *@
+    @*    servidor (apresentação; a autoridade está nas regras).        *@
+    @* ---------------------------------------------------------------- *@
+    @if (Model.Map is { } map)
+    {
+      <section class="dmo-card peg-map-card" aria-labelledby="peg-map-title">
+        <div class="peg-map-heading">
+          <h3 id="peg-map-title">Mapa de limites</h3>
+          <span class="peg-step">3 · Mapa</span>
+        </div>
+        <p class="peg-map-help">Cada faixa horizontal é o corredor de um componente (nominal da sua ferramenta ± tolerância); as linhas verticais são os nominais; os círculos são as médias das medições; o losango é a média global do componente. Vermelho = medição fora (atingiu ou ultrapassou um limite).</p>
+        <div class="peg-map-wrap">
+          @Html.Raw(DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.Render(
+              DMO.Alpha.Infrastructure.Controlo.PegamentosPdfGenerator.FromSheet(sheet)))
+        </div>
+        <div class="peg-map-legend">
+          <span><i class="peg-line" style="background:var(--dmo-brand-600)"></i> Linhas verticais = nominais das ferramentas</span>
+          <span><i class="peg-dot" style="background:#0183D7"></i> Círculos = média de cada medição</span>
+          <span><i class="peg-diamond"></i> Losango = média global do componente</span>
+          <span><i class="peg-dot" style="background:#B91C1C"></i> Vermelho = fora (atingiu ou ultrapassou um limite)</span>
+        </div>
+        <div class="peg-map-status @(map.HasAlerts ? "alert" : (sheet.Pegamentos?.Measurements.Any(m => m.Evaluation.IsNotEvaluable) == true ? null : map.MeasurementCount > 0 ? "ok" : null))"><strong>@map.SummaryText</strong></div>
+      </section>
+    }
+  }
+
+</main>
+
+@section Scripts {
+<script src="~/js/pegamentos-registo.js" asp-append-version="true"></script>
+}

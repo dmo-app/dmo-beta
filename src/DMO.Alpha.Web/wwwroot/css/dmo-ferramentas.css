@@ -1,0 +1,39 @@
+
+.ferr-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
+.ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.ferr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.ferr-card{padding:18px}
+.ferr-filters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr)) auto;gap:12px;align-items:end}
+/* start: a nota e o botão da quantidade crescem para baixo sem subir o campo acima dos vizinhos. */
+.ferr-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
+.ferr-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dmo-text,#172d42)}
+.ferr-check input{width:auto;min-height:0}
+.ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.ferr-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
+.ferr-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
+.ferr-hint{color:var(--dmo-muted);font-size:13px;margin:6px 0 0}
+.ferr-hint:empty{display:none}
+.ferr-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+.ferr-actions{display:flex;gap:10px;align-items:center;margin-top:12px}
+.ferr-link{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
+@media(max-width:900px){.ferr-filters,.ferr-form-grid{grid-template-columns:1fr}}
+
+.ferr-filter-actions{display:flex;flex-wrap:wrap;gap:8px}
+.ferr-pagination{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:18px}
+.ferr-pagination [aria-disabled="true"]{pointer-events:none;cursor:default}
+
+.ferr-quantity-choices{display:flex;flex-wrap:wrap;gap:8px}
+/* beta.34: registo numa linha; cada campo com a largura do conteúdo. */
+.ferr-create-row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.ferr-create-row > .dmo-field{min-width:0;flex:0 0 auto}
+.ferr-create-row > .dmo-field[hidden]{display:none}
+.ferr-create-row > .dmo-field > :is(input:not([type=checkbox]),select){width:100%}
+.ferr-w-type{width:190px}
+.ferr-w-ref{width:140px}
+.ferr-w-lot{width:76px}
+.ferr-w-qty{width:140px}
+.ferr-w-sap{flex:1 1 220px !important;max-width:300px}
+.ferr-create-row-machines{margin-top:14px;align-items:flex-start;justify-content:space-between}
+.ferr-quantity-suggestion{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.ferr-quantity-suggestion .ferr-hint{margin:0}

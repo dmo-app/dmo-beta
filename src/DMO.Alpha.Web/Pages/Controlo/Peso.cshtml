@@ -1,0 +1,1733 @@
+@page "/Controlo/Peso"
+@model DMO.Alpha.Web.Pages.Controlo.PesoModel
+@using DMO.Alpha.Core.Controlo
+@using DMO.Alpha.Core.Tools
+@{
+    Layout = "_DmoShellLayout";
+    // Ponto decimal canónico (decisão do proprietário de 15/10/2026): 2 casas
+    // na UI. As densidades são metrologia — mantêm a precisão da tabela real
+    // da fábrica (decisão Owner 1b, 5 casas disponíveis).
+    var fmt = new Func<decimal, string>(value =>
+        value.ToString("0.00", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture));
+    var fmtDensity = new Func<decimal, string>(value =>
+        value.ToString("0.#####", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture));
+    // O sinal preservado nas diferenças da Comparação_B (o alvo 22: o
+    // −0.53 g / +0.18 cm³ — o sinal é o fato).
+    var signed = new Func<decimal, string>(DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed);
+    // O APOIO TP/CALOTE (o fmt(x,3) do dmo-html): as métricas do cálculo
+    // esférico a 3 casas, com o sinal preservado nas diferenças.
+    var fmtCap = new Func<decimal?, string>(value => value is { } v
+        ? v.ToString("0.000", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)
+        : "—");
+    var fmtCapSigned = new Func<decimal?, string>(value => value is { } v
+        ? (v >= 0 ? "+" : "") + v.ToString("0.000", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)
+        : "—");
+    // O rótulo humano de um Peso guardado (os selects da comparação —
+    // factos apenas, nunca um id; o padrão do pesoLabel do html sem o id).
+    var rotuloPesoOpcao = new Func<PesoComparacaoPesoOpcao, string>(opcao =>
+    {
+        var partes = new List<string>();
+        if (!string.IsNullOrEmpty(opcao.Reference)) { partes.Add(opcao.Reference); }
+        if (!string.IsNullOrEmpty(opcao.ProductionNumber)) { partes.Add(opcao.ProductionNumber); }
+        if (!string.IsNullOrEmpty(opcao.Machine)) { partes.Add(opcao.Machine); }
+        if (partes.Count == 0 && !string.IsNullOrEmpty(opcao.CmToolReference)) { partes.Add($"CM {opcao.CmToolReference}"); }
+        if (!string.IsNullOrEmpty(opcao.CmToolLot)) { partes.Add($"Lote {opcao.CmToolLot}"); }
+        partes.Add($"{opcao.Leituras} CM");
+        return string.Join(" · ", partes);
+    });
+    var cmProcessLabel = new Func<CmProcess?, string>(process => process switch
+    {
+        CmProcess.Nnpb => "NNPB",
+        CmProcess.Ps => "PS",
+        _ => "—"
+    });
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-peso-prototype.css" asp-append-version="true" />
+  @* O botão do apoio TP/calote — portado do dmo-html controlo-v04
+     (.tp-button tal como está, sobre os tokens da casa; o corpo é o
+     skin da página: peso-facts/peso-fact/hint). *@
+}
+
+<main class="peso-page dmo-workspace" aria-labelledby="peso-title">
+
+  <div class="page-head">
+    <div>
+      <h1 id="peso-title">Peso</h1>
+    </div>
+  </div>
+
+  @* ------------------------------------------------------------------ *@
+  @* 0. A TAB DO HISTÓRICO (?historico=1): o HISTÓRICO DO CONTROLO ao    *@
+  @*    uso do dmo-html — os TRÊS tipos de registo (Peso, Pegamentos,    *@
+  @*    Comparação) com a procura da oficina (referência/produção/       *@
+  @*    ferramenta/tipo/data), o «Comparar Pesos guardados» e o detalhe  *@
+  @*    do registo de comparação. A folha do peso apresenta APENAS a     *@
+  @*    referência atual (o Owner 2026-10-13).                           *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.HistoricoTab)
+  {
+  <section class="dmo-card peso-card" aria-labelledby="peso-historico-title">
+    <div class="peso-card-heading"><div>
+      <h3 id="peso-historico-title">Histórico do Controlo</h3>
+    </div></div>
+    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
+      <input type="hidden" name="historico" value="1" />
+      <div class="dmo-field">
+        <label for="historicoReferencia">Referência</label>
+        <input id="historicoReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.HistoryReference" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+      </div>
+      @* A procura em dois passos: primeiro a referência; depois o nº de
+         produção num dropdown só com as produções dessa referência. *@
+      <div class="dmo-field">
+        <label for="historicoProducao">Nº de produção</label>
+        @if (Model.HistoryReference is null || Model.HistorySemJobOn)
+        {
+          <select id="historicoProducao" name="producao" disabled>
+            <option value="">Escreva primeiro a referência</option>
+          </select>
+        }
+        else
+        {
+          <select id="historicoProducao" name="producao" data-auto-submit>
+            <option value="" selected="@(Model.HistoryProduction is null ? "selected" : null)">Todas</option>
+            @foreach (var producaoOpcao in Model.HistoryProducoes)
+            {
+              <option value="@producaoOpcao" selected="@(Model.HistoryProduction == producaoOpcao ? "selected" : null)">@producaoOpcao</option>
+            }
+          </select>
+        }
+      </div>
+      <div class="dmo-field">
+        <label for="historicoFerramenta">Ferramenta</label>
+        <input id="historicoFerramenta" data-dmo-maiusculas autocapitalize="characters" name="ferramenta" value="@Model.HistoryTool" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-submit />
+      </div>
+      <div class="dmo-field">
+        <label for="historicoTipo">Tipo</label>
+        <select id="historicoTipo" name="tipo" data-dmo-autosubmit>
+          @{
+            var tipoAtual = Model.HistoryTipo?.ToString();
+          }
+          <option value="" selected="@(tipoAtual is null ? "selected" : null)">Todos</option>
+          <option value="Peso" selected="@(tipoAtual == "Peso" ? "selected" : null)">Peso</option>
+          <option value="Pegamentos" selected="@(tipoAtual == "Pegamentos" ? "selected" : null)">Pegamentos</option>
+          <option value="Comparacao" selected="@(tipoAtual == "Comparacao" ? "selected" : null)">Comparação</option>
+          <option value="Resumo" selected="@(tipoAtual == "Resumo" ? "selected" : null)">Resumo</option>
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="historicoSemJobOn">Job On</label>
+        <select id="historicoSemJobOn" name="sem_jobon" data-dmo-autosubmit>
+          <option value="" selected="@(Model.HistorySemJobOn ? null : "selected")">Com Job On</option>
+          <option value="1" selected="@(Model.HistorySemJobOn ? "selected" : null)">Sem Job On associado</option>
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="historicoData">Data</label>
+        <input id="historicoData" name="data" type="date" value="@(Model.HistoryData is { } dataFiltro ? dataFiltro.ToString("yyyy-MM-dd") : null)" data-dmo-autosubmit />
+      </div>
+      @* Sem «Procurar» (Diogo, 17/10/2026): os dropdowns e a data aplicam
+         logo; a referência e a ferramenta procuram ao escolher a sugestão
+         ou com o Enter. *@
+    </form>
+
+    @if (!Model.HistoricoComProcura)
+    {
+      <div class="peso-vazia" style="margin-top:12px">Pesquise por referência (e depois a produção), ferramenta, tipo ou data. «Sem Job On associado» mostra os Pesos e Pegamentos que ainda falta associar.</div>
+    }
+    else if (Model.HistoryResults is { } results)
+    {
+      if (results.Count == 0)
+      {
+        <div class="peso-vazia" style="margin-top:12px">@(Model.HistorySemJobOn ? "Não há Pesos nem Pegamentos por associar a um Job On." : "Sem registos para esta procura.")</div>
+      }
+      else
+      {
+        @* A REGRA DE UI DO OWNER (2026-10-12): nas tabelas NÃO EXISTEM
+           botões — um clique ou o Enter abrem o registo (Diogo, 17/10/2026:
+           «vamos fazer 1 click nao ha necessidade para dois»). *@
+        <form method="get" asp-page="/Controlo/Peso" id="pesoHistoryForm">
+          <div class="dmo-table-wrap" style="margin-top:12px">
+            <table class="dmo-table" data-dmo-list="Histórico do Controlo">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Tipo</th>
+                  <th>Referência / produção</th>
+                  <th>Ferramenta</th>
+                  <th>Data</th>
+                  <th>Estado</th>
+                  <th>Resumo</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var item in results)
+                {
+                  var rotuloLinha = $"{item.Kind} · {item.Reference} · {item.ProductionNumber}";
+                  var alvoLinha = $"{item.Kind}:{item.Id}:{item.ControloId}";
+                  var hrefLinha = item.Kind switch
+                  {
+                    ControloHistoryKind.Peso => $"/Controlo/Peso?peso_id={item.Id}",
+                    ControloHistoryKind.Pegamentos => item.ControloId is int controloPegamentos
+                        ? $"/Controlo/Pegamentos?controlo_id={controloPegamentos}"
+                        : $"/Controlo/Pegamentos?pegamentos_id={item.Id}",
+                    ControloHistoryKind.Resumo => $"/Controlo/Resumo?jobon_id={item.Id}",
+                    _ => $"/Controlo/Peso?historico=1&comparacao_id={item.Id}"
+                  };
+                  <tr data-dmo-row data-id="@alvoLinha" data-dmo-open="@hrefLinha"
+                      aria-label="Registo de @rotuloLinha — um clique abre">
+                    <td><input type="radio" name="abrir" value="@alvoLinha" required data-rotulo="@rotuloLinha" aria-label="Registo de @rotuloLinha" /></td>
+                    <td>@(item.Kind switch { ControloHistoryKind.Peso => "Peso", ControloHistoryKind.Pegamentos => "Pegamentos", ControloHistoryKind.Resumo => "Resumo", _ => "Comparação" })</td>
+                    <td>@(item.ControloId is null ? $"Sem Job On · {item.Reference}" : $"{item.Reference} · {item.ProductionNumber} · {item.Machine}")</td>
+                    <td>@(item.ToolLabel ?? "—")</td>
+                    <td>@(item.DataUtc is { } dataRegisto ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(dataRegisto).ToString("dd/MM/yyyy HH:mm") : "—")</td>
+                    <td>@(item.ControloId is null ? "Por associar" : "Guardado")</td>
+                    <td>@(item.Resumo ?? "—")</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (Model.HistoryPager is { } historyPager)
+          {
+            <partial name="_ListPager" model="historyPager" />
+          }
+        </form>
+      }
+    }
+
+    @* O DETALHE do registo de comparação (?comparacao_id — o open do tipo
+       Comparação renderiza o resultado aqui mesmo, à diferença do papel). *@
+    @if (Model.HistoricoComparacao is { } detalheComparacao)
+    {
+      <section class="dmo-card peso-card" aria-labelledby="peso-historico-detalhe-title" style="margin-top:14px">
+        <div class="peso-card-heading"><div>
+          <h3 id="peso-historico-detalhe-title">Comparação · @detalheComparacao.Reference · @detalheComparacao.ProductionNumber</h3>
+          <p class="card-note">CM @detalheComparacao.CmToolReference@(detalheComparacao.CmToolLot is { } detalheLot ? $" · Lote {detalheLot}" : null) · água a @detalheComparacao.WaterTemperatureC °C · gravada em @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(detalheComparacao.CreatedAtUtc).ToString("dd/MM/yyyy HH:mm")</p>
+        </div></div>
+        @if (detalheComparacao.Note is { } notaDetalhe)
+        {
+          <p class="peso-hint">Nota do registo: @notaDetalhe</p>
+        }
+        <div class="peso-resumo">
+          <div class="peso-fact"><span>Pares válidos</span><strong>@detalheComparacao.Pares.ParesValidos</strong></div>
+          <div class="peso-fact"><span>Δ peso médio dos pares</span><strong>@(detalheComparacao.Pares.DeltaPesoMedioGrams is { } deltaDetalhe ? $"{signed(deltaDetalhe)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>Sem contraparte</span><strong>@detalheComparacao.Pares.SemContraparte</strong></div>
+        </div>
+        <div class="dmo-table-wrap" style="margin-top:12px">
+          <table class="dmo-table">
+            <thead><tr><th>N.º CM novo</th><th>N.º CM inicial</th><th>Peso novo (g)</th><th>Peso inicial (g)</th><th>Δ peso (g)</th></tr></thead>
+            <tbody>
+              @foreach (var linha in detalheComparacao.Pares.Rows)
+              {
+                <tr>
+                  <td>@(string.IsNullOrEmpty(linha.CmSubject) ? "—" : linha.CmSubject)</td>
+                  <td>@(linha.CmSubjectAnterior ?? "Sem par")</td>
+                  <td>@fmt(linha.PesoVidroGrams)</td>
+                  <td>@(linha.PesoAnteriorGrams is { } paDetalhe ? fmt(paDetalhe) : "—")</td>
+                  <td>@(linha.DeltaPesoGrams is { } dlDetalhe ? signed(dlDetalhe) : "—")</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </section>
+
+  @* ------------------------------------------------------------------ *@
+  @* 0H. O «Comparar Pesos guardados» do histórico (os selects           *@
+  @*     primeiro/segundo peso do dmo-html) — a comparação pelos ids é   *@
+  @*     ENDPOINT DO BACKEND; os pares pelo nº de CM, sem bloqueio.      *@
+  @* ------------------------------------------------------------------ *@
+  <section class="dmo-card peso-card" aria-labelledby="peso-historico-comparar-title">
+    <div class="peso-card-heading"><div>
+      <h3 id="peso-historico-comparar-title">Comparar Pesos guardados</h3>
+    </div></div>
+    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar peso-comparar-procura" data-dmo-procura-submete>
+      <input type="hidden" name="historico" value="1" />
+      @* A procura ao escrever (Diogo, 17/10/2026): escreve-se a produção, a
+         referência, o lote ou a máquina; a lista mostra a produção, a
+         referência, o lote e as máquinas, e um clique escolhe.
+         Com os dois Pesos escolhidos a comparação abre sozinha. *@
+      <div class="dmo-field">
+        <label for="peso1Procura">Primeiro Peso</label>
+        <input id="peso1Procura" type="search" data-dmo-maiusculas value="@Model.RotuloEscolhido(Model.Peso1)" placeholder="Produção, referência, lote ou máquina"
+               data-dmo-procura="@Url.Page("/Controlo/Peso", "ProcurarPesos")" data-dmo-procura-alvo="peso1Lista"
+               data-dmo-procura-valor="peso1Valor" />
+        <input type="hidden" id="peso1Valor" name="peso_1" value="@Model.Peso1" />
+        <div id="peso1Lista" class="peso-procura-lista" aria-live="polite"></div>
+      </div>
+      <div class="dmo-field">
+        <label for="peso2Procura">Segundo Peso</label>
+        <input id="peso2Procura" type="search" data-dmo-maiusculas value="@Model.RotuloEscolhido(Model.Peso2)" placeholder="Produção, referência, lote ou máquina"
+               data-dmo-procura="@Url.Page("/Controlo/Peso", "ProcurarPesos")" data-dmo-procura-alvo="peso2Lista"
+               data-dmo-procura-valor="peso2Valor" />
+        <input type="hidden" id="peso2Valor" name="peso_2" value="@Model.Peso2" />
+        <div id="peso2Lista" class="peso-procura-lista" aria-live="polite"></div>
+      </div>
+      <noscript><button type="submit" class="dmo-button">Comparar registos</button></noscript>
+    </form>
+
+    @if (Model.PesoReferenciaSemPesos)
+    {
+      <div class="peso-aviso warn" role="status" style="margin-top:12px">Sem Pesos guardados para «@Model.PesoReferencia».</div>
+    }
+
+    @if (Model.CompararRefusal is not null)
+    {
+      <div class="peso-aviso" role="alert" style="margin-top:12px">@Model.CompararRefusalMessage</div>
+    }
+
+    @if (Model.CompararMesmoPeso)
+    {
+      @* A18 (beta.65): o mesmo Peso dos dois lados compara-se; o aviso explica o Δ = 0. *@
+      <div class="peso-aviso warn" role="status" style="margin-top:12px">Escolheu o mesmo Peso nos dois lados: a comparação mostra Δ = 0 em todas as CM.</div>
+    }
+
+    @if (Model.PesoComparacaoGuardados is { } guardados)
+    {
+      @if (!guardados.Compativel)
+      {
+        <div class="peso-aviso-simples" role="status" style="margin-top:12px">Os contra-moldes não têm a mesma referência ou máquinas possíveis em comum. Comparação manual, sem bloqueio.</div>
+      }
+      @* A tabela CM com CM, como na folha do Peso (Diogo, 17/10/2026):
+         por ordem de registo, sem pares; o volume e o peso dos dois lados,
+         os Δ (1.º − 2.º) e a média com a variação do peso em %. Duas casas
+         decimais (Diogo, 17/10/2026). *@
+      {
+        var linhas1 = guardados.PrimeiroLinhas ?? Array.Empty<PesoComparacaoLado>();
+        var linhas2 = guardados.SegundoLinhas ?? Array.Empty<PesoComparacaoLado>();
+        var totalLinhas = Math.Max(linhas1.Count, linhas2.Count);
+        var m1 = guardados.PrimeiroMedias;
+        var m2 = guardados.SegundoMedias;
+        decimal? deltaVolumeMedio = m1 is not null && m2 is not null ? m1.AverageCapacityCm3 - m2.AverageCapacityCm3 : null;
+        decimal? deltaPesoMedio = m1 is not null && m2 is not null ? m1.AverageGlassWeightGrams - m2.AverageGlassWeightGrams : null;
+        decimal? variacaoPeso = deltaPesoMedio is { } dpm && m2 is { AverageGlassWeightGrams: > 0 } m2v
+            ? Math.Round(dpm / m2v.AverageGlassWeightGrams * 100m, 2, MidpointRounding.AwayFromZero)
+            : null;
+        <div class="dmo-table-wrap" style="margin-top:12px">
+          <table class="dmo-table" data-peso-guardados-tabela>
+            <thead>
+              <tr>
+                <th>CM 1.º</th>
+                <th>Volume 1.º (cm³)</th>
+                <th>Peso 1.º (g)</th>
+                <th>CM 2.º</th>
+                <th>Volume 2.º (cm³)</th>
+                <th>Peso 2.º (g)</th>
+                <th>Δ volume (cm³)</th>
+                <th>Δ peso (g)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (var i = 0; i < totalLinhas; i++)
+              {
+                var l1 = i < linhas1.Count ? linhas1[i] : null;
+                var l2 = i < linhas2.Count ? linhas2[i] : null;
+                <tr>
+                  <td>@(l1 is { } c1 && !string.IsNullOrEmpty(c1.CmSubject) ? c1.CmSubject : "—")</td>
+                  <td>@(l1?.VolumeCm3 is { } v1 ? fmt(v1) : "—")</td>
+                  <td>@(l1 is { } p1 ? fmt(p1.PesoVidroGrams) : "—")</td>
+                  <td>@(l2 is { } c2 && !string.IsNullOrEmpty(c2.CmSubject) ? c2.CmSubject : "—")</td>
+                  <td>@(l2?.VolumeCm3 is { } v2 ? fmt(v2) : "—")</td>
+                  <td>@(l2 is { } p2 ? fmt(p2.PesoVidroGrams) : "—")</td>
+                  <td>@(l1?.VolumeCm3 is { } dv1 && l2?.VolumeCm3 is { } dv2 ? signed(dv1 - dv2) : "—")</td>
+                  <td><strong>@(l1 is { } dp1 && l2 is { } dp2 ? signed(dp1.PesoVidroGrams - dp2.PesoVidroGrams) : "—")</strong></td>
+                </tr>
+              }
+            </tbody>
+            <tfoot data-peso-comparacao-medias>
+              <tr>
+                <th scope="row">Média</th>
+                <td>@(m1 is not null ? fmt(m1.AverageCapacityCm3) : "—")</td>
+                <td>@(m1 is not null ? fmt(m1.AverageGlassWeightGrams) : "—")</td>
+                <td></td>
+                <td>@(m2 is not null ? fmt(m2.AverageCapacityCm3) : "—")</td>
+                <td>@(m2 is not null ? fmt(m2.AverageGlassWeightGrams) : "—")</td>
+                <td>@(deltaVolumeMedio is { } dvm ? signed(dvm) : "—")</td>
+                <td><strong>@(deltaPesoMedio is { } dpm2 ? signed(dpm2) : "—")@(variacaoPeso is { } vp ? $" ({signed(vp)} %)" : null)</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      }
+    }
+  </section>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 0C. A TAB DA COMPARAÇÃO (?comparacao=1): a superfície própria do    *@
+  @*    dmo-html — o Peso inicial da produção e as novas leituras dos    *@
+  @*    contra-moldes; os pares por posição do CM, o Δ peso médio e o    *@
+  @*    «Sem contraparte» — calculados PELO BACKEND.                     *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.ComparacaoTab)
+  {
+    <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-title">
+      <div class="peso-card-heading"><div>
+        <h3 id="peso-comparacao-title">Comparação de Peso</h3>
+      </div></div>
+
+      @if (Model.ComparacaoRefusal is not null)
+      {
+        <div class="peso-aviso" role="alert">@Model.ComparacaoRefusalMessage</div>
+      }
+
+      @* A3/A4 (beta.65): uma leitura má já não anula a comparação — fica de
+         fora, as outras comparam-se (e gravam-se) e o aviso diz qual. *@
+      @if (Model.ComparacaoLeiturasFora.Count > 0)
+      {
+        <div class="peso-aviso warn" role="status" data-cmp-leituras-fora>
+          <strong>@(Model.ComparacaoLeiturasFora.Count == 1 ? "Uma leitura ficou de fora" : $"{Model.ComparacaoLeiturasFora.Count} leituras ficaram de fora")@(Model.ComparacaoRefusal is not null ? "." : Model.ComparacaoLeiturasForaGuardada ? "; a comparação foi guardada sem elas." : "; as outras foram comparadas.")</strong>
+          <ul style="margin:6px 0 0;padding-left:18px">
+            @foreach (var foraAviso in Model.ComparacaoLeiturasFora)
+            {
+              <li>@foraAviso.Message</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @* Produção e Peso inicial (os selects do html): o cascade é um GET
+         — com JS auto-submete; sem JS o botão «Mostrar» faz o mesmo. *@
+      <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
+        <input type="hidden" name="comparacao" value="1" />
+        <div class="dmo-field">
+          <label for="cmpReferencia">Referência</label>
+          <input id="cmpReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.ReferenciaComparacao" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+        <div class="dmo-field">
+          <label for="cmpProducao">Produção / Job On</label>
+          <select id="cmpProducao" name="jobon_id" data-auto-submit data-dmo-filter disabled="@(Model.Producoes.Count == 0 ? "disabled" : null)">
+            <option value="">@(Model.ReferenciaComparacao is null ? "Indique a referência" : "Selecionar produção")</option>
+            @foreach (var producao in Model.Producoes)
+            {
+              <option value="@producao.JobOnId" selected="@(Model.ProducaoSelecionadaJobOnId == producao.JobOnId ? "selected" : null)">@producao.Label</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="cmpInicial">Peso inicial desta produção</label>
+          <select id="cmpInicial" name="peso_inicial" data-auto-submit>
+            @if (Model.Iniciais.Count == 0)
+            {
+              <option value="">Sem Peso guardado nesta produção</option>
+            }
+            else
+            {
+              <option value="">Selecionar registo inicial</option>
+            }
+            @foreach (var inicial in Model.Iniciais)
+            {
+              <option value="@inicial.PesoId" selected="@(Model.PesoInicialSelecionado == inicial.PesoId ? "selected" : null)">@rotuloPesoOpcao(inicial)</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label>&nbsp;</label>
+          <button type="submit" class="dmo-button">Mostrar</button>
+        </div>
+      </form>
+
+      @if (Model.ReferenciaComparacaoSemProducoes)
+      {
+        <div class="peso-aviso warn" role="status" style="margin-top:10px">Sem produções para «@Model.ReferenciaComparacao».</div>
+      }
+
+      @* O contexto do Peso inicial (o cmp-initial-context do html): os
+         factos humanos do registo escolhido. *@
+      @if (Model.Iniciais.FirstOrDefault(i => i.PesoId == Model.PesoInicialSelecionado) is { } inicialEscolhido)
+      {
+        <div class="peso-facts" style="margin-top:10px">
+          <div class="peso-fact"><span>Peso inicial</span><strong>@(inicialEscolhido.PesoMedioGrams is { } pmInicial ? $"{fmt(pmInicial)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>CM</span><strong>@(inicialEscolhido.CmToolReference ?? "—")@(inicialEscolhido.CmToolLot is { } lotInicial ? $" · Lote {lotInicial}" : null)</strong></div>
+          <div class="peso-fact"><span>Leituras</span><strong>@inicialEscolhido.Leituras</strong></div>
+        </div>
+      }
+      else
+      {
+        <p class="peso-hint" style="margin-top:10px">Escolha uma produção com um Peso guardado.</p>
+      }
+
+      @* A BASE CM a CM (o Diogo, 16/10: «peso e volume dos CM que foram
+         medidos»): a diferença de cada CM para a média e quanto ela puxa
+         a média — a CM que mais puxa fica marcada. *@
+      @if (Model.BaseDaComparacao is { Averages: { } mediasBase } baseCmp && Model.ComparacaoGuardada is null)
+      {
+        <h4 style="margin:14px 0 6px">Base · média @fmt(mediasBase.AverageGlassWeightGrams) g · @fmt(mediasBase.AverageCapacityCm3) cm³</h4>
+        <div class="dmo-table-wrap" data-cmp-base>
+          <table class="dmo-table">
+            <thead><tr><th>N.º CM</th><th>Massa de água (g)</th><th>Volume (cm³)</th><th>Peso (g)</th><th>Δ para a média (g)</th><th>Puxa a média (g)</th></tr></thead>
+            <tbody>
+              @foreach (var (leituraBase, influencia) in baseCmp.Measurements.OrderBy(m => m.RowPosition).Zip(Model.InfluenciaDaBase))
+              {
+                <tr class="@(influencia.MaiorEfeito ? "peso-linha-destaque" : null)">
+                  <td>@(string.IsNullOrEmpty(leituraBase.CmSubject) ? "—" : leituraBase.CmSubject)@(influencia.MaiorEfeito ? " · a que mais puxa" : null)</td>
+                  <td>@fmt(leituraBase.WaterWeightGrams)</td>
+                  <td>@fmt(leituraBase.CapacityCm3)</td>
+                  <td>@fmt(leituraBase.GlassWeightGrams)</td>
+                  <td>@signed(influencia.DiferencaParaMediaGrams)</td>
+                  <td>@signed(influencia.EfeitoNaMediaGrams)</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @* Texto para o «?»: «Puxa a média» é a média com a CM menos a média sem ela. *@
+      }
+    </section>
+
+    @* O form das leituras: visível com o peso inicial escolhido — e
+       PERMANECE na recusa (o padrão do Job On: o formulário fica como
+       estava, a BD inalterada). *@
+    @if (Model.PesoInicialSelecionado is not null || Model.ComparacaoRefusal is not null)
+    {
+    <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-leituras-title">
+      <div class="peso-card-heading"><div>
+        <h3 id="peso-comparacao-leituras-title">Novas leituras dos CM</h3>
+      </div></div>
+
+      <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Comparar" class="peso-form-grid" id="cmpForm">
+        <input type="hidden" name="jobon_id" value="@Model.ProducaoSelecionadaJobOnId" />
+        <input type="hidden" name="peso_inicial" value="@Model.PesoInicialSelecionado" />
+        <div class="dmo-field">
+          <label for="cmpTool">Contra-molde a pesar</label>
+          <select id="cmpTool" name="cm_tool_id" data-dmo-filter>
+            <option value="">Selecionar ferramenta CM</option>
+            @foreach (var candidato in Model.ContraMoldes)
+            {
+              <option value="@candidato.ToolId" selected="@(Model.ContraMoldeSelecionado == candidato.ToolId ? "selected" : null)">@candidato.Type.ToString().ToUpperInvariant() @candidato.Reference · Lote @candidato.Lot</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="cmpTemperature">Temperatura da água (°C)</label>
+          <input id="cmpTemperature" name="water_temperature" type="text" inputmode="decimal" autocomplete="off" value="@(Model.TemperaturaSubmetida ?? "20")" placeholder="Ex.: 20,4 ou 20.4" />
+        </div>
+
+        @* As leituras dos contra-moldes (o padrão do html: adicionar/
+           remover ao vivo; sem JS o form nativo traz quatro linhas — as
+           em branco são ignoradas pelo backend). *@
+        <div class="peso-form-grid wide" style="grid-template-columns:1fr;margin-top:12px" data-cmp-readings>
+          @for (var i = 0; i < Model.ComparacaoLinhas.Count; i++)
+          {
+            <div class="peso-form-grid" style="grid-template-columns:minmax(120px,180px) minmax(140px,200px)" data-cmp-row>
+              <div class="dmo-field">
+                <label for="cmpSubject-@i">N.º CM</label>
+                <input id="cmpSubject-@i" name="cm_subject" value="@Model.ComparacaoLinhas[i].Subject" placeholder="Número da peça física" />
+              </div>
+              <div class="dmo-field">
+                <label for="cmpWater-@i">Massa de água (g)</label>
+                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 199,64 ou 199.64" />
+              </div>
+            </div>
+          }
+        </div>
+        <div class="peso-actions" style="margin-top:10px">
+          <button type="button" class="dmo-button" data-cmp-add-row>Adicionar leitura</button>
+          <button type="button" class="dmo-button" data-cmp-remove-row>Remover leitura</button>
+        </div>
+        <div class="dmo-field" style="max-width:520px;margin-top:10px">
+          <label for="cmpNota">Nota (opcional — fica no registo guardado)</label>
+          <input id="cmpNota" name="comparacao_note" value="@Model.NotaSubmetida" />
+        </div>
+        <div class="peso-actions" style="margin-top:12px">
+          <button type="submit" class="dmo-button">Comparar pesos</button>
+          @* O registo do histórico (tipo Comparação): o mesmo form, o
+             handler de gravação no backend (a fonte única do cálculo). *@
+          <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button">Guardar comparação</button>
+        </div>
+      </form>
+    </section>
+    }
+
+    @* O RESULTADO da comparação ao vivo (o POST «Comparar pesos» — sem
+       escrita; o cálculo é do backend). *@
+    @if (Model.ResultadoComparacao is { Refusal: PesoComparacaoResultado.Sucesso, Pares: { } paresResultado } resultado)
+    {
+      <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-resultado-title">
+        <div class="peso-card-heading"><div>
+          <h3 id="peso-comparacao-resultado-title">Peso do vidro · controlo inicial / novas leituras</h3>
+        </div></div>
+        @if (resultado.FerramentaDiferente)
+        {
+          <div class="peso-aviso-simples" role="status" style="margin-top:10px">A referência ou as máquinas possíveis diferem das do CM inicial. Pode continuar esta comparação manualmente.</div>
+        }
+        <div class="peso-resumo" style="margin-top:12px">
+          <div class="peso-fact"><span>Peso dos novos CM</span><strong>@(resultado.Medias is { } mediasResultado ? $"{fmt(mediasResultado.AverageGlassWeightGrams)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>Peso inicial</span><strong>@(resultado.PesoInicialPesoMedioGrams is { } pmResultado ? $"{fmt(pmResultado)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>Pares válidos</span><strong>@paresResultado.ParesValidos</strong></div>
+          <div class="peso-fact"><span>Δ peso médio dos pares</span><strong>@(paresResultado.DeltaPesoMedioGrams is { } deltaResultado ? $"{signed(deltaResultado)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>Sem contraparte</span><strong>@paresResultado.SemContraparte</strong></div>
+        </div>
+        <div class="dmo-table-wrap" style="margin-top:12px">
+          <table class="dmo-table">
+            <thead><tr><th>N.º CM novo</th><th>N.º CM inicial</th><th>Peso novo (g)</th><th>Peso inicial (g)</th><th>Δ peso (g)</th></tr></thead>
+            <tbody>
+              @foreach (var linha in paresResultado.Rows)
+              {
+                <tr>
+                  <td>@(string.IsNullOrEmpty(linha.CmSubject) ? "—" : linha.CmSubject)</td>
+                  <td>@(linha.CmSubjectAnterior ?? "Sem par")</td>
+                  <td>@fmt(linha.PesoVidroGrams)</td>
+                  <td>@(linha.PesoAnteriorGrams is { } paResultado ? fmt(paResultado) : "—")</td>
+                  <td>@(linha.DeltaPesoGrams is { } dlResultado ? signed(dlResultado) : "—")</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (Model.InfluenciaDasNovas.Count > 0 && Model.BaseDaComparacao?.Averages is { } mediasInf)
+        {
+          <h4 style="margin:14px 0 6px">Efeito na média da base (@fmt(mediasInf.AverageGlassWeightGrams) g)</h4>
+          <div class="dmo-table-wrap" data-cmp-influencia>
+            <table class="dmo-table">
+              <thead><tr><th>N.º CM</th><th>Peso (g)</th><th>Δ para a média (g)</th><th>Média com esta CM (g)</th><th>Efeito na média (g)</th></tr></thead>
+              <tbody>
+                @foreach (var novaInf in Model.InfluenciaDasNovas)
+                {
+                  <tr class="@(novaInf.MaiorEfeito ? "peso-linha-destaque" : null)">
+                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)@(novaInf.MaiorEfeito ? " · a que mais mexe" : null)</td>
+                    <td>@fmt(novaInf.PesoVidroGrams)</td>
+                    <td>@signed(novaInf.DiferencaParaMediaGrams)</td>
+                    <td>@fmt(novaInf.MediaComEstaCmGrams)</td>
+                    <td>@signed(novaInf.EfeitoNaMediaGrams)</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @* Texto para o «?»: a CM com o mesmo número na base é substituída
+             pela nova leitura; sem par, a nova leitura entra como mais uma. *@
+        }
+        @if (paresResultado.ParesValidos == 0)
+        {
+          <p class="peso-hint">Sem pares para deltas — os números de CM não coincidem com os do Peso inicial. A comparação continua válida; os pesos ficam lado a lado.</p>
+        }
+        <p class="peso-hint">@resultado.Leituras.Count CM medido(s). Pré-visualização não guardada: usa «Guardar comparação» para registar.</p>
+      </section>
+    }
+
+    @* O REGISTO GUARDADO (?comparacao_id — o PRG do Guardar aterra com o
+       resultado a partir do PERSISTIDO: os inputs congelados e os pares). *@
+    @if (Model.ComparacaoGuardada is { } guardada)
+    {
+      <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-guardada-title">
+        <div class="peso-card-heading"><div>
+          <h3 id="peso-comparacao-guardada-title">Comparação guardada · @guardada.Reference · @guardada.ProductionNumber</h3>
+          <p class="card-note">CM @guardada.CmToolReference@(guardada.CmToolLot is { } lotGuardada ? $" · Lote {lotGuardada}" : null) · água a @guardada.WaterTemperatureC °C · gravada em @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(guardada.CreatedAtUtc).ToString("dd/MM/yyyy HH:mm")@(guardada.Note is { } notaGuardada ? $" · nota: {notaGuardada}" : null)</p>
+        </div></div>
+        <div class="peso-resumo">
+          <div class="peso-fact"><span>Peso dos novos CM</span><strong>@(guardada.Medias is { } mediasGuardada ? $"{fmt(mediasGuardada.AverageGlassWeightGrams)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>Pares válidos</span><strong>@guardada.Pares.ParesValidos</strong></div>
+          <div class="peso-fact"><span>Δ peso médio dos pares</span><strong>@(guardada.Pares.DeltaPesoMedioGrams is { } deltaGuardada ? $"{signed(deltaGuardada)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>Sem contraparte</span><strong>@guardada.Pares.SemContraparte</strong></div>
+        </div>
+        <div class="dmo-table-wrap" style="margin-top:12px">
+          <table class="dmo-table">
+            <thead><tr><th>N.º CM novo</th><th>N.º CM inicial</th><th>Peso novo (g)</th><th>Peso inicial (g)</th><th>Δ peso (g)</th></tr></thead>
+            <tbody>
+              @foreach (var linha in guardada.Pares.Rows)
+              {
+                <tr>
+                  <td>@(string.IsNullOrEmpty(linha.CmSubject) ? "—" : linha.CmSubject)</td>
+                  <td>@(linha.CmSubjectAnterior ?? "Sem par")</td>
+                  <td>@fmt(linha.PesoVidroGrams)</td>
+                  <td>@(linha.PesoAnteriorGrams is { } paGuardada ? fmt(paGuardada) : "—")</td>
+                  <td>@(linha.DeltaPesoGrams is { } dlGuardada ? signed(dlGuardada) : "—")</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (Model.InfluenciaDasNovas.Count > 0 && Model.BaseDaComparacao?.Averages is { } mediasInf)
+        {
+          <h4 style="margin:14px 0 6px">Efeito na média da base (@fmt(mediasInf.AverageGlassWeightGrams) g)</h4>
+          <div class="dmo-table-wrap" data-cmp-influencia>
+            <table class="dmo-table">
+              <thead><tr><th>N.º CM</th><th>Peso (g)</th><th>Δ para a média (g)</th><th>Média com esta CM (g)</th><th>Efeito na média (g)</th></tr></thead>
+              <tbody>
+                @foreach (var novaInf in Model.InfluenciaDasNovas)
+                {
+                  <tr class="@(novaInf.MaiorEfeito ? "peso-linha-destaque" : null)">
+                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)@(novaInf.MaiorEfeito ? " · a que mais mexe" : null)</td>
+                    <td>@fmt(novaInf.PesoVidroGrams)</td>
+                    <td>@signed(novaInf.DiferencaParaMediaGrams)</td>
+                    <td>@fmt(novaInf.MediaComEstaCmGrams)</td>
+                    <td>@signed(novaInf.EfeitoNaMediaGrams)</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @* Texto para o «?»: a CM com o mesmo número na base é substituída
+             pela nova leitura; sem par, a nova leitura entra como mais uma. *@
+        }
+      </section>
+    }
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 1P. CORTE C — o modo production-scoped: o contexto herdado.         *@
+  @*    As ferramentas NUNCA são escolhidas nesta folha.                 *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.ProductionContext is { } productionCtx)
+  {
+    <section class="dmo-card peso-card" aria-labelledby="peso-production-title">
+      <div class="peso-card-heading"><div>
+        <h3 id="peso-production-title">Produção @productionCtx.ProductionNumber</h3>
+      </div></div>
+
+      @* A referência é o campo DO JOB ON (o Owner 2026-10-12: «esta
+         informação é retirada do jobon_id, entao app nao precis de
+         verificar se esta certo ou nao apenas inserir os dados do jobon
+         nos sitios correctos») — o campo direto, sem composição nem
+         verificação: o operador digitou a referência total na criação.
+         O CARTÃO: o nº, a referência total, a máquina, a CM COM O SEU
+         LOTE (a ferramenta física: 1075C142 e ST100 são factos
+         distintos), o processo — o MF e a Boquilha não se repetem. *@
+      <div class="peso-facts peso-context-grid">
+        <div class="peso-fact"><span>Nº de produção</span><strong>@productionCtx.ProductionNumber</strong></div>
+        <div class="peso-fact"><span>Referência</span><strong>@productionCtx.Reference</strong></div>
+        <div class="peso-fact"><span>Máquina</span><strong>@productionCtx.Machine</strong></div>
+        <div class="peso-fact"><span>CM</span><strong>@(Model.CmTool?.Reference ?? "—")</strong></div>
+        <div class="peso-fact"><span>Lote da CM</span><strong>@(Model.CmTool?.Lot ?? Model.Peso?.CmToolLot ?? "—")</strong></div>
+        <div class="peso-fact"><span>Processo</span><strong>@(Model.Peso?.Process ?? Model.CmTechnical?.Process.ToString() ?? "—")</strong></div>
+      </div>
+
+      @* O PAINEL DE FACTOS (o renderFacts do dmo-html): os volumes da BQ
+         (marisa) e da CM (punção), a densidade do vidro com o processo da
+         CM visível e o botão do apoio TP/calote — APOIO SEPARADO: o
+         cálculo é do backend (a query canónica + PesoCapCalculation) e
+         NUNCA bloqueia o Peso. *@
+      <div class="peso-facts" style="margin-top:10px">
+        <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } painelMarisa ? fmt(painelMarisa) : "—")</strong></div>
+        <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } painelPuncao ? fmt(painelPuncao) : "—")</strong></div>
+        <div class="peso-fact">
+          <span>Densidade do vidro (g/cm³)</span>
+          <strong>@(Model.ConfiguredGlassDensity is { } painelDensidade ? fmtDensity(painelDensidade) : "—")</strong>
+          <small>@cmProcessLabel(Model.CmTechnical?.Process)</small>
+        </div>
+        @* O APOIO TP/CALOTE (o «TP / calote · Apoio separado» do dmo-html):
+           abre-se com a calote efetiva — a do Job On quando existe, senão a
+           h_ref da Tool — calculada PELO BACKEND; a simulação (cap_h) é um
+           GET do backend, nunca matemática no browser e nunca gravada. Sem
+           JS tudo funciona pelo form nativo (progressive enhancement). *@
+        <details class="tp-support" data-cap-url="@Url.Page("/Controlo/Peso", "CapSupport")" data-cap-params="controlo_id=@Model.ControloIdFromQuery" open="@(Model.CapAberto ? "open" : null)">
+          <summary class="tp-button">
+            <span>TP / calote · Apoio separado</span>
+            @if (Model.CapSupport is { TemReferencia: true } botaoCap)
+            {
+              <strong>@(fmtCap(botaoCap.VolumeEfetivoCm3)) cm³</strong>
+              <small>D @(fmtCap(botaoCap.DiametroMm)) · h @(fmtCap(botaoCap.AlturaEfetivaMm)) · @botaoCap.OrigemCalote</small>
+            }
+            else
+            {
+              <strong>Referência por completar</strong>
+              <small>Não bloqueia o Peso</small>
+            }
+          </summary>
+          <div class="tp-support-body">
+            @if (Model.CapSupport is { TemReferencia: true } apoioCap)
+            {
+              <div class="peso-facts">
+                <div class="peso-fact"><span>D fixo</span><strong>@(fmtCap(apoioCap.DiametroMm)) mm</strong></div>
+                <div class="peso-fact"><span>R do desenho</span><strong>@(fmtCap(apoioCap.RaioDesenhoMm)) mm</strong></div>
+                <div class="peso-fact"><span>h de referência</span><strong>@(fmtCap(apoioCap.AlturaReferenciaMm)) mm</strong></div>
+                <div class="peso-fact"><span>h efetivo</span><strong>@(fmtCap(apoioCap.AlturaEfetivaMm)) mm</strong></div>
+              </div>
+              <p class="peso-hint">Origem do h efetivo: @apoioCap.OrigemCalote. Diferença R calculado − desenho: @(fmtCapSigned(apoioCap.DiferencaDesenhoMm)) mm. Não é aplicada uma tolerância oculta.</p>
+              <div class="peso-facts" data-cap-result>
+                <div class="peso-fact"><span>R calculado</span><strong>@(fmtCap(apoioCap.RaioCalculadoMm)) mm</strong></div>
+                <div class="peso-fact"><span>Volume</span><strong>@(fmtCap(apoioCap.VolumeEfetivoCm3)) cm³</strong></div>
+                <div class="peso-fact"><span>Δ R / referência</span><strong>@(fmtCapSigned(apoioCap.DeltaRaioMm)) mm</strong></div>
+                <div class="peso-fact"><span>Δ V / referência</span><strong>@(fmtCapSigned(apoioCap.DeltaVolumeCm3)) cm³</strong></div>
+              </div>
+              <form method="get" asp-page="/Controlo/Peso" class="tp-sim-form">
+                <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+                <div class="dmo-field">
+                  <label for="capSimulada">Calote simulada h (mm)</label>
+                  <input id="capSimulada" name="cap_h" type="text" inputmode="decimal" autocomplete="off"
+                         value="@(Model.CapSimulada is { } simulada ? simulada.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : (apoioCap.AlturaEfetivaMm is { } efetiva ? efetiva.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : null))"
+                         placeholder="Usar @apoioCap.OrigemCalote" />
+                </div>
+                <div class="dmo-field">
+                  <label>&nbsp;</label>
+                  <button type="submit" class="dmo-button">Calcular</button>
+                </div>
+              </form>
+            }
+            else
+            {
+              <div class="peso-aviso-simples" role="status">Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.</div>
+            }
+            @if (Model.CapSimuladaIlegivel)
+            {
+              <div class="peso-aviso-simples" role="status" style="margin-top:10px">O valor da calote simulada não é utilizável — escreve uma calote em mm (0 ou mais). O apoio segue com o h efetivo.</div>
+            }
+          </div>
+        </details>
+      </div>
+
+      @if (Model.ProductionRefusal is not null)
+      {
+        <div class="peso-aviso" role="alert">@Model.ProductionRefusalMessage</div>
+      }
+
+      @if (Model.PesoAssociated && Model.Peso is not null)
+      {
+        <div class="peso-aviso-simples" role="status">Peso associado a esta produção. O mesmo registo aparece agora no Resumo do Controlo.</div>
+      }
+
+      @if (Model.AssociationRefusal is not null)
+      {
+        <div class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
+      }
+
+      @* A ASSOCIAÇÃO POSTERIOR (o Owner 2026-10-16: «quando existir um
+         jobon com CM_ID que usa o tool_id perguntar se quero associar»):
+         os Pesos sem produção desta CM são propostos; associar é o botão
+         explícito, e criar um Peso novo continua disponível em baixo. *@
+      @if (Model.Peso is null && Model.AssociationCandidates.Count > 0)
+      {
+        <section class="dmo-card peso-card" aria-labelledby="peso-associate-title" style="margin-top:14px">
+          <div class="peso-card-heading"><div>
+            <h3 id="peso-associate-title">Pesos sem produção desta CM</h3>
+            <p class="card-note">@(Model.AssociationCandidates.Count == 1 ? "Existe um Peso" : $"Existem {Model.AssociationCandidates.Count} Pesos") registado@(Model.AssociationCandidates.Count == 1 ? "" : "s") com a CM deste Job On e ainda sem produção. Quer associar a esta produção?</p>
+          </div></div>
+          <div class="dmo-table-wrap">
+            <table class="dmo-table" data-dmo-list="Pesos sem produção">
+              <thead>
+                <tr><th>Peso</th><th>CM</th><th>BQ</th><th>Leituras</th><th></th></tr>
+              </thead>
+              <tbody>
+                @foreach (var candidate in Model.AssociationCandidates)
+                {
+                  <tr>
+                    <td><a href="/Controlo/Peso?peso_id=@candidate.PesoId">Peso @candidate.PesoId</a></td>
+                    <td>@(candidate.CmReference ?? "—")@(candidate.CmLot is { } cmLot ? $" · Lote {cmLot}" : "")</td>
+                    <td>@(candidate.BqReference ?? "—")@(candidate.BqLot is { } bqLot ? $" · Lote {bqLot}" : "")</td>
+                    <td>@candidate.MeasurementCount</td>
+                    <td>
+                      <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate">
+                        <input type="hidden" name="peso_id" value="@candidate.PesoId" />
+                        <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+                        <button type="submit" class="dmo-button">Associar a esta produção</button>
+                      </form>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (Model.Peso is null && productionCtx.CmToolId is not null && productionCtx.BqToolId is not null)
+      {
+        @* O Peso baseline desta produção ainda não existe: o formulário
+           pede a temperatura medida e completa os técnicos em falta (regra
+           Ferramentas: gravam no tool_id owner). O get-or-open é
+           idempotente — o MESMO peso_id volta sempre. *@
+        <section class="dmo-card peso-card" aria-labelledby="peso-create-production-title" style="margin-top:14px">
+          <div class="peso-card-heading"><div>
+            <h3 id="peso-create-production-title">Novo Peso da produção</h3>
+          </div></div>
+
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="CreateForControlo" class="peso-form-grid">
+            <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+            <div class="dmo-field">
+              <label for="waterTemperature">Temperatura da água (°C)</label>
+              <input id="waterTemperature" name="water_temperature" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 20,4 ou 20.4" value="@Model.EchoTemperature" />
+            </div>
+            @if (Model.CmTechnical?.Process is null)
+            {
+              <div class="dmo-field">
+                <label for="cmProcess">Processo da CM (em falta)</label>
+                <select id="cmProcess" name="cm_process" required>
+                  <option value="">Selecionar</option>
+                  <option value="NNPB" selected="@(Model.EchoCmProcess == "NNPB" ? "selected" : null)">NNPB</option>
+                  <option value="PS" selected="@(Model.EchoCmProcess == "PS" ? "selected" : null)">PS</option>
+                </select>
+              </div>
+            }
+            @if (Model.CmTechnical?.VolumePuncaoCm3 is null)
+            {
+              <div class="dmo-field">
+                <label for="cmVolumePuncao">Volume punção cm³ (em falta)</label>
+                <input id="cmVolumePuncao" name="cm_volume_puncao" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 70,00 ou 70.00" value="@Model.EchoVolumePuncao" />
+              </div>
+            }
+            @if (Model.CmTechnical?.NominalWeightGrams is null)
+            {
+              <div class="dmo-field">
+                <label for="cmNominalWeight">Peso nominal g (opcional)</label>
+                <input id="cmNominalWeight" name="cm_nominal_weight" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 200,00 ou 200.00" value="@Model.EchoNominalWeight" />
+              </div>
+            }
+            @if (Model.BqTechnical?.VolumeMarisaCm3 is null)
+            {
+              <div class="dmo-field">
+                <label for="bqVolumeMarisa">Volume marisa cm³ (em falta)</label>
+                <input id="bqVolumeMarisa" name="bq_volume_marisa" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 10,00 ou 10.00" value="@Model.EchoVolumeMarisa" />
+              </div>
+            }
+            <div class="peso-form-grid wide" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:12px">
+              <div class="peso-fact"><span>Densidade da água</span><strong>Tabela de densidades (5–35 °C, grau inteiro)</strong></div>
+              <div class="peso-fact">
+                <span>Densidade do vidro</span>
+                <strong>@(Model.ConfiguredGlassDensity is { } density ? $"{fmtDensity(density)} g/cm³" : "não configurada")</strong>
+              </div>
+            </div>
+            <div class="peso-actions">
+              <button type="submit" class="dmo-button">Criar Peso</button>
+            </div>
+          </form>
+        </section>
+      }
+      else if (Model.Peso is null)
+      {
+        @* Sem CM ou sem BQ no Job On o «Novo Peso da produção» não aparece
+           (o cálculo precisa das duas): o aviso diz porquê em vez de a
+           secção desaparecer sem explicação. *@
+        <div class="peso-aviso warn" role="status" style="margin-top:14px" data-peso-sem-ferramentas>
+          O «Novo Peso da produção» não aparece porque o Job On desta produção não tem @(productionCtx.CmToolId is null && productionCtx.BqToolId is null ? "CM nem boquilha (BQ)" : productionCtx.CmToolId is null ? "CM" : "boquilha (BQ)"). O cálculo do Peso precisa das duas ferramentas: complete o Job On e volte a esta folha.
+        </div>
+      }
+
+      @* A superfície própria da comparação (a secção comparacao do
+         dmo-html): o atalho da folha — o aterrismo pré-seleciona a
+         produção e o peso inicial dela. *@
+      <div class="peso-actions" style="margin-top:14px">
+        <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloIdFromQuery&comparacao=1">Comparação de Peso</a>
+      </div>
+    </section>
+  }
+  else if (!Model.HistoricoTab && !Model.ComparacaoTab)
+  {
+  @* ------------------------------------------------------------------ *@
+  @* 0. Novo Peso: sem Job On (as ferramentas escritas à mão) ou         *@
+  @*    associado a um Job On (a produção abre pelo seu controlo_id e   *@
+  @*    CM, BQ e calote vêm do Job On).                                  *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.Peso is null)
+  {
+  <nav class="peso-actions" aria-label="Tipo de Peso" style="margin-bottom:14px" data-peso-modo>
+    <a class="dmo-button" href="/Controlo/Peso" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
+    <a class="dmo-button" href="/Controlo/Peso?modo=@PesoModel.ModoJobOnValor" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar a um Job On</a>
+  </nav>
+  }
+
+  @if (Model.ModoJobOn)
+  {
+  <section class="dmo-card peso-card" aria-labelledby="peso-jobon-title">
+    <div class="peso-card-heading"><div>
+      <h3 id="peso-jobon-title">Job On do Peso</h3>
+    </div></div>
+    <p class="card-note">CM, boquilha (BQ) e calote vêm do Job On escolhido.</p>
+    @if (Model.JobOnEscolhaRefusal is { } jobOnRecusa)
+    {
+      <div class="peso-aviso" role="alert">@jobOnRecusa</div>
+    }
+    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
+      <input type="hidden" name="modo" value="@PesoModel.ModoJobOnValor" />
+      <div class="dmo-field">
+        <label for="pesoJobOnReferencia">Referência</label>
+        <input id="pesoJobOnReferencia" name="referencia" value="@Model.JobOnReferencia" placeholder="Ex.: 5810" autocomplete="off" required data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+      </div>
+      <div class="dmo-field">
+        <label for="pesoJobOnMaquina">Máquina</label>
+        <select id="pesoJobOnMaquina" name="maquina" data-dmo-autosubmit>
+          <option value="">Todas</option>
+          @foreach (var maquinaOpcao in Model.Maquinas)
+          {
+            <option value="@maquinaOpcao" selected="@(string.Equals(Model.JobOnMaquina, maquinaOpcao, StringComparison.Ordinal) ? "selected" : null)">@maquinaOpcao</option>
+          }
+        </select>
+      </div>
+      @* Escolher a referência ou a máquina procura logo (sem «Procurar»),
+         como nos Pegamentos. *@
+    </form>
+
+    @if (Model.JobOnReferencia is { } referenciaProcurada)
+    {
+      @if (Model.ProducoesJobOn.Count == 0)
+      {
+        <div class="peso-aviso-simples" role="status" style="margin-top:12px">@(Model.JobOnMaquina is { } maquinaProcurada ? $"Não há Job Ons da referência {referenciaProcurada} na máquina {maquinaProcurada}." : $"Não há Job Ons da referência {referenciaProcurada}.") Crie o Job On primeiro ou use «Sem Job On».</div>
+      }
+      else
+      {
+        <form method="post" asp-page="/Controlo/Peso" asp-page-handler="AbrirJobOn" class="dmo-filter-bar" style="margin-top:12px">
+          <div class="dmo-field">
+            <label for="pesoJobOn">Produção</label>
+            @* Escolher a produção abre-a (sem «Abrir produção»). *@
+            <select id="pesoJobOn" name="jobon_id" required data-dmo-autosubmit="valor">
+              <option value="">Escolher produção</option>
+              @foreach (var producao in Model.ProducoesJobOn)
+              {
+                <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+              }
+            </select>
+          </div>
+        </form>
+      }
+    }
+  </section>
+  }
+  else
+  {
+  @* ------------------------------------------------------------------ *@
+  @* 1. Ferramentas da pesagem: escolha pela REFERÊNCIA humana (P2-5 —  *@
+  @*    o operador escreve o que vê nas folhas: ST100, C142).            *@
+  @* ------------------------------------------------------------------ *@
+  <section class="dmo-card peso-card" aria-labelledby="peso-tools-title">
+    <div class="peso-card-heading"><div>
+      <h3 id="peso-tools-title">Ferramentas da pesagem</h3>
+    </div></div>
+    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
+      <div class="dmo-field">
+        <label for="cmToolId">CM — referência</label>
+        <input id="cmToolId" name="cm_tool_id" value="@Model.RequestedCmToolId" placeholder="Ex.: ST100" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-submit />
+      </div>
+      <div class="dmo-field">
+        <label for="bqToolId">Boquilha (BQ) — referência</label>
+        <input id="bqToolId" name="bq_tool_id" value="@Model.RequestedBqToolId" placeholder="Ex.: C142" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
+      </div>
+      @* Escolher a sugestão ou o Enter mostram a ferramenta (como nos
+         Pegamentos); o botão fica só sem script. *@
+      <noscript><button type="submit" class="dmo-button">Ferramentas</button></noscript>
+    </form>
+
+    @if (Model.CmTool is { } cmTool)
+    {
+      @* P2-4: o facto da ferramenta é a REFERÊNCIA humana (o que as
+         folhas mostram); o id opaco do backend vive no registo e no
+         POST, nunca como facto da folha. *@
+      <div class="peso-facts">
+        <div class="peso-fact"><span>CM</span><strong>@cmTool.Reference</strong><small>@cmTool.Type.ToString().ToUpperInvariant()</small></div>
+        <div class="peso-fact"><span>Lote</span><strong>@cmTool.Lot</strong></div>
+        <div class="peso-fact"><span>Processo</span><strong>@cmProcessLabel(Model.CmTechnical?.Process)</strong></div>
+        <div class="peso-fact"><span>Volume punção (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } vp ? fmt(vp) : "—")</strong></div>
+        <div class="peso-fact"><span>Peso nominal (g)</span><strong>@(Model.CmTechnical?.NominalWeightGrams is { } nw ? fmt(nw) : "—")</strong></div>
+      </div>
+    }
+    else if (Model.CmToolRequestedNotFound)
+    {
+      <div class="peso-aviso-simples" role="alert">A referência da CM indicada não está registada no Ferramentas. Nenhum Peso pode ser criado para ela.</div>
+    }
+
+    @if (Model.BqTool is { } bqTool)
+    {
+      <div class="peso-facts">
+        <div class="peso-fact"><span>Boquilha (BQ)</span><strong>@bqTool.Reference</strong><small>@bqTool.Type.ToString().ToUpperInvariant()</small></div>
+        <div class="peso-fact"><span>Lote</span><strong>@bqTool.Lot</strong></div>
+        <div class="peso-fact"><span>Volume marisa (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } vm ? fmt(vm) : "—")</strong></div>
+      </div>
+    }
+    else if (Model.BqToolRequestedNotFound)
+    {
+      <div class="peso-aviso-simples" role="alert">A referência da boquilha (BQ) indicada não está registada no Ferramentas.</div>
+    }
+
+    @* O PAINEL DE FACTOS no modo tool-scoped (as duas ferramentas
+       resolvidas): os volumes consolidados com a densidade do vidro e o
+       processo da CM, e o apoio TP/calote — sem Job On, a calote efetiva
+       é a h_ref da Tool (o html: «Tool CM»). O apoio nunca bloqueia. *@
+    @if (Model.CmTool is not null && Model.BqTool is not null)
+    {
+      <div class="peso-facts" style="margin-top:10px">
+        <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } painelMarisaTool ? fmt(painelMarisaTool) : "—")</strong></div>
+        <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } painelPuncaoTool ? fmt(painelPuncaoTool) : "—")</strong></div>
+        <div class="peso-fact">
+          <span>Densidade do vidro (g/cm³)</span>
+          <strong>@(Model.ConfiguredGlassDensity is { } painelDensidadeTool ? fmtDensity(painelDensidadeTool) : "—")</strong>
+          <small>@cmProcessLabel(Model.CmTechnical?.Process)</small>
+        </div>
+        <details class="tp-support" data-cap-url="@Url.Page("/Controlo/Peso", "CapSupport")" data-cap-params="cm_tool_id=@Model.RequestedCmToolId" open="@(Model.CapAberto ? "open" : null)">
+          <summary class="tp-button">
+            <span>TP / calote · Apoio separado</span>
+            @if (Model.CapSupport is { TemReferencia: true } botaoCapTool)
+            {
+              <strong>@(fmtCap(botaoCapTool.VolumeEfetivoCm3)) cm³</strong>
+              <small>D @(fmtCap(botaoCapTool.DiametroMm)) · h @(fmtCap(botaoCapTool.AlturaEfetivaMm)) · @botaoCapTool.OrigemCalote</small>
+            }
+            else
+            {
+              <strong>Referência por completar</strong>
+              <small>Não bloqueia o Peso</small>
+            }
+          </summary>
+          <div class="tp-support-body">
+            @if (Model.CapSupport is { TemReferencia: true } apoioCapTool)
+            {
+              <div class="peso-facts">
+                <div class="peso-fact"><span>D fixo</span><strong>@(fmtCap(apoioCapTool.DiametroMm)) mm</strong></div>
+                <div class="peso-fact"><span>R do desenho</span><strong>@(fmtCap(apoioCapTool.RaioDesenhoMm)) mm</strong></div>
+                <div class="peso-fact"><span>h de referência</span><strong>@(fmtCap(apoioCapTool.AlturaReferenciaMm)) mm</strong></div>
+                <div class="peso-fact"><span>h efetivo</span><strong>@(fmtCap(apoioCapTool.AlturaEfetivaMm)) mm</strong></div>
+              </div>
+              <p class="peso-hint">Origem do h efetivo: @apoioCapTool.OrigemCalote. Diferença R calculado − desenho: @(fmtCapSigned(apoioCapTool.DiferencaDesenhoMm)) mm. Não é aplicada uma tolerância oculta.</p>
+              <div class="peso-facts" data-cap-result>
+                <div class="peso-fact"><span>R calculado</span><strong>@(fmtCap(apoioCapTool.RaioCalculadoMm)) mm</strong></div>
+                <div class="peso-fact"><span>Volume</span><strong>@(fmtCap(apoioCapTool.VolumeEfetivoCm3)) cm³</strong></div>
+                <div class="peso-fact"><span>Δ R / referência</span><strong>@(fmtCapSigned(apoioCapTool.DeltaRaioMm)) mm</strong></div>
+                <div class="peso-fact"><span>Δ V / referência</span><strong>@(fmtCapSigned(apoioCapTool.DeltaVolumeCm3)) cm³</strong></div>
+              </div>
+              <form method="get" asp-page="/Controlo/Peso" class="tp-sim-form">
+                <input type="hidden" name="cm_tool_id" value="@Model.RequestedCmToolId" />
+                <input type="hidden" name="bq_tool_id" value="@Model.RequestedBqToolId" />
+                <div class="dmo-field">
+                  <label for="capSimulada">Calote simulada h (mm)</label>
+                  <input id="capSimulada" name="cap_h" type="text" inputmode="decimal" autocomplete="off"
+                         value="@(Model.CapSimulada is { } simuladaTool ? simuladaTool.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : (apoioCapTool.AlturaEfetivaMm is { } efetivaTool ? efetivaTool.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : null))"
+                         placeholder="Usar @apoioCapTool.OrigemCalote" />
+                </div>
+                <div class="dmo-field">
+                  <label>&nbsp;</label>
+                  <button type="submit" class="dmo-button">Calcular</button>
+                </div>
+              </form>
+            }
+            else
+            {
+              <div class="peso-aviso-simples" role="status">Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.</div>
+            }
+            @if (Model.CapSimuladaIlegivel)
+            {
+              <div class="peso-aviso-simples" role="status" style="margin-top:10px">O valor da calote simulada não é utilizável — escreve uma calote em mm (0 ou mais). O apoio segue com o h efetivo.</div>
+            }
+          </div>
+        </details>
+      </div>
+    }
+  </section>
+
+  @* ------------------------------------------------------------------ *@
+  @* 2. Novo Peso tool-scoped (ambas as ferramentas resolvidas).        *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.CmTool is not null && Model.BqTool is not null)
+  {
+    <section class="dmo-card peso-card" aria-labelledby="peso-create-title">
+      <div class="peso-card-heading"><h3 id="peso-create-title">Novo Peso</h3></div>
+      <p class="card-note">Sem produção associada.</p>
+
+      @if (Model.CreateRefusal is not null)
+      {
+        <div class="peso-aviso" role="alert">@Model.CreateRefusalMessage</div>
+      }
+
+      <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Create" class="peso-form-grid">
+        <input type="hidden" name="cm_tool_id" value="@Model.CmTool.ToolId" />
+        <input type="hidden" name="bq_tool_id" value="@Model.BqTool.ToolId" />
+        <div class="dmo-field">
+          <label for="waterTemperature">Temperatura da água (°C)</label>
+          <input id="waterTemperature" name="water_temperature" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 20,4 ou 20.4" value="@Model.EchoTemperature" />
+        </div>
+        @if (Model.CmTechnical?.Process is null)
+        {
+          <div class="dmo-field">
+            <label for="cmProcess">Processo da CM (em falta)</label>
+            <select id="cmProcess" name="cm_process" required>
+              <option value="">Selecionar</option>
+              <option value="NNPB" selected="@(Model.EchoCmProcess == "NNPB" ? "selected" : null)">NNPB</option>
+              <option value="PS" selected="@(Model.EchoCmProcess == "PS" ? "selected" : null)">PS</option>
+            </select>
+          </div>
+        }
+        @if (Model.CmTechnical?.VolumePuncaoCm3 is null)
+        {
+          <div class="dmo-field">
+            <label for="cmVolumePuncao">Volume punção cm³ (em falta)</label>
+            <input id="cmVolumePuncao" name="cm_volume_puncao" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 70,00 ou 70.00" value="@Model.EchoVolumePuncao" />
+          </div>
+        }
+        @if (Model.CmTechnical?.NominalWeightGrams is null)
+        {
+          <div class="dmo-field">
+            <label for="cmNominalWeight">Peso nominal g (opcional)</label>
+            <input id="cmNominalWeight" name="cm_nominal_weight" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 200,00 ou 200.00" value="@Model.EchoNominalWeight" />
+          </div>
+        }
+        @if (Model.BqTechnical?.VolumeMarisaCm3 is null)
+        {
+          <div class="dmo-field">
+            <label for="bqVolumeMarisa">Volume marisa cm³ (em falta)</label>
+            <input id="bqVolumeMarisa" name="bq_volume_marisa" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 10,00 ou 10.00" value="@Model.EchoVolumeMarisa" />
+          </div>
+        }
+        <div class="peso-form-grid wide" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:12px">
+          <div class="peso-fact"><span>Densidade da água</span><strong>Tabela de densidades (5–35 °C, grau inteiro)</strong></div>
+          <div class="peso-fact">
+            <span>Densidade do vidro</span>
+            <strong>@(Model.ConfiguredGlassDensity is { } density ? $"{fmtDensity(density)} g/cm³" : "não configurada")</strong>
+            @if (Model.CmTechnical?.Process is not null && Model.ConfiguredGlassDensity is null)
+            {
+              <small>Configuração do Controlo para o processo @cmProcessLabel(Model.CmTechnical.Process) — sem valor configurado, o Peso não é criado.</small>
+            }
+          </div>
+        </div>
+        <div class="peso-actions">
+          <button type="submit" class="dmo-button">Criar Peso</button>
+        </div>
+      </form>
+    </section>
+  }
+  } @* fim do else — o modo sem Job On (secções 1 e 2) *@
+  } @* fim do else — o modo tool-scoped (secções 0, 1 e 2) *@
+
+  @* ------------------------------------------------------------------ *@
+  @* 3. O Peso aberto: contexto consumido, leituras e cálculo.          *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.Peso is { } peso)
+  {
+    decimal? diferencaNominal = peso.Averages is { } pesoAv && peso.NominalWeightGrams is { } nom
+        ? pesoAv.AverageGlassWeightGrams - nom
+        : (decimal?)null;
+    @if (Model.JobOnNotice is { } jobOnNotice)
+    {
+      <partial name="_JobOnChangeNotice" model="jobOnNotice" />
+    }
+    <section class="dmo-card peso-card" aria-labelledby="peso-open-title" data-peso-live data-peso-id="@peso.PesoId" data-preview-url="@Url.Page("/Controlo/Peso", "Preview")">
+      <div class="peso-card-heading"><div>
+        <h3 id="peso-open-title">Peso — CM @(peso.CmToolReference ?? "—")</h3>
+        <p class="card-note">
+          @((Model.ProductionContext ?? Model.OpenedPesoProduction) is { } pc ? $"Produção {pc.ProductionNumber} · {pc.Reference} · {pc.Machine}" : "sem associação a produção")
+          — CM @(peso.CmToolReference ?? "—")@(peso.CmToolReference is null ? "" : $" · Lote {peso.CmToolLot}")
+        </p>
+      </div></div>
+
+      @* Os INPUTS técnicos (processo, densidades, volumes, peso nominal)
+         vivem na ficha da ferramenta e no PDF — a folha mostra APENAS os
+         RESULTADOS da pesagem (o Owner 2026-10-12: «deveria apenas ter
+         informação relacionada aos resultados do peso»). *@
+
+      @if (Model.AssociationRefusal is not null && Model.ControloIdFromQuery is null)
+      {
+        <div class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
+      }
+
+      @* Peso sem produção cuja CM já está num Job On: a app PERGUNTA (o
+         Owner 2026-10-16) — nunca associa sozinha; sem resposta, o Peso
+         continua disponível na ferramenta. *@
+      @if (Model.ProductionCandidates.Count > 0)
+      {
+        <div class="peso-aviso-simples" role="status" style="margin-bottom:12px">
+          <strong>@(Model.ProductionCandidates.Count == 1 ? "Existe um Job On" : $"Existem {Model.ProductionCandidates.Count} Job Ons") com esta CM e ainda sem Peso. Quer associar este Peso?</strong>
+          @foreach (var production in Model.ProductionCandidates)
+          {
+            <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate" style="display:flex;gap:10px;align-items:center;margin-top:8px">
+              <input type="hidden" name="peso_id" value="@peso.PesoId" />
+              <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+              <span>Produção @production.ProductionNumber · @production.Reference · @production.Machine</span>
+              <button type="submit" class="dmo-button">Associar</button>
+            </form>
+          }
+        </div>
+      }
+
+      @if (Model.NominalIlegivelAviso)
+      {
+        @* A5 (beta.65): o nominal é opcional — o Peso foi criado sem o valor ilegível ou ≤ 0. *@
+        <div class="peso-aviso warn" role="status">@Model.NominalIlegivelMessage</div>
+      }
+
+      @if (Model.MeasurementRefusal is not null)
+      {
+        <div class="peso-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
+      }
+
+
+      @if (Model.LeituraRefusal)
+      {
+        @* A auditoria do Codex: a massa não utilizável é recusa tipada com
+           o ECHO — o typo do operador não desaparece em silêncio. *@
+        <div class="peso-aviso" role="alert">@Model.LeituraRefusalMessage</div>
+      }
+
+      <p class="peso-hint" style="margin:0 0 6px">Temperatura da água @peso.WaterTemperatureC °C · densidade @fmtDensity(peso.WaterDensityGramsPerCm3) g/cm³ · Peso = (capacidade + Marisa − Punção) × densidade do vidro</p>
+      <div class="peso-section-heading"><div>
+        <h4>Leituras por CM</h4>
+      </div></div>
+      @if (peso.Measurements.Count == 0)
+      {
+        <div class="peso-vazia">Ainda sem leituras. Registe a primeira leitura real abaixo.</div>
+      }
+      else
+      {
+        <div class="dmo-table-wrap">
+          <table class="dmo-table" data-peso-leituras>
+            @* A primeira tabela é a dos moldes controlados (o Owner
+               2026-10-17): o peso e o VOLUME de cada CM ficam à vista,
+               porque o volume vai para o mcaliper; a massa de água é o
+               input da medição, não o resultado (o Owner 2026-10-12). A comparação com outra
+               produção tem a sua própria tabela mais abaixo. *@
+            <thead>
+              <tr>
+                <th>N.º CM</th>
+                <th>Volume (cm³)</th>
+                <th>Peso do vidro (g)</th>
+                <th>Δ peso / média (g)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var measurement in peso.Measurements)
+              {
+                decimal? rowDelta = peso.Averages is { } rowAverages
+                    ? measurement.GlassWeightGrams - rowAverages.AverageGlassWeightGrams
+                    : null;
+                <tr>
+                  <td>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
+                  <td>@fmtCap(measurement.CapacityCm3)</td>
+                  <td><strong>@fmt(measurement.GlassWeightGrams)</strong></td>
+                  <td>@(rowDelta is { } rd ? signed(rd) : "—")</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @* A camada viva: o estado inicial é o persistido e as leituras em
+         curso atualizam-no ao vivo; cada linha do formulário mostra logo o
+         seu volume e peso. Zero escrita: o registo é o POST nativo
+         «Registar leitura». *@
+      <div class="peso-live-region">
+        <div class="peso-live-area" aria-live="polite">
+          <div class="peso-live-strip" data-peso-strip>
+            @* A ESTRUTURA É ESTÁVEL: o servidor renderiza os mesmos blocos
+               que o peso-live.js escreve ao vivo (os mesmos rótulos na
+               mesma ordem). *@
+            <div class="peso-fact"><span>Leituras válidas</span><strong>@peso.Measurements.Count</strong></div>
+            <div class="peso-fact"><span>Média em água</span><strong>@(peso.Averages is { } la ? $"{fmt(la.AverageWaterWeightGrams)} g" : "—")</strong></div>
+            <div class="peso-fact"><span>Peso estimado em vidro</span><strong>@(peso.Averages is { } lb ? $"{fmt(lb.AverageGlassWeightGrams)} g" : "—")</strong></div>
+            <div class="peso-fact"><span>Capacidade média</span><strong>@(peso.Averages is { } lc ? $"{fmtCap(lc.AverageCapacityCm3)} cm³" : "—")</strong></div>
+          </div>
+          <div class="peso-resumo" data-peso-summary>
+            <div class="peso-fact"><span>Peso nominal</span><strong>@(peso.NominalWeightGrams is { } nominalSumario ? $"{fmt(nominalSumario)} g" : "—")</strong></div>
+            <div class="peso-fact"><span>Diferença nominal</span><strong>@(diferencaNominal is { } diferenca ? signed(diferenca) + " g" : "—")</strong></div>
+            <div class="peso-fact" data-peso-comparison><span>Comparação anterior</span><strong>@(Model.Comparison is { } comparacaoStrip && !string.IsNullOrEmpty(comparacaoStrip.HistoricalProductionNumber) ? comparacaoStrip.HistoricalProductionNumber : "Por criar")</strong></div>
+          </div>
+          <div class="peso-preview-refused" data-peso-refusals role="alert" hidden></div>
+        </div>
+
+        @* O registo das leituras como na referência acordada (o Owner
+           2026-10-17): cada leitura gravada fica num cartão com o N.º CM, a
+           massa de água e, por baixo, o volume e o peso dessa CM; o cartão
+           tracejado no fim é a leitura nova, com «+» e «−» e «Registar
+           leitura». As massas gravadas são só de leitura (value, sem name). *@
+        <form method="post" asp-page="/Controlo/Peso" asp-page-handler="RegisterMeasurement" class="peso-leitura-form" data-peso-rows-form>
+          <input type="hidden" name="peso_id" value="@peso.PesoId" />
+          @if (Model.ProductionContext is not null && Model.ControloIdFromQuery is { } leituraControloId)
+          {
+            <input type="hidden" name="controlo_id" value="@leituraControloId" />
+            @if (Model.Comparison is { } leituraComparison)
+            {
+              <input type="hidden" name="comparar" value="@leituraComparison.HistoricalPesoId" />
+            }
+          }
+          <div class="peso-leitura-grade" data-peso-leitura-cartoes>
+            @foreach (var gravada in peso.Measurements)
+            {
+              <div class="peso-leitura-row is-saved" data-peso-leitura-gravada>
+                <div class="dmo-field">
+                  <label>N.º CM</label>
+                  <input value="@(string.IsNullOrEmpty(gravada.CmSubject) ? "—" : gravada.CmSubject)" readonly tabindex="-1" aria-label="N.º CM gravado" />
+                </div>
+                <div class="dmo-field">
+                  <label>Massa de água (g)</label>
+                  <input value="@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)" readonly tabindex="-1" aria-label="Massa de água gravada" />
+                </div>
+                <output class="peso-leitura-chip">@fmtCap(gravada.CapacityCm3) cm³ · @fmt(gravada.GlassWeightGrams) g</output>
+              </div>
+            }
+            <div class="peso-leitura-nova">
+              <div class="peso-leitura-rows" data-peso-rows>
+                <div class="peso-leitura-row" data-peso-row>
+                  <div class="dmo-field">
+                    <label for="cmSubject">N.º CM</label>
+                    <input id="cmSubject" name="cm_subject" placeholder="Ex.: 12" value="@Model.EchoLeituraSubject" />
+                  </div>
+                  <div class="dmo-field">
+                    <label for="waterWeight">Massa de água (g)</label>
+                    <input id="waterWeight" name="water_weight" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 70,5" value="@Model.EchoLeituraWater" />
+                  </div>
+                  <output class="peso-leitura-chip" data-peso-row-result></output>
+                </div>
+              </div>
+              <div class="peso-leitura-actions">
+                <button type="button" class="dmo-button peso-row-button" data-peso-add-row aria-label="Adicionar leitura" title="Adicionar leitura">+</button>
+                <button type="button" class="dmo-button peso-row-button" data-peso-remove-row aria-label="Remover leitura" title="Remover leitura">−</button>
+                <button type="submit" class="dmo-button peso-registar">Registar leitura</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 3B. A comparação com outro controlo: o dropdown em tempo real com  *@
+  @*     «Aplicar» à frente, a tabela por CM da produção escolhida e a   *@
+  @*     produção anterior com o peso do SAP (o Owner 2026-10-17).       *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.ProducaoDaComparacao is { } producaoAtual && Model.Peso is { } currentPesoForComparison)
+  {
+    <section class="dmo-card peso-card peso-compare" aria-labelledby="peso-comparacao-title">
+      <div class="peso-card-heading"><h3 id="peso-comparacao-title">Comparação com outro controlo</h3></div>
+      @if (Model.ComparisonCandidates.Count == 0)
+      {
+        <p class="card-note">Sem Pesos anteriores para esta referência.</p>
+      }
+      else
+      {
+        <form method="get" asp-page="/Controlo/Peso" class="peso-inline-form peso-procura-larga">
+          @if (Model.ControloIdFromQuery is { } compararControloId)
+          {
+            <input type="hidden" name="controlo_id" value="@compararControloId" />
+          }
+          else
+          {
+            <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
+          }
+          @if (Model.SuporCaloteTexto is { } suporEcho)
+          {
+            <input type="hidden" name="supor_calote" value="@suporEcho" />
+          }
+          <div class="dmo-field">
+            <label for="compararDropdown">Produção a comparar (@producaoAtual.Reference)</label>
+            <select id="compararDropdown" name="comparar" data-auto-submit data-dmo-filter>
+              <option value="" selected="@(Model.Comparison is null ? "selected" : null)">Procurar produção…</option>
+              @foreach (var candidate in Model.ComparisonCandidates)
+              {
+                var selected = Model.Comparison is { } c && c.HistoricalPesoId == candidate.PesoId;
+                <option value="@candidate.PesoId" selected="@(selected ? "selected" : null)">
+                  @* A procura já mostra as diferenças (o Owner 2026-10-17: «ao
+                     procurar aparecer as diferenças»): o volume e o peso médios
+                     dessa produção e o Δ do peso para a atual. *@
+                  @candidate.ProductionNumber@(string.IsNullOrEmpty(candidate.CmLot) ? null : $" · Lote {candidate.CmLot}")@(candidate.CompatibleMachines is { Count: > 0 } maquinas ? $" · {string.Join(" ", maquinas)}" : string.IsNullOrEmpty(candidate.Machine) ? null : $" · {candidate.Machine}")@(candidate.AverageGlassWeightGrams is { } candPeso ? $" · Peso {fmt(candPeso)} g" + (currentPesoForComparison.Averages is { } atualPeso ? $" (Δ {signed(atualPeso.AverageGlassWeightGrams - candPeso)})" : "") : null)@(candidate.AverageCapacityCm3 is { } candCap ? $" · Volume {fmtCap(candCap)} cm³" + (currentPesoForComparison.Averages is { } atualCap ? $" (Δ {signed(atualCap.AverageCapacityCm3 - candCap)})" : "") : null)
+                </option>
+              }
+            </select>
+          </div>
+          @* Escolher aplica logo (o Owner 2026-10-17: «o aplicar é redundante»). *@
+        </form>
+      }
+
+      @if (Model.Comparison is { } comparison && currentPesoForComparison.Averages is not null)
+      {
+        var historicoRotulo = comparison.HistoricalProductionNumber;
+        @* A produção escolhida é só a procura; a tabela compara CM com CM
+           pela ordem das leituras, sem exigir o mesmo número de CM (o Owner
+           2026-10-17: «comparando cm com cm, não precisa de ser par»), com o
+           volume, o peso e a diferença entre o atual e o anterior, e as
+           médias no fim. As produções do dropdown são as das máquinas
+           compatíveis na ficha da CM (ToolMachineLink). *@
+        <div class="dmo-table-wrap" style="margin-top:8px">
+          <table class="dmo-table" data-peso-comparacao-tabela>
+            <thead>
+              <tr>
+                <th>CM atual</th>
+                <th>Volume atual (cm³)</th>
+                <th>Peso atual (g)</th>
+                <th>CM anterior · @historicoRotulo</th>
+                <th>Volume anterior (cm³)</th>
+                <th>Peso anterior (g)</th>
+                <th>Δ volume (cm³)</th>
+                <th>Δ peso (g)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var measurement in currentPesoForComparison.Measurements)
+              {
+                var anterior = comparison.Rows.FirstOrDefault(r => r.Position == measurement.RowPosition);
+                <tr>
+                  <td>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
+                  <td>@fmtCap(measurement.CapacityCm3)</td>
+                  <td>@fmt(measurement.GlassWeightGrams)</td>
+                  <td>@(anterior is { } a1 && !string.IsNullOrEmpty(a1.HistoricalCmSubject) ? a1.HistoricalCmSubject : "—")</td>
+                  <td>@(anterior?.HistoricalCapacityCm3 is { } hcap ? fmtCap(hcap) : "—")</td>
+                  <td>@(anterior is { } a2 ? fmt(a2.HistoricalGlassWeightGrams) : "—")</td>
+                  <td>@(anterior?.HistoricalCapacityCm3 is { } hcap2 ? signed(measurement.CapacityCm3 - hcap2) : "—")</td>
+                  <td><strong>@(anterior is { } a3 ? signed(measurement.GlassWeightGrams - a3.HistoricalGlassWeightGrams) : "—")</strong></td>
+                </tr>
+              }
+            </tbody>
+            <tfoot data-peso-comparacao-medias>
+              <tr>
+                <th scope="row">Média</th>
+                <td>@(comparison.CurrentAverages is { } ca ? fmtCap(ca.AverageCapacityCm3) : "—")</td>
+                <td>@(comparison.CurrentAverages is { } ca1 ? fmt(ca1.AverageGlassWeightGrams) : "—")</td>
+                <td></td>
+                <td>@(comparison.HistoricalAverages is { } ha ? fmtCap(ha.AverageCapacityCm3) : "—")</td>
+                <td>@(comparison.HistoricalAverages is { } ha1 ? fmt(ha1.AverageGlassWeightGrams) : "—")</td>
+                <td>@(comparison.Deltas.CapacityDifferenceCm3 is { } cd ? signed(cd) : "—")</td>
+                <td><strong class="@(comparison.Deltas.GlassWeightDifferenceGrams is { } gd && gd < 0 ? "peso-valor-negativo" : null)">@(comparison.Deltas.GlassWeightDifferenceGrams is { } gd2 ? signed(gd2) : "—")@(comparison.Deltas.GlassWeightVariationPercent is { } gv ? $" ({signed(gv)} %)" : null)</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      }
+
+      @* A PRODUÇÃO ANTERIOR (o Owner 2026-10-17): o contexto vem do Job On
+         anterior (número, máquina, início e fim) e o peso que essa produção
+         usou é escrito à mão a partir do SAP. O delta é contra o peso médio
+         atual, e o registo vai para o PDF. *@
+      <div class="peso-section-heading" style="margin-top:16px"><div>
+        <h4 id="peso-producao-anterior-title">Produção anterior (SAP)</h4>
+      </div></div>
+      @if (Model.ProducaoAnteriorRefusal is { } anteriorRecusa)
+      {
+        <div class="peso-aviso" role="alert">@anteriorRecusa</div>
+      }
+      @if (Model.ProducaoAnteriorGuardada)
+      {
+        <div class="peso-aviso-simples" role="status">Produção anterior guardada.</div>
+      }
+      @if (Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null)
+      {
+        <p class="card-note">Sem outras produções desta referência.</p>
+      }
+      else
+      {
+        var escolhida = Model.ProducaoAnteriorEscolhida;
+        var guardada = Model.ProducaoAnterior;
+        var pesoGuardadoDaEscolhida = escolhida is not null && guardada?.JobOnId == escolhida.JobOnId ? guardada.PesoGramas : null;
+        var pesoEcho = Model.ProducaoAnteriorEcho
+            ?? (pesoGuardadoDaEscolhida is { } pg ? pg.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) : null);
+        <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GuardarProducaoAnterior" class="peso-inline-form" data-producao-anterior>
+          <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
+          <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+          @if (Model.Comparison is { } anteriorComparison)
+          {
+            <input type="hidden" name="comparar" value="@anteriorComparison.HistoricalPesoId" />
+          }
+          <div class="dmo-field">
+            <label for="producaoAnterior">Produção anterior</label>
+            <select id="producaoAnterior" name="anterior" data-producao-anterior-select>
+              @foreach (var opcao in Model.ProducaoAnteriorOpcoes)
+              {
+                <option value="@opcao.JobOnId"
+                        data-inicio="@(opcao.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")"
+                        data-fim="@(opcao.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")"
+                        selected="@(escolhida?.JobOnId == opcao.JobOnId ? "selected" : null)">@opcao.ProductionNumber · @opcao.Machine</option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field">
+            @* Sem rótulo à vista (o Owner 2026-10-17: «remove»); o nome fica no aria-label. *@
+            <input id="producaoAnteriorPeso" name="anterior_peso" type="text" inputmode="decimal" autocomplete="off" placeholder="Peso usado (g)" aria-label="Peso usado na produção (g)" value="@pesoEcho" />
+          </div>
+          <button type="submit" class="dmo-button">Guardar</button>
+        </form>
+        <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
+        @if (guardada is { PesoGramas: { } pesoSap })
+        {
+          var deltaSap = guardada.Delta(currentPesoForComparison.Averages?.AverageGlassWeightGrams);
+          <div class="peso-resumo" data-producao-anterior-delta>
+            <div class="peso-fact"><span>Peso usado — @(guardada.ProductionNumber ?? "produção anterior")@(string.IsNullOrEmpty(guardada.Machine) ? null : $" · {guardada.Machine}")</span><strong>@fmt(pesoSap) g</strong></div>
+            <div class="peso-fact"><span>Diferença para a anterior</span><strong class="@(deltaSap.Grams is < 0 ? "peso-valor-negativo" : null)">@(deltaSap.Grams is { } dg ? $"{signed(dg)} g" : "—")</strong></div>
+            <div class="peso-fact"><span>Variação</span><strong>@(deltaSap.Percent is { } dpc ? $"{signed(dpc)} %" : "—")</strong></div>
+          </div>
+        }
+      }
+
+      @* O «SUPOMOS» (o Diogo, 16/10): e se a calote do tampão desta
+         produção fosse outra? O backend recalcula o peso médio com a
+         calote suposta e a diferença para a produção escolhida. Nada é
+         gravado: o Peso e o Job On ficam como estão. *@
+      <div class="peso-supomos" data-peso-supomos style="margin-top:16px">
+        <h4 style="margin:0 0 6px">Supomos</h4>
+        @if (Model.CaloteDaComparacao is { TemReferencia: true } caloteAtual)
+        {
+          @* Texto para o «?»: E se a calote do tampão fosse outra? A massa
+             de água já traz a calote com que se pesou; a app troca a parte
+             do peso que vem dela pela da calote suposta. É só uma
+             simulação: o Peso não muda. *@
+          <p class="card-note">Calote atual: @(fmtCap(caloteAtual.AlturaEfetivaMm)) mm (@caloteAtual.OrigemCalote)</p>
+          <form method="get" asp-page="/Controlo/Peso" class="dmo-field" style="max-width:420px">
+            @if (Model.ControloIdFromQuery is { } suporControloId)
+            {
+              <input type="hidden" name="controlo_id" value="@suporControloId" />
+            }
+            else
+            {
+              <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
+            }
+            @if (Model.Comparison is { } comparacaoSupor)
+            {
+              <input type="hidden" name="comparar" value="@comparacaoSupor.HistoricalPesoId" />
+            }
+            <label for="suporCalote">Calote do tampão suposta (mm)</label>
+            <input id="suporCalote" name="supor_calote" type="text" inputmode="decimal" autocomplete="off"
+                   value="@Model.SuporCaloteTexto" placeholder="ex.: 5,2" />
+            <button type="submit" class="dmo-button">Ver a diferença</button>
+          </form>
+          @if (Model.SuposicaoIlegivel)
+          {
+            <div class="peso-aviso-simples" role="status" style="margin-top:8px">A calote suposta «@Model.SuporCaloteTexto» não é um número válido. Escreve um valor em mm, por exemplo 5,2.</div>
+          }
+          @if (Model.Suposicao is { } sup)
+          {
+            <div class="peso-resumo" style="margin-top:10px">
+              <div class="peso-fact"><span>Calote</span><strong>@(fmtCap(sup.CaloteAtualMm)) → @(fmtCap(sup.CaloteSupostaMm)) mm</strong></div>
+              <div class="peso-fact"><span>Volume da calote</span><strong>@(fmtCap(sup.VolumeAtualCm3)) → @(fmtCap(sup.VolumeSupostoCm3)) cm³</strong></div>
+              <div class="peso-fact"><span>Parte do peso que vem da calote</span><strong>@($"{fmt(sup.PesoDaCaloteAtualGrams)} → {fmt(sup.PesoDaCaloteSupostaGrams)} g")</strong></div>
+              <div class="peso-fact"><span>Efeito no peso</span><strong class="@(sup.DeltaPesoGrams < 0 ? "peso-valor-negativo" : null)">@($"{signed(sup.DeltaPesoGrams)} g")</strong></div>
+              <div class="peso-fact"><span>Peso médio de @producaoAtual.ProductionNumber</span><strong>@($"{fmt(sup.PesoMedioAtualGrams)} → {fmt(sup.PesoMedioSupostoGrams)} g")</strong></div>
+              @if (Model.Comparison is { } comparacaoSup && sup.DiferencaSupostaGrams is { } difSup)
+              {
+                <div class="peso-fact"><span>Diferença para @comparacaoSup.HistoricalProductionNumber</span><strong>@(sup.DiferencaAtualGrams is { } difAtual ? signed(difAtual) : "—") → @($"{signed(difSup)} g")</strong></div>
+                <div class="peso-fact"><span>Variação com a calote suposta</span><strong>@(sup.VariacaoSupostaPercent is { } varSup ? $"{signed(varSup)} %" : "—")</strong></div>
+              }
+            </div>
+            @* Texto para o «?»: escolha uma produção em cima para ver também
+               a diferença entre as duas. *@
+          }
+        }
+        else
+        {
+          @* Texto para o «?»: para simular a calote, complete D, R do
+             desenho e h de referência na ferramenta CM. *@
+          <p class="card-note">Tampão sem geometria na CM.</p>
+        }
+      </div>
+    </section>
+  }
+
+  @if (Model.Peso is not null)
+  {
+    @* O PDF da folha: gerado em memória e descarregado localmente, com a
+       comparação escolhida em cima e a produção anterior (SAP). Serve a
+       folha da produção (?controlo_id) e o Peso aberto pelo histórico
+       (?peso_id). *@
+    @if (Model.PdfSavedPath is { } savedPath)
+    {
+      <div class="peso-aviso-simples" role="status" style="margin-top:14px">
+        <strong>PDF guardado:</strong> <code>@savedPath</code>
+      </div>
+    }
+    @if (Model.PdfRefusal is not null && Model.PdfRefusalMessage.Length > 0)
+    {
+      <div class="peso-aviso" role="alert" style="margin-top:14px">@Model.PdfRefusalMessage</div>
+    }
+
+    <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GeneratePdf" class="peso-actions" style="margin-top:14px">
+      @if (Model.ProductionContext is not null && Model.ControloIdFromQuery is { } formControloId)
+      {
+        <input type="hidden" name="controlo_id" value="@formControloId" />
+      }
+      <input type="hidden" name="peso_id" value="@Model.Peso.PesoId" />
+      @if (Model.Comparison is { } selectedComparison)
+      {
+        <input type="hidden" name="comparar" value="@selectedComparison.HistoricalPesoId" />
+      }
+      <button type="submit" class="dmo-button">Exportar PDF</button>
+    </form>
+  }
+
+  @* OS HISTÓRICOS DA FOLHA SAÍRAM (o Owner 2026-10-13: «o historico de
+     pesos esta em dois lados... na pagina de peso deve apenas apresentar
+     a referencia atual»): a folha apresenta APENAS a pesagem atual; o
+     histórico vive SÓ na tab (?historico=1 — a procura pelo total). *@
+
+@section Scripts {
+<script src="@Url.Content("~/peso-live.js")"></script>
+<script>
+// A COMPARAÇÃO DE PESO (progressive enhancement, o padrão do html):
+// as leituras adicionam/removem ao vivo e os selects de contexto
+// auto-submetem o GET do cascade. Sem JS tudo funciona pelo form nativo
+// (quatro linhas e o botão «Mostrar»).
+(function () {
+  var readings = document.querySelector('[data-cmp-readings]');
+  var add = document.querySelector('[data-cmp-add-row]');
+  var remove = document.querySelector('[data-cmp-remove-row]');
+  if (readings && add && remove) {
+    add.addEventListener('click', function () {
+      var last = readings.querySelector('[data-cmp-row]:last-of-type');
+      if (!last) { return; }
+      var clone = last.cloneNode(true);
+      clone.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+      last.after(clone);
+    });
+    remove.addEventListener('click', function () {
+      var rows = readings.querySelectorAll('[data-cmp-row]');
+      if (rows.length > 1) { rows[rows.length - 1].remove(); }
+    });
+  }
+
+  // A produção anterior: o início e o fim mudam com a produção escolhida.
+  var anterior = document.querySelector('[data-producao-anterior-select]');
+  var periodo = document.querySelector('[data-producao-anterior-periodo]');
+  if (anterior && periodo) {
+    anterior.addEventListener('change', function () {
+      var option = anterior.options[anterior.selectedIndex];
+      if (!option) { return; }
+      periodo.querySelector('[data-inicio]').textContent = option.getAttribute('data-inicio') || '—';
+      periodo.querySelector('[data-fim]').textContent = option.getAttribute('data-fim') || '—';
+    });
+  }
+
+  document.querySelectorAll('[data-auto-submit]').forEach(function (select) {
+    select.addEventListener('change', function () {
+      if (select.form) { select.form.submit(); }
+    });
+  });
+})();
+</script>
+@* O SEGUNDO BLOCO de script da folha precisa de ser ABERTO (a B2 repair — o
+   órfão que o review R-B2 apanhou): sem esta tag o IIFE do apoio TP/CALOTE
+   ficava fora de qualquer <script>, ou seja, Razor deitava-o como TEXTO da
+   pagina ao lado do markup. *@
+<script>
+// O APOIO TP/CALOTE (progressive enhancement): a simulação responde ao
+// vivo — o cálculo é SEMPRE do backend (o endpoint ?handler=CapSupport
+// reutiliza o PesoCapCalculation; zero fórmula em JS); o JS apenas
+// apresenta o que o backend devolveu. Sem JS tudo funciona pelo form
+// nativo «Calcular» (o GET recalcula pelo backend e mantém o apoio aberto).
+(function () {
+  var details = document.querySelector('.tp-support[data-cap-url]');
+  if (!details) return;
+  var input = details.querySelector('#capSimulada');
+  var result = details.querySelector('[data-cap-result]');
+  var url = details.getAttribute('data-cap-url');
+  var params = details.getAttribute('data-cap-params') || '';
+  if (!input || !result || !url) return;
+
+  function fmt(value, decimals, unit) {
+    if (value === null || value === undefined) return "—";
+    return Number(value).toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + (unit ? " " + unit : "");
+  }
+  function signed(value, decimals, unit) {
+    if (value === null || value === undefined) return "—";
+    var n = Number(value);
+    return (n > 0 ? "+" : "") + n.toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + (unit ? " " + unit : "");
+  }
+  function metric(label, value) {
+    return '<div class="peso-fact"><span>' + label + '</span><strong>' + value + '</strong></div>';
+  }
+
+  var timer = null;
+  input.addEventListener('input', function () {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function () {
+      var query = new URLSearchParams(params);
+      query.set('calote', input.value.replace(',', '.'));
+      fetch(url + (url.indexOf('?') >= 0 ? '&' : '?') + query.toString(), { credentials: 'same-origin' })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (data) {
+          if (!data || !data.temReferencia) return;
+          result.innerHTML =
+            metric('R calculado', fmt(data.raioCalculadoMm, 3, ' mm')) +
+            metric('Volume', fmt(data.volumeEfetivoCm3, 3, ' cm³')) +
+            metric('Δ R / referência', signed(data.deltaRaioMm, 3, ' mm')) +
+            metric('Δ V / referência', signed(data.deltaVolumeCm3, 3, ' cm³'));
+        })
+        .catch(function () { /* sem rede: o server-rendered segue visível */ });
+    }, 300);
+  });
+})();
+</script>
+}
+</main>

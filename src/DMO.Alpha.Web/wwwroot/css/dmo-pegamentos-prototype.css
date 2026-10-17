@@ -1,0 +1,260 @@
+.peg-page .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+
+.peg-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
+.peg-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.peg-card{padding:18px}
+.peg-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft,#f3e9e7);border-radius:8px;margin-top:12px}
+.peg-aviso::before{content:"⚠ ";}
+.peg-aviso.warn{border-left-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
+.peg-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.peg-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+.peg-comp-head{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:end;margin-top:6px}
+.peg-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;align-items:end;margin-top:12px}
+.peg-corredor{padding:10px 12px;border-left:3px solid #16A34A;background:#f0f9f1;border-radius:8px}
+.peg-corredor.no-nominal{border-left-color:#94A3B8;background:#f4f6f8}
+.peg-corredor span{display:block;color:var(--dmo-muted);font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em}
+.peg-corredor strong{display:block;font-size:14px;margin-top:3px}
+.peg-cell-bad{color:#B91C1C;font-weight:800}
+.peg-state-bad{color:#B91C1C;font-weight:750}
+.peg-state-na{color:#94A3B8;font-weight:750}
+.peg-state-ok{color:#166534;font-weight:750}
+.peg-map-card{padding:14px}
+.peg-map-card h3{color:var(--dmo-brand-600)}
+.peg-map-card .peg-map-help{font-size:12px;color:var(--dmo-muted);margin:0 0 10px}
+.peg-map-wrap{width:100%;overflow-x:auto;border:1px solid var(--dmo-border);border-radius:7px;background:var(--dmo-subtle)}
+.peg-map-wrap svg{display:block;width:100%;min-width:760px;height:auto}
+.peg-map-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:11px;color:var(--dmo-muted)}
+.peg-map-legend span{display:inline-flex;align-items:center;gap:5px}
+.peg-map-legend .peg-line{width:2px;height:14px;display:inline-block}
+.peg-map-legend .peg-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.peg-map-legend .peg-diamond{width:9px;height:9px;display:inline-block;transform:rotate(45deg);border:2px solid var(--dmo-brand-600);background:transparent}
+.peg-map-status{margin-top:10px;padding:10px 12px;border-radius:7px;font-size:12px;border:1px solid var(--dmo-border);background:var(--dmo-subtle)}
+.peg-map-status.alert{border-color:#E8A3A3;background:#FFF1F1;color:#991B1B}
+.peg-map-status.ok{border-color:#86C89B;background:#ECFDF3;color:#166534}
+@media(max-width:900px){.peg-comp-head,.peg-form-grid{grid-template-columns:1fr}}
+
+/*
+ * Pegamentos visual alignment.
+ * Scope: presentation only; no prototype fixture data or workflow JS.
+ * Keep the server-rendered context, measurements, evaluations and map.
+ */
+.peg-page {
+  color:var(--dmo-text)}
+.peg-page .page-head { margin:0 0 2px; }
+.peg-page .page-head h1 {
+  font-size:24px;
+  font-weight:800;
+  line-height:1.2;
+  margin:0;
+}
+.peg-page .page-head p {
+  max-width:980px;
+  font-size:13px;
+  line-height:1.45;
+}
+.peg-page .peg-card {
+  padding:16px 18px 18px;
+}
+.peg-card .peg-section-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin:-16px -18px 16px;
+  padding:16px 18px 14px;
+  border-bottom:1px solid var(--dmo-border,#d9e6f2);
+}
+.peg-card .peg-section-head p {
+  margin:4px 0 0;
+  font-size:12px;
+  color:var(--dmo-muted,#64778a);
+  line-height:1.45;
+}
+.peg-step {
+  display:inline-flex;
+  flex:0 0 auto;
+  align-items:center;
+  padding:5px 9px;
+  border-radius:999px;
+  color:var(--dmo-brand-700,#315d88);
+  background:var(--dmo-brand-050,#e8eff7);
+  font-size:10px;
+  font-weight:800;
+  white-space:nowrap;
+}
+/* Os cartões seguem o .dmo-fact partilhado (cantos, espaço e rótulo iguais aos
+   da ficha da ferramenta e do registo das Boquilhas). */
+.peg-page .peg-context-grid {
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:9px;
+  margin:0;
+}
+.peg-page .peg-context-grid .dmo-fact {
+  min-width:0;
+}
+.peg-page .dmo-fact span,
+.peg-page .peg-corredor span {
+  font-size:10.5px;
+  font-weight:750;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.peg-page .dmo-fact strong,
+.peg-page .peg-corredor strong {
+  display:block;
+  font-size:14px;
+  line-height:1.4;
+}
+.peg-page .dmo-fact,
+.peg-page .peg-corredor { min-width:0; }
+.peg-page .dmo-fact small,
+.peg-page .peg-corredor small {
+  display:block;
+  margin-top:4px;
+  color:var(--dmo-muted,#64778a);
+  font-size:11px;
+  line-height:1.4;
+}
+.peg-page .peg-context-notes {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 14px;
+  margin-top:12px;
+}
+.peg-page .peg-context-notes .peg-hint { margin:0; }
+.peg-page .peg-document-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--dmo-border,#d9e6f2);
+}
+.peg-page .peg-document-actions form { margin:0; }
+.peg-page .peg-comp-head {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  align-items:stretch;
+  margin:0 0 16px;
+}
+.peg-page .peg-comp-head .dmo-fact,
+.peg-page .peg-comp-head .peg-corredor {
+  padding:12px 14px;
+  border-radius:9px;
+  border:1px solid var(--dmo-border,#d9e6f2);
+  border-left:3px solid var(--dmo-brand-600,#3c73a8);
+  background:var(--dmo-subtle,#f1f6fa);
+}
+.peg-page .peg-comp-head .peg-corredor {
+  border-left-color:#16A34A;
+  background:#f0f9f1;
+}
+.peg-page .peg-comp-head .peg-corredor.no-nominal {
+  border-left-color:#94a3b8;
+  background:#f4f6f8;
+}
+.peg-page .peg-form-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) auto;
+  align-items:end;
+  gap:12px;
+  padding:14px 16px;
+  margin:14px 0 0;
+  border:1px solid var(--dmo-border,#d9e6f2);
+  border-radius:9px;
+  background:var(--dmo-subtle,#f1f6fa);
+}
+.peg-form-grid .dmo-field { min-width:0; }
+.peg-form-grid .dmo-field input {
+  width:100%;
+}
+.peg-page .peg-readings-title {
+  margin:14px 0 8px;
+  color:var(--dmo-text,#172d42);
+  font-size:14px;
+  font-weight:800;
+}
+.peg-page .dmo-table-wrap {
+  margin:10px 0 0;
+}
+.peg-page .peg-average-row {
+  background:var(--dmo-brand-050,#e8eff7);
+  font-weight:750;
+}
+.peg-page .peg-map-card {
+  padding:16px 18px 18px;
+}
+.peg-page .peg-map-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:6px;
+}
+.peg-page .peg-map-card h3 {
+  color:var(--dmo-text,#172d42);
+}
+.peg-page .peg-map-help { max-width:1100px; line-height:1.5; }
+.peg-page .peg-map-wrap {
+  background:var(--dmo-subtle);
+  border:1px solid var(--dmo-border,#d9e6f2);
+  border-radius:9px;
+}
+.peg-page .peg-map-wrap svg {
+  display:block;
+  min-width:760px;
+  width:100%;
+  height:auto;
+}
+.peg-page .peg-map-legend {
+  align-items:center;
+  font-size:11px;
+  line-height:1.5;
+}
+.peg-page .peg-map-status {
+  margin-top:12px;
+  border-radius:9px;
+}
+@media(max-width:1120px) {
+  .peg-page .peg-context-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .peg-page .peg-comp-head { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .peg-page .peg-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:700px) {
+  .peg-page .peg-context-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .peg-page .peg-comp-head,
+  .peg-page .peg-form-grid { grid-template-columns:1fr; }
+  .peg-card .peg-section-head { flex-wrap:wrap; }
+}
+/* A explicação do gargalo em falta ocupa a linha toda, por baixo dos campos. */
+.peg-form-grid .peg-form-help{grid-column:1/-1;margin-top:-4px;color:var(--dmo-muted,#577389);font-size:12px}
+
+/* Registo na tabela (Diogo, 17/10/2026): os factos da ferramenta numa só
+   linha neutra (contexto, sem verde) e a medição nova na última linha. */
+.peg-page .peg-ferramenta-linha{display:flex;flex-wrap:wrap;gap:6px 22px;margin:4px 0 0;padding:8px 0;border-bottom:1px solid var(--dmo-border,#d7e2ea)}
+.peg-page .peg-ferramenta-linha>div{display:flex;align-items:baseline;gap:6px;margin:0}
+.peg-page .peg-ferramenta-linha dt{color:var(--dmo-muted,#577389);font-size:12px;font-weight:600}
+.peg-page .peg-ferramenta-linha dd{margin:0;font-weight:700;font-size:14px}
+.peg-page .peg-ferramenta-linha input{width:90px;padding:3px 6px;font-size:14px}
+.peg-page .dmo-card.peg-card-sem-nominal{border-left:4px solid var(--dmo-warning,#a97943)}
+.peg-page .peg-card-sem-nominal .peg-nominal-falta input{border-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
+.peg-page .peg-linha-nova td{background:var(--dmo-brand-050,#ebf4fc);vertical-align:middle}
+.peg-page .peg-linha-nova input{width:100%;max-width:140px;padding:4px 6px}
+.peg-page .peg-registo-form{display:none}
+/* O valor guardado abre a correção: a ligação cobre a célula toda. */
+.peg-page .peg-registo-tabela td{position:relative}
+.peg-page .peg-valor{position:absolute;inset:0;cursor:text;border-radius:4px}
+.peg-page .peg-valor:hover,.peg-page .peg-valor:focus-visible{box-shadow:inset 0 0 0 1px var(--dmo-palette-steel,#6494b4)}
+.peg-page .peg-col-x{width:28px;text-align:center;padding-left:0;padding-right:0}
+.peg-page .peg-x{border:0;background:none;color:var(--dmo-muted,#577389);font-size:16px;line-height:1;padding:2px 6px;cursor:pointer;border-radius:6px}
+.peg-page .peg-x:hover{color:var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft,#f3e9e7)}
+.peg-page .peg-dica{color:var(--dmo-muted,#577389);font-size:12px}
+.peg-page .peg-ficha-link{color:inherit;text-decoration:none;border-bottom:1px dotted var(--dmo-palette-mist,#92b4cc)}
+.peg-page .peg-ficha-link:hover{border-bottom-color:var(--dmo-palette-ocean,#4c7c9c)}
+.peg-page .peg-aviso-nominal a{color:var(--dmo-palette-slate,#44647c);font-weight:600}
+.peg-page .peg-mais-linha{margin-top:8px;border:1px dashed var(--dmo-palette-mist,#92b4cc);background:transparent;color:var(--dmo-palette-slate,#44647c);border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.peg-page .peg-mais-linha:hover{border-style:solid;background:var(--dmo-brand-050,#ebf4fc)}

@@ -1,0 +1,123 @@
+@model DMO.Alpha.Web.Pages.Boquilhas.IndexModel
+<div class="page-head">
+  <div>
+    <h2>Ferramentas · Boquilhas<partial name="_DmoHelp" model="@("Cada ferramenta BQ/lote tem uma ficha única, reutilizável em vários Job Ons.")" /></h2>
+  </div>
+</div>
+<details class="card bq-tool-create" id="bq-tool-create" open="@(Model.ToolCreationError is not null)">
+  <summary><span class="bq-create-label">+ Criar boquilha / lote</span><span class="bq-close-label">Fechar</span></summary>
+  <h3>Criar boquilha</h3>
+  @if (Model.ToolCreationError is { } error)
+  {
+    <p class="result" role="alert">@error</p>
+  }
+  <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="CreateTool" class="bq-tool-form">
+    <input id="ferr-new-type" type="hidden" value="BQ" />
+    <input type="hidden" name="q" value="@Model.CatalogSearch" />
+    <input type="hidden" name="machine_id" value="@Model.CatalogMachineId" />
+    <input type="hidden" name="pagina" value="@Model.CatalogPageNumber" />
+    <input type="hidden" name="por_pagina" value="@Model.CatalogPageSize" />
+    <div class="field dmo-field">
+      <label asp-for="Draft.Reference">Referência da BQ</label>
+      <input asp-for="Draft.Reference" placeholder="Ex.: T173" required />
+    </div>
+    <div class="field dmo-field">
+      <label asp-for="Draft.Lot">Lote</label>
+      <input asp-for="Draft.Lot" placeholder="Ex.: 24/33" required />
+    </div>
+    <div class="field dmo-field">
+      <label for="ferr-new-qty">Quantidade contabilizada</label>
+      <input asp-for="Draft.Quantity" id="ferr-new-qty" inputmode="numeric" placeholder="Sugestão por máquina" />
+      <input asp-for="Draft.QuantityManual" id="ferr-quantity-manual" type="hidden" />
+    </div>
+    <fieldset class="bq-tool-machines">
+      <legend>Máquinas compatíveis<partial name="_DmoHelp" model="@("Uma referência/lote pode servir várias máquinas. Pode completar as compatibilidades e a quantidade depois, na ficha.")" /></legend>
+      <div class="bq-machine-choices">
+        @foreach (var machine in Model.CatalogMachines)
+        {
+          <label><input type="checkbox" name="Draft.MachineIds" value="@machine.MachineId" data-lot-machine
+                        checked="@Model.Draft.MachineIds.Contains(machine.MachineId)" /> @machine.Code</label>
+        }
+      </div>
+    </fieldset>
+    <div class="bq-quantity-help">
+      <p id="ferr-quantity-notice" class="muted" role="status" aria-live="polite">Escolha as máquinas para sugerir o total do lote.</p>
+      <div id="ferr-quantity-choices" class="bq-tool-actions"></div>
+      <button id="ferr-use-quantity-suggestion" class="btn" type="button" hidden>Usar sugestão</button>
+    </div>
+    <div class="bq-tool-actions bq-span-all">
+      <button class="btn primary" type="submit">Guardar ficha</button>
+    </div>
+  </form>
+</details>
+@if (Model.CatalogSaved == "created")
+{
+  <p class="result" role="status">Boquilha guardada. A ficha está disponível abaixo.</p>
+}
+else if (Model.CatalogSaved == "existing")
+{
+  <p class="result" role="status">Esta referência e lote já estavam registados. Foi aberta a ficha existente; as máquinas selecionadas foram acrescentadas às compatibilidades.</p>
+}
+@if (Model.ToolSheetNotFound)
+{
+  <p class="result" role="alert">A boquilha indicada não está registada no Ferramentas.</p>
+}
+<div class="card">
+  <form method="get" asp-page="/Boquilhas/Index" class="bq-tool-search" data-dmo-ao-escrever="bq-tool-results">
+    <input type="hidden" name="ficheiros" value="1" />
+    <div class="field dmo-field">
+      <label for="bq-tool-search">Pesquisar boquilhas</label>
+      <input id="bq-tool-search" name="q" value="@Model.CatalogSearch" placeholder="Referência, lote ou máquina" />
+    </div>
+    <div class="field dmo-field">
+      <label for="bq-tool-machine">Máquina compatível</label>
+      <select id="bq-tool-machine" name="machine_id" data-dmo-autosubmit>
+        <option value="">Todas</option>
+        @foreach (var machine in Model.CatalogMachines)
+        {
+          <option value="@machine.MachineId" selected="@(Model.CatalogMachineId == machine.MachineId)">@machine.Code</option>
+        }
+      </select>
+    </div>
+    <div class="field dmo-field">
+      <label for="bq-tool-size">Por página</label>
+      <select id="bq-tool-size" name="por_pagina" data-dmo-autosubmit>
+        <option value="10" selected="@(Model.CatalogPageSize == 10)">10</option>
+        <option value="20" selected="@(Model.CatalogPageSize == 20)">20</option>
+      </select>
+    </div>
+    <div class="bq-tool-actions">
+      <a class="btn" href="@Url.Page("/Boquilhas/Index", new { ficheiros = 1, por_pagina = Model.CatalogPageSize })">Limpar</a>
+    </div>
+  </form>
+</div>
+<div class="card" id="bq-tool-results">
+  <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da boquilha.")" /></h3><span>@Model.CatalogCount encontrada(s)</span></div>
+  @if (Model.CatalogTools.Count == 0)
+  {
+    <p class="muted">Nenhuma boquilha encontrada com os filtros atuais.</p>
+  }
+  else
+  {
+    <div class="dmo-table-wrap">
+      <table class="dmo-table" id="bqToolList" data-dmo-list="Boquilhas registadas">
+        <thead><tr><th style="width:0"></th><th>Referência</th><th>Lote</th><th>Quantidade</th><th>Máquinas compatíveis</th></tr></thead>
+        <tbody>
+          @foreach (var tool in Model.CatalogTools)
+          {
+            <tr data-dmo-row data-id="@tool.ToolId" data-dmo-open="@(Model.CatalogLink(Model.CatalogPageNumber, tool.ToolId) + "#bq-tool-sheet")">
+              <td><input type="radio" name="bq_tool" value="@tool.ToolId" aria-label="BQ @tool.Reference · lote @tool.Lot" /></td>
+              <td><strong>@tool.Reference</strong></td><td>@tool.Lot</td>
+              <td>@(tool.AccountedQuantity?.ToString() ?? "—")</td><td>@(string.IsNullOrWhiteSpace(tool.MachineCodes) ? "—" : tool.MachineCodes)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  <nav class="bq-tool-pagination" aria-label="Paginação de boquilhas">
+    <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber > 1 ? Model.CatalogLink(Model.CatalogPageNumber - 1) : null)" aria-label="Página anterior" aria-disabled="@(Model.CatalogPageNumber <= 1 ? "true" : null)">←</a>
+    <span>Página @Model.CatalogPageNumber de @Model.CatalogPages</span>
+    <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber < Model.CatalogPages ? Model.CatalogLink(Model.CatalogPageNumber + 1) : null)" aria-label="Página seguinte" aria-disabled="@(Model.CatalogPageNumber >= Model.CatalogPages ? "true" : null)">→</a>
+  </nav>
+</div>

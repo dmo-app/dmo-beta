@@ -1,0 +1,66 @@
+@model DMO.Alpha.Web.Presentation.DmoRailPresentation
+@*
+   O RAIL DAS LINHAS — O COMPONENTE ÚNICO (contrato de UI da casa, regra 1:
+   «um partial + um CSS = a única fonte»; «NUNCA variantes por página»).
+
+   Porque isto existe (medido, não opinião): havia três verdades simultâneas —
+   as Boquilhas montavam um partial com <button onclick="location.href=...">,
+   o Job On tinha um <aside> escrito à mão na própria folha, e o
+   _DmoSidepanelPlaneamento — que o blueprint lista como implementado — tinha
+   botões com data-jobon-href que NENHUM script lê (o beta-jobon.js foi apagado
+   da árvore): markup morto. No HTML servido, as três páginas do Controlo nem
+   rail tinham.
+
+   A gramática é a da lista partilhada (0_ASSET_CANONICAL_INTERACTIONS.js): um
+   clique ou o Enter ABREM (Diogo, 17/10/2026: «vamos fazer 1 click»). Quem abre é sempre o data-dmo-open da linha,
+   tratado por UM ouvinte global no dmo-live.js — nenhuma página volta a
+   escrever o seu ondblclick/onkeydown.
+
+   Sem destino não há abrir: a linha nasce `bq-line-empty`, que é o estado
+   truthful («Sem produção») e nunca um botão que finge ser clicável — foi
+   exatamente assim que o partial partilhado ficou inerte.
+
+   OpenOnClick usa links nativos; nenhum rail o usa hoje, porque a lista
+   partilhada já abre com um clique.
+*@
+<aside class="beta-light-rail beta-production-rail" id="@Model.Id" aria-label="@Model.AriaLabel">
+  @{
+      // A lista tem de ter um id para o bloco de ações se poder declarar para
+      // ela (data-dmo-for) — é o que permite a um só ligador servir rail,
+      // tabelas e histórico sem uma linha de código por página.
+      var listaId = (Model.Id ?? "dmoRail") + "-list";
+  }
+  <div class="beta-production-rail-head">
+    <strong>@Model.Title</strong>
+    <span>@Model.Subtitle</span>
+  </div>
+  @* Um clique ou o Enter abrem a linha (Diogo, 17/10/2026). Sem destino, a
+     linha não abre nada. *@
+  <div class="beta-production-lines" id="@listaId" data-dmo-list="@(Model.OpenOnClick ? null : Model.AriaLabel)">
+    @if (Model.Items.Count == 0)
+    {
+      <div class="beta-production-rail-empty">@Model.EmptyLabel</div>
+    }
+    @foreach (var linha in Model.Items)
+    {
+      var abre = string.IsNullOrWhiteSpace(linha.Href) ? null : linha.Href;
+      var rotulo = linha.AriaLabel ?? $"{linha.Code} — {linha.Detail}";
+      @if (Model.OpenOnClick && abre is not null)
+      {
+        <a class="dmo-rail-link" href="@abre" aria-label="@rotulo" title="@rotulo">
+          <strong>@linha.Code</strong>
+          <span>@linha.Detail</span>
+        </a>
+      }
+      else
+      {
+      <button type="button" class="@(abre is null ? "bq-line-empty" : null)"
+              data-dmo-row data-dmo-open="@abre" data-id="@linha.Key"
+              aria-label="@rotulo" title="@rotulo">
+        <strong>@linha.Code</strong>
+        <span>@linha.Detail</span>
+      </button>
+      }
+    }
+  </div>
+</aside>

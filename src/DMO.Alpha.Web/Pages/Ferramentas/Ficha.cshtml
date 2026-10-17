@@ -1,0 +1,419 @@
+@page "/Ferramentas/Ficha"
+@model DMO.Alpha.Web.Pages.Ferramentas.FichaModel
+@using DMO.Alpha.Core.Production
+@using DMO.Alpha.Core.Tools
+@{
+    Layout = "_DmoShellLayout";
+    var pt = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    // Ponto decimal canónico, precisão TOTAL dos factos
+    // registados (28.84061800082953 nunca é arredondado na exibição).
+    var fmt = new Func<decimal, string>(v => v.ToString(pt));
+    var fmtOptional = new Func<decimal?, string>(v => v is null ? "—" : fmt(v.Value));
+    // TechnicalValue uses the decimal-point convention and restores refused input.
+    var tokenOf = new Func<ToolType, string>(FichaModel.TokenTypeFor);
+    var sheet = Model.Sheet;
+    var humanFacts = sheet is null ? "" : $"{tokenOf(sheet.Type)} · {sheet.Reference} · lote {sheet.Lot}";
+    var machineCodes = sheet is null || sheet.Machines.Count == 0 ? "—" : string.Join(" · ", sheet.Machines.Select(m => m.Code));
+}
+@section Head {
+<style>
+.ferr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.ferr-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.ferr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.ferr-card{padding:18px}
+.ferr-card h3{margin:0 0 4px;font-size:16px}
+.ferr-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.ferr-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+.ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+/* O aviso âmbar (o mesmo de .jobon-aviso.warn / .peg-aviso.warn): o trabalho foi gravado, o aviso diz o que ficou de fora. */
+.ferr-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
+.ferr-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
+.ferr-nota.avisoria{border-left-color:#a97943;background:#f7f0e7}
+.ferr-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.ferr-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+.ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
+.ferr-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:start}
+.ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
+.ferr-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dmo-text,#172d42)}
+.ferr-check input{width:auto;min-height:0}
+.ferr-actions{display:flex;gap:10px;align-items:center;margin-top:12px}
+.ferr-tech-group{margin:14px 0 0;padding:14px 0 0;border:0;border-top:1px solid var(--dmo-border,#d9e6f2);min-width:0}
+.ferr-tech-group legend{padding:0;font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.04em;color:var(--dmo-brand-700,#193046)}
+.ferr-tech-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end;margin-top:8px}
+.ferr-tech-grid .dmo-field{min-width:0}
+.ferr-tech-grid .dmo-field :is(input,select){width:100%}
+.ferr-tech-grid .dmo-fact{min-height:0}
+.ferr-tech-actions{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--dmo-border,#d9e6f2)}
+.ferr-danger{background:var(--dmo-danger,#9a625d)}
+.ferr-danger:hover{background:#7d4f4a}
+.ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
+.ferr-impact-note{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.ferr-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:12px}
+.ferr-count{padding:10px 12px;border-left:3px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.ferr-count span{display:block;color:var(--dmo-muted);font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em}
+.ferr-count strong{display:block;font-size:16px;margin-top:3px}
+@@media(max-width:900px){.ferr-form-grid,.ferr-tech-grid{grid-template-columns:1fr}}
+</style>
+}
+
+<main class="ferr-page dmo-workspace" aria-labelledby="ferr-title">
+
+  <div class="page-head">
+    <div>
+      <h2 id="ferr-title">Ficha de ferramenta</h2>
+    </div>
+    <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+  </div>
+
+  @* ------------------------------------------------------------------ *@
+  @* 0. Sem ferramenta: a ficha resolve-se pelo tool_id — nada é       *@
+  @*    inventado.                                                       *@
+  @* ------------------------------------------------------------------ *@
+  @if (sheet is null && Model.RequestedToolId is null)
+  {
+    <section class="dmo-card ferr-card" aria-labelledby="ferr-empty-title">
+      <h3 id="ferr-empty-title">Ficha de ferramenta</h3>
+      <div class="ferr-vazia">Nenhuma ferramenta selecionada. Abra a lista do Ferramentas e escolha a ficha pelo nome — tipo, referência e lote.</div>
+    </section>
+  }
+  else if (sheet is null)
+  {
+    <section class="dmo-card ferr-card">
+      <div class="ferr-aviso" role="alert">A ferramenta indicada não existe no registo. Nenhuma ficha foi aberta e nenhuma ferramenta foi inventada.</div>
+      @if (Model.DeleteRefusal is not null)
+      {
+        <div class="ferr-aviso" role="alert" style="margin-top:10px">@Model.DeleteRefusalMessage</div>
+      }
+    </section>
+  }
+
+  @if (sheet is { } tool)
+  {
+    if (Model.CreatedNote)
+    {
+      <div class="ferr-nota" role="status">Ferramenta registada. @if (Model.FormatAdvisoryNote)
+      {<text>A referência «@tool.Reference» desvia-se do formato canónico — ficou registada na mesma; corrija-a aqui se for um erro de escrita (o formato é anotação, nunca recusa).</text>}</div>
+    }
+    else if (Model.ExistedNote)
+    {
+      <div class="ferr-nota" role="status">Esta ferramenta já estava registada (mesmos tipo, referência e lote) — nada foi duplicado; as máquinas indicadas foram acrescentadas às ligações dela.</div>
+    }
+    else if (Model.FormatAdvisoryNote)
+    {
+      <div class="ferr-nota avisoria" role="status">A referência «@tool.Reference» desvia-se do formato canónico (@tokenOf(tool.Type)@(tokenOf(tool.Type) == "CM" ? " = dígitos, ex. 5447" : tokenOf(tool.Type) == "BQ" ? " = 1 letra maiúscula + 3 dígitos, ex. T194" : "")). O valor está registado na mesma — a nota é apenas anotação, nunca recusa.</div>
+    }
+
+    @* Avisos (beta.63, regra do Owner «tentar sempre warning»): o trabalho
+       foi gravado; o aviso âmbar diz o que ficou de fora. *@
+    if (Model.LotDefaultedWarning)
+    {
+      <div class="ferr-aviso warn" role="status">@Model.LotDefaultedMessage</div>
+    }
+
+    if (Model.UnreadableQuantity is not null)
+    {
+      <div class="ferr-aviso warn" role="status">@Model.UnreadableQuantityMessage</div>
+    }
+
+    if (Model.DuplicateExistedWarning)
+    {
+      <div class="ferr-aviso warn" role="status">O lote «@tool.Lot» já estava registado para esta referência: abriu-se a ferramenta existente. Nada foi duplicado nem alterado.</div>
+    }
+
+    if (Model.UnreadableTechnical.Count > 0)
+    {
+      <div class="ferr-aviso warn" role="status">@Model.UnreadableTechnicalMessage</div>
+    }
+
+    if (Model.ContinueUrl is { } continueUrl)
+    {
+      <p class="ferr-hint" style="margin:0"><a class="ferr-cancel" href="@continueUrl">Continuar no fluxo que abriu o Ferramentas →</a></p>
+    }
+
+    if (Model.FactsRefusal is not null)
+    {
+      <div class="ferr-aviso" role="alert">@Model.FactsRefusalMessage @if (Model.ExistingToolId is { } existingId)
+      {<a class="ferr-cancel" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = existingId })">Abrir a ferramenta existente</a>}</div>
+    }
+
+    if (Model.TechnicalRefusal is not null)
+    {
+      <div class="ferr-aviso" role="alert">@Model.TechnicalRefusalMessage</div>
+    }
+
+    @* ---------------------------------------------------------------- *@
+    @* 1. GERAL — os factos humanos do registo (o Owner 2026-10-12:      *@
+    @*    «ficha tecnica da ferramenta deve ter 2 tipos de informaçao, o   *@
+    @*    geral Tipo CM MF BQ etc, referencia lote e maquinas em que pode *@
+    @*    trabalhar, sendo que certas referencias podem trabalhar em mais *@
+    @*    que uma maquina»): o Tipo, a referência, o lote, AS MÁQUINAS    *@
+    @*    (o link n-n — todas as que a ficha ligar).                      *@
+    @* ---------------------------------------------------------------- *@
+    <section class="dmo-card ferr-card" aria-labelledby="ferr-facts-title">
+      <h3 id="ferr-facts-title">Geral — @humanFacts</h3>
+      <div class="dmo-facts">
+        <div class="dmo-fact"><span>Tipo</span><strong>@(tokenOf(tool.Type) switch { "CM" => "CM — Contra-molde", "BQ" => "BQ — Boquilha", _ => "MF — Molde final" })</strong></div>
+        <div class="dmo-fact"><span>Referência</span><strong>@tool.Reference</strong></div>
+        <div class="dmo-fact"><span>Lote</span><strong>@tool.Lot</strong></div>
+        <div class="dmo-fact"><span>Máquinas / linhas</span><strong>@machineCodes</strong></div>
+        <div class="dmo-fact"><span>Referência MF associada</span><strong>@(tool.AssociatedMfReference ?? "—")</strong></div>
+        <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")</strong></div>
+      </div>
+
+      @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico
+         (o Owner: «se introduzirmos o nome tecnico... apresenta logo
+         tudo»): os factos que a gramática OP 99 revela — a proposta que
+         o operador confirma. *@
+      @if (tool.TechnicalName is { } technicalName)
+      {
+        var decoded = TechnicalNameParser.Decode(technicalName);
+        <div style="margin-top:12px;padding:11px 13px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px">
+          <strong style="overflow-wrap:anywhere">Nome técnico: @technicalName</strong>
+          <div style="margin-top:6px;color:var(--dmo-muted);font-size:12.5px">
+            @(decoded.Family)@(decoded.InferredType is { } inferred ? $" · tipo inferido {tokenOf(inferred)}" : null)@(decoded.InferredReference is { } inferredRef ? $" · referência {inferredRef}" : null)@(decoded.Dimension is { } dimension ? $" · {dimension}" : null)@(decoded.Process is { } process ? $" · {process}" : null)@(decoded.Ventilation is { } ventilation ? $" · ventilação {ventilation}" : null)
+          </div>
+        </div>
+      }
+    </section>
+
+    @* ---------------------------------------------------------------- *@
+    @* 2. Editar factos: full-replace no MESMO tool_id.                   *@
+    @* ---------------------------------------------------------------- *@
+    <section class="dmo-card ferr-card" aria-labelledby="ferr-edit-facts-title">
+      <h3 id="ferr-edit-facts-title">Editar</h3>
+
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditFacts" class="ferr-form-grid">
+        <input type="hidden" name="tool_id" value="@tool.ToolId" />
+        <div class="dmo-field">
+          <label for="ferr-edit-type">Tipo</label>
+          <select id="ferr-edit-type" name="type_token" required>
+            <option value="CM" selected="@(tool.Type == ToolType.Cm)">CM — Contra-molde</option>
+            <option value="BQ" selected="@(tool.Type == ToolType.Bq)">BQ — Boquilha</option>
+            <option value="MF" selected="@(tool.Type == ToolType.Mf)">MF — Molde final</option>
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="ferr-edit-reference">Referência</label>
+          <input id="ferr-edit-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@tool.Reference" placeholder="Ex.: 5447 ou T194" required />
+        </div>
+        <div class="dmo-field">
+          <label for="ferr-edit-lot">Lote</label>
+          <input id="ferr-edit-lot" name="lot" value="@tool.Lot" placeholder="vazio = s/lote" />
+        </div>
+        @if (tool.Type == ToolType.Cm)
+        {
+          <div class="dmo-field">
+            <label for="ferr-edit-mf">Referência MF associada</label>
+            <input id="ferr-edit-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@tool.AssociatedMfReference" placeholder="opcional" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
+          </div>
+        }
+        <div class="dmo-field">
+          <label for="ferr-edit-qty">Quantidade</label>
+          <input id="ferr-edit-qty" name="bq_quantity" type="text" inputmode="numeric" value="@tool.BqAccountedQuantity" placeholder="opcional" />
+        </div>
+        <div class="dmo-field" style="grid-column:1/-1">
+          <label>Máquinas / linhas compatíveis</label>
+          <div class="ferr-checks">
+            @if (Model.Machines.Count == 0)
+            {
+              <span class="ferr-hint" style="margin:0">Sem máquinas registadas.</span>
+            }
+            @foreach (var machine in Model.Machines)
+            {
+              <label class="ferr-check">
+                <input type="checkbox" name="machine_ids" value="@machine.MachineId"
+                       checked="@(tool.Machines.Any(m => m.MachineId == machine.MachineId))" />
+                <span>@machine.Code</span>
+              </label>
+            }
+          </div>
+        </div>
+        <div class="ferr-actions">
+          <button type="submit" class="dmo-button">Guardar</button>
+        </div>
+      </form>
+
+      @* Duplicar para um lote novo (nova ferramenta, fonte intacta), dentro do Editar. *@
+      <h4 id="ferr-duplicate-title" class="ferr-subtitle">Duplicar para lote novo</h4>
+
+      @if (Model.DuplicateRefusal is not null)
+      {
+        <div class="ferr-aviso" role="alert" style="margin-top:10px">@Model.DuplicateRefusalMessage</div>
+      }
+
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Duplicate" class="dmo-filter-bar" aria-labelledby="ferr-duplicate-title">
+        <input type="hidden" name="tool_id" value="@tool.ToolId" />
+        <div class="dmo-field" style="flex:0 1 220px">
+          <label for="ferr-new-lot">Lote novo</label>
+          <input id="ferr-new-lot" name="new_lot" required placeholder="Ex.: 4" />
+        </div>
+        <div class="dmo-field">
+          <button type="submit" class="dmo-button">Duplicar</button>
+        </div>
+      </form>
+    </section>
+
+    @* ---------------------------------------------------------------- *@
+    @* 3. TÉCNICA — os valores técnicos Tool-owned (o Owner 2026-10-12:   *@
+    @*    «segundo tipo de informaçao da ferramenta é o tecnico, peso      *@
+    @*    nominal gargalos, tampao etc»): a precisão REAL dos factos e    *@
+    @*    os RÓTULOS HUMANOS da oficina — nunca nomes de coluna da BD     *@
+    @*    (P2-9) — incl. o TAMPÃO (a geometria TP do desenho).            *@
+    @* ---------------------------------------------------------------- *@
+    <section class="dmo-card ferr-card" aria-labelledby="ferr-tech-title">
+      <details open="@Model.ShowTechnical">
+      <summary><h3 id="ferr-tech-title" style="display:inline">Informação técnica<partial name="_DmoHelp" model="@((tool.Type == ToolType.Cm ? "Valores da CM e do tampão. No Job On, a calote da produção dá o volume desse controlo." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
+      @{
+          // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
+          // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.
+          var tech = tool.Technical;
+          var isCm = tool.Type == ToolType.Cm;
+          var isBq = tool.Type == ToolType.Bq;
+          // O volume do tampão é calculado (PesoCapCalculation.Cap, a fórmula do apoio TP/calote):
+          // V = π·h·(3a² + h²)/6000 cm³, a = D/2. No Job On a calote da produção substitui esta.
+          var volumeTampao = tech?.TpDiametroMm is { } tpD && tpD > 0m && tech.TpSagittaMm is { } tpH && tpH >= 0m
+              ? DMO.Alpha.Core.Controlo.PesoCapCalculation.Cap(tpD, tpH).VolumeCm3
+              : (decimal?)null;
+      }
+
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditTechnical">
+        <input type="hidden" name="tool_id" value="@tool.ToolId" />
+        @if (Model.ContinueUrl is { } regresso)
+        {
+          <input type="hidden" name="continuar" value="@regresso" />
+        }
+        <fieldset class="ferr-tech-group">
+          <legend>@(isCm ? "CM" : isBq ? "Boquilha" : "Molde final")</legend>
+          <div class="ferr-tech-grid">
+            @if (isCm)
+            {
+              <div class="dmo-field">
+                <label for="ferr-tech-process">Processo</label>
+                <select id="ferr-tech-process" name="process_token">
+                  <option value="" selected="@(Model.TechnicalProcessValue(tech?.Process) == "")">— sem processo</option>
+                  <option value="NNPB" selected="@(Model.TechnicalProcessValue(tech?.Process) == "NNPB")">NNPB</option>
+                  <option value="PS" selected="@(Model.TechnicalProcessValue(tech?.Process) == "PS")">PS</option>
+                </select>
+              </div>
+              <div class="dmo-field">
+                <label for="ferr-tech-nominal">Peso nominal (g)</label>
+                <input id="ferr-tech-nominal" name="nominal_weight" type="text" inputmode="decimal" value="@Model.TechnicalValue("nominal_weight", tech?.NominalWeightGrams)" />
+              </div>
+              <div class="dmo-field">
+                <label for="ferr-tech-puncao">Punção (cm³)</label>
+                <input id="ferr-tech-puncao" name="volume_puncao" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_puncao", tech?.VolumePuncaoCm3)" />
+              </div>
+            }
+            @if (isBq)
+            {
+              <div class="dmo-field">
+                <label for="ferr-tech-marisa">Marisa (cm³)</label>
+                <input id="ferr-tech-marisa" name="volume_marisa" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_marisa", tech?.VolumeMarisaCm3)" />
+              </div>
+            }
+            <div class="dmo-field">
+              <label for="ferr-tech-gargalo">Diâmetro do gargalo (mm)</label>
+              <input id="ferr-tech-gargalo" name="diametro_gargalo" type="text" inputmode="decimal" value="@Model.TechnicalValue("diametro_gargalo", tech?.DiametroGargaloMm)" />
+            </div>
+          </div>
+        </fieldset>
+        @if (isCm)
+        {
+          <fieldset class="ferr-tech-group">
+            <legend>Tampão</legend>
+            <div class="ferr-tech-grid">
+              <div class="dmo-field">
+                <label for="ferr-tp-diametro">Diâmetro (mm)</label>
+                <input id="ferr-tp-diametro" name="tp_diametro" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_diametro", tech?.TpDiametroMm)" placeholder="Ex.: 28,45 ou 28.45" />
+              </div>
+              <div class="dmo-field">
+                <label for="ferr-tp-raio">Raio (mm)</label>
+                <input id="ferr-tp-raio" name="tp_raio" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_raio", tech?.TpRaioMm)" placeholder="Ex.: 24,11 ou 24.11" />
+              </div>
+              <div class="dmo-field">
+                <label for="ferr-tp-sagitta">Calote (mm)</label>
+                <input id="ferr-tp-sagitta" name="tp_sagitta" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_sagitta", tech?.TpSagittaMm)" placeholder="Ex.: 4,5 ou 4.5" />
+              </div>
+              <div class="dmo-fact" aria-live="polite">
+                <span>Volume do tampão (cm³)<partial name="_DmoHelp" model="@("Calculado com o diâmetro e a calote.")" /></span>
+                <strong>@(volumeTampao is { } vt ? vt.ToString("0.###", pt) : "—")</strong>
+              </div>
+            </div>
+          </fieldset>
+        }
+        <div class="ferr-tech-actions">
+          <button type="submit" class="dmo-button">Guardar</button>
+        </div>
+      </form>
+      </details>
+    </section>
+
+
+    @* ---------------------------------------------------------------- *@
+    @* 5. Eliminar: ação corretiva EXPLÍCITA com aviso e confirmação.    *@
+    @* ---------------------------------------------------------------- *@
+    <section class="dmo-card ferr-card" aria-labelledby="ferr-delete-title">
+      <h3 id="ferr-delete-title">Eliminar ferramenta<partial name="_DmoHelp" model="@("Só quando a ferramenta deixou de existir. O histórico mantém-se.")" /></h3>
+
+      @if (!Model.ConfirmDelete)
+      {
+        <div class="ferr-actions">
+          <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId, confirm_delete = 1 })">Eliminar esta ferramenta…</a>
+        </div>
+      }
+      else if (Model.Impact is { } impact)
+      {
+        <div class="ferr-impact-note" role="alert">
+          <strong>Vai eliminar @humanFacts.</strong> Esta ação apaga a ficha do registo. O que acontece ao histórico:
+          as produções que a referem, os registos de consumo (Pesos, Pegamentos) e as mudanças de lote passam a
+          apontar para a linha de ferramenta removida (os registos de consumo e as mudanças de lote conservam a referência
+          e o lote congelados à criação); os traces de reparação ainda não associados perdem a âncora direta e
+          mantêm os factos congelados. Nada disto é uma recusa — é o aviso para a sua decisão explícita.
+        </div>
+
+        <div class="ferr-counts">
+          <div class="ferr-count"><span>Pesos reatribuídos</span><strong>@impact.PesoCount</strong></div>
+          <div class="ferr-count"><span>Registos de Pegamentos reatribuídos</span><strong>@impact.PegamentosCount</strong></div>
+          <div class="ferr-count"><span>Traces de reparação não resolvidos</span><strong>@impact.UnresolvedTraceCount</strong></div>
+          <div class="ferr-count"><span>Produções que a referem</span><strong>@impact.Productions.Count</strong></div>
+        </div>
+
+        @if (impact.Productions.Count > 0)
+        {
+          <div class="dmo-table-wrap" style="margin-top:12px">
+            <table class="dmo-table">
+              <thead>
+                <tr>
+                  <th>Produção</th>
+                  <th>Referência</th>
+                  <th>Máquina</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var production in impact.Productions)
+                {
+                  <tr>
+                    <td><strong>@production.ProductionNumber</strong></td>
+                    <td>@production.Reference</td>
+                    <td>@production.MachineCode</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="ferr-hint">Nas produções acima, esta ferramenta passa a aparecer como eliminada; o resto da produção não muda.</p>
+        }
+
+        <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Delete">
+          <input type="hidden" name="tool_id" value="@tool.ToolId" />
+          <div class="ferr-actions">
+            <button type="submit" class="dmo-button ferr-danger">Eliminar definitivamente</button>
+            <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId })">Cancelar — manter a ferramenta</a>
+          </div>
+        </form>
+      }
+    </section>
+  }
+
+</main>

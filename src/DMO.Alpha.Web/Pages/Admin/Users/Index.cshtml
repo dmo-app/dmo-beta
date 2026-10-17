@@ -1,0 +1,200 @@
+@page "/Admin/Users"
+@model DMO.Alpha.Web.Pages.Admin.Users.IndexModel
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.dmu-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.dmu-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
+.dmu-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.dmu-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.dmu-card{padding:18px}
+.dmu-card h3{margin:0 0 4px;font-size:16px}
+.dmu-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+.dmu-form-grid{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(100px,.55fr) minmax(200px,1.7fr) minmax(200px,1.7fr) auto;gap:10px;align-items:end}
+.dmu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.dmu-entrega{padding:16px 18px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050);border-radius:10px;display:grid;gap:8px}
+.dmu-entrega h3{margin:0;font-size:15px}
+.dmu-entrega .dmu-token{display:grid;gap:2px;padding:10px 12px;background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
+.dmu-entrega .dmu-token span{color:var(--dmo-muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.dmu-entrega .dmu-token strong{font-size:15px;letter-spacing:.4px;word-break:break-all}
+.dmu-entrega .dmu-nota{color:var(--dmo-muted);font-size:11.5px;margin:0}
+.dmu-pill-temp{background:#fdf6e3;border-color:#e8d9a8;color:#8a6d1a}
+.dmu-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.dmu-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+@@media(max-width:900px){.dmu-form-grid{grid-template-columns:1fr}}
+</style>
+}
+
+<main class="dmu-page" aria-labelledby="dmu-title">
+
+  <div class="page-head">
+    <div>
+      <h2 id="dmu-title">Utilizadores</h2>
+      <p>Utilizadores, acessos e estado.</p>
+    </div>
+  </div>
+
+  @* ------------------------------------------------------------------ *@
+  @* Resultado UMA-VEZ do criar: email + password temporária (TempData). *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.CreatedUserTemporaryPassword is not null)
+  {
+    <section class="dmu-entrega" role="status" aria-label="Utilizador criado">
+      <h3>Utilizador criado — @Model.CreatedUserName (nº @Model.CreatedUserOperatorId)</h3>
+      <div class="dmu-token">
+        <span>Email de autenticação</span>
+        <strong>@Model.CreatedUserEmail</strong>
+      </div>
+      <div class="dmu-token">
+        <span>PIN temporário (mostrado uma vez)</span>
+        <strong>@Model.CreatedUserTemporaryPassword</strong>
+      </div>
+      <p class="dmu-nota">Entregue o email e o PIN temporário ao utilizador; no 1.º login terá de escolher a palavra-passe definitiva e este par não volta a ser mostrado.</p>
+    </section>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* Resultado UMA-VEZ do reset: a NOVA password temporária (TempData). *@
+  @* ------------------------------------------------------------------ *@
+  @if (Model.ResetTemporaryPassword is not null)
+  {
+    <section class="dmu-entrega" role="status" aria-label="Acesso reposto">
+      <h3>Acesso reposto — nº @Model.ResetOperatorId</h3>
+      <div class="dmu-token">
+        <span>Novo PIN temporário (mostrado uma vez)</span>
+        <strong>@Model.ResetTemporaryPassword</strong>
+      </div>
+      <p class="dmu-nota">Entregue o novo PIN temporário ao utilizador; a palavra-passe anterior deixa de valer e no login seguinte terá de escolher a definitiva.</p>
+    </section>
+  }
+
+  @if (Model.CreateRefusal is not null)
+  {
+    <div class="dmu-aviso" role="alert">@Model.CreateRefusalMessage</div>
+  }
+  @if (Model.TemplateRefusal is not null)
+  {
+    <div class="dmu-aviso" role="alert">@Model.TemplateRefusalMessage</div>
+  }
+  @if (Model.StandByRefusal is not null)
+  {
+    <div class="dmu-aviso" role="alert">@Model.StandByRefusalMessage</div>
+  }
+  @if (Model.Deleted is not null)
+  {
+    <div class="dmu-aviso" role="status">@Model.DeletedMessage</div>
+  }
+  @if (Model.DeleteRefusal is not null)
+  {
+    <div class="dmu-aviso" role="alert">@Model.DeleteRefusalMessage</div>
+  }
+  @if (Model.ResetRefusal is not null)
+  {
+    <div class="dmu-aviso" role="alert">@Model.ResetRefusalMessage</div>
+  }
+
+  @* ------------------------------------------------------------------ *@
+  @* 1. Criar utilizador — o ato canónico do ADMIN (USERS.md §2).        *@
+  @* ------------------------------------------------------------------ *@
+  <section class="dmo-card dmu-card" aria-labelledby="dmu-create-title">
+    <h3 id="dmu-create-title">Criar utilizador<partial name="_DmoHelp" model="@("O PIN temporário é mostrado uma vez. O nº de operador tem até 4 dígitos.")" /></h3>
+    <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Create" class="dmu-form-grid">
+      <div class="dmo-field">
+        <label for="dmu-name">Nome</label>
+        <input id="dmu-name" name="name" value="@Model.RequestedName" required maxlength="100" placeholder="Ex.: Ana Martins" />
+      </div>
+      <div class="dmo-field">
+        <label for="dmu-operator">Nº operador</label>
+        <input id="dmu-operator" name="operator_id" value="@Model.RequestedOperatorId" required inputmode="numeric" pattern="[0-9]{1,4}" maxlength="4" placeholder="Ex.: 0042" />
+      </div>
+      <div class="dmo-field">
+        <label for="dmu-email">Email de autenticação</label>
+        <input id="dmu-email" name="email" type="email" value="@Model.RequestedEmail" required maxlength="256" placeholder="ana.martins@empresa.pt" />
+      </div>
+      <div class="dmo-field">
+        <label for="dmu-template">Template de acesso</label>
+        <select id="dmu-template" name="template_key">
+          <option value="">Sem template — atribuir depois</option>
+          @foreach (var template in Model.Templates)
+          {
+            <option value="@template.TemplateKey" selected="@(Model.RequestedTemplateKey == template.TemplateKey)">@template.Name</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label>&nbsp;</label>
+        <button type="submit" class="dmo-button">Criar utilizador</button>
+      </div>
+    </form>
+  </section>
+
+  @* ------------------------------------------------------------------ *@
+  @* 2. Utilizadores — factos de aplicação e email, sem ids (D5).        *@
+  @* ------------------------------------------------------------------ *@
+  <section class="dmo-card dmu-card" aria-labelledby="dmu-list-title">
+    <h3 id="dmu-list-title">Utilizadores internos<partial name="_DmoHelp" model="@("Um clique abre a ficha.")" /></h3>
+    <p class="card-note">@Model.UsersPager.TotalCount utilizador(es)</p>
+
+    @if (Model.Users.Count == 0)
+    {
+      <div class="dmu-vazia">Ainda não há utilizadores — crie o primeiro acima.</div>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-list="Utilizadores internos">
+          <thead>
+            <tr>
+              <th style="width:0"></th>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Nº operador</th>
+              <th>Template</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var user in Model.Users)
+            {
+              @* A GRAMÁTICA GLOBAL (o Owner 2026-10-12 e 16/10/2026): um
+                 clique seleciona (a linha inverte: fundo azul, letra
+                 branca), o DUPLO CLIQUE ou o Enter abrem A FICHA DO
+                 UTILIZADOR (o sítio do trabalho: a template, o
+                 arquivar e o reset vivem lá, FORA da tabela). A linha
+                 da identidade ADMIN não existe aqui (o Owner
+                 2026-10-16: «admin nao deve aparecer na lista»): a
+                 lista só contém utilizadores geridos. *@
+              <tr data-dmo-row data-id="@user.OperatorId"
+                  data-dmo-open="/Admin/Users/Ficha?operator_id=@user.OperatorId"
+                  aria-label="Utilizador @user.Name, nº @user.OperatorId — um clique abre a ficha">
+                <td><input type="radio" name="user_id" value="@user.OperatorId" aria-label="Utilizador @user.Name" /></td>
+                <td><strong>@user.Name</strong></td>
+                <td>@(user.Email ?? "—")</td>
+                <td>@user.OperatorId</td>
+                <td>@(user.CurrentTemplateName ?? "Sem template")</td>
+                <td>
+                  @if (user.IsStandBy)
+                  {
+                    <span class="dmo-pill">Arquivado</span>
+                  }
+                  else
+                  {
+                    <span class="dmo-pill active">Ativo</span>
+                  }
+                  @if (user.RequiresPasswordChange)
+                  {
+                    <span class="dmo-pill dmu-pill-temp">PIN temporário</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <partial name="_ListPager" model="Model.UsersPager" />
+    }
+  </section>
+
+</main>

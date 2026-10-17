@@ -1,0 +1,33 @@
+@page "/versao"
+@model DMO.Alpha.Web.Pages.VersaoModel
+@{
+    Layout = "_DmoAccountLayout";
+    ViewData["Title"] = "Versão e correções";
+}
+<section aria-labelledby="version-title" style="overflow-wrap:anywhere">
+    <h2 id="version-title">Versão e correções</h2>
+    <dl>
+        <dt>Ambiente</dt><dd>@Model.EnvironmentLabel</dd>
+        <dt>Versão</dt><dd>@Model.Build.Version</dd>
+        <dt>Build</dt><dd><code>@Model.Build.BuildId</code></dd>
+        <dt>Commit de base</dt><dd><code>@Model.Build.Revision</code></dd>
+        <dt>Origem</dt><dd>@Model.Build.SourceDescription</dd>
+        <dt>Compilado em (UTC)</dt><dd>@Model.Build.BuiltAtUtc?.ToString("yyyy-MM-dd HH:mm:ss 'UTC'")</dd>
+    </dl>
+    <h3>Correções incluídas nesta versão</h3>
+    <ul>
+        @foreach (var entry in Model.Build.Notes.Fixes)
+        {
+            <li><strong>@entry.Id · @entry.Module:</strong> @entry.Description</li>
+        }
+    </ul>
+    <h3>Problemas e funcionalidades ainda pendentes</h3>
+    <ul>
+        @foreach (var entry in Model.Build.Notes.Pending)
+        {
+            <li><strong>@entry.Id · @entry.Module:</strong> @entry.Description</li>
+        }
+    </ul>
+    <a class="dmo-button" asp-page="/Login">Voltar à entrada</a>
+    <a asp-page="/Versao" asp-page-handler="Metadata">Consultar metadata</a>
+</section>

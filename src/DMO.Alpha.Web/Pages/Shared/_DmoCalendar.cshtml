@@ -1,0 +1,98 @@
+@model DMO.Alpha.Web.Pages.Shared.DmoCalendarPresentation
+@if (Model is null)
+{
+  return; // o calendário só existe nas vistas que o compõem (o viewmodel null = sem render).
+}
+@* O SHARED ELEMENT do calendário (o Owner 2026-10-14: «os calendários estão
+   diferentes isso deveria ser shared elements») — um só componente servido
+   pelas páginas (o JobOn e o histórico das Boquilhas). Grelha Seg..Dom, os
+   dias com produção/movimentos acesos, o selecionado invertido, o HOJE a
+   bold. A navegação de mês é UM form GET por botão (‹ e ›): cada form envia
+   UM mês e UM ano — o ANO ATUALIZA-SE na viragem dezembro→janeiro (e
+   janeiro→dezembro) e os restantes parâmetros preservam-se nos hidden. Os
+   links dos dias nascem DAS ROTAS Razor (asp-page — nunca URLs escritos à
+   mão). Nada de render por JS: as classes são as do beta-calendar.css (a
+   carcaça das Boquilhas), partilhada pelas duas páginas. *@
+@{
+  var mesAnterior = Model.Month == 1 ? 12 : Model.Month - 1;
+  var anoAnterior = Model.Month == 1 ? Model.Year - 1 : Model.Year;
+  var mesSeguinte = Model.Month == 12 ? 1 : Model.Month + 1;
+  var anoSeguinte = Model.Month == 12 ? Model.Year + 1 : Model.Year;
+}
+<div class="card dmo-calendar">
+  <div class="calendar-head dmo-calendar-nav">
+    @* O MÊS ANTERIOR: um form GET próprio, um mês e um ano enviados — a
+       viragem janeiro→dezembro volta ao ano anterior. *@
+    <form method="get" asp-page="@Model.NavigationPage" class="dmo-calendar-nav-form">
+      @foreach (var pair in Model.PreservedQuery)
+      {
+        <input type="hidden" name="@pair.Key" value="@pair.Value" />
+      }
+      <input type="hidden" name="mes" value="@mesAnterior" />
+      <input type="hidden" name="ano" value="@anoAnterior" />
+      <button class="icon-btn" type="submit" aria-label="Mês anterior">‹</button>
+    </form>
+    <strong id="dmo-calendar-title">@Model.MonthTitle</strong>
+    @* O MÊS SEGUINTE: idem — a viragem dezembro→janeiro avança o ano. *@
+    <form method="get" asp-page="@Model.NavigationPage" class="dmo-calendar-nav-form">
+      @foreach (var pair in Model.PreservedQuery)
+      {
+        <input type="hidden" name="@pair.Key" value="@pair.Value" />
+      }
+      <input type="hidden" name="mes" value="@mesSeguinte" />
+      <input type="hidden" name="ano" value="@anoSeguinte" />
+      <button class="icon-btn" type="submit" aria-label="Mês seguinte">›</button>
+    </form>
+  </div>
+  <div class="week dmo-calendar-week">
+    <span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span><span>DOM</span>
+  </div>
+  <div class="days dmo-calendar-days">
+    @{
+      var primeiro = new DateTime(Model.Year, Model.Month, 1);
+      var deslocamento = ((int)primeiro.DayOfWeek + 6) % 7;
+      var totalDias = DateTime.DaysInMonth(Model.Year, Model.Month);
+    }
+    @for (var vazio = 0; vazio < deslocamento; vazio++)
+    {
+      <span class="dmo-calendar-day empty" aria-hidden="true"></span>
+    }
+    @for (var dia = 1; dia <= totalDias; dia++)
+    {
+      var estado = Model.Days.FirstOrDefault(d => d.Day == dia);
+      var classes = new List<string> { "dmo-calendar-day" };
+      if (estado is not null && estado.Has) { classes.Add("has"); }
+      if (estado is not null && estado.Selected) { classes.Add("selected"); }
+      if (estado is not null && estado.IsToday) { classes.Add("today"); }
+      var routeValues = new Dictionary<string, string>(Model.PreservedQuery)
+      {
+        ["dia"] = dia.ToString(System.Globalization.CultureInfo.InvariantCulture),
+        ["ano"] = Model.Year.ToString(System.Globalization.CultureInfo.InvariantCulture),
+        ["mes"] = Model.Month.ToString(System.Globalization.CultureInfo.InvariantCulture)
+      };
+      if (estado is not null && estado.Selected)
+      {
+        @* O DIA JÁ ESCOLHIDO (Diogo, 17/10/2026: «um click entra no dia do
+           calendário, se clicar duas vezes no que já está selecionado
+           retira»): o duplo clique tira a seleção (dia=0), sem botão. *@
+        var semDia = new Dictionary<string, string?>(routeValues!) { ["dia"] = "0" };
+        <a class="@string.Join(" ", classes)"
+           asp-page="@Model.NavigationPage"
+           asp-all-route-data="routeValues"
+           data-dmo-calendar-unselect="@Url.Page(Model.NavigationPage, new Microsoft.AspNetCore.Routing.RouteValueDictionary(semDia))"
+           aria-current="date"
+           title="Duplo clique para tirar a seleção">@dia</a>
+      }
+      else
+      {
+        <a class="@string.Join(" ", classes)"
+           asp-page="@Model.NavigationPage"
+           asp-all-route-data="routeValues">@dia</a>
+      }
+    }
+  </div>
+  <div class="dmo-calendar-legend">
+    <span><i></i>@Model.LegendLabel</span>
+    <span>Selecione um dia</span>
+  </div>
+</div>

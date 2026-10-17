@@ -1,0 +1,287 @@
+/*
+ * Boquilhas: scoped visual adaptation.
+ *
+ * All data, repair movements, production associations and history stay in
+ * the native Razor handlers; only geometry and presentation are changed.
+ * Scope every rule to this page to avoid leaking the prototype's generic
+ * .card/.main/.tab/.field styles to the rest of the DMO shell.
+ */
+.beta-bq-layout {
+  display:grid;
+  grid-template-columns:var(--shell-rail,276px) minmax(0,1fr);
+  align-items:stretch;
+  width:100%;
+  min-height:calc(100vh - 170px);
+  color:var(--dmo-text,#172d42);
+  background:var(--dmo-page,#f6f9fc);
+}
+/* Rail visual único: beta-production-overview.css (partilhado com Job On). */
+.beta-bq-layout .beta-light-main {
+  min-width:0;
+  width:100%;
+  padding:24px 30px 40px;
+}
+.beta-bq-layout .page-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:14px;
+  margin-bottom:18px;
+}
+.beta-bq-layout .page-head h2 {
+  margin:0;
+  font-size:24px;
+  line-height:1.2;
+  font-weight:800;
+  color:var(--dmo-text,#172d42);
+}
+.beta-bq-layout .page-head p {
+  margin:4px 0 0;
+  color:var(--dmo-muted,#64778a);
+  font-size:13px;
+}
+.beta-bq-layout .bq-page-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.beta-bq-layout .date-chip {
+  padding:8px 12px;
+  border-radius:9px;
+  color:var(--dmo-brand-700,#315d88);
+  background:var(--dmo-brand-050,#e8eff7);
+  font-size:12px;
+  font-weight:700;
+}
+.beta-bq-layout .card {
+  padding:20px;
+}
+.beta-bq-layout .card + .card { margin-top:14px; }
+.beta-bq-layout .card-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:15px;
+}
+.beta-bq-layout .card-head p {
+  margin:4px 0 0;
+  font-size:12px;
+  color:var(--dmo-muted,#64778a);
+}
+.beta-bq-layout .register-search {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:end;
+  gap:12px;
+}
+/* Botões: regra comum em 0_ASSET_SHELL.css; sem variantes Boquilhas. */
+.beta-bq-layout .lot-data,
+.beta-bq-layout .lots { min-width:0; }
+.beta-bq-layout .lots {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.beta-bq-layout .lot {
+  min-width:0;
+  padding:15px;
+  border:1px solid var(--dmo-border,#d9e6f2);
+  border-radius:11px;
+  background:#fff;
+}
+.beta-bq-layout .pill {
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.beta-bq-layout .pill.repair {color:#a97943;background:#f7f0e7}
+.beta-bq-layout .pill.ready {color:#527c72;background:#e5f0eb}
+.beta-bq-layout .lot-data {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(115px,1fr));
+  gap:12px;
+  margin-top:14px;
+}
+.beta-bq-layout .lot-data span {
+  display:block;
+  margin-bottom:3px;
+  color:var(--dmo-muted,#64778a);
+  font-size:10px;
+  font-weight:750;
+}
+.beta-bq-layout .lot-data strong {
+  display:block;
+  color:var(--dmo-text,#172d42);
+  font-size:13px;
+}
+.beta-bq-layout .register-empty {
+  padding:40px 20px;
+  margin-top:16px;
+  border:1px dashed var(--dmo-brand-300);
+  border-radius:14px;
+  color:var(--dmo-muted,#64778a);
+  text-align:center;
+}
+.beta-bq-layout .register-open { margin-top:16px; }
+/* Os cartões do registo por baixo do título e de «Opções», com a largura
+   toda do cartão e numa linha (Diogo, 17/10/2026). Dentro do card-head flex
+   o bloco ficava da largura do conteúdo e a grelha caía para uma coluna. */
+.beta-bq-layout .register-open > .card-head { align-items:center; margin-bottom:12px; }
+.beta-bq-layout .register-open > .card-head h3 { margin:0; }
+html body .beta-bq-layout #bqRegisterFacts { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); margin-top:0; }
+.beta-bq-layout .bq-register-head-actions { display:flex; align-items:center; gap:8px; }
+html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:auto; right:0; }
+.beta-bq-layout .bq-register-search + .register-open, .beta-bq-layout .bq-register-search + .register-empty, .beta-bq-layout .bq-register-search + .result { margin-top:16px; }
+.beta-bq-layout .movements-list { margin-top:14px; }
+.beta-bq-layout .filter-bar {
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--dmo-border,#d9e6f2);
+  border-radius:10px;
+  background:var(--dmo-page,#f6f9fc);
+}
+.beta-bq-layout .filter-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  align-items:end;
+}
+@media (max-width:1100px) {
+  .beta-bq-layout { grid-template-columns:var(--shell-rail,276px) minmax(0,1fr); }
+  .beta-bq-layout .beta-light-main { padding:20px; }
+}
+@media (max-width:700px) {
+  .beta-bq-layout { grid-template-columns:1fr; }
+  .beta-bq-layout .beta-production-rail { padding:16px; }
+  .beta-bq-layout .beta-light-main { padding:16px; }
+  .beta-bq-layout .register-search,
+  .beta-bq-layout .filter-grid { grid-template-columns:1fr; }
+  .beta-bq-layout .lots { grid-template-columns:1fr; }
+}
+
+/* OS SELOS E/S/SR DA GRELHA DO RESUMO DIARIO (a A4 repair, o Owner 14/10:
+   as letras existiam mas nao vestiam — «verde/laranja/azul»). A grelha é o
+   unico sitio onde o operador ve um dia a toda a largura, por isso a cor é
+   a informação: E = entrou com reparação (verde), S = saiu (laranja),
+   SR = voltou sem reparação (azul).
+
+   A COR MORA NA BORDA E NA BOLINHA, nunca no texto: medir os tokens da casa dá
+   «cor sobre o seu soft» a 3,38:1 (laranja), 4,01:1 (verde) e 4,30:1 (azul) —
+   todos ABAIXO do AA para os 11px do selo; o texto da casa (--dmo-text) sobre
+   esses mesmos fundos vai a 12,1-12,5:1. Fica legível, e a letra E/S/SR já diz
+   sozinha o que é — a cor reforça, nunca é o único portador do sentido.
+   Zero valor inventado: só tokens canónicos, o hex é fallback do próprio token.
+   Os mesmos selos servem a legenda no pé da tabela: a letra e a cor da legenda
+   são as mesmas da célula, nunca uma tradução à parte. */
+.beta-bq-layout .entry-e,
+.beta-bq-layout .entry-s,
+.beta-bq-layout .entry-r{display:inline-flex;align-items:center;gap:5px;margin:1px 3px 1px 0;padding:1px 8px;border-radius:var(--dmo-radius-pill,999px);border:1px solid;background:var(--dmo-subtle,#f1f6fa);color:var(--dmo-text,#172d42);font-size:11px;line-height:17px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.beta-bq-layout .entry-e::before,
+.beta-bq-layout .entry-s::before,
+.beta-bq-layout .entry-r::before{content:"";width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+.beta-bq-layout .entry-e{border-color:var(--dmo-success,#527c72);background:var(--dmo-success-soft,#e5f0eb)}
+.beta-bq-layout .entry-e::before{background:var(--dmo-success,#527c72)}
+.beta-bq-layout .entry-s{border-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
+.beta-bq-layout .entry-s::before{background:var(--dmo-warning,#a97943)}
+.beta-bq-layout .entry-r{border-color:var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7)}
+.beta-bq-layout .entry-r::before{background:var(--dmo-brand-600,#3c73a8)}
+
+/* unificada.zip: contexto → movimento → quantidades → histórico → pesquisa. */
+.beta-bq-layout .bq-register-search { margin-top:14px; }
+.beta-bq-layout .bq-register-search summary { cursor:pointer;font-weight:750;color:var(--dmo-brand-700,#315d88); }
+.beta-bq-layout .bq-register-search[open] summary { margin-bottom:16px; }
+.beta-bq-layout .bq-register-search > .card { padding:0;border:0;box-shadow:none; }
+.beta-bq-layout .bq-metrics-card .lot-data > div { padding:12px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:10px;background:var(--dmo-subtle,#f1f6fa); }
+.beta-bq-layout .bq-metrics-card .lot-data strong { font-size:24px; }
+.beta-bq-layout .bq-movement-types { display:flex;gap:8px;flex-wrap:wrap;padding:0;margin:12px 0;border:0; }
+.beta-bq-layout .bq-movement-types legend { position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%); }
+.beta-bq-layout .bq-movement-types label { flex:1 1 200px;position:relative;cursor:pointer; }
+.beta-bq-layout .bq-movement-types input { position:absolute;opacity:0;width:1px;height:1px; }
+.beta-bq-layout .bq-movement-types span { display:block;padding:14px;text-align:center;border:1px solid var(--dmo-border,#b9d0e6);border-radius:9px;background:#fff;font-weight:750; }
+.beta-bq-layout .bq-movement-types input:checked + span { background:var(--dmo-brand-700,#315d88);color:#fff; }
+.beta-bq-layout .bq-movement-types input:focus-visible + span { outline:3px solid var(--dmo-brand-600,#3c73a8);outline-offset:3px; }
+
+.beta-bq-layout .bq-movement-form .filter-grid { align-items:start; }
+
+/* Histórico: seletor/filtros, resumo do dia e calendário partilhado. */
+.beta-bq-layout .bq-history-filter-grid { display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1fr) minmax(0,1.2fr);gap:12px 14px;align-items:end; }
+/* As datas numa linha própria por baixo dos campos de texto. */
+.beta-bq-layout .bq-history-period-grid { display:grid;grid-template-columns:repeat(3,minmax(150px,200px)) auto 1fr auto;gap:12px 14px;align-items:end;margin-top:14px;padding-top:14px;border-top:1px solid var(--dmo-border); }
+.beta-bq-layout .bq-history-period-grid > .btn { justify-self:start; }
+.beta-bq-layout .bq-history-count { align-self:end;justify-self:end;padding-bottom:11px;grid-column:5;white-space:nowrap; }
+.beta-bq-layout .bq-history-period-grid > .bq-history-actions { grid-column:6; }
+.beta-bq-layout .bq-history-actions { display:flex;gap:8px;flex-wrap:nowrap; }
+.beta-bq-layout .bq-history-day-grid { display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,390px);gap:18px; }
+.beta-bq-layout .bq-day-summary { min-width:0;padding:16px;border:1px solid var(--dmo-border);border-radius:10px;background:var(--dmo-subtle,#f1f6fa); }
+html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-shadow:none;margin-top:12px; }
+.beta-bq-layout .bq-calendar-actions { display:flex;gap:8px;margin-top:10px; }
+.beta-bq-layout .bq-calendar-actions > a { flex:1;text-align:center; }
+.beta-bq-layout .bq-machine-group { margin-top:18px;min-width:0; }
+.beta-bq-layout .bq-group-context { padding:12px;background:var(--dmo-subtle,#f1f6fa);border:1px solid var(--dmo-border);margin-top:12px; }
+@media(max-width:1200px) { .beta-bq-layout .bq-history-filter-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .beta-bq-layout .bq-history-period-grid { grid-template-columns:repeat(3,minmax(0,1fr)) auto; } .beta-bq-layout .bq-history-count { grid-column:1/3;justify-self:start; } .beta-bq-layout .bq-history-period-grid > .bq-history-actions { grid-column:3/-1;justify-self:end; } }
+@media(max-width:1000px) { .beta-bq-layout .bq-history-day-grid { grid-template-columns:1fr; } }
+@media(max-width:600px) { .beta-bq-layout .bq-history-filter-grid, .beta-bq-layout .bq-history-period-grid { grid-template-columns:1fr; } .beta-bq-layout .bq-history-count, .beta-bq-layout .bq-history-period-grid > .bq-history-actions { grid-column:auto;justify-self:start; } }
+
+/* beta.20 — toolsTab from unificada.zip, using the canonical Tool backend. */
+.beta-bq-layout .bq-tool-create > summary,
+.beta-bq-layout .bq-historical-form > summary {cursor:pointer;font-weight:750;color:var(--dmo-brand-700,#193046)}
+.beta-bq-layout .bq-tool-create > summary {padding:4px 0}
+.beta-bq-layout .bq-tool-create .bq-close-label {display:none}
+.beta-bq-layout .bq-tool-create[open] .bq-create-label {display:none}
+.beta-bq-layout .bq-tool-create[open] .bq-close-label {display:inline}
+.beta-bq-layout .bq-tool-create h3 {margin:16px 0}
+.beta-bq-layout .bq-tool-form {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.beta-bq-layout .bq-tool-search {display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,.6fr) auto;gap:12px;align-items:end}
+.beta-bq-layout .bq-tool-form > *, .beta-bq-layout .bq-tool-search > * {min-width:0}
+.beta-bq-layout .bq-tool-machines {grid-column:1/-1;border:0;padding:0;margin:0;min-width:0}
+.beta-bq-layout .bq-tool-machines legend {font-size:12px;font-weight:700;margin-bottom:8px}
+.beta-bq-layout .bq-machine-choices {display:flex;gap:10px;flex-wrap:wrap}
+.beta-bq-layout .bq-machine-choices label {display:flex;align-items:center;gap:7px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px;padding:9px 14px}
+.beta-bq-layout .bq-machine-choices input {width:auto;min-height:0;margin:0}
+.beta-bq-layout .bq-quantity-help, .beta-bq-layout .bq-span-all {grid-column:1/-1}
+.beta-bq-layout .bq-tool-actions {display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.beta-bq-layout .bq-tool-pagination {display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;margin-top:18px}
+.beta-bq-layout .bq-tool-pagination [aria-disabled="true"], .beta-bq-layout .bq-tool-actions [aria-disabled="true"] {pointer-events:none}
+.beta-bq-layout #bq-tool-results .card-head {flex-wrap:wrap}
+.beta-bq-layout #bq-tool-sheet {scroll-margin-top:20px}
+@media(max-width:1100px) {
+  .beta-bq-layout .bq-tool-search {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px) {
+  .beta-bq-layout .bq-tool-form, .beta-bq-layout .bq-tool-search {grid-template-columns:minmax(0,1fr)}
+}
+
+.beta-bq-layout .bq-quantity-help [hidden] {display:none!important}
+/* Corrigir movimentos numa janela por cima da página (Diogo, 17/10/2026). */
+.bq-correct-modal{width:min(1040px,100%);max-height:calc(100vh - 48px);overflow:auto}
+.bq-correct-modal .dmo-modal-head{gap:12px}
+.bq-correct-modal .bq-correct-close{margin-left:auto}
+.bq-latest-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+/* «Corrigir movimentos» alinhado com o título e com espaço até à tabela (Diogo, 17/10/2026). */
+.beta-bq-layout .bq-latest-head{margin:0 0 14px;align-items:center}
+.beta-bq-layout #bqLatest h3{margin:0}
+
+/* Histórico: as duas vistas em separadores e as fichas do dia por máquina (como as «Produções do dia» do Job On). */
+.beta-bq-layout .bq-history-views { display:flex;align-items:center;gap:18px;margin:0 0 14px;border-bottom:1px solid var(--dmo-border); }
+.beta-bq-layout .bq-history-tab { padding:10px 4px;border-bottom:3px solid transparent;margin-bottom:-1px;color:var(--dmo-muted);font-weight:700;text-decoration:none; }
+.beta-bq-layout .bq-history-tab:hover { color:var(--dmo-brand-600); }
+.beta-bq-layout .bq-history-tab.is-active { border-bottom-color:var(--dmo-brand-600);color:var(--dmo-brand-600); }
+.beta-bq-layout .bq-day-summary .beta-light-list { margin-top:12px; }
+.beta-bq-layout .bq-day-summary .beta-light-machine-row { --dmo-machine-color:var(--dmo-muted); }
+.beta-bq-layout .bq-day-summary .beta-light-machine-row.mch-B1 { --dmo-machine-color:var(--dmo-machine-b1); }
+.beta-bq-layout .bq-day-summary .beta-light-machine-row.mch-B2 { --dmo-machine-color:var(--dmo-machine-b2); }
+.beta-bq-layout .bq-day-summary .beta-light-machine-row.mch-B3 { --dmo-machine-color:var(--dmo-machine-b3); }
+.beta-bq-layout .bq-day-summary .beta-light-machine-row.mch-C1 { --dmo-machine-color:var(--dmo-machine-c1); }
+.beta-bq-layout .bq-day-summary .beta-light-machine-row.mch-C2 { --dmo-machine-color:var(--dmo-machine-c2); }
+.beta-bq-layout .bq-day-summary .beta-light-machine-row.mch-C3 { --dmo-machine-color:var(--dmo-machine-c3); }
+.beta-bq-layout .bq-day-summary .beta-light-production { grid-template-columns:52px minmax(0,1fr) minmax(0,1.2fr) auto; }
+@media(max-width:700px) { .beta-bq-layout .bq-day-summary .beta-light-production { grid-template-columns:44px minmax(0,1fr); } .beta-bq-layout .bq-day-summary .beta-light-production > span { grid-column:2; } }
+.beta-bq-layout .bq-history-card-head { margin:0 0 14px; }
+/* Procurar / trocar de boquilha: os resultados por baixo do campo, afastados dele. */
+.beta-bq-layout .bq-procura:not(:empty) { margin-top:14px; }
+.beta-bq-layout .bq-procura .dmo-pill { margin-right:8px; }

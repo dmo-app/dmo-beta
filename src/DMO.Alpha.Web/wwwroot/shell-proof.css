@@ -1,0 +1,20 @@
+/* Shared shell composition only. Module styles and content geometry remain intact. */
+html body .dmo-shell-navigation{position:sticky;top:0;z-index:34;background:#fff}
+html body .dmo-shell-navigation>.dmo-primary-nav,
+html body .dmo-shell-navigation>.dmo-secondary-nav{position:relative;inset:auto;left:auto;right:auto;padding:0 24px;gap:22px}
+/* Foco unificado (C-6): o mesmo vocabulário de foco das regiões vivas —
+   outline 2px solid brand-600 com offset +2; os inputs mantêm o halo canónico
+   do design system. */
+html body .dmo-shell-navigation :is(a,button):focus-visible{outline:2px solid var(--dmo-brand-600,#3c73a8);outline-offset:2px}
+html body .dmo-shell-navigation [aria-disabled="true"]{opacity:.5;cursor:default}
+@media(max-width:720px){html body .dmo-shell-navigation>.dmo-primary-nav,html body .dmo-shell-navigation>.dmo-secondary-nav{padding-inline:14px;gap:14px}}
+@media print{.dmo-shell-navigation{display:none!important}}
+
+/* Native shell pages (landing and module placeholders) share the module workspace padding. */
+.dmo-shell-page{min-width:0;padding:22px 26px 36px}
+
+/* Account actions in the header share the Sair treatment (A-7: alvos ≥24px;
+   H-16: a mesma afordância para as três ações de conta). */
+html body .dmo-shell-header .dmo-shell-settings{display:inline-flex;align-items:center;justify-content:center;flex:none;min-height:36px;margin-left:8px;padding:0 14px;border:1px solid var(--dmo-brand-300,#98b9da);border-radius:7px;background:var(--dmo-brand-050,#e8eff7);color:var(--dmo-brand-700,#315d88);font-size:12px;font-weight:750;text-decoration:none}
+html body .dmo-shell-header .dmo-shell-settings:hover,html body .dmo-shell-header .dmo-shell-settings:focus-visible{background:var(--dmo-brand-100,#d9e6f2);outline:0}
+html body .dmo-shell-header .dmo-shell-settings:focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}

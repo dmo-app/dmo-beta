@@ -1,0 +1,271 @@
+@page "/Admin/Templates"
+@model DMO.Alpha.Web.Pages.Admin.Templates.IndexModel
+@using DMO.Alpha.Core.Admin
+@{
+    Layout = "_DmoShellLayout";
+    var capsOf = new Func<DMO.Alpha.Core.Admin.TemplateSummary, string>(t =>
+        t.Capabilities.Count == 0 ? "Sem capabilities" : string.Join(" · ", t.Capabilities));
+}
+@section Head {
+<style>
+.dmt-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.dmt-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
+.dmt-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.dmt-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.dmt-card{padding:18px}
+.dmt-card h3{margin:0 0 4px;font-size:16px}
+.dmt-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+.dmt-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.dmt-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
+.dmt-grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:14px}
+.dmt-list{padding:10px;display:grid;gap:6px;align-content:start}
+.dmt-choice{position:relative;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px;border:1px solid transparent;border-radius:8px;background:#fff;text-align:left}
+.dmt-choice-link{min-width:0;text-decoration:none;color:inherit}
+.dmt-choice-link::after{content:"";position:absolute;inset:0;border-radius:8px}
+.dmt-choice .dmt-users-link{position:relative;z-index:1;text-decoration:none;cursor:pointer}
+.dmt-choice .dmt-users-link:hover,.dmt-choice .dmt-users-link:focus-visible{background:var(--dmo-brand-600,#3c73a8);color:#fff}
+.dmt-users{margin-top:18px;padding-top:14px;border-top:1px solid var(--dmo-border,#d9e6f2)}
+.dmt-users h4{margin:0}
+.dmt-choice:hover,.dmt-choice.active{border-color:var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#f0f6fc)}
+.dmt-choice strong,.dmt-choice span{display:block}
+.dmt-choice span{color:var(--dmo-muted);font-size:10.5px}
+.dmt-choice .dmo-pill{white-space:nowrap}
+      .dmt-choice{text-decoration:none;color:inherit}
+      .dmt-choice.active{background:#fff;color:var(--dmo-brand-600,#3c73a8);outline:2px solid var(--dmo-brand-600,#3c73a8);outline-offset:-2px;font-weight:750}
+      .dmt-choice.active span{color:var(--dmo-brand-600,#3c73a8)}
+.dmt-detail{padding:16px}
+.dmt-detail .detail-key{color:var(--dmo-muted);font-size:12.5px;margin:2px 0 12px}
+.dmt-detail .detail-key code{background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:6px;padding:2px 7px;font-size:12.5px}
+.dmt-checks{display:grid;gap:8px;margin-top:8px}
+.dmt-check{display:flex;gap:9px;align-items:start;padding:10px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
+.dmt-check input{width:auto;min-height:0;margin-top:2px}
+.dmt-check label{display:grid;gap:1px;font-weight:700;cursor:pointer}
+.dmt-check label span{font-weight:400;color:var(--dmo-muted);font-size:11.5px}
+.dmt-actions{display:flex;gap:10px;align-items:center;margin-top:12px}
+.dmt-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.dmt-caps-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+html body .dmt-detail .dmo-options-list{left:auto;right:0}
+.dmt-module-head{font-size:10.5px;font-weight:800;color:var(--dmo-brand-600,#3c73a8);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--dmo-border,#d9e6f2);padding-bottom:4px}
+@@media(max-width:900px){.dmt-grid{grid-template-columns:1fr}}
+</style>
+}
+
+<main class="dmt-page" aria-labelledby="dmt-title">
+
+  <div class="page-head">
+    <div>
+      <h2 id="dmt-title">Templates de acesso</h2>
+      <p>Acessos atribuídos aos utilizadores.</p>
+    </div>
+  </div>
+
+  @if (Model.CreatedNote)
+  {
+    <div class="dmt-nota" role="status">Template criada.</div>
+  }
+  @if (Model.SavedNote)
+  {
+    <div class="dmt-nota" role="status">Template guardada.</div>
+  }
+  @if (Model.DeletedNote)
+  {
+    <div class="dmt-nota" role="status">Template eliminada.</div>
+  }
+  @if (Model.DeleteRefusal is not null)
+  {
+    <div class="dmt-aviso" role="alert">@Model.DeleteRefusalMessage</div>
+  }
+  @if (Model.CreateRefusal is not null)
+  {
+    <div class="dmt-aviso" role="alert">@Model.CreateRefusalMessage</div>
+  }
+  @if (Model.EditRefusal is not null)
+  {
+    <div class="dmt-aviso" role="alert">@Model.EditRefusalMessage</div>
+  }
+
+  <div class="dmt-grid">
+
+    @* ---------------------------------------------------------------- *@
+    @* A lista das templates (identidade estável + rótulo corrente).     *@
+    @* ---------------------------------------------------------------- *@
+    <aside class="dmo-card dmt-list" aria-label="Templates registadas">
+      @if (Model.Templates.Count == 0)
+      {
+        <span class="dmt-hint" style="margin:4px">Ainda não há templates — crie a primeira à direita.</span>
+      }
+      @foreach (var template in Model.Templates)
+      {
+        var contagem = Model.UserCount(template.TemplateKey);
+        @* O cartão inteiro abre a template; o pill da contagem abre-a já na
+           lista dos utilizadores dela (Diogo, 17/10/2026). Dois links irmãos,
+           porque um link não pode estar dentro de outro. *@
+        <div class="dmt-choice @(Model.SelectedTemplate?.TemplateKey == template.TemplateKey ? "active" : "")">
+          <a class="dmt-choice-link" href="@Url.Page("/Admin/Templates/Index", new { template = template.TemplateKey })">
+            <strong>@template.Name</strong>
+            <span>@capsOf(template)</span>
+          </a>
+          <a class="dmo-pill dmt-users-link" href="@(Url.Page("/Admin/Templates/Index", new { template = template.TemplateKey }) + "#dmt-users")"
+             aria-label="Ver os utilizadores da template @template.Name">@contagem utilizador@(contagem == 1 ? "" : "es")</a>
+        </div>
+      }
+    </aside>
+
+    <section class="dmo-card dmt-detail" aria-label="Criar ou editar template">
+
+      @if (Model.SelectedTemplate is { } selected)
+      {
+        @* ------------------------------------------------------------ *@
+        @* Detalhe/edição: a key ESTÁVEL como âncora + rótulo + caps.     *@
+        @* ------------------------------------------------------------ *@
+        <div class="page-head">
+          <div>
+            <h3>@selected.Name<partial name="_DmoHelp" model="@("Editar uma template altera o acesso de quem já a tem atribuída.")" /></h3>
+            @* 2026-10-13, Owner: «Identificador estável: tpl-… isto é para
+               que?» — o código interno NÃO fica na folha (a regra dos ids:
+               backend só); o nome é o que o ADMIN vê e edita. *@
+          </div>
+          @* ELIMINAR (Diogo, 17/10/2026): ação rara, no botão «Opções»; a
+             confirmação abre numa janela pequena. Uma template com
+             utilizadores não se apaga: a janela diz quantos a usam. *@
+          @{ var emUso = Model.UserCount(selected.TemplateKey); }
+          <details class="dmo-options" data-dmo-tab-menu>
+            <summary class="dmo-button" aria-label="Opções da template @selected.Name">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
+            <div class="dmo-options-list">
+              <button type="button" class="dmo-options-item" data-dmo-dialog="dmt-delete-dialog">Eliminar template</button>
+            </div>
+          </details>
+          <dialog id="dmt-delete-dialog" class="dmo-dialog" aria-labelledby="dmt-delete-title">
+            @if (emUso > 0)
+            {
+              <h3 id="dmt-delete-title">Não é possível eliminar «@selected.Name»</h3>
+              <p>Esta template está atribuída a @emUso utilizador@(emUso == 1 ? "" : "es"). @(emUso == 1 ? "Mude primeiro a template desse utilizador, na sua ficha." : "Mude primeiro a template desses utilizadores, na ficha de cada um.")</p>
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button" data-dmo-dialog-close>Fechar</button>
+              </div>
+            }
+            else
+            {
+              <form method="post" asp-page="/Admin/Templates/Index" asp-page-handler="Delete">
+                <h3 id="dmt-delete-title">Eliminar «@selected.Name»?</h3>
+                <p style="margin:0">Nenhum utilizador tem esta template. Depois de eliminada, não pode ser recuperada.</p>
+                <input type="hidden" name="template_key" value="@selected.TemplateKey" />
+                <div class="dmo-dialog-actions">
+                  <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                  <button type="submit" class="dmo-button">Eliminar</button>
+                </div>
+              </form>
+            }
+          </dialog>
+        </div>
+
+        @if (DMO.Alpha.Core.Admin.DmoCapabilities.GrantsBothControlos(selected.Capabilities))
+        {
+          <div class="dmt-nota" role="status">Aviso: com esta template, a mesma pessoa cria e aprova o Controlo.</div>
+        }
+        <form method="post" asp-page="/Admin/Templates/Index" asp-page-handler="Edit">
+          <input type="hidden" name="template_key" value="@selected.TemplateKey" />
+          <div class="dmo-field">
+            <label for="dmt-edit-name">Nome (apenas rótulo)</label>
+            <input id="dmt-edit-name" name="name" value="@selected.Name" required maxlength="100" />
+          </div>
+          <div class="dmt-checks">
+            @foreach (var (module, groupCaps) in DMO.Alpha.Web.Pages.Admin.Templates.IndexModel.BetaCapabilityGroups)
+            {
+              <p class="dmt-module-head" style="margin:10px 0 2px">@module</p>
+              foreach (var capability in groupCaps)
+              {
+                <div class="dmt-check">
+                  <input type="checkbox" id="dmt-edit-@capability" name="capabilities" value="@capability"
+                         checked="@selected.Capabilities.Contains(capability, StringComparer.Ordinal)" />
+                  <label for="dmt-edit-@capability">
+                    @DMO.Alpha.Web.Pages.Admin.Templates.IndexModel.CapabilityLabel(capability)
+                    <span>@capability</span>
+                  </label>
+                </div>
+              }
+            }
+          </div>
+          <div class="dmt-actions">
+            <button type="submit" class="dmo-button">Guardar template</button>
+          </div>
+        </form>
+
+        <section id="dmt-users" class="dmt-users" aria-labelledby="dmt-users-title">
+          <h4 id="dmt-users-title">Utilizadores com esta template<partial name="_DmoHelp" model="@("A template atribui-se na ficha do utilizador. Na lista, um clique abre a ficha.")" /></h4>
+          @if (Model.SelectedTemplateUsers.Count == 0)
+          {
+            <p class="dmt-hint" style="margin:4px 0 0">Nenhum utilizador tem esta template.</p>
+          }
+          else
+          {
+            <p class="dmt-hint" style="margin:4px 0 8px">@Model.SelectedTemplateUsers.Count utilizador(es)</p>
+            <div class="dmo-table-wrap">
+              <table class="dmo-table" data-dmo-list="Utilizadores com esta template">
+                <thead><tr><th>Nome</th><th>Nº operador</th><th>Email</th><th>Estado</th></tr></thead>
+                <tbody>
+                  @foreach (var user in Model.SelectedTemplateUsers)
+                  {
+                    <tr data-dmo-row data-id="@user.OperatorId"
+                        data-dmo-open="/Admin/Users/Ficha?operator_id=@user.OperatorId"
+                        aria-label="Utilizador @user.Name, nº @user.OperatorId — um clique abre a ficha">
+                      <td><strong>@user.Name</strong></td>
+                      <td>@user.OperatorId</td>
+                      <td>@(user.Email ?? "—")</td>
+                      <td>@if (user.IsStandBy) { <span class="dmo-pill">Arquivado</span> } else { <span class="dmo-pill active">Ativo</span> }</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      }
+      else
+      {
+        @* ------------------------------------------------------------ *@
+        @* Criação: Nome + as 3 capabilities Beta como checkboxes.        *@
+        @* A key é MINTADA pelo backend — nunca vem do form.              *@
+        @* ------------------------------------------------------------ *@
+        <div class="page-head">
+          <div>
+            <h3>Criar template</h3>
+            @* 2026-10-13, Owner: a frase do «tpl- + 8 hex mintada» era
+               jargão de backend na folha — o ADMIN não precisa de saber da
+               identidade interna; o nome é o que existe. *@
+          </div>
+        </div>
+
+        <form method="post" asp-page="/Admin/Templates/Index" asp-page-handler="Create">
+          <div class="dmo-field">
+            <label for="dmt-new-name">Nome (apenas rótulo)</label>
+            <input id="dmt-new-name" name="name" value="@Model.RequestedName" required maxlength="100" placeholder="Ex.: Responsável operacional" />
+          </div>
+          <div class="dmt-checks">
+            @foreach (var (module, groupCaps) in DMO.Alpha.Web.Pages.Admin.Templates.IndexModel.BetaCapabilityGroups)
+            {
+              <p class="dmt-module-head" style="margin:10px 0 2px">@module</p>
+              foreach (var capability in groupCaps)
+              {
+                <div class="dmt-check">
+                  <input type="checkbox" id="dmt-new-@capability" name="capabilities" value="@capability"
+                         checked="@(Model.RequestedCapabilities.Contains(capability, StringComparer.Ordinal))" />
+                  <label for="dmt-new-@capability">
+                    @DMO.Alpha.Web.Pages.Admin.Templates.IndexModel.CapabilityLabel(capability)
+                    <span>@capability</span>
+                  </label>
+                </div>
+              }
+            }
+          </div>
+          <div class="dmt-actions">
+            <button type="submit" class="dmo-button">Criar template</button>
+          </div>
+        </form>
+      }
+
+    </section>
+
+  </div>
+
+</main>

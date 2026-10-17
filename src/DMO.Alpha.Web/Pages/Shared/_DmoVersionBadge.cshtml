@@ -1,0 +1,12 @@
+@using DMO.Alpha.Web.Services
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@{
+    var build = AppBuildInfo.Current;
+    var environment = Configuration["Dmo:EnvironmentLabel"] ?? HostEnvironment.EnvironmentName;
+    var badgeClass = ViewData["VersionBadgeClass"] as string ?? "dmo-env-badge";
+    var isDev = string.Equals(environment, "DEV", StringComparison.OrdinalIgnoreCase) || HostEnvironment.IsDevelopment();
+    badgeClass += badgeClass == "env-badge" ? (isDev ? " is-dev" : " is-prod") : (isDev ? " dmo-env-badge--dev" : " dmo-env-badge--prod");
+}
+<a class="@badgeClass" asp-page="/Versao" data-dmo-version="@build.Version" data-dmo-build="@build.BuildId"
+   title="@build.ShortRevision · @build.SourceDescription · Ver correções e dados da versão">@environment · @build.Version@(build.SourceState == "modified" ? " · local" : "")</a>

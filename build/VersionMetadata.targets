@@ -1,0 +1,36 @@
+<Project>
+  <!-- Capture the artifact's source at build time, never from the runtime
+       environment: changing a deployment variable must not rename old code. -->
+  <Target Name="CaptureDmoBuildMetadata" BeforeTargets="GetAssemblyAttributes">
+    <PropertyGroup>
+      <_DmoRoot>$(MSBuildThisFileDirectory)..</_DmoRoot>
+    </PropertyGroup>
+    <Exec Command="git -C &quot;$(_DmoRoot)&quot; rev-parse --verify HEAD"
+          Condition="'$(DmoRevision)' == '' and Exists('$(_DmoRoot)/.git')"
+          ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low" StandardErrorImportance="Low">
+      <Output TaskParameter="ConsoleOutput" ItemName="_DmoGitRevision" />
+      <Output TaskParameter="ExitCode" PropertyName="_DmoGitRevisionExitCode" />
+    </Exec>
+    <Exec Command="git -C &quot;$(_DmoRoot)&quot; status --porcelain --untracked-files=normal"
+          Condition="'$(DmoRevision)' == '' and '$(_DmoGitRevisionExitCode)' == '0'"
+          ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low" StandardErrorImportance="Low">
+      <Output TaskParameter="ConsoleOutput" ItemName="_DmoGitChanges" />
+      <Output TaskParameter="ExitCode" PropertyName="_DmoGitStatusExitCode" />
+    </Exec>
+    <PropertyGroup>
+      <DmoSourceState Condition="'$(DmoSourceState)' == '' and '$(_DmoGitStatusExitCode)' == '0' and '@(_DmoGitChanges)' != ''">modified</DmoSourceState>
+      <DmoSourceState Condition="'$(DmoSourceState)' == '' and '$(_DmoGitStatusExitCode)' == '0'">clean</DmoSourceState>
+      <DmoSourceState Condition="'$(DmoSourceState)' == ''">unverified</DmoSourceState>
+      <DmoRevision Condition="'$(DmoRevision)' == '' and '$(_DmoGitRevisionExitCode)' == '0'">@(_DmoGitRevision)</DmoRevision>
+      <DmoRevision Condition="'$(DmoRevision)' == ''">unavailable</DmoRevision>
+      <_DmoBuildId>$([System.Guid]::NewGuid().ToString('N'))</_DmoBuildId>
+      <_DmoBuiltAtUtc>$([System.DateTime]::UtcNow.ToString('O'))</_DmoBuiltAtUtc>
+    </PropertyGroup>
+    <ItemGroup>
+      <AssemblyMetadata Include="DmoRevision" Value="$(DmoRevision)" />
+      <AssemblyMetadata Include="DmoSourceState" Value="$(DmoSourceState)" />
+      <AssemblyMetadata Include="DmoBuildId" Value="$(_DmoBuildId)" />
+      <AssemblyMetadata Include="DmoBuiltAtUtc" Value="$(_DmoBuiltAtUtc)" />
+    </ItemGroup>
+  </Target>
+</Project>

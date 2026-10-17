@@ -1,0 +1,94 @@
+/* PALETA OFICIAL DO DMO (decisão do Diogo, 17/10/2026; docs/ui-reference/paleta-oficial.md).
+   As cinco cores abaixo são o template de cores de toda a app, incluindo o
+   logo do login e os PDFs (Infrastructure/Pdf/DmoPdfPalette.cs). Cor nova na
+   interface sai daqui; não se escrevem azuis soltos. Todas as outras cores azuis
+   saem daqui: a escala --dmo-brand-* usa estas cinco e os tons mais escuros
+   (texto) e mais claros (fundos) derivam da #44647c e da #afd1f2.
+   Botões, cabeçalhos e linha selecionada: --dmo-palette-slate (branco 6,3:1).
+   Hover das linhas: --dmo-palette-sky. Para mudar a paleta, muda-se só aqui. */
+:root{--dmo-palette-sky:#afd1f2;--dmo-palette-mist:#92b4cc;--dmo-palette-steel:#6494b4;--dmo-palette-ocean:#4c7c9c;--dmo-palette-slate:#44647c}
+:root{--dmo-brand-950:#1b2832;--dmo-brand-900:#253744;--dmo-brand-800:#334b5d;--dmo-brand-700:#3c586d;--dmo-brand-600:var(--dmo-palette-slate);--dmo-brand-500:var(--dmo-palette-ocean);--dmo-brand-400:var(--dmo-palette-steel);--dmo-brand-300:var(--dmo-palette-mist);--dmo-brand-200:var(--dmo-palette-sky);--dmo-brand-100:#d7e8f8;--dmo-brand-050:#ebf4fc;--dmo-page:#f7fafe;--dmo-card:#fff;--dmo-subtle:#f3f8fd;--dmo-border:#d9e5ed;--dmo-text:var(--dmo-brand-950);--dmo-muted:#577389;--dmo-row-hover:var(--dmo-brand-200);--dmo-focus-ring:rgba(68,100,124,.18);--dmo-success:#527c72;--dmo-success-soft:#e5f0eb;--dmo-warning:#a97943;--dmo-warning-soft:#f7f0e7;--dmo-danger:#9a625d;--dmo-danger-soft:#f3e9e7;--dmo-disabled:#cbd5df;--dmo-r-control:8px;--dmo-r-card:12px;--dmo-r-modal:16px;--dmo-shadow:0 8px 24px rgba(27,40,50,.06);--dmo-fast:150ms ease}
+:root{--dmo-surface-page:var(--dmo-page);--dmo-surface-card:var(--dmo-card);--dmo-surface-subtle:var(--dmo-subtle);--dmo-text-muted:var(--dmo-muted);--dmo-text-on-color:#fff;--dmo-radius-control:var(--dmo-r-control);--dmo-radius-card:var(--dmo-r-card);--dmo-radius-modal:var(--dmo-r-modal);--dmo-radius-pill:999px;--dmo-control-height:40px;--dmo-control-height-compact:34px;--dmo-sidebar-width:276px;--dmo-header-height:76px;--dmo-tabs-height:52px;--dmo-shadow-card:var(--dmo-shadow);--dmo-shadow-menu:0 10px 24px rgba(27,40,50,.22);--dmo-shadow-modal:0 25px 70px rgba(27,40,50,.35);--dmo-transition-fast:var(--dmo-fast);--dmo-space-1:4px;--dmo-space-2:8px;--dmo-space-3:12px;--dmo-space-4:16px;--dmo-space-5:20px;--dmo-space-6:24px;--dmo-space-8:32px}
+*{box-sizing:border-box}body{margin:0;background:var(--dmo-page);color:var(--dmo-text);font:14px/1.45 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}.dmo-pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:var(--dmo-brand-050);color:var(--dmo-brand-700);font-size:10px;font-weight:800}.dmo-pill.active{background:var(--dmo-success-soft);color:var(--dmo-success)}.dmo-pill.inactive{background:#eef1f4;color:var(--dmo-muted)}.dmo-table-wrap{overflow:auto;border:1px solid var(--dmo-border);border-radius:9px}.dmo-table{width:100%;border-collapse:collapse;white-space:nowrap}.dmo-table th{background:var(--dmo-subtle);color:var(--dmo-muted);font-size:10px;text-transform:uppercase;text-align:left;padding:10px 12px}.dmo-table td{padding:11px 12px;border-top:1px solid var(--dmo-border)}.dmo-table tr[data-row]{cursor:pointer}.dmo-table tr[data-row]:hover{background:var(--dmo-page)}.dmo-table tr.selected{background:var(--dmo-border)}.dmo-modal-backdrop{display:none;position:fixed;z-index:80;inset:0;background:rgba(27,40,50,.68);padding:24px;align-items:center;justify-content:center}.dmo-modal-backdrop.open{display:flex}.dmo-modal{width:min(560px,100%);background:#fff;border-radius:var(--dmo-r-modal);box-shadow:0 25px 70px rgba(27,40,50,.35)}.dmo-modal-head{display:flex;align-items:center;padding:18px 20px;border-bottom:1px solid var(--dmo-border)}.dmo-modal-head h2{margin:0;font-size:18px}.dmo-modal-body{padding:20px}.dmo-toast{position:fixed;right:22px;bottom:22px;z-index:100;background:var(--dmo-brand-950);color:#fff;padding:11px 15px;border-radius:9px;box-shadow:var(--dmo-shadow);opacity:0;transform:translateY(50px);transition:.2s}.dmo-toast.show{opacity:1;transform:none}
+
+/* Machine identity is independent of page, production and selection. */
+:root{--dmo-machine-b1:var(--dmo-brand-600);--dmo-machine-b2:#3d7a5a;--dmo-machine-b3:var(--dmo-warning);--dmo-machine-c1:#7a5aa0;--dmo-machine-c2:#2e8f8f;--dmo-machine-c3:#b05555}
+/* Canonical control sizing. Context wins over the base button size. */
+.search > .btn,
+.search > .dmo-button{
+  min-height: var(--dmo-control-height);
+}
+
+@media(max-width:720px){.dmo-modal-backdrop{padding:12px}.dmo-table{min-width:760px}}
+
+/* Canonical selectable lists */
+[data-dmo-list] [data-dmo-row]{cursor:pointer;transition:background var(--dmo-fast),border-color var(--dmo-fast)}
+/* O destaque fica dentro do cartão: cantos arredondados e barra fina à esquerda (Diogo, 17/10/2026). */
+[data-dmo-list] [data-dmo-row]:hover{background:var(--dmo-row-hover);border-radius:var(--dmo-r-control);box-shadow:inset 3px 0 0 var(--dmo-brand-600)}
+[data-dmo-list] [data-dmo-row]:focus-visible{outline:3px solid rgba(68,100,124,.2);outline-offset:1px}
+[data-dmo-list] [data-dmo-row].selected{background:var(--dmo-brand-100);border-color:var(--dmo-brand-600);color:var(--dmo-brand-700)}
+[data-dmo-list] [data-dmo-row].selected :is(h4,strong){color:inherit}
+
+/* Canonical record states: shared by weight controls and comparisons */
+.dmo-pill.pending{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
+.dmo-pill.approved{background:#e5f0eb;color:#3f7765}
+.dmo-pill.rejected{background:#f3e9e7;color:#9a625d}
+
+/* Canonical interactive components. Pages control layout; this file controls appearance. */
+html body :is(.dmo-button,.button,.btn){min-height:var(--dmo-control-height);padding:9px 14px;border:1px solid var(--button-color,var(--dmo-brand-600));border-radius:var(--dmo-r-control);background:var(--button-color,var(--dmo-brand-600));color:#fff;font-size:13px;font-weight:800;line-height:1.2;cursor:pointer;text-decoration:none;transition:background var(--dmo-fast),color var(--dmo-fast),border-color var(--dmo-fast);display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap}
+html body :is(.dmo-button,.button,.btn):hover,html body :is(.dmo-button,.button,.btn):focus-visible{background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600));outline:0}
+html body :is(.dmo-button,.button,.btn):focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+html body :is(.dmo-button,.button,.btn).danger{--button-color:var(--dmo-danger)}
+html body :is(.dmo-button,.button,.btn).success{--button-color:var(--dmo-success)}
+html body :is(.dmo-button,.button,.btn):disabled{--button-color:var(--dmo-disabled);background:var(--dmo-disabled);color:var(--dmo-text-on-color);cursor:not-allowed}
+.dmo-primary-nav,.dmo-secondary-nav{display:flex;align-items:stretch;background:#fff;border-bottom:1px solid var(--dmo-border);overflow-x:auto}
+.dmo-primary-nav{min-height:48px;gap:22px;padding:0 22px}
+.dmo-secondary-nav{min-height:46px;gap:20px;padding:0 18px}
+.dmo-primary-nav :is(a,button),.dmo-secondary-nav :is(a,button){display:inline-flex;align-items:center;min-width:max-content;padding:0 5px;border:0;border-bottom:3px solid transparent;background:none;color:var(--dmo-muted);font-size:13px;font-weight:800;text-decoration:none}
+.dmo-primary-nav :is(a,button):hover,.dmo-primary-nav :is(a,button).active,.dmo-secondary-nav :is(a,button):hover,.dmo-secondary-nav :is(a,button).active{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600)}
+@media(max-width:600px){.dmo-primary-nav,.dmo-secondary-nav{gap:14px;padding-inline:12px}.dmo-primary-nav :is(a,button),.dmo-secondary-nav :is(a,button){font-size:12px}}
+
+/* Global readability pass: increase text sizing without changing page structure. */
+body{font-size:16px}
+.dmo-primary-nav :is(a,button),.dmo-secondary-nav :is(a,button){font-size:15px}
+
+/* When both navigation levels are direct page rows, keep them stacked while scrolling. */
+body > .dmo-primary-nav{position:sticky;top:0;z-index:46}
+body > .dmo-primary-nav + .dmo-secondary-nav{position:sticky;top:48px;z-index:45}
+
+/* Canonical page hierarchy; aliases keep older mockups aligned during migration. */
+html body :is(.dmo-page-head,.page-head,.page-heading){display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+html body :is(.dmo-page-head,.page-head,.page-heading) :is(h1,h2){margin:0;color:var(--dmo-text);font-family:inherit;font-size:24px !important;font-weight:800 !important;line-height:1.2;letter-spacing:-.015em}
+html body :is(.dmo-page-head,.page-head,.page-heading) p{margin:4px 0 0;color:var(--dmo-muted);font-family:inherit;font-size:12px !important;line-height:1.45}
+html body :is(.dmo-page-head,.page-head,.page-heading) .eyebrow{display:block;margin-bottom:4px;color:var(--dmo-brand-600);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+
+/* Common header aliases. Each page may still own fixed/sticky positioning. */
+html body :is(.dmo-app-header,.app-header,.header){min-height:var(--dmo-header-height);align-items:center;padding-block:10px;background:var(--dmo-card);border-bottom:1px solid var(--dmo-border);font-family:inherit}
+html body :is(.dmo-app-header__page,.brand-copy,.header .brand > div,.header .head,.app-header .brand) :is(h1,strong){margin:0;color:var(--dmo-text);font-family:inherit;font-size:18px !important;font-weight:800 !important;line-height:1.2}
+html body :is(.dmo-app-header__page,.brand-copy,.header .brand > div,.header .head,.app-header .brand) :is(p,span){margin:3px 0 0;color:var(--dmo-muted);font-family:inherit;font-size:11px !important;line-height:1.3}
+html body :is(.dmo-app-header__user,.user-block,.header .user){font-family:inherit}
+@media(max-width:600px){html body :is(.dmo-page-head,.page-head,.page-heading){align-items:flex-start;flex-direction:column}html body :is(.dmo-page-head,.page-head,.page-heading) :is(h1,h2){font-size:21px}}
+
+/* Shared cards and operational fields: one appearance authority. */
+html body :is(.surface,.dmo-card,.beta-bq-layout .card){min-width:0;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-card);background:var(--dmo-card);box-shadow:var(--dmo-shadow)}
+html body :is(.dmo-card,.beta-bq-layout .card) h3{margin:0;font-size:17px;line-height:1.3}
+html body :is(.dmo-card,.beta-bq-layout .card) .card-note{margin:4px 0 14px;color:var(--dmo-muted);font-size:12px;line-height:1.45}
+html body :is(.dmo-card,.beta-bq-layout .card)>p{color:var(--dmo-muted);font-size:12px;line-height:1.45}
+/* The same field treatment for native forms, filters and tool pickers. */
+html body .dmo-field{min-width:0}
+html body .dmo-field label{display:block;margin:0 0 6px;color:var(--dmo-muted);font-size:12px;font-weight:750}
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.dmo-field textarea,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"]){box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:9px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font-family:inherit;font-size:14px;line-height:1.2}
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.dmo-field textarea,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"]):focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
+html body :is(.dmo-field input,.dmo-field select,.dmo-field textarea):disabled{background:var(--dmo-subtle);color:var(--dmo-muted);cursor:not-allowed}
+
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.dmo-field textarea,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select){width:100%}
+html body .dmo-search-form input[type="search"]{width:auto;flex:1 1 180px}
+html body :is(.dmo-field select,.beta-light-fields select,.beta-light-tool-view select){height:var(--dmo-control-height)}
+/* Dense matrices keep every machine visible; long facts wrap inside a cell. */
+.dmo-table.dmo-matrix{table-layout:fixed;white-space:normal}
+.dmo-matrix th:first-child{width:84px}
+.dmo-matrix td:first-child{overflow-wrap:normal}
+.dmo-matrix .dmo-matrix-weekday{font-size:11px}
+.dmo-matrix td{vertical-align:top;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.dmo-matrix [data-dmo-row]{min-width:0;padding:6px;border-radius:6px;overflow-wrap:anywhere}
+.dmo-matrix [data-dmo-row]+[data-dmo-row]{margin-top:6px}

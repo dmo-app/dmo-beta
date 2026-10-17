@@ -1,0 +1,36 @@
+@model IReadOnlyList<DMO.Alpha.Core.Controlo.PesoComparacaoPesoOpcao>
+@using DMO.Alpha.Web.Pages.Controlo
+@* Os Pesos encontrados ao escrever no «Comparar Pesos guardados» (Diogo,
+   17/10/2026): a produção, o lote e as máquinas onde a CM trabalha. Um
+   clique escolhe o Peso. *@
+@if (Model.Count == 0)
+{
+  <p class="muted" role="status">Nenhum Peso encontrado.</p>
+}
+else
+{
+  <div class="dmo-table-wrap">
+    <table class="dmo-table" data-dmo-list="Pesos encontrados">
+      <thead>
+        <tr><th>Produção</th><th>Referência</th><th>Lote</th><th>Máquinas</th><th>Peso médio</th></tr>
+      </thead>
+      <tbody>
+        @foreach (var opcao in Model)
+        {
+          <tr data-dmo-row data-id="@opcao.PesoId" data-dmo-rotulo="@PesoModel.RotuloProcura(opcao)"
+              aria-label="@PesoModel.RotuloProcura(opcao) — um clique escolhe">
+            <td><strong>@(opcao.ProductionNumber ?? "Sem Job On")</strong></td>
+            <td>@(opcao.Reference ?? opcao.CmToolReference ?? "—")</td>
+            <td>@(opcao.CmToolLot ?? "—")</td>
+            <td>@(opcao.CmMachines is { Count: > 0 } maquinas ? string.Join(" ", maquinas) : "—")</td>
+            <td>@(opcao.PesoMedioGrams is { } peso ? peso.ToString("0.00", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " g" : "—")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (Model.Count >= PesoModel.PesoProcuraLimite)
+  {
+    <p class="muted">Mostram-se os primeiros @PesoModel.PesoProcuraLimite. Escreva mais para afinar.</p>
+  }
+}

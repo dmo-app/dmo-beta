@@ -1,0 +1,100 @@
+*:focus-visible{outline-color:var(--dmo-brand-500)!important}
+
+.dmo-pill.pending{background:var(--dmo-warning-soft)!important;color:var(--dmo-warning)!important}
+
+.notice{border-left-color:var(--dmo-brand-600)!important;background:var(--dmo-brand-050)!important}
+
+@media print{.dmo-primary-nav,.dmo-secondary-nav{display:none!important}}
+
+/* One shared frame across the operational modules. */
+
+body:has(.dmo-primary-nav)>.dmo-primary-nav{height:48px;min-height:48px;display:flex;align-items:stretch;gap:22px;padding:0 24px;position:sticky;top:0;z-index:31;background:#fff;border-bottom:1px solid var(--dmo-border);overflow-x:auto}
+body:has(.dmo-primary-nav)>.dmo-primary-nav a{display:inline-flex;align-items:center;white-space:nowrap;text-decoration:none}
+body:has(.dmo-primary-nav)>.dmo-secondary-nav{position:sticky;top:48px;z-index:30;background:#fff;overflow-x:auto}
+body:has(.dmo-primary-nav)>.dmo-secondary-nav :is(button,a){display:inline-flex;align-items:center;justify-content:center;line-height:1.2;white-space:nowrap}
+body :is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;text-align:center;vertical-align:middle;line-height:1.2}
+
+@media(max-width:640px){body:has(.dmo-primary-nav)>.dmo-primary-nav{padding-inline:14px}}
+
+/* Compact Job On for the Beta scope. */
+.beta-light-rail{background:var(--dmo-brand-900);color:#fff;padding:17px 12px}.beta-light-main{min-width:0;padding:22px 26px 36px}.beta-light-view{display:none}.beta-light-view.active{display:block}.beta-light-heading,.beta-light-card-head,.beta-light-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:14px}.beta-light-heading{margin-bottom:16px}.beta-light-heading h1{margin:0;font-size:25px}.beta-light-heading p,.beta-light-card-head span,.beta-light-sheet-head p{margin:3px 0 0;color:var(--dmo-muted)}.beta-light-grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:14px;align-items:start}.beta-light-grid>.dmo-card{padding:16px}.beta-light-card-head h2,.beta-light-sheet-head h2{margin:0;font-size:17px}.beta-light-card-head input{width:min(245px,48%);min-height:38px;padding:7px 10px;border:1px solid var(--dmo-border);border-radius:8px}.beta-light-list{display:grid;gap:7px;margin-top:15px}.beta-light-production{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:13px 14px;border:1px solid var(--dmo-border);border-radius:8px;background:#fff;text-align:left;cursor:pointer}.beta-light-production.selected,.beta-light-production:hover{background:var(--dmo-brand-050);border-color:var(--dmo-brand-600)}.beta-light-sheet{margin-top:16px;padding:18px;scroll-margin-top:110px}.beta-light-fields{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:18px 0}.beta-light-fields label{font-size:13px;font-weight:750}.beta-light-fields :is(input,select){display:block;width:100%;min-height:40px;margin-top:6px;padding:8px;border:1px solid var(--dmo-border);border-radius:8px}.beta-light-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.beta-light-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.beta-light-history{display:grid;gap:0;padding:6px 16px}.beta-light-history>div{display:flex;justify-content:space-between;gap:10px;padding:15px 0;border-bottom:1px solid var(--dmo-border)}.beta-light-history>div:last-child{border:0}@media(max-width:1000px){.beta-light-fields{grid-template-columns:repeat(3,minmax(0,1fr))}.beta-light-grid{grid-template-columns:1fr}.beta-light-tools{grid-template-columns:1fr}}@media(max-width:700px){.beta-light-rail{padding:10px}.beta-light-main{padding:16px}.beta-light-fields{grid-template-columns:1fr 1fr}.beta-light-heading,.beta-light-card-head{align-items:flex-start;flex-direction:column}.beta-light-card-head input{width:100%}}@media(max-width:470px){.beta-light-fields{grid-template-columns:1fr}.beta-light-actions{flex-direction:column}}
+
+/* One shell for the operational pages: the same logo, two rows and tab behavior. */
+
+html body .dmo-primary-nav,html body .dmo-secondary-nav{position:sticky;left:auto;right:auto;top:0;display:flex;align-items:stretch;width:100%;margin:0;padding:0 24px;gap:22px;background:#fff;border-bottom:1px solid var(--dmo-border);overflow-x:auto;box-shadow:none}
+html body .dmo-primary-nav{height:48px;min-height:48px;z-index:34}
+html body .dmo-secondary-nav{top:48px;height:46px;min-height:46px;z-index:33}
+html body .dmo-primary-nav :is(a,button):hover,html body .dmo-primary-nav :is(a,button).active,html body .dmo-secondary-nav :is(a,button):hover,html body .dmo-secondary-nav :is(a,button).active{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600);background:none}
+
+@media(max-width:720px){html body .dmo-primary-nav,html body .dmo-secondary-nav{padding-inline:14px;gap:14px}}
+
+@media print{.dmo-shell-header{display:none!important}}
+
+/* Shared control sizes for the operational pages. Navigation and calendar days keep their own geometry. */
+body input:is([type="search"],[placeholder^="Pesquisar"],[placeholder^="Procurar"]){box-sizing:border-box;min-width:0;min-height:40px;padding:8px 12px;border:1px solid var(--dmo-border);border-radius:8px;background:#fff;color:var(--dmo-text);font:inherit}
+body input:is([type="search"],[placeholder^="Pesquisar"],[placeholder^="Procurar"]):focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:1px}
+html body{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+html body :is(button,input,select,textarea){font-family:inherit}
+
+/* Shared tab geometry, including links and buttons inside the same row. */
+html body .dmo-secondary-nav :is(a,button){margin:0;min-width:max-content;border-radius:0;box-shadow:none;text-transform:none;letter-spacing:normal}
+html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600)}
+
+/* Printed Resumo has no browser controls, clipped table or section split. */
+@media print{
+ @page{size:A4;margin:12mm}
+ html body{background:#fff!important;font-size:10pt!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* Native presentation extracted from the Razor Head. */
+/* Os factos da produção numa só faixa calma (o Diogo, 17/10/2026: os seis
+   cartões «fazem a informação mais agressiva»): sem fundo nem barra por
+   cartão, rótulo curto por cima, valor por baixo. */
+.jobon-production-facts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px 18px;margin-top:16px;padding:12px 16px;border:1px solid var(--dmo-border);border-radius:9px}
+.jobon-production-facts>div{min-width:0}
+.jobon-production-facts span{display:block;color:var(--dmo-muted);font-size:12px;line-height:1.4}
+.jobon-production-facts strong{display:block;font-size:15px;font-weight:650;line-height:1.3;margin-top:2px;overflow-wrap:anywhere}
+@media(max-width:900px){.jobon-production-facts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* O [hidden] IMPÕE-SE a qualquer display de classe (o .dmo-button sobre os
+   <a> escondia-os a olho nu — o Owner viu os três botões empilhados). */
+[hidden]{display:none!important}
+/* Só as classes que não existem em nenhum CSS ligado: o aviso tipado da
+   recusa (a folha beta-light não tem banner de recusa). */
+.jobon-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px;margin:0 0 14px}
+.jobon-aviso.info{border-left-color:var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#f1f6fb)}
+/* O AVISO AMARELO do overlap da máquina (o Owner: «overlap da maquina
+   deve dar um warning, nao deve bloquear») — o padrão avisório âmbar da
+   app (o da nota de formato do Ferramentas): a produção está GRAVADA, o
+   aviso informa por cima do facto; NUNCA vermelho (nunca bloqueio). */
+.jobon-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
+
+/* O QUADRO COMPLETO DAS LINHAS (o Owner 2026-10-12): todas as máquinas
+   B1..C3 visíveis no dia clicado. O QUADRO DO DIA (a FORMA FINAL do Owner
+   14/10: «ao selecionar um dia no calendário deveria abrir o dia, e
+   apresentar as 6 máquinas com as rows e as cores, com o que está a
+   produzir — presente, passado e futuro»): as 6 MÁQUINAS sempre visíveis,
+   UMA row cada; AS CORES DAS MÁQUINAS (o padrão da casa — nunca cores por
+   produção) em versão SOFT na row; O SELECIONADO na máquina ESCURA (a
+   inversão da casa); a MÁQUINA VIVE DENTRO da row (o card mostra a
+   máquina, a referência e a produção juntos); os VAZIOS com o mesmo
+   layout (a máquina + o «—»). */
+.beta-light-machine-row{display:grid;gap:8px;border-radius:8px;background:color-mix(in srgb,var(--dmo-machine-color) 12%,transparent)}
+.beta-light-machine-row.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
+.beta-light-machine-row.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
+.beta-light-machine-row.mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
+.beta-light-machine-row.mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
+.beta-light-machine-row.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
+.beta-light-machine-row.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
+.beta-light-machine-row .beta-light-production strong{color:var(--dmo-machine-color)}
+.beta-light-machine-row:has(input:checked){background:var(--dmo-machine-color)}
+.beta-light-machine-row:has(input:checked) .beta-light-production{background:transparent}
+.beta-light-machine-row .beta-light-production:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:-2px}
+.beta-light-machine-row:has(input:checked) .beta-light-production:focus-visible{outline-color:var(--dmo-text-on-color)}
+.beta-light-machine-row .beta-light-production{display:flex;align-items:center;gap:8px;border:0;border-radius:8px;padding:10px 12px;background:transparent;text-align:left;cursor:pointer;color:var(--dmo-text,#1c2b3a)}
+
+.beta-light-machine-row:has(input:checked) .beta-light-production,
+.beta-light-machine-row:has(input:checked) .beta-light-production strong{color:#fff}
+/* O vazio: a máquina + o «—» (o mesmo layout, o soft da máquina). */
+.beta-light-machine-empty{display:inline-block;padding:10px 12px;font-size:12.5px;color:var(--dmo-muted,#66809a)}
+.beta-light-machine-empty strong{color:var(--dmo-text,#1c2b3a)}
+

@@ -1,0 +1,51 @@
+@{
+    var shell = (ShellPresentation)ViewData["Shell"]!;
+    // Side panels are shell components with a shell-owned open/closed state.
+    var openSidepanel = shell.Sidepanel is { Visible: true } panel ? panel : null;
+}
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    @* A Inter carrega logo com a página: sem ela o texto aparecia primeiro
+       noutra letra e mudava a meio (o «salto» que o Diogo viu no login). *@
+    <link rel="preload" href="@Url.Content("~/fonts/inter-latin-wght-normal.woff2")" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="~/0_ASSET_CANONICAL_DESIGN_SYSTEM.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/0_ASSET_SHELL.css" asp-append-version="true">
+    @await RenderSectionAsync("Head", required: false)
+    <link rel="stylesheet" href="~/beta-shell.css" asp-append-version="true">
+    @* Estilo único para componentes partilhados: sem carregamentos duplicados por página. *@
+    <link rel="stylesheet" href="~/beta-production-overview.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/beta-calendar.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/shell-proof.css" asp-append-version="true">
+    @* Normalização geral (tipografia, botões, campos): sempre a última folha. *@
+    <link rel="stylesheet" href="~/css/dmo-normalize.css" asp-append-version="true">
+</head>
+<body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())">
+<div class="app">
+    <header class="dmo-shell-header">
+        <partial name="_DmoBranding" model="shell.CurrentModule" />
+        <partial name="_DmoSessionUtilities" model="shell.Session" />
+    </header>
+    <partial name="_DmoNavigation" model="shell" />
+    @* O AVISO DA MUDANÇA DE SENHA (a casa antiga era a home, que morreu —
+       o Owner 2026-10-12: o login entra logo no Planeamento): o TempData
+       vive no SHELL, onde quer que a aterragem seja. *@
+    @if (TempData["PasswordChanged"] is not null)
+    {
+        <div class="dmo-shell-page" style="padding:12px 16px;border-left:4px solid #3d7a5a;background:#f0f9f1;border-radius:8px;max-width:1000px;margin:0 auto" role="status">
+            <strong>Palavra-passe alterada com sucesso.</strong>
+        </div>
+    }
+    @RenderBody()
+</div>
+@* F0: camada comum de comportamento vivo (interações canónicas + utilidades) — antes dos scripts de página *@
+<script src="~/0_ASSET_CANONICAL_INTERACTIONS.js" asp-append-version="true"></script>
+<script src="~/dmo-live.js" asp-append-version="true"></script>
+<script src="~/js/dmo-suggest.js" asp-append-version="true"></script>
+<script src="~/js/dmo-pasta-pdf.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

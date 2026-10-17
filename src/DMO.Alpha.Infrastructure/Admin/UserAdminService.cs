@@ -1,0 +1,542 @@
+using DMO.Alpha.Core.Admin;
+using DMO.Alpha.Core.Identity;
+using DMO.Alpha.Core.Paging;
+using DMO.Alpha.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace DMO.Alpha.Infrastructure.Admin;
+
+/// <summary>
+/// The Admin → Users administration service over the persisted normal-User
+/// facts (see <see cref="IUserAdminService"/>). The current-Template fact
+/// always resolves through the persisted User↔Template relationship —
+/// never through the legacy <c>TemplateName</c> denormalized label. The
+/// functional Users workflows (this build, USERS.md §1-§5): creation with
+/// Auth-provider provisioning and the temporary-password bootstrap, the
+/// access reset, the stand-by editing and the current-Template assignment
+/// (the SAME relation the Templates view edits, authorized through
+/// <see cref="IAdminAuthorizationService"/>).
+///
+/// Ownership boundary (USERS.md §6): DMO creates/manages the application
+/// User and its access configuration and ASKS the Auth provider for the
+/// provisioning/reset operations — the provider owns every credential;
+/// DMO never becomes a password store.
+/// </summary>
+public sealed class UserAdminService : IUserAdminService
+{
+    private readonly DmoDbContext _dbContext;
+    private readonly IUserProvisioningProvider _provisioningProvider;
+    private readonly IAdminAuthorizationService _authorizationService;
+    private readonly IAdminEmailSettings _adminEmailSettings;
+
+    public UserAdminService(
+        DmoDbContext dbContext,
+        IUserProvisioningProvider provisioningProvider,
+        IAdminAuthorizationService authorizationService,
+        IAdminEmailSettings adminEmailSettings)
+    {
+        _dbContext = dbContext;
+        _provisioningProvider = provisioningProvider;
+        _authorizationService = authorizationService;
+        _adminEmailSettings = adminEmailSettings;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<UserAdminSummary>> ListUsersAsync(
+        CancellationToken cancellationToken = default)
+    {
+        // O ADMIN é o email guardado nas Definições: a marca de boundary
+        // de cada linha é a comparação do email do User com esse valor.
+        var adminEmail = await _adminEmailSettings.GetAdminEmailAsync(cancellationToken);
+
+        var users = await OrderedUsers().ToListAsync(cancellationToken);
+
+        return users.Select(u => Summarize(u, adminEmail)).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<PagedList<UserAdminSummary>> ListManagedUsersPageAsync(
+        int? pageNumber,
+        int pageSize = ListPaging.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        // A LISTA SÓ TEM UTILIZADORES GERIDOS (o Owner 2026-10-16: «admin
+        // nao deve aparecer na lista»): o corte do email do ADMIN é feito
+        // na query, para a contagem e as páginas baterem certo.
+        var adminEmail = await _adminEmailSettings.GetAdminEmailAsync(cancellationToken);
+        var query = OrderedUsers();
+        if (adminEmail is not null)
+        {
+            var adminEmailLower = adminEmail.ToLowerInvariant();
+            query = query.Where(u => u.Email == null || u.Email.Trim().ToLower() != adminEmailLower);
+        }
+
+        var page = await query.ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+        return new PagedList<UserAdminSummary>(
+            page.Items.Select(u => Summarize(u, adminEmail)).ToList(),
+            page.TotalCount,
+            page.PageNumber,
+            page.PageSize);
+    }
+
+    private IQueryable<User> OrderedUsers() => _dbContext.Users
+        .AsNoTracking()
+        .Include(u => u.CurrentTemplateAssignment)
+        .ThenInclude(a => a!.Template)
+        .OrderBy(u => u.OperatorId);
+
+    private static UserAdminSummary Summarize(User u, string? adminEmail)
+    {
+        var isAdmin = adminEmail is not null
+            && u.Email is not null
+            && string.Equals(u.Email.Trim(), adminEmail, StringComparison.OrdinalIgnoreCase);
+
+        return new UserAdminSummary
+        {
+            Id = u.Id,
+            Name = u.Name,
+            OperatorId = u.OperatorId,
+            ProviderUserId = u.ProviderUserId,
+            Email = u.Email,
+            IsStandBy = u.IsStandBy,
+            RequiresPasswordChange = u.RequiresPasswordChange,
+            CurrentTemplateKey = isAdmin
+                ? null
+                : u.CurrentTemplateAssignment?.Template?.TemplateKey,
+            CurrentTemplateName = isAdmin
+                ? null
+                : u.CurrentTemplateAssignment?.Template?.Name,
+            IsAdmin = isAdmin,
+            CreatedAt = u.CreatedAt
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<CreateDmoUserOutcome> CreateDmoUserAsync(
+        CreateDmoUser command,
+        CancellationToken cancellationToken = default)
+    {
+        // 1. Invariáveis tipadas ANTES de qualquer escrita (nem a
+        //    identidade é provisionada enquanto um facto humano falha).
+        var name = command.Name?.Trim();
+        if (string.IsNullOrEmpty(name))
+        {
+            return Refused(CreateDmoUserResult.MissingName);
+        }
+
+        var operatorId = command.OperatorId?.Trim();
+        if (string.IsNullOrEmpty(operatorId))
+        {
+            return Refused(CreateDmoUserResult.MissingOperator);
+        }
+
+        // Nº de operador: até 4 DÍGITOS, zeros à esquerda preservados
+        // (USERS.md §1) — facto humano do User, não credencial de login.
+        if (operatorId.Any(c => !char.IsAsciiDigit(c)))
+        {
+            return Refused(CreateDmoUserResult.InvalidOperator);
+        }
+
+        if (operatorId.Length > 4)
+        {
+            return Refused(CreateDmoUserResult.OperatorTooLong);
+        }
+
+        // A unicidade do nº de operador é a última linha da verdade
+        // persistida; a verificação prévia devolve a recusa tipada.
+        if (await _dbContext.Users.AsNoTracking()
+            .AnyAsync(u => u.OperatorId == operatorId, cancellationToken))
+        {
+            return Refused(CreateDmoUserResult.DuplicateOperator);
+        }
+
+        // O email é a identidade a provisionar no Auth provider e fica
+        // guardado em User.Email como rótulo visível.
+        var email = command.Email?.Trim();
+        if (string.IsNullOrEmpty(email))
+        {
+            return Refused(CreateDmoUserResult.MissingEmail);
+        }
+
+        // O email do ADMIN (Definições) nunca nasce como User normal. A
+        // verificação corre ANTES do provisionamento: assim nenhuma
+        // identidade fica criada no provider sem User no DMO (a identidade
+        // seria a do futuro ADMIN, com uma password que ninguém conhece).
+        if (await IsAdminEmailAddressAsync(email, cancellationToken))
+        {
+            return Refused(CreateDmoUserResult.AdminUserRefused);
+        }
+
+        // Atribuição opcional: resolve SEMPRE pela identidade estável
+        // (TemplateKey), nunca pelo rótulo.
+        var templateKey = TrimToNull(command.TemplateKey);
+        Template? template = null;
+        if (templateKey is not null)
+        {
+            template = await _dbContext.Templates.AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TemplateKey == templateKey, cancellationToken);
+
+            if (template is null)
+            {
+                return Refused(CreateDmoUserResult.UnknownTemplate);
+            }
+        }
+
+        // 2. Password temporária de bootstrap: mintada pelo backend (12
+        //    caracteres), DEVOLVIDA no outcome — é o token de entrega do
+        //    ADMIN ao próprio utilizador (USERS.md §3). O DMO nunca a
+        //    persiste: o provider é dono da credencial.
+        var temporaryPassword = TemporaryPasswordMinter.Mint();
+
+        // 3. Provisionamento: o provider cria a identidade com a password
+        //    temporária e a marca de mudança obrigatória. Recusas tipadas
+        //    (EmailExists/ProviderFailure) voltam SEM qualquer User
+        //    persistido.
+        var provisioning = await _provisioningProvider.CreateAsync(email, temporaryPassword, cancellationToken);
+        if (provisioning.Status != UserProvisioningCreateStatus.Success
+            || provisioning.ProviderUserId is not { } providerUserId)
+        {
+            return Refused(provisioning.Status switch
+            {
+                UserProvisioningCreateStatus.EmailExists => CreateDmoUserResult.EmailExists,
+                _ => CreateDmoUserResult.ProviderFailure
+            });
+        }
+
+        // 4. Persistência atómica ÚNICA: o User (factos de aplicação +
+        //    estado bootstrap de password temporária) e a atribuição
+        //    opcional de Template — a MESMA relação persistida que as duas
+        //    vistas editam.
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            OperatorId = operatorId,
+            ProviderUserId = providerUserId,
+            // O EMAIL FICA ASSOCIADO AO USER (o Owner 2026-10-13: [eu disse
+            // que nao guardava senhas, mas o email tem de ficar associado ao
+            // user] - o rotulo visivel do mockup 13_ADMIN: a coluna, a
+            // procura, a edicao; NUNCA credencial - a SENHA so no provider).
+            Email = email,
+            RequiresPasswordChange = true,
+            IsStandBy = false
+        };
+        _dbContext.Users.Add(user);
+
+        if (template is not null)
+        {
+            _dbContext.TemplateAssignments.Add(new TemplateAssignment
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                TemplateId = template.Id
+            });
+        }
+
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            // A failed DMO insert must not leave a new Auth identity behind.
+            // Compensate by canonical provider id, not by email.
+            await _provisioningProvider.DeleteAsync(providerUserId, CancellationToken.None);
+            throw;
+        }
+
+        return new CreateDmoUserOutcome(
+            CreateDmoUserResult.Success,
+            new CreatedDmoUser(
+                name,
+                operatorId,
+                email,
+                temporaryPassword,
+                template?.TemplateKey,
+                template?.Name));
+    }
+
+    /// <inheritdoc />
+    public async Task<ResetUserAccessOutcome> ResetUserAccessAsync(
+        ResetUserAccess command,
+        CancellationToken cancellationToken = default)
+    {
+        var operatorId = command.OperatorId?.Trim();
+        if (string.IsNullOrEmpty(operatorId))
+        {
+            return new ResetUserAccessOutcome(ResetUserAccessResult.UserNotFound);
+        }
+
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.OperatorId == operatorId, cancellationToken);
+
+        if (user is null)
+        {
+            return new ResetUserAccessOutcome(ResetUserAccessResult.UserNotFound);
+        }
+
+        // O ADMIN corrente nunca é alvo de reset (boundary canónico).
+        if (await IsAdminEmailAddressAsync(user.Email, cancellationToken))
+        {
+            return new ResetUserAccessOutcome(ResetUserAccessResult.AdminRefused);
+        }
+
+        // Nova password temporária mintada pelo backend — o token de
+        // entrega do ADMIN (mostrado UMA vez; USERS.md §5).
+        var temporaryPassword = TemporaryPasswordMinter.Mint();
+
+        // O provider re-establisha a credencial: a anterior deixa de
+        // valer e a mudança para a password privada volta a ser
+        // obrigatória no login seguinte. Recusas tipadas do provider
+        // NÃO tocam o estado do User.
+        var reset = await _provisioningProvider.ResetAsync(user.ProviderUserId, temporaryPassword, cancellationToken);
+        string? createdProviderId = null;
+        if (reset.Status == UserProvisioningResetStatus.IdentityNotFound)
+        {
+            // Recover the existing DMO user, not a second application account.
+            // A missing email must be completed on the user card first.
+            var email = TrimToNull(user.Email);
+            if (email is null)
+                return new ResetUserAccessOutcome(ResetUserAccessResult.IdentityNotFound);
+
+            var created = await _provisioningProvider.CreateAsync(email, temporaryPassword, cancellationToken);
+            if (created.Status != UserProvisioningCreateStatus.Success
+                || string.IsNullOrWhiteSpace(created.ProviderUserId))
+            {
+                return new ResetUserAccessOutcome(created.Status == UserProvisioningCreateStatus.EmailExists
+                    ? ResetUserAccessResult.EmailAlreadyInUse
+                    : ResetUserAccessResult.ProviderFailure);
+            }
+            createdProviderId = created.ProviderUserId;
+        }
+        else if (reset.Status != UserProvisioningResetStatus.Success)
+        {
+            return new ResetUserAccessOutcome(ResetUserAccessResult.ProviderFailure);
+        }
+
+        var previousProviderId = user.ProviderUserId;
+        var previousRequiresChange = user.RequiresPasswordChange;
+        user.ProviderUserId = createdProviderId ?? previousProviderId;
+        user.RequiresPasswordChange = true;
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            user.ProviderUserId = previousProviderId;
+            user.RequiresPasswordChange = previousRequiresChange;
+            // Compensate only the identity just created by this recovery.
+            // Never delete an existing identity on an ordinary reset failure.
+            if (createdProviderId is not null)
+                await _provisioningProvider.DeleteAsync(createdProviderId, CancellationToken.None);
+            throw;
+        }
+
+        return new ResetUserAccessOutcome(
+            ResetUserAccessResult.Success,
+            user.OperatorId,
+            temporaryPassword);
+    }
+
+    /// <inheritdoc />
+    public async Task<SetUserStandByOutcome> SetUserStandByAsync(
+        SetUserStandBy command,
+        CancellationToken cancellationToken = default)
+    {
+        var operatorId = command.OperatorId?.Trim();
+        if (string.IsNullOrEmpty(operatorId))
+        {
+            return new SetUserStandByOutcome(SetUserStandByResult.UserNotFound);
+        }
+
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.OperatorId == operatorId, cancellationToken);
+
+        if (user is null)
+        {
+            return new SetUserStandByOutcome(SetUserStandByResult.UserNotFound);
+        }
+
+        // O ADMIN corrente nunca é alvo de stand-by (boundary canónico).
+        if (await IsAdminEmailAddressAsync(user.Email, cancellationToken))
+        {
+            return new SetUserStandByOutcome(SetUserStandByResult.AdminRefused);
+        }
+
+        // Stand-by preserva o User E a atribuição corrente (USERS.md §1) —
+        // desliga o acesso operacional corrente, nunca apaga configuração
+        // nem história. A resolução de acesso efectivo já lê o estado.
+        user.IsStandBy = command.IsStandBy;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new SetUserStandByOutcome(SetUserStandByResult.Success);
+    }
+
+    /// <inheritdoc />
+    public async Task<DeleteUserOutcome> DeleteUserAsync(
+        DeleteUser command,
+        CancellationToken cancellationToken = default)
+    {
+        var operatorId = command.OperatorId?.Trim();
+        if (string.IsNullOrEmpty(operatorId))
+        {
+            return DeleteUserOutcome.Refused(DeleteUserResult.UserNotFound);
+        }
+
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.OperatorId == operatorId, cancellationToken);
+
+        if (user is null)
+        {
+            return DeleteUserOutcome.Refused(DeleteUserResult.UserNotFound);
+        }
+
+        // O ADMIN corrente nunca é alvo (o boundary canónico — o mesmo do
+        // stand-by e do reset).
+        if (await IsAdminEmailAddressAsync(user.Email, cancellationToken))
+        {
+            return DeleteUserOutcome.Refused(DeleteUserResult.AdminRefused);
+        }
+
+        // The Auth delete is first: on provider failure DMO remains intact.
+        // An already-missing identity (or no stored identity at all) is
+        // reported separately so the ADMIN knows nothing was deleted there.
+        var identityStatus = string.IsNullOrWhiteSpace(user.ProviderUserId)
+            ? UserProvisioningDeleteStatus.IdentityNotFound
+            : (await _provisioningProvider.DeleteAsync(user.ProviderUserId, cancellationToken)).Status;
+        if (identityStatus == UserProvisioningDeleteStatus.ProviderFailure)
+            return DeleteUserOutcome.Refused(DeleteUserResult.ProviderFailure);
+
+        // Assignments cascade. Historical operator strings are not rewritten.
+        // If SaveChanges fails, retry is safe (provider will return not found).
+        _dbContext.Users.Remove(user);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            _dbContext.ChangeTracker.Clear();
+            return DeleteUserOutcome.Refused(DeleteUserResult.PersistenceFailure);
+        }
+
+        return new DeleteUserOutcome(
+            identityStatus == UserProvisioningDeleteStatus.IdentityNotFound
+                ? DeleteUserResult.SuccessIdentityAlreadyMissing
+                : DeleteUserResult.Success,
+            user.OperatorId);
+    }
+
+    /// <inheritdoc />
+    public async Task<SetCurrentUserTemplateOutcome> SetCurrentUserTemplateAsync(
+        SetCurrentUserTemplate command,
+        CancellationToken cancellationToken = default)
+    {
+        var operatorId = command.OperatorId?.Trim();
+        if (string.IsNullOrEmpty(operatorId))
+        {
+            return new SetCurrentUserTemplateOutcome(SetCurrentUserTemplateResult.UserNotFound);
+        }
+
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.OperatorId == operatorId, cancellationToken);
+
+        if (user is null)
+        {
+            return new SetCurrentUserTemplateOutcome(SetCurrentUserTemplateResult.UserNotFound);
+        }
+
+        // Autorização canónica ANTES de qualquer escrita: a atribuição de
+        // Template RECUSA a identidade ADMIN-associated (o ADMIN nunca tem
+        // Template — D1, IAdminAuthorizationService).
+        var decision = await _authorizationService.AuthorizeTemplateAssignmentAsync(user.Id, cancellationToken);
+        if (decision != TemplateAssignmentAuthorization.Allowed)
+        {
+            return new SetCurrentUserTemplateOutcome(
+                decision == TemplateAssignmentAuthorization.RefusedAdminBoundary
+                    ? SetCurrentUserTemplateResult.AdminRefused
+                    : SetCurrentUserTemplateResult.UserNotFound);
+        }
+
+        // «Sem template» = REMOVER a atribuição corrente (linha ausente =
+        // sem Template; USERS.md §1 "current Access Template or none").
+        var templateKey = TrimToNull(command.TemplateKey);
+        if (templateKey is null)
+        {
+            var current = await _dbContext.TemplateAssignments
+                .FirstOrDefaultAsync(a => a.UserId == user.Id, cancellationToken);
+
+            if (current is not null)
+            {
+                _dbContext.TemplateAssignments.Remove(current);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return new SetCurrentUserTemplateOutcome(SetCurrentUserTemplateResult.Success);
+        }
+
+        // A Template resolve SEMPRE pela identidade estável (TemplateKey).
+        var template = await _dbContext.Templates
+            .FirstOrDefaultAsync(t => t.TemplateKey == templateKey, cancellationToken);
+
+        if (template is null)
+        {
+            return new SetCurrentUserTemplateOutcome(SetCurrentUserTemplateResult.UnknownTemplate);
+        }
+
+        // UMA relação, duas vistas: a MESMA linha de atribuição corrente é
+        // editada in-place (atualiza o TemplateId — nunca uma segunda
+        // atribuição concorrente; o índice único de UserId mantém 0..1).
+        // Sem linha existente, a relação nasce.
+        var assignment = await _dbContext.TemplateAssignments
+            .FirstOrDefaultAsync(a => a.UserId == user.Id, cancellationToken);
+
+        if (assignment is null)
+        {
+            _dbContext.TemplateAssignments.Add(new TemplateAssignment
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                TemplateId = template.Id
+            });
+        }
+        else
+        {
+            assignment.TemplateId = template.Id;
+            assignment.AssignedAtUtc = DateTimeOffset.UtcNow;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new SetCurrentUserTemplateOutcome(
+            SetCurrentUserTemplateResult.Success,
+            template.TemplateKey,
+            template.Name);
+    }
+
+    /// <summary>
+    /// Whether an email IS the ADMIN's email — the value kept in the
+    /// Definições (chave canónica ModuleSettingKeys.AdminEmail; o Owner
+    /// 2026-10-16: o ADMIN é apenas um email). No setting/no User email →
+    /// not the ADMIN. Same value the login and the session validator
+    /// compare.
+    /// </summary>
+    private async Task<bool> IsAdminEmailAddressAsync(
+        string? email,
+        CancellationToken cancellationToken)
+    {
+        var adminEmail = await _adminEmailSettings.GetAdminEmailAsync(cancellationToken);
+        return adminEmail is not null
+            && email is not null
+            && string.Equals(email.Trim(), adminEmail, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? TrimToNull(string? value)
+    {
+        var trimmed = value?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? null : trimmed;
+    }
+
+    private static CreateDmoUserOutcome Refused(CreateDmoUserResult result) => new(result);
+}

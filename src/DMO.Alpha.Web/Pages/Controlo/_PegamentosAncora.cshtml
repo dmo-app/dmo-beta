@@ -1,0 +1,10 @@
+@model DMO.Alpha.Core.Controlo.PegamentosSheetReadModel
+@* A âncora dos POSTs da folha: o controlo_id da produção ou, nos Pegamentos sem Job On, o pegamentos_id. *@
+@if (Model.ControloId is int controloId)
+{
+  <input type="hidden" name="controlo_id" value="@controloId" />
+}
+else
+{
+  <input type="hidden" name="pegamentos_id" value="@Model.Pegamentos?.PegamentosId" />
+}

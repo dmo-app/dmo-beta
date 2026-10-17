@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DMO.Alpha.Core/DMO.Alpha.Core.csproj" />
+    <Project Path="src/DMO.Alpha.Infrastructure/DMO.Alpha.Infrastructure.csproj" />
+    <Project Path="src/DMO.Alpha.Web/DMO.Alpha.Web.csproj" />
+  </Folder>
+</Solution>

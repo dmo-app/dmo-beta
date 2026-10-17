@@ -1,0 +1,80 @@
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosModel
+@* A escolha do Job On em dois passos: a referência e a máquina, depois a
+   produção num dropdown só com as produções dessa referência. Nos
+   Pegamentos novos abre a folha da produção; nos sem Job On associa-os. *@
+@{
+    var associar = Model.Sheet is { SemJobOn: true };
+}
+<form method="get" asp-page="/Controlo/Pegamentos" class="dmo-filter-bar">
+  @if (associar)
+  {
+    <input type="hidden" name="pegamentos_id" value="@Model.Sheet!.Pegamentos?.PegamentosId" />
+    <input type="hidden" name="associar" value="1" />
+  }
+  else
+  {
+    <input type="hidden" name="modo" value="@DMO.Alpha.Web.Pages.Controlo.PegamentosModel.ModoJobOnValor" />
+  }
+  <div class="dmo-field">
+    <label for="pegJobOnReferencia">Referência</label>
+    <input id="pegJobOnReferencia" name="referencia" value="@Model.JobOnReferencia" placeholder="Ex.: 5810" autocomplete="off" required data-dmo-suggest="referencias" data-dmo-suggest-submit />
+  </div>
+  <div class="dmo-field">
+    <label for="pegJobOnMaquina">Máquina</label>
+    <select id="pegJobOnMaquina" name="maquina" data-dmo-autosubmit>
+      <option value="">Todas</option>
+      @foreach (var maquinaOpcao in Model.Maquinas)
+      {
+        <option value="@maquinaOpcao" selected="@(string.Equals(Model.JobOnMaquina, maquinaOpcao, StringComparison.Ordinal) ? "selected" : null)">@maquinaOpcao</option>
+      }
+    </select>
+  </div>
+  @* Escolher a referência ou a máquina procura logo (sem «Procurar»). *@
+</form>
+
+@if (Model.JobOnReferencia is { } referenciaProcurada)
+{
+  @if (Model.Producoes.Count == 0)
+  {
+    <div class="peg-vazia" role="status" style="margin-top:12px">@(Model.JobOnMaquina is { } maquinaProcurada ? $"Não há Job Ons da referência {referenciaProcurada} na máquina {maquinaProcurada}." : $"Não há Job Ons da referência {referenciaProcurada}.")</div>
+  }
+  else
+  {
+    @* Abrir a produção aplica ao escolher; associar muda o registo, por
+       isso fica o botão. *@
+    @if (associar)
+    {
+      <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="Associate" class="dmo-filter-bar" style="margin-top:12px">
+        <input type="hidden" name="pegamentos_id" value="@Model.Sheet!.Pegamentos?.PegamentosId" />
+        <div class="dmo-field">
+          <label for="pegJobOn">Produção</label>
+          <select id="pegJobOn" name="jobon_id" required>
+            @foreach (var producao in Model.Producoes)
+            {
+              <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label>&nbsp;</label>
+          <button type="submit" class="dmo-button">Associar</button>
+        </div>
+      </form>
+    }
+    else
+    {
+      <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="AbrirJobOn" class="dmo-filter-bar" style="margin-top:12px">
+        <div class="dmo-field">
+          <label for="pegJobOn">Produção</label>
+          <select id="pegJobOn" name="jobon_id" required data-dmo-autosubmit="valor">
+            <option value="">Escolher produção</option>
+            @foreach (var producao in Model.Producoes)
+            {
+              <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+            }
+          </select>
+        </div>
+      </form>
+    }
+  }
+}

@@ -1,0 +1,10 @@
+@model SessionPresentation
+<partial name="_DmoVersionBadge" />
+<div class="dmo-shell-user admin-user">
+    <strong data-user-profile-name>@Model.Name</strong>
+    <span data-user-profile-title>@Model.Title</span>
+</div>
+@if (Model.ShowLogout)
+{
+    <a class="dmo-shell-logout" href="@Model.LogoutHref" aria-label="Terminar sessão">Sair</a>
+}

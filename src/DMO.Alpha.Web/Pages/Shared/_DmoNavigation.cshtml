@@ -1,0 +1,40 @@
+@model ShellPresentation
+@{
+    var isAdmin = Context.User.Identity?.IsAuthenticated == true
+        && Context.User.HasClaim(DMO.Alpha.Web.Services.DmoClaimTypes.IsAdmin, bool.TrueString);
+}
+@* Destinos e permissões são resolvidos pelo shell; este partial apresenta a navegação. *@
+<div class="dmo-shell-navigation" data-active-shell-destination="@Model.ActiveShellDestination">
+    <nav class="dmo-primary-nav" aria-label="@(isAdmin ? "Administração" : "Módulos")">
+    @if (isAdmin)
+    {
+        @* A administração usa uma única barra: Utilizadores, Templates, Ferramentas e Definições. *@
+        @foreach (var entry in Model.Functions.Where(entry => entry.Visible))
+        {
+            <a href="@(entry.Enabled ? entry.Href : null)"
+               class="@(entry.Selected ? "active" : null)"
+               aria-current="@(entry.Selected ? "page" : null)"
+               aria-disabled="@(!entry.Enabled ? "true" : null)">@entry.Label</a>
+        }
+        var definitionsSelected = Model.ActiveFunctionKey == "definicoes";
+        <a href="/Admin/Definicoes" style="margin-inline-start:auto"
+           class="@(definitionsSelected ? "active" : null)"
+           aria-current="@(definitionsSelected ? "page" : null)"
+           aria-label="Definições (administração)">Definições</a>
+    }
+    else
+    {
+        @foreach (var destination in Model.Destinations.Where(destination => destination.Visible))
+        {
+            <a href="@(destination.Enabled ? destination.Href : null)"
+               class="@(destination.Selected ? "active" : null)"
+               aria-current="@(destination.Selected ? "page" : null)"
+               aria-disabled="@(!destination.Enabled ? "true" : null)">@destination.Label</a>
+        }
+    }
+    </nav>
+    @if (!isAdmin)
+    {
+        <partial name="_ModuleFunctionsContainer" model="Model.Functions.Concat(Model.ModuleLinks ?? []).ToArray()" />
+    }
+</div>

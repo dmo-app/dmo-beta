@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] — Portal DMO</title>
+    @* A Inter carrega logo com a página: sem ela o texto aparecia primeiro
+       noutra letra e mudava a meio (o «salto» que o Diogo viu no login). *@
+    <link rel="preload" href="@Url.Content("~/fonts/inter-latin-wght-normal.woff2")" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="@Url.Content("~/0_ASSET_CANONICAL_DESIGN_SYSTEM.css")">
+    <link rel="stylesheet" href="@Url.Content("~/0_ASSET_SHELL.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/dmo-account.css")" asp-append-version="true">
+    <link rel="stylesheet" href="@Url.Content("~/css/dmo-normalize.css")" asp-append-version="true">
+    <script src="@Url.Content("~/js/dmo-account.js")" asp-append-version="true" defer></script>
+</head>
+@{
+    ViewData["VersionBadgeClass"] = "env-badge";
+}
+<body class="dmo-account-page">
+<main class="login-shell dmo-card">
+    <partial name="_DmoVersionBadge" />
+    <section class="identity" aria-label="Portal DMO">
+        <img class="brand-logo" src="@Url.Content("~/0_ASSET_LOGO.png")" alt="BA Glass" width="78" height="78">
+        <div class="copy">
+            <div class="eyebrow">BA GLASS</div>
+            <h1>Portal DMO <span class="beta-tag">BETA</span></h1>
+            <p>Aplicações do Departamento DMO</p>
+        </div>
+        <div class="identity-foot">
+            Acesso reservado a utilizadores autorizados.
+            <strong>Portal DMO · Desenvolvido por Diogo Oliveira · 2026</strong>
+        </div>
+    </section>
+    <section class="login-side" aria-label="Acesso">
+        @RenderBody()
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,300 @@
+@page "/Controlo/Approve"
+@model DMO.Alpha.Web.Pages.Controlo.ApproveModel
+@using DMO.Alpha.Core.Controlo
+@{
+    Layout = "_DmoShellLayout";
+    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
+    string Cm3(decimal? value) => value is { } v ? v.ToString("N2", culture) + " cm³" : "—";
+    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
+    string EstadoTexto(ControloRevisaoEstado estado) => estado switch
+    {
+        ControloRevisaoEstado.Aprovado => "Aprovado",
+        ControloRevisaoEstado.NaoAprovado => "Não aprovado",
+        _ => "Pendente"
+    };
+    string EstadoClasse(ControloRevisaoEstado estado) => estado switch
+    {
+        ControloRevisaoEstado.Aprovado => "aprovado",
+        ControloRevisaoEstado.NaoAprovado => "nao-aprovado",
+        _ => "pendente"
+    };
+    string Quando(DateTime? utc) => utc is { } u ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(u).ToString("dd/MM/yyyy HH:mm") : "—";
+    string? estadoParam = Model.Estado switch
+    {
+        ControloRevisaoEstado.Pendente => "pendente",
+        ControloRevisaoEstado.Aprovado => "aprovado",
+        ControloRevisaoEstado.NaoAprovado => "nao-aprovado",
+        _ => null
+    };
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/dmo-revisao.css" asp-append-version="true" />
+}
+<main class="resumo-page dmo-workspace revisao-page" aria-labelledby="approve-title">
+  <div class="page-head">
+    <div>
+      <h1 id="approve-title">Controlo<partial name="_DmoHelp" model="@("Escolha um dia no calendário. Os dias com ponto têm controlos por aprovar.")" /></h1>
+    </div>
+  </div>
+
+  @if (Model.MissingProduction)
+  {
+    <div class="resumo-aviso" role="alert">A produção indicada não existe.</div>
+  }
+
+  <div class="revisao-grid">
+    <div class="revisao-side">
+      <partial name="_DmoCalendar" model="Model.Calendar" />
+
+      @if (Model.UndatedPendingCount > 0 && !Model.Undated)
+      {
+        <a class="revisao-undated-link" href="/Controlo/Approve?sem_data=1">Registos sem data por aprovar (@Model.UndatedPendingCount)</a>
+      }
+
+      <section class="dmo-card revisao-day" aria-labelledby="revisao-day-title">
+        <h2 id="revisao-day-title">@(Model.Day is { } dia ? $"Controlos de {dia:dd/MM/yyyy}" : Model.Undated ? "Registos sem data" : "Controlos do dia")@if (Model.Undated) {<partial name="_DmoHelp" model="@("Pesos e Pegamentos gravados antes de a app guardar a data do registo.")" />}</h2>
+        @if (Model.Day is null && !Model.Undated)
+        {
+          <p class="resumo-hint">Escolha um dia no calendário para ver os controlos registados nesse dia.</p>
+        }
+        else
+        {
+          <form method="get" action="/Controlo/Approve" class="revisao-filters" data-dmo-ao-escrever="revisaoResultados">
+            @if (Model.Day is { } diaFiltro)
+            {
+              <input type="hidden" name="ano" value="@diaFiltro.Year" />
+              <input type="hidden" name="mes" value="@diaFiltro.Month" />
+              <input type="hidden" name="dia" value="@diaFiltro.Day" />
+            }
+            else
+            {
+              <input type="hidden" name="sem_data" value="1" />
+            }
+            <div class="dmo-field">
+              <label for="revisao-procura">Pesquisar</label>
+              <input id="revisao-procura" type="search" name="procura" value="@Model.Procura" placeholder="Referência, CM, boquilha, lote ou máquina" />
+            </div>
+            <div class="dmo-field">
+              <label for="revisao-estado">Estado</label>
+              <select id="revisao-estado" name="estado" data-dmo-autosubmit>
+                <option value="" selected="@(estadoParam is null ? "selected" : null)">Todos</option>
+                <option value="pendente" selected="@(estadoParam == "pendente" ? "selected" : null)">Pendente</option>
+                <option value="aprovado" selected="@(estadoParam == "aprovado" ? "selected" : null)">Aprovado</option>
+                <option value="nao-aprovado" selected="@(estadoParam == "nao-aprovado" ? "selected" : null)">Não aprovado</option>
+              </select>
+            </div>
+          </form>
+
+          <div id="revisaoResultados">
+          @if (Model.Items.Count == 0)
+          {
+            <p class="resumo-hint">@(Model.Procura is null && Model.Estado is null ? "Nenhum controlo registado neste dia." : "Nenhum controlo com estes filtros.")</p>
+          }
+          else
+          {
+            <div class="revisao-list" data-dmo-list="Controlos do dia">
+              @foreach (var item in Model.Items)
+              {
+                var selecionado = Model.Selected?.JobOnId == item.JobOnId;
+                <a class="revisao-item mch-@item.Machine@(selecionado ? " selected" : "")" href="@Model.ItemLink(item)"
+                   aria-current="@(selecionado ? "true" : null)"
+                   aria-label="@item.Reference produção @item.ProductionNumber na @item.Machine, @EstadoTexto(item.Estado)">
+                  <span class="revisao-item-head">
+                    <strong>@item.Reference · @item.ProductionNumber</strong>
+                    <span class="revisao-pill @EstadoClasse(item.Estado)">@EstadoTexto(item.Estado)</span>
+                  </span>
+                  <small>
+                    <b class="revisao-machine">@item.Machine</b>
+                    @if (item.BqReference is not null)
+                    {
+                      <span> · BQ @item.BqReference@(item.BqLot is null ? "" : $" lote {item.BqLot}")</span>
+                    }
+                    <span> · @(item.AverageGlassWeightGrams is { } media ? $"Peso médio {Grams(media)}" : "Sem Peso")</span>
+                    @if (item.HasPegamentos)
+                    {
+                      <span> · Pegamentos</span>
+                    }
+                  </small>
+                </a>
+              }
+            </div>
+          }
+          </div>
+        }
+      </section>
+    </div>
+
+    <section class="dmo-card revisao-detail" aria-label="Controlo escolhido">
+      @if (Model.Selected is not { } production)
+      {
+        <p class="revisao-empty">Selecione um controlo da lista.</p>
+      }
+      else
+      {
+        var estado = Model.SelectedItem?.Estado ?? ControloRevisaoEstado.Pendente;
+        var peso = Model.Peso;
+        var anterior = Model.PreviousPeso?.Averages;
+        var atual = peso?.Averages;
+        var desvioNominal = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso?.NominalWeightGrams);
+        <div class="revisao-detail-head">
+          <div>
+            <h2 id="approve-production-title">@production.Reference</h2>
+            <p>Produção @production.ProductionNumber · @production.Machine@(peso?.BqToolLot is { } loteBq ? $" · Lote BQ {loteBq}" : "") · Registado em @Quando(Model.SelectedItem?.RegistadoEmUtc)</p>
+          </div>
+          <span class="revisao-pill big @EstadoClasse(estado)">@EstadoTexto(estado)</span>
+        </div>
+
+        <h3 class="revisao-section">Identificação da produção</h3>
+        <div class="revisao-facts">
+          <div><span>Referência</span><strong>@production.Reference</strong></div>
+          <div><span>Produção</span><strong>@production.ProductionNumber</strong></div>
+          <div><span>Máquina</span><strong>@production.Machine</strong></div>
+          <div><span>Processo</span><strong>@(peso?.Process ?? "—")</strong></div>
+          <div><span>CM</span><strong>@(peso?.CmToolReference ?? "—")</strong><small>@(peso?.CmToolLot is { } loteCm ? $"Lote {loteCm}" : "")</small></div>
+          <div><span>Boquilha</span><strong>@(peso?.BqToolReference ?? "—")</strong><small>@(peso?.BqToolLot is { } loteBq2 ? $"Lote {loteBq2}" : "")</small></div>
+          <div><span>Temperatura da água</span><strong>@(peso is null ? "—" : $"{peso.WaterTemperatureC} °C")</strong></div>
+          <div><span>Operador</span><strong>@(Model.SelectedItem?.RegistadoPor ?? "—")</strong></div>
+          <div><span>Data do registo</span><strong>@Quando(Model.SelectedItem?.RegistadoEmUtc)</strong></div>
+          <div><span>Controlo anterior</span><strong>@(Model.Previous?.ProductionNumber ?? "Não disponível")</strong></div>
+        </div>
+
+        @if (Model.McaliperLinks.Count > 0)
+        {
+          @* O LINK DO MCALIPER (Diogo, 17/10/2026): associado no Controlo
+             Criar; aqui um clique no ícone copia-o para colar no browser. *@
+          <div class="revisao-mcaliper">
+            <span>Medições no mcaliper<partial name="_DmoHelp" model="@("Um clique copia o link; cole-o no browser.")" /></span>
+            @foreach (var (area, url) in Model.McaliperLinks)
+            {
+              <button type="button" class="revisao-mcaliper-copy" data-dmo-copiar="@url" aria-label="Copiar o link do mcaliper da @area">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 3.5v-.5A1.5 1.5 0 009 1.5H4A1.5 1.5 0 002.5 3v5A1.5 1.5 0 004 9.5h.5" /></svg>
+                <span data-dmo-copiar-label>@area</span>
+              </button>
+            }
+          </div>
+        }
+
+        <h3 class="revisao-section">Comparação global de peso</h3>
+        @if (peso is null)
+        {
+          <p class="resumo-hint">Ainda não há Peso registado nesta produção; a decisão fica sem Peso.</p>
+        }
+        else
+        {
+          <div class="revisao-facts four">
+            <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong></div>
+            <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><small>@(Model.Previous is { } prev ? $"Produção {prev.ProductionNumber} · {prev.Machine}" : "")</small></div>
+            @* O peso da produção anterior vem do SAP e é escrito à mão na folha
+               do Peso (o campo chega noutro ramo); até lá, «—». *@
+            <div><span>Peso SAP da produção anterior</span><strong>—</strong></div>
+            <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
+            <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
+            <div><span>Capacidade atual</span><strong>@Cm3(atual?.AverageCapacityCm3)</strong></div>
+            <div><span>Capacidade anterior</span><strong>@Cm3(anterior?.AverageCapacityCm3)</strong></div>
+            <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong></div>
+          </div>
+
+          <h3 class="revisao-section">Leituras por CM</h3>
+          @if (peso.Measurements.Count == 0)
+          {
+            <p class="resumo-hint">Sem leituras registadas.</p>
+          }
+          else
+          {
+            <div class="dmo-table-wrap">
+              <table class="dmo-table">
+                <thead><tr><th>Posição</th><th>CM</th><th>Massa de água (g)</th><th>Capacidade (cm³)</th><th>Peso do vidro (g)</th></tr></thead>
+                <tbody>
+                  @foreach (var leitura in peso.Measurements)
+                  {
+                    <tr>
+                      <td>Leitura @leitura.RowPosition</td>
+                      <td>@leitura.CmSubject</td>
+                      <td>@leitura.WaterWeightGrams.ToString("N2", culture)</td>
+                      <td>@leitura.CapacityCm3.ToString("N2", culture)</td>
+                      <td>@leitura.GlassWeightGrams.ToString("N2", culture)</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        <h3 class="revisao-section">Pegamentos</h3>
+        @if (Model.Pegamentos?.Pegamentos is { } pegamentos)
+        {
+          var alertas = pegamentos.ComponentAverages.Sum(a => a.AlertCount);
+          <p class="revisao-line">@pegamentos.Measurements.Count medição(ões) · <span class="@(alertas > 0 ? "revisao-alerta" : "")">@alertas alerta(s) dimensionais</span></p>
+        }
+        else
+        {
+          <p class="resumo-hint">Sem Pegamentos registados.</p>
+        }
+        <div class="resumo-actions">
+          <a class="dmo-button" href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=peso">Consultar Peso</a>
+          <a class="dmo-button" href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=pegamentos">Consultar Pegamentos</a>
+        </div>
+
+        <h3 class="revisao-section">Decisão</h3>
+        @if (Model.ApprovalRefusedNoIdentity)
+        {
+          <div class="resumo-aviso" role="alert">A aprovação não foi registada: a sessão não identifica o operador, e sem identidade não fica registo de quem aprovou. Termine a sessão e volte a entrar.</div>
+        }
+        @if (Model.NoteMissing)
+        {
+          <div class="resumo-aviso" role="alert">Para não aprovar, escreva na nota o que tem de mudar. Nada foi gravado.</div>
+        }
+        @if (Model.Approval is { } aprovacao)
+        {
+          @if (aprovacao.ApprovedByOperatorId is not null)
+          {
+            <p class="revisao-line">Aprovado por @Model.DecidedByName em @Quando(aprovacao.ApprovedAtUtc).</p>
+          }
+          else if (aprovacao.NotApprovedByOperatorId is not null)
+          {
+            <p class="revisao-line">Não aprovado por @Model.DecidedByName em @Quando(aprovacao.NotApprovedAtUtc).</p>
+          }
+          @if (aprovacao.ReviewNote is { } notaAnterior)
+          {
+            <p class="revisao-note">@notaAnterior</p>
+          }
+        }
+        <form method="post" asp-page="/Controlo/Approve" asp-page-handler="Approve" class="revisao-decision">
+          <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+          <div class="dmo-field">
+            <label for="revisao-responsavel">Responsável</label>
+            <input id="revisao-responsavel" value="@Model.Reviewer" readonly />
+          </div>
+          <div class="dmo-field">
+            <label for="revisao-nota">Nota / alterações necessárias</label>
+            <textarea id="revisao-nota" name="nota" rows="3" maxlength="2000" placeholder="Obrigatória quando o controlo não é aprovado."></textarea>
+          </div>
+          <div class="revisao-buttons">
+            <button type="submit" class="dmo-button danger" formaction="@Url.Page("/Controlo/Approve", "NaoAprovar")" data-requires-note>Não aprovar</button>
+            <button type="submit" class="dmo-button success">@(estado == ControloRevisaoEstado.Aprovado ? "Reaprovar" : "Aprovar")</button>
+          </div>
+        </form>
+      }
+    </section>
+  </div>
+</main>
+<script>
+(function () {
+  'use strict';
+  // «Não aprovar» pede a nota antes de enviar; o servidor volta a verificar.
+  document.querySelectorAll('[data-requires-note]').forEach(function (button) {
+    button.addEventListener('click', function (event) {
+      var nota = button.form && button.form.querySelector('textarea[name="nota"]');
+      if (nota && !nota.value.trim()) {
+        event.preventDefault();
+        nota.setCustomValidity('Escreva o que tem de mudar para não aprovar.');
+        nota.reportValidity();
+        nota.addEventListener('input', function () { nota.setCustomValidity(''); }, { once: true });
+      }
+    });
+  });
+})();
+</script>

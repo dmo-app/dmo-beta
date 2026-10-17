@@ -1,0 +1,14 @@
+@model JobOnChangeNoticeView
+@* O AVISO NOS MÓDULOS (o proprietário, 17/10/2026): o Job On mudou depois
+   deste registo. Só informa: nada fica bloqueado e um Controlo aprovado
+   continua aprovado. *@
+<div class="jobon-change-notice" role="status">
+  <strong>@Model.Intro</strong>
+  <ul>
+    @foreach (var change in Model.Notice.Changes)
+    {
+      <li>@change.Text <span>· @JobOnChangeNoticeView.When(change.ChangedAtUtc)@(change.ChangedBy is null ? null : $" · {change.ChangedBy}")</span></li>
+    }
+  </ul>
+  <a class="dmo-button" href="@Model.Href">Ver o que mudou</a>
+</div>

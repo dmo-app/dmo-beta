@@ -1,0 +1,38 @@
+namespace DMO.Alpha.Core.Boquilhas;
+
+/// <summary>
+/// A PRODUÇÃO CORRENTE de cada máquina para o módulo das Boquilhas (a
+/// regra do Owner: «quando digo em produçao é a que esta hj em maquina e
+/// segue as datas do jobon» — F4-4). HOJE: o Job On ainda não tem datas
+/// (o corte B) — a corrente é a ÚLTIMA produção da máquina; QUANDO as
+/// datas existirem, a corrente passa a ser a cujo intervalo cobre o dia
+/// OPERACIONAL (a hora de viragem configurada —
+/// BoquilhasDayChange.ResolveOperationalDay, o default 8:00).
+/// </summary>
+public interface IBoquilhasCurrentQuery
+{
+    /// <summary>
+    /// Todas as máquinas, cada uma com a sua produção corrente (null quando
+    /// a máquina nunca produziu — «Sem produção», nunca a mais recente
+    /// futura).
+    /// </summary>
+    Task<IReadOnlyList<MachineCurrentBq>> ListAsync(CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// Uma máquina com a sua produção corrente: os FATOS HUMANOS (o nº de
+/// produção, a referência do conjunto, o código da máquina, a REFERÊNCIA
+/// da boquilha em máquina — nunca os tool_id). O BqContextId é o id do
+/// CONTEXTO BQ da produção (o ?bq_id do registo — a linha da máquina
+/// liga ao registo da boquilha em máquina). O MachineId serve a lista das
+/// máquinas do formulário do movimento sem voltar a ler a tabela.
+/// </summary>
+public sealed record MachineCurrentBq(
+    int MachineId,
+    string MachineCode,
+    int? JobOnId,
+    string? ProductionNumber,
+    string? Reference,
+    string? BqReference,
+    string? BqToolId,
+    int? BqContextId = null);

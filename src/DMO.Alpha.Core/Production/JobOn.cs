@@ -1,0 +1,49 @@
+namespace DMO.Alpha.Core.Production;
+
+/// <summary>
+/// Job On (registo de produção). Entidade mínima para a proof de contexto;
+/// não pretende ser um modelo de domínio completo.
+/// </summary>
+public sealed class JobOn
+{
+    public int Id { get; set; }
+
+    public string Reference { get; set; } = null!;
+
+    public string ProductionNumber { get; set; } = null!;
+
+    public int MachineId { get; set; }
+
+    /// <summary>
+    /// O DIA EM QUE A PRODUÇÃO ENTRA EM MÁQUINA (o corte B — o Owner
+    /// 2026-10-10: «em produçao é a que esta hj em maquina e segue as
+    /// datas do jobon»; o ping das boquilhas só entra em vigor nesta
+    /// data — a regra do canal canónico). Null = a janela ainda não
+    /// definida (o fallback: a última produção da máquina).
+    /// </summary>
+    public DateOnly? InicioEm { get; set; }
+
+    /// <summary>
+    /// O DIA EM QUE A PRODUÇÃO SAI DE MÁQUINA (a troca da referência).
+    /// Null = até aviso (a produção corrente até próxima indicação).
+    /// </summary>
+    public DateOnly? FimEm { get; set; }
+
+    /// <summary>
+    /// Calote DESTA produção (mm) — o campo «Calote desta produção (mm)» da
+    /// ficha do Job On no dmo-html (j-calote, placeholder «Usar referência
+    /// da Tool»): a calote efetiva da produção quando existe. Null = a
+    /// referência da Tool manda (o html: <c>ctx.production?.calote ?? tool
+    /// h_ref</c>). Consumida pelo apoio TP/calote do Peso (cálculo de apoio,
+    /// NUNCA um gate do Peso) e editável na ficha (corte próprio).
+    /// </summary>
+    public decimal? CaloteMm { get; set; }
+
+    public Machine Machine { get; set; } = null!;
+
+    public CmContext? CmContext { get; set; }
+
+    public MfContext? MfContext { get; set; }
+
+    public BqContext? BqContext { get; set; }
+}

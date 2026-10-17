@@ -1,0 +1,31 @@
+@page
+@model LoginModel
+@{
+    Layout = "_DmoAccountLayout";
+    ViewData["Title"] = "Entrar";
+}
+
+<form method="post" class="login-form" data-native-login aria-labelledby="login-title">
+    <h2 id="login-title">Entrar</h2>
+    <p class="lead">Introduza as suas credenciais para aceder ao Portal DMO.</p>
+    <div class="dmo-field">
+        <label for="identifier">Utilizador</label>
+        <input id="identifier" name="identifier" type="text" value="@Model.Identifier" maxlength="256"
+               autocomplete="username" placeholder="Email ou ID de operador (até 4 dígitos)" />
+    </div>
+    <div class="dmo-field">
+        <label for="password">Palavra-passe</label>
+        <div class="password-wrap">
+            <input id="password" name="password" type="password" maxlength="128" autocomplete="current-password" />
+            <button class="dmo-button password-toggle" type="button" aria-controls="password"
+                    aria-pressed="false" data-password-toggle hidden>Mostrar</button>
+        </div>
+    </div>
+    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+    <button type="submit" class="dmo-button submit" data-login-submit>Entrar</button>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger form-message" role="alert">@Model.ErrorMessage</div>
+    }
+</form>
