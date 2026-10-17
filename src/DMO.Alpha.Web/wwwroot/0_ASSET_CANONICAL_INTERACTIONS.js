@@ -101,6 +101,9 @@
     field.setAttribute("autocomplete", "off");
     field.addEventListener("input", () => {
       clearTimeout(timer);
+      // Escrever de novo volta ao primeiro passo: o dropdown do segundo
+      // passo (data-dmo-procura-passo2) era da referência anterior.
+      if (field.form) field.form.querySelectorAll("[data-dmo-procura-passo2]").forEach((step) => step.remove());
       const term = field.value.trim();
       if (!term) {
         latest++;
@@ -150,6 +153,14 @@
       const first = target.querySelector("[data-dmo-row]");
       if (first) { event.preventDefault(); first.focus(); }
     });
+  });
+
+  // Um dropdown que abre (Diogo, 17/10/2026: escolher uma opção aplica logo,
+  // sem botão ao lado): <select data-dmo-ir>, o valor de cada opção é o
+  // endereço que se abre. A opção vazia não vai a lado nenhum.
+  document.addEventListener("change", (event) => {
+    const select = event.target.closest && event.target.closest("select[data-dmo-ir]");
+    if (select && select.value) window.location.href = select.value;
   });
 
   // Os filtros que procuram ao escrever (Diogo, 17/10/2026: sem botão

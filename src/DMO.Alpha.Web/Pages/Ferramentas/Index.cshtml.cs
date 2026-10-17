@@ -7,6 +7,7 @@ using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Routing;
 
 namespace DMO.Alpha.Web.Pages.Ferramentas;
 
@@ -41,6 +42,14 @@ public sealed class IndexModel : PageModel
     private readonly ICreateToolHandler _createTool;
     private readonly ShellStateFactory _shellState;
     private readonly IToolLotQuantitySettings _lotQuantities;
+    private readonly IEditToolTechnicalValuesHandler _editTechnical;
+
+    /// <summary>Os campos técnicos opcionais do registo (os mesmos nomes da ficha).</summary>
+    internal static readonly string[] TechnicalFields =
+    {
+        "process_token", "nominal_weight", "volume_puncao", "volume_marisa",
+        "diametro_gargalo", "tp_diametro", "tp_raio", "tp_sagitta"
+    };
 
     [BindProperty(SupportsGet = true, Name = "bq_quantity")]
     public string? RequestedLotQuantity { get; set; }
@@ -54,8 +63,10 @@ public sealed class IndexModel : PageModel
         IMachineListQuery machineListQuery,
         ICreateToolHandler createTool,
         ShellStateFactory shellState,
-        IToolLotQuantitySettings lotQuantities)
+        IToolLotQuantitySettings lotQuantities,
+        IEditToolTechnicalValuesHandler editTechnical)
     {
+        _editTechnical = editTechnical;
         _candidateQuery = candidateQuery;
         _machineListQuery = machineListQuery;
         _createTool = createTool;
@@ -94,6 +105,12 @@ public sealed class IndexModel : PageModel
     /// <summary>O nome técnico (o código do desenho) submetido, preservado por PRG.</summary>
     public string? RequestedTechnicalName { get; private set; }
     public int? RequestedMachineId { get; private set; }
+
+    /// <summary>Um valor técnico do registo devolvido por uma recusa (PRG); vazio quando não há.</summary>
+    public string RequestedTechnical(string field) => Request.Query[field].ToString().Trim();
+
+    /// <summary>A informação técnica do registo abre quando a recusa devolve valores escritos.</summary>
+    public bool RequestedTechnicalOpen => TechnicalFields.Any(name => RequestedTechnical(name).Length > 0);
 
     /// <summary>Template de return do fluxo contextual (?return=…{tool_id}…), local-only.</summary>
     public string? ReturnTemplate { get; private set; }
@@ -263,9 +280,16 @@ public sealed class IndexModel : PageModel
                 UseLotQuantityDefault: quantityManual != "1" && !unreadableQuantity),
             HttpContext.RequestAborted);
 
+        var technical = TechnicalFields.ToDictionary(field => field, field => Sanitize(Request.Form[field].ToString()));
+
         if (outcome.Result == CreateToolResult.Success && outcome.Tool is { } created)
         {
-            var hasWarnings = created.LotDefaulted || unreadableQuantity;
+            // A informação técnica opcional grava na ferramenta acabada de
+            // registar; a que já existia não é alterada (abre a sua ficha).
+            var unreadableTechnical = created.AlreadyExisted
+                ? new Dictionary<string, string>()
+                : await SaveTechnicalAsync(created.ToolId, created.Type, technical);
+            var hasWarnings = created.LotDefaulted || unreadableQuantity || unreadableTechnical.Count > 0;
 
             // Fluxo contextual: o chamador recebe o tool_id resultante
             // substituído no SEU template local. Sem template (ou inválido),
@@ -283,7 +307,7 @@ public sealed class IndexModel : PageModel
             // referência, lote) é a MESMA ferramenta — a ficha abre com a
             // nota honesta (existed=1: já estava registada, as máquinas
             // acrescentaram ao link dela; nada foi duplicado).
-            return RedirectToPage("/Ferramentas/Ficha", new
+            var fichaValues = new RouteValueDictionary(new
             {
                 tool_id = created.ToolId,
                 created = created.AlreadyExisted ? null : "1",
@@ -293,11 +317,16 @@ public sealed class IndexModel : PageModel
                 quantidade_ilegivel = unreadableQuantity ? typedQuantity : null,
                 continuar = IsSafeLocalReturnTemplate(returnUrl) ? returnUrl.Replace("{tool_id}", created.ToolId) : null
             });
+            foreach (var field in unreadableTechnical)
+                fichaValues[FichaModel.UnreadablePrefix + field.Key] = field.Value;
+            if (unreadableTechnical.Count > 0)
+                fichaValues["tecnica"] = "1";
+            return RedirectToPage("/Ferramentas/Ficha", fichaValues);
         }
 
         // Recusa tipada por query (PRG): os factos submetidos e o return do
         // fluxo contextual sobrevivem à volta (o form volta preenchido).
-        return RedirectToPage("/Ferramentas/Index", new
+        var refusalValues = new RouteValueDictionary(new
         {
             type = NormalizeTypeToken(typeToken),
             reference = Sanitize(reference),
@@ -310,6 +339,44 @@ public sealed class IndexModel : PageModel
             machine_ids = machineIds,
             @return = returnUrl
         });
+        foreach (var field in technical.Where(field => field.Value is not null))
+            refusalValues[field.Key] = field.Value;
+        return RedirectToPage("/Ferramentas/Index", refusalValues);
+    }
+
+    /// <summary>
+    /// Grava a informação técnica escrita no registo (a mesma regra da
+    /// ficha: o vazio fica em falta, cada tipo só grava os seus campos). Um
+    /// campo ilegível não impede os outros; volta para o aviso da ficha.
+    /// </summary>
+    private async Task<Dictionary<string, string>> SaveTechnicalAsync(
+        string toolId, ToolType type, IReadOnlyDictionary<string, string?> technical)
+    {
+        if (technical.Values.All(value => value is null))
+            return new Dictionary<string, string>();
+
+        var unreadable = technical
+            .Where(field => field.Key != "process_token" && field.Value is not null && MeasurementDecimal.Parse(field.Value) is null)
+            .ToDictionary(field => field.Key, field => field.Value!);
+        decimal? Value(string field) => unreadable.ContainsKey(field) ? null : MeasurementDecimal.Parse(technical[field]);
+
+        var outcome = await _editTechnical.HandleAsync(
+            new EditToolTechnicalValues(
+                toolId,
+                technical["process_token"],
+                Value("nominal_weight"),
+                Value("volume_puncao"),
+                Value("volume_marisa"),
+                Value("diametro_gargalo"),
+                Value("tp_diametro"),
+                Value("tp_raio"),
+                Value("tp_sagitta")),
+            HttpContext.RequestAborted);
+
+        // Só se avisa dos campos que o tipo grava (os outros são ignorados).
+        return outcome.Result == EditToolTechnicalValuesResult.Success
+            ? unreadable.Where(field => FichaModel.AppliesTo(type, field.Key)).ToDictionary(field => field.Key, field => field.Value)
+            : new Dictionary<string, string>();
     }
 
     /// <summary>

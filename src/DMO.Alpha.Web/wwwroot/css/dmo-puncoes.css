@@ -1,4 +1,6 @@
 /* A folha PU NNPB (registo das punções). Mesma gramática da folha de Pegamentos. */
+/* O mesmo espaço entre o título e o primeiro cartão do Peso e dos Pegamentos (Diogo, 17/10/2026: a página não mexe ao mudar de função). */
+.pu-page .page-head{margin:0 0 2px}
 .pu-page{display:flex;flex-direction:column;gap:14px}
 .pu-card{padding:18px}
 .pu-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}

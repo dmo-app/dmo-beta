@@ -191,6 +191,13 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int?>("BqContextId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("DiscrepancyResetAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DiscrepancyResetByNameFrozen")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
                     b.Property<string>("ToolId")
                         .HasColumnType("text");
 

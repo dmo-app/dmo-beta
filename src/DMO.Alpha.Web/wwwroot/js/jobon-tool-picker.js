@@ -1,8 +1,9 @@
 // Os campos CM, MF e BQ do Job On procuram ao escrever (o Diogo, 16/10/2026:
 // um dropdown com todas as ferramentas pesa, e quem cria o Job On sabe a
 // referência). O servidor devolve no máximo 20 sugestões, filtradas pelos
-// dados da folha: a máquina e a referência da produção e, na CM, a MF já
-// escolhida. «Mostrar todas» procura no catálogo inteiro. A procura nunca
+// dados da folha: a máquina e a referência da produção, na CM a MF já
+// escolhida e na MF a CM já escolhida (só as MF que trabalham com ela).
+// «Mostrar todas» procura no catálogo inteiro. A procura nunca
 // muda a ferramenta já escolhida; a escolha é sempre um clique.
 (() => {
   function init() {
@@ -14,6 +15,7 @@
     const status = document.getElementById('lightToolFilterStatus');
     if (!tools || !machine || !reference || !showAll || !status) return;
     const mf = tools.querySelector('select[data-facts-type="MF"]');
+    const cm = tools.querySelector('select[data-facts-type="CM"]');
 
     function label(item) {
       return item.reference + ' · Lote ' + item.lot + ' · ' + (item.machineCodes || 'Máquinas por indicar');
@@ -24,18 +26,23 @@
         const query = new URLSearchParams({ handler: 'ToolCandidates', type, q: term, reference: reference.value.trim(), all: String(showAll.checked) });
         if (machine.value) query.set('machine_id', machine.value);
         if (type === 'CM' && mf && mf.value) query.set('mf_tool_id', mf.value);
+        if (type === 'MF' && cm && cm.value) query.set('cm_tool_id', cm.value);
         const response = await fetch('/JobOn?' + query, { credentials: 'same-origin' });
         if (!response.ok) throw new Error('Candidates unavailable');
         const page = await response.json();
         const items = page.items.map(item => ({ value: item.toolId, label: label(item) }));
-        let note = page.filtro;
-        if (page.total > items.length) note += ' · ' + items.length + ' de ' + page.total + '. Escreva para afinar.';
+        // Sem a linha do filtro no fim da lista (o Diogo, 17/10/2026): só a
+        // contagem, quando há mais do que as mostradas.
+        const note = page.total > items.length ? items.length + ' de ' + page.total + '. Escreva para afinar.' : '';
+        const byCm = type === 'MF' && cm && cm.value && !showAll.checked;
         return {
           items,
           note,
           empty: term
             ? 'Sem resultados para «' + term + '»' + (showAll.checked ? '.' : '. Pode marcar «Mostrar todas as ferramentas».')
-            : (showAll.checked ? 'Sem ferramentas ' + type + ' no catálogo.' : 'Sem sugestões para esta máquina e referência. Escreva ou marque «Mostrar todas as ferramentas».')
+            : (showAll.checked ? 'Sem ferramentas ' + type + ' no catálogo.'
+              : byCm ? 'Sem MF para esta CM' + (machine.value ? ' nesta máquina' : '') + '. Marque «Mostrar todas as ferramentas».'
+              : 'Sem sugestões para esta máquina e referência. Escreva ou marque «Mostrar todas as ferramentas».')
         };
       };
     }
@@ -89,6 +96,32 @@
         select.value = '';
         title.textContent = '';
         select.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      // «Criar CM» volta a esta folha com a ferramenta criada no lugar
+      // (no Editar, à edição deste Job On); o link leva o que estiver
+      // escrito no momento do clique.
+      const create = card.querySelector('[data-tool-create]');
+      if (create) create.addEventListener('click', () => {
+        const form = document.getElementById('lightForm');
+        if (!form) return;
+        const query = new URLSearchParams();
+        const editId = form.querySelector('[name="jobon_edit_id"]');
+        if (editId) {
+          query.set('jobon_id', editId.value);
+          query.set('editar', '1');
+        } else {
+          query.set('novo', '1');
+        }
+        query.set('retoma', '1');
+        const slot = type.toLowerCase() + '_tool_id';
+        ['reference', 'production_number', 'machine_id', 'inicio_em', 'fim_em', 'calote_mm', 'cm_tool_id', 'mf_tool_id', 'bq_tool_id'].forEach(name => {
+          if (editId && (name === 'reference' || name === 'production_number')) return;
+          const field = form.elements.namedItem(name);
+          if (name !== slot && field && field.value) query.set(name, field.value.trim());
+        });
+        // O {tool_id} fica por codificar: as Ferramentas substituem-no.
+        const back = '/JobOn?' + query + '&' + slot + '={tool_id}#lightSheet';
+        create.href = '/Ferramentas?criar=1&type=' + type + '&return=' + encodeURIComponent(back);
       });
       select.addEventListener('change', () => {
         const option = select.selectedOptions[0];

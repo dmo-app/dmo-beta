@@ -377,6 +377,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasIndex(t => t.ToolId)
                 .IsUnique()
                 .HasFilter("\"BqContextId\" IS NULL");
+
+            // Quem pôs a discrepância a zero (Diogo, 17/10/2026), como nas correções.
+            entity.Property(t => t.DiscrepancyResetByNameFrozen).HasMaxLength(254);
         });
 
         // Movimentos canónicos de Boquilhas. Cada movimento pertence

@@ -1,0 +1,15 @@
+@model DMO.Alpha.Web.Pages.JobOn.JobOnProcura
+@* O SEGUNDO PASSO DA PROCURA, EM DROPDOWN (Diogo, 17/10/2026: «primeiro
+   procura referências, depois à frente um dropdown com as últimas 5
+   produções»; cada uma como «202601 B1»). Fica à frente do campo da
+   referência; escolher uma produção abre logo a folha, sem botão. *@
+@if (Model.Referencia is { } referencia && Model.Linhas.Count > 0)
+{
+  <select id="lightProcuraProducoes" aria-label="Últimas produções de @referencia" data-dmo-ir data-dmo-procura-passo2>
+    <option value="" selected>Produção</option>
+    @foreach (var linha in Model.Linhas)
+    {
+      <option value="@linha.Abrir" data-id="@linha.Item.JobOnId">@linha.Item.ProductionNumber @linha.Item.Machine</option>
+    }
+  </select>
+}

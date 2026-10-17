@@ -63,6 +63,44 @@ public sealed partial class IndexModel
         _ => string.Empty
     };
 
+    /// <summary>A janela de pôr a discrepância a zero aberta (?acerto=1).</summary>
+    [BindProperty(SupportsGet = true, Name = "acerto")] public int? DiscrepancyResetFlag { get; set; }
+
+    public bool DiscrepancyResetOpen => DiscrepancyResetFlag == 1;
+
+    /// <summary>O registo aberto com a janela de pôr a zero aberta ou fechada.</summary>
+    public string? DiscrepancyResetHref(int traceId, bool open) =>
+        Url.Page("/Boquilhas/Index", new
+        {
+            trace_id = traceId,
+            acerto = open ? 1 : (int?)null,
+            mov_pagina = TraceMovementsPage
+        });
+
+    /// <summary>«Posta a zero por X em dd/mm hh:mm»; vazio quando nunca foi posta a zero.</summary>
+    public string DiscrepancyResetNote => RegistoTrace?.DiscrepancyResetAtUtc is DateTime resetAt
+        ? string.IsNullOrWhiteSpace(RegistoTrace.DiscrepancyResetBy)
+            ? $"Posta a zero em {FormatCorrectionTime(resetAt)}. Conta só os movimentos depois disso."
+            : $"Posta a zero por {RegistoTrace.DiscrepancyResetBy} em {FormatCorrectionTime(resetAt)}. Conta só os movimentos depois disso."
+        : string.Empty;
+
+    /// <summary>
+    /// POST: põe a zero a discrepância acumulada do registo (Diogo, 17/10/2026:
+    /// começar a registar a meio das produções). Os movimentos ficam como estão.
+    /// </summary>
+    public async Task<IActionResult> OnPostResetDiscrepancyAsync(
+        [FromServices] IResetBqDiscrepancyHandler handler,
+        [FromForm(Name = "trace_id")] int traceId)
+    {
+        if (User?.Identity?.IsAuthenticated != true)
+        {
+            return Challenge();
+        }
+
+        await handler.HandleAsync(new ResetBqDiscrepancy(traceId, CurrentActorName()), HttpContext.RequestAborted);
+        return Redirect($"{DiscrepancyResetHref(traceId, open: false)}#bqMetrics");
+    }
+
     public string? MovementCorrectionHref(int traceId, bool editMode, int? movementId = null) =>
         Url.Page("/Boquilhas/Index", new
         {

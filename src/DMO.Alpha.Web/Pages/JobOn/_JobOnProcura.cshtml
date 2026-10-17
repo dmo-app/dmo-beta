@@ -1,12 +1,10 @@
 @model DMO.Alpha.Web.Pages.JobOn.JobOnProcura
 @* A procura ao escrever do Job On, em dois passos (Diogo, 17/10/2026:
    «deveria ser referência e depois produções»). Primeiro as referências
-   encontradas; um clique numa mostra as produções dela, com a máquina, as
-   datas e as ferramentas (referência · lote); um clique numa produção abre a
-   folha. *@
+   encontradas; um clique numa mostra as últimas produções dela num dropdown
+   à frente do campo (_JobOnProcuraProducoes). *@
 @{
   var limite = DMO.Alpha.Core.Production.IProductionPickerQuery.SearchLimit;
-  var limiteProducoes = DMO.Alpha.Core.Production.IProductionPickerQuery.ProductionsOfReferenceLimit;
 }
 @if (Model.Referencia is { } referencia)
 {
@@ -14,36 +12,7 @@
   {
     <p class="muted" role="status">Sem produções da referência «@referencia».</p>
   }
-  else
-  {
-    <h3 class="jobon-procura-titulo">Produções de @referencia</h3>
-    <div class="dmo-table-wrap">
-      <table class="dmo-table" id="lightProcuraResultados" data-dmo-list="Produções de @referencia">
-        <thead>
-          <tr><th>Produção</th><th>Máquina</th><th>Datas</th><th>CM</th><th>MF</th><th>BQ</th></tr>
-        </thead>
-        <tbody>
-          @foreach (var linha in Model.Linhas)
-          {
-            var item = linha.Item;
-            <tr data-dmo-row data-id="@item.JobOnId" data-dmo-open="@linha.Abrir"
-                aria-label="Produção @item.ProductionNumber, @item.Machine — um clique abre a folha">
-              <td><strong>@item.ProductionNumber</strong></td>
-              <td>@item.Machine</td>
-              <td>@DMO.Alpha.Web.Pages.JobOn.JobOnProcuraFormato.Datas(item.InicioEm, item.FimEm)</td>
-              <td>@(item.Cm ?? "—")</td>
-              <td>@(item.Mf ?? "—")</td>
-              <td>@(item.Bq ?? "—")</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    @if (Model.Linhas.Count >= limiteProducoes)
-    {
-      <p class="muted">Mostram-se as @limiteProducoes mais recentes. As outras estão em «Opções» → «Produções desta referência», na folha.</p>
-    }
-  }
+  @* Com produções, o dropdown fica à frente do campo (_JobOnProcuraProducoes). *@
 }
 else if (Model.Referencias.Count == 0)
 {

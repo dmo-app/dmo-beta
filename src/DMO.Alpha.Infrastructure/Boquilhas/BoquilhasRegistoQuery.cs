@@ -56,7 +56,9 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 jobOn != null ? jobOn.ProductionNumber : null,
                 machine != null ? machine.Code : null,
                 jobOn != null ? jobOn.InicioEm : null,
-                jobOn != null ? jobOn.FimEm : null))
+                jobOn != null ? jobOn.FimEm : null,
+                trace.DiscrepancyResetAtUtc,
+                trace.DiscrepancyResetByNameFrozen))
             .FirstOrDefaultAsync(cancellationToken);
 
         return header is null ? null : await ComposeTraceAsync(header, cancellationToken);
@@ -82,6 +84,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             {
                 ContextToolId = context.ToolId,
                 TraceId = trace != null ? trace.Id : (int?)null,
+                TraceResetAtUtc = trace != null ? trace.DiscrepancyResetAtUtc : null,
+                TraceResetBy = trace != null ? trace.DiscrepancyResetByNameFrozen : null,
                 TraceToolId = trace != null && trace.ToolId != null ? trace.ToolId : context.ToolId,
                 ToolType = tool != null ? (DMO.Alpha.Core.Tools.ToolType?)tool.Type : null,
                 ToolReference = tool != null ? tool.Reference : null,
@@ -114,7 +118,9 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                     row.ProductionNumber,
                     row.MachineCode,
                     row.InicioEm,
-                    row.FimEm),
+                    row.FimEm,
+                    row.TraceResetAtUtc,
+                    row.TraceResetBy),
                 cancellationToken);
         }
 
@@ -147,7 +153,9 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         string? ProductionNumber,
         string? MachineCode,
         DateOnly? InicioEm,
-        DateOnly? FimEm);
+        DateOnly? FimEm,
+        DateTime? DiscrepancyResetAtUtc = null,
+        string? DiscrepancyResetBy = null);
 
     /// <summary>
     /// O read model a partir da linha do trace: os movimentos (uma consulta)
@@ -167,12 +175,6 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         var movements = await _db.BqMovements
             .AsNoTracking()
             .Where(movement => movement.BqRepairTraceId == traceId)
-            // OS ÚLTIMOS REGISTOS primeiro (o Owner 2026-10-13: «por baixo
-            // mostrar os ultimos registos» — a atividade mais recente no topo),
-            // pela data real e depois pelo Id: a mesma ordem da regra «apagar
-            // os 5 mais recentes».
-            .OrderByDescending(movement => movement.OccurredAtUtc)
-            .ThenByDescending(movement => movement.Id)
             .Select(movement => new
             {
                 movement.Id,
@@ -189,14 +191,20 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
 
         // Quantidades físicas derivadas, apenas onde as regras já fecham o
         // cálculo: quantidade legitimamente fora (matched/unmatched) e
-        // discrepância acumulada do trace. A FOLD É CRONOLÓGICA (pela data
-        // real, depois pelo Id — a mesma ordem do BqDiscrepancyFold); o
-        // DISPLAY da lista é DESC (o Owner: «por baixo mostrar os ultimos
-        // registos») — as duas ordens são separadas.
+        // discrepância acumulada do trace. A FOLD É CRONOLÓGICA (a mesma
+        // ordem do BqDiscrepancyFold: data real, a saída antes da entrada à
+        // mesma hora, depois o Id); a LISTA mostra a ordem inversa, os
+        // últimos registos no topo (o Owner 2026-10-13: «por baixo mostrar
+        // os ultimos registos»).
+        var chronological = movements
+            .OrderBy(movement => movement.OccurredAtUtc)
+            .ThenBy(movement => BqDiscrepancyFold.SaidaFirst(movement.Type))
+            .ThenBy(movement => movement.Id)
+            .ToList();
         var quantityLegitimatelyOut = 0;
         var accumulatedDiscrepancy = 0;
         var hasDiscrepancy = false;
-        foreach (var movement in movements.OrderBy(movement => movement.OccurredAtUtc).ThenBy(movement => movement.Id))
+        foreach (var movement in chronological)
         {
             if (movement.Type == BqMovementType.Saida)
             {
@@ -208,12 +216,17 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 quantityLegitimatelyOut -= matched;
             }
 
-            if (movement.Discrepancy is int discrepancy)
+            // Depois de posta a zero, a discrepância acumulada só conta os
+            // movimentos com data real posterior (Diogo, 17/10/2026).
+            if (movement.Discrepancy is int discrepancy
+                && (header.DiscrepancyResetAtUtc is not DateTime resetAt || movement.OccurredAtUtc > resetAt))
             {
                 accumulatedDiscrepancy += discrepancy;
                 hasDiscrepancy = true;
             }
         }
+
+        chronological.Reverse();
 
         return new BoquilhasRegistoTrace(
             traceId,
@@ -222,7 +235,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             header.ToolLot,
             header.BqContextId,
             production,
-            movements.Select(movement => new BoquilhasRegistoMovement(
+            chronological.Select(movement => new BoquilhasRegistoMovement(
                 movement.Id,
                 BqMovementTypeTokens.ToStorage(movement.Type),
                 movement.Quantity,
@@ -233,7 +246,9 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 movement.CorrectedByNameFrozen,
                 movement.CorrectedAtUtc)).ToList(),
             quantityLegitimatelyOut,
-            hasDiscrepancy ? accumulatedDiscrepancy : null,
-            header.ToolAccountedQuantity);
+            hasDiscrepancy || header.DiscrepancyResetAtUtc is not null ? accumulatedDiscrepancy : null,
+            header.ToolAccountedQuantity,
+            header.DiscrepancyResetAtUtc,
+            header.DiscrepancyResetBy);
     }
 }

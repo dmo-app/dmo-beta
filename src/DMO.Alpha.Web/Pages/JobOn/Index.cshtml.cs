@@ -274,6 +274,48 @@ public sealed class IndexModel : PageModel
     /// <summary>tool_id da BQ explicitamente selecionado (null = não aplicável).</summary>
     public string? RequestedBqToolId { get; private set; }
 
+    /// <summary>
+    /// O «Criar CM/MF/BQ» do cartão da ferramenta: abre as Ferramentas e volta
+    /// à MESMA folha com a ferramenta criada no seu lugar (o Diogo, 17/10/2026:
+    /// criar uma CM nova para trocar durante o fabrico abria um Job On novo e
+    /// pedia o número da produção). No Editar volta à edição deste Job On; o
+    /// resto do que estava escrito volta com ?retoma=1. O script da página
+    /// refaz o link com o que estiver escrito no momento do clique.
+    /// </summary>
+    public string CriarFerramentaHref(string tipo)
+    {
+        var slot = tipo.ToLowerInvariant() + "_tool_id";
+        var valores = new List<(string Nome, string? Valor)>();
+        if (FolhaEdicao)
+        {
+            valores.Add(("jobon_id", OpenJobOn!.JobOnId.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            valores.Add(("editar", "1"));
+        }
+        else
+        {
+            valores.Add(("novo", "1"));
+            valores.Add(("reference", RequestedReference));
+            valores.Add(("production_number", RequestedProductionNumber));
+        }
+
+        valores.Add(("retoma", "1"));
+        valores.Add(("machine_id", RequestedMachineId?.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        valores.Add(("inicio_em", RequestedInicioEm?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+        valores.Add(("fim_em", RequestedFimEm?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+        valores.Add(("calote_mm", FolhaCalote));
+        foreach (var (outro, id) in new[] { ("cm_tool_id", RequestedCmToolId), ("mf_tool_id", RequestedMfToolId), ("bq_tool_id", RequestedBqToolId) })
+        {
+            if (outro != slot) valores.Add((outro, id));
+        }
+
+        // O {tool_id} fica por codificar: as Ferramentas substituem-no pelo id criado.
+        var regresso = "/JobOn?" + string.Join("&", valores
+            .Where(v => !string.IsNullOrEmpty(v.Valor))
+            .Select(v => v.Nome + "=" + Uri.EscapeDataString(v.Valor!)))
+            + "&" + slot + "={tool_id}#lightSheet";
+        return $"/Ferramentas?criar=1&type={tipo}&return={Uri.EscapeDataString(regresso)}";
+    }
+
     /// <summary>O dia em que a produção entra em máquina (o corte B; null = em aberto).</summary>
     public DateOnly? RequestedInicioEm { get; private set; }
 
@@ -485,6 +527,7 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "calote_ignorada")] string? caloteIgnorada,
         [FromQuery(Name = "editar")] string? editar,
         [FromQuery(Name = "novo")] string? novo,
+        [FromQuery(Name = "retoma")] string? retoma,
         [FromQuery(Name = "referencia")] string? historicoReferencia,
         [FromQuery(Name = "maquina")] int? historicoMaquina,
         [FromQuery(Name = "producao")] string? historicoProducao,
@@ -655,10 +698,13 @@ public sealed class IndexModel : PageModel
                 // A folha em edição. Depois de uma recusa, a máquina, as
                 // ferramentas, as datas e a calote são as submetidas; a
                 // referência e o nº não se editam e vêm da produção.
+                // Também ao voltar do «Criar CM/MF/BQ» (?retoma=1): a folha
+                // volta com o que estava escrito e a ferramenta acabada de
+                // criar, e o Guardar regista a troca em «O que mudou».
                 FolhaAberta = true;
                 RequestedReference = fichaJobOn.Reference;
                 RequestedProductionNumber = fichaJobOn.ProductionNumber;
-                if (UpdateRefusal is null)
+                if (UpdateRefusal is null && retoma != "1")
                 {
                     RequestedMachineId = Machines.FirstOrDefault(m => m.Code == fichaJobOn.Machine)?.MachineId;
                     RequestedCmToolId = fichaJobOn.CmToolId;
@@ -691,9 +737,10 @@ public sealed class IndexModel : PageModel
             }
         }
 
-        // O echo da calote submetida — apenas com recusa presente (nunca um
-        // valor velho a prefilar um form fresco).
-        if ((CreateRefusal is not null || UpdateRefusal is not null)
+        // O echo da calote submetida — apenas com recusa presente ou ao
+        // voltar do «Criar CM/MF/BQ» (nunca um valor velho a prefilar um
+        // form fresco).
+        if ((CreateRefusal is not null || UpdateRefusal is not null || retoma == "1")
             && Sanitize(caloteMm) is { } caloteEcho)
         {
             RequestedCaloteMm = caloteEcho;
@@ -820,7 +867,7 @@ public sealed class IndexModel : PageModel
     /// <summary>
     /// A procura ao escrever (?handler=ProcurarProducao&amp;q=): o primeiro
     /// passo, as referências que têm o texto (só a referência). Com &amp;procura_ref=, o segundo
-    /// passo: as produções dessa referência. Ambos no máximo
+    /// passo: as produções dessa referência, no dropdown. Ambos no máximo
     /// <see cref="IProductionPickerQuery.SearchLimit"/>. Devolve só a lista,
     /// que a página mostra por baixo do campo.
     /// </summary>
@@ -832,7 +879,9 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "dia")] int? dia)
     {
         var resultados = await ProcurarProducoesAsync(search, procuraRef, ano, mes, dia);
-        return Partial("_JobOnProcura", resultados);
+        return resultados is { Referencia: not null, Linhas.Count: > 0 }
+            ? Partial("_JobOnProcuraProducoes", resultados)
+            : Partial("_JobOnProcura", resultados);
     }
 
     private async Task<JobOnProcura> ProcurarProducoesAsync(string? search, string? procuraRef, int? ano, int? mes, int? dia)
@@ -871,8 +920,11 @@ public sealed class IndexModel : PageModel
     /// Sem «Mostrar todas», os dados da folha filtram: a máquina e a
     /// referência da produção; na CM, com uma MF escolhida, a máquina e a
     /// referência dessa MF (se nada corresponder, volta à referência da
-    /// produção). Com «Mostrar todas», procura no catálogo inteiro. Nunca
-    /// muda a ferramenta já escolhida.
+    /// produção). Na MF, com uma CM escolhida, só as MF que trabalham com
+    /// essa CM: a referência MF associada da CM ou, sem ela, a referência
+    /// da CM; com máquina, também só as dessa máquina (o Diogo, 17/10/2026).
+    /// Com «Mostrar todas», procura no catálogo inteiro. Nunca muda a
+    /// ferramenta já escolhida.
     /// </summary>
     public async Task<IActionResult> OnGetToolCandidatesAsync(
         [FromQuery(Name = "type")] string? type,
@@ -880,6 +932,7 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "machine_id")] int? machineId,
         [FromQuery(Name = "reference")] string? reference,
         [FromQuery(Name = "mf_tool_id")] string? mfToolId,
+        [FromQuery(Name = "cm_tool_id")] string? cmToolId,
         [FromQuery(Name = "all")] bool showAll = false)
     {
         ToolType? toolType = Sanitize(type)?.ToUpperInvariant() switch
@@ -922,6 +975,22 @@ public sealed class IndexModel : PageModel
                         page = byMf;
                         filtro = (machineId is null ? "Filtrado pela MF " : "Filtrado por máquina e pela MF ") + mfReference;
                     }
+                }
+            }
+            if (slot == ToolType.Mf && Sanitize(cmToolId) is { } cmId)
+            {
+                // Sem volta à referência da produção: com a CM escolhida, a
+                // lista mostra só as MF que encaixam nela.
+                var cmMfReference = await _db.Tools.AsNoTracking()
+                    .Where(tool => tool.ToolId == cmId && tool.Type == ToolType.Cm)
+                    .Select(tool => tool.AssociatedMfReference ?? tool.Reference)
+                    .FirstOrDefaultAsync(HttpContext.RequestAborted);
+                if (cmMfReference is not null)
+                {
+                    page = await _toolCandidates.FindPageAsync(
+                        new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term),
+                        1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    filtro = (machineId is null ? "Filtrado pela CM " : "Filtrado por máquina e pela CM ") + cmMfReference;
                 }
             }
             page ??= await _toolCandidates.FindPageAsync(

@@ -1099,6 +1099,7 @@ public sealed partial class IndexModel : PageModel
         // existe) passa para a hora seguinte e a folha avisa — nunca recusa
         // (decisão do proprietário de 16/10/2026).
         DateTime? occurredAtUtc = null;
+        DateTime? occurredValidLocal = null;
         (string From, string To)? shiftedTime = null;
         if (!string.IsNullOrWhiteSpace(occurredAt)
             && DateTime.TryParse(occurredAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var occurredLocal))
@@ -1109,6 +1110,7 @@ public sealed partial class IndexModel : PageModel
                 shiftedTime = (LocalFieldValue(occurredLocal), LocalFieldValue(validLocal));
             }
             occurredAtUtc = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToUtc(validLocal);
+            occurredValidLocal = validLocal;
         }
 
         var operatorId = User.FindFirst(DmoClaimTypes.OperatorId)?.Value;
@@ -1137,6 +1139,7 @@ public sealed partial class IndexModel : PageModel
             return RedirectToPage("/Boquilhas/Index", new
             {
                 trace_id = outcome.Movement?.BqRepairTraceId ?? traceId,
+                data_antiga = KeptOccurrenceField(occurredAtUtc, occurredValidLocal),
                 hora_indicada = shiftedTime?.From,
                 hora_gravada = shiftedTime?.To
             });
@@ -1148,6 +1151,21 @@ public sealed partial class IndexModel : PageModel
             ("movement_type", movementType),
             ("quantity", quantity)));
     }
+
+    /// <summary>
+    /// A data e hora que o form volta a mostrar depois de gravar (Diogo,
+    /// 17/10/2026: lançar muitas guias seguidas): a indicada, quando não era
+    /// o agora (mais de <see cref="KeptOccurrenceMinutes"/> minutos de
+    /// diferença). No uso diário, com o agora pré-preenchido, o form volta ao
+    /// agora, para nunca gravar uma hora antiga sem querer.
+    /// </summary>
+    private static string? KeptOccurrenceField(DateTime? occurredAtUtc, DateTime? occurredLocal) =>
+        occurredAtUtc is DateTime utc && occurredLocal is DateTime local
+            && Math.Abs((utc - DateTime.UtcNow).TotalMinutes) > KeptOccurrenceMinutes
+            ? LocalFieldValue(local)
+            : null;
+
+    internal const int KeptOccurrenceMinutes = 10;
 
     /// <summary>
     /// POST nativo «Associar Job On a este registo» (o fim do ciclo do

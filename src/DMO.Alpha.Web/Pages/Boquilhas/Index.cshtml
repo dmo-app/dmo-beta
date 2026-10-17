@@ -304,7 +304,7 @@
               </div>
             </form>
           </div>
-          <div class="card bq-metrics-card">
+          <div class="card bq-metrics-card" id="bqMetrics">
             <h3>Valores desta boquilha / lote<partial name="_DmoHelp" model="@("Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.")" /></h3>
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
                dmo-html: «Quantidade do lote — Fabricação — Em reparação —
@@ -318,8 +318,35 @@
               <div><span>Quantidade do lote</span><strong>@(Model.RegisterLotQuantity is int lotQty ? lotQty.ToString() : "—")</strong></div>
               <div><span>Fabricação</span><strong>@(Model.RegisterLotQuantity is int lote && lote >= trace.QuantityLegitimatelyOut ? (lote - trace.QuantityLegitimatelyOut).ToString() : "—")</strong></div>
               <div><span>Em reparação</span><strong>@trace.QuantityLegitimatelyOut</strong></div>
-              <div><span>Discrepância acumulada</span><strong>@(trace.AccumulatedDiscrepancy is int accumulated ? accumulated.ToString() : "—")</strong></div>
+              @* POSTA A ZERO (Diogo, 17/10/2026: «ao carregar nela poder fazer
+                 reset»): um clique no valor abre a janela; depois conta só os
+                 movimentos com data real posterior. *@
+              @{
+                var resetNote = Model.DiscrepancyResetNote;
+                var resettable = trace.AccumulatedDiscrepancy is int nonZero && nonZero != 0 && trace.BqRepairTraceId > 0;
+              }
+              <div><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para pôr a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}</strong></div>
             </div>
+            @if (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && trace.AccumulatedDiscrepancy is int toReset && toReset != 0)
+            {
+              <div class="dmo-modal-backdrop open" id="bqDiscrepancyReset" role="dialog" aria-modal="true" aria-labelledby="bqDiscrepancyResetTitle">
+                <div class="dmo-modal bq-reset-modal">
+                  <div class="dmo-modal-head">
+                    <h2 id="bqDiscrepancyResetTitle">Pôr a discrepância a zero?<partial name="_DmoHelp" model="@("A discrepância acumulada passa a 0 e conta só os movimentos com data e hora depois de agora. Os movimentos, o saldo de cada linha e o «Em reparação» ficam como estão.")" /></h2>
+                  </div>
+                  <div class="dmo-modal-body">
+                    <p>BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}") · discrepância acumulada @toReset</p>
+                    <div class="dmo-list-actions bq-correct-actions">
+                      <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="ResetDiscrepancy">
+                        <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
+                        <button type="submit" class="btn primary">Pôr a zero</button>
+                      </form>
+                      <a class="btn" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: false))#bqMetrics">Cancelar</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
 
           </div>
           <div class="card bq-latest-card">
@@ -333,7 +360,7 @@
                exibido como facto). *@
               <div class="card-head bq-latest-head" id="bqLatest">
                 <div>
-                  <h3>Últimos movimentos desta boquilha / produção<partial name="_DmoHelp" model="@("Mais recentes primeiro. O Saldo só aparece numa Entrada excecional e é negativo quando regressa mais quantidade do que pode ser justificada pelas Saídas anteriores. Não é o stock.")" /></h3>
+                  <h3>Últimos movimentos desta boquilha / produção<partial name="_DmoHelp" model="@("Mais recentes primeiro, pela data e hora reais (à mesma hora, a saída conta antes da entrada), seja qual for a ordem em que foram registados; as contas refazem-se a cada movimento. O Saldo só aparece numa Entrada excecional e é negativo quando regressa mais quantidade do que pode ser justificada pelas Saídas anteriores. Não é o stock.")" /></h3>
                 </div>
                 @if (trace.Movements.Count > 0)
                 {

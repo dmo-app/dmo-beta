@@ -67,6 +67,11 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
    app (o da nota de formato do Ferramentas): a produção está GRAVADA, o
    aviso informa por cima do facto; NUNCA vermelho (nunca bloqueio). */
 .jobon-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
+/* Dados técnicos em falta numa ferramenta da produção: o mesmo âmbar, discreto. */
+.jobon-tech-falta{margin:6px 0 0;padding:5px 8px;border-left:3px solid #a97943;background:#f7f0e7;border-radius:6px;font-size:11px;color:var(--dmo-text,#1c2b3a)}
+.jobon-tech-falta a{margin-left:4px;font-weight:700;color:var(--dmo-brand-600,#3c73a8)}
+.jobon-ferramenta-link{color:inherit;text-decoration:none}
+.jobon-ferramenta-link:hover strong{text-decoration:underline}
 
 /* O QUADRO COMPLETO DAS LINHAS (o Owner 2026-10-12): todas as máquinas
    B1..C3 visíveis no dia clicado. O QUADRO DO DIA (a FORMA FINAL do Owner

@@ -245,7 +245,8 @@ html body .jobon-ref-productions h3{margin:0;font-size:15px}
 html body .jobon-ref-productions .dmo-table-wrap{margin-top:10px}
 html body .jobon-ref-productions tr[data-dmo-row]{cursor:pointer}
 html body .jobon-ref-productions tr.jobon-ref-current td{background:var(--dmo-brand-050)}
-html body .beta-light-actions .dmo-options-list{top:auto;bottom:100%;margin:0 0 4px}
+/* As Opções da ficha estão no topo, ao lado do Fechar (beta.156): a lista abre para baixo e, no telemóvel, os dois botões ficam na mesma linha. */
+html body #lightFicha>.beta-light-sheet-head>.beta-light-actions{flex-direction:row;flex-shrink:0}
 html body a.dmo-options-item{text-decoration:none}
 html body .beta-light-productions .beta-light-card-head h2{white-space:nowrap}
 html body .beta-light-productions .dmo-search-form{flex-wrap:nowrap}

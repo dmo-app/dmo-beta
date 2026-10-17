@@ -302,3 +302,7 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 /* Procurar / trocar de boquilha: os resultados por baixo do campo, afastados dele. */
 .beta-bq-layout .bq-procura:not(:empty) { margin-top:14px; }
 .beta-bq-layout .bq-procura .dmo-pill { margin-right:8px; }
+/* Pôr a discrepância a zero: o valor abre uma janela pequena (Diogo, 17/10/2026). */
+.beta-bq-layout .bq-metrics-card .bq-reset-link{color:inherit;text-decoration:underline dotted;text-underline-offset:4px;cursor:pointer}
+.bq-reset-modal{width:min(480px,100%)}
+.bq-reset-modal .dmo-modal-body p{margin:0}

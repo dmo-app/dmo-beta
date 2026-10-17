@@ -1,8 +1,9 @@
 @model (string Path, bool ModoJobOn)
 @* A escolha do registo no Controlo (Peso, Pegamentos e PU NNPB), dentro do
    cartão do registo (Diogo, 17/10/2026: «podemos meter esses botoes dentro
-   do card do registo»). Os botões normais da app, com a mesma
-   largura; o não escolhido fica branco com contorno. *@
+   do card do registo»). Os botões normais da app, com o
+   tamanho da letra e do padding da casa; o não escolhido fica branco com
+   contorno e inverte ao passar o rato, como os outros botões. *@
 <nav class="dmo-modo" aria-label="Tipo de registo" data-dmo-modo>
   <a class="dmo-button" href="@Model.Path" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
   <a class="dmo-button" href="@(Model.Path)?modo=jobon" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar Job On</a>

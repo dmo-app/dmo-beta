@@ -33,6 +33,9 @@
 .ferr-w-ref{width:140px}
 .ferr-w-lot{width:76px}
 .ferr-w-qty{width:140px}
+.ferr-create-tech{margin-top:14px;padding-top:12px;border-top:1px solid var(--dmo-border,#d9e6f2)}
+.ferr-create-tech > summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--dmo-brand-700,#193046)}
+.ferr-create-tech > .ferr-create-row{margin-top:10px}
 .ferr-w-sap{flex:1 1 220px !important;max-width:300px}
 .ferr-create-row-machines{margin-top:14px;align-items:flex-start;justify-content:flex-start;column-gap:28px}
 .ferr-quantity-suggestion{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}

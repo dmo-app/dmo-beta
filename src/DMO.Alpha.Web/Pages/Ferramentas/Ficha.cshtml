@@ -31,6 +31,7 @@
 .ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
 /* O aviso âmbar (o mesmo de .jobon-aviso.warn / .peg-aviso.warn): o trabalho foi gravado, o aviso diz o que ficou de fora. */
 .ferr-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
+.ferr-tech-falta{margin-top:12px}
 .ferr-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
 .ferr-nota.avisoria{border-left-color:#a97943;background:#f7f0e7}
 .ferr-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
@@ -310,6 +311,10 @@
               : (decimal?)null;
       }
 
+      @if (Model.TechnicalMissing.Count > 0)
+      {
+        <div class="ferr-aviso warn ferr-tech-falta" role="status">@ToolTechnicalMissing.Message(Model.TechnicalMissing)</div>
+      }
       <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditTechnical">
         <input type="hidden" name="tool_id" value="@tool.ToolId" />
         @if (Model.ContinueUrl is { } regresso)

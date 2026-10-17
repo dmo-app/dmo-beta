@@ -52,7 +52,7 @@ public sealed class FichaModel : PageModel
         ["tp_sagitta"] = "Tampão — calote (mm)"
     };
 
-    private const string UnreadablePrefix = "ilegivel_";
+    internal const string UnreadablePrefix = "ilegivel_";
 
     public IReadOnlyDictionary<string, string?>? TechnicalDraft { get; private set; }
 
@@ -191,10 +191,20 @@ public sealed class FichaModel : PageModel
     /// <summary>Recusa tipada do último POST de valores técnicos, transportada por query (PRG).</summary>
     public EditToolTechnicalValuesResult? TechnicalRefusal { get; private set; }
 
-    /// <summary>A informação técnica fica fechada até o utilizador a abrir (?tecnica=1 ou depois de gravar).</summary>
+    /// <summary>A informação técnica fica fechada até o utilizador a abrir (?tecnica=1 ou depois de gravar), ou enquanto faltarem dados técnicos.</summary>
     [BindProperty(SupportsGet = true, Name = "tecnica")] public string? ShowTechnicalParam { get; set; }
 
-    public bool ShowTechnical => ShowTechnicalParam == "1" || TechnicalRefusal is not null;
+    public bool ShowTechnical => ShowTechnicalParam == "1" || TechnicalRefusal is not null || TechnicalMissing.Count > 0;
+
+    /// <summary>Os dados técnicos em falta (a regra do Job On): a ficha abre a informação técnica com o aviso amarelo.</summary>
+    public IReadOnlyList<string> TechnicalMissing => Sheet is not { } sheet
+        ? Array.Empty<string>()
+        : ToolTechnicalMissing.For(
+            sheet.Type,
+            sheet.Technical?.Process is not null,
+            sheet.Technical?.VolumePuncaoCm3,
+            sheet.Technical?.VolumeMarisaCm3,
+            sheet.Technical?.DiametroGargaloMm);
 
     public string TechnicalRefusalMessage => TechnicalRefusal switch
     {
@@ -566,7 +576,7 @@ public sealed class FichaModel : PageModel
     };
 
     /// <summary>Os campos técnicos que cada tipo grava (CM: peso, punção, tampão; BQ: marisa; todos: gargalo).</summary>
-    private static bool AppliesTo(ToolType? type, string field) => field switch
+    internal static bool AppliesTo(ToolType? type, string field) => field switch
     {
         "diametro_gargalo" => true,
         "volume_marisa" => type == ToolType.Bq,

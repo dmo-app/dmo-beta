@@ -105,10 +105,9 @@ input.dmo-valor[aria-invalid=true]{border-color:var(--dmo-warning)}
 /* Aviso amarelo discreto quando falta um dado que devia existir (Diogo, 17/10/2026), por exemplo o total do lote de uma máquina. */
 .dmo-aviso-discreto{display:inline-block;margin:6px 0 0;padding:6px 10px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;color:var(--dmo-text);font-size:12.5px}
 .dmo-aviso-discreto:empty{display:none}
-/* A escolha «Sem Job On» / «Associar Job On» no cartão do registo (Diogo, 17/10/2026): os botões normais, os dois com a mesma largura; o que não está escolhido fica branco com contorno. */
-.dmo-modo{display:inline-grid;grid-template-columns:1fr 1fr;gap:8px}
-html body .dmo-modo .dmo-button{min-width:150px}
+/* A escolha «Sem Job On» / «Associar Job On» no cartão do registo (Diogo, 17/10/2026): botões normais, com o tamanho que vem só da letra e do padding da casa (sem larguras fixas). O que não está escolhido fica branco com contorno e, como qualquer botão, inverte a cor ao passar o rato. */
+.dmo-modo{display:inline-flex;flex-wrap:wrap;gap:8px}
 html body .dmo-modo .dmo-button:not([aria-current="page"]){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600))}
-html body .dmo-modo .dmo-button:not([aria-current="page"]):hover,html body .dmo-modo .dmo-button:not([aria-current="page"]):focus-visible{background:var(--dmo-brand-050)}
+html body .dmo-modo .dmo-button:not([aria-current="page"]):hover,html body .dmo-modo .dmo-button:not([aria-current="page"]):focus-visible{background:var(--button-color,var(--dmo-brand-600));color:var(--dmo-text-on-color)}
 .dmo-modo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .dmo-modo-head h3{margin:0}

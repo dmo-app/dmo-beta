@@ -58,4 +58,15 @@ public sealed class BqRepairTrace
 
     /// <summary>Lote da Tool BQ congelado à criação do trace (evidência histórica; ver <see cref="ToolReferenceFrozen"/>).</summary>
     public string? ToolLotFrozen { get; set; }
+
+    /// <summary>
+    /// A discrepância posta a zero (Diogo, 17/10/2026: começar a registar a
+    /// meio das produções): a discrepância acumulada do registo só conta os
+    /// movimentos com data real depois deste momento (UTC). Os movimentos e o
+    /// saldo de cada linha ficam como estão. Null = nunca posta a zero.
+    /// </summary>
+    public DateTime? DiscrepancyResetAtUtc { get; set; }
+
+    /// <summary>Quem pôs a discrepância a zero, com o nome congelado; null sem identidade.</summary>
+    public string? DiscrepancyResetByNameFrozen { get; set; }
 }

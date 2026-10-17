@@ -26,4 +26,8 @@ public sealed record BoquilhasRegistoTrace(
     int QuantityLegitimatelyOut,
     int? AccumulatedDiscrepancy,
     /// <summary>A quantidade contabilística do lote (Tool.BqAccountedQuantity); null sem ela.</summary>
-    int? ToolAccountedQuantity = null);
+    int? ToolAccountedQuantity = null,
+    /// <summary>Quando a discrepância acumulada foi posta a zero (só contam os movimentos depois); null nunca.</summary>
+    DateTime? DiscrepancyResetAtUtc = null,
+    /// <summary>Quem a pôs a zero, congelado; null sem identidade.</summary>
+    string? DiscrepancyResetBy = null);

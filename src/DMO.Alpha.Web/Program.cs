@@ -146,6 +146,7 @@ builder.Services.AddScoped<DmoSignInService>();
 builder.Services.AddScoped<IRegisterBqMovementHandler, RegisterBqMovementHandler>();
 // Boquilhas: correção e eliminação de movimentos já gravados.
 builder.Services.AddScoped<IEditBqMovementHandler, EditBqMovementHandler>();
+builder.Services.AddScoped<IResetBqDiscrepancyHandler, ResetBqDiscrepancyHandler>();
 builder.Services.AddScoped<IDeleteBqMovementHandler, DeleteBqMovementHandler>();
 // Boquilhas read path: read model consumer-specific do surface Registo.
 builder.Services.AddScoped<IBoquilhasRegistoQuery, BoquilhasRegistoQuery>();

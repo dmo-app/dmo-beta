@@ -2,6 +2,7 @@
 @model DMO.Alpha.Web.Pages.JobOn.IndexModel
 @using DMO.Alpha.Core.Production
 @using DMO.Alpha.Core.Tools
+@inject DMO.Alpha.Web.Services.CurrentUserCapabilities UserCapabilities
 @{
     Layout = "_DmoShellLayout";
     ViewData["BetaPage"] = "jobon";
@@ -190,8 +191,8 @@
             @* A PROCURA AO ESCREVER, EM DOIS PASSOS (Diogo, 17/10/2026:
                «deveria ser referência e depois produções»): sem botão; as
                referências aparecem por baixo do campo, encontradas só pela
-               referência (a procura não é global); um clique numa referência mostra as produções
-               dela e um clique numa produção abre a folha. Sem script, o Enter
+               referência (a procura não é global); um clique numa referência mostra as últimas
+               produções dela num dropdown à frente do campo e escolher uma abre a folha. Sem script, o Enter
                procura pelo servidor; a lista do dia não é filtrada. *@
             <form method="get" asp-page="/JobOn/Index" class="dmo-search-form">
               <input type="hidden" name="ano" value="@Model.Year" />
@@ -202,7 +203,11 @@
               }
               <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Referência"
                      data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" />
-              <partial name="_DmoHelp" model="@("Escreva a referência. As referências aparecem por baixo; um clique mostra as últimas 5 produções dela e outro clique abre a folha.")" />
+              @if (Model.SearchResults is { Referencia: not null } escolhida)
+              {
+                <partial name="_JobOnProcuraProducoes" model="escolhida" />
+              }
+              <partial name="_DmoHelp" model="@("Escreva a referência. As referências aparecem por baixo; um clique numa mostra, à frente do campo, um dropdown com as últimas 5 produções dela. Escolher uma produção abre a folha. As outras produções estão em «Opções» → «Produções desta referência», na folha.")" />
             </form>
             <div id="lightProcura" class="jobon-procura" aria-live="polite">
               @if (Model.SearchResults is { } procurados)
@@ -234,6 +239,10 @@
       @if (Model.OpenJobOn is { } ficha && Model.DuplicarDe is null)
       {
         var fichaFact = (string? toolId) => Model.FichaFacts.FirstOrDefault(f => f.ToolId == toolId);
+        // A referência abre a ficha da ferramenta na informação técnica e,
+        // gravada, volta a esta ficha (quem tem o módulo Ferramentas).
+        var podeAbrirFerramenta = (await UserCapabilities.GetAsync()).Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas, StringComparer.Ordinal);
+        var fichaFerramentaHref = (string toolId) => $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&tecnica=1&continuar={Uri.EscapeDataString($"/JobOn?jobon_id={ficha.JobOnId}")}";
         var fichaCalote = ficha.CaloteMm is { } caloteFicha
             ? caloteFicha.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm"
             : "Usar referência da Tool";
@@ -243,9 +252,38 @@
               <span style="font-size:11px;color:var(--dmo-muted,#66809a);text-transform:uppercase;letter-spacing:.04em;font-weight:700">Ficha da produção</span>
               <h2 id="fichaTitle">Job On</h2>
             </div>
-            @* O FECHAR DA FICHA SAI DO JOB ON (o Diogo, 17/10/2026): volta ao
-               calendário no dia em que estava. O Fechar do Editar volta aqui. *@
-            <a class="dmo-button" href="/JobOn?ano=@Model.Year&mes=@Model.Month&dia=@(Model.NoDaySelected ? 0 : Model.SelectedDay)">Fechar</a>
+            @* AS OPÇÕES AO LADO DO FECHAR, NO TOPO (o Diogo, 17/10/2026: «meter
+               opções ao lado de fechar»), como o Fechar e o Guardar do Editar. *@
+            <div class="beta-light-actions" style="margin-top:0">
+              @* O [Editar] PRECISA do editar=1 (a C1): o contrato da folha é
+                 «?editar=1&jobon_id=N abre-a EM EDIÇÃO» — sem o parâmetro o
+                 link reabria a ficha FECHADA, o botão não editava nada e o
+                 jobon_edit_id nunca ia no POST. O [Duplicar] já levava o
+                 duplicar=1; o [Editar] ficou sem efeito na refunda. *@
+              @* MENOS CLUTTER (o Diogo, 17/10/2026): as ações raras da folha
+                 num só botão «Opções». «Produções desta referência» abre, por
+                 baixo, a tabela paginada de todas as produções que já existiram
+                 com a referência (produção, máquina, início, fim e a CM, MF e
+                 BQ com os lotes usados); só é lida quando se abre. *@
+              <details class="dmo-options" data-dmo-tab-menu>
+                <summary class="dmo-button" aria-label="Opções do Job On @ficha.ProductionNumber">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
+                <div class="dmo-options-list">
+                  @* MENOS BOTÕES (o Diogo, 17/10/2026: «muito botão»; «editar vai
+                     para dentro das opções»): todas as ações da ficha ficam nas
+                     Opções. *@
+                  @* A ORDEM DAS OPÇÕES (o Diogo, 17/10/2026): Editar, Duplicar Job
+                     On e depois o resto. Sem «Duplicar lote»: um lote novo
+                     associa-se no Editar e fica registado como alteração. *@
+                  <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&editar=1#lightSheet">Editar</a>
+                  <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&duplicar=1">Duplicar Job On</a>
+                  <a class="dmo-options-item" href="/Controlo/Resumo?jobon_id=@ficha.JobOnId">Controlo</a>
+                  <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&producoes_ref=1#fichaProducoes">Produções desta referência</a>
+                </div>
+              </details>
+              @* O FECHAR DA FICHA SAI DO JOB ON (o Diogo, 17/10/2026): volta ao
+                 calendário no dia em que estava. O Fechar do Editar volta aqui. *@
+              <a class="dmo-button" href="/JobOn?ano=@Model.Year&mes=@Model.Month&dia=@(Model.NoDaySelected ? 0 : Model.SelectedDay)">Fechar</a>
+            </div>
           </div>
           @* O QUE MUDOU (o Diogo, 17/10/2026: «não deveria ser um botão, mas
              apenas um resumo no início da página podendo fazer minimize»; «o
@@ -335,9 +373,19 @@
                 }
                 else
                 {
+                  var faltamSlot = ToolTechnicalMissing.TypeOf(tipoSlot) is { } tipoFerramenta
+                      ? ToolTechnicalMissing.For(tipoFerramenta, factoSlot.Processo is not null, factoSlot.VolumePuncaoCm3, factoSlot.VolumeMarisaCm3, factoSlot.DiametroGargaloMm)
+                      : Array.Empty<string>();
                   <p style="font-size:12px;margin:5px 0">
-                    <strong>@rotuloSlot @factoSlot.Reference · lote @factoSlot.Lot</strong>
-                                      </p>
+                    @if (podeAbrirFerramenta)
+                    {
+                      <a class="jobon-ferramenta-link" href="@fichaFerramentaHref(toolSlot)" title="Abrir a ficha da ferramenta"><strong>@rotuloSlot @factoSlot.Reference · lote @factoSlot.Lot</strong></a>
+                    }
+                    else
+                    {
+                      <strong>@rotuloSlot @factoSlot.Reference · lote @factoSlot.Lot</strong>
+                    }
+                  </p>
                   <p style="font-size:11px;color:var(--dmo-muted,#66809a);margin:5px 0">
                     @if (tipoSlot == "CM")
                     {
@@ -356,46 +404,14 @@
                       <span>Gargalo nominal <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.DiametroGargaloMm is { } gargaloMf ? gargaloMf.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm" : "—")</b></span>
                     }
                   </p>
+                  @if (faltamSlot.Count > 0)
+                  {
+                    <p class="jobon-tech-falta" role="status">@ToolTechnicalMissing.Message(faltamSlot)@if (podeAbrirFerramenta)
+                    {<a href="@fichaFerramentaHref(toolSlot)">Completar</a>}</p>
+                  }
                 }
               </div>
             }
-          </div>
-
-
-          @* AS AÇÕES da ficha (o Owner 14/10: «abrir resumo, peso e
-             pegamentos é redundante, só precisa abrir resumo e depois ver
-             peso e pegamentos... já sabemos que vai abrir o resumo do
-             controlo para este jobon, e lá vemos o peso e pegamentos. isso
-             sim é UI»): OS 3 BOTÕES — [Editar] · [Duplicar este Job On] ·
-             [Controlo] (o Resumo do Controlo desta produção; a barra de
-             funções dele leva ao Peso e aos Pegamentos; o «Abrir» é
-             redundante — o rótulo é O MÓDULO). *@
-          <div class="beta-light-actions" style="margin-top:14px">
-            @* O [Editar] PRECISA do editar=1 (a C1): o contrato da folha é
-               «?editar=1&jobon_id=N abre-a EM EDIÇÃO» — sem o parâmetro o
-               link reabria a ficha FECHADA, o botão não editava nada e o
-               jobon_edit_id nunca ia no POST. O [Duplicar] já levava o
-               duplicar=1; o [Editar] ficou sem efeito na refunda. *@
-            @* MENOS CLUTTER (o Diogo, 17/10/2026): as ações raras da folha
-               num só botão «Opções». «Produções desta referência» abre, por
-               baixo, a tabela paginada de todas as produções que já existiram
-               com a referência (produção, máquina, início, fim e a CM, MF e
-               BQ com os lotes usados); só é lida quando se abre. *@
-            <details class="dmo-options" data-dmo-tab-menu>
-              <summary class="dmo-button" aria-label="Opções do Job On @ficha.ProductionNumber">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
-              <div class="dmo-options-list">
-                @* MENOS BOTÕES (o Diogo, 17/10/2026: «muito botão»; «editar vai
-                   para dentro das opções»): todas as ações da ficha ficam nas
-                   Opções. *@
-                @* A ORDEM DAS OPÇÕES (o Diogo, 17/10/2026): Editar, Duplicar Job
-                   On e depois o resto. Sem «Duplicar lote»: um lote novo
-                   associa-se no Editar e fica registado como alteração. *@
-                <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&editar=1#lightSheet">Editar</a>
-                <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&duplicar=1">Duplicar Job On</a>
-                <a class="dmo-options-item" href="/Controlo/Resumo?jobon_id=@ficha.JobOnId">Controlo</a>
-                <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&producoes_ref=1#fichaProducoes">Produções desta referência</a>
-              </div>
-            </details>
           </div>
 
           @if (Model.ReferenceProductionsPage is { } producoesRef)
@@ -498,10 +514,10 @@
              escrever (o Diogo, 16/10/2026: um dropdown com todas as
              ferramentas pesa, e quem cria o Job On sabe a referência). O
              select só traz a ferramenta escolhida; as sugestões vêm do
-             servidor, filtradas pela máquina, pela referência e, na CM, pela
-             MF escolhida. «Mostrar todas» procura no catálogo inteiro. *@
+             servidor, filtradas pela máquina, pela referência, na CM pela MF
+             escolhida e na MF pela CM escolhida. «Mostrar todas» procura no catálogo inteiro. *@
           <div class="job-tool-filter-bar">
-            <label><input type="checkbox" id="lightShowAllTools" /> Mostrar todas as ferramentas<partial name="_DmoHelp" model="@("Escreva a referência ou o lote. As sugestões seguem a máquina e a referência; a CM segue também a MF.")" /></label>
+            <label><input type="checkbox" id="lightShowAllTools" /> Mostrar todas as ferramentas<partial name="_DmoHelp" model="@("Escreva a referência ou o lote. As sugestões seguem a máquina e a referência; a MF segue também a CM escolhida, e a CM a MF.")" /></label>
             <span id="lightToolFilterStatus" role="status" aria-live="polite"></span>
           </div>
           <div class="beta-light-tools" id="lightTools">
@@ -512,7 +528,7 @@
             {
               var escolhida = Model.KnownTools.FirstOrDefault(t => t.ToolId == selecionado);
               var campoSlot = tipoSlot == "CM" ? "cm_tool_id" : tipoSlot == "MF" ? "mf_tool_id" : "bq_tool_id";
-              var criarHref = $"/Ferramentas?criar=1&type={tipoSlot}&return={Uri.EscapeDataString($"/JobOn?novo=1&{tipoSlot.ToLowerInvariant()}_tool_id={{tool_id}}")}";
+              var criarHref = Model.CriarFerramentaHref(tipoSlot);
               @* O CARTÃO DA FERRAMENTA (o Diogo, 17/10/2026): carregar em CM
                  abre «Associar» ou «Criar»; escolhida, o cartão mostra só a
                  referência, o lote e os dados técnicos. As máquinas (B1 · C3)
@@ -527,7 +543,7 @@
                   </summary>
                   <div class="dmo-options-list">
                     <button type="button" class="dmo-options-item" data-tool-associate>@(escolhida is null ? "Associar" : "Trocar") @tipoSlot</button>
-                    <a class="dmo-options-item" href="@criarHref">Criar @tipoSlot</a>
+                    <a class="dmo-options-item" href="@criarHref" data-tool-create>Criar @tipoSlot</a>
                     <button type="button" class="dmo-options-item" data-tool-clear @(escolhida is null ? "hidden" : null)>Retirar @tipoSlot</button>
                   </div>
                 </details>

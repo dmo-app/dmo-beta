@@ -25,6 +25,21 @@
     syncMf();
   }
 
+  // A informação técnica do registo mostra só os campos do tipo escolhido
+  // (os escondidos não são enviados: o servidor grava só os do tipo).
+  var techFields = document.querySelectorAll("[data-ferr-tech-tipo]");
+  if (techFields.length) {
+    var syncTech = function () {
+      techFields.forEach(function (field) {
+        var applies = field.getAttribute("data-ferr-tech-tipo") === type.value;
+        field.hidden = !applies;
+        field.querySelectorAll("input,select").forEach(function (input) { input.disabled = !applies; });
+      });
+    };
+    type.addEventListener("change", syncTech);
+    syncTech();
+  }
+
   technical.addEventListener("input", function () {
     var name = technical.value.trim().toUpperCase();
     if (!name) {
