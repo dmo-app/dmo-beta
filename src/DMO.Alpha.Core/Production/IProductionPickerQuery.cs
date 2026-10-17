@@ -32,11 +32,15 @@ public interface IProductionPickerQuery
     public const int SearchLimit = 10;
 
     /// <summary>
+    /// Quantas produções de uma referência o segundo passo mostra (regra do
+    /// Diogo: só as últimas 5; o histórico completo fica na folha).
+    /// </summary>
+    public const int ProductionsOfReferenceLimit = 5;
+
+    /// <summary>
     /// O primeiro passo da procura ao escrever (Diogo, 17/10/2026: «deveria
-    /// ser referência e depois produções»; «a entrada dos filtros deve poder
-    /// partir de qualquer informação relacionada»): as referências que contêm
-    /// <paramref name="term"/>, ou que têm uma produção cujo nº, máquina, ou
-    /// referência ou lote do CM, do MF ou da BQ o contêm (sem distinção de
+    /// ser referência e depois produções»; a procura não é global): as
+    /// referências que contêm <paramref name="term"/> (sem distinção de
     /// maiúsculas). A referência com a produção mais recente primeiro, no
     /// máximo <see cref="SearchLimit"/>. Sem texto devolve uma lista vazia.
     /// </summary>
@@ -47,7 +51,7 @@ public interface IProductionPickerQuery
     /// <summary>
     /// O segundo passo: as produções da referência exata (sem distinção de
     /// maiúsculas), da mais recente para a mais antiga, no máximo
-    /// <see cref="SearchLimit"/>, com as datas e as ferramentas.
+    /// <see cref="ProductionsOfReferenceLimit"/>, com as datas e as ferramentas.
     /// </summary>
     Task<IReadOnlyList<ProductionSearchItem>> ListOfReferenceAsync(
         string? reference,

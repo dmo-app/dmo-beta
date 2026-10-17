@@ -6,6 +6,7 @@
    folha. *@
 @{
   var limite = DMO.Alpha.Core.Production.IProductionPickerQuery.SearchLimit;
+  var limiteProducoes = DMO.Alpha.Core.Production.IProductionPickerQuery.ProductionsOfReferenceLimit;
 }
 @if (Model.Referencia is { } referencia)
 {
@@ -38,9 +39,9 @@
         </tbody>
       </table>
     </div>
-    @if (Model.Linhas.Count >= limite)
+    @if (Model.Linhas.Count >= limiteProducoes)
     {
-      <p class="muted">Mostram-se as @limite mais recentes. As outras estão em «Opções» → «Produções desta referência», na folha.</p>
+      <p class="muted">Mostram-se as @limiteProducoes mais recentes. As outras estão em «Opções» → «Produções desta referência», na folha.</p>
     }
   }
 }

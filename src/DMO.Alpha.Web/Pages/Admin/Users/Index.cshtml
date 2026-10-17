@@ -72,27 +72,27 @@
 
   @if (Model.CreateRefusal is not null)
   {
-    <div class="dmu-aviso" role="alert">@Model.CreateRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.CreateRefusalMessage</div>
   }
   @if (Model.TemplateRefusal is not null)
   {
-    <div class="dmu-aviso" role="alert">@Model.TemplateRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.TemplateRefusalMessage</div>
   }
   @if (Model.StandByRefusal is not null)
   {
-    <div class="dmu-aviso" role="alert">@Model.StandByRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.StandByRefusalMessage</div>
   }
   @if (Model.Deleted is not null)
   {
-    <div class="dmu-aviso" role="status">@Model.DeletedMessage</div>
+    <div data-dmo-toast="ok" class="dmu-aviso" role="status">@Model.DeletedMessage</div>
   }
   @if (Model.DeleteRefusal is not null)
   {
-    <div class="dmu-aviso" role="alert">@Model.DeleteRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.DeleteRefusalMessage</div>
   }
   @if (Model.ResetRefusal is not null)
   {
-    <div class="dmu-aviso" role="alert">@Model.ResetRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.ResetRefusalMessage</div>
   }
 
   @* ------------------------------------------------------------------ *@

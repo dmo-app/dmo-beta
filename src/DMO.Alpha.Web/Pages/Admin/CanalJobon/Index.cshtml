@@ -1,0 +1,56 @@
+@page
+@model DMO.Alpha.Web.Pages.Admin.CanalJobon.IndexModel
+@inject DMO.Alpha.Web.Services.ShellStateFactory ShellStateFactory
+@{
+    ViewData["Title"] = "Canal Jobon — Administração";
+    Layout = "_DmoShellLayout";
+    var shell = (await ShellStateFactory.ForDestinationAsync("admin", new ModulePresentation("admin", "Administração")));
+    ViewData["Shell"] = shell with
+    {
+        ActiveFunctionKey = DMO.Alpha.Web.Pages.Admin.AdminAreaNavigation.CanalJobonFunctionKey,
+        Functions = DMO.Alpha.Web.Pages.Admin.AdminAreaNavigation.Functions(
+            DMO.Alpha.Web.Pages.Admin.AdminAreaNavigation.CanalJobonFunctionKey,
+            Url.Page("/Admin/Users/Index"),
+            Url.Page("/Admin/Templates/Index")),
+        Planeamento = shell.Planeamento with { Visible = false }
+    };
+}
+
+@section Head {
+<style>
+.adm-page{max-width:1000px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.adm-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.adm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.adm-card h3{margin:0 0 12px;font-size:16px}
+.adm-card .dmo-field{max-width:220px}
+</style>
+}
+
+<main class="adm-page" aria-labelledby="canal-jobon-title">
+    <div class="page-head">
+        <div>
+            <h2 id="canal-jobon-title">Canal Jobon<partial name="_DmoHelp" model="@("Como o Job On chega a cada módulo. Cada módulo que dependa das datas do Job On tem aqui a sua definição.")" /></h2>
+        </div>
+    </div>
+
+    <section class="dmo-card adm-card" aria-labelledby="boquilhas-settings-title">
+        <h3 id="boquilhas-settings-title">Boquilhas — hora de viragem do dia<partial name="_DmoHelp" model="@("A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On). O padrão é 8:00, a manhã da fábrica.")" /></h3>
+
+        @if (Model.SaveResultMessage.Length > 0)
+        {
+            <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+        }
+
+        <form method="post" asp-page="/Admin/CanalJobon/Index" asp-page-handler="SaveBoquilhasDayChangeHour">
+            <div class="dmo-field">
+                <label for="dayChangeHour">Hora de viragem</label>
+                <select id="dayChangeHour" name="dayChangeHour" data-dmo-autosubmit>
+                    @for (var h = 0; h <= 23; h++)
+                    {
+                        <option value="@h" selected="@(Model.BoquilhasDayChangeHour == h || (Model.BoquilhasDayChangeHour is null && h == 8))">@h:00</option>
+                    }
+                </select>
+            </div>
+        </form>
+    </section>
+</main>

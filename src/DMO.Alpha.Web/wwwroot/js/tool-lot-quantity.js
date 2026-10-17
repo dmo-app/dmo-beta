@@ -4,24 +4,21 @@
   const manual = document.getElementById('ferr-quantity-manual');
   const notice = document.getElementById('ferr-quantity-notice');
   const choices = document.getElementById('ferr-quantity-choices');
-  const useSuggestion = document.getElementById('ferr-use-quantity-suggestion');
-  if (!type || !quantity || !manual || !notice || !choices || !useSuggestion) return;
+  if (!type || !quantity || !manual || !notice || !choices) return;
   const machines = quantity.form.querySelectorAll('input[name="machine_ids"], input[data-lot-machine]');
-  useSuggestion.hidden = false;
   let request = 0;
-  let suggestion = null;
   // A returned draft or prefilled value is already an explicit choice.
   if (quantity.value !== '') manual.value = '1';
-  function applySuggestion() {
-    manual.value = '0';
-    quantity.value = suggestion === null ? '' : String(suggestion);
-  }
   quantity.addEventListener('input', () => { manual.value = '1'; });
-  useSuggestion.addEventListener('click', applySuggestion);
+  // Sem botão «Usar sugestão» (Diogo, 17/10/2026: «criar tool aplica sugestão
+  // automaticamente, isto é redundante»): o total entra sozinho; o aviso
+  // amarelo discreto só aparece quando falta um total ou eles diferem.
+  function say(text, warn) {
+    notice.textContent = text;
+    notice.classList.toggle('dmo-aviso-discreto', !!warn && text !== '');
+  }
   async function refresh() {
     const current = ++request;
-    suggestion = null;
-    useSuggestion.disabled = true;
     choices.replaceChildren();
     const query = new URLSearchParams({ handler: 'LotQuantity', type: type.value });
     machines.forEach(input => { if (input.checked) query.append('machine_ids', input.value); });
@@ -30,14 +27,18 @@
       if (!response.ok) throw new Error('Quantity defaults unavailable');
       const result = await response.json();
       if (current !== request) return;
-      suggestion = result.quantity;
-      choices.replaceChildren();
-      const descriptions = result.machines.map(m => m.code + ': ' + (m.quantity === null ? 'por definir' : m.quantity));
-      notice.textContent = descriptions.length ? descriptions.join(' · ') + (suggestion === null ? '. Escolha ou introduza o total do lote.' : '. Quantidade sugerida.') : 'Escolha as máquinas para sugerir o total do lote.';
-      if (manual.value !== '1') applySuggestion();
-      else notice.textContent += ' Valor manual mantido.';
-      useSuggestion.disabled = suggestion === null;
-      if (suggestion === null) result.machines.filter(m => m.quantity !== null).forEach(m => {
+      const suggestion = result.quantity;
+      const missing = result.machines.filter(m => m.quantity === null).map(m => m.code);
+      const defined = result.machines.filter(m => m.quantity !== null);
+      if (manual.value !== '1') {
+        manual.value = '0';
+        quantity.value = suggestion === null ? '' : String(suggestion);
+      }
+      if (missing.length) say('Sem total do lote: ' + missing.join(', ') + '.', true);
+      else if (suggestion === null && defined.length) say('Totais diferentes: escolha um ou escreva a quantidade.', true);
+      else say(manual.value === '1' && suggestion !== null && String(suggestion) !== quantity.value ? 'Valor manual mantido.' : '', false);
+      if (manual.value === '1' && missing.length && suggestion !== null) notice.textContent += ' Valor manual mantido.';
+      if (suggestion === null && defined.length) defined.forEach(m => {
         const button = document.createElement('button');
         button.type = 'button'; button.className = 'dmo-button';
         button.textContent = m.code + ' · ' + m.quantity;
@@ -45,7 +46,7 @@
         choices.append(button);
       });
     } catch (_) {
-      if (current === request) notice.textContent = 'Não foi possível atualizar a sugestão. Valor anterior mantido; confirme o total do lote.';
+      if (current === request) say('Não foi possível ler o total do lote. Confirme a quantidade.', true);
     }
   }
   type.addEventListener('change', refresh);

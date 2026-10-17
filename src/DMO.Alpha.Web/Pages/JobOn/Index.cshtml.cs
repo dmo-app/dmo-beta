@@ -366,9 +366,10 @@ public sealed class IndexModel : PageModel
             "/JobOn/Index");
     }
 
-    private static IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> ComporDayRows(IReadOnlyList<MachineOption> machines, IReadOnlyList<ProductionContextReadModel> jobOns, int ano, int mes, int? diaSelecionado, string? procura)
+    private static IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> ComporDayRows(IReadOnlyList<MachineOption> machines, IReadOnlyList<ProductionContextReadModel> jobOns, int ano, int mes, int? diaSelecionado)
     {
-        var q = procura?.Trim();
+        // A procura não filtra o dia (Diogo, 17/10/2026: não é um filtro
+        // global); as linhas das máquinas mostram sempre o dia escolhido.
         var cobre = new System.Collections.Generic.List<ProductionContextReadModel>();
         // O DIA CONSULTADO (o painel do dia do dmo-html): o dia clicado no
         // calendário — na omissão, o dia inicial da página (o hoje no mês
@@ -376,7 +377,6 @@ public sealed class IndexModel : PageModel
         // partir do início (a regra do corte B: as datas do Job On mandam).
         var data = new DateOnly(ano, mes, Math.Clamp(diaSelecionado ?? 1, 1, DateTime.DaysInMonth(ano, mes)));
         cobre.AddRange(jobOns.Where(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)));
-        if (!string.IsNullOrEmpty(q)) cobre = cobre.Where(j => ($"{j.Reference} {j.ProductionNumber} {j.Machine}").ToLowerInvariant().Contains(q.ToLowerInvariant())).ToList();
         var rows = new System.Collections.Generic.List<DMO.Alpha.Web.Presentation.DayMachineRow>();
         foreach (var machine in machines)
         {
@@ -723,7 +723,7 @@ public sealed class IndexModel : PageModel
                 new ToolCandidateFilter(ToolIds: shownToolIds), HttpContext.RequestAborted);
         }
 
-        DayRows = ComporDayRows(Machines, JobOns, Year, Month, SelectedDay, SearchTerm);
+        DayRows = ComporDayRows(Machines, JobOns, Year, Month, SelectedDay);
 
         // As mudanças de lote do dia entram na linha da máquina, no espaço
         // entre a referência e o número (o proprietário, 16/10/2026).
@@ -819,8 +819,7 @@ public sealed class IndexModel : PageModel
     /// </summary>
     /// <summary>
     /// A procura ao escrever (?handler=ProcurarProducao&amp;q=): o primeiro
-    /// passo, as referências que têm o texto nelas ou nas suas produções
-    /// (produção, máquina, ferramentas). Com &amp;procura_ref=, o segundo
+    /// passo, as referências que têm o texto (só a referência). Com &amp;procura_ref=, o segundo
     /// passo: as produções dessa referência. Ambos no máximo
     /// <see cref="IProductionPickerQuery.SearchLimit"/>. Devolve só a lista,
     /// que a página mostra por baixo do campo.

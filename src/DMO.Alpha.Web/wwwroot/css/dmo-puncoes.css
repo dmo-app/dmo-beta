@@ -43,7 +43,5 @@
 .pu-export-text h3{margin:0 0 3px;font-size:14px}
 .pu-export-text p{margin:0;color:var(--dmo-muted);font-size:12px}
 @media(max-width:600px){.pu-stats{grid-template-columns:repeat(3,1fr);gap:6px}.pu-stat{padding:10px}.pu-stat strong{font-size:22px}.pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:1 1 100%}}
-/* Sem Job On / Associar a um Job On e a associação à mão de um registo sem Job On. */
-.pu-modos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.pu-modos [aria-current="page"]{box-shadow:inset 0 -3px 0 currentColor}
+/* A associação à mão de um registo sem Job On. */
 .pu-associar-lista{display:grid;gap:8px;margin-top:12px}

@@ -26,7 +26,7 @@
       <input asp-for="Draft.Lot" placeholder="Ex.: 24/33" required />
     </div>
     <div class="field dmo-field">
-      <label for="ferr-new-qty">Quantidade contabilizada</label>
+      <label for="ferr-new-qty">Quantidade contabilizada<partial name="_DmoHelp" model="@("Vem preenchida com o total do lote das máquinas escolhidas (Ferramentas → Definições) e pode ser mudada. Se faltar o total de uma máquina, aparece um aviso.")" /></label>
       <input asp-for="Draft.Quantity" id="ferr-new-qty" inputmode="numeric" placeholder="Sugestão por máquina" />
       <input asp-for="Draft.QuantityManual" id="ferr-quantity-manual" type="hidden" />
     </div>
@@ -41,9 +41,8 @@
       </div>
     </fieldset>
     <div class="bq-quantity-help">
-      <p id="ferr-quantity-notice" class="muted" role="status" aria-live="polite">Escolha as máquinas para sugerir o total do lote.</p>
+      <p id="ferr-quantity-notice" class="muted" role="status" aria-live="polite"></p>
       <div id="ferr-quantity-choices" class="bq-tool-actions"></div>
-      <button id="ferr-use-quantity-suggestion" class="btn" type="button" hidden>Usar sugestão</button>
     </div>
     <div class="bq-tool-actions bq-span-all">
       <button class="btn primary" type="submit">Guardar ficha</button>
@@ -52,11 +51,11 @@
 </details>
 @if (Model.CatalogSaved == "created")
 {
-  <p class="result" role="status">Boquilha guardada. A ficha está disponível abaixo.</p>
+  <p data-dmo-toast="ok" class="result" role="status">Boquilha guardada. A ficha está disponível abaixo.</p>
 }
 else if (Model.CatalogSaved == "existing")
 {
-  <p class="result" role="status">Esta referência e lote já estavam registados. Foi aberta a ficha existente; as máquinas selecionadas foram acrescentadas às compatibilidades.</p>
+  <p data-dmo-toast="ok" class="result" role="status">Esta referência e lote já estavam registados. Foi aberta a ficha existente; as máquinas selecionadas foram acrescentadas às compatibilidades.</p>
 }
 @if (Model.ToolSheetNotFound)
 {
@@ -91,7 +90,9 @@ else if (Model.CatalogSaved == "existing")
     </div>
   </form>
 </div>
-<div class="card" id="bq-tool-results">
+<div class="card" id="bq-tool-results" hidden="@(!Model.CatalogSearched)">
+  @if (Model.CatalogSearched)
+  {
   <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da boquilha.")" /></h3><span>@Model.CatalogCount encontrada(s)</span></div>
   @if (Model.CatalogTools.Count == 0)
   {
@@ -117,7 +118,8 @@ else if (Model.CatalogSaved == "existing")
   }
   <nav class="bq-tool-pagination" aria-label="Paginação de boquilhas">
     <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber > 1 ? Model.CatalogLink(Model.CatalogPageNumber - 1) : null)" aria-label="Página anterior" aria-disabled="@(Model.CatalogPageNumber <= 1 ? "true" : null)">←</a>
-    <span>Página @Model.CatalogPageNumber de @Model.CatalogPages</span>
+    <span aria-label="Página @Model.CatalogPageNumber de @Model.CatalogPages">@Model.CatalogPageNumber de @Model.CatalogPages</span>
     <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber < Model.CatalogPages ? Model.CatalogLink(Model.CatalogPageNumber + 1) : null)" aria-label="Página seguinte" aria-disabled="@(Model.CatalogPageNumber >= Model.CatalogPages ? "true" : null)">→</a>
   </nav>
+  }
 </div>

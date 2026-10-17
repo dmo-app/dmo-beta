@@ -8,7 +8,7 @@
     <nav class="dmo-primary-nav" aria-label="@(isAdmin ? "Administração" : "Módulos")">
     @if (isAdmin)
     {
-        @* A administração usa uma única barra: Utilizadores, Templates, Ferramentas e Definições. *@
+        @* A administração usa uma única barra: Utilizadores, Templates, Canal Jobon e, à direita, o Setup (o email do ADMIN, em /Admin/Definicoes). *@
         @foreach (var entry in Model.Functions.Where(entry => entry.Visible))
         {
             <a href="@(entry.Enabled ? entry.Href : null)"
@@ -20,7 +20,7 @@
         <a href="/Admin/Definicoes" style="margin-inline-start:auto"
            class="@(definitionsSelected ? "active" : null)"
            aria-current="@(definitionsSelected ? "page" : null)"
-           aria-label="Definições (administração)">Definições</a>
+           aria-label="Setup (administração)">Setup</a>
     }
     else
     {
@@ -35,6 +35,8 @@
     </nav>
     @if (!isAdmin)
     {
-        <partial name="_ModuleFunctionsContainer" model="Model.Functions.Concat(Model.ModuleLinks ?? []).ToArray()" />
+        // «Definições» fica no fim, encostado à direita (_ModuleFunctionEntry).
+        var moduleFunctions = Model.Functions.Concat(Model.ModuleLinks ?? []).OrderBy(f => f.Key == "definicoes").ToArray();
+        <partial name="_ModuleFunctionsContainer" model="moduleFunctions" />
     }
 </div>

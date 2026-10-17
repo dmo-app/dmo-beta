@@ -283,7 +283,7 @@
          <h4 class="resumo-section-title">Estado do documento<partial name="_DmoHelp" model="@("Escolher OK ou NOK grava logo. Clique no comentário para o escrever. Sem registo, a área fica «não registado». O estado e os comentários aparecem no PDF do Resumo.")" /></h4>
          @if (Model.McaliperRefused)
          {
-           <div class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>
+           <div data-dmo-toast="erro" class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>
          }
          <div class="resumo-areas">
         @foreach (var areaState in Model.AreaStates.Count > 0

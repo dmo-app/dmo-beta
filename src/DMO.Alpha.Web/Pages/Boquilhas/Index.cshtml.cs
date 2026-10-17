@@ -288,7 +288,7 @@ public sealed partial class IndexModel : PageModel
     /// <summary>
     /// A QUANTIDADE CONTABILÍSTICA do lote da BQ em registo (o fato da
     /// Tool — o lote que não cresce): alimenta o painel das quantidades
-    /// calculadas do dmo-html («Quantidade do lote — Em casa — Em
+    /// calculadas do dmo-html («Quantidade do lote — Fabricação — Em
     /// reparação — Discrepância acumulada»); null quando o lote ainda não
     /// tem quantidade contabilística («—», truthful).
     /// </summary>
@@ -884,7 +884,7 @@ public sealed partial class IndexModel : PageModel
     private async Task LoadRegisterFactsAsync(CancellationToken cancellationToken)
     {
         // Os fatos do lote para o painel das quantidades calculadas
-        // (o dmo-html: «Quantidade do lote — Em casa — Em
+        // (o dmo-html: «Quantidade do lote — Fabricação — Em
         // reparação — Discrepância acumulada»): a quantidade
         // contabilística da Tool (o lote que não cresce) e as
         // máquinas compatíveis (o facto humano).

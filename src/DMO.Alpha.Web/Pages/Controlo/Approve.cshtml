@@ -241,11 +241,11 @@
         <h3 class="revisao-section">Decisão</h3>
         @if (Model.ApprovalRefusedNoIdentity)
         {
-          <div class="resumo-aviso" role="alert">A aprovação não foi registada: a sessão não identifica o operador, e sem identidade não fica registo de quem aprovou. Termine a sessão e volte a entrar.</div>
+          <div data-dmo-toast="erro" class="resumo-aviso" role="alert">A aprovação não foi registada: a sessão não identifica o operador, e sem identidade não fica registo de quem aprovou. Termine a sessão e volte a entrar.</div>
         }
         @if (Model.NoteMissing)
         {
-          <div class="resumo-aviso" role="alert">Para não aprovar, escreva na nota o que tem de mudar. Nada foi gravado.</div>
+          <div data-dmo-toast="erro" class="resumo-aviso" role="alert">Para não aprovar, escreva na nota o que tem de mudar. Nada foi gravado.</div>
         }
         @if (Model.Approval is { } aprovacao)
         {

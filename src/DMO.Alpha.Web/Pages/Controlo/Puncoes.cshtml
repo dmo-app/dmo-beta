@@ -13,29 +13,21 @@
   <div class="page-head">
     <div>
       <h1 id="pu-title">PU NNPB</h1>
-      <p>Registo das punções e dos arrefecedores de uma produção NNPB.</p>
     </div>
   </div>
 
   @if (Model.RequestedControloId is null && Model.RequestedPuncoesId is null)
   {
-    <nav class="pu-modos" aria-label="Tipo de registo" data-pu-modo>
-      <a class="dmo-button" href="/Controlo/Puncoes" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
-      <a class="dmo-button" href="/Controlo/Puncoes?modo=@PuncoesModel.ModoJobOnValor" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar a um Job On</a>
-    </nav>
-
     <section class="dmo-card pu-card" id="puncoes-novo" aria-labelledby="pu-escolha-title">
-      <div class="pu-section-head">
-        <div>
-          <h3 id="pu-escolha-title">@(Model.ModoJobOn ? "Produção do registo" : "Registo sem Job On")</h3>
-          <p>@(Model.ModoJobOn
-              ? "Procure a referência e escolha a produção. A produção e a CM vêm do Job On."
-              : "Procure a referência para abrir um registo já começado ou começar um novo. Associa-se depois à mão a uma produção.")</p>
-        </div>
+      <div class="dmo-modo-head">
+        <h3 id="pu-escolha-title">@(Model.ModoJobOn ? "Produção do registo" : "Registo sem Job On")<partial name="_DmoHelp" model="@(Model.ModoJobOn
+            ? "Procure a referência e escolha a produção. A produção e a CM vêm do Job On."
+            : "Procure a referência para abrir um registo já começado ou começar um novo. Associa-se depois à mão a uma produção.")" /></h3>
+        <partial name="_ControloModoRegisto" model="@(("/Controlo/Puncoes", Model.ModoJobOn))" />
       </div>
       @if (Model.Refusal is not null)
       {
-        <div class="pu-aviso" role="alert">@Model.RefusalMessage</div>
+        <div data-dmo-toast="erro" class="pu-aviso" role="alert">@Model.RefusalMessage</div>
       }
       @if (Model.JobOnRefusalMessage is { } jobOnRecusa)
       {
@@ -138,8 +130,7 @@
     <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title">
       <div class="pu-section-head">
         <div>
-          <h3 id="pu-id-title">Identificação do registo</h3>
-          <p>Registo sem Job On. A referência da punção e o lote aplicam-se às próximas punções.</p>
+          <h3 id="pu-id-title">Identificação do registo<partial name="_DmoHelp" model="@("Registo sem Job On. A referência da punção e o lote aplicam-se às próximas punções.")" /></h3>
         </div>
         <span class="pu-step">01</span>
       </div>
@@ -150,7 +141,7 @@
 
       @if (Model.Refusal is not null)
       {
-        <div class="pu-aviso" role="alert">@Model.RefusalMessage</div>
+        <div data-dmo-toast="erro" class="pu-aviso" role="alert">@Model.RefusalMessage</div>
       }
 
       <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Identification" class="pu-id-form" id="pu-id-form">
@@ -180,8 +171,7 @@
     <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title">
       <div class="pu-section-head">
         <div>
-          <h3 id="pu-id-title">Identificação da produção</h3>
-          <p>A produção e a CM vêm do Job On. A referência da punção e o lote aplicam-se às próximas punções.</p>
+          <h3 id="pu-id-title">Identificação da produção<partial name="_DmoHelp" model="@("A produção e a CM vêm do Job On. A referência da punção e o lote aplicam-se às próximas punções.")" /></h3>
         </div>
         <span class="pu-step">01</span>
       </div>
@@ -200,7 +190,7 @@
 
       @if (Model.Refusal is not null)
       {
-        <div class="pu-aviso" role="alert">@Model.RefusalMessage</div>
+        <div data-dmo-toast="erro" class="pu-aviso" role="alert">@Model.RefusalMessage</div>
       }
 
       @if (!Model.CanRegister)
@@ -261,8 +251,7 @@
       <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title">
         <div class="pu-section-head">
           <div>
-            <h3 id="pu-list-title">Lista de punções</h3>
-            <p>Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração».</p>
+            <h3 id="pu-list-title">Lista de punções<partial name="_DmoHelp" model="@("Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração».")" /></h3>
           </div>
           <span class="pu-step">02</span>
         </div>
@@ -339,8 +328,7 @@
       <div class="pu-export">
         <div class="pu-pdf" aria-hidden="true">PDF</div>
         <div class="pu-export-text">
-          <h3>Relatório A4 das punções</h3>
-          <p>A identificação, os três totais e as punções por ordem de registo.</p>
+          <h3>Relatório A4 das punções<partial name="_DmoHelp" model="@("A identificação, os três totais e as punções por ordem de registo.")" /></h3>
         </div>
         <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf">
           <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
@@ -355,14 +343,13 @@
     <section class="dmo-card pu-card" id="puncoes-associar" aria-labelledby="pu-associar-title">
       <div class="pu-section-head">
         <div>
-          <h3 id="pu-associar-title">Associar a uma produção</h3>
-          <p>As punções não ficam ligadas sozinhas a uma produção: escolha à mão a produção NNPB deste registo. Depois de associado, o registo passa para a folha da produção e para o PDF do Resumo.</p>
+          <h3 id="pu-associar-title">Associar a uma produção<partial name="_DmoHelp" model="@("As punções não ficam ligadas sozinhas a uma produção: escolha à mão a produção NNPB deste registo. Depois de associado, o registo passa para a folha da produção e para o PDF do Resumo.")" /></h3>
         </div>
         <span class="pu-step">03</span>
       </div>
       @if (Model.JobOnRefusalMessage is { } escolhaRecusa)
       {
-        <div class="pu-aviso" role="alert">@escolhaRecusa</div>
+        <div data-dmo-toast="erro" class="pu-aviso" role="alert">@escolhaRecusa</div>
       }
       <form method="get" asp-page="/Controlo/Puncoes" asp-fragment="puncoes-associar" class="pu-id-form">
         <input type="hidden" name="puncoes_id" value="@semJobOn.PuncoesId" />

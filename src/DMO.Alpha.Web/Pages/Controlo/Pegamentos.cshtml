@@ -46,7 +46,6 @@
   <div class="page-head">
     <div>
       <h1 id="peg-title">Pegamentos</h1>
-      <p>Costura (0°) e contra costura (90°) da combinação CM + BQ + MF.</p>
     </div>
   </div>
 
@@ -56,10 +55,6 @@
   @* ------------------------------------------------------------------ *@
   @if (Model.Sheet is null && Model.RequestedControloId is null && Model.RequestedPegamentosId is null)
   {
-    <nav class="peg-document-actions" aria-label="Tipo de Pegamentos" style="margin-bottom:14px" data-peg-modo>
-      <a class="dmo-button" href="/Controlo/Pegamentos" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
-      <a class="dmo-button" href="/Controlo/Pegamentos?modo=@PegamentosModel.ModoJobOnValor" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar a um Job On</a>
-    </nav>
     @if (Model.EscolhaRefusalMessage is { } recusaEscolha)
     {
       <div class="peg-aviso" role="alert">@recusaEscolha</div>
@@ -68,20 +63,20 @@
     @if (Model.ModoJobOn)
     {
       <section class="dmo-card peg-card" aria-labelledby="peg-jobon-title">
-        <div class="peg-section-head"><div>
-          <h3 id="peg-jobon-title">Job On dos Pegamentos</h3>
-          <p class="card-note">CM, boquilha (BQ) e molde final (MF) vêm do Job On escolhido.</p>
-        </div></div>
+        <div class="dmo-modo-head">
+          <h3 id="peg-jobon-title">Job On<partial name="_DmoHelp" model="@("CM, boquilha (BQ) e molde final (MF) vêm do Job On escolhido.")" /></h3>
+          <partial name="_ControloModoRegisto" model="@(("/Controlo/Pegamentos", true))" />
+        </div>
         <partial name="_PegamentosEscolhaJobOn" model="Model" />
       </section>
     }
     else
     {
       <section class="dmo-card peg-card" aria-labelledby="peg-tools-title">
-        <div class="peg-section-head"><div>
-          <h3 id="peg-tools-title">Ferramentas dos Pegamentos</h3>
-          <p class="card-note">Sem Job On: escreva as referências da CM, da BQ e do MF (os Pegamentos medem sempre os três). Pode associar o Job On mais tarde.</p>
-        </div></div>
+        <div class="dmo-modo-head">
+          <h3 id="peg-tools-title">Ferramentas<partial name="_DmoHelp" model="@("Escreva as referências da CM, da BQ e do MF (os Pegamentos medem sempre os três). Pode associar o Job On mais tarde.")" /></h3>
+          <partial name="_ControloModoRegisto" model="@(("/Controlo/Pegamentos", false))" />
+        </div>
         <form method="get" asp-page="/Controlo/Pegamentos" class="dmo-filter-bar">
           <div class="dmo-field">
             <label for="pegCmRef">CM — referência</label>
@@ -140,7 +135,7 @@
   }
   @if (Model.PdfRefusalMessage is { Length: > 0 } pdfRefusalMessage)
   {
-    <div class="peg-aviso" role="alert">@pdfRefusalMessage</div>
+    <div data-dmo-toast="erro" class="peg-aviso" role="alert">@pdfRefusalMessage</div>
   }
 
   @* ------------------------------------------------------------------ *@
@@ -192,7 +187,7 @@
       }
       @if (Model.Associado)
       {
-        <p class="peg-hint" role="status">Pegamentos associados a esta produção. As medições já registadas ficaram como estavam.</p>
+        <p data-dmo-toast="ok" class="peg-hint" role="status">Pegamentos associados a esta produção. As medições já registadas ficaram como estavam.</p>
       }
 
       </div>
@@ -222,7 +217,7 @@
         </div></div>
         @if (Model.EscolhaRefusalMessage is { } recusaAssociar)
         {
-          <div class="peg-aviso" role="alert">@recusaAssociar</div>
+          <div data-dmo-toast="erro" class="peg-aviso" role="alert">@recusaAssociar</div>
         }
         <partial name="_PegamentosEscolhaJobOn" model="Model" />
       </section>
@@ -230,11 +225,11 @@
 
     @if (Model.MeasurementRefusal is not null)
     {
-      <div class="peg-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
+      <div data-dmo-toast="erro" class="peg-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
     }
     @if (Model.CorrecaoMessage is { } correcaoMessage)
     {
-      <div class="peg-aviso" role="alert">@correcaoMessage</div>
+      <div data-dmo-toast="erro" class="peg-aviso" role="alert">@correcaoMessage</div>
     }
     @foreach (var noticeMessage in Model.MeasurementNoticeMessages)
     {

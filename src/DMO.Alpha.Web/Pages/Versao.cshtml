@@ -14,20 +14,31 @@
         <dt>Origem</dt><dd>@Model.Build.SourceDescription</dd>
         <dt>Compilado em (UTC)</dt><dd>@Model.Build.BuiltAtUtc?.ToString("yyyy-MM-dd HH:mm:ss 'UTC'")</dd>
     </dl>
-    <h3>Correções incluídas nesta versão</h3>
+    <h3 id="correcoes">Correções</h3>
     <ul>
-        @foreach (var entry in Model.Build.Notes.Fixes)
+        @foreach (var entry in Model.Fixes.Items)
         {
             <li><strong>@entry.Id · @entry.Module:</strong> @entry.Description</li>
         }
     </ul>
-    <h3>Problemas e funcionalidades ainda pendentes</h3>
+    <partial name="_ListPager" model="Model.FixesPager" />
+    <h3 style="margin-top:28px">Problemas e funcionalidades ainda pendentes</h3>
     <ul>
         @foreach (var entry in Model.Build.Notes.Pending)
         {
             <li><strong>@entry.Id · @entry.Module:</strong> @entry.Description</li>
         }
     </ul>
-    <a class="dmo-button" asp-page="/Login">Voltar à entrada</a>
-    <a asp-page="/Versao" asp-page-handler="Metadata">Consultar metadata</a>
+    <div class="dmo-list-actions">
+        <a class="dmo-button" asp-page="/Login">Voltar à entrada</a>
+        @* A METADATA NUM FICHEIRO (Diogo, 17/10/2026: «vamos remover o consultar
+           metadata e meter num ficheiro»): ação rara, no «Opções»; descarrega o
+           .json deste build em vez de o abrir no browser. *@
+        <details class="dmo-options">
+            <summary class="dmo-button" aria-label="Opções da versão">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
+            <div class="dmo-options-list">
+                <a class="dmo-options-item" asp-page="/Versao" asp-page-handler="Metadata" download>Descarregar metadata (.json)</a>
+            </div>
+        </details>
+    </div>
 </section>

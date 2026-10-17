@@ -1,0 +1,103 @@
+@page "/Boquilhas/Definicoes"
+@model DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.bq-def-page{display:flex;flex-direction:column;gap:14px}
+.bq-def-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.bq-def-card h3{margin:0 0 12px;font-size:16px}
+.bq-def-criar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
+.bq-def-criar .dmo-field{margin:0;min-width:220px}
+.bq-def-card .dmo-table-wrap{max-width:420px}
+.bq-def-card .dmo-table td{padding:4px 8px}
+.bq-def-rotas{display:grid;grid-template-columns:repeat(3,minmax(0,220px));gap:12px 16px}
+@@media(max-width:720px){.bq-def-rotas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+}
+
+<main class="bq-def-page dmo-workspace" aria-labelledby="bq-def-title">
+
+  <div class="page-head">
+    <div>
+      <h1 id="bq-def-title">Definições das Boquilhas</h1>
+    </div>
+  </div>
+
+  <section class="dmo-card bq-def-card" aria-labelledby="boquilhas-repairers-title">
+    <h3 id="boquilhas-repairers-title">Reparadores<partial name="_DmoHelp" model="@("As entidades para onde se enviam as boquilhas; a saída de cada máquina usa o reparador configurado para ela. Clique num nome para o mudar; grava ao sair do campo. Mudar o nome não altera os movimentos passados.")" /></h3>
+
+    @if (Model.ShowRepairerSaveMessage && Model.SaveResultMessage.Length > 0)
+    {
+      <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+    }
+
+    <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="CreateRepairer" class="bq-def-criar">
+      <div class="dmo-field">
+        <label for="repairerName">Novo reparador</label>
+        <input id="repairerName" name="name" placeholder="Ex.: Vidroart" required />
+      </div>
+      <button type="submit" class="dmo-button">Criar reparador</button>
+    </form>
+
+    @if (Model.Repairers.Count == 0)
+    {
+      <p><em>Sem reparadores criados. Crie o primeiro para configurar a rota de cada máquina.</em></p>
+    }
+    else
+    {
+      <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="EditRepairer">
+        <div class="dmo-table-wrap">
+          <table class="dmo-table adm-repairer-list">
+            <thead><tr><th>Reparador</th></tr></thead>
+            <tbody>
+            @foreach (var repairer in Model.Repairers)
+            {
+              <tr><td><input type="hidden" name="repairer_id" value="@repairer.Id" /><input class="dmo-valor" data-dmo-valor name="name" value="@repairer.Name" autocomplete="off" aria-label="Nome do reparador @repairer.Name" required /></td></tr>
+            }
+            </tbody>
+          </table>
+        </div>
+        <p class="dmo-valor-aviso" role="status" data-dmo-valor-aviso hidden></p>
+      </form>
+    }
+  </section>
+
+  <section class="dmo-card bq-def-card" aria-labelledby="boquilhas-routing-title">
+    <h3 id="boquilhas-routing-title">Rota por máquina<partial name="_DmoHelp" model="@("O reparador usado pela saída de cada máquina (B1 a C3); sem reparador configurado, a saída regista-se na mesma. «— sem reparador —» limpa a rota.")" /></h3>
+
+    @if (Model.ShowRoutingSaveMessage && Model.SaveResultMessage.Length > 0)
+    {
+      <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+    }
+
+    @if (Model.Repairers.Count == 0)
+    {
+      <p><em>Sem reparadores criados. Crie o primeiro acima para configurar as máquinas.</em></p>
+    }
+    else
+    {
+      @* Sem botões: escolher o reparador de uma máquina grava logo as rotas
+         (Diogo, 17/10/2026: o dropdown aplica ao escolher). *@
+      <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="SaveMachineRoutes">
+        <div class="bq-def-rotas">
+          @foreach (var machineCode in DMO.Alpha.Core.Boquilhas.BqRepairerRouting.MachineCodes)
+          {
+            var configuredId = Model.MachineRepairerIds.TryGetValue(machineCode, out var value) ? value : null;
+            <div class="dmo-field">
+              <label for="machine-route-@machineCode">Máquina @machineCode</label>
+              <select id="machine-route-@machineCode" name="machine_code" class="adm-route-select" data-dmo-autosubmit>
+                <option value="@machineCode|">— sem reparador —</option>
+                @foreach (var repairer in Model.Repairers)
+                {
+                  <option value="@machineCode|@repairer.Id" selected="@(configuredId == repairer.Id)">@repairer.Name</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+      </form>
+    }
+  </section>
+</main>

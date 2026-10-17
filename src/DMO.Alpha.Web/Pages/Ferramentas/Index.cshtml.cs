@@ -71,8 +71,8 @@ public sealed class IndexModel : PageModel
 
     public string? PageLink(int pageNumber) => Url.Page("/Ferramentas/Index", new
     {
-        type = RequestedTypeToken, reference = RequestedReference, lot = RequestedLot,
-        mf_reference = RequestedMfReference, machine_id = RequestedMachineId,
+        type = RequestedTypeToken, reference = RequestedReference ?? RequestedMfReference, lot = RequestedLot,
+        machine_id = RequestedMachineId,
         pagina = pageNumber, por_pagina = PageSize, @return = ReturnTemplate
     });
 
@@ -83,6 +83,9 @@ public sealed class IndexModel : PageModel
     public IReadOnlyList<MachineOption> Machines { get; private set; } = Array.Empty<MachineOption>();
 
     // Estado de apresentação dos filtros (preservado entre pedidos).
+    /// <summary>TRUE quando há pelo menos um filtro: só então a lista carrega.</summary>
+    public bool Searched { get; private set; }
+
     public string? RequestedTypeToken { get; private set; }
     public string? RequestedReference { get; private set; }
     public string? RequestedLot { get; private set; }
@@ -166,15 +169,24 @@ public sealed class IndexModel : PageModel
         RequestedMachineId = machineId;
         RequestedTechnicalName = Sanitize(technicalName);
 
+        // UM SÓ CAMPO «Referência» (Diogo, 17/10/2026: «campos de filtro
+        // duplicados referência»): procura a referência da ferramenta OU a
+        // referência MF em que encaixa (a regra do antigo «Referência MF /
+        // produção», que já incluía a referência). O ?mf_reference= antigo
+        // continua a valer como referência.
+        var searchReference = RequestedReference ?? RequestedMfReference;
         var filter = new ToolCandidateFilter(
             Type: RequestedTypeToken is null ? null : TypeFor(RequestedTypeToken),
-            Reference: RequestedReference,
             Lot: RequestedLot,
             MachineId: RequestedMachineId,
-            MfReference: RequestedMfReference);
+            MfReference: searchReference);
 
-        // A lista só aparece no separador Ver.
-        if (!ShowCreate)
+        // A lista só aparece no separador Ver, e só depois de procurar
+        // (Diogo, 17/10/2026: «não deve existir lista até procurar, evitar
+        // peso nos carregamentos»): sem filtros, a página abre só com eles.
+        Searched = RequestedTypeToken is not null || searchReference is not null || RequestedLot is not null
+            || RequestedMachineId is not null;
+        if (!ShowCreate && Searched)
         {
             var page = await _candidateQuery.FindPageAsync(filter, pageNumber ?? 1, pageSize ?? 10, HttpContext.RequestAborted);
             Candidates = page.Items;

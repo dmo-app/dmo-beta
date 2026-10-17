@@ -21,6 +21,8 @@ public sealed partial class IndexModel
     public int CatalogCount { get; private set; }
     public int CatalogPages => Math.Max(1, (int)Math.Ceiling(CatalogCount / (double)CatalogPageSize));
     public string? ToolCreationError { get; private set; }
+    /// <summary>A lista só é consultada depois de procurar (Diogo, 17/10/2026: sem lista até procurar).</summary>
+    public bool CatalogSearched => !string.IsNullOrWhiteSpace(CatalogSearch) || CatalogMachineId is not null;
 
     public string? CatalogLink(int page, string? toolId = null, string? saved = null) => Url.Page("/Boquilhas/Index", new
     {
@@ -30,6 +32,9 @@ public sealed partial class IndexModel
 
     private async Task LoadCatalogAsync()
     {
+        CatalogMachines = await _db.Machines.AsNoTracking().OrderBy(m => m.Code)
+            .Select(m => new MachineOption(m.Id, m.Code)).ToListAsync(HttpContext.RequestAborted);
+        if (!CatalogSearched) return;
         var page = await _toolCandidates.FindPageAsync(
             new ToolCandidateFilter(Type: ToolType.Bq, MachineId: CatalogMachineId, Search: CatalogSearch),
             CatalogPageNumber, CatalogPageSize, HttpContext.RequestAborted);
@@ -37,8 +42,6 @@ public sealed partial class IndexModel
         CatalogCount = page.TotalCount;
         CatalogPageNumber = page.PageNumber;
         CatalogPageSize = page.PageSize;
-        CatalogMachines = await _db.Machines.AsNoTracking().OrderBy(m => m.Code)
-            .Select(m => new MachineOption(m.Id, m.Code)).ToListAsync(HttpContext.RequestAborted);
     }
 
     public async Task<IActionResult> OnPostCreateToolAsync()

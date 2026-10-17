@@ -8,7 +8,9 @@
 .ctl-def-page{display:flex;flex-direction:column;gap:14px}
 .ctl-def-card{padding:18px}
 .ctl-def-card h3{margin:0 0 10px;font-size:16px}
-.ctl-def-acoes{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.ctl-def-acoes{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.ctl-def-acoes .dmo-field{margin:0}
+.ctl-def-nota{margin:6px 0 0;color:var(--dmo-muted);font-size:12px}
 </style>
 }
 
@@ -34,18 +36,18 @@
     <h3 id="pegamentos-settings-title">Pegamentos — tolerância<partial name="_DmoHelp" model="@("A tolerância (± mm) à volta do gargalo do CM, BQ e MF. A norma é 0,20 mm. Cada registo de Pegamentos guarda a tolerância com que foi criado: mudar este valor não altera registos já feitos.")" /></h3>
     @if (Model.SaveResultMessage.Length > 0)
     {
-      <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+      <p data-dmo-toast="@(Model.SaveResult?.StartsWith("ok", StringComparison.Ordinal) == true ? "ok" : "erro")"><strong role="alert">@Model.SaveResultMessage</strong></p>
     }
     <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePegamentosTolerance" class="ctl-def-acoes">
       <div class="dmo-field">
         <label for="pegamentosTolerance">Tolerância (± mm)</label>
         <input id="pegamentosTolerance" name="tolerance_mm" inputmode="decimal" value="@Model.PegamentosToleranceMm.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" required />
-        @if (Model.PegamentosToleranceIsDefault)
-        {
-          <small>Sem valor guardado: vale a norma de 0,20 mm.</small>
-        }
       </div>
-      <button type="submit" class="dmo-button">Guardar tolerância</button>
+      <button type="submit" class="dmo-button">Guardar</button>
     </form>
+    @if (Model.PegamentosToleranceIsDefault)
+    {
+      <p class="ctl-def-nota">Sem valor guardado: vale a norma de 0,20 mm.</p>
+    }
   </section>
 </main>

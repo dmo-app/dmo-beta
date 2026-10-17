@@ -192,6 +192,41 @@
     });
   });
 
+  /* ---------- mensagens de resultado (data-dmo-toast) ----------
+   * O servidor escreve a mensagem onde ela pertence; aqui junta-se numa pilha
+   * no canto, com «×». As «ok» fecham sozinhas; as «erro» ficam até se fechar,
+   * para não se perder o motivo da recusa. O CSS já as tira do fluxo, por isso
+   * a página não se mexe nem antes deste script correr. */
+  function montarToasts() {
+    var mensagens = document.querySelectorAll("[data-dmo-toast]");
+    if (mensagens.length === 0) return;
+    var pilha = document.createElement("div");
+    pilha.className = "dmo-toast-pilha";
+    // Por baixo das barras de navegação, que mudam de altura entre módulos.
+    var barras = document.querySelector(".dmo-shell-navigation");
+    if (barras && window.matchMedia("(min-width: 641px)").matches) {
+      pilha.style.top = Math.max(12, barras.getBoundingClientRect().bottom + 12) + "px";
+    }
+    document.body.appendChild(pilha);
+    mensagens.forEach(function (mensagem) {
+      var fechar = function () {
+        mensagem.classList.add("a-sair");
+        setTimeout(function () { if (mensagem.parentNode) mensagem.parentNode.removeChild(mensagem); }, 220);
+      };
+      var botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "dmo-toast-fechar";
+      botao.setAttribute("aria-label", "Fechar");
+      botao.textContent = "×";
+      botao.addEventListener("click", fechar);
+      mensagem.appendChild(botao);
+      pilha.appendChild(mensagem);
+      if (mensagem.getAttribute("data-dmo-toast") === "ok") setTimeout(fechar, 6000);
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", montarToasts);
+  else montarToasts();
+
   global.DMOLive = {
     toast: toast,
     escapeHtml: escapeHtml,

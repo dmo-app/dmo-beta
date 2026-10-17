@@ -1,9 +1,10 @@
 @model ListPager
 @* A PAGINAÇÃO DAS LISTAS EM TABELA (o Owner 2026-10-16: «tudo que sejam
    listas em tabelas limitar numero e criar paginaçao»): aparece sempre que a
-   lista tem linhas, mesmo com uma só página («Página 1 de 1» — o Owner
+   lista tem linhas, mesmo com uma só página («1 de 1» — o Owner
    2026-10-16: «aplicar paginaçao nos historicos»); os links mantêm os
-   filtros do pedido. *@
+   filtros do pedido. Entre as setas fica só «página de total» (o Owner
+   2026-10-17: «basta meter 1 de 5, depois ao mudar 2 de 5»). *@
 @if (Model.TotalCount > 0)
 {
   <nav class="dmo-list-pager" aria-label="Paginação" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:12px">
@@ -15,7 +16,7 @@
     {
       <span class="dmo-button dmo-arrow" aria-disabled="true" aria-label="Página anterior">←</span>
     }
-    <span role="status">Página @Model.PageNumber de @Model.TotalPages · @Model.TotalCount @(Model.TotalCount == 1 ? "registo" : "registos")</span>
+    <span role="status" aria-label="Página @Model.PageNumber de @Model.TotalPages">@Model.PageNumber de @Model.TotalPages</span>
     @if (Model.PageNumber < Model.TotalPages)
     {
       <a class="dmo-button dmo-arrow" href="@Model.Href(Context.Request, Model.PageNumber + 1)" aria-label="Página seguinte">→</a>

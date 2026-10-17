@@ -21,6 +21,9 @@
 .ferr-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
 .ferr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.ferr-head-acoes{display:flex;align-items:center;gap:16px}
+.ferr-head-acoes .dmo-options-list{left:auto;right:0}
+#ferr-delete-dialog .dmo-aviso-discreto{margin:8px 0 22px}
 .ferr-card{padding:18px}
 .ferr-card h3{margin:0 0 4px;font-size:16px}
 .ferr-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
@@ -33,7 +36,8 @@
 .ferr-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .ferr-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
 .ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
-.ferr-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:start}
+/* O Tipo leva a largura do Criar (190px) para «CM — Contra-molde» caber inteiro. */
+.ferr-form-grid{display:grid;grid-template-columns:190px repeat(auto-fill,140px);gap:10px;align-items:start}
 .ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
 .ferr-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dmo-text,#172d42)}
 .ferr-check input{width:auto;min-height:0}
@@ -48,11 +52,6 @@
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
 .ferr-danger:hover{background:#7d4f4a}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
-.ferr-impact-note{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
-.ferr-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:12px}
-.ferr-count{padding:10px 12px;border-left:3px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
-.ferr-count span{display:block;color:var(--dmo-muted);font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em}
-.ferr-count strong{display:block;font-size:16px;margin-top:3px}
 @@media(max-width:900px){.ferr-form-grid,.ferr-tech-grid{grid-template-columns:1fr}}
 </style>
 }
@@ -63,8 +62,62 @@
     <div>
       <h2 id="ferr-title">Ficha de ferramenta</h2>
     </div>
-    <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+    <div class="ferr-head-acoes">
+      @if (sheet is not null)
+      {
+        @* AÇÕES RARAS NO «OPÇÕES» (Diogo, 17/10/2026: «criar opções pode ir
+           para topo lado direito, e nas opções meter o duplicar e eliminar»):
+           cada uma abre numa janela pequena. *@
+        <details class="dmo-options" data-dmo-tab-menu>
+          <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
+          <div class="dmo-options-list">
+            <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
+            <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
+          </div>
+        </details>
+      }
+      <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+    </div>
   </div>
+
+  @if (sheet is not null)
+  {
+    <dialog id="ferr-duplicate-dialog" class="dmo-dialog" aria-labelledby="ferr-duplicate-title" data-dmo-dialog-aberta="@(Model.DuplicateRefusal is not null ? "1" : null)">
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Duplicate">
+        <h3 id="ferr-duplicate-title">Duplicar para lote novo<partial name="_DmoHelp" model="@("Cria uma ferramenta nova com os mesmos dados e o lote indicado. Esta ferramenta fica como está.")" /></h3>
+        @if (Model.DuplicateRefusal is not null)
+        {
+          <div class="ferr-aviso" role="alert">@Model.DuplicateRefusalMessage</div>
+        }
+        <input type="hidden" name="tool_id" value="@sheet.ToolId" />
+        <div class="dmo-field">
+          <label for="ferr-new-lot">Lote novo</label>
+          <input id="ferr-new-lot" name="new_lot" required placeholder="Ex.: 4" />
+        </div>
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+          <button type="submit" class="dmo-button">Duplicar</button>
+        </div>
+      </form>
+    </dialog>
+  }
+
+  @if (sheet is not null)
+  {
+    @* Só um aviso curto antes de eliminar (Diogo, 17/10/2026: «não precisa
+       desta informação toda, basta um warning se quer mesmo eliminar»). *@
+    <dialog id="ferr-delete-dialog" class="dmo-dialog" aria-labelledby="ferr-delete-title" data-dmo-dialog-aberta="@(Model.ConfirmDelete ? "1" : null)">
+      <h3 id="ferr-delete-title">Eliminar ferramenta</h3>
+      <p class="dmo-aviso-discreto">Quer mesmo eliminar @humanFacts?</p>
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Delete">
+        <input type="hidden" name="tool_id" value="@sheet.ToolId" />
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+          <button type="submit" class="dmo-button ferr-danger">Eliminar</button>
+        </div>
+      </form>
+    </dialog>
+  }
 
   @* ------------------------------------------------------------------ *@
   @* 0. Sem ferramenta: a ficha resolve-se pelo tool_id — nada é       *@
@@ -83,7 +136,7 @@
       <div class="ferr-aviso" role="alert">A ferramenta indicada não existe no registo. Nenhuma ficha foi aberta e nenhuma ferramenta foi inventada.</div>
       @if (Model.DeleteRefusal is not null)
       {
-        <div class="ferr-aviso" role="alert" style="margin-top:10px">@Model.DeleteRefusalMessage</div>
+        <div data-dmo-toast="erro" class="ferr-aviso" role="alert" style="margin-top:10px">@Model.DeleteRefusalMessage</div>
       }
     </section>
   }
@@ -92,16 +145,14 @@
   {
     if (Model.CreatedNote)
     {
-      <div class="ferr-nota" role="status">Ferramenta registada. @if (Model.FormatAdvisoryNote)
-      {<text>A referência «@tool.Reference» desvia-se do formato canónico — ficou registada na mesma; corrija-a aqui se for um erro de escrita (o formato é anotação, nunca recusa).</text>}</div>
+      @* Sem aviso de «formato canónico» (Diogo, 17/10/2026: um CM pode ter
+         referências próprias como ST100 ou ST62; a ligação à referência MF
+         faz-se pela «Ref. MF associada»). *@
+      <div data-dmo-toast="ok" class="ferr-nota" role="status">Ferramenta registada.</div>
     }
     else if (Model.ExistedNote)
     {
-      <div class="ferr-nota" role="status">Esta ferramenta já estava registada (mesmos tipo, referência e lote) — nada foi duplicado; as máquinas indicadas foram acrescentadas às ligações dela.</div>
-    }
-    else if (Model.FormatAdvisoryNote)
-    {
-      <div class="ferr-nota avisoria" role="status">A referência «@tool.Reference» desvia-se do formato canónico (@tokenOf(tool.Type)@(tokenOf(tool.Type) == "CM" ? " = dígitos, ex. 5447" : tokenOf(tool.Type) == "BQ" ? " = 1 letra maiúscula + 3 dígitos, ex. T194" : "")). O valor está registado na mesma — a nota é apenas anotação, nunca recusa.</div>
+      <div data-dmo-toast="ok" class="ferr-nota" role="status">Esta ferramenta já estava registada (mesmos tipo, referência e lote) — nada foi duplicado; as máquinas indicadas foram acrescentadas às ligações dela.</div>
     }
 
     @* Avisos (beta.63, regra do Owner «tentar sempre warning»): o trabalho
@@ -133,13 +184,13 @@
 
     if (Model.FactsRefusal is not null)
     {
-      <div class="ferr-aviso" role="alert">@Model.FactsRefusalMessage @if (Model.ExistingToolId is { } existingId)
+      <div data-dmo-toast="erro" class="ferr-aviso" role="alert">@Model.FactsRefusalMessage @if (Model.ExistingToolId is { } existingId)
       {<a class="ferr-cancel" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = existingId })">Abrir a ferramenta existente</a>}</div>
     }
 
     if (Model.TechnicalRefusal is not null)
     {
-      <div class="ferr-aviso" role="alert">@Model.TechnicalRefusalMessage</div>
+      <div data-dmo-toast="erro" class="ferr-aviso" role="alert">@Model.TechnicalRefusalMessage</div>
     }
 
     @* ---------------------------------------------------------------- *@
@@ -234,24 +285,6 @@
         </div>
       </form>
 
-      @* Duplicar para um lote novo (nova ferramenta, fonte intacta), dentro do Editar. *@
-      <h4 id="ferr-duplicate-title" class="ferr-subtitle">Duplicar para lote novo</h4>
-
-      @if (Model.DuplicateRefusal is not null)
-      {
-        <div class="ferr-aviso" role="alert" style="margin-top:10px">@Model.DuplicateRefusalMessage</div>
-      }
-
-      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Duplicate" class="dmo-filter-bar" aria-labelledby="ferr-duplicate-title">
-        <input type="hidden" name="tool_id" value="@tool.ToolId" />
-        <div class="dmo-field" style="flex:0 1 220px">
-          <label for="ferr-new-lot">Lote novo</label>
-          <input id="ferr-new-lot" name="new_lot" required placeholder="Ex.: 4" />
-        </div>
-        <div class="dmo-field">
-          <button type="submit" class="dmo-button">Duplicar</button>
-        </div>
-      </form>
     </section>
 
     @* ---------------------------------------------------------------- *@
@@ -350,70 +383,6 @@
     </section>
 
 
-    @* ---------------------------------------------------------------- *@
-    @* 5. Eliminar: ação corretiva EXPLÍCITA com aviso e confirmação.    *@
-    @* ---------------------------------------------------------------- *@
-    <section class="dmo-card ferr-card" aria-labelledby="ferr-delete-title">
-      <h3 id="ferr-delete-title">Eliminar ferramenta<partial name="_DmoHelp" model="@("Só quando a ferramenta deixou de existir. O histórico mantém-se.")" /></h3>
-
-      @if (!Model.ConfirmDelete)
-      {
-        <div class="ferr-actions">
-          <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId, confirm_delete = 1 })">Eliminar esta ferramenta…</a>
-        </div>
-      }
-      else if (Model.Impact is { } impact)
-      {
-        <div class="ferr-impact-note" role="alert">
-          <strong>Vai eliminar @humanFacts.</strong> Esta ação apaga a ficha do registo. O que acontece ao histórico:
-          as produções que a referem, os registos de consumo (Pesos, Pegamentos) e as mudanças de lote passam a
-          apontar para a linha de ferramenta removida (os registos de consumo e as mudanças de lote conservam a referência
-          e o lote congelados à criação); os traces de reparação ainda não associados perdem a âncora direta e
-          mantêm os factos congelados. Nada disto é uma recusa — é o aviso para a sua decisão explícita.
-        </div>
-
-        <div class="ferr-counts">
-          <div class="ferr-count"><span>Pesos reatribuídos</span><strong>@impact.PesoCount</strong></div>
-          <div class="ferr-count"><span>Registos de Pegamentos reatribuídos</span><strong>@impact.PegamentosCount</strong></div>
-          <div class="ferr-count"><span>Traces de reparação não resolvidos</span><strong>@impact.UnresolvedTraceCount</strong></div>
-          <div class="ferr-count"><span>Produções que a referem</span><strong>@impact.Productions.Count</strong></div>
-        </div>
-
-        @if (impact.Productions.Count > 0)
-        {
-          <div class="dmo-table-wrap" style="margin-top:12px">
-            <table class="dmo-table">
-              <thead>
-                <tr>
-                  <th>Produção</th>
-                  <th>Referência</th>
-                  <th>Máquina</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach (var production in impact.Productions)
-                {
-                  <tr>
-                    <td><strong>@production.ProductionNumber</strong></td>
-                    <td>@production.Reference</td>
-                    <td>@production.MachineCode</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          <p class="ferr-hint">Nas produções acima, esta ferramenta passa a aparecer como eliminada; o resto da produção não muda.</p>
-        }
-
-        <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Delete">
-          <input type="hidden" name="tool_id" value="@tool.ToolId" />
-          <div class="ferr-actions">
-            <button type="submit" class="dmo-button ferr-danger">Eliminar definitivamente</button>
-            <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId })">Cancelar — manter a ferramenta</a>
-          </div>
-        </form>
-      }
-    </section>
   }
 
 </main>

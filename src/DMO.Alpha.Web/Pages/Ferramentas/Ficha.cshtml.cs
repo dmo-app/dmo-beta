@@ -65,7 +65,6 @@ public sealed class FichaModel : PageModel
         : stored is { } process ? process == CmProcess.Nnpb ? "NNPB" : "PS" : string.Empty;
 
     private readonly IToolSheetQuery _sheetQuery;
-    private readonly IToolDeletionImpactQuery _impactQuery;
     private readonly IMachineListQuery _machineListQuery;
     private readonly IEditToolFactsHandler _editFacts;
     private readonly IEditToolTechnicalValuesHandler _editTechnical;
@@ -75,7 +74,6 @@ public sealed class FichaModel : PageModel
 
     public FichaModel(
         IToolSheetQuery sheetQuery,
-        IToolDeletionImpactQuery impactQuery,
         IMachineListQuery machineListQuery,
         IEditToolFactsHandler editFacts,
         IEditToolTechnicalValuesHandler editTechnical,
@@ -84,7 +82,6 @@ public sealed class FichaModel : PageModel
         ShellStateFactory shellState)
     {
         _sheetQuery = sheetQuery;
-        _impactQuery = impactQuery;
         _machineListQuery = machineListQuery;
         _editFacts = editFacts;
         _editTechnical = editTechnical;
@@ -108,8 +105,6 @@ public sealed class FichaModel : PageModel
     /// <summary>True quando a ficha abre com o aviso+confirmação de eliminação (?confirm_delete=1).</summary>
     public bool ConfirmDelete { get; private set; }
 
-    /// <summary>Impacto corrente da eliminação (produções afetadas + contagens), quando pedido.</summary>
-    public ToolDeletionImpactReadModel? Impact { get; private set; }
 
     /// <summary>Nota de criação (PRG do registo/duplicação): a ferramenta foi registada.</summary>
     /// <summary>Nota de criação do último POST (?created=1): a ficha abre com o facto gravado.</summary>
@@ -331,14 +326,8 @@ public sealed class FichaModel : PageModel
 
         Machines = await _machineListQuery.ListAsync(HttpContext.RequestAborted);
 
-        // Aviso de eliminação: o impacto corrente ANTES da confirmação
-        // explícita (blueprint L147: a existência de histórico é motivo de
-        // aviso, nunca recusa automática).
+        // ?confirm_delete=1 abre logo a janela «Quer mesmo eliminar…?».
         ConfirmDelete = confirmDelete == "1";
-        if (ConfirmDelete && Sheet is { } toolSheet)
-        {
-            Impact = await _impactQuery.FindByToolIdAsync(toolSheet.ToolId, HttpContext.RequestAborted);
-        }
 
         return Page();
     }

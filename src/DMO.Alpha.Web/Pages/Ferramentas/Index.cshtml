@@ -23,12 +23,12 @@
 
   @if (Model.DeletedNote)
   {
-    <div class="ferr-nota" role="status">Ferramenta eliminada. Os registos de consumo que a referiam foram reatribuídos à linha de removidos e conservam os factos humanos (referência e lote) congelados à criação — a verdade histórica intacta.</div>
+    <div data-dmo-toast="ok" class="ferr-nota" role="status">Ferramenta eliminada. Os registos de consumo que a referiam foram reatribuídos à linha de removidos e conservam os factos humanos (referência e lote) congelados à criação — a verdade histórica intacta.</div>
   }
 
   @if (Model.CreateRefusal is not null)
   {
-    <div class="ferr-aviso" role="alert">@Model.CreateRefusalMessage</div>
+    <div data-dmo-toast="erro" class="ferr-aviso" role="alert">@Model.CreateRefusalMessage</div>
   }
 
   @* ------------------------------------------------------------------ *@
@@ -37,7 +37,10 @@
   @if (!Model.ShowCreate)
   {
   <section class="dmo-card ferr-card" aria-labelledby="ferr-filter-title">
-    <h3 id="ferr-filter-title">Filtrar ferramentas registadas<partial name="_DmoHelp" model="@("Os resultados mudam enquanto escreve; os dropdowns aplicam logo.")" /></h3>
+    <div class="ferr-card-head">
+      <h3 id="ferr-filter-title">Filtrar ferramentas registadas<partial name="_DmoHelp" model="@("Os resultados mudam enquanto escreve; os dropdowns aplicam logo.")" /></h3>
+      <a class="dmo-button" href="@Url.Page("/Ferramentas/Index", new { criar = 1, @return = Model.ReturnTemplate })">Criar ferramenta</a>
+    </div>
     <form method="get" asp-page="/Ferramentas/Index" class="ferr-filters" data-dmo-ao-escrever="ferrResultados">
       @if (Model.ReturnTemplate is not null)
       {
@@ -53,16 +56,12 @@
         </select>
       </div>
       <div class="dmo-field">
-        <label for="ferr-reference">Referência</label>
-        <input id="ferr-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.RequestedReference" placeholder="Ex.: 5447 ou T194" />
+        <label for="ferr-reference">Referência<partial name="_DmoHelp" model="@("A referência da ferramenta ou a referência MF em que encaixa (por exemplo 5447, T194 ou 5810).")" /></label>
+        <input id="ferr-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@(Model.RequestedReference ?? (Model.ShowCreate ? null : Model.RequestedMfReference))" placeholder="Ex.: 5447 ou T194" />
       </div>
       <div class="dmo-field">
         <label for="ferr-lot">Lote</label>
         <input id="ferr-lot" name="lot" value="@Model.RequestedLot" placeholder="Ex.: 3" />
-      </div>
-      <div class="dmo-field">
-        <label for="ferr-mf">Referência MF / produção</label>
-        <input id="ferr-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RequestedMfReference" placeholder="Ex.: 5810" />
       </div>
       <div class="dmo-field">
         <label for="ferr-machine">Máquina / linha</label>
@@ -131,7 +130,7 @@
           <input id="ferr-new-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RequestedMfReference" placeholder="opcional" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
         </div>
         <div class="dmo-field ferr-w-qty">
-          <label for="ferr-new-qty">Quantidade do lote</label>
+          <label for="ferr-new-qty">Quantidade do lote<partial name="_DmoHelp" model="@("Vem preenchida com o total do lote das máquinas escolhidas (Ferramentas → Definições) e pode ser mudada. Se faltar o total de uma máquina, aparece um aviso.")" /></label>
           <input id="ferr-new-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.RequestedLotQuantity" placeholder="opcional" />
           <input id="ferr-quantity-manual" type="hidden" name="quantity_manual" value="@(Model.RequestedQuantityManual ?? "0")" />
         </div>
@@ -163,9 +162,8 @@
           </div>
         </div>
         <div class="ferr-quantity-suggestion">
-          <p id="ferr-quantity-notice" class="ferr-hint" role="status" aria-live="polite">Escolha as máquinas para sugerir o total do lote.</p>
+          <p id="ferr-quantity-notice" class="ferr-hint" role="status" aria-live="polite"></p>
           <div id="ferr-quantity-choices" class="ferr-quantity-choices"></div>
-          <button id="ferr-use-quantity-suggestion" class="dmo-button" type="button">Usar sugestão</button>
         </div>
       </div>
       <div class="ferr-actions">
@@ -173,12 +171,6 @@
       </div>
     </form>
   </section>
-  }
-  else
-  {
-    @* O VER sem a tab CRIAR aberta: um atalho à criação (o card vazio da
-       lista também aponta) — o dono da ação decide quando abrir. *@
-    <p class="ferr-hint" style="margin:-4px 0 0">A registar uma nova? <a class="ferr-link" href="@Url.Page("/Ferramentas/Index", new { criar = 1, @return = Model.ReturnTemplate })">Abrir o Criar</a>.</p>
   }
 
   @* ------------------------------------------------------------------ *@
@@ -192,7 +184,9 @@
   @* ------------------------------------------------------------------ *@
   @if (!Model.ShowCreate)
   {
-  <section class="dmo-card ferr-card" id="ferrResultados" aria-labelledby="ferr-list-title">
+  <section class="dmo-card ferr-card" id="ferrResultados" aria-labelledby="ferr-list-title" hidden="@(!Model.Searched)">
+    @if (Model.Searched)
+    {
     <h3 id="ferr-list-title">Ferramentas registadas<partial name="_DmoHelp" model="@(Model.ReturnTemplate is null ? "Um clique abre a ficha." : "Um clique seleciona; duplo clique abre a ficha.")" /></h3>
     <p class="card-note">@Model.TotalCandidates encontrada(s) · @Model.Candidates.Count nesta página</p>
 
@@ -238,10 +232,11 @@
     <nav class="ferr-pagination" aria-label="Paginação de ferramentas">
       <a class="dmo-button dmo-arrow" href="@(Model.PageNumber > 1 ? Model.PageLink(Model.PageNumber - 1) : null)"
          aria-label="Página anterior" aria-disabled="@(Model.PageNumber <= 1 ? "true" : null)">←</a>
-      <span role="status">Página @Model.PageNumber de @Model.TotalPages</span>
+      <span role="status" aria-label="Página @Model.PageNumber de @Model.TotalPages">@Model.PageNumber de @Model.TotalPages</span>
       <a class="dmo-button dmo-arrow" href="@(Model.PageNumber < Model.TotalPages ? Model.PageLink(Model.PageNumber + 1) : null)"
          aria-label="Página seguinte" aria-disabled="@(Model.PageNumber >= Model.TotalPages ? "true" : null)">→</a>
     </nav>
+    }
   </section>
   }
 

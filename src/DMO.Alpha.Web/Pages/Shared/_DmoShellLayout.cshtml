@@ -35,9 +35,7 @@
        vive no SHELL, onde quer que a aterragem seja. *@
     @if (TempData["PasswordChanged"] is not null)
     {
-        <div class="dmo-shell-page" style="padding:12px 16px;border-left:4px solid #3d7a5a;background:#f0f9f1;border-radius:8px;max-width:1000px;margin:0 auto" role="status">
-            <strong>Palavra-passe alterada com sucesso.</strong>
-        </div>
+        <div data-dmo-toast="ok" role="status"><strong>Palavra-passe alterada com sucesso.</strong></div>
     }
     @RenderBody()
 </div>

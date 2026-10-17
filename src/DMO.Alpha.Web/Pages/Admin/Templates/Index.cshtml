@@ -38,6 +38,10 @@
 .dmt-detail .detail-key code{background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:6px;padding:2px 7px;font-size:12.5px}
 .dmt-checks{display:grid;gap:8px;margin-top:8px}
 .dmt-check{display:flex;gap:9px;align-items:start;padding:10px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
+/* Cartões dos módulos com cor da paleta (Diogo 17/10: «a página está muito
+   branca»); o módulo escolhido fica mais marcado. */
+.dmt-check{background:var(--dmo-brand-050);border-color:var(--dmo-palette-sky)}
+.dmt-check:has(input:checked){background:var(--dmo-brand-100);border-color:var(--dmo-palette-steel)}
 .dmt-check input{width:auto;min-height:0;margin-top:2px}
 .dmt-check label{display:grid;gap:1px;font-weight:700;cursor:pointer}
 .dmt-check label span{font-weight:400;color:var(--dmo-muted);font-size:11.5px}
@@ -61,27 +65,27 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
 
   @if (Model.CreatedNote)
   {
-    <div class="dmt-nota" role="status">Template criada.</div>
+    <div data-dmo-toast="ok" class="dmt-nota" role="status">Template criada.</div>
   }
   @if (Model.SavedNote)
   {
-    <div class="dmt-nota" role="status">Template guardada.</div>
+    <div data-dmo-toast="ok" class="dmt-nota" role="status">Template guardada.</div>
   }
   @if (Model.DeletedNote)
   {
-    <div class="dmt-nota" role="status">Template eliminada.</div>
+    <div data-dmo-toast="ok" class="dmt-nota" role="status">Template eliminada.</div>
   }
   @if (Model.DeleteRefusal is not null)
   {
-    <div class="dmt-aviso" role="alert">@Model.DeleteRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmt-aviso" role="alert">@Model.DeleteRefusalMessage</div>
   }
   @if (Model.CreateRefusal is not null)
   {
-    <div class="dmt-aviso" role="alert">@Model.CreateRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmt-aviso" role="alert">@Model.CreateRefusalMessage</div>
   }
   @if (Model.EditRefusal is not null)
   {
-    <div class="dmt-aviso" role="alert">@Model.EditRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmt-aviso" role="alert">@Model.EditRefusalMessage</div>
   }
 
   <div class="dmt-grid">
@@ -161,7 +165,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
 
         @if (DMO.Alpha.Core.Admin.DmoCapabilities.GrantsBothControlos(selected.Capabilities))
         {
-          <div class="dmt-nota" role="status">Aviso: com esta template, a mesma pessoa cria e aprova o Controlo.</div>
+          <div class="dmo-aviso warn" role="status">Aviso: com esta template, a mesma pessoa cria e aprova o Controlo.</div>
         }
         <form method="post" asp-page="/Admin/Templates/Index" asp-page-handler="Edit">
           <input type="hidden" name="template_key" value="@selected.TemplateKey" />

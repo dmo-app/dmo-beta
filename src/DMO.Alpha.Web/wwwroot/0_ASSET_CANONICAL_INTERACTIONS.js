@@ -222,6 +222,52 @@
     });
   });
 
+  // Editar no próprio valor (Diogo, 17/10/2026: «para editar, clica-se no
+  // valor da linha e muda-se ali mesmo»): um input.dmo-valor[data-dmo-valor]
+  // dentro de um form grava ao sair do campo, sem botão nem recarregar. Envia
+  // o token, os campos escondidos da mesma linha e o próprio campo; o
+  // servidor responde { ok, valor, aviso, resumo }. Enter grava, Esc desfaz.
+  // Sem JavaScript, Enter submete o form inteiro.
+  document.querySelectorAll("input[data-dmo-valor]").forEach((input) => {
+    const form = input.form;
+    if (!form) return;
+    input.dataset.dmoValorGuardado = input.value;
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") { event.preventDefault(); input.blur(); }
+      if (event.key === "Escape") { input.value = input.dataset.dmoValorGuardado; input.blur(); }
+    });
+    input.addEventListener("change", async () => {
+      const body = new FormData();
+      const token = form.querySelector("input[name=__RequestVerificationToken]");
+      if (token) body.append(token.name, token.value);
+      const row = input.closest("tr") || input.parentElement;
+      row.querySelectorAll("input[type=hidden]:not([name=__RequestVerificationToken])").forEach((hidden) => body.append(hidden.name, hidden.value));
+      body.append(input.name, input.value);
+      const aviso = form.querySelector("[data-dmo-valor-aviso]");
+      const resumo = form.querySelector("[data-dmo-valor-resumo]");
+      try {
+        const response = await fetch(form.action, {
+          method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" }
+        });
+        const data = await response.json();
+        if (data.ok) {
+          input.value = data.valor ?? input.value;
+          input.dataset.dmoValorGuardado = input.value;
+          input.removeAttribute("aria-invalid");
+          input.classList.add("dmo-valor-gravado");
+          setTimeout(() => input.classList.remove("dmo-valor-gravado"), 1200);
+        } else {
+          input.value = input.dataset.dmoValorGuardado;
+          input.setAttribute("aria-invalid", "true");
+        }
+        if (aviso) { aviso.textContent = data.ok ? "" : (data.aviso || ""); aviso.hidden = !!data.ok || !data.aviso; }
+        if (resumo && data.resumo) resumo.textContent = data.resumo;
+      } catch {
+        form.requestSubmit();
+      }
+    });
+  });
+
   // Copiar um link sem o mostrar (Diogo, 17/10/2026): data-dmo-copiar="url";
   // o rótulo [data-dmo-copiar-label] diz «Copiado» por momentos.
   document.querySelectorAll("[data-dmo-copiar]").forEach((button) => {
@@ -258,6 +304,23 @@
     dialog.addEventListener("click", (event) => {
       if (event.target === dialog || event.target.closest("[data-dmo-dialog-close]")) dialog.close();
     });
+  });
+
+  // Uma janela que tem de abrir com a página (data-dmo-dialog-aberta), por
+  // exemplo a confirmação de eliminar ou um erro a corrigir. Com
+  // data-dmo-dialog-voltar, fechar volta a esse endereço.
+  document.querySelectorAll("dialog.dmo-dialog[data-dmo-dialog-aberta=\"1\"]").forEach((dialog) => {
+    if (typeof dialog.showModal !== "function") return;
+    if (!dialog.matches("[data-dmo-dialog]") && !document.querySelector(`[data-dmo-dialog="${dialog.id}"]`)) {
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog || event.target.closest("[data-dmo-dialog-close]")) dialog.close();
+      });
+    }
+    if (dialog.dataset.dmoDialogVoltar) {
+      dialog.addEventListener("close", () => { window.location.href = dialog.dataset.dmoDialogVoltar; });
+    }
+    dialog.showModal();
+    (dialog.querySelector("textarea, input:not([type=hidden]), select") || dialog.querySelector(".dmo-dialog-actions > *"))?.focus();
   });
 
   document.querySelectorAll("[data-dmo-calendar]").forEach((calendar) => {

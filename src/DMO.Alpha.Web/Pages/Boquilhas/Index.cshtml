@@ -145,8 +145,19 @@
                 <div class="dmo-fact"><span>Referência</span><strong>@production.Reference</strong></div>
                 <div class="dmo-fact"><span>BQ · lote</span><strong>@trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</strong></div>
                 <div class="dmo-fact"><span>Produção</span><strong>@production.ProductionNumber</strong></div>
-                <div class="dmo-fact"><span>Início</span><strong>@(production.InicioEm?.ToString("dd/MM/yyyy", pt) ?? "—")</strong></div>
-                <div class="dmo-fact"><span>Fim</span><strong>@(production.FimEm?.ToString("dd/MM/yyyy", pt) ?? "Até aviso")</strong></div>
+                @* O início e o fim são os do Job On (Diogo, 17/10/2026). Um Job On
+                   sem data de início fica com um aviso amarelo discreto: falta
+                   um dado que devia existir, e o fim não é «até aviso». *@
+                if (production.InicioEm is { } inicio)
+                {
+                  <div class="dmo-fact"><span>Início</span><strong>@inicio.ToString("dd/MM/yyyy", pt)</strong></div>
+                  <div class="dmo-fact"><span>Fim</span><strong>@(production.FimEm?.ToString("dd/MM/yyyy", pt) ?? "Até aviso")</strong></div>
+                }
+                else
+                {
+                  <div class="dmo-fact dmo-fact-falta"><span>Início</span><strong>Sem data no Job On</strong></div>
+                  <div class="dmo-fact"><span>Fim</span><strong>@(production.FimEm?.ToString("dd/MM/yyyy", pt) ?? "—")</strong></div>
+                }
               }
               else
               {
@@ -213,7 +224,7 @@
           <div class="card bq-movement-card">
             @if (Model.MovementRefusal is not null)
             {
-              <div class="result" role="alert">@Model.MovementRefusalMessage</div>
+              <div data-dmo-toast="erro" class="result" role="alert">@Model.MovementRefusalMessage</div>
             }
 
             @* Os avisos (âmbar, nunca bloqueio): o movimento ou a associação
@@ -230,7 +241,7 @@
 
             @if (Model.AssociationRefusal is not null)
             {
-              <div class="result" role="alert">@Model.AssociationRefusalMessage</div>
+              <div data-dmo-toast="erro" class="result" role="alert">@Model.AssociationRefusalMessage</div>
             }
 
             @if (Model.PendingUnresolvedTraceId is int unresolvedTraceId)
@@ -249,14 +260,16 @@
                 <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
               }
               <h3>Registar Entrada ou Saída<partial name="_DmoHelp" model="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")" /></h3>
-              <fieldset class="bq-movement-types">
-                <legend class="visually-hidden">Movimento</legend>
-                <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" required /><span>↗ Saída</span></label>
-                <label><input type="radio" name="movement_type" value="entrada" checked="@(Model.MovementFormType == "entrada")" /><span>↙ Entrada</span></label>
-                <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" /><span>↙ Entrada sem reparação</span></label>
-              </fieldset>
-              <div class="filter-grid">
-                <div class="field dmo-field">
+              @* Tipo, máquina, quantidade, data e guardar numa só linha; no
+                 telemóvel parte em linhas (Diogo, 17/10/2026). *@
+              <div class="bq-movement-line">
+                <fieldset class="bq-movement-types">
+                  <legend class="visually-hidden">Movimento</legend>
+                  <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" required /><span>↗ Saída</span></label>
+                  <label><input type="radio" name="movement_type" value="entrada" checked="@(Model.MovementFormType == "entrada")" /><span>↙ Entrada</span></label>
+                  <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" /><span>↙ Entrada sem reparação</span></label>
+                </fieldset>
+                <div class="field dmo-field bq-line-machine">
                   @{
                     var machineHelp = "Na saída para reparação, escolha a máquina que está a usar esta BQ. A escolha fica guardada no movimento.";
                     if (Model.ProductionContext is null && Model.RegisterMachineCodes.Count > 1)
@@ -269,11 +282,11 @@
                     <option value="">Selecionar máquina</option>
                     @foreach (var machine in Model.MovementMachines)
                     {
-                      <option value="@machine.MachineId" selected="@(Model.MovementMachineId is int chosenMachine ? chosenMachine == machine.MachineId : Model.ProductionContext?.MachineCode == machine.Code)">@machine.Code@(Model.RegisterMachineCodes.Contains(machine.Code) ? " · compatível" : null)</option>
+                      <option value="@machine.MachineId" selected="@(Model.MovementMachineId is int chosenMachine ? chosenMachine == machine.MachineId : Model.ProductionContext?.MachineCode == machine.Code)">@machine.Code</option>
                     }
                   </select>
                 </div>
-                <div class="field dmo-field">
+                <div class="field dmo-field bq-line-quantity">
                   <label for="quantity">Quantidade</label>
                   <input id="quantity" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" value="@Model.MovementFormQuantity" />
                 </div>
@@ -283,21 +296,18 @@
                    backfill dos ~2 meses de registos passados escreve a
                    data/hora real (o Owner 2026-10-14). Sem ids na folha:
                    o trace_id canónico segue no input hidden. *@
-                <div class="field dmo-field">
+                <div class="field dmo-field bq-line-date">
                   <label for="occurredAt">Data e hora reais</label>
                   <input id="occurredAt" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
                 </div>
-                <div class="field dmo-field">
-                  <label>&nbsp;</label>
-                  <button type="submit" class="btn primary">Guardar movimento</button>
-                </div>
+                <button type="submit" class="btn primary bq-line-save">Guardar movimento</button>
               </div>
             </form>
           </div>
           <div class="card bq-metrics-card">
             <h3>Valores desta boquilha / lote<partial name="_DmoHelp" model="@("Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.")" /></h3>
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
-               dmo-html: «Quantidade do lote — Em casa — Em reparação —
+               dmo-html: «Quantidade do lote — Fabricação — Em reparação —
                Discrepância acumulada»): TODOS os valores vêm do backend (a
                quantidade contabilística da Tool e o fold dos movimentos do
                trace — BoquilhasCurrentQuery/BoquilhasRegistoQuery); o Em
@@ -306,7 +316,7 @@
                contabilística (truthful, nunca zero inventado). *@
             <div class="lot-data">
               <div><span>Quantidade do lote</span><strong>@(Model.RegisterLotQuantity is int lotQty ? lotQty.ToString() : "—")</strong></div>
-              <div><span>Em casa</span><strong>@(Model.RegisterLotQuantity is int lote && lote >= trace.QuantityLegitimatelyOut ? (lote - trace.QuantityLegitimatelyOut).ToString() : "—")</strong></div>
+              <div><span>Fabricação</span><strong>@(Model.RegisterLotQuantity is int lote && lote >= trace.QuantityLegitimatelyOut ? (lote - trace.QuantityLegitimatelyOut).ToString() : "—")</strong></div>
               <div><span>Em reparação</span><strong>@trace.QuantityLegitimatelyOut</strong></div>
               <div><span>Discrepância acumulada</span><strong>@(trace.AccumulatedDiscrepancy is int accumulated ? accumulated.ToString() : "—")</strong></div>
             </div>
@@ -380,7 +390,7 @@
                     <div class="dmo-modal-body">
               @if (Model.EditRefusalMessage is { Length: > 0 } editRefusalMessage)
               {
-                <div class="result" role="alert">@editRefusalMessage</div>
+                <div data-dmo-toast="erro" class="result" role="alert">@editRefusalMessage</div>
               }
               @if (Model.OccurrenceShiftWarningMessage is { } editShiftWarning)
               {

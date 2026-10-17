@@ -193,26 +193,31 @@ public sealed class ShellStateFactory
     /// vivem na BARRA de funções (o padrão do Controlo/Planeamento — nunca
     /// botões no page-head) e as MÁQUINAS ficam no SIDEPANEL sempre visível
     /// ao lado (a produção corrente — o aside da folha, nunca uma tab
-    /// escondida).
+    /// escondida). As DEFINIÇÕES (os reparadores e a rota por máquina) fecham
+    /// a barra (Diogo, 17/10/2026: «separamos as definições»).
     /// </summary>
     public static IReadOnlyList<FunctionPresentation> BoquilhasFunctions(string activeKey) =>
         new[]
         {
             new FunctionPresentation("registo", "Registo", "/Boquilhas", null, activeKey == "registo", true, true),
             new FunctionPresentation("ficheiros", "Boquilhas", "/Boquilhas?ficheiros=1", null, activeKey == "ficheiros", true, true),
-            new FunctionPresentation("historico", "Histórico", "/Boquilhas?historico=1", null, activeKey == "historico", true, true)
+            new FunctionPresentation("historico", "Histórico", "/Boquilhas?historico=1", null, activeKey == "historico", true, true),
+            new FunctionPresentation("definicoes", "Definições", "/Boquilhas/Definicoes", null, activeKey == "definicoes", true, true)
         };
 
     /// <summary>
     /// AS FUNÇÕES DO MÓDULO FERRAMENTAS (o Owner 2026-10-13: «deveria ser
     /// um tab para criar e outro para ver o que existe»): VER (a procura +
     /// a lista do que existe) e CRIAR (o registo da ferramenta real) —
-    /// nunca tudo misturado numa só página.
+    /// nunca tudo misturado numa só página. As DEFINIÇÕES (os totais de lote
+    /// por máquina) fecham a barra (Diogo, 17/10/2026: «ferramentas nao deve
+    /// ficar no admin»).
     /// </summary>
     public static IReadOnlyList<FunctionPresentation> FerramentasFunctions(string activeKey) =>
         new[]
         {
             new FunctionPresentation("ver", "Ver", "/Ferramentas", null, activeKey == "ver", true, true),
-            new FunctionPresentation("criar", "Criar", "/Ferramentas?criar=1", null, activeKey == "criar", true, true)
+            new FunctionPresentation("criar", "Criar", "/Ferramentas?criar=1", null, activeKey == "criar", true, true),
+            new FunctionPresentation("definicoes", "Definições", "/Ferramentas/Definicoes", null, activeKey == "definicoes", true, true)
         };
 }

@@ -371,7 +371,7 @@
 
       @if (Model.ComparacaoRefusal is not null)
       {
-        <div class="peso-aviso" role="alert">@Model.ComparacaoRefusalMessage</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.ComparacaoRefusalMessage</div>
       }
 
       @* A3/A4 (beta.65): uma leitura má já não anula a comparação — fica de
@@ -772,17 +772,17 @@
 
       @if (Model.ProductionRefusal is not null)
       {
-        <div class="peso-aviso" role="alert">@Model.ProductionRefusalMessage</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.ProductionRefusalMessage</div>
       }
 
       @if (Model.PesoAssociated && Model.Peso is not null)
       {
-        <div class="peso-aviso-simples" role="status">Peso associado a esta produção. O mesmo registo aparece agora no Resumo do Controlo.</div>
+        <div data-dmo-toast="ok" class="peso-aviso-simples" role="status">Peso associado a esta produção. O mesmo registo aparece agora no Resumo do Controlo.</div>
       }
 
       @if (Model.AssociationRefusal is not null)
       {
-        <div class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
       }
 
       @* A ASSOCIAÇÃO POSTERIOR (o Owner 2026-10-16: «quando existir um
@@ -911,21 +911,16 @@
   @*    associado a um Job On (a produção abre pelo seu controlo_id e   *@
   @*    CM, BQ e calote vêm do Job On).                                  *@
   @* ------------------------------------------------------------------ *@
-  @if (Model.Peso is null)
-  {
-  <nav class="peso-actions" aria-label="Tipo de Peso" style="margin-bottom:14px" data-peso-modo>
-    <a class="dmo-button" href="/Controlo/Peso" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
-    <a class="dmo-button" href="/Controlo/Peso?modo=@PesoModel.ModoJobOnValor" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar a um Job On</a>
-  </nav>
-  }
-
   @if (Model.ModoJobOn)
   {
   <section class="dmo-card peso-card" aria-labelledby="peso-jobon-title">
-    <div class="peso-card-heading"><div>
-      <h3 id="peso-jobon-title">Job On do Peso</h3>
-    </div></div>
-    <p class="card-note">CM, boquilha (BQ) e calote vêm do Job On escolhido.</p>
+    <div class="dmo-modo-head">
+      <h3 id="peso-jobon-title">Job On<partial name="_DmoHelp" model="@("CM, boquilha (BQ) e calote vêm do Job On escolhido.")" /></h3>
+      @if (Model.Peso is null)
+      {
+        <partial name="_ControloModoRegisto" model="@(("/Controlo/Peso", true))" />
+      }
+    </div>
     @if (Model.JobOnEscolhaRefusal is { } jobOnRecusa)
     {
       <div class="peso-aviso" role="alert">@jobOnRecusa</div>
@@ -982,9 +977,13 @@
   @*    o operador escreve o que vê nas folhas: ST100, C142).            *@
   @* ------------------------------------------------------------------ *@
   <section class="dmo-card peso-card" aria-labelledby="peso-tools-title">
-    <div class="peso-card-heading"><div>
-      <h3 id="peso-tools-title">Ferramentas da pesagem</h3>
-    </div></div>
+    <div class="dmo-modo-head">
+      <h3 id="peso-tools-title">Ferramentas</h3>
+      @if (Model.Peso is null)
+      {
+        <partial name="_ControloModoRegisto" model="@(("/Controlo/Peso", false))" />
+      }
+    </div>
     <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
       <div class="dmo-field">
         <label for="cmToolId">CM — referência</label>
@@ -1114,7 +1113,7 @@
 
       @if (Model.CreateRefusal is not null)
       {
-        <div class="peso-aviso" role="alert">@Model.CreateRefusalMessage</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.CreateRefusalMessage</div>
       }
 
       <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Create" class="peso-form-grid">
@@ -1204,7 +1203,7 @@
 
       @if (Model.AssociationRefusal is not null && Model.ControloIdFromQuery is null)
       {
-        <div class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
       }
 
       @* Peso sem produção cuja CM já está num Job On: a app PERGUNTA (o
@@ -1234,7 +1233,7 @@
 
       @if (Model.MeasurementRefusal is not null)
       {
-        <div class="peso-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
       }
 
 
@@ -1242,7 +1241,7 @@
       {
         @* A auditoria do Codex: a massa não utilizável é recusa tipada com
            o ECHO — o typo do operador não desaparece em silêncio. *@
-        <div class="peso-aviso" role="alert">@Model.LeituraRefusalMessage</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.LeituraRefusalMessage</div>
       }
 
       <p class="peso-hint" style="margin:0 0 6px">Temperatura da água @peso.WaterTemperatureC °C · densidade @fmtDensity(peso.WaterDensityGramsPerCm3) g/cm³ · Peso = (capacidade + Marisa − Punção) × densidade do vidro</p>
@@ -1479,11 +1478,11 @@
       </div></div>
       @if (Model.ProducaoAnteriorRefusal is { } anteriorRecusa)
       {
-        <div class="peso-aviso" role="alert">@anteriorRecusa</div>
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@anteriorRecusa</div>
       }
       @if (Model.ProducaoAnteriorGuardada)
       {
-        <div class="peso-aviso-simples" role="status">Produção anterior guardada.</div>
+        <div data-dmo-toast="ok" class="peso-aviso-simples" role="status">Produção anterior guardada.</div>
       }
       @if (Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null)
       {
@@ -1610,7 +1609,7 @@
     }
     @if (Model.PdfRefusal is not null && Model.PdfRefusalMessage.Length > 0)
     {
-      <div class="peso-aviso" role="alert" style="margin-top:14px">@Model.PdfRefusalMessage</div>
+      <div data-dmo-toast="erro" class="peso-aviso" role="alert" style="margin-top:14px">@Model.PdfRefusalMessage</div>
     }
 
     <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GeneratePdf" class="peso-actions" style="margin-top:14px">

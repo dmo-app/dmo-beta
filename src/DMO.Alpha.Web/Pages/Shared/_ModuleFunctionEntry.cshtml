@@ -17,8 +17,11 @@
     }
     else if (Model.Href is not null)
     {
+        @* «Definições» fica sempre encostado à direita da barra, em todos os
+           módulos (Diogo, 17/10/2026: «definiçoes sempre encostad ao lado
+           direito»). *@
         <a href="@(Model.Enabled ? Model.Href : null)"
-           class="@Model.CssClass @(Model.Selected ? "active" : "")"
+           class="@Model.CssClass @(Model.Key == "definicoes" ? "dmo-tab-direita" : null) @(Model.Selected ? "active" : "")"
            aria-current="@(Model.Selected ? "page" : null)"
            aria-disabled="@(!Model.Enabled ? "true" : null)">@Model.Label</a>
     }

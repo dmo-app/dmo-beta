@@ -63,7 +63,7 @@
 
       @if (Model.RemovedNote)
       {
-        <div class="jobon-aviso" role="status">Produção retirada das datas. O Job On mantém-se no Histórico, sem dia.</div>
+        <div data-dmo-toast="ok" class="jobon-aviso" role="status">Produção retirada das datas. O Job On mantém-se no Histórico, sem dia.</div>
       }
 
       @if (Model.JobOnRequestedNotFound)
@@ -103,30 +103,6 @@
             <div>
               <h2 id="lightDayTitle">@(Model.NoDaySelected ? "Produções do dia" : $"Produções de {new DateTime(Model.Year, Model.Month, Model.SelectedDay):dd/MM/yyyy}")</h2>
                           </div>
-            @* A PROCURA AO ESCREVER, EM DOIS PASSOS (Diogo, 17/10/2026:
-               «deveria ser referência e depois produções»): sem botão; as
-               referências aparecem por baixo do campo, encontradas por
-               qualquer dado (referência, produção, máquina, lote ou referência
-               das ferramentas); um clique numa referência mostra as produções
-               dela e um clique numa produção abre a folha. Sem script, o Enter
-               procura pelo servidor e também filtra a lista do dia. *@
-            <form method="get" asp-page="/JobOn/Index" class="dmo-search-form">
-              <input type="hidden" name="ano" value="@Model.Year" />
-              <input type="hidden" name="mes" value="@Model.Month" />
-              @if (!Model.NoDaySelected)
-              {
-                <input type="hidden" name="dia" value="@Model.SelectedDay" />
-              }
-              <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Referência, produção, máquina ou lote"
-                     data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" />
-              <partial name="_DmoHelp" model="@("Escreva a referência, ou a produção, a máquina ou o lote de uma ferramenta. As referências aparecem por baixo; um clique mostra as produções da referência e outro clique abre a folha.")" />
-            </form>
-          </div>
-          <div id="lightProcura" class="jobon-procura" aria-live="polite">
-            @if (Model.SearchResults is { } procurados)
-            {
-              <partial name="_JobOnProcura" model="procurados" />
-            }
           </div>
           @if (Model.NoDaySelected)
           {
@@ -208,6 +184,33 @@
             </div>
           }
 
+          @* A procura fica por baixo das linhas das máquinas (Diogo,
+             17/10/2026: «fica com espaço para expandir»). *@
+          <div class="jobon-procura-bloco">
+            @* A PROCURA AO ESCREVER, EM DOIS PASSOS (Diogo, 17/10/2026:
+               «deveria ser referência e depois produções»): sem botão; as
+               referências aparecem por baixo do campo, encontradas só pela
+               referência (a procura não é global); um clique numa referência mostra as produções
+               dela e um clique numa produção abre a folha. Sem script, o Enter
+               procura pelo servidor; a lista do dia não é filtrada. *@
+            <form method="get" asp-page="/JobOn/Index" class="dmo-search-form">
+              <input type="hidden" name="ano" value="@Model.Year" />
+              <input type="hidden" name="mes" value="@Model.Month" />
+              @if (!Model.NoDaySelected)
+              {
+                <input type="hidden" name="dia" value="@Model.SelectedDay" />
+              }
+              <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Referência"
+                     data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" />
+              <partial name="_DmoHelp" model="@("Escreva a referência. As referências aparecem por baixo; um clique mostra as últimas 5 produções dela e outro clique abre a folha.")" />
+            </form>
+            <div id="lightProcura" class="jobon-procura" aria-live="polite">
+              @if (Model.SearchResults is { } procurados)
+              {
+                <partial name="_JobOnProcura" model="procurados" />
+              }
+            </div>
+          </div>
           @* O «Retirar a produção das datas» sem botão (Diogo, 17/10/2026):
              escolher a produção na lista e fazer duplo clique no dia já
              escolhido do calendário; o browser pede confirmação. Só a
@@ -467,7 +470,7 @@
         </div>
         @if (Model.CreateRefusal is not null || Model.UpdateRefusal is not null)
         {
-          <div class="jobon-aviso" role="alert">@(Model.CreateRefusal is not null ? Model.CreateRefusalMessage : Model.UpdateRefusalMessage)</div>
+          <div data-dmo-toast="erro" class="jobon-aviso" role="alert">@(Model.CreateRefusal is not null ? Model.CreateRefusalMessage : Model.UpdateRefusalMessage)</div>
         }
         <form id="lightForm" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
           @* O MODO EDIÇÃO: o jobon_edit_id vai no POST (a produção
@@ -591,9 +594,9 @@
           </div>
           @* O FOLD dos detalhes opcionais (o referencial do Owner: as
              notas fechadas por default). *@
-          <details style="margin-top:12px">
-            <summary style="font-size:13px;cursor:pointer;color:var(--dmo-muted,#66809a)">Mais detalhes (opcional)</summary>
-            <div class="dmo-field" style="margin-top:10px">
+          <details class="jobon-mais-detalhes">
+            <summary>Mais detalhes (opcional)</summary>
+            <div class="dmo-field jobon-campo-curto">
               <label>TP Calote desta produção (mm)
                 <input id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="Usar referência da Tool" value="@Model.FolhaCalote" />
               </label>

@@ -1,0 +1,86 @@
+@page "/Ferramentas/Definicoes"
+@model DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel
+@{
+    Layout = "_DmoShellLayout";
+    var tipos = new[] { ("CM", "Contra-molde"), ("MF", "Molde final"), ("BQ", "Boquilha") };
+}
+@section Head {
+<style>
+.ferr-def-page{display:flex;flex-direction:column;gap:14px}
+.ferr-def-card{padding:20px 22px;width:fit-content;max-width:100%}
+.ferr-def-card h3{margin:0 0 4px;font-size:16px}
+.ferr-def-falta{margin:0 0 16px;font-size:13px;color:var(--dmo-muted)}
+.ferr-totais{display:grid;grid-template-columns:auto repeat(3,112px);gap:10px 14px;align-items:center;width:max-content;max-width:100%}
+.ferr-totais-tipo{display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.ferr-totais-tipo strong{font-size:15px;color:var(--dmo-text)}
+.ferr-totais-tipo small{font-size:11.5px;color:var(--dmo-muted)}
+.ferr-totais-maquina{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--dmo-text);padding-right:18px}
+.ferr-totais-maquina::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--dmo-machine-color,var(--dmo-brand-400))}
+.ferr-totais-maquina.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
+.ferr-totais-maquina.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
+.ferr-totais-maquina.mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
+.ferr-totais-maquina.mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
+.ferr-totais-maquina.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
+.ferr-totais-maquina.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
+.ferr-totais input{box-sizing:border-box;width:112px;height:40px;padding:8px 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:15px;text-align:center;font-variant-numeric:tabular-nums}
+.ferr-totais input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+.ferr-totais input::placeholder{font-size:12.5px;color:var(--dmo-muted)}
+.ferr-def-acoes{margin-top:20px}
+.ferr-def-aviso{margin:14px 0 0;padding:9px 12px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;font-size:13px}
+@@media(max-width:560px){.ferr-totais{grid-template-columns:auto repeat(3,minmax(64px,1fr));gap:8px;width:auto}.ferr-totais input{width:100%;padding:6px 4px}.ferr-totais input::placeholder{font-size:11px}}
+</style>
+}
+
+<main class="ferr-def-page dmo-workspace" aria-labelledby="ferr-def-title">
+
+  <div class="page-head">
+    <div>
+      <h1 id="ferr-def-title">Definições das Ferramentas</h1>
+    </div>
+  </div>
+
+  <section class="dmo-card ferr-def-card" aria-labelledby="tool-quantities-title">
+    <h3 id="tool-quantities-title">Total do lote por máquina<partial name="_DmoHelp" model="@("O total habitual de cada lote de CM, MF e BQ em cada máquina (por exemplo, um lote de BQ da B1 tem 120). Ao criar uma ferramenta, a quantidade vem preenchida com este total e pode ser alterada. Se as máquinas escolhidas tiverem totais diferentes, quem cria a ferramenta escolhe. Campo vazio: sem total. Guardar não altera ferramentas já registadas.")" /></h3>
+    @if (Model.ToolQuantities.Count == 0)
+    {
+      <p>Ainda não há máquinas registadas.</p>
+    }
+    else
+    {
+      <p class="ferr-def-falta">@Model.MissingSummary</p>
+      @if (Model.Saved)
+      {
+        <p data-dmo-toast="ok" role="status"><strong>Totais guardados.</strong></p>
+      }
+      <form method="post" asp-page="/Ferramentas/Definicoes" asp-page-handler="SaveToolLotQuantities">
+        <div class="ferr-totais" role="group" aria-label="Totais de lote por máquina">
+          <span></span>
+          @foreach (var (sigla, nome) in tipos)
+          {
+            <span class="ferr-totais-tipo"><strong>@sigla</strong><small>@nome</small></span>
+          }
+          @foreach (var group in Model.ToolQuantities.GroupBy(d => d.MachineCode))
+          {
+            <span class="ferr-totais-maquina mch-@group.Key">@group.Key</span>
+            @foreach (var (sigla, _) in tipos)
+            {
+              var item = group.FirstOrDefault(i => i.Type.ToString().ToUpperInvariant() == sigla);
+              if (item is null)
+              {
+                <span></span>
+                continue;
+              }
+              var text = Model.ToolQuantityDraft is { } draft && draft.TryGetValue(item.SettingKey, out var submitted) ? submitted : item.Quantity?.ToString();
+              <input name="quantities[@item.SettingKey]" value="@text" inputmode="numeric" autocomplete="off" aria-label="Total do lote de @sigla na @item.MachineCode" placeholder="Por definir" />
+            }
+          }
+        </div>
+        @if (Model.ToolQuantityWarning is { } warning)
+        {
+          <p class="ferr-def-aviso" role="status">@warning</p>
+        }
+        <div class="ferr-def-acoes"><button type="submit" class="dmo-button">Guardar</button></div>
+      </form>
+    }
+  </section>
+</main>

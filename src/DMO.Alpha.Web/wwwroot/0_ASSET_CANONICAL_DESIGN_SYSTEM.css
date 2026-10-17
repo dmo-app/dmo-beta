@@ -12,7 +12,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--dmo-page);color:var(--dmo-text);font:14px/1.45 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}.dmo-pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:var(--dmo-brand-050);color:var(--dmo-brand-700);font-size:10px;font-weight:800}.dmo-pill.active{background:var(--dmo-success-soft);color:var(--dmo-success)}.dmo-pill.inactive{background:#eef1f4;color:var(--dmo-muted)}.dmo-table-wrap{overflow:auto;border:1px solid var(--dmo-border);border-radius:9px}.dmo-table{width:100%;border-collapse:collapse;white-space:nowrap}.dmo-table th{background:var(--dmo-subtle);color:var(--dmo-muted);font-size:10px;text-transform:uppercase;text-align:left;padding:10px 12px}.dmo-table td{padding:11px 12px;border-top:1px solid var(--dmo-border)}.dmo-table tr[data-row]{cursor:pointer}.dmo-table tr[data-row]:hover{background:var(--dmo-page)}.dmo-table tr.selected{background:var(--dmo-border)}.dmo-modal-backdrop{display:none;position:fixed;z-index:80;inset:0;background:rgba(27,40,50,.68);padding:24px;align-items:center;justify-content:center}.dmo-modal-backdrop.open{display:flex}.dmo-modal{width:min(560px,100%);background:#fff;border-radius:var(--dmo-r-modal);box-shadow:0 25px 70px rgba(27,40,50,.35)}.dmo-modal-head{display:flex;align-items:center;padding:18px 20px;border-bottom:1px solid var(--dmo-border)}.dmo-modal-head h2{margin:0;font-size:18px}.dmo-modal-body{padding:20px}.dmo-toast{position:fixed;right:22px;bottom:22px;z-index:100;background:var(--dmo-brand-950);color:#fff;padding:11px 15px;border-radius:9px;box-shadow:var(--dmo-shadow);opacity:0;transform:translateY(50px);transition:.2s}.dmo-toast.show{opacity:1;transform:none}
 
 /* Machine identity is independent of page, production and selection. */
-:root{--dmo-machine-b1:var(--dmo-brand-600);--dmo-machine-b2:#3d7a5a;--dmo-machine-b3:var(--dmo-warning);--dmo-machine-c1:#7a5aa0;--dmo-machine-c2:#2e8f8f;--dmo-machine-c3:#b05555}
+:root{--dmo-machine-b1:var(--dmo-brand-600);--dmo-machine-b2:#3d7a5a;--dmo-machine-b3:var(--dmo-warning);--dmo-machine-c1:#7a5aa0;--dmo-machine-c2:#2563c7;--dmo-machine-c3:#b05555}
 /* Canonical control sizing. Context wins over the base button size. */
 .search > .btn,
 .search > .dmo-button{
@@ -46,6 +46,8 @@ html body :is(.dmo-button,.button,.btn):disabled{--button-color:var(--dmo-disabl
 .dmo-secondary-nav{min-height:46px;gap:20px;padding:0 18px}
 .dmo-primary-nav :is(a,button),.dmo-secondary-nav :is(a,button){display:inline-flex;align-items:center;min-width:max-content;padding:0 5px;border:0;border-bottom:3px solid transparent;background:none;color:var(--dmo-muted);font-size:13px;font-weight:800;text-decoration:none}
 .dmo-primary-nav :is(a,button):hover,.dmo-primary-nav :is(a,button).active,.dmo-secondary-nav :is(a,button):hover,.dmo-secondary-nav :is(a,button).active{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600)}
+/* «Definições» sempre encostado à direita da barra do módulo (Diogo, 17/10/2026). */
+.dmo-secondary-nav .dmo-tab-direita{margin-inline-start:auto}
 @media(max-width:600px){.dmo-primary-nav,.dmo-secondary-nav{gap:14px;padding-inline:12px}.dmo-primary-nav :is(a,button),.dmo-secondary-nav :is(a,button){font-size:12px}}
 
 /* Global readability pass: increase text sizing without changing page structure. */
@@ -92,3 +94,21 @@ html body :is(.dmo-field select,.beta-light-fields select,.beta-light-tool-view 
 .dmo-matrix td{vertical-align:top;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
 .dmo-matrix [data-dmo-row]{min-width:0;padding:6px;border-radius:6px;overflow-wrap:anywhere}
 .dmo-matrix [data-dmo-row]+[data-dmo-row]{margin-top:6px}
+/* Editar no próprio valor (Diogo, 17/10/2026: «para editar, clica-se no valor da linha e muda-se ali mesmo»): o valor parece texto; a borda aparece ao passar o rato e ao editar. Grava ao sair do campo (0_ASSET_CANONICAL_INTERACTIONS.js, [data-dmo-valor]). */
+input.dmo-valor{width:100%;min-width:64px;height:auto;min-height:0;margin:0;padding:5px 8px;border:1px solid transparent;border-radius:6px;background:transparent;box-shadow:none;color:var(--dmo-text);font:inherit;transition:border-color var(--dmo-fast),background-color var(--dmo-fast)}
+input.dmo-valor::placeholder{color:var(--dmo-muted);font-style:italic}
+input.dmo-valor:hover{border-color:var(--dmo-border);cursor:text}
+input.dmo-valor:focus{border-color:var(--dmo-brand-400);background:var(--dmo-card);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+input.dmo-valor.dmo-valor-gravado{background:var(--dmo-brand-050)}
+input.dmo-valor[aria-invalid=true]{border-color:var(--dmo-warning)}
+.dmo-valor-aviso{margin:10px 0 0;padding:8px 11px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;font-size:12.5px}
+/* Aviso amarelo discreto quando falta um dado que devia existir (Diogo, 17/10/2026), por exemplo o total do lote de uma máquina. */
+.dmo-aviso-discreto{display:inline-block;margin:6px 0 0;padding:6px 10px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;color:var(--dmo-text);font-size:12.5px}
+.dmo-aviso-discreto:empty{display:none}
+/* A escolha «Sem Job On» / «Associar Job On» no cartão do registo (Diogo, 17/10/2026): os botões normais, os dois com a mesma largura; o que não está escolhido fica branco com contorno. */
+.dmo-modo{display:inline-grid;grid-template-columns:1fr 1fr;gap:8px}
+html body .dmo-modo .dmo-button{min-width:150px}
+html body .dmo-modo .dmo-button:not([aria-current="page"]){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600))}
+html body .dmo-modo .dmo-button:not([aria-current="page"]):hover,html body .dmo-modo .dmo-button:not([aria-current="page"]):focus-visible{background:var(--dmo-brand-050)}
+.dmo-modo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.dmo-modo-head h3{margin:0}

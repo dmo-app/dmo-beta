@@ -57,18 +57,10 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
             return Array.Empty<ReferenceSearchItem>();
         }
 
-        // As ferramentas cuja referência ou lote contêm o texto; as produções
-        // que as usam entram na procura (subconsulta na base, nunca em memória).
-        var tools = _db.Tools.AsNoTracking()
-            .Where(t => t.Reference.ToUpper().Contains(wanted) || t.Lot.ToUpper().Contains(wanted))
-            .Select(t => t.ToolId);
+        // Só pela referência (Diogo, 17/10/2026: a procura do Job On não é
+        // global; primeiro a referência, depois as produções dela).
         var references = await _db.JobOns.AsNoTracking()
-            .Where(j => j.Reference.ToUpper().Contains(wanted)
-                || j.ProductionNumber.ToUpper().Contains(wanted)
-                || _db.Machines.Any(m => m.Id == j.MachineId && m.Code.ToUpper().Contains(wanted))
-                || _db.CmContexts.Any(c => c.JobOnId == j.Id && tools.Contains(c.ToolId))
-                || _db.MfContexts.Any(c => c.JobOnId == j.Id && tools.Contains(c.ToolId))
-                || _db.BqContexts.Any(c => c.JobOnId == j.Id && tools.Contains(c.ToolId)))
+            .Where(j => j.Reference.ToUpper().Contains(wanted))
             .GroupBy(j => j.Reference)
             .Select(g => new { Reference = g.Key, Last = g.Max(j => j.Id) })
             .OrderByDescending(r => r.Last)
@@ -118,7 +110,7 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
                 join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
                 orderby j.Id descending
                 select new { j.Id, j.Reference, j.ProductionNumber, Machine = m.Code, j.InicioEm, j.FimEm })
-            .Take(IProductionPickerQuery.SearchLimit)
+            .Take(IProductionPickerQuery.ProductionsOfReferenceLimit)
             .ToListAsync(cancellationToken);
         if (found.Count == 0)
         {

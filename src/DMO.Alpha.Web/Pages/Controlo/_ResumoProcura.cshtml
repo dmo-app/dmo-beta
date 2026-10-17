@@ -36,7 +36,7 @@ else
       {
         <a class="dmo-button" aria-label="Página mais recente" href="/Controlo/Resumo?pagina=@(Model.Page - 1)&reference=@term">‹</a>
       }
-      <span class="resumo-pager-info">Página @Model.Page de @lastPage · @Model.Total produções</span>
+      <span class="resumo-pager-info" aria-label="Página @Model.Page de @lastPage">@Model.Page de @lastPage</span>
       @if (Model.Page < lastPage)
       {
         <a class="dmo-button" aria-label="Página mais antiga" href="/Controlo/Resumo?pagina=@(Model.Page + 1)&reference=@term">›</a>

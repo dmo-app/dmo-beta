@@ -2,14 +2,12 @@
 @model DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel
 @inject DMO.Alpha.Web.Services.ShellStateFactory ShellStateFactory
 @{
-    ViewData["Title"] = "Definições";
+    ViewData["Title"] = "Setup";
     Layout = "_DmoShellLayout";
     var shell = (await ShellStateFactory.ForDestinationAsync("admin", new ModulePresentation("admin", "Administração")));
     ViewData["Shell"] = shell with
     {
         ActiveFunctionKey = "definicoes",
-        // D8: os placeholders «Utilizadores»/«Templates de acesso» ficam
-        // LIGADOS (Href + Enabled) — as folhas do corte I entram por aqui.
         Functions = DMO.Alpha.Web.Pages.Admin.AdminAreaNavigation.Functions(
             "definicoes",
             Url.Page("/Admin/Users/Index"),
@@ -23,52 +21,27 @@
    dmo-card/dmo-field/dmo-button do design system. *@
 <style>
 .adm-page{max-width:1000px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
-.adm-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
 .adm-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
-.adm-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
-.adm-card{padding:18px}
-.adm-card h3{margin:0 0 4px;font-size:16px}
-.adm-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
-.adm-pick-row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.adm-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
-.adm-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
-.adm-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
-.adm-list-head{display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
-.adm-inline-field{margin:0}
-.adm-inline-form{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
-.adm-inline-form input,.adm-inline-form select{min-width:180px}
-.adm-routes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
-@@media(max-width:900px){.adm-list-head{flex-direction:column;align-items:stretch}}
+.adm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.adm-card h3{margin:0 0 12px;font-size:16px}
+.adm-email-form{display:grid;gap:12px;width:min(420px,100%)}
 </style>
 }
 
 <main class="adm-page" aria-labelledby="settings-title">
     <div class="page-head">
         <div>
-            <h2 id="settings-title">Definições</h2>
-            <p>Configure definições dos módulos editáveis a partir da Administração.</p>
+            <h2 id="settings-title">Setup</h2>
         </div>
     </div>
 
-    <section class="dmo-card adm-card" aria-label="Definições da Administração">
-        <form method="get" asp-page="/Admin/Definicoes/Index">
-            <div class="dmo-field">
-                <label for="adminSettingsDefinition">Definição a configurar</label>
-                <select id="adminSettingsDefinition" name="definition" data-dmo-autosubmit="valor">
-                    <option value="">Selecionar definição</option>
-                    <option value="boquilhas" selected="@Model.ShowBoquilhas">Boquilhas — viragem do dia e reparadores</option>
-                </select>
-            </div>
-        </form>
-    </section>
-
     <section class="dmo-card adm-card" aria-labelledby="admin-email-title">
-        <h3 id="admin-email-title">Administração — email do ADMIN<partial name="_DmoHelp" model="@("O ADMIN é este email: quem entra com ele por email fica ADMIN. Num ambiente novo, o primeiro login por email com sucesso assume o campo. Mudar o valor termina a sessão do ADMIN anterior no pedido seguinte.")" /></h3>
-        @if (Model.ShowAdminSaveMessage)
+        <h3 id="admin-email-title">Email do ADMIN<partial name="_DmoHelp" model="@("O ADMIN é este email: quem entra com ele por email fica ADMIN. Num ambiente novo, o primeiro login por email com sucesso assume o campo. Mudar o valor termina a sessão do ADMIN anterior no pedido seguinte.")" /></h3>
+        @if (Model.SaveResultMessage.Length > 0)
         {
             <p><strong role="alert">@Model.SaveResultMessage</strong></p>
         }
-        <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveAdminEmail">
+        <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveAdminEmail" class="adm-email-form">
             <div class="dmo-field">
                 <label for="adminEmail">Email do ADMIN</label>
                 <input id="adminEmail" name="admin_email" type="email" value="@Model.AdminEmail" maxlength="256" placeholder="admin@empresa.pt" required />
@@ -77,141 +50,7 @@
                 <label for="adminEmailConfirm">Confirmar email do ADMIN</label>
                 <input id="adminEmailConfirm" name="admin_email_confirm" type="email" maxlength="256" placeholder="Escreva o email outra vez" autocomplete="off" required />
             </div>
-            <button type="submit" class="dmo-button">Guardar</button>
+            <div><button type="submit" class="dmo-button">Guardar</button></div>
         </form>
     </section>
-
-    @if (Model.ShowBoquilhas)
-    {
-        <section class="dmo-card adm-card" aria-labelledby="boquilhas-settings-title">
-            <h3 id="boquilhas-settings-title">Boquilhas — hora de viragem do dia<partial name="_DmoHelp" model="@("A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On).")" /></h3>
-
-            @if (Model.ShowHourSaveMessage && Model.SaveResultMessage.Length > 0)
-            {
-                <p><strong role="alert">@Model.SaveResultMessage</strong></p>
-            }
-
-            <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveBoquilhasDayChangeHour">
-                <div class="dmo-field">
-                    <label for="dayChangeHour">Hora de viragem (0–23)<partial name="_DmoHelp" model="@("O padrão é 8:00, a manhã da fábrica. Sem configurar, o módulo usa o padrão.")" /></label>
-                    <select id="dayChangeHour" name="dayChangeHour" data-dmo-autosubmit>
-                        @for (var h = 0; h <= 23; h++)
-                        {
-                            <option value="@h" selected="@(Model.BoquilhasDayChangeHour == h || (Model.BoquilhasDayChangeHour is null && h == 8))">@h:00</option>
-                        }
-                    </select>
-                </div>
-            </form>
-        </section>
-    }
-
-    @if (Model.ShowBoquilhas)
-    {
-        <section class="dmo-card adm-card" aria-labelledby="boquilhas-repairers-title">
-            <div class="page-head">
-                <div>
-                    <h3 id="boquilhas-repairers-title">Boquilhas — os reparadores<partial name="_DmoHelp" model="@("As entidades para onde se enviam as boquilhas; a saída de cada máquina usa o reparador configurado para ela. Mudar o nome não altera os movimentos passados.")" /></h3>
-                </div>
-            </div>
-
-            @if (Model.ShowRepairerSaveMessage && Model.SaveResultMessage.Length > 0)
-            {
-                <p><strong role="alert">@Model.SaveResultMessage</strong></p>
-            }
-
-            @* A GRAMÁTICA DA CASA (o Owner 2026-10-13: «isso é ui profissional?
-               olha para os reparadores»): a LISTA mostra OS FACTOS (os nomes)
-               e VESTE a escolhida (o radio escondido + a linha invertida);
-               as ações vivem FORA — [Alterar nome] na camada (o input abre
-               SÓ ao clicar, nunca empilhado), [Criar reparador] ao lado. *@
-            <div class="adm-list-head">
-                <div class="dmo-field adm-inline-field">
-                    <label for="repairerName">Novo reparador<partial name="_DmoHelp" model="@("O nome não se repete e fica registado em cada saída.")" /></label>
-                    <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="CreateRepairer" class="adm-inline-form">
-                        <input id="repairerName" name="name" placeholder="Ex.: Vidroart" required />
-                        <button type="submit" class="dmo-button">Criar reparador</button>
-                    </form>
-                </div>
-                @if (Model.Repairers.Count > 0)
-                {
-                    <div class="adm-inline-field">
-                        <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="EditRepairer" class="adm-inline-form adm-rename" id="admRenameForm" hidden>
-                            <label for="admRepairerIdSelect">Alterar o nome de</label>
-                            <select id="admRepairerIdSelect" name="repairer_id" required data-dmo-filter>
-                                @foreach (var repairer in Model.Repairers)
-                                {
-                                    <option value="@repairer.Id">@repairer.Name</option>
-                                }
-                            </select>
-                            <input id="admRepairerName" name="name" placeholder="O nome novo" required />
-                            <button type="submit" class="dmo-button">Guardar nome</button>
-                        </form>
-                        <button type="button" class="dmo-button" id="admToggleRename"
-                                onclick="var f=document.getElementById('admRenameForm');f.hidden=!f.hidden;this.textContent=f.hidden?'Alterar nome':'Fechar'">Alterar nome</button>
-                    </div>
-                }
-            </div>
-
-            @if (Model.Repairers.Count == 0)
-            {
-                <p><em>Sem reparadores criados. Crie o primeiro para configurar a rota de cada máquina.</em></p>
-            }
-            else
-            {
-                <div class="dmo-table-wrap">
-                    <table class="dmo-table adm-repairer-list">
-                        <thead>
-                            <tr><th>Reparador</th></tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var repairer in Model.Repairers)
-                            {
-                                <tr><td>@repairer.Name</td></tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </section>
-
-        <section class="dmo-card adm-card" aria-labelledby="boquilhas-routing-title">
-            <h3 id="boquilhas-routing-title">Boquilhas — a rota por máquina<partial name="_DmoHelp" model="@("O reparador usado pela saída de cada máquina (B1 a C3); sem reparador configurado, a saída regista-se na mesma. «— sem reparador —» limpa a rota.")" /></h3>
-
-            @if (Model.ShowRoutingSaveMessage && Model.SaveResultMessage.Length > 0)
-            {
-                <p><strong role="alert">@Model.SaveResultMessage</strong></p>
-            }
-
-            @if (Model.Repairers.Count == 0)
-            {
-                <p><em>Sem reparadores criados. Crie o primeiro acima para configurar as máquinas.</em></p>
-            }
-            else
-            {
-                @* O FORM ÚNICO DAS ROTAS (a peça central da gramática): as 6
-                   máquinas NUM grid, sem botões: escolher o reparador de uma
-                   máquina grava logo as rotas (Diogo, 17/10/2026: o dropdown
-                   aplica ao escolher). *@
-                <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveMachineRoutes">
-                    <div class="adm-routes-grid">
-                        @foreach (var machineCode in DMO.Alpha.Core.Boquilhas.BqRepairerRouting.MachineCodes)
-                        {
-                            var configuredId = Model.MachineRepairerIds.TryGetValue(machineCode, out var value) ? value : null;
-                            <div class="dmo-field">
-                                <label for="machine-route-@machineCode">Máquina @machineCode</label>
-                                <select id="machine-route-@machineCode" name="machine_code" class="adm-route-select" data-dmo-autosubmit>
-                                    <option value="@machineCode|">— sem reparador —</option>
-                                    @foreach (var repairer in Model.Repairers)
-                                    {
-                                        <option value="@machineCode|@repairer.Id" selected="@(configuredId == repairer.Id)">@repairer.Name</option>
-                                    }
-                                </select>
-                            </div>
-                        }
-                    </div>
-                </form>
-            }
-        </section>
-    }
 </main>
-
