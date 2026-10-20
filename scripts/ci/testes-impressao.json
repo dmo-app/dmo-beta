@@ -1,5 +1,5 @@
 {
-  "selo": "a189a8dba975d7ac",
+  "selo": "64b4fb2cf44d98cf",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -692,6 +692,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.NadaRepetido.cs :: PostgresMigrationIntegrationTests.Utilizadores_CadaUtilizadorTemUmaSoTemplateAtribuida_ASegundaERecusada": "228b6845e9e67853",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.NadaRepetido.cs :: PostgresMigrationIntegrationTests.Utilizadores_DoisUtilizadoresNaoTemOMesmoNumeroDeOperador_ORepetidoERecusado": "2f1235bd09d09a3a",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.OperacoesRegistadas.cs :: (resto do ficheiro)": "00db7f1caf0d2573",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.OperacoesRegistadas.cs :: PostgresMigrationIntegrationTests.OperacaoRegistada_DoisEnviosDiferentes_GravamOsDois": "f08014c89674d7d1",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.OperacoesRegistadas.cs :: PostgresMigrationIntegrationTests.OperacaoRegistada_OMesmoEnvioDuasVezes_GravaUmaSoVez": "9db954d4d7c58df8",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: (resto do ficheiro)": "38710ce1815ea684",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_FilteredInSql_GivesTheSameWarningAsComparingEveryProduction": "0841073132aa4475",

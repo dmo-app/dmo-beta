@@ -10,7 +10,8 @@ namespace DMO.Alpha.Infrastructure.Tests.Data;
 /// grava uma só vez. O segundo colide na chave primária das operações e o
 /// facto dele não fica; o primeiro resultado é o que se relê. Um facto de
 /// teste (uma definição de módulo com uma chave só deste teste) faz de
-/// registo do módulo.
+/// registo do módulo. Dois envios diferentes gravam os dois: a recusa é só
+/// do repetido.
 /// </summary>
 public sealed partial class PostgresMigrationIntegrationTests
 {
@@ -57,6 +58,44 @@ public sealed partial class PostgresMigrationIntegrationTests
 
             db.ModuleSettings.RemoveRange(db.ModuleSettings.Where(s => s.SettingKey.StartsWith(marca)));
             db.OperacoesRegistadas.RemoveRange(db.OperacoesRegistadas.Where(o => o.Id == operacaoId));
+            await db.SaveChangesAsync();
+        }
+    }
+
+    [SkippableFact]
+    public async Task OperacaoRegistada_DoisEnviosDiferentes_GravamOsDois()
+    {
+        SkipWithoutConnection();
+        await using (var db = CreateContext())
+        {
+            await db.Database.MigrateAsync();
+        }
+
+        var primeiro = Guid.NewGuid();
+        var segundo = Guid.NewGuid();
+        var marca = "Teste:Operacao" + primeiro.ToString("N")[..12];
+
+        foreach (var (operacaoId, n) in new[] { (primeiro, 1), (segundo, 2) })
+        {
+            await using var db = CreateContext();
+            db.ModuleSettings.Add(new ModuleSetting { SettingKey = $"{marca}:{n}", SettingValue = $"envio {n}" });
+            new OperacoesRegistadas(db).Registar(operacaoId, "teste.gravar", new ResultadoDaOperacao("Teste", n));
+            await db.SaveChangesAsync();
+        }
+
+        await using (var db = CreateContext())
+        {
+            var gravados = await db.ModuleSettings.AsNoTracking()
+                .Where(s => s.SettingKey.StartsWith(marca))
+                .OrderBy(s => s.SettingKey)
+                .Select(s => s.SettingValue)
+                .ToListAsync();
+            Assert.Equal(["envio 1", "envio 2"], gravados);
+            Assert.Equal(1, (await new OperacoesRegistadas(db).ProcurarAsync(primeiro))?.ResultadoId);
+            Assert.Equal(2, (await new OperacoesRegistadas(db).ProcurarAsync(segundo))?.ResultadoId);
+
+            db.ModuleSettings.RemoveRange(db.ModuleSettings.Where(s => s.SettingKey.StartsWith(marca)));
+            db.OperacoesRegistadas.RemoveRange(db.OperacoesRegistadas.Where(o => o.Id == primeiro || o.Id == segundo));
             await db.SaveChangesAsync();
         }
     }
