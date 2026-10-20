@@ -2,6 +2,8 @@
 
 Esta lista é o CI local: `scripts/ci/ci-local.sh` corre cada projeto de testes uma só vez e `scripts/ci/grupos.py` reparte os resultados por esta tabela, de cima para baixo. No fim diz, grupo a grupo, se passou, e termina com «CI local: OK», «CI local: FALHOU» ou «CI local: INCOMPLETO». INCOMPLETO quer dizer que uma parte foi desligada de propósito (`CI_SEM_POSTGRES=1`, `CI_SEM_NODE=1` ou `CI_SEM_BROWSER=1`) e diz qual; os testes dessa parte não correram, por isso não vale como OK.
 
+Antes de compilar, o script corre a **guarda dos testes** (`scripts/ci/guarda-testes.py verificar`): compara cada teste com a impressão digital gravada em `scripts/ci/testes-impressao.json` e falha se um teste mudou, saiu ou entrou sem uma explicação em `scripts/ci/testes-alteracoes.md`. Vigia os testes .NET (cada `[Fact]`/`[Theory]`), os de JavaScript (cada `test(...)`), a parte dos ficheiros de teste fora dos testes (ajudantes), os scripts do browser e os ficheiros do próprio CI, incluindo esta tabela. Comentários e espaços não contam. Como registar uma mudança: ver `docs/architecture/REGRAS-DOS-TESTES.md`, ponto 17.
+
 Como mexer:
 
 - **Retirar um grupo:** trocar `sim` por `não` na coluna «Corre». Os testes desse grupo deixam de contar e o resumo diz que foi retirado.

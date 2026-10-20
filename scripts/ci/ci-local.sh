@@ -3,6 +3,8 @@
 # pela ordem da tabela, e termina com «CI local: OK», «CI local: INCOMPLETO» (uma
 # parte foi desligada com CI_SEM_*; sai com 2) ou «CI local: FALHOU» (sai com 1).
 # Precisa do .NET e do Python 3.
+# Começa pela guarda dos testes (scripts/ci/guarda-testes.py): um teste que mudou,
+# saiu ou entrou sem explicação em scripts/ci/testes-alteracoes.md faz falhar o CI.
 # Os testes de migração correm numa base PostgreSQL descartável, criada no
 # início e apagada no fim.
 #
@@ -76,6 +78,7 @@ step() {  # nome, comando
   fi
 }
 
+step "Guarda dos testes" "python3 scripts/ci/guarda-testes.py verificar"
 step "Restore" "dotnet restore DMO.Alpha.slnx"
 step "Build" "dotnet build DMO.Alpha.slnx --no-restore --configuration Release"
 if [[ $failed -ne 0 ]]; then

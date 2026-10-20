@@ -29,3 +29,9 @@ Decisão do proprietário em 19/10/2026, a partir do estudo dos testes do CI (`/
 14. **Só se junta com «CI local: OK».** Ver AGENTS.md e `scripts/ci/testes.md`.
 15. **Mudar um teste existente precisa do ok do proprietário.** A exceção é só acertar uma contagem ou uma lista, dito no PR.
 16. **No fim de cada sprint, uma verificação dos testes:** estragam-se de propósito 20 a 30 regras importantes, uma de cada vez, e vê-se se o CI apanha cada uma. Cada uma que passe verde ganha um teste. Não é um estudo novo; é a revisão de fim de sprint aplicada aos testes.
+17. **Cada mudança aos testes fica explicada no registo.** A guarda dos testes (`scripts/ci/guarda-testes.py`, primeiro passo do CI local) guarda uma impressão digital de cada teste e faz falhar o CI quando um teste muda, sai ou entra sem explicação. Depois de mexer nos testes, corre-se:
+    - só testes novos: `python3 scripts/ci/guarda-testes.py registar --porque "a regra que os testes novos provam"`;
+    - acertar só uma contagem ou uma lista: `registar --tipo contagem-lista --porque "a contagem X, 5→6"`;
+    - qualquer outra mudança ou um teste tirado (ponto 15): `registar --tipo ok-do-diogo --ref "<onde o proprietário deu o ok>" --porque "..."`.
+
+    `mostrar` lista o que mudou sem gravar nada. O registo (`scripts/ci/testes-alteracoes.md`) só cresce no fim e entra no PR com a impressão nova (`scripts/ci/testes-impressao.json`); nunca se mexe nos dois à mão. Num conflito nestes dois ficheiros ao fazer rebase, fica-se com a versão da `main` e corre-se `registar` outra vez. A thread «Guardião dos testes» lê cada entrada nova e avisa o coordenador quando a explicação não justifica a mudança (por exemplo um teste enfraquecido para passar).
