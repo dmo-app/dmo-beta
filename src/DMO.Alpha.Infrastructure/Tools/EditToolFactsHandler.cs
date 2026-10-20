@@ -125,6 +125,10 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         tool.Lot = lot;
         tool.AssociatedMfReference = associatedMfReference;
         tool.BqAccountedQuantity = command.BqAccountedQuantity;
+        if (command.TechnicalName is not null)
+        {
+            tool.TechnicalName = TrimToNull(command.TechnicalName);
+        }
 
         var existingLinks = await _db.ToolMachineLinks
             .Where(link => link.ToolId == tool.ToolId)

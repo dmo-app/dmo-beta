@@ -12,9 +12,6 @@
 .ferr-w-page-size{width:90px}
 /* start: a nota e o botão da quantidade crescem para baixo sem subir o campo acima dos vizinhos. */
 .ferr-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
-.ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
-.ferr-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dmo-text,#172d42)}
-.ferr-check input{width:auto;min-height:0}
 .ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
 .ferr-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
 .ferr-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
@@ -32,24 +29,10 @@
 .ferr-pagination [aria-disabled="true"]{pointer-events:none;cursor:default}
 
 .ferr-quantity-choices{display:flex;flex-wrap:wrap;gap:8px}
-/* beta.34: registo numa linha; cada campo com a largura do conteúdo. */
-.ferr-create-row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
-.ferr-create-row > .dmo-field{min-width:0;flex:0 0 auto}
-.ferr-create-row > .dmo-field[hidden]{display:none}
-.ferr-create-row > .dmo-field > :is(input:not([type=checkbox]),select){width:100%}
-.ferr-w-type{width:190px}
-.ferr-w-ref{width:140px}
-.ferr-w-lot{width:76px}
-.ferr-w-qty{width:140px}
 .ferr-create-tech{margin-top:14px;padding-top:12px;border-top:1px solid var(--dmo-border,#d9e6f2)}
 .ferr-create-tech > summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--dmo-brand-700,#193046)}
 .ferr-create-tech > .ferr-create-row{margin-top:10px}
-.ferr-w-sap{flex:1 1 220px !important;max-width:300px}
-.ferr-create-row-machines{margin-top:14px;align-items:flex-start;justify-content:flex-start;column-gap:28px}
 .ferr-quantity-suggestion{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
 .ferr-quantity-suggestion .ferr-hint{margin:0}
 /* A linha do título com os botões do card (.dmo-card-topo, canto superior direito). */
 .ferr-card .dmo-card-topo{margin-bottom:12px}
-/* O traço entre componentes da informação técnica (Diogo, 18/10/2026). */
-.ferr-tech-sep{align-self:stretch;width:1px;background:var(--dmo-border);margin:0 4px}
-.ferr-tech-sep[hidden]{display:none}

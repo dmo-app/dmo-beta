@@ -16,6 +16,7 @@
     var machineCodes = sheet is null || sheet.Machines.Count == 0 ? "—" : string.Join(" · ", sheet.Machines.Select(m => m.Code));
 }
 @section Head {
+<link rel="stylesheet" href="~/css/dmo-ferramenta-form.css" asp-append-version="true" />
 <style>
 .ferr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
 .ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
@@ -37,23 +38,9 @@
 .ferr-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .ferr-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
 .ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
-/* O Tipo leva a largura do Criar (190px) para «CM — Contra-molde» caber inteiro. */
-.ferr-form-grid{display:grid;grid-template-columns:190px repeat(auto-fill,140px);gap:10px;align-items:start}
-.ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
-.ferr-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dmo-text,#172d42)}
-.ferr-check input{width:auto;min-height:0}
-.ferr-tech-group{margin:14px 0 0;padding:14px 0 0;border:0;border-top:1px solid var(--dmo-border,#d9e6f2);min-width:0}
-.ferr-tech-group legend{padding:0;font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.04em;color:var(--dmo-brand-700,#193046)}
-.ferr-tech-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end;margin-top:8px}
-.ferr-tech-grid .dmo-field{min-width:0}
-.ferr-tech-grid .dmo-field :is(input,select){width:100%}
-.ferr-tech-grid .dmo-fact{min-height:0}
-/* O valor técnico que não se leu fica no campo para corrigir, com a borda do aviso. */
-html body .ferr-tech-grid .dmo-field input[aria-invalid=true]{border-color:var(--dmo-warning)}
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
 .ferr-danger:hover{background:#7d4f4a}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
-@@media(max-width:900px){.ferr-form-grid,.ferr-tech-grid{grid-template-columns:1fr}}
 </style>
 }
 
@@ -321,6 +308,14 @@ html body .ferr-tech-grid .dmo-field input[aria-invalid=true]{border-color:var(-
         <div class="ferr-aviso warn ferr-sem-maquinas" role="status" style="margin-top:12px">Sem máquinas: conta como estando em todas, por isso outra com o mesmo tipo, referência e lote é recusada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-maquinas-editar">Acrescentar as máquinas</a></div>
       }
 
+      @* SEM QUANTIDADE (Diogo, 20/10/2026: «nao pode ser optional pq da erro se
+         nao tiver»): grava-se sem ela, mas nas Boquilhas a Fabricação da BQ
+         fica por calcular; o link leva ao Editar. *@
+      @if (tool.Type == ToolType.Bq && tool.BqAccountedQuantity is null)
+      {
+        <div class="ferr-aviso warn ferr-sem-quantidade" role="status" style="margin-top:12px">Sem quantidade do lote: nas Boquilhas, a Fabricação desta BQ não é calculada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-quantidade-editar">Acrescentar a quantidade</a></div>
+      }
+
       @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico
          (o Owner: «se introduzirmos o nome tecnico... apresenta logo
          tudo»): os factos que a gramática OP 99 revela — a proposta que
@@ -358,52 +353,12 @@ html body .ferr-tech-grid .dmo-field input[aria-invalid=true]{border-color:var(-
         {
           <input type="hidden" name="continuar" value="@regressoFactos" />
         }
-        <div class="ferr-form-grid">
-          <div class="dmo-field">
-            <label for="ferr-edit-type">Tipo</label>
-            <select id="ferr-edit-type" name="type_token" required>
-              <option value="CM" selected="@(Model.FactsType(tool.Type) == "CM")">CM — Contra-molde</option>
-              <option value="BQ" selected="@(Model.FactsType(tool.Type) == "BQ")">BQ — Boquilha</option>
-              <option value="MF" selected="@(Model.FactsType(tool.Type) == "MF")">MF — Molde final</option>
-            </select>
-          </div>
-          <div class="dmo-field">
-            <label for="ferr-edit-reference">Referência</label>
-            <input id="ferr-edit-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.FactsReference(tool.Reference)" placeholder="Ex.: 5447 ou T194" required />
-          </div>
-          <div class="dmo-field">
-            <label for="ferr-edit-lot">Lote</label>
-            <input id="ferr-edit-lot" name="lot" value="@Model.FactsLot(tool.Lot)" placeholder="vazio = s/lote" />
-          </div>
-          @if (tool.Type == ToolType.Cm)
-          {
-            <div class="dmo-field">
-              <label for="ferr-edit-mf">Referência MF associada</label>
-              <input id="ferr-edit-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.FactsMf(tool.AssociatedMfReference)" placeholder="opcional" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
-            </div>
-          }
-          <div class="dmo-field">
-            <label for="ferr-edit-qty">Quantidade</label>
-            <input id="ferr-edit-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.FactsQuantity(tool.BqAccountedQuantity)" placeholder="opcional" />
-          </div>
-          <div class="dmo-field" style="grid-column:1/-1">
-            <span class="dmo-label" id="ferr-edit-machines">Máquinas / linhas compatíveis</span>
-            <div class="ferr-checks" role="group" aria-labelledby="ferr-edit-machines">
-              @if (Model.Machines.Count == 0)
-              {
-                <span class="ferr-hint" style="margin:0">Sem máquinas registadas.</span>
-              }
-              @foreach (var machine in Model.Machines)
-              {
-                <label class="ferr-check">
-                  <input type="checkbox" name="machine_ids" value="@machine.MachineId"
-                         checked="@Model.FactsMachine(machine.MachineId, tool.Machines.Any(m => m.MachineId == machine.MachineId))" />
-                  <span>@machine.Code</span>
-                </label>
-              }
-            </div>
-          </div>
-        </div>
+        @* Os mesmos campos do Criar (um só formulário de ferramenta, Diogo,
+           20/10/2026), com o Nome técnico (SAP) também aqui. *@
+        <partial name="_FerramentaFactos" model="@(new FerramentaFactosForm("ferr-edit", false, Model.FactsType(tool.Type), null,
+            Model.FactsReference(tool.Reference), Model.FactsLot(tool.Lot), Model.FactsQuantity(tool.BqAccountedQuantity), null,
+            Model.FactsMf(tool.AssociatedMfReference), Model.FactsTechnicalName(tool.TechnicalName), Model.Machines,
+            id => Model.FactsMachine(id, tool.Machines.Any(m => m.MachineId == id))))" />
       </form>
 
     </section>
@@ -442,65 +397,21 @@ html body .ferr-tech-grid .dmo-field input[aria-invalid=true]{border-color:var(-
         {
           <input type="hidden" name="continuar" value="@regresso" />
         }
-        <fieldset class="ferr-tech-group">
-          <legend>@(isCm ? "CM" : isBq ? "Boquilha" : "Molde final")</legend>
-          <div class="ferr-tech-grid">
-            @if (isCm)
+        @* Os mesmos campos do Criar, só os do tipo desta ferramenta. *@
+        <partial name="_FerramentaTecnica" model="@(new FerramentaTecnicaForm("ferr-tech", false, tokenOf(tool.Type),
+            nome => nome == "process_token" ? Model.TechnicalProcessValue(tech?.Process) : Model.TechnicalValue(nome, nome switch
             {
-              <div class="dmo-field">
-                <label for="ferr-tech-process">Processo</label>
-                <select id="ferr-tech-process" name="process_token">
-                  <option value="" selected="@(Model.TechnicalProcessValue(tech?.Process) == "")">— sem processo</option>
-                  <option value="NNPB" selected="@(Model.TechnicalProcessValue(tech?.Process) == "NNPB")">NNPB</option>
-                  <option value="PS" selected="@(Model.TechnicalProcessValue(tech?.Process) == "PS")">PS</option>
-                </select>
-              </div>
-              <div class="dmo-field">
-                <label for="ferr-tech-nominal">Peso nominal (g)</label>
-                <input id="ferr-tech-nominal" name="nominal_weight" type="text" inputmode="decimal" value="@Model.TechnicalValue("nominal_weight", tech?.NominalWeightGrams)" aria-invalid="@Model.TechnicalInvalid("nominal_weight")" autofocus="@(Model.TechnicalFocus == "nominal_weight")" />
-              </div>
-              <div class="dmo-field">
-                <label for="ferr-tech-puncao">Punção (cm³)</label>
-                <input id="ferr-tech-puncao" name="volume_puncao" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_puncao", tech?.VolumePuncaoCm3)" aria-invalid="@Model.TechnicalInvalid("volume_puncao")" autofocus="@(Model.TechnicalFocus == "volume_puncao")" />
-              </div>
-            }
-            @if (isBq)
-            {
-              <div class="dmo-field">
-                <label for="ferr-tech-marisa">Marisa (cm³)</label>
-                <input id="ferr-tech-marisa" name="volume_marisa" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_marisa", tech?.VolumeMarisaCm3)" aria-invalid="@Model.TechnicalInvalid("volume_marisa")" autofocus="@(Model.TechnicalFocus == "volume_marisa")" />
-              </div>
-            }
-            <div class="dmo-field">
-              <label for="ferr-tech-gargalo">Diâmetro do gargalo (mm)</label>
-              <input id="ferr-tech-gargalo" name="diametro_gargalo" type="text" inputmode="decimal" value="@Model.TechnicalValue("diametro_gargalo", tech?.DiametroGargaloMm)" aria-invalid="@Model.TechnicalInvalid("diametro_gargalo")" autofocus="@(Model.TechnicalFocus == "diametro_gargalo")" />
-            </div>
-          </div>
-        </fieldset>
-        @if (isCm)
-        {
-          <fieldset class="ferr-tech-group">
-            <legend>Tampão</legend>
-            <div class="ferr-tech-grid">
-              <div class="dmo-field">
-                <label for="ferr-tp-diametro">Diâmetro (mm)</label>
-                <input id="ferr-tp-diametro" name="tp_diametro" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_diametro", tech?.TpDiametroMm)" placeholder="Ex.: 28,45 ou 28.45" aria-invalid="@Model.TechnicalInvalid("tp_diametro")" autofocus="@(Model.TechnicalFocus == "tp_diametro")" />
-              </div>
-              <div class="dmo-field">
-                <label for="ferr-tp-raio">Raio (mm)</label>
-                <input id="ferr-tp-raio" name="tp_raio" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_raio", tech?.TpRaioMm)" placeholder="Ex.: 24,11 ou 24.11" aria-invalid="@Model.TechnicalInvalid("tp_raio")" autofocus="@(Model.TechnicalFocus == "tp_raio")" />
-              </div>
-              <div class="dmo-field">
-                <label for="ferr-tp-sagitta">Calote (mm)</label>
-                <input id="ferr-tp-sagitta" name="tp_sagitta" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_sagitta", tech?.TpSagittaMm)" placeholder="Ex.: 4,5 ou 4.5" aria-invalid="@Model.TechnicalInvalid("tp_sagitta")" autofocus="@(Model.TechnicalFocus == "tp_sagitta")" />
-              </div>
-              <div class="dmo-fact" aria-live="polite">
-                <span>Volume do tampão (cm³)<partial name="_DmoHelp" model="@("Calculado com o diâmetro e a calote.")" /></span>
-                <strong>@(volumeTampao is { } vt ? vt.ToString("0.###", pt) : "—")</strong>
-              </div>
-            </div>
-          </fieldset>
-        }
+                "nominal_weight" => tech?.NominalWeightGrams,
+                "volume_puncao" => tech?.VolumePuncaoCm3,
+                "volume_marisa" => tech?.VolumeMarisaCm3,
+                "diametro_gargalo" => tech?.DiametroGargaloMm,
+                "tp_diametro" => tech?.TpDiametroMm,
+                "tp_raio" => tech?.TpRaioMm,
+                "tp_sagitta" => tech?.TpSagittaMm,
+                _ => null,
+            }),
+            Model.TechnicalInvalid, Model.TechnicalFocus,
+            isCm ? (volumeTampao is { } vt ? vt.ToString("0.###", pt) : "—") : null))" />
       </form>
       </div>
       </details>

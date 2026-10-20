@@ -1,0 +1,275 @@
+"""E10 (Atualizar só o que muda): as Definições dos módulos e do Admin gravam sem recarregar.
+
+Ambiente local descartável (scripts/stress/arrancar_app.sh <base> <porta>), nunca o DEV.
+Em cada página alterada grava-se uma vez e confirma-se:
+- 1 POST (também com um duplo clique) e nenhum pedido «document» (a página não recarrega:
+  a marca em window sobrevive);
+- os dados gravados aparecem;
+- o que fica fora das zonas é o mesmo elemento, no mesmo sítio;
+- o foco fica no sítio certo;
+- a mensagem vai para a pilha do canto (não empurra os cartões).
+
+Uso: DMO_UI_TEST_URL=http://127.0.0.1:5360 DMO_CHROMIUM=... python3 tests/visual/definicoes_parcial_browser.py
+"""
+import os
+import random
+import re
+import subprocess
+import time
+from urllib.parse import urlparse
+
+from playwright.sync_api import expect, sync_playwright
+
+base = os.environ.get('DMO_UI_TEST_URL', 'http://127.0.0.1:5360')
+if urlparse(base).hostname not in ('127.0.0.1', 'localhost'):
+    raise SystemExit('Use only the local disposable stress environment.')
+base_dados = os.environ.get('DMO_UI_TEST_DB', 'dmo_e10')
+operador = os.environ.get('STRESS_EMAIL', 'stress@local.test')
+admin_email = os.environ.get('STRESS_ADMIN', 'admin@local.test')
+password = os.environ.get('STRESS_PASSWORD', 'stress-1234')
+resultados = []
+
+
+def sql(consulta):
+    return subprocess.run(['psql', '-h', 'localhost', '-U', 'postgres', '-d', base_dados, '-Atc', consulta],
+                          env={**os.environ, 'PGPASSWORD': os.environ.get('PGPASSWORD', 'postgres')},
+                          capture_output=True, text=True, check=True).stdout.strip()
+
+
+def entrar(browser, quem):
+    context = browser.new_context(viewport={'width': 1400, 'height': 900}, locale='pt-PT')
+    page = context.new_page()
+    erros = []
+    page.on('pageerror', lambda error: erros.append(str(error)))
+    pedidos = []
+    page.on('request', lambda r: pedidos.append((r.method, r.resource_type, r.url))
+            if r.url.startswith(base) and r.resource_type in ('document', 'fetch', 'xhr') else None)
+    page.goto(base + '/login')
+    page.locator('#identifier').fill(quem)
+    page.locator('#password').fill(password)
+    with page.expect_navigation():
+        page.locator('#password').press('Enter')
+    return page, pedidos, erros
+
+
+def caixa(page, seletor):
+    """O sítio do elemento na página (não no ecrã: o clique do Playwright pode deslizar até ao botão)."""
+    return tuple(page.eval_on_selector(seletor, '''(e) => {
+        const b = e.getBoundingClientRect();
+        return [b.x + window.scrollX, b.y + window.scrollY, b.width, b.height].map(Math.round);
+    }'''))
+
+
+def gravar(page, pedidos, acao, fixos, nome, posts=1, gets=None, sem_troca=False, sitio=()):
+    """Faz a ação e espera a resposta aplicada (dmo:troca, ou o JSON do valor no sítio).
+    fixos: seletores fora das zonas que têm de ficar o mesmo elemento, no mesmo sítio.
+    sitio: seletores dentro das zonas que são desenhados de novo mas não mudam de sítio."""
+    page.evaluate('''(fixos) => {
+        window.__marca = 1;
+        window.__trocou = 0;
+        window.__fixos = fixos.map((s) => document.querySelector(s));
+        document.addEventListener('dmo:troca', () => { window.__trocou++; });
+    }''', fixos)
+    antes = [caixa(page, s) for s in (*fixos, *sitio)]
+    del pedidos[:]
+    acao()
+    if not sem_troca:
+        page.wait_for_function('window.__trocou >= 1', timeout=10000)
+    page.wait_for_function("!document.querySelector('[data-dmo-troca][aria-busy=true]')", timeout=10000)
+    page.wait_for_timeout(250)
+    assert page.evaluate('window.__marca') == 1, f'{nome}: a página recarregou'
+    metodos = [m for m, t, _ in pedidos]
+    tipos = [t for _, t, _ in pedidos]
+    assert metodos.count('POST') == posts, f'{nome}: {metodos.count("POST")} POST, esperado {posts}: {pedidos}'
+    assert 'document' not in tipos, f'{nome}: houve navegação: {pedidos}'
+    if gets is not None:
+        assert metodos.count('GET') == gets, f'{nome}: {metodos.count("GET")} GET, esperado {gets}: {pedidos}'
+    iguais = page.evaluate('(fixos) => fixos.map((s, i) => document.querySelector(s) === window.__fixos[i])', fixos)
+    assert all(iguais), f'{nome}: um elemento fora das zonas foi desenhado de novo: {list(zip(fixos, iguais))}'
+    depois = [caixa(page, s) for s in (*fixos, *sitio)]
+    assert antes == depois, f'{nome}: o resto mexeu: {antes} -> {depois}'
+    resultados.append(f'{nome}: {metodos.count("POST")} POST, {metodos.count("GET")} GET fetch, 0 document')
+
+
+def foco(page):
+    return page.evaluate('document.activeElement && (document.activeElement.id || document.activeElement.tagName)')
+
+
+def no_canto(page, botao, cartao, campo):
+    """Regra do Diogo (18/10/2026): o botão do cartão fica no canto superior direito, dentro
+    do cartão, na linha do título; por cima dos campos; tamanho só da letra e do padding."""
+    m = page.evaluate('''([b, c, f]) => {
+        const r = (s) => document.querySelector(s).getBoundingClientRect();
+        const botao = r(b), cartao = r(c), campo = r(f), titulo = document.querySelector(c).querySelector('h3').getBoundingClientRect();
+        const s = getComputedStyle(document.querySelector(b));
+        // A barra das ações do canto (com o «Opções» ao lado, nas Templates) encosta à direita.
+        const acoes = document.querySelector(b).closest('.dmo-card-topo-acoes').getBoundingClientRect();
+        return { direita: cartao.right - acoes.right, topo: botao.top - cartao.top, dentro: botao.left > cartao.left && botao.bottom < cartao.bottom,
+                 titulo: Math.abs((botao.top + botao.bottom) / 2 - (titulo.top + titulo.bottom) / 2), acima: botao.bottom <= campo.top,
+                 largura: document.querySelector(b).style.width || '', altura: document.querySelector(b).style.height || '' };
+    }''', [botao, cartao, campo])
+    assert m['dentro'] and 0 <= m['direita'] <= 40 and 0 <= m['topo'] <= 40 and m['titulo'] <= 12 and m['acima'] \
+        and not m['largura'] and not m['altura'], f'{botao} não está no canto superior direito de {cartao}: {m}'
+    resultados.append(f'{botao}: no canto superior direito do cartão ({m["direita"]:.0f}px da direita, {m["topo"]:.0f}px do topo)')
+
+
+def toast(page, texto):
+    mensagem = page.locator('.dmo-toast-pilha [data-dmo-toast]', has_text=texto)
+    expect(mensagem).to_have_count(1)
+    return mensagem
+
+
+with sync_playwright() as playwright:
+    browser = playwright.chromium.launch(executable_path=os.environ.get('DMO_CHROMIUM', '/usr/bin/chromium'),
+                                         args=['--no-sandbox'])
+
+    # ------------------------------------------------------------------ módulos
+    page, pedidos, erros = entrar(browser, operador)
+
+    # Controlo → Definições: a tolerância; duplo clique no «Guardar» = 1 POST, 1 mensagem.
+    page.goto(base + '/Controlo/Definicoes')
+    atual = page.input_value('#pegamentosTolerance')
+    novo = '0.25' if atual != '0.25' else '0.30'
+    page.fill('#pegamentosTolerance', novo)
+    gravar(page, pedidos, lambda: page.dblclick('#ctlDefGuardar'),
+           ['#ctl-def-title', '[data-dmo-pasta-pdf]'], 'Controlo, tolerância (duplo clique)')
+    assert page.input_value('#pegamentosTolerance') == novo
+    toast(page, 'Tolerância guardada')
+    assert foco(page) == 'ctlDefGuardar', f'foco em {foco(page)}'
+    assert float(sql('''select "ToleranceMm" from "PegamentosTolerances"''')) == float(novo), 'a tolerância não ficou na base'
+
+    # Ferramentas → Definições: Enter num total; o foco fica no campo.
+    page.goto(base + '/Ferramentas/Definicoes')
+    campo = '#ferr-total-BQ-B1'
+    novo = str(100 + random.randint(1, 80))
+    page.fill(campo, novo)
+    gravar(page, pedidos, lambda: page.press(campo, 'Enter'), ['#ferr-def-title'], 'Ferramentas, totais (Enter)')
+    assert page.input_value(campo) == novo
+    toast(page, 'Totais guardados.')
+    assert foco(page) == 'ferr-total-BQ-B1', f'foco em {foco(page)}'
+    # Uma quantidade má: o aviso vai para o canto, o quadro não se mexe.
+    page.fill(campo, 'xx')
+    gravar(page, pedidos, lambda: page.click('#ferrDefGuardar'), ['#ferr-def-title'], 'Ferramentas, aviso',
+           sitio=['.ferr-totais', '#ferrDefGuardar'])
+    toast(page, 'exceto: BQ na B1')
+    assert page.input_value(campo) == novo
+    assert foco(page) == 'ferrDefGuardar'
+
+    # Boquilhas → Definições: criar um reparador, escolher a rota, mudar o nome no sítio.
+    page.goto(base + '/Boquilhas/Definicoes')
+    nome = f'Reparador E10 {int(time.time())}'
+    page.fill('#repairerName', nome)
+    gravar(page, pedidos, lambda: page.press('#repairerName', 'Enter'), ['#bq-def-title'], 'Boquilhas, criar reparador (Enter)')
+    toast(page, 'Definição gravada.')
+    novo_id = sql(f'''select "Id" from "BqRepairers" where "Name" = '{nome}' ''')
+    assert novo_id, 'o reparador não ficou na base'
+    expect(page.locator(f'#bq-reparador-{novo_id}')).to_have_value(nome)
+    assert page.input_value('#repairerName') == ''
+    assert foco(page) == 'repairerName', f'foco em {foco(page)}'
+    assert page.locator(f'#machine-route-B1 option[value="B1|{novo_id}"]').count() == 1, 'o reparador novo não está nas rotas'
+
+    # O operador abre o dropdown (o foco vai para ele) e escolhe.
+    page.focus('#machine-route-B1')
+    gravar(page, pedidos, lambda: page.select_option('#machine-route-B1', f'B1|{novo_id}'),
+           ['#bq-def-title', '#bqDefReparadores'], 'Boquilhas, rota da B1')
+    assert page.input_value('#machine-route-B1') == f'B1|{novo_id}'
+    assert foco(page) == 'machine-route-B1', f'foco em {foco(page)}'
+    assert sql('''select "SettingValue" from "ModuleSettings" where "SettingKey" = 'Boquilhas:RepairerB1' ''') == novo_id
+
+    # O valor que chegou na zona trocada grava no sítio (JSON), sem recarregar.
+    campo = f'#bq-reparador-{novo_id}'
+    page.fill(campo, nome + ' x')
+    with page.expect_response(lambda r: 'handler=EditRepairer' in r.url):
+        gravar(page, pedidos, lambda: page.press(campo, 'Tab'), ['#bq-def-title', '#bqDefReparadores', '#bqDefRotas'],
+               'Boquilhas, nome no sítio', sem_troca=True)
+    assert sql(f'''select "Name" from "BqRepairers" where "Id" = {novo_id}''') == nome + ' x'
+    assert not erros, erros
+    page.context.close()
+
+    # -------------------------------------------------------------------- Admin
+    page, pedidos, erros = entrar(browser, admin_email)
+
+    # Setup: o email do ADMIN (o mesmo, para a sessão continuar).
+    page.goto(base + '/Admin/Definicoes')
+    no_canto(page, '#admEmailGuardar', '#admEmail', '#adminEmail')
+    page.fill('#adminEmail', admin_email)
+    page.fill('#adminEmailConfirm', admin_email)
+    gravar(page, pedidos, lambda: page.click('#admEmailGuardar'), ['#settings-title'], 'Setup, email do ADMIN')
+    toast(page, 'Email do ADMIN guardado.')
+    assert page.input_value('#adminEmail') == admin_email
+    assert page.input_value('#adminEmailConfirm') == ''
+    assert foco(page) == 'admEmailGuardar', f'foco em {foco(page)}'
+
+    # Canal Jobon: a hora grava ao escolher; o foco fica no dropdown.
+    page.goto(base + '/Admin/CanalJobon')
+    hora = str((int(page.input_value('#dayChangeHour')) + 1) % 24)
+    page.focus('#dayChangeHour')
+    gravar(page, pedidos, lambda: page.select_option('#dayChangeHour', hora), ['#canal-jobon-title'], 'Canal Jobon, hora')
+    toast(page, 'Hora de viragem gravada.')
+    assert page.input_value('#dayChangeHour') == hora
+    assert foco(page) == 'dayChangeHour', f'foco em {foco(page)}'
+    assert sql('''select "SettingValue" from "ModuleSettings" where "SettingKey" = 'Boquilhas:DayChangeHour' ''') == hora
+
+    # Utilizadores: criar; o PIN fica no canto; o formulário limpa; a lista mostra-o.
+    page.goto(base + '/Admin/Users')
+    no_canto(page, '#dmuCriarBotao', '#dmuCriar', '#dmu-name')
+    while True:
+        op = str(random.randint(2000, 9999))
+        if sql(f'''select count(*) from "Users" where "OperatorId" = '{op}' ''') == '0':
+            break
+    contagem = page.inner_text('#dmu-resultados .card-note')
+    page.fill('#dmu-name', f'Utilizador E10 {op}')
+    page.fill('#dmu-operator', op)
+    page.fill('#dmu-email', f'e10.{op}.{int(time.time())}@local.test')
+    gravar(page, pedidos, lambda: page.dblclick('#dmuCriarBotao'), ['#dmu-title'], 'Utilizadores, criar (duplo clique)')
+    entrega = page.locator('.dmo-toast-pilha section[aria-label="Utilizador criado"]')
+    expect(entrega).to_have_count(1)
+    assert re.search(r'\d{4}', entrega.inner_text()), 'sem PIN na entrega'
+    assert page.inner_text('#dmu-resultados .card-note') != contagem, 'a lista não mudou'
+    assert page.input_value('#dmu-name') == '' and page.input_value('#dmu-operator') == ''
+    assert foco(page) == 'dmuCriarBotao', f'foco em {foco(page)}'
+    assert sql(f'''select count(*) from "Users" where "OperatorId" = '{op}' ''') == '1', 'o utilizador não ficou uma vez na base'
+    # A entrega está fora do fluxo: o formulário não desceu.
+    assert page.evaluate("getComputedStyle(document.querySelector('.dmo-toast-pilha')).position") == 'fixed'
+
+    # Templates: criar (Enter), abrir outra na lista, guardar, eliminar.
+    page.goto(base + '/Admin/Templates')
+    no_canto(page, '#dmtCriar', '#dmtDetalhe', '#dmt-new-name')
+    nome = f'E10 {int(time.time())}'
+    page.fill('#dmt-new-name', nome)
+    gravar(page, pedidos, lambda: page.press('#dmt-new-name', 'Enter'), ['#dmt-title'], 'Templates, criar (Enter)')
+    toast(page, 'Template criada.')
+    expect(page.locator('.dmt-choice.active')).to_contain_text(nome)
+    assert page.input_value('#dmt-edit-name') == nome
+    assert foco(page) == 'dmt-edit-name', f'foco em {foco(page)}'
+    no_canto(page, '#dmtGuardar', '#dmtDetalhe', '#dmt-edit-name')
+    chave = re.search(r'template=([^&#]+)', page.url).group(1)
+
+    outra = page.locator('.dmt-choice-link').filter(has_not_text=nome).first
+    outra_id = outra.get_attribute('id')
+    gravar(page, pedidos, lambda: outra.click(), ['#dmt-title'], 'Templates, abrir outra na lista', posts=0, gets=1)
+    assert foco(page) == outra_id, f'foco em {foco(page)}'
+    expect(page.locator(f'#{outra_id}').locator('xpath=..')).to_have_class(re.compile('active'))
+
+    page.click(f'#dmt-escolha-{chave}')
+    page.wait_for_function(f"document.querySelector('#dmt-edit-name') && document.querySelector('#dmt-edit-name').value === '{nome}'")
+    page.fill('#dmt-edit-name', nome + ' b')
+    gravar(page, pedidos, lambda: page.click('#dmtGuardar'), ['#dmt-title'], 'Templates, guardar')
+    toast(page, 'Template guardada.')
+    expect(page.locator(f'#dmt-escolha-{chave}')).to_contain_text(nome + ' b')
+    assert foco(page) == 'dmtGuardar', f'foco em {foco(page)}'
+
+    page.click('summary:has-text("Opções")')
+    page.click('button.dmo-options-item:has-text("Eliminar template")')
+    gravar(page, pedidos, lambda: page.click('#dmt-delete-dialog button[type=submit]'), ['#dmt-title'], 'Templates, eliminar')
+    toast(page, 'Template eliminada.')
+    assert page.locator(f'#dmt-escolha-{chave}').count() == 0
+    assert foco(page) == 'dmt-new-name', f'foco em {foco(page)}'
+    assert sql(f'''select count(*) from "Templates" where "TemplateKey" = '{chave}' ''') == '0'
+    assert not erros, erros
+    page.context.close()
+    browser.close()
+
+for linha in resultados:
+    print('PASS', linha)
+print(f'PASS Definições E10: {sum(1 for r in resultados if " POST, " in r)} gravações e cliques sem recarregar')

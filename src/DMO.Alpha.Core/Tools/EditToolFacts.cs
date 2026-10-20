@@ -17,4 +17,7 @@ public sealed record EditToolFacts(
     // null = sem verificação. Diferente da gravada = ChangedByAnotherUser.
     uint? ExpectedVersion = null,
     // Quem edita (fica no aviso da outra ferramenta se ficar repetida).
-    string? RequestedBy = null);
+    string? RequestedBy = null,
+    // O nome técnico (SAP), no mesmo formulário do registo (Diogo, 20/10/2026:
+    // um só formulário de ferramenta). null = fica como está; vazio = limpa.
+    string? TechnicalName = null);

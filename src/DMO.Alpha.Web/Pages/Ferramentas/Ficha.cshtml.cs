@@ -227,10 +227,10 @@ public sealed class FichaModel : PageModel
     public FactsDraftValues? FactsDraft { get; private set; }
 
     public sealed record FactsDraftValues(string Type, string Reference, string Lot, string Mf, string Quantity,
-        IReadOnlySet<int> MachineIds);
+        IReadOnlySet<int> MachineIds, string TechnicalName = "");
 
     /// <summary>Os nomes dos campos do Editar (os mesmos no POST e no rascunho da recusa).</summary>
-    private static readonly string[] FactsFieldNames = ["type_token", "reference", "lot", "mf_reference", "bq_quantity"];
+    private static readonly string[] FactsFieldNames = ["type_token", "reference", "lot", "mf_reference", "bq_quantity", "technical_name"];
 
     public string FactsType(ToolType stored) => FactsDraft?.Type ?? TokenTypeFor(stored);
 
@@ -243,6 +243,8 @@ public sealed class FichaModel : PageModel
     public string? FactsQuantity(int? stored) => FactsDraft is { } draft
         ? draft.Quantity
         : stored?.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    public string? FactsTechnicalName(string? stored) => FactsDraft is { } draft ? draft.TechnicalName : stored;
 
     public bool FactsMachine(int machineId, bool stored) => FactsDraft is { } draft ? draft.MachineIds.Contains(machineId) : stored;
 
@@ -367,7 +369,8 @@ public sealed class FichaModel : PageModel
                     Request.Query["machine_ids"]
                         .Select(id => int.TryParse(id, System.Globalization.CultureInfo.InvariantCulture, out var parsed) ? parsed : 0)
                         .Where(id => id > 0)
-                        .ToHashSet());
+                        .ToHashSet(),
+                    Request.Query["technical_name"].ToString());
             }
         }
 
@@ -462,7 +465,8 @@ public sealed class FichaModel : PageModel
         [FromForm(Name = "bq_quantity")] string? bqQuantity,
         [FromForm(Name = "machine_ids")] List<string>? machineIds,
         [FromForm(Name = "continuar")] string? continuar = null,
-        [FromForm(Name = "versao")] string? versao = null)
+        [FromForm(Name = "versao")] string? versao = null,
+        [FromForm(Name = "technical_name")] string? technicalName = null)
     {
         var canonicalToolId = IndexModel.Sanitize(toolId) ?? string.Empty;
         // Aberta a partir de um fluxo: o regresso fica na ficha depois de
@@ -495,7 +499,8 @@ public sealed class FichaModel : PageModel
                     .Distinct()
                     .ToList(),
                 ParseVersion(versao),
-                IndexModel.ActorName(User)),
+                IndexModel.ActorName(User),
+                technicalName?.ToUpperInvariant()),
             HttpContext.RequestAborted);
 
         if (outcome.Result == EditToolFactsResult.Success)
@@ -526,7 +531,7 @@ public sealed class FichaModel : PageModel
         };
         if (outcome.Result is not (EditToolFactsResult.ChangedByAnotherUser or EditToolFactsResult.ToolNotFound))
         {
-            string?[] typed = [typeToken, reference, lot, mfReference, bqQuantity];
+            string?[] typed = [typeToken, reference, lot, mfReference, bqQuantity, technicalName];
             for (var i = 0; i < FactsFieldNames.Length; i++)
                 refusedValues[FactsFieldNames[i]] = typed[i] ?? string.Empty;
             refusedValues["machine_ids"] = (machineIds ?? []).Select(id => id ?? string.Empty).ToArray();
