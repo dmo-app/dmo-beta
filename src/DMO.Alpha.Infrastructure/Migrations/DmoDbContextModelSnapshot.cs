@@ -1421,6 +1421,35 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Runtime.OperacaoRegistada", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AutorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("MomentoUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ResultadoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ResultadoTipo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OperacoesRegistadas", (string)null);
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Tools.Tool", b =>
                 {
                     b.Property<string>("ToolId")
