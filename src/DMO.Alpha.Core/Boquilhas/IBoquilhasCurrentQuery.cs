@@ -17,6 +17,14 @@ public interface IBoquilhasCurrentQuery
     /// futura).
     /// </summary>
     Task<IReadOnlyList<MachineCurrentBq>> ListAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// O dia operacional das Boquilhas: muda à hora de viragem (Canal Jobon,
+    /// 8h por omissão), nunca à meia-noite. É o «hoje» que escolhe a produção
+    /// em máquina no painel, na procura e nos registos de uma BQ; os dias do
+    /// histórico continuam a contar à meia-noite (especialista, R30).
+    /// </summary>
+    Task<DateOnly> OperationalDayAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>

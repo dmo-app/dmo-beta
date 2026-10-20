@@ -255,6 +255,12 @@ public enum CreateDmoUserResult
     /// </summary>
     EmailExists,
 
+    /// <summary>
+    /// O email já é o de um User da app (comparação sem maiúsculas). Recusado
+    /// antes do provisionamento; o outcome diz de que User é o email.
+    /// </summary>
+    EmailInUseByUser,
+
     /// <summary>O provider recusou/falhou o provisionamento; NENHUM User é persistido.</summary>
     ProviderFailure,
 
@@ -275,7 +281,11 @@ public enum CreateDmoUserResult
 /// </summary>
 public sealed record CreateDmoUserOutcome(
     CreateDmoUserResult Result,
-    CreatedDmoUser? User = null);
+    CreatedDmoUser? User = null,
+    ExistingEmailOwner? EmailOwner = null);
+
+/// <summary>O User que já tem o email pedido (só em EmailInUseByUser).</summary>
+public sealed record ExistingEmailOwner(string Name, string OperatorId);
 
 /// <summary>Registo de display da criação bem-sucedida (gestão do ADMIN, mostrado UMA vez).</summary>
 public sealed record CreatedDmoUser(

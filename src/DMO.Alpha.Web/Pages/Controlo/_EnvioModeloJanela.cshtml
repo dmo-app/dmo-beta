@@ -1,0 +1,45 @@
+@model DMO.Alpha.Web.Pages.Controlo.EnvioModeloJanela
+@{
+    var modelo = Model.Modelo;
+}
+@* A janela pequena de um modelo (criar e mudar usam a mesma): o nome, o
+   email que envia, o assunto, o corpo e a lista proposta. *@
+<dialog id="@Model.Id" class="dmo-dialog" aria-labelledby="@Model.Id-titulo">
+  <h3 id="@Model.Id-titulo">@(modelo is null ? "Novo modelo" : $"Modelo {modelo.Nome}")</h3>
+  <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="GuardarModelo" class="ctl-def-modelo">
+    @if (modelo is not null)
+    {
+      <input type="hidden" name="modelo_id" value="@modelo.Id" />
+    }
+    <div class="dmo-field">
+      <label for="@Model.Id-nome">Nome</label>
+      <input id="@Model.Id-nome" name="nome" value="@modelo?.Nome" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.NomeMax" placeholder="Ex.: Peso para a produção" required />
+    </div>
+    <div class="dmo-field">
+      <label for="@Model.Id-remetente">Email que envia<partial name="_DmoHelp" model="@("Vazio: envia com a conta de email configurada no servidor. Outro email só funciona se essa conta o puder usar.")" /></label>
+      <input id="@Model.Id-remetente" name="remetente" type="email" value="@modelo?.Remetente" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.EmailMax" placeholder="controlo@fabrica.pt" />
+    </div>
+    <div class="dmo-field">
+      <label for="@Model.Id-assunto">Assunto</label>
+      <input id="@Model.Id-assunto" name="assunto" value="@modelo?.Assunto" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.AssuntoMax" placeholder="Peso {referencia} · {producao}" />
+    </div>
+    <div class="dmo-field">
+      <label for="@Model.Id-corpo">Corpo</label>
+      <textarea id="@Model.Id-corpo" name="corpo" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.CorpoMax" placeholder="Segue em anexo o Peso da produção {producao} ({referencia}, máquina {maquina}).">@modelo?.Corpo</textarea>
+    </div>
+    <div class="dmo-field">
+      <label for="@Model.Id-lista">Lista proposta</label>
+      <select id="@Model.Id-lista" name="lista_id">
+        <option value="">— nenhuma —</option>
+        @foreach (var lista in Model.Listas)
+        {
+          <option value="@lista.Id" selected="@(modelo?.ListaId == lista.Id)">@lista.Nome</option>
+        }
+      </select>
+    </div>
+    <div class="dmo-dialog-actions">
+      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+      <button type="submit" class="dmo-button">@(modelo is null ? "Criar modelo" : "Guardar")</button>
+    </div>
+  </form>
+</dialog>

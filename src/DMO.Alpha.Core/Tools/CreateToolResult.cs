@@ -28,5 +28,12 @@ public enum CreateToolResult
     /// <summary>Um machine_id que não resolve a máquina persistida.</summary>
     MachineNotFound,
 
-    InvalidLotQuantity
+    InvalidLotQuantity,
+
+    /// <summary>
+    /// Já existe uma ferramenta com o mesmo tipo, referência e lote (o
+    /// proprietário, 18/10/2026: bloquear, não abrir a existente). Nada foi
+    /// registado; a existente ficou com o aviso de ferramenta repetida.
+    /// </summary>
+    ToolAlreadyExists
 }

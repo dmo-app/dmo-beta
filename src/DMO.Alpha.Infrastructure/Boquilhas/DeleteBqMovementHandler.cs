@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DMO.Alpha.Infrastructure.Boquilhas;
 
 /// <summary>
-/// Apaga um dos movimentos mais recentes de um registo (data real, depois id)
-/// e recalcula as discrepâncias dos que ficam. Na mesma gravação deixa o rasto
+/// Apaga um movimento de um registo, qualquer que seja a data real, e recalcula as discrepâncias dos que ficam. Na mesma gravação deixa o rasto
 /// em BqMovementDeletions (os factos do movimento, quem apagou e quando);
 /// sem identidade apaga na mesma.
 /// </summary>
@@ -25,6 +24,8 @@ public sealed class DeleteBqMovementHandler : IDeleteBqMovementHandler
         DeleteBqMovement command,
         CancellationToken cancellationToken = default)
     {
+        await using var transaction = await BqTraceLock.AcquireAsync(
+            _db, command.BqRepairTraceId, cancellationToken);
         var traceMovements = await _db.BqMovements
             .Where(m => m.BqRepairTraceId == command.BqRepairTraceId)
             .ToListAsync(cancellationToken);
@@ -32,15 +33,6 @@ public sealed class DeleteBqMovementHandler : IDeleteBqMovementHandler
         if (movement is null)
         {
             return DeleteBqMovementResult.MovementNotFound;
-        }
-
-        var mostRecent = traceMovements
-            .OrderByDescending(m => m.OccurredAtUtc)
-            .ThenByDescending(m => m.Id)
-            .Take(DeleteBqMovement.MostRecentLimit);
-        if (!mostRecent.Contains(movement))
-        {
-            return DeleteBqMovementResult.NotAmongMostRecent;
         }
 
         _db.BqMovementDeletions.Add(new BqMovementDeletion
@@ -58,6 +50,10 @@ public sealed class DeleteBqMovementHandler : IDeleteBqMovementHandler
         traceMovements.Remove(movement);
         BqDiscrepancyFold.Apply(traceMovements);
         await _db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         return DeleteBqMovementResult.Success;
     }

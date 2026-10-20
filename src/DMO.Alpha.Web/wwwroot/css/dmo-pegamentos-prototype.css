@@ -21,13 +21,16 @@
 .peg-map-card{padding:14px}
 .peg-map-card h3{color:var(--dmo-brand-600)}
 .peg-map-card .peg-map-help{font-size:12px;color:var(--dmo-muted);margin:0 0 10px}
-.peg-map-wrap{width:100%;overflow-x:auto;border:1px solid var(--dmo-border);border-radius:7px;background:var(--dmo-subtle)}
-.peg-map-wrap svg{display:block;width:100%;min-width:760px;height:auto}
+/* O mapa mais pequeno (Diogo, 19/10/2026: «meter grafico mais pequeno»): no máximo 760px, à largura em que a letra fica ao nível da página. */
+.peg-map-wrap{width:100%;max-width:762px;overflow-x:auto;border:1px solid var(--dmo-border);border-radius:7px;background:var(--dmo-subtle)}
+.peg-map-wrap svg{display:block;width:760px;height:auto}
 .peg-map-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:11px;color:var(--dmo-muted)}
 .peg-map-legend span{display:inline-flex;align-items:center;gap:5px}
-.peg-map-legend .peg-line{width:2px;height:14px;display:inline-block}
+.peg-map-legend .peg-line{width:2px;height:14px;display:inline-block;background:currentColor}
+.peg-map-legend .peg-tracejado{background:none;border-left:2px dashed currentColor}
 .peg-map-legend .peg-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-.peg-map-legend .peg-diamond{width:9px;height:9px;display:inline-block;transform:rotate(45deg);border:2px solid var(--dmo-brand-600);background:transparent}
+.peg-map-legend .peg-diamond{width:9px;height:9px;display:inline-block;transform:rotate(45deg);border:2px solid currentColor;background:transparent}
+.peg-map-legend .peg-forma{box-sizing:border-box;border:2px solid currentColor;background:transparent}
 .peg-map-status{margin-top:10px;padding:10px 12px;border-radius:7px;font-size:12px;border:1px solid var(--dmo-border);background:var(--dmo-subtle)}
 .peg-map-status.alert{border-color:#E8A3A3;background:#FFF1F1;color:#991B1B}
 .peg-map-status.ok{border-color:#86C89B;background:#ECFDF3;color:#166534}
@@ -134,6 +137,7 @@
   border-top:1px solid var(--dmo-border,#d9e6f2);
 }
 .peg-page .peg-document-actions form { margin:0; }
+.peg-card .peg-section-head .dmo-card-topo-acoes form { margin:0; }
 .peg-page .peg-comp-head {
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -207,7 +211,7 @@
 .peg-page .peg-map-wrap svg {
   display:block;
   min-width:760px;
-  width:100%;
+  width:760px;
   height:auto;
 }
 .peg-page .peg-map-legend {
@@ -244,6 +248,8 @@
 .peg-page .peg-card-sem-nominal .peg-nominal-falta input{border-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
 .peg-page .peg-linha-nova td{background:var(--dmo-brand-050,#ebf4fc);vertical-align:middle}
 .peg-page .peg-linha-nova input{width:100%;max-width:140px;padding:4px 6px}
+/* A costura ou a contra costura fora do corredor na linha nova (sweep de 19/10/2026, 3.12): o campo toma a cor da célula. */
+.peg-page .peg-linha-nova .peg-cell-bad input{color:inherit;font-weight:inherit}
 .peg-page .peg-registo-form{display:none}
 /* O valor guardado abre a correção: a ligação cobre a célula toda. */
 .peg-page .peg-registo-tabela td{position:relative}
@@ -258,3 +264,8 @@
 .peg-page .peg-aviso-nominal a{color:var(--dmo-palette-slate,#44647c);font-weight:600}
 .peg-page .peg-mais-linha{margin-top:8px;border:1px dashed var(--dmo-palette-mist,#92b4cc);background:transparent;color:var(--dmo-palette-slate,#44647c);border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer}
 .peg-page .peg-mais-linha:hover{border-style:solid;background:var(--dmo-brand-050,#ebf4fc)}
+/* Gravar sem recarregar: quando um cartão é trocado, o browser não mexe no scroll sozinho (scroll anchoring); o que está acima fica onde estava e a tabela cresce para baixo. Por cima dos cartões nada muda de altura: o contexto não encolhe enquanto a página está aberta (a dica da folha em branco sai na primeira medição e o espaço fica, ver pegamentos-registo.js) e os avisos e recusas vão para a pilha fixa do canto. */
+.peg-page{overflow-anchor:none}
+/* A letra do mapa é a da página, como no relatório original (Diogo,
+   20/10/2026: a letra serifada do SVG); o PDF desenha com o Lato. */
+.peg-map-wrap svg text{font-family:inherit}

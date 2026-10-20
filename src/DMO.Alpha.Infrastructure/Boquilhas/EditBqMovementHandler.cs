@@ -9,7 +9,8 @@ namespace DMO.Alpha.Infrastructure.Boquilhas;
 /// Corrige o tipo, a quantidade e a data/hora reais de um movimento gravado.
 /// A máquina e o reparador congelados ficam como estão; as discrepâncias do
 /// registo são recalculadas pela data real. Só recusa o que partiria os dados;
-/// uma hora inexistente na mudança de hora passa para a hora seguinte.
+/// uma data real no futuro grava e a página avisa; uma hora inexistente na
+/// mudança de hora passa para a hora seguinte.
 /// Guarda quem corrigiu e quando (a última correção); sem identidade grava na mesma.
 /// </summary>
 public sealed class EditBqMovementHandler : IEditBqMovementHandler
@@ -27,6 +28,8 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
         EditBqMovement command,
         CancellationToken cancellationToken = default)
     {
+        await using var transaction = await BqTraceLock.AcquireAsync(
+            _db, command.BqRepairTraceId, cancellationToken);
         var traceMovements = await _db.BqMovements
             .Where(m => m.BqRepairTraceId == command.BqRepairTraceId)
             .ToListAsync(cancellationToken);
@@ -51,7 +54,9 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
         // Uma hora que cai no salto da mudança de hora (março) passa para a
         // hora seguinte e a página avisa; nunca recusa (decisão do proprietário
         // de 16/10/2026: avisar em vez de bloquear, desde que não parta nada).
+        var now = _clock.GetUtcNow();
         DateTime? shiftedLocal = null;
+        var occurredInTheFuture = false;
         if (command.OccurredAtLocal is DateTime local)
         {
             var validLocal = DmoBusinessTime.NextValidLocal(local, out var shifted);
@@ -60,15 +65,24 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
                 shiftedLocal = validLocal;
             }
 
-            movement.OccurredAtUtc = DmoBusinessTime.ToUtc(validLocal);
+            var occurredAtUtc = DmoBusinessTime.ToUtc(validLocal);
+
+            // Uma data real no futuro grava e a página avisa (Diogo,
+            // 19/10/2026: «as datas têm de ser livres»; na beta.241 era recusada).
+            occurredInTheFuture = BqMovementOccurrence.IsInTheFuture(occurredAtUtc, now);
+            movement.OccurredAtUtc = occurredAtUtc;
         }
 
         movement.Type = BqMovementTypeTokens.FromStorage(command.MovementType);
         movement.Quantity = command.Quantity;
         movement.CorrectedByNameFrozen = BqActorName.Freeze(command.CorrectedBy);
-        movement.CorrectedAtUtc = _clock.GetUtcNow().UtcDateTime;
+        movement.CorrectedAtUtc = now.UtcDateTime;
         BqDiscrepancyFold.Apply(traceMovements);
         await _db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         return new EditBqMovementOutcome(
             EditBqMovementResult.Success,
@@ -78,6 +92,7 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
                 command.MovementType,
                 movement.Quantity,
                 movement.Discrepancy),
-            shiftedLocal);
+            shiftedLocal,
+            occurredInTheFuture);
     }
 }

@@ -22,21 +22,44 @@ public enum SuggestionSource
     Referencias = 4,
 
     /// <summary>Números de produção (o valor é o nº).</summary>
-    NumerosProducao = 5
+    NumerosProducao = 5,
+
+    /// <summary>
+    /// Referências de produção e referências de BQ juntas (o valor é a
+    /// referência; as de BQ vêm marcadas «BQ»): a pesquisa do Histórico das
+    /// Boquilhas, que procura nas duas.
+    /// </summary>
+    ReferenciasEBq = 6,
+
+    /// <summary>
+    /// O «Registar ferramenta real» (Diogo, 19/10/2026): as ferramentas do
+    /// tipo (na CM também pela referência MF associada, com o nome original)
+    /// e as referências completas das produções. O valor é sempre a
+    /// referência toda.
+    /// </summary>
+    ReferenciasRegisto = 7
 }
 
 /// <summary>Uma sugestão: o valor que entra no campo e o texto mostrado.</summary>
 public sealed record Suggestion(string Value, string Label);
 
 /// <summary>
-/// Sugestões leves para os campos de procura: a partir de
-/// <see cref="MinimumLength"/> caracteres, sem distinção de maiúsculas, por
-/// parte do texto, no máximo <see cref="MaxResults"/>. Uma só consulta por
-/// pedido, sem carregar registos completos.
+/// Sugestões leves para os campos de procura, sem distinção de maiúsculas, no
+/// máximo <see cref="MaxResults"/>. As referências encontram-se pelo início
+/// delas ou da parte BQ, nunca a meio (Diogo, 18/10/2026), e por isso bastam
+/// <see cref="MinimumLength"/> caracteres («0» sugere a 0132T173); os nºs de
+/// produção pelo início. Os nomes dos reparadores encontram-se por parte do
+/// nome, a partir de <see cref="NameMinimumLength"/> caracteres. Uma só
+/// consulta por pedido, sem carregar registos completos.
 /// </summary>
 public interface ISuggestionQuery
 {
-    public const int MinimumLength = 2;
+    /// <summary>O mínimo de caracteres das referências, das produções e das ferramentas.</summary>
+    public const int MinimumLength = 1;
+
+    /// <summary>O mínimo de caracteres dos nomes (os reparadores), que se procuram a meio.</summary>
+    public const int NameMinimumLength = 2;
+
     public const int MaxResults = 10;
 
     Task<IReadOnlyList<Suggestion>> SuggestAsync(

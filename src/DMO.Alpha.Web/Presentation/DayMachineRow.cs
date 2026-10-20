@@ -31,7 +31,7 @@ public sealed record NextChange(
     bool EntraProducao);
 
 /// <summary>Uma produção do quadro do dia: os FATOS HUMANOS (a referência e o
-/// número), o JobOnId só para a abertura (?jobon_id) e o POST RemoveDay, e as
+/// número), o JobOnId só para a abertura (?jobon_id), e as
 /// mudanças de lote desse dia («Muda BQ lote 6 para 7»).</summary>
 public sealed record DayProduction(
     int JobOnId,
@@ -42,4 +42,10 @@ public sealed record DayProduction(
 
     /// <summary>Quantas alterações a produção teve depois de gravada (0 = nenhuma).</summary>
     public int ChangeCount { get; init; }
+
+    /// <summary>Qual foi a alteração, numa linha («Mudou CM: 5447 · lote 4»); null sem alterações.</summary>
+    public string? ChangeSummary { get; init; }
+
+    /// <summary>Cada alteração por extenso, para a dica da marca.</summary>
+    public IReadOnlyList<string> ChangeDetails { get; init; } = [];
 }

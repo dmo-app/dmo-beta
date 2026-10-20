@@ -87,9 +87,7 @@ public sealed class UserAdminService : IUserAdminService
 
     private static UserAdminSummary Summarize(User u, string? adminEmail)
     {
-        var isAdmin = adminEmail is not null
-            && u.Email is not null
-            && string.Equals(u.Email.Trim(), adminEmail, StringComparison.OrdinalIgnoreCase);
+        var isAdmin = AdminEmailRule.IsAdminEmail(u.Email, adminEmail);
 
         return new UserAdminSummary
         {
@@ -167,6 +165,18 @@ public sealed class UserAdminService : IUserAdminService
             return Refused(CreateDmoUserResult.AdminUserRefused);
         }
 
+        // O email já é de um User da app: recusa antes do provider, com o
+        // dono, para a mensagem dizer qual é (a lista pode estar paginada).
+        var normalizedEmail = email.ToLowerInvariant();
+        var owner = await _dbContext.Users.AsNoTracking()
+            .Where(u => u.Email != null && u.Email.ToLower() == normalizedEmail)
+            .Select(u => new ExistingEmailOwner(u.Name, u.OperatorId))
+            .FirstOrDefaultAsync(cancellationToken);
+        if (owner is not null)
+        {
+            return new CreateDmoUserOutcome(CreateDmoUserResult.EmailInUseByUser, EmailOwner: owner);
+        }
+
         // Atribuição opcional: resolve SEMPRE pela identidade estável
         // (TemplateKey), nunca pelo rótulo.
         var templateKey = TrimToNull(command.TemplateKey);
@@ -191,8 +201,11 @@ public sealed class UserAdminService : IUserAdminService
         // 3. Provisionamento: o provider cria a identidade com a password
         //    temporária e a marca de mudança obrigatória. Recusas tipadas
         //    (EmailExists/ProviderFailure) voltam SEM qualquer User
-        //    persistido.
-        var provisioning = await _provisioningProvider.CreateAsync(email, temporaryPassword, cancellationToken);
+        //    persistido. A partir daqui o pedido acaba mesmo que o browser
+        //    saia: cortado durante a ida ao provider, a identidade ficava
+        //    criada sem User e repetir dava «email já existe» (deep sweep,
+        //    18/10/2026).
+        var provisioning = await _provisioningProvider.CreateAsync(email, temporaryPassword, CancellationToken.None);
         if (provisioning.Status != UserProvisioningCreateStatus.Success
             || provisioning.ProviderUserId is not { } providerUserId)
         {
@@ -235,7 +248,7 @@ public sealed class UserAdminService : IUserAdminService
 
         try
         {
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
         }
         catch
         {
@@ -288,8 +301,11 @@ public sealed class UserAdminService : IUserAdminService
         // O provider re-establisha a credencial: a anterior deixa de
         // valer e a mudança para a password privada volta a ser
         // obrigatória no login seguinte. Recusas tipadas do provider
-        // NÃO tocam o estado do User.
-        var reset = await _provisioningProvider.ResetAsync(user.ProviderUserId, temporaryPassword, cancellationToken);
+        // NÃO tocam o estado do User. A partir daqui o pedido acaba mesmo
+        // que o browser saia: cortado a meio, a palavra-passe já mudava no
+        // provider, a sessão antiga continuava e ninguém via o PIN (deep
+        // sweep, 18/10/2026).
+        var reset = await _provisioningProvider.ResetAsync(user.ProviderUserId, temporaryPassword, CancellationToken.None);
         string? createdProviderId = null;
         if (reset.Status == UserProvisioningResetStatus.IdentityNotFound)
         {
@@ -299,7 +315,7 @@ public sealed class UserAdminService : IUserAdminService
             if (email is null)
                 return new ResetUserAccessOutcome(ResetUserAccessResult.IdentityNotFound);
 
-            var created = await _provisioningProvider.CreateAsync(email, temporaryPassword, cancellationToken);
+            var created = await _provisioningProvider.CreateAsync(email, temporaryPassword, CancellationToken.None);
             if (created.Status != UserProvisioningCreateStatus.Success
                 || string.IsNullOrWhiteSpace(created.ProviderUserId))
             {
@@ -318,14 +334,18 @@ public sealed class UserAdminService : IUserAdminService
         var previousRequiresChange = user.RequiresPasswordChange;
         user.ProviderUserId = createdProviderId ?? previousProviderId;
         user.RequiresPasswordChange = true;
+        // As sessões abertas antes do reset deixam de valer, também depois
+        // de o User escolher a nova palavra-passe.
+        user.SessionVersion++;
         try
         {
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
         }
         catch
         {
             user.ProviderUserId = previousProviderId;
             user.RequiresPasswordChange = previousRequiresChange;
+            user.SessionVersion--;
             // Compensate only the identity just created by this recovery.
             // Never delete an existing identity on an ordinary reset failure.
             if (createdProviderId is not null)
@@ -402,9 +422,12 @@ public sealed class UserAdminService : IUserAdminService
         // The Auth delete is first: on provider failure DMO remains intact.
         // An already-missing identity (or no stored identity at all) is
         // reported separately so the ADMIN knows nothing was deleted there.
+        // A partir daqui o pedido acaba mesmo que o browser saia: cortado a
+        // meio, a identidade desaparecia e o User ficava na lista (deep
+        // sweep, 18/10/2026).
         var identityStatus = string.IsNullOrWhiteSpace(user.ProviderUserId)
             ? UserProvisioningDeleteStatus.IdentityNotFound
-            : (await _provisioningProvider.DeleteAsync(user.ProviderUserId, cancellationToken)).Status;
+            : (await _provisioningProvider.DeleteAsync(user.ProviderUserId, CancellationToken.None)).Status;
         if (identityStatus == UserProvisioningDeleteStatus.ProviderFailure)
             return DeleteUserOutcome.Refused(DeleteUserResult.ProviderFailure);
 
@@ -413,7 +436,7 @@ public sealed class UserAdminService : IUserAdminService
         _dbContext.Users.Remove(user);
         try
         {
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
         }
         catch (DbUpdateException)
         {
@@ -527,9 +550,7 @@ public sealed class UserAdminService : IUserAdminService
         CancellationToken cancellationToken)
     {
         var adminEmail = await _adminEmailSettings.GetAdminEmailAsync(cancellationToken);
-        return adminEmail is not null
-            && email is not null
-            && string.Equals(email.Trim(), adminEmail, StringComparison.OrdinalIgnoreCase);
+        return AdminEmailRule.IsAdminEmail(email, adminEmail);
     }
 
     private static string? TrimToNull(string? value)

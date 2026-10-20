@@ -8,7 +8,7 @@ namespace DMO.Alpha.Core.Controlo;
 /// </summary>
 public enum CreatePesoForControloResult
 {
-    /// <summary>O Peso do controlo foi criado — ou já existia e foi aberto (get-or-open).</summary>
+    /// <summary>O Peso da combinação CM+BQ atual do controlo foi criado — ou já existia e foi aberto (get-or-open).</summary>
     Success,
 
     /// <summary>O controlo_id não resolve nenhum controlo.</summary>

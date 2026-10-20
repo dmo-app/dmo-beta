@@ -24,24 +24,38 @@
 .adm-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
 .adm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
 .adm-card h3{margin:0 0 12px;font-size:16px}
+.adm-card .dmo-card-topo{margin:0 0 12px}
+.adm-card .dmo-card-topo h3{margin:0}
 .adm-email-form{display:grid;gap:12px;width:min(420px,100%)}
 </style>
 }
 
-<main class="adm-page" aria-labelledby="settings-title">
+@* Atualizar só o que muda (E10): guardar o email troca só o cartão
+   (data-dmo-regiao), sem recarregar; a mensagem vai para a pilha do canto
+   (data-dmo-toast) e o foco fica no campo ou no «Guardar». Se o email mudou
+   para outra pessoa, a sessão cai no pedido seguinte e abre-se o login. *@
+<main class="adm-page" aria-labelledby="settings-title" data-dmo-troca>
     <div class="page-head">
         <div>
             <h2 id="settings-title">Setup</h2>
         </div>
     </div>
 
-    <section class="dmo-card adm-card" aria-labelledby="admin-email-title">
-        <h3 id="admin-email-title">Email do ADMIN<partial name="_DmoHelp" model="@("O ADMIN é este email: quem entra com ele por email fica ADMIN. Num ambiente novo, o primeiro login por email com sucesso assume o campo. Mudar o valor termina a sessão do ADMIN anterior no pedido seguinte.")" /></h3>
+    <section id="admEmail" class="dmo-card adm-card" aria-labelledby="admin-email-title" data-dmo-regiao data-dmo-parcial>
+        @* O «Guardar» no canto superior direito do cartão (Diogo, 18/10/2026:
+           «sempre canto superior direito dentro dos cards»); é o botão do
+           formulário (form="admEmailForm"). *@
+        <div class="dmo-card-topo">
+            <h3 id="admin-email-title">Email do ADMIN<partial name="_DmoHelp" model="@("O ADMIN é este email: quem entra com ele por email fica ADMIN. Só se aceita o email atual ou o de um utilizador já criado em Admin → Utilizadores, para haver sempre alguém que consiga entrar. Num ambiente novo, o primeiro login por email com sucesso assume o campo. Mudar o valor termina a sessão do ADMIN anterior no pedido seguinte.")" /></h3>
+            <div class="dmo-card-topo-acoes">
+                <button type="submit" class="dmo-button" id="admEmailGuardar" form="admEmailForm">Guardar</button>
+            </div>
+        </div>
         @if (Model.SaveResultMessage.Length > 0)
         {
-            <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+            <p data-dmo-toast="@(Model.SaveSucceeded ? "ok" : "erro")" role="@(Model.SaveSucceeded ? "status" : "alert")">@Model.SaveResultMessage@if (Model.NoAccountLink is { } criarUtilizador) {<partial name="_DmoAvisoLink" model="criarUtilizador" />}</p>
         }
-        <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveAdminEmail" class="adm-email-form">
+        <form id="admEmailForm" method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveAdminEmail" class="adm-email-form">
             <div class="dmo-field">
                 <label for="adminEmail">Email do ADMIN</label>
                 <input id="adminEmail" name="admin_email" type="email" value="@Model.AdminEmail" maxlength="256" placeholder="admin@empresa.pt" required />
@@ -50,7 +64,6 @@
                 <label for="adminEmailConfirm">Confirmar email do ADMIN</label>
                 <input id="adminEmailConfirm" name="admin_email_confirm" type="email" maxlength="256" placeholder="Escreva o email outra vez" autocomplete="off" required />
             </div>
-            <div><button type="submit" class="dmo-button">Guardar</button></div>
         </form>
     </section>
 </main>

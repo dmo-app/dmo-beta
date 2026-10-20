@@ -1,6 +1,7 @@
 @page "/Controlo/Puncoes"
 @model DMO.Alpha.Web.Pages.Controlo.PuncoesModel
 @using DMO.Alpha.Infrastructure.Controlo
+@using DMO.Alpha.Web.Pages.Shared
 @{
     Layout = "_DmoShellLayout";
 }
@@ -8,7 +9,11 @@
   <link rel="stylesheet" href="~/css/dmo-puncoes.css" asp-append-version="true" />
 }
 
-<main class="pu-page dmo-workspace" aria-labelledby="pu-title">
+@* GRAVAR SEM RECARREGAR (Diogo, 17/10/2026: «atualizar só o que muda»):
+   acrescentar, marcar visto e retirar punções, guardar a identificação e
+   associar gravam e trocam só #puFolha (data-dmo-regiao); o resto da página
+   não se mexe. Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
+<main class="pu-page dmo-workspace" aria-labelledby="pu-title" data-dmo-troca>
 
   <div class="page-head">
     <div>
@@ -24,7 +29,30 @@
             ? "Procure a referência e escolha a produção. A produção e a CM vêm do Job On."
             : "Procure a referência para abrir um registo já começado ou começar um novo. Associa-se depois à mão a uma produção.")" /></h3>
         <partial name="_ControloModoRegisto" model="@(("/Controlo/Puncoes", Model.ModoJobOn))" />
+        @* «+ Novo registo» no canto superior direito do cartão, na linha do
+           título, nunca no fundo por baixo da lista (Diogo, 18/10/2026:
+           «metem os botões em baixo aumenta espaço, sempre canto superior
+           direito dentro dos cards»). Envia o formulário da referência e do
+           lote (form=); o Enter num desses campos também o envia. Uma zona:
+           aparece com a procura da referência. *@
+        <div id="puNovoAcoes" class="dmo-zona" data-dmo-regiao>
+        @if (!Model.ModoJobOn && Model.ReferenciaProcurada is not null)
+        {
+          <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" form="pu-novo-form">+ Novo registo</button></div>
+        }
+        </div>
       </div>
+      @* PROCURAR SEM RECARREGAR (deep sweep 2, 18/10/2026, F-8 e F-9): a
+         referência fica como o operador a deixou (data-dmo-fica) e vai pelo
+         DmoTroca (data-dmo-parcial); trocam só as recusas, a produção (com
+         Job On, ao lado da referência), a lista dos registos e o «+ Novo
+         registo» (sem Job On). Abrir a produção abre outra folha, por isso o
+         formulário dela segue como sempre (data-dmo-nativo); a lista e o
+         «+ Novo registo» estão fora de data-dmo-parcial e também abrem a
+         folha como sempre. O dropdown da produção é do formulário POST de
+         baixo (form=); enquanto a referência escrita não é a das produções,
+         fica desativado (data-dmo-depende). *@
+      <div id="puEscolhaAvisos" class="dmo-zona" data-dmo-regiao>
       @if (Model.Refusal is not null)
       {
         <div data-dmo-toast="erro" class="pu-aviso" role="alert">@Model.RefusalMessage</div>
@@ -33,7 +61,9 @@
       {
         <div class="pu-aviso" role="alert">@jobOnRecusa</div>
       }
-      <form method="get" asp-page="/Controlo/Puncoes" class="pu-id-form">
+      </div>
+      <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
+      <form method="get" asp-page="/Controlo/Puncoes" class="pu-id-form" id="pu-procura-form">
         @if (Model.ModoJobOn)
         {
           <input type="hidden" name="modo" value="@PuncoesModel.ModoJobOnValor" />
@@ -42,30 +72,39 @@
           <label for="pu-procura">Referência</label>
           <input id="pu-procura" name="procura" value="@Model.ReferenciaProcurada" placeholder="Ex.: 1075C142" autocomplete="off" required data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
         </div>
+        @if (Model.ModoJobOn)
+        {
+          @* A produção ao lado da referência: uma zona que existe sempre,
+             escondida sem produções. Escolhê-la abre a folha. *@
+          <div id="puProducaoZona" class="dmo-field" data-dmo-regiao hidden="@(Model.ReferenciaProcurada is not null && Model.Producoes.Count > 0 ? null : "hidden")">
+          @if (Model.ReferenciaProcurada is not null && Model.Producoes.Count > 0)
+          {
+            <label for="pu-producao">Produção</label>
+            <select id="pu-producao" name="jobon_id" form="pu-jobon-form" required data-dmo-autosubmit="valor" data-dmo-depende="pu-procura" data-dmo-depende-valor="@Model.ReferenciaProcurada">
+              <option value="">Escolher a produção</option>
+              @foreach (var producao in Model.Producoes)
+              {
+                <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+              }
+            </select>
+          }
+          </div>
+        }
       </form>
+      @if (Model.ModoJobOn)
+      {
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="AbrirJobOn" id="pu-jobon-form" data-dmo-nativo></form>
+      }
+      </div>
 
+      <div id="puEscolhaResultados" class="dmo-zona" data-dmo-regiao>
       @if (Model.ReferenciaProcurada is { } procurada)
       {
         @if (Model.ModoJobOn)
         {
           @if (Model.Producoes.Count == 0)
           {
-            <div class="pu-vazia">Não há Job Ons da referência @procurada. Crie o Job On primeiro ou use «Sem Job On».</div>
-          }
-          else
-          {
-            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="AbrirJobOn" class="pu-id-form">
-              <div class="dmo-field">
-                <label for="pu-producao">Produção</label>
-                <select id="pu-producao" name="jobon_id" required data-dmo-autosubmit="valor">
-                  <option value="">Escolher a produção</option>
-                  @foreach (var producao in Model.Producoes)
-                  {
-                    <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
-                  }
-                </select>
-              </div>
-            </form>
+            <div class="pu-vazia">Não há Job Ons da referência @procurada. Crie o Job On primeiro ou use «Sem Job On».<partial name="_DmoAvisoLink" model="@DmoAvisoLink.CriarJobOn(procurada)" /></div>
           }
         }
         else
@@ -97,7 +136,7 @@
             <div class="pu-vazia">Ainda não há registos sem Job On da referência @procurada.</div>
           }
 
-          <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Create" class="pu-id-form">
+          <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Create" class="pu-id-form pu-novo-form" id="pu-novo-form">
             <input type="hidden" name="referencia_total" value="@procurada" />
             <div class="dmo-field">
               <label for="pu-referencia">Referência da punção</label>
@@ -105,15 +144,12 @@
             </div>
             <div class="dmo-field">
               <label for="pu-lote">Lote</label>
-              <input id="pu-lote" name="lote" inputmode="numeric" pattern="[0-9]*" maxlength="12" required value="@Model.EchoLot" placeholder="Ex.: 1" />
-            </div>
-            <div class="dmo-field">
-              <label>&nbsp;</label>
-              <button type="submit" class="dmo-button">+ Novo registo</button>
+              <input id="pu-lote" name="lote" inputmode="numeric" maxlength="12" required value="@Model.EchoLot" placeholder="Ex.: 1" />
             </div>
           </form>
         }
       }
+      </div>
     </section>
   }
   else if (Model.ControloRequestedNotFound)
@@ -125,9 +161,10 @@
     <div class="pu-aviso" role="alert">O registo indicado não existe. Nenhuma folha foi aberta. <a href="/Controlo/Puncoes">Procurar um registo</a>.</div>
   }
 
+  <div id="puFolha" class="dmo-zona" data-dmo-regiao>
   @if (Model.Standalone is { } standalone)
   {
-    <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title">
+    <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title" data-dmo-parcial>
       <div class="pu-section-head">
         <div>
           <h3 id="pu-id-title">Identificação do registo<partial name="_DmoHelp" model="@("Registo sem Job On. A referência da punção e o lote aplicam-se às próximas punções.")" /></h3>
@@ -156,10 +193,10 @@
         </div>
         <div class="dmo-field">
           <label for="pu-lote">Lote</label>
-          <input id="pu-lote" name="lote" inputmode="numeric" pattern="[0-9]*" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
+          <input id="pu-lote" name="lote" inputmode="numeric" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
         </div>
         <div class="dmo-field">
-          <label>&nbsp;</label>
+          <span class="dmo-label" aria-hidden="true">&nbsp;</span>
           <button type="submit" class="dmo-button">Guardar identificação</button>
         </div>
       </form>
@@ -168,7 +205,7 @@
 
   @if (Model.Sheet is { } sheet)
   {
-    <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title">
+    <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title" data-dmo-parcial>
       <div class="pu-section-head">
         <div>
           <h3 id="pu-id-title">Identificação da produção<partial name="_DmoHelp" model="@("A produção e a CM vêm do Job On. A referência da punção e o lote aplicam-se às próximas punções.")" /></h3>
@@ -198,7 +235,7 @@
         <div class="pu-aviso warn" role="status">
           @(sheet.CmProcess is null
               ? "A CM desta produção não tem o processo preenchido. Preencha «Processo» na ficha da CM (Ferramentas) para registar as punções NNPB."
-              : "Esta produção é PS. O registo das punções só existe para produções NNPB.")
+              : "Esta produção é PS. O registo das punções só existe para produções NNPB.")@if (sheet.CmProcess is null && sheet.CmToolId is { } puCmToolId) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(puCmToolId, "Preencher o processo na ficha da CM", tecnica: true, continuar: DmoAvisoLink.Aqui(ViewContext.HttpContext.Request))" />}
         </div>
       }
       else
@@ -211,10 +248,10 @@
           </div>
           <div class="dmo-field">
             <label for="pu-lote">Lote</label>
-            <input id="pu-lote" name="lote" inputmode="numeric" pattern="[0-9]*" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
+            <input id="pu-lote" name="lote" inputmode="numeric" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
           </div>
           <div class="dmo-field">
-            <label>&nbsp;</label>
+            <span class="dmo-label" aria-hidden="true">&nbsp;</span>
             <button type="submit" class="dmo-button">Guardar identificação</button>
           </div>
         </form>
@@ -248,7 +285,7 @@
         <div class="pu-stat"><span>Arrefecedores vistos</span><strong>@(registo?.CoolerSeenCount ?? 0)</strong></div>
       </div>
 
-      <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title">
+      <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title" data-dmo-parcial>
         <div class="pu-section-head">
           <div>
             <h3 id="pu-list-title">Lista de punções<partial name="_DmoHelp" model="@("Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração».")" /></h3>
@@ -266,7 +303,7 @@
             <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
           </div>
           <div class="dmo-field">
-            <label>&nbsp;</label>
+            <span class="dmo-label" aria-hidden="true">&nbsp;</span>
             <button type="submit" class="dmo-button">+ Adicionar punção</button>
           </div>
         </form>
@@ -310,11 +347,22 @@
                       </td>
                     }
                     <td class="pu-right">
-                      <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Remove" class="pu-check-form">
-                        <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-                        <input type="hidden" name="inspecao_id" value="@row.Id" />
-                        <button type="submit" class="pu-remove" onclick="return confirm('Remover a punção @row.Number · lote @row.Lot deste registo?')">Remover</button>
-                      </form>
+                      @* A confirmação é a janela da casa, com o texto escrito pelo
+                         Razor como HTML (nunca dentro de um onclick: um número
+                         com aspas correria como JavaScript). *@
+                      <button type="button" class="pu-remove" data-dmo-dialog="pu-remover-@row.Id" aria-label="Remover a punção @row.Number" title="Remover">×</button>
+                      <dialog id="pu-remover-@row.Id" class="dmo-dialog" aria-labelledby="pu-remover-titulo-@row.Id">
+                        <h3 id="pu-remover-titulo-@row.Id">Remover punção</h3>
+                        <p class="dmo-aviso-discreto">Remover a punção @row.Number · lote @row.Lot deste registo?</p>
+                        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Remove">
+                          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+                          <input type="hidden" name="inspecao_id" value="@row.Id" />
+                          <div class="dmo-dialog-actions">
+                            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                            <button type="submit" class="dmo-button">Remover</button>
+                          </div>
+                        </form>
+                      </dialog>
                     </td>
                   </tr>
                 }
@@ -337,10 +385,17 @@
       </div>
     }
   }
+  </div>
 
+  @* A procura da referência e as recusas do «Associar à produção» trocam
+     só esta zona (data-dmo-parcial; deep sweep, 18/10/2026). A zona só
+     existe no registo sem Job On: associado, a folha passa a ser a da
+     produção, com as funções do Controlo dessa produção, e a página abre
+     inteira. *@
   @if (Model.Standalone is { } semJobOn)
   {
-    <section class="dmo-card pu-card" id="puncoes-associar" aria-labelledby="pu-associar-title">
+    <div id="puAssociar" class="dmo-zona" data-dmo-regiao>
+    <section class="dmo-card pu-card" id="puncoes-associar" aria-labelledby="pu-associar-title" data-dmo-parcial>
       <div class="pu-section-head">
         <div>
           <h3 id="pu-associar-title">Associar a uma produção<partial name="_DmoHelp" model="@("As punções não ficam ligadas sozinhas a uma produção: escolha à mão a produção NNPB deste registo. Depois de associado, o registo passa para a folha da produção e para o PDF do Resumo.")" /></h3>
@@ -360,12 +415,14 @@
       </form>
       @if (Model.Producoes.Count == 0)
       {
-        <div class="pu-vazia">Não há Job Ons da referência @Model.ReferenciaProcurada. Quando a produção existir, associe-a aqui.</div>
+        <div class="pu-vazia">Não há Job Ons da referência @Model.ReferenciaProcurada. Quando a produção existir, associe-a aqui.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.CriarJobOn(Model.ReferenciaProcurada)" /></div>
       }
       else
       {
-        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" class="pu-id-form">
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" class="pu-id-form" id="pu-associar-form">
           <input type="hidden" name="puncoes_id" value="@semJobOn.PuncoesId" />
+          @* A referência procurada volta com uma recusa (o redirect leva-a). *@
+          <input type="hidden" name="procura" value="@Model.ReferenciaProcurada" />
           <div class="dmo-field">
             <label for="pu-associar-producao">Produção</label>
             <select id="pu-associar-producao" name="jobon_id" required>
@@ -376,20 +433,24 @@
             </select>
           </div>
           <div class="dmo-field">
-            <label>&nbsp;</label>
-            <button type="submit" class="dmo-button">Associar à produção</button>
+            <span class="dmo-label" aria-hidden="true">&nbsp;</span>
+            <button type="submit" class="dmo-button" id="pu-associar">Associar à produção</button>
           </div>
         </form>
       }
     </section>
+    </div>
   }
 </main>
 
 <script>
-  // O número junta-se à identificação escrita no cartão de cima, mesmo antes de a guardar.
-  document.querySelectorAll("[data-pu-mirror]").forEach(function (hidden) {
-    var source = document.getElementById(hidden.getAttribute("data-pu-mirror"));
-    if (!source) return;
-    source.addEventListener("input", function () { hidden.value = source.value; });
+  // O número junta-se à identificação escrita no cartão de cima, mesmo antes
+  // de a guardar. Por delegação: os cartões são trocados depois de gravar.
+  document.addEventListener("input", function (event) {
+    var source = event.target;
+    if (!source || !source.id) return;
+    document.querySelectorAll('[data-pu-mirror="' + source.id + '"]').forEach(function (hidden) { hidden.value = source.value; });
   });
 </script>
+@* O número seguinte, escrito enquanto o anterior grava, não se junta a ele nem se perde. *@
+<script src="~/js/puncoes-numero.js" asp-append-version="true"></script>

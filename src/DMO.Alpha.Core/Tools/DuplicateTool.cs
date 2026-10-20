@@ -11,4 +11,6 @@ namespace DMO.Alpha.Core.Tools;
 /// </summary>
 public sealed record DuplicateTool(
     string SourceToolId,
-    string NewLot);
+    string NewLot,
+    // Quem duplica (fica no aviso da ferramenta existente se o lote já existir).
+    string? RequestedBy = null);

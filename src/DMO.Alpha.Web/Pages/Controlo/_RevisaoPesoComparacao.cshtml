@@ -1,0 +1,70 @@
+@model (DMO.Alpha.Core.Controlo.PesoReadModel Peso, DMO.Alpha.Core.Controlo.PesoComparisonView? Comparacao)
+@* As leituras e a comparação CM a CM com o controlo anterior numa só tabela
+   (Diogo, 19/10/2026: «peso deveria mostrar a tabela que compara com
+   controlo anterior cm com cm»; 20/10/2026: «as tabelas do peso deveriam ser
+   as duas juntas»): a massa de água, o volume e o peso de cada CM pela ordem
+   das leituras, sem exigir o mesmo número de CM, ao lado da CM anterior e dos
+   deltas, com as médias no fim. Sem controlo anterior, só as leituras. *@
+@{
+    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    string Fmt(decimal? value) => value is { } v ? v.ToString("0.00", culture) : "—";
+    string Signed(decimal? value) => value is { } v ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(v) : "—";
+    var comparacao = Model.Comparacao;
+    var leituras = Model.Peso.Measurements;
+}
+<div class="dmo-table-wrap revisao-consulta-tabela">
+  <table class="dmo-table" data-revisao-peso-comparacao>
+    <thead>
+      <tr>
+        <th>CM@(comparacao is null ? null : " atual")</th>
+        <th>Massa de água (g)</th>
+        <th>Volume@(comparacao is null ? null : " atual") (cm³)</th>
+        <th>Peso@(comparacao is null ? " do vidro" : " atual") (g)</th>
+        @if (comparacao is not null)
+        {
+          <th>CM anterior · @comparacao.HistoricalProductionNumber</th>
+          <th>Volume anterior (cm³)</th>
+          <th>Peso anterior (g)</th>
+          <th>Δ volume (cm³)</th>
+          <th>Δ peso (g)</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var leitura in leituras)
+      {
+        var anterior = comparacao?.Rows.FirstOrDefault(r => r.Position == leitura.RowPosition);
+        <tr>
+          <td>@(string.IsNullOrEmpty(leitura.CmSubject) ? "—" : leitura.CmSubject)</td>
+          <td>@Fmt(leitura.WaterWeightGrams)</td>
+          <td>@Fmt(leitura.CapacityCm3)</td>
+          <td>@Fmt(leitura.GlassWeightGrams)</td>
+          @if (comparacao is not null)
+          {
+            <td>@(anterior is { HistoricalCmSubject: { Length: > 0 } cm } ? cm : "—")</td>
+            <td>@Fmt(anterior?.HistoricalCapacityCm3)</td>
+            <td>@Fmt(anterior?.HistoricalGlassWeightGrams)</td>
+            <td>@Signed(leitura.CapacityCm3 - anterior?.HistoricalCapacityCm3)</td>
+            <td><strong>@Signed(leitura.GlassWeightGrams - anterior?.HistoricalGlassWeightGrams)</strong></td>
+          }
+        </tr>
+      }
+    </tbody>
+    <tfoot>
+      <tr>
+        <th scope="row">Média</th>
+        <td>@Fmt(Model.Peso.Averages?.AverageWaterWeightGrams)</td>
+        <td>@Fmt(Model.Peso.Averages?.AverageCapacityCm3)</td>
+        <td>@Fmt(Model.Peso.Averages?.AverageGlassWeightGrams)</td>
+        @if (comparacao is not null)
+        {
+          <td></td>
+          <td>@Fmt(comparacao.HistoricalAverages?.AverageCapacityCm3)</td>
+          <td>@Fmt(comparacao.HistoricalAverages?.AverageGlassWeightGrams)</td>
+          <td>@Signed(comparacao.Deltas.CapacityDifferenceCm3)</td>
+          <td><strong>@Signed(comparacao.Deltas.GlassWeightDifferenceGrams)@(comparacao.Deltas.GlassWeightVariationPercent is { } gv ? $" ({Signed(gv)} %)" : null)</strong></td>
+        }
+      </tr>
+    </tfoot>
+  </table>
+</div>

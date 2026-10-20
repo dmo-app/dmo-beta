@@ -21,4 +21,6 @@ public sealed record ProductionContextReadModel(
     /// <summary>O dia em que sai de máquina; null = até aviso.</summary>
     DateOnly? FimEm = null,
     /// <summary>A CALOTE DESTA PRODUÇÃO (mm) — o campo j-calote da ficha do dmo-html: null = a referência da Tool manda (o apoio TP/calote do Peso usa-a automaticamente — a B1). Aditivo por posição: os consumidores existentes só leem os campos que lhes dizem respeito.</summary>
-    decimal? CaloteMm = null);
+    decimal? CaloteMm = null,
+    /// <summary>A versão gravada do Job On (vai escondida na folha de edição; ver UpdateJobOn.ExpectedVersion).</summary>
+    uint Version = 0);

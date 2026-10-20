@@ -45,6 +45,9 @@ public sealed class TemplateAdminService : ITemplateAdminService
             .ToList();
     }
 
+    /// <summary>Quanto tempo a mesma template, acabada de criar, conta como o mesmo pedido.</summary>
+    public static readonly TimeSpan RepeatedSubmitWindow = TimeSpan.FromMinutes(2);
+
     /// <inheritdoc />
     public async Task<CreateTemplateOutcome> CreateTemplateAsync(
         CreateTemplate command,
@@ -66,6 +69,30 @@ public sealed class TemplateAdminService : ITemplateAdminService
             return RefusedCreate(CreateTemplateResult.UnknownCapability);
         }
 
+        // O MESMO PEDIDO OUTRA VEZ (deep sweep, 18/10/2026, B-admin-6): a
+        // rede caiu a meio de «Criar template», o servidor criou-a e o
+        // operador voltou a carregar; o segundo pedido criava outra com o
+        // mesmo nome. Os pedidos esperam uns pelos outros (trinco) e o mesmo
+        // pedido (o mesmo nome e as mesmas capabilities) há menos de
+        // RepeatedSubmitWindow abre a template já criada, como a resposta ao
+        // primeiro.
+        return await DbWrite.InTransactionAsync(
+            _dbContext,
+            () => CreateLockedAsync(name, capabilities, cancellationToken),
+            cancellationToken);
+    }
+
+    private async Task<CreateTemplateOutcome> CreateLockedAsync(
+        string name,
+        IReadOnlyList<string> capabilities,
+        CancellationToken cancellationToken)
+    {
+        await DbWrite.LockAsync(_dbContext, "admin:templates:criar", cancellationToken);
+        if (await RepeatedAsync(name, capabilities, cancellationToken) is { } repeated)
+        {
+            return new CreateTemplateOutcome(CreateTemplateResult.Success, Summary(repeated));
+        }
+
         // 3. Mint da identidade estável: «tpl-» + 8 hex, verificação de
         //    existência + re-mint — nunca derivada do rótulo, nunca
         //    sequencial (precedente ToolIdMinter).
@@ -85,16 +112,37 @@ public sealed class TemplateAdminService : ITemplateAdminService
         _dbContext.Templates.Add(template);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new CreateTemplateOutcome(
-            CreateTemplateResult.Success,
-            new TemplateSummary
-            {
-                Id = template.Id,
-                TemplateKey = template.TemplateKey,
-                Name = template.Name,
-                Capabilities = template.Capabilities
-            });
+        return new CreateTemplateOutcome(CreateTemplateResult.Success, Summary(template));
     }
+
+    /// <summary>
+    /// A template criada há menos de <see cref="RepeatedSubmitWindow"/> com
+    /// este nome e este conjunto de capabilities (a forma canónica); null
+    /// quando não há.
+    /// </summary>
+    private async Task<Template?> RepeatedAsync(
+        string name,
+        IReadOnlyList<string> capabilities,
+        CancellationToken cancellationToken)
+    {
+        var since = DateTimeOffset.UtcNow - RepeatedSubmitWindow;
+        var set = TemplateCapabilityTokens.ToStorage(capabilities);
+        var recent = await _dbContext.Templates
+            .AsNoTracking()
+            .Where(t => t.Name == name && t.CreatedAtUtc >= since)
+            .ToListAsync(cancellationToken);
+        return recent
+            .OrderByDescending(t => t.CreatedAtUtc)
+            .FirstOrDefault(t => TemplateCapabilityTokens.ToStorage(t.Capabilities) == set);
+    }
+
+    private static TemplateSummary Summary(Template template) => new()
+    {
+        Id = template.Id,
+        TemplateKey = template.TemplateKey,
+        Name = template.Name,
+        Capabilities = template.Capabilities
+    };
 
     /// <inheritdoc />
     public async Task<EditTemplateOutcome> EditTemplateAsync(

@@ -17,4 +17,6 @@ public sealed record CreateTool(
     // apresenta logo tudo»): guardado como o operador escreveu; o parser
     // canónico decodifica os factos na ficha. Null = o formato simples.
     string? TechnicalName = null,
-    bool UseLotQuantityDefault = true);
+    bool UseLotQuantityDefault = true,
+    // Quem regista (fica no aviso da ferramenta existente se for repetida).
+    string? RequestedBy = null);

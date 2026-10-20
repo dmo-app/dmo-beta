@@ -46,9 +46,10 @@ public sealed class ToolDeletionImpactQuery : IToolDeletionImpactQuery
                 Productions = (
                     from jobOn in _db.JobOns
                     join machine in _db.Machines on jobOn.MachineId equals machine.Id
-                    where _db.CmContexts.Any(c => c.JobOnId == jobOn.Id && c.ToolId == t.ToolId)
-                        || _db.MfContexts.Any(c => c.JobOnId == jobOn.Id && c.ToolId == t.ToolId)
-                        || _db.BqContexts.Any(c => c.JobOnId == jobOn.Id && c.ToolId == t.ToolId)
+                    // Também as produções em que a CM, o MF ou a BQ foi trocado por outro.
+                    where _db.CmContexts.Any(c => (c.JobOnId == jobOn.Id || c.ReplacedJobOnId == jobOn.Id) && c.ToolId == t.ToolId)
+                        || _db.MfContexts.Any(c => (c.JobOnId == jobOn.Id || c.ReplacedJobOnId == jobOn.Id) && c.ToolId == t.ToolId)
+                        || _db.BqContexts.Any(c => (c.JobOnId == jobOn.Id || c.ReplacedJobOnId == jobOn.Id) && c.ToolId == t.ToolId)
                     orderby jobOn.Id descending
                     select new ToolDeletionImpactProduction(
                         jobOn.Id,

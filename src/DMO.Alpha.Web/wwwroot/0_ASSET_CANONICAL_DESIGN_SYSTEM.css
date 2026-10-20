@@ -38,6 +38,8 @@
 html body :is(.dmo-button,.button,.btn){min-height:var(--dmo-control-height);padding:9px 14px;border:1px solid var(--button-color,var(--dmo-brand-600));border-radius:var(--dmo-r-control);background:var(--button-color,var(--dmo-brand-600));color:#fff;font-size:13px;font-weight:800;line-height:1.2;cursor:pointer;text-decoration:none;transition:background var(--dmo-fast),color var(--dmo-fast),border-color var(--dmo-fast);display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap}
 html body :is(.dmo-button,.button,.btn):hover,html body :is(.dmo-button,.button,.btn):focus-visible{background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600));outline:0}
 html body :is(.dmo-button,.button,.btn):focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+html body :is(.dmo-button,.button,.btn):active:not(:disabled):not([aria-disabled="true"]){background:var(--button-press,var(--dmo-palette-steel));border-color:var(--button-press,var(--dmo-palette-steel));color:var(--dmo-text-on-color);box-shadow:none}
+html body :is(.dmo-button,.button,.btn):is(.danger,.success){--button-press:color-mix(in srgb,var(--button-color) 70%,#fff)}
 html body :is(.dmo-button,.button,.btn).danger{--button-color:var(--dmo-danger)}
 html body :is(.dmo-button,.button,.btn).success{--button-color:var(--dmo-success)}
 html body :is(.dmo-button,.button,.btn):disabled{--button-color:var(--dmo-disabled);background:var(--dmo-disabled);color:var(--dmo-text-on-color);cursor:not-allowed}
@@ -101,7 +103,6 @@ input.dmo-valor:hover{border-color:var(--dmo-border);cursor:text}
 input.dmo-valor:focus{border-color:var(--dmo-brand-400);background:var(--dmo-card);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 input.dmo-valor.dmo-valor-gravado{background:var(--dmo-brand-050)}
 input.dmo-valor[aria-invalid=true]{border-color:var(--dmo-warning)}
-.dmo-valor-aviso{margin:10px 0 0;padding:8px 11px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;font-size:12.5px}
 /* Aviso amarelo discreto quando falta um dado que devia existir (Diogo, 17/10/2026), por exemplo o total do lote de uma máquina. */
 .dmo-aviso-discreto{display:inline-block;margin:6px 0 0;padding:6px 10px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;color:var(--dmo-text);font-size:12.5px}
 .dmo-aviso-discreto:empty{display:none}
@@ -111,3 +112,19 @@ html body .dmo-modo .dmo-button:not([aria-current="page"]){background:var(--dmo-
 html body .dmo-modo .dmo-button:not([aria-current="page"]):hover,html body .dmo-modo .dmo-button:not([aria-current="page"]):focus-visible{background:var(--button-color,var(--dmo-brand-600));color:var(--dmo-text-on-color)}
 .dmo-modo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .dmo-modo-head h3{margin:0}
+/* Cabeçalho de card com ações no canto superior direito (regra do Diogo, 18/10) */
+/* «Metem os botões em baixo aumenta espaço, sempre canto superior direito dentro dos cards»: o título do card à esquerda e os botões dele (Guardar, Opções…) na mesma linha, à direita, com o tamanho que vem só da letra e do padding do botão. Num card que abre e fecha, o <summary> é a linha do título (o ▸/▾ vai antes do título); como nada interativo vai dentro do <summary>, o card leva .dmo-card-dobravel e as ações (.dmo-card-topo-acoes) vêm a seguir ao <details>, sobre a linha do título, à direita: clicar nelas não abre nem fecha o card. */
+.dmo-card-topo{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--dmo-space-3)}
+/* Na linha do título o espaço vem do gap: o título não leva margem (nem a do título com dica, dmo-normalize.css). */
+.dmo-card-topo>:is(h2,h3,h4){margin:0 !important}
+.dmo-card-topo-acoes{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dmo-space-3);margin-left:auto}
+/* No telemóvel os botões da casa ocupam a largura toda (0_ASSET_SHELL.css); no canto do card ficam do tamanho do texto. */
+.dmo-card-topo-acoes :is(.dmo-button,.button,.btn){width:auto}
+summary.dmo-card-topo{cursor:pointer;list-style:none}
+summary.dmo-card-topo::-webkit-details-marker{display:none}
+summary.dmo-card-topo>:first-child::before{content:"▸" / "";margin-right:.35em}
+details[open]>summary.dmo-card-topo>:first-child::before{content:"▾" / ""}
+.dmo-card-dobravel{display:grid}
+.dmo-card-dobravel>:is(details,.dmo-card-topo-acoes){grid-area:1/1;min-width:0}
+.dmo-card-dobravel>.dmo-card-topo-acoes{align-self:start;justify-self:end}
+.dmo-card-dobravel>details>summary.dmo-card-topo{min-height:var(--dmo-control-height)}

@@ -18,20 +18,20 @@
 @section Head {
 <style>
 .ferr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
-.ferr-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
 .ferr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
-.ferr-head-acoes{display:flex;align-items:center;gap:16px}
-.ferr-head-acoes .dmo-options-list{left:auto;right:0}
+.ferr-card .dmo-card-topo-acoes .dmo-options-list{left:auto;right:0}
 #ferr-delete-dialog .dmo-aviso-discreto{margin:8px 0 22px}
 .ferr-card{padding:18px}
-.ferr-card h3{margin:0 0 4px;font-size:16px}
+.ferr-card h3{margin:0;font-size:16px}
+/* A linha do título com os botões do card (.dmo-card-topo, canto superior direito). */
+.ferr-card .dmo-card-topo{margin-bottom:12px}
+.ferr-card details:not([open])>summary.dmo-card-topo{margin-bottom:0}
 .ferr-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
 .ferr-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
 .ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
 /* O aviso âmbar (o mesmo de .jobon-aviso.warn / .peg-aviso.warn): o trabalho foi gravado, o aviso diz o que ficou de fora. */
-.ferr-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
-.ferr-tech-falta{margin-top:12px}
+.ferr-aviso.warn{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
 .ferr-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
 .ferr-nota.avisoria{border-left-color:#a97943;background:#f7f0e7}
 .ferr-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
@@ -42,14 +42,14 @@
 .ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
 .ferr-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dmo-text,#172d42)}
 .ferr-check input{width:auto;min-height:0}
-.ferr-actions{display:flex;gap:10px;align-items:center;margin-top:12px}
 .ferr-tech-group{margin:14px 0 0;padding:14px 0 0;border:0;border-top:1px solid var(--dmo-border,#d9e6f2);min-width:0}
 .ferr-tech-group legend{padding:0;font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.04em;color:var(--dmo-brand-700,#193046)}
 .ferr-tech-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end;margin-top:8px}
 .ferr-tech-grid .dmo-field{min-width:0}
 .ferr-tech-grid .dmo-field :is(input,select){width:100%}
 .ferr-tech-grid .dmo-fact{min-height:0}
-.ferr-tech-actions{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--dmo-border,#d9e6f2)}
+/* O valor técnico que não se leu fica no campo para corrigir, com a borda do aviso. */
+html body .ferr-tech-grid .dmo-field input[aria-invalid=true]{border-color:var(--dmo-warning)}
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
 .ferr-danger:hover{background:#7d4f4a}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
@@ -57,38 +57,49 @@
 </style>
 }
 
-<main class="ferr-page dmo-workspace" aria-labelledby="ferr-title">
+@* GRAVAR SEM RECARREGAR (Diogo, 17/10/2026: «atualizar só o que muda»):
+   guardar o Editar ou a Informação técnica troca só as zonas
+   (data-dmo-regiao) que mudaram: a secção guardada, as mensagens e o que
+   mostra os factos. A outra secção fica como o operador a deixou, com o que
+   lá estiver escrito; a Informação técnica fica aberta ou fechada como
+   estava (data-dmo-fica). Mudar o tipo, a referência ou o lote abre a
+   página inteira: o nome da ferramenta também está na pergunta de
+   eliminar, fora das zonas (as «Opções» estão no Geral, uma zona). Duplicar e eliminar abrem outra
+   página, como sempre; gravam pela fila da página (um clique repetido não
+   grava duas vezes). Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
+<main class="ferr-page dmo-workspace" aria-labelledby="ferr-title" data-dmo-troca>
 
+  @* OS BOTÕES NO CANTO SUPERIOR DIREITO DE CADA CARD (Diogo, 18/10/2026:
+     «metem os botões em baixo aumenta espaço, sempre canto superior direito
+     dentro dos cards»): o «Opções» e o «Voltar à lista» saíram daqui para o
+     primeiro card da ficha; os «Guardar» estão na linha do título do card. *@
   <div class="page-head">
     <div>
       <h2 id="ferr-title">Ficha de ferramenta</h2>
-    </div>
-    <div class="ferr-head-acoes">
-      @if (sheet is not null)
-      {
-        @* AÇÕES RARAS NO «OPÇÕES» (Diogo, 17/10/2026: «criar opções pode ir
-           para topo lado direito, e nas opções meter o duplicar e eliminar»):
-           cada uma abre numa janela pequena. *@
-        <details class="dmo-options" data-dmo-tab-menu>
-          <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
-          <div class="dmo-options-list">
-            <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
-            <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
-          </div>
-        </details>
-      }
-      <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
     </div>
   </div>
 
   @if (sheet is not null)
   {
+    @* CLIQUES REPETIDOS (deep sweep, 18/10/2026, B-ferramentas-3): o
+       «Duplicar» grava pela fila da página (data-dmo-parcial). Um segundo
+       clique igual, enquanto o primeiro não respondeu, não sai, e a ficha
+       nova abre com «Ferramenta registada.» em vez do aviso «O lote já
+       estava registado». A resposta abre sempre a página inteira, como
+       antes: a ficha de outra ferramenta muda fora das zonas (a pergunta de
+       eliminar tem o nome dela); a desta mesma ficha (o lote novo é o desta
+       ferramenta) troca a zona da janela, que é uma janela que pode abrir
+       com a página (data-dmo-dialog-aberta), e essa só vem com a página
+       inteira. Sem a zona (dmo-zona, sem caixa), a resposta desta ficha
+       trocava só os avisos e a janela ficava aberta por cima. *@
+    <div id="ferrDuplicar" class="dmo-zona" data-dmo-regiao>
     <dialog id="ferr-duplicate-dialog" class="dmo-dialog" aria-labelledby="ferr-duplicate-title" data-dmo-dialog-aberta="@(Model.DuplicateRefusal is not null ? "1" : null)">
-      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Duplicate">
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Duplicate" data-dmo-parcial>
         <h3 id="ferr-duplicate-title">Duplicar para lote novo<partial name="_DmoHelp" model="@("Cria uma ferramenta nova com os mesmos dados e o lote indicado. Esta ferramenta fica como está.")" /></h3>
         @if (Model.DuplicateRefusal is not null)
         {
-          <div class="ferr-aviso" role="alert">@Model.DuplicateRefusalMessage</div>
+          <div class="ferr-aviso" role="alert">@Model.DuplicateRefusalMessage@if (Model.ExistingToolId is { } existenteLote)
+          {<text> </text><a class="dmo-aviso-link" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = existenteLote })">Abrir a ferramenta existente</a>}</div>
         }
         <input type="hidden" name="tool_id" value="@sheet.ToolId" />
         <div class="dmo-field">
@@ -101,16 +112,23 @@
         </div>
       </form>
     </dialog>
+    </div>
   }
 
   @if (sheet is not null)
   {
     @* Só um aviso curto antes de eliminar (Diogo, 17/10/2026: «não precisa
-       desta informação toda, basta um warning se quer mesmo eliminar»). *@
+       desta informação toda, basta um warning se quer mesmo eliminar»).
+       CLIQUES REPETIDOS (deep sweep, 18/10/2026, B-ferramentas-4): o
+       «Eliminar» grava pela fila da página (data-dmo-parcial). Um segundo
+       clique igual, enquanto o primeiro não respondeu, não sai: a lista abre
+       com «Ferramenta eliminada…», em vez de o segundo pedido já não
+       encontrar a ferramenta e dizer «Nenhuma eliminação foi feita». A
+       lista é outra página: abre-se inteira, como antes. *@
     <dialog id="ferr-delete-dialog" class="dmo-dialog" aria-labelledby="ferr-delete-title" data-dmo-dialog-aberta="@(Model.ConfirmDelete ? "1" : null)">
       <h3 id="ferr-delete-title">Eliminar ferramenta</h3>
       <p class="dmo-aviso-discreto">Quer mesmo eliminar @humanFacts?</p>
-      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Delete">
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Delete" data-dmo-parcial>
         <input type="hidden" name="tool_id" value="@sheet.ToolId" />
         <div class="dmo-dialog-actions">
           <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
@@ -127,13 +145,24 @@
   @if (sheet is null && Model.RequestedToolId is null)
   {
     <section class="dmo-card ferr-card" aria-labelledby="ferr-empty-title">
-      <h3 id="ferr-empty-title">Ficha de ferramenta</h3>
+      <div class="dmo-card-topo">
+        <h3 id="ferr-empty-title">Ficha de ferramenta</h3>
+        <div class="dmo-card-topo-acoes">
+          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+        </div>
+      </div>
       <div class="ferr-vazia">Nenhuma ferramenta selecionada. Abra a lista do Ferramentas e escolha a ficha pelo nome — tipo, referência e lote.</div>
     </section>
   }
   else if (sheet is null)
   {
-    <section class="dmo-card ferr-card">
+    <section class="dmo-card ferr-card" aria-labelledby="ferr-missing-title">
+      <div class="dmo-card-topo">
+        <h3 id="ferr-missing-title">Ficha de ferramenta</h3>
+        <div class="dmo-card-topo-acoes">
+          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+        </div>
+      </div>
       <div class="ferr-aviso" role="alert">A ferramenta indicada não existe no registo. Nenhuma ficha foi aberta e nenhuma ferramenta foi inventada.</div>
       @if (Model.DeleteRefusal is not null)
       {
@@ -144,7 +173,10 @@
 
   @if (sheet is { } tool)
   {
-    if (Model.CreatedNote)
+    @* As mensagens: uma zona sem caixa (dmo-zona), a grelha da página fica
+       como estava. A confirmação de guardar vai para o canto. *@
+    <div id="ferrAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.CreatedNote)
     {
       @* Sem aviso de «formato canónico» (Diogo, 17/10/2026: um CM pode ter
          referências próprias como ST100 ou ST62; a ligação à referência MF
@@ -156,43 +188,72 @@
       <div data-dmo-toast="ok" class="ferr-nota" role="status">Esta ferramenta já estava registada (mesmos tipo, referência e lote) — nada foi duplicado; as máquinas indicadas foram acrescentadas às ligações dela.</div>
     }
 
+    @if (Model.SavedSection == FichaModel.SavedGeneral)
+    {
+      <div data-dmo-toast="ok" class="ferr-nota" role="status">Dados gerais guardados.</div>
+    }
+    else if (Model.SavedSection == FichaModel.SavedTechnical)
+    {
+      <div data-dmo-toast="ok" class="ferr-nota" role="status">Informação técnica guardada.</div>
+    }
+    else if (Model.SavedSection == FichaModel.SavedDuplicateWarningCleared)
+    {
+      <div data-dmo-toast="ok" class="ferr-nota" role="status">Aviso de ferramenta repetida limpo.</div>
+    }
+
     @* Avisos (beta.63, regra do Owner «tentar sempre warning»): o trabalho
-       foi gravado; o aviso âmbar diz o que ficou de fora. *@
-    if (Model.LotDefaultedWarning)
+       foi gravado; o aviso âmbar diz o que ficou de fora. Vão para o canto,
+       como as outras mensagens (beta.199, Diogo, 17/10/2026: «os elementos
+       têm de ficar fixos»): na grelha empurravam os cartões 56 a 77 px.
+       Ficam até se fecharem no × ou até à gravação seguinte do mesmo cartão. *@
+    @if (Model.LotDefaultedWarning)
     {
-      <div class="ferr-aviso warn" role="status">@Model.LotDefaultedMessage</div>
+      <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status">@Model.LotDefaultedMessage</div>
     }
 
-    if (Model.UnreadableQuantity is not null)
+    @if (Model.UnreadableQuantity is not null)
     {
-      <div class="ferr-aviso warn" role="status">@Model.UnreadableQuantityMessage</div>
+      <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status">@Model.UnreadableQuantityMessage</div>
     }
 
-    if (Model.DuplicateExistedWarning)
+    @* O tipo de uma ferramenta já usada mudou (sweep de 19/10/2026, F-1):
+       gravou-se, e o link leva ao Editar para voltar ao tipo anterior. *@
+    @if (Model.TypeChangedWarning is { } tipoMudou)
     {
-      <div class="ferr-aviso warn" role="status">O lote «@tool.Lot» já estava registado para esta referência: abriu-se a ferramenta existente. Nada foi duplicado nem alterado.</div>
+      <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status">@tipoMudou<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Corrigir em Editar", "#ferrEditar"))" /></div>
     }
 
-    if (Model.UnreadableTechnical.Count > 0)
+    @if (Model.DuplicateExistedWarning)
     {
-      <div class="ferr-aviso warn" role="status">@Model.UnreadableTechnicalMessage</div>
+      <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status">O lote «@tool.Lot» já estava registado para esta referência: abriu-se a ferramenta existente. Nada foi duplicado nem alterado.</div>
     }
 
-    if (Model.ContinueUrl is { } continueUrl)
+    @if (Model.UnreadableTechnical.Count > 0)
+    {
+      <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status">@Model.UnreadableTechnicalMessage</div>
+    }
+
+    @if (Model.ImpossibleTechnical.Count > 0)
+    {
+      <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status">@Model.ImpossibleTechnicalMessage</div>
+    }
+
+    @if (Model.ContinueUrl is { } continueUrl)
     {
       <p class="ferr-hint" style="margin:0"><a class="ferr-cancel" href="@continueUrl">Continuar no fluxo que abriu o Ferramentas →</a></p>
     }
 
-    if (Model.FactsRefusal is not null)
+    @if (Model.FactsRefusal is not null)
     {
       <div data-dmo-toast="erro" class="ferr-aviso" role="alert">@Model.FactsRefusalMessage @if (Model.ExistingToolId is { } existingId)
-      {<a class="ferr-cancel" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = existingId })">Abrir a ferramenta existente</a>}</div>
+      {<a class="dmo-aviso-link" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = existingId })">Abrir a ferramenta existente</a>}</div>
     }
 
-    if (Model.TechnicalRefusal is not null)
+    @if (Model.TechnicalRefusal is not null)
     {
       <div data-dmo-toast="erro" class="ferr-aviso" role="alert">@Model.TechnicalRefusalMessage</div>
     }
+    </div>
 
     @* ---------------------------------------------------------------- *@
     @* 1. GERAL — os factos humanos do registo (o Owner 2026-10-12:      *@
@@ -202,8 +263,46 @@
     @*    que uma maquina»): o Tipo, a referência, o lote, AS MÁQUINAS    *@
     @*    (o link n-n — todas as que a ficha ligar).                      *@
     @* ---------------------------------------------------------------- *@
-    <section class="dmo-card ferr-card" aria-labelledby="ferr-facts-title">
-      <h3 id="ferr-facts-title">Geral — @humanFacts</h3>
+    @* FERRAMENTA REPETIDA (o proprietário, 18/10/2026): alguém tentou
+       registar outra com o mesmo tipo, referência e lote e foi recusado. A
+       errada pode ser esta: quem confirmar que está certa limpa o aviso (o
+       botão grava sem recarregar; a zona fica vazia). *@
+    <div id="ferrRepetida" class="dmo-zona" data-dmo-regiao>
+    @if (tool.DuplicateWarningAtUtc is { } avisoEm)
+    {
+      <section class="dmo-card ferr-card" aria-labelledby="ferr-repetida-title" data-dmo-parcial>
+        <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="ClearDuplicateWarning">
+          <input type="hidden" name="tool_id" value="@tool.ToolId" />
+          <div class="dmo-card-topo">
+            <h3 id="ferr-repetida-title">Possível ferramenta repetida</h3>
+            <div class="dmo-card-topo-acoes">
+              <button type="submit" class="dmo-button" id="ferr-repetida-limpar">Limpar aviso</button>
+            </div>
+          </div>
+          <div class="ferr-aviso warn ferr-repetida-texto" role="status">Em @FichaModel.FormatWarningMoment(avisoEm), @(tool.DuplicateWarningBy ?? "alguém") tentou registar outra ferramenta @humanFacts, e não foi registada. A errada pode ser esta: confirme o tipo, a referência, o lote e as máquinas. Se estiver certa, limpe o aviso; se não, corrija-a em Editar.</div>
+        </form>
+      </section>
+    }
+    </div>
+
+    <section id="ferrGeral" class="dmo-card ferr-card" aria-labelledby="ferr-facts-title" data-dmo-regiao>
+      <div class="dmo-card-topo">
+        <h3 id="ferr-facts-title">Geral — @humanFacts</h3>
+        <div class="dmo-card-topo-acoes">
+          @* AÇÕES RARAS NO «OPÇÕES» (Diogo, 17/10/2026: «criar opções pode ir
+             para topo lado direito, e nas opções meter o duplicar e eliminar»):
+             cada uma abre numa janela pequena (as janelas ficam fora das zonas;
+             os botões que as abrem ligam-se por delegação). *@
+          <details class="dmo-options" data-dmo-tab-menu>
+            <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
+            <div class="dmo-options-list">
+              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
+              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
+            </div>
+          </details>
+          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+        </div>
+      </div>
       <div class="dmo-facts">
         <div class="dmo-fact"><span>Tipo</span><strong>@(tokenOf(tool.Type) switch { "CM" => "CM — Contra-molde", "BQ" => "BQ — Boquilha", _ => "MF — Molde final" })</strong></div>
         <div class="dmo-fact"><span>Referência</span><strong>@tool.Reference</strong></div>
@@ -212,6 +311,15 @@
         <div class="dmo-fact"><span>Referência MF associada</span><strong>@(tool.AssociatedMfReference ?? "—")</strong></div>
         <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")</strong></div>
       </div>
+
+      @* SEM MÁQUINAS (Diogo, 19/10/2026: «essa regra pode ficar aplicada a de
+         todas as maquinas mas acrescentar um aviso com link que envia para a
+         pagina onde pode ser alterado»): sem máquinas, a ferramenta conta em
+         todas para a ferramenta repetida; o link leva ao Editar. *@
+      @if (tool.Machines.Count == 0)
+      {
+        <div class="ferr-aviso warn ferr-sem-maquinas" role="status" style="margin-top:12px">Sem máquinas: conta como estando em todas, por isso outra com o mesmo tipo, referência e lote é recusada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-maquinas-editar">Acrescentar as máquinas</a></div>
+      }
 
       @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico
          (o Owner: «se introduzirmos o nome tecnico... apresenta logo
@@ -232,57 +340,69 @@
     @* ---------------------------------------------------------------- *@
     @* 2. Editar factos: full-replace no MESMO tool_id.                   *@
     @* ---------------------------------------------------------------- *@
-    <section class="dmo-card ferr-card" aria-labelledby="ferr-edit-facts-title">
-      <h3 id="ferr-edit-facts-title">Editar</h3>
-
-      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditFacts" class="ferr-form-grid">
+    <section id="ferrEditar" class="dmo-card ferr-card" aria-labelledby="ferr-edit-facts-title" data-dmo-regiao data-dmo-parcial>
+      @* O título e o «Guardar» ficam dentro do formulário: o botão é o mesmo
+         botão de sempre (gravar sem recarregar, fila, foco no mesmo id). *@
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditFacts">
+        <div class="dmo-card-topo">
+          <h3 id="ferr-edit-facts-title">Editar</h3>
+          <div class="dmo-card-topo-acoes">
+            <button type="submit" class="dmo-button" id="ferr-edit-guardar">Guardar</button>
+          </div>
+        </div>
         <input type="hidden" name="tool_id" value="@tool.ToolId" />
-        <div class="dmo-field">
-          <label for="ferr-edit-type">Tipo</label>
-          <select id="ferr-edit-type" name="type_token" required>
-            <option value="CM" selected="@(tool.Type == ToolType.Cm)">CM — Contra-molde</option>
-            <option value="BQ" selected="@(tool.Type == ToolType.Bq)">BQ — Boquilha</option>
-            <option value="MF" selected="@(tool.Type == ToolType.Mf)">MF — Molde final</option>
-          </select>
-        </div>
-        <div class="dmo-field">
-          <label for="ferr-edit-reference">Referência</label>
-          <input id="ferr-edit-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@tool.Reference" placeholder="Ex.: 5447 ou T194" required />
-        </div>
-        <div class="dmo-field">
-          <label for="ferr-edit-lot">Lote</label>
-          <input id="ferr-edit-lot" name="lot" value="@tool.Lot" placeholder="vazio = s/lote" />
-        </div>
-        @if (tool.Type == ToolType.Cm)
+        @* A versão aberta: se outra pessoa gravar entretanto, nada se grava por cima. *@
+        <input type="hidden" name="versao" value="@tool.Version" />
+        @* O regresso ao fluxo que abriu a ficha fica depois de guardar. *@
+        @if (Model.ContinueUrl is { } regressoFactos)
         {
-          <div class="dmo-field">
-            <label for="ferr-edit-mf">Referência MF associada</label>
-            <input id="ferr-edit-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@tool.AssociatedMfReference" placeholder="opcional" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
-          </div>
+          <input type="hidden" name="continuar" value="@regressoFactos" />
         }
-        <div class="dmo-field">
-          <label for="ferr-edit-qty">Quantidade</label>
-          <input id="ferr-edit-qty" name="bq_quantity" type="text" inputmode="numeric" value="@tool.BqAccountedQuantity" placeholder="opcional" />
-        </div>
-        <div class="dmo-field" style="grid-column:1/-1">
-          <label>Máquinas / linhas compatíveis</label>
-          <div class="ferr-checks">
-            @if (Model.Machines.Count == 0)
-            {
-              <span class="ferr-hint" style="margin:0">Sem máquinas registadas.</span>
-            }
-            @foreach (var machine in Model.Machines)
-            {
-              <label class="ferr-check">
-                <input type="checkbox" name="machine_ids" value="@machine.MachineId"
-                       checked="@(tool.Machines.Any(m => m.MachineId == machine.MachineId))" />
-                <span>@machine.Code</span>
-              </label>
-            }
+        <div class="ferr-form-grid">
+          <div class="dmo-field">
+            <label for="ferr-edit-type">Tipo</label>
+            <select id="ferr-edit-type" name="type_token" required>
+              <option value="CM" selected="@(Model.FactsType(tool.Type) == "CM")">CM — Contra-molde</option>
+              <option value="BQ" selected="@(Model.FactsType(tool.Type) == "BQ")">BQ — Boquilha</option>
+              <option value="MF" selected="@(Model.FactsType(tool.Type) == "MF")">MF — Molde final</option>
+            </select>
           </div>
-        </div>
-        <div class="ferr-actions">
-          <button type="submit" class="dmo-button">Guardar</button>
+          <div class="dmo-field">
+            <label for="ferr-edit-reference">Referência</label>
+            <input id="ferr-edit-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.FactsReference(tool.Reference)" placeholder="Ex.: 5447 ou T194" required />
+          </div>
+          <div class="dmo-field">
+            <label for="ferr-edit-lot">Lote</label>
+            <input id="ferr-edit-lot" name="lot" value="@Model.FactsLot(tool.Lot)" placeholder="vazio = s/lote" />
+          </div>
+          @if (tool.Type == ToolType.Cm)
+          {
+            <div class="dmo-field">
+              <label for="ferr-edit-mf">Referência MF associada</label>
+              <input id="ferr-edit-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.FactsMf(tool.AssociatedMfReference)" placeholder="opcional" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
+            </div>
+          }
+          <div class="dmo-field">
+            <label for="ferr-edit-qty">Quantidade</label>
+            <input id="ferr-edit-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.FactsQuantity(tool.BqAccountedQuantity)" placeholder="opcional" />
+          </div>
+          <div class="dmo-field" style="grid-column:1/-1">
+            <span class="dmo-label" id="ferr-edit-machines">Máquinas / linhas compatíveis</span>
+            <div class="ferr-checks" role="group" aria-labelledby="ferr-edit-machines">
+              @if (Model.Machines.Count == 0)
+              {
+                <span class="ferr-hint" style="margin:0">Sem máquinas registadas.</span>
+              }
+              @foreach (var machine in Model.Machines)
+              {
+                <label class="ferr-check">
+                  <input type="checkbox" name="machine_ids" value="@machine.MachineId"
+                         checked="@Model.FactsMachine(machine.MachineId, tool.Machines.Any(m => m.MachineId == machine.MachineId))" />
+                  <span>@machine.Code</span>
+                </label>
+              }
+            </div>
+          </div>
         </div>
       </form>
 
@@ -295,9 +415,12 @@
     @*    os RÓTULOS HUMANOS da oficina — nunca nomes de coluna da BD     *@
     @*    (P2-9) — incl. o TAMPÃO (a geometria TP do desenho).            *@
     @* ---------------------------------------------------------------- *@
-    <section class="dmo-card ferr-card" aria-labelledby="ferr-tech-title">
+    @* Aberta ou fechada como o operador a deixou (data-dmo-fica): guardar o
+       Editar não a fecha nem mexe no que lá está escrito. O título (a dica
+       muda com o tipo) e o formulário são zonas. *@
+    <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-tech-title" data-dmo-fica data-dmo-parcial>
       <details open="@Model.ShowTechnical">
-      <summary><h3 id="ferr-tech-title" style="display:inline">Informação técnica<partial name="_DmoHelp" model="@((tool.Type == ToolType.Cm ? "Valores da CM e do tampão. No Job On, a calote da produção dá o volume desse controlo." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
+      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title">Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM e do tampão. No Job On, a calote da produção dá o volume desse controlo." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
       @{
           // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
           // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.
@@ -311,12 +434,10 @@
               : (decimal?)null;
       }
 
-      @if (Model.TechnicalMissing.Count > 0)
-      {
-        <div class="ferr-aviso warn ferr-tech-falta" role="status">@ToolTechnicalMissing.Message(Model.TechnicalMissing)</div>
-      }
-      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditTechnical">
+      <div id="ferrTecnica" data-dmo-regiao>
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditTechnical" id="ferr-tech-form">
         <input type="hidden" name="tool_id" value="@tool.ToolId" />
+        <input type="hidden" name="versao" value="@tool.TechnicalVersion" />
         @if (Model.ContinueUrl is { } regresso)
         {
           <input type="hidden" name="continuar" value="@regresso" />
@@ -336,23 +457,23 @@
               </div>
               <div class="dmo-field">
                 <label for="ferr-tech-nominal">Peso nominal (g)</label>
-                <input id="ferr-tech-nominal" name="nominal_weight" type="text" inputmode="decimal" value="@Model.TechnicalValue("nominal_weight", tech?.NominalWeightGrams)" />
+                <input id="ferr-tech-nominal" name="nominal_weight" type="text" inputmode="decimal" value="@Model.TechnicalValue("nominal_weight", tech?.NominalWeightGrams)" aria-invalid="@Model.TechnicalInvalid("nominal_weight")" autofocus="@(Model.TechnicalFocus == "nominal_weight")" />
               </div>
               <div class="dmo-field">
                 <label for="ferr-tech-puncao">Punção (cm³)</label>
-                <input id="ferr-tech-puncao" name="volume_puncao" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_puncao", tech?.VolumePuncaoCm3)" />
+                <input id="ferr-tech-puncao" name="volume_puncao" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_puncao", tech?.VolumePuncaoCm3)" aria-invalid="@Model.TechnicalInvalid("volume_puncao")" autofocus="@(Model.TechnicalFocus == "volume_puncao")" />
               </div>
             }
             @if (isBq)
             {
               <div class="dmo-field">
                 <label for="ferr-tech-marisa">Marisa (cm³)</label>
-                <input id="ferr-tech-marisa" name="volume_marisa" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_marisa", tech?.VolumeMarisaCm3)" />
+                <input id="ferr-tech-marisa" name="volume_marisa" type="text" inputmode="decimal" value="@Model.TechnicalValue("volume_marisa", tech?.VolumeMarisaCm3)" aria-invalid="@Model.TechnicalInvalid("volume_marisa")" autofocus="@(Model.TechnicalFocus == "volume_marisa")" />
               </div>
             }
             <div class="dmo-field">
               <label for="ferr-tech-gargalo">Diâmetro do gargalo (mm)</label>
-              <input id="ferr-tech-gargalo" name="diametro_gargalo" type="text" inputmode="decimal" value="@Model.TechnicalValue("diametro_gargalo", tech?.DiametroGargaloMm)" />
+              <input id="ferr-tech-gargalo" name="diametro_gargalo" type="text" inputmode="decimal" value="@Model.TechnicalValue("diametro_gargalo", tech?.DiametroGargaloMm)" aria-invalid="@Model.TechnicalInvalid("diametro_gargalo")" autofocus="@(Model.TechnicalFocus == "diametro_gargalo")" />
             </div>
           </div>
         </fieldset>
@@ -363,15 +484,15 @@
             <div class="ferr-tech-grid">
               <div class="dmo-field">
                 <label for="ferr-tp-diametro">Diâmetro (mm)</label>
-                <input id="ferr-tp-diametro" name="tp_diametro" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_diametro", tech?.TpDiametroMm)" placeholder="Ex.: 28,45 ou 28.45" />
+                <input id="ferr-tp-diametro" name="tp_diametro" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_diametro", tech?.TpDiametroMm)" placeholder="Ex.: 28,45 ou 28.45" aria-invalid="@Model.TechnicalInvalid("tp_diametro")" autofocus="@(Model.TechnicalFocus == "tp_diametro")" />
               </div>
               <div class="dmo-field">
                 <label for="ferr-tp-raio">Raio (mm)</label>
-                <input id="ferr-tp-raio" name="tp_raio" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_raio", tech?.TpRaioMm)" placeholder="Ex.: 24,11 ou 24.11" />
+                <input id="ferr-tp-raio" name="tp_raio" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_raio", tech?.TpRaioMm)" placeholder="Ex.: 24,11 ou 24.11" aria-invalid="@Model.TechnicalInvalid("tp_raio")" autofocus="@(Model.TechnicalFocus == "tp_raio")" />
               </div>
               <div class="dmo-field">
                 <label for="ferr-tp-sagitta">Calote (mm)</label>
-                <input id="ferr-tp-sagitta" name="tp_sagitta" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_sagitta", tech?.TpSagittaMm)" placeholder="Ex.: 4,5 ou 4.5" />
+                <input id="ferr-tp-sagitta" name="tp_sagitta" type="text" inputmode="decimal" value="@Model.TechnicalValue("tp_sagitta", tech?.TpSagittaMm)" placeholder="Ex.: 4,5 ou 4.5" aria-invalid="@Model.TechnicalInvalid("tp_sagitta")" autofocus="@(Model.TechnicalFocus == "tp_sagitta")" />
               </div>
               <div class="dmo-fact" aria-live="polite">
                 <span>Volume do tampão (cm³)<partial name="_DmoHelp" model="@("Calculado com o diâmetro e a calote.")" /></span>
@@ -380,11 +501,17 @@
             </div>
           </fieldset>
         }
-        <div class="ferr-tech-actions">
-          <button type="submit" class="dmo-button">Guardar</button>
-        </div>
       </form>
+      </div>
       </details>
+      @* O «Guardar» na linha do título, à direita (Diogo, 18/10/2026). Não vai
+         dentro do <summary> (nada interativo lá dentro): fica a seguir ao
+         <details>, sobre a linha do título (.dmo-card-dobravel), e grava o
+         formulário da técnica pelo atributo form, aberta ou fechada, sem a
+         abrir nem fechar. Fica fora das zonas: não muda ao gravar. *@
+      <div class="dmo-card-topo-acoes">
+        <button type="submit" class="dmo-button" id="ferr-tech-guardar" form="ferr-tech-form">Guardar</button>
+      </div>
     </section>
 
 

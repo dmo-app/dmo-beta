@@ -54,6 +54,16 @@ public sealed class Peso
     public int WaterTemperatureC { get; set; }
 
     /// <summary>
+    /// Densidade da água (g/cm³) que o Peso usou ao ser gravado: a da tabela
+    /// para o grau, congelada (AV-PESO-01, 19/10/2026; a mesma regra da
+    /// densidade do vidro, D15: os Pesos gravados ficam com o que usaram). A
+    /// tabela pode corrigir-se depois (DT9, beta.283) sem mudar os Pesos já
+    /// feitos. Null só num Peso criado diretamente sem ela: vale a tabela
+    /// (<see cref="WaterDensityTable.ForPeso"/>).
+    /// </summary>
+    public decimal? WaterDensityGramsPerCm3 { get; set; }
+
+    /// <summary>
     /// volume_marisa (cm³) consumido da BQ Tool — evidência histórica do
     /// input exato do cálculo principal, congelada na criação.
     /// </summary>
@@ -103,9 +113,13 @@ public sealed class Peso
     /// Peso production-scoped, spec PESO.md «Production association
     /// cardinality»). NULL nos Pesos tool-scoped pré-produção: a associação
     /// posterior é uma decisão humana explícita e nunca automática. Um Peso
-    /// associa-se a NO MÁXIMO uma produção; o índice único garante um Peso
-    /// baseline por controlo — uma produção posterior da mesma Tool exige um
-    /// NOVO peso_id (a associação consome o Peso).
+    /// associa-se a NO MÁXIMO uma produção — uma produção posterior da mesma
+    /// Tool exige um NOVO peso_id (a associação consome o Peso). Uma produção
+    /// tem um Peso para cada CM+BQ (índice único filtrado, sem as linhas
+    /// REMOVED): o Peso congela a CM, o volume punção, o nominal e o volume
+    /// marisa da BQ, por isso trocar a CM ou a BQ a meio da produção pede um
+    /// Peso novo e o anterior fica como estava (respostas R15 e R16-5 do
+    /// especialista, 18/10/2026); trocar só o MF não muda o Peso.
     /// </summary>
     public int? ControloId { get; set; }
 
@@ -121,7 +135,6 @@ public sealed class Peso
     /// <summary>Quem gravou o registo (o nome da sessão, congelado); null quando não se sabe.</summary>
     public string? RegistadoPor { get; set; }
 
-    /// <summary>Leituras físicas registadas neste Peso (factos históricos).</summary>
     /// <summary>
     /// O controlo da produção anterior usada como referência (o Owner
     /// 2026-10-17: «usa o contexto do controlo anterior»): dele vêm a
@@ -139,5 +152,6 @@ public sealed class Peso
     /// </summary>
     public decimal? ProducaoAnteriorPesoGramas { get; set; }
 
+    /// <summary>Leituras físicas registadas neste Peso (factos históricos).</summary>
     public ICollection<PesoMeasurement> Measurements { get; set; } = new List<PesoMeasurement>();
 }

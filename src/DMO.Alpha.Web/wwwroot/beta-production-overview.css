@@ -31,12 +31,14 @@
 .jobon-mudancas{margin:0 0 16px}.jobon-mudancas>summary{font-size:13px;cursor:pointer;color:var(--dmo-muted,#66809a)}
 .jobon-resumo{margin:10px 0 2px;padding:0;list-style:none;display:grid;gap:8px}.jobon-resumo li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:var(--dmo-subtle,#f1f6fa);border-left:4px solid var(--dmo-warning,#c98a14);border-radius:8px}.jobon-resumo li>div{display:grid;gap:3px;min-width:0}.jobon-resumo strong{font-size:14px}.jobon-resumo span{font-size:12.5px;color:var(--dmo-muted,#66809a)}
 /* A próxima mudança na máquina (o proprietário, 17/10/2026): informação de contexto, neutra, à frente da linha. */
-.beta-light-productions .beta-light-production>.beta-light-next{font-size:12.5px;color:var(--dmo-muted,#66809a)}
-.beta-light-machine-empty .beta-light-next{margin-left:auto;padding-right:4px;font-size:12.5px;color:var(--dmo-muted,#66809a)}
+/* A próxima mudança a negrito (Diogo, 19/10/2026: «para salientar mais»). */
+.beta-light-productions .beta-light-production>.beta-light-next{font-size:12.5px;font-weight:700;color:var(--dmo-muted,#66809a)}
+.beta-light-machine-empty .beta-light-next{margin-left:auto;padding-right:4px;font-size:12.5px;font-weight:700;color:var(--dmo-muted,#66809a)}
 .beta-light-machine-row:has(input:checked) .beta-light-next{color:var(--dmo-text-on-color)}
 @media(max-width:700px){.beta-light-productions .beta-light-production>.beta-light-next{white-space:normal}.beta-light-productions .beta-light-production>.beta-light-next:empty{display:none}.beta-light-machine-empty .beta-light-next{margin-left:10px}}
-.beta-light-changes{margin-left:8px;padding:2px 7px;font-size:11.5px;font-weight:700;color:#7a4f00;background:#fff1cc;border-radius:999px}
-.beta-light-machine-row:has(input:checked) .beta-light-changes{color:#7a4f00}
+/* Só o texto amarelo, sem pill (o Diogo, 18/10/2026: «deixar apenas o texto amarelo, não usar constantemente pills»). */
+.beta-light-changes{margin-left:8px;font-size:12.5px;font-weight:700;color:#8a5a00}
+.beta-light-machine-row:has(input:checked) .beta-light-changes{color:#ffe08a}
 @media(max-width:700px){.jobon-resumo li{flex-direction:column;align-items:stretch}}
 @media(max-width:700px){.jobon-lote-form{grid-template-columns:1fr}}
 .beta-light-productions .beta-light-production>strong{color:var(--dmo-brand-900);font-size:14px}.beta-light-productions .beta-light-production>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

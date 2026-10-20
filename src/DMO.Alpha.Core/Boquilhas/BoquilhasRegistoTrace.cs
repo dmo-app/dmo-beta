@@ -7,7 +7,8 @@ namespace DMO.Alpha.Core.Boquilhas;
 /// tool_id alcançado via bq_id → BqContext.ToolId quando a âncora já foi
 /// limpa pela associação —, os factos referência/lote da Tool canónica
 /// quando resolvem no registo Ferramentas, o bq_id opcional e o contexto
-/// de produção a ele ligado, os movimentos persistidos do trace e apenas as
+/// de produção a ele ligado, uma página dos movimentos persistidos do trace
+/// (as contas usam todos) e apenas as
 /// quantidades físicas derivadas cujas regras de movimento já fecham o
 /// cálculo: a quantidade legitimamente fora do lote neste trace (regra
 /// fechada de matched/unmatched) e a discrepância acumulada do trace como
@@ -30,4 +31,13 @@ public sealed record BoquilhasRegistoTrace(
     /// <summary>Quando a discrepância acumulada foi posta a zero (só contam os movimentos depois); null nunca.</summary>
     DateTime? DiscrepancyResetAtUtc = null,
     /// <summary>Quem a pôs a zero, congelado; null sem identidade.</summary>
-    string? DiscrepancyResetBy = null);
+    string? DiscrepancyResetBy = null,
+    /// <summary>Quantos movimentos o registo tem ao todo (Movements traz só a página pedida).</summary>
+    int MovementCount = 0,
+    /// <summary>A página de Movements, já ajustada ao intervalo válido.</summary>
+    int MovementPageNumber = 1)
+{
+    /// <summary>A página dos movimentos para a tabela (mais recentes primeiro).</summary>
+    public DMO.Alpha.Core.Paging.PagedList<BoquilhasRegistoMovement> MovementsPage =>
+        new(Movements, MovementCount, MovementPageNumber, DMO.Alpha.Core.Paging.ListPaging.DefaultPageSize);
+}

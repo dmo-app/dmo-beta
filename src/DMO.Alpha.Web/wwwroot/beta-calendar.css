@@ -3,13 +3,14 @@
 html body .dmo-calendar.card{box-sizing:border-box;width:min(320px,100%);min-width:0;margin:0;padding:16px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-card);background:var(--dmo-card);box-shadow:var(--dmo-shadow)}
 .dmo-calendar .dmo-calendar-legend{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;color:var(--dmo-muted);font-size:11px;line-height:1.4}
 .dmo-calendar .dmo-calendar-legend span{display:inline-flex;align-items:center;gap:5px}
-.dmo-calendar .dmo-calendar-legend i{width:5px;height:5px;border-radius:50%;background:var(--dmo-warning)}
-.dmo-calendar .dmo-calendar-day.has::after{content:"";position:absolute;bottom:4px;left:calc(50% - 2px);width:4px;height:4px;border-radius:50%;background:var(--dmo-warning)}
+.dmo-calendar .dmo-calendar-legend i{width:8px;height:2px;border-radius:1px;background:var(--dmo-warning)}
+/* O sinal discreto (Diogo, 19/10/2026: «remover os dots»): um traço curto e fino por baixo do número. */
+.dmo-calendar .dmo-calendar-day.has::after{content:"";position:absolute;bottom:4px;left:calc(50% - 4px);width:8px;height:2px;border-radius:1px;background:var(--dmo-warning)}
 .dmo-calendar .dmo-calendar-day.has.selected::after{background:var(--dmo-text-on-color)}
 /* O CONTRATO HTML/CSS (o shared element _DmoCalendar): o partial serve os dias
    como <a class="dmo-calendar-day"> — os seletores cobrem a CLASSE do partial
    (e mantêm os button/.day das carcaças antigas), com o estado .today do dia
-   de hoje visível (bold + a marca da casa) e os .empty invisíveis a manter a
+   de hoje visível (só o negrito) e os .empty invisíveis a manter a
    célula da grelha (o alinhamento dos dias). */
 .dmo-calendar .dmo-calendar-nav{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:8px;width:100%;margin:0 0 14px}
 .dmo-calendar .dmo-calendar-nav :is(h2,strong){min-width:0;margin:0;text-align:center;text-transform:capitalize;color:var(--dmo-brand-900);font:800 17px/1.3 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -29,8 +30,8 @@ html body .dmo-calendar.card{box-sizing:border-box;width:min(320px,100%);min-wid
 .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty):is(:hover,:focus-visible){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:var(--dmo-card);box-shadow:inset 0 0 0 2px var(--dmo-palette-sky)}
 .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day).has:not(.selected){color:var(--dmo-brand-700);font-weight:800}
 /* O HOJE (o IsToday do viewmodel — o alvo do Owner: «o hoje a bold ao lado
-   do selected»): bold e a borda da marca — uma distinção visível que nunca
-   esconde o selected (o selected inverte, o hoje avisa). */
-.dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day).today{font-weight:800;border-color:var(--dmo-brand-600);box-shadow:inset 0 0 0 1px var(--dmo-brand-600)}
+   do selected»): só o negrito. Sem borda nem anel (o Diogo, 18/10/2026,
+   «bug no 18»): a moldura escura parecia um segundo dia escolhido. */
+.dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day).today{font-weight:800}
 .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.blank,:disabled,.empty){visibility:hidden;pointer-events:none}
 .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px;z-index:1}

@@ -1,0 +1,77 @@
+@model DMO.Alpha.Web.Pages.Controlo.PesoCmDeParteVista
+@* «Manter / Colocar de parte» (o Diogo, 19/10/2026, D10): cada CM medida
+   tem a sua escolha; escolher grava logo, sem recarregar (só esta zona
+   troca). A CM posta de parte vai para aprovação, uma de cada vez, nesta
+   mesma tabela, por quem tem o Controlo Aprovar (o Diogo, 19/10/2026: «entra
+   logo na comparação, não é uma página»). Não muda o estado da CM nas
+   Ferramentas (D11). Sem botões nas linhas: um dropdown por CM. *@
+@{
+    string Quando(DateTime utc) => DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(utc).ToString("dd/MM/yyyy HH:mm");
+}
+<div id="pesoCmDeParte-@Model.ComparacaoId" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
+  @if (Model.Mensagem is { } mensagem)
+  {
+    <p data-dmo-toast="@mensagem.Tipo" role="@(mensagem.Tipo == "erro" ? "alert" : "status")">@mensagem.Texto</p>
+  }
+  @if (Model.Linhas.Count > 0)
+  {
+    <h4 style="margin:14px 0 6px">Manter ou colocar de parte<partial name="_DmoHelp" model="@("Escolha, para cada CM medida, se fica (Manter) ou se sai (Colocar de parte). A CM posta de parte fica por aprovar: quem tem o Controlo Aprovar decide aqui, uma de cada vez, na coluna Aprovação. Pôr de parte não muda o estado da CM nas Ferramentas.")" /></h4>
+    <div class="dmo-table-wrap" data-peso-cm-de-parte>
+      <table class="dmo-table">
+        <thead><tr><th>N.º CM</th><th>Escolha</th><th>Aprovação</th></tr></thead>
+        <tbody>
+          @foreach (var linha in Model.Linhas)
+          {
+            var escolha = linha.DeParte switch { true => "de-parte", false => "manter", null => "" };
+            <tr data-cm-measurement="@linha.MeasurementId">
+              <td>@(string.IsNullOrEmpty(linha.CmSubject) ? "—" : linha.CmSubject)</td>
+              <td>
+                <form method="post" asp-page="/Controlo/PesoCmEscolha" id="pesoCmEscolha-@linha.MeasurementId">
+                  <input type="hidden" name="measurement_id" value="@linha.MeasurementId" />
+                  <input type="hidden" name="voltar" value="@Model.Voltar" />
+                  <select name="escolha" aria-label="Escolha da CM @linha.CmSubject" data-dmo-autosubmit>
+                    <option value="" selected="@(escolha == "")">—</option>
+                    <option value="manter" selected="@(escolha == "manter")">Manter</option>
+                    <option value="de-parte" selected="@(escolha == "de-parte")">Colocar de parte</option>
+                  </select>
+                </form>
+              </td>
+              <td data-cm-aprovacao>
+                @if (linha.DeParte != true)
+                {
+                  <text>—</text>
+                }
+                else if (Model.PodeAprovar)
+                {
+                  var decisao = linha.Aprovado switch { true => "aprovar", false => "nao-aprovar", null => "" };
+                  <form method="post" asp-page="/Controlo/CmDeParte" id="cmDeParteDecisao-@linha.MeasurementId">
+                    <input type="hidden" name="measurement_id" value="@linha.MeasurementId" />
+                    <input type="hidden" name="escolhida_em" value="@(linha.EscolhidoEmUtc?.Ticks)" />
+                    <input type="hidden" name="voltar" value="@Model.Voltar" />
+                    <select name="decisao" aria-label="Aprovação da CM @linha.CmSubject" data-dmo-autosubmit>
+                      <option value="" selected="@(decisao == "")">Por aprovar</option>
+                      <option value="aprovar" selected="@(decisao == "aprovar")">Aprovar</option>
+                      <option value="nao-aprovar" selected="@(decisao == "nao-aprovar")">Não aprovar</option>
+                    </select>
+                  </form>
+                  @if (linha.Aprovado is not null && linha.AprovadoPor is { } por)
+                  {
+                    <small>@por@(linha.AprovadoEmUtc is { } aprovadoEm ? $", {Quando(aprovadoEm)}" : null)</small>
+                  }
+                }
+                else if (linha.Aprovado is null)
+                {
+                  <text>Por aprovar</text>
+                }
+                else
+                {
+                  <text>@(linha.Aprovado == true ? "Aprovado" : "Não aprovado") por @linha.AprovadoPor@(linha.AprovadoEmUtc is { } em ? $" em {Quando(em)}" : null)</text>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

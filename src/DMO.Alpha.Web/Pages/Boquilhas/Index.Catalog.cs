@@ -1,6 +1,5 @@
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Core.Production;
-using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +7,6 @@ namespace DMO.Alpha.Web.Pages.Boquilhas;
 
 public sealed partial class IndexModel
 {
-    private readonly ICreateToolHandler _createTool;
-
-    [BindProperty] public BqToolDraft Draft { get; set; } = new();
     [BindProperty(SupportsGet = true, Name = "q")] public string? CatalogSearch { get; set; }
     [BindProperty(SupportsGet = true, Name = "machine_id")] public int? CatalogMachineId { get; set; }
     [BindProperty(SupportsGet = true, Name = "pagina")] public int CatalogPageNumber { get; set; } = 1;
@@ -20,15 +16,47 @@ public sealed partial class IndexModel
     public IReadOnlyList<MachineOption> CatalogMachines { get; private set; } = [];
     public int CatalogCount { get; private set; }
     public int CatalogPages => Math.Max(1, (int)Math.Ceiling(CatalogCount / (double)CatalogPageSize));
-    public string? ToolCreationError { get; private set; }
-    /// <summary>A lista só é consultada depois de procurar (Diogo, 17/10/2026: sem lista até procurar).</summary>
-    public bool CatalogSearched => !string.IsNullOrWhiteSpace(CatalogSearch) || CatalogMachineId is not null;
+    /// <summary>
+    /// A lista só é consultada depois de procurar (Diogo, 17/10/2026: «não
+    /// deve existir lista até procurar, evitar peso nos carregamentos»): ela
+    /// aparece quando se começa a escrever a referência ou o lote. A máquina
+    /// só reduz, como o tipo e a máquina nas Ferramentas (Diogo, 18/10/2026:
+    /// «escolher BQ carregava as BQ todas»); escolher só a máquina carregava
+    /// todas as BQ dela (deep sweep 2, 18/10/2026, F-16). «Criar boquilha»
+    /// continua a levar a máquina do filtro.
+    /// </summary>
+    public bool CatalogSearched => !string.IsNullOrWhiteSpace(CatalogSearch);
 
     public string? CatalogLink(int page, string? toolId = null, string? saved = null) => Url.Page("/Boquilhas/Index", new
     {
         ficheiros = 1, q = CatalogSearch, machine_id = CatalogMachineId,
         pagina = page, por_pagina = CatalogPageSize, ferramenta = toolId, saved
     });
+
+    /// <summary>
+    /// «Criar boquilha»: a página única de registar ferramenta (Diogo,
+    /// 18/10/2026: «não vamos inventar mais páginas para ferramentas, 1
+    /// página e funciona com todas»), com o tipo BQ e a máquina do filtro já
+    /// escolhidos. Registada, volta a este catálogo com a ficha dela aberta.
+    /// </summary>
+    public string CreateToolLink()
+    {
+        var query = new List<string> { "criar=1", "type=BQ" };
+        if (CatalogMachineId is int machineId)
+        {
+            query.Add("machine_ids=" + machineId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        query.Add("return=" + Uri.EscapeDataString("/Boquilhas?ficheiros=1&ferramenta={tool_id}&saved=created#bq-tool-sheet"));
+        return "/Ferramentas?" + string.Join("&", query);
+    }
+
+    /// <summary>
+    /// O «Guardar ficha» do formulário curto que saiu (beta.234), numa página
+    /// aberta antes da atualização: não grava nada e abre o registo das
+    /// Ferramentas, em vez de um erro.
+    /// </summary>
+    public IActionResult OnPostCreateTool() => LocalRedirect(CreateToolLink());
 
     private async Task LoadCatalogAsync()
     {
@@ -43,57 +71,4 @@ public sealed partial class IndexModel
         CatalogPageNumber = page.PageNumber;
         CatalogPageSize = page.PageSize;
     }
-
-    public async Task<IActionResult> OnPostCreateToolAsync()
-    {
-        // The catalog is another entry to the canonical Tool handler, not a second store.
-        int? quantity = null;
-        if (!string.IsNullOrWhiteSpace(Draft.Quantity))
-        {
-            if (int.TryParse(Draft.Quantity, out var parsed) && parsed >= 0) quantity = parsed;
-            else ToolCreationError = "Use uma quantidade inteira igual ou superior a 0. O rascunho foi mantido.";
-        }
-        if (!ModelState.IsValid)
-            ToolCreationError ??= "Confirme os valores e as máquinas selecionadas. O rascunho foi mantido.";
-        // beta.63: o handler canónico grava o lote vazio como «s/lote» (o
-        // Ferramentas avisa na ficha). Este catálogo ainda não tem esse aviso,
-        // por isso mantém o pedido do lote que já fazia.
-        if (string.IsNullOrWhiteSpace(Draft.Lot))
-            ToolCreationError ??= "Indique o lote da boquilha. O rascunho foi mantido.";
-
-        if (ToolCreationError is null)
-        {
-            var outcome = await _createTool.HandleAsync(new CreateTool("BQ", Draft.Reference ?? "",
-                Draft.Lot ?? "", BqAccountedQuantity: quantity, MachineIds: Draft.MachineIds,
-                UseLotQuantityDefault: Draft.QuantityManual != "1"), HttpContext.RequestAborted);
-            if (outcome.Result == CreateToolResult.Success && outcome.Tool is { } tool)
-                return Redirect(CatalogLink(CatalogPageNumber, tool.ToolId, tool.AlreadyExisted ? "existing" : "created") + "#bq-tool-sheet");
-            ToolCreationError = outcome.Result switch
-            {
-                CreateToolResult.MissingReference => "Indique a referência da boquilha. O rascunho foi mantido.",
-                CreateToolResult.MissingLot => "Indique o lote da boquilha. O rascunho foi mantido.",
-                CreateToolResult.MachineNotFound => "Uma das máquinas já não existe. Reveja as compatibilidades; o rascunho foi mantido.",
-                _ => "Não foi possível guardar a boquilha. Reveja os dados; o rascunho foi mantido."
-            };
-        }
-
-        ShowFiles = true;
-        ViewData["Title"] = "Boquilhas";
-        ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new("boquilhas", "Boquilhas"))) with
-        {
-            ActiveFunctionKey = "ficheiros", Functions = ShellStateFactory.BoquilhasFunctions("ficheiros")
-        };
-        Currents = await _currentQuery.ListAsync(HttpContext.RequestAborted);
-        await LoadCatalogAsync();
-        return Page();
-    }
-}
-
-public sealed class BqToolDraft
-{
-    public string? Reference { get; set; }
-    public string? Lot { get; set; }
-    public string? Quantity { get; set; }
-    public string? QuantityManual { get; set; }
-    public List<int> MachineIds { get; set; } = [];
 }

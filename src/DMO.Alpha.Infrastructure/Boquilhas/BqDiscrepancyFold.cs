@@ -24,6 +24,18 @@ public static class BqDiscrepancyFold
     public static int SaidaFirst(BqMovementType type) => type == BqMovementType.Saida ? 0 : 1;
 
     /// <summary>
+    /// Se um movimento conta para a discrepância acumulada depois de posta a
+    /// zero: data real posterior ao zero. O campo da hora só tem minutos, por
+    /// isso um movimento gravado depois do zero com a hora desse mesmo minuto
+    /// também conta (teste do agente de 19/10/2026, T616eb4d: pôr a zero às
+    /// 18:20:56 e gravar logo a seguir com 18:20 contava como antes do zero).
+    /// </summary>
+    public static bool CountsAfterReset(DateTime occurredAtUtc, DateTime createdAtUtc, DateTime resetAtUtc) =>
+        occurredAtUtc > resetAtUtc
+        || (createdAtUtc > resetAtUtc
+            && occurredAtUtc >= resetAtUtc.AddTicks(-(resetAtUtc.Ticks % TimeSpan.TicksPerMinute)));
+
+    /// <summary>
     /// Recalcula a discrepância de todos os movimentos (null quando não há
     /// excedente) e devolve a quantidade legitimamente fora no fim.
     /// </summary>

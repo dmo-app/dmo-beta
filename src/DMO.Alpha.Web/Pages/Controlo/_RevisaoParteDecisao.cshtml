@@ -1,0 +1,28 @@
+@model DMO.Alpha.Web.Pages.Controlo.RevisaoParteVista
+@{
+    string Quando(DateTime utc) => DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(utc).ToString("dd/MM/yyyy HH:mm");
+    var link = Model.Consultar is { } href ? new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Consultar", href) : null;
+}
+@if (Model.Decisao is { } d)
+{
+  <p class="revisao-line">@(d.Aprovado ? "Aprovado" : "Não aprovado") por @Model.Nome em @Quando(d.EmUtc).</p>
+  @if (d.Nota is { } nota)
+  {
+    <p class="revisao-note">@nota</p>
+  }
+  @* O que chegou depois da aprovação (Diogo, 19/10/2026): um registo novo
+     depois de uma troca pede aprovação própria (C7); uma leitura registada
+     ou corrigida só avisa e a aprovação mantém-se (C9). *@
+  @if (Model.NovoDepois)
+  {
+    <div class="dmo-aviso warn" role="status" data-revisao-depois="novo">Peso novo depois da aprovação: está por aprovar.@if (link is not null){<partial name="_DmoAvisoLink" model="link" />}</div>
+  }
+  @if (Model.RegistadoDepois)
+  {
+    <div class="dmo-aviso warn" role="status" data-revisao-depois="registado">Registado depois da aprovação. A aprovação mantém-se.@if (link is not null){<partial name="_DmoAvisoLink" model="link" />}</div>
+  }
+  @if (Model.CorrigidoDepois)
+  {
+    <div class="dmo-aviso warn" role="status" data-revisao-depois="corrigido">Corrigido depois da aprovação. A aprovação mantém-se.@if (link is not null){<partial name="_DmoAvisoLink" model="link" />}</div>
+  }
+}

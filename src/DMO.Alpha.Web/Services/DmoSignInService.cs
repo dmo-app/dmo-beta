@@ -17,6 +17,14 @@ public sealed class DmoSignInService
     private readonly DmoDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
+    // As recusas antes de a palavra-passe ser verificada dizem todas o mesmo:
+    // o ecrã de entrada não revela que números de operador existem.
+    private const string InvalidCredentials = "Credenciais inválidas.";
+    private const string ArchivedAccount = "Esta conta está arquivada. Fale com o ADMIN.";
+    // Sem resposta do serviço de autenticação, a palavra-passe pode estar
+    // certa: o ecrã não diz que está errada (sweep de 19/10/2026, 5.1).
+    private const string ProviderUnavailable = "O serviço de autenticação não respondeu. Tente de novo dentro de alguns minutos.";
+
     public DmoSignInService(
         IAuthenticationProvider provider,
         IAdminAuthorizationService authorization,
@@ -42,7 +50,14 @@ public sealed class DmoSignInService
         var httpContext = _httpContextAccessor.HttpContext
             ?? throw new InvalidOperationException("No active HTTP context.");
 
+        // Espaços colados (autopreenchimento, copiar) e maiúsculas no email
+        // não podem falhar a entrada: o Supabase não tira os espaços.
+        identifier = identifier.Trim();
         var isEmail = identifier.Contains('@');
+        if (isEmail)
+        {
+            identifier = identifier.ToLowerInvariant();
+        }
 
         // Operational numbers identify a DMO User, not a Supabase email.
         // Accounts created by Admin use their real email; keep @dmo.local
@@ -55,10 +70,9 @@ public sealed class DmoSignInService
                 .FirstOrDefaultAsync(u => u.OperatorId == identifier);
 
             if (operatorUser is null)
-                return SignInOutcome.Failed("Unknown operator identification.");
-
-            if (operatorUser.IsStandBy)
-                return SignInOutcome.Failed("Account is on stand-by.");
+            {
+                return SignInOutcome.Failed(InvalidCredentials);
+            }
         }
 
         var providerIdentifier = isEmail
@@ -76,7 +90,7 @@ public sealed class DmoSignInService
             // técnico (logs), o que o utilizador lê é a nossa frase (antes:
             // «Invalid credentials.» vinha CHEIO do provider e o fallback
             // nunca disparava).
-            return SignInOutcome.Failed("Credenciais inválidas.");
+            return SignInOutcome.Failed(authResult.ProviderUnavailable ? ProviderUnavailable : InvalidCredentials);
         }
 
         List<Claim> claims;
@@ -108,8 +122,7 @@ public sealed class DmoSignInService
                     : await _adminEmailSettings.GetAdminEmailAsync();
             }
 
-            if (adminEmail is not null
-                && string.Equals(loginEmail, adminEmail, StringComparison.OrdinalIgnoreCase))
+            if (AdminEmailRule.IsAdminEmail(loginEmail, adminEmail))
             {
                 displayName = adminEmail;
                 requiresPasswordChange = false;
@@ -119,7 +132,10 @@ public sealed class DmoSignInService
                     new Claim(DmoClaimTypes.DisplayName, adminEmail),
                     new Claim(DmoClaimTypes.IsAdmin, bool.TrueString),
                     new Claim(DmoClaimTypes.Email, adminEmail),
-                    new Claim(DmoClaimTypes.ProviderUserId, authResult.ProviderUserId!)
+                    new Claim(DmoClaimTypes.ProviderUserId, authResult.ProviderUserId!),
+                    new Claim(DmoClaimTypes.SessionVersion,
+                        (await _adminEmailSettings.GetAdminSessionAsync()).SessionVersion
+                            .ToString(System.Globalization.CultureInfo.InvariantCulture))
                 ];
             }
             else
@@ -130,12 +146,12 @@ public sealed class DmoSignInService
                 // to the provider).
                 if (user is null)
                 {
-                    return SignInOutcome.Failed("This email is not associated with an ADMIN account.");
+                    return SignInOutcome.Failed("Este email não tem acesso à aplicação.");
                 }
 
                 if (user.IsStandBy)
                 {
-                    return SignInOutcome.Failed("Account is on stand-by.");
+                    return SignInOutcome.Failed(ArchivedAccount);
                 }
 
                 displayName = user.Name;
@@ -152,7 +168,8 @@ public sealed class DmoSignInService
                     // (DMO stores no User email; the change-password
                     // re-sign-in prefers this claim).
                     new Claim(DmoClaimTypes.Email, authResult.Email ?? identifier),
-                    new Claim(DmoClaimTypes.ProviderUserId, authResult.ProviderUserId!)
+                    new Claim(DmoClaimTypes.ProviderUserId, authResult.ProviderUserId!),
+                    SessionVersionClaim(user)
                 ];
 
                 if (!string.IsNullOrWhiteSpace(user.TemplateName))
@@ -169,7 +186,14 @@ public sealed class DmoSignInService
 
             if (!string.Equals(user.ProviderUserId, authResult.ProviderUserId, StringComparison.Ordinal))
             {
-                return SignInOutcome.Failed("Provider identity does not match the registered user.");
+                return SignInOutcome.Failed(InvalidCredentials);
+            }
+
+            // Só depois de a palavra-passe estar certa: a conta arquivada
+            // não se revela a quem não a sabe.
+            if (user.IsStandBy)
+            {
+                return SignInOutcome.Failed(ArchivedAccount);
             }
 
             displayName = user.Name;
@@ -182,7 +206,8 @@ public sealed class DmoSignInService
                 new Claim(DmoClaimTypes.IsAdmin, bool.FalseString),
                 new Claim(DmoClaimTypes.OperatorId, user.OperatorId),
                 new Claim(DmoClaimTypes.Email, authResult.Email ?? providerIdentifier),
-                new Claim(DmoClaimTypes.ProviderUserId, authResult.ProviderUserId!)
+                new Claim(DmoClaimTypes.ProviderUserId, authResult.ProviderUserId!),
+                SessionVersionClaim(user)
             ];
 
             if (!string.IsNullOrWhiteSpace(user.TemplateName))
@@ -241,15 +266,10 @@ public sealed class DmoSignInService
             : null;
         var capabilities = effective?.Capabilities ?? Array.Empty<string>();
         var initialPage = DmoCapabilities.HomeFor(capabilities) ?? "/Modules/Home";
-        return !IsLocalPath(returnUrl) || returnUrl is "/JobOn" or "/"
-            ? initialPage : returnUrl!;
+        // Só caminhos desta aplicação: nunca outro site depois do login.
+        return !LocalUrl.IsSafe(returnUrl) || returnUrl is "/JobOn" or "/"
+            ? initialPage : returnUrl;
     }
-
-    // Só caminhos desta aplicação: nunca outro site depois do login.
-    private static bool IsLocalPath(string? url) =>
-        !string.IsNullOrWhiteSpace(url)
-        && url[0] == '/'
-        && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'));
 
     public async Task<SignInOutcome> RefreshSignInAsync(string identifier, string password, string? returnUrl = null)
     {
@@ -258,7 +278,13 @@ public sealed class DmoSignInService
         return await SignInAsync(identifier, password, returnUrl, passwordJustChanged: true);
     }
 
-    private static string MapOperatorIdToProviderIdentifier(string operatorId)
+    // A versão das sessões com que este cookie entra (o validador recusa-o
+    // quando a do User subir: reset ou nova palavra-passe).
+    private static Claim SessionVersionClaim(User user) => new(
+        DmoClaimTypes.SessionVersion,
+        user.SessionVersion.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        private static string MapOperatorIdToProviderIdentifier(string operatorId)
     {
         // Functional boundary: dmo-app/blueprint/modules/admin/USERS.md deliberately does not
         // define the visible/provider login identifier. Alpha currently uses this implementation

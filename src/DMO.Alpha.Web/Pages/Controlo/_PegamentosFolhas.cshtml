@@ -1,0 +1,81 @@
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosModel
+@using DMO.Alpha.Core.Controlo
+@* As folhas da produção (zona; 18/10/2026): depois de trocar a CM, a
+   BQ ou o MF a meio da produção, a leitura seguinte começa uma folha com as
+   ferramentas novas. Só aparece quando há outra folha além da mostrada; com
+   uma só, a página fica como sempre. As contagens mudam com cada leitura,
+   por isso é uma zona. A página e a resposta só com as zonas de uma gravação
+   (E11, _PegamentosZonas) usam este. *@
+<div id="pegFolhas" class="dmo-zona" data-dmo-regiao>
+@if (Model.ShowSheets && Model.Sheet is { } sheet)
+{
+  var mostrada = sheet.Pegamentos;
+  var atualPorComecar = sheet.Sheets.All(f => !f.IsCurrent);
+  string Ferramenta(string? referencia, string? lote) =>
+      referencia is null ? "—" : lote is null ? referencia : $"{referencia} · Lote {lote}";
+  string Quando(DateTime? utc) =>
+      utc is { } registada ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(registada).ToString("dd/MM/yyyy HH:mm") : "—";
+  <section class="dmo-card peg-card" aria-labelledby="peg-folhas-title">
+    <div class="peg-section-head">
+      <div>
+        <h3 id="peg-folhas-title">Folhas desta produção<partial name="_DmoHelp" model="@("Cada troca da CM, da BQ ou do MF a meio da produção começa uma folha com as ferramentas novas. Voltar a uma ferramenta já usada retoma a folha dela. Só a folha das ferramentas atuais recebe leituras; nas outras, as leituras ainda se corrigem e apagam.")" /></h3>
+        <p>Cada folha tem as suas ferramentas. Um clique abre a folha.</p>
+      </div>
+    </div>
+    <div class="dmo-table-wrap" style="margin-top:12px">
+      <table class="dmo-table" data-dmo-list="Folhas desta produção">
+        <thead>
+          <tr>
+            <th>Folha</th>
+            <th>CM</th>
+            <th>BQ</th>
+            <th>MF</th>
+            <th>Registada</th>
+            <th>Leituras</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var (folha, numero) in sheet.Sheets.Select((f, i) => (f, i + 1)))
+          {
+            var href = DMO.Alpha.Web.Pages.Controlo.PegamentosModel.SheetHref(sheet, folha);
+            var fora = folha.Measurements.Count(m => m.Evaluation.HasAlert);
+            var aberta = folha.PegamentosId == mostrada?.PegamentosId;
+            <tr data-dmo-row data-id="@folha.PegamentosId" data-dmo-open="@href"
+                class="@(aberta ? "selected" : null)" aria-selected="@(aberta ? "true" : "false")"
+                aria-label="Folha @numero — um clique abre">
+              <td><a href="@href">Folha @numero</a></td>
+              <td>@Ferramenta(folha.CmToolReference, folha.CmToolLot)</td>
+              <td>@Ferramenta(folha.BqToolReference, folha.BqToolLot)</td>
+              <td>@(folha.MfToolId is null ? "não aplicável" : Ferramenta(folha.MfToolReference, folha.MfToolLot))</td>
+              <td>@Quando(folha.RegistadoEmUtc)</td>
+              <td>@folha.Measurements.Count@(fora > 0 ? $" · {fora} fora" : null)</td>
+              <td>@(folha.IsCurrent ? "Ferramentas atuais" : "Ferramentas anteriores")@(aberta ? " · aberta" : null)</td>
+            </tr>
+          }
+          @if (atualPorComecar)
+          {
+            @* A folha das ferramentas atuais ainda não existe: começa na
+               próxima leitura. *@
+            var porComecar = sheet.CurrentComponents.ToDictionary(c => c.Component);
+            string Atual(PegamentosComponent component) =>
+                porComecar.TryGetValue(component, out var ferramenta) ? Ferramenta(ferramenta.ToolReference, ferramenta.ToolLot) : "não aplicável";
+            var href = $"/Controlo/Pegamentos?controlo_id={sheet.ControloId}";
+            <tr data-dmo-row data-id="nova" data-dmo-open="@href"
+                class="@(mostrada is null ? "selected" : null)" aria-selected="@(mostrada is null ? "true" : "false")"
+                aria-label="Folha @(sheet.Sheets.Count + 1) — um clique abre">
+              <td><a href="@href">Folha @(sheet.Sheets.Count + 1)</a></td>
+              <td>@Atual(PegamentosComponent.Cm)</td>
+              <td>@Atual(PegamentosComponent.Bq)</td>
+              <td>@Atual(PegamentosComponent.Mf)</td>
+              <td>—</td>
+              <td>0</td>
+              <td>Ferramentas atuais · começa na próxima leitura@(mostrada is null ? " · aberta" : null)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+</div>

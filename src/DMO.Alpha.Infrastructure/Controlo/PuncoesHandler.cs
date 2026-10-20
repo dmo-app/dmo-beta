@@ -46,6 +46,7 @@ public sealed class PuncoesHandler
                 j.Reference,
                 j.ProductionNumber,
                 Machine = m.Code,
+                CmToolId = t != null ? t.ToolId : null,
                 CmReference = t != null ? t.Reference : null,
                 CmLot = t != null ? t.Lot : null,
                 CmTechnicalName = t != null ? t.TechnicalName : null,
@@ -75,7 +76,10 @@ public sealed class PuncoesHandler
             isNnpb,
             source,
             DefaultPunchReference(context.Reference),
-            registo is null ? null : ToReadModel(registo));
+            registo is null ? null : ToReadModel(registo))
+        {
+            CmToolId = context.CmToolId
+        };
     }
 
     /// <summary>
@@ -133,6 +137,19 @@ public sealed class PuncoesHandler
             if (result != PuncoesResult.Success || registo is null)
             {
                 return result;
+            }
+
+            // A mesma punção acabada de registar pela mesma pessoa (duplo
+            // clique, ou outro clique por achar que está lento) não fica
+            // duas vezes: repetir o número seria uma «Alteração» falsa.
+            var last = registo.Inspecoes.OrderByDescending(i => i.Position).FirstOrDefault();
+            if (last is not null
+                && last.Number == canonicalNumber
+                && last.Lot == registo.Lot
+                && last.RegisteredBy == registeredBy
+                && last.RegisteredAtUtc > DateTime.UtcNow - RepeatedSubmitWindow)
+            {
+                return PuncoesResult.Success;
             }
 
             var nextPosition = registo.Inspecoes.Count == 0 ? 1 : registo.Inspecoes.Max(i => i.Position) + 1;
@@ -225,16 +242,37 @@ public sealed class PuncoesHandler
             return (PuncoesResult.InvalidLot, null);
         }
 
-        var registo = new Puncoes
+        // Dois envios iguais esperam um pelo outro; um registo sem produção
+        // igual e ainda sem punções é aberto em vez de criar outro
+        // (varredura de 18/10/2026, B5).
+        return await DbWrite.InTransactionAsync(_db, async () =>
         {
-            Reference = canonicalReference,
-            PunchReference = canonicalPunchReference,
-            Lot = canonicalLot
-        };
-        Touch(registo, createdBy);
-        _db.Puncoes.Add(registo);
-        await _db.SaveChangesAsync(cancellationToken);
-        return (PuncoesResult.Success, registo.Id);
+            await DbWrite.LockAsync(_db, "puncoes:criar", cancellationToken);
+            var existingId = await _db.Puncoes
+                .AsNoTracking()
+                .Where(p => p.ControloId == null
+                    && p.Reference == canonicalReference
+                    && p.PunchReference == canonicalPunchReference
+                    && p.Lot == canonicalLot
+                    && !p.Inspecoes.Any())
+                .Select(p => (int?)p.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (existingId is int id)
+            {
+                return (PuncoesResult.Success, (int?)id);
+            }
+
+            var registo = new Puncoes
+            {
+                Reference = canonicalReference,
+                PunchReference = canonicalPunchReference,
+                Lot = canonicalLot
+            };
+            Touch(registo, createdBy);
+            _db.Puncoes.Add(registo);
+            await _db.SaveChangesAsync(cancellationToken);
+            return (PuncoesResult.Success, (int?)registo.Id);
+        }, cancellationToken);
     }
 
     /// <summary>Um registo pelo puncoes_id; null quando não existe.</summary>
@@ -290,8 +328,15 @@ public sealed class PuncoesHandler
         CancellationToken cancellationToken = default) =>
         // Dois registos associados ao mesmo tempo à mesma produção: o
         // segundo colide no índice único e volta a correr, recebendo
-        // ControloHasRegisto.
-        await UniqueViolationRetry.RunAsync(_db, () => AssociateOnceAsync(puncoesId, controloId, updatedBy, cancellationToken));
+        // ControloHasRegisto. O mesmo registo associado ao mesmo tempo a duas
+        // produções gravava as duas vezes e ficava a última (deep sweep,
+        // 18/10/2026, I3-M-8): o trinco do registo antes de o ler, e o
+        // segundo já o vê associado.
+        await UniqueViolationRetry.RunAsync(_db, () => DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, $"puncoes:registo:{puncoesId}", cancellationToken);
+            return await AssociateOnceAsync(puncoesId, controloId, updatedBy, cancellationToken);
+        }, cancellationToken));
 
     private async Task<PuncoesResult> AssociateOnceAsync(
         int puncoesId,
@@ -478,6 +523,9 @@ public sealed class PuncoesHandler
         return trimmed.Length > Puncoes.ReferenceMaxLength ? trimmed[..Puncoes.ReferenceMaxLength] : trimmed;
     }
 
+    /// <summary>Quanto tempo a mesma punção da mesma pessoa conta como o mesmo clique.</summary>
+    internal static readonly TimeSpan RepeatedSubmitWindow = TimeSpan.FromSeconds(10);
+
     private static void Touch(Puncoes registo, string? updatedBy)
     {
         registo.UpdatedBy = updatedBy;
@@ -512,109 +560,3 @@ public sealed class PuncoesHandler
             registo.UpdatedAtUtc);
     }
 }
-
-/// <summary>De onde vem o NNPB da produção.</summary>
-public enum PuncoesNnpbSource
-{
-    /// <summary>Sem processo na ficha da CM e sem «NN» no nome técnico.</summary>
-    Nenhuma = 0,
-
-    /// <summary>O «Processo» da ficha técnica da CM.</summary>
-    Ficha = 1,
-
-    /// <summary>O «NN» do nome técnico da CM (a ficha sem processo).</summary>
-    NomeTecnico = 2
-}
-
-public enum PuncaoSeenField
-{
-    Puncao = 1,
-
-    Arrefecedor = 2
-}
-
-public enum PuncoesResult
-{
-    Success = 0,
-    ControloNotFound,
-    NotNnpb,
-    MissingPunchReference,
-    InvalidLot,
-    MissingNumber,
-    InspecaoNotFound,
-    MissingReference,
-    RegistoNotFound,
-    AlreadyAssociated,
-    ControloHasRegisto
-}
-
-/// <summary>
-/// A folha onde se escreve: a produção (controlo_id) ou um registo pelo
-/// seu puncoes_id (o registo sem Job On).
-/// </summary>
-public readonly record struct PuncoesTarget(int? ControloId, int? PuncoesId)
-{
-    public static PuncoesTarget ForControlo(int controloId) => new(controloId, null);
-
-    public static PuncoesTarget ForRegisto(int puncoesId) => new(null, puncoesId);
-}
-
-/// <summary>Um registo aberto pelo puncoes_id; ControloId null enquanto não estiver associado.</summary>
-public sealed record PuncoesStandaloneSheet(
-    int PuncoesId,
-    string Reference,
-    int? ControloId,
-    PuncoesReadModel Registo)
-{
-    /// <summary>O modelo da referência total, a sugestão da referência da punção.</summary>
-    public string? DefaultPunchReference => PuncoesHandler.DefaultPunchReference(Reference);
-}
-
-/// <summary>Uma linha da lista dos registos sem Job On de uma referência.</summary>
-public sealed record PuncoesStandaloneSummary(
-    int PuncoesId,
-    string Reference,
-    string PunchReference,
-    string Lot,
-    int Total,
-    string? UpdatedBy,
-    DateTime UpdatedAtUtc);
-
-/// <summary>A folha das punções de um controlo: a produção, a CM e o registo quando existe.</summary>
-public sealed record PuncoesSheet(
-    int ControloId,
-    int JobOnId,
-    string Reference,
-    string ProductionNumber,
-    string Machine,
-    string? CmReference,
-    string? CmLot,
-    /// <summary>O «Processo» da ficha da CM (NNPB/PS); null quando por preencher.</summary>
-    string? CmProcess,
-    bool IsNnpb,
-    PuncoesNnpbSource NnpbSource,
-    string? DefaultPunchReference,
-    PuncoesReadModel? Registo);
-
-public sealed record PuncoesReadModel(
-    string PunchReference,
-    string Lot,
-    IReadOnlyList<PuncaoReadModel> Rows,
-    int PunchSeenCount,
-    int CoolerSeenCount,
-    string? UpdatedBy,
-    DateTime UpdatedAtUtc)
-{
-    public int Total => Rows.Count;
-}
-
-public sealed record PuncaoReadModel(
-    int Id,
-    int Position,
-    string Number,
-    string Lot,
-    bool PunchSeen,
-    bool CoolerSeen,
-    bool IsAlteracao,
-    string? RegisteredBy,
-    DateTime RegisteredAtUtc);

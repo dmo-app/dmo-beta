@@ -1,0 +1,214 @@
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosCartaoZona
+@using DMO.Alpha.Core.Controlo
+@inject DMO.Alpha.Web.Services.CurrentUserCapabilities UserCapabilities
+@* O cartão de um componente (zona). A página e a resposta só com as zonas de uma gravação
+   (E11, _PegamentosZonas) usam este. *@
+@{
+    var sheet = Model.Pagina.Sheet!;
+    var componentContext = Model.Componente;
+    // A ficha da ferramenta só abre para quem tem o módulo Ferramentas.
+    var podeAbrirFicha = (await UserCapabilities.GetAsync()).Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas, StringComparer.Ordinal);
+    var component = componentContext.Component;
+    var componentToken = PegamentosVista.Token(component);
+    var measurementsOfComponent = (sheet.Pegamentos?.Measurements ?? new List<PegamentosMeasurementReadModel>())
+        .Where(m => m.Component == component)
+        .ToList();
+    var averages = (sheet.Pegamentos?.ComponentAverages ?? new List<PegamentosComponentAveragesReadModel>())
+        .FirstOrDefault(a => a.Component == component);
+    var nominal = measurementsOfComponent.Count > 0 ? measurementsOfComponent[0].NominalGargaloMm : componentContext.DiametroGargaloMm;
+    var recordedReference = component switch
+    {
+        PegamentosComponent.Cm => sheet.Pegamentos?.CmToolReference,
+        PegamentosComponent.Bq => sheet.Pegamentos?.BqToolReference,
+        _ => sheet.Pegamentos?.MfToolReference
+    };
+    var recordedLot = component switch
+    {
+        PegamentosComponent.Cm => sheet.Pegamentos?.CmToolLot,
+        PegamentosComponent.Bq => sheet.Pegamentos?.BqToolLot,
+        _ => sheet.Pegamentos?.MfToolLot
+    };
+    var shownReference = recordedReference ?? componentContext.ToolReference;
+    var shownLot = recordedLot ?? componentContext.ToolLot;
+    // Uma folha de antes de uma troca da CM, da BQ ou do MF não recebe
+    // leituras novas; as dela ainda se corrigem e apagam (18/10/2026).
+    var podeRegistar = sheet.Pegamentos?.IsCurrent != false;
+    var toolSemNominal = podeRegistar && componentContext.DiametroGargaloMm is null;
+    var formId = $"peg-registar-{componentToken}";
+    var sheetHref = PegamentosModel.SheetHref(sheet, sheet.Pegamentos);
+    var fichaHref = $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(componentContext.ToolId)}&tecnica=1&continuar={Uri.EscapeDataString(sheetHref)}";
+}
+@* Um cartão por zona: registar, corrigir ou apagar uma leitura troca
+   só este cartão (data-dmo-parcial); abrir a correção também. *@
+<div id="pegCartao@(componentToken)" class="dmo-zona" data-dmo-regiao>
+@* Depois de gravar, o servidor desenha só este cartão, as mensagens, o
+   mapa e, antes da primeira medição, o contexto (data-dmo-zonas, E11). *@
+<section class="dmo-card peg-card@(toolSemNominal ? " peg-card-sem-nominal" : "")" aria-labelledby="peg-comp-@component-title" data-peg-component="@componentToken" data-dmo-parcial data-dmo-zonas="@PegamentosModel.ZonaAvisos @PegamentosModel.ZonaMapa@(sheet.Pegamentos is null ? " " + PegamentosModel.ZonaContexto : null)@(Model.Pagina.ShowSheets ? " " + PegamentosModel.ZonaFolhas : null)">
+  <div class="peg-section-head">
+    <div>
+      <h3 id="peg-comp-@component-title">@PegamentosVista.ComponentLabel(component)<partial name="_DmoHelp" model="@($"Cada eixo é comparado com o nominal ± {PegamentosVista.Fmt(Model.Pagina.ShownTolerance)} mm; um alerta é só um aviso. A ovalização mantém o sinal e fica vazia com um só eixo. Na linha AVG, a contra costura e a ovalização contam só as leituras que as têm.")" /></h3>
+    </div>
+    <span class="peg-step">2 · Medições</span>
+  </div>
+
+  @* O registo na própria tabela, como na folha original do Diogo
+     (17/10/2026): a última linha é a medição nova, a ovalização e a
+     média calculam-se ao escrever. O nominal e o permitido são
+     contexto da ferramenta e ficam neutros, sem verde. Sem nominal na
+     ferramenta, o card fica amarelo e o nominal escreve-se aqui. *@
+  <dl class="peg-ferramenta-linha">
+    <div><dt>Referência</dt><dd>@if (podeAbrirFicha)
+        {<a class="peg-ficha-link" href="@fichaHref" title="Abrir a ficha da ferramenta">@(shownReference ?? "—")</a>}
+        else
+        {@(shownReference ?? "—")}</dd></div>
+    <div><dt>Lote</dt><dd>@(shownLot ?? "—")</dd></div>
+    @if (!toolSemNominal && (nominal ?? componentContext.DiametroGargaloMm) is { } nominalValue)
+    {
+      <div><dt>Nominal (mm)</dt><dd>@PegamentosVista.Fmt(nominalValue)</dd></div>
+      <div><dt>Permitido (± @PegamentosVista.Fmt(Model.Pagina.ShownTolerance))</dt><dd>@PegamentosVista.Fmt(nominalValue - Model.Pagina.ShownTolerance) – @PegamentosVista.Fmt(nominalValue + Model.Pagina.ShownTolerance)</dd></div>
+    }
+    else
+    {
+      <div><dt>Nominal (mm)</dt><dd>em falta</dd></div>
+    }
+  </dl>
+  @* Sem nominal do gargalo não há Pegamentos (Diogo, 17/10/2026): o
+     nominal preenche-se na ficha da ferramenta, na informação
+     técnica, e a ficha volta a esta folha. *@
+  @if (toolSemNominal)
+  {
+    <div class="peg-aviso warn peg-aviso-nominal" role="status">A ferramenta @(shownReference ?? PegamentosVista.ComponentLabel(component)) não tem nominal do gargalo. @if (podeAbrirFicha)
+      {<a class="dmo-aviso-link" href="@fichaHref">Abrir a ficha da ferramenta</a><text> e preenchê-lo na informação técnica; depois volta-se aqui para medir.</text>}
+      else
+      {<text>Peça a quem gere as Ferramentas para o preencher na informação técnica da ficha.</text>}</div>
+  }
+
+  <h4 class="peg-readings-title">Leituras de @PegamentosVista.ComponentLabel(component)</h4>
+  <div class="dmo-table-wrap" style="margin-top:12px">
+    @* A pré-visualização da linha nova (pegamentos-registo.js) usa a
+       tolerância e o corredor exatos, calculados aqui (sweep de 19/10/2026,
+       3.12). Sem nominal não há corredor: nada se marca fora. *@
+    <table class="dmo-table peg-registo-tabela" data-peg-registo data-peg-tolerancia="@PegamentosVista.Exato(Model.Pagina.ShownTolerance)" data-peg-limite-inferior="@(nominal is { } nominalInferior ? PegamentosVista.Exato(PegamentosCalculation.CorridorLowerMm(nominalInferior, Model.Pagina.ShownTolerance)) : null)" data-peg-limite-superior="@(nominal is { } nominalSuperior ? PegamentosVista.Exato(PegamentosCalculation.CorridorUpperMm(nominalSuperior, Model.Pagina.ShownTolerance)) : null)">
+      <thead>
+        <tr>
+          <th>N.º</th>
+          <th>Costura (0°) mm</th>
+          <th>Contra costura (90°) mm</th>
+          <th>Ovalização mm</th>
+          <th>Média mm</th>
+          <th>Estado</th>
+          <th class="peg-col-x"><span class="dmo-visually-hidden">Apagar</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @* Sem botões nas linhas (Diogo, 17/10/2026): carregar num valor
+           abre a linha para o corrigir (Enter guarda, Esc cancela) e o
+           pequeno × apaga a leitura. *@
+        @foreach (var (measurement, numero) in measurementsOfComponent.Select((m, i) => (m, i + 1)))
+        {
+          if (Model.Pagina.EditarMedicaoId == measurement.MeasurementId)
+          {
+            var editFormId = $"peg-editar-{measurement.MeasurementId}";
+            <tr id="peg-linha-@measurement.MeasurementId" class="peg-linha-nova peg-linha-editar" data-peg-linha-nova data-peg-cancelar="@sheetHref">
+              <td>@numero</td>
+              <td><input id="editar-costura-@measurement.MeasurementId" name="costura" form="@editFormId" aria-label="Costura 0° (mm) da leitura @numero" type="text" inputmode="decimal" lang="en" required autofocus="@(Model.Pagina.EditarCampo != "contra" ? "autofocus" : null)" value="@PegamentosVista.Fmt(measurement.CosturaMm)" data-peg-costura /></td>
+              <td><input id="editar-contra-@measurement.MeasurementId" name="contra_costura" form="@editFormId" aria-label="Contra costura 90° (mm) da leitura @numero" type="text" inputmode="decimal" lang="en" autofocus="@(Model.Pagina.EditarCampo == "contra" ? "autofocus" : null)" value="@(measurement.ContraCosturaMm is { } contraAtual ? PegamentosVista.Fmt(contraAtual) : "")" data-peg-contra /></td>
+              <td data-peg-oval>—</td>
+              <td data-peg-media>—</td>
+              <td class="peg-dica">Enter guarda · Esc cancela</td>
+              <td></td>
+            </tr>
+            continue;
+          }
+          @* Sem âncora (#peg-linha-N): a correção abre no lugar da linha
+             carregada, que já está à vista; uma âncora levava-a para o
+             topo do ecrã, por baixo da barra fixa. *@
+          var editarHref = $"{sheetHref}&editar_medicao={measurement.MeasurementId}";
+          <tr id="peg-linha-@measurement.MeasurementId">
+            <td>@numero</td>
+            <td class="@(PegamentosVista.AxisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.Costura) ? "peg-cell-bad" : null)">@PegamentosVista.Fmt(measurement.CosturaMm)<a class="peg-valor" href="@($"{editarHref}&campo=costura")" title="Corrigir" aria-label="Corrigir a costura da leitura @numero"></a></td>
+            <td class="@(PegamentosVista.AxisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.ContraCostura) ? "peg-cell-bad" : null)">@PegamentosVista.FmtOptional(measurement.ContraCosturaMm)<a class="peg-valor" href="@($"{editarHref}&campo=contra")" title="Corrigir" aria-label="Corrigir a contra costura da leitura @numero"></a></td>
+            @* A ovalização também tem o seu corredor (± tolerância). *@
+            <td class="@(PegamentosVista.OvalAlert(measurement.Evaluation, Model.Pagina.ShownTolerance) ? "peg-cell-bad" : null)">@PegamentosVista.FmtSigned(measurement.Evaluation.OvalizacaoMm)</td>
+            <td class="@(PegamentosVista.AxisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.Media) ? "peg-cell-bad" : null)">@PegamentosVista.Fmt(measurement.Evaluation.MediaMm)</td>
+            <td>
+              @if (measurement.Evaluation.IsNotEvaluable)
+              {
+                <span class="peg-state-na">@PegamentosVista.StateLabel(measurement.Evaluation)</span>
+              }
+              else if (measurement.Evaluation.HasAlert)
+              {
+                <span class="peg-state-bad">@PegamentosVista.StateLabel(measurement.Evaluation)</span>
+              }
+              else
+              {
+                <span class="peg-state-ok">@PegamentosVista.StateLabel(measurement.Evaluation)</span>
+              }
+            </td>
+            <td class="peg-col-x"><button type="submit" form="peg-apagar-@componentToken" name="measurement_id" value="@measurement.MeasurementId" class="peg-x" aria-label="Apagar a leitura @numero" title="Apagar" data-peg-apagar>×</button></td>
+          </tr>
+        }
+        @if (!toolSemNominal && podeRegistar)
+        {
+        <tr class="peg-linha-nova" data-peg-linha-nova>
+          <td>@(measurementsOfComponent.Count + 1)</td>
+          <td><input id="costura-@component" name="costura" form="@formId" aria-label="Costura 0° (mm)" type="@Model.Pagina.DraftInputType(componentToken, Model.Pagina.DraftCostura)" lang="en" step="0.01" required placeholder="@(nominal is { } nomCostura ? PegamentosVista.Fmt(nomCostura) : null)" data-peg-costura value="@Model.Pagina.DraftValue(componentToken, Model.Pagina.DraftCostura)" /></td>
+          <td><input id="contra-@component" name="contra_costura" form="@formId" aria-label="Contra costura 90° (mm)" type="@Model.Pagina.DraftInputType(componentToken, Model.Pagina.DraftContra)" lang="en" step="0.01" placeholder="@(nominal is { } nomContra ? PegamentosVista.Fmt(nomContra) : null)" data-peg-contra value="@Model.Pagina.DraftValue(componentToken, Model.Pagina.DraftContra)" /></td>
+          <td data-peg-oval>—</td>
+          <td data-peg-media>—</td>
+          <td class="peg-dica">Enter regista</td>
+          <td></td>
+        </tr>
+        }
+      </tbody>
+      @if (averages is { } componentAverages)
+      {
+        <tfoot>
+          <tr class="peg-average-row">
+            <td><strong>AVG</strong></td>
+            <td>@PegamentosVista.FmtOptional(componentAverages.AverageCosturaMm)</td>
+            <td>@PegamentosVista.FmtOptional(componentAverages.AverageContraCosturaMm)</td>
+            <td>@PegamentosVista.FmtSigned(componentAverages.AverageOvalizacaoMm)</td>
+            <td>@PegamentosVista.FmtOptional(componentAverages.AverageMediaMm)</td>
+            <td>@componentAverages.SampleCount @(componentAverages.SampleCount == 1 ? "amostra" : "amostras")@(componentAverages.AlertCount > 0 ? $" · {componentAverages.AlertCount} fora" : "")</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      }
+    </table>
+  </div>
+  @if (!toolSemNominal && podeRegistar)
+  {
+    @* Mais linhas de medição de uma vez (Diogo, 17/10/2026): o Enter
+       grava todas as linhas preenchidas. *@
+    <button type="button" class="peg-mais-linha" data-peg-mais-linha hidden>+ Linha</button>
+  }
+  @* Os formulários da tabela: os campos ligam-se pelo atributo form.
+     O botão escondido é o envio do Enter. *@
+  <form id="@formId" method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="RegisterMeasurement" class="peg-registo-form">
+    <partial name="_PegamentosAncora" model="sheet" />
+    <input type="hidden" name="component" value="@componentToken" />
+    @if (sheet.ControloId is not null)
+    {
+      @* A folha que a página mostra: se a leitura for para outra (a CM, a BQ
+         ou o MF mudou entretanto), a página abre inteira nessa folha. *@
+      <input type="hidden" name="folha_vista" value="@sheet.Pegamentos?.PegamentosId" />
+    }
+    <button type="submit" tabindex="-1" aria-hidden="true">Registar medição</button>
+  </form>
+  @if (measurementsOfComponent.Count > 0)
+  {
+    <form id="peg-apagar-@componentToken" method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="DeleteMeasurement" class="peg-registo-form">
+      <partial name="_PegamentosAncora" model="sheet" />
+    </form>
+  }
+  @if (measurementsOfComponent.FirstOrDefault(m => m.MeasurementId == Model.Pagina.EditarMedicaoId) is { } emEdicao)
+  {
+    <form id="peg-editar-@emEdicao.MeasurementId" method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="EditMeasurement" class="peg-registo-form">
+      <partial name="_PegamentosAncora" model="sheet" />
+      <input type="hidden" name="measurement_id" value="@emEdicao.MeasurementId" />
+      <button type="submit" tabindex="-1" aria-hidden="true">Guardar</button>
+    </form>
+  }
+</section>
+</div>

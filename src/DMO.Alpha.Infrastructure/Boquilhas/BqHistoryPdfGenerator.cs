@@ -36,14 +36,16 @@ public sealed class BqHistoryPdfGenerator
     /// A GRELHA dia×máquina: as entradas do read model da A4
     /// (BqDailySummaryEntry — os agregados do query), o período e as
     /// máquinas do eixo X. Apenas os dias COM movimentos entram no eixo Y
-    /// (o mesmo uso da grelha na app).
+    /// (o mesmo uso da grelha na app). <see cref="WithoutMachineWarning"/>
+    /// diz quantos movimentos ficaram de fora por não terem máquina.
     /// </summary>
     public sealed record DailyMatrixInput(
         string Subtitle,
         IReadOnlyList<BqDailySummaryEntry> Entries,
         IReadOnlyList<string> Machines,
         string? GeneratedBy = null,
-        string? Warning = null);
+        string? Warning = null,
+        string? WithoutMachineWarning = null);
 
     /// <summary>
     /// A LISTA dos movimentos (os PDFs de uma máquina e de um mês — o
@@ -79,6 +81,7 @@ public sealed class BqHistoryPdfGenerator
                         .FontSize(15).SemiBold().FontColor(DmoPdfPalette.Ink);
                     header.Item().PaddingTop(2).Text(input.Subtitle).FontSize(10).Light();
                     ComposeWarning(header, input.Warning);
+                    ComposeWarning(header, input.WithoutMachineWarning);
                     header.Item().PaddingTop(2).LineHorizontal(0.7f).LineColor(DmoPdfPalette.Accent);
                 });
 
@@ -94,12 +97,12 @@ public sealed class BqHistoryPdfGenerator
                     });
 
                     // O EIXO X: as máquinas.
-                    t.Cell().Background(DmoPdfPalette.Ink).Border(0.5f).BorderColor("#ffffff")
-                        .Padding(4).Text("Dia").FontSize(9).SemiBold().FontColor("#ffffff");
+                    t.Cell().Background(DmoPdfPalette.Ink).Border(0.5f).BorderColor(DmoPdfPalette.White)
+                        .Padding(4).Text("Dia").FontSize(9).SemiBold().FontColor(DmoPdfPalette.White);
                     foreach (var machine in input.Machines)
                     {
-                        t.Cell().Background(DmoPdfPalette.Ink).Border(0.5f).BorderColor("#ffffff")
-                            .Padding(4).AlignCenter().Text(machine).FontSize(9).SemiBold().FontColor("#ffffff");
+                        t.Cell().Background(DmoPdfPalette.Ink).Border(0.5f).BorderColor(DmoPdfPalette.White)
+                            .Padding(4).AlignCenter().Text(machine).FontSize(9).SemiBold().FontColor(DmoPdfPalette.White);
                     }
 
                     // O EIXO Y: os dias com movimentos (o dia da semana + a
@@ -139,7 +142,7 @@ public sealed class BqHistoryPdfGenerator
                                     {
                                         column.Item().Text(
                                             $"sem reparação {entry.EntradasSemReparacaoQuantidade}")
-                                            .FontSize(8).FontColor("#a97943");
+                                            .FontSize(8).FontColor(DmoPdfPalette.Warning);
                                     }
                                 }
                             });
@@ -186,7 +189,7 @@ public sealed class BqHistoryPdfGenerator
                     });
 
                     static IContainer HeadCell(IContainer c) => c
-                        .Background(DmoPdfPalette.Ink).Border(0.5f).BorderColor("#ffffff")
+                        .Background(DmoPdfPalette.Ink).Border(0.5f).BorderColor(DmoPdfPalette.White)
                         .Padding(4);
 
                     foreach (var head in new[]
@@ -259,9 +262,9 @@ public sealed class BqHistoryPdfGenerator
             return;
         }
 
-        header.Item().PaddingTop(4).Background("#f7f0e7").BorderLeft(3).BorderColor("#a97943")
+        header.Item().PaddingTop(4).Background(DmoPdfPalette.WarningBackground).BorderLeft(3).BorderColor(DmoPdfPalette.Warning)
             .PaddingVertical(4).PaddingHorizontal(6)
-            .Text($"Aviso: {warning}").FontSize(9).FontColor("#7a5428");
+            .Text($"Aviso: {warning}").FontSize(9).FontColor(DmoPdfPalette.WarningText);
     }
 
     private static void ComposeFooter(PageDescriptor page, string? generatedBy)

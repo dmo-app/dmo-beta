@@ -19,5 +19,18 @@ public enum EditToolTechnicalValuesResult
     UnknownProcessToken,
 
     /// <summary>A supplied numeric field is malformed; an empty field remains valid.</summary>
-    InvalidNumericValue
+    InvalidNumericValue,
+
+    /// <summary>
+    /// Outra pessoa gravou a informação técnica depois de a ficha ser aberta (a versão
+    /// enviada já não é a gravada). Nada foi gravado: a ficha volta com o
+    /// que ficou gravado, para a pessoa refazer a alteração por cima.
+    /// </summary>
+    ChangedByAnotherUser,
+
+    /// <summary>
+    /// Um valor é fisicamente impossível: 0 ou menos (a calote do tampão só
+    /// abaixo de 0). Nada foi gravado (Diogo, 18/10/2026).
+    /// </summary>
+    ImpossibleValue
 }

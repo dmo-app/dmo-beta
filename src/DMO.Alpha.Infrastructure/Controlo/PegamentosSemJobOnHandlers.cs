@@ -98,10 +98,32 @@ public sealed class CreateToolScopedPegamentosHandler : ICreateToolScopedPegamen
             return new(CreateToolScopedPegamentosResult.MfToolNotFound);
         }
 
-        var registro = await PegamentosRecordFactory.AddAsync(
-            _db, _toleranceConfiguration, null, cm, bq, mf, cancellationToken);
-        await _db.SaveChangesAsync(cancellationToken);
-        return new(CreateToolScopedPegamentosResult.Success, registro.Id);
+        // Dois envios iguais esperam um pelo outro; uma folha sem produção
+        // com as mesmas ferramentas e ainda sem medições é aberta em vez de
+        // criar outra (varredura de 18/10/2026, B5).
+        return await DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, "pegamentos:criar", cancellationToken);
+            var toleranceMm = await _toleranceConfiguration.FindConfiguredAsync(cancellationToken)
+                ?? PegamentosCalculation.DefaultToleranceMm;
+            var existingId = await _db.Pegamentos
+                .AsNoTracking()
+                .Where(p => p.ControloId == null
+                    && p.CmToolId == cm && p.BqToolId == bq && p.MfToolId == mf
+                    && p.ToleranceMm == toleranceMm
+                    && !p.Measurements.Any())
+                .Select(p => (int?)p.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (existingId is int id)
+            {
+                return new CreateToolScopedPegamentosOutcome(CreateToolScopedPegamentosResult.Success, id);
+            }
+
+            var registro = await PegamentosRecordFactory.AddAsync(
+                _db, _toleranceConfiguration, null, cm, bq, mf, cancellationToken);
+            await _db.SaveChangesAsync(cancellationToken);
+            return new CreateToolScopedPegamentosOutcome(CreateToolScopedPegamentosResult.Success, registro.Id);
+        }, cancellationToken);
     }
 
     private Task<bool> ExistsAsync(string toolId, ToolType type, CancellationToken cancellationToken) =>
@@ -117,8 +139,10 @@ public sealed class CreateToolScopedPegamentosHandler : ICreateToolScopedPegamen
 /// Associa uns Pegamentos sem Job On ao controlo_id de uma produção. Cada
 /// ferramenta guardada no registo tem de ser a do Job On para o mesmo
 /// componente: medições de outra ferramenta não passam a ser da produção.
-/// Um registo de Pegamentos por produção (o caso normal que o registo de
-/// medições usa). Repetir a mesma associação é idempotente.
+/// Uma folha por combinação de ferramentas da produção (a que o registo de
+/// medições usa): a produção que já tem a folha das ferramentas atuais
+/// recusa outra; uma folha de antes de uma troca da CM, da BQ ou do MF não
+/// conta (18/10/2026). Repetir a mesma associação é idempotente.
 /// </summary>
 public sealed class AssociatePegamentosToControloHandler : IAssociatePegamentosToControloHandler
 {
@@ -129,20 +153,29 @@ public sealed class AssociatePegamentosToControloHandler : IAssociatePegamentosT
         _db = db;
     }
 
-    public async Task<AssociatePegamentosToControloOutcome> HandleAsync(
+    // ASSOCIAR AO MESMO TEMPO (deep sweep, 18/10/2026, I3-M-2): associar uma
+    // folha enquanto outra era associada à mesma produção, ou enquanto o
+    // operador gravava a 1.ª leitura, deixava duas folhas no mesmo controlo e
+    // a página mostrava só a primeira. O trinco do controlo, o mesmo da 1.ª
+    // leitura: o segundo espera e já vê a folha do primeiro. A mesma folha
+    // associada ao mesmo tempo a duas produções (I3-M-8) gravava as duas
+    // vezes: o trinco da folha a seguir (a ordem da 1.ª leitura), e o segundo
+    // já a vê associada.
+    public Task<AssociatePegamentosToControloOutcome> HandleAsync(
         AssociatePegamentosToControlo command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, $"pegamentos:controlo:{command.ControloId}", cancellationToken);
+            await RecordPegamentosMeasurementHandler.LockSheetAsync(_db, command.PegamentosId, cancellationToken);
+            return await HandleLockedAsync(command, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<AssociatePegamentosToControloOutcome> HandleLockedAsync(
+        AssociatePegamentosToControlo command,
+        CancellationToken cancellationToken)
     {
-        var production = await _db.Controlos
-            .AsNoTracking()
-            .Where(c => c.Id == command.ControloId)
-            .Select(c => new
-            {
-                CmToolId = _db.CmContexts.Where(x => x.JobOnId == c.JobOnId).Select(x => (string?)x.ToolId).FirstOrDefault(),
-                BqToolId = _db.BqContexts.Where(x => x.JobOnId == c.JobOnId).Select(x => (string?)x.ToolId).FirstOrDefault(),
-                MfToolId = _db.MfContexts.Where(x => x.JobOnId == c.JobOnId).Select(x => (string?)x.ToolId).FirstOrDefault()
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+        var production = await PegamentosSheets.CurrentCombinationAsync(_db, command.ControloId, cancellationToken);
         if (production is null)
         {
             return new(AssociatePegamentosToControloResult.ControloNotFound);
@@ -182,7 +215,7 @@ public sealed class AssociatePegamentosToControloHandler : IAssociatePegamentosT
             return new(AssociatePegamentosToControloResult.ToolMismatch, mismatched);
         }
 
-        if (await _db.Pegamentos.AnyAsync(p => p.ControloId == command.ControloId, cancellationToken))
+        if (await _db.Pegamentos.OfCombination(command.ControloId, production).AnyAsync(cancellationToken))
         {
             return new(AssociatePegamentosToControloResult.ControloAlreadyHasPegamentos);
         }

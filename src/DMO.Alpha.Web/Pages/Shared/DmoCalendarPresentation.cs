@@ -42,6 +42,14 @@ public sealed record DmoCalendarPresentation(
     public string LegendLabel { get; init; } = "Com marcações";
 
     /// <summary>
+    /// Os filtros que trocam só a lista ao lado (a Revisão): o id do formulário
+    /// e os campos que os dias e as setas do mês levam com o valor atual do
+    /// formulário, e não o da página quando abriu (teste do agente de
+    /// 19/10/2026, T04fe55b). Null sem filtros ao lado.
+    /// </summary>
+    public string? Filtros { get; init; }
+
+    /// <summary>
     /// Monta o mês completo (os dias 1..N, o hoje e o dia escolhido) para o
     /// partial _DmoCalendar. A página só diz quantos registos há em cada dia
     /// (<paramref name="countForDay"/>); o ponto acende quando há registos, ou

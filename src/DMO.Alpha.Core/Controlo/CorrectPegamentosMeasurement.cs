@@ -18,7 +18,13 @@ public enum CorrectPegamentosMeasurementResult
     Success,
 
     /// <summary>A leitura não existe nesta folha: nada foi alterado.</summary>
-    MeasurementNotFound
+    MeasurementNotFound,
+
+    /// <summary>
+    /// A costura ou a contra costura é 0 ou menos: fisicamente impossível
+    /// (Diogo, 18/10/2026). Nada foi alterado.
+    /// </summary>
+    ImpossibleValue
 }
 
 public interface ICorrectPegamentosMeasurementHandler

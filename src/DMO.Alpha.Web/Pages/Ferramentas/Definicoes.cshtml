@@ -8,7 +8,8 @@
 <style>
 .ferr-def-page{display:flex;flex-direction:column;gap:14px}
 .ferr-def-card{padding:20px 22px;width:fit-content;max-width:100%}
-.ferr-def-card h3{margin:0 0 4px;font-size:16px}
+.ferr-def-card h3{margin:0;font-size:16px}
+.ferr-def-card .dmo-card-topo{margin-bottom:4px}
 .ferr-def-falta{margin:0 0 16px;font-size:13px;color:var(--dmo-muted)}
 .ferr-totais{display:grid;grid-template-columns:auto repeat(3,112px);gap:10px 14px;align-items:center;width:max-content;max-width:100%}
 .ferr-totais-tipo{display:flex;flex-direction:column;align-items:center;line-height:1.2}
@@ -25,13 +26,15 @@
 .ferr-totais input{box-sizing:border-box;width:112px;height:40px;padding:8px 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:15px;text-align:center;font-variant-numeric:tabular-nums}
 .ferr-totais input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 .ferr-totais input::placeholder{font-size:12.5px;color:var(--dmo-muted)}
-.ferr-def-acoes{margin-top:20px}
-.ferr-def-aviso{margin:14px 0 0;padding:9px 12px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;font-size:13px}
 @@media(max-width:560px){.ferr-totais{grid-template-columns:auto repeat(3,minmax(64px,1fr));gap:8px;width:auto}.ferr-totais input{width:100%;padding:6px 4px}.ferr-totais input::placeholder{font-size:11px}}
 </style>
 }
 
-<main class="ferr-def-page dmo-workspace" aria-labelledby="ferr-def-title">
+@* Atualizar só o que muda (E10): «Guardar» troca só o quadro dos totais
+   (data-dmo-regiao); a página não recarrega e o foco fica no campo ou no
+   «Guardar» (cada campo tem id). O aviso do que ficou de fora vai para a
+   pilha do canto (data-dmo-toast), sem empurrar o quadro. *@
+<main class="ferr-def-page dmo-workspace" aria-labelledby="ferr-def-title" data-dmo-troca>
 
   <div class="page-head">
     <div>
@@ -39,8 +42,14 @@
     </div>
   </div>
 
-  <section class="dmo-card ferr-def-card" aria-labelledby="tool-quantities-title">
-    <h3 id="tool-quantities-title">Total do lote por máquina<partial name="_DmoHelp" model="@("O total habitual de cada lote de CM, MF e BQ em cada máquina (por exemplo, um lote de BQ da B1 tem 120). Ao criar uma ferramenta, a quantidade vem preenchida com este total e pode ser alterada. Se as máquinas escolhidas tiverem totais diferentes, quem cria a ferramenta escolhe. Campo vazio: sem total. Guardar não altera ferramentas já registadas.")" /></h3>
+  <section id="ferrDefTotais" class="dmo-card ferr-def-card" aria-labelledby="tool-quantities-title" data-dmo-regiao data-dmo-parcial>
+    <div class="dmo-card-topo">
+      <h3 id="tool-quantities-title">Total do lote por máquina<partial name="_DmoHelp" model="@("O total habitual de cada lote de CM, MF e BQ em cada máquina (por exemplo, um lote de BQ da B1 tem 120). Ao criar uma ferramenta, a quantidade vem preenchida com este total e pode ser alterada. Se as máquinas escolhidas tiverem totais diferentes, quem cria a ferramenta escolhe. Campo vazio: sem total. Guardar não altera ferramentas já registadas.")" /></h3>
+      @if (Model.ToolQuantities.Count > 0)
+      {
+        <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ferrDefGuardar" form="ferrDefTotaisForm">Guardar</button></div>
+      }
+    </div>
     @if (Model.ToolQuantities.Count == 0)
     {
       <p>Ainda não há máquinas registadas.</p>
@@ -52,7 +61,7 @@
       {
         <p data-dmo-toast="ok" role="status"><strong>Totais guardados.</strong></p>
       }
-      <form method="post" asp-page="/Ferramentas/Definicoes" asp-page-handler="SaveToolLotQuantities">
+      <form id="ferrDefTotaisForm" method="post" asp-page="/Ferramentas/Definicoes" asp-page-handler="SaveToolLotQuantities">
         <div class="ferr-totais" role="group" aria-label="Totais de lote por máquina">
           <span></span>
           @foreach (var (sigla, nome) in tipos)
@@ -71,15 +80,14 @@
                 continue;
               }
               var text = Model.ToolQuantityDraft is { } draft && draft.TryGetValue(item.SettingKey, out var submitted) ? submitted : item.Quantity?.ToString();
-              <input name="quantities[@item.SettingKey]" value="@text" inputmode="numeric" autocomplete="off" aria-label="Total do lote de @sigla na @item.MachineCode" placeholder="Por definir" />
+              <input id="ferr-total-@sigla-@item.MachineCode" name="quantities[@item.SettingKey]" value="@text" inputmode="numeric" autocomplete="off" aria-label="Total do lote de @sigla na @item.MachineCode" placeholder="Por definir" />
             }
           }
         </div>
         @if (Model.ToolQuantityWarning is { } warning)
         {
-          <p class="ferr-def-aviso" role="status">@warning</p>
+          <p data-dmo-toast="@(Model.ToolQuantityDraft is null ? "aviso" : "erro")" role="status">@warning</p>
         }
-        <div class="ferr-def-acoes"><button type="submit" class="dmo-button">Guardar</button></div>
       </form>
     }
   </section>

@@ -26,10 +26,26 @@
 .dfu-select{min-width:220px}
 .dfu-danger{background:var(--dmo-danger,#9a625d)}
 .dfu-danger:hover{background:#7d4f4a}
+/* O PIN temporário de um repor, na pilha do canto (o mesmo da lista). */
+.dmu-entrega{display:grid;gap:8px}
+.dmu-entrega h3{margin:0;font-size:15px}
+.dmu-entrega .dmu-token{display:grid;gap:2px;padding:10px 12px;background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
+.dmu-entrega .dmu-token span{color:var(--dmo-muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.dmu-entrega .dmu-token strong{font-size:15px;letter-spacing:.4px;word-break:break-all}
+.dmu-entrega .dmu-nota{color:var(--dmo-muted);font-size:11.5px;margin:0}
 </style>
 }
 
-<main class="dfu-page" aria-labelledby="dfu-title">
+@* Atualizar só o que muda (deep sweep, 18/10/2026): escolher a template,
+   «Arquivar»/«Ativar», «Repor palavra-passe» e o primeiro passo de
+   «Eliminar» gravam sem recarregar e ficam na ficha. Trocam só as mensagens
+   (#dfuAvisos, na pilha do canto), os factos (#dfuFactos) e, nas ações, o
+   que muda (a template, o arquivar, a confirmação de eliminar); as ações
+   ficam como o ADMIN as deixou (data-dmo-fica: as «Opções» abertas ficam
+   abertas) e o foco no campo ou no botão usado. «Eliminar mesmo» apaga e
+   volta à lista (a resposta é outra página, que abre inteira): o utilizador
+   deixa de existir. *@
+<main class="dfu-page" aria-labelledby="dfu-title" data-dmo-troca>
 
   <div class="page-head">
     <div>
@@ -55,11 +71,34 @@
     </section>
   }
 
+  @* As recusas e o PIN temporário de um repor (mostrado uma vez). *@
+  <div id="dfuAvisos" class="dmo-zona" data-dmo-regiao>
+  @if (Model.ResetTemporaryPassword is not null)
+  {
+    <section class="dmu-entrega" data-dmo-toast="aviso" data-dmo-toast-fica role="status" aria-label="Acesso reposto">
+      <h3>Acesso reposto — nº @Model.ResetOperatorId</h3>
+      <div class="dmu-token">
+        <span>Novo PIN temporário (mostrado uma vez)</span>
+        <strong>@Model.ResetTemporaryPassword</strong>
+      </div>
+      <p class="dmu-nota">Entregue o novo PIN temporário ao utilizador; a palavra-passe anterior deixa de valer e no login seguinte terá de escolher a definitiva.</p>
+    </section>
+  }
+  @foreach (var recusa in new[] { Model.TemplateRefusalMessage, Model.StandByRefusalMessage, Model.ResetRefusalMessage })
+  {
+    if (recusa is not null)
+    {
+      <div data-dmo-toast="erro" class="dfu-aviso" role="alert">@recusa</div>
+    }
+  }
+  </div>
+
   @if (Model.SelectedUser is { } user)
   {
     @* ------------------------------------------------------------------ *@
     @* 1. OS FACTOS HUMANOS — o que o chão da fábrica reconhece.           *@
     @* ------------------------------------------------------------------ *@
+    <div id="dfuFactos" class="dmo-zona" data-dmo-regiao>
     <section class="dmo-card dfu-card" aria-labelledby="dfu-facts-title">
       <h3 id="dfu-facts-title">@user.Name — nº @user.OperatorId</h3>
       <div class="dmo-facts">
@@ -89,16 +128,18 @@
         </div>
       </div>
     </section>
+    </div>
 
     @* ------------------------------------------------------------------ *@
     @* 2. AS AÇÕES — os forms que viviam na tabela, o trabalho da folha.   *@
     @*    A GRAMÁTICA GLOBAL: nas tabelas não existem botões — os botões  *@
     @*    vivem FORA (aqui); os MESMOS handlers do Index, o PRG e as      *@
-    @*    recusas tipadas preservados (a recusa renderiza na lista, o     *@
-    @*    destino do redirect).                                           *@
+    @*    recusas tipadas preservados (origem=ficha: o redirect volta à   *@
+    @*    ficha, a recusa vai para a pilha do canto).                     *@
     @* ------------------------------------------------------------------ *@
+    <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
     <section class="dmo-card dfu-card" aria-labelledby="dfu-actions-title">
-      <h3 id="dfu-actions-title">Ações de acesso<partial name="_DmoHelp" model="@("A template aplica-se ao escolhê-la. Em «Opções», repor a palavra-passe gera um PIN temporário novo, mostrado uma vez na lista.")" /></h3>
+      <h3 id="dfu-actions-title">Ações de acesso<partial name="_DmoHelp" model="@("A template aplica-se ao escolhê-la. Em «Opções», repor a palavra-passe gera um PIN temporário novo, mostrado uma vez no canto.")" /></h3>
 
       @if (user.IsAdmin)
       {
@@ -109,8 +150,10 @@
       else
       {
         <div class="dfu-actions">
+          <div id="dfuTemplate" class="dmo-zona" data-dmo-regiao>
           <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Template">
             <input type="hidden" name="operator_id" value="@user.OperatorId" />
+            <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
             <div class="dmo-field">
               <label for="dfu-template">Template de acesso</label>
               <select id="dfu-template" class="dfu-select" name="template_key" data-dmo-autosubmit aria-label="Template de acesso de @user.Name">
@@ -122,48 +165,56 @@
               </select>
             </div>
           </form>
+          </div>
           @* MENOS CLUTTER (Diogo, 17/10/2026): as ações raras ficam num só
              botão «Opções» com dropdown. A template aplica-se ao escolhê-la no
              dropdown, sem botão (Diogo, 17/10/2026). *@
           <details class="dmo-options" data-dmo-tab-menu>
             <summary class="dmo-button" aria-label="Opções do utilizador @user.Name">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
             <div class="dmo-options-list">
+              <div id="dfuArquivar" class="dmo-zona" data-dmo-regiao>
               <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="StandBy">
                 <input type="hidden" name="operator_id" value="@user.OperatorId" />
                 <input type="hidden" name="stand_by" value="@(user.IsStandBy ? "0" : "1")" />
-                <button type="submit" class="dmo-options-item">@(user.IsStandBy ? "Ativar" : "Arquivar")</button>
+                <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
+                <button type="submit" class="dmo-options-item" id="dfu-arquivar">@(user.IsStandBy ? "Ativar" : "Arquivar")</button>
               </form>
+              </div>
               <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Reset">
                 <input type="hidden" name="operator_id" value="@user.OperatorId" />
-                <button type="submit" class="dmo-options-item">Repor palavra-passe</button>
+                <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
+                <button type="submit" class="dmo-options-item" id="dfu-repor">Repor palavra-passe</button>
               </form>
-              @* O DELETE REAL (o Owner 2026-10-13): o primeiro clique só pede
-                 a confirmação (?confirm_delete=1); o segundo, à vista, apaga. *@
-              <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Delete">
-                <input type="hidden" name="operator_id" value="@user.OperatorId" />
-                <button type="submit" class="dmo-options-item">Eliminar utilizador</button>
-              </form>
+              @* O DELETE REAL (o Owner 2026-10-13), em dois passos: o primeiro
+                 clique só abre a janela da casa a perguntar; o segundo, nela,
+                 apaga. Antes, o primeiro clique recarregava a página com
+                 ?confirm_delete=1 (deep sweep de 18/10/2026, regra 118: as
+                 Templates já confirmam numa janela). *@
+              <button type="button" class="dmo-options-item" id="dfu-eliminar" data-dmo-dialog="dfu-delete-dialog">Eliminar utilizador</button>
             </div>
           </details>
-          @if (Model.ConfirmDelete)
-          {
+          @* Apagar sai da ficha (o utilizador deixa de existir) e volta à
+             lista, que abre inteira. Vai pela fila da página: cliques
+             repetidos fazem um só pedido e a lista diz «Utilizador
+             eliminado», não «já não existe» (deep sweep, 18/10/2026,
+             B-admin-3). Quem chega com ?confirm_delete=1 no endereço vê a
+             janela já aberta. *@
+          <dialog id="dfu-delete-dialog" class="dmo-dialog" aria-labelledby="dfu-delete-title" data-dmo-dialog-aberta="@(Model.ConfirmDelete ? "1" : null)">
+            <h3 id="dfu-delete-title">Eliminar o utilizador @user.Name (nº @user.OperatorId)?</h3>
+            <p class="dmo-aviso-discreto">O acesso dele acaba e esta ação não tem volta. Os registos passados mantêm o nº como texto.</p>
             <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Delete">
               <input type="hidden" name="operator_id" value="@user.OperatorId" />
               <input type="hidden" name="confirm_delete" value="1" />
-              <button type="submit" class="dmo-button dfu-danger">Eliminar mesmo (nº @user.OperatorId)</button>
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                <button type="submit" class="dmo-button dfu-danger" id="dfu-eliminar-mesmo">Eliminar mesmo</button>
+              </div>
             </form>
-          }
+          </dialog>
         </div>
-        @if (Model.ConfirmDelete)
-        {
-          <div class="dfu-aviso" role="alert">
-            <strong>Eliminar o utilizador @user.Name (nº @user.OperatorId)?</strong>
-            A linha sai da lista e o acesso dele morre com ela. Os registos passados que citam o
-            nº mantêm-no como texto congelado — o histórico não se reescreve. Esta ação não tem volta.
-          </div>
-        }
       }
     </section>
+    </div>
   }
 
 </main>

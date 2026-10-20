@@ -1,0 +1,10 @@
+@model DMO.Alpha.Web.Pages.Shared.DmoAvisoLink
+@inject DMO.Alpha.Web.Services.CurrentUserCapabilities UserCapabilities
+@{
+    // O link de um aviso para a página onde se resolve (Diogo, 19/10/2026),
+    // no fim do texto do aviso; quem não tem o módulo da página de destino
+    // vê o aviso sem link. Nada fora do link (nem espaços nem linhas): o
+    // aviso continua igual à volta dele.
+    var pode = Model.PodeAbrir(await UserCapabilities.GetAsync());
+}
+@if (pode) {<text> </text><a class="dmo-aviso-link" href="@Model.Href" target="@(Model.NovoSeparador ? "_blank" : null)" rel="@(Model.NovoSeparador ? "noopener" : null)">@Model.Texto</a>}

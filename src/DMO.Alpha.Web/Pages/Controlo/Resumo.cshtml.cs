@@ -3,14 +3,12 @@ using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Controlo;
-using DMO.Alpha.Infrastructure.Data;
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Web.Presentation;
 using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DMO.Alpha.Web.Pages.Controlo;
 
@@ -40,20 +38,17 @@ namespace DMO.Alpha.Web.Pages.Controlo;
 [ModuleEntry(DmoCapabilities.ControloCreate)]
 public sealed class ResumoModel : PageModel
 {
-    private readonly IPesoComparisonQuery _pesoComparison;
     private readonly IResumoProductionQuery _resumoProductions;
     private readonly IProductionContextQuery _productionContext;
     private readonly IEnsureControloForJobOnHandler _ensureControlo;
     private readonly ShellStateFactory _shellState;
     private readonly ControloViewingHandler _viewingHandler;
     private readonly IToolLookupQuery _toolLookup;
-    private readonly DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator _pdfGenerator;
-    private readonly DMO.Alpha.Core.Controlo.IModuleSettingsQuery _moduleSettings;
+    private readonly ResumoPdfDocumentBuilder _pdfDocument;
     private readonly DMO.Alpha.Core.Controlo.IPegamentosQuery _pegamentosQuery;
     private readonly DMO.Alpha.Core.Controlo.IPesoQuery _pesoQuery;
     private readonly DMO.Alpha.Infrastructure.Controlo.ControloApprovalHandler _approvalHandler;
     private readonly DMO.Alpha.Infrastructure.Controlo.ControloAreaStateHandler _areaStateHandler;
-    private readonly IPesoCapSupportQuery _capSupport;
     private readonly IPesoAssociationQuery _pesoAssociation;
     private readonly DMO.Alpha.Infrastructure.Controlo.PuncoesHandler _puncoesHandler;
     private readonly DMO.Alpha.Infrastructure.Production.JobOnChangeQuery _changes;
@@ -67,14 +62,11 @@ public sealed class ResumoModel : PageModel
         ShellStateFactory shellState,
         ControloViewingHandler viewingHandler,
         IToolLookupQuery toolLookup,
-        DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator pdfGenerator,
-        DMO.Alpha.Core.Controlo.IModuleSettingsQuery moduleSettings,
+        ResumoPdfDocumentBuilder pdfDocument,
         DMO.Alpha.Core.Controlo.IPegamentosQuery pegamentosQuery,
         DMO.Alpha.Core.Controlo.IPesoQuery pesoQuery,
         DMO.Alpha.Infrastructure.Controlo.ControloApprovalHandler approvalHandler,
-        IPesoComparisonQuery pesoComparison,
         DMO.Alpha.Infrastructure.Controlo.ControloAreaStateHandler areaStateHandler,
-        IPesoCapSupportQuery capSupport,
         IPesoAssociationQuery pesoAssociation,
         DMO.Alpha.Infrastructure.Controlo.PuncoesHandler puncoesHandler,
         DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
@@ -85,19 +77,16 @@ public sealed class ResumoModel : PageModel
         _capabilities = capabilities;
         _puncoesHandler = puncoesHandler;
         _changes = changes;
-        _capSupport = capSupport;
         _pesoAssociation = pesoAssociation;
         _approvalHandler = approvalHandler;
         _areaStateHandler = areaStateHandler;
-        _pesoComparison = pesoComparison;
         _resumoProductions = resumoProductions;
         _productionContext = productionContext;
         _ensureControlo = ensureControlo;
         _shellState = shellState;
         _viewingHandler = viewingHandler;
         _toolLookup = toolLookup;
-        _pdfGenerator = pdfGenerator;
-        _moduleSettings = moduleSettings;
+        _pdfDocument = pdfDocument;
         _pegamentosQuery = pegamentosQuery;
         _pesoQuery = pesoQuery;
     }
@@ -146,10 +135,34 @@ public sealed class ResumoModel : PageModel
     public ToolLookupResult? MfTool { get; private set; }
     public ToolLookupResult? BqTool { get; private set; }
 
-    /// <summary>O Peso da produção; null quando ainda não existe.</summary>
+    /// <summary>
+    /// O Peso da produção para os valores do cartão: o das ferramentas que a
+    /// produção tem agora, senão (depois de uma troca da CM ou da BQ, sem o
+    /// Peso novo ainda) o mais recente; null quando ainda não existe.
+    /// </summary>
     public PesoReadModel? LinkedPeso { get; private set; }
 
-    /// <summary>Pesos sem produção da mesma CM (só quando a produção ainda não tem Peso).</summary>
+    /// <summary>
+    /// Todos os Pesos da produção, pela ordem de gravação: um por CM+BQ
+    /// (18/10/2026). Com mais do que um, o cartão lista-os todos.
+    /// </summary>
+    public IReadOnlyList<PesoReadModel> Pesos { get; private set; } = Array.Empty<PesoReadModel>();
+
+    /// <summary>True quando a produção já tem o Peso da CM e da BQ que tem agora.</summary>
+    public bool HasCurrentPeso => Pesos.Any(p => p.IsCurrent);
+
+    /// <summary>
+    /// O endereço de um Peso da produção: o atual pelo controlo_id, como
+    /// sempre; um de antes de uma troca, também pelo peso_id dele.
+    /// </summary>
+    public string PesoHref(PesoReadModel peso) => peso.IsCurrent
+        ? $"/Controlo/Peso?controlo_id={ControloId}"
+        : $"/Controlo/Peso?controlo_id={ControloId}&peso_id={peso.PesoId}";
+
+    /// <summary>
+    /// Pesos sem produção que se podem associar (só quando a produção ainda
+    /// não tem o Peso das ferramentas atuais).
+    /// </summary>
     public IReadOnlyList<UnassociatedPesoCandidate> PesoCandidates { get; private set; } = Array.Empty<UnassociatedPesoCandidate>();
 
     /// <summary>
@@ -174,13 +187,17 @@ public sealed class ResumoModel : PageModel
     /// Quem fez um registo, como no «Visto por»: «Operador 4302» para um
     /// número de operador; o email ou o nome tal como foram guardados.
     /// </summary>
-    public string PersonLabel(string? who) =>
-        string.IsNullOrWhiteSpace(who) ? "—"
-        : who.All(char.IsDigit) ? $"Operador {who}"
-        : who;
+    public string PersonLabel(string? who) => ResumoPdfDocumentBuilder.PersonLabel(who);
 
-    /// <summary>O registo de Pegamentos da produção; null quando ainda não existe.</summary>
-    public PegamentosReadModel? PegamentosRecord { get; private set; }
+    /// <summary>
+    /// As folhas de Pegamentos da produção, pela ordem de gravação (mais do
+    /// que uma quando a CM, a BQ ou o MF mudou a meio; 18/10/2026);
+    /// vazia antes da primeira medição.
+    /// </summary>
+    public IReadOnlyList<PegamentosReadModel> PegamentosSheets { get; private set; } = Array.Empty<PegamentosReadModel>();
+
+    /// <summary>A primeira folha de Pegamentos da produção; null quando ainda não existe.</summary>
+    public PegamentosReadModel? PegamentosRecord => PegamentosSheets.FirstOrDefault();
 
     /// <summary>A folha PU NNPB da produção (o NNPB da CM e o registo, quando existe).</summary>
     public DMO.Alpha.Infrastructure.Controlo.PuncoesSheet? Puncoes { get; private set; }
@@ -192,6 +209,30 @@ public sealed class ResumoModel : PageModel
     public bool ShowPuncoes => Puncoes is { IsNnpb: true } || Puncoes?.Registo is not null;
 
 
+    /// <summary>A zona da mensagem de uma recusa do estado do documento.</summary>
+    public const string ZonaAvisos = "resumoEstadoAvisos";
+
+    /// <summary>A zona do «Visto por».</summary>
+    public const string ZonaVistoPor = "resumoVistoPor";
+
+    /// <summary>A zona do cartão de uma área do estado do documento.</summary>
+    public static string ZonaArea(string area) => $"resumo-area-{area}";
+
+    private static bool ZonaConhecida(string zona) =>
+        zona is ZonaAvisos or ZonaVistoPor
+        || DMO.Alpha.Core.Controlo.ControloAreaState.Areas.Any(area => ZonaArea(area) == zona);
+
+    /// <summary>As zonas pedidas pelo GET que segue uma gravação (E11); vazio na página inteira.</summary>
+    public IReadOnlyList<string> ZonasPedidas { get; private set; } = Array.Empty<string>();
+
+    /// <summary>As áreas do estado do documento: as registadas, ou as cinco por registar.</summary>
+    public IReadOnlyList<DMO.Alpha.Infrastructure.Controlo.ControloAreaStateReadModel> AreasMostradas =>
+        AreaStates.Count > 0
+            ? AreaStates
+            : DMO.Alpha.Core.Controlo.ControloAreaState.Areas
+                .Select(a => new DMO.Alpha.Infrastructure.Controlo.ControloAreaStateReadModel(a, null, null, null, null))
+                .ToList();
+
     public async Task<IActionResult> OnGetAsync(
         [FromQuery(Name = "jobon_id")] int? jobOnId,
         [FromQuery(Name = "reference")] string? reference,
@@ -200,6 +241,15 @@ public sealed class ResumoModel : PageModel
     {
         ViewData["Title"] = "Resumo do Controlo";
         McaliperRefused = mcaliper == "invalido";
+
+        // Depois de gravar uma área (E11, beta.189): só as zonas pedidas, sem
+        // a procura, a combinação, os controlos associados nem a aprovação.
+        if (jobOnId is int zonasJobOnId
+            && DmoZonasPedidas.Ler(Request, ZonaConhecida) is { } zonas
+            && await ZonasAsync(zonasJobOnId, zonas) is { } parcial)
+        {
+            return parcial;
+        }
 
         // O CORTE H: a barra do módulo é SEMPRE completa (o
         // ShellStateFactory — o mapeamento num só sítio; nada de
@@ -226,6 +276,7 @@ public sealed class ResumoModel : PageModel
                 RequestedReference, PageNumber, HttpContext.RequestAborted);
             Productions = pageResult.Items;
             TotalProductions = pageResult.TotalCount;
+            PageNumber = Math.Min(PageNumber, Math.Max(1, (int)Math.Ceiling(TotalProductions / 5.0)));
         }
 
         // A folha só existe sobre uma produção EXPLICITAMENTE selecionada
@@ -245,12 +296,7 @@ public sealed class ResumoModel : PageModel
                 var tools = await _toolLookup.FindByToolIdsAsync(
                     new[] { toolsProduction.CmToolId, toolsProduction.MfToolId, toolsProduction.BqToolId },
                     HttpContext.RequestAborted);
-                var links = await _mcaliper.GetAsync(
-                    new[] { toolsProduction.CmToolId, toolsProduction.MfToolId, toolsProduction.BqToolId },
-                    HttpContext.RequestAborted);
-                McaliperLinks = new[] { ("CM", toolsProduction.CmToolId), ("MF", toolsProduction.MfToolId), ("BQ", toolsProduction.BqToolId) }
-                    .Where(slot => slot.Item2 is { } id && links.ContainsKey(id))
-                    .ToDictionary(slot => slot.Item1, slot => links[slot.Item2!]);
+                await LoadMcaliperLinksAsync(toolsProduction);
                 CmTool = toolsProduction.CmToolId is { } cmId ? tools.GetValueOrDefault(cmId) : null;
                 MfTool = toolsProduction.MfToolId is { } mfId ? tools.GetValueOrDefault(mfId) : null;
                 BqTool = toolsProduction.BqToolId is { } bqId ? tools.GetValueOrDefault(bqId) : null;
@@ -336,14 +382,64 @@ public sealed class ResumoModel : PageModel
     }
 
     /// <summary>
-    /// POST nativo: grava o ESTADO DO DOCUMENTO de uma área (OK/NOK e o
+    /// O link do mcaliper por área (CM, MF, BQ), lido da ficha técnica das
+    /// ferramentas da produção.
+    /// </summary>
+    private async Task LoadMcaliperLinksAsync(ProductionContextReadModel production)
+    {
+        var links = await _mcaliper.GetAsync(
+            new[] { production.CmToolId, production.MfToolId, production.BqToolId },
+            HttpContext.RequestAborted);
+        McaliperLinks = new[] { ("CM", production.CmToolId), ("MF", production.MfToolId), ("BQ", production.BqToolId) }
+            .Where(slot => slot.Item2 is { } id && links.ContainsKey(id))
+            .ToDictionary(slot => slot.Item1, slot => links[slot.Item2!]);
+    }
+
+    /// <summary>
+    /// Só as zonas pedidas pelo GET que segue uma gravação (E11, beta.189):
+    /// os cartões das áreas (o contexto da produção para o jobon_id e os
+    /// links do mcaliper, e os estados), a mensagem da recusa e o «Visto
+    /// por». A visita fica registada como na página inteira (abrir é ver).
+    /// Não lê as ferramentas, a aprovação, as alterações do Job On nem os
+    /// controlos associados, que não estão nessas zonas. Sem produção ou sem
+    /// controlo (o ensure da página inteira), null: a página inteira.
+    /// </summary>
+    private async Task<IActionResult?> ZonasAsync(int jobOnId, IReadOnlyList<string> zonas)
+    {
+        var ct = HttpContext.RequestAborted;
+        SelectedProduction = await _productionContext.GetAsync(jobOnId, ct);
+        if (SelectedProduction is null
+            || await _approvalHandler.FindByJobOnAsync(jobOnId, ct) is not { } existing)
+        {
+            SelectedProduction = null;
+            return null;
+        }
+
+        ControloId = existing.ControloId;
+        Viewings = await _viewingHandler.MarkAndGetViewingsOfExistingAsync(
+            existing.ControloId, User.FindFirst(DmoClaimTypes.OperatorId)?.Value, ct);
+        if (zonas.Any(zona => zona is not ZonaAvisos and not ZonaVistoPor))
+        {
+            await LoadMcaliperLinksAsync(SelectedProduction);
+            AreaStates = await _areaStateHandler.GetAsync(existing.ControloId, ct);
+        }
+
+        ZonasPedidas = zonas;
+        DmoZonasPedidas.Marcar(Response, zonas);
+        return Partial("_ResumoZonas", this);
+    }
+
+    /// <summary>
+    /// POST nativo: grava o ESTADO DO DOCUMENTO de uma área (OK/NOK ou o
     /// comentário). Nunca é gate de nada.
     /// </summary>
     public async Task<IActionResult> OnPostAreaStateAsync(
         [FromForm(Name = "jobon_id")] int? jobOnId,
         [FromForm(Name = "area")] string? area,
         [FromForm(Name = "estado")] string? status,
-        [FromForm(Name = "comentario")] string? comment)
+        [FromForm(Name = "comentario")] string? comment,
+        [FromForm(Name = "voltar")] string? voltar = null,
+        [FromForm(Name = "identificacao")] string? identificacao = null)
     {
         if (jobOnId is not int canonicalJobOnId)
         {
@@ -357,11 +453,32 @@ public sealed class ResumoModel : PageModel
             var updatedBy = User.FindFirst(DmoClaimTypes.OperatorId)?.Value
                 ?? User.FindFirst(DmoClaimTypes.Email)?.Value
                 ?? User.FindFirst(DmoClaimTypes.DisplayName)?.Value;
-            await _areaStateHandler.SetAsync(controloId, area, status, comment, updatedBy, HttpContext.RequestAborted);
+            // Cada formulário só envia o seu campo (o OK/NOK, o comentário ou,
+            // no PU e no CS, a referência escrita); o que não vem fica como
+            // está na base.
+            await _areaStateHandler.SetAsync(
+                controloId, area, status, comment, updatedBy,
+                setStatus: Request.Form.ContainsKey("estado"),
+                setComment: Request.Form.ContainsKey("comentario"),
+                cancellationToken: HttpContext.RequestAborted,
+                identificacao: identificacao,
+                setIdentificacao: Request.Form.ContainsKey("identificacao"));
         }
 
-        return RedirectToPage("/Controlo/Resumo", null, new { jobon_id = canonicalJobOnId }, "estado-documento");
+        return voltar == ResumoDoControlo
+            ? Redirect(ResumoDoControloUrl(canonicalJobOnId))
+            : RedirectToPage("/Controlo/Resumo", null, new { jobon_id = canonicalJobOnId }, "estado-documento");
     }
+
+    /// <summary>
+    /// O OK/NOK, o comentário e o link do mcaliper também se gravam nos
+    /// cartões das áreas do Resumo do controlo (Diogo, 20/10/2026); com
+    /// voltar=resumo-controlo, a gravação volta lá, às áreas.
+    /// </summary>
+    public const string ResumoDoControlo = "resumo-controlo";
+
+    private static string ResumoDoControloUrl(int jobOnId, bool mcaliperRecusado = false) =>
+        $"/Controlo/Approve/Detalhe?tipo=controlo&jobon_id={jobOnId}{(mcaliperRecusado ? "&mcaliper=invalido" : null)}#resumoControloAreas";
 
     /// <summary>
     /// Os controlos associados que a folha mostra: o Peso (com as opções de
@@ -371,17 +488,21 @@ public sealed class ResumoModel : PageModel
     private async Task LoadLinkedControlsAsync(int controloId, ProductionContextReadModel production)
     {
         var ct = HttpContext.RequestAborted;
-        LinkedPeso = await _pesoQuery.FindByControloAsync(controloId, ct);
-        if (LinkedPeso is null)
+        // Os Pesos do controlo, um por CM+BQ (18/10/2026): o cartão mostra o
+        // das ferramentas atuais, senão o mais recente.
+        Pesos = await _pesoQuery.ListByControloAsync(controloId, ct);
+        LinkedPeso = Pesos.FirstOrDefault(p => p.IsCurrent) ?? Pesos.LastOrDefault();
+        if (!HasCurrentPeso && production.CmToolId is not null)
         {
-            // Sem Peso no controlo: os Pesos sem produção da CM do Job On.
-            if (production.CmToolId is { } cmToolId)
-            {
-                PesoCandidates = await _pesoAssociation.FindUnassociatedByCmToolAsync(cmToolId, ct);
-            }
+            // Sem o Peso das ferramentas atuais (ainda sem Peso, ou depois de
+            // uma troca da CM ou da BQ): os Pesos sem produção que a
+            // associação aceita — a CM e a BQ deste Job On, agora ou antes
+            // da troca (resposta R16-6 do especialista), os mesmos da folha
+            // de Peso.
+            PesoCandidates = await _pesoAssociation.FindCandidatesForControloAsync(controloId, ct);
         }
 
-        PegamentosRecord = await _pegamentosQuery.FindRecordByControloAsync(controloId, ct);
+        PegamentosSheets = await _pegamentosQuery.ListSheetsByControloAsync(controloId, ct);
         Puncoes = await _puncoesHandler.GetSheetAsync(controloId, ct);
     }
 
@@ -393,7 +514,8 @@ public sealed class ResumoModel : PageModel
     public async Task<IActionResult> OnPostMcaliperAsync(
         [FromForm(Name = "jobon_id")] int? jobOnId,
         [FromForm(Name = "area")] string? area,
-        [FromForm(Name = "url")] string? url)
+        [FromForm(Name = "url")] string? url,
+        [FromForm(Name = "voltar")] string? voltar = null)
     {
         if (jobOnId is not int canonicalJobOnId)
         {
@@ -410,6 +532,8 @@ public sealed class ResumoModel : PageModel
         };
         var saved = toolId is not null
             && await _mcaliper.SetAsync(toolId, url, HttpContext.RequestAborted);
+        if (voltar == ResumoDoControlo)
+            return Redirect(ResumoDoControloUrl(canonicalJobOnId, mcaliperRecusado: !saved));
         return RedirectToPage("/Controlo/Resumo", null,
             saved ? new { jobon_id = canonicalJobOnId } : new { jobon_id = canonicalJobOnId, mcaliper = "invalido" },
             "estado-documento");
@@ -420,7 +544,7 @@ public sealed class ResumoModel : PageModel
     /// últimas 5 produções do texto escrito, que a página mostra por baixo do
     /// campo. Um clique numa linha abre a produção.
     /// </summary>
-    public async Task<IActionResult> OnGetProcurarAsync(string? q)
+    public async Task<IActionResult> OnGetProcurarAsync(string? q, int? pagina)
     {
         if (User?.Identity?.IsAuthenticated != true)
         {
@@ -433,8 +557,10 @@ public sealed class ResumoModel : PageModel
             return Content(string.Empty, "text/html");
         }
 
-        var result = await _resumoProductions.ListAsync(term, 1, HttpContext.RequestAborted);
-        return Partial("_ResumoProcura", new ResumoProcuraView(term, result.Items, result.TotalCount, 1));
+        var page = pagina is int requested && requested >= 1 ? requested : 1;
+        var result = await _resumoProductions.ListAsync(term, page, HttpContext.RequestAborted);
+        page = Math.Min(page, Math.Max(1, (int)Math.Ceiling(result.TotalCount / 5.0)));
+        return Partial("_ResumoProcura", new ResumoProcuraView(term, result.Items, result.TotalCount, page));
     }
 
     private static string? Sanitize(string? value)
@@ -458,125 +584,25 @@ public sealed class ResumoModel : PageModel
             return RedirectToPage("/Controlo/Resumo", new { pdf_refusal = "sem-producao" });
         }
 
-        var context = await _productionContext.GetAsync(canonicalJobOnId, HttpContext.RequestAborted);
-        if (context is null)
+        var documento = await _pdfDocument.BuildAsync(
+            canonicalJobOnId, previousControlPesoId, previousPesoId, summaryOnly,
+            GeradoPor(User), HttpContext.RequestAborted);
+        if (documento is null)
         {
             return RedirectToPage("/Controlo/Resumo", new { jobon_id = canonicalJobOnId, pdf_refusal = "sem-producao" });
         }
 
-
-        // AS FERRAMENTAS da combinação (os fatos humanos).
-        var tools = new List<ResumoPdfGenerator.ToolCard>();
-        if (context.CmToolId is { } cmId)
-        {
-            var cm = await _toolLookup.FindByToolIdAsync(cmId, HttpContext.RequestAborted);
-            if (cm is not null) { tools.Add(new ResumoPdfGenerator.ToolCard("CM", cm.Reference, cm.Lot)); }
-        }
-        if (context.BqToolId is { } bqId)
-        {
-            var bq = await _toolLookup.FindByToolIdAsync(bqId, HttpContext.RequestAborted);
-            if (bq is not null) { tools.Add(new ResumoPdfGenerator.ToolCard("BQ", bq.Reference, bq.Lot)); }
-        }
-        if (context.MfToolId is { } mfId)
-        {
-            var mf = await _toolLookup.FindByToolIdAsync(mfId, HttpContext.RequestAborted);
-            if (mf is not null) { tools.Add(new ResumoPdfGenerator.ToolCard("MF", mf.Reference, mf.Lot)); }
-        }
-
-        // O ESTADO DOS MÓDULOS: o peso e os pegamentos desta produção (o
-        // controlo_id da âncora; o peso pela leitura dele).
-        ResumoPdfGenerator.PesoSummary? pesoSummary = null;
-        ResumoPdfGenerator.PegamentosSummary? pegamentosSummary = null;
-        PesoReadModel? pesoDetalhe = null;
-        PegamentosSheetReadModel? pegamentosDetalhe = null;
-        DMO.Alpha.Infrastructure.Controlo.PuncoesSheet? puncoesSheet = null;
-        var existingControloId = await _ensureControlo.FindExistingIdAsync(canonicalJobOnId, HttpContext.RequestAborted);
-        if (existingControloId is { } controloAnchor)
-        {
-            pesoDetalhe = await _pesoQuery.FindByControloAsync(controloAnchor, HttpContext.RequestAborted);
-            var peso = pesoDetalhe;
-            if (peso is not null)
-            {
-                pesoSummary = new ResumoPdfGenerator.PesoSummary(
-                    peso.Measurements.Count,
-                    peso.Averages?.AverageGlassWeightGrams,
-                    peso.WaterTemperatureC,
-                    peso.NominalWeightGrams);
-            }
-
-            pegamentosDetalhe = await _pegamentosQuery.FindSheetByControloAsync(
-                controloAnchor, HttpContext.RequestAborted);
-            var pegamentosSheet = pegamentosDetalhe;
-            if (pegamentosSheet?.Pegamentos is { } registo)
-            {
-                var alertCount = registo.Measurements.Count(m => m.Evaluation.HasAlert);
-                pegamentosSummary = new ResumoPdfGenerator.PegamentosSummary(
-                    registo.Measurements.Count,
-                    alertCount,
-                    registo.ToleranceMm, registo.Measurements.Count(m => m.Evaluation.IsNotEvaluable));
-            }
-
-            puncoesSheet = await _puncoesHandler.GetSheetAsync(controloAnchor, HttpContext.RequestAborted);
-        }
-
-        // Read existing viewings; downloading a PDF must not write to the database.
-        var viewings = await _viewingHandler.MarkAndGetViewingsAsync(
-            existingControloId ?? 0,
-            null, // PDF generation reads viewings without recording a new visit.
-            HttpContext.RequestAborted);
-
-        // O SELO DE APROVAÇÃO no papel (o corte D).
-        var approval = existingControloId is { } approvalControloId
-            ? await _approvalHandler.GetAsync(approvalControloId, HttpContext.RequestAborted)
-            : null;
-        var areaStates = existingControloId is { } areaControloId
-            ? await _areaStateHandler.GetAsync(areaControloId, HttpContext.RequestAborted)
-            : null;
-
-        // QUEM GERA O PAPEL (o rodapé do alvo: «Diogo Oliveira
-        // 28/07/2026, 14:52:28») — o nome humano da sessão.
-        var generatedBy = User.FindFirst(DmoClaimTypes.DisplayName)?.Value
-            ?? User.FindFirst(DmoClaimTypes.Email)?.Value;
-
-        var fileName = ControloDocumentPaths.GetResumoFileName(context.Reference, context.ProductionNumber);
-
-        var bytes = _pdfGenerator.GenerateBytes(new ResumoPdfGenerator.Input(
-            context.ProductionNumber,
-            context.Reference,
-            context.Machine,
-            context.InicioEm,
-            context.FimEm,
-            tools.OrderBy(t => t.Slot == "CM" ? 0 : t.Slot == "MF" ? 1 : 2).ToArray(),
-            pesoSummary,
-            pegamentosSummary,
-            viewings.Select(v => new ResumoPdfGenerator.Viewing(
-                v.OperatorId ?? "—",
-                v.ViewedAtUtc)).ToList(),
-            approval,
-            GeneratedBy: generatedBy,
-            AreaStates: areaStates?.Select(a => new ResumoPdfGenerator.AreaState(a.Area, a.Status, a.Comment, PersonLabel(a.UpdatedBy), a.UpdatedAtUtc)).ToArray(),
-            // O registo das punções NNPB: o cartão quando a CM é NNPB ou já há
-            // registo; a folha no fim do PDF único quando há registo.
-            Puncoes: puncoesSheet is { } pu && (pu.IsNnpb || pu.Registo is not null)
-                ? new ResumoPdfGenerator.PuncoesSummary(pu.Registo?.Total ?? 0, pu.Registo?.PunchSeenCount ?? 0, pu.Registo?.CoolerSeenCount ?? 0)
-                : null,
-            PuncoesDocument: summaryOnly || puncoesSheet?.Registo is not { } puRegisto ? null
-                : PuncoesPdfGenerator.FromRegisto(puncoesSheet, puRegisto, approval, generatedBy),
-            PesoDetalhe: summaryOnly ? null : pesoDetalhe,
-            PegamentosDetalhe: summaryOnly ? null : pegamentosDetalhe,
-            PesoDocument: summaryOnly || pesoDetalhe is null ? null : PesoPdfGenerator.FromModel(pesoDetalhe,
-                context.ProductionNumber, context.Reference, context.Machine, "", approval, generatedBy,
-                previousControlPesoId is { } c ? await _pesoComparison.CompareAsync(pesoDetalhe.PesoId, c, HttpContext.RequestAborted) : null,
-                previousPesoId is { } p ? await _pesoComparison.CompareAsync(pesoDetalhe.PesoId, p, HttpContext.RequestAborted) : null,
-                context.InicioEm, context.FimEm,
-                await _capSupport.GetAsync(new PesoCapSupportRequest(pesoDetalhe.CmToolId, existingControloId), HttpContext.RequestAborted),
-                // A produção anterior com o peso do SAP, a mesma da folha do Peso.
-                await new PesoProducaoAnteriorQuery(HttpContext.RequestServices.GetRequiredService<DmoDbContext>())
-                    .FindAsync(pesoDetalhe.PesoId, HttpContext.RequestAborted))));
-
-        Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(context.Reference, context.ProductionNumber));
-        return File(bytes, "application/pdf", fileName);
+        Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(documento.Folder);
+        return File(documento.Bytes, "application/pdf", documento.FileName);
     }
+
+    /// <summary>
+    /// Quem gera o papel (o rodapé do alvo: «Diogo Oliveira 28/07/2026,
+    /// 14:52:28»): o nome humano da sessão.
+    /// </summary>
+    public static string? GeradoPor(System.Security.Claims.ClaimsPrincipal user) =>
+        user.FindFirst(DmoClaimTypes.DisplayName)?.Value
+        ?? user.FindFirst(DmoClaimTypes.Email)?.Value;
 }
 
 /// <summary>Uma página de produções da procura do Resumo (o texto, as 5 linhas e o total).</summary>
@@ -585,3 +611,8 @@ public sealed record ResumoProcuraView(
     IReadOnlyList<ResumoProductionItem> Items,
     int Total,
     int Page);
+
+/// <summary>Uma área do estado do documento na sua zona (_ResumoArea).</summary>
+public sealed record ResumoAreaZona(
+    ResumoModel Pagina,
+    DMO.Alpha.Infrastructure.Controlo.ControloAreaStateReadModel Estado);

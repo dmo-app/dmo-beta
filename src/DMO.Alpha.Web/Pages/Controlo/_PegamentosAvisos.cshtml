@@ -1,0 +1,28 @@
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosModel
+@* As mensagens das medições (zona). A página e a resposta só com as zonas de uma gravação
+   (E11, _PegamentosZonas) usam este. *@
+<div id="pegAvisos" class="dmo-zona" data-dmo-regiao>
+@if (Model.MeasurementRefusal is not null)
+{
+  <div data-dmo-toast="erro" class="peg-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
+}
+@if (Model.CorrecaoMessage is { } correcaoMessage)
+{
+  <div data-dmo-toast="erro" class="peg-aviso" role="alert">@correcaoMessage</div>
+}
+@* Os avisos da medição gravada são mensagens de resultado («Medição
+   registada…», DMO-111): vão para a pilha fixa do canto, por isso um
+   aviso que entra ou sai não empurra os cartões. São «aviso», não «ok»:
+   não fecham sozinhos; ficam até o operador os fechar no × ou fazer a
+   ação seguinte nesse cartão (revisão E2, ronda 3). *@
+@* A leitura foi para outra folha (a CM, a BQ ou o MF mudou, Diogo
+   18/10/2026): fica até o operador a fechar. *@
+@if (Model.FolhaMudouMessage is { } folhaMudou)
+{
+  <div data-dmo-toast="aviso" class="peg-aviso warn" role="status">@folhaMudou</div>
+}
+@foreach (var noticeMessage in Model.MeasurementNoticeMessages)
+{
+  <div data-dmo-toast="aviso" class="peg-aviso warn" role="status">@noticeMessage</div>
+}
+</div>

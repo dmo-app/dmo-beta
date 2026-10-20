@@ -1,0 +1,243 @@
+@model DMO.Alpha.Web.Pages.Controlo.ApproveDetalheModel
+@using DMO.Alpha.Core.Controlo
+@using DMO.Alpha.Infrastructure.Controlo
+@* O Resumo do controlo curto (Diogo, 20/10/2026: «página tem muita tabela»):
+   o Peso só com a comparação ao controlo anterior, os Pegamentos com um
+   resumo por componente e o gráfico, o PU NNPB em números e as áreas em
+   cartões. As tabelas ficam nas consultas, abertas pelos links do topo. *@
+@{
+    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
+    string Cm3(decimal? value) => value is { } v ? v.ToString("N2", culture) + " cm³" : "—";
+    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
+    string Quando(DateTime utc) => DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(utc).ToString("dd/MM/yyyy HH:mm");
+    var production = Model.Production!;
+}
+
+<h3 class="revisao-section">Peso<partial name="_DmoHelp" model="@("A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.")" /></h3>
+@if (Model.Peso is { } peso)
+{
+  var atual = peso.Averages;
+  var comparacao = Model.Anteriores.GetValueOrDefault(peso.PesoId);
+  var anterior = comparacao?.Media;
+  var desvioNominal = PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
+  <div class="revisao-facts three">
+    <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong><small>@peso.Measurements.Count leitura(s)@(Model.Pesos.Count > 1 ? $" · {Model.Pesos.Count} Pesos" : null)</small></div>
+    <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
+    <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
+    <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong><small>@Cm3(atual?.AverageCapacityCm3) agora</small></div>
+    <div><span>Peso SAP da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
+    <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
+  </div>
+}
+else
+{
+  <div class="dmo-aviso warn" role="status">Ainda não existe Peso registado nesta produção.@if (Model.TemControloCriar){<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Registar", $"/Controlo/Peso?controlo_id={Model.ControloId}"))" />}</div>
+}
+
+@if (Model.Pegamentos is { } sheet)
+{
+  var folha = sheet.Pegamentos;
+  if (folha is { Measurements.Count: > 0 })
+  {
+    var input = PegamentosPdfGenerator.FromSheet(sheet);
+    @* Sem contadores no título (Diogo, 20/10/2026). *@
+    <h3 class="revisao-section">Pegamentos<partial name="_DmoHelp" model="@($"A média medida de cada componente e o mapa de limites, tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Todas as medições estão na consulta dos Pegamentos.")" /></h3>
+    @* Um cartão por componente, como no cimo do relatório original: a média
+       medida, o nominal e o corredor. *@
+    <div class="revisao-peg-componentes">
+      @foreach (var card in input.Components)
+      {
+        var tabela = input.Tables.FirstOrDefault(t => t.Component.Equals(card.Component, StringComparison.OrdinalIgnoreCase));
+        var chave = card.Component.ToUpperInvariant();
+        <div style="--peg-cor:@PegamentosLimitMap.ComponentColor(chave)" data-peg-componente="@chave">
+          <span>@chave · média medida</span>
+          <strong>@(tabela?.AverageMediaMm is { } media ? PegamentosVista.Fmt(media) + " mm" : "—")</strong>
+          <small>@(card.NominalGargaloMm is { } nominal ? $"Nominal {PegamentosVista.Fmt(nominal)} mm · Corredor {PegamentosVista.Fmt(nominal - folha.ToleranceMm)}–{PegamentosVista.Fmt(nominal + folha.ToleranceMm)} mm" : "Sem nominal")</small>
+          <small>@(tabela?.SampleCount ?? 0) leitura(s)@(tabela is { AlertCount: > 0 } ? $" · {tabela.AlertCount} alerta(s)" : null)</small>
+        </div>
+      }
+    </div>
+    <partial name="_RevisaoPegamentosMapa" model="sheet" />
+  }
+  else
+  {
+    <h3 class="revisao-section">Pegamentos</h3>
+    <p class="resumo-hint">Esta produção ainda não tem medições de Pegamentos.</p>
+  }
+}
+
+@if (Model.Puncoes is { } puncoes && (puncoes.IsNnpb || puncoes.Registo is not null))
+{
+  <h3 class="revisao-section">PU NNPB</h3>
+  @if (puncoes.Registo is { } registo)
+  {
+    <div class="revisao-facts four">
+      <div><span>Referência da punção</span><strong>@registo.PunchReference</strong><small>Lote @registo.Lot</small></div>
+      <div class="destaque"><span>Total verificados</span><strong>@registo.Rows.Count(r => r.PunchSeen && r.CoolerSeen) de @registo.Total</strong></div>
+      <div><span>Punções vistas</span><strong>@registo.PunchSeenCount</strong></div>
+      <div><span>Arrefecedores vistos</span><strong>@registo.CoolerSeenCount</strong></div>
+    </div>
+  }
+  else
+  {
+    <p class="resumo-hint">Ainda não há registo das punções nesta produção.</p>
+  }
+}
+
+@* As áreas em cartões (Diogo, 20/10/2026): o estado, a ferramenta, o link
+   do mcaliper e as notas, que abrem numa janela para ler ou escrever.
+   Gravar é do Controlo Criar (a página do Resumo); quem só aprova vê. *@
+<h3 class="revisao-section" id="resumoControloAreas">Ferramentas e OK / NOK<partial name="_DmoHelp" model="@(Model.TemControloCriar ? "Escolher OK ou NOK grava logo. Clique nas notas para as abrir ou escrever. O link do mcaliper copia-se com um clique." : "Clique nas notas para as abrir. O link do mcaliper copia-se com um clique.")" /></h3>
+@if (Model.McaliperRefused)
+{
+  <div data-dmo-toast="erro" class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>
+}
+<div class="resumo-areas revisao-areas">
+  @foreach (var area in Model.Areas)
+  {
+    var ferramenta = Model.Tools.FirstOrDefault(t => t.Area == area.Area).Tool;
+    var link = Model.McaliperLinks.GetValueOrDefault(area.Area);
+    var temMcaliper = DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(area.Area);
+    var notasId = $"resumo-controlo-notas-{area.Area}";
+    var linkId = $"resumo-controlo-mcaliper-{area.Area}";
+    var historicoId = $"resumo-controlo-historico-{area.Area}";
+    <div class="resumo-area @(area.Status switch { "OK" => "ok", "NOK" => "nok", _ => null })" data-revisao-area="@area.Area">
+      <span>@area.Area</span>
+      @if (Model.TemControloCriar)
+      {
+        <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="AreaState" class="resumo-area-form">
+          <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+          <input type="hidden" name="area" value="@area.Area" />
+          <input type="hidden" name="voltar" value="@DMO.Alpha.Web.Pages.Controlo.ResumoModel.ResumoDoControlo" />
+          <select name="estado" aria-label="Estado @area.Area" data-dmo-autosubmit>
+            <option value="" selected="@(area.Status is null)">—</option>
+            <option value="OK" selected="@(area.Status == "OK")">OK</option>
+            <option value="NOK" selected="@(area.Status == "NOK")">NOK</option>
+          </select>
+        </form>
+      }
+      else
+      {
+        <strong>@(area.Status ?? "Não registado")</strong>
+      }
+      @* A ferramenta em letra legível, com a referência e o lote (Diogo,
+         20/10/2026: «as ferramentas estão tão pequenas»). O PU e o CS não têm
+         ferramenta: escreve-se ali a referência e o lote. *@
+      @if (ferramenta is not null)
+      {
+        <div class="resumo-area-ferramenta"><strong>@ferramenta.Reference</strong><small>Lote @ferramenta.Lot</small></div>
+      }
+      else if (ControloAreaState.AreasSemFerramenta.Contains(area.Area))
+      {
+        @if (Model.TemControloCriar)
+        {
+          <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="AreaState" class="resumo-area-identificacao">
+            <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+            <input type="hidden" name="area" value="@area.Area" />
+            <input type="hidden" name="voltar" value="@DMO.Alpha.Web.Pages.Controlo.ResumoModel.ResumoDoControlo" />
+            <input name="identificacao" value="@area.Identificacao" maxlength="@ControloAreaState.IdentificacaoMaxLength" placeholder="Referência · lote" aria-label="Referência e lote @area.Area" autocomplete="off" />
+            <button type="submit" class="dmo-button">Guardar</button>
+          </form>
+        }
+        else
+        {
+          <div class="resumo-area-ferramenta"><strong>@(area.Identificacao ?? "—")</strong></div>
+        }
+      }
+      <button type="button" class="resumo-area-note@(string.IsNullOrWhiteSpace(area.Comment) ? " empty" : null)" data-dmo-dialog="@notasId" aria-label="Notas @area.Area"><span class="resumo-area-note-text">@(string.IsNullOrWhiteSpace(area.Comment) ? (Model.TemControloCriar ? "Notas (opcional)" : "Sem notas") : area.Comment)</span></button>
+      <dialog id="@notasId" class="dmo-dialog" aria-labelledby="@(notasId)-title">
+        @if (Model.TemControloCriar)
+        {
+          <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="AreaState">
+            <h3 id="@(notasId)-title">Notas · @area.Area</h3>
+            <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+            <input type="hidden" name="area" value="@area.Area" />
+            <input type="hidden" name="voltar" value="@DMO.Alpha.Web.Pages.Controlo.ResumoModel.ResumoDoControlo" />
+            <textarea name="comentario" rows="8" autofocus maxlength="@ControloAreaState.CommentMaxLength" aria-label="Notas @area.Area">@area.Comment</textarea>
+            <div class="dmo-dialog-actions">
+              <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+              <button type="submit" class="dmo-button">Guardar</button>
+            </div>
+          </form>
+        }
+        else
+        {
+          <h3 id="@(notasId)-title">Notas · @area.Area</h3>
+          <p class="revisao-note">@(string.IsNullOrWhiteSpace(area.Comment) ? "Sem notas." : area.Comment)</p>
+          <div class="dmo-dialog-actions">
+            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+          </div>
+        }
+      </dialog>
+      @if (temMcaliper)
+      {
+        @* O link do mcaliper nunca fica escrito no ecrã: copia-se. *@
+        @if (link is not null)
+        {
+          <button type="button" class="resumo-area-link set" data-dmo-copiar="@link" aria-label="Copiar o link do mcaliper da @area.Area">
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
+            Copiar link do mcaliper
+          </button>
+        }
+        @if (Model.TemControloCriar)
+        {
+          <button type="button" class="resumo-area-link" data-dmo-dialog="@linkId">
+            @(link is null ? "Associar link do mcaliper" : "Mudar o link")
+          </button>
+          <dialog id="@linkId" class="dmo-dialog" aria-labelledby="@(linkId)-title">
+            <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper">
+              <h3 id="@(linkId)-title">Link do mcaliper · @area.Area</h3>
+              <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+              <input type="hidden" name="area" value="@area.Area" />
+              <input type="hidden" name="voltar" value="@DMO.Alpha.Web.Pages.Controlo.ResumoModel.ResumoDoControlo" />
+              <input type="url" name="url" value="@link" maxlength="@DMO.Alpha.Core.Tools.ToolTechnicalContext.McaliperUrlMaxLength" placeholder="https://… (vazio retira o link)" aria-label="Link do mcaliper @area.Area" autofocus />
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                <button type="submit" class="dmo-button">Guardar</button>
+              </div>
+            </form>
+          </dialog>
+        }
+        else if (link is null)
+        {
+          <small class="resumo-area-by">Sem link do mcaliper</small>
+        }
+      }
+      @if (area.Status is not null && area.UpdatedAtUtc is { } em)
+      {
+        <small class="resumo-area-by">Por @(area.UpdatedBy ?? "—") · @Quando(em)</small>
+      }
+      @if (area.Anteriores.Count > 0)
+      {
+        <button type="button" class="resumo-area-by resumo-area-historico" data-dmo-dialog="@historicoId">Alterações anteriores (@area.Anteriores.Count)</button>
+        <dialog id="@historicoId" class="dmo-dialog" aria-labelledby="@(historicoId)-title">
+          <h3 id="@(historicoId)-title">OK/NOK · @area.Area</h3>
+          <ul class="resumo-area-historico-lista">
+            @foreach (var mudanca in area.Historico)
+            {
+              <li>@(mudanca.Status ?? "—") · @(mudanca.Por ?? "—") · @Quando(mudanca.EmUtc)</li>
+            }
+          </ul>
+          <div class="dmo-dialog-actions">
+            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+          </div>
+        </dialog>
+      }
+    </div>
+  }
+</div>
+
+@if (Model.Parte is { TemRegisto: true } decidida)
+{
+  @* A decisão do Peso como no PDF, sem os botões: aprova-se na Revisão ou na
+     consulta do Peso. Com o espaço dos quadros (Diogo, 20/10/2026). *@
+  <h3 class="revisao-section">Aprovação do Peso</h3>
+  <div class="revisao-decisao-resumo">
+    @if (decidida.Decisao is null)
+    {
+      <p class="revisao-line">Por aprovar.</p>
+    }
+    <partial name="_RevisaoParteDecisao" model="decidida" />
+  </div>
+}

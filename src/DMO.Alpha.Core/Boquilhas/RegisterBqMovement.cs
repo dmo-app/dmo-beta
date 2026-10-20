@@ -11,6 +11,9 @@ namespace DMO.Alpha.Core.Boquilhas;
 /// aconteceram) chega em UTC pelo <c>OccurredAtUtc</c>; SEM data fornecida
 /// o agora do backend manda — o uso diário fica intacto e o momento de
 /// gravação técnica vive sempre no CreatedAtUtc do movimento persistido.
+/// Uma data real no futuro (para lá da folga de
+/// <see cref="BqMovementOccurrence.FutureToleranceMinutes"/> minutos) grava e
+/// a página avisa.
 /// </summary>
 public sealed record RegisterBqMovement(
     int BqRepairTraceId,

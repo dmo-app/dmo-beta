@@ -69,6 +69,7 @@ public sealed class AdminAuthorizationService : IAdminAuthorizationService
                 IsStandBy = user.IsStandBy,
                 ProviderUserId = user.ProviderUserId,
                 RequiresPasswordChange = user.RequiresPasswordChange,
+                SessionVersion = user.SessionVersion,
                 TemplateId = null,
                 TemplateKey = null,
                 TemplateName = null,
@@ -95,6 +96,7 @@ public sealed class AdminAuthorizationService : IAdminAuthorizationService
             IsStandBy = user.IsStandBy,
             ProviderUserId = user.ProviderUserId,
             RequiresPasswordChange = user.RequiresPasswordChange,
+            SessionVersion = user.SessionVersion,
             TemplateId = assignment?.TemplateId,
             TemplateKey = template?.TemplateKey,
             TemplateName = template?.Name,
@@ -136,7 +138,5 @@ public sealed class AdminAuthorizationService : IAdminAuthorizationService
     }
 
     private static bool IsAdminEmail(string? email, string? adminEmail) =>
-        adminEmail is not null
-        && email is not null
-        && string.Equals(email.Trim(), adminEmail, StringComparison.OrdinalIgnoreCase);
+        AdminEmailRule.IsAdminEmail(email, adminEmail);
 }

@@ -85,15 +85,17 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
 
         // O USO PARALELO: as OUTRAS produções com a ferramenta em qualquer
         // um dos contextos e um período que se sobrepõe ao desta.
+        // Só o cm_id, o mf_id e o bq_id em uso de cada produção (os de CMs,
+        // MFs e BQs trocados já não contam).
         var cm = _db.CmContexts.AsNoTracking()
-            .Where(c => ids.Contains(c.ToolId))
-            .Select(c => new { c.ToolId, c.JobOnId, c.JobOn.ProductionNumber, Machine = c.JobOn.Machine.Code, c.JobOn.InicioEm, c.JobOn.FimEm });
+            .Where(c => ids.Contains(c.ToolId) && c.JobOnId != null)
+            .Select(c => new { c.ToolId, JobOnId = c.JobOnId!.Value, c.JobOn!.ProductionNumber, Machine = c.JobOn.Machine.Code, c.JobOn.InicioEm, c.JobOn.FimEm });
         var mf = _db.MfContexts.AsNoTracking()
-            .Where(c => ids.Contains(c.ToolId))
-            .Select(c => new { c.ToolId, c.JobOnId, c.JobOn.ProductionNumber, Machine = c.JobOn.Machine.Code, c.JobOn.InicioEm, c.JobOn.FimEm });
+            .Where(c => ids.Contains(c.ToolId) && c.JobOnId != null)
+            .Select(c => new { c.ToolId, JobOnId = c.JobOnId!.Value, c.JobOn!.ProductionNumber, Machine = c.JobOn.Machine.Code, c.JobOn.InicioEm, c.JobOn.FimEm });
         var bq = _db.BqContexts.AsNoTracking()
-            .Where(c => ids.Contains(c.ToolId))
-            .Select(c => new { c.ToolId, c.JobOnId, c.JobOn.ProductionNumber, Machine = c.JobOn.Machine.Code, c.JobOn.InicioEm, c.JobOn.FimEm });
+            .Where(c => ids.Contains(c.ToolId) && c.JobOnId != null)
+            .Select(c => new { c.ToolId, JobOnId = c.JobOnId!.Value, c.JobOn!.ProductionNumber, Machine = c.JobOn.Machine.Code, c.JobOn.InicioEm, c.JobOn.FimEm });
         var inicio = inicioEm ?? DateOnly.MaxValue;
         var usos = inicioEm is null
             ? []
@@ -103,16 +105,17 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                     && u.InicioEm != null
                     && (fimEm == null || u.InicioEm <= fimEm)
                     && (u.FimEm == null || u.FimEm >= inicio))
-                .Select(u => new UsoParalelo(u.ToolId, u.ProductionNumber, u.Machine))
+                .Select(u => new UsoParalelo(u.ToolId, u.JobOnId, u.ProductionNumber, u.Machine))
                 .ToListAsync(cancellationToken);
         var usosPorTool = usos
             .GroupBy(uso => uso.ToolId)
             .ToDictionary(
                 group => group.Key,
                 group => group
-                    .Select(uso => $"{uso.ProductionNumber} ({uso.Machine})")
+                    .Select(uso => new JobOnToolUsoParalelo(uso.JobOnId, uso.ProductionNumber, uso.Machine))
                     .Distinct()
-                    .OrderBy(label => label, StringComparer.Ordinal)
+                    .OrderBy(uso => $"{uso.ProductionNumber} ({uso.Machine})", StringComparer.Ordinal)
+                    .ThenBy(uso => uso.JobOnId)
                     .ToList());
 
         var result = new List<JobOnToolFacts>(tools.Count);
@@ -144,7 +147,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
             {
                 avisoUsoParalelo =
                     $"{tool.Type.ToString().ToUpperInvariant()} {tool.Reference} / lote {tool.Lot} também está associado a " +
-                    $"{string.Join(", ", usosDaTool)}. Esta informação não impede a sua escolha.";
+                    $"{string.Join(", ", usosDaTool.Select(uso => $"{uso.ProductionNumber} ({uso.Machine})").Distinct())}. Esta informação não impede a sua escolha.";
             }
 
             result.Add(new JobOnToolFacts(
@@ -164,11 +167,14 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 TpSagittaMm: tool.TpSagittaMm,
                 maquinasRegistradas,
                 avisoCompatibilidade,
-                avisoUsoParalelo));
+                avisoUsoParalelo)
+            {
+                UsosParalelos = usosDaTool ?? new List<JobOnToolUsoParalelo>()
+            });
         }
 
         return result;
     }
 
-    private sealed record UsoParalelo(string ToolId, string ProductionNumber, string Machine);
+    private sealed record UsoParalelo(string ToolId, int JobOnId, string ProductionNumber, string Machine);
 }

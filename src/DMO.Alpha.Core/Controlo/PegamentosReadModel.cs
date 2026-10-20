@@ -16,7 +16,11 @@ namespace DMO.Alpha.Core.Controlo;
 /// Nos Pegamentos sem Job On, <see cref="ControloId"/> e <see cref="JobOnId"/>
 /// são null, a referência é a da CM (ou «—»), o nº de produção é
 /// <see cref="SemJobOnProductionNumber"/> e os componentes são as
-/// ferramentas guardadas no registo.
+/// ferramentas guardadas no registo. Com produção, a folha mostrada tem as
+/// SUAS ferramentas: <see cref="CmToolId"/>, <see cref="BqToolId"/>,
+/// <see cref="MfToolId"/> e os componentes são os guardados na folha (uma
+/// folha de antes de uma troca mostra as ferramentas antigas); sem folha,
+/// os do contexto do Job On, com que a próxima leitura começa a folha.
 /// </remarks>
 public sealed record PegamentosSheetReadModel(
     int? ControloId,
@@ -39,6 +43,31 @@ public sealed record PegamentosSheetReadModel(
 
     /// <summary>True nos Pegamentos sem Job On (ainda por associar).</summary>
     public bool SemJobOn => ControloId is null;
+
+    /// <summary>
+    /// Todas as folhas da produção, pela ordem de gravação (a mostrada e as
+    /// outras): depois de trocar a CM, a BQ ou o MF a meio da produção, a
+    /// leitura seguinte começa uma folha nova (18/10/2026). Vazia sem
+    /// Job On ou antes da primeira medição.
+    /// </summary>
+    public IReadOnlyList<PegamentosReadModel> Sheets { get; init; } = Array.Empty<PegamentosReadModel>();
+
+    /// <summary>
+    /// Os componentes que a produção tem agora (as ferramentas do Job On):
+    /// os mesmos de <see cref="Components"/>, exceto numa folha de antes de
+    /// uma troca, que mostra as dela.
+    /// </summary>
+    public IReadOnlyList<PegamentosComponentContextReadModel> CurrentComponents { get; init; } = Array.Empty<PegamentosComponentContextReadModel>();
+
+    /// <summary>
+    /// O número de uma folha na produção (1, 2, …), pela ordem de gravação;
+    /// null quando não é desta produção.
+    /// </summary>
+    public int? SheetNumber(PegamentosReadModel? sheet)
+    {
+        var index = sheet is null ? -1 : Sheets.ToList().FindIndex(s => s.PegamentosId == sheet.PegamentosId);
+        return index < 0 ? null : index + 1;
+    }
 }
 
 /// <summary>
@@ -78,7 +107,50 @@ public sealed record PegamentosReadModel(
     string? MfToolLot,
     IReadOnlyList<PegamentosMeasurementReadModel> Measurements,
     IReadOnlyList<PegamentosComponentAveragesReadModel> ComponentAverages,
-    string? RegistadoPor = null);
+    string? RegistadoPor = null)
+{
+    /// <summary>Quando a folha foi gravada (UTC); null nas anteriores a 17/10/2026.</summary>
+    public DateTime? RegistadoEmUtc { get; init; }
+
+    /// <summary>
+    /// True quando a CM, a BQ e o MF desta folha são os da produção agora (e
+    /// sempre nos Pegamentos sem Job On): só essa folha recebe leituras novas.
+    /// Uma folha de ferramentas que a produção já não usa fica como estava;
+    /// as leituras dela ainda se corrigem e apagam (18/10/2026).
+    /// </summary>
+    public bool IsCurrent { get; init; } = true;
+
+    /// <summary>
+    /// Os componentes desta folha: as ferramentas guardadas nela, com os
+    /// factos atuais da ferramenta (referência, lote e gargalo — o nominal
+    /// de um componente ainda sem leituras).
+    /// </summary>
+    public IReadOnlyList<PegamentosComponentContextReadModel> Components { get; init; } = Array.Empty<PegamentosComponentContextReadModel>();
+
+    /// <summary>A ferramenta guardada na folha para um componente (null quando não a tem).</summary>
+    public string? ToolIdOf(PegamentosComponent component) => component switch
+    {
+        PegamentosComponent.Cm => CmToolId,
+        PegamentosComponent.Bq => BqToolId,
+        _ => MfToolId
+    };
+
+    /// <summary>A referência (congelada) da ferramenta de um componente nesta folha.</summary>
+    public string? ToolReferenceOf(PegamentosComponent component) => component switch
+    {
+        PegamentosComponent.Cm => CmToolReference,
+        PegamentosComponent.Bq => BqToolReference,
+        _ => MfToolReference
+    };
+
+    /// <summary>O lote (congelado) da ferramenta de um componente nesta folha.</summary>
+    public string? ToolLotOf(PegamentosComponent component) => component switch
+    {
+        PegamentosComponent.Cm => CmToolLot,
+        PegamentosComponent.Bq => BqToolLot,
+        _ => MfToolLot
+    };
+}
 
 /// <summary>
 /// Uma leitura persistida da folha tal como a superfície a apresenta: os

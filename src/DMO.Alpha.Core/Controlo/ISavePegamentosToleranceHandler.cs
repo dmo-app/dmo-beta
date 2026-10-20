@@ -14,20 +14,37 @@ public interface ISavePegamentosToleranceHandler
         CancellationToken cancellationToken = default);
 }
 
-public enum SavePegamentosToleranceResult
+/// <summary>
+/// O que a gravação fez. A tolerância nunca é recusada (Diogo, 19/10/2026:
+/// «tolerância é escolhida nas definições, está 0.2, nunca bloqueia»; os
+/// Pegamentos servem para ver as cotas fora de tolerância): fora do habitual
+/// grava com aviso, com mais de duas casas decimais grava arredondada, com
+/// aviso. Só um valor negativo não grava, porque não é uma tolerância (o
+/// corredor ficava ao contrário).
+/// </summary>
+public sealed record SavePegamentosToleranceResult(
+    bool Saved,
+    decimal ToleranceMm,
+    bool Rounded,
+    bool OutsideUsualRange)
 {
-    Success,
-    OutOfRange
+    public static SavePegamentosToleranceResult Negative(decimal toleranceMm) =>
+        new(false, toleranceMm, false, false);
 }
 
-/// <summary>Os limites aceites para a tolerância (mm), com duas casas decimais.</summary>
+/// <summary>
+/// O habitual para a tolerância (mm), com duas casas decimais. Fora disto
+/// a tolerância grava na mesma, com aviso.
+/// </summary>
 public static class PegamentosToleranceLimits
 {
     public const decimal MinimumMm = 0.01m;
     public const decimal MaximumMm = 2.00m;
 
-    public static bool IsValid(decimal toleranceMm) =>
-        toleranceMm >= MinimumMm
-        && toleranceMm <= MaximumMm
-        && decimal.Round(toleranceMm, 2) == toleranceMm;
+    public static bool IsUsual(decimal toleranceMm) =>
+        toleranceMm >= MinimumMm && toleranceMm <= MaximumMm;
+
+    /// <summary>A tolerância como fica gravada: duas casas decimais.</summary>
+    public static decimal Normalize(decimal toleranceMm) =>
+        decimal.Round(toleranceMm, 2, MidpointRounding.AwayFromZero);
 }

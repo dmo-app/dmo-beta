@@ -85,6 +85,10 @@ public sealed class IndexModel : PageModel
     public string? ResetOperatorId { get; private set; }
     public string? ResetTemporaryPassword { get; private set; }
 
+    /// <summary>Dono do email repetido (TempData UMA-VEZ, só em EmailInUseByUser).</summary>
+    public string? EmailOwnerName { get; private set; }
+    public string? EmailOwnerOperatorId { get; private set; }
+
     public string CreateRefusalMessage => CreateRefusal switch
     {
         CreateDmoUserResult.MissingName =>
@@ -101,8 +105,11 @@ public sealed class IndexModel : PageModel
             "O email é obrigatório. Nenhum utilizador foi criado.",
         CreateDmoUserResult.UnknownTemplate =>
             "A template indicada não existe. Nenhum utilizador foi criado.",
+        CreateDmoUserResult.EmailInUseByUser => EmailOwnerName is not null
+            ? $"Esse email já é do utilizador {EmailOwnerName} (nº {EmailOwnerOperatorId}). Nenhum utilizador foi criado."
+            : "Esse email já é de outro utilizador da lista. Nenhum utilizador foi criado.",
         CreateDmoUserResult.EmailExists =>
-            "Já existe uma identidade de autenticação com esse email. Nenhum utilizador foi criado.",
+            "Esse email já existe no Supabase, mas não é de nenhum utilizador da app. Nenhum utilizador foi criado.",
         CreateDmoUserResult.ProviderFailure =>
             "O provedor de autenticação recusou a criação. Nenhum utilizador foi criado.",
         CreateDmoUserResult.AdminUserRefused =>
@@ -110,7 +117,24 @@ public sealed class IndexModel : PageModel
         _ => string.Empty
     };
 
-    public string TemplateRefusalMessage => TemplateRefusal switch
+    /// <summary>
+    /// O link da recusa de criar para onde se resolve (Diogo, 19/10/2026):
+    /// o nº de operador ou o email que já são de outro utilizador levam à
+    /// ficha desse utilizador.
+    /// </summary>
+    public DMO.Alpha.Web.Pages.Shared.DmoAvisoLink? CreateRefusalLink => CreateRefusal switch
+    {
+        CreateDmoUserResult.DuplicateOperator when RequestedOperatorId is { } numero =>
+            new($"Abrir a ficha do nº {numero}", $"/Admin/Users/Ficha?operator_id={Uri.EscapeDataString(numero)}"),
+        CreateDmoUserResult.EmailInUseByUser when EmailOwnerOperatorId is { } dono =>
+            new($"Abrir a ficha de {EmailOwnerName ?? $"nº {dono}"}", $"/Admin/Users/Ficha?operator_id={Uri.EscapeDataString(dono)}"),
+        _ => null
+    };
+
+    public string TemplateRefusalMessage => TemplateRefusalText(TemplateRefusal);
+
+    /// <summary>A recusa da template em texto (a lista e a ficha).</summary>
+    internal static string TemplateRefusalText(SetCurrentUserTemplateResult? refusal) => refusal switch
     {
         SetCurrentUserTemplateResult.UserNotFound => "O utilizador indicado já não existe.",
         SetCurrentUserTemplateResult.AdminRefused =>
@@ -119,7 +143,10 @@ public sealed class IndexModel : PageModel
         _ => string.Empty
     };
 
-    public string StandByRefusalMessage => StandByRefusal switch
+    public string StandByRefusalMessage => StandByRefusalText(StandByRefusal);
+
+    /// <summary>A recusa de arquivar em texto (a lista e a ficha).</summary>
+    internal static string StandByRefusalText(SetUserStandByResult? refusal) => refusal switch
     {
         SetUserStandByResult.UserNotFound => "O utilizador indicado já não existe.",
         SetUserStandByResult.AdminRefused => "O ADMIN não pode ser arquivado.",
@@ -149,7 +176,10 @@ public sealed class IndexModel : PageModel
         _ => string.Empty
     };
 
-    public string ResetRefusalMessage => ResetRefusal switch
+    public string ResetRefusalMessage => ResetRefusalText(ResetRefusal);
+
+    /// <summary>A recusa de repor o acesso em texto (a lista e a ficha).</summary>
+    internal static string ResetRefusalText(ResetUserAccessResult? refusal) => refusal switch
     {
         ResetUserAccessResult.UserNotFound => "O utilizador indicado já não existe.",
         ResetUserAccessResult.AdminRefused => "Não é possível repor o acesso do ADMIN aqui.",
@@ -194,6 +224,8 @@ public sealed class IndexModel : PageModel
         CreatedUserOperatorId = TempData["AdminUserCreatedOperatorId"] as string;
         ResetOperatorId = TempData["AdminUserResetOperatorId"] as string;
         ResetTemporaryPassword = TempData["AdminUserResetPassword"] as string;
+        EmailOwnerName = TempData["AdminUserEmailOwnerName"] as string;
+        EmailOwnerOperatorId = TempData["AdminUserEmailOwnerOperatorId"] as string;
 
         // Recusas tipadas dos POSTs anteriores (PRG), pelo vocabulário
         // fechado dos enums — texto livre nunca volta das recusas.
@@ -290,6 +322,12 @@ public sealed class IndexModel : PageModel
             return RedirectToPage("/Admin/Users/Index");
         }
 
+        if (outcome.EmailOwner is { } owner)
+        {
+            TempData["AdminUserEmailOwnerName"] = owner.Name;
+            TempData["AdminUserEmailOwnerOperatorId"] = owner.OperatorId;
+        }
+
         return RedirectToPage("/Admin/Users/Index", new
         {
             name = Sanitize(name),
@@ -303,11 +341,12 @@ public sealed class IndexModel : PageModel
     /// <summary>
     /// POST: editar a atribuição corrente de Template de um User (select
     /// por linha; «Sem template» = remover). A MESMA relação persistida
-    /// da vista Templates.
+    /// da vista Templates. Vindo da ficha (origem=ficha), volta à ficha.
     /// </summary>
     public async Task<IActionResult> OnPostTemplateAsync(
         [FromForm(Name = "operator_id")] string? operatorId,
-        [FromForm(Name = "template_key")] string? templateKey)
+        [FromForm(Name = "template_key")] string? templateKey,
+        [FromForm(Name = "origem")] string? origem = null)
     {
         var outcome = await _userAdminService.SetCurrentUserTemplateAsync(
             new SetCurrentUserTemplate(
@@ -315,9 +354,15 @@ public sealed class IndexModel : PageModel
                 Sanitize(templateKey)),
             HttpContext.RequestAborted);
 
-        return outcome.Result == SetCurrentUserTemplateResult.Success
+        var refusal = outcome.Result == SetCurrentUserTemplateResult.Success ? null : outcome.Result.ToString();
+        if (origem == OrigemFicha)
+        {
+            return VoltarAFicha(operatorId, "template_refusal", refusal);
+        }
+
+        return refusal is null
             ? RedirectToPage("/Admin/Users/Index")
-            : RedirectToPage("/Admin/Users/Index", new { template_refusal = outcome.Result.ToString() });
+            : RedirectToPage("/Admin/Users/Index", new { template_refusal = refusal });
     }
 
     /// <summary>
@@ -327,15 +372,22 @@ public sealed class IndexModel : PageModel
     /// </summary>
     public async Task<IActionResult> OnPostStandByAsync(
         [FromForm(Name = "operator_id")] string? operatorId,
-        [FromForm(Name = "stand_by")] string? standBy)
+        [FromForm(Name = "stand_by")] string? standBy,
+        [FromForm(Name = "origem")] string? origem = null)
     {
         var outcome = await _userAdminService.SetUserStandByAsync(
             new SetUserStandBy(operatorId ?? string.Empty, standBy == "1"),
             HttpContext.RequestAborted);
 
-        return outcome.Result == SetUserStandByResult.Success
+        var refusal = outcome.Result == SetUserStandByResult.Success ? null : outcome.Result.ToString();
+        if (origem == OrigemFicha)
+        {
+            return VoltarAFicha(operatorId, "standby_refusal", refusal);
+        }
+
+        return refusal is null
             ? RedirectToPage("/Admin/Users/Index")
-            : RedirectToPage("/Admin/Users/Index", new { standby_refusal = outcome.Result.ToString() });
+            : RedirectToPage("/Admin/Users/Index", new { standby_refusal = refusal });
     }
 
     /// <summary>
@@ -345,7 +397,8 @@ public sealed class IndexModel : PageModel
     /// seguinte. Nada mais muda (sem histórico, sem configuração).
     /// </summary>
     public async Task<IActionResult> OnPostResetAsync(
-        [FromForm(Name = "operator_id")] string? operatorId)
+        [FromForm(Name = "operator_id")] string? operatorId,
+        [FromForm(Name = "origem")] string? origem = null)
     {
         var outcome = await _userAdminService.ResetUserAccessAsync(
             new ResetUserAccess(operatorId ?? string.Empty),
@@ -355,10 +408,32 @@ public sealed class IndexModel : PageModel
         {
             TempData["AdminUserResetOperatorId"] = outcome.OperatorId;
             TempData["AdminUserResetPassword"] = outcome.TemporaryPassword;
-            return RedirectToPage("/Admin/Users/Index");
+            return origem == OrigemFicha
+                ? VoltarAFicha(operatorId, "reset_refusal", null)
+                : RedirectToPage("/Admin/Users/Index");
         }
 
-        return RedirectToPage("/Admin/Users/Index", new { reset_refusal = outcome.Result.ToString() });
+        return origem == OrigemFicha
+            ? VoltarAFicha(operatorId, "reset_refusal", outcome.Result.ToString())
+            : RedirectToPage("/Admin/Users/Index", new { reset_refusal = outcome.Result.ToString() });
+    }
+
+    /// <summary>
+    /// As ações da ficha (template, arquivar e repor) gravam e voltam à
+    /// ficha, com a recusa no endereço (deep sweep, 18/10/2026): na ficha,
+    /// trocam só as zonas que mudam. Eliminar continua a voltar à lista.
+    /// </summary>
+    internal const string OrigemFicha = "ficha";
+
+    private RedirectToPageResult VoltarAFicha(string? operatorId, string refusalName, string? refusal)
+    {
+        var values = new Microsoft.AspNetCore.Routing.RouteValueDictionary { ["operator_id"] = Sanitize(operatorId) };
+        if (refusal is not null)
+        {
+            values[refusalName] = refusal;
+        }
+
+        return RedirectToPage("/Admin/Users/Ficha", values);
     }
 
     /// <summary>

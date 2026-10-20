@@ -9,6 +9,7 @@ using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using DMO.Alpha.Infrastructure.Production;
+using DMO.Alpha.Infrastructure.Search;
 using DMO.Alpha.Web.Presentation;
 using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -44,6 +45,7 @@ public sealed class IndexModel : PageModel
     private readonly CurrentUserCapabilities _capabilities;
     private readonly JobOnLotNoteHandler _lotNotes;
     private readonly JobOnChangeQuery _changes;
+    private readonly IDeleteJobOnHandler _deleteJobOn;
 
     public IndexModel(
         ICreateJobOnHandler createJobOn,
@@ -58,7 +60,8 @@ public sealed class IndexModel : PageModel
         ShellStateFactory shellState,
         CurrentUserCapabilities capabilities,
         JobOnLotNoteHandler lotNotes,
-        JobOnChangeQuery changes)
+        JobOnChangeQuery changes,
+        IDeleteJobOnHandler deleteJobOn)
     {
         _createJobOn = createJobOn;
         _updateJobOn = updateJobOn;
@@ -73,6 +76,7 @@ public sealed class IndexModel : PageModel
         _capabilities = capabilities;
         _lotNotes = lotNotes;
         _changes = changes;
+        _deleteJobOn = deleteJobOn;
     }
 
     /// <summary>
@@ -90,6 +94,20 @@ public sealed class IndexModel : PageModel
 
     /// <summary>Contexto de produção estabelecido do Job On aberto (?jobon_id); null fora desse contexto.</summary>
     public ProductionContextReadModel? OpenJobOn { get; private set; }
+
+    /// <summary>A confirmação do «Eliminar Job On» da ficha (Diogo, 19/10/2026, D2).</summary>
+    public JobOnEliminarAviso? FichaEliminar { get; private set; }
+
+    /// <summary>O Job On acabou de ser eliminado (?eliminado=1).</summary>
+    public bool Eliminado { get; private set; }
+
+    /// <summary>
+    /// Só quem tem um módulo do Controlo (Controlo ou Controlo Aprovar) vê a
+    /// informação do Controlo no Job On (Diogo, 19/10/2026): a opção «Controlo»
+    /// da ficha e o que o Eliminar conta. Quem só aprova entra no Controlo dele
+    /// (ModuleEntry leva-o à Revisão da mesma produção).
+    /// </summary>
+    public bool VeControlo { get; private set; }
 
     /// <summary>
     /// A FICHA DA PRODUÇÃO (o job-sheet do dmo-html): os fatos técnicos das
@@ -147,6 +165,23 @@ public sealed class IndexModel : PageModel
             ? $"Job On guardado: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior ({mantida.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)} mm)."
             : $"Job On guardado sem calote: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado. Vale a calote de referência da ferramenta; para a indicar, use Editar.";
 
+    /// <summary>
+    /// O Job On foi gravado com o fim antes do início (?fim_antes_inicio=1, o
+    /// PRG do POST). Grava e avisa (Diogo, 19/10/2026: «as datas têm de ser
+    /// livres»; na beta.228 era recusado).
+    /// </summary>
+    public bool FimAntesDoInicio { get; private set; }
+
+    /// <summary>
+    /// A mensagem do aviso do fim antes do início, com as datas gravadas da
+    /// produção aberta; null quando as datas já não estão trocadas.
+    /// </summary>
+    public string? FimAntesDoInicioMessage => FimAntesDoInicio
+        && OpenJobOn is { InicioEm: { } inicio, FimEm: { } fim } && fim < inicio
+        ? $"Job On guardado com o fim ({fim.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)}) antes do início ({inicio.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)}). " +
+          "Enquanto o fim for antes do início, a produção não aparece em nenhum dia do calendário. Para corrigir as datas, use Editar."
+        : null;
+
     /// <summary>A TAB do Histórico (?historico=1 — o padrão do Controlo/Peso): as produções anteriores e os sem dia.</summary>
     public bool ShowHistory { get; private set; }
 
@@ -158,11 +193,37 @@ public sealed class IndexModel : PageModel
     public string? HistoryReference { get; private set; }
     public int? HistoryMachineId { get; private set; }
     public string? HistoryProduction { get; private set; }
+
+    /// <summary>A referência da produção escolhida no dropdown: o mesmo nº pode existir noutra referência.</summary>
+    public string? HistoryProductionReference { get; private set; }
     public DateOnly? HistoryDesde { get; private set; }
     public DateOnly? HistoryAte { get; private set; }
 
     /// <summary>As produções da referência procurada: o dropdown do histórico.</summary>
     public IReadOnlyList<JobOnProductionOption> HistoryProductions { get; private set; } = Array.Empty<JobOnProductionOption>();
+
+    /// <summary>
+    /// Entre o nº e a referência no valor de uma opção do dropdown, quando o
+    /// dropdown tem produções de mais do que uma referência («2026001|5447T173»).
+    /// </summary>
+    public const char HistoryProductionSeparator = '|';
+
+    /// <summary>True quando o dropdown das produções junta mais do que uma referência (o texto é o início de várias).</summary>
+    public bool HistoryProductionsSpanReferences =>
+        HistoryProductions.Select(p => p.Reference).Distinct(StringComparer.Ordinal).Skip(1).Any();
+
+    /// <summary>
+    /// O valor de uma opção do dropdown: o nº; com várias referências, o nº e
+    /// a referência, para a escolha filtrar só essa produção (deep sweep 2,
+    /// F-17: o mesmo nº em duas referências filtrava as duas).
+    /// </summary>
+    public string HistoryProductionValue(JobOnProductionOption option) => HistoryProductionsSpanReferences
+        ? $"{option.ProductionNumber}{HistoryProductionSeparator}{option.Reference}"
+        : option.ProductionNumber;
+
+    /// <summary>A opção escolhida: o nº e a referência da produção que filtra.</summary>
+    public bool IsHistoryProductionSelected(JobOnProductionOption option) =>
+        option.ProductionNumber == HistoryProduction && option.Reference == HistoryProductionReference;
 
     /// <summary>True quando há referência, máquina ou data; sem isso o histórico fica em branco e não lê nada.</summary>
     public bool HistorySearchApplied { get; private set; }
@@ -177,9 +238,6 @@ public sealed class IndexModel : PageModel
     /// calendário): o quadro do dia fica vazio, só com a indicação.
     /// </summary>
     public bool NoDaySelected { get; private set; }
-
-    /// <summary>A produção foi retirada das datas no POST anterior (aviso por query, PRG).</summary>
-    public bool RemovedNote { get; private set; }
 
     /// <summary>
     /// A FOLHA server-rendered (o referencial do Owner — sem js para
@@ -196,6 +254,13 @@ public sealed class IndexModel : PageModel
     /// <summary>A calote pré-preenchida na folha (o valor da produção em edição/duplicar).</summary>
     public string? FolhaCalote { get; private set; }
 
+    /// <summary>
+    /// A versão do Job On quando a folha de edição abriu (vai escondida no
+    /// POST): se outra pessoa gravar entretanto, nada se grava por cima. Ao
+    /// voltar do «Criar CM/MF/BQ» é a da folha que se estava a editar.
+    /// </summary>
+    public uint FolhaVersao { get; private set; }
+
     /// <summary>O mês inicial do calendário (deep link ?ano&mes; omissão = hoje).</summary>
     public int Year { get; private set; }
 
@@ -208,12 +273,9 @@ public sealed class IndexModel : PageModel
     public string? SearchTerm { get; private set; }
 
     /// <summary>
-    /// A procura ao escrever do Job On, em dois passos (Diogo, 17/10/2026:
-    /// «deveria ser referência e depois produções»): primeiro as referências,
-    /// encontradas por qualquer dado (referência, produção, máquina, lote ou
-    /// referência das ferramentas); um clique numa referência mostra as
-    /// produções dela (?procura_ref=). Sem script, o Enter no campo faz o
-    /// primeiro passo pelo servidor. Null sem procura.
+    /// A procura do Job On em dois campos (Diogo, 17/10/2026): a referência
+    /// escrita e, à frente, o dropdown com as últimas produções dela. Sem
+    /// script, o Enter no campo enche o dropdown pelo servidor. Null sem procura.
     /// </summary>
     public JobOnProcura? SearchResults { get; private set; }
 
@@ -308,12 +370,24 @@ public sealed class IndexModel : PageModel
             if (outro != slot) valores.Add((outro, id));
         }
 
+        // A versão da folha em edição volta com ela (ver FolhaVersao).
+        if (FolhaEdicao)
+        {
+            valores.Add(("versao", FolhaVersao.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        }
+
         // O {tool_id} fica por codificar: as Ferramentas substituem-no pelo id criado.
         var regresso = "/JobOn?" + string.Join("&", valores
             .Where(v => !string.IsNullOrEmpty(v.Valor))
             .Select(v => v.Nome + "=" + Uri.EscapeDataString(v.Valor!)))
             + "&" + slot + "={tool_id}#lightSheet";
-        return $"/Ferramentas?criar=1&type={tipo}&return={Uri.EscapeDataString(regresso)}";
+        // A máquina da produção já vem escolhida no registo (Diogo,
+        // 18/10/2026: «estamos no jobon 6018Y232 C2, mudar boquilha já vem
+        // com C2 BQ filtrado»).
+        var maquina = RequestedMachineId is int machineId
+            ? "&machine_ids=" + machineId.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            : "";
+        return $"/Ferramentas?criar=1&type={tipo}{maquina}&return={Uri.EscapeDataString(regresso)}";
     }
 
     /// <summary>O dia em que a produção entra em máquina (o corte B; null = em aberto).</summary>
@@ -346,7 +420,7 @@ public sealed class IndexModel : PageModel
         CreateJobOnResult.BqToolNotFound =>
             "A boquilha (BQ) selecionada não está registada no Ferramentas. Nenhum Job On foi criado.",
         CreateJobOnResult.DuplicateProductionNumber =>
-            "Já existe um Job On com este nº de produção — uma produção nova tem nº próprio. Nenhum Job On foi criado.",
+            "Já existe um Job On desta referência com este nº de produção — uma produção nova tem nº próprio. Nenhum Job On foi criado.",
         CreateJobOnResult.InvalidCalote =>
             "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhum Job On foi criado.",
         _ => string.Empty
@@ -369,6 +443,8 @@ public sealed class IndexModel : PageModel
             "A boquilha (BQ) selecionada não está registada no Ferramentas. Nenhuma alteração foi guardada.",
         UpdateJobOnResult.InvalidCalote =>
             "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.ChangedByAnotherUser =>
+            "Outra pessoa gravou esta produção depois de a abrires. Nenhuma alteração foi guardada: a folha mostra agora o que ficou gravado; volta a fazer a tua alteração.",
         _ => string.Empty
     };
 
@@ -400,12 +476,18 @@ public sealed class IndexModel : PageModel
         // produção EM QUALQUER TEMPO — o passado (entrou e saiu), o
         // presente e o futuro (a entrar); a produção «até aviso» (o
         // FimEm null) cobre a partir do início.
+        // O SINAL SÓ NAS MUDANÇAS (Diogo, 19/10/2026: «deve apenas mostrar
+        // quando existem mudanças numa linha senão o calendário fica
+        // carregado»): o dia acende quando uma produção entra numa linha ou
+        // sai dela (o dia a seguir ao FimEm); os dias em que tudo continua
+        // ficam limpos. A contagem continua a ser a de tudo o que está a produzir.
         // O partial gere ano/mes; repetir estes parâmetros invalida a navegação.
         return DMO.Alpha.Web.Pages.Shared.DmoCalendarPresentation.ForMonth(
             year, month,
             data => jobOns.Count(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)),
             diaSelecionado is { } dia && dia >= 1 && dia <= DateTime.DaysInMonth(year, month) ? new DateOnly(year, month, dia) : null,
-            "/JobOn/Index");
+            "/JobOn/Index",
+            hasForDay: data => jobOns.Any(j => j.InicioEm == data || j.FimEm?.AddDays(1) == data)) with { LegendLabel = "Mudanças numa linha" };
     }
 
     private static IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> ComporDayRows(IReadOnlyList<MachineOption> machines, IReadOnlyList<ProductionContextReadModel> jobOns, int ano, int mes, int? diaSelecionado)
@@ -455,34 +537,91 @@ public sealed class IndexModel : PageModel
         if (HistoryReference is { } reference)
         {
             HistoryProductions = await _jobOnList.ListProductionsOfReferenceAsync(reference, HistoryMachineId, cancellationToken);
-            // Uma produção que já não é desta referência (a referência mudou) não filtra.
-            var wanted = Sanitize(producao);
+            // A produção pedida: o nº e, quando o dropdown junta várias
+            // referências, a referência dela. Um link antigo só com o nº
+            // escolhe a mais recente com esse nº, nunca as duas juntas. Uma
+            // produção que já não é desta referência (a referência mudou) não filtra.
+            var (wanted, wantedReference) = ParseHistoryProduction(Sanitize(producao));
+            var escolhida = wanted is null
+                ? null
+                : HistoryProductions.FirstOrDefault(p => p.ProductionNumber == wanted
+                    && (wantedReference is null || p.Reference == wantedReference));
             // O dropdown só tem as últimas produções; uma mais antiga pedida
             // por link continua a filtrar e entra no dropdown.
-            if (wanted is not null && HistoryProductions.All(p => p.ProductionNumber != wanted))
+            if (wanted is not null && escolhida is null)
             {
-                var term = reference.ToUpper();
-                var antiga = await _db.JobOns.AsNoTracking()
-                    .Where(j => j.ProductionNumber == wanted && j.Reference.ToUpper().Contains(term)
-                        && (HistoryMachineId == null || j.MachineId == HistoryMachineId))
+                var antigas = _db.JobOns.AsNoTracking()
+                    .Where(ReferenceMatch.Predicate<DMO.Alpha.Core.Production.JobOn>(j => j.Reference, reference))
+                    .Where(j => j.ProductionNumber == wanted);
+                if (wantedReference is not null)
+                {
+                    antigas = antigas.Where(j => j.Reference == wantedReference);
+                }
+                if (HistoryMachineId is int maquinaPedida)
+                {
+                    antigas = antigas.Where(j => j.MachineId == maquinaPedida);
+                }
+                escolhida = await antigas
                     .OrderByDescending(j => j.Id)
                     .Select(j => new JobOnProductionOption(j.ProductionNumber, j.Reference))
                     .FirstOrDefaultAsync(cancellationToken);
-                if (antiga is not null)
+                if (escolhida is not null)
                 {
-                    HistoryProductions = [.. HistoryProductions, antiga];
+                    HistoryProductions = [.. HistoryProductions, escolhida];
                 }
             }
-            HistoryProduction = HistoryProductions.Any(p => p.ProductionNumber == wanted) ? wanted : null;
+            HistoryProduction = escolhida?.ProductionNumber;
+            HistoryProductionReference = escolhida?.Reference;
         }
 
-        var filter = new JobOnHistoryFilter(HistoryReference, HistoryMachineId, HistoryProduction, HistoryDesde, HistoryAte);
+        var filter = new JobOnHistoryFilter(
+            HistoryReference, HistoryMachineId, HistoryProduction, HistoryDesde, HistoryAte, HistoryProductionReference);
         HistorySearchApplied = !filter.IsEmpty;
         if (HistorySearchApplied)
         {
             HistoryPage = await _jobOnList.SearchHistoryPageAsync(
                 filter, HistoryPageNumber, cancellationToken: cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// O valor pedido do dropdown das produções: «nº» (os links antigos e o
+    /// dropdown de uma só referência) ou «nº|referência».
+    /// </summary>
+    private static (string? Number, string? Reference) ParseHistoryProduction(string? value)
+    {
+        if (value is null)
+        {
+            return (null, null);
+        }
+        var separator = value.IndexOf(HistoryProductionSeparator);
+        if (separator < 0)
+        {
+            return (value, null);
+        }
+        var number = value[..separator].Trim();
+        var reference = value[(separator + 1)..].Trim().ToUpperInvariant();
+        return (number.Length == 0 ? null : number, reference.Length == 0 ? null : reference);
+    }
+
+    /// <summary>Uma página do histórico, sem compor calendário, dia ou rail.</summary>
+    public async Task<IActionResult> OnGetHistoricoResultadosAsync(
+        [FromQuery(Name = "referencia")] string? referencia,
+        [FromQuery(Name = "maquina")] int? maquina,
+        [FromQuery(Name = "producao")] string? producao,
+        [FromQuery(Name = "desde")] string? desde,
+        [FromQuery(Name = "ate")] string? ate)
+    {
+        Machines = await _machineList.ListAsync(HttpContext.RequestAborted);
+        await ComposeHistoryAsync(referencia, maquina, producao, desde, ate);
+        var shownToolIds = HistoryPage.Items
+            .SelectMany(j => new[] { j.CmToolId, j.MfToolId, j.BqToolId })
+            .Where(id => !string.IsNullOrEmpty(id)).Select(id => id!).Distinct().ToList();
+        if (shownToolIds.Count > 0)
+            KnownTools = await _toolCandidates.FindCandidatesAsync(
+                new ToolCandidateFilter(ToolIds: shownToolIds), HttpContext.RequestAborted);
+        Response.Headers["X-Dmo-Region"] = "jobonHistoricoResultados";
+        return Partial("_JobOnHistoricoResultados", this);
     }
 
     private static DateOnly? ParseHistoryDate(string? value, string label, List<string> warnings)
@@ -516,7 +655,6 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "historico")] string? historico,
         [FromQuery(Name = "ano")] int? ano,
         [FromQuery(Name = "mes")] int? mes,
-        [FromQuery(Name = "removed")] string? removed,
         [FromQuery(Name = "overlap")] string? overlap,
         [FromQuery(Name = "dia")] int? diaSelected,
         [FromQuery(Name = "procura")] string? procura,
@@ -525,15 +663,18 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "duplicar")] string? duplicar,
         [FromQuery(Name = "calote_mm")] string? caloteMm,
         [FromQuery(Name = "calote_ignorada")] string? caloteIgnorada,
+        [FromQuery(Name = "fim_antes_inicio")] string? fimAntesInicio,
         [FromQuery(Name = "editar")] string? editar,
         [FromQuery(Name = "novo")] string? novo,
         [FromQuery(Name = "retoma")] string? retoma,
+        [FromQuery(Name = "versao")] string? versao,
         [FromQuery(Name = "referencia")] string? historicoReferencia,
         [FromQuery(Name = "maquina")] int? historicoMaquina,
         [FromQuery(Name = "producao")] string? historicoProducao,
         [FromQuery(Name = "desde")] string? historicoDesde,
         [FromQuery(Name = "ate")] string? historicoAte,
-        [FromQuery(Name = "vista")] string? vista = null)
+        [FromQuery(Name = "vista")] string? vista = null,
+        [FromQuery(Name = "eliminado")] string? eliminado = null)
     {
         ViewData["Title"] = "Job On";
         // O JOB ON É UMA FUNÇÃO DO PLANEAMENTO (o Owner: «o jobon fica no
@@ -577,12 +718,13 @@ public sealed class IndexModel : PageModel
         RequestedFimEm = DateOnly.TryParse(fimEm, out var fimValue) ? fimValue : null;
 
         CaloteIgnorada = Sanitize(caloteIgnorada);
+        FimAntesDoInicio = fimAntesInicio == "1";
+        Eliminado = eliminado == "1";
 
         // O mês inicial do calendário (deep link ?ano&mes; omissão = hoje).
         var today = DateOnly.FromDateTime(DmoBusinessTime.Now);
         Year = ano is int y and > 1999 and < 3000 ? y : today.Year;
         Month = mes is int m and >= 1 and <= 12 ? m : today.Month;
-        RemovedNote = removed == "1";
         NoDaySelected = diaSelected == 0;
         SelectedDay = diaSelected is int chosenDay && chosenDay >= 1 && chosenDay <= DateTime.DaysInMonth(Year, Month)
             ? chosenDay : InitialDay();
@@ -625,14 +767,9 @@ public sealed class IndexModel : PageModel
                 .FirstOrDefaultAsync(HttpContext.RequestAborted);
             if (overlapMachineId != 0)
             {
-                var othersOnMachine = await _db.JobOns
-                    .AsNoTracking()
-                    .Where(j => j.MachineId == overlapMachineId && j.Id != overlapOpen.JobOnId)
-                    .Select(j => new OverlapCandidate(
-                        j.Id, j.Reference, j.ProductionNumber, j.InicioEm, j.FimEm))
-                    .ToListAsync(HttpContext.RequestAborted);
-                OverlapWarning = JobOnOverlap.Evaluate(
-                    overlapOpen.InicioEm, overlapOpen.FimEm, overlapOpen.Machine, othersOnMachine);
+                OverlapWarning = await DMO.Alpha.Infrastructure.Production.JobOnOverlapQuery.EvaluateAsync(
+                    _db, overlapOpen.JobOnId, overlapMachineId, overlapOpen.Machine,
+                    overlapOpen.InicioEm, overlapOpen.FimEm, HttpContext.RequestAborted);
             }
         }
 
@@ -678,6 +815,16 @@ public sealed class IndexModel : PageModel
             VistaAlteracoes = vista == "alteracoes";
         }
 
+        if (OpenJobOn is { } eliminarJobOn && duplicar != "1")
+        {
+            VeControlo = await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted)
+                || await _capabilities.HasAsync(DmoCapabilities.ControloApprove, HttpContext.RequestAborted);
+            if (await _deleteJobOn.PreviewAsync(eliminarJobOn.JobOnId, today, HttpContext.RequestAborted) is { } preview)
+            {
+                FichaEliminar = JobOnEliminarAviso.From(preview, VeControlo);
+            }
+        }
+
         if (OpenJobOn is { } fichaJobOn)
         {
             FichaCaloteEcho = fichaJobOn.CaloteMm?.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
@@ -704,7 +851,11 @@ public sealed class IndexModel : PageModel
                 FolhaAberta = true;
                 RequestedReference = fichaJobOn.Reference;
                 RequestedProductionNumber = fichaJobOn.ProductionNumber;
-                if (UpdateRefusal is null && retoma != "1")
+                FolhaVersao = retoma == "1" && Ferramentas.FichaModel.ParseVersion(versao) is { } aberta
+                    ? aberta
+                    : fichaJobOn.Version;
+                // Gravada por outra pessoa: a folha volta com o que ficou gravado.
+                if ((UpdateRefusal is null or UpdateJobOnResult.ChangedByAnotherUser) && retoma != "1")
                 {
                     RequestedMachineId = Machines.FirstOrDefault(m => m.Code == fichaJobOn.Machine)?.MachineId;
                     RequestedCmToolId = fichaJobOn.CmToolId;
@@ -776,9 +927,9 @@ public sealed class IndexModel : PageModel
         // entre a referência e o número (o proprietário, 16/10/2026).
         var doDia = DayRows.SelectMany(r => r.Productions).Select(p => p.JobOnId).ToList();
         var notasDoDia = await _lotNotes.ForDayAsync(new DateOnly(Year, Month, SelectedDay), doDia, HttpContext.RequestAborted);
-        // E quantas alterações tem cada produção: a linha mostra a marca que
-        // leva a «O que mudou» na ficha.
-        var alteracoes = await _changes.CountsAsync(doDia, HttpContext.RequestAborted);
+        // E as alterações de cada produção: a linha mostra qual foi (o Diogo,
+        // 17/10/2026), e a ficha tem o detalhe em «O que mudou».
+        var alteracoes = await _changes.AfterStartAsync(doDia, HttpContext.RequestAborted);
         if (notasDoDia.Count > 0 || alteracoes.Count > 0)
         {
             DayRows = DayRows
@@ -788,7 +939,9 @@ public sealed class IndexModel : PageModel
                         .Select(p => p with
                         {
                             LotNotes = notasDoDia.Where(n => n.JobOnId == p.JobOnId).Select(n => n.Text).ToList(),
-                            ChangeCount = alteracoes.TryGetValue(p.JobOnId, out var total) ? total : 0
+                            ChangeCount = alteracoes.TryGetValue(p.JobOnId, out var mudou) ? mudou.Count : 0,
+                            ChangeSummary = mudou is { Count: > 0 } ? JobOnChangeFields.Summarize(mudou) : null,
+                            ChangeDetails = mudou?.Select(c => c.Text).ToList() ?? []
                         })
                         .ToList()
                 })
@@ -865,11 +1018,12 @@ public sealed class IndexModel : PageModel
     /// desafiado antes de qualquer mutação.
     /// </summary>
     /// <summary>
-    /// A procura ao escrever (?handler=ProcurarProducao&amp;q=): o primeiro
-    /// passo, as referências que têm o texto (só a referência). Com &amp;procura_ref=, o segundo
-    /// passo: as produções dessa referência, no dropdown. Ambos no máximo
-    /// <see cref="IProductionPickerQuery.SearchLimit"/>. Devolve só a lista,
-    /// que a página mostra por baixo do campo.
+    /// A procura ao escrever (?handler=ProcurarProducao&amp;q=), em dois campos
+    /// (Diogo, 17/10/2026: «ao escrever a referência na primeira, a segunda mostra
+    /// produção e máquina»; sem lista por baixo do campo): quando o texto é uma
+    /// referência que existe, devolve o dropdown com as últimas
+    /// <see cref="IProductionPickerQuery.ProductionsOfReferenceLimit"/> produções
+    /// dela; senão o dropdown vazio e desativado. &amp;procura_ref= é o mesmo.
     /// </summary>
     public async Task<IActionResult> OnGetProcurarProducaoAsync(
         [FromQuery(Name = "q")] string? search,
@@ -879,39 +1033,23 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "dia")] int? dia)
     {
         var resultados = await ProcurarProducoesAsync(search, procuraRef, ano, mes, dia);
-        return resultados is { Referencia: not null, Linhas.Count: > 0 }
-            ? Partial("_JobOnProcuraProducoes", resultados)
-            : Partial("_JobOnProcura", resultados);
+        return Partial("_JobOnProcuraProducoes", resultados);
     }
 
     private async Task<JobOnProcura> ProcurarProducoesAsync(string? search, string? procuraRef, int? ano, int? mes, int? dia)
     {
-        var referencia = procuraRef?.Trim();
-        if (!string.IsNullOrEmpty(referencia))
-        {
-            // Segundo passo: um clique numa produção abre a folha no mesmo mês e dia.
-            var producoes = await _productionPicker.ListOfReferenceAsync(referencia, HttpContext.RequestAborted);
-            return new JobOnProcura(
-                referencia,
-                Array.Empty<JobOnProcuraReferencia>(),
-                referencia,
-                producoes.Select(item => new JobOnProcuraLinha(
-                        item,
-                        Url.Page("/JobOn/Index", null, new { ano, mes, dia, jobon_id = item.JobOnId }, null, null, "lightFicha")!))
-                    .ToList());
-        }
-
-        // Primeiro passo: um clique numa referência mostra as produções dela.
-        var termo = search?.Trim() ?? string.Empty;
-        var referencias = await _productionPicker.SearchReferencesAsync(termo, HttpContext.RequestAborted);
+        // Só a referência completa (sem distinção de maiúsculas); o início fica para as sugestões.
+        var referencia = (string.IsNullOrWhiteSpace(procuraRef) ? search : procuraRef)?.Trim() ?? string.Empty;
+        var producoes = referencia.Length == 0
+            ? Array.Empty<ProductionSearchItem>()
+            : await _productionPicker.ListOfReferenceAsync(referencia, HttpContext.RequestAborted);
+        // Escolher uma produção abre a folha no mesmo mês e dia.
         return new JobOnProcura(
-            termo,
-            referencias.Select(item => new JobOnProcuraReferencia(
+            referencia,
+            producoes.Select(item => new JobOnProcuraLinha(
                     item,
-                    Url.Page("/JobOn/Index", null, new { ano, mes, dia, procura_ref = item.Reference }, null, null, "lightProcura")!))
-                .ToList(),
-            null,
-            Array.Empty<JobOnProcuraLinha>());
+                    Url.Page("/JobOn/Index", null, new { ano, mes, dia, jobon_id = item.JobOnId }, null, null, "lightFicha")!))
+                .ToList());
     }
 
     /// <summary>
@@ -1038,6 +1176,9 @@ public sealed class IndexModel : PageModel
         // o valor ignorado (0 é válido).
         var parsedCalote = ParseCalote(caloteMm, out var caloteIgnorada);
 
+        // O fim antes do início grava e a folha avisa (Diogo, 19/10/2026).
+        var fimAntesDoInicio = parsedInicioEm is { } inicioDia && parsedFimEm is { } fimDia && fimDia < inicioDia;
+
         var outcome = await _createJobOn.HandleAsync(
             new CreateJobOn(
                 sanitizedProductionNumber ?? string.Empty,
@@ -1063,7 +1204,20 @@ public sealed class IndexModel : PageModel
             return await SavedRedirectAsync(
                 outcome.JobOn!.JobOnId,
                 outcome.OverlapWarning is not null,
-                caloteIgnorada);
+                caloteIgnorada,
+                fimAntesDoInicio);
+        }
+
+        // Duplo clique (Diogo, 18/10/2026): o segundo envio chega com os
+        // mesmos dados que o primeiro acabou de gravar. Não é uma produção
+        // repetida: abre-se a que ficou gravada, como se fosse um clique.
+        if (outcome.Result == CreateJobOnResult.DuplicateProductionNumber
+            && await IdenticalJobOnIdAsync(
+                sanitizedReference, sanitizedProductionNumber, parsedMachineId,
+                sanitizedCmToolId, sanitizedMfToolId, sanitizedBqToolId,
+                parsedInicioEm, parsedFimEm, parsedCalote) is int gravado)
+        {
+            return await SavedRedirectAsync(gravado, false, caloteIgnorada, fimAntesDoInicio);
         }
 
         return CreateRefused(
@@ -1077,6 +1231,41 @@ public sealed class IndexModel : PageModel
             parsedFimEm,
             outcome.Result,
             caloteMm);
+    }
+
+    /// <summary>
+    /// O Job On com esta referência e nº que tem exatamente os mesmos dados
+    /// (máquina, ferramentas, datas e calote); null quando algum difere.
+    /// </summary>
+    private async Task<int?> IdenticalJobOnIdAsync(
+        string? reference, string? productionNumber, int machineId,
+        string? cmToolId, string? mfToolId, string? bqToolId,
+        DateOnly? inicioEm, DateOnly? fimEm, decimal? caloteMm)
+    {
+        if (string.IsNullOrEmpty(reference) || string.IsNullOrEmpty(productionNumber))
+        {
+            return null;
+        }
+
+        var existing = await _db.JobOns
+            .AsNoTracking()
+            .Where(j => j.ProductionNumber == productionNumber && j.Reference.ToUpper() == reference)
+            .Select(j => new
+            {
+                j.Id, j.MachineId, j.InicioEm, j.FimEm, j.CaloteMm,
+                Cm = j.CmContext == null ? null : j.CmContext.ToolId,
+                Mf = j.MfContext == null ? null : j.MfContext.ToolId,
+                Bq = j.BqContext == null ? null : j.BqContext.ToolId
+            })
+            .FirstOrDefaultAsync(HttpContext.RequestAborted);
+
+        return existing is not null
+            && existing.MachineId == machineId
+            && existing.Cm == cmToolId && existing.Mf == mfToolId && existing.Bq == bqToolId
+            && existing.InicioEm == inicioEm && existing.FimEm == fimEm
+            && existing.CaloteMm == caloteMm
+                ? existing.Id
+                : null;
     }
 
     /// <summary>
@@ -1099,7 +1288,8 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "bq_tool_id")] string? bqToolId,
         [FromForm(Name = "inicio_em")] string? inicioEm,
         [FromForm(Name = "fim_em")] string? fimEm,
-        [FromForm(Name = "calote_mm")] string? caloteMm)
+        [FromForm(Name = "calote_mm")] string? caloteMm,
+        [FromForm(Name = "versao")] string? versao)
     {
         var sanitizedCmToolId = Sanitize(cmToolId);
         var sanitizedMfToolId = Sanitize(mfToolId);
@@ -1150,17 +1340,32 @@ public sealed class IndexModel : PageModel
                 parsedInicioEm,
                 parsedFimEm,
                 parsedCalote,
-                CurrentActorName()),
+                CurrentActorName(),
+                Ferramentas.FichaModel.ParseVersion(versao)),
             HttpContext.RequestAborted);
 
         if (outcome.Result == UpdateJobOnResult.Success)
         {
             // O OVERLAP NÃO BLOQUEIA (a edição gravou na mesma): o mesmo
-            // destino do Create; o jobon_id não muda na edição.
+            // destino do Create; o jobon_id não muda na edição. O fim antes
+            // do início também grava e a folha avisa (Diogo, 19/10/2026).
             return await SavedRedirectAsync(
                 outcome.JobOn!.JobOnId,
                 outcome.OverlapWarning is not null,
-                caloteIgnorada);
+                caloteIgnorada,
+                parsedInicioEm is { } inicioDia && parsedFimEm is { } fimDia && fimDia < inicioDia);
+        }
+
+        // Gravada por outra pessoa: reabre a edição com o que ficou gravado
+        // (os valores escritos não voltam, para não parecerem os gravados).
+        if (outcome.Result == UpdateJobOnResult.ChangedByAnotherUser)
+        {
+            return RedirectToPage("/JobOn/Index", new
+            {
+                jobon_id = parsedJobOnId,
+                editar = "1",
+                update_refusal = outcome.Result.ToString()
+            });
         }
 
         return UpdateRefused(
@@ -1181,60 +1386,27 @@ public sealed class IndexModel : PageModel
     /// nota aparece na linha da máquina; a recusa reabre o formulário.
     /// </summary>
     /// <summary>O nome de quem edita: o nome do utilizador, senão o nº de operador, senão o email.</summary>
-    private string? CurrentActorName() =>
-        User.FindFirst(DmoClaimTypes.DisplayName)?.Value is { Length: > 0 } name
+    private string? CurrentActorName() => ActorName(User);
+
+    internal static string? ActorName(System.Security.Claims.ClaimsPrincipal user) =>
+        user.FindFirst(DmoClaimTypes.DisplayName)?.Value is { Length: > 0 } name
             ? name
-            : User.FindFirst(DmoClaimTypes.OperatorId)?.Value
-                ?? User.FindFirst(DmoClaimTypes.Email)?.Value;
-
-    /// <summary>
-    /// POST leve do «Retirar a produção das datas» (o duplo clique no dia
-    /// já escolhido, com uma produção escolhida na lista e confirmação —
-    /// Diogo, 17/10/2026): limpa APENAS a associação de datas
-    /// (a janela temporal inicio→fim) do Job On indicado — o registo em
-    /// si, os contextos de tools e o controlo associado ficam
-    /// INTACTOS (o Job On preservado). Sem dia, a produção cai aos SEM
-    /// DIA e continua no histórico.
-    /// PRG com removed=1 (o toast informativo — nunca um bloqueio).
-    /// </summary>
-    public async Task<IActionResult> OnPostRemoveDayAsync(
-        [FromForm(Name = "jobon_id")] int? jobOnId,
-        [FromForm(Name = "ano")] int? ano,
-        [FromForm(Name = "mes")] int? mes,
-        [FromForm(Name = "dia")] int? dia)
-    {
-        if (jobOnId is int canonicalJobOnId)
-        {
-            var jobOn = await _db.JobOns
-                .FirstOrDefaultAsync(j => j.Id == canonicalJobOnId, HttpContext.RequestAborted);
-
-            if (jobOn is not null)
-            {
-                jobOn.InicioEm = null;
-                jobOn.FimEm = null;
-                await _db.SaveChangesAsync(HttpContext.RequestAborted);
-                // Volta ao mesmo dia do calendário, já sem a produção.
-                return RedirectToPage("/JobOn/Index", new { removed = "1", ano, mes, dia });
-            }
-        }
-
-        // Um id que não existe (ou ausente) não retira nada: volta ao
-        // Job On sem inventar estado — a recusa é limpa, nunca um 500.
-        return RedirectToPage("/JobOn/Index");
-    }
+            : user.FindFirst(DmoClaimTypes.OperatorId)?.Value
+                ?? user.FindFirst(DmoClaimTypes.Email)?.Value;
 
     /// <summary>
     /// O destino depois de GRAVAR um Job On. Com um aviso (sobreposição na
-    /// máquina ou calote ignorada), fica na folha da produção gravada para o
-    /// aviso aparecer. Sem aviso, vai ao Resumo do Controlo só quando o
+    /// máquina, calote ignorada ou fim antes do início), fica na folha da
+    /// produção gravada para o aviso aparecer. Sem aviso, vai ao Resumo do Controlo só quando o
     /// template dá o Controlo Criar; sem esse módulo, a entrada do Controlo
     /// levava a pessoa para outra página e o registo parecia perdido, por
     /// isso fica no Job On com a produção gravada selecionada.
     /// </summary>
-    private async Task<IActionResult> SavedRedirectAsync(int jobOnId, bool overlap, string? caloteIgnorada)
+    private async Task<IActionResult> SavedRedirectAsync(int jobOnId, bool overlap, string? caloteIgnorada, bool fimAntesDoInicio)
     {
         if (!overlap
             && caloteIgnorada is null
+            && !fimAntesDoInicio
             && await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted))
         {
             return RedirectToPage("/Controlo/Resumo", new { jobon_id = jobOnId });
@@ -1244,7 +1416,8 @@ public sealed class IndexModel : PageModel
         {
             jobon_id = jobOnId,
             overlap = overlap ? "1" : null,
-            calote_ignorada = caloteIgnorada
+            calote_ignorada = caloteIgnorada,
+            fim_antes_inicio = fimAntesDoInicio ? "1" : null
         });
     }
 
@@ -1383,7 +1556,55 @@ public sealed class IndexModel : PageModel
             ? Array.Empty<JobOnToolFacts>()
             : await _toolFacts.FindAsync(toolIds, machineCode, jobOnId, inicioEm, fimEm, HttpContext.RequestAborted);
 
-        return new JsonResult(facts, ScriptJsonOptions);
+        // Os avisos com os links para onde se resolvem, só os que esta
+        // pessoa pode abrir (o mesmo que o partial _DmoAvisoLink faz no
+        // servidor).
+        var capabilities = await _capabilities.GetAsync(HttpContext.RequestAborted);
+        var resposta = new System.Text.Json.Nodes.JsonArray();
+        foreach (var fact in facts)
+        {
+            var node = JsonSerializer.SerializeToNode(fact, ScriptJsonOptions)!.AsObject();
+            node["avisos"] = JsonSerializer.SerializeToNode(
+                AvisosDasFerramentas(fact).Select(aviso => new
+                {
+                    texto = aviso.Texto,
+                    links = aviso.Links
+                        .Where(link => link.PodeAbrir(capabilities))
+                        .Select(link => new { texto = link.Texto, href = link.Href })
+                }),
+                ScriptJsonOptions);
+            resposta.Add(node);
+        }
+
+        return new JsonResult(resposta);
+    }
+
+    /// <summary>
+    /// Os avisos de uma ferramenta escolhida na folha, cada um com os links
+    /// para onde se resolve (Diogo, 19/10/2026): a compatibilidade leva à
+    /// ficha da ferramenta (as máquinas registadas), o uso paralelo a cada
+    /// uma das outras produções. Abrem noutro separador: a folha pode estar
+    /// por gravar.
+    /// </summary>
+    public static IReadOnlyList<JobOnToolAviso> AvisosDasFerramentas(JobOnToolFacts fact)
+    {
+        var avisos = new List<JobOnToolAviso>();
+        if (fact.AvisoCompatibilidade is { } compatibilidade)
+        {
+            avisos.Add(new JobOnToolAviso(compatibilidade,
+            [
+                Shared.DmoAvisoLink.FichaFerramenta(fact.ToolId, $"Abrir a ficha da {fact.Type}") with { NovoSeparador = true }
+            ]));
+        }
+
+        if (fact.AvisoUsoParalelo is { } paralelo)
+        {
+            avisos.Add(new JobOnToolAviso(paralelo, fact.UsosParalelos
+                .Select(uso => Shared.DmoAvisoLink.JobOn(uso.JobOnId, $"Abrir {uso.ProductionNumber} ({uso.Machine})") with { NovoSeparador = true })
+                .ToList()));
+        }
+
+        return avisos;
     }
 
     private static string? Sanitize(string? value)
@@ -1393,19 +1614,20 @@ public sealed class IndexModel : PageModel
     }
 }
 
+/// <summary>Um aviso de uma ferramenta da folha do Job On e os links para onde se resolve.</summary>
+public sealed record JobOnToolAviso(string Texto, IReadOnlyList<DMO.Alpha.Web.Pages.Shared.DmoAvisoLink> Links);
+
 /// <summary>
-/// A procura ao escrever no Job On: no primeiro passo as referências
-/// encontradas para o texto; no segundo (<see cref="Referencia"/> preenchida)
-/// as produções dessa referência.
+/// A procura ao escrever no Job On: a referência escrita e as últimas
+/// produções dela (vazio quando a referência não existe).
 /// </summary>
 public sealed record JobOnProcura(
-    string Termo,
-    IReadOnlyList<JobOnProcuraReferencia> Referencias,
-    string? Referencia,
-    IReadOnlyList<JobOnProcuraLinha> Linhas);
-
-/// <summary>Uma referência encontrada e o endereço que um clique abre: as produções dela.</summary>
-public sealed record JobOnProcuraReferencia(ReferenceSearchItem Item, string Abrir);
+    string Referencia,
+    IReadOnlyList<JobOnProcuraLinha> Linhas)
+{
+    /// <summary>Sem procura: o dropdown vazio e desativado.</summary>
+    public static JobOnProcura Vazia { get; } = new(string.Empty, Array.Empty<JobOnProcuraLinha>());
+}
 
 /// <summary>Uma produção encontrada e o endereço da folha que um clique abre.</summary>
 public sealed record JobOnProcuraLinha(ProductionSearchItem Item, string Abrir);

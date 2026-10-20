@@ -1,6 +1,7 @@
 using DMO.Alpha.Core.Paging;
 using DMO.Alpha.Core.Production;
 using DMO.Alpha.Infrastructure.Data;
+using DMO.Alpha.Infrastructure.Search;
 using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Infrastructure.Production;
@@ -23,15 +24,16 @@ public sealed class JobOnListQuery : IJobOnListQuery
         _db = db;
     }
 
-    public async Task<IReadOnlyList<ProductionContextReadModel>> ListAsync(CancellationToken cancellationToken = default) =>
-        await Project(_db.JobOns.AsNoTracking()).ToListAsync(cancellationToken);
-
     public async Task<IReadOnlyList<ProductionContextReadModel>> ListByReferenceAsync(
         string reference,
         string? machineCode,
         CancellationToken cancellationToken = default)
     {
-        var referencia = reference.Trim();
+        // A referência inteira, igual à gravada: as referências gravam-se em
+        // maiúsculas (CreateJobOnHandler), por isso o texto passa a maiúsculas
+        // e a coluna fica como está (o índice da referência serve). «3540y079»
+        // escrito à mão encontra a 3540Y079 (deep sweep 2, F-7).
+        var referencia = reference.Trim().ToUpperInvariant();
         var jobs = _db.JobOns.AsNoTracking().Where(j => j.Reference == referencia);
         if (!string.IsNullOrWhiteSpace(machineCode))
         {
@@ -93,25 +95,24 @@ public sealed class JobOnListQuery : IJobOnListQuery
         int? machineId = null,
         CancellationToken cancellationToken = default)
     {
-        var term = reference.Trim().ToUpper();
-        if (term.Length == 0)
+        if (ReferenceMatch.Normalize(reference) is not { } term)
         {
             return [];
         }
-        var jobs = _db.JobOns.AsNoTracking().Where(j => j.Reference.ToUpper().Contains(term));
+        var jobs = _db.JobOns.AsNoTracking().Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, term));
         if (machineId is int machine)
         {
             jobs = jobs.Where(j => j.MachineId == machine);
         }
-        var rows = await jobs
+        // Cada linha é uma produção (o par referência + nº é único na base):
+        // as últimas 5 são 5 opções, mesmo com o mesmo nº em duas referências
+        // (deep sweep 2, F-17: os repetidos tirados depois do corte deixavam
+        // menos de 5 e juntavam as duas referências numa opção).
+        return await jobs
             .OrderByDescending(j => j.Id)
-            .Select(j => new { j.ProductionNumber, j.Reference })
+            .Select(j => new JobOnProductionOption(j.ProductionNumber, j.Reference))
             .Take(IProductionPickerQuery.MaxResults)
             .ToListAsync(cancellationToken);
-        return rows
-            .DistinctBy(r => r.ProductionNumber)
-            .Select(r => new JobOnProductionOption(r.ProductionNumber, r.Reference))
-            .ToList();
     }
 
     public async Task<PagedList<ProductionContextReadModel>> ListPageOfReferenceAsync(
@@ -120,7 +121,7 @@ public sealed class JobOnListQuery : IJobOnListQuery
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var referencia = reference.Trim();
+        var referencia = reference.Trim().ToUpperInvariant();
         var jobs = _db.JobOns.AsNoTracking().Where(j => j.Reference == referencia);
         var total = await jobs.CountAsync(cancellationToken);
         var page = ListPaging.ClampPage(pageNumber, total, pageSize);
@@ -129,14 +130,15 @@ public sealed class JobOnListQuery : IJobOnListQuery
         return new PagedList<ProductionContextReadModel>(items, total, page, pageSize);
     }
 
-    // A referência contém o texto; a máquina e o nº de produção são iguais; o período apanha
-    // as produções com dia cuja janela toca [desde, até] (sem fim = aberta).
+    // A referência pelo início dela ou da parte BQ (ReferenceMatch); a máquina e o nº de
+    // produção são iguais, e com a referência da produção escolhida só essa produção (o mesmo
+    // nº pode existir noutra referência); o período apanha as produções com dia cuja janela
+    // toca [desde, até] (sem fim = aberta).
     private static IQueryable<JobOn> ApplyHistoryFilter(IQueryable<JobOn> jobs, JobOnHistoryFilter filter)
     {
-        if (filter.Reference?.Trim() is { Length: > 0 } reference)
+        if (ReferenceMatch.Normalize(filter.Reference) is { } reference)
         {
-            var term = reference.ToUpper();
-            jobs = jobs.Where(j => j.Reference.ToUpper().Contains(term));
+            jobs = jobs.Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, reference));
         }
         if (filter.MachineId is int machineId)
         {
@@ -145,6 +147,10 @@ public sealed class JobOnListQuery : IJobOnListQuery
         if (filter.ProductionNumber?.Trim() is { Length: > 0 } productionNumber)
         {
             jobs = jobs.Where(j => j.ProductionNumber == productionNumber);
+        }
+        if (filter.ProductionReference?.Trim().ToUpperInvariant() is { Length: > 0 } productionReference)
+        {
+            jobs = jobs.Where(j => j.Reference == productionReference);
         }
         if (filter.Desde is { } desde)
         {

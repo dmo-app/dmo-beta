@@ -7,7 +7,8 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// <summary>
 /// Grava a tolerância do corredor de Pegamentos na linha única da
 /// configuração (cria-a na primeira gravação, atualiza-a depois). Os
-/// registos já criados mantêm a tolerância congelada.
+/// registos já criados mantêm a tolerância congelada. Fora do habitual
+/// grava na mesma (ver <see cref="SavePegamentosToleranceResult"/>).
 /// </summary>
 public sealed class SavePegamentosToleranceHandler : ISavePegamentosToleranceHandler
 {
@@ -22,24 +23,30 @@ public sealed class SavePegamentosToleranceHandler : ISavePegamentosToleranceHan
         decimal toleranceMm,
         CancellationToken cancellationToken = default)
     {
-        if (!PegamentosToleranceLimits.IsValid(toleranceMm))
+        if (toleranceMm < 0)
         {
-            return SavePegamentosToleranceResult.OutOfRange;
+            return SavePegamentosToleranceResult.Negative(toleranceMm);
         }
+
+        var saved = PegamentosToleranceLimits.Normalize(toleranceMm);
 
         var existing = await _db.PegamentosTolerances
             .OrderBy(t => t.Id)
             .FirstOrDefaultAsync(cancellationToken);
         if (existing is null)
         {
-            _db.PegamentosTolerances.Add(new PegamentosTolerance { ToleranceMm = toleranceMm });
+            _db.PegamentosTolerances.Add(new PegamentosTolerance { ToleranceMm = saved });
         }
         else
         {
-            existing.ToleranceMm = toleranceMm;
+            existing.ToleranceMm = saved;
         }
 
         await _db.SaveChangesAsync(cancellationToken);
-        return SavePegamentosToleranceResult.Success;
+        return new SavePegamentosToleranceResult(
+            true,
+            saved,
+            saved != toleranceMm,
+            !PegamentosToleranceLimits.IsUsual(saved));
     }
 }

@@ -20,10 +20,10 @@ public enum DuplicateToolResult
     MissingNewLot,
 
     /// <summary>
-    /// Já existe uma ferramenta com o mesmo tipo, referência e lote. Desde a
-    /// beta.63 já não é devolvido: a duplicação abre a ferramenta existente
-    /// (Success com <see cref="CreatedTool.AlreadyExisted"/>); fica para os
-    /// links antigos com ?duplicate_refusal=LotAlreadyExists.
+    /// Já existe uma ferramenta com o mesmo tipo, referência e lote. Entre a
+    /// beta.63 e a ferramenta repetida (18/10/2026) a duplicação abria a
+    /// existente; agora é recusada e a existente fica com o aviso de
+    /// ferramenta repetida.
     /// </summary>
     LotAlreadyExists
 }

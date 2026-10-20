@@ -21,9 +21,6 @@ public sealed partial class IndexModel
     /// <summary>O movimento aberto para correção; null quando não pertence ao registo.</summary>
     public BoquilhasRegistoMovement? EditingMovement { get; private set; }
 
-    /// <summary>True quando o movimento aberto está entre os mais recentes do registo.</summary>
-    public bool EditingMovementDeletable { get; private set; }
-
     /// <summary>«Corrigido por X em dd/mm hh:mm» do movimento aberto; vazio quando nunca foi corrigido.</summary>
     public string EditingMovementCorrectionNote => EditingMovement?.CorrectedAtUtc is DateTime correctedAt
         ? string.IsNullOrWhiteSpace(EditingMovement.CorrectedByNameFrozen)
@@ -58,8 +55,6 @@ public sealed partial class IndexModel
             "Indique uma quantidade igual ou superior a 1. Nada foi alterado.",
         nameof(EditBqMovementResult.InvalidOccurrenceTime) =>
             "A data e hora indicadas não são legíveis. Indique a data e a hora reais do movimento. Nada foi alterado.",
-        nameof(DeleteBqMovementResult.NotAmongMostRecent) =>
-            $"Só é possível apagar um dos {DeleteBqMovement.MostRecentLimit} movimentos mais recentes deste registo. Nada foi apagado.",
         _ => string.Empty
     };
 
@@ -77,11 +72,11 @@ public sealed partial class IndexModel
             mov_pagina = TraceMovementsPage
         });
 
-    /// <summary>«Posta a zero por X em dd/mm hh:mm»; vazio quando nunca foi posta a zero.</summary>
+    /// <summary>«Metida a zero por X em dd/mm hh:mm»; vazio quando nunca foi posta a zero.</summary>
     public string DiscrepancyResetNote => RegistoTrace?.DiscrepancyResetAtUtc is DateTime resetAt
         ? string.IsNullOrWhiteSpace(RegistoTrace.DiscrepancyResetBy)
-            ? $"Posta a zero em {FormatCorrectionTime(resetAt)}. Conta só os movimentos depois disso."
-            : $"Posta a zero por {RegistoTrace.DiscrepancyResetBy} em {FormatCorrectionTime(resetAt)}. Conta só os movimentos depois disso."
+            ? $"Metida a zero em {FormatCorrectionTime(resetAt)}. Conta só os movimentos depois disso."
+            : $"Metida a zero por {RegistoTrace.DiscrepancyResetBy} em {FormatCorrectionTime(resetAt)}. Conta só os movimentos depois disso."
         : string.Empty;
 
     /// <summary>
@@ -110,19 +105,16 @@ public sealed partial class IndexModel
             mov_pagina = TraceMovementsPage
         });
 
-    private void ComposeMovementCorrection()
+    private async Task ComposeMovementCorrectionAsync()
     {
         if (!EditMovementsMode || RegistoTrace is not { } trace || EditMovementId is not int movementId)
         {
             return;
         }
 
-        EditingMovement = trace.Movements.FirstOrDefault(m => m.MovementId == movementId);
-        EditingMovementDeletable = EditingMovement is not null && trace.Movements
-            .OrderByDescending(m => m.OccurredAtUtc)
-            .ThenByDescending(m => m.MovementId)
-            .Take(DeleteBqMovement.MostRecentLimit)
-            .Any(m => m.MovementId == movementId);
+        // O movimento aberto pode estar noutra página da tabela.
+        EditingMovement = trace.Movements.FirstOrDefault(m => m.MovementId == movementId)
+            ?? await _registoQuery.FindMovementAsync(trace.BqRepairTraceId, movementId, HttpContext.RequestAborted);
     }
 
     /// <summary>POST: corrige o tipo, a quantidade e a data/hora reais de um movimento.</summary>
@@ -156,17 +148,21 @@ public sealed partial class IndexModel
                 traceId, movementId, movementType ?? string.Empty, quantity ?? 0, occurredLocal, CurrentActorName()),
             HttpContext.RequestAborted);
 
-        // A hora que caía na mudança de hora foi gravada na hora seguinte: a folha avisa.
+        // A hora que caía na mudança de hora foi gravada na hora seguinte, ou a
+        // data corrigida ficou no futuro (Diogo, 19/10/2026: «as datas têm de
+        // ser livres»): gravou e a folha avisa.
         if (outcome.Result == EditBqMovementResult.Success
-            && outcome.OccurredAtShiftedLocal is DateTime shiftedLocal
-            && occurredLocal is DateTime requestedLocal)
+            && occurredLocal is DateTime requestedLocal
+            && (outcome.OccurredAtShiftedLocal is not null || outcome.OccurredInTheFuture))
         {
+            var savedLocal = outcome.OccurredAtShiftedLocal ?? requestedLocal;
             return RedirectToPage("/Boquilhas/Index", new
             {
                 trace_id = traceId,
                 editar_mov = 1,
-                hora_indicada = LocalFieldValue(requestedLocal),
-                hora_gravada = LocalFieldValue(shiftedLocal)
+                hora_indicada = outcome.OccurredAtShiftedLocal is not null ? LocalFieldValue(requestedLocal) : null,
+                hora_gravada = outcome.OccurredAtShiftedLocal is DateTime shiftedLocal ? LocalFieldValue(shiftedLocal) : null,
+                data_no_futuro = outcome.OccurredInTheFuture ? LocalFieldValue(savedLocal) : null
             });
         }
 
@@ -178,7 +174,7 @@ public sealed partial class IndexModel
         };
     }
 
-    /// <summary>POST: apaga um dos movimentos mais recentes do registo.</summary>
+    /// <summary>POST: apaga um movimento do registo; as discrepâncias recalculam-se.</summary>
     public async Task<IActionResult> OnPostDeleteMovementAsync(
         [FromServices] IDeleteBqMovementHandler handler,
         [FromForm(Name = "trace_id")] int traceId,

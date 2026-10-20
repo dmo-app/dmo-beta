@@ -23,6 +23,9 @@ public sealed record EditedToolFacts(
     string Lot,
     string? AssociatedMfReference,
     int? BqAccountedQuantity,
-    bool ReferenceFormatAdvisory,
     // TRUE quando o lote chegou vazio e ficou «s/lote» (beta.63).
-    bool LotDefaulted = false);
+    bool LotDefaulted = false,
+    // O tipo antes da edição, quando mudou, e quantas produções usaram a
+    // ferramenta com esse tipo (sweep de 19/10/2026, F-1): a ficha avisa.
+    ToolType? PreviousType = null,
+    int PreviousTypeProductions = 0);

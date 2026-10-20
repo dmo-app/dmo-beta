@@ -31,9 +31,11 @@ public interface IBqToolHistoryQuery
     /// sem limite) com os filtros do html — a máquina, o tipo (o token
     /// canónico: saida/entrada/entrada_sem_reparacao; null = todos), o
     /// reparador (o nome congelado ou o nº do operador — parciais contam)
-    /// e a pesquisa de texto (a boquilha, o lote, a produção, a máquina, o
-    /// reparador — contém, case-insensitive). Do mais recente para o mais
-    /// antigo; os FATOS HUMANOS de cada movimento.
+    /// e a pesquisa de texto (a boquilha e a referência da produção pelo
+    /// início delas ou da parte BQ; o lote, o nº da produção, a máquina e o
+    /// reparador por parte do texto; case-insensitive). Do mais recente para o mais
+    /// antigo; os FATOS HUMANOS de cada movimento. Com <paramref name="limit"/>,
+    /// só os N mais recentes (null = todos).
     /// </summary>
     Task<IReadOnlyList<BqHistoryMovementItem>> ListMovementsAsync(
         DateOnly? desde,
@@ -42,25 +44,10 @@ public interface IBqToolHistoryQuery
         string? type,
         string? operatorId,
         string? text,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        int? limit = null,
+        string? toolId = null);
 
-    /// <summary>
-    /// O RESUMO DIÁRIO · 6 MÁQUINAS (o vista «Resumo diário» do dmo-html):
-    /// uma entrada por (dia, máquina, REGISTO) — os movimentos do mesmo
-    /// bq_repair_trace num dia numa máquina agrupam-se numa entrada com os
-    /// contadores E/S/SR; cada referência/BQ/lote aparece separada quando
-    /// há mudança de registo na mesma máquina. Os mesmos filtros do
-    /// ListMovementsAsync sobre a DATA REAL. O read model que o gerador PDF
-    /// da A5 consome — o gerador SÓ FORMATA, nunca calcula.
-    /// </summary>
-    Task<IReadOnlyList<BqDailySummaryEntry>> ListDailySummaryAsync(
-        DateOnly desde,
-        DateOnly ate,
-        string? machine,
-        string? type,
-        string? operatorId,
-        string? text,
-        CancellationToken cancellationToken = default);
 }
 
 /// <summary>Um movimento do Histórico (os fatos humanos de toda a cadeia).</summary>
@@ -82,7 +69,9 @@ public sealed record BqHistoryMovementItem(
     string? MachineCode,
     string? ProductionNumber,
     string? Reference,
-    string? BqRepairerNameFrozen = null);
+    string? BqRepairerNameFrozen = null,
+    /// <summary>O tool_id da ferramenta (o clique na linha abre a ficha dela).</summary>
+    string? ToolId = null);
 
 /// <summary>Um dia do calendário com movimentos (o ponto do Histórico).</summary>
 public sealed record BqHistoryDayCount(

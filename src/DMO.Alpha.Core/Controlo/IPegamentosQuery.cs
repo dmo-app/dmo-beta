@@ -20,28 +20,34 @@ public interface IPegamentosQuery
 {
     /// <summary>
     /// Devolve a folha de Pegamentos do controlo pedido, ou null quando o
-    /// controlo_id não existe (nenhum contexto é inventado).
+    /// controlo_id não existe (nenhum contexto é inventado). Sem
+    /// <paramref name="pegamentosId"/>, a folha das ferramentas que a
+    /// produção tem agora (a CM, a BQ e o MF do Job On), ou nenhuma: depois
+    /// de uma troca, a próxima leitura começa uma folha nova. Com um
+    /// pegamentos_id desta produção, essa folha, com as ferramentas dela.
     /// </summary>
     Task<PegamentosSheetReadModel?> FindSheetByControloAsync(
         int controloId,
+        int? pegamentosId = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// A folha de um registo de Pegamentos pelo pegamentos_id: com produção,
-    /// a mesma folha de <see cref="FindSheetByControloAsync"/>; sem Job On,
-    /// a folha com as ferramentas guardadas no registo. Null quando o
-    /// pegamentos_id não existe.
+    /// a de <see cref="FindSheetByControloAsync"/> para esse pegamentos_id;
+    /// sem Job On, a folha com as ferramentas guardadas no registo. Null
+    /// quando o pegamentos_id não existe.
     /// </summary>
     Task<PegamentosSheetReadModel?> FindSheetByPegamentosAsync(
         int pegamentosId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Só o registo de Pegamentos do controlo (o mesmo de
-    /// <see cref="FindSheetByControloAsync"/>), sem o contexto da folha;
-    /// null quando ainda não existe.
+    /// Todas as folhas de Pegamentos do controlo, pela ordem de gravação,
+    /// cada uma com as suas ferramentas e a marca da atual (as de
+    /// <see cref="PegamentosSheetReadModel.Sheets"/>), sem o contexto da
+    /// folha; vazia antes da primeira medição.
     /// </summary>
-    Task<PegamentosReadModel?> FindRecordByControloAsync(
+    Task<IReadOnlyList<PegamentosReadModel>> ListSheetsByControloAsync(
         int controloId,
         CancellationToken cancellationToken = default);
 }

@@ -5,57 +5,51 @@
  * pelos POSTs nativos.
  *
  * API: DMOLive.toast(message, opts?) · DMOLive.escapeHtml(v) ·
- *      DMOLive.el(tag, className, text) · DMOLive.swapHTML(container, html) ·
  *      DMOLive.debounce(fn, wait) · DMOLive.formatNumber(value, decimals)
  * Nada aqui calcula física industrial: o cálculo é sempre do backend.
  */
 (function (global) {
   "use strict";
 
-  /* ---------- toast ---------- */
-  var region = null;
+  /* ---------- toast ----------
+   * As mensagens que o JS compõe (a pré-visualização do Peso sem rede, a pasta
+   * dos PDFs) entram na mesma pilha que as data-dmo-toast do servidor (ver
+   * «mensagens de resultado» mais abaixo): o mesmo canto, as cores da paleta,
+   * o «×». Antes tinham uma segunda pilha no canto de baixo, com cores soltas
+   * e sem esmorecer ao sair (deep sweep de 18/10/2026, regra 109).
+   *
+   * A mesma mensagem não se empilha: enquanto estiver à vista, pedir outra vez
+   * devolve a que lá está (B-peso-7: sem rede, cada tecla juntava um aviso).
+   * Os tipos são os da casa: «ok» fecha ao fim de 6 s (ou opts.timeout); «erro»
+   * e «aviso» ficam até se fecharem, salvo opts.timeout. */
+  var TIPOS = { info: "ok", success: "ok", ok: "ok", warn: "aviso", aviso: "aviso", error: "erro", erro: "erro" };
 
-  function ensureRegion() {
-    if (region && document.body.contains(region)) return region;
-    region = document.createElement("div");
-    region.className = "dmo-live-region";
-    region.setAttribute("aria-live", "polite");
-    region.setAttribute("role", "status");
-    document.body.appendChild(region);
-    return region;
-  }
-
-  function injectStylesOnce() {
-    if (document.getElementById("dmo-live-styles")) return;
-    var style = document.createElement("style");
-    style.id = "dmo-live-styles";
-    // Classes com prefixo dmo-live: o design system canónico já define
-    // .dmo-toast (revisão F-5) — o toast vivo não colide com esse namespace.
-    style.textContent =
-      ".dmo-live-region{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}" +
-      ".dmo-live-toast{background:#1f3a5f;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);font-size:14px;max-width:420px;opacity:0;transform:translateY(8px);transition:opacity .18s ease,transform .18s ease;pointer-events:auto}" +
-      ".dmo-live-toast.dmo-live-toast-visible{opacity:1;transform:none}" +
-      ".dmo-live-toast[data-kind='info']{background:#1f3a5f}" +
-      ".dmo-live-toast[data-kind='warn']{background:#8a5a00}" +
-      ".dmo-live-toast[data-kind='error']{background:#8a1c1c}";
-    document.head.appendChild(style);
+  function textoDaMensagem(mensagem) {
+    var texto = "";
+    Array.prototype.forEach.call(mensagem.childNodes, function (n) {
+      if (n.classList && n.classList.contains("dmo-toast-fechar")) return;
+      texto += n.textContent;
+    });
+    return texto.trim();
   }
 
   function toast(message, opts) {
     opts = opts || {};
-    injectStylesOnce();
-    var host = ensureRegion();
+    var tipo = TIPOS[opts.kind] || "ok";
+    var texto = String(message === null || message === undefined ? "" : message);
+    var pilha = document.querySelector(".dmo-toast-pilha");
+    var igual = pilha && Array.prototype.find.call(
+      pilha.querySelectorAll("[data-dmo-toast]:not(.a-sair)"),
+      function (m) { return m.getAttribute("data-dmo-toast") === tipo && textoDaMensagem(m) === texto.trim(); });
+    if (igual) {
+      if (igual.__dmoReiniciar) igual.__dmoReiniciar(opts.timeout);
+      return igual;
+    }
     var node = document.createElement("div");
-    node.className = "dmo-live-toast";
-    node.setAttribute("data-kind", opts.kind || "info");
-    node.textContent = message;
-    host.appendChild(node);
-    requestAnimationFrame(function () { node.classList.add("dmo-live-toast-visible"); });
-    var life = typeof opts.timeout === "number" ? opts.timeout : 3500;
-    setTimeout(function () {
-      node.classList.remove("dmo-toast-visible");
-      setTimeout(function () { if (node.parentNode) node.parentNode.removeChild(node); }, 250);
-    }, life);
+    node.setAttribute("data-dmo-toast", tipo);
+    node.setAttribute("role", tipo === "erro" ? "alert" : "status");
+    node.textContent = texto;
+    juntarAPilha(node, opts.timeout);
     return node;
   }
 
@@ -68,18 +62,6 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
-  }
-
-  function el(tag, className, text) {
-    var node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text !== undefined && text !== null) node.textContent = text;
-    return node;
-  }
-
-  function swapHTML(container, html) {
-    if (!container) return;
-    container.innerHTML = html; // html já escapado por quem compõe (funções puras)
   }
 
   function debounce(fn, wait) {
@@ -125,7 +107,9 @@
     // Linha sem destino (a máquina «Sem produção», o dia vazio): não há nada a
     // abrir, e não se inventa um sítio para onde ir.
     if (!destino) return;
-    global.location.href = destino;
+    // Dentro de uma zona data-dmo-parcial, troca só o que muda na página.
+    if (global.DmoTroca) global.DmoTroca.ir(destino, row);
+    else global.location.href = destino;
   });
 
   /* ---------- AS AÇÕES FORA DA LISTA (regra 2a: «os botoes vivem sempre fora») ----------
@@ -194,46 +178,74 @@
 
   /* ---------- mensagens de resultado (data-dmo-toast) ----------
    * O servidor escreve a mensagem onde ela pertence; aqui junta-se numa pilha
-   * no canto, com «×». As «ok» fecham sozinhas; as «erro» ficam até se fechar,
-   * para não se perder o motivo da recusa. O CSS já as tira do fluxo, por isso
-   * a página não se mexe nem antes deste script correr. */
-  function montarToasts() {
-    var mensagens = document.querySelectorAll("[data-dmo-toast]");
-    if (mensagens.length === 0) return;
-    var pilha = document.createElement("div");
-    pilha.className = "dmo-toast-pilha";
-    // Por baixo das barras de navegação, que mudam de altura entre módulos.
-    var barras = document.querySelector(".dmo-shell-navigation");
-    if (barras && window.matchMedia("(min-width: 641px)").matches) {
-      pilha.style.top = Math.max(12, barras.getBoundingClientRect().bottom + 12) + "px";
+   * no canto, com «×». As «ok» fecham sozinhas; as «erro» e os «aviso» ficam
+   * até se fechar, para não se perder o motivo da recusa nem o aviso (nos
+   * Pegamentos, «Medição registada sem contra costura…»). O CSS já as tira do
+   * fluxo, por isso a página não se mexe nem antes deste script correr. */
+  function obterPilha() {
+    // Uma pilha só: as mensagens de uma zona trocada (DmoTroca) e as do
+    // DMOLive.toast juntam-se às que já lá estão.
+    var pilha = document.querySelector(".dmo-toast-pilha");
+    if (!pilha) {
+      pilha = document.createElement("div");
+      pilha.className = "dmo-toast-pilha";
+      // Por baixo das barras de navegação, que mudam de altura entre módulos.
+      var barras = document.querySelector(".dmo-shell-navigation");
+      if (barras && window.matchMedia && window.matchMedia("(min-width: 641px)").matches) {
+        pilha.style.top = Math.max(12, barras.getBoundingClientRect().bottom + 12) + "px";
+      }
+      document.body.appendChild(pilha);
     }
-    document.body.appendChild(pilha);
-    mensagens.forEach(function (mensagem) {
-      var fechar = function () {
-        mensagem.classList.add("a-sair");
-        setTimeout(function () { if (mensagem.parentNode) mensagem.parentNode.removeChild(mensagem); }, 220);
-      };
-      var botao = document.createElement("button");
-      botao.type = "button";
-      botao.className = "dmo-toast-fechar";
-      botao.setAttribute("aria-label", "Fechar");
-      botao.textContent = "×";
-      botao.addEventListener("click", fechar);
-      mensagem.appendChild(botao);
-      pilha.appendChild(mensagem);
-      if (mensagem.getAttribute("data-dmo-toast") === "ok") setTimeout(fechar, 6000);
+    return pilha;
+  }
+
+  function juntarAPilha(mensagem, tempo) {
+    var temporizador = null;
+    var fechar = function () {
+      if (temporizador) clearTimeout(temporizador);
+      mensagem.classList.add("a-sair");
+      setTimeout(function () { if (mensagem.parentNode) mensagem.parentNode.removeChild(mensagem); }, 220);
+    };
+    var botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "dmo-toast-fechar";
+    botao.setAttribute("aria-label", "Fechar");
+    botao.textContent = "×";
+    botao.addEventListener("click", fechar);
+    mensagem.appendChild(botao);
+    obterPilha().appendChild(mensagem);
+    // Pedida outra vez enquanto está à vista, a mensagem conta o tempo de novo.
+    mensagem.__dmoReiniciar = function (novoTempo) {
+      if (typeof novoTempo === "number") tempo = novoTempo;
+      if (temporizador) clearTimeout(temporizador);
+      temporizador = null;
+      var vida = typeof tempo === "number" ? tempo : null;
+      // Só as «ok» fecham sozinhas (uma do DMOLive.toast pode pedir o seu tempo).
+      if (vida === null && mensagem.getAttribute("data-dmo-toast") === "ok") vida = 6000;
+      if (vida !== null) temporizador = setTimeout(fechar, vida);
+    };
+    mensagem.__dmoReiniciar();
+  }
+
+  function montarToasts(raiz) {
+    var mensagens = (raiz && raiz.querySelectorAll ? raiz : document).querySelectorAll("[data-dmo-toast]");
+    if (mensagens.length === 0) return;
+    var pilha = obterPilha();
+    Array.prototype.forEach.call(mensagens, function (mensagem) {
+      // As que já estão na pilha já foram montadas.
+      if (mensagem.parentNode === pilha) return;
+      juntarAPilha(mensagem);
     });
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", montarToasts);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { montarToasts(); });
   else montarToasts();
 
   global.DMOLive = {
     toast: toast,
     escapeHtml: escapeHtml,
-    el: el,
-    swapHTML: swapHTML,
     debounce: debounce,
     formatNumber: formatNumber,
-    aplicarSeleccaoAsAccoes: aplicarSeleccaoAsAccoes
+    aplicarSeleccaoAsAccoes: aplicarSeleccaoAsAccoes,
+    mostrarMensagens: montarToasts
   };
 })(window);

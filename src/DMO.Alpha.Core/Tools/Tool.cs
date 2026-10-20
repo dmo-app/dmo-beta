@@ -24,9 +24,9 @@ public sealed class Tool
 
     /// <summary>
     /// A referência canónica da Tool (a identidade HUMANA do registo:
-    /// «CM · 5447 · lote 3»): dígitos para CM (5447), 1 letra maiúscula +
-    /// 3 dígitos para BQ (T194/C142/Y232). O formato é HINT + nota
-    /// avisadora — nunca recusa (função antes de proteção). A referência é
+    /// «CM · 5447T173 · lote 3»): a referência toda, como no desenho
+    /// (1075C142, 5447T173 ou ST100), nunca o nome técnico. O formato
+    /// nunca é recusado (função antes de proteção). A referência é
     /// facto de descoberta, não chave de identidade: nunca deriva o
     /// tool_id nem cria unicidade.
     /// </summary>
@@ -67,4 +67,22 @@ public sealed class Tool
     /// simples (tipo + referência + lote).
     /// </summary>
     public string? TechnicalName { get; set; }
+
+    /// <summary>
+    /// FERRAMENTA REPETIDA (o proprietário, 18/10/2026): quando alguém tenta
+    /// registar outra ferramenta com o mesmo tipo, referência e lote, o
+    /// registo é recusado e ESTA fica com um aviso, porque a errada pode ser
+    /// a que já existia. Quem confirmar que está certa limpa o aviso (null).
+    /// </summary>
+    public DateTime? DuplicateWarningAtUtc { get; set; }
+
+    /// <summary>
+    /// Quando foi registada (null nas registadas antes de 18/10/2026). Serve
+    /// para o duplo clique: o mesmo registo repetido logo a seguir devolve a
+    /// que acabou de nascer, sem recusa nem aviso.
+    /// </summary>
+    public DateTime? RegisteredAtUtc { get; set; }
+
+    /// <summary>Quem tentou registar a repetida (o nome, senão o nº de operador ou o email).</summary>
+    public string? DuplicateWarningByNameFrozen { get; set; }
 }

@@ -58,17 +58,18 @@ public static class BoquilhasDayChange
     /// O dia operacional que contém o momento dado: HOJE quando o relógio
     /// já passou a hora de viragem, ONTEM quando ainda não passou (o dia
     /// operacional começa à hora configurada, o padrão 8h — a manhã da
-    /// fábrica; nunca 0h).
+    /// fábrica; nunca 0h). O momento é a hora local de Lisboa: em UTC a
+    /// viragem mudava uma hora no verão.
     /// </summary>
-    public static DateOnly ResolveOperationalDay(DateTime momentUtc, int dayChangeHour)
+    public static DateOnly ResolveOperationalDay(DateTime momentLocal, int dayChangeHour)
     {
         if (dayChangeHour is < 0 or > 23)
         {
             throw new ArgumentOutOfRangeException(nameof(dayChangeHour), "A hora de viragem é um inteiro 0–23.");
         }
 
-        return momentUtc.Hour >= dayChangeHour
-            ? DateOnly.FromDateTime(momentUtc)
-            : DateOnly.FromDateTime(momentUtc.AddDays(-1));
+        return momentLocal.Hour >= dayChangeHour
+            ? DateOnly.FromDateTime(momentLocal)
+            : DateOnly.FromDateTime(momentLocal.AddDays(-1));
     }
 }

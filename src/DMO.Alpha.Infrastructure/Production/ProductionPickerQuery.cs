@@ -1,6 +1,7 @@
 using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
+using DMO.Alpha.Infrastructure.Search;
 using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Infrastructure.Production;
@@ -22,17 +23,22 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
         string? reference,
         CancellationToken cancellationToken = default)
     {
-        var term = reference?.Trim().ToUpperInvariant();
-        if (string.IsNullOrEmpty(term))
+        var term = ReferenceMatch.Normalize(reference);
+        if (term is null)
         {
             return Array.Empty<ProductionPickItem>();
         }
 
         // O filtro na entidade antes da projeção (o EF/Npgsql não traduz um
         // Where sobre o record projetado — o precedente do ResumoProductionQuery).
+        // O INÍCIO DA REFERÊNCIA OU DA PARTE BQ (Diogo, 18/10/2026, a regra de
+        // ReferenceMatch), nunca um pedaço do meio: «35» trazia a 4996T350 e
+        // «2847» outras referências com 2847 no meio (deep sweep 2, F-1/F-3).
+        // Não só a referência inteira: o início («6018») já enche o dropdown
+        // das produções, como na procura do Job On (Diogo, beta.208; beta.233).
+        // Cada item leva o seu jobon_id: o nº só é único junto com a referência.
         return await (
-                from j in _db.JobOns.AsNoTracking()
-                where j.Reference.ToUpper().Contains(term)
+                from j in _db.JobOns.AsNoTracking().Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, term))
                 join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
                 orderby j.Id descending
                 select new ProductionPickItem(j.Id, j.ProductionNumber, j.Reference, m.Code, j.InicioEm))
@@ -47,66 +53,22 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
          select new ProductionPickItem(j.Id, j.ProductionNumber, j.Reference, m.Code, j.InicioEm))
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<ReferenceSearchItem>> SearchReferencesAsync(
-        string? term,
-        CancellationToken cancellationToken = default)
-    {
-        var wanted = term?.Trim().ToUpperInvariant();
-        if (string.IsNullOrEmpty(wanted))
-        {
-            return Array.Empty<ReferenceSearchItem>();
-        }
-
-        // Só pela referência (Diogo, 17/10/2026: a procura do Job On não é
-        // global; primeiro a referência, depois as produções dela).
-        var references = await _db.JobOns.AsNoTracking()
-            .Where(j => j.Reference.ToUpper().Contains(wanted))
-            .GroupBy(j => j.Reference)
-            .Select(g => new { Reference = g.Key, Last = g.Max(j => j.Id) })
-            .OrderByDescending(r => r.Last)
-            .Take(IProductionPickerQuery.SearchLimit)
-            .Select(r => r.Reference)
-            .ToListAsync(cancellationToken);
-        if (references.Count == 0)
-        {
-            return Array.Empty<ReferenceSearchItem>();
-        }
-
-        // Todas as produções das referências encontradas contam, não só as que
-        // tinham o texto; a mais recente de cada uma numa consulta só.
-        var totals = await _db.JobOns.AsNoTracking()
-            .Where(j => references.Contains(j.Reference))
-            .GroupBy(j => j.Reference)
-            .Select(g => new { Reference = g.Key, Count = g.Count(), Last = g.Max(j => j.Id) })
-            .ToListAsync(cancellationToken);
-        var lastIds = totals.Select(t => t.Last).ToList();
-        var lasts = await (
-                from j in _db.JobOns.AsNoTracking()
-                where lastIds.Contains(j.Id)
-                join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-                select new { j.Id, j.ProductionNumber, Machine = m.Code, j.InicioEm })
-            .ToDictionaryAsync(l => l.Id, cancellationToken);
-
-        return totals
-            .OrderByDescending(t => t.Last)
-            .Select(t => new ReferenceSearchItem(
-                t.Reference, t.Count, lasts[t.Last].ProductionNumber, lasts[t.Last].Machine, lasts[t.Last].InicioEm))
-            .ToList();
-    }
-
     public async Task<IReadOnlyList<ProductionSearchItem>> ListOfReferenceAsync(
         string? reference,
         CancellationToken cancellationToken = default)
     {
-        var wanted = reference?.Trim().ToUpperInvariant();
-        if (string.IsNullOrEmpty(wanted))
+        var wanted = ReferenceMatch.Normalize(reference);
+        if (wanted is null)
         {
             return Array.Empty<ProductionSearchItem>();
         }
 
+        // SÓ A REFERÊNCIA COMPLETA (Diogo, 20/10/2026: «primeiro campo filtra
+        // apenas referências completas, segundo aparece dropdown das produções
+        // 202601 202602»): o início da referência é para as sugestões por
+        // baixo do campo; o dropdown só se enche com uma referência inteira.
         var found = await (
-                from j in _db.JobOns.AsNoTracking()
-                where j.Reference.ToUpper() == wanted
+                from j in _db.JobOns.AsNoTracking().Where(j => j.Reference != null && j.Reference.ToUpper() == wanted)
                 join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
                 orderby j.Id descending
                 select new { j.Id, j.Reference, j.ProductionNumber, Machine = m.Code, j.InicioEm, j.FimEm })
@@ -120,12 +82,12 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
         // As ferramentas das produções encontradas: as ligações numa consulta
         // por tipo e os nomes numa só.
         var ids = found.Select(f => f.Id).ToList();
-        var cmLinks = await _db.CmContexts.AsNoTracking().Where(c => ids.Contains(c.JobOnId))
-            .Select(c => new ToolLink(c.JobOnId, c.ToolId)).ToListAsync(cancellationToken);
-        var mfLinks = await _db.MfContexts.AsNoTracking().Where(c => ids.Contains(c.JobOnId))
-            .Select(c => new ToolLink(c.JobOnId, c.ToolId)).ToListAsync(cancellationToken);
-        var bqLinks = await _db.BqContexts.AsNoTracking().Where(c => ids.Contains(c.JobOnId))
-            .Select(c => new ToolLink(c.JobOnId, c.ToolId)).ToListAsync(cancellationToken);
+        var cmLinks = await _db.CmContexts.AsNoTracking().Where(c => c.JobOnId != null && ids.Contains(c.JobOnId.Value))
+            .Select(c => new ToolLink(c.JobOnId!.Value, c.ToolId)).ToListAsync(cancellationToken);
+        var mfLinks = await _db.MfContexts.AsNoTracking().Where(c => c.JobOnId != null && ids.Contains(c.JobOnId.Value))
+            .Select(c => new ToolLink(c.JobOnId!.Value, c.ToolId)).ToListAsync(cancellationToken);
+        var bqLinks = await _db.BqContexts.AsNoTracking().Where(c => c.JobOnId != null && ids.Contains(c.JobOnId.Value))
+            .Select(c => new ToolLink(c.JobOnId!.Value, c.ToolId)).ToListAsync(cancellationToken);
         var toolIds = cmLinks.Concat(mfLinks).Concat(bqLinks).Select(l => l.ToolId).Distinct().ToList();
         var labels = await _db.Tools.AsNoTracking()
             .Where(t => toolIds.Contains(t.ToolId) && t.ToolId != ToolRegistryConstants.RemovedToolId)

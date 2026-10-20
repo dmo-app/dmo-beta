@@ -6,11 +6,13 @@
  * comparação de peso mostra um dropdown enorme, devia funcionar como filtro».
  * Um só componente, dois modos:
  *
- *   <input data-dmo-suggest="producoes|referencias|numeros|ferramentas|reparadores"
+ *   <input data-dmo-suggest="producoes|referencias|numeros|ferramentas|reparadores|referencias_bq"
  *          [data-dmo-suggest-tipo="cm|mf|bq"] [data-dmo-suggest-submit]>
- *     A partir de 2 caracteres, 250 ms depois da última tecla, pede ao
- *     servidor (GET /Sugestoes) no máximo 10 sugestões. Escolher preenche o
- *     campo e, com data-dmo-suggest-submit, envia o formulário.
+ *     A partir de 1 carácter (2 nos reparadores), 250 ms depois da última
+ *     tecla, pede ao servidor (GET /Sugestoes) no máximo 10 sugestões. As
+ *     referências encontram-se pelo início (Diogo, 18/10/2026: «0» sugere a
+ *     0132T173), por isso um carácter chega. Escolher preenche o campo e,
+ *     com data-dmo-suggest-submit, envia o formulário.
  *
  *   <select data-dmo-filter>
  *     Escrever filtra as opções que a página já tem, sem ir ao servidor. O
@@ -26,7 +28,10 @@
 (function () {
   "use strict";
 
-  var MIN_CHARS = 2;
+  // O mínimo de caracteres de cada fonte; os nomes dos reparadores
+  // procuram-se a meio do nome e pedem 2 (o mesmo que o servidor).
+  var MIN_CHARS = 1;
+  var MIN_CHARS_FONTE = { reparadores: 2 };
   var WAIT_MS = 250;
   var GAP = 4;        // distância entre o campo e a lista, e da lista à borda do ecrã
   var MIN_ROOM = 120; // altura mínima da lista, mesmo num ecrã apertado
@@ -37,7 +42,7 @@
   }
 
   /* Uma lista partilhada pelos dois modos: abrir, desenhar, navegar, escolher. */
-  function createList(field, onPick, pickFirstOnEnter) {
+  function createList(field, onPick, pickFirstOnEnter, waiting) {
     var wrapper = document.createElement("div");
     wrapper.className = "dmo-suggest";
     field.parentNode.insertBefore(wrapper, field);
@@ -173,8 +178,9 @@
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         highlight(Math.max(active - 1, 0));
-      } else if (event.key === "Enter" && (active >= 0 || (pickFirstOnEnter && items.length))) {
-        // No filtro de um select, Enter escolhe a primeira opção filtrada.
+      } else if (event.key === "Enter" && (active >= 0 || (pickFirstOnEnter && items.length && !(waiting && waiting())))) {
+        // No filtro de um select, Enter escolhe a primeira opção filtrada,
+        // mas não a da lista anterior enquanto a procura não responde.
         event.preventDefault();
         onPick(items[active >= 0 ? active : 0]);
         close();
@@ -217,8 +223,9 @@
     function fetchNow() {
       var term = input.value.trim();
       var mine = ++request;
-      if (term.length < MIN_CHARS) { list.close(); return; }
-      var query = new URLSearchParams({ fonte: input.getAttribute("data-dmo-suggest"), q: term });
+      var fonte = input.getAttribute("data-dmo-suggest");
+      if (term.length < (MIN_CHARS_FONTE[fonte] || MIN_CHARS)) { list.close(); return; }
+      var query = new URLSearchParams({ fonte: fonte, q: term });
       var tipo = input.getAttribute("data-dmo-suggest-tipo");
       if (tipo) query.set("tipo", tipo);
       fetch("/Sugestoes?" + query, { credentials: "same-origin", headers: { Accept: "application/json" } })
@@ -263,7 +270,7 @@
       select.value = item.value;
       sync();
       select.dispatchEvent(new Event("change", { bubbles: true }));
-    }, true);
+    }, true, function () { return waiting; });
     // O select original vive dentro do mesmo invólucro (o formulário não muda).
     input.parentNode.appendChild(select);
 
@@ -281,14 +288,20 @@
 
     var remoteRequest = 0;
     var remoteTimer = null;
+    // Até a fonte responder à última tecla, a lista à vista é a da procura
+    // anterior: o Enter não escolhe a primeira linha dela (a ferramenta de
+    // outra referência ou de outro lote).
+    var waiting = false;
     function showRemote(filter, wait) {
       var mine = ++remoteRequest;
+      waiting = true;
       clearTimeout(remoteTimer);
       remoteTimer = setTimeout(function () {
         Promise.resolve(select.dmoSource(filter.trim()))
           .then(function (result) {
             // Só a resposta da última tecla conta, e só com o campo ainda ativo.
             if (mine !== remoteRequest || document.activeElement !== input) return;
+            waiting = false;
             var items = (result && result.items) || [];
             var empty = placeholderOption();
             // Com o campo vazio, a primeira linha limpa a escolha.
@@ -299,7 +312,9 @@
             list.render(items, result && result.empty, result && result.note);
           })
           .catch(function () {
-            if (mine === remoteRequest) list.render([], "Não foi possível procurar. Tente de novo.");
+            if (mine !== remoteRequest) return;
+            waiting = false;
+            list.render([], "Não foi possível procurar. Tente de novo.");
           });
       }, wait ? WAIT_MS : 0);
     }
@@ -320,10 +335,21 @@
       list.render(items, "Sem resultados para «" + filter.trim() + "»");
     }
 
-    input.addEventListener("focus", function () { input.select(); show(""); });
-    input.addEventListener("click", function () { if (!list.isOpen()) show(""); });
+    input.addEventListener("focus", function () { if (quiet) return; input.select(); show(""); });
+    input.addEventListener("click", function () {
+      // Depois de focar(), o campo já tinha o foco e o clique não passa pelo
+      // focus: seleciona aqui, para escrever substituir a escolha.
+      if (input.dataset.dmoSuggestSelecionar) { delete input.dataset.dmoSuggestSelecionar; input.select(); }
+      if (!list.isOpen()) show("");
+    });
     input.addEventListener("input", function () { show(input.value, true); });
-    input.addEventListener("blur", function () { ++remoteRequest; clearTimeout(remoteTimer); sync(); });
+    // O campo só filtra o select: o Enter nunca envia o formulário. Com a
+    // lista fechada (a procura ainda não respondeu), o browser enviava a
+    // folha do Job On sem a ferramenta escrita (deep sweep, 18/10/2026).
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") event.preventDefault();
+    });
+    input.addEventListener("blur", function () { delete input.dataset.dmoSuggestSelecionar; ++remoteRequest; waiting = false; clearTimeout(remoteTimer); sync(); });
     select.addEventListener("change", sync);
     // O Job On reconstrói as opções dos seletores CM/MF/BQ ao filtrar por máquina.
     new MutationObserver(sync).observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled"] });
@@ -343,7 +369,20 @@
     });
   }
 
-  window.DMOSuggest = { init: init };
+  // O foco devolvido por uma página depois de trocar a zona do campo (o
+  // Peso, ao escolher a comparação): volta ao campo de filtrar sem abrir a
+  // lista, que o operador acabou de fechar ao escolher. O texto fica
+  // selecionado, como num foco normal, para escrever substituir a escolha.
+  var quiet = false;
+  function focar(field) {
+    if (!field) return;
+    quiet = true;
+    try { field.focus({ preventScroll: true }); } finally { quiet = false; }
+    if (typeof field.select === "function") field.select();
+    if (field.dataset) field.dataset.dmoSuggestSelecionar = "1";
+  }
+
+  window.DMOSuggest = { init: init, focar: focar };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { init(); });
   else init();
 })();

@@ -26,19 +26,22 @@
 </style>
 }
 
-<main class="adm-page" aria-labelledby="canal-jobon-title">
+@* Atualizar só o que muda (E10): escolher a hora grava sem recarregar e
+   troca só o cartão (data-dmo-regiao); a mensagem vai para a pilha do canto
+   (data-dmo-toast) e o foco fica no dropdown. *@
+<main class="adm-page" aria-labelledby="canal-jobon-title" data-dmo-troca>
     <div class="page-head">
         <div>
             <h2 id="canal-jobon-title">Canal Jobon<partial name="_DmoHelp" model="@("Como o Job On chega a cada módulo. Cada módulo que dependa das datas do Job On tem aqui a sua definição.")" /></h2>
         </div>
     </div>
 
-    <section class="dmo-card adm-card" aria-labelledby="boquilhas-settings-title">
+    <section id="canalJobonViragem" class="dmo-card adm-card" aria-labelledby="boquilhas-settings-title" data-dmo-regiao data-dmo-parcial>
         <h3 id="boquilhas-settings-title">Boquilhas — hora de viragem do dia<partial name="_DmoHelp" model="@("A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On). O padrão é 8:00, a manhã da fábrica.")" /></h3>
 
         @if (Model.SaveResultMessage.Length > 0)
         {
-            <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+            <p data-dmo-toast="@(Model.SaveResult == "ok" ? "ok" : "erro")" role="@(Model.SaveResult == "ok" ? "status" : "alert")">@Model.SaveResultMessage</p>
         }
 
         <form method="post" asp-page="/Admin/CanalJobon/Index" asp-page-handler="SaveBoquilhasDayChangeHour">

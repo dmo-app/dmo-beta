@@ -1,0 +1,25 @@
+@model DMO.Alpha.Web.Pages.Controlo.RevisaoParteVista
+@* O estado e o Aprovar / Não aprovar de uma parte, no canto do seu card (na
+   Revisão e na consulta da parte). Os botões enviam o formulário da Nota
+   (form="revisaoDecisao") com a parte. Um Peso novo ou uma folha nova depois
+   da aprovação põe a parte outra vez por aprovar (C7). *@
+@{
+    var nome = DMO.Alpha.Web.Pages.Controlo.ApproveModel.NomeDaParte(Model.Parte);
+    var decidida = Model.Decisao;
+}
+<div class="dmo-card-topo-acoes">
+  @if (decidida is not null && !Model.NovoDepois)
+  {
+    <span class="revisao-pill @(decidida.Aprovado ? "aprovado" : "nao-aprovado")">@(decidida.Aprovado ? "Aprovado" : "Não aprovado")</span>
+  }
+  else if (Model.TemRegisto)
+  {
+    <span class="revisao-pill pendente">Pendente</span>
+  }
+  @* Sem Peso registado não há nada para aprovar (Diogo, 19/10/2026). *@
+  @if (Model.TemRegisto)
+  {
+    <button type="submit" form="revisaoDecisao" name="parte" value="@nome" id="revisaoNaoAprovar-@nome" class="dmo-button danger" formaction="@Url.Page("/Controlo/Approve", "NaoAprovar")" data-requires-note>Não aprovar</button>
+    <button type="submit" form="revisaoDecisao" name="parte" value="@nome" id="revisaoAprovar-@nome" class="dmo-button success">@(Model.Aprovada ? "Reaprovar" : "Aprovar")</button>
+  }
+</div>

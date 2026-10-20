@@ -31,4 +31,8 @@ public sealed record UpdateJobOn(
     decimal? CaloteMm = null,
     // Quem edita (o nome, senão o nº de operador ou o email), congelado em
     // cada alteração registada; null quando o pedido chega sem identidade.
-    string? ChangedBy = null);
+    string? ChangedBy = null,
+    // A versão da linha quando a ficha foi aberta (a página envia-a escondida);
+    // null = sem verificação. Diferente da gravada = ChangedByAnotherUser,
+    // salvo quando o pedido é o que já está gravado (o mesmo envio outra vez).
+    uint? ExpectedVersion = null);

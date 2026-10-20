@@ -1,0 +1,78 @@
+@model DMO.Alpha.Web.Pages.Controlo.PesoModel
+@using DMO.Alpha.Core.Controlo
+@* Os Pesos da produção (zona; 18/10/2026): o Peso congela a CM, o volume
+   punção, o nominal e o volume marisa da BQ, por isso trocar a CM ou a BQ a
+   meio da produção pede um Peso novo e o anterior fica como estava
+   (respostas R15 e R16-5 do especialista). Só aparece quando há outro Peso
+   além do mostrado; com um só, a folha fica como sempre. As leituras mudam
+   com cada gravação, por isso é uma zona. Como as «Folhas desta produção»
+   dos Pegamentos (_PegamentosFolhas). *@
+@if (Model.PesosControloId is int controloId)
+{
+<div id="pesoPesos" class="dmo-zona" data-dmo-regiao>
+@if (Model.ShowPesos)
+{
+  var mostrado = Model.Peso;
+  var atualPorCriar = Model.Pesos.All(p => !p.IsCurrent);
+  string Ferramenta(string? referencia, string? lote) =>
+      referencia is null ? "—" : lote is null ? referencia : $"{referencia} · Lote {lote}";
+  string Quando(DateTime? utc) =>
+      utc is { } registado ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(registado).ToString("dd/MM/yyyy HH:mm") : "—";
+  <section class="dmo-card peso-card" aria-labelledby="peso-pesos-title" style="margin-top:14px">
+    <div class="peso-card-heading">
+      <div>
+        <h3 id="peso-pesos-title">Pesos desta produção<partial name="_DmoHelp" model="@("Cada troca da CM ou da BQ a meio da produção pede um Peso com as ferramentas novas. Voltar a uma combinação já usada retoma o Peso dela. Só o Peso das ferramentas atuais recebe leituras; os outros ficam como estavam. Trocar só o MF não muda o Peso.")" /></h3>
+        <p class="card-note">Cada Peso tem a sua CM e a sua BQ. Um clique abre o Peso.</p>
+      </div>
+    </div>
+    <div class="dmo-table-wrap" style="margin-top:12px">
+      <table class="dmo-table" data-dmo-list="Pesos desta produção">
+        <thead>
+          <tr>
+            <th>Peso</th>
+            <th>CM</th>
+            <th>BQ</th>
+            <th>Registado</th>
+            <th>Leituras</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var (item, numero) in Model.Pesos.Select((p, i) => (p, i + 1)))
+          {
+            var href = DMO.Alpha.Web.Pages.Controlo.PesoModel.PesoHref(controloId, item);
+            var aberto = item.PesoId == mostrado?.PesoId;
+            <tr data-dmo-row data-id="@item.PesoId" data-dmo-open="@href"
+                class="@(aberto ? "selected" : null)" aria-selected="@(aberto ? "true" : "false")"
+                aria-label="Peso @numero — um clique abre">
+              <td><a href="@href">Peso @numero</a></td>
+              <td>@Ferramenta(item.CmToolReference, item.CmToolLot)</td>
+              <td>@Ferramenta(item.BqToolReference, item.BqToolLot)</td>
+              <td>@Quando(item.RegistadoEmUtc)</td>
+              <td>@item.Measurements.Count</td>
+              <td>@(item.IsCurrent ? "Ferramentas atuais" : "Ferramentas anteriores")@(aberto ? " · aberto" : null)</td>
+            </tr>
+          }
+          @if (atualPorCriar)
+          {
+            @* O Peso das ferramentas atuais ainda não existe: cria-se no
+               «Novo Peso da produção». *@
+            var href = $"/Controlo/Peso?controlo_id={controloId}";
+            <tr data-dmo-row data-id="novo" data-dmo-open="@href"
+                class="@(mostrado is null ? "selected" : null)" aria-selected="@(mostrado is null ? "true" : "false")"
+                aria-label="Peso @(Model.Pesos.Count + 1) — um clique abre">
+              <td><a href="@href">Peso @(Model.Pesos.Count + 1)</a></td>
+              <td>@(Model.CmTool is { } cm ? Ferramenta(cm.Reference, cm.Lot) : "—")</td>
+              <td>@(Model.BqTool is { } bq ? Ferramenta(bq.Reference, bq.Lot) : "—")</td>
+              <td>—</td>
+              <td>0</td>
+              <td>Ferramentas atuais · por criar@(mostrado is null ? " · aberto" : null)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+</div>
+}

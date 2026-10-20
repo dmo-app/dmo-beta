@@ -11,4 +11,5 @@ public static class DmoClaimTypes
     public const string ProviderUserId = "dmo:provider_user_id";
     public const string RequiresPasswordChange = "dmo:requires_password_change";
     public const string PasswordChangedAt = "dmo:password_changed_at";
+    public const string SessionVersion = "dmo:session_version";
 }

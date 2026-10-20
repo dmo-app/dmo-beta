@@ -22,4 +22,11 @@ public sealed record ToolSheetReadModel(
     IReadOnlyList<MachineOption> Machines,
     ToolTechnicalReadModel? Technical,
     /// <summary>O nome técnico (o código do desenho — o que está no SAP); null = o formato simples.</summary>
-    string? TechnicalName = null);
+    string? TechnicalName = null,
+    /// <summary>A versão da Tool gravada (vai escondida no Editar; ver EditToolFacts.ExpectedVersion).</summary>
+    uint Version = 0,
+    /// <summary>A versão da informação técnica gravada; 0 = ainda sem linha técnica.</summary>
+    uint TechnicalVersion = 0,
+    /// <summary>O aviso de ferramenta repetida (Tool.DuplicateWarningAtUtc); null = sem aviso.</summary>
+    DateTime? DuplicateWarningAtUtc = null,
+    string? DuplicateWarningBy = null);

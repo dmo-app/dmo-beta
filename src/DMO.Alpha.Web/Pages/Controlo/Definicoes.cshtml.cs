@@ -1,5 +1,7 @@
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Controlo;
+using DMO.Alpha.Core.Runtime;
+using DMO.Alpha.Infrastructure.Controlo;
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Web.Presentation;
 using DMO.Alpha.Web.Services;
@@ -14,15 +16,116 @@ namespace DMO.Alpha.Web.Pages.Controlo;
 /// ao controlo» e «associaçao do dir fica no controlo.create»): a pasta
 /// partilhada dos PDFs, associada em cada computador, e a tolerância dos
 /// Pegamentos. Saíram do Admin → Definições; quem tem o Controlo Criar
-/// muda-as aqui.
+/// muda-as aqui. Também as listas e os modelos do envio do PDF do Peso por
+/// email (Diogo, 19/10/2026, D9) e, desde 19/10/2026 (D15), a densidade do
+/// vidro NNPB e PS.
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ControloCreate)]
 public sealed class DefinicoesModel(
     IPegamentosToleranceConfiguration pegamentosTolerance,
     ISavePegamentosToleranceHandler savePegamentosTolerance,
+    EnvioEmailDefinicoes envioEmail,
+    IEmailSender emailSender,
+    IGlassDensityConfiguration glassDensity,
+    ISaveGlassDensityHandler saveGlassDensity,
     ShellStateFactory shellState) : PageModel
 {
+    /// <summary>As listas de destinatários, por nome.</summary>
+    public IReadOnlyList<EmailLista> Listas { get; private set; } = Array.Empty<EmailLista>();
+
+    /// <summary>Os modelos do envio, por nome.</summary>
+    public IReadOnlyList<EmailModelo> Modelos { get; private set; } = Array.Empty<EmailModelo>();
+
+    /// <summary>FALSE enquanto a conta de email do serviço não está configurada.</summary>
+    public bool EmailConfigurado => emailSender.Configurado;
+
+    /// <summary>Os endereços que ficaram de fora da última lista gravada (não são emails).</summary>
+    public string? Ignorados { get; private set; }
+
+    /// <summary>O resultado das listas e dos modelos (PRG), só apresentação.</summary>
+    public string? EnvioResult { get; private set; }
+
+    public bool EnvioSucceeded => EnvioResult is "ok-lista" or "ok-modelo" or "apagada-lista" or "apagado-modelo";
+
+    public bool EnvioWarned => EnvioResult == "aviso-lista";
+
+    public string EnvioResultMessage => EnvioResult switch
+    {
+        "ok-lista" => "Lista gravada.",
+        "aviso-lista" => $"Lista gravada. Ficaram de fora, por não serem emails: {Ignorados}.",
+        "ok-modelo" => "Modelo gravado.",
+        "apagada-lista" => "Lista apagada.",
+        "apagado-modelo" => "Modelo apagado.",
+        _ => EnvioRecusa(EnvioResult)
+    };
+
+    /// <summary>A mensagem de uma recusa das listas ou dos modelos (também a do JSON da linha).</summary>
+    public static string EnvioRecusa(string? estado) => estado switch
+    {
+        nameof(EnvioEmailEstado.NomeVazio) => "Escreva um nome. Não foi gravado.",
+        nameof(EnvioEmailEstado.NomeRepetido) => "Já existe outro com esse nome. Não foi gravado.",
+        nameof(EnvioEmailEstado.TextoLongo) => $"Texto demasiado longo (nome até {EnvioEmailRegras.NomeMax}, assunto até {EnvioEmailRegras.AssuntoMax} e corpo até {EnvioEmailRegras.CorpoMax} caracteres). Não foi gravado.",
+        nameof(EnvioEmailEstado.SemEnderecos) => "Escreva pelo menos um email válido (por exemplo producao@fabrica.pt). Não foi gravado.",
+        nameof(EnvioEmailEstado.DemasiadosEnderecos) => $"Uma lista leva até {EnvioEmailRegras.DestinatariosMax} emails. Não foi gravada.",
+        nameof(EnvioEmailEstado.RemetenteInvalido) => "O email que envia não é um email válido. Não foi gravado.",
+        nameof(EnvioEmailEstado.NaoExiste) => "Já não existe (outra pessoa apagou-o). Nada mudou.",
+        _ => string.Empty
+    };
+
+    /// <summary>A densidade do vidro NNPB guardada (g/cm³); null quando ainda não há.</summary>
+    public decimal? DensidadeNnpb { get; private set; }
+
+    /// <summary>A densidade do vidro PS guardada (g/cm³); null quando ainda não há.</summary>
+    public decimal? DensidadePs { get; private set; }
+
+    /// <summary>Resultado da gravação da densidade, por query (PRG): ok, invalida ou aviso-…</summary>
+    public string? DensidadeResult { get; private set; }
+
+    public bool DensidadeSucceeded => DensidadeResult == "ok";
+
+    public bool DensidadeWarned => DensidadeResult?.StartsWith("aviso", StringComparison.Ordinal) == true;
+
+    /// <summary>
+    /// A mensagem da gravação da densidade. O aviso fica sem link: resolve-se
+    /// aqui, nos mesmos campos.
+    /// </summary>
+    public string DensidadeResultMessage => DensidadeResult switch
+    {
+        "ok" => "Densidade do vidro guardada. Vale para os próximos Pesos; os Pesos já gravados ficam com a que usaram.",
+        "invalida" => "A densidade do vidro é um número maior que zero, em g/cm³ (por exemplo 2,4027), nos dois campos. Não foi guardada.",
+        _ when DensidadeWarned => DensidadeWarningMessage(),
+        _ => string.Empty
+    };
+
+    private string DensidadeWarningMessage()
+    {
+        var partes = new List<string>();
+        foreach (var (codigo, nome, valor) in new[] { ("nnpb", "NNPB", DensidadeNnpb), ("ps", "PS", DensidadePs) })
+        {
+            var arredondada = DensidadeResult!.Contains($"-arredondada-{codigo}", StringComparison.Ordinal);
+            var fora = DensidadeResult.Contains($"-fora-{codigo}", StringComparison.Ordinal);
+            if (!arredondada && !fora)
+            {
+                continue;
+            }
+
+            var detalhe = (arredondada, fora) switch
+            {
+                (true, true) => "arredondada a quatro casas decimais e fora do habitual",
+                (true, false) => "arredondada a quatro casas decimais",
+                _ => "fora do habitual"
+            };
+            partes.Add($"{nome} {FormatarDensidade(valor)} g/cm³, {detalhe}");
+        }
+
+        return $"Densidade do vidro guardada: {string.Join("; ", partes)} (o habitual é de {FormatarDensidade(GlassDensityLimits.Minimum)} a {FormatarDensidade(GlassDensityLimits.Maximum)} g/cm³). Vale para os próximos Pesos.";
+    }
+
+    /// <summary>A densidade como se mostra e se escreve no campo: quatro casas, vírgula.</summary>
+    public static string FormatarDensidade(decimal? valor) =>
+        valor is { } v ? v.ToString("0.0000", DmoNumberFormat.Culture) : string.Empty;
+
     /// <summary>A tolerância efetiva do corredor (a configurada, ou a norma 0,20 mm).</summary>
     public decimal PegamentosToleranceMm { get; private set; } = PegamentosCalculation.DefaultToleranceMm;
 
@@ -32,14 +135,41 @@ public sealed class DefinicoesModel(
     /// <summary>Resultado do save transportado por query (PRG), apenas apresentação.</summary>
     public string? SaveResult { get; private set; }
 
+    /// <summary>TRUE quando o save transportado é uma gravação feita sem aviso (a mensagem fecha sozinha).</summary>
+    public bool SaveSucceeded => SaveResult == "ok-tolerancia";
+
+    /// <summary>
+    /// TRUE quando gravou com aviso (Diogo, 19/10/2026: a tolerância «nunca
+    /// bloqueia»): fora do habitual ou arredondada. O aviso fica sem link,
+    /// porque se resolve aqui, no mesmo campo.
+    /// </summary>
+    public bool SaveWarned => SaveResult?.StartsWith("aviso-tolerancia", StringComparison.Ordinal) == true;
+
     public string SaveResultMessage => SaveResult switch
     {
         "ok-tolerancia" => "Tolerância guardada. Vale para os próximos registos de Pegamentos.",
-        "tolerancia-invalida" => "A tolerância é um valor em mm entre 0,01 e 2,00, com duas casas decimais no máximo.",
+        "tolerancia-invalida" => "A tolerância é um número em mm, sem sinal (por exemplo 0,20). Não foi guardada.",
+        _ when SaveWarned => WarningMessage(),
         _ => string.Empty
     };
 
-    public async Task<IActionResult> OnGetAsync(string? save)
+    private string WarningMessage()
+    {
+        var mm = PegamentosToleranceMm.ToString("0.00", DmoNumberFormat.Culture);
+        var detalhe = (SaveResult!.Contains("-arredondada", StringComparison.Ordinal), SaveResult.Contains("-fora", StringComparison.Ordinal)) switch
+        {
+            (true, true) => $"arredondada a duas casas decimais e fora do habitual ({MinimoHabitual} a {MaximoHabitual} mm)",
+            (true, false) => "arredondada a duas casas decimais",
+            _ => $"fora do habitual ({MinimoHabitual} a {MaximoHabitual} mm)"
+        };
+        return $"Tolerância guardada: ± {mm} mm, {detalhe}. Vale para os próximos registos de Pegamentos.";
+    }
+
+    private static string MinimoHabitual => PegamentosToleranceLimits.MinimumMm.ToString("0.00", DmoNumberFormat.Culture);
+
+    private static string MaximoHabitual => PegamentosToleranceLimits.MaximumMm.ToString("0.00", DmoNumberFormat.Culture);
+
+    public async Task<IActionResult> OnGetAsync(string? save, string? envio, string? fora, string? densidade = null)
     {
         ViewData["Title"] = "Definições — Controlo";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("controlo", "Controlo"))) with
@@ -49,28 +179,136 @@ public sealed class DefinicoesModel(
         };
 
         SaveResult = save;
+        DensidadeResult = densidade;
+        DensidadeNnpb = await glassDensity.FindByProcessAsync(DMO.Alpha.Core.Tools.CmProcess.Nnpb, HttpContext.RequestAborted);
+        DensidadePs = await glassDensity.FindByProcessAsync(DMO.Alpha.Core.Tools.CmProcess.Ps, HttpContext.RequestAborted);
         var configured = await pegamentosTolerance.FindConfiguredAsync(HttpContext.RequestAborted);
         PegamentosToleranceIsDefault = configured is null;
         PegamentosToleranceMm = configured ?? PegamentosCalculation.DefaultToleranceMm;
+        EnvioResult = envio;
+        Ignorados = fora;
+        Listas = await envioEmail.ListasAsync(HttpContext.RequestAborted);
+        Modelos = await envioEmail.ModelosAsync(HttpContext.RequestAborted);
         return Page();
     }
+
+    /// <summary>POST: criar uma lista de destinatários. Os endereços que não são email ficam de fora, com aviso.</summary>
+    public async Task<IActionResult> OnPostCriarListaAsync(string? nome, string? destinatarios)
+    {
+        var resultado = await envioEmail.CriarListaAsync(nome, destinatarios, HttpContext.RequestAborted);
+        return VoltarDaLista(resultado);
+    }
+
+    /// <summary>
+    /// POST: mudar o nome ou os emails de uma lista no próprio valor da linha
+    /// (data-dmo-valor: chega só o campo mudado). Sem JavaScript, volta à página.
+    /// </summary>
+    public async Task<IActionResult> OnPostMudarListaAsync(
+        [FromForm(Name = "lista_id")] int? listaId, string? nome, string? destinatarios)
+    {
+        var resultado = await envioEmail.MudarListaAsync(listaId ?? 0, nome, nome is null ? destinatarios ?? "" : null, HttpContext.RequestAborted);
+        if (Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            var aviso = !resultado.Gravado ? EnvioRecusa(resultado.Estado.ToString())
+                : resultado.Ignorados.Count > 0 ? $"Ficaram de fora, por não serem emails: {string.Join(", ", resultado.Ignorados)}." : null;
+            return new JsonResult(new { ok = resultado.Gravado, valor = resultado.Valor, aviso });
+        }
+
+        return VoltarDaLista(resultado);
+    }
+
+    public async Task<IActionResult> OnPostApagarListaAsync([FromForm(Name = "lista_id")] int? listaId)
+    {
+        var apagada = await envioEmail.ApagarListaAsync(listaId ?? 0, HttpContext.RequestAborted);
+        return RedirectToPage("/Controlo/Definicoes", new { envio = apagada ? "apagada-lista" : nameof(EnvioEmailEstado.NaoExiste) });
+    }
+
+    /// <summary>POST: criar (sem modelo_id) ou guardar um modelo, na janela do modelo.</summary>
+    public async Task<IActionResult> OnPostGuardarModeloAsync(
+        [FromForm(Name = "modelo_id")] int? modeloId,
+        string? nome,
+        string? remetente,
+        string? assunto,
+        string? corpo,
+        [FromForm(Name = "lista_id")] int? listaId)
+    {
+        var resultado = await envioEmail.GuardarModeloAsync(modeloId, nome, remetente, assunto, corpo, listaId, HttpContext.RequestAborted);
+        return RedirectToPage("/Controlo/Definicoes", new { envio = resultado.Gravado ? "ok-modelo" : resultado.Estado.ToString() });
+    }
+
+    public async Task<IActionResult> OnPostApagarModeloAsync([FromForm(Name = "modelo_id")] int? modeloId)
+    {
+        var apagado = await envioEmail.ApagarModeloAsync(modeloId ?? 0, HttpContext.RequestAborted);
+        return RedirectToPage("/Controlo/Definicoes", new { envio = apagado ? "apagado-modelo" : nameof(EnvioEmailEstado.NaoExiste) });
+    }
+
+    private IActionResult VoltarDaLista(EnvioEmailGravacao resultado) =>
+        RedirectToPage("/Controlo/Definicoes", resultado switch
+        {
+            { Gravado: true, Ignorados.Count: > 0 } => new { envio = "aviso-lista", fora = string.Join(", ", resultado.Ignorados) },
+            { Gravado: true } => new { envio = "ok-lista", fora = (string?)null },
+            _ => new { envio = resultado.Estado.ToString(), fora = (string?)null }
+        });
 
     /// <summary>
     /// POST: gravar a tolerância do corredor de Pegamentos (mm). Aceita
     /// vírgula ou ponto. Só os registos criados depois usam o novo valor.
+    /// Fora do habitual ou com mais de duas casas grava com aviso; só o que
+    /// não é um número sem sinal fica por gravar.
     /// </summary>
     public async Task<IActionResult> OnPostSavePegamentosToleranceAsync([FromForm(Name = "tolerance_mm")] string? toleranceMm)
     {
         var save = "tolerancia-invalida";
         var text = toleranceMm?.Trim().Replace(',', '.');
         if (decimal.TryParse(text, System.Globalization.NumberStyles.AllowDecimalPoint,
-                System.Globalization.CultureInfo.InvariantCulture, out var value)
-            && await savePegamentosTolerance.SaveAsync(value, HttpContext.RequestAborted)
-                == SavePegamentosToleranceResult.Success)
+                System.Globalization.CultureInfo.InvariantCulture, out var value))
         {
-            save = "ok-tolerancia";
+            var result = await savePegamentosTolerance.SaveAsync(value, HttpContext.RequestAborted);
+            if (result.Saved)
+            {
+                save = !result.Rounded && !result.OutsideUsualRange
+                    ? "ok-tolerancia"
+                    : "aviso-tolerancia" + (result.Rounded ? "-arredondada" : null) + (result.OutsideUsualRange ? "-fora" : null);
+            }
         }
 
         return RedirectToPage("/Controlo/Definicoes", new { save });
     }
+
+    /// <summary>
+    /// POST: gravar a densidade do vidro NNPB e PS (g/cm³; D15, 19/10/2026).
+    /// Aceita vírgula ou ponto. Só os Pesos criados depois usam o valor novo.
+    /// Fora do habitual ou com mais de quatro casas grava com aviso; só o que
+    /// não é um número maior que zero, num dos campos, deixa os dois por
+    /// gravar.
+    /// </summary>
+    public async Task<IActionResult> OnPostSaveGlassDensityAsync(
+        [FromForm(Name = "densidade_nnpb")] string? nnpb,
+        [FromForm(Name = "densidade_ps")] string? ps)
+    {
+        var densidade = "invalida";
+        if (LerDensidade(nnpb) is { } valorNnpb && LerDensidade(ps) is { } valorPs)
+        {
+            var result = await saveGlassDensity.SaveAsync(valorNnpb, valorPs, HttpContext.RequestAborted);
+            if (result.Saved)
+            {
+                densidade = result.Rounded.Count == 0 && result.OutsideUsualRange.Count == 0
+                    ? "ok"
+                    : "aviso"
+                        + string.Concat(result.Rounded.Select(p => "-arredondada-" + Codigo(p)))
+                        + string.Concat(result.OutsideUsualRange.Select(p => "-fora-" + Codigo(p)));
+            }
+        }
+
+        return RedirectToPage("/Controlo/Definicoes", new { densidade });
+    }
+
+    private static string Codigo(DMO.Alpha.Core.Tools.CmProcess process) =>
+        process == DMO.Alpha.Core.Tools.CmProcess.Nnpb ? "nnpb" : "ps";
+
+    private static decimal? LerDensidade(string? texto) =>
+        decimal.TryParse(texto?.Trim().Replace(',', '.'), System.Globalization.NumberStyles.AllowDecimalPoint,
+            System.Globalization.CultureInfo.InvariantCulture, out var valor)
+            ? valor
+            : null;
 }

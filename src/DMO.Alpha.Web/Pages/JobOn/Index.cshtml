@@ -2,6 +2,7 @@
 @model DMO.Alpha.Web.Pages.JobOn.IndexModel
 @using DMO.Alpha.Core.Production
 @using DMO.Alpha.Core.Tools
+@using DMO.Alpha.Web.Pages.Shared
 @inject DMO.Alpha.Web.Services.CurrentUserCapabilities UserCapabilities
 @{
     Layout = "_DmoShellLayout";
@@ -15,7 +16,11 @@
 
 @* O LAYOUT BETA-LIGHT do mockup: o rail esquerdo das linhas + o main com
    as sub-tabs (as PlanningFunctions da shell: Job On · Histórico). *@
-<div class="beta-light-layout">
+@* ATUALIZAR SÓ O QUE MUDA (Diogo, 17/10/2026): abrir uma produção a partir
+   da procura, da lista do dia ou fechar a ficha troca só as zonas
+   data-dmo-regiao que mudaram (os avisos e as folhas); a procura fica como
+   estava (data-dmo-fica). Ver o 0_ASSET_CANONICAL_INTERACTIONS.js. *@
+<div class="beta-light-layout" data-dmo-troca>
   @* O RAIL (a SEMÂNTICA do Owner 14/10: «o sidepanel mostra o que vai entrar»):
      AS PRÓXIMAS PRODUÇÕES a entrar nas linhas — o que ainda não está em
      máquina, cada uma com destino para a sua ficha; o vazio é o estado
@@ -62,11 +67,11 @@
         <a class="dmo-button" asp-page="/JobOn/Index" asp-route-novo="1">Criar Job On</a>
       </div>
 
-      @if (Model.RemovedNote)
+      <div id="jobonAvisos" data-dmo-regiao>
+      @if (Model.Eliminado)
       {
-        <div data-dmo-toast="ok" class="jobon-aviso" role="status">Produção retirada das datas. O Job On mantém-se no Histórico, sem dia.</div>
+        <div data-dmo-toast="ok" role="status">Job On eliminado.</div>
       }
-
       @if (Model.JobOnRequestedNotFound)
       {
         <div class="jobon-aviso" role="alert">A produção indicada não existe. Nenhum contexto foi inventado para ela.</div>
@@ -78,15 +83,26 @@
          edição na produção gravada para o ajuste imediato). *@
       @if (Model.OverlapWarning is { } overlapWarning)
       {
-        <div class="jobon-aviso warn" role="status">@overlapWarning.Message</div>
+        <div class="jobon-aviso warn" role="status">@overlapWarning.Message@foreach (var conflito in overlapWarning.Conflicts)
+          {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(conflito.JobOnId, $"Editar {conflito.Reference} · nº {conflito.ProductionNumber}", editar: true)" />}</div>
       }
 
       @* A CALOTE IGNORADA (decisão do proprietário, 16/10/2026: avisar em vez
-         de recusar): o Job On foi gravado sem ela; o aviso diz qual foi. *@
+         de recusar): o Job On foi gravado sem ela; o aviso diz qual foi. É o
+         resultado da gravação: vai para o canto (até se fechar) e não empurra
+         a grelha (regra 53, deep sweep 18/10/2026). *@
       @if (Model.CaloteIgnoradaMessage is { } caloteIgnoradaMessage)
       {
-        <div class="jobon-aviso warn" role="status">@caloteIgnoradaMessage</div>
+        <div data-dmo-toast="aviso" role="status">@caloteIgnoradaMessage@if (Model.OpenJobOn is { } abertoCalote) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(abertoCalote.JobOnId, "Editar a calote", editar: true)" />}</div>
       }
+      @* O FIM ANTES DO INÍCIO (Diogo, 19/10/2026: «as datas têm de ser
+         livres»): o Job On foi gravado; o aviso diz porque não aparece no
+         calendário. *@
+      @if (Model.FimAntesDoInicioMessage is { } fimAntesDoInicioMessage)
+      {
+        <div data-dmo-toast="aviso" role="status">@fimAntesDoInicioMessage@if (Model.OpenJobOn is { } abertoDatas) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(abertoDatas.JobOnId, "Editar as datas", editar: true)" />}</div>
+      }
+      </div>
 
       <div class="beta-light-grid">
 
@@ -95,24 +111,26 @@
            inicio→fim, o selected e a navegação [‹ mês ›]). *@
         <partial name="_DmoCalendar" model="Model.Calendar" />
 
-        @* A LISTA do dia selecionado: um clique seleciona; duplo clique
-           abre a folha; a pesquisa por referência/produção; ordenação
-           linha→referência. Sem dia escolhido (duplo clique no dia já
-           escolhido), o quadro fica vazio com a indicação. *@
+        @* A LISTA do dia selecionado (Diogo, 18/10/2026, como no
+           calendário): um clique escolhe a linha (fica escura) e abre a
+           folha; clicar de novo nela tira a escolha e fecha a folha; clicar
+           noutra passa a escolha para essa. Sem dia escolhido (clique no dia
+           já escolhido), o quadro fica vazio com a indicação. *@
         <section class="dmo-card beta-light-productions">
           <div class="beta-light-card-head">
             <div>
-              <h2 id="lightDayTitle">@(Model.NoDaySelected ? "Produções do dia" : $"Produções de {new DateTime(Model.Year, Model.Month, Model.SelectedDay):dd/MM/yyyy}")</h2>
+              <h2 id="lightDayTitle" data-dmo-regiao>@(Model.NoDaySelected ? "Produções do dia" : $"Produções de {new DateTime(Model.Year, Model.Month, Model.SelectedDay):dd/MM/yyyy}")</h2>
                           </div>
           </div>
+          <div id="jobonProducoes" data-dmo-regiao>
           @if (Model.NoDaySelected)
           {
             <p class="resumo-hint" id="lightNoDay">Escolha um dia no calendário.</p>
           }
           else
           {
-          <div id="lightProductionList" class="beta-light-list" data-dmo-list="Produções do dia" data-dmo-seleciona>
-              @* O QUADRO COMPLETO DAS LINHAS — servido por RAZOR (o Owner: «quadro do dia pode ir» + a lei «tudo razor»): as máquinas B1..C3 sempre visíveis, as com produção mostram-na (o badge da linha + a referência + o número), as livres ficam vazias «—». Um clique seleciona (o radio escondido), duplo clique abre a folha, Enter também. *@
+          <div id="lightProductionList" class="beta-light-list" data-dmo-list="Produções do dia" data-dmo-parcial>
+              @* O QUADRO COMPLETO DAS LINHAS — servido por RAZOR (o Owner: «quadro do dia pode ir» + a lei «tudo razor»): as máquinas B1..C3 sempre visíveis, as com produção mostram-na (o badge da linha + a referência + o número), as livres ficam vazias «—». Um clique seleciona (o radio escondido) e abre a folha, Enter também; outro clique tira. *@
               @foreach (var row in Model.DayRows)
               {
                 @* O QUADRO DO DIA (a CORREÇÃO FINAL do Owner 14/10: «deixar
@@ -142,17 +160,23 @@
                   {
                     @foreach (var production in row.Productions)
                     {
-                      <div class="beta-light-production" data-dmo-row data-id="@production.JobOnId"
-                              data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = production.JobOnId })"
-                              aria-label="Produção @production.ProductionNumber na @row.MachineCode — selecionar e abrir ficha">
-                        <input type="radio" name="jobon_id" value="@production.JobOnId" form="lightRemoveForm" data-production-number="@production.ProductionNumber" class="dmo-visually-hidden" aria-label="Produção @production.ProductionNumber" />
+                      var aberta = Model.OpenJobOn?.JobOnId == production.JobOnId && Model.DuplicarDe is null;
+                      <div class="beta-light-production@(aberta ? " selected" : "")" id="jobonLinha-@production.JobOnId" data-dmo-row data-id="@production.JobOnId"
+                              data-dmo-open="@Url.Page("/JobOn/Index", null, new { ano = Model.Year, mes = Model.Month, dia = Model.SelectedDay, jobon_id = production.JobOnId }, null, null, "lightFicha")"
+                              data-dmo-fechar="@Url.Page("/JobOn/Index", new { ano = Model.Year, mes = Model.Month, dia = Model.SelectedDay })"
+                              aria-selected="@(aberta ? "true" : "false")"
+                              aria-label="Produção @production.ProductionNumber na @row.MachineCode — um clique abre a ficha, outro tira">
+                        <input type="radio" name="jobon_id" value="@production.JobOnId" class="dmo-visually-hidden" aria-label="Produção @production.ProductionNumber" checked="@aberta" />
                         <strong>@row.MachineCode</strong>
                         <span>@production.Reference @production.ProductionNumber</span>
                         @{ var notaLote = string.Join(" · ", production.LotNotes); }
-                        @if (production.ChangeCount > 0)
+                        @* A BARRA DIZ QUAL FOI A ALTERAÇÃO (o Diogo, 17/10/2026: só
+                           «1 alteração» não chega): o valor atual de cada campo
+                           alterado; a dica tem cada alteração por extenso. *@
+                        @if (production.ChangeSummary is { } marcaAlteracoes)
                         {
-                          var marcaAlteracoes = production.ChangeCount == 1 ? "1 alteração" : $"{production.ChangeCount} alterações";
-                          <span class="beta-light-lot-note" title="@(notaLote.Length > 0 ? notaLote + " · " : "")@marcaAlteracoes">@notaLote<b class="beta-light-changes">@marcaAlteracoes</b></span>
+                          var dicaAlteracoes = string.Join("\n", production.LotNotes.Concat(production.ChangeDetails));
+                          <span class="beta-light-lot-note" title="@dicaAlteracoes">@notaLote<b class="beta-light-changes">@marcaAlteracoes</b></span>
                         }
                         else
                         {
@@ -185,46 +209,30 @@
             </div>
           }
 
+          </div>
+
           @* A procura fica por baixo das linhas das máquinas (Diogo,
              17/10/2026: «fica com espaço para expandir»). *@
-          <div class="jobon-procura-bloco">
-            @* A PROCURA AO ESCREVER, EM DOIS PASSOS (Diogo, 17/10/2026:
-               «deveria ser referência e depois produções»): sem botão; as
-               referências aparecem por baixo do campo, encontradas só pela
-               referência (a procura não é global); um clique numa referência mostra as últimas
-               produções dela num dropdown à frente do campo e escolher uma abre a folha. Sem script, o Enter
-               procura pelo servidor; a lista do dia não é filtrada. *@
+          <div class="jobon-procura-bloco" data-dmo-fica data-dmo-parcial>
+            @* A PROCURA EM DOIS CAMPOS (Diogo, 17/10/2026): sem botão; a
+               referência escrita (só a referência exata, a procura não é global)
+               enche o dropdown «Produção» à frente, e escolher uma produção abre
+               a folha. Sem script, o Enter enche-o pelo servidor; a lista do dia
+               não é filtrada. SUGESTÕES POR BAIXO (Diogo, 20/10/2026: «já pedi
+               para arranjar o filtro do Planeamento 5 vezes»; ao escrever «60»
+               não aparecia nada): o campo sugere as referências como os outros
+               campos de referência (data-dmo-suggest, por cima da página, sem
+               ocupar espaço); escolher uma enche o dropdown com as produções. *@
             <form method="get" asp-page="/JobOn/Index" class="dmo-search-form">
               <input type="hidden" name="ano" value="@Model.Year" />
               <input type="hidden" name="mes" value="@Model.Month" />
-              @if (!Model.NoDaySelected)
-              {
-                <input type="hidden" name="dia" value="@Model.SelectedDay" />
-              }
-              <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Referência"
-                     data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" />
-              @if (Model.SearchResults is { Referencia: not null } escolhida)
-              {
-                <partial name="_JobOnProcuraProducoes" model="escolhida" />
-              }
-              <partial name="_DmoHelp" model="@("Escreva a referência. As referências aparecem por baixo; um clique numa mostra, à frente do campo, um dropdown com as últimas 5 produções dela. Escolher uma produção abre a folha. As outras produções estão em «Opções» → «Produções desta referência», na folha.")" />
+              <input type="hidden" name="dia" value="@(Model.NoDaySelected ? 0 : Model.SelectedDay)" />
+              <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Referência" data-dmo-suggest="referencias"
+                     data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" data-dmo-procura-sempre />
+              <span id="lightProcura" class="jobon-procura" aria-live="polite"><partial name="_JobOnProcuraProducoes" model="Model.SearchResults ?? DMO.Alpha.Web.Pages.JobOn.JobOnProcura.Vazia" /></span>
+              <partial name="_DmoHelp" model="@("Escreva o início da referência (60). Por baixo aparecem as referências que começam assim; escolha uma. À frente, o dropdown «Produção» mostra as últimas 5 produções dessa referência; escolher uma abre a folha. As outras produções estão em «Opções» → «Produções desta referência», na folha.")" />
             </form>
-            <div id="lightProcura" class="jobon-procura" aria-live="polite">
-              @if (Model.SearchResults is { } procurados)
-              {
-                <partial name="_JobOnProcura" model="procurados" />
-              }
-            </div>
           </div>
-          @* O «Retirar a produção das datas» sem botão (Diogo, 17/10/2026):
-             escolher a produção na lista e fazer duplo clique no dia já
-             escolhido do calendário; o browser pede confirmação. Só a
-             associação de datas é limpa — o Job On fica no Histórico. *@
-          <form id="lightRemoveForm" method="post" asp-page="/JobOn/Index" asp-page-handler="RemoveDay" hidden>
-            <input type="hidden" name="ano" value="@Model.Year" />
-            <input type="hidden" name="mes" value="@Model.Month" />
-            <input type="hidden" name="dia" value="@(Model.NoDaySelected ? 0 : Model.SelectedDay)" />
-          </form>
         </section>
       </div>
 
@@ -236,6 +244,7 @@
          Resumo/Peso/Pegamentos. A colocação em máquina segue AS DATAS do
          Job On (a decisão 14/10) — sem «Colocar na máquina» manual e sem
          «Retirar do planeamento». *@
+      <div id="jobonFolhas" data-dmo-regiao>
       @if (Model.OpenJobOn is { } ficha && Model.DuplicarDe is null)
       {
         var fichaFact = (string? toolId) => Model.FichaFacts.FirstOrDefault(f => f.ToolId == toolId);
@@ -276,13 +285,22 @@
                      associa-se no Editar e fica registado como alteração. *@
                   <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&editar=1#lightSheet">Editar</a>
                   <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&duplicar=1">Duplicar Job On</a>
-                  <a class="dmo-options-item" href="/Controlo/Resumo?jobon_id=@ficha.JobOnId">Controlo</a>
+                  @* O CONTROLO SÓ PARA QUEM TEM UM MÓDULO DO CONTROLO (Diogo,
+                     19/10/2026: «aparece a quem tem modulos do controlo»). *@
+                  @if (Model.VeControlo)
+                  {
+                    <a class="dmo-options-item" href="/Controlo/Resumo?jobon_id=@ficha.JobOnId">Controlo</a>
+                  }
                   <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&producoes_ref=1#fichaProducoes">Produções desta referência</a>
+                  @if (Model.FichaEliminar is not null)
+                  {
+                    <a class="dmo-options-item" href="#jobon-delete-dialog" role="button" data-dmo-dialog="jobon-delete-dialog">Eliminar Job On</a>
+                  }
                 </div>
               </details>
               @* O FECHAR DA FICHA SAI DO JOB ON (o Diogo, 17/10/2026): volta ao
                  calendário no dia em que estava. O Fechar do Editar volta aqui. *@
-              <a class="dmo-button" href="/JobOn?ano=@Model.Year&mes=@Model.Month&dia=@(Model.NoDaySelected ? 0 : Model.SelectedDay)">Fechar</a>
+              <a class="dmo-button" href="/JobOn?ano=@Model.Year&mes=@Model.Month&dia=@(Model.NoDaySelected ? 0 : Model.SelectedDay)" data-dmo-parcial>Fechar</a>
             </div>
           </div>
           @* O QUE MUDOU (o Diogo, 17/10/2026: «não deveria ser um botão, mas
@@ -373,9 +391,6 @@
                 }
                 else
                 {
-                  var faltamSlot = ToolTechnicalMissing.TypeOf(tipoSlot) is { } tipoFerramenta
-                      ? ToolTechnicalMissing.For(tipoFerramenta, factoSlot.Processo is not null, factoSlot.VolumePuncaoCm3, factoSlot.VolumeMarisaCm3, factoSlot.DiametroGargaloMm)
-                      : Array.Empty<string>();
                   <p style="font-size:12px;margin:5px 0">
                     @if (podeAbrirFerramenta)
                     {
@@ -404,11 +419,6 @@
                       <span>Gargalo nominal <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.DiametroGargaloMm is { } gargaloMf ? gargaloMf.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm" : "—")</b></span>
                     }
                   </p>
-                  @if (faltamSlot.Count > 0)
-                  {
-                    <p class="jobon-tech-falta" role="status">@ToolTechnicalMissing.Message(faltamSlot)@if (podeAbrirFerramenta)
-                    {<a href="@fichaFerramentaHref(toolSlot)">Completar</a>}</p>
-                  }
                 }
               </div>
             }
@@ -416,7 +426,7 @@
 
           @if (Model.ReferenceProductionsPage is { } producoesRef)
           {
-            <section id="fichaProducoes" class="jobon-ref-productions" aria-labelledby="fichaProducoesTitle">
+            <section data-dmo-regiao id="fichaProducoes" class="jobon-ref-productions" aria-labelledby="fichaProducoesTitle">
               <div class="beta-light-sheet-head">
                 <h3 id="fichaProducoesTitle">Produções de @ficha.Reference</h3>
                 <a class="dmo-button" href="/JobOn?jobon_id=@ficha.JobOnId#lightFicha">Fechar</a>
@@ -459,6 +469,12 @@
             </section>
           }
         </section>
+        @* A janela do Eliminar fica fora da ficha: a ficha só mostra e leva às
+           ações, não grava nada a partir dela. *@
+        @if (Model.FichaEliminar is { } fichaEliminar)
+        {
+          <partial name="_JobOnEliminar" model="fichaEliminar" />
+        }
       }
 
       @* A FOLHA da produção (a sheet do mockup sobre a base atual: o
@@ -488,12 +504,14 @@
         {
           <div data-dmo-toast="erro" class="jobon-aviso" role="alert">@(Model.CreateRefusal is not null ? Model.CreateRefusalMessage : Model.UpdateRefusalMessage)</div>
         }
-        <form id="lightForm" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
+        <form id="lightForm" data-dmo-script method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
           @* O MODO EDIÇÃO: o jobon_edit_id vai no POST (a produção
              re-planeada — o jobon_id é o MESMO; a identidade read-only). *@
           @if (Model.FolhaEdicao)
           {
             <input type="hidden" id="lightEditId" name="jobon_edit_id" value="@Model.OpenJobOn!.JobOnId" />
+            @* A versão aberta: se outra pessoa gravar entretanto, nada se grava por cima. *@
+            <input type="hidden" name="versao" value="@Model.FolhaVersao" />
           }
           <div class="beta-light-fields">
             <label>Referência da produção<input id="lightReference" data-dmo-maiusculas autocapitalize="characters" name="reference" required placeholder="Ex.: 0109S022" value="@Model.RequestedReference" readonly="@(Model.FolhaEdicao)" data-dmo-suggest="referencias" /></label>
@@ -544,7 +562,13 @@
                   <div class="dmo-options-list">
                     <button type="button" class="dmo-options-item" data-tool-associate>@(escolhida is null ? "Associar" : "Trocar") @tipoSlot</button>
                     <a class="dmo-options-item" href="@criarHref" data-tool-create>Criar @tipoSlot</a>
-                    <button type="button" class="dmo-options-item" data-tool-clear @(escolhida is null ? "hidden" : null)>Retirar @tipoSlot</button>
+                    @* «Retirar» só no Novo Job On e nunca no MF: no Editar gravava
+                       sucesso sem retirar nada, e o MF é obrigatório (deep sweep,
+                       18/10/2026, A1-M3). *@
+                    @if (!Model.FolhaEdicao && tipoSlot != "MF")
+                    {
+                      <button type="button" class="dmo-options-item" data-tool-clear @(escolhida is null ? "hidden" : null)>Retirar @tipoSlot</button>
+                    }
                   </div>
                 </details>
                 <div class="job-tool-chosen" data-tool-chosen @(escolhida is null ? "hidden" : null)>
@@ -592,22 +616,6 @@
               </section>
             }
           </div>
-          @* Os avisos informativos das ferramentas escolhidas — SEMPRE do
-             backend (o endpoint ?handler=ToolFacts); o script da página só
-             apresenta o que o backend devolveu. *@
-          <div id="lightToolWarnings" class="job-tool-warnings">
-            @foreach (var fact in Model.FolhaAberta ? Model.FichaFacts : Array.Empty<DMO.Alpha.Core.Production.JobOnToolFacts>())
-            {
-              if (fact.AvisoCompatibilidade is { } avisoCompatibilidade)
-              {
-                <div class="jobon-aviso warn" role="status">@avisoCompatibilidade</div>
-              }
-              if (fact.AvisoUsoParalelo is { } avisoParalelo)
-              {
-                <div class="jobon-aviso warn" role="status">@avisoParalelo</div>
-              }
-            }
-          </div>
           @* O FOLD dos detalhes opcionais (o referencial do Owner: as
              notas fechadas por default). *@
           <details class="jobon-mais-detalhes">
@@ -618,9 +626,26 @@
               </label>
             </div>
           </details>
+          @* Os avisos informativos das ferramentas escolhidas — SEMPRE do
+             backend (o endpoint ?handler=ToolFacts); o script da página só
+             apresenta o que o backend devolveu. Ficam no fim do formulário, depois
+             do «Mais detalhes»: ao aparecerem ou saírem (escolher a ferramenta,
+             a máquina, as datas) não empurram nada (regra 56, B-jobon-10, deep
+             sweep 18/10/2026). *@
+          <div id="lightToolWarnings" class="job-tool-warnings">
+            @foreach (var fact in Model.FolhaAberta ? Model.FichaFacts : Array.Empty<DMO.Alpha.Core.Production.JobOnToolFacts>())
+            {
+              foreach (var avisoFerramenta in IndexModel.AvisosDasFerramentas(fact))
+              {
+                <div class="jobon-aviso warn" role="status">@avisoFerramenta.Texto@foreach (var link in avisoFerramenta.Links)
+                  {<partial name="_DmoAvisoLink" model="link" />}</div>
+              }
+            }
+          </div>
         </form>
       </section>
       }
+      </div>
     </section>
     }
 
@@ -635,10 +660,22 @@
     <section class="beta-light-view active" data-light-panel="history">
       <div class="beta-light-heading">
         <div>
-          <h1>Histórico de Job On<partial name="_DmoHelp" model="@("Produções anteriores e respetivas associações de ferramentas. Escreva a referência e escolha-a, ou carregue em Enter; a máquina, a produção e as datas aplicam-se logo. O período mostra as produções cuja janela toca as datas. Um clique numa produção abre a folha.")" /></h1>
+          <h1>Histórico de Job On<partial name="_DmoHelp" model="@("Produções anteriores e respetivas associações de ferramentas. A referência aplica-se ao escrever; a máquina, a produção e as datas aplicam-se logo. O período mostra as produções cuja janela toca as datas. Um clique numa produção abre a folha.")" /></h1>
         </div>
       </div>
-      <form method="get" asp-page="/JobOn/Index" class="dmo-filter-bar" style="margin-bottom:12px">
+      @* Os filtros trocam só o que muda (deep sweep, 18/10/2026): cada escolha
+         pede a página com fetch (DmoTroca) e troca os resultados e o
+         dropdown das produções, que muda com a referência e a máquina. Os
+         campos ficam como o operador os deixou (data-dmo-fica): o foco fica
+         no campo e o que se escreve noutro campo durante o pedido não se
+         perde. O endereço fica com os filtros (F5 e Voltar dão a mesma
+         página). A referência aplica-se ao escrever, 350 ms depois da última
+         tecla (data-dmo-ao-escrever; deep sweep 2, 18/10/2026, F-10): antes
+         ficava no campo sem Enter e a lista era a do filtro anterior. A
+         produção escolhida para a referência anterior sai ao escrever
+         (data-dmo-depende). *@
+      <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
+      <form method="get" asp-page="/JobOn/Index" class="dmo-filter-bar" style="margin-bottom:12px" id="jobonHistFiltros" data-dmo-ao-escrever="jobonHistoricoResultados">
         <input type="hidden" name="historico" value="1" />
         <div class="dmo-field">
           <label for="jobonHistReferencia">Referência</label>
@@ -654,20 +691,25 @@
             }
           </select>
         </div>
+        @* As produções da referência (e da máquina): uma zona que existe
+           sempre, escondida enquanto não há produções. *@
+        <div id="jobonHistProducaoZona" class="dmo-field" data-dmo-regiao hidden="@(Model.HistoryProductions.Count == 0 ? "hidden" : null)">
         @if (Model.HistoryProductions.Count > 0)
         {
-          var variasReferencias = Model.HistoryProductions.Select(p => p.Reference).Distinct().Count() > 1;
-          <div class="dmo-field">
+          @* Com várias referências (o texto é o início de mais do que uma),
+             cada opção diz e leva a referência: escolher filtra só essa
+             produção, mesmo com o mesmo nº noutra referência. *@
+          var variasReferencias = Model.HistoryProductionsSpanReferences;
             <label for="jobonHistProducao">Produção</label>
-            <select id="jobonHistProducao" name="producao" data-dmo-autosubmit>
+            <select id="jobonHistProducao" name="producao" data-dmo-autosubmit data-dmo-depende="jobonHistReferencia">
               <option value="" selected="@(Model.HistoryProduction is null ? "selected" : null)">Todas</option>
               @foreach (var producao in Model.HistoryProductions)
               {
-                <option value="@producao.ProductionNumber" selected="@(producao.ProductionNumber == Model.HistoryProduction ? "selected" : null)">@producao.ProductionNumber@(variasReferencias ? $" · {producao.Reference}" : "")</option>
+                <option value="@Model.HistoryProductionValue(producao)" selected="@(Model.IsHistoryProductionSelected(producao) ? "selected" : null)">@producao.ProductionNumber@(variasReferencias ? $" · {producao.Reference}" : "")</option>
               }
             </select>
-          </div>
         }
+        </div>
         <div class="dmo-field">
           <label for="jobonHistDesde">Desde</label>
           <input id="jobonHistDesde" name="desde" type="date" value="@(Model.HistoryDesde?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit />
@@ -677,49 +719,8 @@
           <input id="jobonHistAte" name="ate" type="date" value="@(Model.HistoryAte?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit />
         </div>
       </form>
-      @foreach (var aviso in Model.HistoryDateWarnings)
-      {
-        <div class="jobon-aviso warn" role="status">@aviso</div>
-      }
-      @* Os resultados em colunas alinhadas (Diogo, 17/10/2026: o texto não
-         fica encostado à direita): a mesma tabela da procura ao escrever. *@
-      <div class="dmo-card beta-light-history">
-        @if (!Model.HistorySearchApplied)
-        {
-          <span role="status">@IndexModel.HistoryEmptyStateMessage</span>
-        }
-        else if (Model.HistoryPage.TotalCount == 0)
-        {
-          <span role="status">Sem produções para esta procura.</span>
-        }
-        else
-        {
-          <div class="dmo-table-wrap">
-            <table class="dmo-table" id="jobonHistLista" data-dmo-list="Histórico Job On">
-              <thead>
-                <tr><th>Referência</th><th>Produção</th><th>Máquina</th><th>Datas</th><th>CM</th><th>MF</th><th>BQ</th></tr>
-              </thead>
-              <tbody>
-                @foreach (var jobOn in Model.HistoryPage.Items)
-                {
-                  <tr data-dmo-row data-id="@jobOn.JobOnId"
-                      data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = jobOn.JobOnId })"
-                      aria-label="Produção @jobOn.ProductionNumber — um clique abre a folha">
-                    <td><strong>@jobOn.Reference</strong></td>
-                    <td>@jobOn.ProductionNumber</td>
-                    <td>@jobOn.Machine</td>
-                    <td>@DMO.Alpha.Web.Pages.JobOn.JobOnProcuraFormato.Datas(jobOn.InicioEm, jobOn.FimEm)</td>
-                    <td>@(Fact(jobOn.CmToolId) ?? "—")</td>
-                    <td>@(Fact(jobOn.MfToolId) ?? "—")</td>
-                    <td>@(Fact(jobOn.BqToolId) ?? "—")</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
       </div>
-      <partial name="_ListPager" model="ListPager.For(Model.HistoryPage)" />
+      <partial name="_JobOnHistoricoResultados" model="Model" />
     </section>
     }
 
@@ -745,21 +746,6 @@
 
 @section Scripts {
 <script src="~/js/jobon-tool-picker.js" asp-append-version="true" defer></script>
-<script>
-// Duplo clique no dia já escolhido com uma produção escolhida na lista:
-// pergunta e retira a produção das datas. Sem produção escolhida, o
-// calendário só tira a seleção do dia.
-document.addEventListener('dmo:calendar-dblclick', function (event) {
-  var form = document.getElementById('lightRemoveForm');
-  var chosen = document.querySelector('#lightProductionList input[name="jobon_id"]:checked');
-  if (!form || !chosen) return;
-  event.preventDefault();
-  var numero = chosen.getAttribute('data-production-number') || '';
-  if (window.confirm('Retirar a produção ' + numero + ' das datas? O Job On fica no Histórico, sem dia.')) {
-    form.submit();
-  }
-});
-</script>
 <script>
 // A FICHA (o showToolFacts + a calote — o enhancement mínimo da casa,
 // o padrão do peso-live): TODO o cálculo é do backend — o endpoint
@@ -793,8 +779,19 @@ document.addEventListener('DOMContentLoaded', function () {
   // O SHOWTOOLFACTS ao vivo: as tools selecionadas nos cards (o
   // selects da folha) pedem ao backend os fatos e
   // os avisos — debounced, zero fórmula no cliente.
+  // SÓ A ÚLTIMA ESCOLHA CONTA (sweep de 19/10/2026): cada pedido leva um
+  // número e só o mais recente escreve, porque a resposta de uma escolha
+  // anterior que chegasse depois mostrava os dados e os avisos de outra
+  // ferramenta. Sem resposta, saem os dados e os avisos que lá estavam (eram
+  // de outra escolha) e a mesma escolha pode voltar a ser pedida.
   var timer = null;
   var lastQuery = '';
+  var pedido = 0;
+  function semFatos() {
+    lastQuery = '';
+    factSlots.forEach(function (slot) { slot.innerHTML = ''; });
+    if (warningsBox) warningsBox.innerHTML = '<div class="jobon-aviso info" role="status">Não foi possível obter os dados e os avisos das ferramentas. Tente de novo.</div>';
+  }
   function currentToolIds() {
     var ids = { CM: '', MF: '', BQ: '' };
     if (!form) return ids;
@@ -816,10 +813,12 @@ document.addEventListener('DOMContentLoaded', function () {
       '&fim_em=' + encodeURIComponent(endInput ? endInput.value : '');
     if (query === lastQuery) return;
     lastQuery = query;
+    var meu = ++pedido;
     fetch('/JobOn?handler=ToolFacts&' + query, { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (r) { if (!r.ok) throw new Error('Dados das ferramentas indisponíveis'); return r.json(); })
       .then(function (facts) {
-        if (!facts) return;
+        if (meu !== pedido) return;
+        if (!Array.isArray(facts)) { semFatos(); return; }
         var bySlot = {};
         var warnings = [];
         facts.forEach(function (fact) {
@@ -841,20 +840,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
           bySlot[fact.type] = detalhe;
-          if (fact.avisoCompatibilidade) warnings.push(fact.avisoCompatibilidade);
-          if (fact.avisoUsoParalelo) warnings.push(fact.avisoUsoParalelo);
+          (fact.avisos || []).forEach(function (aviso) { warnings.push(aviso); });
         });
         // Os dados técnicos vão para o cartão de cada ferramenta.
         factSlots.forEach(function (slot) {
           slot.innerHTML = bySlot[slot.getAttribute('data-facts-slot')] || '';
         });
         if (warningsBox) {
+          // Os links dos avisos para onde se resolvem (_DmoAvisoLink), noutro
+          // separador: a folha pode estar por gravar.
           warningsBox.innerHTML = warnings.map(function (w) {
-            return '<div class="jobon-aviso warn" role="status" style="margin:0">' + escapeHtml(w) + '</div>';
+            var links = (w.links || []).map(function (link) {
+              return ' <a class="dmo-aviso-link" href="' + escapeHtml(link.href).replace(/"/g, '&quot;') + '" target="_blank" rel="noopener">' + escapeHtml(link.texto) + '</a>';
+            }).join('');
+            return '<div class="jobon-aviso warn" role="status">' + escapeHtml(w.texto) + links + '</div>';
           }).join('');
         }
       })
-      .catch(function () { /* sem rede: os fatos server-rendered da ficha seguem visíveis */ });
+      .catch(function () { if (meu === pedido) semFatos(); });
   }
   function scheduleFacts() {
     if (timer) clearTimeout(timer);
@@ -870,3 +873,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 }
+
+<script>
+// O campo fica no lugar; o contexto dos pedidos acompanha o calendário novo.
+document.addEventListener('dmo:troca', function (event) {
+  var pagina = event.detail.pagina;
+  var field = document.getElementById('lightSearch');
+  var fresh = pagina && pagina.getElementById('lightSearch');
+  if (!field || !fresh || field.dataset.dmoProcura === fresh.dataset.dmoProcura) return;
+  field.dataset.dmoProcura = fresh.dataset.dmoProcura;
+  ['ano', 'mes', 'dia'].forEach(function (name) {
+    var current = field.form.querySelector('input[name="' + name + '"]');
+    var next = fresh.form.querySelector('input[name="' + name + '"]');
+    if (current && next) current.value = next.value;
+  });
+  var target = document.getElementById('lightProcura');
+  var nextTarget = pagina.getElementById('lightProcura');
+  if (target && nextTarget) target.replaceChildren.apply(target, Array.from(nextTarget.childNodes).map(function (node) { return document.importNode(node, true); }));
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+});
+</script>

@@ -17,9 +17,13 @@ public interface IProductionPickerQuery
     public const int MaxResults = 5;
 
     /// <summary>
-    /// As produções cuja referência contém <paramref name="reference"/> (sem
-    /// distinção de maiúsculas), da mais recente para a mais antiga, no
+    /// As produções cuja referência, ou a parte BQ dela, começa por
+    /// <paramref name="reference"/> (sem distinção de maiúsculas; nunca um
+    /// pedaço do meio), da mais recente para a mais antiga, no
     /// máximo <see cref="MaxResults"/>. Sem referência devolve uma lista vazia.
+    /// Serve a Comparação de Peso e o «Associar Job On» das Boquilhas; cada
+    /// item leva o seu jobon_id, por isso o mesmo nº noutra referência não se
+    /// confunde.
     /// </summary>
     Task<IReadOnlyList<ProductionPickItem>> ListByReferenceAsync(
         string? reference,
@@ -28,9 +32,6 @@ public interface IProductionPickerQuery
     /// <summary>Uma produção pelo jobon_id (para reabrir o select a partir de um link); null se não existe.</summary>
     Task<ProductionPickItem?> FindAsync(int jobOnId, CancellationToken cancellationToken = default);
 
-    /// <summary>Quantas produções a procura ao escrever mostra de cada vez.</summary>
-    public const int SearchLimit = 10;
-
     /// <summary>
     /// Quantas produções de uma referência o segundo passo mostra (regra do
     /// Diogo: só as últimas 5; o histórico completo fica na folha).
@@ -38,36 +39,15 @@ public interface IProductionPickerQuery
     public const int ProductionsOfReferenceLimit = 5;
 
     /// <summary>
-    /// O primeiro passo da procura ao escrever (Diogo, 17/10/2026: «deveria
-    /// ser referência e depois produções»; a procura não é global): as
-    /// referências que contêm <paramref name="term"/> (sem distinção de
-    /// maiúsculas). A referência com a produção mais recente primeiro, no
-    /// máximo <see cref="SearchLimit"/>. Sem texto devolve uma lista vazia.
-    /// </summary>
-    Task<IReadOnlyList<ReferenceSearchItem>> SearchReferencesAsync(
-        string? term,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// O segundo passo: as produções da referência exata (sem distinção de
-    /// maiúsculas), da mais recente para a mais antiga, no máximo
+    /// O segundo passo: as produções da referência completa escrita ou
+    /// escolhida nas sugestões (sem distinção de maiúsculas), da mais
+    /// recente para a mais antiga, no máximo
     /// <see cref="ProductionsOfReferenceLimit"/>, com as datas e as ferramentas.
     /// </summary>
     Task<IReadOnlyList<ProductionSearchItem>> ListOfReferenceAsync(
         string? reference,
         CancellationToken cancellationToken = default);
 }
-
-/// <summary>
-/// Uma referência encontrada ao escrever: quantas produções tem e a mais
-/// recente (nº, máquina e início).
-/// </summary>
-public sealed record ReferenceSearchItem(
-    string Reference,
-    int Productions,
-    string LastProductionNumber,
-    string LastMachine,
-    DateOnly? LastInicioEm);
 
 /// <summary>
 /// Uma produção de uma referência: a referência, o nº, a máquina, as

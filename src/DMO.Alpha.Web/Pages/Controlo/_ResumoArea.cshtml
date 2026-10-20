@@ -1,0 +1,92 @@
+@model DMO.Alpha.Web.Pages.Controlo.ResumoAreaZona
+@* O cartão de uma área do estado do documento (zona). A página e a
+   resposta só com as zonas de uma gravação (E11, _ResumoZonas) usam este. *@
+@{
+    var fmt = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    var stateClass = Model.Estado.Status switch { "OK" => "ok", "NOK" => "nok", _ => "" };
+    var dialogId = $"resumo-area-dialog-{Model.Estado.Area}";
+}
+<div id="resumo-area-@Model.Estado.Area" class="dmo-zona" data-dmo-regiao>
+<div class="resumo-area @stateClass">
+  <span>@Model.Estado.Area</span>
+  <strong>@(Model.Estado.Status ?? "não registado")</strong>
+  @if (Model.Pagina.SelectedProduction is { } areaProduction)
+  {
+    @* Diogo, 17/10/2026: o OK/NOK grava ao escolher; o comentário
+       fica numa caixa de altura fixa e abre numa janela pequena. Cada
+       formulário só envia o seu campo: o outro fica como está na base. *@
+    <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="AreaState" class="resumo-area-form">
+      <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
+      <input type="hidden" name="area" value="@Model.Estado.Area" />
+      <select id="resumo-estado-@Model.Estado.Area" name="estado" aria-label="Estado @Model.Estado.Area" data-dmo-autosubmit>
+        <option value="" selected="@(Model.Estado.Status is null)">—</option>
+        <option value="OK" selected="@(Model.Estado.Status == "OK")">OK</option>
+        <option value="NOK" selected="@(Model.Estado.Status == "NOK")">NOK</option>
+      </select>
+    </form>
+    <button type="button" class="resumo-area-note@(string.IsNullOrWhiteSpace(Model.Estado.Comment) ? " empty" : null)" data-dmo-dialog="@dialogId" aria-label="Comentário @Model.Estado.Area"><span class="resumo-area-note-text">@(string.IsNullOrWhiteSpace(Model.Estado.Comment) ? "Comentário (opcional)" : Model.Estado.Comment)</span></button>
+    <dialog id="@dialogId" class="dmo-dialog" aria-labelledby="@(dialogId)-title">
+      <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="AreaState">
+        <h3 id="@(dialogId)-title">Comentário · @Model.Estado.Area</h3>
+        <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
+        <input type="hidden" name="area" value="@Model.Estado.Area" />
+        <textarea name="comentario" rows="6" autofocus maxlength="@DMO.Alpha.Core.Controlo.ControloAreaState.CommentMaxLength" aria-label="Comentário @Model.Estado.Area">@Model.Estado.Comment</textarea>
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+          <button type="submit" class="dmo-button">Guardar</button>
+        </div>
+      </form>
+    </dialog>
+    @if (DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(Model.Estado.Area))
+    {
+      var linkDialogId = $"resumo-mcaliper-dialog-{Model.Estado.Area}";
+      var link = Model.Pagina.McaliperLinks.GetValueOrDefault(Model.Estado.Area);
+      @* O LINK DO MCALIPER (Diogo, 17/10/2026): fica na ficha técnica
+         da ferramenta; aqui só se associa, o link não fica à vista. *@
+      <button type="button" class="resumo-area-link@(link is null ? null : " set")" data-dmo-dialog="@linkDialogId">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
+        @(link is null ? "Associar link do mcaliper" : "Link do mcaliper associado")
+      </button>
+      <dialog id="@linkDialogId" class="dmo-dialog" aria-labelledby="@(linkDialogId)-title">
+        <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper">
+          <h3 id="@(linkDialogId)-title">Link do mcaliper · @Model.Estado.Area</h3>
+          <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
+          <input type="hidden" name="area" value="@Model.Estado.Area" />
+          <input type="url" name="url" value="@link" maxlength="@DMO.Alpha.Core.Tools.ToolTechnicalContext.McaliperUrlMaxLength" placeholder="https://… (vazio retira o link)" aria-label="Link do mcaliper @Model.Estado.Area" autofocus />
+          <div class="dmo-dialog-actions">
+            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+            <button type="submit" class="dmo-button">Guardar</button>
+          </div>
+        </form>
+      </dialog>
+    }
+  }
+  else if (!string.IsNullOrWhiteSpace(Model.Estado.Comment))
+  {
+    <p class="resumo-area-comment">@Model.Estado.Comment</p>
+  }
+  @if (Model.Estado.Status is not null && Model.Estado.UpdatedAtUtc is { } areaAt)
+  {
+    <small class="resumo-area-by">Por @Model.Pagina.PersonLabel(Model.Estado.UpdatedBy) · @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(areaAt).ToString("g", fmt)</small>
+  }
+  @if (Model.Estado.Anteriores.Count > 0)
+  {
+    @* O HISTÓRICO DO OK/NOK (Diogo, 19/10/2026, D13): as gravações
+       anteriores deste controlo ficam numa janela pequena; a última vale. *@
+    var historicoId = $"resumo-area-historico-{Model.Estado.Area}";
+    <button type="button" class="resumo-area-by resumo-area-historico" data-dmo-dialog="@historicoId" data-resumo-historico="@Model.Estado.Area">Alterações anteriores (@Model.Estado.Anteriores.Count)</button>
+    <dialog id="@historicoId" class="dmo-dialog" aria-labelledby="@(historicoId)-title">
+      <h3 id="@(historicoId)-title">OK/NOK · @Model.Estado.Area</h3>
+      <ul class="resumo-area-historico-lista">
+        @foreach (var mudanca in Model.Estado.Historico)
+        {
+          <li>@(mudanca.Status ?? "—") · @Model.Pagina.PersonLabel(mudanca.Por) · @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(mudanca.EmUtc).ToString("g", fmt)</li>
+        }
+      </ul>
+      <div class="dmo-dialog-actions">
+        <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+      </div>
+    </dialog>
+  }
+</div>
+</div>

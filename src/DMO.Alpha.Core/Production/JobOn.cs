@@ -39,6 +39,13 @@ public sealed class JobOn
     /// </summary>
     public decimal? CaloteMm { get; set; }
 
+    /// <summary>
+    /// Quando o Job On foi gravado pela primeira vez (UTC). O Sumário do
+    /// Planeamento mostra-o nesse dia (Diogo, 19/10/2026: «quando damos lock
+    /// deveria guardar»). Null nos Job Ons gravados antes desta coluna.
+    /// </summary>
+    public DateTime? CriadoEmUtc { get; set; }
+
     public Machine Machine { get; set; } = null!;
 
     public CmContext? CmContext { get; set; }

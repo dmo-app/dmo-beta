@@ -43,5 +43,12 @@ public enum UpdateJobOnResult
     /// ou ilegível (o campo j-calote da ficha; 0 é válido — calote plana).
     /// Nenhuma alteração é gravada.
     /// </summary>
-    InvalidCalote
+    InvalidCalote,
+
+    /// <summary>
+    /// Outra pessoa gravou esta produção depois de a ficha ser aberta (a versão
+    /// enviada já não é a gravada). Nada foi gravado: a ficha volta com o
+    /// que ficou gravado, para a pessoa refazer a alteração por cima.
+    /// </summary>
+    ChangedByAnotherUser
 }

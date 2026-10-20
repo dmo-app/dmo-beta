@@ -17,10 +17,12 @@ namespace DMO.Alpha.Infrastructure.Tools;
 ///     impossível: erro de implantação LOUD, nunca silencioso);
 /// (1) [UPDATE] backfill dos factos congelados em falta nos registos de
 ///     consumo que referem a tool (registos anteriores a estas colunas):
-///     Pesos (CM/BQ), Pegamentos (CM/BQ/MF), traces — a referência/lote
+///     Pesos (CM/BQ), Pegamentos (CM/BQ/MF), comparações de peso (CM),
+///     traces — a referência/lote
 ///     da tool a apagar ficam congeladas como evidência histórica;
-/// (2) [UPDATE] reatribuição à DUMMY: Pesos (CmToolId/BqToolId) e
-///     Pegamentos (Cm/Bq/MfToolId) que referem a tool → "REMOVED";
+/// (2) [UPDATE] reatribuição à DUMMY: Pesos (CmToolId/BqToolId),
+///     Pegamentos (Cm/Bq/MfToolId) e comparações de peso (CmToolId) que
+///     referem a tool → "REMOVED";
 /// (3) [UPDATE] traces com âncora direta à tool → ToolId = NULL (o
 ///     índice único parcial aceita NULLs; o trace e os movimentos ficam
 ///     intactos, os factos congelados ficam no trace);
@@ -133,6 +135,15 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
                 }
             }
 
+            var comparacoes = await _db.PesoComparacoes
+                .Where(c => c.CmToolId == tool.ToolId)
+                .ToListAsync(cancellationToken);
+            foreach (var comparacao in comparacoes)
+            {
+                comparacao.CmToolReferenceFrozen ??= tool.Reference;
+                comparacao.CmToolLotFrozen ??= tool.Lot;
+            }
+
             var traces = await _db.BqRepairTraces
                 .Where(t => t.ToolId == tool.ToolId)
                 .ToListAsync(cancellationToken);
@@ -142,7 +153,7 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
                 trace.ToolLotFrozen ??= tool.Lot;
             }
 
-            if (pesos.Count > 0 || pegamentos.Count > 0 || traces.Count > 0)
+            if (pesos.Count > 0 || pegamentos.Count > 0 || comparacoes.Count > 0 || traces.Count > 0)
             {
                 await _db.SaveChangesAsync(cancellationToken);
             }
@@ -182,6 +193,8 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
                 }
             }
 
+            comparacoes.ForEach(c => c.CmToolId = ToolRegistryConstants.RemovedToolId);
+
             // As produções que usaram a tool (contextos CM/MF/BQ e as notas
             // de lote) passam também para a DUMMY: a FK Restrict deixa de
             // permitir um tool_id pendurado. As notas de lote já congelam a
@@ -195,7 +208,7 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
             bqContexts.ForEach(c => c.ToolId = ToolRegistryConstants.RemovedToolId);
             lotNotes.ForEach(n => n.NewToolId = ToolRegistryConstants.RemovedToolId);
 
-            if (pesos.Count > 0 || pegamentos.Count > 0
+            if (pesos.Count > 0 || pegamentos.Count > 0 || comparacoes.Count > 0
                 || cmContexts.Count > 0 || mfContexts.Count > 0 || bqContexts.Count > 0 || lotNotes.Count > 0)
             {
                 await _db.SaveChangesAsync(cancellationToken);

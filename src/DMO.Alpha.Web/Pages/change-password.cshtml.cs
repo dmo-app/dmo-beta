@@ -1,3 +1,4 @@
+using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Authentication;
 using DMO.Alpha.Core.Runtime;
 using Microsoft.AspNetCore.Authentication;
@@ -19,17 +20,20 @@ public class ChangePasswordModel : PageModel
     private readonly ICurrentAccountContext _accountContext;
     private readonly DmoDbContext _dbContext;
     private readonly DmoSignInService _signInService;
+    private readonly IAdminEmailSettings _adminEmailSettings;
 
     public ChangePasswordModel(
         IAuthenticationProvider provider,
         ICurrentAccountContext accountContext,
         DmoDbContext dbContext,
-        DmoSignInService signInService)
+        DmoSignInService signInService,
+        IAdminEmailSettings adminEmailSettings)
     {
         _provider = provider;
         _accountContext = accountContext;
         _dbContext = dbContext;
         _signInService = signInService;
+        _adminEmailSettings = adminEmailSettings;
     }
 
     public const int MinimumLength = 4;
@@ -99,7 +103,16 @@ public class ChangePasswordModel : PageModel
             return Page();
         }
 
-        if (!actor.IsAdmin)
+        if (actor.IsAdmin)
+        {
+            // O ADMIN não tem linha em Users: a versão da sessão dele vive
+            // nas definições. As outras sessões do ADMIN terminam; a
+            // renovação logo a seguir entra já com a versão nova. A palavra-
+            // passe já mudou no provider: a versão sobe mesmo que o browser
+            // saia a meio, como no caminho dos Users (deep sweep, 18/10/2026).
+            await _adminEmailSettings.BumpAdminSessionVersionAsync(CancellationToken.None);
+        }
+        else
         {
             var user = await _dbContext.Users
                 .FirstOrDefaultAsync(u => u.OperatorId == actor.OperatorId);
@@ -107,6 +120,9 @@ public class ChangePasswordModel : PageModel
             if (user is not null)
             {
                 user.RequiresPasswordChange = false;
+                // As outras sessões deste User terminam; a renovação logo a
+                // seguir entra já com a versão nova.
+                user.SessionVersion++;
                 await _dbContext.SaveChangesAsync();
             }
         }

@@ -1,18 +1,18 @@
 using DMO.Alpha.Core.Controlo;
-using DMO.Alpha.Core.Paging;
-using DMO.Alpha.Core.Runtime;
+using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
+using DMO.Alpha.Infrastructure.Search;
 using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Infrastructure.Controlo;
 
 /// <summary>
 /// A Comparação_B (corte C, spec PESO.md): os Pesos baseline das produções
-/// da MESMA referência (a mesma base do conjunto) e o diferencial pela
-/// POSIÇÃO física das leituras. O ranking dos candidatos é AJUDA (a regra
-/// do Owner: a mesma MÁQUINA em primeiro — o desgaste por máquina —, depois
-/// a recência); a seleção é sempre humana e nunca substituída.
+/// da MESMA referência (a mesma base do conjunto) anteriores à atual e o
+/// diferencial pela POSIÇÃO física das leituras. O ranking dos candidatos é
+/// AJUDA (desde 17/10/2026 só a recência; deep sweep 2, F-12: só as
+/// anteriores, as últimas 5); a seleção é sempre humana e nunca substituída.
 /// </summary>
 public sealed class PesoComparisonQuery : IPesoComparisonQuery
 {
@@ -25,20 +25,50 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         _pesoQuery = pesoQuery;
     }
 
-    public async Task<IReadOnlyList<PesoComparisonCandidate>> FindCandidatesAsync(
+    public Task<IReadOnlyList<PesoComparisonCandidate>> FindCandidatesAsync(
         int controloId,
+        int? compararPesoId = null,
+        CancellationToken cancellationToken = default) =>
+        FindCandidatesCoreAsync(controloId, cmToolIdDoPeso: null, compararPesoId, cancellationToken);
+
+    public async Task<IReadOnlyList<PesoComparisonCandidate>> FindCandidatesAsync(
+        PesoReadModel peso,
+        int? compararPesoId = null,
         CancellationToken cancellationToken = default)
+    {
+        // A comparação usa a CM do Peso aberto (18/10/2026): depois de uma
+        // troca, o Peso anterior compara-se com as máquinas da CM dele.
+        if (peso.ControloId is not int controloId)
+        {
+            return Array.Empty<PesoComparisonCandidate>();
+        }
+
+        return await FindCandidatesCoreAsync(controloId, peso.CmToolId, compararPesoId, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<PesoComparisonCandidate>> FindCandidatesCoreAsync(
+        int controloId,
+        string? cmToolIdDoPeso,
+        int? compararPesoId,
+        CancellationToken cancellationToken)
     {
         // A produção atual (o controlo → o Job On: a referência, a máquina
         // e a CM do contexto — a ferramenta cuja FICHA decide o que pode
-        // ser comparado).
+        // ser comparado; a do Peso aberto quando é dada).
         var current = await _db.Controlos
             .Where(c => c.Id == controloId)
             .Select(c => new
             {
+                c.JobOnId,
                 JobOnReference = _db.JobOns
                     .Where(j => j.Id == c.JobOnId)
                     .Select(j => j.Reference)
+                    .FirstOrDefault(),
+                // O início da produção atual decide quais são as anteriores
+                // (deep sweep 2, F-12).
+                JobOnInicioEm = _db.JobOns
+                    .Where(j => j.Id == c.JobOnId)
+                    .Select(j => j.InicioEm)
                     .FirstOrDefault(),
                 JobOnMachineId = _db.JobOns
                     .Where(j => j.Id == c.JobOnId)
@@ -77,72 +107,87 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         // ainda SEM máquinas ligadas, não há informação de
         // compatibilidade: o conjunto completo da referência continua
         // (função antes de proteção — completa a ficha depois).
-        List<int>? comparisonMachineIds = null;
-        if (current.CmToolId is { Length: > 0 } && current.LinkedMachineIds.Count > 0)
-        {
-            comparisonMachineIds = current.LinkedMachineIds;
-        }
+        var linkedMachineIds = cmToolIdDoPeso is null || cmToolIdDoPeso == current.CmToolId
+            ? current.LinkedMachineIds
+            : (await MaquinasDaToolAsync(cmToolIdDoPeso, cancellationToken)).ToList();
 
-        // Os Pesos baseline das OUTRAS produções com a mesma referência.
-        var rows = await _db.Pesos
-            .Where(p => p.ControloId != null && p.ControloId != controloId)
-            .Select(p => new
-            {
-                PesoId = p.Id,
-                ControloId = p.ControloId!.Value,
-                p.CmToolId,
-                ProductionNumber = _db.JobOns
-                    .Where(j => j.Id == _db.Controlos
-                        .Where(c => c.Id == p.ControloId)
-                        .Select(c => c.JobOnId)
-                        .FirstOrDefault())
-                    .Select(j => j.ProductionNumber)
-                    .FirstOrDefault() ?? string.Empty,
-                JobOnMachineId = _db.JobOns
-                    .Where(j => j.Id == _db.Controlos
-                        .Where(c => c.Id == p.ControloId)
-                        .Select(c => c.JobOnId)
-                        .FirstOrDefault())
-                    .Select(j => (int?)j.MachineId)
-                    .FirstOrDefault(),
-                JobOnReference = _db.JobOns
-                    .Where(j => j.Id == _db.Controlos
-                        .Where(c => c.Id == p.ControloId)
-                        .Select(c => c.JobOnId)
-                        .FirstOrDefault())
-                    .Select(j => j.Reference)
-                    .FirstOrDefault() ?? string.Empty,
-                MachineCode = _db.JobOns
-                    .Where(j => j.Id == _db.Controlos
-                        .Where(c => c.Id == p.ControloId)
-                        .Select(c => c.JobOnId)
-                        .FirstOrDefault())
-                    .Join(_db.Machines, j => j.MachineId, m => m.Id, (j, m) => m.Code)
-                    .FirstOrDefault(),
-                p.WaterTemperatureC,
-                p.VolumeMarisaCm3,
-                p.VolumePuncaoCm3,
-                p.GlassDensityGramsPerCm3,
-                Readings = p.Measurements
-                    .Select(m => new { m.RowPosition, m.WaterWeightGrams })
-                    .OrderBy(m => m.RowPosition)
-                    .ToList()
-            })
-            .Where(x => x.JobOnReference == current.JobOnReference)
-            .ToListAsync(cancellationToken);
+        // Os Pesos baseline das OUTRAS produções com a mesma referência:
+        // juntos ao controlo, ao Job On e à máquina numa só consulta, com a
+        // referência e as máquinas permitidas filtradas no SQL.
+        var reference = current.JobOnReference;
+        var query =
+            from p in _db.Pesos
+            where p.ControloId != null && p.ControloId != controloId
+            join c in _db.Controlos on p.ControloId equals c.Id
+            join j in _db.JobOns on c.JobOnId equals j.Id
+            where j.Reference == reference
+            join m in _db.Machines on j.MachineId equals m.Id
+            select new { p, j, MachineCode = m.Code };
 
         // A FILTRAGEM PELO LINK DA FERRAMENTA (a folha decide o que pode
         // ser comparado): só as produções da referência cuja MÁQUINA
         // está no ToolMachineLink da CM corrente — o dropdown contém o
         // que a ferramenta aceita comparar (a tool [B1, C3] mostra B1 e
         // C3; a tool [B1] não mostra B3 — a opção simplesmente não
-        // existe, nunca um bloqueio em runtime).
-        if (comparisonMachineIds is { } allowedMachines)
-        {
-            rows = rows
-                .Where(x => x.JobOnMachineId is int machineId && allowedMachines.Contains(machineId))
-                .ToList();
-        }
+        // existe, nunca um bloqueio em runtime). Sem CM, ou com a ficha sem
+        // máquinas, fica toda a referência.
+        query = query.SoMaquinasDaCm(x => x.j, linkedMachineIds);
+
+        // SÓ AS ANTERIORES À ATUAL (deep sweep 2, 18/10/2026, F-12, a
+        // resposta R18 do especialista): esta é a Comparação_B, que o PDF do
+        // Peso chama «Comparação com o controlo anterior» e a Revisão
+        // «Controlo anterior»; uma produção posterior saía com o nome
+        // «anterior», o que é falso. O critério é o da «Produção anterior» e
+        // do «Controlo anterior» da Revisão, num só sítio (ProducaoAnterior):
+        // as que começaram antes da atual (no mesmo dia, as registadas antes);
+        // sem início na atual, as registadas antes dela, com as sem início no
+        // fim.
+        var anteriores = query.SoAnteriores(x => x.j, current.JobOnId, current.JobOnInicioEm);
+
+        // AS ÚLTIMAS 5 (deep sweep 2, F-12: o dropdown tinha todas as
+        // produções da referência, e lia as leituras de todas): a mais
+        // recente primeiro, cortadas na base depois das máquinas permitidas
+        // (ficam 5 que se podem comparar) e antes de ler as leituras. O Peso
+        // pedido (o «comparar» de um link, do «Guardar» ou do «Supomos») fica
+        // mesmo fora delas, mais antigo ou posterior, se for da mesma
+        // referência e de uma máquina permitida: uma comparação já guardada
+        // continua a aparecer, e a tabela não fica com o select em «Procurar
+        // produção…». O corte é de 5 Pesos: uma produção com a CM ou a BQ
+        // trocada (beta.243) conta um por combinação, o mais recente primeiro.
+        var ultimas = anteriores
+            .MaisRecentePrimeiro(x => x.j)
+            .ThenByDescending(x => x.p.Id)
+            .Select(x => x.p.Id)
+            .Take(IProductionPickerQuery.MaxResults);
+        query = compararPesoId is int pedido
+            ? query.Where(x => ultimas.Contains(x.p.Id) || x.p.Id == pedido)
+            : query.Where(x => ultimas.Contains(x.p.Id));
+
+        var rows = await query
+            .Select(x => new
+            {
+                PesoId = x.p.Id,
+                ControloId = x.p.ControloId!.Value,
+                x.p.CmToolId,
+                x.j.ProductionNumber,
+                JobOnId = x.j.Id,
+                x.j.InicioEm,
+                // Fora das 5 só pode estar o pedido, que vai para o fim.
+                NasUltimas = ultimas.Contains(x.p.Id),
+                JobOnMachineId = (int?)x.j.MachineId,
+                JobOnReference = x.j.Reference,
+                x.MachineCode,
+                x.p.WaterTemperatureC,
+                x.p.WaterDensityGramsPerCm3,
+                x.p.VolumeMarisaCm3,
+                x.p.VolumePuncaoCm3,
+                x.p.GlassDensityGramsPerCm3,
+                Readings = x.p.Measurements
+                    .Select(m => new { m.RowPosition, m.WaterWeightGrams })
+                    .OrderBy(m => m.RowPosition)
+                    .ToList()
+            })
+            .ToListAsync(cancellationToken);
 
         // O lote da CM e as máquinas compatíveis da sua ficha (o Owner
         // 2026-10-17: «ao procurar as produções pode aparecer as máquinas
@@ -160,14 +205,25 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
             .GroupBy(l => l.ToolId)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(l => l.Code).OrderBy(code => code, StringComparer.Ordinal).ToList());
 
+        // Só a recência, a mais recente das anteriores primeiro (o Owner
+        // 2026-10-17: «na mesma máquina não está bem, pq o mesmo lote pode
+        // funcionar em máquinas diferentes usando a mesma ferramenta, basta
+        // apenas produção»), pela mesma ordem do corte; o pedido fora das 5
+        // fica no fim, como a guardada na «Produção anterior» (beta.239). As
+        // máquinas permitidas continuam a vir da ficha da CM.
         return rows
+            .OrderBy(x => !x.NasUltimas)
+            .ThenBy(x => x.InicioEm is null)
+            .ThenByDescending(x => x.InicioEm)
+            .ThenByDescending(x => x.JobOnId)
+            .ThenByDescending(x => x.PesoId)
             .Select(x =>
             {
                 var machineCode = x.JobOnMachineId is not null ? x.MachineCode ?? string.Empty : string.Empty;
                 // A densidade da água resolve pela tabela canónica para o grau
                 // congelado (invariante validada na criação — o padrão da
                 // PesoQuery).
-                var density = WaterDensityTable.Resolve(x.WaterTemperatureC)
+                var density = WaterDensityTable.ForPeso(x.WaterDensityGramsPerCm3, x.WaterTemperatureC)
                     ?? throw new InvalidOperationException(
                         $"O grau de temperatura da água congelado no Peso {x.PesoId} " +
                         "está fora do intervalo suportado pela tabela canónica de densidade da água.");
@@ -200,11 +256,6 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
                     lots.GetValueOrDefault(x.CmToolId),
                     compatible.GetValueOrDefault(x.CmToolId));
             })
-            // Só a recência, a mais recente primeiro (o Owner 2026-10-17: «na
-            // mesma máquina não está bem, pq o mesmo lote pode funcionar em
-            // máquinas diferentes usando a mesma ferramenta, basta apenas
-            // produção»). As máquinas permitidas continuam a vir da ficha da CM.
-            .OrderByDescending(c => c.PesoId)
             .ToList();
     }
 
@@ -243,38 +294,18 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
 
         // Os factos da produção histórica (o nº de produção e a máquina do
         // seu Job On — fatos humanos, ids fora das folhas).
-        var historicalFacts = await _db.Pesos
-            .Where(p => p.Id == historicalPesoId && p.ControloId != null)
-            .Select(p => new
+        var historicalFacts = await (
+            from p in _db.Pesos
+            where p.Id == historicalPesoId && p.ControloId != null
+            join c in _db.Controlos on p.ControloId equals c.Id
+            join j in _db.JobOns on c.JobOnId equals j.Id
+            join m in _db.Machines on j.MachineId equals m.Id
+            select new
             {
-                ProductionNumber = _db.JobOns
-                    .Where(j => j.Id == _db.Controlos
-                        .Where(c => c.Id == p.ControloId)
-                        .Select(c => c.JobOnId)
-                        .FirstOrDefault())
-                    .Select(j => j.ProductionNumber)
-                    .FirstOrDefault() ?? string.Empty,
-                MachineCode = (
-                    from c in _db.Controlos
-                    join j in _db.JobOns on c.JobOnId equals j.Id
-                    join m in _db.Machines on j.MachineId equals m.Id
-                    where c.Id == p.ControloId
-                    select m.Code)
-                    .FirstOrDefault() ?? string.Empty,
-                InicioEm = _db.JobOns
-                    .Where(j => j.Id == _db.Controlos
-                        .Where(c => c.Id == p.ControloId)
-                        .Select(c => c.JobOnId)
-                        .FirstOrDefault())
-                    .Select(j => j.InicioEm)
-                    .FirstOrDefault(),
-                FimEm = _db.JobOns
-                    .Where(j => j.Id == _db.Controlos
-                        .Where(c => c.Id == p.ControloId)
-                        .Select(c => c.JobOnId)
-                        .FirstOrDefault())
-                    .Select(j => j.FimEm)
-                    .FirstOrDefault()
+                j.ProductionNumber,
+                MachineCode = m.Code,
+                j.InicioEm,
+                j.FimEm
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -359,76 +390,74 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         // Os Pesos production-scoped do controlo da produção, do mais antigo
         // para o mais recente (o html ordena por created_at — o primeiro é
         // o peso inicial). Os factos humanos da CM vêm do tool_id do peso.
+        // Depois de uma troca da CM ou da BQ a produção tem vários Pesos
+        // (18/10/2026): cada opção diz se é o Peso atual e, com mais do
+        // que um, a BQ do Peso, para se distinguirem.
         var rows = await (
             from p in _db.Pesos.AsNoTracking()
             join c in _db.Controlos.AsNoTracking() on p.ControloId equals c.Id
             join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id
             join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
             join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
+            join bq in _db.Tools.AsNoTracking() on p.BqToolId equals bq.ToolId
             where j.Id == jobOnId
             orderby p.Id ascending
             select new
             {
                 PesoId = p.Id,
+                ControloId = c.Id,
                 j.Reference,
                 j.ProductionNumber,
                 Machine = m.Code,
                 ToolId = t.ToolId,
                 ToolReference = t.Reference,
-                ToolLot = t.Lot
+                ToolLot = t.Lot,
+                BqReference = p.BqToolReferenceFrozen ?? bq.Reference,
+                BqLot = p.BqToolLotFrozen ?? bq.Lot
             })
             .ToListAsync(cancellationToken);
 
-        return await ComOpcoesAsync(
+        var opcoes = await ComOpcoesAsync(
             rows.Select(r => ((int, string?, string?, string?, string?, string?, string?))
                 (r.PesoId, r.Reference, r.ProductionNumber, r.Machine, r.ToolId, r.ToolReference, r.ToolLot)),
             cancellationToken);
-    }
+        if (rows.Count < 2)
+        {
+            return opcoes;
+        }
 
-    public Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarPesosGuardadosAsync(
-        CancellationToken cancellationToken = default) =>
-        ListarPesosAsync(null, null, null, cancellationToken);
+        var atual = await PesoCombinations.CurrentPesoIdAsync(_db, rows[0].ControloId, cancellationToken);
+        var porId = rows.ToDictionary(r => r.PesoId);
+        return opcoes
+            .Select(o => o with
+            {
+                IsCurrent = o.PesoId == atual,
+                BqLabel = porId.TryGetValue(o.PesoId, out var r) ? $"BQ {r.BqReference ?? "—"} · Lote {r.BqLot ?? "—"}" : null
+            })
+            .ToList();
+    }
 
     public async Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarPesosPorReferenciaAsync(
         string? referencia,
         CancellationToken cancellationToken = default)
     {
-        var termo = referencia?.Trim().ToUpperInvariant();
-        if (string.IsNullOrEmpty(termo))
+        if (ReferenceMatch.Normalize(referencia) is not { } termo)
         {
             return Array.Empty<PesoComparacaoPesoOpcao>();
         }
 
-        // O filtro e o corte na base, antes de calcular os pesos médios.
-        var rows = await (
-            from p in _db.Pesos.AsNoTracking()
-            join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
-            join c in _db.Controlos.AsNoTracking() on p.ControloId equals c.Id into controlos
-            from c in controlos.DefaultIfEmpty()
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id into jobOns
-            from j in jobOns.DefaultIfEmpty()
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id into machines
-            from m in machines.DefaultIfEmpty()
-            where (p.ControloId != null && j != null && m != null && j.Reference.ToUpper().Contains(termo))
-                || (p.ControloId == null && t.Reference.ToUpper().Contains(termo))
-            orderby p.Id descending
-            select new
-            {
-                PesoId = p.Id,
-                Reference = j != null ? (string?)j.Reference : null,
-                ProductionNumber = j != null ? (string?)j.ProductionNumber : null,
-                Machine = m != null ? (string?)m.Code : null,
-                ToolId = (string?)t.ToolId,
-                ToolReference = (string?)t.Reference,
-                ToolLot = (string?)t.Lot
-            })
+        // O filtro e o corte na base, antes de calcular os pesos médios. A
+        // referência da produção (ou, sem produção, a da CM) pelo INÍCIO dela
+        // ou da parte BQ, nunca a meio (ReferenceMatch, Diogo 18/10/2026):
+        // «075» já não traz a 1075C142.
+        var rows = await LinhasDosPesos()
+            .Where(ReferenceMatch.Predicate<LinhaPeso>(r => r.ControloId != null && r.Machine != null ? r.Reference : null, termo)
+                .Or(ReferenceMatch.Predicate<LinhaPeso>(r => r.ControloId == null ? r.ToolReference : null, termo)))
+            .OrderByDescending(r => r.PesoId)
             .Take(100)
             .ToListAsync(cancellationToken);
 
-        return await ComMaquinasDaCmAsync(await ComOpcoesAsync(
-            rows.Select(r => ((int, string?, string?, string?, string?, string?, string?))
-                (r.PesoId, r.Reference, r.ProductionNumber, r.Machine, r.ToolId, r.ToolReference, r.ToolLot)),
-            cancellationToken), cancellationToken);
+        return await ComMaquinasDaCmAsync(await ComOpcoesAsync(rows.Select(r => r.Tuplo), cancellationToken), cancellationToken);
     }
 
     public async Task<IReadOnlyList<PesoComparacaoPesoOpcao>> OpcoesDosPesosAsync(
@@ -440,32 +469,11 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
             return Array.Empty<PesoComparacaoPesoOpcao>();
         }
 
-        var rows = await (
-            from p in _db.Pesos.AsNoTracking()
-            join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
-            join c in _db.Controlos.AsNoTracking() on p.ControloId equals c.Id into controlos
-            from c in controlos.DefaultIfEmpty()
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id into jobOns
-            from j in jobOns.DefaultIfEmpty()
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id into machines
-            from m in machines.DefaultIfEmpty()
-            where pesoIds.Contains(p.Id)
-            select new
-            {
-                PesoId = p.Id,
-                Reference = j != null ? (string?)j.Reference : null,
-                ProductionNumber = j != null ? (string?)j.ProductionNumber : null,
-                Machine = m != null ? (string?)m.Code : null,
-                ToolId = (string?)t.ToolId,
-                ToolReference = (string?)t.Reference,
-                ToolLot = (string?)t.Lot
-            })
+        var rows = await LinhasDosPesos()
+            .Where(r => pesoIds.Contains(r.PesoId))
             .ToListAsync(cancellationToken);
 
-        return await ComMaquinasDaCmAsync(await ComOpcoesAsync(
-            rows.Select(r => ((int, string?, string?, string?, string?, string?, string?))
-                (r.PesoId, r.Reference, r.ProductionNumber, r.Machine, r.ToolId, r.ToolReference, r.ToolLot)),
-            cancellationToken), cancellationToken);
+        return await ComMaquinasDaCmAsync(await ComOpcoesAsync(rows.Select(r => r.Tuplo), cancellationToken), cancellationToken);
     }
 
     public async Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ProcurarPesosAsync(
@@ -474,54 +482,79 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         int limite,
         CancellationToken cancellationToken = default)
     {
-        var texto = termo?.Trim().ToUpperInvariant();
-        if (string.IsNullOrEmpty(texto))
+        if (ReferenceMatch.Normalize(termo) is not { } texto)
         {
             return Array.Empty<PesoComparacaoPesoOpcao>();
         }
 
-        var refFiltro = referencia?.Trim().ToUpperInvariant();
-        if (string.IsNullOrEmpty(refFiltro))
+        var rows = LinhasDosPesos();
+        if (ReferenceMatch.Normalize(referencia) is { } refFiltro)
         {
-            refFiltro = null;
+            // Só os Pesos da referência indicada: a da produção ou, sem
+            // produção, a da CM, pelo início (ReferenceMatch).
+            rows = rows.Where(ReferenceMatch.Predicate<LinhaPeso>(r => r.Reference, refFiltro)
+                .Or(ReferenceMatch.Predicate<LinhaPeso>(r => r.ControloId == null ? r.ToolReference : null, refFiltro)));
         }
 
-        var rows = await (
-            from p in _db.Pesos.AsNoTracking()
-            join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
-            join c in _db.Controlos.AsNoTracking() on p.ControloId equals c.Id into controlos
-            from c in controlos.DefaultIfEmpty()
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id into jobOns
-            from j in jobOns.DefaultIfEmpty()
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id into machines
-            from m in machines.DefaultIfEmpty()
-            where (refFiltro == null
-                    || (j != null && j.Reference.ToUpper().Contains(refFiltro))
-                    || (p.ControloId == null && t.Reference.ToUpper().Contains(refFiltro)))
-                && ((j != null && (j.ProductionNumber.ToUpper().Contains(texto) || j.Reference.ToUpper().Contains(texto)))
-                    || (m != null && m.Code.ToUpper().Contains(texto))
-                    || t.Lot.ToUpper().Contains(texto)
-                    || t.Reference.ToUpper().Contains(texto)
-                    || _db.ToolMachineLinks.Any(link => link.ToolId == t.ToolId
-                        && link.Machine.Code.ToUpper().Contains(texto)))
-            orderby p.Id descending
-            select new
-            {
-                PesoId = p.Id,
-                Reference = j != null ? (string?)j.Reference : null,
-                ProductionNumber = j != null ? (string?)j.ProductionNumber : null,
-                Machine = m != null ? (string?)m.Code : null,
-                ToolId = (string?)t.ToolId,
-                ToolReference = (string?)t.Reference,
-                ToolLot = (string?)t.Lot
-            })
+        // As referências (da produção e da CM) pelo início delas ou da parte
+        // BQ, nunca a meio (ReferenceMatch, Diogo 18/10/2026); o nº, a
+        // máquina (da produção ou da CM) e o lote continuam por parte do texto.
+        var found = await rows
+            .Where(ReferenceMatch.Predicate<LinhaPeso>(r => r.Reference, texto)
+                .Or(ReferenceMatch.Predicate<LinhaPeso>(r => r.ToolReference, texto))
+                .Or(r => (r.ProductionNumber != null && r.ProductionNumber.ToUpper().Contains(texto))
+                    || (r.Machine != null && r.Machine.ToUpper().Contains(texto))
+                    || r.ToolLot.ToUpper().Contains(texto)
+                    || _db.ToolMachineLinks.Any(link => link.ToolId == r.ToolId
+                        && link.Machine.Code.ToUpper().Contains(texto))))
+            .OrderByDescending(r => r.PesoId)
             .Take(limite)
             .ToListAsync(cancellationToken);
 
-        return await ComMaquinasDaCmAsync(await ComOpcoesAsync(
-            rows.Select(r => ((int, string?, string?, string?, string?, string?, string?))
-                (r.PesoId, r.Reference, r.ProductionNumber, r.Machine, r.ToolId, r.ToolReference, r.ToolLot)),
-            cancellationToken), cancellationToken);
+        return await ComMaquinasDaCmAsync(await ComOpcoesAsync(found.Select(r => r.Tuplo), cancellationToken), cancellationToken);
+    }
+
+    /// <summary>
+    /// Cada Peso com a CM e, quando tem, a produção (controlo → Job On →
+    /// máquina), numa linha com nome: as condições do <see cref="ReferenceMatch"/>
+    /// precisam de um tipo, e o EF traduz um Where sobre ela (um tipo com
+    /// propriedades, não um record posicional).
+    /// </summary>
+    private IQueryable<LinhaPeso> LinhasDosPesos() =>
+        from p in _db.Pesos.AsNoTracking()
+        join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
+        join c in _db.Controlos.AsNoTracking() on p.ControloId equals c.Id into controlos
+        from c in controlos.DefaultIfEmpty()
+        join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id into jobOns
+        from j in jobOns.DefaultIfEmpty()
+        join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id into machines
+        from m in machines.DefaultIfEmpty()
+        select new LinhaPeso
+        {
+            PesoId = p.Id,
+            ControloId = p.ControloId,
+            Reference = j != null ? j.Reference : null,
+            ProductionNumber = j != null ? j.ProductionNumber : null,
+            Machine = m != null ? m.Code : null,
+            ToolId = t.ToolId,
+            ToolReference = t.Reference,
+            ToolLot = t.Lot
+        };
+
+    /// <summary>Um Peso com a CM e a produção, para as procuras do «Comparar Pesos guardados».</summary>
+    private sealed class LinhaPeso
+    {
+        public int PesoId { get; init; }
+        public int? ControloId { get; init; }
+        public string? Reference { get; init; }
+        public string? ProductionNumber { get; init; }
+        public string? Machine { get; init; }
+        public string ToolId { get; init; } = null!;
+        public string ToolReference { get; init; } = null!;
+        public string ToolLot { get; init; } = null!;
+
+        public (int, string?, string?, string?, string?, string?, string?) Tuplo =>
+            (PesoId, Reference, ProductionNumber, Machine, ToolId, ToolReference, ToolLot);
     }
 
     /// <summary>
@@ -576,78 +609,6 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         return row is null ? null : row.ProductionReference ?? row.CmReference;
     }
 
-    public async Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarPesosComparaveisAsync(
-        int pesoId,
-        CancellationToken cancellationToken = default)
-    {
-        // A referência da produção (quando o Peso tem produção) e a referência
-        // da CM do Peso: os dois factos que tornam a comparação significativa.
-        var current = await (
-            from p in _db.Pesos.AsNoTracking()
-            join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
-            where p.Id == pesoId
-            select new
-            {
-                CmReference = t.Reference,
-                ProductionReference = _db.Controlos
-                    .Where(c => c.Id == p.ControloId)
-                    .Join(_db.JobOns, c => c.JobOnId, j => j.Id, (c, j) => j.Reference)
-                    .FirstOrDefault()
-            })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (current is null)
-        {
-            return Array.Empty<PesoComparacaoPesoOpcao>();
-        }
-
-        return await ListarPesosAsync(pesoId, current.ProductionReference, current.CmReference, cancellationToken);
-    }
-
-    private async Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarPesosAsync(
-        int? excludePesoId,
-        string? productionReference,
-        string? cmReference,
-        CancellationToken cancellationToken)
-    {
-        var filtered = excludePesoId is not null;
-        // TODOS os Pesos guardados (o histórico do html lista também os
-        // pré-produção): os production-scoped com os factos da produção; os
-        // tool-scoped identificados pela própria CM (o html: «Pré-produção»).
-        var merged = (await (
-            from p in _db.Pesos.AsNoTracking()
-            join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
-            join c in _db.Controlos.AsNoTracking() on p.ControloId equals c.Id into controlos
-            from c in controlos.DefaultIfEmpty()
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id into jobOns
-            from j in jobOns.DefaultIfEmpty()
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id into machines
-            from m in machines.DefaultIfEmpty()
-            where (p.ControloId != null && j != null && m != null
-                    && (!filtered
-                        || (p.Id != excludePesoId
-                            && (j.Reference == productionReference || t.Reference == cmReference))))
-                || (p.ControloId == null
-                    && (!filtered || (p.Id != excludePesoId && t.Reference == cmReference)))
-            orderby p.Id descending // do mais recente para o mais antigo, nos dois grupos
-            select new
-            {
-                PesoId = p.Id,
-                Reference = j != null ? (string?)j.Reference : null,
-                ProductionNumber = j != null ? (string?)j.ProductionNumber : null,
-                Machine = m != null ? (string?)m.Code : null,
-                ToolId = (string?)t.ToolId,
-                ToolReference = (string?)t.Reference,
-                ToolLot = (string?)t.Lot
-            })
-            .ToListAsync(cancellationToken))
-            .Select(r => ((int, string?, string?, string?, string?, string?, string?))
-                (r.PesoId, r.Reference, r.ProductionNumber, r.Machine, r.ToolId, r.ToolReference, r.ToolLot))
-            .ToList();
-
-        return await ComOpcoesAsync(merged, cancellationToken);
-    }
-
     /// <summary>
     /// As opções com as leituras e o peso médio calculados a partir dos
     /// inputs congelados + as leituras persistidas (o padrão canónico do
@@ -673,6 +634,7 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
             {
                 p.Id,
                 p.WaterTemperatureC,
+                p.WaterDensityGramsPerCm3,
                 p.VolumeMarisaCm3,
                 p.VolumePuncaoCm3,
                 p.GlassDensityGramsPerCm3,
@@ -689,7 +651,7 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
             decimal? pesoMedio = null;
             if (porPeso.TryGetValue(row.PesoId, out var weights) && weights.Count > 0
                 && pesos.TryGetValue(row.PesoId, out var peso)
-                && WaterDensityTable.Resolve(peso.WaterTemperatureC) is { } density)
+                && WaterDensityTable.ForPeso(peso.WaterDensityGramsPerCm3, peso.WaterTemperatureC) is { } density)
             {
                 var total = 0m;
                 foreach (var weight in weights)
@@ -885,7 +847,13 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
             leituras,
             medias,
             pares,
-            ignoradas);
+            ignoradas)
+        {
+            // D12: a punção ou a densidade mudou desde o Peso inicial →
+            // «não comparável», com aviso e sem recusa.
+            Comparabilidade = new PesoComparabilidade(
+                inicial.VolumePuncaoCm3, puncao, inicial.GlassDensityGramsPerCm3, glassDensity)
+        };
     }
 
     public async Task<PesoComparacaoGuardadosView?> CompararGuardadosAsync(
@@ -1055,7 +1023,14 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
             medias,
             pares,
             registo.CreatedAtUtc,
-            registo.Note);
+            registo.Note)
+        {
+            Comparabilidade = inicial is null
+                ? null
+                : new PesoComparabilidade(
+                    inicial.VolumePuncaoCm3, registo.VolumePuncaoCm3,
+                    inicial.GlassDensityGramsPerCm3, registo.GlassDensityGramsPerCm3)
+        };
     }
 
     private async Task<HashSet<int>> MaquinasDaToolAsync(string toolId, CancellationToken cancellationToken) =>
@@ -1107,611 +1082,4 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         new(refusal, pesoInicialId, null, null, null, null, null, 0, null, 0, null, null, null, null, false,
             Array.Empty<PesoComparacaoLeituraReadModel>(), null, null,
             ignoradas ?? Array.Empty<PesoComparacaoLeituraIgnorada>());
-}
-
-/// <summary>
-/// Cria um registo de comparação de pesos (o registo do histórico tipo
-/// «Comparação» do dmo-html): as novas leituras dos contra-moldes contra o
-/// Peso inicial de uma produção, guardado sob o controlo_id da produção. A
-/// validação e o cálculo vêm da FONTE ÚNICA (a
-/// <see cref="IPesoComparisonQuery.CompararLeiturasAsync"/> — o mesmo caminho
-/// da comparação ao vivo); o handler persiste o registo com os inputs
-/// consumidos CONGELADOS (o padrão do Peso: o grau da temperatura, as
-/// densidades, os volumes e os fatos humanos da ferramenta — o histórico
-/// sobrevive à edição/eliminação da Tool). Todas as recusas são tipadas e
-/// verificadas ANTES de qualquer escrita: uma recusa não deixa registos
-/// parciais. O registo é append-only: nenhuma comparação é reescrita.
-/// </summary>
-public sealed class CreatePesoComparacaoHandler : ICreatePesoComparacaoHandler
-{
-    private readonly DmoDbContext _db;
-    private readonly IPesoComparisonQuery _comparison;
-
-    public CreatePesoComparacaoHandler(
-        DmoDbContext db,
-        IPesoComparisonQuery comparison)
-    {
-        _db = db;
-        _comparison = comparison;
-    }
-
-    public async Task<CreatePesoComparacaoOutcome> HandleAsync(
-        CreatePesoComparacao command,
-        CancellationToken cancellationToken = default)
-    {
-        if (command.PesoInicialId <= 0)
-        {
-            return new CreatePesoComparacaoOutcome(PesoComparacaoResultado.PesoInicialNaoSelecionado);
-        }
-
-        // O cálculo e as recusas pela fonte única (o mesmo caminho da
-        // comparação ao vivo): nenhuma segunda implementação da matemática.
-        var resultado = await _comparison.CompararLeiturasAsync(
-            new PesoComparacaoLeiturasPedido(
-                command.PesoInicialId,
-                command.CmToolId,
-                command.WaterTemperatureC,
-                command.Leituras),
-            cancellationToken);
-
-        if (resultado.Refusal != PesoComparacaoResultado.Sucesso || resultado.CmToolId is null)
-        {
-            return new CreatePesoComparacaoOutcome(resultado.Refusal, Ignoradas: resultado.Ignoradas);
-        }
-
-        // O controlo_id da produção vem do PRÓPRIO Peso inicial (a comparação
-        // é production-scoped: os iniciais da superfície são sempre Pesos de
-        // produção). Sem controlo no peso inicial não há registo a criar.
-        int controloId;
-        if (await _db.Pesos.AsNoTracking()
-                .Where(p => p.Id == command.PesoInicialId && p.ControloId != null)
-                .Select(p => p.ControloId!.Value)
-                .FirstOrDefaultAsync(cancellationToken) is { } resolvedControloId)
-        {
-            controloId = resolvedControloId;
-        }
-        else
-        {
-            return new CreatePesoComparacaoOutcome(PesoComparacaoResultado.PesoInicialNaoEncontrado);
-        }
-
-        var registo = new PesoComparacao
-        {
-            ControloId = controloId,
-            PesoInicialId = command.PesoInicialId,
-            CmToolId = resultado.CmToolId,
-            WaterTemperatureC = resultado.WaterTemperatureC,
-            WaterDensityGramsPerCm3 = resultado.WaterDensityGramsPerCm3!.Value,
-            GlassDensityGramsPerCm3 = resultado.GlassDensityGramsPerCm3!.Value,
-            VolumeMarisaCm3 = resultado.VolumeMarisaCm3!.Value,
-            VolumePuncaoCm3 = resultado.VolumePuncaoCm3!.Value,
-            CmToolReferenceFrozen = resultado.CmToolReference,
-            CmToolLotFrozen = resultado.CmToolLot,
-            Note = string.IsNullOrWhiteSpace(command.Note) ? null : command.Note.Trim(),
-            CreatedAtUtc = DateTime.UtcNow,
-            Measurements = resultado.Leituras
-                .Select(l => new PesoComparacaoMeasurement
-                {
-                    RowPosition = l.RowPosition,
-                    CmSubject = l.CmSubject,
-                    WaterWeightGrams = l.WaterWeightGrams
-                })
-                .ToList()
-        };
-
-        _db.PesoComparacoes.Add(registo);
-        await _db.SaveChangesAsync(cancellationToken);
-
-        // O read model do registo guardado (a resposta do PRG renderiza o
-        // resultado a partir do PERSISTIDO, nunca do rascunho).
-        var readModel = await _comparison.ObterComparacaoGuardadaAsync(registo.Id, cancellationToken);
-        // As leituras deixadas de fora não são gravadas; voltam para o aviso.
-        return new CreatePesoComparacaoOutcome(PesoComparacaoResultado.Sucesso, readModel, resultado.Ignoradas);
-    }
-}
-
-/// <summary>
-/// A procura do HISTÓRICO DO CONTROLO ao uso do dmo-html (a secção history):
-/// os registos guardados dos TRÊS tipos (Peso, Pegamentos, Comparação) com
-/// os filtros da oficina — a referência do conjunto (parcial conta), o nº de
-/// produção (parcial conta), a ferramenta (a referência da CM congelada ou
-/// corrente — parcial conta), o tipo e a data. Os Pesos e os Pegamentos
-/// guardados não têm data persistida: a procura por data devolve as
-/// comparações (as únicas com data registada — o aviso vive na
-/// apresentação). A ordenação é do mais recente para o mais antigo: os
-/// registos COM data por data, os sem data pela ordem de gravação (Id
-/// descendente) — nenhuma data é inventada.
-/// </summary>
-public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
-{
-    private readonly DmoDbContext _db;
-
-    public ControloHistorySearchQuery(DmoDbContext db)
-    {
-        _db = db;
-    }
-
-    public async Task<IReadOnlyList<ControloHistorySearchItem>> SearchAsync(
-        string? reference,
-        string? productionNumber,
-        string? tool,
-        ControloHistoryKind? tipo,
-        DateOnly? data,
-        CancellationToken cancellationToken = default,
-        bool semJobOn = false)
-    {
-        var (items, _) = await SearchCoreAsync(reference, productionNumber, tool, tipo, data, semJobOn, null, cancellationToken);
-        return items;
-    }
-
-    public async Task<PagedList<ControloHistorySearchItem>> SearchPageAsync(
-        string? reference,
-        string? productionNumber,
-        string? tool,
-        ControloHistoryKind? tipo,
-        DateOnly? data,
-        int? pageNumber,
-        int pageSize = ListPaging.DefaultPageSize,
-        CancellationToken cancellationToken = default,
-        bool semJobOn = false)
-    {
-        // A PAGINAÇÃO NA QUERY sobre três tabelas: cada tipo devolve a sua
-        // contagem e, no máximo, as linhas até ao fim da página pedida (já
-        // na ordem final de cada tipo); a junção ordena e corta a página.
-        // Lê a página pedida com a contagem; só volta a ler quando a página
-        // pedida está fora do intervalo e é ajustada.
-        var requested = Math.Clamp(pageNumber ?? 1, 1, int.MaxValue / pageSize);
-        var (items, total) = await SearchCoreAsync(
-            reference, productionNumber, tool, tipo, data, semJobOn, requested * pageSize, cancellationToken);
-        var page = ListPaging.ClampPage(pageNumber, total, pageSize);
-        if (page != requested)
-        {
-            (items, _) = await SearchCoreAsync(
-                reference, productionNumber, tool, tipo, data, semJobOn, page * pageSize, cancellationToken);
-        }
-        return new PagedList<ControloHistorySearchItem>(
-            items.Skip((page - 1) * pageSize).Take(pageSize).ToList(), total, page, pageSize);
-    }
-
-    /// <param name="limit">null = sem limite; N = no máximo N linhas de cada tipo (0 = só a contagem).</param>
-    private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> SearchCoreAsync(
-        string? reference,
-        string? productionNumber,
-        string? tool,
-        ControloHistoryKind? tipo,
-        DateOnly? data,
-        bool semJobOn,
-        int? limit,
-        CancellationToken cancellationToken)
-    {
-        var refFilter = reference?.Trim();
-        var prodFilter = productionNumber?.Trim();
-        var toolFilter = tool?.Trim();
-
-        var items = new List<ControloHistorySearchItem>();
-        var total = 0;
-
-        // «Sem Job On associado»: só o que ficou por associar (Pesos e
-        // Pegamentos sem controlo_id), pela ferramenta; não têm referência,
-        // produção nem data.
-        if (semJobOn)
-        {
-            if (tipo is null or ControloHistoryKind.Peso)
-            {
-                var (pesos, count) = await PesosSemJobOnAsync(toolFilter, limit, cancellationToken);
-                items.AddRange(pesos);
-                total += count;
-            }
-
-            if (tipo is null or ControloHistoryKind.Pegamentos)
-            {
-                var (pegamentos, count) = await PegamentosSemJobOnAsync(toolFilter, limit, cancellationToken);
-                items.AddRange(pegamentos);
-                total += count;
-            }
-
-            return (items.OrderByDescending(i => i.Id).ToList(), total);
-        }
-
-        if (tipo is null or ControloHistoryKind.Peso)
-        {
-            // Os Pesos guardados não têm data persistida: com um filtro de
-            // data nenhum pode corresponder (o aviso vive na apresentação).
-            if (data is null)
-            {
-                var (pesos, count) = await PesosAsync(refFilter, prodFilter, toolFilter, limit, cancellationToken);
-                items.AddRange(pesos);
-                total += count;
-            }
-        }
-
-        if (tipo is null or ControloHistoryKind.Pegamentos)
-        {
-            if (data is null)
-            {
-                var (pegamentos, count) = await PegamentosAsync(refFilter, prodFilter, toolFilter, limit, cancellationToken);
-                items.AddRange(pegamentos);
-                total += count;
-            }
-        }
-
-        if (tipo is null or ControloHistoryKind.Comparacao)
-        {
-            var (comparacoes, count) = await ComparacoesAsync(refFilter, prodFilter, toolFilter, data, limit, cancellationToken);
-            items.AddRange(comparacoes);
-            total += count;
-        }
-
-        if (tipo is null or ControloHistoryKind.Resumo)
-        {
-            var (resumos, count) = await ResumosAsync(refFilter, prodFilter, toolFilter, data, limit, cancellationToken);
-            items.AddRange(resumos);
-            total += count;
-        }
-
-        // Do mais recente para o mais antigo: os registos COM data (as
-        // comparações) por data; os sem data (pesos/pegamentos) pela ordem
-        // de gravação — nenhuma data é inventada.
-        return (items
-            .OrderByDescending(i => i.DataUtc ?? DateTime.MinValue)
-            .ThenByDescending(i => i.Id)
-            .ToList(), total);
-    }
-
-    /// <summary>
-    /// As linhas de um tipo: a contagem do filtro (só quando há limite) e,
-    /// no máximo, <paramref name="limit"/> linhas (null = todas).
-    /// </summary>
-    private static async Task<(List<TRow> Rows, int Total)> ReadAsync<TRow>(
-        IQueryable<TRow> query, int? limit, CancellationToken cancellationToken)
-    {
-        if (limit is not int max)
-        {
-            var all = await query.ToListAsync(cancellationToken);
-            return (all, all.Count);
-        }
-
-        var total = await query.CountAsync(cancellationToken);
-        var rows = max > 0 && total > 0 ? await query.Take(max).ToListAsync(cancellationToken) : new List<TRow>();
-        return (rows, total);
-    }
-
-    private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> PesosAsync(
-        string? refFilter,
-        string? prodFilter,
-        string? toolFilter,
-        int? limit,
-        CancellationToken cancellationToken)
-    {
-        var (rows, total) = await ReadAsync(
-            from p in _db.Pesos.AsNoTracking()
-            where p.ControloId != null
-            join c in _db.Controlos.AsNoTracking() on p.ControloId equals c.Id
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-            join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId
-            where string.IsNullOrEmpty(refFilter) || j.Reference.ToUpper().Contains(refFilter.ToUpper())
-            where string.IsNullOrEmpty(prodFilter) || j.ProductionNumber.ToUpper().Contains(prodFilter.ToUpper())
-            where string.IsNullOrEmpty(toolFilter)
-                || (p.CmToolReferenceFrozen != null && p.CmToolReferenceFrozen!.ToUpper().Contains(toolFilter.ToUpper()))
-                || t.Reference.ToUpper().Contains(toolFilter.ToUpper())
-            orderby p.Id descending
-            select new
-            {
-                RegistroId = p.Id,
-                ControloId = c.Id,
-                j.Reference,
-                j.ProductionNumber,
-                Machine = m.Code,
-                p.CmToolReferenceFrozen,
-                p.CmToolLotFrozen,
-                ToolReference = t.Reference,
-                ToolLot = t.Lot,
-                p.WaterTemperatureC,
-                p.VolumeMarisaCm3,
-                p.VolumePuncaoCm3,
-                p.GlassDensityGramsPerCm3
-            }, limit, cancellationToken);
-
-        if (rows.Count == 0)
-        {
-            return (Array.Empty<ControloHistorySearchItem>(), total);
-        }
-
-        var pesoIds = rows.Select(r => r.RegistroId).ToList();
-        var readings = await _db.PesoMeasurements
-            .AsNoTracking()
-            .Where(x => pesoIds.Contains(x.PesoId))
-            .Select(x => new { x.PesoId, x.WaterWeightGrams })
-            .ToListAsync(cancellationToken);
-
-        var porPeso = readings
-            .GroupBy(r => r.PesoId)
-            .ToDictionary(g => g.Key, g => g.Select(r => r.WaterWeightGrams).ToList());
-
-        return (rows.Select(row =>
-        {
-            decimal? averageGlass = null;
-            var leituras = porPeso.TryGetValue(row.RegistroId, out var weights) ? weights.Count : 0;
-            if (weights is { Count: > 0 }
-                && WaterDensityTable.Resolve(row.WaterTemperatureC) is { } density)
-            {
-                var total = 0m;
-                foreach (var weight in weights)
-                {
-                    var capacity = PesoCalculation.CapacityCm3(weight, density);
-                    total += PesoCalculation.GlassWeightGrams(
-                        capacity, row.VolumeMarisaCm3, row.VolumePuncaoCm3, row.GlassDensityGramsPerCm3);
-                }
-
-                averageGlass = Math.Round(total / weights.Count, 2, MidpointRounding.AwayFromZero);
-            }
-
-            var toolLabel = $"{row.CmToolReferenceFrozen ?? row.ToolReference} · Lote {row.CmToolLotFrozen ?? row.ToolLot}";
-            var resumo = averageGlass is { } media
-                ? string.Create(DmoNumberFormat.Culture, $"{leituras} leituras · média {media:0.00} g")
-                : "sem leituras";
-
-            return new ControloHistorySearchItem(
-                ControloHistoryKind.Peso,
-                row.RegistroId,
-                row.ControloId,
-                row.Reference,
-                row.ProductionNumber,
-                row.Machine,
-                toolLabel,
-                DataUtc: null,
-                resumo);
-        }).ToList(), total);
-    }
-
-    private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> PegamentosAsync(
-        string? refFilter,
-        string? prodFilter,
-        string? toolFilter,
-        int? limit,
-        CancellationToken cancellationToken)
-    {
-        var (rows, total) = await ReadAsync(
-            from g in _db.Pegamentos.AsNoTracking()
-            join c in _db.Controlos.AsNoTracking() on g.ControloId equals c.Id
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-            where string.IsNullOrEmpty(refFilter) || j.Reference.ToUpper().Contains(refFilter.ToUpper())
-            where string.IsNullOrEmpty(prodFilter) || j.ProductionNumber.ToUpper().Contains(prodFilter.ToUpper())
-            where string.IsNullOrEmpty(toolFilter)
-                || (g.CmToolReferenceFrozen != null && g.CmToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-                || (g.BqToolReferenceFrozen != null && g.BqToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-                || (g.MfToolReferenceFrozen != null && g.MfToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-            orderby g.Id descending
-            select new
-            {
-                RegistroId = g.Id,
-                ControloId = c.Id,
-                j.Reference,
-                j.ProductionNumber,
-                Machine = m.Code,
-                g.CmToolReferenceFrozen,
-                g.CmToolLotFrozen,
-                g.ToleranceMm
-            }, limit, cancellationToken);
-
-        if (rows.Count == 0)
-        {
-            return (Array.Empty<ControloHistorySearchItem>(), total);
-        }
-
-        var pegamentosIds = rows.Select(r => r.RegistroId).ToList();
-        var counts = await _db.PegamentosMeasurements
-            .AsNoTracking()
-            .Where(x => pegamentosIds.Contains(x.PegamentosId))
-            .GroupBy(x => x.PegamentosId)
-            .Select(g => new { PegamentosId = g.Key, Count = g.Count() })
-            .ToListAsync(cancellationToken);
-        var contagem = counts.ToDictionary(x => x.PegamentosId, x => x.Count);
-
-        return (rows.Select(row => new ControloHistorySearchItem(
-            ControloHistoryKind.Pegamentos,
-            row.RegistroId,
-            row.ControloId,
-            row.Reference,
-            row.ProductionNumber,
-            row.Machine,
-            $"CM {row.CmToolReferenceFrozen ?? "—"} · Lote {row.CmToolLotFrozen ?? "—"}",
-            DataUtc: null,
-            string.Create(DmoNumberFormat.Culture,
-                $"{(contagem.TryGetValue(row.RegistroId, out var n) ? n : 0)} medições · corredor ±{row.ToleranceMm:0.00} mm"))).ToList(), total);
-    }
-
-    /// <summary>
-    /// O Resumo de cada produção (um por controlo_id): a CM do Job On e o
-    /// estado da aprovação. O Id da linha é o jobon_id (o Resumo abre por
-    /// ele); o ControloId é o do controlo. A data é a da aprovação (sem aprovação, um
-    /// filtro de data não o encontra).
-    /// </summary>
-    private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> ResumosAsync(
-        string? refFilter,
-        string? prodFilter,
-        string? toolFilter,
-        DateOnly? data,
-        int? limit,
-        CancellationToken cancellationToken)
-    {
-        var fromUtc = data is { } day ? DmoBusinessTime.ToUtc(day.ToDateTime(TimeOnly.MinValue)) : DateTime.MinValue;
-        var toUtc = data is { } nextDay ? DmoBusinessTime.ToUtc(nextDay.AddDays(1).ToDateTime(TimeOnly.MinValue)) : DateTime.MaxValue;
-        var (rows, total) = await ReadAsync(
-            from c in _db.Controlos.AsNoTracking()
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-            join cm in _db.CmContexts.AsNoTracking() on j.Id equals cm.JobOnId into cmGroup
-            from cm in cmGroup.DefaultIfEmpty()
-            join t in _db.Tools.AsNoTracking().Where(x => x.ToolId != ToolRegistryConstants.RemovedToolId) on cm.ToolId equals t.ToolId into toolGroup
-            from t in toolGroup.DefaultIfEmpty()
-            where string.IsNullOrEmpty(refFilter) || j.Reference.ToUpper().Contains(refFilter.ToUpper())
-            where string.IsNullOrEmpty(prodFilter) || j.ProductionNumber.ToUpper().Contains(prodFilter.ToUpper())
-            where string.IsNullOrEmpty(toolFilter) || (t != null && t.Reference.ToUpper().Contains(toolFilter.ToUpper()))
-            where data == null || (c.ApprovedAtUtc != null && c.ApprovedAtUtc >= fromUtc && c.ApprovedAtUtc < toUtc)
-            // A ordem final da lista: os aprovados (com data) primeiro, pela data; depois pelo Id da linha.
-            orderby c.ApprovedAtUtc == null, c.ApprovedAtUtc descending, j.Id descending
-            select new
-            {
-                c.Id,
-                JobOnId = j.Id,
-                j.Reference,
-                j.ProductionNumber,
-                Machine = m.Code,
-                ToolReference = t != null ? t.Reference : null,
-                ToolLot = t != null ? t.Lot : null,
-                c.ApprovedAtUtc,
-                c.ApprovedByOperatorId
-            }, limit, cancellationToken);
-
-        return (rows.Select(row => new ControloHistorySearchItem(
-            ControloHistoryKind.Resumo,
-            row.JobOnId,
-            row.Id,
-            row.Reference,
-            row.ProductionNumber,
-            row.Machine,
-            row.ToolReference is null ? null : $"CM {row.ToolReference} · Lote {row.ToolLot ?? "—"}",
-            row.ApprovedAtUtc,
-            row.ApprovedAtUtc is null ? "Por aprovar" : $"Aprovado por {row.ApprovedByOperatorId ?? "—"}")).ToList(), total);
-    }
-
-    /// <summary>Os Pesos sem Job On (ControloId null), pela ferramenta (CM ou BQ, congelada ou corrente).</summary>
-    private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> PesosSemJobOnAsync(
-        string? toolFilter,
-        int? limit,
-        CancellationToken cancellationToken)
-    {
-        var (rows, total) = await ReadAsync(
-            from p in _db.Pesos.AsNoTracking()
-            where p.ControloId == null
-            join t in _db.Tools.AsNoTracking() on p.CmToolId equals t.ToolId into toolGroup
-            from t in toolGroup.DefaultIfEmpty()
-            where string.IsNullOrEmpty(toolFilter)
-                || (p.CmToolReferenceFrozen != null && p.CmToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-                || (t != null && t.Reference.ToUpper().Contains(toolFilter.ToUpper()))
-            orderby p.Id descending
-            select new
-            {
-                p.Id,
-                CmReference = p.CmToolReferenceFrozen ?? (t != null ? t.Reference : null),
-                CmLot = p.CmToolLotFrozen ?? (t != null ? t.Lot : null),
-                Leituras = _db.PesoMeasurements.Count(x => x.PesoId == p.Id)
-            }, limit, cancellationToken);
-
-        return (rows.Select(row => new ControloHistorySearchItem(
-            ControloHistoryKind.Peso,
-            row.Id,
-            null,
-            row.CmReference ?? "—",
-            SemJobOnProductionNumber,
-            "—",
-            $"CM {row.CmReference ?? "—"} · Lote {row.CmLot ?? "—"}",
-            DataUtc: null,
-            row.Leituras == 0 ? "sem leituras" : $"{row.Leituras} leituras")).ToList(), total);
-    }
-
-    /// <summary>Os Pegamentos sem Job On (ControloId null), pela ferramenta (CM, BQ ou MF congeladas).</summary>
-    private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> PegamentosSemJobOnAsync(
-        string? toolFilter,
-        int? limit,
-        CancellationToken cancellationToken)
-    {
-        var (rows, total) = await ReadAsync(
-            from g in _db.Pegamentos.AsNoTracking()
-            where g.ControloId == null
-            where string.IsNullOrEmpty(toolFilter)
-                || (g.CmToolReferenceFrozen != null && g.CmToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-                || (g.BqToolReferenceFrozen != null && g.BqToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-                || (g.MfToolReferenceFrozen != null && g.MfToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-            orderby g.Id descending
-            select new
-            {
-                g.Id,
-                g.CmToolReferenceFrozen,
-                g.CmToolLotFrozen,
-                g.BqToolReferenceFrozen,
-                g.MfToolReferenceFrozen,
-                g.ToleranceMm,
-                Medicoes = _db.PegamentosMeasurements.Count(x => x.PegamentosId == g.Id)
-            }, limit, cancellationToken);
-
-        return (rows.Select(row => new ControloHistorySearchItem(
-            ControloHistoryKind.Pegamentos,
-            row.Id,
-            null,
-            row.CmToolReferenceFrozen ?? row.BqToolReferenceFrozen ?? row.MfToolReferenceFrozen ?? "—",
-            SemJobOnProductionNumber,
-            "—",
-            row.CmToolReferenceFrozen is not null
-                ? $"CM {row.CmToolReferenceFrozen} · Lote {row.CmToolLotFrozen ?? "—"}"
-                : row.BqToolReferenceFrozen is not null ? $"BQ {row.BqToolReferenceFrozen}" : $"MF {row.MfToolReferenceFrozen ?? "—"}",
-            DataUtc: null,
-            string.Create(DmoNumberFormat.Culture, $"{row.Medicoes} medições · corredor ±{row.ToleranceMm:0.00} mm"))).ToList(), total);
-    }
-
-    /// <summary>O texto do nº de produção dos registos sem Job On.</summary>
-    private const string SemJobOnProductionNumber = PegamentosSheetReadModel.SemJobOnProductionNumber;
-
-    private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> ComparacoesAsync(
-        string? refFilter,
-        string? prodFilter,
-        string? toolFilter,
-        DateOnly? data,
-        int? limit,
-        CancellationToken cancellationToken)
-    {
-        // O dia escolhido é o dia de Lisboa; as datas gravadas estão em UTC.
-        var fromUtc = data is { } day ? DmoBusinessTime.ToUtc(day.ToDateTime(TimeOnly.MinValue)) : DateTime.MinValue;
-        var toUtc = data is { } nextDay ? DmoBusinessTime.ToUtc(nextDay.AddDays(1).ToDateTime(TimeOnly.MinValue)) : DateTime.MaxValue;
-        var (rows, total) = await ReadAsync(
-            from x in _db.PesoComparacoes.AsNoTracking()
-            join c in _db.Controlos.AsNoTracking() on x.ControloId equals c.Id
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id
-            join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-            where string.IsNullOrEmpty(refFilter) || j.Reference.ToUpper().Contains(refFilter.ToUpper())
-            where string.IsNullOrEmpty(prodFilter) || j.ProductionNumber.ToUpper().Contains(prodFilter.ToUpper())
-            where string.IsNullOrEmpty(toolFilter)
-                || (x.CmToolReferenceFrozen != null && x.CmToolReferenceFrozen.ToUpper().Contains(toolFilter.ToUpper()))
-            where data == null || (x.CreatedAtUtc >= fromUtc && x.CreatedAtUtc < toUtc)
-            orderby x.CreatedAtUtc descending, x.Id descending
-            select new
-            {
-                RegistroId = x.Id,
-                ControloId = c.Id,
-                j.Reference,
-                j.ProductionNumber,
-                Machine = m.Code,
-                x.CmToolReferenceFrozen,
-                x.CmToolLotFrozen,
-                x.CreatedAtUtc
-            }, limit, cancellationToken);
-
-        if (rows.Count == 0)
-        {
-            return (Array.Empty<ControloHistorySearchItem>(), total);
-        }
-
-        var comparacaoIds = rows.Select(r => r.RegistroId).ToList();
-        var counts = await _db.PesoComparacaoMeasurements
-            .AsNoTracking()
-            .Where(x => comparacaoIds.Contains(x.ComparacaoId))
-            .GroupBy(x => x.ComparacaoId)
-            .Select(g => new { ComparacaoId = g.Key, Count = g.Count() })
-            .ToListAsync(cancellationToken);
-        var contagem = counts.ToDictionary(x => x.ComparacaoId, x => x.Count);
-
-        return (rows.Select(row => new ControloHistorySearchItem(
-            ControloHistoryKind.Comparacao,
-            row.RegistroId,
-            row.ControloId,
-            row.Reference,
-            row.ProductionNumber,
-            row.Machine,
-            $"CM {row.CmToolReferenceFrozen ?? "—"} · Lote {row.CmToolLotFrozen ?? "—"}",
-            row.CreatedAtUtc,
-            $"{(contagem.TryGetValue(row.RegistroId, out var n) ? n : 0)} contra-moldes")).ToList(), total);
-    }
 }

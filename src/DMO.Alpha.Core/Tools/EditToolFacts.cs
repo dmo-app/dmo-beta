@@ -12,4 +12,9 @@ public sealed record EditToolFacts(
     string Lot,
     string? AssociatedMfReference = null,
     int? BqAccountedQuantity = null,
-    IReadOnlyList<int>? MachineIds = null);
+    IReadOnlyList<int>? MachineIds = null,
+    // A versão da linha quando a ficha foi aberta (a página envia-a escondida);
+    // null = sem verificação. Diferente da gravada = ChangedByAnotherUser.
+    uint? ExpectedVersion = null,
+    // Quem edita (fica no aviso da outra ferramenta se ficar repetida).
+    string? RequestedBy = null);

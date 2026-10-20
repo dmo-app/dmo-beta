@@ -23,4 +23,7 @@ public sealed record EditToolTechnicalValues(
     decimal? TpSagittaMm = null,
     decimal? TpRaioBaseMm = null,
     decimal? TpRaioEsferaMm = null,
-    decimal? TpVolumeMm3 = null);
+    decimal? TpVolumeMm3 = null,
+    // A versão da linha quando a ficha foi aberta (0 = ainda sem linha
+    // técnica); null = sem verificação. Diferente da gravada = ChangedByAnotherUser.
+    uint? ExpectedVersion = null);

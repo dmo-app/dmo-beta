@@ -25,33 +25,80 @@ public sealed class PesoQuery : IPesoQuery
     }
 
     /// <summary>
-    /// O Peso baseline do controlo de uma produção (corte C): a associação
-    /// é 1:1 (o índice único do ControloId garante); null quando o controlo
-    /// ainda não tem o seu Peso. A densidade da água resolve-se pela tabela
-    /// canónica para o grau congelado (a decisão Owner 1b).
+    /// O Peso do controlo de uma produção para um valor só (corte C): o da
+    /// CM e da BQ que a produção tem agora ou, depois de uma troca sem Peso
+    /// novo ainda, o mais recente; null quando o controlo ainda não tem Peso.
+    /// A densidade da água resolve-se pela tabela canónica para o grau
+    /// congelado (a decisão Owner 1b).
     /// </summary>
-    public Task<PesoReadModel?> FindByControloAsync(
+    public async Task<PesoReadModel?> FindByControloAsync(
+        int controloId,
+        CancellationToken cancellationToken = default)
+    {
+        var pesos = await ListByControloAsync(controloId, cancellationToken);
+        return pesos.FirstOrDefault(p => p.IsCurrent) ?? pesos.LastOrDefault();
+    }
+
+    /// <summary>
+    /// O Peso da CM e da BQ que a produção tem agora; null antes do primeiro
+    /// e depois de uma troca da CM ou da BQ, até o Peso novo ser criado
+    /// (respostas R15 e R16-5 do especialista, 18/10/2026).
+    /// </summary>
+    public async Task<PesoReadModel?> FindCurrentByControloAsync(
         int controloId,
         CancellationToken cancellationToken = default) =>
-        FindAsync(_db.Pesos.Where(p => p.ControloId == controloId), cancellationToken);
+        (await ListByControloAsync(controloId, cancellationToken)).FirstOrDefault(p => p.IsCurrent);
 
-    public Task<PesoReadModel?> FindPesoAsync(
+    /// <summary>
+    /// Os Pesos do controlo pela ordem de gravação (um por CM+BQ), cada um
+    /// com as suas ferramentas congeladas; o atual é o da combinação que a
+    /// produção tem agora (o mais antigo, se dois ficaram com a mesma ao
+    /// apagar ferramentas).
+    /// </summary>
+    public async Task<IReadOnlyList<PesoReadModel>> ListByControloAsync(
+        int controloId,
+        CancellationToken cancellationToken = default)
+    {
+        var pesos = await FindManyAsync(_db.Pesos.Where(p => p.ControloId == controloId), cancellationToken);
+        if (pesos.Count == 0)
+        {
+            return pesos;
+        }
+
+        var current = await PesoCombinations.CurrentCombinationAsync(_db, controloId, cancellationToken);
+        var currentId = current is null
+            ? (int?)null
+            : pesos.FirstOrDefault(p => current.Matches(p.CmToolId, p.BqToolId))?.PesoId;
+        return pesos.Select(p => p with { IsCurrent = p.PesoId == currentId }).ToList();
+    }
+
+    public async Task<PesoReadModel?> FindPesoAsync(
         int pesoId,
-        CancellationToken cancellationToken = default) =>
-        FindAsync(_db.Pesos.Where(p => p.Id == pesoId), cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        var peso = (await FindManyAsync(_db.Pesos.Where(p => p.Id == pesoId), cancellationToken)).FirstOrDefault();
 
-    private async Task<PesoReadModel?> FindAsync(
+        // Um Peso de uma produção que entretanto trocou a CM ou a BQ não é o
+        // atual: fica como estava, sem leituras novas.
+        return peso is { ControloId: int controloId }
+            ? peso with { IsCurrent = await PesoCombinations.CurrentPesoIdAsync(_db, controloId, cancellationToken) == peso.PesoId }
+            : peso;
+    }
+
+    private async Task<IReadOnlyList<PesoReadModel>> FindManyAsync(
         IQueryable<DMO.Alpha.Core.Controlo.Peso> source,
         CancellationToken cancellationToken)
     {
-        // O Peso, a referência/lote atuais das Tools (fallback dos campos
-        // legados sem identificação congelada) e as leituras numa só consulta.
-        var peso = await (
+        // Os Pesos, a referência/lote atuais das Tools (fallback dos campos
+        // legados sem identificação congelada) e as leituras numa só consulta,
+        // pela ordem de gravação.
+        var rows = await (
             from p in source.AsNoTracking()
             join cm in _db.Tools on p.CmToolId equals cm.ToolId into cmGroup
             from cm in cmGroup.DefaultIfEmpty()
             join bq in _db.Tools on p.BqToolId equals bq.ToolId into bqGroup
             from bq in bqGroup.DefaultIfEmpty()
+            orderby p.Id
             select new
             {
                 p.Id,
@@ -63,11 +110,13 @@ public sealed class PesoQuery : IPesoQuery
                 p.BqToolLotFrozen,
                 p.Process,
                 p.WaterTemperatureC,
+                p.WaterDensityGramsPerCm3,
                 p.VolumeMarisaCm3,
                 p.VolumePuncaoCm3,
                 p.NominalWeightGrams,
                 p.GlassDensityGramsPerCm3,
                 p.ControloId,
+                p.RegistadoEmUtc,
                 CmToolReference = cm != null ? cm.Reference : null,
                 CmToolLot = cm != null ? cm.Lot : null,
                 BqToolReference = bq != null ? bq.Reference : null,
@@ -83,192 +132,78 @@ public sealed class PesoQuery : IPesoQuery
                     })
                     .ToList()
             })
-            .FirstOrDefaultAsync(cancellationToken);
-        if (peso is null)
+            .ToListAsync(cancellationToken);
+
+        return rows.Select(row =>
         {
-            return null;
-        }
+            // Cálculo: os inputs consumidos congelados no Peso + as leituras
+            // persistidas. A densidade da água é a gravada no Peso (a tabela
+            // canónica para o grau, num Peso sem ela).
+            var resolvedWaterDensity = WaterDensityTable.ForPeso(row.WaterDensityGramsPerCm3, row.WaterTemperatureC)
+                ?? throw new InvalidOperationException(
+                    $"O grau de temperatura da água congelado no Peso {row.Id} " +
+                    "está fora do intervalo suportado pela tabela canónica de densidade da água.");
 
-        var measurements = peso.Measurements;
-
-        // Cálculo: os inputs consumidos congelados no Peso + as leituras
-        // persistidas. A densidade da água resolve pela tabela canónica para
-        // o grau congelado (invariante validada na criação).
-        var resolvedWaterDensity = WaterDensityTable.Resolve(peso.WaterTemperatureC)
-            ?? throw new InvalidOperationException(
-                $"O grau de temperatura da água congelado no Peso {peso.Id} " +
-                "está fora do intervalo suportado pela tabela canónica de densidade da água.");
-
-        PesoAveragesReadModel? averages = null;
-        var measurementReadModels = new List<PesoMeasurementReadModel>(measurements.Count);
-        if (measurements.Count > 0)
-        {
-            decimal totalWater = 0m;
-            decimal totalCapacity = 0m;
-            decimal totalGlassWeight = 0m;
-
-            foreach (var measurement in measurements)
+            var measurements = row.Measurements;
+            PesoAveragesReadModel? averages = null;
+            var measurementReadModels = new List<PesoMeasurementReadModel>(measurements.Count);
+            if (measurements.Count > 0)
             {
-                var capacity = PesoCalculation.CapacityCm3(
-                    measurement.WaterWeightGrams,
-                    resolvedWaterDensity);
-                var glassWeight = PesoCalculation.GlassWeightGrams(
-                    capacity,
-                    peso.VolumeMarisaCm3,
-                    peso.VolumePuncaoCm3,
-                    peso.GlassDensityGramsPerCm3);
+                decimal totalWater = 0m;
+                decimal totalCapacity = 0m;
+                decimal totalGlassWeight = 0m;
 
-                measurementReadModels.Add(new PesoMeasurementReadModel(
-                    measurement.Id,
-                    measurement.RowPosition,
-                    measurement.CmSubject,
-                    measurement.WaterWeightGrams,
-                    capacity,
-                    glassWeight));
+                foreach (var measurement in measurements)
+                {
+                    var capacity = PesoCalculation.CapacityCm3(
+                        measurement.WaterWeightGrams,
+                        resolvedWaterDensity);
+                    var glassWeight = PesoCalculation.GlassWeightGrams(
+                        capacity,
+                        row.VolumeMarisaCm3,
+                        row.VolumePuncaoCm3,
+                        row.GlassDensityGramsPerCm3);
 
-                totalWater += measurement.WaterWeightGrams;
-                totalCapacity += capacity;
-                totalGlassWeight += glassWeight;
+                    measurementReadModels.Add(new PesoMeasurementReadModel(
+                        measurement.Id,
+                        measurement.RowPosition,
+                        measurement.CmSubject,
+                        measurement.WaterWeightGrams,
+                        capacity,
+                        glassWeight));
+
+                    totalWater += measurement.WaterWeightGrams;
+                    totalCapacity += capacity;
+                    totalGlassWeight += glassWeight;
+                }
+
+                averages = new PesoAveragesReadModel(
+                    totalWater / measurements.Count,
+                    totalCapacity / measurements.Count,
+                    totalGlassWeight / measurements.Count);
             }
 
-            averages = new PesoAveragesReadModel(
-                totalWater / measurements.Count,
-                totalCapacity / measurements.Count,
-                totalGlassWeight / measurements.Count);
-        }
-
-        return new PesoReadModel(
-            peso.Id,
-            peso.CmToolId,
-            peso.CmToolReferenceFrozen ?? peso.CmToolReference,
-            peso.CmToolLotFrozen ?? peso.CmToolLot,
-            peso.BqToolId,
-            peso.BqToolReferenceFrozen ?? peso.BqToolReference,
-            peso.BqToolLotFrozen ?? peso.BqToolLot,
-            peso.Process,
-            peso.WaterTemperatureC,
-            resolvedWaterDensity,
-            peso.GlassDensityGramsPerCm3,
-            peso.VolumeMarisaCm3,
-            peso.VolumePuncaoCm3,
-            peso.NominalWeightGrams,
-            measurementReadModels,
-            averages,
-            peso.ControloId);
-    }
-
-    public async Task<IReadOnlyList<PesoToolHistoryItem>> ListByToolAsync(
-        string toolId,
-        CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(toolId))
-        {
-            return Array.Empty<PesoToolHistoryItem>();
-        }
-
-        // Pesos da Tool, do mais recente para o mais antigo, com os inputs
-        // consumidos congelados. Os factos descritivos da BQ usada entram
-        // como composição de leitura (a BQ pode ter linhas de histórico
-        // diferentes entre Pesos da mesma Tool).
-        var pesos = await _db.Pesos
-            .AsNoTracking()
-            .Where(p => p.CmToolId == toolId)
-            .OrderByDescending(p => p.Id)
-            .Select(p => new
+            return new PesoReadModel(
+                row.Id,
+                row.CmToolId,
+                row.CmToolReferenceFrozen ?? row.CmToolReference,
+                row.CmToolLotFrozen ?? row.CmToolLot,
+                row.BqToolId,
+                row.BqToolReferenceFrozen ?? row.BqToolReference,
+                row.BqToolLotFrozen ?? row.BqToolLot,
+                row.Process,
+                row.WaterTemperatureC,
+                resolvedWaterDensity,
+                row.GlassDensityGramsPerCm3,
+                row.VolumeMarisaCm3,
+                row.VolumePuncaoCm3,
+                row.NominalWeightGrams,
+                measurementReadModels,
+                averages,
+                row.ControloId)
             {
-                p.Id,
-                p.BqToolId,
-                p.BqToolReferenceFrozen,
-                p.BqToolLotFrozen,
-                p.Process,
-                p.WaterTemperatureC,
-                p.VolumeMarisaCm3,
-                p.VolumePuncaoCm3,
-                p.GlassDensityGramsPerCm3
-            })
-            .ToListAsync(cancellationToken);
-
-        if (pesos.Count == 0)
-        {
-            return Array.Empty<PesoToolHistoryItem>();
-        }
-
-        var bqToolIds = pesos.Select(p => p.BqToolId).Distinct().ToList();
-        var bqTools = await _db.Tools
-            .AsNoTracking()
-            .Where(t => bqToolIds.Contains(t.ToolId))
-            .ToDictionaryAsync(t => t.ToolId, t => new { t.Reference, t.Lot }, cancellationToken);
-
-        var items = new List<PesoToolHistoryItem>(pesos.Count);
-        foreach (var peso in pesos)
-        {
-            var (measurementCount, averageGlassWeight) = await ResolveMeasurementSummaryAsync(
-                peso.Id,
-                peso.WaterTemperatureC,
-                peso.VolumeMarisaCm3,
-                peso.VolumePuncaoCm3,
-                peso.GlassDensityGramsPerCm3,
-                cancellationToken);
-
-            var bqTool = bqTools.GetValueOrDefault(peso.BqToolId);
-
-            items.Add(new PesoToolHistoryItem(
-                peso.Id,
-                peso.BqToolId,
-                peso.BqToolReferenceFrozen ?? bqTool?.Reference,
-                peso.BqToolLotFrozen ?? bqTool?.Lot,
-                peso.Process,
-                peso.WaterTemperatureC,
-                peso.GlassDensityGramsPerCm3,
-                measurementCount,
-                averageGlassWeight));
-        }
-
-        return items;
-    }
-
-    /// <summary>
-    /// Resumo de um Peso para o histórico: número de leituras persistidas e
-    /// a média do peso do vidro calculada a partir dos dados persistidos
-    /// (null quando o Peso ainda não tem leituras — em branco, nunca zero
-    /// exibido como facto).
-    /// </summary>
-    private async Task<(int MeasurementCount, decimal? AverageGlassWeightGrams)> ResolveMeasurementSummaryAsync(
-        int pesoId,
-        int waterTemperatureC,
-        decimal volumeMarisaCm3,
-        decimal volumePuncaoCm3,
-        decimal glassDensityGramsPerCm3,
-        CancellationToken cancellationToken)
-    {
-        var waterWeights = await _db.PesoMeasurements
-            .AsNoTracking()
-            .Where(m => m.PesoId == pesoId)
-            .OrderBy(m => m.RowPosition)
-            .Select(m => m.WaterWeightGrams)
-            .ToListAsync(cancellationToken);
-
-        if (waterWeights.Count == 0)
-        {
-            return (0, null);
-        }
-
-        var resolvedWaterDensity = WaterDensityTable.Resolve(waterTemperatureC)
-            ?? throw new InvalidOperationException(
-                $"O grau de temperatura da água congelado no Peso {pesoId} " +
-                "está fora do intervalo suportado pela tabela canónica de densidade da água.");
-
-        decimal totalGlassWeight = 0m;
-        foreach (var waterWeight in waterWeights)
-        {
-            var capacity = PesoCalculation.CapacityCm3(waterWeight, resolvedWaterDensity);
-            totalGlassWeight += PesoCalculation.GlassWeightGrams(
-                capacity,
-                volumeMarisaCm3,
-                volumePuncaoCm3,
-                glassDensityGramsPerCm3);
-        }
-
-        return (waterWeights.Count, totalGlassWeight / waterWeights.Count);
+                RegistadoEmUtc = row.RegistadoEmUtc is { } em ? DateTime.SpecifyKind(em, DateTimeKind.Utc) : null
+            };
+        }).ToList();
     }
 }

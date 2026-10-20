@@ -17,13 +17,24 @@ Tons derivados (mesma família): texto `#1b2832`/`#253744`, `--dmo-brand-700` `#
 - **App:** `src/DMO.Alpha.Web/wwwroot/0_ASSET_CANONICAL_DESIGN_SYSTEM.css`, primeiro `:root`. A escala `--dmo-brand-*` e os tokens `--dmo-row-hover`, `--dmo-focus-ring` saem daí.
 - **PDFs:** `src/DMO.Alpha.Infrastructure/Pdf/DmoPdfPalette.cs`, com os mesmos valores.
 - **Logo:** `wwwroot/0_ASSET_LOGO.png` e `Infrastructure/Controlo/Assets/ba-logo.png`, a `#44647c`.
-- O teste `UiStyleRuleTests` falha se a paleta mudar só num sítio ou se voltarem azuis soltos ao CSS ou aos geradores de PDF.
+- O teste `UiStyleRuleTests` falha se a paleta mudar só num sítio ou se voltarem azuis soltos ao CSS ou aos geradores de PDF. O `CoresDeEstadoNosPdfsTests` falha se um gerador de PDF tiver uma cor solta (todas saem da `DmoPdfPalette`, as de estado incluídas).
 
 ## Fora da paleta (de propósito)
 
 - Cores de estado: OK verde, NOK vermelho, por aprovar âmbar.
 - Identidade das máquinas (`--dmo-machine-*`) e das componentes no mapa dos Pegamentos (CM, MF, BQ).
 - Cinzento de «não avaliável» e de botão indisponível.
+
+Nos PDFs, as cores de estado vivem na `DmoPdfPalette` (sweep de 19/10/2026, 3.16), com os valores do ecrã:
+
+| Estado | Cor | Onde |
+|---|---|---|
+| OK, «Visto» | `#15803d` (fundo `#effaf3`) | Áreas, Pegamentos e PU NNPB, como no ecrã do Resumo |
+| NOK, fora do corredor, «Não aprovado» | `#b91c1c` (fundo `#fdf2f2`) | Áreas, Pegamentos, selos |
+| Por verificar | `#a16207` (fundo `#fdf8ec`) | PU NNPB |
+| Não avaliável | `#94a3b8` (fundo `#f4f6f8`) | Pegamentos, como no ecrã dos Pegamentos; nunca âmbar |
+| Aprovado | `#3d7a5a` | Selos e cartão «Aprovação», como no cartão de aprovação do ecrã |
+| Por aprovar | `#a97943` | Selos e cartão «Aprovação»; também os avisos (`--dmo-warning`) |
 
 ## Nota para o blueprint (beta)
 

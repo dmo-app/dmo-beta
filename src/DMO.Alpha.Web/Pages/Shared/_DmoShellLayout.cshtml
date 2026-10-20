@@ -12,6 +12,12 @@
     @* A Inter carrega logo com a página: sem ela o texto aparecia primeiro
        noutra letra e mudava a meio (o «salto» que o Diogo viu no login). *@
     <link rel="preload" href="@Url.Content("~/fonts/inter-latin-wght-normal.woff2")" as="font" type="font/woff2" crossorigin>
+    @* Sem flash ao mudar de separador (Diogo, 18/10/2026): o browser só
+       desenha a página nova quando chega ao fim dela (#dmoFim, depois dos
+       scripts). Até lá fica a página anterior no ecrã; sem isto, com o DEV
+       longe, aparecia primeiro o cabeçalho sozinho e o painel lateral a
+       encher máquina a máquina. *@
+    <link rel="expect" href="#dmoFim" blocking="render">
     <link rel="stylesheet" href="~/0_ASSET_CANONICAL_DESIGN_SYSTEM.css" asp-append-version="true">
     <link rel="stylesheet" href="~/0_ASSET_SHELL.css" asp-append-version="true">
     @await RenderSectionAsync("Head", required: false)
@@ -45,5 +51,6 @@
 <script src="~/js/dmo-suggest.js" asp-append-version="true"></script>
 <script src="~/js/dmo-pasta-pdf.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
+<div id="dmoFim" hidden></div>
 </body>
 </html>

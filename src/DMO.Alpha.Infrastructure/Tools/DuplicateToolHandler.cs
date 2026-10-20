@@ -24,9 +24,24 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
         _db = db;
     }
 
-    public async Task<DuplicateToolOutcome> HandleAsync(
+    // DUPLICAR AO MESMO TEMPO (duplo clique na janela, que envia um POST
+    // nativo, ou outro posto): o segundo pedido não via a ferramenta do
+    // primeiro e criava outra com o mesmo tipo, referência e lote (deep
+    // sweep, 18/10/2026). O mesmo trinco do «Criar»: o segundo espera e abre
+    // a do primeiro, e o Criar e o Duplicar também não correm um contra o
+    // outro.
+    public Task<DuplicateToolOutcome> HandleAsync(
         DuplicateTool command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, "ferramentas:criar", cancellationToken);
+            return await HandleLockedAsync(command, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<DuplicateToolOutcome> HandleLockedAsync(
+        DuplicateTool command,
+        CancellationToken cancellationToken)
     {
         // 1. A fonte tem de existir (e não ser a DUMMY — a tombstone não
         //    é duplicável).
@@ -52,30 +67,35 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
             return Refused(DuplicateToolResult.MissingNewLot);
         }
 
-        // beta.63 (A10): o lote já registado para esta referência abre a
-        // ferramenta EXISTENTE (como o «Criar» já faz) em vez de recusar.
-        // Nada é copiado nem alterado nela; a fonte fica intacta.
-        var existing = await _db.Tools
+        // O lote já registado para esta referência numa das mesmas máquinas é
+        // recusado (o proprietário, 18/10/2026; as máquinas contam desde
+        // 19/10/2026) e a existente fica com o aviso de ferramenta repetida.
+        // A cópia leva as máquinas da fonte. A fonte fica intacta.
+        var sourceMachineIds = await _db.ToolMachineLinks
             .AsNoTracking()
-            .Where(t => t.Type == source.Type
-                && t.Reference == source.Reference
-                && t.Lot == newLot
-                && t.ToolId != ToolRegistryConstants.RemovedToolId)
-            .Select(t => new { t.ToolId, t.AssociatedMfReference, t.BqAccountedQuantity })
-            .FirstOrDefaultAsync(cancellationToken);
+            .Where(link => link.ToolId == source.ToolId)
+            .Select(link => link.MachineId)
+            .ToListAsync(cancellationToken);
+        var existing = await ToolDuplicateWarnings.FindRepeatedAsync(
+            _db, source.Type, source.Reference, newLot, sourceMachineIds, exceptToolId: null, cancellationToken);
         if (existing is not null)
         {
-            return new DuplicateToolOutcome(
-                DuplicateToolResult.Success,
-                new CreatedTool(
-                    existing.ToolId,
-                    source.Type,
-                    source.Reference,
-                    newLot,
-                    existing.AssociatedMfReference,
-                    existing.BqAccountedQuantity,
-                    CreateToolHandler.ReferenceFormatAdvisoryFor(source.Type, source.Reference),
-                    AlreadyExisted: true));
+            // O duplo clique: o resultado do primeiro clique, sem recusa nem aviso.
+            if (ToolDuplicateWarnings.IsRepeatedSubmit(existing.RegisteredAtUtc))
+            {
+                return new DuplicateToolOutcome(
+                    DuplicateToolResult.Success,
+                    new CreatedTool(
+                        existing.ToolId,
+                        source.Type,
+                        source.Reference,
+                        newLot,
+                        existing.AssociatedMfReference,
+                        existing.BqAccountedQuantity));
+            }
+
+            await ToolDuplicateWarnings.MarkAsync(_db, existing.ToolId, command.RequestedBy, cancellationToken);
+            return new DuplicateToolOutcome(DuplicateToolResult.LotAlreadyExists, ExistingToolId: existing.ToolId);
         }
 
         // 3. Mint do tool_id novo (verificação + re-mint): a identidade da
@@ -95,7 +115,8 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
             Lot = newLot,
             AssociatedMfReference = source.AssociatedMfReference,
             BqAccountedQuantity = source.BqAccountedQuantity,
-            TechnicalName = source.TechnicalName
+            TechnicalName = source.TechnicalName,
+            RegisteredAtUtc = DateTime.UtcNow
         };
         _db.Tools.Add(tool);
 
@@ -121,11 +142,6 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
             });
         }
 
-        var sourceMachineIds = await _db.ToolMachineLinks
-            .AsNoTracking()
-            .Where(link => link.ToolId == source.ToolId)
-            .Select(link => link.MachineId)
-            .ToListAsync(cancellationToken);
         foreach (var machineId in sourceMachineIds)
         {
             _db.ToolMachineLinks.Add(new ToolMachineLink { ToolId = newToolId, MachineId = machineId });
@@ -141,27 +157,8 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
                 source.Reference,
                 newLot,
                 source.AssociatedMfReference,
-                source.BqAccountedQuantity,
-                // Nota avisadora do formato recalculada para o valor copiado
-                // (a mesma regra da criação: TRUE quando o valor se desvia do
-                // formato canónico — o valor fica registado na mesma).
-                CreateToolHandler.ReferenceFormatAdvisoryFor(source.Type, source.Reference)));
+                source.BqAccountedQuantity));
     }
-
-    /// <summary>
-    /// (tipo, referência, lote) é a chave da ferramenta; a linha DUMMY não
-    /// conta. Devolve o tool_id de outra ferramenta com esses factos, ou null.
-    /// </summary>
-    internal static Task<string?> FindToolWithFacts(
-        DmoDbContext db, ToolType type, string reference, string lot, string? exceptToolId, CancellationToken cancellationToken) =>
-        db.Tools.AsNoTracking()
-            .Where(t => t.Type == type
-                && t.Reference == reference
-                && t.Lot == lot
-                && t.ToolId != ToolRegistryConstants.RemovedToolId
-                && t.ToolId != exceptToolId)
-            .Select(t => (string?)t.ToolId)
-            .FirstOrDefaultAsync(cancellationToken);
 
     private static DuplicateToolOutcome Refused(DuplicateToolResult result) => new(result);
 }

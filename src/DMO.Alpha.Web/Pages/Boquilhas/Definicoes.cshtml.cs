@@ -52,13 +52,12 @@ public sealed class DefinicoesModel(
         _ => string.Empty
     };
 
-    /// <summary>TRUE quando o save transportado pertence ao card dos reparadores.</summary>
-    public bool ShowRepairerSaveMessage =>
-        SaveResult is "ok-reparador" or "reparador-vazio" or "reparador-existente" or "reparador-inexistente";
-
-    /// <summary>TRUE quando o save transportado pertence ao card da rota por máquina.</summary>
-    public bool ShowRoutingSaveMessage =>
-        SaveResult is "ok-rota" or "reparador-inexistente" or "rota-maquina" or "vazio";
+    /// <summary>
+    /// TRUE quando o save transportado é uma gravação feita (a mensagem fecha
+    /// sozinha); as recusas ficam no canto até se fecharem. Uma só mensagem
+    /// por gravação, na pilha do canto: não empurra os cartões.
+    /// </summary>
+    public bool SaveSucceeded => SaveResult is "ok-reparador" or "ok-rota";
 
     public async Task<IActionResult> OnGetAsync(string? save)
     {
@@ -133,7 +132,9 @@ public sealed class DefinicoesModel(
     /// <summary>
     /// POST: gravar a rota das máquinas (B1..C3). Cada «machine_code» chega
     /// como «B1|3» (máquina|reparador) ou «B1|» (limpa a rota: a saída
-    /// grava na mesma, sem reparador). Escolher no dropdown grava logo.
+    /// grava na mesma, sem reparador). Escolher no dropdown grava logo; a
+    /// página envia só essa máquina (um formulário por máquina, deep sweep
+    /// 18/10/2026, A1-M1).
     /// </summary>
     public async Task<IActionResult> OnPostSaveMachineRoutesAsync(
         [FromForm(Name = "machine_code")] List<string>? machineRoutes)

@@ -115,15 +115,23 @@ public sealed class ShellStateFactory
             ModuleLinks: moduleLinks);
     }
 
-    public async Task<ShellPresentation> ForControloReviewAsync(int? jobOnId = null) =>
+    /// <summary>
+    /// A barra do Controlo Aprovar: a Revisão e, ao lado, o Resumo do
+    /// controlo (Diogo, 19/10/2026: «um tab ao lado da revisão onde podemos
+    /// procurar pelos Job Ons já feitos, e o chefe ver tipo histórico»).
+    /// </summary>
+    public async Task<ShellPresentation> ForControloReviewAsync(int? jobOnId = null, string activeKey = "revisao") =>
         await ForDestinationAsync("ModuleFunctions", new ModulePresentation("controlo-approve", "Controlo"))
         with
         {
-            ActiveFunctionKey = "revisao",
+            ActiveFunctionKey = activeKey,
             Functions = [
                 new FunctionPresentation("revisao", "Revisão",
                     jobOnId is int id ? $"/Controlo/Approve?jobon_id={id}" : "/Controlo/Approve",
-                    null, true, true, true)
+                    null, activeKey == "revisao", true, true),
+                new FunctionPresentation("resumo-controlo", "Resumo do controlo",
+                    jobOnId is int resumo ? $"/Controlo/Approve/Detalhe?tipo=controlo&jobon_id={resumo}" : "/Controlo/Approve/Detalhe?tipo=controlo",
+                    null, activeKey == "resumo-controlo", true, true)
             ]
         };
 
@@ -178,12 +186,14 @@ public sealed class ShellStateFactory
     /// os sem dia — o padrão `?historico=1` do Controlo/Peso). Nunca um
     /// item mestre próprio na barra principal. O «Calendário» da grelha
     /// máquinas×31-dias morreu com a refunda: o calendário vivo é o
-    /// dmo-calendar DENTRO do Job On.
+    /// dmo-calendar DENTRO do Job On. SUMÁRIO ao lado do Job On (Diogo,
+    /// 19/10/2026): o que há para fazer e o que mudou, pelos módulos da conta.
     /// </summary>
     public static IReadOnlyList<FunctionPresentation> PlanningFunctions(string activeKey) =>
         new[]
         {
             new FunctionPresentation("jobon", "Job On", "/JobOn", null, activeKey == "jobon", true, true),
+            new FunctionPresentation("sumario", "Sumário", "/Planeamento/Sumario", null, activeKey == "sumario", true, true),
             new FunctionPresentation("historico", "Histórico", "/JobOn?historico=1", null, activeKey == "historico", true, true)
         };
 

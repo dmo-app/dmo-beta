@@ -22,15 +22,15 @@
                 <input type="hidden" name="tool_id" value="@sheet.ToolId" />
                 <div class="filter-grid">
                   <div class="field dmo-field">
-                    <label>Máquinas compatíveis<partial name="_DmoHelp" model="@("Máquina do movimento: escolha no registo, ao guardar a saída.")" /></label>
-                    <input value="@(sheet.Machines.Count > 0 ? string.Join(", ", sheet.Machines) : "—")" readonly />
+                    <label for="bqSheetMachines">Máquinas compatíveis<partial name="_DmoHelp" model="@("Máquina do movimento: escolha no registo, ao guardar a saída.")" /></label>
+                    <input id="bqSheetMachines" value="@(sheet.Machines.Count > 0 ? string.Join(", ", sheet.Machines) : "—")" readonly />
                   </div>
                   <div class="field dmo-field">
                     <label for="firstOccurred">Data/hora do primeiro movimento</label>
                     <input id="firstOccurred" name="first_occurred" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
                   </div>
                   <div class="field dmo-field">
-                    <label>&nbsp;</label>
+                    <span class="dmo-label" aria-hidden="true">&nbsp;</span>
                     <button type="submit" class="btn primary">Abrir registo desta boquilha</button>
                   </div>
                 </div>

@@ -1,9 +1,14 @@
 using DMO.Alpha.Web.Services;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DMO.Alpha.Web.Pages;
 
+// O token do formulário verifica-se no OnPost (deep sweep B-admin-4): com
+// dois separadores no login, entrar no primeiro deixava o token do segundo
+// sem valor e o envio dava «HTTP ERROR 400», que o F5 repetia.
+[IgnoreAntiforgeryToken]
 public class LoginModel : PageModel
 {
     private readonly DmoSignInService _signInService;
@@ -30,10 +35,24 @@ public class LoginModel : PageModel
         ReturnUrl ??= "/JobOn";
     }
 
-    public async Task<IActionResult> OnPostAsync(string identifier, string password, string? returnUrl)
+    public async Task<IActionResult> OnPostAsync(
+        [FromServices] IAntiforgery antiforgery,
+        string identifier,
+        string password,
+        string? returnUrl)
     {
         Identifier = identifier;
         ReturnUrl = returnUrl ?? "/JobOn";
+
+        // Com sessão, o token só não serve porque se entrou noutro separador
+        // (o cookie da sessão não vem de outro site, por ser SameSite=Lax):
+        // a entrada segue. Sem sessão, o formulário volta com um token novo.
+        if (User.Identity?.IsAuthenticated != true
+            && !await antiforgery.IsRequestValidAsync(HttpContext))
+        {
+            ErrorMessage = "A página de entrada expirou. Entre de novo.";
+            return Page();
+        }
 
         if (string.IsNullOrWhiteSpace(identifier) || string.IsNullOrWhiteSpace(password))
         {

@@ -16,9 +16,9 @@ namespace DMO.Alpha.Core.Controlo;
 ///
 /// Puro e determinístico: recebe o dir configurado, a referência e o nº de
 /// produção; devolve o caminho da pasta da produção e os nomes canónicos
-/// dos ficheiros. A criação da pasta (EnsureDirectory) usa o separador do
-/// sistema; a referência e o nº de produção são LIMPOS de caracteres
-/// inválidos de path (a app nunca recusa por causa do separador no nome).
+/// dos ficheiros. O caminho usa o separador do sistema; a referência e
+/// o nº de produção são LIMPOS de caracteres inválidos de path (a app
+/// nunca recusa por causa do separador no nome).
 /// </summary>
 public static class ControloDocumentPaths
 {
@@ -37,8 +37,28 @@ public static class ControloDocumentPaths
     public static string GetPesoFileName(string reference, string productionNumber) =>
         $"PESO-{SanitizeSegment(reference)}-{SanitizeSegment(productionNumber)}.pdf";
 
+    /// <summary>
+    /// O Peso N de uma produção com mais do que um (depois de trocar a CM ou
+    /// a BQ): «-2», «-3»… no fim do nome; o primeiro fica com o nome de
+    /// sempre (resposta R16-9 do especialista, 18/10/2026).
+    /// </summary>
+    public static string GetPesoFileName(string reference, string productionNumber, int pesoNumber) =>
+        pesoNumber > 1
+            ? $"PESO-{SanitizeSegment(reference)}-{SanitizeSegment(productionNumber)}-{pesoNumber}.pdf"
+            : GetPesoFileName(reference, productionNumber);
+
     public static string GetPegamentosFileName(string reference, string productionNumber) =>
         $"PEGAMENTOS-{SanitizeSegment(reference)}-{SanitizeSegment(productionNumber)}.pdf";
+
+    /// <summary>
+    /// A folha N dos Pegamentos de uma produção com mais do que uma (depois
+    /// de trocar a CM, a BQ ou o MF): «-2», «-3»… no fim do nome; a primeira
+    /// fica com o nome de sempre (18/10/2026).
+    /// </summary>
+    public static string GetPegamentosFileName(string reference, string productionNumber, int sheetNumber) =>
+        sheetNumber > 1
+            ? $"PEGAMENTOS-{SanitizeSegment(reference)}-{SanitizeSegment(productionNumber)}-{sheetNumber}.pdf"
+            : GetPegamentosFileName(reference, productionNumber);
 
     public static string GetPuncoesFileName(string reference, string productionNumber) =>
         $"PU-NNPB-{SanitizeSegment(reference)}-{SanitizeSegment(productionNumber)}.pdf";
@@ -81,18 +101,6 @@ public static class ControloDocumentPaths
 
         var segment = new string(chars).Trim().TrimEnd('.');
         return segment.Length == 0 ? "_" : segment;
-    }
-
-    /// <summary>
-    /// Garante a pasta da produção (cria &lt;dir&gt;/&lt;ref&gt;/&lt;produção&gt; —
-    /// e os pais — se ainda não existirem; idempotente) e devolve o
-    /// caminho. A referência e o nº entram limpos no segmento.
-    /// </summary>
-    public static string EnsureProductionFolder(string outputDirectory, string reference, string productionNumber)
-    {
-        var folder = GetProductionFolder(outputDirectory, reference, productionNumber);
-        Directory.CreateDirectory(folder);
-        return folder;
     }
 
     /// <summary>

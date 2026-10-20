@@ -15,6 +15,9 @@ public sealed record PesoProducaoAnteriorReadModel(
     DateOnly? FimEm,
     decimal? PesoGramas)
 {
+    /// <summary>O controlo da produção escolhida (null sem escolha): a Revisão compara com ele (C6).</summary>
+    public int? ControloId { get; init; }
+
     /// <summary>Peso médio atual menos o peso da produção anterior, em g e em %.</summary>
     public (decimal? Grams, decimal? Percent) Delta(decimal? pesoMedioAtual) =>
         PesoCalculation.NominalDeviation(pesoMedioAtual, PesoGramas);
