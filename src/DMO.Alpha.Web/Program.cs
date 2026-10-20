@@ -175,6 +175,8 @@ builder.Services.AddScoped<ICreateBqRepairerHandler, CreateBqRepairerHandler>();
 builder.Services.AddScoped<IEditBqRepairerHandler, EditBqRepairerHandler>();
 // Boquilhas read path: a lista das entidades reparadoras para a Admin.
 builder.Services.AddScoped<IBqRepairerQuery, BqRepairerQuery>();
+builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemPosicoes, DMO.Alpha.Infrastructure.Armazem.ArmazemPosicoes>();
+builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IReparadores, DMO.Alpha.Infrastructure.Armazem.Reparadores>();
 // Tools read path: resolução canónica e só de leitura de uma Tool pelo seu tool_id exato.
 builder.Services.AddScoped<IToolLookupQuery, ToolLookupQuery>();
 // Tools read path: descoberta de candidatos para seleção humana explícita

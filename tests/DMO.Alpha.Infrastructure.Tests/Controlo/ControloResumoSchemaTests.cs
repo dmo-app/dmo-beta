@@ -97,7 +97,9 @@ public sealed class ControloResumoSchemaTests
                 "JobOnLotNotes",
                 "JobOnChanges",
                 // O envio único guardado na base (fundações do full).
-                "OperacoesRegistadas"
+                "OperacoesRegistadas",
+                // O Armazém do full (0.2.0-beta.8).
+                "ArmazemPosicoes", "Reparadores"
             },
             tables);
     }

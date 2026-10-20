@@ -81,6 +81,78 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("TemplateAssignments");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemPosicao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativa")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime>("CriadaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CriadaPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("CriadaPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Codigo")
+                        .IsUnique();
+
+                    b.HasIndex("CriadaPorUserId");
+
+                    b.ToTable("ArmazemPosicoes", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ArmazemPosicoes_Codigo", "\"Codigo\" ~ '^[0-9A-Z]{1,16}$'");
+                        });
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.Reparador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AplicaCm")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AplicaMf")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("Reparadores", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Reparadores_Familia", "\"AplicaCm\" OR \"AplicaMf\"");
+                        });
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Boquilhas.BqMovement", b =>
                 {
                     b.Property<int>("Id")
@@ -1703,6 +1775,14 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("Template");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemPosicao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CriadaPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Boquilhas.BqMovement", b =>

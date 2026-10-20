@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Boquilhas;
 using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Production;
@@ -73,6 +74,9 @@ public static class AutoriaMap
         // O Job On e as Ferramentas.
         Autoria.De<JobOnChange>(c => c.ChangedByNameFrozen, c => c.ChangedByUserId),
         Autoria.De<Tool>(t => t.DuplicateWarningByNameFrozen, t => t.DuplicateWarningByUserId),
+
+        // O Armazém.
+        Autoria.De<ArmazemPosicao>(p => p.CriadaPor, p => p.CriadaPorUserId),
     ];
 
     /// <summary>Os autores de uma entidade.</summary>

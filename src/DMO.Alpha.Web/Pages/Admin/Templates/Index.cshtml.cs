@@ -126,6 +126,10 @@ public sealed class IndexModel : PageModel
             ("Ferramentas", new[]
             {
                 DmoCapabilities.Ferramentas
+            }),
+            ("Armazém (Gestão: Posições · Definições)", new[]
+            {
+                DmoCapabilities.ArmazemGestao
             })
         };
 
@@ -137,6 +141,7 @@ public sealed class IndexModel : PageModel
         DmoCapabilities.ControloApprove => "Controlo — Aprovar",
         DmoCapabilities.Boquilhas => "Boquilhas",
         DmoCapabilities.Ferramentas => "Ferramentas",
+        DmoCapabilities.ArmazemGestao => "Armazém — Gestão",
         _ => capability
     };
 

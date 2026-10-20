@@ -1,4 +1,5 @@
 using DMO.Alpha.Core.Admin;
+using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Boquilhas;
 // «Controlo» é simultaneamente o segmento do namespace
 // (DMO.Alpha.Core.Controlo) e o nome da entidade do corte ensure+Resumo:
@@ -64,6 +65,11 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<BqRepairTrace> BqRepairTraces => Set<BqRepairTrace>();
 
     public DbSet<BqRepairer> BqRepairers => Set<BqRepairer>();
+
+    // O Armazém do full (peça E do plano): as posições e os reparadores de CM e MF.
+    public DbSet<ArmazemPosicao> ArmazemPosicoes => Set<ArmazemPosicao>();
+
+    public DbSet<Reparador> Reparadores => Set<Reparador>();
 
     public DbSet<BqMovement> BqMovements => Set<BqMovement>();
 
@@ -556,6 +562,29 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(r => r.Name).HasMaxLength(100).IsRequired();
 
             entity.HasIndex(r => r.Name).IsUnique();
+        });
+
+        // O Armazém do full: posições com o código em maiúsculas e único (não
+        // se apagam; arquivam-se) e os reparadores de CM e MF, uma lista à
+        // parte dos reparadores das Boquilhas, com o nome único e pelo menos
+        // uma das famílias.
+        modelBuilder.Entity<ArmazemPosicao>(entity =>
+        {
+            entity.ToTable("ArmazemPosicoes", t =>
+                t.HasCheckConstraint("CK_ArmazemPosicoes_Codigo", "\"Codigo\" ~ '^[0-9A-Z]{1,16}$'"));
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Codigo).HasMaxLength(ArmazemPosicao.CodigoMaxLength).IsRequired();
+            entity.HasIndex(p => p.Codigo).IsUnique();
+            entity.Property(p => p.CriadaPor).HasMaxLength(254);
+        });
+
+        modelBuilder.Entity<Reparador>(entity =>
+        {
+            entity.ToTable("Reparadores", t =>
+                t.HasCheckConstraint("CK_Reparadores_Familia", "\"AplicaCm\" OR \"AplicaMf\""));
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.Nome).HasMaxLength(Reparador.NomeMaxLength).IsRequired();
+            entity.HasIndex(r => r.Nome).IsUnique();
         });
 
         // Controlo de Peso tool-scoped. O peso_id é a identidade durável
