@@ -4,4 +4,8 @@
     <Project Path="src/DMO.Alpha.Infrastructure/DMO.Alpha.Infrastructure.csproj" />
     <Project Path="src/DMO.Alpha.Web/DMO.Alpha.Web.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DMO.Alpha.Infrastructure.Tests/DMO.Alpha.Infrastructure.Tests.csproj" />
+    <Project Path="tests/DMO.Alpha.Web.Tests/DMO.Alpha.Web.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,92 @@
+@model DMO.Alpha.Web.Pages.Ferramentas.FerramentaTecnicaForm
+@* UM SÓ FORMULÁRIO DE FERRAMENTA (Diogo, 20/10/2026): a informação técnica
+   do Criar e da ficha. Cada secção com o título e a dica de onde a app usa
+   os dados («criamos tampao como titulo depois diametro raio e calote»; «um
+   triângulo de informação em cada secção»): Peso (CM e BQ), Gargalo (todas)
+   e Tampão (CM), com um traço entre secções (18/10/2026).
+   No Criar vêm os campos de todos os tipos e o ferramentas-live.js mostra só
+   os do tipo escolhido (os escondidos não são enviados); na ficha, só os do
+   tipo da ferramenta. *@
+@{
+    var p = Model.Prefixo;
+    var tipo = Model.Tipo;
+    // Na ficha, o que não é do tipo nem se desenha; no Criar desenha-se escondido.
+    bool Existe(string tipos) => Model.Criar || tipos.Split(' ').Contains(tipo);
+    bool? Escondido(string tipos) => Model.Criar && !tipos.Split(' ').Contains(tipo) ? true : null;
+    string? TiposDoCriar(string tipos) => Model.Criar ? tipos : null;
+    string? Foco(string nome) => Model.Foco == nome ? "autofocus" : null;
+}
+<div class="ferr-create-row ferr-tech-linha">
+  @if (Existe("CM BQ"))
+  {
+    <fieldset class="ferr-tech-bloco" data-ferr-tech-tipo="@TiposDoCriar("CM BQ")" hidden="@Escondido("CM BQ")">
+      <legend class="ferr-tech-titulo">Peso<partial name="_DmoHelp" model="@AjudaTecnica.Peso" /></legend>
+      <div class="ferr-tech-campos">
+        @if (Existe("CM"))
+        {
+          <div class="dmo-field ferr-w-processo" data-ferr-tech-tipo="@TiposDoCriar("CM")" hidden="@Escondido("CM")">
+            <label for="@(p)-process">Processo</label>
+            <select id="@(p)-process" name="process_token">
+              <option value="" selected="@(Model.Valor("process_token") is null or "")">— sem processo</option>
+              <option value="NNPB" selected="@(Model.Valor("process_token") == "NNPB")">NNPB</option>
+              <option value="PS" selected="@(Model.Valor("process_token") == "PS")">PS</option>
+            </select>
+          </div>
+          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="@TiposDoCriar("CM")" hidden="@Escondido("CM")">
+            <label for="@(p)-nominal">Peso nominal (g)</label>
+            <input id="@(p)-nominal" name="nominal_weight" type="text" inputmode="decimal" value="@Model.Valor("nominal_weight")" aria-invalid="@Model.Invalido("nominal_weight")" autofocus="@Foco("nominal_weight")" />
+          </div>
+          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="@TiposDoCriar("CM")" hidden="@Escondido("CM")">
+            <label for="@(p)-puncao">Punção (cm³)</label>
+            <input id="@(p)-puncao" name="volume_puncao" type="text" inputmode="decimal" value="@Model.Valor("volume_puncao")" aria-invalid="@Model.Invalido("volume_puncao")" autofocus="@Foco("volume_puncao")" />
+          </div>
+        }
+        @if (Existe("BQ"))
+        {
+          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="@TiposDoCriar("BQ")" hidden="@Escondido("BQ")">
+            <label for="@(p)-marisa">Marisa (cm³)</label>
+            <input id="@(p)-marisa" name="volume_marisa" type="text" inputmode="decimal" value="@Model.Valor("volume_marisa")" aria-invalid="@Model.Invalido("volume_marisa")" autofocus="@Foco("volume_marisa")" />
+          </div>
+        }
+      </div>
+    </fieldset>
+    <span class="ferr-tech-sep" aria-hidden="true" data-ferr-tech-tipo="@TiposDoCriar("CM BQ")" hidden="@Escondido("CM BQ")"></span>
+  }
+  <fieldset class="ferr-tech-bloco">
+    <legend class="ferr-tech-titulo">Gargalo<partial name="_DmoHelp" model="@AjudaTecnica.Gargalo" /></legend>
+    <div class="ferr-tech-campos">
+      <div class="dmo-field ferr-w-qty">
+        <label for="@(p)-gargalo">Diâmetro (mm)</label>
+        <input id="@(p)-gargalo" name="diametro_gargalo" type="text" inputmode="decimal" value="@Model.Valor("diametro_gargalo")" aria-invalid="@Model.Invalido("diametro_gargalo")" autofocus="@Foco("diametro_gargalo")" />
+      </div>
+    </div>
+  </fieldset>
+  @if (Existe("CM"))
+  {
+    <span class="ferr-tech-sep" aria-hidden="true" data-ferr-tech-tipo="@TiposDoCriar("CM")" hidden="@Escondido("CM")"></span>
+    <fieldset class="ferr-tech-bloco" data-ferr-tech-tipo="@TiposDoCriar("CM")" hidden="@Escondido("CM")">
+      <legend class="ferr-tech-titulo">Tampão<partial name="_DmoHelp" model="@AjudaTecnica.Tampao" /></legend>
+      <div class="ferr-tech-campos">
+        <div class="dmo-field ferr-w-ref">
+          <label for="@(p)-tp-diametro">Diâmetro (mm)</label>
+          <input id="@(p)-tp-diametro" name="tp_diametro" type="text" inputmode="decimal" value="@Model.Valor("tp_diametro")" placeholder="Ex.: 28,45" aria-invalid="@Model.Invalido("tp_diametro")" autofocus="@Foco("tp_diametro")" />
+        </div>
+        <div class="dmo-field ferr-w-ref">
+          <label for="@(p)-tp-raio">Raio (mm)</label>
+          <input id="@(p)-tp-raio" name="tp_raio" type="text" inputmode="decimal" value="@Model.Valor("tp_raio")" placeholder="Ex.: 24,11" aria-invalid="@Model.Invalido("tp_raio")" autofocus="@Foco("tp_raio")" />
+        </div>
+        <div class="dmo-field ferr-w-ref">
+          <label for="@(p)-tp-sagitta">Calote (mm)</label>
+          <input id="@(p)-tp-sagitta" name="tp_sagitta" type="text" inputmode="decimal" value="@Model.Valor("tp_sagitta")" placeholder="Ex.: 4,5" aria-invalid="@Model.Invalido("tp_sagitta")" autofocus="@Foco("tp_sagitta")" />
+        </div>
+        @if (Model.VolumeTampao is { } volume)
+        {
+          <div class="dmo-fact ferr-w-ref" aria-live="polite">
+            <span>Volume do tampão (cm³)<partial name="_DmoHelp" model="@("Calculado com o diâmetro e a calote.")" /></span>
+            <strong>@volume</strong>
+          </div>
+        }
+      </div>
+    </fieldset>
+  }
+</div>

@@ -1,0 +1,82 @@
+@model DMO.Alpha.Web.Pages.Ferramentas.FerramentaFactosForm
+@* UM SÓ FORMULÁRIO DE FERRAMENTA (Diogo, 20/10/2026): os campos do Criar e do
+   Editar da ficha. Uma linha com os campos curtos, cada um com a largura do
+   seu conteúdo. A Quantidade do lote vem antes da Ref. MF associada, que
+   raramente se usa; a Ref. MF só existe para a CM (o servidor ignora-a nos
+   outros tipos). *@
+@{
+    var p = Model.Prefixo;
+    var tipoFixo = Model.TipoFixo;
+}
+<div class="ferr-create-row">
+  <div class="dmo-field ferr-w-type">
+    <label for="@(p)-type">Tipo</label>
+    <select id="@(p)-type" name="type_token" required data-ferr-tipo-fixo="@tipoFixo">
+      <option value="CM" selected="@(Model.Tipo == "CM")" disabled="@(tipoFixo is not null && tipoFixo != "CM")">CM — Contra-molde</option>
+      <option value="BQ" selected="@(Model.Tipo == "BQ")" disabled="@(tipoFixo is not null && tipoFixo != "BQ")">BQ — Boquilha</option>
+      <option value="MF" selected="@(Model.Tipo == "MF")" disabled="@(tipoFixo is not null && tipoFixo != "MF")">MF — Molde final</option>
+    </select>
+  </div>
+  <div class="dmo-field ferr-w-ref">
+    <label for="@(p)-reference">Referência</label>
+    @* A referência sempre toda (Diogo, 19/10/2026): as ferramentas do
+       tipo (a CM também pela Ref. MF associada, com o nome original) e as produções.
+       O ferramentas-live.js muda o tipo da procura com o Tipo. *@
+    <input id="@(p)-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.Referencia" required placeholder="5447 · T194" data-dmo-suggest="referencias_registo" data-dmo-suggest-tipo="@Model.Tipo.ToLowerInvariant()" />
+  </div>
+  <div class="dmo-field ferr-w-lot">
+    <label for="@(p)-lot">Lote</label>
+    <input id="@(p)-lot" name="lot" value="@Model.Lote" maxlength="3" inputmode="numeric" placeholder="3" title="Vazio grava «s/lote»" />
+  </div>
+  @* Não diz «opcional» (Diogo, 20/10/2026): sem ela grava-se na mesma, mas a
+     Fabricação das Boquilhas não é calculada e a ficha da BQ avisa. *@
+  <div class="dmo-field ferr-w-qty">
+    <label for="@(p)-qty">Quantidade do lote<partial name="_DmoHelp" model="@(Model.Criar ? "Vem preenchida com o total do lote das máquinas escolhidas (Ferramentas → Definições) e pode ser mudada. Se faltar o total de uma máquina, aparece um aviso." : "Numa BQ, sem ela a Fabricação das Boquilhas não é calculada.")" /></label>
+    <input id="@(p)-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.Quantidade" />
+    @if (Model.Criar)
+    {
+      <input id="ferr-quantity-manual" type="hidden" name="quantity_manual" value="@(Model.QuantidadeManual ?? "0")" />
+    }
+  </div>
+  <div class="dmo-field ferr-w-ref" id="@(p)-mf-field" hidden="@(Model.Tipo != "CM")">
+    <label for="@(p)-mf">Ref. MF associada</label>
+    <input id="@(p)-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RefMf" placeholder="opcional" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
+  </div>
+  @* O NOME TÉCNICO (o código do desenho — o que está no SAP; o Owner:
+     «se introduzirmos o nome tecnico, ou seja o que esta no sap.
+     apresenta logo tudo»): no Criar, ao escrever, o vivo decodifica e
+     propõe o tipo; vazio = o formato simples. *@
+  <div class="dmo-field ferr-w-sap">
+    <label for="@(p)-technical">Nome técnico (SAP)</label>
+    <input id="@(p)-technical" data-dmo-maiusculas autocapitalize="characters" name="technical_name" value="@Model.NomeTecnico" placeholder="opcional · Ex.: M107544MFNNV" />
+  </div>
+</div>
+@if (Model.Criar)
+{
+  <p class="ferr-hint" id="ferr-technical-notice" role="status" aria-live="polite"></p>
+}
+<div class="ferr-create-row ferr-create-row-machines">
+  <div class="dmo-field">
+    <span class="dmo-label" id="@(p)-machines">Máquinas / linhas compatíveis (opcional)</span>
+    <div class="ferr-checks" role="group" aria-labelledby="@(p)-machines">
+      @if (Model.Maquinas.Count == 0)
+      {
+        <span class="ferr-hint" style="margin:0">Sem máquinas registadas — pode registar a ferramenta agora e associar máquinas depois, na sua ficha.</span>
+      }
+      @foreach (var machine in Model.Maquinas)
+      {
+        <label class="ferr-check">
+          <input type="checkbox" name="machine_ids" value="@machine.MachineId" checked="@Model.MaquinaEscolhida(machine.MachineId)" />
+          <span>@machine.Code</span>
+        </label>
+      }
+    </div>
+  </div>
+  @if (Model.Criar)
+  {
+    <div class="ferr-quantity-suggestion">
+      <p id="ferr-quantity-notice" class="ferr-hint" role="status" aria-live="polite"></p>
+      <div id="ferr-quantity-choices" class="ferr-quantity-choices"></div>
+    </div>
+  }
+</div>

@@ -7,6 +7,7 @@
 }
 @section Head {
   <link rel="stylesheet" href="~/css/dmo-ferramentas.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/dmo-ferramenta-form.css" asp-append-version="true" />
 }
 
 <main data-dmo-troca class="ferr-page dmo-workspace" aria-labelledby="ferr-title">
@@ -135,115 +136,20 @@
       {
         <input type="hidden" name="return" value="@Model.ReturnTemplate" />
       }
-      <div class="ferr-create-row">
-        <div class="dmo-field ferr-w-type">
-          <label for="ferr-new-type">Tipo</label>
-          <select id="ferr-new-type" name="type_token" required data-ferr-tipo-fixo="@tipoFixo">
-            <option value="CM" selected="@(Model.RequestedTypeToken == "CM")" disabled="@(tipoFixo is not null && tipoFixo != "CM")">CM — Contra-molde</option>
-            <option value="BQ" selected="@(Model.RequestedTypeToken == "BQ")" disabled="@(tipoFixo is not null && tipoFixo != "BQ")">BQ — Boquilha</option>
-            <option value="MF" selected="@(Model.RequestedTypeToken == "MF")" disabled="@(tipoFixo is not null && tipoFixo != "MF")">MF — Molde final</option>
-          </select>
-        </div>
-        <div class="dmo-field ferr-w-ref">
-          <label for="ferr-new-reference">Referência</label>
-          @* A referência sempre toda (Diogo, 19/10/2026): as ferramentas do
-             tipo (a CM também pela Ref. MF associada, com o nome original) e as produções.
-             O ferramentas-live.js muda o tipo da procura com o Tipo. *@
-          <input id="ferr-new-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.RequestedReference" required placeholder="5447 · T194" data-dmo-suggest="referencias_registo" data-dmo-suggest-tipo="@((Model.RequestedTypeToken ?? "CM").ToLowerInvariant())" />
-        </div>
-        <div class="dmo-field ferr-w-lot">
-          <label for="ferr-new-lot">Lote</label>
-          <input id="ferr-new-lot" name="lot" value="@Model.RequestedLot" maxlength="3" inputmode="numeric" placeholder="3" title="Vazio grava «s/lote»" />
-        </div>
-        <div class="dmo-field ferr-w-ref" id="ferr-new-mf-field" hidden="@(Model.RequestedTypeToken is "BQ" or "MF")">
-          <label for="ferr-new-mf">Ref. MF associada</label>
-          <input id="ferr-new-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RequestedMfReference" placeholder="opcional" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
-        </div>
-        <div class="dmo-field ferr-w-qty">
-          <label for="ferr-new-qty">Quantidade do lote<partial name="_DmoHelp" model="@("Vem preenchida com o total do lote das máquinas escolhidas (Ferramentas → Definições) e pode ser mudada. Se faltar o total de uma máquina, aparece um aviso.")" /></label>
-          <input id="ferr-new-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.RequestedLotQuantity" placeholder="opcional" />
-          <input id="ferr-quantity-manual" type="hidden" name="quantity_manual" value="@(Model.RequestedQuantityManual ?? "0")" />
-        </div>
-        @* O NOME TÉCNICO (o código do desenho — o que está no SAP; o Owner:
-           «se introduzirmos o nome tecnico, ou seja o que esta no sap.
-           apresenta logo tudo»): ao escrever, O VIVO decodifica e preenche
-           o tipo e a referência; vazio = o formato simples. *@
-        <div class="dmo-field ferr-w-sap">
-          <label for="ferr-new-technical">Nome técnico (SAP)</label>
-          <input id="ferr-new-technical" data-dmo-maiusculas autocapitalize="characters" name="technical_name" value="@Model.RequestedTechnicalName" placeholder="opcional · Ex.: M107544MFNNV" />
-        </div>
-      </div>
-      <p class="ferr-hint" id="ferr-technical-notice" role="status" aria-live="polite"></p>
-      <div class="ferr-create-row ferr-create-row-machines">
-        <div class="dmo-field">
-          <span class="dmo-label" id="ferr-create-machines">Máquinas / linhas compatíveis (opcional)</span>
-          <div class="ferr-checks" role="group" aria-labelledby="ferr-create-machines">
-            @if (Model.Machines.Count == 0)
-            {
-              <span class="ferr-hint" style="margin:0">Sem máquinas registadas — pode registar a ferramenta agora e associar máquinas depois, na sua ficha.</span>
-            }
-            @foreach (var machine in Model.Machines)
-            {
-              <label class="ferr-check">
-                <input type="checkbox" name="machine_ids" value="@machine.MachineId" checked="@(Model.RequestedMachineIds?.Contains(machine.MachineId.ToString()) == true)" />
-                <span>@machine.Code</span>
-              </label>
-            }
-          </div>
-        </div>
-        <div class="ferr-quantity-suggestion">
-          <p id="ferr-quantity-notice" class="ferr-hint" role="status" aria-live="polite"></p>
-          <div id="ferr-quantity-choices" class="ferr-quantity-choices"></div>
-        </div>
-      </div>
+      @* Os mesmos campos do Editar da ficha (um só formulário de ferramenta,
+         Diogo, 20/10/2026). *@
+      <partial name="_FerramentaFactos" model="@(new FerramentaFactosForm("ferr-new", true, Model.RequestedTypeToken ?? "CM", tipoFixo,
+          Model.RequestedReference, Model.RequestedLot, Model.RequestedLotQuantity, Model.RequestedQuantityManual,
+          Model.RequestedMfReference, Model.RequestedTechnicalName, Model.Machines,
+          id => Model.RequestedMachineIds?.Contains(id.ToString()) == true))" />
       @* A INFORMAÇÃO TÉCNICA NO REGISTO (o Diogo, 17/10/2026: «nao temos
          forma de inserir informaçao tecnica nas ferramentas»): opcional e
          fechada (a decisão de 16/10: só aparece quando se pede); cada tipo
          mostra só os seus campos, os mesmos da ficha. *@
       <details class="ferr-create-tech" open="@(Model.RequestedTechnicalOpen ? "open" : null)">
         <summary>Informação técnica (opcional)</summary>
-        <div class="ferr-create-row">
-          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="CM" hidden="@((Model.RequestedTypeToken ?? "CM") != "CM")">
-            <label for="ferr-new-process">Processo</label>
-            <select id="ferr-new-process" name="process_token">
-              <option value="">— sem processo</option>
-              <option value="NNPB" selected="@(Model.RequestedTechnical("process_token") == "NNPB")">NNPB</option>
-              <option value="PS" selected="@(Model.RequestedTechnical("process_token") == "PS")">PS</option>
-            </select>
-          </div>
-          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="CM" hidden="@((Model.RequestedTypeToken ?? "CM") != "CM")">
-            <label for="ferr-new-nominal">Peso nominal (g)</label>
-            <input id="ferr-new-nominal" name="nominal_weight" type="text" inputmode="decimal" value="@Model.RequestedTechnical("nominal_weight")" />
-          </div>
-          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="CM" hidden="@((Model.RequestedTypeToken ?? "CM") != "CM")">
-            <label for="ferr-new-puncao">Punção (cm³)</label>
-            <input id="ferr-new-puncao" name="volume_puncao" type="text" inputmode="decimal" value="@Model.RequestedTechnical("volume_puncao")" />
-          </div>
-          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="BQ" hidden="@((Model.RequestedTypeToken ?? "CM") != "BQ")">
-            <label for="ferr-new-marisa">Marisa (cm³)</label>
-            <input id="ferr-new-marisa" name="volume_marisa" type="text" inputmode="decimal" value="@Model.RequestedTechnical("volume_marisa")" />
-          </div>
-          @* Um traço entre componentes (Diogo, 18/10/2026): Processo, Peso e
-             Punção juntos; o Gargalo à parte; o Tampão à parte. *@
-          <span class="ferr-tech-sep" aria-hidden="true" data-ferr-tech-tipo="CM BQ" hidden="@((Model.RequestedTypeToken ?? "CM") == "MF")"></span>
-          <div class="dmo-field ferr-w-qty">
-            <label for="ferr-new-gargalo">Gargalo (mm)</label>
-            <input id="ferr-new-gargalo" name="diametro_gargalo" type="text" inputmode="decimal" value="@Model.RequestedTechnical("diametro_gargalo")" />
-          </div>
-          <span class="ferr-tech-sep" aria-hidden="true" data-ferr-tech-tipo="CM" hidden="@((Model.RequestedTypeToken ?? "CM") != "CM")"></span>
-          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="CM" hidden="@((Model.RequestedTypeToken ?? "CM") != "CM")">
-            <label for="ferr-new-tp-d">Tampão D (mm)</label>
-            <input id="ferr-new-tp-d" name="tp_diametro" type="text" inputmode="decimal" value="@Model.RequestedTechnical("tp_diametro")" />
-          </div>
-          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="CM" hidden="@((Model.RequestedTypeToken ?? "CM") != "CM")">
-            <label for="ferr-new-tp-r">Tampão raio (mm)</label>
-            <input id="ferr-new-tp-r" name="tp_raio" type="text" inputmode="decimal" value="@Model.RequestedTechnical("tp_raio")" />
-          </div>
-          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="CM" hidden="@((Model.RequestedTypeToken ?? "CM") != "CM")">
-            <label for="ferr-new-tp-h">Tampão calote (mm)</label>
-            <input id="ferr-new-tp-h" name="tp_sagitta" type="text" inputmode="decimal" value="@Model.RequestedTechnical("tp_sagitta")" />
-          </div>
-        </div>
+        <partial name="_FerramentaTecnica" model="@(new FerramentaTecnicaForm("ferr-new", true, Model.RequestedTypeToken ?? "CM",
+            nome => Model.RequestedTechnical(nome), _ => null, null, null))" />
       </details>
     </form>
   </section>

@@ -1,0 +1,32 @@
+/* UM SÓ FORMULÁRIO DE FERRAMENTA (Diogo, 20/10/2026): o Criar (Ferramentas)
+   e o Editar e a Informação técnica da ficha usam _FerramentaFactos e
+   _FerramentaTecnica, com estas regras. */
+/* beta.34: os campos numa linha; cada campo com a largura do conteúdo. */
+.ferr-create-row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.ferr-create-row > .dmo-field{min-width:0;flex:0 0 auto}
+.ferr-create-row > .dmo-field[hidden]{display:none}
+.ferr-create-row > .dmo-field > :is(input:not([type=checkbox]),select){width:100%}
+.ferr-w-type{width:190px}
+.ferr-w-ref{width:140px}
+.ferr-w-lot{width:76px}
+.ferr-w-qty{width:140px}
+.ferr-w-processo{width:170px}
+.ferr-w-sap{flex:1 1 220px !important;max-width:300px}
+.ferr-create-row-machines{margin-top:14px;align-items:flex-start;justify-content:flex-start;column-gap:28px}
+.ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
+.ferr-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dmo-text,#172d42)}
+.ferr-check input{width:auto;min-height:0}
+/* As secções da informação técnica: o título com a dica por cima dos campos
+   e um traço entre secções (Diogo, 18/10 e 20/10/2026). */
+.ferr-tech-bloco{display:grid;gap:6px;min-width:0;margin:0;padding:0;border:0}
+.ferr-tech-bloco[hidden]{display:none}
+.ferr-tech-titulo{display:inline-flex;align-items:center;gap:4px;padding:0;font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.04em;color:var(--dmo-brand-700,#193046)}
+.ferr-tech-campos{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.ferr-tech-campos > :is(.dmo-field,.dmo-fact){min-width:0;flex:0 0 auto}
+.ferr-tech-campos > .dmo-field[hidden]{display:none}
+.ferr-tech-campos > .dmo-field > :is(input,select){width:100%}
+.ferr-tech-campos > .dmo-fact{min-height:0}
+/* O valor técnico que não se leu fica no campo para corrigir, com a borda do aviso. */
+html body .ferr-tech-campos .dmo-field input[aria-invalid=true]{border-color:var(--dmo-warning)}
+.ferr-tech-sep{align-self:stretch;width:1px;background:var(--dmo-border);margin:0 4px}
+.ferr-tech-sep[hidden]{display:none}
