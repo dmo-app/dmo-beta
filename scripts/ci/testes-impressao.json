@@ -1,5 +1,5 @@
 {
-  "selo": "64b4fb2cf44d98cf",
+  "selo": "117a82a26f9fd319",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -301,7 +301,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_ExactlyIdentityAndRelation_NoFactColumns": "5f051f1183f413be",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn": "0bde07612689bffb",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_UniqueJobOnIdIndex_RestrictForeignKey": "0cc5f83a463ddd5e",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyThirtyThreeTables_IncludingControlos": "dcf8431e63e3e938",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyThirtyThreeTables_IncludingControlos": "b8ec42628b5ed3de",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloTresEstadosTests.cs :: (resto do ficheiro)": "a508b8b43fc1efba",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloTresEstadosTests.cs :: ControloTresEstadosTests.AsFrasesDosTresEstados": "cf4b221a1b8b3eb7",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloTresEstadosTests.cs :: ControloTresEstadosTests.Historico_MostraOsTresEstados_ComQuemDecidiuEANota": "c41c0c38bb88935d",
@@ -408,7 +408,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosRealTargetTests.cs :: PegamentosRealTargetTests.RealCorridors_AreSharedBoundaries": "8e0b63ab7c9fb571",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosRealTargetTests.cs :: PegamentosRealTargetTests.RealMf_Measurements_IndividualContraCells_TheTargetDoesNotMark": "bca230f5fc8b03d4",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: (resto do ficheiro)": "714cadd93bbf3bcb",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyThirtyThreeTables_IncludingPegamentosTables": "af1d189ce4425752",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyThirtyThreeTables_IncludingPegamentosTables": "3df792a68b62047d",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.PegamentosControloIdIndex_IsNotUnique_CardinalityIsNotADomainRestriction": "7b8df5bfc7f95fb3",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.PegamentosEntity_RegistroUnderControlo_ToleranceFrozen_ToolsInherited": "154f43d74abc36f8",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.PegamentosMeasurementEntity_AppendOnlyFacts_ContraCosturaNullable": "18f826f9a72cbfa5",
@@ -517,7 +517,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoSuposicaoCalculationTests.cs :: PesoSuposicaoCalculationTests.Calote_MaisAlta_TrocaAParteDoPesoQueVemDaCalote": "6eb90c5c9039febf",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoSuposicaoCalculationTests.cs :: PesoSuposicaoCalculationTests.Calote_MaisBaixa_TiraPeso": "462fd182e43d21d9",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: (resto do ficheiro)": "1414cdad8f2cf289",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyThirtyThreeTables_IncludingPesoTables": "cec69d2f1f8d2662",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyThirtyThreeTables_IncludingPesoTables": "3a5e06606185bcd6",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.GlassDensity_ProcessIsPrimaryKey": "1abb015c9498b90e",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_AnchorsToolsWithRestrict_MeasurementsCascade": "e882bb4ab4a3d59c",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_HasNoProductionIdentityColumns": "886ea7450a550219",

@@ -95,7 +95,9 @@ public sealed class ControloResumoSchemaTests
                 "EmailListas", "EmailModelos", "EmailEnvios",
                 // #29 AddJobOnLotNotes: as mudanças de lote durante a produção.
                 "JobOnLotNotes",
-                "JobOnChanges"
+                "JobOnChanges",
+                // O envio único guardado na base (fundações do full).
+                "OperacoesRegistadas"
             },
             tables);
     }
