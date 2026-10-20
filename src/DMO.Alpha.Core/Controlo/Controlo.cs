@@ -45,6 +45,9 @@ public sealed class Controlo
     /// </summary>
     public string? ApprovedByOperatorId { get; set; }
 
+    /// <summary>O utilizador de <see cref="ApprovedByOperatorId"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? ApprovedByUserId { get; set; }
+
     /// <summary>O momento da aprovação (UTC, gravado pelo backend).</summary>
     public DateTime? ApprovedAtUtc { get; set; }
 
@@ -53,6 +56,9 @@ public sealed class Controlo
     /// aprovação, é só registo e nunca bloqueia; aprovar depois limpa-o.
     /// </summary>
     public string? NotApprovedByOperatorId { get; set; }
+
+    /// <summary>O utilizador de <see cref="NotApprovedByOperatorId"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? NotApprovedByUserId { get; set; }
 
     /// <summary>O momento do «Não aprovar» (UTC, gravado pelo backend).</summary>
     public DateTime? NotApprovedAtUtc { get; set; }

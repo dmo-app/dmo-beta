@@ -105,7 +105,7 @@ public sealed class MigrationFoundationTests
                 "20261019121642_ControloRevisaoDepoisDaAprovacao", "20261019125706_EnvioEmailPeso",
                 "20261019130614_JobOnCriadoEm",
                 "20261019131708_CmDeParteEDensidadeDaAgua", "20261019140057_PegamentosRastoDasLeituras",
-                "20261020015832_ControloAreaIdentificacao", "20261020142103_OperacoesRegistadas" },
+                "20261020015832_ControloAreaIdentificacao", "20261020142103_OperacoesRegistadas", "20261020142915_AutorPorUtilizador" },
             keys);
     }
 

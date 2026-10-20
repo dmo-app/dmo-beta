@@ -145,6 +145,8 @@ public sealed class PesoToolScopedSchemaTests
                 // #27 AddControloRevisao: quando e quem gravou.
                 "RegistadoEmUtc",
                 "RegistadoPor",
+                // O autor pelo utilizador (fundações do full).
+                "RegistadoPorUserId",
                 // A produção anterior (o Owner 2026-10-17): também um
                 // controlo, nunca um jobon_id, e o peso do SAP escrito à mão.
                 "ProducaoAnteriorControloId",
@@ -166,7 +168,8 @@ public sealed class PesoToolScopedSchemaTests
         // produção é referenciada.
         Assert.Equal(
             // + a produção anterior (o Owner 2026-10-17), também um controlo.
-            new[] { "BqToolId", "CmToolId", "ControloId", "ProducaoAnteriorControloId" },
+            // + o autor pelo utilizador (fundações do full), para Users.
+            new[] { "BqToolId", "CmToolId", "ControloId", "ProducaoAnteriorControloId", "RegistadoPorUserId" },
             entityType.GetForeignKeys()
                 .SelectMany(fk => fk.Properties)
                 .Select(p => p.Name)

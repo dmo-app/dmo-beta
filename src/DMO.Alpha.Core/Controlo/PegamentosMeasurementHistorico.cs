@@ -46,5 +46,8 @@ public sealed class PegamentosMeasurementHistorico
     /// <summary>Quem corrigiu ou apagou (o nome, pelo carimbo dos registos); null sem identidade.</summary>
     public string? Por { get; set; }
 
+    /// <summary>O utilizador de <see cref="Por"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? PorUserId { get; set; }
+
     public DateTime EmUtc { get; set; }
 }

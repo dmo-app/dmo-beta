@@ -1,5 +1,6 @@
 using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Runtime;
+using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -12,6 +13,12 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// data para o calendário e o nome para o «Operador». As leituras novas do
 /// Peso e dos Pegamentos levam só a data (19/10/2026); o rasto de uma
 /// leitura dos Pegamentos corrigida ou apagada leva quem (4.6).
+/// <para>
+/// O autor pelo utilizador (fundações do full, E3 do DMO-FULL): sempre que um
+/// facto escreve o autor como texto (as colunas da <see cref="AutoriaMap"/>),
+/// o identificador ao lado fica com o utilizador da sessão; o ADMIN e quem
+/// não tem sessão ficam sem ele. Apagar o texto apaga o identificador.
+/// </para>
 /// </summary>
 public sealed class RegistoCarimboInterceptor : SaveChangesInterceptor
 {
@@ -51,6 +58,12 @@ public sealed class RegistoCarimboInterceptor : SaveChangesInterceptor
         var quemLido = false;
         foreach (var entry in context.ChangeTracker.Entries())
         {
+            if (entry.State == EntityState.Modified)
+            {
+                CarimbarUtilizador(entry);
+                continue;
+            }
+
             if (entry.State != EntityState.Added)
             {
                 continue;
@@ -88,6 +101,37 @@ public sealed class RegistoCarimboInterceptor : SaveChangesInterceptor
                     rasto.Por ??= quem;
                     break;
             }
+
+            CarimbarUtilizador(entry);
         }
+    }
+
+    // O identificador ao lado de cada autor escrito neste SaveChanges: num
+    // facto novo, o de quem tem a sessão quando o texto existe; num facto
+    // alterado, só quando o texto mudou (e nenhum quando o texto ficou vazio).
+    private void CarimbarUtilizador(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    {
+        foreach (var autoria in AutoriaMap.De(entry.Metadata.ClrType))
+        {
+            var texto = entry.Property(autoria.Texto);
+            var identificador = entry.Property(autoria.Identificador);
+            if (entry.State == EntityState.Added)
+            {
+                if (texto.CurrentValue is not null && identificador.CurrentValue is null)
+                {
+                    identificador.CurrentValue = UtilizadorDaSessao();
+                }
+            }
+            else if (texto.IsModified && !identificador.IsModified)
+            {
+                identificador.CurrentValue = texto.CurrentValue is null ? null : UtilizadorDaSessao();
+            }
+        }
+    }
+
+    private Guid? UtilizadorDaSessao()
+    {
+        var actor = _account.Current;
+        return actor is { IsAuthenticated: true, IsAdmin: false } ? actor.ActorId : null;
     }
 }

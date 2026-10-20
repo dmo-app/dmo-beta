@@ -1132,6 +1132,20 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                 .HasForeignKey(c => c.JobOnId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        // O autor pelo utilizador (E3 do DMO-FULL): cada identificador da
+        // AutoriaMap tem o seu índice e a chave estrangeira para Users, com
+        // SET NULL para eliminar um utilizador continuar a funcionar (o texto
+        // do momento fica no facto).
+        foreach (var autoria in AutoriaMap.Autores)
+        {
+            var entity = modelBuilder.Entity(autoria.Entidade);
+            entity.HasIndex(autoria.Identificador);
+            entity.HasOne(typeof(User))
+                .WithMany()
+                .HasForeignKey(autoria.Identificador)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
     }
 
     /// <summary>

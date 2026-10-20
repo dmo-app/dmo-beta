@@ -66,6 +66,9 @@ public sealed class BqMovement
     /// </summary>
     public string? RegisteredByOperatorId { get; set; }
 
+    /// <summary>O utilizador de <see cref="RegisteredByOperatorId"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? RegisteredByUserId { get; set; }
+
     /// <summary>
     /// A ENTIDADE REPARADORA usada pela SAÍDA (o Owner 2026-10-12:
     /// «reparadores sao as entidades para onde enviamos as boquilhas»):
@@ -98,6 +101,9 @@ public sealed class BqMovement
     /// corrigido ou quando a correção chegou sem identidade (grava na mesma).
     /// </summary>
     public string? CorrectedByNameFrozen { get; set; }
+
+    /// <summary>O utilizador de <see cref="CorrectedByNameFrozen"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? CorrectedByUserId { get; set; }
 
     /// <summary>QUANDO foi feita a última correção (UTC). Null = nunca corrigido.</summary>
     public DateTime? CorrectedAtUtc { get; set; }

@@ -29,5 +29,8 @@ public sealed class BqMovementDeletion
     /// <summary>O nome de quem apagou, congelado; null quando o pedido chegou sem identidade.</summary>
     public string? DeletedByNameFrozen { get; set; }
 
+    /// <summary>O utilizador de <see cref="DeletedByNameFrozen"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? DeletedByUserId { get; set; }
+
     public DateTime DeletedAtUtc { get; set; }
 }

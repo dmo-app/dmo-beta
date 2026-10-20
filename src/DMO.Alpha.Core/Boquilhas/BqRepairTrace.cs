@@ -69,4 +69,7 @@ public sealed class BqRepairTrace
 
     /// <summary>Quem pôs a discrepância a zero, com o nome congelado; null sem identidade.</summary>
     public string? DiscrepancyResetByNameFrozen { get; set; }
+
+    /// <summary>O utilizador de <see cref="DiscrepancyResetByNameFrozen"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? DiscrepancyResetByUserId { get; set; }
 }
