@@ -70,17 +70,17 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
           @foreach (var r in Model.Reparadores)
           {
             var familias = DMO.Alpha.Web.Pages.Armazem.DefinicoesModel.Familias(r);
-            <tr class="@(r.Ativo ? null : "arm-arquivado")">
+            <tr class="@(r.Ativo ? null : "arm-arquivado")" data-dmo-reparador="@r.Id">
               <td>
                 <form id="armRepNome-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
                   <input type="hidden" name="reparador_id" value="@r.Id" />
-                  <input class="dmo-valor" data-dmo-valor name="nome" value="@r.Nome" maxlength="100" autocomplete="off" aria-label="Nome do reparador @r.Nome" required />
+                  <input id="armRepNomeValor-@r.Id" class="dmo-valor" data-dmo-valor name="nome" value="@r.Nome" maxlength="100" autocomplete="off" aria-label="Nome do reparador @r.Nome" required />
                 </form>
               </td>
               <td>
                 <form id="armRepFamilias-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
                   <input type="hidden" name="reparador_id" value="@r.Id" />
-                  <select name="familias" data-dmo-autosubmit aria-label="O que recebe o reparador @r.Nome">
+                  <select id="armRepRecebe-@r.Id" name="familias" data-dmo-autosubmit aria-label="O que recebe o reparador @r.Nome">
                     <option value="ambos" selected="@(familias == "ambos")">CM e MF</option>
                     <option value="cm" selected="@(familias == "cm")">Só CM</option>
                     <option value="mf" selected="@(familias == "mf")">Só MF</option>
@@ -90,7 +90,7 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
               <td>
                 <form id="armRepAtivo-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
                   <input type="hidden" name="reparador_id" value="@r.Id" />
-                  <select name="ativo" data-dmo-autosubmit aria-label="Estado do reparador @r.Nome">
+                  <select id="armRepEstado-@r.Id" name="ativo" data-dmo-autosubmit aria-label="Estado do reparador @r.Nome">
                     <option value="sim" selected="@r.Ativo">Ativo</option>
                     <option value="nao" selected="@(!r.Ativo)">Arquivado</option>
                   </select>

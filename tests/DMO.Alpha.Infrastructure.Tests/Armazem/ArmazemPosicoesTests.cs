@@ -56,6 +56,21 @@ public sealed class ArmazemPosicoesTests
         Assert.Empty(await db.ArmazemPosicoes.AsNoTracking().ToListAsync());
     }
 
+    [Theory]
+    [InlineData(ArmazemPosicao.CodigoMaxLength - 1)]
+    [InlineData(ArmazemPosicao.CodigoMaxLength)]
+    public async Task Criar_NoLimiteDoTamanho_Grava(int tamanho)
+    {
+        // Logo abaixo e no limite gravam; logo acima (17) está em Criar_ForaDaRegra_NaoGrava.
+        using var db = CreateContext();
+        var codigo = new string('7', tamanho);
+
+        var (resultado, gravado) = await new ArmazemPosicoes(db, new Sessao()).CriarAsync(codigo);
+
+        Assert.Equal((ArmazemPosicaoResultado.Gravado, codigo), (resultado, gravado));
+        Assert.Equal(codigo, (await db.ArmazemPosicoes.AsNoTracking().SingleAsync()).Codigo);
+    }
+
     [Fact]
     public async Task Criar_OMesmoCodigoComOutrasMaiusculas_JaExiste()
     {

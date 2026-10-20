@@ -43,6 +43,19 @@ public sealed class ReparadoresTests
         Assert.Empty(await db.Reparadores.AsNoTracking().ToListAsync());
     }
 
+    [Theory]
+    [InlineData(Reparador.NomeMaxLength - 1)]
+    [InlineData(Reparador.NomeMaxLength)]
+    public async Task Criar_NomeNoLimite_Grava(int tamanho)
+    {
+        // Logo abaixo e no limite gravam; logo acima está em Criar_NomeLongo_NaoGrava.
+        using var db = CreateContext();
+        var nome = new string('x', tamanho);
+
+        Assert.Equal(ReparadorResultado.Gravado, await new Reparadores(db).CriarAsync(nome, true, true));
+        Assert.Equal(nome, (await db.Reparadores.AsNoTracking().SingleAsync()).Nome);
+    }
+
     [Fact]
     public async Task Criar_NomeLongo_NaoGrava()
     {

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Controlo;
@@ -78,12 +79,33 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
         return ler(scope.ServiceProvider.GetRequiredService<DmoDbContext>());
     }
 
-    private static async Task<HttpResponseMessage> PostAsync(HttpClient client, string pagina, string handler, params (string, string)[] campos)
+    /// <summary>Envia o formulário que a página desenha, com o campo mudado (como o browser), e devolve para onde levou.</summary>
+    private static async Task<string> EnviarAsync(HttpClient client, string html, params (string IdDoCampo, string Valor)[] preenchidos)
     {
-        var html = await client.GetStringAsync(pagina);
-        var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
-        return await client.PostAsync($"{pagina}?handler={handler}",
-            HtmlFormHelpers.BuildFormPost([.. campos, ("__RequestVerificationToken", token)]));
+        var (acao, campos) = EnvioDoFormulario.Preencher(html, preenchidos);
+        using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        return response.Headers.Location!.OriginalString;
+    }
+
+    /// <summary>O elemento que abre com este atributo (id="…" ou data-…="…"), até ao seu fecho. Falha se não existir.</summary>
+    private static string Elemento(string html, string atributo)
+    {
+        var inicio = html.IndexOf(atributo, StringComparison.Ordinal);
+        Assert.True(inicio >= 0, $"a página não tem {atributo}");
+        inicio = html.LastIndexOf('<', inicio);
+        var tag = Regex.Match(html[(inicio + 1)..], "^[a-z][a-z0-9]*").Value;
+        var nivel = 0;
+        foreach (Match m in Regex.Matches(html[inicio..], $"<{tag}\\b|</{tag}>"))
+        {
+            nivel += m.Value.StartsWith("</", StringComparison.Ordinal) ? -1 : 1;
+            if (nivel == 0)
+            {
+                return html.Substring(inicio, m.Index + m.Length);
+            }
+        }
+
+        throw new InvalidOperationException($"{atributo} ficou por fechar");
     }
 
     [Theory]
@@ -106,10 +128,10 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
 
         var html = await client.GetStringAsync("/Armazem/Posicoes");
 
-        Assert.Contains("<h1 id=\"arm-pos-title\">Posições do Armazém</h1>", html);
+        Assert.Contains("Posições do Armazém", Elemento(html, "id=\"arm-pos-title\""));
         Assert.Matches("<a href=\"/Armazem/Posicoes\"[^>]*aria-current=\"page\">Posições</a>", html);
-        Assert.Contains("<a href=\"/Armazem/Definicoes\"", html);
-        Assert.Contains("Ainda não há posições. Crie a primeira acima.", html);
+        Assert.Contains("href=\"/Armazem/Definicoes\"", html);
+        Assert.Contains("Ainda não há posições. Crie a primeira acima.", Elemento(html, "id=\"armPosLista\""));
         // Depois do login, quem só tem o Armazém abre-o.
         using var inicio = await client.GetAsync("/");
         Assert.Equal("/Armazem/Posicoes", inicio.Headers.Location?.ToString());
@@ -119,63 +141,71 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
     public async Task Posicoes_CriarEArquivarNaLinha()
     {
         using var client = await LoginOperatorAsync("6103", DmoCapabilities.ArmazemGestao);
+        var pagina = await client.GetStringAsync("/Armazem/Posicoes");
 
-        using var criada = await PostAsync(client, "/Armazem/Posicoes", "Criar", ("novo_codigo", "7001a"));
-        Assert.Equal(HttpStatusCode.Redirect, criada.StatusCode);
-        var depois = await client.GetStringAsync(criada.Headers.Location!.ToString());
-        Assert.Contains("Posição 7001A criada.", depois);
-        Assert.Contains("<td><strong>7001A</strong></td>", depois);
-        // Sem botões na linha: só o estado, que grava ao escolher.
-        var linha = depois[depois.IndexOf("<td><strong>7001A</strong></td>", StringComparison.Ordinal)..depois.IndexOf("</tr>", depois.IndexOf("<td><strong>7001A</strong></td>", StringComparison.Ordinal), StringComparison.Ordinal)];
+        var depois = await client.GetStringAsync(await EnviarAsync(client, pagina, ("armNovoCodigo", "7001a")));
+        Assert.Contains("Posição 7001A criada.", Elemento(depois, "id=\"armPosAvisos\""));
+        var linha = Elemento(depois, "data-dmo-posicao=\"7001A\"");
+        Assert.Contains("7001A", linha);
+        // Sem botões na linha: o estado muda-se no próprio valor.
         Assert.DoesNotContain("<button", linha);
-        Assert.Contains("data-dmo-autosubmit", linha);
+        Assert.Equal("7001A", NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Codigo));
 
-        using var repetida = await PostAsync(client, "/Armazem/Posicoes", "Criar", ("novo_codigo", "7001A"));
-        Assert.Contains("A posição 7001A já existe.", await client.GetStringAsync(repetida.Headers.Location!.ToString()));
-        using var invalida = await PostAsync(client, "/Armazem/Posicoes", "Criar", ("novo_codigo", "70 01"));
-        Assert.Contains("só letras e algarismos", await client.GetStringAsync(invalida.Headers.Location!.ToString()));
+        var repetida = await client.GetStringAsync(await EnviarAsync(client, depois, ("armNovoCodigo", "7001A")));
+        Assert.Contains("A posição 7001A já existe.", Elemento(repetida, "id=\"armPosAvisos\""));
+        var invalida = await client.GetStringAsync(await EnviarAsync(client, repetida, ("armNovoCodigo", "70 01")));
+        Assert.Contains("só letras e algarismos", Elemento(invalida, "id=\"armPosAvisos\""));
+        Assert.Single(NaBase(db => db.ArmazemPosicoes.AsNoTracking().ToList()));
 
         var id = NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Id);
-        using var arquivada = await PostAsync(client, "/Armazem/Posicoes", "Estado",
-            ("posicao_id", id.ToString()), ("posicao_codigo", "7001A"), ("ativa", "nao"));
-        Assert.Contains("Posição 7001A arquivada.", await client.GetStringAsync(arquivada.Headers.Location!.ToString()));
+        var campo = $"armPosAtiva-{id}";
+        var arquivada = await client.GetStringAsync(await EnviarAsync(client, invalida, (campo, EnvioDoFormulario.Opcao(invalida, campo, "Arquivada"))));
+        Assert.Contains("Posição 7001A arquivada.", Elemento(arquivada, "id=\"armPosAvisos\""));
         Assert.False(NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Ativa));
-        Assert.Contains("<td><strong>7001A</strong></td>", await client.GetStringAsync("/Armazem/Posicoes?estado=arquivadas"));
-        Assert.Contains("Nenhuma posição com esse filtro.", await client.GetStringAsync("/Armazem/Posicoes?estado=ativas"));
+
+        var soArquivadas = await client.GetStringAsync("/Armazem/Posicoes?estado=arquivadas");
+        Assert.Contains("7001A", Elemento(soArquivadas, "data-dmo-posicao=\"7001A\""));
+        var soAtivas = Elemento(await client.GetStringAsync("/Armazem/Posicoes?estado=ativas"), "id=\"armPosLista\"");
+        Assert.Contains("Nenhuma posição com esse filtro.", soAtivas);
+        Assert.DoesNotContain("7001A", soAtivas);
     }
 
     [Fact]
     public async Task Definicoes_CriarEMudarReparadores()
     {
         using var client = await LoginOperatorAsync("6104", DmoCapabilities.ArmazemGestao);
+        var pagina = await client.GetStringAsync("/Armazem/Definicoes");
 
-        using var criado = await PostAsync(client, "/Armazem/Definicoes", "Criar", ("nome", "Moldes Lda"), ("familias", "cm"));
-        var depois = await client.GetStringAsync(criado.Headers.Location!.ToString());
-        Assert.Contains("Definição gravada.", depois);
-        Assert.Contains("value=\"Moldes Lda\"", depois);
-        Assert.Contains("<option value=\"cm\" selected=\"selected\">Só CM</option>", depois);
+        var depois = await client.GetStringAsync(await EnviarAsync(client, pagina,
+            ("armRepNome", "Moldes Lda"), ("armRepFamilias", EnvioDoFormulario.Opcao(pagina, "armRepFamilias", "Só CM"))));
+        Assert.Contains("Definição gravada.", Elemento(depois, "id=\"armDefAvisos\""));
+        var r = NaBase(db => db.Reparadores.AsNoTracking().Single());
+        Assert.Equal(("Moldes Lda", true, false), (r.Nome, r.AplicaCm, r.AplicaMf));
+        Assert.Contains("Moldes Lda", Elemento(depois, $"data-dmo-reparador=\"{r.Id}\""));
 
-        using var repetido = await PostAsync(client, "/Armazem/Definicoes", "Criar", ("nome", "moldes lda"), ("familias", "ambos"));
-        Assert.Contains("Já existe um reparador de CM e MF com esse nome.", await client.GetStringAsync(repetido.Headers.Location!.ToString()));
+        var repetido = await client.GetStringAsync(await EnviarAsync(client, depois, ("armRepNome", "moldes lda")));
+        Assert.Contains("Já existe um reparador de CM e MF com esse nome.", Elemento(repetido, "id=\"armDefAvisos\""));
+        Assert.Single(NaBase(db => db.Reparadores.AsNoTracking().ToList()));
 
-        var id = NaBase(db => db.Reparadores.AsNoTracking().Single().Id).ToString();
-        // O nome no próprio valor: pedido JSON.
-        var html = await client.GetStringAsync("/Armazem/Definicoes");
-        var pedido = new HttpRequestMessage(HttpMethod.Post, "/Armazem/Definicoes?handler=Mudar")
-        {
-            Content = HtmlFormHelpers.BuildFormPost(("reparador_id", id), ("nome", " Moldes do Norte "),
-                ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(html)!))
-        };
+        // O nome no próprio valor: o pedido JSON com o formulário da linha.
+        var (acao, campos) = EnvioDoFormulario.Mudar(repetido, $"armRepNomeValor-{r.Id}", " Moldes do Norte ");
+        var pedido = new HttpRequestMessage(HttpMethod.Post, acao) { Content = EnvioDoFormulario.Corpo(campos) };
         pedido.Headers.Accept.ParseAdd("application/json");
         using var json = await client.SendAsync(pedido);
         using var resposta = JsonDocument.Parse(await json.Content.ReadAsStringAsync());
         Assert.True(resposta.RootElement.GetProperty("ok").GetBoolean());
         Assert.Equal("Moldes do Norte", resposta.RootElement.GetProperty("valor").GetString());
 
-        using var familias = await PostAsync(client, "/Armazem/Definicoes", "Mudar", ("reparador_id", id), ("familias", "mf"));
-        using var arquivado = await PostAsync(client, "/Armazem/Definicoes", "Mudar", ("reparador_id", id), ("ativo", "nao"));
-        var r = NaBase(db => db.Reparadores.AsNoTracking().Single());
+        var recebe = $"armRepRecebe-{r.Id}";
+        var estado = $"armRepEstado-{r.Id}";
+        var html = await client.GetStringAsync("/Armazem/Definicoes");
+        html = await client.GetStringAsync(await EnviarAsync(client, html, (recebe, EnvioDoFormulario.Opcao(html, recebe, "Só MF"))));
+        html = await client.GetStringAsync(await EnviarAsync(client, html, (estado, EnvioDoFormulario.Opcao(html, estado, "Arquivado"))));
+        Assert.Contains("Definição gravada.", Elemento(html, "id=\"armDefAvisos\""));
+        r = NaBase(db => db.Reparadores.AsNoTracking().Single());
         Assert.Equal(("Moldes do Norte", false, true, false), (r.Nome, r.AplicaCm, r.AplicaMf, r.Ativo));
+        // Cada envio da linha leva só esse reparador e esse campo.
+        Assert.DoesNotContain(EnvioDoFormulario.Mudar(html, recebe, "cm").Campos, c => c.Nome is "nome" or "ativo");
     }
 
     [Fact]
@@ -193,6 +223,6 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
         var html = await admin.GetStringAsync("/Admin/Templates");
 
         Assert.Contains("Armazém — Gestão", html);
-        Assert.Contains("value=\"armazem.gestao\"", html);
+        Assert.Contains(DmoCapabilities.ArmazemGestao, html);
     }
 }

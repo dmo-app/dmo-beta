@@ -81,7 +81,7 @@ html body .arm-linha .dmo-field input.arm-codigo{width:14ch}
           <tbody>
           @foreach (var posicao in Model.Lista.Items)
           {
-            <tr>
+            <tr data-dmo-posicao="@posicao.Codigo">
               <td><strong>@posicao.Codigo</strong></td>
               <td>
                 <form id="armPosEstado-@posicao.Id" method="post" asp-page="/Armazem/Posicoes" asp-page-handler="Estado">
@@ -90,7 +90,7 @@ html body .arm-linha .dmo-field input.arm-codigo{width:14ch}
                   <input type="hidden" name="codigo" value="@Model.ComecaPor" />
                   <input type="hidden" name="estado" value="@Model.Estado" />
                   <input type="hidden" name="pagina" value="@Model.Lista.PageNumber" />
-                  <select name="ativa" data-dmo-autosubmit aria-label="Estado da posição @posicao.Codigo">
+                  <select id="armPosAtiva-@posicao.Id" name="ativa" data-dmo-autosubmit aria-label="Estado da posição @posicao.Codigo">
                     <option value="sim" selected="@posicao.Ativa">Ativa</option>
                     <option value="nao" selected="@(!posicao.Ativa)">Arquivada</option>
                   </select>
