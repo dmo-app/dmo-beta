@@ -1,5 +1,10 @@
 # o que o Docker nunca copia (o build é limpo)
-bin/
-obj/
+# bin/ e obj/ em qualquer pasta (src/*, tests/*): uma DLL de Release antiga do
+# host podia servir o `efbundle.sh --no-build` e esconder um build da imagem
+# partido. O node_modules dos testes de JavaScript também não entra.
+**/bin/
+**/obj/
+**/node_modules/
 .git/
+.claude/
 *.user

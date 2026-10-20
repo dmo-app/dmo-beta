@@ -4,6 +4,10 @@ A 0.2 não tem base própria nem serviço no Railway (verificado a 20/10/2026). 
 
 ## Base nova
 
+Desde a 0.2.0-beta.4, o deploy aplica as migrações sozinho: o comando de pré-deploy do Railway é `/app/migrate.sh`, que corre o pacote de migração (`/app/efbundle`, gerado no build da imagem) com `DMO_MIGRATOR_CONNECTION` (ou, sem ela, `ConnectionStrings__DmoDatabase`). A app continua a não aplicar migrações ao arrancar, e o processo web não recebe `DMO_MIGRATOR_CONNECTION`.
+
+À mão:
+
 `dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web` cria todas as tabelas, da `Baseline` até à última migração (`20261020015832_ControloAreaIdentificacao`).
 
 ## Base que já estava na 0.2.0-beta.2
