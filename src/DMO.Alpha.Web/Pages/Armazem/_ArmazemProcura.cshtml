@@ -1,0 +1,34 @@
+@model IReadOnlyList<DMO.Alpha.Core.Armazem.ArmazemProcuraItem>
+@using DMO.Alpha.Core.Armazem
+@* As ferramentas encontradas ao escrever: o tipo, a referência, o lote e
+   onde estão. Um clique ou Enter abre a ferramenta, com a Entrada ou a
+   Saída conforme está fora ou numa posição. *@
+@if (Model.Count == 0)
+{
+  <p class="muted" role="status" id="armProcuraVazia">Nenhuma ferramenta encontrada. Uma ferramenta nova regista-se primeiro nas Ferramentas.</p>
+}
+else
+{
+  <div class="dmo-table-wrap">
+    <table class="dmo-table" id="armProcuraResultados" data-dmo-list="Ferramentas encontradas">
+      <thead>
+        <tr><th>Ferramenta</th><th>Lote</th><th>Onde está</th></tr>
+      </thead>
+      <tbody>
+        @foreach (var item in Model)
+        {
+          <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId })"
+              aria-label="@ArmazemTextos.Ferramenta(item.Tipo, item.Referencia, item.Lote), @item.OndeEsta — um clique abre">
+            <td><strong>@ArmazemTextos.Tipo(item.Tipo) @item.Referencia</strong></td>
+            <td>@item.Lote</td>
+            <td><span class="dmo-pill @(item.NoArmazem ? "active" : "inactive")">@item.OndeEsta</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (Model.Count >= DMO.Alpha.Infrastructure.Armazem.ArmazemMovimentos.ProcuraLimite)
+  {
+    <p class="muted">Mostram-se as primeiras @DMO.Alpha.Infrastructure.Armazem.ArmazemMovimentos.ProcuraLimite. Escreva mais para afinar.</p>
+  }
+}

@@ -153,7 +153,17 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
                 trace.ToolLotFrozen ??= tool.Lot;
             }
 
-            if (pesos.Count > 0 || pegamentos.Count > 0 || comparacoes.Count > 0 || traces.Count > 0)
+            // Os movimentos do Armazém congelam também a referência e o lote.
+            var movimentos = await _db.ArmazemMovimentos
+                .Where(m => m.ToolId == tool.ToolId)
+                .ToListAsync(cancellationToken);
+            foreach (var movimento in movimentos)
+            {
+                movimento.ToolReferenceFrozen ??= tool.Reference;
+                movimento.ToolLotFrozen ??= tool.Lot;
+            }
+
+            if (pesos.Count > 0 || pegamentos.Count > 0 || comparacoes.Count > 0 || traces.Count > 0 || movimentos.Count > 0)
             {
                 await _db.SaveChangesAsync(cancellationToken);
             }
@@ -203,13 +213,26 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
             var mfContexts = await _db.MfContexts.Where(c => c.ToolId == tool.ToolId).ToListAsync(cancellationToken);
             var bqContexts = await _db.BqContexts.Where(c => c.ToolId == tool.ToolId).ToListAsync(cancellationToken);
             var lotNotes = await _db.JobOnLotNotes.Where(n => n.NewToolId == tool.ToolId).ToListAsync(cancellationToken);
+            // O Armazém: os movimentos e as ocupações passam para a DUMMY; a
+            // ocupação que ainda estava ativa fica libertada agora (a posição
+            // deixa de a mostrar).
+            var ocupacoes = await _db.ArmazemOcupacoes.Where(o => o.ToolId == tool.ToolId).ToListAsync(cancellationToken);
+            var agora = DateTime.UtcNow;
+            foreach (var ocupacao in ocupacoes)
+            {
+                ocupacao.LibertadaEmUtc ??= agora;
+                ocupacao.ToolId = ToolRegistryConstants.RemovedToolId;
+            }
+
+            movimentos.ForEach(m => m.ToolId = ToolRegistryConstants.RemovedToolId);
             cmContexts.ForEach(c => c.ToolId = ToolRegistryConstants.RemovedToolId);
             mfContexts.ForEach(c => c.ToolId = ToolRegistryConstants.RemovedToolId);
             bqContexts.ForEach(c => c.ToolId = ToolRegistryConstants.RemovedToolId);
             lotNotes.ForEach(n => n.NewToolId = ToolRegistryConstants.RemovedToolId);
 
             if (pesos.Count > 0 || pegamentos.Count > 0 || comparacoes.Count > 0
-                || cmContexts.Count > 0 || mfContexts.Count > 0 || bqContexts.Count > 0 || lotNotes.Count > 0)
+                || cmContexts.Count > 0 || mfContexts.Count > 0 || bqContexts.Count > 0 || lotNotes.Count > 0
+                || movimentos.Count > 0 || ocupacoes.Count > 0)
             {
                 await _db.SaveChangesAsync(cancellationToken);
             }
@@ -245,6 +268,12 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
             {
                 _db.ToolTechnicalContexts.Remove(technical);
             }
+
+            // Onde estava e os estados são da própria ferramenta: vão com ela.
+            _db.FerramentaLocalizacoes.RemoveRange(
+                await _db.FerramentaLocalizacoes.Where(l => l.ToolId == tool.ToolId).ToListAsync(cancellationToken));
+            _db.FerramentaEstados.RemoveRange(
+                await _db.FerramentaEstados.Where(e => e.ToolId == tool.ToolId).ToListAsync(cancellationToken));
 
             _db.Tools.Remove(tool);
             await _db.SaveChangesAsync(cancellationToken);

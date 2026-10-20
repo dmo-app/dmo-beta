@@ -18,11 +18,15 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
-public sealed class PosicoesModel(IArmazemPosicoes posicoes, ShellStateFactory shellState) : PageModel
+public sealed class PosicoesModel(IArmazemPosicoes posicoes, IArmazemMovimentos movimentos, ShellStateFactory shellState) : PageModel
 {
     public PagedList<ArmazemPosicaoItem> Lista { get; private set; } = PagedList<ArmazemPosicaoItem>.Empty;
 
     public ListPager Pager { get; private set; } = new(1, 1, 0);
+
+    /// <summary>As ferramentas em cada posição da página.</summary>
+    public IReadOnlyDictionary<int, IReadOnlyList<ArmazemOcupante>> Ocupantes { get; private set; } =
+        new Dictionary<int, IReadOnlyList<ArmazemOcupante>>();
 
     [BindProperty(SupportsGet = true, Name = "codigo")]
     public string? ComecaPor { get; set; }
@@ -69,6 +73,7 @@ public sealed class PosicoesModel(IArmazemPosicoes posicoes, ShellStateFactory s
         CodigoGravado = posicao;
         Lista = await posicoes.ListarAsync(ComecaPor, Filtro, pagina ?? 1, HttpContext.RequestAborted);
         Pager = ListPager.For(Lista);
+        Ocupantes = await movimentos.OcupantesAsync(Lista.Items.Select(p => p.Id).ToList(), HttpContext.RequestAborted);
         return Page();
     }
 

@@ -28,6 +28,10 @@ public sealed class MigrationFoundationTests
         "OperacoesRegistadas",
         "ArmazemPosicoes",
         "Reparadores",
+        "ArmazemMovimentos",
+        "ArmazemOcupacoes",
+        "FerramentaLocalizacoes",
+        "FerramentaEstados",
         "Templates",
         "TemplateAssignments",
         "Machines",
@@ -69,7 +73,7 @@ public sealed class MigrationFoundationTests
     ];
 
     // As tabelas criadas depois da Baseline, cada uma pela sua migração.
-    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores"])];
+    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados"])];
 
     private static DmoDbContext CreateNpgsqlContext()
     {
@@ -108,7 +112,7 @@ public sealed class MigrationFoundationTests
                 "20261019130614_JobOnCriadoEm",
                 "20261019131708_CmDeParteEDensidadeDaAgua", "20261019140057_PegamentosRastoDasLeituras",
                 "20261020015832_ControloAreaIdentificacao", "20261020142103_OperacoesRegistadas", "20261020142915_AutorPorUtilizador",
-                "20261020152047_ArmazemPosicoesEReparadores" },
+                "20261020152047_ArmazemPosicoesEReparadores", "20261020160836_ArmazemMovimentos" },
             keys);
     }
 

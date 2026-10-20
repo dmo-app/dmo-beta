@@ -71,6 +71,16 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<Reparador> Reparadores => Set<Reparador>();
 
+    // Os movimentos do Armazém, as ocupações das posições, onde está cada
+    // ferramenta e os estados registados.
+    public DbSet<ArmazemMovimento> ArmazemMovimentos => Set<ArmazemMovimento>();
+
+    public DbSet<ArmazemOcupacao> ArmazemOcupacoes => Set<ArmazemOcupacao>();
+
+    public DbSet<FerramentaLocalizacao> FerramentaLocalizacoes => Set<FerramentaLocalizacao>();
+
+    public DbSet<FerramentaEstado> FerramentaEstados => Set<FerramentaEstado>();
+
     public DbSet<BqMovement> BqMovements => Set<BqMovement>();
 
     public DbSet<BqMovementDeletion> BqMovementDeletions => Set<BqMovementDeletion>();
@@ -585,6 +595,68 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasKey(r => r.Id);
             entity.Property(r => r.Nome).HasMaxLength(Reparador.NomeMaxLength).IsRequired();
             entity.HasIndex(r => r.Nome).IsUnique();
+        });
+
+        // Os movimentos do Armazém só se acrescentam. O reparador é de CM/MF
+        // ou de BQ, nunca os dois; a data real e o momento do registo ficam
+        // os dois. A ocupação ativa é única por ferramenta (o índice parcial)
+        // e tem versão, como a localização: dois movimentos da mesma
+        // ferramenta ao mesmo tempo não passam os dois.
+        modelBuilder.Entity<ArmazemMovimento>(entity =>
+        {
+            entity.ToTable("ArmazemMovimentos", t =>
+                t.HasCheckConstraint("CK_ArmazemMovimentos_UmReparador", "\"ReparadorId\" IS NULL OR \"BqReparadorId\" IS NULL"));
+            entity.HasKey(m => m.Id);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(m => m.ToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemPosicao>().WithMany().HasForeignKey(m => m.PosicaoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemPosicao>().WithMany().HasForeignKey(m => m.PosicaoAnteriorId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Reparador>().WithMany().HasForeignKey(m => m.ReparadorId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<BqRepairer>().WithMany().HasForeignKey(m => m.BqReparadorId).OnDelete(DeleteBehavior.Restrict);
+            entity.Property(m => m.ToolId).HasMaxLength(100).IsRequired();
+            entity.Property(m => m.ReparadorNome).HasMaxLength(Reparador.NomeMaxLength);
+            entity.Property(m => m.FabricaDestino).HasMaxLength(ArmazemMovimento.FabricaMaxLength);
+            entity.Property(m => m.Observacoes).HasMaxLength(ArmazemMovimento.ObservacoesMaxLength);
+            entity.Property(m => m.RegistadoPor).HasMaxLength(254);
+            entity.Property(m => m.VersaoApp).HasMaxLength(64);
+            entity.HasIndex(m => m.OperacaoId).IsUnique();
+            entity.HasIndex(m => m.OcorridoEmUtc);
+        });
+
+        modelBuilder.Entity<ArmazemOcupacao>(entity =>
+        {
+            entity.ToTable("ArmazemOcupacoes");
+            entity.HasKey(o => o.Id);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(o => o.ToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemPosicao>().WithMany().HasForeignKey(o => o.PosicaoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(o => o.MovimentoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(o => o.LibertadaPorMovimentoId).OnDelete(DeleteBehavior.Restrict);
+            entity.Property(o => o.ToolId).HasMaxLength(100).IsRequired();
+            entity.HasIndex(o => o.ToolId).IsUnique().HasFilter("\"LibertadaEmUtc\" IS NULL").HasDatabaseName("IX_ArmazemOcupacoes_ToolId_Ativa");
+            entity.HasIndex(o => o.PosicaoId).HasFilter("\"LibertadaEmUtc\" IS NULL");
+            entity.Property<uint>(RowVersion).IsRowVersion();
+        });
+
+        modelBuilder.Entity<FerramentaLocalizacao>(entity =>
+        {
+            entity.ToTable("FerramentaLocalizacoes");
+            entity.HasKey(l => l.ToolId);
+            entity.HasOne<Tool>().WithOne().HasForeignKey<FerramentaLocalizacao>(l => l.ToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(l => l.MovimentoId).OnDelete(DeleteBehavior.Restrict);
+            entity.Property(l => l.ToolId).HasMaxLength(100);
+            entity.Property(l => l.ReparadorNome).HasMaxLength(Reparador.NomeMaxLength);
+            entity.Property<uint>(RowVersion).IsRowVersion();
+        });
+
+        modelBuilder.Entity<FerramentaEstado>(entity =>
+        {
+            entity.ToTable("FerramentaEstados");
+            entity.HasKey(e => e.Id);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(e => e.ToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(e => e.MovimentoId).OnDelete(DeleteBehavior.Restrict);
+            entity.Property(e => e.ToolId).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Origem).HasMaxLength(32).IsRequired();
+            entity.Property(e => e.RegistadoPor).HasMaxLength(254);
+            entity.HasIndex(e => new { e.ToolId, e.Id });
         });
 
         // Controlo de Peso tool-scoped. O peso_id é a identidade durável
