@@ -25,7 +25,7 @@ Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146 e atuali
 ## Base de dados
 
 - O schema completo está numa única migração, `Baseline`. Uma base nova é criada com `dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web`.
-- A app não aplica migrações ao arrancar.
+- A app não aplica migrações ao arrancar. O deploy aplica-as antes de a versão nova arrancar (`migrate.sh`, comando de pré-deploy do Railway), com o pacote de migração gerado no build da imagem.
 - Uma base criada antes desta baseline tem o histórico de migrações atualizado uma única vez para a `Baseline`, sem mudar tabelas nem dados.
 - Alterações futuras ao modelo entram como migrações novas a seguir à `Baseline`.
 - Como pôr uma base ao nível do código, incluindo o SQL desde a 0.2.0-beta.2 e o acesso do utilizador da app: [docs/base-de-dados/README.md](docs/base-de-dados/README.md).
