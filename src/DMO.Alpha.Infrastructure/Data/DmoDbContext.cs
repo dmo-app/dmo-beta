@@ -7,6 +7,7 @@ using DMO.Alpha.Core.Boquilhas;
 using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Identity;
 using DMO.Alpha.Core.Production;
+using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Admin;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
@@ -123,6 +124,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     // guardado na própria base PostgreSQL: sobrevive a redeploys do contentor.
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
+    // O envio único guardado na base (E4 do DMO-FULL): um envio, uma linha.
+    public DbSet<OperacaoRegistada> OperacoesRegistadas => Set<OperacaoRegistada>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -156,6 +160,19 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                     c => TemplateCapabilityTokens.ToStorage(c),
                     s => TemplateCapabilityTokens.FromStorage(s))
                 .IsRequired();
+        });
+
+        // As operações registadas (E4 do DMO-FULL): a chave primária é o
+        // operacao_id que a página gerou, por isso um envio repetido colide
+        // nela (23505 em PK_OperacoesRegistadas). Sem chave estrangeira: é um
+        // registo técnico, não um facto, e não impede eliminar um utilizador.
+        modelBuilder.Entity<OperacaoRegistada>(entity =>
+        {
+            entity.ToTable("OperacoesRegistadas");
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.Id).ValueGeneratedNever();
+            entity.Property(o => o.Tipo).HasMaxLength(64).IsRequired();
+            entity.Property(o => o.ResultadoTipo).HasMaxLength(64).IsRequired();
         });
 
         // Admin foundation (TEMPLATES.md §"Access model"): a relação

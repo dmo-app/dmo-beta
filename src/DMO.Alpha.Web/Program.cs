@@ -143,6 +143,8 @@ builder.Services.AddSingleton<ICurrentAccountContext, HttpContextCurrentAccountC
 builder.Services.AddSingleton<DMO.Alpha.Infrastructure.Controlo.RegistoCarimboInterceptor>();
 builder.Services.AddScoped<ShellStateFactory>();
 builder.Services.AddSingleton<EnviosGravados>();
+// O envio único guardado na base, no mesmo SaveChanges do facto (E4 do DMO-FULL).
+builder.Services.AddScoped<IOperacoesRegistadas, OperacoesRegistadas>();
 builder.Services.AddScoped<DmoSignInService>();
 // Boquilhas write path: registo de um movimento num bq_repair_trace_id existente.
 builder.Services.AddScoped<IRegisterBqMovementHandler, RegisterBqMovementHandler>();
