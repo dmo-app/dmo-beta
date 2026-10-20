@@ -31,6 +31,11 @@ public sealed class ControloDecisao
 
     public string OperatorId { get; set; } = "";
 
+
+    /// <summary>O utilizador de <see cref="OperatorId"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+
+    public Guid? DecididoPorUserId { get; set; }
+
     public DateTime EmUtc { get; set; }
 
     /// <summary>A nota da decisão (obrigatória ao não aprovar).</summary>

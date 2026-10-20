@@ -120,6 +120,9 @@ public sealed class Pegamentos
     /// <summary>Quem gravou o registo (o nome da sessão, congelado); null quando não se sabe.</summary>
     public string? RegistadoPor { get; set; }
 
+    /// <summary>O utilizador de <see cref="RegistadoPor"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? RegistadoPorUserId { get; set; }
+
     /// <summary>
     /// A última correção de uma leitura desta folha (mudar ou apagar), em
     /// UTC; null sem correções ou antes de 19/10/2026. A Revisão avisa

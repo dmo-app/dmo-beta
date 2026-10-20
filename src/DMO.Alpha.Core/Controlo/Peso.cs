@@ -135,6 +135,9 @@ public sealed class Peso
     /// <summary>Quem gravou o registo (o nome da sessão, congelado); null quando não se sabe.</summary>
     public string? RegistadoPor { get; set; }
 
+    /// <summary>O utilizador de <see cref="RegistadoPor"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? RegistadoPorUserId { get; set; }
+
     /// <summary>
     /// O controlo da produção anterior usada como referência (o Owner
     /// 2026-10-17: «usa o contexto do controlo anterior»): dele vêm a

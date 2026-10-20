@@ -118,7 +118,9 @@ public sealed class ControloResumoSchemaTests
             {
                 "Id", "JobOnId", "ApprovedByOperatorId", "ApprovedAtUtc",
                 // #27 AddControloRevisao: o «Não aprovar» e a nota da revisão.
-                "NotApprovedByOperatorId", "NotApprovedAtUtc", "ReviewNote"
+                "NotApprovedByOperatorId", "NotApprovedAtUtc", "ReviewNote",
+                // O autor pelo utilizador (fundações do full): o Users.Id ao lado de cada autor.
+                "ApprovedByUserId", "NotApprovedByUserId"
             },
             entityType!.GetProperties().Select(p => p.Name).ToHashSet());
 
@@ -140,8 +142,13 @@ public sealed class ControloResumoSchemaTests
                 || p.Name.Contains("At", StringComparison.OrdinalIgnoreCase)
                 || p.Name.Contains("Revis", StringComparison.OrdinalIgnoreCase)));
 
-        // A ÚNICA relação é a âncora à produção: FK JobOnId → JobOns.
-        var fk = Assert.Single(entityType.GetForeignKeys());
+        // A ÚNICA relação de produção é a âncora à produção: FK JobOnId →
+        // JobOns. As outras duas são os autores do selo para Users (fundações
+        // do full).
+        Assert.Equal(
+            ["ApprovedByUserId", "JobOnId", "NotApprovedByUserId"],
+            entityType.GetForeignKeys().SelectMany(k => k.Properties).Select(p => p.Name).OrderBy(n => n));
+        var fk = entityType.GetForeignKeys().Single(k => k.Properties.Single().Name == "JobOnId");
         Assert.Equal(["JobOnId"], fk.Properties.Select(p => p.Name));
         Assert.Equal("JobOns", fk.PrincipalEntityType.GetTableName());
         Assert.Equal(["Id"], fk.PrincipalKey.Properties.Select(p => p.Name));
@@ -193,7 +200,7 @@ public sealed class ControloResumoSchemaTests
         var jobOnId = entityType.FindProperty("JobOnId")!;
         Assert.False(jobOnId.IsNullable);
 
-        var fk = entityType.GetForeignKeys().Single();
+        var fk = entityType.GetForeignKeys().Single(k => k.PrincipalEntityType.ClrType == typeof(DMO.Alpha.Core.Production.JobOn));
         Assert.Equal(Microsoft.EntityFrameworkCore.DeleteBehavior.Restrict, fk.DeleteBehavior);
     }
 

@@ -146,6 +146,8 @@ public sealed class PegamentosSchemaTests
                 // #27 AddControloRevisao: quando e quem gravou.
                 "RegistadoEmUtc",
                 "RegistadoPor",
+                // O autor pelo utilizador (fundações do full).
+                "RegistadoPorUserId",
                 // ControloRevisaoDepoisDaAprovacao: a última correção (C9).
                 "CorrigidoEmUtc"
             },

@@ -40,5 +40,8 @@ public sealed class ControloAreaState
     /// <summary>Quem gravou por último (nº de operador ou email do ADMIN).</summary>
     public string? UpdatedBy { get; set; }
 
+    /// <summary>O utilizador de <see cref="UpdatedBy"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? UpdatedByUserId { get; set; }
+
     public DateTime UpdatedAtUtc { get; set; }
 }

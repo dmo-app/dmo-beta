@@ -85,4 +85,7 @@ public sealed class Tool
 
     /// <summary>Quem tentou registar a repetida (o nome, senão o nº de operador ou o email).</summary>
     public string? DuplicateWarningByNameFrozen { get; set; }
+
+    /// <summary>O utilizador de <see cref="DuplicateWarningByNameFrozen"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? DuplicateWarningByUserId { get; set; }
 }

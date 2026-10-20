@@ -67,6 +67,11 @@ public sealed class EmailEnvio
 
     public string EnviadoPor { get; set; } = "";
 
+
+    /// <summary>O utilizador de <see cref="EnviadoPor"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+
+    public Guid? EnviadoPorUserId { get; set; }
+
     public DateTime EnviadoEmUtc { get; set; }
 }
 

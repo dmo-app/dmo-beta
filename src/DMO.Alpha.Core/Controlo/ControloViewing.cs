@@ -25,6 +25,9 @@ public sealed class ControloViewing
     /// <summary>O nº de operador QUEM viu (o human-readable; o fato).</summary>
     public string OperatorId { get; set; } = null!;
 
+    /// <summary>O utilizador de <see cref="OperatorId"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? ViewerUserId { get; set; }
+
     /// <summary>O momento (UTC) da última visita deste operador à folha.</summary>
     public DateTime ViewedAtUtc { get; set; }
 }

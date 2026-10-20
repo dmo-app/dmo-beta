@@ -106,6 +106,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("CorrectedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -125,6 +128,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("RegisteredByOperatorId")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("RegisteredByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
@@ -135,7 +141,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.HasIndex("BqRepairerId");
 
+                    b.HasIndex("CorrectedByUserId");
+
                     b.HasIndex("OccurredAtUtc");
+
+                    b.HasIndex("RegisteredByUserId");
 
                     b.ToTable("BqMovements");
                 });
@@ -161,6 +171,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("MachineCodeFrozen")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
@@ -176,6 +189,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeletedByUserId");
 
                     b.ToTable("BqMovementDeletions");
                 });
@@ -198,6 +213,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("DiscrepancyResetByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ToolId")
                         .HasColumnType("text");
 
@@ -211,6 +229,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.HasIndex("BqContextId")
                         .IsUnique();
+
+                    b.HasIndex("DiscrepancyResetByUserId");
 
                     b.HasIndex("ToolId")
                         .IsUnique()
@@ -254,6 +274,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("ApprovedByOperatorId")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("JobOnId")
                         .HasColumnType("integer");
 
@@ -264,14 +287,21 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("NotApprovedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ReviewNote")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApprovedByUserId");
+
                     b.HasIndex("JobOnId")
                         .IsUnique();
+
+                    b.HasIndex("NotApprovedByUserId");
 
                     b.ToTable("Controlos", t =>
                         {
@@ -314,7 +344,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UpdatedByUserId");
 
                     b.HasIndex("ControloId", "Area")
                         .IsUnique();
@@ -345,11 +380,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("PorUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Status")
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PorUserId");
 
                     b.HasIndex("ControloId", "Area", "EmUtc");
 
@@ -370,6 +410,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("ControloId")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("DecididoPorUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("EmUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -386,6 +429,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DecididoPorUserId");
 
                     b.HasIndex("ControloId", "Parte")
                         .IsUnique();
@@ -412,7 +457,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<DateTime>("ViewedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("ViewerUserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ViewerUserId");
 
                     b.HasIndex("ControloId", "OperatorId")
                         .IsUnique();
@@ -449,6 +499,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("EnviadoPorUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Ficheiro")
                         .IsRequired()
                         .HasMaxLength(260)
@@ -474,6 +527,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ControloId");
+
+                    b.HasIndex("EnviadoPorUserId");
 
                     b.ToTable("EmailEnvios", (string)null);
                 });
@@ -620,6 +675,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("RegistadoPorUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("ToleranceMm")
                         .HasColumnType("numeric");
 
@@ -632,6 +690,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasIndex("ControloId");
 
                     b.HasIndex("MfToolId");
+
+                    b.HasIndex("RegistadoPorUserId");
 
                     b.HasIndex("ControloId", "CmToolId", "BqToolId", "MfToolId")
                         .IsUnique()
@@ -727,7 +787,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("PorUserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PorUserId");
 
                     b.HasIndex("PegamentosId", "EmUtc");
 
@@ -813,6 +878,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("RegistadoPorUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("VolumeMarisaCm3")
                         .HasColumnType("numeric");
 
@@ -834,6 +902,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasIndex("ControloId");
 
                     b.HasIndex("ProducaoAnteriorControloId");
+
+                    b.HasIndex("RegistadoPorUserId");
 
                     b.HasIndex("ControloId", "CmToolId", "BqToolId")
                         .IsUnique()
@@ -918,6 +988,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("AprovadoPorUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("DeParte")
                         .HasColumnType("boolean");
 
@@ -929,10 +1002,17 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("EscolhidoPorUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("MeasurementId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AprovadoPorUserId");
+
+                    b.HasIndex("EscolhidoPorUserId");
 
                     b.HasIndex("MeasurementId")
                         .IsUnique();
@@ -1038,7 +1118,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("RegisteredByUserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("RegisteredByUserId");
 
                     b.HasIndex("PuncoesId", "Position")
                         .IsUnique();
@@ -1078,12 +1163,17 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ControloId")
                         .IsUnique();
 
                     b.HasIndex("Reference");
+
+                    b.HasIndex("UpdatedByUserId");
 
                     b.ToTable("Puncoes");
                 });
@@ -1281,6 +1371,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("ChangedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Field")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -1298,6 +1391,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasColumnType("character varying(120)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
 
                     b.HasIndex("JobOnId", "ChangedAtUtc");
 
@@ -1468,6 +1563,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<Guid?>("DuplicateWarningByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Lot")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1493,6 +1591,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasColumnName("xmin");
 
                     b.HasKey("ToolId");
+
+                    b.HasIndex("DuplicateWarningByUserId");
 
                     b.HasIndex("Type", "Reference", "Lot");
 
@@ -1618,7 +1718,25 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("BqRepairerId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CorrectedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegisteredByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Trace");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Boquilhas.BqMovementDeletion", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Boquilhas.BqRepairTrace", b =>
@@ -1626,6 +1744,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Production.BqContext", "BqContext")
                         .WithMany()
                         .HasForeignKey("BqContextId");
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("DiscrepancyResetByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DMO.Alpha.Core.Tools.Tool", "Tool")
                         .WithMany()
@@ -1639,11 +1762,21 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.Controlo", b =>
                 {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
                         .WithMany()
                         .HasForeignKey("JobOnId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("NotApprovedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("JobOn");
                 });
@@ -1656,6 +1789,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Controlo");
                 });
 
@@ -1667,6 +1805,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("PorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Controlo");
                 });
 
@@ -1677,6 +1820,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("ControloId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("DecididoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.ControloViewing", b =>
@@ -1687,7 +1835,20 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ViewerUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Controlo");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.EmailEnvio", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("EnviadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.EmailModelo", b =>
@@ -1720,6 +1881,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("MfToolId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegistadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("BqTool");
 
                     b.Navigation("CmTool");
@@ -1747,6 +1913,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("PegamentosId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("PorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.Peso", b =>
@@ -1771,6 +1942,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Controlo.Controlo", "ProducaoAnteriorControlo")
                         .WithMany()
                         .HasForeignKey("ProducaoAnteriorControloId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegistadoPorUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("BqTool");
@@ -1811,6 +1987,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoComparacaoCmDecisao", b =>
                 {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("AprovadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("EscolhidoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("DMO.Alpha.Core.Controlo.PesoComparacaoMeasurement", "Measurement")
                         .WithMany()
                         .HasForeignKey("MeasurementId")
@@ -1850,6 +2036,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegisteredByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Puncoes");
                 });
 
@@ -1859,6 +2050,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("ControloId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Controlo");
                 });
@@ -1922,6 +2118,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
             modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnChange", b =>
                 {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
                         .WithMany()
                         .HasForeignKey("JobOnId")
@@ -1969,6 +2170,14 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("JobOn");
 
                     b.Navigation("ReplacedJobOn");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Tools.Tool", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("DuplicateWarningByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Tools.ToolMachineLink", b =>

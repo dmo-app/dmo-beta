@@ -26,6 +26,9 @@ public sealed class PesoComparacaoCmDecisao
     /// <summary>Quem escolheu (o nome da sessão, congelado).</summary>
     public string EscolhidoPor { get; set; } = "";
 
+    /// <summary>O utilizador de <see cref="EscolhidoPor"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? EscolhidoPorUserId { get; set; }
+
     /// <summary>Quando escolheu (UTC). Serve também de versão da escolha na aprovação.</summary>
     public DateTime EscolhidoEmUtc { get; set; }
 
@@ -38,6 +41,9 @@ public sealed class PesoComparacaoCmDecisao
 
     /// <summary>Quem decidiu a aprovação (o nome da sessão, congelado).</summary>
     public string? AprovadoPor { get; set; }
+
+    /// <summary>O utilizador de <see cref="AprovadoPor"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? AprovadoPorUserId { get; set; }
 
     public DateTime? AprovadoEmUtc { get; set; }
 }

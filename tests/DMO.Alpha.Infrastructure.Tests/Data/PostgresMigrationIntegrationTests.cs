@@ -216,7 +216,8 @@ public sealed partial class PostgresMigrationIntegrationTests
             .ToListAsync();
         Assert.Contains("FK_BqRepairTraces_Tools_ToolId", traceForeignKeys);
         Assert.Contains("FK_BqRepairTraces_BqContexts_BqContextId", traceForeignKeys);
-        Assert.Equal(2, traceForeignKeys.Count);
+        Assert.Contains("FK_BqRepairTraces_Users_DiscrepancyResetByUserId", traceForeignKeys);
+        Assert.Equal(3, traceForeignKeys.Count);
     }
 
     [SkippableFact]
@@ -699,7 +700,7 @@ public sealed partial class PostgresMigrationIntegrationTests
             new HashSet<string>
             {
                 "Id", "BqMovementId", "BqRepairTraceId", "Type", "Quantity", "OccurredAtUtc",
-                "MachineCodeFrozen", "DeletedByNameFrozen", "DeletedAtUtc"
+                "MachineCodeFrozen", "DeletedByNameFrozen", "DeletedAtUtc", "DeletedByUserId"
             },
             deletionColumns.ToHashSet());
 

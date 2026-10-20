@@ -30,6 +30,9 @@ public sealed class JobOnChange
     /// <summary>O nome de quem alterou, congelado; null quando o pedido chegou sem identidade.</summary>
     public string? ChangedByNameFrozen { get; set; }
 
+    /// <summary>O utilizador de <see cref="ChangedByNameFrozen"/> (<c>Users.Id</c>); NULL no ADMIN, sem sessão, nos registos de antes e quando o utilizador foi eliminado.</summary>
+    public Guid? ChangedByUserId { get; set; }
+
     public DateTime ChangedAtUtc { get; set; }
 
     /// <summary>
