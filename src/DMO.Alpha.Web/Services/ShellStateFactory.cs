@@ -239,6 +239,7 @@ public sealed class ShellStateFactory
     public static IReadOnlyList<FunctionPresentation> ArmazemFunctions(string activeKey) =>
         new[]
         {
+            new FunctionPresentation("movimentos", "Movimentos", "/Armazem/Movimentos", null, activeKey == "movimentos", true, true),
             new FunctionPresentation("posicoes", "Posições", "/Armazem/Posicoes", null, activeKey == "posicoes", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Armazem/Definicoes", null, activeKey == "definicoes", true, true)
         };

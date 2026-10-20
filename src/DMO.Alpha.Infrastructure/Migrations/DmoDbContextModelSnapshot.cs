@@ -81,6 +81,157 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("TemplateAssignments");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemMovimento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BqReparadorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Destino")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Estado")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FabricaDestino")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Observacoes")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("OcorridoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OperacaoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("Origem")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PosicaoAnteriorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PosicaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("RegistadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RegistadoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("RegistadoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ReparadorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReparadorNome")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ToolId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ToolLotFrozen")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ToolReferenceFrozen")
+                        .HasColumnType("text");
+
+                    b.Property<string>("VersaoApp")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BqReparadorId");
+
+                    b.HasIndex("OcorridoEmUtc");
+
+                    b.HasIndex("OperacaoId")
+                        .IsUnique();
+
+                    b.HasIndex("PosicaoAnteriorId");
+
+                    b.HasIndex("PosicaoId");
+
+                    b.HasIndex("RegistadoPorUserId");
+
+                    b.HasIndex("ReparadorId");
+
+                    b.HasIndex("ToolId");
+
+                    b.ToTable("ArmazemMovimentos", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ArmazemMovimentos_UmReparador", "\"ReparadorId\" IS NULL OR \"BqReparadorId\" IS NULL");
+                        });
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemOcupacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DesdeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LibertadaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("LibertadaPorMovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PosicaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ToolId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LibertadaPorMovimentoId");
+
+                    b.HasIndex("MovimentoId");
+
+                    b.HasIndex("PosicaoId")
+                        .HasFilter("\"LibertadaEmUtc\" IS NULL");
+
+                    b.HasIndex("ToolId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ArmazemOcupacoes_ToolId_Ativa")
+                        .HasFilter("\"LibertadaEmUtc\" IS NULL");
+
+                    b.ToTable("ArmazemOcupacoes", (string)null);
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemPosicao", b =>
                 {
                     b.Property<int>("Id")
@@ -118,6 +269,83 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_ArmazemPosicoes_Codigo", "\"Codigo\" ~ '^[0-9A-Z]{1,16}$'");
                         });
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.FerramentaEstado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Origem")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime>("RegistadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RegistadoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("RegistadoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ToolId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovimentoId");
+
+                    b.HasIndex("RegistadoPorUserId");
+
+                    b.HasIndex("ToolId", "Id");
+
+                    b.ToTable("FerramentaEstados", (string)null);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.FerramentaLocalizacao", b =>
+                {
+                    b.Property<string>("ToolId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("DesdeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Localizacao")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReparadorNome")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("ToolId");
+
+                    b.HasIndex("MovimentoId");
+
+                    b.ToTable("FerramentaLocalizacoes", (string)null);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.Reparador", b =>
@@ -1777,12 +2005,106 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemMovimento", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Boquilhas.BqRepairer", null)
+                        .WithMany()
+                        .HasForeignKey("BqReparadorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemPosicao", null)
+                        .WithMany()
+                        .HasForeignKey("PosicaoAnteriorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemPosicao", null)
+                        .WithMany()
+                        .HasForeignKey("PosicaoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegistadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.Reparador", null)
+                        .WithMany()
+                        .HasForeignKey("ReparadorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("ToolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemOcupacao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("LibertadaPorMovimentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("MovimentoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemPosicao", null)
+                        .WithMany()
+                        .HasForeignKey("PosicaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("ToolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemPosicao", b =>
                 {
                     b.HasOne("DMO.Alpha.Core.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("CriadaPorUserId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.FerramentaEstado", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("MovimentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegistadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("ToolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.FerramentaLocalizacao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("MovimentoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithOne()
+                        .HasForeignKey("DMO.Alpha.Core.Armazem.FerramentaLocalizacao", "ToolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Boquilhas.BqMovement", b =>
