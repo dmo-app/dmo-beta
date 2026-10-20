@@ -11,7 +11,9 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// A folha A4 das punções NNPB (a folha do Owner de 17/10/2026): a
 /// identificação da produção, os três totais e as punções por ordem de
 /// registo. Sozinha a partir da página PU NNPB ou no fim do PDF único do
-/// Resumo. Gerada em memória; nunca grava no servidor.
+/// Resumo. Gerada em memória; nunca grava no servidor. Sem selo de
+/// aprovação: o PU NNPB não tem aprovar (Diogo, 19/10/2026: «PU nnpb nao
+/// tem aprovar (…) so peso e pegamtnos»).
 /// </summary>
 public sealed class PuncoesPdfGenerator
 {
@@ -23,9 +25,11 @@ public sealed class PuncoesPdfGenerator
     private const string Accent = DmoPdfPalette.Accent;
     private const string Muted = DmoPdfPalette.Muted;
     private const string Line = DmoPdfPalette.Line;
-    private const string Ok = "#3d7a5a";
-    private const string Pending = "#9a625d";
-    private const string Change = "#956124";
+    // As cores das punções no PDF do Resumo (sweep de 19/10/2026, 3.16):
+    // «Por verificar» saía no castanho do erro e «Visto» noutro verde.
+    private const string Ok = DmoPdfPalette.Ok;
+    private const string Pending = DmoPdfPalette.ToCheck;
+    private const string Change = DmoPdfPalette.Change;
 
     public sealed record Input(
         string ProductionNumber,
@@ -36,7 +40,6 @@ public sealed class PuncoesPdfGenerator
         string PunchReference,
         string Lot,
         IReadOnlyList<Row> Rows,
-        ControloApprovalReadModel? Approval = null,
         string? GeneratedBy = null);
 
     public sealed record Row(int Position, string Number, string Lot, bool PunchSeen, bool CoolerSeen, bool IsAlteracao);
@@ -44,19 +47,18 @@ public sealed class PuncoesPdfGenerator
     public byte[] GenerateBytes(Input input) =>
         Document.Create(container => Compose(container, input)).GeneratePdf();
 
-    public static Input FromRegisto(PuncoesSheet sheet, PuncoesReadModel registo,
-        ControloApprovalReadModel? approval = null, string? generatedBy = null) =>
+    public static Input FromRegisto(PuncoesSheet sheet, PuncoesReadModel registo, string? generatedBy = null) =>
         new(sheet.ProductionNumber, sheet.Reference, sheet.Machine, sheet.CmReference, sheet.CmLot,
             registo.PunchReference, registo.Lot,
             registo.Rows.Select(r => new Row(r.Position, r.Number, r.Lot, r.PunchSeen, r.CoolerSeen, r.IsAlteracao)).ToArray(),
-            approval, generatedBy);
+            generatedBy);
 
     /// <summary>Um registo sem Job On: a produção fica «Sem Job On» e a CM por associar.</summary>
     public static Input FromStandalone(PuncoesStandaloneSheet sheet, string? generatedBy = null) =>
         new("Sem Job On", sheet.Reference, "—", null, null,
             sheet.Registo.PunchReference, sheet.Registo.Lot,
             sheet.Registo.Rows.Select(r => new Row(r.Position, r.Number, r.Lot, r.PunchSeen, r.CoolerSeen, r.IsAlteracao)).ToArray(),
-            null, generatedBy);
+            generatedBy);
 
     public void Compose(IDocumentContainer container, Input input, bool combined = false)
     {
@@ -136,7 +138,7 @@ public sealed class PuncoesPdfGenerator
                         var index = 0;
                         foreach (var r in input.Rows)
                         {
-                            var background = index++ % 2 == 0 ? "#ffffff" : DmoPdfPalette.Soft;
+                            var background = index++ % 2 == 0 ? DmoPdfPalette.White : DmoPdfPalette.Soft;
                             IContainer Body(IContainer c) => c.Background(background).BorderBottom(0.3f).BorderColor(Line)
                                 .PaddingHorizontal(4).PaddingVertical(3);
                             t.Cell().Element(Body).Text(r.Position.ToString(Pt)).FontColor(Muted);
@@ -151,14 +153,6 @@ public sealed class PuncoesPdfGenerator
                         }
                     });
                 }
-
-                content.Item().PaddingTop(8).Text(t =>
-                {
-                    if (input.Approval?.ApprovedByOperatorId is { } approver)
-                        t.Span($"APROVADO — operador {approver}").SemiBold().FontColor(Ok);
-                    else
-                        t.Span("Aprovação: sem registo").FontColor("#a97943");
-                });
             });
 
             page.Footer().Row(footer =>

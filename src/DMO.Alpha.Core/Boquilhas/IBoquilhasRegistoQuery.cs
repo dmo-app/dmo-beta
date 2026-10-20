@@ -9,9 +9,10 @@ public interface IBoquilhasRegistoQuery
 {
     /// <summary>
     /// Devolve o read model do trace canónico pedido, ou null quando o
-    /// bq_repair_trace_id não existe.
+    /// bq_repair_trace_id não existe. Os movimentos vêm só da página pedida
+    /// (25 por página, mais recentes primeiro); as quantidades contam todos.
     /// </summary>
-    Task<BoquilhasRegistoTrace?> FindTraceAsync(int bqRepairTraceId, CancellationToken cancellationToken = default);
+    Task<BoquilhasRegistoTrace?> FindTraceAsync(int bqRepairTraceId, int? movementPage = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// A produção de um bq_id com o trace JÁ ASSOCIADO (um bq_id tem um único
@@ -19,7 +20,10 @@ public interface IBoquilhasRegistoQuery
     /// consulta (mais uma para os movimentos quando há trace). Null quando o
     /// bq_id não existe.
     /// </summary>
-    Task<BoquilhasRegistoContext?> FindByContextAsync(int bqContextId, CancellationToken cancellationToken = default);
+    Task<BoquilhasRegistoContext?> FindByContextAsync(int bqContextId, int? movementPage = null, CancellationToken cancellationToken = default);
+
+    /// <summary>Um movimento do trace (para o corrigir), em qualquer página; null quando não é dele.</summary>
+    Task<BoquilhasRegistoMovement?> FindMovementAsync(int bqRepairTraceId, int movementId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

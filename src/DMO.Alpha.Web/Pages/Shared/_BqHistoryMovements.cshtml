@@ -12,9 +12,11 @@
                     <tbody>
                       @foreach (var movement in Model)
                       {
-                        <tr data-dmo-row data-id="@movement.BqRepairTraceId"
-                            data-dmo-open="@Url.Page("/Boquilhas/Index", new { trace_id = movement.BqRepairTraceId })"
-                            title="Um clique ou Enter abre o registo do movimento">
+                        @* Um clique abre a ficha da ferramenta (Diogo, 18/10/2026), não
+                           o registo para lançar movimentos. *@
+                        <tr data-dmo-row data-id="@movement.MovementId"
+                            data-dmo-open="@(movement.ToolId is { } toolId ? Url.Page("/Ferramentas/Ficha", new { tool_id = toolId }) : Url.Page("/Boquilhas/Index", new { trace_id = movement.BqRepairTraceId }))"
+                            title="@(movement.ToolId is null ? "Um clique ou Enter abre o registo do movimento" : "Um clique ou Enter abre a ficha da ferramenta")">
                           <td>@fmtDate(movement.OccurredAtUtc)</td>
                           <td>@movement.ToolReference@(movement.ToolLot is { } tl ? $" · Lote {tl}" : null)</td>
                           <td>@movementLabel(movement.MovementType)</td>

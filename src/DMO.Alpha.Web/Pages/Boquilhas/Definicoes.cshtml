@@ -17,7 +17,14 @@
 </style>
 }
 
-<main class="bq-def-page dmo-workspace" aria-labelledby="bq-def-title">
+@* Atualizar só o que muda (E10): criar um reparador e escolher a rota de
+   uma máquina gravam sem recarregar. Trocam só os cartões (data-dmo-regiao):
+   o dos reparadores (a lista nova e o campo limpo) e o das rotas (o
+   reparador novo aparece nos dropdowns). A mensagem vai para a pilha do
+   canto (data-dmo-toast) e o foco fica no campo, no botão ou no dropdown
+   onde estava. O nome de um reparador continua a gravar no próprio valor
+   (data-dmo-valor, ligado por delegação). *@
+<main class="bq-def-page dmo-workspace" aria-labelledby="bq-def-title" data-dmo-troca>
 
   <div class="page-head">
     <div>
@@ -25,20 +32,22 @@
     </div>
   </div>
 
-  <section class="dmo-card bq-def-card" aria-labelledby="boquilhas-repairers-title">
-    <h3 id="boquilhas-repairers-title">Reparadores<partial name="_DmoHelp" model="@("As entidades para onde se enviam as boquilhas; a saída de cada máquina usa o reparador configurado para ela. Clique num nome para o mudar; grava ao sair do campo. Mudar o nome não altera os movimentos passados.")" /></h3>
-
-    @if (Model.ShowRepairerSaveMessage && Model.SaveResultMessage.Length > 0)
+  <div id="bqDefAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.SaveResultMessage.Length > 0)
     {
-      <p><strong role="alert">@Model.SaveResultMessage</strong></p>
+      <p data-dmo-toast="@(Model.SaveSucceeded ? "ok" : "erro")" role="@(Model.SaveSucceeded ? "status" : "alert")">@Model.SaveResultMessage</p>
     }
+  </div>
+
+  <section id="bqDefReparadores" class="dmo-card bq-def-card" aria-labelledby="boquilhas-repairers-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="boquilhas-repairers-title">Reparadores<partial name="_DmoHelp" model="@("As entidades para onde se enviam as boquilhas; a saída de cada máquina usa o reparador configurado para ela. Clique num nome para o mudar; grava ao sair do campo. Mudar o nome não altera os movimentos passados.")" /></h3>
 
     <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="CreateRepairer" class="bq-def-criar">
       <div class="dmo-field">
         <label for="repairerName">Novo reparador</label>
         <input id="repairerName" name="name" placeholder="Ex.: Vidroart" required />
       </div>
-      <button type="submit" class="dmo-button">Criar reparador</button>
+      <button type="submit" class="dmo-button" id="bqDefCriar">Criar reparador</button>
     </form>
 
     @if (Model.Repairers.Count == 0)
@@ -47,30 +56,26 @@
     }
     else
     {
-      <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="EditRepairer">
-        <div class="dmo-table-wrap">
-          <table class="dmo-table adm-repairer-list">
-            <thead><tr><th>Reparador</th></tr></thead>
-            <tbody>
-            @foreach (var repairer in Model.Repairers)
-            {
-              <tr><td><input type="hidden" name="repairer_id" value="@repairer.Id" /><input class="dmo-valor" data-dmo-valor name="name" value="@repairer.Name" autocomplete="off" aria-label="Nome do reparador @repairer.Name" required /></td></tr>
-            }
-            </tbody>
-          </table>
-        </div>
-        <p class="dmo-valor-aviso" role="status" data-dmo-valor-aviso hidden></p>
-      </form>
+      @* Um formulário por reparador: se o pedido JSON do nome falhar, o envio
+         de recurso leva só este reparador. Com um só para a tabela, levava
+         todos, o servidor gravava o primeiro com o nome que já tinha e dizia
+         «Definição gravada.» (deep sweep, 18/10/2026, B-boquilhas-3). *@
+      <div class="dmo-table-wrap">
+        <table class="dmo-table adm-repairer-list">
+          <thead><tr><th>Reparador</th></tr></thead>
+          <tbody>
+          @foreach (var repairer in Model.Repairers)
+          {
+            <tr><td><form id="bqDefReparador-@repairer.Id" method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="EditRepairer"><input type="hidden" name="repairer_id" value="@repairer.Id" /><input id="bq-reparador-@repairer.Id" class="dmo-valor" data-dmo-valor name="name" value="@repairer.Name" autocomplete="off" aria-label="Nome do reparador @repairer.Name" required /></form></td></tr>
+          }
+          </tbody>
+        </table>
+      </div>
     }
   </section>
 
-  <section class="dmo-card bq-def-card" aria-labelledby="boquilhas-routing-title">
+  <section id="bqDefRotas" class="dmo-card bq-def-card" aria-labelledby="boquilhas-routing-title" data-dmo-regiao data-dmo-parcial>
     <h3 id="boquilhas-routing-title">Rota por máquina<partial name="_DmoHelp" model="@("O reparador usado pela saída de cada máquina (B1 a C3); sem reparador configurado, a saída regista-se na mesma. «— sem reparador —» limpa a rota.")" /></h3>
-
-    @if (Model.ShowRoutingSaveMessage && Model.SaveResultMessage.Length > 0)
-    {
-      <p><strong role="alert">@Model.SaveResultMessage</strong></p>
-    }
 
     @if (Model.Repairers.Count == 0)
     {
@@ -78,26 +83,28 @@
     }
     else
     {
-      @* Sem botões: escolher o reparador de uma máquina grava logo as rotas
-         (Diogo, 17/10/2026: o dropdown aplica ao escolher). *@
-      <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="SaveMachineRoutes">
-        <div class="bq-def-rotas">
-          @foreach (var machineCode in DMO.Alpha.Core.Boquilhas.BqRepairerRouting.MachineCodes)
-          {
-            var configuredId = Model.MachineRepairerIds.TryGetValue(machineCode, out var value) ? value : null;
-            <div class="dmo-field">
-              <label for="machine-route-@machineCode">Máquina @machineCode</label>
-              <select id="machine-route-@machineCode" name="machine_code" class="adm-route-select" data-dmo-autosubmit>
-                <option value="@machineCode|">— sem reparador —</option>
-                @foreach (var repairer in Model.Repairers)
-                {
-                  <option value="@machineCode|@repairer.Id" selected="@(configuredId == repairer.Id)">@repairer.Name</option>
-                }
-              </select>
-            </div>
-          }
-        </div>
-      </form>
+      @* Sem botões: escolher o reparador de uma máquina grava logo a rota
+         dela (Diogo, 17/10/2026: o dropdown aplica ao escolher). Um
+         formulário por máquina: o POST leva só essa rota. Com um só para as
+         seis, levava as outras como estavam ao abrir a página e repunha a
+         que outra pessoa gravou entretanto (deep sweep, 18/10/2026, A1-M1).
+         O id distingue os seis na fila de envios da página. *@
+      <div class="bq-def-rotas">
+        @foreach (var machineCode in DMO.Alpha.Core.Boquilhas.BqRepairerRouting.MachineCodes)
+        {
+          var configuredId = Model.MachineRepairerIds.TryGetValue(machineCode, out var value) ? value : null;
+          <form id="bqDefRota-@machineCode" class="dmo-field" method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="SaveMachineRoutes">
+            <label for="machine-route-@machineCode">Máquina @machineCode</label>
+            <select id="machine-route-@machineCode" name="machine_code" class="adm-route-select" data-dmo-autosubmit>
+              <option value="@machineCode|">— sem reparador —</option>
+              @foreach (var repairer in Model.Repairers)
+              {
+                <option value="@machineCode|@repairer.Id" selected="@(configuredId == repairer.Id)">@repairer.Name</option>
+              }
+            </select>
+          </form>
+        }
+      </div>
     }
   </section>
 </main>

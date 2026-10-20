@@ -3,10 +3,11 @@
  * (o corte do parser, o Owner 2026-10-11: «se introduzirmos o nome
  * tecnico, ou seja o que esta no sap. apresenta logo tudo»).
  * Progressive enhancement: SEM este ficheiro o form funciona pelo POST
- * nativo; COM ele, escrever o código decodifica e preenche o tipo e a
- * referência ao vivo — o preenchimento é PROPOSTA que o operador
- * confirma (o decode canónico completo vive na ficha, pelo
- * TechnicalNameParser do backend).
+ * nativo; COM ele, escrever o código pede a leitura ao servidor (o
+ * TechnicalNameParser, a mesma da ficha) e propõe o tipo, que o operador
+ * confirma. A referência nunca vem do nome técnico (Diogo, 19/10/2026:
+ * «sempre o nome da referência, e não do nome técnico»): escreve-se toda,
+ * à parte, como no desenho.
  */
 (function () {
   "use strict";
@@ -25,13 +26,20 @@
     syncMf();
   }
 
+  // As sugestões da Referência são do tipo escolhido (Diogo, 19/10/2026:
+  // a referência sempre toda; a CM também pela Ref. MF associada).
+  var syncSuggest = function () { reference.setAttribute("data-dmo-suggest-tipo", type.value.toLowerCase()); };
+  type.addEventListener("change", syncSuggest);
+  syncSuggest();
+
   // A informação técnica do registo mostra só os campos do tipo escolhido
   // (os escondidos não são enviados: o servidor grava só os do tipo).
   var techFields = document.querySelectorAll("[data-ferr-tech-tipo]");
   if (techFields.length) {
     var syncTech = function () {
       techFields.forEach(function (field) {
-        var applies = field.getAttribute("data-ferr-tech-tipo") === type.value;
+        // «CM BQ»: um traço que separa componentes vale para mais de um tipo.
+        var applies = field.getAttribute("data-ferr-tech-tipo").split(" ").indexOf(type.value) >= 0;
         field.hidden = !applies;
         field.querySelectorAll("input,select").forEach(function (input) { input.disabled = !applies; });
       });
@@ -40,43 +48,46 @@
     syncTech();
   }
 
+  // A leitura do nome técnico (sweep de 19/10/2026, 3.14): o browser lia o
+  // nome à sua maneira e propunha outra coisa que a ficha («A.S.S023.S.F»
+  // dava CM «S.S0»). Agora pergunta ao servidor e só a resposta mais
+  // recente conta: um pedido antigo cancela-se e, se chegar, não se usa.
+  var leitura = 0;
+  var pedido = null;
   technical.addEventListener("input", function () {
-    var name = technical.value.trim().toUpperCase();
+    var name = technical.value.trim();
+    var atual = ++leitura;
+    if (pedido) pedido.abort();
+    pedido = null;
     if (!name) {
       if (notice) notice.textContent = "";
       return;
     }
 
-    var decodedType = "";
-    var decodedRef = "";
-
-    if (name[0] === "M" && name.length > 6) {
-      // M + modelo(4 dígitos — a base) + mm + TT + PP + V: o TT diz o
-      // tipo; a base do desenho é a referência.
-      if (name.indexOf("MF") > 1) { decodedType = "MF"; }
-      else if (name.indexOf("MP") > 1 || name.indexOf("ST") > 1) { decodedType = "CM"; }
-      var rest = name.slice(1);
-      var model = "";
-      while (rest.length && rest[0] >= "0" && rest[0] <= "9" && model.length < 4) { model += rest[0]; rest = rest.slice(1); }
-      decodedRef = model;
-    } else if (name[0] === "A" && name.length > 5) {
-      // A + T + XXXX + ...: o B (neck ring) e o S (blow head/marisa) são
-      // BQ; o XXXX é a referência.
-      var t = name[1];
-      if (t === "B" || t === "S") { decodedType = "BQ"; }
-      else if (t === "P" || t === "T") { decodedType = "CM"; }
-      var afterT = name.slice(2);
-      var pm = afterT.indexOf("PM");
-      decodedRef = pm > 0 ? afterT.slice(0, pm) : afterT.slice(0, 4);
-    }
-
-    if (notice) {
-      notice.textContent = decodedType || decodedRef
-        ? "Decodificado: " + decodedType + (decodedRef ? " · " + decodedRef : "") + " (confirme)"
-        : "Nome técnico guardado como está — o decode aparece na ficha.";
-    }
-
-    if (decodedType) { type.value = decodedType; type.dispatchEvent(new Event("change", { bubbles: true })); }
-    if (decodedRef) { reference.value = decodedRef; }
+    pedido = new AbortController();
+    var query = new URLSearchParams({ handler: "NomeTecnico", nome: name });
+    fetch("/Ferramentas?" + query, { credentials: "same-origin", signal: pedido.signal })
+      .then(function (response) {
+        if (!response.ok) throw new Error("Leitura do nome técnico indisponível");
+        return response.json();
+      })
+      .then(function (lido) {
+        if (atual !== leitura) return;
+        if (notice) {
+          notice.textContent = lido.leitura
+            ? "Decodificado: " + lido.leitura + " (confirme)"
+            : "Nome técnico guardado como está — o decode aparece na ficha.";
+        }
+        // Vindo do cartão do Job On, o tipo fica o escolhido.
+        if (lido.tipo && !type.getAttribute("data-ferr-tipo-fixo") && type.value !== lido.tipo) {
+          type.value = lido.tipo;
+          type.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      })
+      .catch(function () {
+        // Sem resposta (rede ou sessão): o nome técnico grava-se na mesma e
+        // a ficha mostra a leitura; o tipo fica o que está escolhido.
+        if (atual === leitura && notice) notice.textContent = "Não foi possível ler o nome técnico agora: grava-se como está e a leitura aparece na ficha.";
+      });
   });
 })();

@@ -1,7 +1,7 @@
 namespace DMO.Alpha.Core.Boquilhas;
 
 /// <summary>
-/// Apaga um dos movimentos mais recentes e recalcula as discrepâncias do registo.
+/// Apaga um movimento e recalcula as discrepâncias do registo.
 /// </summary>
 public interface IDeleteBqMovementHandler
 {

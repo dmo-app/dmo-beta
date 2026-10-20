@@ -39,7 +39,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 body[data-beta-page="jobon"] .job-tool-facts{display:grid;gap:8px;margin-top:10px}
 body[data-beta-page="jobon"] .job-tool-fact{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;padding:10px 12px;font-size:12px;color:var(--dmo-muted,#64778a)}
 body[data-beta-page="jobon"] .job-tool-fact strong{color:var(--dmo-text,#172d42)}
-body[data-beta-page="jobon"] .job-tool-warnings{display:grid;gap:8px;margin-top:8px}
+body[data-beta-page="jobon"] .job-tool-warnings{display:grid;gap:8px;margin-top:14px}
+body[data-beta-page="jobon"] .job-tool-warnings>.jobon-aviso{margin:0}
 /* Os detalhes opcionais da folha: afastados dos cartões CM/MF/BQ e com o
    campo do tamanho do valor (o Diogo, 17/10/2026: «bem mais pequeno»). */
 body[data-beta-page="jobon"] .jobon-mais-detalhes{margin-top:22px}
@@ -49,7 +50,6 @@ body[data-beta-page="jobon"] .beta-light-main{padding-bottom:240px}
 /* A procura da referência por baixo das linhas das máquinas, com a largura
    do cartão para os resultados (Diogo, 17/10/2026). */
 body[data-beta-page="jobon"] .jobon-procura-bloco{margin-top:16px;padding-top:14px;border-top:1px solid var(--dmo-border)}
-body[data-beta-page="jobon"] .jobon-procura-bloco .jobon-procura:not(:empty){margin-top:10px}
 body[data-beta-page="jobon"] .jobon-mais-detalhes>summary{width:max-content;font-size:13px;cursor:pointer;color:var(--dmo-muted)}
 body[data-beta-page="jobon"] .jobon-campo-curto{width:240px;max-width:100%;margin-top:12px}
 

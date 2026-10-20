@@ -24,8 +24,6 @@ public sealed class PegamentosPdfGenerator
         IReadOnlyList<ComponentCard> Components,
         IReadOnlyList<ComponentTable> Tables,
         decimal ToleranceMm,
-        /// <summary>O selo de aprovação (o corte D): o operador e o momento; null = não aprovado.</summary>
-        ControloApprovalReadModel? Approval = null,
         /// <summary>Quem gerou o papel (o rodapé do alvo: «Diogo Oliveira 28/07/2026, 14:52:28»).</summary>
         string? GeneratedBy = null)
     {
@@ -36,6 +34,16 @@ public sealed class PegamentosPdfGenerator
         /// como antes.
         /// </summary>
         public bool BlankForHandFilling { get; init; }
+
+        /// <summary>
+        /// «Folha 2 de 2 · registada a 18/10/2026» numa produção com mais do
+        /// que uma folha (a CM, a BQ ou o MF mudou a meio; 18/10/2026);
+        /// null com uma só, como sempre.
+        /// </summary>
+        public string? SheetLabel { get; init; }
+
+        /// <summary>A secção desta folha no PDF composto do Resumo (uma por folha).</summary>
+        public string SectionName { get; init; } = "pegamentos";
     }
 
     /// <summary>A ficha de um componente da combinação (os fatos humanos).</summary>
@@ -64,7 +72,8 @@ public sealed class PegamentosPdfGenerator
         decimal? MediaMm,
         bool IsAlert,
         bool NotEvaluable,
-        decimal? NominalMm = null, decimal? LowerMm = null, decimal? UpperMm = null);
+        decimal? NominalMm = null, decimal? LowerMm = null, decimal? UpperMm = null,
+        bool OvalizacaoAlert = false);
 
     public byte[] GenerateBytes(Input input) =>
         Document.Create(container => Compose(container, input)).GeneratePdf();
@@ -86,6 +95,7 @@ public sealed class PegamentosPdfGenerator
                         row.ConstantItem(220).AlignRight().Column(c =>
                         {
                             c.Item().Text($"{input.Reference} · {input.ProductionNumber} · {input.Machine}").FontSize(8).SemiBold();
+                            if (input.SheetLabel is { } sheetLabel) c.Item().Text(sheetLabel).FontSize(8).SemiBold().FontColor(DmoPdfPalette.Accent);
                             c.Item().Text(DmoBusinessTime.Now.ToString("d", Pt)).Light();
                         });
                     });
@@ -94,7 +104,7 @@ public sealed class PegamentosPdfGenerator
 
                 page.Content().PaddingVertical(8).Column(content =>
                 {
-                    content.Item().Section("pegamentos");
+                    content.Item().Section(input.SectionName);
                     if (combined) content.Item().SectionLink("resumo").Text("← Voltar ao Resumo").FontColor(DmoPdfPalette.Accent);
                     content.Item().PaddingTop(4).Row(row =>
                     {
@@ -111,16 +121,16 @@ public sealed class PegamentosPdfGenerator
                         }
                     });
                     var status = Status(input);
-                    var statusColor = input.Tables.Any(t => t.Rows.Any(r => r.IsAlert)) ? "#b91c1c"
+                    var statusColor = input.Tables.Any(t => t.Rows.Any(r => r.IsAlert)) ? DmoPdfPalette.Nok
                         : input.Tables.All(t => t.Rows.Count == 0) ? DmoPdfPalette.Muted
-                        : input.Tables.Any(t => t.Rows.Any(r => r.NotEvaluable)) ? "#a16207" : "#15803d";
+                        : input.Tables.Any(t => t.Rows.Any(r => r.NotEvaluable)) ? DmoPdfPalette.NotEvaluable : DmoPdfPalette.Ok;
                     content.Item().PaddingTop(7).Border(0.6f).BorderColor(statusColor).Padding(7)
                         .Text(status).FontSize(10).SemiBold().FontColor(statusColor);
                     content.Item().PaddingTop(9).Text("Mapa de limites").FontSize(10).SemiBold().FontColor(DmoPdfPalette.Accent);
                     content.Item().PaddingTop(4).Border(0.5f).BorderColor(DmoPdfPalette.Sky).Padding(5).Column(map =>
                     {
-                        map.Item().Height(160).Svg(PegamentosLimitMap.Render(input));
-                        map.Item().Text("Linhas = nominais · Círculos = médias de medições · Losango = média global · Vermelho = alerta").FontSize(6.5f);
+                        map.Item().Height(126).Svg(PegamentosLimitMap.Render(input));
+                        map.Item().Text("Linhas = nominais · Tracejado = limites de fora · Círculos = médias de medições · Losango = média global · Vermelho = alerta").FontSize(6.5f);
                         map.Item().PaddingTop(3).Text(status).FontSize(7).FontColor(statusColor);
                     });
 
@@ -164,18 +174,18 @@ public sealed class PegamentosPdfGenerator
                                 IContainer Body(IContainer c, bool outside = false)
                                 {
                                     c = rowAlert
-                                        ? c.BorderTop(1).BorderBottom(1).BorderColor("#b91c1c")
+                                        ? c.BorderTop(1).BorderBottom(1).BorderColor(DmoPdfPalette.Nok)
                                             .Padding(0).BorderLeft(0.3f).BorderRight(0.3f).BorderColor(DmoPdfPalette.Line)
                                         // Sem borda superior: a linha seguinte a um alerta não tapa a borda vermelha.
                                         : c.BorderLeft(0.3f).BorderRight(0.3f).BorderBottom(0.3f).BorderColor(DmoPdfPalette.Line);
-                                    return c.Background(outside ? "#f8d4d4" : "#ffffff")
+                                    return c.Background(outside ? DmoPdfPalette.NokCell : DmoPdfPalette.White)
                                         .PaddingHorizontal(3).PaddingVertical(2.5f);
                                 }
 
                                 t.Cell().Element(c => Body(c)).Text(measurement.Position.ToString());
                                 t.Cell().Element(c => Body(c, Outside(measurement.CosturaMm))).Text(Fmt(measurement.CosturaMm));
                                 t.Cell().Element(c => Body(c, Outside(measurement.ContraCosturaMm))).Text(measurement.ContraCosturaMm is { } contra ? Fmt(contra) : "—");
-                                t.Cell().Element(c => Body(c)).Text(Signed(measurement.OvalizacaoMm));
+                                t.Cell().Element(c => Body(c, rowAlert && measurement.OvalizacaoAlert)).Text(Signed(measurement.OvalizacaoMm));
                                 t.Cell().Element(c => Body(c, Outside(measurement.MediaMm))).Text(measurement.MediaMm is { } media ? Fmt(media) : "—");
 
                             }
@@ -224,21 +234,6 @@ public sealed class PegamentosPdfGenerator
                         content.Item().PaddingTop(4).Text("AVG: média dos resultados por leitura; contra costura e ovalização incluem apenas os valores medidos.")
                             .FontSize(8).FontColor(DmoPdfPalette.Muted);
                     }
-
-                    // O SELO DE APROVAÇÃO (o corte D): o estado no papel —
-                    // nunca gate, a informação do histórico.
-                    var approvedColor = input.Approval?.ApprovedByOperatorId is null ? "#a97943" : "#3d7a5a";
-                    content.Item().PaddingTop(8).Text(t =>
-                    {
-                        if (input.Approval?.ApprovedByOperatorId is { } approver)
-                        {
-                            t.Span($"APROVADO — operador {approver}").SemiBold().FontColor(approvedColor);
-                        }
-                        else
-                        {
-                            t.Span("Aprovação: sem registo").FontColor(approvedColor);
-                        }
-                    });
                 });
 
                 page.Footer().Row(footer =>
@@ -251,8 +246,11 @@ public sealed class PegamentosPdfGenerator
             });
     }
 
-    public static Input FromSheet(PegamentosSheetReadModel sheet,
-        ControloApprovalReadModel? approval = null, string? generatedBy = null)
+    /// <remarks>
+    /// Sem selo de aprovação: os Pegamentos não se aprovam, só o Peso (Diogo,
+    /// 19/10/2026).
+    /// </remarks>
+    public static Input FromSheet(PegamentosSheetReadModel sheet, string? generatedBy = null)
     {
         var record = sheet.Pegamentos;
         var cards = new List<ComponentCard>();
@@ -283,18 +281,41 @@ public sealed class PegamentosPdfGenerator
             var avg = record?.ComponentAverages.FirstOrDefault(a => a.Component == context.Component);
             tables.Add(new(name, measurements.Select(m => new MeasurementRow(m.RowPosition, m.CosturaMm,
                 m.ContraCosturaMm, m.Evaluation.OvalizacaoMm, m.Evaluation.MediaMm, m.Evaluation.HasAlert,
-                m.Evaluation.IsNotEvaluable, m.NominalGargaloMm, m.Evaluation.CorridorLowerMm, m.Evaluation.CorridorUpperMm)).ToArray(),
+                m.Evaluation.IsNotEvaluable, m.NominalGargaloMm, m.Evaluation.CorridorLowerMm, m.Evaluation.CorridorUpperMm,
+                m.Evaluation.Values.Any(v => v.Axis == PegamentosEvaluatedAxis.Ovalizacao && v.Alert))).ToArray(),
                 avg?.SampleCount ?? 0, avg?.AlertCount ?? 0, avg?.AverageCosturaMm,
                 avg?.AverageContraCosturaMm, avg?.AverageOvalizacaoMm, avg?.AverageMediaMm));
         }
         return new(sheet.ProductionNumber, sheet.Reference, sheet.Machine, cards, tables,
-            record?.ToleranceMm ?? sheet.CurrentToleranceMm, approval, generatedBy);
+            record?.ToleranceMm ?? sheet.CurrentToleranceMm, generatedBy)
+        {
+            SheetLabel = SheetLabelOf(sheet)
+        };
     }
 
-    internal static string Label(string component) => component.ToUpperInvariant() switch
+    /// <summary>
+    /// A folha numa produção com mais do que uma: o número, o total e a data
+    /// do registo; a folha em branco depois de uma troca é a próxima. Null
+    /// com uma só folha (o papel fica como sempre).
+    /// </summary>
+    internal static string? SheetLabelOf(PegamentosSheetReadModel sheet)
     {
-        "CM" => "CM — Contra-molde", "BQ" => "Boquilha", "MF" => "Molde final", _ => component
-    };
+        // A folha das ferramentas atuais ainda por começar também conta.
+        var total = sheet.Sheets.Count + (sheet.Sheets.Any(s => s.IsCurrent) ? 0 : 1);
+        if (sheet.ControloId is null || total < 2)
+        {
+            return null;
+        }
+
+        var number = sheet.SheetNumber(sheet.Pegamentos) ?? total;
+        var registada = sheet.Pegamentos?.RegistadoEmUtc is { } utc
+            ? " · registada a " + DmoBusinessTime.ToLocal(utc).ToString("d", Pt)
+            : sheet.Pegamentos is null ? " · por começar" : "";
+        return $"Folha {number} de {total}{registada}";
+    }
+
+    /// <summary>CM, BQ e MF, como em toda a app (Diogo, 19/10/2026: «ou usam CM BQ MF ou nome completo»).</summary>
+    internal static string Label(string component) => component.ToUpperInvariant();
 
     internal static string Status(Input input)
     {

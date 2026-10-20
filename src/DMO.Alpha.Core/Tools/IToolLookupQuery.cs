@@ -26,7 +26,8 @@ public interface IToolLookupQuery
     /// <summary>
     /// A Tool do tipo pedido com essa referência (sem distinguir maiúsculas) e
     /// o lote mais alto, ou null. O lote é comparado pelo comprimento e depois
-    /// pelo texto, para que «10» venha depois de «9».
+    /// pelo texto, para que «10» venha depois de «9»; «s/lote» fica sempre em
+    /// último.
     /// </summary>
     Task<ToolLookupResult?> FindByReferenceAsync(string reference, ToolType type, CancellationToken cancellationToken = default);
 }

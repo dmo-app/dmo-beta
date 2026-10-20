@@ -7,4 +7,6 @@ namespace DMO.Alpha.Core.Tools;
 /// </summary>
 public sealed record DuplicateToolOutcome(
     DuplicateToolResult Result,
-    CreatedTool? Tool = null);
+    CreatedTool? Tool = null,
+    // Na recusa LotAlreadyExists: a ferramenta que já tem esse lote.
+    string? ExistingToolId = null);

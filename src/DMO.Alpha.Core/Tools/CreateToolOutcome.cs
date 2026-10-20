@@ -15,14 +15,15 @@ namespace DMO.Alpha.Core.Tools;
 /// </summary>
 public sealed record CreateToolOutcome(
     CreateToolResult Result,
-    CreatedTool? Tool = null);
+    CreatedTool? Tool = null,
+    // Na recusa ToolAlreadyExists: a ferramenta que já tem esses factos.
+    string? ExistingToolId = null);
 
 /// <summary>
 /// Read model purpose-specific da Tool criada: o tool_id canónico mintado
-/// e os factos tal como persistidos. O ReferenceFormatAdvisory é a nota
-/// avisadora (CM = dígitos; BQ = 1 letra maiúscula + 3 dígitos): TRUE
-/// quando o valor registado se desvia do formato canónico — o valor foi
-/// registado na mesma (registo truthful, nunca recusa). AlreadyExisted:
+/// e os factos tal como persistidos. A referência é a toda, como no
+/// desenho (1075C142, 5447T173 ou ST100), e nunca se recusa pelo formato
+/// (a nota de formato «CM = dígitos» saiu a 17/10/2026). AlreadyExisted:
 /// TRUE quando o get-or-create devolveu a Tool que JÁ existia com os
 /// mesmos (tipo, referência, lote) — nada foi duplicado e as máquinas do
 /// form foram acrescentadas às ligações dela. LotDefaulted: TRUE quando o
@@ -35,6 +36,5 @@ public sealed record CreatedTool(
     string Lot,
     string? AssociatedMfReference,
     int? BqAccountedQuantity,
-    bool ReferenceFormatAdvisory,
     bool AlreadyExisted = false,
     bool LotDefaulted = false);

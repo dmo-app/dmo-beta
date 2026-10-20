@@ -13,13 +13,12 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// ameaça real evitada: ids internos ao operador e identidade de
 /// atributos visíveis (nada na UI deriva o tool_id da referência/lote).
 /// As recusas são tipadas (enum fechado) e verificadas ANTES de qualquer
-/// escrita; os formatos de referência CM/BQ são HINT + nota avisadora
-/// (ReferenceFormatAdvisory no outcome — a página transporta-a por PRG),
-/// NUNCA recusa (função antes de proteção). GET-OR-CREATE (o Owner
+/// escrita; a referência é a toda, como no desenho, e o formato NUNCA é
+/// recusado (função antes de proteção). GET-OR-CREATE (o Owner
 /// 2026-10-12): a chave de unicidade é (tipo, referência, lote) — os
-/// mesmos factos devolvem a Tool EXISTENTE com as máquinas do form
-/// ACRESCENTADAS ao ToolMachineLink dela (nunca uma segunda linha, nunca
-/// uma row por máquina); um lote diferente é outra ferramenta legítima.
+/// mesmos factos eram a Tool EXISTENTE; desde 18/10/2026 são recusados, e
+/// desde 19/10/2026 só quando partilham uma máquina (ToolDuplicateWarnings);
+/// um lote diferente é outra ferramenta legítima.
 /// A Tool nasce com as ligações de máquina aplicáveis: a BQ carrega no
 /// máximo UMA (0 é permitido — completa depois), CM/MF o conjunto.
 /// Gravação numa única escrita atómica.
@@ -36,9 +35,21 @@ public sealed class CreateToolHandler : ICreateToolHandler
         _lotQuantities = lotQuantities;
     }
 
-    public async Task<CreateToolOutcome> HandleAsync(
+    // GET-OR-CREATE ao mesmo tempo (duplo envio): o segundo pedido não via a
+    // ferramenta do primeiro e criava outra com a mesma referência e lote
+    // (18/10/2026). O trinco faz o segundo esperar e abrir a do primeiro.
+    public Task<CreateToolOutcome> HandleAsync(
         CreateTool command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, "ferramentas:criar", cancellationToken);
+            return await HandleLockedAsync(command, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<CreateToolOutcome> HandleLockedAsync(
+        CreateTool command,
+        CancellationToken cancellationToken)
     {
         // 1. Token do tipo: um dos canónicos (CM/MF/BQ) — recusa tipada,
         //    nunca exceção.
@@ -92,61 +103,33 @@ public sealed class CreateToolHandler : ICreateToolHandler
             }
         }
 
-        // 5. GET-OR-CREATE (o Owner 2026-10-12: «ferramentas duplicadas
-        //    sao os lotes diferentes, ou maquinas diferentes» + «certas
-        //    referencias podem trabalhar em mais que uma maquina»): a
-        //    chave de unicidade é (tipo, referência, lote) — os MESMOS
-        //    três factos devolvem a Tool EXISTENTE (nunca uma segunda
-        //    linha; a linha DUMMY nunca conta); as máquinas do form
-        //    ACRESCENTAM ao ToolMachineLink dela (a multi-máquina da
-        //    MESMA ferramenta — o link a crescer, nunca uma row por
-        //    máquina). Um lote diferente é outra ferramenta legítima: o
-        //    fluxo de criação nova (passo 6) mantém-se.
-        var existing = await _db.Tools
-            .AsNoTracking()
-            .Where(t => t.Type == type
-                && t.Reference == reference
-                && t.Lot == lot
-                && t.ToolId != ToolRegistryConstants.RemovedToolId)
-            .Select(t => new { t.ToolId, t.AssociatedMfReference, t.BqAccountedQuantity })
-            .FirstOrDefaultAsync(cancellationToken);
+        // 5. FERRAMENTA REPETIDA (o proprietário, 18/10/2026): o mesmo tipo,
+        //    referência e lote é recusado e a existente fica com um aviso,
+        //    porque a errada pode ser ela. Desde 19/10/2026 só numa máquina
+        //    em comum: sem máquinas em comum é outra ferramenta legítima,
+        //    como um lote diferente (passo 6).
+        var existing = await ToolDuplicateWarnings.FindRepeatedAsync(
+            _db, type, reference, lot, machineIds, exceptToolId: null, cancellationToken);
 
         if (existing is not null)
         {
-            // O mesmo tipo/referência/lote conserva a identidade; novas compatibilidades acrescentam-se.
-            var linkedMachineIds = await _db.ToolMachineLinks
-                .AsNoTracking()
-                .Where(l => l.ToolId == existing.ToolId)
-                .Select(l => l.MachineId)
-                .ToListAsync(cancellationToken);
-            var machinesToAdd = machineIds.Where(id => !linkedMachineIds.Contains(id)).ToList();
-
-            foreach (var machineId in machinesToAdd)
+            // O duplo clique: o resultado do primeiro clique, sem recusa nem aviso.
+            if (ToolDuplicateWarnings.IsRepeatedSubmit(existing.RegisteredAtUtc))
             {
-                _db.ToolMachineLinks.Add(new ToolMachineLink
-                {
-                    ToolId = existing.ToolId,
-                    MachineId = machineId
-                });
+                return new CreateToolOutcome(
+                    CreateToolResult.Success,
+                    new CreatedTool(
+                        existing.ToolId,
+                        type,
+                        reference,
+                        lot,
+                        existing.AssociatedMfReference,
+                        existing.BqAccountedQuantity,
+                        LotDefaulted: lotDefaulted));
             }
 
-            if (machinesToAdd.Count > 0)
-            {
-                await _db.SaveChangesAsync(cancellationToken);
-            }
-
-            return new CreateToolOutcome(
-                CreateToolResult.Success,
-                new CreatedTool(
-                    existing.ToolId,
-                    type,
-                    reference,
-                    lot,
-                    existing.AssociatedMfReference,
-                    existing.BqAccountedQuantity,
-                    ReferenceFormatAdvisoryFor(type, reference),
-                    AlreadyExisted: true,
-                    LotDefaulted: lotDefaulted));
+            await ToolDuplicateWarnings.MarkAsync(_db, existing.ToolId, command.RequestedBy, cancellationToken);
+            return new CreateToolOutcome(CreateToolResult.ToolAlreadyExists, ExistingToolId: existing.ToolId);
         }
 
         // 6. Mint do tool_id: verificação de existência + re-mint — a
@@ -174,7 +157,8 @@ public sealed class CreateToolHandler : ICreateToolHandler
             BqAccountedQuantity = quantity,
             // O nome técnico (o código do desenho do SAP) guardado como o
             // operador escreveu — o decode é PROPOSTA na ficha.
-            TechnicalName = TrimToNull(command.TechnicalName)
+            TechnicalName = TrimToNull(command.TechnicalName),
+            RegisteredAtUtc = DateTime.UtcNow
         };
         _db.Tools.Add(tool);
 
@@ -194,23 +178,9 @@ public sealed class CreateToolHandler : ICreateToolHandler
                 lot,
                 associatedMfReference,
                 tool.BqAccountedQuantity,
-                ReferenceFormatAdvisoryFor(type, reference),
                 AlreadyExisted: false,
                 LotDefaulted: lotDefaulted));
     }
-
-    /// <summary>
-    /// Nota avisadora de formato (NUNCA recusa): CM = dígitos (5447);
-    /// BQ = 1 letra maiúscula + 3 dígitos (T194/C142/Y232). TRUE quando o
-    /// valor registado se desvia do formato canónico — o valor fica
-    /// registado na mesma (registo truthful) e a página mostra a nota.
-    /// </summary>
-    internal static bool ReferenceFormatAdvisoryFor(ToolType type, string reference) => type switch
-    {
-        ToolType.Cm => !System.Text.RegularExpressions.Regex.IsMatch(reference, @"^\d+$"),
-        ToolType.Bq => !System.Text.RegularExpressions.Regex.IsMatch(reference, @"^[A-Z]\d{3}$"),
-        _ => false
-    };
 
     private static string? TrimToNull(string? value)
     {

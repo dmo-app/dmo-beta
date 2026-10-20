@@ -3,121 +3,412 @@
 @using DMO.Alpha.Core.Controlo
 @{
     Layout = "_DmoShellLayout";
+    // Os números como na Revisão (Approve.cshtml): duas casas e «Leitura N»
+    // (deep sweep de 18/10/2026, regra 66).
+    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
+    string Cm3(decimal? value) => value is { } v ? v.ToString("N2", culture) + " cm³" : "—";
+    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
 }
 @section Head {
   <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/dmo-revisao.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/dmo-pegamentos-prototype.css" asp-append-version="true" />
 }
-<main class="resumo-page dmo-workspace" aria-labelledby="approve-detail-title">
+<main data-dmo-troca class="resumo-page dmo-workspace" aria-labelledby="approve-detail-title">
   <div class="page-head">
     <div>
-      <h1 id="approve-detail-title">@(Model.Tipo == "peso" ? "Consulta do Peso" : "Consulta dos Pegamentos")</h1>
+      <h1 id="approve-detail-title">@(Model.Tipo switch { "peso" => "Consulta do Peso", "pegamentos" => "Consulta dos Pegamentos", "puncoes" => "Consulta do PU NNPB", "controlo" => "Resumo do controlo", _ => "Consulta do Resumo das ferramentas" })</h1>
     </div>
   </div>
 
+  @if (Model.Tipo == "controlo")
+  {
+    @* O Resumo do controlo é um separador ao lado da Revisão (Diogo,
+       19/10/2026): procura-se a referência e escolhe-se uma das últimas 5
+       produções dela; abre vazio. Escolher a produção abre logo o resumo. *@
+    var atual = Model.Production?.JobOnId ?? Model.SemControlo?.JobOnId;
+    @* O cartão da procura com o espaçamento dos filtros da Revisão (Diogo,
+       19/10/2026: «ninguém nota falta de padding?»); a ajuda vai na dica. *@
+    <section class="dmo-card revisao-filtros-card" aria-label="Procurar a produção">
+      <form method="get" action="/Controlo/Approve/Detalhe" class="dmo-filter-bar dmo-filter-bar-conteudo" id="resumoControloProcura">
+        <input type="hidden" name="tipo" value="controlo" />
+        <div class="dmo-field">
+          <label for="resumoControloReferencia">Referência<partial name="_DmoHelp" model="@("Escreva a referência e escolha a produção para ver o controlo inteiro. A lista mostra as últimas 5 produções.")" /></label>
+          <input id="resumoControloReferencia" name="referencia" value="@Model.Referencia" placeholder="Ex.: 5810" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+        @if (Model.Producoes.Count > 0)
+        {
+          <div class="dmo-field dmo-field-producao">
+            <label for="resumoControloProducao">Produção</label>
+            <select id="resumoControloProducao" name="jobon_id" data-dmo-autosubmit="valor">
+              <option value="">Escolher produção</option>
+              @foreach (var producao in Model.Producoes)
+              {
+                <option value="@producao.JobOnId" selected="@(producao.JobOnId == atual ? "selected" : null)">@producao.Label</option>
+              }
+            </select>
+          </div>
+        }
+      </form>
+      @if (Model.Referencia is { } procurada && Model.Producoes.Count == 0)
+      {
+        <p class="resumo-hint" role="status">Não há Job Ons da referência @procurada.</p>
+      }
+      else if (Model.SemControlo is { } semControlo)
+      {
+        <p class="resumo-hint" role="status">A produção @semControlo.ProductionNumber da @semControlo.Reference ainda não tem nada registado no Controlo.</p>
+      }
+    </section>
+  }
   @if (Model.Production is not { } production)
   {
-    <section class="dmo-card resumo-card">
-      <p class="resumo-hint">Nenhuma produção válida selecionada para revisão.</p>
-      <a class="dmo-button" href="/Controlo/Approve">Voltar à revisão</a>
-    </section>
+    @if (Model.Tipo != "controlo")
+    {
+      <section class="dmo-card resumo-card">
+        <p class="resumo-hint">Nenhuma produção válida selecionada para revisão.</p>
+        <a class="dmo-button" href="/Controlo/Approve">Voltar à revisão</a>
+      </section>
+    }
   }
   else
   {
-    <a class="dmo-button" href="/Controlo/Approve?jobon_id=@production.JobOnId&reference=@Uri.EscapeDataString(production.Reference)">‹ Voltar ao Resumo da revisão</a>
-    <section class="dmo-card resumo-card resumo-sheet">
-      <div class="resumo-section-heading">
-        <div>
-          <h3>Produção @production.ProductionNumber · @production.Reference</h3>
-          <p>Máquina @production.Machine · Controlo @Model.ControloId</p>
-        </div>
+    @* O aspeto da Revisão (Diogo, 19/10/2026: «parece que não tem UI»): um
+       cartão com o título à esquerda e o «Voltar» no canto superior
+       direito, os dados em caixas e as leituras em tabela. *@
+    <section class="dmo-card revisao-detail revisao-consulta@(Model.Tipo == "controlo" ? " revisao-resumo" : null)" aria-labelledby="approve-detail-production">
+      @* Sem cabeçalho repetido (Diogo, 19/10/2026): a produção nos quadros,
+         num bloco com o nome da consulta e o «Voltar à revisão» na linha do
+         título. *@
+      <div class="revisao-parte-topo revisao-topo-principal">
+        <h3 class="revisao-section" id="approve-detail-production">@(Model.Tipo switch { "peso" => "Peso", "pegamentos" => "Pegamentos", "puncoes" => "PU NNPB", "controlo" => "Resumo do controlo", _ => "Resumo das ferramentas" })</h3>
+        @if (Model.Tipo == "controlo")
+        {
+          @* As consultas de cada parte, em texto com link como o «Sair»
+             (Diogo, 19/10/2026). *@
+          <nav class="revisao-consultas" id="resumoControloConsultas" aria-label="Consultar">
+            <a href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=peso">Peso</a>
+            <a href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=pegamentos">Pegamentos</a>
+            @if (Model.Puncoes is { IsNnpb: true } || Model.Puncoes?.Registo is not null)
+            {
+              <a href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=puncoes">PU NNPB</a>
+            }
+            <a href="/Controlo/Approve?jobon_id=@production.JobOnId">Revisão</a>
+          </nav>
+        }
+        else
+        {
+          <div class="dmo-card-topo-acoes">
+            <a class="dmo-button" href="/Controlo/Approve?jobon_id=@production.JobOnId">Voltar à revisão</a>
+          </div>
+        }
+      </div>
+      <div class="revisao-facts">
+        <div><span>Referência</span><strong>@production.Reference</strong></div>
+        <div><span>Produção</span><strong>@production.ProductionNumber</strong></div>
+        <div><span>Máquina</span><strong>@production.Machine</strong></div>
+        <div><span>Início</span><strong>@(production.InicioEm is { } inicio ? inicio.ToString("dd/MM/yyyy") : "—")</strong></div>
+        <div><span>Fim</span><strong>@(production.FimEm is { } fim ? fim.ToString("dd/MM/yyyy") : "—")</strong></div>
       </div>
 
+      @if (Model.Tipo == "controlo")
+      {
+        <partial name="_ResumoDoControlo" model="Model" />
+      }
       @if (Model.Tipo == "peso")
       {
-        @if (Model.Peso is { } peso)
+        @if (Model.Peso is not null)
         {
-          <div class="resumo-linked">
-            <h4>Peso · CM @(peso.CmToolReference ?? "não registada")</h4>
-            <p>Lote @(peso.CmToolLot ?? "não registado") · @peso.Process · @peso.WaterTemperatureC °C</p>
-            <p>Peso médio do vidro: @(peso.Averages is { } avg ? avg.AverageGlassWeightGrams.ToString("N2", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " g" : "não registado")</p>
-            @if (peso.Measurements.Count > 0)
+          @* Todos os Pesos da produção, cada um com as suas ferramentas
+             (18/10/2026): depois de trocar a CM ou a BQ a meio, as
+             ferramentas novas têm um Peso novo; nenhum fica de fora da
+             revisão. Com um só, como sempre. *@
+          var pesos = Model.Pesos.Count > 0 ? Model.Pesos : new[] { Model.Peso };
+          @foreach (var (peso, numero) in pesos.Select((p, i) => (p, i + 1)))
+          {
+            <h3 class="revisao-section">@(pesos.Count > 1 ? $"Peso {numero} de {pesos.Count} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(peso)} · {peso.Measurements.Count} leitura(s){(peso.IsCurrent ? null : " · ferramentas anteriores")}" : "Dados do Peso")</h3>
+            <div class="revisao-facts">
+              <div><span>CM</span><strong>@(peso.CmToolReference ?? "—")</strong><small>@(peso.CmToolLot is { } loteCm ? $"Lote {loteCm}" : "")</small></div>
+              <div><span>Boquilha</span><strong>@(peso.BqToolReference ?? "—")</strong><small>@(peso.BqToolLot is { } loteBq ? $"Lote {loteBq}" : "")</small></div>
+              <div><span>Processo</span><strong>@peso.Process</strong></div>
+              <div><span>Temperatura da água</span><strong>@peso.WaterTemperatureC °C</strong></div>
+              <div class="destaque"><span>Peso médio do vidro</span><strong>@(peso.Averages is { } avg ? avg.AverageGlassWeightGrams.ToString("N2", culture) + " g" : "—")</strong></div>
+            </div>
+            @* A comparação global de peso (passou da Revisão para aqui,
+               Diogo, 19/10/2026: é informação só do Peso). *@
             {
-              <div class="dmo-table-wrap">
+              var atual = peso.Averages;
+              // O controlo anterior é o que o operador escolheu no Peso;
+              // sem escolha, só a sugestão (C6).
+              var comparacao = Model.Anteriores.GetValueOrDefault(peso.PesoId);
+              var anterior = comparacao?.Media;
+              var desvioNominal = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
+              <h3 class="revisao-section">Comparação global de peso</h3>
+              <div class="revisao-facts four">
+                <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong></div>
+                <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
+                <div><span>Peso SAP da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
+                <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
+                <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
+                <div><span>Capacidade atual</span><strong>@Cm3(atual?.AverageCapacityCm3)</strong></div>
+                <div><span>Capacidade anterior</span><strong>@Cm3(anterior?.AverageCapacityCm3)</strong></div>
+                <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong></div>
+              </div>
+              @* As leituras e a comparação CM a CM numa só tabela (Diogo,
+                 20/10/2026: «as tabelas do peso deveriam ser as duas juntas»). *@
+              <h3 class="revisao-section">@(comparacao?.Comparacao is null ? "Leituras por CM" : "Leituras por CM e comparação com o controlo anterior")</h3>
+              @if (peso.Measurements.Count > 0)
+              {
+                <partial name="_RevisaoPesoComparacao" model="@((peso, comparacao?.Comparacao))" />
+              }
+              else
+              {
+                <p class="resumo-hint">Este Peso ainda não contém leituras.</p>
+              }
+            }
+          }
+        }
+        else
+        {
+          <div class="dmo-aviso warn" role="status">Ainda não existe Peso registado nesta produção.@if (Model.TemControloCriar){<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Registar", $"/Controlo/Peso?controlo_id={Model.ControloId}"))" />}</div>
+        }
+      }
+      @if (Model.Tipo == "pegamentos" && Model.Pegamentos is { } sheet)
+      {
+        @* Todas as folhas da produção, cada uma com as suas ferramentas
+           (18/10/2026): depois de trocar a CM, a BQ ou o MF a meio,
+           a leitura seguinte começa uma folha nova; nenhuma fica de fora da
+           revisão. Com uma só, como sempre. *@
+        var folhas = sheet.Sheets;
+        void ComponentCard(PegamentosComponentContextReadModel component, PegamentosReadModel? folha)
+        {
+          var leituras = folha?.Measurements.Where(m => m.Component == component.Component).ToList()
+              ?? new List<PegamentosMeasurementReadModel>();
+          <div class="revisao-consulta-componente">
+            <div class="revisao-facts four">
+              <div><span>Componente</span><strong>@component.Component.ToString().ToUpperInvariant()</strong></div>
+              <div><span>Ferramenta</span><strong>@(folha?.ToolReferenceOf(component.Component) ?? component.ToolReference ?? "—")</strong><small>@((folha?.ToolLotOf(component.Component) ?? component.ToolLot) is { } lote ? $"Lote {lote}" : "")</small></div>
+              <div><span>Gargalo</span><strong>@(component.DiametroGargaloMm is { } gargalo ? PegamentosVista.Fmt(gargalo) + " mm" : "—")</strong></div>
+              <div><span>Leituras</span><strong>@leituras.Count</strong></div>
+            </div>
+            @if (leituras.Count == 0)
+            {
+              <p class="resumo-hint">Nenhuma leitura registada.</p>
+            }
+            else
+            {
+              <div class="dmo-table-wrap revisao-consulta-tabela">
                 <table class="dmo-table">
-                  <thead><tr><th>Posição</th><th>CM</th><th>Massa de água (g)</th><th>Capacidade (cm³)</th><th>Peso vidro (g)</th></tr></thead>
+                  <thead><tr><th>N.º</th><th>Costura (0°) mm</th><th>Contra costura (90°) mm</th><th>Média mm</th><th>Estado</th></tr></thead>
                   <tbody>
-                    @foreach (var leitura in peso.Measurements)
+                    @* Como na folha dos Pegamentos (Diogo, 19/10/2026): o N.º e
+                       o estado com as cores de lá, e o valor fora a vermelho. *@
+                    @foreach (var (leitura, numero) in leituras.Select((m, i) => (m, i + 1)))
                     {
                       <tr>
-                        <td>@leitura.RowPosition</td>
-                        <td>@leitura.CmSubject</td>
-                        <td>@leitura.WaterWeightGrams.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
-                        <td>@leitura.CapacityCm3.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
-                        <td>@leitura.GlassWeightGrams.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
+                        <td>@numero</td>
+                        <td class="@(PegamentosVista.AxisAlert(leitura.Evaluation, PegamentosEvaluatedAxis.Costura) ? "peg-cell-bad" : null)">@PegamentosVista.Fmt(leitura.CosturaMm)</td>
+                        <td class="@(PegamentosVista.AxisAlert(leitura.Evaluation, PegamentosEvaluatedAxis.ContraCostura) ? "peg-cell-bad" : null)">@(leitura.ContraCosturaMm is { } contra ? PegamentosVista.Fmt(contra) : "não registada")</td>
+                        <td class="@(PegamentosVista.AxisAlert(leitura.Evaluation, PegamentosEvaluatedAxis.Media) ? "peg-cell-bad" : null)">@PegamentosVista.Fmt(leitura.Evaluation.MediaMm)</td>
+                        <td><span class="@(leitura.Evaluation.IsNotEvaluable ? "peg-state-na" : leitura.Evaluation.HasAlert ? "peg-state-bad" : "peg-state-ok")">@PegamentosVista.StateLabel(leitura.Evaluation)</span></td>
                       </tr>
                     }
                   </tbody>
                 </table>
               </div>
             }
-            else
-            {
-              <p class="resumo-hint">Este Peso ainda não contém leituras.</p>
-            }
           </div>
+        }
+        <div>
+          @if (folhas.Count == 0)
+          {
+            <h3 class="revisao-section">Pegamentos</h3>
+            <p class="resumo-hint">Esta produção ainda não tem medições de Pegamentos.</p>
+            @foreach (var component in sheet.Components)
+            {
+              ComponentCard(component, null);
+            }
+          }
+          @foreach (var (folha, numero) in folhas.Select((f, i) => (f, i + 1)))
+          {
+            @* Sem contadores no título (Diogo, 20/10/2026): o mapa diz se há alertas. *@
+            <h3 class="revisao-section">@(folhas.Count > 1 ? $"Folha {numero} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha)}" : "Pegamentos")@(folha.IsCurrent ? null : " · ferramentas anteriores")<partial name="_DmoHelp" model="@($"Tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Os alertas são informativos.")" /></h3>
+            @foreach (var component in folha.Components)
+            {
+              ComponentCard(component, folha);
+            }
+          }
+        </div>
+        @* O rasto das leituras corrigidas ou apagadas (sweep de 19/10/2026,
+           4.6): o valor antigo, o novo, quem e quando. Corrigir depois da
+           aprovação mantém a aprovação; o aviso da Revisão traz aqui. *@
+        @if (Model.Correcoes.Count > 0)
+        {
+          string Eixos(decimal? costura, decimal? contra) =>
+              $"{PegamentosVista.FmtOptional(costura)} / {PegamentosVista.FmtOptional(contra)}";
+          var folhaDe = folhas.Select((f, i) => (f.PegamentosId, Numero: i + 1)).ToDictionary(x => x.PegamentosId, x => x.Numero);
+          <h3 class="revisao-section">Correções às leituras<partial name="_DmoHelp" model="@("Costura / contra costura, em mm. Corrigir ou apagar uma leitura depois da aprovação mantém a aprovação.")" /></h3>
+          <div class="dmo-table-wrap revisao-consulta-tabela">
+            <table class="dmo-table">
+              <thead><tr><th>Quando</th><th>Por</th><th>Leitura</th><th>Antes</th><th>Depois</th></tr></thead>
+              <tbody>
+                @foreach (var correcao in Model.Correcoes)
+                {
+                  <tr data-peg-rasto="@(correcao.Apagada ? "apagada" : "corrigida")">
+                    <td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(correcao.EmUtc).ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@(correcao.Por ?? "—")</td>
+                    <td>@correcao.Component.ToString().ToUpperInvariant() · N.º @correcao.Numero@(folhas.Count > 1 && folhaDe.TryGetValue(correcao.PegamentosId, out var folhaNumero) ? $" · Folha {folhaNumero}" : null)</td>
+                    <td>@Eixos(correcao.CosturaAntesMm, correcao.ContraCosturaAntesMm)</td>
+                    <td>@(correcao.Apagada ? "Apagada" : Eixos(correcao.CosturaDepoisMm, correcao.ContraCosturaDepoisMm))@(!correcao.Apagada && correcao.NominalGargaloDepoisMm != correcao.NominalGargaloAntesMm ? $" · gargalo {PegamentosVista.FmtOptional(correcao.NominalGargaloDepoisMm)} mm" : null)</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        <partial name="_RevisaoPegamentosMapa" model="sheet" />
+      }
+      @if (Model.Tipo == "puncoes")
+      {
+        @* O PU NNPB inteiro (Diogo, 19/10/2026: «depois pagina mostrar
+           tudo»); não se aprova. *@
+        var registo = Model.Puncoes?.Registo;
+        <h3 class="revisao-section">Registo das punções</h3>
+        @if (registo is null)
+        {
+          <p class="resumo-hint">Ainda não há registo das punções nesta produção.</p>
         }
         else
         {
-          <p class="resumo-hint">Ainda não existe Peso registado nesta produção.</p>
+          <div class="revisao-facts four">
+            <div><span>Referência da punção</span><strong>@registo.PunchReference</strong><small>Lote @registo.Lot</small></div>
+            <div class="destaque"><span>Total verificados</span><strong>@registo.Rows.Count(r => r.PunchSeen && r.CoolerSeen) de @registo.Total</strong></div>
+            <div><span>Punções vistas</span><strong>@registo.PunchSeenCount</strong></div>
+            <div><span>Arrefecedores vistos</span><strong>@registo.CoolerSeenCount</strong></div>
+          </div>
+          @if (registo.Rows.Count > 0)
+          {
+            <div class="dmo-table-wrap revisao-consulta-tabela">
+              <table class="dmo-table">
+                <thead><tr><th>Posição</th><th>N.º da punção</th><th>Lote</th><th>Punção visto</th><th>Arrefecedor visto</th><th>Registado por</th><th>Quando</th></tr></thead>
+                <tbody>
+                  @foreach (var linha in registo.Rows)
+                  {
+                    <tr>
+                      <td>@linha.Position@(linha.IsAlteracao ? " (alteração)" : null)</td>
+                      <td>@linha.Number</td>
+                      <td>@linha.Lot</td>
+                      <td class="@(linha.PunchSeen ? "revisao-ok" : "revisao-alerta")">@(linha.PunchSeen ? "Sim" : "Não")</td>
+                      <td class="@(linha.CoolerSeen ? "revisao-ok" : "revisao-alerta")">@(linha.CoolerSeen ? "Sim" : "Não")</td>
+                      <td>@(linha.RegisteredBy ?? "—")</td>
+                      <td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(linha.RegisteredAtUtc).ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
         }
       }
-      else if (Model.Pegamentos is { } sheet)
+      @if (Model.Tipo == "ferramentas")
       {
-        <div class="resumo-linked">
-          <h4>Pegamentos · CM / BQ / MF<partial name="_DmoHelp" model="@("Os alertas são informativos.")" /></h4>
-          @if (sheet.Pegamentos is null)
+        @* O Resumo das ferramentas: as ferramentas da produção e o OK/NOK de
+           cada área do Resumo, com o comentário (19/10/2026). *@
+        <h3 class="revisao-section">Ferramentas da produção</h3>
+        <div class="revisao-facts">
+          @foreach (var (area, tool) in Model.Tools)
           {
-            <p class="resumo-hint">Esta produção ainda não tem medições de Pegamentos.</p>
-          }
-          @foreach (var component in sheet.Components)
-          {
-            var leituras = sheet.Pegamentos?.Measurements.Where(m => m.Component == component.Component).ToList()
-                ?? new List<PegamentosMeasurementReadModel>();
-            <article class="resumo-linked-card">
-              <h4>@component.Component.ToString().ToUpperInvariant() · @(component.ToolReference ?? "não registada")</h4>
-              <p>Lote @(component.ToolLot ?? "não registado") · Gargalo: @(component.DiametroGargaloMm?.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) ?? "não registado") mm</p>
-              @if (leituras.Count == 0)
-              {
-                <p class="resumo-hint">Nenhuma leitura registada.</p>
-              }
-              else
-              {
-                <div class="dmo-table-wrap">
-                  <table class="dmo-table">
-                    <thead><tr><th>Posição</th><th>Costura (mm)</th><th>Contra costura (mm)</th><th>Média (mm)</th><th>Avaliação</th></tr></thead>
-                    <tbody>
-                      @foreach (var leitura in leituras)
-                      {
-                        <tr>
-                          <td>@leitura.RowPosition</td>
-                          <td>@leitura.CosturaMm.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
-                          <td>@(leitura.ContraCosturaMm?.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) ?? "não registada")</td>
-                          <td>@leitura.Evaluation.MediaMm.ToString(DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)</td>
-                          <td>@(leitura.Evaluation.IsNotEvaluable ? "Não avaliável" : leitura.Evaluation.HasAlert ? "Alerta dimensional" : "Sem alerta")</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              }
-            </article>
+            <div><span>@area</span><strong>@tool.Reference</strong><small>Lote @tool.Lot</small></div>
           }
         </div>
+        <h3 class="revisao-section">Resumo</h3>
+        <div class="dmo-table-wrap revisao-consulta-tabela">
+          <table class="dmo-table">
+            <thead><tr><th>Área</th><th>Estado</th><th>Comentário</th><th>Registado por</th><th>Quando</th></tr></thead>
+            <tbody>
+              @foreach (var area in Model.Areas)
+              {
+                <tr>
+                  <td>@area.Area</td>
+                  <td class="@(area.Status == "OK" ? "revisao-ok" : area.Status == "NOK" ? "revisao-alerta" : null)">@(area.Status ?? "Não registado")</td>
+                  <td>@(area.Comment ?? "—")</td>
+                  <td>@(area.UpdatedBy ?? "—")</td>
+                  <td>@(area.UpdatedAtUtc is { } em ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(em).ToString("dd/MM/yyyy HH:mm") : "—")</td>
+                </tr>
+                @* As gravações anteriores do OK/NOK neste controlo (D13). *@
+                @foreach (var mudanca in area.Anteriores)
+                {
+                  <tr class="revisao-historico" data-revisao-historico="@area.Area">
+                    <td></td>
+                    <td>antes: @(mudanca.Status ?? "—")</td>
+                    <td></td>
+                    <td>@(mudanca.Por ?? "—")</td>
+                    <td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(mudanca.EmUtc).ToString("dd/MM/yyyy HH:mm")</td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
       }
-      else
+      @if (Model.Tipo == "pegamentos" && Model.Pegamentos is null)
       {
         <p class="resumo-hint">Não foi possível obter os Pegamentos desta produção.</p>
       }
+      @if (Model.Tipo != "controlo" && Model.Parte is { TemRegisto: true } parte)
+      {
+        @* O Aprovar / Não aprovar também aqui (Diogo, 19/10/2026), o mesmo
+           da Revisão: grava sem recarregar e volta a esta consulta. No fim,
+           depois dos dados, e só com Peso registado («isto é uma aprovaçao
+           do peso?»). *@
+        <div id="consultaDecisao" data-dmo-regiao class="revisao-parte">
+          <div class="revisao-parte-topo">
+            <h3 class="revisao-section">Aprovação do Peso</h3>
+            <partial name="_RevisaoParteAcoes" model="parte" />
+          </div>
+          <partial name="_RevisaoParteDecisao" model="parte" />
+          @if (Model.ApprovalRefusedNoIdentity)
+          {
+            <div data-dmo-toast="erro" class="resumo-aviso" role="alert">A aprovação não foi registada: a sessão não identifica o operador, e sem identidade não fica registo de quem aprovou. Termine a sessão e volte a entrar.</div>
+          }
+          @if (Model.NoteMissing)
+          {
+            <div data-dmo-toast="erro" class="resumo-aviso" role="alert">Para não aprovar, escreva na nota o que tem de mudar. Nada foi gravado.</div>
+          }
+          <form method="post" action="/Controlo/Approve?handler=Approve" data-dmo-parcial class="revisao-decision" id="revisaoDecisao">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+            <input type="hidden" name="controlo_id" value="@Model.ControloId" />
+            <input type="hidden" name="voltar" value="@Model.Tipo" />
+            <div class="dmo-field">
+              <label for="revisao-responsavel">Responsável</label>
+              <input id="revisao-responsavel" value="@Model.Reviewer" readonly />
+            </div>
+            <div class="dmo-field">
+              <label for="revisao-nota">Nota / alterações necessárias</label>
+              <textarea id="revisao-nota" name="nota" rows="2" maxlength="2000" placeholder="Obrigatória para não aprovar."></textarea>
+            </div>
+          </form>
+        </div>
+      }
+
     </section>
   }
 </main>
+<script>
+(function () {
+  'use strict';
+  // «Não aprovar» pede a nota antes de enviar; o servidor volta a verificar.
+  document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-requires-note]');
+    if (!button) return;
+    var nota = button.form && button.form.querySelector('textarea[name="nota"]');
+    if (nota && !nota.value.trim()) {
+      event.preventDefault();
+      nota.setCustomValidity('Escreva o que tem de mudar para não aprovar.');
+      nota.reportValidity();
+      nota.addEventListener('input', function () { nota.setCustomValidity(''); }, { once: true });
+    }
+  });
+})();
+</script>

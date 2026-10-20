@@ -101,6 +101,54 @@ public static class JobOnChangeFields
     /// <summary>O que um registo das Boquilhas vigia: a máquina, as datas e a BQ.</summary>
     public static readonly IReadOnlyList<string> BoquilhasWatches = new[] { Machine, Start, End, Bq };
 
+    /// <summary>O nome curto do campo, para a linha da máquina («CM», «Fim»).</summary>
+    public static string ShortLabel(string field) => field switch
+    {
+        Machine => "Máquina",
+        Start => "Início",
+        End => "Fim",
+        Calote => "Calote",
+        _ => field
+    };
+
+    /// <summary>
+    /// O que mudou, numa linha, para a barra da máquina (o Diogo, 18/10/2026:
+    /// «Mudança CM Sai 66 entra 67», porque numa ferramenta muda sempre o
+    /// lote): por campo, o valor de antes da primeira mudança e o de agora,
+    /// do campo mudado mais recentemente para o mais antigo —
+    /// «Mudança CM · Sai 66 entra 67; Fim · Sai 18/10/2026 entra 20/10/2026».
+    /// </summary>
+    public static string Summarize(IEnumerable<JobOnChangeView> newestFirst) =>
+        "Mudança " + string.Join("; ", newestFirst
+            .GroupBy(c => c.Field)
+            .Select(g =>
+            {
+                var (sai, entra) = SaiEntra(g.Key, g.Last().OldValue, g.First().NewValue);
+                return $"{ShortLabel(g.Key)} · Sai {sai} entra {entra}";
+            }));
+
+    // Numa ferramenta com a mesma referência («6018 · lote 66» → «6018 · lote
+    // 67») só o lote conta; com outra referência fica a ferramenta inteira.
+    private static (string Sai, string Entra) SaiEntra(string field, string? oldValue, string? newValue)
+    {
+        if (field is Cm or Mf or Bq
+            && SplitLot(oldValue) is { } antes
+            && SplitLot(newValue) is { } depois
+            && antes.Reference == depois.Reference)
+        {
+            return (antes.Lot, depois.Lot);
+        }
+
+        return (oldValue ?? "—", newValue ?? "—");
+    }
+
+    private static (string Reference, string Lot)? SplitLot(string? value)
+    {
+        const string marca = " · lote ";
+        var at = value?.LastIndexOf(marca, StringComparison.Ordinal) ?? -1;
+        return at > 0 ? (value![..at], value[(at + marca.Length)..]) : null;
+    }
+
     /// <summary>«Mudou a BQ: 5447 · lote 3 → 5447 · lote 4».</summary>
     public static string Describe(string field, string? oldValue, string? newValue) =>
         $"Mudou {Label(field)}: {oldValue ?? "—"} → {newValue ?? "—"}";
@@ -121,7 +169,14 @@ public sealed record JobOnChangeView(
     string Field,
     string Text,
     string? ChangedBy,
-    DateTime ChangedAtUtc);
+    DateTime ChangedAtUtc)
+{
+    /// <summary>O valor antes da alteração (para a linha da máquina).</summary>
+    public string? OldValue { get; init; }
+
+    /// <summary>O valor depois da alteração (para a linha da máquina).</summary>
+    public string? NewValue { get; init; }
+}
 
 /// <summary>
 /// O aviso num módulo (o proprietário, 17/10/2026): as alterações do Job On

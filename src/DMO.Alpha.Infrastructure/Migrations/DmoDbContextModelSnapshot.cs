@@ -299,6 +299,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("ControloId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Identificacao")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
                     b.Property<string>("Status")
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
@@ -316,6 +320,77 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("ControloAreaStates");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.ControloAreaStateHistorico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<int>("ControloId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Por")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControloId", "Area", "EmUtc");
+
+                    b.ToTable("ControloAreaStateHistorico");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.ControloDecisao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Aprovado")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ControloId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Nota")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("OperatorId")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<int>("Parte")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControloId", "Parte")
+                        .IsUnique();
+
+                    b.ToTable("ControloDecisoes", (string)null);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.ControloViewing", b =>
@@ -343,6 +418,130 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("ControloViewings");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.EmailEnvio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Assunto")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("ControloId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Destinatarios")
+                        .IsRequired()
+                        .HasMaxLength(13000)
+                        .HasColumnType("character varying(13000)");
+
+                    b.Property<DateTime>("EnviadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EnviadoPor")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<string>("Ficheiro")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.Property<string>("ListaNome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ModeloNome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("PesoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Remetente")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControloId");
+
+                    b.ToTable("EmailEnvios", (string)null);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.EmailLista", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Destinatarios")
+                        .IsRequired()
+                        .HasMaxLength(13000)
+                        .HasColumnType("character varying(13000)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("EmailListas", (string)null);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.EmailModelo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Assunto")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Corpo")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<int?>("ListaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Remetente")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ListaId");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("EmailModelos", (string)null);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.GlassDensity", b =>
@@ -402,6 +601,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int?>("ControloId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("CorrigidoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("MfToolId")
                         .HasColumnType("text");
 
@@ -431,6 +633,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.HasIndex("MfToolId");
 
+                    b.HasIndex("ControloId", "CmToolId", "BqToolId", "MfToolId")
+                        .IsUnique()
+                        .HasFilter("\"ControloId\" IS NOT NULL AND \"CmToolId\" IS DISTINCT FROM 'REMOVED' AND \"BqToolId\" IS DISTINCT FROM 'REMOVED' AND \"MfToolId\" IS DISTINCT FROM 'REMOVED'");
+
                     b.ToTable("Pegamentos");
                 });
 
@@ -458,6 +664,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("PegamentosId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("RegistadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("RowPosition")
                         .HasColumnType("integer");
 
@@ -467,6 +676,62 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("PegamentosMeasurements");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.PegamentosMeasurementHistorico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Apagada")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Component")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("ContraCosturaAntesMm")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("ContraCosturaDepoisMm")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("CosturaAntesMm")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("CosturaDepoisMm")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("EmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MeasurementId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("NominalGargaloAntesMm")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("NominalGargaloDepoisMm")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PegamentosId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Por")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PegamentosId", "EmUtc");
+
+                    b.ToTable("PegamentosMeasurementHistorico");
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.PegamentosTolerance", b =>
@@ -554,6 +819,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<decimal>("VolumePuncaoCm3")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal?>("WaterDensityGramsPerCm3")
+                        .HasColumnType("numeric");
+
                     b.Property<int>("WaterTemperatureC")
                         .HasColumnType("integer");
 
@@ -563,10 +831,13 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.HasIndex("CmToolId");
 
-                    b.HasIndex("ControloId")
-                        .IsUnique();
+                    b.HasIndex("ControloId");
 
                     b.HasIndex("ProducaoAnteriorControloId");
+
+                    b.HasIndex("ControloId", "CmToolId", "BqToolId")
+                        .IsUnique()
+                        .HasFilter("\"ControloId\" IS NOT NULL AND \"CmToolId\" <> 'REMOVED' AND \"BqToolId\" <> 'REMOVED'");
 
                     b.ToTable("Pesos");
                 });
@@ -629,6 +900,46 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("PesoComparacoes");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoComparacaoCmDecisao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Aprovado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("AprovadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AprovadoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<bool>("DeParte")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("EscolhidoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EscolhidoPor")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<int>("MeasurementId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MeasurementId")
+                        .IsUnique();
+
+                    b.ToTable("PesoComparacaoCmDecisoes", (string)null);
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoComparacaoMeasurement", b =>
                 {
                     b.Property<int>("Id")
@@ -672,6 +983,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<int>("PesoId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("RegistadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RowPosition")
                         .HasColumnType("integer");
@@ -806,6 +1120,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<bool>("RequiresPasswordChange")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("SessionVersion")
+                        .HasColumnType("integer");
+
                     b.Property<string>("TemplateName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -826,7 +1143,13 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("JobOnId")
+                    b.Property<int?>("JobOnId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ReplacedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ReplacedJobOnId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ToolId")
@@ -839,9 +1162,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasIndex("JobOnId")
                         .IsUnique();
 
+                    b.HasIndex("ReplacedJobOnId");
+
                     b.HasIndex("ToolId");
 
-                    b.ToTable("BqContexts");
+                    b.ToTable("BqContexts", t =>
+                        {
+                            t.HasCheckConstraint("CK_BqContexts_CurrentOrReplaced", "(\"JobOnId\" IS NULL) <> (\"ReplacedJobOnId\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_BqContexts_ReplacedWithDate", "(\"ReplacedJobOnId\" IS NULL) = (\"ReplacedAtUtc\" IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Production.CmContext", b =>
@@ -852,7 +1182,13 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("JobOnId")
+                    b.Property<int?>("JobOnId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ReplacedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ReplacedJobOnId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ToolId")
@@ -865,9 +1201,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasIndex("JobOnId")
                         .IsUnique();
 
+                    b.HasIndex("ReplacedJobOnId");
+
                     b.HasIndex("ToolId");
 
-                    b.ToTable("CmContexts");
+                    b.ToTable("CmContexts", t =>
+                        {
+                            t.HasCheckConstraint("CK_CmContexts_CurrentOrReplaced", "(\"JobOnId\" IS NULL) <> (\"ReplacedJobOnId\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_CmContexts_ReplacedWithDate", "(\"ReplacedJobOnId\" IS NULL) = (\"ReplacedAtUtc\" IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Production.JobOn", b =>
@@ -880,6 +1223,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<decimal?>("CaloteMm")
                         .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("CriadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateOnly?>("FimEm")
                         .HasColumnType("date");
@@ -900,12 +1246,20 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductionNumber")
-                        .IsUnique();
+                    b.HasIndex("ProductionNumber");
 
                     b.HasIndex("Reference");
+
+                    b.HasIndex("Reference", "ProductionNumber")
+                        .IsUnique();
 
                     b.HasIndex("MachineId", "InicioEm", "FimEm");
 
@@ -1036,7 +1390,13 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("JobOnId")
+                    b.Property<int?>("JobOnId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ReplacedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ReplacedJobOnId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ToolId")
@@ -1049,9 +1409,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasIndex("JobOnId")
                         .IsUnique();
 
+                    b.HasIndex("ReplacedJobOnId");
+
                     b.HasIndex("ToolId");
 
-                    b.ToTable("MfContexts");
+                    b.ToTable("MfContexts", t =>
+                        {
+                            t.HasCheckConstraint("CK_MfContexts_CurrentOrReplaced", "(\"JobOnId\" IS NULL) <> (\"ReplacedJobOnId\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_MfContexts_ReplacedWithDate", "(\"ReplacedJobOnId\" IS NULL) = (\"ReplacedAtUtc\" IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Tools.Tool", b =>
@@ -1065,6 +1432,13 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int?>("BqAccountedQuantity")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("DuplicateWarningAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DuplicateWarningByNameFrozen")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
                     b.Property<string>("Lot")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1073,12 +1447,21 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("RegisteredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("TechnicalName")
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("ToolId");
 
@@ -1137,6 +1520,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<decimal?>("TpVolumeMm3")
                         .HasColumnType("numeric");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<decimal?>("VolumeMarisaCm3")
                         .HasColumnType("numeric");
@@ -1241,6 +1630,26 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("Controlo");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.ControloAreaStateHistorico", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Controlo.Controlo", "Controlo")
+                        .WithMany()
+                        .HasForeignKey("ControloId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Controlo");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.ControloDecisao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Controlo.Controlo", null)
+                        .WithMany()
+                        .HasForeignKey("ControloId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.ControloViewing", b =>
                 {
                     b.HasOne("DMO.Alpha.Core.Controlo.Controlo", "Controlo")
@@ -1250,6 +1659,14 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Controlo");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.EmailModelo", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Controlo.EmailLista", null)
+                        .WithMany()
+                        .HasForeignKey("ListaId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.Pegamentos", b =>
@@ -1292,6 +1709,15 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Pegamentos");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.PegamentosMeasurementHistorico", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Controlo.Pegamentos", null)
+                        .WithMany()
+                        .HasForeignKey("PegamentosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.Peso", b =>
@@ -1354,6 +1780,17 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("PesoInicial");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoComparacaoCmDecisao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Controlo.PesoComparacaoMeasurement", "Measurement")
+                        .WithMany()
+                        .HasForeignKey("MeasurementId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Measurement");
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoComparacaoMeasurement", b =>
                 {
                     b.HasOne("DMO.Alpha.Core.Controlo.PesoComparacao", "Comparacao")
@@ -1402,8 +1839,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
                         .WithOne("BqContext")
                         .HasForeignKey("DMO.Alpha.Core.Production.BqContext", "JobOnId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DMO.Alpha.Core.Production.JobOn", "ReplacedJobOn")
+                        .WithMany()
+                        .HasForeignKey("ReplacedJobOnId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
                         .WithMany()
@@ -1412,6 +1853,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("JobOn");
+
+                    b.Navigation("ReplacedJobOn");
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Production.CmContext", b =>
@@ -1419,8 +1862,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
                         .WithOne("CmContext")
                         .HasForeignKey("DMO.Alpha.Core.Production.CmContext", "JobOnId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DMO.Alpha.Core.Production.JobOn", "ReplacedJobOn")
+                        .WithMany()
+                        .HasForeignKey("ReplacedJobOnId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
                         .WithMany()
@@ -1429,6 +1876,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("JobOn");
+
+                    b.Navigation("ReplacedJobOn");
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Production.JobOn", b =>
@@ -1436,7 +1885,7 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Production.Machine", "Machine")
                         .WithMany()
                         .HasForeignKey("MachineId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Machine");
@@ -1475,8 +1924,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
                         .WithOne("MfContext")
                         .HasForeignKey("DMO.Alpha.Core.Production.MfContext", "JobOnId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DMO.Alpha.Core.Production.JobOn", "ReplacedJobOn")
+                        .WithMany()
+                        .HasForeignKey("ReplacedJobOnId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
                         .WithMany()
@@ -1485,6 +1938,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("JobOn");
+
+                    b.Navigation("ReplacedJobOn");
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Tools.ToolMachineLink", b =>

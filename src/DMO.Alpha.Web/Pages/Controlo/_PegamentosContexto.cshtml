@@ -1,0 +1,90 @@
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosModel
+@using DMO.Alpha.Core.Controlo
+@* O contexto da folha (zona). A página e a resposta só com as zonas de uma gravação
+   (E11, _PegamentosZonas) usam este. *@
+@{
+    var sheet = Model.Sheet!;
+    // Uma folha de antes de uma troca da CM, da BQ ou do MF (
+    // 18/10/2026): mostra as ferramentas dela e não recebe leituras novas.
+    var folhaAnterior = sheet.Pegamentos is { IsCurrent: false };
+    var variasFolhas = sheet.Sheets.Count > 1;
+}
+<div id="pegContexto" class="dmo-zona" data-dmo-regiao>
+<section class="dmo-card peg-card" aria-labelledby="peg-context-title">
+  <div class="peg-section-head">
+    <div>
+      <h3 id="peg-context-title">@(sheet.SemJobOn ? "Pegamentos sem Job On" : "Contexto da produção")</h3>
+      <p>@(sheet.SemJobOn ? "As ferramentas foram escolhidas à mão. Associe o Job On quando a produção existir." : folhaAnterior ? "A produção vem do Job On selecionado no Resumo do Controlo; as ferramentas são as desta folha, de antes da troca." : "A produção e as ferramentas vêm do Job On selecionado no Resumo do Controlo.")</p>
+    </div>
+    @* O PDF DA FOLHA (o corte PDF estendido aos Pegamentos): as fichas
+       congeladas + as medições por componente com o gesto em cruz + as
+       médias — por download local com o nome canónico. Sem medições
+       ainda, a folha sai em branco para preencher à mão. No canto
+       superior direito do card (Diogo, 18/10/2026). *@
+    <div class="dmo-card-topo-acoes">
+      <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
+        <partial name="_PegamentosAncora" model="sheet" />
+        <button type="submit" class="dmo-button">@(sheet.Pegamentos is null ? "Descarregar folha de Pegamentos em branco (PDF)" : "Descarregar PDF de Pegamentos separado")</button>
+      </form>
+      @if (sheet.SemJobOn && !Model.AssociarAberto)
+      {
+        <a class="dmo-button" href="/Controlo/Pegamentos?pegamentos_id=@sheet.Pegamentos?.PegamentosId&associar=1#peg-associar-title">Associar Job On</a>
+      }
+      @if (folhaAnterior)
+      {
+        <a class="dmo-button" href="/Controlo/Pegamentos?controlo_id=@sheet.ControloId">Abrir a folha atual</a>
+      }
+      <span class="peg-step">1 · Contexto</span>
+    </div>
+  </div>
+  @if (Model.JobOnNotice is { } jobOnNotice)
+  {
+    <partial name="_JobOnChangeNotice" model="jobOnNotice" />
+  }
+  @* OS CARDS DOS PEGAMENTOS (o Owner 2026-10-13: «pegamentos podem ter
+     os cards com o que é relevante para os pegamentos: cm bq mf e os
+     lotes»): os COMPONENTES MEDIDOS com as referências e os lotes —
+     a cruz mede a CM, a BQ e o MF; o corredor. Nada mais. *@
+  <div class="dmo-facts peg-context-grid">
+    <div class="dmo-fact"><span>Nº de produção</span><strong>@sheet.ProductionNumber</strong></div>
+    @if (!sheet.SemJobOn)
+    {
+      <div class="dmo-fact"><span>Máquina</span><strong>@sheet.Machine</strong></div>
+    }
+    <div class="dmo-fact"><span>CM</span><strong>@(Model.CmTool?.Reference ?? "—")@(Model.CmTool?.Lot is { } cmLot ? $" · Lote {cmLot}" : null)</strong></div>
+    <div class="dmo-fact"><span>BQ</span><strong>@(Model.BqTool?.Reference ?? "—")@(Model.BqTool?.Lot is { } bqLot ? $" · Lote {bqLot}" : null)</strong></div>
+    <div class="dmo-fact"><span>MF</span><strong>@(Model.MfTool?.Reference ?? (sheet.MfToolId is null ? "não aplicável" : "—"))@(Model.MfTool?.Lot is { } mfLot ? $" · Lote {mfLot}" : null)</strong></div>
+    @* O operador que fez os Pegamentos (Diogo, 17/10/2026): ocupa o
+       lugar da máquina nos Pegamentos sem Job On. *@
+    @if (sheet.SemJobOn)
+    {
+      <div class="dmo-fact"><span>Operador</span><strong>@(sheet.Pegamentos?.RegistadoPor ?? "—")</strong></div>
+    }
+    <div class="dmo-fact">
+      <span>Corredor de tolerância</span>
+      <strong>nominal ± @PegamentosVista.Fmt(Model.ShownTolerance) mm</strong>
+      <small>@(sheet.Pegamentos is null ? "tolerância das Definições do Controlo — fica congelada no registo na primeira medição" : sheet.SemJobOn ? "congelada neste registo" : variasFolhas ? "congelada nesta folha" : "congelada no registo desta produção")</small>
+    </div>
+  </div>
+  <div class="peg-context-notes">
+  @if (sheet.Pegamentos is null && sheet.Sheets.Count == 0)
+  {
+    <p class="peg-hint">Ainda sem medições nesta produção. O PDF sai em branco (ferramentas, nominal e tolerância) para preencher à mão.</p>
+  }
+  else if (sheet.Pegamentos is null)
+  {
+    <p class="peg-hint">As ferramentas mudaram: a próxima leitura começa uma folha nova com estas ferramentas. As folhas anteriores ficaram como estavam e estão em «Folhas desta produção». O PDF sai em branco para preencher à mão.</p>
+  }
+  else if (folhaAnterior)
+  {
+    <p class="peg-hint">Esta folha é de ferramentas que já não estão na produção: não recebe leituras novas. As leituras dela ainda se corrigem e apagam.</p>
+  }
+  @if (Model.Associado)
+  {
+    <p data-dmo-toast="ok" class="peg-hint" role="status">Pegamentos associados a esta produção. As medições já registadas ficaram como estavam.</p>
+  }
+
+  </div>
+
+</section>
+</div>

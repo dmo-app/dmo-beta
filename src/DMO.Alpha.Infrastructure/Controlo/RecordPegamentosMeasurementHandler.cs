@@ -16,9 +16,12 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// registo durável (pegamentos_id) — a ausência era o estado válido até
 /// então — congelando nele as tools da combinação herdadas do contexto e
 /// a tolerância efetiva do corredor (configuração do Controlo ?? default
-/// do Owner ±0,20); as medições seguinte usam SEMPRE o MESMO registo do
-/// controlo com a MESMA tolerância congelada (o caminho do registo
-/// adicional explícito é slice futuro). O gargalo em falta fornecido no
+/// do Owner ±0,20); as medições seguintes usam o registo da MESMA
+/// combinação CM+BQ+MF, com a MESMA tolerância congelada. Depois de trocar
+/// a CM, a BQ ou o MF a meio da produção, a primeira leitura começa uma
+/// folha nova com as ferramentas novas e a tolerância corrente; voltar a
+/// uma combinação que a produção já usou retoma a folha dela (
+/// 18/10/2026). A folha anterior fica como estava. O gargalo em falta fornecido no
 /// fluxo é completado no tool_id owner (regra Ferramentas/spec L184:
 /// gravam no contexto técnico da própria Tool, nunca como facto do
 /// registo de Pegamentos; valores já registados nunca são sobrescritos —
@@ -44,12 +47,13 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
         _toleranceConfiguration = toleranceConfiguration;
     }
 
-    // Duas leituras gravadas ao mesmo tempo colidem na posição (ou na
-    // ficha técnica criada para o gargalo): a segunda volta a correr.
+    // Duas leituras gravadas ao mesmo tempo colidem na ficha técnica criada
+    // para o gargalo: a segunda volta a correr.
     public Task<RecordPegamentosMeasurementOutcome> HandleAsync(
         RecordPegamentosMeasurement command,
         CancellationToken cancellationToken = default) =>
-        UniqueViolationRetry.RunAsync(_db, () => HandleOnceAsync(command, cancellationToken));
+        UniqueViolationRetry.RunAsync(_db, () =>
+            DbWrite.InTransactionAsync(_db, () => HandleOnceAsync(command, cancellationToken), cancellationToken));
 
     private async Task<RecordPegamentosMeasurementOutcome> HandleOnceAsync(
         RecordPegamentosMeasurement command,
@@ -66,19 +70,40 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
             : command.ComponentToken == "BQ" ? PegamentosComponent.Bq
             : PegamentosComponent.Mf;
 
+        // Uma costura ou contra costura de 0 ou menos é fisicamente
+        // impossível: nenhuma linha do envio é gravada (Diogo, 18/10/2026).
+        if (new[] { new PegamentosRow(command.CosturaMm, command.ContraCosturaMm) }
+            .Concat(command.AdditionalRows ?? [])
+            .Any(row => row.CosturaMm <= 0m || row.ContraCosturaMm is <= 0m))
+        {
+            return Refused(RecordPegamentosMeasurementResult.InvalidMeasurementValue);
+        }
+
         // 2–4. O registo e a tool do componente. Pelo pegamentos_id (os
         //    Pegamentos sem Job On, ou já associados): as ferramentas são
         //    as guardadas no registo. Pelo controlo_id: a tool é a do
-        //    contexto do Job On e o registo nasce na primeira medição.
+        //    contexto do Job On e a folha é a da combinação atual, que nasce
+        //    na primeira medição com essas ferramentas.
         DMO.Alpha.Core.Controlo.Pegamentos? registro;
         string? componentToolId;
         int? recordControloId;
+        var startedNewSheet = false;
         if (command.PegamentosId is int pegamentosId)
         {
             registro = await _db.Pegamentos.FirstOrDefaultAsync(p => p.Id == pegamentosId, cancellationToken);
             if (registro is null)
             {
                 return Refused(RecordPegamentosMeasurementResult.PegamentosNotFound);
+            }
+
+            // Uma folha associada a uma produção que entretanto trocou a CM,
+            // a BQ ou o MF fica como estava: as leituras novas vão para a
+            // folha das ferramentas atuais (18/10/2026).
+            if (registro.ControloId is int associatedControloId
+                && await PegamentosSheets.CurrentCombinationAsync(_db, associatedControloId, cancellationToken) is { } associatedCurrent
+                && !associatedCurrent.Matches(registro.CmToolId, registro.BqToolId, registro.MfToolId))
+            {
+                return Refused(RecordPegamentosMeasurementResult.PegamentosNotCurrent);
             }
 
             componentToolId = component switch
@@ -101,34 +126,43 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
             // 2. O controlo tem de existir: a folha vive sob o controlo_id de
             //    uma produção real — nenhum registo é criado para um
             //    controlo_id inexistente.
-            var controlo = await _db.Controlos
+            var controloExists = await _db.Controlos
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == command.ControloId, cancellationToken);
-            if (controlo is null)
+                .AnyAsync(c => c.Id == command.ControloId, cancellationToken);
+            if (!controloExists)
             {
                 return Refused(RecordPegamentosMeasurementResult.ControloNotFound);
             }
+
+            // Duas primeiras leituras ao mesmo tempo criavam duas folhas
+            // (18/10/2026): o trinco do controlo faz a segunda esperar e
+            // encontrar a folha que a primeira criou. A combinação lê-se
+            // depois do trinco, uma vez: a tool da leitura e a folha são da
+            // mesma combinação (uma troca a meio já não as separa).
+            await DbWrite.LockAsync(_db, $"pegamentos:controlo:{command.ControloId}", cancellationToken);
+            var current = (await PegamentosSheets.CurrentCombinationAsync(_db, command.ControloId, cancellationToken))!;
 
             // 3. A tool do componente é HERDADA do contexto de produção
             //    persistido (cm_id/bq_id/mf_id → tool_id do Job On deste
             //    controlo): um componente sem contexto nesta produção é
             //    recusa tipada — nunca inventado nem re-selecionado.
-            componentToolId = await ResolveComponentToolIdAsync(controlo.JobOnId, component, cancellationToken);
+            componentToolId = current.ToolOf(component);
             if (componentToolId is null or ToolRegistryConstants.RemovedToolId)
             {
                 return Refused(RecordPegamentosMeasurementResult.ComponentNotInProduction);
             }
 
-            // 4. O registo durável do controlo: o caso normal é UM por
-            //    produção (spec L22-24) — usa-se o registo existente (com a
-            //    tolerância congelada nele); na sua ausência cria-se AGORA,
-            //    na primeira medição, congelando as tools da combinação
-            //    herdadas do contexto e a tolerância efetiva corrente.
-            //    Nenhuma unicidade material sobre ControloId: um adicional
-            //    EXPLÍCITO é permitido pela spec mas é slice futuro — este
-            //    caminho nunca cria silenciosamente um segundo registo.
+            // 4. A folha da combinação atual (a mais antiga, se a mesma
+            //    combinação tiver duas — ferramentas eliminadas ficam todas
+            //    REMOVED): o caso normal é UMA por produção (spec L22-24),
+            //    com a tolerância congelada nela. Na sua ausência cria-se
+            //    AGORA, na primeira medição desta combinação, congelando as
+            //    tools herdadas do contexto e a tolerância efetiva corrente.
+            //    Nenhuma unicidade material sobre ControloId: a folha nova
+            //    depois de uma troca é outro pegamentos_id e a anterior fica
+            //    como estava.
             registro = await _db.Pegamentos
-                .Where(p => p.ControloId == controlo.Id)
+                .OfCombination(command.ControloId, current)
                 .OrderBy(p => p.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -138,12 +172,23 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
                 // combinação (referência/lote) são congelados À CRIAÇÃO do
                 // registo — as âncoras humanas vivem no REGISTO, não nas
                 // medições; um componente que o contexto não tem congela null.
-                var (cmToolId, bqToolId, mfToolId) = await ResolveCombinationToolsAsync(controlo.JobOnId, cancellationToken);
+                startedNewSheet = await _db.Pegamentos
+                    .AsNoTracking()
+                    .AnyAsync(p => p.ControloId == command.ControloId, cancellationToken);
                 registro = await PegamentosRecordFactory.AddAsync(
-                    _db, _toleranceConfiguration, controlo.Id, cmToolId, bqToolId, mfToolId, cancellationToken);
+                    _db, _toleranceConfiguration, command.ControloId,
+                    current.CmToolId, current.BqToolId, current.MfToolId, cancellationToken);
             }
 
-            recordControloId = controlo.Id;
+            recordControloId = command.ControloId;
+        }
+
+        // Registar e apagar na mesma folha ao mesmo tempo (dois separadores)
+        // deixavam um buraco nas posições (deep sweep 18/10/2026): o registar
+        // e o apagar/renumerar esperam um pelo outro no trinco da folha.
+        if (registro.Id != 0)
+        {
+            await LockSheetAsync(_db, registro.Id, cancellationToken);
         }
 
         // Tolerância CONGELADA no registo: uma alteração posterior da
@@ -188,10 +233,12 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
         //    único — nunca bloqueado, nunca fabricado). A ligação ao
         //    registo é pela navegação: o registo recém-criado ainda não tem
         //    pegamentos_id gerado — o backend emite-o na escrita e o EF
-        //    propaga-o à leitura.
-        var nextRowPosition = await _db.PegamentosMeasurements
+        //    propaga-o à leitura. A seguir à última (não à contagem): uma
+        //    folha que ficou com um buraco nas posições continua a gravar.
+        var nextRowPosition = (await _db.PegamentosMeasurements
             .AsNoTracking()
-            .CountAsync(m => m.PegamentosId == registro.Id, cancellationToken) + 1;
+            .Where(m => m.PegamentosId == registro.Id)
+            .MaxAsync(m => (int?)m.RowPosition, cancellationToken) ?? 0) + 1;
 
         var measurement = new PegamentosMeasurement
         {
@@ -203,6 +250,22 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
             NominalGargaloMm = nominalGargalo
         };
         _db.PegamentosMeasurements.Add(measurement);
+
+        // As outras linhas do mesmo envio («+ Linha»), a seguir, com o mesmo
+        // nominal: gravam-se no mesmo SaveChanges que a primeira, para um
+        // pedido cortado a meio não deixar só parte (deep sweep 18/10/2026).
+        foreach (var (row, i) in (command.AdditionalRows ?? []).Select((row, i) => (row, i)))
+        {
+            _db.PegamentosMeasurements.Add(new PegamentosMeasurement
+            {
+                Pegamentos = registro,
+                RowPosition = nextRowPosition + 1 + i,
+                Component = component,
+                CosturaMm = row.CosturaMm,
+                ContraCosturaMm = row.ContraCosturaMm,
+                NominalGargaloMm = nominalGargalo
+            });
+        }
 
         // 8. Valores derivados da leitura, calculados pelo backend com os
         //    factos congelados (nominal da linha + tolerância do registo) —
@@ -226,67 +289,18 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
                 measurement.CosturaMm,
                 measurement.ContraCosturaMm,
                 nominalGargalo,
-                evaluation));
+                evaluation)
+            {
+                StartedNewSheet = startedNewSheet
+            });
     }
 
     /// <summary>
-    /// A tool_id do componente no contexto do Job On (cm_id → CM tool_id,
-    /// bq_id → BQ tool_id, mf_id → MF tool_id — spec L146-148), ou null
-    /// quando o contexto desta produção não tem o componente.
+    /// O trinco da folha (pegamentos_id), até ao fim da transação: registar
+    /// e apagar leituras da mesma folha correm um de cada vez.
     /// </summary>
-    private async Task<string?> ResolveComponentToolIdAsync(
-        int jobOnId,
-        PegamentosComponent component,
-        CancellationToken cancellationToken) =>
-        component switch
-        {
-            PegamentosComponent.Cm => await _db.CmContexts
-                .AsNoTracking()
-                .Where(c => c.JobOnId == jobOnId)
-                .Select(c => c.ToolId)
-                .FirstOrDefaultAsync(cancellationToken),
-            PegamentosComponent.Bq => await _db.BqContexts
-                .AsNoTracking()
-                .Where(c => c.JobOnId == jobOnId)
-                .Select(c => c.ToolId)
-                .FirstOrDefaultAsync(cancellationToken),
-            PegamentosComponent.Mf => await _db.MfContexts
-                .AsNoTracking()
-                .Where(c => c.JobOnId == jobOnId)
-                .Select(c => c.ToolId)
-                .FirstOrDefaultAsync(cancellationToken),
-            _ => null
-        };
-
-    /// <summary>
-    /// As tools da combinação CM+BQ+MF herdadas do contexto do Job On no
-    /// momento da criação do registo (null nos componentes que o contexto
-    /// não tem — o estado real: o J10 da base real não tem MF).
-    /// </summary>
-    private async Task<(string? CmToolId, string? BqToolId, string? MfToolId)> ResolveCombinationToolsAsync(
-        int jobOnId,
-        CancellationToken cancellationToken)
-    {
-        var cmToolId = await _db.CmContexts
-            .AsNoTracking()
-            .Where(c => c.JobOnId == jobOnId)
-            .Select(c => c.ToolId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        var bqToolId = await _db.BqContexts
-            .AsNoTracking()
-            .Where(c => c.JobOnId == jobOnId)
-            .Select(c => c.ToolId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        var mfToolId = await _db.MfContexts
-            .AsNoTracking()
-            .Where(c => c.JobOnId == jobOnId)
-            .Select(c => c.ToolId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return (cmToolId, bqToolId, mfToolId);
-    }
+    internal static Task LockSheetAsync(DmoDbContext db, int pegamentosId, CancellationToken cancellationToken) =>
+        DbWrite.LockAsync(db, $"pegamentos:registo:{pegamentosId}", cancellationToken);
 
     private static RecordPegamentosMeasurementOutcome Refused(RecordPegamentosMeasurementResult result) =>
         new(result);

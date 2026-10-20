@@ -30,6 +30,15 @@ public sealed class AssociateBqRepairTraceToContextHandler : IAssociateBqRepairT
         AssociateBqRepairTraceToContext command,
         CancellationToken cancellationToken = default)
     {
+        // ASSOCIAR AO MESMO TEMPO (deep sweep, 18/10/2026, I3-M-8): dois
+        // pedidos liam o registo ainda por associar e gravavam os dois, ficando
+        // o último; um 1.º movimento de outra produção com a mesma BQ adotava
+        // o registo e a associação gravava por cima. O trinco do registo (o
+        // mesmo do movimento) antes de o ler: o segundo espera e já o vê
+        // associado.
+        await using var transaction = await BqTraceLock.AcquireAsync(
+            _db, command.BqRepairTraceId, cancellationToken);
+
         // 1. O trace tem de existir.
         var trace = await _db.BqRepairTraces
             .FirstOrDefaultAsync(t => t.Id == command.BqRepairTraceId, cancellationToken);
@@ -83,6 +92,10 @@ public sealed class AssociateBqRepairTraceToContextHandler : IAssociateBqRepairT
         trace.BqContextId = command.BqContextId;
         trace.ToolId = null;
         await _db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         // O outcome reporta o tool_id EFETIVO já em mão (context.ToolId, o
         // tool_id canónico alcançado via bq_id) para se manter

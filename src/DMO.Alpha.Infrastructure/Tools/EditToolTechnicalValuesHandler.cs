@@ -60,11 +60,34 @@ public sealed class EditToolTechnicalValuesHandler : IEditToolTechnicalValuesHan
             process = processToken == "NNPB" ? CmProcess.Nnpb : CmProcess.Ps;
         }
 
+        // Um peso, volume ou medida de 0 ou menos (a calote só abaixo de 0)
+        // é fisicamente impossível e entraria nos Pesos: recusa antes de
+        // qualquer escrita (Diogo, 18/10/2026; deep sweep I3-M-4).
+        if (new[]
+            {
+                command.NominalWeightGrams, command.VolumePuncaoCm3, command.VolumeMarisaCm3,
+                command.DiametroGargaloMm, command.TpDiametroMm, command.TpRaioMm,
+                command.TpRaioBaseMm, command.TpRaioEsferaMm, command.TpVolumeMm3
+            }.Any(value => value is <= 0m)
+            || command.TpSagittaMm is < 0m)
+        {
+            return Refused(EditToolTechnicalValuesResult.ImpossibleValue);
+        }
+
         // 3. Full-replace de TODAS as colunas; a linha é criada quando a
         //    Tool ainda não tem contexto técnico (os valores não têm de
         //    existir quando o tool_id é criado). Uma única escrita atómica.
         var technical = await _db.ToolTechnicalContexts
             .FirstOrDefaultAsync(t => t.ToolId == command.ToolId, cancellationToken);
+
+        // Outra pessoa gravou depois de a ficha ser aberta (0 = a ficha abriu
+        // sem linha técnica): nada se grava por cima (varredura, B4).
+        if (command.ExpectedVersion is { } expected
+            && (technical is null ? 0u : _db.Entry(technical).Property<uint>(DmoDbContext.RowVersion).CurrentValue) != expected)
+        {
+            return Refused(EditToolTechnicalValuesResult.ChangedByAnotherUser);
+        }
+
         if (technical is null)
         {
             technical = new ToolTechnicalContext { ToolId = command.ToolId };
@@ -97,7 +120,15 @@ public sealed class EditToolTechnicalValuesHandler : IEditToolTechnicalValuesHan
 
         technical.DiametroGargaloMm = command.DiametroGargaloMm;
 
-        await _db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Outra pessoa gravou entre a leitura e esta escrita.
+            return Refused(EditToolTechnicalValuesResult.ChangedByAnotherUser);
+        }
 
         return new EditToolTechnicalValuesOutcome(
             EditToolTechnicalValuesResult.Success,

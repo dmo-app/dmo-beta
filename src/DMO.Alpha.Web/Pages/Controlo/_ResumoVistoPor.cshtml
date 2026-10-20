@@ -1,0 +1,27 @@
+@model DMO.Alpha.Web.Pages.Controlo.ResumoModel
+@* O «Visto por» (zona: a visita do operador fica registada a cada pedido).
+   A página e a resposta só com as zonas de uma gravação (E11, _ResumoZonas) usam este. *@
+@{
+    var fmt = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+}
+<div id="resumoVistoPor" class="resumo-viewings" data-dmo-regiao>
+  <h4 class="resumo-section-title">Visto por</h4>
+  @if (Model.Viewings.Count == 0)
+  {
+    <p class="resumo-hint">Ninguém viu ainda — a informação existe, ninguém a abriu.</p>
+  }
+  else
+  {
+    <div class="dmo-table-wrap">
+      <table class="dmo-table">
+        <thead><tr><th>Operador</th><th>Visto a</th></tr></thead>
+        <tbody>
+          @foreach (var viewing in Model.Viewings)
+          {
+            <tr><td>Operador @viewing.OperatorId</td><td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(viewing.ViewedAtUtc).ToString("g", fmt)</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

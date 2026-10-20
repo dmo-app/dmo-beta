@@ -1,0 +1,138 @@
+@page "/Planeamento/Sumario"
+@model DMO.Alpha.Web.Pages.Planeamento.SumarioModel
+@using DMO.Alpha.Core.Planeamento
+@{
+    Layout = "_DmoShellLayout";
+    var tipoParam = Model.Tipo is { } tipoEscolhido ? SumarioTipos.Chave(tipoEscolhido) : null;
+    // O DIA DA SEMANA JUNTO À DATA (Diogo, 19/10/2026: «meter Segunda Terça
+    // Quarta… perto da data»): por extenso no título, curto nas linhas.
+    var ptPt = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
+    string Semana(DateOnly data)
+    {
+        var nome = data.ToString("dddd", ptPt);
+        return char.ToUpper(nome[0], ptPt) + nome[1..];
+    }
+    string SemanaCurta(DateOnly data) => Semana(data).Split('-')[0];
+    string Quando(SumarioItem item)
+    {
+        if (item.QuandoUtc is { } utc)
+        {
+            var local = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(DateTime.SpecifyKind(utc, DateTimeKind.Utc));
+            return Model.Dias > 1 ? $"{SemanaCurta(DateOnly.FromDateTime(local))} {local:dd/MM HH:mm}" : local.ToString("HH:mm");
+        }
+        return Model.Dias > 1 ? $"{SemanaCurta(item.Dia)} {item.Dia:dd/MM}" : "";
+    }
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-sumario.css" asp-append-version="true" />
+}
+<main data-dmo-troca class="dmo-workspace sumario-page" aria-labelledby="sumario-title">
+  <div class="page-head">
+    <div>
+      <h1 id="sumario-title">Sumário<partial name="_DmoHelp" model="@("O que há para fazer e o que mudou, pelos módulos da sua conta. Escolha um dia no calendário; os dias com um traço por baixo do número têm informação.")" /></h1>
+    </div>
+  </div>
+
+  @* Os filtros numa linha: escolher aplica logo e troca só as zonas. *@
+  <section id="sumarioFiltros" data-dmo-regiao data-dmo-parcial class="dmo-card sumario-filtros-card" aria-label="Filtrar o sumário">
+    <form method="get" action="/Planeamento/Sumario" class="sumario-filters">
+      @if (Model.Day is { } diaFiltro)
+      {
+        <input type="hidden" name="ano" value="@diaFiltro.Year" />
+        <input type="hidden" name="mes" value="@diaFiltro.Month" />
+        <input type="hidden" name="dia" value="@diaFiltro.Day" />
+      }
+      else
+      {
+        <input type="hidden" name="ano" value="@Model.Year" />
+        <input type="hidden" name="mes" value="@Model.Month" />
+      }
+      <div class="dmo-field sumario-w-tipo">
+        <label for="sumario-tipo">Informação</label>
+        <select id="sumario-tipo" name="tipo" data-dmo-autosubmit>
+          <option value="" selected="@(tipoParam is null ? "selected" : null)">Toda</option>
+          @foreach (var tipo in Model.TiposVisiveis)
+          {
+            <option value="@SumarioTipos.Chave(tipo)" selected="@(tipoParam == SumarioTipos.Chave(tipo) ? "selected" : null)">@SumarioTipos.Nome(tipo)</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field sumario-w-dias">
+        <label for="sumario-dias">Dias</label>
+        <select id="sumario-dias" name="dias" data-dmo-autosubmit>
+          @foreach (var periodo in DMO.Alpha.Web.Pages.Planeamento.SumarioModel.PeriodosDias)
+          {
+            <option value="@periodo" selected="@(Model.Dias == periodo ? "selected" : null)">@(periodo == 1 ? "Só o dia" : $"Últimos {periodo} dias")</option>
+          }
+        </select>
+      </div>
+    </form>
+  </section>
+
+  <div class="sumario-grid">
+    <partial name="_DmoCalendar" model="Model.Calendar" />
+
+    <section id="sumarioLista" data-dmo-regiao class="dmo-card sumario-lista" aria-labelledby="sumario-lista-title">
+      @if (Model.Day is not { } dia)
+      {
+        <h2 id="sumario-lista-title">Escolha um dia</h2>
+        <p class="sumario-vazio">Escolha um dia no calendário para ver o sumário.</p>
+      }
+      else
+      {
+        <h2 id="sumario-lista-title">@(Model.Dias == 1 ? $"{Semana(dia)}, {dia:dd/MM/yyyy}" : $"{Semana(dia.AddDays(1 - Model.Dias))}, {dia.AddDays(1 - Model.Dias):dd/MM/yyyy} a {Semana(dia)}, {dia:dd/MM/yyyy}")</h2>
+        @if (Model.TiposVisiveis.Count == 0)
+        {
+          <p class="sumario-vazio">A sua conta não tem módulos com informação para o sumário.</p>
+        }
+        else if (Model.Grupos.Count == 0)
+        {
+          <p class="sumario-vazio">Nada para mostrar neste período.</p>
+        }
+        @* AS LINHAS COMO NO JOB ON (Diogo, 19/10/2026: «muito branco, bare»;
+           «as datas estão no fim»; «remover os (1)»): a data à frente, a
+           máquina com a cor dela, a referência e a produção; o grupo sem
+           contagem. *@
+        @foreach (var grupo in Model.Grupos)
+        {
+          <div class="sumario-grupo" data-sumario-tipo="@SumarioTipos.Chave(grupo.Tipo)">
+            <h3>@SumarioTipos.Nome(grupo.Tipo)</h3>
+            <ul>
+              @foreach (var item in grupo.Items)
+              {
+                var href = Model.Href(item);
+                var quando = Quando(item);
+                <li class="sumario-item@(item.Maquina is { } maquina ? $" mch-{maquina}" : null)">
+                  @if (quando.Length > 0)
+                  {
+                    <time class="sumario-quando">@quando</time>
+                  }
+                  @if (item.Maquina is not null)
+                  {
+                    <strong class="sumario-maquina">@item.Maquina</strong>
+                  }
+                  @if (href is null)
+                  {
+                    <span class="sumario-titulo">@item.Titulo</span>
+                  }
+                  else
+                  {
+                    <a class="sumario-titulo" href="@href">@item.Titulo</a>
+                  }
+                  @if (item.Detalhe is not null)
+                  {
+                    <span class="sumario-detalhe">@item.Detalhe</span>
+                  }
+                  @if (item.Por is not null)
+                  {
+                    <small>@item.Por</small>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      }
+    </section>
+  </div>
+</main>

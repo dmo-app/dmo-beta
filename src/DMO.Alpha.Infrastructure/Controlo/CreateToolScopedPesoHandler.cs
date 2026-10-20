@@ -37,9 +37,21 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
         _glassDensityConfiguration = glassDensityConfiguration;
     }
 
-    public async Task<CreateToolScopedPesoOutcome> HandleAsync(
+    // Dois envios iguais (duplo clique, alguém que carrega outra vez por
+    // achar que está lento) esperam um pelo outro e o segundo abre o Peso
+    // do primeiro em vez de criar outro (varredura de 18/10/2026, B5).
+    public Task<CreateToolScopedPesoOutcome> HandleAsync(
         CreateToolScopedPeso command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, "peso:criar", cancellationToken);
+            return await HandleLockedAsync(command, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<CreateToolScopedPesoOutcome> HandleLockedAsync(
+        CreateToolScopedPeso command,
+        CancellationToken cancellationToken)
     {
         // Guardas de entrada: um tool_id vazio é um caso de NEGÓCIO (recusa
         // tipada, nunca exceção), consistente com os handlers irmãos.
@@ -190,26 +202,75 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
         // FATOS HUMANOS das tools (referência + lote): o histórico do Peso
         // mostra-os mesmo depois de a Tool ser editada ou eliminada. Nenhum
         // jobon_id/controlo_id/cm_id é criado ou exigido.
+        // Um Peso que já é o mesmo e ainda está vazio é aberto em vez de
+        // criar outro: o da produção com esta CM e esta BQ (um por
+        // combinação; respostas R15, R16-2 e R16-5 do especialista) ou um sem
+        // produção com as mesmas ferramentas e os mesmos valores.
+        var storedProcess = CmProcessTokens.ToStorage(process.Value);
+        var nominalWeight = cmTechnical?.NominalWeightGrams;
+        var existing = command.ControloId is int controloId
+            ? await _db.Pesos.AsNoTracking()
+                .Where(p => p.ControloId == controloId
+                    && p.CmToolId == command.CmToolId
+                    && p.BqToolId == command.BqToolId)
+                .OrderBy(p => p.Id)
+                .FirstOrDefaultAsync(cancellationToken)
+            : await _db.Pesos.AsNoTracking().FirstOrDefaultAsync(p =>
+                p.ControloId == null
+                && p.CmToolId == command.CmToolId
+                && p.BqToolId == command.BqToolId
+                && p.Process == storedProcess
+                && p.WaterTemperatureC == temperatureWholeDegree
+                && p.VolumeMarisaCm3 == volumeMarisa.Value
+                && p.VolumePuncaoCm3 == volumePuncao.Value
+                && p.NominalWeightGrams == nominalWeight
+                && p.GlassDensityGramsPerCm3 == resolvedGlassDensity
+                && !p.Measurements.Any(), cancellationToken);
+        if (existing is not null)
+        {
+            await _db.SaveChangesAsync(cancellationToken);
+            return Created(existing, WaterDensityTable.ForPeso(existing.WaterDensityGramsPerCm3, existing.WaterTemperatureC) ?? resolvedWaterDensity);
+        }
+
+        // O Peso novo de uma produção que já tinha outro (a CM ou a BQ mudou
+        // a meio): a produção anterior e o peso do SAP vêm do Peso mais
+        // recente dela, e continuam editáveis neste (resposta R16-7 do
+        // especialista, 18/10/2026).
+        var anterior = command.ControloId is int controloDoPeso
+            ? await _db.Pesos.AsNoTracking()
+                .Where(p => p.ControloId == controloDoPeso)
+                .OrderByDescending(p => p.Id)
+                .Select(p => new { p.ProducaoAnteriorControloId, p.ProducaoAnteriorPesoGramas })
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         var peso = new Peso
         {
             CmToolId = command.CmToolId,
             BqToolId = command.BqToolId,
-            Process = CmProcessTokens.ToStorage(process.Value),
+            Process = storedProcess,
             WaterTemperatureC = temperatureWholeDegree,
+            WaterDensityGramsPerCm3 = resolvedWaterDensity,
             VolumeMarisaCm3 = volumeMarisa.Value,
             VolumePuncaoCm3 = volumePuncao.Value,
-            NominalWeightGrams = cmTechnical?.NominalWeightGrams,
+            NominalWeightGrams = nominalWeight,
             GlassDensityGramsPerCm3 = resolvedGlassDensity,
             CmToolReferenceFrozen = cmTool.Reference,
             CmToolLotFrozen = cmTool.Lot,
             BqToolReferenceFrozen = bqTool.Reference,
             BqToolLotFrozen = bqTool.Lot,
-            ControloId = command.ControloId
+            ControloId = command.ControloId,
+            ProducaoAnteriorControloId = anterior?.ProducaoAnteriorControloId,
+            ProducaoAnteriorPesoGramas = anterior?.ProducaoAnteriorPesoGramas
         };
         _db.Pesos.Add(peso);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new CreateToolScopedPesoOutcome(
+        return Created(peso, resolvedWaterDensity);
+    }
+
+    private static CreateToolScopedPesoOutcome Created(Peso peso, decimal waterDensity) =>
+        new(
             CreateToolScopedPesoResult.Success,
             new CreatedPeso(
                 peso.Id,
@@ -217,12 +278,11 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
                 peso.BqToolId,
                 peso.Process,
                 peso.WaterTemperatureC,
-                resolvedWaterDensity,
-                resolvedGlassDensity,
+                waterDensity,
+                peso.GlassDensityGramsPerCm3,
                 peso.VolumeMarisaCm3,
                 peso.VolumePuncaoCm3,
                 peso.NominalWeightGrams));
-    }
 
     private static bool HasCmCompletion(CreateToolScopedPeso command, CmProcess? suppliedProcess) =>
         suppliedProcess is not null

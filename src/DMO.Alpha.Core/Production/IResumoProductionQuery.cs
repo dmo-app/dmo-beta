@@ -22,8 +22,8 @@ public interface IResumoProductionQuery
     /// página, ordenadas por jobon_id decrescente. A página 1 é a mais
     /// recente; as seguintes navegam para as mais antigas. Quando
     /// <paramref name="reference"/> é fornecido, filtra no servidor pelas
-    /// produções cuja referência ou nº de produção contém o texto, sem
-    /// distinção de maiúsculas. A contagem TOTAL vem em
+    /// produções cuja referência começa pelo texto (ou a parte BQ dela) ou
+    /// cujo nº de produção começa por ele, sem distinção de maiúsculas. A contagem TOTAL vem em
     /// <see cref="ResumoProductionPage.TotalCount"/> para a paginação.
     /// </summary>
     Task<ResumoProductionPage> ListAsync(

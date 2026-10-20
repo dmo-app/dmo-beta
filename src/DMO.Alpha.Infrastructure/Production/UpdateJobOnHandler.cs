@@ -1,5 +1,4 @@
 using DMO.Alpha.Core.Production;
-using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,10 +10,9 @@ namespace DMO.Alpha.Infrastructure.Production;
 /// numa ÚNICA escrita atómica (uma transação), SEM criar outra produção
 /// — o jobon_id, a Reference e o ProductionNumber são o MESMO facto (a
 /// identidade da produção é imutável na edição: o handler nem as lê).
-/// Cada contexto que o comando traz com seleção atualiza o ToolId NO
-/// MESMO contexto (o bq_id não muda: os traces/movimentos existentes
-/// ficam ancorados ao mesmo contexto, são factos históricos — a
-/// produção re-planeada não os apaga nem duplica); um contexto que não
+/// Trocar a CM, o MF ou a BQ cria um cm_id, mf_id ou bq_id novo e o
+/// anterior fica no registo da produção (um cm_id, mf_id ou bq_id tem
+/// sempre o mesmo tool_id); um contexto que não
 /// existia nasce nesta escrita (o ensure do create herda na edição); um
 /// slot null PRESERVA o contexto existente — nunca destrói um facto. O
 /// controlo_id associado não é tocado (nasce com a criação, spec Job On
@@ -33,9 +31,20 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         _db = db;
     }
 
-    public async Task<UpdateJobOnOutcome> HandleAsync(
+    public Task<UpdateJobOnOutcome> HandleAsync(
         UpdateJobOn command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        // Dois envios da mesma folha ao mesmo tempo (duplo clique) gravam um
+        // de cada vez: o segundo espera e já lê o que o primeiro gravou.
+        DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, $"jobon:editar:{command.JobOnId}", cancellationToken);
+            return await HandleLockedAsync(command, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<UpdateJobOnOutcome> HandleLockedAsync(
+        UpdateJobOn command,
+        CancellationToken cancellationToken)
     {
         // A produção editada EXISTE: o jobon é carregado COM os seus
         // contextos (tracked — é a mesma linha que vai gravar). Um
@@ -51,55 +60,37 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
             return Refused(UpdateJobOnResult.JobOnNotFound);
         }
 
-        // A máquina é âncora canônica persistida — a MESMA recusa do
-        // create: um MachineId que não resolve nunca é
-        // auto-selecionada outra máquina.
-        var machine = await _db.Machines
-            .AsNoTracking()
-            .FirstOrDefaultAsync(m => m.Id == command.MachineId, cancellationToken);
-        if (machine is null)
+        // Outra pessoa gravou depois de a ficha ser aberta: nada se grava por
+        // cima do que ela gravou (varredura de 18/10/2026, B4). Quando o que
+        // chega é o que já está gravado, é o mesmo envio outra vez (duplo
+        // clique ou Enter repetido, com a versão de antes da primeira
+        // gravação): segue sem nada para gravar e abre o que ficou gravado,
+        // sem mensagem e sem outra linha em «O que mudou», como no Criar.
+        if (command.ExpectedVersion is { } expected
+            && _db.Entry(jobOn).Property<uint>(DmoDbContext.RowVersion).CurrentValue != expected
+            && !IsWhatIsSaved(jobOn, command))
         {
-            return Refused(UpdateJobOnResult.MachineNotFound);
+            return Refused(UpdateJobOnResult.ChangedByAnotherUser);
         }
 
-        // O MF é OBRIGATÓRIO — a regra do Owner 2026-10-10 («jobon
-        // necessita sempre de MF, senao nao faz garrafas ou frascos»)
-        // HERDA na edição: a produção re-planeada mantém a identidade
-        // mínima do registo de produção.
-        if (command.MfToolId is not { Length: > 0 })
+        // A máquina, o MF obrigatório (a regra do Owner herda na edição) e as
+        // Tools escolhidas: as mesmas regras do Criar, num só sítio e com uma
+        // só consulta às ferramentas (sweep de 19/10/2026, J-4).
+        var checks = await JobOnCommandChecks.CheckAsync(
+            _db, command.MachineId, command.CmToolId, command.MfToolId, command.BqToolId, cancellationToken);
+        if (checks.Refused is { } refused)
         {
-            return Refused(UpdateJobOnResult.MissingMfTool);
+            return Refused(refused switch
+            {
+                JobOnCommandChecks.Refusal.MachineNotFound => UpdateJobOnResult.MachineNotFound,
+                JobOnCommandChecks.Refusal.MissingMfTool => UpdateJobOnResult.MissingMfTool,
+                JobOnCommandChecks.Refusal.CmToolNotFound => UpdateJobOnResult.CmToolNotFound,
+                JobOnCommandChecks.Refusal.MfToolNotFound => UpdateJobOnResult.MfToolNotFound,
+                _ => UpdateJobOnResult.BqToolNotFound
+            });
         }
 
-        // As Tools têm de existir no registo canônico Ferramentas — as
-        // MESMAS recusas do create (a linha DUMMY/REMOVED nunca é
-        // utilizável: o backend fecha a porta).
-        if (command.CmToolId is { } cmToolId
-            && !await _db.Tools.AsNoTracking().AnyAsync(
-                t => t.ToolId == cmToolId
-                    && t.ToolId != ToolRegistryConstants.RemovedToolId,
-                cancellationToken))
-        {
-            return Refused(UpdateJobOnResult.CmToolNotFound);
-        }
-
-        if (command.MfToolId is { } mfToolId
-            && !await _db.Tools.AsNoTracking().AnyAsync(
-                t => t.ToolId == mfToolId
-                    && t.ToolId != ToolRegistryConstants.RemovedToolId,
-                cancellationToken))
-        {
-            return Refused(UpdateJobOnResult.MfToolNotFound);
-        }
-
-        if (command.BqToolId is { } bqToolId
-            && !await _db.Tools.AsNoTracking().AnyAsync(
-                t => t.ToolId == bqToolId
-                    && t.ToolId != ToolRegistryConstants.RemovedToolId,
-                cancellationToken))
-        {
-            return Refused(UpdateJobOnResult.BqToolNotFound);
-        }
+        var machine = checks.Machine!;
 
         // A CALOTE DESTA PRODUÇÃO (o campo j-calote da ficha — EDITÁVEL na
         // ficha): negativa é fisicamente impossível — recusa tipada ANTES
@@ -108,6 +99,9 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         {
             return Refused(UpdateJobOnResult.InvalidCalote);
         }
+
+        // O fim antes do início grava e a página avisa (Diogo, 19/10/2026:
+        // «as datas têm de ser livres»; na beta.228 era recusado).
 
         // TODAS as validações passaram — a produção re-planeada grava
         // numa ÚNICA escrita atómica (uma transação): as datas, a
@@ -133,54 +127,111 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         // (a referência da Tool manda no apoio TP/calote do Peso).
         jobOn.CaloteMm = command.CaloteMm;
 
-        // Cada contexto com seleção: o MESMO contexto com o ToolId novo
-        // (os factos históricos ancorados ficam); um contexto que não
-        // existia nasce nesta escrita. Um slot null PRESERVA o contexto
-        // existente — a edição nunca destrói um facto.
+        // Trocar a CM é outro cm_id (Diogo, 18/10/2026; Decisão 001): o cm_id
+        // é o retrato de um tool_id naquele momento. O anterior fica no
+        // registo da produção por ReplacedJobOnId; a CM nova nasce num cm_id
+        // novo. Um contexto que não existia nasce nesta escrita; um slot
+        // null PRESERVA o contexto existente — a edição nunca destrói um facto.
         CmContext? cm = jobOn.CmContext;
-        if (command.CmToolId is { Length: > 0 } selectedCmToolId)
+        if (command.CmToolId is { Length: > 0 } selectedCmToolId
+            && !string.Equals(cm?.ToolId, selectedCmToolId, StringComparison.Ordinal))
         {
-            if (cm is null)
+            if (cm is not null)
+            {
+                cm.JobOnId = null;
+                cm.ReplacedJobOnId = jobOn.Id;
+                cm.ReplacedAtUtc = DateTime.UtcNow;
+            }
+
+            // Voltar a uma CM que esta produção já usou retoma o cm_id dela,
+            // como na BQ.
+            var previous = await _db.CmContexts.FirstOrDefaultAsync(
+                c => c.ReplacedJobOnId == jobOn.Id && c.ToolId == selectedCmToolId, cancellationToken);
+            if (previous is not null)
+            {
+                previous.ReplacedJobOnId = null;
+                previous.ReplacedAtUtc = null;
+                previous.JobOnId = jobOn.Id;
+                cm = previous;
+            }
+            else
             {
                 cm = new CmContext { JobOnId = jobOn.Id, ToolId = selectedCmToolId };
                 _db.CmContexts.Add(cm);
             }
-            else
-            {
-                cm.ToolId = selectedCmToolId;
-            }
+
+            jobOn.CmContext = cm;
         }
 
+        // Trocar o MF é outro mf_id (Diogo, 19/10/2026: «mf_id snapshot do
+        // tool_id usado para jobon_id, então alterar tool_id deve alterar
+        // mf_id; depois o que associa a produção é o jobon_id»): o anterior
+        // fica no registo da produção por ReplacedJobOnId; o MF novo nasce
+        // num mf_id novo, como na CM e na BQ.
         MfContext? mf = jobOn.MfContext;
-        if (command.MfToolId is { Length: > 0 } selectedMfToolId)
+        if (command.MfToolId is { Length: > 0 } selectedMfToolId
+            && !string.Equals(mf?.ToolId, selectedMfToolId, StringComparison.Ordinal))
         {
-            if (mf is null)
+            if (mf is not null)
+            {
+                mf.JobOnId = null;
+                mf.ReplacedJobOnId = jobOn.Id;
+                mf.ReplacedAtUtc = DateTime.UtcNow;
+            }
+
+            // Voltar a um MF que esta produção já usou retoma o mf_id dele.
+            var previous = await _db.MfContexts.FirstOrDefaultAsync(
+                c => c.ReplacedJobOnId == jobOn.Id && c.ToolId == selectedMfToolId, cancellationToken);
+            if (previous is not null)
+            {
+                previous.ReplacedJobOnId = null;
+                previous.ReplacedAtUtc = null;
+                previous.JobOnId = jobOn.Id;
+                mf = previous;
+            }
+            else
             {
                 mf = new MfContext { JobOnId = jobOn.Id, ToolId = selectedMfToolId };
                 _db.MfContexts.Add(mf);
             }
-            else
-            {
-                mf.ToolId = selectedMfToolId;
-            }
+
+            jobOn.MfContext = mf;
         }
 
-        // O BqContext é O MESMO contexto (o bq_id não muda): só o
-        // ToolId atualiza para a BQ nova — os traces/movimentos
-        // existentes ficam no mesmo trace (factos históricos da
-        // produção re-planeada).
+        // Trocar a BQ é outro bq_id (Diogo, 18/10/2026: «um tool_id nunca
+        // pode ter o mesmo bq_id, senão o histórico não faz sentido»): o
+        // bq_id anterior fica com os seus movimentos, na BQ antiga, ligado
+        // à produção por ReplacedJobOnId; a BQ nova nasce num bq_id novo.
         BqContext? bq = jobOn.BqContext;
-        if (command.BqToolId is { Length: > 0 } selectedBqToolId)
+        if (command.BqToolId is { Length: > 0 } selectedBqToolId
+            && !string.Equals(bq?.ToolId, selectedBqToolId, StringComparison.Ordinal))
         {
-            if (bq is null)
+            if (bq is not null)
+            {
+                bq.JobOnId = null;
+                bq.ReplacedJobOnId = jobOn.Id;
+                bq.ReplacedAtUtc = DateTime.UtcNow;
+            }
+
+            // Voltar a uma BQ que esta produção já usou retoma o bq_id dela
+            // (um bq_id por BQ e produção, com um só registo de reparação):
+            // a produção não aparece duas vezes no histórico da BQ.
+            var previous = await _db.BqContexts.FirstOrDefaultAsync(
+                c => c.ReplacedJobOnId == jobOn.Id && c.ToolId == selectedBqToolId, cancellationToken);
+            if (previous is not null)
+            {
+                previous.ReplacedJobOnId = null;
+                previous.ReplacedAtUtc = null;
+                previous.JobOnId = jobOn.Id;
+                bq = previous;
+            }
+            else
             {
                 bq = new BqContext { JobOnId = jobOn.Id, ToolId = selectedBqToolId };
                 _db.BqContexts.Add(bq);
             }
-            else
-            {
-                bq.ToolId = selectedBqToolId;
-            }
+
+            jobOn.BqContext = bq;
         }
 
         // O QUE MUDOU (o proprietário, 17/10/2026): uma linha por campo
@@ -251,7 +302,22 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
             });
         }
 
-        await _db.SaveChangesAsync(cancellationToken);
+        // Uma mudança só nos contextos (CM/MF/BQ) também muda a versão do Job
+        // On, para a ficha aberta por outra pessoa ficar desatualizada.
+        if (changes.Count > 0)
+        {
+            _db.Entry(jobOn).Property(j => j.MachineId).IsModified = true;
+        }
+
+        try
+        {
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Outra pessoa gravou entre a leitura e esta escrita.
+            return Refused(UpdateJobOnResult.ChangedByAnotherUser);
+        }
 
         // O contexto de produção re-estabelecido — o MESMO read model
         // que a query canônica serve por jobon_id: o jobon_id
@@ -264,13 +330,8 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         // janelas de cada, o periodo exato e como resolver). NUNCA uma
         // recusa: a edicao gravou na mesma e o aviso viaja por cima do
         // sucesso.
-        var others = await _db.JobOns
-            .AsNoTracking()
-            .Where(j => j.MachineId == machine.Id && j.Id != jobOn.Id)
-            .Select(j => new OverlapCandidate(j.Id, j.Reference, j.ProductionNumber, j.InicioEm, j.FimEm))
-            .ToListAsync(cancellationToken);
-        var overlapWarning = JobOnOverlap.Evaluate(
-            jobOn.InicioEm, jobOn.FimEm, machine.Code, others);
+        var overlapWarning = await JobOnOverlapQuery.EvaluateAsync(
+            _db, jobOn.Id, machine.Id, machine.Code, jobOn.InicioEm, jobOn.FimEm, cancellationToken);
 
         return new UpdateJobOnOutcome(
             UpdateJobOnResult.Success,
@@ -291,6 +352,23 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
     }
 
     private static UpdateJobOnOutcome Refused(UpdateJobOnResult result) => new(result);
+
+    /// <summary>
+    /// O pedido é o que está gravado: a mesma máquina, as mesmas datas, a
+    /// mesma calote e, em cada slot enviado, a mesma ferramenta (um slot
+    /// vazio não mexe na ferramenta, por isso qualquer uma serve).
+    /// </summary>
+    private static bool IsWhatIsSaved(JobOn jobOn, UpdateJobOn command) =>
+        jobOn.MachineId == command.MachineId
+        && jobOn.InicioEm == command.InicioEm
+        && jobOn.FimEm == command.FimEm
+        && jobOn.CaloteMm == command.CaloteMm
+        && IsSavedTool(jobOn.CmContext?.ToolId, command.CmToolId)
+        && IsSavedTool(jobOn.MfContext?.ToolId, command.MfToolId)
+        && IsSavedTool(jobOn.BqContext?.ToolId, command.BqToolId);
+
+    private static bool IsSavedTool(string? saved, string? sent) =>
+        sent is not { Length: > 0 } || string.Equals(saved, sent, StringComparison.Ordinal);
 
     private static string? FormatDay(DateOnly? day) =>
         day?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);

@@ -7,6 +7,7 @@ out/
 .vs/
 .idea/
 .vscode/
+.qoder/
 *.user
 *.suo
 *.userosscache
@@ -27,6 +28,12 @@ secrets.json
 # Logs
 *.log
 logs/
+
+# Test results / coverage
+TestResults/
+coverage/
+coverage.*
+*.trx
 
 # NuGet
 *.nupkg
@@ -74,3 +81,6 @@ data-protection/
 .env
 .env.*
 !.env.example
+
+# cache do Python (tests/visual importa dmo_chromium.py); sem isto a árvore conta como alterada
+__pycache__/

@@ -8,8 +8,5 @@ public enum DeleteBqMovementResult
     Success,
 
     /// <summary>O movimento não existe ou não pertence ao registo indicado.</summary>
-    MovementNotFound,
-
-    /// <summary>O movimento não está entre os mais recentes do registo.</summary>
-    NotAmongMostRecent
+    MovementNotFound
 }

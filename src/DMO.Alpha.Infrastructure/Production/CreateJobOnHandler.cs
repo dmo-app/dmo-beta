@@ -1,5 +1,4 @@
 using DMO.Alpha.Core.Production;
-using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,9 +33,18 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
         _db = db;
     }
 
-    public async Task<CreateJobOnOutcome> HandleAsync(
+    // Dois envios ao mesmo tempo (duplo clique) passam os dois a
+    // verificação prévia; o segundo bate no índice único. A segunda
+    // tentativa volta a verificar e devolve a recusa tipada
+    // («essa produção já existe»), nunca uma página de erro.
+    public Task<CreateJobOnOutcome> HandleAsync(
         CreateJobOn command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        UniqueViolationRetry.RunAsync(_db, () => HandleOnceAsync(command, cancellationToken));
+
+    private async Task<CreateJobOnOutcome> HandleOnceAsync(
+        CreateJobOn command,
+        CancellationToken cancellationToken)
     {
         // Guardas de entrada: os factos textuais obrigatórios (colunas NOT
         // NULL) em branco são recusa tipada — nunca texto inventado. Os
@@ -47,72 +55,44 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
             return Refused(CreateJobOnResult.MissingProductionNumber);
         }
 
-        var reference = command.Reference?.Trim();
+        // A referência guarda-se sempre em maiúsculas (a página já o fazia;
+        // o handler garante-o para o índice único, que distingue maiúsculas).
+        var reference = command.Reference?.Trim().ToUpperInvariant();
         if (string.IsNullOrEmpty(reference))
         {
             return Refused(CreateJobOnResult.MissingReference);
         }
 
-        // A máquina é âncora canónica persistida: um MachineId que não
-        // resolve é recusa tipada — nunca é auto-selecionada outra máquina.
-        var machine = await _db.Machines
-            .AsNoTracking()
-            .FirstOrDefaultAsync(m => m.Id == command.MachineId, cancellationToken);
-        if (machine is null)
+        // A máquina, o MF obrigatório e as Tools escolhidas: as mesmas regras
+        // do Editar, num só sítio e com uma só consulta às ferramentas
+        // (sweep de 19/10/2026, J-4). A linha DUMMY (REMOVED) nunca é
+        // utilizável: os pickers excluem-na e o backend fecha a porta.
+        var checks = await JobOnCommandChecks.CheckAsync(
+            _db, command.MachineId, command.CmToolId, command.MfToolId, command.BqToolId, cancellationToken);
+        if (checks.Refused is { } refused)
         {
-            return Refused(CreateJobOnResult.MachineNotFound);
+            return Refused(refused switch
+            {
+                JobOnCommandChecks.Refusal.MachineNotFound => CreateJobOnResult.MachineNotFound,
+                JobOnCommandChecks.Refusal.MissingMfTool => CreateJobOnResult.MissingMfTool,
+                JobOnCommandChecks.Refusal.CmToolNotFound => CreateJobOnResult.CmToolNotFound,
+                JobOnCommandChecks.Refusal.MfToolNotFound => CreateJobOnResult.MfToolNotFound,
+                _ => CreateJobOnResult.BqToolNotFound
+            });
         }
 
-        // O MF é OBRIGATÓRIO — regra do Owner 2026-10-10: «jobon necessita
-        // sempre de MF, senao nao faz garrafas ou frascos». O MF dá a forma
-        // do produto e a base 4-dígitos da referência (o desenho): sem ele
-        // não há produção real nem identificação do produto. Recusa tipada
-        // — a identidade mínima do registo de produção, nunca exceção.
-        if (command.MfToolId is not { Length: > 0 })
-        {
-            return Refused(CreateJobOnResult.MissingMfTool);
-        }
+        var machine = checks.Machine!;
 
-        // As Tools têm de existir no registo canónico Ferramentas — a linha
-        // DUMMY (REMOVED) nunca é utilizável (recusa tipada: os pickers
-        // excluem-na e o backend fecha a porta). Um slot null é simplesmente
-        // não aplicável (nenhum contexto criado); um tool_id preenchido —
-        // mesmo em branco — que não resolve é recusa tipada (estilo do
-        // handler do Peso: caso de negócio, nunca exceção).
-        if (command.CmToolId is { } cmToolId
-            && !await _db.Tools.AsNoTracking().AnyAsync(
-                t => t.ToolId == cmToolId
-                    && t.ToolId != ToolRegistryConstants.RemovedToolId,
-                cancellationToken))
-        {
-            return Refused(CreateJobOnResult.CmToolNotFound);
-        }
-
-        if (command.MfToolId is { } mfToolId
-            && !await _db.Tools.AsNoTracking().AnyAsync(
-                t => t.ToolId == mfToolId
-                    && t.ToolId != ToolRegistryConstants.RemovedToolId,
-                cancellationToken))
-        {
-            return Refused(CreateJobOnResult.MfToolNotFound);
-        }
-
-        if (command.BqToolId is { } bqToolId
-            && !await _db.Tools.AsNoTracking().AnyAsync(
-                t => t.ToolId == bqToolId
-                    && t.ToolId != ToolRegistryConstants.RemovedToolId,
-                cancellationToken))
-        {
-            return Refused(CreateJobOnResult.BqToolNotFound);
-        }
-
-        // O nº de produção identifica a ocorrência: o índice único
-        // impede dois Job Ons com o mesmo nº.
-        // A verificação prévia devolve a recusa tipada ao utilizador; o
-        // índice real permanece a última linha da verdade persistida.
+        // A produção identifica-se pela referência JUNTO com o nº: o mesmo
+        // nº (ex.: 202601) existe em várias referências (Owner 17/10/2026:
+        // «202601 de 9389T184 não pode bloquear 1075C142»). O índice único
+        // (Reference, ProductionNumber) é a última linha da verdade; a
+        // verificação prévia devolve a recusa tipada e ignora maiúsculas.
+        var referenceUpper = reference.ToUpper();
         var productionNumberExists = await _db.JobOns
             .AsNoTracking()
-            .AnyAsync(j => j.ProductionNumber == productionNumber, cancellationToken);
+            .AnyAsync(j => j.ProductionNumber == productionNumber
+                && j.Reference.ToUpper() == referenceUpper, cancellationToken);
         if (productionNumberExists)
         {
             return Refused(CreateJobOnResult.DuplicateProductionNumber);
@@ -125,6 +105,9 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
         {
             return Refused(CreateJobOnResult.InvalidCalote);
         }
+
+        // O fim antes do início grava e a página avisa (Diogo, 19/10/2026:
+        // «as datas têm de ser livres»; na beta.228 era recusado).
 
         // Nova ocorrência + contextos aplicáveis, escrita atómica única.
         // Os cm_id/mf_id/bq_id nascem vinculados a ESTE jobon_id e não a
@@ -143,7 +126,8 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
             // A CALOTE DESTA PRODUÇÃO (o campo j-calote da ficha do
             // dmo-html): null = a referência da Tool manda (o apoio
             // TP/calote do Peso usa-a automaticamente — a B1).
-            CaloteMm = command.CaloteMm
+            CaloteMm = command.CaloteMm,
+            CriadoEmUtc = DateTime.UtcNow
         };
 
         CmContext? cm = null;
@@ -230,22 +214,14 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
     /// sobreposição a assinalar (a janela inteiramente em aberto não
     /// afirma período nenhum: nada a comparar).
     /// </summary>
-    private async Task<OverlapWarning?> EvaluateOverlapAsync(
+    private Task<OverlapWarning?> EvaluateOverlapAsync(
         int jobOnId,
         int machineId,
         string machineCode,
         DateOnly? inicioEm,
         DateOnly? fimEm,
         CancellationToken cancellationToken)
-    {
-        var others = await _db.JobOns
-            .AsNoTracking()
-            .Where(j => j.MachineId == machineId && j.Id != jobOnId)
-            .Select(j => new OverlapCandidate(j.Id, j.Reference, j.ProductionNumber, j.InicioEm, j.FimEm))
-            .ToListAsync(cancellationToken);
-
-        return JobOnOverlap.Evaluate(inicioEm, fimEm, machineCode, others);
-    }
+        => JobOnOverlapQuery.EvaluateAsync(_db, jobOnId, machineId, machineCode, inicioEm, fimEm, cancellationToken);
 
     private static CreateJobOnOutcome Refused(CreateJobOnResult result) => new(result);
 }

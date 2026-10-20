@@ -32,7 +32,11 @@ public sealed record ToolCandidateFilter(
     // Job On picker: exact reference/explicit association or recorded production context.
     // Case-insensitive; never guesses a CM/BQ reference from a substring.
     string? ProductionReference = null,
-    // Catalog search only: partial reference, lot or compatible machine code.
+    // Catalog search only: start of the reference or of its BQ part (the ReferenceMatch rule),
+    // or part of the lot or of a compatible machine code.
     string? Search = null,
     // Only these tool_ids (the tools a page already shows), never the whole catalog.
-    IReadOnlyCollection<string>? ToolIds = null);
+    IReadOnlyCollection<string>? ToolIds = null,
+    // Ferramentas page: start of the tool reference, of its BQ part or of the associated
+    // MF reference («Y2» finds Y232 and 6018Y232; «0» finds 0132T173, not 1075), case-insensitive.
+    string? ReferenceContains = null);

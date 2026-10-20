@@ -1,0 +1,57 @@
+@model DMO.Alpha.Web.Pages.JobOn.IndexModel
+@using DMO.Alpha.Web.Pages.JobOn
+      <div id="jobonHistoricoResultados" data-dmo-regiao>
+      @foreach (var aviso in Model.HistoryDateWarnings)
+      {
+        <div class="jobon-aviso warn" role="status">@aviso</div>
+      }
+      @* Os resultados em colunas alinhadas (Diogo, 17/10/2026: o texto não
+         fica encostado à direita): a mesma tabela da procura ao escrever. *@
+      <div class="dmo-card beta-light-history">
+        @if (!Model.HistorySearchApplied)
+        {
+          <span role="status">@IndexModel.HistoryEmptyStateMessage</span>
+        }
+        else if (Model.HistoryPage.TotalCount == 0)
+        {
+          <span role="status">Sem produções para esta procura.</span>
+        }
+        else
+        {
+          <div class="dmo-table-wrap">
+            <table class="dmo-table" id="jobonHistLista" data-dmo-list="Histórico Job On">
+              <thead>
+                <tr><th>Referência</th><th>Produção</th><th>Máquina</th><th>Datas</th><th>CM</th><th>MF</th><th>BQ</th></tr>
+              </thead>
+              <tbody>
+                @foreach (var jobOn in Model.HistoryPage.Items)
+                {
+                  <tr data-dmo-row data-id="@jobOn.JobOnId"
+                      data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = jobOn.JobOnId })"
+                      aria-label="Produção @jobOn.ProductionNumber — um clique abre a folha">
+                    <td><strong>@jobOn.Reference</strong></td>
+                    <td>@jobOn.ProductionNumber</td>
+                    <td>@jobOn.Machine</td>
+                    <td>@DMO.Alpha.Web.Pages.JobOn.JobOnProcuraFormato.Datas(jobOn.InicioEm, jobOn.FimEm)</td>
+                    <td>@(Fact(jobOn.CmToolId) ?? "—")</td>
+                    <td>@(Fact(jobOn.MfToolId) ?? "—")</td>
+                    <td>@(Fact(jobOn.BqToolId) ?? "—")</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+      <div data-dmo-handler="HistoricoResultados" data-dmo-alvo="jobonHistoricoResultados">
+        <partial name="_ListPager" model="ListPager.For(Model.HistoryPage)" />
+      </div>
+      </div>
+
+@functions {
+    private string? Fact(string? toolId)
+    {
+        var candidate = Model.KnownTools.FirstOrDefault(c => c.ToolId == toolId);
+        return candidate is null ? null : JobOnProcuraFormato.Ferramenta(candidate.Reference, candidate.Lot);
+    }
+}

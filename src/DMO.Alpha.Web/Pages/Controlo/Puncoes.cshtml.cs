@@ -31,7 +31,6 @@ public sealed class PuncoesModel : PageModel
 
     private readonly PuncoesHandler _handler;
     private readonly PuncoesPdfGenerator _pdfGenerator;
-    private readonly ControloApprovalHandler _approvalHandler;
     private readonly ShellStateFactory _shellState;
     private readonly IJobOnListQuery _jobOnList;
     private readonly IEnsureControloForJobOnHandler _ensureControlo;
@@ -39,14 +38,12 @@ public sealed class PuncoesModel : PageModel
     public PuncoesModel(
         PuncoesHandler handler,
         PuncoesPdfGenerator pdfGenerator,
-        ControloApprovalHandler approvalHandler,
         ShellStateFactory shellState,
         IJobOnListQuery jobOnList,
         IEnsureControloForJobOnHandler ensureControlo)
     {
         _handler = handler;
         _pdfGenerator = pdfGenerator;
-        _approvalHandler = approvalHandler;
         _shellState = shellState;
         _jobOnList = jobOnList;
         _ensureControlo = ensureControlo;
@@ -258,29 +255,33 @@ public sealed class PuncoesModel : PageModel
 
     /// <summary>
     /// Associa à mão o registo sem Job On à produção escolhida (pelo
-    /// jobon_id, que dá o controlo_id) ou a uma produção já aberta.
+    /// jobon_id, que dá o controlo_id) ou a uma produção já aberta. Uma
+    /// recusa no registo sem Job On volta com a referência procurada
+    /// (procura): a zona do «Associar» troca sem perder a procura.
     /// </summary>
     public async Task<IActionResult> OnPostAssociateAsync(
         [FromForm(Name = "puncoes_id")] int puncoesId,
         [FromForm(Name = "jobon_id")] int? jobOnId,
         [FromForm(Name = "controlo_id")] int? controloId,
-        [FromForm(Name = "origem")] string? origem)
+        [FromForm(Name = "origem")] string? origem,
+        [FromForm(Name = "procura")] string? procura = null)
     {
+        procura = PuncoesHandler.CanonicalReference(procura);
         var back = origem == "controlo" && controloId is int origemControlo
             ? (object)new { controlo_id = origemControlo }
-            : new { puncoes_id = puncoesId };
+            : new { puncoes_id = puncoesId, procura };
 
         if (controloId is not int destino)
         {
             if (jobOnId is not int escolhido)
             {
-                return RedirectToPage("/Controlo/Puncoes", null, new { puncoes_id = puncoesId, jobon_recusa = "sem-escolha" }, "puncoes-associar");
+                return RedirectToPage("/Controlo/Puncoes", null, new { puncoes_id = puncoesId, procura, jobon_recusa = "sem-escolha" }, "puncoes-associar");
             }
 
             var ensured = await _ensureControlo.HandleAsync(new EnsureControloForJobOn(escolhido), HttpContext.RequestAborted);
             if (ensured.ControloId is not int ensuredControlo)
             {
-                return RedirectToPage("/Controlo/Puncoes", null, new { puncoes_id = puncoesId, jobon_recusa = "inexistente" }, "puncoes-associar");
+                return RedirectToPage("/Controlo/Puncoes", null, new { puncoes_id = puncoesId, procura, jobon_recusa = "inexistente" }, "puncoes-associar");
             }
 
             destino = ensuredControlo;
@@ -311,6 +312,9 @@ public sealed class PuncoesModel : PageModel
             : Refused(target, result, null, punchReference, lot, reference);
     }
 
+    // O mesmo envio outra vez (a ligação caiu depois de gravar) não grava
+    // duas vezes (deep sweep, 18/10/2026, B-pegamentos-3).
+    [EnvioUnico]
     public async Task<IActionResult> OnPostAddAsync(
         [FromForm(Name = "controlo_id")] int? controloId,
         [FromForm(Name = "puncoes_id")] int? puncoesId,
@@ -376,8 +380,7 @@ public sealed class PuncoesModel : PageModel
             return Back(target, null);
         }
 
-        var approval = await _approvalHandler.GetAsync(sheet.ControloId, HttpContext.RequestAborted);
-        var bytes = _pdfGenerator.GenerateBytes(PuncoesPdfGenerator.FromRegisto(sheet, registo, approval, generatedBy));
+        var bytes = _pdfGenerator.GenerateBytes(PuncoesPdfGenerator.FromRegisto(sheet, registo, generatedBy));
         Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(sheet.Reference, sheet.ProductionNumber));
         return File(bytes, "application/pdf", ControloDocumentPaths.GetPuncoesFileName(sheet.Reference, sheet.ProductionNumber));
     }

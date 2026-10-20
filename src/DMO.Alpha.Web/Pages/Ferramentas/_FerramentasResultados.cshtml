@@ -1,0 +1,68 @@
+@model DMO.Alpha.Web.Pages.Ferramentas.IndexModel
+@using DMO.Alpha.Core.Tools
+@{
+    // FATOS HUMANOS: «CM · 5447 · lote 3 · B1» — o tool_id é a identidade
+    // opaca do backend (vive no URL, nunca como facto exibido da folha).
+    var tokenOf = new Func<ToolType, string>(IndexModel.TokenTypeFor);
+    var humanFacts = new Func<ToolCandidate, string>(c =>
+        $"{tokenOf(c.Type)} · {c.Reference} · lote {c.Lot}");
+}
+  <section class="dmo-card ferr-card" id="ferrResultados" aria-labelledby="ferr-list-title" hidden="@(!Model.Searched)" data-dmo-regiao>
+    @if (Model.Searched)
+    {
+    @* O «Selecionar ferramenta» (vindo do Job On) no canto superior direito
+       do cartão, na linha do título, nunca por baixo da tabela (Diogo,
+       18/10/2026: «metem os botões em baixo aumenta espaço, sempre canto
+       superior direito dentro dos cards»). *@
+    <div class="dmo-card-topo">
+      <h3 id="ferr-list-title">Ferramentas registadas<partial name="_DmoHelp" model="@(Model.ReturnTemplate is null ? "Um clique abre a ficha." : "Um clique seleciona; duplo clique abre a ficha.")" /></h3>
+      @if (Model.ReturnTemplate is { } template && Model.Candidates.Count > 0)
+      {
+        <div class="dmo-card-topo-acoes" data-dmo-for="ferrToolList">
+          <a class="dmo-button" data-dmo-action
+             data-href-template="@template.Replace("{tool_id}", "{id}")"
+             aria-disabled="true">Selecionar ferramenta</a>
+        </div>
+      }
+    </div>
+    <p class="card-note">@Model.TotalCandidates encontrada(s) · @Model.Candidates.Count nesta página</p>
+
+    @if (Model.Candidates.Count == 0)
+    {
+      <div class="ferr-vazia">Nenhuma ferramenta encontrada com os filtros atuais. Registe a ferramenta real em falta — a seleção nos outros fluxos é sempre sua.</div>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="ferrToolList" data-dmo-list="Ferramentas disponíveis">
+          <thead>
+            <tr>
+              <th style="width:0"></th>
+              <th>Ferramenta</th>
+              <th>Máquinas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var candidate in Model.Candidates)
+            {
+              <tr data-dmo-row data-id="@candidate.ToolId"
+                  data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = candidate.ToolId })"
+                  aria-label="Ferramenta @humanFacts(candidate) — @(Model.ReturnTemplate is null ? "um clique abre a ficha" : "um clique seleciona, duplo clique abre a ficha")">
+                <td><input type="radio" name="ferr_tool" value="@candidate.ToolId" aria-label="Ferramenta @humanFacts(candidate)" /></td>
+                <td><strong>@humanFacts(candidate)</strong></td>
+                <td>@(candidate.MachineCodes ?? "—")</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    <nav data-dmo-parcial class="ferr-pagination" aria-label="Paginação de ferramentas" data-dmo-handler="Resultados" data-dmo-alvo="ferrResultados">
+      <a class="dmo-button dmo-arrow" href="@(Model.PageNumber > 1 ? Model.PageLink(Model.PageNumber - 1) : null)"
+         aria-label="Página anterior" aria-disabled="@(Model.PageNumber <= 1 ? "true" : null)">←</a>
+      <span role="status" aria-label="Página @Model.PageNumber de @Model.TotalPages">@Model.PageNumber de @Model.TotalPages</span>
+      <a class="dmo-button dmo-arrow" href="@(Model.PageNumber < Model.TotalPages ? Model.PageLink(Model.PageNumber + 1) : null)"
+         aria-label="Página seguinte" aria-disabled="@(Model.PageNumber >= Model.TotalPages ? "true" : null)">→</a>
+    </nav>
+    }
+  </section>

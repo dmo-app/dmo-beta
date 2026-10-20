@@ -1,4 +1,5 @@
 using DMO.Alpha.Core.Production;
+using DMO.Alpha.Infrastructure.Controlo;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,19 +49,30 @@ public sealed class JobOnChangeQuery
             && p.Controlo!.JobOnId == c.JobOnId
             && p.RegistadoEmUtc < c.ChangedAtUtc), cancellationToken);
 
-    /// <summary>O aviso dos Pegamentos: o que mudou depois do primeiro registo de Pegamentos do controlo.</summary>
-    public Task<JobOnChangeNotice?> ForPegamentosAsync(int controloId, CancellationToken cancellationToken = default) =>
-        NoticeAsync(JobOnChangeFields.PegamentosWatches, c => _db.Controlos.Any(k =>
-            k.Id == controloId
-            && k.JobOnId == c.JobOnId
-            && _db.Pegamentos.Where(g => g.ControloId == k.Id).Min(g => g.RegistadoEmUtc) < c.ChangedAtUtc), cancellationToken);
+    /// <summary>
+    /// O aviso de uma folha de Pegamentos: o que mudou no Job On depois de
+    /// ESTA folha ser gravada. A folha que nasceu de uma troca não lista a
+    /// troca que a criou (antes era a data da primeira folha do controlo).
+    /// </summary>
+    public Task<JobOnChangeNotice?> ForPegamentosSheetAsync(int pegamentosId, CancellationToken cancellationToken = default) =>
+        NoticeAsync(JobOnChangeFields.PegamentosWatches, c => _db.Pegamentos.Any(g =>
+            g.Id == pegamentosId
+            && g.Controlo!.JobOnId == c.JobOnId
+            && g.RegistadoEmUtc < c.ChangedAtUtc), cancellationToken);
 
-    /// <summary>O aviso do Controlo aprovado: o que mudou depois da aprovação (a aprovação mantém-se).</summary>
-    public Task<JobOnChangeNotice?> ForControloApprovalAsync(int controloId, CancellationToken cancellationToken = default) =>
-        NoticeAsync(JobOnChangeFields.ControloWatches, c => _db.Controlos.Any(k =>
-            k.Id == controloId
+    /// <summary>
+    /// O aviso do Controlo aprovado: o que mudou depois da aprovação (a
+    /// aprovação mantém-se). A aprovação é a do estado do controlo
+    /// (ControloAprovacao): por aprovar, não há aviso.
+    /// </summary>
+    public Task<JobOnChangeNotice?> ForControloApprovalAsync(int controloId, CancellationToken cancellationToken = default)
+    {
+        var estados = ControloAprovacao.Estados(_db);
+        return NoticeAsync(JobOnChangeFields.ControloWatches, c => estados.Any(k =>
+            k.ControloId == controloId
             && k.JobOnId == c.JobOnId
             && k.ApprovedAtUtc < c.ChangedAtUtc), cancellationToken);
+    }
 
     /// <summary>
     /// O aviso de um registo das Boquilhas (pelo bq_id): o que mudou depois
@@ -103,25 +115,41 @@ public sealed class JobOnChangeQuery
     }
 
     /// <summary>
-    /// Quantas alterações feitas depois do início tem cada uma das produções
-    /// indicadas (só as que têm alguma), como o histórico da ficha.
+    /// As alterações feitas depois do início de cada uma das produções
+    /// indicadas, da mais recente para a mais antiga (só as que têm alguma):
+    /// a linha da máquina em «Produções do dia» mostra qual foi a alteração.
     /// </summary>
-    public async Task<IReadOnlyDictionary<int, int>> CountsAsync(
+    public async Task<IReadOnlyDictionary<int, IReadOnlyList<JobOnChangeView>>> AfterStartAsync(
         IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default)
     {
         if (jobOnIds.Count == 0)
         {
-            return new Dictionary<int, int>();
+            return new Dictionary<int, IReadOnlyList<JobOnChangeView>>();
         }
 
         var rows = await _db.JobOnChanges
             .AsNoTracking()
             .Where(c => jobOnIds.Contains(c.JobOnId))
-            .Select(c => new { c.JobOnId, c.ChangedAtUtc, c.JobOn!.InicioEm })
+            .OrderByDescending(c => c.ChangedAtUtc)
+            .ThenBy(c => c.Id)
+            .Select(c => new { c.JobOnId, c.Field, c.OldValueFrozen, c.NewValueFrozen, c.ChangedByNameFrozen, c.ChangedAtUtc, c.JobOn!.InicioEm })
             .ToListAsync(cancellationToken);
         return rows
             .Where(c => JobOnChange.AfterStart(c.ChangedAtUtc, c.InicioEm))
             .GroupBy(c => c.JobOnId)
-            .ToDictionary(g => g.Key, g => g.Count());
+            .ToDictionary(
+                g => g.Key,
+                g => (IReadOnlyList<JobOnChangeView>)g
+                    .Select(c => new JobOnChangeView(
+                        c.JobOnId,
+                        c.Field,
+                        JobOnChangeFields.Describe(c.Field, c.OldValueFrozen, c.NewValueFrozen),
+                        c.ChangedByNameFrozen,
+                        c.ChangedAtUtc)
+                    {
+                        OldValue = c.OldValueFrozen,
+                        NewValue = c.NewValueFrozen
+                    })
+                    .ToList());
     }
 }

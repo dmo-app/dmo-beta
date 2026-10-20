@@ -19,6 +19,8 @@
 .pu-id-form,.pu-add-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-top:14px}
 .pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:0 1 220px;margin:0}
 .pu-id-form .dmo-field:last-child,.pu-add-form .dmo-field:last-child{flex:0 0 auto}
+/* O formulário do «+ Novo registo» já não tem o botão (está no canto do cartão): o lote fica com a largura dos outros campos. */
+@media(min-width:601px){.pu-id-form.pu-novo-form .dmo-field:last-child{flex:0 1 220px}}
 .pu-add-form{margin:0 0 14px}
 .pu-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .pu-stat{position:relative;padding:14px 16px;border:1px solid var(--dmo-border);border-radius:10px;background:#fff;overflow:hidden}
@@ -37,8 +39,8 @@
 .pu-check.on{color:var(--dmo-success)}
 .pu-box{display:grid;place-items:center;width:18px;height:18px;border:1.5px solid currentColor;border-radius:4px;font-size:12px;line-height:1}
 .pu-check.on .pu-box{background:var(--dmo-success);border-color:var(--dmo-success);color:#fff}
-.pu-remove{padding:5px 8px;border:0;border-radius:6px;background:none;color:var(--dmo-danger);font-weight:650;cursor:pointer}
-.pu-remove:hover{background:var(--dmo-danger-soft)}
+.pu-remove{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
+.pu-remove:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
 .pu-export{display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:16px 18px;border:1px solid var(--dmo-border);border-radius:12px;background:var(--dmo-brand-050)}
 .pu-pdf{display:grid;place-items:center;width:42px;height:46px;border:1px solid var(--dmo-brand-200);border-radius:7px;background:#fff;color:var(--dmo-brand-700);font-size:11px;font-weight:900}
 .pu-export-text{flex:1;min-width:200px}

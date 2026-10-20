@@ -44,11 +44,13 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
 
     private readonly DmoDbContext _db;
     private readonly IModuleSettingsQuery _settings;
+    private readonly TimeProvider _clock;
 
-    public RegisterBqMovementHandler(DmoDbContext db, IModuleSettingsQuery settings)
+    public RegisterBqMovementHandler(DmoDbContext db, IModuleSettingsQuery settings, TimeProvider? clock = null)
     {
         _db = db;
         _settings = settings;
+        _clock = clock ?? TimeProvider.System;
     }
 
     public async Task<RegisterBqMovementOutcome> HandleAsync(
@@ -76,9 +78,15 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
     /// referência e o lote congelados. O registo e o movimento gravam no
     /// mesmo SaveChanges; uma recusa não deixa registo nenhum.
     /// </summary>
-    public async Task<RegisterBqMovementOutcome> HandleForContextAsync(
+    public Task<RegisterBqMovementOutcome> HandleForContextAsync(
         RegisterBqMovementForContext command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        HandleForContextAsync(command, cancellationToken, retried: false);
+
+    private async Task<RegisterBqMovementOutcome> HandleForContextAsync(
+        RegisterBqMovementForContext command,
+        CancellationToken cancellationToken,
+        bool retried)
     {
         var movement = new RegisterBqMovement(
             0,
@@ -156,6 +164,15 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
 
             return outcome;
         }
+        catch (TraceClaimedByAnotherProduction) when (!retried)
+        {
+            // Concorrência: outro pedido associou o registo pré-produção a
+            // outra produção com a mesma BQ enquanto este esperava o
+            // trinco. Nada deste pedido ficou gravado; volta a resolver o
+            // registo (agora fica com um registo próprio).
+            _db.ChangeTracker.Clear();
+            return await HandleForContextAsync(command, cancellationToken, retried: true);
+        }
         catch (DbUpdateException ex) when (
             ex.InnerException is Npgsql.PostgresException
             {
@@ -223,6 +240,13 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
 
         var type = BqMovementTypeTokens.FromStorage(typeToken);
 
+        // 4. Uma data real no futuro grava e a página avisa (Diogo,
+        //    19/10/2026: «as datas têm de ser livres»; na beta.241 era
+        //    recusada). A folga entre relógios não avisa no uso diário.
+        var now = _clock.GetUtcNow();
+        var occurredInTheFuture = command.OccurredAtUtc is DateTime occurredAtUtc
+            && BqMovementOccurrence.IsInTheFuture(occurredAtUtc, now);
+
         // A produção determina a rota. Sem produção, só uma compatibilidade única
         // permite determinar uma máquina; várias não autorizam escolher a primeira.
         // Sem máquina/rota inequívoca, grava o movimento sem reparador.
@@ -279,7 +303,7 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
         // pela data real (OccurredAtUtc). O REPARADOR DA SAÍDA é o
         // resolvido pela rota, com o nome CONGELADO — a verdade histórica
         // do movimento.
-        var registeredAtUtc = DateTime.UtcNow;
+        var registeredAtUtc = now.UtcDateTime;
         var persisted = new BqMovement
         {
             // A navegação liga o movimento ao registo novo, ainda por gravar.
@@ -297,6 +321,27 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
         // Discrepância: a regra matched/unmatched recalculada em todo o
         // registo pela data real (um movimento com data antiga pode
         // explicar retornos já gravados). O novo movimento entra no fold antes do Add.
+        // O trinco do registo serializa os pedidos simultâneos (BqTraceLock);
+        // um registo novo ainda não tem linha nem movimentos.
+        await using var transaction = isNewTrace
+            ? null
+            : await BqTraceLock.AcquireAsync(_db, trace.Id, cancellationToken);
+        if (transaction is not null && _db.Entry(trace).Property(t => t.BqContextId).IsModified)
+        {
+            // O registo pré-produção é associado neste pedido: já com o
+            // trinco, confirma que outro pedido não o associou entretanto a
+            // outra produção (gravar por cima juntava as duas num registo).
+            var storedContextId = await _db.BqRepairTraces
+                .AsNoTracking()
+                .Where(t => t.Id == trace.Id)
+                .Select(t => t.BqContextId)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (storedContextId is not null && storedContextId != trace.BqContextId)
+            {
+                throw new TraceClaimedByAnotherProduction();
+            }
+        }
+
         var traceMovements = isNewTrace
             ? new List<BqMovement>()
             : await _db.BqMovements
@@ -307,6 +352,10 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
 
         _db.BqMovements.Add(persisted);
         await _db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         return new RegisterBqMovementOutcome(
             RegisterBqMovementResult.Success,
@@ -315,8 +364,11 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
                 trace.Id,
                 typeToken,
                 command.Quantity,
-                persisted.Discrepancy));
+                persisted.Discrepancy),
+            occurredInTheFuture);
     }
+
+    private sealed class TraceClaimedByAnotherProduction : Exception;
 
     private static RegisterBqMovementOutcome Refused(RegisterBqMovementResult result) =>
         new(result);
@@ -336,7 +388,7 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
             var contextMachineCode = await _db.BqContexts
                 .AsNoTracking()
                 .Where(c => c.Id == contextId)
-                .Select(c => c.JobOn.Machine.Code)
+                .Select(c => c.JobOn != null ? c.JobOn.Machine.Code : c.ReplacedJobOn!.Machine.Code)
                 .FirstOrDefaultAsync(cancellationToken);
             if (contextMachineCode is not null)
             {

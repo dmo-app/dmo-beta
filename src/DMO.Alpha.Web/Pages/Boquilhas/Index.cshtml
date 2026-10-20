@@ -1,6 +1,7 @@
 @page "/Boquilhas"
 @model DMO.Alpha.Web.Pages.Boquilhas.IndexModel
 @using DMO.Alpha.Core.Boquilhas
+@using DMO.Alpha.Web.Pages.Shared
 @{
     Layout = "_DmoShellLayout";
     var fmtDate = new Func<DateTime, string>(v =>
@@ -33,7 +34,9 @@
   @* O RAIL DAS LINHAS (o aside do 31: as máquinas com a produção corrente *@
   @*    — o mesmo componente do Planeamento; os botões do desenho dele).   *@
   @* ------------------------------------------------------------------ *@
-  <partial name="_DmoSidepanelBoquilhas" model="Model.Currents" />
+  @* Um clique numa máquina abre o registo dela; na vista Registo troca só o
+     registo, sem recarregar (data-dmo-parcial; ver a vista Registo). *@
+  <div class="dmo-zona" data-dmo-parcial><partial name="_DmoSidepanelBoquilhas" model="Model.Currents" /></div>
 
   <main class="main beta-light-main">
     @* AS TABS DE VISTA (o 31: a dmo-secondary-nav com os .tab). *@
@@ -44,7 +47,17 @@
     @* ---------------------------------------------------------------- *@
     @if (activeTab == "registo")
     {
-      <section id="registo" class="view active">
+      @* GRAVAR SEM RECARREGAR (Diogo, 17/10/2026: «atualizar só o que muda»;
+         o Diogo regista as guias em atraso movimento atrás de movimento).
+         Guardar, corrigir e apagar movimentos, associar o Job On e escolher a
+         boquilha (no painel lateral ou na procura) trocam só as zonas do
+         registo (data-dmo-regiao); a procura fica como o operador a deixou
+         (data-dmo-fica). No registo sem Job On, a procura da referência do
+         «Associar Job On» também troca só o registo (deep sweep, 18/10/2026;
+         as sugestões ligam-se na zona nova desde a beta.172).
+         Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
+      var trace = Model.RegistoTrace;
+      <section id="registo" class="view active" data-dmo-troca>
         <div class="page-head">
           <div>
             <h2>Boquilhas · Registo de reparação</h2>
@@ -54,7 +67,11 @@
         </div>
 
         @* A PROCURA NO TOPO (Diogo, 17/10/2026): procurar ou trocar de
-           boquilha é a primeira coisa da página, antes do registo aberto. *@
+           boquilha é a primeira coisa da página, antes do registo aberto.
+           Fica como o operador a deixou (data-dmo-fica); um clique numa
+           boquilha encontrada troca só o registo (data-dmo-parcial) e a
+           procura fecha (js/bq-registo.js). *@
+        <div class="dmo-zona" data-dmo-fica>
         <details class="card bq-register-search" open="@(Model.RegistoTrace is null || Model.CreateRefused || Model.RegisterCandidates.TotalCount > 0)">
           <summary>Procurar / trocar de boquilha ou produção</summary>
         <div class="card">
@@ -65,7 +82,7 @@
             <label for="bqReference">Pesquisar boquilha, lote ou produção<partial name="_DmoHelp" model="@("Escreva a BQ, o lote ou a produção. Um clique ou Enter numa boquilha abre o registo: o da produção em máquina, senão o último registo dela.")" /></label>
             <input id="bqReference" data-dmo-maiusculas autocapitalize="characters" type="search" value="@(Model.RequestedBq?.Reference)" placeholder="Ex.: T194, Y232 ou lote" data-dmo-procura="@Url.Page("/Boquilhas/Index", "ProcurarBq")" data-dmo-procura-alvo="bqProcura" />
           </div>
-          <div id="bqProcura" class="bq-procura" aria-live="polite"></div>
+          <div id="bqProcura" class="bq-procura" aria-live="polite" data-dmo-parcial></div>
           @if (Model.CreateRefused)
           {
             <div class="result" role="alert">
@@ -111,12 +128,24 @@
                 </tbody>
               </table>
             </div>
-            <partial name="_ListPager" model='ListPager.For(Model.RegisterCandidates, "registos_pagina")' />
+            @* A paginação das listas passa pela troca (data-dmo-parcial no
+               _ListPager), mas esta lista está na procura, que fica como o
+               operador a deixou (data-dmo-fica): mudar de página abre a
+               página inteira (data-dmo-completa), como antes. *@
+            <div data-dmo-completa><partial name="_ListPager" model='ListPager.For(Model.RegisterCandidates, "registos_pagina")' /></div>
           </div>
         }
 
         </details>
-        @if (Model.RegistoTrace is { } trace)
+        </div>
+
+        @* AS ZONAS DO REGISTO (cada uma existe sempre, mesmo vazia): o
+           cabeçalho, o formulário do movimento, os números e os últimos
+           movimentos. Gravar troca a zona do formulário (volta limpo, a hora
+           volta a «agora» e o foco ao primeiro campo, o tipo) e as que
+           mudaram. *@
+        <div id="bqRegistoAberto" class="dmo-zona" data-dmo-regiao>
+        @if (trace is not null)
         {
           <div class="card register-open">
             <div class="card-head">
@@ -124,12 +153,14 @@
                 <h3>Registo — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</h3>
               </div>
               <div class="bq-register-head-actions">
-                @if (Model.JobHistory.TotalCount > 0)
+                @* «Histórico BQ» (Diogo, 19/10/2026): abre o separador Histórico
+                   já filtrado por esta BQ e lote. *@
+                @if (trace.ToolId is { } historyToolId)
                 {
                   <details class="dmo-options" data-dmo-tab-menu>
                     <summary class="dmo-button" aria-label="Opções do registo da BQ @trace.ToolReference">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
                     <div class="dmo-options-list">
-                      <a class="dmo-options-item" href="@Model.JobHistoryHref(open: true)">Onde esta boquilha foi usada</a>
+                      <a class="dmo-options-item" href="/Boquilhas?historico=1&amp;bq_ferramenta=@Uri.EscapeDataString(historyToolId)">Histórico BQ</a>
                     </div>
                   </details>
                 }
@@ -181,12 +212,25 @@
             @if (trace.BqContextId is null)
             {
               <div class="filter-bar" style="margin:14px 0 0">
-                <h3 style="margin:0 0 10px">Associar Job On a este registo<partial name="_DmoHelp" model="@("Escreva a referência e escolha-a nas sugestões (ou carregue em Enter). Depois escolha a produção dela: fica logo associada. Os movimentos, as datas e o lote mantêm-se.")" /></h3>
+                @* Escolher a produção não associa: associa o botão «Associar»,
+                   no canto do card (Diogo, 18/10/2026, pergunta 1 do deep
+                   sweep). Assim uma escolha errada com o rato corrige-se antes. *@
+                <div class="card-head" style="margin-bottom:10px">
+                  <div>
+                    <h3 style="margin:0">Associar Job On a este registo<partial name="_DmoHelp" model="@("Escreva a referência e escolha-a nas sugestões (ou carregue em Enter). Depois escolha a produção dela e carregue em «Associar». Os movimentos, as datas e o lote mantêm-se.")" /></h3>
+                  </div>
+                  @if (Model.AssociateProductions.Count > 0)
+                  {
+                    <button type="submit" form="bqAssociarJobOn" class="btn primary">Associar</button>
+                  }
+                </div>
                 @* Dois passos (16/10/2026; Diogo, 17/10/2026: «referência e
                    depois produções»): a referência e depois só as produções
                    dela. Sem «Procurar»: escolher a sugestão ou o Enter
-                   procuram (17/10/2026). *@
-                <form method="get" asp-page="/Boquilhas/Index">
+                   procuram (17/10/2026). A procura troca só o registo
+                   (data-dmo-parcial; deep sweep, 18/10/2026): aparecem as
+                   produções da referência e o foco fica na referência. *@
+                <form method="get" asp-page="/Boquilhas/Index" data-dmo-parcial>
                   <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
                   <div class="filter-grid">
                     <div class="field dmo-field">
@@ -197,20 +241,24 @@
                 </form>
                 @if (Model.AssociateReferenceWithoutProductions)
                 {
-                  <div class="jobon-aviso warn" role="status">Sem produções para «@Model.AssociateReference».</div>
+                  <div class="jobon-aviso warn" role="status">Sem produções para «@Model.AssociateReference».<partial name="_DmoAvisoLink" model="@DmoAvisoLink.CriarJobOn(Model.AssociateReference)" /></div>
                 }
                 @if (Model.AssociateProductions.Count > 0)
                 {
-                  <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="AssociateJobOn">
+                  @* «Associar» grava sem recarregar (data-dmo-parcial). *@
+                  <form id="bqAssociarJobOn" method="post" asp-page="/Boquilhas/Index" asp-page-handler="AssociateJobOn" data-dmo-parcial>
                     <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
                     <div class="filter-grid">
                       <div class="field dmo-field">
                         <label for="jobNumber">Produção</label>
-                        <select id="jobNumber" name="job_number" required data-dmo-autosubmit aria-label="Produção a associar a este registo">
+                        @* Cada produção vai pelo seu Job On: o nº só é único junto com a
+                           referência, e o texto escrito no passo 1 pode ser só o início dela
+                           (deep sweep 2, F-1, 18/10/2026). *@
+                        <select id="jobNumber" name="job_on_id" required aria-label="Produção a associar a este registo">
                           <option value="">Selecionar produção</option>
                           @foreach (var producao in Model.AssociateProductions)
                           {
-                            <option value="@producao.ProductionNumber">@producao.Label</option>
+                            <option value="@producao.JobOnId">@producao.Label</option>
                           }
                         </select>
                       </div>
@@ -221,6 +269,20 @@
             }
 
           </div>
+        }
+        else if (Model.TraceRequestedNotFound)
+        {
+          <div class="result" role="alert">O registo indicado não existe. Nenhum movimento foi registado.</div>
+        }
+        else
+        {
+          <div class="register-empty">Crie ou selecione um lote para ativar as ações do registo.</div>
+        }
+        </div>
+
+        <div id="bqRegistoMovimento" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
+        @if (trace is not null)
+        {
           <div class="card bq-movement-card">
             @if (Model.MovementRefusal is not null)
             {
@@ -228,15 +290,31 @@
             }
 
             @* Os avisos (âmbar, nunca bloqueio): o movimento ou a associação
-               ficaram gravados e o aviso explica o que foi ajustado. *@
+               ficaram gravados e o aviso explica o que foi ajustado. São o
+               resultado da gravação: vão para o canto (data-dmo-toast="aviso",
+               até se fecharem) e não empurram o formulário (regra 32,
+               B-boquilhas-7, deep sweep 18/10/2026). *@
             @if (!Model.EditMovementsMode && Model.OccurrenceShiftWarningMessage is { } shiftWarning)
             {
-              <div class="jobon-aviso warn" role="status">@shiftWarning</div>
+              <div data-dmo-toast="aviso" role="status">@shiftWarning<partial name="_DmoAvisoLink" model="@(new DmoAvisoLink("Corrigir movimentos", Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: true) + "#bqLatest"))" /></div>
+            }
+            @if (!Model.EditMovementsMode && Model.FutureOccurrenceWarningMessage is { } futureWarning)
+            {
+              <div data-dmo-toast="aviso" role="status">@futureWarning<partial name="_DmoAvisoLink" model="@(new DmoAvisoLink("Corrigir movimentos", Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: true) + "#bqLatest"))" /></div>
+            }
+
+            @* A QUANTIDADE TOTAL DO LOTE EM FALTA (Diogo, 18/10/2026: «não
+               apareceu alerta como deveria quando não tem»): aviso âmbar
+               discreto, nunca bloqueio; o movimento grava na mesma e a
+               Fabricação fica por calcular até a ficha ter a quantidade. *@
+            @if (trace.ToolId is { } lotToolId && Model.RegisterLotQuantity is null)
+            {
+              <div class="jobon-aviso warn" role="status" id="bqLotQuantityMissing">Falta a quantidade total do lote desta BQ. Sem ela, a Fabricação não é calculada.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(lotToolId, "Preencher na ficha da ferramenta", continuar: DmoAvisoLink.Aqui(ViewContext.HttpContext.Request))" /></div>
             }
 
             @if (Model.AssociationWarningMessage is { } associationWarning)
             {
-              <div class="jobon-aviso warn" role="status">@associationWarning</div>
+              <div data-dmo-toast="aviso" role="status">@associationWarning</div>
             }
 
             @if (Model.AssociationRefusal is not null)
@@ -260,15 +338,30 @@
                 <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
               }
               <h3>Registar Entrada ou Saída<partial name="_DmoHelp" model="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")" /></h3>
-              @* Tipo, máquina, quantidade, data e guardar numa só linha; no
-                 telemóvel parte em linhas (Diogo, 17/10/2026). *@
+              @* O FOCO NO PRIMEIRO CAMPO (Diogo, 17/10/2026: guardar movimento
+                 atrás de movimento): depois de gravar, ou de abrir outra
+                 boquilha, o foco fica no tipo do próximo movimento. Com uma
+                 janela aberta por cima, o foco vai para a janela. *@
+              @{
+                var janelaAberta = (Model.EditMovementsMode && trace.MovementCount > 0)
+                    || (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && trace.AccumulatedDiscrepancy is int porZerar && porZerar != 0)
+                    || (Model.JobHistoryOpen && Model.JobHistory.TotalCount > 0);
+                string? FocoNoTipo(string tipo) => !janelaAberta && Model.MovementFormType == tipo ? "autofocus" : null;
+              }
+              @* Tipo, quantidade, máquina, data e guardar numa só linha; no
+                 telemóvel parte em linhas (Diogo, 17/10/2026). A quantidade
+                 vem antes da máquina (Diogo, 18/10/2026). *@
               <div class="bq-movement-line">
                 <fieldset class="bq-movement-types">
                   <legend class="visually-hidden">Movimento</legend>
-                  <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" required /><span>↗ Saída</span></label>
-                  <label><input type="radio" name="movement_type" value="entrada" checked="@(Model.MovementFormType == "entrada")" /><span>↙ Entrada</span></label>
-                  <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" /><span>↙ Entrada sem reparação</span></label>
+                  <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" autofocus="@FocoNoTipo("saida")" required /><span>↗ Saída</span></label>
+                  <label><input type="radio" name="movement_type" value="entrada" checked="@(Model.MovementFormType == "entrada")" autofocus="@FocoNoTipo("entrada")" /><span>↙ Entrada</span></label>
+                  <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" autofocus="@FocoNoTipo("entrada_sem_reparacao")" /><span>↙ Entrada sem reparação</span></label>
                 </fieldset>
+                <div class="field dmo-field bq-line-quantity">
+                  <label for="quantity">Quantidade</label>
+                  <input id="quantity" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" value="@Model.MovementFormQuantity" />
+                </div>
                 <div class="field dmo-field bq-line-machine">
                   @{
                     var machineHelp = "Na saída para reparação, escolha a máquina que está a usar esta BQ. A escolha fica guardada no movimento.";
@@ -286,10 +379,6 @@
                     }
                   </select>
                 </div>
-                <div class="field dmo-field bq-line-quantity">
-                  <label for="quantity">Quantidade</label>
-                  <input id="quantity" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" value="@Model.MovementFormQuantity" />
-                </div>
                 @* A DATA/HORA REAL do movimento (o equivalente ao «Data e
                    hora reais *» do boquilhas.html): pre-preenchida com o
                    agora do servidor — o uso diário não toca no campo; o
@@ -304,6 +393,12 @@
               </div>
             </form>
           </div>
+        }
+        </div>
+
+        <div id="bqRegistoNumeros" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
+        @if (trace is not null)
+        {
           <div class="card bq-metrics-card" id="bqMetrics">
             <h3>Valores desta boquilha / lote<partial name="_DmoHelp" model="@("Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.")" /></h3>
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
@@ -325,23 +420,23 @@
                 var resetNote = Model.DiscrepancyResetNote;
                 var resettable = trace.AccumulatedDiscrepancy is int nonZero && nonZero != 0 && trace.BqRepairTraceId > 0;
               }
-              <div><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para pôr a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}</strong></div>
+              <div><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para meter a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}</strong></div>
             </div>
             @if (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && trace.AccumulatedDiscrepancy is int toReset && toReset != 0)
             {
               <div class="dmo-modal-backdrop open" id="bqDiscrepancyReset" role="dialog" aria-modal="true" aria-labelledby="bqDiscrepancyResetTitle">
                 <div class="dmo-modal bq-reset-modal">
                   <div class="dmo-modal-head">
-                    <h2 id="bqDiscrepancyResetTitle">Pôr a discrepância a zero?<partial name="_DmoHelp" model="@("A discrepância acumulada passa a 0 e conta só os movimentos com data e hora depois de agora. Os movimentos, o saldo de cada linha e o «Em reparação» ficam como estão.")" /></h2>
+                    <h2 id="bqDiscrepancyResetTitle">Meter a discrepância a zero?<partial name="_DmoHelp" model="@("A discrepância acumulada passa a 0 e conta só os movimentos com data e hora depois de agora. Os movimentos, o saldo de cada linha e o «Em reparação» ficam como estão.")" /></h2>
                   </div>
                   <div class="dmo-modal-body">
                     <p>BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}") · discrepância acumulada @toReset</p>
                     <div class="dmo-list-actions bq-correct-actions">
                       <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="ResetDiscrepancy">
                         <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
-                        <button type="submit" class="btn primary">Pôr a zero</button>
+                        <button type="submit" class="btn primary">Meter a zero</button>
                       </form>
-                      <a class="btn" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: false))#bqMetrics">Cancelar</a>
+                      <a class="btn" autofocus href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: false))#bqMetrics">Cancelar</a>
                     </div>
                   </div>
                 </div>
@@ -349,6 +444,12 @@
             }
 
           </div>
+        }
+        </div>
+
+        <div id="bqRegistoMovimentos" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
+        @if (trace is not null)
+        {
           <div class="card bq-latest-card">
             @* OS ÚLTIMOS MOVIMENTOS (o html: «Últimos movimentos desta
                boquilha / produção — Mais recentes primeiro»; o facto
@@ -362,17 +463,16 @@
                 <div>
                   <h3>Últimos movimentos desta boquilha / produção<partial name="_DmoHelp" model="@("Mais recentes primeiro, pela data e hora reais (à mesma hora, a saída conta antes da entrada), seja qual for a ordem em que foram registados; as contas refazem-se a cada movimento. O Saldo só aparece numa Entrada excecional e é negativo quando regressa mais quantidade do que pode ser justificada pelas Saídas anteriores. Não é o stock.")" /></h3>
                 </div>
-                @if (trace.Movements.Count > 0)
+                @if (trace.MovementCount > 0)
                 {
                   <a class="btn" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: true))#bqLatest">Corrigir movimentos</a>
                 }
               </div>
-            @if (trace.Movements.Count > 0)
+            @if (trace.MovementCount > 0)
             {
-              @* As quantidades do registo precisam de todos os movimentos;
-                 a tabela mostra-os 25 de cada vez. *@
-              var traceMovementsPage = DMO.Alpha.Core.Paging.PagedList<DMO.Alpha.Core.Boquilhas.BoquilhasRegistoMovement>
-                  .FromLoaded(trace.Movements, Model.TraceMovementsPage);
+              @* As quantidades do registo contam todos os movimentos; a
+                 consulta traz só os 25 da página que se vê. *@
+              var traceMovementsPage = trace.MovementsPage;
               @* Cada linha diz a BQ e o lote (Diogo, 17/10/2026: ao descer
                  deixava de se ver qual estava a ser registada). *@
               void MovementCells(BoquilhasRegistoMovement movement)
@@ -411,8 +511,9 @@
                 <div class="dmo-modal-backdrop open" id="bqCorrectMovements" role="dialog" aria-modal="true" aria-labelledby="bqCorrectTitle">
                   <div class="dmo-modal bq-correct-modal">
                     <div class="dmo-modal-head">
-                      <h2 id="bqCorrectTitle">Corrigir movimentos — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")<partial name="_DmoHelp" model="@($"Um clique abre o movimento para corrigir. Só os {DeleteBqMovement.MostRecentLimit} movimentos mais recentes podem ser apagados.")" /></h2>
-                      <a class="btn bq-correct-close" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: false))#bqLatest">Fechar</a>
+                      <h2 id="bqCorrectTitle">Corrigir movimentos — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")<partial name="_DmoHelp" model="@($"Um clique abre o movimento para corrigir ou apagar. Ao apagar, a contagem e as discrepâncias do registo são recalculadas pela data real.")" /></h2>
+                      @* O foco na janela: no tipo do movimento aberto, senão no «Fechar». *@
+                      <a class="btn bq-correct-close" autofocus="@(Model.EditingMovement is null ? "autofocus" : null)" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: false))#bqLatest">Fechar</a>
                     </div>
                     <div class="dmo-modal-body">
               @if (Model.EditRefusalMessage is { Length: > 0 } editRefusalMessage)
@@ -421,24 +522,52 @@
               }
               @if (Model.OccurrenceShiftWarningMessage is { } editShiftWarning)
               {
-                <div class="jobon-aviso warn" role="status">@editShiftWarning</div>
+                <div data-dmo-toast="aviso" role="status">@editShiftWarning</div>
+              }
+              @if (Model.FutureOccurrenceWarningMessage is { } editFutureWarning)
+              {
+                <div data-dmo-toast="aviso" role="status">@editFutureWarning</div>
               }
               @if (Model.EditingMovement is { } editing)
               {
                 @* A correção do movimento aberto com um clique; apagar só nos mais recentes. *@
+                @* As ações da correção no canto superior direito, ao lado do título
+                   (Diogo, 18/10/2026: «sempre canto superior direito dentro dos
+                   cards»), afastadas dos campos e da tabela. Ficam fora do
+                   formulário da correção porque o «Apagar» é outro formulário. *@
+                <div class="dmo-card-topo bq-correct-topo">
+                  <h3>Corrigir movimento</h3>
+                  <div class="dmo-card-topo-acoes bq-correct-actions">
+                    <button type="submit" class="btn primary" form="bqEditMovement">Guardar correção</button>
+                    @* Apagar pede confirmação na janela da app, não na do browser. *@
+                    <button type="button" class="btn" data-dmo-dialog="bq-apagar-movimento">Apagar movimento</button>
+                    <dialog id="bq-apagar-movimento" class="dmo-dialog" aria-labelledby="bq-apagar-movimento-titulo">
+                      <h3 id="bq-apagar-movimento-titulo">Apagar movimento</h3>
+                      <p>Apagar este movimento? A contagem do registo é recalculada.</p>
+                      <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="DeleteMovement">
+                        <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
+                        <input type="hidden" name="movement_id" value="@editing.MovementId" />
+                        <div class="dmo-dialog-actions">
+                          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                          <button type="submit" class="dmo-button">Apagar</button>
+                        </div>
+                      </form>
+                    </dialog>
+                    <a class="btn" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: true))#bqLatest">Cancelar</a>
+                  </div>
+                </div>
                 <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="EditMovement" class="bq-movement-form" id="bqEditMovement">
                   <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
                   <input type="hidden" name="movement_id" value="@editing.MovementId" />
-                  <h3>Corrigir movimento</h3>
                   @if (Model.EditingMovementCorrectionNote is { Length: > 0 } correctionNote)
                   {
                     <p class="muted" id="bqMovementCorrectedBy" style="margin:0 0 8px">@correctionNote</p>
                   }
                   <fieldset class="bq-movement-types">
                     <legend class="visually-hidden">Movimento</legend>
-                    <label><input type="radio" name="movement_type" value="saida" checked="@(editing.MovementType == "saida")" required /><span>↗ Saída</span></label>
-                    <label><input type="radio" name="movement_type" value="entrada" checked="@(editing.MovementType == "entrada")" /><span>↙ Entrada</span></label>
-                    <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(editing.MovementType == "entrada_sem_reparacao")" /><span>↙ Entrada sem reparação</span></label>
+                    <label><input type="radio" name="movement_type" value="saida" checked="@(editing.MovementType == "saida")" autofocus="@(editing.MovementType == "saida" ? "autofocus" : null)" required /><span>↗ Saída</span></label>
+                    <label><input type="radio" name="movement_type" value="entrada" checked="@(editing.MovementType == "entrada")" autofocus="@(editing.MovementType == "entrada" ? "autofocus" : null)" /><span>↙ Entrada</span></label>
+                    <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(editing.MovementType == "entrada_sem_reparacao")" autofocus="@(editing.MovementType == "entrada_sem_reparacao" ? "autofocus" : null)" /><span>↙ Entrada sem reparação</span></label>
                   </fieldset>
                   <div class="filter-grid">
                     <div class="field dmo-field">
@@ -451,20 +580,6 @@
                     </div>
                   </div>
                 </form>
-                @* As ações da correção juntas numa só barra, afastadas dos campos
-                   e da tabela (Diogo, 17/10/2026). *@
-                <div class="dmo-list-actions bq-correct-actions">
-                  <button type="submit" class="btn primary" form="bqEditMovement">Guardar correção</button>
-                  @if (Model.EditingMovementDeletable)
-                  {
-                    <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="DeleteMovement">
-                      <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
-                      <input type="hidden" name="movement_id" value="@editing.MovementId" />
-                      <button type="submit" class="btn" onclick="return confirm('Apagar este movimento?')">Apagar movimento</button>
-                    </form>
-                  }
-                  <a class="btn" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: true))#bqLatest">Cancelar</a>
-                </div>
               }
                                   <div class="dmo-table-wrap" style="margin-top:10px">
                         <table class="dmo-table" id="bqCorrectList" data-dmo-list="Movimentos">
@@ -502,7 +617,7 @@
                 <div class="dmo-modal bq-correct-modal">
                   <div class="dmo-modal-head">
                     <h2 id="bqJobHistoryTitle">Onde esta boquilha foi usada — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</h2>
-                    <a class="btn bq-correct-close" href="@Model.JobHistoryHref(open: false)">Fechar</a>
+                    <a class="btn bq-correct-close" autofocus href="@Model.JobHistoryHref(open: false)">Fechar</a>
                   </div>
                   <div class="dmo-modal-body">
                     <div class="dmo-table-wrap">
@@ -529,14 +644,7 @@
             }
           </div>
         }
-        else if (Model.TraceRequestedNotFound)
-        {
-          <div class="result" role="alert">O registo indicado não existe. Nenhum movimento foi registado.</div>
-        }
-        else
-        {
-          <div class="register-empty">Crie ou selecione um lote para ativar as ações do registo.</div>
-        }
+        </div>
       </section>
     }
 
@@ -547,51 +655,104 @@
     @* ---------------------------------------------------------------- *@
     @if (activeTab == "boquilhas")
     {
-      <section id="boquilhas" class="view active">
+      <section id="boquilhas" class="view active" data-dmo-troca>
         <partial name="_BqToolCatalog" model="Model" />
-        <partial name="_BqToolSheet" model="Model" />
+        <div id="bq-catalog-sheet" data-dmo-regiao>
+          <partial name="_BqToolSheet" model="Model" />
+        </div>
       </section>
     }
 
     @* ---------------------------------------------------------------- *@
     @* VISTA HISTÓRICO (o historyTab do dmo-html): o calendário ligado,  *@
-    @* os filtros do html, os contadores do filtro e as duas vistas —    *@
-    @* o resumo diário · 6 máquinas e os movimentos detalhados.          *@
+    @* os filtros do html, os contadores do filtro e as três vistas —    *@
+    @* por máquina / Job On, o resumo diário e os movimentos detalhados. *@
     @* ---------------------------------------------------------------- *@
     @if (activeTab == "historico")
     {
-      <section id="historico" class="view active">
+      @* Atualizar só o que muda (Diogo, 18/10: «faz flash ao escolher dia do
+         calendário»): um clique no calendário, no «Hoje», no «Todos os dias»
+         ou na paginação troca só as zonas (data-dmo-regiao) que mudaram.
+         Os filtros também (deep sweep, 18/10/2026): cada escolha pede a
+         página com fetch e troca a lista, os totais, o dia e a contagem; os
+         campos ficam como o operador os deixou (data-dmo-fica), com o foco
+         no campo. *@
+      <section id="historico" class="view active" data-dmo-troca>
         @{
           var houseMachines = new[] { "B1", "B2", "B3", "C1", "C2", "C3" };
           var viewHelp = Model.ShowMatrix
             ? "Dias em linhas, máquinas em colunas, todos os dias do período. As mudanças de BQ/lote aparecem separadas na mesma célula, em quantidade de BQs. Um clique numa referência abre o registo. O PDF usa esta vista."
+            : Model.ShowMovements
+            ? "Todos os movimentos do filtro, um por linha, do mais recente para o mais antigo. Um clique num dia do calendário mostra os movimentos desse dia; um clique numa linha abre a ficha da ferramenta. O PDF usa esta lista."
             : "Os movimentos agrupados por máquina, Job On e BQ/lote, cada grupo com o seu cabeçalho. Um clique num dia do calendário mostra as fichas de BQ usadas nesse dia; um clique numa ficha abre-a com todos os movimentos. O PDF mantém estes cabeçalhos.";
         }
         <div class="page-head">
           <div>
-            <h2>Histórico de movimentos<partial name="_DmoHelp" model="@("Todos os movimentos, incluindo produções já retiradas do painel. A máquina, o tipo, as datas e o mês aplicam-se logo. Na pesquisa e no reparador, escolha uma sugestão ou carregue em Enter.")" /></h2>
+            <h2>Histórico de movimentos<partial name="_DmoHelp" model="@("Todos os movimentos, incluindo produções já retiradas do painel. A vista, a máquina, o tipo e as datas aplicam-se logo; a pesquisa e o reparador aplicam-se ao escrever. O mês muda-se no calendário.")" /></h2>
           </div>
           <div class="bq-page-actions"></div>
         </div>
 
-        <nav class="bq-history-views" aria-label="Vista do histórico">
-          <a class="bq-history-tab@(Model.ShowMatrix ? "" : " is-active")" aria-current="@(Model.ShowMatrix ? null : "page")" href="@Model.HistoryViewHref("grupos")">Por máquina / Job On</a>
-          <a class="bq-history-tab@(Model.ShowMatrix ? " is-active" : "")" aria-current="@(Model.ShowMatrix ? "page" : null)" href="@Model.HistoryViewHref("matriz")">Resumo diário · 6 máquinas</a>
-          <partial name="_DmoHelp" model="@viewHelp" />
-        </nav>
-
+        @* Os campos ficam (data-dmo-fica); trocam só as zonas de dentro: o
+           mês e o dia do calendário (escondidos), a contagem, os links (com
+           os filtros atuais), a dica da vista e as datas, que o calendário,
+           o «Hoje» e o «Todos os dias» limpam. «Limpar filtros» e o PDF abrem
+           como sempre (data-dmo-completa). A pesquisa e o reparador aplicam-se
+           ao escrever, 350 ms depois da última tecla (data-dmo-ao-escrever;
+           deep sweep 2, 18/10/2026, F-10): antes o texto escrito sem Enter
+           ficava no campo, mas a lista, a contagem e o PDF eram do filtro
+           anterior. *@
+        <div id="bqHistFiltros" class="dmo-zona" data-dmo-fica data-dmo-parcial>
         <div class="card bq-history-filters">
-          <form method="get" asp-page="/Boquilhas/Index" id="bqHistoryFilters">
+          <form method="get" asp-page="/Boquilhas/Index" id="bqHistoryFilters" data-dmo-ao-escrever="bqHistLista">
             <input type="hidden" name="historico" value="1" />
-            <input type="hidden" name="vista" value="@Model.HistoryView" />
+            <div id="bqHistContexto" class="dmo-zona" data-dmo-regiao>
             <input type="hidden" name="ano" value="@Model.HistoryYear" />
             <input type="hidden" name="mes" value="@Model.HistoryMonth" />
             @if (!Model.HistoryDayIsDefault && Model.HistoryDay is { } selectedDay)
             {
               <input type="hidden" name="dia" value="@selectedDay.Day" />
             }
+            @if (Model.FilterToolId is { } filterToolId)
+            {
+              <input type="hidden" name="bq_ferramenta" value="@filterToolId" />
+            }
+            </div>
+            @* Diogo, 18/10: a contagem e os botões no canto superior direito do
+               card; os campos todos numa linha, a vista num dropdown antes da
+               referência e sem «Selecionar mês» (o mês muda-se no calendário). *@
+            <div class="bq-history-filters-head">
+              <div id="bqHistContagem" class="dmo-zona" data-dmo-regiao>
+              @if (Model.FilterToolLabel is { } filterToolLabel)
+              {
+                @* O filtro do «Histórico BQ»: a BQ e o lote, e o link para o tirar (os outros filtros ficam). *@
+                <span class="bq-history-tool-filter">@filterToolLabel <a href="@Model.HistoryWithoutToolHref" title="Tirar o filtro da BQ">Tirar filtro</a></span>
+              }
+              @if (Model.ShowMatrix || Model.HistorySearchApplied)
+              {
+                @if (Model.ListLimitWarning is { } limitWarning)
+                {
+                  @* Só filtros, sem período: os mais recentes, com a explicação na dica. *@
+                  <span class="muted bq-history-count" role="status">Os @Model.HistoryMovementCount mais recentes<partial name="_DmoHelp" model="@limitWarning" /></span>
+                }
+                else
+                {
+                  <span class="muted bq-history-count" role="status">@Model.HistoryMovementCount movimento(s)</span>
+                }
+              }
+              </div>
+              <div id="bqHistAcoes" class="bq-history-actions" data-dmo-regiao data-dmo-completa>
+                <a class="btn" href="/Boquilhas?historico=1&amp;vista=@Model.HistoryView">Limpar filtros</a>
+                <a class="btn" href="@Model.PdfContextualHref" title="Imprimir / PDF (filtros atuais)">Imprimir / PDF</a>
+              </div>
+            </div>
             <div class="bq-history-filter-grid">
-              <div class="field dmo-field"><label for="pesquisa">Referência / pesquisa</label><input id="pesquisa" data-dmo-maiusculas autocapitalize="characters" name="pesquisa" value="@Model.FilterText" placeholder="Referência, BQ, lote, máquina..." data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit /></div>
+              <div class="field dmo-field"><label for="vista">Vista<span id="bqHistVistaAjuda" data-dmo-regiao><partial name="_DmoHelp" model="@viewHelp" /></span></label><select id="vista" name="vista" data-dmo-autosubmit>
+                <option value="grupos" selected="@Model.ShowGrouped">Por máquina / Job On</option>
+                <option value="matriz" selected="@Model.ShowMatrix">Resumo diário · 6 máquinas</option>
+                <option value="movimentos" selected="@Model.ShowMovements">Movimentos detalhados</option>
+              </select></div>
+              <div class="field dmo-field"><label for="pesquisa">Referência / pesquisa</label><input id="pesquisa" data-dmo-maiusculas autocapitalize="characters" name="pesquisa" value="@Model.FilterText" placeholder="Referência, BQ, lote, máquina..." data-dmo-suggest="referencias_bq" data-dmo-suggest-submit /></div>
               <div class="field dmo-field"><label for="maquina">Máquina</label><select id="maquina" name="maquina" data-dmo-autosubmit><option value="">Todas</option>
                 @foreach (var code in houseMachines)
                 { <option value="@code" selected="@(Model.FilterMachine == code)">@code</option> }
@@ -600,23 +761,16 @@
                 <option value="">Todos</option><option value="saida" selected="@(Model.FilterType == "saida")">Saída</option><option value="entrada" selected="@(Model.FilterType == "entrada")">Entrada</option><option value="entrada_sem_reparacao" selected="@(Model.FilterType == "entrada_sem_reparacao")">Sem reparação</option>
               </select></div>
               <div class="field dmo-field"><label for="reparador">Reparador</label><input id="reparador" name="reparador" value="@Model.FilterOperator" data-dmo-suggest="reparadores" data-dmo-suggest-submit /></div>
-            </div>
-            <div class="bq-history-period-grid">
-              <div class="field dmo-field"><label for="desde">Desde</label><input id="desde" name="desde" type="date" value="@(Model.FilterDesde?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit /></div>
-              <div class="field dmo-field"><label for="ate">Até</label><input id="ate" name="ate" type="date" value="@(Model.FilterAte?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit /></div>
-              <div class="field dmo-field"><label for="mesAno">Selecionar mês</label><input id="mesAno" type="month" name="mes_ano" value="@Model.FilterMonth" data-dmo-autosubmit /></div>
-              @if (Model.ShowMatrix || Model.HistorySearchApplied)
-              {
-                <span class="muted bq-history-count" role="status">@Model.HistoryMovementCount movimento(s)</span>
-              }
-              <div class="bq-history-actions">
-                <a class="btn" href="/Boquilhas?historico=1&amp;vista=@Model.HistoryView">Limpar filtros</a>
-                <a class="btn" href="@Model.PdfContextualHref" title="Imprimir / PDF (filtros atuais)">Imprimir / PDF</a>
-              </div>
+              <div id="bqHistDesdeZona" class="field dmo-field" data-dmo-regiao><label for="desde">Desde</label><input id="desde" name="desde" type="date" value="@(Model.FilterDesde?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit /></div>
+              <div id="bqHistAteZona" class="field dmo-field" data-dmo-regiao><label for="ate">Até</label><input id="ate" name="ate" type="date" value="@(Model.FilterAte?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit /></div>
             </div>
           </form>
         </div>
+        </div>
 
+        @* O cartão do dia só existe na vista por máquina: uma zona que existe
+           sempre, para mudar de vista trocar só as zonas. *@
+        <div id="bqHistDiaCartao" class="dmo-zona" data-dmo-regiao>
         @if (!Model.ShowMatrix)
         {
           @* O DIA DO CALENDÁRIO (Diogo, 17/10): como as «Produções do dia» do
@@ -624,8 +778,8 @@
              usadas nesse dia. Os movimentos todos estão na ficha. *@
           <div class="card bq-history-day">
             <div class="bq-history-day-grid">
-              <div class="bq-day-summary">
-                <h3>@(Model.HistoryDay is { } titleDay ? $"Fichas usadas a {titleDay:dd/MM/yyyy}" : "Fichas usadas no dia")<partial name="_DmoHelp" model="@("Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por máquina. Duplo clique no dia escolhido tira a seleção. Um clique ou Enter numa ficha abre-a com a produção, a máquina e todos os movimentos.")" /></h3>
+              <div id="bqHistDia" class="bq-day-summary" data-dmo-regiao>
+                <h3>@(Model.HistoryDay is { } titleDay ? $"Fichas usadas a {titleDay:dd/MM/yyyy}" : "Fichas usadas no dia")<partial name="_DmoHelp" model="@("Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por máquina. Clique outra vez no dia escolhido para tirar a seleção. Um clique ou Enter numa ficha abre-a com a produção, a máquina e todos os movimentos.")" /></h3>
                 @if (Model.HistoryDay is null)
                 {
                   <p class="muted">Escolha um dia no calendário.</p>
@@ -663,13 +817,18 @@
                 }
               </div>
               <div>
+                @* «Hoje» e «Todos os dias» no canto superior direito do cartão,
+                   na linha do título, por cima do calendário e não por baixo
+                   (Diogo, 18/10/2026: «metem os botões em baixo aumenta
+                   espaço, sempre canto superior direito dentro dos cards»). *@
+                <div id="bqHistDiaAcoes" class="dmo-card-topo-acoes bq-calendar-actions" data-dmo-regiao data-dmo-parcial><a class="btn" href="@Model.HistoryTodayHref">Hoje</a><a class="btn" href="@Model.HistoryAllDaysHref">Todos os dias</a></div>
                 <partial name="_DmoCalendar" model="Model.HistoryCalendar" />
-                <div class="bq-calendar-actions"><a class="btn" href="@Model.HistoryTodayHref">Hoje</a><a class="btn" href="@Model.HistoryAllDaysHref">Todos os dias</a></div>
               </div>
             </div>
           </div>
         }
-        <div class="card bq-metrics-card">
+        </div>
+        <div id="bqHistTotais" class="card bq-metrics-card" data-dmo-regiao>
           <div class="lot-data">
             <div><span>Saídas</span><strong>@Model.FilteredSaidas</strong></div>
             <div><span>Entradas</span><strong>@Model.FilteredEntradas</strong></div>
@@ -678,6 +837,7 @@
           <div class="dmo-help-corner"><partial name="_DmoHelp" model="@("Totais de movimentos do filtro, não saldos de stock.")" /></div>
         </div>
 
+        <div id="bqHistLista" class="dmo-zona" data-dmo-regiao>
         @if (Model.ShowMatrix)
         {
             @* A GRELHA DO RESUMO DIÁRIO (o read model do backend — nada
@@ -694,6 +854,13 @@
               @if (Model.MatrixPeriodWarning is { } periodWarning)
               {
                 <div class="jobon-aviso warn" role="status" style="margin:12px 20px">@periodWarning</div>
+              }
+              @* Os movimentos sem máquina não têm coluna na grelha, mas contam
+                 nos totais por cima (sweep de 19/10/2026, B-2): o link abre a
+                 lista do mesmo período, onde estão em «Máquina Por indicar». *@
+              @if (Model.MatrixWithoutMachineWarning is { } semMaquina && Model.MatrixWithoutMachineHref is { } semMaquinaHref)
+              {
+                <div class="jobon-aviso warn" role="status" style="margin:12px 20px">@semMaquina<partial name="_DmoAvisoLink" model="@(new DmoAvisoLink("Ver os movimentos", semMaquinaHref))" /></div>
               }
               <div class="dmo-table-wrap">
                 <table class="dmo-table dmo-matrix" data-dmo-list="Resumo diário por máquina">
@@ -780,7 +947,7 @@
               <p class="muted bq-matrix-legend"><span class="entry-e">E</span> Entradas de reparação&nbsp; <span class="entry-s">S</span> Saídas&nbsp; <span class="entry-r">SR</span> Entradas sem reparação</p>
             </div>
           }
-          else
+          else if (Model.ShowGrouped)
           {
             <div class="card movement-card">
               <div class="card-head bq-history-card-head">
@@ -809,13 +976,33 @@
               <partial name="_ListPager" model='ListPager.For(groupedPage, "hist_pagina")' />
             </div>
           }
+          else
+          {
+            @* MOVIMENTOS DETALHADOS: um movimento por linha, 25 por página; os
+               totais e o PDF continuam a usar todos os movimentos do filtro. *@
+            <div class="card movement-card">
+              <div class="card-head bq-history-card-head">
+                <h3>Movimentos — um por linha</h3>
+                <span class="date-chip">Período: @Model.HistoryPeriodLabel</span>
+              </div>
+              @{
+                var movementsPage = DMO.Alpha.Core.Paging.PagedList<DMO.Alpha.Core.Boquilhas.BqHistoryMovementItem>
+                    .FromLoaded(Model.Movements, Model.HistoryListPage);
+              }
+              @if (Model.Movements.Count == 0)
+              { <p class="muted">@(Model.HistorySearchApplied ? "Nenhum movimento encontrado com os filtros selecionados." : IndexModel.HistoryEmptyStateMessage)</p> }
+              else
+              { <partial name="_BqHistoryMovements" model="movementsPage.Items" /> }
+              <partial name="_ListPager" model='ListPager.For(movementsPage, "hist_pagina")' />
+            </div>
+          }
+        </div>
       </section>
     }
   </main>
 </div>
 
-@if (Model.ShowFiles)
+@if (activeTab == "registo")
 {
-  <script src="~/js/tool-lot-quantity.js" asp-append-version="true"></script>
-  <script src="~/js/bq-tool-catalog.js" asp-append-version="true"></script>
+  <script src="~/js/bq-registo.js" asp-append-version="true"></script>
 }

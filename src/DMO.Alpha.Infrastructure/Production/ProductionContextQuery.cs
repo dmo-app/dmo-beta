@@ -50,5 +50,6 @@ public sealed class ProductionContextQuery : IProductionContextQuery
             bq != null ? bq.ToolId : null,
             j.InicioEm,
             j.FimEm,
-            j.CaloteMm);
+            j.CaloteMm,
+            EF.Property<uint>(j, DmoDbContext.RowVersion));
 }

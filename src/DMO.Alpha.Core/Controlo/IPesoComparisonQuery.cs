@@ -16,11 +16,30 @@ public interface IPesoComparisonQuery
     /// <summary>
     /// Os Pesos baseline das produções anteriores COM A MESMA referência
     /// (a mesma base do conjunto) que a produção do controlo dado — exceto o
-    /// próprio. O ranking é AJUDA (a mesma máquina primeiro, depois o mais
-    /// recente); nunca uma regra de elegibilidade escondida.
+    /// próprio —, das máquinas permitidas pela ficha da CM. Anteriores com o
+    /// critério da «Produção anterior»: as que começaram antes da atual (no
+    /// mesmo dia, as registadas antes); sem início na atual, as registadas
+    /// antes dela, com as sem início no fim. As mais recentes primeiro, no
+    /// máximo <see cref="DMO.Alpha.Core.Production.IProductionPickerQuery.MaxResults"/>
+    /// (as últimas 5, deep sweep 2, F-12). O <paramref name="compararPesoId"/>
+    /// pedido fica na lista, no fim, mesmo mais antigo ou posterior, se for da
+    /// mesma referência e de uma máquina permitida.
     /// </summary>
     Task<IReadOnlyList<PesoComparisonCandidate>> FindCandidatesAsync(
         int controloId,
+        int? compararPesoId = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Os mesmos candidatos para o Peso aberto: as máquinas permitidas vêm da
+    /// ficha da CM DESTE Peso (congelada nele), não da CM que a produção tem
+    /// agora — um Peso de antes de uma troca da CM compara-se com a sua CM
+    /// (18/10/2026). Vazia para um Peso sem produção. O <paramref name="compararPesoId"/>
+    /// pedido fica na lista como no outro.
+    /// </summary>
+    Task<IReadOnlyList<PesoComparisonCandidate>> FindCandidatesAsync(
+        PesoReadModel peso,
+        int? compararPesoId = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -42,43 +61,27 @@ public interface IPesoComparisonQuery
     /// <summary>
     /// OS PESOS GUARDADOS de uma produção (o «Peso inicial desta produção»
     /// do dmo-html): os Pesos production-scoped do controlo da produção,
-    /// do mais antigo para o mais recente (o html ordena por created_at —
-    /// o primeiro é o peso inicial da produção), com os factos humanos para
-    /// o select.
+    /// do mais antigo para o mais recente, com os factos humanos para o
+    /// select. Com mais do que um (a CM ou a BQ mudou a meio da produção),
+    /// cada opção diz a BQ e se é o Peso das ferramentas atuais, que é o que
+    /// a página escolhe por omissão (senão o mais recente).
     /// </summary>
     Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarIniciaisAsync(
         int jobOnId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// TODOS os Pesos guardados do histórico (os selects «Primeiro Peso» /
-    /// «Segundo Peso» do histórico do dmo-html), do mais recente para o mais
-    /// antigo, com os factos humanos para os selects.
-    /// </summary>
-    Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarPesosGuardadosAsync(
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Os Pesos guardados de UMA referência (a procura em dois passos do
     /// «Comparar Pesos guardados», 16/10/2026): os da produção cuja
-    /// referência contém o texto e os sem produção cuja CM o contém, do mais
-    /// recente para o mais antigo, no máximo 100. Sem referência: lista vazia.
+    /// referência começa pelo texto e os sem produção cuja CM começa por ele,
+    /// ou cuja parte BQ começa por ele (sem distinção de maiúsculas; nunca um
+    /// pedaço do meio, a regra única de 18/10/2026), do mais recente para o
+    /// mais antigo, no máximo 100. Sem referência: lista vazia.
     /// </summary>
     Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarPesosPorReferenciaAsync(
         string? referencia,
         CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// A procura ao escrever do «Comparar Pesos guardados» (Diogo,
-    /// 17/10/2026: «queremos comparar pesos que foram usados numa produção,
-    /// e o filtro mostra a produção, lote e máquinas onde trabalhou»; «a
-    /// entrada dos filtros deve poder partir de qualquer informação
-    /// relacionada»): os Pesos cuja produção, referência, máquina, lote ou
-    /// referência da CM, ou uma máquina da CM, contêm o texto (só os da
-    /// referência indicada, quando há uma), do mais recente
-    /// para o mais antigo, no máximo <paramref name="limite"/>. Cada opção
-    /// traz as máquinas da CM (as ligações da ferramenta).
-    /// </summary>
     /// <summary>
     /// As opções (com as máquinas da CM) dos Pesos indicados: o texto dos
     /// campos da procura quando a página reabre com os Pesos escolhidos.
@@ -87,6 +90,19 @@ public interface IPesoComparisonQuery
         IReadOnlyCollection<int> pesoIds,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// A procura ao escrever do «Comparar Pesos guardados» (Diogo,
+    /// 17/10/2026: «queremos comparar pesos que foram usados numa produção,
+    /// e o filtro mostra a produção, lote e máquinas onde trabalhou»; «a
+    /// entrada dos filtros deve poder partir de qualquer informação
+    /// relacionada»): os Pesos cuja referência da produção ou da CM começa
+    /// pelo texto (ou a parte BQ dela; nunca um pedaço do meio, a regra única
+    /// de 18/10/2026), ou cujo nº de produção, máquina, lote ou máquina da CM
+    /// contém o texto (só os da referência indicada, pelo início, quando há
+    /// uma), do mais recente para o mais antigo, no máximo
+    /// <paramref name="limite"/>. Cada opção traz as máquinas da CM (as
+    /// ligações da ferramenta).
+    /// </summary>
     Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ProcurarPesosAsync(
         string? termo,
         string? referencia,
@@ -98,17 +114,6 @@ public interface IPesoComparisonQuery
     /// produção, a da CM. Null quando o Peso não existe.
     /// </summary>
     Task<string?> ReferenciaDoPesoAsync(
-        int pesoId,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Os Pesos guardados que fazem sentido comparar com <paramref name="pesoId"/>
-    /// (o «Peso anterior para comparar» do Resumo e do PDF do Peso, DMO-045):
-    /// os da MESMA referência de produção ou da MESMA referência de CM, sem o
-    /// próprio, do mais recente para o mais antigo. Antes eram todos os Pesos,
-    /// e escolher outra referência dava uma diferença sem significado.
-    /// </summary>
-    Task<IReadOnlyList<PesoComparacaoPesoOpcao>> ListarPesosComparaveisAsync(
         int pesoId,
         CancellationToken cancellationToken = default);
 

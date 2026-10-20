@@ -8,11 +8,14 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// Handler do Peso production-scoped (corte C, spec PESO.md): resolve o
 /// controlo → o contexto de produção (Job On + as Tools canónicas CM/BQ
 /// herdadas — o operador NUNCA as escolhe nesta folha), é get-or-open
-/// idempotente pelo índice único (um Peso baseline por controlo) e delega
-/// a criação no slice tool-scoped canónico (as validações, a densidade da
-/// tabela canónica, os congelamentos e a regra Ferramentas de completion
-/// são os MESMOS — só a origem das ferramentas muda). O Peso nasce já
-/// associado ao controlo (cardinalidade 1:1); num duplo clique, o segundo
+/// idempotente para a CM e a BQ que a produção tem agora (um Peso por
+/// controlo para cada CM+BQ, o índice único filtrado) e delega a criação no
+/// slice tool-scoped canónico (as validações, a densidade da tabela
+/// canónica, os congelamentos e a regra Ferramentas de completion são os
+/// MESMOS — só a origem das ferramentas muda). O Peso nasce já associado ao
+/// controlo. Depois de trocar a CM ou a BQ a meio da produção abre um Peso
+/// novo; voltar a uma combinação já usada reabre o Peso dela (respostas R15,
+/// R16-2 e R16-5 do especialista, 18/10/2026). Num duplo clique, o segundo
 /// pedido devolve o Peso que o primeiro gravou.
 /// </summary>
 public sealed class CreatePesoForControloHandler : ICreatePesoForControloHandler
@@ -62,9 +65,10 @@ public sealed class CreatePesoForControloHandler : ICreatePesoForControloHandler
             return Refused(CreatePesoForControloResult.ContextMissingBq);
         }
 
-        // 2. Get-or-open: o controlo já tem o seu Peso baseline? O MESMO
-        //    peso_id é devolvido — a associação é 1:1 e nunca se recria.
-        if (await FindExistingAsync(command.ControloId, cancellationToken) is { } existing)
+        // 2. Get-or-open: o controlo já tem o Peso desta CM e desta BQ? O
+        //    MESMO peso_id é devolvido e nunca se recria. Outra combinação
+        //    (a CM ou a BQ mudou) abre um Peso novo; o anterior fica.
+        if (await FindExistingAsync(command.ControloId, production.CmToolId, production.BqToolId, cancellationToken) is { } existing)
         {
             return existing;
         }
@@ -89,10 +93,11 @@ public sealed class CreatePesoForControloHandler : ICreatePesoForControloHandler
         }
         catch (DbUpdateException)
         {
-            // Um duplo clique: o outro pedido gravou primeiro o Peso deste
-            // controlo (índice único do ControloId). Devolve esse.
+            // Um duplo clique: o outro pedido gravou primeiro o Peso desta
+            // combinação (o índice único do controlo com a CM e a BQ).
+            // Devolve esse.
             _db.ChangeTracker.Clear();
-            return await FindExistingAsync(command.ControloId, cancellationToken) ?? throw new InvalidOperationException(
+            return await FindExistingAsync(command.ControloId, production.CmToolId, production.BqToolId, cancellationToken) ?? throw new InvalidOperationException(
                 $"Não foi possível criar o Peso do controlo {command.ControloId}.");
         }
 
@@ -106,10 +111,15 @@ public sealed class CreatePesoForControloHandler : ICreatePesoForControloHandler
             created.Peso);
     }
 
-    private async Task<CreatePesoForControloOutcome?> FindExistingAsync(int controloId, CancellationToken cancellationToken)
+    private async Task<CreatePesoForControloOutcome?> FindExistingAsync(
+        int controloId,
+        string cmToolId,
+        string bqToolId,
+        CancellationToken cancellationToken)
     {
         var existing = await _db.Pesos
-            .Where(p => p.ControloId == controloId)
+            .Where(p => p.ControloId == controloId && p.CmToolId == cmToolId && p.BqToolId == bqToolId)
+            .OrderBy(p => p.Id)
             .Select(p => new
             {
                 PesoId = p.Id,
@@ -117,6 +127,7 @@ public sealed class CreatePesoForControloHandler : ICreatePesoForControloHandler
                 p.BqToolId,
                 p.Process,
                 p.WaterTemperatureC,
+                p.WaterDensityGramsPerCm3,
                 p.GlassDensityGramsPerCm3,
                 p.VolumeMarisaCm3,
                 p.VolumePuncaoCm3,
@@ -129,9 +140,9 @@ public sealed class CreatePesoForControloHandler : ICreatePesoForControloHandler
             return null;
         }
 
-        // A densidade da água resolve-se à leitura pela tabela canónica; o
-        // grau congelado foi validado na criação.
-        var waterDensity = WaterDensityTable.Resolve(existing.WaterTemperatureC)
+        // A densidade da água gravada no Peso (a tabela canónica, num Peso
+        // sem ela); o grau congelado foi validado na criação.
+        var waterDensity = WaterDensityTable.ForPeso(existing.WaterDensityGramsPerCm3, existing.WaterTemperatureC)
             ?? throw new InvalidOperationException(
                 $"O grau de temperatura da água congelado no Peso {existing.PesoId} " +
                 "está fora do intervalo suportado pela tabela canónica de densidade da água.");

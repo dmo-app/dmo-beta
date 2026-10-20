@@ -11,7 +11,14 @@ public enum PegamentosEvaluatedAxis
 
     ContraCostura = 2,
 
-    Media = 3
+    Media = 3,
+
+    /// <summary>
+    /// A ovalização com sinal: alerta quando toca ou passa a tolerância,
+    /// para mais ou para menos (Diogo, 19/10/2026, F8: «se qualquer medição
+    /// ultrapassar os 0.2, seja -0.2 ou +0.2»).
+    /// </summary>
+    Ovalizacao = 4
 }
 
 /// <summary>

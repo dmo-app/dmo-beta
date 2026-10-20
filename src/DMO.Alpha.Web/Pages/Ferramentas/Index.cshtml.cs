@@ -24,9 +24,9 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 /// resultante ao chamador (blueprint «Contextual selection and creation»
 /// — o Job On nunca minta identidade privada; a validação do return é
 /// LOCAL-ONLY: começa por "/" e não por "//", nenhum fluxo externo). O
-/// tool_id é SEMPRE mintado pelo backend; os formatos de referência
-/// (CM = dígitos; BQ = 1 letra maiúscula + 3 dígitos) são HINT + nota
-/// avisadora, nunca recusa; as recusas de negócio são tipadas por enum
+/// tool_id é SEMPRE mintado pelo backend; a referência é a toda, como no
+/// desenho (1075C142, 5447T173 ou ST100), e o formato nunca é recusado;
+/// as recusas de negócio são tipadas por enum
 /// fechado e voltam por query (PRG). A linha DUMMY (REMOVED) nunca é
 /// candidata (excluída por constante na query canónica). Mutação nativa
 /// exige sessão autenticada ([Authorize]: o anónimo é desafiado ANTES de
@@ -118,6 +118,19 @@ public sealed class IndexModel : PageModel
     /// <summary>Recusa tipada do último POST de criação, transportada por query (PRG).</summary>
     public CreateToolResult? CreateRefusal { get; private set; }
 
+    /// <summary>Na recusa ToolAlreadyExists: a ferramenta que já existe (o aviso oferece abri-la).</summary>
+    public string? ExistingToolId { get; private set; }
+
+    /// <summary>
+    /// Quem está a gravar: o nome do utilizador, senão o nº de operador,
+    /// senão o email (fica no aviso de ferramenta repetida).
+    /// </summary>
+    internal static string? ActorName(System.Security.Claims.ClaimsPrincipal user) =>
+        user.FindFirst(DmoClaimTypes.DisplayName)?.Value is { Length: > 0 } name
+            ? name
+            : user.FindFirst(DmoClaimTypes.OperatorId)?.Value
+                ?? user.FindFirst(DmoClaimTypes.Email)?.Value;
+
     /// <summary>Nota de ferramenta eliminada (PRG do delete da ficha) — o histórico vive nos registos congelados.</summary>
     public bool DeletedNote { get; private set; }
 
@@ -138,6 +151,9 @@ public sealed class IndexModel : PageModel
             "O lote é obrigatório — um lote diferente é uma ferramenta diferente. Nenhuma ferramenta foi registada.",
         CreateToolResult.MachineNotFound =>
             "Uma das máquinas indicadas não existe no registo. Nenhuma ferramenta foi registada.",
+        CreateToolResult.ToolAlreadyExists =>
+            "Já existe uma ferramenta com este tipo, referência e lote numa das mesmas máquinas. Nenhuma ferramenta foi registada; " +
+            "a que já existia ficou com um aviso para confirmar que está certa.",
         _ => string.Empty
     };
 
@@ -149,6 +165,7 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "machine_id")] int? machineId,
         [FromQuery(Name = "return")] string? returnUrl,
         [FromQuery(Name = "create_refusal")] string? createRefusal,
+        [FromQuery(Name = "existing_tool_id")] string? existingToolId,
         [FromQuery(Name = "deleted")] string? deleted,
         [FromQuery(Name = "criar")] string? criar,
         [FromQuery(Name = "technical_name")] string? technicalName,
@@ -175,42 +192,11 @@ public sealed class IndexModel : PageModel
             CreateRefusal = parsed;
         }
 
+        ExistingToolId = CreateRefusal == CreateToolResult.ToolAlreadyExists ? Sanitize(existingToolId) : null;
         DeletedNote = deleted == "1";
 
-        // Filtros: dimensões fechadas e explícitas, cada uma apenas REDUZ os
-        // candidatos (a seleção é sempre humana explícita sobre o tool_id).
-        RequestedTypeToken = NormalizeTypeToken(type);
-        RequestedReference = Sanitize(reference);
-        RequestedLot = Sanitize(lot);
-        RequestedMfReference = Sanitize(mfReference);
-        RequestedMachineId = machineId;
         RequestedTechnicalName = Sanitize(technicalName);
-
-        // UM SÓ CAMPO «Referência» (Diogo, 17/10/2026: «campos de filtro
-        // duplicados referência»): procura a referência da ferramenta OU a
-        // referência MF em que encaixa (a regra do antigo «Referência MF /
-        // produção», que já incluía a referência). O ?mf_reference= antigo
-        // continua a valer como referência.
-        var searchReference = RequestedReference ?? RequestedMfReference;
-        var filter = new ToolCandidateFilter(
-            Type: RequestedTypeToken is null ? null : TypeFor(RequestedTypeToken),
-            Lot: RequestedLot,
-            MachineId: RequestedMachineId,
-            MfReference: searchReference);
-
-        // A lista só aparece no separador Ver, e só depois de procurar
-        // (Diogo, 17/10/2026: «não deve existir lista até procurar, evitar
-        // peso nos carregamentos»): sem filtros, a página abre só com eles.
-        Searched = RequestedTypeToken is not null || searchReference is not null || RequestedLot is not null
-            || RequestedMachineId is not null;
-        if (!ShowCreate && Searched)
-        {
-            var page = await _candidateQuery.FindPageAsync(filter, pageNumber ?? 1, pageSize ?? 10, HttpContext.RequestAborted);
-            Candidates = page.Items;
-            TotalCandidates = page.TotalCount;
-            PageNumber = page.PageNumber;
-            PageSize = page.PageSize;
-        }
+        await LoadCandidatesAsync(type, reference, lot, mfReference, machineId, pageNumber, pageSize);
 
         Machines = await _machineListQuery.ListAsync(HttpContext.RequestAborted);
 
@@ -223,15 +209,95 @@ public sealed class IndexModel : PageModel
         return Page();
     }
 
+    /// <summary>Pesquisa/paginação sem compor shell, filtros ou máquinas.</summary>
+    public async Task<IActionResult> OnGetResultadosAsync(
+        [FromQuery(Name = "type")] string? type,
+        [FromQuery(Name = "reference")] string? reference,
+        [FromQuery(Name = "lot")] string? lot,
+        [FromQuery(Name = "mf_reference")] string? mfReference,
+        [FromQuery(Name = "machine_id")] int? machineId,
+        [FromQuery(Name = "return")] string? returnUrl,
+        [FromQuery(Name = "pagina")] int? pageNumber,
+        [FromQuery(Name = "por_pagina")] int? pageSize)
+    {
+        await LoadCandidatesAsync(type, reference, lot, mfReference, machineId, pageNumber, pageSize);
+        ReturnTemplate = IsSafeLocalReturnTemplate(returnUrl) ? returnUrl : null;
+        Response.Headers["X-Dmo-Region"] = "ferrResultados";
+        return Partial("_FerramentasResultados", this);
+    }
+
+    private async Task LoadCandidatesAsync(string? type, string? reference, string? lot,
+        string? mfReference, int? machineId, int? pageNumber, int? pageSize)
+    {
+        // Filtros: dimensões fechadas e explícitas, cada uma apenas REDUZ os
+        // candidatos (a seleção é sempre humana explícita sobre o tool_id).
+        RequestedTypeToken = NormalizeTypeToken(type);
+        RequestedReference = Sanitize(reference);
+        RequestedLot = Sanitize(lot);
+        RequestedMfReference = Sanitize(mfReference);
+        RequestedMachineId = machineId;
+
+        // UM SÓ CAMPO «Referência» (Diogo, 17/10/2026: «campos de filtro
+        // duplicados referência»): procura a referência da ferramenta OU a
+        // referência MF em que encaixa (a regra do antigo «Referência MF /
+        // produção», que já incluía a referência). O ?mf_reference= antigo
+        // continua a valer como referência.
+        var searchReference = RequestedReference ?? RequestedMfReference;
+        var filter = new ToolCandidateFilter(
+            Type: RequestedTypeToken is null ? null : TypeFor(RequestedTypeToken),
+            Lot: RequestedLot,
+            MachineId: RequestedMachineId,
+            ReferenceContains: searchReference);
+
+        // A lista só aparece no separador Ver, e só depois de procurar
+        // (Diogo, 17/10/2026: «não deve existir lista até procurar, evitar
+        // peso nos carregamentos»): sem filtros, a página abre só com eles.
+        // O tipo e a máquina só reduzem: a lista aparece quando se começa a
+        // escrever a referência ou o lote (Diogo, 18/10/2026: escolher BQ
+        // carregava as BQ todas).
+        Searched = searchReference is not null || RequestedLot is not null;
+        if (!ShowCreate && Searched)
+        {
+            var page = await _candidateQuery.FindPageAsync(filter, pageNumber ?? 1, pageSize ?? 10, HttpContext.RequestAborted);
+            Candidates = page.Items;
+            TotalCandidates = page.TotalCount;
+            PageNumber = page.PageNumber;
+            PageSize = page.PageSize;
+        }
+
+    }
+
     /// <summary>
-    /// POST nativo: registar uma ferramenta real (o ato canónico do Owner).
-    /// O browser submete apenas os factos humanos (tipo, referência, lote,
-    /// referência MF associada opcional, quantidade contabilística do lote
-    /// BQ opcional, máquinas aplicáveis); o tool_id é mintado pelo backend,
-    /// nunca transportado pelo form. Sucesso com ?return= contextual volta
-    /// ao chamador com o tool_id substituído no template (PRG); sem return,
-    /// a ficha da nova ferramenta abre com a nota de criação e a nota
-    /// avisadora de formato (nunca recusa). Recusa volta por query (PRG).
+    /// O nome técnico lido pelo servidor, com a regra da ficha
+    /// (<see cref="TechnicalNameParser"/>; sweep de 19/10/2026, 3.14): o
+    /// formulário propõe o tipo com ela e mostra o que a ficha vai mostrar.
+    /// A referência nunca vem do nome técnico (Diogo, 19/10/2026: «sempre o
+    /// nome da referência, e não do nome técnico»; o nome técnico serve para
+    /// ler os detalhes técnicos do desenho).
+    /// </summary>
+    public IActionResult OnGetNomeTecnico([FromQuery(Name = "nome")] string? nome)
+    {
+        var decoded = TechnicalNameParser.Decode(nome ?? string.Empty);
+        if (decoded.InferredType is null && decoded.Family == "desconhecido")
+        {
+            return new JsonResult(new { tipo = (string?)null, leitura = (string?)null });
+        }
+
+        var partes = new List<string> { decoded.Family };
+        if (decoded.InferredType is { } tipo) partes.Add($"tipo {TokenTypeFor(tipo)}");
+        if (decoded.Dimension is { } dimension) partes.Add(dimension);
+        if (decoded.Process is { } process) partes.Add(process);
+        if (decoded.Ventilation is { } ventilation) partes.Add($"ventilação {ventilation}");
+        return new JsonResult(new
+        {
+            tipo = decoded.InferredType is { } inferred ? TokenTypeFor(inferred) : null,
+            leitura = string.Join(" · ", partes)
+        });
+    }
+
+    /// <summary>
+    /// A quantidade total do lote sugerida para o tipo e as máquinas
+    /// escolhidas no «Registar ferramenta real» (tool-lot-quantity.js).
     /// </summary>
     public async Task<IActionResult> OnGetLotQuantityAsync(
         [FromQuery(Name = "type")] string? type,
@@ -277,7 +343,8 @@ public sealed class IndexModel : PageModel
                     .Distinct()
                     .ToList(),
                 technicalName?.ToUpperInvariant(),
-                UseLotQuantityDefault: quantityManual != "1" && !unreadableQuantity),
+                UseLotQuantityDefault: quantityManual != "1" && !unreadableQuantity,
+                RequestedBy: ActorName(User)),
             HttpContext.RequestAborted);
 
         var technical = TechnicalFields.ToDictionary(field => field, field => Sanitize(Request.Form[field].ToString()));
@@ -302,23 +369,20 @@ public sealed class IndexModel : PageModel
                 return LocalRedirect(returnUrl.Replace("{tool_id}", created.ToolId));
             }
 
-            // GET-OR-CREATE (o Owner: «ferramentas duplicadas sao os lotes
-            // diferentes, ou maquinas diferentes»): a mesma (tipo,
-            // referência, lote) é a MESMA ferramenta — a ficha abre com a
-            // nota honesta (existed=1: já estava registada, as máquinas
-            // acrescentaram ao link dela; nada foi duplicado).
+            // A ficha abre com a nota de criação. Desde a ferramenta repetida
+            // (18/10/2026) o handler recusa os mesmos (tipo, referência, lote)
+            // em vez de devolver a existente; o existed=1 fica para links antigos.
             var fichaValues = new RouteValueDictionary(new
             {
                 tool_id = created.ToolId,
                 created = created.AlreadyExisted ? null : "1",
                 existed = created.AlreadyExisted ? "1" : null,
-                advisory = created.ReferenceFormatAdvisory ? "1" : null,
                 sem_lote = created.LotDefaulted ? "1" : null,
                 quantidade_ilegivel = unreadableQuantity ? typedQuantity : null,
                 continuar = IsSafeLocalReturnTemplate(returnUrl) ? returnUrl.Replace("{tool_id}", created.ToolId) : null
             });
             foreach (var field in unreadableTechnical)
-                fichaValues[FichaModel.UnreadablePrefix + field.Key] = field.Value;
+                fichaValues[field.Key] = field.Value;
             if (unreadableTechnical.Count > 0)
                 fichaValues["tecnica"] = "1";
             return RedirectToPage("/Ferramentas/Ficha", fichaValues);
@@ -334,6 +398,7 @@ public sealed class IndexModel : PageModel
             mf_reference = Sanitize(mfReference),
             technical_name = Sanitize(technicalName),
             create_refusal = outcome.Result.ToString(),
+            existing_tool_id = outcome.ExistingToolId,
             bq_quantity = bqQuantity,
             quantity_manual = quantityManual,
             machine_ids = machineIds,
@@ -347,7 +412,8 @@ public sealed class IndexModel : PageModel
     /// <summary>
     /// Grava a informação técnica escrita no registo (a mesma regra da
     /// ficha: o vazio fica em falta, cada tipo só grava os seus campos). Um
-    /// campo ilegível não impede os outros; volta para o aviso da ficha.
+    /// campo ilegível ou impossível (0 ou menos) não impede os outros; volta
+    /// para o aviso da ficha, já com o prefixo do aviso de cada campo.
     /// </summary>
     private async Task<Dictionary<string, string>> SaveTechnicalAsync(
         string toolId, ToolType type, IReadOnlyDictionary<string, string?> technical)
@@ -358,8 +424,17 @@ public sealed class IndexModel : PageModel
         var unreadable = technical
             .Where(field => field.Key != "process_token" && field.Value is not null && MeasurementDecimal.Parse(field.Value) is null)
             .ToDictionary(field => field.Key, field => field.Value!);
-        decimal? Value(string field) => unreadable.ContainsKey(field) ? null : MeasurementDecimal.Parse(technical[field]);
+        var impossible = technical
+            .Where(field => field.Key != "process_token"
+                && MeasurementDecimal.Parse(field.Value) is { } value && FichaModel.IsImpossible(field.Key, value))
+            .ToDictionary(field => field.Key, field => field.Value!);
+        decimal? Value(string field) => unreadable.ContainsKey(field) || impossible.ContainsKey(field)
+            ? null
+            : MeasurementDecimal.Parse(technical[field]);
 
+        // A ferramenta já está gravada: a informação técnica grava mesmo que
+        // o browser tenha abortado o pedido (no duplo clique aborta o
+        // primeiro, e o segundo encontra a ferramenta e não a grava).
         var outcome = await _editTechnical.HandleAsync(
             new EditToolTechnicalValues(
                 toolId,
@@ -371,24 +446,24 @@ public sealed class IndexModel : PageModel
                 Value("tp_diametro"),
                 Value("tp_raio"),
                 Value("tp_sagitta")),
-            HttpContext.RequestAborted);
+            CancellationToken.None);
 
         // Só se avisa dos campos que o tipo grava (os outros são ignorados).
         return outcome.Result == EditToolTechnicalValuesResult.Success
-            ? unreadable.Where(field => FichaModel.AppliesTo(type, field.Key)).ToDictionary(field => field.Key, field => field.Value)
+            ? unreadable.Select(field => (Key: FichaModel.UnreadablePrefix + field.Key, Field: field.Key, field.Value))
+                .Concat(impossible.Select(field => (Key: FichaModel.ImpossiblePrefix + field.Key, Field: field.Key, field.Value)))
+                .Where(field => FichaModel.AppliesTo(type, field.Field))
+                .ToDictionary(field => field.Key, field => field.Value)
             : new Dictionary<string, string>();
     }
 
     /// <summary>
-    /// Template de regresso local com {tool_id}: começa por «/», sem «//» nem
-    /// «\» (que os browsers tratam como «/»). Um template inválido é ignorado
-    /// e a criação abre a ficha da ferramenta.
+    /// Template de regresso local com {tool_id}, pela regra única de caminho
+    /// local (<see cref="LocalUrl"/>). Um template inválido é ignorado e a
+    /// criação abre a ficha da ferramenta.
     /// </summary>
     internal static bool IsSafeLocalReturnTemplate([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? template) =>
-        template is not null
-        && template.StartsWith("/", StringComparison.Ordinal)
-        && !template.StartsWith("//", StringComparison.Ordinal)
-        && !template.Contains('\\')
+        LocalUrl.IsSafe(template)
         && template.Contains("{tool_id}", StringComparison.Ordinal);
 
     /// <summary>Token de tipo canónico (CM/MF/BQ) ou null quando não aplicado.</summary>

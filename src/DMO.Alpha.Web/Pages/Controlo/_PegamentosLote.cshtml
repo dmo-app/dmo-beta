@@ -1,0 +1,21 @@
+@model (string Campo, string Nome, string Rotulo, IReadOnlyList<DMO.Alpha.Core.Tools.ToolLookupResult> Lotes, string? Escolhido, string? Referencia)
+@* O LOTE DE UMA REFERÊNCIA COM VÁRIOS (sweep de 19/10/2026, C-4): nos
+   Pegamentos sem Job On o lote faz parte da ferramenta e associar ao Job On
+   exige a mesma, por isso o operador escolhe o que está na máquina. Com um
+   só lote não aparece. Escolher aplica logo (a opção vazia não). Enquanto
+   a referência escrita não é a destes lotes (falta o Enter ou a sugestão),
+   fica desativado (data-dmo-depende): um lote de outra referência não vai
+   no pedido. *@
+@if (Model.Lotes.Count > 1)
+{
+  <div class="dmo-field">
+    <label for="@(Model.Campo)Lote">@Model.Rotulo</label>
+    <select id="@(Model.Campo)Lote" name="@Model.Nome" data-dmo-autosubmit="valor" data-dmo-depende="@Model.Campo" data-dmo-depende-valor="@Model.Referencia">
+      <option value="">Escolha o lote</option>
+      @foreach (var lote in Model.Lotes)
+      {
+        <option value="@lote.ToolId" selected="@(lote.ToolId == Model.Escolhido)">@lote.Lot</option>
+      }
+    </select>
+  </div>
+}

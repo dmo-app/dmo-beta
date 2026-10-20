@@ -75,10 +75,23 @@ public static class PegamentosCalculation
         valueMm <= corridorLowerMm || valueMm >= corridorUpperMm;
 
     /// <summary>
+    /// A ovalização tem o mesmo limite que o corredor, a tolerância do
+    /// registo (0,20 mm por omissão, nas Definições do Controlo), para mais
+    /// ou para menos (Diogo, 19/10/2026, F8: «se qualquer medição
+    /// ultrapassar os 0.2, seja -0.2 ou +0.2»), e entra no estado da linha.
+    /// Como no corredor, tocar o limite conta: ±0,20 com a tolerância 0,20
+    /// já é alerta (Diogo, 19/10/2026, cartão da thread). Sem contra costura
+    /// não há ovalização nem alerta.
+    /// </summary>
+    public static bool IsOvalizacaoAlert(decimal? ovalizacaoMm, decimal toleranceMm) =>
+        ovalizacaoMm is { } ovalizacao && Math.Abs(ovalizacao) >= toleranceMm;
+
+    /// <summary>
     /// Avaliação completa de uma linha de medição contra o corredor do seu
     /// componente: os derivados (ovalização com sinal, média) e os valores
     /// medidos avaliáveis verificados independentemente (costura, contra
-    /// costura quando presente, média). Sem nominal gargalo a linha é
+    /// costura quando presente, média, e a ovalização contra a tolerância
+    /// quando há contra costura). Sem nominal gargalo a linha é
     /// NotEvaluable — sem corredor para o componente, nenhum valor
     /// inventado (decisão do Owner; PDF §10 L486).
     /// </summary>
@@ -126,6 +139,14 @@ public static class PegamentosCalculation
             PegamentosEvaluatedAxis.Media,
             media,
             IsAlert(media, lower, upper)));
+
+        if (ovalizacao is { } ovalizacaoMedida)
+        {
+            values.Add(new PegamentosEvaluatedValue(
+                PegamentosEvaluatedAxis.Ovalizacao,
+                ovalizacaoMedida,
+                IsOvalizacaoAlert(ovalizacaoMedida, toleranceMm)));
+        }
 
         return new PegamentosRowEvaluation(ovalizacao, media, lower, upper, values);
     }

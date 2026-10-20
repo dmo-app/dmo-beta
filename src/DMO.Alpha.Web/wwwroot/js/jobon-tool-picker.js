@@ -67,8 +67,10 @@
       const title = card.querySelector('[data-tool-title]');
       const hint = card.querySelector('[data-tool-hint]');
       const associate = card.querySelector('[data-tool-associate]');
+      // «Retirar» só vem no Novo Job On, fora do MF (deep sweep, 18/10/2026,
+      // A1-M3): sem ele, o cartão funciona na mesma.
       const clear = card.querySelector('[data-tool-clear]');
-      if (!select || !menu || !search || !chosen || !title || !associate || !clear) return;
+      if (!select || !menu || !search || !chosen || !title || !associate) return;
 
       function render() {
         const has = select.value !== '';
@@ -76,7 +78,7 @@
         search.hidden = !card.classList.contains('is-associating');
         if (hint) hint.textContent = has ? '' : 'Associar ou criar';
         associate.textContent = (has ? 'Trocar ' : 'Associar ') + type;
-        clear.hidden = !has;
+        if (clear) clear.hidden = !has;
         updateFilterBar();
       }
       function stopSearch() {
@@ -91,7 +93,7 @@
         const input = search.querySelector('input.dmo-suggest-combo') || select;
         input.focus();
       });
-      clear.addEventListener('click', () => {
+      if (clear) clear.addEventListener('click', () => {
         menu.open = false;
         select.value = '';
         title.textContent = '';
@@ -114,14 +116,18 @@
         }
         query.set('retoma', '1');
         const slot = type.toLowerCase() + '_tool_id';
-        ['reference', 'production_number', 'machine_id', 'inicio_em', 'fim_em', 'calote_mm', 'cm_tool_id', 'mf_tool_id', 'bq_tool_id'].forEach(name => {
+        ['reference', 'production_number', 'machine_id', 'inicio_em', 'fim_em', 'calote_mm', 'cm_tool_id', 'mf_tool_id', 'bq_tool_id', 'versao'].forEach(name => {
           if (editId && (name === 'reference' || name === 'production_number')) return;
           const field = form.elements.namedItem(name);
           if (name !== slot && field && field.value) query.set(name, field.value.trim());
         });
         // O {tool_id} fica por codificar: as Ferramentas substituem-no.
         const back = '/JobOn?' + query + '&' + slot + '={tool_id}#lightSheet';
-        create.href = '/Ferramentas?criar=1&type=' + type + '&return=' + encodeURIComponent(back);
+        // A máquina da folha já vem escolhida no registo da ferramenta.
+        const machineId = query.get('machine_id');
+        create.href = '/Ferramentas?criar=1&type=' + type
+          + (machineId ? '&machine_ids=' + encodeURIComponent(machineId) : '')
+          + '&return=' + encodeURIComponent(back);
       });
       select.addEventListener('change', () => {
         const option = select.selectedOptions[0];

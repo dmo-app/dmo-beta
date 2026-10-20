@@ -30,15 +30,20 @@ public sealed class BoquilhasCurrentQuery : IBoquilhasCurrentQuery
         _clock = clock ?? TimeProvider.System;
     }
 
-    public async Task<IReadOnlyList<MachineCurrentBq>> ListAsync(CancellationToken cancellationToken = default)
+    public async Task<DateOnly> OperationalDayAsync(CancellationToken cancellationToken = default)
     {
         // O DIA OPERACIONAL pela hora de viragem configurada (o default 8h
         // — a manhã da fábrica; nunca a meia-noite).
         var configuredHour = await _settings.FindValueAsync(
             ModuleSettingKeys.BoquilhasDayChangeHour, cancellationToken);
         var dayChangeHour = int.TryParse(configuredHour, out var hour) ? hour : 8;
-        var operationalDay = BoquilhasDayChange.ResolveOperationalDay(
+        return BoquilhasDayChange.ResolveOperationalDay(
             DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(_clock.GetUtcNow().UtcDateTime), dayChangeHour);
+    }
+
+    public async Task<IReadOnlyList<MachineCurrentBq>> ListAsync(CancellationToken cancellationToken = default)
+    {
+        var operationalDay = await OperationalDayAsync(cancellationToken);
 
         var machines = await _db.Machines
             .AsNoTracking()

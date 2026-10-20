@@ -1,4 +1,5 @@
 using DMO.Alpha.Core.Controlo;
+using DMO.Alpha.Core.Production;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,8 +7,9 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 
 /// <summary>
 /// Lê e grava a produção anterior de um Peso (o Owner 2026-10-17). As
-/// opções são os outros Job Ons da mesma referência da produção do Peso,
-/// os mais recentes primeiro; o peso é o do SAP, escrito à mão.
+/// opções são as produções da mesma referência anteriores à do Peso, as
+/// mais recentes primeiro e no máximo as últimas 5; o peso é o do SAP,
+/// escrito à mão.
 /// </summary>
 public sealed class PesoProducaoAnteriorQuery
 {
@@ -22,6 +24,7 @@ public sealed class PesoProducaoAnteriorQuery
             .Where(p => p.Id == pesoId)
             .Select(p => new
             {
+                p.ProducaoAnteriorControloId,
                 JobOnId = p.ProducaoAnteriorControlo != null ? (int?)p.ProducaoAnteriorControlo.JobOnId : null,
                 p.ProducaoAnteriorPesoGramas,
                 Reference = p.ProducaoAnteriorControlo != null ? p.ProducaoAnteriorControlo.JobOn.Reference : null,
@@ -38,31 +41,42 @@ public sealed class PesoProducaoAnteriorQuery
 
         return new PesoProducaoAnteriorReadModel(
             row.JobOnId, row.Reference, row.ProductionNumber, row.Machine,
-            row.InicioEm, row.FimEm, row.ProducaoAnteriorPesoGramas);
+            row.InicioEm, row.FimEm, row.ProducaoAnteriorPesoGramas)
+        {
+            ControloId = row.ProducaoAnteriorControloId
+        };
     }
 
     /// <summary>
-    /// Os outros Job Ons da mesma referência que o Job On atual, os mais
-    /// recentes primeiro (início, depois id). Máximo de 50.
+    /// As produções da mesma referência anteriores ao Job On atual, da mais
+    /// recente para a mais antiga, no máximo
+    /// <see cref="IProductionPickerQuery.MaxResults"/>: as que começaram antes
+    /// dele (no mesmo dia, as registadas antes). Sem início no atual, as
+    /// registadas antes dele, primeiro as que têm início.
     /// </summary>
     public async Task<IReadOnlyList<PesoProducaoAnteriorOpcao>> ListOpcoesAsync(
         int currentJobOnId,
         CancellationToken cancellationToken = default)
     {
-        var reference = await _db.JobOns.AsNoTracking()
+        var current = await _db.JobOns.AsNoTracking()
             .Where(j => j.Id == currentJobOnId)
-            .Select(j => j.Reference)
+            .Select(j => new { j.Reference, j.InicioEm })
             .FirstOrDefaultAsync(cancellationToken);
-        if (reference is null)
+        if (current is null)
         {
             return Array.Empty<PesoProducaoAnteriorOpcao>();
         }
 
+        // Só as anteriores, as últimas 5 (deep sweep 2, 18/10/2026, F-11:
+        // vinham até 50, e numa produção de 2021 vinha escolhida uma de 2026
+        // ou uma sem datas), pela regra única de «anterior»
+        // (ProducaoAnterior). A máquina não conta aqui.
+        var reference = current.Reference;
         var rows = await _db.JobOns.AsNoTracking()
             .Where(j => j.Reference == reference && j.Id != currentJobOnId)
-            .OrderByDescending(j => j.InicioEm)
-            .ThenByDescending(j => j.Id)
-            .Take(50)
+            .SoAnteriores(j => j, currentJobOnId, current.InicioEm)
+            .MaisRecentePrimeiro(j => j)
+            .Take(IProductionPickerQuery.MaxResults)
             .Select(j => new { j.Id, j.ProductionNumber, Machine = j.Machine.Code, j.InicioEm, j.FimEm })
             .ToListAsync(cancellationToken);
         return rows

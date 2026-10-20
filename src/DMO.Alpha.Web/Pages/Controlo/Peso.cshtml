@@ -2,7 +2,10 @@
 @model DMO.Alpha.Web.Pages.Controlo.PesoModel
 @using DMO.Alpha.Core.Controlo
 @using DMO.Alpha.Core.Tools
+@using DMO.Alpha.Web.Pages.Shared
 @{
+    // Os links dos avisos para a ficha da ferramenta voltam a esta folha.
+    var voltarAqui = DmoAvisoLink.Aqui(ViewContext.HttpContext.Request);
     Layout = "_DmoShellLayout";
     // Ponto decimal canónico (decisão do proprietário de 15/10/2026): 2 casas
     // na UI. As densidades são metrologia — mantêm a precisão da tabela real
@@ -32,6 +35,10 @@
         if (!string.IsNullOrEmpty(opcao.Machine)) { partes.Add(opcao.Machine); }
         if (partes.Count == 0 && !string.IsNullOrEmpty(opcao.CmToolReference)) { partes.Add($"CM {opcao.CmToolReference}"); }
         if (!string.IsNullOrEmpty(opcao.CmToolLot)) { partes.Add($"Lote {opcao.CmToolLot}"); }
+        // Com vários Pesos na produção (a CM ou a BQ mudou a meio;
+        // 18/10/2026), a BQ distingue dois Pesos da mesma CM.
+        if (opcao.BqLabel is { } bqLabel) { partes.Add(bqLabel); }
+        if (!opcao.IsCurrent) { partes.Add("de antes da troca"); }
         partes.Add($"{opcao.Leituras} CM");
         return string.Join(" · ", partes);
     });
@@ -49,7 +56,13 @@
      skin da página: peso-facts/peso-fact/hint). *@
 }
 
-<main class="peso-page dmo-workspace" aria-labelledby="peso-title">
+@* GRAVAR SEM RECARREGAR (Diogo, 17/10/2026: «atualizar só o que muda»):
+   na folha aberta, registar leituras, escolher a comparação, guardar a
+   produção anterior e o «Supomos» trocam só as zonas que mudam
+   (data-dmo-regiao); a leitura nova que o operador está a escrever fica
+   como está (data-dmo-fica) e o resto da página não se mexe. Ver
+   docs/ui-reference/atualizar-so-o-que-muda.md. *@
+<main class="peso-page dmo-workspace" aria-labelledby="peso-title" data-dmo-troca>
 
   <div class="page-head">
     <div>
@@ -71,66 +84,106 @@
     <div class="peso-card-heading"><div>
       <h3 id="peso-historico-title">Histórico do Controlo</h3>
     </div></div>
-    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
-      <input type="hidden" name="historico" value="1" />
-      <div class="dmo-field">
-        <label for="historicoReferencia">Referência</label>
-        <input id="historicoReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.HistoryReference" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
-      </div>
-      @* A procura em dois passos: primeiro a referência; depois o nº de
-         produção num dropdown só com as produções dessa referência. *@
-      <div class="dmo-field">
-        <label for="historicoProducao">Nº de produção</label>
-        @if (Model.HistoryReference is null || Model.HistorySemJobOn)
-        {
-          <select id="historicoProducao" name="producao" disabled>
-            <option value="">Escreva primeiro a referência</option>
-          </select>
-        }
-        else
-        {
-          <select id="historicoProducao" name="producao" data-auto-submit>
-            <option value="" selected="@(Model.HistoryProduction is null ? "selected" : null)">Todas</option>
-            @foreach (var producaoOpcao in Model.HistoryProducoes)
-            {
-              <option value="@producaoOpcao" selected="@(Model.HistoryProduction == producaoOpcao ? "selected" : null)">@producaoOpcao</option>
-            }
-          </select>
-        }
-      </div>
-      <div class="dmo-field">
-        <label for="historicoFerramenta">Ferramenta</label>
-        <input id="historicoFerramenta" data-dmo-maiusculas autocapitalize="characters" name="ferramenta" value="@Model.HistoryTool" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-submit />
-      </div>
-      <div class="dmo-field">
-        <label for="historicoTipo">Tipo</label>
-        <select id="historicoTipo" name="tipo" data-dmo-autosubmit>
-          @{
-            var tipoAtual = Model.HistoryTipo?.ToString();
+    @* Os filtros trocam só o que muda (deep sweep, 18/10/2026): cada escolha
+       pede a página com fetch (DmoTroca, pelo ouvinte do Peso abaixo) e troca
+       os resultados e o dropdown das produções, que muda com a referência.
+       Os campos ficam como o operador os deixou (data-dmo-fica): um filtro
+       escolhido com o pedido anterior a caminho vai no pedido seguinte, e o
+       ecrã mostra sempre o que se pediu. A referência e a ferramenta
+       aplicam-se ao escrever, 350 ms depois da última tecla
+       (data-dmo-ao-escrever; deep sweep 2, 18/10/2026, F-10); a produção
+       escolhida para a referência anterior sai ao escrever (data-dmo-depende).
+       Com o «Comparar Pesos guardados» aberto (peso_1, peso_2 ou peso_ref),
+       um filtro fecha-o e abre a página inteira: aí o texto aplica-se só com
+       o Enter ou a sugestão, para a página não recarregar a meio da palavra. *@
+    @* O data-dmo-ao-escrever não sai com null (o Razor escreve sempre os
+       data-*), por isso os campos vivem numa função e o formulário tem as
+       duas formas. *@
+    @{
+      var historicoAoEscrever = Model.Peso1 is null && Model.Peso2 is null && Model.PesoReferencia is null;
+      async Task HistoricoFiltrosCampos()
+      {
+        <input type="hidden" name="historico" value="1" />
+        <div class="dmo-field">
+          <label for="historicoReferencia">Referência</label>
+          <input id="historicoReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.HistoryReference" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+        @* A procura em dois passos: primeiro a referência; depois o nº de
+           produção num dropdown só com as produções dessa referência, pela
+           mesma regra da tabela (o início da referência ou da parte BQ). Cada
+           opção leva o nº e a referência: escolher filtra só essa produção,
+           mesmo com o mesmo nº noutra referência e com o texto da referência
+           alargado depois. Com várias referências (o texto é o início de mais
+           do que uma), a opção também diz a referência. *@
+        <div id="pesoHistoricoProducaoZona" class="dmo-field" data-dmo-regiao>
+          <label for="historicoProducao">Nº de produção</label>
+          @if (Model.HistoryReference is null || Model.HistorySemJobOn)
+          {
+            <select id="historicoProducao" name="producao" disabled>
+              <option value="">Escreva primeiro a referência</option>
+            </select>
           }
-          <option value="" selected="@(tipoAtual is null ? "selected" : null)">Todos</option>
-          <option value="Peso" selected="@(tipoAtual == "Peso" ? "selected" : null)">Peso</option>
-          <option value="Pegamentos" selected="@(tipoAtual == "Pegamentos" ? "selected" : null)">Pegamentos</option>
-          <option value="Comparacao" selected="@(tipoAtual == "Comparacao" ? "selected" : null)">Comparação</option>
-          <option value="Resumo" selected="@(tipoAtual == "Resumo" ? "selected" : null)">Resumo</option>
-        </select>
-      </div>
-      <div class="dmo-field">
-        <label for="historicoSemJobOn">Job On</label>
-        <select id="historicoSemJobOn" name="sem_jobon" data-dmo-autosubmit>
-          <option value="" selected="@(Model.HistorySemJobOn ? null : "selected")">Com Job On</option>
-          <option value="1" selected="@(Model.HistorySemJobOn ? "selected" : null)">Sem Job On associado</option>
-        </select>
-      </div>
-      <div class="dmo-field">
-        <label for="historicoData">Data</label>
-        <input id="historicoData" name="data" type="date" value="@(Model.HistoryData is { } dataFiltro ? dataFiltro.ToString("yyyy-MM-dd") : null)" data-dmo-autosubmit />
-      </div>
-      @* Sem «Procurar» (Diogo, 17/10/2026): os dropdowns e a data aplicam
-         logo; a referência e a ferramenta procuram ao escolher a sugestão
-         ou com o Enter. *@
-    </form>
+          else
+          {
+            var producoesVariasReferencias = Model.HistoryProducoesVariasReferencias;
+            <select id="historicoProducao" name="producao" data-dmo-autosubmit data-dmo-depende="historicoReferencia">
+              <option value="" selected="@(Model.HistoryProduction is null ? "selected" : null)">Todas</option>
+              @foreach (var producaoOpcao in Model.HistoryProducoes)
+              {
+                <option value="@Model.HistoryProducaoValor(producaoOpcao)" selected="@(Model.HistoryProducaoEscolhida(producaoOpcao) ? "selected" : null)">@producaoOpcao.ProductionNumber@(producoesVariasReferencias ? $" · {producaoOpcao.Reference}" : "")</option>
+              }
+            </select>
+          }
+        </div>
+        <div class="dmo-field">
+          <label for="historicoFerramenta">Ferramenta</label>
+          <input id="historicoFerramenta" data-dmo-maiusculas autocapitalize="characters" name="ferramenta" value="@Model.HistoryTool" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-submit />
+        </div>
+        <div class="dmo-field">
+          <label for="historicoTipo">Tipo</label>
+          <select id="historicoTipo" name="tipo" data-dmo-autosubmit>
+            @{
+              var tipoAtual = Model.HistoryTipo?.ToString();
+            }
+            <option value="" selected="@(tipoAtual is null ? "selected" : null)">Todos</option>
+            <option value="Peso" selected="@(tipoAtual == "Peso" ? "selected" : null)">Peso</option>
+            <option value="Pegamentos" selected="@(tipoAtual == "Pegamentos" ? "selected" : null)">Pegamentos</option>
+            <option value="Comparacao" selected="@(tipoAtual == "Comparacao" ? "selected" : null)">Comparação</option>
+            <option value="Resumo" selected="@(tipoAtual == "Resumo" ? "selected" : null)">Resumo</option>
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="historicoSemJobOn">Job On</label>
+          <select id="historicoSemJobOn" name="sem_jobon" data-dmo-autosubmit>
+            <option value="" selected="@(Model.HistorySemJobOn ? null : "selected")">Com Job On</option>
+            <option value="1" selected="@(Model.HistorySemJobOn ? "selected" : null)">Sem Job On associado</option>
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="historicoData">Data</label>
+          <input id="historicoData" name="data" type="date" value="@(Model.HistoryData is { } dataFiltro ? dataFiltro.ToString("yyyy-MM-dd") : null)" data-dmo-autosubmit />
+        </div>
+        @* Sem «Procurar» (Diogo, 17/10/2026): os dropdowns e a data aplicam
+           logo; a referência e a ferramenta procuram ao escrever, ao escolher
+           a sugestão ou com o Enter (deep sweep 2, 18/10/2026, F-10). *@
+      }
+    }
+    <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
+    @if (historicoAoEscrever)
+    {
+      <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar" id="pesoHistoricoFiltros" data-dmo-ao-escrever="pesoHistoricoResultados">
+        @{ await HistoricoFiltrosCampos(); }
+      </form>
+    }
+    else
+    {
+      <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar" id="pesoHistoricoFiltros">
+        @{ await HistoricoFiltrosCampos(); }
+      </form>
+    }
+    </div>
 
+    <div id="pesoHistoricoResultados" data-dmo-regiao>
     @if (!Model.HistoricoComProcura)
     {
       <div class="peso-vazia" style="margin-top:12px">Pesquise por referência (e depois a produção), ferramenta, tipo ou data. «Sem Job On associado» mostra os Pesos e Pegamentos que ainda falta associar.</div>
@@ -139,7 +192,12 @@
     {
       if (results.Count == 0)
       {
-        <div class="peso-vazia" style="margin-top:12px">@(Model.HistorySemJobOn ? "Não há Pesos nem Pegamentos por associar a um Job On." : "Sem registos para esta procura.")</div>
+        @* Sem Job On, a referência (nas ferramentas do registo), a ferramenta,
+           o tipo e a data também filtram: o aviso diz se a lista ficou vazia
+           por eles. *@
+        var semJobOnFiltrado = Model.HistoryReference is not null || Model.HistoryTool is not null
+            || Model.HistoryTipo is not null || Model.HistoryData is not null;
+        <div class="peso-vazia" style="margin-top:12px">@(!Model.HistorySemJobOn ? "Sem registos para esta procura." : semJobOnFiltrado ? "Não há Pesos nem Pegamentos por associar a um Job On com estes filtros." : "Não há Pesos nem Pegamentos por associar a um Job On.")</div>
       }
       else
       {
@@ -168,8 +226,10 @@
                   var hrefLinha = item.Kind switch
                   {
                     ControloHistoryKind.Peso => $"/Controlo/Peso?peso_id={item.Id}",
+                    // Cada linha é uma folha (18/10/2026): abre essa folha,
+                    // também a de antes de uma troca da CM, da BQ ou do MF.
                     ControloHistoryKind.Pegamentos => item.ControloId is int controloPegamentos
-                        ? $"/Controlo/Pegamentos?controlo_id={controloPegamentos}"
+                        ? $"/Controlo/Pegamentos?controlo_id={controloPegamentos}&pegamentos_id={item.Id}"
                         : $"/Controlo/Pegamentos?pegamentos_id={item.Id}",
                     ControloHistoryKind.Resumo => $"/Controlo/Resumo?jobon_id={item.Id}",
                     _ => $"/Controlo/Peso?historico=1&comparacao_id={item.Id}"
@@ -196,8 +256,12 @@
       }
     }
 
+    </div>
+
     @* O DETALHE do registo de comparação (?comparacao_id — o open do tipo
-       Comparação renderiza o resultado aqui mesmo, à diferença do papel). *@
+       Comparação renderiza o resultado aqui mesmo, à diferença do papel).
+       Uma zona: um filtro com o detalhe aberto troca-o como o resto. *@
+    <div id="pesoHistoricoDetalhe" class="dmo-zona" data-dmo-regiao>
     @if (Model.HistoricoComparacao is { } detalheComparacao)
     {
       <section class="dmo-card peso-card" aria-labelledby="peso-historico-detalhe-title" style="margin-top:14px">
@@ -208,6 +272,10 @@
         @if (detalheComparacao.Note is { } notaDetalhe)
         {
           <p class="peso-hint">Nota do registo: @notaDetalhe</p>
+        }
+        @if (detalheComparacao.Comparabilidade is { } comparabilidadeDetalhe)
+        {
+          <partial name="_PesoNaoComparavel" model="@(new PesoNaoComparavelVista(comparabilidadeDetalhe, null, ComLinks: false))" />
         }
         <div class="peso-resumo">
           <div class="peso-fact"><span>Pares válidos</span><strong>@detalheComparacao.Pares.ParesValidos</strong></div>
@@ -231,8 +299,10 @@
             </tbody>
           </table>
         </div>
+        @await Component.InvokeAsync("PesoCmDeParte", new { comparacaoId = detalheComparacao.ComparacaoId })
       </section>
     }
+    </div>
   </section>
 
   @* ------------------------------------------------------------------ *@
@@ -364,11 +434,28 @@
   @* ------------------------------------------------------------------ *@
   @if (Model.ComparacaoTab)
   {
+    @* COMPARAR E GUARDAR SEM RECARREGAR (deep sweep, 18/10/2026, B-peso-4):
+       «Comparar pesos» e «Guardar comparação» vão por fetch (DmoTroca, o
+       data-dmo-parcial das leituras) e trocam só as zonas abaixo. Antes eram
+       um POST nativo: com a ligação a cair, o operador via a página de erro
+       do Chrome, a comparação ficava guardada sem ele saber e voltar atrás
+       perdia as massas. Agora fica na página, com a mensagem de ligação no
+       canto; o mesmo envio outra vez não guarda duas vezes ([EnvioUnico]) e
+       as massas enviadas voltam ao formulário se a confirmação o trocar (ver
+       o script abaixo).
+       ESCOLHER SEM RECARREGAR (deep sweep 2, 18/10/2026, F-8): a referência
+       fica como o operador a deixou (data-dmo-fica) e o formulário vai pelo
+       DmoTroca (data-dmo-parcial, pelo ouvinte do Peso abaixo). Trocam só os
+       dropdowns da produção e do Peso inicial (zonas dentro do formulário),
+       as mensagens e o contexto do Peso inicial (#pesoComparacaoContexto),
+       e as leituras, o resultado e a guardada. Antes cada referência,
+       produção ou Peso inicial recarregava a página inteira. *@
     <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-title">
       <div class="peso-card-heading"><div>
         <h3 id="peso-comparacao-title">Comparação de Peso</h3>
       </div></div>
 
+      <div id="pesoComparacaoAvisos" class="dmo-zona" data-dmo-regiao>
       @if (Model.ComparacaoRefusal is not null)
       {
         <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.ComparacaoRefusalMessage</div>
@@ -389,17 +476,25 @@
         </div>
       }
 
+      </div>
+
       @* Produção e Peso inicial (os selects do html): o cascade é um GET
-         — com JS auto-submete; sem JS o botão «Mostrar» faz o mesmo. *@
-      <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
+         — com JS auto-submete; sem JS o botão «Mostrar» faz o mesmo. Os
+         dropdowns aplicam ao escolher (data-dmo-autosubmit: com as setas,
+         só com o Enter ou ao sair do campo). A lista é a das referências
+         que começam pelo texto escrito, ou cuja parte BQ começa por ele
+         (beta.237), nunca por um pedaço do meio; uma produção que vá no
+         pedido e não siga essa regra fica por escolher. *@
+      <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
+      <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar" id="cmpEscolha">
         <input type="hidden" name="comparacao" value="1" />
         <div class="dmo-field">
           <label for="cmpReferencia">Referência</label>
           <input id="cmpReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.ReferenciaComparacao" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
         </div>
-        <div class="dmo-field">
+        <div id="pesoComparacaoProducaoZona" class="dmo-field" data-dmo-regiao>
           <label for="cmpProducao">Produção / Job On</label>
-          <select id="cmpProducao" name="jobon_id" data-auto-submit data-dmo-filter disabled="@(Model.Producoes.Count == 0 ? "disabled" : null)">
+          <select id="cmpProducao" name="jobon_id" data-dmo-autosubmit data-dmo-filter disabled="@(Model.Producoes.Count == 0 ? "disabled" : null)">
             <option value="">@(Model.ReferenciaComparacao is null ? "Indique a referência" : "Selecionar produção")</option>
             @foreach (var producao in Model.Producoes)
             {
@@ -407,9 +502,9 @@
             }
           </select>
         </div>
-        <div class="dmo-field">
+        <div id="pesoComparacaoInicialZona" class="dmo-field" data-dmo-regiao>
           <label for="cmpInicial">Peso inicial desta produção</label>
-          <select id="cmpInicial" name="peso_inicial" data-auto-submit>
+          <select id="cmpInicial" name="peso_inicial" data-dmo-autosubmit>
             @if (Model.Iniciais.Count == 0)
             {
               <option value="">Sem Peso guardado nesta produção</option>
@@ -425,11 +520,13 @@
           </select>
         </div>
         <div class="dmo-field">
-          <label>&nbsp;</label>
+          <span class="dmo-label" aria-hidden="true">&nbsp;</span>
           <button type="submit" class="dmo-button">Mostrar</button>
         </div>
       </form>
+      </div>
 
+      <div id="pesoComparacaoContexto" class="dmo-zona" data-dmo-regiao>
       @if (Model.ReferenciaComparacaoSemProducoes)
       {
         <div class="peso-aviso warn" role="status" style="margin-top:10px">Sem produções para «@Model.ReferenciaComparacao».</div>
@@ -476,21 +573,43 @@
         </div>
         @* Texto para o «?»: «Puxa a média» é a média com a CM menos a média sem ela. *@
       }
+      </div>
     </section>
 
     @* O form das leituras: visível com o peso inicial escolhido — e
        PERMANECE na recusa (o padrão do Job On: o formulário fica como
        estava, a BD inalterada). *@
+    <div id="pesoComparacaoLeituras" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
     @if (Model.PesoInicialSelecionado is not null || Model.ComparacaoRefusal is not null)
     {
     <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-leituras-title">
       <div class="peso-card-heading"><div>
         <h3 id="peso-comparacao-leituras-title">Novas leituras dos CM</h3>
-      </div></div>
+      </div>
+        @* Os botões no canto superior direito do card (Diogo, 18/10/2026),
+           também «Adicionar leitura» e «Remover leitura», que eram por baixo
+           das leituras; são do formulário pelo form= (o ouvinte delegado usa
+           botao.form). O handler de gravação no backend é a fonte única do
+           cálculo. *@
+        <div class="dmo-card-topo-acoes">
+          <button type="button" class="dmo-button" form="cmpForm" data-cmp-add-row>Adicionar leitura</button>
+          <button type="button" class="dmo-button" form="cmpForm" data-cmp-remove-row>Remover leitura</button>
+          <button type="submit" class="dmo-button" form="cmpForm">Comparar pesos</button>
+          <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button" form="cmpForm">Guardar comparação</button>
+        </div>
+      </div>
 
       <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Comparar" class="peso-form-grid" id="cmpForm">
         <input type="hidden" name="jobon_id" value="@Model.ProducaoSelecionadaJobOnId" />
         <input type="hidden" name="peso_inicial" value="@Model.PesoInicialSelecionado" />
+        @* A comparação acabada de guardar: um clique repetido em «Guardar
+           comparação» que chega a esta página, sem leituras escritas, volta
+           a ela sem mensagem (B-peso-2). *@
+        @if (Model.ComparacaoGuardada is { } guardadaNoForm)
+        {
+          <input type="hidden" name="comparacao_guardada" value="@guardadaNoForm.ComparacaoId" />
+          <input type="hidden" name="ignoradas" value="@Request.Query["ignoradas"]" />
+        }
         <div class="dmo-field">
           <label for="cmpTool">Contra-molde a pesar</label>
           <select id="cmpTool" name="cm_tool_id" data-dmo-filter>
@@ -524,26 +643,18 @@
             </div>
           }
         </div>
-        <div class="peso-actions" style="margin-top:10px">
-          <button type="button" class="dmo-button" data-cmp-add-row>Adicionar leitura</button>
-          <button type="button" class="dmo-button" data-cmp-remove-row>Remover leitura</button>
-        </div>
         <div class="dmo-field" style="max-width:520px;margin-top:10px">
           <label for="cmpNota">Nota (opcional — fica no registo guardado)</label>
           <input id="cmpNota" name="comparacao_note" value="@Model.NotaSubmetida" />
         </div>
-        <div class="peso-actions" style="margin-top:12px">
-          <button type="submit" class="dmo-button">Comparar pesos</button>
-          @* O registo do histórico (tipo Comparação): o mesmo form, o
-             handler de gravação no backend (a fonte única do cálculo). *@
-          <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button">Guardar comparação</button>
-        </div>
       </form>
     </section>
     }
+    </div>
 
     @* O RESULTADO da comparação ao vivo (o POST «Comparar pesos» — sem
        escrita; o cálculo é do backend). *@
+    <div id="pesoComparacaoResultado" class="dmo-zona" data-dmo-regiao>
     @if (Model.ResultadoComparacao is { Refusal: PesoComparacaoResultado.Sucesso, Pares: { } paresResultado } resultado)
     {
       <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-resultado-title">
@@ -553,6 +664,10 @@
         @if (resultado.FerramentaDiferente)
         {
           <div class="peso-aviso-simples" role="status" style="margin-top:10px">A referência ou as máquinas possíveis diferem das do CM inicial. Pode continuar esta comparação manualmente.</div>
+        }
+        @if (resultado.Comparabilidade is { } comparabilidadeResultado)
+        {
+          <partial name="_PesoNaoComparavel" model="@(new PesoNaoComparavelVista(comparabilidadeResultado, resultado.CmToolId, ComLinks: true))" />
         }
         <div class="peso-resumo" style="margin-top:12px">
           <div class="peso-fact"><span>Peso dos novos CM</span><strong>@(resultado.Medias is { } mediasResultado ? $"{fmt(mediasResultado.AverageGlassWeightGrams)} g" : "—")</strong></div>
@@ -608,9 +723,11 @@
         <p class="peso-hint">@resultado.Leituras.Count CM medido(s). Pré-visualização não guardada: usa «Guardar comparação» para registar.</p>
       </section>
     }
+    </div>
 
     @* O REGISTO GUARDADO (?comparacao_id — o PRG do Guardar aterra com o
        resultado a partir do PERSISTIDO: os inputs congelados e os pares). *@
+    <div id="pesoComparacaoGuardada" class="dmo-zona" data-dmo-regiao>
     @if (Model.ComparacaoGuardada is { } guardada)
     {
       <section class="dmo-card peso-card" aria-labelledby="peso-comparacao-guardada-title">
@@ -618,6 +735,10 @@
           <h3 id="peso-comparacao-guardada-title">Comparação guardada · @guardada.Reference · @guardada.ProductionNumber</h3>
           <p class="card-note">CM @guardada.CmToolReference@(guardada.CmToolLot is { } lotGuardada ? $" · Lote {lotGuardada}" : null) · água a @guardada.WaterTemperatureC °C · gravada em @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(guardada.CreatedAtUtc).ToString("dd/MM/yyyy HH:mm")@(guardada.Note is { } notaGuardada ? $" · nota: {notaGuardada}" : null)</p>
         </div></div>
+        @if (guardada.Comparabilidade is { } comparabilidadeGuardada)
+        {
+          <partial name="_PesoNaoComparavel" model="@(new PesoNaoComparavelVista(comparabilidadeGuardada, null, ComLinks: false))" />
+        }
         <div class="peso-resumo">
           <div class="peso-fact"><span>Peso dos novos CM</span><strong>@(guardada.Medias is { } mediasGuardada ? $"{fmt(mediasGuardada.AverageGlassWeightGrams)} g" : "—")</strong></div>
           <div class="peso-fact"><span>Pares válidos</span><strong>@guardada.Pares.ParesValidos</strong></div>
@@ -664,8 +785,10 @@
           @* Texto para o «?»: a CM com o mesmo número na base é substituída
              pela nova leitura; sem par, a nova leitura entra como mais uma. *@
         }
+        @await Component.InvokeAsync("PesoCmDeParte", new { comparacaoId = guardada.ComparacaoId })
       </section>
     }
+    </div>
   }
 
   @* ------------------------------------------------------------------ *@
@@ -677,7 +800,14 @@
     <section class="dmo-card peso-card" aria-labelledby="peso-production-title">
       <div class="peso-card-heading"><div>
         <h3 id="peso-production-title">Produção @productionCtx.ProductionNumber</h3>
-      </div></div>
+      </div>
+        @* A superfície própria da comparação (a secção comparacao do
+           dmo-html): o atalho da folha, no canto superior direito do card;
+           o aterrismo pré-seleciona a produção e o peso inicial dela. *@
+        <div class="dmo-card-topo-acoes">
+          <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloIdFromQuery&comparacao=1@(Model.PesoIdNoEndereco is { } comparacaoPesoInicial ? $"&peso_inicial={comparacaoPesoInicial}" : null)">Comparação de Peso</a>
+        </div>
+      </div>
 
       @* A referência é o campo DO JOB ON (o Owner 2026-10-12: «esta
          informação é retirada do jobon_id, entao app nao precis de
@@ -686,14 +816,19 @@
          verificação: o operador digitou a referência total na criação.
          O CARTÃO: o nº, a referência total, a máquina, a CM COM O SEU
          LOTE (a ferramenta física: 1075C142 e ST100 são factos
-         distintos), o processo — o MF e a Boquilha não se repetem. *@
+         distintos), o processo — o MF e a Boquilha não se repetem.
+         Um Peso de antes de uma troca da CM ou da BQ (18/10/2026) mostra a
+         CM e os valores congelados nele, os que o cálculo dele usou. *@
+      @{
+        var pesoDeAntes = Model.PesoAnterior ? Model.Peso : null;
+      }
       <div class="peso-facts peso-context-grid">
         <div class="peso-fact"><span>Nº de produção</span><strong>@productionCtx.ProductionNumber</strong></div>
         <div class="peso-fact"><span>Referência</span><strong>@productionCtx.Reference</strong></div>
         <div class="peso-fact"><span>Máquina</span><strong>@productionCtx.Machine</strong></div>
-        <div class="peso-fact"><span>CM</span><strong>@(Model.CmTool?.Reference ?? "—")</strong></div>
-        <div class="peso-fact"><span>Lote da CM</span><strong>@(Model.CmTool?.Lot ?? Model.Peso?.CmToolLot ?? "—")</strong></div>
-        <div class="peso-fact"><span>Processo</span><strong>@(Model.Peso?.Process ?? Model.CmTechnical?.Process.ToString() ?? "—")</strong></div>
+        <div class="peso-fact"><span>CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolReference ?? "—" : Model.CmTool?.Reference ?? "—")</strong></div>
+        <div class="peso-fact"><span>Lote da CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolLot ?? "—" : Model.CmTool?.Lot ?? Model.Peso?.CmToolLot ?? "—")</strong></div>
+        <div class="peso-fact"><span>Processo</span><strong>@(Model.Peso?.Process ?? cmProcessLabel(Model.CmTechnical?.Process))</strong></div>
       </div>
 
       @* O PAINEL DE FACTOS (o renderFacts do dmo-html): os volumes da BQ
@@ -702,19 +837,24 @@
          cálculo é do backend (a query canónica + PesoCapCalculation) e
          NUNCA bloqueia o Peso. *@
       <div class="peso-facts" style="margin-top:10px">
-        <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } painelMarisa ? fmt(painelMarisa) : "—")</strong></div>
-        <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } painelPuncao ? fmt(painelPuncao) : "—")</strong></div>
+        <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@((pesoDeAntes?.VolumeMarisaCm3 ?? Model.BqTechnical?.VolumeMarisaCm3) is { } painelMarisa ? fmt(painelMarisa) : "—")</strong></div>
+        <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@((pesoDeAntes?.VolumePuncaoCm3 ?? Model.CmTechnical?.VolumePuncaoCm3) is { } painelPuncao ? fmt(painelPuncao) : "—")</strong></div>
         <div class="peso-fact">
           <span>Densidade do vidro (g/cm³)</span>
-          <strong>@(Model.ConfiguredGlassDensity is { } painelDensidade ? fmtDensity(painelDensidade) : "—")</strong>
-          <small>@cmProcessLabel(Model.CmTechnical?.Process)</small>
+          <strong>@((pesoDeAntes?.GlassDensityGramsPerCm3 ?? Model.ConfiguredGlassDensity) is { } painelDensidade ? fmtDensity(painelDensidade) : "—")</strong>
+          <small>@(pesoDeAntes is not null ? pesoDeAntes.Process : cmProcessLabel(Model.CmTechnical?.Process))</small>
         </div>
         @* O APOIO TP/CALOTE (o «TP / calote · Apoio separado» do dmo-html):
            abre-se com a calote efetiva — a do Job On quando existe, senão a
            h_ref da Tool — calculada PELO BACKEND; a simulação (cap_h) é um
            GET do backend, nunca matemática no browser e nunca gravada. Sem
-           JS tudo funciona pelo form nativo (progressive enhancement). *@
-        <details class="tp-support" data-cap-url="@Url.Page("/Controlo/Peso", "CapSupport")" data-cap-params="controlo_id=@Model.ControloIdFromQuery" open="@(Model.CapAberto ? "open" : null)">
+           JS tudo funciona pelo form nativo (progressive enhancement).
+           O apoio fica como o operador o deixou (data-dmo-fica): aberto e
+           com a calote simulada, depende de cap_h no endereço, e a gravação
+           ou a comparação seguinte não o trazem. Sem isto, a primeira troca
+           depois do «Calcular» abria a página inteira. *@
+        <div class="dmo-zona" data-dmo-fica>
+        <details class="tp-support" data-cap-url="@Url.Page("/Controlo/Peso", "CapSupport")" data-cap-params="controlo_id=@Model.ControloIdFromQuery@(Model.PesoIdNoEndereco is { } capPesoParam ? $"&peso_id={capPesoParam}" : null)" open="@(Model.CapAberto ? "open" : null)">
           <summary class="tp-button">
             <span>TP / calote · Apoio separado</span>
             @if (Model.CapSupport is { TemReferencia: true } botaoCap)
@@ -745,7 +885,24 @@
                 <div class="peso-fact"><span>Δ V / referência</span><strong>@(fmtCapSigned(apoioCap.DeltaVolumeCm3)) cm³</strong></div>
               </div>
               <form method="get" asp-page="/Controlo/Peso" class="tp-sim-form">
-                <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+                @* O «Calcular» abre a folha de novo: leva a comparação e o
+                   «Supomos» escolhidos, para não se perderem. Escolhem-se sem
+                   recarregar, por isso estes campos são uma zona. *@
+                <div id="pesoCapContexto" class="dmo-zona" data-dmo-regiao>
+                  <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+                  @if (Model.PesoIdNoEndereco is { } capPesoId)
+                  {
+                    <input type="hidden" name="peso_id" value="@capPesoId" />
+                  }
+                  @if (Model.Comparison is { } capComparison)
+                  {
+                    <input type="hidden" name="comparar" value="@capComparison.HistoricalPesoId" />
+                  }
+                  @if (Model.SuporCaloteParaLevar is { } capSupor)
+                  {
+                    <input type="hidden" name="supor_calote" value="@capSupor" />
+                  }
+                </div>
                 <div class="dmo-field">
                   <label for="capSimulada">Calote simulada h (mm)</label>
                   <input id="capSimulada" name="cap_h" type="text" inputmode="decimal" autocomplete="off"
@@ -753,14 +910,14 @@
                          placeholder="Usar @apoioCap.OrigemCalote" />
                 </div>
                 <div class="dmo-field">
-                  <label>&nbsp;</label>
+                  <span class="dmo-label" aria-hidden="true">&nbsp;</span>
                   <button type="submit" class="dmo-button">Calcular</button>
                 </div>
               </form>
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.</div>
+              <div class="peso-aviso-simples" role="status">Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.@if (productionCtx.CmToolId is { } capCmToolId) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(capCmToolId, "Completar na ficha da CM", tecnica: true, continuar: voltarAqui)" />}</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -768,8 +925,12 @@
             }
           </div>
         </details>
+        </div>
       </div>
 
+      @* Os avisos que vêm no endereço (?associado, recusas): uma zona, para a
+         primeira leitura gravada depois deles não abrir a página inteira. *@
+      <div id="pesoProducaoAvisos" class="dmo-zona" data-dmo-regiao>
       @if (Model.ProductionRefusal is not null)
       {
         <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.ProductionRefusalMessage</div>
@@ -785,42 +946,62 @@
         <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
       }
 
+      @if (Model.MeasurementRefusal is not null && Model.Peso is null)
+      {
+        <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.MeasurementRefusalMessage</div>
+      }
+      </div>
+
       @* A ASSOCIAÇÃO POSTERIOR (o Owner 2026-10-16: «quando existir um
          jobon com CM_ID que usa o tool_id perguntar se quero associar»):
          os Pesos sem produção desta CM são propostos; associar é o botão
-         explícito, e criar um Peso novo continua disponível em baixo. *@
+         explícito, e criar um Peso novo continua disponível em baixo.
+         Nas tabelas NÃO EXISTEM botões (o Owner 2026-10-12): um clique
+         escolhe a linha (o rádio escondido, peso_id) e o duplo clique abre o
+         Peso (a lista tem um bloco de ações fora, data-dmo-for); o único
+         «Associar a esta produção» fica no canto superior direito do cartão
+         (Diogo, 18/10/2026) e envia o formulário (form=).
+         Com um só Peso, a linha já vem escolhida; com vários, sem escolha
+         o browser pede que se escolha uma linha (required).
+         Depois de uma troca da CM ou da BQ (a produção já tem um Peso), os
+         propostos são os da CM e da BQ que a produção tem ou teve antes da
+         troca, cuja combinação ainda não tem Peso (resposta R16-6 do
+         especialista, 18/10/2026). *@
       @if (Model.Peso is null && Model.AssociationCandidates.Count > 0)
       {
+        var umSoCandidato = Model.AssociationCandidates.Count == 1;
+        var depoisDaTroca = Model.Pesos.Count > 0;
         <section class="dmo-card peso-card" aria-labelledby="peso-associate-title" style="margin-top:14px">
           <div class="peso-card-heading"><div>
-            <h3 id="peso-associate-title">Pesos sem produção desta CM</h3>
-            <p class="card-note">@(Model.AssociationCandidates.Count == 1 ? "Existe um Peso" : $"Existem {Model.AssociationCandidates.Count} Pesos") registado@(Model.AssociationCandidates.Count == 1 ? "" : "s") com a CM deste Job On e ainda sem produção. Quer associar a esta produção?</p>
-          </div></div>
-          <div class="dmo-table-wrap">
-            <table class="dmo-table" data-dmo-list="Pesos sem produção">
-              <thead>
-                <tr><th>Peso</th><th>CM</th><th>BQ</th><th>Leituras</th><th></th></tr>
-              </thead>
-              <tbody>
-                @foreach (var candidate in Model.AssociationCandidates)
-                {
-                  <tr>
-                    <td><a href="/Controlo/Peso?peso_id=@candidate.PesoId">Peso @candidate.PesoId</a></td>
-                    <td>@(candidate.CmReference ?? "—")@(candidate.CmLot is { } cmLot ? $" · Lote {cmLot}" : "")</td>
-                    <td>@(candidate.BqReference ?? "—")@(candidate.BqLot is { } bqLot ? $" · Lote {bqLot}" : "")</td>
-                    <td>@candidate.MeasurementCount</td>
-                    <td>
-                      <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate">
-                        <input type="hidden" name="peso_id" value="@candidate.PesoId" />
-                        <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
-                        <button type="submit" class="dmo-button">Associar a esta produção</button>
-                      </form>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+            <h3 id="peso-associate-title">@(depoisDaTroca ? "Pesos sem produção destas ferramentas" : "Pesos sem produção desta CM")<partial name="_DmoHelp" model="@("Um clique escolhe o Peso; duplo clique abre-o.")" /></h3>
+            <p class="card-note">@(Model.AssociationCandidates.Count == 1 ? "Existe um Peso" : $"Existem {Model.AssociationCandidates.Count} Pesos") registado@(Model.AssociationCandidates.Count == 1 ? "" : "s") com @(depoisDaTroca ? "a CM e a BQ que esta produção tem ou teve antes da troca" : "a CM deste Job On") e ainda sem produção. Quer associar a esta produção?</p>
           </div>
+            <div class="dmo-card-topo-acoes" data-dmo-for="pesoAssociateList"><button type="submit" class="dmo-button" form="pesoAssociateForm">Associar a esta produção</button></div>
+          </div>
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate" id="pesoAssociateForm">
+            <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+            <div class="dmo-table-wrap">
+              <table class="dmo-table" id="pesoAssociateList" data-dmo-list="Pesos sem produção">
+                <thead>
+                  <tr><th></th><th>Peso</th><th>CM</th><th>BQ</th><th>Leituras</th></tr>
+                </thead>
+                <tbody>
+                  @foreach (var candidate in Model.AssociationCandidates)
+                  {
+                    <tr data-dmo-row data-id="@candidate.PesoId" data-dmo-open="/Controlo/Peso?peso_id=@candidate.PesoId"
+                        class="@(umSoCandidato ? "selected" : null)" aria-selected="@(umSoCandidato ? "true" : "false")"
+                        aria-label="Peso @candidate.PesoId — um clique escolhe, duplo clique abre">
+                      <td><input type="radio" name="peso_id" value="@candidate.PesoId" required checked="@umSoCandidato" aria-label="Peso @candidate.PesoId" /></td>
+                      <td>Peso @candidate.PesoId</td>
+                      <td>@(candidate.CmReference ?? "—")@(candidate.CmLot is { } cmLot ? $" · Lote {cmLot}" : "")</td>
+                      <td>@(candidate.BqReference ?? "—")@(candidate.BqLot is { } bqLot ? $" · Lote {bqLot}" : "")</td>
+                      <td>@candidate.MeasurementCount</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </form>
         </section>
       }
 
@@ -833,9 +1014,18 @@
         <section class="dmo-card peso-card" aria-labelledby="peso-create-production-title" style="margin-top:14px">
           <div class="peso-card-heading"><div>
             <h3 id="peso-create-production-title">Novo Peso da produção</h3>
-          </div></div>
+            @* Depois de trocar a CM ou a BQ a meio da produção (18/10/2026):
+               as ferramentas novas têm o seu Peso, e o anterior fica como
+               estava, na lista «Pesos desta produção». *@
+            @if (Model.FerramentasMudaramTexto is { } ferramentasMudaram)
+            {
+              <p class="card-note" data-peso-ferramentas-mudaram>@ferramentasMudaram nesta produção; @(Model.Pesos.Count == 1 ? "o Peso anterior ficou como estava" : "os Pesos anteriores ficaram como estavam").</p>
+            }
+          </div>
+            <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" form="pesoCreateForControlo">Criar Peso</button></div>
+          </div>
 
-          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="CreateForControlo" class="peso-form-grid">
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="CreateForControlo" class="peso-form-grid" id="pesoCreateForControlo">
             <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
             <div class="dmo-field">
               <label for="waterTemperature">Temperatura da água (°C)</label>
@@ -880,9 +1070,6 @@
                 <strong>@(Model.ConfiguredGlassDensity is { } density ? $"{fmtDensity(density)} g/cm³" : "não configurada")</strong>
               </div>
             </div>
-            <div class="peso-actions">
-              <button type="submit" class="dmo-button">Criar Peso</button>
-            </div>
           </form>
         </section>
       }
@@ -892,16 +1079,9 @@
            (o cálculo precisa das duas): o aviso diz porquê em vez de a
            secção desaparecer sem explicação. *@
         <div class="peso-aviso warn" role="status" style="margin-top:14px" data-peso-sem-ferramentas>
-          O «Novo Peso da produção» não aparece porque o Job On desta produção não tem @(productionCtx.CmToolId is null && productionCtx.BqToolId is null ? "CM nem boquilha (BQ)" : productionCtx.CmToolId is null ? "CM" : "boquilha (BQ)"). O cálculo do Peso precisa das duas ferramentas: complete o Job On e volte a esta folha.
+          O «Novo Peso da produção» não aparece porque o Job On desta produção não tem @(productionCtx.CmToolId is null && productionCtx.BqToolId is null ? "CM nem boquilha (BQ)" : productionCtx.CmToolId is null ? "CM" : "boquilha (BQ)"). O cálculo do Peso precisa das duas ferramentas: complete o Job On e volte a esta folha.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(productionCtx.JobOnId, "Editar o Job On", editar: true)" />
         </div>
       }
-
-      @* A superfície própria da comparação (a secção comparacao do
-         dmo-html): o atalho da folha — o aterrismo pré-seleciona a
-         produção e o peso inicial dela. *@
-      <div class="peso-actions" style="margin-top:14px">
-        <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloIdFromQuery&comparacao=1">Comparação de Peso</a>
-      </div>
     </section>
   }
   else if (!Model.HistoricoTab && !Model.ComparacaoTab)
@@ -921,17 +1101,28 @@
         <partial name="_ControloModoRegisto" model="@(("/Controlo/Peso", true))" />
       }
     </div>
+    @* SEM RECARREGAR E NUMA LINHA (deep sweep 2, 18/10/2026, F-8 e F-9):
+       como nos Pegamentos (_PegamentosEscolhaJobOn). A referência, a
+       máquina e a produção na mesma linha, com a largura do que levam; a
+       procura fica (data-dmo-fica) e vai pelo DmoTroca (data-dmo-parcial),
+       e trocam só a recusa, a produção e a mensagem. O dropdown da produção
+       é do formulário POST de baixo (form=), que abre a folha da produção
+       como sempre (data-dmo-nativo). Enquanto a referência escrita não é a
+       das produções, o dropdown fica desativado (data-dmo-depende). *@
+    <div id="pesoJobOnAvisos" class="dmo-zona" data-dmo-regiao>
     @if (Model.JobOnEscolhaRefusal is { } jobOnRecusa)
     {
       <div class="peso-aviso" role="alert">@jobOnRecusa</div>
     }
-    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
+    </div>
+    <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
+    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar dmo-filter-bar-conteudo" id="pesoJobOnProcura">
       <input type="hidden" name="modo" value="@PesoModel.ModoJobOnValor" />
       <div class="dmo-field">
         <label for="pesoJobOnReferencia">Referência</label>
         <input id="pesoJobOnReferencia" name="referencia" value="@Model.JobOnReferencia" placeholder="Ex.: 5810" autocomplete="off" required data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
       </div>
-      <div class="dmo-field">
+      <div class="dmo-field dmo-field-maquina">
         <label for="pesoJobOnMaquina">Máquina</label>
         <select id="pesoJobOnMaquina" name="maquina" data-dmo-autosubmit>
           <option value="">Todas</option>
@@ -942,32 +1133,30 @@
         </select>
       </div>
       @* Escolher a referência ou a máquina procura logo (sem «Procurar»),
-         como nos Pegamentos. *@
+         como nos Pegamentos. A produção é uma zona que existe sempre,
+         escondida sem produções; escolhê-la abre-a (sem «Abrir produção»). *@
+      <div id="pesoJobOnProducaoZona" class="dmo-field dmo-field-producao" data-dmo-regiao hidden="@(Model.JobOnReferencia is not null && Model.ProducoesJobOn.Count > 0 ? null : "hidden")">
+      @if (Model.JobOnReferencia is not null && Model.ProducoesJobOn.Count > 0)
+      {
+        <label for="pesoJobOn">Produção</label>
+        <select id="pesoJobOn" name="jobon_id" form="pesoJobOnEscolha" required data-dmo-autosubmit="valor" data-dmo-depende="pesoJobOnReferencia" data-dmo-depende-valor="@Model.JobOnReferencia">
+          <option value="">Escolher produção</option>
+          @foreach (var producao in Model.ProducoesJobOn)
+          {
+            <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+          }
+        </select>
+      }
+      </div>
     </form>
-
-    @if (Model.JobOnReferencia is { } referenciaProcurada)
+    <div id="pesoJobOnVazia" data-dmo-regiao>
+    @if (Model.JobOnReferencia is { } referenciaProcurada && Model.ProducoesJobOn.Count == 0)
     {
-      @if (Model.ProducoesJobOn.Count == 0)
-      {
-        <div class="peso-aviso-simples" role="status" style="margin-top:12px">@(Model.JobOnMaquina is { } maquinaProcurada ? $"Não há Job Ons da referência {referenciaProcurada} na máquina {maquinaProcurada}." : $"Não há Job Ons da referência {referenciaProcurada}.") Crie o Job On primeiro ou use «Sem Job On».</div>
-      }
-      else
-      {
-        <form method="post" asp-page="/Controlo/Peso" asp-page-handler="AbrirJobOn" class="dmo-filter-bar" style="margin-top:12px">
-          <div class="dmo-field">
-            <label for="pesoJobOn">Produção</label>
-            @* Escolher a produção abre-a (sem «Abrir produção»). *@
-            <select id="pesoJobOn" name="jobon_id" required data-dmo-autosubmit="valor">
-              <option value="">Escolher produção</option>
-              @foreach (var producao in Model.ProducoesJobOn)
-              {
-                <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
-              }
-            </select>
-          </div>
-        </form>
-      }
+      <div class="peso-aviso-simples" role="status" style="margin-top:12px">@(Model.JobOnMaquina is { } maquinaProcurada ? $"Não há Job Ons da referência {referenciaProcurada} na máquina {maquinaProcurada}." : $"Não há Job Ons da referência {referenciaProcurada}.") Crie o Job On primeiro ou use «Sem Job On».<partial name="_DmoAvisoLink" model="@DmoAvisoLink.CriarJobOn(referenciaProcurada)" /></div>
     }
+    </div>
+    <form method="post" asp-page="/Controlo/Peso" asp-page-handler="AbrirJobOn" id="pesoJobOnEscolha" data-dmo-nativo></form>
+    </div>
   </section>
   }
   else
@@ -1013,7 +1202,7 @@
     }
     else if (Model.CmToolRequestedNotFound)
     {
-      <div class="peso-aviso-simples" role="alert">A referência da CM indicada não está registada no Ferramentas. Nenhum Peso pode ser criado para ela.</div>
+      <div class="peso-aviso-simples" role="alert">A referência da CM indicada não está registada no Ferramentas. Nenhum Peso pode ser criado para ela.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.RegistarFerramenta("CM", Model.RequestedCmToolId, "Registar a CM em Ferramentas")" /></div>
     }
 
     @if (Model.BqTool is { } bqTool)
@@ -1026,7 +1215,7 @@
     }
     else if (Model.BqToolRequestedNotFound)
     {
-      <div class="peso-aviso-simples" role="alert">A referência da boquilha (BQ) indicada não está registada no Ferramentas.</div>
+      <div class="peso-aviso-simples" role="alert">A referência da boquilha (BQ) indicada não está registada no Ferramentas.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.RegistarFerramenta("BQ", Model.RequestedBqToolId, "Registar a BQ em Ferramentas")" /></div>
     }
 
     @* O PAINEL DE FACTOS no modo tool-scoped (as duas ferramentas
@@ -1083,14 +1272,14 @@
                          placeholder="Usar @apoioCapTool.OrigemCalote" />
                 </div>
                 <div class="dmo-field">
-                  <label>&nbsp;</label>
+                  <span class="dmo-label" aria-hidden="true">&nbsp;</span>
                   <button type="submit" class="dmo-button">Calcular</button>
                 </div>
               </form>
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.</div>
+              <div class="peso-aviso-simples" role="status">Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.@if (Model.CmTool is { } capCmTool) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(capCmTool.ToolId, "Completar na ficha da CM", tecnica: true, continuar: voltarAqui)" />}</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -1108,7 +1297,7 @@
   @if (Model.CmTool is not null && Model.BqTool is not null)
   {
     <section class="dmo-card peso-card" aria-labelledby="peso-create-title">
-      <div class="peso-card-heading"><h3 id="peso-create-title">Novo Peso</h3></div>
+      <div class="peso-card-heading"><h3 id="peso-create-title">Novo Peso</h3><div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" form="pesoCreate">Criar Peso</button></div></div>
       <p class="card-note">Sem produção associada.</p>
 
       @if (Model.CreateRefusal is not null)
@@ -1116,7 +1305,7 @@
         <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.CreateRefusalMessage</div>
       }
 
-      <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Create" class="peso-form-grid">
+      <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Create" class="peso-form-grid" id="pesoCreate">
         <input type="hidden" name="cm_tool_id" value="@Model.CmTool.ToolId" />
         <input type="hidden" name="bq_tool_id" value="@Model.BqTool.ToolId" />
         <div class="dmo-field">
@@ -1166,14 +1355,15 @@
             }
           </div>
         </div>
-        <div class="peso-actions">
-          <button type="submit" class="dmo-button">Criar Peso</button>
-        </div>
       </form>
     </section>
   }
   } @* fim do else — o modo sem Job On (secções 1 e 2) *@
   } @* fim do else — o modo tool-scoped (secções 0, 1 e 2) *@
+
+  @* Os Pesos da produção, quando há mais do que um (a CM ou a BQ mudou a
+     meio; 18/10/2026). *@
+  <partial name="_PesoPesos" model="Model" />
 
   @* ------------------------------------------------------------------ *@
   @* 3. O Peso aberto: contexto consumido, leituras e cálculo.          *@
@@ -1187,20 +1377,44 @@
     {
       <partial name="_JobOnChangeNotice" model="jobOnNotice" />
     }
-    <section class="dmo-card peso-card" aria-labelledby="peso-open-title" data-peso-live data-peso-id="@peso.PesoId" data-preview-url="@Url.Page("/Controlo/Peso", "Preview")">
+    @* Registar leituras grava e troca as leituras, o resumo e os cartões
+       gravados; a leitura nova (data-dmo-fica) só é limpa pelo peso-live.js
+       quando a gravação passou, por isso uma recusa ou outra parte da página
+       trocada não apagam o que o operador escreveu. *@
+    <section class="dmo-card peso-card" aria-labelledby="peso-open-title" data-peso-live data-peso-id="@peso.PesoId" data-preview-url="@Url.Page("/Controlo/Peso", "Preview")" data-dmo-parcial>
       <div class="peso-card-heading"><div>
         <h3 id="peso-open-title">Peso — CM @(peso.CmToolReference ?? "—")</h3>
         <p class="card-note">
           @((Model.ProductionContext ?? Model.OpenedPesoProduction) is { } pc ? $"Produção {pc.ProductionNumber} · {pc.Reference} · {pc.Machine}" : "sem associação a produção")
-          — CM @(peso.CmToolReference ?? "—")@(peso.CmToolReference is null ? "" : $" · Lote {peso.CmToolLot}")
+          — CM @(peso.CmToolReference ?? "—")@(peso.CmToolReference is null ? "" : $" · Lote {peso.CmToolLot}")@(Model.ShowPesos ? $" · BQ {peso.BqToolReference ?? "—"}" + (peso.BqToolReference is null ? "" : $" · Lote {peso.BqToolLot}") : null)
         </p>
-      </div></div>
+        @* Um Peso de antes de uma troca da CM ou da BQ fica como estava: as
+           leituras gravadas ainda se corrigem, mas as novas vão para o Peso
+           atual (resposta R16-3 do especialista, 18/10/2026). *@
+        @if (Model.PesoAnterior)
+        {
+          <p class="card-note" data-peso-anterior>Peso @Model.PesoNumber(peso) de @Model.Pesos.Count · de antes da troca da CM ou da BQ: fica como estava e já não recebe leituras.</p>
+        }
+        else if (Model.ShowPesos)
+        {
+          <p class="card-note">Peso @Model.PesoNumber(peso) de @Model.Pesos.Count · ferramentas atuais.</p>
+        }
+      </div>
+        <div class="dmo-card-topo-acoes">
+          @if (Model.PesoAnterior && Model.PesoAtual is not null)
+          {
+            <a class="dmo-button" href="/Controlo/Peso?controlo_id=@peso.ControloId">Abrir o Peso atual</a>
+          }
+          <button type="submit" class="dmo-button" form="pesoPdfForm">Exportar PDF</button>
+        </div>
+      </div>
 
       @* Os INPUTS técnicos (processo, densidades, volumes, peso nominal)
          vivem na ficha da ferramenta e no PDF — a folha mostra APENAS os
          RESULTADOS da pesagem (o Owner 2026-10-12: «deveria apenas ter
          informação relacionada aos resultados do peso»). *@
 
+      <div id="pesoLeituras" class="dmo-zona" data-dmo-regiao>
       @if (Model.AssociationRefusal is not null && Model.ControloIdFromQuery is null)
       {
         <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.AssociationRefusalMessage</div>
@@ -1228,7 +1442,7 @@
       @if (Model.NominalIlegivelAviso)
       {
         @* A5 (beta.65): o nominal é opcional — o Peso foi criado sem o valor ilegível ou ≤ 0. *@
-        <div class="peso-aviso warn" role="status">@Model.NominalIlegivelMessage</div>
+        <div class="peso-aviso warn" role="status">@Model.NominalIlegivelMessage<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(peso.CmToolId, "Abrir a ficha da CM", tecnica: true, continuar: voltarAqui)" /></div>
       }
 
       @if (Model.MeasurementRefusal is not null)
@@ -1244,13 +1458,22 @@
         <div data-dmo-toast="erro" class="peso-aviso" role="alert">@Model.LeituraRefusalMessage</div>
       }
 
+      @* A resposta diz ao peso-live.js que o registo foi recusado: a
+         mensagem vai para o canto, esta marca fica na zona. Sem ela, um
+         cartão gravado por outra pessoa entretanto parecia a gravação
+         deste registo e a leitura a corrigir era limpa. *@
+      @if (Model.MeasurementRefusal is not null || Model.LeituraRefusal)
+      {
+        <span hidden data-peso-registo-recusado></span>
+      }
+
       <p class="peso-hint" style="margin:0 0 6px">Temperatura da água @peso.WaterTemperatureC °C · densidade @fmtDensity(peso.WaterDensityGramsPerCm3) g/cm³ · Peso = (capacidade + Marisa − Punção) × densidade do vidro</p>
       <div class="peso-section-heading"><div>
         <h4>Leituras por CM</h4>
       </div></div>
       @if (peso.Measurements.Count == 0)
       {
-        <div class="peso-vazia">Ainda sem leituras. Registe a primeira leitura real abaixo.</div>
+        <div class="peso-vazia">@(Model.PesoAnterior ? "Sem leituras." : "Ainda sem leituras. Registe a primeira leitura real abaixo.")</div>
       }
       else
       {
@@ -1286,6 +1509,7 @@
           </table>
         </div>
       }
+      </div>
 
       @* A camada viva: o estado inicial é o persistido e as leituras em
          curso atualizam-no ao vivo; cada linha do formulário mostra logo o
@@ -1293,6 +1517,7 @@
          «Registar leitura». *@
       <div class="peso-live-region">
         <div class="peso-live-area" aria-live="polite">
+          <div id="pesoLeituraResumo" class="dmo-zona" data-dmo-regiao>
           <div class="peso-live-strip" data-peso-strip>
             @* A ESTRUTURA É ESTÁVEL: o servidor renderiza os mesmos blocos
                que o peso-live.js escreve ao vivo (os mesmos rótulos na
@@ -1307,40 +1532,59 @@
             <div class="peso-fact"><span>Diferença nominal</span><strong>@(diferencaNominal is { } diferenca ? signed(diferenca) + " g" : "—")</strong></div>
             <div class="peso-fact" data-peso-comparison><span>Comparação anterior</span><strong>@(Model.Comparison is { } comparacaoStrip && !string.IsNullOrEmpty(comparacaoStrip.HistoricalProductionNumber) ? comparacaoStrip.HistoricalProductionNumber : "Por criar")</strong></div>
           </div>
-          <div class="peso-preview-refused" data-peso-refusals role="alert" hidden></div>
+          </div>
+          @* Sem barra «Há leituras com massa de água não utilizável» por cima
+             do formulário: aparecia e saía ao escrever e empurrava as
+             leituras (regra 85, B-peso-6, deep sweep 18/10/2026). Cada
+             leitura recusada já o diz no próprio cartão. *@
         </div>
 
         @* O registo das leituras como na referência acordada (o Owner
            2026-10-17): cada leitura gravada fica num cartão com o N.º CM, a
            massa de água e, por baixo, o volume e o peso dessa CM; o cartão
            tracejado no fim é a leitura nova, com «+» e «−» e «Registar
-           leitura». As massas gravadas são só de leitura (value, sem name). *@
+           leitura». As massas gravadas são só de leitura (value, sem name).
+           Um Peso de antes de uma troca não tem o registo: as leituras dele
+           estão na tabela acima (18/10/2026). *@
+        @if (!Model.PesoAnterior)
+        {
         <form method="post" asp-page="/Controlo/Peso" asp-page-handler="RegisterMeasurement" class="peso-leitura-form" data-peso-rows-form>
           <input type="hidden" name="peso_id" value="@peso.PesoId" />
+          @* A comparação escolhida e o «Supomos» mudam sem recarregar: os
+             campos que os levam de volta depois de gravar são uma zona. Na
+             folha da produção e no Peso aberto pelo Histórico (peso_id). *@
+          <div id="pesoLeituraContexto" class="dmo-zona" data-dmo-regiao>
           @if (Model.ProductionContext is not null && Model.ControloIdFromQuery is { } leituraControloId)
           {
             <input type="hidden" name="controlo_id" value="@leituraControloId" />
-            @if (Model.Comparison is { } leituraComparison)
-            {
-              <input type="hidden" name="comparar" value="@leituraComparison.HistoricalPesoId" />
-            }
           }
+          @if (Model.Comparison is { } leituraComparison)
+          {
+            <input type="hidden" name="comparar" value="@leituraComparison.HistoricalPesoId" />
+          }
+          @if (Model.SuporCaloteParaLevar is { } leituraSupor)
+          {
+            <input type="hidden" name="supor_calote" value="@leituraSupor" />
+          }
+          </div>
           <div class="peso-leitura-grade" data-peso-leitura-cartoes>
-            @foreach (var gravada in peso.Measurements)
+            <div id="pesoLeiturasGravadas" class="dmo-zona" data-dmo-regiao>
+            @foreach (var (gravada, gravadaIndex) in peso.Measurements.Select((m, i) => (m, i)))
             {
               <div class="peso-leitura-row is-saved" data-peso-leitura-gravada>
                 <div class="dmo-field">
-                  <label>N.º CM</label>
-                  <input value="@(string.IsNullOrEmpty(gravada.CmSubject) ? "—" : gravada.CmSubject)" readonly tabindex="-1" aria-label="N.º CM gravado" />
+                  <label for="pesoGravadaCm-@gravadaIndex">N.º CM</label>
+                  <input id="pesoGravadaCm-@gravadaIndex" value="@(string.IsNullOrEmpty(gravada.CmSubject) ? "—" : gravada.CmSubject)" readonly tabindex="-1" aria-label="N.º CM gravado" />
                 </div>
                 <div class="dmo-field">
-                  <label>Massa de água (g)</label>
-                  <input value="@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)" readonly tabindex="-1" aria-label="Massa de água gravada" />
+                  <label for="pesoGravadaAgua-@gravadaIndex">Massa de água (g)</label>
+                  <input id="pesoGravadaAgua-@gravadaIndex" value="@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)" readonly tabindex="-1" aria-label="Massa de água gravada" />
                 </div>
                 <output class="peso-leitura-chip">@fmtCap(gravada.CapacityCm3) cm³ · @fmt(gravada.GlassWeightGrams) g</output>
               </div>
             }
-            <div class="peso-leitura-nova">
+            </div>
+            <div class="peso-leitura-nova" data-dmo-fica>
               <div class="peso-leitura-rows" data-peso-rows>
                 <div class="peso-leitura-row" data-peso-row>
                   <div class="dmo-field">
@@ -1362,6 +1606,7 @@
             </div>
           </div>
         </form>
+        }
       </div>
     </section>
   }
@@ -1373,8 +1618,13 @@
   @* ------------------------------------------------------------------ *@
   @if (Model.ProducaoDaComparacao is { } producaoAtual && Model.Peso is { } currentPesoForComparison)
   {
-    <section class="dmo-card peso-card peso-compare" aria-labelledby="peso-comparacao-title">
+    @* Escolher a comparação (GET), guardar a produção anterior e o «Supomos»
+       trocam só as zonas deste cartão; uma leitura gravada troca a tabela, o
+       delta e o «Supomos», e o peso da produção anterior ainda por guardar
+       fica como o operador o escreveu. *@
+    <section class="dmo-card peso-card peso-compare" aria-labelledby="peso-comparacao-title" data-dmo-parcial>
       <div class="peso-card-heading"><h3 id="peso-comparacao-title">Comparação com outro controlo</h3></div>
+      <div id="pesoComparacao" class="dmo-zona" data-dmo-regiao>
       @if (Model.ComparisonCandidates.Count == 0)
       {
         <p class="card-note">Sem Pesos anteriores para esta referência.</p>
@@ -1385,12 +1635,17 @@
           @if (Model.ControloIdFromQuery is { } compararControloId)
           {
             <input type="hidden" name="controlo_id" value="@compararControloId" />
+            @* Um Peso de antes de uma troca volta pelo peso_id dele (18/10/2026). *@
+            @if (Model.PesoIdNoEndereco is { } compararPesoAnterior)
+            {
+              <input type="hidden" name="peso_id" value="@compararPesoAnterior" />
+            }
           }
           else
           {
             <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
           }
-          @if (Model.SuporCaloteTexto is { } suporEcho)
+          @if (Model.SuporCaloteParaLevar is { } suporEcho)
           {
             <input type="hidden" name="supor_calote" value="@suporEcho" />
           }
@@ -1468,6 +1723,7 @@
           </table>
         </div>
       }
+      </div>
 
       @* A PRODUÇÃO ANTERIOR (o Owner 2026-10-17): o contexto vem do Job On
          anterior (número, máquina, início e fim) e o peso que essa produção
@@ -1476,6 +1732,21 @@
       <div class="peso-section-heading" style="margin-top:16px"><div>
         <h4 id="peso-producao-anterior-title">Produção anterior (SAP)</h4>
       </div></div>
+      @{
+        var semProducaoAnterior = Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null;
+        var escolhida = Model.ProducaoAnteriorEscolhida;
+        var guardada = Model.ProducaoAnterior;
+      }
+      @* As mensagens, o formulário e o delta são zonas separadas: uma leitura
+         gravada muda o delta (contra o peso médio atual) e tira a mensagem do
+         endereço sem mexer no peso já escrito e ainda por guardar. O
+         formulário fica como o operador o deixou (data-dmo-fica): a produção
+         escolhida e o peso escritos e ainda por guardar não se perdem ao
+         escolher a comparação, no «Supomos» nem ao registar uma leitura,
+         também depois de uma recusa (o echo vem só no endereço). Só os campos
+         escondidos que levam a folha de volta (a comparação, o «Supomos»)
+         são uma zona, #pesoAnteriorContexto. *@
+      <div id="pesoAnteriorAvisos" class="dmo-zona" data-dmo-regiao>
       @if (Model.ProducaoAnteriorRefusal is { } anteriorRecusa)
       {
         <div data-dmo-toast="erro" class="peso-aviso" role="alert">@anteriorRecusa</div>
@@ -1484,24 +1755,35 @@
       {
         <div data-dmo-toast="ok" class="peso-aviso-simples" role="status">Produção anterior guardada.</div>
       }
-      @if (Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null)
+      </div>
+      <div id="pesoAnterior" class="dmo-zona" data-dmo-fica>
+      @if (semProducaoAnterior)
       {
-        <p class="card-note">Sem outras produções desta referência.</p>
+        <p class="card-note">Sem produções anteriores desta referência.</p>
       }
       else
       {
-        var escolhida = Model.ProducaoAnteriorEscolhida;
-        var guardada = Model.ProducaoAnterior;
         var pesoGuardadoDaEscolhida = escolhida is not null && guardada?.JobOnId == escolhida.JobOnId ? guardada.PesoGramas : null;
         var pesoEcho = Model.ProducaoAnteriorEcho
             ?? (pesoGuardadoDaEscolhida is { } pg ? pg.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) : null);
         <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GuardarProducaoAnterior" class="peso-inline-form" data-producao-anterior>
-          <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
-          <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
-          @if (Model.Comparison is { } anteriorComparison)
-          {
-            <input type="hidden" name="comparar" value="@anteriorComparison.HistoricalPesoId" />
-          }
+          <div id="pesoAnteriorContexto" class="dmo-zona" data-dmo-regiao>
+            <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
+            <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+            @* Um Peso de antes de uma troca volta pelo peso_id dele (18/10/2026). *@
+            @if (Model.PesoIdNoEndereco is not null)
+            {
+              <input type="hidden" name="peso_anterior" value="1" />
+            }
+            @if (Model.Comparison is { } anteriorComparison)
+            {
+              <input type="hidden" name="comparar" value="@anteriorComparison.HistoricalPesoId" />
+            }
+            @if (Model.SuporCaloteParaLevar is { } anteriorSupor)
+            {
+              <input type="hidden" name="supor_calote" value="@anteriorSupor" />
+            }
+          </div>
           <div class="dmo-field">
             <label for="producaoAnterior">Produção anterior</label>
             <select id="producaoAnterior" name="anterior" data-producao-anterior-select>
@@ -1518,25 +1800,29 @@
             @* Sem rótulo à vista (o Owner 2026-10-17: «remove»); o nome fica no aria-label. *@
             <input id="producaoAnteriorPeso" name="anterior_peso" type="text" inputmode="decimal" autocomplete="off" placeholder="Peso usado (g)" aria-label="Peso usado na produção (g)" value="@pesoEcho" />
           </div>
-          <button type="submit" class="dmo-button">Guardar</button>
+          @* O id deixa o foco no «Guardar» depois de gravar sem recarregar. *@
+          <button type="submit" class="dmo-button" id="producaoAnteriorGuardar">Guardar</button>
         </form>
         <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
-        @if (guardada is { PesoGramas: { } pesoSap })
-        {
-          var deltaSap = guardada.Delta(currentPesoForComparison.Averages?.AverageGlassWeightGrams);
-          <div class="peso-resumo" data-producao-anterior-delta>
-            <div class="peso-fact"><span>Peso usado — @(guardada.ProductionNumber ?? "produção anterior")@(string.IsNullOrEmpty(guardada.Machine) ? null : $" · {guardada.Machine}")</span><strong>@fmt(pesoSap) g</strong></div>
-            <div class="peso-fact"><span>Diferença para a anterior</span><strong class="@(deltaSap.Grams is < 0 ? "peso-valor-negativo" : null)">@(deltaSap.Grams is { } dg ? $"{signed(dg)} g" : "—")</strong></div>
-            <div class="peso-fact"><span>Variação</span><strong>@(deltaSap.Percent is { } dpc ? $"{signed(dpc)} %" : "—")</strong></div>
-          </div>
-        }
       }
+      </div>
+      <div id="pesoAnteriorDelta" class="dmo-zona" data-dmo-regiao>
+      @if (!semProducaoAnterior && guardada is { PesoGramas: { } pesoSap })
+      {
+        var deltaSap = guardada.Delta(currentPesoForComparison.Averages?.AverageGlassWeightGrams);
+        <div class="peso-resumo" data-producao-anterior-delta>
+          <div class="peso-fact"><span>Peso usado — @(guardada.ProductionNumber ?? "produção anterior")@(string.IsNullOrEmpty(guardada.Machine) ? null : $" · {guardada.Machine}")</span><strong>@fmt(pesoSap) g</strong></div>
+          <div class="peso-fact"><span>Diferença para a anterior</span><strong class="@(deltaSap.Grams is < 0 ? "peso-valor-negativo" : null)">@(deltaSap.Grams is { } dg ? $"{signed(dg)} g" : "—")</strong></div>
+          <div class="peso-fact"><span>Variação</span><strong>@(deltaSap.Percent is { } dpc ? $"{signed(dpc)} %" : "—")</strong></div>
+        </div>
+      }
+      </div>
 
       @* O «SUPOMOS» (o Diogo, 16/10): e se a calote do tampão desta
          produção fosse outra? O backend recalcula o peso médio com a
          calote suposta e a diferença para a produção escolhida. Nada é
          gravado: o Peso e o Job On ficam como estão. *@
-      <div class="peso-supomos" data-peso-supomos style="margin-top:16px">
+      <div id="pesoSupomos" class="peso-supomos" data-peso-supomos data-dmo-regiao style="margin-top:16px">
         <h4 style="margin:0 0 6px">Supomos</h4>
         @if (Model.CaloteDaComparacao is { TemReferencia: true } caloteAtual)
         {
@@ -1549,6 +1835,10 @@
             @if (Model.ControloIdFromQuery is { } suporControloId)
             {
               <input type="hidden" name="controlo_id" value="@suporControloId" />
+              @if (Model.PesoIdNoEndereco is { } suporPesoAnterior)
+              {
+                <input type="hidden" name="peso_id" value="@suporPesoAnterior" />
+              }
             }
             else
             {
@@ -1561,11 +1851,13 @@
             <label for="suporCalote">Calote do tampão suposta (mm)</label>
             <input id="suporCalote" name="supor_calote" type="text" inputmode="decimal" autocomplete="off"
                    value="@Model.SuporCaloteTexto" placeholder="ex.: 5,2" />
-            <button type="submit" class="dmo-button">Ver a diferença</button>
+            <button type="submit" class="dmo-button" id="suporCaloteVer">Ver a diferença</button>
           </form>
           @if (Model.SuposicaoIlegivel)
           {
-            <div class="peso-aviso-simples" role="status" style="margin-top:8px">A calote suposta «@Model.SuporCaloteTexto» não é um número válido. Escreve um valor em mm, por exemplo 5,2.</div>
+            @* Na pilha do canto, como as outras recusas da folha: a mensagem
+               não empurra o «Exportar PDF» nem o resto para baixo. *@
+            <div data-dmo-toast="erro" class="peso-aviso" role="alert">A calote suposta «@Model.SuporCaloteTexto» não é um número válido. Escreve um valor em mm, por exemplo 5,2.</div>
           }
           @if (Model.Suposicao is { } sup)
           {
@@ -1600,7 +1892,10 @@
     @* O PDF da folha: gerado em memória e descarregado localmente, com a
        comparação escolhida em cima e a produção anterior (SAP). Serve a
        folha da produção (?controlo_id) e o Peso aberto pelo histórico
-       (?peso_id). *@
+       (?peso_id). Uma zona, porque leva a comparação escolhida; o envio é o
+       do browser (fora de data-dmo-parcial): o PDF descarrega sem sair da
+       página. *@
+    <div id="pesoPdf" class="dmo-zona" data-dmo-regiao>
     @if (Model.PdfSavedPath is { } savedPath)
     {
       <div class="peso-aviso-simples" role="status" style="margin-top:14px">
@@ -1612,7 +1907,9 @@
       <div data-dmo-toast="erro" class="peso-aviso" role="alert" style="margin-top:14px">@Model.PdfRefusalMessage</div>
     }
 
-    <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GeneratePdf" class="peso-actions" style="margin-top:14px">
+    @* O botão «Exportar PDF» está no canto superior direito do card do
+       Peso (form="pesoPdfForm"); aqui fica o formulário com o que leva. *@
+    <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GeneratePdf" id="pesoPdfForm">
       @if (Model.ProductionContext is not null && Model.ControloIdFromQuery is { } formControloId)
       {
         <input type="hidden" name="controlo_id" value="@formControloId" />
@@ -1622,8 +1919,8 @@
       {
         <input type="hidden" name="comparar" value="@selectedComparison.HistoricalPesoId" />
       }
-      <button type="submit" class="dmo-button">Exportar PDF</button>
     </form>
+    </div>
   }
 
   @* OS HISTÓRICOS DA FOLHA SAÍRAM (o Owner 2026-10-13: «o historico de
@@ -1639,39 +1936,129 @@
 // auto-submetem o GET do cascade. Sem JS tudo funciona pelo form nativo
 // (quatro linhas e o botão «Mostrar»).
 (function () {
-  var readings = document.querySelector('[data-cmp-readings]');
-  var add = document.querySelector('[data-cmp-add-row]');
-  var remove = document.querySelector('[data-cmp-remove-row]');
-  if (readings && add && remove) {
-    add.addEventListener('click', function () {
-      var last = readings.querySelector('[data-cmp-row]:last-of-type');
-      if (!last) { return; }
-      var clone = last.cloneNode(true);
-      clone.querySelectorAll('input').forEach(function (input) { input.value = ''; });
-      last.after(clone);
-    });
-    remove.addEventListener('click', function () {
+  // Os ouvintes abaixo são delegados no document: a produção anterior e a
+  // comparação estão em zonas trocadas sem recarregar (data-dmo-regiao; as
+  // leituras da comparação desde o deep sweep, 18/10/2026, B-peso-4).
+
+  function adicionarLinha(readings) {
+    var last = readings.querySelector('[data-cmp-row]:last-of-type');
+    if (!last) { return false; }
+    var clone = last.cloneNode(true);
+    clone.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+    last.after(clone);
+    return true;
+  }
+
+  document.addEventListener('click', function (event) {
+    var botao = event.target.closest && event.target.closest('[data-cmp-add-row], [data-cmp-remove-row]');
+    // Os botões estão no canto do cartão, fora do <form>: são dele pelo form=.
+    var form = botao && (botao.form || botao.closest('form'));
+    var readings = form && form.querySelector('[data-cmp-readings]');
+    if (!readings) { return; }
+    if (botao.hasAttribute('data-cmp-add-row')) { adicionarLinha(readings); return; }
+    var rows = readings.querySelectorAll('[data-cmp-row]');
+    if (rows.length > 1) { rows[rows.length - 1].remove(); }
+  });
+
+  // A LIGAÇÃO FALHOU AO COMPARAR OU GUARDAR (deep sweep, 18/10/2026,
+  // B-peso-4). A confirmação (um GET da comparação, que não traz o
+  // resultado nem a comparação guardada) pode trazer o formulário vazio: o
+  // que o operador enviou volta a ele, com as mesmas linhas. Carregar outra
+  // vez em «Guardar comparação» é o mesmo envio, com a mesma chave: o
+  // servidor não guarda duas vezes ([EnvioUnico]) e mostra a guardada.
+  var enviosDaComparacao = {};
+  document.addEventListener('dmo:fila', function (event) {
+    var form = event.target;
+    if (!(form instanceof HTMLFormElement) || form.id !== 'cmpForm' || !event.detail) { return; }
+    enviosDaComparacao[event.detail.envio] = { form: form, escrito: Array.from(event.detail.corpo.entries()) };
+  });
+  document.addEventListener('dmo:fim', function (event) {
+    var detail = event.detail || {};
+    var enviado = enviosDaComparacao[detail.envio];
+    if (!enviado) { return; }
+    delete enviosDaComparacao[detail.envio];
+    var form = document.getElementById('cmpForm');
+    if (!detail.semResposta || !form || form === enviado.form) { return; }
+    reporComparacao(form, enviado.escrito);
+    if (window.DmoTroca && window.DmoTroca.mesmoEnvio) { window.DmoTroca.mesmoEnvio(enviado.form, form); }
+  });
+  function reporComparacao(form, escrito) {
+    var readings = form.querySelector('[data-cmp-readings]');
+    var quantas = escrito.filter(function (par) { return par[0] === 'cm_subject'; }).length;
+    if (readings && quantas > 0) {
+      while (readings.querySelectorAll('[data-cmp-row]').length < quantas && adicionarLinha(readings)) { }
       var rows = readings.querySelectorAll('[data-cmp-row]');
-      if (rows.length > 1) { rows[rows.length - 1].remove(); }
+      for (var r = rows.length - 1; r >= quantas; r--) { rows[r].remove(); }
+    }
+    var usados = {};
+    Array.prototype.forEach.call(form.elements, function (campo) {
+      if (!campo.name || /^(hidden|submit|button|reset|image|file|checkbox|radio)$/.test(campo.type)) { return; }
+      var valores = escrito.filter(function (par) { return par[0] === campo.name; });
+      var i = usados[campo.name] || 0;
+      usados[campo.name] = i + 1;
+      if (i < valores.length && typeof valores[i][1] === 'string') { campo.value = valores[i][1]; }
     });
   }
 
   // A produção anterior: o início e o fim mudam com a produção escolhida.
-  var anterior = document.querySelector('[data-producao-anterior-select]');
-  var periodo = document.querySelector('[data-producao-anterior-periodo]');
-  if (anterior && periodo) {
-    anterior.addEventListener('change', function () {
-      var option = anterior.options[anterior.selectedIndex];
-      if (!option) { return; }
-      periodo.querySelector('[data-inicio]').textContent = option.getAttribute('data-inicio') || '—';
-      periodo.querySelector('[data-fim]').textContent = option.getAttribute('data-fim') || '—';
-    });
+  document.addEventListener('change', function (event) {
+    var anterior = event.target.closest && event.target.closest('[data-producao-anterior-select]');
+    var periodo = document.querySelector('[data-producao-anterior-periodo]');
+    if (!anterior || !periodo) { return; }
+    var option = anterior.options[anterior.selectedIndex];
+    if (!option) { return; }
+    periodo.querySelector('[data-inicio]').textContent = option.getAttribute('data-inicio') || '—';
+    periodo.querySelector('[data-fim]').textContent = option.getAttribute('data-fim') || '—';
+  });
+
+  // Um formulário GET dentro de data-dmo-parcial (escolher a comparação, o
+  // «Supomos» e, desde o deep sweep 2 de 18/10/2026 (F-8), a referência e a
+  // máquina do «Novo Peso a partir de Job On» e a referência, a produção e o
+  // Peso inicial da Comparação) pede o mesmo endereço que o browser pediria
+  // e troca só as zonas (DmoTroca.ir); a leitura nova que está a ser escrita
+  // fica. Os filtros do Histórico procuram ao escrever pelo ligarFiltro, que
+  // trata o envio antes deste ouvinte.
+  // O campo com o foco quando o pedido saiu (o filtro do combo da
+  // comparação: a zona nova não o traz, ver dmo:troca abaixo).
+  var focoNoPedido = null;
+  function abrirParcial(form, origem) {
+    var url = new URL(form.getAttribute('action') || window.location.pathname, window.location.href);
+    url.search = new URLSearchParams(new FormData(form)).toString();
+    focoNoPedido = document.activeElement && document.activeElement.id ? document.activeElement.id : null;
+    window.DmoTroca.ir(url.href, origem || form);
+  }
+  function parcialGet(form) {
+    return form && window.DmoTroca && (form.getAttribute('method') || 'get').toLowerCase() === 'get'
+      && form.closest('[data-dmo-parcial]') !== null;
   }
 
-  document.querySelectorAll('[data-auto-submit]').forEach(function (select) {
-    select.addEventListener('change', function () {
-      if (select.form) { select.form.submit(); }
-    });
+  document.addEventListener('change', function (event) {
+    var select = event.target.closest && event.target.closest('select[data-auto-submit]');
+    if (!select || !select.form) { return; }
+    if (parcialGet(select.form)) { abrirParcial(select.form, select); }
+    else { select.form.submit(); }
+  });
+
+  document.addEventListener('submit', function (event) {
+    var form = event.target;
+    if (event.defaultPrevented || !(form instanceof HTMLFormElement) || !parcialGet(form)) { return; }
+    event.preventDefault();
+    abrirParcial(form, event.submitter || form);
+  });
+
+  // Uma zona trocada traz o dropdown da comparação sem o campo de filtrar:
+  // liga-o como no arranque (dmo-suggest.js). Se o foco estava nele (o
+  // operador escolheu a produção no combo), volta ao campo novo, sem abrir
+  // a lista; se o operador já foi para outro sítio, fica onde está.
+  document.addEventListener('dmo:troca', function () {
+    if (!window.DMOSuggest) { return; }
+    window.DMOSuggest.init();
+    var id = focoNoPedido;
+    focoNoPedido = null;
+    var ativo = document.activeElement;
+    if (!id || (ativo && ativo !== document.body)) { return; }
+    var campo = document.getElementById(id);
+    if (campo && campo.classList.contains('dmo-suggest-combo') && window.DMOSuggest.focar) { window.DMOSuggest.focar(campo); }
   });
 })();
 </script>
@@ -1707,23 +2094,42 @@
     return '<div class="peso-fact"><span>' + label + '</span><strong>' + value + '</strong></div>';
   }
 
+  // SÓ A ÚLTIMA CALOTE ESCRITA CONTA (sweep do Codex, 19/10/2026, ponto 1):
+  // a resposta de «5» que chegasse depois da de «5,2» mostrava os valores de
+  // 5 com 5,2 no campo. Cada tecla invalida logo as respostas anteriores,
+  // ainda durante a espera, como a procura partilhada.
   var timer = null;
+  var pedido = 0;
+  // Sem resposta, ou sem apoio para esta calote, os valores à vista eram os
+  // da calote anterior: ficam «—» até à tecla seguinte ou ao «Calcular».
+  function semValores() {
+    result.innerHTML =
+      metric('R calculado', '—') +
+      metric('Volume', '—') +
+      metric('Δ R / referência', '—') +
+      metric('Δ V / referência', '—');
+  }
   input.addEventListener('input', function () {
     if (timer) clearTimeout(timer);
+    var meu = ++pedido;
     timer = setTimeout(function () {
       var query = new URLSearchParams(params);
       query.set('calote', input.value.replace(',', '.'));
       fetch(url + (url.indexOf('?') >= 0 ? '&' : '?') + query.toString(), { credentials: 'same-origin' })
-        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (response) {
+          if (!response.ok) throw new Error('Apoio da calote indisponível');
+          return response.json();
+        })
         .then(function (data) {
-          if (!data || !data.temReferencia) return;
+          if (meu !== pedido) return;
+          if (!data || !data.temReferencia) { semValores(); return; }
           result.innerHTML =
             metric('R calculado', fmt(data.raioCalculadoMm, 3, ' mm')) +
             metric('Volume', fmt(data.volumeEfetivoCm3, 3, ' cm³')) +
             metric('Δ R / referência', signed(data.deltaRaioMm, 3, ' mm')) +
             metric('Δ V / referência', signed(data.deltaVolumeCm3, 3, ' cm³'));
         })
-        .catch(function () { /* sem rede: o server-rendered segue visível */ });
+        .catch(function () { if (meu === pedido) semValores(); });
     }, 300);
   });
 })();

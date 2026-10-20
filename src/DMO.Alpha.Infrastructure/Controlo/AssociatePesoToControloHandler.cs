@@ -10,8 +10,12 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// o Peso é candidato quando a CM do Job On (CM_ID) usa o MESMO tool_id
 /// que o Peso pesou. O MESMO peso_id passa a pertencer à produção — nada
 /// é recriado, os valores congelados do Peso ficam intactos — e a
-/// cardinalidade é material: um Peso por produção (índice único
-/// <c>IX_Pesos_ControloId</c>) e uma produção por Peso.
+/// cardinalidade é material: uma produção por Peso e, numa produção, um
+/// Peso para cada CM+BQ (índice único
+/// <c>IX_Pesos_ControloId_CmToolId_BqToolId</c>). A CM e a BQ do Peso têm de
+/// ser cada uma a da produção agora ou uma que ela teve antes de uma troca;
+/// o Peso passa a ser o dessa combinação (resposta R16-6 do especialista,
+/// 18/10/2026).
 /// </summary>
 public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHandler
 {
@@ -22,9 +26,25 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
         _db = db;
     }
 
-    public async Task<AssociatePesoToControloOutcome> HandleAsync(
+    // ASSOCIAR AO MESMO TEMPO (deep sweep, 18/10/2026, I3-M-8): dois pedidos
+    // a associar o mesmo Peso a produções diferentes liam-no ainda por
+    // associar e gravavam os dois, ficando o último. O trinco do Peso antes
+    // de o ler: o segundo espera e já o vê associado. O da produção antes
+    // dele (sempre por esta ordem): dois Pesos da mesma CM+BQ associados à
+    // mesma produção ao mesmo tempo, o segundo já vê o primeiro.
+    public Task<AssociatePesoToControloOutcome> HandleAsync(
         AssociatePesoToControlo command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(_db, async () =>
+        {
+            await DbWrite.LockAsync(_db, $"peso:controlo:{command.ControloId}", cancellationToken);
+            await DbWrite.LockAsync(_db, $"peso:registo:{command.PesoId}", cancellationToken);
+            return await HandleLockedAsync(command, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<AssociatePesoToControloOutcome> HandleLockedAsync(
+        AssociatePesoToControlo command,
+        CancellationToken cancellationToken)
     {
         var production = await _db.Controlos
             .AsNoTracking()
@@ -34,7 +54,18 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
                 CmToolId = _db.CmContexts
                     .Where(ctx => ctx.JobOnId == c.JobOnId)
                     .Select(ctx => (string?)ctx.ToolId)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
+                // A CM e a BQ que a produção tem agora e as que teve antes de
+                // uma troca (o contexto anterior fica ligado por
+                // ReplacedJobOnId).
+                CmToolIds = _db.CmContexts
+                    .Where(ctx => ctx.JobOnId == c.JobOnId || ctx.ReplacedJobOnId == c.JobOnId)
+                    .Select(ctx => ctx.ToolId)
+                    .ToList(),
+                BqToolIds = _db.BqContexts
+                    .Where(ctx => ctx.JobOnId == c.JobOnId || ctx.ReplacedJobOnId == c.JobOnId)
+                    .Select(ctx => ctx.ToolId)
+                    .ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
         if (production is null)
@@ -64,12 +95,26 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
             return Result(AssociatePesoToControloResult.ContextMissingCm);
         }
 
-        if (!string.Equals(peso.CmToolId, production.CmToolId, StringComparison.Ordinal))
+        if (!production.CmToolIds.Contains(peso.CmToolId, StringComparer.Ordinal))
         {
             return Result(AssociatePesoToControloResult.CmMismatch);
         }
 
-        if (await _db.Pesos.AnyAsync(p => p.ControloId == command.ControloId, cancellationToken))
+        // A BQ entra no cálculo (o volume marisa): um Peso de outra BQ não é
+        // desta produção, como a CM (R16-6).
+        if (production.BqToolIds.Count == 0)
+        {
+            return Result(AssociatePesoToControloResult.ContextMissingBq);
+        }
+
+        if (!production.BqToolIds.Contains(peso.BqToolId, StringComparer.Ordinal))
+        {
+            return Result(AssociatePesoToControloResult.BqMismatch);
+        }
+
+        if (await _db.Pesos.AnyAsync(p => p.ControloId == command.ControloId
+                && p.CmToolId == peso.CmToolId
+                && p.BqToolId == peso.BqToolId, cancellationToken))
         {
             return Result(AssociatePesoToControloResult.ControloAlreadyHasPeso);
         }
@@ -81,8 +126,9 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
         }
         catch (DbUpdateException)
         {
-            // Outro Peso foi associado/criado para este controlo entre a
-            // verificação e a escrita: o índice único é a última verdade.
+            // Outro Peso desta CM+BQ foi associado/criado para este controlo
+            // entre a verificação e a escrita: o índice único é a última
+            // verdade.
             _db.Entry(peso).State = EntityState.Detached;
             return Result(AssociatePesoToControloResult.ControloAlreadyHasPeso);
         }
@@ -107,21 +153,52 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
         int controloId,
         CancellationToken cancellationToken = default)
     {
-        var cmToolId = await _db.Controlos
+        var production = await _db.Controlos
             .AsNoTracking()
             .Where(c => c.Id == controloId)
-            .Select(c => _db.CmContexts
-                .Where(ctx => ctx.JobOnId == c.JobOnId)
-                .Select(ctx => (string?)ctx.ToolId)
-                .FirstOrDefault())
+            .Select(c => new
+            {
+                CmToolId = _db.CmContexts
+                    .Where(ctx => ctx.JobOnId == c.JobOnId)
+                    .Select(ctx => (string?)ctx.ToolId)
+                    .FirstOrDefault(),
+                CmToolIds = _db.CmContexts
+                    .Where(ctx => ctx.JobOnId == c.JobOnId || ctx.ReplacedJobOnId == c.JobOnId)
+                    .Select(ctx => ctx.ToolId)
+                    .ToList(),
+                BqToolIds = _db.BqContexts
+                    .Where(ctx => ctx.JobOnId == c.JobOnId || ctx.ReplacedJobOnId == c.JobOnId)
+                    .Select(ctx => ctx.ToolId)
+                    .ToList()
+            })
             .FirstOrDefaultAsync(cancellationToken);
-        if (cmToolId is null
-            || await _db.Pesos.AsNoTracking().AnyAsync(p => p.ControloId == controloId, cancellationToken))
+
+        // Com o Peso da CM e da BQ atuais não há nada a propor. Depois de uma
+        // troca, só os Pesos que a associação aceita (R16-6): CM e BQ desta
+        // produção, agora ou antes da troca, numa combinação que ainda não tem
+        // Peso.
+        if (production?.CmToolId is null
+            || production.BqToolIds.Count == 0
+            || await PesoCombinations.CurrentPesoIdAsync(_db, controloId, cancellationToken) is not null)
         {
             return Array.Empty<UnassociatedPesoCandidate>();
         }
 
-        return await FindUnassociatedByCmToolAsync(cmToolId, cancellationToken);
+        var (cmToolIds, bqToolIds) = (production.CmToolIds, production.BqToolIds);
+        var candidates = await _db.Pesos
+            .AsNoTracking()
+            .Where(p => p.ControloId == null && cmToolIds.Contains(p.CmToolId) && bqToolIds.Contains(p.BqToolId))
+            .Where(p => !_db.Pesos.Any(o => o.ControloId == controloId && o.CmToolId == p.CmToolId && o.BqToolId == p.BqToolId))
+            .OrderByDescending(p => p.Id)
+            .Select(p => new UnassociatedPesoCandidate(
+                p.Id,
+                p.CmToolReferenceFrozen ?? p.CmTool.Reference,
+                p.CmToolLotFrozen ?? p.CmTool.Lot,
+                p.BqToolReferenceFrozen ?? p.BqTool.Reference,
+                p.BqToolLotFrozen ?? p.BqTool.Lot,
+                p.Measurements.Count))
+            .ToListAsync(cancellationToken);
+        return candidates;
     }
 
     public async Task<IReadOnlyList<UnassociatedPesoCandidate>> FindUnassociatedByCmToolAsync(
@@ -149,7 +226,7 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
         var peso = await _db.Pesos
             .AsNoTracking()
             .Where(p => p.Id == pesoId)
-            .Select(p => new { p.CmToolId, p.ControloId })
+            .Select(p => new { p.CmToolId, p.BqToolId, p.ControloId })
             .FirstOrDefaultAsync(cancellationToken);
         if (peso is null || peso.ControloId is not null)
         {
@@ -157,14 +234,17 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
         }
 
         // Produções sem controlo_id ainda (pré-corte) também contam: o
-        // controlo é assegurado no POST, antes de associar.
+        // controlo é assegurado no POST, antes de associar. A CM e a BQ do
+        // Peso são cada uma a do Job On agora ou uma que ele teve antes de uma
+        // troca, e a produção ainda não tem Peso desta CM+BQ (R16-6).
+        var (cmToolId, bqToolId) = (peso.CmToolId, peso.BqToolId);
         return await (
-                from cm in _db.CmContexts.AsNoTracking()
-                where cm.ToolId == peso.CmToolId
-                join j in _db.JobOns on cm.JobOnId equals j.Id
+                from j in _db.JobOns.AsNoTracking()
+                where _db.CmContexts.Any(cm => cm.ToolId == cmToolId && (cm.JobOnId == j.Id || cm.ReplacedJobOnId == j.Id))
+                    && _db.BqContexts.Any(bq => bq.ToolId == bqToolId && (bq.JobOnId == j.Id || bq.ReplacedJobOnId == j.Id))
                 join m in _db.Machines on j.MachineId equals m.Id
                 where !_db.Controlos.Any(c => c.JobOnId == j.Id
-                    && _db.Pesos.Any(p => p.ControloId == c.Id))
+                    && _db.Pesos.Any(p => p.ControloId == c.Id && p.CmToolId == cmToolId && p.BqToolId == bqToolId))
                 orderby j.Id descending
                 select new PesoProductionCandidate(j.Id, j.ProductionNumber, j.Reference, m.Code))
             .ToListAsync(cancellationToken);

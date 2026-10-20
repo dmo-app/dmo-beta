@@ -30,5 +30,13 @@ public enum RecordPegamentosMeasurementResult
     InvalidMeasurementValue,
 
     /// <summary>O pegamentos_id indicado não existe: nenhuma medição foi registada.</summary>
-    PegamentosNotFound
+    PegamentosNotFound,
+
+    /// <summary>
+    /// A folha indicada é de ferramentas que a produção já não tem (a CM, a
+    /// BQ ou o MF mudou): não recebe leituras novas, que vão para a folha das
+    /// ferramentas atuais. As leituras dela ainda se corrigem e apagam
+    /// (18/10/2026). Nenhuma medição foi registada.
+    /// </summary>
+    PegamentosNotCurrent
 }

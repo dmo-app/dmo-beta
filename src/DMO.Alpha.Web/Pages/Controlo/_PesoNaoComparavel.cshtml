@@ -1,0 +1,14 @@
+@model DMO.Alpha.Web.Pages.Controlo.PesoNaoComparavelVista
+@using DMO.Alpha.Web.Pages.Shared
+@* «Não comparável» (o Diogo, 19/10/2026, D12): a punção ou a densidade do
+   vidro da comparação não é a do Peso inicial. Avisa sem recusar. Na
+   comparação ao vivo leva o link para onde o valor se vê e se muda (a ficha
+   da CM, as Definições do Controlo); numa comparação guardada só informa. *@
+@{
+    var c = Model.Comparabilidade;
+    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+}
+@if (!c.Comparavel)
+{
+  <div class="peso-aviso warn" role="status" data-peso-nao-comparavel><strong>Não comparável.</strong>@if (c.PuncaoMudou) {<text> A punção da CM é @c.PuncaoCm3.ToString("N2", culture) cm³ e no Peso inicial era @c.PuncaoInicialCm3.ToString("N2", culture) cm³.</text>}@if (c.DensidadeMudou) {<text> A densidade do vidro é @c.Densidade.ToString("0.0000", culture) g/cm³ e no Peso inicial era @c.DensidadeInicial.ToString("0.0000", culture) g/cm³.</text>} Para as mesmas CM estes valores são sempre iguais; com valores diferentes os pesos não se comparam.@if (Model.ComLinks && c.PuncaoMudou && Model.CmToolId is { } cmToolId) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(cmToolId, "Ver a punção na ficha da CM", tecnica: true)" />}@if (Model.ComLinks && c.DensidadeMudou) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.DefinicoesDoControlo("Ver a densidade nas Definições do Controlo")" />}</div>
+}

@@ -2,7 +2,7 @@
 
 Aplicação ASP.NET Core (.NET 10) com PostgreSQL e autenticação Supabase, publicada no Railway com `Dockerfile` e `entrypoint.sh`. Módulos: Job On, Controlo (Peso, Pegamentos, PU NNPB, Resumo e Revisão), Boquilhas, Ferramentas e Administração.
 
-Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146. Tem só o que a app precisa para compilar e correr; os testes e as ferramentas de desenvolvimento ficam no repositório de desenvolvimento. A versão atual está em `version.props` e as correções incluídas aparecem na página `/versao` da app (fonte: `src/DMO.Alpha.Web/ReleaseNotes.json`).
+Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146 e atualizada por envios únicos da `main` da DMO-BETA-DEV (o último: 0.2.0-beta.3, da beta.316, commit `420d5d5`). Tem só o que a app precisa para compilar e correr; os testes e as ferramentas de desenvolvimento ficam no repositório de desenvolvimento. A versão atual está em `version.props` e as correções incluídas aparecem na página `/versao` da app (fonte: `src/DMO.Alpha.Web/ReleaseNotes.json`).
 
 ## Estrutura
 
@@ -28,6 +28,7 @@ Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146. Tem só
 - A app não aplica migrações ao arrancar.
 - Uma base criada antes desta baseline tem o histórico de migrações atualizado uma única vez para a `Baseline`, sem mudar tabelas nem dados.
 - Alterações futuras ao modelo entram como migrações novas a seguir à `Baseline`.
+- Como pôr uma base ao nível do código, incluindo o SQL desde a 0.2.0-beta.2 e o acesso do utilizador da app: [docs/base-de-dados/README.md](docs/base-de-dados/README.md).
 
 ## Versão e build
 

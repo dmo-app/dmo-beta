@@ -37,7 +37,7 @@ public sealed class AppBuildInfo
     public string SourceDescription => SourceState switch
     {
         "clean" => "Código sem alterações locais",
-        "modified" => "Inclui alterações locais ainda não commitadas",
+        "modified" => "Inclui alterações locais ainda por gravar no git",
         _ => "Estado da origem não verificado"
     };
 }

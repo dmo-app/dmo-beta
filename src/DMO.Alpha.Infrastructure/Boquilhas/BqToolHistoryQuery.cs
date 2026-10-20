@@ -1,6 +1,7 @@
 using DMO.Alpha.Core.Boquilhas;
 using DMO.Alpha.Core.Paging;
 using DMO.Alpha.Infrastructure.Data;
+using DMO.Alpha.Infrastructure.Search;
 using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Infrastructure.Boquilhas;
@@ -33,7 +34,7 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
 
         return await (
             from c in _db.BqContexts.AsNoTracking()
-            join j in _db.JobOns.AsNoTracking() on c.JobOnId equals j.Id
+            join j in _db.JobOns.AsNoTracking() on c.JobOnId ?? c.ReplacedJobOnId equals j.Id
             join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
             where c.ToolId == toolId
             orderby j.Id descending, c.Id descending
@@ -80,9 +81,12 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
     /// desde/até (inclusivo, em hora local; null = sem limite) sobre a DATA
     /// REAL do movimento, com os filtros do html: a máquina, o tipo (o token
     /// canónico; um token desconhecido não filtra), o reparador (o nome
-    /// congelado ou o nº do operador) e a pesquisa de texto (a boquilha, o
-    /// lote, a produção, a máquina, o reparador — contém, sem distinguir
-    /// maiúsculas). Do mais recente para o mais antigo.
+    /// congelado ou o nº do operador) e a pesquisa de texto (a boquilha e a
+    /// referência da produção pelo início delas ou da parte BQ; o lote, o nº
+    /// da produção, a máquina e o reparador por parte do texto; sem distinguir
+    /// maiúsculas). Com <paramref name="toolId"/>, só os movimentos dessa
+    /// ferramenta (a BQ e o lote: o «Histórico BQ» das Opções do registo).
+    /// Do mais recente para o mais antigo.
     /// </summary>
     public async Task<IReadOnlyList<BqHistoryMovementItem>> ListMovementsAsync(
         DateOnly? desde,
@@ -91,39 +95,16 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         string? type,
         string? operatorId,
         string? text,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        int? limit = null,
+        string? toolId = null)
     {
         var (startUtc, endUtc) = UtcBounds(desde, ate);
 
-        return await ToItems(Filter(Rows(), startUtc, endUtc, machine, ParseType(type), operatorId, text)
-                .OrderByDescending(row => row.OccurredAtUtc))
+        var rows = Filter(Rows(), startUtc, endUtc, machine, ParseType(type), operatorId, text, toolId: toolId)
+            .OrderByDescending(row => row.OccurredAtUtc);
+        return await ToItems(limit is int max ? rows.Take(max) : rows)
             .ToListAsync(cancellationToken);
-    }
-
-    /// <summary>
-    /// O RESUMO DIÁRIO da grelha (dia × máquina × registo, com E/S/SR): os
-    /// mesmos filtros do ListMovementsAsync sobre a DATA REAL, só os
-    /// movimentos com máquina (sem máquina não há coluna). O agrupamento é o
-    /// de <see cref="BqDailySummary.FromMovements"/>; o gerador do PDF só
-    /// formata.
-    /// </summary>
-    public async Task<IReadOnlyList<BqDailySummaryEntry>> ListDailySummaryAsync(
-        DateOnly desde,
-        DateOnly ate,
-        string? machine,
-        string? type,
-        string? operatorId,
-        string? text,
-        CancellationToken cancellationToken = default)
-    {
-        var (startUtc, endUtc) = UtcBounds(desde, ate);
-
-        var movements = await ToItems(Filter(Rows(), startUtc, endUtc, machine, ParseType(type), operatorId, text)
-                .Where(row => row.MachineCode != null)
-                .OrderBy(row => row.OccurredAtUtc))
-            .ToListAsync(cancellationToken);
-
-        return BqDailySummary.FromMovements(movements);
     }
 
     private static (DateTime StartUtc, DateTime EndUtc) UtcBounds(DateOnly? desde, DateOnly? ate)
@@ -163,6 +144,7 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         public string? RepairerName { get; set; }
         public string? ToolReference { get; set; }
         public string? ToolLot { get; set; }
+        public string? ToolId { get; set; }
         public string? MachineCode { get; set; }
         public string? ProductionNumber { get; set; }
         public string? ProductionReference { get; set; }
@@ -173,7 +155,7 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         join tr in _db.BqRepairTraces.AsNoTracking() on mov.BqRepairTraceId equals tr.Id
         join ctx in _db.BqContexts.AsNoTracking() on tr.BqContextId equals ctx.Id into ctxGroup
         from ctx in ctxGroup.DefaultIfEmpty()
-        join j in _db.JobOns.AsNoTracking() on (ctx != null ? ctx.JobOnId : (int?)null) equals j.Id into jobGroup
+        join j in _db.JobOns.AsNoTracking() on (ctx != null ? ctx.JobOnId ?? ctx.ReplacedJobOnId : null) equals j.Id into jobGroup
         from j in jobGroup.DefaultIfEmpty()
         join m in _db.Machines.AsNoTracking() on (j != null ? j.MachineId : 0) equals m.Id into machineGroup
         from m in machineGroup.DefaultIfEmpty()
@@ -191,6 +173,7 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
             RepairerName = mov.BqRepairerNameFrozen,
             ToolReference = t != null ? t.Reference : null,
             ToolLot = t != null ? t.Lot : null,
+            ToolId = t != null ? t.ToolId : null,
             // A MÁQUINA EFETIVA: a congelada no movimento; senão a da
             // produção; o registo avulso só resolve uma compatibilidade
             // única (nunca escolhe entre várias).
@@ -212,8 +195,9 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
     /// <summary>
     /// Os filtros do histórico, num só sítio: o período sobre a data real e,
     /// quando indicados, o tipo, a máquina, o reparador, a referência da
-    /// produção e a pesquisa de texto (contém, sem distinguir maiúsculas; o
-    /// nº do operador distingue).
+    /// produção e a pesquisa de texto (sem distinguir maiúsculas; o nº do
+    /// operador distingue). As referências seguem a regra de
+    /// <see cref="ReferenceMatch"/>: pelo início, ou pela parte BQ, nunca a meio.
     /// </summary>
     private static IQueryable<HistoryRow> Filter(
         IQueryable<HistoryRow> rows,
@@ -223,9 +207,15 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         BqMovementType? type,
         string? operatorId,
         string? text,
-        string? productionReference = null)
+        string? productionReference = null,
+        string? toolId = null)
     {
         rows = rows.Where(row => row.OccurredAtUtc >= startUtc && row.OccurredAtUtc < endUtc);
+
+        if (toolId?.Trim() is { Length: > 0 } toolFilter)
+        {
+            rows = rows.Where(row => row.ToolId == toolFilter);
+        }
 
         if (type is BqMovementType wantedType)
         {
@@ -245,21 +235,20 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
                 || (row.RepairerName != null && row.RepairerName.ToUpper().Contains(operatorUpper)));
         }
 
-        if (productionReference?.Trim().ToUpperInvariant() is { Length: > 0 } referenceFilter)
+        if (ReferenceMatch.Normalize(productionReference) is { } referenceFilter)
         {
-            rows = rows.Where(row => row.ProductionReference != null && row.ProductionReference.ToUpper().Contains(referenceFilter));
+            rows = rows.Where(ReferenceMatch.Predicate<HistoryRow>(row => row.ProductionReference, referenceFilter));
         }
 
-        if (text?.Trim().ToUpperInvariant() is { Length: > 0 } textFilter)
+        if (ReferenceMatch.Normalize(text) is { } textFilter)
         {
-            rows = rows.Where(row =>
-                (row.ToolReference != null && row.ToolReference.ToUpper().Contains(textFilter))
-                || (row.ToolLot != null && row.ToolLot.ToUpper().Contains(textFilter))
-                || (row.ProductionNumber != null && row.ProductionNumber.ToUpper().Contains(textFilter))
-                || (row.ProductionReference != null && row.ProductionReference.ToUpper().Contains(textFilter))
-                || (row.MachineCode != null && row.MachineCode.ToUpper().Contains(textFilter))
-                || (row.RepairerName != null && row.RepairerName.ToUpper().Contains(textFilter))
-                || (row.RegisteredByOperatorId != null && row.RegisteredByOperatorId.ToUpper().Contains(textFilter)));
+            rows = rows.Where(ReferenceMatch.Predicate<HistoryRow>(row => row.ToolReference, textFilter)
+                .Or(ReferenceMatch.Predicate<HistoryRow>(row => row.ProductionReference, textFilter))
+                .Or(row => (row.ToolLot != null && row.ToolLot.ToUpper().Contains(textFilter))
+                    || (row.ProductionNumber != null && row.ProductionNumber.ToUpper().Contains(textFilter))
+                    || (row.MachineCode != null && row.MachineCode.ToUpper().Contains(textFilter))
+                    || (row.RepairerName != null && row.RepairerName.ToUpper().Contains(textFilter))
+                    || (row.RegisteredByOperatorId != null && row.RegisteredByOperatorId.ToUpper().Contains(textFilter))));
         }
 
         return rows;
@@ -279,5 +268,6 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
             row.MachineCode,
             row.ProductionNumber,
             row.ProductionReference,
-            row.RepairerName));
+            row.RepairerName,
+            row.ToolId));
 }

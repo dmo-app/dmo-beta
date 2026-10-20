@@ -7,9 +7,24 @@
 .revisao-undated-link{display:block;padding:10px 14px;border:1px dashed var(--dmo-warning);border-radius:8px;background:var(--dmo-warning-soft);color:var(--dmo-warning);font-size:13px;font-weight:800;text-decoration:none}
 .revisao-day{padding:16px 16px 18px}
 .revisao-day h2{margin:0;font-size:18px}
-.revisao-filters{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:8px 10px;align-items:end;margin:12px 0 4px}
-.revisao-filters .dmo-field:first-of-type{grid-column:1 / -1}
-.revisao-filters .dmo-field{min-width:0}
+/* Os filtros da Revisão numa linha, por cima do calendário (19/10/2026): cada campo com a largura do que leva, «Limpar filtros» encostado à direita. */
+/* O cartão também é uma linha (Diogo, 19/10/2026: «btao deveria estar lado direito»): os botões e o estado do controlo, fora do formulário, à direita dos campos e centrados com eles. */
+.revisao-filtros-card{margin-top:14px;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+/* A procura do Resumo do controlo ocupa a linha, com os campos lado a lado. */
+.revisao-filtros-card>.dmo-filter-bar{flex:1 1 auto;min-width:0}
+.revisao-filtros-card>.resumo-hint{flex-basis:100%;margin:0}
+/* O primeiro título de um cartão não soma margem ao padding do cartão. */
+.revisao-detail>.revisao-parte-topo:first-child{margin-top:0}
+.revisao-filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:end;flex:1 1 auto;min-width:0}
+.revisao-filters > .dmo-field{min-width:0;flex:0 0 auto}
+.revisao-filters > .dmo-field > :is(input,select){width:100%}
+.revisao-w-procura{width:260px}
+.revisao-w-estado{width:150px}
+.revisao-w-maquina{width:110px}
+.revisao-w-data{width:150px}
+.revisao-filter-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-left:auto}
+.revisao-item-decisao{color:var(--dmo-muted)}
+.revisao-item.selected .revisao-item-decisao{color:#fff}
 .revisao-list{display:grid;gap:8px;margin-top:12px}
 .revisao-item{--dmo-machine-color:var(--dmo-brand-600);display:grid;gap:5px;padding:11px 12px 11px 14px;border:1px solid var(--dmo-border);border-left:5px solid var(--dmo-machine-color);border-radius:8px;background:#fff;color:var(--dmo-text);text-decoration:none}
 /* Hover e linha escolhida como nas outras tabelas (paleta); a máquina fica só na barra da esquerda (decisão do Diogo, 17/10/2026). */
@@ -33,9 +48,11 @@
 .revisao-pill.big{padding:7px 14px;font-size:13px}
 .revisao-detail{padding:18px 20px 20px;min-height:420px;min-width:0}
 .revisao-empty{margin:60px 0;text-align:center;color:var(--dmo-muted)}
-.revisao-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+/* A linha do título com os botões à direita é a do design system (.dmo-card-topo, .dmo-card-topo-acoes). */
 .revisao-detail-head h2{margin:0;font-size:22px}
 .revisao-detail-head p{margin:4px 0 0;color:var(--dmo-muted);font-size:13px}
+/* O título encolhe (a linha da produção passa a duas linhas) para os botões do canto, com «Consultar Peso» e «Consultar Pegamentos», ficarem na linha do título (Diogo, 18/10/2026). */
+.revisao-detail-head>div:first-child{flex:1 1 220px;min-width:0}
 html body .revisao-detail h3.revisao-section{margin:20px 0 10px;padding:9px 12px;border-left:4px solid var(--dmo-brand-600);border-radius:6px;background:var(--dmo-subtle);font-size:14px}
 .revisao-facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .revisao-facts.four{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -50,10 +67,9 @@ html body .revisao-detail h3.revisao-section{margin:20px 0 10px;padding:9px 12px
 .revisao-note{margin:6px 0 10px;padding:9px 12px;border-radius:8px;background:var(--dmo-subtle);white-space:pre-wrap}
 .revisao-decision{display:grid;gap:10px}
 .revisao-decision textarea{width:100%}
-.revisao-buttons{display:flex;justify-content:flex-end;gap:10px}
 @media(max-width:1100px){.revisao-facts{grid-template-columns:repeat(3,minmax(0,1fr))}.revisao-facts.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){.revisao-grid{grid-template-columns:1fr}}
-@media(max-width:520px){.revisao-facts,.revisao-facts.four{grid-template-columns:1fr 1fr}.revisao-buttons{flex-direction:column}}
+@media(max-width:520px){.revisao-facts,.revisao-facts.four{grid-template-columns:1fr 1fr}}
 /* O link do mcaliper (Diogo, 17/10/2026): um clique no ícone copia. */
 .revisao-mcaliper { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
 .revisao-mcaliper > span { color: var(--dmo-muted); font-size: 12px; font-weight: 600; }
@@ -61,3 +77,61 @@ html body .revisao-detail h3.revisao-section{margin:20px 0 10px;padding:9px 12px
 .revisao-mcaliper-copy svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
 .revisao-mcaliper-copy:is(:hover, :focus-visible) { border-color: var(--dmo-brand-600); background: var(--dmo-brand-050); outline: 0; }
 .revisao-mcaliper-copy.copied { border-color: #3d7a5a; color: #3d7a5a; }
+/* As consultas do Peso e dos Pegamentos (19/10/2026): o mesmo cartão da Revisão, cada componente em caixas e as leituras em tabela. */
+.revisao-consulta{min-height:0;margin-top:14px}
+.revisao-consulta-componente{display:grid;gap:10px;margin:0 0 16px}
+.revisao-consulta-componente .resumo-hint{margin:0}
+.revisao-consulta-tabela{margin-top:10px}
+.revisao-consulta-componente .revisao-consulta-tabela{margin-top:0}
+/* As partes da Revisão (19/10/2026): o título da parte à esquerda e o estado e o Aprovar / Não aprovar dela à direita, na mesma linha. */
+/* A barra do título vai à largura toda, com os links e os botões dentro dela, e tudo centrado na altura (Diogo, 20/10/2026: «prolongar e meter links dentro»). A barra é o bloco; o título dentro dela não tem fundo próprio. */
+html body .revisao-detail .revisao-parte-topo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 18px;margin:20px 0 10px;padding:4px 12px;min-height:40px;border-left:4px solid var(--dmo-brand-600);border-radius:6px;background:var(--dmo-subtle)}
+html body .revisao-detail .revisao-parte-topo h3.revisao-section{flex:1 1 240px;margin:0;padding:5px 0;border:0;border-radius:0;background:none;line-height:1.3}
+.revisao-parte-topo .dmo-card-topo-acoes{align-items:center}
+/* As consultas no Resumo do Controlo: texto com link, como o «Sair» (Diogo, 19/10/2026). */
+.revisao-consultas{display:flex;flex-wrap:wrap;gap:4px 18px}
+/* Escuros e sublinhados, para se perceber que são links (Diogo, 19/10/2026). */
+.revisao-consultas a{padding:4px 2px;color:var(--dmo-brand-900);font-size:var(--dmo-fs-base);font-weight:700;line-height:1.2;text-decoration:underline;text-decoration-color:var(--dmo-palette-steel);text-decoration-thickness:2px;text-underline-offset:4px}
+.revisao-consultas a:is(:hover,:focus-visible){color:var(--dmo-palette-slate);text-decoration-color:currentColor}
+/* O Resumo do controlo com um toque da paleta (Diogo, 19/10/2026: «página
+   muito branca»): os títulos das partes em azul-claro com a barra escura, o
+   título do resumo no azul dos botões e os quadros com a orla da paleta. */
+html body .revisao-detail.revisao-resumo h3.revisao-section{background:var(--dmo-brand-100);border-left-color:var(--dmo-palette-slate);color:var(--dmo-brand-900)}
+html body .revisao-detail.revisao-resumo .revisao-parte-topo{background:var(--dmo-brand-100);border-left-color:var(--dmo-palette-slate)}
+html body .revisao-detail.revisao-resumo .revisao-parte-topo h3.revisao-section{background:none}
+/* A barra do resumo no azul escuro, com os links a branco dentro dela. */
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal{background:var(--dmo-palette-slate);border-left-color:var(--dmo-brand-900)}
+html body .revisao-detail.revisao-resumo .revisao-topo-principal h3.revisao-section{color:var(--dmo-text-on-color)}
+.revisao-topo-principal .revisao-consultas a{color:var(--dmo-text-on-color);text-decoration-color:var(--dmo-palette-mist)}
+.revisao-topo-principal .revisao-consultas a:is(:hover,:focus-visible){color:var(--dmo-palette-sky);text-decoration-color:currentColor}
+.revisao-resumo .revisao-facts>div{background:var(--dmo-brand-050);border:1px solid var(--dmo-brand-100)}
+.revisao-resumo .revisao-facts span{color:var(--dmo-palette-ocean)}
+.revisao-resumo .revisao-facts .destaque{background:var(--dmo-brand-100);border-color:var(--dmo-palette-mist)}
+.revisao-ok{color:var(--dmo-success)}
+
+/* As gravações anteriores do OK/NOK na consulta (D13): mais discretas. */
+.revisao-consulta-tabela .revisao-historico td { color: var(--dmo-muted); font-size: 12px; }
+/* O Resumo do controlo curto (Diogo, 20/10/2026): a média medida de cada
+   componente dos Pegamentos num cartão com a cor dele, como no relatório
+   original; o gráfico à largura do cartão; as áreas em cartões; a decisão
+   do Peso com o espaço dos quadros. */
+.revisao-peg-componentes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.revisao-peg-componentes>div{display:grid;gap:3px;min-width:0;padding:9px 11px;border:1px solid var(--dmo-brand-100);border-left:4px solid var(--peg-cor);border-radius:8px;background:var(--dmo-brand-050)}
+.revisao-peg-componentes span{color:var(--dmo-palette-ocean);font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.revisao-peg-componentes strong{font-size:20px;color:var(--dmo-brand-900)}
+.revisao-peg-componentes small{color:var(--dmo-muted);font-size:12px}
+.revisao-detail .peg-map-wrap{max-width:none;background:var(--dmo-card,#fff)}
+.revisao-detail .peg-map-wrap svg{width:100%;min-width:640px}
+.revisao-facts.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.revisao-resumo .revisao-areas{margin-top:0}
+.revisao-resumo .revisao-areas .resumo-area-form{margin-top:6px}
+/* A ferramenta de cada área em letra legível: a referência e, por baixo, o lote (Diogo, 20/10/2026). No PU e no CS, o campo para a escrever. */
+.resumo-area-ferramenta{display:grid;gap:1px;margin-top:8px}
+html body .resumo-page .resumo-area .resumo-area-ferramenta strong{margin:0;color:var(--dmo-brand-900);font-size:16px}
+.resumo-area-ferramenta small{color:var(--dmo-palette-ocean);font-size:13px;font-weight:600}
+.resumo-area-identificacao{display:flex;gap:6px;margin-top:8px}
+.resumo-area-identificacao input{flex:1 1 auto;min-width:0;font-size:14px}
+.revisao-decisao-resumo{padding:9px 12px;border:1px solid var(--dmo-brand-100);border-radius:8px;background:var(--dmo-brand-050)}
+.revisao-decisao-resumo>.revisao-line{margin:0 0 4px}
+.revisao-decisao-resumo>:last-child{margin-bottom:0}
+@media(max-width:900px){.revisao-peg-componentes{grid-template-columns:1fr}.revisao-facts.three{grid-template-columns:1fr 1fr}}

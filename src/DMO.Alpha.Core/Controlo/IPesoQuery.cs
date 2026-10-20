@@ -19,21 +19,31 @@ public interface IPesoQuery
     Task<PesoReadModel?> FindPesoAsync(int pesoId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Devolve o histórico de Pesos da Tool (pesos cuja CM pesada é o
-    /// tool_id pedido), do mais recente para o mais antigo, com os valores
-    /// de resumo calculados a partir dos dados persistidos de cada Peso.
+    /// O Peso do controlo para um valor só (os ecrãs de revisão, o PDF da
+    /// produção): o das ferramentas que a produção tem agora ou, sem esse
+    /// (depois de uma troca da CM ou da BQ), o mais recente. Null quando o
+    /// controlo ainda não tem Peso. Com um só Peso, esse.
     /// </summary>
-    Task<IReadOnlyList<PesoToolHistoryItem>> ListByToolAsync(
-        string toolId,
+    Task<PesoReadModel?> FindByControloAsync(
+        int controloId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// O Peso baseline associado ao controlo de uma produção (o Peso
-    /// production-scoped do corte C) — ou null quando o controlo ainda não
-    /// tem o seu Peso (get-or-open: a associação é 1:1 e a criação é do
-    /// fluxo com a temperatura medida).
+    /// O Peso da CM e da BQ que a produção tem agora (o único que recebe
+    /// leituras novas), ou null: antes do primeiro Peso, ou depois de trocar a
+    /// CM ou a BQ a meio da produção, até ser criado o Peso das ferramentas
+    /// novas (respostas R15 e R16-5 do especialista, 18/10/2026).
     /// </summary>
-    Task<PesoReadModel?> FindByControloAsync(
+    Task<PesoReadModel?> FindCurrentByControloAsync(
+        int controloId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Todos os Pesos do controlo, pela ordem de gravação, cada um com as
+    /// suas ferramentas congeladas e a marca do atual
+    /// (<see cref="PesoReadModel.IsCurrent"/>); vazia sem Peso.
+    /// </summary>
+    Task<IReadOnlyList<PesoReadModel>> ListByControloAsync(
         int controloId,
         CancellationToken cancellationToken = default);
 }

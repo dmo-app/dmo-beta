@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -14,6 +15,13 @@ namespace DMO.Alpha.Infrastructure.Authentication;
 /// </summary>
 public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, IDisposable
 {
+    /// <summary>
+    /// Quanto o login espera pelo Supabase (sweep de 19/10/2026, 5.1): com
+    /// os 100 s por omissão do HttpClient, uma falha do serviço deixava o
+    /// ecrã de entrada parado quase dois minutos.
+    /// </summary>
+    public static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(15);
+
     private readonly HttpClient _httpClient;
     private readonly SupabaseAuthOptions _options;
     private readonly ILogger<SupabaseAuthenticationProvider> _logger;
@@ -37,7 +45,8 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
 
         if (!Uri.IsWellFormedUriString(_options.Url, UriKind.Absolute) || string.IsNullOrWhiteSpace(_options.PublishableKey))
         {
-            return AuthenticateResult.Failed("Supabase authentication is not configured.");
+            _logger.LogError("Supabase authentication is not configured: Dmo:SupabaseUrl or Dmo:SupabasePublishableKey is missing.");
+            return AuthenticateResult.Unavailable("Supabase authentication is not configured.");
         }
 
         try
@@ -55,9 +64,19 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Supabase authentication failed for {Identifier}: {Status} {Body}",
+                // 400 e 422: o email ou a palavra-passe não servem. O resto
+                // (401/403 as chaves da app, 429 o limite de pedidos do
+                // Supabase, 5xx o serviço) não diz nada da palavra-passe.
+                if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.UnprocessableEntity)
+                {
+                    _logger.LogWarning("Supabase authentication failed for {Identifier}: {Status} {Body}",
+                        identifier, response.StatusCode, json);
+                    return AuthenticateResult.Failed("Invalid credentials.");
+                }
+
+                _logger.LogError("Supabase authentication unavailable for {Identifier}: {Status} {Body}",
                     identifier, response.StatusCode, json);
-                return AuthenticateResult.Failed("Invalid credentials.");
+                return AuthenticateResult.Unavailable("Authentication provider unavailable.");
             }
 
             using var document = JsonDocument.Parse(json);
@@ -80,7 +99,7 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
         catch (Exception ex)
         {
             _logger.LogError(ex, "Supabase authentication request failed for {Identifier}", identifier);
-            return AuthenticateResult.Failed("Authentication provider unavailable.");
+            return AuthenticateResult.Unavailable("Authentication provider unavailable.");
         }
     }
 

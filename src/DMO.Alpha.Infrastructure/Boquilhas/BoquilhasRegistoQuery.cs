@@ -28,6 +28,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
 
     public async Task<BoquilhasRegistoTrace?> FindTraceAsync(
         int bqRepairTraceId,
+        int? movementPage = null,
         CancellationToken cancellationToken = default)
     {
         // O trace, a produção do bq_id e a Tool efetiva numa consulta.
@@ -36,7 +37,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             where trace.Id == bqRepairTraceId
             join context in _db.BqContexts.AsNoTracking() on trace.BqContextId equals context.Id into contexts
             from context in contexts.DefaultIfEmpty()
-            join jobOn in _db.JobOns.AsNoTracking() on (context != null ? context.JobOnId : (int?)null) equals jobOn.Id into jobOns
+            join jobOn in _db.JobOns.AsNoTracking() on (context != null ? context.JobOnId ?? context.ReplacedJobOnId : null) equals jobOn.Id into jobOns
             from jobOn in jobOns.DefaultIfEmpty()
             join machine in _db.Machines.AsNoTracking() on (jobOn != null ? jobOn.MachineId : (int?)null) equals machine.Id into machines
             from machine in machines.DefaultIfEmpty()
@@ -61,11 +62,33 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 trace.DiscrepancyResetByNameFrozen))
             .FirstOrDefaultAsync(cancellationToken);
 
-        return header is null ? null : await ComposeTraceAsync(header, cancellationToken);
+        return header is null ? null : await ComposeTraceAsync(header, movementPage, cancellationToken);
+    }
+
+    public async Task<BoquilhasRegistoMovement?> FindMovementAsync(
+        int bqRepairTraceId,
+        int movementId,
+        CancellationToken cancellationToken = default)
+    {
+        var movement = await _db.BqMovements
+            .AsNoTracking()
+            .Where(m => m.Id == movementId && m.BqRepairTraceId == bqRepairTraceId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return movement is null ? null : new BoquilhasRegistoMovement(
+            movement.Id,
+            BqMovementTypeTokens.ToStorage(movement.Type),
+            movement.Quantity,
+            movement.Discrepancy,
+            movement.OccurredAtUtc,
+            movement.BqRepairerNameFrozen,
+            movement.MachineCodeFrozen,
+            movement.CorrectedByNameFrozen,
+            movement.CorrectedAtUtc);
     }
 
     public async Task<BoquilhasRegistoContext?> FindByContextAsync(
         int bqContextId,
+        int? movementPage = null,
         CancellationToken cancellationToken = default)
     {
         // O bq_id, a produção, o trace associado (um bq_id tem um único
@@ -73,7 +96,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         var row = await (
             from context in _db.BqContexts.AsNoTracking()
             where context.Id == bqContextId
-            join jobOn in _db.JobOns.AsNoTracking() on context.JobOnId equals jobOn.Id
+            join jobOn in _db.JobOns.AsNoTracking() on context.JobOnId ?? context.ReplacedJobOnId equals jobOn.Id
             join machine in _db.Machines.AsNoTracking() on jobOn.MachineId equals machine.Id
             join trace in _db.BqRepairTraces.AsNoTracking() on (int?)context.Id equals trace.BqContextId into traces
             from trace in traces.DefaultIfEmpty()
@@ -121,6 +144,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                     row.FimEm,
                     row.TraceResetAtUtc,
                     row.TraceResetBy),
+                movementPage,
                 cancellationToken);
         }
 
@@ -158,11 +182,13 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         string? DiscrepancyResetBy = null);
 
     /// <summary>
-    /// O read model a partir da linha do trace: os movimentos (uma consulta)
-    /// com as quantidades físicas derivadas.
+    /// O read model a partir da linha do trace: as contas leem só os números
+    /// de todos os movimentos (uma consulta leve); a página pedida lê as
+    /// linhas completas de 25 movimentos (outra consulta).
     /// </summary>
     private async Task<BoquilhasRegistoTrace> ComposeTraceAsync(
         TraceHeader header,
+        int? movementPage,
         CancellationToken cancellationToken)
     {
         var traceId = header.TraceId;
@@ -182,10 +208,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 movement.Quantity,
                 movement.Discrepancy,
                 movement.OccurredAtUtc,
-                movement.BqRepairerNameFrozen,
-                movement.MachineCodeFrozen,
-                movement.CorrectedByNameFrozen,
-                movement.CorrectedAtUtc
+                movement.CreatedAtUtc
             })
             .ToListAsync(cancellationToken);
 
@@ -219,7 +242,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             // Depois de posta a zero, a discrepância acumulada só conta os
             // movimentos com data real posterior (Diogo, 17/10/2026).
             if (movement.Discrepancy is int discrepancy
-                && (header.DiscrepancyResetAtUtc is not DateTime resetAt || movement.OccurredAtUtc > resetAt))
+                && (header.DiscrepancyResetAtUtc is not DateTime resetAt
+                    || BqDiscrepancyFold.CountsAfterReset(movement.OccurredAtUtc, movement.CreatedAtUtc, resetAt)))
             {
                 accumulatedDiscrepancy += discrepancy;
                 hasDiscrepancy = true;
@@ -228,6 +252,18 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
 
         chronological.Reverse();
 
+        // A página da tabela: os ids saem da mesma ordem e só esses 25
+        // movimentos são lidos por inteiro.
+        var pageSize = DMO.Alpha.Core.Paging.ListPaging.DefaultPageSize;
+        var page = DMO.Alpha.Core.Paging.ListPaging.ClampPage(movementPage, chronological.Count, pageSize);
+        var pageIds = chronological.Skip((page - 1) * pageSize).Take(pageSize).Select(movement => movement.Id).ToList();
+        var pageRows = pageIds.Count == 0
+            ? new Dictionary<int, BqMovement>()
+            : await _db.BqMovements
+                .AsNoTracking()
+                .Where(movement => pageIds.Contains(movement.Id))
+                .ToDictionaryAsync(movement => movement.Id, cancellationToken);
+
         return new BoquilhasRegistoTrace(
             traceId,
             header.ToolId,
@@ -235,7 +271,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             header.ToolLot,
             header.BqContextId,
             production,
-            chronological.Select(movement => new BoquilhasRegistoMovement(
+            pageIds.Select(id => pageRows[id]).Select(movement => new BoquilhasRegistoMovement(
                 movement.Id,
                 BqMovementTypeTokens.ToStorage(movement.Type),
                 movement.Quantity,
@@ -249,6 +285,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             hasDiscrepancy || header.DiscrepancyResetAtUtc is not null ? accumulatedDiscrepancy : null,
             header.ToolAccountedQuantity,
             header.DiscrepancyResetAtUtc,
-            header.DiscrepancyResetBy);
+            header.DiscrepancyResetBy,
+            chronological.Count,
+            page);
     }
 }

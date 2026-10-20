@@ -26,7 +26,20 @@ public sealed record PesoReadModel(
     decimal? NominalWeightGrams,
     IReadOnlyList<PesoMeasurementReadModel> Measurements,
     PesoAveragesReadModel? Averages,
-    int? ControloId = null);
+    int? ControloId = null)
+{
+    /// <summary>Quando o Peso foi gravado (UTC); null nos anteriores a 17/10/2026.</summary>
+    public DateTime? RegistadoEmUtc { get; init; }
+
+    /// <summary>
+    /// True quando a CM e a BQ deste Peso são as que a produção tem agora (e
+    /// sempre nos Pesos sem produção): só esse Peso recebe leituras novas.
+    /// Depois de trocar a CM ou a BQ a meio da produção, o Peso anterior fica
+    /// como estava (respostas R15, R16-3 e R16-5 do especialista,
+    /// 18/10/2026).
+    /// </summary>
+    public bool IsCurrent { get; init; } = true;
+}
 
 /// <summary>
 /// Uma leitura persistida do Peso tal como o surface Peso a apresenta: o
@@ -51,20 +64,3 @@ public sealed record PesoAveragesReadModel(
     decimal AverageWaterWeightGrams,
     decimal AverageCapacityCm3,
     decimal AverageGlassWeightGrams);
-
-/// <summary>
-/// Item do histórico de Pesos de uma Tool: o peso_id canónico, as âncoras
-/// (BQ usada, processo, grau da temperatura), o número de leituras e a média
-/// do peso do vidro calculada a partir dos dados persistidos (null quando o
-/// Peso ainda não tem leituras).
-/// </summary>
-public sealed record PesoToolHistoryItem(
-    int PesoId,
-    string BqToolId,
-    string? BqToolReference,
-    string? BqToolLot,
-    string Process,
-    int WaterTemperatureC,
-    decimal GlassDensityGramsPerCm3,
-    int MeasurementCount,
-    decimal? AverageGlassWeightGrams);

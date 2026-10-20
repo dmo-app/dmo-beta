@@ -1,0 +1,19 @@
+@model DMO.Alpha.Web.Pages.Controlo.ResumoModel
+@* Só as zonas pedidas pelo GET que segue uma gravação (E11, beta.189:
+   cabeçalho X-Dmo-Zonas), pela ordem pedida, com os mesmos partials da
+   página. Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
+@foreach (var zona in Model.ZonasPedidas)
+{
+  if (zona == DMO.Alpha.Web.Pages.Controlo.ResumoModel.ZonaAvisos)
+  {
+    <partial name="_ResumoEstadoAvisos" model="Model" />
+  }
+  else if (zona == DMO.Alpha.Web.Pages.Controlo.ResumoModel.ZonaVistoPor)
+  {
+    <partial name="_ResumoVistoPor" model="Model" />
+  }
+  else
+  {
+    <partial name="_ResumoArea" model="new DMO.Alpha.Web.Pages.Controlo.ResumoAreaZona(Model, Model.AreasMostradas.Single(a => DMO.Alpha.Web.Pages.Controlo.ResumoModel.ZonaArea(a.Area) == zona))" />
+  }
+}

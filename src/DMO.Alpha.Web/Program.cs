@@ -47,10 +47,11 @@ if (useSupabase)
             PublishableKey = builder.Configuration["Dmo:SupabasePublishableKey"] ?? string.Empty,
             SecretKey = builder.Configuration["Dmo:SupabaseSecretKey"] ?? string.Empty
         }));
-    builder.Services.AddHttpClient<IAuthenticationProvider, SupabaseAuthenticationProvider>();
-    // The Admin â†’ Users provisioning seam (USERS.md Â§2/Â§5): DMO asks the
+    builder.Services.AddHttpClient<IAuthenticationProvider, SupabaseAuthenticationProvider>(client =>
+        client.Timeout = SupabaseAuthenticationProvider.RequestTimeout);
+    // The Admin → Users provisioning seam (USERS.md §2/§5): DMO asks the
     // Supabase Auth admin API to create/reset an authentication identity
-    // with a backend-minted temporary password â€” the provider owns every
+    // with a backend-minted temporary password — the provider owns every
     // credential; DMO never becomes a password store. Same options and
     // secret key as the provider above.
     builder.Services.AddHttpClient<IUserProvisioningProvider, SupabaseUserProvisioningProvider>();
@@ -85,8 +86,8 @@ else
     builder.Services.AddSingleton<IAuthenticationProvider>(sp =>
         sp.GetRequiredService<InMemoryAuthenticationProvider>());
     // The matching deterministic provisioning seam: users created in the
-    // application (Admin â†’ Users) are immediately usable by the in-memory
-    // login surface â€” the worked examples run end-to-end in Development
+    // application (Admin → Users) are immediately usable by the in-memory
+    // login surface — the worked examples run end-to-end in Development
     // and in the tests without any real Supabase project.
     builder.Services.AddSingleton<IUserProvisioningProvider>(sp =>
         new InMemoryUserProvisioningProvider(sp.GetRequiredService<InMemoryAuthenticationProvider>()));
@@ -141,6 +142,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<ICurrentAccountContext, HttpContextCurrentAccountContext>();
 builder.Services.AddSingleton<DMO.Alpha.Infrastructure.Controlo.RegistoCarimboInterceptor>();
 builder.Services.AddScoped<ShellStateFactory>();
+builder.Services.AddSingleton<EnviosGravados>();
 builder.Services.AddScoped<DmoSignInService>();
 // Boquilhas write path: registo de um movimento num bq_repair_trace_id existente.
 builder.Services.AddScoped<IRegisterBqMovementHandler, RegisterBqMovementHandler>();
@@ -150,8 +152,8 @@ builder.Services.AddScoped<IResetBqDiscrepancyHandler, ResetBqDiscrepancyHandler
 builder.Services.AddScoped<IDeleteBqMovementHandler, DeleteBqMovementHandler>();
 // Boquilhas read path: read model consumer-specific do surface Registo.
 builder.Services.AddScoped<IBoquilhasRegistoQuery, BoquilhasRegistoQuery>();
-// Boquilhas write path: criar um trace ancorado a um tool_id e associÃ¡-lo
-// mais tarde ao seu bq_id de produÃ§Ã£o.
+// Boquilhas write path: criar um trace ancorado a um tool_id e associá-lo
+// mais tarde ao seu bq_id de produção.
 builder.Services.AddScoped<ICreateBqRepairTraceHandler, CreateBqRepairTraceHandler>();
 builder.Services.AddScoped<IAssociateBqRepairTraceToContextHandler, AssociateBqRepairTraceToContextHandler>();
 // Boquilhas read path (o corte F): a produção corrente de cada máquina
@@ -171,95 +173,118 @@ builder.Services.AddScoped<ICreateBqRepairerHandler, CreateBqRepairerHandler>();
 builder.Services.AddScoped<IEditBqRepairerHandler, EditBqRepairerHandler>();
 // Boquilhas read path: a lista das entidades reparadoras para a Admin.
 builder.Services.AddScoped<IBqRepairerQuery, BqRepairerQuery>();
-// Tools read path: resoluÃ§Ã£o canÃ³nica e sÃ³ de leitura de uma Tool pelo seu tool_id exato.
+// Tools read path: resolução canónica e só de leitura de uma Tool pelo seu tool_id exato.
 builder.Services.AddScoped<IToolLookupQuery, ToolLookupQuery>();
-// Tools read path: descoberta de candidatos para seleÃ§Ã£o humana explÃ­cita
-// (filtros explÃ­citos aplicados no servidor; apenas reduzem candidatos).
+// Tools read path: descoberta de candidatos para seleção humana explícita
+// (filtros explícitos aplicados no servidor; apenas reduzem candidatos).
 builder.Services.AddScoped<IToolCandidateQuery, ToolCandidateQuery>();
 builder.Services.AddScoped<IToolLotQuantitySettings, ToolLotQuantitySettings>();
-// Tools read path: contexto tÃ©cnico Tool-owned (valores consumidos pelo Peso,
-// completÃ¡veis no fluxo e gravados no tool_id owner â€” regra Ferramentas).
+// Tools read path: contexto técnico Tool-owned (valores consumidos pelo Peso,
+// completáveis no fluxo e gravados no tool_id owner — regra Ferramentas).
 builder.Services.AddScoped<IToolTechnicalQuery, ToolTechnicalQuery>();
-// Ferramentas write path (corte A â€” a RAIZ da cascata tool_id â†’ jobon_id â†’
-// controlo_id â†’ pegamentos/peso): registar a Tool real (tool_id SEMPRE
-// mintado pelo backend), editar factos e valores tÃ©cnicos (full-replace no
-// mesmo tool_id), duplicar (lote novo obrigatÃ³rio, fonte intacta) e eliminar
-// (transaÃ§Ã£o canÃ³nica com reatribuiÃ§Ã£o Ã  DUMMY). Recusas tipadas via enums
-// fechados â€” formato de referÃªncia Ã© hint, nunca recusa.
+// Ferramentas write path (corte A — a RAIZ da cascata tool_id → jobon_id →
+// controlo_id → pegamentos/peso): registar a Tool real (tool_id SEMPRE
+// mintado pelo backend), editar factos e valores técnicos (full-replace no
+// mesmo tool_id), duplicar (lote novo obrigatório, fonte intacta) e eliminar
+// (transação canónica com reatribuição à DUMMY). Recusas tipadas via enums
+// fechados — formato de referência é hint, nunca recusa.
 builder.Services.AddScoped<ICreateToolHandler, CreateToolHandler>();
 builder.Services.AddScoped<IEditToolFactsHandler, EditToolFactsHandler>();
 builder.Services.AddScoped<IEditToolTechnicalValuesHandler, EditToolTechnicalValuesHandler>();
 builder.Services.AddScoped<IDuplicateToolHandler, DuplicateToolHandler>();
 builder.Services.AddScoped<IDeleteToolHandler, DeleteToolHandler>();
 // Ferramentas read path: a ficha purpose-specific por tool_id (factos +
-// mÃ¡quinas + contexto tÃ©cnico), o aviso de eliminaÃ§Ã£o (produÃ§Ãµes afetadas +
-// contagens dos registos de consumo) e a compatibilidade de mÃ¡quinas da
-// lista â€” a linha DUMMY (REMOVED) Ã© excluÃ­da por constante em todas.
+// máquinas + contexto técnico), o aviso de eliminação (produções afetadas +
+// contagens dos registos de consumo) e a compatibilidade de máquinas da
+// lista — a linha DUMMY (REMOVED) é excluída por constante em todas.
 builder.Services.AddScoped<IToolSheetQuery, ToolSheetQuery>();
 builder.Services.AddScoped<IToolDeletionImpactQuery, ToolDeletionImpactQuery>();
-// Controlo/Peso write path: criar um Peso tool-scoped (sem produÃ§Ã£o/Job On)
-// e registar leituras reais (factos histÃ³ricos).
+// Controlo/Peso write path: criar um Peso tool-scoped (sem produção/Job On)
+// e registar leituras reais (factos históricos).
 builder.Services.AddScoped<ICreateToolScopedPesoHandler, CreateToolScopedPesoHandler>();
-// Controlo/Peso write path (corte C): o Peso production-scoped â€” criar/abrir
+// Controlo/Peso write path (corte C): o Peso production-scoped — criar/abrir
 // o Peso baseline de um controlo, as ferramentas herdadas do contexto.
 builder.Services.AddScoped<ICreatePesoForControloHandler, CreatePesoForControloHandler>();
 builder.Services.AddScoped<IAssociatePesoToControloHandler, AssociatePesoToControloHandler>();
 builder.Services.AddScoped<IPesoAssociationQuery, PesoAssociationQuery>();
 builder.Services.AddScoped<IRecordPesoMeasurementHandler, RecordPesoMeasurementHandler>();
-// Controlo/Peso read path: read model do Peso e histÃ³rico de Pesos por tool.
+// Controlo/Peso read path: read model do Peso e histórico de Pesos por tool.
 builder.Services.AddScoped<IPesoQuery, PesoQuery>();
-// Controlo/Peso read path (corte C â€” ComparaÃ§Ã£o_B): os candidatos histÃ³ricos
-// da mesma referÃªncia e o diferencial pela posiÃ§Ã£o fÃ­sica das leituras.
-builder.Services.AddScoped<IPesoComparisonQuery, PesoComparisonQuery>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoProducaoAnteriorQuery>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.RevisaoControloAnteriorQuery>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PegamentosHistoricoQuery>();
+// Controlo/Peso read path (corte C — Comparação_B): os candidatos históricos
+// da mesma referência e o diferencial pela posição física das leituras.
+// O Peso usa também as comparações gravadas (fora da interface): a mesma
+// instância por pedido para as duas.
+builder.Services.AddScoped<PesoComparisonQuery>();
+builder.Services.AddScoped<IPesoComparisonQuery>(sp => sp.GetRequiredService<PesoComparisonQuery>());
+builder.Services.AddScoped<ICreatePesoComparacaoHandler, CreatePesoComparacaoHandler>();
+// As ferramentas herdadas da produção (o Peso) e a procura do histórico do Controlo.
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoToolFactsQuery>();
+builder.Services.AddScoped<IControloHistorySearchQuery, DMO.Alpha.Infrastructure.Controlo.ControloHistorySearchQuery>();
 // Controlo configuration read path: densidade do vidro configurada por processo
-// (a ediÃ§Ã£o pertence Ã  superfÃ­cie de administraÃ§Ã£o; o Peso consome e preserva).
+// (a edição pertence à superfície de administração; o Peso consome e preserva).
 builder.Services.AddScoped<IGlassDensityConfiguration, GlassDensityConfiguration>();
-// Controlo configuration read/write path (o corte PDF): as definiÃ§Ãµes
-// funcionais POR MÃ“DULO (spec CONFIGURATION.md + a decisÃ£o do Owner
-// 2026-10-11) â€” o directÃ³rio de saÃ­da dos documentos do Controlo e a
+// Controlo configuration read/write path (o corte PDF): as definições
+// funcionais POR MÓDULO (spec CONFIGURATION.md + a decisão do Owner
+// 2026-10-11) — o directório de saída dos documentos do Controlo e a
 // hora de viragem do dia operacional das Boquilhas.
 builder.Services.AddScoped<IModuleSettingsQuery, ModuleSettingsQuery>();
 builder.Services.AddScoped<ISaveModuleSettingHandler, SaveModuleSettingHandler>();
-// O corte PDF: o gerador da folha de pesagem (o alvo 22) â€” stateless,
-// o ficheiro grava no directÃ³rio configurado com o nome canÃ³nico do resolver.
+// O corte PDF: o gerador da folha de pesagem (o alvo 22) — stateless,
+// o ficheiro grava no directório configurado com o nome canónico do resolver.
 builder.Services.AddSingleton<PesoPdfGenerator>();
-// O APPROVE-MÃNIMO (a decisÃ£o GATE 4): o registo de visÃ£o da folha do
-// controlo â€” quem abriu e quando; nunca Ã© gate.
+// O PDF do Peso num só sítio: o «Exportar PDF» e o «Enviar» do Resumo.
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoPdfDocumentBuilder>();
+// O PDF do Resumo num só sítio: o «Exportar PDF» do Resumo e o da Revisão.
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.ResumoPdfDocumentBuilder>();
+// O envio do PDF do Peso por email (D9): a conta SMTP vem só da configuração
+// do serviço (Dmo__Email__*); as listas e os modelos estão nas Definições.
+builder.Services.AddSingleton<DMO.Alpha.Core.Controlo.IEmailSender, DMO.Alpha.Infrastructure.Controlo.SmtpEmailSender>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnvioEmailDefinicoes>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnviarPesoPorEmailHandler>();
+// O APPROVE-MÍNIMO (a decisão GATE 4): o registo de visão da folha do
+// controlo — quem abriu e quando; nunca é gate.
 builder.Services.AddScoped<ControloViewingHandler>();
 // O SELO DE APROVAÇÃO (o corte D): o chefe marca o controlo — o estado
 // vive no próprio registo; nunca gate.
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.ControloApprovalHandler>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.ControloAreaStateHandler>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Tools.ToolDuplicateWarnings>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PuncoesHandler>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoCmDeParteHandler>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PuncoesPdfGenerator>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnLotNoteHandler>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnChangeQuery>();
+builder.Services.AddScoped<DMO.Alpha.Core.Planeamento.ISumarioQuery, DMO.Alpha.Infrastructure.Planeamento.SumarioQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IPesoCapSupportQuery, DMO.Alpha.Infrastructure.Controlo.PesoCapSupportQuery>();
-// O MODO CHEFE (o corte H-lite, o Owner 2026-10-12: Â«controlo.approve Ã© o
-// que o chefe tem, nao tem opÃ§ao de criar peso nem pegamentosÂ»): as
-// capabilities efetivas do user logado pelo serviÃ§o canÃ³nico do Admin â€”
+// O MODO CHEFE (o corte H-lite, o Owner 2026-10-12: «controlo.approve é o
+// que o chefe tem, nao tem opçao de criar peso nem pegamentos»): as
+// capabilities efetivas do user logado pelo serviço canónico do Admin —
 // o split Controlo Create (os forms) vs Approve (o ver: as folhas, o
-// histÃ³rico, a aprovaÃ§Ã£o).
+// histórico, a aprovação).
 builder.Services.AddScoped<CurrentUserCapabilities>();
-// Controlo write path: ensure do controlo_id de uma produÃ§Ã£o â€” get-or-create
+// Controlo write path: ensure do controlo_id de uma produção — get-or-create
 // idempotente por jobon_id (spec Job On L33: o controlo_id nasce com o Job On;
-// na abertura do Resumo faz o backfill das produÃ§Ãµes criadas antes deste
-// corte). Bookkeeping idempotente, nunca um ato de criaÃ§Ã£o do utilizador.
+// na abertura do Resumo faz o backfill das produções criadas antes deste
+// corte). Bookkeeping idempotente, nunca um ato de criação do utilizador.
 builder.Services.AddScoped<IEnsureControloForJobOnHandler, EnsureControloForJobOnHandler>();
-// Production/Job On write path: criar um Job On â€” ocorrÃªncia real de produÃ§Ã£o
-// com as Tools canÃ³nicas explicitamente selecionadas; o backend emite o
-// jobon_id e os contextos aplicÃ¡veis (cm_id/mf_id/bq_id).
+// Production/Job On write path: criar um Job On — ocorrência real de produção
+// com as Tools canónicas explicitamente selecionadas; o backend emite o
+// jobon_id e os contextos aplicáveis (cm_id/mf_id/bq_id).
 builder.Services.AddScoped<ICreateJobOnHandler, CreateJobOnHandler>();
 // Production/Job On write path: EDITAR um Job On existente — a produção
 // re-planeada (a janela temporal, a máquina, os tool_ids) SEM criar outra:
 // o jobon_id é o mesmo, a identidade imutável e o BqContext o MESMO contexto
 // com o ToolId novo (os factos históricos ancorados ficam).
 builder.Services.AddScoped<IUpdateJobOnHandler, UpdateJobOnHandler>();
-// Production read path: a query canÃ³nica do contexto de produÃ§Ã£o por
-// jobon_id (a mesma que os mÃ³dulos seguintes consomem) e a consulta incluÃ­da
+builder.Services.AddScoped<IDeleteJobOnHandler, DeleteJobOnHandler>();
+// Production read path: a query canónica do contexto de produção por
+// jobon_id (a mesma que os módulos seguintes consomem) e a consulta incluída
 // na capability Job On Create (lista dos Job Ons com o contexto estabelecido)
-// + mÃ¡quinas persistidas para seleÃ§Ã£o explÃ­cita.
+// + máquinas persistidas para seleção explícita.
 builder.Services.AddScoped<IProductionContextQuery, ProductionContextQuery>();
 builder.Services.AddScoped<IJobOnListQuery, JobOnListQuery>();
 builder.Services.AddScoped<IProductionPickerQuery, ProductionPickerQuery>();
@@ -267,10 +292,10 @@ builder.Services.AddScoped<IProductionPickerQuery, ProductionPickerQuery>();
 // curta por pedido, servida por GET /Sugestoes e usada por js/dmo-suggest.js.
 builder.Services.AddScoped<DMO.Alpha.Core.Search.ISuggestionQuery, DMO.Alpha.Infrastructure.Search.SuggestionQuery>();
 builder.Services.AddScoped<IMachineListQuery, MachineListQuery>();
-// Controlo read path (browser Â«Procurar resumoÂ»): produÃ§Ãµes com os factos
-// mÃ­nimos de identificaÃ§Ã£o, mais recentes primeiro, com filtro por
-// referÃªncia de IGUALDADE EXATA aplicado no servidor (query
-// purpose-specific; a produÃ§Ã£o a abrir Ã© sempre escolha humana explÃ­cita).
+// Controlo read path (browser «Procurar resumo»): produções com os factos
+// mínimos de identificação, mais recentes primeiro, com filtro por
+// referência de IGUALDADE EXATA aplicado no servidor (query
+// purpose-specific; a produção a abrir é sempre escolha humana explícita).
 builder.Services.AddScoped<IResumoProductionQuery, ResumoProductionQuery>();
 // A Revisão do Controlo por calendário (17/10/2026): os dias com controlos e os por aprovar.
 builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IControloRevisaoQuery, DMO.Alpha.Infrastructure.Controlo.ControloRevisaoQuery>();
@@ -283,32 +308,33 @@ builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PegamentosPdfGenera
 // O PDF do Resumo (a folha do controlo inteira — RESUMO-<ref>-<produção>.pdf).
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator>();
 // Controlo/Pegamentos write path: registar uma leitura dimensional real
-// (gesto em cruz) num componente da combinaÃ§Ã£o CM+BQ+MF herdada do contexto
-// Job On ativo â€” a tool nunca Ã© selecionada na folha; a primeira mediÃ§Ã£o
-// cria o registo durÃ¡vel (pegamentos_id) com as tools e a tolerÃ¢ncia do
-// corredor congeladas; o gargalo em falta Ã© completado no fluxo e grava no
+// (gesto em cruz) num componente da combinação CM+BQ+MF herdada do contexto
+// Job On ativo — a tool nunca é selecionada na folha; a primeira medição
+// cria o registo durável (pegamentos_id) com as tools e a tolerância do
+// corredor congeladas; o gargalo em falta é completado no fluxo e grava no
 // tool_id owner (regra Ferramentas).
 builder.Services.AddScoped<IRecordPegamentosMeasurementHandler, RecordPegamentosMeasurementHandler>();
 builder.Services.AddScoped<ICorrectPegamentosMeasurementHandler, CorrectPegamentosMeasurementHandler>();
 builder.Services.AddScoped<ICreateToolScopedPegamentosHandler, CreateToolScopedPegamentosHandler>();
 builder.Services.AddScoped<IAssociatePegamentosToControloHandler, AssociatePegamentosToControloHandler>();
-// Controlo/Pegamentos read path: a projeÃ§Ã£o purpose-specific da FOLHA por
-// controlo_id (a LEI: Â«com controlo_id ganhas o contexto todo para
-// pegamentosÂ») â€” contexto canÃ³nico da produÃ§Ã£o, gargalos correntes das
-// tools, tolerÃ¢ncia efetiva corrente e o registo durÃ¡vel quando existe,
+// Controlo/Pegamentos read path: a projeção purpose-specific da FOLHA por
+// controlo_id (a LEI: «com controlo_id ganhas o contexto todo para
+// pegamentos») — contexto canónico da produção, gargalos correntes das
+// tools, tolerância efetiva corrente e o registo durável quando existe,
 // com as leituras avaliadas a partir dos factos congelados.
 builder.Services.AddScoped<IPegamentosQuery, PegamentosQuery>();
-// Controlo configuration read path: tolerÃ¢ncia do corredor de Pegamentos
-// configurada (a ediÃ§Ã£o pertence Ã  superfÃ­cie de administraÃ§Ã£o; a criaÃ§Ã£o
+// Controlo configuration read path: tolerância do corredor de Pegamentos
+// configurada (a edição pertence à superfície de administração; a criação
 // do registo consome o valor efetivo e preserva-o congelado).
 builder.Services.AddScoped<IPegamentosToleranceConfiguration, PegamentosToleranceConfiguration>();
 builder.Services.AddScoped<ISavePegamentosToleranceHandler, SavePegamentosToleranceHandler>();
+builder.Services.AddScoped<ISaveGlassDensityHandler, SaveGlassDensityHandler>();
 
 // Admin foundation (Step B): the server-side authorization semantics
-// (effective access over the persisted Userâ†”Template relationship + the
+// (effective access over the persisted User↔Template relationship + the
 // ADMIN-boundary template-assignment authorization) and the three Admin
-// read views over that foundation (Templates, Users, App DefiniÃ§Ãµes
-// areas). The functional management workflows (Steps C/D â€” this build)
+// read views over that foundation (Templates, Users, App Definições
+// areas). The functional management workflows (Steps C/D — this build)
 // extend these same contracts.
 builder.Services.AddScoped<IAdminAuthorizationService, AdminAuthorizationService>();
 // O ADMIN é o email guardado nas Definições: o setting canónico que o
@@ -348,7 +374,7 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddAntiforgery();
 
-// Razor writes pt-PT text (Ã , Ã§, Â·, â€”) literally instead of numeric entities:
+// Razor writes pt-PT text (à, ç, ·, —) literally instead of numeric entities:
 // the default HtmlEncoder entity-encodes every non-Basic-Latin character.
 // HTML-sensitive characters (<, >, &, ", ') remain encoded regardless.
 builder.Services.AddSingleton<HtmlEncoder>(
@@ -361,6 +387,9 @@ builder.Services.AddSingleton<HtmlEncoder>(
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/Admin", AdminAuthorizationPolicies.RequireAdmin);
+    // Um envio grava uma vez (deep sweep, 18/10/2026): os handlers com
+    // [EnvioUnico] não gravam duas vezes a mesma chave X-Dmo-Envio.
+    options.Conventions.ConfigureFilter(new EnvioUnicoFilter());
 });
 
 // Durable DataProtection keyring: antiforgery tokens and the DmoAuth cookie
@@ -410,23 +439,28 @@ else if (OperatingSystem.IsWindows())
     dataProtection.ProtectKeysWithDpapi();
 }
 
+// O Railway termina o HTTPS à frente da app e passa o pedido em HTTP com
+// X-Forwarded-Proto/For. Sem ler esses cabeçalhos a app julga-se em HTTP:
+// os cookies da sessão saíam sem Secure e o HSTS nunca era enviado. A rede
+// do proxy não é fixa, por isso aceita-se o cabeçalho de qualquer origem
+// (o pior que um cliente consegue é marcar o próprio cookie como Secure).
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+        | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    if (!string.Equals(authProviderName, "Supabase", StringComparison.OrdinalIgnoreCase))
-    {
-        app.Logger.LogWarning(
-            "Authentication and user provisioning use Supabase outside Development. " +
-            "Set Dmo__AuthenticationProvider=Supabase explicitly; InMemory is only available in Development.");
-    }
+app.UseForwardedHeaders();
 
-    if (string.IsNullOrWhiteSpace(app.Configuration.GetConnectionString("DmoDatabase")))
-    {
-        app.Logger.LogError(
-            "ConnectionStrings__DmoDatabase is missing. PostgreSQL operations are unavailable; " +
-            "no InMemory database will be used outside Development. Login and the error page remain available.");
-    }
+// A configuração em falta fica no log do arranque, pelo nome da variável e
+// nunca pelo valor (sweep de 19/10/2026, 5.5). Nada trava o arranque.
+foreach (var problem in StartupConfigurationCheck.Problems(app.Configuration, app.Environment.IsDevelopment(), useSupabase))
+{
+    app.Logger.Log(problem.Level, "{ConfigurationProblem}", problem.Message);
 }
 
 // Optional read-only diagnostics for the existing online DEV service.
@@ -465,6 +499,24 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.UseAuthentication();
+
+// Depois de «Sair», o Voltar do browser não mostra as páginas da sessão
+// (deep sweep B-admin-5): o browser não guarda as respostas da aplicação.
+// Os ficheiros estáticos, servidos antes, continuam em cache.
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        if (!context.Response.Headers.ContainsKey(Microsoft.Net.Http.Headers.HeaderNames.CacheControl))
+        {
+            context.Response.Headers.CacheControl = "no-store";
+        }
+
+        return Task.CompletedTask;
+    });
+
+    await next();
+});
 
 // Admin-vs-operational gate.
 // A fronteira ADMIN não é apenas uma regra da barra de navegação.
@@ -531,18 +583,37 @@ app.Use(async (context, next) =>
 app.MapRazorPages();
 
 // As sugestões ao escrever (DMO-044): só para sessões autenticadas; fonte e
-// tipo fechados — um valor desconhecido devolve uma lista vazia.
+// tipo fechados — um valor desconhecido devolve uma lista vazia. Cada fonte
+// só responde a quem tem um dos módulos que a usam (as permissões são os
+// módulos): sem esse módulo a lista vem vazia.
+var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
+{
+    ["producoes"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove],
+    ["numeros"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove],
+    ["referencias"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas],
+    ["ferramentas"] = [DmoCapabilities.Ferramentas, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas],
+    ["reparadores"] = [DmoCapabilities.Boquilhas],
+    ["referencias_bq"] = [DmoCapabilities.Boquilhas],
+    ["referencias_registo"] = [DmoCapabilities.Ferramentas],
+};
 app.MapGet("/Sugestoes", async (
     string? fonte, string? q, string? tipo,
-    DMO.Alpha.Core.Search.ISuggestionQuery suggestions, HttpContext context) =>
+    DMO.Alpha.Core.Search.ISuggestionQuery suggestions, CurrentUserCapabilities capabilities, HttpContext context) =>
 {
-    var source = fonte?.Trim().ToLowerInvariant() switch
+    var fonteKey = fonte?.Trim().ToLowerInvariant() ?? string.Empty;
+    var granted = await capabilities.GetAsync(context.RequestAborted);
+    if (!suggestionModules.TryGetValue(fonteKey, out var modules) || !modules.Any(granted.Contains))
+        return Results.Json(Array.Empty<DMO.Alpha.Core.Search.Suggestion>());
+
+    var source = fonteKey switch
     {
         "producoes" => DMO.Alpha.Core.Search.SuggestionSource.Producoes,
         "referencias" => DMO.Alpha.Core.Search.SuggestionSource.Referencias,
         "numeros" => DMO.Alpha.Core.Search.SuggestionSource.NumerosProducao,
         "ferramentas" => DMO.Alpha.Core.Search.SuggestionSource.Ferramentas,
         "reparadores" => DMO.Alpha.Core.Search.SuggestionSource.Reparadores,
+        "referencias_bq" => DMO.Alpha.Core.Search.SuggestionSource.ReferenciasEBq,
+        "referencias_registo" => DMO.Alpha.Core.Search.SuggestionSource.ReferenciasRegisto,
         _ => (DMO.Alpha.Core.Search.SuggestionSource?)null
     };
     if (source is null)

@@ -19,7 +19,7 @@
   var mesSeguinte = Model.Month == 12 ? 1 : Model.Month + 1;
   var anoSeguinte = Model.Month == 12 ? Model.Year + 1 : Model.Year;
 }
-<div class="card dmo-calendar">
+<div class="card dmo-calendar" id="dmoCalendario" data-dmo-regiao data-dmo-parcial data-dmo-filtros="@Model.Filtros">
   <div class="calendar-head dmo-calendar-nav">
     @* O MÊS ANTERIOR: um form GET próprio, um mês e um ano enviados — a
        viragem janeiro→dezembro volta ao ano anterior. *@
@@ -30,7 +30,7 @@
       }
       <input type="hidden" name="mes" value="@mesAnterior" />
       <input type="hidden" name="ano" value="@anoAnterior" />
-      <button class="icon-btn" type="submit" aria-label="Mês anterior">‹</button>
+      <button class="icon-btn" type="submit" id="dmoCalendarioAnterior" aria-label="Mês anterior">‹</button>
     </form>
     <strong id="dmo-calendar-title">@Model.MonthTitle</strong>
     @* O MÊS SEGUINTE: idem — a viragem dezembro→janeiro avança o ano. *@
@@ -41,12 +41,15 @@
       }
       <input type="hidden" name="mes" value="@mesSeguinte" />
       <input type="hidden" name="ano" value="@anoSeguinte" />
-      <button class="icon-btn" type="submit" aria-label="Mês seguinte">›</button>
+      <button class="icon-btn" type="submit" id="dmoCalendarioSeguinte" aria-label="Mês seguinte">›</button>
     </form>
   </div>
   <div class="week dmo-calendar-week">
     <span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span><span>DOM</span>
   </div>
+  @* O FOCO FICA NO SÍTIO (deep sweep, 18/10/2026, B-jobon-9): as setas e os
+     dias têm id, para a troca da zona devolver o foco ao mesmo elemento
+     (o dia escolhido, a seta do mês) e o Enter seguinte continuar dali. *@
   <div class="days dmo-calendar-days">
     @{
       var primeiro = new DateTime(Model.Year, Model.Month, 1);
@@ -72,20 +75,20 @@
       };
       if (estado is not null && estado.Selected)
       {
-        @* O DIA JÁ ESCOLHIDO (Diogo, 17/10/2026: «um click entra no dia do
-           calendário, se clicar duas vezes no que já está selecionado
-           retira»): o duplo clique tira a seleção (dia=0), sem botão. *@
-        var semDia = new Dictionary<string, string?>(routeValues!) { ["dia"] = "0" };
-        <a class="@string.Join(" ", classes)"
+        @* O DIA JÁ ESCOLHIDO (Diogo, 18/10/2026: um clique, «desnecessário
+           2»): clicar de novo no dia escolhido tira a seleção (dia=0), sem
+           botão; sem script, o link já leva ao mês sem dia. *@
+        var semDia = new Dictionary<string, string>(routeValues) { ["dia"] = "0" };
+        <a class="@string.Join(" ", classes)" id="dmoDia-@dia"
            asp-page="@Model.NavigationPage"
-           asp-all-route-data="routeValues"
+           asp-all-route-data="semDia"
            data-dmo-calendar-unselect="@Url.Page(Model.NavigationPage, new Microsoft.AspNetCore.Routing.RouteValueDictionary(semDia))"
            aria-current="date"
-           title="Duplo clique para tirar a seleção">@dia</a>
+           title="Clique para tirar a seleção">@dia</a>
       }
       else
       {
-        <a class="@string.Join(" ", classes)"
+        <a class="@string.Join(" ", classes)" id="dmoDia-@dia"
            asp-page="@Model.NavigationPage"
            asp-all-route-data="routeValues">@dia</a>
       }

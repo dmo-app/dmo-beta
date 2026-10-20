@@ -1,4 +1,5 @@
 using DMO.Alpha.Core.Admin;
+using DMO.Alpha.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -29,12 +30,29 @@ public class IndexModel(IAdminEmailSettings adminEmailSettings) : PageModel
         "ok-admin" => "Email do ADMIN guardado.",
         "admin-email-invalida" => "O email indicado não é utilizável.",
         "admin-email-diferente" => "Os dois emails não coincidem. O email do ADMIN não foi alterado.",
+        "admin-email-sem-conta" => "Este email ainda não tem conta. Crie primeiro o utilizador em Admin → Utilizadores.",
         _ => string.Empty
     };
 
-    public async Task<IActionResult> OnGetAsync(string? save)
+    /// <summary>
+    /// O link da recusa de um email sem conta: abre o «Criar utilizador» em
+    /// Admin → Utilizadores, já com o email escrito. Null nas outras mensagens.
+    /// </summary>
+    public DmoAvisoLink? NoAccountLink { get; private set; }
+
+    /// <summary>TRUE quando o save transportado é uma gravação feita (a mensagem fecha sozinha).</summary>
+    public bool SaveSucceeded => SaveResult == "ok-admin";
+
+    public async Task<IActionResult> OnGetAsync(string? save, string? email)
     {
         SaveResult = save;
+        if (save == "admin-email-sem-conta")
+        {
+            var comEmail = email?.Trim() is { Length: > 0 and <= 256 } semConta
+                ? $"?email={Uri.EscapeDataString(semConta)}"
+                : null;
+            NoAccountLink = new DmoAvisoLink("Criar o utilizador", $"/Admin/Users{comEmail}#dmuCriar");
+        }
         AdminEmail = await adminEmailSettings.GetAdminEmailAsync(HttpContext.RequestAborted);
         return Page();
     }
@@ -60,7 +78,14 @@ public class IndexModel(IAdminEmailSettings adminEmailSettings) : PageModel
             adminEmail ?? string.Empty,
             HttpContext.RequestAborted);
 
-        var save = outcome == SaveAdminEmailResult.Success ? "ok-admin" : "admin-email-invalida";
-        return RedirectToPage("/Admin/Definicoes/Index", new { save });
+        return outcome switch
+        {
+            SaveAdminEmailResult.Success => RedirectToPage("/Admin/Definicoes/Index", new { save = "ok-admin" }),
+            // Um email sem conta não se grava: com ele, ninguém voltava a
+            // entrar no Admin (sweep de 19/10/2026, AD-1).
+            SaveAdminEmailResult.NoAccount => RedirectToPage("/Admin/Definicoes/Index",
+                new { save = "admin-email-sem-conta", email = adminEmail?.Trim() }),
+            _ => RedirectToPage("/Admin/Definicoes/Index", new { save = "admin-email-invalida" })
+        };
     }
 }

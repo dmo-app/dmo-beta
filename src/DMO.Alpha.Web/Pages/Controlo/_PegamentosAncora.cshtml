@@ -1,8 +1,14 @@
 @model DMO.Alpha.Core.Controlo.PegamentosSheetReadModel
-@* A âncora dos POSTs da folha: o controlo_id da produção ou, nos Pegamentos sem Job On, o pegamentos_id. *@
+@* A âncora dos POSTs da folha: o controlo_id da produção ou, nos Pegamentos sem Job On, o pegamentos_id.
+   Uma folha de antes de uma troca da CM, da BQ ou do MF leva também o pegamentos_id dela: corrigir,
+   apagar e o PDF ficam nessa folha (18/10/2026). *@
 @if (Model.ControloId is int controloId)
 {
   <input type="hidden" name="controlo_id" value="@controloId" />
+  @if (Model.Pegamentos is { IsCurrent: false } folhaAnterior)
+  {
+    <input type="hidden" name="pegamentos_id" value="@folhaAnterior.PegamentosId" />
+  }
 }
 else
 {

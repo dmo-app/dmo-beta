@@ -12,14 +12,21 @@
 .dmu-card{padding:18px}
 .dmu-card h3{margin:0 0 4px;font-size:16px}
 .dmu-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
-.dmu-form-grid{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(100px,.55fr) minmax(200px,1.7fr) minmax(200px,1.7fr) auto;gap:10px;align-items:end}
+.dmu-form-grid{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(100px,.55fr) minmax(200px,1.7fr) minmax(200px,1.7fr);gap:10px;align-items:end}
+.dmu-card .dmo-card-topo{margin:0 0 12px}
+.dmu-card .dmo-card-topo h3{margin:0}
 .dmu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
-.dmu-entrega{padding:16px 18px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050);border-radius:10px;display:grid;gap:8px}
+.dmu-entrega{display:grid;gap:8px}
 .dmu-entrega h3{margin:0;font-size:15px}
 .dmu-entrega .dmu-token{display:grid;gap:2px;padding:10px 12px;background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
 .dmu-entrega .dmu-token span{color:var(--dmo-muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
 .dmu-entrega .dmu-token strong{font-size:15px;letter-spacing:.4px;word-break:break-all}
 .dmu-entrega .dmu-nota{color:var(--dmo-muted);font-size:11.5px;margin:0}
+/* Nesta página a pilha das mensagens fica em baixo, à direita: o aviso do PIN
+   (alto e só fecha no «×») tapava «Criar utilizador» e a «Template de acesso»
+   no canto do cartão, e o utilizador seguinte já não se criava com o rato
+   (B-admin-2, deep sweep 18/10/2026). O top em linha vem do dmo-live.js. */
+html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{top:auto!important;bottom:16px}
 .dmu-pill-temp{background:#fdf6e3;border-color:#e8d9a8;color:#8a6d1a}
 .dmu-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .dmu-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
@@ -27,7 +34,13 @@
 </style>
 }
 
-<main class="dmu-page" aria-labelledby="dmu-title">
+@* Atualizar só o que muda (E10): criar um utilizador grava sem recarregar.
+   Trocam só as mensagens (#dmuAvisos), o formulário (#dmuCriar, limpo depois
+   de criar, com o que se escreveu numa recusa) e a lista (#dmu-resultados);
+   o foco fica no campo ou no botão onde estava. O email e o PIN temporário
+   ficam na pilha do canto (data-dmo-toast="aviso", até se fechar), sem
+   empurrar o formulário. A ficha de cada utilizador abre a página inteira. *@
+<main data-dmo-troca class="dmu-page" aria-labelledby="dmu-title">
 
   <div class="page-head">
     <div>
@@ -39,9 +52,10 @@
   @* ------------------------------------------------------------------ *@
   @* Resultado UMA-VEZ do criar: email + password temporária (TempData). *@
   @* ------------------------------------------------------------------ *@
+  <div id="dmuAvisos" class="dmo-zona" data-dmo-regiao>
   @if (Model.CreatedUserTemporaryPassword is not null)
   {
-    <section class="dmu-entrega" role="status" aria-label="Utilizador criado">
+    <section class="dmu-entrega" data-dmo-toast="aviso" data-dmo-toast-fica role="status" aria-label="Utilizador criado">
       <h3>Utilizador criado — @Model.CreatedUserName (nº @Model.CreatedUserOperatorId)</h3>
       <div class="dmu-token">
         <span>Email de autenticação</span>
@@ -60,7 +74,7 @@
   @* ------------------------------------------------------------------ *@
   @if (Model.ResetTemporaryPassword is not null)
   {
-    <section class="dmu-entrega" role="status" aria-label="Acesso reposto">
+    <section class="dmu-entrega" data-dmo-toast="aviso" data-dmo-toast-fica role="status" aria-label="Acesso reposto">
       <h3>Acesso reposto — nº @Model.ResetOperatorId</h3>
       <div class="dmu-token">
         <span>Novo PIN temporário (mostrado uma vez)</span>
@@ -72,7 +86,7 @@
 
   @if (Model.CreateRefusal is not null)
   {
-    <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.CreateRefusalMessage</div>
+    <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.CreateRefusalMessage@if (Model.CreateRefusalLink is { } recusaLink) {<partial name="_DmoAvisoLink" model="recusaLink" />}</div>
   }
   @if (Model.TemplateRefusal is not null)
   {
@@ -94,13 +108,22 @@
   {
     <div data-dmo-toast="erro" class="dmu-aviso" role="alert">@Model.ResetRefusalMessage</div>
   }
+  </div>
 
   @* ------------------------------------------------------------------ *@
   @* 1. Criar utilizador — o ato canónico do ADMIN (USERS.md §2).        *@
   @* ------------------------------------------------------------------ *@
-  <section class="dmo-card dmu-card" aria-labelledby="dmu-create-title">
-    <h3 id="dmu-create-title">Criar utilizador<partial name="_DmoHelp" model="@("O PIN temporário é mostrado uma vez. O nº de operador tem até 4 dígitos.")" /></h3>
-    <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Create" class="dmu-form-grid">
+  <section id="dmuCriar" class="dmo-card dmu-card" aria-labelledby="dmu-create-title" data-dmo-regiao data-dmo-parcial>
+    @* O botão no canto superior direito do cartão (Diogo, 18/10/2026:
+       «sempre canto superior direito dentro dos cards»); é o botão do
+       formulário (form="dmuCriarForm"), Enter num campo também cria. *@
+    <div class="dmo-card-topo">
+      <h3 id="dmu-create-title">Criar utilizador<partial name="_DmoHelp" model="@("O PIN temporário é mostrado uma vez. O nº de operador tem até 4 dígitos.")" /></h3>
+      <div class="dmo-card-topo-acoes">
+        <button type="submit" class="dmo-button" id="dmuCriarBotao" form="dmuCriarForm">Criar utilizador</button>
+      </div>
+    </div>
+    <form id="dmuCriarForm" method="post" asp-page="/Admin/Users/Index" asp-page-handler="Create" class="dmu-form-grid">
       <div class="dmo-field">
         <label for="dmu-name">Nome</label>
         <input id="dmu-name" name="name" value="@Model.RequestedName" required maxlength="100" placeholder="Ex.: Ana Martins" />
@@ -123,17 +146,13 @@
           }
         </select>
       </div>
-      <div class="dmo-field">
-        <label>&nbsp;</label>
-        <button type="submit" class="dmo-button">Criar utilizador</button>
-      </div>
     </form>
   </section>
 
   @* ------------------------------------------------------------------ *@
   @* 2. Utilizadores — factos de aplicação e email, sem ids (D5).        *@
   @* ------------------------------------------------------------------ *@
-  <section class="dmo-card dmu-card" aria-labelledby="dmu-list-title">
+  <section class="dmo-card dmu-card" id="dmu-resultados" data-dmo-regiao aria-labelledby="dmu-list-title">
     <h3 id="dmu-list-title">Utilizadores internos<partial name="_DmoHelp" model="@("Um clique abre a ficha.")" /></h3>
     <p class="card-note">@Model.UsersPager.TotalCount utilizador(es)</p>
 

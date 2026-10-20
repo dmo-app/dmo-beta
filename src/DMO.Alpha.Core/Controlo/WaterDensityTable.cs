@@ -15,6 +15,12 @@ namespace DMO.Alpha.Core.Controlo;
 /// que os valores derivados dos Pesos históricos recalculam retroativamente
 /// com a tabela (Peso #1 incluído — registo histórico mantém os factos
 /// observados: massas de água e temperatura).
+///
+/// Desde 19/10/2026 (AV-PESO-01) cada Peso grava a densidade que usou e é
+/// essa que conta ao lê-lo (<see cref="ForPeso"/>): a correção da tabela
+/// pela DT9 (beta.283) já não mexe nos Pesos gravados antes dela, como a
+/// densidade do vidro (D15). A tabela continua a dar a densidade dos Pesos
+/// novos e das comparações.
 /// </summary>
 public static class WaterDensityTable
 {
@@ -30,9 +36,12 @@ public static class WaterDensityTable
         // TABELA REAL DA FÁBRICA (genesis, folha «Temp», 5 decimais) —
         // decisão Owner 1b de 2026-10-10 (supersedes a tabela de física pura
         // a 4 decimais que vivia aqui; a divergência era ~0,001/grau).
+        // Fonte oficial da folha: o fator K da ficha CETIE DT9 (setembro de
+        // 1993), enviada pelo Diogo a 19/10/2026; corrigiu as três gralhas
+        // da folha «Temp» (6, 18 e 30 °C).
         0m, 0m, 0m, 0m, 0m,
         0.99888m, // 5
-        0.99885m, // 6
+        0.99886m, // 6
         0.99882m, // 7
         0.99877m, // 8
         0.99871m, // 9
@@ -44,7 +53,7 @@ public static class WaterDensityTable
         0.99805m, // 15
         0.99789m, // 16
         0.99773m, // 17
-        0.99765m, // 18
+        0.99755m, // 18
         0.99737m, // 19
         0.99717m, // 20
         0.99696m, // 21
@@ -56,7 +65,7 @@ public static class WaterDensityTable
         0.99551m, // 27
         0.99523m, // 28
         0.99494m, // 29
-        0.99485m, // 30
+        0.99465m, // 30
         0.99435m, // 31
         0.99403m, // 32
         0.99371m, // 33
@@ -99,4 +108,12 @@ public static class WaterDensityTable
 
         return DensitiesByWholeDegree[temperatureWholeDegreeC];
     }
+
+    /// <summary>
+    /// A densidade da água de um Peso gravado: a que ficou gravada nele (a
+    /// que usou; AV-PESO-01, 19/10/2026) ou, num Peso sem ela, a da tabela
+    /// para o grau. Todas as leituras de um Peso passam por aqui.
+    /// </summary>
+    public static decimal? ForPeso(decimal? gravada, int temperatureWholeDegreeC) =>
+        gravada ?? Resolve(temperatureWholeDegreeC);
 }

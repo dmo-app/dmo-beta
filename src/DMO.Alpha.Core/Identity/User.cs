@@ -30,6 +30,13 @@ public sealed class User
 
     public bool RequiresPasswordChange { get; set; }
 
+    /// <summary>
+    /// Versão das sessões do User: sobe quando o ADMIN repõe a palavra-passe
+    /// e quando o User escolhe uma nova. Cada cookie leva a versão com que
+    /// entrou; um cookie com uma versão anterior deixa de valer.
+    /// </summary>
+    public int SessionVersion { get; set; }
+
     public bool IsStandBy { get; set; }
 
     /// <summary>

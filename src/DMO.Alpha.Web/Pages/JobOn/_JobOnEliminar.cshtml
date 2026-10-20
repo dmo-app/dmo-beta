@@ -1,0 +1,24 @@
+@model DMO.Alpha.Web.Presentation.JobOnEliminarAviso
+@* ELIMINAR JOB ON (Diogo, 19/10/2026, D2): uma janela pequena com a
+   confirmação. A partir do dia de início avisa que a produção pode já ter
+   produzido e diz o que se perde; nada bloqueia. Grava pela fila da página
+   (data-dmo-parcial): um segundo clique igual não sai. *@
+<dialog id="jobon-delete-dialog" class="dmo-dialog" aria-labelledby="jobon-delete-title">
+  <h3 id="jobon-delete-title">Eliminar Job On</h3>
+  <p>@Model.Pergunta</p>
+  @if (Model.JaProduziu is { } jaProduziu)
+  {
+    <p class="dmo-aviso-discreto" data-jobon-eliminar="ja-produziu">@jaProduziu</p>
+  }
+  @if (Model.Perde is { } perde)
+  {
+    <p class="dmo-aviso-discreto" data-jobon-eliminar="perde">@perde</p>
+  }
+  <form method="post" asp-page="/JobOn/Eliminar" data-dmo-parcial>
+    <input type="hidden" name="jobon_id" value="@Model.JobOnId" />
+    <div class="dmo-dialog-actions">
+      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+      <button type="submit" class="dmo-button">Eliminar</button>
+    </div>
+  </form>
+</dialog>

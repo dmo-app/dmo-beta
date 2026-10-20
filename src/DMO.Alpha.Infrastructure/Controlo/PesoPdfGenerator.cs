@@ -42,7 +42,35 @@ public sealed class PesoPdfGenerator
         decimal? VolumeTampaoCm3 = null,
         decimal? CaloteMm = null,
         /// <summary>A produção anterior com o peso do SAP (o Owner 2026-10-17); null = por indicar.</summary>
-        PesoProducaoAnteriorReadModel? ProducaoAnterior = null);
+        PesoProducaoAnteriorReadModel? ProducaoAnterior = null)
+    {
+        /// <summary>
+        /// «Peso 2 de 2 · CM 5448 · Lote 2 · BQ T194 · Lote 7» numa produção
+        /// com mais do que um Peso (a CM ou a BQ mudou a meio; 18/10/2026);
+        /// null com um só, como sempre.
+        /// </summary>
+        public string? SheetLabel { get; init; }
+
+        /// <summary>A secção deste Peso no PDF composto do Resumo (uma por Peso).</summary>
+        public string SectionName { get; init; } = "peso";
+    }
+
+    /// <summary>
+    /// O Peso numa produção com mais do que um: o número, o total e as
+    /// ferramentas dele. Null com um só Peso (o papel fica como sempre).
+    /// </summary>
+    public static string? SheetLabelOf(PesoReadModel peso, IReadOnlyList<PesoReadModel> pesosDaProducao)
+    {
+        var numero = pesosDaProducao.ToList().FindIndex(p => p.PesoId == peso.PesoId) + 1;
+        if (pesosDaProducao.Count < 2 || numero < 1)
+        {
+            return null;
+        }
+
+        return $"Peso {numero} de {pesosDaProducao.Count} · CM {peso.CmToolReference ?? "—"} · Lote {peso.CmToolLot ?? "—"}"
+            + $" · BQ {peso.BqToolReference ?? "—"} · Lote {peso.BqToolLot ?? "—"}"
+            + (peso.IsCurrent ? "" : " · de antes da troca");
+    }
 
     public sealed record Reading(
         int Position,
@@ -88,15 +116,19 @@ public sealed class PesoPdfGenerator
                     row.RelativeItem().Text($"{input.Reference}     ·     {input.ProductionNumber}     ·     {input.Machine}").FontSize(10);
                     row.ConstantItem(85).AlignRight().Text(DmoBusinessTime.Now.ToString("d", Pt)).FontColor(Muted);
                 });
+                if (input.SheetLabel is { } sheetLabel)
+                {
+                    header.Item().PaddingTop(3).Text(sheetLabel).FontSize(9).SemiBold().FontColor(Blue);
+                }
                 header.Item().PaddingTop(9).LineHorizontal(0.7f).LineColor(Line);
             });
             page.Content().Column(content =>
             {
-                content.Item().Section("peso");
+                content.Item().Section(input.SectionName);
                 content.Item().Row(row =>
                 {
                     row.Spacing(8);
-                    row.RelativeItem(1.3f).Element(c => Box(c, DmoPdfPalette.Deep, DmoPdfPalette.Deep)).Padding(12).MinHeight(102).DefaultTextStyle(x => x.FontColor("#ffffff")).Column(c =>
+                    row.RelativeItem(1.3f).Element(c => Box(c, DmoPdfPalette.Deep, DmoPdfPalette.Deep)).Padding(12).MinHeight(102).DefaultTextStyle(x => x.FontColor(DmoPdfPalette.White)).Column(c =>
                     {
                         c.Item().Text("Peso atual").FontSize(10).SemiBold();
                         c.Item().PaddingTop(12).Text(t =>
@@ -153,15 +185,14 @@ public sealed class PesoPdfGenerator
                         SignedOrDash(deviation.Grams) + " g", SignedOrDash(deviation.Percent) + " %");
                 });
 
-                SectionTitle(content.Item().PaddingTop(13), "Comparação com o controlo anterior");
+                // As leituras e a comparação com o controlo anterior numa só
+                // tabela (Diogo, 20/10/2026: «as tabelas do peso deveriam ser
+                // as duas juntas»): a massa de água, o volume e o peso de cada
+                // CM, ao lado da CM anterior e dos deltas, e a média no fim.
+                SectionTitle(content.Item().PaddingTop(13), input.Comparison is null ? "Leituras por CM" : "Leituras por CM e comparação com o controlo anterior");
+                content.Item().PaddingTop(4).Text("Volume em cm³, grandeza distinta do peso.").FontSize(8).FontColor(Muted);
                 content.Item().PaddingTop(6).Element(c => Box(c)).Element(c => ComposeWeightTable(c, input, input.Comparison));
                 ComposeTechnicalContext(content.Item().PaddingTop(13), input);
-
-                // Capacity data on its own page, without compressing the reference sheet.
-                content.Item().PageBreak();
-                SectionTitle(content.Item(), "Volume e peso por contra-molde (CM)");
-                content.Item().PaddingTop(4).Text("Capacidade / volume em cm³. Grandeza distinta do peso.").FontSize(8).FontColor(Muted);
-                content.Item().PaddingTop(7).Element(c => Box(c)).Element(c => ComposeCapacityTable(c, input));
             });
             page.Footer().PaddingTop(8).BorderTop(.6f).BorderColor(Line).PaddingTop(6).Row(row =>
             {
@@ -178,7 +209,7 @@ public sealed class PesoPdfGenerator
         });
     }
 
-    private static IContainer Box(IContainer c, string background = "#ffffff", string border = Line) =>
+    private static IContainer Box(IContainer c, string background = DmoPdfPalette.White, string border = Line) =>
         c.Background(background).Border(.7f).BorderColor(border).CornerRadius(7);
 
     private static void SmallCard(IContainer container, string label, string value, string caption) =>
@@ -229,7 +260,7 @@ public sealed class PesoPdfGenerator
         c.Item().PaddingTop(7).Row(row =>
         {
             row.Spacing(7);
-            SmallCard(row.RelativeItem(), "DENSIDADE DO VIDRO", Fmt(input.GlassDensity), "g/cm³");
+            SmallCard(row.RelativeItem(), "DENSIDADE DO VIDRO", Fmt(input.GlassDensity, "0.#####"), "g/cm³");
             SmallCard(row.RelativeItem(), "VOLUME MARISA / PUNÇÃO", Fmt(input.VolumeMarisaCm3) + " / " + Fmt(input.VolumePuncaoCm3), "cm³ · fixos");
             SmallCard(row.RelativeItem(), "VOLUME DO TAMPÃO", input.VolumeTampaoCm3 is { } tampao ? Fmt(tampao) : "—",
                 input.VolumeTampaoCm3 is null ? "Tampão não registado na CM"
@@ -244,9 +275,9 @@ public sealed class PesoPdfGenerator
                 " · fim: " + (anterior.FimEm?.ToString("d", Pt) ?? "—") +
                 " · peso usado (SAP): " + (anterior.PesoGramas is { } sap ? Fmt(sap) + " g" : "—")).FontSize(7).FontColor(Muted);
         }
-        c.Item().PaddingTop(5).Text(input.Approval?.ApprovedByOperatorId is { } approver
-            ? "Aprovado por: operador " + approver + (input.Approval.ApprovedAtUtc is { } at ? " · " + DmoBusinessTime.ToLocal(at).ToString("g", Pt) : "")
-            : "Aprovação: sem registo").FontSize(8);
+        // A decisão do Peso (sweep de 19/10/2026, C-3): aprovado, não aprovado
+        // com a nota, ou por aprovar.
+        c.Item().PaddingTop(5).Text(input.Approval?.Frase(Pt) ?? "Por aprovar").FontSize(8);
     });
 
     public static Input FromModel(PesoReadModel peso, string production, string reference, string machine,
@@ -261,54 +292,42 @@ public sealed class PesoPdfGenerator
                 m.CapacityCm3, m.GlassWeightGrams)).ToArray(), peso.Averages, comparison, path, approval,
             generatedBy, previousPesoComparison, inicio, fim, cap?.VolumeEfetivoCm3, cap?.AlturaEfetivaMm, producaoAnterior);
 
-    // A tabela compara CM com CM pela ordem das leituras, sem exigir o mesmo
-    // número de CM (o Owner 2026-10-17: «comparando cm com cm, não precisa de
-    // ser par»): o volume, o peso e a diferença, e as médias no fim.
+    // Uma linha por CM, pela ordem das leituras: a massa de água, o volume e o
+    // peso atuais e, com controlo anterior, a CM dele, o volume, o peso e os
+    // deltas, sem exigir o mesmo número de CM (o Owner 2026-10-17: «comparando
+    // cm com cm, não precisa de ser par»), e as médias no fim.
     private static void ComposeWeightTable(IContainer container, Input input, PesoComparisonView? comparison) => container.Table(t =>
     {
-        t.ColumnsDefinition(c => { for (var k = 0; k < 8; k++) c.RelativeColumn(); });
+        var titles = comparison is null
+            ? new[] { "CM", "MASSA DE\nÁGUA (G)", "VOLUME\n(CM³)", "PESO DO\nVIDRO (G)" }
+            : new[] { "CM\nATUAL", "MASSA DE\nÁGUA (G)", "VOLUME\nATUAL (CM³)", "PESO\nATUAL (G)", "CM\nANTERIOR", "VOLUME\nANTERIOR (CM³)", "PESO\nANTERIOR (G)", "Δ VOLUME\n(CM³)", "Δ PESO\n(G)" };
+        t.ColumnsDefinition(c => { foreach (var _ in titles) c.RelativeColumn(); });
         t.Header(h =>
         {
-            foreach (var title in new[] { "CM\nATUAL", "VOLUME\nATUAL (CM³)", "PESO\nATUAL (G)", "CM\nANTERIOR", "VOLUME\nANTERIOR (CM³)", "PESO\nANTERIOR (G)", "Δ VOLUME\n(CM³)", "Δ PESO\n(G)" })
+            foreach (var title in titles)
                 h.Cell().Element(HeaderCell).Text(title).FontSize(6.5f).SemiBold();
         });
         int index = 0;
         foreach (var reading in input.Readings)
         {
+            var atual = new[] { reading.CmSubject, Fmt(reading.WaterWeightGrams), Fmt(reading.CapacityCm3, "0.000"), Fmt(reading.GlassWeightGrams) };
             var anterior = comparison?.Rows.FirstOrDefault(r => r.Position == reading.Position);
-            foreach (var value in new[] { reading.CmSubject, Fmt(reading.CapacityCm3, "0.000"), Fmt(reading.GlassWeightGrams),
+            var values = comparison is null ? atual : atual.Concat(new[] {
                 anterior?.HistoricalCmSubject is { Length: > 0 } cmAnterior ? cmAnterior : "—",
                 Avg3(anterior?.HistoricalCapacityCm3), Avg(anterior?.HistoricalGlassWeightGrams),
                 anterior?.HistoricalCapacityCm3 is { } hcap ? Signed(reading.CapacityCm3 - hcap) : "—",
-                anterior is not null ? Signed(reading.GlassWeightGrams - anterior.HistoricalGlassWeightGrams) : "—" })
-                t.Cell().Element(c => BodyCell(c, index % 2 == 0 ? "#ffffff" : DmoPdfPalette.Soft)).Text(value).FontSize(8.5f);
+                anterior is not null ? Signed(reading.GlassWeightGrams - anterior.HistoricalGlassWeightGrams) : "—" });
+            foreach (var value in values)
+                t.Cell().Element(c => BodyCell(c, index % 2 == 0 ? DmoPdfPalette.White : DmoPdfPalette.Soft)).Text(value).FontSize(8.5f);
             index++;
         }
-        foreach (var value in new[] { "Média", Avg3(input.Averages?.AverageCapacityCm3), Avg(input.Averages?.AverageGlassWeightGrams), "",
-            Avg3(comparison?.HistoricalAverages?.AverageCapacityCm3), Avg(comparison?.HistoricalAverages?.AverageGlassWeightGrams),
-            SignedOrDash(comparison?.Deltas.CapacityDifferenceCm3),
-            SignedOrDash(comparison?.Deltas.GlassWeightDifferenceGrams) + (comparison?.Deltas.GlassWeightVariationPercent is { } pct ? " (" + Signed(pct) + " %)" : "") })
+        var media = new[] { "Média", Avg(input.Averages?.AverageWaterWeightGrams), Avg3(input.Averages?.AverageCapacityCm3), Avg(input.Averages?.AverageGlassWeightGrams) };
+        var mediaValues = comparison is null ? media : media.Concat(new[] { "",
+            Avg3(comparison.HistoricalAverages?.AverageCapacityCm3), Avg(comparison.HistoricalAverages?.AverageGlassWeightGrams),
+            SignedOrDash(comparison.Deltas.CapacityDifferenceCm3),
+            SignedOrDash(comparison.Deltas.GlassWeightDifferenceGrams) + (comparison.Deltas.GlassWeightVariationPercent is { } pct ? " (" + Signed(pct) + " %)" : "") });
+        foreach (var value in mediaValues)
             t.Cell().Element(c => BodyCell(c, DmoPdfPalette.Tint)).Text(value).FontSize(8.5f).SemiBold();
-    });
-
-    // O volume e o peso de cada CM controlada (o volume vai para o mcaliper).
-    private static void ComposeCapacityTable(IContainer container, Input input) => container.Table(t =>
-    {
-        t.ColumnsDefinition(c => { c.RelativeColumn(.8f); c.RelativeColumn(); c.RelativeColumn(); });
-        t.Header(h =>
-        {
-            foreach (var title in new[] { "CM", "VOLUME\n(CM³)", "PESO DO VIDRO\n(G)" })
-                h.Cell().Element(HeaderCell).Text(title).FontSize(7).SemiBold();
-        });
-        int index = 0;
-        foreach (var reading in input.Readings)
-        {
-            foreach (var value in new[] { "CM " + reading.CmSubject, Fmt(reading.CapacityCm3, "0.000"), Fmt(reading.GlassWeightGrams) })
-                t.Cell().Element(c => BodyCell(c, index % 2 == 0 ? "#ffffff" : DmoPdfPalette.Soft)).Text(value).FontSize(9);
-            index++;
-        }
-        foreach (var value in new[] { "Média dos CM", Avg3(input.Averages?.AverageCapacityCm3), Avg(input.Averages?.AverageGlassWeightGrams) })
-            t.Cell().Element(c => BodyCell(c, DmoPdfPalette.Tint)).Text(value).FontSize(9).SemiBold();
     });
 
     private static string Avg3(decimal? v) => v is { } value ? Fmt(value, "0.000") : "—";

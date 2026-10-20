@@ -65,17 +65,46 @@ public sealed class ToolLookupQuery : IToolLookupQuery
             return null;
         }
 
+        return await ByReference(_db, reference, type).FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Os lotes de uma referência: as Tools do tipo pedido com essa
+    /// referência, do lote mais alto para o mais baixo, pela ordem de
+    /// <see cref="FindByReferenceAsync"/>. Os Pegamentos sem Job On
+    /// mostram-nos para o operador escolher o lote que está na máquina
+    /// (sweep de 19/10/2026, C-4).
+    /// </summary>
+    public static async Task<IReadOnlyList<ToolLookupResult>> ListByReferenceAsync(
+        DmoDbContext db,
+        string reference,
+        ToolType type,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(reference))
+        {
+            return [];
+        }
+
+        return await ByReference(db, reference, type).ToListAsync(cancellationToken);
+    }
+
+    // O lote mais alto primeiro: pelo comprimento e depois pelo texto, para
+    // que «10» venha depois de «9». «s/lote» fica sempre em último: pelo
+    // comprimento ganhava aos lotes numerados (sweep de 19/10/2026, C-4).
+    private static IQueryable<ToolLookupResult> ByReference(DmoDbContext db, string reference, ToolType type)
+    {
         var wanted = reference.Trim().ToUpperInvariant();
-        return await _db.Tools
+        return db.Tools
             .AsNoTracking()
             .Where(t => t.Type == type
                 && t.Reference != null
                 && t.Reference.ToUpper() == wanted
                 && t.ToolId != ToolRegistryConstants.RemovedToolId)
-            .OrderByDescending(t => t.Lot.Length)
+            .OrderBy(t => t.Lot == ToolRegistryConstants.NoLot)
+            .ThenByDescending(t => t.Lot.Length)
             .ThenByDescending(t => t.Lot)
             .ThenByDescending(t => t.ToolId)
-            .Select(t => new ToolLookupResult(t.ToolId, t.Type, t.Reference, t.Lot))
-            .FirstOrDefaultAsync(cancellationToken);
+            .Select(t => new ToolLookupResult(t.ToolId, t.Type, t.Reference, t.Lot));
     }
 }

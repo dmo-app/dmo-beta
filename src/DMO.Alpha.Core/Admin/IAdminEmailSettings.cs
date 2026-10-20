@@ -16,7 +16,9 @@ public interface IAdminEmailSettings
 
     /// <summary>
     /// Guarda o email do ADMIN (upsert da chave canónica). Recusa tipada
-    /// quando o texto não é um email utilizável.
+    /// quando o texto não é um email utilizável e quando o email ainda não
+    /// tem conta: só o ADMIN atual e os utilizadores criados em Admin →
+    /// Utilizadores conseguem entrar com ele.
     /// </summary>
     Task<SaveAdminEmailResult> SaveAdminEmailAsync(
         string email,
@@ -30,11 +32,30 @@ public interface IAdminEmailSettings
     Task<bool> TryClaimAdminEmailAsync(
         string email,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// O email do ADMIN e a versão da sessão do ADMIN, numa só leitura (o
+    /// validador do cookie corre em cada pedido). Sem versão gravada vale 0.
+    /// </summary>
+    Task<(string? Email, int SessionVersion)> GetAdminSessionAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// O ADMIN mudou a palavra-passe: sobe a versão da sessão, para as
+    /// sessões abertas noutros computadores terminarem. Devolve a versão nova.
+    /// </summary>
+    Task<int> BumpAdminSessionVersionAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>Resultado tipado do save do email do ADMIN.</summary>
 public enum SaveAdminEmailResult
 {
     Success,
-    InvalidEmail
+    InvalidEmail,
+
+    /// <summary>
+    /// O email não é o do ADMIN atual nem o de um utilizador: ninguém
+    /// conseguiria entrar como ADMIN e a sessão atual caía (sweep de
+    /// 19/10/2026, AD-1).
+    /// </summary>
+    NoAccount
 }

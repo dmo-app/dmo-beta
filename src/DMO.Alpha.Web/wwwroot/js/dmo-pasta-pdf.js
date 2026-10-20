@@ -123,7 +123,12 @@
   }
 
   // Os formulários dos PDFs do Controlo (Peso, Pegamentos, PU NNPB e Resumo).
+  // Um envio igual ao que ainda não acabou (o mesmo formulário, com o mesmo
+  // corpo) é ignorado, como no envio sem pasta: um duplo clique grava um só
+  // ficheiro e mostra uma só mensagem (sweep de 19/10/2026, FE-7). Gerar
+  // outra vez depois de acabar continua a dar o «NOME (2).pdf».
   function bindPdfForms(folder) {
+    var emCurso = new WeakMap();
     document.addEventListener("submit", function (event) {
       var form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
@@ -132,6 +137,12 @@
       event.preventDefault();
       // Como o envio normal: campos codificados para URL, com o botão carregado.
       var body = new URLSearchParams(new FormData(form, event.submitter || undefined));
+      var chave = body.toString();
+      if (emCurso.get(form) === chave) return;
+      emCurso.set(form, chave);
+      function acabou() {
+        if (emCurso.get(form) === chave) emCurso.delete(form);
+      }
 
       ensurePermission(folder).then(function (allowed) {
         return fetch(form.action, { method: "POST", body: body, credentials: "same-origin" }).then(function (response) {
@@ -160,7 +171,7 @@
         });
       }).catch(function () {
         form.submit();
-      });
+      }).then(acabou, acabou);
     }, true);
   }
 

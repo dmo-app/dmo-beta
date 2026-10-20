@@ -54,7 +54,11 @@ html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-
 /* Só a linha fina do botão, sem a segunda borda à volta (Diogo, 17/10/2026).
    O hover inverte as cores; o foco do teclado é um halo suave da paleta. */
 html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600));outline:0}
+/* Todos os botões iguais (Diogo, 19/10/2026): azul com letra branca; o rato
+   por cima inverte; ao carregar fica um azul mais claro da paleta. */
 html body :is(.dmo-button,.button,.btn):focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+html body :is(.dmo-button,.button,.btn):active:not(:disabled):not([aria-disabled="true"]){background:var(--button-press,var(--dmo-palette-steel));border-color:var(--button-press,var(--dmo-palette-steel));color:var(--dmo-text-on-color);box-shadow:none}
+html body :is(.dmo-button,.button,.btn):is(.danger,.success){--button-press:color-mix(in srgb,var(--button-color) 70%,#fff)}
 /* Um só tamanho de botão (Diogo, 17/10/2026): a altura e a letra dos campos
    de filtragem (--dmo-control-height, --dmo-fs-base) em toda a app. As setas
    (paginação, mês do calendário) são quadradas com a mesma altura. */
@@ -115,11 +119,29 @@ html body .dmo-filter-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:1
 html body .dmo-filter-bar>.dmo-field{flex:1 1 150px;min-width:0}
 html body .dmo-filter-bar>.dmo-field:has(>.dmo-button){flex:0 0 auto;display:flex;gap:8px}
 html body .dmo-filter-bar>.dmo-field:has(>.dmo-button)>label{display:none}
+/* Campos com a largura do que levam (deep sweep 2, 18/10/2026, F-9): na
+   escolha do Job On (Pegamentos, Peso e PU NNPB) a referência, a máquina e a
+   produção ficam na mesma linha, e a máquina (B1 a C3) não ocupa meia linha.
+   A regra geral (os campos a partilhar a linha) fica como está: os Históricos
+   dependem dela. Num ecrã estreito os campos passam à linha seguinte e
+   esticam até ao fim dela. */
+html body .dmo-filter-bar.dmo-filter-bar-conteudo>.dmo-field{flex:0 1 200px}
+html body .dmo-filter-bar.dmo-filter-bar-conteudo>.dmo-field-maquina{flex-basis:96px}
+/* A produção com a largura da opção mais comprida, sem cortar o texto
+   (Diogo, 20/10/2026: «corta sem razão nenhuma, tem tanto espaço»). */
+html body .dmo-filter-bar.dmo-filter-bar-conteudo>.dmo-field-producao{flex:0 0 auto;min-width:240px;max-width:100%}
+@media(max-width:600px){html body .dmo-filter-bar.dmo-filter-bar-conteudo>.dmo-field{flex-grow:1}}
 
 /* Formulários em grelha: os campos alinham pelo rótulo; as notas por baixo
    de um campo crescem para baixo sem empurrar o campo para cima. */
 html body :is(.ferr-form-grid,.peso-form-grid){align-items:start}
 html body :is(.ferr-form-grid,.peso-form-grid)>.dmo-field>label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Rótulo sem campo próprio (o título de um grupo de caixas, o espaço por cima
+   de um botão): um <span class="dmo-label"> com o aspeto do <label>. Um <label>
+   sem campo associado dá aviso no browser. */
+html body .dmo-field .dmo-label{display:block;margin:0 0 6px;color:var(--dmo-muted);font-size:var(--dmo-fs-xs);font-weight:var(--dmo-fw-semibold)}
+html body .dmo-filter-bar>.dmo-field:has(>.dmo-button)>.dmo-label{display:none}
+html body :is(.ferr-form-grid,.peso-form-grid)>.dmo-field>.dmo-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Tabelas: UMA só regra para toda a app (Diogo, 16/10/2026). As linhas são
    brancas; o hover é azul-claro; a linha selecionada inverte como os botões
@@ -150,7 +172,6 @@ html body .dmo-table tbody :is(tr,[data-dmo-row]):focus-visible{outline:2px soli
 html body .dmo-table td>input[type=radio]{position:absolute;opacity:0;width:0;height:0;margin:0;pointer-events:none}
 html body .dmo-table :is(th,td):first-child:has(>input[type=radio]),
 html body .dmo-table:has(td:first-child>input[type=radio]) thead th:first-child:empty{width:1px;padding:0}
-html body .resumo-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
 
 /* Sugestões ao escrever (DMO-044, js/dmo-suggest.js): a lista por baixo do
    campo e o select longo transformado em filtro, com o aspeto dos campos. */
@@ -160,6 +181,12 @@ html body .dmo-suggest-native{position:absolute !important;width:1px !important;
 html body input.dmo-suggest-input{box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-card);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2}
 html body input.dmo-suggest-combo{padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364778a' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
 html body input.dmo-suggest-input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
+/* Texto ao centro nos campos (Diogo, 20/10/2026: «verificar centramento de
+   todos»): com a Inter a 14 px e line-height 1.2, o Chromium punha o texto dos
+   campos e dos selects 1 px acima do centro (os botões já o centram com o
+   text-box). Um píxel a mais em cima e a menos em baixo, com a mesma altura,
+   em todos os campos partilhados. */
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input){padding-top:10px;padding-bottom:8px}
 html body input.dmo-suggest-input:disabled{background-color:var(--dmo-subtle);color:var(--dmo-muted);cursor:not-allowed}
 html body .dmo-suggest-list{position:fixed;z-index:200;min-width:220px;max-height:min(320px,50vh);overflow-y:auto;margin:0;padding:4px;list-style:none;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow-menu)}
 html body .dmo-suggest-list li{padding:8px 10px;border-radius:6px;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);color:var(--dmo-text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -181,6 +208,9 @@ html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:d
 .dmo-help:hover .dmo-help-tip,.dmo-help:focus .dmo-help-tip,.dmo-help:focus-within .dmo-help-tip{display:block}
 /* O texto da dica é sempre branco, mesmo dentro de blocos que pintam os <span> (como o cabeçalho da lista do Job On). */
 html body .dmo-help .dmo-help-tip{color:#fff}
+/* A dica dentro de um <summary> não é focável: abre com o foco do <summary> ou com um toque (classe do script). */
+summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark path,.dmo-help.dmo-help-aberta .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}
+summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-tip,.dmo-help.dmo-help-aberta .dmo-help-tip{display:block}
 .card:has(>.dmo-help-corner){position:relative}
 .dmo-help-corner{position:absolute;top:14px;right:14px}
 .dmo-help-corner .dmo-help{margin-left:0}
@@ -252,6 +282,10 @@ html body .beta-light-productions .beta-light-card-head h2{white-space:nowrap}
 html body .beta-light-productions .dmo-search-form{flex-wrap:nowrap}
 html body .beta-light-productions .dmo-search-form input[type="search"]{flex:0 1 220px;width:220px}
 html body .beta-light-productions .dmo-search-form select{flex:0 1 220px}
+/* O dropdown «Produção» da procura do Job On fica à frente do campo, com a mesma largura (beta.166). */
+html body .dmo-search-form .jobon-procura{display:contents}
+/* O dropdown com produções destaca-se (Diogo, 19/10/2026). */
+html body .dmo-search-form select.jobon-procura-com-resultados{border-color:var(--dmo-palette-slate);background-color:var(--dmo-brand-050);color:var(--dmo-palette-slate);font-weight:700;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 @media(max-width:700px){html body .beta-light-productions .dmo-search-form{flex-wrap:wrap;width:100%}html body .beta-light-productions .dmo-search-form :is(input[type="search"],select){flex:1 1 160px;width:auto}}
 /* A janela pequena (Diogo, 17/10/2026): as ações de correção abrem numa
    janela, sem empurrar a página. */
@@ -265,10 +299,6 @@ html body .dmo-dialog textarea:focus{border-color:var(--dmo-brand-600);outline:0
 html body .dmo-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
 html body .dmo-dialog .dmo-dialog-cancel{background:none;border-color:var(--dmo-border);color:var(--dmo-brand-700)}
 /* Job On: as produções encontradas ao escrever, por baixo do campo e afastadas dele. */
-html body .beta-light-productions .jobon-procura:not(:empty){margin:12px 0}
-html body .beta-light-productions .jobon-procura .dmo-table{white-space:normal}
-html body .beta-light-productions .jobon-procura .dmo-table :is(th,td){padding:9px 8px}
-html body .beta-light-productions .jobon-procura .jobon-procura-titulo{margin:0 0 8px;font-size:14px}
 
 /* Avisos (Diogo 17/10/2026: «estes notices estão sempre colados aos
    elementos»). Um aviso nunca fica colado ao que vem antes ou depois; quando a
@@ -280,18 +310,42 @@ html body .dmo-aviso.warn{border-left-color:var(--dmo-warning);background:var(--
 html body .dmo-aviso.erro{border-left-color:var(--dmo-danger);background:var(--dmo-danger-soft)}
 html body :where(.dmo-aviso,.dmt-nota,.dmt-aviso,.dmu-aviso,.dfu-aviso,.adm-aviso,.adm-nota,.ferr-aviso,.ferr-nota,.pu-aviso,.peg-aviso,.peso-aviso,.peso-aviso-simples,.resumo-aviso,.jobon-aviso):not(:last-child){margin-bottom:12px}
 html body :where(form,.dmo-field,.dmo-table-wrap,fieldset,p,ul,table)+:where(.dmo-aviso,.dmt-nota,.dmt-aviso,.dmu-aviso,.dfu-aviso,.adm-aviso,.adm-nota,.ferr-aviso,.ferr-nota,.pu-aviso,.peg-aviso,.peso-aviso,.peso-aviso-simples,.resumo-aviso,.jobon-aviso){margin-top:12px}
+/* O link de um aviso para a página onde se resolve (Diogo, 19/10/2026: «todos
+   os warning, notices ter um link para levar o user à página onde pode
+   resolver»): partial _DmoAvisoLink, no fim do texto do aviso ou da mensagem
+   do canto, na cor escura da paleta e sublinhado. */
+html body a.dmo-aviso-link{color:var(--dmo-palette-slate);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+html body a.dmo-aviso-link:hover,html body a.dmo-aviso-link:focus-visible{color:var(--dmo-palette-ocean)}
 /* O botão de um formulário nunca cola ao campo ou à tabela por cima dele. */
 html body :where(.dmo-field,.dmo-table-wrap)+:where(button.dmo-button,.dmo-button[type=submit]){margin-top:12px}
 
 /* Mensagens de resultado (guardado, eliminado, recusado): aparecem por cima
    da página, no canto, e nunca empurram o conteúdo (Diogo 17/10/2026: «os
-   elementos têm de ficar fixos»). Marcadas com data-dmo-toast="ok|erro";
-   dmo-live.js junta-as numa pilha, põe o «×» e fecha as «ok» sozinhas. */
+   elementos têm de ficar fixos»). Marcadas com data-dmo-toast="ok|erro|aviso";
+   dmo-live.js junta-as numa pilha, põe o «×» e fecha as «ok» sozinhas; as
+   «erro» e os «aviso» ficam até se fecharem (ou até à ação seguinte desse
+   cartão, ver o DmoTroca). */
 html body [data-dmo-toast]{position:fixed;top:140px;right:16px;z-index:1000;box-sizing:border-box;width:max-content;max-width:min(420px,calc(100vw - 32px));margin:0!important;padding:12px 40px 12px 14px;border:1px solid var(--dmo-border);border-left:4px solid var(--dmo-palette-ocean);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font-size:var(--dmo-fs-base);line-height:1.4;box-shadow:0 10px 30px rgba(27,40,50,.16)}
 html body [data-dmo-toast="erro"]{border-left-color:var(--dmo-danger);background:var(--dmo-danger-soft)}
+html body [data-dmo-toast="aviso"]{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
 html body .dmo-toast-pilha{position:fixed;top:140px;right:16px;z-index:1000;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
 html body .dmo-toast-pilha [data-dmo-toast]{position:relative;top:auto;right:auto;pointer-events:auto;transition:opacity .2s ease,transform .2s ease}
 html body .dmo-toast-pilha [data-dmo-toast].a-sair{opacity:0;transform:translateY(-6px)}
 html body .dmo-toast-fechar{position:absolute;top:6px;right:6px;width:26px;height:26px;min-height:0;padding:0;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:18px;line-height:1;cursor:pointer}
 html body .dmo-toast-fechar:is(:hover,:focus-visible){background:var(--dmo-brand-100);color:var(--dmo-text);outline:0}
+
+/* A procura ao escrever espera pela lista do texto novo (ver o DmoTroca): a
+   lista anterior fica esbatida, porque não se pode escolher. O atraso de
+   0,3 s evita que pisque a cada tecla; ao sair da espera volta logo. */
+html body [data-dmo-procura-espera]{opacity:.55;transition:opacity .15s ease .3s}
 @media (max-width:640px){html body :is([data-dmo-toast],.dmo-toast-pilha){top:auto;bottom:16px;left:16px;right:16px}html body .dmo-toast-pilha{align-items:stretch}html body .dmo-toast-pilha [data-dmo-toast]{width:auto;max-width:none}}
+
+/* Um formulário que espera na fila do DmoTroca, num elemento novo (a zona
+   trocou com a resposta de outro envio): mostra o que foi enviado, com um
+   fundo claro e o cursor de espera, sem mexer no layout. Sai quando a
+   resposta dele chega e o formulário volta limpo. */
+html body [data-dmo-a-gravar]:is(input,select,textarea){background-color:var(--dmo-brand-050);cursor:progress}
+html body [data-dmo-a-gravar]:is(button,input[type=submit],input[type=image]){cursor:progress;opacity:.6}
+
+/* Uma zona do «atualizar só o que muda» (data-dmo-regiao) dentro de um flex ou grid com gap: a zona não cria caixa, os cartões ficam com o espaço de sempre. */
+.dmo-zona{display:contents}

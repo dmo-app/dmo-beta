@@ -50,11 +50,9 @@ public sealed class PesoModel : PageModel
     private readonly IPesoQuery _pesoQuery;
     private readonly ShellStateFactory _shellState;
     private readonly ICreatePesoForControloHandler _createPesoForControlo;
-    private readonly IPesoComparisonQuery _pesoComparison;
     private readonly IProductionContextQuery _productionContext;
-    private readonly PesoPdfGenerator _pdfGenerator;
+    private readonly PesoPdfDocumentBuilder _pdfDocument;
     private readonly IModuleSettingsQuery _moduleSettings;
-    private readonly ControloApprovalHandler _approvalHandler;
     private readonly DmoDbContext _db;
     private readonly IToolCandidateQuery _toolCandidates;
     private readonly IAssociatePesoToControloHandler _associatePeso;
@@ -71,19 +69,33 @@ public sealed class PesoModel : PageModel
         IPesoQuery pesoQuery,
         ShellStateFactory shellState,
         ICreatePesoForControloHandler createPesoForControlo,
-        IPesoComparisonQuery pesoComparison,
         IProductionContextQuery productionContext,
-        PesoPdfGenerator pdfGenerator,
+        PesoPdfDocumentBuilder pdfDocument,
         IModuleSettingsQuery moduleSettings,
-        ControloApprovalHandler approvalHandler,
         DmoDbContext db,
         IToolCandidateQuery toolCandidates,
         IAssociatePesoToControloHandler associatePeso,
         IPesoAssociationQuery pesoAssociation,
         IEnsureControloForJobOnHandler ensureControlo,
-        IJobOnListQuery jobOnList)
+        IJobOnListQuery jobOnList,
+        IPesoCapSupportQuery capSupportQuery,
+        PesoToolFactsQuery toolFactsQuery,
+        JobOnChangeQuery changeQuery,
+        PesoComparisonQuery comparacaoQuery,
+        PesoProducaoAnteriorQuery producaoAnteriorQuery,
+        ICreatePesoComparacaoHandler comparacaoHandler,
+        IControloHistorySearchQuery historicoControloQuery,
+        IProductionPickerQuery productionPicker)
     {
         _jobOnList = jobOnList;
+        CapSupportQuery = capSupportQuery;
+        ToolFactsQuery = toolFactsQuery;
+        ChangeQuery = changeQuery;
+        ComparacaoQuery = comparacaoQuery;
+        ProducaoAnteriorQuery = producaoAnteriorQuery;
+        ComparacaoHandler = comparacaoHandler;
+        HistoricoControloQuery = historicoControloQuery;
+        ProductionPicker = productionPicker;
         _associatePeso = associatePeso;
         _pesoAssociation = pesoAssociation;
         _ensureControlo = ensureControlo;
@@ -95,27 +107,21 @@ public sealed class PesoModel : PageModel
         _pesoQuery = pesoQuery;
         _shellState = shellState;
         _createPesoForControlo = createPesoForControlo;
-        _pesoComparison = pesoComparison;
         _productionContext = productionContext;
-        _pdfGenerator = pdfGenerator;
+        _pdfDocument = pdfDocument;
         _moduleSettings = moduleSettings;
-        _approvalHandler = approvalHandler;
         _db = db;
         _toolCandidates = toolCandidates;
     }
 
-    /// <summary>
-    /// A query do apoio TP/calote, instanciada sobre o DbContext scoped. A
-    /// classe é stateless e só de leitura; o seu registo DI cabe ao corte
-    /// que consumir a ficha do Job On (a mesma fonte do cálculo).
-    /// </summary>
-    private PesoCapSupportQuery CapSupportQuery => new(_db);
+    /// <summary>A query do apoio TP/calote (a mesma fonte do cálculo da ficha do Job On).</summary>
+    private IPesoCapSupportQuery CapSupportQuery { get; }
 
     /// <summary>As ferramentas herdadas da produção numa só consulta.</summary>
-    private PesoToolFactsQuery ToolFactsQuery => new(_db);
+    private PesoToolFactsQuery ToolFactsQuery { get; }
 
     /// <summary>As alterações do Job On, para o aviso no Peso aberto.</summary>
-    private JobOnChangeQuery ChangeQuery => new(_db);
+    private JobOnChangeQuery ChangeQuery { get; }
 
     /// <summary>O aviso quando o Job On mudou depois de o Peso ser gravado; null sem alterações.</summary>
     public JobOnChangeNoticeView? JobOnNotice { get; private set; }
@@ -130,20 +136,20 @@ public sealed class PesoModel : PageModel
         }
     }
 
-    /// <summary>A query das comparações do Peso (a Comparação_B + as comparações todas — o mesmo serviço, sem registo DI próprio).</summary>
-    private PesoComparisonQuery ComparacaoQuery => new(_db, _pesoQuery);
+    /// <summary>A query das comparações do Peso (a Comparação_B + as comparações todas — o mesmo serviço).</summary>
+    private PesoComparisonQuery ComparacaoQuery { get; }
 
     /// <summary>A produção anterior do Peso (o Owner 2026-10-17): Job On e peso do SAP.</summary>
-    private PesoProducaoAnteriorQuery ProducaoAnteriorQuery => new(_db);
+    private PesoProducaoAnteriorQuery ProducaoAnteriorQuery { get; }
 
     /// <summary>O handler de criação do registo de comparação (o cálculo vem da fonte única acima).</summary>
-    private CreatePesoComparacaoHandler ComparacaoHandler => new(_db, ComparacaoQuery);
+    private ICreatePesoComparacaoHandler ComparacaoHandler { get; }
 
     /// <summary>A procura unificada do histórico do Controlo (os três tipos).</summary>
-    private ControloHistorySearchQuery HistoricoControloQuery => new(_db);
+    private IControloHistorySearchQuery HistoricoControloQuery { get; }
 
     /// <summary>As produções de uma referência (a procura em dois passos, 16/10/2026).</summary>
-    private DMO.Alpha.Infrastructure.Production.ProductionPickerQuery ProductionPicker => new(_db);
+    private IProductionPickerQuery ProductionPicker { get; }
 
     /// <summary>Pesos sem produção da CM do Job On (modo controlo_id, sem Peso ainda).</summary>
     public IReadOnlyList<UnassociatedPesoCandidate> AssociationCandidates { get; private set; } = Array.Empty<UnassociatedPesoCandidate>();
@@ -163,9 +169,11 @@ public sealed class PesoModel : PageModel
         AssociatePesoToControloResult.ControloNotFound => "A produção indicada não existe. Nenhum Peso foi associado.",
         AssociatePesoToControloResult.PesoNotFound => "O Peso indicado não existe. Nada foi associado.",
         AssociatePesoToControloResult.ContextMissingCm => "O Job On desta produção não tem CM. Nenhum Peso foi associado.",
-        AssociatePesoToControloResult.CmMismatch => "A CM deste Peso não é a CM do Job On. Nenhum Peso foi associado.",
+        AssociatePesoToControloResult.CmMismatch => "A CM deste Peso não é a CM do Job On, nem uma que a produção teve antes. Nenhum Peso foi associado.",
+        AssociatePesoToControloResult.ContextMissingBq => "O Job On desta produção não tem boquilha (BQ). Nenhum Peso foi associado.",
+        AssociatePesoToControloResult.BqMismatch => "A boquilha (BQ) deste Peso não é a do Job On, nem uma que a produção teve antes. Nenhum Peso foi associado.",
         AssociatePesoToControloResult.PesoAlreadyAssociated => "Este Peso já pertence a outra produção. Nada foi alterado.",
-        AssociatePesoToControloResult.ControloAlreadyHasPeso => "Esta produção já tem o seu Peso. Nada foi alterado.",
+        AssociatePesoToControloResult.ControloAlreadyHasPeso => "Esta produção já tem um Peso com esta CM e esta boquilha (BQ). Nada foi alterado.",
         _ => string.Empty
     };
 
@@ -228,7 +236,7 @@ public sealed class PesoModel : PageModel
         CreateToolScopedPesoResult.MissingBqVolumeMarisa =>
             "O volume marisa da BQ não está registado nem foi indicado. Nenhum Peso foi criado.",
         CreateToolScopedPesoResult.GlassDensityNotConfigured =>
-            "A densidade do vidro do processo não está configurada no Controlo. " +
+            "A densidade do vidro do processo não está configurada: guarde-a nas Definições do Controlo. " +
             "Nenhum Peso foi criado e nenhum valor foi inventado.",
         CreateToolScopedPesoResult.InvalidWaterTemperature =>
             "Temperatura da água fora do intervalo suportado (5–35 °C). Nenhum Peso foi criado.",
@@ -262,8 +270,93 @@ public sealed class PesoModel : PageModel
     {
         RecordPesoMeasurementResult.PesoNotFound =>
             "O Peso indicado não existe. Nenhuma leitura foi registada.",
+        RecordPesoMeasurementResult.PesoNotCurrent =>
+            "Este Peso é de uma CM ou de uma boquilha (BQ) que já não está na produção. A leitura não foi gravada. " +
+            "As leituras novas vão para o Peso das ferramentas atuais.",
         _ => string.Empty
     };
+
+    // ---------------------------------------------------------------
+    // VÁRIOS PESOS NA PRODUÇÃO (18/10/2026; respostas R15, R16-2, R16-3 e
+    // R16-5 do especialista): depois de trocar a CM ou a BQ a meio da
+    // produção, as ferramentas novas têm um Peso novo; o anterior fica como
+    // estava, sem leituras novas. Com um só Peso a folha fica como sempre.
+    // ---------------------------------------------------------------
+
+    /// <summary>Os Pesos da produção, pela ordem de gravação (vazia sem produção).</summary>
+    public IReadOnlyList<PesoReadModel> Pesos { get; private set; } = Array.Empty<PesoReadModel>();
+
+    /// <summary>O controlo dos Pesos listados (o da folha ou o do Peso aberto).</summary>
+    public int? PesosControloId { get; private set; }
+
+    /// <summary>
+    /// True quando a produção tem outro Peso além do mostrado: o cartão
+    /// «Pesos desta produção» lista-os. Com um só, a folha fica como sempre.
+    /// </summary>
+    public bool ShowPesos =>
+        PesosControloId is not null && Pesos.Any(p => p.PesoId != Peso?.PesoId);
+
+    /// <summary>
+    /// True quando o Peso mostrado é de antes de uma troca da CM ou da BQ:
+    /// mostra-se sem a leitura nova e com «Abrir o Peso atual».
+    /// </summary>
+    public bool PesoAnterior => Peso is { IsCurrent: false, ControloId: not null };
+
+    /// <summary>
+    /// O Peso das ferramentas que a produção tem agora, quando já existe: o
+    /// «Abrir o Peso atual» de um Peso anterior leva a ele.
+    /// </summary>
+    public PesoReadModel? PesoAtual => Pesos.FirstOrDefault(p => p.IsCurrent);
+
+    /// <summary>
+    /// O peso_id que a folha da produção leva nos endereços e nos
+    /// formulários: só o de um Peso anterior (o atual abre pelo controlo_id,
+    /// como sempre).
+    /// </summary>
+    public int? PesoIdNoEndereco => PesoAnterior && ControloIdFromQuery is not null ? Peso!.PesoId : null;
+
+    /// <summary>
+    /// O endereço de um Peso da produção: o atual abre pelo controlo_id, como
+    /// sempre; um de antes de uma troca, pelo controlo_id e o peso_id dele.
+    /// </summary>
+    public static string PesoHref(int controloId, PesoReadModel peso) =>
+        peso.IsCurrent
+            ? $"/Controlo/Peso?controlo_id={controloId}"
+            : $"/Controlo/Peso?controlo_id={controloId}&peso_id={peso.PesoId}";
+
+    /// <summary>O número do Peso na produção (1, 2, …), pela ordem de gravação; null fora da lista.</summary>
+    public int? PesoNumber(PesoReadModel? peso)
+    {
+        var index = peso is null ? -1 : Pesos.ToList().FindIndex(p => p.PesoId == peso.PesoId);
+        return index < 0 ? null : index + 1;
+    }
+
+    /// <summary>
+    /// «A CM mudou», «A BQ mudou» ou «A CM e a BQ mudaram»: o que difere entre
+    /// o último Peso da produção e as ferramentas que ela tem agora; null
+    /// quando a produção ainda não tem Peso.
+    /// </summary>
+    public string? FerramentasMudaramTexto
+    {
+        get
+        {
+            if (Pesos.Count == 0 || ProductionContext is not { } contexto)
+            {
+                return null;
+            }
+
+            var ultimo = Pesos[^1];
+            var cm = contexto.CmToolId is { } cmAtual && cmAtual != ultimo.CmToolId;
+            var bq = contexto.BqToolId is { } bqAtual && bqAtual != ultimo.BqToolId;
+            return (cm, bq) switch
+            {
+                (true, true) => "A CM e a BQ mudaram",
+                (true, false) => "A CM mudou",
+                (false, true) => "A BQ mudou",
+                _ => "As ferramentas mudaram"
+            };
+        }
+    }
 
     // ---------------------------------------------------------------
     // CORTE C — o modo production-scoped (?controlo_id).
@@ -294,7 +387,7 @@ public sealed class PesoModel : PageModel
         CreatePesoForControloResult.MissingBqVolumeMarisa =>
             "O volume marisa da BQ não está registado nem foi indicado.",
         CreatePesoForControloResult.GlassDensityNotConfigured =>
-            "A densidade do vidro do processo não está configurada no Controlo. Nenhum valor foi inventado.",
+            "A densidade do vidro do processo não está configurada: guarde-a nas Definições do Controlo. Nenhum valor foi inventado.",
         CreatePesoForControloResult.InvalidWaterTemperature =>
             "Temperatura da água fora do intervalo suportado (5–35 °C).",
         CreatePesoForControloResult.InvalidNominalWeight =>
@@ -316,7 +409,12 @@ public sealed class PesoModel : PageModel
     /// <summary>O controlo_id do modo production-scoped (para os links da Comparação_B).</summary>
     public int? ControloIdFromQuery { get; private set; }
 
-    /// <summary>Os candidatos da Comparação_B (a mesma referência, a produção mais recente primeiro; a escolha é tua).</summary>
+    /// <summary>
+    /// Os candidatos da Comparação_B: os Pesos das produções da mesma
+    /// referência anteriores a esta, a mais recente primeiro, no máximo 5, e
+    /// o pedido no fim quando fica de fora deles (deep sweep 2, F-12); a
+    /// escolha é tua.
+    /// </summary>
     public IReadOnlyList<PesoComparisonCandidate> ComparisonCandidates { get; private set; } = Array.Empty<PesoComparisonCandidate>();
 
     /// <summary>O diferencial da Comparação_B (o histórico selecionado por ti).</summary>
@@ -336,6 +434,14 @@ public sealed class PesoModel : PageModel
 
     /// <summary>True quando o valor do «supomos» foi submetido mas não é utilizável.</summary>
     public bool SuposicaoIlegivel { get; private set; }
+
+    /// <summary>
+    /// A calote suposta que os formulários da folha levam de volta (registar
+    /// uma leitura, guardar a produção anterior, escolher a comparação,
+    /// «Calcular»), para o «Supomos» aberto não desaparecer. Um valor ilegível
+    /// não segue: a recusa já foi mostrada.
+    /// </summary>
+    public string? SuporCaloteParaLevar => SuposicaoIlegivel ? null : SuporCaloteTexto;
 
     /// <summary>O caminho do PDF gravado (transportado por query, apenas apresentação).</summary>
     public string? PdfSavedPath { get; private set; }
@@ -404,10 +510,15 @@ public sealed class PesoModel : PageModel
     /// <summary>True quando a massa foi escrita mas é ilegível (a recusa diz «ilegível», não «≤ 0»).</summary>
     public bool LeituraIlegivel { get; private set; }
 
+    /// <summary>True quando, com a massa escrita, o peso do vidro dá 0 ou menos (fisicamente impossível).</summary>
+    public bool LeituraVidroNaoPositivo { get; private set; }
+
     /// <summary>Mensagem da recusa da leitura, apenas apresentação.</summary>
     public string LeituraRefusalMessage => LeituraIlegivel
         ? "A massa de água escrita é ilegível — escreva um número, por exemplo 199,64 ou 199.64. Nenhuma leitura foi registada; o form preserva o que escreveu."
-        : "A massa de água tem de ser maior que 0 (por exemplo 199,64 ou 199.64). Nenhuma leitura foi registada; o form preserva o que escreveu.";
+        : LeituraVidroNaoPositivo
+            ? "Com esta massa de água o peso do vidro dá 0 ou menos, o que é impossível. Confirme a massa (por exemplo 199,64 ou 199.64). Nenhuma leitura foi registada; o form preserva o que escreveu."
+            : "A massa de água tem de ser maior que 0 (por exemplo 199,64 ou 199.64). Nenhuma leitura foi registada; o form preserva o que escreveu.";
 
     /// <summary>O echo do nº de CM submetido na recusa da leitura.</summary>
     public string? EchoLeituraSubject { get; private set; }
@@ -584,7 +695,7 @@ public sealed class PesoModel : PageModel
     // comparação guardado.
     // ---------------------------------------------------------------
 
-    /// <summary>O filtro da ferramenta (a referência da CM — parcial conta).</summary>
+    /// <summary>O filtro da ferramenta (a referência da CM, pelo início dela ou da parte BQ).</summary>
     public string? HistoryTool { get; private set; }
 
     /// <summary>O filtro do tipo (Peso/Pegamentos/Comparação; null = todos).</summary>
@@ -593,10 +704,42 @@ public sealed class PesoModel : PageModel
     /// <summary>O filtro «Sem Job On associado»: só os Pesos e Pegamentos ainda por associar.</summary>
     public bool HistorySemJobOn { get; private set; }
 
-    /// <summary>As produções da referência procurada (o dropdown do segundo passo).</summary>
-    public IReadOnlyList<string> HistoryProducoes { get; private set; } = Array.Empty<string>();
+    /// <summary>
+    /// As produções das referências procuradas (o dropdown do segundo passo),
+    /// pela regra da tabela, cada uma com a sua referência: o mesmo nº pode
+    /// existir em duas referências.
+    /// </summary>
+    public IReadOnlyList<JobOnProductionOption> HistoryProducoes { get; private set; } = Array.Empty<JobOnProductionOption>();
 
-    /// <summary>O filtro da data (as comparações — as únicas com data registada).</summary>
+    /// <summary>A referência da produção escolhida no dropdown (o nº só é único dentro da referência).</summary>
+    public string? HistoryProductionReference { get; private set; }
+
+    /// <summary>
+    /// Entre o nº e a referência no valor de uma opção do dropdown
+    /// («2026001|5447T173»).
+    /// </summary>
+    public const char HistoryProducaoSeparador = '|';
+
+    /// <summary>True quando o dropdown das produções junta mais do que uma referência (o texto é o início de várias).</summary>
+    public bool HistoryProducoesVariasReferencias =>
+        HistoryProducoes.Select(p => p.Reference).Distinct(StringComparer.Ordinal).Skip(1).Any();
+
+    /// <summary>
+    /// O valor de uma opção do dropdown: sempre o nº e a referência, para a
+    /// escolha filtrar só essa produção (deep sweep 2, F-6: o mesmo nº noutra
+    /// referência não entra). Também com uma só referência no dropdown: a
+    /// escolha vai nos pedidos seguintes, e com o texto da referência
+    /// alargado («1075C142» → «1075») um valor só com o nº passava para a
+    /// mais recente com esse nº noutra referência.
+    /// </summary>
+    public string HistoryProducaoValor(JobOnProductionOption opcao) =>
+        $"{opcao.ProductionNumber}{HistoryProducaoSeparador}{opcao.Reference}";
+
+    /// <summary>A opção escolhida: o nº e a referência da produção que filtra.</summary>
+    public bool HistoryProducaoEscolhida(JobOnProductionOption opcao) =>
+        opcao.ProductionNumber == HistoryProduction && opcao.Reference == HistoryProductionReference;
+
+    /// <summary>O filtro da data (o dia de Lisboa, pela data gravada de cada registo).</summary>
     public DateOnly? HistoryData { get; private set; }
 
     /// <summary>True quando há pelo menos um filtro do histórico; sem filtros a lista não é lida.</summary>
@@ -656,7 +799,8 @@ public sealed class PesoModel : PageModel
     /// <summary>
     /// A procura ao escrever do «Comparar Pesos guardados»
     /// (?handler=ProcurarPesos&amp;q=&amp;peso_ref=): os Pesos usados numa
-    /// produção cujo texto contém o escrito, só da referência quando ela está
+    /// produção cuja referência começa pelo escrito (ou a parte BQ dela) ou
+    /// cujo nº, máquina ou lote o contém, só da referência quando ela está
     /// preenchida. Devolve só a lista; um clique escolhe.
     /// </summary>
     public async Task<IActionResult> OnGetProcurarPesosAsync(
@@ -716,12 +860,15 @@ public sealed class PesoModel : PageModel
     /// </summary>
     public PesoProducaoAnteriorReadModel? ProducaoAnterior { get; private set; }
 
-    /// <summary>Os outros Job Ons da mesma referência, os mais recentes primeiro.</summary>
+    /// <summary>
+    /// As últimas 5 produções da mesma referência anteriores a esta, as mais
+    /// recentes primeiro, e a guardada quando fica de fora delas.
+    /// </summary>
     public IReadOnlyList<PesoProducaoAnteriorOpcao> ProducaoAnteriorOpcoes { get; private set; } = Array.Empty<PesoProducaoAnteriorOpcao>();
 
     /// <summary>
     /// O Job On mostrado como produção anterior: o escolhido no select, o
-    /// guardado, ou o mais recente da mesma referência.
+    /// guardado, ou a anterior mais recente da mesma referência.
     /// </summary>
     public PesoProducaoAnteriorOpcao? ProducaoAnteriorEscolhida { get; private set; }
 
@@ -785,6 +932,22 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "anterior_ok")] string? anteriorOk = null)
     {
         ViewData["Title"] = "Peso — Controlo";
+
+        // Só o jobon_id (o «Verificar o Peso» de «O que mudou» no Job On,
+        // 18/10/2026): a folha da produção abre pelo controlo_id dela, como
+        // no AbrirJobOn. Sem controlo ainda, o Resumo da produção, que o
+        // assegura e propõe o Peso. Antes caía no Novo Peso sem Job On.
+        if (jobOnId is int soJobOnId && controloId is null && pesoId is null
+            && modo is null && historico != "1" && comparacao != "1")
+        {
+            var controloDaProducao = await _db.Controlos.AsNoTracking()
+                .Where(c => c.JobOnId == soJobOnId)
+                .Select(c => (int?)c.Id)
+                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            return controloDaProducao is int abrirControloId
+                ? RedirectToPage("/Controlo/Peso", new { controlo_id = abrirControloId })
+                : RedirectToPage("/Controlo/Resumo", new { jobon_id = soJobOnId });
+        }
 
         ProducaoAnteriorRefusal = anteriorRecusa switch
         {
@@ -855,8 +1018,9 @@ public sealed class PesoModel : PageModel
                 return abrirKind switch
                 {
                     ControloHistoryKind.Peso => RedirectToPage("/Controlo/Peso", new { peso_id = abrirId }),
+                    // Cada linha é uma folha: abre essa folha (18/10/2026).
                     ControloHistoryKind.Pegamentos => abrirControloId is int pegamentosControlo
-                        ? RedirectToPage("/Controlo/Pegamentos", new { controlo_id = pegamentosControlo })
+                        ? RedirectToPage("/Controlo/Pegamentos", new { controlo_id = pegamentosControlo, pegamentos_id = abrirId })
                         : RedirectToPage("/Controlo/Pegamentos", new { pegamentos_id = abrirId }),
                     ControloHistoryKind.Resumo => RedirectToPage("/Controlo/Resumo", new { jobon_id = abrirId }),
                     _ => RedirectToPage("/Controlo/Peso", new { historico = "1", comparacao_id = abrirId })
@@ -871,20 +1035,41 @@ public sealed class PesoModel : PageModel
             HistorySemJobOn = semJobOnFiltro == "1";
 
             // A procura em dois passos: com a referência escrita, o nº de
-            // produção escolhe-se num dropdown só com as produções dela.
+            // produção escolhe-se num dropdown só com as produções dela, pela
+            // mesma regra da tabela (o início da referência ou da parte BQ;
+            // deep sweep 2, F-6). Sem a referência, ou sem Job On, não há
+            // dropdown e a produção não filtra.
+            var producaoPedida = HistoryProduction;
+            HistoryProduction = null;
             if (HistoryReference is { } referenciaHistorico && !HistorySemJobOn)
             {
-                HistoryProducoes = (await _jobOnList.ListByReferenceAsync(
-                        referenciaHistorico, null, HttpContext.RequestAborted))
-                    .Select(p => p.ProductionNumber)
-                    .Distinct(StringComparer.Ordinal)
-                    .ToList();
+                HistoryProducoes = await _jobOnList.ListProductionsOfReferenceAsync(
+                    referenciaHistorico, null, HttpContext.RequestAborted);
 
-                // Uma produção de outra referência (a referência mudou) não filtra.
-                if (HistoryProduction is { } producaoEscolhida && !HistoryProducoes.Contains(producaoEscolhida))
+                // A produção pedida: o nº e a referência dela (o valor das
+                // opções). Um link antigo só com o nº escolhe a mais recente
+                // com esse nº, nunca as duas juntas.
+                var (numeroPedido, referenciaPedida) = ParseHistoryProducao(producaoPedida);
+                var escolhida = numeroPedido is null
+                    ? null
+                    : HistoryProducoes.FirstOrDefault(p => p.ProductionNumber == numeroPedido
+                        && (referenciaPedida is null || p.Reference == referenciaPedida));
+                // O dropdown só tem as últimas produções; uma mais antiga
+                // pedida por link continua a filtrar e entra no dropdown
+                // (deep sweep 2, F-18). Uma produção que já não é destas
+                // referências (a referência mudou) não filtra.
+                if (numeroPedido is not null && escolhida is null)
                 {
-                    HistoryProduction = null;
+                    escolhida = await HistoricoControloQuery.ProducaoDaReferenciaAsync(
+                        referenciaHistorico, numeroPedido, referenciaPedida, HttpContext.RequestAborted);
+                    if (escolhida is not null)
+                    {
+                        HistoryProducoes = [.. HistoryProducoes, escolhida];
+                    }
                 }
+
+                HistoryProduction = escolhida?.ProductionNumber;
+                HistoryProductionReference = escolhida?.Reference;
             }
 
             // O histórico abre vazio: só procura com pelo menos um filtro.
@@ -892,7 +1077,8 @@ public sealed class PesoModel : PageModel
             {
                 var historyPage = await HistoricoControloQuery.SearchPageAsync(
                     HistoryReference, HistoryProduction, HistoryTool, HistoryTipo, HistoryData,
-                    pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn);
+                    pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn,
+                    productionReference: HistoryProductionReference);
                 HistoryResults = historyPage.Items;
                 HistoryPager = ListPager.For(historyPage);
             }
@@ -979,7 +1165,8 @@ public sealed class PesoModel : PageModel
         }
 
         LeituraIlegivel = leituraRefusal == "ilegivel";
-        LeituraRefusal = leituraRefusal == "massa" || LeituraIlegivel;
+        LeituraVidroNaoPositivo = leituraRefusal == "vidro";
+        LeituraRefusal = leituraRefusal == "massa" || LeituraIlegivel || LeituraVidroNaoPositivo;
         if (LeituraRefusal)
         {
             EchoLeituraSubject = Sanitize(leituraCm);
@@ -1019,10 +1206,12 @@ public sealed class PesoModel : PageModel
 
                 // O peso inicial: o selecionado (se é desta produção) ou o
                 // PRIMEIRO da produção (o html auto-seleciona o primeiro — o
-                // peso inicial é o mais antigo da produção).
+                // peso inicial é o mais antigo da produção). Com vários Pesos
+                // (a CM ou a BQ mudou a meio; 18/10/2026), o das ferramentas
+                // atuais, senão o mais recente.
                 PesoInicialSelecionado = pesoInicialId is int pedido && Iniciais.Any(i => i.PesoId == pedido)
                     ? pedido
-                    : Iniciais.FirstOrDefault()?.PesoId;
+                    : (Iniciais.FirstOrDefault(i => i.IsCurrent) ?? Iniciais.LastOrDefault())?.PesoId;
             }
 
             // O contra-molde: o selecionado ou o CM do peso inicial (o
@@ -1122,12 +1311,23 @@ public sealed class PesoModel : PageModel
             ProductionContext = await _productionContext.GetByControloAsync(
                 canonicalControloId, HttpContext.RequestAborted);
 
+            // Os Pesos da produção, um por CM+BQ (18/10/2026): a folha abre o
+            // Peso das ferramentas que a produção tem agora; um de antes de
+            // uma troca abre pelo peso_id dele (só se for desta produção).
+            // Depois de uma troca sem o Peso novo ainda, a folha propõe
+            // criá-lo; nada é gravado ao abrir.
+            Pesos = await _pesoQuery.ListByControloAsync(canonicalControloId, HttpContext.RequestAborted);
+            PesosControloId = canonicalControloId;
+            Peso = (pesoId is int pesoPedido ? Pesos.FirstOrDefault(p => p.PesoId == pesoPedido) : null)
+                ?? Pesos.FirstOrDefault(p => p.IsCurrent);
+
             // Os factos técnicos atuais das ferramentas HERDADAS do contexto
             // (não do Peso!): sem o peso ainda, o formulário precisa deles
             // para saber o que já está registado (só a temperatura e os
             // técnicos EM FALTA pedem input humano).
             // CM, BQ e MF (o MF só pela referência) com o técnico e a
-            // densidade do vidro numa só consulta.
+            // densidade do vidro numa só consulta. Um Peso de antes de uma
+            // troca mostra os valores congelados nele (na página).
             if (ProductionContext is not null)
             {
                 var ferramentas = await ToolFactsQuery.GetAsync(
@@ -1147,7 +1347,15 @@ public sealed class PesoModel : PageModel
             // Job On quando existe, senão a h_ref da Tool — calculado PELO
             // BACKEND pela query canónica (fonte única; o browser nunca
             // calcula física). A simulação (cap_h) sobrepõe-se na exibição.
-            if (ProductionContext?.CmToolId is { } capContextCmToolId)
+            if (PesoAnterior)
+            {
+                // O apoio de um Peso de antes de uma troca: a CM dele, com a
+                // calote do Job On.
+                CapSupport = await CapSupportQuery.GetAsync(
+                    new PesoCapSupportRequest(Peso!.CmToolId, canonicalControloId, capSimulada),
+                    HttpContext.RequestAborted);
+            }
+            else if (ProductionContext?.CmToolId is { } capContextCmToolId)
             {
                 // O técnico da CM e a calote do Job On já foram lidos.
                 CapSupport = capContextCmToolId.Length > 0 && capContextCmToolId.Trim() == capContextCmToolId
@@ -1157,11 +1365,11 @@ public sealed class PesoModel : PageModel
                         HttpContext.RequestAborted);
             }
 
-            Peso = await _pesoQuery.FindByControloAsync(canonicalControloId, HttpContext.RequestAborted);
-
             // A ASSOCIAÇÃO POSTERIOR (o Owner 2026-10-16): sem Peso ainda,
             // os Pesos sem produção da MESMA CM (tool_id) do Job On são
-            // propostos — associar é sempre o botão explícito.
+            // propostos — associar é sempre o botão explícito. Depois de uma
+            // troca, os que a associação aceita (a CM e a BQ desta produção,
+            // agora ou antes da troca; resposta R16-6 do especialista).
             if (Peso is null)
             {
                 AssociationCandidates = await _pesoAssociation.FindCandidatesForControloAsync(
@@ -1170,8 +1378,12 @@ public sealed class PesoModel : PageModel
 
             if (Peso is not null)
             {
-                ComparisonCandidates = await _pesoComparison.FindCandidatesAsync(
-                    canonicalControloId, HttpContext.RequestAborted);
+                // As produções a comparar vêm da ficha da CM do Peso aberto
+                // (a de antes da troca num Peso anterior); o «comparar» pedido
+                // fica no dropdown mesmo fora das 5 anteriores, mais antigo ou
+                // posterior (deep sweep 2, F-12): a tabela abaixo é dele.
+                ComparisonCandidates = await ComparacaoQuery.FindCandidatesAsync(
+                    Peso, compararPesoId, HttpContext.RequestAborted);
 
                 // O DROPDOWN em tempo real (o Owner 2026-10-12: «existir um
                 // dropdown em que conseguimos escolher a produçao em tempo
@@ -1189,7 +1401,7 @@ public sealed class PesoModel : PageModel
 
                 if (effectiveComparisonId is int historicalPesoId && historicalPesoId != Peso.PesoId)
                 {
-                    Comparison = await _pesoComparison.CompareAsync(
+                    Comparison = await ComparacaoQuery.CompareAsync(
                         Peso, historicalPesoId, HttpContext.RequestAborted);
                 }
 
@@ -1231,6 +1443,13 @@ public sealed class PesoModel : PageModel
                 // Abrir por peso_id (histórico/PRG) não perde a produção
                 // desse registo. Resolver apresentação/links: não associar
                 // Pesos tool-scoped nem substituir o Peso selecionado.
+                if (Peso.ControloId is int pesosDoControlo)
+                {
+                    // Os outros Pesos da produção (a CM ou a BQ mudou a meio).
+                    Pesos = await _pesoQuery.ListByControloAsync(pesosDoControlo, HttpContext.RequestAborted);
+                    PesosControloId = pesosDoControlo;
+                }
+
                 if (Peso.ControloId is int pesoControloId
                     && ViewData["Shell"] is ShellPresentation shell)
                 {
@@ -1247,17 +1466,19 @@ public sealed class PesoModel : PageModel
                 // ser uma opção dentro de uma folha de peso na app, não no
                 // pdf»): o Peso aberto pelo histórico compara-se aqui mesmo
                 // com outra produção da mesma referência — a lista já vem
-                // filtrada pela referência do Peso; o resultado só aparece
-                // quando uma produção é escolhida no dropdown.
+                // filtrada pela referência do Peso e só com as anteriores à
+                // dele (deep sweep 2, F-12: um Peso antigo aberto pelo
+                // histórico já não oferece as posteriores); o resultado só
+                // aparece quando uma produção é escolhida no dropdown.
                 if (Peso.ControloId is int controloDoPeso && Peso.Averages is not null)
                 {
-                    ComparisonCandidates = await _pesoComparison.FindCandidatesAsync(
-                        controloDoPeso, HttpContext.RequestAborted);
+                    ComparisonCandidates = await ComparacaoQuery.FindCandidatesAsync(
+                        Peso, compararPesoId, HttpContext.RequestAborted);
                     if (compararPesoId is int escolhido
                         && escolhido != Peso.PesoId
                         && ComparisonCandidates.Any(c => c.PesoId == escolhido))
                     {
-                        Comparison = await _pesoComparison.CompareAsync(
+                        Comparison = await ComparacaoQuery.CompareAsync(
                             Peso, escolhido, HttpContext.RequestAborted);
                     }
 
@@ -1553,7 +1774,12 @@ public sealed class PesoModel : PageModel
             return BackWith(new { associacao_refusal = outcome.Result.ToString() });
         }
 
-        return RedirectToPage("/Controlo/Peso", new { controlo_id = resolvedControloId, associado = "1" });
+        // Um Peso das ferramentas de antes de uma troca (R16-6) abre pelo
+        // peso_id dele; o das ferramentas atuais, pelo controlo_id.
+        var atual = await _pesoQuery.FindCurrentByControloAsync(resolvedControloId, HttpContext.RequestAborted);
+        return atual?.PesoId == pesoId
+            ? RedirectToPage("/Controlo/Peso", new { controlo_id = resolvedControloId, associado = "1" })
+            : RedirectToPage("/Controlo/Peso", new { controlo_id = resolvedControloId, peso_id = pesoId, associado = "1" });
     }
 
     /// <summary>
@@ -1696,117 +1922,29 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "comparar")] int? compararPesoId,
         [FromForm(Name = "comparar_peso")] int? pesoAnteriorId = null)
     {
-        PesoReadModel? peso;
-        ProductionContextReadModel? context;
-        if (controloId is int canonicalControloId)
-        {
-            peso = await _pesoQuery.FindByControloAsync(canonicalControloId, HttpContext.RequestAborted);
-            if (peso is null)
-            {
-                return RedirectToPage("/Controlo/Peso", new { controlo_id = canonicalControloId, pdf_refusal = "sem-peso" });
-            }
-
-            context = await _productionContext.GetByControloAsync(canonicalControloId, HttpContext.RequestAborted);
-        }
-        else if (pesoId is int canonicalPesoId)
-        {
-            // O histórico: o PDF da folha de uma pesagem passada (reimprimir
-            // o papel que a produção pede outra vez). O contexto vem do
-            // controlo do próprio peso quando ele é production-scoped.
-            peso = await _pesoQuery.FindPesoAsync(canonicalPesoId, HttpContext.RequestAborted);
-            if (peso is null)
-            {
-                return RedirectToPage("/Controlo/Peso", new { peso_id = canonicalPesoId, pdf_refusal = "sem-peso" });
-            }
-
-            context = peso.ControloId is { } pesoControloId
-                ? await _productionContext.GetByControloAsync(pesoControloId, HttpContext.RequestAborted)
-                : null;
-        }
-        else
-        {
-            return RedirectToPage("/Controlo/Peso", new { pdf_refusal = "sem-peso" });
-        }
-
-
-        PesoComparisonView? comparison = null;
-        if (compararPesoId is int historicalPesoId && historicalPesoId != peso.PesoId)
-        {
-            comparison = await _pesoComparison.CompareAsync(
-                peso.PesoId, historicalPesoId, HttpContext.RequestAborted);
-        }
-
-        PesoComparisonView? previousPesoComparison = null;
-        if (pesoAnteriorId is int selectedPesoId && selectedPesoId != peso.PesoId)
-        {
-            previousPesoComparison = await _pesoComparison.CompareAsync(
-                peso.PesoId, selectedPesoId, HttpContext.RequestAborted);
-        }
-
-        var reference = context?.Reference ?? peso.CmToolReference ?? peso.CmToolId;
-        // Uma pesagem antes da produção (tool-scoped) descarrega como
-        // «sem-producao» — o nome é honesto, nunca um travessão.
-        var productionNumber = context?.ProductionNumber ?? "sem-producao";
-        var fileName = ControloDocumentPaths.GetPesoFileName(reference, productionNumber);
-
-        var readings = peso.Measurements
-            .Select(m => new PesoPdfGenerator.Reading(
-                m.RowPosition,
-                m.CmSubject,
-                m.WaterWeightGrams,
-                m.CapacityCm3,
-                m.GlassWeightGrams))
-            .ToList();
-
-        // O SELO DE APROVAÇÃO no papel (o corte D — o alvo do peso real
-        // tem o bloco «Aprovado por»): o controlo do contexto; um peso
-        // tool-scoped (sem controlo) simplesmente não tem selo.
-        var approval = (controloId ?? peso.ControloId) is { } approvalControloId
-            ? await _approvalHandler.GetAsync(approvalControloId, HttpContext.RequestAborted)
-            : null;
-
         // QUEM GERA O PAPEL (o rodapé do alvo: «Diogo Oliveira
         // 28/07/2026, 14:52:28») — o nome humano da sessão.
         var generatedBy = User.FindFirst(DmoClaimTypes.DisplayName)?.Value
             ?? User.FindFirst(DmoClaimTypes.Email)?.Value;
+        var documento = await _pdfDocument.BuildAsync(
+            controloId, pesoId, compararPesoId, pesoAnteriorId, generatedBy, HttpContext.RequestAborted);
+        if (documento is null)
+        {
+            return controloId is int semPesoControloId
+                ? RedirectToPage("/Controlo/Peso", new { controlo_id = semPesoControloId, pdf_refusal = "sem-peso" })
+                : pesoId is int semPesoId
+                    ? RedirectToPage("/Controlo/Peso", new { peso_id = semPesoId, pdf_refusal = "sem-peso" })
+                    : RedirectToPage("/Controlo/Peso", new { pdf_refusal = "sem-peso" });
+        }
 
-        // O volume do tampão desta produção (a calote do Job On; sem controlo, a referência da CM).
-        var cap = await CapSupportQuery.GetAsync(
-            new PesoCapSupportRequest(peso.CmToolId, controloId ?? peso.ControloId), HttpContext.RequestAborted);
-
-        var bytes = _pdfGenerator.GenerateBytes(new PesoPdfGenerator.Input(
-            productionNumber,
-            reference,
-            context?.Machine ?? "—",
-            peso.CmToolId,
-            peso.CmToolReference,
-            peso.CmToolLot,
-            peso.Process.ToString().ToUpperInvariant(),
-            peso.WaterTemperatureC,
-            peso.WaterDensityGramsPerCm3,
-            peso.GlassDensityGramsPerCm3,
-            peso.VolumeMarisaCm3,
-            peso.VolumePuncaoCm3,
-            peso.NominalWeightGrams,
-            readings,
-            peso.Averages,
-            comparison,
-            "",
-            Approval: approval,
-            GeneratedBy: generatedBy,
-            PreviousPesoComparison: previousPesoComparison,
-            InicioEm: context?.InicioEm, FimEm: context?.FimEm,
-            VolumeTampaoCm3: cap.VolumeEfetivoCm3, CaloteMm: cap.AlturaEfetivaMm,
-            ProducaoAnterior: await ProducaoAnteriorQuery.FindAsync(peso.PesoId, HttpContext.RequestAborted)));
-
-        Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(reference, productionNumber));
-        return File(bytes, "application/pdf", fileName);
+        Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(documento.Folder);
+        return File(documento.Bytes, "application/pdf", documento.FileName);
     }
 
     /// <summary>
-    /// A produção anterior da folha: o registo guardado no Peso e os outros
-    /// Job Ons da mesma referência. A escolhida é a do select (anterior),
-    /// senão a guardada, senão a mais recente.
+    /// A produção anterior da folha: o registo guardado no Peso e as últimas
+    /// 5 produções da mesma referência anteriores a esta. A escolhida é a do
+    /// select (anterior), senão a guardada, senão a anterior mais recente.
     /// </summary>
     private async Task LoadProducaoAnteriorAsync(int pesoId, int? currentJobOnId, int? requestedJobOnId)
     {
@@ -1816,12 +1954,23 @@ public sealed class PesoModel : PageModel
             return;
         }
 
-        ProducaoAnteriorOpcoes = await ProducaoAnteriorQuery.ListOpcoesAsync(jobOnId, HttpContext.RequestAborted);
+        var opcoes = (await ProducaoAnteriorQuery.ListOpcoesAsync(jobOnId, HttpContext.RequestAborted)).ToList();
+
+        // A guardada fica no select mesmo fora das últimas 5 (deep sweep 2,
+        // F-11): o select só envia as suas opções, e o «Guardar» trocava-a
+        // sem aviso pela primeira, ou apagava-a com o select vazio.
+        if (ProducaoAnterior is { JobOnId: int saved, ProductionNumber: { } savedNumber } guardada
+            && saved != jobOnId
+            && opcoes.All(o => o.JobOnId != saved))
+        {
+            opcoes.Add(new PesoProducaoAnteriorOpcao(saved, savedNumber, guardada.Machine ?? "—", guardada.InicioEm, guardada.FimEm));
+        }
+
+        ProducaoAnteriorOpcoes = opcoes;
         var wanted = requestedJobOnId ?? ProducaoAnterior?.JobOnId;
-        ProducaoAnteriorEscolhida = ProducaoAnteriorOpcoes.FirstOrDefault(o => o.JobOnId == wanted)
-            ?? (ProducaoAnterior?.JobOnId is int saved && saved != jobOnId && ProducaoAnterior.ProductionNumber is { } savedNumber
-                ? new PesoProducaoAnteriorOpcao(saved, savedNumber, ProducaoAnterior.Machine ?? "—", ProducaoAnterior.InicioEm, ProducaoAnterior.FimEm)
-                : ProducaoAnteriorOpcoes.FirstOrDefault());
+        ProducaoAnteriorEscolhida = opcoes.FirstOrDefault(o => o.JobOnId == wanted)
+            ?? opcoes.FirstOrDefault(o => o.JobOnId == ProducaoAnterior?.JobOnId)
+            ?? opcoes.FirstOrDefault();
     }
 
     /// <summary>
@@ -1834,8 +1983,15 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "controlo_id")] int? controloId,
         [FromForm(Name = "comparar")] int? compararPesoId,
         [FromForm(Name = "anterior")] int? anteriorJobOnId,
-        [FromForm(Name = "anterior_peso")] string? anteriorPeso)
+        [FromForm(Name = "anterior_peso")] string? anteriorPeso,
+        [FromForm(Name = "supor_calote")] string? suporCalote = null,
+        [FromForm(Name = "peso_anterior")] string? pesoAnteriorAberto = null)
     {
+        // O «Supomos» aberto volta com a folha (gravar sem recarregar troca a
+        // zona dele pelo que o endereço traz). Um Peso de antes de uma troca
+        // volta pelo peso_id dele (18/10/2026).
+        var suporTexto = Sanitize(suporCalote);
+        int? pesoNoEndereco = controloId is null || pesoAnteriorAberto == "1" ? pesoId : null;
         var pesoTexto = Sanitize(anteriorPeso);
         decimal? pesoGramas = null;
         if (pesoTexto is not null)
@@ -1845,8 +2001,9 @@ public sealed class PesoModel : PageModel
                 return RedirectToPage("/Controlo/Peso", new
                 {
                     controlo_id = controloId,
-                    peso_id = controloId is null ? pesoId : (int?)null,
+                    peso_id = pesoNoEndereco,
                     comparar = compararPesoId,
+                    supor_calote = suporTexto,
                     anterior = anteriorJobOnId,
                     anterior_recusa = "peso",
                     anterior_peso = pesoTexto
@@ -1868,8 +2025,9 @@ public sealed class PesoModel : PageModel
                 return RedirectToPage("/Controlo/Peso", new
                 {
                     controlo_id = controloId,
-                    peso_id = controloId is null ? pesoId : (int?)null,
+                    peso_id = pesoNoEndereco,
                     comparar = compararPesoId,
+                    supor_calote = suporTexto,
                     anterior_recusa = "jobon"
                 });
             }
@@ -1882,8 +2040,9 @@ public sealed class PesoModel : PageModel
         return RedirectToPage("/Controlo/Peso", new
         {
             controlo_id = controloId,
-            peso_id = controloId is null ? pesoId : (int?)null,
+            peso_id = pesoNoEndereco,
             comparar = compararPesoId,
+            supor_calote = suporTexto,
             anterior = anteriorJobOnId,
             anterior_recusa = result switch
             {
@@ -1900,27 +2059,39 @@ public sealed class PesoModel : PageModel
     /// submete apenas o número/posição CM visível e a massa de água
     /// observada; a posição física e os valores derivados são do backend.
     /// </summary>
+    // O mesmo envio outra vez (a ligação caiu depois de gravar) não grava
+    // duas vezes (deep sweep, 18/10/2026, B-peso-3).
+    [EnvioUnico]
     public async Task<IActionResult> OnPostRegisterMeasurementAsync(
         [FromForm(Name = "peso_id")] int pesoId,
         [FromForm(Name = "cm_subject")] string?[]? cmSubjects,
         [FromForm(Name = "water_weight")] string?[]? waterWeights,
         [FromForm(Name = "controlo_id")] int? controloId = null,
-        [FromForm(Name = "comparar")] int? compararPesoId = null)
+        [FromForm(Name = "comparar")] int? compararPesoId = null,
+        [FromForm(Name = "supor_calote")] string? suporCalote = null)
     {
-        // Volta à folha de onde veio: a da produção (controlo_id) mantém a
-        // comparação e a produção anterior visíveis.
-        object Back(object? extra = null)
+        // Volta à folha de onde veio: a da produção (controlo_id) ou o Peso
+        // aberto pelo Histórico (peso_id), com a comparação escolhida e o
+        // «Supomos» aberto, que a leitura gravada atualiza.
+        // Um Peso que deixou de ser o atual (a CM ou a BQ mudou com a folha
+        // aberta) volta pelo peso_id dele, para a recusa aparecer nele.
+        object Back(object? extra = null, bool comPeso = false)
         {
             var values = new RouteValueDictionary(extra ?? new { });
             if (controloId is int c)
             {
                 values["controlo_id"] = c;
-                if (compararPesoId is int cmp) values["comparar"] = cmp;
+                if (comPeso)
+                {
+                    values["peso_id"] = pesoId;
+                }
             }
             else
             {
                 values["peso_id"] = pesoId;
             }
+            if (compararPesoId is int cmp) values["comparar"] = cmp;
+            if (Sanitize(suporCalote) is { } supor) values["supor_calote"] = supor;
             return values;
         }
 
@@ -1957,19 +2128,41 @@ public sealed class PesoModel : PageModel
             rows.Add((cmSubject, massaUtilizavel));
         }
 
-        foreach (var (cmSubject, water) in rows)
+        if (rows.Count == 0)
         {
-            var outcome = await _recordMeasurement.HandleAsync(
-                new RecordPesoMeasurement(pesoId, cmSubject, water),
-                HttpContext.RequestAborted);
+            return RedirectToPage("/Controlo/Peso", Back());
+        }
 
-            if (outcome.Result != RecordPesoMeasurementResult.Success)
+        // As linhas todas numa só escrita: um pedido cortado a meio (o
+        // operador sai da página, a rede cai) não deixa só as primeiras, e
+        // reenviar não as duplica. O pedido já chegou inteiro: grava até ao
+        // fim mesmo que o browser se vá embora (deep sweep 18/10/2026).
+        var outcome = await _recordMeasurement.HandleAsync(
+            new RecordPesoMeasurement(
+                pesoId,
+                rows[0].CmSubject,
+                rows[0].Water,
+                rows.Skip(1).Select(r => new PesoMeasurementRow(r.CmSubject, r.Water)).ToList()),
+            CancellationToken.None);
+
+        // Peso do vidro 0 ou menos: a recusa volta com o que se escreveu
+        // (a primeira linha), como a massa ≤ 0.
+        if (outcome.Result == RecordPesoMeasurementResult.ResultNonPositive)
+        {
+            return RedirectToPage("/Controlo/Peso", Back(new
             {
-                return RedirectToPage("/Controlo/Peso", Back(new
-                {
-                    measurement_refusal = outcome.Result.ToString()
-                }));
-            }
+                leitura_refusal = "vidro",
+                leitura_cm = rows[0].CmSubject,
+                leitura_water = Sanitize(weights.FirstOrDefault(w => Sanitize(w) is not null))
+            }));
+        }
+
+        if (outcome.Result != RecordPesoMeasurementResult.Success)
+        {
+            return RedirectToPage("/Controlo/Peso", Back(new
+            {
+                measurement_refusal = outcome.Result.ToString()
+            }, comPeso: outcome.Result == RecordPesoMeasurementResult.PesoNotCurrent));
         }
 
         return RedirectToPage("/Controlo/Peso", Back());
@@ -2065,6 +2258,15 @@ public sealed class PesoModel : PageModel
             {
                 controloDoJobOn = canonicalControloId;
             }
+
+            // Um Peso de antes de uma troca da CM: o apoio é o da CM dele
+            // (18/10/2026).
+            if (pesoId is int pesoDaFolha
+                && await _pesoQuery.FindPesoAsync(pesoDaFolha, HttpContext.RequestAborted) is { } pesoAberto
+                && pesoAberto.ControloId == canonicalControloId)
+            {
+                toolId = pesoAberto.CmToolId;
+            }
         }
         else if (pesoId is int canonicalPesoId)
         {
@@ -2107,7 +2309,8 @@ public sealed class PesoModel : PageModel
     }
 
     /// <summary>
-    /// POST nativo: comparar as leituras em preparação contra o Peso inicial
+    /// POST (pelo DmoTroca desde o deep sweep, 18/10/2026; sem JS, nativo):
+    /// comparar as leituras em preparação contra o Peso inicial
     /// — ZERO escrita (o resultado vive só nesta exibição, como no html). O
     /// cálculo é da fonte única no backend (PesoCalculation +
     /// PesoComparacaoCalculation); o browser nunca calcula física.
@@ -2118,14 +2321,18 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "cm_tool_id")] string? cmToolId,
         [FromForm(Name = "water_temperature")] string? waterTemperature,
         [FromForm(Name = "cm_subject")] string[]? cmSubjects,
-        [FromForm(Name = "water_weight")] string[]? waterWeights)
+        [FromForm(Name = "water_weight")] string[]? waterWeights,
+        [FromForm(Name = "comparacao_note")] string? comparacaoNote = null)
     {
         ComparacaoTab = true;
 
         await ConfigurarShellDaComparacaoAsync();
 
+        // A nota escrita volta no formulário (só eco, nada se grava): o
+        // formulário trocado pela resposta já não a apaga (deep sweep,
+        // 18/10/2026, B-peso-4).
         var (refusal, leituras, temperatura) = await PrepararComparacaoAsync(
-            jobOnId, pesoInicialId, cmToolId, waterTemperature, null, cmSubjects, waterWeights,
+            jobOnId, pesoInicialId, cmToolId, waterTemperature, comparacaoNote, cmSubjects, waterWeights,
             HttpContext.RequestAborted);
         if (leituras is null)
         {
@@ -2152,12 +2359,17 @@ public sealed class PesoModel : PageModel
     }
 
     /// <summary>
-    /// POST nativo: guardar o registo de comparação (o histórico tipo
+    /// POST (pelo DmoTroca desde o deep sweep, 18/10/2026; sem JS, nativo):
+    /// guardar o registo de comparação (o histórico tipo
     /// Comparação do html — ligado ao controlo_id da produção). O cálculo é
     /// o MESMO da comparação ao vivo (a fonte única); os inputs consumidos
     /// são congelados no registo. Sucesso volta por PRG ao resultado a
     /// partir do PERSISTIDO; a recusa preserva o formulário (nada escrito).
     /// </summary>
+    // O mesmo envio outra vez (a ligação caiu depois de guardar) não guarda
+    // duas vezes, nem depois da janela dos repetidos (deep sweep, 18/10/2026,
+    // B-peso-4).
+    [EnvioUnico]
     public async Task<IActionResult> OnPostGuardarComparacaoAsync(
         [FromForm(Name = "jobon_id")] int jobOnId,
         [FromForm(Name = "peso_inicial")] int? pesoInicialId,
@@ -2165,9 +2377,34 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "water_temperature")] string? waterTemperature,
         [FromForm(Name = "cm_subject")] string[]? cmSubjects,
         [FromForm(Name = "water_weight")] string[]? waterWeights,
-        [FromForm(Name = "comparacao_note")] string? comparacaoNote)
+        [FromForm(Name = "comparacao_note")] string? comparacaoNote,
+        [FromForm(Name = "comparacao_guardada")] int? comparacaoGuardadaId = null,
+        [FromForm(Name = "ignoradas")] string? ignoradasGuardadas = null)
     {
         ComparacaoTab = true;
+
+        // Um clique repetido em «Guardar comparação» que chega já à página da
+        // comparação acabada de guardar: o formulário dela vem sem leituras.
+        // Não é uma comparação nova nem uma recusa a mostrar: volta à
+        // guardada, como estava (cliques repetidos não mostram mensagens,
+        // Diogo; B-peso-2, deep sweep 18/10/2026).
+        if (comparacaoGuardadaId is int guardadaId
+            && pesoInicialId is int inicialGuardado
+            && (cmSubjects ?? []).All(string.IsNullOrWhiteSpace)
+            && (waterWeights ?? []).All(string.IsNullOrWhiteSpace)
+            && await _db.PesoComparacoes.AsNoTracking()
+                .AnyAsync(c => c.Id == guardadaId && c.PesoInicialId == inicialGuardado, HttpContext.RequestAborted))
+        {
+            return RedirectToPage("/Controlo/Peso", new
+            {
+                comparacao = "1",
+                jobon_id = jobOnId,
+                peso_inicial = inicialGuardado,
+                comparacao_id = guardadaId,
+                ignoradas = Sanitize(ignoradasGuardadas)
+            });
+        }
+
         await ConfigurarShellDaComparacaoAsync();
 
         var (refusal, leituras, temperatura) = await PrepararComparacaoAsync(
@@ -2180,6 +2417,9 @@ public sealed class PesoModel : PageModel
             return Page();
         }
 
+        // O pedido já chegou inteiro: grava até ao fim mesmo que o browser o
+        // largue (um clique repetido larga o anterior). Os repetidos abrem a
+        // comparação do primeiro (ver CreatePesoComparacaoHandler).
         var outcome = await ComparacaoHandler.HandleAsync(
             new CreatePesoComparacao(
                 pesoInicialId!.Value,
@@ -2187,7 +2427,7 @@ public sealed class PesoModel : PageModel
                 temperatura,
                 leituras,
                 Sanitize(comparacaoNote)),
-            HttpContext.RequestAborted);
+            CancellationToken.None);
 
         JuntarLeiturasForaDoBackend(outcome.Ignoradas);
         if (outcome.Result != PesoComparacaoResultado.Sucesso || outcome.Comparacao is null)
@@ -2292,10 +2532,11 @@ public sealed class PesoModel : PageModel
         ReferenciaComparacaoSemProducoes = producoes.Count == 0;
 
         // A produção pedida desta referência fica no select mesmo além das
-        // mais recentes (o atalho da folha numa produção antiga).
+        // mais recentes (o atalho da folha numa produção antiga), com a mesma
+        // regra do select: o início da referência ou da parte BQ, nunca a meio.
         if (pedida is not null
             && producoes.All(p => p.JobOnId != pedida.JobOnId)
-            && pedida.Reference.Contains(ReferenciaComparacao, StringComparison.OrdinalIgnoreCase))
+            && DMO.Alpha.Infrastructure.Search.ReferenceMatch.Matches(pedida.Reference, ReferenciaComparacao))
         {
             producoes.Add(pedida);
         }
@@ -2504,6 +2745,26 @@ public sealed class PesoModel : PageModel
         return avisos;
     }
 
+    /// <summary>
+    /// O valor pedido do dropdown das produções do histórico: «nº|referência»
+    /// (o valor das opções) ou só «nº» (os links antigos).
+    /// </summary>
+    private static (string? Number, string? Reference) ParseHistoryProducao(string? value)
+    {
+        if (value is null)
+        {
+            return (null, null);
+        }
+        var separator = value.IndexOf(HistoryProducaoSeparador);
+        if (separator < 0)
+        {
+            return (value, null);
+        }
+        var number = value[..separator].Trim();
+        var reference = value[(separator + 1)..].Trim().ToUpperInvariant();
+        return (number.Length == 0 ? null : number, reference.Length == 0 ? null : reference);
+    }
+
     /// <summary>O filtro do tipo (o vocabulário fechado do select do histórico).</summary>
     private static ControloHistoryKind? ParseTipo(string? tipo) => tipo switch
     {
@@ -2671,6 +2932,15 @@ public sealed class PesoModel : PageModel
             var result = new List<(string?, string)>();
             foreach (var item in document.RootElement.EnumerateArray())
             {
+                // Um item que não é um objeto ([1], ["x"]) não é uma linha e
+                // fica de fora, como o JSON malformado: o TryGetProperty num
+                // número lançava e o preview dava erro 500 (sweep do Codex,
+                // 19/10/2026, ponto 2). A página envia sempre objetos.
+                if (item.ValueKind != System.Text.Json.JsonValueKind.Object)
+                {
+                    continue;
+                }
+
                 var cmSubject = item.TryGetProperty("cm_subject", out var cm) && cm.ValueKind == System.Text.Json.JsonValueKind.String
                     ? cm.GetString()
                     : null;

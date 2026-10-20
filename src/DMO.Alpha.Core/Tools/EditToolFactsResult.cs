@@ -34,5 +34,12 @@ public enum EditToolFactsResult
     LotAlreadyExists,
 
     /// <summary>A quantidade do lote não é um inteiro igual ou superior a 0.</summary>
-    InvalidLotQuantity
+    InvalidLotQuantity,
+
+    /// <summary>
+    /// Outra pessoa gravou esta ferramenta depois de a ficha ser aberta (a versão
+    /// enviada já não é a gravada). Nada foi gravado: a ficha volta com o
+    /// que ficou gravado, para a pessoa refazer a alteração por cima.
+    /// </summary>
+    ChangedByAnotherUser
 }

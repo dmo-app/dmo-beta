@@ -12,16 +12,12 @@ namespace DMO.Alpha.Core.Production;
 /// </summary>
 public interface IJobOnListQuery
 {
-    /// <summary>
-    /// Devolve os Job Ons existentes com o contexto de produção estabelecido,
-    /// ordenados por jobon_id decrescente (o mais recente primeiro).
-    /// </summary>
-    Task<IReadOnlyList<ProductionContextReadModel>> ListAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// As produções de UMA referência (e, quando indicada, de uma máquina),
-    /// a mais recente primeiro: o segundo passo da escolha do Job On, que
-    /// só carrega as produções da referência procurada — as últimas
+    /// As produções de UMA referência, a inteira e sem distinguir maiúsculas
+    /// (e, quando indicada, de uma máquina), a mais recente primeiro: o
+    /// segundo passo da escolha do Job On, que só carrega as produções da
+    /// referência procurada — as últimas
     /// <see cref="IProductionPickerQuery.MaxResults"/>.
     /// </summary>
     Task<IReadOnlyList<ProductionContextReadModel>> ListByReferenceAsync(
@@ -56,10 +52,11 @@ public interface IJobOnListQuery
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// As produções das referências que contêm o texto (sem distinguir
-    /// maiúsculas), mais recentes primeiro, opcionalmente só as de uma
-    /// máquina: o dropdown do histórico — as últimas
-    /// <see cref="IProductionPickerQuery.MaxResults"/>.
+    /// As produções das referências que começam pelo texto ou cuja parte BQ
+    /// começa por ele (sem distinguir maiúsculas), mais recentes primeiro,
+    /// opcionalmente só as de uma máquina: o dropdown do histórico — as
+    /// últimas <see cref="IProductionPickerQuery.MaxResults"/>, cada uma com
+    /// a sua referência (o mesmo nº pode existir em duas referências).
     /// </summary>
     Task<IReadOnlyList<JobOnProductionOption>> ListProductionsOfReferenceAsync(
         string reference,
@@ -67,8 +64,9 @@ public interface IJobOnListQuery
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Todas as produções que já existiram com a referência exata, a mais
-    /// recente primeiro, paginadas na base: a tabela da folha do Job On.
+    /// Todas as produções que já existiram com a referência exata (sem
+    /// distinguir maiúsculas), a mais recente primeiro, paginadas na base: a
+    /// tabela da folha do Job On.
     /// </summary>
     Task<DMO.Alpha.Core.Paging.PagedList<ProductionContextReadModel>> ListPageOfReferenceAsync(
         string reference,
@@ -78,20 +76,23 @@ public interface IJobOnListQuery
 }
 
 /// <summary>
-/// Os filtros do histórico do Job On: a referência (contém, sem distinguir
-/// maiúsculas), a máquina, o nº de produção (igual) e o período desde–até,
-/// que apanha as produções cuja janela toca o intervalo. Um filtro null não
-/// restringe.
+/// Os filtros do histórico do Job On: a referência (pelo início dela ou da
+/// parte BQ, sem distinguir maiúsculas), a máquina, o nº de produção (igual),
+/// a referência dessa produção (igual: o mesmo nº pode existir noutra
+/// referência) e o período desde–até, que apanha as produções cuja janela
+/// toca o intervalo. Um filtro null não restringe.
 /// </summary>
 public sealed record JobOnHistoryFilter(
     string? Reference,
     int? MachineId,
     string? ProductionNumber,
     DateOnly? Desde,
-    DateOnly? Ate)
+    DateOnly? Ate,
+    string? ProductionReference = null)
 {
     public bool IsEmpty => string.IsNullOrEmpty(Reference) && MachineId is null
-        && string.IsNullOrEmpty(ProductionNumber) && Desde is null && Ate is null;
+        && string.IsNullOrEmpty(ProductionNumber) && string.IsNullOrEmpty(ProductionReference)
+        && Desde is null && Ate is null;
 }
 
 /// <summary>Uma opção do dropdown das produções de uma referência.</summary>

@@ -1,0 +1,38 @@
+/*
+ * Planeamento · Sumário (19/10/2026): os filtros numa linha, o calendário à
+ * esquerda e a lista do dia escolhido à direita, por tipo de informação.
+ * Cores só da paleta e dos tons do design system.
+ */
+.sumario-filtros-card{margin-top:14px;padding:12px 16px}
+.sumario-filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:end}
+.sumario-filters > .dmo-field{flex:0 0 auto;min-width:0}
+.sumario-filters > .dmo-field > select{width:100%}
+.sumario-w-tipo{width:300px}
+.sumario-w-dias{width:150px}
+.sumario-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
+.sumario-lista{padding:16px 16px 18px;min-width:0}
+.sumario-lista h2{margin:0;font-size:18px}
+.sumario-vazio{margin:12px 0 0;color:var(--dmo-text-muted)}
+/* As linhas como no Job On (Diogo, 19/10/2026: «muito branco, bare»): cada
+   grupo com uma barra de título, cada linha com a cor clara da máquina, a
+   data à frente e a máquina a negrito na cor dela. */
+/* O espaço entre a barra do título e a primeira linha é o gap da grelha:
+   a regra global «.dmo-card h3{margin:0}» apagava a margem do h3 e a
+   primeira linha colava-se à barra (Diogo, 19/10/2026). */
+.sumario-grupo{display:grid;gap:8px;margin-top:18px}
+.sumario-grupo h3{padding:0 0 6px;border-bottom:2px solid var(--dmo-palette-sky);font-size:13px;letter-spacing:.02em;text-transform:uppercase;color:var(--dmo-palette-slate)}
+.sumario-grupo ul{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.sumario-item{--dmo-machine-color:var(--dmo-palette-steel);display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;min-height:44px;padding:8px 14px;border-radius:8px;background:color-mix(in srgb,var(--dmo-machine-color) 12%,transparent)}
+.sumario-item.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
+.sumario-item.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
+.sumario-item.mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
+.sumario-item.mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
+.sumario-item.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
+.sumario-item.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
+.sumario-quando{min-width:46px;color:var(--dmo-palette-slate);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.sumario-maquina{min-width:26px;color:var(--dmo-machine-color);font-size:14px}
+.sumario-titulo{color:var(--dmo-text);font-size:14px;font-weight:600;text-decoration:none}
+a.sumario-titulo:hover,a.sumario-titulo:focus-visible{color:var(--dmo-palette-ocean);text-decoration:underline}
+.sumario-detalhe{color:var(--dmo-text);font-size:13px}
+.sumario-item small{margin-left:auto;color:var(--dmo-text-muted);font-size:12px}
+@media (max-width:900px){.sumario-grid{grid-template-columns:minmax(0,1fr)}}

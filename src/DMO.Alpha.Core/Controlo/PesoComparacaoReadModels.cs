@@ -110,7 +110,11 @@ public sealed record PesoComparacaoLeiturasResultado(
     PesoAveragesReadModel? Medias,
     PesoComparacaoPares? Pares,
     /// <summary>As leituras deixadas de fora (massa ≤ 0 ou resultado ≤ 0) — o aviso diz quais; vazio quando todas entraram.</summary>
-    IReadOnlyList<PesoComparacaoLeituraIgnorada>? Ignoradas = null);
+    IReadOnlyList<PesoComparacaoLeituraIgnorada>? Ignoradas = null)
+{
+    /// <summary>A punção e a densidade contra as do Peso inicial (D12); null numa recusa.</summary>
+    public PesoComparabilidade? Comparabilidade { get; init; }
+}
 
 /// <summary>
 /// Uma opção de Peso guardado para os selects da comparação (o «Peso inicial
@@ -129,7 +133,21 @@ public sealed record PesoComparacaoPesoOpcao(
     string? CmToolLot,
     int Leituras,
     decimal? PesoMedioGrams,
-    IReadOnlyList<string>? CmMachines = null);
+    IReadOnlyList<string>? CmMachines = null)
+{
+    /// <summary>
+    /// True quando é o Peso das ferramentas que a produção tem agora (e
+    /// sempre nos Pesos sem produção); false num Peso de antes de uma troca
+    /// da CM ou da BQ (18/10/2026).
+    /// </summary>
+    public bool IsCurrent { get; init; } = true;
+
+    /// <summary>
+    /// A BQ congelada do Peso («BQ C142 · Lote 7»), só quando a produção tem
+    /// mais do que um Peso: dois Pesos da mesma CM distinguem-se pela BQ.
+    /// </summary>
+    public string? BqLabel { get; init; }
+}
 
 /// <summary>
 /// A vista da comparação entre DOIS Pesos guardados do histórico (o
@@ -178,4 +196,32 @@ public sealed record PesoComparacaoReadModel(
     PesoAveragesReadModel? Medias,
     PesoComparacaoPares Pares,
     DateTime CreatedAtUtc,
-    string? Note);
+    string? Note)
+{
+    /// <summary>
+    /// A punção e a densidade congeladas na comparação contra as do Peso
+    /// inicial (D12); null quando o Peso inicial já não se lê.
+    /// </summary>
+    public PesoComparabilidade? Comparabilidade { get; init; }
+}
+
+/// <summary>
+/// Se a comparação se pode fazer (o Diogo, 19/10/2026, D12: «A PU é sempre
+/// igual, a densidade sempre igual para os mesmos CM. Não existe forma de
+/// comparar caso não o seja.»): a punção e a densidade do vidro que a
+/// comparação usa contra as que o Peso inicial usou. Quando uma mudou, a
+/// comparação fica «não comparável»: avisa, sem recusar (avisos em vez de
+/// bloqueios).
+/// </summary>
+public sealed record PesoComparabilidade(
+    decimal PuncaoInicialCm3,
+    decimal PuncaoCm3,
+    decimal DensidadeInicial,
+    decimal Densidade)
+{
+    public bool PuncaoMudou => PuncaoCm3 != PuncaoInicialCm3;
+
+    public bool DensidadeMudou => Densidade != DensidadeInicial;
+
+    public bool Comparavel => !PuncaoMudou && !DensidadeMudou;
+}

@@ -1,15 +1,30 @@
 @model DMO.Alpha.Web.Pages.JobOn.JobOnProcura
-@* O SEGUNDO PASSO DA PROCURA, EM DROPDOWN (Diogo, 17/10/2026: «primeiro
-   procura referências, depois à frente um dropdown com as últimas 5
-   produções»; cada uma como «202601 B1»). Fica à frente do campo da
-   referência; escolher uma produção abre logo a folha, sem botão. *@
-@if (Model.Referencia is { } referencia && Model.Linhas.Count > 0)
+@* A PROCURA EM DOIS CAMPOS (Diogo, 17/10/2026: «ao escrever a referência na
+   primeira, a segunda mostra produção e máquina»; sem lista por baixo do
+   campo, «o problema era ter as duas formas de filtrar a produção»). O
+   dropdown fica sempre à frente do campo da referência, para nada mexer:
+   vazio e desativado enquanto a referência não está completa; com ela
+   (Diogo, 20/10/2026: «primeiro campo filtra apenas referências completas,
+   segundo aparece dropdown das produções 202601 202602»), as últimas 5
+   produções como «202601 B1», sem repetir a referência. Escolher uma abre
+   logo a folha. *@
+@if (Model is { Linhas.Count: > 0 } procura)
 {
-  <select id="lightProcuraProducoes" aria-label="Últimas produções de @referencia" data-dmo-ir data-dmo-procura-passo2>
-    <option value="" selected>Produção</option>
-    @foreach (var linha in Model.Linhas)
+  @* COM PRODUÇÕES, O DROPDOWN DESTACA-SE (Diogo, 19/10/2026: «campo de
+     escrever não aparece nada consoante o que escrevemos»; «preferível drop
+     down, uma lista vai consumir muito espaço»): muda de cor e diz
+     «Escolher produção», para se ver que há o que escolher. *@
+  <select id="lightProcuraProducoes" class="jobon-procura-com-resultados" aria-label="Últimas produções de @procura.Referencia" data-dmo-ir>
+    <option value="" selected>Escolher produção</option>
+    @foreach (var linha in procura.Linhas)
     {
       <option value="@linha.Abrir" data-id="@linha.Item.JobOnId">@linha.Item.ProductionNumber @linha.Item.Machine</option>
     }
+  </select>
+}
+else
+{
+  <select id="lightProcuraProducoes" aria-label="Produção (escreva primeiro a referência)" disabled>
+    <option value="" selected>Produção</option>
   </select>
 }

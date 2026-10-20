@@ -1,47 +1,42 @@
 namespace DMO.Alpha.Core.Tools;
 
 /// <summary>
-/// Os dados técnicos que faltam a uma ferramenta, com os rótulos da
-/// oficina: os que o Job On mostra no cartão de cada tipo (CM → processo,
-/// punção e gargalo; BQ → marisa e gargalo; MF → gargalo nominal). A mesma
-/// regra serve a ficha da ferramenta (abre a informação técnica com o aviso
-/// amarelo) e a ficha da produção (o aviso junto à ferramenta).
+/// Os dados técnicos que faltam a uma ferramenta, pelo que cada tipo leva
+/// (blueprint, Ferramentas §6): a CM o processo, o peso nominal, a punção, o
+/// gargalo e o tampão (D, raio e calote); a BQ a marisa e o gargalo; o MF o
+/// gargalo. Todos são opcionais: isto só diz o que falta, nunca bloqueia.
 /// </summary>
 public static class ToolTechnicalMissing
 {
-    public static IReadOnlyList<string> For(
-        ToolType type,
-        bool hasProcess,
-        decimal? volumePuncaoCm3,
-        decimal? volumeMarisaCm3,
-        decimal? diametroGargaloMm)
+    public static IReadOnlyList<string> For(ToolType type, ToolTechnicalContext? technical)
     {
         var missing = new List<string>();
-        if (type == ToolType.Cm)
+        void Check(bool present, string label)
         {
-            if (!hasProcess) missing.Add("processo");
-            if (volumePuncaoCm3 is null) missing.Add("punção");
+            if (!present)
+            {
+                missing.Add(label);
+            }
         }
 
-        if (type == ToolType.Bq && volumeMarisaCm3 is null) missing.Add("marisa");
-        if (diametroGargaloMm is null) missing.Add(type == ToolType.Mf ? "gargalo nominal" : "gargalo");
+        switch (type)
+        {
+            case ToolType.Cm:
+                Check(technical?.Process is not null, "processo");
+                Check(technical?.NominalWeightGrams is not null, "peso nominal");
+                Check(technical?.VolumePuncaoCm3 is not null, "punção");
+                Check(technical?.DiametroGargaloMm is not null, "gargalo");
+                Check(technical?.TpDiametroMm is not null && technical.TpRaioMm is not null && technical.TpSagittaMm is not null, "tampão");
+                break;
+            case ToolType.Bq:
+                Check(technical?.VolumeMarisaCm3 is not null, "marisa");
+                Check(technical?.DiametroGargaloMm is not null, "gargalo");
+                break;
+            case ToolType.Mf:
+                Check(technical?.DiametroGargaloMm is not null, "gargalo");
+                break;
+        }
+
         return missing;
     }
-
-    /// <summary>«Faltam dados técnicos: processo e punção.»</summary>
-    public static string Message(IReadOnlyList<string> missing) => missing.Count switch
-    {
-        0 => string.Empty,
-        1 => $"Falta o dado técnico: {missing[0]}.",
-        _ => $"Faltam dados técnicos: {string.Join(", ", missing.Take(missing.Count - 1))} e {missing[^1]}."
-    };
-
-    /// <summary>O token CM/MF/BQ do Job On para o tipo; null quando desconhecido.</summary>
-    public static ToolType? TypeOf(string? token) => token switch
-    {
-        "CM" => ToolType.Cm,
-        "MF" => ToolType.Mf,
-        "BQ" => ToolType.Bq,
-        _ => null
-    };
 }

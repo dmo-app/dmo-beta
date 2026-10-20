@@ -20,10 +20,12 @@ namespace DMO.Alpha.Web.Pages.Admin.Users;
 /// Os FACTOS HUMANOS (nome, nº de operador, template corrente pelo
 /// NOME, estado, CreatedAt) e as AÇÕES — o select do template +
 /// [Guardar template], [Ativar/Arquivar] (o toggle) e [Reset de
-/// acesso] — postando aos MESMOS handlers do Index (as assinaturas
-/// intocadas: os testes postam-nos direto), cada um com o PRG e as
-/// recusas tipadas atuais preservadas (a recusa renderiza na lista, o
-/// destino do redirect). O EMAIL NÃO EXISTE no DMO (nunca guardado) —
+/// acesso] — postando aos MESMOS handlers do Index (os testes postam-nos
+/// direto), cada um com o PRG e as recusas tipadas atuais preservadas.
+/// Vindas da ficha (origem=ficha), a template, arquivar e repor voltam à
+/// ficha, com a recusa ou o PIN temporário na pilha do canto, e trocam só
+/// o que muda (deep sweep, 18/10/2026); eliminar volta à lista.
+/// O EMAIL NÃO EXISTE no DMO (nunca guardado) —
 /// não é procurado nem mostrado; o utilizador resolve-se pelo nº de
 /// operador, o facto humano único. Nenhum nº que não exista abre
 /// ficha: o aviso limpo, nunca uma folha inventada.
@@ -57,11 +59,33 @@ public sealed class FichaModel : PageModel
     /// <summary>A confirmação do delete vestida (?confirm_delete=1 — o 2.º passo).</summary>
     public bool ConfirmDelete { get; private set; }
 
+    /// <summary>
+    /// As recusas das ações da ficha (template, arquivar, repor), que voltam
+    /// à ficha pelo endereço (PRG, o vocabulário fechado dos enums), e o PIN
+    /// temporário de um repor (TempData, mostrado uma vez). Na pilha do canto.
+    /// </summary>
+    public string? TemplateRefusalMessage { get; private set; }
+    public string? StandByRefusalMessage { get; private set; }
+    public string? ResetRefusalMessage { get; private set; }
+    public string? ResetOperatorId { get; private set; }
+    public string? ResetTemporaryPassword { get; private set; }
+
     public async Task<IActionResult> OnGetAsync(
         [FromQuery(Name = "operator_id")] string? operatorId,
-        [FromQuery(Name = "confirm_delete")] string? confirmDelete)
+        [FromQuery(Name = "confirm_delete")] string? confirmDelete,
+        [FromQuery(Name = "template_refusal")] string? templateRefusal = null,
+        [FromQuery(Name = "standby_refusal")] string? standbyRefusal = null,
+        [FromQuery(Name = "reset_refusal")] string? resetRefusal = null)
     {
         ConfirmDelete = confirmDelete == "1";
+        if (Enum.TryParse(templateRefusal, out SetCurrentUserTemplateResult template) && template != SetCurrentUserTemplateResult.Success)
+            TemplateRefusalMessage = NullIfEmpty(IndexModel.TemplateRefusalText(template));
+        if (Enum.TryParse(standbyRefusal, out SetUserStandByResult standBy) && standBy != SetUserStandByResult.Success)
+            StandByRefusalMessage = NullIfEmpty(IndexModel.StandByRefusalText(standBy));
+        if (Enum.TryParse(resetRefusal, out ResetUserAccessResult reset) && reset != ResetUserAccessResult.Success)
+            ResetRefusalMessage = NullIfEmpty(IndexModel.ResetRefusalText(reset));
+        ResetOperatorId = TempData["AdminUserResetOperatorId"] as string;
+        ResetTemporaryPassword = TempData["AdminUserResetPassword"] as string;
         ViewData["Title"] = "Ficha de utilizador";
         var shell = (await _shellStateFactory.ForDestinationAsync("admin", new ModulePresentation("admin", "Administração")));
         ViewData["Shell"] = shell with
@@ -89,4 +113,6 @@ public sealed class FichaModel : PageModel
 
         return Page();
     }
+
+    private static string? NullIfEmpty(string text) => text.Length == 0 ? null : text;
 }

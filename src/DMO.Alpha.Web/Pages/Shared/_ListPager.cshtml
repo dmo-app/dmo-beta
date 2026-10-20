@@ -7,7 +7,7 @@
    2026-10-17: «basta meter 1 de 5, depois ao mudar 2 de 5»). *@
 @if (Model.TotalCount > 0)
 {
-  <nav class="dmo-list-pager" aria-label="Paginação" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:12px">
+  <nav data-dmo-parcial class="dmo-list-pager" aria-label="Paginação" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:12px">
     @if (Model.PageNumber > 1)
     {
       <a class="dmo-button dmo-arrow" href="@Model.Href(Context.Request, Model.PageNumber - 1)" aria-label="Página anterior">←</a>

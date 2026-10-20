@@ -1,0 +1,12 @@
+@model (DMO.Alpha.Infrastructure.Controlo.RevisaoControloAnterior? Comparacao, int? ControloId)
+@* De onde vem o «controlo anterior» de um Peso (Diogo, 19/10/2026, C6: «a
+   app não deve escolher automático; pode sugerir»): a produção escolhida no
+   Peso; sem escolha, a sugestão e o link para a escolher no Peso. *@
+@if (Model.Comparacao?.Escolhida is { } escolhida)
+{
+  <small data-revisao-anterior="escolhida">@escolhida</small>
+}
+else
+{
+  <small data-revisao-anterior="sugestao">Por escolher no Peso@(Model.Comparacao?.Sugestao is { } sugestao ? $" · sugestão: {sugestao}" : null)@if (Model.ControloId is int controloId){<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.ProducaoAnteriorNoPeso(controloId)" />}</small>
+}

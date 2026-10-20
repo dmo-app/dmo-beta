@@ -87,6 +87,9 @@ public sealed record EffectiveAccess
     /// <summary>Whether an Admin password reset is pending (read by the session validator).</summary>
     public bool RequiresPasswordChange { get; init; }
 
+    /// <summary>The User's session version: a cookie issued with an older one is revoked (read by the session validator).</summary>
+    public int SessionVersion { get; init; }
+
     /// <summary>The current Template's stable row id, or null (no current Template / ADMIN boundary).</summary>
     public Guid? TemplateId { get; init; }
 

@@ -19,9 +19,16 @@ public sealed class CreateBqRepairerHandler : ICreateBqRepairerHandler
         _db = db;
     }
 
-    public async Task<BqRepairerWriteOutcome> HandleAsync(
+    // Dois envios iguais ao mesmo tempo: o segundo bate no índice único do
+    // nome; a segunda tentativa volta a verificar e devolve NameAlreadyInUse.
+    public Task<BqRepairerWriteOutcome> HandleAsync(
         CreateBqRepairer command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        UniqueViolationRetry.RunAsync(_db, () => HandleOnceAsync(command, cancellationToken));
+
+    private async Task<BqRepairerWriteOutcome> HandleOnceAsync(
+        CreateBqRepairer command,
+        CancellationToken cancellationToken)
     {
         var name = command.Name?.Trim();
         if (string.IsNullOrEmpty(name))

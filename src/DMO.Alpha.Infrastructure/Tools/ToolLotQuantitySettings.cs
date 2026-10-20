@@ -36,8 +36,11 @@ public sealed class ToolLotQuantitySettings(DmoDbContext db) : IToolLotQuantityS
     {
         var ids = machineIds.Distinct().ToList();
         var matches = (await ReadPerMachineAsync(cancellationToken)).Where(d => d.Type == type && ids.Contains(d.MachineId)).ToList();
-        var quantities = matches.Select(d => d.Quantity).Distinct().ToList();
-        var common = ids.Count > 0 && matches.Count == ids.Count && quantities.Count == 1 ? quantities[0] : null;
+        // Uma máquina sem total não apaga o total das outras (teste do agente
+        // de 19/10/2026, T2945d11): B1 com 120 e B2 sem total sugere 120, e a
+        // página avisa «Sem total do lote: B2.». Só totais diferentes ficam por escolher.
+        var quantities = matches.Where(d => d.Quantity is not null).Select(d => d.Quantity).Distinct().ToList();
+        var common = matches.Count == ids.Count && quantities.Count == 1 ? quantities[0] : null;
         return new ToolLotQuantitySuggestion(common, matches);
     }
 

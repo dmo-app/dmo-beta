@@ -30,4 +30,12 @@ public sealed class PesoMeasurement
 
     /// <summary>Massa de água medida (g) — o valor observado, na totalidade.</summary>
     public decimal WaterWeightGrams { get; set; }
+
+    /// <summary>
+    /// Quando a leitura foi gravada (UTC, pelo carimbo dos registos); null
+    /// nas leituras anteriores a 19/10/2026. A Revisão avisa «Registado
+    /// depois da aprovação» quando é posterior à decisão (Diogo, 19/10/2026,
+    /// C9); a aprovação mantém-se.
+    /// </summary>
+    public DateTime? RegistadoEmUtc { get; set; }
 }

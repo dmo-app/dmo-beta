@@ -39,6 +39,7 @@ public sealed class PegamentosQuery : IPegamentosQuery
 
     public async Task<PegamentosSheetReadModel?> FindSheetByControloAsync(
         int controloId,
+        int? pegamentosId = null,
         CancellationToken cancellationToken = default)
     {
         // A âncora é o controlo_id persistido: um controlo inexistente
@@ -62,20 +63,33 @@ public sealed class PegamentosQuery : IPegamentosQuery
             return null;
         }
 
-        // Os componentes aplicáveis da combinação com o facto técnico
-        // corrente de cada tool (gargalo herdado; null = em falta,
-        // completável no fluxo). O contexto pode não ter um componente
-        // (o MF do J10 real) — só os presentes entram na folha.
-        var components = await ComponentsAsync(
-            production.CmToolId, production.BqToolId, production.MfToolId, cancellationToken);
+        // As folhas da produção, cada uma com as suas ferramentas. A
+        // mostrada é a pedida (desta produção) ou a das ferramentas que a
+        // produção tem agora; depois de uma troca ainda não há nenhuma: a
+        // folha mostra-se pronta a medir com as ferramentas novas (
+        // 18/10/2026). Nunca «a última»: voltar a uma ferramenta já usada
+        // retoma a folha dela.
+        var current = new PegamentosCombination(production.CmToolId, production.BqToolId, production.MfToolId);
+        var sheets = await FindRecordsAsync(
+            _db.Pegamentos.AsNoTracking().Where(p => p.ControloId == controloId), current, cancellationToken);
+        var registroModel = sheets.FirstOrDefault(s => s.PegamentosId == pegamentosId)
+            ?? sheets.FirstOrDefault(s => s.IsCurrent);
+
+        // Os componentes aplicáveis com o facto técnico corrente de cada
+        // tool (gargalo herdado; null = em falta, completável no fluxo): os
+        // da folha mostrada ou, sem folha, os do contexto. O contexto pode
+        // não ter um componente (o MF do J10 real) — só os presentes entram.
+        var components = registroModel?.Components
+            ?? await ComponentsAsync(production.CmToolId, production.BqToolId, production.MfToolId, cancellationToken);
+        var currentComponents = registroModel is { IsCurrent: false }
+            ? await ComponentsAsync(production.CmToolId, production.BqToolId, production.MfToolId, cancellationToken)
+            : components;
 
         // A tolerância efetiva corrente (a que a criação do registo
         // congelará): configurada quando existir, default do Owner na sua
         // falta — nunca locked no cálculo.
         var currentTolerance = await _toleranceConfiguration.FindConfiguredAsync(cancellationToken)
             ?? PegamentosCalculation.DefaultToleranceMm;
-
-        var registroModel = await FindRecordByControloAsync(controloId, cancellationToken);
 
         return new PegamentosSheetReadModel(
             controloId,
@@ -84,36 +98,40 @@ public sealed class PegamentosQuery : IPegamentosQuery
             production.ProductionNumber,
             production.Machine,
             production.CmId,
-            production.CmToolId,
+            registroModel is null ? production.CmToolId : registroModel.CmToolId,
             production.MfId,
-            production.MfToolId,
+            registroModel is null ? production.MfToolId : registroModel.MfToolId,
             production.BqId,
-            production.BqToolId,
+            registroModel is null ? production.BqToolId : registroModel.BqToolId,
             components,
             currentTolerance,
-            registroModel);
+            registroModel)
+        {
+            Sheets = sheets,
+            CurrentComponents = currentComponents
+        };
     }
 
     public async Task<PegamentosSheetReadModel?> FindSheetByPegamentosAsync(
         int pegamentosId,
         CancellationToken cancellationToken = default)
     {
-        var registro = await FindRecordAsync(
-            _db.Pegamentos.AsNoTracking().Where(p => p.Id == pegamentosId), cancellationToken);
+        var registro = (await FindRecordsAsync(
+            _db.Pegamentos.AsNoTracking().Where(p => p.Id == pegamentosId), null, cancellationToken))
+            .FirstOrDefault();
         if (registro is null)
         {
             return null;
         }
 
-        // Já associado: a folha da produção (o contexto todo pelo controlo_id).
+        // Já associado: a folha da produção (o contexto todo pelo
+        // controlo_id), esta folha com as ferramentas dela.
         if (registro.ControloId is int controloId)
         {
-            return await FindSheetByControloAsync(controloId, cancellationToken);
+            return await FindSheetByControloAsync(controloId, pegamentosId, cancellationToken);
         }
 
         // Sem Job On: as ferramentas são as guardadas no registo.
-        var components = await ComponentsAsync(
-            registro.CmToolId, registro.BqToolId, registro.MfToolId, cancellationToken);
         var currentTolerance = await _toleranceConfiguration.FindConfiguredAsync(cancellationToken)
             ?? PegamentosCalculation.DefaultToleranceMm;
 
@@ -129,9 +147,23 @@ public sealed class PegamentosQuery : IPegamentosQuery
             registro.MfToolId,
             null,
             registro.BqToolId,
-            components,
+            registro.Components,
             currentTolerance,
             registro);
+    }
+
+    public async Task<IReadOnlyList<PegamentosReadModel>> ListSheetsByControloAsync(
+        int controloId,
+        CancellationToken cancellationToken = default)
+    {
+        var current = await PegamentosSheets.CurrentCombinationAsync(_db, controloId, cancellationToken);
+        if (current is null)
+        {
+            return Array.Empty<PegamentosReadModel>();
+        }
+
+        return await FindRecordsAsync(
+            _db.Pegamentos.AsNoTracking().Where(p => p.ControloId == controloId), current, cancellationToken);
     }
 
     /// <summary>
@@ -182,21 +214,20 @@ public sealed class PegamentosQuery : IPegamentosQuery
         return components;
     }
 
-    public Task<PegamentosReadModel?> FindRecordByControloAsync(
-        int controloId,
-        CancellationToken cancellationToken = default) =>
-        FindRecordAsync(_db.Pegamentos.AsNoTracking().Where(p => p.ControloId == controloId), cancellationToken);
-
-    private async Task<PegamentosReadModel?> FindRecordAsync(
+    /// <summary>
+    /// Os registos pedidos, pela ordem de gravação, numa consulta: as
+    /// leituras, a referência/lote atuais das Tools (só servem de fallback
+    /// para dados legados sem os factos congelados) e o gargalo atual de cada
+    /// ferramenta (o nominal de um componente ainda sem leituras).
+    /// <paramref name="current"/> é a combinação que a produção tem agora
+    /// (marca a folha atual); null nos Pegamentos sem Job On.
+    /// </summary>
+    private async Task<IReadOnlyList<PegamentosReadModel>> FindRecordsAsync(
         IQueryable<DMO.Alpha.Core.Controlo.Pegamentos> source,
+        PegamentosCombination? current,
         CancellationToken cancellationToken)
     {
-        // O registo durável do controlo, quando já existe (a ausência é o
-        // estado válido antes da primeira medição): o caso normal é um por
-        // produção; o determinismo da leitura é o primeiro por Id. Na mesma
-        // consulta vêm as leituras e a referência/lote atuais das Tools (só
-        // servem de fallback para dados legados sem os factos congelados).
-        var registro = await (
+        var registros = await (
             from p in source
             join cm in _db.Tools on p.CmToolId equals cm.ToolId into cmGroup
             from cm in cmGroup.DefaultIfEmpty()
@@ -220,12 +251,16 @@ public sealed class PegamentosQuery : IPegamentosQuery
                 p.MfToolReferenceFrozen,
                 p.MfToolLotFrozen,
                 p.RegistadoPor,
+                p.RegistadoEmUtc,
                 CmToolReference = cm != null ? cm.Reference : null,
                 CmToolLot = cm != null ? cm.Lot : null,
                 BqToolReference = bq != null ? bq.Reference : null,
                 BqToolLot = bq != null ? bq.Lot : null,
                 MfToolReference = mf != null ? mf.Reference : null,
                 MfToolLot = mf != null ? mf.Lot : null,
+                CmGargalo = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.CmToolId).Select(t => t.DiametroGargaloMm).FirstOrDefault(),
+                BqGargalo = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.BqToolId).Select(t => t.DiametroGargaloMm).FirstOrDefault(),
+                MfGargalo = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.MfToolId).Select(t => t.DiametroGargaloMm).FirstOrDefault(),
                 Measurements = p.Measurements
                     .OrderBy(m => m.RowPosition)
                     .Select(m => new
@@ -239,77 +274,92 @@ public sealed class PegamentosQuery : IPegamentosQuery
                     })
                     .ToList()
             })
-            .FirstOrDefaultAsync(cancellationToken);
+            .ToListAsync(cancellationToken);
 
-        if (registro is null)
+        return registros.Select(registro =>
         {
-            return null;
-        }
-
-        // As leituras persistidas com a avaliação backend: os derivados
-        // são calculados a partir dos factos CONGELADOS (nominal da
-        // linha + tolerância congelada no registo) — uma edição
-        // posterior da tool/configuração não reescreve a avaliação
-        // histórica da leitura.
-        var measurements = registro.Measurements;
-
-        var measurementModels = measurements
-            .Select(m => new PegamentosMeasurementReadModel(
-                m.Id,
-                m.RowPosition,
-                m.Component,
-                m.CosturaMm,
-                m.ContraCosturaMm,
-                m.NominalGargaloMm,
-                PegamentosCalculation.EvaluateRow(
-                    m.NominalGargaloMm,
-                    registro.ToleranceMm,
+            // As leituras persistidas com a avaliação backend: os derivados
+            // são calculados a partir dos factos CONGELADOS (nominal da
+            // linha + tolerância congelada no registo) — uma edição
+            // posterior da tool/configuração não reescreve a avaliação
+            // histórica da leitura.
+            var measurementModels = registro.Measurements
+                .Select(m => new PegamentosMeasurementReadModel(
+                    m.Id,
+                    m.RowPosition,
+                    m.Component,
                     m.CosturaMm,
-                    m.ContraCosturaMm)))
-            .ToList();
+                    m.ContraCosturaMm,
+                    m.NominalGargaloMm,
+                    PegamentosCalculation.EvaluateRow(
+                        m.NominalGargaloMm,
+                        registro.ToleranceMm,
+                        m.CosturaMm,
+                        m.ContraCosturaMm)))
+                .ToList();
 
-        // Médias por componente (informativas; nenhuma média cancela
-        // um alerta de leitura individual). Agregar os resultados de
-        // cada linha evita emparelhar costuras de eixo único com contra
-        // costuras que pertencem a outras leituras.
-        var componentAverages = measurementModels
-            .GroupBy(m => m.Component)
-            .Select(group =>
+            // Médias por componente (informativas; nenhuma média cancela
+            // um alerta de leitura individual). Agregar os resultados de
+            // cada linha evita emparelhar costuras de eixo único com contra
+            // costuras que pertencem a outras leituras.
+            var componentAverages = measurementModels
+                .GroupBy(m => m.Component)
+                .Select(group =>
+                {
+                    var rows = group.ToList();
+                    var averageCostura = rows.Average(m => m.CosturaMm);
+                    var averageContraCostura = rows.Average(m => m.ContraCosturaMm);
+                    var averageOvalizacao = rows.Average(m => m.Evaluation.OvalizacaoMm);
+                    var averageMedia = rows.Average(m => m.Evaluation.MediaMm);
+
+                    return new PegamentosComponentAveragesReadModel(
+                        group.Key,
+                        rows.Count,
+                        rows.Count(m => m.Evaluation.HasAlert),
+                        rows.Count(m => m.Evaluation.IsNotEvaluable),
+                        averageCostura,
+                        averageContraCostura,
+                        averageOvalizacao,
+                        averageMedia);
+                })
+                .OrderBy(a => a.Component)
+                .ToList();
+
+            // Os componentes da folha: as ferramentas guardadas nela, com os
+            // factos atuais de cada uma (o gargalo serve o componente ainda
+            // sem leituras).
+            var components = new[]
+                {
+                    (PegamentosComponent.Cm, registro.CmToolId, registro.CmToolReference, registro.CmToolLot, registro.CmGargalo),
+                    (PegamentosComponent.Bq, registro.BqToolId, registro.BqToolReference, registro.BqToolLot, registro.BqGargalo),
+                    (PegamentosComponent.Mf, registro.MfToolId, registro.MfToolReference, registro.MfToolLot, registro.MfGargalo)
+                }
+                .Where(c => c.Item2 is not null)
+                .Select(c => new PegamentosComponentContextReadModel(c.Item1, c.Item2!, c.Item3, c.Item4, c.Item5))
+                .ToList();
+
+            return new PegamentosReadModel(
+                registro.Id,
+                registro.ControloId,
+                registro.ToleranceMm,
+                registro.CmToolId,
+                registro.CmToolReferenceFrozen ?? registro.CmToolReference,
+                registro.CmToolLotFrozen ?? registro.CmToolLot,
+                registro.BqToolId,
+                registro.BqToolReferenceFrozen ?? registro.BqToolReference,
+                registro.BqToolLotFrozen ?? registro.BqToolLot,
+                registro.MfToolId,
+                registro.MfToolReferenceFrozen ?? registro.MfToolReference,
+                registro.MfToolLotFrozen ?? registro.MfToolLot,
+                measurementModels,
+                componentAverages,
+                registro.RegistadoPor)
             {
-                var rows = group.ToList();
-                var averageCostura = rows.Average(m => m.CosturaMm);
-                var averageContraCostura = rows.Average(m => m.ContraCosturaMm);
-                var averageOvalizacao = rows.Average(m => m.Evaluation.OvalizacaoMm);
-                var averageMedia = rows.Average(m => m.Evaluation.MediaMm);
-
-                return new PegamentosComponentAveragesReadModel(
-                    group.Key,
-                    rows.Count,
-                    rows.Count(m => m.Evaluation.HasAlert),
-                    rows.Count(m => m.Evaluation.IsNotEvaluable),
-                    averageCostura,
-                    averageContraCostura,
-                    averageOvalizacao,
-                    averageMedia);
-            })
-            .OrderBy(a => a.Component)
-            .ToList();
-
-        return new PegamentosReadModel(
-            registro.Id,
-            registro.ControloId,
-            registro.ToleranceMm,
-            registro.CmToolId,
-            registro.CmToolReferenceFrozen ?? registro.CmToolReference,
-            registro.CmToolLotFrozen ?? registro.CmToolLot,
-            registro.BqToolId,
-            registro.BqToolReferenceFrozen ?? registro.BqToolReference,
-            registro.BqToolLotFrozen ?? registro.BqToolLot,
-            registro.MfToolId,
-            registro.MfToolReferenceFrozen ?? registro.MfToolReference,
-            registro.MfToolLotFrozen ?? registro.MfToolLot,
-            measurementModels,
-            componentAverages,
-            registro.RegistadoPor);
+                RegistadoEmUtc = registro.RegistadoEmUtc,
+                IsCurrent = registro.ControloId is null
+                    || current?.Matches(registro.CmToolId, registro.BqToolId, registro.MfToolId) == true,
+                Components = components
+            };
+        }).ToList();
     }
 }

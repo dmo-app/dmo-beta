@@ -9,7 +9,9 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// O carimbo dos registos do Controlo (17/10/2026): ao gravar um Peso ou uns
 /// Pegamentos novos, guarda quando e quem os gravou. Fica num só sítio para
 /// os handlers de criação não terem de mudar; a Revisão do Controlo usa a
-/// data para o calendário e o nome para o «Operador».
+/// data para o calendário e o nome para o «Operador». As leituras novas do
+/// Peso e dos Pegamentos levam só a data (19/10/2026); o rasto de uma
+/// leitura dos Pegamentos corrigida ou apagada leva quem (4.6).
 /// </summary>
 public sealed class RegistoCarimboInterceptor : SaveChangesInterceptor
 {
@@ -72,6 +74,18 @@ public sealed class RegistoCarimboInterceptor : SaveChangesInterceptor
                 case Pegamentos pegamentos:
                     pegamentos.RegistadoEmUtc ??= agora;
                     pegamentos.RegistadoPor ??= quem;
+                    break;
+                // As leituras também (Diogo, 19/10/2026, C9): a Revisão avisa
+                // «Registado depois da aprovação».
+                case PesoMeasurement leituraPeso:
+                    leituraPeso.RegistadoEmUtc ??= agora;
+                    break;
+                case PegamentosMeasurement leituraPegamentos:
+                    leituraPegamentos.RegistadoEmUtc ??= agora;
+                    break;
+                // Quem corrigiu ou apagou uma leitura dos Pegamentos (4.6).
+                case PegamentosMeasurementHistorico rasto:
+                    rasto.Por ??= quem;
                     break;
             }
         }

@@ -11,6 +11,7 @@ using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Admin;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DMO.Alpha.Infrastructure.Data;
 
@@ -19,6 +20,14 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     public DmoDbContext(DbContextOptions<DmoDbContext> options) : base(options)
     {
     }
+
+    /// <summary>
+    /// A versão da linha do Job On, da Tool e da informação técnica: no
+    /// PostgreSQL é a coluna de sistema xmin, que muda em cada gravação (não
+    /// cria coluna nenhuma). As fichas enviam-na escondida para quem grava por
+    /// cima de outra pessoa ser avisado em vez de apagar o que ela gravou.
+    /// </summary>
+    public const string RowVersion = "Version";
 
     public DbSet<User> Users => Set<User>();
 
@@ -67,14 +76,24 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<PesoComparacaoMeasurement> PesoComparacaoMeasurements => Set<PesoComparacaoMeasurement>();
 
+    /// <summary>«Manter» ou «Colocar de parte» cada CM de uma comparação, e a aprovação (D10, 19/10/2026).</summary>
+    public DbSet<PesoComparacaoCmDecisao> PesoComparacaoCmDecisoes => Set<PesoComparacaoCmDecisao>();
+
     public DbSet<GlassDensity> GlassDensities => Set<GlassDensity>();
 
     public DbSet<DMO.Alpha.Core.Controlo.Controlo> Controlos =>
         Set<DMO.Alpha.Core.Controlo.Controlo>();
 
+    /// <summary>As decisões por parte da Revisão (Peso, Pegamentos, Ferramentas; 19/10/2026).</summary>
+    public DbSet<DMO.Alpha.Core.Controlo.ControloDecisao> ControloDecisoes =>
+        Set<DMO.Alpha.Core.Controlo.ControloDecisao>();
+
     public DbSet<Pegamentos> Pegamentos => Set<Pegamentos>();
 
     public DbSet<PegamentosMeasurement> PegamentosMeasurements => Set<PegamentosMeasurement>();
+
+    // O rasto das leituras corrigidas ou apagadas (4.6): só se acrescenta.
+    public DbSet<PegamentosMeasurementHistorico> PegamentosMeasurementHistorico => Set<PegamentosMeasurementHistorico>();
 
     public DbSet<PegamentosTolerance> PegamentosTolerances => Set<PegamentosTolerance>();
 
@@ -84,10 +103,21 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<ControloAreaState> ControloAreaStates => Set<ControloAreaState>();
 
+    // As gravações do OK/NOK de cada área (D13): só se acrescentam.
+    public DbSet<ControloAreaStateHistorico> ControloAreaStateHistorico => Set<ControloAreaStateHistorico>();
+
     // O registo das punções NNPB de uma produção e as punções registadas.
     public DbSet<Puncoes> Puncoes => Set<Puncoes>();
 
     public DbSet<PuncaoInspecao> PuncaoInspecoes => Set<PuncaoInspecao>();
+
+    // O envio do PDF do Peso por email (D9): as listas, os modelos e o
+    // registo de cada envio (o PDF nunca fica no servidor).
+    public DbSet<EmailLista> EmailListas => Set<EmailLista>();
+
+    public DbSet<EmailModelo> EmailModelos => Set<EmailModelo>();
+
+    public DbSet<EmailEnvio> EmailEnvios => Set<EmailEnvio>();
 
     // Keyring do ASP.NET Core DataProtection (antiforgery e cookie DmoAuth)
     // guardado na própria base PostgreSQL: sobrevive a redeploys do contentor.
@@ -173,9 +203,13 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         modelBuilder.Entity<JobOn>(entity =>
         {
             entity.HasKey(j => j.Id);
+            entity.Property<uint>(RowVersion).IsRowVersion();
             entity.Property(j => j.Reference).HasMaxLength(100).IsRequired();
             entity.Property(j => j.ProductionNumber).HasMaxLength(50).IsRequired();
-            entity.HasIndex(j => j.ProductionNumber).IsUnique();
+            // Uma produção é a referência + o nº: o mesmo nº repete-se
+            // noutras referências.
+            entity.HasIndex(j => new { j.Reference, j.ProductionNumber }).IsUnique();
+            entity.HasIndex(j => j.ProductionNumber);
 
             // OS ÍNDICES COMPOSTOS DAS JANELAS (o Owner 2026-10-12: «se os
             // indices compostos vao ajudar, deveremos os implementar»): a
@@ -186,22 +220,34 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasIndex(j => new { j.MachineId, j.InicioEm, j.FimEm });
             entity.HasIndex(j => j.Reference);
 
+            // Apagar uma máquina nunca apaga as produções dela (e, em cascata,
+            // os controlos, pesos e pegamentos): a base recusa (varredura F8).
             entity.HasOne(j => j.Machine)
                 .WithMany()
                 .HasForeignKey(j => j.MachineId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
+            // O cm_id em uso da produção; os de CMs trocadas ficam em
+            // CmContext.ReplacedJobOnId (JobOnId null).
             entity.HasOne(j => j.CmContext)
                 .WithOne(c => c.JobOn)
-                .HasForeignKey<CmContext>(c => c.JobOnId);
+                .HasForeignKey<CmContext>(c => c.JobOnId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // O mf_id em uso da produção; os de MFs trocados ficam em
+            // MfContext.ReplacedJobOnId (JobOnId null).
             entity.HasOne(j => j.MfContext)
                 .WithOne(c => c.JobOn)
-                .HasForeignKey<MfContext>(c => c.JobOnId);
+                .HasForeignKey<MfContext>(c => c.JobOnId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // O bq_id em uso da produção; os de BQs trocadas ficam em
+            // BqContext.ReplacedJobOnId (JobOnId null).
             entity.HasOne(j => j.BqContext)
                 .WithOne(c => c.JobOn)
-                .HasForeignKey<BqContext>(c => c.JobOnId);
+                .HasForeignKey<BqContext>(c => c.JobOnId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<CmContext>(entity =>
@@ -216,6 +262,13 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             // uma ferramenta, o contexto passa para a linha REMOVED (como
             // os Pesos e os Pegamentos), nunca fica a apontar para nada.
             entity.HasOne<Tool>().WithMany().HasForeignKey(c => c.ToolId).OnDelete(DeleteBehavior.Restrict);
+            // O cm_id anterior de uma produção cuja CM foi trocada: continua
+            // no registo da produção.
+            entity.HasOne(c => c.ReplacedJobOn)
+                .WithMany()
+                .HasForeignKey(c => c.ReplacedJobOnId)
+                .OnDelete(DeleteBehavior.Restrict);
+            UmaSoProducao(entity, "CmContexts");
         });
 
         modelBuilder.Entity<MfContext>(entity =>
@@ -224,6 +277,13 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(c => c.ToolId).HasMaxLength(100).IsRequired();
             entity.HasIndex(c => c.ToolId);
             entity.HasOne<Tool>().WithMany().HasForeignKey(c => c.ToolId).OnDelete(DeleteBehavior.Restrict);
+            // O mf_id anterior de uma produção cujo MF foi trocado: continua
+            // no registo da produção.
+            entity.HasOne(c => c.ReplacedJobOn)
+                .WithMany()
+                .HasForeignKey(c => c.ReplacedJobOnId)
+                .OnDelete(DeleteBehavior.Restrict);
+            UmaSoProducao(entity, "MfContexts");
         });
 
         modelBuilder.Entity<BqContext>(entity =>
@@ -232,6 +292,13 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(c => c.ToolId).HasMaxLength(100).IsRequired();
             entity.HasIndex(c => c.ToolId);
             entity.HasOne<Tool>().WithMany().HasForeignKey(c => c.ToolId).OnDelete(DeleteBehavior.Restrict);
+            // O bq_id anterior de uma produção cuja BQ foi trocada: continua
+            // ligado à produção para o histórico da BQ antiga.
+            entity.HasOne(c => c.ReplacedJobOn)
+                .WithMany()
+                .HasForeignKey(c => c.ReplacedJobOnId)
+                .OnDelete(DeleteBehavior.Restrict);
+            UmaSoProducao(entity, "BqContexts");
         });
 
         // Registo canónico de Tools (Ferramentas). O tool_id é a identidade
@@ -249,6 +316,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         modelBuilder.Entity<Tool>(entity =>
         {
             entity.HasKey(t => t.ToolId);
+            entity.Property<uint>(RowVersion).IsRowVersion();
             entity.Property(t => t.ToolId).IsRequired();
             // A CHAVE DE DESCOBERTA DO GET-OR-CREATE (a decisão do Owner: a
             // unicidade de facto (tipo, referência, lote) — índice de
@@ -265,6 +333,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
             entity.Property(t => t.Reference).IsRequired();
             entity.Property(t => t.Lot).IsRequired();
+            entity.Property(t => t.DuplicateWarningByNameFrozen).HasMaxLength(254);
         });
 
         // Contexto técnico estável das Tools (regra Ferramentas «Tool-owned
@@ -283,6 +352,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         modelBuilder.Entity<ToolTechnicalContext>(entity =>
         {
             entity.HasKey(t => t.ToolId);
+            entity.Property<uint>(RowVersion).IsRowVersion();
 
             // FK 1:1 opcional-do-lado-técnico → Tools. DeleteBehavior
             // Restrict (DB: ON DELETE RESTRICT): a transação canónica de
@@ -484,10 +554,10 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         // densidade do vidro) são evidência histórica congelada na criação:
         // uma edição posterior da Tool/configuração não reescreve o
         // resultado. O processo persiste por token canónico (NNPB/PS).
-        // Nenhuma unicidade sobre (CmToolId, BqToolId): a mesma Tool pode
-        // ter vários Pesos ao longo do tempo (cada pesagem real é um peso_id
-        // novo) e a regra de cardinalidade da spec é sobre associação a
-        // produção, não sobre existência. O corte A acrescenta os FATOS
+        // Nenhuma unicidade sobre (CmToolId, BqToolId) sozinhos: a mesma
+        // Tool pode ter vários Pesos ao longo do tempo (cada pesagem real é
+        // um peso_id novo); a única regra de cardinalidade é a da produção —
+        // um Peso por controlo para cada CM+BQ (abaixo). O corte A acrescenta os FATOS
         // HUMANOS congelados (referência/lote das tools à criação) como
         // colunas ADITIVAS nullable — o histórico sobrevive à
         // edição/eliminação da Tool (reatribuição à DUMMY preserva-os).
@@ -509,15 +579,27 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
             // Corte C — o Peso production-scoped (spec PESO.md «Production
             // association cardinality»): a associação à produção é OPCIONAL
-            // (null nos Pesos tool-scoped pré-produção) e explícita; o
-            // índice ÚNICO garante um Peso baseline por controlo — a
-            // associação consome o Peso para essa produção.
+            // (null nos Pesos tool-scoped pré-produção) e explícita; a
+            // associação consome o Peso para essa produção. Um Peso por
+            // controlo para cada CM+BQ (18/10/2026): o Peso congela a
+            // CM, o volume punção, o nominal e o volume marisa da BQ, por
+            // isso trocar a CM ou a BQ a meio da produção pede um Peso novo
+            // (respostas R15 e R16-5 do especialista); trocar só o MF não.
+            // O índice do ControloId fica, sem ser único, para a chave
+            // estrangeira. O único é filtrado: apagar uma ferramenta passa os
+            // Pesos dela para a DUMMY (REMOVED), e dois Pesos da mesma
+            // produção podem ficar com a mesma combinação sem colidir.
             entity.HasOne(p => p.Controlo)
                 .WithMany()
                 .HasForeignKey(p => p.ControloId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
-            entity.HasIndex(p => p.ControloId).IsUnique();
+            entity.HasIndex(p => p.ControloId);
+            entity.HasIndex(p => new { p.ControloId, p.CmToolId, p.BqToolId })
+                .IsUnique()
+                .HasFilter(
+                    $"\"ControloId\" IS NOT NULL AND \"CmToolId\" <> '{ToolRegistryConstants.RemovedToolId}' " +
+                    $"AND \"BqToolId\" <> '{ToolRegistryConstants.RemovedToolId}'");
 
             // A produção anterior de referência (o Owner 2026-10-17): o peso
             // do SAP é escrito à mão; o controlo anterior só dá o contexto.
@@ -629,6 +711,22 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasIndex(m => new { m.ComparacaoId, m.RowPosition }).IsUnique();
         });
 
+        // «Manter» ou «Colocar de parte» uma CM da comparação (D10): uma
+        // escolha por leitura, protegida também na base (índice único).
+        modelBuilder.Entity<PesoComparacaoCmDecisao>(entity =>
+        {
+            entity.ToTable("PesoComparacaoCmDecisoes");
+            entity.HasKey(d => d.Id);
+            entity.HasOne(d => d.Measurement)
+                .WithMany()
+                .HasForeignKey(d => d.MeasurementId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(d => d.MeasurementId).IsUnique();
+            entity.Property(d => d.EscolhidoPor).HasMaxLength(254).IsRequired();
+            entity.Property(d => d.AprovadoPor).HasMaxLength(254);
+        });
+
         // Configuração do Controlo: densidade do vidro por processo de
         // fabrico. Uma linha por processo (chave = processo, token canónico
         // NNPB/PS). O Peso consome o valor aplicável e preserva-o como
@@ -680,13 +778,75 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(c => c.ReviewNote).HasMaxLength(2000);
         });
 
+        // Uma decisão por parte do controlo (Peso, Pegamentos, Ferramentas;
+        // 19/10/2026): a última vence. Apagar um controlo não apaga as
+        // decisões em silêncio (Restrict, como o resto do Controlo).
+        modelBuilder.Entity<DMO.Alpha.Core.Controlo.ControloDecisao>(entity =>
+        {
+            entity.ToTable("ControloDecisoes");
+            entity.HasKey(d => d.Id);
+            entity.HasOne<DMO.Alpha.Core.Controlo.Controlo>()
+                .WithMany()
+                .HasForeignKey(d => d.ControloId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(d => new { d.ControloId, d.Parte }).IsUnique();
+            entity.Property(d => d.OperatorId).HasMaxLength(254).IsRequired();
+            entity.Property(d => d.Nota).HasMaxLength(2000);
+        });
+
+        // O envio por email do PDF do Peso (Diogo, 19/10/2026, D9). Os nomes
+        // das listas e dos modelos são únicos (o operador escolhe-os pelo
+        // nome). Apagar uma lista deixa os modelos sem lista proposta. O
+        // registo dos envios copia os nomes e não depende de nada: fica
+        // mesmo que o modelo, a lista ou o Peso mudem.
+        modelBuilder.Entity<EmailLista>(entity =>
+        {
+            entity.ToTable("EmailListas");
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Nome).HasMaxLength(EnvioEmailRegras.NomeMax).IsRequired();
+            entity.HasIndex(l => l.Nome).IsUnique();
+            entity.Property(l => l.Destinatarios).HasMaxLength(13000).IsRequired();
+        });
+
+        modelBuilder.Entity<EmailModelo>(entity =>
+        {
+            entity.ToTable("EmailModelos");
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.Nome).HasMaxLength(EnvioEmailRegras.NomeMax).IsRequired();
+            entity.HasIndex(m => m.Nome).IsUnique();
+            entity.Property(m => m.Remetente).HasMaxLength(EnvioEmailRegras.EmailMax);
+            entity.Property(m => m.Assunto).HasMaxLength(EnvioEmailRegras.AssuntoMax).IsRequired();
+            entity.Property(m => m.Corpo).HasMaxLength(EnvioEmailRegras.CorpoMax).IsRequired();
+            entity.HasOne<EmailLista>()
+                .WithMany()
+                .HasForeignKey(m => m.ListaId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<EmailEnvio>(entity =>
+        {
+            entity.ToTable("EmailEnvios");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ControloId);
+            entity.Property(e => e.Ficheiro).HasMaxLength(260).IsRequired();
+            entity.Property(e => e.ModeloNome).HasMaxLength(EnvioEmailRegras.NomeMax).IsRequired();
+            entity.Property(e => e.ListaNome).HasMaxLength(EnvioEmailRegras.NomeMax).IsRequired();
+            entity.Property(e => e.Remetente).HasMaxLength(EnvioEmailRegras.EmailMax);
+            entity.Property(e => e.Destinatarios).HasMaxLength(13000).IsRequired();
+            entity.Property(e => e.Assunto).HasMaxLength(EnvioEmailRegras.AssuntoMax).IsRequired();
+            entity.Property(e => e.EnviadoPor).HasMaxLength(254).IsRequired();
+        });
+
         // Registo de Pegamentos production-scoped (corte folha de
         // Pegamentos). O pegamentos_id é a identidade durável emitida pelo
         // backend, associado a UM controlo pela relação ControloId SEM
         // índice único: a cardinalidade canónica da spec é «normalmente um
         // por produção» e NÃO uma restrição absoluta — um registo
-        // adicional EXPLÍCITO é permitido (spec L26-28), é decisão humana de
-        // um slice futuro e este corte nunca o cria em silêncio. As âncoras
+        // adicional é permitido (spec L26-28): depois de trocar a CM, a BQ
+        // ou o MF a meio da produção, a primeira leitura começa a folha da
+        // combinação nova (18/10/2026), sem mudar o schema. As âncoras
         // de Tool (Cm/Bq/Mf) são herdadas do contexto Job On no momento da
         // criação e congeladas como evidência histórica (nullable — o
         // contexto pode não ter um componente; o MF do J10 real não
@@ -726,6 +886,24 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.Property(p => p.ToleranceMm).IsRequired();
+
+            // Uma folha por combinação de ferramentas em cada controlo
+            // (beta.236; sweep de 19/10/2026, DB-3): o trinco do registo já o
+            // garante, e a base passa a recusar a segunda folha mesmo que um
+            // caminho futuro se esqueça dele. As folhas sem controlo ficam
+            // livres e as de uma ferramenta apagada (REMOVED) não contam, como
+            // nos Pesos. Uma folha com um componente em falta também não
+            // conta: associar uns Pegamentos sem Job On sem MF a uma produção
+            // que já tem uma folha antiga sem MF continua a passar, como até
+            // aqui. O índice do ControloId fica para a chave estrangeira: o
+            // único é filtrado e não a cobre.
+            entity.HasIndex(p => p.ControloId);
+            entity.HasIndex(p => new { p.ControloId, p.CmToolId, p.BqToolId, p.MfToolId })
+                .IsUnique()
+                .HasFilter(
+                    $"\"ControloId\" IS NOT NULL AND \"CmToolId\" IS DISTINCT FROM '{ToolRegistryConstants.RemovedToolId}' " +
+                    $"AND \"BqToolId\" IS DISTINCT FROM '{ToolRegistryConstants.RemovedToolId}' " +
+                    $"AND \"MfToolId\" IS DISTINCT FROM '{ToolRegistryConstants.RemovedToolId}'");
         });
 
         // Leituras dimensionais da folha de Pegamentos (measurement rows).
@@ -758,6 +936,26 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
             entity.Property(m => m.CosturaMm).IsRequired();
             entity.HasIndex(m => new { m.PegamentosId, m.RowPosition }).IsUnique();
+        });
+
+        // O rasto de uma leitura corrigida ou apagada (sweep de 19/10/2026,
+        // 4.6): a leitura pode já não existir, por isso não tem chave para
+        // ela; sai com a folha.
+        modelBuilder.Entity<PegamentosMeasurementHistorico>(entity =>
+        {
+            entity.HasKey(h => h.Id);
+            entity.HasIndex(h => new { h.PegamentosId, h.EmUtc });
+            entity.Property(h => h.Component)
+                .HasConversion(
+                    c => PegamentosComponentTokens.ToStorage(c),
+                    s => PegamentosComponentTokens.FromStorage(s))
+                .IsRequired();
+            entity.Property(h => h.Por).HasMaxLength(254);
+
+            entity.HasOne<Pegamentos>()
+                .WithMany()
+                .HasForeignKey(h => h.PegamentosId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Configuração do Controlo: tolerância do corredor de Pegamentos
@@ -825,10 +1023,25 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(s => s.Status).HasMaxLength(3);
             entity.Property(s => s.Comment).HasMaxLength(ControloAreaState.CommentMaxLength);
             entity.Property(s => s.UpdatedBy).HasMaxLength(254);
+            entity.Property(s => s.Identificacao).HasMaxLength(ControloAreaState.IdentificacaoMaxLength);
 
             entity.HasOne(s => s.Controlo)
                 .WithMany()
                 .HasForeignKey(s => s.ControloId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ControloAreaStateHistorico>(entity =>
+        {
+            entity.HasKey(h => h.Id);
+            entity.HasIndex(h => new { h.ControloId, h.Area, h.EmUtc });
+            entity.Property(h => h.Area).HasMaxLength(2).IsRequired();
+            entity.Property(h => h.Status).HasMaxLength(3);
+            entity.Property(h => h.Por).HasMaxLength(254);
+
+            entity.HasOne(h => h.Controlo)
+                .WithMany()
+                .HasForeignKey(h => h.ControloId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -903,4 +1116,26 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
+
+    /// <summary>
+    /// Um cm_id, mf_id ou bq_id pertence a uma só produção: a atual
+    /// (JobOnId) ou a que o usou antes de trocar a ferramenta
+    /// (ReplacedJobOnId, sempre com a data). Sweep de 19/10/2026, DB-1: a
+    /// migração ContextToolIdentity junta o que o EF não descreve, o índice
+    /// único por produção e ferramenta (voltar a uma ferramenta retoma o
+    /// contexto dela) e o gatilho que recusa mudar a ferramenta de um
+    /// contexto; só passa para REMOVED, ao apagar a ferramenta. Trocar a
+    /// ferramenta cria sempre um contexto novo.
+    /// </summary>
+    private static void UmaSoProducao<T>(EntityTypeBuilder<T> entity, string table)
+        where T : class =>
+        entity.ToTable(t =>
+        {
+            t.HasCheckConstraint(
+                $"CK_{table}_CurrentOrReplaced",
+                "(\"JobOnId\" IS NULL) <> (\"ReplacedJobOnId\" IS NULL)");
+            t.HasCheckConstraint(
+                $"CK_{table}_ReplacedWithDate",
+                "(\"ReplacedJobOnId\" IS NULL) = (\"ReplacedAtUtc\" IS NULL)");
+        });
 }

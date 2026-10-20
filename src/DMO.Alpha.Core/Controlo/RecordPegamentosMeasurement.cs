@@ -21,6 +21,8 @@ namespace DMO.Alpha.Core.Controlo;
 /// Com <see cref="PegamentosId"/>, a leitura vai para esse registo (os
 /// Pegamentos sem Job On, ou já associados): as ferramentas são as do
 /// registo e o <see cref="ControloId"/> é ignorado.
+/// <see cref="AdditionalRows"/>: as outras linhas do mesmo envio («+ Linha»),
+/// gravadas a seguir à primeira na mesma escrita — ficam todas ou nenhuma.
 /// </remarks>
 public sealed record RecordPegamentosMeasurement(
     int ControloId,
@@ -28,4 +30,8 @@ public sealed record RecordPegamentosMeasurement(
     decimal CosturaMm,
     decimal? ContraCosturaMm = null,
     decimal? GargaloMm = null,
-    int? PegamentosId = null);
+    int? PegamentosId = null,
+    IReadOnlyList<PegamentosRow>? AdditionalRows = null);
+
+/// <summary>Uma linha a mais do mesmo envio: a costura e a contra costura (null = n/a).</summary>
+public sealed record PegamentosRow(decimal CosturaMm, decimal? ContraCosturaMm);

@@ -113,6 +113,15 @@ public sealed class PegamentosModel : PageModel
     public bool BqToolRequestedNotFound { get; private set; }
     public bool MfToolRequestedNotFound { get; private set; }
 
+    /// <summary>
+    /// Os lotes de uma referência escrita que tem mais de um (sweep de
+    /// 19/10/2026, C-4): a escolha mostra-os para o operador escolher o que
+    /// está na máquina. Vazio com um só lote, que segue direto.
+    /// </summary>
+    public IReadOnlyList<DMO.Alpha.Core.Tools.ToolLookupResult> CmLotes { get; private set; } = Array.Empty<DMO.Alpha.Core.Tools.ToolLookupResult>();
+    public IReadOnlyList<DMO.Alpha.Core.Tools.ToolLookupResult> BqLotes { get; private set; } = Array.Empty<DMO.Alpha.Core.Tools.ToolLookupResult>();
+    public IReadOnlyList<DMO.Alpha.Core.Tools.ToolLookupResult> MfLotes { get; private set; } = Array.Empty<DMO.Alpha.Core.Tools.ToolLookupResult>();
+
     /// <summary>A referência e a máquina procuradas na escolha do Job On (primeiro passo).</summary>
     public string? JobOnReferencia { get; private set; }
     public string? JobOnMaquina { get; private set; }
@@ -135,6 +144,75 @@ public sealed class PegamentosModel : PageModel
 
     /// <summary>A folha do controlo aberto (?controlo_id); null fora desse contexto.</summary>
     public PegamentosSheetReadModel? Sheet { get; private set; }
+
+    /// <summary>O valor de ?folha depois de uma leitura que começou uma folha nova (a CM, a BQ ou o MF mudou).</summary>
+    public const string FolhaNovaValor = "nova";
+
+    /// <summary>O valor de ?folha depois de uma leitura que foi para outra folha que já existia (voltou-se a uma ferramenta).</summary>
+    public const string FolhaOutraValor = "outra";
+
+    /// <summary>
+    /// A leitura acabada de registar foi para outra folha que não a que a
+    /// página mostrava (18/10/2026): a página abre inteira, nessa
+    /// folha, e diz porquê. Null sem mudança de folha.
+    /// </summary>
+    public string? FolhaMudou { get; private set; }
+
+    /// <summary>A mensagem da mudança de folha, apenas apresentação.</summary>
+    public string? FolhaMudouMessage => FolhaMudou switch
+    {
+        FolhaNovaValor => $"{ToolsChangedText()}: esta leitura começou uma folha nova. A folha anterior ficou como estava.",
+        FolhaOutraValor => $"{ToolsChangedText()}: esta leitura foi para a folha destas ferramentas, que já existia. A outra folha ficou como estava.",
+        _ => null
+    };
+
+    /// <summary>
+    /// «A BQ mudou», «A CM e o MF mudaram»…: o que difere entre a folha
+    /// mostrada e a folha anterior a ela; sem anterior, «As ferramentas mudaram».
+    /// </summary>
+    private string ToolsChangedText()
+    {
+        var shown = Sheet?.Pegamentos;
+        var previous = shown is null ? null : Sheet!.Sheets.LastOrDefault(s => s.PegamentosId < shown.PegamentosId)
+            ?? Sheet!.Sheets.FirstOrDefault(s => s.PegamentosId != shown.PegamentosId);
+        if (shown is null || previous is null)
+        {
+            return "As ferramentas mudaram";
+        }
+
+        var changed = new[] { PegamentosComponent.Cm, PegamentosComponent.Bq, PegamentosComponent.Mf }
+            .Where(c => shown.ToolIdOf(c) != previous.ToolIdOf(c))
+            .Select(c => c == PegamentosComponent.Mf ? "o MF" : $"a {PegamentosVista.Token(c)}")
+            .ToList();
+        if (changed.Count == 0)
+        {
+            return "As ferramentas mudaram";
+        }
+
+        var list = changed.Count == 1 ? changed[0] : $"{string.Join(", ", changed.Take(changed.Count - 1))} e {changed[^1]}";
+        return $"{char.ToUpperInvariant(list[0])}{list[1..]} {(changed.Count == 1 ? "mudou" : "mudaram")}";
+    }
+
+    /// <summary>
+    /// True quando a produção tem outra folha além da mostrada (a CM, a BQ
+    /// ou o MF mudou a meio): o cartão «Folhas desta produção» lista-as. Com
+    /// uma só folha a página fica como sempre.
+    /// </summary>
+    public bool ShowSheets =>
+        Sheet is { ControloId: not null } folhas
+        && folhas.Sheets.Any(f => f.PegamentosId != folhas.Pegamentos?.PegamentosId);
+
+    /// <summary>
+    /// O endereço de uma folha da produção: a folha das ferramentas atuais
+    /// abre pelo controlo_id, como sempre; uma folha de antes de uma troca,
+    /// pelo controlo_id e o pegamentos_id dela. Sem Job On, pelo pegamentos_id.
+    /// </summary>
+    public static string SheetHref(PegamentosSheetReadModel sheet, PegamentosReadModel? folha) =>
+        sheet.ControloId is not int controlo
+            ? $"/Controlo/Pegamentos?pegamentos_id={folha?.PegamentosId}"
+            : folha is { IsCurrent: false }
+                ? $"/Controlo/Pegamentos?controlo_id={controlo}&pegamentos_id={folha.PegamentosId}"
+                : $"/Controlo/Pegamentos?controlo_id={controlo}";
 
     /// <summary>O aviso quando o Job On mudou depois do registo dos Pegamentos; null sem alterações.</summary>
     public JobOnChangeNoticeView? JobOnNotice { get; private set; }
@@ -177,7 +255,8 @@ public sealed class PegamentosModel : PageModel
     public string? CorrecaoMessage => Correcao switch
     {
         "nao-encontrada" => "Essa leitura já não existe nesta folha. Nada foi alterado.",
-        "valor-invalido" => "Indique a costura com um valor numérico (aceita vírgula ou ponto decimal). Nada foi alterado.",
+        "valor-invalido" => "Indique a costura com um valor numérico maior que 0 (aceita vírgula ou ponto decimal). Nada foi alterado.",
+        "contra-invalida" => "Indique a contra costura com um valor numérico maior que 0 (aceita vírgula ou ponto decimal) ou deixe-a vazia para a retirar. Nada foi alterado.",
         _ => null
     };
 
@@ -264,12 +343,45 @@ public sealed class PegamentosModel : PageModel
             "As leituras introduzidas foram mantidas; nenhuma medição foi registada.",
         RecordPegamentosMeasurementResult.PegamentosNotFound =>
             "Os Pegamentos indicados não existem. Nenhuma medição foi registada.",
+        RecordPegamentosMeasurementResult.PegamentosNotCurrent =>
+            "Esta folha é de ferramentas que já não estão na produção. A leitura não foi gravada. " +
+            "As leituras novas vão para a folha das ferramentas atuais.",
         RecordPegamentosMeasurementResult.InvalidMeasurementValue =>
-            "Indique a costura com um valor numérico (aceita vírgula ou ponto decimal, por exemplo 70,10 ou 70.10). " +
-            "A costura é obrigatória; a contra costura pode ficar vazia quando não foi medida. " +
+            "Indique a costura com um valor numérico maior que 0 (aceita vírgula ou ponto decimal, por exemplo 70,10 ou 70.10). " +
+            "A costura é obrigatória; a contra costura, quando escrita, também tem de ser maior que 0, e pode ficar vazia quando não foi medida. " +
             "Os valores introduzidos foram mantidos; nenhuma medição foi registada.",
         _ => string.Empty
     };
+
+    /// <summary>A zona do contexto da folha (muda com a primeira medição).</summary>
+    public const string ZonaContexto = "pegContexto";
+
+    /// <summary>A zona das mensagens das medições.</summary>
+    public const string ZonaAvisos = "pegAvisos";
+
+    /// <summary>A zona do mapa de limites.</summary>
+    public const string ZonaMapa = "pegMapa";
+
+    /// <summary>A zona do cartão «Folhas desta produção» (as contagens mudam com cada leitura).</summary>
+    public const string ZonaFolhas = "pegFolhas";
+
+    /// <summary>A zona do cartão de um componente (CM, BQ, MF).</summary>
+    public static string ZonaCartao(PegamentosComponent component) => $"pegCartao{PegamentosVista.Token(component)}";
+
+    private static bool ZonaConhecida(string zona) =>
+        zona is ZonaContexto or ZonaAvisos or ZonaMapa or ZonaFolhas
+        || new[] { PegamentosComponent.Cm, PegamentosComponent.Bq, PegamentosComponent.Mf }.Any(c => ZonaCartao(c) == zona);
+
+    /// <summary>As zonas pedidas pelo GET que segue uma gravação (E11); vazio na página inteira.</summary>
+    public IReadOnlyList<string> ZonasPedidas { get; private set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// A tolerância efetiva exibida: a congelada no registo quando existe, a
+    /// corrente (config ?? default) antes da primeira medição — o que a
+    /// criação do registo congelará.
+    /// </summary>
+    public decimal ShownTolerance =>
+        Sheet?.Pegamentos?.ToleranceMm ?? Sheet?.CurrentToleranceMm ?? PegamentosCalculation.DefaultToleranceMm;
 
     public async Task<IActionResult> OnGetAsync(
         [FromQuery(Name = "controlo_id")] int? controloId,
@@ -287,7 +399,11 @@ public sealed class PegamentosModel : PageModel
         [FromQuery(Name = "maquina")] string? maquina = null,
         [FromQuery(Name = "associar")] string? associar = null,
         [FromQuery(Name = "associado")] string? associado = null,
-        [FromQuery(Name = "recusa")] string? recusa = null)
+        [FromQuery(Name = "recusa")] string? recusa = null,
+        [FromQuery(Name = "folha")] string? folha = null,
+        [FromQuery(Name = "cm_tool")] string? cmTool = null,
+        [FromQuery(Name = "bq_tool")] string? bqTool = null,
+        [FromQuery(Name = "mf_tool")] string? mfTool = null)
     {
         PdfRefusal = pdfRefusal;
         ViewData["Title"] = "Pegamentos — Controlo";
@@ -322,6 +438,12 @@ public sealed class PegamentosModel : PageModel
 
         RequestedControloId = controloId;
         RequestedPegamentosId = controloId is null ? pegamentosId : null;
+        FolhaMudou = folha is FolhaNovaValor or FolhaOutraValor ? folha : null;
+
+        // Depois de registar, corrigir ou apagar uma leitura (E11, beta.189):
+        // só as zonas pedidas. Sem o contexto, as ferramentas e as alterações
+        // do Job On (que só ele mostra) não se leem.
+        var zonas = DmoZonasPedidas.Ler(Request, ZonaConhecida);
         Associado = associado == "1";
         EscolhaRefusalMessage = RefusalMessage(recusa);
 
@@ -332,9 +454,11 @@ public sealed class PegamentosModel : PageModel
             // registo durável quando existe (a ausência é o estado válido
             // antes da primeira medição — a folha mostra-se pronta a medir).
             // Pelo pegamentos_id: os Pegamentos sem Job On, com as
-            // ferramentas guardadas no registo.
+            // ferramentas guardadas no registo. Com os dois, essa folha da
+            // produção, com as ferramentas dela (uma folha de antes de uma
+            // troca da CM, da BQ ou do MF).
             Sheet = controloId is int canonicalControloId
-                ? await _pegamentosQuery.FindSheetByControloAsync(canonicalControloId, HttpContext.RequestAborted)
+                ? await _pegamentosQuery.FindSheetByControloAsync(canonicalControloId, pegamentosId, HttpContext.RequestAborted)
                 : await _pegamentosQuery.FindSheetByPegamentosAsync(RequestedPegamentosId!.Value, HttpContext.RequestAborted);
 
             ControloRequestedNotFound = Sheet is null;
@@ -350,34 +474,33 @@ public sealed class PegamentosModel : PageModel
                 }
             }
 
-            // AS REFERÊNCIAS E OS LOTES dos componentes (os cards da folha —
-            // os fatos humanos, nunca os tool_id).
             if (Sheet is not null)
             {
-                if (Sheet.CmToolId is { } cmId)
+                Map = PegamentosMapSummary.From(Sheet);
+            }
+
+            // Só as zonas, se a folha tem todas as pedidas; senão a página
+            // inteira, com o contexto. Uma leitura que foi para outra folha
+            // (a CM, a BQ ou o MF mudou) abre a página inteira: os cartões
+            // todos são dessa folha.
+            if (zonas is not null && Sheet is { } zonasSheet && FolhaMudou is null)
+            {
+                var cartoes = zonasSheet.Components.Select(c => ZonaCartao(c.Component)).ToHashSet(StringComparer.Ordinal);
+                if (zonas.All(zona => zona is ZonaContexto or ZonaAvisos or ZonaMapa or ZonaFolhas || cartoes.Contains(zona)))
                 {
-                    CmTool = await _toolLookup.FindByToolIdAsync(cmId, HttpContext.RequestAborted);
-                }
-                if (Sheet.BqToolId is { } bqId)
-                {
-                    BqTool = await _toolLookup.FindByToolIdAsync(bqId, HttpContext.RequestAborted);
-                }
-                if (Sheet.MfToolId is { } mfId)
-                {
-                    MfTool = await _toolLookup.FindByToolIdAsync(mfId, HttpContext.RequestAborted);
+                    if (zonas.Contains(ZonaContexto))
+                    {
+                        await LoadContextoAsync(Sheet);
+                    }
+                    ZonasPedidas = zonas;
+                    DmoZonasPedidas.Marcar(Response, zonas);
+                    return Partial("_PegamentosZonas", this);
                 }
             }
 
             if (Sheet is not null)
             {
-                Map = PegamentosMapSummary.From(Sheet);
-                // O aviso de mudança do Job On só existe com produção.
-                if (Sheet.ControloId is { } sheetControloId)
-                {
-                    JobOnNotice = JobOnChangeNoticeView.From(
-                        "O Job On mudou depois deste registo de Pegamentos.",
-                        await _changes.ForPegamentosAsync(sheetControloId, HttpContext.RequestAborted));
-                }
+                await LoadContextoAsync(Sheet);
             }
         }
 
@@ -395,9 +518,9 @@ public sealed class PegamentosModel : PageModel
                 RequestedCmReference = Sanitize(cmRef);
                 RequestedBqReference = Sanitize(bqRef);
                 RequestedMfReference = Sanitize(mfRef);
-                (CmTool, CmToolRequestedNotFound) = await ResolveToolAsync(RequestedCmReference, DMO.Alpha.Core.Tools.ToolType.Cm);
-                (BqTool, BqToolRequestedNotFound) = await ResolveToolAsync(RequestedBqReference, DMO.Alpha.Core.Tools.ToolType.Bq);
-                (MfTool, MfToolRequestedNotFound) = await ResolveToolAsync(RequestedMfReference, DMO.Alpha.Core.Tools.ToolType.Mf);
+                (CmTool, CmToolRequestedNotFound, CmLotes) = await ResolveToolAsync(RequestedCmReference, Sanitize(cmTool), DMO.Alpha.Core.Tools.ToolType.Cm);
+                (BqTool, BqToolRequestedNotFound, BqLotes) = await ResolveToolAsync(RequestedBqReference, Sanitize(bqTool), DMO.Alpha.Core.Tools.ToolType.Bq);
+                (MfTool, MfToolRequestedNotFound, MfLotes) = await ResolveToolAsync(RequestedMfReference, Sanitize(mfTool), DMO.Alpha.Core.Tools.ToolType.Mf);
             }
         }
 
@@ -414,26 +537,80 @@ public sealed class PegamentosModel : PageModel
         return Page();
     }
 
+    /// <summary>
+    /// O que só o contexto da folha mostra: AS REFERÊNCIAS E OS LOTES dos
+    /// componentes (os fatos humanos, nunca os tool_id) e o aviso de mudança
+    /// do Job On (só com produção).
+    /// </summary>
+    private async Task LoadContextoAsync(PegamentosSheetReadModel sheet)
+    {
+        if (sheet.CmToolId is { } cmId)
+        {
+            CmTool = await _toolLookup.FindByToolIdAsync(cmId, HttpContext.RequestAborted);
+        }
+        if (sheet.BqToolId is { } bqId)
+        {
+            BqTool = await _toolLookup.FindByToolIdAsync(bqId, HttpContext.RequestAborted);
+        }
+        if (sheet.MfToolId is { } mfId)
+        {
+            MfTool = await _toolLookup.FindByToolIdAsync(mfId, HttpContext.RequestAborted);
+        }
+        // O aviso é da folha mostrada: o que mudou depois de ELA ser gravada.
+        if (sheet.ControloId is not null && sheet.Pegamentos is { } folha)
+        {
+            JobOnNotice = JobOnChangeNoticeView.From(
+                "O Job On mudou depois deste registo de Pegamentos.",
+                await _changes.ForPegamentosSheetAsync(folha.PegamentosId, HttpContext.RequestAborted));
+        }
+    }
+
+    /// <summary>
+    /// A referência e o lote de um componente no cartão da escolha; «escolha
+    /// o lote» enquanto a referência tem vários e nenhum foi escolhido.
+    /// </summary>
+    public static string FerramentaEscolhida(
+        DMO.Alpha.Core.Tools.ToolLookupResult? tool, IReadOnlyList<DMO.Alpha.Core.Tools.ToolLookupResult> lotes) =>
+        tool is not null ? $"{tool.Reference} · Lote {tool.Lot}"
+        : lotes.Count > 0 ? $"{lotes[0].Reference} · escolha o lote"
+        : "—";
+
     /// <summary>True quando a CM, a BQ e o MF estão escolhidos e nenhuma referência escrita ficou por resolver.</summary>
     public bool FerramentasProntas =>
         CmTool is not null && BqTool is not null && MfTool is not null
         && !CmToolRequestedNotFound && !BqToolRequestedNotFound && !MfToolRequestedNotFound;
 
-    private async Task<(DMO.Alpha.Core.Tools.ToolLookupResult? Tool, bool NotFound)> ResolveToolAsync(
-        string? requested, DMO.Alpha.Core.Tools.ToolType type)
+    /// <summary>
+    /// A ferramenta de uma referência escrita. Com um só lote segue direto;
+    /// com mais de um, fica por escolher até o operador escolher o lote que
+    /// está na máquina, porque o lote faz parte da ferramenta e associar ao
+    /// Job On exige a mesma (sweep de 19/10/2026, C-4). O lote escolhido só
+    /// conta se for desta referência: o de outra, que ficou da escolha
+    /// anterior, volta à escolha. Um tool_id escrito no lugar da referência
+    /// continua a resolver.
+    /// </summary>
+    private async Task<(DMO.Alpha.Core.Tools.ToolLookupResult? Tool, bool NotFound, IReadOnlyList<DMO.Alpha.Core.Tools.ToolLookupResult> Lotes)> ResolveToolAsync(
+        string? requested, string? chosenToolId, DMO.Alpha.Core.Tools.ToolType type)
     {
+        var semLotes = Array.Empty<DMO.Alpha.Core.Tools.ToolLookupResult>();
         if (requested is null)
         {
-            return (null, false);
+            return (null, false, semLotes);
         }
 
-        var tool = await _toolLookup.FindByReferenceAsync(requested, type, HttpContext.RequestAborted);
+        var lotes = await DMO.Alpha.Infrastructure.Tools.ToolLookupQuery.ListByReferenceAsync(_db, requested, type, HttpContext.RequestAborted);
+        if (lotes.Count > 1)
+        {
+            return (lotes.FirstOrDefault(t => t.ToolId == chosenToolId), false, lotes);
+        }
+
+        var tool = lotes.Count == 1 ? lotes[0] : null;
         if (tool is null && await _toolLookup.FindByToolIdAsync(requested, HttpContext.RequestAborted) is { } byId && byId.Type == type)
         {
             tool = byId;
         }
 
-        return (tool, tool is null);
+        return (tool, tool is null, semLotes);
     }
 
     private async Task LoadJobOnChoiceAsync(string? referencia, string? maquina)
@@ -486,11 +663,15 @@ public sealed class PegamentosModel : PageModel
             return RedirectToPage("/Controlo/Pegamentos", new { pegamentos_id = created });
         }
 
+        // Os lotes escolhidos voltam com as referências.
         return RedirectToPage("/Controlo/Pegamentos", new
         {
             cm_ref = Sanitize(cmRef),
             bq_ref = Sanitize(bqRef),
             mf_ref = Sanitize(mfRef),
+            cm_tool = Sanitize(cmToolId),
+            bq_tool = Sanitize(bqToolId),
+            mf_tool = Sanitize(mfToolId),
             recusa = outcome.Result == CreateToolScopedPegamentosResult.NoTools ? "sem-ferramentas" : outcome.Result.ToString()
         });
     }
@@ -559,11 +740,15 @@ public sealed class PegamentosModel : PageModel
     /// todos os valores derivados são do backend. Sucesso volta à folha por
     /// redirect (PRG); a recusa é tipada e volta por query.
     /// </summary>
+    // O mesmo envio outra vez (a ligação caiu depois de gravar) não grava
+    // duas vezes (deep sweep, 18/10/2026, B-pegamentos-3).
+    [EnvioUnico]
     public async Task<IActionResult> OnPostRegisterMeasurementAsync(
         [FromForm(Name = "controlo_id")] int? controloIdForm,
         [FromForm(Name = "component")] string? component,
         [FromForm(Name = "gargalo")] string? gargalo,
-        [FromForm(Name = "pegamentos_id")] int? pegamentosIdForm = null)
+        [FromForm(Name = "pegamentos_id")] int? pegamentosIdForm = null,
+        [FromForm(Name = "folha_vista")] int? folhaVista = null)
     {
         // Várias linhas de uma vez («+ Linha», Diogo 17/10/2026): cada par
         // costura/contra costura é uma medição; as linhas vazias ignoram-se.
@@ -579,9 +764,12 @@ public sealed class PegamentosModel : PageModel
             linhas.Add((null, null));
         }
 
+        // Uma costura ou contra costura de 0 ou menos é fisicamente
+        // impossível e recusa tudo, como a ilegível (Diogo, 18/10/2026).
         var costura = linhas[0].Costura;
         var contraCostura = linhas[0].Contra;
-        var ilegivel = linhas.FindIndex(l => MeasurementDecimal.Parse(l.Costura) is null);
+        var ilegivel = linhas.FindIndex(l => MeasurementDecimal.Parse(l.Costura) is not > 0m
+            || ParseOptionalDecimal(l.Contra) is <= 0m);
         if (ilegivel > 0)
         {
             costura = linhas[ilegivel].Costura;
@@ -603,7 +791,7 @@ public sealed class PegamentosModel : PageModel
             {
                 values["controlo_id"] = controloId;
             }
-            return values;
+            return WithOpenCorrection(values);
         }
 
         // A costura é o facto base da leitura (NOT NULL): sem costura
@@ -611,7 +799,7 @@ public sealed class PegamentosModel : PageModel
         // ilegível, a medição grava sem ela e o aviso di-lo (Owner
         // 16/10/2026: «tentar sempre warning, desde que não parta nada»).
         var componentToken = Sanitize(component) ?? string.Empty;
-        if (MeasurementDecimal.Parse(costura) is not { } costuraMm)
+        if (MeasurementDecimal.Parse(costura) is not { } costuraMm || ilegivel >= 0)
         {
             return MeasurementRefused(Anchor(), componentToken, costura, contraCostura, gargalo,
                 RecordPegamentosMeasurementResult.InvalidMeasurementValue);
@@ -637,6 +825,23 @@ public sealed class PegamentosModel : PageModel
             notice |= PegamentosMeasurementNotice.GargaloIgnored;
         }
 
+        // As outras linhas vão no mesmo comando e gravam-se na mesma escrita
+        // que a primeira: um pedido cortado a meio (o operador sai da página,
+        // a rede cai) não deixa só parte, e reenviar não duplica a 1.ª. O
+        // pedido já chegou inteiro: grava até ao fim mesmo que o browser se
+        // vá embora (o operador carregou em «Registar» e não perde as linhas).
+        var outrasLinhas = new List<PegamentosRow>();
+        foreach (var linha in linhas.Skip(1))
+        {
+            var outraContra = ParseOptionalDecimal(linha.Contra);
+            if (Sanitize(linha.Contra) is not null && outraContra is null)
+            {
+                notice |= PegamentosMeasurementNotice.ContraCosturaIgnored;
+            }
+
+            outrasLinhas.Add(new PegamentosRow(MeasurementDecimal.Parse(linha.Costura)!.Value, outraContra));
+        }
+
         // O gargalo fornecido completa apenas a ferramenta que ainda não
         // o tem. O valor existente não volta a ser pedido nem substituído.
         var outcome = await _recordMeasurement.HandleAsync(
@@ -646,52 +851,43 @@ public sealed class PegamentosModel : PageModel
                 costuraMm,
                 contraCosturaMm,
                 gargaloMm,
-                pegamentosId),
-            HttpContext.RequestAborted);
+                pegamentosId,
+                outrasLinhas),
+            CancellationToken.None);
 
         if (outcome.Result == RecordPegamentosMeasurementResult.Success)
         {
-            foreach (var linha in linhas.Skip(1))
-            {
-                var outraContra = ParseOptionalDecimal(linha.Contra);
-                if (Sanitize(linha.Contra) is not null && outraContra is null)
-                {
-                    notice |= PegamentosMeasurementNotice.ContraCosturaIgnored;
-                }
-
-                var outra = await _recordMeasurement.HandleAsync(
-                    new RecordPegamentosMeasurement(
-                        controloId,
-                        componentToken,
-                        MeasurementDecimal.Parse(linha.Costura)!.Value,
-                        outraContra,
-                        null,
-                        outcome.Measurement?.PegamentosId ?? pegamentosId),
-                    HttpContext.RequestAborted);
-                if (outra.Result != RecordPegamentosMeasurementResult.Success)
-                {
-                    return RedirectToPage("/Controlo/Pegamentos", Anchor(new
-                    {
-                        measurement_refusal = outra.Result.ToString()
-                    }));
-                }
-            }
-
             if (outcome.Measurement is { NominalGargaloMm: null })
             {
                 notice |= PegamentosMeasurementNotice.NotEvaluable;
             }
 
-            return notice == PegamentosMeasurementNotice.None
-                ? RedirectToPage("/Controlo/Pegamentos", Anchor())
-                : RedirectToPage("/Controlo/Pegamentos", Anchor(new
+            var gravada = notice == PegamentosMeasurementNotice.None
+                ? Anchor()
+                : Anchor(new
                 {
                     measurement_notice = notice.ToString(),
                     notice_component = componentToken,
                     ignored_gargalo = ignoredGargalo is { Length: > MaxEchoedLength }
                         ? ignoredGargalo[..MaxEchoedLength] + "…"
                         : ignoredGargalo
-                }));
+                });
+
+            // Depois de trocar a CM, a BQ ou o MF a meio da produção, a
+            // leitura vai para a folha das ferramentas atuais (
+            // 18/10/2026): uma folha nova, ou a que já existia dessas
+            // ferramentas. A página que mostrava outra folha (aberta antes da
+            // troca) abre inteira nessa folha e diz o que aconteceu.
+            if (outcome.Measurement is { StartedNewSheet: true })
+            {
+                gravada["folha"] = FolhaNovaValor;
+            }
+            else if (controloIdForm is not null && folhaVista is int vista && outcome.Measurement?.PegamentosId != vista)
+            {
+                gravada["folha"] = FolhaOutraValor;
+            }
+
+            return RedirectToPage("/Controlo/Pegamentos", gravada);
         }
 
         if (outcome.Result == RecordPegamentosMeasurementResult.MissingGargalo)
@@ -715,10 +911,22 @@ public sealed class PegamentosModel : PageModel
         [FromForm(Name = "contra_costura")] string? contraCostura)
     {
         var anchor = CorrectionAnchor(controloId, pegamentosId);
-        if (MeasurementDecimal.Parse(costura) is not { } costuraMm)
+        if (MeasurementDecimal.Parse(costura) is not { } costuraMm || costuraMm <= 0m)
         {
             anchor["editar_medicao"] = measurementId;
             anchor["correcao"] = "valor-invalido";
+            return RedirectToPage("/Controlo/Pegamentos", anchor);
+        }
+
+        // Só a contra costura vazia a retira. Escrita mas ilegível (70..05)
+        // é recusada, como a costura: gravá-la vazia apagava a guardada sem
+        // aviso.
+        var contraCosturaMm = ParseOptionalDecimal(contraCostura);
+        if (Sanitize(contraCostura) is not null && contraCosturaMm is not > 0m)
+        {
+            anchor["editar_medicao"] = measurementId;
+            anchor["campo"] = "contra";
+            anchor["correcao"] = "contra-invalida";
             return RedirectToPage("/Controlo/Pegamentos", anchor);
         }
 
@@ -726,9 +934,14 @@ public sealed class PegamentosModel : PageModel
             new EditPegamentosMeasurement(
                 new PegamentosMeasurementAnchor(measurementId, controloId, controloId is null ? pegamentosId : null),
                 costuraMm,
-                ParseOptionalDecimal(contraCostura)),
+                contraCosturaMm),
             HttpContext.RequestAborted);
-        if (result != CorrectPegamentosMeasurementResult.Success)
+        if (result == CorrectPegamentosMeasurementResult.ImpossibleValue)
+        {
+            anchor["editar_medicao"] = measurementId;
+            anchor["correcao"] = "valor-invalido";
+        }
+        else if (result != CorrectPegamentosMeasurementResult.Success)
         {
             anchor["correcao"] = "nao-encontrada";
         }
@@ -743,7 +956,7 @@ public sealed class PegamentosModel : PageModel
         [FromForm(Name = "pegamentos_id")] int? pegamentosId,
         [FromForm(Name = "measurement_id")] int measurementId)
     {
-        var anchor = CorrectionAnchor(controloId, pegamentosId);
+        var anchor = WithOpenCorrection(CorrectionAnchor(controloId, pegamentosId));
         var result = await handler.DeleteAsync(
             new PegamentosMeasurementAnchor(measurementId, controloId, controloId is null ? pegamentosId : null),
             HttpContext.RequestAborted);
@@ -755,16 +968,40 @@ public sealed class PegamentosModel : PageModel
         return RedirectToPage("/Controlo/Pegamentos", anchor);
     }
 
+    // Corrigir ou apagar numa folha de antes de uma troca volta a essa folha
+    // (o formulário traz o pegamentos_id dela com o controlo_id).
     private static RouteValueDictionary CorrectionAnchor(int? controloId, int? pegamentosId)
     {
         var values = new RouteValueDictionary();
         if (controloId is int controlo)
         {
             values["controlo_id"] = controlo;
+            if (pegamentosId is int folha)
+            {
+                values["pegamentos_id"] = folha;
+            }
         }
         else
         {
             values["pegamentos_id"] = pegamentosId;
+        }
+        return values;
+    }
+
+    /// <summary>
+    /// A correção aberta noutro cartão (editar_medicao e campo, enviados pelo
+    /// pegamentos-registo.js) volta aberta depois de registar ou apagar uma
+    /// leitura: esse cartão não muda e o que lá está escrito fica.
+    /// </summary>
+    private RouteValueDictionary WithOpenCorrection(RouteValueDictionary values)
+    {
+        if (EditarMedicaoId is int aberta)
+        {
+            values["editar_medicao"] = aberta;
+            if (EditarCampo is "costura" or "contra")
+            {
+                values["campo"] = EditarCampo;
+            }
         }
         return values;
     }
@@ -806,8 +1043,10 @@ public sealed class PegamentosModel : PageModel
             return RedirectToPage("/Controlo/Pegamentos", new { pdf_refusal = "sem-controlo" });
         }
 
+        // A folha mostrada: a das ferramentas atuais ou, com o pegamentos_id,
+        // uma folha de antes de uma troca, com as ferramentas dela.
         var sheet = controloId is int canonicalControloId
-            ? await _pegamentosQuery.FindSheetByControloAsync(canonicalControloId, HttpContext.RequestAborted)
+            ? await _pegamentosQuery.FindSheetByControloAsync(canonicalControloId, pegamentosId, HttpContext.RequestAborted)
             : await _pegamentosQuery.FindSheetByPegamentosAsync(pegamentosId!.Value, HttpContext.RequestAborted);
         if (sheet is null)
         {
@@ -817,19 +1056,20 @@ public sealed class PegamentosModel : PageModel
                 : RedirectToPage("/Controlo/Pegamentos", new { pegamentos_id = pegamentosId });
         }
 
-        // O SELO DE APROVAÇÃO no papel (o corte D) e QUEM GERA O PAPEL
-        // (o rodapé do alvo: «Diogo Oliveira 28/07/2026, 14:52:28»).
-        // Sem Job On não há aprovação.
-        var approval = sheet.ControloId is int approvalControloId
-            ? await _approvalHandler.GetAsync(approvalControloId, HttpContext.RequestAborted)
-            : null;
+        // QUEM GERA O PAPEL (o rodapé do alvo: «Diogo Oliveira 28/07/2026,
+        // 14:52:28»). Sem selo de aprovação: os Pegamentos não se aprovam
+        // (Diogo, 19/10/2026).
         var generatedBy = User.FindFirst(DmoClaimTypes.DisplayName)?.Value
             ?? User.FindFirst(DmoClaimTypes.Email)?.Value;
 
-        var fileName = ControloDocumentPaths.GetPegamentosFileName(sheet.Reference, sheet.ProductionNumber);
+        // Com mais do que uma folha na produção, «-2», «-3»… no fim do nome
+        // (18/10/2026); a primeira fica com o nome de sempre. A folha
+        // em branco depois de uma troca é a próxima.
+        var fileName = ControloDocumentPaths.GetPegamentosFileName(
+            sheet.Reference, sheet.ProductionNumber, sheet.SheetNumber(sheet.Pegamentos) ?? sheet.Sheets.Count + 1);
 
         // Sem registo ainda: a folha em branco para preencher à mão.
-        var bytes = _pdfGenerator.GenerateBytes(PegamentosPdfGenerator.FromSheet(sheet, approval, generatedBy)
+        var bytes = _pdfGenerator.GenerateBytes(PegamentosPdfGenerator.FromSheet(sheet, generatedBy)
             with { BlankForHandFilling = sheet.Pegamentos is null });
         Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(sheet.Reference, sheet.ProductionNumber));
         return File(bytes, "application/pdf", fileName);
@@ -888,7 +1128,7 @@ public sealed record PegamentosMapSummary(string SummaryText, bool HasAlerts, in
         var summary = measurements.Count == 0
             ? "Ainda não existem medições para representar."
             : alertCount > 0
-                ? (alertCount == 1 ? "1 medição fora do corredor (atingiu ou ultrapassou um limite)." : $"{alertCount} medições fora do corredor (atingiram ou ultrapassaram um limite).")
+                ? (alertCount == 1 ? "1 medição fora da tolerância (atingiu ou ultrapassou um limite)." : $"{alertCount} medições fora da tolerância (atingiram ou ultrapassaram um limite).")
                 : measurements.Any(m => m.Evaluation.IsNotEvaluable)
                     ? "Existem medições não avaliáveis — nominal não registado."
                     : "Todas as medições permanecem dentro do corredor do respetivo componente.";

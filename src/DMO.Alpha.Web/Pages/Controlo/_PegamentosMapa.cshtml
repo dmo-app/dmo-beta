@@ -1,0 +1,40 @@
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosModel
+@* O mapa de limites (zona). A página e a resposta só com as zonas de uma gravação
+   (E11, _PegamentosZonas) usam este. *@
+@using DMO.Alpha.Infrastructure.Controlo
+@{
+    var sheet = Model.Sheet!;
+    var input = PegamentosPdfGenerator.FromSheet(sheet);
+}
+<div id="pegMapa" class="dmo-zona" data-dmo-regiao>
+@if (Model.Map is { } map)
+{
+  <section class="dmo-card peg-map-card" aria-labelledby="peg-map-title">
+    <div class="peg-map-heading">
+      <h3 id="peg-map-title">Mapa de limites</h3>
+      <span class="peg-step">3 · Mapa</span>
+    </div>
+    <p class="peg-map-help">Cada faixa horizontal é o corredor de um componente (nominal da sua ferramenta ± tolerância); as linhas verticais são os nominais; os círculos são as médias das medições; o losango é a média global do componente. Vermelho = medição fora (atingiu ou ultrapassou um limite).</p>
+    <div class="peg-map-wrap">
+      @Html.Raw(PegamentosLimitMap.Render(input))
+    </div>
+    @* A legenda mostra as cores que o desenho usa (deep sweep de 18/10/2026,
+       regra 98): a de cada componente (corredor, nominal, círculos e
+       losango), o vermelho de «fora» e o cinzento de «não avaliável». As
+       formas vão a traço, sem cor própria. *@
+    <div class="peg-map-legend">
+      @foreach (var componente in input.Components.Select(c => c.Component.ToUpperInvariant()).Distinct())
+      {
+        <span><i class="peg-dot" style="background:@PegamentosLimitMap.ComponentColor(componente)"></i> @componente</span>
+      }
+      <span><i class="peg-line"></i> Linhas verticais = nominais das ferramentas</span>
+      <span><i class="peg-line peg-tracejado"></i> Tracejado = limites de fora (CM − tolerância e MF + tolerância)</span>
+      <span><i class="peg-dot peg-forma"></i> Círculos = média de cada medição</span>
+      <span><i class="peg-diamond"></i> Losango = média global do componente</span>
+      <span><i class="peg-dot" style="background:@PegamentosLimitMap.AlertColor"></i> Vermelho = fora (atingiu ou ultrapassou um limite)</span>
+      <span><i class="peg-dot" style="background:@PegamentosLimitMap.NotEvaluableColor"></i> Cinzento = não avaliável</span>
+    </div>
+    <div class="peg-map-status @(map.HasAlerts ? "alert" : (sheet.Pegamentos?.Measurements.Any(m => m.Evaluation.IsNotEvaluable) == true ? null : map.MeasurementCount > 0 ? "ok" : null))"><strong>@map.SummaryText</strong></div>
+  </section>
+}
+</div>

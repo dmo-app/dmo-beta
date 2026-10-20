@@ -1,0 +1,9 @@
+@model DMO.Alpha.Web.Pages.Controlo.ResumoModel
+@* A mensagem de uma recusa do estado do documento (zona). A página e a
+   resposta só com as zonas de uma gravação (E11, _ResumoZonas) usam este. *@
+<div id="resumoEstadoAvisos" class="dmo-zona" data-dmo-regiao>
+@if (Model.McaliperRefused)
+{
+  <div data-dmo-toast="erro" class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>
+}
+</div>

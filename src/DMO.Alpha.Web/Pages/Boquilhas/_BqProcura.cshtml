@@ -1,7 +1,9 @@
 @model IReadOnlyList<DMO.Alpha.Web.Pages.Boquilhas.BqSearchResult>
 @* As boquilhas encontradas ao escrever (Diogo, 17/10/2026): a BQ, o lote, as
    máquinas em que trabalha e se está em produção. Um clique ou Enter abre
-   o registo (o da produção em máquina, senão o último). *@
+   o registo (o da produção em máquina, senão o último). Quando a BQ
+   apareceu por uma produção, a linha diz qual e o clique abre o registo
+   dessa produção (deep sweep 2, F-14). *@
 @if (Model.Count == 0)
 {
   <p class="muted" role="status">Nenhuma boquilha encontrada.</p>
@@ -16,8 +18,16 @@ else
       <tbody>
         @foreach (var result in Model)
         {
-          <tr data-dmo-row data-id="@result.ToolId" data-dmo-open="@result.OpenHref"
-              aria-label="BQ @result.Reference, lote @result.Lot — um clique abre">
+          // A produção pela qual apareceu, quando não é a que está em máquina.
+          var encontrada = result.FoundIn is { } found
+              && !(result.InProduction && found.Reference == result.ProductionReference && found.ProductionNumber == result.ProductionNumber)
+              ? found
+              : null;
+          var encontradaTexto = encontrada is null ? null : $"{encontrada.Machine} · {encontrada.Reference} · {encontrada.ProductionNumber}";
+          var rotulo = encontradaTexto is null
+              ? $"BQ {result.Reference}, lote {result.Lot} — um clique abre"
+              : $"BQ {result.Reference}, lote {result.Lot}, encontrada na produção {encontradaTexto} — um clique abre";
+          <tr data-dmo-row data-id="@result.ToolId" data-dmo-open="@result.OpenHref" aria-label="@rotulo">
             <td><strong>@result.Reference</strong></td>
             <td>@result.Lot</td>
             <td>@(result.Machines.Count > 0 ? string.Join(", ", result.Machines) : "—")</td>
@@ -30,6 +40,10 @@ else
               else
               {
                 <span class="dmo-pill inactive">Sem produção</span>
+              }
+              @if (encontradaTexto is not null)
+              {
+                <span class="muted bq-procura-encontrada">Encontrada na produção @encontradaTexto</span>
               }
             </td>
           </tr>

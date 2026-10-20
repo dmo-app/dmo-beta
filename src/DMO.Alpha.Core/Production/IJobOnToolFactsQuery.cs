@@ -28,7 +28,18 @@ public sealed record JobOnToolFacts(
     /// <summary>«CM 5447: compatibilidade registada B1, C3; confirme a máquina escolhida.» — null quando não aplicável.</summary>
     string? AvisoCompatibilidade,
     /// <summary>«CM 5447 / lote 3 também está associado a 202601 (B1). Esta informação não impede a sua escolha.» — null quando não aplicável.</summary>
-    string? AvisoUsoParalelo);
+    string? AvisoUsoParalelo)
+{
+    /// <summary>
+    /// As outras produções do <see cref="AvisoUsoParalelo"/>, para o aviso
+    /// levar a cada uma (Diogo, 19/10/2026: os avisos têm link para onde se
+    /// resolvem). Vazio quando não há uso paralelo.
+    /// </summary>
+    public IReadOnlyList<JobOnToolUsoParalelo> UsosParalelos { get; init; } = Array.Empty<JobOnToolUsoParalelo>();
+}
+
+/// <summary>Outra produção que usa a ferramenta ao mesmo tempo: o id, o nº e a máquina.</summary>
+public sealed record JobOnToolUsoParalelo(int JobOnId, string ProductionNumber, string Machine);
 
 /// <summary>
 /// Query purpose-specific da ficha do Job On: os fatos técnicos das

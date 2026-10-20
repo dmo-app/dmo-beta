@@ -1,6 +1,7 @@
 @page "/Controlo/Resumo"
 @model DMO.Alpha.Web.Pages.Controlo.ResumoModel
 @using DMO.Alpha.Core.Production
+@using DMO.Alpha.Web.Pages.Shared
 @{
     Layout = "_DmoShellLayout";
 }
@@ -8,7 +9,13 @@
   <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
 }
 
-<main class="resumo-page dmo-workspace" aria-labelledby="resumo-title">
+@* GRAVAR SEM RECARREGAR (Diogo, 17/10/2026: «atualizar só o que muda»):
+   escolher OK/NOK, guardar o comentário ou o link do mcaliper de uma área
+   grava e troca só o cartão dessa área (data-dmo-regiao), a mensagem de uma
+   recusa e o «Visto por» (a visita do operador muda a cada pedido); o resto
+   da página não se mexe e a procura fica como o operador a deixou
+   (data-dmo-fica). Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
+<main class="resumo-page dmo-workspace" aria-labelledby="resumo-title" data-dmo-troca>
 
   <div class="page-head">
     <div>
@@ -18,9 +25,9 @@
   </div>
 
   @* ------------------------------------------------------------------ *@
-  @* 1. Browser «Procurar resumo»: filtro exato + produções recentes.    *@
+  @* 1. Browser «Procurar resumo»: início da referência + recentes.     *@
   @* ------------------------------------------------------------------ *@
-  <section class="dmo-card resumo-card resumo-browser" aria-labelledby="resumo-browser-title">
+  <section class="dmo-card resumo-card resumo-browser" aria-labelledby="resumo-browser-title" data-dmo-fica>
     <h3 id="resumo-browser-title">Procurar resumo</h3>
     @* A PROCURA AO ESCREVER (Diogo, 17/10/2026): as últimas 5 produções
        aparecem por baixo do campo enquanto se escreve e um clique abre a
@@ -50,6 +57,9 @@
         var pesoCandidates = Model.PesoCandidates;
         var pegamentosAvailable = Model.ControloId is not null;
         var approved = Model.Approval?.ApprovedByOperatorId is not null;
+        // Os três estados (sweep de 19/10/2026, C-3): o «Não aprovar» e a
+        // nota chegam a quem abre o Resumo, e não só à Revisão.
+        var notApproved = Model.Approval?.NaoAprovado == true;
     @* A FOLHA com a composição do PDF do Resumo (beta.26 — o Owner
        2026-10-16: «tenta meter o ui para ficar com mesmo estilo,
        design»): cabeçalho da produção, a janela em máquina com o selo,
@@ -66,13 +76,18 @@
         @* MENOS CLUTTER (Diogo, 17/10/2026): as folhas abrem-se pelos
            cartões dos controlos associados, a comparação faz-se no Peso e
            os PDFs, cada um em separado, ficam num só botão «Exportar». *@
-        @if (Model.ControloId is not null)
+        @if (Model.ControloId is { } controloDaFolha)
         {
+          <div class="resumo-sheet-acoes">
           <details class="dmo-options resumo-export" data-dmo-tab-menu>
             <summary class="dmo-button">Exportar<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
             <div class="dmo-options-list">
               <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="GeneratePdf">
                 <input type="hidden" name="jobon_id" value="@production.JobOnId" />
+                @* O PDF COMPLETO (Diogo, 19/10/2026): o Resumo e, a seguir, o
+                   Peso, os Pegamentos e as PU NNPB que tenham registos, com
+                   ligações do Resumo para cada um e de volta. *@
+                <button type="submit" class="dmo-options-item">PDF completo</button>
                 <button type="submit" name="apenas_resumo" value="true" class="dmo-options-item">PDF do Resumo</button>
               </form>
               @if (linkedPeso is not null)
@@ -84,7 +99,7 @@
               }
               <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
                 <input type="hidden" name="controlo_id" value="@Model.ControloId" />
-                <button type="submit" class="dmo-options-item">@(Model.PegamentosRecord is null ? "Folha de Pegamentos em branco" : "PDF dos Pegamentos")</button>
+                <button type="submit" class="dmo-options-item">@(!Model.PegamentosSheets.Any(f => f.IsCurrent) ? "Folha de Pegamentos em branco" : "PDF dos Pegamentos")</button>
               </form>
               @if (Model.Puncoes?.Registo is not null)
               {
@@ -95,6 +110,12 @@
               }
             </div>
           </details>
+          @* O «Enviar» do PDF do Peso por email (Diogo, 19/10/2026, D9). *@
+          @if (linkedPeso is not null)
+          {
+            @await Component.InvokeAsync("EnvioPeso", new { jobOnId = production.JobOnId, controloId = controloDaFolha })
+          }
+          </div>
         }
       </div>
 
@@ -109,18 +130,24 @@
           <span>Fim</span>
           <strong>@(production.FimEm?.ToString("d", fmt) ?? (production.InicioEm is null ? "—" : "Em aberto"))</strong>
         </div>
-        <div class="resumo-mini-card resumo-approval @(approved ? "approved" : "pending")">
+        <div class="resumo-mini-card resumo-approval @(approved ? "approved" : notApproved ? "not-approved" : "pending")">
           <span>Aprovação</span>
-          <strong>@(approved ? "Aprovado" : "Sem registo")</strong>
-          <small>@(approved
-              ? $"Operador {Model.Approval!.ApprovedByOperatorId}{(Model.Approval.ApprovedAtUtc is { } at ? " · " + DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(at).ToString("g", fmt) : "")}"
-              : "Por aprovar — nada bloqueia enquanto não existe.")</small>
+          <strong>@(approved ? "Aprovado" : notApproved ? "Não aprovado" : "Sem registo")</strong>
+          <small>@(Model.Approval?.Detalhe(fmt) ?? "Por aprovar — nada bloqueia enquanto não existe.")</small>
           @if (Model.CanApprove)
           {
-            <a class="resumo-card-link" href="/Controlo/Approve?jobon_id=@production.JobOnId">@(approved ? "Rever aprovação →" : "Aprovar →")</a>
+            <a class="resumo-card-link" href="/Controlo/Approve?jobon_id=@production.JobOnId">@(approved || notApproved ? "Rever aprovação →" : "Aprovar →")</a>
           }
         </div>
       </div>
+
+      @* O «NÃO APROVADO» DEIXA UM AVISO (Diogo, 19/10/2026, F5: «requer que
+         seja revisto ou então posto de parte. Mas nunca é razão de
+         bloqueio»): só avisa, com o link para a Revisão a quem a tem. *@
+      @if (notApproved)
+      {
+        <div class="dmo-aviso warn" role="status" data-resumo-nao-aprovado>O controlo desta produção não foi aprovado: tem de ser revisto ou posto de parte.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.Revisao(production.JobOnId)" /></div>
+      }
 
       @* A COMBINAÇÃO da produção: as REFERÊNCIAS e os lotes herdados do
          Job On (nunca os tool_id da BD). *@
@@ -149,9 +176,25 @@
         <h4 class="resumo-section-title">Controlos associados</h4>
         <div class="resumo-linked-grid">
           <article class="resumo-linked-card resumo-linked-peso">
+            @* Os botões no canto superior direito do cartão, na linha do
+               título, nunca no fundo (Diogo, 18/10/2026: «metem os botões em
+               baixo aumenta espaço, sempre canto superior direito dentro dos
+               cards»). *@
             <div class="resumo-linked-card-head">
               <span>Peso</span>
-              <span class="resumo-status">@(linkedPeso is null ? "Sem registo" : "Registado")</span>
+              <div class="dmo-card-topo-acoes resumo-card-actions">
+                <span class="resumo-status">@(linkedPeso is null ? "Sem registo" : "Registado")</span>
+                @* Sem o Peso das ferramentas atuais (ainda sem Peso, ou
+                   depois de trocar a CM ou a BQ a meio; 18/10/2026). *@
+                @if (!Model.HasCurrentPeso)
+                {
+                  @if (pesoCandidates.Count > 0)
+                  {
+                    <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId#peso-associate-title">Associar Peso existente</a>
+                  }
+                  <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId">Criar Peso</a>
+                }
+              </div>
             </div>
             @if (linkedPeso is { } linkedPesoValue)
             {
@@ -172,7 +215,28 @@
               {
                 <small>Nominal @nominal.ToString("0.00", fmt) g@(deviation.Grams is { } dg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg)} g" : "")@(deviation.Percent is { } dp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp)} %)" : "")</small>
               }
-              <a class="resumo-card-link" href="/Controlo/Peso?controlo_id=@Model.ControloId">Ver detalhe →</a>
+              @if (!Model.HasCurrentPeso)
+              {
+                <small>A CM ou a BQ mudou nesta produção: falta o Peso das ferramentas atuais.</small>
+              }
+              @if (Model.Pesos.Count > 1)
+              {
+                @* Um Peso por CM+BQ (a CM ou a BQ mudou a meio; 18/10/2026):
+                   uma linha por Peso, com as ferramentas e a média dele, para
+                   nenhum ficar escondido; um clique abre o Peso. *@
+                <ul class="resumo-peg-folhas" aria-label="Pesos da produção">
+                  @foreach (var (pesoDaLista, numero) in Model.Pesos.Select((p, i) => (p, i + 1)))
+                  {
+                    var mediaDaLista = pesoDaLista.Averages?.AverageGlassWeightGrams;
+                    <li>
+                      <a href="@Model.PesoHref(pesoDaLista)">Peso @numero</a>
+                      · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(pesoDaLista)
+                      · @pesoDaLista.Measurements.Count leitura(s)@(mediaDaLista is { } m ? $" · média {m.ToString("0.00", fmt)} g" : "")@(pesoDaLista.IsCurrent ? "" : " · de antes da troca")
+                    </li>
+                  }
+                </ul>
+              }
+              <a class="resumo-card-link" href="@Model.PesoHref(linkedPesoValue)">Ver detalhe →</a>
             }
             else
             {
@@ -182,31 +246,36 @@
                 @* A ASSOCIAÇÃO POSTERIOR (o Owner 2026-10-16): um Peso sem
                    produção com a CM deste Job On — a decisão é no Peso. *@
                 <small>@(pesoCandidates.Count == 1 ? "Existe um Peso" : $"Existem {pesoCandidates.Count} Pesos") sem produção com a CM deste Job On.</small>
-                <div class="resumo-card-actions">
-                  <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId#peso-associate-title">Associar Peso existente</a>
-                  <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId">Criar Peso</a>
-                </div>
               }
               else
               {
                 <small>Crie o Peso desta produção na folha de Peso.</small>
-                <div class="resumo-card-actions">
-                  <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId">Criar Peso</a>
-                </div>
               }
             }
           </article>
           @{
+              // Todas as folhas da produção (a CM, a BQ ou o MF mudou a meio;
+              // 18/10/2026): os totais somam-nas e o tom é o da pior,
+              // para nenhum alerta ficar escondido. Com uma só, como sempre.
               var pegRecord = Model.PegamentosRecord;
-              var pegCount = pegRecord?.Measurements.Count ?? 0;
-              var pegAlerts = pegRecord?.Measurements.Count(m => m.Evaluation.HasAlert) ?? 0;
-              var pegNotEvaluable = pegRecord?.Measurements.Count(m => m.Evaluation.IsNotEvaluable) ?? 0;
-              var pegTone = pegCount == 0 ? "" : pegAlerts > 0 ? "nok" : pegNotEvaluable > 0 ? "warn" : "ok";
+              var pegFolhas = Model.PegamentosSheets;
+              var pegCount = pegFolhas.Sum(f => f.Measurements.Count);
+              var pegAlerts = pegFolhas.Sum(f => f.Measurements.Count(m => m.Evaluation.HasAlert));
+              var pegNotEvaluable = pegFolhas.Sum(f => f.Measurements.Count(m => m.Evaluation.IsNotEvaluable));
+              // «Não avaliável» é cinzento, como nos Pegamentos e no PDF; o âmbar é
+              // de «por verificar» (sweep de 19/10/2026, 3.16).
+              var pegTone = pegCount == 0 ? "" : pegAlerts > 0 ? "nok" : pegNotEvaluable > 0 ? "na" : "ok";
           }
           <article class="resumo-linked-card resumo-linked-peg @pegTone">
             <div class="resumo-linked-card-head">
               <span>Pegamentos</span>
-              <span class="resumo-status">@(!pegamentosAvailable ? "Indisponível" : pegRecord is null ? "Sem registo" : "Registado")</span>
+              <div class="dmo-card-topo-acoes resumo-card-actions">
+                <span class="resumo-status">@(!pegamentosAvailable ? "Indisponível" : pegRecord is null ? "Sem registo" : "Registado")</span>
+                @if (pegRecord is null && pegamentosAvailable)
+                {
+                  <a class="dmo-button" href="/Controlo/Pegamentos?controlo_id=@Model.ControloId">Registar Pegamentos</a>
+                }
+              </div>
             </div>
             @if (pegRecord is not null)
             {
@@ -221,7 +290,28 @@
                   <div><span>Em alerta</span><b>@pegAlerts</b></div>
                   <div><span>Não avaliáveis</span><b>@pegNotEvaluable</b></div>
                 </div>
-                <small>Tolerância ± @pegRecord.ToleranceMm.ToString("0.00", fmt) mm</small>
+                @if (pegFolhas.Count < 2)
+                {
+                  <small>Tolerância ± @pegRecord.ToleranceMm.ToString("0.00", fmt) mm</small>
+                }
+              }
+              @if (pegFolhas.Count > 1)
+              {
+                @* Uma linha por folha, com as ferramentas e a tolerância
+                   dela; um clique abre a folha. *@
+                <ul class="resumo-peg-folhas" aria-label="Folhas de Pegamentos">
+                  @foreach (var (folha, numero) in pegFolhas.Select((f, i) => (f, i + 1)))
+                  {
+                    var folhaAlertas = folha.Measurements.Count(m => m.Evaluation.HasAlert);
+                    var folhaNaoAvaliaveis = folha.Measurements.Count(m => m.Evaluation.IsNotEvaluable);
+                    <li>
+                      <a href="@(folha.IsCurrent ? $"/Controlo/Pegamentos?controlo_id={Model.ControloId}" : $"/Controlo/Pegamentos?controlo_id={Model.ControloId}&pegamentos_id={folha.PegamentosId}")">Folha @numero</a>
+                      · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha)
+                      · @folha.Measurements.Count medição(ões)@if (folhaAlertas > 0) {<b class="nok"> · @folhaAlertas em alerta</b>}@if (folhaNaoAvaliaveis > 0) {<b class="na"> · @folhaNaoAvaliaveis não avaliável(eis)</b>}
+                      · ± @folha.ToleranceMm.ToString("0.00", fmt) mm
+                    </li>
+                  }
+                </ul>
               }
               <a class="resumo-card-link" href="/Controlo/Pegamentos?controlo_id=@Model.ControloId">Ver detalhe →</a>
             }
@@ -234,9 +324,6 @@
             {
               <strong>Ainda não registado</strong>
               <small>Registe as medições desta produção na folha de Pegamentos.</small>
-              <div class="resumo-card-actions">
-                <a class="dmo-button" href="/Controlo/Pegamentos?controlo_id=@Model.ControloId">Registar Pegamentos</a>
-              </div>
             }
           </article>
           @if (Model.ShowPuncoes)
@@ -250,7 +337,13 @@
             <article class="resumo-linked-card resumo-linked-pu @puTone">
               <div class="resumo-linked-card-head">
                 <span>PU NNPB</span>
-                <span class="resumo-status">@(puRegisto is null ? "Sem registo" : "Registado")</span>
+                <div class="dmo-card-topo-acoes resumo-card-actions">
+                  <span class="resumo-status">@(puRegisto is null ? "Sem registo" : "Registado")</span>
+                  @if (puRegisto is null)
+                  {
+                    <a class="dmo-button" href="/Controlo/Puncoes?controlo_id=@Model.ControloId">Registar punções</a>
+                  }
+                </div>
               </div>
               @if (puRegisto is not null)
               {
@@ -270,9 +363,6 @@
               {
                 <strong>Ainda não registado</strong>
                 <small>A CM desta produção é NNPB: registe as punções e os arrefecedores vistos.</small>
-                <div class="resumo-card-actions">
-                  <a class="dmo-button" href="/Controlo/Puncoes?controlo_id=@Model.ControloId">Registar punções</a>
-                </div>
               }
             </article>
           }
@@ -281,110 +371,26 @@
 
        <div class="resumo-sheet-areas" id="estado-documento">
          <h4 class="resumo-section-title">Estado do documento<partial name="_DmoHelp" model="@("Escolher OK ou NOK grava logo. Clique no comentário para o escrever. Sem registo, a área fica «não registado». O estado e os comentários aparecem no PDF do Resumo.")" /></h4>
-         @if (Model.McaliperRefused)
-         {
-           <div data-dmo-toast="erro" class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>
-         }
-         <div class="resumo-areas">
-        @foreach (var areaState in Model.AreaStates.Count > 0
-            ? Model.AreaStates
-            : DMO.Alpha.Core.Controlo.ControloAreaState.Areas.Select(a => new DMO.Alpha.Infrastructure.Controlo.ControloAreaStateReadModel(a, null, null, null, null)).ToList())
+         <partial name="_ResumoEstadoAvisos" model="Model" />
+         @* Cada área é uma zona (.dmo-zona: a grelha não muda; a cor do
+            cartão vem dentro dela). Gravar o OK/NOK, o comentário ou o link
+            troca só esse cartão, com a janela fechada; o foco fica no OK/NOK
+            escolhido (o mesmo id) ou volta ao botão que abriu a janela. *@
+         <div class="resumo-areas" data-dmo-parcial data-dmo-zonas="resumoEstadoAvisos resumoVistoPor">
+        @foreach (var areaState in Model.AreasMostradas)
         {
-          var stateClass = areaState.Status switch { "OK" => "ok", "NOK" => "nok", _ => "" };
-          var dialogId = $"resumo-area-dialog-{areaState.Area}";
-          <div class="resumo-area @stateClass">
-            <span>@areaState.Area</span>
-            <strong>@(areaState.Status ?? "não registado")</strong>
-            @if (Model.SelectedProduction is { } areaProduction)
-            {
-              @* Diogo, 17/10/2026: o OK/NOK grava ao escolher; o comentário
-                 fica numa caixa de altura fixa e abre numa janela pequena. *@
-              <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="AreaState" class="resumo-area-form">
-                <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
-                <input type="hidden" name="area" value="@areaState.Area" />
-                <input type="hidden" name="comentario" value="@areaState.Comment" />
-                <select name="estado" aria-label="Estado @areaState.Area" data-dmo-autosubmit>
-                  <option value="" selected="@(areaState.Status is null)">—</option>
-                  <option value="OK" selected="@(areaState.Status == "OK")">OK</option>
-                  <option value="NOK" selected="@(areaState.Status == "NOK")">NOK</option>
-                </select>
-              </form>
-              <button type="button" class="resumo-area-note@(string.IsNullOrWhiteSpace(areaState.Comment) ? " empty" : null)" data-dmo-dialog="@dialogId" aria-label="Comentário @areaState.Area"><span class="resumo-area-note-text">@(string.IsNullOrWhiteSpace(areaState.Comment) ? "Comentário (opcional)" : areaState.Comment)</span></button>
-              <dialog id="@dialogId" class="dmo-dialog" aria-labelledby="@(dialogId)-title">
-                <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="AreaState">
-                  <h3 id="@(dialogId)-title">Comentário · @areaState.Area</h3>
-                  <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
-                  <input type="hidden" name="area" value="@areaState.Area" />
-                  <input type="hidden" name="estado" value="@areaState.Status" />
-                  <textarea name="comentario" rows="6" autofocus maxlength="@DMO.Alpha.Core.Controlo.ControloAreaState.CommentMaxLength" aria-label="Comentário @areaState.Area">@areaState.Comment</textarea>
-                  <div class="dmo-dialog-actions">
-                    <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-                    <button type="submit" class="dmo-button">Guardar</button>
-                  </div>
-                </form>
-              </dialog>
-              @if (DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(areaState.Area))
-              {
-                var linkDialogId = $"resumo-mcaliper-dialog-{areaState.Area}";
-                var link = Model.McaliperLinks.GetValueOrDefault(areaState.Area);
-                @* O LINK DO MCALIPER (Diogo, 17/10/2026): fica na ficha técnica
-                   da ferramenta; aqui só se associa, o link não fica à vista. *@
-                <button type="button" class="resumo-area-link@(link is null ? null : " set")" data-dmo-dialog="@linkDialogId">
-                  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
-                  @(link is null ? "Associar link do mcaliper" : "Link do mcaliper associado")
-                </button>
-                <dialog id="@linkDialogId" class="dmo-dialog" aria-labelledby="@(linkDialogId)-title">
-                  <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper">
-                    <h3 id="@(linkDialogId)-title">Link do mcaliper · @areaState.Area</h3>
-                    <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
-                    <input type="hidden" name="area" value="@areaState.Area" />
-                    <input type="url" name="url" value="@link" maxlength="@DMO.Alpha.Core.Tools.ToolTechnicalContext.McaliperUrlMaxLength" placeholder="https://… (vazio retira o link)" aria-label="Link do mcaliper @areaState.Area" autofocus />
-                    <div class="dmo-dialog-actions">
-                      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-                      <button type="submit" class="dmo-button">Guardar</button>
-                    </div>
-                  </form>
-                </dialog>
-              }
-            }
-            else if (!string.IsNullOrWhiteSpace(areaState.Comment))
-            {
-              <p class="resumo-area-comment">@areaState.Comment</p>
-            }
-            @if (areaState.Status is not null && areaState.UpdatedAtUtc is { } areaAt)
-            {
-              <small class="resumo-area-by">Por @Model.PersonLabel(areaState.UpdatedBy) · @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(areaAt).ToString("g", fmt)</small>
-            }
-          </div>
+          <partial name="_ResumoArea" model="new DMO.Alpha.Web.Pages.Controlo.ResumoAreaZona(Model, areaState)" />
         }
          </div>
        </div>
 
       @* O REGISTO DE VISÃO (a decisão GATE 4 do Owner): abrir esta folha
          é ver — a visita fica registada, nunca bloqueia nada. Ao lado, quem
-         aprovou (Diogo, 17/10/2026): lê-se logo junto de quem viu. *@
+         aprovou (Diogo, 17/10/2026): lê-se logo junto de quem viu. O «Visto
+         por» é uma zona: a visita do operador fica registada outra vez a
+         cada pedido, também depois de gravar. *@
       <div class="resumo-people">
-        <div class="resumo-viewings">
-          <h4 class="resumo-section-title">Visto por</h4>
-          @if (Model.Viewings.Count == 0)
-          {
-            <p class="resumo-hint">Ninguém viu ainda — a informação existe, ninguém a abriu.</p>
-          }
-          else
-          {
-            <div class="dmo-table-wrap">
-              <table class="dmo-table">
-                <thead><tr><th>Operador</th><th>Visto a</th></tr></thead>
-                <tbody>
-                  @foreach (var viewing in Model.Viewings)
-                  {
-                    <tr><td>Operador @viewing.OperatorId</td><td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(viewing.ViewedAtUtc).ToString("g", fmt)</td></tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
-        </div>
+        <partial name="_ResumoVistoPor" model="Model" />
         <div class="resumo-viewings">
           <h4 class="resumo-section-title">Aprovado por</h4>
           <div class="dmo-table-wrap">
@@ -393,7 +399,11 @@
               <tbody>
                 @if (approved)
                 {
-                  <tr><td>@Model.PersonLabel(Model.Approval!.ApprovedByOperatorId)</td><td>@(Model.Approval.ApprovedAtUtc is { } approvedAt ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(approvedAt).ToString("g", fmt) : "—")</td></tr>
+                  <tr><td>@(Model.Approval!.Quem)</td><td>@(Model.Approval.ApprovedAtUtc is { } approvedAt ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(approvedAt).ToString("g", fmt) : "—")</td></tr>
+                }
+                else if (notApproved)
+                {
+                  <tr><td class="resumo-nao-aprovado" colspan="2">@(Model.Approval!.Frase(fmt))</td></tr>
                 }
                 else
                 {

@@ -18,10 +18,11 @@ namespace DMO.Alpha.Core.Controlo;
 /// válido (spec/PDF §10 L493-494): um controlo sem nenhuma medição ainda
 /// não tem registo de Pegamentos. A cardinalidade da spec (L22-28) é
 /// «normalmente um registo por produção» e NÃO uma restrição absoluta
-/// «um só registo» — por isso a coluna ControloId não é única e um
-/// registo adicional explícito (novo pegamentos_id quando operacionalmente
-/// necessário) é um caminho de slice futuro, nunca construído em silêncio
-/// por este corte. As leituras pertencem ao registo e são factos
+/// «um só registo» — por isso a coluna ControloId não é única. Uma folha é
+/// de UMA combinação CM+BQ+MF: depois de trocar a CM, a BQ ou o MF a meio
+/// da produção, a primeira leitura começa outro pegamentos_id com as
+/// ferramentas novas e a folha anterior fica como estava (
+/// 18/10/2026). As leituras pertencem ao registo e são factos
 /// históricos append-only, como no Peso.
 /// </summary>
 public sealed class Pegamentos
@@ -118,6 +119,14 @@ public sealed class Pegamentos
 
     /// <summary>Quem gravou o registo (o nome da sessão, congelado); null quando não se sabe.</summary>
     public string? RegistadoPor { get; set; }
+
+    /// <summary>
+    /// A última correção de uma leitura desta folha (mudar ou apagar), em
+    /// UTC; null sem correções ou antes de 19/10/2026. A Revisão avisa
+    /// «Corrigido depois da aprovação» quando é posterior à decisão (Diogo,
+    /// 19/10/2026, C9); a aprovação mantém-se.
+    /// </summary>
+    public DateTime? CorrigidoEmUtc { get; set; }
 
     /// <summary>Leituras registadas nesta folha (factos históricos append-only).</summary>
     public ICollection<PegamentosMeasurement> Measurements { get; set; } = new List<PegamentosMeasurement>();

@@ -1,0 +1,85 @@
+@model DMO.Alpha.Web.Pages.Controlo.ApproveModel
+@using DMO.Alpha.Core.Controlo
+@{
+    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
+    string EstadoTexto(ControloRevisaoEstado estado) => estado switch
+    {
+        ControloRevisaoEstado.Aprovado => "Aprovado",
+        ControloRevisaoEstado.NaoAprovado => "Não aprovado",
+        _ => "Pendente"
+    };
+    string EstadoClasse(ControloRevisaoEstado estado) => estado switch
+    {
+        ControloRevisaoEstado.Aprovado => "aprovado",
+        ControloRevisaoEstado.NaoAprovado => "nao-aprovado",
+        _ => "pendente"
+    };
+    string Quando(DateTime utc) => DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(utc).ToString("dd/MM/yyyy HH:mm");
+}
+          @* O título vai com a lista: os filtros trocam só esta zona e o
+             título diz o dia ou o período que a lista mostra. *@
+          <div id="revisaoResultados" data-dmo-regiao data-dmo-parcial>
+          <h2 id="revisao-day-title">@(Model.Periodo ? $"Controlos de {Model.PeriodoDe:dd/MM/yyyy} a {Model.PeriodoAte:dd/MM/yyyy}" : Model.Day is { } dia ? $"Controlos de {dia:dd/MM/yyyy}" : Model.Undated ? "Registos sem data" : "Controlos do dia")@if (Model.Undated) {<partial name="_DmoHelp" model="@("Pesos e Pegamentos gravados antes de a app guardar a data do registo.")" />}</h2>
+          @if (!Model.Periodo && Model.Day is null && !Model.Undated)
+          {
+            <p class="resumo-hint">Escolha um dia no calendário, ou use os filtros para consultar um período.</p>
+          }
+          else if (Model.Items.Count == 0)
+          {
+            <p class="resumo-hint">@(Model.Periodo ? "Nenhum controlo neste período com estes filtros." : Model.Procura is null && Model.Estado is null && Model.Maquina is null ? "Nenhum controlo registado neste dia." : "Nenhum controlo com estes filtros.")</p>
+          }
+          else
+          {
+            @if (Model.Periodo && Model.Items.Count >= DMO.Alpha.Web.Pages.Controlo.ApproveModel.MaxPeriodo)
+            {
+              <p class="resumo-hint">Os @DMO.Alpha.Web.Pages.Controlo.ApproveModel.MaxPeriodo mais recentes. Use os filtros para encontrar os outros.</p>
+            }
+            <div class="revisao-list" data-dmo-list="@(Model.Periodo ? "Controlos do período" : "Controlos do dia")">
+              @foreach (var item in Model.Items)
+              {
+                var selecionado = Model.ListSelectedJobOnId == item.JobOnId;
+                <a class="revisao-item mch-@item.Machine@(selecionado ? " selected" : "")" href="@Model.ItemLink(item)"
+                   aria-current="@(selecionado ? "true" : null)"
+                   aria-label="@item.Reference produção @item.ProductionNumber na @item.Machine, @EstadoTexto(item.Estado)">
+                  <span class="revisao-item-head">
+                    <strong>@item.Reference · @item.ProductionNumber</strong>
+                    <span class="revisao-pill @EstadoClasse(item.Estado)">@EstadoTexto(item.Estado)</span>
+                  </span>
+                  <small>
+                    <b class="revisao-machine">@item.Machine</b>
+                    @if (item.BqReference is not null)
+                    {
+                      <span> · BQ @item.BqReference@(item.BqLot is null ? "" : $" lote {item.BqLot}")</span>
+                    }
+                    <span> · @(item.AverageGlassWeightGrams is { } media ? $"Peso médio {Grams(media)}" : "Sem Peso")</span>
+                    @* Mais do que um Peso (a CM ou a BQ mudou a meio; 18/10/2026):
+                       a linha é a do Peso atual, e diz quantos há. *@
+                    @if (item.PesoCount > 1)
+                    {
+                      <span> · @item.PesoCount Pesos</span>
+                    }
+                    @if (item.HasPegamentos)
+                    {
+                      <span> · Pegamentos</span>
+                    }
+                  </small>
+                  @* Quem aprovou e quando (19/10/2026); no período, também o dia do registo. *@
+                  @if (Model.Periodo || item.DecididoPor is not null)
+                  {
+                    <small class="revisao-item-decisao">
+                      @if (Model.Periodo && item.RegistadoEmUtc is { } registado)
+                      {
+                        <span>Registado @Quando(registado)</span>
+                      }
+                      @if (item.DecididoPor is { } por)
+                      {
+                        <span>@(Model.Periodo && item.RegistadoEmUtc is not null ? " · " : "")@EstadoTexto(item.Estado) por @por@(item.DecididoEmUtc is { } em ? $" em {Quando(em)}" : "")</span>
+                      }
+                    </small>
+                  }
+                </a>
+              }
+            </div>
+          }
+          </div>

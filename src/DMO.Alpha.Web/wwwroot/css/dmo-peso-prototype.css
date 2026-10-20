@@ -33,8 +33,6 @@
 .peso-pending-row{display:grid;grid-template-columns:minmax(110px,auto) 70px 1fr minmax(230px,1.5fr) auto;gap:10px;align-items:center;padding:8px 10px;background:var(--dmo-subtle,#f1f6fa);border-radius:8px;font-size:13px}
 .peso-pending-row.is-refused{border-left:3px solid var(--dmo-danger,#9a625d)}
 .peso-pending-recusa{color:var(--dmo-danger,#9a625d);font-weight:750}
-.peso-preview-refused{padding:10px 12px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft,#f3e9e7);border-radius:8px;margin-top:8px;font-size:12.5px;color:var(--dmo-danger,#9a625d)}
-.peso-preview-refused::before{content:"⚠ ";}
 @media(max-width:900px){.peso-form-grid{grid-template-columns:1fr}.peso-leitura-form{grid-template-columns:1fr}.peso-pending-row{grid-template-columns:1fr 1fr;row-gap:4px}.peso-pending-recusa{grid-column:1/-1}}
 .peso-page .page-head { margin:0 0 2px; }
 .peso-page .page-head h1 {
@@ -217,6 +215,8 @@
 .peso-page .peso-leitura-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-items:start}
 .peso-page .peso-leitura-grade .peso-leitura-rows{display:grid;grid-template-columns:1fr;gap:10px}
 .peso-page .peso-leitura-row.is-saved input{background:var(--dmo-card,#fff);pointer-events:none}
+/* A leitura enviada e ainda sem resposta (peso-live.js): o estilo «à espera», sem mexer no layout. */
+.peso-page .peso-leitura-row[data-peso-leitura-pendente] input{background:var(--dmo-brand-050)}
 .peso-page .peso-leitura-nova{padding:10px;border:1px dashed var(--dmo-brand-300,#9fb7d3);border-radius:8px}
 .peso-page .peso-leitura-nova .peso-leitura-actions{flex-wrap:wrap;margin-top:10px}
 .peso-page .peso-leitura-nova .peso-registar{flex:1 1 auto}

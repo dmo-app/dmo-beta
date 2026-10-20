@@ -1,5 +1,6 @@
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
+using DMO.Alpha.Infrastructure.Search;
 using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Infrastructure.Tools;
@@ -100,37 +101,71 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
                 // AssociatedMfReference == valor, QUALQUER tipo — a CM cuja
                 // referência canónica difere da referência MF em que encaixa
                 // continua candidata pela associação. A seleção permanece
-                // humana explícita sobre o tool_id.
+                // humana explícita sobre o tool_id. Uma referência toda
+                // (1075C142) também encontra a CM/MF registada antes só com o
+                // modelo (1075), como a referência da produção (teste do
+                // agente de 19/10/2026, T21ce22c).
+                var (mfModel, _) = SplitReference(filter.MfReference.Trim().ToUpperInvariant());
                 query = query.Where(tool =>
                     tool.Reference == filter.MfReference
-                    || tool.AssociatedMfReference == filter.MfReference);
+                    || tool.AssociatedMfReference == filter.MfReference
+                    || (mfModel != null && tool.Type != ToolType.Bq && (tool.Reference.ToUpper() == mfModel
+                        || (tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper() == mfModel))));
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(filter?.Search))
+        if (ReferenceMatch.Normalize(filter?.ReferenceContains) is { } part)
         {
-            var search = filter.Search.Trim().ToUpperInvariant();
-            query = query.Where(tool => tool.Reference.ToUpper().Contains(search)
-                || tool.Lot.ToUpper().Contains(search)
-                || _db.ToolMachineLinks.Any(link => link.ToolId == tool.ToolId
-                    && link.Machine.Code.ToUpper().Contains(search)));
+            // O INÍCIO DA REFERÊNCIA OU DA PARTE BQ (Diogo, 18/10/2026: «Y2»
+            // encontra a Y232 e a 6018Y232; «0» encontra a 0132T173, nunca a
+            // 1075 só por ter um 0 no meio), ou o início da referência MF
+            // associada. A regra da referência está em ReferenceMatch.
+            query = query.Where(ReferenceMatch.Predicate<Tool>(tool => tool.Reference, part)
+                .Or(tool => tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper().StartsWith(part)));
+        }
+
+        if (ReferenceMatch.Normalize(filter?.Search) is { } search)
+        {
+            // A referência pelo início dela ou da parte BQ (a mesma regra);
+            // o lote e a máquina continuam a encontrar-se por parte do texto.
+            query = query.Where(ReferenceMatch.Predicate<Tool>(tool => tool.Reference, search)
+                .Or(tool => tool.Lot.ToUpper().Contains(search)
+                    || _db.ToolMachineLinks.Any(link => link.ToolId == tool.ToolId
+                        && link.Machine.Code.ToUpper().Contains(search))));
         }
 
         if (!string.IsNullOrWhiteSpace(filter?.ProductionReference))
         {
             var productionReference = filter.ProductionReference.Trim().ToUpperInvariant();
-            var usedToolIds = _db.CmContexts.Where(c => c.JobOn.Reference.ToUpper() == productionReference).Select(c => c.ToolId)
-                .Concat(_db.MfContexts.Where(c => c.JobOn.Reference.ToUpper() == productionReference).Select(c => c.ToolId))
-                .Concat(_db.BqContexts.Where(c => c.JobOn.Reference.ToUpper() == productionReference).Select(c => c.ToolId));
+            var usedToolIds = _db.CmContexts.Where(c => (c.JobOn != null ? c.JobOn.Reference : c.ReplacedJobOn!.Reference).ToUpper() == productionReference).Select(c => c.ToolId)
+                .Concat(_db.MfContexts.Where(c => (c.JobOn != null ? c.JobOn.Reference : c.ReplacedJobOn!.Reference).ToUpper() == productionReference).Select(c => c.ToolId))
+                .Concat(_db.BqContexts.Where(c => (c.JobOn != null ? c.JobOn.Reference : c.ReplacedJobOn!.Reference).ToUpper() == productionReference).Select(c => c.ToolId));
             var knownTools = _db.Tools.Where(known => usedToolIds.Contains(known.ToolId) && known.ToolId != ToolRegistryConstants.RemovedToolId);
+            // As ferramentas registadas antes da referência toda (Diogo,
+            // 19/10/2026: «deveria ser sempre referência toda») têm só uma
+            // parte: a BQ da 1075C142 é a C142 e o MF/CM é o 1075.
+            var (model, bqPart) = SplitReference(productionReference);
             query = query.Where(tool =>
                 tool.Reference.ToUpper() == productionReference
                 || (tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper() == productionReference)
+                || (bqPart != null && tool.Type == ToolType.Bq && tool.Reference.ToUpper() == bqPart)
+                || (model != null && tool.Type != ToolType.Bq && (tool.Reference.ToUpper() == model
+                    || (tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper() == model)))
                 // Replacement lots of the same recorded design remain discoverable.
                 || knownTools.Any(known => known.Type == tool.Type && known.Reference.ToUpper() == tool.Reference.ToUpper()));
         }
 
         return query;
+    }
+
+    /// <summary>A referência completa em modelo (algarismos) e parte BQ (a partir da letra): 1075C142 → (1075, C142).</summary>
+    public static (string? Model, string? BqPart) SplitReference(string reference)
+    {
+        var letter = 0;
+        while (letter < reference.Length && char.IsAsciiDigit(reference[letter])) letter++;
+        return letter == 0 || letter == reference.Length || !char.IsLetter(reference[letter])
+            ? (null, null)
+            : (reference[..letter], reference[letter..]);
     }
 
     private async Task<IReadOnlyList<ToolCandidate>> ReadCandidatesAsync(

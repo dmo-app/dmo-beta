@@ -56,4 +56,11 @@ public static class ModuleSettingKeys
     /// novo: o primeiro login por email com sucesso assume-o.
     /// </summary>
     public const string AdminEmail = "Admin:Email";
+
+    /// <summary>
+    /// Administração — a versão da sessão do ADMIN (o ADMIN não tem linha
+    /// em Users): sobe quando o ADMIN muda a palavra-passe e as sessões
+    /// abertas com a versão anterior terminam. Sem linha vale 0.
+    /// </summary>
+    public const string AdminSessionVersion = "Admin:SessionVersion";
 }

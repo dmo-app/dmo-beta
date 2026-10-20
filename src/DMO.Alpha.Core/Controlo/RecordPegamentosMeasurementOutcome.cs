@@ -24,4 +24,12 @@ public sealed record RecordedPegamentosMeasurement(
     decimal CosturaMm,
     decimal? ContraCosturaMm,
     decimal? NominalGargaloMm,
-    PegamentosRowEvaluation Evaluation);
+    PegamentosRowEvaluation Evaluation)
+{
+    /// <summary>
+    /// True quando esta leitura começou uma folha nova numa produção que já
+    /// tinha outra: a CM, a BQ ou o MF mudou e a folha anterior ficou como
+    /// estava (18/10/2026).
+    /// </summary>
+    public bool StartedNewSheet { get; init; }
+}

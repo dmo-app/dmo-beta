@@ -47,6 +47,13 @@ public sealed class ToolSheetQuery : IToolSheetQuery
                 t.AssociatedMfReference,
                 t.BqAccountedQuantity,
                 t.TechnicalName,
+                t.DuplicateWarningAtUtc,
+                t.DuplicateWarningByNameFrozen,
+                Version = EF.Property<uint>(t, DmoDbContext.RowVersion),
+                TechnicalVersion = _db.ToolTechnicalContexts
+                    .Where(c => c.ToolId == t.ToolId)
+                    .Select(c => (uint?)EF.Property<uint>(c, DmoDbContext.RowVersion))
+                    .FirstOrDefault(),
                 Machines = (
                     from link in _db.ToolMachineLinks
                     join machine in _db.Machines on link.MachineId equals machine.Id
@@ -86,6 +93,10 @@ public sealed class ToolSheetQuery : IToolSheetQuery
             facts.BqAccountedQuantity,
             facts.Machines,
             facts.Technical,
-            facts.TechnicalName);
+            facts.TechnicalName,
+            facts.Version,
+            facts.TechnicalVersion ?? 0,
+            facts.DuplicateWarningAtUtc,
+            facts.DuplicateWarningByNameFrozen);
     }
 }

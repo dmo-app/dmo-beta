@@ -40,6 +40,8 @@ public sealed partial class IndexModel : PageModel
     private readonly IAssociateBqRepairTraceToContextHandler _associate;
     private readonly IToolCandidateQuery _toolCandidates;
     private readonly DmoDbContext _db;
+    private readonly DMO.Alpha.Infrastructure.Production.JobOnChangeQuery _changes;
+    private readonly DMO.Alpha.Core.Production.IProductionPickerQuery _productionPicker;
 
     public IndexModel(
         IBoquilhasRegistoQuery registoQuery,
@@ -52,7 +54,8 @@ public sealed partial class IndexModel : PageModel
         IAssociateBqRepairTraceToContextHandler associate,
         IToolCandidateQuery toolCandidates,
         DmoDbContext db,
-        ICreateToolHandler createTool)
+        DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
+        DMO.Alpha.Core.Production.IProductionPickerQuery productionPicker)
     {
         _registoQuery = registoQuery;
         _movementHandler = movementHandler;
@@ -64,7 +67,8 @@ public sealed partial class IndexModel : PageModel
         _associate = associate;
         _toolCandidates = toolCandidates;
         _db = db;
-        _createTool = createTool;
+        _changes = changes;
+        _productionPicker = productionPicker;
     }
 
     /// <summary>As máquinas com a sua produção corrente (a sidebar viva).</summary>
@@ -237,6 +241,31 @@ public sealed partial class IndexModel : PageModel
         }
     }
 
+    /// <summary>
+    /// A data e a hora gravadas quando ficaram no futuro (para lá da folga de
+    /// <see cref="BqMovementOccurrence.FutureToleranceMinutes"/> minutos): o
+    /// movimento foi gravado e a folha avisa, para se corrigir se a data
+    /// estiver errada (Diogo, 19/10/2026: «as datas têm de ser livres»;
+    /// transportada por query, PRG).
+    /// </summary>
+    [BindProperty(SupportsGet = true, Name = "data_no_futuro")]
+    public string? FutureOccurrenceLocal { get; set; }
+
+    public string? FutureOccurrenceWarningMessage
+    {
+        get
+        {
+            if (!TryParseLocal(FutureOccurrenceLocal, out var future))
+            {
+                return null;
+            }
+
+            var pt = CultureInfo.GetCultureInfo("pt-PT");
+            return $"A data e a hora do movimento ({future.ToString("dd/MM/yyyy HH:mm", pt)}) estão no futuro. " +
+                   "O movimento foi gravado. Corrija o movimento se a data real for outra.";
+        }
+    }
+
     private static bool TryParseLocal(string? value, out DateTime local) =>
         DateTime.TryParseExact(value, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out local);
 
@@ -256,10 +285,15 @@ public sealed partial class IndexModel : PageModel
     public string MovementFormOccurredAt { get; private set; } =
         DMO.Alpha.Core.Runtime.DmoBusinessTime.Now.ToString("yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture);
 
-    public string MovementFormType => MovementRefusal == RegisterBqMovementResult.InvalidOccurrenceTime
-        ? Request.Query["movement_type"].ToString() : "saida";
+    /// <summary>
+    /// Depois de uma recusa, o formulário volta com o que se escreveu (o tipo,
+    /// a quantidade e, pelo ?data_antiga, a hora): nunca se perde sem aviso
+    /// (teste do agente de 19/10/2026, Tc95ce11).
+    /// </summary>
+    public string MovementFormType => MovementRefusal is not null
+        && Request.Query["movement_type"].ToString() is { Length: > 0 } tipo ? tipo : "saida";
 
-    public string MovementFormQuantity => MovementRefusal == RegisterBqMovementResult.InvalidOccurrenceTime
+    public string MovementFormQuantity => MovementRefusal is not null
         ? Request.Query["quantity"].ToString() : string.Empty;
 
     /// <summary>
@@ -342,6 +376,17 @@ public sealed partial class IndexModel : PageModel
     public DateOnly? FilterAte { get; private set; }
     public string? FilterText { get; private set; }
 
+    /// <summary>O «Histórico BQ» das Opções do registo (?bq_ferramenta=tool_id):
+    /// só os movimentos desta ferramenta (a BQ e o lote); null sem filtro ou
+    /// quando a ferramenta já não existe.</summary>
+    public string? FilterToolId { get; private set; }
+
+    /// <summary>A BQ e o lote do filtro, para o mostrar no card dos filtros.</summary>
+    public string? FilterToolLabel { get; private set; }
+
+    /// <summary>Os filtros atuais sem o da BQ (o «Tirar» do card dos filtros).</summary>
+    public string HistoryWithoutToolHref { get; private set; } = "/Boquilhas?historico=1";
+
     /// <summary>O mês escolhido no seletor (yyyy-MM), só quando o utilizador o
     /// escolheu: sem desde/até nem dia, é o período da lista.</summary>
     public string? FilterMonth { get; private set; }
@@ -350,18 +395,11 @@ public sealed partial class IndexModel : PageModel
     /// grelha do resumo diário ou os movimentos detalhados (o default).</summary>
     public bool ShowMatrix { get; private set; }
     public bool ShowGrouped { get; private set; }
-    // Decisão do Diogo (17/10): ficam só duas vistas, «Por máquina / Job On»
-    // (a predefinida) e «Resumo diário»; «Movimentos detalhados» saiu, porque
-    // os movimentos todos já aparecem na ficha da BQ.
-    public string HistoryView => ShowMatrix ? "matriz" : "grupos";
-
-    private Dictionary<string, string?> _historyQuery = new() { ["historico"] = "1" };
-
-    /// <summary>O link para outra vista do histórico, com os filtros atuais.</summary>
-    public string HistoryViewHref(string view) =>
-        Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
-            new Dictionary<string, string?>(_historyQuery) { ["vista"] = view }
-                .Where(p => !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
+    public bool ShowMovements { get; private set; }
+    // Três vistas: «Por máquina / Job On» (a predefinida), «Resumo diário» e
+    // «Movimentos detalhados», um movimento por linha. A última saiu na
+    // beta.102 e voltou a pedido do Diogo (19/10): as três são diferentes.
+    public string HistoryView => ShowMatrix ? "matriz" : ShowMovements ? "movimentos" : "grupos";
 
     /// <summary>Os dias da grelha do resumo diário, todos, mesmo sem movimentos.</summary>
     public IReadOnlyList<DateOnly> MatrixDays { get; private set; } = [];
@@ -399,6 +437,36 @@ public sealed partial class IndexModel : PageModel
     /// avisar em vez de recusar); null quando o período cabe.
     /// </summary>
     public string? MatrixPeriodWarning { get; private set; }
+
+    /// <summary>
+    /// Os movimentos da grelha sem máquina: não têm coluna, mas o cartão dos
+    /// totais conta-os, e os dois totais não batiam sem nada o dizer (sweep
+    /// de 19/10/2026, B-2). Zero fora da grelha.
+    /// </summary>
+    public int MatrixWithoutMachine { get; private set; }
+
+    /// <summary>O aviso da grelha e do PDF sobre esses movimentos; null quando não há.</summary>
+    public string? MatrixWithoutMachineWarning => MatrixWithoutMachine switch
+    {
+        0 => null,
+        1 => "1 movimento sem máquina não aparece na grelha, mas conta nos totais.",
+        var n => $"{n} movimentos sem máquina não aparecem na grelha, mas contam nos totais."
+    };
+
+    /// <summary>
+    /// A vista «Por máquina / Job On» com o período da grelha e os mesmos
+    /// filtros, onde esses movimentos aparecem em «Máquina Por indicar».
+    /// </summary>
+    public string? MatrixWithoutMachineHref { get; private set; }
+
+    /// <summary>O limite da lista quando há filtros mas nenhum período.</summary>
+    public const int MaxListMovements = 500;
+
+    /// <summary>
+    /// A lista sem período passou do limite: mostra os mais recentes e
+    /// avisa; null quando cabe.
+    /// </summary>
+    public string? ListLimitWarning { get; private set; }
 
     /// <summary>
     /// Corta um período ao limite da grelha (os primeiros 366 dias, a contar
@@ -463,7 +531,8 @@ public sealed partial class IndexModel : PageModel
         [FromQuery(Name = "vista")] string? vista,
         [FromQuery(Name = "mes_ano")] string? mesAno,
         [FromQuery(Name = "ferramenta")] string? ferramenta,
-        [FromQuery(Name = "data_antiga")] string? dataAntiga)
+        [FromQuery(Name = "data_antiga")] string? dataAntiga,
+        [FromQuery(Name = "bq_ferramenta")] string? bqFerramenta)
     {
         ViewData["Title"] = "Boquilhas";
         // O «+ Registo com data antiga» da ficha da ferramenta: o registo
@@ -523,7 +592,7 @@ public sealed partial class IndexModel : PageModel
         // movimentos com os filtros. O REGISTO fica limpo (a vista default).
         if (historico == "1")
         {
-            await ComposeHistoryAsync(ano, mes, dia, reparador, maquina, tipo, desde, ate, pesquisa, vista, mesAno);
+            await ComposeHistoryAsync(ano, mes, dia, reparador, maquina, tipo, desde, ate, pesquisa, vista, mesAno, bqFerramenta);
 
             return Page();
         }
@@ -566,7 +635,7 @@ public sealed partial class IndexModel : PageModel
 
             // O bq_id, a produção, o trace JÁ ASSOCIADO (um bq_id tem um
             // único trace) e a ferramenta numa consulta.
-            var context = await _registoQuery.FindByContextAsync(canonicalBqId, HttpContext.RequestAborted);
+            var context = await _registoQuery.FindByContextAsync(canonicalBqId, TraceMovementsPage, HttpContext.RequestAborted);
             if (context is null)
             {
                 TraceRequestedNotFound = true;
@@ -588,8 +657,7 @@ public sealed partial class IndexModel : PageModel
                     ProductionContext = context.Production;
                     JobOnNotice = JobOnChangeNoticeView.From(
                         "O Job On mudou depois deste registo.",
-                        await new DMO.Alpha.Infrastructure.Production.JobOnChangeQuery(_db)
-                            .ForBqContextAsync(canonicalBqId, HttpContext.RequestAborted));
+                        await _changes.ForBqContextAsync(canonicalBqId, HttpContext.RequestAborted));
                     JobHistory = await _history.ListJobHistoryAsync(
                         context.ToolId, JobHistoryPage, cancellationToken: HttpContext.RequestAborted);
                     RequestedBq = context.Tool;
@@ -627,7 +695,7 @@ public sealed partial class IndexModel : PageModel
                 return Challenge();
             }
 
-            RegistoTrace = await _registoQuery.FindTraceAsync(canonicalId, HttpContext.RequestAborted);
+            RegistoTrace = await _registoQuery.FindTraceAsync(canonicalId, TraceMovementsPage, HttpContext.RequestAborted);
             if (RegistoTrace is null)
             {
                 TraceRequestedNotFound = true;
@@ -640,8 +708,7 @@ public sealed partial class IndexModel : PageModel
                 AssociateReference = string.IsNullOrWhiteSpace(AssociateReference) ? null : AssociateReference.Trim();
                 if (RegistoTrace.BqContextId is null && AssociateReference is not null)
                 {
-                    AssociateProductions = await new DMO.Alpha.Infrastructure.Production.ProductionPickerQuery(_db)
-                        .ListByReferenceAsync(AssociateReference, HttpContext.RequestAborted);
+                    AssociateProductions = await _productionPicker.ListByReferenceAsync(AssociateReference, HttpContext.RequestAborted);
                     AssociateReferenceWithoutProductions = AssociateProductions.Count == 0;
                 }
 
@@ -658,9 +725,24 @@ public sealed partial class IndexModel : PageModel
 
     private async Task ComposeHistoryAsync(int? ano, int? mes, int? dia, string? reparador,
         string? maquina, string? tipo, DateOnly? desde, DateOnly? ate, string? pesquisa,
-        string? vista, string? mesAno)
+        string? vista, string? mesAno, string? bqFerramenta = null)
     {
         ShowHistory = true;
+        // O «Histórico BQ» (Diogo, 19/10/2026): a ferramenta do registo, com
+        // a BQ e o lote à vista no card dos filtros.
+        if (bqFerramenta?.Trim() is { Length: > 0 } wantedTool)
+        {
+            var filterTool = await _db.Tools
+                .AsNoTracking()
+                .Where(t => t.ToolId == wantedTool)
+                .Select(t => new { t.ToolId, t.Reference, t.Lot })
+                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            if (filterTool is not null)
+            {
+                FilterToolId = filterTool.ToolId;
+                FilterToolLabel = $"BQ {filterTool.Reference}" + (filterTool.Lot is { Length: > 0 } lot ? $" · Lote {lot}" : "");
+            }
+        }
         var today = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
         // O SELETOR DE MÊS (o histMonthQuick do html — yyyy-MM): a
         // âncora do ano/mês quando presente.
@@ -686,7 +768,8 @@ public sealed partial class IndexModel : PageModel
         // Entrada / Entrada sem reparação), desde/até, o reparador e a
         // pesquisa de texto — todos sobre a data real (a A1).
         ShowMatrix = vista == "matriz";
-        ShowGrouped = !ShowMatrix;
+        ShowMovements = vista == "movimentos";
+        ShowGrouped = !ShowMatrix && !ShowMovements;
         FilterMachine = maquina?.Trim();
         FilterType = tipo?.Trim();
         FilterOperator = reparador?.Trim();
@@ -748,12 +831,17 @@ public sealed partial class IndexModel : PageModel
         // outro filtro ou um dia do calendário. A grelha e o PDF mantêm-se.
         HistorySearchApplied = listStart is not null || listEnd is not null
             || !string.IsNullOrEmpty(FilterMachine) || !string.IsNullOrEmpty(FilterType)
-            || !string.IsNullOrEmpty(FilterOperator) || !string.IsNullOrEmpty(FilterText);
+            || !string.IsNullOrEmpty(FilterOperator) || !string.IsNullOrEmpty(FilterText)
+            || FilterToolId is not null;
 
         // A LISTA dos movimentos detalhados (TABELA da casa — nunca os
         // cards espremidos) + OS CONTADORES do filtro (as SOMAS DE
         // QUANTIDADE por tipo — «totais de movimentos do filtro, não
         // saldos de stock»).
+        // Só filtros, sem período (ex.: «Máquina B1»): a lista mostra os
+        // movimentos mais recentes até ao limite e avisa, em vez de ler
+        // todos os movimentos de sempre (desempenho, 18/10/2026).
+        var semPeriodo = !ShowMatrix && listStart is null && listEnd is null;
         Movements = ShowMatrix || HistorySearchApplied
             ? await _history.ListMovementsAsync(
                 ShowMatrix ? matrixStart : listStart,
@@ -762,8 +850,15 @@ public sealed partial class IndexModel : PageModel
                 FilterType,
                 FilterOperator,
                 FilterText,
-                HttpContext.RequestAborted)
+                HttpContext.RequestAborted,
+                semPeriodo ? MaxListMovements + 1 : null,
+                FilterToolId)
             : [];
+        if (semPeriodo && Movements.Count > MaxListMovements)
+        {
+            Movements = Movements.Take(MaxListMovements).ToList();
+            ListLimitWarning = $"Mostra os {MaxListMovements} movimentos mais recentes. Escolha um período para ver os anteriores.";
+        }
         HistoryMovementCount = Movements.Count;
         FilteredSaidas = Movements.Where(m => m.MovementType == BqMovementType.Saida.ToString()).Sum(m => m.Quantity);
         FilteredEntradas = Movements.Where(m => m.MovementType == BqMovementType.Entrada.ToString()).Sum(m => m.Quantity);
@@ -776,6 +871,7 @@ public sealed partial class IndexModel : PageModel
             ["mes"] = HistoryMonth.ToString(CultureInfo.InvariantCulture),
             ["maquina"] = FilterMachine, ["tipo"] = FilterType,
             ["reparador"] = FilterOperator, ["pesquisa"] = FilterText,
+            ["bq_ferramenta"] = FilterToolId,
             ["desde"] = FilterDesde?.ToString("yyyy-MM-dd"),
             ["ate"] = FilterAte?.ToString("yyyy-MM-dd"),
             ["mes_ano"] = FilterMonth,
@@ -783,6 +879,8 @@ public sealed partial class IndexModel : PageModel
         };
         HistoryAllDaysHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
             query.Where(p => p.Key is not ("desde" or "ate" or "dia" or "mes_ano") && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
+        HistoryWithoutToolHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
+            query.Where(p => p.Key != "bq_ferramenta" && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
         var todayQuery = new Dictionary<string, string?>(query)
         {
             ["ano"] = today.Year.ToString(CultureInfo.InvariantCulture),
@@ -792,7 +890,6 @@ public sealed partial class IndexModel : PageModel
         todayQuery.Remove("desde"); todayQuery.Remove("ate"); todayQuery.Remove("mes_ano");
         HistoryTodayHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
             todayQuery.Where(p => !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
-        _historyQuery = new Dictionary<string, string?>(query);
         query["handler"] = "PdfHistorico";
         PdfContextualHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
             query.Where(p => !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
@@ -812,6 +909,17 @@ public sealed partial class IndexModel : PageModel
             MatrixEntries = BqDailySummary.FromMovements(Movements);
             MatrixDays = Enumerable.Range(0, matrixEnd.DayNumber - matrixStart.DayNumber + 1)
                 .Select(matrixStart.AddDays).ToList();
+            MatrixWithoutMachine = Movements.Count(m => m.MachineCode is null);
+            if (MatrixWithoutMachine > 0)
+            {
+                var lista = query
+                    .Where(p => p.Key is not ("vista" or "desde" or "ate" or "dia" or "mes_ano" or "handler") && !string.IsNullOrEmpty(p.Value))
+                    .ToDictionary(p => p.Key, p => p.Value);
+                lista["vista"] = "grupos";
+                lista["desde"] = matrixStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                lista["ate"] = matrixEnd.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                MatrixWithoutMachineHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas", lista);
+            }
         }
 
         // O CALENDÁRIO COMPOEM-SE EM TODOS OS DIAS (o fix do achado do
@@ -840,6 +948,10 @@ public sealed partial class IndexModel : PageModel
         {
             calendarPreserved["pesquisa"] = calendarText;
         }
+        if (FilterToolId is { } calendarTool)
+        {
+            calendarPreserved["bq_ferramenta"] = calendarTool;
+        }
         // Escolher um dia substitui desde/até; os restantes filtros mantêm-se.
         HistoryCalendar = ComporCalendar(HistoryYear, HistoryMonth, MonthCounts, HistoryDay, calendarPreserved);
 
@@ -848,35 +960,42 @@ public sealed partial class IndexModel : PageModel
     public async Task<IActionResult> OnGetPdfHistoricoAsync(
         int? ano, int? mes, int? dia, string? reparador, string? maquina, string? tipo,
         DateOnly? desde, DateOnly? ate, string? pesquisa, string? vista,
-        [FromQuery(Name = "mes_ano")] string? mesAno)
+        [FromQuery(Name = "mes_ano")] string? mesAno,
+        [FromQuery(Name = "bq_ferramenta")] string? bqFerramenta)
     {
         // O PDF segue a lista. Sem período nem filtro (a lista ainda em
         // branco), sai o mês do calendário: exportar todos os movimentos de
         // sempre dava centenas de páginas (teste de carga de 17/10/2026).
         if (desde is null && ate is null && dia is null && string.IsNullOrWhiteSpace(mesAno)
             && string.IsNullOrWhiteSpace(maquina) && string.IsNullOrWhiteSpace(tipo)
-            && string.IsNullOrWhiteSpace(reparador) && string.IsNullOrWhiteSpace(pesquisa))
+            && string.IsNullOrWhiteSpace(reparador) && string.IsNullOrWhiteSpace(pesquisa)
+            && string.IsNullOrWhiteSpace(bqFerramenta))
         {
             var today = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
             var year = ano is int y && y is > 1999 and < 3000 ? y : today.Year;
             var month = mes is int m && m is >= 1 and <= 12 ? m : today.Month;
             mesAno = $"{year:D4}-{month:D2}";
         }
-        await ComposeHistoryAsync(ano, mes, dia, reparador, maquina, tipo, desde, ate, pesquisa, vista, mesAno);
+        await ComposeHistoryAsync(ano, mes, dia, reparador, maquina, tipo, desde, ate, pesquisa, vista, mesAno, bqFerramenta);
         var generator = new DMO.Alpha.Infrastructure.Boquilhas.BqHistoryPdfGenerator();
         var generatedBy = User.FindFirst(DmoClaimTypes.DisplayName)?.Value ?? User.FindFirst(DmoClaimTypes.Email)?.Value;
         var bytes = ShowMatrix
             ? generator.GenerateDailyMatrix(new(MatrixPeriodLabel, MatrixEntries,
                 DMO.Alpha.Infrastructure.Boquilhas.BqHistoryPdfGenerator.HouseMachines, generatedBy,
-                Warning: MatrixPeriodWarning))
+                Warning: MatrixPeriodWarning,
+                WithoutMachineWarning: MatrixWithoutMachineWarning is { } semMaquina
+                    ? $"{semMaquina} Estão na vista «Por máquina / Job On»."
+                    : null))
             : generator.GenerateMovementList(new(
-                "Boquilhas · Por máquina / Job On",
-                $"{HistoryMovementCount} movimento(s) · {HistoryPeriodLabel}"
+                ShowMovements ? "Boquilhas · Movimentos detalhados" : "Boquilhas · Por máquina / Job On",
+                (ListLimitWarning is not null ? $"Os {HistoryMovementCount} movimentos mais recentes" : $"{HistoryMovementCount} movimento(s)")
+                    + $" · {HistoryPeriodLabel}"
                     + (FilterMachine is { Length: > 0 } ? $" · Máquina {FilterMachine}" : "")
                     + (FilterType is { Length: > 0 } ? $" · {BqMovementLabels.Of(FilterType)}" : "")
                     + (FilterOperator is { Length: > 0 } ? $" · Reparador {FilterOperator}" : "")
-                    + (FilterText is { Length: > 0 } ? $" · Pesquisa {FilterText}" : ""),
-                Movements, generatedBy, true));
+                    + (FilterText is { Length: > 0 } ? $" · Pesquisa {FilterText}" : "")
+                    + (FilterToolLabel is { Length: > 0 } ? $" · {FilterToolLabel}" : ""),
+                Movements, generatedBy, GroupByMachineAndTrace: ShowGrouped));
         return File(bytes, "application/pdf", $"BOQUILHAS-{HistoryView}.pdf");
     }
 
@@ -888,23 +1007,39 @@ public sealed partial class IndexModel : PageModel
         // reparação — Discrepância acumulada»): a quantidade
         // contabilística da Tool (o lote que não cresce) e as
         // máquinas compatíveis (o facto humano).
+        var linkedMachines = new List<DMO.Alpha.Core.Production.MachineOption>();
         if (RegistoTrace?.ToolId is { } registerToolId)
         {
             RegisterLotQuantity = RegistoTrace.ToolAccountedQuantity;
-            RegisterMachineCodes = await _db.ToolMachineLinks
+            linkedMachines = await _db.ToolMachineLinks
                 .AsNoTracking()
                 .Where(link => link.ToolId == registerToolId)
                 .OrderBy(link => link.MachineId)
-                .Select(link => link.Machine.Code)
+                .Select(link => new DMO.Alpha.Core.Production.MachineOption(link.MachineId, link.Machine.Code))
                 .ToListAsync(cancellationToken);
+            RegisterMachineCodes = linkedMachines.Select(m => m.Code).ToList();
         }
         // As máquinas do formulário: as do painel lateral, já lidas.
-        MovementMachines = Currents.Count > 0
+        var allMachines = Currents.Count > 0
             ? Currents.Select(m => new DMO.Alpha.Core.Production.MachineOption(m.MachineId, m.MachineCode)).ToList()
             : await _db.Machines.AsNoTracking().OrderBy(m => m.Code)
                 .Select(m => new DMO.Alpha.Core.Production.MachineOption(m.Id, m.Code))
                 .ToListAsync(cancellationToken);
-        ComposeMovementCorrection();
+        // SÓ AS MÁQUINAS DA FERRAMENTA (Diogo, 18/10/2026: «se ela só
+        // trabalha na C2 como está na ficha da ferramenta não deveria
+        // conseguir escolher B2»): com máquinas na ficha, a lista mostra só
+        // essas (e a da produção associada, se for outra). Sem máquinas na
+        // ficha, mostra todas.
+        if (linkedMachines.Count > 0)
+        {
+            var allowed = linkedMachines.Select(m => m.MachineId).ToHashSet();
+            var productionMachine = ProductionContext?.MachineCode;
+            allMachines = allMachines
+                .Where(m => allowed.Contains(m.MachineId) || (productionMachine is not null && m.Code == productionMachine))
+                .ToList();
+        }
+        MovementMachines = allMachines;
+        await ComposeMovementCorrectionAsync();
     }
 
     /// <summary>
@@ -965,11 +1100,15 @@ public sealed partial class IndexModel : PageModel
             {
                 t.Id,
                 t.BqContextId,
-                ProductionNumber = t.BqContext != null ? t.BqContext.JobOn.ProductionNumber : null,
-                ProductionReference = t.BqContext != null ? t.BqContext.JobOn.Reference : null,
-                MachineCode = t.BqContext != null ? t.BqContext.JobOn.Machine.Code : null,
-                InicioEm = t.BqContext != null ? t.BqContext.JobOn.InicioEm : null,
-                FimEm = t.BqContext != null ? t.BqContext.JobOn.FimEm : null
+                // A BQ deste registo foi trocada no Job On (18/10/2026): a
+                // produção pode estar em máquina, mas já com outra BQ.
+                Trocada = t.BqContext != null && t.BqContext.JobOnId == null,
+                // Um bq_id de uma BQ trocada continua a mostrar a produção.
+                ProductionNumber = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.ProductionNumber : t.BqContext.ReplacedJobOn!.ProductionNumber,
+                ProductionReference = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.Reference : t.BqContext.ReplacedJobOn!.Reference,
+                MachineCode = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.Machine.Code : t.BqContext.ReplacedJobOn!.Machine.Code,
+                InicioEm = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.InicioEm : t.BqContext.ReplacedJobOn!.InicioEm,
+                FimEm = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.FimEm : t.BqContext.ReplacedJobOn!.FimEm
             })
             .ToPagedListAsync(pageNumber, cancellationToken: cancellationToken);
 
@@ -982,7 +1121,8 @@ public sealed partial class IndexModel : PageModel
             .Select(g => new { TraceId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(g => g.TraceId, g => g.Count, cancellationToken);
 
-        var hoje = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
+        // O estado pelo dia operacional, como o painel e a procura.
+        var hoje = await _currentQuery.OperationalDayAsync(cancellationToken);
         return new PagedList<BqRegisterCandidate>(traces.Items.Select(t => new BqRegisterCandidate(
             t.Id,
             t.ProductionNumber,
@@ -990,6 +1130,8 @@ public sealed partial class IndexModel : PageModel
             t.MachineCode,
             t.BqContextId is null
                 ? "Sem Job On"
+                : t.Trocada
+                ? "BQ trocada nesta produção"
                 : ProductionStateLabel(t.InicioEm, t.FimEm, hoje),
             movementCounts.TryGetValue(t.Id, out var count) ? count : 0)).ToList(),
             traces.TotalCount, traces.PageNumber, traces.PageSize);
@@ -1017,44 +1159,6 @@ public sealed partial class IndexModel : PageModel
     }
 
     /// <summary>
-    /// POST nativo: criar/abrir o registo de uma boquilha pela sua
-    /// REFERÊNCIA (o fato humano; a app resolve o tool_id canónico). O
-    /// get-or-create é idempotente: reabrir devolve o MESMO trace.
-    /// </summary>
-    public async Task<IActionResult> OnPostCreateTraceAsync(
-        [FromForm(Name = "bq_reference")] string? bqReference)
-    {
-        if (User?.Identity?.IsAuthenticated != true)
-        {
-            return Challenge();
-        }
-
-        var reference = bqReference?.Trim();
-        if (string.IsNullOrEmpty(reference))
-        {
-            return RedirectToPage("/Boquilhas/Index", new { create_refused = "1" });
-        }
-
-        // A referência resolve a ferramenta (o fato humano → o tool_id
-        // canónico; a mais recente: o lote corrente).
-        var tool = await _toolLookup.FindByReferenceAsync(reference, ToolType.Bq, HttpContext.RequestAborted);
-        if (tool is null)
-        {
-            return RedirectToPage("/Boquilhas/Index", new { bq_reference = reference, create_refused = "1" });
-        }
-
-        var outcome = await _createTrace.HandleAsync(
-            new CreateBqRepairTrace(tool.ToolId),
-            HttpContext.RequestAborted);
-
-        return RedirectToPage("/Boquilhas/Index", new
-        {
-            trace_id = outcome.Trace!.BqRepairTraceId,
-            bq_reference = reference
-        });
-    }
-
-    /// <summary>
     /// POST nativo do Registo: o browser submete o trace_id canónico, o
     /// token canónico, a quantidade observada e a DATA/HORA REAL do
     /// movimento (o campo «Data e hora reais», pre-preenchido com o agora
@@ -1062,6 +1166,9 @@ public sealed partial class IndexModel : PageModel
     /// antiga, o Owner 2026-10-14). A discrepância nunca é enviada pelo
     /// cliente — o backend é a fonte autoritativa.
     /// </summary>
+    // O mesmo envio outra vez (a ligação caiu depois de gravar) não grava
+    // duas vezes (deep sweep, 18/10/2026, B-boquilhas-2).
+    [EnvioUnico]
     public async Task<IActionResult> OnPostRegisterMovementAsync(
         [FromForm(Name = "trace_id")] int traceId,
         [FromForm(Name = "movement_type")] string? movementType,
@@ -1141,7 +1248,9 @@ public sealed partial class IndexModel : PageModel
                 trace_id = outcome.Movement?.BqRepairTraceId ?? traceId,
                 data_antiga = KeptOccurrenceField(occurredAtUtc, occurredValidLocal),
                 hora_indicada = shiftedTime?.From,
-                hora_gravada = shiftedTime?.To
+                hora_gravada = shiftedTime?.To,
+                data_no_futuro = outcome.OccurredInTheFuture && occurredValidLocal is DateTime futureLocal
+                    ? LocalFieldValue(futureLocal) : null
             });
         }
 
@@ -1149,7 +1258,8 @@ public sealed partial class IndexModel : PageModel
             ("movement_refusal", outcome.Result.ToString()),
             ("movement_machine_id", movementMachineId),
             ("movement_type", movementType),
-            ("quantity", quantity)));
+            ("quantity", quantity),
+            ("data_antiga", occurredValidLocal is DateTime escrita ? LocalFieldValue(escrita) : null)));
     }
 
     /// <summary>
@@ -1187,7 +1297,8 @@ public sealed partial class IndexModel : PageModel
     public async Task<IActionResult> OnPostAssociateJobOnAsync(
         [FromForm(Name = "trace_id")] int traceId,
         [FromForm(Name = "job_number")] string? jobNumber,
-        [FromForm(Name = "job_reference")] string? jobReference)
+        [FromForm(Name = "job_reference")] string? jobReference,
+        [FromForm(Name = "job_on_id")] int? jobOnId = null)
     {
         if (User?.Identity?.IsAuthenticated != true)
         {
@@ -1196,7 +1307,7 @@ public sealed partial class IndexModel : PageModel
 
         // 1. O registo tem de existir (o POST transporta o trace_id
         //    canónico no hidden — nunca na folha visível).
-        var trace = await _registoQuery.FindTraceAsync(traceId, HttpContext.RequestAborted);
+        var trace = await _registoQuery.FindTraceAsync(traceId, cancellationToken: HttpContext.RequestAborted);
         if (trace is null)
         {
             return RedirectToPage("/Boquilhas/Index", new
@@ -1225,7 +1336,7 @@ public sealed partial class IndexModel : PageModel
         //    16/10/2026 — encontrar pelo nº e avisar se a referência diferir).
         var number = jobNumber?.Trim();
         var reference = jobReference?.Trim();
-        if (string.IsNullOrEmpty(number))
+        if (jobOnId is null && string.IsNullOrEmpty(number))
         {
             return RedirectToPage("/Boquilhas/Index", new
             {
@@ -1235,14 +1346,46 @@ public sealed partial class IndexModel : PageModel
             });
         }
 
-        // 4. A produção resolve pelo nº de produção (único por índice).
-        //    Nenhuma produção com esse nº → o Job On retroativo ainda não
-        //    existe. Uma referência diferente não recusa: a folha avisa
-        //    depois de associar.
-        var jobOn = await _db.JobOns
-            .AsNoTracking()
-            .Where(j => j.ProductionNumber == number)
-            .FirstOrDefaultAsync(HttpContext.RequestAborted);
+        // 4. A produção resolve pelo nº de produção. O mesmo nº existe em
+        //    várias referências (17/10/2026), por isso entre as produções
+        //    com esse nº ganha a da referência indicada e, sem ela, a que
+        //    tem a BQ deste registo. Nenhuma produção com esse
+        //    nº → o Job On retroativo ainda não existe. Uma referência
+        //    diferente não recusa: a folha avisa depois de associar.
+        //    A produção escolhida na lista da referência (referência + nº,
+        //    únicos juntos) ganha sempre, tenha ou não a BQ deste registo.
+        //    A lista de produções da página manda o próprio Job On
+        //    (job_on_id): é essa a produção associada, e não outra com o
+        //    mesmo nº. Com o nº e o texto escrito, «2847» associava a
+        //    4526Y171 · 2026999 em vez da 2847Y171 · 2026999 (deep sweep 2,
+        //    F-1, 18/10/2026).
+        DMO.Alpha.Core.Production.JobOn? jobOn;
+        if (jobOnId is { } chosenId)
+        {
+            jobOn = await _db.JobOns
+                .AsNoTracking()
+                .FirstOrDefaultAsync(j => j.Id == chosenId, HttpContext.RequestAborted);
+            reference = null;
+        }
+        else
+        {
+            var candidates = await _db.JobOns
+                .AsNoTracking()
+                .Where(j => j.ProductionNumber == number)
+                .OrderByDescending(j => j.Id)
+                .Select(j => new
+                {
+                    JobOn = j,
+                    HasBq = _db.BqContexts.Any(c => c.JobOnId == j.Id && c.ToolId == trace.ToolId)
+                })
+                .ToListAsync(HttpContext.RequestAborted);
+            jobOn = candidates
+                .OrderByDescending(c => !string.IsNullOrEmpty(reference)
+                    && string.Equals(reference, c.JobOn.Reference, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(c => c.HasBq)
+                .Select(c => c.JobOn)
+                .FirstOrDefault();
+        }
         if (jobOn is null)
         {
             return RedirectToPage("/Boquilhas/Index", new
