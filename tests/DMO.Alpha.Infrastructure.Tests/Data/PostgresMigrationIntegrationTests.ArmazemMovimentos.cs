@@ -91,6 +91,50 @@ public sealed partial class PostgresMigrationIntegrationTests
     }
 
     [SkippableFact]
+    public async Task Armazem_DuasSaidasDaMesmaFerramentaAoMesmoTempo_FicaUmaSo()
+    {
+        SkipWithoutConnection();
+        var (toolId, codigos) = await FerramentaEPosicoesAsync(1);
+        try
+        {
+            await using (var db = CreateContext())
+            {
+                await Movimentos(db).EntradaAsync(new PedidoDeEntrada(Guid.NewGuid(), toolId, codigos[0], ArmazemOrigem.Nova, FerramentaEstadoTipo.Novo, null, null));
+            }
+
+            // Duas pessoas, envios diferentes: duas Saídas e um Corrigir ao mesmo tempo.
+            var resultados = await Task.WhenAll(
+                Saida(ArmazemDestino.Producao),
+                Saida(ArmazemDestino.Sucata),
+                Task.Run(async () =>
+                {
+                    await using var db = CreateContext();
+                    return (await Movimentos(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), toolId, null, null))).Resultado;
+                }));
+
+            Assert.Single(resultados, r => r == ArmazemMovimentoResultado.Gravado);
+            Assert.All(resultados.Where(r => r != ArmazemMovimentoResultado.Gravado), r => Assert.Contains(r,
+                new[] { ArmazemMovimentoResultado.NaoEstaNoArmazem, ArmazemMovimentoResultado.NadaAMudar, ArmazemMovimentoResultado.MudouEntretanto }));
+            await using var leitura = CreateContext();
+            Assert.Equal(1, await leitura.ArmazemMovimentos.CountAsync(m => m.ToolId == toolId && m.Tipo != ArmazemMovimentoTipo.Entrada));
+            var ocupacao = await leitura.ArmazemOcupacoes.AsNoTracking().SingleAsync(o => o.ToolId == toolId);
+            Assert.NotNull(ocupacao.LibertadaEmUtc);
+            var quemLibertou = await leitura.ArmazemMovimentos.AsNoTracking().SingleAsync(m => m.Id == ocupacao.LibertadaPorMovimentoId);
+            Assert.NotEqual(ArmazemMovimentoTipo.Entrada, quemLibertou.Tipo);
+        }
+        finally
+        {
+            await LimparAsync(toolId, codigos);
+        }
+
+        Task<ArmazemMovimentoResultado> Saida(ArmazemDestino destino) => Task.Run(async () =>
+        {
+            await using var db = CreateContext();
+            return (await Movimentos(db).SaidaAsync(new PedidoDeSaida(Guid.NewGuid(), toolId, destino, null, null, null, null, null))).Resultado;
+        });
+    }
+
+    [SkippableFact]
     public async Task Armazem_ABaseRecusaUmMovimentoComOsDoisReparadores()
     {
         SkipWithoutConnection();

@@ -60,6 +60,28 @@ public sealed class ArmazemMovimentosTests
         FerramentaEstadoTipo? estado = null, DateTime? data = null) =>
         new(Guid.NewGuid(), toolId, destino, reparador, fabrica, estado, data, null);
 
+    [Theory]
+    [InlineData("entrada")]
+    [InlineData("saida")]
+    [InlineData("corrigir")]
+    public async Task UmaFerramentaQueNaoExiste_RecusaENaoGravaNada(string movimento)
+    {
+        using var db = CreateContext();
+        var servico = Servico(db);
+
+        var saida = movimento switch
+        {
+            "entrada" => await servico.EntradaAsync(Entrada(toolId: "nao-existe")),
+            "saida" => await servico.SaidaAsync(Saida(ArmazemDestino.Producao, toolId: "nao-existe")),
+            _ => await servico.CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), "nao-existe", "0042", null))
+        };
+
+        Assert.Equal(ArmazemMovimentoResultado.FerramentaNaoExiste, saida.Resultado);
+        Assert.Empty(await db.ArmazemMovimentos.ToListAsync());
+        Assert.Empty(await db.ArmazemOcupacoes.ToListAsync());
+        Assert.Empty(await db.OperacoesRegistadas.ToListAsync());
+    }
+
     [Fact]
     public async Task Entrada_FerramentaFora_GravaMovimentoOcupacaoLocalizacaoEstadoEOperacao()
     {
