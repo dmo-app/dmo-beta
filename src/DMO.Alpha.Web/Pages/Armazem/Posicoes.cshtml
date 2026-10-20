@@ -1,0 +1,107 @@
+@page "/Armazem/Posicoes"
+@model DMO.Alpha.Web.Pages.Armazem.PosicoesModel
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.arm-page{display:flex;flex-direction:column;gap:14px}
+.arm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.arm-card h3{margin:0 0 12px;font-size:16px}
+.arm-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
+.arm-linha .dmo-field{margin:0}
+html body .arm-linha .dmo-field input.arm-codigo{width:14ch}
+.arm-card .dmo-table-wrap{max-width:420px}
+.arm-card .dmo-table{width:auto;min-width:100%}
+.arm-card .dmo-table td{padding:4px 8px;vertical-align:middle}
+.arm-card .dmo-table select{min-width:12ch}
+</style>
+}
+
+@* Atualizar só o que muda: criar, procurar e mudar o estado trocam só as
+   zonas (data-dmo-regiao); a mensagem vai para a pilha do canto. O estado
+   de cada posição muda-se no próprio valor da linha (Ativa / Arquivada),
+   sem botões nas linhas; uma posição nunca se elimina. *@
+<main class="arm-page dmo-workspace" aria-labelledby="arm-pos-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="arm-pos-title">Posições do Armazém</h1>
+    </div>
+  </div>
+
+  <div id="armPosAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.Mensagem.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.Gravou ? "ok" : "erro")" role="@(Model.Gravou ? "status" : "alert")">@Model.Mensagem</p>
+    }
+  </div>
+
+  <section id="armPosNova" class="dmo-card arm-card" aria-labelledby="arm-pos-nova-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="arm-pos-nova-title">Nova posição<partial name="_DmoHelp" model="@("O código da posição como está no armazém: só letras e algarismos, até 16 (ex.: 0042, 7001A, A001). Uma posição também se pode criar na Entrada de uma ferramenta.")" /></h3>
+    <form method="post" asp-page="/Armazem/Posicoes" asp-page-handler="Criar" class="arm-linha">
+      <input type="hidden" name="codigo" value="@Model.ComecaPor" />
+      <input type="hidden" name="estado" value="@Model.Estado" />
+      <div class="dmo-field">
+        <label for="armNovoCodigo">Código</label>
+        <input id="armNovoCodigo" name="novo_codigo" class="arm-codigo" maxlength="16" autocomplete="off" placeholder="0042" required />
+      </div>
+      <button type="submit" class="dmo-button" id="armPosCriar">Criar posição</button>
+    </form>
+  </section>
+
+  <section id="armPosLista" class="dmo-card arm-card" aria-labelledby="arm-pos-lista-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="arm-pos-lista-title">Posições<partial name="_DmoHelp" model="@("Procure pelo início do código. Para arquivar ou reativar uma posição, mude o estado na linha; uma posição arquivada sai das escolhas novas e não se elimina.")" /></h3>
+    <form method="get" asp-page="/Armazem/Posicoes" class="arm-linha" role="search">
+      <div class="dmo-field">
+        <label for="armPosProcura">Código começa por</label>
+        <input id="armPosProcura" name="codigo" class="arm-codigo" value="@Model.ComecaPor" maxlength="16" autocomplete="off" />
+      </div>
+      <div class="dmo-field">
+        <label for="armPosEstado">Estado</label>
+        <select id="armPosEstado" name="estado" data-dmo-autosubmit>
+          <option value="" selected="@(Model.Filtro == DMO.Alpha.Core.Armazem.ArmazemPosicaoFiltro.Todas)">Todas</option>
+          <option value="ativas" selected="@(Model.Filtro == DMO.Alpha.Core.Armazem.ArmazemPosicaoFiltro.Ativas)">Ativas</option>
+          <option value="arquivadas" selected="@(Model.Filtro == DMO.Alpha.Core.Armazem.ArmazemPosicaoFiltro.Arquivadas)">Arquivadas</option>
+        </select>
+      </div>
+    </form>
+
+    @if (Model.Lista.Items.Count == 0)
+    {
+      <p><em>@(string.IsNullOrWhiteSpace(Model.ComecaPor) && Model.Filtro == DMO.Alpha.Core.Armazem.ArmazemPosicaoFiltro.Todas
+          ? "Ainda não há posições. Crie a primeira acima."
+          : "Nenhuma posição com esse filtro.")</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-list="Posições do Armazém">
+          <thead><tr><th>Posição</th><th>Estado</th></tr></thead>
+          <tbody>
+          @foreach (var posicao in Model.Lista.Items)
+          {
+            <tr>
+              <td><strong>@posicao.Codigo</strong></td>
+              <td>
+                <form id="armPosEstado-@posicao.Id" method="post" asp-page="/Armazem/Posicoes" asp-page-handler="Estado">
+                  <input type="hidden" name="posicao_id" value="@posicao.Id" />
+                  <input type="hidden" name="posicao_codigo" value="@posicao.Codigo" />
+                  <input type="hidden" name="codigo" value="@Model.ComecaPor" />
+                  <input type="hidden" name="estado" value="@Model.Estado" />
+                  <input type="hidden" name="pagina" value="@Model.Lista.PageNumber" />
+                  <select name="ativa" data-dmo-autosubmit aria-label="Estado da posição @posicao.Codigo">
+                    <option value="sim" selected="@posicao.Ativa">Ativa</option>
+                    <option value="nao" selected="@(!posicao.Ativa)">Arquivada</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+      <partial name="_ListPager" model="Model.Pager" />
+    }
+  </section>
+</main>

@@ -48,6 +48,7 @@ public sealed class ShellStateFactory
         DmoCapabilities.ControloApprove => moduleKey == "controlo-approve",
         DmoCapabilities.Boquilhas => moduleKey == "boquilhas",
         DmoCapabilities.Ferramentas => moduleKey == "ferramentas",
+        DmoCapabilities.ArmazemGestao => moduleKey == "armazem",
         _ => false
     };
 
@@ -229,5 +230,16 @@ public sealed class ShellStateFactory
             new FunctionPresentation("ver", "Ver", "/Ferramentas", null, activeKey == "ver", true, true),
             new FunctionPresentation("criar", "Criar", "/Ferramentas?criar=1", null, activeKey == "criar", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Ferramentas/Definicoes", null, activeKey == "definicoes", true, true)
+        };
+
+    /// <summary>
+    /// As funções do Armazém (módulo do full): as Posições e as Definições
+    /// (os reparadores de CM e MF), que fecham a barra como nos outros módulos.
+    /// </summary>
+    public static IReadOnlyList<FunctionPresentation> ArmazemFunctions(string activeKey) =>
+        new[]
+        {
+            new FunctionPresentation("posicoes", "Posições", "/Armazem/Posicoes", null, activeKey == "posicoes", true, true),
+            new FunctionPresentation("definicoes", "Definições", "/Armazem/Definicoes", null, activeKey == "definicoes", true, true)
         };
 }

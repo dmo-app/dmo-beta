@@ -28,6 +28,13 @@ public static class DmoCapabilities
     public const string Ferramentas = "ferramentas";
 
     /// <summary>
+    /// Armazém, gestão (módulo do full, peça E do plano): as posições, os
+    /// reparadores de CM e MF e, a seguir, a Entrada, a Saída e o Corrigir
+    /// localização. A consulta terá a sua chave (<c>armazem.consulta</c>).
+    /// </summary>
+    public const string ArmazemGestao = "armazem.gestao";
+
+    /// <summary>
     /// A lista única dos módulos, pela ordem da barra principal. O menu, a
     /// página inicial depois do login e a gestão de templates saem daqui.
     /// </summary>
@@ -37,7 +44,8 @@ public static class DmoCapabilities
         new(ControloCreate, "Controlo", "/Controlo/Resumo"),
         new(ControloApprove, "Controlo", "/Controlo/Approve"),
         new(Boquilhas, "Boquilhas", "/Boquilhas"),
-        new(Ferramentas, "Ferramentas", "/Ferramentas")
+        new(Ferramentas, "Ferramentas", "/Ferramentas"),
+        new(ArmazemGestao, "Armazém", "/Armazem/Posicoes")
     ];
 
     /// <summary>As chaves válidas num template (validação da gestão de templates).</summary>

@@ -1,0 +1,106 @@
+@page "/Armazem/Definicoes"
+@model DMO.Alpha.Web.Pages.Armazem.DefinicoesModel
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.arm-page{display:flex;flex-direction:column;gap:14px}
+.arm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.arm-card h3{margin:0 0 12px;font-size:16px}
+.arm-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
+.arm-linha .dmo-field{margin:0}
+html body .arm-linha .dmo-field input{width:min(260px,100%)}
+.arm-card .dmo-table{width:auto;min-width:100%}
+.arm-card .dmo-table td{padding:4px 8px;vertical-align:middle}
+.arm-card .dmo-valor{min-width:16ch}
+.arm-arquivado .dmo-valor{color:var(--dmo-muted)}
+</style>
+}
+
+@* Os reparadores de CM e MF, à parte dos das Boquilhas. Sem botões nas
+   linhas: o nome muda-se no próprio valor (grava ao sair do campo); «Recebe»
+   e «Estado» escolhem-se na linha e gravam logo. Um reparador não se
+   elimina: arquiva-se, e os movimentos guardam o nome do momento. Um
+   formulário por linha, para cada envio levar só esse reparador. *@
+<main class="arm-page dmo-workspace" aria-labelledby="arm-def-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="arm-def-title">Definições do Armazém</h1>
+    </div>
+  </div>
+
+  <div id="armDefAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.Mensagem.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.Gravou ? "ok" : "erro")" role="@(Model.Gravou ? "status" : "alert")">@Model.Mensagem</p>
+    }
+  </div>
+
+  <section id="armDefReparadores" class="dmo-card arm-card" aria-labelledby="arm-def-rep-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="arm-def-rep-title">Reparadores de CM e MF<partial name="_DmoHelp" model="@("Para onde vão as CM e os MF na Saída para Reparação. São outros que os reparadores das Boquilhas, que ficam nas Definições das Boquilhas. Clique num nome para o mudar; mudar o nome não altera os movimentos passados. Um reparador arquivado sai das escolhas novas.")" /></h3>
+
+    <form method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Criar" class="arm-linha">
+      <div class="dmo-field">
+        <label for="armRepNome">Novo reparador</label>
+        <input id="armRepNome" name="nome" maxlength="100" autocomplete="off" placeholder="Ex.: Moldes Lda" required />
+      </div>
+      <div class="dmo-field">
+        <label for="armRepFamilias">Recebe</label>
+        <select id="armRepFamilias" name="familias">
+          <option value="ambos" selected>CM e MF</option>
+          <option value="cm">Só CM</option>
+          <option value="mf">Só MF</option>
+        </select>
+      </div>
+      <button type="submit" class="dmo-button" id="armRepCriar">Criar reparador</button>
+    </form>
+
+    @if (Model.Reparadores.Count == 0)
+    {
+      <p><em>Ainda não há reparadores de CM e MF. Crie o primeiro acima.</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-list="Reparadores de CM e MF">
+          <thead><tr><th>Reparador</th><th>Recebe</th><th>Estado</th></tr></thead>
+          <tbody>
+          @foreach (var r in Model.Reparadores)
+          {
+            var familias = DMO.Alpha.Web.Pages.Armazem.DefinicoesModel.Familias(r);
+            <tr class="@(r.Ativo ? null : "arm-arquivado")">
+              <td>
+                <form id="armRepNome-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
+                  <input type="hidden" name="reparador_id" value="@r.Id" />
+                  <input class="dmo-valor" data-dmo-valor name="nome" value="@r.Nome" maxlength="100" autocomplete="off" aria-label="Nome do reparador @r.Nome" required />
+                </form>
+              </td>
+              <td>
+                <form id="armRepFamilias-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
+                  <input type="hidden" name="reparador_id" value="@r.Id" />
+                  <select name="familias" data-dmo-autosubmit aria-label="O que recebe o reparador @r.Nome">
+                    <option value="ambos" selected="@(familias == "ambos")">CM e MF</option>
+                    <option value="cm" selected="@(familias == "cm")">Só CM</option>
+                    <option value="mf" selected="@(familias == "mf")">Só MF</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <form id="armRepAtivo-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
+                  <input type="hidden" name="reparador_id" value="@r.Id" />
+                  <select name="ativo" data-dmo-autosubmit aria-label="Estado do reparador @r.Nome">
+                    <option value="sim" selected="@r.Ativo">Ativo</option>
+                    <option value="nao" selected="@(!r.Ativo)">Arquivado</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>
