@@ -141,6 +141,17 @@ public sealed class JobOnFolhaTests : IDisposable
     }
 
     [Theory]
+    [InlineData(3999, false)]
+    [InlineData(4000, false)]
+    [InlineData(4001, true)]
+    public void NotasGerais_NoLimiteCabem_LogoAcimaSaoRecusadas(int tamanho, bool recusado)
+    {
+        var folha = JobOnFolhaRegras.NormalizarFolha(new Dictionary<string, string?> { ["notas_gerais"] = new string('n', tamanho) });
+        Assert.Equal(recusado ? "notas_gerais" : null, JobOnFolhaRegras.PrimeiraChaveLonga(folha, null));
+    }
+
+    [Theory]
+    [InlineData(59, null)]
     [InlineData(60, null)]
     [InlineData(61, "cal:2:qtd_maq")]
     public void LinhaCal_AQtdMaqTemOMesmoMaximo(int tamanho, string? chave)

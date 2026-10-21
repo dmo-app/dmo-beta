@@ -407,9 +407,9 @@ Selo depois: `1a312ffd2cc64ced`
 
 ## A-0017 · 2026-10-21 · contagem-lista
 
-Porquê: Folha completa do Job On (tabelas JobOnFolhas e JobOnFolhaCalLinhas, sem FO, com QTD Stock e QTD Máq., Diogo 21/10): testes novos; os testes das listas de tabelas e de migrações ganham as duas tabelas e a migração nova.
+Porquê: Folha completa do Job On (tabelas JobOnFolhas e JobOnFolhaCalLinhas, sem FO, com QTD Stock e QTD Máq., Diogo 21/10): testes novos (com os três casos nos limites da CAL e das Notas gerais, e as recusas lidas na zona do aviso); os testes das listas de tabelas e de migrações ganham as duas tabelas e a migração nova.
 Referência: full: folha do Job On
-Novos: 28 · mudaram: 6 · saíram: 0
+Novos: 29 · mudaram: 6 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnFolha.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnFolha.cs :: PostgresMigrationIntegrationTests.JobOnFolha_GravarELerDeNovo_EApagaEmCascataComOJobOn`
@@ -432,6 +432,7 @@ Novos: 28 · mudaram: 6 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaTests.cs :: JobOnFolhaTests.LinhasCal_AsPorOmissaoPorEscreverNaoFicam_UmaSoComAQtdMaqFica`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaTests.cs :: JobOnFolhaTests.Normalizar_TiraAsPontas_CrlfPassaALf_EOVazioPassaANull`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaTests.cs :: JobOnFolhaTests.Nota_ContaCadaQuebraDeLinhaComoUmCaracter`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaTests.cs :: JobOnFolhaTests.NotasGerais_NoLimiteCabem_LogoAcimaSaoRecusadas`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaTests.cs :: JobOnFolhaTests.Resumo_ListaOQueMudou_EContaNoFimOQueNaoCabe`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Criar_GravaAFolhaNaMesmaEscritaDoJobOn`
@@ -446,4 +447,4 @@ Novos: 28 · mudaram: 6 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
-Selo depois: `5cc4616f38821c30`
+Selo depois: `84cdb88d67550c90`

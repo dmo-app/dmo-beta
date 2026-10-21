@@ -201,7 +201,6 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         // Os campos menos usados ficam no «Mais detalhes» da família, e
         // nenhum campo se diz opcional.
         Assert.True(Posicao(folha, "<summary>Mais detalhes</summary>") < Posicao(folha, "id=\"jobon-cm-pata\""));
-        Assert.Contains("Mais detalhes", folha);
         Assert.DoesNotContain("opcional", folha, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -307,7 +306,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         // Volta à página (não ao endereço): a recusa e tudo o que se escreveu.
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         var html = await resposta.Content.ReadAsStringAsync();
-        Assert.Contains("«CM · Notas» tem mais de 1000 caracteres. Encurte o texto e volte a guardar. Nenhuma alteração foi guardada.", WebUtility.HtmlDecode(html));
+        Assert.Contains("«CM · Notas» tem mais de 1000 caracteres. Encurte o texto e volte a guardar. Nenhuma alteração foi guardada.", AvisoDeRecusa(html));
         Assert.Equal("7", ValorDoCampo(html, "jobon-cm-qtd-stock"));
         Assert.Equal("5", ValorDoCampo(html, "jobon-cal-1-qtd-maq"));
         Assert.Equal("2030-01-31", ValorDoCampo(html, "lightEnd"));
@@ -345,8 +344,9 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         var html = await resposta.Content.ReadAsStringAsync();
-        Assert.Contains("«CAL · linha 4 · Valor» tem mais de 60 caracteres.", WebUtility.HtmlDecode(html));
-        Assert.Contains("Nenhum Job On foi criado.", WebUtility.HtmlDecode(html));
+        var aviso = AvisoDeRecusa(html);
+        Assert.Contains("«CAL · linha 4 · Valor» tem mais de 60 caracteres.", aviso);
+        Assert.Contains("Nenhum Job On foi criado.", aviso);
         // A linha 4 é a «Inversão MF», na mesma posição em que se escreveu.
         Assert.Equal("Inversão MF", ValorDoCampo(html, "jobon-cal-3-designacao"));
         Assert.Equal(valorLongo, ValorDoCampo(html, "jobon-cal-3-valor"));
@@ -355,5 +355,13 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Equal("2", ValorDoCampo(html, "jobon-mf-qtd-maq"));
         Assert.Equal("202698", ValorDoCampo(html, "lightProduction"));
         Assert.False(await LerAsync(db => db.JobOns.AnyAsync(j => j.ProductionNumber == "202698")));
+    }
+
+    /// <summary>O texto do aviso de recusa da folha (data-dmo-toast="erro").</summary>
+    private static string AvisoDeRecusa(string html)
+    {
+        var aviso = System.Text.RegularExpressions.Regex.Match(html, "<div data-dmo-toast=\"erro\"[^>]*>(.*?)</div>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        Assert.True(aviso.Success, "A página não tem o aviso de recusa.");
+        return WebUtility.HtmlDecode(aviso.Groups[1].Value);
     }
 }
