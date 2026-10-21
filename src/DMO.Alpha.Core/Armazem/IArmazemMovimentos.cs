@@ -2,7 +2,11 @@ using DMO.Alpha.Core.Tools;
 
 namespace DMO.Alpha.Core.Armazem;
 
-/// <summary>Uma Entrada: a posição, a origem e o estado escolhidos. Data vazia é agora.</summary>
+/// <summary>
+/// Uma Entrada: a posição, a origem e o estado escolhidos. Data vazia é agora.
+/// <paramref name="ComPar"/>: a CM e o MF da mesma referência e lote entram
+/// juntos, na mesma posição e no mesmo envio (como no Access).
+/// </summary>
 public sealed record PedidoDeEntrada(
     Guid OperacaoId,
     string ToolId,
@@ -11,7 +15,8 @@ public sealed record PedidoDeEntrada(
     FerramentaEstadoTipo? Estado,
     DateTime? OcorridoEmUtc,
     string? Observacoes,
-    bool CriarPosicao = false);
+    bool CriarPosicao = false,
+    bool ComPar = false);
 
 /// <summary>Uma Saída: o destino e, conforme o destino, o reparador, a fábrica ou o estado.</summary>
 public sealed record PedidoDeSaida(
@@ -60,6 +65,9 @@ public sealed record ArmazemMovimentoSaida(
     string? Posicao = null,
     int? MovimentoId = null)
 {
+    /// <summary>A Entrada levou também o par (a CM ou o MF da mesma referência e lote).</summary>
+    public bool ComPar { get; init; }
+
     public bool Gravou => Resultado is ArmazemMovimentoResultado.Gravado or ArmazemMovimentoResultado.JaRegistado;
 
     public static ArmazemMovimentoSaida Recusa(ArmazemMovimentoResultado resultado, string? posicao = null) =>
@@ -113,6 +121,15 @@ public sealed record ArmazemSituacao(
     FerramentaEstadoTipo? EstadoProposto,
     IReadOnlyList<ArmazemReparadorOpcao> Reparadores,
     IReadOnlyList<ArmazemMovimentoLinha> UltimosMovimentos)
+{
+    public bool NoArmazem => Posicao is not null;
+
+    /// <summary>O par desta ferramenta (o MF da CM, ou a CM do MF, da mesma referência e lote), se existir.</summary>
+    public ArmazemPar? Par { get; init; }
+}
+
+/// <summary>O par de uma CM ou de um MF, e a posição onde está (null: fora do armazém).</summary>
+public sealed record ArmazemPar(string ToolId, ToolType Tipo, string? Posicao)
 {
     public bool NoArmazem => Posicao is not null;
 }
