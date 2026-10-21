@@ -107,7 +107,7 @@ public sealed class ArmazemPosicoesTests
         Assert.Equal(["7001", "7011"], seteAtivas.Items.Select(p => p.Codigo));
         var arquivadas = await posicoes.ListarAsync(null, ArmazemPosicaoFiltro.Arquivadas, 1);
         Assert.Equal(["7002"], arquivadas.Items.Select(p => p.Codigo));
-        // Os dois primeiros algarismos dão o armário inteiro.
+        // Pela AR-03, o 1.º algarismo é o corredor e os três primeiros dão a estante; «50» dá as posições que começam por 50.
         Assert.Equal(["5001"], (await posicoes.ListarAsync("50", ArmazemPosicaoFiltro.Todas, 1)).Items.Select(p => p.Codigo));
     }
 

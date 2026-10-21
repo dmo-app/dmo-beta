@@ -256,9 +256,9 @@ Selo depois: `86a77643df98594c`
 
 ## A-0011 · 2026-10-21 · ok-do-diogo
 
-Porquê: Próximos Job On (testes novos) e a regra da posição do Diogo (21/10, AR-03): 4 algarismos, 1.º corredor, 2.º e 3.º estante, 4.º prateleira; o mapa agrupa por corredor e estante; CM+MF juntos é raro e vem desmarcado (AR-02). Os testes das posições, do mapa e do par mudam com a regra.
+Porquê: Próximos Job On (testes novos, com as localizações A reparar, Emprestado e Sucata) e a regra da posição do Diogo (21/10, AR-03): 4 algarismos, 1.º corredor, 2.º e 3.º estante, 4.º prateleira; o mapa agrupa por corredor e estante; CM+MF juntos é raro e vem desmarcado (AR-02). Os testes das posições, do mapa e do par mudam com a regra.
 Referência: Diogo 21/10 cmsg_01A27e9ozcpoh4jdPRsuJbFy9ZPTyiKaQTH6T6oso1YDLh
-Novos: 13 · mudaram: 25 · saíram: 4
+Novos: 14 · mudaram: 25 · saíram: 4
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.APosicao_CorredorEstanteEPrateleira`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Criar_OMesmoCodigoComEspacos_JaExiste`
@@ -266,6 +266,7 @@ Novos: 13 · mudaram: 25 · saíram: 4
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.AsProducoesDoPeriodo_PelaDataDeInicio`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.CadaFerramenta_OndeEstaEOQueFalta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.ForaDoArmazemEDoFabrico_NaoDisponivel`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.SemProducoes_ListaVazia`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemProximos.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemProximos.cs :: PostgresMigrationIntegrationTests.Armazem_OsProximosJobOn_NoPostgreSql`
@@ -303,4 +304,4 @@ Novos: 13 · mudaram: 25 · saíram: 4
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Criar_NoLimiteDoTamanho_Grava`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Criar_OMesmoCodigoComOutrasMaiusculas_JaExiste`
 
-Selo depois: `d8e6bf505f856dcc`
+Selo depois: `961d0a4bceccca49`

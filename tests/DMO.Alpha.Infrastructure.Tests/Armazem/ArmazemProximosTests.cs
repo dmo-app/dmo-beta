@@ -87,6 +87,26 @@ public sealed class ArmazemProximosTests
         Assert.Equal((1, 1), (producao.PorTirar, producao.Indisponiveis));
     }
 
+    [Theory]
+    [InlineData(FerramentaLocalizacaoTipo.AReparar, "A reparar · Moldes Lda")]
+    [InlineData(FerramentaLocalizacaoTipo.Emprestado, "Emprestado")]
+    [InlineData(FerramentaLocalizacaoTipo.Sucata, "Sucata")]
+    public async Task ForaDoArmazemEDoFabrico_NaoDisponivel(FerramentaLocalizacaoTipo localizacao, string ondeEsta)
+    {
+        using var db = CreateContext();
+        var mf = await db.FerramentaLocalizacoes.SingleAsync(l => l.ToolId == "mf");
+        mf.Localizacao = localizacao;
+        mf.ReparadorNome = localizacao == FerramentaLocalizacaoTipo.AReparar ? "Moldes Lda" : null;
+        await db.SaveChangesAsync();
+        db.ChangeTracker.Clear();
+
+        var producao = (await new ArmazemProximos(db).ListarAsync(Hoje, 7)).Single(j => j.JobOnId == 1);
+
+        var doMf = producao.Ferramentas.Single(f => f.ToolId == "mf");
+        Assert.Equal((ondeEsta, ArmazemProximoAcao.Indisponivel), (doMf.OndeEsta, doMf.Acao));
+        Assert.Equal(1, producao.Indisponiveis);
+    }
+
     [Fact]
     public async Task SemProducoes_ListaVazia()
     {

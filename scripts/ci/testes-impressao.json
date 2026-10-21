@@ -1,5 +1,5 @@
 {
-  "selo": "d8e6bf505f856dcc",
+  "selo": "961d0a4bceccca49",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -147,6 +147,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: (resto do ficheiro)": "25858ecb5d99667c",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.AsProducoesDoPeriodo_PelaDataDeInicio": "2b922b93c349c7c3",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.CadaFerramenta_OndeEstaEOQueFalta": "17bfa597a1675705",
+    "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.ForaDoArmazemEDoFabrico_NaoDisponivel": "15341ac49ff3f4ea",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.SemProducoes_ListaVazia": "b2f5e58b0cebfd0d",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ReparadoresTests.cs :: (resto do ficheiro)": "548de15335372092",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ReparadoresTests.cs :: ReparadoresTests.Criar_ComNomeEFamilias_Grava": "ce462677c9dfe7a9",
