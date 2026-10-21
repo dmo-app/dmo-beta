@@ -108,7 +108,9 @@ public sealed class PesoToolScopedSchemaTests
                 // A utilização das ferramentas e o lembrete.
                 "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao",
                 // A folha da fábrica do Job On (AddJobOnFolha).
-                "JobOnFolhas", "JobOnFolhaCalLinhas"
+                "JobOnFolhas", "JobOnFolhaCalLinhas",
+                // O relatório de fabrico do SAP (0.2.0-beta.20).
+                "SapFabricos"
             },
             tables);
     }

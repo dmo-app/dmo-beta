@@ -100,15 +100,16 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.DoesNotContain(outro + "04", codigos);
     }
 
-    // O div com este id, até ao seu fecho (a ordem dos atributos não conta).
+    // O elemento com este id, até ao seu fecho (a ordem dos atributos não conta).
     private static string ZonaUsoSap(string html, string id)
     {
-        var abertura = Regex.Match(html, $"<div\\b[^>]*\\bid=\"{Regex.Escape(id)}\"[^>]*>");
+        var abertura = Regex.Match(html, $"<(\\w+)\\b[^>]*\\bid=\"{Regex.Escape(id)}\"[^>]*>");
         Assert.True(abertura.Success, $"a página não tem #{id}");
+        var tag = abertura.Groups[1].Value;
         var nivel = 1;
-        for (var m = Regex.Match(html[(abertura.Index + abertura.Length)..], "<div\\b|</div>"); m.Success; m = m.NextMatch())
+        for (var m = Regex.Match(html[(abertura.Index + abertura.Length)..], $"<{tag}\\b|</{tag}>"); m.Success; m = m.NextMatch())
         {
-            nivel += m.Value == "</div>" ? -1 : 1;
+            nivel += m.Value == $"</{tag}>" ? -1 : 1;
             if (nivel == 0)
                 return html.Substring(abertura.Index, abertura.Length + m.Index + m.Length);
         }

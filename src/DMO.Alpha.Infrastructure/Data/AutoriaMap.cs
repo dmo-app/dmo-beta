@@ -83,6 +83,7 @@ public static class AutoriaMap
         // A utilização das ferramentas.
         Autoria.De<FerramentaUtilizacao>(u => u.RegistadoPor, u => u.RegistadoPorUserId),
         Autoria.De<FerramentaLembreteUtilizacao>(l => l.CriadoPor, l => l.CriadoPorUserId),
+        Autoria.De<SapFabrico>(f => f.LidoPor, f => f.LidoPorUserId),
     ];
 
     /// <summary>Os autores de uma entidade.</summary>

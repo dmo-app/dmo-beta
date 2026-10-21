@@ -2213,6 +2213,65 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("FerramentaUtilizacoes", (string)null);
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Tools.SapFabrico", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Ficheiro")
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.Property<DateTime?>("FicheiroModificadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("FimEm")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("InicioEm")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("LidoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LidoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("LidoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Linha")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Material")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long?>("ProducaoBruta")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ProducaoLiquida")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LidoPorUserId");
+
+                    b.HasIndex("Linha", "InicioEm");
+
+                    b.HasIndex("Material", "Linha", "InicioEm", "FimEm")
+                        .IsUnique();
+
+                    b.ToTable("SapFabricos", (string)null);
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Tools.Tool", b =>
                 {
                     b.Property<string>("ToolId")
@@ -3000,6 +3059,14 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("ToolId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Tools.SapFabrico", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("LidoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Tools.Tool", b =>

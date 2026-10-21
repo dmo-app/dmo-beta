@@ -91,6 +91,8 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     // lembrete aberto pela Entrada vinda da Produção.
     public DbSet<FerramentaUtilizacao> FerramentaUtilizacoes => Set<FerramentaUtilizacao>();
 
+    public DbSet<SapFabrico> SapFabricos => Set<SapFabrico>();
+
     public DbSet<FerramentaLembreteUtilizacao> FerramentaLembretesUtilizacao => Set<FerramentaLembreteUtilizacao>();
 
     public DbSet<BqMovement> BqMovements => Set<BqMovement>();
@@ -685,6 +687,19 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(l => l.ToolId).HasMaxLength(100).IsRequired();
             entity.Property(l => l.CriadoPor).HasMaxLength(254);
             entity.HasIndex(l => l.ToolId).IsUnique().HasFilter("\"FechadoEmUtc\" IS NULL").HasDatabaseName("IX_FerramentaLembretesUtilizacao_ToolId_Aberto");
+        });
+
+        // O relatório de fabrico do SAP: uma linha por material, linha e datas.
+        modelBuilder.Entity<SapFabrico>(entity =>
+        {
+            entity.ToTable("SapFabricos");
+            entity.HasKey(f => f.Id);
+            entity.Property(f => f.Material).HasMaxLength(SapFabrico.MaterialMaxLength).IsRequired();
+            entity.Property(f => f.Linha).HasMaxLength(SapFabrico.LinhaMaxLength).IsRequired();
+            entity.Property(f => f.LidoPor).HasMaxLength(254);
+            entity.Property(f => f.Ficheiro).HasMaxLength(FerramentaUtilizacao.FicheiroMaxLength);
+            entity.HasIndex(f => new { f.Material, f.Linha, f.InicioEm, f.FimEm }).IsUnique();
+            entity.HasIndex(f => new { f.Linha, f.InicioEm });
         });
 
         modelBuilder.Entity<FerramentaEstado>(entity =>
