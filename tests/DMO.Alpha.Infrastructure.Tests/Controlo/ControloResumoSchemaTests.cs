@@ -37,7 +37,7 @@ public sealed class ControloResumoSchemaTests
     }
 
     [Fact]
-    public void CurrentModel_ExactlyThirtyThreeTables_IncludingControlos()
+    public void CurrentModel_ExactlyTheListedTables_IncludingControlos()
     {
         // O modelo corrente cresceu de 15 para 16 tabelas no corte
         // ensure+Resumo (Controlos), para 19 no corte Pegamentos
@@ -99,7 +99,9 @@ public sealed class ControloResumoSchemaTests
                 // O envio único guardado na base (fundações do full).
                 "OperacoesRegistadas",
                 // O Armazém do full (0.2.0-beta.8).
-                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados"
+                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados",
+                // A utilização das ferramentas e o lembrete.
+                "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao"
             },
             tables);
     }

@@ -38,7 +38,7 @@ public sealed class PesoToolScopedSchemaTests
     }
 
     [Fact]
-    public void CurrentModel_ExactlyThirtyThreeTables_IncludingPesoTables()
+    public void CurrentModel_ExactlyTheListedTables_IncludingPesoTables()
     {
         // O modelo corrente do corte Peso tool-scoped tinha 15 tabelas; o
         // corte Controlo ensure+Resumo (migration #5 aditiva) acrescentou a
@@ -104,7 +104,9 @@ public sealed class PesoToolScopedSchemaTests
                 // O envio único guardado na base (fundações do full).
                 "OperacoesRegistadas",
                 // O Armazém do full (0.2.0-beta.8).
-                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados"
+                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados",
+                // A utilização das ferramentas e o lembrete.
+                "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao"
             },
             tables);
     }

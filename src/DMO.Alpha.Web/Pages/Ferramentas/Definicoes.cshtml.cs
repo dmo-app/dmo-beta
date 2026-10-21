@@ -19,8 +19,70 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.Ferramentas)]
-public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, ShellStateFactory shellState) : PageModel
+public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, ShellStateFactory shellState) : PageModel
 {
+    /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
+    public UsoSapUltimaLeitura? UltimaLeituraSap { get; private set; }
+
+    /// <summary>
+    /// GET (o ficheiro ferramentas-sap.js): os códigos a pedir ao SAP (o nome
+    /// técnico e o lote de cada ferramenta) e a data do último ficheiro lido,
+    /// para não ler duas vezes o mesmo.
+    /// </summary>
+    public async Task<IActionResult> OnGetUsoSapAsync()
+    {
+        var codigos = await usoSap.CodigosAsync(HttpContext.RequestAborted);
+        var ultima = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
+        return new JsonResult(new
+        {
+            codigos,
+            ficheiroModificadoEm = ultima?.FicheiroModificadoEmUtc is { } data ? new DateTimeOffset(DateTime.SpecifyKind(data, DateTimeKind.Utc)).ToUnixTimeMilliseconds() : (long?)null
+        });
+    }
+
+    /// <summary>
+    /// POST (o ficheiro ferramentas-sap.js): a lista exportada pelo SAP, lida
+    /// da pasta ligada. O servidor lê-a (a regra fica num só sítio, em
+    /// <see cref="UsoSapExportacao"/>) e grava o uso de cada ferramenta.
+    /// </summary>
+    [RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<IActionResult> OnPostImportarUsoSapAsync([FromForm] string? conteudo, [FromForm] string? ficheiro, [FromForm] long? modificado)
+    {
+        DateTime? modificadoEm = modificado is > 0 and < 253402300799999
+            ? DateTimeOffset.FromUnixTimeMilliseconds(modificado.Value).UtcDateTime
+            : null;
+        var outcome = await usoSap.ImportarAsync(conteudo, ficheiro, modificadoEm, HttpContext.RequestAborted);
+        return new JsonResult(new
+        {
+            gravado = outcome.Resultado == ImportarUsoSapResultado.Gravado,
+            mensagem = MensagemUsoSap(outcome, ficheiro)
+        });
+    }
+
+    /// <summary>O que a leitura fez, dito ao utilizador.</summary>
+    public static string MensagemUsoSap(ImportarUsoSapOutcome outcome, string? ficheiro)
+    {
+        if (outcome.Resultado == ImportarUsoSapResultado.NaoELista)
+        {
+            return $"O ficheiro «{ficheiro}» não tem a lista do SAP (faltam as colunas Equipamento e % Use). Nada foi gravado.";
+        }
+
+        var texto = outcome.Atualizadas switch
+        {
+            0 => "Utilização lida do SAP: nenhuma ferramenta mudou.",
+            1 => "Utilização lida do SAP: 1 ferramenta atualizada.",
+            _ => $"Utilização lida do SAP: {outcome.Atualizadas} ferramentas atualizadas."
+        };
+        if (outcome.SemFerramenta.Count > 0)
+        {
+            var exemplos = string.Join(", ", outcome.SemFerramenta.Take(5));
+            texto += $" {outcome.SemFerramenta.Count} da lista sem ferramenta no DMO com o mesmo nome técnico e lote ({exemplos}{(outcome.SemFerramenta.Count > 5 ? ", …" : "")}).";
+        }
+
+        return texto;
+    }
+
     public IReadOnlyList<ToolLotQuantityDefault> ToolQuantities { get; private set; } = Array.Empty<ToolLotQuantityDefault>();
 
     /// <summary>O aviso depois de gravar: as quantidades ilegíveis ou negativas que ficaram de fora.</summary>
@@ -80,5 +142,6 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
             Functions = ShellStateFactory.FerramentasFunctions("definicoes")
         };
         ToolQuantities = await toolLotQuantities.ListAsync(HttpContext.RequestAborted);
+        UltimaLeituraSap = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
     }
 }

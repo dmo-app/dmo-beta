@@ -181,6 +181,7 @@ builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemMovimentos, DMO.Alpha.
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemMapa, DMO.Alpha.Infrastructure.Armazem.ArmazemMapa>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemHistorico, DMO.Alpha.Infrastructure.Armazem.ArmazemHistorico>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemProximos, DMO.Alpha.Infrastructure.Armazem.ArmazemProximos>();
+builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentasUsoSap, DMO.Alpha.Infrastructure.Tools.FerramentasUsoSap>();
 // Tools read path: resolução canónica e só de leitura de uma Tool pelo seu tool_id exato.
 builder.Services.AddScoped<IToolLookupQuery, ToolLookupQuery>();
 // Tools read path: descoberta de candidatos para seleção humana explícita

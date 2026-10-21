@@ -51,7 +51,7 @@ public sealed class PegamentosSchemaTests
     }
 
     [Fact]
-    public void CurrentModel_ExactlyThirtyThreeTables_IncludingPegamentosTables()
+    public void CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables()
     {
         // O modelo corrente cresce de 16 para 19 tabelas no corte Pegamentos
         // production-scoped, para 20 no corte A Ferramentas (ToolMachineLinks
@@ -110,7 +110,9 @@ public sealed class PegamentosSchemaTests
                 // O envio único guardado na base (fundações do full).
                 "OperacoesRegistadas",
                 // O Armazém do full (0.2.0-beta.8).
-                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados"
+                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados",
+                // A utilização das ferramentas e o lembrete.
+                "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao"
             },
             tables);
     }

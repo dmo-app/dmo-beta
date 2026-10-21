@@ -250,6 +250,13 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         var saida = await GravarAsync(movimento, posicao, async () =>
         {
             Entrar(tool.ToolId, posicao!, movimento, localizacao, pedido.Estado.Value, agora);
+            // Vinda da Produção, a Entrada abre o lembrete de utilização
+            // (blueprint armazem/OVERVIEW §2): o script do SAP vai buscá-la.
+            if (pedido.Origem == ArmazemOrigem.Producao)
+            {
+                await DMO.Alpha.Infrastructure.Tools.FerramentasUsoSap.LembrarAsync(db, tool.ToolId, movimento.Id, movimento.RegistadoPor, agora, cancellationToken);
+            }
+
             if (par is not null)
             {
                 var movimentoDoPar = Novo(OperacaoDoPar(pedido.OperacaoId), ArmazemMovimentoTipo.Entrada, par.ToolId, ocorrido, agora, observacoes);
@@ -260,6 +267,10 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 await db.SaveChangesAsync(cancellationToken);
                 var localizacaoDoPar = await db.FerramentaLocalizacoes.FirstOrDefaultAsync(l => l.ToolId == par.ToolId, cancellationToken);
                 Entrar(par.ToolId, posicao!, movimentoDoPar, localizacaoDoPar, pedido.Estado.Value, agora);
+                if (pedido.Origem == ArmazemOrigem.Producao)
+                {
+                    await DMO.Alpha.Infrastructure.Tools.FerramentasUsoSap.LembrarAsync(db, par.ToolId, movimentoDoPar.Id, movimentoDoPar.RegistadoPor, agora, cancellationToken);
+                }
             }
         }, avisos, posicao!.Codigo, cancellationToken);
         return saida with { ComPar = par is not null };

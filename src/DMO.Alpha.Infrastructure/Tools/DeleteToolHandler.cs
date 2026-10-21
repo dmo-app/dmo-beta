@@ -269,11 +269,16 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
                 _db.ToolTechnicalContexts.Remove(technical);
             }
 
-            // Onde estava e os estados são da própria ferramenta: vão com ela.
+            // Onde estava, os estados, a utilização e o lembrete são da própria ferramenta: vão com ela.
             _db.FerramentaLocalizacoes.RemoveRange(
                 await _db.FerramentaLocalizacoes.Where(l => l.ToolId == tool.ToolId).ToListAsync(cancellationToken));
             _db.FerramentaEstados.RemoveRange(
                 await _db.FerramentaEstados.Where(e => e.ToolId == tool.ToolId).ToListAsync(cancellationToken));
+            _db.FerramentaLembretesUtilizacao.RemoveRange(
+                await _db.FerramentaLembretesUtilizacao.Where(l => l.ToolId == tool.ToolId).ToListAsync(cancellationToken));
+            await _db.SaveChangesAsync(cancellationToken);
+            _db.FerramentaUtilizacoes.RemoveRange(
+                await _db.FerramentaUtilizacoes.Where(u => u.ToolId == tool.ToolId).ToListAsync(cancellationToken));
 
             _db.Tools.Remove(tool);
             await _db.SaveChangesAsync(cancellationToken);

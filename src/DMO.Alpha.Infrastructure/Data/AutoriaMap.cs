@@ -79,6 +79,10 @@ public static class AutoriaMap
         Autoria.De<ArmazemPosicao>(p => p.CriadaPor, p => p.CriadaPorUserId),
         Autoria.De<ArmazemMovimento>(m => m.RegistadoPor, m => m.RegistadoPorUserId),
         Autoria.De<FerramentaEstado>(e => e.RegistadoPor, e => e.RegistadoPorUserId),
+
+        // A utilização das ferramentas.
+        Autoria.De<FerramentaUtilizacao>(u => u.RegistadoPor, u => u.RegistadoPorUserId),
+        Autoria.De<FerramentaLembreteUtilizacao>(l => l.CriadoPor, l => l.CriadoPorUserId),
     ];
 
     /// <summary>Os autores de uma entidade.</summary>
