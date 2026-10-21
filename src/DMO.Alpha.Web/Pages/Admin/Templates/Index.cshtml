@@ -15,15 +15,15 @@
 .dmt-card{padding:18px}
 .dmt-card h3{margin:0 0 4px;font-size:16px}
 .dmt-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
-.dmt-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
-.dmt-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
+.dmt-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
+.dmt-nota{padding:11px 13px;border-left:4px solid var(--dmo-ok);background:var(--dmo-ok-soft);border-radius:8px}
 .dmt-grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:14px}
 .dmt-list{padding:10px;display:grid;gap:6px;align-content:start}
-.dmt-choice{position:relative;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px;border:1px solid transparent;border-radius:8px;background:#fff;text-align:left}
+.dmt-choice{position:relative;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px;border:1px solid transparent;border-radius:8px;background:var(--dmo-card);text-align:left}
 .dmt-choice-link{min-width:0;text-decoration:none;color:inherit}
 .dmt-choice-link::after{content:"";position:absolute;inset:0;border-radius:8px}
 .dmt-choice .dmt-users-link{position:relative;z-index:1;text-decoration:none;cursor:pointer}
-.dmt-choice .dmt-users-link:hover,.dmt-choice .dmt-users-link:focus-visible{background:var(--dmo-brand-600,#3c73a8);color:#fff}
+.dmt-choice .dmt-users-link:hover,.dmt-choice .dmt-users-link:focus-visible{background:var(--dmo-brand-600,#3c73a8);color:var(--dmo-text-on-color)}
 .dmt-users{margin-top:18px;padding-top:14px;border-top:1px solid var(--dmo-border,#d9e6f2)}
 .dmt-users h4{margin:0}
 .dmt-choice:hover,.dmt-choice.active{border-color:var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#f0f6fc)}
@@ -31,11 +31,11 @@
 .dmt-choice span{color:var(--dmo-muted);font-size:10.5px}
 .dmt-choice .dmo-pill{white-space:nowrap}
       .dmt-choice{text-decoration:none;color:inherit}
-      .dmt-choice.active{background:#fff;color:var(--dmo-brand-600,#3c73a8);outline:2px solid var(--dmo-brand-600,#3c73a8);outline-offset:-2px;font-weight:750}
+      .dmt-choice.active{background:var(--dmo-card);color:var(--dmo-brand-600,#3c73a8);outline:2px solid var(--dmo-brand-600,#3c73a8);outline-offset:-2px;font-weight:750}
       .dmt-choice.active span{color:var(--dmo-brand-600,#3c73a8)}
 .dmt-detail{padding:16px}
 .dmt-detail .detail-key{color:var(--dmo-muted);font-size:12.5px;margin:2px 0 12px}
-.dmt-detail .detail-key code{background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:6px;padding:2px 7px;font-size:12.5px}
+.dmt-detail .detail-key code{background:var(--dmo-card);border:1px solid var(--dmo-border,#d9e6f2);border-radius:6px;padding:2px 7px;font-size:12.5px}
 .dmt-checks{display:grid;gap:8px;margin-top:8px}
 .dmt-check{display:flex;gap:9px;align-items:start;padding:10px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
 /* Cartões dos módulos com cor da paleta (Diogo 17/10: «a página está muito

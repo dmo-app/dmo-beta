@@ -97,6 +97,32 @@ public sealed class UiStyleRuleTests
         }
     }
 
+    // Modo escuro e mais tons (Diogo, 21/10/2026: «está demasiado branco»): o
+    // modo escuro só redefine os tokens, por isso nenhuma folha pode pintar
+    // fundos a branco solto; o cabeçalho tem o botão e o <head> aplica a escolha.
+    [Fact]
+    public void DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite()
+    {
+        var css = Read("wwwroot", "0_ASSET_CANONICAL_DESIGN_SYSTEM.css");
+        Assert.Contains("@media screen{:root[data-theme=\"dark\"]{color-scheme:dark;--dmo-page:", css, StringComparison.Ordinal);
+        Assert.Contains("--dmo-page:#e4ebf2;", css, StringComparison.Ordinal);
+        var branco = new System.Text.RegularExpressions.Regex(@"background(-color)?\s*:\s*(#fff\b|#ffffff\b|white\b|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        // As folhas e também os <style> e style="" das páginas.
+        var cssFiles = Directory.EnumerateFiles(Path.Combine(WebRoot(), "wwwroot"), "*.css", SearchOption.AllDirectories)
+            .Where(f => !f.Contains(Path.DirectorySeparatorChar + "lib" + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+            .Concat(Directory.EnumerateFiles(Path.Combine(WebRoot(), "Pages"), "*.cshtml", SearchOption.AllDirectories));
+        foreach (var file in cssFiles)
+        {
+            // A impressão sai sempre em branco: o @media print pode pintar #fff.
+            var text = System.Text.RegularExpressions.Regex.Replace(File.ReadAllText(file), @"@media print\{(?:[^{}]|\{[^{}]*\})*\}", "");
+            var match = branco.Match(text);
+            Assert.False(match.Success, $"{Path.GetFileName(file)} pinta {match.Value}: use var(--dmo-card)");
+        }
+        Assert.Contains("data-dmo-tema", Read("Pages", "Shared", "_DmoSessionUtilities.cshtml"), StringComparison.Ordinal);
+        Assert.Contains("<partial name=\"_DmoTemaInicial\" />", Read("Pages", "Shared", "_DmoShellLayout.cshtml"), StringComparison.Ordinal);
+        Assert.Contains("<partial name=\"_DmoTemaInicial\" />", Read("Pages", "Shared", "_DmoAccountLayout.cshtml"), StringComparison.Ordinal);
+    }
+
     // Os PDFs seguem a mesma paleta: os azuis antigos já não aparecem nos geradores.
     // Os botões de um card no canto superior direito, na linha do título
     // (Diogo, 18/10/2026). As classes são partilhadas e genéricas: flex, o

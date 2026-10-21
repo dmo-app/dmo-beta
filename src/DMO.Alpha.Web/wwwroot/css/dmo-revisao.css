@@ -24,13 +24,13 @@
 .revisao-w-data{width:150px}
 .revisao-filter-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-left:auto}
 .revisao-item-decisao{color:var(--dmo-muted)}
-.revisao-item.selected .revisao-item-decisao{color:#fff}
+.revisao-item.selected .revisao-item-decisao{color:var(--dmo-text-on-color)}
 .revisao-list{display:grid;gap:8px;margin-top:12px}
-.revisao-item{--dmo-machine-color:var(--dmo-brand-600);display:grid;gap:5px;padding:11px 12px 11px 14px;border:1px solid var(--dmo-border);border-left:5px solid var(--dmo-machine-color);border-radius:8px;background:#fff;color:var(--dmo-text);text-decoration:none}
+.revisao-item{--dmo-machine-color:var(--dmo-brand-600);display:grid;gap:5px;padding:11px 12px 11px 14px;border:1px solid var(--dmo-border);border-left:5px solid var(--dmo-machine-color);border-radius:8px;background:var(--dmo-card);color:var(--dmo-text);text-decoration:none}
 /* Hover e linha escolhida como nas outras tabelas (paleta); a máquina fica só na barra da esquerda (decisão do Diogo, 17/10/2026). */
 .revisao-item:hover,.revisao-item:focus-visible{background:var(--dmo-palette-sky);outline:none}
-.revisao-item.selected{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);border-left-color:var(--dmo-machine-color);color:#fff}
-.revisao-item.selected small,.revisao-item.selected .revisao-machine{color:#fff}
+.revisao-item.selected{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);border-left-color:var(--dmo-machine-color);color:var(--dmo-text-on-color)}
+.revisao-item.selected small,.revisao-item.selected .revisao-machine{color:var(--dmo-text-on-color)}
 .revisao-item.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
 .revisao-item.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
 .revisao-item.mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
@@ -76,7 +76,7 @@ html body .revisao-detail h3.revisao-section{margin:20px 0 10px;padding:9px 12px
 .revisao-mcaliper-copy { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--dmo-border); border-radius: 999px; background: var(--dmo-card); color: var(--dmo-brand-700); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .revisao-mcaliper-copy svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
 .revisao-mcaliper-copy:is(:hover, :focus-visible) { border-color: var(--dmo-brand-600); background: var(--dmo-brand-050); outline: 0; }
-.revisao-mcaliper-copy.copied { border-color: #3d7a5a; color: #3d7a5a; }
+.revisao-mcaliper-copy.copied { border-color: var(--dmo-ok); color: var(--dmo-ok); }
 /* As consultas do Peso e dos Pegamentos (19/10/2026): o mesmo cartão da Revisão, cada componente em caixas e as leituras em tabela. */
 .revisao-consulta{min-height:0;margin-top:14px}
 .revisao-consulta-componente{display:grid;gap:10px;margin:0 0 16px}
@@ -100,7 +100,7 @@ html body .revisao-detail.revisao-resumo h3.revisao-section{background:var(--dmo
 html body .revisao-detail.revisao-resumo .revisao-parte-topo{background:var(--dmo-brand-100);border-left-color:var(--dmo-palette-slate)}
 html body .revisao-detail.revisao-resumo .revisao-parte-topo h3.revisao-section{background:none}
 /* A barra do resumo no azul escuro, com os links a branco dentro dela. */
-html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal{background:var(--dmo-palette-slate);border-left-color:var(--dmo-brand-900)}
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal{background:var(--dmo-palette-slate);border-left-color:var(--dmo-deep-900)}
 html body .revisao-detail.revisao-resumo .revisao-topo-principal h3.revisao-section{color:var(--dmo-text-on-color)}
 .revisao-topo-principal .revisao-consultas a{color:var(--dmo-text-on-color);text-decoration-color:var(--dmo-palette-mist)}
 .revisao-topo-principal .revisao-consultas a:is(:hover,:focus-visible){color:var(--dmo-palette-sky);text-decoration-color:currentColor}

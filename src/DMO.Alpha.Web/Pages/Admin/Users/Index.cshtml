@@ -15,10 +15,10 @@
 .dmu-form-grid{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(100px,.55fr) minmax(200px,1.7fr) minmax(200px,1.7fr);gap:10px;align-items:end}
 .dmu-card .dmo-card-topo{margin:0 0 12px}
 .dmu-card .dmo-card-topo h3{margin:0}
-.dmu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.dmu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
 .dmu-entrega{display:grid;gap:8px}
 .dmu-entrega h3{margin:0;font-size:15px}
-.dmu-entrega .dmu-token{display:grid;gap:2px;padding:10px 12px;background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
+.dmu-entrega .dmu-token{display:grid;gap:2px;padding:10px 12px;background:var(--dmo-card);border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
 .dmu-entrega .dmu-token span{color:var(--dmo-muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
 .dmu-entrega .dmu-token strong{font-size:15px;letter-spacing:.4px;word-break:break-all}
 .dmu-entrega .dmu-nota{color:var(--dmo-muted);font-size:11.5px;margin:0}
@@ -27,7 +27,7 @@
    no canto do cartão, e o utilizador seguinte já não se criava com o rato
    (B-admin-2, deep sweep 18/10/2026). O top em linha vem do dmo-live.js. */
 html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{top:auto!important;bottom:16px}
-.dmu-pill-temp{background:#fdf6e3;border-color:#e8d9a8;color:#8a6d1a}
+.dmu-pill-temp{background:var(--dmo-amber-soft);border-color:var(--dmo-amber-line);color:var(--dmo-amber)}
 .dmu-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .dmu-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
 @@media(max-width:900px){.dmu-form-grid{grid-template-columns:1fr}}

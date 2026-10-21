@@ -69,6 +69,11 @@ html body .dmo-calendar .icon-btn{box-sizing:border-box;width:var(--dmo-control-
 html body .dmo-shell-header .dmo-shell-logout{min-height:0;margin-left:18px;padding:4px 2px;border:0;border-radius:4px;background:none;color:var(--dmo-brand-700);font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);line-height:1.2;text-decoration:none}
 html body .dmo-shell-header .dmo-shell-logout:is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);text-decoration:underline;text-underline-offset:3px;outline:0}
 html body .dmo-shell-header .dmo-shell-logout:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
+/* «Modo escuro / Modo claro»: só a palavra, como o «Sair» (Diogo, 21/10/2026). */
+html body .dmo-shell-header .dmo-shell-tema{flex:none;white-space:nowrap;min-height:0;margin-left:18px;padding:4px 2px;border:0;border-radius:4px;background:none;color:var(--dmo-brand-700);font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);line-height:1.2;cursor:pointer}
+html body .dmo-shell-header .dmo-shell-tema:is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);text-decoration:underline;text-underline-offset:3px;outline:0}
+html body .dmo-shell-header .dmo-shell-tema:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
+@media(max-width:600px){html body .dmo-shell-header .dmo-shell-tema{margin-left:6px}html body .dmo-shell-header .dmo-shell-tema-texto{display:none}html body .dmo-shell-header .dmo-shell-tema::before{content:"◐";font-size:16px}}
 /* Indisponível (desativado ou sem seleção): cinzento, sem hover. */
 html body :is(.dmo-button,.button,.btn):is(:disabled,[aria-disabled="true"]),
 html body :is(.dmo-button,.button,.btn):is(:disabled,[aria-disabled="true"]):hover{background:var(--dmo-disabled);border-color:var(--dmo-disabled);color:var(--dmo-text-on-color);outline:0;opacity:1;cursor:not-allowed;pointer-events:none}
@@ -78,7 +83,7 @@ html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="t
 /* Campos: todos os selects nativos com o aspeto dos campos da app */
 html body :is(.dmo-field,.beta-light-fields) label{font-size:var(--dmo-fs-xs);font-weight:var(--dmo-fw-semibold)}
 html body .beta-light-fields :is(input,select){font-weight:var(--dmo-fw-regular)}
-html body select:not([multiple]):not([size]){box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-card);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2;-webkit-appearance:none;appearance:none}
+html body select:not([multiple]):not([size]){box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-field);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2;-webkit-appearance:none;appearance:none}
 /* A seta é obrigatória: as regras de campo antigas têm seletores mais fortes e repunham o fundo. */
 html body select:not([multiple]):not([size]){padding-right:32px !important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364778a' stroke-width='1.6'/%3E%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:right 11px center !important}
 html body select:not([multiple]):not([size]):focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
@@ -178,7 +183,7 @@ html body .dmo-table:has(td:first-child>input[type=radio]) thead th:first-child:
 html body .dmo-suggest{position:relative;display:block;min-width:0}
 html body .dmo-suggest > input{width:100%}
 html body .dmo-suggest-native{position:absolute !important;width:1px !important;height:1px !important;min-height:0 !important;padding:0 !important;border:0 !important;opacity:0;pointer-events:none;bottom:0;left:0}
-html body input.dmo-suggest-input{box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-card);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2}
+html body input.dmo-suggest-input{box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-field);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2}
 html body input.dmo-suggest-combo{padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364778a' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
 html body input.dmo-suggest-input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
 /* Texto ao centro nos campos (Diogo, 20/10/2026: «verificar centramento de
@@ -204,10 +209,10 @@ html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:d
 .dmo-help-mark path{fill:var(--dmo-palette-mist);stroke:var(--dmo-palette-mist);stroke-width:1.5;stroke-linejoin:round;transition:fill var(--dmo-fast),stroke var(--dmo-fast)}
 .dmo-help:hover .dmo-help-mark path,.dmo-help:focus .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}
 .dmo-help:focus-visible{outline:2px solid var(--dmo-palette-mist);outline-offset:2px;border-radius:2px}
-.dmo-help-tip{display:none;position:absolute;z-index:50;top:calc(100% + 6px);left:-8px;width:max-content;max-width:320px;padding:8px 10px;border-radius:var(--dmo-r-control);background:var(--dmo-palette-slate);color:#fff;font-size:var(--dmo-fs-sm);font-weight:var(--dmo-fw-regular);letter-spacing:0;text-transform:none;text-align:left;line-height:1.4;white-space:normal;box-shadow:var(--dmo-shadow-menu)}
+.dmo-help-tip{display:none;position:absolute;z-index:50;top:calc(100% + 6px);left:-8px;width:max-content;max-width:320px;padding:8px 10px;border-radius:var(--dmo-r-control);background:var(--dmo-palette-slate);color:var(--dmo-text-on-color);font-size:var(--dmo-fs-sm);font-weight:var(--dmo-fw-regular);letter-spacing:0;text-transform:none;text-align:left;line-height:1.4;white-space:normal;box-shadow:var(--dmo-shadow-menu)}
 .dmo-help:hover .dmo-help-tip,.dmo-help:focus .dmo-help-tip,.dmo-help:focus-within .dmo-help-tip{display:block}
 /* O texto da dica é sempre branco, mesmo dentro de blocos que pintam os <span> (como o cabeçalho da lista do Job On). */
-html body .dmo-help .dmo-help-tip{color:#fff}
+html body .dmo-help .dmo-help-tip{color:var(--dmo-text-on-color)}
 /* A dica dentro de um <summary> não é focável: abre com o foco do <summary> ou com um toque (classe do script). */
 summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark path,.dmo-help.dmo-help-aberta .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}
 summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-tip,.dmo-help.dmo-help-aberta .dmo-help-tip{display:block}
@@ -229,7 +234,7 @@ html body .dmo-secondary-nav .dmo-tab-menu>summary.active,
 html body .dmo-secondary-nav .dmo-tab-menu[open]>summary{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600)}
 html body .dmo-secondary-nav .dmo-tab-menu-caret{font-size:11px;transition:transform var(--dmo-fast)}
 html body .dmo-secondary-nav .dmo-tab-menu[open] .dmo-tab-menu-caret{transform:rotate(180deg)}
-html body .dmo-secondary-nav .dmo-tab-menu-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:190px;margin-top:1px;padding:6px;background:#fff;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
+html body .dmo-secondary-nav .dmo-tab-menu-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:190px;margin-top:1px;padding:6px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
 html body .dmo-secondary-nav .dmo-tab-menu-list a{display:block;padding:9px 10px;border:0;border-radius:6px;color:var(--dmo-text);white-space:nowrap}
 html body .dmo-secondary-nav .dmo-tab-menu-list a:hover{background:var(--dmo-subtle);color:var(--dmo-brand-700)}
 html body .dmo-secondary-nav .dmo-tab-menu-list a.active{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
@@ -268,7 +273,7 @@ html body a.dmo-fact.dmo-fact-link>em{display:block;margin-top:4px;font-style:no
 html body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>em{color:inherit}
 /* Job On: o dropdown das produções da procura em dois passos, a «Opções» da
    folha alinhada à direita e a tabela das produções da referência. */
-html body .dmo-search-form select{box-sizing:border-box;flex:0 1 210px;min-width:0;min-height:var(--dmo-control-height);padding:9px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:14px}
+html body .dmo-search-form select{box-sizing:border-box;flex:0 1 210px;min-width:0;min-height:var(--dmo-control-height);padding:9px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:14px}
 html body .beta-light-actions .dmo-options-list{left:auto;right:0}
 html body .jobon-ref-productions{margin-top:18px}
 html body .jobon-ref-productions h3{margin:0;font-size:15px}

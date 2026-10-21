@@ -325,3 +325,12 @@ Novos: 6 · mudaram: 2 · saíram: 3
 - saiu: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_SemContaDeEmailNoServidor_NaoEnviaNemRegista_EDizPorque`
 
 Selo depois: `92082ab9a42bc24f`
+
+## A-0013 · 2026-10-21 · teste-novo
+
+Porquê: Teste novo: modo escuro redefine os tokens; nenhuma folha nem página (style) pinta fundos a branco solto, fora do @media print; cabeçalho com o botão (Diogo, 21/10/2026); a mesma mudança da beta.320 (registo A-0003 da beta)
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
+
+Selo depois: `8fbdafa2217bfa4e`

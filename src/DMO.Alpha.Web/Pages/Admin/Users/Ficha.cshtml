@@ -14,7 +14,7 @@
 .dfu-card h3{margin:0 0 4px;font-size:16px}
 .dfu-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
 .dfu-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
-.dfu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.dfu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
 .dfu-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
 /* A GRAMÁTICA DAS FOLHAS: os botões no INÍCIO — as ações vestem a linha
    de cima da secção, o texto DIRETO (sem «Abrir»). */
@@ -25,11 +25,11 @@
 .dfu-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
 .dfu-select{min-width:220px}
 .dfu-danger{background:var(--dmo-danger,#9a625d)}
-.dfu-danger:hover{background:#7d4f4a}
+.dfu-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
 /* O PIN temporário de um repor, na pilha do canto (o mesmo da lista). */
 .dmu-entrega{display:grid;gap:8px}
 .dmu-entrega h3{margin:0;font-size:15px}
-.dmu-entrega .dmu-token{display:grid;gap:2px;padding:10px 12px;background:#fff;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
+.dmu-entrega .dmu-token{display:grid;gap:2px;padding:10px 12px;background:var(--dmo-card);border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
 .dmu-entrega .dmu-token span{color:var(--dmo-muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
 .dmu-entrega .dmu-token strong{font-size:15px;letter-spacing:.4px;word-break:break-all}
 .dmu-entrega .dmu-nota{color:var(--dmo-muted);font-size:11.5px;margin:0}
