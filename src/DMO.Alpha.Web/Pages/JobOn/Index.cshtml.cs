@@ -1583,7 +1583,8 @@ public sealed class IndexModel : PageModel
     /// Os avisos de uma ferramenta escolhida na folha, cada um com os links
     /// para onde se resolve (Diogo, 19/10/2026): a compatibilidade leva à
     /// ficha da ferramenta (as máquinas registadas), o uso paralelo a cada
-    /// uma das outras produções. Abrem noutro separador: a folha pode estar
+    /// uma das outras produções, o Armazém (não registada ou sem estado) aos
+    /// movimentos da ferramenta. Abrem noutro separador: a folha pode estar
     /// por gravar.
     /// </summary>
     public static IReadOnlyList<JobOnToolAviso> AvisosDasFerramentas(JobOnToolFacts fact)
@@ -1602,6 +1603,14 @@ public sealed class IndexModel : PageModel
             avisos.Add(new JobOnToolAviso(paralelo, fact.UsosParalelos
                 .Select(uso => Shared.DmoAvisoLink.JobOn(uso.JobOnId, $"Abrir {uso.ProductionNumber} ({uso.Machine})") with { NovoSeparador = true })
                 .ToList()));
+        }
+
+        if (fact.AvisoArmazem is { } armazem)
+        {
+            avisos.Add(new JobOnToolAviso(armazem,
+            [
+                Shared.DmoAvisoLink.MovimentosDoArmazem(fact.ToolId, "Registar no Armazém") with { NovoSeparador = true }
+            ]));
         }
 
         return avisos;

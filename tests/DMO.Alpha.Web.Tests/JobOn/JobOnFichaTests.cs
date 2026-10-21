@@ -523,9 +523,10 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         SeedUser("4597", "Planejador", "provider-jobon-tecnica", "JobTecnica1!");
         using var semFerramentas = await LoginClientAsync("4597", "JobTecnica1!");
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(semFerramentas, $"{PagePath}?jobon_id={jobOnId}"));
-        // A zona mostra o MF sem gargalo e nenhum aviso (os avisos da casa
-        // levam role="status" ou role="alert").
-        var ferramentas = FerramentasUsadas(html);
+        // A zona mostra o MF sem gargalo e nenhum aviso de dados em falta (os
+        // avisos da casa levam role="status" ou role="alert"). O aviso do
+        // Armazém (não registada, sem estado; Diogo 21/10) é outro e sai da conta.
+        var ferramentas = SemAvisoDoArmazem(FerramentasUsadas(html));
         Assert.Contains("Molde final 5810 · lote 1", ferramentas);
         Assert.DoesNotContain("role=\"status\"", ferramentas);
         Assert.DoesNotContain("role=\"alert\"", ferramentas);
@@ -544,7 +545,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Contains($"<a class=\"jobon-ferramenta-link\" href=\"{fichaMf}\"", comLink);
         Assert.DoesNotContain(">Completar</a>", comLink);
         Assert.Contains("/Ferramentas/Ficha?tool_id=T3&tecnica=1", comLink);
-        var ferramentasComLink = FerramentasUsadas(comLink);
+        var ferramentasComLink = SemAvisoDoArmazem(FerramentasUsadas(comLink));
         Assert.Contains($"href=\"{fichaMf}\"", ferramentasComLink);
         Assert.DoesNotContain("role=\"status\"", ferramentasComLink);
         Assert.DoesNotContain("role=\"alert\"", ferramentasComLink);
@@ -1049,7 +1050,10 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         using (var semFerramentas = await LoginClientAsync("4521", "FichaPass21!"))
         {
             var avisos = await AvisosAsync(semFerramentas);
-            Assert.Equal(2, avisos.GetArrayLength());
+            // O terceiro é o do Armazém (Diogo 21/10, FER-E-03), sem link a quem não tem o Armazém.
+            Assert.Equal(3, avisos.GetArrayLength());
+            Assert.Contains("não está registada no Armazém e não tem estado", avisos[2].GetProperty("texto").GetString());
+            Assert.Equal(0, avisos[2].GetProperty("links").GetArrayLength());
             Assert.Contains("compatibilidade registada", avisos[0].GetProperty("texto").GetString());
             Assert.Equal(0, avisos[0].GetProperty("links").GetArrayLength());
             Assert.Contains("202602 (C3)", avisos[1].GetProperty("texto").GetString());
@@ -1413,4 +1417,58 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Null(soBoquilhas.Single(l => l.Text.StartsWith("Mudou a BQ")).ActionHref);
         Assert.Equal("/Boquilhas", soBoquilhas.Single(l => l.Text.StartsWith("Mudou a máquina")).ActionHref);
     }
+
+    [Fact]
+    public async Task Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto()
+    {
+        // Diogo 21/10 (FER-E-03): a ferramenta não registada no Armazém ou
+        // sem estado só avisa, com o link para os movimentos dela.
+        var (jobOnId, _, _, _) = await SeedFichaAsync();
+        SeedUser("4598", "Planejador", "provider-jobon-armazem", "JobArmazem1!");
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var posicao = new DMO.Alpha.Core.Armazem.ArmazemPosicao { Codigo = "1033", CriadaEmUtc = DateTime.UtcNow };
+            db.ArmazemPosicoes.Add(posicao);
+            var entrada = new DMO.Alpha.Core.Armazem.ArmazemMovimento
+            {
+                Tipo = DMO.Alpha.Core.Armazem.ArmazemMovimentoTipo.Entrada, ToolId = "T3",
+                OcorridoEmUtc = DateTime.UtcNow, RegistadoEmUtc = DateTime.UtcNow, OperacaoId = Guid.NewGuid()
+            };
+            db.ArmazemMovimentos.Add(entrada);
+            db.SaveChanges();
+            db.ArmazemOcupacoes.Add(new DMO.Alpha.Core.Armazem.ArmazemOcupacao { ToolId = "T3", PosicaoId = posicao.Id, MovimentoId = entrada.Id, DesdeUtc = DateTime.UtcNow });
+            db.FerramentaEstados.Add(new DMO.Alpha.Core.Armazem.FerramentaEstado { ToolId = "T3", Estado = DMO.Alpha.Core.Armazem.FerramentaEstadoTipo.Reparado, RegistadoEmUtc = DateTime.UtcNow });
+            var template = db.Templates.Single(t => t.TemplateKey == "tpl-test-planejador");
+            template.Capabilities = template.Capabilities.Append(DmoCapabilities.ArmazemGestao).Distinct().ToArray();
+            db.SaveChanges();
+        }
+
+        try
+        {
+            using var client = await LoginClientAsync("4598", "JobArmazem1!");
+            var ferramentas = WebUtility.HtmlDecode(FerramentasUsadas(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}")));
+
+            Assert.Contains("Armazém · posição 1033 · Reparado", ferramentas);
+            Assert.Contains("MF 5810 / lote 1 não está registada no Armazém e não tem estado.", ferramentas);
+            Assert.Contains("href=\"/Armazem/Movimentos?ferramenta=MF-TOOL-9\"", ferramentas);
+            Assert.DoesNotContain("CM 5447 / lote 3 não", ferramentas);
+        }
+        finally
+        {
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.FerramentaEstados.RemoveRange(db.FerramentaEstados.Where(e => e.ToolId == "T3"));
+            db.ArmazemOcupacoes.RemoveRange(db.ArmazemOcupacoes.Where(o => o.ToolId == "T3"));
+            db.ArmazemMovimentos.RemoveRange(db.ArmazemMovimentos.Where(m => m.ToolId == "T3"));
+            db.ArmazemPosicoes.RemoveRange(db.ArmazemPosicoes.Where(p => p.Codigo == "1033"));
+            var template = db.Templates.Single(t => t.TemplateKey == "tpl-test-planejador");
+            template.Capabilities = template.Capabilities.Where(c => c != DmoCapabilities.ArmazemGestao).ToArray();
+            db.SaveChanges();
+        }
+    }
+
+    /// <summary>A zona sem os avisos do Armazém (não registada, sem estado).</summary>
+    private static string SemAvisoDoArmazem(string html) =>
+        Regex.Replace(html, "<div class=\"jobon-aviso warn\" role=\"status\" data-dmo-aviso-armazem>.*?</div>", string.Empty, RegexOptions.Singleline);
 }
