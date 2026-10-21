@@ -437,6 +437,13 @@
             }
           </div>
 
+          @* A FOLHA DA FÁBRICA EM LEITURA, por famílias, por baixo das
+             ferramentas: só o que tem alguma coisa escrito (Diogo, 21/10/2026). *@
+          @if (Model.FichaFolha is { } fichaFolha)
+          {
+            <partial name="_JobOnFichaFolha" model="fichaFolha" />
+          }
+
           @if (Model.ReferenceProductionsPage is { } producoesRef)
           {
             <section data-dmo-regiao id="fichaProducoes" class="jobon-ref-productions" aria-labelledby="fichaProducoesTitle">

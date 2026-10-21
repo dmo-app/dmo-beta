@@ -477,3 +477,17 @@ Novos: 14 · mudaram: 7 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: (resto do ficheiro)`
 
 Selo depois: `70203b7076adc35b`
+
+## A-0019 · 2026-10-21 · contagem-lista
+
+Porquê: Job On peça 3: 3 testes novos da ficha por famílias; o resto do ficheiro só ganha um using e funções de ajuda novas; testes.md descreve a folha em leitura
+Referência: Job On peça 3, ficha por famílias
+Novos: 3 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Ficha_ACalMostraAsLinhasGravadas_ComAQtdMaq`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Ficha_MostraSoAsFamiliasEOsCamposEscritos_ComAQtdStockEAQtdMaq`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Ficha_SemNadaEscritoNaFolha_DizSoIssoComOEditar`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
+
+Selo depois: `cba617c94d072a65`

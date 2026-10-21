@@ -89,6 +89,12 @@ public sealed class IndexModel : PageModel
     /// </summary>
     public FolhaDoJobOnVista Folha { get; private set; } = FolhaDoJobOnVista.Vazia();
 
+    /// <summary>
+    /// A folha da fábrica na ficha do Job On, em leitura, só com o que está
+    /// escrito; null sem ficha (sem Job On aberto ou no Duplicar).
+    /// </summary>
+    public FichaDaFolhaVista? FichaFolha { get; private set; }
+
     // Uma recusa com a folha escrita volta à página a partir do envio (a folha
     // não cabe no endereço): o envio, a chave do texto longo demais e a versão
     // com que a folha de edição tinha aberto.
@@ -928,14 +934,22 @@ public sealed class IndexModel : PageModel
             FolhaAberta = true;
         }
 
-        // A FOLHA DA FÁBRICA: o que se escreveu (depois de uma recusa que volta
-        // a partir do envio), a gravada no Editar, ou vazia.
+        // A FOLHA DA FÁBRICA gravada, lida uma vez para a ficha em leitura e
+        // para o Editar (a ficha aparece sempre que há Job On aberto, menos
+        // no Duplicar).
+        var folhaGravada = OpenJobOn is { } folhaJobOn && DuplicarDe is null
+            ? await _folha.ForJobOnAsync(folhaJobOn.JobOnId, HttpContext.RequestAborted)
+            : null;
+        FichaFolha = folhaGravada is null ? null : FichaDaFolhaVista.DaLida(folhaGravada);
+
+        // No formulário: o que se escreveu (depois de uma recusa que volta a
+        // partir do envio), a gravada no Editar, ou vazia.
         if (FolhaAberta)
         {
             Folha = _envioDaFolha is { } envioDaFolha
                 ? FolhaDoJobOnVista.DoEnvio(envioDaFolha, _chaveRecusada)
-                : FolhaEdicao
-                    ? FolhaDoJobOnVista.DaLida(await _folha.ForJobOnAsync(OpenJobOn!.JobOnId, HttpContext.RequestAborted))
+                : FolhaEdicao && folhaGravada is not null
+                    ? FolhaDoJobOnVista.DaLida(folhaGravada)
                     : FolhaDoJobOnVista.Vazia();
         }
 

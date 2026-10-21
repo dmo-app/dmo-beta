@@ -73,6 +73,22 @@ body[data-beta-page="jobon"] .jobon-cal-cabeca,body[data-beta-page="jobon"] .job
 body[data-beta-page="jobon"] .jobon-cal-cabeca{font-size:11px;font-weight:700;color:var(--dmo-muted)}
 body[data-beta-page="jobon"] .jobon-cal-linha input{box-sizing:border-box;width:100%;min-width:0;min-height:var(--dmo-control-height);padding:6px 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:13px}
 body[data-beta-page="jobon"] .jobon-folha-dica{margin:4px 0 0;font-size:12px;color:var(--dmo-muted)}
+/* A folha da fábrica na ficha, em leitura: as mesmas famílias e os mesmos
+   pares, só com o que está escrito (Diogo, 21/10/2026). Os pares guardam a
+   largura de uma coluna mesmo quando só há um escrito (auto-fill). O título
+   pelo id: a regra geral dos títulos nos cartões tira-lhe a margem. */
+body[data-beta-page="jobon"] #fichaFolha>h3{font-size:15px;margin:18px 0 10px}
+body[data-beta-page="jobon"] .jobon-folha-pares-leitura{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:12px}
+body[data-beta-page="jobon"] .jobon-ficha-folha>.jobon-familia+.jobon-folha-pares,body[data-beta-page="jobon"] .jobon-ficha-folha>.jobon-familia+.jobon-familia{margin-top:12px}
+body[data-beta-page="jobon"] .jobon-familia-leitura>.jobon-familia-titulo{margin:0 0 8px;padding:0}
+body[data-beta-page="jobon"] .jobon-leitura{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px 12px;margin:0}
+body[data-beta-page="jobon"] .jobon-leitura>div{min-width:0}
+body[data-beta-page="jobon"] .jobon-leitura>.jobon-leitura-nota{grid-column:1/-1}
+body[data-beta-page="jobon"] .jobon-leitura dt{font-size:12px;color:var(--dmo-muted);line-height:1.4}
+body[data-beta-page="jobon"] .jobon-leitura dd{margin:2px 0 0;font-size:14px;font-weight:650;color:var(--dmo-text);overflow-wrap:anywhere}
+body[data-beta-page="jobon"] .jobon-leitura-nota dd{font-weight:400;white-space:pre-line}
+body[data-beta-page="jobon"] .jobon-folha-vazia{margin:0;font-size:13px;color:var(--dmo-muted)}
+body[data-beta-page="jobon"] .jobon-folha-vazia a{color:var(--dmo-text);font-weight:700}
 
 /* Common calendars inherit the same rhythm. */
 .calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.day{position:relative;min-width:0;aspect-ratio:1;border:1px solid transparent;border-radius:8px;background:transparent;font-size:14px}.day.selected{border-color:var(--shell-blue);background:var(--shell-blue);color:var(--dmo-text-on-color);font-weight:850}
