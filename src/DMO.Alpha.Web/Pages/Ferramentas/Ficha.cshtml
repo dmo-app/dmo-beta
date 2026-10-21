@@ -18,6 +18,7 @@
 @section Head {
 <link rel="stylesheet" href="~/css/dmo-ferramenta-form.css" asp-append-version="true" />
 <style>
+.ferr-armazem-link{color:var(--dmo-brand-900);font-weight:600}
 .ferr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
 .ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
 .ferr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
@@ -297,6 +298,13 @@
         <div class="dmo-fact"><span>Máquinas / linhas</span><strong>@machineCodes</strong></div>
         <div class="dmo-fact"><span>Referência MF associada</span><strong>@(tool.AssociatedMfReference ?? "—")</strong></div>
         <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")</strong></div>
+        @if (Model.Armazem is { } arm)
+        {
+          @* Onde está e o estado, pelo Armazém (só a quem tem o Armazém). *@
+          <div class="dmo-fact" id="ferrLocalizacao"><span>Localização</span><strong data-dmo-localizacao><a class="ferr-armazem-link" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = arm.ToolId })">@(arm.NoArmazem ? $"Armazém · posição {arm.Posicao}" : DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(arm.Localizacao, arm.LocalizacaoReparador))</a></strong></div>
+          <div class="dmo-fact" id="ferrEstadoArmazem"><span>Estado</span><strong>@(arm.Estado is { } estadoArm ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoArm) : "—")</strong></div>
+          <div class="dmo-fact"><span>Movimentos</span><strong><a class="ferr-armazem-link" id="ferrHistoricoArmazem" href="@Url.Page("/Armazem/Historico", new { ferramenta = arm.ToolId })">Ver o histórico</a></strong></div>
+        }
       </div>
 
       @* SEM MÁQUINAS (Diogo, 19/10/2026: «essa regra pode ficar aplicada a de

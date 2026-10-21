@@ -167,6 +167,13 @@ public static class ArmazemTextos
         _ => "BQ"
     };
 
+    public static string Movimento(ArmazemMovimentoTipo tipo) => tipo switch
+    {
+        ArmazemMovimentoTipo.Entrada => "Entrada",
+        ArmazemMovimentoTipo.Saida => "Saída",
+        _ => "Corrigir localização"
+    };
+
     public static string Ferramenta(ToolType tipo, string referencia, string lote) =>
         $"{Tipo(tipo)} {referencia} · lote {lote}";
 

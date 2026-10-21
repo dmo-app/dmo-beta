@@ -108,8 +108,12 @@ public sealed class FichaModel : PageModel
         IDuplicateToolHandler duplicate,
         IDeleteToolHandler delete,
         DMO.Alpha.Infrastructure.Tools.ToolDuplicateWarnings duplicateWarnings,
-        ShellStateFactory shellState)
+        ShellStateFactory shellState,
+        DMO.Alpha.Core.Armazem.IArmazemMovimentos armazem,
+        CurrentUserCapabilities capabilities)
     {
+        _armazem = armazem;
+        _capabilities = capabilities;
         _duplicateWarnings = duplicateWarnings;
         _sheetQuery = sheetQuery;
         _machineListQuery = machineListQuery;
@@ -119,6 +123,15 @@ public sealed class FichaModel : PageModel
         _delete = delete;
         _shellState = shellState;
     }
+
+    private readonly DMO.Alpha.Core.Armazem.IArmazemMovimentos _armazem;
+    private readonly CurrentUserCapabilities _capabilities;
+
+    /// <summary>
+    /// Onde está a ferramenta e o estado, pelo Armazém: só para quem tem o
+    /// Armazém (o módulo só aparece a quem o ADMIN o der).
+    /// </summary>
+    public DMO.Alpha.Core.Armazem.ArmazemSituacao? Armazem { get; private set; }
 
     /// <summary>tool_id pedido (?tool_id) — a identidade canónica no URL.</summary>
     public string? RequestedToolId { get; private set; }
@@ -439,6 +452,12 @@ public sealed class FichaModel : PageModel
             : await _sheetQuery.FindByToolIdAsync(RequestedToolId, HttpContext.RequestAborted);
 
         SheetRequestedNotFound = RequestedToolId is not null && Sheet is null;
+        if (Sheet is not null
+            && (await _capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.ArmazemGestao, StringComparer.Ordinal))
+        {
+            Armazem = await _armazem.SituacaoAsync(Sheet.ToolId, HttpContext.RequestAborted);
+        }
+
         TypeChangedWarning = Sheet is { } mudada ? TypeChangedMessage(tipoAnterior, producoes, mudada.Type) : null;
 
         Machines = await _machineListQuery.ListAsync(HttpContext.RequestAborted);
