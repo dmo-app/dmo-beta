@@ -19,31 +19,36 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.Ferramentas)]
-public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, ShellStateFactory shellState) : PageModel
+public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, ShellStateFactory shellState) : PageModel
 {
     /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
     public UsoSapUltimaLeitura? UltimaLeituraSap { get; private set; }
 
     /// <summary>
     /// GET (o ficheiro ferramentas-sap.js): os códigos a pedir ao SAP (o nome
-    /// técnico e o lote de cada ferramenta) e a data do último ficheiro lido,
-    /// para não ler duas vezes o mesmo.
+    /// técnico e o lote de cada ferramenta) e a data do último ficheiro lido
+    /// (a lista da utilização ou o relatório de fabrico), para não ler duas
+    /// vezes o mesmo.
     /// </summary>
     public async Task<IActionResult> OnGetUsoSapAsync()
     {
         var codigos = await usoSap.CodigosAsync(HttpContext.RequestAborted);
         var ultima = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
+        var fabrico = await fabricoSap.UltimoFicheiroAsync(HttpContext.RequestAborted);
+        var ultimoFicheiro = new[] { ultima?.FicheiroModificadoEmUtc, fabrico }.Max();
         return new JsonResult(new
         {
             codigos,
-            ficheiroModificadoEm = ultima?.FicheiroModificadoEmUtc is { } data ? new DateTimeOffset(DateTime.SpecifyKind(data, DateTimeKind.Utc)).ToUnixTimeMilliseconds() : (long?)null
+            ficheiroModificadoEm = ultimoFicheiro is { } data ? new DateTimeOffset(DateTime.SpecifyKind(data, DateTimeKind.Utc)).ToUnixTimeMilliseconds() : (long?)null
         });
     }
 
     /// <summary>
     /// POST (o ficheiro ferramentas-sap.js): a lista exportada pelo SAP, lida
     /// da pasta ligada. O servidor lê-a (a regra fica num só sítio, em
-    /// <see cref="UsoSapExportacao"/>) e grava o uso de cada ferramenta.
+    /// <see cref="UsoSapExportacao"/>) e grava o uso de cada ferramenta. O
+    /// relatório de fabrico (<see cref="FabricoSapExportacao"/>) vem pelo
+    /// mesmo caminho e grava o que cada produção fez.
     /// </summary>
     [RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
     [RequestSizeLimit(20 * 1024 * 1024)]
@@ -53,6 +58,13 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
             ? DateTimeOffset.FromUnixTimeMilliseconds(modificado.Value).UtcDateTime
             : null;
         var outcome = await usoSap.ImportarAsync(conteudo, ficheiro, modificadoEm, HttpContext.RequestAborted);
+        if (outcome.Resultado == ImportarUsoSapResultado.NaoELista
+            && FabricoSapExportacao.Ler(conteudo) is { CabecalhoEncontrado: true } relatorio)
+        {
+            var fabrico = await fabricoSap.ImportarAsync(relatorio.Linhas, ficheiro, modificadoEm, HttpContext.RequestAborted);
+            return new JsonResult(new { gravado = true, mensagem = MensagemFabricoSap(fabrico) });
+        }
+
         return new JsonResult(new
         {
             gravado = outcome.Resultado == ImportarUsoSapResultado.Gravado,
@@ -65,7 +77,7 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
     {
         if (outcome.Resultado == ImportarUsoSapResultado.NaoELista)
         {
-            return $"O ficheiro «{ficheiro}» não tem a lista do SAP (faltam as colunas Equipamento e % Use). Nada foi gravado.";
+            return $"O ficheiro «{ficheiro}» não tem a lista do SAP (faltam as colunas Equipamento e % Use) nem o relatório de fabrico (Material, Line, Begin Date e End Date). Nada foi gravado.";
         }
 
         var texto = outcome.Atualizadas switch
@@ -82,6 +94,15 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
 
         return texto;
     }
+
+    /// <summary>O que a leitura do relatório de fabrico fez.</summary>
+    public static string MensagemFabricoSap(ImportarFabricoSapOutcome outcome) => outcome switch
+    {
+        { Linhas: 0 } => "Fabrico lido do SAP: o relatório não tem nenhuma linha.",
+        { Linhas: 1, Novas: 1 } => "Fabrico lido do SAP: 1 produção nova.",
+        { Novas: 0 } => $"Fabrico lido do SAP: {outcome.Linhas} {(outcome.Linhas == 1 ? "produção" : "produções")}, nenhuma nova.",
+        _ => $"Fabrico lido do SAP: {outcome.Linhas} produções, {outcome.Novas} {(outcome.Novas == 1 ? "nova" : "novas")}."
+    };
 
     public IReadOnlyList<ToolLotQuantityDefault> ToolQuantities { get; private set; } = Array.Empty<ToolLotQuantityDefault>();
 

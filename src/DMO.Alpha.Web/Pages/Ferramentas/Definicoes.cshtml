@@ -99,7 +99,7 @@
      (dmo-codigos.txt). O ficheiro ferramentas-sap.js faz o resto. *@
   <section id="ferrDefSap" class="dmo-card ferr-def-card" aria-labelledby="ferr-sap-title" data-ferr-sap>
     <div class="dmo-card-topo">
-      <h3 id="ferr-sap-title">Utilização pelo SAP<partial name="_DmoHelp" model="@("A pasta onde o SAP grava a lista da transação ZPPF (Gestão de Moldes). Ligue-a uma vez neste computador. Ao abrir as Ferramentas, o DMO lê o ficheiro mais recente e grava a utilização (%) na ficha de cada ferramenta (pelo nome técnico e o lote). O DMO deixa também na pasta o ficheiro dmo-codigos.txt com os códigos a pedir ao SAP: só os das ferramentas à espera da utilização (as que entraram no Armazém vindas da Produção, ou pedidas no Opções da ficha).")" /></h3>
+      <h3 id="ferr-sap-title">Utilização pelo SAP<partial name="_DmoHelp" model="@("A pasta onde o SAP grava a lista da transação ZPPF (Gestão de Moldes). Ligue-a uma vez neste computador. Ao abrir as Ferramentas, o DMO lê o ficheiro mais recente e grava a utilização (%) na ficha de cada ferramenta (pelo nome técnico e o lote). O DMO deixa também na pasta o ficheiro dmo-codigos.txt com os códigos a pedir ao SAP: só os das ferramentas à espera da utilização (as que entraram no Armazém vindas da Produção, ou pedidas no Opções da ficha). O relatório de fabrico do SAP (o que cada produção fez) lê-se da mesma pasta e aparece no Opções da ficha, em «Produções (Job On)».")" /></h3>
       <div class="dmo-card-topo-acoes">
         <button type="button" class="dmo-button" id="ferrSapPasta" data-ferr-sap-pasta>Ligar pasta</button>
         <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler agora</button>

@@ -106,7 +106,7 @@ public static class UsoSapExportacao
             return new Leitura(false, []);
         }
 
-        var tabela = conteudo.Contains("<tr", StringComparison.OrdinalIgnoreCase) ? TabelaHtml(conteudo) : TabelaTexto(conteudo);
+        var tabela = Tabela(conteudo);
         for (var i = 0; i < tabela.Count; i++)
         {
             var cabecalho = tabela[i];
@@ -164,7 +164,11 @@ public static class UsoSapExportacao
             && valor >= 0 && valor < 1_000_000_000_000m;
     }
 
-    private static int Coluna(IReadOnlyList<string> cabecalho, Func<string, bool> nome)
+    /// <summary>As linhas e as células de uma exportação do SAP, em HTML ou em texto.</summary>
+    internal static List<IReadOnlyList<string>> Tabela(string conteudo) =>
+        conteudo.Contains("<tr", StringComparison.OrdinalIgnoreCase) ? TabelaHtml(conteudo) : TabelaTexto(conteudo);
+
+    internal static int Coluna(IReadOnlyList<string> cabecalho, Func<string, bool> nome)
     {
         for (var i = 0; i < cabecalho.Count; i++)
         {
@@ -177,7 +181,7 @@ public static class UsoSapExportacao
         return -1;
     }
 
-    private static string Celula_(IReadOnlyList<string> celulas, int indice) =>
+    internal static string Celula_(IReadOnlyList<string> celulas, int indice) =>
         indice >= 0 && indice < celulas.Count ? celulas[indice].Trim() : "";
 
     private static List<IReadOnlyList<string>> TabelaHtml(string html) =>

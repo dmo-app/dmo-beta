@@ -5,6 +5,9 @@
 // vai para o servidor, que o lê e grava a utilização de cada ferramenta. Na
 // pasta fica também o dmo-codigos.txt com os códigos a pedir ao SAP (nome
 // técnico + lote das ferramentas à espera da utilização), que o script usa.
+// O relatório de fabrico do SAP (o que cada produção fez) vem pela mesma
+// pasta: vão para o servidor todos os ficheiros mais novos do que o último
+// lido, do mais antigo para o mais novo, e o servidor reconhece cada um.
 (function () {
   "use strict";
 
@@ -78,15 +81,32 @@
     return resposta.json();
   }
 
-  // O ficheiro mais recente da pasta que pode ser a lista do SAP.
-  async function maisRecente(pasta) {
-    let melhor = null;
+  const MAXIMO = 10;
+
+  // Os ficheiros da pasta que podem vir do SAP, do mais antigo para o mais novo.
+  async function ficheirosDoSap(pasta) {
+    const todos = [];
     for await (const entrada of pasta.values()) {
       if (entrada.kind !== "file" || entrada.name === CODIGOS || /^leia-me/i.test(entrada.name) || !EXTENSOES.test(entrada.name)) continue;
-      const ficheiro = await entrada.getFile();
-      if (!melhor || ficheiro.lastModified > melhor.lastModified) melhor = ficheiro;
+      todos.push(await entrada.getFile());
     }
-    return melhor;
+    return todos.sort((a, b) => a.lastModified - b.lastModified);
+  }
+
+  async function enviar(ficheiro) {
+    const corpo = new URLSearchParams();
+    corpo.set("__RequestVerificationToken", token());
+    corpo.set("conteudo", await ficheiro.text());
+    corpo.set("ficheiro", ficheiro.name);
+    corpo.set("modificado", String(ficheiro.lastModified));
+    const resposta = await fetch(URL_IMPORTAR, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
+      body: corpo
+    });
+    if (!resposta.ok) throw new Error("O servidor recusou a lista (" + resposta.status + ").");
+    return resposta.json();
   }
 
   async function escreverCodigos(pasta, codigos) {
@@ -96,15 +116,16 @@
     await escrita.close();
   }
 
-  // Ler a pasta: os códigos para o SAP e a lista mais recente. «forcar» lê
-  // mesmo que o ficheiro já tenha sido lido (o «Ler agora»).
+  // Ler a pasta: os códigos para o SAP e os ficheiros novos. «forcar» lê o
+  // mais recente mesmo que já tenha sido lido (o «Ler agora»).
   async function sincronizar(pasta, forcar) {
     if (aLer) return;
     aLer = true;
     try {
       const info = await infoServidor();
       await escreverCodigos(pasta, info.codigos || []);
-      const ficheiro = await maisRecente(pasta);
+      const ficheiros = await ficheirosDoSap(pasta);
+      const ficheiro = ficheiros.length ? ficheiros[ficheiros.length - 1] : null;
       if (!ficheiro) {
         mostrarEstado("Pasta «" + pasta.name + "» ligada. Ainda não tem nenhuma lista do SAP.");
         if (forcar) mensagem("aviso", "A pasta «" + pasta.name + "» ainda não tem nenhuma lista do SAP.");
@@ -114,21 +135,14 @@
         mostrarEstado("Pasta «" + pasta.name + "» ligada. A lista mais recente («" + ficheiro.name + "») já foi lida.");
         return;
       }
-      const corpo = new URLSearchParams();
-      corpo.set("__RequestVerificationToken", token());
-      corpo.set("conteudo", await ficheiro.text());
-      corpo.set("ficheiro", ficheiro.name);
-      corpo.set("modificado", String(ficheiro.lastModified));
-      const resposta = await fetch(URL_IMPORTAR, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
-        body: corpo
-      });
-      if (!resposta.ok) throw new Error("O servidor recusou a lista (" + resposta.status + ").");
-      const resultado = await resposta.json();
+      const novos = forcar || !info.ficheiroModificadoEm
+        ? [ficheiro]
+        : ficheiros.filter((f) => f.lastModified > info.ficheiroModificadoEm).slice(-MAXIMO);
+      for (const novo of novos) {
+        const resultado = await enviar(novo);
+        mensagem(resultado.gravado ? "ok" : "aviso", resultado.mensagem);
+      }
       mostrarEstado("Pasta «" + pasta.name + "» ligada. Última lista lida: «" + ficheiro.name + "».");
-      mensagem(resultado.gravado ? "ok" : "aviso", resultado.mensagem);
     } finally {
       aLer = false;
     }

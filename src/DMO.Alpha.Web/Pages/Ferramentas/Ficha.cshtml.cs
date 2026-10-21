@@ -112,9 +112,11 @@ public sealed class FichaModel : PageModel
         ShellStateFactory shellState,
         DMO.Alpha.Core.Armazem.IArmazemMovimentos armazem,
         CurrentUserCapabilities capabilities,
-        IFerramentasUsoSap usoSap)
+        IFerramentasUsoSap usoSap,
+        IFerramentasFabricoSap fabricoSap)
     {
         _usoSap = usoSap;
+        _fabricoSap = fabricoSap;
         _armazem = armazem;
         _capabilities = capabilities;
         _duplicateWarnings = duplicateWarnings;
@@ -130,6 +132,17 @@ public sealed class FichaModel : PageModel
     private readonly DMO.Alpha.Core.Armazem.IArmazemMovimentos _armazem;
     private readonly CurrentUserCapabilities _capabilities;
     private readonly IFerramentasUsoSap _usoSap;
+    private readonly IFerramentasFabricoSap _fabricoSap;
+
+    /// <summary>As linhas por página da tabela das produções.</summary>
+    public const int ProducoesPorPagina = 10;
+
+    /// <summary>
+    /// A tabela das produções da ferramenta (?jobon=1, no «Opções» da ficha):
+    /// os Job On em que foi a CM, o MF ou a BQ, com o que o SAP diz que
+    /// produziram (Diogo, 21/10/2026). Lida só quando se abre; null fechada.
+    /// </summary>
+    public DMO.Alpha.Core.Paging.PagedList<FerramentaProducao>? Producoes { get; private set; }
 
     /// <summary>A utilização (a última leitura, do SAP) e o lembrete aberto.</summary>
     public FerramentaUtilizacaoAtual? Utilizacao { get; private set; }
@@ -358,7 +371,9 @@ public sealed class FichaModel : PageModel
         [FromQuery(Name = "continuar")] string? continuar,
         [FromQuery(Name = "guardado")] string? guardado,
         [FromQuery(Name = "tipo_anterior")] string? tipoAnterior = null,
-        [FromQuery(Name = "producoes")] int? producoes = null)
+        [FromQuery(Name = "producoes")] int? producoes = null,
+        [FromQuery(Name = "jobon")] string? jobOn = null,
+        [FromQuery(Name = "pagina_jobon")] int? paginaJobOn = null)
     {
         ViewData["Title"] = "Ficha de ferramenta — Ferramentas";
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
@@ -468,6 +483,10 @@ public sealed class FichaModel : PageModel
         if (Sheet is not null)
         {
             Utilizacao = await _usoSap.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
+            if (jobOn == "1")
+            {
+                Producoes = await _fabricoSap.ProducoesAsync(Sheet.ToolId, paginaJobOn, ProducoesPorPagina, HttpContext.RequestAborted);
+            }
         }
 
         TypeChangedWarning = Sheet is { } mudada ? TypeChangedMessage(tipoAnterior, producoes, mudada.Type) : null;
