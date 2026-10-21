@@ -676,7 +676,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 .ToDictionaryAsync(p => p.Id, p => p.Codigo, cancellationToken);
     }
 
-    private static string Descricao(ArmazemMovimento m, IReadOnlyDictionary<int, string> codigos)
+    internal static string Descricao(ArmazemMovimento m, IReadOnlyDictionary<int, string> codigos)
     {
         string Codigo(int? id) => id is { } i && codigos.TryGetValue(i, out var c) ? c : "?";
         switch (m.Tipo)
