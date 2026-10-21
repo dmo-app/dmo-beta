@@ -175,3 +175,123 @@ public sealed class FolhaDoJobOnVista
 /// <c>JobOns</c>, que continua com o nome <c>calote_mm</c>).
 /// </summary>
 public sealed record JobOnFolhaFamiliaVista(string Familia, FolhaDoJobOnVista Folha, string? Calote);
+
+/// <summary>
+/// Um campo escrito da folha na ficha em leitura: o rótulo (null nas Notas
+/// gerais, onde a família é o título) e o texto como foi gravado. As notas
+/// ocupam a largura da família e mantêm as quebras de linha.
+/// </summary>
+public sealed record FichaCampoLido(string? Rotulo, string Valor, bool Nota);
+
+/// <summary>
+/// Uma família da folha na ficha em leitura, só com os campos escritos. Na
+/// CAL, os campos ficam vazios e as linhas vêm de <see cref="FichaDaFolhaVista.Cal"/>.
+/// </summary>
+public sealed record FichaFamiliaLida(string Familia, IReadOnlyList<FichaCampoLido> Campos)
+{
+    /// <summary>O id do título da família (<c>ficha-folha-cm</c>, <c>ficha-folha-notas-gerais</c>), para o <c>aria-labelledby</c>.</summary>
+    public string TituloId => "ficha-folha-" + string.Concat(
+            Familia.Normalize(System.Text.NormalizationForm.FormD)
+                .Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark))
+        .ToLowerInvariant()
+        .Replace(' ', '-');
+}
+
+/// <summary>
+/// A folha da fábrica na ficha do Job On, em leitura (<c>_JobOnFichaFolha</c>).
+/// A informação técnica fica no mínimo (Diogo, 21/10/2026): só aparecem as
+/// famílias e os campos com alguma coisa escrita, sem «—» nos vazios; uma
+/// família sem nada escrito não aparece, e a folha toda vazia diz só «Sem
+/// nada escrito na folha.». A ordem é a da folha: o cabeçalho, os pares
+/// (CM+TP, MF+CS, BQ+AN, PU+ARR, PI+CAL) e as Notas gerais. A calote do TP
+/// já está nos factos da ficha e não se repete aqui.
+/// </summary>
+public sealed class FichaDaFolhaVista
+{
+    /// <summary>O texto da folha sem nada escrito.</summary>
+    public const string SemNadaEscrito = "Sem nada escrito na folha.";
+
+    private FichaDaFolhaVista(
+        int jobOnId,
+        FichaFamiliaLida? cabecalho,
+        IReadOnlyList<IReadOnlyList<FichaFamiliaLida>> pares,
+        IReadOnlyList<JobOnFolhaCalLida> cal,
+        FichaFamiliaLida? notasGerais)
+    {
+        JobOnId = jobOnId;
+        Cabecalho = cabecalho;
+        Pares = pares;
+        Cal = cal;
+        NotasGerais = notasGerais;
+    }
+
+    /// <summary>O Job On da folha (o Editar leva a ele).</summary>
+    public int JobOnId { get; }
+
+    /// <summary>O cabeçalho (Secções, Gota, Processo, Peso), quando tem alguma coisa escrita.</summary>
+    public FichaFamiliaLida? Cabecalho { get; }
+
+    /// <summary>Os pares da folha que têm alguma família escrita, cada um só com as famílias escritas.</summary>
+    public IReadOnlyList<IReadOnlyList<FichaFamiliaLida>> Pares { get; }
+
+    /// <summary>As linhas CAL gravadas, pela ordem.</summary>
+    public IReadOnlyList<JobOnFolhaCalLida> Cal { get; }
+
+    /// <summary>As Notas gerais, quando escritas.</summary>
+    public FichaFamiliaLida? NotasGerais { get; }
+
+    /// <summary>A folha não tem nada escrito.</summary>
+    public bool Vazia => Cabecalho is null && Pares.Count == 0 && NotasGerais is null;
+
+    /// <summary>O Editar do Job On, o mesmo das Opções da ficha.</summary>
+    public string EditarHref => $"/JobOn?jobon_id={JobOnId}&editar=1#lightSheet";
+
+    /// <summary>A folha gravada de um Job On, só com o que está escrito.</summary>
+    public static FichaDaFolhaVista DaLida(JobOnFolhaLida lida)
+    {
+        var pares = JobOnFolhaCampos.Pares
+            .Select(par => (IReadOnlyList<FichaFamiliaLida>)par
+                .Select(familia => familia == JobOnFolhaCampos.Cal
+                    ? lida.Cal.Count > 0 ? new FichaFamiliaLida(familia, []) : null
+                    : Familia(familia, lida))
+                .OfType<FichaFamiliaLida>()
+                .ToList())
+            .Where(par => par.Count > 0)
+            .ToList();
+        return new FichaDaFolhaVista(
+            lida.JobOnId,
+            Familia(JobOnFolhaCampos.Cabecalho, lida),
+            pares,
+            lida.Cal,
+            Familia(JobOnFolhaCampos.NotasGerais, lida));
+    }
+
+    // Uma família com os campos escritos, pela ordem do catálogo, com as notas
+    // no fim; null quando não tem nada escrito.
+    private static FichaFamiliaLida? Familia(string familia, JobOnFolhaLida lida)
+    {
+        var campos = JobOnFolhaCampos.DaFamilia(familia)
+            .Where(c => lida.Valor(c.Chave) is not null)
+            .OrderBy(c => c.Tipo == JobOnFolhaTipoCampo.Nota)
+            .Select(c => new FichaCampoLido(RotuloNaLeitura(c), lida.Valor(c.Chave)!, c.Tipo == JobOnFolhaTipoCampo.Nota))
+            .ToList();
+        return campos.Count == 0 ? null : new FichaFamiliaLida(familia, campos);
+    }
+
+    // Na leitura, cada campo aparece sozinho, sem os vizinhos do formulário:
+    // o rótulo é o do «O que mudou» sem a família à frente («Tol. diâm. pata
+    // (mm)», «Folgas 2 (mm)»), porque a família já é o título. Nas Notas
+    // gerais, a família é o próprio rótulo.
+    private static string? RotuloNaLeitura(JobOnFolhaCampo campo)
+    {
+        if (campo.Familia == JobOnFolhaCampos.NotasGerais)
+        {
+            return null;
+        }
+
+        var prefixo = campo.Familia + " · ";
+        return campo.RotuloAlteracao.StartsWith(prefixo, StringComparison.Ordinal)
+            ? campo.RotuloAlteracao[prefixo.Length..]
+            : campo.Rotulo;
+    }
+}

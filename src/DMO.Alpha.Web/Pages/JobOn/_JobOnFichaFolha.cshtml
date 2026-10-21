@@ -1,0 +1,87 @@
+@model DMO.Alpha.Web.Pages.JobOn.FichaDaFolhaVista
+@using DMO.Alpha.Core.Production
+@using DMO.Alpha.Web.Pages.JobOn
+@*
+  A FOLHA DA FÁBRICA NA FICHA, EM LEITURA, por famílias: o cabeçalho, os
+  pares (CM+TP, MF+CS, BQ+AN, PU+ARR, PI+CAL) e as Notas gerais. A informação
+  técnica fica no mínimo (Diogo, 21/10/2026): só as famílias e os campos com
+  alguma coisa escrita, sem «—» nos vazios; a QTD Stock e a QTD Máq. ficam à
+  vista quando escritas. A CAL é uma tabela pequena (Designação, Valor, QTD
+  Máq.). Sem nada escrito, uma linha só, com o Editar. As ferramentas ficam
+  nos cartões de cima, não se repetem aqui; a calote está nos factos.
+*@
+@{
+    void Familia(FichaFamiliaLida familia)
+    {
+        <section class="jobon-familia jobon-familia-leitura" data-jobon-ficha-familia="@familia.Familia" aria-labelledby="@familia.TituloId">
+          <h4 class="jobon-familia-titulo" id="@familia.TituloId">@familia.Familia</h4>
+          @if (familia.Familia == JobOnFolhaCampos.Cal)
+          {
+            <div class="dmo-table-wrap">
+            <table class="dmo-table" data-dmo-list="CAL">
+              <thead>
+                <tr><th scope="col">Designação</th><th scope="col">Valor</th><th scope="col">@JobOnFolhaCampos.QtdMaq</th></tr>
+              </thead>
+              <tbody>
+                @foreach (var linha in Model.Cal)
+                {
+                  <tr data-jobon-ficha-cal><td>@linha.Designacao</td><td>@linha.Valor</td><td>@linha.QtdMaq</td></tr>
+                }
+              </tbody>
+            </table>
+            </div>
+          }
+          else
+          {
+            <dl class="jobon-leitura">
+              @foreach (var campo in familia.Campos)
+              {
+                <div class="@(campo.Nota ? "jobon-leitura-nota" : null)">
+                  @if (campo.Rotulo is { } rotulo)
+                  {
+                    <dt>@rotulo</dt>
+                  }
+                  else
+                  {
+                    <dt class="dmo-visually-hidden">@familia.Familia</dt>
+                  }
+                  <dd>@campo.Valor</dd>
+                </div>
+              }
+            </dl>
+          }
+        </section>
+    }
+}
+<div id="fichaFolha" class="jobon-ficha-folha">
+  <h3 id="fichaFolhaTitulo">Folha da fábrica</h3>
+  @if (Model.Vazia)
+  {
+    <p class="jobon-folha-vazia">@FichaDaFolhaVista.SemNadaEscrito <a href="@Model.EditarHref">Editar</a></p>
+  }
+  else
+  {
+    if (Model.Cabecalho is { } cabecalho)
+    {
+      Familia(cabecalho);
+    }
+    if (Model.Pares.Count > 0)
+    {
+      <div class="jobon-folha-pares jobon-folha-pares-leitura">
+        @foreach (var par in Model.Pares)
+        {
+          <div class="jobon-folha-par">
+            @foreach (var familia in par)
+            {
+              Familia(familia);
+            }
+          </div>
+        }
+      </div>
+    }
+    if (Model.NotasGerais is { } notasGerais)
+    {
+      Familia(notasGerais);
+    }
+  }
+</div>
