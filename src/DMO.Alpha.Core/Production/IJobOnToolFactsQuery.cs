@@ -36,6 +36,23 @@ public sealed record JobOnToolFacts(
     /// resolvem). Vazio quando não há uso paralelo.
     /// </summary>
     public IReadOnlyList<JobOnToolUsoParalelo> UsosParalelos { get; init; } = Array.Empty<JobOnToolUsoParalelo>();
+
+    /// <summary>
+    /// Onde a ferramenta está pelo Armazém («Armazém · posição 1033»,
+    /// «A reparar · Moldes Lda», «Fabrico»); null quando nunca foi registada
+    /// no Armazém.
+    /// </summary>
+    public string? OndeEsta { get; init; }
+
+    /// <summary>O último estado registado no Armazém; null sem estado.</summary>
+    public DMO.Alpha.Core.Armazem.FerramentaEstadoTipo? Estado { get; init; }
+
+    /// <summary>
+    /// «CM 5447T173 / lote 3 não está registada no Armazém e não tem estado.»
+    /// ou «… não tem estado registado.» (Diogo 21/10, FER-E-03: só avisa) —
+    /// null quando tem as duas coisas.
+    /// </summary>
+    public string? AvisoArmazem { get; init; }
 }
 
 /// <summary>Outra produção que usa a ferramenta ao mesmo tempo: o id, o nº e a máquina.</summary>

@@ -57,6 +57,10 @@ public sealed record DmoAvisoLink(string Texto, string Href, string? Modulo = nu
         return new DmoAvisoLink(texto, href, DmoCapabilities.Ferramentas);
     }
 
+    /// <summary>Os movimentos de uma ferramenta no Armazém, onde se dá entrada e se regista o estado.</summary>
+    public static DmoAvisoLink MovimentosDoArmazem(string toolId, string texto) =>
+        new(texto, $"/Armazem/Movimentos?ferramenta={Uri.EscapeDataString(toolId)}", DmoCapabilities.ArmazemGestao);
+
     /// <summary>Uma produção aberta no Job On; com <paramref name="editar"/>, já no Editar.</summary>
     public static DmoAvisoLink JobOn(int jobOnId, string texto, bool editar = false) =>
         new(texto, $"/JobOn?jobon_id={jobOnId}{(editar ? "&editar=1#lightSheet" : null)}", DmoCapabilities.JobOnCreate);
