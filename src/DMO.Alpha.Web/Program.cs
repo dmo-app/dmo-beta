@@ -247,9 +247,8 @@ builder.Services.AddSingleton<PesoPdfGenerator>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoPdfDocumentBuilder>();
 // O PDF do Resumo num só sítio: o «Exportar PDF» do Resumo e o da Revisão.
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.ResumoPdfDocumentBuilder>();
-// O envio do PDF do Peso por email (D9): a conta SMTP vem só da configuração
-// do serviço (Dmo__Email__*); as listas e os modelos estão nas Definições.
-builder.Services.AddSingleton<DMO.Alpha.Core.Controlo.IEmailSender, DMO.Alpha.Infrastructure.Controlo.SmtpEmailSender>();
+// O envio do PDF do Peso por email (D9): o email abre no Outlook do PC, sem
+// conta no servidor; as listas e os modelos estão nas Definições.
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnvioEmailDefinicoes>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnviarPesoPorEmailHandler>();
 // O APPROVE-MÍNIMO (a decisão GATE 4): o registo de visão da folha do

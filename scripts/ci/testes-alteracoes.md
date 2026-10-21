@@ -305,3 +305,23 @@ Novos: 14 · mudaram: 25 · saíram: 4
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Criar_OMesmoCodigoComOutrasMaiusculas_JaExiste`
 
 Selo depois: `961d0a4bceccca49`
+
+## A-0012 · 2026-10-21 · ok-do-diogo
+
+Porquê: O «Enviar» deixa de mandar pelo servidor (SMTP) e passa a devolver um .eml que o Outlook do PC abre pronto a enviar. O teste do envio passa a verificar o .eml (lista, assunto, corpo, PDF em anexo) e o registo; os testes «sem conta no servidor» e «servidor recusa» saem porque o servidor já não envia; entram «sem lista/sem modelo» e «sem Peso»; o teste do aviso sem modelos deixa de procurar o aviso de servidor. Testes novos do .eml (EmailRascunhoTests).
+Referência: Diogo 21/10/2026 05:51, thread do envio por email (cmsg_01A27e9ozcpoh4jdPRsuJbFyQebu37V7cHh6GdpvKWjpqg): «mas é enviado pelo outlook do pc da empresa» + cartão 06:26: «Abrir no Outlook» (cmsg_01A27e9ozcpoh4jdPRsuJbFyAabj7LLRnPvoShkVDC971k); a mesma mudança da beta.319 (registo A-0002 da beta)
+Novos: 6 · mudaram: 2 · saíram: 3
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/EmailRascunhoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/EmailRascunhoTests.cs :: EmailRascunhoTests.Gerar_AbreComoMensagemNova_SemFrom_QuandoOModeloNaoTemRemetente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/EmailRascunhoTests.cs :: EmailRascunhoTests.Gerar_AcentosNoAssuntoENoAnexo_VaoEmUtf8_EUmaLinhaNovaNaoPartiOCabecalho`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_DevolveOEmailParaOOutlook_ComALista_OAssunto_OCorpo_EOPdf_EFicaORegisto`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_SemListaOuSemModelo_VoltaAoResumo_SemEmailNemRegisto_EDizPorque`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_SemPeso_NaoPreparaEmail`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_SoApareceComPeso_ESemModelosAvisaComLinkParaAsDefinicoes`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_MandaOPdfDoPesoALista_ComOAssuntoEOCorpoDoModelo_EFicaORegisto`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_QuandoOServidorDeEmailRecusa_NaoFicaRegisto_EDizQueNaoSaiu`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_SemContaDeEmailNoServidor_NaoEnviaNemRegista_EDizPorque`
+
+Selo depois: `92082ab9a42bc24f`

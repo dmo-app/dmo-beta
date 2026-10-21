@@ -8,7 +8,6 @@ using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,20 +18,17 @@ namespace DMO.Alpha.Web.Tests.Controlo;
 /// uma opção para enviar… escolher o template B ou C e escolher a lista»; e
 /// «essa opção deve existir no resumo do controlo»). As listas e os modelos
 /// vivem nas Definições do Controlo; o «Enviar» está no Resumo; o PDF é feito
-/// na hora e nunca fica no servidor; fica só o registo do envio. O servidor
-/// de email é um falso que guarda o que recebe.
+/// na hora e nunca fica no servidor; fica só o registo do envio. O email sai
+/// pelo Outlook do PC (Diogo, 21/10/2026): o «Enviar» devolve um .eml.
 /// </summary>
 public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private readonly WebApplicationFactory<Program> _factory;
     private readonly CustomWebApplicationFactory _base;
-    private readonly FakeEmailSender _sender = new();
-
     public EnvioEmailPesoPageTests(CustomWebApplicationFactory factory)
     {
         _base = factory;
-        _factory = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
-            services.AddSingleton<IEmailSender>(_sender)));
+        _factory = factory.WithWebHostBuilder(_ => { });
         _base.ResetState();
         ResetDomainState();
     }
@@ -183,7 +179,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
     }
 
     [Fact]
-    public async Task Enviar_MandaOPdfDoPesoALista_ComOAssuntoEOCorpoDoModelo_EFicaORegisto()
+    public async Task Enviar_DevolveOEmailParaOOutlook_ComALista_OAssunto_OCorpo_EOPdf_EFicaORegisto()
     {
         var producao = await SeedProducaoAsync();
         var (listaId, modeloId) = SeedModelo();
@@ -192,15 +188,19 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
 
         using var enviado = await EnviarAsync(client, producao, modeloId, listaId);
 
-        Assert.Equal(HttpStatusCode.Redirect, enviado.StatusCode);
-        Assert.Equal($"/Controlo/Resumo?jobon_id={producao.JobOnId}&envio=Enviado#resumoEnvio", enviado.Headers.Location!.ToString());
-        var mensagem = Assert.Single(_sender.Enviadas);
-        Assert.Equal(new[] { "producao@fabrica.pt", "chefe@fabrica.pt" }, mensagem.Destinatarios);
-        Assert.Equal("controlo@fabrica.pt", mensagem.Remetente);
-        Assert.Equal("Peso 5447T173 · 202605", mensagem.Assunto);
-        Assert.Equal("Segue o Peso da produção 202605 na máquina B1.", mensagem.Corpo);
-        Assert.Equal("PESO-5447T173-202605.pdf", mensagem.AnexoNome);
-        Assert.StartsWith("%PDF", Encoding.ASCII.GetString(mensagem.Anexo, 0, 4));
+        Assert.Equal(HttpStatusCode.OK, enviado.StatusCode);
+        Assert.Equal("message/rfc822", enviado.Content.Headers.ContentType!.MediaType);
+        Assert.Equal("PESO-5447T173-202605.eml", enviado.Content.Headers.ContentDisposition!.FileNameStar ?? enviado.Content.Headers.ContentDisposition.FileName!.Trim('"'));
+        var eml = Encoding.ASCII.GetString(await enviado.Content.ReadAsByteArrayAsync());
+        Assert.StartsWith("X-Unsent: 1\r\n", eml);
+        Assert.Contains("\r\nFrom: controlo@fabrica.pt\r\n", eml);
+        Assert.Contains("\r\nTo: producao@fabrica.pt, chefe@fabrica.pt\r\n", eml);
+        Assert.Contains("\r\nSubject: =?utf-8?B?" + Convert.ToBase64String(Encoding.UTF8.GetBytes("Peso 5447T173 · 202605")) + "?=\r\n", eml);
+        var partes = Regex.Matches(eml, "\r\n\r\n([A-Za-z0-9+/=\r\n]+?)--dmo-");
+        Assert.Equal(2, partes.Count);
+        Assert.Equal("Segue o Peso da produção 202605 na máquina B1.", Encoding.UTF8.GetString(Convert.FromBase64String(partes[0].Groups[1].Value.Replace("\r\n", ""))));
+        Assert.Contains("Content-Disposition: attachment; filename=\"PESO-5447T173-202605.pdf\"", eml);
+        Assert.StartsWith("%PDF", Encoding.ASCII.GetString(Convert.FromBase64String(partes[1].Groups[1].Value.Replace("\r\n", "")), 0, 4));
 
         var envio = Assert.Single(Envios());
         Assert.Equal(producao.ControloId, envio.ControloId);
@@ -209,46 +209,44 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         Assert.Equal("Produção", envio.ListaNome);
         Assert.Equal("4801", envio.EnviadoPor);
 
-        var resumo = await GetAsync(client, $"/Controlo/Resumo?jobon_id={producao.JobOnId}&envio=Enviado");
+        var resumo = await GetAsync(client, $"/Controlo/Resumo?jobon_id={producao.JobOnId}");
         var zona = ZonaDoEnvio(resumo);
-        Assert.Contains("PDF do Peso enviado.", zona);
-        Assert.Contains("Último envio:", zona);
+        Assert.Contains("O email abre no Outlook", zona);
+        Assert.Contains("data-dmo-dialog-fecha-ao-enviar", zona);
+        Assert.Contains("Último email:", zona);
         Assert.Contains("· Produção · por 4801", zona);
     }
 
     [Fact]
-    public async Task Enviar_SemContaDeEmailNoServidor_NaoEnviaNemRegista_EDizPorque()
+    public async Task Enviar_SemListaOuSemModelo_VoltaAoResumo_SemEmailNemRegisto_EDizPorque()
     {
         var producao = await SeedProducaoAsync();
         var (listaId, modeloId) = SeedModelo();
-        _sender.Configurado = false;
         using var client = await LoginAsync("4802");
         await CriarPesoAsync(client, producao);
 
-        var resumo = await GetAsync(client, $"/Controlo/Resumo?jobon_id={producao.JobOnId}");
-        Assert.Contains("data-dmo-envio-sem-servidor", ZonaDoEnvio(resumo));
+        using var semLista = await EnviarAsync(client, producao, modeloId, listaId + 1000);
+        using var semModelo = await EnviarAsync(client, producao, modeloId + 1000, listaId);
 
-        using var enviado = await EnviarAsync(client, producao, modeloId, listaId);
-
-        Assert.EndsWith("envio=SemServidor#resumoEnvio", enviado.Headers.Location!.ToString());
-        Assert.Empty(_sender.Enviadas);
+        Assert.Equal($"/Controlo/Resumo?jobon_id={producao.JobOnId}&envio=SemLista#resumoEnvio", semLista.Headers.Location!.ToString());
+        Assert.EndsWith("envio=SemModelo#resumoEnvio", semModelo.Headers.Location!.ToString());
         Assert.Empty(Envios());
-        var depois = await GetAsync(client, enviado.Headers.Location!.ToString());
-        Assert.Contains("O envio por email ainda não está configurado no servidor. Nada foi enviado.", ZonaDoEnvio(depois));
+        var depois = await GetAsync(client, semLista.Headers.Location!.ToString());
+        var zona = ZonaDoEnvio(depois);
+        Assert.Contains("Escolha uma lista de destinatários. Nenhum email foi preparado.", zona);
+        Assert.Contains("href=\"/Controlo/Definicoes\"", zona);
     }
 
     [Fact]
-    public async Task Enviar_QuandoOServidorDeEmailRecusa_NaoFicaRegisto_EDizQueNaoSaiu()
+    public async Task Enviar_SemPeso_NaoPreparaEmail()
     {
         var producao = await SeedProducaoAsync();
         var (listaId, modeloId) = SeedModelo();
-        _sender.Falha = true;
         using var client = await LoginAsync("4803");
-        await CriarPesoAsync(client, producao);
 
         using var enviado = await EnviarAsync(client, producao, modeloId, listaId);
 
-        Assert.EndsWith("envio=Falhou#resumoEnvio", enviado.Headers.Location!.ToString());
+        Assert.EndsWith("envio=SemPeso#resumoEnvio", enviado.Headers.Location!.ToString());
         Assert.Empty(Envios());
     }
 
@@ -267,7 +265,6 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         var zona = ZonaDoEnvio(comPeso);
         Assert.Contains("data-dmo-envio-sem-definicoes", zona);
         Assert.Contains("href=\"/Controlo/Definicoes\"", zona);
-        Assert.DoesNotContain("data-dmo-envio-sem-servidor", zona);
     }
 
     [Fact]
@@ -354,21 +351,5 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
 
         var html = await GetAsync(client, "/Controlo/Definicoes");
         Assert.Contains("data-dmo-dialog=\"ctl-modelo-" + modelo.Id + "\">Qualidade</button>", html);
-    }
-
-    private sealed class FakeEmailSender : IEmailSender
-    {
-        public bool Configurado { get; set; } = true;
-
-        public bool Falha { get; set; }
-
-        public List<EmailMensagem> Enviadas { get; } = new();
-
-        public Task SendAsync(EmailMensagem mensagem, CancellationToken cancellationToken = default)
-        {
-            if (Falha) throw new System.Net.Mail.SmtpException("Recusado pelo servidor.");
-            Enviadas.Add(mensagem);
-            return Task.CompletedTask;
-        }
     }
 }

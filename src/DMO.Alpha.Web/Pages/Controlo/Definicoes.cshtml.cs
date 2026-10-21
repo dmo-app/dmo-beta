@@ -26,7 +26,6 @@ public sealed class DefinicoesModel(
     IPegamentosToleranceConfiguration pegamentosTolerance,
     ISavePegamentosToleranceHandler savePegamentosTolerance,
     EnvioEmailDefinicoes envioEmail,
-    IEmailSender emailSender,
     IGlassDensityConfiguration glassDensity,
     ISaveGlassDensityHandler saveGlassDensity,
     ShellStateFactory shellState) : PageModel
@@ -36,9 +35,6 @@ public sealed class DefinicoesModel(
 
     /// <summary>Os modelos do envio, por nome.</summary>
     public IReadOnlyList<EmailModelo> Modelos { get; private set; } = Array.Empty<EmailModelo>();
-
-    /// <summary>FALSE enquanto a conta de email do serviço não está configurada.</summary>
-    public bool EmailConfigurado => emailSender.Configurado;
 
     /// <summary>Os endereços que ficaram de fora da última lista gravada (não são emails).</summary>
     public string? Ignorados { get; private set; }

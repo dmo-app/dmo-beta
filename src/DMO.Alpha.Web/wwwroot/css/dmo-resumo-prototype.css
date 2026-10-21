@@ -449,3 +449,4 @@
 .resumo-envio-form { display: grid; gap: 10px; min-width: min(360px, 100%); }
 .resumo-envio-form .dmo-field { margin: 0; }
 .resumo-envio-ultimo { margin: 0; color: var(--dmo-muted); font-size: 12px; }
+.resumo-envio-nota { margin: 0 0 10px; color: var(--dmo-muted); font-size: 13px; }

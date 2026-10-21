@@ -82,10 +82,6 @@
 
   <section id="ctlDefListas" class="dmo-card ctl-def-card" aria-labelledby="envio-listas-title" data-dmo-regiao data-dmo-parcial>
     <h3 id="envio-listas-title">Envio por email — listas<partial name="_DmoHelp" model="@("Quem recebe o PDF do Peso. Escreva os emails separados por vírgula ou espaço; o que não for um email fica de fora, com aviso. Clique no nome ou nos emails de uma lista para os mudar; grava ao sair do campo.")" /></h3>
-    @if (!Model.EmailConfigurado)
-    {
-      <p class="dmo-aviso-discreto" data-dmo-envio-sem-servidor>A conta de email que envia ainda não está configurada no servidor: as listas e os modelos gravam, mas o «Enviar» ainda não envia.</p>
-    }
     <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="CriarLista" class="ctl-def-acoes">
       <div class="dmo-field">
         <label for="listaNome">Nova lista</label>

@@ -4,26 +4,23 @@
     var semDefinicoes = Model.Modelos.Count == 0 || Model.Listas.Count == 0;
 }
 @* O «ENVIAR» (Diogo, 19/10/2026, D9): o PDF do Peso, feito na hora como no
-   «Exportar», vai por email à lista escolhida, com o assunto e o corpo do
-   modelo. O PDF não fica no servidor; fica o registo do envio. *@
+   «Exportar», vai num email para a lista escolhida, com o assunto e o corpo
+   do modelo. O email abre no Outlook do PC, pronto a enviar (Diogo,
+   21/10/2026). O PDF não fica no servidor; fica o registo do envio. *@
 <div id="resumoEnvio" class="resumo-envio" data-dmo-regiao>
   @if (Model.Mensagem.Length > 0)
   {
-    var ok = Model.Resultado == DMO.Alpha.Infrastructure.Controlo.EnviarPesoResultado.Enviado;
-    <p data-dmo-toast="@(ok ? "ok" : "erro")" role="@(ok ? "status" : "alert")">@Model.Mensagem@if (Model.ResolveNasDefinicoes) {<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Definições do Controlo", "/Controlo/Definicoes", DMO.Alpha.Core.Admin.DmoCapabilities.ControloCreate))" />}</p>
+    <p data-dmo-toast="erro" role="alert">@Model.Mensagem@if (Model.ResolveNasDefinicoes) {<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Definições do Controlo", "/Controlo/Definicoes", DMO.Alpha.Core.Admin.DmoCapabilities.ControloCreate))" />}</p>
   }
   <button type="button" class="dmo-button" data-dmo-dialog="resumoEnvioJanela">Enviar</button>
   <dialog id="resumoEnvioJanela" class="dmo-dialog" aria-labelledby="resumoEnvioTitulo">
     <h3 id="resumoEnvioTitulo">Enviar o PDF do Peso</h3>
-    @if (!Model.Configurado)
-    {
-      <p class="dmo-aviso-discreto" data-dmo-envio-sem-servidor>A conta de email que envia ainda não está configurada no servidor.</p>
-    }
+    <p class="resumo-envio-nota">O email abre no Outlook, com o PDF em anexo. Confirme e carregue em «Enviar» no Outlook.</p>
     @if (semDefinicoes)
     {
       <p class="dmo-aviso-discreto" data-dmo-envio-sem-definicoes>Falta criar @(Model.Modelos.Count == 0 ? "um modelo" : "uma lista") do envio.<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Definições do Controlo", "/Controlo/Definicoes", DMO.Alpha.Core.Admin.DmoCapabilities.ControloCreate))" /></p>
     }
-    <form method="post" asp-page="/Controlo/EnviarPeso" class="resumo-envio-form">
+    <form method="post" asp-page="/Controlo/EnviarPeso" class="resumo-envio-form" data-dmo-dialog-fecha-ao-enviar>
       <input type="hidden" name="jobon_id" value="@Model.JobOnId" />
       <div class="dmo-field">
         <label for="resumoEnvioModelo">Modelo</label>
@@ -45,11 +42,11 @@
       </div>
       @if (Model.UltimoEnvio is { } ultimo)
       {
-        <p class="resumo-envio-ultimo" data-dmo-envio-ultimo>Último envio: @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultimo.EnviadoEmUtc).ToString("dd/MM/yyyy HH:mm", fmt) · @ultimo.ListaNome · por @ultimo.EnviadoPor</p>
+        <p class="resumo-envio-ultimo" data-dmo-envio-ultimo>Último email: @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultimo.EnviadoEmUtc).ToString("dd/MM/yyyy HH:mm", fmt) · @ultimo.ListaNome · por @ultimo.EnviadoPor</p>
       }
       <div class="dmo-dialog-actions">
         <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-        <button type="submit" class="dmo-button">Enviar</button>
+        <button type="submit" class="dmo-button">Abrir no Outlook</button>
       </div>
     </form>
   </dialog>

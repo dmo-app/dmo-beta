@@ -12,9 +12,11 @@ namespace DMO.Alpha.Web.Pages.Controlo;
 /// <summary>
 /// O «Enviar» do Resumo do controlo (Diogo, 19/10/2026, D9 e «essa opção deve
 /// existir no resumo do controlo; pode ser acedido pelo resumo ou pelo
-/// histórico»): envia o PDF do Peso da produção à lista escolhida, com o
-/// modelo escolhido, e volta ao Resumo com o resultado. Não tem ecrã próprio:
-/// a janela do envio está no Resumo (componente EnvioPeso).
+/// histórico»): devolve o email com o PDF do Peso da produção, para a lista
+/// e com o modelo escolhidos, num .eml que o Outlook do PC abre pronto a
+/// enviar (Diogo, 21/10/2026: «é enviado pelo outlook do pc da empresa»).
+/// Quando falta alguma coisa volta ao Resumo com o motivo. Não tem ecrã
+/// próprio: a janela do envio está no Resumo (componente EnvioPeso).
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ControloCreate)]
@@ -26,8 +28,8 @@ public sealed class EnviarPesoModel(
         RedirectToPage("/Controlo/Resumo", new { jobon_id = jobOnId });
 
     /// <summary>
-    /// POST: enviar. O mesmo envio repetido pela ligação (X-Dmo-Envio) não
-    /// envia outra vez; um clique novo em «Enviar» é um envio novo.
+    /// POST: preparar o email. O mesmo envio repetido pela ligação
+    /// (X-Dmo-Envio) não regista outra vez; um clique novo é um envio novo.
     /// </summary>
     [EnvioUnico]
     public async Task<IActionResult> OnPostAsync(
@@ -39,15 +41,20 @@ public sealed class EnviarPesoModel(
         var controloId = jobOnId is int jobOn
             ? await controlos.FindExistingIdAsync(jobOn, HttpContext.RequestAborted)
             : null;
-        var resultado = controloId is int controlo
-            ? await enviar.EnviarAsync(
+        var (resultado, email) = controloId is int controlo
+            ? await enviar.PrepararAsync(
                 controlo,
                 modeloId,
                 listaId,
                 User.FindFirst(DmoClaimTypes.OperatorId)?.Value ?? User.FindFirst(DmoClaimTypes.Email)?.Value ?? "—",
                 User.FindFirst(DmoClaimTypes.DisplayName)?.Value ?? User.FindFirst(DmoClaimTypes.Email)?.Value,
                 HttpContext.RequestAborted)
-            : EnviarPesoResultado.SemPeso;
+            : (EnviarPesoResultado.SemPeso, null);
+        if (email is not null)
+        {
+            return File(email.Eml, "message/rfc822", email.FileName);
+        }
+
         return RedirectToPage("/Controlo/Resumo", null, new { jobon_id = jobOnId, envio = resultado.ToString() }, "resumoEnvio");
     }
 }
