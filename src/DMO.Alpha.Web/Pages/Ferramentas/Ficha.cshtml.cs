@@ -134,15 +134,18 @@ public sealed class FichaModel : PageModel
     private readonly IFerramentasUsoSap _usoSap;
     private readonly IFerramentasFabricoSap _fabricoSap;
 
-    /// <summary>As linhas por página da tabela das produções.</summary>
-    public const int ProducoesPorPagina = 10;
+    /// <summary>As produções que a janela mostra (com deslizar, sem páginas).</summary>
+    public const int ProducoesPorPagina = 200;
 
     /// <summary>
-    /// A tabela das produções da ferramenta (?jobon=1, no «Opções» da ficha):
-    /// os Job On em que foi a CM, o MF ou a BQ, com o que o SAP diz que
-    /// produziram (Diogo, 21/10/2026). Lida só quando se abre; null fechada.
+    /// As produções da ferramenta, na janela que abre com um clique no % da
+    /// Utilização: os Job On em que foi a CM, o MF ou a BQ, com o que o SAP
+    /// diz que produziram e o delta (Diogo, 21/10/2026).
     /// </summary>
     public FerramentaProducoes? Producoes { get; private set; }
+
+    /// <summary>A janela das produções abre com a página (?jobon=1).</summary>
+    public bool ProducoesAbertas { get; private set; }
 
     /// <summary>A utilização (a última leitura, do SAP) e o lembrete aberto.</summary>
     public FerramentaUtilizacaoAtual? Utilizacao { get; private set; }
@@ -483,10 +486,8 @@ public sealed class FichaModel : PageModel
         if (Sheet is not null)
         {
             Utilizacao = await _usoSap.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
-            if (jobOn == "1")
-            {
-                Producoes = await _fabricoSap.ProducoesAsync(Sheet.ToolId, paginaJobOn, ProducoesPorPagina, HttpContext.RequestAborted);
-            }
+            Producoes = await _fabricoSap.ProducoesAsync(Sheet.ToolId, paginaJobOn, ProducoesPorPagina, HttpContext.RequestAborted);
+            ProducoesAbertas = jobOn == "1";
         }
 
         TypeChangedWarning = Sheet is { } mudada ? TypeChangedMessage(tipoAnterior, producoes, mudada.Type) : null;

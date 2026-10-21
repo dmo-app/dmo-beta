@@ -652,3 +652,17 @@ Novos: 21 · mudaram: 1 · saíram: 0
 - mudou: `scripts/ci/testes.md`
 
 Selo depois: `bfbd0316cf5dd1e3`
+
+## A-0025 · 2026-10-21 · ok-do-diogo
+
+Porquê: Pedido do Diogo na thread «SAP tool usage extraction» (21/10/2026): 11:36 (cmsg_01A27e9ozcpoh4jdPRsuJbFyFip85u8znDx8ca5TiHdnTM) «preferi ter um box Média Moda, selecionar um ou outro ou ambos» em vez dos botões do Peso; 11:40 (cmsg_01A27e9ozcpoh4jdPRsuJbFy9jXeAdffxYoGsStADTMNpe e cmsg_01A27e9ozcpoh4jdPRsuJbFyNXpJa2APZVQ9z76e9jPhub) na ficha só o % de uso, que abre uma janela pequena com produção, produzido e delta, e cada produção leva à ficha do Job On; 12:13–12:14 (cmsg_01A27e9ozcpoh4jdPRsuJbFyP4u42KywEoZTHmxji2yL7B, cmsg_01A27e9ozcpoh4jdPRsuJbFy3SaS21QndkJ92y9Ve6eTWr) o produzido é a produção bruta: «o uso é calculado pelo total produzido e não pelo que consideram boas». Os 5 testes mudados verificam agora a caixa (Média escolhida com a diferença, Moda por escolher, sem botões) e a janela (botão do %, fechada com a página ou aberta com ?jobon=1, o produzido bruto, o link para o Job On e o total); nada foi enfraquecido.
+Referência: thread «SAP tool usage extraction», mensagens do Diogo de 21/10 11:36–12:14 (ids no porquê)
+Novos: 0 · mudaram: 5 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ORelatorioDeFabrico_MostraOQueCadaJobOnDaFerramentaProduziu`
+
+Selo depois: `79ea765de9d9c06f`

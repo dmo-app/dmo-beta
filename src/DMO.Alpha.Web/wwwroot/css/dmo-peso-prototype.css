@@ -222,3 +222,12 @@
 .peso-page .peso-leitura-nova .peso-registar{flex:1 1 auto}
 .peso-page [data-peso-comparacao-medias] th,.peso-page [data-peso-comparacao-medias] td{border-top:2px solid var(--dmo-border,#d5e0eb);background:var(--dmo-subtle,#f1f6fa);font-weight:700;text-align:left}
 .peso-page .peso-procura-larga .dmo-field{flex:1 1 560px;max-width:none}
+/* A caixa do peso do SAP na produção anterior: a Média e a Moda, uma, a outra ou as duas (Diogo, 21/10/2026). */
+.peso-sap-caixa{margin:8px 0 0;padding:10px 12px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);max-width:520px}
+.peso-sap-titulo{font-weight:700;font-size:13px;margin:0 0 6px}
+.peso-sap-titulo .peso-hint{margin:0;font-weight:400}
+.peso-sap-opcoes{display:flex;flex-wrap:wrap;gap:6px 18px}
+.peso-sap-opcao{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+.peso-sap-delta{color:var(--dmo-muted);font-size:12px}
+.peso-sap-delta[hidden],.peso-sap-caixa [hidden]{display:none}
+.peso-sap-caixa > [data-sap-sem]{color:var(--dmo-muted);font-size:12px}

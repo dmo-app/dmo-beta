@@ -18,6 +18,12 @@
 @section Head {
 <link rel="stylesheet" href="~/css/dmo-ferramenta-form.css" asp-append-version="true" />
 <style>
+/* O % da Utilização abre a janela das produções (Diogo, 21/10/2026). */
+.ferr-utilizacao-abrir{all:unset;cursor:pointer;font-weight:800;color:var(--dmo-link,var(--dmo-brand-600));text-decoration:underline;text-underline-offset:3px}
+.ferr-utilizacao-abrir:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
+.ferr-producoes-janela .ferr-producoes-lista{max-height:min(60vh,420px);overflow:auto}
+.ferr-producoes-janela .dmo-table{min-width:0}
+.ferr-producao-maquina{color:var(--dmo-muted);font-size:12px}
 .ferr-armazem-link{color:var(--dmo-brand-900);font-weight:600}
 .ferr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
 .ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
@@ -290,7 +296,6 @@
             <div class="dmo-options-list" id="ferrOpcoes">
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
-              <a class="dmo-options-item" id="ferr-producoes-abrir" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId, jobon = 1 })#ferrProducoes">Produções (Job On)</a>
               @* Pedir a utilização ao SAP: abre o lembrete, como a Entrada
                  vinda da Produção (só um aberto de cada vez). *@
               @if (Model.Utilizacao?.LembreteDesdeUtc is null)
@@ -319,15 +324,15 @@
           <div class="dmo-fact" id="ferrEstadoArmazem"><span>Estado</span><strong>@(arm.Estado is { } estadoArm ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoArm) : "—")</strong></div>
           <div class="dmo-fact"><span>Movimentos</span><strong><a class="ferr-armazem-link" id="ferrHistoricoArmazem" href="@Url.Page("/Armazem/Historico", new { ferramenta = arm.ToolId })">Ver o histórico</a></strong></div>
         }
-        @if (Model.Utilizacao is { } utilizacao && (utilizacao.Ultima is not null || utilizacao.LembreteDesdeUtc is not null))
+        @if (Model.Utilizacao is { Ultima: not null } or { LembreteDesdeUtc: not null } || Model.Producoes is { Pagina.TotalCount: > 0 })
         {
           @* A UTILIZAÇÃO (blueprint ferramentas/ESTADO-E-UTILIZACAO §2.2): a
              última leitura, de onde veio e quando; o SAP dá também as peças
              feitas e as previstas. O lembrete aberto diz que está à espera. *@
-          var leituraUtil = utilizacao.Ultima;
-          var pecas = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
-          <div class="dmo-fact" id="ferrUtilizacao"><span>Utilização</span><strong>@(leituraUtil is null ? "—" : leituraUtil.Percentagem.ToString("0.##", pt) + " %")</strong>@if (leituraUtil is not null)
-            {<small style="display:block;margin-top:2px;color:var(--dmo-muted);font-size:12px">@(leituraUtil is { Consumo: { } feitas, VidaPrevista: { } vida } ? $"{feitas.ToString("#,0", pecas)} de {vida.ToString("#,0", pecas)} peças · " : null)@(leituraUtil.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "SAP" : leituraUtil.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraUtil.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) · <a class="ferr-armazem-link" id="ferr-utilizacao-detalhes" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId, jobon = 1 })#ferrProducoes">Detalhes</a></small>}</div>
+          var leituraUtil = Model.Utilizacao?.Ultima;
+          @* Só o % de uso, o que mais importa (Diogo, 21/10/2026); um clique
+             abre a janela com as produções, o produzido e o delta. *@
+          <div class="dmo-fact" id="ferrUtilizacao"><span>Utilização</span><button type="button" class="ferr-utilizacao-abrir" id="ferr-utilizacao-detalhes" data-dmo-dialog="ferrProducoes" aria-label="Utilização por produção">@(leituraUtil is null ? "—" : leituraUtil.Percentagem.ToString("0.##", pt) + " %")</button></div>
         }
       </div>
 
@@ -375,8 +380,9 @@
     @* AS PRODUÇÕES DA FERRAMENTA (Diogo, 21/10/2026: «associar um Job On
        ao uso por produção, o que produziu»): os Job On em que ela foi a CM,
        o MF ou a BQ e o que o relatório de fabrico do SAP diz que se produziu
-       (a mesma referência, máquina e datas). Abre-se no «Opções» ou no
-       «Detalhes» da Utilização. O quadro de detalhes (Diogo, 21/10/2026:
+       (a mesma referência, máquina e datas). Abre-se numa janela pequena
+       com um clique no % da Utilização (Diogo: «a app seja uma web e não
+       um caminho»: da produção vai-se à ficha do Job On). O quadro de detalhes (Diogo, 21/10/2026:
        «% uso, mas um box que mostra detalhes: o que fabricou naquela
        produção, o delta e o total»): o delta é quanto a utilização subiu
        nessa produção; o total soma todas as produções. *@
@@ -384,67 +390,68 @@
     {
       var producoesFerr = producoesTudo.Pagina;
       var pecasProd = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
-      <section id="ferrProducoes" class="dmo-card ferr-card" aria-labelledby="ferr-producoes-title" data-dmo-regiao>
-        <div class="dmo-card-topo">
-          <h3 id="ferr-producoes-title">Utilização por produção<partial name="_DmoHelp" model="@("Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O que se produziu vem do relatório de fabrico do SAP, lido da pasta do SAP: a mesma referência, a mesma máquina e as datas. O delta é quanto a utilização subiu nessa produção (a leitura depois do fim menos a de antes do início). O total soma todas as produções.")" /></h3>
-          <div class="dmo-card-topo-acoes">
-            <a class="dmo-button" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId })">Fechar</a>
-          </div>
-        </div>
+      var leituraJanela = Model.Utilizacao?.Ultima;
+      <dialog id="ferrProducoes" class="dmo-dialog ferr-producoes-janela" aria-labelledby="ferr-producoes-title" data-dmo-dialog-aberta="@(Model.ProducoesAbertas ? "1" : null)">
+        <h3 id="ferr-producoes-title">Utilização por produção<partial name="_DmoHelp" model="@("Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O produzido é a produção bruta (o total, com que se calcula o uso) do relatório de fabrico do SAP (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção. Um clique na produção abre a ficha do Job On.")" /></h3>
+        @if (leituraJanela is not null)
+        {
+          <p class="ferr-nota" id="ferrProducoesHoje">Hoje <strong>@leituraJanela.Percentagem.ToString("0.##", pt) %</strong>@(leituraJanela is { Consumo: { } feitas, VidaPrevista: { } vida } ? $" · {feitas.ToString("#,0", pecasProd)} de {vida.ToString("#,0", pecasProd)} peças" : null) · @(leituraJanela.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "SAP" : leituraJanela.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraJanela.RegistadaEmUtc).ToString("dd/MM/yyyy", pt)</p>
+        }
         @if (producoesFerr.TotalCount == 0)
         {
           <p class="ferr-nota" id="ferrProducoesVazio">Esta ferramenta ainda não esteve em nenhum Job On.</p>
         }
         else
         {
-          <div class="dmo-table-wrap">
+          <div class="dmo-table-wrap ferr-producoes-lista">
             <table class="dmo-table" data-dmo-list="Produções da ferramenta">
               <thead>
                 <tr>
                   <th>Produção</th>
-                  <th>Referência</th>
-                  <th>Máquina</th>
-                  <th>Início</th>
-                  <th>Fim</th>
-                  <th>Produção bruta</th>
-                  <th>Produção líquida</th>
-                  <th>Delta utilização</th>
+                  <th>Produzido</th>
+                  <th>Delta</th>
                 </tr>
               </thead>
               <tbody>
                 @foreach (var prod in producoesFerr.Items)
                 {
                   <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"
+                      title="@prod.Maquina · @(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")"
                       aria-label="Produção @prod.Producao — um clique abre a ficha do Job On">
-                    <td><strong>@prod.Producao</strong></td>
-                    <td>@prod.Referencia</td>
-                    <td>@prod.Maquina</td>
-                    <td>@(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—")</td>
-                    <td>@(prod.FimEm?.ToString("dd/MM/yyyy") ?? "—")</td>
+                    <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> <small class="ferr-producao-maquina">@prod.Maquina</small></td>
                     <td>@(prod.ProducaoBruta?.ToString("#,0", pecasProd) ?? "—")</td>
-                    <td>@(prod.ProducaoLiquida?.ToString("#,0", pecasProd) ?? "—")</td>
                     <td>@(prod.DeltaUtilizacao is { } delta ? (delta >= 0 ? "+" : "") + delta.ToString("0.##", pt) + " %" : "—")</td>
                   </tr>
                 }
               </tbody>
               <tfoot id="ferrProducoesTotal">
                 <tr>
-                  <th scope="row" colspan="5">Total · @producoesFerr.TotalCount @(producoesFerr.TotalCount == 1 ? "produção" : "produções")</th>
+                  <th scope="row">Total · @producoesFerr.TotalCount @(producoesFerr.TotalCount == 1 ? "produção" : "produções")</th>
                   <td><strong>@(producoesTudo.TotalBruta?.ToString("#,0", pecasProd) ?? "—")</strong></td>
-                  <td><strong>@(producoesTudo.TotalLiquida?.ToString("#,0", pecasProd) ?? "—")</strong></td>
-                  <td><strong>@(Model.Utilizacao?.Ultima is { } atual ? "Hoje " + atual.Percentagem.ToString("0.##", pt) + " %" : "—")</strong></td>
+                  <td><strong>@(leituraJanela is { } atual ? atual.Percentagem.ToString("0.##", pt) + " %" : "—")</strong></td>
                 </tr>
               </tfoot>
             </table>
           </div>
           @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))
           {
-            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» na produção: o SAP ainda não deu o fabrico desse Job On. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap">Ler a pasta do SAP</a></p>
+            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: o SAP ainda não deu o fabrico desse Job On. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap">Ler a pasta do SAP</a></p>
           }
-          var producoesPager = DMO.Alpha.Web.Presentation.ListPager.For(producoesFerr, "pagina_jobon", "ferrProducoes");
-          <partial name="_ListPager" model="producoesPager" />
         }
-      </section>
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button" data-dmo-dialog-close id="ferrProducoesFechar">Fechar</button>
+        </div>
+      </dialog>
+      @* A janela abre com o foco no «Fechar», não na ajuda (que abriria o balão). *@
+      <script>
+        (function () {
+          var janela = document.getElementById('ferrProducoes');
+          if (!janela || !window.MutationObserver) { return; }
+          new MutationObserver(function () {
+            if (janela.open) { document.getElementById('ferrProducoesFechar').focus(); }
+          }).observe(janela, { attributes: true, attributeFilter: ['open'] });
+        })();
+      </script>
     }
 
     @* ---------------------------------------------------------------- *@

@@ -8,8 +8,9 @@ namespace DMO.Alpha.Web.Tests.Controlo;
 /// <summary>
 /// O peso do SAP na produção anterior (Diogo, 21/10/2026): pelas datas da
 /// produção escolhida e a referência, as ordens do relatório de fabrico dão
-/// a média pelos dias e a moda (o peso com mais dias); o campo vem com a
-/// média, e cada produção leva a sua no select.
+/// a média pelos dias e a moda (o peso com mais dias), numa caixa onde se
+/// escolhe a Média, a Moda ou as duas (cada uma com a diferença do peso de
+/// hoje); o campo vem com a média, e cada produção leva a sua no select.
 /// </summary>
 public partial class PesoFolhaProducaoAnteriorPageTests
 {
@@ -25,12 +26,12 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         db.SaveChanges();
     }
 
-    // A zona do peso do SAP, até ao fim do parágrafo.
+    // A caixa do peso do SAP, até à zona da diferença.
     private static string ZonaSap(string html)
     {
         var inicio = html.IndexOf("id=\"pesoAnteriorSap\"", StringComparison.Ordinal);
         Assert.True(inicio >= 0, "a página não tem #pesoAnteriorSap");
-        return WebUtility.HtmlDecode(html[inicio..html.IndexOf("</p>", inicio, StringComparison.Ordinal)]);
+        return WebUtility.HtmlDecode(html[inicio..html.IndexOf("id=\"pesoAnteriorDelta\"", inicio, StringComparison.Ordinal)]);
     }
 
     [Fact]
@@ -46,8 +47,16 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
 
         var sap = ZonaSap(html);
-        Assert.Contains("Peso do SAP: média 181.67 g · moda 181.00 g (18 dias)", System.Text.RegularExpressions.Regex.Replace(sap, "<[^>]+>|\\s+", m => m.Value.StartsWith('<') ? "" : " "), StringComparison.Ordinal);
-        Assert.Contains("data-sap-usar=\"media\"", sap, StringComparison.Ordinal);
+        var texto = System.Text.RegularExpressions.Regex.Replace(sap, "<[^>]+>|\\s+", m => m.Value.StartsWith('<') ? "" : " ");
+        Assert.Contains("Peso do SAP (18 dias)", texto, StringComparison.Ordinal);
+        Assert.Contains("Média 181.67 g", texto, StringComparison.Ordinal);
+        Assert.Contains("Moda 181.00 g", texto, StringComparison.Ordinal);
+        // A Média vem escolhida, com a diferença do peso de hoje; a Moda escolhe-se (ou as duas).
+        Assert.Contains("<input type=\"checkbox\" data-sap-ver=\"media\" checked />", sap, StringComparison.Ordinal);
+        Assert.Contains("<input type=\"checkbox\" data-sap-ver=\"moda\" />", sap, StringComparison.Ordinal);
+        Assert.Matches("data-sap-delta=\"media\">Hoje [+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
+        Assert.Contains("data-sap-delta=\"moda\" hidden>Hoje ", sap, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-sap-usar", sap, StringComparison.Ordinal);
         Assert.Contains("id=\"producaoAnteriorPeso\" name=\"anterior_peso\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"Peso usado (g)\" aria-label=\"Peso usado na produção (g)\" value=\"181.67\"", WebUtility.HtmlDecode(html), StringComparison.Ordinal);
         // Cada produção do select leva o seu peso; a mais antiga não tem ordens do SAP.
         Assert.Contains($"data-sap-opcao=\"{anteriorJobOnId}\" data-sap-media=\"181.67\" data-sap-moda=\"181.00\" data-sap-dias=\"18\"", sap, StringComparison.Ordinal);
@@ -64,6 +73,6 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         var sap = ZonaSap(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
 
         Assert.Contains("<span data-sap-sem>O SAP ainda não deu o peso desta produção.", sap, StringComparison.Ordinal);
-        Assert.Contains("<span data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
+        Assert.Contains("<div data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
     }
 }
