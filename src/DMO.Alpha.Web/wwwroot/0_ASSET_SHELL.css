@@ -73,6 +73,12 @@ body[data-beta-page="jobon"] .jobon-cal-cabeca,body[data-beta-page="jobon"] .job
 body[data-beta-page="jobon"] .jobon-cal-cabeca{font-size:11px;font-weight:700;color:var(--dmo-muted)}
 body[data-beta-page="jobon"] .jobon-cal-linha input{box-sizing:border-box;width:100%;min-width:0;min-height:var(--dmo-control-height);padding:6px 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:13px}
 body[data-beta-page="jobon"] .jobon-folha-dica{margin:4px 0 0;font-size:12px;color:var(--dmo-muted)}
+/* O Duplicar (Diogo): a marca «Confirmar» nos campos copiados que quase
+   sempre mudam (máquina, ferramentas, utilizações). Só informa, nada bloqueia. */
+body[data-beta-page="jobon"] .jobon-confirmar{margin-left:6px;font-size:11px;font-weight:600;color:var(--dmo-muted);white-space:nowrap}
+body[data-beta-page="jobon"] .jobon-confirmar::before{content:"· "}
+/* A marca pode partir o rótulo em duas linhas: os campos da linha alinham pela caixa. */
+body[data-beta-page="jobon"] .jobon-campos:has(.jobon-confirmar){align-items:end}
 /* A folha da fábrica na ficha, em leitura: as mesmas famílias e os mesmos
    pares, só com o que está escrito (Diogo, 21/10/2026). Os pares guardam a
    largura de uma coluna mesmo quando só há um escrito (auto-fill). O título

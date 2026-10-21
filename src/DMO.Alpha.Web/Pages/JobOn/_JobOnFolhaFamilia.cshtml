@@ -38,7 +38,8 @@
         }
 
         <div class="dmo-field">
-          <label for="@campo.Id">@campo.Rotulo</label>
+          @* No Duplicar, as utilizações copiadas pedem confirmação (Diogo): uma marca, sem bloquear. *@
+          <label for="@campo.Id">@campo.Rotulo@if (Model.Folha.Confirmar(campo.Chave)) {<span class="jobon-confirmar">Confirmar</span>}</label>
           <input id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Model.Folha.Valor(campo.Chave)" aria-invalid="@Marcado(invalido)" autofocus="@invalido" />
         </div>
     }

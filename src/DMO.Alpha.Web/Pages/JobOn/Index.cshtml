@@ -508,7 +508,7 @@
       <section class="dmo-card beta-light-sheet" id="lightSheet" aria-labelledby="lightSheetTitle">
         <div class="beta-light-sheet-head">
           <div>
-            <span style="font-size:11px;color:var(--dmo-muted,#66809a);text-transform:uppercase;letter-spacing:.04em;font-weight:700">@(Model.FolhaEdicao ? "Editar a produção" : "Nova produção")</span>
+            <span style="font-size:11px;color:var(--dmo-muted,#66809a);text-transform:uppercase;letter-spacing:.04em;font-weight:700">@(Model.FolhaEdicao ? "Editar a produção" : Model.DuplicarDe is not null ? "Duplicada da produção " + Model.OpenJobOn!.ProductionNumber : "Nova produção")</span>
             <h2 id="lightSheetTitle">@(Model.FolhaEdicao ? "Preparar a edição de " + Model.OpenJobOn!.ProductionNumber : "Preparar produção")</h2>
           </div>
           @* FECHAR E GUARDAR LADO A LADO NO TOPO, À DIREITA (o Diogo,
@@ -536,7 +536,14 @@
           <div class="beta-light-fields">
             <label>Referência da produção<input id="lightReference" data-dmo-maiusculas autocapitalize="characters" name="reference" required placeholder="Ex.: 0109S022" value="@Model.RequestedReference" readonly="@(Model.FolhaEdicao)" data-dmo-suggest="referencias" /></label>
             <label>Número da produção<input id="lightProduction" name="production_number" required placeholder="Ex.: 202603" value="@Model.RequestedProductionNumber" readonly="@(Model.FolhaEdicao)" /></label>
+            @* NO DUPLICAR (Diogo): a máquina e as ferramentas copiadas quase
+               sempre mudam e levam a marca «Confirmar» (sem bloquear); as
+               datas são da produção nova e pedem-se, como a referência e o nº. *@
             <label>Máquina / linha
+              @if (Model.DuplicarDe is not null && Model.RequestedMachineId is not null)
+              {
+                <span class="jobon-confirmar">Confirmar</span>
+              }
               <select id="lightMachine" name="machine_id" required>
                 <option value="">Selecionar</option>
                 @foreach (var machine in Model.Machines)
@@ -585,6 +592,10 @@
                   <summary class="job-tool-card-head" aria-label="@rotuloSlot: associar ou criar">
                     <span class="job-tool-badge">@tipoSlot</span>
                     <strong>@rotuloSlot</strong>
+                    @if (Model.DuplicarDe is not null && escolhida is not null)
+                    {
+                      <span class="jobon-confirmar">Confirmar</span>
+                    }
                     <span class="job-tool-card-hint" data-tool-hint>@(escolhida is null ? "Associar ou criar" : "")</span>
                     <span class="dmo-options-caret" aria-hidden="true">▾</span>
                   </summary>

@@ -89,20 +89,31 @@ public sealed record FolhaCalLinhaVista(
 /// <summary>
 /// A folha da fábrica no formulário do Job On: o valor de cada campo do
 /// catálogo, as linhas CAL e o campo recusado por ser longo demais (que fica
-/// marcado e com o foco). Abre com o que está gravado (Editar), vazia (Novo)
-/// ou, depois de uma recusa, com o que se escreveu.
+/// marcado e com o foco). Abre com o que está gravado (Editar), com a da
+/// produção de origem (Duplicar), vazia (Novo) ou, depois de uma recusa, com o
+/// que se escreveu.
 /// </summary>
 public sealed class FolhaDoJobOnVista
 {
+    /// <summary>
+    /// Os campos da folha que o Duplicar copia mas que quase sempre mudam de uma
+    /// produção para a outra (Diogo): as utilizações das ferramentas. Levam a
+    /// marca «Confirmar», sem bloquear nada.
+    /// </summary>
+    public static IReadOnlySet<string> ChavesAConfirmar { get; } =
+        new HashSet<string>(["cm_utilizacao", "mf_utilizacao", "bq_utilizacao"], StringComparer.Ordinal);
+
     private readonly IReadOnlyDictionary<string, string?> _valores;
 
     private FolhaDoJobOnVista(
         IReadOnlyDictionary<string, string?> valores,
         IReadOnlyList<FolhaCalLinhaVista> cal,
-        string? chaveRecusada)
+        string? chaveRecusada,
+        bool duplicada = false)
     {
         _valores = valores;
         Cal = cal;
+        Duplicada = duplicada;
         ChaveRecusada = chaveRecusada is { } chave && JobOnFolhaRegras.RotuloDaChave(chave) is not null ? chave : null;
         IdInvalido = ChaveRecusada is null ? null : IdDaChave(ChaveRecusada);
     }
@@ -116,8 +127,17 @@ public sealed class FolhaDoJobOnVista
     /// <summary>O id do campo recusado no ecrã; null sem recusa.</summary>
     public string? IdInvalido { get; }
 
+    /// <summary>A folha veio copiada da produção de origem (o Duplicar).</summary>
+    public bool Duplicada { get; }
+
     /// <summary>O valor de um campo do catálogo (null = vazio).</summary>
     public string? Valor(string chave) => _valores.TryGetValue(chave, out var valor) ? valor : null;
+
+    /// <summary>
+    /// O campo veio copiado no Duplicar e é dos que quase sempre mudam
+    /// (<see cref="ChavesAConfirmar"/>): o rótulo leva a marca «Confirmar».
+    /// </summary>
+    public bool Confirmar(string chave) => Duplicada && ChavesAConfirmar.Contains(chave) && Valor(chave) is not null;
 
     /// <summary>O campo com este id foi o recusado.</summary>
     public bool Invalido(string id) => string.Equals(IdInvalido, id, StringComparison.Ordinal);
@@ -139,6 +159,13 @@ public sealed class FolhaDoJobOnVista
     /// <summary>A folha gravada de um Job On (Editar).</summary>
     public static FolhaDoJobOnVista DaLida(JobOnFolhaLida lida) =>
         new(lida.Valores, ComExtra(JobOnFolhaRegras.CalParaAbrir(lida.Cal)), null);
+
+    /// <summary>
+    /// A folha da produção de origem no Duplicar: os campos e as linhas CAL
+    /// copiados, que o Guardar grava com a produção nova.
+    /// </summary>
+    public static FolhaDoJobOnVista DoDuplicar(JobOnFolhaLida origem) =>
+        new(origem.Valores, ComExtra(JobOnFolhaRegras.CalParaAbrir(origem.Cal)), null, duplicada: true);
 
     /// <summary>
     /// A folha depois de uma recusa: o que se escreveu, como se escreveu, e a
