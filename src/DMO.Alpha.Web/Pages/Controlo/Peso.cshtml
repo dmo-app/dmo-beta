@@ -1764,8 +1764,12 @@
       else
       {
         var pesoGuardadoDaEscolhida = escolhida is not null && guardada?.JobOnId == escolhida.JobOnId ? guardada.PesoGramas : null;
+        // O peso do SAP da escolhida (média pelos dias e moda); sem peso
+        // guardado, o campo vem com a média, para guardar ou mudar.
+        var sapDaEscolhida = escolhida is not null && Model.ProducaoAnteriorSap.TryGetValue(escolhida.JobOnId, out var sapEsc) ? sapEsc : null;
         var pesoEcho = Model.ProducaoAnteriorEcho
-            ?? (pesoGuardadoDaEscolhida is { } pg ? pg.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) : null);
+            ?? (pesoGuardadoDaEscolhida is { } pg ? pg.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) : null)
+            ?? (sapDaEscolhida is not null ? fmt(sapDaEscolhida.MediaGramas) : null);
         <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GuardarProducaoAnterior" class="peso-inline-form" data-producao-anterior>
           <div id="pesoAnteriorContexto" class="dmo-zona" data-dmo-regiao>
             <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
@@ -1804,6 +1808,21 @@
           <button type="submit" class="dmo-button" id="producaoAnteriorGuardar">Guardar</button>
         </form>
         <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
+        @* O PESO DO SAP (Diogo, 21/10/2026): pelas datas da produção escolhida
+           e a referência, a média pelos dias de cada ordem e a moda (o peso
+           com mais dias). Um clique põe-no no campo; guarda-se no «Guardar». *@
+        <p class="peso-hint" id="pesoAnteriorSap" style="margin:6px 0 0" data-producao-anterior-sap>
+          <span data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">Peso do SAP: média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g · moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g (<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)
+            <button type="button" class="dmo-button" data-sap-usar="media" style="margin-left:8px">Usar a média</button>
+            <button type="button" class="dmo-button" data-sap-usar="moda">Usar a moda</button>
+          </span>
+          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">O SAP ainda não deu o peso desta produção. <a href="/Ferramentas/Definicoes#ferrDefSap">Ler a pasta do SAP</a></span>
+          @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
+          @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
+          {
+            <span hidden data-sap-opcao="@sapJobOnId" data-sap-media="@fmt(sapOpcao.MediaGramas)" data-sap-moda="@fmt(sapOpcao.ModaGramas)" data-sap-dias="@sapOpcao.Dias"></span>
+          }
+        </p>
       }
       </div>
       <div id="pesoAnteriorDelta" class="dmo-zona" data-dmo-regiao>
@@ -2009,6 +2028,30 @@
     if (!option) { return; }
     periodo.querySelector('[data-inicio]').textContent = option.getAttribute('data-inicio') || '—';
     periodo.querySelector('[data-fim]').textContent = option.getAttribute('data-fim') || '—';
+    // O peso do SAP da produção escolhida.
+    var sap = document.querySelector('[data-producao-anterior-sap]');
+    if (!sap) { return; }
+    var dados = sap.querySelector('[data-sap-opcao="' + option.value + '"]');
+    var media = dados && dados.getAttribute('data-sap-media');
+    sap.querySelector('[data-sap-com]').hidden = !media;
+    sap.querySelector('[data-sap-sem]').hidden = !!media;
+    if (media) {
+      sap.querySelector('strong[data-sap-media]').textContent = media;
+      sap.querySelector('strong[data-sap-moda]').textContent = dados.getAttribute('data-sap-moda') || '';
+      sap.querySelector('span[data-sap-dias]').textContent = dados.getAttribute('data-sap-dias') || '';
+    }
+  });
+
+  // «Usar a média» / «Usar a moda»: o peso do SAP vai para o campo.
+  document.addEventListener('click', function (event) {
+    var usar = event.target.closest && event.target.closest('[data-sap-usar]');
+    if (!usar) { return; }
+    var select = document.querySelector('[data-producao-anterior-select]');
+    var campo = document.getElementById('producaoAnteriorPeso');
+    var option = select && select.options[select.selectedIndex];
+    var dados = option && document.querySelector('[data-sap-opcao="' + option.value + '"]');
+    var valor = dados && dados.getAttribute(usar.getAttribute('data-sap-usar') === 'moda' ? 'data-sap-moda' : 'data-sap-media');
+    if (campo && valor) { campo.value = valor; campo.focus(); }
   });
 
   // Um formulário GET dentro de data-dmo-parcial (escolher a comparação, o

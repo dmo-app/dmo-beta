@@ -327,7 +327,7 @@
           var leituraUtil = utilizacao.Ultima;
           var pecas = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
           <div class="dmo-fact" id="ferrUtilizacao"><span>Utilização</span><strong>@(leituraUtil is null ? "—" : leituraUtil.Percentagem.ToString("0.##", pt) + " %")</strong>@if (leituraUtil is not null)
-            {<small style="display:block;margin-top:2px;color:var(--dmo-muted);font-size:12px">@(leituraUtil is { Consumo: { } feitas, VidaPrevista: { } vida } ? $"{feitas.ToString("#,0", pecas)} de {vida.ToString("#,0", pecas)} peças · " : null)@(leituraUtil.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "SAP" : leituraUtil.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraUtil.RegistadaEmUtc).ToString("dd/MM/yyyy", pt)</small>}</div>
+            {<small style="display:block;margin-top:2px;color:var(--dmo-muted);font-size:12px">@(leituraUtil is { Consumo: { } feitas, VidaPrevista: { } vida } ? $"{feitas.ToString("#,0", pecas)} de {vida.ToString("#,0", pecas)} peças · " : null)@(leituraUtil.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "SAP" : leituraUtil.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraUtil.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) · <a class="ferr-armazem-link" id="ferr-utilizacao-detalhes" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId, jobon = 1 })#ferrProducoes">Detalhes</a></small>}</div>
         }
       </div>
 
@@ -375,13 +375,18 @@
     @* AS PRODUÇÕES DA FERRAMENTA (Diogo, 21/10/2026: «associar um Job On
        ao uso por produção, o que produziu»): os Job On em que ela foi a CM,
        o MF ou a BQ e o que o relatório de fabrico do SAP diz que se produziu
-       (a mesma referência, máquina e datas). Só aparece pelo «Opções». *@
-    @if (Model.Producoes is { } producoesFerr)
+       (a mesma referência, máquina e datas). Abre-se no «Opções» ou no
+       «Detalhes» da Utilização. O quadro de detalhes (Diogo, 21/10/2026:
+       «% uso, mas um box que mostra detalhes: o que fabricou naquela
+       produção, o delta e o total»): o delta é quanto a utilização subiu
+       nessa produção; o total soma todas as produções. *@
+    @if (Model.Producoes is { } producoesTudo)
     {
+      var producoesFerr = producoesTudo.Pagina;
       var pecasProd = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       <section id="ferrProducoes" class="dmo-card ferr-card" aria-labelledby="ferr-producoes-title" data-dmo-regiao>
         <div class="dmo-card-topo">
-          <h3 id="ferr-producoes-title">Produções (Job On)<partial name="_DmoHelp" model="@("Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O que se produziu vem do relatório de fabrico do SAP, lido da pasta do SAP: a mesma referência, a mesma máquina e as datas.")" /></h3>
+          <h3 id="ferr-producoes-title">Utilização por produção<partial name="_DmoHelp" model="@("Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O que se produziu vem do relatório de fabrico do SAP, lido da pasta do SAP: a mesma referência, a mesma máquina e as datas. O delta é quanto a utilização subiu nessa produção (a leitura depois do fim menos a de antes do início). O total soma todas as produções.")" /></h3>
           <div class="dmo-card-topo-acoes">
             <a class="dmo-button" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId })">Fechar</a>
           </div>
@@ -403,6 +408,7 @@
                   <th>Fim</th>
                   <th>Produção bruta</th>
                   <th>Produção líquida</th>
+                  <th>Delta utilização</th>
                 </tr>
               </thead>
               <tbody>
@@ -417,9 +423,18 @@
                     <td>@(prod.FimEm?.ToString("dd/MM/yyyy") ?? "—")</td>
                     <td>@(prod.ProducaoBruta?.ToString("#,0", pecasProd) ?? "—")</td>
                     <td>@(prod.ProducaoLiquida?.ToString("#,0", pecasProd) ?? "—")</td>
+                    <td>@(prod.DeltaUtilizacao is { } delta ? (delta >= 0 ? "+" : "") + delta.ToString("0.##", pt) + " %" : "—")</td>
                   </tr>
                 }
               </tbody>
+              <tfoot id="ferrProducoesTotal">
+                <tr>
+                  <th scope="row" colspan="5">Total · @producoesFerr.TotalCount @(producoesFerr.TotalCount == 1 ? "produção" : "produções")</th>
+                  <td><strong>@(producoesTudo.TotalBruta?.ToString("#,0", pecasProd) ?? "—")</strong></td>
+                  <td><strong>@(producoesTudo.TotalLiquida?.ToString("#,0", pecasProd) ?? "—")</strong></td>
+                  <td><strong>@(Model.Utilizacao?.Ultima is { } atual ? "Hoje " + atual.Percentagem.ToString("0.##", pt) + " %" : "—")</strong></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
           @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))

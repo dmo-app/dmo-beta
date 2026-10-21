@@ -85,8 +85,10 @@ public sealed class PesoModel : PageModel
         PesoProducaoAnteriorQuery producaoAnteriorQuery,
         ICreatePesoComparacaoHandler comparacaoHandler,
         IControloHistorySearchQuery historicoControloQuery,
-        IProductionPickerQuery productionPicker)
+        IProductionPickerQuery productionPicker,
+        DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap)
     {
+        _fabricoSap = fabricoSap;
         _jobOnList = jobOnList;
         CapSupportQuery = capSupportQuery;
         ToolFactsQuery = toolFactsQuery;
@@ -141,6 +143,15 @@ public sealed class PesoModel : PageModel
 
     /// <summary>A produção anterior do Peso (o Owner 2026-10-17): Job On e peso do SAP.</summary>
     private PesoProducaoAnteriorQuery ProducaoAnteriorQuery { get; }
+
+    private readonly DMO.Alpha.Core.Tools.IFerramentasFabricoSap _fabricoSap;
+
+    /// <summary>
+    /// O peso do SAP de cada produção anterior que se pode escolher (Diogo,
+    /// 21/10/2026): a média pelos dias e a moda das ordens do relatório de
+    /// fabrico com a mesma referência, máquina e datas.
+    /// </summary>
+    public IReadOnlyDictionary<int, DMO.Alpha.Core.Tools.PesoSapResumo> ProducaoAnteriorSap { get; private set; } = new Dictionary<int, DMO.Alpha.Core.Tools.PesoSapResumo>();
 
     /// <summary>O handler de criação do registo de comparação (o cálculo vem da fonte única acima).</summary>
     private ICreatePesoComparacaoHandler ComparacaoHandler { get; }
@@ -1967,6 +1978,7 @@ public sealed class PesoModel : PageModel
         }
 
         ProducaoAnteriorOpcoes = opcoes;
+        ProducaoAnteriorSap = await _fabricoSap.PesoDosJobOnsAsync(opcoes.Select(o => o.JobOnId).ToList(), HttpContext.RequestAborted);
         var wanted = requestedJobOnId ?? ProducaoAnterior?.JobOnId;
         ProducaoAnteriorEscolhida = opcoes.FirstOrDefault(o => o.JobOnId == wanted)
             ?? opcoes.FirstOrDefault(o => o.JobOnId == ProducaoAnterior?.JobOnId)

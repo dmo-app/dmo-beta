@@ -2221,6 +2221,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<int?>("DiasProducao")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Ficheiro")
                         .HasMaxLength(260)
                         .HasColumnType("character varying(260)");
@@ -2253,6 +2256,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<decimal?>("PesoMedioGramas")
+                        .HasPrecision(9, 3)
+                        .HasColumnType("numeric(9,3)");
 
                     b.Property<long?>("ProducaoBruta")
                         .HasColumnType("bigint");
