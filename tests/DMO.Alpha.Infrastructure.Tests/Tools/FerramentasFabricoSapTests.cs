@@ -170,14 +170,16 @@ public sealed class FerramentasFabricoSapTests
         db.FerramentaUtilizacoes.AddRange(
             Leitura(1, new DateOnly(2025, 1, 15), 10m),
             Leitura(2, new DateOnly(2025, 2, 5), 15m),
-            Leitura(3, new DateOnly(2025, 8, 6), 18.5m));
+            Leitura(3, new DateOnly(2025, 8, 6), 18.5m),
+            Leitura(4, new DateOnly(2025, 1, 21), 12m));
         await db.SaveChangesAsync();
 
         var producoes = await Servico(db).ProducoesAsync("cm", null, 10);
 
         var delta = producoes.Pagina.Items.ToDictionary(p => p.Producao, p => p.DeltaUtilizacao);
-        // 202501: 10 antes de 21/01, 15 depois de 04/02. 202502: 15 antes de 31/07, 18,5 no dia do fim.
-        Assert.Equal(5m, delta["202501"]);
+        // 202501: 12 no próprio dia do início (conta como antes, é o ponto de
+        // partida), 15 depois de 04/02. 202502: 15 antes de 31/07, 18,5 no dia do fim.
+        Assert.Equal(3m, delta["202501"]);
         Assert.Equal(3.5m, delta["202502"]);
         // 202503: sem leitura depois do fim; 202504: sem datas.
         Assert.Null(delta["202503"]);
@@ -205,9 +207,9 @@ public sealed class FerramentasFabricoSapTests
     [Fact]
     public void OPesoDoSap_EAMediaPelosDiasEAModaOPesoComMaisDias()
     {
-        // 132 g em 14 + 6 dias, 131 g em 8: média (132 × 20 + 131 × 8) / 28; moda 132.
+        // 132 g em 14 + 6 dias, 131 g em 8 (a ordem sem peso, dentro do Job On, não conta): média (132 × 20 + 131 × 8) / 28; moda 132.
         var resumo = FabricoSapPeso.Resumo(
-            [Ordem("2025-01-21", "2025-02-04", 132m), Ordem("2025-02-04", "2025-02-12", 131m), Ordem("2025-02-12", "2025-02-18", 132m), Ordem("2025-02-18", "2025-02-20", null)],
+            [Ordem("2025-01-21", "2025-02-04", 132m), Ordem("2025-02-04", "2025-02-12", 131m), Ordem("2025-02-12", "2025-02-18", 132m), Ordem("2025-02-14", "2025-02-18", null)],
             new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 18));
 
         Assert.Equal(new PesoSapResumo(131.71m, 132m, 28, 3), resumo);

@@ -198,8 +198,8 @@ public sealed record ImportarFabricoSapOutcome(int Linhas, int Novas);
 /// Uma produção (Job On) em que a ferramenta esteve, com o que o SAP diz que
 /// se produziu nela: a soma das linhas do relatório que lhe correspondem.
 /// Sem linha do SAP, as produções ficam vazias. O delta é o que a
-/// utilização subiu com ela: a primeira leitura a partir do fim menos a
-/// última até ao início (Diogo, 21/10/2026: «o delta e o total»).
+/// utilização subiu com ela: a primeira leitura a partir do dia do fim
+/// menos a última até ao dia do início (incluído) (Diogo, 21/10/2026: «o delta e o total»).
 /// </summary>
 public sealed record FerramentaProducao(
     int JobOnId,

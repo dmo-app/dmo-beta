@@ -119,17 +119,19 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         // As leituras da utilização, pela data em Portugal.
         var leituras = (await db.FerramentaUtilizacoes.AsNoTracking()
                 .Where(u => u.ToolId == toolId)
-                .OrderBy(u => u.Id)
+                .OrderBy(u => u.RegistadaEmUtc)
+                .ThenBy(u => u.Id)
                 .Select(u => new { u.RegistadaEmUtc, u.Percentagem })
                 .ToListAsync(cancellationToken))
             .Select(u => (Dia: DateOnly.FromDateTime(DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem))
             .ToList();
 
-        // Antes: a última leitura de antes do dia do início. Depois: a
+        // Antes: a última leitura até ao dia do início (a desse dia é o ponto
+        // de partida). Depois: a
         // primeira a partir do dia do fim; sem fim (ainda na máquina), a
         // última desde o início.
         decimal? Antes(DateOnly? inicio) => inicio is { } de
-            ? leituras.Where(u => u.Dia < de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
+            ? leituras.Where(u => u.Dia <= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
             : null;
         decimal? Depois(DateOnly? inicio, DateOnly? fim) => (inicio, fim) switch
         {
