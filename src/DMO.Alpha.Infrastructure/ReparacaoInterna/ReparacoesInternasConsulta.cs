@@ -17,7 +17,10 @@ namespace DMO.Alpha.Infrastructure.ReparacaoInterna;
 /// máquina com o dia, a pessoa com o dia); depois os 25 da página numa
 /// consulta com a produção, a máquina, quem e a ferramenta do contexto.
 /// A referência e o lote vêm do contexto (a reparação não os copia); o nome
-/// técnico nunca sai daqui.
+/// técnico nunca sai daqui. Com a ferramenta escrita (peça 4), a escrita e,
+/// depois de associada, a ferramenta associada; as por associar da página
+/// levam, numa quarta consulta, as ferramentas do mesmo tipo que servem para
+/// a janela de associar. Sem Job On, a produção fica vazia.
 /// </summary>
 public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInternasConsulta
 {
@@ -58,6 +61,12 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
             query = query.Where(r => r.Tipo == tipo);
         }
 
+        // Só as por associar: pelo índice filtrado delas.
+        if (filtro.PorAssociar)
+        {
+            query = query.Where(r => r.ReferenciaEscrita != null && r.AssociadaToolId == null);
+        }
+
         // A produção escolhida manda; só com a referência, as produções cuja
         // referência começa pelo texto (a regra única das procuras: «60»
         // traz todas as que começam por 60), numa subconsulta pelo jobon_id.
@@ -69,7 +78,7 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
         {
             var producoes = db.JobOns.AsNoTracking()
                 .Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, referencia))
-                .Select(j => j.Id);
+                .Select(j => (int?)j.Id);
             query = query.Where(r => producoes.Contains(r.JobOnId));
         }
 
@@ -88,7 +97,8 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
         var linhas = await (
             from r in db.ReparacoesInternas.AsNoTracking()
             where daPagina.Contains(r.Id)
-            join j in db.JobOns.AsNoTracking() on r.JobOnId equals j.Id
+            join j in db.JobOns.AsNoTracking() on r.JobOnId equals (int?)j.Id into js
+            from j in js.DefaultIfEmpty()
             join m in db.Machines.AsNoTracking() on r.MachineId equals m.Id
             join u in db.Users.AsNoTracking() on r.RegistadoPorUserId equals (Guid?)u.Id into us
             from u in us.DefaultIfEmpty()
@@ -98,6 +108,8 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
             from f in fs.DefaultIfEmpty()
             join t in ferramentas on (c != null ? c.ToolId : f != null ? f.ToolId : null) equals t.ToolId into ts
             from t in ts.DefaultIfEmpty()
+            join a in ferramentas on r.AssociadaToolId equals a.ToolId into ats
+            from a in ats.DefaultIfEmpty()
             select new
             {
                 r.Id,
@@ -105,16 +117,27 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
                 r.RegistadoEmUtc,
                 Maquina = m.Code,
                 r.JobOnId,
-                j.ProductionNumber,
-                j.Reference,
+                ProductionNumber = j != null ? j.ProductionNumber : null,
+                Reference = j != null ? j.Reference : null,
                 r.Tipo,
                 ContextoId = c != null ? c.Id : f != null ? f.Id : (int?)null,
                 FerramentaReferencia = t != null ? t.Reference : null,
                 FerramentaLote = t != null ? t.Lot : null,
+                FerramentaToolId = t != null ? t.ToolId : null,
                 r.Numero,
-                Quem = u != null ? u.Name : null
+                Quem = u != null ? u.Name : null,
+                r.ReferenciaEscrita,
+                r.LoteEscrito,
+                r.AssociadaToolId,
+                AssociadaReferencia = a != null ? a.Reference : null,
+                AssociadaLote = a != null ? a.Lot : null
             })
             .ToListAsync(cancellationToken);
+
+        var candidatas = await CandidatasAsync(
+            linhas.Where(l => l.ReferenciaEscrita != null && l.AssociadaToolId == null)
+                .Select(l => (l.Tipo, l.ReferenciaEscrita!)).Distinct().ToList(),
+            cancellationToken);
 
         // A ordem da página (a consulta das linhas não a garante). Sem
         // referência, a ferramenta foi eliminada (o contexto passou para a
@@ -131,9 +154,55 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
                 l.Tipo,
                 l.ContextoId is { } contexto ? new RiFerramenta(contexto, l.FerramentaReferencia, l.FerramentaLote) : null,
                 l.Numero,
-                l.Quem))
+                l.Quem,
+                l.ReferenciaEscrita is null ? null : Escrita(
+                    l.ReferenciaEscrita, l.LoteEscrito!, l.AssociadaToolId, l.AssociadaReferencia, l.AssociadaLote,
+                    l.AssociadaToolId is null ? candidatas.GetValueOrDefault((l.Tipo, l.ReferenciaEscrita)) ?? [] : null),
+                l.FerramentaToolId))
             .ToList();
         return new PagedList<RiConsultaLinha>(resultado, ids.TotalCount, ids.PageNumber, ids.PageSize);
+    }
+
+    // As ferramentas registadas do mesmo tipo e da referência escrita (sem a
+    // REMOVED; a referência sem olhar a maiúsculas), numa consulta para as por associar da página, pelo índice
+    // (tipo, referência, lote) das ferramentas.
+    private async Task<Dictionary<(ReparacaoTipo, string), List<RiCandidata>>> CandidatasAsync(
+        IReadOnlyList<(ReparacaoTipo Tipo, string Referencia)> escritas, CancellationToken cancellationToken)
+    {
+        if (escritas.Count == 0)
+        {
+            return [];
+        }
+
+        var referencias = escritas.Select(e => e.Referencia).Distinct().ToList();
+        var tools = await db.Tools.AsNoTracking()
+            .Where(t => (t.Type == ToolType.Cm || t.Type == ToolType.Mf)
+                && t.ToolId != ToolRegistryConstants.RemovedToolId
+                && referencias.Contains(t.Reference.ToUpper()))
+            .Select(t => new { t.ToolId, t.Type, t.Reference, t.Lot })
+            .ToListAsync(cancellationToken);
+        return escritas.ToDictionary(
+            e => (e.Tipo, e.Referencia),
+            e => tools.Where(t => (int)t.Type == (int)e.Tipo && t.Reference.ToUpperInvariant() == e.Referencia)
+                .OrderBy(t => t.Lot.Length).ThenBy(t => t.Lot, StringComparer.Ordinal).ThenBy(t => t.ToolId, StringComparer.Ordinal)
+                .Select(t => new RiCandidata(t.ToolId, t.Reference, t.Lot))
+                .ToList());
+    }
+
+    // As do lote escrito primeiro (a mesma ferramenta, se estiver registada);
+    // sem nenhuma, as da referência.
+    private static RiEscrita Escrita(
+        string referencia, string lote, string? associada, string? associadaReferencia, string? associadaLote, List<RiCandidata>? daReferencia)
+    {
+        if (daReferencia is null)
+        {
+            return new RiEscrita(referencia, lote, associada, associadaReferencia, associadaLote);
+        }
+
+        var doLote = daReferencia.Where(c => string.Equals(c.Lote.Trim(), lote, StringComparison.OrdinalIgnoreCase)).ToList();
+        return doLote.Count > 0
+            ? new RiEscrita(referencia, lote, Candidatas: doLote, DoLote: true)
+            : new RiEscrita(referencia, lote, Candidatas: daReferencia, DoLote: false);
     }
 
     public async Task<IReadOnlyList<RiPessoa>> PessoasAsync(CancellationToken cancellationToken = default)

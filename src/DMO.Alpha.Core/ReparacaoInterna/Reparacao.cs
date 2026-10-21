@@ -18,16 +18,29 @@ public enum ReparacaoTipo
 /// em mais nada. Corrigir muda só o número; anular tira-a da lista e das
 /// contagens sem a apagar (fica para a História); os dois deixam rasto em
 /// <see cref="ReparacaoRasto"/>.
+/// <para>
+/// A ferramenta escrita (peça 4, Diogo, 21/10/2026): a CM ou o MF pode ter
+/// sido trocado na máquina antes de a troca chegar ao Job On, e a máquina
+/// pode não ter produção para o dia. Aí escreve-se a referência e o lote, a
+/// reparação fica sem contexto (e sem Job On, se não houver) e o responsável
+/// associa depois a ferramenta (<see cref="AssociadaToolId"/>), com rasto.
+/// </para>
 /// </summary>
 public sealed class Reparacao
 {
     /// <summary>O número reparado tem até 40 caracteres (como na app full antiga).</summary>
     public const int NumeroMaxLength = 40;
 
+    /// <summary>A referência escrita: até 40 (a da ferramenta não tem limite na base; 40 chega para «5447T173»).</summary>
+    public const int ReferenciaMaxLength = 40;
+
+    /// <summary>O lote escrito: até 12 (o das Punções; o das Ferramentas tem 3 ou «s/lote»).</summary>
+    public const int LoteMaxLength = 12;
+
     public int Id { get; set; }
 
-    /// <summary>A produção do dia a que a reparação ficou ligada.</summary>
-    public int JobOnId { get; set; }
+    /// <summary>A produção do dia a que a reparação ficou ligada; NULL quando a máquina não tinha produção (só com a ferramenta escrita).</summary>
+    public int? JobOnId { get; set; }
 
     /// <summary>A máquina escolhida (a da produção nesse momento).</summary>
     public int MachineId { get; set; }
@@ -53,19 +66,38 @@ public sealed class Reparacao
 
     /// <summary>Quando foi anulada; NULL enquanto conta. Quem anulou e o motivo estão no rasto.</summary>
     public DateTime? AnuladaEmUtc { get; set; }
+
+    /// <summary>A referência da CM ou do MF escrita (sem espaços nas pontas, em maiúsculas); só sem contexto.</summary>
+    public string? ReferenciaEscrita { get; set; }
+
+    /// <summary>O lote escrito, com a referência.</summary>
+    public string? LoteEscrito { get; set; }
+
+    /// <summary>A ferramenta que o responsável associou à escrita; NULL enquanto está por associar.</summary>
+    public string? AssociadaToolId { get; set; }
+
+    /// <summary>Quem associou; NULL no ADMIN e quando o utilizador foi eliminado.</summary>
+    public Guid? AssociadaPorUserId { get; set; }
+
+    public DateTime? AssociadaEmUtc { get; set; }
+
+    /// <summary>A ferramenta foi escrita e ainda ninguém a associou.</summary>
+    public bool PorAssociar => ReferenciaEscrita is not null && AssociadaToolId is null;
 }
 
 /// <summary>O que se fez a uma reparação já registada.</summary>
 public enum ReparacaoAcao
 {
     Corrigido = 1,
-    Anulado = 2
+    Anulado = 2,
+    /// <summary>A ferramenta escrita foi associada a uma ferramenta registada (peça 4).</summary>
+    Associado = 3
 }
 
 /// <summary>
 /// Uma linha do rasto (blueprint reparacao-interna/OVERVIEW §2, SG-24): o
-/// número antes e depois (sem depois ao anular), quem, quando e o motivo, se
-/// o escreveram. Só se acrescenta: nada no rasto se muda nem se apaga; sai
+/// número antes e depois (sem depois ao anular e ao associar), quem, quando
+/// e o motivo, se o escreveram; ao associar, a ferramenta associada. Só se acrescenta: nada no rasto se muda nem se apaga; sai
 /// apenas com a reparação, quando se elimina o Job On.
 /// </summary>
 public sealed class ReparacaoRasto
@@ -90,4 +122,7 @@ public sealed class ReparacaoRasto
     public DateTime EmUtc { get; set; }
 
     public string? Motivo { get; set; }
+
+    /// <summary>O <c>tool_id</c> associado (só ao associar). Fica como estava, mesmo que a ferramenta se elimine.</summary>
+    public string? ToolIdAssociado { get; set; }
 }

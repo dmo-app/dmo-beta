@@ -1456,7 +1456,9 @@
   // tecla fica por aplicar (data-dmo-por-aplicar) e aplica-se com Enter ou
   // ao sair do campo; com o rato, ou escolhida na lista aberta, aplica logo
   // (deep sweep, 18/10/2026).
-  const AUTOSUBMIT = ":is(select,input[type=date],input[type=month])[data-dmo-autosubmit]";
+  // Uma caixa de marcar também aplica ao marcar (o «Só por associar» da
+  // Consulta da Reparação Interna).
+  const AUTOSUBMIT = ":is(select,input[type=date],input[type=month],input[type=checkbox])[data-dmo-autosubmit]";
   let teclaEm = null;
   function aplicarEscolha(campo) {
     campo.removeAttribute("data-dmo-por-aplicar");
