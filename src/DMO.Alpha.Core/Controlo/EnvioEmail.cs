@@ -28,7 +28,7 @@ public sealed class EmailModelo
 
     public string Nome { get; set; } = "";
 
-    /// <summary>O email que envia (o «De»); vazio = o da conta do servidor.</summary>
+    /// <summary>O email que envia (o «De»); vazio = a conta do Outlook do PC.</summary>
     public string? Remetente { get; set; }
 
     public string Assunto { get; set; } = "";
@@ -40,8 +40,10 @@ public sealed class EmailModelo
 }
 
 /// <summary>
-/// O registo de um envio do PDF do Peso: quem enviou, quando, para quem e com
-/// que modelo. O PDF não fica no servidor (regra do Diogo, 19/10/2026): fica
+/// O registo de um envio do PDF do Peso: quem preparou o email, quando, para
+/// quem e com que modelo. O email sai pelo Outlook do PC (Diogo, 21/10/2026:
+/// «é enviado pelo outlook do pc da empresa»), por isso a app sabe que o
+/// preparou, não que saiu. O PDF não fica no servidor (regra do Diogo, 19/10/2026): fica
 /// só o nome do ficheiro. Os nomes do modelo e da lista ficam copiados, para
 /// o registo sobreviver a mudá-los ou apagá-los.
 /// </summary>
@@ -75,7 +77,7 @@ public sealed class EmailEnvio
     public DateTime EnviadoEmUtc { get; set; }
 }
 
-/// <summary>Uma mensagem para o servidor de email, com o PDF em anexo.</summary>
+/// <summary>Uma mensagem com o PDF em anexo, para abrir no Outlook do PC.</summary>
 public sealed record EmailMensagem(
     string? Remetente,
     IReadOnlyList<string> Destinatarios,
@@ -83,17 +85,6 @@ public sealed record EmailMensagem(
     string Corpo,
     string AnexoNome,
     byte[] Anexo);
-
-/// <summary>
-/// O envio de email da app. Sem servidor configurado, <see cref="Configurado"/>
-/// é false e nada sai.
-/// </summary>
-public interface IEmailSender
-{
-    bool Configurado { get; }
-
-    Task SendAsync(EmailMensagem mensagem, CancellationToken cancellationToken = default);
-}
 
 /// <summary>As regras do texto dos modelos e das listas, num só sítio.</summary>
 public static class EnvioEmailRegras

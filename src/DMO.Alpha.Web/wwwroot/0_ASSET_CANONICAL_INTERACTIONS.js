@@ -1616,6 +1616,15 @@
     if (janela && (event.target === janela || event.target.closest("[data-dmo-dialog-close]"))) janela.close();
   });
 
+  // Um formulário que devolve um ficheiro (data-dmo-dialog-fecha-ao-enviar,
+  // o email do «Enviar» do Resumo): a página fica onde está, por isso a
+  // janela fecha depois de o browser mandar o pedido.
+  document.addEventListener("submit", (event) => {
+    const form = event.target.closest && event.target.closest("form[data-dmo-dialog-fecha-ao-enviar]");
+    const janela = form && form.closest("dialog.dmo-dialog[open]");
+    if (janela) setTimeout(() => janela.close(), 0);
+  });
+
   // Uma janela que tem de abrir com a página (data-dmo-dialog-aberta), por
   // exemplo a confirmação de eliminar ou um erro a corrigir. Com
   // data-dmo-dialog-voltar, fechar volta a esse endereço.

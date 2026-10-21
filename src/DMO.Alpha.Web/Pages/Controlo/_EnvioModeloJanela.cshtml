@@ -16,7 +16,7 @@
       <input id="@Model.Id-nome" name="nome" value="@modelo?.Nome" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.NomeMax" placeholder="Ex.: Peso para a produção" required />
     </div>
     <div class="dmo-field">
-      <label for="@Model.Id-remetente">Email que envia<partial name="_DmoHelp" model="@("Vazio: envia com a conta de email configurada no servidor. Outro email só funciona se essa conta o puder usar.")" /></label>
+      <label for="@Model.Id-remetente">Email que envia<partial name="_DmoHelp" model="@("Vazio: o Outlook usa a conta do PC. Outro email só funciona se o Outlook do PC o tiver.")" /></label>
       <input id="@Model.Id-remetente" name="remetente" type="email" value="@modelo?.Remetente" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.EmailMax" placeholder="controlo@fabrica.pt" />
     </div>
     <div class="dmo-field">
