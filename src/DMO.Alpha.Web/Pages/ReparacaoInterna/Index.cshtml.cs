@@ -20,7 +20,10 @@ namespace DMO.Alpha.Web.Pages.ReparacaoInterna;
 /// Enter. O campo fica vazio e com o cursor para o número seguinte, e a
 /// reparação aparece na tabela por baixo. Com duas ou mais produções para o
 /// dia a página avisa e a pessoa escolhe (a de maior <c>jobon_id</c> vem
-/// escolhida); sem nenhuma não há a que ligar e nada se grava.
+/// escolhida); sem nenhuma não há a que ligar e nada se grava. Na tabela,
+/// clicar no número corrige-o e o «×» anula a reparação (peça 2), cada um
+/// numa janela pequena com o motivo opcional; quem tem o módulo pode fazê-lo
+/// (RI-04) e fica o rasto. Gravar troca só a tabela, com a mensagem no canto.
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ReparacaoInterna)]
@@ -67,12 +70,31 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
     /// <summary>O número escrito numa recusa, para ficar no campo.</summary>
     public string? NumeroEscrito { get; private set; }
 
-    public bool Gravou => Gravacao is "ok" or "repetido";
+    /// <summary>Como acabou uma correção ou uma anulação, pelo redirect (PRG).</summary>
+    public string? Correcao { get; private set; }
+
+    public bool Gravou => Gravacao is "ok" or "repetido" || Correcao is "corrigido" or "anulado";
+
+    /// <summary>Corrigir para o mesmo número: nada mudou, só avisa.</summary>
+    public bool Avisou => Correcao is "igual";
 
     public string Mensagem => Gravacao switch
     {
         "ok" => $"Reparação do nº {Numero} registada.",
         "repetido" => $"A reparação do nº {Numero} já estava registada.",
+        _ when Correcao is not null => Correcao switch
+        {
+            "corrigido" => $"Número corrigido para {Numero}.",
+            "anulado" => $"Reparação do nº {Numero} anulada.",
+            "igual" => $"O número já era {Numero}. Nada mudou.",
+            "nao-existe" => "Esta reparação já não existe. Nada mudou.",
+            "ja-anulada" => $"A reparação do nº {Numero} já tinha sido anulada. Nada mudou.",
+            "mudou" => $"Outra pessoa mudou esta reparação entretanto: o número agora é {Numero}. Confira e corrija outra vez.",
+            "sem-numero" => "Escreva o número corrigido. Nada mudou.",
+            "numero-longo" => $"O número tem até {Reparacao.NumeroMaxLength} caracteres. Nada mudou.",
+            "motivo-longo" => $"O motivo tem até {ReparacaoRasto.MotivoMaxLength} caracteres. Nada mudou.",
+            _ => string.Empty
+        },
         _ => Recusa switch
         {
             ReparacaoResultado.SemNumero => "Escreva o número reparado.",
@@ -87,12 +109,66 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
         }
     };
 
-    public async Task<IActionResult> OnGetAsync(string? gravacao, string? numero, int? pagina)
+    public async Task<IActionResult> OnGetAsync(string? gravacao, string? correcao, string? numero, int? pagina)
     {
         Gravacao = gravacao;
+        Correcao = correcao;
         Numero = numero;
         return await DesenharAsync(pagina);
     }
+
+    /// <summary>POST: corrigir o número de uma reparação (a janela do número). Grava uma vez por envio.</summary>
+    [EnvioUnico]
+    public async Task<IActionResult> OnPostCorrigirAsync(
+        [FromForm(Name = "operacao_id")] Guid operacaoId,
+        [FromForm(Name = "reparacao_id")] int reparacaoId,
+        [FromForm(Name = "numero")] string? numero,
+        [FromForm(Name = "motivo")] string? motivo,
+        [FromForm(Name = "pagina")] int? pagina)
+    {
+        var saida = await reparacoes.CorrigirAsync(
+            new PedidoDeCorrecao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, numero, motivo),
+            HttpContext.RequestAborted);
+        return DepoisDaCorrecao(saida, CorrecaoResultado.Corrigido, pagina);
+    }
+
+    /// <summary>POST: anular uma reparação (o «×» e a confirmação). Grava uma vez por envio.</summary>
+    [EnvioUnico]
+    public async Task<IActionResult> OnPostAnularAsync(
+        [FromForm(Name = "operacao_id")] Guid operacaoId,
+        [FromForm(Name = "reparacao_id")] int reparacaoId,
+        [FromForm(Name = "motivo")] string? motivo,
+        [FromForm(Name = "pagina")] int? pagina)
+    {
+        var saida = await reparacoes.AnularAsync(
+            new PedidoDeAnulacao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, motivo),
+            HttpContext.RequestAborted);
+        return DepoisDaCorrecao(saida, CorrecaoResultado.Anulado, pagina);
+    }
+
+    // Volta à mesma máquina, produção e página, com a mensagem (PRG). O mesmo
+    // envio outra vez mostra o que o primeiro mostrou.
+    private RedirectToPageResult DepoisDaCorrecao(CorrecaoSaida saida, CorrecaoResultado feito, int? pagina) =>
+        RedirectToPage("/ReparacaoInterna/Index", new
+        {
+            maquina = MaquinaCodigo,
+            producao = ProducaoPedida,
+            tipo = TipoTexto,
+            pagina,
+            correcao = (saida.Resultado == CorrecaoResultado.JaFeito ? feito : saida.Resultado) switch
+            {
+                CorrecaoResultado.Corrigido => "corrigido",
+                CorrecaoResultado.Anulado => "anulado",
+                CorrecaoResultado.Igual => "igual",
+                CorrecaoResultado.NaoExiste => "nao-existe",
+                CorrecaoResultado.JaAnulada => "ja-anulada",
+                CorrecaoResultado.Mudou => "mudou",
+                CorrecaoResultado.SemNumero => "sem-numero",
+                CorrecaoResultado.NumeroLongo => "numero-longo",
+                _ => "motivo-longo"
+            },
+            numero = saida.Numero
+        });
 
     /// <summary>POST: registar o número escrito (Enter). Grava uma vez por envio.</summary>
     [EnvioUnico]

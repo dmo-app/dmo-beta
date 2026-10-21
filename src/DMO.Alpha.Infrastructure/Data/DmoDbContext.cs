@@ -97,6 +97,8 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     // A Reparação Interna do full: uma linha curta por número reparado.
     public DbSet<Reparacao> ReparacoesInternas => Set<Reparacao>();
 
+    public DbSet<ReparacaoRasto> ReparacoesInternasRasto => Set<ReparacaoRasto>();
+
     public DbSet<FerramentaLembreteUtilizacao> FerramentaLembretesUtilizacao => Set<FerramentaLembreteUtilizacao>();
 
     public DbSet<BqMovement> BqMovements => Set<BqMovement>();
@@ -736,6 +738,35 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasIndex(r => r.DiaOperacional);
             entity.HasIndex(r => new { r.MachineId, r.DiaOperacional });
             entity.HasIndex(r => new { r.RegistadoPorUserId, r.DiaOperacional });
+            // A lista da produção conta só as que não foram anuladas (peça 2).
+            entity.HasIndex(r => new { r.JobOnId, r.Id }).HasFilter("\"AnuladaEmUtc\" IS NULL").HasDatabaseName("IX_ReparacoesInternas_JobOnId_Id_Ativas");
+            // Corrigir e anular ao mesmo tempo que outra pessoa: o segundo é avisado.
+            entity.Property<uint>(RowVersion).IsRowVersion();
+        });
+
+        // O rasto de corrigir e anular (peça 2, SG-24): só se acrescenta. A
+        // base recusa mudar uma linha (trigger da migração
+        // ReparacaoInternaRasto); a linha sai só com a reparação (CASCADE,
+        // quando se elimina o Job On). Apagar o utilizador deixa-a sem autor.
+        modelBuilder.Entity<ReparacaoRasto>(entity =>
+        {
+            entity.ToTable("ReparacoesInternasRasto", t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_ReparacoesInternasRasto_Acao",
+                    "(\"Acao\" = 1 AND \"NumeroDepois\" IS NOT NULL) OR (\"Acao\" = 2 AND \"NumeroDepois\" IS NULL)");
+                t.HasCheckConstraint(
+                    "CK_ReparacoesInternasRasto_Motivo",
+                    "\"Motivo\" IS NULL OR (btrim(\"Motivo\") <> '' AND \"Motivo\" = btrim(\"Motivo\"))");
+            });
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.NumeroAntes).HasMaxLength(Reparacao.NumeroMaxLength).IsRequired();
+            entity.Property(r => r.NumeroDepois).HasMaxLength(Reparacao.NumeroMaxLength);
+            entity.Property(r => r.Motivo).HasMaxLength(ReparacaoRasto.MotivoMaxLength);
+            entity.HasOne<Reparacao>().WithMany().HasForeignKey(r => r.ReparacaoId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<User>().WithMany().HasForeignKey(r => r.PorUserId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(r => new { r.ReparacaoId, r.Id });
+            entity.HasIndex(r => r.PorUserId);
         });
 
         modelBuilder.Entity<FerramentaEstado>(entity =>

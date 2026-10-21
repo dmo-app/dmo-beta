@@ -15,7 +15,9 @@ namespace DMO.Alpha.Infrastructure.ReparacaoInterna;
 /// Jobon, 8 por omissão) e sem o recurso às produções sem datas (DP-19).
 /// Registar grava a reparação e a operação registada (envio único) na mesma
 /// transação e não mexe em mais nada: nem na ferramenta, nem no Job On, nem
-/// nas Boquilhas, nem no Armazém.
+/// nas Boquilhas, nem no Armazém. Corrigir (só o número) e anular gravam a
+/// reparação, a linha do rasto e a operação registada na mesma transação;
+/// qualquer pessoa com o módulo o pode fazer (RI-04), e o rasto diz quem.
 /// </summary>
 public sealed class ReparacoesInternas(
     DmoDbContext db,
@@ -27,6 +29,10 @@ public sealed class ReparacoesInternas(
     public const string OperacaoTipo = "ri.reparacao";
 
     public const string ResultadoTipo = "Reparacao";
+
+    public const string OperacaoCorrigir = "ri.corrigir";
+
+    public const string OperacaoAnular = "ri.anular";
 
     private readonly TimeProvider _clock = clock ?? TimeProvider.System;
 
@@ -147,7 +153,6 @@ public sealed class ReparacoesInternas(
             return new ReparacaoSaida(ReparacaoResultado.FerramentaMudou, Numero: numero);
         }
 
-        var actor = account.Current;
         var reparacao = new Reparacao
         {
             JobOnId = producao.JobOnId,
@@ -156,7 +161,7 @@ public sealed class ReparacoesInternas(
             CmContextId = tipo == ReparacaoTipo.Cm ? ferramenta.ContextoId : null,
             MfContextId = tipo == ReparacaoTipo.Mf ? ferramenta.ContextoId : null,
             Numero = numero,
-            RegistadoPorUserId = actor is { IsAuthenticated: true, IsAdmin: false } ? actor.ActorId : null,
+            RegistadoPorUserId = Autor(),
             RegistadoEmUtc = agora,
             DiaOperacional = doDia.Dia
         };
@@ -216,9 +221,166 @@ public sealed class ReparacoesInternas(
         return new ReparacaoSaida(ReparacaoResultado.JaRegistado, operacao.ResultadoId, numero);
     }
 
+    // Quem grava: o utilizador da sessão; o ADMIN não é um utilizador (NULL).
+    private Guid? Autor() =>
+        account.Current is { IsAuthenticated: true, IsAdmin: false } actor ? actor.ActorId : null;
+
+    public async Task<CorrecaoSaida> CorrigirAsync(PedidoDeCorrecao pedido, CancellationToken cancellationToken = default)
+    {
+        if (await JaFeitoAsync(pedido.OperacaoId, cancellationToken) is { } repetido)
+        {
+            return repetido;
+        }
+
+        // As mesmas regras do registo: sem espaços nas pontas, não vazio, até 40.
+        var numero = (pedido.Numero ?? string.Empty).Trim();
+        if (numero.Length == 0)
+        {
+            return new CorrecaoSaida(CorrecaoResultado.SemNumero);
+        }
+
+        if (numero.Length > Reparacao.NumeroMaxLength)
+        {
+            return new CorrecaoSaida(CorrecaoResultado.NumeroLongo, numero);
+        }
+
+        if (!Motivo(pedido.Motivo, out var motivo))
+        {
+            return new CorrecaoSaida(CorrecaoResultado.MotivoLongo, numero);
+        }
+
+        var reparacao = await db.ReparacoesInternas.FirstOrDefaultAsync(r => r.Id == pedido.ReparacaoId, cancellationToken);
+        if (reparacao is null)
+        {
+            return new CorrecaoSaida(CorrecaoResultado.NaoExiste);
+        }
+
+        if (reparacao.AnuladaEmUtc is not null)
+        {
+            return new CorrecaoSaida(CorrecaoResultado.JaAnulada, reparacao.Numero);
+        }
+
+        if (reparacao.Numero == numero)
+        {
+            return new CorrecaoSaida(CorrecaoResultado.Igual, numero);
+        }
+
+        var rasto = new ReparacaoRasto
+        {
+            ReparacaoId = reparacao.Id,
+            Acao = ReparacaoAcao.Corrigido,
+            NumeroAntes = reparacao.Numero,
+            NumeroDepois = numero,
+            PorUserId = Autor(),
+            EmUtc = _clock.GetUtcNow().UtcDateTime,
+            Motivo = motivo
+        };
+        reparacao.Numero = numero;
+        return await AplicarAsync(reparacao, rasto, pedido.OperacaoId, OperacaoCorrigir, CorrecaoResultado.Corrigido, cancellationToken);
+    }
+
+    public async Task<CorrecaoSaida> AnularAsync(PedidoDeAnulacao pedido, CancellationToken cancellationToken = default)
+    {
+        if (await JaFeitoAsync(pedido.OperacaoId, cancellationToken) is { } repetido)
+        {
+            return repetido;
+        }
+
+        if (!Motivo(pedido.Motivo, out var motivo))
+        {
+            return new CorrecaoSaida(CorrecaoResultado.MotivoLongo);
+        }
+
+        var reparacao = await db.ReparacoesInternas.FirstOrDefaultAsync(r => r.Id == pedido.ReparacaoId, cancellationToken);
+        if (reparacao is null)
+        {
+            return new CorrecaoSaida(CorrecaoResultado.NaoExiste);
+        }
+
+        if (reparacao.AnuladaEmUtc is not null)
+        {
+            return new CorrecaoSaida(CorrecaoResultado.JaAnulada, reparacao.Numero);
+        }
+
+        var agora = _clock.GetUtcNow().UtcDateTime;
+        var rasto = new ReparacaoRasto
+        {
+            ReparacaoId = reparacao.Id,
+            Acao = ReparacaoAcao.Anulado,
+            NumeroAntes = reparacao.Numero,
+            PorUserId = Autor(),
+            EmUtc = agora,
+            Motivo = motivo
+        };
+        reparacao.AnuladaEmUtc = agora;
+        return await AplicarAsync(reparacao, rasto, pedido.OperacaoId, OperacaoAnular, CorrecaoResultado.Anulado, cancellationToken);
+    }
+
+    // O motivo é opcional: sem espaços nas pontas, vazio fica NULL, até 200.
+    private static bool Motivo(string? escrito, out string? motivo)
+    {
+        motivo = string.IsNullOrWhiteSpace(escrito) ? null : escrito.Trim();
+        return motivo is null || motivo.Length <= ReparacaoRasto.MotivoMaxLength;
+    }
+
+    // A reparação mudada, a linha do rasto e a operação vão juntas. Outro
+    // envio com o mesmo identificador primeiro: já está feito. Outra pessoa
+    // gravou na mesma reparação entretanto (a versão da linha mudou): nada
+    // se grava e a pessoa é avisada do que está agora.
+    private async Task<CorrecaoSaida> AplicarAsync(
+        Reparacao reparacao, ReparacaoRasto rasto, Guid operacaoId, string tipo, CorrecaoResultado feito, CancellationToken cancellationToken)
+    {
+        var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+        try
+        {
+            db.ReparacoesInternasRasto.Add(rasto);
+            operacoes.Registar(operacaoId, tipo, new ResultadoDaOperacao(ResultadoTipo, reparacao.Id));
+            await db.SaveChangesAsync(cancellationToken);
+            if (transacao is not null)
+            {
+                await transacao.CommitAsync(cancellationToken);
+            }
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            db.ChangeTracker.Clear();
+            var agora = await db.ReparacoesInternas.AsNoTracking().FirstOrDefaultAsync(r => r.Id == reparacao.Id, cancellationToken);
+            return agora is null ? new CorrecaoSaida(CorrecaoResultado.NaoExiste)
+                : agora.AnuladaEmUtc is not null ? new CorrecaoSaida(CorrecaoResultado.JaAnulada, agora.Numero)
+                : new CorrecaoSaida(CorrecaoResultado.Mudou, agora.Numero);
+        }
+        catch (DbUpdateException ex) when (OperacoesRegistadas.EOperacaoRepetida(ex))
+        {
+            db.ChangeTracker.Clear();
+            return await JaFeitoAsync(operacaoId, cancellationToken) ?? new CorrecaoSaida(CorrecaoResultado.JaFeito, rasto.NumeroDepois ?? rasto.NumeroAntes);
+        }
+        finally
+        {
+            if (transacao is not null)
+            {
+                await transacao.DisposeAsync();
+            }
+        }
+
+        return new CorrecaoSaida(feito, rasto.NumeroDepois ?? rasto.NumeroAntes);
+    }
+
+    private async Task<CorrecaoSaida?> JaFeitoAsync(Guid operacaoId, CancellationToken cancellationToken)
+    {
+        if (operacaoId == Guid.Empty || await operacoes.ProcurarAsync(operacaoId, cancellationToken) is not { } operacao)
+        {
+            return null;
+        }
+
+        var numero = operacao.ResultadoId is { } id
+            ? await db.ReparacoesInternas.AsNoTracking().Where(r => r.Id == id).Select(r => r.Numero).FirstOrDefaultAsync(cancellationToken)
+            : null;
+        return new CorrecaoSaida(CorrecaoResultado.JaFeito, numero);
+    }
+
     public Task<PagedList<RiLinha>> ListarAsync(int machineId, int jobOnId, int? pagina, CancellationToken cancellationToken = default) =>
         (from r in db.ReparacoesInternas.AsNoTracking()
-         where r.JobOnId == jobOnId && r.MachineId == machineId
+         where r.JobOnId == jobOnId && r.MachineId == machineId && r.AnuladaEmUtc == null
          join u in db.Users.AsNoTracking() on r.RegistadoPorUserId equals (Guid?)u.Id into us
          from u in us.DefaultIfEmpty()
          orderby r.Id descending

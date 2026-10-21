@@ -66,6 +66,7 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
             controlo is not null
                 && (controlo.Revisto || await _db.ControloDecisoes.AnyAsync(d => d.ControloId == controloId, cancellationToken)))
         {
+            // Todas, as anuladas também: perdem-se todas com a produção.
             ReparacoesInternas = await _db.ReparacoesInternas.CountAsync(r => r.JobOnId == jobOnId, cancellationToken)
         };
     }
@@ -181,8 +182,12 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
             _db.Controlos.Remove(controlo);
         }
 
-        // As reparações da Reparação Interna desta produção (apontam para os
-        // cm_id e mf_id, por isso saem antes deles).
+        // As reparações da Reparação Interna desta produção, as anuladas
+        // também, com o rasto delas (na base sai em cascata; aqui também em
+        // memória). Apontam para os cm_id e mf_id, por isso saem antes deles.
+        var reparacoesIds = _db.ReparacoesInternas.Where(r => r.JobOnId == jobOnId).Select(r => r.Id);
+        _db.ReparacoesInternasRasto.RemoveRange(
+            await _db.ReparacoesInternasRasto.Where(r => reparacoesIds.Contains(r.ReparacaoId)).ToListAsync(cancellationToken));
         _db.ReparacoesInternas.RemoveRange(
             await _db.ReparacoesInternas.Where(r => r.JobOnId == jobOnId).ToListAsync(cancellationToken));
 
