@@ -8,13 +8,20 @@ namespace DMO.Alpha.Web.Pages.Admin.CanalJobon;
 /// O CANAL JOBON (Diogo, 17/10/2026: «hora viragem precisa de outra página
 /// onde depois podemos adicionar mais módulos. Podemos chamar Canal Jobon»):
 /// as definições de como o Job On chega aos módulos. Hoje: a hora de viragem
-/// do dia das Boquilhas — a produção corrente de uma máquina muda à hora
-/// configurada, nunca à meia-noite nem ao criar o Job On. ADMIN apenas.
+/// do dia das Boquilhas e a da Reparação Interna (uma linha por módulo,
+/// DP-15) — a produção corrente de uma máquina muda à hora configurada,
+/// nunca à meia-noite nem ao criar o Job On. ADMIN apenas.
 /// </summary>
 public class IndexModel(IModuleSettingsQuery moduleSettings, ISaveModuleSettingHandler saveModuleSetting) : PageModel
 {
     /// <summary>A hora de viragem configurada (null quando ainda não configurada — o consumo usa o padrão 8).</summary>
     public int? BoquilhasDayChangeHour { get; private set; }
+
+    /// <summary>A hora de viragem da Reparação Interna (null: o padrão 8).</summary>
+    public int? ReparacaoInternaDayChangeHour { get; private set; }
+
+    /// <summary>De que cartão é o resultado: «ri» para a Reparação Interna, senão as Boquilhas.</summary>
+    public string? SaveFrom { get; private set; }
 
     /// <summary>Resultado do save transportado por query (PRG), apenas apresentação.</summary>
     public string? SaveResult { get; private set; }
@@ -27,14 +34,21 @@ public class IndexModel(IModuleSettingsQuery moduleSettings, ISaveModuleSettingH
         _ => string.Empty
     };
 
-    public async Task<IActionResult> OnGetAsync(string? save)
+    public async Task<IActionResult> OnGetAsync(string? save, string? de)
     {
         SaveResult = save;
+        SaveFrom = de;
         var configured = await moduleSettings.FindValueAsync(
             ModuleSettingKeys.BoquilhasDayChangeHour, HttpContext.RequestAborted);
         BoquilhasDayChangeHour = int.TryParse(configured, out var hour) ? hour : null;
+        var ri = await moduleSettings.FindValueAsync(
+            ModuleSettingKeys.ReparacaoInternaDayChangeHour, HttpContext.RequestAborted);
+        ReparacaoInternaDayChangeHour = int.TryParse(ri, out var riHour) ? riHour : null;
         return Page();
     }
+
+    /// <summary>A mensagem do resultado, só no cartão que gravou.</summary>
+    public string MessageFor(string card) => (SaveFrom == "ri" ? "ri" : "boquilhas") == card ? SaveResultMessage : string.Empty;
 
     /// <summary>POST: gravar a hora de viragem do dia das Boquilhas (0–23). Escolher no dropdown grava logo.</summary>
     public async Task<IActionResult> OnPostSaveBoquilhasDayChangeHourAsync(int? dayChangeHour)
@@ -50,5 +64,21 @@ public class IndexModel(IModuleSettingsQuery moduleSettings, ISaveModuleSettingH
             _ => "vazio"
         };
         return RedirectToPage("/Admin/CanalJobon/Index", new { save });
+    }
+
+    /// <summary>POST: gravar a hora de viragem do dia da Reparação Interna (0–23), à parte da das Boquilhas.</summary>
+    public async Task<IActionResult> OnPostSaveReparacaoInternaDayChangeHourAsync(int? dayChangeHour)
+    {
+        var outcome = await saveModuleSetting.HandleAsync(
+            new SaveModuleSetting(ModuleSettingKeys.ReparacaoInternaDayChangeHour, dayChangeHour?.ToString() ?? string.Empty),
+            HttpContext.RequestAborted);
+
+        var save = outcome.Result switch
+        {
+            SaveModuleSettingResult.Success => "ok",
+            SaveModuleSettingResult.BoquilhasInvalidHour => "hora-invalida",
+            _ => "vazio"
+        };
+        return RedirectToPage("/Admin/CanalJobon/Index", new { save, de = "ri" });
     }
 }

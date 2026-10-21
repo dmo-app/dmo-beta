@@ -49,6 +49,7 @@ public sealed class ShellStateFactory
         DmoCapabilities.Boquilhas => moduleKey == "boquilhas",
         DmoCapabilities.Ferramentas => moduleKey == "ferramentas",
         DmoCapabilities.ArmazemGestao => moduleKey == "armazem",
+        DmoCapabilities.ReparacaoInterna => moduleKey == "reparacao-interna",
         _ => false
     };
 
@@ -245,5 +246,15 @@ public sealed class ShellStateFactory
             new FunctionPresentation("proximos", "Próximos Job On", "/Armazem/Proximos", null, activeKey == "proximos", true, true),
             new FunctionPresentation("posicoes", "Posições", "/Armazem/Posicoes", null, activeKey == "posicoes", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Armazem/Definicoes", null, activeKey == "definicoes", true, true)
+        };
+
+    /// <summary>
+    /// As funções da Reparação Interna (módulo do full): por agora só o
+    /// Registar na máquina; a Consulta dos chefes vem a seguir.
+    /// </summary>
+    public static IReadOnlyList<FunctionPresentation> ReparacaoInternaFunctions(string activeKey) =>
+        new[]
+        {
+            new FunctionPresentation("registar", "Registar", "/ReparacaoInterna", null, activeKey == "registar", true, true)
         };
 }

@@ -130,6 +130,10 @@ public sealed class IndexModel : PageModel
             ("Armazém (Gestão: Movimentos · Mapa · Histórico · Próximos Job On · Posições · Definições)", new[]
             {
                 DmoCapabilities.ArmazemGestao
+            }),
+            ("Reparação Interna (Registar)", new[]
+            {
+                DmoCapabilities.ReparacaoInterna
             })
         };
 
@@ -142,6 +146,7 @@ public sealed class IndexModel : PageModel
         DmoCapabilities.Boquilhas => "Boquilhas",
         DmoCapabilities.Ferramentas => "Ferramentas",
         DmoCapabilities.ArmazemGestao => "Armazém — Gestão",
+        DmoCapabilities.ReparacaoInterna => "Reparação Interna",
         _ => capability
     };
 

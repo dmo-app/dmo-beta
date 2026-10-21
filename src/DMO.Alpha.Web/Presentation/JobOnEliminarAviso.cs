@@ -43,6 +43,13 @@ public sealed record JobOnEliminarAviso(int JobOnId, string Pergunta, string? Ja
                 : $"{preview.BqMovements} movimentos das Boquilhas (deixam de contar na BQ)");
         }
 
+        if (preview.ReparacoesInternas > 0)
+        {
+            perdas.Add(preview.ReparacoesInternas == 1
+                ? "1 reparação da Reparação Interna"
+                : $"{preview.ReparacoesInternas} reparações da Reparação Interna");
+        }
+
         var perde = perdas.Count == 0 ? null : "Perde-se também: " + Join(perdas) + ".";
         return new JobOnEliminarAviso(preview.JobOnId, pergunta, jaProduziu, perde);
     }

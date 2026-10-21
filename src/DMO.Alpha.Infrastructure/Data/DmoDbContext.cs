@@ -8,6 +8,7 @@ using DMO.Alpha.Core.Boquilhas;
 using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Identity;
 using DMO.Alpha.Core.Production;
+using DMO.Alpha.Core.ReparacaoInterna;
 using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Admin;
@@ -92,6 +93,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<FerramentaUtilizacao> FerramentaUtilizacoes => Set<FerramentaUtilizacao>();
 
     public DbSet<SapFabrico> SapFabricos => Set<SapFabrico>();
+
+    // A Reparação Interna do full: uma linha curta por número reparado.
+    public DbSet<Reparacao> ReparacoesInternas => Set<Reparacao>();
 
     public DbSet<FerramentaLembreteUtilizacao> FerramentaLembretesUtilizacao => Set<FerramentaLembreteUtilizacao>();
 
@@ -701,6 +705,37 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(f => f.Ficheiro).HasMaxLength(FerramentaUtilizacao.FicheiroMaxLength);
             entity.HasIndex(f => new { f.Material, f.Linha, f.InicioEm, f.FimEm }).IsUnique();
             entity.HasIndex(f => new { f.Linha, f.InicioEm });
+        });
+
+        // A Reparação Interna (blueprint reparacao-interna/OVERVIEW §3): o
+        // módulo com mais registos, por isso a linha é curta (sem referência,
+        // lote ou nomes copiados) e os índices são os das perguntas dos
+        // chefes: pela produção, pelo dia, pela máquina e por quem reparou.
+        // Só o contexto do tipo (o cm_id numa CM, o mf_id num MF). Apagar o
+        // utilizador deixa a reparação sem autor (SET NULL, como nos outros
+        // factos); a produção, a máquina e os contextos não se apagam por baixo
+        // dela (RESTRICT; o Eliminar do Job On apaga-a com a produção).
+        modelBuilder.Entity<Reparacao>(entity =>
+        {
+            entity.ToTable("ReparacoesInternas", t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_ReparacoesInternas_Contexto",
+                    "(\"Tipo\" = 1 AND \"CmContextId\" IS NOT NULL AND \"MfContextId\" IS NULL)"
+                    + " OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL)");
+                t.HasCheckConstraint("CK_ReparacoesInternas_Numero", "btrim(\"Numero\") <> '' AND \"Numero\" = btrim(\"Numero\")");
+            });
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.Numero).HasMaxLength(Reparacao.NumeroMaxLength).IsRequired();
+            entity.HasOne<JobOn>().WithMany().HasForeignKey(r => r.JobOnId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Machine>().WithMany().HasForeignKey(r => r.MachineId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<CmContext>().WithMany().HasForeignKey(r => r.CmContextId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<MfContext>().WithMany().HasForeignKey(r => r.MfContextId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<User>().WithMany().HasForeignKey(r => r.RegistadoPorUserId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(r => r.JobOnId);
+            entity.HasIndex(r => r.DiaOperacional);
+            entity.HasIndex(r => new { r.MachineId, r.DiaOperacional });
+            entity.HasIndex(r => new { r.RegistadoPorUserId, r.DiaOperacional });
         });
 
         modelBuilder.Entity<FerramentaEstado>(entity =>

@@ -39,7 +39,7 @@
     <section id="canalJobonViragem" class="dmo-card adm-card" aria-labelledby="boquilhas-settings-title" data-dmo-regiao data-dmo-parcial>
         <h3 id="boquilhas-settings-title">Boquilhas — hora de viragem do dia<partial name="_DmoHelp" model="@("A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On). O padrão é 8:00, a manhã da fábrica.")" /></h3>
 
-        @if (Model.SaveResultMessage.Length > 0)
+        @if (Model.MessageFor("boquilhas").Length > 0)
         {
             <p data-dmo-toast="@(Model.SaveResult == "ok" ? "ok" : "erro")" role="@(Model.SaveResult == "ok" ? "status" : "alert")">@Model.SaveResultMessage</p>
         }
@@ -51,6 +51,27 @@
                     @for (var h = 0; h <= 23; h++)
                     {
                         <option value="@h" selected="@(Model.BoquilhasDayChangeHour == h || (Model.BoquilhasDayChangeHour is null && h == 8))">@h:00</option>
+                    }
+                </select>
+            </div>
+        </form>
+    </section>
+
+    <section id="canalJobonViragemRi" class="dmo-card adm-card" aria-labelledby="ri-settings-title" data-dmo-regiao data-dmo-parcial>
+        <h3 id="ri-settings-title">Reparação Interna — hora de viragem do dia<partial name="_DmoHelp" model="@("A partir desta hora, a Reparação Interna liga as reparações à nova produção de cada máquina. O padrão é 8:00.")" /></h3>
+
+        @if (Model.MessageFor("ri").Length > 0)
+        {
+            <p data-dmo-toast="@(Model.SaveResult == "ok" ? "ok" : "erro")" role="@(Model.SaveResult == "ok" ? "status" : "alert")">@Model.SaveResultMessage</p>
+        }
+
+        <form method="post" asp-page="/Admin/CanalJobon/Index" asp-page-handler="SaveReparacaoInternaDayChangeHour">
+            <div class="dmo-field">
+                <label for="riDayChangeHour">Hora de viragem</label>
+                <select id="riDayChangeHour" name="dayChangeHour" data-dmo-autosubmit>
+                    @for (var h = 0; h <= 23; h++)
+                    {
+                        <option value="@h" selected="@(Model.ReparacaoInternaDayChangeHour == h || (Model.ReparacaoInternaDayChangeHour is null && h == 8))">@h:00</option>
                     }
                 </select>
             </div>
