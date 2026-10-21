@@ -68,12 +68,12 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Matches("<dialog id=\"ferrProducoes\" class=\"dmo-dialog ferr-producoes-janela\"[^>]*>", ficha);
         Assert.DoesNotContain("id=\"ferr-producoes-abrir\"", ficha, StringComparison.Ordinal);
 
-        // A produção, o produzido (a líquida, pt-PT: espaço entre os milhares) e o caminho para a ficha do Job On.
+        // A produção, o produzido (a bruta, pt-PT: espaço entre os milhares) e o caminho para a ficha do Job On.
         var producoes = WebUtility.HtmlDecode(ZonaUsoSap(ficha, "ferrProducoes"));
         Assert.DoesNotContain("data-dmo-dialog-aberta=\"1\"", producoes[..producoes.IndexOf('>')], StringComparison.Ordinal);
         Assert.Contains("202501", producoes, StringComparison.Ordinal);
         Assert.Contains($"title=\"{maquina} · 21/01/2025 a 04/02/2025\"", producoes, StringComparison.Ordinal);
-        Assert.Contains(1_309_264.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), producoes, StringComparison.Ordinal);
+        Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), producoes, StringComparison.Ordinal);
         Assert.Matches("<a class=\"ferr-armazem-link\" href=\"/JobOn\\?jobon_id=\\d+\"><strong>202501</strong></a>", producoes);
         Assert.DoesNotContain("id=\"ferrProducoesSemSap\"", producoes, StringComparison.Ordinal);
     }
@@ -109,7 +109,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("+7.5 %", quadro, StringComparison.Ordinal);
         var total = WebUtility.HtmlDecode(ZonaUsoSap(quadro, "ferrProducoesTotal"));
         Assert.Contains("Total · 1 produção", total, StringComparison.Ordinal);
-        Assert.Contains(1_309_264.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
+        Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
         Assert.Contains("47.5 %", total, StringComparison.Ordinal);
         Assert.Contains("Hoje 47.5 %", WebUtility.HtmlDecode(Regex.Replace(ZonaUsoSap(quadro, "ferrProducoesHoje"), "<[^>]+>", "")), StringComparison.Ordinal);
     }
