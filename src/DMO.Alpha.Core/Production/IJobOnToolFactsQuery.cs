@@ -47,6 +47,9 @@ public sealed record JobOnToolFacts(
     /// <summary>O último estado registado no Armazém; null sem estado.</summary>
     public DMO.Alpha.Core.Armazem.FerramentaEstadoTipo? Estado { get; init; }
 
+    /// <summary>O % de uso da última leitura (Diogo, 21/10/2026: «no Job On também mostrar o % uso»); null sem leitura.</summary>
+    public decimal? Utilizacao { get; init; }
+
     /// <summary>
     /// «CM 5447T173 / lote 3 não está registada no Armazém e não tem estado.»
     /// ou «… não tem estado registado.» (Diogo 21/10, FER-E-03: só avisa) —

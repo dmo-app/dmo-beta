@@ -525,6 +525,32 @@ public sealed class ArmazemMovimentosTests
     }
 
     [Fact]
+    public async Task Procurar_DaOEstadoAsMaquinasEOUltimoUso()
+    {
+        // Diogo, 21/10/2026: «posição, referência, lote, estado, máquinas, % uso».
+        using var db = CreateContext();
+        await Servico(db).EntradaAsync(Entrada(toolId: Cm));
+        db.ToolMachineLinks.AddRange(
+            new ToolMachineLink { ToolId = Cm, Machine = new DMO.Alpha.Core.Production.Machine { Code = "C3" } },
+            new ToolMachineLink { ToolId = Cm, Machine = new DMO.Alpha.Core.Production.Machine { Code = "B1" } });
+        db.FerramentaUtilizacoes.AddRange(
+            new FerramentaUtilizacao { ToolId = Cm, Percentagem = 40m, RegistadaEmUtc = DateTime.UtcNow.AddDays(-9) },
+            new FerramentaUtilizacao { ToolId = Cm, Percentagem = 47.5m, RegistadaEmUtc = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var encontradas = (await Servico(db).ProcurarAsync("5447")).ToDictionary(e => e.ToolId);
+
+        // A CM: o estado da Entrada, as máquinas por ordem e a leitura mais recente.
+        Assert.Equal(FerramentaEstadoTipo.Reparado, encontradas[Cm].Estado);
+        Assert.Equal(["B1", "C3"], encontradas[Cm].Maquinas);
+        Assert.Equal(47.5m, encontradas[Cm].Utilizacao);
+        // O MF nunca entrou nem foi lido: sem estado, sem máquinas (todas) e sem uso.
+        Assert.Null(encontradas[Mf].Estado);
+        Assert.Empty(encontradas[Mf].Maquinas!);
+        Assert.Null(encontradas[Mf].Utilizacao);
+    }
+
+    [Fact]
     public async Task Ocupantes_SoAsFerramentasQueAindaLaEstao()
     {
         using var db = CreateContext();

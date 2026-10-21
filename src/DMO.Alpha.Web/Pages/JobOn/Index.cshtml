@@ -422,6 +422,11 @@
                   @* Onde está pelo Armazém e o estado; sem registo ou sem
                      estado, só um aviso com o link para o Armazém (Diogo
                      21/10, FER-E-03). *@
+                  @if (factoSlot.Utilizacao is { } usoFicha)
+                  {
+                    @* O % de uso da última leitura (Diogo, 21/10/2026). *@
+                    <p style="font-size:11px;color:var(--dmo-muted,#66809a);margin:5px 0" data-dmo-uso>Uso <b style="color:var(--dmo-text,#1c2b3a)">@usoFicha.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) %</b></p>
+                  }
                   @if (factoSlot.OndeEsta is { } ondeEsta)
                   {
                     <p style="font-size:11px;color:var(--dmo-muted,#66809a);margin:5px 0" data-dmo-onde-esta>

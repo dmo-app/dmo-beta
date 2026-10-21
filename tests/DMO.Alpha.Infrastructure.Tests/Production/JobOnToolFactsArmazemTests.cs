@@ -77,4 +77,21 @@ public sealed class JobOnToolFactsArmazemTests
         Assert.Equal(((string?)null, FerramentaEstadoTipo.Reparado, "BQ A118 / lote 07 não está registada no Armazém."),
             (factos["so-estado"].OndeEsta, factos["so-estado"].Estado, factos["so-estado"].AvisoArmazem));
     }
+
+    [Fact]
+    public async Task OUsoEAUltimaLeitura_ESemLeituraFicaVazio()
+    {
+        // Diogo, 21/10/2026: «no Job On também mostrar o % uso».
+        using var db = CreateContext();
+        db.FerramentaUtilizacoes.AddRange(
+            new FerramentaUtilizacao { ToolId = "na-posicao", Percentagem = 30m, RegistadaEmUtc = DateTime.UtcNow.AddDays(-5) },
+            new FerramentaUtilizacao { ToolId = "na-posicao", Percentagem = 33.5m, RegistadaEmUtc = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var factos = (await new JobOnToolFactsQuery(db).FindAsync(["na-posicao", "nunca"], null, null, null, null))
+            .ToDictionary(f => f.ToolId);
+
+        Assert.Equal(33.5m, factos["na-posicao"].Utilizacao);
+        Assert.Null(factos["nunca"].Utilizacao);
+    }
 }

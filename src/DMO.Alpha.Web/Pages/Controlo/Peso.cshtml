@@ -1730,7 +1730,7 @@
          usou é escrito à mão a partir do SAP. O delta é contra o peso médio
          atual, e o registo vai para o PDF. *@
       <div class="peso-section-heading" style="margin-top:16px"><div>
-        <h4 id="peso-producao-anterior-title">Produção anterior (SAP)</h4>
+        <h4 id="peso-producao-anterior-title">Produção anterior</h4>
       </div></div>
       @{
         var semProducaoAnterior = Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null;
@@ -1822,13 +1822,13 @@
         }
         <div class="peso-sap-caixa" id="pesoAnteriorSap" data-producao-anterior-sap data-peso-atual="@(pesoAtualSap is { } pa ? fmt(pa) : null)">
           <div data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">
-            <div class="peso-sap-titulo">Peso do SAP <span class="peso-hint">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></div>
+            <div class="peso-sap-titulo">Peso da produção <span class="peso-hint">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></div>
             <div class="peso-sap-opcoes">
               <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="media" checked /> Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></label>
               <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="moda" /> Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda" hidden>@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></label>
             </div>
           </div>
-          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">O SAP ainda não deu o peso desta produção. <a href="/Ferramentas/Definicoes#ferrDefSap">Ler a pasta do SAP</a></span>
+          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a href="/Ferramentas/Definicoes#ferrDefSap">Ler a pasta do SAP</a></span>
           @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {

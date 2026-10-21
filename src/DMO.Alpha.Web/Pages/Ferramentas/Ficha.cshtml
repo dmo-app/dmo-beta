@@ -435,7 +435,7 @@
           </div>
           @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))
           {
-            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: o SAP ainda não deu o fabrico desse Job On. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap">Ler a pasta do SAP</a></p>
+            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap">Ler a pasta do SAP</a></p>
           }
         }
         <div class="dmo-dialog-actions">

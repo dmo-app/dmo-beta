@@ -666,3 +666,21 @@ Novos: 0 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ORelatorioDeFabrico_MostraOQueCadaJobOnDaFerramentaProduziu`
 
 Selo depois: `79ea765de9d9c06f`
+
+## A-0026 · 2026-10-21 · ok-do-diogo
+
+Porquê: Na página (pedido do Guardião): a procura do Armazém mostra o % na coluna do uso da CM e «—» na BQ sem leitura; o cartão da ferramenta do Job On mostra o uso da última leitura, só na que tem leitura; a folha do Peso não tem «(SAP)» e a caixa da produção não mostra «SAP» em nenhum texto à vista. A coluna das máquinas da procura chama-se «Linhas» (regra nova do Diogo: máquina passa a linha).
+Referência: thread «SAP tool usage extraction», Diogo 21/10 11:50 (cmsg_01A27e9ozcpoh4jdPRsuJbFyUcQqiZ3ap8bvwmmevMak7b) e 12:32 (cmsg_01A27e9ozcpoh4jdPRsuJbFy4SUt54ApUckttfb8oEXeQA, cmsg_01A27e9ozcpoh4jdPRsuJbFyBjqBzuCq63NgbNxTPh4b9Z); regra «máquina passa a linha», Diogo 21/10 12:53 (cmsg_01A27e9ozcpoh4jdPRsuJbFyQgXrdUMgZDb69cYsG5HvnR)
+Novos: 4 · mudaram: 5 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Procurar_DaOEstadoAsMaquinasEOUltimoUso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OUsoEAUltimaLeitura_ESemLeituraFicaVazio`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.SemORelatorioDeFabrico_AProducaoFicaComTraco`
+
+Selo depois: `69e5ccde73ff92d4`

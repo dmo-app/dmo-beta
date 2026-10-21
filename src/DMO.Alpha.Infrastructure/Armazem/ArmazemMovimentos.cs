@@ -64,6 +64,24 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         var localizacoes = await db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => ids.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);
+        var estados = (await db.FerramentaEstados.AsNoTracking()
+                .Where(e => ids.Contains(e.ToolId))
+                .Select(e => new { e.Id, e.ToolId, e.Estado })
+                .ToListAsync(cancellationToken))
+            .GroupBy(e => e.ToolId)
+            .ToDictionary(g => g.Key, g => g.MaxBy(e => e.Id)!.Estado);
+        var maquinas = (await db.ToolMachineLinks.AsNoTracking()
+                .Where(m => ids.Contains(m.ToolId))
+                .Select(m => new { m.ToolId, m.Machine.Code })
+                .ToListAsync(cancellationToken))
+            .GroupBy(m => m.ToolId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(m => m.Code).Order(StringComparer.OrdinalIgnoreCase).ToList());
+        var usos = (await db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => ids.Contains(u.ToolId))
+                .Select(u => new { u.Id, u.ToolId, u.Percentagem })
+                .ToListAsync(cancellationToken))
+            .GroupBy(u => u.ToolId)
+            .ToDictionary(g => g.Key, g => g.MaxBy(u => u.Id)!.Percentagem);
 
         return tools.Select(t =>
         {
@@ -73,7 +91,10 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 : localizacoes.TryGetValue(t.ToolId, out var l)
                     ? ArmazemTextos.Localizacao(l.Localizacao, l.ReparadorNome)
                     : ArmazemTextos.Localizacao(FerramentaLocalizacaoTipo.Fabrico, null);
-            return new ArmazemProcuraItem(t.ToolId, t.Type, t.Reference, t.Lot, ondeEsta, noArmazem);
+            return new ArmazemProcuraItem(t.ToolId, t.Type, t.Reference, t.Lot, ondeEsta, noArmazem,
+                estados.TryGetValue(t.ToolId, out var estado) ? estado : null,
+                maquinas.TryGetValue(t.ToolId, out var m) ? m : [],
+                usos.TryGetValue(t.ToolId, out var uso) ? uso : null);
         }).ToList();
     }
 

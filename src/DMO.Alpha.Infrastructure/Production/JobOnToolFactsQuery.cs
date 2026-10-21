@@ -143,6 +143,12 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 .ToListAsync(cancellationToken))
             .GroupBy(e => e.ToolId)
             .ToDictionary(g => g.Key, g => g.MaxBy(e => e.Id)!.Estado);
+        var utilizacoes = (await _db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => ids.Contains(u.ToolId))
+                .Select(u => new { u.ToolId, u.Id, u.Percentagem })
+                .ToListAsync(cancellationToken))
+            .GroupBy(u => u.ToolId)
+            .ToDictionary(g => g.Key, g => g.MaxBy(u => u.Id)!.Percentagem);
 
         var result = new List<JobOnToolFacts>(tools.Count);
         foreach (var tool in tools)
@@ -214,6 +220,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 UsosParalelos = usosDaTool ?? new List<JobOnToolUsoParalelo>(),
                 OndeEsta = ondeEsta,
                 Estado = temEstado ? estado : null,
+                Utilizacao = utilizacoes.TryGetValue(tool.ToolId, out var utilizacao) ? utilizacao : null,
                 AvisoArmazem = avisoArmazem
             });
         }
