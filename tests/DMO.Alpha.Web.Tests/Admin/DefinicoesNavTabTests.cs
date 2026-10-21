@@ -165,12 +165,30 @@ public sealed class DefinicoesNavTabTests : IClassFixture<CustomWebApplicationFa
         using var client = await LoginAsync("navtab-sap@example.test", "NavTabSap1!");
         var html = await (await client.GetAsync("/Admin/Definicoes")).Content.ReadAsStringAsync();
 
-        Assert.Contains("id=\"admSap\"", html, StringComparison.Ordinal);
-        Assert.Contains("id=\"admSapLeiaMe\"", html, StringComparison.Ordinal);
-        Assert.Contains("LEIA-ME: como funciona", html, StringComparison.Ordinal);
-        Assert.Contains("DMO_USO_SAP.vbs", html, StringComparison.Ordinal);
-        Assert.Contains("dmo-codigos.txt", html, StringComparison.Ordinal);
-        Assert.Contains("Se alguma coisa mudar no SAP", html, StringComparison.Ordinal);
+        var inicio = html.IndexOf("id=\"admSap\"", StringComparison.Ordinal);
+        Assert.True(inicio >= 0, "Falta o cartão SAP.");
+        var cartao = html[inicio..html.IndexOf("</section>", inicio, StringComparison.Ordinal)];
+        var leiaInicio = cartao.IndexOf("id=\"admSapLeiaMe\"", StringComparison.Ordinal);
+        Assert.True(leiaInicio >= 0, "Falta o LEIA-ME dentro do cartão SAP.");
+        var leiaMe = cartao[leiaInicio..cartao.IndexOf("</details>", leiaInicio, StringComparison.Ordinal)];
+
+        Assert.Contains("LEIA-ME: como funciona", leiaMe, StringComparison.Ordinal);
+        Assert.Contains("DMO_USO_SAP.vbs", leiaMe, StringComparison.Ordinal);
+        Assert.Contains("dmo-codigos.txt", leiaMe, StringComparison.Ordinal);
+        Assert.Contains("Se alguma coisa mudar no SAP", leiaMe, StringComparison.Ordinal);
+    }
+
+    // O cartão SAP é só do ADMIN: um utilizador normal não chega à página.
+    [Fact]
+    public async Task Definicoes_UtilizadorNormal_NaoVeOCartaoSap()
+    {
+        SeedNormalUser("4201", "navtab-sap-operator-provider", "NavTabSapOp1!");
+        using var client = await LoginAsync("4201", "NavTabSapOp1!");
+
+        var response = await client.GetAsync("/Admin/Definicoes");
+
+        Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
+        Assert.DoesNotContain("admSap", await response.Content.ReadAsStringAsync(), StringComparison.Ordinal);
     }
 
     [Fact]

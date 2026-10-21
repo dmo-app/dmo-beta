@@ -1,5 +1,5 @@
 {
-  "selo": "9d6b672a1760b856",
+  "selo": "fd6d3c8393596692",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1247,7 +1247,8 @@
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: (resto do ficheiro)": "0d4f9b5c8830f552",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Admin_SeestTheDefinicoesTab_EncostadoADireita": "e09a67e1b346094f",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Anonymous_DoesNotSeeTheDefinicoesTab": "b96c2d816e45fc4d",
-    "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_TemOCartaoSap_ComOLeiaMe": "de2c548d751ec7b2",
+    "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_TemOCartaoSap_ComOLeiaMe": "5352729f9f976d3b",
+    "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_UtilizadorNormal_NaoVeOCartaoSap": "ef866e4122bf6b84",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.NormalUser_DoesNotSeeTheDefinicoesTab": "cb5b7b519977fe2d",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: (resto do ficheiro)": "0d674996b4673d09",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminFoundationServices_RegisterWithScopedLifetime": "39db9524a363814b",
