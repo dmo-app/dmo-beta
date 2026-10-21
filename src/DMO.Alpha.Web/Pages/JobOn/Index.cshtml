@@ -510,13 +510,6 @@
           <div>
             <span style="font-size:11px;color:var(--dmo-muted,#66809a);text-transform:uppercase;letter-spacing:.04em;font-weight:700">@(Model.FolhaEdicao ? "Editar a produção" : Model.DuplicarDe is not null ? "Duplicada da produção " + Model.OpenJobOn!.ProductionNumber : "Nova produção")</span>
             <h2 id="lightSheetTitle">@(Model.FolhaEdicao ? "Preparar a edição de " + Model.OpenJobOn!.ProductionNumber : "Preparar produção")</h2>
-            @* NO DUPLICAR, quantos campos da folha já não são os da origem: o
-               script conta os que mudaram desde que a folha abriu (vazio sem
-               nenhum, e sem script). *@
-            @if (Model.DuplicarDe is not null)
-            {
-              <span class="jobon-alterados" id="lightAlterados" role="status" aria-live="polite"></span>
-            }
           </div>
           @* FECHAR E GUARDAR LADO A LADO NO TOPO, À DIREITA (o Diogo,
              17/10/2026: «não devemos forçar alguém a ir ao final da página
@@ -926,23 +919,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 }
-
-<script>
-// NO DUPLICAR, «N campos alterados»: os campos da folha (Folha.* e a CAL) cujo
-// valor já não é o que veio da origem (o defaultValue é o que o servidor
-// desenhou). Só há #lightAlterados no Duplicar. Delegado no documento: vale
-// também para a folha trocada pelo DmoTroca.
-document.addEventListener('input', function (event) {
-  var form = event.target.closest && event.target.closest('#lightForm');
-  var marca = document.getElementById('lightAlterados');
-  if (!form || !marca) return;
-  var alterados = 0;
-  form.querySelectorAll('input[name^="Folha."], textarea[name^="Folha."], input[name^="Cal["]').forEach(function (campo) {
-    if (campo.type !== 'hidden' && campo.value !== campo.defaultValue) alterados++;
-  });
-  marca.textContent = alterados === 0 ? '' : alterados === 1 ? '1 campo alterado' : alterados + ' campos alterados';
-});
-</script>
 
 <script>
 // O campo fica no lugar; o contexto dos pedidos acompanha o calendário novo.

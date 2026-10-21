@@ -1,5 +1,5 @@
 {
-  "selo": "0fdb02fb6d88d731",
+  "selo": "b8facb048c70d2d2",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1753,10 +1753,10 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasServicesRegistrationTests.cs :: FerramentasServicesRegistrationTests.FerramentasServices_ResolveAsScopedImplementations": "205591dc58563768",
     "tests/DMO.Alpha.Web.Tests/HtmlFormHelpers.cs :: (resto do ficheiro)": "59c88aaf2ca796f2",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: (resto do ficheiro)": "adb6ac3a3a4b0763",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.Duplicar_MarcaConfirmarNaMaquinaNasFerramentasENasUtilizacoesCopiadas": "f0743aa21b316e0c",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.Duplicar_MarcaConfirmarNaMaquinaNasFerramentasENasUtilizacoesCopiadas": "33880be26d576069",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.Duplicar_SemFolhaNaOrigem_AbreAsMedidasPorOmissao_SemMarcasNaFolha": "a072a77d1de1b270",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.Duplicar_TrazAFolhaDaOrigem_EOGuardarGravaANaProducaoNova": "9422b3fbd8bb5d0b",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.NovoEEditar_NaoTemMarcasDoDuplicar": "444e30ac97075c7a",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.NovoEEditar_NaoTemMarcasDoDuplicar": "e3fdc1212a7d422a",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: (resto do ficheiro)": "4261baff5a365eca",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.ComUmModuloDoControlo_AFichaMostraOControlo": "3aa40943520f0836",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.Eliminar_AntesDoInicio_SemRegistos_SoPergunta": "1565217999aa97d7",

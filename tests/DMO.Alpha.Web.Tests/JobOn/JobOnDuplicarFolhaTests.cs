@@ -15,10 +15,9 @@ namespace DMO.Alpha.Web.Tests;
 /// <summary>
 /// O Duplicar do Job On com a folha da fábrica (Job On, peça 4, regras do
 /// Diogo): a folha da produção de origem vem copiada no formulário e o Guardar
-/// grava-a com a produção nova, na mesma escrita; as datas pedem-se; a
+/// grava-a com a produção nova, na mesma escrita; as datas são livres; a
 /// máquina, as ferramentas e as utilizações copiadas levam a marca
-/// «Confirmar», sem bloquear; e a folha tem o sítio da contagem dos campos
-/// alterados.
+/// «Confirmar», sem bloquear. Sem contadores (Diogo, 20/10).
 /// </summary>
 public class JobOnDuplicarFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
@@ -231,8 +230,8 @@ public class JobOnDuplicarFolhaTests : IClassFixture<CustomWebApplicationFactory
         Assert.DoesNotMatch("<strong>Contra molde</strong>\\s*<span class=\"jobon-confirmar\">", duplicar);
         Assert.DoesNotMatch("<strong>Boquilha</strong>\\s*<span class=\"jobon-confirmar\">", duplicar);
 
-        // A contagem dos campos alterados: o sítio vazio, que o script preenche.
-        Assert.Contains("<span class=\"jobon-alterados\" id=\"lightAlterados\" role=\"status\" aria-live=\"polite\"></span>", duplicar);
+        // Sem contadores (Diogo, 20/10): nada de «N campos alterados».
+        Assert.DoesNotContain("lightAlterados", duplicar);
     }
 
     [Fact]
@@ -261,7 +260,6 @@ public class JobOnDuplicarFolhaTests : IClassFixture<CustomWebApplicationFactory
             Assert.DoesNotContain("required", Input(html, "lightStart"));
             Assert.DoesNotContain("required", Input(html, "lightEnd"));
             Assert.DoesNotContain("jobon-confirmar\">", html);
-            Assert.DoesNotContain("id=\"lightAlterados\"", html);
         }
     }
 }

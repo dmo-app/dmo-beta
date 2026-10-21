@@ -519,7 +519,7 @@ Selo depois: `f3c0d6dba4892f9b`
 
 ## A-0021 · 2026-10-21 · contagem-lista
 
-Porquê: Job On peça 4: testes novos do Duplicar com a folha (cópia da folha e da CAL, marcas «Confirmar», contador de campos alterados, datas livres); testes.md descreve o Duplicar
+Porquê: Job On peça 4: testes novos do Duplicar com a folha (cópia da folha e da CAL, marcas «Confirmar», datas livres, sem contadores); testes.md descreve o Duplicar
 Referência: Job On peça 4, Duplicar
 Novos: 5 · mudaram: 1 · saíram: 0
 
@@ -530,4 +530,4 @@ Novos: 5 · mudaram: 1 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.NovoEEditar_NaoTemMarcasDoDuplicar`
 - mudou: `scripts/ci/testes.md`
 
-Selo depois: `0fdb02fb6d88d731`
+Selo depois: `b8facb048c70d2d2`
