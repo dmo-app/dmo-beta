@@ -74,14 +74,21 @@ public sealed record ArmazemMovimentoSaida(
         new(resultado, [], posicao);
 }
 
-/// <summary>Uma ferramenta encontrada na procura do Armazém, com onde está.</summary>
+/// <summary>
+/// Uma ferramenta encontrada na procura do Armazém: onde está, o estado, as
+/// máquinas (nenhuma: todas) e o % de uso da última leitura (Diogo,
+/// 21/10/2026: «posição, referência, lote, estado, máquinas, % uso»).
+/// </summary>
 public sealed record ArmazemProcuraItem(
     string ToolId,
     ToolType Tipo,
     string Referencia,
     string Lote,
     string OndeEsta,
-    bool NoArmazem);
+    bool NoArmazem,
+    FerramentaEstadoTipo? Estado = null,
+    IReadOnlyList<string>? Maquinas = null,
+    decimal? Utilizacao = null);
 
 /// <summary>Um movimento já registado de uma ferramenta, para a lista dos últimos.</summary>
 public sealed record ArmazemMovimentoLinha(

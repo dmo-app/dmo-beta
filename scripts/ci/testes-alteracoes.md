@@ -666,3 +666,13 @@ Novos: 0 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ORelatorioDeFabrico_MostraOQueCadaJobOnDaFerramentaProduziu`
 
 Selo depois: `79ea765de9d9c06f`
+
+## A-0026 · 2026-10-21 · teste-novo
+
+Porquê: Pedido do Diogo (21/10/2026 11:50, thread «SAP tool usage extraction»): o % de uso noutros sítios, na procura do Armazém (posição, referência, lote, estado, máquinas, % uso) e no Job On. Testes novos: a procura dá o estado, as máquinas por ordem e a leitura de uso mais recente, e uma ferramenta sem nada fica sem estado, sem máquinas (todas) e sem uso; os factos das ferramentas do Job On dão o uso da última leitura, e sem leitura nenhum.
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Procurar_DaOEstadoAsMaquinasEOUltimoUso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OUsoEAUltimaLeitura_ESemLeituraFicaVazio`
+
+Selo depois: `877dfb86779934f0`
