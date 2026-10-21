@@ -1,0 +1,186 @@
+@page "/ReparacaoInterna/Consultar"
+@model DMO.Alpha.Web.Pages.ReparacaoInterna.ConsultarModel
+@using DMO.Alpha.Core.ReparacaoInterna
+@using DMO.Alpha.Web.Pages.ReparacaoInterna
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.ri-page{display:flex;flex-direction:column;gap:14px}
+.ri-card{padding:18px}
+.ri-card h3{margin:0 0 12px;font-size:16px}
+/* Os filtros numa linha e o «Limpar filtros» encostado à direita, alinhado
+   pelo fundo dos campos (como na Revisão). Cada campo com a largura do que
+   leva; num ecrã estreito passam à linha seguinte. */
+.ri-filtros-card{padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.ri-filtros-card>.dmo-zona>.dmo-filter-bar{flex:1 1 auto;min-width:0}
+html body .ri-filtros-card .dmo-filter-bar>.dmo-field{flex:0 0 auto;margin:0}
+html body .ri-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:100%}
+.ri-w-maquina{width:96px}
+.ri-w-data{width:140px}
+.ri-w-pessoa{width:170px}
+.ri-w-tipo{width:96px}
+.ri-w-referencia{width:140px}
+html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao{min-width:220px;max-width:100%}
+html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-width:100%}
+.ri-filtros-acoes{display:flex;gap:8px;align-items:center;margin-left:auto}
+.ri-card .dmo-table td{padding:6px 8px;vertical-align:top}
+.ri-card .dmo-table td:is(:nth-child(1),:nth-child(2),:nth-child(3),:nth-child(5)){white-space:nowrap}
+/* Links escuros (padrão da beta): a produção abre a ficha do Job On. */
+.ri-card .dmo-table td a{color:var(--dmo-brand-900);font-weight:600}
+.ri-vazia{margin:0;color:var(--dmo-muted)}
+@@media (max-width:640px){
+  .ri-card{padding:14px}
+  .ri-card .dmo-table :is(td,th){padding:4px 6px}
+  html body .ri-filtros-card .dmo-filter-bar>.dmo-field{flex:1 1 140px;width:auto}
+  .ri-filtros-acoes{margin-left:0}
+}
+</style>
+}
+
+@* Consultar (RI-05): os chefes veem quem reparou o quê e em que produção.
+   Abre vazia, só com os filtros numa linha; a tabela só lê depois de um
+   filtro. Os dropdowns e as datas aplicam ao escolher; a referência com
+   Enter ou a sugestão, e o dropdown ao lado traz as últimas 5 produções dela
+   (a procura em dois passos do Resumo do controlo). Os filtros ficam como a
+   pessoa os deixou (data-dmo-fica) e só trocam o dropdown das produções e a
+   tabela (DmoTroca); o «Limpar filtros» abre a página inteira, vazia. Na
+   tabela não há botões (padrão da beta); a produção é um link para a ficha
+   do Job On, para quem o tem. *@
+<main class="ri-page dmo-workspace" aria-labelledby="ri-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="ri-title">Reparação Interna</h1>
+    </div>
+  </div>
+
+  <section class="dmo-card ri-filtros-card" aria-label="Filtros da consulta">
+    <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
+      <form id="riConsultaFiltros" method="get" asp-page="/ReparacaoInterna/Consultar" class="dmo-filter-bar" role="search">
+        <div class="dmo-field ri-w-maquina">
+          <label for="riConsultaMaquina">Máquina</label>
+          <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Maquina is null)">Todas</option>
+            @foreach (var m in Model.Maquinas)
+            {
+              <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field ri-w-data">
+          <label for="riConsultaDe">Dia de</label>
+          <input id="riConsultaDe" name="de" type="date" value="@ConsultarModel.Data(Model.De)" data-dmo-autosubmit />
+        </div>
+        <div class="dmo-field ri-w-data">
+          <label for="riConsultaAte">Até</label>
+          <input id="riConsultaAte" name="ate" type="date" value="@ConsultarModel.Data(Model.Ate)" data-dmo-autosubmit />
+        </div>
+        @* Só os utilizadores que já registaram reparações (o nome vem do
+           utilizador, nunca copiado para a reparação). *@
+        <div class="dmo-field ri-w-pessoa">
+          <label for="riConsultaPessoa">Quem</label>
+          <select id="riConsultaPessoa" name="pessoa" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Pessoas.All(p => p.Id != Model.PessoaId))">Todos</option>
+            @foreach (var p in Model.Pessoas)
+            {
+              <option value="@p.Id" selected="@(p.Id == Model.PessoaId)">@p.Nome</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field ri-w-tipo">
+          <label for="riConsultaTipo">CM ou MF</label>
+          <select id="riConsultaTipo" name="tipo" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Tipo is null)">Todos</option>
+            <option value="cm" selected="@(Model.Tipo == ReparacaoTipo.Cm)">CM</option>
+            <option value="mf" selected="@(Model.Tipo == ReparacaoTipo.Mf)">MF</option>
+          </select>
+        </div>
+        <div class="dmo-field ri-w-referencia">
+          <label for="riConsultaReferencia">Referência<partial name="_DmoHelp" model="@("Escreva o início da referência e carregue Enter (ou escolha a sugestão): «60» traz todas as que começam por 60. Depois pode escolher uma das últimas 5 produções.")" /></label>
+          <input id="riConsultaReferencia" name="referencia" value="@Model.Referencia" placeholder="Ex.: 5538" autocomplete="off"
+                 data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+        @* O segundo passo: o dropdown fica sempre ao lado da referência, para
+           nada mexer; desativado sem referência, com ela as últimas 5
+           produções (a referência, o nº, a máquina e o início). Escrever
+           outra referência volta-o a «Todas» (data-dmo-depende). *@
+        <div id="riConsultaProducaoZona" class="dmo-field ri-w-producao" data-dmo-regiao>
+          <label for="riConsultaProducao">Produção</label>
+          @if (Model.Referencia is null)
+          {
+            <select id="riConsultaProducao" name="producao" disabled>
+              <option value="">Escreva primeiro a referência</option>
+            </select>
+          }
+          else if (Model.Producoes.Count == 0)
+          {
+            <select id="riConsultaProducao" name="producao" disabled>
+              <option value="">Sem produções desta referência</option>
+            </select>
+          }
+          else
+          {
+            <select id="riConsultaProducao" name="producao" data-dmo-autosubmit data-dmo-depende="riConsultaReferencia">
+              <option value="" selected="@(Model.Producoes.All(p => !Model.ProducaoEscolhida(p)))">Todas</option>
+              @foreach (var p in Model.Producoes)
+              {
+                <option value="@p.JobOnId" selected="@Model.ProducaoEscolhida(p)">@p.Label</option>
+              }
+            </select>
+          }
+        </div>
+      </form>
+    </div>
+    <div class="ri-filtros-acoes">
+      <a class="dmo-button" id="riConsultaLimpar" href="@Url.Page("/ReparacaoInterna/Consultar")">Limpar filtros</a>
+    </div>
+  </section>
+
+  <section id="riConsultaResultados" class="dmo-card ri-card" aria-labelledby="ri-consulta-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="ri-consulta-title">Reparações<partial name="_DmoHelp" model="@("As reparações que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional, que vira à hora do Canal Jobon.")" /></h3>
+    @if (!Model.ComFiltro)
+    {
+      <p class="ri-vazia" id="riConsultaConvite">Escolha a máquina, os dias, quem, CM ou MF, ou procure a produção pela referência.</p>
+    }
+    else if (Model.Lista.Items.Count == 0)
+    {
+      <p class="ri-vazia" id="riConsultaVazia">Nenhuma reparação com estes filtros.</p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="riConsultaLista" data-dmo-list="Reparações">
+          <thead><tr><th>Dia</th><th>Hora</th><th>Máquina</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th><th>Quem</th></tr></thead>
+          <tbody>
+          @foreach (var r in Model.Lista.Items)
+          {
+            var producao = $"{r.Referencia} · {r.Producao}";
+            <tr data-dmo-reparacao="@r.Id">
+              <td>@ConsultarModel.Dia(r.Dia)</td>
+              <td>@ConsultarModel.Hora(r.RegistadoEmUtc)</td>
+              <td>@r.Maquina</td>
+              <td>
+                @if (Model.AbreJobOn)
+                {
+                  <a href="/JobOn?jobon_id=@r.JobOnId" data-dmo-completa>@producao</a>
+                }
+                else
+                {
+                  @producao
+                }
+              </td>
+              <td>@RiTextos.Tipo(r.Tipo)</td>
+              <td>@ConsultarModel.Ferramenta(r.Ferramenta)</td>
+              <td><strong>@r.Numero</strong></td>
+              <td>@(r.Quem ?? "—")</td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+      <partial name="_ListPager" model="Model.Pager" />
+    }
+  </section>
+</main>
