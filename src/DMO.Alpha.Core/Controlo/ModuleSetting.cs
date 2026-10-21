@@ -49,6 +49,13 @@ public static class ModuleSettingKeys
     public const string BoquilhasDayChangeHour = "Boquilhas:DayChangeHour";
 
     /// <summary>
+    /// Reparação Interna — a hora de viragem do dia operacional (0–23; a
+    /// produção do dia de cada máquina muda a esta hora, o padrão é 8). Uma
+    /// linha à parte da das Boquilhas no Canal Jobon (DP-15).
+    /// </summary>
+    public const string ReparacaoInternaDayChangeHour = "ReparacaoInterna:DayChangeHour";
+
+    /// <summary>
     /// Administração — o email do ADMIN (o ADMIN é apenas um email,
     /// guardado nas Definições).
     /// O login por email compara-se a este valor; um User com este email

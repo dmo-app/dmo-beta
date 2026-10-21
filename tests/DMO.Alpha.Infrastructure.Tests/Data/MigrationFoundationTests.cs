@@ -37,6 +37,7 @@ public sealed class MigrationFoundationTests
         "JobOnFolhas",
         "JobOnFolhaCalLinhas",
         "SapFabricos",
+        "ReparacoesInternas",
         "Templates",
         "TemplateAssignments",
         "Machines",
@@ -78,7 +79,7 @@ public sealed class MigrationFoundationTests
     ];
 
     // As tabelas criadas depois da Baseline, cada uma pela sua migração.
-    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos"])];
+    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas"])];
 
     private static DmoDbContext CreateNpgsqlContext()
     {
@@ -118,7 +119,8 @@ public sealed class MigrationFoundationTests
                 "20261019131708_CmDeParteEDensidadeDaAgua", "20261019140057_PegamentosRastoDasLeituras",
                 "20261020015832_ControloAreaIdentificacao", "20261020142103_OperacoesRegistadas", "20261020142915_AutorPorUtilizador",
                 "20261020152047_ArmazemPosicoesEReparadores", "20261020160836_ArmazemMovimentos", "20261021072622_FerramentaUtilizacao",
-                "20261021073002_AddJobOnFolha", "20261021083819_SapFabrico", "20261021085913_SapFabricoPeso" },
+                "20261021073002_AddJobOnFolha", "20261021083819_SapFabrico", "20261021085913_SapFabricoPeso",
+                "20261021100548_ReparacaoInterna" },
             keys);
     }
 

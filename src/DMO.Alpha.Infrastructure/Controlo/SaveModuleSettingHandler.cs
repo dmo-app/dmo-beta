@@ -67,6 +67,7 @@ public sealed class SaveModuleSettingHandler : ISaveModuleSettingHandler
         switch (command.SettingKey)
         {
             case ModuleSettingKeys.BoquilhasDayChangeHour:
+            case ModuleSettingKeys.ReparacaoInternaDayChangeHour:
                 // A hora de viragem: um inteiro 0–23 (o input da UI é um
                 // select de horas; o texto inválido é recusa tipada).
                 if (!int.TryParse(command.SettingValue.Trim(), out var hour) || hour is < 0 or > 23)

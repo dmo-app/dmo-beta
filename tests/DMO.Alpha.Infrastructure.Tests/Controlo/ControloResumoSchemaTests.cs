@@ -105,7 +105,9 @@ public sealed class ControloResumoSchemaTests
                 // A folha da fábrica do Job On (AddJobOnFolha).
                 "JobOnFolhas", "JobOnFolhaCalLinhas",
                 // O relatório de fabrico do SAP (0.2.0-beta.20).
-                "SapFabricos"
+                "SapFabricos",
+                // A Reparação Interna do full.
+                "ReparacoesInternas"
             },
             tables);
     }

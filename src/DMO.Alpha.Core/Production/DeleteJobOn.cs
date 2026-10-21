@@ -38,16 +38,19 @@ public sealed record JobOnDeletionPreview(
     int BqMovements,
     bool Revisto)
 {
+    /// <summary>As reparações da Reparação Interna ligadas a esta produção.</summary>
+    public int ReparacoesInternas { get; init; }
+
     /// <summary>A produção já tem registos que se perdem.</summary>
     public bool HasRecords =>
-        Pesos + Comparacoes + Pegamentos + Puncoes + BqMovements > 0 || Revisto;
+        Pesos + Comparacoes + Pegamentos + Puncoes + BqMovements + ReparacoesInternas > 0 || Revisto;
 }
 
 /// <summary>
 /// Elimina um Job On e tudo o que é só dele: o controlo (Pesos, comparações,
 /// Pegamentos, Punções, a revisão), os cm_id, mf_id e bq_id (os atuais e os
-/// trocados) e os movimentos das Boquilhas desses bq_id, que ficam no rasto
-/// dos movimentos apagados. As ferramentas ficam. Uma só escrita atómica.
+/// trocados), as reparações da Reparação Interna e os movimentos das
+/// Boquilhas desses bq_id, que ficam no rasto dos movimentos apagados. As ferramentas ficam. Uma só escrita atómica.
 /// </summary>
 public interface IDeleteJobOnHandler
 {

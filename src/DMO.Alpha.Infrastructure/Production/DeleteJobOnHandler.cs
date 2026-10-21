@@ -64,7 +64,10 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
             controloId is null ? 0 : await _db.Puncoes.CountAsync(p => p.ControloId == controloId, cancellationToken),
             await _db.BqMovements.CountAsync(m => traceIds.Contains(m.BqRepairTraceId), cancellationToken),
             controlo is not null
-                && (controlo.Revisto || await _db.ControloDecisoes.AnyAsync(d => d.ControloId == controloId, cancellationToken)));
+                && (controlo.Revisto || await _db.ControloDecisoes.AnyAsync(d => d.ControloId == controloId, cancellationToken)))
+        {
+            ReparacoesInternas = await _db.ReparacoesInternas.CountAsync(r => r.JobOnId == jobOnId, cancellationToken)
+        };
     }
 
     public Task<DeleteJobOnResult> HandleAsync(
@@ -177,6 +180,11 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
                 await _db.ControloAreaStates.Where(s => s.ControloId == controloId).ToListAsync(cancellationToken));
             _db.Controlos.Remove(controlo);
         }
+
+        // As reparações da Reparação Interna desta produção (apontam para os
+        // cm_id e mf_id, por isso saem antes deles).
+        _db.ReparacoesInternas.RemoveRange(
+            await _db.ReparacoesInternas.Where(r => r.JobOnId == jobOnId).ToListAsync(cancellationToken));
 
         // Os cm_id, mf_id e bq_id (os atuais e os das ferramentas trocadas), as
         // alterações registadas e as notas de lote.

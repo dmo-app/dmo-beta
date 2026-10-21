@@ -178,6 +178,8 @@ builder.Services.AddScoped<IBqRepairerQuery, BqRepairerQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemPosicoes, DMO.Alpha.Infrastructure.Armazem.ArmazemPosicoes>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IReparadores, DMO.Alpha.Infrastructure.Armazem.Reparadores>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemMovimentos, DMO.Alpha.Infrastructure.Armazem.ArmazemMovimentos>();
+// Reparação Interna: a produção do dia, registar e a lista por baixo do registo.
+builder.Services.AddScoped<DMO.Alpha.Core.ReparacaoInterna.IReparacoesInternas, DMO.Alpha.Infrastructure.ReparacaoInterna.ReparacoesInternas>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemMapa, DMO.Alpha.Infrastructure.Armazem.ArmazemMapa>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemHistorico, DMO.Alpha.Infrastructure.Armazem.ArmazemHistorico>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemProximos, DMO.Alpha.Infrastructure.Armazem.ArmazemProximos>();

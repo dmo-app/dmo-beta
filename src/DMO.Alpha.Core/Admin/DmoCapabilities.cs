@@ -35,6 +35,12 @@ public static class DmoCapabilities
     public const string ArmazemGestao = "armazem.gestao";
 
     /// <summary>
+    /// Reparação Interna (módulo do full, peça D do plano): registar na
+    /// máquina cada número de CM ou MF reparado. Só o ADMIN a dá num Template.
+    /// </summary>
+    public const string ReparacaoInterna = "ri";
+
+    /// <summary>
     /// A lista única dos módulos, pela ordem da barra principal. O menu, a
     /// página inicial depois do login e a gestão de templates saem daqui.
     /// </summary>
@@ -45,7 +51,8 @@ public static class DmoCapabilities
         new(ControloApprove, "Controlo", "/Controlo/Approve"),
         new(Boquilhas, "Boquilhas", "/Boquilhas"),
         new(Ferramentas, "Ferramentas", "/Ferramentas"),
-        new(ArmazemGestao, "Armazém", "/Armazem/Posicoes")
+        new(ArmazemGestao, "Armazém", "/Armazem/Posicoes"),
+        new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna")
     ];
 
     /// <summary>As chaves válidas num template (validação da gestão de templates).</summary>

@@ -2078,6 +2078,65 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.ReparacaoInterna.Reparacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CmContextId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("DiaOperacional")
+                        .HasColumnType("date");
+
+                    b.Property<int>("JobOnId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MachineId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MfContextId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Numero")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTime>("RegistadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RegistadoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CmContextId");
+
+                    b.HasIndex("DiaOperacional");
+
+                    b.HasIndex("JobOnId");
+
+                    b.HasIndex("MfContextId");
+
+                    b.HasIndex("MachineId", "DiaOperacional");
+
+                    b.HasIndex("RegistadoPorUserId", "DiaOperacional");
+
+                    b.ToTable("ReparacoesInternas", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReparacoesInternas_Contexto", "(\"Tipo\" = 1 AND \"CmContextId\" IS NOT NULL AND \"MfContextId\" IS NULL) OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_ReparacoesInternas_Numero", "btrim(\"Numero\") <> '' AND \"Numero\" = btrim(\"Numero\")");
+                        });
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Runtime.OperacaoRegistada", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3028,6 +3087,36 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("JobOn");
 
                     b.Navigation("ReplacedJobOn");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.ReparacaoInterna.Reparacao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Production.CmContext", null)
+                        .WithMany()
+                        .HasForeignKey("CmContextId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Production.JobOn", null)
+                        .WithMany()
+                        .HasForeignKey("JobOnId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Production.Machine", null)
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Production.MfContext", null)
+                        .WithMany()
+                        .HasForeignKey("MfContextId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegistadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Tools.FerramentaLembreteUtilizacao", b =>

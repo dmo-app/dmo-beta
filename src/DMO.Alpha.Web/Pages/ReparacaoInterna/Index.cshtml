@@ -1,0 +1,196 @@
+@page "/ReparacaoInterna"
+@model DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel
+@using DMO.Alpha.Core.ReparacaoInterna
+@using DMO.Alpha.Web.Pages.ReparacaoInterna
+@{
+    Layout = "_DmoShellLayout";
+    var doDia = Model.DoDia;
+    var producao = Model.Producao;
+    var tipo = Model.Tipo;
+    var ferramenta = Model.Ferramenta;
+    var podeRegistar = producao is not null && tipo is not null && ferramenta is not null;
+}
+@section Head {
+<style>
+.ri-page{display:flex;flex-direction:column;gap:14px}
+.ri-coluna{display:flex;flex-direction:column;gap:14px;width:fit-content;max-width:100%}
+.ri-card{padding:18px;min-width:min(520px,100%);max-width:100%}
+.ri-card h3{margin:0 0 12px;font-size:16px}
+.ri-card .dmo-card-topo{margin:0 0 12px}
+.ri-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+.ri-linha .dmo-field{margin:0}
+html body .ri-linha .dmo-field select.ri-curto{width:auto;min-width:9ch}
+html body .ri-linha .dmo-field select.ri-producao{width:auto;max-width:100%}
+html body .ri-linha .dmo-field input.ri-numero{width:16ch}
+.ri-onde{display:flex;gap:18px;flex-wrap:wrap;margin:0}
+.ri-onde div{display:flex;flex-direction:column;gap:2px}
+.ri-onde span{font-size:12.5px;color:var(--dmo-muted)}
+.ri-card .dmo-aviso{margin:0 0 12px}
+.ri-card .dmo-aviso ul{margin:6px 0 0;padding-left:18px}
+.ri-card .dmo-table{width:auto;min-width:100%}
+.ri-card .dmo-table td{padding:4px 8px;vertical-align:middle}
+.ri-card form.ri-registar{margin:0}
+.ri-card .dmo-table td:first-child,.ri-card .dmo-table td:last-child{white-space:nowrap}
+.ri-falta{margin:0;color:var(--dmo-muted)}
+@@media (max-width:640px){.ri-card{padding:14px}.ri-card .dmo-table :is(td,th){padding:4px 6px}}
+</style>
+}
+
+@* Registar na máquina: escolher a máquina (a produção do dia vem sozinha) e
+   CM ou MF; escrever o número e Enter. Gravar troca só as zonas: o campo
+   volta vazio e com o cursor (autofocus) e a reparação aparece no topo da
+   tabela. Os avisos de produção só avisam; sem produção nada se grava. *@
+<main class="ri-page dmo-workspace" aria-labelledby="ri-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="ri-title">Reparação Interna</h1>
+    </div>
+  </div>
+
+  <div id="riAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.Mensagem.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.Gravou ? "ok" : "erro")" role="@(Model.Gravou ? "status" : "alert")">@Model.Mensagem</p>
+    }
+  </div>
+
+  <div class="ri-coluna">
+    <section id="riContexto" class="dmo-card ri-card" aria-labelledby="ri-contexto-title" data-dmo-regiao data-dmo-parcial>
+      <h3 id="ri-contexto-title">Máquina e produção<partial name="_DmoHelp" model="@("A produção do dia vem do Job On da máquina e muda à hora de viragem do Canal Jobon.")" /></h3>
+      <form id="riEscolha" method="get" asp-page="/ReparacaoInterna/Index" class="ri-linha">
+        <div class="dmo-field">
+          <label for="riMaquina">Máquina</label>
+          <select id="riMaquina" name="maquina" class="ri-curto" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Maquina is null)">Escolha…</option>
+            @foreach (var m in Model.Maquinas)
+            {
+              <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
+            }
+          </select>
+        </div>
+        @if (doDia is { VariasProducoes: true })
+        {
+          <div class="dmo-field">
+            <label for="riProducao">Produção</label>
+            <select id="riProducao" name="producao" class="ri-producao" data-dmo-autosubmit>
+              @foreach (var c in doDia.Candidatas)
+              {
+                <option value="@c.JobOnId" selected="@(producao?.JobOnId == c.JobOnId)">@RiTextos.Producao(c)</option>
+              }
+            </select>
+          </div>
+        }
+        <div class="dmo-field">
+          <label for="riTipo">CM ou MF</label>
+          <select id="riTipo" name="tipo" class="ri-curto" data-dmo-autosubmit>
+            <option value="" selected="@(tipo is null)">Escolha…</option>
+            <option value="cm" selected="@(tipo == ReparacaoTipo.Cm)">CM</option>
+            <option value="mf" selected="@(tipo == ReparacaoTipo.Mf)">MF</option>
+          </select>
+        </div>
+      </form>
+
+      @if (doDia is { SemProducao: true })
+      {
+        <p class="dmo-aviso warn" id="riSemProducao" role="status">Não há produção da @(Model.Maquina!.Code) para @IndexModel.Dia(doDia.Dia). Sem produção não se pode registar.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.CriarJobOn()" /></p>
+      }
+      else if (doDia is { VariasProducoes: true })
+      {
+        <div class="dmo-aviso warn" id="riVariasProducoes" role="status">
+          Há @doDia.Candidatas.Count produções da @(Model.Maquina!.Code) para @IndexModel.Dia(doDia.Dia). Escolha a certa:
+          <ul>
+            @foreach (var c in doDia.Candidatas)
+            {
+              <li>@RiTextos.Producao(c)</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (producao is not null)
+      {
+        <div class="ri-onde" id="riProducaoDoDia">
+          <div><span>Dia</span><strong>@IndexModel.Dia(doDia!.Dia)</strong></div>
+          <div><span>Produção</span><strong data-dmo-producao="@producao.JobOnId">@producao.Producao · @producao.Referencia</strong></div>
+          @if (tipo is { } t)
+          {
+            <div><span>Ferramenta</span><strong data-dmo-ferramenta>@(ferramenta is null ? $"Sem {RiTextos.Tipo(t)}" : RiTextos.Ferramenta(t, ferramenta))</strong></div>
+          }
+        </div>
+      }
+    </section>
+
+    <section id="riRegisto" class="dmo-card ri-card" aria-labelledby="ri-registo-title" data-dmo-regiao data-dmo-parcial>
+      <div class="dmo-card-topo">
+        <h3 id="ri-registo-title">Número reparado<partial name="_DmoHelp" model="@("Escreva o número da CM ou do MF reparado e carregue Enter. O campo fica pronto para o seguinte.")" /></h3>
+        @if (podeRegistar)
+        {
+          <div class="dmo-card-topo-acoes">
+            <button type="submit" form="riRegistar" class="dmo-button" id="riRegistarBotao">Registar</button>
+          </div>
+        }
+      </div>
+      @if (podeRegistar)
+      {
+        <form id="riRegistar" method="post" asp-page="/ReparacaoInterna/Index" asp-page-handler="Registar" class="ri-linha ri-registar">
+          <input type="hidden" name="operacao_id" value="@Model.OperacaoId" />
+          <input type="hidden" name="maquina" value="@(Model.Maquina!.Code)" />
+          <input type="hidden" name="producao" value="@(producao!.JobOnId)" />
+          <input type="hidden" name="tipo" value="@RiTextos.Valor(tipo!.Value)" />
+          <input type="hidden" name="contexto" value="@(ferramenta!.ContextoId)" />
+          <div class="dmo-field">
+            <label for="riNumero">Número</label>
+            <input id="riNumero" name="numero" class="ri-numero" maxlength="@Reparacao.NumeroMaxLength" autocomplete="off" required autofocus
+                   value="@Model.NumeroEscrito" />
+          </div>
+        </form>
+      }
+      else
+      {
+        <p class="ri-falta" id="riFalta">@(Model.Maquina is null
+            ? "Escolha a máquina."
+            : producao is null
+                ? "Sem produção para hoje, não há a que ligar a reparação."
+                : tipo is null
+                    ? "Escolha CM ou MF."
+                    : $"Esta produção não tem {RiTextos.Tipo(tipo.Value)}.")</p>
+      }
+    </section>
+
+    @if (producao is not null)
+    {
+      <section id="riLista" class="dmo-card ri-card" aria-labelledby="ri-lista-title" data-dmo-regiao data-dmo-parcial>
+        <h3 id="ri-lista-title">Reparações desta produção<partial name="_DmoHelp" model="@("As reparações desta máquina e produção, da mais recente para a mais antiga.")" /></h3>
+        @if (Model.Lista.Items.Count == 0)
+        {
+          <p class="ri-falta" id="riListaVazia">Ainda não há reparações nesta produção.</p>
+        }
+        else
+        {
+          <div class="dmo-table-wrap">
+            <table class="dmo-table" data-dmo-list="Reparações desta produção">
+              <thead><tr><th>Número</th><th>CM/MF</th><th>Quem</th><th>Hora</th></tr></thead>
+              <tbody>
+              @foreach (var r in Model.Lista.Items)
+              {
+                <tr data-dmo-reparacao="@r.Id">
+                  <td><strong>@r.Numero</strong></td>
+                  <td>@RiTextos.Tipo(r.Tipo)</td>
+                  <td>@(r.Quem ?? "—")</td>
+                  <td>@IndexModel.Hora(r.RegistadoEmUtc)</td>
+                </tr>
+              }
+              </tbody>
+            </table>
+          </div>
+          <partial name="_ListPager" model="Model.Pager" />
+        }
+      </section>
+    }
+    else
+    {
+      <div id="riLista" class="dmo-zona" data-dmo-regiao></div>
+    }
+  </div>
+</main>
