@@ -156,6 +156,23 @@ public sealed class DefinicoesNavTabTests : IClassFixture<CustomWebApplicationFa
         Assert.Equal(HttpStatusCode.OK, definicoes.StatusCode);
     }
 
+    // SAP nas Definições do Admin (Diogo, 21/10/2026 14:11–14:12): um cartão
+    // «SAP» com a informação e um LEIA-ME detalhado de como funciona.
+    [Fact]
+    public async Task Definicoes_Admin_TemOCartaoSap_ComOLeiaMe()
+    {
+        SeedConfiguredAdmin("navtab-sap@example.test", "navtab-sap-provider", "NavTabSap1!");
+        using var client = await LoginAsync("navtab-sap@example.test", "NavTabSap1!");
+        var html = await (await client.GetAsync("/Admin/Definicoes")).Content.ReadAsStringAsync();
+
+        Assert.Contains("id=\"admSap\"", html, StringComparison.Ordinal);
+        Assert.Contains("id=\"admSapLeiaMe\"", html, StringComparison.Ordinal);
+        Assert.Contains("LEIA-ME: como funciona", html, StringComparison.Ordinal);
+        Assert.Contains("DMO_USO_SAP.vbs", html, StringComparison.Ordinal);
+        Assert.Contains("dmo-codigos.txt", html, StringComparison.Ordinal);
+        Assert.Contains("Se alguma coisa mudar no SAP", html, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task NormalUser_DoesNotSeeTheDefinicoesTab()
     {
