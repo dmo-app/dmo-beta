@@ -11,9 +11,10 @@ namespace DMO.Alpha.Web.Tests;
 
 /// <summary>
 /// O fabrico pelo SAP (Diogo, 21/10/2026): o relatório de fabrico lido da
-/// pasta do SAP vai pelo mesmo caminho da utilização; no Opções da ficha da
-/// ferramenta, «Produções (Job On)» mostra os Job On em que ela foi a CM, o
-/// MF ou a BQ e o que o SAP diz que produziram.
+/// pasta do SAP vai pelo mesmo caminho da utilização; na ficha da
+/// ferramenta, um clique no % da Utilização abre a janela com os Job On em
+/// que ela foi a CM, o MF ou a BQ, o que o SAP diz que produziram e o delta;
+/// cada produção leva à ficha do Job On.
 /// </summary>
 public sealed partial class DefinicoesPorModuloPageTests
 {
@@ -61,21 +62,19 @@ public sealed partial class DefinicoesPorModuloPageTests
             Assert.Equal("Fabrico lido do SAP: 1 produção nova.", json.RootElement.GetProperty("mensagem").GetString());
         }
 
-        // O link do Opções da ficha abre a tabela.
+        // O % da Utilização abre a janela das produções, que vem fechada com a ficha.
         var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
-        Assert.DoesNotContain("id=\"ferrProducoes\"", ficha, StringComparison.Ordinal);
-        var link = Regex.Match(ZonaUsoSap(ficha, "ferrOpcoes"), "<a\\b[^>]*id=\"ferr-producoes-abrir\"[^>]*>");
-        Assert.True(link.Success);
-        var href = WebUtility.HtmlDecode(Regex.Match(link.Value, "href=\"([^\"]+)\"").Groups[1].Value);
-        var comProducoes = await (await client.GetAsync(href)).Content.ReadAsStringAsync();
+        Assert.Matches("<button\\b[^>]*id=\"ferr-utilizacao-detalhes\"[^>]*data-dmo-dialog=\"ferrProducoes\"", ZonaUsoSap(ficha, "ferrUtilizacao"));
+        Assert.Matches("<dialog id=\"ferrProducoes\" class=\"dmo-dialog ferr-producoes-janela\"[^>]*>", ficha);
+        Assert.DoesNotContain("id=\"ferr-producoes-abrir\"", ficha, StringComparison.Ordinal);
 
-        // Os números como a ficha os escreve (pt-PT: espaço entre os milhares).
-        var producoes = WebUtility.HtmlDecode(ZonaUsoSap(comProducoes, "ferrProducoes"));
+        // A produção, o produzido (a líquida, pt-PT: espaço entre os milhares) e o caminho para a ficha do Job On.
+        var producoes = WebUtility.HtmlDecode(ZonaUsoSap(ficha, "ferrProducoes"));
+        Assert.DoesNotContain("data-dmo-dialog-aberta=\"1\"", producoes[..producoes.IndexOf('>')], StringComparison.Ordinal);
         Assert.Contains("202501", producoes, StringComparison.Ordinal);
-        Assert.Contains("21/01/2025", producoes, StringComparison.Ordinal);
-        Assert.Contains(maquina, producoes, StringComparison.Ordinal);
-        Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), producoes, StringComparison.Ordinal);
+        Assert.Contains($"title=\"{maquina} · 21/01/2025 a 04/02/2025\"", producoes, StringComparison.Ordinal);
         Assert.Contains(1_309_264.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), producoes, StringComparison.Ordinal);
+        Assert.Matches("<a class=\"ferr-armazem-link\" href=\"/JobOn\\?jobon_id=\\d+\"><strong>202501</strong></a>", producoes);
         Assert.DoesNotContain("id=\"ferrProducoesSemSap\"", producoes, StringComparison.Ordinal);
     }
 
@@ -100,19 +99,19 @@ public sealed partial class DefinicoesPorModuloPageTests
 
         var client = await LoginOperatorAsync("7108", DmoCapabilities.Ferramentas);
 
-        // O «Detalhes» da Utilização abre o quadro.
-        var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
-        var link = Regex.Match(ZonaUsoSap(ficha, "ferrUtilizacao"), "<a\\b[^>]*id=\"ferr-utilizacao-detalhes\"[^>]*>");
-        Assert.True(link.Success);
-        var href = WebUtility.HtmlDecode(Regex.Match(link.Value, "href=\"([^\"]+)\"").Groups[1].Value);
-        var quadro = WebUtility.HtmlDecode(ZonaUsoSap(await (await client.GetAsync(href)).Content.ReadAsStringAsync(), "ferrProducoes"));
+        // Com ?jobon=1 a janela abre com a página; o % fica sozinho no facto.
+        var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}&jobon=1")).Content.ReadAsStringAsync();
+        Assert.Contains(">47.5 %</button></div>", ZonaUsoSap(ficha, "ferrUtilizacao") + "</div>", StringComparison.Ordinal);
+        Assert.Contains("data-dmo-dialog-aberta=\"1\"", Regex.Match(ficha, "<dialog id=\"ferrProducoes\"[^>]*>").Value, StringComparison.Ordinal);
+        var quadro = WebUtility.HtmlDecode(ZonaUsoSap(ficha, "ferrProducoes"));
 
         Assert.Contains("Utilização por produção", quadro, StringComparison.Ordinal);
         Assert.Contains("+7.5 %", quadro, StringComparison.Ordinal);
         var total = WebUtility.HtmlDecode(ZonaUsoSap(quadro, "ferrProducoesTotal"));
         Assert.Contains("Total · 1 produção", total, StringComparison.Ordinal);
-        Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
-        Assert.Contains("Hoje 47.5 %", total, StringComparison.Ordinal);
+        Assert.Contains(1_309_264.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
+        Assert.Contains("47.5 %", total, StringComparison.Ordinal);
+        Assert.Contains("Hoje 47.5 %", WebUtility.HtmlDecode(Regex.Replace(ZonaUsoSap(quadro, "ferrProducoesHoje"), "<[^>]+>", "")), StringComparison.Ordinal);
     }
 
     [Fact]

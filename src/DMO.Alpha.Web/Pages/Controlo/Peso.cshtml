@@ -1810,19 +1810,31 @@
         <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
         @* O PESO DO SAP (Diogo, 21/10/2026): pelas datas da produção escolhida
            e a referência, a média pelos dias de cada ordem e a moda (o peso
-           com mais dias). Um clique põe-no no campo; guarda-se no «Guardar». *@
-        <p class="peso-hint" id="pesoAnteriorSap" style="margin:6px 0 0" data-producao-anterior-sap>
-          <span data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">Peso do SAP: média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g · moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g (<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)
-            <button type="button" class="dmo-button" data-sap-usar="media" style="margin-left:8px">Usar a média</button>
-            <button type="button" class="dmo-button" data-sap-usar="moda">Usar a moda</button>
-          </span>
+           com mais dias). Numa caixa com a Média e a Moda: escolhe-se uma, a
+           outra ou as duas, e cada escolhida mostra a diferença do peso de
+           hoje para ela (Diogo: «um box Média Moda, selecionar um ou outro
+           ou ambos»). A escolha fica no browser. *@
+        var pesoAtualSap = currentPesoForComparison.Averages?.AverageGlassWeightGrams;
+        string deltaSapTexto(decimal pesoSapRef)
+        {
+            var (dg, dp) = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(pesoAtualSap, pesoSapRef);
+            return dg is { } g ? $"Hoje {signed(g)} g" + (dp is { } pc ? $" ({signed(pc)} %)" : null) : "";
+        }
+        <div class="peso-sap-caixa" id="pesoAnteriorSap" data-producao-anterior-sap data-peso-atual="@(pesoAtualSap is { } pa ? fmt(pa) : null)">
+          <div data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">
+            <div class="peso-sap-titulo">Peso do SAP <span class="peso-hint">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></div>
+            <div class="peso-sap-opcoes">
+              <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="media" checked /> Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></label>
+              <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="moda" /> Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda" hidden>@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></label>
+            </div>
+          </div>
           <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">O SAP ainda não deu o peso desta produção. <a href="/Ferramentas/Definicoes#ferrDefSap">Ler a pasta do SAP</a></span>
           @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {
             <span hidden data-sap-opcao="@sapJobOnId" data-sap-media="@fmt(sapOpcao.MediaGramas)" data-sap-moda="@fmt(sapOpcao.ModaGramas)" data-sap-dias="@sapOpcao.Dias"></span>
           }
-        </p>
+        </div>
       }
       </div>
       <div id="pesoAnteriorDelta" class="dmo-zona" data-dmo-regiao>
@@ -2039,19 +2051,45 @@
       sap.querySelector('strong[data-sap-media]').textContent = media;
       sap.querySelector('strong[data-sap-moda]').textContent = dados.getAttribute('data-sap-moda') || '';
       sap.querySelector('span[data-sap-dias]').textContent = dados.getAttribute('data-sap-dias') || '';
+      deltasSap(sap);
     }
   });
 
-  // «Usar a média» / «Usar a moda»: o peso do SAP vai para o campo.
-  document.addEventListener('click', function (event) {
-    var usar = event.target.closest && event.target.closest('[data-sap-usar]');
-    if (!usar) { return; }
-    var select = document.querySelector('[data-producao-anterior-select]');
-    var campo = document.getElementById('producaoAnteriorPeso');
-    var option = select && select.options[select.selectedIndex];
-    var dados = option && document.querySelector('[data-sap-opcao="' + option.value + '"]');
-    var valor = dados && dados.getAttribute(usar.getAttribute('data-sap-usar') === 'moda' ? 'data-sap-moda' : 'data-sap-media');
-    if (campo && valor) { campo.value = valor; campo.focus(); }
+  // A caixa do peso do SAP: a Média, a Moda ou as duas, cada uma com a
+  // diferença do peso de hoje para ela. A escolha fica no browser.
+  function deltasSap(sap) {
+    var atual = parseFloat(sap.getAttribute('data-peso-atual'));
+    ['media', 'moda'].forEach(function (qual) {
+      var delta = sap.querySelector('[data-sap-delta="' + qual + '"]');
+      var ver = sap.querySelector('[data-sap-ver="' + qual + '"]');
+      var ref = parseFloat(sap.querySelector('strong[data-sap-' + qual + ']').textContent);
+      if (!delta || !ver) { return; }
+      delta.hidden = !ver.checked;
+      if (isNaN(atual) || isNaN(ref)) { delta.textContent = ''; return; }
+      var g = atual - ref;
+      var sinal = function (v) { var r = Math.round(v * 100) / 100; return (r >= 0 ? '+' : '\u2212') + Math.abs(r).toFixed(2); };
+      delta.textContent = 'Hoje ' + sinal(g) + ' g' + (ref ? ' (' + sinal(g / ref * 100) + ' %)' : '');
+    });
+  }
+  (function () {
+    var sap = document.querySelector('[data-producao-anterior-sap]');
+    if (!sap) { return; }
+    var guardado = null;
+    try { guardado = window.localStorage.getItem('dmo.peso.sapVer'); } catch (e) { guardado = null; }
+    if (guardado) {
+      sap.querySelectorAll('[data-sap-ver]').forEach(function (caixa) {
+        caixa.checked = guardado.split(',').indexOf(caixa.getAttribute('data-sap-ver')) >= 0;
+      });
+    }
+    deltasSap(sap);
+  })();
+  document.addEventListener('change', function (event) {
+    if (!event.target.matches || !event.target.matches('[data-sap-ver]')) { return; }
+    var sap = event.target.closest('[data-producao-anterior-sap]');
+    deltasSap(sap);
+    var escolhidas = [];
+    sap.querySelectorAll('[data-sap-ver]').forEach(function (caixa) { if (caixa.checked) { escolhidas.push(caixa.getAttribute('data-sap-ver')); } });
+    try { window.localStorage.setItem('dmo.peso.sapVer', escolhidas.join(',') || 'nenhuma'); } catch (e) { /* sem armazenamento: fica a escolha da página */ }
   });
 
   // Um formulário GET dentro de data-dmo-parcial (escolher a comparação, o
