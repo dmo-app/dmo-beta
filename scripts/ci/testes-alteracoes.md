@@ -694,3 +694,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
 
 Selo depois: `f457af5ff3b5ecf2`
+
+## A-0028 · 2026-10-21 · teste-novo
+
+Porquê: Cartão SAP com LEIA-ME nas Definições do Admin (Diogo 21/10 14:11–14:12); textos verificados dentro do cartão e utilizador normal recusado
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_TemOCartaoSap_ComOLeiaMe`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_UtilizadorNormal_NaoVeOCartaoSap`
+
+Selo depois: `fd6d3c8393596692`
