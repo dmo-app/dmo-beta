@@ -31,16 +31,16 @@
 .ferr-card details:not([open])>summary.dmo-card-topo{margin-bottom:0}
 .ferr-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
 .ferr-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
-.ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
+.ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
 /* O aviso âmbar (o mesmo de .jobon-aviso.warn / .peg-aviso.warn): o trabalho foi gravado, o aviso diz o que ficou de fora. */
 .ferr-aviso.warn{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
-.ferr-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
-.ferr-nota.avisoria{border-left-color:#a97943;background:#f7f0e7}
+.ferr-nota{padding:11px 13px;border-left:4px solid var(--dmo-ok);background:var(--dmo-ok-soft);border-radius:8px}
+.ferr-nota.avisoria{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
 .ferr-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .ferr-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
 .ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
-.ferr-danger:hover{background:#7d4f4a}
+.ferr-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
 </style>
 }

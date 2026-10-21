@@ -16,7 +16,7 @@ html body .dmo-shell-header {
   min-height: 76px;
   padding: 0 24px;
   gap: 12px;
-  background: #fff;
+  background: var(--dmo-card);
   border-bottom: 1px solid var(--dmo-border);
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   backdrop-filter: none;
@@ -66,8 +66,8 @@ html body .dmo-shell-header .dmo-shell-user span {
   line-height: 1.3;
 }
 html body .dmo-shell-header .dmo-env-badge{flex:none;display:inline-flex;align-items:center;justify-content:center;margin-left:auto;margin-right:10px;min-height:26px;padding:0 10px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.08em}
-html body .dmo-shell-header .dmo-env-badge--dev{background:#f7f0e7;color:#a97943;border:1px solid #a9794333}
-html body .dmo-shell-header .dmo-env-badge--prod{background:#e5f0eb;color:#527c72;border:1px solid #527c7233}
+html body .dmo-shell-header .dmo-env-badge--dev{background:var(--dmo-warning-soft);color:var(--dmo-warning);border:1px solid color-mix(in srgb,var(--dmo-warning) 20%,transparent)}
+html body .dmo-shell-header .dmo-env-badge--prod{background:var(--dmo-success-soft);color:var(--dmo-success);border:1px solid color-mix(in srgb,var(--dmo-success) 20%,transparent)}
 html body .dmo-shell-header .dmo-shell-logout{display:inline-flex;align-items:center;justify-content:center;flex:none;min-height:36px;margin-left:8px;padding:0 14px;border:1px solid var(--dmo-brand-300,#b5cce2);border-radius:7px;background:var(--dmo-brand-050,#f1f6fb);color:var(--dmo-brand-700,#244f77);font-size:12px;font-weight:750;text-decoration:none}
 html body .dmo-shell-header .dmo-shell-logout:hover,html body .dmo-shell-header .dmo-shell-logout:focus-visible{background:var(--dmo-brand-100,#dfeafa);outline:2px solid var(--dmo-brand-600,#3973a8);outline-offset:2px}
 @media(max-width:600px) {

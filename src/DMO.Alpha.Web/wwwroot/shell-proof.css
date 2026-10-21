@@ -1,5 +1,5 @@
 /* Shared shell composition only. Module styles and content geometry remain intact. */
-html body .dmo-shell-navigation{position:sticky;top:0;z-index:34;background:#fff}
+html body .dmo-shell-navigation{position:sticky;top:0;z-index:34;background:var(--dmo-bar)}
 html body .dmo-shell-navigation>.dmo-primary-nav,
 html body .dmo-shell-navigation>.dmo-secondary-nav{position:relative;inset:auto;left:auto;right:auto;padding:0 24px;gap:22px}
 /* Foco unificado (C-6): o mesmo vocabulário de foco das regiões vivas —

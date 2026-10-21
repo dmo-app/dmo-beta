@@ -145,7 +145,7 @@
   padding: 13px;
   border: 1px solid var(--dmo-border);
   border-radius: 9px;
-  background: #fff;
+  background: var(--dmo-card);
 }
 .resumo-area strong {
   color: var(--dmo-muted);
@@ -242,10 +242,10 @@
 }
 .resumo-page > .resumo-aviso { margin: 0; }
 /* Estado do documento: OK/NOK e comentário por componente. */
-.resumo-page .resumo-area.ok { border-color: #9fd5b3; background: #effaf3; }
-.resumo-page .resumo-area.ok strong { color: #15803d; }
-.resumo-page .resumo-area.nok { border-color: #efb1b1; background: #fdf2f2; }
-.resumo-page .resumo-area.nok strong { color: #b91c1c; }
+.resumo-page .resumo-area.ok { border-color: var(--dmo-ok-line); background: var(--dmo-ok-soft); }
+.resumo-page .resumo-area.ok strong { color: var(--dmo-ok); }
+.resumo-page .resumo-area.nok { border-color: var(--dmo-nok-line); background: var(--dmo-nok-soft); }
+.resumo-page .resumo-area.nok strong { color: var(--dmo-nok); }
 .resumo-area-comment { margin: 6px 0 0; font-size: 12px; overflow-wrap: anywhere; }
 .resumo-area-form { display: grid; gap: 6px; margin-top: 10px; }
 .resumo-area-form select,
@@ -365,22 +365,22 @@
   align-items: stretch;
   justify-content: flex-start;
   text-align: left;
-  border: 1px solid #e3c58f;
-  border-left: 1px solid #e3c58f;
-  background: #fdf8ec;
+  border: 1px solid var(--dmo-amber-line);
+  border-left: 1px solid var(--dmo-amber-line);
+  background: var(--dmo-amber-soft);
 }
-.resumo-page .resumo-mini-card.resumo-approval > strong { color: #a97943; }
-.resumo-page .resumo-mini-card.resumo-approval.approved { border-color: #3d7a5a; background: #effaf3; }
-.resumo-page .resumo-mini-card.resumo-approval.approved > strong { color: #3d7a5a; }
+.resumo-page .resumo-mini-card.resumo-approval > strong { color: var(--dmo-warning); }
+.resumo-page .resumo-mini-card.resumo-approval.approved { border-color: var(--dmo-ok); background: var(--dmo-ok-soft); }
+.resumo-page .resumo-mini-card.resumo-approval.approved > strong { color: var(--dmo-ok); }
 .resumo-page .resumo-mini-card.resumo-approval.not-approved { border-color: var(--dmo-danger); background: var(--dmo-danger-soft); }
 .resumo-page .resumo-mini-card.resumo-approval.not-approved > strong { color: var(--dmo-danger); }
 .resumo-mini-card.resumo-approval form { margin: 6px 0 0; }
 .resumo-linked-card { min-height: 150px; border-color: var(--dmo-border); }
-.resumo-linked-card.resumo-linked-peso { background: var(--dmo-brand-700); border-color: var(--dmo-brand-700); color: #fff; }
+.resumo-linked-card.resumo-linked-peso { background: var(--dmo-deep-700); border-color: var(--dmo-brand-700); color: var(--dmo-text-on-color); }
 .resumo-linked-peso .resumo-linked-card-head > span:first-child,
-.resumo-linked-peso small { color: var(--dmo-brand-100); }
-.resumo-linked-peso .resumo-status { background: rgba(255, 255, 255, .14); color: #fff; }
-.resumo-linked-peso strong { color: #fff; }
+.resumo-linked-peso small { color: var(--dmo-deep-text); }
+.resumo-linked-peso .resumo-status { background: rgba(255, 255, 255, .14); color: var(--dmo-text-on-color); }
+.resumo-linked-peso strong { color: var(--dmo-text-on-color); }
 .resumo-linked-card .resumo-big-number { font-size: 38px; line-height: 1.05; font-weight: 600; }
 .resumo-linked-card .resumo-big-number small { color: inherit; font-size: 19px; }
 /* O cartão inteiro abre a folha (Diogo, 17/10/2026): o «Ver detalhe»
@@ -390,12 +390,12 @@
 .resumo-linked-card:has(.resumo-card-link):hover { box-shadow: var(--dmo-shadow); }
 .resumo-card-actions { position: relative; z-index: 1; }
 .resumo-card-link { margin-top: auto; align-self: flex-end; font-size: 12px; font-weight: 600; color: var(--dmo-brand-600); }
-.resumo-linked-peso .resumo-card-link { color: var(--dmo-brand-100); }
+.resumo-linked-peso .resumo-card-link { color: var(--dmo-deep-text); }
 /* Os botões de cada cartão ficam no canto superior direito, na linha do
    título, com o estado (Diogo, 18/10/2026: «metem os botões em baixo aumenta
    espaço, sempre canto superior direito dentro dos cards»). */
 .resumo-card-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
-.resumo-linked-peso .resumo-card-actions .dmo-button { background: #fff; color: var(--dmo-brand-700); border-color: #fff; }
+.resumo-linked-peso .resumo-card-actions .dmo-button { background: var(--dmo-card); color: var(--dmo-brand-700); border-color: var(--dmo-card); }
 /* Dois botões num cartão estreito (o Peso sem registo a 1400 px, com o
    cartão PU NNPB ao lado; teste do agente de 19/10/2026, T20123bb): o
    estado sai da linha do título para os botões caberem nela; o cartão já
@@ -405,31 +405,31 @@
   .resumo-card-actions:has(.dmo-button + .dmo-button) > .resumo-status { display: none; }
 }
 .resumo-linked-peg { background: var(--dmo-brand-050); }
-.resumo-linked-peg.ok { background: #effaf3; border-color: #15803d; }
-.resumo-linked-peg.ok > strong { color: #15803d; }
-.resumo-linked-peg.nok { background: #fdf2f2; border-color: #b91c1c; }
-.resumo-linked-peg.nok > strong { color: #b91c1c; }
-.resumo-linked-peg.na { background: #f4f6f8; border-color: #94a3b8; }
-.resumo-linked-peg.na > strong { color: #94a3b8; }
+.resumo-linked-peg.ok { background: var(--dmo-ok-soft); border-color: var(--dmo-ok); }
+.resumo-linked-peg.ok > strong { color: var(--dmo-ok); }
+.resumo-linked-peg.nok { background: var(--dmo-nok-soft); border-color: var(--dmo-nok); }
+.resumo-linked-peg.nok > strong { color: var(--dmo-nok); }
+.resumo-linked-peg.na { background: var(--dmo-neutral-soft); border-color: #94a3b8; }
+.resumo-linked-peg.na > strong { color: var(--dmo-neutral); }
 .resumo-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
 .resumo-stats b { display: block; font-size: 20px; color: var(--dmo-brand-900); }
-.resumo-linked-peg.nok .resumo-stats div:nth-child(2) b { color: #b91c1c; }
+.resumo-linked-peg.nok .resumo-stats div:nth-child(2) b { color: var(--dmo-nok); }
 /* As folhas de Pegamentos de uma produção com mais do que uma (
    18/10/2026): cada linha abre a sua folha, por cima do clique do cartão. */
 .resumo-peg-folhas { position: relative; z-index: 1; margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 12px; line-height: 1.4; color: var(--dmo-muted); }
 .resumo-peg-folhas a { font-weight: 700; color: var(--dmo-brand-600); }
 .resumo-peg-folhas b { font-weight: 700; }
-.resumo-peg-folhas b.nok { color: #b91c1c; }
-.resumo-peg-folhas b.na { color: #94a3b8; }
+.resumo-peg-folhas b.nok { color: var(--dmo-nok); }
+.resumo-peg-folhas b.na { color: var(--dmo-neutral); }
 .resumo-linked h4.revisao-folha { margin: 18px 0 8px; padding: 7px 10px; border-left: 3px solid var(--dmo-brand-600); border-radius: 6px; background: var(--dmo-subtle); font-size: 13px; }
-.resumo-linked h4.revisao-folha b.nok { color: #b91c1c; }
+.resumo-linked h4.revisao-folha b.nok { color: var(--dmo-nok); }
 /* O cartão PU NNPB (só em produções NNPB): três colunas com Peso e Pegamentos. */
 .resumo-linked-grid:has(.resumo-linked-pu) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.resumo-linked-pu { background: #f5f9fd; }
-.resumo-linked-pu.ok { background: #effaf3; border-color: #15803d; }
-.resumo-linked-pu.ok > strong { color: #15803d; }
-.resumo-linked-pu.warn { background: #fdf8ec; border-color: #a16207; }
-.resumo-linked-pu.warn > strong { color: #a16207; }
+.resumo-linked-pu { background: var(--dmo-subtle); }
+.resumo-linked-pu.ok { background: var(--dmo-ok-soft); border-color: var(--dmo-ok); }
+.resumo-linked-pu.ok > strong { color: var(--dmo-ok); }
+.resumo-linked-pu.warn { background: var(--dmo-amber-soft); border-color: var(--dmo-amber); }
+.resumo-linked-pu.warn > strong { color: var(--dmo-amber); }
 .resumo-page .resumo-viewings {
   padding: 0 20px;
   border: 0;

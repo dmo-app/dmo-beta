@@ -4,19 +4,19 @@
 .beta-production-rail-head strong{font-size:13px;text-transform:uppercase;letter-spacing:.03em}
 .beta-production-rail-head span{font-size:11px;color:var(--dmo-brand-300)}
 .beta-production-lines{display:grid;gap:7px}
-.beta-production-lines :is(button,.dmo-rail-link){box-sizing:border-box;display:block;width:100%;height:72px;min-height:72px;margin:0;padding:10px 12px;background:var(--dmo-brand-800);color:#fff;border:1px solid var(--dmo-brand-700);border-radius:8px;text-align:left;font:inherit;cursor:pointer;overflow:hidden}
+.beta-production-lines :is(button,.dmo-rail-link){box-sizing:border-box;display:block;width:100%;height:72px;min-height:72px;margin:0;padding:10px 12px;background:var(--dmo-deep-800);color:var(--dmo-text-on-color);border:1px solid var(--dmo-brand-700);border-radius:8px;text-align:left;font:inherit;cursor:pointer;overflow:hidden}
 /* A seleccao canónica da casa é a classe `selected` (é o que o
    0_ASSET_CANONICAL_INTERACTIONS.js alterna); o rail das folhas antigas usava
    `.active` (o fixture aceite). Aceitam-se as duas: um rail só, uma gramática,
    sem obrigar quem já veste `.active` a ser reescrito à pressa. */
-.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):hover:not(.selected):not(.active):not(.bq-line-empty){border-color:var(--dmo-brand-300);background:var(--dmo-brand-800)}
+.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):hover:not(.selected):not(.active):not(.bq-line-empty){border-color:var(--dmo-brand-300);background:var(--dmo-deep-800)}
 .beta-production-lines :is(button,.dmo-rail-link).active,.beta-production-lines :is(button,.dmo-rail-link).selected{border-color:var(--dmo-brand-600);background:var(--dmo-brand-100);color:var(--dmo-brand-700);outline:2px solid var(--dmo-brand-600);outline-offset:-2px}
 .beta-production-lines :is(button,.dmo-rail-link):is(.active,.selected) span{color:inherit}
 .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty{opacity:.75;cursor:default}
-.beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover{background:var(--dmo-brand-800);border-color:var(--dmo-brand-700);outline:0}
+.beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover{background:var(--dmo-deep-800);border-color:var(--dmo-brand-700);outline:0}
 .beta-production-lines strong,.beta-production-lines span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.beta-production-lines strong{font-size:14px;line-height:20px}.beta-production-lines span{font-size:12px;line-height:18px;margin-top:3px;color:var(--dmo-brand-100)}
-.beta-production-lines :is(button,.dmo-rail-link):focus-visible{outline:2px solid #fff;outline-offset:-4px}
+.beta-production-lines strong{font-size:14px;line-height:20px}.beta-production-lines span{font-size:12px;line-height:18px;margin-top:3px;color:var(--dmo-deep-text)}
+.beta-production-lines :is(button,.dmo-rail-link):focus-visible{outline:2px solid var(--dmo-text-on-color);outline-offset:-4px}
 
 @media(max-width:700px){.beta-production-rail{padding:10px}.beta-production-lines{display:flex;overflow-x:auto}.beta-production-lines :is(button,.dmo-rail-link){min-width:145px}}
 
@@ -37,7 +37,7 @@
 .beta-light-machine-row:has(input:checked) .beta-light-next{color:var(--dmo-text-on-color)}
 @media(max-width:700px){.beta-light-productions .beta-light-production>.beta-light-next{white-space:normal}.beta-light-productions .beta-light-production>.beta-light-next:empty{display:none}.beta-light-machine-empty .beta-light-next{margin-left:10px}}
 /* Só o texto amarelo, sem pill (o Diogo, 18/10/2026: «deixar apenas o texto amarelo, não usar constantemente pills»). */
-.beta-light-changes{margin-left:8px;font-size:12.5px;font-weight:700;color:#8a5a00}
+.beta-light-changes{margin-left:8px;font-size:12.5px;font-weight:700;color:var(--dmo-amber)}
 .beta-light-machine-row:has(input:checked) .beta-light-changes{color:#ffe08a}
 @media(max-width:700px){.jobon-resumo li{flex-direction:column;align-items:stretch}}
 @media(max-width:700px){.jobon-lote-form{grid-template-columns:1fr}}
@@ -47,11 +47,11 @@
 .beta-production-lines .dmo-rail-link{text-decoration:none}
 
 /* Sobreposição na máquina (o proprietário, 16/10/2026: grava com aviso e marca-se a vermelho no dia). */
-.beta-light-machine-row.overlap{background:#f3e9e7;box-shadow:inset 4px 0 0 var(--dmo-danger,#9a625d)}
+.beta-light-machine-row.overlap{background:var(--dmo-danger-soft);box-shadow:inset 4px 0 0 var(--dmo-danger,#9a625d)}
 .beta-light-overlap{display:block;padding:8px 12px 0 16px;font-size:12.5px;font-weight:700;color:var(--dmo-danger,#9a625d)}
 
 /* O aviso nos módulos quando o Job On mudou depois do registo (o proprietário, 17/10/2026): só informa. */
-.jobon-change-notice{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:12px 0;padding:10px 14px;font-size:13px;background:#fff7e6;border-left:4px solid var(--dmo-warning,#c98a14);border-radius:8px}
+.jobon-change-notice{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:12px 0;padding:10px 14px;font-size:13px;background:var(--dmo-amber-soft);border-left:4px solid var(--dmo-warning,#c98a14);border-radius:8px}
 .jobon-change-notice ul{margin:0;padding-left:18px}
 .jobon-change-notice li span{color:var(--dmo-muted,#6b6b6b)}
 /* A máquina vazia do dia abre a criação do Job On (o Diogo, 17/10/2026). */

@@ -12,9 +12,9 @@
 .ferr-w-page-size{width:90px}
 /* start: a nota e o botão da quantidade crescem para baixo sem subir o campo acima dos vizinhos. */
 .ferr-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
-.ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:#f3e9e7;border-radius:8px}
-.ferr-aviso.warn{border-left-color:#a97943;background:#f7f0e7}
-.ferr-nota{padding:11px 13px;border-left:4px solid #16A34A;background:#f0f9f1;border-radius:8px}
+.ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
+.ferr-aviso.warn{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
+.ferr-nota{padding:11px 13px;border-left:4px solid var(--dmo-ok);background:var(--dmo-ok-soft);border-radius:8px}
 .ferr-hint{color:var(--dmo-muted);font-size:13px;margin:6px 0 0}
 .ferr-hint:empty{display:none}
 /* A nota do nome técnico aparece ao escrever: tem a linha reservada, para as

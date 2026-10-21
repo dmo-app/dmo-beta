@@ -1,5 +1,5 @@
 {
-  "selo": "92082ab9a42bc24f",
+  "selo": "8fbdafa2217bfa4e",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1929,6 +1929,7 @@
     "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Buttons_HaveOneLook_BlueWithWhiteText_HoverInverts": "91f15c54997d45a6",
     "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Buttons_ShareTheFieldHeight_PagerUsesArrowsOnly_PillsTrimText": "7ca0117f504b4c16",
     "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.CardTopo_PutsTheCardButtonsTopRight_WithTheHouseSpacing": "7d62406db352dba4",
+    "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite": "259a4c580bdd570e",
     "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DisabledPagerButtons_DoNotFadeInline": "9d081b7587727480",
     "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Palette_IsDefinedOnce_AndDrivesButtonsRowsAndHover": "5a89b7316d2a1d17",
     "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.PdfGenerators_UseThePalette_NotTheOldBlues": "fe87ad54b8ed6a9e",
