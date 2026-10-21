@@ -1845,6 +1845,112 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("OperacoesRegistadas", (string)null);
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Tools.FerramentaLembreteUtilizacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CriadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CriadoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("CriadoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("FechadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ToolId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long?>("UtilizacaoId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriadoPorUserId");
+
+                    b.HasIndex("MovimentoId");
+
+                    b.HasIndex("ToolId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FerramentaLembretesUtilizacao_ToolId_Aberto")
+                        .HasFilter("\"FechadoEmUtc\" IS NULL");
+
+                    b.HasIndex("UtilizacaoId");
+
+                    b.ToTable("FerramentaLembretesUtilizacao", (string)null);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Tools.FerramentaUtilizacao", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CodigoEquipamento")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long?>("Consumo")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Ficheiro")
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.Property<DateTime?>("FicheiroModificadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Origem")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<decimal>("Percentagem")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<DateTime>("RegistadaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RegistadoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("RegistadoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ToolId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long?>("VidaPrevista")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegistadoPorUserId");
+
+                    b.HasIndex("ToolId", "Id");
+
+                    b.ToTable("FerramentaUtilizacoes", (string)null);
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Tools.Tool", b =>
                 {
                     b.Property<string>("ToolId")
@@ -2572,6 +2678,44 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("JobOn");
 
                     b.Navigation("ReplacedJobOn");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Tools.FerramentaLembreteUtilizacao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("MovimentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("ToolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Tools.FerramentaUtilizacao", null)
+                        .WithMany()
+                        .HasForeignKey("UtilizacaoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Tools.FerramentaUtilizacao", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegistadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("ToolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Tools.Tool", b =>

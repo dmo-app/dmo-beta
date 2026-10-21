@@ -66,6 +66,7 @@ public sealed class FichaModel : PageModel
     public const string SavedGeneral = "geral";
     public const string SavedTechnical = "tecnica";
     public const string SavedDuplicateWarningCleared = "aviso";
+    public const string SavedUtilizacaoPedida = "utilizacao";
 
     public IReadOnlyDictionary<string, string?>? TechnicalDraft { get; private set; }
 
@@ -110,8 +111,10 @@ public sealed class FichaModel : PageModel
         DMO.Alpha.Infrastructure.Tools.ToolDuplicateWarnings duplicateWarnings,
         ShellStateFactory shellState,
         DMO.Alpha.Core.Armazem.IArmazemMovimentos armazem,
-        CurrentUserCapabilities capabilities)
+        CurrentUserCapabilities capabilities,
+        IFerramentasUsoSap usoSap)
     {
+        _usoSap = usoSap;
         _armazem = armazem;
         _capabilities = capabilities;
         _duplicateWarnings = duplicateWarnings;
@@ -126,6 +129,10 @@ public sealed class FichaModel : PageModel
 
     private readonly DMO.Alpha.Core.Armazem.IArmazemMovimentos _armazem;
     private readonly CurrentUserCapabilities _capabilities;
+    private readonly IFerramentasUsoSap _usoSap;
+
+    /// <summary>A utilização (a última leitura, do SAP) e o lembrete aberto.</summary>
+    public FerramentaUtilizacaoAtual? Utilizacao { get; private set; }
 
     /// <summary>
     /// Onde está a ferramenta e o estado, pelo Armazém: só para quem tem o
@@ -439,7 +446,7 @@ public sealed class FichaModel : PageModel
             .Select(field => (Label: field.Value, Typed: impossibleTyped[field.Key]))
             .ToList();
         UnreadableTyped = unreadableTyped.Concat(impossibleTyped).ToDictionary(field => field.Key, field => field.Value);
-        SavedSection = guardado is SavedGeneral or SavedTechnical or SavedDuplicateWarningCleared ? guardado : null;
+        SavedSection = guardado is SavedGeneral or SavedTechnical or SavedDuplicateWarningCleared or SavedUtilizacaoPedida ? guardado : null;
         ExistingToolId = FactsRefusal == EditToolFactsResult.LotAlreadyExists
             || DuplicateRefusal == DuplicateToolResult.LotAlreadyExists
                 ? IndexModel.Sanitize(existingToolId)
@@ -456,6 +463,11 @@ public sealed class FichaModel : PageModel
             && (await _capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.ArmazemGestao, StringComparer.Ordinal))
         {
             Armazem = await _armazem.SituacaoAsync(Sheet.ToolId, HttpContext.RequestAborted);
+        }
+
+        if (Sheet is not null)
+        {
+            Utilizacao = await _usoSap.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
         }
 
         TypeChangedWarning = Sheet is { } mudada ? TypeChangedMessage(tipoAnterior, producoes, mudada.Type) : null;
@@ -705,6 +717,23 @@ public sealed class FichaModel : PageModel
         {
             tool_id = canonicalToolId,
             guardado = cleared ? SavedDuplicateWarningCleared : null
+        });
+    }
+
+    /// <summary>
+    /// POST: «Pedir a utilização ao SAP» (o Opções da ficha): abre o lembrete
+    /// de utilização, como a Entrada vinda da Produção; o script do SAP vai
+    /// buscá-la e a leitura fecha-o.
+    /// </summary>
+    public async Task<IActionResult> OnPostPedirUtilizacaoAsync(
+        [FromForm(Name = "tool_id")] string? toolId)
+    {
+        var canonicalToolId = IndexModel.Sanitize(toolId) ?? string.Empty;
+        var pedido = await _usoSap.PedirAsync(canonicalToolId, HttpContext.RequestAborted);
+        return RedirectToPage("/Ferramentas/Ficha", new
+        {
+            tool_id = canonicalToolId,
+            guardado = pedido ? SavedUtilizacaoPedida : null
         });
     }
 

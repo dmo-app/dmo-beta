@@ -81,6 +81,12 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<FerramentaEstado> FerramentaEstados => Set<FerramentaEstado>();
 
+    // A utilização das ferramentas (as leituras, só de acrescentar) e o
+    // lembrete aberto pela Entrada vinda da Produção.
+    public DbSet<FerramentaUtilizacao> FerramentaUtilizacoes => Set<FerramentaUtilizacao>();
+
+    public DbSet<FerramentaLembreteUtilizacao> FerramentaLembretesUtilizacao => Set<FerramentaLembreteUtilizacao>();
+
     public DbSet<BqMovement> BqMovements => Set<BqMovement>();
 
     public DbSet<BqMovementDeletion> BqMovementDeletions => Set<BqMovementDeletion>();
@@ -645,6 +651,34 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(l => l.ToolId).HasMaxLength(100);
             entity.Property(l => l.ReparadorNome).HasMaxLength(Reparador.NomeMaxLength);
             entity.Property<uint>(RowVersion).IsRowVersion();
+        });
+
+        // A utilização e o lembrete são da ferramenta e vão com ela. Um só
+        // lembrete aberto por ferramenta (o índice parcial).
+        modelBuilder.Entity<FerramentaUtilizacao>(entity =>
+        {
+            entity.ToTable("FerramentaUtilizacoes");
+            entity.HasKey(u => u.Id);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(u => u.ToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.Property(u => u.ToolId).HasMaxLength(100).IsRequired();
+            entity.Property(u => u.Percentagem).HasPrecision(9, 2);
+            entity.Property(u => u.Origem).HasMaxLength(32).IsRequired();
+            entity.Property(u => u.RegistadoPor).HasMaxLength(254);
+            entity.Property(u => u.CodigoEquipamento).HasMaxLength(FerramentaUtilizacao.CodigoMaxLength);
+            entity.Property(u => u.Ficheiro).HasMaxLength(FerramentaUtilizacao.FicheiroMaxLength);
+            entity.HasIndex(u => new { u.ToolId, u.Id });
+        });
+
+        modelBuilder.Entity<FerramentaLembreteUtilizacao>(entity =>
+        {
+            entity.ToTable("FerramentaLembretesUtilizacao");
+            entity.HasKey(l => l.Id);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(l => l.ToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(l => l.MovimentoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<FerramentaUtilizacao>().WithMany().HasForeignKey(l => l.UtilizacaoId).OnDelete(DeleteBehavior.Restrict);
+            entity.Property(l => l.ToolId).HasMaxLength(100).IsRequired();
+            entity.Property(l => l.CriadoPor).HasMaxLength(254);
+            entity.HasIndex(l => l.ToolId).IsUnique().HasFilter("\"FechadoEmUtc\" IS NULL").HasDatabaseName("IX_FerramentaLembretesUtilizacao_ToolId_Aberto");
         });
 
         modelBuilder.Entity<FerramentaEstado>(entity =>

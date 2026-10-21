@@ -169,7 +169,11 @@
   <partial name="_FerramentasResultados" model="Model" />
   }
 
+  @* A utilização pelo SAP: ao abrir, a pasta do SAP ligada nas Definições é lida
+     (ferramentas-sap.js), sem pedir nada se o browser já deu acesso. *@
+  <div hidden data-ferr-sap-auto>@Html.AntiForgeryToken()</div>
 </main>
 
 <script src="~/ferramentas-live.js" asp-append-version="true"></script>
 <script src="~/js/tool-lot-quantity.js" asp-append-version="true"></script>
+<script src="~/js/ferramentas-sap.js" asp-append-version="true"></script>

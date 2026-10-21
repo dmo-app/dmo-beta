@@ -110,7 +110,9 @@ public sealed class PegamentosSchemaTests
                 // O envio único guardado na base (fundações do full).
                 "OperacoesRegistadas",
                 // O Armazém do full (0.2.0-beta.8).
-                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados"
+                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados",
+                // A utilização das ferramentas e o lembrete.
+                "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao"
             },
             tables);
     }
