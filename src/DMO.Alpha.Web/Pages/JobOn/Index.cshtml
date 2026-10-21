@@ -230,7 +230,7 @@
               <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Referência" data-dmo-suggest="referencias"
                      data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" data-dmo-procura-sempre />
               <span id="lightProcura" class="jobon-procura" aria-live="polite"><partial name="_JobOnProcuraProducoes" model="Model.SearchResults ?? DMO.Alpha.Web.Pages.JobOn.JobOnProcura.Vazia" /></span>
-              <partial name="_DmoHelp" model="@("Escreva o início da referência (60). Por baixo aparecem as referências que começam assim; escolha uma. À frente, o dropdown «Produção» mostra as últimas 5 produções dessa referência; escolher uma abre a folha. As outras produções estão em «Opções» → «Produções desta referência», na folha.")" />
+              <partial name="_DmoHelp" model="@("O primeiro campo procura a referência. O segundo é um dropdown com as produções dessa referência.")" />
             </form>
           </div>
         </section>
