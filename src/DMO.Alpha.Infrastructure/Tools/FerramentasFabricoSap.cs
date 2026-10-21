@@ -42,6 +42,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
 
             existente.ProducaoBruta = linha.ProducaoBruta;
             existente.ProducaoLiquida = linha.ProducaoLiquida;
+            existente.PesoMedioGramas = linha.PesoMedioGramas;
+            existente.DiasProducao = linha.DiasProducao;
             existente.LidoEmUtc = agora;
             existente.LidoPor = autor;
             existente.Ficheiro = nome;
@@ -55,7 +57,36 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
     public Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default) =>
         db.SapFabricos.AsNoTracking().MaxAsync(s => s.FicheiroModificadoEmUtc, cancellationToken);
 
-    public async Task<PagedList<FerramentaProducao>> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default)
+    {
+        var jobOns = await db.JobOns.AsNoTracking()
+            .Where(j => jobOnIds.Contains(j.Id) && j.InicioEm != null)
+            .Select(j => new { j.Id, j.Reference, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+            .ToListAsync(cancellationToken);
+        var resumos = new Dictionary<int, PesoSapResumo>();
+        if (jobOns.Count == 0)
+        {
+            return resumos;
+        }
+
+        var maquinas = jobOns.Select(j => j.Maquina.ToUpperInvariant()).Distinct().ToList();
+        var de = jobOns.Min(j => j.InicioEm!.Value);
+        var sap = await db.SapFabricos.AsNoTracking()
+            .Where(s => maquinas.Contains(s.Linha) && s.FimEm >= de && s.PesoMedioGramas != null)
+            .ToListAsync(cancellationToken);
+        foreach (var j in jobOns)
+        {
+            var ordens = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm));
+            if (FabricoSapPeso.Resumo(ordens, j.InicioEm!.Value, j.FimEm) is { } resumo)
+            {
+                resumos[j.Id] = resumo;
+            }
+        }
+
+        return resumos;
+    }
+
+    public async Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default)
     {
         var cm = db.CmContexts.Where(c => c.ToolId == toolId).Select(c => c.JobOnId ?? c.ReplacedJobOnId);
         var mf = db.MfContexts.Where(c => c.ToolId == toolId).Select(c => c.JobOnId ?? c.ReplacedJobOnId);
@@ -72,10 +103,7 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .ThenByDescending(j => j.InicioEm)
             .ThenByDescending(j => j.Id)
             .ToList();
-        var pagedJobOns = PagedList<int>.FromLoaded(jobOns.Select(j => j.Id).ToList(), pagina, porPagina);
-        var daPagina = jobOns.Where(j => pagedJobOns.Items.Contains(j.Id)).ToList();
-
-        var comDatas = daPagina.Where(j => j.InicioEm.HasValue).ToList();
+        var comDatas = jobOns.Where(j => j.InicioEm.HasValue).ToList();
         var sap = new List<SapFabrico>();
         if (comDatas.Count > 0)
         {
@@ -88,7 +116,31 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
                 .ToListAsync(cancellationToken);
         }
 
-        var itens = daPagina.Select(j =>
+        // As leituras da utilização, pela data em Portugal.
+        var leituras = (await db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => u.ToolId == toolId)
+                .OrderBy(u => u.RegistadaEmUtc)
+                .ThenBy(u => u.Id)
+                .Select(u => new { u.RegistadaEmUtc, u.Percentagem })
+                .ToListAsync(cancellationToken))
+            .Select(u => (Dia: DateOnly.FromDateTime(DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem))
+            .ToList();
+
+        // Antes: a última leitura até ao dia do início (a desse dia é o ponto
+        // de partida). Depois: a
+        // primeira a partir do dia do fim; sem fim (ainda na máquina), a
+        // última desde o início.
+        decimal? Antes(DateOnly? inicio) => inicio is { } de
+            ? leituras.Where(u => u.Dia <= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
+            : null;
+        decimal? Depois(DateOnly? inicio, DateOnly? fim) => (inicio, fim) switch
+        {
+            (null, _) => null,
+            (_, { } ate) => leituras.Where(u => u.Dia >= ate).Select(u => (decimal?)u.Percentagem).FirstOrDefault(),
+            ({ } de, null) => leituras.Where(u => u.Dia >= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
+        };
+
+        var itens = jobOns.Select(j =>
         {
             var linhas = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm)).ToList();
             return new FerramentaProducao(
@@ -100,8 +152,13 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
                 j.FimEm,
                 linhas.Any(s => s.ProducaoBruta.HasValue) ? linhas.Sum(s => s.ProducaoBruta ?? 0) : null,
                 linhas.Any(s => s.ProducaoLiquida.HasValue) ? linhas.Sum(s => s.ProducaoLiquida ?? 0) : null,
-                linhas.Count);
+                linhas.Count,
+                Antes(j.InicioEm),
+                Depois(j.InicioEm, j.FimEm));
         }).ToList();
-        return new PagedList<FerramentaProducao>(itens, pagedJobOns.TotalCount, pagedJobOns.PageNumber, pagedJobOns.PageSize);
+        return new FerramentaProducoes(
+            PagedList<FerramentaProducao>.FromLoaded(itens, pagina, porPagina),
+            itens.Any(p => p.ProducaoBruta.HasValue) ? itens.Sum(p => p.ProducaoBruta ?? 0) : null,
+            itens.Any(p => p.ProducaoLiquida.HasValue) ? itens.Sum(p => p.ProducaoLiquida ?? 0) : null);
     }
 }

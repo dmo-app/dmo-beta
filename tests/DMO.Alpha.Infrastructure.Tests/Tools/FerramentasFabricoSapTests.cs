@@ -71,9 +71,9 @@ public sealed class FerramentasFabricoSapTests
         Assert.Equal(
             new[]
             {
-                new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234, 1_309_264),
-                new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 7, 31), new DateOnly(2025, 8, 6), 615_060, 571_360),
-                new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 9, 29), new DateOnly(2025, 10, 7), 811_515, 748_183)
+                new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234, 1_309_264, 132m, 14),
+                new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 7, 31), new DateOnly(2025, 8, 6), 615_060, 571_360, 132m, 6),
+                new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 9, 29), new DateOnly(2025, 10, 7), 811_515, 748_183, 131m, 8)
             },
             leitura.Linhas);
     }
@@ -138,8 +138,8 @@ public sealed class FerramentasFabricoSapTests
         var producoes = await Servico(db).ProducoesAsync("cm", null, 10);
 
         // As mais recentes primeiro; a sem datas no fim; a 202505 é de outra CM.
-        Assert.Equal(new[] { "202503", "202502", "202501", "202504" }, producoes.Items.Select(p => p.Producao));
-        var porProducao = producoes.Items.ToDictionary(p => p.Producao);
+        Assert.Equal(new[] { "202503", "202502", "202501", "202504" }, producoes.Pagina.Items.Select(p => p.Producao));
+        var porProducao = producoes.Pagina.Items.ToDictionary(p => p.Producao);
         Assert.Equal((1_404_234L, 1_309_264L, 1), (porProducao["202501"].ProducaoBruta!.Value, porProducao["202501"].ProducaoLiquida!.Value, porProducao["202501"].LinhasSap));
         Assert.Equal(615_060L, porProducao["202502"].ProducaoBruta);
         Assert.Equal(((long?)null, 0), (porProducao["202503"].ProducaoBruta, porProducao["202503"].LinhasSap));
@@ -156,10 +156,98 @@ public sealed class FerramentasFabricoSapTests
         var bq = await Servico(db).ProducoesAsync("bq", null, 10);
         var pagina2 = await Servico(db).ProducoesAsync("cm", 2, 3);
 
-        Assert.Equal(811_515L, Assert.Single(bq.Items).ProducaoBruta);
-        Assert.Equal((4, 2, "202504"), (pagina2.TotalCount, pagina2.PageNumber, Assert.Single(pagina2.Items).Producao));
-        Assert.Equal(0, (await Servico(db).ProducoesAsync("nenhuma", null, 10)).TotalCount);
+        Assert.Equal(811_515L, Assert.Single(bq.Pagina.Items).ProducaoBruta);
+        Assert.Equal((4, 2, "202504"), (pagina2.Pagina.TotalCount, pagina2.Pagina.PageNumber, Assert.Single(pagina2.Pagina.Items).Producao));
+        Assert.Equal(0, (await Servico(db).ProducoesAsync("nenhuma", null, 10)).Pagina.TotalCount);
     }
+
+    [Fact]
+    public async Task ODelta_EQuantoAUtilizacaoSubiuEmCadaProducao_EOTotalSomaTodas()
+    {
+        using var db = CreateContext();
+        await Servico(db).ImportarAsync(FabricoSapExportacao.Ler(RelatorioDoSap).Linhas, "fabrico.txt", DateTime.UtcNow);
+        // As leituras ao meio-dia (Lisboa) de cada dia.
+        db.FerramentaUtilizacoes.AddRange(
+            Leitura(1, new DateOnly(2025, 1, 15), 10m),
+            Leitura(2, new DateOnly(2025, 2, 5), 15m),
+            Leitura(3, new DateOnly(2025, 8, 6), 18.5m),
+            Leitura(4, new DateOnly(2025, 1, 21), 12m));
+        await db.SaveChangesAsync();
+
+        var producoes = await Servico(db).ProducoesAsync("cm", null, 10);
+
+        var delta = producoes.Pagina.Items.ToDictionary(p => p.Producao, p => p.DeltaUtilizacao);
+        // 202501: 12 no próprio dia do início (conta como antes, é o ponto de
+        // partida), 15 depois de 04/02. 202502: 15 antes de 31/07, 18,5 no dia do fim.
+        Assert.Equal(3m, delta["202501"]);
+        Assert.Equal(3.5m, delta["202502"]);
+        // 202503: sem leitura depois do fim; 202504: sem datas.
+        Assert.Null(delta["202503"]);
+        Assert.Null(delta["202504"]);
+        Assert.Equal((1_404_234L + 615_060L, 1_309_264L + 571_360L), (producoes.TotalBruta!.Value, producoes.TotalLiquida!.Value));
+    }
+
+    [Fact]
+    public async Task OTotal_ContaTodasAsProducoes_NaoSoAPagina()
+    {
+        using var db = CreateContext();
+        await Servico(db).ImportarAsync(FabricoSapExportacao.Ler(RelatorioDoSap).Linhas, "fabrico.txt", DateTime.UtcNow);
+
+        var pagina = await Servico(db).ProducoesAsync("cm", 1, 1);
+
+        Assert.Equal("202503", Assert.Single(pagina.Pagina.Items).Producao);
+        Assert.Equal(1_404_234L + 615_060L, pagina.TotalBruta);
+    }
+
+    private static SapFabrico Ordem(string inicio, string fim, decimal? peso) => new()
+    {
+        Material = "5538T324BRA", Linha = "C3", InicioEm = DateOnly.Parse(inicio), FimEm = DateOnly.Parse(fim), PesoMedioGramas = peso
+    };
+
+    [Fact]
+    public void OPesoDoSap_EAMediaPelosDiasEAModaOPesoComMaisDias()
+    {
+        // 132 g em 14 + 6 dias, 131 g em 8 (a ordem sem peso, dentro do Job On, não conta): média (132 × 20 + 131 × 8) / 28; moda 132.
+        var resumo = FabricoSapPeso.Resumo(
+            [Ordem("2025-01-21", "2025-02-04", 132m), Ordem("2025-02-04", "2025-02-12", 131m), Ordem("2025-02-12", "2025-02-18", 132m), Ordem("2025-02-14", "2025-02-18", null)],
+            new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 18));
+
+        Assert.Equal(new PesoSapResumo(131.71m, 132m, 28, 3), resumo);
+    }
+
+    [Fact]
+    public void OsDiasDeCadaOrdem_SaoOsQueFicamDentroDoJobOn_EAModaEmpatadaEAMaisRecente()
+    {
+        // O Job On começa a 25/01: a 1.ª ordem conta 10 dias (25/01 a 04/02), a 2.ª também 10.
+        var resumo = FabricoSapPeso.Resumo(
+            [Ordem("2025-01-21", "2025-02-04", 132m), Ordem("2025-02-04", "2025-02-14", 130m)],
+            new DateOnly(2025, 1, 25), new DateOnly(2025, 2, 14));
+
+        Assert.Equal(new PesoSapResumo(131m, 130m, 20, 2), resumo);
+        Assert.Null(FabricoSapPeso.Resumo([Ordem("2025-01-21", "2025-02-04", null)], new DateOnly(2025, 1, 21), null));
+    }
+
+    [Fact]
+    public async Task OPesoDosJobOns_VemDasOrdensDaMesmaReferenciaMaquinaEDatas()
+    {
+        using var db = CreateContext();
+        await Servico(db).ImportarAsync(FabricoSapExportacao.Ler(RelatorioDoSap).Linhas, "fabrico.txt", DateTime.UtcNow);
+
+        var pesos = await Servico(db).PesoDosJobOnsAsync([1, 3, 4, 5]);
+
+        Assert.Equal(new PesoSapResumo(132m, 132m, 14, 1), pesos[1]);
+        // 202505 (C3, 29/09 a 07/10): a ordem de 131 g, 8 dias.
+        Assert.Equal(new PesoSapResumo(131m, 131m, 8, 1), pesos[5]);
+        // Na B1 e sem datas: sem peso.
+        Assert.False(pesos.ContainsKey(3));
+        Assert.False(pesos.ContainsKey(4));
+    }
+
+    private static FerramentaUtilizacao Leitura(long id, DateOnly dia, decimal percentagem) => new()
+    {
+        Id = id, ToolId = "cm", Percentagem = percentagem,
+        RegistadaEmUtc = DateTime.SpecifyKind(dia.ToDateTime(new TimeOnly(11, 0)), DateTimeKind.Utc)
+    };
 
     private sealed class Sessao : ICurrentAccountContext
     {

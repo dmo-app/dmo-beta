@@ -80,6 +80,42 @@ public sealed partial class DefinicoesPorModuloPageTests
     }
 
     [Fact]
+    public async Task ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal()
+    {
+        var (toolId, referencia, maquina) = SeedJobOnComCm();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.SapFabricos.Add(new SapFabrico
+            {
+                Material = referencia + "BRA", Linha = maquina, InicioEm = new DateOnly(2025, 1, 21), FimEm = new DateOnly(2025, 2, 4),
+                ProducaoBruta = 1_404_234, ProducaoLiquida = 1_309_264, LidoEmUtc = DateTime.UtcNow
+            });
+            // Antes do início 40 %, depois do fim 47,5 %.
+            db.FerramentaUtilizacoes.AddRange(
+                new FerramentaUtilizacao { ToolId = toolId, Percentagem = 40m, RegistadaEmUtc = new DateTime(2025, 1, 10, 12, 0, 0, DateTimeKind.Utc) },
+                new FerramentaUtilizacao { ToolId = toolId, Percentagem = 47.5m, RegistadaEmUtc = new DateTime(2025, 2, 6, 12, 0, 0, DateTimeKind.Utc) });
+            db.SaveChanges();
+        }
+
+        var client = await LoginOperatorAsync("7108", DmoCapabilities.Ferramentas);
+
+        // O «Detalhes» da Utilização abre o quadro.
+        var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
+        var link = Regex.Match(ZonaUsoSap(ficha, "ferrUtilizacao"), "<a\\b[^>]*id=\"ferr-utilizacao-detalhes\"[^>]*>");
+        Assert.True(link.Success);
+        var href = WebUtility.HtmlDecode(Regex.Match(link.Value, "href=\"([^\"]+)\"").Groups[1].Value);
+        var quadro = WebUtility.HtmlDecode(ZonaUsoSap(await (await client.GetAsync(href)).Content.ReadAsStringAsync(), "ferrProducoes"));
+
+        Assert.Contains("Utilização por produção", quadro, StringComparison.Ordinal);
+        Assert.Contains("+7.5 %", quadro, StringComparison.Ordinal);
+        var total = WebUtility.HtmlDecode(ZonaUsoSap(quadro, "ferrProducoesTotal"));
+        Assert.Contains("Total · 1 produção", total, StringComparison.Ordinal);
+        Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
+        Assert.Contains("Hoje 47.5 %", total, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task SemORelatorioDeFabrico_AProducaoFicaComTraco()
     {
         var (toolId, _, _) = SeedJobOnComCm();

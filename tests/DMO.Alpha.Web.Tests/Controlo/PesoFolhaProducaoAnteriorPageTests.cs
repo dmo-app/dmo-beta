@@ -19,7 +19,7 @@ namespace DMO.Alpha.Web.Tests.Controlo;
 /// produção anterior com o peso do SAP (guardado, com o delta e no PDF) e o
 /// botão «Exportar PDF».
 /// </summary>
-public class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
+public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private const string PagePath = "/Controlo/Peso";
 
@@ -41,6 +41,7 @@ public class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWebApplica
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+        db.SapFabricos.RemoveRange(db.SapFabricos);
         db.PesoComparacaoMeasurements.RemoveRange(db.PesoComparacaoMeasurements);
         db.PesoComparacoes.RemoveRange(db.PesoComparacoes);
         db.PesoMeasurements.RemoveRange(db.PesoMeasurements);

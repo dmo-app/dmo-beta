@@ -142,7 +142,7 @@ public sealed class FichaModel : PageModel
     /// os Job On em que foi a CM, o MF ou a BQ, com o que o SAP diz que
     /// produziram (Diogo, 21/10/2026). Lida só quando se abre; null fechada.
     /// </summary>
-    public DMO.Alpha.Core.Paging.PagedList<FerramentaProducao>? Producoes { get; private set; }
+    public FerramentaProducoes? Producoes { get; private set; }
 
     /// <summary>A utilização (a última leitura, do SAP) e o lembrete aberto.</summary>
     public FerramentaUtilizacaoAtual? Utilizacao { get; private set; }

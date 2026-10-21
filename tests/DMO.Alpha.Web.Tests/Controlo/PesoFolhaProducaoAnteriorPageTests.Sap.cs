@@ -1,0 +1,69 @@
+using System.Net;
+using DMO.Alpha.Core.Tools;
+using DMO.Alpha.Infrastructure.Data;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DMO.Alpha.Web.Tests.Controlo;
+
+/// <summary>
+/// O peso do SAP na produção anterior (Diogo, 21/10/2026): pelas datas da
+/// produção escolhida e a referência, as ordens do relatório de fabrico dão
+/// a média pelos dias e a moda (o peso com mais dias); o campo vem com a
+/// média, e cada produção leva a sua no select.
+/// </summary>
+public partial class PesoFolhaProducaoAnteriorPageTests
+{
+    private void SeedSapFabrico(string inicio, string fim, decimal peso, int dias)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+        db.SapFabricos.Add(new SapFabrico
+        {
+            Material = "5447T173BRA", Linha = "B1", InicioEm = DateOnly.Parse(inicio), FimEm = DateOnly.Parse(fim),
+            PesoMedioGramas = peso, DiasProducao = dias, LidoEmUtc = DateTime.UtcNow
+        });
+        db.SaveChanges();
+    }
+
+    // A zona do peso do SAP, até ao fim do parágrafo.
+    private static string ZonaSap(string html)
+    {
+        var inicio = html.IndexOf("id=\"pesoAnteriorSap\"", StringComparison.Ordinal);
+        Assert.True(inicio >= 0, "a página não tem #pesoAnteriorSap");
+        return WebUtility.HtmlDecode(html[inicio..html.IndexOf("</p>", inicio, StringComparison.Ordinal)]);
+    }
+
+    [Fact]
+    public async Task ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia()
+    {
+        var (controloId, _, anteriorJobOnId, maisAntigaJobOnId) = await SeedAsync();
+        // A anterior (06/04 a 24/04/2026): 181 g durante 12 dias, 183 g durante 6.
+        SeedSapFabrico("2026-04-06", "2026-04-18", 181m, 12);
+        SeedSapFabrico("2026-04-18", "2026-04-24", 183m, 6);
+        SeedUser("4410", "Peso Operador", "provider-folha-sap", "FolhaSap10!");
+        using var client = await LoginClientAsync("4410", "FolhaSap10!");
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
+
+        var sap = ZonaSap(html);
+        Assert.Contains("Peso do SAP: média 181.67 g · moda 181.00 g (18 dias)", System.Text.RegularExpressions.Regex.Replace(sap, "<[^>]+>|\\s+", m => m.Value.StartsWith('<') ? "" : " "), StringComparison.Ordinal);
+        Assert.Contains("data-sap-usar=\"media\"", sap, StringComparison.Ordinal);
+        Assert.Contains("id=\"producaoAnteriorPeso\" name=\"anterior_peso\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"Peso usado (g)\" aria-label=\"Peso usado na produção (g)\" value=\"181.67\"", WebUtility.HtmlDecode(html), StringComparison.Ordinal);
+        // Cada produção do select leva o seu peso; a mais antiga não tem ordens do SAP.
+        Assert.Contains($"data-sap-opcao=\"{anteriorJobOnId}\" data-sap-media=\"181.67\" data-sap-moda=\"181.00\" data-sap-dias=\"18\"", sap, StringComparison.Ordinal);
+        Assert.DoesNotContain($"data-sap-opcao=\"{maisAntigaJobOnId}\"", sap, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso()
+    {
+        var (controloId, _, _, _) = await SeedAsync();
+        SeedUser("4411", "Peso Operador", "provider-folha-sap2", "FolhaSap11!");
+        using var client = await LoginClientAsync("4411", "FolhaSap11!");
+
+        var sap = ZonaSap(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
+
+        Assert.Contains("<span data-sap-sem>O SAP ainda não deu o peso desta produção.", sap, StringComparison.Ordinal);
+        Assert.Contains("<span data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
+    }
+}

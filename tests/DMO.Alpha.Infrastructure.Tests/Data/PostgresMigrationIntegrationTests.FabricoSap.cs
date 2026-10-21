@@ -16,7 +16,7 @@ public sealed partial class PostgresMigrationIntegrationTests
     {
         SkipWithoutConnection();
         var material = "ZZ" + Guid.NewGuid().ToString("N")[..8].ToUpperInvariant() + "BRA";
-        var linha = new FabricoSapLinha(material, "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234, 1_309_264);
+        var linha = new FabricoSapLinha(material, "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234, 1_309_264, 132.125m, 14);
         try
         {
             await using (var db = CreateContext())
@@ -31,8 +31,8 @@ public sealed partial class PostgresMigrationIntegrationTests
 
             await using var leitura = CreateContext();
             var gravada = await leitura.SapFabricos.AsNoTracking().SingleAsync(s => s.Material == material);
-            Assert.Equal((new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234L, 1_300_000L, "Rui"),
-                (gravada.InicioEm, gravada.FimEm, gravada.ProducaoBruta!.Value, gravada.ProducaoLiquida!.Value, gravada.LidoPor));
+            Assert.Equal((new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234L, 1_300_000L, "Rui", 132.125m, 14),
+                (gravada.InicioEm, gravada.FimEm, gravada.ProducaoBruta!.Value, gravada.ProducaoLiquida!.Value, gravada.LidoPor, gravada.PesoMedioGramas!.Value, gravada.DiasProducao!.Value));
 
             leitura.SapFabricos.Add(new SapFabrico { Material = material, Linha = "C3", InicioEm = new DateOnly(2025, 1, 21), FimEm = new DateOnly(2025, 2, 4), LidoEmUtc = DateTime.UtcNow });
             await Assert.ThrowsAsync<DbUpdateException>(() => leitura.SaveChangesAsync());
