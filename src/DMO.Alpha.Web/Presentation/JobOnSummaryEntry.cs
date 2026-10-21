@@ -62,6 +62,8 @@ public sealed record JobOnSummaryEntry(
         var followUp = JobOnChangeFields.FollowUp(field);
         var href = followUp switch
         {
+            // A folha não leva a nenhum módulo: a linha fica sem botão.
+            JobOnFollowUp.Nenhum => null,
             JobOnFollowUp.Peso => $"/Controlo/Peso?jobon_id={jobOnId}",
             // Os Pegamentos abrem-se pelo Controlo da produção.
             JobOnFollowUp.Pegamentos or JobOnFollowUp.Controlo => $"/Controlo/Resumo?jobon_id={jobOnId}",

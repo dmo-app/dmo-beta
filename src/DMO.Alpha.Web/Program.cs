@@ -310,6 +310,7 @@ builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IControloRevisaoQuery, DMO.Al
 // O PLANEAMENTO (o corte G): o calendário das produções por máquina —
 // as DATAS do Job On (o corte B) alimentam a grelha.
 builder.Services.AddScoped<IJobOnToolFactsQuery, JobOnToolFactsQuery>();
+builder.Services.AddScoped<IJobOnFolhaQuery, JobOnFolhaQuery>();
 // O PDF dos Pegamentos (o gerador; o resolver é o ControloDocumentPaths
 // canónico — PEGAMENTOS-<ref>-<produção>.pdf).
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PegamentosPdfGenerator>();

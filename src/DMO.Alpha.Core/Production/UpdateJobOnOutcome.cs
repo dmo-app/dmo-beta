@@ -15,4 +15,6 @@ namespace DMO.Alpha.Core.Production;
 public sealed record UpdateJobOnOutcome(
     UpdateJobOnResult Result,
     ProductionContextReadModel? JobOn = null,
-    OverlapWarning? OverlapWarning = null);
+    OverlapWarning? OverlapWarning = null,
+    // A chave da folha que passou o máximo (a recusa TextoLongo); null nas outras.
+    string? ChaveRecusada = null);

@@ -1,0 +1,124 @@
+@model DMO.Alpha.Web.Pages.JobOn.JobOnFolhaFamiliaVista
+@using DMO.Alpha.Core.Production
+@*
+  UMA FAMÍLIA DA FOLHA DA FÁBRICA, desenhada a partir do catálogo
+  JobOnFolhaCampos: o fieldset com a sigla da folha da fábrica, os campos de
+  uso diário à vista (no CM, MF, BQ, PU, CS e TP a QTD Stock e a QTD Máq.,
+  Diogo 21/10/2026) e os menos usados no «Mais detalhes» (a informação
+  técnica fica no mínimo). Tudo escrito, em branco, sem obrigatórios. O name
+  e o id saem da chave do campo. O campo recusado por ser longo demais fica
+  marcado, com o foco, e o «Mais detalhes» dele abre. Na CAL, uma linha por
+  medida (designação, valor e QTD Máq.); a linha vazia do fim serve para
+  acrescentar, e apagar o que uma linha tem retira-a.
+*@
+@{
+    var folha = Model.Folha;
+    var familia = Model.Familia;
+    var campos = JobOnFolhaCampos.DaFamilia(familia);
+    var visiveis = campos.Where(c => !c.Detalhe).ToList();
+    var detalhes = campos.Where(c => c.Detalhe).ToList();
+    var temDetalhes = detalhes.Count > 0 || familia == JobOnFolhaCampos.Tp;
+}
+@functions {
+    private static string? Marcado(bool invalido) => invalido ? "true" : null;
+}
+@{
+    void Campo(JobOnFolhaCampo campo)
+    {
+        var invalido = Model.Folha.Invalido(campo.Id);
+        if (campo.Tipo == JobOnFolhaTipoCampo.Nota)
+        {
+            var gerais = campo.Familia == JobOnFolhaCampos.NotasGerais;
+            <div class="dmo-field jobon-folha-nota">
+              <label for="@campo.Id" class="@(gerais ? "dmo-visually-hidden" : null)">@campo.Rotulo</label>
+              <textarea id="@campo.Id" name="@campo.NomeNoFormulario" rows="@(gerais ? 5 : 2)" maxlength="@campo.Maximo" autocomplete="off" aria-invalid="@Marcado(invalido)" autofocus="@invalido">
+@Model.Folha.Valor(campo.Chave)</textarea>
+            </div>
+            return;
+        }
+
+        <div class="dmo-field">
+          <label for="@campo.Id">@campo.Rotulo</label>
+          <input id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Model.Folha.Valor(campo.Chave)" aria-invalid="@Marcado(invalido)" autofocus="@invalido" />
+        </div>
+    }
+
+    void Campos(IReadOnlyList<JobOnFolhaCampo> lista)
+    {
+        foreach (var campo in lista)
+        {
+            if (campo.Grupo is { } grupo)
+            {
+                // As três Folgas, sob um só rótulo, como na folha da fábrica.
+                if (lista.First(c => c.Grupo == grupo) != campo)
+                {
+                    continue;
+                }
+
+                <fieldset class="dmo-field jobon-folha-grupo">
+                  <legend>@grupo</legend>
+                  <div>
+                    @foreach (var folga in lista.Where(c => c.Grupo == grupo))
+                    {
+                      var folgaInvalida = Model.Folha.Invalido(folga.Id);
+                      <input id="@folga.Id" name="@folga.NomeNoFormulario" type="text" maxlength="@folga.Maximo" autocomplete="off" spellcheck="false" aria-label="@($"{folga.Rotulo} ({campo.Familia})")" value="@Model.Folha.Valor(folga.Chave)" aria-invalid="@Marcado(folgaInvalida)" autofocus="@folgaInvalida" />
+                    }
+                  </div>
+                </fieldset>
+                continue;
+            }
+
+            Campo(campo);
+        }
+    }
+}
+<fieldset class="jobon-familia" data-jobon-familia="@familia">
+  <legend class="jobon-familia-titulo">@familia</legend>
+  @if (familia == JobOnFolhaCampos.Cal)
+  {
+    <div class="jobon-cal" data-jobon-cal>
+      <div class="jobon-cal-cabeca" aria-hidden="true"><span>Designação</span><span>Valor</span><span>@JobOnFolhaCampos.QtdMaq</span></div>
+      @foreach (var linha in folha.Cal)
+      {
+        var designacaoId = linha.IdDe(JobOnFolhaCampoCal.Designacao);
+        var valorId = linha.IdDe(JobOnFolhaCampoCal.Valor);
+        var qtdId = linha.IdDe(JobOnFolhaCampoCal.QtdMaq);
+        <div class="jobon-cal-linha" data-jobon-cal-linha>
+          @if (linha.Padrao is { } padrao)
+          {
+            <input type="hidden" name="Cal[@linha.Indice].Padrao" value="@padrao" />
+          }
+          <input id="@designacaoId" name="Cal[@linha.Indice].Designacao" value="@linha.Designacao" aria-label="@(linha.Extra ? "Designação de uma linha nova" : $"Designação, linha {linha.Indice + 1}")" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" spellcheck="false" aria-invalid="@Marcado(folha.Invalido(designacaoId))" autofocus="@folha.Invalido(designacaoId)" />
+          <input id="@valorId" name="Cal[@linha.Indice].Valor" value="@linha.Valor" aria-label="Valor de @linha.Nome" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" spellcheck="false" aria-invalid="@Marcado(folha.Invalido(valorId))" autofocus="@folha.Invalido(valorId)" />
+          <input id="@qtdId" name="Cal[@linha.Indice].QtdMaq" value="@linha.QtdMaq" aria-label="@JobOnFolhaCampos.QtdMaq de @linha.Nome" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" spellcheck="false" aria-invalid="@Marcado(folha.Invalido(qtdId))" autofocus="@folha.Invalido(qtdId)" />
+        </div>
+      }
+      <p class="jobon-folha-dica">A última linha serve para acrescentar uma medida. Para retirar uma linha, apague o que tem escrito.</p>
+    </div>
+  }
+  else
+  {
+    <div class="jobon-campos">
+      @{ Campos(visiveis); }
+    </div>
+    @if (temDetalhes)
+    {
+      var abrir = detalhes.Any(c => folha.Invalido(c.Id));
+      <details class="jobon-mais-detalhes" open="@abrir">
+        <summary>Mais detalhes</summary>
+        <div class="jobon-campos">
+          @if (familia == JobOnFolhaCampos.Tp)
+          {
+            @* A CALOTE DESTA PRODUÇÃO continua na coluna da JobOns, como
+               antes: número, 0 ou mais; vazia usa a referência da Tool. *@
+            <div class="dmo-field">
+              <label for="lightCalote">TP Calote desta produção (mm)</label>
+              <input id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="Usar referência da Tool" value="@Model.Calote" />
+            </div>
+          }
+          @{ Campos(detalhes); }
+        </div>
+      </details>
+    }
+  }
+</fieldset>

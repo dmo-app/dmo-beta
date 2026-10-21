@@ -56,6 +56,13 @@ public static class JobOnChangeFields
     public const string Mf = "MF";
     public const string Bq = "BQ";
 
+    /// <summary>
+    /// A folha da fábrica (os campos escritos e a CAL): uma linha por edição
+    /// que a muda, com os rótulos do que mudou no valor novo («CM · QTD Stock,
+    /// CAL»), sem o valor de antes.
+    /// </summary>
+    public const string Folha = "Folha";
+
     /// <summary>O nome do campo como se lê na ficha.</summary>
     public static string Label(string field) => field switch
     {
@@ -66,6 +73,7 @@ public static class JobOnChangeFields
         Cm => "a CM",
         Mf => "o MF",
         Bq => "a BQ",
+        Folha => "a folha",
         _ => field
     };
 
@@ -80,6 +88,8 @@ public static class JobOnChangeFields
         Cm or Calote => JobOnFollowUp.Peso,
         Mf => JobOnFollowUp.Pegamentos,
         Bq => JobOnFollowUp.Controlo,
+        // A folha é informação para quem prepara a máquina: nenhum módulo a rever.
+        Folha => JobOnFollowUp.Nenhum,
         _ => JobOnFollowUp.Boquilhas
     };
 
@@ -89,6 +99,7 @@ public static class JobOnChangeFields
         JobOnFollowUp.Peso => "Verificar o Peso",
         JobOnFollowUp.Pegamentos => "Verificar os Pegamentos",
         JobOnFollowUp.Controlo => "Rever o Controlo",
+        JobOnFollowUp.Nenhum => string.Empty,
         _ => "Confirmar nas Boquilhas"
     };
 
@@ -111,6 +122,7 @@ public static class JobOnChangeFields
         Start => "Início",
         End => "Fim",
         Calote => "Calote",
+        Folha => "Folha",
         _ => field
     };
 
@@ -126,6 +138,12 @@ public static class JobOnChangeFields
             .GroupBy(c => c.Field)
             .Select(g =>
             {
+                // Na folha, o que mudou da última vez («Folha · CM · QTD Stock»).
+                if (g.Key == Folha)
+                {
+                    return $"{ShortLabel(g.Key)} · {g.First().NewValue ?? "—"}";
+                }
+
                 var (sai, entra) = SaiEntra(g.Key, g.Last().OldValue, g.First().NewValue);
                 return $"{ShortLabel(g.Key)} · Sai {sai} entra {entra}";
             }));
@@ -154,7 +172,10 @@ public static class JobOnChangeFields
 
     /// <summary>«Mudou a BQ: 5447 · lote 3 → 5447 · lote 4».</summary>
     public static string Describe(string field, string? oldValue, string? newValue) =>
-        $"Mudou {Label(field)}: {oldValue ?? "—"} → {newValue ?? "—"}";
+        field == Folha
+            // «Mudou a folha: CM · QTD Stock, CAL» (o que mudou, sem os valores).
+            ? $"Mudou {Label(field)}: {newValue ?? "—"}"
+            : $"Mudou {Label(field)}: {oldValue ?? "—"} → {newValue ?? "—"}";
 }
 
 /// <summary>O módulo para onde a ação de uma alteração leva.</summary>
@@ -163,7 +184,10 @@ public enum JobOnFollowUp
     Peso,
     Pegamentos,
     Controlo,
-    Boquilhas
+    Boquilhas,
+
+    /// <summary>Nenhum módulo a rever (a folha da fábrica): a linha fica só como informação.</summary>
+    Nenhum
 }
 
 /// <summary>Uma alteração registada, pronta a mostrar.</summary>

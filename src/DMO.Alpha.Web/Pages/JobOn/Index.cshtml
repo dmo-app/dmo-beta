@@ -541,6 +541,15 @@
             <label>Início da produção<input id="lightStart" name="inicio_em" type="date" value="@Model.RequestedInicioEm?.ToString("yyyy-MM-dd")" /></label>
             <label>Fim da produção<input id="lightEnd" name="fim_em" type="date" value="@Model.RequestedFimEm?.ToString("yyyy-MM-dd")" /></label>
           </div>
+          @* O CABEÇALHO DA FOLHA DA FÁBRICA (Secções, Gota, Processo, Peso):
+             escrito, como os outros campos da folha. *@
+          <div class="beta-light-fields jobon-folha-cabecalho">
+            @foreach (var campoCabecalho in DMO.Alpha.Core.Production.JobOnFolhaCampos.DaFamilia(DMO.Alpha.Core.Production.JobOnFolhaCampos.Cabecalho))
+            {
+              var cabecalhoInvalido = Model.Folha.Invalido(campoCabecalho.Id);
+              <label>@campoCabecalho.Rotulo<input id="@campoCabecalho.Id" name="@campoCabecalho.NomeNoFormulario" type="text" maxlength="@campoCabecalho.Maximo" autocomplete="off" spellcheck="false" value="@Model.Folha.Valor(campoCabecalho.Chave)" aria-invalid="@(cabecalhoInvalido ? "true" : null)" autofocus="@cabecalhoInvalido" /></label>
+            }
+          </div>
           @* AS FERRAMENTAS da combinação CM+MF+BQ: cada campo procura ao
              escrever (o Diogo, 16/10/2026: um dropdown com todas as
              ferramentas pesa, e quem cria o Job On sabe a referência). O
@@ -629,16 +638,22 @@
               </section>
             }
           </div>
-          @* O FOLD dos detalhes opcionais (o referencial do Owner: as
-             notas fechadas por default). *@
-          <details class="jobon-mais-detalhes">
-            <summary>Mais detalhes (opcional)</summary>
-            <div class="dmo-field jobon-campo-curto">
-              <label>TP Calote desta produção (mm)
-                <input id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="Usar referência da Tool" value="@Model.FolhaCalote" />
-              </label>
-            </div>
-          </details>
+          @* A FOLHA DA FÁBRICA por famílias, aos pares (decisão do
+             proprietário): CM+TP, MF+CS, BQ+AN, PU+ARR e, por fim, PI e CAL;
+             depois as Notas gerais. Os campos menos usados de cada família
+             ficam no «Mais detalhes» dela (a calote desta produção, no TP). *@
+          <div class="jobon-folha-pares" id="lightFolha">
+            @foreach (var par in DMO.Alpha.Core.Production.JobOnFolhaCampos.Pares)
+            {
+              <div class="jobon-folha-par">
+                @foreach (var familiaDoPar in par)
+                {
+                  <partial name="_JobOnFolhaFamilia" model="@(new DMO.Alpha.Web.Pages.JobOn.JobOnFolhaFamiliaVista(familiaDoPar, Model.Folha, Model.FolhaCalote))" />
+                }
+              </div>
+            }
+          </div>
+          <partial name="_JobOnFolhaFamilia" model="@(new DMO.Alpha.Web.Pages.JobOn.JobOnFolhaFamiliaVista(DMO.Alpha.Core.Production.JobOnFolhaCampos.NotasGerais, Model.Folha, null))" />
           @* Os avisos informativos das ferramentas escolhidas — SEMPRE do
              backend (o endpoint ?handler=ToolFacts); o script da página só
              apresenta o que o backend devolveu. Ficam no fim do formulário, depois

@@ -66,9 +66,13 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         // clique ou Enter repetido, com a versão de antes da primeira
         // gravação): segue sem nada para gravar e abre o que ficou gravado,
         // sem mensagem e sem outra linha em «O que mudou», como no Criar.
+        // A folha da fábrica gravada e a enviada (normalizada): o mesmo envio
+        // outra vez também tem a mesma folha.
+        var folhaEnviada = JobOnFolhaGravacao.De(command.Folha, command.Cal);
+        var folhaGravada = await JobOnFolhaQuery.LerAsync(_db, jobOn.Id, cancellationToken);
         if (command.ExpectedVersion is { } expected
             && _db.Entry(jobOn).Property<uint>(DmoDbContext.RowVersion).CurrentValue != expected
-            && !IsWhatIsSaved(jobOn, command))
+            && !(IsWhatIsSaved(jobOn, command) && folhaEnviada.Alteracoes(folhaGravada).Count == 0))
         {
             return Refused(UpdateJobOnResult.ChangedByAnotherUser);
         }
@@ -98,6 +102,13 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         if (command.CaloteMm is < 0m)
         {
             return Refused(UpdateJobOnResult.InvalidCalote);
+        }
+
+        // Um texto da folha acima do máximo do catálogo é a única recusa da
+        // folha (um dado que não cabe), antes de qualquer escrita.
+        if (folhaEnviada.ChaveLonga is { } chaveLonga)
+        {
+            return new UpdateJobOnOutcome(UpdateJobOnResult.TextoLongo, ChaveRecusada: chaveLonga);
         }
 
         // O fim antes do início grava e a página avisa (Diogo, 19/10/2026:
@@ -285,6 +296,14 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
 
             string? Describe(string? toolId) =>
                 toolId is null ? null : facts.TryGetValue(toolId, out var text) ? text : toolId;
+        }
+
+        // A FOLHA DA FÁBRICA, na mesma escrita: uma só linha em «O que mudou»
+        // com os rótulos do que mudou («CM · QTD Stock, CAL»).
+        var folhaMudou = await folhaEnviada.EditarAsync(_db, jobOn.Id, folhaGravada, cancellationToken);
+        if (JobOnFolhaRegras.Resumo(folhaMudou) is { } resumoDaFolha)
+        {
+            changes.Add((JobOnChangeFields.Folha, null, resumoDaFolha));
         }
 
         var changedAt = DateTime.UtcNow;
