@@ -126,6 +126,9 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             _ => (FerramentaEstadoTipo?)null
         };
 
+        var par = await ParAsync(tool.ToolId, tool.Type, tool.Reference, tool.Lot, cancellationToken);
+        var parPosicao = par is null ? null : (await PosicoesAtuaisAsync([par.ToolId], cancellationToken)).GetValueOrDefault(par.ToolId).Codigo;
+
         return new ArmazemSituacao(
             tool.ToolId,
             tool.Type,
@@ -144,7 +147,10 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             estadoProposto,
             await ReparadoresAsync(tool.Type, cancellationToken),
             ultimos.Select(m => new ArmazemMovimentoLinha(
-                m.Id, m.Tipo, m.OcorridoEmUtc, Descricao(m, codigos), m.Observacoes, m.RegistadoPor)).ToList());
+                m.Id, m.Tipo, m.OcorridoEmUtc, Descricao(m, codigos), m.Observacoes, m.RegistadoPor)).ToList())
+        {
+            Par = par is null ? null : new ArmazemPar(par.ToolId, par.Type, parPosicao)
+        };
     }
 
     public async Task<IReadOnlyDictionary<int, IReadOnlyList<ArmazemOcupante>>> OcupantesAsync(
@@ -229,22 +235,71 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             avisos.Add("Esta ferramenta estava na Sucata. Se foi engano, a entrada fica e a ferramenta volta ao Fabrico.");
         }
 
+        // O par entra com ela quando está fora do armazém; se já lá está,
+        // entra só esta e fica o aviso.
+        var par = pedido.ComPar ? await ParAsync(tool.ToolId, tool.Type, tool.Reference, tool.Lot, cancellationToken) : null;
+        if (par is not null && await OcupacaoAtivaAsync(par.ToolId, cancellationToken) is { } doPar)
+        {
+            avisos.Add($"{ArmazemTextos.Tipo(par.Type)} {par.Reference} · lote {par.Lot} já está no armazém, na posição {await CodigoAsync(doPar.PosicaoId, cancellationToken)}: entrou só {ArmazemTextos.Tipo(tool.Type)}.");
+            par = null;
+        }
+
         var movimento = Novo(pedido.OperacaoId, ArmazemMovimentoTipo.Entrada, tool.ToolId, ocorrido, agora, observacoes);
         movimento.Origem = pedido.Origem;
         movimento.Estado = pedido.Estado;
-        return await GravarAsync(movimento, posicao, async () =>
+        var saida = await GravarAsync(movimento, posicao, async () =>
         {
-            db.ArmazemOcupacoes.Add(new ArmazemOcupacao
+            Entrar(tool.ToolId, posicao!, movimento, localizacao, pedido.Estado.Value, agora);
+            if (par is not null)
             {
-                ToolId = tool.ToolId,
-                PosicaoId = posicao!.Id,
-                MovimentoId = movimento.Id,
-                DesdeUtc = ocorrido
-            });
-            Localizar(localizacao, tool.ToolId, FerramentaLocalizacaoTipo.Fabrico, null, movimento);
-            RegistarEstado(tool.ToolId, pedido.Estado.Value, movimento, agora);
-            await Task.CompletedTask;
+                var movimentoDoPar = Novo(OperacaoDoPar(pedido.OperacaoId), ArmazemMovimentoTipo.Entrada, par.ToolId, ocorrido, agora, observacoes);
+                movimentoDoPar.Origem = pedido.Origem;
+                movimentoDoPar.Estado = pedido.Estado;
+                movimentoDoPar.PosicaoId = posicao!.Id;
+                db.ArmazemMovimentos.Add(movimentoDoPar);
+                await db.SaveChangesAsync(cancellationToken);
+                var localizacaoDoPar = await db.FerramentaLocalizacoes.FirstOrDefaultAsync(l => l.ToolId == par.ToolId, cancellationToken);
+                Entrar(par.ToolId, posicao!, movimentoDoPar, localizacaoDoPar, pedido.Estado.Value, agora);
+            }
         }, avisos, posicao!.Codigo, cancellationToken);
+        return saida with { ComPar = par is not null };
+    }
+
+    private void Entrar(string toolId, ArmazemPosicao posicao, ArmazemMovimento movimento, FerramentaLocalizacao? localizacao,
+        FerramentaEstadoTipo estado, DateTime agora)
+    {
+        db.ArmazemOcupacoes.Add(new ArmazemOcupacao
+        {
+            ToolId = toolId,
+            PosicaoId = posicao.Id,
+            MovimentoId = movimento.Id,
+            DesdeUtc = movimento.OcorridoEmUtc
+        });
+        Localizar(localizacao, toolId, FerramentaLocalizacaoTipo.Fabrico, null, movimento);
+        RegistarEstado(toolId, estado, movimento, agora);
+    }
+
+    /// <summary>O par de uma CM ou de um MF: a outra, da mesma referência e lote (a primeira, se houver mais).</summary>
+    private Task<Tool?> ParAsync(string toolId, ToolType tipo, string referencia, string lote, CancellationToken cancellationToken)
+    {
+        if (tipo is not (ToolType.Cm or ToolType.Mf))
+        {
+            return Task.FromResult<Tool?>(null);
+        }
+
+        var outro = tipo == ToolType.Cm ? ToolType.Mf : ToolType.Cm;
+        return db.Tools.AsNoTracking()
+            .Where(t => t.Type == outro && t.Reference == referencia && t.Lot == lote
+                && t.ToolId != toolId && t.ToolId != ToolRegistryConstants.RemovedToolId)
+            .OrderBy(t => t.ToolId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>O envio do par deriva do envio da Entrada: o mesmo envio repetido dá o mesmo identificador.</summary>
+    internal static Guid OperacaoDoPar(Guid operacaoId)
+    {
+        var bytes = System.Security.Cryptography.SHA256.HashData([.. operacaoId.ToByteArray(), .. "par"u8]);
+        return new Guid(bytes.AsSpan(0, 16));
     }
 
     private async Task<ArmazemMovimentoSaida> SaidaUmaVezAsync(PedidoDeSaida pedido, CancellationToken cancellationToken)

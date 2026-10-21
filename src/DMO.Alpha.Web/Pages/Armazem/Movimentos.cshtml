@@ -35,6 +35,8 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
 .arm-onde div{display:flex;flex-direction:column;gap:2px}
 .arm-onde span{font-size:12.5px;color:var(--dmo-muted)}
 .arm-subtitulo{margin:14px 0 8px;font-size:14px}
+.arm-onde a{color:var(--dmo-brand-900)}
+.arm-par{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-weight:600}
 .arm-acoes{display:flex;gap:10px;flex-wrap:wrap}
 </style>
 }
@@ -113,11 +115,15 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           <div><span>Desde</span><strong>@MovimentosModel.Dia(d)</strong></div>
         }
         <div><span>Estado</span><strong data-dmo-estado>@(s.Estado is { } est ? ArmazemTextos.Estado(est) : "—")</strong></div>
+        @if (s.Par is { } parDe)
+        {
+          <div><span>Par</span><strong data-dmo-armazem-par><a href="@Url.Page("/Armazem/Movimentos", new { ferramenta = parDe.ToolId })">@ArmazemTextos.Tipo(parDe.Tipo)</a> · @(parDe.NoArmazem ? $"posição {parDe.Posicao}" : "fora do armazém")</strong></div>
+        }
       </div>
 
       @if (!s.NoArmazem)
       {
-        <h4 class="arm-subtitulo">Entrada<partial name="_DmoHelp" model="@("Escreva a posição onde a ferramenta fica. A origem e o estado vêm já escolhidos pela última saída (Produção: por reparar; Reparação: reparado); confirme ou mude. Uma ferramenta que já estava no armazém antes do DMO entra com a origem «Já estava no armazém». Sem data e hora, conta agora.")" /></h4>
+        <h4 class="arm-subtitulo">Entrada<partial name="_DmoHelp" model="@("Escreva a posição onde a ferramenta fica. A origem e o estado vêm já escolhidos pela última saída (Produção: por reparar; Reparação: reparado); confirme ou mude. Uma ferramenta que já estava no armazém antes do DMO entra com a origem «Já estava no armazém». A CM e o MF da mesma referência e lote entram juntos, se o par estiver fora. Sem data e hora, conta agora.")" /></h4>
         @if (s.Localizacao == FerramentaLocalizacaoTipo.Sucata)
         {
           <p class="dmo-aviso warn">Esta ferramenta foi para a Sucata. Se foi engano, use «Corrigir localização» no Opções.</p>
@@ -129,7 +135,13 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             <div class="dmo-field">
               <label for="armEntPosicao">Posição</label>
               <input id="armEntPosicao" name="posicao" class="arm-curto" maxlength="16" autocomplete="off" data-dmo-maiusculas autocapitalize="characters"
-                     value="@(recusaEntrada ? Model.Posicao : null)" placeholder="0042" required />
+                     value="@(recusaEntrada ? Model.Posicao : null)" placeholder="0042" required list="armEntLivres" />
+              <datalist id="armEntLivres">
+                @foreach (var livre in Model.PosicoesLivres)
+                {
+                  <option value="@livre"></option>
+                }
+              </datalist>
             </div>
             <div class="dmo-field">
               <label for="armEntOrigem">Origem</label>
@@ -152,6 +164,13 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               </select>
             </div>
           </div>
+          @if (s.Par is { NoArmazem: false } par)
+          {
+            <label class="arm-par" for="armEntPar">
+              <input id="armEntPar" type="checkbox" name="com_par" value="1" checked="@Model.ComPar" />
+              Entrar também @ArmazemTextos.Ferramenta(par.Tipo, s.Referencia, s.Lote), na mesma posição
+            </label>
+          }
           <div class="arm-linha">
             <div class="dmo-field">
               <label for="armEntData">Data e hora reais</label>

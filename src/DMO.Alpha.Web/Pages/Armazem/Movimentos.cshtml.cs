@@ -22,7 +22,7 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
-public sealed class MovimentosModel(IArmazemMovimentos movimentos, ShellStateFactory shellState) : PageModel
+public sealed class MovimentosModel(IArmazemMovimentos movimentos, IArmazemMapa mapa, ShellStateFactory shellState) : PageModel
 {
     private const string FormatoData = "yyyy-MM-ddTHH:mm";
 
@@ -74,13 +74,20 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, ShellStateFac
 
     public string? Observacoes { get; private set; }
 
+    /// <summary>Se o par entra também (por omissão, sim; a recusa guarda o que a pessoa escolheu).</summary>
+    public bool ComPar { get; private set; } = true;
+
+    /// <summary>As posições livres, sugeridas no campo da posição da Entrada.</summary>
+    public IReadOnlyList<string> PosicoesLivres { get; private set; } = [];
+
     public ArmazemDestino? Destino => DestinoDe(DestinoTexto);
 
-    public bool Gravou => Gravacao is "entrada" or "saida" or "corrigir" or "repetido";
+    public bool Gravou => Gravacao is "entrada" or "entrada-par" or "saida" or "corrigir" or "repetido";
 
     public string Mensagem => Gravacao switch
     {
         "entrada" => $"Entrada registada na posição {RecusaPosicao}.",
+        "entrada-par" => $"Entrada da CM e do MF registada na posição {RecusaPosicao}.",
         "saida" => "Saída registada.",
         "corrigir" => "Localização corrigida.",
         "repetido" => "Este movimento já estava registado.",
@@ -127,14 +134,16 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, ShellStateFac
         [FromForm(Name = "estado")] string? estado,
         [FromForm(Name = "data")] string? data,
         [FromForm(Name = "observacoes")] string? observacoes,
-        [FromForm(Name = "criar_posicao")] string? criarPosicao)
+        [FromForm(Name = "criar_posicao")] string? criarPosicao,
+        [FromForm(Name = "com_par")] string? comPar)
     {
         var saida = await movimentos.EntradaAsync(
             new PedidoDeEntrada(Operacao(operacaoId), ToolId ?? string.Empty, posicao, OrigemDe(origem), EstadoDe(estado),
-                DataUtc(data), observacoes, criarPosicao == "1"),
+                DataUtc(data), observacoes, criarPosicao == "1", comPar == "1"),
             HttpContext.RequestAborted);
-        return await Responder(saida, "entrada", operacaoId, () =>
+        return await Responder(saida, saida.ComPar ? "entrada-par" : "entrada", operacaoId, () =>
         {
+            ComPar = comPar == "1";
             Posicao = posicao;
             OrigemEscolhida = origem;
             EstadoEscolhido = estado;
@@ -218,6 +227,11 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, ShellStateFac
         {
             Situacao = await movimentos.SituacaoAsync(ToolId, HttpContext.RequestAborted);
             FerramentaNaoExiste = Situacao is null;
+            if (Situacao is { NoArmazem: false })
+            {
+                PosicoesLivres = (await mapa.MapaAsync(ArmazemArmarios.Todos, ArmazemMapaFiltro.Livres, HttpContext.RequestAborted))
+                    .Lista.Select(p => p.Codigo).ToList();
+            }
         }
         else if (!string.IsNullOrWhiteSpace(Procura))
         {
