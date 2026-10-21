@@ -127,7 +127,7 @@ public sealed class IndexModel : PageModel
             {
                 DmoCapabilities.Ferramentas
             }),
-            ("Armazém (Gestão: Movimentos · Mapa · Histórico · Posições · Definições)", new[]
+            ("Armazém (Gestão: Movimentos · Mapa · Histórico · Próximos Job On · Posições · Definições)", new[]
             {
                 DmoCapabilities.ArmazemGestao
             })
