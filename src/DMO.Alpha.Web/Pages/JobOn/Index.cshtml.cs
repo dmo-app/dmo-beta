@@ -1734,7 +1734,7 @@ public sealed class IndexModel : PageModel
         {
             avisos.Add(new JobOnToolAviso(armazem,
             [
-                Shared.DmoAvisoLink.MovimentosDoArmazem(fact.ToolId, "Registar no Armazém") with { NovoSeparador = true }
+                Shared.DmoAvisoLink.FichaFerramenta(fact.ToolId, "Registar na ferramenta") with { NovoSeparador = true }
             ]));
         }
 
