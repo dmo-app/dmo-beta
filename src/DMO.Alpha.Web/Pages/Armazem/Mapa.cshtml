@@ -1,0 +1,118 @@
+@page "/Armazem/Mapa"
+@model DMO.Alpha.Web.Pages.Armazem.MapaModel
+@using DMO.Alpha.Core.Armazem
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.arm-page{display:flex;flex-direction:column;gap:14px}
+.arm-card{padding:18px}
+.arm-card h3{margin:0 0 12px;font-size:16px}
+.arm-filtros{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+.arm-filtros .dmo-field{margin:0}
+.arm-ocupacao{display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}
+.arm-barra{width:min(320px,100%);height:10px;border-radius:5px;background:var(--dmo-subtle);overflow:hidden}
+.arm-barra span{display:block;height:100%;background:var(--dmo-brand-600)}
+.arm-grelha{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.arm-pos{border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);padding:8px 10px;background:var(--dmo-card);display:flex;flex-direction:column;gap:3px;min-height:64px}
+.arm-pos .arm-cod{font-weight:700}
+.arm-pos.livre{border-style:dashed;background:transparent}
+.arm-pos.livre .arm-cod{color:var(--dmo-muted)}
+.arm-pos.ocupada{border-color:var(--dmo-brand-300);background:var(--dmo-brand-050)}
+.arm-pos.misturada{border-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
+.arm-pos.arquivada{opacity:.7}
+.arm-pos a{color:var(--dmo-brand-900);font-weight:600;text-decoration:none}
+.arm-pos a:hover{text-decoration:underline}
+.arm-pos .muted{font-size:12px}
+.arm-pill{align-self:flex-start;font-size:12px;padding:1px 8px;border-radius:10px;background:var(--dmo-warning-soft);color:var(--dmo-text);border:1px solid var(--dmo-warning)}
+@@media (max-width:520px){.arm-grelha{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+}
+
+@* O mapa só lê: escolher o armário ou o que mostrar troca a grelha
+   (data-dmo-autosubmit, sem botão). Cada ferramenta abre os seus movimentos,
+   onde se dá entrada, saída ou se corrige. *@
+<main class="arm-page dmo-workspace" aria-labelledby="arm-mapa-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="arm-mapa-title">Mapa do Armazém</h1>
+    </div>
+  </div>
+
+  <section id="armMapa" class="dmo-card arm-card" aria-labelledby="arm-mapa-grelha-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="arm-mapa-grelha-title">Posições por armário<partial name="_DmoHelp" model="@("Cada armário junta as posições que começam da mesma forma (40…, 70…, A…). As livres têm o contorno tracejado; a amarelo, as posições com ferramentas de referências ou lotes diferentes. Clique numa ferramenta para ver os movimentos, dar saída ou corrigir.")" /></h3>
+
+    @if (Model.Mapa.Armarios.Count == 0)
+    {
+      <p id="armMapaVazio"><em>Ainda não há posições. Crie-as em <a href="@Url.Page("/Armazem/Posicoes")">Posições</a> ou na Entrada de uma ferramenta.</em></p>
+    }
+    else
+    {
+      <form id="armMapaFiltros" method="get" asp-page="/Armazem/Mapa" class="arm-filtros">
+        <div class="dmo-field">
+          <label for="armMapaArmario">Armário</label>
+          <select id="armMapaArmario" name="armario" data-dmo-autosubmit>
+            @foreach (var a in Model.Mapa.Armarios)
+            {
+              <option value="@a.Chave" selected="@(a.Chave == Model.Mapa.Armario)">@DMO.Alpha.Web.Pages.Armazem.MapaModel.Rotulo(a)</option>
+            }
+            <option value="@ArmazemArmarios.Todos" selected="@(Model.Mapa.Armario == ArmazemArmarios.Todos)">Todos os armários</option>
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="armMapaMostrar">Mostrar</label>
+          <select id="armMapaMostrar" name="mostrar" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Filtro == ArmazemMapaFiltro.Todas)">Todas</option>
+            <option value="livres" selected="@(Model.Filtro == ArmazemMapaFiltro.Livres)">Livres</option>
+            <option value="ocupadas" selected="@(Model.Filtro == ArmazemMapaFiltro.Ocupadas)">Ocupadas</option>
+            <option value="por-reparar" selected="@(Model.Filtro == ArmazemMapaFiltro.PorReparar)">Por reparar</option>
+          </select>
+        </div>
+      </form>
+
+      <div id="armMapaOcupacao" class="arm-ocupacao" data-dmo-percentagem="@Model.Mapa.Percentagem">
+        <div class="arm-barra" aria-hidden="true"><span style="width:@(Model.Mapa.Percentagem)%"></span></div>
+        <span><strong>@Model.Mapa.Percentagem% ocupado</strong> · @Model.Mapa.Ocupadas de @Model.Mapa.Posicoes posições</span>
+      </div>
+
+      @if (Model.Mapa.Lista.Count == 0)
+      {
+        <p id="armMapaNada"><em>Nenhuma posição com esse filtro.</em></p>
+      }
+      else
+      {
+        <div id="armMapaGrelha" class="arm-grelha" data-dmo-list="Mapa do Armazém">
+        @foreach (var p in Model.Mapa.Lista)
+        {
+          var classe = p.Livre ? "livre" : p.Misturada ? "misturada" : "ocupada";
+          <div class="arm-pos @classe@(p.Ativa ? "" : " arquivada")" data-dmo-posicao="@p.Codigo" data-dmo-estado="@classe">
+            <span class="arm-cod">@p.Codigo</span>
+            @if (p.Livre)
+            {
+              <span class="muted">Livre</span>
+            }
+            else
+            {
+              @foreach (var (toolId, texto) in DMO.Alpha.Web.Pages.Armazem.MapaModel.Linhas(p))
+              {
+                <a href="@Url.Page("/Armazem/Movimentos", new { ferramenta = toolId })">@texto</a>
+              }
+              <span class="muted">desde @DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Dia(p.Ferramentas.Min(f => f.DesdeUtc))</span>
+              @if (p.PorReparar)
+              {
+                <span class="arm-pill" data-dmo-por-reparar>Por reparar</span>
+              }
+            }
+            @if (!p.Ativa)
+            {
+              <span class="muted">Posição arquivada</span>
+            }
+          </div>
+        }
+        </div>
+      }
+    }
+  </section>
+</main>
