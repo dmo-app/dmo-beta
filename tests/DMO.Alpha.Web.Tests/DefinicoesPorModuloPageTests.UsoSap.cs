@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
@@ -49,8 +50,9 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.True(json.RootElement.GetProperty("gravado").GetBoolean());
         Assert.Equal("Utilização lida do SAP: 1 ferramenta atualizada.", json.RootElement.GetProperty("mensagem").GetString());
         var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
-        Assert.Contains("Utilização", ficha, StringComparison.Ordinal);
-        Assert.Contains("90.2 %", ficha, StringComparison.Ordinal);
+        var utilizacao = ZonaUsoSap(ficha, "ferrUtilizacao");
+        Assert.Contains("Utilização", utilizacao, StringComparison.Ordinal);
+        Assert.Contains("90.2 %", utilizacao, StringComparison.Ordinal);
         var definicoes = await (await client.GetAsync(FerramentasPath)).Content.ReadAsStringAsync();
         Assert.Contains("(ficheiro percentagem.HTML)", definicoes, StringComparison.Ordinal);
     }
@@ -83,20 +85,35 @@ public sealed partial class DefinicoesPorModuloPageTests
 
         // O «Pedir a utilização ao SAP» do Opções da ficha, pelo formulário que a página mostra.
         var ficha = await (await client.GetAsync(fichaPath)).Content.ReadAsStringAsync();
-        var pedir = await client.PostAsync("/Ferramentas/Ficha?handler=PedirUtilizacao", HtmlFormHelpers.BuildFormPost(
-            ("tool_id", toolId),
-            ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(ficha)!)));
+        Assert.Contains("Pedir a utilização ao SAP", ZonaUsoSap(ficha, "ferrOpcoes"), StringComparison.Ordinal);
+        var (acao, campos) = EnvioDoFormulario.Enviar(ficha, [], idDoBotao: "ferr-pedir-utilizacao-botao");
+        var pedir = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
 
         Assert.Equal(HttpStatusCode.Redirect, pedir.StatusCode);
-        Assert.Contains("Pedir a utilização ao SAP", ficha, StringComparison.Ordinal);
         var depois = await (await client.GetAsync(pedir.Headers.Location!.ToString())).Content.ReadAsStringAsync();
-        Assert.Contains("Utilização pedida ao SAP: vem na próxima leitura.", depois, StringComparison.Ordinal);
-        Assert.Contains("Utilização por atualizar desde", depois, StringComparison.Ordinal);
-        Assert.DoesNotContain("Pedir a utilização ao SAP", depois, StringComparison.Ordinal);
+        Assert.Contains("Utilização pedida ao SAP: vem na próxima leitura.", ZonaUsoSap(depois, "ferrUtilizacaoPedida"), StringComparison.Ordinal);
+        Assert.Contains("Utilização por atualizar desde", ZonaUsoSap(depois, "ferrUtilizacaoLembrete"), StringComparison.Ordinal);
+        Assert.DoesNotContain("Pedir a utilização ao SAP", ZonaUsoSap(depois, "ferrOpcoes"), StringComparison.Ordinal);
         using var json = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=UsoSap")).Content.ReadAsStringAsync());
         var codigos = json.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()).ToList();
         Assert.Contains(nome + "03", codigos);
         Assert.DoesNotContain(outro + "04", codigos);
+    }
+
+    // O div com este id, até ao seu fecho (a ordem dos atributos não conta).
+    private static string ZonaUsoSap(string html, string id)
+    {
+        var abertura = Regex.Match(html, $"<div\\b[^>]*\\bid=\"{Regex.Escape(id)}\"[^>]*>");
+        Assert.True(abertura.Success, $"a página não tem #{id}");
+        var nivel = 1;
+        for (var m = Regex.Match(html[(abertura.Index + abertura.Length)..], "<div\\b|</div>"); m.Success; m = m.NextMatch())
+        {
+            nivel += m.Value == "</div>" ? -1 : 1;
+            if (nivel == 0)
+                return html.Substring(abertura.Index, abertura.Length + m.Index + m.Length);
+        }
+
+        throw new InvalidOperationException($"#{id} não fecha");
     }
 
     [Fact]

@@ -190,7 +190,7 @@
     }
     else if (Model.SavedSection == FichaModel.SavedUtilizacaoPedida)
     {
-      <div data-dmo-toast="ok" class="ferr-nota" role="status">Utilização pedida ao SAP: vem na próxima leitura.</div>
+      <div data-dmo-toast="ok" class="ferr-nota" role="status" id="ferrUtilizacaoPedida">Utilização pedida ao SAP: vem na próxima leitura.</div>
     }
 
     @* Avisos (beta.63, regra do Owner «tentar sempre warning»): o trabalho
@@ -287,7 +287,7 @@
              os botões que as abrem ligam-se por delegação). *@
           <details class="dmo-options" data-dmo-tab-menu>
             <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
-            <div class="dmo-options-list">
+            <div class="dmo-options-list" id="ferrOpcoes">
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
               @* Pedir a utilização ao SAP: abre o lembrete, como a Entrada
@@ -296,7 +296,7 @@
               {
               <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="PedirUtilizacao" id="ferr-pedir-utilizacao">
                 <input type="hidden" name="tool_id" value="@tool.ToolId" />
-                <button type="submit" class="dmo-options-item">Pedir a utilização ao SAP</button>
+                <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Pedir a utilização ao SAP</button>
               </form>
               }
             </div>
@@ -352,7 +352,7 @@
          seguinte. O link leva às Definições, onde se lê a pasta do SAP. *@
       @if (Model.Utilizacao?.LembreteDesdeUtc is { } lembreteDesde)
       {
-        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura do SAP. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap" id="ferr-utilizacao-ler">Ler a pasta do SAP</a></div>
+        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura do SAP. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap" id="ferr-utilizacao-ler">Ler a pasta do SAP</a></div>
       }
 
       @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico

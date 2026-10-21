@@ -37,7 +37,7 @@ public sealed class ControloResumoSchemaTests
     }
 
     [Fact]
-    public void CurrentModel_ExactlyThirtyThreeTables_IncludingControlos()
+    public void CurrentModel_ExactlyTheListedTables_IncludingControlos()
     {
         // O modelo corrente cresceu de 15 para 16 tabelas no corte
         // ensure+Resumo (Controlos), para 19 no corte Pegamentos

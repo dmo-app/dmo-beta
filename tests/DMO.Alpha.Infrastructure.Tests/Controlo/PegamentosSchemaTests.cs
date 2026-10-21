@@ -51,7 +51,7 @@ public sealed class PegamentosSchemaTests
     }
 
     [Fact]
-    public void CurrentModel_ExactlyThirtyThreeTables_IncludingPegamentosTables()
+    public void CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables()
     {
         // O modelo corrente cresce de 16 para 19 tabelas no corte Pegamentos
         // production-scoped, para 20 no corte A Ferramentas (ToolMachineLinks

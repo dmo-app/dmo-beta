@@ -38,7 +38,7 @@ public sealed class PesoToolScopedSchemaTests
     }
 
     [Fact]
-    public void CurrentModel_ExactlyThirtyThreeTables_IncludingPesoTables()
+    public void CurrentModel_ExactlyTheListedTables_IncludingPesoTables()
     {
         // O modelo corrente do corte Peso tool-scoped tinha 15 tabelas; o
         // corte Controlo ensure+Resumo (migration #5 aditiva) acrescentou a
