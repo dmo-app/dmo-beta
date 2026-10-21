@@ -439,9 +439,19 @@
           }
         }
         <div class="dmo-dialog-actions">
-          <button type="button" class="dmo-button" data-dmo-dialog-close autofocus>Fechar</button>
+          <button type="button" class="dmo-button" data-dmo-dialog-close id="ferrProducoesFechar">Fechar</button>
         </div>
       </dialog>
+      @* A janela abre com o foco no «Fechar», não na ajuda (que abriria o balão). *@
+      <script>
+        (function () {
+          var janela = document.getElementById('ferrProducoes');
+          if (!janela || !window.MutationObserver) { return; }
+          new MutationObserver(function () {
+            if (janela.open) { document.getElementById('ferrProducoesFechar').focus(); }
+          }).observe(janela, { attributes: true, attributeFilter: ['open'] });
+        })();
+      </script>
     }
 
     @* ---------------------------------------------------------------- *@
