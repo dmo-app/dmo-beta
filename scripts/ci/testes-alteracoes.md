@@ -534,9 +534,9 @@ Selo depois: `b8facb048c70d2d2`
 
 ## A-0022 · 2026-10-21 · contagem-lista
 
-Porquê: Reparação Interna peça 1: testes novos do registo na máquina; listas de tabelas e chaves acrescentadas
+Porquê: Reparação Interna peça 1: testes novos do registo na máquina (com o Eliminar do Job On com reparações e os limites 39/40/41 e 23/24); listas de tabelas e migrações acrescentadas
 Referência: Reparação Interna peça 1
-Novos: 34 · mudaram: 6 · saíram: 0
+Novos: 35 · mudaram: 6 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInterna.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInterna.cs :: PostgresMigrationIntegrationTests.ReparacaoInterna_ABaseRecusaContextoErradoENumeroComEspacos`
@@ -566,6 +566,7 @@ Novos: 34 · mudaram: 6 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
 - novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.DuasProducoes_AvisaComAsCandidatas_ADeMaiorIdEscolhida`
 - novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EliminarAProducao_AvisaQueSePerdemAsReparacoes`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EliminarJobOnComReparacoes_AJanelaDizQuantasSePerdem`
 - novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EscolherAMaquinaEGravar_SoMudamAsZonas`
 - novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EscreverONumeroEEnter_Grava_OCampoVoltaVazio_EALinhaApareceNoTopo`
 - novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.OMesmoEnvioDuasVezes_GravaUmaVez`
@@ -579,4 +580,4 @@ Novos: 34 · mudaram: 6 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
-Selo depois: `d0c042cd65e37d50`
+Selo depois: `562b45402552bdbd`

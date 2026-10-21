@@ -225,14 +225,17 @@ public sealed class ReparacoesInternasTests
     public async Task ONumero_TemAte40Caracteres_SemContarOsEspacosDasPontas()
     {
         using var db = CreateContext();
+        var trinta9 = new string('7', 39);
         var quarenta = new string('7', 40);
 
+        var abaixo = await Servico(db).RegistarAsync(Pedido(trinta9));
         var cabe = await Servico(db).RegistarAsync(Pedido("  " + quarenta + "  "));
         var longo = await Servico(db).RegistarAsync(Pedido(quarenta + "1"));
 
+        Assert.Equal(ReparacaoResultado.Gravado, abaixo.Resultado);
         Assert.Equal(ReparacaoResultado.Gravado, cabe.Resultado);
         Assert.Equal((ReparacaoResultado.NumeroLongo, quarenta + "1"), (longo.Resultado, longo.Numero));
-        Assert.Equal(quarenta, Assert.Single(await db.ReparacoesInternas.ToListAsync()).Numero);
+        Assert.Equal([trinta9, quarenta], (await db.ReparacoesInternas.OrderBy(r => r.Id).ToListAsync()).Select(r => r.Numero));
     }
 
     [Fact]
@@ -329,6 +332,7 @@ public sealed class ReparacoesInternasTests
 
     [Theory]
     [InlineData("6", SaveModuleSettingResult.Success)]
+    [InlineData("23", SaveModuleSettingResult.Success)]
     [InlineData("24", SaveModuleSettingResult.BoquilhasInvalidHour)]
     [InlineData("oito", SaveModuleSettingResult.BoquilhasInvalidHour)]
     public async Task AHoraDeViragemDaReparacaoInterna_GravaSeAParte(string valor, SaveModuleSettingResult esperado)
@@ -338,7 +342,7 @@ public sealed class ReparacoesInternasTests
         var outcome = await new SaveModuleSettingHandler(db).HandleAsync(new SaveModuleSetting(ModuleSettingKeys.ReparacaoInternaDayChangeHour, valor));
 
         Assert.Equal(esperado, outcome.Result);
-        Assert.Equal(esperado == SaveModuleSettingResult.Success ? "6" : null,
+        Assert.Equal(esperado == SaveModuleSettingResult.Success ? valor : null,
             (await db.ModuleSettings.AsNoTracking().FirstOrDefaultAsync(s => s.SettingKey == ModuleSettingKeys.ReparacaoInternaDayChangeHour))?.SettingValue);
         Assert.False(await db.ModuleSettings.AnyAsync(s => s.SettingKey == ModuleSettingKeys.BoquilhasDayChangeHour));
     }

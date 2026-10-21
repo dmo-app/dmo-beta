@@ -93,7 +93,7 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
 
       @if (doDia is { SemProducao: true })
       {
-        <p class="dmo-aviso warn" id="riSemProducao" role="status">Não há produção da @(Model.Maquina!.Code) para @IndexModel.Dia(doDia.Dia). Sem produção não se pode registar.</p>
+        <p class="dmo-aviso warn" id="riSemProducao" role="status">Não há produção da @(Model.Maquina!.Code) para @IndexModel.Dia(doDia.Dia). Sem produção não se pode registar.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.CriarJobOn()" /></p>
       }
       else if (doDia is { VariasProducoes: true })
       {

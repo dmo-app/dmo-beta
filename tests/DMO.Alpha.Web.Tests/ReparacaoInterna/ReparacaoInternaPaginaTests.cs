@@ -338,11 +338,13 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
     public async Task SemProducao_AvisaENaoHaFormulario()
     {
         var (codigo, _) = Maquina("F", 1, comDatas: false);
-        using var client = await LoginOperatorAsync("6607", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6607", DmoCapabilities.ReparacaoInterna, DmoCapabilities.JobOnCreate);
 
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
 
+        // Sem Job On não há CM nem MF a que ligar o número: o aviso leva ao Job On.
         Assert.Contains("Sem produção não se pode registar.", Elemento(html, "id=\"riSemProducao\""));
+        Assert.Contains("href=\"/JobOn?novo=1#lightSheet\"", Elemento(html, "id=\"riSemProducao\""));
         Assert.DoesNotContain("id=\"riRegistar\"", html);
         Assert.DoesNotContain("id=\"riRegistarBotao\"", html);
         Assert.Contains("Sem produção para hoje", Elemento(html, "id=\"riRegisto\""));
@@ -380,6 +382,37 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Equal(("6", boquilhas), NaBase(db => (
             db.ModuleSettings.AsNoTracking().Single(s => s.SettingKey == ModuleSettingKeys.ReparacaoInternaDayChangeHour).SettingValue,
             db.ModuleSettings.AsNoTracking().FirstOrDefault(s => s.SettingKey == ModuleSettingKeys.BoquilhasDayChangeHour)?.SettingValue)));
+    }
+
+    [Theory]
+    [InlineData("G", 1, "Perde-se também: 1 reparação da Reparação Interna.")]
+    [InlineData("H", 3, "Perde-se também: 3 reparações da Reparação Interna.")]
+    public async Task EliminarJobOnComReparacoes_AJanelaDizQuantasSePerdem(string sufixo, int quantas, string esperado)
+    {
+        var (_, jobOns) = Maquina(sufixo, 1);
+        NaBase(db =>
+        {
+            var jobOn = db.JobOns.AsNoTracking().Single(j => j.Id == jobOns[0]);
+            var cm = db.CmContexts.AsNoTracking().Single(c => c.JobOnId == jobOn.Id);
+            for (var i = 1; i <= quantas; i++)
+            {
+                db.ReparacoesInternas.Add(new Reparacao
+                {
+                    JobOnId = jobOn.Id, MachineId = jobOn.MachineId, Tipo = ReparacaoTipo.Cm, CmContextId = cm.Id,
+                    Numero = $"{sufixo}{i}", RegistadoEmUtc = DateTime.UtcNow, DiaOperacional = Hoje
+                });
+            }
+
+            return db.SaveChanges();
+        });
+        using var client = await LoginOperatorAsync($"661{quantas}", DmoCapabilities.JobOnCreate);
+
+        var ficha = WebUtility.HtmlDecode(await client.GetStringAsync($"/JobOn?jobon_id={jobOns[0]}"));
+        var inicio = ficha.IndexOf("<dialog id=\"jobon-delete-dialog\"", StringComparison.Ordinal);
+        Assert.True(inicio >= 0, "a janela do Eliminar não está na ficha");
+        var janela = ficha[inicio..(ficha.IndexOf("</dialog>", inicio, StringComparison.Ordinal) + 9)];
+
+        Assert.Contains(esperado, janela);
     }
 
     [Fact]
