@@ -48,7 +48,7 @@ public partial class PesoFolhaProducaoAnteriorPageTests
 
         var sap = ZonaSap(html);
         var texto = System.Text.RegularExpressions.Regex.Replace(sap, "<[^>]+>|\\s+", m => m.Value.StartsWith('<') ? "" : " ");
-        Assert.Contains("Peso do SAP (18 dias)", texto, StringComparison.Ordinal);
+        Assert.Contains("Peso da produção (18 dias)", texto, StringComparison.Ordinal);
         Assert.Contains("Média 181.67 g", texto, StringComparison.Ordinal);
         Assert.Contains("Moda 181.00 g", texto, StringComparison.Ordinal);
         // A Média vem escolhida, com a diferença do peso de hoje; a Moda escolhe-se (ou as duas).
@@ -72,7 +72,7 @@ public partial class PesoFolhaProducaoAnteriorPageTests
 
         var sap = ZonaSap(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
 
-        Assert.Contains("<span data-sap-sem>O SAP ainda não deu o peso desta produção.", sap, StringComparison.Ordinal);
+        Assert.Contains("<span data-sap-sem>Ainda não há o peso desta produção.", sap, StringComparison.Ordinal);
         Assert.Contains("<div data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
     }
 }

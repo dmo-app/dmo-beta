@@ -123,7 +123,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var producoes = ZonaUsoSap(await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}&jobon=1")).Content.ReadAsStringAsync(), "ferrProducoes");
 
         Assert.Contains("202501", producoes, StringComparison.Ordinal);
-        Assert.Contains("o SAP ainda não deu o fabrico desse Job On", ZonaUsoSap(producoes, "ferrProducoesSemSap"), StringComparison.Ordinal);
+        Assert.Contains("ainda não há o produzido dessa produção", ZonaUsoSap(producoes, "ferrProducoesSemSap"), StringComparison.Ordinal);
     }
 
     [Fact]
