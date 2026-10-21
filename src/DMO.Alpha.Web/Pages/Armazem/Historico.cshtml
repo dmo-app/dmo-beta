@@ -19,7 +19,7 @@ html body .arm-filtros .dmo-field input.arm-texto{width:22ch}
 </style>
 }
 
-@* O Histórico só lê. Os dropdowns e as datas aplicam ao escolher; o texto
+@* O Histórico só lê e abre vazio, só com os filtros. Os dropdowns e as datas aplicam ao escolher; o texto
    aplica com Enter (data-dmo-suggest-submit). Cada ferramenta abre os seus
    movimentos; uma ferramenta eliminada fica com a referência e o lote
    guardados, sem link. *@
@@ -81,7 +81,7 @@ html body .arm-filtros .dmo-field input.arm-texto{width:22ch}
 
     @if (Model.Lista.Items.Count == 0)
     {
-      <p id="armHistVazio"><em>@(Model.ComFiltro ? "Nenhum movimento com esse filtro." : "Ainda não há movimentos no armazém.")</em></p>
+      <p id="armHistVazio"><em>@(Model.ComFiltro ? "Nenhum movimento com esse filtro." : "Procure por referência, lote ou posição, ou escolha o movimento, o destino ou os dias.")</em></p>
     }
     else
     {

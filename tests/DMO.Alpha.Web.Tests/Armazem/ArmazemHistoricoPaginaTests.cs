@@ -118,25 +118,37 @@ public sealed class ArmazemHistoricoPaginaTests : IClassFixture<CustomWebApplica
     }
 
     [Fact]
-    public async Task ListaOsMovimentos_DoMaisRecente_ComOsFiltrosSemBotao()
+    public async Task AbreVazio_SoComOsFiltrosSemBotao()
     {
         using var client = await LoginOperatorAsync("6502", DmoCapabilities.ArmazemGestao);
 
         var html = await client.GetStringAsync("/Armazem/Historico");
 
         Assert.Matches("<a href=\"/Armazem/Historico\"[^>]*aria-current=\"page\">Histórico</a>", html);
+        Assert.DoesNotContain("id=\"armHistLista\"", html);
+        Assert.DoesNotContain("data-dmo-movimento", html);
+        Assert.Contains("Procure por referência, lote ou posição, ou escolha o movimento, o destino ou os dias.", Elemento(html, "id=\"armHistVazio\""));
+        var filtros = Elemento(html, "id=\"armHistFiltros\"");
+        Assert.DoesNotContain("<button", filtros);
+        Assert.Equal(4, Regex.Matches(filtros, "data-dmo-autosubmit").Count);
+        Assert.Contains("data-dmo-suggest-submit", filtros);
+    }
+
+    [Fact]
+    public async Task ComUmFiltro_ListaDoMaisRecente()
+    {
+        using var client = await LoginOperatorAsync("6506", DmoCapabilities.ArmazemGestao);
+
+        var html = await client.GetStringAsync("/Armazem/Historico?q=T173");
+
         var lista = Elemento(html, "id=\"armHistLista\"");
-        var linhas = Regex.Matches(lista, "<tr data-dmo-movimento").Count;
-        Assert.Equal(3, linhas);
+        Assert.Equal(3, Regex.Matches(lista, "<tr data-dmo-movimento").Count);
         var texto = Texto(lista);
         Assert.True(texto.IndexOf("Saída da posição A001 para Produção", StringComparison.Ordinal)
             < texto.IndexOf("Entrada na posição 0042 · Já estava no armazém · Reparado", StringComparison.Ordinal));
         Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Cm}\">CM 5447T173 · lote 3</a>", lista);
         Assert.Contains("veio da fábrica 2", texto);
-        var filtros = Elemento(html, "id=\"armHistFiltros\"");
-        Assert.DoesNotContain("<button", filtros);
-        Assert.Equal(4, Regex.Matches(filtros, "data-dmo-autosubmit").Count);
-        Assert.Contains("data-dmo-suggest-submit", filtros);
+        Assert.DoesNotContain("id=\"armHistVazio\"", html);
     }
 
     [Fact]

@@ -118,6 +118,21 @@ public sealed class ArmazemHistoricoTests
     }
 
     [Fact]
+    public async Task MeiaNoiteEMeiaEmLisboa_JaContaComoODiaSeguinte()
+    {
+        using var db = await CreateContextAsync();
+        // 23:30 UTC de 13/10 é 00:30 de 14/10 em Lisboa (hora de verão).
+        var corrigir = db.ArmazemMovimentos.Single(m => m.Tipo == ArmazemMovimentoTipo.Corrigir);
+        corrigir.OcorridoEmUtc = new DateTime(2026, 10, 13, 23, 30, 0, DateTimeKind.Utc);
+        await db.SaveChangesAsync();
+
+        var dia13 = new DateOnly(2026, 10, 13);
+        var dia14 = new DateOnly(2026, 10, 14);
+        Assert.DoesNotContain("Corrigida para a posição 0042", await Descricoes(db, new ArmazemHistoricoFiltro(De: dia13, Ate: dia13)));
+        Assert.Equal(["Corrigida para a posição 0042"], await Descricoes(db, new ArmazemHistoricoFiltro(De: dia14, Ate: dia14)));
+    }
+
+    [Fact]
     public async Task UmaFerramentaEliminada_FicaComAReferenciaGuardada()
     {
         using var db = await CreateContextAsync();

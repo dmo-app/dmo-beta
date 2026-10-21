@@ -14,8 +14,10 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 /// <summary>
 /// O Histórico do Armazém: todos os movimentos, do mais recente para o mais
 /// antigo, filtrados pela referência, lote ou posição, pelo movimento, pelo
-/// destino da Saída e pelos dias. Os filtros aplicam-se ao escolher (o texto,
-/// com Enter); com ?ferramenta= mostra só uma ferramenta (o link da ficha).
+/// destino da Saída e pelos dias. Como os outros históricos (Diogo, 16 e
+/// 17/10, «Procura e filtros»), abre vazio, só com os filtros, e só lista
+/// depois de um filtro. Os filtros aplicam-se ao escolher (o texto, com
+/// Enter); com ?ferramenta= mostra só uma ferramenta (o link da ficha).
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
@@ -61,6 +63,11 @@ public sealed class HistoricoModel(IArmazemHistorico historico, ShellStateFactor
             ActiveFunctionKey = "historico",
             Functions = ShellStateFactory.ArmazemFunctions("historico")
         };
+
+        if (!ComFiltro)
+        {
+            return Page();
+        }
 
         // Só a Saída tem destino: escolher um destino mostra as Saídas.
         var movimento = Destino is not null ? ArmazemMovimentoTipo.Saida : Movimento;
