@@ -1,5 +1,5 @@
 {
-  "selo": "95ef8a99e3b4591b",
+  "selo": "18fc41aa14b7c57e",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -938,8 +938,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.UndatedCandidate_DoesNotHideTheRealConflict": "63d133a7798debb2",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.UndatedExistingProduction_DoesNotInventOverlap_OnCreateOrUpdate": "3340f404a60b0365",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Update_WithOverlapOnSameMachine_SavesAndWarnsInDetail": "c1d980f4c45d0bdb",
-    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: (resto do ficheiro)": "50cc20e797937caa",
-    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OndeEstaOEstadoEOAviso": "137ca63f067a3b6c",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: (resto do ficheiro)": "49da110a676fd1c6",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OndeEstaOEstadoEOAviso": "9b3e71b5828a29bb",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsQueryTests.cs :: (resto do ficheiro)": "af64500a897392e6",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsQueryTests.cs :: JobOnToolFactsQueryTests.FindAsync_APropriaProducao_NaoContaComoUsoParalelo": "e6c48c2b6898a2b9",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsQueryTests.cs :: JobOnToolFactsQueryTests.FindAsync_CompatibilidadeRegistada_AvisoSemBloqueio": "fbd51a37efbaddf2",

@@ -337,7 +337,7 @@ Selo depois: `8fbdafa2217bfa4e`
 
 ## A-0014 · 2026-10-21 · ok-do-diogo
 
-Porquê: Job On: onde está cada ferramenta no Armazém e aviso quando não está registada ou não tem estado (Diogo 21/10, formulário, FER-E-03: «Warn. Also a tool that isn't registered in Armazém and no state»). Dois testes da ficha passam a contar com este aviso novo; testes novos dos factos e da ficha.
+Porquê: Job On: onde está cada ferramenta no Armazém e aviso quando não está registada ou não tem estado (Diogo 21/10, formulário, FER-E-03: «Warn. Also a tool that isn't registered in Armazém and no state»). Dois testes da ficha passam a contar com este aviso novo; testes novos dos factos (incluindo a ferramenta com estado nunca registada no Armazém) e da ficha.
 Referência: Diogo 21/10 perguntas-full.md Q7 (FER-E-03)
 Novos: 3 · mudaram: 4 · saíram: 0
 
@@ -349,4 +349,4 @@ Novos: 3 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_AbremAFichaDaFerramenta_SemAvisoDeDadosEmFalta`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_AvisosLevamLinkParaOndeSeResolvem`
 
-Selo depois: `95ef8a99e3b4591b`
+Selo depois: `18fc41aa14b7c57e`

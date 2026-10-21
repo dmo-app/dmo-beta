@@ -24,7 +24,8 @@ public sealed class JobOnToolFactsArmazemTests
             new Tool { ToolId = "a-reparar", Type = ToolType.Mf, Reference = "5447T173", Lot = "3" },
             new Tool { ToolId = "no-fabrico", Type = ToolType.Bq, Reference = "T173", Lot = "01" },
             new Tool { ToolId = "sem-estado", Type = ToolType.Cm, Reference = "6012A118", Lot = "2" },
-            new Tool { ToolId = "nunca", Type = ToolType.Mf, Reference = "6012A118", Lot = "2" });
+            new Tool { ToolId = "nunca", Type = ToolType.Mf, Reference = "6012A118", Lot = "2" },
+            new Tool { ToolId = "so-estado", Type = ToolType.Bq, Reference = "A118", Lot = "07" });
         db.ArmazemPosicoes.Add(new ArmazemPosicao { Id = 1, Codigo = "1033", CriadaEmUtc = DateTime.UtcNow });
         db.ArmazemMovimentos.AddRange(
             Movimento(1, "na-posicao", ArmazemMovimentoTipo.Entrada),
@@ -41,7 +42,9 @@ public sealed class JobOnToolFactsArmazemTests
             new FerramentaEstado { Id = 1, ToolId = "na-posicao", Estado = FerramentaEstadoTipo.PorReparar, RegistadoEmUtc = DateTime.UtcNow },
             new FerramentaEstado { Id = 2, ToolId = "na-posicao", Estado = FerramentaEstadoTipo.Reparado, RegistadoEmUtc = DateTime.UtcNow },
             new FerramentaEstado { Id = 3, ToolId = "a-reparar", Estado = FerramentaEstadoTipo.PorReparar, RegistadoEmUtc = DateTime.UtcNow },
-            new FerramentaEstado { Id = 4, ToolId = "no-fabrico", Estado = FerramentaEstadoTipo.Novo, RegistadoEmUtc = DateTime.UtcNow });
+            new FerramentaEstado { Id = 4, ToolId = "no-fabrico", Estado = FerramentaEstadoTipo.Novo, RegistadoEmUtc = DateTime.UtcNow },
+            // Com estado mas sem nenhum movimento no Armazém: o caso das ferramentas vindas do Access.
+            new FerramentaEstado { Id = 5, ToolId = "so-estado", Estado = FerramentaEstadoTipo.Reparado, RegistadoEmUtc = DateTime.UtcNow });
         db.SaveChanges();
         db.ChangeTracker.Clear();
         return db;
@@ -58,7 +61,7 @@ public sealed class JobOnToolFactsArmazemTests
         using var db = CreateContext();
 
         var factos = (await new JobOnToolFactsQuery(db).FindAsync(
-                ["na-posicao", "a-reparar", "no-fabrico", "sem-estado", "nunca"], null, null, null, null))
+                ["na-posicao", "a-reparar", "no-fabrico", "sem-estado", "nunca", "so-estado"], null, null, null, null))
             .ToDictionary(f => f.ToolId);
 
         Assert.Equal(("Armazém · posição 1033", FerramentaEstadoTipo.Reparado, (string?)null),
@@ -71,5 +74,7 @@ public sealed class JobOnToolFactsArmazemTests
             (factos["sem-estado"].OndeEsta, factos["sem-estado"].Estado, factos["sem-estado"].AvisoArmazem));
         Assert.Equal(((string?)null, (FerramentaEstadoTipo?)null, "MF 6012A118 / lote 2 não está registada no Armazém e não tem estado."),
             (factos["nunca"].OndeEsta, factos["nunca"].Estado, factos["nunca"].AvisoArmazem));
+        Assert.Equal(((string?)null, FerramentaEstadoTipo.Reparado, "BQ A118 / lote 07 não está registada no Armazém."),
+            (factos["so-estado"].OndeEsta, factos["so-estado"].Estado, factos["so-estado"].AvisoArmazem));
     }
 }
