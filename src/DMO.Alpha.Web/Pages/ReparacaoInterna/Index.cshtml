@@ -32,6 +32,14 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
 .ri-card form.ri-registar{margin:0}
 .ri-card .dmo-table td:first-child,.ri-card .dmo-table td:last-child{white-space:nowrap}
 .ri-falta{margin:0;color:var(--dmo-muted)}
+.ri-card .dmo-table td.ri-col-x{width:28px;text-align:center;padding-left:0;padding-right:0}
+.ri-valor{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+.ri-valor:hover{color:var(--dmo-brand-700)}
+.ri-x{display:inline-block;padding:2px 6px;border-radius:6px;color:var(--dmo-muted);font-size:16px;line-height:1;text-decoration:none;cursor:pointer}
+.ri-x:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
+.ri-janela .dmo-field{margin:0}
+.ri-janela .dmo-field input{width:100%}
+.ri-janela p{margin:0}
 @@media (max-width:640px){.ri-card{padding:14px}.ri-card .dmo-table :is(td,th){padding:4px 6px}}
 </style>
 }
@@ -39,7 +47,9 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
 @* Registar na máquina: escolher a máquina (a produção do dia vem sozinha) e
    CM ou MF; escrever o número e Enter. Gravar troca só as zonas: o campo
    volta vazio e com o cursor (autofocus) e a reparação aparece no topo da
-   tabela. Os avisos de produção só avisam; sem produção nada se grava. *@
+   tabela. Os avisos de produção só avisam; sem produção nada se grava.
+   Na tabela não há botões (padrão da beta): clicar no número corrige-o e o
+   «×» anula a reparação, cada um numa janela da app com o motivo opcional. *@
 <main class="ri-page dmo-workspace" aria-labelledby="ri-title" data-dmo-troca>
 
   <div class="page-head">
@@ -169,16 +179,20 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
         else
         {
           <div class="dmo-table-wrap">
-            <table class="dmo-table" data-dmo-list="Reparações desta produção">
-              <thead><tr><th>Número</th><th>CM/MF</th><th>Quem</th><th>Hora</th></tr></thead>
+            @* A máquina, a produção e a página que as janelas de corrigir e
+               anular levam para voltar ao mesmo sítio (ri-corrigir.js). *@
+            <table class="dmo-table" data-dmo-list="Reparações desta produção"
+                   data-ri-maquina="@Model.Maquina!.Code" data-ri-producao="@producao.JobOnId" data-ri-tipo="@Model.TipoTexto" data-ri-pagina="@Model.Lista.PageNumber">
+              <thead><tr><th>Número</th><th>CM/MF</th><th>Quem</th><th>Hora</th><th class="ri-col-x"><span class="dmo-visually-hidden">Anular</span></th></tr></thead>
               <tbody>
               @foreach (var r in Model.Lista.Items)
               {
                 <tr data-dmo-reparacao="@r.Id">
-                  <td><strong>@r.Numero</strong></td>
+                  <td><a href="#riCorrigirJanela" class="ri-valor" role="button" data-ri-abre="riCorrigirJanela" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Corrigir" aria-label="Corrigir o nº @r.Numero"><strong>@r.Numero</strong></a></td>
                   <td>@RiTextos.Tipo(r.Tipo)</td>
                   <td>@(r.Quem ?? "—")</td>
                   <td>@IndexModel.Hora(r.RegistadoEmUtc)</td>
+                  <td class="ri-col-x"><a href="#riAnularJanela" class="ri-x" role="button" data-ri-abre="riAnularJanela" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Anular" aria-label="Anular a reparação do nº @r.Numero">×</a></td>
                 </tr>
               }
               </tbody>
@@ -193,4 +207,59 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
       <div id="riLista" class="dmo-zona" data-dmo-regiao></div>
     }
   </div>
+
+  @* As janelas de corrigir e de anular: uma de cada, fora das zonas que
+     trocam (como a do × dos Pegamentos), iguais em todas as páginas. O
+     clique na linha enche-as (ri-corrigir.js) com a reparação, o número e
+     um envio novo; gravar fecha a janela e troca só a tabela e a mensagem. *@
+  <div data-dmo-parcial>
+    <dialog id="riCorrigirJanela" class="dmo-dialog ri-janela" aria-labelledby="riCorrigirTitulo">
+      <h3 id="riCorrigirTitulo">Corrigir número</h3>
+      <form id="riCorrigir" method="post" asp-page="/ReparacaoInterna/Index" asp-page-handler="Corrigir" data-dmo-dialog-fecha-ao-enviar>
+        <input type="hidden" id="riCorrigirOperacao" name="operacao_id" />
+        <input type="hidden" id="riCorrigirId" name="reparacao_id" />
+        <input type="hidden" id="riCorrigirMaquina" name="maquina" />
+        <input type="hidden" id="riCorrigirProducao" name="producao" />
+        <input type="hidden" id="riCorrigirTipo" name="tipo" />
+        <input type="hidden" id="riCorrigirPagina" name="pagina" />
+        <div class="dmo-field">
+          <label for="riCorrigirNumero">Número</label>
+          <input id="riCorrigirNumero" name="numero" maxlength="@Reparacao.NumeroMaxLength" autocomplete="off" required />
+        </div>
+        <div class="dmo-field">
+          <label for="riCorrigirMotivo">Motivo (opcional)</label>
+          <input id="riCorrigirMotivo" name="motivo" maxlength="@ReparacaoRasto.MotivoMaxLength" autocomplete="off" />
+        </div>
+        <p class="dmo-aviso-discreto">Máquina, CM/MF ou produção errados: anule e registe outra vez.</p>
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+          <button type="submit" class="dmo-button">Guardar</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="riAnularJanela" class="dmo-dialog ri-janela" aria-labelledby="riAnularTitulo">
+      <h3 id="riAnularTitulo">Anular reparação</h3>
+      <form id="riAnular" method="post" asp-page="/ReparacaoInterna/Index" asp-page-handler="Anular" data-dmo-dialog-fecha-ao-enviar>
+        <input type="hidden" id="riAnularOperacao" name="operacao_id" />
+        <input type="hidden" id="riAnularId" name="reparacao_id" />
+        <input type="hidden" id="riAnularMaquina" name="maquina" />
+        <input type="hidden" id="riAnularProducao" name="producao" />
+        <input type="hidden" id="riAnularTipo" name="tipo" />
+        <input type="hidden" id="riAnularPagina" name="pagina" />
+        <p>Anular a reparação do nº <strong data-ri-numero-texto></strong>? Sai da lista e das contagens; o registo e o rasto ficam.</p>
+        <div class="dmo-field">
+          <label for="riAnularMotivo">Motivo (opcional)</label>
+          <input id="riAnularMotivo" name="motivo" maxlength="@ReparacaoRasto.MotivoMaxLength" autocomplete="off" />
+        </div>
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+          <button type="submit" class="dmo-button">Anular</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
 </main>
+
+@section Scripts {
+<script src="~/js/ri-corrigir.js" asp-append-version="true"></script>
+}

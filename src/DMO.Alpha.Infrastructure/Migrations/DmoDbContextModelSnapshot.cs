@@ -2086,6 +2086,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("AnuladaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("CmContextId")
                         .HasColumnType("integer");
 
@@ -2115,6 +2118,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("Tipo")
                         .HasColumnType("integer");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CmContextId");
@@ -2125,6 +2134,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.HasIndex("MfContextId");
 
+                    b.HasIndex("JobOnId", "Id")
+                        .HasDatabaseName("IX_ReparacoesInternas_JobOnId_Id_Ativas")
+                        .HasFilter("\"AnuladaEmUtc\" IS NULL");
+
                     b.HasIndex("MachineId", "DiaOperacional");
 
                     b.HasIndex("RegistadoPorUserId", "DiaOperacional");
@@ -2134,6 +2147,53 @@ namespace DMO.Alpha.Infrastructure.Migrations
                             t.HasCheckConstraint("CK_ReparacoesInternas_Contexto", "(\"Tipo\" = 1 AND \"CmContextId\" IS NOT NULL AND \"MfContextId\" IS NULL) OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL)");
 
                             t.HasCheckConstraint("CK_ReparacoesInternas_Numero", "btrim(\"Numero\") <> '' AND \"Numero\" = btrim(\"Numero\")");
+                        });
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.ReparacaoInterna.ReparacaoRasto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Acao")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Motivo")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NumeroAntes")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("NumeroDepois")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid?>("PorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ReparacaoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PorUserId");
+
+                    b.HasIndex("ReparacaoId", "Id");
+
+                    b.ToTable("ReparacoesInternasRasto", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReparacoesInternasRasto_Acao", "(\"Acao\" = 1 AND \"NumeroDepois\" IS NOT NULL) OR (\"Acao\" = 2 AND \"NumeroDepois\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_ReparacoesInternasRasto_Motivo", "\"Motivo\" IS NULL OR (btrim(\"Motivo\") <> '' AND \"Motivo\" = btrim(\"Motivo\"))");
                         });
                 });
 
@@ -3117,6 +3177,20 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("RegistadoPorUserId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.ReparacaoInterna.ReparacaoRasto", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("PorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.ReparacaoInterna.Reparacao", null)
+                        .WithMany()
+                        .HasForeignKey("ReparacaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Tools.FerramentaLembreteUtilizacao", b =>

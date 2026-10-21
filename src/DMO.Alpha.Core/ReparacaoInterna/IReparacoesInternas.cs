@@ -74,10 +74,43 @@ public sealed record ReparacaoSaida(ReparacaoResultado Resultado, int? Reparacao
     public bool Gravou => Resultado is ReparacaoResultado.Gravado or ReparacaoResultado.JaRegistado;
 }
 
+/// <summary>Corrigir o número de uma reparação (máquina, tipo ou produção errados: anula-se e regista-se outra vez).</summary>
+public sealed record PedidoDeCorrecao(Guid OperacaoId, int ReparacaoId, string? Numero, string? Motivo = null);
+
+/// <summary>Anular uma reparação: sai da lista e das contagens e fica na base com o rasto.</summary>
+public sealed record PedidoDeAnulacao(Guid OperacaoId, int ReparacaoId, string? Motivo = null);
+
+/// <summary>
+/// Como acabou uma correção ou uma anulação. Só se recusa o impossível (a
+/// reparação já não existe, já foi anulada ou outra pessoa mudou-a
+/// entretanto) e o que o registo também recusa.
+/// </summary>
+public enum CorrecaoResultado
+{
+    Corrigido,
+    Anulado,
+    /// <summary>O mesmo envio outra vez: já estava feito.</summary>
+    JaFeito,
+    /// <summary>O número já era esse: nada mudou.</summary>
+    Igual,
+    NaoExiste,
+    JaAnulada,
+    Mudou,
+    SemNumero,
+    NumeroLongo,
+    MotivoLongo
+}
+
+/// <summary>O resultado, com o número de que a mensagem fala (o corrigido ou o anulado).</summary>
+public sealed record CorrecaoSaida(CorrecaoResultado Resultado, string? Numero = null)
+{
+    public bool Gravou => Resultado is CorrecaoResultado.Corrigido or CorrecaoResultado.Anulado or CorrecaoResultado.JaFeito;
+}
+
 /// <summary>Uma reparação na tabela por baixo do registo: pouco e curto.</summary>
 public sealed record RiLinha(int Id, string Numero, ReparacaoTipo Tipo, string? Quem, DateTime RegistadoEmUtc);
 
-/// <summary>A Reparação Interna: o dia operacional, a produção do dia, registar e a lista.</summary>
+/// <summary>A Reparação Interna: o dia operacional, a produção do dia, registar, corrigir, anular e a lista.</summary>
 public interface IReparacoesInternas
 {
     /// <summary>O dia operacional agora, pela hora de viragem da Reparação Interna (Canal Jobon; 8 por omissão).</summary>
@@ -88,7 +121,13 @@ public interface IReparacoesInternas
 
     Task<ReparacaoSaida> RegistarAsync(PedidoDeReparacao pedido, CancellationToken cancellationToken = default);
 
-    /// <summary>As reparações desta máquina e produção, da mais recente para a mais antiga, em páginas de 25.</summary>
+    /// <summary>Corrige o número (as mesmas regras do registo), com rasto. Quem tem o módulo pode corrigir (RI-04).</summary>
+    Task<CorrecaoSaida> CorrigirAsync(PedidoDeCorrecao pedido, CancellationToken cancellationToken = default);
+
+    /// <summary>Anula a reparação (fica na base), com rasto. Quem tem o módulo pode anular (RI-04).</summary>
+    Task<CorrecaoSaida> AnularAsync(PedidoDeAnulacao pedido, CancellationToken cancellationToken = default);
+
+    /// <summary>As reparações desta máquina e produção que contam (sem as anuladas), da mais recente para a mais antiga, em páginas de 25.</summary>
     Task<PagedList<RiLinha>> ListarAsync(int machineId, int jobOnId, int? pagina, CancellationToken cancellationToken = default);
 }
 

@@ -112,7 +112,9 @@ public sealed class PesoToolScopedSchemaTests
                 // O relatório de fabrico do SAP (0.2.0-beta.20).
                 "SapFabricos",
                 // A Reparação Interna do full.
-                "ReparacoesInternas"
+                "ReparacoesInternas",
+                // O rasto de corrigir e anular da Reparação Interna.
+                "ReparacoesInternasRasto"
             },
             tables);
     }
