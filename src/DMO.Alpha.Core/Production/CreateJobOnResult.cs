@@ -55,5 +55,12 @@ public enum CreateJobOnResult
     /// ou ilegível (o campo j-calote da ficha; 0 é válido — calote plana).
     /// Nenhum Job On é criado.
     /// </summary>
-    InvalidCalote
+    InvalidCalote,
+
+    /// <summary>
+    /// Um texto da folha passa o máximo do catálogo (JobOnFolhaCampos): a
+    /// chave vai em ChaveRecusada. Nada é gravado e a folha volta com o que
+    /// se escreveu.
+    /// </summary>
+    TextoLongo
 }

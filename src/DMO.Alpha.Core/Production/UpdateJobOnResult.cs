@@ -50,5 +50,12 @@ public enum UpdateJobOnResult
     /// enviada já não é a gravada). Nada foi gravado: a ficha volta com o
     /// que ficou gravado, para a pessoa refazer a alteração por cima.
     /// </summary>
-    ChangedByAnotherUser
+    ChangedByAnotherUser,
+
+    /// <summary>
+    /// Um texto da folha passa o máximo do catálogo (JobOnFolhaCampos): a
+    /// chave vai em ChaveRecusada. Nada é gravado e a folha volta com o que
+    /// se escreveu.
+    /// </summary>
+    TextoLongo
 }

@@ -51,7 +51,28 @@ body[data-beta-page="jobon"] .beta-light-main{padding-bottom:240px}
    do cartão para os resultados (Diogo, 17/10/2026). */
 body[data-beta-page="jobon"] .jobon-procura-bloco{margin-top:16px;padding-top:14px;border-top:1px solid var(--dmo-border)}
 body[data-beta-page="jobon"] .jobon-mais-detalhes>summary{width:max-content;font-size:13px;cursor:pointer;color:var(--dmo-muted)}
-body[data-beta-page="jobon"] .jobon-campo-curto{width:240px;max-width:100%;margin-top:12px}
+/* A folha da fábrica por famílias, aos pares (CM+TP, MF+CS, BQ+AN, PU+ARR,
+   PI e CAL): uma coluna por par, que passa para baixo nos ecrãs estreitos. */
+body[data-beta-page="jobon"] .jobon-folha-cabecalho{margin-top:0}
+body[data-beta-page="jobon"] .jobon-folha-pares{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px;align-items:start}
+body[data-beta-page="jobon"] .jobon-folha-par{display:grid;gap:12px;min-width:0}
+body[data-beta-page="jobon"] .jobon-familia{min-width:0;margin:0;padding:10px 12px 12px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control)}
+body[data-beta-page="jobon"] .jobon-folha-pares+.jobon-familia{margin-top:12px}
+body[data-beta-page="jobon"] .jobon-familia-titulo{padding:0 6px;font-weight:800;font-size:13px}
+body[data-beta-page="jobon"] .jobon-campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+body[data-beta-page="jobon"] .jobon-campos>.dmo-field{margin:0;min-width:0}
+body[data-beta-page="jobon"] .jobon-campos label{font-size:12px}
+body[data-beta-page="jobon"] .jobon-campos>.jobon-folha-nota,body[data-beta-page="jobon"] .jobon-campos>.jobon-folha-grupo{grid-column:1/-1}
+body[data-beta-page="jobon"] .jobon-folha-grupo{margin:0;padding:0;border:0}
+body[data-beta-page="jobon"] .jobon-folha-grupo>legend{font-size:12px;padding:0;margin-bottom:4px}
+body[data-beta-page="jobon"] .jobon-folha-grupo>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+body[data-beta-page="jobon"] .jobon-familia .jobon-mais-detalhes{margin-top:10px}
+body[data-beta-page="jobon"] .jobon-familia .jobon-mais-detalhes>.jobon-campos{margin-top:8px}
+body[data-beta-page="jobon"] .jobon-cal{display:grid;gap:6px}
+body[data-beta-page="jobon"] .jobon-cal-cabeca,body[data-beta-page="jobon"] .jobon-cal-linha{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.6fr);gap:6px}
+body[data-beta-page="jobon"] .jobon-cal-cabeca{font-size:11px;font-weight:700;color:var(--dmo-muted)}
+body[data-beta-page="jobon"] .jobon-cal-linha input{box-sizing:border-box;width:100%;min-width:0;min-height:var(--dmo-control-height);padding:6px 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:13px}
+body[data-beta-page="jobon"] .jobon-folha-dica{margin:4px 0 0;font-size:12px;color:var(--dmo-muted)}
 
 /* Common calendars inherit the same rhythm. */
 .calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.day{position:relative;min-width:0;aspect-ratio:1;border:1px solid transparent;border-radius:8px;background:transparent;font-size:14px}.day.selected{border-color:var(--shell-blue);background:var(--shell-blue);color:var(--dmo-text-on-color);font-weight:850}

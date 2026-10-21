@@ -1699,6 +1699,268 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("JobOnChanges");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnFolha", b =>
+                {
+                    b.Property<int>("JobOnId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AnNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AnReferencia")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ArrDesenho")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ArrNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ArrReferencia")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ArrVersao")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BqNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BqQtdMaq")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BqQtdStock")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BqUtilizacao")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CabGota")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CabPeso")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CabProcesso")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CabSeccoes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmAdaptador")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmAlmofada3")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmExterior")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmExteriorTol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmFolga1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmFolga2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmFolga3")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmGargalo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmGargaloTol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmInversao")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmParafuso")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmPata")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmPataTol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmQtdMaq")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmQtdStock")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmReparador")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmTipo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmUtilizacao")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CsFuros")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CsNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CsQtdMaq")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CsQtdStock")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CsReferencia")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CsTubo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfAdaptador")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfCorpo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfCorpoTol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfExterior")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfExteriorTol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfFolga1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfFolga2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfFolga3")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfFundoFinal")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfGargalo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfGargaloTol")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfInversao")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfParafuso")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfQtdMaq")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfQtdStock")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfReparador")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfTipo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MfUtilizacao")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NotasGerais")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PiDiametro")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PiNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PiPincas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PuDesenho")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PuNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PuQtdMaq")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PuQtdStock")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PuReferencia")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PuVersao")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TpBaciaPs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TpDiametroPs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TpNotas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TpQtdMaq")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TpQtdStock")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TpReferencia")
+                        .HasColumnType("text");
+
+                    b.HasKey("JobOnId");
+
+                    b.ToTable("JobOnFolhas");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnFolhaCalLinha", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Designacao")
+                        .HasColumnType("text");
+
+                    b.Property<int>("JobOnId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("QtdMaq")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Valor")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobOnId", "Ordem");
+
+                    b.ToTable("JobOnFolhaCalLinhas");
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnLotNote", b =>
                 {
                     b.Property<int>("Id")
@@ -2631,6 +2893,28 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("ChangedByUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
+                        .WithMany()
+                        .HasForeignKey("JobOnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobOn");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnFolha", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
+                        .WithOne()
+                        .HasForeignKey("DMO.Alpha.Core.Production.JobOnFolha", "JobOnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobOn");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnFolhaCalLinha", b =>
+                {
                     b.HasOne("DMO.Alpha.Core.Production.JobOn", "JobOn")
                         .WithMany()
                         .HasForeignKey("JobOnId")

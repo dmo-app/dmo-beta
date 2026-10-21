@@ -106,6 +106,15 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
             return Refused(CreateJobOnResult.InvalidCalote);
         }
 
+        // A FOLHA DA FÁBRICA: os textos normalizados; um texto acima do
+        // máximo do catálogo é a única recusa da folha (um dado que não cabe),
+        // antes de qualquer escrita. Nenhum campo é obrigatório.
+        var folha = JobOnFolhaGravacao.De(command.Folha, command.Cal);
+        if (folha.ChaveLonga is { } chaveLonga)
+        {
+            return new CreateJobOnOutcome(CreateJobOnResult.TextoLongo, ChaveRecusada: chaveLonga);
+        }
+
         // O fim antes do início grava e a página avisa (Diogo, 19/10/2026:
         // «as datas têm de ser livres»; na beta.228 era recusado).
 
@@ -175,6 +184,9 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
         // (O nome da entidade é qualificado: «Controlo» é também o
         // segmento do namespace em qualquer ficheiro descendente.)
         _db.Controlos.Add(new DMO.Alpha.Core.Controlo.Controlo { JobOn = jobOn });
+
+        // A folha e as linhas CAL nascem na mesma escrita do Job On.
+        folha.Criar(_db, jobOn);
 
         await _db.SaveChangesAsync(cancellationToken);
 

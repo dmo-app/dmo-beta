@@ -106,7 +106,9 @@ public sealed class PesoToolScopedSchemaTests
                 // O Armazém do full (0.2.0-beta.8).
                 "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados",
                 // A utilização das ferramentas e o lembrete.
-                "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao"
+                "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao",
+                // A folha da fábrica do Job On (AddJobOnFolha).
+                "JobOnFolhas", "JobOnFolhaCalLinhas"
             },
             tables);
     }

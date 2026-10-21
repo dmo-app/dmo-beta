@@ -28,4 +28,9 @@ public sealed record CreateJobOn(
     // da Tool»): a calote efetiva da produção quando existe; null = a
     // referência da Tool manda. Consumida pelo apoio TP/calote do Peso
     // (a B1) — nunca um gate. Negativa é recusa tipada (InvalidCalote).
-    decimal? CaloteMm = null);
+    decimal? CaloteMm = null,
+    // A FOLHA DA FÁBRICA: os campos escritos por chave do catálogo
+    // (JobOnFolhaCampos) e as linhas CAL, pela ordem. Null = o envio não traz
+    // a folha (nada se grava nela). Gravam na mesma escrita do Job On.
+    IReadOnlyDictionary<string, string?>? Folha = null,
+    IReadOnlyList<LinhaCalEnvio>? Cal = null);

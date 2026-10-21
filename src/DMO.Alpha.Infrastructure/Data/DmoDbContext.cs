@@ -50,6 +50,12 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<JobOnChange> JobOnChanges => Set<JobOnChange>();
 
+    /// <summary>A folha da fábrica de cada Job On: os campos escritos (uma linha por Job On).</summary>
+    public DbSet<JobOnFolha> JobOnFolhas => Set<JobOnFolha>();
+
+    /// <summary>As linhas CAL da folha de cada Job On.</summary>
+    public DbSet<JobOnFolhaCalLinha> JobOnFolhaCalLinhas => Set<JobOnFolhaCalLinha>();
+
     public DbSet<CmContext> CmContexts => Set<CmContext>();
 
     public DbSet<MfContext> MfContexts => Set<MfContext>();
@@ -1265,6 +1271,39 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasOne(c => c.JobOn)
                 .WithMany()
                 .HasForeignKey(c => c.JobOnId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // A folha da fábrica do Job On: uma linha por Job On (a chave é o
+        // Job On) com uma coluna text por chave do catálogo JobOnFolhaCampos,
+        // e as linhas CAL com a ordem do ecrã. As duas apagam com o Job On.
+        modelBuilder.Entity<JobOnFolha>(entity =>
+        {
+            entity.HasKey(f => f.JobOnId);
+            entity.Property(f => f.JobOnId).ValueGeneratedNever();
+            foreach (var campo in JobOnFolhaCampos.Todos)
+            {
+                entity.Property<string?>(campo.Propriedade).HasColumnType("text");
+            }
+
+            entity.HasOne(f => f.JobOn)
+                .WithOne()
+                .HasForeignKey<JobOnFolha>(f => f.JobOnId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<JobOnFolhaCalLinha>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+            // Não é único: a ordem renumera-se em cada gravação.
+            entity.HasIndex(l => new { l.JobOnId, l.Ordem });
+            entity.Property(l => l.Designacao).HasColumnType("text");
+            entity.Property(l => l.Valor).HasColumnType("text");
+            entity.Property(l => l.QtdMaq).HasColumnType("text");
+
+            entity.HasOne(l => l.JobOn)
+                .WithMany()
+                .HasForeignKey(l => l.JobOnId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

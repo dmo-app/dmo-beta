@@ -189,6 +189,11 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
             await _db.JobOnChanges.Where(c => c.JobOnId == jobOnId).ToListAsync(cancellationToken));
         _db.JobOnLotNotes.RemoveRange(
             await _db.JobOnLotNotes.Where(n => n.JobOnId == jobOnId).ToListAsync(cancellationToken));
+        // A folha da fábrica (na base apagam em cascata; aqui também em memória).
+        _db.JobOnFolhas.RemoveRange(
+            await _db.JobOnFolhas.Where(f => f.JobOnId == jobOnId).ToListAsync(cancellationToken));
+        _db.JobOnFolhaCalLinhas.RemoveRange(
+            await _db.JobOnFolhaCalLinhas.Where(l => l.JobOnId == jobOnId).ToListAsync(cancellationToken));
         _db.JobOns.Remove(jobOn);
 
         await _db.SaveChangesAsync(cancellationToken);

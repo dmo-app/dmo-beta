@@ -46,6 +46,7 @@ public sealed class IndexModel : PageModel
     private readonly JobOnLotNoteHandler _lotNotes;
     private readonly JobOnChangeQuery _changes;
     private readonly IDeleteJobOnHandler _deleteJobOn;
+    private readonly IJobOnFolhaQuery _folha;
 
     public IndexModel(
         ICreateJobOnHandler createJobOn,
@@ -61,7 +62,8 @@ public sealed class IndexModel : PageModel
         CurrentUserCapabilities capabilities,
         JobOnLotNoteHandler lotNotes,
         JobOnChangeQuery changes,
-        IDeleteJobOnHandler deleteJobOn)
+        IDeleteJobOnHandler deleteJobOn,
+        IJobOnFolhaQuery folha)
     {
         _createJobOn = createJobOn;
         _updateJobOn = updateJobOn;
@@ -77,7 +79,22 @@ public sealed class IndexModel : PageModel
         _lotNotes = lotNotes;
         _changes = changes;
         _deleteJobOn = deleteJobOn;
+        _folha = folha;
     }
+
+    /// <summary>
+    /// A FOLHA DA FÁBRICA no formulário (os campos escritos por famílias e a
+    /// CAL): a gravada no Editar, vazia no Novo e, depois de uma recusa que
+    /// volta à página a partir do envio, o que se escreveu.
+    /// </summary>
+    public FolhaDoJobOnVista Folha { get; private set; } = FolhaDoJobOnVista.Vazia();
+
+    // Uma recusa com a folha escrita volta à página a partir do envio (a folha
+    // não cabe no endereço): o envio, a chave do texto longo demais e a versão
+    // com que a folha de edição tinha aberto.
+    private EnvioDaFolha? _envioDaFolha;
+    private string? _chaveRecusada;
+    private uint? _versaoDoEnvio;
 
     /// <summary>
     /// O link dos avisos dos módulos (?jobon_id=N&amp;vista=alteracoes): a ficha
@@ -423,6 +440,8 @@ public sealed class IndexModel : PageModel
             "Já existe um Job On desta referência com este nº de produção — uma produção nova tem nº próprio. Nenhum Job On foi criado.",
         CreateJobOnResult.InvalidCalote =>
             "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhum Job On foi criado.",
+        CreateJobOnResult.TextoLongo =>
+            Folha.MensagemTextoLongo("Nenhum Job On foi criado.") ?? "Um texto da folha é longo demais. Nenhum Job On foi criado.",
         _ => string.Empty
     };
 
@@ -445,6 +464,8 @@ public sealed class IndexModel : PageModel
             "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhuma alteração foi guardada.",
         UpdateJobOnResult.ChangedByAnotherUser =>
             "Outra pessoa gravou esta produção depois de a abrires. Nenhuma alteração foi guardada: a folha mostra agora o que ficou gravado; volta a fazer a tua alteração.",
+        UpdateJobOnResult.TextoLongo =>
+            Folha.MensagemTextoLongo("Nenhuma alteração foi guardada.") ?? "Um texto da folha é longo demais. Nenhuma alteração foi guardada.",
         _ => string.Empty
     };
 
@@ -851,9 +872,10 @@ public sealed class IndexModel : PageModel
                 FolhaAberta = true;
                 RequestedReference = fichaJobOn.Reference;
                 RequestedProductionNumber = fichaJobOn.ProductionNumber;
-                FolhaVersao = retoma == "1" && Ferramentas.FichaModel.ParseVersion(versao) is { } aberta
-                    ? aberta
-                    : fichaJobOn.Version;
+                FolhaVersao = _versaoDoEnvio
+                    ?? (retoma == "1" && Ferramentas.FichaModel.ParseVersion(versao) is { } aberta
+                        ? aberta
+                        : fichaJobOn.Version);
                 // Gravada por outra pessoa: a folha volta com o que ficou gravado.
                 if ((UpdateRefusal is null or UpdateJobOnResult.ChangedByAnotherUser) && retoma != "1")
                 {
@@ -904,6 +926,17 @@ public sealed class IndexModel : PageModel
         if (novo == "1" || CreateRefusal is not null || UpdateRefusal is not null)
         {
             FolhaAberta = true;
+        }
+
+        // A FOLHA DA FÁBRICA: o que se escreveu (depois de uma recusa que volta
+        // a partir do envio), a gravada no Editar, ou vazia.
+        if (FolhaAberta)
+        {
+            Folha = _envioDaFolha is { } envioDaFolha
+                ? FolhaDoJobOnVista.DoEnvio(envioDaFolha, _chaveRecusada)
+                : FolhaEdicao
+                    ? FolhaDoJobOnVista.DaLida(await _folha.ForJobOnAsync(OpenJobOn!.JobOnId, HttpContext.RequestAborted))
+                    : FolhaDoJobOnVista.Vazia();
         }
 
         // Os factos das ferramentas que a página mostra (a folha e o
@@ -1179,6 +1212,9 @@ public sealed class IndexModel : PageModel
         // O fim antes do início grava e a folha avisa (Diogo, 19/10/2026).
         var fimAntesDoInicio = parsedInicioEm is { } inicioDia && parsedFimEm is { } fimDia && fimDia < inicioDia;
 
+        // A FOLHA DA FÁBRICA: os campos escritos e as linhas CAL do envio.
+        var envio = LerEnvioDaFolha();
+
         var outcome = await _createJobOn.HandleAsync(
             new CreateJobOn(
                 sanitizedProductionNumber ?? string.Empty,
@@ -1189,7 +1225,9 @@ public sealed class IndexModel : PageModel
                 sanitizedBqToolId,
                 parsedInicioEm,
                 parsedFimEm,
-                parsedCalote),
+                parsedCalote,
+                envio.Folha,
+                envio.Cal),
             HttpContext.RequestAborted);
 
         if (outcome.Result == CreateJobOnResult.Success)
@@ -1215,9 +1253,32 @@ public sealed class IndexModel : PageModel
             && await IdenticalJobOnIdAsync(
                 sanitizedReference, sanitizedProductionNumber, parsedMachineId,
                 sanitizedCmToolId, sanitizedMfToolId, sanitizedBqToolId,
-                parsedInicioEm, parsedFimEm, parsedCalote) is int gravado)
+                parsedInicioEm, parsedFimEm, parsedCalote, envio) is int gravado)
         {
             return await SavedRedirectAsync(gravado, false, caloteIgnorada, fimAntesDoInicio);
+        }
+
+        // A FOLHA ESCRITA NÃO SE PERDE: o texto longo demais, ou outra recusa
+        // com a folha escrita, volta à página a partir do envio (como no
+        // DMO-FULL), com tudo o que se escreveu; o resto volta como antes,
+        // pelo endereço.
+        if (outcome.Result == CreateJobOnResult.TextoLongo || envio.TemEscrito)
+        {
+            _envioDaFolha = envio;
+            _chaveRecusada = outcome.ChaveRecusada;
+            return await OnGetAsync(
+                jobOnId: null, createRefusal: outcome.Result.ToString(), updateRefusal: null,
+                productionNumber: sanitizedProductionNumber, reference: sanitizedReference,
+                machineId: parsedMachineId > 0 ? parsedMachineId : null,
+                cmToolId: sanitizedCmToolId, mfToolId: sanitizedMfToolId, bqToolId: sanitizedBqToolId,
+                inicioEm: parsedInicioEm?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                fimEm: parsedFimEm?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                historico: null, ano: null, mes: null, overlap: null, diaSelected: null,
+                procura: null, procuraRef: null, producoesRef: null, duplicar: null,
+                caloteMm: caloteMm, caloteIgnorada: null, fimAntesInicio: null,
+                editar: null, novo: "1", retoma: null, versao: null,
+                historicoReferencia: null, historicoMaquina: null, historicoProducao: null,
+                historicoDesde: null, historicoAte: null);
         }
 
         return CreateRefused(
@@ -1235,12 +1296,13 @@ public sealed class IndexModel : PageModel
 
     /// <summary>
     /// O Job On com esta referência e nº que tem exatamente os mesmos dados
-    /// (máquina, ferramentas, datas e calote); null quando algum difere.
+    /// (máquina, ferramentas, datas, calote e folha da fábrica); null quando
+    /// algum difere.
     /// </summary>
     private async Task<int?> IdenticalJobOnIdAsync(
         string? reference, string? productionNumber, int machineId,
         string? cmToolId, string? mfToolId, string? bqToolId,
-        DateOnly? inicioEm, DateOnly? fimEm, decimal? caloteMm)
+        DateOnly? inicioEm, DateOnly? fimEm, decimal? caloteMm, EnvioDaFolha envio)
     {
         if (string.IsNullOrEmpty(reference) || string.IsNullOrEmpty(productionNumber))
         {
@@ -1259,14 +1321,27 @@ public sealed class IndexModel : PageModel
             })
             .FirstOrDefaultAsync(HttpContext.RequestAborted);
 
-        return existing is not null
-            && existing.MachineId == machineId
-            && existing.Cm == cmToolId && existing.Mf == mfToolId && existing.Bq == bqToolId
-            && existing.InicioEm == inicioEm && existing.FimEm == fimEm
-            && existing.CaloteMm == caloteMm
-                ? existing.Id
-                : null;
+        if (existing is null
+            || existing.MachineId != machineId
+            || existing.Cm != cmToolId || existing.Mf != mfToolId || existing.Bq != bqToolId
+            || existing.InicioEm != inicioEm || existing.FimEm != fimEm
+            || existing.CaloteMm != caloteMm)
+        {
+            return null;
+        }
+
+        var folhaGravada = await _folha.ForJobOnAsync(existing.Id, HttpContext.RequestAborted);
+        return JobOnFolhaRegras.Alteracoes(
+                folhaGravada,
+                envio.Folha is null ? null : JobOnFolhaRegras.NormalizarFolha(envio.Folha),
+                envio.Cal?.Select(JobOnFolhaRegras.NormalizarLinha).ToList()).Count == 0
+            ? existing.Id
+            : null;
     }
+
+    /// <summary>A folha da fábrica do envio do formulário (sem formulário, nada da folha).</summary>
+    private EnvioDaFolha LerEnvioDaFolha() =>
+        Request.HasFormContentType ? EnvioDaFolha.Ler(Request.Form) : new EnvioDaFolha(null, null);
 
     /// <summary>
     /// POST nativo: EDITAR um Job On existente — a produção re-planeada
@@ -1330,6 +1405,10 @@ public sealed class IndexModel : PageModel
                 .FirstOrDefaultAsync(HttpContext.RequestAborted);
         }
 
+        // A FOLHA DA FÁBRICA: os campos escritos e as linhas CAL do envio.
+        var envio = LerEnvioDaFolha();
+        var versaoAberta = Ferramentas.FichaModel.ParseVersion(versao);
+
         var outcome = await _updateJobOn.HandleAsync(
             new UpdateJobOn(
                 parsedJobOnId,
@@ -1341,7 +1420,9 @@ public sealed class IndexModel : PageModel
                 parsedFimEm,
                 parsedCalote,
                 CurrentActorName(),
-                Ferramentas.FichaModel.ParseVersion(versao)),
+                versaoAberta,
+                envio.Folha,
+                envio.Cal),
             HttpContext.RequestAborted);
 
         if (outcome.Result == UpdateJobOnResult.Success)
@@ -1366,6 +1447,31 @@ public sealed class IndexModel : PageModel
                 editar = "1",
                 update_refusal = outcome.Result.ToString()
             });
+        }
+
+        // A FOLHA ESCRITA NÃO SE PERDE: o texto longo demais, ou outra recusa
+        // com a folha escrita, volta à página a partir do envio, na edição e
+        // com a versão com que abriu; o resto volta como antes, pelo endereço.
+        if (parsedJobOnId > 0
+            && outcome.Result != UpdateJobOnResult.JobOnNotFound
+            && (outcome.Result == UpdateJobOnResult.TextoLongo || envio.TemEscrito))
+        {
+            _envioDaFolha = envio;
+            _chaveRecusada = outcome.ChaveRecusada;
+            _versaoDoEnvio = versaoAberta;
+            return await OnGetAsync(
+                jobOnId: parsedJobOnId, createRefusal: null, updateRefusal: outcome.Result.ToString(),
+                productionNumber: null, reference: null,
+                machineId: parsedMachineId > 0 ? parsedMachineId : null,
+                cmToolId: sanitizedCmToolId, mfToolId: sanitizedMfToolId, bqToolId: sanitizedBqToolId,
+                inicioEm: parsedInicioEm?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                fimEm: parsedFimEm?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                historico: null, ano: null, mes: null, overlap: null, diaSelected: null,
+                procura: null, procuraRef: null, producoesRef: null, duplicar: null,
+                caloteMm: caloteMm, caloteIgnorada: null, fimAntesInicio: null,
+                editar: "1", novo: null, retoma: null, versao: null,
+                historicoReferencia: null, historicoMaquina: null, historicoProducao: null,
+                historicoDesde: null, historicoAte: null);
         }
 
         return UpdateRefused(
