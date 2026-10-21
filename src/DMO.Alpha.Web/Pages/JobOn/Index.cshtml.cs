@@ -934,23 +934,28 @@ public sealed class IndexModel : PageModel
             FolhaAberta = true;
         }
 
-        // A FOLHA DA FÁBRICA gravada, lida uma vez para a ficha em leitura e
-        // para o Editar (a ficha aparece sempre que há Job On aberto, menos
-        // no Duplicar).
-        var folhaGravada = OpenJobOn is { } folhaJobOn && DuplicarDe is null
+        // A FOLHA DA FÁBRICA gravada, lida uma vez para a ficha em leitura, para
+        // o Editar e para o Duplicar (a ficha aparece sempre que há Job On
+        // aberto, menos no Duplicar).
+        var folhaGravada = OpenJobOn is { } folhaJobOn
             ? await _folha.ForJobOnAsync(folhaJobOn.JobOnId, HttpContext.RequestAborted)
             : null;
-        FichaFolha = folhaGravada is null ? null : FichaDaFolhaVista.DaLida(folhaGravada);
+        FichaFolha = folhaGravada is null || DuplicarDe is not null ? null : FichaDaFolhaVista.DaLida(folhaGravada);
 
         // No formulário: o que se escreveu (depois de uma recusa que volta a
-        // partir do envio), a gravada no Editar, ou vazia.
+        // partir do envio), a gravada no Editar, a da origem no Duplicar (o
+        // Guardar grava-a com a produção nova, na mesma escrita), ou vazia.
         if (FolhaAberta)
         {
             Folha = _envioDaFolha is { } envioDaFolha
                 ? FolhaDoJobOnVista.DoEnvio(envioDaFolha, _chaveRecusada)
-                : FolhaEdicao && folhaGravada is not null
-                    ? FolhaDoJobOnVista.DaLida(folhaGravada)
-                    : FolhaDoJobOnVista.Vazia();
+                : folhaGravada is null
+                    ? FolhaDoJobOnVista.Vazia()
+                    : FolhaEdicao
+                        ? FolhaDoJobOnVista.DaLida(folhaGravada)
+                        : DuplicarDe is not null
+                            ? FolhaDoJobOnVista.DoDuplicar(folhaGravada)
+                            : FolhaDoJobOnVista.Vazia();
         }
 
         // Os factos das ferramentas que a página mostra (a folha e o

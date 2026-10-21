@@ -508,8 +508,15 @@
       <section class="dmo-card beta-light-sheet" id="lightSheet" aria-labelledby="lightSheetTitle">
         <div class="beta-light-sheet-head">
           <div>
-            <span style="font-size:11px;color:var(--dmo-muted,#66809a);text-transform:uppercase;letter-spacing:.04em;font-weight:700">@(Model.FolhaEdicao ? "Editar a produção" : "Nova produção")</span>
+            <span style="font-size:11px;color:var(--dmo-muted,#66809a);text-transform:uppercase;letter-spacing:.04em;font-weight:700">@(Model.FolhaEdicao ? "Editar a produção" : Model.DuplicarDe is not null ? "Duplicada da produção " + Model.OpenJobOn!.ProductionNumber : "Nova produção")</span>
             <h2 id="lightSheetTitle">@(Model.FolhaEdicao ? "Preparar a edição de " + Model.OpenJobOn!.ProductionNumber : "Preparar produção")</h2>
+            @* NO DUPLICAR, quantos campos da folha já não são os da origem: o
+               script conta os que mudaram desde que a folha abriu (vazio sem
+               nenhum, e sem script). *@
+            @if (Model.DuplicarDe is not null)
+            {
+              <span class="jobon-alterados" id="lightAlterados" role="status" aria-live="polite"></span>
+            }
           </div>
           @* FECHAR E GUARDAR LADO A LADO NO TOPO, À DIREITA (o Diogo,
              17/10/2026: «não devemos forçar alguém a ir ao final da página
@@ -536,7 +543,14 @@
           <div class="beta-light-fields">
             <label>Referência da produção<input id="lightReference" data-dmo-maiusculas autocapitalize="characters" name="reference" required placeholder="Ex.: 0109S022" value="@Model.RequestedReference" readonly="@(Model.FolhaEdicao)" data-dmo-suggest="referencias" /></label>
             <label>Número da produção<input id="lightProduction" name="production_number" required placeholder="Ex.: 202603" value="@Model.RequestedProductionNumber" readonly="@(Model.FolhaEdicao)" /></label>
+            @* NO DUPLICAR (Diogo): a máquina e as ferramentas copiadas quase
+               sempre mudam e levam a marca «Confirmar» (sem bloquear); as
+               datas são da produção nova e pedem-se, como a referência e o nº. *@
             <label>Máquina / linha
+              @if (Model.DuplicarDe is not null && Model.RequestedMachineId is not null)
+              {
+                <span class="jobon-confirmar">Confirmar</span>
+              }
               <select id="lightMachine" name="machine_id" required>
                 <option value="">Selecionar</option>
                 @foreach (var machine in Model.Machines)
@@ -585,6 +599,10 @@
                   <summary class="job-tool-card-head" aria-label="@rotuloSlot: associar ou criar">
                     <span class="job-tool-badge">@tipoSlot</span>
                     <strong>@rotuloSlot</strong>
+                    @if (Model.DuplicarDe is not null && escolhida is not null)
+                    {
+                      <span class="jobon-confirmar">Confirmar</span>
+                    }
                     <span class="job-tool-card-hint" data-tool-hint>@(escolhida is null ? "Associar ou criar" : "")</span>
                     <span class="dmo-options-caret" aria-hidden="true">▾</span>
                   </summary>
@@ -908,6 +926,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 }
+
+<script>
+// NO DUPLICAR, «N campos alterados»: os campos da folha (Folha.* e a CAL) cujo
+// valor já não é o que veio da origem (o defaultValue é o que o servidor
+// desenhou). Só há #lightAlterados no Duplicar. Delegado no documento: vale
+// também para a folha trocada pelo DmoTroca.
+document.addEventListener('input', function (event) {
+  var form = event.target.closest && event.target.closest('#lightForm');
+  var marca = document.getElementById('lightAlterados');
+  if (!form || !marca) return;
+  var alterados = 0;
+  form.querySelectorAll('input[name^="Folha."], textarea[name^="Folha."], input[name^="Cal["]').forEach(function (campo) {
+    if (campo.type !== 'hidden' && campo.value !== campo.defaultValue) alterados++;
+  });
+  marca.textContent = alterados === 0 ? '' : alterados === 1 ? '1 campo alterado' : alterados + ' campos alterados';
+});
+</script>
 
 <script>
 // O campo fica no lugar; o contexto dos pedidos acompanha o calendário novo.
