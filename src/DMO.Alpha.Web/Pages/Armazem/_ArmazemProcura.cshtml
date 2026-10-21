@@ -1,7 +1,7 @@
 @model IReadOnlyList<DMO.Alpha.Core.Armazem.ArmazemProcuraItem>
 @using DMO.Alpha.Core.Armazem
 @* As ferramentas encontradas ao escrever: onde estão, o tipo, a
-   referência, o lote, o estado, as máquinas e o % de uso (Diogo,
+   referência, o lote, o estado, as linhas e o % de uso (Diogo,
    21/10/2026). Um clique ou Enter abre a ferramenta, com a Entrada ou a
    Saída conforme está fora ou numa posição. *@
 @if (Model.Count == 0)
@@ -13,7 +13,7 @@ else
   <div class="dmo-table-wrap">
     <table class="dmo-table" id="armProcuraResultados" data-dmo-list="Ferramentas encontradas">
       <thead>
-        <tr><th>Onde está</th><th>Ferramenta</th><th>Lote</th><th>Estado</th><th>Máquinas</th><th>% uso</th></tr>
+        <tr><th>Onde está</th><th>Ferramenta</th><th>Lote</th><th>Estado</th><th>Linhas</th><th>% uso</th></tr>
       </thead>
       <tbody>
         @foreach (var item in Model)
