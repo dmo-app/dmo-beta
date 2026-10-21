@@ -158,12 +158,12 @@ public sealed class ArmazemMovimentosTests
     {
         using var db = CreateContext();
 
-        var semCriar = await Servico(db).EntradaAsync(Entrada(posicao: "7001a"));
-        var comCriar = await Servico(db).EntradaAsync(Entrada(posicao: "7001a", criar: true));
+        var semCriar = await Servico(db).EntradaAsync(Entrada(posicao: " 7001 "));
+        var comCriar = await Servico(db).EntradaAsync(Entrada(posicao: " 7001 ", criar: true));
 
-        Assert.Equal((ArmazemMovimentoResultado.PosicaoNaoExiste, "7001A"), (semCriar.Resultado, semCriar.Posicao));
-        Assert.Equal((ArmazemMovimentoResultado.Gravado, "7001A"), (comCriar.Resultado, comCriar.Posicao));
-        var criada = await db.ArmazemPosicoes.AsNoTracking().SingleAsync(p => p.Codigo == "7001A");
+        Assert.Equal((ArmazemMovimentoResultado.PosicaoNaoExiste, "7001"), (semCriar.Resultado, semCriar.Posicao));
+        Assert.Equal((ArmazemMovimentoResultado.Gravado, "7001"), (comCriar.Resultado, comCriar.Posicao));
+        var criada = await db.ArmazemPosicoes.AsNoTracking().SingleAsync(p => p.Codigo == "7001");
         Assert.Equal("Rui", criada.CriadaPor);
         Assert.Equal(criada.Id, (await db.ArmazemOcupacoes.AsNoTracking().SingleAsync()).PosicaoId);
     }
@@ -485,12 +485,12 @@ public sealed class ArmazemMovimentosTests
     {
         using var db = CreateContext();
 
-        var semCriar = await Servico(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), Cm, "A001", null));
-        var comCriar = await Servico(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), Cm, "A001", null, CriarPosicao: true));
+        var semCriar = await Servico(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), Cm, "5001", null));
+        var comCriar = await Servico(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), Cm, "5001", null, CriarPosicao: true));
 
         Assert.Equal(ArmazemMovimentoResultado.PosicaoNaoExiste, semCriar.Resultado);
         Assert.Equal(ArmazemMovimentoResultado.Gravado, comCriar.Resultado);
-        Assert.Equal(1, await db.ArmazemPosicoes.CountAsync(p => p.Codigo == "A001"));
+        Assert.Equal(1, await db.ArmazemPosicoes.CountAsync(p => p.Codigo == "5001"));
     }
 
     [Theory]

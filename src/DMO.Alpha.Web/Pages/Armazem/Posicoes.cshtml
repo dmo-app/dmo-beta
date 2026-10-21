@@ -39,13 +39,13 @@ html body .arm-linha .dmo-field input.arm-codigo{width:14ch}
   </div>
 
   <section id="armPosNova" class="dmo-card arm-card" aria-labelledby="arm-pos-nova-title" data-dmo-regiao data-dmo-parcial>
-    <h3 id="arm-pos-nova-title">Nova posição<partial name="_DmoHelp" model="@("O código da posição como está no armazém: só letras e algarismos, até 16 (ex.: 0042, 7001A, A001). Uma posição também se pode criar na Entrada de uma ferramenta.")" /></h3>
+    <h3 id="arm-pos-nova-title">Nova posição<partial name="_DmoHelp" model="@("A posição tem 4 algarismos: o 1.º é o corredor, o 2.º e o 3.º a estante e o 4.º a prateleira (1033 = corredor 1, estante 03, prateleira 3). Uma posição também se pode criar na Entrada de uma ferramenta.")" /></h3>
     <form method="post" asp-page="/Armazem/Posicoes" asp-page-handler="Criar" class="arm-linha">
       <input type="hidden" name="codigo" value="@Model.ComecaPor" />
       <input type="hidden" name="estado" value="@Model.Estado" />
       <div class="dmo-field">
         <label for="armNovoCodigo">Código</label>
-        <input id="armNovoCodigo" name="novo_codigo" class="arm-codigo" maxlength="16" autocomplete="off" placeholder="0042" required />
+        <input id="armNovoCodigo" name="novo_codigo" class="arm-codigo" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="0042" required />
       </div>
       <button type="submit" class="dmo-button" id="armPosCriar">Criar posição</button>
     </form>
@@ -56,7 +56,7 @@ html body .arm-linha .dmo-field input.arm-codigo{width:14ch}
     <form method="get" asp-page="/Armazem/Posicoes" class="arm-linha" role="search">
       <div class="dmo-field">
         <label for="armPosProcura">Código começa por</label>
-        <input id="armPosProcura" name="codigo" class="arm-codigo" value="@Model.ComecaPor" maxlength="16" autocomplete="off" />
+        <input id="armPosProcura" name="codigo" class="arm-codigo" value="@Model.ComecaPor" maxlength="4" inputmode="numeric" autocomplete="off" />
       </div>
       <div class="dmo-field">
         <label for="armPosEstado">Estado</label>

@@ -1,0 +1,94 @@
+@page "/Armazem/Proximos"
+@model DMO.Alpha.Web.Pages.Armazem.ProximosModel
+@using DMO.Alpha.Core.Armazem
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.arm-page{display:flex;flex-direction:column;gap:14px}
+.arm-card{padding:18px}
+.arm-card h3{margin:0 0 12px;font-size:16px}
+.arm-filtros{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+.arm-filtros .dmo-field{margin:0}
+.arm-card .dmo-table td{padding:8px;vertical-align:top}
+.arm-ferr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 4px}
+.arm-ferr a{color:var(--dmo-brand-900);font-weight:600}
+.arm-ferr .muted{font-size:13px}
+.arm-pill{font-size:12px;padding:1px 8px;border-radius:10px;border:1px solid var(--dmo-border)}
+.arm-pill.tirar{background:var(--dmo-warning-soft);border-color:var(--dmo-warning);color:var(--dmo-text)}
+.arm-pill.indisponivel{background:var(--dmo-danger-soft);border-color:var(--dmo-danger);color:var(--dmo-text)}
+.arm-pill.pronta{background:var(--dmo-success-soft);border-color:var(--dmo-success);color:var(--dmo-text)}
+</style>
+}
+
+@* Só lê. O período aplica ao escolher. Cada ferramenta abre os seus
+   movimentos, onde se dá a Saída para Produção. *@
+<main class="arm-page dmo-workspace" aria-labelledby="arm-prox-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="arm-prox-title">Próximos Job On</h1>
+    </div>
+  </div>
+
+  <section id="armProximos" class="dmo-card arm-card" aria-labelledby="arm-prox-lista-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="arm-prox-lista-title">Produções que vão começar<partial name="_DmoHelp" model="@("As produções do Job On com início entre hoje e o fim do período, e onde está cada CM, MF e BQ. «Tirar do armazém»: está numa posição e falta a Saída para Produção. «Não disponível»: está a reparar, emprestada ou na Sucata. Clique numa ferramenta para dar a saída.")" /></h3>
+
+    <form id="armProxFiltros" method="get" asp-page="/Armazem/Proximos" class="arm-filtros">
+      <div class="dmo-field">
+        <label for="armProxDias">Período</label>
+        <select id="armProxDias" name="dias" data-dmo-autosubmit>
+          @foreach (var dias in DMO.Alpha.Web.Pages.Armazem.ProximosModel.Periodos)
+          {
+            <option value="@dias" selected="@(Model.Dias == dias)">Próximos @dias dias</option>
+          }
+        </select>
+      </div>
+    </form>
+
+    @if (Model.Lista.Count == 0)
+    {
+      <p id="armProxVazio"><em>Nenhuma produção começa nos próximos @Model.Dias dias.</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="armProxLista" data-dmo-list="Próximos Job On">
+          <thead><tr><th>Início</th><th>Máquina</th><th>Referência</th><th>Produção</th><th>Ferramentas</th></tr></thead>
+          <tbody>
+          @foreach (var j in Model.Lista)
+          {
+            <tr data-dmo-jobon="@j.JobOnId">
+              <td>@DMO.Alpha.Web.Pages.Armazem.ProximosModel.Dia(j.InicioEm)</td>
+              <td>@j.Maquina</td>
+              <td>@j.Referencia</td>
+              <td>@j.Producao</td>
+              <td>
+                @if (j.Ferramentas.Count == 0)
+                {
+                  <span class="muted">Sem CM, MF nem BQ no Job On.</span>
+                }
+                @foreach (var f in j.Ferramentas)
+                {
+                  var (classe, texto) = f.Acao switch
+                  {
+                    ArmazemProximoAcao.Tirar => ("tirar", "Tirar do armazém"),
+                    ArmazemProximoAcao.Indisponivel => ("indisponivel", "Não disponível"),
+                    _ => ("pronta", "Pronta")
+                  };
+                  <div class="arm-ferr" data-dmo-ferramenta="@f.ToolId" data-dmo-acao="@classe">
+                    <a href="@Url.Page("/Armazem/Movimentos", new { ferramenta = f.ToolId })">@ArmazemTextos.Ferramenta(f.Tipo, f.Referencia, f.Lote)</a>
+                    <span class="muted">@f.OndeEsta</span>
+                    <span class="arm-pill @classe">@texto</span>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>

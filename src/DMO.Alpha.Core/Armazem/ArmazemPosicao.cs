@@ -5,19 +5,21 @@ namespace DMO.Alpha.Core.Armazem;
 /// um código plano, sem zonas, corredores nem paletes. Não se apaga nem muda de
 /// código; arquiva-se e sai das escolhas novas, e reativa-se.
 /// <para>
-/// O código aceita as três formas das bases Access (1001…, 7001a…, A001…;
-/// recomendação da AR-03, perguntas-full Q9): letras e algarismos, guardado em
-/// maiúsculas, único. A app full antiga só aceitava quatro algarismos.
+/// O código são exatamente quatro algarismos, guardado como texto («0042»
+/// fica «0042»), único (Diogo 21/10: «armazem sao apenas 4 digitos»).
 /// </para>
 /// </summary>
 public sealed class ArmazemPosicao
 {
-    /// <summary>O tamanho máximo do código.</summary>
+    /// <summary>O tamanho máximo da coluna do código.</summary>
     public const int CodigoMaxLength = 16;
+
+    /// <summary>Os algarismos do código.</summary>
+    public const int CodigoAlgarismos = 4;
 
     public int Id { get; set; }
 
-    /// <summary>O código, em maiúsculas (ex.: «0042», «7001A», «A001»).</summary>
+    /// <summary>O código, quatro algarismos (ex.: «0042», «4048»).</summary>
     public string Codigo { get; set; } = string.Empty;
 
     /// <summary>Ativa por omissão; arquivada sai das escolhas novas.</summary>
@@ -33,17 +35,18 @@ public sealed class ArmazemPosicao
     public Guid? CriadaPorUserId { get; set; }
 }
 
-/// <summary>O código de uma posição: letras e algarismos, sem espaços, até 16, em maiúsculas.</summary>
+/// <summary>O código de uma posição: exatamente quatro algarismos, sem espaços.</summary>
 public static class PosicaoCodigo
 {
     /// <summary>
-    /// true quando o texto, sem os espaços das pontas, tem só letras (A–Z) e
-    /// algarismos, até <see cref="ArmazemPosicao.CodigoMaxLength"/>; o código sai em maiúsculas.
+    /// true quando o texto, sem os espaços das pontas, tem exatamente
+    /// <see cref="ArmazemPosicao.CodigoAlgarismos"/> algarismos. «42» é recusado
+    /// e não se completa com zeros, para não ocupar uma posição que a pessoa não quis.
     /// </summary>
     public static bool TryParse(string? texto, out string codigo)
     {
-        codigo = (texto ?? string.Empty).Trim().ToUpperInvariant();
-        if (codigo.Length is 0 or > ArmazemPosicao.CodigoMaxLength || !codigo.All(c => c is (>= '0' and <= '9') or (>= 'A' and <= 'Z')))
+        codigo = (texto ?? string.Empty).Trim();
+        if (codigo.Length != ArmazemPosicao.CodigoAlgarismos || !codigo.All(c => c is >= '0' and <= '9'))
         {
             codigo = string.Empty;
             return false;

@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace DMO.Alpha.Infrastructure.Tests.Armazem;
 
 /// <summary>
-/// As posições do Armazém (0.2.0-beta.8): o código aceita as três formas das
-/// bases Access (1001, 7001a, A001) e guarda-se em maiúsculas; o mesmo código
+/// As posições do Armazém (0.2.0-beta.8): o código são exatamente quatro
+/// algarismos («42» é recusado, Diogo 21/10); o mesmo código
 /// outra vez é «já existe»; arquivar e reativar não apagam nada; a lista
 /// procura pelo início do código, filtra pelo estado e pagina.
 /// </summary>
@@ -21,10 +21,8 @@ public sealed class ArmazemPosicoesTests
 
     [Theory]
     [InlineData("0042", "0042")]
-    [InlineData(" 7001a ", "7001A")]
-    [InlineData("A001", "A001")]
-    [InlineData("e000", "E000")]
-    public async Task Criar_AsTresFormasDoAccess_GuardaEmMaiusculas(string escrito, string guardado)
+    [InlineData(" 4048 ", "4048")]
+    public async Task Criar_QuatroAlgarismos_Grava(string escrito, string guardado)
     {
         using var db = CreateContext();
         var posicoes = new ArmazemPosicoes(db, new Sessao());
@@ -44,7 +42,11 @@ public sealed class ArmazemPosicoesTests
     [InlineData("   ")]
     [InlineData("00 42")]
     [InlineData("00-42")]
-    [InlineData("12345678901234567")]
+    [InlineData("42")]
+    [InlineData("042")]
+    [InlineData("12345")]
+    [InlineData("7001a")]
+    [InlineData("A001")]
     [InlineData("posição")]
     public async Task Criar_ForaDaRegra_NaoGrava(string? escrito)
     {
@@ -56,31 +58,16 @@ public sealed class ArmazemPosicoesTests
         Assert.Empty(await db.ArmazemPosicoes.AsNoTracking().ToListAsync());
     }
 
-    [Theory]
-    [InlineData(ArmazemPosicao.CodigoMaxLength - 1)]
-    [InlineData(ArmazemPosicao.CodigoMaxLength)]
-    public async Task Criar_NoLimiteDoTamanho_Grava(int tamanho)
-    {
-        // Logo abaixo e no limite gravam; logo acima (17) está em Criar_ForaDaRegra_NaoGrava.
-        using var db = CreateContext();
-        var codigo = new string('7', tamanho);
-
-        var (resultado, gravado) = await new ArmazemPosicoes(db, new Sessao()).CriarAsync(codigo);
-
-        Assert.Equal((ArmazemPosicaoResultado.Gravado, codigo), (resultado, gravado));
-        Assert.Equal(codigo, (await db.ArmazemPosicoes.AsNoTracking().SingleAsync()).Codigo);
-    }
-
     [Fact]
-    public async Task Criar_OMesmoCodigoComOutrasMaiusculas_JaExiste()
+    public async Task Criar_OMesmoCodigoComEspacos_JaExiste()
     {
         using var db = CreateContext();
         var posicoes = new ArmazemPosicoes(db, new Sessao());
-        await posicoes.CriarAsync("7001a");
+        await posicoes.CriarAsync("7001");
 
-        var (resultado, codigo) = await posicoes.CriarAsync("7001A");
+        var (resultado, codigo) = await posicoes.CriarAsync(" 7001 ");
 
-        Assert.Equal((ArmazemPosicaoResultado.JaExiste, "7001A"), (resultado, codigo));
+        Assert.Equal((ArmazemPosicaoResultado.JaExiste, "7001"), (resultado, codigo));
         Assert.Single(await db.ArmazemPosicoes.AsNoTracking().ToListAsync());
     }
 
@@ -106,7 +93,7 @@ public sealed class ArmazemPosicoesTests
     {
         using var db = CreateContext();
         var posicoes = new ArmazemPosicoes(db, new Sessao());
-        foreach (var codigo in new[] { "7002", "7001A", "1001", "A001", "7001" })
+        foreach (var codigo in new[] { "7002", "7011", "1001", "5001", "7001" })
         {
             await posicoes.CriarAsync(codigo);
         }
@@ -115,13 +102,13 @@ public sealed class ArmazemPosicoesTests
         await posicoes.MudarAtivaAsync(arquivar.Id, ativa: false);
 
         var sete = await posicoes.ListarAsync("7", ArmazemPosicaoFiltro.Todas, 1);
-        Assert.Equal(["7001", "7001A", "7002"], sete.Items.Select(p => p.Codigo));
+        Assert.Equal(["7001", "7002", "7011"], sete.Items.Select(p => p.Codigo));
         var seteAtivas = await posicoes.ListarAsync("7", ArmazemPosicaoFiltro.Ativas, 1);
-        Assert.Equal(["7001", "7001A"], seteAtivas.Items.Select(p => p.Codigo));
+        Assert.Equal(["7001", "7011"], seteAtivas.Items.Select(p => p.Codigo));
         var arquivadas = await posicoes.ListarAsync(null, ArmazemPosicaoFiltro.Arquivadas, 1);
         Assert.Equal(["7002"], arquivadas.Items.Select(p => p.Codigo));
-        // A procura não distingue maiúsculas: «a0» encontra «A001».
-        Assert.Equal(["A001"], (await posicoes.ListarAsync("a0", ArmazemPosicaoFiltro.Todas, 1)).Items.Select(p => p.Codigo));
+        // Pela AR-03, o 1.º algarismo é o corredor e os três primeiros dão a estante; «50» dá as posições que começam por 50.
+        Assert.Equal(["5001"], (await posicoes.ListarAsync("50", ArmazemPosicaoFiltro.Todas, 1)).Items.Select(p => p.Codigo));
     }
 
     [Fact]

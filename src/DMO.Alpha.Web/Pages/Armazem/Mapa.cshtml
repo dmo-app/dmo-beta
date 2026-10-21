@@ -30,7 +30,7 @@
 </style>
 }
 
-@* O mapa só lê: escolher o armário ou o que mostrar troca a grelha
+@* O mapa só lê: escolher a estante (ou o corredor) ou o que mostrar troca a grelha
    (data-dmo-autosubmit, sem botão). Cada ferramenta abre os seus movimentos,
    onde se dá entrada, saída ou se corrige. *@
 <main class="arm-page dmo-workspace" aria-labelledby="arm-mapa-title" data-dmo-troca>
@@ -42,7 +42,7 @@
   </div>
 
   <section id="armMapa" class="dmo-card arm-card" aria-labelledby="arm-mapa-grelha-title" data-dmo-regiao data-dmo-parcial>
-    <h3 id="arm-mapa-grelha-title">Posições por armário<partial name="_DmoHelp" model="@("Cada armário junta as posições que começam da mesma forma (40…, 70…, A…). As livres têm o contorno tracejado; a amarelo, as posições com ferramentas de referências ou lotes diferentes. Clique numa ferramenta para ver os movimentos, dar saída ou corrigir.")" /></h3>
+    <h3 id="arm-mapa-grelha-title">Posições por corredor e estante<partial name="_DmoHelp" model="@("A posição tem 4 algarismos: o 1.º é o corredor, o 2.º e o 3.º a estante e o 4.º a prateleira (1033 = corredor 1, estante 03, prateleira 3). As livres têm o contorno tracejado; a amarelo, as posições com ferramentas de referências ou lotes diferentes. Clique numa ferramenta para ver os movimentos.")" /></h3>
 
     @if (Model.Mapa.Armarios.Count == 0)
     {
@@ -52,13 +52,19 @@
     {
       <form id="armMapaFiltros" method="get" asp-page="/Armazem/Mapa" class="arm-filtros">
         <div class="dmo-field">
-          <label for="armMapaArmario">Armário</label>
+          <label for="armMapaArmario">Corredor e estante</label>
           <select id="armMapaArmario" name="armario" data-dmo-autosubmit>
-            @foreach (var a in Model.Mapa.Armarios)
+            @foreach (var corredor in Model.Mapa.Armarios.GroupBy(a => a.Corredor))
             {
-              <option value="@a.Chave" selected="@(a.Chave == Model.Mapa.Armario)">@DMO.Alpha.Web.Pages.Armazem.MapaModel.Rotulo(a)</option>
+              <optgroup label="@ArmazemArmarios.Nome(corredor.Key)">
+                <option value="@corredor.Key" selected="@(corredor.Key == Model.Mapa.Armario)">@DMO.Alpha.Web.Pages.Armazem.MapaModel.Rotulo(corredor.Key, corredor.ToList())</option>
+                @foreach (var a in corredor)
+                {
+                  <option value="@a.Chave" selected="@(a.Chave == Model.Mapa.Armario)">@DMO.Alpha.Web.Pages.Armazem.MapaModel.Rotulo(a)</option>
+                }
+              </optgroup>
             }
-            <option value="@ArmazemArmarios.Todos" selected="@(Model.Mapa.Armario == ArmazemArmarios.Todos)">Todos os armários</option>
+            <option value="@ArmazemArmarios.Todos" selected="@(Model.Mapa.Armario == ArmazemArmarios.Todos)">Todo o armazém</option>
           </select>
         </div>
         <div class="dmo-field">
@@ -89,6 +95,10 @@
           var classe = p.Livre ? "livre" : p.Misturada ? "misturada" : "ocupada";
           <div class="arm-pos @classe@(p.Ativa ? "" : " arquivada")" data-dmo-posicao="@p.Codigo" data-dmo-estado="@classe">
             <span class="arm-cod">@p.Codigo</span>
+            @if (ArmazemArmarios.Prateleira(p.Codigo) is { } prateleira)
+            {
+              <span class="muted">Prateleira @prateleira</span>
+            }
             @if (p.Livre)
             {
               <span class="muted">Livre</span>

@@ -40,12 +40,16 @@ public sealed partial class PostgresMigrationIntegrationTests
     public async Task Armazem_AMesmaPosicaoAoMesmoTempo_FicaUmaSo()
     {
         SkipWithoutConnection();
+        string codigo;
         await using (var db = CreateContext())
         {
             await db.Database.MigrateAsync();
+            // Quatro algarismos que a base ainda não tem.
+            var usados = (await db.ArmazemPosicoes.Select(p => p.Codigo).ToListAsync()).ToHashSet();
+            codigo = Enumerable.Range(1000, 9000).Select(n => n.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                .Where(c => !usados.Contains(c)).OrderBy(_ => Random.Shared.Next()).First();
         }
 
-        var codigo = "T" + Random.Shared.Next(100000, 999999);
         var resultados = await Task.WhenAll(Enumerable.Range(0, 4).Select(async _ =>
         {
             await using var db = CreateContext();

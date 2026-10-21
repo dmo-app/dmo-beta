@@ -40,7 +40,9 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         db.OperacoesRegistadas.RemoveRange(db.OperacoesRegistadas);
         db.ArmazemPosicoes.RemoveRange(db.ArmazemPosicoes);
         db.Reparadores.RemoveRange(db.Reparadores);
-        db.Tools.RemoveRange(db.Tools.Where(t => t.ToolId == Cm || t.ToolId == Bq));
+        // A base em memória é a mesma para todas as classes: tirar também as
+        // ferramentas de outras classes com as mesmas referências, senão a procura muda.
+        db.Tools.RemoveRange(db.Tools.Where(t => t.ToolId == Cm || t.ToolId == Bq || t.Reference == "5447T173" || t.Reference == "T173"));
         db.SaveChanges();
         db.Tools.AddRange(
             new Tool { ToolId = Cm, Type = ToolType.Cm, Reference = "5447T173", Lot = "3" },
@@ -203,7 +205,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
         (string, string)[] campos =
         [
-            ("armEntPosicao", "7001a"),
+            ("armEntPosicao", "7001"),
             ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
             ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo"))
         ];
@@ -212,17 +214,17 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         var recusada = await pergunta.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, pergunta.StatusCode);
-        Assert.Contains("A posição 7001A não existe. Criar?", Elemento(recusada, "id=\"armMovAvisos\""));
+        Assert.Contains("A posição 7001 não existe. Criar?", Elemento(recusada, "id=\"armMovAvisos\""));
         // O formulário volta com o que a pessoa escreveu e o botão «Criar e registar».
-        Assert.Contains("value=\"7001a\"", Campo(recusada, "armEntPosicao"));
+        Assert.Contains("value=\"7001\"", Campo(recusada, "armEntPosicao"));
         Assert.Equal("Nova", Escolhida(recusada, "armEntOrigem"));
         Assert.Contains("Criar e registar", Elemento(recusada, "id=\"armEntCriar\""));
         Assert.Empty(NaBase(db => db.ArmazemMovimentos.AsNoTracking().ToList()));
 
         var depois = await GravarAsync(client, recusada, "armEntCriar");
 
-        Assert.Contains("Entrada registada na posição 7001A.", Elemento(depois, "id=\"armMovAvisos\""));
-        Assert.Equal(1, NaBase(db => db.ArmazemPosicoes.Count(p => p.Codigo == "7001A")));
+        Assert.Contains("Entrada registada na posição 7001.", Elemento(depois, "id=\"armMovAvisos\""));
+        Assert.Equal(1, NaBase(db => db.ArmazemPosicoes.Count(p => p.Codigo == "7001")));
     }
 
     [Fact]

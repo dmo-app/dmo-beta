@@ -176,7 +176,10 @@ public sealed partial class PostgresMigrationIntegrationTests
         var marca = Random.Shared.Next(100000, 999999).ToString(System.Globalization.CultureInfo.InvariantCulture);
         var toolId = "arm-" + Guid.NewGuid().ToString("N");
         db.Tools.Add(new Tool { ToolId = toolId, Type = ToolType.Cm, Reference = "9" + marca + "T1", Lot = "1" });
-        var codigos = Enumerable.Range(0, posicoes).Select(i => $"M{marca}{i}").ToArray();
+        // O código são quatro algarismos: escolhem-se ao acaso entre os que a base ainda não tem.
+        var usados = (await db.ArmazemPosicoes.Select(p => p.Codigo).ToListAsync()).ToHashSet();
+        var codigos = Enumerable.Range(1000, 9000).Select(n => n.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .Where(c => !usados.Contains(c)).OrderBy(_ => Random.Shared.Next()).Take(posicoes).ToArray();
         db.ArmazemPosicoes.AddRange(codigos.Select(c => new ArmazemPosicao { Codigo = c, CriadaEmUtc = DateTime.UtcNow }));
         await db.SaveChangesAsync();
         return (toolId, codigos);

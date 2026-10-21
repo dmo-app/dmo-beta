@@ -6,8 +6,8 @@ namespace DMO.Alpha.Infrastructure.Armazem;
 
 /// <summary>
 /// O mapa do Armazém sobre o <see cref="DmoDbContext"/>: lê as posições, as
-/// ocupações ativas e o último estado de cada ferramenta, e agrupa por armário
-/// (<see cref="ArmazemArmarios.De"/>). Uma posição arquivada só conta enquanto
+/// ocupações ativas e o último estado de cada ferramenta, e agrupa por estante
+/// (<see cref="ArmazemArmarios.De"/>) e por corredor. Uma posição arquivada só conta enquanto
 /// tiver ferramentas (é preciso tirá-las de lá).
 /// </summary>
 public sealed class ArmazemMapa(DmoDbContext db) : IArmazemMapa
@@ -56,12 +56,17 @@ public sealed class ArmazemMapa(DmoDbContext db) : IArmazemMapa
             .OrderBy(a => a.Chave, StringComparer.Ordinal)
             .ToList();
 
+        // Uma estante («103»), um corredor inteiro («1») ou todas («*»).
         var escolhido = armario == ArmazemArmarios.Todos
             ? ArmazemArmarios.Todos
-            : armarios.FirstOrDefault(a => a.Chave == armario)?.Chave ?? armarios.FirstOrDefault()?.Chave;
+            : armarios.FirstOrDefault(a => a.Chave == armario)?.Chave
+                ?? (armario is { Length: 1 } && armarios.Any(a => a.Corredor == armario) ? armario : null)
+                ?? armarios.FirstOrDefault()?.Chave;
         var doArmario = escolhido == ArmazemArmarios.Todos
             ? todas
-            : todas.Where(p => ArmazemArmarios.De(p.Codigo) == escolhido).ToList();
+            : escolhido is { Length: 1 }
+                ? todas.Where(p => ArmazemArmarios.Corredor(p.Codigo) == escolhido).ToList()
+                : todas.Where(p => ArmazemArmarios.De(p.Codigo) == escolhido).ToList();
 
         var lista = filtro switch
         {

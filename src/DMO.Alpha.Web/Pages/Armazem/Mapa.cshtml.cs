@@ -11,7 +11,7 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 
 /// <summary>
 /// O mapa do Armazém (como o ecrã principal do Access antigo): as posições de
-/// um armário, livres e ocupadas, com a ocupação em percentagem. O armário e o
+/// uma estante ou de um corredor, livres e ocupadas, com a ocupação em percentagem. A estante e o
 /// filtro aplicam-se ao escolher; cada ferramenta abre os seus movimentos.
 /// </summary>
 [Authorize]
@@ -47,9 +47,16 @@ public sealed class MapaModel(IArmazemMapa mapa, ShellStateFactory shellState) :
         return Page();
     }
 
-    /// <summary>O nome do armário na lista (ex.: «Armário 40 · 12 de 50 ocupadas · 24%»).</summary>
+    /// <summary>A estante na lista (ex.: «Estante 03 · 12 de 50 ocupadas · 24%»), dentro do seu corredor.</summary>
     public static string Rotulo(ArmazemArmario armario) =>
-        $"Armário {armario.Chave} · {armario.Ocupadas} de {armario.Posicoes} ocupadas · {armario.Percentagem}%";
+        $"Estante {(armario.Chave.Length > 1 ? armario.Chave[1..] : armario.Chave)} · {armario.Ocupadas} de {armario.Posicoes} ocupadas · {armario.Percentagem}%";
+
+    /// <summary>O corredor inteiro na lista (ex.: «Corredor 1 inteiro · 20 de 90 ocupadas · 22%»).</summary>
+    public static string Rotulo(string corredor, IReadOnlyList<ArmazemArmario> estantes)
+    {
+        var todas = new ArmazemArmario(corredor, estantes.Sum(e => e.Posicoes), estantes.Sum(e => e.Ocupadas));
+        return $"Corredor {corredor} inteiro · {todas.Ocupadas} de {todas.Posicoes} ocupadas · {todas.Percentagem}%";
+    }
 
     /// <summary>O texto das ferramentas de uma posição; a CM e o MF da mesma referência e lote ficam numa linha só.</summary>
     public static IReadOnlyList<(string ToolId, string Texto)> Linhas(ArmazemMapaPosicao posicao)

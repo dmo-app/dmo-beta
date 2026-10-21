@@ -143,31 +143,31 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
         using var client = await LoginOperatorAsync("6103", DmoCapabilities.ArmazemGestao);
         var pagina = await client.GetStringAsync("/Armazem/Posicoes");
 
-        var depois = await client.GetStringAsync(await EnviarAsync(client, pagina, ("armNovoCodigo", "7001a")));
-        Assert.Contains("Posição 7001A criada.", Elemento(depois, "id=\"armPosAvisos\""));
-        var linha = Elemento(depois, "data-dmo-posicao=\"7001A\"");
-        Assert.Contains("7001A", linha);
+        var depois = await client.GetStringAsync(await EnviarAsync(client, pagina, ("armNovoCodigo", "7001")));
+        Assert.Contains("Posição 7001 criada.", Elemento(depois, "id=\"armPosAvisos\""));
+        var linha = Elemento(depois, "data-dmo-posicao=\"7001\"");
+        Assert.Contains("7001", linha);
         // Sem botões na linha: o estado muda-se no próprio valor.
         Assert.DoesNotContain("<button", linha);
-        Assert.Equal("7001A", NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Codigo));
+        Assert.Equal("7001", NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Codigo));
 
-        var repetida = await client.GetStringAsync(await EnviarAsync(client, depois, ("armNovoCodigo", "7001A")));
-        Assert.Contains("A posição 7001A já existe.", Elemento(repetida, "id=\"armPosAvisos\""));
-        var invalida = await client.GetStringAsync(await EnviarAsync(client, repetida, ("armNovoCodigo", "70 01")));
-        Assert.Contains("só letras e algarismos", Elemento(invalida, "id=\"armPosAvisos\""));
+        var repetida = await client.GetStringAsync(await EnviarAsync(client, depois, ("armNovoCodigo", "7001")));
+        Assert.Contains("A posição 7001 já existe.", Elemento(repetida, "id=\"armPosAvisos\""));
+        var invalida = await client.GetStringAsync(await EnviarAsync(client, repetida, ("armNovoCodigo", "701")));
+        Assert.Contains("O código da posição tem 4 algarismos (ex.: 0042).", Elemento(invalida, "id=\"armPosAvisos\""));
         Assert.Single(NaBase(db => db.ArmazemPosicoes.AsNoTracking().ToList()));
 
         var id = NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Id);
         var campo = $"armPosAtiva-{id}";
         var arquivada = await client.GetStringAsync(await EnviarAsync(client, invalida, (campo, EnvioDoFormulario.Opcao(invalida, campo, "Arquivada"))));
-        Assert.Contains("Posição 7001A arquivada.", Elemento(arquivada, "id=\"armPosAvisos\""));
+        Assert.Contains("Posição 7001 arquivada.", Elemento(arquivada, "id=\"armPosAvisos\""));
         Assert.False(NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Ativa));
 
         var soArquivadas = await client.GetStringAsync("/Armazem/Posicoes?estado=arquivadas");
-        Assert.Contains("7001A", Elemento(soArquivadas, "data-dmo-posicao=\"7001A\""));
+        Assert.Contains("7001", Elemento(soArquivadas, "data-dmo-posicao=\"7001\""));
         var soAtivas = Elemento(await client.GetStringAsync("/Armazem/Posicoes?estado=ativas"), "id=\"armPosLista\"");
         Assert.Contains("Nenhuma posição com esse filtro.", soAtivas);
-        Assert.DoesNotContain("7001A", soAtivas);
+        Assert.DoesNotContain("7001", soAtivas);
     }
 
     [Fact]

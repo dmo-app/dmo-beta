@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace DMO.Alpha.Infrastructure.Tests.Armazem;
 
 /// <summary>
-/// O mapa do Armazém (0.2.0-beta.10): as posições agrupam-se por armário pelo
-/// início do código, cada armário diz quantas estão ocupadas e a
+/// O mapa do Armazém (0.2.0-beta.10): as posições agrupam-se por estante (os
+/// três primeiros dos quatro algarismos: corredor e estante) e por corredor, cada armário diz quantas estão ocupadas e a
 /// percentagem, a CM e o MF da mesma referência e lote contam como par, e o
 /// filtro mostra as livres, as ocupadas ou as que têm uma ferramenta por
 /// reparar (pelo último estado). Uma posição arquivada só conta enquanto tiver
@@ -35,8 +35,8 @@ public sealed class ArmazemMapaTests
             new ArmazemPosicao { Id = 3, Codigo = "4003", CriadaEmUtc = Ontem },
             new ArmazemPosicao { Id = 4, Codigo = "4004", Ativa = false, CriadaEmUtc = Ontem },
             new ArmazemPosicao { Id = 5, Codigo = "4005", Ativa = false, CriadaEmUtc = Ontem },
-            new ArmazemPosicao { Id = 6, Codigo = "7001A", CriadaEmUtc = Ontem },
-            new ArmazemPosicao { Id = 7, Codigo = "A001", CriadaEmUtc = Ontem });
+            new ArmazemPosicao { Id = 6, Codigo = "7001", CriadaEmUtc = Ontem },
+            new ArmazemPosicao { Id = 7, Codigo = "5001", CriadaEmUtc = Ontem });
         db.ArmazemOcupacoes.AddRange(
             Ocupacao(1, "cm-5447", 1),
             Ocupacao(2, "mf-5447", 1),
@@ -58,18 +58,17 @@ public sealed class ArmazemMapaTests
         new() { Id = id, ToolId = toolId, PosicaoId = posicaoId, MovimentoId = id, DesdeUtc = Ontem };
 
     [Theory]
-    [InlineData("A001", "A")]
-    [InlineData("E012", "E")]
-    [InlineData("AB7", "AB")]
-    [InlineData("4048", "40")]
-    [InlineData("7001A", "70")]
-    [InlineData("0042", "00")]
-    [InlineData("12", "12")]
-    [InlineData("7", "7")]
-    [InlineData("", "")]
-    public void OArmario_EOInicioDoCodigo(string codigo, string armario)
+    [InlineData("1033", "103", "1", "3", "Corredor 1 · Estante 03")]
+    [InlineData("4048", "404", "4", "8", "Corredor 4 · Estante 04")]
+    [InlineData("0042", "004", "0", "2", "Corredor 0 · Estante 04")]
+    public void APosicao_CorredorEstanteEPrateleira(string codigo, string estante, string corredor, string prateleira, string nome)
     {
-        Assert.Equal(armario, ArmazemArmarios.De(codigo));
+        // Diogo 21/10 (AR-03): 1.º corredor, 2.º e 3.º estante, 4.º prateleira.
+        Assert.Equal(estante, ArmazemArmarios.De(codigo));
+        Assert.Equal(corredor, ArmazemArmarios.Corredor(codigo));
+        Assert.Equal(prateleira, ArmazemArmarios.Prateleira(codigo));
+        Assert.Equal(nome, ArmazemArmarios.Nome(estante));
+        Assert.Equal("Corredor " + corredor, ArmazemArmarios.Nome(corredor));
     }
 
     [Fact]
@@ -81,9 +80,9 @@ public sealed class ArmazemMapaTests
 
         // A posição 4004 está arquivada e vazia: não conta; a 4005 está arquivada com a BQ: conta.
         Assert.Equal(
-            [("40", 4, 3, 75), ("70", 1, 0, 0), ("A", 1, 0, 0)],
+            [("400", 4, 3, 75), ("500", 1, 0, 0), ("700", 1, 0, 0)],
             mapa.Armarios.Select(a => (a.Chave, a.Posicoes, a.Ocupadas, a.Percentagem)).ToArray());
-        Assert.Equal("40", mapa.Armario);
+        Assert.Equal("400", mapa.Armario);
         Assert.Equal((4, 3, 75), (mapa.Posicoes, mapa.Ocupadas, mapa.Percentagem));
         Assert.Equal(["4001", "4002", "4003", "4005"], mapa.Lista.Select(p => p.Codigo).ToArray());
     }
@@ -93,7 +92,7 @@ public sealed class ArmazemMapaTests
     {
         using var db = CreateContext();
 
-        var lista = (await new ArmazemMapa(db).MapaAsync("40", ArmazemMapaFiltro.Todas)).Lista;
+        var lista = (await new ArmazemMapa(db).MapaAsync("400", ArmazemMapaFiltro.Todas)).Lista;
 
         var par = lista.Single(p => p.Codigo == "4001");
         Assert.True(par.Par);
@@ -115,7 +114,7 @@ public sealed class ArmazemMapaTests
     {
         using var db = CreateContext();
 
-        var mapa = await new ArmazemMapa(db).MapaAsync("40", filtro);
+        var mapa = await new ArmazemMapa(db).MapaAsync("400", filtro);
 
         // A CM 5447 esteve por reparar mas o último estado é Reparado.
         Assert.Equal(codigos, mapa.Lista.Select(p => p.Codigo).ToArray());
@@ -124,8 +123,10 @@ public sealed class ArmazemMapaTests
 
     [Theory]
     [InlineData("*", "*", 6, 3)]
-    [InlineData("A", "A", 1, 0)]
-    [InlineData("99", "40", 4, 3)]
+    [InlineData("500", "500", 1, 0)]
+    [InlineData("4", "4", 4, 3)]
+    [InlineData("99", "400", 4, 3)]
+    [InlineData("9", "400", 4, 3)]
     public async Task TodosOsArmarios_OuUmQueNaoExisteAbreOPrimeiro(string pedido, string aberto, int posicoes, int ocupadas)
     {
         using var db = CreateContext();

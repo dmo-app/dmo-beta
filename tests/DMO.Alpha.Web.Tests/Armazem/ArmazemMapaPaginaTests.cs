@@ -42,7 +42,7 @@ public sealed class ArmazemMapaPaginaTests : IClassFixture<CustomWebApplicationF
             new Tool { ToolId = Mf, Type = ToolType.Mf, Reference = "5447T173", Lot = "3" },
             new Tool { ToolId = Bq, Type = ToolType.Bq, Reference = "T173", Lot = "01" });
         var p4001 = new ArmazemPosicao { Codigo = "4001", CriadaEmUtc = DateTime.UtcNow };
-        var a001 = new ArmazemPosicao { Codigo = "A001", CriadaEmUtc = DateTime.UtcNow };
+        var a001 = new ArmazemPosicao { Codigo = "5001", CriadaEmUtc = DateTime.UtcNow };
         db.ArmazemPosicoes.AddRange(p4001, new ArmazemPosicao { Codigo = "4002", CriadaEmUtc = DateTime.UtcNow }, a001);
         db.SaveChanges();
         var desde = new DateTime(2026, 10, 15, 9, 0, 0, DateTimeKind.Utc);
@@ -124,8 +124,12 @@ public sealed class ArmazemMapaPaginaTests : IClassFixture<CustomWebApplicationF
         var html = await client.GetStringAsync("/Armazem/Mapa");
 
         Assert.Matches("<a href=\"/Armazem/Mapa\"[^>]*aria-current=\"page\">Mapa</a>", html);
-        Assert.Contains("Armário 40 · 1 de 2 ocupadas · 50%", Elemento(html, "id=\"armMapaArmario\""));
-        Assert.Contains("Todos os armários", Elemento(html, "id=\"armMapaArmario\""));
+        // Por corredor e estante (Diogo 21/10, AR-03): 4001 = corredor 4, estante 00, prateleira 1.
+        var escolha = Elemento(html, "id=\"armMapaArmario\"");
+        Assert.Contains("<optgroup label=\"Corredor 4\">", escolha);
+        Assert.Contains("Corredor 4 inteiro · 1 de 2 ocupadas · 50%", escolha);
+        Assert.Matches("<option value=\"400\" selected=\"selected\">Estante 00 · 1 de 2 ocupadas · 50%</option>", escolha);
+        Assert.Contains("Todo o armazém", escolha);
         Assert.Contains("50% ocupado · 1 de 2 posições", Texto(Elemento(html, "id=\"armMapaOcupacao\"")));
         // O armário e o filtro aplicam-se ao escolher: sem botão no formulário.
         var filtros = Elemento(html, "id=\"armMapaFiltros\"");
@@ -136,9 +140,10 @@ public sealed class ArmazemMapaPaginaTests : IClassFixture<CustomWebApplicationF
         Assert.Contains("data-dmo-estado=\"ocupada\"", par);
         Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Cm}\">", par);
         Assert.Contains("CM+MF 5447T173 · lote 3", Texto(par));
+        Assert.Contains("Prateleira 1", Texto(par));
         Assert.Contains("desde 15/10/2026", Texto(par));
         Assert.Contains("Livre", Texto(Elemento(html, "data-dmo-posicao=\"4002\"")));
-        Assert.DoesNotContain("data-dmo-posicao=\"A001\"", html);
+        Assert.DoesNotContain("data-dmo-posicao=\"5001\"", html);
     }
 
     [Fact]
@@ -146,9 +151,9 @@ public sealed class ArmazemMapaPaginaTests : IClassFixture<CustomWebApplicationF
     {
         using var client = await LoginOperatorAsync("6303", DmoCapabilities.ArmazemGestao);
 
-        var html = await client.GetStringAsync("/Armazem/Mapa?armario=A&mostrar=por-reparar");
+        var html = await client.GetStringAsync("/Armazem/Mapa?armario=500&mostrar=por-reparar");
 
-        var bq = Elemento(html, "data-dmo-posicao=\"A001\"");
+        var bq = Elemento(html, "data-dmo-posicao=\"5001\"");
         Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Bq}\">BQ T173 · lote 01</a>", bq);
         Assert.Contains("data-dmo-por-reparar", bq);
         Assert.DoesNotContain("data-dmo-posicao=\"4001\"", html);
