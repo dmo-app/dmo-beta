@@ -74,8 +74,8 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, IArmazemMapa 
 
     public string? Observacoes { get; private set; }
 
-    /// <summary>Se o par entra também (por omissão, sim; a recusa guarda o que a pessoa escolheu).</summary>
-    public bool ComPar { get; private set; } = true;
+    /// <summary>Se o par entra também (por omissão, não: é raro, AR-02; a recusa guarda o que a pessoa escolheu).</summary>
+    public bool ComPar { get; private set; }
 
     /// <summary>As posições livres, sugeridas no campo da posição da Entrada.</summary>
     public IReadOnlyList<string> PosicoesLivres { get; private set; } = [];
@@ -96,7 +96,7 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, IArmazemMapa 
             ArmazemMovimentoResultado.FerramentaNaoExiste => "Esta ferramenta já não existe.",
             ArmazemMovimentoResultado.JaNoArmazem => $"Esta ferramenta já está no armazém, na posição {RecusaPosicao}.",
             ArmazemMovimentoResultado.NaoEstaNoArmazem => "Esta ferramenta não está no armazém.",
-            ArmazemMovimentoResultado.PosicaoInvalida => "Escreva a posição: só letras e algarismos, até 16 (ex.: 0042).",
+            ArmazemMovimentoResultado.PosicaoInvalida => "Escreva a posição com os 4 algarismos (ex.: 0042).",
             ArmazemMovimentoResultado.PosicaoNaoExiste => $"A posição {RecusaPosicao} não existe. Criar?",
             ArmazemMovimentoResultado.SemOrigem => "Escolha a origem.",
             ArmazemMovimentoResultado.SemEstado => "Escolha o estado.",

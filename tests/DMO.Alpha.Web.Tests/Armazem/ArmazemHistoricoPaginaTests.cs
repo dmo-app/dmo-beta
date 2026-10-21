@@ -44,12 +44,12 @@ public sealed class ArmazemHistoricoPaginaTests : IClassFixture<CustomWebApplica
             new Tool { ToolId = Bq, Type = ToolType.Bq, Reference = "T173", Lot = "01" });
         db.ArmazemPosicoes.AddRange(
             new ArmazemPosicao { Codigo = "0042", CriadaEmUtc = DateTime.UtcNow },
-            new ArmazemPosicao { Codigo = "A001", CriadaEmUtc = DateTime.UtcNow });
+            new ArmazemPosicao { Codigo = "5001", CriadaEmUtc = DateTime.UtcNow });
         db.SaveChanges();
         var s = new ArmazemMovimentos(db, new OperacoesRegistadas(db), new Sessao());
         s.EntradaAsync(new PedidoDeEntrada(Guid.NewGuid(), Cm, "0042", ArmazemOrigem.JaEstava, FerramentaEstadoTipo.Reparado,
             new DateTime(2026, 10, 14, 8, 0, 0, DateTimeKind.Utc), "veio da fábrica 2")).GetAwaiter().GetResult();
-        s.EntradaAsync(new PedidoDeEntrada(Guid.NewGuid(), Bq, "A001", ArmazemOrigem.Nova, FerramentaEstadoTipo.Novo,
+        s.EntradaAsync(new PedidoDeEntrada(Guid.NewGuid(), Bq, "5001", ArmazemOrigem.Nova, FerramentaEstadoTipo.Novo,
             new DateTime(2026, 10, 15, 8, 0, 0, DateTimeKind.Utc), null)).GetAwaiter().GetResult();
         s.SaidaAsync(new PedidoDeSaida(Guid.NewGuid(), Bq, ArmazemDestino.Producao, null, null, null,
             new DateTime(2026, 10, 16, 8, 0, 0, DateTimeKind.Utc), null)).GetAwaiter().GetResult();
@@ -144,7 +144,7 @@ public sealed class ArmazemHistoricoPaginaTests : IClassFixture<CustomWebApplica
         var lista = Elemento(html, "id=\"armHistLista\"");
         Assert.Equal(3, Regex.Matches(lista, "<tr data-dmo-movimento").Count);
         var texto = Texto(lista);
-        Assert.True(texto.IndexOf("Saída da posição A001 para Produção", StringComparison.Ordinal)
+        Assert.True(texto.IndexOf("Saída da posição 5001 para Produção", StringComparison.Ordinal)
             < texto.IndexOf("Entrada na posição 0042 · Já estava no armazém · Reparado", StringComparison.Ordinal));
         Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Cm}\">CM 5447T173 · lote 3</a>", lista);
         Assert.Contains("veio da fábrica 2", texto);
@@ -162,9 +162,9 @@ public sealed class ArmazemHistoricoPaginaTests : IClassFixture<CustomWebApplica
         var nada = await client.GetStringAsync("/Armazem/Historico?movimento=Corrigir");
 
         Assert.Single(Regex.Matches(Elemento(porTexto, "id=\"armHistLista\""), "<tr data-dmo-movimento"));
-        Assert.Contains("Saída da posição A001 para Produção", Texto(Elemento(porDestino, "id=\"armHistLista\"")));
+        Assert.Contains("Saída da posição 5001 para Produção", Texto(Elemento(porDestino, "id=\"armHistLista\"")));
         Assert.Single(Regex.Matches(Elemento(porDestino, "id=\"armHistLista\""), "<tr data-dmo-movimento"));
-        Assert.Contains("Entrada na posição A001 · Nova · Novo", Texto(Elemento(porDias, "id=\"armHistLista\"")));
+        Assert.Contains("Entrada na posição 5001 · Nova · Novo", Texto(Elemento(porDias, "id=\"armHistLista\"")));
         Assert.Single(Regex.Matches(Elemento(porDias, "id=\"armHistLista\""), "<tr data-dmo-movimento"));
         Assert.Matches("<input id=\"armHistDe\"[^>]*value=\"2026-10-15\"", porDias);
         Assert.Contains("Nenhum movimento com esse filtro.", Elemento(nada, "id=\"armHistVazio\""));

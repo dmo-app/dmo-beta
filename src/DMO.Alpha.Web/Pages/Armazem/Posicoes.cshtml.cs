@@ -47,7 +47,7 @@ public sealed class PosicoesModel(IArmazemPosicoes posicoes, IArmazemMovimentos 
         "criada" => $"Posição {CodigoGravado} criada.",
         "arquivada" => $"Posição {CodigoGravado} arquivada.",
         "reativada" => $"Posição {CodigoGravado} reativada.",
-        "invalido" => "O código da posição tem só letras e algarismos, até 16 (ex.: 0042, 7001A, A001).",
+        "invalido" => "O código da posição tem 4 algarismos (ex.: 0042).",
         "existe" => $"A posição {CodigoGravado} já existe.",
         "nao-existe" => "Essa posição já não existe.",
         _ => string.Empty

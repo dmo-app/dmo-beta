@@ -13,7 +13,7 @@ namespace DMO.Alpha.Web.Tests.Armazem;
 
 /// <summary>
 /// A Entrada como no Access (0.2.0-beta.11), pelo formulário da página: a CM
-/// mostra o seu MF e entra com ele (a escolha vem marcada; desmarcada, entra
+/// mostra o seu MF e pode entrar com ele (a escolha vem desmarcada, é raro; sem ela, entra
 /// só a CM), e o campo da posição sugere só as posições livres.
 /// </summary>
 public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApplicationFactory>
@@ -36,7 +36,9 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
         db.ArmazemMovimentos.RemoveRange(db.ArmazemMovimentos);
         db.OperacoesRegistadas.RemoveRange(db.OperacoesRegistadas);
         db.ArmazemPosicoes.RemoveRange(db.ArmazemPosicoes);
-        db.Tools.RemoveRange(db.Tools.Where(t => t.ToolId == Cm || t.ToolId == Mf || t.ToolId == Outra));
+        // A base em memória é a mesma para todas as classes: tirar também as
+        // ferramentas de outras classes com a mesma referência, senão o par é outro.
+        db.Tools.RemoveRange(db.Tools.Where(t => t.ToolId == Cm || t.ToolId == Mf || t.ToolId == Outra || t.Reference == "5447T173"));
         db.SaveChanges();
         db.Tools.AddRange(
             new Tool { ToolId = Cm, Type = ToolType.Cm, Reference = "5447T173", Lot = "3" },
@@ -155,8 +157,9 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
         var par = Elemento(pagina, "data-dmo-armazem-par");
         Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Mf}\">MF</a>", par);
         Assert.Contains("fora do armazém", par);
+        // Guardar a CM e o MF juntos é raro (Diogo 21/10, AR-02): a escolha vem desmarcada.
         var escolha = Campo(pagina, "armEntPar");
-        Assert.Contains("checked=\"checked\"", escolha);
+        Assert.DoesNotContain("checked", escolha);
         Assert.Contains("Entrar também MF 5447T173 · lote 3, na mesma posição", System.Net.WebUtility.HtmlDecode(Elemento(pagina, "for=\"armEntPar\"")));
         Assert.Contains("list=\"armEntLivres\"", Campo(pagina, "armEntPosicao"));
         // Sugere só as livres: a 0043 tem uma ferramenta e a 0099 está arquivada.
@@ -169,10 +172,15 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
         using var client = await LoginOperatorAsync("6402", DmoCapabilities.ArmazemGestao);
         var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
 
-        var depois = await GravarAsync(client, pagina, "armEntRegistar",
+        var (acao, campos) = EnvioDoFormulario.Enviar(pagina,
+        [
             ("armEntPosicao", "0042"),
             ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Reparação")),
-            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Reparado")));
+            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Reparado"))
+        ], idDoBotao: "armEntRegistar");
+        // A pessoa marca «Entrar também o MF».
+        using var resposta = await client.PostAsync(acao, EnvioDoFormulario.Corpo([.. campos, ("com_par", "1")]));
+        var depois = await client.GetStringAsync(resposta.Headers.Location!.OriginalString);
 
         Assert.Contains("Entrada da CM e do MF registada na posição 0042.", Elemento(depois, "id=\"armMovAvisos\""));
         Assert.Contains("posição 0042", Elemento(depois, "data-dmo-armazem-par"));
@@ -194,9 +202,9 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
             ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Reparação")),
             ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Reparado"))
         ], idDoBotao: "armEntRegistar");
-        Assert.Contains(campos, c => c.Nome == "com_par");
+        Assert.DoesNotContain(campos, c => c.Nome == "com_par");
 
-        using var resposta = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos.Where(c => c.Nome != "com_par").ToList()));
+        using var resposta = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
         var depois = await client.GetStringAsync(resposta.Headers.Location!.OriginalString);
 
         Assert.Contains("Entrada registada na posição 0042.", Elemento(depois, "id=\"armMovAvisos\""));

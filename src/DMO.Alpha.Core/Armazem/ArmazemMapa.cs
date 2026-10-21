@@ -2,7 +2,7 @@ using DMO.Alpha.Core.Tools;
 
 namespace DMO.Alpha.Core.Armazem;
 
-/// <summary>O que o mapa mostra de cada armário.</summary>
+/// <summary>O que o mapa mostra de cada estante.</summary>
 public enum ArmazemMapaFiltro
 {
     Todas,
@@ -40,13 +40,21 @@ public sealed record ArmazemMapaPosicao(int Id, string Codigo, bool Ativa, IRead
     public bool PorReparar => Ferramentas.Any(f => f.Estado == FerramentaEstadoTipo.PorReparar);
 }
 
-/// <summary>Um armário: as posições que começam da mesma forma (40…, 70…, A…, E…).</summary>
+/// <summary>
+/// Uma estante: as posições do mesmo corredor e estante (os três primeiros
+/// algarismos, 103… = corredor 1, estante 03).
+/// </summary>
 public sealed record ArmazemArmario(string Chave, int Posicoes, int Ocupadas)
 {
+    public string Corredor => ArmazemArmarios.Corredor(Chave);
+
     public int Percentagem => Posicoes == 0 ? 0 : (int)Math.Round(100.0 * Ocupadas / Posicoes, MidpointRounding.AwayFromZero);
 }
 
-/// <summary>O mapa: os armários com a ocupação e as posições do armário escolhido.</summary>
+/// <summary>
+/// O mapa: as estantes com a ocupação e as posições do que se escolheu
+/// (<see cref="Armario"/>: uma estante, um corredor ou «*», todas).
+/// </summary>
 public sealed record ArmazemMapaModelo(
     IReadOnlyList<ArmazemArmario> Armarios,
     string? Armario,
@@ -57,35 +65,43 @@ public sealed record ArmazemMapaModelo(
     public int Percentagem => Posicoes == 0 ? 0 : (int)Math.Round(100.0 * Ocupadas / Posicoes, MidpointRounding.AwayFromZero);
 }
 
-/// <summary>O mapa do Armazém, como o ecrã do Access antigo: as posições por armário, livres e ocupadas.</summary>
+/// <summary>O mapa do Armazém, como o ecrã do Access antigo: as posições por corredor e estante, livres e ocupadas.</summary>
 public interface IArmazemMapa
 {
     /// <summary>
-    /// Os armários e as posições de <paramref name="armario"/> (null: o primeiro
-    /// armário; «*»: todos), filtradas. Só contam as posições ativas e as
-    /// arquivadas com ferramentas.
+    /// As estantes e as posições de <paramref name="armario"/> (uma estante,
+    /// «103»; um corredor, «1»; null: a primeira estante; «*»: todas),
+    /// filtradas. Só contam as posições ativas e as arquivadas com ferramentas.
     /// </summary>
     Task<ArmazemMapaModelo> MapaAsync(string? armario, ArmazemMapaFiltro filtro, CancellationToken cancellationToken = default);
 }
 
-/// <summary>A regra do armário: as letras do início (A001 → A, E012 → E), senão os dois primeiros algarismos (4048 → 40, 7001A → 70).</summary>
+/// <summary>
+/// A regra da posição (Diogo 21/10, AR-03): quatro algarismos, o 1.º é o
+/// corredor, o 2.º e o 3.º a estante e o 4.º a prateleira (1033 = corredor 1,
+/// estante 03, prateleira 3). O mapa agrupa por corredor e por estante.
+/// </summary>
 public static class ArmazemArmarios
 {
     public const string Todos = "*";
 
-    public static string De(string codigo)
+    /// <summary>A estante de uma posição: o corredor e a estante (1033 → 103).</summary>
+    public static string De(string codigo) =>
+        string.IsNullOrEmpty(codigo) ? string.Empty : codigo.Length < 3 ? codigo : codigo[..3];
+
+    /// <summary>O corredor de uma estante ou de uma posição (103 → 1).</summary>
+    public static string Corredor(string chave) =>
+        string.IsNullOrEmpty(chave) ? string.Empty : chave[..1];
+
+    /// <summary>A prateleira de uma posição (1033 → 3); null fora da regra.</summary>
+    public static string? Prateleira(string codigo) =>
+        codigo is { Length: 4 } ? codigo[3..] : null;
+
+    /// <summary>O nome: «Corredor 1» para um corredor, «Corredor 1 · Estante 03» para uma estante.</summary>
+    public static string Nome(string chave) => chave switch
     {
-        if (string.IsNullOrEmpty(codigo))
-        {
-            return string.Empty;
-        }
-
-        if (char.IsLetter(codigo[0]))
-        {
-            return new string(codigo.TakeWhile(char.IsLetter).ToArray());
-        }
-
-        var algarismos = new string(codigo.TakeWhile(char.IsDigit).ToArray());
-        return algarismos.Length >= 3 ? algarismos[..2] : algarismos;
-    }
+        { Length: 1 } => $"Corredor {chave}",
+        { Length: 3 } => $"Corredor {chave[..1]} · Estante {chave[1..]}",
+        _ => chave
+    };
 }

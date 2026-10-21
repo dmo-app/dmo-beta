@@ -134,7 +134,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           <div class="arm-linha">
             <div class="dmo-field">
               <label for="armEntPosicao">Posição</label>
-              <input id="armEntPosicao" name="posicao" class="arm-curto" maxlength="16" autocomplete="off" data-dmo-maiusculas autocapitalize="characters"
+              <input id="armEntPosicao" name="posicao" class="arm-curto" maxlength="4" inputmode="numeric" autocomplete="off"
                      value="@(recusaEntrada ? Model.Posicao : null)" placeholder="0042" required list="armEntLivres" />
               <datalist id="armEntLivres">
                 @foreach (var livre in Model.PosicoesLivres)
@@ -310,7 +310,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <div class="arm-linha">
           <div class="dmo-field">
             <label for="armCorPosicao">Posição certa<partial name="_DmoHelp" model="@("Deixe vazio se a ferramenta não está no armazém.")" /></label>
-            <input id="armCorPosicao" name="posicao" class="arm-curto" maxlength="16" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" value="@(recusaCorrigir ? Model.Posicao : null)" placeholder="Não está" />
+            <input id="armCorPosicao" name="posicao" class="arm-curto" maxlength="4" inputmode="numeric" autocomplete="off" value="@(recusaCorrigir ? Model.Posicao : null)" placeholder="Não está" />
           </div>
           <div class="dmo-field">
             <label for="armCorObs">Observações</label>
