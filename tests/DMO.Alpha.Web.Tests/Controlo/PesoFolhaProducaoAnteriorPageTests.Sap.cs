@@ -49,6 +49,9 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         var sap = ZonaSap(html);
         var texto = System.Text.RegularExpressions.Regex.Replace(sap, "<[^>]+>|\\s+", m => m.Value.StartsWith('<') ? "" : " ");
         Assert.Contains("Peso da produção (18 dias)", texto, StringComparison.Ordinal);
+        // Nenhum texto à vista diz «SAP» (o aviso sem dados está escondido; tiram-se as etiquetas e os atributos).
+        var visivel = System.Text.RegularExpressions.Regex.Replace(sap[..sap.IndexOf("<span data-sap-sem", StringComparison.Ordinal)], "<[^>]+>", " ");
+        Assert.DoesNotContain("SAP", visivel, StringComparison.Ordinal);
         Assert.Contains("Média 181.67 g", texto, StringComparison.Ordinal);
         Assert.Contains("Moda 181.00 g", texto, StringComparison.Ordinal);
         // A Média vem escolhida, com a diferença do peso de hoje; a Moda escolhe-se (ou as duas).

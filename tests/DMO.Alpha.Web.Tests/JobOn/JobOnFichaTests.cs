@@ -1419,6 +1419,39 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     }
 
     [Fact]
+    public async Task Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura()
+    {
+        // Diogo, 21/10/2026: «no Job On também mostrar o % uso».
+        var (jobOnId, _, _, _) = await SeedFichaAsync();
+        SeedUser("4599", "Planejador", "provider-jobon-uso", "JobUso1!");
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.FerramentaUtilizacoes.AddRange(
+                new DMO.Alpha.Core.Tools.FerramentaUtilizacao { ToolId = "T3", Percentagem = 30m, RegistadaEmUtc = DateTime.UtcNow.AddDays(-5) },
+                new DMO.Alpha.Core.Tools.FerramentaUtilizacao { ToolId = "T3", Percentagem = 33.5m, RegistadaEmUtc = DateTime.UtcNow });
+            db.SaveChanges();
+        }
+
+        try
+        {
+            using var client = await LoginClientAsync("4599", "JobUso1!");
+            var ferramentas = WebUtility.HtmlDecode(FerramentasUsadas(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}")));
+
+            // Só a CM tem leitura: um só «Uso», com a mais recente.
+            var usos = System.Text.RegularExpressions.Regex.Matches(ferramentas, "<p[^>]*data-dmo-uso[^>]*>Uso <b[^>]*>([^<]*)</b></p>");
+            Assert.Equal("33.5 %", Assert.Single(usos).Groups[1].Value);
+        }
+        finally
+        {
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.FerramentaUtilizacoes.RemoveRange(db.FerramentaUtilizacoes.Where(u => u.ToolId == "T3"));
+            db.SaveChanges();
+        }
+    }
+
+    [Fact]
     public async Task Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto()
     {
         // Diogo 21/10 (FER-E-03): a ferramenta não registada no Armazém ou

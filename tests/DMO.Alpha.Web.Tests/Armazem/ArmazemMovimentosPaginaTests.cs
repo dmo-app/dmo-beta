@@ -34,6 +34,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
         db.FerramentaEstados.RemoveRange(db.FerramentaEstados);
+        db.FerramentaUtilizacoes.RemoveRange(db.FerramentaUtilizacoes.Where(u => u.ToolId == Cm || u.ToolId == Bq));
         db.FerramentaLocalizacoes.RemoveRange(db.FerramentaLocalizacoes);
         db.ArmazemOcupacoes.RemoveRange(db.ArmazemOcupacoes);
         db.ArmazemMovimentos.RemoveRange(db.ArmazemMovimentos);
@@ -172,6 +173,29 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Contains($"data-dmo-ferramenta=\"{Bq}\"", lista);
         Assert.DoesNotContain("<main", lista);
         Assert.Contains("Nenhuma ferramenta encontrada.", Elemento(await client.GetStringAsync("/Armazem/Movimentos?q=9999"), "id=\"armProcuraVazia\""));
+    }
+
+    [Fact]
+    public async Task Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco()
+    {
+        // Diogo, 21/10/2026: «posição, referência, lote, estado, máquinas, % uso».
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.FerramentaUtilizacoes.AddRange(
+                new FerramentaUtilizacao { ToolId = Cm, Percentagem = 40m, RegistadaEmUtc = DateTime.UtcNow.AddDays(-9) },
+                new FerramentaUtilizacao { ToolId = Cm, Percentagem = 47.5m, RegistadaEmUtc = DateTime.UtcNow });
+            db.SaveChanges();
+        }
+        using var client = await LoginOperatorAsync("6209", DmoCapabilities.ArmazemGestao);
+
+        var pagina = await client.GetStringAsync("/Armazem/Movimentos?q=t173");
+
+        Assert.Contains("<th>Estado</th><th>Máquinas</th><th>% uso</th>", Elemento(pagina, "id=\"armProcuraResultados\""));
+        // A última célula de cada linha é o % de uso.
+        string Uso(string linha) => System.Text.RegularExpressions.Regex.Matches(linha, "<td>([^<]*)</td>").Last().Groups[1].Value;
+        Assert.Equal("47.5 %", Uso(Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\"")));
+        Assert.Equal("—", Uso(Elemento(pagina, $"data-dmo-ferramenta=\"{Bq}\"")));
     }
 
     [Fact]

@@ -500,6 +500,9 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         // da mesma referência, com o início e o fim do Job On.
         var before = await GetPageHtmlAsync(client, url);
         Assert.Contains("Produção anterior", before);
+        // Diogo, 21/10/2026: na produção diz-se «produção», não «SAP» (só os atributos data-sap-* ficam).
+        Assert.DoesNotContain("(SAP)", before);
+        Assert.Contains("Produção anterior</h4>", before);
         Assert.Contains($"value=\"{anteriorJobOnId}\" data-inicio=\"06/04/2026\" data-fim=\"24/04/2026\" selected=\"selected\">202604 · B1</option>", before);
         Assert.Contains($"value=\"{maisAntigaJobOnId}\"", before);
         Assert.Contains("Início <span data-inicio>06/04/2026</span> · Fim <span data-fim>24/04/2026</span>", before);
