@@ -233,13 +233,14 @@ public sealed class ShellStateFactory
         };
 
     /// <summary>
-    /// As funções do Armazém (módulo do full): as Posições e as Definições
+    /// As funções do Armazém (módulo do full): os Movimentos, o Mapa, as Posições e as Definições
     /// (os reparadores de CM e MF), que fecham a barra como nos outros módulos.
     /// </summary>
     public static IReadOnlyList<FunctionPresentation> ArmazemFunctions(string activeKey) =>
         new[]
         {
             new FunctionPresentation("movimentos", "Movimentos", "/Armazem/Movimentos", null, activeKey == "movimentos", true, true),
+            new FunctionPresentation("mapa", "Mapa", "/Armazem/Mapa", null, activeKey == "mapa", true, true),
             new FunctionPresentation("posicoes", "Posições", "/Armazem/Posicoes", null, activeKey == "posicoes", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Armazem/Definicoes", null, activeKey == "definicoes", true, true)
         };

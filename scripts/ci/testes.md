@@ -22,7 +22,7 @@ Como mexer:
 | sim | Boquilhas | Movimentos, registos de reparação, correções, histórico, grelha e PDFs das Boquilhas, e o número de consultas da página. | Base em memória | Boquilhas, Bq | Boquilhas |
 | sim | Peso | Cálculo do peso e da calote, comparação de pesos, densidade da água, histórico e PDF do Peso. | Base em memória | Peso | Peso |
 | sim | Pegamentos | Medições, limites, cálculo das médias, folha em branco e PDF dos Pegamentos. | Base em memória | Pegamentos | Pegamentos |
-| sim | Armazém | As posições (códigos, arquivar e reativar, procura e páginas), os reparadores de CM e MF, a Entrada, a Saída e o Corrigir localização (ocupação, localização, estado, avisos e envio único), e as páginas do Armazém com a sua chave. | Base em memória | .Armazem. | .Armazem. |
+| sim | Armazém | As posições (códigos, arquivar e reativar, procura e páginas), os reparadores de CM e MF, a Entrada, a Saída e o Corrigir localização (ocupação, localização, estado, avisos e envio único), o Mapa (armários, ocupação, pares e filtros), e as páginas do Armazém com a sua chave. | Base em memória | .Armazem. | .Armazem. |
 | sim | Resumo e Aprovar | O Resumo da produção, o estado OK/NOK, o Aprovar e os PDFs juntos. | Base em memória | Controlo, PdfRecovery | ControloResumo |
 | sim | Procura, números e listas | Sugestões ao escrever, formato dos números e paginação das listas. | Base em memória | Suggestion, ReferenceMatch, Runtime | ListPagination |
 | sim | Componentes partilhados | Que o calendário só se desenha pelo componente partilhado e que as tabelas usam só a classe dmo-table. | Leitura dos ficheiros das páginas | - | SharedComponents |
