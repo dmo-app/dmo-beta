@@ -81,7 +81,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         {
             var maquinas = comDatas.Select(j => j.Maquina.ToUpperInvariant()).Distinct().ToList();
             var de = comDatas.Min(j => j.InicioEm!.Value);
-            var ate = comDatas.Max(j => j.FimEm is { } f && f >= j.InicioEm!.Value ? f : j.InicioEm!.Value);
+            // Sem fim, o Job On ainda está na máquina: conta tudo desde o início.
+            var ate = comDatas.Max(j => j.FimEm is { } f ? (f >= j.InicioEm!.Value ? f : j.InicioEm!.Value) : DateOnly.MaxValue);
             sap = await db.SapFabricos.AsNoTracking()
                 .Where(s => maquinas.Contains(s.Linha) && s.InicioEm <= ate && s.FimEm >= de)
                 .ToListAsync(cancellationToken);

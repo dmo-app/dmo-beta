@@ -88,8 +88,13 @@ public sealed class FerramentasFabricoSapTests
     [Theory]
     [InlineData("5538T324", "C3", "2025-01-21", "2025-02-04", true)]
     [InlineData("5538T324", "c3", "2025-02-04", "2025-02-10", true)]
-    [InlineData("5538T324", "C3", "2025-01-01", null, false)]
+    // Sem fim: ainda na máquina, apanha as ordens do SAP desde o início.
+    [InlineData("5538T324", "C3", "2025-01-01", null, true)]
     [InlineData("5538T324", "C3", "2025-01-25", null, true)]
+    [InlineData("5538T324", "C3", "2025-02-05", null, false)]
+    // O início do SAP (21/01): um Job On que acaba antes não liga; um que acaba nesse dia liga.
+    [InlineData("5538T324", "C3", "2025-01-10", "2025-01-20", false)]
+    [InlineData("5538T324", "C3", "2025-01-10", "2025-01-21", true)]
     [InlineData("5538T324", "B1", "2025-01-21", "2025-02-04", false)]
     [InlineData("6012A118", "C3", "2025-01-21", "2025-02-04", false)]
     [InlineData("5538T324", "C3", "2025-02-05", "2025-02-10", false)]

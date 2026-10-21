@@ -451,7 +451,7 @@ Selo depois: `84cdb88d67550c90`
 
 ## A-0018 · 2026-10-21 · contagem-lista
 
-Porquê: Fabrico pelo SAP e produções na ficha (Diogo 21/10/2026: ligar cada Job On ao que produziu; a ligação é pelas datas de início e fim com a CM, o MF e a BQ). Testes novos: a leitura do relatório «6- Manufacturing Selected» (cópia do ficheiro que o Diogo mandou), a ligação ao Job On pela referência, máquina e datas, ler duas vezes atualiza a mesma linha (memória e PostgreSQL com o índice único), as produções de uma CM (também trocada) e de uma BQ com a paginação, e na página o link do Opções da ficha, a tabela com as peças, o traço sem fabrico e a ferramenta sem Job On. Mudanças só de lista: a tabela nova SapFabricos nas listas de tabelas e a migração 20261021083819_SapFabrico na lista das migrações; a linha do grupo Ferramentas em testes.md; o ajudante de zona dos testes da utilização passa a servir qualquer elemento pelo id (section e p), sem mudar o que os testes verificam.
+Porquê: Fabrico pelo SAP e produções na ficha (Diogo 21/10/2026: ligar cada Job On ao que produziu; a ligação é pelas datas de início e fim com a CM, o MF e a BQ). Testes novos: a leitura do relatório «6- Manufacturing Selected» (cópia do ficheiro que o Diogo mandou), a ligação ao Job On pela referência, máquina e datas (com os limites dos dois lados pedidos pelo Guardião, e um Job On sem fim, ainda na máquina, apanha as ordens desde o início), ler duas vezes atualiza a mesma linha (memória e PostgreSQL com o índice único), as produções de uma CM (também trocada) e de uma BQ com a paginação, e na página o link do Opções da ficha, a tabela com as peças, o traço sem fabrico e a ferramenta sem Job On. Mudanças só de lista: a tabela nova SapFabricos nas listas de tabelas e a migração 20261021083819_SapFabrico na lista das migrações; a linha do grupo Ferramentas em testes.md; o ajudante de zona dos testes da utilização passa a servir qualquer elemento pelo id (section e p), sem mudar o que os testes verificam.
 Novos: 14 · mudaram: 7 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: (resto do ficheiro)`
@@ -476,4 +476,4 @@ Novos: 14 · mudaram: 7 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: (resto do ficheiro)`
 
-Selo depois: `6bf7d31939a9994c`
+Selo depois: `70203b7076adc35b`

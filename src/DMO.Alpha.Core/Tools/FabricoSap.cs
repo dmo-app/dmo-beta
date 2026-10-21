@@ -116,7 +116,8 @@ public static class FabricoSapExportacao
     /// <summary>
     /// Se a linha do SAP é desta produção: o material começa pela referência
     /// do Job On (5538T324BRA é da 5538T324), a linha é a máquina e as datas
-    /// cruzam-se com as do Job On (sem fim, conta só o dia do início).
+    /// cruzam-se com as do Job On. Sem fim, o Job On ainda está na máquina:
+    /// conta tudo desde o início.
     /// </summary>
     public static bool Corresponde(string material, string linha, DateOnly inicioSap, DateOnly fimSap,
         string referencia, string maquina, DateOnly? inicio, DateOnly? fim)
@@ -126,7 +127,7 @@ public static class FabricoSapExportacao
             return false;
         }
 
-        var ate = fim is { } f && f >= de ? f : de;
+        var ate = fim is { } f ? (f >= de ? f : de) : DateOnly.MaxValue;
         return material.StartsWith(referencia.Trim().ToUpperInvariant(), StringComparison.Ordinal)
             && string.Equals(linha, maquina.Trim(), StringComparison.OrdinalIgnoreCase)
             && inicioSap <= ate && fimSap >= de;

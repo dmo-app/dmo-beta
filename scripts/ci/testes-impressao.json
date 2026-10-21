@@ -1,5 +1,5 @@
 {
-  "selo": "6bf7d31939a9994c",
+  "selo": "70203b7076adc35b",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1075,7 +1075,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/SupabaseUserProvisioningProviderTests.cs :: FakeHttpHandler.ResetAsync_Success_PutsNewTemporaryPasswordAndRearmsTheForcedChange": "116421614f5fe32a",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: (resto do ficheiro)": "cae5bb84b4635e6a",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ABoquilhaTambemTemAsProducoes_EAListaPagina": "658f84b0420661f4",
-    "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALinhaDoSap_LigaSeAoJobOnPelaReferenciaMaquinaEDatas": "aae5e54affe958a9",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALinhaDoSap_LigaSeAoJobOnPelaReferenciaMaquinaEDatas": "5711ae7468ea8d6d",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.AsProducoesDaFerramenta_SaoOsJobOnDelaComOQueOSapDiz": "8a23a7be6f6b9315",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.LerOMesmoRelatorioOutraVez_AtualizaAsMesmasLinhas": "2b543231e6f09d43",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ORelatorioDoSap_DaOMaterialALinhaAsDatasEAProducao": "6fe6953d312021a4",
