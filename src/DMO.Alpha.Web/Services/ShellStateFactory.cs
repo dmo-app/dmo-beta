@@ -249,12 +249,13 @@ public sealed class ShellStateFactory
         };
 
     /// <summary>
-    /// As funções da Reparação Interna (módulo do full): por agora só o
-    /// Registar na máquina; a Consulta dos chefes vem a seguir.
+    /// As funções da Reparação Interna (módulo do full): o Registar na
+    /// máquina e a Consulta dos chefes (quem reparou o quê e em que produção).
     /// </summary>
     public static IReadOnlyList<FunctionPresentation> ReparacaoInternaFunctions(string activeKey) =>
         new[]
         {
-            new FunctionPresentation("registar", "Registar", "/ReparacaoInterna", null, activeKey == "registar", true, true)
+            new FunctionPresentation("registar", "Registar", "/ReparacaoInterna", null, activeKey == "registar", true, true),
+            new FunctionPresentation("consultar", "Consultar", "/ReparacaoInterna/Consultar", null, activeKey == "consultar", true, true)
         };
 }

@@ -178,8 +178,10 @@ builder.Services.AddScoped<IBqRepairerQuery, BqRepairerQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemPosicoes, DMO.Alpha.Infrastructure.Armazem.ArmazemPosicoes>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IReparadores, DMO.Alpha.Infrastructure.Armazem.Reparadores>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemMovimentos, DMO.Alpha.Infrastructure.Armazem.ArmazemMovimentos>();
-// Reparação Interna: a produção do dia, registar e a lista por baixo do registo.
+// Reparação Interna: a produção do dia, registar e a lista por baixo do registo;
+// a Consulta dos chefes (só lê).
 builder.Services.AddScoped<DMO.Alpha.Core.ReparacaoInterna.IReparacoesInternas, DMO.Alpha.Infrastructure.ReparacaoInterna.ReparacoesInternas>();
+builder.Services.AddScoped<DMO.Alpha.Core.ReparacaoInterna.IReparacoesInternasConsulta, DMO.Alpha.Infrastructure.ReparacaoInterna.ReparacoesInternasConsulta>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemMapa, DMO.Alpha.Infrastructure.Armazem.ArmazemMapa>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemHistorico, DMO.Alpha.Infrastructure.Armazem.ArmazemHistorico>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemProximos, DMO.Alpha.Infrastructure.Armazem.ArmazemProximos>();
@@ -602,7 +604,7 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
 {
     ["producoes"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove],
     ["numeros"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove],
-    ["referencias"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas],
+    ["referencias"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas, DmoCapabilities.ReparacaoInterna],
     ["ferramentas"] = [DmoCapabilities.Ferramentas, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas],
     ["reparadores"] = [DmoCapabilities.Boquilhas],
     ["referencias_bq"] = [DmoCapabilities.Boquilhas],
