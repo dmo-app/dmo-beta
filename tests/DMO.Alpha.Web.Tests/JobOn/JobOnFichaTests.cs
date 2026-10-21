@@ -1473,7 +1473,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             db.ArmazemOcupacoes.Add(new DMO.Alpha.Core.Armazem.ArmazemOcupacao { ToolId = "T3", PosicaoId = posicao.Id, MovimentoId = entrada.Id, DesdeUtc = DateTime.UtcNow });
             db.FerramentaEstados.Add(new DMO.Alpha.Core.Armazem.FerramentaEstado { ToolId = "T3", Estado = DMO.Alpha.Core.Armazem.FerramentaEstadoTipo.Reparado, RegistadoEmUtc = DateTime.UtcNow });
             var template = db.Templates.Single(t => t.TemplateKey == "tpl-test-planejador");
-            template.Capabilities = template.Capabilities.Append(DmoCapabilities.ArmazemGestao).Distinct().ToArray();
+            template.Capabilities = template.Capabilities.Append(DmoCapabilities.Ferramentas).Distinct().ToArray();
             db.SaveChanges();
         }
 
@@ -1484,7 +1484,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
             Assert.Contains("Armazém · posição 1033 · Reparado", ferramentas);
             Assert.Contains("MF 5810 / lote 1 não está registada no Armazém e não tem estado.", ferramentas);
-            Assert.Contains("href=\"/Armazem/Movimentos?ferramenta=MF-TOOL-9\"", ferramentas);
+            Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=MF-TOOL-9\"", ferramentas);
             Assert.DoesNotContain("CM 5447 / lote 3 não", ferramentas);
         }
         finally
@@ -1496,7 +1496,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             db.ArmazemMovimentos.RemoveRange(db.ArmazemMovimentos.Where(m => m.ToolId == "T3"));
             db.ArmazemPosicoes.RemoveRange(db.ArmazemPosicoes.Where(p => p.Codigo == "1033"));
             var template = db.Templates.Single(t => t.TemplateKey == "tpl-test-planejador");
-            template.Capabilities = template.Capabilities.Where(c => c != DmoCapabilities.ArmazemGestao).ToArray();
+            template.Capabilities = template.Capabilities.Where(c => c != DmoCapabilities.Ferramentas).ToArray();
             db.SaveChanges();
         }
     }

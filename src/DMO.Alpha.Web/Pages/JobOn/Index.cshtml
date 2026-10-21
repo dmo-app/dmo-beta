@@ -435,7 +435,7 @@
                   }
                   @if (factoSlot.AvisoArmazem is { } avisoArmazem)
                   {
-                    <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.MovimentosDoArmazem(factoSlot.ToolId, "Registar no Armazém")" /></div>
+                    <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(factoSlot.ToolId, "Registar na ferramenta")" /></div>
                   }
                 }
               </div>

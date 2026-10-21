@@ -684,3 +684,13 @@ Novos: 4 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.SemORelatorioDeFabrico_AProducaoFicaComTraco`
 
 Selo depois: `69e5ccde73ff92d4`
+
+## A-0027 · 2026-10-21 · ok-do-diogo
+
+Porquê: Diogo: «registar na ferramenta», «a página da Ferramenta é onde alteramos», «o armazém é onde se arruma a ferramenta», «a ferramenta tem um módulo próprio». O aviso do Job On (sem registo ou sem estado) leva agora a «Registar na ferramenta», que abre a página da Ferramenta, em vez dos Movimentos do Armazém. O teste verifica o link novo; o utilizador do teste passa a ter a chave das Ferramentas (o link só aparece a quem a tem), em vez da do Armazém.
+Referência: thread «SAP tool usage extraction», Diogo 21/10 13:33–13:34 (cmsg_01A27e9ozcpoh4jdPRsuJbFyVpyBiQsLUpqraRKppKhzXH, cmsg_01A27e9ozcpoh4jdPRsuJbFyFzgQigbdsPoM5FHfKYDLF4, cmsg_01A27e9ozcpoh4jdPRsuJbFyE5K71SLxmFKjg9AtbZP6M4, cmsg_01A27e9ozcpoh4jdPRsuJbFy8exde2FNuZys31UC5nDToF)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+
+Selo depois: `f457af5ff3b5ecf2`
