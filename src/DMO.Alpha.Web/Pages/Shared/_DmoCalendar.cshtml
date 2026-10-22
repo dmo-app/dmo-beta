@@ -78,7 +78,7 @@
         @* O DIA JÁ ESCOLHIDO (Diogo, 18/10/2026: um clique, «desnecessário
            2»): clicar de novo no dia escolhido tira a seleção (dia=0), sem
            botão; sem script, o link já leva ao mês sem dia. *@
-        var semDia = new Dictionary<string, string>(routeValues) { ["dia"] = "0" };
+        var semDia = new Dictionary<string, string?>(routeValues.ToDictionary(kv => kv.Key, kv => (string?)kv.Value)) { ["dia"] = "0" };
         <a class="@string.Join(" ", classes)" id="dmoDia-@dia"
            asp-page="@Model.NavigationPage"
            asp-all-route-data="semDia"
