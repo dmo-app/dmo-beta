@@ -104,15 +104,18 @@ public sealed class SharedComponentsTests
     {
         var partial = File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Shared", "_DmoHelp.cshtml"));
         Assert.Contains("class=\"dmo-help-mark\"", partial, StringComparison.Ordinal);
-        // Círculo vazio com «?»; o triângulo fica só para recolher (Diogo, 22/10/2026).
-        Assert.Contains("<circle cx=\"6\" cy=\"6\" r=\"5.3\" />", partial, StringComparison.Ordinal);
+        // Círculo vazio, sem «?» (Diogo, 22/10/2026); o triângulo fica só para recolher.
+        Assert.Contains("<circle cx=\"5\" cy=\"5\" r=\"4.2\" />", partial, StringComparison.Ordinal);
+        Assert.DoesNotContain("<text", partial, StringComparison.Ordinal);
         Assert.DoesNotContain("<path", partial, StringComparison.Ordinal);
 
         var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
         Assert.Contains(".dmo-help-mark circle{fill:transparent;", css, StringComparison.Ordinal);
         Assert.Contains(".dmo-help{position:relative;display:inline-flex;font-size:12px;vertical-align:.3em;", css, StringComparison.Ordinal);
         // Sempre do mesmo tamanho, não acompanha a letra (Diogo, 17/10/2026).
-        Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:12px;height:12px}", css, StringComparison.Ordinal);
+        Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:9px;height:9px}", css, StringComparison.Ordinal);
+        // Ao lado de um botão, por cima da aresta de cima (Diogo, 22/10/2026).
+        Assert.Contains(":is(.dmo-button,button,.dmo-options)+.dmo-help{align-self:flex-start;vertical-align:top;margin-top:-5px;", css, StringComparison.Ordinal);
         Assert.Contains(".dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}", css, StringComparison.Ordinal);
 
         foreach (var file in PageFiles("*.cshtml"))
@@ -457,7 +460,7 @@ public sealed class SharedComponentsTests
     {
         var ficha = File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Ferramentas", "Ficha.cshtml"));
         var avisos = Regex.Matches(ficha, "<div[^>]*class=\"ferr-aviso warn\"[^>]*>");
-        Assert.Equal(6, avisos.Count);
+        Assert.Equal(7, avisos.Count); // + o % uso do Editar (22/10/2026)
         Assert.All(avisos, m => Assert.Contains("data-dmo-toast=\"aviso\"", m.Value, StringComparison.Ordinal));
         // O aviso de ferramenta repetida (18/10/2026) não é de gravar: fica no
         // seu cartão, já na página ao abrir, até se limpar.

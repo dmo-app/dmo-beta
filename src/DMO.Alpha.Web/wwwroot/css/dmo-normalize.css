@@ -205,11 +205,9 @@ html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:d
    passar o rato inverte a cor (preenchido ↔ contorno) e mostra o texto.
    Num cartão sem título, .dmo-help-corner põe-no no canto de cima. */
 .dmo-help{position:relative;display:inline-flex;font-size:12px;vertical-align:.3em;margin-left:.3em;cursor:help;outline:none;line-height:1}
-.dmo-help-mark{display:block;overflow:visible;width:12px;height:12px}
-.dmo-help-mark circle{fill:transparent;stroke:var(--dmo-palette-ocean);stroke-width:1.4;transition:fill var(--dmo-fast)}
-.dmo-help-mark text{fill:var(--dmo-palette-ocean);font:700 9px/1 system-ui,sans-serif;transition:fill var(--dmo-fast)}
+.dmo-help-mark{display:block;overflow:visible;width:9px;height:9px}
+.dmo-help-mark circle{fill:transparent;stroke:var(--dmo-palette-ocean);stroke-width:1.3;transition:fill var(--dmo-fast)}
 .dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}
-.dmo-help:hover .dmo-help-mark text,.dmo-help:focus .dmo-help-mark text{fill:var(--dmo-card)}
 .dmo-help:focus-visible{outline:2px solid var(--dmo-palette-mist);outline-offset:2px;border-radius:50%}
 .dmo-help-tip{display:none;position:absolute;z-index:50;top:calc(100% + 6px);left:-8px;width:max-content;max-width:320px;padding:8px 10px;border-radius:var(--dmo-r-control);background:var(--dmo-palette-slate);color:var(--dmo-text-on-color);font-size:var(--dmo-fs-sm);font-weight:var(--dmo-fw-regular);letter-spacing:0;text-transform:none;text-align:left;line-height:1.4;white-space:normal;box-shadow:var(--dmo-shadow-menu)}
 .dmo-help:hover .dmo-help-tip,.dmo-help:focus .dmo-help-tip,.dmo-help:focus-within .dmo-help-tip{display:block}
@@ -217,9 +215,10 @@ html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:d
 html body .dmo-help .dmo-help-tip{color:var(--dmo-text-on-color)}
 /* A dica dentro de um <summary> não é focável: abre com o foco do <summary> ou com um toque (classe do script). */
 summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark circle,.dmo-help.dmo-help-aberta .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}
-summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark text,.dmo-help.dmo-help-aberta .dmo-help-mark text{fill:var(--dmo-card)}
 summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-tip,.dmo-help.dmo-help-aberta .dmo-help-tip{display:block}
 .card:has(>.dmo-help-corner){position:relative}
+/* Ao lado de um botão (Diogo, 22/10/2026): por cima da aresta de cima do botão, como um expoente, nunca ao meio. */
+:is(.dmo-button,button,.dmo-options)+.dmo-help{align-self:flex-start;vertical-align:top;margin-top:-5px;margin-left:.25em}
 .dmo-help-corner{position:absolute;top:14px;right:14px}
 .dmo-help-corner .dmo-help{margin-left:0}
 .dmo-help-corner .dmo-help-tip{left:auto;right:-8px}

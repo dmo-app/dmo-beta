@@ -83,17 +83,21 @@ public sealed partial class DefinicoesPorModuloPageTests
         var client = await LoginOperatorAsync("7103", DmoCapabilities.Ferramentas);
         var fichaPath = $"/Ferramentas/Ficha?tool_id={toolId}";
 
-        // O «Pedir a utilização ao SAP» do Opções da ficha, pelo formulário que a página mostra.
+        // O «Pedir a utilização à produção» do Opções (nunca «SAP» no ecrã) da ficha, pelo formulário que a página mostra.
         var ficha = await (await client.GetAsync(fichaPath)).Content.ReadAsStringAsync();
-        Assert.Contains("Pedir a utilização ao SAP", ZonaUsoSap(ficha, "ferrOpcoes"), StringComparison.Ordinal);
+        Assert.Contains("Pedir a utilização à produção", ZonaUsoSap(ficha, "ferrOpcoes"), StringComparison.Ordinal);
         var (acao, campos) = EnvioDoFormulario.Enviar(ficha, [], idDoBotao: "ferr-pedir-utilizacao-botao");
         var pedir = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
 
         Assert.Equal(HttpStatusCode.Redirect, pedir.StatusCode);
         var depois = await (await client.GetAsync(pedir.Headers.Location!.ToString())).Content.ReadAsStringAsync();
-        Assert.Contains("Utilização pedida ao SAP: vem na próxima leitura.", ZonaUsoSap(depois, "ferrUtilizacaoPedida"), StringComparison.Ordinal);
-        Assert.Contains("Utilização por atualizar desde", ZonaUsoSap(depois, "ferrUtilizacaoLembrete"), StringComparison.Ordinal);
-        Assert.DoesNotContain("Pedir a utilização ao SAP", ZonaUsoSap(depois, "ferrOpcoes"), StringComparison.Ordinal);
+        Assert.Contains("Utilização pedida à produção: vem na próxima leitura.", ZonaUsoSap(depois, "ferrUtilizacaoPedida"), StringComparison.Ordinal);
+        var lembrete = ZonaUsoSap(depois, "ferrUtilizacaoLembrete");
+        Assert.Contains("Utilização por atualizar desde", lembrete, StringComparison.Ordinal);
+        Assert.Contains("vem na próxima leitura da produção.", lembrete, StringComparison.Ordinal);
+        Assert.Contains(">Ler a pasta da produção</a>", lembrete, StringComparison.Ordinal);
+        Assert.DoesNotContain("SAP<", lembrete, StringComparison.Ordinal);
+        Assert.DoesNotContain("Pedir a utilização à produção", ZonaUsoSap(depois, "ferrOpcoes"), StringComparison.Ordinal);
         using var json = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=UsoSap")).Content.ReadAsStringAsync());
         var codigos = json.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()).ToList();
         Assert.Contains(nome + "03", codigos);

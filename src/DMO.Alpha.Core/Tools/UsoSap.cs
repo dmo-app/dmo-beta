@@ -16,6 +16,9 @@ public sealed class FerramentaUtilizacao
 {
     public const string OrigemSap = "sap";
 
+    /// <summary>O % uso escrito à mão no Editar da ficha (Diogo, 22/10/2026).</summary>
+    public const string OrigemManual = "manual";
+
     public const int CodigoMaxLength = 64;
 
     public const int FicheiroMaxLength = 260;
@@ -307,6 +310,9 @@ public sealed record ImportarUsoSapOutcome(ImportarUsoSapResultado Resultado, in
 public sealed record UsoSapUltimaLeitura(DateTime LidoEmUtc, DateTime? FicheiroModificadoEmUtc, string? Ficheiro);
 
 /// <summary>A utilização de uma ferramenta para a ficha: a última leitura e o lembrete aberto.</summary>
+/// <summary>Uma ferramenta com a utilização por atualizar (o lembrete aberto): para o aviso do Sumário.</summary>
+public sealed record FerramentaUsoPorAtualizar(string ToolId, ToolType Tipo, string Referencia, string Lote, DateTime DesdeUtc);
+
 public sealed record FerramentaUtilizacaoAtual(FerramentaUtilizacao? Ultima, DateTime? LembreteDesdeUtc);
 
 /// <summary>
@@ -327,4 +333,14 @@ public interface IFerramentasUsoSap
 
     /// <summary>Abrir o lembrete na ficha («Pedir a utilização ao SAP»); FALSE quando a ferramenta não existe. Com um aberto, não abre outro.</summary>
     Task<bool> PedirAsync(string toolId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// O % uso escrito à mão no Editar: uma leitura nova (origem manual, sem
+    /// peças) que fecha o lembrete aberto. FALSE quando a ferramenta não existe,
+    /// o valor é negativo ou é igual ao da última leitura (nada se grava).
+    /// </summary>
+    Task<bool> RegistarPercentagemManualAsync(string toolId, decimal percentagem, CancellationToken cancellationToken = default);
+
+    /// <summary>As ferramentas com o lembrete aberto (as mais antigas primeiro), no máximo <paramref name="maximo"/>.</summary>
+    Task<IReadOnlyList<FerramentaUsoPorAtualizar>> PorAtualizarAsync(int maximo, CancellationToken cancellationToken = default);
 }

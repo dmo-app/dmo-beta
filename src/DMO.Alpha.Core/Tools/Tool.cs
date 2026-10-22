@@ -69,6 +69,12 @@ public sealed class Tool
     public string? TechnicalName { get; set; }
 
     /// <summary>
+    /// A FÁBRICA DE ORIGEM (Diogo, 22/10/2026): a fábrica dona da ferramenta
+    /// (ex.: «MG»), para separar depois as ferramentas emprestadas. Null = não indicada.
+    /// </summary>
+    public string? FabricaOrigem { get; set; }
+
+    /// <summary>
     /// FERRAMENTA REPETIDA (o proprietário, 18/10/2026): quando alguém tenta
     /// registar outra ferramenta com o mesmo tipo, referência e lote, o
     /// registo é recusado e ESTA fica com um aviso, porque a errada pode ser

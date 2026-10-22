@@ -275,4 +275,44 @@ public sealed class FerramentasUsoSapTests
     {
         public ActorContext Current { get; } = new() { IsAuthenticated = true, ActorId = Guid.NewGuid(), DisplayName = "Rui", OperatorId = "2165" };
     }
+
+    // O % uso escrito no Editar (Diogo, 22/10/2026): uma leitura manual que
+    // fecha o lembrete; igual à última, negativo ou sem ferramenta não grava.
+    [Fact]
+    public async Task OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava()
+    {
+        await using var db = CreateContext();
+        await Servico(db).ImportarAsync(HtmlDoSap, "percentagem.HTML", null);
+        await LembreteAsync(db, "cm11");
+
+        Assert.False(await Servico(db).RegistarPercentagemManualAsync("cm11", 90));
+        Assert.False(await Servico(db).RegistarPercentagemManualAsync("cm11", -1));
+        Assert.False(await Servico(db).RegistarPercentagemManualAsync("nao-existe", 5));
+        // O limite: 0 grava, só o negativo é recusado.
+        Assert.True(await Servico(db).RegistarPercentagemManualAsync("cm11", 0));
+        Assert.True(await Servico(db).RegistarPercentagemManualAsync("cm11", 95));
+
+        db.ChangeTracker.Clear();
+        var atual = await Servico(db).DaFerramentaAsync("cm11");
+        Assert.Equal((FerramentaUtilizacao.OrigemManual, 95m, (long?)null), (atual.Ultima!.Origem, atual.Ultima.Percentagem, atual.Ultima.Consumo));
+        Assert.Null(atual.LembreteDesdeUtc);
+    }
+
+    // O aviso do Sumário (Diogo, 22/10/2026): os lembretes abertos.
+    [Fact]
+    public async Task PorAtualizar_SaoOsLembretesAbertos_OsMaisAntigosPrimeiro()
+    {
+        await using var db = CreateContext();
+        db.FerramentaLembretesUtilizacao.AddRange(
+            new FerramentaLembreteUtilizacao { ToolId = "cm12", CriadoEmUtc = DateTime.UtcNow },
+            new FerramentaLembreteUtilizacao { ToolId = "cm11", CriadoEmUtc = DateTime.UtcNow.AddDays(-1) },
+            new FerramentaLembreteUtilizacao { ToolId = "cm3", CriadoEmUtc = DateTime.UtcNow.AddDays(-2), FechadoEmUtc = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var lista = await Servico(db).PorAtualizarAsync(10);
+
+        Assert.Equal(["cm11", "cm12"], lista.Select(l => l.ToolId));
+        Assert.Equal((ToolType.Cm, "5447T173", "11"), (lista[0].Tipo, lista[0].Referencia, lista[0].Lote));
+        Assert.Single(await Servico(db).PorAtualizarAsync(1));
+    }
 }

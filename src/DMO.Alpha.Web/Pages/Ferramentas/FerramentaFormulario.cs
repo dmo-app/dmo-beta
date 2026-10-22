@@ -23,7 +23,10 @@ public sealed record FerramentaFactosForm(
     string? RefMf,
     string? NomeTecnico,
     IReadOnlyList<MachineOption> Maquinas,
-    Func<int, bool> MaquinaEscolhida);
+    Func<int, bool> MaquinaEscolhida,
+    string? FabricaOrigem = null,
+    string? UsoPercentagem = null,
+    string? UsoData = null);
 
 /// <param name="Prefixo">O início dos ids («ferr-new» no Criar, «ferr-tech» na ficha).</param>
 /// <param name="Criar">No Criar vêm os campos de todos os tipos (o browser mostra os do tipo escolhido); na ficha, só os do tipo da ferramenta.</param>

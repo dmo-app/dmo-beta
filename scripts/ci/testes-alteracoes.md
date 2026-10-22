@@ -1240,6 +1240,26 @@ Novos: 8 · mudaram: 5 · saíram: 1
 
 Selo depois: `69bb56498f37525b`
 
+## A-0045 · 2026-10-22 · ok-do-diogo
+
+Porquê: 0.3.0-beta.3: ficha da ferramenta (Linhas compatíveis, Informação opcional com Fábrica de origem, % uso no Editar com os limites 0 e 100, posição e estado do Armazém, «produção» em vez de «SAP»); aviso da utilização por atualizar no Sumário; ajuda num círculo vazio mais pequeno, acima dos botões
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5p3qq7SxaMMGvauvLSyNav, cmsg_01A27e9ozcpoh4jdPRsuJbFyMz2soxnCyBtiE2B7JJVzqr, cmsg_01A27e9ozcpoh4jdPRsuJbFyUPiaq8Li4P6Nj19Pgq7ps5, cmsg_01A27e9ozcpoh4jdPRsuJbFy4tAPdRQjxH9PWS5rLJR3Di, cmsg_01A27e9ozcpoh4jdPRsuJbFyPbTAPQBEuX72Sqnqu3ZQ8x, cmsg_01A27e9ozcpoh4jdPRsuJbFy1mRo5xn7zAQy42TtGpH8pF, cmsg_01A27e9ozcpoh4jdPRsuJbFyQqraqL8sY7pUxJc1CmnVdJ
+Novos: 5 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.PorAtualizar_SaoOsLembretesAbertos_OsMaisAntigosPrimeiro`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.UtilizacaoPorAtualizar_AvisaNoSumario_SoQuemTemFerramentas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AFicha_MostraALocalizacaoEOsMovimentos_SoAQuemTemOArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OsCodigosAPedirAoSap_SaoOsPedidosNaFicha`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.FichaWarnings_GoToTheCorner`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
+
+Selo depois: `66076833a517fa10`
+
 ## A-0046 · 2026-10-22 · teste-novo
 
 Porquê: História de uma produção: os módulos e as suas ligações (Job On, RI, BQ, Peso, Pegamento, Armazém)
@@ -1251,4 +1271,4 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.JobOnAntigo_MostraQuemReparouCadaFerramenta`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.MudarOJobOn_NaoPerdeNadaDosOutrosModulos`
 
-Selo depois: `cbe3769ad52ba7bc`
+Selo depois: `771fcfc9beca2c80`

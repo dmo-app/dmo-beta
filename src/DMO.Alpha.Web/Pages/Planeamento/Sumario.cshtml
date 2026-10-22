@@ -83,6 +83,11 @@
       var tipoLote = DMO.Alpha.Core.Armazem.ArmazemTextos.Tipo(lote.Tipo);
       <p class="dmo-aviso warn" data-dmo-lote-novo="@lote.Id">Ferramenta nova registada no Armazém: @tipoLote @lote.Referencia lote @lote.Lote (posição @lote.Posicao)@(lote.RegistadoPor is { } por ? $", por {por}" : null).<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.CriarLoteNovo(lote.Id, tipoLote, lote.Referencia, lote.Lote)" /></p>
     }
+    @foreach (var uso in Model.UsoPorAtualizar)
+    {
+      var tipoUso = uso.Tipo.ToString().ToUpperInvariant();
+      <p class="dmo-aviso warn" data-dmo-uso-por-atualizar="@uso.ToolId">Utilização por atualizar: @tipoUso @uso.Referencia lote @uso.Lote, desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(uso.DesdeUtc).ToString("dd/MM/yyyy").<partial name="_DmoAvisoLink" model="@(DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(uso.ToolId, "Abrir a ficha"))" /></p>
+    }
   </div>
 
   <div class="sumario-grid">
