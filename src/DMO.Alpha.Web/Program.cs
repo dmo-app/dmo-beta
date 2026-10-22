@@ -634,8 +634,8 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
     ["numeros"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove],
     ["referencias"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas, DmoCapabilities.ReparacaoInterna],
     ["ferramentas"] = [DmoCapabilities.Ferramentas, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas],
-    ["reparadores"] = [DmoCapabilities.Boquilhas],
-    ["referencias_bq"] = [DmoCapabilities.Boquilhas],
+    ["reparadores"] = [DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView],
+    ["referencias_bq"] = [DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView],
     ["referencias_registo"] = [DmoCapabilities.Ferramentas],
 };
 app.MapGet("/Sugestoes", async (

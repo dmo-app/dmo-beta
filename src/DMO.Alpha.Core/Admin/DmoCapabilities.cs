@@ -25,8 +25,15 @@ public static class DmoCapabilities
     /// <summary>Controlo Aprovar: a revisão e a aprovação.</summary>
     public const string ControloApprove = "controlo.approve";
 
-    /// <summary>Boquilhas: registo, ficheiros e histórico.</summary>
+    /// <summary>Boquilhas · criar: registo, ficheiros, histórico e definições. A chave histórica mantém-se.</summary>
     public const string Boquilhas = "boquilhas";
+
+    /// <summary>
+    /// Boquilhas · ver (Diogo, 22/10/2026: «para ele é ver apenas os
+    /// registos»): só o Histórico, em leitura, com o painel das linhas.
+    /// Sem registar, sem corrigir, sem definições.
+    /// </summary>
+    public const string BoquilhasView = "boquilhas.view";
 
     /// <summary>Ferramentas: ver, criar e editar fichas.</summary>
     public const string Ferramentas = "ferramentas";
@@ -54,10 +61,19 @@ public static class DmoCapabilities
         new(ControloCreate, "Controlo", "/Controlo/Resumo"),
         new(ControloApprove, "Controlo", "/Controlo/Approve"),
         new(Boquilhas, "Boquilhas", "/Boquilhas"),
+        new(BoquilhasView, "Boquilhas", BoquilhasViewHome),
         new(Ferramentas, "Ferramentas", "/Ferramentas"),
         new(ArmazemGestao, "Armazém", "/Armazem/Movimentos", EmDesenvolvimento: true),
         new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna", EmDesenvolvimento: true)
     ];
+
+    /// <summary>A entrada de quem só vê as Boquilhas: o Histórico, um movimento por linha.</summary>
+    public const string BoquilhasViewHome = "/Boquilhas?historico=1&vista=movimentos";
+
+    /// <summary>Só «Boquilhas · ver», sem «criar»: as Boquilhas em leitura.</summary>
+    public static bool BoquilhasOnlyView(IReadOnlyList<string> capabilities) =>
+        capabilities.Contains(BoquilhasView, StringComparer.Ordinal)
+        && !capabilities.Contains(Boquilhas, StringComparer.Ordinal);
 
     /// <summary>As chaves válidas num template (validação da gestão de templates).</summary>
     public static readonly IReadOnlyList<string> BetaSet = Modules.Select(m => m.Key).ToArray();

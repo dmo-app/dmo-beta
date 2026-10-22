@@ -3,11 +3,13 @@
 @{
     var fmtDate = new Func<DateTime, string>(v => DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(v).ToString("g", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")));
     var movementLabel = new Func<string, string>(BqMovementLabels.Of);
+    // Só «Boquilhas · ver»: as linhas não abrem nada (só leitura).
+    var onlyView = ViewData["BqOnlyView"] is true;
 }
                 <div class="dmo-table-wrap">
                   <table class="dmo-table" data-dmo-list="Movimentos detalhados">
                     <thead>
-                      <tr><th>Data/hora</th><th>Boquilha / lote</th><th>Movimento</th><th>Qtd.</th><th>Reparador</th><th>Máquina</th><th>Produção</th><th>Saldo</th></tr>
+                      <tr><th>Data/hora</th><th>Boquilha / lote</th><th>Movimento</th><th>Qtd.</th><th>Reparador</th><th>Linha</th><th>Produção</th><th>Saldo</th></tr>
                     </thead>
                     <tbody>
                       @foreach (var movement in Model)
@@ -15,8 +17,8 @@
                         @* Um clique abre a ficha da ferramenta (Diogo, 18/10/2026), não
                            o registo para lançar movimentos. *@
                         <tr data-dmo-row data-id="@movement.MovementId"
-                            data-dmo-open="@(movement.ToolId is { } toolId ? Url.Page("/Ferramentas/Ficha", new { tool_id = toolId }) : Url.Page("/Boquilhas/Index", new { trace_id = movement.BqRepairTraceId }))"
-                            title="@(movement.ToolId is null ? "Um clique ou Enter abre o registo do movimento" : "Um clique ou Enter abre a ficha da ferramenta")">
+                            @(onlyView ? null : Html.Raw("data-dmo-open=\"" + System.Text.Encodings.Web.HtmlEncoder.Default.Encode((movement.ToolId is { } toolId ? Url.Page("/Ferramentas/Ficha", new { tool_id = toolId }) : Url.Page("/Boquilhas/Index", new { trace_id = movement.BqRepairTraceId })) ?? string.Empty) + "\""))
+                            title="@(onlyView ? null : movement.ToolId is null ? "Um clique ou Enter abre o registo do movimento" : "Um clique ou Enter abre a ficha da ferramenta")">
                           <td>@fmtDate(movement.OccurredAtUtc)</td>
                           <td>@movement.ToolReference@(movement.ToolLot is { } tl ? $" · Lote {tl}" : null)</td>
                           <td>@movementLabel(movement.MovementType)</td>

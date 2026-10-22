@@ -119,9 +119,10 @@ public sealed class IndexModel : PageModel
                 DmoCapabilities.ControloCreate,
                 DmoCapabilities.ControloApprove
             }),
-            ("Boquilhas", new[]
+            ("Boquilhas (Criar: Registo · Boquilhas · Movimentos · Definições; Ver: só os Movimentos)", new[]
             {
-                DmoCapabilities.Boquilhas
+                DmoCapabilities.Boquilhas,
+                DmoCapabilities.BoquilhasView
             }),
             ("Ferramentas", new[]
             {
@@ -143,7 +144,8 @@ public sealed class IndexModel : PageModel
         DmoCapabilities.JobOnCreate => "Planeamento",
         DmoCapabilities.ControloCreate => "Controlo — Criar",
         DmoCapabilities.ControloApprove => "Controlo — Aprovar",
-        DmoCapabilities.Boquilhas => "Boquilhas",
+        DmoCapabilities.Boquilhas => "Boquilhas · criar",
+        DmoCapabilities.BoquilhasView => "Boquilhas · ver",
         DmoCapabilities.Ferramentas => "Ferramentas",
         DmoCapabilities.ArmazemGestao => "Armazém — Gestão",
         DmoCapabilities.ReparacaoInterna => "Reparação Interna",

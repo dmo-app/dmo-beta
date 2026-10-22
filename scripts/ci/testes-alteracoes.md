@@ -1455,41 +1455,18 @@ Novos: 1 · mudaram: 4 · saíram: 0
 
 Selo depois: `76c4b78f9b5bff97`
 
-## A-0053 · 2026-10-22 · contagem-lista
+## A-0049 · 2026-10-22 · ok-do-diogo
 
-Porquê: Histórico de cada ferramenta e página Histórico das Ferramentas; prova do menu no ShellProof; limpeza de FerramentaUtilizacoes entre testes (dados a passar de um teste para outro)
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKAJ9KLE6sBCRubqd9wzWpT
-Novos: 28 · mudaram: 2 · saíram: 0
+Porquê: Diogo aprovou a Boquilhas ver (ok para tudo)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 5 · mudaram: 2 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.ABq_MostraSoASuaParteDaReferencia`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AProcuraPelaLinhaEPelosDias_SemReferencia`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AProcuraPelaReferenciaEPeloTipo`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AcimaDoLimite_AProcuraFicaCortada`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.CadaFerramenta_TemASuaPercentagemDeUso_NaProducao`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NaBq_OsMfDeCadaJobOnPeloBqContext`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NoCm_UmaLinhaPorJobOn_ComOUsoEAsOutrasFerramentas`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.OsDias_ContamODiaDoInicio`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.OsDias_IncluemOsLimites_DoInicioEDoFim`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.OsDias_SemFim_ContamAteHoje`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.SemFiltro_AProcuraFicaVazia`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.UmaFerramentaQueNaoExiste_NaoTemHistorico`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AbreVazio_EProcuraPelaReferencia`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AcimaDoLimite_MostraOAviso`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_SemAChaveDasFerramentas_NaoAbre`
-- novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.OLote_SemZerosAEsquerda`
-- novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.ONomeDoHistorico_UsaOLoteSemZero`
-- novo: `tests/ShellProof/historico-menu.test.cjs :: (resto do ficheiro)`
-- novo: `tests/ShellProof/historico-menu.test.cjs :: abrir outra linha fecha a primeira`
-- novo: `tests/ShellProof/historico-menu.test.cjs :: clicar na linha abre o menu com os três destinos desse Job On`
-- novo: `tests/ShellProof/historico-menu.test.cjs :: o script da página foi encontrado`
-- novo: `tests/ShellProof/historico-menu.test.cjs :: um clique fora da tabela fecha o menu`
-- novo: `tests/ShellProof/historico-menu.test.cjs :: um segundo clique na linha fecha o menu`
-- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: (resto do ficheiro)`
-- mudou: `tests/ShellProof/package.json`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.O_painel_de_quem_so_ve_abre_os_movimentos_da_producao_escolhida_e_so_esses`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_cria_nas_Boquilhas_continua_a_registar_e_a_abrir_os_registos`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_so_ve_as_Boquilhas_e_recusado_ao_registar_e_nada_fica_gravado`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_so_ve_as_Boquilhas_ve_os_registos_no_Historico_sem_formularios_de_registo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DetailedMovements_AreATableWithTheHumanFacts_AndTheDoubleClickOpens`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
 
-Selo depois: `5830da254db7491b`
+Selo depois: `9619ddd13d4b61e1`
