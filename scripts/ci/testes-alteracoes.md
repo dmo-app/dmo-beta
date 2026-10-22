@@ -1242,7 +1242,7 @@ Selo depois: `69bb56498f37525b`
 
 ## A-0045 · 2026-10-22 · ok-do-diogo
 
-Porquê: 0.3.0-beta.3: ficha da ferramenta (Linhas compatíveis, Informação opcional com Fábrica de origem, % uso no Editar, posição e estado do Armazém, «produção» em vez de «SAP»); aviso da utilização por atualizar no Sumário; ajuda num círculo vazio mais pequeno, acima dos botões
+Porquê: 0.3.0-beta.3: ficha da ferramenta (Linhas compatíveis, Informação opcional com Fábrica de origem, % uso no Editar com os limites 0 e 100, posição e estado do Armazém, «produção» em vez de «SAP»); aviso da utilização por atualizar no Sumário; ajuda num círculo vazio mais pequeno, acima dos botões
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5p3qq7SxaMMGvauvLSyNav, cmsg_01A27e9ozcpoh4jdPRsuJbFyMz2soxnCyBtiE2B7JJVzqr, cmsg_01A27e9ozcpoh4jdPRsuJbFyUPiaq8Li4P6Nj19Pgq7ps5, cmsg_01A27e9ozcpoh4jdPRsuJbFy4tAPdRQjxH9PWS5rLJR3Di, cmsg_01A27e9ozcpoh4jdPRsuJbFyPbTAPQBEuX72Sqnqu3ZQ8x, cmsg_01A27e9ozcpoh4jdPRsuJbFy1mRo5xn7zAQy42TtGpH8pF, cmsg_01A27e9ozcpoh4jdPRsuJbFyQqraqL8sY7pUxJc1CmnVdJ
 Novos: 5 · mudaram: 6 · saíram: 0
 
@@ -1258,4 +1258,4 @@ Novos: 5 · mudaram: 6 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.FichaWarnings_GoToTheCorner`
 - mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
 
-Selo depois: `ff10a77a0b8cc11e`
+Selo depois: `66076833a517fa10`

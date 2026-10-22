@@ -1,5 +1,5 @@
 {
-  "selo": "ff10a77a0b8cc11e",
+  "selo": "66076833a517fa10",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1271,7 +1271,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.Pedir_AbreUmLembreteSoUmaVez": "3fbb7378191f2d27",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.UmFicheiroQueNaoEALista_NaoGravaNada": "d89c470b95cc11b2",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.UmFicheiroQueNaoEALista_NaoTemCabecalho": "400c99660ea937fc",
-    "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava": "d2ab26a63726c592",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava": "d606542d3d7c80f6",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.PorAtualizar_SaoOsLembretesAbertos_OsMaisAntigosPrimeiro": "b8a4a9643f1e3963",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/RegistosAntigos.cs :: (resto do ficheiro)": "971facc40e45b3c5",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserTests.cs :: (resto do ficheiro)": "b7a273c0413e0ccb",
@@ -1873,7 +1873,7 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico": "5a2e838918582175",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_BqSemQuantidade_AvisaQueAFabricacaoNaoECalculada": "694fc0fe4c0cfc84",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem": "98b09aa6026954cb",
-    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos": "3a06d43ceb43c269",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos": "b41b63fd67e1d584",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf": "534fbfdc8b4c44b0",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: (resto do ficheiro)": "5c5aec566a7b0ea3",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.AnonymousRequests_ChallengedBeforeAnyReadOrWrite": "be71f239a2d4842d",

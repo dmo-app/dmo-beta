@@ -288,6 +288,8 @@ public sealed class FerramentasUsoSapTests
         Assert.False(await Servico(db).RegistarPercentagemManualAsync("cm11", 90));
         Assert.False(await Servico(db).RegistarPercentagemManualAsync("cm11", -1));
         Assert.False(await Servico(db).RegistarPercentagemManualAsync("nao-existe", 5));
+        // O limite: 0 grava, só o negativo é recusado.
+        Assert.True(await Servico(db).RegistarPercentagemManualAsync("cm11", 0));
         Assert.True(await Servico(db).RegistarPercentagemManualAsync("cm11", 95));
 
         db.ChangeTracker.Clear();

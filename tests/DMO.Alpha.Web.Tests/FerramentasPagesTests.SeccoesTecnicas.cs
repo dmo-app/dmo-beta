@@ -193,8 +193,16 @@ public partial class FerramentasPagesTests
             Assert.Equal((75m, DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemManual, (long?)null), (ultima.Percentagem, ultima.Origem, ultima.Consumo));
         }
 
-        var acima = await GuardarAsync("120%");
+        // O limite do aviso: 100 grava sem aviso, 101 grava com aviso.
+        var cem = await GuardarAsync("100");
         Assert.Equal(3, Leituras());
+        Assert.DoesNotContain("O % uso ficou acima de 100", cem, StringComparison.Ordinal);
+        var centoEUm = await GuardarAsync("101");
+        Assert.Equal(4, Leituras());
+        Assert.Contains("O % uso ficou acima de 100", centoEUm, StringComparison.Ordinal);
+
+        var acima = await GuardarAsync("120%");
+        Assert.Equal(5, Leituras());
         Assert.Contains("O % uso ficou acima de 100", acima, StringComparison.Ordinal);
     }
 }
