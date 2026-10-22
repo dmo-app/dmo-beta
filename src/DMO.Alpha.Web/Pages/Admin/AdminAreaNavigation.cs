@@ -4,8 +4,8 @@ namespace DMO.Alpha.Web.Pages.Admin;
 
 /// <summary>
 /// Entradas da navegação de administração. O shell apresenta-as na primeira
-/// barra, juntamente com o Setup (o email do ADMIN), sem uma segunda barra de
-/// funções. O Canal Jobon junta as definições que ligam o Job On aos módulos,
+/// barra, sem uma segunda barra de funções. O Setup (PIN e email do ADMIN)
+/// vive em Definições → App e os Módulos nos Templates (Diogo, 22/10/2026). O Canal Jobon junta as definições que ligam o Job On aos módulos,
 /// a começar pela hora de viragem das Boquilhas (Diogo, 17/10/2026: «hora
 /// viragem precisa de outra página onde depois podemos adicionar mais
 /// módulos. Podemos chamar Canal Jobon»). Os totais de lote saíram para as

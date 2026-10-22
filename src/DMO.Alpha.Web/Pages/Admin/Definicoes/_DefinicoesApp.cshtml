@@ -1,0 +1,50 @@
+@model DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel
+@* A configuração da app (Diogo, 22/10/2026: «setup fica dentro das definições»): mostrada nas Definições → App, só ao ADMIN. Grava pelos handlers de /Admin/Definicoes, que voltam a /Definicoes?secao=app. *@
+    <section id="admEmail" class="dmo-card adm-card" aria-labelledby="admin-email-title" data-dmo-regiao data-dmo-parcial>
+        @* O «Guardar» no canto superior direito do cartão (Diogo, 18/10/2026:
+           «sempre canto superior direito dentro dos cards»); é o botão do
+           formulário (form="admEmailForm"). *@
+        <div class="dmo-card-topo">
+            <h3 id="admin-email-title">Email do ADMIN<partial name="_DmoHelp" model="@("O ADMIN é este email: quem entra com ele por email fica ADMIN. Só se aceita o email atual ou o de um utilizador já criado em Admin → Utilizadores, para haver sempre alguém que consiga entrar. Num ambiente novo, o primeiro login por email com sucesso assume o campo. Mudar o valor termina a sessão do ADMIN anterior no pedido seguinte.")" /></h3>
+            <div class="dmo-card-topo-acoes">
+                <button type="submit" class="dmo-button" id="admEmailGuardar" form="admEmailForm">Guardar</button>
+            </div>
+        </div>
+        @if (Model.SaveResultMessage.Length > 0)
+        {
+            <p data-dmo-toast="@(Model.SaveSucceeded ? "ok" : "erro")" role="@(Model.SaveSucceeded ? "status" : "alert")">@Model.SaveResultMessage@if (Model.NoAccountLink is { } criarUtilizador) {<partial name="_DmoAvisoLink" model="criarUtilizador" />}</p>
+        }
+        <form id="admEmailForm" method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveAdminEmail" class="adm-email-form">
+            <div class="dmo-field">
+                <label for="adminEmail">Email do ADMIN</label>
+                <input id="adminEmail" name="admin_email" type="email" value="@Model.AdminEmail" maxlength="256" placeholder="admin@empresa.pt" required />
+            </div>
+            <div class="dmo-field">
+                <label for="adminEmailConfirm">Confirmar email do ADMIN</label>
+                <input id="adminEmailConfirm" name="admin_email_confirm" type="email" maxlength="256" placeholder="Escreva o email outra vez" autocomplete="off" required />
+            </div>
+        </form>
+    </section>
+    <section id="admPin" class="dmo-card adm-card" aria-labelledby="admin-pin-title" data-dmo-regiao data-dmo-parcial>
+        <div class="dmo-card-topo">
+            <h3 id="admin-pin-title">PIN das Definições<partial name="_DmoHelp" model="@($"Abre o cadeado da parte Geral das Definições para quem não é ADMIN: quem o escreve pode mudar as definições gerais até sair. De {DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Minimo} a {DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Maximo} algarismos. Guarda-se cifrado; mudar o PIN fecha os cadeados abertos.")" /></h3>
+            <div class="dmo-card-topo-acoes">
+                <button type="submit" class="dmo-button" id="admPinGuardar" form="admPinForm">@(Model.TemPin ? "Mudar" : "Criar")</button>
+            </div>
+        </div>
+        @if (Model.PinResultMessage.Length > 0)
+        {
+            <p data-dmo-toast="@(Model.PinSucceeded ? "ok" : "erro")" role="@(Model.PinSucceeded ? "status" : "alert")">@Model.PinResultMessage</p>
+        }
+        <p class="card-note" data-dmo-pin-estado>@(Model.TemPin ? "O PIN está criado." : "Ainda não há PIN: a parte Geral das Definições fica fechada para todos menos o ADMIN.")</p>
+        <form id="admPinForm" method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SavePin" class="adm-email-form" autocomplete="off">
+            <div class="dmo-field">
+                <label for="admPinNovo">@(Model.TemPin ? "Novo PIN" : "PIN")</label>
+                <input id="admPinNovo" name="pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="@DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Maximo" required />
+            </div>
+            <div class="dmo-field">
+                <label for="admPinConfirmar">Confirmar o PIN</label>
+                <input id="admPinConfirmar" name="pin_confirmar" type="password" inputmode="numeric" autocomplete="new-password" maxlength="@DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Maximo" required />
+            </div>
+        </form>
+    </section>

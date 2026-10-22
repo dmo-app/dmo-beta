@@ -17,8 +17,8 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 /// valor; as famílias e o estado escolhem-se na linha e gravam logo.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.ArmazemGestao)]
-public sealed class DefinicoesModel(IReparadores reparadores, ShellStateFactory shellState) : PageModel
+[DefinicoesEntry("armazem", DmoCapabilities.ArmazemGestao)]
+public sealed class DefinicoesModel(IReparadores reparadores) : PageModel
 {
     public IReadOnlyList<ReparadorItem> Reparadores { get; private set; } = [];
 
@@ -60,22 +60,20 @@ public sealed class DefinicoesModel(IReparadores reparadores, ShellStateFactory 
         _ => null
     };
 
-    public async Task<IActionResult> OnGetAsync(string? gravacao)
+    /// <summary>GET: as definições vivem na página única /Definicoes (Diogo, 22/10/2026).</summary>
+    public IActionResult OnGet() => Redirect(DefinicoesAcesso.Nova(Request, "armazem"));
+
+    /// <summary>Carrega o que a secção deste módulo nas Definições mostra.</summary>
+    public async Task CarregarAsync(string? gravacao)
     {
-        ViewData["Title"] = "Definições — Armazém";
-        ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("armazem", "Armazém"))) with
-        {
-            ActiveFunctionKey = "definicoes",
-            Functions = ShellStateFactory.ArmazemFunctions("definicoes")
-        };
 
         Gravacao = gravacao;
         Reparadores = await reparadores.ListarAsync(HttpContext.RequestAborted);
-        return Page();
     }
 
     /// <summary>POST: criar um reparador de CM e MF.</summary>
     [EnvioUnico]
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostCriarAsync(
         [FromForm(Name = "nome")] string? nome,
         [FromForm(Name = "familias")] string? familias)
@@ -83,7 +81,7 @@ public sealed class DefinicoesModel(IReparadores reparadores, ShellStateFactory 
         var resultado = LerFamilias(familias) is { } f
             ? await reparadores.CriarAsync(nome, f.Cm, f.Mf, HttpContext.RequestAborted)
             : ReparadorResultado.SemFamilia;
-        return RedirectToPage("/Armazem/Definicoes", new { gravacao = Token(resultado) });
+        return RedirectToPage("/Definicoes/Index", new { gravacao = Token(resultado) });
     }
 
     /// <summary>
@@ -91,6 +89,7 @@ public sealed class DefinicoesModel(IReparadores reparadores, ShellStateFactory 
     /// resposta { ok, valor, aviso }); as famílias e o estado chegam das
     /// escolhas da linha (PRG).
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostMudarAsync(
         [FromForm(Name = "reparador_id")] int reparadorId,
         [FromForm(Name = "nome")] string? nome,
@@ -111,6 +110,6 @@ public sealed class DefinicoesModel(IReparadores reparadores, ShellStateFactory 
             return new JsonResult(new { ok, valor = ok ? nome?.Trim() : null, aviso = ok ? null : MensagemDe(gravacao) });
         }
 
-        return RedirectToPage("/Armazem/Definicoes", new { gravacao });
+        return RedirectToPage("/Definicoes/Index", new { gravacao });
     }
 }

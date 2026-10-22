@@ -88,7 +88,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
             ("identifier", email), ("password", password), ("returnUrl", "/"),
             ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(login)!)));
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        return client;
+        return await DefinicoesPin.DesbloquearAsync(_factory.Services, client);
     }
 
     private static async Task<string> GetAsync(HttpClient client, string url)
@@ -281,7 +281,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         var depois = await GetAsync(client, semLista.Headers.Location!.ToString());
         var zona = ZonaDoEnvio(depois);
         Assert.Contains("Escolha uma lista de destinatários. Nenhum email foi preparado.", zona);
-        Assert.Contains("href=\"/Controlo/Definicoes\"", zona);
+        Assert.Contains("href=\"/Definicoes?secao=controlo\"", zona);
     }
 
     [Fact]
@@ -311,7 +311,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         var comPeso = await GetAsync(client, $"/Controlo/Resumo?jobon_id={producao.JobOnId}");
         var zona = ZonaDoEnvio(comPeso);
         Assert.Contains("data-dmo-envio-sem-definicoes", zona);
-        Assert.Contains("href=\"/Controlo/Definicoes\"", zona);
+        Assert.Contains("href=\"/Definicoes?secao=controlo\"", zona);
     }
 
     [Fact]
@@ -319,7 +319,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
     {
         using var client = await LoginAsync("4805");
 
-        using var criada = await PostAsync(client, "/Controlo/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+        using var criada = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
             ("nome", " Produção "), ("destinatarios", "producao@fabrica.pt; chefe@fabrica.pt, nao-e-email producao@fabrica.pt"));
 
         Assert.Equal(HttpStatusCode.Redirect, criada.StatusCode);
@@ -341,13 +341,13 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         using var client = await LoginAsync("4806");
         SeedModelo();
 
-        using var semEmails = await PostAsync(client, "/Controlo/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+        using var semEmails = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
             ("nome", "Qualidade"), ("destinatarios", "qualidade"));
-        using var repetida = await PostAsync(client, "/Controlo/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+        using var repetida = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
             ("nome", "produção"), ("destinatarios", "outro@fabrica.pt"));
 
-        Assert.EndsWith("envio=SemEnderecos", semEmails.Headers.Location!.ToString());
-        Assert.EndsWith("envio=NomeRepetido", repetida.Headers.Location!.ToString());
+        Assert.EndsWith("envio=SemEnderecos&secao=controlo", semEmails.Headers.Location!.ToString());
+        Assert.EndsWith("envio=NomeRepetido&secao=controlo", repetida.Headers.Location!.ToString());
         using var scope = _factory.Services.CreateScope();
         Assert.Equal(new[] { "Produção" }, scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailListas.AsNoTracking().Select(l => l.Nome).ToArray());
     }
@@ -357,7 +357,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
     {
         using var client = await LoginAsync("4807");
         var (listaId, _) = SeedModelo();
-        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync("/Controlo/Definicoes")).Content.ReadAsStringAsync())!;
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync("/Definicoes")).Content.ReadAsStringAsync())!;
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "/Controlo/Definicoes?handler=MudarLista")
         {
@@ -382,13 +382,13 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         using var client = await LoginAsync("4808");
         var (listaId, _) = SeedModelo();
 
-        using var criado = await PostAsync(client, "/Controlo/Definicoes", "/Controlo/Definicoes?handler=GuardarModelo",
+        using var criado = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=GuardarModelo",
             ("nome", "Qualidade"), ("remetente", ""), ("assunto", "Peso {producao}"), ("corpo", "Linha 1\r\nLinha 2"), ("lista_id", listaId.ToString()));
-        using var recusado = await PostAsync(client, "/Controlo/Definicoes", "/Controlo/Definicoes?handler=GuardarModelo",
+        using var recusado = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=GuardarModelo",
             ("nome", "Outro"), ("remetente", "controlo"), ("assunto", ""), ("corpo", ""), ("lista_id", ""));
 
-        Assert.EndsWith("envio=ok-modelo", criado.Headers.Location!.ToString());
-        Assert.EndsWith("envio=RemetenteInvalido", recusado.Headers.Location!.ToString());
+        Assert.EndsWith("envio=ok-modelo&secao=controlo", criado.Headers.Location!.ToString());
+        Assert.EndsWith("envio=RemetenteInvalido&secao=controlo", recusado.Headers.Location!.ToString());
         using var scope = _factory.Services.CreateScope();
         var modelo = scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailModelos.AsNoTracking().Single(m => m.Nome == "Qualidade");
         Assert.Null(modelo.Remetente);
@@ -396,7 +396,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         Assert.Equal(listaId, modelo.ListaId);
         Assert.False(scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailModelos.Any(m => m.Nome == "Outro"));
 
-        var html = await GetAsync(client, "/Controlo/Definicoes");
+        var html = await GetAsync(client, "/Definicoes");
         Assert.Contains("data-dmo-dialog=\"ctl-modelo-" + modelo.Id + "\">Qualidade</button>", html);
     }
 }

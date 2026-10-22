@@ -1760,7 +1760,7 @@
               <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="moda" /> Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda" hidden>@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></label>
             </div>
           </div>
-          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a href="/Ferramentas/Definicoes#ferrDefSap">Ler a pasta do SAP</a></span>
+          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a href="/Definicoes?secao=ferramentas">Ler a pasta do SAP</a></span>
           @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {

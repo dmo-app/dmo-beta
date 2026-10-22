@@ -261,6 +261,17 @@ builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.ResumoPdfDocumentBu
 // O envio do PDF do Peso por email (D9): o email abre no Outlook do PC, sem
 // conta no servidor; as listas e os modelos estão nas Definições.
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnvioEmailDefinicoes>();
+builder.Services.AddScoped<DMO.Alpha.Core.Admin.IDefinicoesPessoais, DMO.Alpha.Infrastructure.Admin.DefinicoesPessoais>();
+// As Definições num só sítio: a página /Definicoes mostra as secções com os modelos das páginas antigas.
+builder.Services.AddScoped<DMO.Alpha.Web.Services.MudancaDePalavraPasse>();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<DMO.Alpha.Core.Admin.IPinDasDefinicoes, DMO.Alpha.Infrastructure.Admin.PinDasDefinicoes>();
+builder.Services.AddScoped<DMO.Alpha.Web.Services.DesbloqueioDasDefinicoes>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.Controlo.DefinicoesModel>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.Armazem.DefinicoesModel>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnviarPesoPorEmailHandler>();
 // O APPROVE-MÍNIMO (a decisão GATE 4): o registo de visão da folha do
 // controlo — quem abriu e quando; nunca é gate.
@@ -360,14 +371,9 @@ builder.Services.AddScoped<IAdminAuthorizationService, AdminAuthorizationService
 // O ADMIN é o email guardado nas Definições: o setting canónico que o
 // login, o validador de sessão e os boundary checks leem.
 builder.Services.AddScoped<IAdminEmailSettings, AdminEmailSettings>();
-// Os interruptores dos módulos (Admin → Setup): um módulo em
-// desenvolvimento sem linha guardada fica com Dmo:ModulosEmDesenvolvimento
-// (desligado por omissão).
-builder.Services.AddSingleton<ModuleSwitchCache>();
-builder.Services.AddScoped<IModuleSwitches>(sp => new ModuleSwitches(
-    sp.GetRequiredService<DmoDbContext>(),
-    sp.GetRequiredService<ModuleSwitchCache>(),
-    ModuleSwitchKeys.DefaultEmDesenvolvimento(sp.GetRequiredService<IConfiguration>()["Dmo:ModulosEmDesenvolvimento"])));
+// Sem interruptores dos módulos (Diogo, 22/10/2026: «isso já está no criar
+// template»): só o template decide. As linhas Modulo:* e Modulos:Testadores
+// que existam em ModuleSettings ficam lá, mas já não se leem.
 builder.Services.AddScoped<ITemplateAdminService, TemplateAdminService>();
 builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 
@@ -568,7 +574,13 @@ app.Use(async (context, next) =>
             || path.StartsWithSegments("/Sugestoes")
             || path == "/";
 
-        if (operationalPath)
+        // As Definições num só sítio: o ADMIN muda a parte Geral pelos
+        // handlers das páginas antigas de definições (o filtro
+        // DefinicoesEntry só o deixa nos handlers [DefinicaoGeral]).
+        var definicoesDoModulo = path.Value?.EndsWith("/Definicoes", StringComparison.OrdinalIgnoreCase) == true
+            && HttpMethods.IsPost(context.Request.Method);
+
+        if (operationalPath && !definicoesDoModulo)
         {
             if (HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsHead(context.Request.Method))
                 context.Response.Redirect("/Admin/Users");

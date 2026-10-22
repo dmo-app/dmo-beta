@@ -84,7 +84,7 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
             db.SaveChanges();
         }
 
-        return await LoginAsync(email, password);
+        return await DefinicoesPin.DesbloquearAsync(_factory.Services, await LoginAsync(email, password));
     }
 
     private async Task<HttpClient> LoginAdminAsync()
@@ -103,7 +103,7 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
 
     private static async Task<string> GetPageAsync(HttpClient client, string? save = null)
     {
-        var response = await client.GetAsync($"{PagePath}{(save is null ? null : $"?save={save}")}");
+        var response = await client.GetAsync($"/Definicoes{(save is null ? null : $"?save={save}")}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
     }
@@ -142,9 +142,7 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
         Assert.Contains("value=\"0.20\"", html);
         Assert.Contains("Sem valor guardado: vale a norma de 0,20 mm.", html);
 
-        var nav = System.Text.RegularExpressions.Regex.Match(html,
-            "<nav class=\"tabs dmo-secondary-nav\"[\\s\\S]*?</nav>").Value;
-        Assert.Matches("<a href=\"/Controlo/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", nav);
+        Assert.Matches("<a href=\"/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
     }
 
     [Fact]
@@ -154,7 +152,7 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
 
         var first = await PostToleranceAsync(client, "0,30");
         Assert.Equal(HttpStatusCode.Redirect, first.StatusCode);
-        Assert.Contains("/Controlo/Definicoes", first.Headers.Location!.ToString());
+        Assert.StartsWith("/Definicoes", first.Headers.Location!.ToString());
         Assert.Contains("save=ok-tolerancia", first.Headers.Location!.ToString());
         Assert.Equal(new[] { 0.30m }, StoredTolerances());
 
@@ -209,7 +207,7 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
         var response = await PostToleranceAsync(client, value);
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.EndsWith($"save={save}", response.Headers.Location!.ToString());
+        Assert.EndsWith($"save={save}&secao=controlo", response.Headers.Location!.ToString());
         Assert.Equal(new[] { decimal.Parse(saved, System.Globalization.CultureInfo.InvariantCulture) }, StoredTolerances());
 
         var html = await GetPageAsync(client, save);
@@ -230,7 +228,9 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
 
         var get = await client.GetAsync(PagePath);
         Assert.Equal(HttpStatusCode.Redirect, get.StatusCode);
-        Assert.DoesNotContain("/Controlo/Definicoes", get.Headers.Location!.ToString());
+        Assert.DoesNotContain("/Definicoes", get.Headers.Location!.ToString());
+        var pagina = await client.GetStringAsync("/Definicoes");
+        Assert.DoesNotContain("id=\"ctlDefTolerancia\"", pagina);
     }
 
     [Fact]
@@ -240,13 +240,16 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
 
         foreach (var url in new[] { "/Admin/Definicoes/Index", "/Admin/Definicoes/Index?definition=controlo", "/Admin/Definicoes/Index?definition=pegamentos" })
         {
+            // O Setup vive nas Definições → App (Diogo, 22/10/2026); o
+            // Controlo tem a sua secção à parte.
             var response = await client.GetAsync(url);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var html = await response.Content.ReadAsStringAsync();
-            Assert.DoesNotContain("name=\"tolerance_mm\"", html);
-            Assert.DoesNotContain("data-dmo-pasta-pdf-escolher", html);
-            Assert.DoesNotContain("<option value=\"controlo\"", html);
-            Assert.Contains("Email do ADMIN", html);
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.Equal("/Definicoes?secao=app", response.Headers.Location?.OriginalString);
+            var html = await client.GetStringAsync("/Definicoes?secao=app");
+            var app = html[html.IndexOf("id=\"sec-app\"", StringComparison.Ordinal)..];
+            Assert.DoesNotContain("name=\"tolerance_mm\"", app);
+            Assert.DoesNotContain("data-dmo-pasta-pdf-escolher", app);
+            Assert.Contains("Email do ADMIN", app);
         }
     }
 }

@@ -70,7 +70,7 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
             db.SaveChanges();
         }
 
-        return await LoginAsync(email, password);
+        return await DefinicoesPin.DesbloquearAsync(_factory.Services, await LoginAsync(email, password));
     }
 
     private T NaBase<T>(Func<DmoDbContext, T> ler)
@@ -130,7 +130,7 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
         // Diogo, 22/10/2026: sem os Próximos Job On nem as Posições; ficam o Registo, os Movimentos e as Definições.
         Assert.Matches("<a href=\"/Armazem/Movimentos\"[^>]*aria-current=\"page\">Registo</a>", html);
         Assert.Contains("href=\"/Armazem/Ultimos\"", html);
-        Assert.Contains("href=\"/Armazem/Definicoes\"", html);
+        Assert.Contains("href=\"/Definicoes\"", html);
         Assert.DoesNotContain("/Armazem/Posicoes", html);
         Assert.DoesNotContain("/Armazem/Proximos", html);
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/Armazem/Posicoes")).StatusCode);
@@ -144,7 +144,7 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
     public async Task Definicoes_CriarEMudarReparadores()
     {
         using var client = await LoginOperatorAsync("6104", DmoCapabilities.ArmazemGestao);
-        var pagina = await client.GetStringAsync("/Armazem/Definicoes");
+        var pagina = await client.GetStringAsync("/Definicoes");
 
         var depois = await client.GetStringAsync(await EnviarAsync(client, pagina,
             ("armRepNome", "Moldes Lda"), ("armRepFamilias", EnvioDoFormulario.Opcao(pagina, "armRepFamilias", "Só CM"))));
@@ -168,7 +168,7 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
 
         var recebe = $"armRepRecebe-{r.Id}";
         var estado = $"armRepEstado-{r.Id}";
-        var html = await client.GetStringAsync("/Armazem/Definicoes");
+        var html = await client.GetStringAsync("/Definicoes");
         html = await client.GetStringAsync(await EnviarAsync(client, html, (recebe, EnvioDoFormulario.Opcao(html, recebe, "Só MF"))));
         html = await client.GetStringAsync(await EnviarAsync(client, html, (estado, EnvioDoFormulario.Opcao(html, estado, "Arquivado"))));
         Assert.Contains("Definição gravada.", Elemento(html, "id=\"armDefAvisos\""));

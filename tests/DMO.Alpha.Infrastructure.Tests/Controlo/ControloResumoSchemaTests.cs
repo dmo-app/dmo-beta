@@ -99,7 +99,7 @@ public sealed class ControloResumoSchemaTests
                 // O envio único guardado na base (fundações do full).
                 "OperacoesRegistadas",
                 // O Armazém do full (0.2.0-beta.8).
-                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados",
+                "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados",
                 // A utilização das ferramentas e o lembrete.
                 "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao",
                 // A folha da fábrica do Job On (AddJobOnFolha).

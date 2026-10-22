@@ -58,9 +58,9 @@ public sealed partial class DefinicoesPorModuloPageTests
     public async Task E10_ControloDefinicoes_ToleranciaNumaZona_APastaDosPdfsFica()
     {
         using var client = await LoginOperatorAsync("5110", DmoCapabilities.ControloCreate);
-        var html = await client.GetStringAsync("/Controlo/Definicoes?save=ok-tolerancia");
+        var html = await client.GetStringAsync("/Definicoes?save=ok-tolerancia");
 
-        var raiz = Posicao(html, "<main class=\"ctl-def-page dmo-workspace\" aria-labelledby=\"ctl-def-title\" data-dmo-troca>");
+        var raiz = Posicao(html, "<main class=\"def-page dmo-workspace\" aria-labelledby=\"def-title\" data-dmo-troca>");
         var pasta = Posicao(html, "data-dmo-pasta-pdf>");
         var zona = Posicao(html, "<section id=\"ctlDefTolerancia\" class=\"dmo-card ctl-def-card\" aria-labelledby=\"pegamentos-settings-title\" data-dmo-regiao data-dmo-parcial>");
         Assert.True(raiz < pasta && pasta < zona, "a pasta dos PDFs fica fora da zona, antes dela");
@@ -69,10 +69,10 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"ctlDefGuardar\">Guardar</button>", html);
         SemAvisosNoFluxo(html);
 
-        var recusa = await client.GetStringAsync("/Controlo/Definicoes?save=tolerancia-invalida");
+        var recusa = await client.GetStringAsync("/Definicoes?save=tolerancia-invalida");
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">A tolerância é um número", recusa);
 
-        var aviso = await client.GetStringAsync("/Controlo/Definicoes?save=aviso-tolerancia-fora");
+        var aviso = await client.GetStringAsync("/Definicoes?save=aviso-tolerancia-fora");
         Assert.True(Posicao(aviso, "<p data-dmo-toast=\"aviso\" role=\"status\">Tolerância guardada: ± ") > Posicao(aviso, "<section id=\"ctlDefTolerancia\""));
         SemAvisosNoFluxo(aviso);
     }
@@ -85,8 +85,8 @@ public sealed partial class DefinicoesPorModuloPageTests
         try
         {
             using var client = await LoginOperatorAsync("5111", DmoCapabilities.Ferramentas);
-            var html = await client.GetStringAsync(FerramentasPath);
-            Posicao(html, "<main class=\"ferr-def-page dmo-workspace\" aria-labelledby=\"ferr-def-title\" data-dmo-troca>");
+            var html = await client.GetStringAsync("/Definicoes");
+            Posicao(html, "<main class=\"def-page dmo-workspace\" aria-labelledby=\"def-title\" data-dmo-troca>");
             var zona = Posicao(html, "<section id=\"ferrDefTotais\" class=\"dmo-card ferr-def-card\" aria-labelledby=\"tool-quantities-title\" data-dmo-regiao data-dmo-parcial>");
             Assert.True(Posicao(html, "handler=SaveToolLotQuantities") > zona);
             Assert.Contains($"<input id=\"ferr-total-BQ-B1\" name=\"quantities[{b1}]\"", html);
@@ -97,8 +97,9 @@ public sealed partial class DefinicoesPorModuloPageTests
             var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
             using var partial = await client.PostAsync($"{FerramentasPath}?handler=SaveToolLotQuantities",
                 HtmlFormHelpers.BuildFormPost(($"quantities[{b1}]", "x"), ("__RequestVerificationToken", token)));
-            Assert.Equal(HttpStatusCode.OK, partial.StatusCode);
-            var warned = WebUtility.HtmlDecode(await partial.Content.ReadAsStringAsync());
+            // A gravação volta às Definições (PRG); o aviso vem uma vez (TempData).
+            Assert.Equal(HttpStatusCode.Redirect, partial.StatusCode);
+            var warned = WebUtility.HtmlDecode(await client.GetStringAsync(partial.Headers.Location!.ToString()));
             Assert.Contains("<p data-dmo-toast=\"aviso\" role=\"status\">Os outros totais foram guardados, exceto: BQ na B1", warned);
             SemAvisosNoFluxo(warned);
         }
@@ -112,13 +113,13 @@ public sealed partial class DefinicoesPorModuloPageTests
     public async Task E10_BoquilhasDefinicoes_ReparadoresERotasEmZonas_UmaMensagemNoCanto()
     {
         using var client = await LoginOperatorAsync("5112", DmoCapabilities.Boquilhas);
-        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await client.GetStringAsync("/Boquilhas/Definicoes"))!;
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await client.GetStringAsync("/Definicoes"))!;
         using var created = await client.PostAsync("/Boquilhas/Definicoes?handler=CreateRepairer",
             HtmlFormHelpers.BuildFormPost(("name", "Reparador E10"), ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, created.StatusCode);
         var html = await client.GetStringAsync(created.Headers.Location!.ToString());
 
-        Posicao(html, "<main class=\"bq-def-page dmo-workspace\" aria-labelledby=\"bq-def-title\" data-dmo-troca>");
+        Posicao(html, "<main class=\"def-page dmo-workspace\" aria-labelledby=\"def-title\" data-dmo-troca>");
         var avisos = Posicao(html, "<div id=\"bqDefAvisos\" class=\"dmo-zona\" data-dmo-regiao>");
         var reparadores = Posicao(html, "<section id=\"bqDefReparadores\" class=\"dmo-card bq-def-card\" aria-labelledby=\"boquilhas-repairers-title\" data-dmo-regiao data-dmo-parcial>");
         var rotas = Posicao(html, "<section id=\"bqDefRotas\" class=\"dmo-card bq-def-card\" aria-labelledby=\"boquilhas-routing-title\" data-dmo-regiao data-dmo-parcial>");
@@ -133,7 +134,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"bqDefCriar\">Criar reparador</button>", html);
         SemAvisosNoFluxo(html);
 
-        var recusa = await client.GetStringAsync("/Boquilhas/Definicoes?save=reparador-inexistente");
+        var recusa = await client.GetStringAsync("/Definicoes?save=reparador-inexistente");
         Assert.Single(Regex.Matches(recusa, "data-dmo-toast="));
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">O reparador indicado já não existe.", recusa);
     }
@@ -143,8 +144,8 @@ public sealed partial class DefinicoesPorModuloPageTests
     {
         using var admin = await LoginAdminAsync();
 
-        var setup = await admin.GetStringAsync("/Admin/Definicoes?save=ok-admin");
-        Posicao(setup, "<main class=\"adm-page\" aria-labelledby=\"settings-title\" data-dmo-troca>");
+        var setup = await admin.GetStringAsync("/Definicoes?secao=app&app=ok-admin");
+        Posicao(setup, "<main class=\"def-page dmo-workspace\" aria-labelledby=\"def-title\" data-dmo-troca>");
         var zona = Posicao(setup, "<section id=\"admEmail\" class=\"dmo-card adm-card\" aria-labelledby=\"admin-email-title\" data-dmo-regiao data-dmo-parcial>");
         Assert.True(Posicao(setup, "<p data-dmo-toast=\"ok\" role=\"status\">Email do ADMIN guardado.</p>") > zona);
         Assert.True(Posicao(setup, "handler=SaveAdminEmail") > zona);
@@ -152,7 +153,7 @@ public sealed partial class DefinicoesPorModuloPageTests
             "<button type=\"submit\" class=\"dmo-button\" id=\"admEmailGuardar\" form=\"admEmailForm\">Guardar</button>", "admEmailForm");
         SemAvisosNoFluxo(setup);
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">Os dois emails não coincidem.",
-            await admin.GetStringAsync("/Admin/Definicoes?save=admin-email-diferente"));
+            await admin.GetStringAsync("/Definicoes?secao=app&app=admin-email-diferente"));
 
         var canal = await admin.GetStringAsync($"{CanalJobonPath}?save=ok");
         Posicao(canal, "<main class=\"adm-page\" aria-labelledby=\"canal-jobon-title\" data-dmo-troca>");

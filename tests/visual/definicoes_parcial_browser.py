@@ -209,12 +209,12 @@ with sync_playwright() as playwright:
     # -------------------------------------------------------------------- Admin
     page, pedidos, erros = entrar(browser, admin_email)
 
-    # Setup: o email do ADMIN (o mesmo, para a sessão continuar).
-    page.goto(base + '/Admin/Definicoes')
+    # Definições → App (antes o Setup): o email do ADMIN (o mesmo, para a sessão continuar).
+    page.goto(base + '/Definicoes?secao=app')
     no_canto(page, '#admEmailGuardar', '#admEmail', '#adminEmail')
     page.fill('#adminEmail', admin_email)
     page.fill('#adminEmailConfirm', admin_email)
-    gravar(page, pedidos, lambda: page.click('#admEmailGuardar'), ['#settings-title'], 'Setup, email do ADMIN')
+    gravar(page, pedidos, lambda: page.click('#admEmailGuardar'), ['#def-title'], 'App, email do ADMIN')
     toast(page, 'Email do ADMIN guardado.')
     assert page.input_value('#adminEmail') == admin_email
     assert page.input_value('#adminEmailConfirm') == ''

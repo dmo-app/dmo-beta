@@ -100,12 +100,12 @@ public partial class PuncoesPageTests
     {
         var (_, controloId) = await SeedProductionAsync(CmProcess.Nnpb);
         SeedUser("4330", "Operador Posições", "provider-puncoes-pos", "PuncoesPos1!");
-        using var client = await LoginClientAsync("4330", "PuncoesPos1!");
+        using var client = await DefinicoesPin.DesbloquearAsync(_factory.Services, await LoginClientAsync("4330", "PuncoesPos1!"));
         var lista = await SeedTabelaAprovadaAsync(controloId);
 
         try
         {
-            var token = await GetVerificationTokenAsync(client, "/Controlo/Definicoes");
+            var token = await GetVerificationTokenAsync(client, "/Definicoes");
             var invalido = await client.PostAsync("/Controlo/Definicoes?handler=SavePuncoesSeccoes", HtmlFormHelpers.BuildFormPost(
                 ("maquina", "C2"), ("seccoes", "0"), ("__RequestVerificationToken", token)));
             Assert.Contains("seccoes=Invalido", invalido.Headers.Location!.ToString());
@@ -113,7 +113,7 @@ public partial class PuncoesPageTests
                 ("maquina", "C2"), ("seccoes", "2"), ("__RequestVerificationToken", token)));
             Assert.Contains("seccoes=Gravado", gravado.Headers.Location!.ToString());
 
-            var definicoes = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, "/Controlo/Definicoes"));
+            var definicoes = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, "/Definicoes"));
             Assert.Equal("C2 8 Guardar", Texto(Bloco(definicoes, "data-dmo-linha=\"C2\"", "tr")));
 
             var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));

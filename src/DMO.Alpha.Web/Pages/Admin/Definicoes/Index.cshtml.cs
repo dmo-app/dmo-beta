@@ -2,6 +2,7 @@ using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Routing;
 
 namespace DMO.Alpha.Web.Pages.Admin.Definicoes;
 
@@ -15,14 +16,40 @@ namespace DMO.Alpha.Web.Pages.Admin.Definicoes;
 /// </summary>
 public class IndexModel(
     IAdminEmailSettings adminEmailSettings,
-    IModuleSwitches moduleSwitches,
-    IUserAdminService users) : PageModel
+    IPinDasDefinicoes pinDasDefinicoes) : PageModel
 {
-    /// <summary>Os interruptores dos módulos, como estão guardados.</summary>
-    public ModuleSwitchState? Switches { get; private set; }
+    /// <summary>TRUE quando o PIN das Definições já foi criado.</summary>
+    public bool TemPin { get; private set; }
 
-    /// <summary>Os utilizadores que podem ser de teste (os ativos).</summary>
-    public IReadOnlyList<UserAdminSummary> Users { get; private set; } = Array.Empty<UserAdminSummary>();
+    public string? PinResult { get; private set; }
+
+    public bool PinSucceeded => PinResult == "ok";
+
+    public string PinResultMessage => PinResult switch
+    {
+        "ok" => "PIN das Definições guardado.",
+        "invalido" => $"O PIN tem de ter de {PinDasDefinicoesRegras.Minimo} a {PinDasDefinicoesRegras.Maximo} algarismos.",
+        "diferente" => "Os dois PINs não coincidem. O PIN não foi alterado.",
+        _ => string.Empty
+    };
+
+    /// <summary>
+    /// POST: criar ou mudar o PIN DAS DEFINIÇÕES (Diogo, 22/10/2026): abre o
+    /// cadeado da parte Geral das Definições. Guarda-se só o hash; mudar o PIN
+    /// fecha os cadeados já abertos. ADMIN apenas.
+    /// </summary>
+    public async Task<IActionResult> OnPostSavePinAsync(
+        [FromForm(Name = "pin")] string? pin,
+        [FromForm(Name = "pin_confirmar")] string? pinConfirmar)
+    {
+        if (!string.Equals(pin, pinConfirmar, StringComparison.Ordinal))
+        {
+            return Voltar(new { pinapp = "diferente" });
+        }
+
+        var resultado = await pinDasDefinicoes.DefinirAsync(pin, HttpContext.RequestAborted);
+        return Voltar(new { pinapp = resultado == PinGravacao.Gravado ? "ok" : "invalido" });
+    }
 
     /// <summary>Resultado do save transportado por query (PRG), apenas apresentação.</summary>
     public string? SaveResult { get; private set; }
@@ -39,7 +66,6 @@ public class IndexModel(
         "ok-admin" => "Email do ADMIN guardado.",
         "admin-email-invalida" => "O email indicado não é utilizável.",
         "admin-email-diferente" => "Os dois emails não coincidem. O email do ADMIN não foi alterado.",
-        "ok-modulos" => "Módulos guardados.",
         "admin-email-sem-conta" => "Este email ainda não tem conta. Crie primeiro o utilizador em Admin → Utilizadores.",
         _ => string.Empty
     };
@@ -51,10 +77,22 @@ public class IndexModel(
     public DmoAvisoLink? NoAccountLink { get; private set; }
 
     /// <summary>TRUE quando o save transportado é uma gravação feita (a mensagem fecha sozinha).</summary>
-    public bool SaveSucceeded => SaveResult is "ok-admin" or "ok-modulos";
+    public bool SaveSucceeded => SaveResult is "ok-admin";
 
-    public async Task<IActionResult> OnGetAsync(string? save, string? email)
+    /// <summary>
+    /// O Setup mudou-se para as Definições → App (Diogo, 22/10/2026: «setup
+    /// fica dentro das definições»): o endereço antigo abre lá.
+    /// </summary>
+    public IActionResult OnGet() => Redirect(Destino);
+
+    /// <summary>A secção App das Definições, onde estes cartões vivem.</summary>
+    public const string Destino = "/Definicoes?secao=app";
+
+    /// <summary>Carrega os cartões para a secção App das Definições (?app=…, ?pinapp=…).</summary>
+    public async Task CarregarAsync(string? save, string? email, string? pin)
     {
+        PinResult = pin;
+        TemPin = await pinDasDefinicoes.HashAsync(HttpContext.RequestAborted) is not null;
         SaveResult = save;
         if (save == "admin-email-sem-conta")
         {
@@ -64,33 +102,18 @@ public class IndexModel(
             NoAccountLink = new DmoAvisoLink("Criar o utilizador", $"/Admin/Users{comEmail}#dmuCriar");
         }
         AdminEmail = await adminEmailSettings.GetAdminEmailAsync(HttpContext.RequestAborted);
-        Switches = await moduleSwitches.GetAsync(HttpContext.RequestAborted);
-        Users = (await users.ListUsersAsync(HttpContext.RequestAborted)).Where(u => !u.IsStandBy).ToArray();
-        return Page();
     }
 
-    /// <summary>
-    /// POST: guardar os interruptores dos módulos (um modo por módulo) e os
-    /// utilizadores de teste. Um valor desconhecido mantém o modo guardado.
-    /// ADMIN apenas (a pasta /Admin).
-    /// </summary>
-    public async Task<IActionResult> OnPostSaveModulosAsync(
-        [FromForm(Name = "testadores")] List<Guid>? testadores)
+    private RedirectToPageResult Voltar(object valores, string? fragmento = null)
     {
-        var current = await moduleSwitches.GetAsync(HttpContext.RequestAborted);
-        var modes = new Dictionary<string, ModuleSwitchMode>(StringComparer.Ordinal);
-        foreach (var module in DmoCapabilities.Modules)
+        var rota = new RouteValueDictionary { ["secao"] = "app" };
+        foreach (var (chave, valor) in new RouteValueDictionary(valores))
         {
-            modes[module.Key] = ModuleSwitchKeys.Parse(Request.Form[FieldName(module.Key)])
-                ?? current.ModeOf(module.Key);
+            rota[chave] = valor;
         }
 
-        await moduleSwitches.SaveAsync(modes, testadores ?? [], HttpContext.RequestAborted);
-        return RedirectToPage("/Admin/Definicoes/Index", null, new { save = "ok-modulos" }, "admModulos");
+        return RedirectToPage("/Definicoes/Index", null, rota, fragmento);
     }
-
-    /// <summary>O nome do campo do modo de um módulo no formulário.</summary>
-    public static string FieldName(string moduleKey) => "modulo_" + moduleKey;
 
     /// <summary>
     /// POST: guardar O EMAIL DO ADMIN: quem autentica com este email entra
@@ -106,7 +129,7 @@ public class IndexModel(
         // pedido seguinte): o email é escrito duas vezes antes de gravar.
         if (!string.Equals(adminEmail?.Trim(), adminEmailConfirm?.Trim(), StringComparison.OrdinalIgnoreCase))
         {
-            return RedirectToPage("/Admin/Definicoes/Index", new { save = "admin-email-diferente" });
+            return Voltar(new { app = "admin-email-diferente" });
         }
 
         var outcome = await adminEmailSettings.SaveAdminEmailAsync(
@@ -115,12 +138,12 @@ public class IndexModel(
 
         return outcome switch
         {
-            SaveAdminEmailResult.Success => RedirectToPage("/Admin/Definicoes/Index", new { save = "ok-admin" }),
+            SaveAdminEmailResult.Success => Voltar(new { app = "ok-admin" }),
             // Um email sem conta não se grava: com ele, ninguém voltava a
             // entrar no Admin (sweep de 19/10/2026, AD-1).
-            SaveAdminEmailResult.NoAccount => RedirectToPage("/Admin/Definicoes/Index",
-                new { save = "admin-email-sem-conta", email = adminEmail?.Trim() }),
-            _ => RedirectToPage("/Admin/Definicoes/Index", new { save = "admin-email-invalida" })
+            SaveAdminEmailResult.NoAccount => Voltar(
+                new { app = "admin-email-sem-conta", email = adminEmail?.Trim() }),
+            _ => Voltar(new { app = "admin-email-invalida" })
         };
     }
 }

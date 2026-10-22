@@ -166,7 +166,6 @@ public sealed class ShellStateFactory
         var pegamentos = controloId is int p ? $"/Controlo/Pegamentos?controlo_id={p}" : "/Controlo/Pegamentos";
         var puncoes = controloId is int pu ? $"/Controlo/Puncoes?controlo_id={pu}" : "/Controlo/Puncoes";
         var historico = "/Controlo/Peso?historico=1";
-        var definicoes = "/Controlo/Definicoes";
         var funcoes = new[]
         {
             new FunctionPresentation("peso", "Peso", peso, null, activeKey == "peso", true, true),
@@ -178,8 +177,7 @@ public sealed class ShellStateFactory
             new FunctionPresentation("resumo", "Resumo", resumo, null, activeKey == "resumo", true, true),
             new FunctionPresentation("funcoes", "Funções", null, null, funcoes.Any(f => f.Selected), true, true,
                 Children: funcoes),
-            new FunctionPresentation("historico", "Histórico", historico, null, activeKey == "historico", true, true),
-            new FunctionPresentation("definicoes", "Definições", definicoes, null, activeKey == "definicoes", true, true)
+            new FunctionPresentation("historico", "Histórico", historico, null, activeKey == "historico", true, true)
         };
     }
 
@@ -219,8 +217,7 @@ public sealed class ShellStateFactory
         {
             new FunctionPresentation("registo", "Registo", "/Boquilhas", null, activeKey == "registo", true, true),
             new FunctionPresentation("ficheiros", "Boquilhas", "/Boquilhas?ficheiros=1", null, activeKey == "ficheiros", true, true),
-            new FunctionPresentation("historico", "Histórico", "/Boquilhas?historico=1&vista=matriz", null, activeKey == "historico", true, true),
-            new FunctionPresentation("definicoes", "Definições", "/Boquilhas/Definicoes", null, activeKey == "definicoes", true, true)
+            new FunctionPresentation("historico", "Histórico", "/Boquilhas?historico=1&vista=matriz", null, activeKey == "historico", true, true)
         };
 
     /// <summary>
@@ -237,8 +234,7 @@ public sealed class ShellStateFactory
             new FunctionPresentation("ver", "Ver", "/Ferramentas", null, activeKey == "ver", true, true),
             new FunctionPresentation("criar", "Criar", "/Ferramentas?criar=1", null, activeKey == "criar", true, true),
             // A Reparação Programada (Diogo, 22/10/2026): um separador das Ferramentas, sem chave própria.
-            new FunctionPresentation("programada", "Reparação Programada", "/Ferramentas/ReparacaoProgramada", null, activeKey == "programada", true, true),
-            new FunctionPresentation("definicoes", "Definições", "/Ferramentas/Definicoes", null, activeKey == "definicoes", true, true)
+            new FunctionPresentation("programada", "Reparação Programada", "/Ferramentas/ReparacaoProgramada", null, activeKey == "programada", true, true)
         };
 
     /// <summary>
@@ -249,8 +245,7 @@ public sealed class ShellStateFactory
         new[]
         {
             new FunctionPresentation("movimentos", "Registo", "/Armazem/Movimentos", null, activeKey == "movimentos", true, true),
-            new FunctionPresentation("ultimos", "Movimentos", "/Armazem/Ultimos", null, activeKey == "ultimos", true, true),
-            new FunctionPresentation("definicoes", "Definições", "/Armazem/Definicoes", null, activeKey == "definicoes", true, true)
+            new FunctionPresentation("ultimos", "Movimentos", "/Armazem/Ultimos", null, activeKey == "ultimos", true, true)
         };
 
     /// <summary>

@@ -77,6 +77,14 @@ public sealed class SaveModuleSettingHandler : ISaveModuleSettingHandler
 
                 break;
 
+            case ModuleSettingKeys.ControloPastaPdf:
+                if (command.SettingValue.Trim().Length > ModuleSettingKeys.ControloPastaPdfMax)
+                {
+                    return new SaveModuleSettingOutcome(SaveModuleSettingResult.EmptyValue);
+                }
+
+                break;
+
             default:
                 return new SaveModuleSettingOutcome(SaveModuleSettingResult.UnknownSettingKey);
         }

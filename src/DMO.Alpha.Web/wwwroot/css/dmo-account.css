@@ -46,10 +46,10 @@
 }
 
 .dmo-account-page .beta-tag {
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 10px;
-    padding: 3px 9px;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    padding: 5px 9px;
     border-radius: 999px;
     background: var(--dmo-card);
     color: var(--dmo-brand-700);
@@ -83,6 +83,12 @@
 }
 
 .dmo-account-page .identity h1 {
+    /* O «BETA» centrado na linha do título (Diogo, 22/10/2026). */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    line-height: 1.15;
     margin: 8px 0 4px;
     font-size: 32px;
     color: var(--dmo-brand-950);
@@ -199,4 +205,20 @@
 .dmo-account-page :is(button, a):focus-visible {
     outline: 2px solid var(--dmo-brand-500);
     outline-offset: 2px;
+}
+
+/* Ecrã estreito: a identidade por cima do formulário, com o título e o «BETA» na mesma linha. */
+@media (max-width: 760px) {
+    .dmo-account-page .login-shell {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+    }
+
+    .dmo-account-page .identity {
+        padding: 24px 20px;
+    }
+
+    .dmo-account-page .identity h1 {
+        font-size: 26px;
+    }
 }
