@@ -111,6 +111,32 @@ public sealed class ArmazemLinhaReparadorJobOnTests
         Assert.Equal(((int?)B2, (int?)null), (saida.MachineId, saida.JobOnId));
     }
 
+    [Theory]
+    [InlineData(10, JobOn1)]
+    [InlineData(11, JobOn2)]
+    public async Task SaidaParaProducao_NoDiaDaTroca_LigaAoJobOnQueEstaACorrerNesseDia(int dia, int jobOnEsperado)
+    {
+        using var db = CreateContext();
+        await EntrarAsync(db, Cm, ArmazemOrigem.JaEstava, Utc(8, 30));
+
+        await SairAsync(db, Cm, ArmazemDestino.Producao, Utc(9, dia), linha: B1);
+
+        var saida = await UltimoAsync(db);
+        Assert.Equal(((int?)B1, (int?)jobOnEsperado), (saida.MachineId, saida.JobOnId));
+    }
+
+    [Fact]
+    public async Task SaidaParaProducao_DepoisDeOsJobOnsAcabarem_GuardaSoALinha()
+    {
+        using var db = CreateContext();
+        await EntrarAsync(db, Cm, ArmazemOrigem.JaEstava, Utc(8, 30));
+
+        await SairAsync(db, Cm, ArmazemDestino.Producao, Utc(9, 21), linha: B1);
+
+        var saida = await UltimoAsync(db);
+        Assert.Equal(((int?)B1, (int?)null), (saida.MachineId, saida.JobOnId));
+    }
+
     [Fact]
     public async Task SaidaParaProducao_ComUmaLinhaQueNaoExiste_GravaSemLinha()
     {

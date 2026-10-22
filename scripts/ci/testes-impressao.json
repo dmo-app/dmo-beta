@@ -1,5 +1,5 @@
 {
-  "selo": "6626e80413fc4a5e",
+  "selo": "aabe4ebe61e8fd49",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -105,7 +105,9 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.OJobOnSegueAFerramenta_DaProducaoAReparacaoEDeVolta_ComOReparadorDaSaida": "4780dda18d0872b4",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_AntesDeAProducaoComecar_LigaAoProximoJobOnDaLinha": "f0b6b843add6f88f",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_ComUmaLinhaQueNaoExiste_GravaSemLinha": "6fc1afcac01434f5",
+    "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_DepoisDeOsJobOnsAcabarem_GuardaSoALinha": "c31535aabc451edc",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_GuardaALinhaEOJobOnDessaFerramentaNessaLinha": "52a67563f66df56b",
+    "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_NoDiaDaTroca_LigaAoJobOnQueEstaACorrerNesseDia": "acc0f0e17e6f5413",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_NoutraLinhaSemJobOn_GuardaSoALinha": "c9e7b7280ff582cc",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.Situacao_ForaPelaReparacao_PropoeALinhaEOReparadorComQueVem": "1f6c5f75c1bb98e3",
     "tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLotesNovosTests.cs :: (resto do ficheiro)": "523399a631e6320f",
