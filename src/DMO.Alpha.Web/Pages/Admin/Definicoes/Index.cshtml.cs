@@ -13,8 +13,17 @@ namespace DMO.Alpha.Web.Pages.Admin.Definicoes;
 /// Ferramentas) e a hora de viragem no Canal Jobon. Os links antigos
 /// (?definition=…) abrem esta página.
 /// </summary>
-public class IndexModel(IAdminEmailSettings adminEmailSettings) : PageModel
+public class IndexModel(
+    IAdminEmailSettings adminEmailSettings,
+    IModuleSwitches moduleSwitches,
+    IUserAdminService users) : PageModel
 {
+    /// <summary>Os interruptores dos módulos, como estão guardados.</summary>
+    public ModuleSwitchState? Switches { get; private set; }
+
+    /// <summary>Os utilizadores que podem ser de teste (os ativos).</summary>
+    public IReadOnlyList<UserAdminSummary> Users { get; private set; } = Array.Empty<UserAdminSummary>();
+
     /// <summary>Resultado do save transportado por query (PRG), apenas apresentação.</summary>
     public string? SaveResult { get; private set; }
 
@@ -30,6 +39,7 @@ public class IndexModel(IAdminEmailSettings adminEmailSettings) : PageModel
         "ok-admin" => "Email do ADMIN guardado.",
         "admin-email-invalida" => "O email indicado não é utilizável.",
         "admin-email-diferente" => "Os dois emails não coincidem. O email do ADMIN não foi alterado.",
+        "ok-modulos" => "Módulos guardados.",
         "admin-email-sem-conta" => "Este email ainda não tem conta. Crie primeiro o utilizador em Admin → Utilizadores.",
         _ => string.Empty
     };
@@ -41,7 +51,7 @@ public class IndexModel(IAdminEmailSettings adminEmailSettings) : PageModel
     public DmoAvisoLink? NoAccountLink { get; private set; }
 
     /// <summary>TRUE quando o save transportado é uma gravação feita (a mensagem fecha sozinha).</summary>
-    public bool SaveSucceeded => SaveResult == "ok-admin";
+    public bool SaveSucceeded => SaveResult is "ok-admin" or "ok-modulos";
 
     public async Task<IActionResult> OnGetAsync(string? save, string? email)
     {
@@ -54,8 +64,33 @@ public class IndexModel(IAdminEmailSettings adminEmailSettings) : PageModel
             NoAccountLink = new DmoAvisoLink("Criar o utilizador", $"/Admin/Users{comEmail}#dmuCriar");
         }
         AdminEmail = await adminEmailSettings.GetAdminEmailAsync(HttpContext.RequestAborted);
+        Switches = await moduleSwitches.GetAsync(HttpContext.RequestAborted);
+        Users = (await users.ListUsersAsync(HttpContext.RequestAborted)).Where(u => !u.IsStandBy).ToArray();
         return Page();
     }
+
+    /// <summary>
+    /// POST: guardar os interruptores dos módulos (um modo por módulo) e os
+    /// utilizadores de teste. Um valor desconhecido mantém o modo guardado.
+    /// ADMIN apenas (a pasta /Admin).
+    /// </summary>
+    public async Task<IActionResult> OnPostSaveModulosAsync(
+        [FromForm(Name = "testadores")] List<Guid>? testadores)
+    {
+        var current = await moduleSwitches.GetAsync(HttpContext.RequestAborted);
+        var modes = new Dictionary<string, ModuleSwitchMode>(StringComparer.Ordinal);
+        foreach (var module in DmoCapabilities.Modules)
+        {
+            modes[module.Key] = ModuleSwitchKeys.Parse(Request.Form[FieldName(module.Key)])
+                ?? current.ModeOf(module.Key);
+        }
+
+        await moduleSwitches.SaveAsync(modes, testadores ?? [], HttpContext.RequestAborted);
+        return RedirectToPage("/Admin/Definicoes/Index", null, new { save = "ok-modulos" }, "admModulos");
+    }
+
+    /// <summary>O nome do campo do modo de um módulo no formulário.</summary>
+    public static string FieldName(string moduleKey) => "modulo_" + moduleKey;
 
     /// <summary>
     /// POST: guardar O EMAIL DO ADMIN: quem autentica com este email entra

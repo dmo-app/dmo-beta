@@ -8,7 +8,11 @@ namespace DMO.Alpha.Core.Admin;
 /// verificações por botão. As chaves são as strings já guardadas em
 /// Template.Capabilities (sem migração).
 /// </summary>
-public sealed record DmoModule(string Key, string Label, string Home);
+/// <param name="EmDesenvolvimento">
+/// Módulo por acabar (plano de uma versão, §2): desligado por omissão e,
+/// quando ligado, mostra a faixa «Em desenvolvimento».
+/// </param>
+public sealed record DmoModule(string Key, string Label, string Home, bool EmDesenvolvimento = false);
 
 public static class DmoCapabilities
 {
@@ -51,8 +55,8 @@ public static class DmoCapabilities
         new(ControloApprove, "Controlo", "/Controlo/Approve"),
         new(Boquilhas, "Boquilhas", "/Boquilhas"),
         new(Ferramentas, "Ferramentas", "/Ferramentas"),
-        new(ArmazemGestao, "Armazém", "/Armazem/Posicoes"),
-        new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna")
+        new(ArmazemGestao, "Armazém", "/Armazem/Posicoes", EmDesenvolvimento: true),
+        new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna", EmDesenvolvimento: true)
     ];
 
     /// <summary>As chaves válidas num template (validação da gestão de templates).</summary>

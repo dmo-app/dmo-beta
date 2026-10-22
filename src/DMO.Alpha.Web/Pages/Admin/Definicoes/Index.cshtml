@@ -27,6 +27,13 @@
 .adm-card .dmo-card-topo{margin:0 0 12px}
 .adm-card .dmo-card-topo h3{margin:0}
 .adm-email-form{display:grid;gap:12px;width:min(420px,100%)}
+.adm-modulos-form{display:grid;gap:14px;width:min(560px,100%)}
+.adm-modulos-form .dmo-table td{vertical-align:middle}
+.adm-modulos-form select{min-width:200px}
+.adm-modulo-dev{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:11.5px;background:var(--dmo-amber-soft,#fdf8ec);color:var(--dmo-amber,#8a5a00);border:1px solid var(--dmo-amber-line,#e3c58f)}
+.adm-testadores{display:grid;gap:4px;max-height:220px;overflow:auto;padding:4px 0}
+.adm-testadores label{display:flex;gap:8px;align-items:center;font-size:14px}
+.adm-testadores span{color:var(--dmo-muted);font-size:12.5px}
 </style>
 }
 
@@ -64,6 +71,52 @@
                 <label for="adminEmailConfirm">Confirmar email do ADMIN</label>
                 <input id="adminEmailConfirm" name="admin_email_confirm" type="email" maxlength="256" placeholder="Escreva o email outra vez" autocomplete="off" required />
             </div>
+        </form>
+    </section>
+    <section id="admModulos" class="dmo-card adm-card" aria-labelledby="admin-modulos-title" data-dmo-regiao data-dmo-parcial>
+        <div class="dmo-card-topo">
+            <h3 id="admin-modulos-title">Módulos<partial name="_DmoHelp" model="@("Liga ou desliga cada módulo. Desligado, o módulo sai do menu e as páginas abrem como sem acesso. «Só utilizadores de teste» liga-o apenas para os utilizadores escolhidos em baixo (por exemplo, o seu próprio utilizador). O módulo continua a precisar de estar no template de quem entra. Os módulos em desenvolvimento ficam desligados até os ligar.")" /></h3>
+            <div class="dmo-card-topo-acoes">
+                <button type="submit" class="dmo-button" id="admModulosGuardar" form="admModulosForm">Guardar</button>
+            </div>
+        </div>
+        <form id="admModulosForm" method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveModulos" class="adm-modulos-form">
+            <table class="dmo-table">
+                <thead><tr><th scope="col">Módulo</th><th scope="col">Estado</th></tr></thead>
+                <tbody>
+                @foreach (var module in DMO.Alpha.Core.Admin.DmoCapabilities.Modules)
+                {
+                    var mode = Model.Switches?.ModeOf(module.Key) ?? DMO.Alpha.Core.Admin.ModuleSwitchMode.Todos;
+                    var field = DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel.FieldName(module.Key);
+                    <tr data-modulo="@module.Key">
+                        <td><label for="@field">@DMO.Alpha.Web.Pages.Admin.Templates.IndexModel.CapabilityLabel(module.Key)</label>@if (module.EmDesenvolvimento) {<span class="adm-modulo-dev">Em desenvolvimento</span>}</td>
+                        <td>
+                            <select id="@field" name="@field">
+                                <option value="desligado" selected="@(mode == DMO.Alpha.Core.Admin.ModuleSwitchMode.Desligado)">Desligado</option>
+                                <option value="teste" selected="@(mode == DMO.Alpha.Core.Admin.ModuleSwitchMode.Teste)">Só utilizadores de teste</option>
+                                <option value="todos" selected="@(mode == DMO.Alpha.Core.Admin.ModuleSwitchMode.Todos)">Ligado para todos</option>
+                            </select>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <fieldset class="dmo-field" style="border:0;padding:0;margin:0">
+                <legend style="font-weight:600;font-size:14px;margin-bottom:4px">Utilizadores de teste</legend>
+                @if (Model.Users.Count == 0)
+                {
+                    <p style="margin:0;color:var(--dmo-muted);font-size:13px">Ainda não há utilizadores. Crie-os em Admin → Utilizadores.</p>
+                }
+                else
+                {
+                    <div class="adm-testadores">
+                    @foreach (var user in Model.Users)
+                    {
+                        <label><input type="checkbox" name="testadores" value="@user.Id" checked="@(Model.Switches?.Testers.Contains(user.Id) == true)" /> @user.Name <span>@user.OperatorId</span></label>
+                    }
+                    </div>
+                }
+            </fieldset>
         </form>
     </section>
 </main>

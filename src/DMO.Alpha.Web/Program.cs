@@ -356,6 +356,14 @@ builder.Services.AddScoped<IAdminAuthorizationService, AdminAuthorizationService
 // O ADMIN é o email guardado nas Definições: o setting canónico que o
 // login, o validador de sessão e os boundary checks leem.
 builder.Services.AddScoped<IAdminEmailSettings, AdminEmailSettings>();
+// Os interruptores dos módulos (Admin → Setup): um módulo em
+// desenvolvimento sem linha guardada fica com Dmo:ModulosEmDesenvolvimento
+// (desligado por omissão).
+builder.Services.AddSingleton<ModuleSwitchCache>();
+builder.Services.AddScoped<IModuleSwitches>(sp => new ModuleSwitches(
+    sp.GetRequiredService<DmoDbContext>(),
+    sp.GetRequiredService<ModuleSwitchCache>(),
+    ModuleSwitchKeys.DefaultEmDesenvolvimento(sp.GetRequiredService<IConfiguration>()["Dmo:ModulosEmDesenvolvimento"])));
 builder.Services.AddScoped<ITemplateAdminService, TemplateAdminService>();
 builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 

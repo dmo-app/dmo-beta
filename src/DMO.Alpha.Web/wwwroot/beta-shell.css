@@ -82,3 +82,7 @@ html body .dmo-shell-header .dmo-shell-logout:hover,html body .dmo-shell-header 
   html body :is(.beta-light-layout,.beta-bq-layout){grid-template-columns:1fr}
   html body :is(.beta-light-main,.beta-bq-layout>.main){padding:16px}
 }
+
+/* Faixa dos módulos em desenvolvimento (plano de uma versão, §2): discreta,
+   amarela, no topo da página; o tema escuro usa as mesmas variáveis. */
+.dmo-faixa-dev{margin:0;padding:5px 16px;font-size:12.5px;line-height:1.4;text-align:center;background:var(--dmo-amber-soft,#fdf8ec);color:var(--dmo-amber,#8a5a00);border-bottom:1px solid var(--dmo-amber-line,#e3c58f)}

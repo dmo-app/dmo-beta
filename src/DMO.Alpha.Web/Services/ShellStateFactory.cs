@@ -41,6 +41,13 @@ public sealed class ShellStateFactory
                 Enabled: true))
             .ToArray();
 
+    /// <summary>
+    /// True nas páginas de um módulo em desenvolvimento (Armazém, Reparação
+    /// Interna): o layout mostra a faixa «Em desenvolvimento».
+    /// </summary>
+    public static bool IsEmDesenvolvimento(string? moduleKey) =>
+        DmoCapabilities.Modules.Any(m => m.EmDesenvolvimento && IsSelected(m.Key, moduleKey));
+
     private static bool IsSelected(string module, string? moduleKey) => module switch
     {
         DmoCapabilities.JobOnCreate => moduleKey == "planeamento",
