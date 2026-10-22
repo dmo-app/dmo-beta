@@ -174,6 +174,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Contains($"data-dmo-ferramenta=\"{Bq}\"", lista);
         Assert.DoesNotContain($"data-dmo-ferramenta=\"{Cm}\"", lista);
         // O cartão da CM só procura CM.
+        Assert.Contains($"data-dmo-ferramenta=\"{Cm}\"", listaCm);
         Assert.DoesNotContain($"data-dmo-ferramenta=\"{Bq}\"", listaCm);
         Assert.DoesNotContain("<main", lista);
         var vazia = Elemento(await client.GetStringAsync("/Armazem/Movimentos?tipo=CM&q=9999"), "id=\"armProcuraVazia\"");

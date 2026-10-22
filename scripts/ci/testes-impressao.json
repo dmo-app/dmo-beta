@@ -1,5 +1,5 @@
 {
-  "selo": "04319621fa5e3b91",
+  "selo": "86f7a1b4e3cec2eb",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1361,7 +1361,7 @@
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Posicoes_MostramQuemLaEstaOuLivre": "f71641dcd975bb62",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco": "d5a2209ceed86ee2",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SemFerramenta_AvisaComOLinkParaAsFerramentas": "13a1ce8d483edbaf",
-    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SoNoCartaoDoTipo_MostraOndeEstaEAbreAFerramenta": "5b75ebf94d387780",
+    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SoNoCartaoDoTipo_MostraOndeEstaEAbreAFerramenta": "838b97ccb6283963",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe": "07e98dfdec4ce5b2",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_ParaReparacaoSemReparador_RecusaComOFormularioPreenchido": "32d40be8933f5686",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.SemAChave_NaoEntra": "9f60bde41307adb6",
@@ -1377,7 +1377,7 @@
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemProximosPaginaTests.cs :: ArmazemProximosPaginaTests.SemAChave_NaoEntra": "75adc9d7dbbbce9a",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: (resto do ficheiro)": "0f2538f08e0ae9b7",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AFicha_MostraALocalizacaoEOsMovimentos_SoAQuemTemOArmazem": "bc1f04c701ef77a8",
-    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AsFuncoes_RegistoDepoisMovimentos_SemHistorico": "a25ece27e89d2136",
+    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AsFuncoes_RegistoDepoisMovimentos_SemHistorico": "b3f5a2fde429b805",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Fora_SemFerramentas_NaoAbreAFicha": "b797601179a8d491",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Fora_SoCmEMf_ComReparadorEDia_BqNao": "a5f92ce8c83eadc3",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.SemAChave_NaoEntra": "9fb344892eed706d",

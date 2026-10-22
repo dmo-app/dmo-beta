@@ -145,6 +145,7 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
 
         var html = await client.GetStringAsync("/Armazem/Ultimos");
         using var antigo = await client.GetAsync("/Armazem/Historico");
+        using var mapa = await client.GetAsync("/Armazem/Mapa");
 
         Assert.Matches("<a href=\"/Armazem/Ultimos\"[^>]*aria-current=\"page\">Movimentos</a>", html);
         Assert.Contains("<title>Movimentos", html);
@@ -157,6 +158,7 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         Assert.DoesNotContain(">Histórico</a>", html);
         Assert.DoesNotContain("/Armazem/Historico", html);
         Assert.Equal(HttpStatusCode.NotFound, antigo.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, mapa.StatusCode);
         Assert.DoesNotContain("Máquina", html);
     }
 

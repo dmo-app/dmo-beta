@@ -1074,4 +1074,4 @@ Novos: 4 · mudaram: 3 · saíram: 5
 - saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMapaPaginaTests.cs :: ArmazemMapaPaginaTests.SemAChave_NaoEntra`
 - saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOndeEstaEAbreAFerramenta`
 
-Selo depois: `04319621fa5e3b91`
+Selo depois: `86f7a1b4e3cec2eb`
