@@ -1054,3 +1054,24 @@ Novos: 14 · mudaram: 2 · saíram: 6
 - saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemHistoricoPaginaTests.cs :: ArmazemHistoricoPaginaTests.SemAChave_NaoEntra`
 
 Selo depois: `06942017116725ab`
+
+## A-0040 · 2026-10-22 · ok-do-diogo
+
+Porquê: Armazém: o Registo passa a ter o painel CM, MF, BQ (como na Reparação Interna), com a procura só do tipo escolhido e o log das últimas entradas e saídas desse tipo; o Mapa sai (não é preciso mapear o Armazém, basta a posição de 4 algarismos).
+Referência: Diogo 22/10 13:41 (cmsg_01A27e9ozcpoh4jdPRsuJbFyV24qJxcxGS2xJRaWYoDSF4), 14:32–14:33 (cmsg_01A27e9ozcpoh4jdPRsuJbFyH7TVX6tBZwy8eVzpn12kHf, cmsg_01A27e9ozcpoh4jdPRsuJbFyUCfpU1YNPJKA9oJM1VMmA3)
+Novos: 4 · mudaram: 3 · saíram: 5
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OLog_MostraSoOTipo_DeTodos_EALinhaAbreAFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OPainel_TemCmMfBq_ESemTipoPedeParaEscolher`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SemFerramenta_AvisaComOLinkParaAsFerramentas`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SoNoCartaoDoTipo_MostraOndeEstaEAbreAFerramenta`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AsFuncoes_RegistoDepoisMovimentos_SemHistorico`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMapaPaginaTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMapaPaginaTests.cs :: ArmazemMapaPaginaTests.AbreOPrimeiroArmario_ComAOcupacaoEOParNumaLinha`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMapaPaginaTests.cs :: ArmazemMapaPaginaTests.OutroArmarioEOFiltro_PorReparar`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMapaPaginaTests.cs :: ArmazemMapaPaginaTests.SemAChave_NaoEntra`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOndeEstaEAbreAFerramenta`
+
+Selo depois: `04319621fa5e3b91`
