@@ -1454,3 +1454,23 @@ Novos: 1 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
 
 Selo depois: `76c4b78f9b5bff97`
+
+## A-0053 · 2026-10-22 · teste-novo
+
+Porquê: Histórico de cada ferramenta (CM, MF, BQ) e página Histórico das Ferramentas
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKAJ9KLE6sBCRubqd9wzWpT
+Novos: 11 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AProcuraPelaLinhaEPelosDias_SemReferencia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AProcuraPelaReferenciaEPeloTipo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NaBq_OsMfDeCadaJobOnPeloBqContext`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NoCm_UmaLinhaPorJobOn_ComOUsoEAsOutrasFerramentas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.SemFiltro_AProcuraFicaVazia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.UmaFerramentaQueNaoExiste_NaoTemHistorico`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AbreVazio_EProcuraPelaReferencia`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_SemAChaveDasFerramentas_NaoAbre`
+
+Selo depois: `5efd8c334a85a10d`

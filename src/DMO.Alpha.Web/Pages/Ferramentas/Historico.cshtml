@@ -1,0 +1,221 @@
+@page "/Ferramentas/Historico"
+@model DMO.Alpha.Web.Pages.Ferramentas.HistoricoModel
+@using DMO.Alpha.Core.Tools
+@using DMO.Alpha.Web.Pages.Ferramentas
+@{
+    Layout = "_DmoShellLayout";
+    var ferramenta = Model.Ferramenta;
+    var procura = ferramenta is null && !Model.FerramentaNaoExiste;
+    var outros = ferramenta is null ? Array.Empty<ToolType>() : HistoricoLinha.OutrosTipos(ferramenta.Tipo);
+    var temMenu = Model.AbreControlo || Model.AbreReparacao || Model.AbreJobOn;
+}
+@section Head {
+<style>
+.hist-page{display:flex;flex-direction:column;gap:14px}
+.hist-card{padding:18px}
+.hist-card h3{margin:0;font-size:16px}
+.hist-card .dmo-card-topo{margin-bottom:12px}
+.hist-filtros-card{padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.hist-filtros-card>form.dmo-filter-bar{flex:1 1 auto;min-width:0;column-gap:10px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 12px}
+html body .hist-filtros-card .dmo-filter-bar>.dmo-field{flex:0 0 auto;margin:0}
+html body .hist-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:100%}
+.hist-w-referencia{width:160px}
+.hist-w-tipo{width:96px}
+.hist-w-linha{width:96px}
+.hist-w-data{width:140px}
+.hist-acoes{display:flex;gap:8px;align-items:center}
+.hist-vazia{margin:0;color:var(--dmo-muted)}
+.hist-card .dmo-table td{padding:7px 8px;vertical-align:top}
+.hist-card .dmo-table td:is(:nth-child(2),:nth-child(3)){white-space:nowrap}
+.hist-card .dmo-table tbody tr[data-hist-linha]{cursor:pointer}
+.hist-card .dmo-table tbody tr[data-hist-linha]:hover td{background:var(--dmo-brand-050)}
+.hist-maquina{color:var(--dmo-muted);font-size:12px}
+.hist-ferr{display:block;white-space:nowrap}
+/* A trocada a meio do Job On, depois da atual. */
+.hist-ferr.hist-trocada{color:var(--dmo-muted);font-size:12.5px}
+/* O menu da linha: o texto da produção abre-o (sem botões na tabela). */
+.hist-menu>summary{font-weight:700;color:var(--dmo-brand-900)}
+.hist-menu .dmo-options-list{min-width:190px}
+.hist-menu .dmo-options-item{text-decoration:none}
+@@media (max-width:640px){
+  .hist-card{padding:14px}
+  html body .hist-filtros-card .dmo-filter-bar>.dmo-field{flex:1 1 140px;width:auto}
+}
+</style>
+}
+
+<main class="hist-page dmo-workspace" aria-labelledby="hist-title">
+  <div class="page-head">
+    <div>
+      <h1 id="hist-title">@(procura ? "Histórico das Ferramentas" : "Histórico")</h1>
+    </div>
+  </div>
+
+  @if (procura)
+  {
+    @* A linha de procura (posições fixas): o texto primeiro, depois os filtros, o «Limpar filtros»; os filtros aplicam ao escolher, a referência com Enter ou a sugestão. *@
+    <section class="dmo-card hist-filtros-card" aria-label="Procurar no histórico">
+      <form id="histFiltros" method="get" asp-page="/Ferramentas/Historico" class="dmo-filter-bar" role="search">
+        <div class="dmo-field hist-w-referencia">
+          <label for="histReferencia">Referência</label>
+          <input id="histReferencia" name="referencia" value="@Model.Referencia" placeholder="Ex.: 5447" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+        <div class="dmo-field hist-w-tipo">
+          <label for="histTipo">Tipo</label>
+          <select id="histTipo" name="tipo" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Tipo is null)">Todos</option>
+            <option value="CM" selected="@(Model.Tipo == ToolType.Cm)">CM</option>
+            <option value="MF" selected="@(Model.Tipo == ToolType.Mf)">MF</option>
+            <option value="BQ" selected="@(Model.Tipo == ToolType.Bq)">BQ</option>
+          </select>
+        </div>
+        <div class="dmo-field hist-w-linha">
+          <label for="histLinha">Linha</label>
+          <select id="histLinha" name="linha" data-dmo-autosubmit>
+            <option value="" selected="@string.IsNullOrWhiteSpace(Model.Linha)">Todas</option>
+            @foreach (var m in Model.Maquinas)
+            {
+              <option value="@m.Code" selected="@string.Equals(m.Code, Model.Linha, StringComparison.OrdinalIgnoreCase)">@m.Code</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field hist-w-data">
+          <label for="histDe">De</label>
+          <input id="histDe" name="de" type="date" data-dmo-autosubmit value="@HistoricoModel.Data(Model.De)" />
+        </div>
+        <div class="dmo-field hist-w-data">
+          <label for="histAte">Até</label>
+          <input id="histAte" name="ate" type="date" data-dmo-autosubmit value="@HistoricoModel.Data(Model.Ate)" />
+        </div>
+        <div class="hist-acoes">
+          <a class="dmo-button" id="histLimpar" href="@Url.Page("/Ferramentas/Historico")">Limpar filtros</a>
+        </div>
+      </form>
+    </section>
+  }
+
+  <section id="histResultados" class="dmo-card hist-card" aria-labelledby="hist-lista-title">
+    <div class="dmo-card-topo">
+      <h3 id="hist-lista-title">@(ferramenta is null ? "Produções" : $"Produções — {HistoricoModel.Nome(ferramenta)}")</h3>
+      @if (ferramenta is not null)
+      {
+        <div class="dmo-card-topo-acoes">
+          <a class="dmo-button" id="histFicha" href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(ferramenta.ToolId)">Voltar à ficha</a>
+        </div>
+      }
+    </div>
+    @if (Model.FerramentaNaoExiste)
+    {
+      <p class="hist-vazia" id="histNaoExiste">Esta ferramenta já não existe.</p>
+    }
+    else if (procura && !Model.ComFiltro)
+    {
+      <p class="hist-vazia" id="histConvite">Escreva a referência (Enter) ou escolha os filtros.</p>
+    }
+    else if (Model.Linhas.Count == 0)
+    {
+      <p class="hist-vazia" id="histVazia">@(procura ? "Nenhuma produção com estes filtros." : "Esta ferramenta ainda não trabalhou em nenhum Job On.")</p>
+    }
+    else
+    {
+      @if (Model.Cortada)
+      {
+        <p class="dmo-aviso warn" id="histCortada" role="status">Há mais resultados: escreva mais da referência ou escolha mais filtros.</p>
+      }
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="histLista" data-dmo-list="Histórico">
+          <thead>
+            <tr>
+              @if (procura) { <th>Ferramenta</th> }
+              <th>Produção</th><th>Data</th><th>% uso</th>
+              @if (procura) { <th>Outras ferramentas</th> }
+              else { foreach (var t in outros) { <th>@HistoricoModel.Token(t)</th> } }
+            </tr>
+          </thead>
+          <tbody>
+          @foreach (var l in Model.Linhas)
+          {
+            var producao = $"{l.Referencia} · {l.Producao}";
+            <tr data-hist-linha="@l.JobOnId">
+              @if (procura) { <td><span class="hist-ferr">@HistoricoModel.Nome(l.Ferramenta)</span></td> }
+              <td>
+                @if (temMenu)
+                {
+                  <details class="dmo-options hist-menu">
+                    <summary aria-label="Abrir a produção @producao">@producao</summary>
+                    <div class="dmo-options-list" role="menu">
+                      @if (Model.AbreControlo) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ControloUrl(l)">Controlo</a> }
+                      @if (Model.AbreReparacao) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ReparacaoUrl(l)">Reparação</a> }
+                      @if (Model.AbreJobOn) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.JobOnUrl(l)">Folha do Job On</a> }
+                    </div>
+                  </details>
+                }
+                else
+                {
+                  @producao
+                }
+                <span class="hist-maquina">@l.Maquina</span>
+              </td>
+              <td>@HistoricoModel.Datas(l.InicioEm, l.FimEm)</td>
+              <td>@HistoricoModel.Uso(l.Uso)</td>
+              @if (procura)
+              {
+                <td>
+                  @foreach (var t in HistoricoLinha.OutrosTipos(l.Ferramenta.Tipo))
+                  {
+                    var doTipo = l.DoTipo(t);
+                    for (var i = 0; i < doTipo.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(doTipo[i])</span> }
+                  }
+                </td>
+              }
+              else
+              {
+                foreach (var t in outros)
+                {
+                  var deste = l.DoTipo(t);
+                  <td>
+                    @if (deste.Count == 0) { @("—") }
+                    @for (var i = 0; i < deste.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(deste[i])</span> }
+                  </td>
+                }
+              }
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>
+<script>
+// Clicar na linha abre o menu dela (e fecha os outros); fora fecha.
+(function () {
+  var lista = document.getElementById('histLista');
+  if (!lista) return;
+  lista.addEventListener('click', function (e) {
+    if (e.target.closest('.dmo-options-list') || e.target.closest('summary')) return;
+    var tr = e.target.closest('tr[data-hist-linha]');
+    var menu = tr && tr.querySelector('details.hist-menu');
+    if (!menu) return;
+    lista.querySelectorAll('details.hist-menu[open]').forEach(function (d) { if (d !== menu) d.open = false; });
+    menu.open = !menu.open;
+  });
+  // O menu fica por cima da tabela (a caixa da tabela rola e cortava-o).
+  function colocar(d) {
+    var r = d.querySelector('summary').getBoundingClientRect();
+    var l = d.querySelector('.dmo-options-list');
+    l.style.position = 'fixed';
+    l.style.top = (r.bottom + 2) + 'px';
+    l.style.left = Math.max(8, Math.min(r.left, window.innerWidth - l.offsetWidth - 8)) + 'px';
+  }
+  lista.addEventListener('toggle', function (e) {
+    if (!e.target.open) return;
+    lista.querySelectorAll('details.hist-menu[open]').forEach(function (d) { if (d !== e.target) d.open = false; });
+    colocar(e.target);
+  }, true);
+  window.addEventListener('scroll', function () { lista.querySelectorAll('details.hist-menu[open]').forEach(function (d) { d.open = false; }); }, true);
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#histLista')) lista.querySelectorAll('details.hist-menu[open]').forEach(function (d) { d.open = false; });
+  });
+})();
+</script>

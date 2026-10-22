@@ -234,7 +234,9 @@ public sealed class ShellStateFactory
             new FunctionPresentation("ver", "Ver", "/Ferramentas", null, activeKey == "ver", true, true),
             new FunctionPresentation("criar", "Criar", "/Ferramentas?criar=1", null, activeKey == "criar", true, true),
             // A Reparação Programada (Diogo, 22/10/2026): um separador das Ferramentas, sem chave própria.
-            new FunctionPresentation("programada", "Reparação Programada", "/Ferramentas/ReparacaoProgramada", null, activeKey == "programada", true, true)
+            new FunctionPresentation("programada", "Reparação Programada", "/Ferramentas/ReparacaoProgramada", null, activeKey == "programada", true, true),
+            // O Histórico das Ferramentas (Diogo, 22/10/2026): uma linha por Job On, abre vazio.
+            new FunctionPresentation("historico", "Histórico", "/Ferramentas/Historico", null, activeKey == "historico", true, true)
         };
 
     /// <summary>
