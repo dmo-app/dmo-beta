@@ -182,6 +182,15 @@
       <div data-dmo-toast="ok" class="ferr-nota" role="status">Esta ferramenta já estava registada (mesmos tipo, referência e lote) — nada foi duplicado; as máquinas indicadas foram acrescentadas às ligações dela.</div>
     }
 
+    @if (Model.EntradaArmazem is { } posicaoArmazem)
+    {
+      <div data-dmo-toast="ok" class="ferr-nota" role="status" id="ferrEntradaArmazem">Lote novo do Armazém resolvido: a entrada ficou registada na posição @posicaoArmazem.</div>
+    }
+    @foreach (var avisoArmazem in Model.AvisosArmazem)
+    {
+      <p class="dmo-aviso warn" data-dmo-aviso>@avisoArmazem</p>
+    }
+
     @if (Model.SavedSection == FichaModel.SavedGeneral)
     {
       <div data-dmo-toast="ok" class="ferr-nota" role="status">Dados gerais guardados.</div>

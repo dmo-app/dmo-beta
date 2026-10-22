@@ -27,6 +27,7 @@ public sealed class SumarioModel(
     ISumarioQuery sumario,
     IJobOnListQuery jobOnList,
     CurrentUserCapabilities capabilities,
+    DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos,
     ShellStateFactory shellState) : PageModel
 {
     private const string PagePath = "/Planeamento/Sumario";
@@ -58,6 +59,13 @@ public sealed class SumarioModel(
     /// <summary>O painel lateral: as próximas produções desta semana, como no Job On.</summary>
     public IReadOnlyList<ProductionContextReadModel> ProximasEntradas { get; private set; } = [];
 
+    /// <summary>
+    /// Os lotes novos registados no Armazém por criar (Diogo, 22/10/2026:
+    /// «poderia ser um aviso Ferramenta Registo novo no armazem»): só a quem
+    /// tem o módulo Ferramentas, sempre (não dependem do dia escolhido).
+    /// </summary>
+    public IReadOnlyList<DMO.Alpha.Core.Armazem.ArmazemLoteNovoItem> LotesNovos { get; private set; } = [];
+
     private IReadOnlyList<string> _modulos = [];
 
     public async Task<IActionResult> OnGetAsync(
@@ -76,6 +84,10 @@ public sealed class SumarioModel(
 
         _modulos = await capabilities.GetAsync(HttpContext.RequestAborted);
         TiposVisiveis = SumarioTipos.Visiveis(_modulos);
+        if (_modulos.Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal))
+        {
+            LotesNovos = await lotesNovos.PorCriarAsync(null, HttpContext.RequestAborted);
+        }
         Tipo = SumarioTipos.DaChave(tipo) is { } escolhido && TiposVisiveis.Contains(escolhido) ? escolhido : null;
         Dias = dias is { } d && PeriodosDias.Contains(d) ? d : 1;
 

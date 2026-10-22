@@ -81,6 +81,80 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("TemplateAssignments");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemLoteNovo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Lote")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int?>("MovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Posicao")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<string>("Referencia")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("RegistadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RegistadoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("RegistadoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResolvedToolId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("ResolvidoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ResolvidoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("ResolvidoPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovimentoId");
+
+                    b.HasIndex("RegistadoPorUserId");
+
+                    b.HasIndex("ResolvedToolId");
+
+                    b.HasIndex("ResolvidoPorUserId");
+
+                    b.HasIndex("Estado", "Tipo");
+
+                    b.ToTable("ArmazemLotesNovos", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ArmazemLotesNovos_Posicao", "\"Posicao\" ~ '^[0-9]{4}$'");
+                        });
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemMovimento", b =>
                 {
                     b.Property<int>("Id")
@@ -2600,6 +2674,29 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("Template");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemLoteNovo", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("MovimentoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RegistadoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("ResolvedToolId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ResolvidoPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemMovimento", b =>

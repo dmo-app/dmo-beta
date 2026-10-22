@@ -73,6 +73,18 @@
     </form>
   </section>
 
+  @* OS LOTES NOVOS DO ARMAZÉM (Diogo, 22/10/2026: «clicar e ir dar logo a
+     pagina da ferramenta em questao e dar o aprove»): um aviso por registo,
+     só a quem tem o módulo Ferramentas; desaparece quando a ferramenta é
+     criada (ou ligada a uma existente). *@
+  <div id="sumarioAvisos" class="dmo-zona" data-dmo-regiao>
+    @foreach (var lote in Model.LotesNovos)
+    {
+      var tipoLote = DMO.Alpha.Core.Armazem.ArmazemTextos.Tipo(lote.Tipo);
+      <p class="dmo-aviso warn" data-dmo-lote-novo="@lote.Id">Ferramenta nova registada no Armazém: @tipoLote @lote.Referencia lote @lote.Lote (posição @lote.Posicao)@(lote.RegistadoPor is { } por ? $", por {por}" : null).<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.CriarLoteNovo(lote.Id, tipoLote, lote.Referencia, lote.Lote)" /></p>
+    }
+  </div>
+
   <div class="sumario-grid">
     <partial name="_DmoCalendar" model="Model.Calendar" />
 

@@ -76,6 +76,8 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     // O Armazém do full (peça E do plano): as posições e os reparadores de CM e MF.
     public DbSet<ArmazemPosicao> ArmazemPosicoes => Set<ArmazemPosicao>();
 
+    public DbSet<ArmazemLoteNovo> ArmazemLotesNovos => Set<ArmazemLoteNovo>();
+
     public DbSet<Reparador> Reparadores => Set<Reparador>();
 
     // Os movimentos do Armazém, as ocupações das posições, onde está cada
@@ -640,6 +642,24 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(m => m.VersaoApp).HasMaxLength(64);
             entity.HasIndex(m => m.OperacaoId).IsUnique();
             entity.HasIndex(m => m.OcorridoEmUtc);
+        });
+
+        // Os lotes novos registados no Armazém, por criar até quem tem o
+        // módulo Ferramentas criar a ferramenta (ou ligar a uma existente).
+        modelBuilder.Entity<ArmazemLoteNovo>(entity =>
+        {
+            entity.ToTable("ArmazemLotesNovos", t =>
+                t.HasCheckConstraint("CK_ArmazemLotesNovos_Posicao", "\"Posicao\" ~ '^[0-9]{4}$'"));
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Referencia).HasMaxLength(ArmazemLoteNovo.ReferenciaMaxLength).IsRequired();
+            entity.Property(l => l.Lote).HasMaxLength(ArmazemLoteNovo.LoteMaxLength).IsRequired();
+            entity.Property(l => l.Posicao).HasMaxLength(ArmazemPosicao.CodigoAlgarismos).IsRequired();
+            entity.Property(l => l.RegistadoPor).HasMaxLength(254);
+            entity.Property(l => l.ResolvidoPor).HasMaxLength(254);
+            entity.Property(l => l.ResolvedToolId).HasMaxLength(100);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(l => l.ResolvedToolId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(l => l.MovimentoId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(l => new { l.Estado, l.Tipo });
         });
 
         modelBuilder.Entity<ArmazemOcupacao>(entity =>

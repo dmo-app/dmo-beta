@@ -29,6 +29,7 @@ public sealed class MigrationFoundationTests
         "ArmazemPosicoes",
         "Reparadores",
         "ArmazemMovimentos",
+        "ArmazemLotesNovos",
         "ArmazemOcupacoes",
         "FerramentaLocalizacoes",
         "FerramentaEstados",
@@ -80,7 +81,7 @@ public sealed class MigrationFoundationTests
     ];
 
     // As tabelas criadas depois da Baseline, cada uma pela sua migração.
-    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto"])];
+    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto"])];
 
     private static DmoDbContext CreateNpgsqlContext()
     {
@@ -123,7 +124,8 @@ public sealed class MigrationFoundationTests
                 "20261021073002_AddJobOnFolha", "20261021074219_ContextToolSearchPath", "20261021083819_SapFabrico", "20261021085913_SapFabricoPeso",
                 "20261021100548_ReparacaoInterna", "20261021104310_ReparacaoInternaRasto", "20261021114659_ReparacaoInternaOutraFerramenta",
                 "20261021142502_PegamentosNumeroFerramenta",
-                "20261022081924_PesoSoParaComparacao" },
+                "20261022081924_PesoSoParaComparacao",
+                "20261022151113_ArmazemLotesNovos" },
             keys);
     }
 

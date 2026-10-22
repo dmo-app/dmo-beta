@@ -43,6 +43,10 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
 .arm-onde a{color:var(--dmo-brand-900)}
 .arm-par{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-weight:600}
 .arm-acoes{display:flex;gap:10px;flex-wrap:wrap}
+.arm-lote-novo{margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--dmo-border)}
+.arm-lote-novo .dmo-card-topo{justify-content:space-between;align-items:center}
+.arm-lote-novo h4{margin:0;font-size:14px}
+.arm-lote-novo .arm-linha{margin:0}
 </style>
 }
 
@@ -109,7 +113,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     var masc = tipoEscolhido == ToolType.Mf;
   <section id="armMovProcura" class="dmo-card arm-card" aria-labelledby="arm-mov-procura-title" data-dmo-regiao data-dmo-parcial data-arm-tipo="@tipoTexto">
     <div class="dmo-card-topo">
-      <h3 id="arm-mov-procura-title">Registar @tipoTexto<partial name="_DmoHelp" model="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Um clique na ferramenta abre-a, com a Entrada se está fora do armazém ou a Saída se está numa posição. {(masc ? "Um" : "Uma")} {tipoTexto} que não existe regista-se primeiro nas Ferramentas.")" /></h3>
+      <h3 id="arm-mov-procura-title">Registar @tipoTexto<partial name="_DmoHelp" model="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Um clique na ferramenta abre-a, com a Entrada se está fora do armazém ou a Saída se está numa posição. {(masc ? "Um" : "Uma")} {tipoTexto} que não existe regista-se como lote novo: fica «Por criar» até quem tem o módulo Ferramentas a criar.")" /></h3>
       @if (s is not null || Model.FerramentaNaoExiste)
       {
         <div class="dmo-card-topo-acoes">
@@ -128,7 +132,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       </div>
     </form>
     <div id="armProcuraLista" aria-live="polite" data-dmo-parcial>
-      @if (!string.IsNullOrWhiteSpace(Model.Procura))
+      @if (!string.IsNullOrWhiteSpace(Model.Procura) || Model.LoteNovoRecusa is not null)
       {
         <partial name="_ArmazemProcura" model="Model.Encontradas" />
       }
@@ -394,7 +398,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     <div class="dmo-card-topo">
       <h3 id="arm-log-title">Últimas entradas e saídas de @tipoTexto<partial name="_DmoHelp" model="@($"As entradas e saídas de {tipoTexto} de todas as pessoas, da mais recente para a mais antiga. Um clique numa linha abre a ferramenta, onde pode corrigir a localização.")" /></h3>
     </div>
-    @if (Model.Log.Items.Count == 0)
+    @if (Model.Log.Items.Count == 0 && Model.PorCriar.Count == 0)
     {
       <p class="muted" id="armLogVazio">Ainda não há entradas nem saídas de @tipoTexto.</p>
     }
@@ -404,6 +408,20 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <table class="dmo-table" id="armLogLista" data-dmo-list="Últimas entradas e saídas de @tipoTexto">
           <thead><tr><th>Data</th><th>Ferramenta</th><th>Movimento</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
           <tbody>
+          @* Os lotes novos por criar no topo: ainda não são ferramenta nem
+             movimento; a entrada fica registada quando a ferramenta for
+             criada nas Ferramentas. *@
+          @foreach (var l in Model.PorCriar)
+          {
+            <tr data-dmo-row data-dmo-lote-novo="@l.Id" title="Lote novo por criar nas Ferramentas">
+              <td>@MovimentosModel.DataHora(l.RegistadoEmUtc)</td>
+              <td><strong>@l.Referencia</strong> · lote @l.Lote</td>
+              <td><span class="dmo-pill inactive">Por criar</span></td>
+              <td>—</td>
+              <td>@l.Posicao</td>
+              <td>@(l.RegistadoPor ?? "—")</td>
+            </tr>
+          }
           @foreach (var m in Model.Log.Items)
           {
             @* Os data-* não desaparecem com null no Razor: a ferramenta eliminada nasce sem destino. *@
