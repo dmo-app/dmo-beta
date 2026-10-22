@@ -453,3 +453,7 @@
 .resumo-envio-form .dmo-field { margin: 0; }
 .resumo-envio-ultimo { margin: 0; color: var(--dmo-muted); font-size: 12px; }
 .resumo-envio-nota { margin: 0 0 10px; color: var(--dmo-muted); font-size: 13px; }
+/* PU NNPB: duas ligações no cartão (o registo e a folha das punções), sem o cartão inteiro clicável. */
+.resumo-pu-ligacoes { margin-top: auto; display: flex; flex-wrap: wrap; gap: 14px; justify-content: flex-end; }
+.resumo-pu-ligacoes .resumo-card-link { margin-top: 0; }
+.resumo-linked-card .resumo-pu-ligacoes .resumo-card-link::after { content: none; }

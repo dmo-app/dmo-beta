@@ -200,4 +200,42 @@
       </div>
     </form>
   </section>
+
+  @* AS SECÇÕES DE CADA LINHA (Diogo, 22/10/2026): a grelha das punções PU
+     NNPB enche as secções da linha, 4 posições cada (A a D). *@
+  <section id="ctlDefPuncoesSeccoes" class="dmo-card ctl-def-card" aria-labelledby="puncoes-seccoes-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="puncoes-seccoes-title">PU NNPB — secções por linha<partial name="_DmoHelp" model="@($"As punções registadas entram pela ordem de registo nas posições da linha: A1, B1, C1, D1, A2… Cada secção tem 4 posições (A a D); as punções que passam da linha ficam na reserva. Enquanto não se guardar outro número, a linha tem {DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.SeccoesPorOmissao} secções.")" /></h3>
+    @if (Model.SeccoesResultMessage.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.SeccoesSucceeded ? "ok" : "erro")" role="@(Model.SeccoesSucceeded ? "status" : "alert")">@Model.SeccoesResultMessage</p>
+    }
+    @if (Model.PuncoesLinhas.Count == 0)
+    {
+      <p><em>Sem linhas registadas.</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-puncoes-seccoes>
+          <thead><tr><th>Linha</th><th>Secções</th><th>Posições</th><th><span class="dmo-visually-hidden">Guardar</span></th></tr></thead>
+          <tbody>
+          @foreach (var linha in Model.PuncoesLinhas)
+          {
+            <tr data-dmo-linha="@linha.Maquina">
+              <td>@linha.Maquina</td>
+              <td>
+                <form id="ctlDefSeccoes-@linha.Maquina" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePuncoesSeccoes">
+                  <input type="hidden" name="maquina" value="@linha.Maquina" />
+                  <input name="seccoes" inputmode="numeric" size="4" value="@linha.Seccoes" aria-label="Secções da linha @linha.Maquina" required />
+                </form>
+              </td>
+              <td>@(linha.Seccoes * DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.PosicoesPorSeccao)@(linha.PorOmissao ? " (por omissão)" : null)</td>
+              <td><button type="submit" class="dmo-button" form="ctlDefSeccoes-@linha.Maquina">Guardar</button></td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
 </main>

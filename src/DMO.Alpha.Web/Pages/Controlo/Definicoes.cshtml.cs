@@ -28,8 +28,25 @@ public sealed class DefinicoesModel(
     EnvioEmailDefinicoes envioEmail,
     IGlassDensityConfiguration glassDensity,
     ISaveGlassDensityHandler saveGlassDensity,
+    PuncoesLinhaDefinicoes puncoesLinhas,
     ShellStateFactory shellState) : PageModel
 {
+    /// <summary>As secções de cada linha para as punções PU NNPB (22/10/2026).</summary>
+    public IReadOnlyList<PuncoesLinha> PuncoesLinhas { get; private set; } = Array.Empty<PuncoesLinha>();
+
+    /// <summary>Resultado da gravação das secções (PRG): Gravado, Invalido ou LinhaNaoExiste.</summary>
+    public string? SeccoesResult { get; private set; }
+
+    public bool SeccoesSucceeded => SeccoesResult == nameof(PuncoesSeccoesGravacao.Gravado);
+
+    public string SeccoesResultMessage => SeccoesResult switch
+    {
+        nameof(PuncoesSeccoesGravacao.Gravado) => "Secções guardadas. A grelha das punções desta linha já as usa.",
+        nameof(PuncoesSeccoesGravacao.Invalido) => $"Indique as secções com um número inteiro de {PuncoesPosicoes.SeccoesMinimo} a {PuncoesPosicoes.SeccoesMaximo}. Não foram guardadas.",
+        nameof(PuncoesSeccoesGravacao.LinhaNaoExiste) => "Essa linha já não existe. Nada foi guardado.",
+        _ => string.Empty
+    };
+
     /// <summary>As listas de destinatários, por nome.</summary>
     public IReadOnlyList<EmailLista> Listas { get; private set; } = Array.Empty<EmailLista>();
 
@@ -165,8 +182,10 @@ public sealed class DefinicoesModel(
 
     private static string MaximoHabitual => PegamentosToleranceLimits.MaximumMm.ToString("0.00", DmoNumberFormat.Culture);
 
-    public async Task<IActionResult> OnGetAsync(string? save, string? envio, string? fora, string? densidade = null)
+    public async Task<IActionResult> OnGetAsync(string? save, string? envio, string? fora, string? densidade = null, string? seccoes = null)
     {
+        SeccoesResult = seccoes;
+        PuncoesLinhas = await puncoesLinhas.ListarAsync(HttpContext.RequestAborted);
         ViewData["Title"] = "Definições — Controlo";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("controlo", "Controlo"))) with
         {
@@ -297,6 +316,15 @@ public sealed class DefinicoesModel(
         }
 
         return RedirectToPage("/Controlo/Definicoes", new { densidade });
+    }
+
+    /// <summary>POST: as secções de uma linha para a grelha das punções PU NNPB (4 posições cada).</summary>
+    public async Task<IActionResult> OnPostSavePuncoesSeccoesAsync(
+        [FromForm(Name = "maquina")] string? maquina,
+        [FromForm(Name = "seccoes")] string? seccoes)
+    {
+        var result = await puncoesLinhas.GuardarAsync(maquina, seccoes, HttpContext.RequestAborted);
+        return RedirectToPage("/Controlo/Definicoes", new { seccoes = result.ToString() });
     }
 
     private static string Codigo(DMO.Alpha.Core.Tools.CmProcess process) =>

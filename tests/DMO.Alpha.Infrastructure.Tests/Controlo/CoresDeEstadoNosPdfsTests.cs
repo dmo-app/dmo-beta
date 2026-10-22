@@ -77,14 +77,10 @@ public sealed class CoresDeEstadoNosPdfsTests
     }
 
     [Fact]
-    public void Puncoes_SaemComAsMesmasCoresNoPdfDoPuNnpbENoDoResumo()
+    public void Puncoes_SaemComAsCoresDeEstadoNoResumo()
     {
-        var puncoes = new PuncoesPdfGenerator().GenerateBytes(new PuncoesPdfGenerator.Input(
-            "202605", "5447T173", "B1", "5447", "3", "PU-7", "2",
-            [new(1, "11", "2", true, true, false), new(2, "12", "2", false, false, false)]));
-        Assert.Equal([Verde], CoresDe(puncoes, "Visto"));
-        Assert.Equal([Ambar], CoresDe(puncoes, "verificar"));
-
+        // O PDF das punções é a tabela das posições (22/10/2026), sem estados;
+        // as cores do «por verificar» e do «vistos» ficam no cartão do Resumo.
         var porVerificar = new ResumoPdfGenerator().GenerateBytes(Resumo() with { Puncoes = new(2, 1, 1) });
         Assert.Equal([Ambar], CoresDe(porVerificar, "verificar"));
         var vistas = new ResumoPdfGenerator().GenerateBytes(Resumo() with { Puncoes = new(2, 2, 2) });

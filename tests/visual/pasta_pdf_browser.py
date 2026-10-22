@@ -32,12 +32,18 @@ PAGE = """<!DOCTYPE html><html lang="pt-PT"><head><meta charset="utf-8"><title>P
     <input type="hidden" name="jobon_id" value="7">
     <button type="submit" name="apenas_resumo" value="true" id="exportar">PDF do Resumo</button>
   </form>
+  <form method="post" action="/Controlo/Resumo?handler=GeneratePdf" data-dmo-pdf-acompanha="puncoes">
+    <input type="hidden" name="jobon_id" value="8">
+    <input type="hidden" name="__RequestVerificationToken" value="tok">
+    <button type="submit" id="completo">PDF completo</button>
+  </form>
   <script src="/dmo-live.js"></script>
   <script src="/js/dmo-pasta-pdf.js"></script>
 </body></html>"""
 
 PDF = b"%PDF-1.4\n% DMO fixture\n%%EOF\n"
 posts = []
+pu_posts = []
 
 
 def handle(route):
@@ -46,10 +52,23 @@ def handle(route):
     if path == "/cap":
         return route.fulfill(body=PAGE, content_type="text/html; charset=utf-8")
     if path == "/Controlo/Resumo" and request.method == "POST":
-        posts.append(request.post_data or "")
-        return route.fulfill(body=PDF, headers={
+        body = request.post_data or ""
+        headers = {
             "Content-Type": "application/pdf",
             "Content-Disposition": "attachment; filename=RESUMO-5447T173-202601.pdf; filename*=UTF-8''RESUMO-5447T173-202601.pdf",
+            "X-Dmo-Pdf-Pasta": quote("5447T173/202601", safe=""),
+        }
+        if "jobon_id=8" in body:
+            # O PDF completo de uma produção com punções NNPB (22/10/2026).
+            headers["X-Dmo-Pdf-Acompanha"] = "/Controlo/Puncoes?handler=GeneratePdf&controlo_id=3"
+        else:
+            posts.append(body)
+        return route.fulfill(body=PDF, headers=headers)
+    if path == "/Controlo/Puncoes" and request.method == "POST":
+        pu_posts.append((request.url, request.post_data or ""))
+        return route.fulfill(body=PDF, headers={
+            "Content-Type": "application/pdf",
+            "Content-Disposition": "attachment; filename=PU-NNPB-5447T173-202601.pdf; filename*=UTF-8''PU-NNPB-5447T173-202601.pdf",
             "X-Dmo-Pdf-Pasta": quote("5447T173/202601", safe=""),
         })
     local = assets / path.lstrip("/")
@@ -164,7 +183,33 @@ with sync_playwright() as playwright:
     toasts = page.locator("[data-dmo-toast]").all_inner_texts()
     assert len(toasts) == 1, toasts
 
+    # 5. O PDF das punções acompanha o PDF completo (Diogo, 22/10/2026): pedido
+    #    a seguir, com o mesmo token, e gravado à parte na mesma pasta.
+    files_before = page.evaluate(LIST_FILES)
+    toasts_before = page.locator("[data-dmo-toast]").count()
+    page.click("#completo")
+    page.wait_for_function(f"document.querySelectorAll('[data-dmo-toast]').length > {toasts_before}", timeout=5000)
+    page.wait_for_timeout(400)
+    new_files = sorted(f for f in page.evaluate(LIST_FILES) if f not in files_before)
+    assert new_files == [
+        "5447T173/202601/PU-NNPB-5447T173-202601.pdf:%PDF-1.4",
+        "5447T173/202601/RESUMO-5447T173-202601 (4).pdf:%PDF-1.4",
+    ], new_files
+    assert len(pu_posts) == 1 and pu_posts[0][0].endswith("/Controlo/Puncoes?handler=GeneratePdf"), pu_posts
+    assert "controlo_id=3" in pu_posts[0][1] and "__RequestVerificationToken=tok" in pu_posts[0][1], pu_posts
+
+    # 6. Sem pasta: os dois PDFs vão para as Transferências.
+    page.click("[data-dmo-pasta-pdf-esquecer]")
+    page.wait_for_timeout(300)
+    page.reload()
+    page.wait_for_timeout(300)
+    names = []
+    page.on("download", lambda d: names.append(d.suggested_filename))
+    page.click("#completo")
+    page.wait_for_timeout(1200)
+    assert sorted(names) == ["PU-NNPB-5447T173-202601.pdf", "RESUMO-5447T173-202601.pdf"], names
+
     assert errors == [], errors
     browser.close()
 
-print("pasta dos PDFs: sem pasta, com pasta (referência/produção, sem apagar), deixar de usar e duplo clique: passaram")
+print("pasta dos PDFs: sem pasta, com pasta (referência/produção, sem apagar), deixar de usar, duplo clique e o PDF das punções a acompanhar: passaram")

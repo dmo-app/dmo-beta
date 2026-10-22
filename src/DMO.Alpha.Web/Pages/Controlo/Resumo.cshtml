@@ -82,7 +82,10 @@
           <details class="dmo-options resumo-export" data-dmo-tab-menu>
             <summary class="dmo-button">Exportar<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
             <div class="dmo-options-list">
-              <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="GeneratePdf">
+              @* Com registo das punções, o PDF completo traz também o PDF das
+                 punções, à parte, na mesma pasta (ou nas Transferências): o
+                 dmo-pasta-pdf.js trata este formulário mesmo sem pasta. *@
+              <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="GeneratePdf" data-dmo-pdf-acompanha="@(Model.Puncoes?.Registo is not null ? "puncoes" : null)">
                 <input type="hidden" name="jobon_id" value="@production.JobOnId" />
                 @* O PDF COMPLETO (Diogo, 19/10/2026): o Resumo e, a seguir, o
                    Peso, os Pegamentos e as PU NNPB que tenham registos, com
@@ -364,7 +367,12 @@
                   </div>
                 }
                 <small>Punção @puRegisto.PunchReference · lote @puRegisto.Lot</small>
-                <a class="resumo-card-link" href="/Controlo/Puncoes?controlo_id=@Model.ControloId">Ver detalhe →</a>
+                @* Duas ligações (Diogo, 22/10/2026): o registo (a verificação) e a
+                   folha das punções por posição da linha (a tabela do PDF). *@
+                <nav class="resumo-pu-ligacoes" aria-label="PU NNPB" data-resumo-pu-ligacoes>
+                  <a class="resumo-card-link" href="/Controlo/Puncoes?controlo_id=@Model.ControloId">Registo das punções →</a>
+                  <a class="resumo-card-link" href="/Controlo/Puncoes?controlo_id=@Model.ControloId&amp;vista=folha">Folha das punções →</a>
+                </nav>
               }
               else
               {

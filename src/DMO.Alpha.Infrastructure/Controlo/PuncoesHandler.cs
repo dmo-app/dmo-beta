@@ -46,6 +46,8 @@ public sealed class PuncoesHandler
                 j.Reference,
                 j.ProductionNumber,
                 Machine = m.Code,
+                j.InicioEm,
+                j.FimEm,
                 CmToolId = t != null ? t.ToolId : null,
                 CmReference = t != null ? t.Reference : null,
                 CmLot = t != null ? t.Lot : null,
@@ -78,8 +80,37 @@ public sealed class PuncoesHandler
             DefaultPunchReference(context.Reference),
             registo is null ? null : ToReadModel(registo))
         {
-            CmToolId = context.CmToolId
+            CmToolId = context.CmToolId,
+            InicioEm = context.InicioEm,
+            FimEm = context.FimEm
         };
+    }
+
+    /// <summary>
+    /// Quem registou as punções, pelo nome (o operador ou o email gravado em
+    /// RegisteredBy, trocado pelo nome do utilizador quando existe), pela
+    /// ordem do primeiro registo; null sem punções.
+    /// </summary>
+    public async Task<string?> RegistadoPorAsync(PuncoesReadModel registo, CancellationToken cancellationToken = default)
+    {
+        var quem = registo.Rows
+            .Select(r => r.RegisteredBy)
+            .OfType<string>()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (quem.Length == 0)
+        {
+            return null;
+        }
+
+        var nomes = await _db.Users.AsNoTracking()
+            .Where(u => quem.Contains(u.OperatorId) || (u.Email != null && quem.Contains(u.Email)))
+            .Select(u => new { u.OperatorId, u.Email, u.Name })
+            .ToListAsync(cancellationToken);
+        return string.Join(", ", quem.Select(q =>
+            nomes.FirstOrDefault(n => string.Equals(n.OperatorId, q, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(n.Email, q, StringComparison.OrdinalIgnoreCase))?.Name ?? q)
+            .Distinct());
     }
 
     /// <summary>

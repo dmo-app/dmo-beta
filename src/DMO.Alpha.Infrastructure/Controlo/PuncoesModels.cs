@@ -86,6 +86,11 @@ public sealed record PuncoesSheet(
 {
     /// <summary>A ferramenta CM da produção, para o aviso do processo em falta levar à ficha dela; null sem CM.</summary>
     public string? CmToolId { get; init; }
+
+    /// <summary>As datas da produção no Job On (início e fim), para o PDF das posições.</summary>
+    public DateOnly? InicioEm { get; init; }
+
+    public DateOnly? FimEm { get; init; }
 }
 
 public sealed record PuncoesReadModel(

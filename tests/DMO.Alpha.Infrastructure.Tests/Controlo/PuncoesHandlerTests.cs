@@ -194,57 +194,52 @@ public sealed class PuncoesHandlerTests : IDisposable
         Assert.Equal(expected, PuncoesHandler.DefaultPunchReference(reference));
 
     [Fact]
-    public async Task Pdf_SheetAndResumoWithPuncoes_AreGeneratedInMemory()
+    public async Task Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes()
     {
+        // Diogo, 22/10/2026: o PDF das punções é a tabela das posições da
+        // linha, gerado em memória; o PDF do Controlo não leva a tabela, só a
+        // ligação ao ficheiro das punções, gravado à parte na mesma pasta.
         var controloId = await SeedProductionAsync(CmProcess.Nnpb);
         await _handler.AddAsync(PuncoesTarget.ForControlo(controloId), "41", "1075", "1", "4301");
         await _handler.AddAsync(PuncoesTarget.ForControlo(controloId), "41", "1075", "2", "4301");
         var sheet = (await _handler.GetSheetAsync(controloId))!;
-        var input = PuncoesPdfGenerator.FromRegisto(sheet, sheet.Registo!, generatedBy: "Diogo Oliveira");
+        var input = new PuncoesPosicoesPdfGenerator.Input(sheet.Reference, sheet.Machine, sheet.ProductionNumber,
+            new DateOnly(2026, 8, 4), new DateOnly(2026, 8, 11), "Diogo",
+            PuncoesPosicoes.Distribuir(sheet.Registo!.Rows, 12));
 
-        var bytes = new PuncoesPdfGenerator().GenerateBytes(input);
+        var bytes = new PuncoesPosicoesPdfGenerator().GenerateBytes(input);
         Assert.StartsWith("%PDF-", System.Text.Encoding.ASCII.GetString(bytes[..5]));
         var sheetText = PdfText.Of(bytes);
-        Assert.Contains("1075C142 · 202604 · C2 Controlo de Punções NNPB", sheetText);
-        Assert.Contains("Total de punções Punções vistas Arrefecedores vistos 2 2 2", sheetText);
-        Assert.Contains("1 41 1 Visto Visto 2 41 Alteração 2 Visto Visto", sheetText);
-        Assert.Contains("Gerado por Diogo Oliveira", sheetText);
+        Assert.Contains("Registo de punções PU · NNPB", sheetText);
+        Assert.Contains("Referência 1075C142 · Linha C2 · Produção 202604 · 04/08/2026 a 11/08/2026 · Registado por Diogo", sheetText);
+        // A1 e B1 com o 41 a negrito e o lote por baixo (as colunas lidas lado a lado).
+        Assert.Contains("41 A Lote 1 41 B Lote 2", sheetText);
+        Assert.Contains("Punções verificados 2", sheetText);
+        Assert.Contains("Linha C2 2", sheetText);
+        Assert.Contains("A1 41 1", sheetText);
+        Assert.Contains("B1 41 2", sheetText);
+        Assert.DoesNotContain("APROVADO", sheetText);
+        Assert.DoesNotContain("Aprovação", sheetText);
 
+        var ficheiro = ControloDocumentPaths.GetPuncoesFileName("1075C142", "202604");
+        Assert.Equal("PU-NNPB-1075C142-202604.pdf", ficheiro);
         var resumo = new ResumoPdfGenerator.Input("202604", "1075C142", "C2", null, null,
             Array.Empty<ResumoPdfGenerator.ToolCard>(), null, null, Array.Empty<ResumoPdfGenerator.Viewing>(), null, "");
-        var without = new ResumoPdfGenerator().GenerateBytes(resumo);
         var with = new ResumoPdfGenerator().GenerateBytes(resumo with
         {
             Puncoes = new ResumoPdfGenerator.PuncoesSummary(2, 2, 2),
-            PuncoesDocument = input
+            PuncoesFicheiro = ficheiro
         });
-        Assert.StartsWith("%PDF-", System.Text.Encoding.ASCII.GetString(with[..5]));
-        Assert.True(with.Length > without.Length);
         var withText = PdfText.Of(with);
         Assert.Contains("TOTAL PU VISTAS ARREF. VISTOS 2 2 2", withText);
-        Assert.Contains("← Voltar ao Resumo", withText);
-        Assert.Contains("1 / 2", withText);
-        var withoutText = PdfText.Of(without);
-        Assert.DoesNotContain("Controlo de Punções NNPB", withoutText);
-        Assert.Contains("1 / 1", withoutText);
-        Assert.Equal("PU-NNPB-1075C142-202604.pdf", ControloDocumentPaths.GetPuncoesFileName("1075C142", "202604"));
-    }
+        Assert.Contains("Abrir PDF das punções →", withText);
+        Assert.DoesNotContain("Registo de punções", withText);
+        Assert.Contains("1 / 1", withText);
+        using var document = UglyToad.PdfPig.PdfDocument.Open(with);
+        Assert.Contains(ficheiro, document.GetPage(1).GetHyperlinks().Select(l => l.Uri));
 
-    [Fact]
-    public async Task Pdf_HasNoApprovalStamp()
-    {
-        // O PU NNPB não tem aprovar (Diogo, 19/10/2026; sweep do Codex, C-3):
-        // a folha não diz «APROVADO» nem «Aprovação: sem registo».
-        var controloId = await SeedProductionAsync(CmProcess.Nnpb);
-        await _handler.AddAsync(PuncoesTarget.ForControlo(controloId), "41", "1075", "1", "4301");
-        var sheet = (await _handler.GetSheetAsync(controloId))!;
-
-        var text = PdfText.Of(new PuncoesPdfGenerator().GenerateBytes(
-            PuncoesPdfGenerator.FromRegisto(sheet, sheet.Registo!, generatedBy: "Diogo Oliveira")));
-
-        Assert.Contains("Total de punções Punções vistas Arrefecedores vistos 1 1 1", text);
-        Assert.DoesNotContain("APROVADO", text);
-        Assert.DoesNotContain("Aprovação", text);
+        var semFicheiro = PdfText.Of(new ResumoPdfGenerator().GenerateBytes(resumo with { Puncoes = new ResumoPdfGenerator.PuncoesSummary(2, 2, 2) }));
+        Assert.DoesNotContain("Abrir PDF das punções", semFicheiro);
     }
 
     [Fact]
@@ -360,12 +355,10 @@ public sealed class PuncoesHandlerTests : IDisposable
     [Fact]
     public void Pdf_StandaloneRegister_SaysSemJobOn()
     {
-        var sheet = new PuncoesStandaloneSheet(7, "1075C142", null,
-            new PuncoesReadModel("1075", "1", Array.Empty<PuncaoReadModel>(), 0, 0, null, DateTime.UtcNow));
-        var input = PuncoesPdfGenerator.FromStandalone(sheet);
-        Assert.Equal("Sem Job On", input.ProductionNumber);
-        var text = PdfText.Of(new PuncoesPdfGenerator().GenerateBytes(input));
-        Assert.Contains("1075C142 · Sem Job On · — Controlo de Punções NNPB", text);
-        Assert.Contains("Sem punções registadas.", text);
+        var input = new PuncoesPosicoesPdfGenerator.Input("1075C142", "—", "Sem Job On", null, null, null,
+            PuncoesPosicoes.Distribuir(Array.Empty<PuncaoReadModel>(), 12));
+        var text = PdfText.Of(new PuncoesPosicoesPdfGenerator().GenerateBytes(input));
+        Assert.Contains("Referência 1075C142 · Linha — · Produção Sem Job On", text);
+        Assert.Contains("Sem punções repetidos", text);
     }
 }
