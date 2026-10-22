@@ -184,6 +184,7 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
                 tool.Reference,
                 tool.Lot,
                 tool.BqAccountedQuantity,
+                tool.AssociatedMfReference,
                 Machines = _db.ToolMachineLinks
                     .Where(link => link.ToolId == tool.ToolId)
                     .Select(link => link.Machine.Code)
@@ -199,7 +200,8 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
                 row.Reference,
                 row.Lot,
                 row.BqAccountedQuantity,
-                row.Machines.Count > 0 ? string.Join(" · ", row.Machines) : null))
+                row.Machines.Count > 0 ? string.Join(" · ", row.Machines) : null,
+                row.AssociatedMfReference))
             .ToList();
     }
 }

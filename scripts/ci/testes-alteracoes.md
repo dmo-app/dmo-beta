@@ -1297,3 +1297,14 @@ Novos: 15 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `fbaea0abc9efe7ea`
+
+## A-0050 · 2026-10-22 · ok-do-diogo
+
+Porquê: Diogo aprovou a escolha da BQ
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento`
+
+Selo depois: `919f42fd259d5817`

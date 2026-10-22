@@ -27,4 +27,5 @@ public sealed record ToolCandidate(
     string Reference,
     string Lot,
     int? AccountedQuantity = null,
-    string? MachineCodes = null);
+    string? MachineCodes = null,
+    string? AssociatedMfReference = null);

@@ -310,3 +310,15 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 /* BQ, Lote e Linha numa só linha (Diogo, 22/10/2026). */
 .bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:repeat(3, minmax(0, 1fr)); }
 @media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:1fr; } }
+/* A escolha da BQ (Diogo, 22/10/2026): uma só caixa de procura, cada opção
+   com a referência e o lote em destaque e o que mais a identifica. */
+.bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); }
+.bq-escolha { position:relative; }
+.bq-escolha input { width:100%; }
+.bq-escolha-select { position:absolute;inset:auto 0 0 0;height:1px;opacity:0;pointer-events:none; }
+.bq-escolha-lista { position:absolute;z-index:20;left:0;right:0;top:calc(100% + 2px);margin:0;padding:4px 0;list-style:none;max-height:240px;overflow:auto;background:var(--dmo-surface,#fff);border:1px solid var(--dmo-border,#b9d0e6);border-radius:9px;box-shadow:0 8px 24px rgb(0 0 0 / .14); }
+.bq-escolha-lista li { padding:6px 10px;cursor:pointer;line-height:1.3; }
+.bq-escolha-lista li span { display:block;font-size:.85em;color:var(--dmo-text-muted,#5b6b7c); }
+.bq-escolha-lista li:hover, .bq-escolha-lista li[aria-selected="true"] { background:var(--dmo-brand-50,#eaf2fa); }
+@media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:1fr; } }
+.bq-sem-jobon-janela { overflow:visible; }

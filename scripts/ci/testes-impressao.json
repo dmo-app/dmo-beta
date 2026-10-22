@@ -1,5 +1,5 @@
 {
-  "selo": "fbaea0abc9efe7ea",
+  "selo": "919f42fd259d5817",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1575,8 +1575,9 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoTrocaTests.cs :: BoquilhasRegistoPageTests.Registo_ComUmaJanelaAberta_OFocoVaiParaAJanela": "08c6a54f2602b521",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoTrocaTests.cs :: BoquilhasRegistoPageTests.Registo_TrocaSoAsZonas_SemFocoAutomaticoNoTipo": "2f5cfc0f54a2e001",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: (resto do ficheiro)": "589c8d454a4450b5",
-    "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento": "c1094c1ebf2a48d3",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento": "bec6d63a371ed3ed",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase": "0028663fd2a12e22",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia": "bfb4ce38e3c87d9e",
     "tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.CliquesRepetidos.cs :: (resto do ficheiro)": "b476e1f4f12b596a",
     "tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.CliquesRepetidos.cs :: BoquilhasRegistoPageTests.ToolCatalog_SemOFormularioCurto_OPostAntigoNaoGravaEAbreORegisto_EAGuardadaMostraAMensagemNaZona": "f244e0c048057787",
     "tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: (resto do ficheiro)": "d2dcc8bd25cdff27",
