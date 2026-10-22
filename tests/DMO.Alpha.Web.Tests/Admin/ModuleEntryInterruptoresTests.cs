@@ -136,6 +136,9 @@ public sealed class ModuleEntryInterruptoresTests : IDisposable
         var topo = html.IndexOf("<div class=\"dmo-card-topo-acoes\">", cartao, StringComparison.Ordinal);
         var guardar = html.IndexOf("id=\"admModulosGuardar\" form=\"admModulosForm\">Guardar</button>", cartao, StringComparison.Ordinal);
         var formulario = html.IndexOf("<form id=\"admModulosForm\"", cartao, StringComparison.Ordinal);
+        Assert.True(topo >= 0);
+        Assert.True(guardar >= 0);
+        Assert.True(formulario >= 0);
         Assert.True(topo < guardar && guardar < formulario);
         Assert.Contains("<option value=\"desligado\" selected=\"selected\">Desligado</option>", html);
         Assert.Contains("<option value=\"todos\" selected=\"selected\">Ligado para todos</option>", html);
@@ -195,6 +198,26 @@ public sealed class ModuleEntryInterruptoresTests : IDisposable
         string[] caps = [DmoCapabilities.Boquilhas, DmoCapabilities.ArmazemGestao, DmoCapabilities.ReparacaoInterna];
 
         Assert.Equal([DmoCapabilities.Boquilhas, DmoCapabilities.ArmazemGestao], state.Filter(caps, user));
+        Assert.Equal([DmoCapabilities.Boquilhas], state.Filter(caps, Guid.NewGuid()));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("qualquer")]
+    public void SemAChave_ArmazemERiFicamDesligados(string? valor)
+    {
+        var modo = ModuleSwitchKeys.DefaultEmDesenvolvimento(valor);
+        Assert.Equal(ModuleSwitchMode.Desligado, modo);
+
+        var state = new ModuleSwitchState(
+            new Dictionary<string, ModuleSwitchMode>
+            {
+                [DmoCapabilities.ArmazemGestao] = modo,
+                [DmoCapabilities.ReparacaoInterna] = modo
+            },
+            []);
+        string[] caps = [DmoCapabilities.Boquilhas, DmoCapabilities.ArmazemGestao, DmoCapabilities.ReparacaoInterna];
         Assert.Equal([DmoCapabilities.Boquilhas], state.Filter(caps, Guid.NewGuid()));
     }
 }

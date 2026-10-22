@@ -363,8 +363,7 @@ builder.Services.AddSingleton<ModuleSwitchCache>();
 builder.Services.AddScoped<IModuleSwitches>(sp => new ModuleSwitches(
     sp.GetRequiredService<DmoDbContext>(),
     sp.GetRequiredService<ModuleSwitchCache>(),
-    ModuleSwitchKeys.Parse(sp.GetRequiredService<IConfiguration>()["Dmo:ModulosEmDesenvolvimento"])
-        ?? ModuleSwitchMode.Desligado));
+    ModuleSwitchKeys.DefaultEmDesenvolvimento(sp.GetRequiredService<IConfiguration>()["Dmo:ModulosEmDesenvolvimento"])));
 builder.Services.AddScoped<ITemplateAdminService, TemplateAdminService>();
 builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 

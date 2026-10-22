@@ -71,4 +71,8 @@ public static class ModuleSwitchKeys
         "todos" => ModuleSwitchMode.Todos,
         _ => null
     };
+
+    /// <summary>O estado de um módulo em desenvolvimento sem linha guardada:
+    /// o valor da configuração, ou desligado quando falta ou não se percebe.</summary>
+    public static ModuleSwitchMode DefaultEmDesenvolvimento(string? value) => Parse(value) ?? ModuleSwitchMode.Desligado;
 }

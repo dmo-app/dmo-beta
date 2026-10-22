@@ -1,5 +1,5 @@
 {
-  "selo": "7226add90f79243b",
+  "selo": "78c07ffe6cf4d05e",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1304,7 +1304,8 @@
     "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoParaTodos_EntramTodosOsQueTemOModulo": "a1e3f5b844b5a033",
     "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoSoParaTeste_EntraQuemEDeTesteEVeAFaixa": "37c7057dc81d0188",
     "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.PorOmissao_OsModulosEmDesenvolvimentoFicamDesligados": "dd47caa8bc0885d1",
-    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.Setup_MostraOsInterruptoresComOGuardarNoTopo": "12a114b93b0d0509",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.SemAChave_ArmazemERiFicamDesligados": "0cbc47e8d70f8812",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.Setup_MostraOsInterruptoresComOGuardarNoTopo": "d8b8f080f8eff27b",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: (resto do ficheiro)": "0d674996b4673d09",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminFoundationServices_RegisterWithScopedLifetime": "39db9524a363814b",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminPages_AdminEmailSettingRemoved_RevokesAdminCookie": "de1cc4ef5ca24c10",
