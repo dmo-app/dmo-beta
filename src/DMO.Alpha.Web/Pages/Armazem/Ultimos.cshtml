@@ -1,0 +1,177 @@
+@page "/Armazem/Ultimos"
+@model DMO.Alpha.Web.Pages.Armazem.UltimosModel
+@using DMO.Alpha.Core.Armazem
+@using DMO.Alpha.Web.Pages.Armazem
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.arm-mov{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;align-items:start}
+@@media (max-width:1100px){.arm-mov{grid-template-columns:minmax(0,1fr)}}
+.arm-card{padding:18px;min-width:0}
+.arm-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}
+.arm-card h3{margin:0;font-size:16px}
+.arm-card .dmo-table td{padding:6px 8px;vertical-align:top}
+.arm-filtros{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+.arm-filtros .dmo-field{margin:0;min-width:0}
+html body .arm-filtros .dmo-field input.arm-curto{width:9ch}
+html body .arm-filtros .dmo-field input.arm-lote{width:6ch}
+html body .arm-filtros .dmo-field input[type=date]{width:142px}
+html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
+.arm-filtro-ferramenta{margin:0 0 12px}
+.arm-pos{font-variant-numeric:tabular-nums;font-weight:700}
+</style>
+}
+
+@* Os Movimentos só leem. À esquerda o que está fora em reparação (é o agora,
+   sem filtro); à direita as últimas entradas e saídas, do mais recente para
+   o mais antigo. Os filtros aplicam ao escolher (o texto com Enter) e só o
+   cartão da direita troca (data-dmo-regiao + data-dmo-parcial). Sem botões
+   nas linhas; a linha da esquerda abre a ficha da ferramenta (só com as
+   Ferramentas). *@
+<main class="dmo-workspace" aria-labelledby="arm-mov-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="arm-mov-title">Movimentos</h1>
+    </div>
+  </div>
+
+  <div class="arm-mov">
+    <section id="armRepFora" class="dmo-card arm-card" aria-labelledby="arm-rep-fora-title" data-dmo-regiao>
+      <div class="arm-card-head">
+        <h3 id="arm-rep-fora-title">Fora, em reparação<partial name="_DmoHelp" model="@("As CM e os MF cujo último movimento no armazém é uma Saída para Reparação: o reparador e o dia em que saiu. As BQ seguem-se nas Boquilhas." + (Model.AbreFicha ? " Um clique na linha abre a ficha da ferramenta." : ""))" /></h3>
+      </div>
+      @if (Model.Fora.Count == 0)
+      {
+        <p id="armRepForaVazio"><em>Nenhuma CM ou MF fora, em reparação.</em></p>
+      }
+      else
+      {
+        <div class="dmo-table-wrap">
+          <table class="dmo-table" id="armRepForaLista" data-dmo-list="Fora, em reparação">
+            <thead><tr><th>Ferramenta</th><th>Reparador</th><th>Saiu</th></tr></thead>
+            <tbody>
+            @foreach (var f in Model.Fora)
+            {
+              @* Os data-* não desaparecem com null no Razor: sem as Ferramentas, a linha nasce sem destino. *@
+              if (Model.AbreFicha)
+              {
+              <tr data-dmo-row data-dmo-fora="@f.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = f.ToolId })">
+                <td><strong>@ArmazemTextos.Ferramenta(f.Tipo, f.Referencia, f.Lote)</strong></td>
+                <td>@(f.Reparador ?? "—")</td>
+                <td>@MovimentosModel.Dia(f.SaiuEmUtc)</td>
+              </tr>
+              }
+              else
+              {
+              <tr data-dmo-row data-dmo-fora="@f.ToolId">
+                <td><strong>@ArmazemTextos.Ferramenta(f.Tipo, f.Referencia, f.Lote)</strong></td>
+                <td>@(f.Reparador ?? "—")</td>
+                <td>@MovimentosModel.Dia(f.SaiuEmUtc)</td>
+              </tr>
+              }
+            }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section id="armMovimentos" class="dmo-card arm-card" aria-labelledby="arm-mov-lista-title" data-dmo-regiao data-dmo-parcial>
+      <div class="arm-card-head">
+        <h3 id="arm-mov-lista-title">Últimas entradas e saídas<partial name="_DmoHelp" model="@("Todas as entradas e saídas do armazém, do mais recente para o mais antigo. Na Entrada, a posição onde ficou; na Saída para Reparação e na Entrada que volta dela, o reparador. Os filtros aplicam ao escolher; a referência e o lote com Enter.")" /></h3>
+        @if (Model.ComFiltro)
+        {
+          <a class="dmo-button" id="armMovLimpar" href="@Url.Page("/Armazem/Ultimos")">Limpar filtros</a>
+        }
+      </div>
+
+      <form id="armMovFiltros" method="get" asp-page="/Armazem/Ultimos" class="arm-filtros" role="search">
+        @if (!string.IsNullOrWhiteSpace(Model.ToolId))
+        {
+          <input type="hidden" name="ferramenta" value="@Model.ToolId" />
+        }
+        <div class="dmo-field">
+          <label for="armMovDe">De</label>
+          <input id="armMovDe" name="de" type="date" value="@UltimosModel.Data(Model.De)" data-dmo-autosubmit />
+        </div>
+        <div class="dmo-field">
+          <label for="armMovAte">Até</label>
+          <input id="armMovAte" name="ate" type="date" value="@UltimosModel.Data(Model.Ate)" data-dmo-autosubmit />
+        </div>
+        <div class="dmo-field">
+          <label for="armMovTipo">Tipo</label>
+          <select id="armMovTipo" name="tipo" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Tipo is null)">Todos</option>
+            @foreach (var t in new[] { "CM", "MF", "BQ" })
+            {
+              <option value="@t" selected="@(Model.TipoTexto == t)">@t</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="armMovReferencia">Referência</label>
+          <input id="armMovReferencia" name="referencia" class="arm-curto" value="@Model.Referencia" autocomplete="off" data-dmo-maiusculas autocapitalize="characters"
+                 placeholder="5447" data-dmo-suggest="ferramentas" data-dmo-suggest-submit />
+        </div>
+        <div class="dmo-field">
+          <label for="armMovLote">Lote</label>
+          <input id="armMovLote" name="lote" class="arm-lote" value="@Model.Lote" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="3" />
+        </div>
+        <div class="dmo-field">
+          <label for="armMovLinha">Linha</label>
+          <select id="armMovLinha" name="linha" data-dmo-autosubmit>
+            <option value="" selected="@string.IsNullOrWhiteSpace(Model.Linha)">Todas</option>
+            @foreach (var l in Model.Linhas)
+            {
+              <option value="@l" selected="@(Model.Linha == l)">@l</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="armMovReparador">Reparador</label>
+          <select id="armMovReparador" name="reparador" data-dmo-autosubmit>
+            <option value="" selected="@string.IsNullOrWhiteSpace(Model.Reparador)">Todos</option>
+            @foreach (var r in Model.Reparadores)
+            {
+              <option value="@r" selected="@(Model.Reparador == r)">@r</option>
+            }
+          </select>
+        </div>
+      </form>
+
+      @if (!string.IsNullOrWhiteSpace(Model.ToolId))
+      {
+        <p class="arm-filtro-ferramenta" id="armMovFerramenta">Só @(Model.FerramentaDoFiltro ?? "esta ferramenta").</p>
+      }
+
+      @if (Model.Lista.Items.Count == 0)
+      {
+        <p id="armMovVazio"><em>@(Model.ComFiltro ? "Nenhuma entrada ou saída com esse filtro." : "Ainda não há entradas nem saídas.")</em></p>
+      }
+      else
+      {
+        <div class="dmo-table-wrap">
+          <table class="dmo-table" id="armMovLista" data-dmo-list="Últimas entradas e saídas">
+            <thead><tr><th>Dia</th><th>Ferramenta</th><th>Movimento</th><th>Reparador</th><th>Posição</th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Lista.Items)
+            {
+              <tr data-dmo-movimento="@m.Id" title="@m.Descricao">
+                <td>@MovimentosModel.Dia(m.OcorridoEmUtc)</td>
+                <td>@UltimosModel.Ferramenta(m)@if (m.Eliminada) {<text> </text><span class="muted">(eliminada)</span>}</td>
+                <td>@UltimosModel.Movimento(m)</td>
+                <td>@(m.Reparador ?? "—")</td>
+                <td>@if (m.Movimento == ArmazemMovimentoTipo.Entrada && m.Posicao is not null) {<span class="arm-pos">@m.Posicao</span>} else {<text>—</text>}</td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+        <partial name="_ListPager" model="Model.Pager" />
+      }
+    </section>
+  </div>
+</main>
