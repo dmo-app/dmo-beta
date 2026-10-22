@@ -51,7 +51,9 @@ public sealed record RiProducaoDoDia(DateOnly Dia, IReadOnlyList<RiProducao> Can
 /// mostrou (para ver se mudaram entretanto), o tipo e o número escrito. Com
 /// <paramref name="Outra"/> (a CM ou o MF na máquina não é a do Job On) ou
 /// sem produção para o dia, a ferramenta vai escrita: a referência e o lote,
-/// sem contexto, por associar (peça 4).
+/// sem contexto, por associar (peça 4). <paramref name="Dia"/>: o dia
+/// operacional escolhido na página (as datas são livres, Diogo, 22/10/2026);
+/// sem ele, o de agora.
 /// </summary>
 public sealed record PedidoDeReparacao(
     Guid OperacaoId,
@@ -62,7 +64,8 @@ public sealed record PedidoDeReparacao(
     string? Numero,
     bool Outra = false,
     string? Referencia = null,
-    string? Lote = null);
+    string? Lote = null,
+    DateOnly? Dia = null);
 
 /// <summary>Como acabou um registo. Só se recusa o impossível ou o que falta.</summary>
 public enum ReparacaoResultado
@@ -188,6 +191,9 @@ public interface IReparacoesInternas
 
     /// <summary>As produções da máquina cujas datas cobrem o dia operacional.</summary>
     Task<RiProducaoDoDia> ProducaoDoDiaAsync(int machineId, CancellationToken cancellationToken = default);
+
+    /// <summary>As produções da máquina cujas datas cobrem este dia (a data escolhida na página; as datas são livres).</summary>
+    Task<RiProducaoDoDia> ProducaoDoDiaAsync(int machineId, DateOnly dia, CancellationToken cancellationToken = default);
 
     Task<ReparacaoSaida> RegistarAsync(PedidoDeReparacao pedido, CancellationToken cancellationToken = default);
 

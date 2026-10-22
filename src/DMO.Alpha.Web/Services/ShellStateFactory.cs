@@ -256,6 +256,7 @@ public sealed class ShellStateFactory
         new[]
         {
             new FunctionPresentation("registar", "Registar", "/ReparacaoInterna", null, activeKey == "registar", true, true),
+            new FunctionPresentation("historico", "Histórico", "/ReparacaoInterna?historico=1", null, activeKey == "historico", true, true),
             new FunctionPresentation("consultar", "Consultar", "/ReparacaoInterna/Consultar", null, activeKey == "consultar", true, true)
         };
 }

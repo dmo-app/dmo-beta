@@ -246,7 +246,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         var (codigo, _) = Maquina("D", comProducao: false);
         using var client = await LoginOperatorAsync("6804", DmoCapabilities.ReparacaoInterna);
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
-        Assert.Contains("Ainda não há reparações sem Job On hoje.", Elemento(html, $"id=\"riLista-{codigo}\""));
+        Assert.Contains("Ainda não registou reparações nesta linha neste dia.", Elemento(html, $"id=\"riLista-{codigo}\""));
 
         using var gravar = await EnviarAsync(client, html, ($"riNumero-{codigo}", "31"), ($"riReferencia-{codigo}", "5447t173"), ($"riLote-{codigo}", "4"));
 
@@ -258,8 +258,8 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         Assert.Contains("value=\"4\"", Campo(depois, $"riLote-{codigo}"));
         Assert.DoesNotContain("value=", Campo(depois, $"riNumero-{codigo}"));
         var lista = Elemento(depois, $"id=\"riLista-{codigo}\"");
-        Assert.Contains("Último: <strong>31</strong>", lista);
         Assert.Contains("<strong>31</strong>", lista);
+        Assert.Contains("<td>Sem Job On</td>", lista);
         Assert.Contains("Outra: 5447T173 · lote 4", lista);
         var r = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(x => x.Numero == "31" && x.ReferenciaEscrita == "5447T173" && x.JobOnId == null));
         Assert.Equal(((int?)null, (int?)null), (r.CmContextId, r.MfContextId));
@@ -401,47 +401,44 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
     }
 
     [Fact]
-    public async Task OsCartoes_BAntesDeC_ATabelaMinimizadaComOUltimo_EditarAbre()
+    public async Task OPainel_BAntesDeC_ORegistoSoDestaPessoa_EditarNoCanto()
     {
         var (codigo, jobOn) = Maquina("K");
+        using var client = await LoginOperatorAsync("6810", DmoCapabilities.ReparacaoInterna);
         NaBase(db =>
         {
+            var eu = db.Users.AsNoTracking().Single(u => u.OperatorId == "6810").Id;
             var m = db.Machines.AsNoTracking().Single(x => x.Code == codigo);
             var cm = db.CmContexts.AsNoTracking().Single(c => c.JobOnId == jobOn);
-            foreach (var (n, min) in new[] { ("K1", 10), ("K2", 5) })
+            foreach (var (n, min, quem) in new[] { ("K1", 10, (Guid?)eu), ("K2", 5, (Guid?)eu), ("K3", 1, (Guid?)null) })
             {
                 db.ReparacoesInternas.Add(new Reparacao
                 {
                     JobOnId = jobOn, MachineId = m.Id, Tipo = ReparacaoTipo.Cm, CmContextId = cm.Id, Numero = n,
-                    RegistadoEmUtc = DateTime.UtcNow.AddMinutes(-min), DiaOperacional = Hoje
+                    RegistadoEmUtc = DateTime.UtcNow.AddMinutes(-min), DiaOperacional = Hoje, RegistadoPorUserId = quem
                 });
                 db.SaveChanges();
             }
 
             return 0;
         });
-        using var client = await LoginOperatorAsync("6810", DmoCapabilities.ReparacaoInterna);
 
-        var html = await client.GetStringAsync("/ReparacaoInterna");
-        var codigos = System.Text.RegularExpressions.Regex.Matches(html, "data-ri-cartao=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToList();
+        var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}");
+        var codigos = Regex.Matches(Elemento(html, "id=\"riLinhasRail\""), "data-id=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToList();
         Assert.Contains(codigo, codigos);
         // As B antes das C.
         var b = codigos.Select((c, i) => (c, i)).Where(x => x.c.StartsWith('B')).Select(x => x.i).DefaultIfEmpty(-1).Max();
         var c = codigos.Select((x, i) => (x, i)).Where(x => x.x.StartsWith('C')).Select(x => x.i).DefaultIfEmpty(int.MaxValue).Min();
         Assert.True(b < c);
-        // Fechada: só o último registo à vista.
+        // O registo: só as desta pessoa, a mais recente em cima.
         var lista = Elemento(html, $"id=\"riLista-{codigo}\"");
-        Assert.DoesNotContain("open", Regex.Match(lista, "<details[^>]*>").Value);
-        Assert.Contains("Último: <strong>K2</strong>", lista);
-        // «Editar» abre a tabela, com o número para corrigir e o «×».
+        Assert.True(lista.IndexOf("<strong>K2</strong>", StringComparison.Ordinal) < lista.IndexOf("<strong>K1</strong>", StringComparison.Ordinal));
+        Assert.DoesNotContain("<strong>K3</strong>", lista);
+        Assert.DoesNotContain("<button", lista);
+        // «Editar» no canto do cartão, azul (dmo-button), para a tabela do registo.
         var editar = Elemento(html, $"id=\"riEditar-{codigo}\"");
         Assert.Contains("class=\"dmo-button\"", editar);
-        var aberta = await client.GetStringAsync(WebUtility.HtmlDecode(Regex.Match(editar, "href=\"([^\"]+)\"").Groups[1].Value));
-        var tabela = Elemento(aberta, $"id=\"riLista-{codigo}\"");
-        Assert.Contains("open", Regex.Match(tabela, "<details[^>]*>").Value);
-        Assert.Contains("data-ri-abre=\"riCorrigirJanela\"", tabela);
-        Assert.Contains("data-ri-abre=\"riAnularJanela\"", tabela);
-        Assert.DoesNotContain("<button", tabela);
+        Assert.Contains($"data-ri-editar=\"riLog-{codigo}\"", editar);
     }
 
     [Fact]

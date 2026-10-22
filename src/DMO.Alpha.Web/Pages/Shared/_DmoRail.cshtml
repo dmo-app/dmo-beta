@@ -54,11 +54,16 @@
       }
       else
       {
-      <button type="button" class="@(abre is null ? "bq-line-empty" : null)"
+      var classe = abre is null ? "bq-line-empty" : linha.Selected ? "selected" : null;
+      <button type="button" class="@classe"
               data-dmo-row data-dmo-open="@abre" data-id="@linha.Key"
-              aria-label="@rotulo" title="@rotulo">
+              aria-label="@rotulo" title="@rotulo" aria-selected="@(linha.Selected ? "true" : null)">
         <strong>@linha.Code</strong>
         <span>@linha.Detail</span>
+        @if (linha.Extra is not null)
+        {
+          <span>@linha.Extra</span>
+        }
       </button>
       }
     }

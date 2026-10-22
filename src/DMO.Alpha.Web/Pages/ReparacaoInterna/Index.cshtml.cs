@@ -10,28 +10,37 @@ using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace DMO.Alpha.Web.Pages.ReparacaoInterna;
 
 /// <summary>
-/// Registar na máquina (blueprint reparacao-interna/OVERVIEW §1): escolher a
-/// máquina; a produção do dia vem sozinha (como nas Boquilhas, com a hora de
-/// viragem da Reparação Interna); escolher CM ou MF; escrever o número e
-/// Enter. O campo fica vazio e com o cursor para o número seguinte, e a
-/// reparação aparece na tabela por baixo. Com duas ou mais produções para o
-/// dia a página avisa e a pessoa escolhe (a de maior <c>jobon_id</c> vem
-/// escolhida). A CM ou o MF na máquina pode não ser a do Job On (trocada
-/// antes de a troca chegar lá): «É outra CM/MF» mostra a referência e o lote
-/// a escrever, e a reparação grava-se sem o contexto, por associar (peça 4,
-/// Diogo, 21/10/2026). Sem produção para o dia, a página avisa e grava-se
-/// sempre assim, sem Job On; a tabela mostra as dessa máquina no dia. Na tabela,
-/// clicar no número corrige-o e o «×» anula a reparação (peça 2), cada um
-/// numa janela pequena com o motivo opcional; quem tem o módulo pode fazê-lo
-/// (RI-04) e fica o rasto. Gravar troca só a tabela, com a mensagem no canto.
+/// Registar (blueprint reparacao-interna/OVERVIEW §1; Diogo, 22/10/2026:
+/// «um sistema similar ao das boquilhas»): o painel lateral das Boquilhas
+/// (o rail único da casa) com as linhas, as B e depois as C, cada uma com o
+/// que está em produção no dia (a referência, a CM e o MF com o lote). Um
+/// clique numa linha abre o registo dela: CM ou MF (o ativo em azul claro),
+/// o número e OK; o dia muda-se no campo «Dia» (as datas são livres, só
+/// avisa); «É outra CM/MF» escreve a referência e o lote (peça 4); sem
+/// produção grava-se sem Job On, por associar. Por baixo, o registo (log)
+/// das reparações desta pessoa nessa linha nesse dia: sem botões nas
+/// linhas, o duplo clique (ou «Editar» com a linha escolhida) abre a
+/// reparação para corrigir o número ou anular, com o motivo opcional; nada
+/// se recusa além do impossível. A tab «Histórico» é o histórico desta
+/// pessoa (é a página de cada reparador: sem filtro de quem), pela linha,
+/// os dias (de / até), a referência e a produção; abre vazia. Gravar troca
+/// só as zonas que mudam (DmoTroca).
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ReparacaoInterna)]
-public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery maquinas, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
+public sealed class IndexModel(
+    IReparacoesInternas reparacoes,
+    IReparacoesInternasConsulta consulta,
+    IMachineListQuery maquinas,
+    IProductionPickerQuery producoes,
+    ICurrentAccountContext conta,
+    CurrentUserCapabilities capabilities,
+    ShellStateFactory shellState) : PageModel
 {
     /// <summary>Quem tem as Ferramentas abre a ficha da ferramenta pelo link; os outros veem só o texto.</summary>
     public bool AbreFerramentas { get; private set; }
@@ -78,10 +87,6 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
 
     /// <summary>A CM ou o MF da produção, conforme o tipo escolhido.</summary>
     public RiFerramenta? Ferramenta => Tipo is { } tipo ? Producao?.Ferramenta(tipo) : null;
-
-    public PagedList<RiLinha> Lista { get; private set; } = PagedList<RiLinha>.Empty;
-
-    public ListPager Pager { get; private set; } = new(1, 1, 0);
 
     /// <summary>O identificador do envio que o formulário leva (envio único).</summary>
     public Guid OperacaoId { get; private set; } = Guid.NewGuid();
@@ -153,9 +158,57 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
         }
     };
 
-    /// <summary>«Editar» no cartão: abre as reparações da máquina para corrigir (o número) ou anular (o «×»).</summary>
-    [BindProperty(SupportsGet = true, Name = "editar")]
-    public bool Editar { get; set; }
+    /// <summary>A tab «Histórico»: o histórico desta pessoa.</summary>
+    [BindProperty(SupportsGet = true, Name = "historico")]
+    public string? HistoricoTexto { get; set; }
+
+    public bool Historico => HistoricoTexto is "1" or "true";
+
+    /// <summary>O dia escolhido no registo (as datas são livres); sem ele, o dia operacional de agora.</summary>
+    [BindProperty(SupportsGet = true, Name = "dia")]
+    public DateOnly? DiaPedido { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "de")]
+    public DateOnly? De { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "ate")]
+    public DateOnly? Ate { get; set; }
+
+    /// <summary>O dia operacional de agora (a viragem da Reparação Interna).</summary>
+    public DateOnly Hoje { get; private set; }
+
+    /// <summary>O dia do registo: o escolhido ou o de agora.</summary>
+    public DateOnly DiaDoRegisto => DiaPedido ?? Hoje;
+
+    /// <summary>Regista-se noutro dia que não o de agora: só avisa.</summary>
+    public bool OutroDia => DiaPedido is { } d && d != Hoje;
+
+    /// <summary>As linhas do painel lateral, pela ordem (as B, as C, as outras).</summary>
+    public IReadOnlyList<RiCartao> Linhas { get; private set; } = [];
+
+    /// <summary>A linha aberta no registo (null: nenhuma escolhida).</summary>
+    public RiCartao? Cartao { get; private set; }
+
+    /// <summary>O registo (log) desta pessoa na linha aberta, no dia do registo.</summary>
+    public PagedList<RiConsultaLinha> Log { get; private set; } = PagedList<RiConsultaLinha>.Empty;
+
+    /// <summary>A referência do filtro do Histórico, sem espaços nas pontas e em maiúsculas.</summary>
+    public string? ReferenciaFiltro => string.IsNullOrWhiteSpace(ReferenciaEscrita) ? null : ReferenciaEscrita.Trim().ToUpperInvariant();
+
+    /// <summary>O segundo passo do Histórico: as últimas 5 produções da referência.</summary>
+    public IReadOnlyList<ProductionPickItem> Producoes { get; private set; } = [];
+
+    /// <summary>O Histórico tem um filtro (sem nenhum abre vazio).</summary>
+    public bool ComFiltro { get; private set; }
+
+    public PagedList<RiConsultaLinha> Historia { get; private set; } = PagedList<RiConsultaLinha>.Empty;
+
+    public ListPager HistoriaPager { get; private set; } = new(1, 1, 0);
+
+    public bool ProducaoEscolhida(ProductionPickItem item) => item.JobOnId == ProducaoPedida;
+
+    /// <summary>O endereço desta vista, para a janela da reparação voltar a ele.</summary>
+    public string Volta => $"{Request.Path}{Request.QueryString}";
 
     public async Task<IActionResult> OnGetAsync(string? gravacao, string? correcao, string? numero, string? escrita, string? semjobon, int? pagina)
     {
@@ -174,12 +227,13 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
         [FromForm(Name = "reparacao_id")] int reparacaoId,
         [FromForm(Name = "numero")] string? numero,
         [FromForm(Name = "motivo")] string? motivo,
-        [FromForm(Name = "pagina")] int? pagina)
+        [FromForm(Name = "pagina")] int? pagina,
+        [FromForm(Name = "volta")] string? volta)
     {
         var saida = await reparacoes.CorrigirAsync(
             new PedidoDeCorrecao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, numero, motivo),
             HttpContext.RequestAborted);
-        return DepoisDaCorrecao(saida, CorrecaoResultado.Corrigido, pagina);
+        return DepoisDaCorrecao(saida, CorrecaoResultado.Corrigido, pagina, volta);
     }
 
     /// <summary>POST: anular uma reparação (o «×» e a confirmação). Grava uma vez por envio.</summary>
@@ -188,39 +242,62 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
         [FromForm(Name = "operacao_id")] Guid operacaoId,
         [FromForm(Name = "reparacao_id")] int reparacaoId,
         [FromForm(Name = "motivo")] string? motivo,
-        [FromForm(Name = "pagina")] int? pagina)
+        [FromForm(Name = "pagina")] int? pagina,
+        [FromForm(Name = "volta")] string? volta)
     {
         var saida = await reparacoes.AnularAsync(
             new PedidoDeAnulacao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, motivo),
             HttpContext.RequestAborted);
-        return DepoisDaCorrecao(saida, CorrecaoResultado.Anulado, pagina);
+        return DepoisDaCorrecao(saida, CorrecaoResultado.Anulado, pagina, volta);
     }
 
-    // Volta à mesma máquina, produção e página, com a mensagem (PRG). O mesmo
-    // envio outra vez mostra o que o primeiro mostrou.
-    private RedirectToPageResult DepoisDaCorrecao(CorrecaoSaida saida, CorrecaoResultado feito, int? pagina) =>
-        RedirectToPage("/ReparacaoInterna/Index", new
+    // Volta à mesma linha, dia e página, com a mensagem (PRG); da tab
+    // Histórico, à mesma vista com os filtros (volta, só desta página). O
+    // mesmo envio outra vez mostra o que o primeiro mostrou.
+    private IActionResult DepoisDaCorrecao(CorrecaoSaida saida, CorrecaoResultado feito, int? pagina, string? volta)
+    {
+        var correcao = (saida.Resultado == CorrecaoResultado.JaFeito ? feito : saida.Resultado) switch
+        {
+            CorrecaoResultado.Corrigido => "corrigido",
+            CorrecaoResultado.Anulado => "anulado",
+            CorrecaoResultado.Igual => "igual",
+            CorrecaoResultado.NaoExiste => "nao-existe",
+            CorrecaoResultado.JaAnulada => "ja-anulada",
+            CorrecaoResultado.Mudou => "mudou",
+            CorrecaoResultado.SemNumero => "sem-numero",
+            CorrecaoResultado.NumeroLongo => "numero-longo",
+            _ => "motivo-longo"
+        };
+        if (VoltaDestaPagina(volta) is { } destino)
+        {
+            var q = destino.IndexOf('?', StringComparison.Ordinal);
+            var query = QueryHelpers.ParseQuery(destino[q..])
+                .Where(p => p.Key is not ("correcao" or "numero" or "gravacao" or "escrita" or "semjobon"))
+                .SelectMany(p => p.Value.Select(v => new KeyValuePair<string, string?>(p.Key, v)))
+                .Append(new("correcao", correcao))
+                .Append(new("numero", saida.Numero));
+            return LocalRedirect(QueryHelpers.AddQueryString(destino[..q], query));
+        }
+
+        return RedirectToPage("/ReparacaoInterna/Index", new
         {
             maquina = MaquinaCodigo,
             producao = ProducaoPedida,
             tipo = TipoTexto,
+            dia = DiaPedido is { } d ? Data(d) : null,
             referencia = ReferenciaEscrita,
             lote = LoteEscrito,
             pagina,
-            correcao = (saida.Resultado == CorrecaoResultado.JaFeito ? feito : saida.Resultado) switch
-            {
-                CorrecaoResultado.Corrigido => "corrigido",
-                CorrecaoResultado.Anulado => "anulado",
-                CorrecaoResultado.Igual => "igual",
-                CorrecaoResultado.NaoExiste => "nao-existe",
-                CorrecaoResultado.JaAnulada => "ja-anulada",
-                CorrecaoResultado.Mudou => "mudou",
-                CorrecaoResultado.SemNumero => "sem-numero",
-                CorrecaoResultado.NumeroLongo => "numero-longo",
-                _ => "motivo-longo"
-            },
+            correcao,
             numero = saida.Numero
         });
+    }
+
+    // Só um endereço desta página (nunca outro sítio): «/ReparacaoInterna?…».
+    private static string? VoltaDestaPagina(string? volta) =>
+        volta is not null && volta.StartsWith("/ReparacaoInterna?", StringComparison.Ordinal) && !volta.Contains("//", StringComparison.Ordinal)
+            ? volta
+            : null;
 
     /// <summary>
     /// POST: registar o número escrito (Enter). Grava uma vez por envio. Com
@@ -244,7 +321,7 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
         contexto ??= Tipo == ReparacaoTipo.Mf ? contextoMf : Tipo == ReparacaoTipo.Cm ? contextoCm : null;
         var saida = await reparacoes.RegistarAsync(
             new PedidoDeReparacao(operacao, maquina?.MachineId, ProducaoPedida, Tipo, contexto, numero, escrita,
-                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null),
+                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null, DiaPedido),
             HttpContext.RequestAborted);
         if (saida.Gravou)
         {
@@ -255,6 +332,7 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
                 maquina = maquina?.Code,
                 producao = ProducaoPedida,
                 tipo = TipoTexto,
+                dia = DiaPedido is { } d ? Data(d) : null,
                 referencia = saida.SemJobOn ? saida.Referencia : null,
                 lote = saida.SemJobOn ? saida.Lote : null,
                 gravacao = saida.Resultado == ReparacaoResultado.JaRegistado ? "repetido" : "ok",
@@ -275,78 +353,127 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
 
     private async Task<IActionResult> DesenharAsync(int? pagina)
     {
-        ViewData["Title"] = "Reparação Interna";
+        var chave = Historico ? "historico" : "registar";
+        ViewData["Title"] = Historico ? "Histórico — Reparação Interna" : "Reparação Interna";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("reparacao-interna", "Reparação Interna"))) with
         {
-            ActiveFunctionKey = "registar",
-            Functions = ShellStateFactory.ReparacaoInternaFunctions("registar")
+            ActiveFunctionKey = chave,
+            Functions = ShellStateFactory.ReparacaoInternaFunctions(chave)
         };
 
-        // Todas as máquinas, cada uma no seu cartão (Diogo, 21/10/2026): as
-        // B em cima, as C em baixo, as outras depois, pelo código. O cartão
-        // da máquina do pedido (a do último registo ou da recusa) leva a
-        // produção, o tipo, a página e o que se escreveu; os outros abrem
-        // com a produção de maior jobon_id e a CM.
         var cancelar = HttpContext.RequestAborted;
+        Hoje = await reparacoes.DiaOperacionalAsync(cancelar);
         Maquinas = await maquinas.ListAsync(cancelar);
         Maquina = Maquinas.FirstOrDefault(m => string.Equals(m.Code, MaquinaCodigo, StringComparison.OrdinalIgnoreCase));
         AbreFerramentas = (await capabilities.GetAsync(cancelar)).Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
-        var cartoes = new List<RiCartao>();
+        // É a página de cada reparador: o log e o histórico são só dele.
+        var eu = conta.Current is { IsAuthenticated: true, IsAdmin: false, ActorId: { } id } ? id : (Guid?)null;
+
+        if (Historico)
+        {
+            await HistoricoAsync(eu, pagina, cancelar);
+            return Page();
+        }
+
+        // O painel: todas as linhas, as B em cima, as C depois, as outras no
+        // fim, cada uma com a produção do dia do registo. A linha do pedido
+        // leva a produção escolhida, o tipo e o que se escreveu.
+        var linhas = new List<RiCartao>();
         foreach (var m in Maquinas.OrderBy(m => Fila(m.Code)).ThenBy(m => m.Code, StringComparer.OrdinalIgnoreCase))
         {
             var foco = m.MachineId == Maquina?.MachineId;
-            var doDia = await reparacoes.ProducaoDoDiaAsync(m.MachineId, cancelar);
+            var doDia = await reparacoes.ProducaoDoDiaAsync(m.MachineId, DiaDoRegisto, cancelar);
             var producao = doDia.Escolhida(foco ? ProducaoPedida : null);
-            var paginaDoCartao = foco ? pagina : null;
-            var lista = producao is not null
-                ? await reparacoes.ListarAsync(m.MachineId, producao.JobOnId, paginaDoCartao, cancelar)
-                : doDia.SemProducao
-                    ? await reparacoes.ListarSemProducaoAsync(m.MachineId, doDia.Dia, paginaDoCartao, cancelar)
-                    : PagedList<RiLinha>.Empty;
-            var ultima = lista.PageNumber <= 1 ? lista.Items.FirstOrDefault()
-                : producao is not null ? (await reparacoes.ListarAsync(m.MachineId, producao.JobOnId, 1, cancelar)).Items.FirstOrDefault()
-                : (await reparacoes.ListarSemProducaoAsync(m.MachineId, doDia.Dia, 1, cancelar)).Items.FirstOrDefault();
-            cartoes.Add(new RiCartao(m, doDia, producao, foco ? Tipo ?? ReparacaoTipo.Cm : ReparacaoTipo.Cm, foco, lista, ultima, foco && (pagina is > 1 || Editar || Correcao is not null)));
+            var cartao = new RiCartao(m, doDia, producao, foco ? Tipo ?? ReparacaoTipo.Cm : ReparacaoTipo.Cm, foco);
+            linhas.Add(cartao);
             if (foco)
             {
+                Cartao = cartao;
                 DoDia = doDia;
                 Producao = producao;
-                Lista = lista;
-                Pager = ListPager.For(lista);
             }
         }
 
-        Cartoes = cartoes;
+        Linhas = linhas;
+        if (Cartao is not null && eu is { } pessoa)
+        {
+            Log = await consulta.ConsultarAsync(new RiConsultaFiltro(Cartao.Maquina.MachineId, DiaDoRegisto, DiaDoRegisto, pessoa), pagina, cancelar);
+        }
+
         return Page();
     }
+
+    // O Histórico desta pessoa: a linha, os dias, a referência e a produção
+    // (em dois passos, como na Consulta). Abre vazio: só lê com um filtro.
+    private async Task HistoricoAsync(Guid? eu, int? pagina, CancellationToken cancelar)
+    {
+        if (ReferenciaFiltro is { } referencia)
+        {
+            Producoes = await producoes.ListByReferenceAsync(referencia, cancelar);
+            if (ProducaoPedida is { } pedida && Producoes.All(p => p.JobOnId != pedida)
+                && await producoes.FindAsync(pedida, cancelar) is { } guardada)
+            {
+                Producoes = [.. Producoes, guardada];
+            }
+        }
+
+        var producao = Producoes.Any(p => p.JobOnId == ProducaoPedida) ? ProducaoPedida : null;
+        ComFiltro = Maquina is not null || De is not null || Ate is not null || ReferenciaFiltro is not null || producao is not null;
+        if (!ComFiltro || eu is not { } pessoa)
+        {
+            return;
+        }
+
+        Historia = await consulta.ConsultarAsync(new RiConsultaFiltro(Maquina?.MachineId, De, Ate, pessoa, null, ReferenciaFiltro, producao), pagina, cancelar);
+        HistoriaPager = ListPager.For(Historia);
+    }
+
+    /// <summary>O endereço de uma linha no painel: abre o registo dela, no mesmo dia.</summary>
+    public string HrefDaLinha(string codigo) =>
+        Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, dia = DiaPedido is { } d ? Data(d) : null })!;
+
+    /// <summary>A mesma linha no dia de agora (o «Voltar a hoje» do aviso).</summary>
+    public string HrefDaLinhaHoje(string codigo) =>
+        Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, tipo = TipoTexto })!;
+
+    public static string Data(DateOnly dia) => dia.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     // As B na primeira fila, as C na segunda, as outras depois.
     public static int Fila(string codigo) => codigo.StartsWith('B') || codigo.StartsWith('b') ? 0 : codigo.StartsWith('C') || codigo.StartsWith('c') ? 1 : 2;
 
-    /// <summary>Os cartões das máquinas, pela ordem da página.</summary>
-    public IReadOnlyList<RiCartao> Cartoes { get; private set; } = [];
-
-    /// <summary>A hora do registo, em hora local da fábrica: «21/10 08:42».</summary>
+    /// <summary>A hora do registo, em hora local da fábrica: «08:42».</summary>
     public static string Hora(DateTime utc) =>
-        DmoBusinessTime.ToLocal(utc).ToString("dd/MM HH:mm", CultureInfo.InvariantCulture);
+        DmoBusinessTime.ToLocal(utc).ToString("HH:mm", CultureInfo.InvariantCulture);
 
     public static string Dia(DateOnly dia) => dia.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 }
 
 /// <summary>
-/// O cartão de uma máquina: a produção do dia, o tipo escolhido (CM por
-/// omissão), se é o cartão do pedido (o foco, com o que se escreveu), as
-/// reparações e a última delas, e se a tabela abre (numa página além da 1).
+/// Uma linha do painel e, aberta, o registo dela: a produção do dia do
+/// registo, a escolhida, o tipo (CM por omissão) e se é a linha do pedido
+/// (o foco, com o que se escreveu).
 /// </summary>
 public sealed record RiCartao(
     MachineOption Maquina,
     RiProducaoDoDia DoDia,
     RiProducao? Producao,
     ReparacaoTipo Tipo,
-    bool Foco,
-    PagedList<RiLinha> Lista,
-    RiLinha? Ultima,
-    bool Aberta)
+    bool Foco)
 {
     public bool SemProducao => DoDia.SemProducao;
+
+    /// <summary>No painel: a referência e o nº da produção, ou «Sem produção».</summary>
+    public string Detalhe => Producao is { } p ? $"{p.Referencia} · {p.Producao}" : "Sem produção";
+
+    /// <summary>No painel: a CM e o MF, cada um com o lote.</summary>
+    public string? Ferramentas => Producao is { } p
+        ? $"{Uma(ReparacaoTipo.Cm, p.Cm)} · {Uma(ReparacaoTipo.Mf, p.Mf)}"
+        : null;
+
+    private static string Uma(ReparacaoTipo tipo, RiFerramenta? f) => f switch
+    {
+        null => $"Sem {RiTextos.Tipo(tipo)}",
+        { Lote: null or "" } => RiTextos.Tipo(tipo),
+        _ => $"{RiTextos.Tipo(tipo)} lote {f.Lote}"
+    };
 }

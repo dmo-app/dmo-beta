@@ -141,44 +141,47 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         WebUtility.HtmlDecode(Regex.Match(elemento, $"{nome}=\"([^\"]*)\"").Groups[1].Value);
 
     /// <summary>
-    /// O que o ri-corrigir.js faz ao clicar no número ou no «×» da linha:
-    /// enche a janela com a reparação e o número da linha, a máquina, a
-    /// produção e a página da tabela e um envio novo; a pessoa escreve o
-    /// resto e envia.
+    /// O que o ri-corrigir.js faz com o duplo clique na linha (ou «Editar»):
+    /// enche a janela da reparação com a reparação e o número da linha, a
+    /// linha, a produção, o dia e a página da tabela e um envio novo; a
+    /// pessoa escreve o resto e carrega Guardar (riCorrigir) ou Anular
+    /// (riAnular, o botão com o formaction). Os campos escritos podem vir
+    /// com o prefixo riAnular (o motivo): é a mesma janela.
     /// </summary>
     private static (string Acao, IReadOnlyList<(string Nome, string Valor)> Campos) Janela(
         string html, int reparacaoId, string prefixo, Guid envio, params (string IdDoCampo, string Valor)[] escritos)
     {
-        // A tabela do cartão onde está a linha (cada máquina tem a sua).
         var linhaEm = html.IndexOf($"data-dmo-reparacao=\"{reparacaoId}\"", StringComparison.Ordinal);
+        Assert.True(linhaEm >= 0, $"a página não tem a reparação {reparacaoId}");
         var tabela = Elemento(html[html.LastIndexOf("<table", linhaEm, StringComparison.Ordinal)..], "data-ri-maquina");
-        var ligacao = Regex.Match(Elemento(html, $"data-dmo-reparacao=\"{reparacaoId}\""), $"<a[^>]*data-ri-abre=\"{prefixo}Janela\"[^>]*>").Value;
-        Assert.NotEmpty(ligacao);
+        var linha = Regex.Match(Elemento(html, $"data-dmo-reparacao=\"{reparacaoId}\""), "<tr[^>]*>").Value;
         var preenchidos = new List<(string, string)>
         {
-            ($"{prefixo}Operacao", envio.ToString()),
-            ($"{prefixo}Id", Atributo(ligacao, "data-ri-reparacao")),
-            ($"{prefixo}Maquina", Atributo(tabela, "data-ri-maquina")),
-            ($"{prefixo}Producao", Atributo(tabela, "data-ri-producao")),
-            ($"{prefixo}Tipo", Atributo(tabela, "data-ri-tipo")),
-            ($"{prefixo}Pagina", Atributo(tabela, "data-ri-pagina"))
+            ("riCorrigirOperacao", envio.ToString()),
+            ("riCorrigirId", Atributo(linha, "data-ri-reparacao")),
+            ("riCorrigirMaquina", Atributo(tabela, "data-ri-maquina")),
+            ("riCorrigirProducao", Atributo(tabela, "data-ri-producao")),
+            ("riCorrigirTipo", Atributo(tabela, "data-ri-tipo")),
+            ("riCorrigirDia", Atributo(tabela, "data-ri-dia")),
+            ("riCorrigirPagina", Atributo(tabela, "data-ri-pagina")),
+            ("riCorrigirNumero", Atributo(linha, "data-ri-numero"))
         };
-        if (prefixo == "riCorrigir")
+        foreach (var (id, valor) in escritos)
         {
-            preenchidos.Add(("riCorrigirNumero", Atributo(ligacao, "data-ri-numero")));
+            var campo = id.Replace("riAnular", "riCorrigir", StringComparison.Ordinal);
+            preenchidos.RemoveAll(p => p.Item1 == campo);
+            preenchidos.Add((campo, valor));
         }
 
-        foreach (var escrito in escritos)
-        {
-            preenchidos.RemoveAll(p => p.Item1 == escrito.IdDoCampo);
-            preenchidos.Add(escrito);
-        }
-
-        return EnvioDoFormulario.Preencher(html, [.. preenchidos]);
+        return EnvioDoFormulario.Enviar(html, [.. preenchidos], idDoBotao: prefixo == "riAnular" ? "riAnularBotao" : "riGuardarBotao");
     }
 
+    /// <summary>O mesmo envio feito por outra pessoa (o token dela; RI-04: quem tem o módulo pode corrigir).</summary>
+    private static IReadOnlyList<(string Nome, string Valor)> ComTokenDe(IReadOnlyList<(string Nome, string Valor)> campos, string htmlDoOutro) =>
+        [.. campos.Where(c => c.Nome != "__RequestVerificationToken"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(htmlDoOutro)!)];
+
     [Fact]
-    public async Task ATabela_SemBotoes_ONumeroAbreACorrecao_EOXisAAnulacao()
+    public async Task ATabela_SemBotoes_ODuploCliqueAbreAReparacao_ComCorrigirEAnular()
     {
         var (codigo, jobOn) = Maquina("A");
         using var client = await LoginOperatorAsync("6701", DmoCapabilities.ReparacaoInterna);
@@ -188,22 +191,23 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
 
         var linha = Elemento(html, $"data-dmo-reparacao=\"{ids[0]}\"");
         Assert.DoesNotContain("<button", linha);
+        Assert.DoesNotContain("<a ", linha);
         Assert.DoesNotContain("<button", Elemento(html, $"id=\"riLista-{codigo}\""));
-        // Clicar no número corrige; o «×» anula.
-        Assert.Matches($"<a href=\"#riCorrigirJanela\" class=\"ri-valor\"[^>]*data-ri-reparacao=\"{ids[0]}\" data-ri-numero=\"0457\"[^>]*><strong>0457</strong></a>", linha);
-        Assert.Matches($"<a href=\"#riAnularJanela\" class=\"ri-x\"[^>]*data-ri-reparacao=\"{ids[0]}\"[^>]*>×</a>", linha);
-        // As janelas: fora das zonas, com o motivo opcional e os botões em baixo.
-        foreach (var janela in new[] { "riCorrigirJanela", "riAnularJanela" })
+        // Um clique escolhe, o duplo clique abre (a lista tem ações fora, data-dmo-for).
+        Assert.Matches($"<tr data-dmo-row data-id=\"{ids[0]}\" data-dmo-reparacao=\"{ids[0]}\" data-ri-reparacao=\"{ids[0]}\" data-ri-numero=\"0457\"", linha);
+        // «Editar» no canto do cartão abre a linha escolhida.
+        Assert.Contains($"data-ri-editar=\"riLog-{codigo}\"", Elemento(html, $"data-dmo-for=\"riLog-{codigo}\""));
+        // A janela: uma, fora das zonas, com o motivo opcional e as opções em baixo.
+        var dialog = Elemento(html, "id=\"riCorrigirJanela\"");
+        Assert.Contains("class=\"dmo-dialog ri-janela\"", dialog);
+        Assert.Contains("Motivo (opcional)", dialog);
+        Assert.DoesNotMatch("id=\"riCorrigirMotivo\"[^>]*required", dialog);
+        Assert.Matches("id=\"riAnularBotao\" formaction=\"/ReparacaoInterna\\?handler=Anular\" formnovalidate", dialog);
+        Assert.Matches(new Regex("<div class=\"dmo-dialog-actions\">(?:(?!<div).)*</div>\\s*(?:<input name=\"__RequestVerificationToken\"[^>]*>\\s*)?</form>\\s*</dialog>$", RegexOptions.Singleline), dialog);
+        Assert.DoesNotContain("id=\"riAnularJanela\"", html);
+        foreach (var zona in new[] { "riAvisos", "riRegisto", "riLinhas" })
         {
-            var dialog = Elemento(html, $"id=\"{janela}\"");
-            Assert.Contains("class=\"dmo-dialog ri-janela\"", dialog);
-            Assert.Contains("Motivo (opcional)", dialog);
-            Assert.DoesNotMatch("id=\"ri(Corrigir|Anular)Motivo\"[^>]*required", dialog);
-            Assert.Matches(new Regex("<div class=\"dmo-dialog-actions\">(?:(?!<div).)*</div>\\s*(?:<input name=\"__RequestVerificationToken\"[^>]*>\\s*)?</form>\\s*</dialog>$", RegexOptions.Singleline), dialog);
-            foreach (var zona in new[] { "riAvisos", $"riCard-{codigo}" })
-            {
-                Assert.DoesNotContain($"id=\"{janela}\"", Elemento(html, $"id=\"{zona}\""));
-            }
+            Assert.DoesNotContain("id=\"riCorrigirJanela\"", Elemento(html, $"id=\"{zona}\""));
         }
 
         Assert.Contains("/js/ri-corrigir.js", html);
@@ -216,9 +220,12 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         using var autor = await LoginOperatorAsync("6702", DmoCapabilities.ReparacaoInterna);
         var ids = await RegistarAsync(autor, codigo, jobOn, "0457", "88");
         using var outra = await LoginOperatorAsync("6703", DmoCapabilities.ReparacaoInterna);
-        var html = await outra.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        // O registo de cada um é dele: a reparação vem da página do autor,
+        // e outra pessoa com o módulo corrige-a (RI-04).
+        var html = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
         var envio = Guid.NewGuid();
-        var (acao, campos) = Janela(html, ids[0], "riCorrigir", envio, ("riCorrigirNumero", " 0475 "), ("riCorrigirMotivo", "trocou os algarismos"));
+        var (acao, doAutor) = Janela(html, ids[0], "riCorrigir", envio, ("riCorrigirNumero", " 0475 "), ("riCorrigirMotivo", "trocou os algarismos"));
+        var campos = ComTokenDe(doAutor, await outra.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm"));
 
         using var corrigir = await outra.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
         using var outraVez = await outra.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
@@ -230,11 +237,12 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         var depois = await outra.GetStringAsync(destino);
         Assert.Contains("Número corrigido para 0475.", Elemento(depois, "id=\"riAvisos\""));
         Assert.Contains("data-dmo-toast=\"ok\"", Elemento(depois, "id=\"riAvisos\""));
-        var linha = Elemento(depois, $"data-dmo-reparacao=\"{ids[0]}\"");
-        Assert.Contains("<strong>0475</strong>", linha);
-        // Quem registou continua a ser o autor; o rasto diz quem corrigiu.
-        Assert.Contains("Reparador 6702", linha);
-        Assert.Contains("<strong>88</strong>", Elemento(depois, $"data-dmo-reparacao=\"{ids[1]}\""));
+        // Quem registou continua a ser o autor (está no registo dele); o rasto diz quem corrigiu.
+        Assert.DoesNotContain($"data-dmo-reparacao=\"{ids[0]}\"", depois);
+        var doAutorDepois = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        Assert.Contains("<strong>0475</strong>", Elemento(doAutorDepois, $"data-dmo-reparacao=\"{ids[0]}\""));
+        Assert.Contains("<strong>88</strong>", Elemento(doAutorDepois, $"data-dmo-reparacao=\"{ids[1]}\""));
+        Assert.Equal((Guid?)Utilizador("6702"), NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Id == ids[0]).RegistadoPorUserId));
         Assert.Equal(HttpStatusCode.Redirect, outraVez.StatusCode);
         var rasto = Assert.Single(NaBase(db => db.ReparacoesInternasRasto.AsNoTracking().Where(r => ids.Contains(r.ReparacaoId)).ToList()));
         Assert.Equal((ReparacaoAcao.Corrigido, "0457", "0475", (Guid?)Utilizador("6703"), "trocou os algarismos"),
@@ -248,14 +256,15 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         using var autor = await LoginOperatorAsync("6704", DmoCapabilities.ReparacaoInterna);
         var ids = await RegistarAsync(autor, codigo, jobOn, "1", "2", "3");
         using var outra = await LoginOperatorAsync("6705", DmoCapabilities.ReparacaoInterna);
-        var html = await outra.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
-        var (acao, campos) = Janela(html, ids[1], "riAnular", Guid.NewGuid(), ("riAnularMotivo", "máquina errada"));
+        var html = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        var (acao, doAutor) = Janela(html, ids[1], "riAnular", Guid.NewGuid(), ("riAnularMotivo", "máquina errada"));
+        var campos = ComTokenDe(doAutor, await outra.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm"));
 
         using var anular = await outra.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
 
         Assert.Equal(HttpStatusCode.Redirect, anular.StatusCode);
-        var depois = await outra.GetStringAsync(anular.Headers.Location!.OriginalString);
-        Assert.Contains("Reparação do nº 2 anulada.", Elemento(depois, "id=\"riAvisos\""));
+        Assert.Contains("Reparação do nº 2 anulada.", Elemento(await outra.GetStringAsync(anular.Headers.Location!.OriginalString), "id=\"riAvisos\""));
+        var depois = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
         Assert.DoesNotContain($"data-dmo-reparacao=\"{ids[1]}\"", depois);
         Assert.Contains($"data-dmo-reparacao=\"{ids[0]}\"", depois);
         Assert.Contains($"data-dmo-reparacao=\"{ids[2]}\"", depois);

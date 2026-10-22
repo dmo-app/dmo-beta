@@ -52,7 +52,7 @@ public sealed class ReparacoesInternas(
     public async Task<RiProducaoDoDia> ProducaoDoDiaAsync(int machineId, CancellationToken cancellationToken = default) =>
         await ProducaoDoDiaAsync(machineId, await DiaOperacionalAsync(cancellationToken), cancellationToken);
 
-    private async Task<RiProducaoDoDia> ProducaoDoDiaAsync(int machineId, DateOnly dia, CancellationToken cancellationToken)
+    public async Task<RiProducaoDoDia> ProducaoDoDiaAsync(int machineId, DateOnly dia, CancellationToken cancellationToken = default)
     {
         // Numa consulta: as produções da máquina cujas datas cobrem o dia (sem
         // fim, conta desde o início), com o cm_id e o mf_id em uso e a
@@ -141,7 +141,8 @@ public sealed class ReparacoesInternas(
         // sem Job On, com a ferramenta escrita (Diogo, 21/10/2026); se a
         // página mostrou uma produção que já não conta, mudou.
         var agora = _clock.GetUtcNow().UtcDateTime;
-        var doDia = await ProducaoDoDiaAsync(machineId, await DiaOperacionalAsync(cancellationToken), cancellationToken);
+        // O dia escolhido na página (as datas são livres: só avisa); sem ele, o de agora.
+        var doDia = await ProducaoDoDiaAsync(machineId, pedido.Dia ?? await DiaOperacionalAsync(cancellationToken), cancellationToken);
         RiProducao? producao = null;
         if (doDia.SemProducao)
         {
