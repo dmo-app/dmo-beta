@@ -35,13 +35,12 @@ html body .arm-linha .dmo-field input.arm-pos{width:7ch;font-variant-numeric:tab
 .arm-entrada-linha .dmo-button{align-self:end}
 .arm-nota{margin:0 0 6px;font-size:12.5px;color:var(--dmo-muted)}
 #armProcuraLista.arm-so-fora tr[data-arm-no-armazem="1"]{display:none}
-#armEntrada .dmo-aviso,#armEntrada .arm-modo{display:flex;gap:0;align-items:end;align-self:end}
-.arm-modo .dmo-button+.dmo-button{margin-left:-1px}
+#armEntrada .dmo-aviso{margin:0 0 8px}
+.arm-modo{display:flex;gap:8px;align-items:end;align-self:end}
 #armEntEstadoAviso[hidden]{display:none}
 .arm-de-onde{align-self:end;margin:0 0 10px;white-space:nowrap}
 html body .arm-modo .dmo-button.arm-modo-ativo{background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600))}
 .dmo-ferr-ref{font-size:12px;font-weight:500;color:var(--dmo-muted);margin-left:4px}
-.arm-par{margin:0 0 8px}
 html body .arm-linha .dmo-field input.arm-procura{width:min(320px,100%)}
 html body .arm-linha .dmo-field input.arm-data{width:auto}
 html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
@@ -126,16 +125,12 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
   <section id="armMovProcura" class="dmo-card arm-card" aria-labelledby="arm-mov-procura-title" data-dmo-regiao data-dmo-parcial data-arm-tipo="@tipoTexto">
     <div class="dmo-card-topo">
       <h3 id="arm-mov-procura-title">Registar @tipoTexto<partial name="_DmoHelp" model="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Um clique na ferramenta abre-a, com a Entrada se está fora do armazém ou a Saída se está numa posição. {(masc ? "Um" : "Uma")} {tipoTexto} que não existe regista-se como lote novo: fica «Por criar» até quem tem o módulo Ferramentas a criar.")" /></h3>
-      @if (s is not null || Model.FerramentaNaoExiste)
-      {
-        <div class="dmo-card-topo-acoes">
-          <a class="dmo-button" id="armOutra" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto })">@(masc ? "Outro" : "Outra") @tipoTexto</a>
-        </div>
-      }
     </div>
-    @if (s is null)
-    {
-    @* Primeiro a posição (4 algarismos), depois a referência (Diogo,
+    @* A procura fica sempre no topo (Diogo, 22/10/2026): filtra as
+       ferramentas registadas do tipo enquanto se escreve; sem resultados,
+       «Criar novo» (o lote novo por criar). O cartão da ferramenta só
+       aparece depois de a escolher (ou com ?ferramenta=).
+       Primeiro a posição (4 algarismos), depois a referência (Diogo,
        22/10/2026): com a posição escrita, a lista mostra só as que estão
        fora do armazém, com de onde vêm, e a escolhida abre com a Entrada
        já nessa posição. *@
@@ -148,7 +143,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       </div>
       <div class="dmo-field">
         <label for="armProcura">Referência</label>
-        <input id="armProcura" name="q" type="search" class="arm-procura" value="@Model.Procura" data-dmo-maiusculas autocapitalize="characters" autofocus
+        <input id="armProcura" name="q" type="search" class="arm-procura" value="@Model.Procura" data-dmo-maiusculas autocapitalize="characters" autofocus="@(s is null)"
                placeholder="@(tipoEscolhido == ToolType.Bq ? "Ex.: T173 ou 0042" : "Ex.: 5447, T173 ou 0042")" data-dmo-procura="@Url.Page("/Armazem/Movimentos", "Procurar", new { tipo = tipoTexto })" data-dmo-procura-alvo="armProcuraLista" />
       </div>
     </form>
@@ -158,7 +153,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <partial name="_ArmazemProcura" model="Model.Encontradas" />
       }
     </div>
-    }
   </section>
 
   @if (Model.FerramentaNaoExiste)
@@ -172,6 +166,9 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     <section id="armMovFerramenta" class="dmo-card arm-card" aria-labelledby="arm-mov-ferr-title" data-dmo-regiao data-dmo-parcial data-dmo-ferramenta="@s.ToolId">
       <div class="dmo-card-topo">
         <h3 id="arm-mov-ferr-title">@MovimentosModel.Nome(s.Tipo, s.Referencia, s.Lote)</h3>
+        <div class="dmo-card-topo-acoes">
+          <button type="button" class="dmo-button" id="armCorrigirBotao" data-dmo-dialog="arm-corrigir-dialog">Corrigir</button>
+        </div>
       </div>
 
       @foreach (var aviso in Model.Avisos)
@@ -179,6 +176,15 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <p class="dmo-aviso warn" data-dmo-aviso>@aviso</p>
       }
 
+      @{
+          var mostrarEntrada = recusaEntrada || (!recusaSaida && (Model.Acao switch { "entrada" => true, "saida" => false, _ => !s.NoArmazem }));
+          var deOnde = s.UltimaSaida switch
+          {
+              ArmazemDestino.Reparacao => s.UltimaSaidaReparador is { Length: > 0 } rep ? $"Reparação · {rep}" : "Reparação",
+              { } ultima => ArmazemTextos.Destino(ultima),
+              null => null
+          };
+      }
       <div class="arm-onde" id="armOnde">
         <div><span>Último movimento</span>
           <strong data-dmo-onde>@(s.NoArmazem
@@ -190,19 +196,14 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           <div><span>Desde</span><strong>@MovimentosModel.Dia(d)</strong></div>
         }
         <div><span>Estado</span><strong data-dmo-estado>@(s.Estado is { } est ? ArmazemTextos.Estado(est) : "—")</strong></div>
+        @if (deOnde is not null)
+        {
+          <div><span>Última saída</span><strong id="armEntDeOnde">@deOnde</strong></div>
+        }
       </div>
 
-      @{
-          var mostrarEntrada = recusaEntrada || (!recusaSaida && (Model.Acao switch { "entrada" => true, "saida" => false, _ => !s.NoArmazem }));
-          var deOnde = s.UltimaSaida switch
-          {
-              ArmazemDestino.Reparacao => s.UltimaSaidaReparador is { Length: > 0 } rep ? $"Reparação · {rep}" : "Reparação",
-              { } ultima => ArmazemTextos.Destino(ultima),
-              null => null
-          };
-      }
-      @* UMA LINHA (Diogo, 22/10/2026): Posição (só na Entrada) · Entrada |
-         Saída · as opções da escolhida · «Registar» · «Corrigir». O botão
+      @* UMA LINHA (Diogo, 22/10/2026): Entrada | Saída · Posição (só na
+         Entrada) · as opções da escolhida · «Registar»; «Corrigir» no canto. O botão
          escolhido fica com o aspeto invertido (o do hover). A origem, a data
          e as observações ficam no «Corrigir», com o «Corrigir localização». *@
       @if (s.Localizacao == FerramentaLocalizacaoTipo.Sucata && mostrarEntrada)
@@ -221,6 +222,10 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           <input type="hidden" name="destino" value="@MovimentosModel.Valor(destinoEscolhido)" />
         }
         <div class="arm-linha arm-entrada-linha">
+          <div class="arm-modo" role="group" aria-label="Entrada ou saída">
+            <a class="dmo-button@(mostrarEntrada ? " arm-modo-ativo" : null)" id="armModoEntrada" aria-pressed="@(mostrarEntrada ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "entrada" })">Entrada</a>
+            <a class="dmo-button@(!mostrarEntrada ? " arm-modo-ativo" : null)" id="armModoSaida" aria-pressed="@(!mostrarEntrada ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "saida" })">Saída</a>
+          </div>
           @if (mostrarEntrada)
           {
           <div class="dmo-field">
@@ -230,10 +235,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
                    title="4 algarismos, por exemplo 0042" value="@(recusaEntrada ? Model.Posicao : Model.PosicaoPedidaValida)" placeholder="0042" required />
           </div>
           }
-          <div class="arm-modo" role="group" aria-label="Entrada ou saída">
-            <a class="dmo-button@(mostrarEntrada ? " arm-modo-ativo" : null)" id="armModoEntrada" aria-pressed="@(mostrarEntrada ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "entrada" })">Entrada</a>
-            <a class="dmo-button@(!mostrarEntrada ? " arm-modo-ativo" : null)" id="armModoSaida" aria-pressed="@(!mostrarEntrada ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "saida" })">Saída</a>
-          </div>
           @if (mostrarEntrada)
           {
         <div class="dmo-field">
@@ -246,10 +247,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             }
           </select>
         </div>
-            @if (deOnde is not null)
-            {
-              <span class="arm-nota arm-de-onde" id="armEntDeOnde">De @deOnde</span>
-            }
             @if (recusaEntrada && criarPosicao)
             {
               <button type="submit" class="dmo-button" id="armEntCriar" name="criar_posicao" value="1">Criar e registar</button>
@@ -303,7 +300,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             }
             <button type="submit" class="dmo-button" id="armSaiRegistar">Registar</button>
           }
-          <button type="button" class="dmo-button" id="armCorrigirBotao" data-dmo-dialog="arm-corrigir-dialog">Corrigir</button>
         </div>
         @if (mostrarEntrada && s.ListaProgramada is { } reparadorDaLista)
         {
