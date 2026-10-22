@@ -369,8 +369,10 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
 
         var registerHtml = await GetPageHtmlAsync(client, $"/Boquilhas?bq_id={bq.Id}");
         Assert.Contains("<span>Quantidade do lote</span><strong>120</strong>", registerHtml);
-        // A máquina mostra só o código; tipo, campos e guardar ficam numa linha (Diogo, 17/10/2026).
-        Assert.Contains(">B9</option>", registerHtml);
+        // A máquina vem da linha do painel lateral, escondida: sem o campo
+        // «Máquina em uso» (Diogo, 22/10/2026); tipo, campos e Registar numa linha.
+        Assert.Matches("<input type=\"hidden\" id=\"movementMachine\" name=\"movement_machine_id\" value=\"\\d+\" />", registerHtml);
+        Assert.DoesNotContain("<select id=\"movementMachine\"", registerHtml);
         Assert.DoesNotContain("· compatível", registerHtml);
         Assert.Contains("<div class=\"bq-movement-line\">", registerHtml);
         var uiEvidence = Environment.GetEnvironmentVariable("DMO_UI_EVIDENCE_DIR");
@@ -382,16 +384,13 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         var formIndex = registerHtml.IndexOf("class=\"bq-movement-form\"", StringComparison.Ordinal);
         var metricsIndex = registerHtml.IndexOf("class=\"card bq-metrics-card\"", StringComparison.Ordinal);
         var latestIndex = registerHtml.IndexOf("class=\"card bq-latest-card\"", StringComparison.Ordinal);
-        var search = Regex.Match(registerHtml, "<details class=\"card bq-register-search\"[^>]*>");
         Assert.True(formIndex > 0 && metricsIndex > formIndex && latestIndex > metricsIndex);
-        // A procura fica no topo da página, antes do registo (Diogo, 17/10/2026).
-        Assert.True(search.Success && search.Index < formIndex);
-        Assert.DoesNotContain("open", search.Value);
         Assert.Contains("name=\"movement_type\" value=\"saida\" checked=\"checked\"", registerHtml);
 
-        // Sem registo escolhido, a pesquisa fica aberta.
-        var initialSearch = Regex.Match(html, "<details class=\"card bq-register-search\"[^>]*>");
-        Assert.Contains("open", initialSearch.Value);
+        // Sem «Procurar / trocar de boquilha ou produção» (Diogo, 22/10/2026:
+        // a BQ abre-se sempre pela produção, no painel lateral).
+        Assert.DoesNotContain("bq-register-search", html);
+        Assert.DoesNotContain("Procurar / trocar", registerHtml);
 
     }
 
@@ -1156,6 +1155,9 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         // Sem a quantidade total do lote aparece o aviso âmbar com o caminho
         // para a ficha (Diogo, 18/10/2026); com ela, não.
         Assert.Contains("id=\"bqLotQuantityMissing\"", semLote);
+        // A quantidade do lote serve a contagem da reparação (Diogo, 22/10/2026).
+        Assert.Contains("Falta a quantidade total do lote desta BQ. Sem ela, a contagem da reparação não é calculada.", semLote);
+        Assert.DoesNotContain("a Fabricação não é calculada", semLote);
         // O link para a ficha só aparece a quem tem o módulo Ferramentas e
         // a ficha volta a este registo (Diogo, 19/10/2026: _DmoAvisoLink).
         Assert.DoesNotContain("href=\"/Ferramentas/Ficha?tool_id=BQ-A3-SEMLOTE", semLote);
@@ -1189,13 +1191,14 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         using var client = await LoginClientAsync("4131", "RegistoMaq1!");
 
         var html = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
-        var form = html[html.IndexOf("id=\"movementMachine\"", StringComparison.Ordinal)..];
-        form = form[..form.IndexOf("</select>", StringComparison.Ordinal)];
-
-        Assert.Contains($"<option value=\"{c2Id}\">QC2</option>", form);
-        Assert.DoesNotContain(">QB2</option>", form);
-        Assert.True(Posicao(html, "for=\"quantity\"") < Posicao(html, "for=\"movementMachine\""),
-            "A Quantidade vem antes da Máquina em uso.");
+        // Sem o campo «Máquina em uso» (Diogo, 22/10/2026): a máquina vem da
+        // linha do painel lateral; «Registar» é o primeiro, antes da «Saída».
+        Assert.DoesNotContain("for=\"movementMachine\"", html);
+        Assert.DoesNotContain("<select id=\"movementMachine\"", html);
+        Assert.Contains("<input type=\"hidden\" id=\"movementMachine\" name=\"movement_machine_id\" />", html);
+        Assert.True(Posicao(html, ">Registar</button>") < Posicao(html, "<span>↗ Saída</span>"),
+            "O Registar vem antes da Saída.");
+        Assert.True(Posicao(html, "<span>↗ Saída</span>") < Posicao(html, "for=\"quantity\""));
     }
 
     [Fact]
@@ -1254,46 +1257,6 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
     }
 
     [Fact]
-    public async Task Search_ShowsTheRegisterChoicePanel_WithAndWithoutJobOn()
-    {
-        // O PAINEL DE ESCOLHA (o registerContext do html): os registos da
-        // BQ pesquisada — o associado a uma produção e o avulso (Sem Job
-        // On) — com os FATOS HUMANOS; os ids só no URL.
-        await SeedToolAsync("BQ-A3-SRC", "RGT974", "104");
-        var bq = await SeedProductionAsync("BQ-A3-SRC", "ZQREF-SRC", "PN-550027", "B2");
-        using (var scope = _factory.Services.CreateScope())
-        {
-            // A JANELA do Job On cobre o hoje: o estado do registo é
-            // «Produção em máquina» (o productionState do html).
-            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            var jobOn = await db.JobOns.SingleAsync(j => j.Id == bq.JobOnId);
-            jobOn.InicioEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(-1);
-            jobOn.FimEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(1);
-            await db.SaveChangesAsync();
-        }
-        var associated = await SeedTraceAsync(toolId: null, bqContextId: bq.Id);
-        var avulso = await SeedTraceAsync("BQ-A3-SRC");
-        await SeedMovementAsync(avulso.Id, "saida", 1);
-        SeedUser("4123", "Registo Native", "provider-registo-26", "RegistoPass26!");
-        using var client = await LoginClientAsync("4123", "RegistoPass26!");
-
-        var html = await GetPageHtmlAsync(client, "/Boquilhas?bq_reference=RGT974");
-
-        Assert.Contains("Escolher boquilha / produção", html);
-        Assert.Contains(">Produção PN-550027 · ZQREF-SRC</td>", html);
-        Assert.Contains(">Sem Job On</td>", html);
-        Assert.Contains(">Produção em máquina</td>", html);
-        // A gramática da casa: o rádio por row e o duplo clique; sem botão
-        // «Abrir» (16/10/2026).
-        Assert.Contains("name=\"bq_register_choice\"", html);
-        Assert.Contains("data-dmo-open=\"/Boquilhas?trace_id=", html);
-        Assert.DoesNotContain("Abrir registo selecionado", html);
-        // OS IDS NUNCA NO TEXTO: o tool_id cru não aparece (o trace_id vive
-        // só nos hrefs/hidden).
-        Assert.DoesNotContain("BQ-A3-SRC", html);
-    }
-
-    [Fact]
     public async Task ToolSheet_ShowsTheFactsTheHistoricalFormAndTheRegisters()
     {
         // A FICHA DA FERRAMENTA (o toolsTab do html): os fatos, o «+ Registo
@@ -1323,56 +1286,17 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         Assert.Contains("Ficha da boquilha — RGT973 · Lote 105", html);
         Assert.Contains("Máquinas compatíveis: B3", html);
         Assert.Contains("<span>Quantidade do lote</span><strong>60</strong>", html);
-        Assert.Contains("Recuperar movimentos antigos", html);
-        Assert.Contains("Inicia um registo nesta boquilha sem preencher número ou referência de produção. Podes associar o Job On mais tarde.", html);
-        Assert.Contains("Máquina do movimento", html);
-        Assert.Contains("Data/hora do primeiro movimento", html);
-        // O tag helper do form gera a action com o handler (o literal
-        // asp-page-handler nunca chega ao HTML).
-        Assert.Contains("handler=OpenHistoricalRegister", html);
-        Assert.Contains("name=\"first_occurred\"", html);
+        // Sem o «+ Registo com data antiga» (abria o Registo, que é só para
+        // um Job On): os movimentos sem Job On ficam na ficha (Diogo, 22/10/2026).
+        Assert.DoesNotContain("Recuperar movimentos antigos", html);
+        Assert.DoesNotContain("handler=OpenHistoricalRegister", html);
+        Assert.Contains("<h3>Movimentos sem Job On", html);
+        Assert.Contains("handler=RegistarSemJobOn", html);
         // A tabela dos registos da ficha (o strong da linha da produção).
         Assert.Contains("<td><strong>Produção PN-550028 · ZQREF-FICHA</strong></td>", html);
         // OS IDS NUNCA NO TEXTO: o tool_id cru não aparece na folha.
         Assert.DoesNotContain(">BQ-A3-FICHA<", html);
         Assert.DoesNotContain("BQ-A3-FICHA</", html);
-    }
-
-    [Fact]
-    public async Task OpenHistoricalRegister_OpensTheRegisterWithTheRealDatePrefilled()
-    {
-        // O «+ REGISTO COM DATA ANTIGA» fecha o fluxo: o POST abre (get-or-
-        // create) o registo e volta com o ?data_antiga a vestir o campo
-        // «Data e hora reais» do movimento — o primeiro movimento nasce com
-        // a data real dele.
-        await SeedToolAsync("BQ-A3-ANTIGA", "RGT972", "106");
-        SeedUser("4125", "Registo Native", "provider-registo-28", "RegistoPass28!");
-        using var client = await LoginClientAsync("4125", "RegistoPass28!");
-
-        var retroLocal = DateTime.SpecifyKind(
-            new DateTime(DmoBusinessTime.Now.Year, DmoBusinessTime.Now.Month, DmoBusinessTime.Now.Day, 7, 45, 0).AddDays(-30),
-            DateTimeKind.Unspecified);
-        var formValue = retroLocal.ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture);
-
-        // O ANTIFORGERY vem da FICHA (a vista Ficheiros sem ficha não tem
-        // form nenhum; o form do «+ Registo com data antiga» vive na ficha).
-        var token = await GetVerificationTokenAsync(client, "/Boquilhas?ficheiros=1&ferramenta=BQ-A3-ANTIGA");
-        var response = await client.PostAsync(
-            "/Boquilhas?handler=OpenHistoricalRegister",
-            HtmlFormHelpers.BuildFormPost(
-                ("tool_id", "BQ-A3-ANTIGA"),
-                ("first_occurred", formValue),
-                ("__RequestVerificationToken", token)));
-        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        var location = response.Headers.Location?.OriginalString ?? string.Empty;
-        Assert.Contains("trace_id=", location);
-        Assert.Contains($"data_antiga={Uri.EscapeDataString(formValue)}", location);
-
-        // O registo aberto traz o campo «Data e hora reais» JÁ VESTIDO com
-        // a data antiga.
-        var html = await GetPageHtmlAsync(client, location);
-        Assert.Contains($"value=\"{formValue}\"", html);
-        Assert.Contains("Registo — BQ RGT972 · Lote 106", html);
     }
 
     [Fact]
@@ -1467,7 +1391,8 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
             Assert.Equal("C3", (await scope.ServiceProvider.GetRequiredService<DmoDbContext>().BqMovements.SingleAsync()).MachineCodeFrozen);
         }
         var html = await client.GetStringAsync($"/Boquilhas?trace_id={trace.Id}");
-        Assert.Contains("Máquina em uso", html);
+        // Sem o campo «Máquina em uso» (Diogo, 22/10/2026); a máquina gravada aparece no registo.
+        Assert.DoesNotContain("Máquina em uso", html);
         Assert.Contains("<td>C3</td>", html);
     }
 

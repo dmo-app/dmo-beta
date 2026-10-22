@@ -1,0 +1,85 @@
+using System.Net;
+using DMO.Alpha.Core.Boquilhas;
+using DMO.Alpha.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+namespace DMO.Alpha.Web.Tests;
+
+// «Registar sem Job On» (Diogo, 22/10/2026): na página Boquilhas, uma janela
+// com a BQ e o lote, o movimento, a quantidade, a data e hora e «Registar».
+// O movimento fica na ficha da BQ, nos «Movimentos sem Job On»; o Registo é
+// só para os registos de um Job On.
+public partial class BoquilhasRegistoPageTests
+{
+    [Fact]
+    public async Task RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento()
+    {
+        await SeedToolAsync("BQ-SEMJOB-1", "QS173", "5");
+        await SeedToolAsync("BQ-SEMJOB-2", "QS173", "6");
+        int c2Id;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var c2 = new DMO.Alpha.Core.Production.Machine { Code = "C2" };
+            db.Machines.AddRange(new DMO.Alpha.Core.Production.Machine { Code = "B1" }, c2);
+            await db.SaveChangesAsync();
+            c2Id = c2.Id;
+        }
+        SeedUser("4291", "Registo Sem Job", "provider-registo-semjob", "RegistoSemJob1!");
+        using var client = await LoginClientAsync("4291", "RegistoSemJob1!");
+
+        // O Registo não tem a janela; a página Boquilhas tem.
+        Assert.DoesNotContain("bqSemJobOnDialog", await GetPageHtmlAsync(client, PagePath));
+        var page = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1");
+        Assert.Contains("<button type=\"button\" class=\"bq-sem-jobon-link\" data-dmo-dialog=\"bqSemJobOnDialog\">Registar sem Job On</button>", page);
+        Assert.Contains("<option value=\"QS173\">QS173</option>", page);
+        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-ref=\"QS173\">6</option>", page);
+        // A linha (Diogo, 22/10/2026): ajuda a distinguir a BQ.
+        Assert.Contains($"<option value=\"{c2Id}\">C2</option>", page);
+
+        var (acao, campos) = EnvioDoFormulario.Enviar(page,
+            [("bqSemJobOnLote", "BQ-SEMJOB-2"), ("bqSemJobOnLinha", c2Id.ToString()), ("bqSemJobOnQtd", "4"), ("bqSemJobOnData", "2026-10-01T08:00")],
+            radios: [("movement_type", "entrada")]);
+        Assert.Contains("handler=RegistarSemJobOn", acao);
+        using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        var location = response.Headers.Location!.OriginalString;
+        Assert.Contains("ficheiros=1", location);
+        Assert.Contains("ferramenta=BQ-SEMJOB-2", location);
+        Assert.DoesNotContain("trace_id", location);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var movimento = await db.BqMovements.AsNoTracking().Include(m => m.Trace).SingleAsync();
+            Assert.Equal("BQ-SEMJOB-2", movimento.Trace.ToolId);
+            Assert.Null(movimento.Trace.BqContextId);
+            Assert.Equal(BqMovementType.Entrada, movimento.Type);
+            Assert.Equal(4, movimento.Quantity);
+            Assert.Equal("C2", movimento.MachineCodeFrozen);
+        }
+
+        var depois = await GetPageHtmlAsync(client, location);
+        Assert.Contains("Movimento registado sem Job On.", depois);
+        Assert.Contains("<td>01/10/2026 08:00</td><td>Entrada</td><td>4</td><td>C2</td>", depois);
+        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-ref=\"QS173\" selected=\"selected\">6</option>", depois);
+    }
+
+    [Fact]
+    public async Task RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase()
+    {
+        await SeedToolAsync("BQ-SEMJOB-3", "QS174", "1");
+        SeedUser("4292", "Registo Sem Job 2", "provider-registo-semjob-2", "RegistoSemJob2!");
+        using var client = await LoginClientAsync("4292", "RegistoSemJob2!");
+        var token = await GetVerificationTokenAsync(client, $"{PagePath}?ficheiros=1");
+        using var response = await client.PostAsync($"{PagePath}?handler=RegistarSemJobOn", HtmlFormHelpers.BuildFormPost(
+            ("tool_id", "BQ-SEMJOB-3"), ("movement_type", "saida"), ("quantity", "0"), ("__RequestVerificationToken", token)));
+        var depois = await GetPageHtmlAsync(client, response.Headers.Location!.OriginalString);
+        Assert.Contains("data-dmo-dialog-aberta=\"1\"", depois);
+        Assert.Contains("Indique a quantidade como um número inteiro igual ou superior a 1.", depois);
+        using var scope = _factory.Services.CreateScope();
+        Assert.False(await scope.ServiceProvider.GetRequiredService<DmoDbContext>().BqMovements.AnyAsync());
+    }
+}

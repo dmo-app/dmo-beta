@@ -136,7 +136,6 @@
 html body .beta-bq-layout #bqRegisterFacts { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); margin-top:0; }
 .beta-bq-layout .bq-register-head-actions { display:flex; align-items:center; gap:8px; }
 html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:auto; right:0; }
-.beta-bq-layout .bq-register-search + .register-open, .beta-bq-layout .bq-register-search + .register-empty, .beta-bq-layout .bq-register-search + .result { margin-top:16px; }
 /* As zonas do registo (data-dmo-regiao, .dmo-zona) não criam caixa; os
    cartões mantêm o espaço que tinham lado a lado (o .card + .card) e o aviso
    de registo inexistente o espaço por baixo da procura. */
@@ -197,10 +196,6 @@ html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:aut
 .beta-bq-layout .entry-r::before{background:var(--dmo-brand-600,#3c73a8)}
 
 /* unificada.zip: contexto → movimento → quantidades → histórico → pesquisa. */
-.beta-bq-layout .bq-register-search { margin-top:14px; }
-.beta-bq-layout .bq-register-search summary { cursor:pointer;font-weight:750;color:var(--dmo-brand-700,#315d88); }
-.beta-bq-layout .bq-register-search[open] summary { margin-bottom:16px; }
-.beta-bq-layout .bq-register-search > .card { padding:0;border:0;box-shadow:none; }
 .beta-bq-layout .bq-metrics-card .lot-data > div { padding:12px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:10px;background:var(--dmo-subtle,#f1f6fa); }
 .beta-bq-layout .bq-metrics-card .lot-data strong { font-size:24px; }
 .beta-bq-layout .bq-movement-types { display:flex;gap:8px;flex-wrap:wrap;padding:0;margin:12px 0;border:0; }
@@ -291,11 +286,27 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 @media(max-width:700px) { .beta-bq-layout .bq-day-summary .beta-light-production { grid-template-columns:44px minmax(0,1fr); } .beta-bq-layout .bq-day-summary .beta-light-production > span { grid-column:2; } }
 .beta-bq-layout .bq-history-card-head { margin:0 0 14px; }
 /* Procurar / trocar de boquilha: os resultados por baixo do campo, afastados dele. */
-.beta-bq-layout .bq-procura:not(:empty) { margin-top:14px; }
-.beta-bq-layout .bq-procura .dmo-pill { margin-right:8px; }
 /* A produção pela qual a BQ apareceu, numa linha própria por baixo do estado. */
-.beta-bq-layout .bq-procura .bq-procura-encontrada { display:block; margin-top:4px; }
 /* Pôr a discrepância a zero: o valor abre uma janela pequena (Diogo, 17/10/2026). */
 .beta-bq-layout .bq-metrics-card .bq-reset-link{color:inherit;text-decoration:underline dotted;text-underline-offset:4px;cursor:pointer}
 .bq-reset-modal{width:min(480px,100%)}
 .bq-reset-modal .dmo-modal-body p{margin:0}
+
+/* «Histórico» à vista no canto do registo (Diogo, 22/10/2026). */
+.beta-bq-layout .bq-register-history-link { font-weight:650;color:var(--dmo-brand-600,#3c73a8);text-decoration:none; }
+.beta-bq-layout .bq-register-history-link:hover { text-decoration:underline; }
+/* «Registar sem Job On» (Diogo, 22/10/2026): o link azul no canto e a janela. */
+.beta-bq-layout .bq-sem-jobon-link { margin-left:auto;align-self:center;padding:0;border:0;background:none;cursor:pointer;font:inherit;font-weight:650;color:var(--dmo-brand-600,#3c73a8); }
+.beta-bq-layout .bq-sem-jobon-link:hover { text-decoration:underline; }
+.bq-sem-jobon-janela { width:min(520px, calc(100vw - 32px)); }
+.bq-sem-jobon-janela .bq-sem-jobon-campos { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0; }
+.bq-sem-jobon-janela .bq-movement-types { display:flex;gap:8px;flex-wrap:wrap;padding:0;margin:0;border:0; }
+.bq-sem-jobon-janela .bq-movement-types label { flex:1 1 auto;position:relative;cursor:pointer; }
+.bq-sem-jobon-janela .bq-movement-types input { position:absolute;opacity:0;width:1px;height:1px; }
+.bq-sem-jobon-janela .bq-movement-types span { display:block;padding:9px 12px;text-align:center;border:1px solid var(--dmo-border,#b9d0e6);border-radius:9px;font-weight:750;white-space:nowrap; }
+.bq-sem-jobon-janela .bq-movement-types input:checked + span { background:var(--dmo-brand-700,#315d88);color:var(--dmo-text-on-color); }
+.bq-sem-jobon-janela .bq-movement-types input:focus-visible + span { outline:3px solid var(--dmo-brand-600,#3c73a8);outline-offset:3px; }
+@media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos { grid-template-columns:1fr; } }
+/* BQ, Lote e Linha numa só linha (Diogo, 22/10/2026). */
+.bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+@media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:1fr; } }

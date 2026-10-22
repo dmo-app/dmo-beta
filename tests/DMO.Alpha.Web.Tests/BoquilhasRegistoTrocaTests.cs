@@ -20,7 +20,7 @@ public partial class BoquilhasRegistoPageTests
     ];
 
     [Fact]
-    public async Task Registo_TrocaSoAsZonas_ComOFocoNoTipoDoProximoMovimento()
+    public async Task Registo_TrocaSoAsZonas_SemFocoAutomaticoNoTipo()
     {
         await SeedToolAsync("BQ-TROCA-1", "QT701", "2");
         var bq = await SeedProductionAsync("BQ-TROCA-1", "5447QT701", "PN-770001", "B7");
@@ -36,16 +36,17 @@ public partial class BoquilhasRegistoPageTests
             Assert.Contains(zona, html);
         }
 
-        // A procura fica (data-dmo-fica); um clique numa boquilha encontrada,
-        // ou numa máquina do painel lateral, troca só o registo.
-        Assert.Matches("<div class=\"dmo-zona\" data-dmo-fica>\\s*<details class=\"card bq-register-search\"", html);
-        Assert.Contains("<div id=\"bqProcura\" class=\"bq-procura\" aria-live=\"polite\" data-dmo-parcial></div>", html);
+        // Sem a procura (Diogo, 22/10/2026); um clique numa máquina do painel
+        // lateral troca só o registo.
+        Assert.DoesNotContain("bq-register-search", html);
+        Assert.DoesNotContain("id=\"bqProcura\"", html);
         Assert.Contains("<div class=\"dmo-zona\" data-dmo-parcial><aside class=\"beta-light-rail beta-production-rail\" id=\"bqCurrentLines\"", html);
         Assert.Contains("/js/bq-registo.js", html);
 
-        // O foco no tipo escolhido do próximo movimento; uma só vez na página.
-        Assert.Contains("name=\"movement_type\" value=\"saida\" checked=\"checked\" autofocus=\"autofocus\" required", html);
-        Assert.Single(Regex.Matches(html, " autofocus"));
+        // Sem foco automático no tipo (Diogo, 22/10/2026: ao voltar do
+        // Histórico a «Saída» aparecia com o anel de foco).
+        Assert.Contains("name=\"movement_type\" value=\"saida\" checked=\"checked\" required", html);
+        Assert.DoesNotContain(" autofocus", html);
 
         // As zonas por esta ordem, cada cartão na sua.
         var indices = ZonasDoRegisto.Select(zona => html.IndexOf(zona, StringComparison.Ordinal)).ToList();

@@ -63,6 +63,19 @@ public static class JobOnChangeFields
     /// </summary>
     public const string Folha = "Folha";
 
+    /// <summary>
+    /// Acrescentar uma BQ a uma produção que não tinha BQ NÃO é uma mudança
+    /// (o Diogo: «a mudança das boquilhas não aparecer [...] quando for de um
+    /// estado de não existir bq»): não se grava, e as linhas antigas assim
+    /// gravadas não aparecem na ficha, na linha da máquina nem nos avisos.
+    /// </summary>
+    public static bool IsChange(string field, string? oldValue) =>
+        !(field == Bq && oldValue == null);
+
+    /// <summary>A regra de <see cref="IsChange"/> para as consultas.</summary>
+    public static readonly System.Linq.Expressions.Expression<Func<JobOnChange, bool>> Counts =
+        c => !(c.Field == Bq && c.OldValueFrozen == null);
+
     /// <summary>O nome do campo como se lê na ficha.</summary>
     public static string Label(string field) => field switch
     {

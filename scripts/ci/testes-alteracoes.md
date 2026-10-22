@@ -1113,3 +1113,55 @@ Novos: 12 · mudaram: 10 · saíram: 7
 - saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemProximosPaginaTests.cs :: ArmazemProximosPaginaTests.SemAChave_NaoEntra`
 
 Selo depois: `ec4f12892d2ba255`
+
+## A-0040 · 2026-10-22 · ok-do-diogo
+
+Porquê: Boquilhas beta.46: mudança de BQ, Registo só de Job On, Histórico, Registar sem Job On
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyLYtxuHqcPGnrE4uFTkNR7w
+Referências do Diogo, por mudança:
+- cmsg_01A27e9ozcpoh4jdPRsuJbFyLYtxuHqcPGnrE4uFTkNR7w — acrescentar BQ não é mudança no painel do calendário.
+- cmsg_01A27e9ozcpoh4jdPRsuJbFyXAv4zn3ZRQsjWu6pw4g4tw — sem anel de foco/autofocus na «Saída», sem «Máquina em uso», «Registar» à esquerda.
+- cmsg_01A27e9ozcpoh4jdPRsuJbFyS6hb9Vb5DCDWCRaSEukWmm — sem «Procurar / trocar», «Histórico» à vista.
+- cmsg_01A27e9ozcpoh4jdPRsuJbFyXekf9uE9hqpRT4L1xsutkf, cmsg_01A27e9ozcpoh4jdPRsuJbFyEuCy6fs1W93HYcFPrt4eWm, cmsg_01A27e9ozcpoh4jdPRsuJbFyAZju7jrXDRHhCZJUK1Sb5q — registo sem Job On numa janela na página Boquilhas; o Registo é só de Job On (inclui tirar o «+ Registo com data antiga»: a data livre da janela substitui-o).
+- cmsg_01A27e9ozcpoh4jdPRsuJbFyQqvnxegrtFcaEamR7gJfMe — a Linha na janela e na tabela.
+- cmsg_01A27e9ozcpoh4jdPRsuJbFy1ctjeLanzx8dtk2B438UUM — o aviso do lote fala da contagem da reparação.
+Novos: 8 · mudaram: 14 · saíram: 14
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnChangeTests.cs :: JobOnChangeTests.Update_AddingABqWhereThereWasNone_IsNotAChange_AndOldRowsAreHidden`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraPeloInicioTests.cs :: BoquilhasRegistoPageTests.ProcurarBq_JaNaoResponde_ComALista`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoTrocaTests.cs :: BoquilhasRegistoPageTests.Registo_TrocaSoAsZonas_SemFocoAutomaticoNoTipo`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase`
+- novo: `tests/ShellProof/bq-registo.test.cjs :: gravar um movimento não mexe no scroll`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.FormularioDaPagina.cs :: BoquilhasRegistoPageTests.MovimentoPeloFormularioDaPagina_GravaAQuantidadeEAMaquinaNaBQ`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HoraDeViragem.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HoraDeViragem.cs :: BoquilhasRegistoPageTests.DeNoiteAntesDaViragem_AProcuraEOsRegistosSeguemAProducaoEmMaquina`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMetrics_RenderFromTheBackend_NeverFromTheClient`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMovement_ChosenMachineIsSavedAndShownInTheRegister`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.ToolSheet_ShowsTheFactsTheHistoricalFormAndTheRegisters`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_WarnsAboutTheUnresolvedTraceOfTheSameBq`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_CriarBoquilha_AbreORegistoDasFerramentasComBqEAMaquina_EVoltaComAFicha`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_SoAMaquinaNaoMostraALista_OTextoMostra_EAMaquinaSoReduz`
+- mudou: `tests/ShellProof/bq-registo.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/bq-registo.test.cjs :: o registo aberto fora do ecrã vem à vista`
+- mudou: `tests/visual/boquilhas_catalog_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraPeloInicioTests.cs :: BoquilhasRegistoPageTests.Procura_PorUmaProducaoAntiga_DizQualEAbreORegistoDela`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraPostgresTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraPostgresTests.cs :: BoquilhasProcuraPostgresTests.ProcuraBq_PeloInicioDaReferenciaOuDaParteBq_NoPostgres`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraTests.cs :: BoquilhasRegistoPageTests.Procura_DepoisDeTrocarABq_OLoteSubstituidoJaNaoEstaEmProducao`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraTests.cs :: BoquilhasRegistoPageTests.Procura_ShowsBqLotMachinesAndProductionState_AndOpensTheRegister`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasProcuraTests.cs :: BoquilhasRegistoPageTests.Procura_WithoutLogin_IsRefused`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_Opcoes_HistoricoBq_AbreOHistoricoFiltradoPorEstaBqELote`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.OpenHistoricalRegister_OpensTheRegisterWithTheRealDatePrefilled`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.Search_ShowsTheRegisterChoicePanel_WithAndWithoutJobOn`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoTrocaTests.cs :: BoquilhasRegistoPageTests.Registo_TrocaSoAsZonas_ComOFocoNoTipoDoProximoMovimento`
+- saiu: `tests/ShellProof/bq-registo.test.cjs :: abrir uma boquilha encontrada fecha a procura depois da troca`
+- saiu: `tests/ShellProof/bq-registo.test.cjs :: abrir uma máquina no painel lateral também fecha a procura`
+- saiu: `tests/ShellProof/bq-registo.test.cjs :: gravar um movimento não mexe na procura nem no scroll`
+
+Selo depois: `294d3b64edbc4222`

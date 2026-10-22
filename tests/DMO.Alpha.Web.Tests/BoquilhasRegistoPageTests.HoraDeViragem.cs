@@ -59,11 +59,6 @@ public partial class BoquilhasRegistoPageTests
         using (var deNoite = FactoryWithBoquilhasClock(new DateTime(2030, 3, 11, 3, 0, 0, DateTimeKind.Utc)))
         {
             using var client = await LoginClientAsync("4197", "RegistoViragem1!", deNoite);
-            var linha = Linha(await GetPageHtmlAsync(client, "/Boquilhas?handler=ProcurarBq&q=qv19"), "BQ-VIRAGEM");
-            Assert.Contains("Em produção", linha);
-            Assert.Contains("B2 · 5447QV194 · PN-VIR-1", linha);
-            Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={contexto1}\"", linha);
-
             var registos = RegistosDaBq(await GetPageHtmlAsync(client, "/Boquilhas?ficheiros=1&ferramenta=BQ-VIRAGEM"));
             Assert.Contains(">Produção em máquina</td>", Linha(registos, registo1.ToString()));
             Assert.Contains(">Produção programada</td>", Linha(registos, registo2.ToString()));
@@ -73,10 +68,6 @@ public partial class BoquilhasRegistoPageTests
         using (var deManha = FactoryWithBoquilhasClock(new DateTime(2030, 3, 11, 8, 0, 0, DateTimeKind.Utc)))
         {
             using var client = await LoginClientAsync("4197", "RegistoViragem1!", deManha);
-            var linha = Linha(await GetPageHtmlAsync(client, "/Boquilhas?handler=ProcurarBq&q=qv19"), "BQ-VIRAGEM");
-            Assert.Contains("B2 · 5447QV194 · PN-VIR-2", linha);
-            Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={contexto2}\"", linha);
-
             var registos = RegistosDaBq(await GetPageHtmlAsync(client, "/Boquilhas?ficheiros=1&ferramenta=BQ-VIRAGEM"));
             Assert.Contains(">Produção anterior</td>", Linha(registos, registo1.ToString()));
             Assert.Contains(">Produção em máquina</td>", Linha(registos, registo2.ToString()));
@@ -98,5 +89,14 @@ public partial class BoquilhasRegistoPageTests
         var inicio = html.IndexOf("id=\"bqSheetRegisters\"", StringComparison.Ordinal);
         Assert.True(inicio >= 0, "A tabela dos registos da BQ não aparece.");
         return html[inicio..];
+    }
+
+    /// <summary>A linha de um registo numa tabela (pelo data-id).</summary>
+    private static string Linha(string html, string id)
+    {
+        var inicio = html.IndexOf($"data-id=\"{id}\"", StringComparison.Ordinal);
+        Assert.True(inicio >= 0, $"A linha de {id} não aparece.");
+        var fim = html.IndexOf("</tr>", inicio, StringComparison.Ordinal);
+        return html[inicio..fim];
     }
 }

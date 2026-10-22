@@ -92,6 +92,40 @@ public sealed class JobOnChangeTests : IDisposable
             JobOnChangeFields.Summarize(porProducao[jobOnId]));
     }
 
+    /// <summary>
+    /// Acrescentar uma BQ a uma produção sem BQ não é mudança (o Diogo: «a
+    /// mudança das boquilhas não aparecer na informação ao lado do calendário
+    /// quando for de um estado de não existir bq»): não se grava, e uma linha
+    /// antiga já gravada assim não aparece na linha da máquina nem na ficha.
+    /// </summary>
+    [Fact]
+    public async Task Update_AddingABqWhereThereWasNone_IsNotAChange_AndOldRowsAreHidden()
+    {
+        var (seededId, b1, _) = await SeedAsync();
+        var created = await _create.HandleAsync(new CreateJobOn(
+            "202604", "5810", b1, "CM-1", "MF-1", null,
+            InicioEm: new DateOnly(2026, 3, 2), FimEm: new DateOnly(2026, 3, 9), CaloteMm: 4.5m));
+        Assert.Equal(CreateJobOnResult.Success, created.Result);
+        var jobOnId = created.JobOn!.JobOnId;
+
+        var outcome = await _update.HandleAsync(new UpdateJobOn(
+            jobOnId, b1, "CM-1", "MF-1", "BQ-7",
+            InicioEm: new DateOnly(2026, 3, 2), FimEm: new DateOnly(2026, 3, 9), CaloteMm: 4.5m,
+            ChangedBy: "Diogo"));
+        Assert.Equal(UpdateJobOnResult.Success, outcome.Result);
+        Assert.False(await _db.JobOnChanges.AnyAsync(c => c.JobOnId == jobOnId));
+
+        // Uma linha gravada antes da regra («— → T194 · lote 7») fica escondida.
+        _db.JobOnChanges.Add(new JobOnChange
+        {
+            JobOnId = jobOnId, Field = JobOnChangeFields.Bq, OldValueFrozen = null, NewValueFrozen = "T194 · lote 7",
+            ChangedByNameFrozen = "Diogo", ChangedAtUtc = new DateTime(2026, 3, 4, 10, 0, 0, DateTimeKind.Utc)
+        });
+        await _db.SaveChangesAsync();
+        Assert.False((await _query.AfterStartAsync(new[] { jobOnId, seededId })).ContainsKey(jobOnId));
+        Assert.Empty(await _query.ForJobOnAsync(jobOnId));
+    }
+
     [Fact]
     public async Task Update_WithNothingChanged_RecordsNothing()
     {
