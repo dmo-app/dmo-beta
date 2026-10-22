@@ -1026,7 +1026,7 @@ Selo depois: `c77edb7db73eac47`
 
 ## A-0039 · 2026-10-22 · ok-do-diogo
 
-Porquê: Armazém: separador «Movimentos» (fora em reparação só CM/MF; últimas entradas e saídas de tudo, BQ incluídas, com filtros por dias, tipo, referência, lote, linha e reparador) substitui o Histórico; «Registo» passa a primeiro separador.
+Porquê: Armazém: separador «Movimentos» (fora em reparação só CM/MF; últimas entradas e saídas de tudo, BQ incluídas, com filtros por dias, tipo, referência, lote, linha e reparador) substitui o Histórico; «Registo» passa a primeiro separador. A regra «abre vazio» não se aplica aqui: o Diogo pediu que a página mostre as últimas entradas e saídas (22/10 13:25).
 Referência: Diogo 22/10 13:25–13:43 (cmsg_01A27e9ozcpoh4jdPRsuJbFy12VMmFYgLHpRhn1RAK5HLp, cmsg_01A27e9ozcpoh4jdPRsuJbFyPgTMUWFVkDYEkGJU4gwQav, cmsg_01A27e9ozcpoh4jdPRsuJbFyV24qJxcxGS2xJRaWYoDSF4, cmsg_01A27e9ozcpoh4jdPRsuJbFyFf6WkWFn2hQgaVcKvKLb4j)
 Novos: 14 · mudaram: 2 · saíram: 6
 
