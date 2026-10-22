@@ -1169,7 +1169,7 @@ Selo depois: `294d3b64edbc4222`
 ## A-0043 · 2026-10-22 · ok-do-diogo
 
 Porquê: Reparação Programada (testes novos e asserts do Guardião); Armazém: posição escrita com 4 algarismos, Par retirado, nome «CM 5447 · Lote 3», procura com Linha e % uso
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKzeCU6vgqk5cWWEqqVWneS
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy1cW4SLjtJXkpk8oM1WN5PB, cmsg_01A27e9ozcpoh4jdPRsuJbFyFvoCqZxBCfbNiMCSCaYUJr, cmsg_01A27e9ozcpoh4jdPRsuJbFy9qgxfrBEJB18gAj73jMxV9, cmsg_01A27e9ozcpoh4jdPRsuJbFyREJtBGBtAMys1aMqhj4ScT, cmsg_01A27e9ozcpoh4jdPRsuJbFy9Y4VRqA9QFDVXiEb9TVcHX, cmsg_01A27e9ozcpoh4jdPRsuJbFyRsaoxEoxkRVC7iHGuSe6VD, cmsg_01A27e9ozcpoh4jdPRsuJbFy8KJ4hzSSrHYsnq5qdo19eV, cmsg_01A27e9ozcpoh4jdPRsuJbFyKzeCU6vgqk5cWWEqqVWneS
 Novos: 17 · mudaram: 8 · saíram: 4
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: (resto do ficheiro)`
