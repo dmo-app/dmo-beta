@@ -78,6 +78,8 @@ public static class AutoriaMap
         // O Armazém.
         Autoria.De<ArmazemPosicao>(p => p.CriadaPor, p => p.CriadaPorUserId),
         Autoria.De<ArmazemMovimento>(m => m.RegistadoPor, m => m.RegistadoPorUserId),
+        Autoria.De<ArmazemLoteNovo>(l => l.RegistadoPor, l => l.RegistadoPorUserId),
+        Autoria.De<ArmazemLoteNovo>(l => l.ResolvidoPor, l => l.ResolvidoPorUserId),
         Autoria.De<FerramentaEstado>(e => e.RegistadoPor, e => e.RegistadoPorUserId),
 
         // A utilização das ferramentas.

@@ -25,7 +25,7 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
 public sealed class MovimentosModel(
-    IArmazemMovimentos movimentos, IArmazemMapa mapa, IArmazemHistorico historico, ShellStateFactory shellState) : PageModel
+    IArmazemMovimentos movimentos, IArmazemMapa mapa, IArmazemHistorico historico, IArmazemLotesNovos lotesNovos, ShellStateFactory shellState) : PageModel
 {
     /// <summary>Os três cartões do painel, por esta ordem (Diogo, 22/10/2026: «CM MF BQ»).</summary>
     public static readonly IReadOnlyList<ToolType> Tipos = [ToolType.Cm, ToolType.Mf, ToolType.Bq];
@@ -38,6 +38,18 @@ public sealed class MovimentosModel(
 
     /// <summary>As últimas entradas e saídas deste tipo (todas as pessoas), da mais recente para a mais antiga.</summary>
     public PagedList<ArmazemHistoricoLinha> Log { get; private set; } = PagedList<ArmazemHistoricoLinha>.Empty;
+
+    /// <summary>Os lotes novos deste tipo ainda por criar nas Ferramentas (no topo do log, «Por criar»).</summary>
+    public IReadOnlyList<ArmazemLoteNovoItem> PorCriar { get; private set; } = [];
+
+    /// <summary>A recusa do registo de um lote novo, desenhada com o que a pessoa escreveu.</summary>
+    public ArmazemLoteNovoResultado? LoteNovoRecusa { get; private set; }
+
+    public string? LoteNovoReferencia { get; private set; }
+
+    public string? LoteNovoLote { get; private set; }
+
+    public string? LoteNovoPosicao { get; private set; }
 
     public static string TipoValor(ToolType tipo) => ArmazemTextos.Tipo(tipo);
 
@@ -107,15 +119,25 @@ public sealed class MovimentosModel(
 
     public ArmazemDestino? Destino => DestinoDe(DestinoTexto);
 
-    public bool Gravou => Gravacao is "entrada" or "entrada-par" or "saida" or "corrigir" or "repetido";
+    public bool Gravou => Gravacao is "lote-novo" or "entrada" or "entrada-par" or "saida" or "corrigir" or "repetido";
 
     public string Mensagem => Gravacao switch
     {
+        "lote-novo" => $"Lote novo registado para a posição {RecusaPosicao}. Fica «Por criar» até quem tem o módulo Ferramentas criar a ferramenta; a entrada fica registada nessa altura.",
         "entrada" => $"Entrada registada na posição {RecusaPosicao}.",
         "entrada-par" => $"Entrada da CM e do MF registada na posição {RecusaPosicao}.",
         "saida" => "Saída registada.",
         "corrigir" => "Localização corrigida.",
         "repetido" => "Este movimento já estava registado.",
+        _ when LoteNovoRecusa is { } loteRecusa => loteRecusa switch
+        {
+            ArmazemLoteNovoResultado.SemReferencia => "Escreva a referência.",
+            ArmazemLoteNovoResultado.SemLote => "Escreva o lote.",
+            ArmazemLoteNovoResultado.PosicaoInvalida => "Escreva a posição com os 4 algarismos (ex.: 0042).",
+            ArmazemLoteNovoResultado.ReferenciaLonga => $"A referência tem até {ArmazemLoteNovo.ReferenciaMaxLength} caracteres.",
+            ArmazemLoteNovoResultado.LoteLongo => $"O lote tem até {ArmazemLoteNovo.LoteMaxLength} caracteres.",
+            _ => string.Empty
+        },
         _ => Recusa switch
         {
             ArmazemMovimentoResultado.FerramentaNaoExiste => "Esta ferramenta já não existe.",
@@ -179,6 +201,45 @@ public sealed class MovimentosModel(
             Data = data;
             Observacoes = observacoes;
         });
+    }
+
+    /// <summary>
+    /// Registar lote novo (Diogo, 22/10/2026): a ferramenta não existe; o
+    /// Armazém guarda o tipo do cartão, a referência, o lote e a posição como
+    /// «por criar», e quem tem o módulo Ferramentas cria-a. Nunca cria a ferramenta.
+    /// </summary>
+    [EnvioUnico]
+    public async Task<IActionResult> OnPostLoteNovoAsync(
+        [FromForm(Name = "referencia")] string? referencia,
+        [FromForm(Name = "lote")] string? lote,
+        [FromForm(Name = "posicao")] string? posicao)
+    {
+        if (TipoDe(TipoTexto) is not { } tipo)
+        {
+            return RedirectToPage("/Armazem/Movimentos");
+        }
+
+        var saida = await lotesNovos.RegistarAsync(tipo, referencia, lote, posicao, HttpContext.RequestAborted);
+        if (saida.Gravou)
+        {
+            return RedirectToPage("/Armazem/Movimentos", new
+            {
+                tipo = TipoValor(tipo),
+                gravacao = "lote-novo",
+                posicao = posicao?.Trim(),
+                aviso = (saida.Avisos ?? []).ToArray()
+            });
+        }
+
+        LoteNovoRecusa = saida.Resultado;
+        LoteNovoReferencia = referencia;
+        LoteNovoLote = lote;
+        LoteNovoPosicao = posicao;
+        ViewData["LoteNovoReferencia"] = referencia ?? string.Empty;
+        ViewData["LoteNovoLote"] = lote ?? string.Empty;
+        ViewData["LoteNovoPosicao"] = posicao ?? string.Empty;
+        Procura = referencia;
+        return await DesenharAsync();
     }
 
     [EnvioUnico]
@@ -277,6 +338,10 @@ public sealed class MovimentosModel(
         if (Tipo is { } tipo)
         {
             Log = await historico.ListarAsync(new ArmazemHistoricoFiltro(TipoFerramenta: tipo), Pagina, HttpContext.RequestAborted);
+            if (Pagina == 1)
+            {
+                PorCriar = await lotesNovos.PorCriarAsync(tipo, HttpContext.RequestAborted);
+            }
         }
 
 

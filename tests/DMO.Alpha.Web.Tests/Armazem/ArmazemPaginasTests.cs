@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DMO.Alpha.Web.Tests.Armazem;
 
 /// <summary>
-/// As primeiras páginas do Armazém (0.2.0-beta.8): só quem tem a chave
+/// armazem.gestao entra (as Posições e os Próximos Job On saíram, 22/10/2026);
 /// armazem.gestao entra; as Posições criam, procuram e arquivam no próprio
 /// valor da linha; as Definições criam e mudam os reparadores de CM e MF;
 /// o Admin › Templates mostra a chave nova.
@@ -109,7 +109,6 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
     }
 
     [Theory]
-    [InlineData("/Armazem/Posicoes")]
     [InlineData("/Armazem/Definicoes")]
     public async Task SemAChave_NaoEntra(string pagina)
     {
@@ -122,52 +121,23 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
     }
 
     [Fact]
-    public async Task ComAChave_AsDuasFuncoesEOMenu()
+    public async Task ComAChave_RegistoMovimentosEDefinicoes()
     {
         using var client = await LoginOperatorAsync("6102", DmoCapabilities.ArmazemGestao);
 
-        var html = await client.GetStringAsync("/Armazem/Posicoes");
+        var html = await client.GetStringAsync("/Armazem/Movimentos");
 
-        Assert.Contains("Posições do Armazém", Elemento(html, "id=\"arm-pos-title\""));
-        Assert.Matches("<a href=\"/Armazem/Posicoes\"[^>]*aria-current=\"page\">Posições</a>", html);
+        // Diogo, 22/10/2026: sem os Próximos Job On nem as Posições; ficam o Registo, os Movimentos e as Definições.
+        Assert.Matches("<a href=\"/Armazem/Movimentos\"[^>]*aria-current=\"page\">Registo</a>", html);
+        Assert.Contains("href=\"/Armazem/Ultimos\"", html);
         Assert.Contains("href=\"/Armazem/Definicoes\"", html);
-        Assert.Contains("Ainda não há posições. Crie a primeira acima.", Elemento(html, "id=\"armPosLista\""));
+        Assert.DoesNotContain("/Armazem/Posicoes", html);
+        Assert.DoesNotContain("/Armazem/Proximos", html);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/Armazem/Posicoes")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/Armazem/Proximos")).StatusCode);
         // Depois do login, quem só tem o Armazém abre-o.
         using var inicio = await client.GetAsync("/");
-        Assert.Equal("/Armazem/Posicoes", inicio.Headers.Location?.ToString());
-    }
-
-    [Fact]
-    public async Task Posicoes_CriarEArquivarNaLinha()
-    {
-        using var client = await LoginOperatorAsync("6103", DmoCapabilities.ArmazemGestao);
-        var pagina = await client.GetStringAsync("/Armazem/Posicoes");
-
-        var depois = await client.GetStringAsync(await EnviarAsync(client, pagina, ("armNovoCodigo", "7001")));
-        Assert.Contains("Posição 7001 criada.", Elemento(depois, "id=\"armPosAvisos\""));
-        var linha = Elemento(depois, "data-dmo-posicao=\"7001\"");
-        Assert.Contains("7001", linha);
-        // Sem botões na linha: o estado muda-se no próprio valor.
-        Assert.DoesNotContain("<button", linha);
-        Assert.Equal("7001", NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Codigo));
-
-        var repetida = await client.GetStringAsync(await EnviarAsync(client, depois, ("armNovoCodigo", "7001")));
-        Assert.Contains("A posição 7001 já existe.", Elemento(repetida, "id=\"armPosAvisos\""));
-        var invalida = await client.GetStringAsync(await EnviarAsync(client, repetida, ("armNovoCodigo", "701")));
-        Assert.Contains("O código da posição tem 4 algarismos (ex.: 0042).", Elemento(invalida, "id=\"armPosAvisos\""));
-        Assert.Single(NaBase(db => db.ArmazemPosicoes.AsNoTracking().ToList()));
-
-        var id = NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Id);
-        var campo = $"armPosAtiva-{id}";
-        var arquivada = await client.GetStringAsync(await EnviarAsync(client, invalida, (campo, EnvioDoFormulario.Opcao(invalida, campo, "Arquivada"))));
-        Assert.Contains("Posição 7001 arquivada.", Elemento(arquivada, "id=\"armPosAvisos\""));
-        Assert.False(NaBase(db => db.ArmazemPosicoes.AsNoTracking().Single().Ativa));
-
-        var soArquivadas = await client.GetStringAsync("/Armazem/Posicoes?estado=arquivadas");
-        Assert.Contains("7001", Elemento(soArquivadas, "data-dmo-posicao=\"7001\""));
-        var soAtivas = Elemento(await client.GetStringAsync("/Armazem/Posicoes?estado=ativas"), "id=\"armPosLista\"");
-        Assert.Contains("Nenhuma posição com esse filtro.", soAtivas);
-        Assert.DoesNotContain("7001", soAtivas);
+        Assert.Equal("/Armazem/Movimentos", inicio.Headers.Location?.ToString());
     }
 
     [Fact]

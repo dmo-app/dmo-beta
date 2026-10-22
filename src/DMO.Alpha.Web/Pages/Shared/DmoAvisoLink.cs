@@ -57,6 +57,16 @@ public sealed record DmoAvisoLink(string Texto, string Href, string? Modulo = nu
         return new DmoAvisoLink(texto, href, DmoCapabilities.Ferramentas);
     }
 
+    /// <summary>
+    /// Criar nas Ferramentas o lote novo registado no Armazém: o formulário
+    /// abre com o tipo, a referência e o lote, e com o registo por resolver
+    /// (<c>lote_novo</c>); ao gravar, a entrada fica na posição guardada.
+    /// </summary>
+    public static DmoAvisoLink CriarLoteNovo(int loteNovoId, string tipo, string referencia, string lote, string texto = "Criar a ferramenta") =>
+        new(texto,
+            $"/Ferramentas?criar=1&type={Uri.EscapeDataString(tipo)}&reference={Uri.EscapeDataString(referencia)}&lot={Uri.EscapeDataString(lote)}&lote_novo={loteNovoId}",
+            DmoCapabilities.Ferramentas);
+
     /// <summary>Os movimentos de uma ferramenta no Armazém, onde se dá entrada e se regista o estado.</summary>
     public static DmoAvisoLink MovimentosDoArmazem(string toolId, string texto) =>
         new(texto, $"/Armazem/Movimentos?ferramenta={Uri.EscapeDataString(toolId)}", DmoCapabilities.ArmazemGestao);

@@ -112,7 +112,7 @@ public sealed class ModuleEntryInterruptoresTests : IDisposable
     {
         var (operador, _) = await LoginOperatorAsync("7101");
 
-        foreach (var pagina in new[] { "/Armazem/Posicoes", "/ReparacaoInterna" })
+        foreach (var pagina in new[] { "/Armazem/Movimentos", "/ReparacaoInterna" })
         {
             var response = await operador.GetAsync(pagina);
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
@@ -120,7 +120,7 @@ public sealed class ModuleEntryInterruptoresTests : IDisposable
         }
 
         var boquilhas = await operador.GetStringAsync("/Boquilhas");
-        Assert.DoesNotContain("href=\"/Armazem/Posicoes\"", boquilhas);
+        Assert.DoesNotContain("href=\"/Armazem/Movimentos\"", boquilhas);
         Assert.DoesNotContain("href=\"/ReparacaoInterna\"", boquilhas);
         Assert.DoesNotContain(Faixa, boquilhas);
     }
@@ -154,14 +154,14 @@ public sealed class ModuleEntryInterruptoresTests : IDisposable
 
         await GuardarAsync(admin, "teste", "desligado", testadorId);
 
-        var posicoes = await testador.GetAsync("/Armazem/Posicoes");
+        var posicoes = await testador.GetAsync("/Armazem/Movimentos");
         Assert.Equal(HttpStatusCode.OK, posicoes.StatusCode);
         var html = await posicoes.Content.ReadAsStringAsync();
         Assert.Contains($"<div class=\"dmo-faixa-dev\" role=\"note\" data-dmo-em-desenvolvimento>{Faixa}</div>", html);
-        Assert.Contains("href=\"/Armazem/Posicoes\"", html);
+        Assert.Contains("href=\"/Armazem/Movimentos\"", html);
         Assert.Equal(HttpStatusCode.Redirect, (await testador.GetAsync("/ReparacaoInterna")).StatusCode);
 
-        Assert.Equal(HttpStatusCode.Redirect, (await outro.GetAsync("/Armazem/Posicoes")).StatusCode);
+        Assert.Equal(HttpStatusCode.Redirect, (await outro.GetAsync("/Armazem/Movimentos")).StatusCode);
 
         var setup = await admin.GetStringAsync("/Admin/Definicoes");
         Assert.Contains($"name=\"testadores\" value=\"{testadorId}\" checked=\"checked\"", setup);
@@ -175,7 +175,7 @@ public sealed class ModuleEntryInterruptoresTests : IDisposable
 
         await GuardarAsync(admin, "todos", "todos");
 
-        Assert.Equal(HttpStatusCode.OK, (await operador.GetAsync("/Armazem/Posicoes")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await operador.GetAsync("/Armazem/Movimentos")).StatusCode);
         var ri = await operador.GetAsync("/ReparacaoInterna");
         Assert.Equal(HttpStatusCode.OK, ri.StatusCode);
         Assert.Contains(Faixa, await ri.Content.ReadAsStringAsync());

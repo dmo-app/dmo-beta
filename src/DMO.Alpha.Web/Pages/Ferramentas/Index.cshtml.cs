@@ -43,6 +43,7 @@ public sealed class IndexModel : PageModel
     private readonly ShellStateFactory _shellState;
     private readonly IToolLotQuantitySettings _lotQuantities;
     private readonly IEditToolTechnicalValuesHandler _editTechnical;
+    private readonly DMO.Alpha.Core.Armazem.IArmazemLotesNovos _lotesNovos;
 
     /// <summary>Os campos técnicos opcionais do registo (os mesmos nomes da ficha).</summary>
     internal static readonly string[] TechnicalFields =
@@ -64,8 +65,10 @@ public sealed class IndexModel : PageModel
         ICreateToolHandler createTool,
         ShellStateFactory shellState,
         IToolLotQuantitySettings lotQuantities,
-        IEditToolTechnicalValuesHandler editTechnical)
+        IEditToolTechnicalValuesHandler editTechnical,
+        DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos)
     {
+        _lotesNovos = lotesNovos;
         _editTechnical = editTechnical;
         _candidateQuery = candidateQuery;
         _machineListQuery = machineListQuery;
@@ -134,6 +137,15 @@ public sealed class IndexModel : PageModel
     /// <summary>Nota de ferramenta eliminada (PRG do delete da ficha) — o histórico vive nos registos congelados.</summary>
     public bool DeletedNote { get; private set; }
 
+    /// <summary>
+    /// O lote novo registado no Armazém que este registo resolve (?lote_novo=,
+    /// do aviso do Sumário); null quando não há ou já foi resolvido.
+    /// </summary>
+    public DMO.Alpha.Core.Armazem.ArmazemLoteNovoItem? LoteNovo { get; private set; }
+
+    /// <summary>A ferramenta que já existe com o tipo, a referência e o lote do lote novo (ligar em vez de criar).</summary>
+    public string? LoteNovoExistente { get; private set; }
+
     /// <summary>A tab CRIAR aberta (?criar=1 ou uma recusa do create a voltar).</summary>
     public bool ShowCreate { get; private set; }
 
@@ -170,8 +182,15 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "criar")] string? criar,
         [FromQuery(Name = "technical_name")] string? technicalName,
         [FromQuery(Name = "pagina")] int? pageNumber,
-        [FromQuery(Name = "por_pagina")] int? pageSize)
+        [FromQuery(Name = "por_pagina")] int? pageSize,
+        [FromQuery(Name = "lote_novo")] int? loteNovo = null)
     {
+        if (loteNovo is { } loteNovoId && await _lotesNovos.ObterAsync(loteNovoId, HttpContext.RequestAborted) is { PorCriar: true } pendente)
+        {
+            LoteNovo = pendente;
+            LoteNovoExistente = await _lotesNovos.FerramentaExistenteAsync(loteNovoId, HttpContext.RequestAborted);
+        }
+
         // AS TABS VER · CRIAR (o Owner 2026-10-13: «deveria ser um tab para
         // criar e outro para ver o que existe»): o ?criar=1 abre o registo,
         // o default é o VER (a procura + a lista — nunca tudo misturado).
@@ -319,7 +338,8 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "machine_ids")] List<string>? machineIds,
         [FromForm(Name = "technical_name")] string? technicalName,
         [FromForm(Name = "return")] string? returnUrl,
-        [FromForm(Name = "quantity_manual")] string? quantityManual)
+        [FromForm(Name = "quantity_manual")] string? quantityManual,
+        [FromForm(Name = "lote_novo")] int? loteNovo = null)
     {
         // beta.63 (A11): a quantidade ilegível não recusa a ferramenta — grava
         // sem quantidade (sem a sugestão automática, que o operador quis
@@ -356,7 +376,18 @@ public sealed class IndexModel : PageModel
             var unreadableTechnical = created.AlreadyExisted
                 ? new Dictionary<string, string>()
                 : await SaveTechnicalAsync(created.ToolId, created.Type, technical);
-            var hasWarnings = created.LotDefaulted || unreadableQuantity || unreadableTechnical.Count > 0;
+            // O lote novo do Armazém (o aviso do Sumário): a entrada fica na
+            // posição guardada e o aviso desaparece.
+            DMO.Alpha.Core.Armazem.ArmazemLoteNovoResolucaoSaida? resolucao = null;
+            string? posicaoArmazem = null;
+            if (loteNovo is { } loteNovoId && !created.AlreadyExisted)
+            {
+                posicaoArmazem = (await _lotesNovos.ObterAsync(loteNovoId, CancellationToken.None))?.Posicao;
+                resolucao = await _lotesNovos.ResolverAsync(loteNovoId, created.ToolId, CancellationToken.None);
+            }
+
+            var avisosArmazem = resolucao is { Resolveu: true } ? resolucao.Avisos.ToArray() : [];
+            var hasWarnings = created.LotDefaulted || unreadableQuantity || unreadableTechnical.Count > 0 || avisosArmazem.Length > 0;
 
             // Fluxo contextual: o chamador recebe o tool_id resultante
             // substituído no SEU template local. Sem template (ou inválido),
@@ -379,7 +410,9 @@ public sealed class IndexModel : PageModel
                 existed = created.AlreadyExisted ? "1" : null,
                 sem_lote = created.LotDefaulted ? "1" : null,
                 quantidade_ilegivel = unreadableQuantity ? typedQuantity : null,
-                continuar = IsSafeLocalReturnTemplate(returnUrl) ? returnUrl.Replace("{tool_id}", created.ToolId) : null
+                continuar = IsSafeLocalReturnTemplate(returnUrl) ? returnUrl.Replace("{tool_id}", created.ToolId) : null,
+                armazem_entrada = resolucao is { Resolveu: true } ? posicaoArmazem : null,
+                aviso_armazem = avisosArmazem.Length > 0 ? avisosArmazem : null
             });
             foreach (var field in unreadableTechnical)
                 fichaValues[field.Key] = field.Value;
@@ -402,11 +435,36 @@ public sealed class IndexModel : PageModel
             bq_quantity = bqQuantity,
             quantity_manual = quantityManual,
             machine_ids = machineIds,
-            @return = returnUrl
+            @return = returnUrl,
+            lote_novo = loteNovo
         });
         foreach (var field in technical.Where(field => field.Value is not null))
             refusalValues[field.Key] = field.Value;
         return RedirectToPage("/Ferramentas/Index", refusalValues);
+    }
+
+    /// <summary>
+    /// Ligar o lote novo do Armazém à ferramenta que já existe com o mesmo
+    /// tipo, referência e lote (em vez de criar outra): a entrada fica na
+    /// posição guardada e a ficha abre.
+    /// </summary>
+    [EnvioUnico]
+    public async Task<IActionResult> OnPostLigarLoteNovoAsync([FromForm(Name = "lote_novo")] int loteNovo)
+    {
+        var pendente = await _lotesNovos.ObterAsync(loteNovo, HttpContext.RequestAborted);
+        var existente = pendente is { PorCriar: true } ? await _lotesNovos.FerramentaExistenteAsync(loteNovo, HttpContext.RequestAborted) : null;
+        if (pendente is null || existente is null)
+        {
+            return RedirectToPage("/Ferramentas/Index", new { criar = 1, lote_novo = loteNovo });
+        }
+
+        var resolucao = await _lotesNovos.ResolverAsync(loteNovo, existente, CancellationToken.None);
+        return RedirectToPage("/Ferramentas/Ficha", new
+        {
+            tool_id = existente,
+            armazem_entrada = resolucao.Resolveu ? pendente.Posicao : null,
+            aviso_armazem = resolucao.Avisos.Count > 0 ? resolucao.Avisos.ToArray() : null
+        });
     }
 
     /// <summary>

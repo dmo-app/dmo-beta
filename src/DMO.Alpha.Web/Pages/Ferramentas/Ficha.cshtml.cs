@@ -1,3 +1,4 @@
+using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Production;
@@ -174,6 +175,12 @@ public sealed class FichaModel : PageModel
     /// <summary>Nota de criação (PRG do registo/duplicação): a ferramenta foi registada.</summary>
     /// <summary>Nota de criação do último POST (?created=1): a ficha abre com o facto gravado.</summary>
     public bool CreatedNote { get; private set; }
+
+    /// <summary>A posição da entrada no Armazém que ficou registada ao resolver um lote novo (Armazém › Registo).</summary>
+    public string? EntradaArmazem { get; private set; }
+
+    /// <summary>Os avisos da resolução do lote novo do Armazém.</summary>
+    public IReadOnlyList<string> AvisosArmazem { get; private set; } = [];
 
     /// <summary>
     /// A nota honesta do GET-OR-CREATE (?existed=1): a ferramenta JÁ
@@ -375,8 +382,12 @@ public sealed class FichaModel : PageModel
         [FromQuery(Name = "tipo_anterior")] string? tipoAnterior = null,
         [FromQuery(Name = "producoes")] int? producoes = null,
         [FromQuery(Name = "jobon")] string? jobOn = null,
-        [FromQuery(Name = "pagina_jobon")] int? paginaJobOn = null)
+        [FromQuery(Name = "pagina_jobon")] int? paginaJobOn = null,
+        [FromQuery(Name = "armazem_entrada")] string? armazemEntrada = null,
+        [FromQuery(Name = "aviso_armazem")] string[]? avisoArmazem = null)
     {
+        EntradaArmazem = PosicaoCodigo.TryParse(armazemEntrada, out var codigoEntrada) ? codigoEntrada : null;
+        AvisosArmazem = avisoArmazem ?? [];
         ViewData["Title"] = "Ficha de ferramenta — Ferramentas";
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
         {

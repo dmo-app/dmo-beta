@@ -240,7 +240,7 @@ public sealed class ShellStateFactory
         };
 
     /// <summary>
-    /// As funções do Armazém (módulo do full): o Registo, os Movimentos (o que está fora em reparação e as últimas entradas e saídas, no lugar do Histórico; Diogo, 22/10/2026), o Mapa, os Próximos Job On, as Posições e as Definições
+    /// As funções do Armazém (módulo do full): o Registo, os Movimentos (o que está fora em reparação e as últimas entradas e saídas, no lugar do Histórico; Diogo, 22/10/2026) e as Definições
     /// (os reparadores de CM e MF), que fecham a barra como nos outros módulos.
     /// </summary>
     public static IReadOnlyList<FunctionPresentation> ArmazemFunctions(string activeKey) =>
@@ -248,8 +248,6 @@ public sealed class ShellStateFactory
         {
             new FunctionPresentation("movimentos", "Registo", "/Armazem/Movimentos", null, activeKey == "movimentos", true, true),
             new FunctionPresentation("ultimos", "Movimentos", "/Armazem/Ultimos", null, activeKey == "ultimos", true, true),
-            new FunctionPresentation("proximos", "Próximos Job On", "/Armazem/Proximos", null, activeKey == "proximos", true, true),
-            new FunctionPresentation("posicoes", "Posições", "/Armazem/Posicoes", null, activeKey == "posicoes", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Armazem/Definicoes", null, activeKey == "definicoes", true, true)
         };
 

@@ -106,6 +106,34 @@
   @*    A criação é contextual: o ?return= (validado local-only) devolve *@
   @*    o tool_id novo ao fluxo chamador, que nunca minta identidade.     *@
   @* ------------------------------------------------------------------ *@
+  @if (Model.ShowCreate && Model.LoteNovo is { } loteNovo)
+  {
+    @* O LOTE NOVO DO ARMAZÉM (Diogo, 22/10/2026): o aviso do Sumário abre
+       aqui com o tipo, a referência e o lote escritos. Ao registar, a
+       entrada fica na posição guardada; se a ferramenta já existe, liga-se
+       a ela em vez de criar outra. *@
+    var loteTexto = $"{DMO.Alpha.Core.Armazem.ArmazemTextos.Tipo(loteNovo.Tipo)} {loteNovo.Referencia} lote {loteNovo.Lote}";
+  <section class="dmo-card ferr-card" id="ferrLoteNovo" aria-labelledby="ferr-lote-novo-title" data-dmo-lote-novo="@loteNovo.Id">
+    <div class="dmo-card-topo">
+      <h3 id="ferr-lote-novo-title">Lote novo registado no Armazém</h3>
+      @if (Model.LoteNovoExistente is not null)
+      {
+        <div class="dmo-card-topo-acoes">
+          <button type="submit" form="ferr-lote-novo-ligar" class="dmo-button" id="ferrLoteNovoLigar">Ligar à existente</button>
+        </div>
+      }
+    </div>
+    <p class="dmo-aviso warn">@loteTexto, posição @loteNovo.Posicao@(loteNovo.RegistadoPor is { } por ? $", registado por {por}" : null) em @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(loteNovo.RegistadoEmUtc).ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture). Complete o que falta e registe: a entrada no Armazém fica nessa posição.</p>
+    @if (Model.LoteNovoExistente is { } existenteLote)
+    {
+      <p class="dmo-aviso warn" id="ferrLoteNovoExiste">Já existe @loteTexto nas Ferramentas. Ligue o registo a ela em vez de criar outra.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(existenteLote, "Abrir a ferramenta")" /></p>
+      <form id="ferr-lote-novo-ligar" method="post" asp-page="/Ferramentas/Index" asp-page-handler="LigarLoteNovo">
+        <input type="hidden" name="lote_novo" value="@loteNovo.Id" />
+      </form>
+    }
+  </section>
+  }
+
   @if (Model.ShowCreate)
   {
   <section class="dmo-card ferr-card" aria-labelledby="ferr-create-title">
@@ -135,6 +163,10 @@
       @if (Model.ReturnTemplate is not null)
       {
         <input type="hidden" name="return" value="@Model.ReturnTemplate" />
+      }
+      @if (Model.LoteNovo is { } loteNovoCriar)
+      {
+        <input type="hidden" name="lote_novo" value="@loteNovoCriar.Id" />
       }
       @* Os mesmos campos do Editar da ficha (um só formulário de ferramenta,
          Diogo, 20/10/2026). *@

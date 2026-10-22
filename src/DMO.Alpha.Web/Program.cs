@@ -180,6 +180,7 @@ builder.Services.AddScoped<IBqRepairerQuery, BqRepairerQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemPosicoes, DMO.Alpha.Infrastructure.Armazem.ArmazemPosicoes>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IReparadores, DMO.Alpha.Infrastructure.Armazem.Reparadores>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemMovimentos, DMO.Alpha.Infrastructure.Armazem.ArmazemMovimentos>();
+builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemLotesNovos, DMO.Alpha.Infrastructure.Armazem.ArmazemLotesNovos>();
 // Reparação Interna: a produção do dia, registar e a lista por baixo do registo;
 // a Consulta dos chefes (só lê).
 builder.Services.AddScoped<DMO.Alpha.Core.ReparacaoInterna.IReparacoesInternas, DMO.Alpha.Infrastructure.ReparacaoInterna.ReparacoesInternas>();

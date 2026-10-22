@@ -9,7 +9,43 @@
   // O tipo e o texto vêm do pedido (a página e a procura ao escrever levam os dois).
   var tipoProcura = DMO.Alpha.Web.Pages.Armazem.MovimentosModel.TipoDe(Context.Request.Query["tipo"]);
   var textoProcura = ((string?)Context.Request.Query["q"])?.Trim();
-  <p class="dmo-aviso warn" role="status" id="armProcuraVazia">@(tipoProcura switch { DMO.Alpha.Core.Tools.ToolType.Mf => "Nenhum MF encontrado.", { } tp => $"Nenhuma {ArmazemTextos.Tipo(tp)} encontrada.", _ => "Nenhuma ferramenta encontrada." }) O Armazém só regista entradas e saídas: uma ferramenta nova regista-se primeiro nas Ferramentas.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(ArmazemTextos.Tipo(tipoProcura ?? DMO.Alpha.Core.Tools.ToolType.Cm), textoProcura is { Length: 4 } t4 && t4.All(char.IsAsciiDigit) ? null : textoProcura, "Registar nas Ferramentas")" /></p>
+  <p class="dmo-aviso warn" role="status" id="armProcuraVazia">@(tipoProcura switch { DMO.Alpha.Core.Tools.ToolType.Mf => "Nenhum MF encontrado.", { } tp => $"Nenhuma {ArmazemTextos.Tipo(tp)} encontrada.", _ => "Nenhuma ferramenta encontrada." }) O Armazém não cria ferramentas: se é um lote novo, registe-o abaixo e quem tem o módulo Ferramentas cria-o.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(ArmazemTextos.Tipo(tipoProcura ?? DMO.Alpha.Core.Tools.ToolType.Cm), textoProcura is { Length: 4 } t4 && t4.All(char.IsAsciiDigit) ? null : textoProcura, "Registar nas Ferramentas")" /></p>
+  @* REGISTAR LOTE NOVO (Diogo, 22/10/2026: «chega CM 5447 Lote 13 ... nao
+     existe o registo no armazem. o operador regista com esses dados aparece
+     um notice quem tem modulo ferramentas»). O Armazém não cria a
+     ferramenta: guarda a referência, o lote e a posição como «por criar»; o
+     tipo é o do cartão. O texto procurado vai para a referência. *@
+  @if (tipoProcura is { } tipoLote)
+  {
+    var tipoLoteTexto = ArmazemTextos.Tipo(tipoLote);
+    // «5447» tanto é uma referência como uma posição: o texto procurado vai
+    // para a referência (o caso do Diogo); a posição escreve-se sempre.
+    var refLote = ViewData["LoteNovoReferencia"] as string ?? textoProcura;
+    var loteLote = ViewData["LoteNovoLote"] as string;
+    var posLote = ViewData["LoteNovoPosicao"] as string;
+    <form id="armLoteNovo" class="arm-lote-novo" method="post" asp-page="/Armazem/Movimentos" asp-page-handler="LoteNovo" asp-route-tipo="@tipoLoteTexto" aria-labelledby="arm-lote-novo-title">
+      <div class="dmo-card-topo">
+        <h4 id="arm-lote-novo-title">Registar lote novo de @tipoLoteTexto<partial name="_DmoHelp" model="@($"Chegou {(tipoLote == DMO.Alpha.Core.Tools.ToolType.Mf ? "um" : "uma")} {tipoLoteTexto} que ainda não está nas Ferramentas? Escreva a referência, o lote e a posição onde fica. O registo fica «Por criar» e quem tem o módulo Ferramentas recebe um aviso para criar a ferramenta; nessa altura a entrada fica registada nesta posição.")" /></h4>
+        <div class="dmo-card-topo-acoes">
+          <button type="submit" class="dmo-button" id="armLoteNovoRegistar">Registar lote novo</button>
+        </div>
+      </div>
+      <div class="arm-linha">
+        <div class="dmo-field">
+          <label for="armLoteRef">Referência</label>
+          <input id="armLoteRef" name="referencia" class="arm-procura" required maxlength="@ArmazemLoteNovo.ReferenciaMaxLength" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" value="@refLote" placeholder="@(tipoLote == DMO.Alpha.Core.Tools.ToolType.Bq ? "Ex.: T173" : "Ex.: 5447")" />
+        </div>
+        <div class="dmo-field">
+          <label for="armLoteLote">Lote</label>
+          <input id="armLoteLote" name="lote" class="arm-curto" required maxlength="@ArmazemLoteNovo.LoteMaxLength" autocomplete="off" value="@loteLote" placeholder="Ex.: 13" />
+        </div>
+        <div class="dmo-field">
+          <label for="armLotePosicao">Posição</label>
+          <input id="armLotePosicao" name="posicao" class="arm-curto" required maxlength="4" inputmode="numeric" pattern="[0-9]{4}" autocomplete="off" value="@posLote" placeholder="0042" />
+        </div>
+      </div>
+    </form>
+  }
 }
 else
 {

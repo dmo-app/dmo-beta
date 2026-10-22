@@ -395,27 +395,4 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Contains("Corrigida: não está no armazém", Elemento(depois, "id=\"armUltimos\""));
         Assert.Contains("id=\"armEntrada\"", depois);
     }
-
-    [Fact]
-    public async Task Posicoes_MostramQuemLaEstaOuLivre()
-    {
-        using var client = await LoginOperatorAsync("6209", DmoCapabilities.ArmazemGestao);
-        NaBase(db =>
-        {
-            db.ArmazemPosicoes.Add(new ArmazemPosicao { Codigo = "0043", CriadaEmUtc = DateTime.UtcNow });
-            return db.SaveChanges();
-        });
-        var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Bq}");
-        await GravarAsync(client, pagina, "armEntRegistar",
-            ("armEntPosicao", "0042"),
-            ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
-            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo")));
-
-        var posicoes = await client.GetStringAsync("/Armazem/Posicoes");
-
-        var ocupada = Elemento(Elemento(posicoes, "data-dmo-posicao=\"0042\""), "data-dmo-ocupantes");
-        Assert.Contains("BQ T173 · lote 01", ocupada);
-        Assert.Contains($"/Armazem/Movimentos?ferramenta={Bq}", ocupada);
-        Assert.Contains("Livre", Elemento(Elemento(posicoes, "data-dmo-posicao=\"0043\""), "data-dmo-ocupantes"));
-    }
 }

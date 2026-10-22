@@ -55,7 +55,7 @@ public static class DmoCapabilities
         new(ControloApprove, "Controlo", "/Controlo/Approve"),
         new(Boquilhas, "Boquilhas", "/Boquilhas"),
         new(Ferramentas, "Ferramentas", "/Ferramentas"),
-        new(ArmazemGestao, "Armazém", "/Armazem/Posicoes", EmDesenvolvimento: true),
+        new(ArmazemGestao, "Armazém", "/Armazem/Movimentos", EmDesenvolvimento: true),
         new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna", EmDesenvolvimento: true)
     ];
 
