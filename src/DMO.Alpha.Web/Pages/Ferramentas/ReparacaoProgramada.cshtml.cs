@@ -48,6 +48,25 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
     [BindProperty(SupportsGet = true, Name = "vista")]
     public string? Vista { get; set; }
 
+    /// <summary>O Histórico das listas criadas: filtra pelo reparador (nome) e pelo dia de criação.</summary>
+    [BindProperty(SupportsGet = true, Name = "hist_reparador")]
+    public string? HistReparador { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "hist_desde")]
+    public DateOnly? HistDesde { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "hist_ate")]
+    public DateOnly? HistAte { get; set; }
+
+    /// <summary>Os históricos abrem vazios: só com um filtro.</summary>
+    public bool HistoricoPedido => !string.IsNullOrWhiteSpace(HistReparador) || HistDesde is not null || HistAte is not null;
+
+    /// <summary>As listas criadas (ativas e fechadas) que batem com os filtros do Histórico.</summary>
+    public IReadOnlyList<ProgramadaListaResumo> Historico { get; private set; } = [];
+
+    /// <summary>Os reparadores que já tiveram listas (para o filtro do Histórico).</summary>
+    public IReadOnlyList<string> HistReparadores { get; private set; } = [];
+
     public IReadOnlyList<ProgramadaCandidata> Candidatas { get; private set; } = [];
 
     public IReadOnlyList<ProgramadaListaResumo> Ativas { get; private set; } = [];
@@ -97,9 +116,29 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
         Linhas = await programada.LinhasAsync(ct);
         Candidatas = await programada.ProcurarAsync(Procura, ct);
         Ativas = await programada.ListasAsync(false, ct);
+        var precisaFechadas = VerFechadas || HistoricoPedido;
+        var todasFechadas = precisaFechadas ? await programada.ListasAsync(true, ct) : [];
         if (VerFechadas)
         {
-            Fechadas = await programada.ListasAsync(true, ct);
+            Fechadas = todasFechadas;
+        }
+
+        HistReparadores = Reparadores.Select(r => r.Nome)
+            .Concat(Ativas.Select(a => a.Reparador))
+            .Concat(todasFechadas.Select(a => a.Reparador))
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Order(StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+        if (HistoricoPedido)
+        {
+            Historico = Ativas.Concat(todasFechadas)
+                .Where(a => string.IsNullOrWhiteSpace(HistReparador) || string.Equals(a.Reparador, HistReparador, StringComparison.OrdinalIgnoreCase))
+                .Where(a => HistDesde is not { } desde || DateOnly.FromDateTime(DmoBusinessTime.ToLocal(a.CriadaEmUtc)) >= desde)
+                .Where(a => HistAte is not { } ate || DateOnly.FromDateTime(DmoBusinessTime.ToLocal(a.CriadaEmUtc)) <= ate)
+                .OrderByDescending(a => a.CriadaEmUtc)
+                .ThenByDescending(a => a.Id)
+                .ToList();
         }
 
         var escolhida = ListaId ?? (VerFechadas ? Fechadas.FirstOrDefault()?.Id : Ativas.FirstOrDefault()?.Id);

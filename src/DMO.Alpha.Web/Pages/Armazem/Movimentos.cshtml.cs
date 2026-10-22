@@ -117,6 +117,17 @@ public sealed class MovimentosModel(
     /// <summary>As posições livres, sugeridas no campo da posição da Entrada.</summary>
     public IReadOnlyList<string> PosicoesLivres { get; private set; } = [];
 
+    /// <summary>
+    /// A posição escrita antes de procurar (Diogo, 22/10/2026: primeiro a
+    /// posição, depois a referência): segue para a ferramenta escolhida e
+    /// a Entrada abre já com ela.
+    /// </summary>
+    [BindProperty(SupportsGet = true, Name = "pos")]
+    public string? PosicaoPedida { get; set; }
+
+    /// <summary>A posição pedida, só se tem 4 algarismos.</summary>
+    public string? PosicaoPedidaValida => PosicaoPedida?.Trim() is { Length: 4 } p && p.All(char.IsAsciiDigit) ? p : null;
+
     public ArmazemDestino? Destino => DestinoDe(DestinoTexto);
 
     public bool Gravou => Gravacao is "lote-novo" or "entrada" or "entrada-par" or "saida" or "corrigir" or "repetido";

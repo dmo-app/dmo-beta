@@ -148,7 +148,7 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
     }
 
     [Fact]
-    public async Task ACm_MostraOMfEAsPosicoesLivres()
+    public async Task ACm_MostraOMfEAPosicaoEscritaCom4Algarismos()
     {
         using var client = await LoginOperatorAsync("6401", DmoCapabilities.ArmazemGestao);
 
@@ -161,9 +161,11 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
         var escolha = Campo(pagina, "armEntPar");
         Assert.DoesNotContain("checked", escolha);
         Assert.Contains("Entrar também MF 5447T173 · lote 3, na mesma posição", System.Net.WebUtility.HtmlDecode(Elemento(pagina, "for=\"armEntPar\"")));
-        Assert.Contains("list=\"armEntLivres\"", Campo(pagina, "armEntPosicao"));
-        // Sugere só as livres: a 0043 tem uma ferramenta e a 0099 está arquivada.
-        Assert.Equal(["0042"], Regex.Matches(Elemento(pagina, "id=\"armEntLivres\""), "value=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray());
+        // A posição escreve-se com 4 algarismos, sem lista (Diogo 22/10 16:31).
+        var posicao = Campo(pagina, "armEntPosicao");
+        Assert.DoesNotContain("list=", posicao);
+        Assert.Contains("pattern=\"[0-9]{4}\"", posicao);
+        Assert.Contains("maxlength=\"4\"", posicao);
     }
 
     [Fact]

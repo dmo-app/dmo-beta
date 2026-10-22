@@ -57,7 +57,7 @@ else
       <tbody>
         @foreach (var item in Model)
         {
-          <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId })"
+          <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-arm-no-armazem="@(item.NoArmazem ? "1" : "0")" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId })"
               aria-label="@ArmazemTextos.Ferramenta(item.Tipo, item.Referencia, item.Lote), @item.OndeEsta — um clique abre">
             <td><span class="dmo-pill @(item.NoArmazem ? "active" : "inactive")">@item.OndeEsta</span></td>
             <td><strong>@ArmazemTextos.Tipo(item.Tipo) @item.Referencia</strong></td>

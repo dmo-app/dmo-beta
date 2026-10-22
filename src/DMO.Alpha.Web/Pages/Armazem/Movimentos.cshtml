@@ -19,22 +19,32 @@
 @section Head {
 <style>
 .arm-page{display:flex;flex-direction:column;gap:14px;min-width:0}
-html body #armMovProcura.arm-card{min-width:min(520px,100%)}
 #armMovProcura .dmo-card-topo{justify-content:space-between}
 .arm-log{width:auto}
 .arm-log .dmo-table{width:100%}
 .arm-log .dmo-table tbody tr[data-dmo-open]{cursor:pointer}
-.arm-card{padding:18px;width:fit-content;min-width:min(520px,100%);max-width:100%}
+.arm-card{padding:18px;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
 .arm-card h3{margin:0 0 12px;font-size:16px}
 .arm-card .dmo-card-topo{margin:0 0 12px}
 .arm-card .dmo-card-topo h3{margin:0}
 .arm-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
 .arm-linha .dmo-field{margin:0}
 html body .arm-linha .dmo-field input.arm-curto{width:12ch}
+html body .arm-linha .dmo-field input.arm-pos{width:7ch;font-variant-numeric:tabular-nums}
+.arm-entrada-linha{margin:0 0 8px}
+.arm-entrada-linha .dmo-button{align-self:end}
+.arm-mais{align-self:end;font-size:13px;color:var(--dmo-muted)}
+.arm-mais>summary{cursor:pointer;padding:8px 2px;color:var(--dmo-brand-900);list-style:none;white-space:nowrap}
+.arm-mais>summary::-webkit-details-marker{display:none}
+.arm-mais[open]>summary{padding-bottom:4px}
+.arm-mais>.arm-linha{margin:0}
+.arm-nota{margin:0 0 6px;font-size:12.5px;color:var(--dmo-muted)}
+#armProcuraLista.arm-so-fora tr[data-arm-no-armazem="1"]{display:none}
+#armEntrada .dmo-aviso,#armEntrada .arm-par{margin:0 0 8px}
 html body .arm-linha .dmo-field input.arm-procura{width:min(320px,100%)}
 html body .arm-linha .dmo-field input.arm-data{width:auto}
 html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
-.arm-card .dmo-table{width:auto;min-width:100%}
+.arm-card .dmo-table{width:100%;min-width:100%}
 .arm-card .dmo-table td{padding:4px 8px;vertical-align:middle}
 .arm-onde{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 14px}
 .arm-onde div{display:flex;flex-direction:column;gap:2px}
@@ -123,15 +133,24 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     </div>
     @if (s is null)
     {
+    @* Primeiro a posição (4 algarismos), depois a referência (Diogo,
+       22/10/2026): com a posição escrita, a lista mostra só as que estão
+       fora do armazém, com de onde vêm, e a escolhida abre com a Entrada
+       já nessa posição. *@
     <form method="get" asp-page="/Armazem/Movimentos" class="arm-linha" role="search">
       <input type="hidden" name="tipo" value="@tipoTexto" />
       <div class="dmo-field">
-        <label for="armProcura">Referência, lote ou posição</label>
+        <label for="armRapPosicao">Posição</label>
+        <input id="armRapPosicao" name="pos" type="text" class="arm-pos" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" autocomplete="off"
+               title="4 algarismos, por exemplo 0042" value="@Model.PosicaoPedidaValida" placeholder="0042" />
+      </div>
+      <div class="dmo-field">
+        <label for="armProcura">Referência</label>
         <input id="armProcura" name="q" type="search" class="arm-procura" value="@Model.Procura" data-dmo-maiusculas autocapitalize="characters" autofocus
                placeholder="@(tipoEscolhido == ToolType.Bq ? "Ex.: T173 ou 0042" : "Ex.: 5447, T173 ou 0042")" data-dmo-procura="@Url.Page("/Armazem/Movimentos", "Procurar", new { tipo = tipoTexto })" data-dmo-procura-alvo="armProcuraLista" />
       </div>
     </form>
-    <div id="armProcuraLista" aria-live="polite" data-dmo-parcial>
+    <div id="armProcuraLista" aria-live="polite" data-dmo-parcial class="@(Model.PosicaoPedidaValida is not null ? "arm-so-fora" : null)">
       @if (!string.IsNullOrWhiteSpace(Model.Procura) || Model.LoteNovoRecusa is not null)
       {
         <partial name="_ArmazemProcura" model="Model.Encontradas" />
@@ -193,65 +212,13 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <form id="armEntrada" method="post" asp-page="/Armazem/Movimentos" asp-page-handler="Entrada">
           <input type="hidden" name="operacao_id" value="@Model.OperacaoId" />
           <input type="hidden" name="ferramenta" value="@s.ToolId" />
-          <div class="arm-linha">
+          <div class="arm-linha arm-entrada-linha">
             <div class="dmo-field">
               <label for="armEntPosicao">Posição</label>
-              <input id="armEntPosicao" name="posicao" class="arm-curto" maxlength="4" inputmode="numeric" autocomplete="off"
-                     value="@(recusaEntrada ? Model.Posicao : null)" placeholder="0042" required list="armEntLivres" />
-              <datalist id="armEntLivres">
-                @foreach (var livre in Model.PosicoesLivres)
-                {
-                  <option value="@livre"></option>
-                }
-              </datalist>
+              @* A posição escreve-se: 4 algarismos, sem lista (Diogo, 22/10/2026). *@
+              <input id="armEntPosicao" name="posicao" type="text" class="arm-pos" maxlength="4" minlength="4" inputmode="numeric" pattern="[0-9]{4}" autocomplete="off"
+                     title="4 algarismos, por exemplo 0042" value="@(recusaEntrada ? Model.Posicao : Model.PosicaoPedidaValida)" placeholder="0042" required />
             </div>
-            <div class="dmo-field">
-              <label for="armEntOrigem">Origem</label>
-              <select id="armEntOrigem" name="origem" required>
-                <option value="" selected="@string.IsNullOrEmpty(origem)">Escolha…</option>
-                @foreach (var opcao in ArmazemTextos.Origens)
-                {
-                  <option value="@MovimentosModel.Valor(opcao)" selected="@(origem == MovimentosModel.Valor(opcao))">@ArmazemTextos.Origem(opcao)</option>
-                }
-              </select>
-            </div>
-            <div class="dmo-field">
-              <label for="armEntEstado">Estado</label>
-              <select id="armEntEstado" name="estado" required data-arm-sugerido="@(s.ListaProgramada is not null ? MovimentosModel.Valor(FerramentaEstadoTipo.Reparado) : null)">
-                <option value="" selected="@string.IsNullOrEmpty(estadoEntrada)">Escolha…</option>
-                @foreach (var opcao in ArmazemTextos.EstadosDaEntrada)
-                {
-                  <option value="@MovimentosModel.Valor(opcao)" selected="@(estadoEntrada == MovimentosModel.Valor(opcao))">@ArmazemTextos.Estado(opcao)</option>
-                }
-              </select>
-            </div>
-          </div>
-          @if (s.ListaProgramada is { } reparadorDaLista)
-          {
-            @* Na Reparação Programada a Entrada propõe «Reparado» (Diogo,
-               22/10/2026); a pessoa pode mudar, e o aviso aparece antes de
-               gravar. Nunca bloqueia. *@
-            <p class="dmo-aviso" id="armEntProgramada" data-dmo-aviso>Esta ferramenta está na Reparação Programada de @reparadorDaLista: o estado vem «Reparado».</p>
-            <p class="dmo-aviso warn" id="armEntEstadoAviso" role="status" hidden="@(estadoEntrada == MovimentosModel.Valor(FerramentaEstadoTipo.Reparado) ? "hidden" : null)">Mudou o estado sugerido: a ferramenta volta da Reparação Programada e entra como «Reparado». Confirme antes de registar.</p>
-          }
-          @if (s.Par is { NoArmazem: false } par)
-          {
-            <label class="arm-par" for="armEntPar">
-              <input id="armEntPar" type="checkbox" name="com_par" value="1" checked="@Model.ComPar" />
-              Entrar também @ArmazemTextos.Ferramenta(par.Tipo, s.Referencia, s.Lote), na mesma posição
-            </label>
-          }
-          <div class="arm-linha">
-            <div class="dmo-field">
-              <label for="armEntData">Data e hora reais</label>
-              <input id="armEntData" name="data" type="datetime-local" class="arm-data" value="@(recusaEntrada ? Model.Data : null)" />
-            </div>
-            <div class="dmo-field">
-              <label for="armEntObs">Observações</label>
-              <input id="armEntObs" name="observacoes" class="arm-obs" maxlength="@ArmazemMovimento.ObservacoesMaxLength" autocomplete="off" value="@(recusaEntrada ? Model.Observacoes : null)" />
-            </div>
-          </div>
-          <div class="arm-acoes">
             @if (recusaEntrada && criarPosicao)
             {
               <button type="submit" class="dmo-button" id="armEntCriar" name="criar_posicao" value="1">Criar e registar</button>
@@ -260,7 +227,68 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             {
               <button type="submit" class="dmo-button" id="armEntRegistar">Registar entrada</button>
             }
+            @{
+                var origemTexto = Enum.TryParse<ArmazemOrigem>(origem, out var oT) && Enum.IsDefined(oT) ? ArmazemTextos.Origem(oT) : null;
+                var estadoTexto = Enum.TryParse<FerramentaEstadoTipo>(estadoEntrada, out var eT) && Enum.IsDefined(eT) ? ArmazemTextos.Estado(eT) : null;
+                var abrirOrigem = origemTexto is null || estadoTexto is null || Model.Recusa is ArmazemMovimentoResultado.SemOrigem or ArmazemMovimentoResultado.SemEstado;
+                var abrirMais = recusaEntrada && (!string.IsNullOrWhiteSpace(Model.Data) || !string.IsNullOrWhiteSpace(Model.Observacoes));
+            }
+            @* A origem e o estado vêm da última saída: mostram-se em texto
+               pequeno e só se abrem para mudar (Diogo, 22/10/2026). *@
+            <details class="arm-mais" id="armEntOrigemEstado" open="@abrirOrigem">
+              <summary title="Mudar a origem ou o estado">@(origemTexto ?? "Origem?") · @(estadoTexto ?? "Estado?")</summary>
+              <div class="arm-linha">
+              <div class="dmo-field">
+                <label for="armEntOrigem">Origem</label>
+                <select id="armEntOrigem" name="origem" required>
+                  <option value="" selected="@string.IsNullOrEmpty(origem)">Escolha…</option>
+                  @foreach (var opcao in ArmazemTextos.Origens)
+                  {
+                    <option value="@MovimentosModel.Valor(opcao)" selected="@(origem == MovimentosModel.Valor(opcao))">@ArmazemTextos.Origem(opcao)</option>
+                  }
+                </select>
+              </div>
+              <div class="dmo-field">
+                <label for="armEntEstado">Estado</label>
+                <select id="armEntEstado" name="estado" required data-arm-sugerido="@(s.ListaProgramada is not null ? MovimentosModel.Valor(FerramentaEstadoTipo.Reparado) : null)">
+                  <option value="" selected="@string.IsNullOrEmpty(estadoEntrada)">Escolha…</option>
+                  @foreach (var opcao in ArmazemTextos.EstadosDaEntrada)
+                  {
+                    <option value="@MovimentosModel.Valor(opcao)" selected="@(estadoEntrada == MovimentosModel.Valor(opcao))">@ArmazemTextos.Estado(opcao)</option>
+                  }
+                </select>
+              </div>
+              </div>
+            </details>
+            <details class="arm-mais" id="armEntMais" open="@abrirMais">
+              <summary>mais</summary>
+              <div class="arm-linha">
+              <div class="dmo-field">
+                <label for="armEntData">Data e hora reais</label>
+                <input id="armEntData" name="data" type="datetime-local" class="arm-data" value="@(recusaEntrada ? Model.Data : null)" />
+              </div>
+              <div class="dmo-field">
+                <label for="armEntObs">Observações</label>
+                <input id="armEntObs" name="observacoes" class="arm-obs" maxlength="@ArmazemMovimento.ObservacoesMaxLength" autocomplete="off" value="@(recusaEntrada ? Model.Observacoes : null)" />
+              </div>
+              </div>
+            </details>
           </div>
+          @if (s.ListaProgramada is { } reparadorDaLista)
+          {
+            @* Na Reparação Programada a Entrada propõe «Reparado» (Diogo,
+               22/10/2026); a pessoa pode mudar, e o aviso aparece antes de
+               gravar. Nunca bloqueia. *@
+            <p class="arm-nota" id="armEntProgramada">Reparação Programada de @reparadorDaLista: entra «Reparado».</p>
+            <p class="dmo-aviso warn" id="armEntEstadoAviso" role="status" hidden="@(estadoEntrada == MovimentosModel.Valor(FerramentaEstadoTipo.Reparado) ? "hidden" : null)">Vem da Reparação Programada: o sugerido é «Reparado».</p>
+          }
+          @if (s.Par is { NoArmazem: false } par)
+          {
+            <label class="arm-par" for="armEntPar">
+              <input id="armEntPar" type="checkbox" name="com_par" value="1" checked="@Model.ComPar" />
+              Entrar também @ArmazemTextos.Ferramenta(par.Tipo, s.Referencia, s.Lote), na mesma posição
+            </label>
+          }
         </form>
       }
       else
@@ -488,6 +516,31 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
 <script>
   // A Entrada de uma ferramenta da Reparação Programada: mudar o estado
   // sugerido («Reparado») mostra o aviso antes de gravar (só aviso).
+  // A posição escrita antes da referência: a lista mostra só as que estão
+  // fora, e a linha escolhida abre com a posição (?pos=) já na Entrada.
+  if (!window.armPosLigada) {
+    window.armPosLigada = true;
+    var armPos = function () {
+      var campo = document.getElementById("armRapPosicao");
+      var v = campo ? campo.value.trim() : "";
+      return /^[0-9]{4}$/.test(v) ? v : "";
+    };
+    document.addEventListener("input", function (event) {
+      if (!event.target || event.target.id !== "armRapPosicao") return;
+      event.target.value = event.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+      var lista = document.getElementById("armProcuraLista");
+      if (lista) lista.classList.toggle("arm-so-fora", armPos() !== "");
+    });
+    var juntaPos = function (event) {
+      var linha = event.target && event.target.closest && event.target.closest("#armProcuraLista tr[data-dmo-open]");
+      if (!linha) return;
+      var url = new URL(linha.getAttribute("data-dmo-open"), location.href);
+      if (armPos()) url.searchParams.set("pos", armPos()); else url.searchParams.delete("pos");
+      linha.setAttribute("data-dmo-open", url.pathname + url.search);
+    };
+    document.addEventListener("click", juntaPos, true);
+    document.addEventListener("keydown", juntaPos, true);
+  }
   if (!window.armSugeridoLigado) {
     window.armSugeridoLigado = true;
     document.addEventListener("change", function (event) {

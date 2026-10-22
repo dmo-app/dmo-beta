@@ -5,6 +5,8 @@
 @{
     Layout = null;
     var l = Model.Lista.Lista;
+    // Só as que ainda faltam retirar do armazém: nem as que já saíram, nem as que já entraram.
+    var porRetirar = Model.Lista.Linhas.Where(i => !i.Saiu && !i.Entrou).ToList();
 }
 <!DOCTYPE html>
 <html lang="pt-PT">
@@ -36,7 +38,7 @@ html body .rp-imp-folha .dmo-table tbody tr.rp-entrou td{color:var(--dmo-muted);
   <div class="rp-imp-topo">
     <div>
       <h1 id="rpImpTitulo">Reparação Programada · @l.Reparador</h1>
-      <div class="rp-imp-meta">Lista criada a @ReparacaoProgramadaModel.Dia(l.CriadaEmUtc)@(l.CriadaPor is { } por ? $" por {por}" : null) · @Model.Lista.Linhas.Count ferramentas@(l.FechadaEmUtc is { } f ? $" · fechada a {ReparacaoProgramadaModel.Dia(f)}" : null)</div>
+      <div class="rp-imp-meta">Lista criada a @ReparacaoProgramadaModel.Dia(l.CriadaEmUtc)@(l.CriadaPor is { } por ? $" por {por}" : null) · @porRetirar.Count por retirar de @Model.Lista.Linhas.Count@(l.FechadaEmUtc is { } f ? $" · fechada a {ReparacaoProgramadaModel.Dia(f)}" : null)</div>
     </div>
     <button type="button" class="dmo-button" id="rpImpImprimir" onclick="window.print()">Imprimir</button>
   </div>
@@ -44,9 +46,13 @@ html body .rp-imp-folha .dmo-table tbody tr.rp-entrou td{color:var(--dmo-muted);
   <table class="dmo-table" id="rpImpLinhas">
     <thead><tr><th>Ferramenta</th><th>% uso</th><th>Linha</th><th>Posição atual</th><th>Estado</th><th>Movimento</th><th>Visto</th></tr></thead>
     <tbody>
-    @foreach (var i in Model.Lista.Linhas)
+    @if (porRetirar.Count == 0)
     {
-      <tr class="@(i.Entrou ? "rp-entrou" : null)">
+      <tr id="rpImpNada"><td colspan="7"><em>Nada por retirar: todas as ferramentas já saíram do armazém.</em></td></tr>
+    }
+    @foreach (var i in porRetirar)
+    {
+      <tr>
         <td><strong>@ReparacaoProgramadaModel.Ferramenta(i.Tipo, i.Referencia, i.Lote)</strong></td>
         <td>@ReparacaoProgramadaModel.Uso(i.Utilizacao)</td>
         <td>@(i.Linhas ?? "—")</td>
