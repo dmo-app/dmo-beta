@@ -339,6 +339,21 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
   </section>
 </main>
 <script>
+  // O Enter na Referência e no Lote procura (teste no browser real, 22/10/2026:
+  // não fazia nada). O rpFiltros tem dois campos de texto e nenhum botão seu (o
+  // «Adicionar» é do rpAssociar), e aí o browser não submete com Enter. Por
+  // delegação no document: a procura pode chegar numa zona trocada.
+  if (!window.rpEnterLigado) {
+    window.rpEnterLigado = true;
+    document.addEventListener("keydown", function (event) {
+      var campo = event.target;
+      if (event.key !== "Enter" || event.defaultPrevented || event.isComposing) return;
+      if (!campo || !campo.matches || !campo.matches("#rpFiltros input:not([type=hidden]):not([type=checkbox]):not([type=radio])")) return;
+      event.preventDefault();
+      if (campo.form.requestSubmit) campo.form.requestSubmit();
+      else campo.form.submit();
+    });
+  }
   // A caixa de marcar só marca: não abre a ficha da linha.
   if (!window.rpMarcaLigada) {
     window.rpMarcaLigada = true;
