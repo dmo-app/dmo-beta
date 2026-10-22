@@ -1075,3 +1075,41 @@ Novos: 4 · mudaram: 3 · saíram: 5
 - saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOndeEstaEAbreAFerramenta`
 
 Selo depois: `86f7a1b4e3cec2eb`
+
+## A-0042 · 2026-10-22 · ok-do-diogo
+
+Porquê: Armazém: um lote novo sem ferramenta regista-se «por criar» (referência, lote, posição) e aparece um aviso no Sumário do Planeamento a quem tem Ferramentas, que o cria (formulário preenchido) ou liga a uma existente; aí nasce a entrada. Saem os separadores Próximos Job On e Posições. As listas de tabelas dos testes de esquema ganham ArmazemLotesNovos.
+Referência: Diogo 22/10 14:34–14:38 (cmsg_01A27e9ozcpoh4jdPRsuJbFy2zHChJQdLDNK6avT3ZiQDc, cmsg_01A27e9ozcpoh4jdPRsuJbFyQkcWpKYLcscszBPF1xNLJZ, cmsg_01A27e9ozcpoh4jdPRsuJbFyP4hMeKkavxu15b6g6xFAVR), 15:13 (cmsg_01A27e9ozcpoh4jdPRsuJbFyKg2rdNP3oYtPP4z4fuyZt4)
+Novos: 12 · mudaram: 10 · saíram: 7
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLotesNovosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLotesNovosTests.cs :: ArmazemLotesNovosTests.FerramentaExistente_ComAMesmaReferenciaELote_LigaEmVezDeCriar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLotesNovosTests.cs :: ArmazemLotesNovosTests.Registar_GuardaPorCriar_SemCriarFerramentaNemMovimento`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLotesNovosTests.cs :: ArmazemLotesNovosTests.Registar_SoRecusaOQueFaltaEAPosicaoSemQuatroAlgarismos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLotesNovosTests.cs :: ArmazemLotesNovosTests.Resolver_ComFerramentaQueNaoExiste_NaoResolve`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLotesNovosTests.cs :: ArmazemLotesNovosTests.Resolver_DaAEntradaNaPosicaoGuardada_EOUltimoMovimentoPoeLa`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: ArmazemLoteNovoPaginaTests.FerramentaQueJaExiste_LigaAoRegistoEmVezDeCriar`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: ArmazemLoteNovoPaginaTests.Registar_GuardaPorCriar_SemCriarFerramenta_EMostraNoLog`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: ArmazemLoteNovoPaginaTests.Registar_SoRecusaAPosicaoSemQuatroAlgarismosEOQueFalta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: ArmazemLoteNovoPaginaTests.Sumario_AvisaSoQuemTemFerramentas_ECriarResolveEDaAEntrada`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.ComAChave_RegistoMovimentosEDefinicoes`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoParaTodos_EntramTodosOsQueTemOModulo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoSoParaTeste_EntraQuemEDeTesteEVeAFaixa`
+- mudou: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.PorOmissao_OsModulosEmDesenvolvimentoFicamDesligados`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.SemAChave_NaoEntra`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AsFuncoes_RegistoDepoisMovimentos_SemHistorico`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Posicoes_MostramQuemLaEstaOuLivre`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.ComAChave_AsDuasFuncoesEOMenu`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Posicoes_CriarEArquivarNaLinha`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemProximosPaginaTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemProximosPaginaTests.cs :: ArmazemProximosPaginaTests.MostraAsProducoesDoPeriodo_ComOQueFaltaTirar`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemProximosPaginaTests.cs :: ArmazemProximosPaginaTests.OPeriodoMaisLongo_MostraMais`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemProximosPaginaTests.cs :: ArmazemProximosPaginaTests.SemAChave_NaoEntra`
+
+Selo depois: `ec4f12892d2ba255`
