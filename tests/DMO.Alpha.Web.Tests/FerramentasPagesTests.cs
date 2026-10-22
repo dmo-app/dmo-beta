@@ -273,7 +273,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains("<h3 id=\"ferr-create-title\">Registar ferramenta real", livre, StringComparison.Ordinal);
         Assert.DoesNotContain("disabled=\"disabled\">", livre[livre.IndexOf("id=\"ferr-new-type\"", StringComparison.Ordinal)..livre.IndexOf("</select>", livre.IndexOf("id=\"ferr-new-type\"", StringComparison.Ordinal), StringComparison.Ordinal)], StringComparison.Ordinal);
         // O botão fica no canto superior direito do card, ligado ao formulário.
-        Assert.Contains("<button type=\"submit\" form=\"ferr-create-form\" class=\"dmo-button\">Registar ferramenta</button>", livre, StringComparison.Ordinal);
+        Assert.Contains("<button type=\"submit\" form=\"ferr-create-form\" class=\"dmo-button\">Registar</button>", livre, StringComparison.Ordinal);
         // Os traços da informação técnica: Processo/Peso/Punção, Gargalo, Tampão.
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(livre, "class=\"ferr-tech-sep\"").Count);
 
@@ -920,11 +920,12 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains("B1", html);
         Assert.Contains("NNPB", html);
 
-        // beta.37: o tampão mostra só diâmetro, raio e calote; o volume é
+        // beta.37: o tampão mostra só diâmetro e calote (o raio deixou de ser pedido); o volume é
         // calculado (π·h·(3a² + h²)/6000 cm³, a = D/2) e os derivados antigos
         // gravados (R base, R esfera, volume) deixam de aparecer na ficha.
         Assert.Contains("28.45", html);
-        Assert.Contains("24.11", html);
+        Assert.DoesNotContain("name=\"tp_raio\"", html);
+        Assert.DoesNotContain("Raio (mm)", html);
         Assert.Contains("4.5", html);
         Assert.Contains("Volume do tampão (cm³)", html);
         Assert.Contains("1.478", html);
@@ -1072,7 +1073,6 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
             ("process_token", "NNPB"),
             ("nominal_weight", "520.5"),
             ("tp_diametro", "28.45"),
-            ("tp_raio", "24.11"),
             ("tp_sagitta", "4.5"),
             ("__RequestVerificationToken", token)));
 
@@ -1080,7 +1080,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Equal($"/Ferramentas/Ficha?tool_id={toolId}&tecnica=1&guardado=tecnica", response.Headers.Location?.ToString());
 
         // Persistido na precisão EXATA; os derivados antigos já gravados
-        // (R base, R esfera, volume) ficam intactos — nada se perde.
+        // (raio, R base, R esfera, volume) ficam intactos — nada se perde.
         using (var scope = _factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
@@ -1227,7 +1227,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains("O lote não pode ficar em branco", facts);
 
         var create = await GetPageHtmlAsync(client, $"{IndexPath}?create_refusal=MissingLot");
-        Assert.Contains("O lote é obrigatório", create);
+        Assert.Contains("Indique o lote da boquilha: é preciso para identificar a ferramenta.", create);
 
         var dead = await GetPageHtmlAsync(client, $"{IndexPath}?create_refusal=BqTooManyMachines");
         Assert.DoesNotContain("no máximo UMA", dead);
@@ -1348,7 +1348,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         var token = await GetVerificationTokenAsync(client, IndexPath + "?criar=1");
 
         var first = await client.PostAsync($"{IndexPath}?handler=Create", HtmlFormHelpers.BuildFormPost(
-            ("type_token", "BQ"), ("reference", "T194"), ("lot", ""), ("__RequestVerificationToken", token)));
+            ("type_token", "MF"), ("reference", "5810"), ("lot", ""), ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, first.StatusCode);
         var firstLocation = first.Headers.Location!.ToString();
         Assert.Contains("created=1", firstLocation, StringComparison.Ordinal);
@@ -1356,13 +1356,13 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         var toolId = firstLocation.Split("tool_id=")[1].Split('&')[0];
 
         var html = await GetPageHtmlAsync(client, firstLocation);
-        Assert.Contains("BQ · T194 · lote s/lote", html);
+        Assert.Contains("MF · 5810 · lote s/lote", html);
         Assert.Contains("data-dmo-toast=\"aviso\" class=\"ferr-aviso warn\"", html);
         Assert.Contains("a ferramenta ficou gravada com «s/lote»", html);
 
         await RegistosAntigos.EnvelhecerAsync(_factory.Services);
         var second = await client.PostAsync($"{IndexPath}?handler=Create", HtmlFormHelpers.BuildFormPost(
-            ("type_token", "BQ"), ("reference", "T194"), ("lot", "  "), ("__RequestVerificationToken", token)));
+            ("type_token", "MF"), ("reference", "5810"), ("lot", "  "), ("__RequestVerificationToken", token)));
         var secondLocation = second.Headers.Location!.ToString();
         Assert.Contains("create_refusal=ToolAlreadyExists", secondLocation, StringComparison.Ordinal);
         Assert.Contains($"existing_tool_id={toolId}", secondLocation, StringComparison.Ordinal);

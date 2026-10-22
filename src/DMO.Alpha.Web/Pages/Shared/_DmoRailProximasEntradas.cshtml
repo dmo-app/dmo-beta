@@ -1,0 +1,30 @@
+@model IReadOnlyList<DMO.Alpha.Core.Production.ProductionContextReadModel>
+@* O RAIL DO PLANEAMENTO («o sidepanel mostra o que vai entrar», o Owner
+   14/10): as próximas produções desta semana, cada uma abre a sua ficha.
+   O mesmo no Job On e no Sumário (Diogo, 21/10/2026: «na página do sumário
+   não temos sidepanel do planeamento»). *@
+@{
+    var railLinhas = Model
+        .Select(entrada =>
+        {
+            var emCurso = entrada.InicioEm is { } inicio && inicio < DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
+            return new DMO.Alpha.Web.Presentation.DmoRailItem(
+            Code: entrada.Machine ?? "—",
+            Detail: emCurso
+                ? $"{entrada.Reference} · Produção {entrada.ProductionNumber} · em curso desde {entrada.InicioEm?.ToString("dd/MM")}"
+                : $"{entrada.Reference} · Produção {entrada.ProductionNumber} · {entrada.InicioEm?.ToString("dd/MM")}",
+            Href: $"/JobOn?jobon_id={entrada.JobOnId}",
+            AriaLabel: emCurso
+                ? $"Abrir a produção {entrada.ProductionNumber}, em curso na {entrada.Machine} desde {entrada.InicioEm?.ToString("dd/MM")}"
+                : $"Abrir a produção {entrada.ProductionNumber}, que entra na {entrada.Machine} a {entrada.InicioEm?.ToString("dd/MM")}",
+            Key: entrada.JobOnId.ToString());
+        })
+        .ToList();
+    var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
+        Title: "O que vai entrar",
+        Subtitle: "As produções em curso e as que entram esta semana",
+        AriaLabel: "O que vai entrar",
+        Items: railLinhas,
+        EmptyLabel: "Sem produções em curso nem entradas esta semana.");
+}
+<partial name="_DmoRail" model="@rail" />

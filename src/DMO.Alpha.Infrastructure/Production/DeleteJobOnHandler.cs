@@ -141,7 +141,12 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
         if (controlo is not null)
         {
             var controloId = controlo.Id;
-            var pesoIds = _db.Pesos.Where(p => p.ControloId == controloId).Select(p => p.Id);
+            // Os Pesos só para comparação dos Pesos desta produção saem com
+            // eles (não ficam soltos, a pedir um Job On).
+            var pesoIds = _db.Pesos
+                .Where(p => p.ControloId == controloId
+                    || _db.Pesos.Any(o => o.Id == p.ComparacaoDoPesoId && o.ControloId == controloId))
+                .Select(p => p.Id);
             var comparacaoIds = _db.PesoComparacoes.Where(c => c.ControloId == controloId).Select(c => c.Id);
             var pegamentosIds = _db.Pegamentos.Where(p => p.ControloId == controloId).Select(p => p.Id);
             var puncoesIds = _db.Puncoes.Where(p => p.ControloId == controloId).Select(p => p.Id);
@@ -162,7 +167,7 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
             _db.PesoMeasurements.RemoveRange(
                 await _db.PesoMeasurements.Where(m => pesoIds.Contains(m.PesoId)).ToListAsync(cancellationToken));
             _db.Pesos.RemoveRange(
-                await _db.Pesos.Where(p => p.ControloId == controloId).ToListAsync(cancellationToken));
+                await _db.Pesos.Where(p => pesoIds.Contains(p.Id)).ToListAsync(cancellationToken));
             _db.PegamentosMeasurements.RemoveRange(
                 await _db.PegamentosMeasurements.Where(m => pegamentosIds.Contains(m.PegamentosId)).ToListAsync(cancellationToken));
             _db.PegamentosMeasurementHistorico.RemoveRange(

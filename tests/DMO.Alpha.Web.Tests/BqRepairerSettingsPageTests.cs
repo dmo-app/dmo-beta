@@ -89,7 +89,10 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
     }
 
     /// <summary>Um operador com o módulo Boquilhas (as Definições do módulo).</summary>
-    private async Task<HttpClient> LoginBoquilhasAsync(string operatorId = "4711", params string[] capabilities)
+    private Task<HttpClient> LoginBoquilhasAsync(string operatorId = "4711", params string[] capabilities)
+        => LoginBoquilhasAsync(_factory, operatorId, capabilities);
+
+    private async Task<HttpClient> LoginBoquilhasAsync(WebApplicationFactory<Program> app, string operatorId, params string[] capabilities)
     {
         var email = $"repairers-{operatorId}@dmo.local";
         _factory.AuthProvider.AddAccount(email, $"repairers-{operatorId}-provider", "RepairersOp1!", email);
@@ -110,7 +113,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
             db.SaveChanges();
         }
 
-        var client = CreateClient();
+        var client = app.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
         var token = await GetVerificationTokenAsync(client, "/login");
         var response = await client.PostAsync("/login", HtmlFormHelpers.BuildFormPost(
             ("identifier", email),
@@ -173,8 +176,10 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
         // primeira antes do mapa) + a secção da rota por máquina.
         Assert.Contains(">Reparadores<", html);
         Assert.Contains("Sem reparadores criados", html);
-        Assert.Contains(">Rota por máquina<", html);
-        Assert.Contains("Crie o primeiro acima", html);
+        // «Rota por máquina» passou a «Linhas», ao lado dos Reparadores
+        // (Diogo, 21/10/2026: «rota por máquina fica apenas Linhas»).
+        Assert.Contains(">Linhas<", html);
+        Assert.Contains("Crie o primeiro ao lado", html);
     }
 
     [Fact]
@@ -189,7 +194,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
 
         foreach (var machineCode in BqRepairerRouting.MachineCodes)
         {
-            Assert.Contains($"Máquina {machineCode}", html);
+            Assert.Contains($"Linha {machineCode}", html);
             // Um formulário por máquina, com o select name=machine_code (o
             // valor «B1|id»; deep sweep, 18/10/2026, A1-M1).
             Assert.Contains($"id=\"machine-route-{machineCode}\" name=\"machine_code\"", html);
@@ -206,9 +211,11 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
         var rotas = Cartao(html, "bqDefRotas");
         foreach (var code in BqRepairerRouting.MachineCodes)
         {
-            Assert.Contains($"Máquina {code}", rotas, StringComparison.Ordinal);
+            Assert.Contains($"Linha {code}", rotas, StringComparison.Ordinal);
         }
         Assert.DoesNotContain("<button", rotas, StringComparison.Ordinal);
+        Assert.DoesNotContain("Rota por máquina", rotas, StringComparison.Ordinal);
+        Assert.DoesNotContain("Máquina ", rotas, StringComparison.Ordinal);
         Assert.DoesNotContain("type=\"submit\"", rotas, StringComparison.Ordinal);
     }
 
@@ -397,7 +404,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
     }
 
     [Fact]
-    public async Task EditRepairer_InPlace_AnswersJson_AndTheTableHasNoButtons()
+    public async Task EditRepairer_InPlace_AnswersJson_AndTheTableHasNoSaveButton()
     {
         // O nome edita-se no próprio valor da linha (Diogo, 17/10/2026:
         // «para editar, clica-se no valor da linha»): o pedido JSON grava e
@@ -407,11 +414,22 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
 
         var html = await GetPageHtmlAsync(client);
         Assert.Contains("class=\"dmo-valor\" data-dmo-valor name=\"name\" value=\"Vidroart\"", html);
-        // A tabela tem a linha do reparador e nenhum botão: o nome grava no
-        // próprio valor.
+        // Nas tabelas nunca há botões repetidos (Diogo, 21/10/2026): a linha
+        // só tem o nome e abre a ficha com um clique; o nome edita-se e o
+        // «Remover reparador» está na ficha.
         var tabela = TabelaDosReparadores(html);
-        Assert.Contains("value=\"Vidroart\"", tabela, StringComparison.Ordinal);
+        Assert.Contains($"<tr data-dmo-ficha=\"bqDefFicha-{repairerId}\" tabindex=\"0\"", tabela, StringComparison.Ordinal);
+        Assert.Contains(">Vidroart</td>", tabela, StringComparison.Ordinal);
         Assert.DoesNotContain("<button", tabela, StringComparison.Ordinal);
+        Assert.DoesNotContain("Opções", tabela, StringComparison.Ordinal);
+        var ficha = Cartao(html, "bqDefReparadores");
+        ficha = ficha[ficha.IndexOf($"<dialog id=\"bqDefFicha-{repairerId}\"", StringComparison.Ordinal)..];
+        ficha = ficha[..ficha.IndexOf("</dialog>", StringComparison.Ordinal)];
+        Assert.Contains("class=\"dmo-valor\" data-dmo-valor name=\"name\" value=\"Vidroart\"", ficha, StringComparison.Ordinal);
+        Assert.Contains($"data-dmo-dialog=\"bqDefRemover-{repairerId}\"", ficha, StringComparison.Ordinal);
+        Assert.Contains(">Remover reparador</button>", ficha, StringComparison.Ordinal);
+        // O campo do nome novo também filtra a tabela.
+        Assert.Contains("data-dmo-filtra=\"bqDefTabelaReparadores\"", html);
         Assert.DoesNotContain("type=\"submit\"", tabela, StringComparison.Ordinal);
         Assert.DoesNotContain("Hora de viragem", html);
 

@@ -270,7 +270,8 @@ public sealed class PegamentosQuery : IPegamentosQuery
                         m.Component,
                         m.CosturaMm,
                         m.ContraCosturaMm,
-                        m.NominalGargaloMm
+                        m.NominalGargaloMm,
+                        m.NumeroFerramenta
                     })
                     .ToList()
             })
@@ -295,7 +296,8 @@ public sealed class PegamentosQuery : IPegamentosQuery
                         m.NominalGargaloMm,
                         registro.ToleranceMm,
                         m.CosturaMm,
-                        m.ContraCosturaMm)))
+                        m.ContraCosturaMm),
+                    m.NumeroFerramenta))
                 .ToList();
 
             // Médias por componente (informativas; nenhuma média cancela

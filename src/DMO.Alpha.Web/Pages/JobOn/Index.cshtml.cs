@@ -436,6 +436,10 @@ public sealed class IndexModel : PageModel
             "A máquina indicada não existe. Nenhum Job On foi criado.",
         CreateJobOnResult.MissingMfTool =>
             "O MF (molde final) é obrigatório — sem ele não se fazem garrafas nem frascos. Selecione o MF do desenho. Nenhum Job On foi criado.",
+        CreateJobOnResult.MissingCmTool =>
+            "Falta a CM (contra molde): um Job On precisa de CM, BQ e MF. Associe ou crie a CM. Nenhum Job On foi criado.",
+        CreateJobOnResult.MissingBqTool =>
+            "Falta a BQ (boquilha): um Job On precisa de CM, BQ e MF. Associe ou crie a BQ. Nenhum Job On foi criado.",
         CreateJobOnResult.CmToolNotFound =>
             "A ferramenta CM selecionada não está registada no Ferramentas. Nenhum Job On foi criado.",
         CreateJobOnResult.MfToolNotFound =>
@@ -460,6 +464,10 @@ public sealed class IndexModel : PageModel
             "A máquina indicada não existe. Nenhuma alteração foi guardada.",
         UpdateJobOnResult.MissingMfTool =>
             "O MF (molde final) é obrigatório — sem ele não se fazem garrafas nem frascos. Selecione o MF do desenho. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.MissingCmTool =>
+            "Falta a CM (contra molde): um Job On precisa de CM, BQ e MF. Associe ou crie a CM. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.MissingBqTool =>
+            "Falta a BQ (boquilha): um Job On precisa de CM, BQ e MF. Associe ou crie a BQ. Nenhuma alteração foi guardada.",
         UpdateJobOnResult.CmToolNotFound =>
             "A ferramenta CM selecionada não está registada no Ferramentas. Nenhuma alteração foi guardada.",
         UpdateJobOnResult.MfToolNotFound =>
@@ -532,7 +540,14 @@ public sealed class IndexModel : PageModel
         foreach (var machine in machines)
         {
             var doDia = cobre.Where(j => j.Machine == machine.Code).OrderBy(j => j.Reference).ToList();
-            rows.Add(new(machine.Code, doDia.Select(x => new DMO.Alpha.Web.Presentation.DayProduction(x.JobOnId, x.Reference, x.ProductionNumber)).ToList()));
+            // A sobreposição: duas produções que se cruzam, pela regra do aviso
+            // ao gravar (a que sai no dia em que a outra entra não conta).
+            var cruzam = doDia.Any(a => doDia.Any(b => a.JobOnId < b.JobOnId
+                && DMO.Alpha.Core.Production.JobOnOverlap.Crosses(a.InicioEm, a.FimEm, b.InicioEm, b.FimEm)));
+            rows.Add(new(machine.Code, doDia.Select(x => new DMO.Alpha.Web.Presentation.DayProduction(x.JobOnId, x.Reference, x.ProductionNumber)).ToList())
+            {
+                HasOverlap = cruzam
+            });
         }
         return rows;
     }
@@ -1015,12 +1030,12 @@ public sealed class IndexModel : PageModel
                     .Select(r =>
                     {
                         var entra = proximas.FirstOrDefault(p => p.Machine == r.MachineCode) is { InicioEm: { } inicio } p
-                            ? new DMO.Alpha.Web.Presentation.NextChange(inicio, $"{p.Reference} {p.ProductionNumber}", true)
+                            ? new DMO.Alpha.Web.Presentation.NextChange(inicio, $"{p.Reference} {p.ProductionNumber}", true, JobOnId: p.JobOnId)
                             : null;
                         var troca = trocas
                             .Where(t => r.Productions.Any(x => x.JobOnId == t.JobOnId))
                             .OrderBy(t => t.Dia)
-                            .Select(t => new DMO.Alpha.Web.Presentation.NextChange(t.Dia, t.Texto, false))
+                            .Select(t => new DMO.Alpha.Web.Presentation.NextChange(t.Dia, t.Texto, false, ToolId: t.NewToolId))
                             .FirstOrDefault();
                         var next = entra is null ? troca
                             : troca is null || entra.Dia <= troca.Dia ? entra
@@ -1042,19 +1057,27 @@ public sealed class IndexModel : PageModel
     private static DateOnly hoje => DateOnly.FromDateTime(DmoBusinessTime.Now);
 
     /// <summary>
-    /// As próximas entradas do sidepanel: só produções futuras (InicioEm de
-    /// hoje em diante) e só até ao domingo da semana corrente (Seg..Dom, como
-    /// o calendário). O que entra depois de domingo fica para a semana seguinte.
+    /// O sidepanel: primeiro as produções em curso (início antes de hoje, sem
+    /// fim ou com fim de hoje em diante), depois as que entram de hoje até ao
+    /// domingo da semana corrente (Seg..Dom, como o calendário). O que entra
+    /// depois de domingo fica para a semana seguinte.
     /// </summary>
     public static IReadOnlyList<ProductionContextReadModel> ProximasEntradasDaSemana(
         IEnumerable<ProductionContextReadModel> jobOns,
         DateOnly dia)
     {
         var domingo = dia.AddDays((7 - (int)dia.DayOfWeek) % 7);
-        return jobOns
+        // As produções em curso (começaram antes de hoje e ainda não acabaram)
+        // vêm primeiro: as que já corriam quando se lançaram na app também
+        // aparecem (Diogo, 22/10/2026: «se criar um jobon passado não aparece
+        // na lista ao lado do calendário»).
+        var emCurso = jobOns
+            .Where(j => j.InicioEm is { } inicio && inicio < dia && (j.FimEm is not { } fim || fim >= dia))
+            .OrderBy(j => j.InicioEm);
+        var entradas = jobOns
             .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= domingo)
-            .OrderBy(j => j.InicioEm)
-            .ToList();
+            .OrderBy(j => j.InicioEm);
+        return emCurso.Concat(entradas).ToList();
     }
 
     /// <summary>
@@ -1230,6 +1253,18 @@ public sealed class IndexModel : PageModel
 
         // O fim antes do início grava e a folha avisa (Diogo, 19/10/2026).
         var fimAntesDoInicio = parsedInicioEm is { } inicioDia && parsedFimEm is { } fimDia && fimDia < inicioDia;
+
+        // Um Job On tem sempre CM, BQ e MF (Diogo, 22/10/2026: bloqueio
+        // autorizado). Sem MF, a recusa do MF (a do handler) vem primeiro.
+        if (sanitizedMfToolId is not null && MissingCmOrBq(sanitizedCmToolId, sanitizedBqToolId) is { } faltaCriar)
+        {
+            return CreateRefused(
+                sanitizedProductionNumber, sanitizedReference, parsedMachineId,
+                sanitizedCmToolId, sanitizedMfToolId, sanitizedBqToolId,
+                parsedInicioEm, parsedFimEm,
+                faltaCriar == "CM" ? CreateJobOnResult.MissingCmTool : CreateJobOnResult.MissingBqTool,
+                caloteMm);
+        }
 
         // A FOLHA DA FÁBRICA: os campos escritos e as linhas CAL do envio.
         var envio = LerEnvioDaFolha();
@@ -1424,6 +1459,16 @@ public sealed class IndexModel : PageModel
                 .FirstOrDefaultAsync(HttpContext.RequestAborted);
         }
 
+        if (sanitizedMfToolId is not null && MissingCmOrBq(sanitizedCmToolId, sanitizedBqToolId) is { } faltaEditar)
+        {
+            return UpdateRefused(
+                parsedJobOnId, parsedMachineId,
+                sanitizedCmToolId, sanitizedMfToolId, sanitizedBqToolId,
+                parsedInicioEm, parsedFimEm,
+                faltaEditar == "CM" ? UpdateJobOnResult.MissingCmTool : UpdateJobOnResult.MissingBqTool,
+                caloteMm);
+        }
+
         // A FOLHA DA FÁBRICA: os campos escritos e as linhas CAL do envio.
         var envio = LerEnvioDaFolha();
         var versaoAberta = Ferramentas.FichaModel.ParseVersion(versao);
@@ -1520,31 +1565,26 @@ public sealed class IndexModel : PageModel
                 ?? user.FindFirst(DmoClaimTypes.Email)?.Value;
 
     /// <summary>
-    /// O destino depois de GRAVAR um Job On. Com um aviso (sobreposição na
-    /// máquina, calote ignorada ou fim antes do início), fica na folha da
-    /// produção gravada para o aviso aparecer. Sem aviso, vai ao Resumo do Controlo só quando o
-    /// template dá o Controlo Criar; sem esse módulo, a entrada do Controlo
-    /// levava a pessoa para outra página e o registo parecia perdido, por
-    /// isso fica no Job On com a produção gravada selecionada.
+    /// O destino depois de GRAVAR um Job On: a folha da produção gravada, no
+    /// Planeamento, com os avisos (sobreposição na linha, calote ignorada ou
+    /// fim antes do início) quando os há.
     /// </summary>
-    private async Task<IActionResult> SavedRedirectAsync(int jobOnId, bool overlap, string? caloteIgnorada, bool fimAntesDoInicio)
+    private Task<IActionResult> SavedRedirectAsync(int jobOnId, bool overlap, string? caloteIgnorada, bool fimAntesDoInicio)
     {
-        if (!overlap
-            && caloteIgnorada is null
-            && !fimAntesDoInicio
-            && await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted))
-        {
-            return RedirectToPage("/Controlo/Resumo", new { jobon_id = jobOnId });
-        }
-
-        return RedirectToPage("/JobOn/Index", new
+        // Fica sempre no Job On do Planeamento (Diogo, 22/10/2026): gravar
+        // já não leva ao Resumo do Controlo.
+        return Task.FromResult<IActionResult>(RedirectToPage("/JobOn/Index", new
         {
             jobon_id = jobOnId,
             overlap = overlap ? "1" : null,
             calote_ignorada = caloteIgnorada,
             fim_antes_inicio = fimAntesDoInicio ? "1" : null
-        });
+        }));
     }
+
+    /// <summary>«CM» ou «BQ» quando falta essa ferramenta; null quando estão as duas.</summary>
+    internal static string? MissingCmOrBq(string? cmToolId, string? bqToolId) =>
+        cmToolId is null ? "CM" : bqToolId is null ? "BQ" : null;
 
     private RedirectToPageResult CreateRefused(
         string? productionNumber,

@@ -147,7 +147,7 @@
               <div class="revisao-facts four">
                 <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong></div>
                 <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
-                <div><span>Peso SAP da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
+                <div><span>Peso da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
                 <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
                 <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
                 <div><span>Capacidade atual</span><strong>@Cm3(atual?.AverageCapacityCm3)</strong></div>
@@ -199,7 +199,7 @@
             {
               <div class="dmo-table-wrap revisao-consulta-tabela">
                 <table class="dmo-table">
-                  <thead><tr><th>N.º</th><th>Costura (0°) mm</th><th>Contra costura (90°) mm</th><th>Média mm</th><th>Estado</th></tr></thead>
+                  <thead><tr><th>N.º</th><th>N.º @PegamentosVista.Token(component.Component)</th><th>Costura (0°) mm</th><th>Contra costura (90°) mm</th><th>Média mm</th><th>Estado</th></tr></thead>
                   <tbody>
                     @* Como na folha dos Pegamentos (Diogo, 19/10/2026): o N.º e
                        o estado com as cores de lá, e o valor fora a vermelho. *@
@@ -207,6 +207,7 @@
                     {
                       <tr>
                         <td>@numero</td>
+                        <td>@(leitura.NumeroFerramenta ?? "—")</td>
                         <td class="@(PegamentosVista.AxisAlert(leitura.Evaluation, PegamentosEvaluatedAxis.Costura) ? "peg-cell-bad" : null)">@PegamentosVista.Fmt(leitura.CosturaMm)</td>
                         <td class="@(PegamentosVista.AxisAlert(leitura.Evaluation, PegamentosEvaluatedAxis.ContraCostura) ? "peg-cell-bad" : null)">@(leitura.ContraCosturaMm is { } contra ? PegamentosVista.Fmt(contra) : "não registada")</td>
                         <td class="@(PegamentosVista.AxisAlert(leitura.Evaluation, PegamentosEvaluatedAxis.Media) ? "peg-cell-bad" : null)">@PegamentosVista.Fmt(leitura.Evaluation.MediaMm)</td>

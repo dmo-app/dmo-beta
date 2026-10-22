@@ -79,6 +79,12 @@
         if (hint) hint.textContent = has ? '' : 'Associar ou criar';
         associate.textContent = (has ? 'Trocar ' : 'Associar ') + type;
         if (clear) clear.hidden = !has;
+        // A ficha da ferramenta escolhida: o nome no cartão e «Abrir ficha» no menu.
+        card.querySelectorAll('[data-tool-open]').forEach(link => {
+          if (has) link.setAttribute('href', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value));
+          else link.removeAttribute('href');
+          if (link.classList.contains('dmo-options-item')) link.hidden = !has;
+        });
         updateFilterBar();
       }
       function stopSearch() {

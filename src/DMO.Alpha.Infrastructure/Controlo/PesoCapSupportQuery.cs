@@ -9,7 +9,7 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// Implementação purpose-specific de <see cref="IPesoCapSupportQuery"/>: o
 /// apoio TP/calote do Peso (o «TP / calote · Apoio separado» do dmo-html).
 /// Resolve a geometria TP de referência da CM (ToolTechnicalContext — Tool-
-/// owned: D, R do desenho, h_ref), a CALOTE EFETIVA (a do Job On quando
+/// owned: D, h_ref), a CALOTE EFETIVA (a do Job On quando
 /// existe — o html: <c>ctx.production?.calote</c>; senão a própria h_ref da
 /// Tool; a simulação sobrepõe-se apenas na exibição) e devolve o cálculo do
 /// <see cref="PesoCapCalculation"/> — a fonte única da matemática, nunca uma
@@ -41,7 +41,7 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
         var tp = await _db.ToolTechnicalContexts
             .AsNoTracking()
             .Where(t => t.ToolId == toolId)
-            .Select(t => new { t.TpDiametroMm, t.TpRaioMm, t.TpSagittaMm })
+            .Select(t => new { t.TpDiametroMm, t.TpSagittaMm })
             .FirstOrDefaultAsync(cancellationToken);
         if (tp is null)
         {
@@ -60,7 +60,7 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        return Calcular(tp.TpDiametroMm, tp.TpRaioMm, tp.TpSagittaMm, caloteJobOn, request.CaloteSimuladaMm);
+        return Calcular(tp.TpDiametroMm, tp.TpSagittaMm, caloteJobOn, request.CaloteSimuladaMm);
     }
 
     /// <summary>
@@ -73,11 +73,10 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
         decimal? caloteSimuladaMm) =>
         cmTechnical is null
             ? SemReferencia()
-            : Calcular(cmTechnical.TpDiametroMm, cmTechnical.TpRaioMm, cmTechnical.TpSagittaMm, caloteJobOn, caloteSimuladaMm);
+            : Calcular(cmTechnical.TpDiametroMm, cmTechnical.TpSagittaMm, caloteJobOn, caloteSimuladaMm);
 
     private static PesoCapSupportReadModel Calcular(
         decimal? tpDiametroMm,
-        decimal? tpRaioMm,
         decimal? tpSagittaMm,
         decimal? caloteJobOn,
         decimal? caloteSimuladaMm)
@@ -101,7 +100,7 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
         }
 
         var support = PesoCapCalculation.TrySupport(
-            tpDiametroMm, tpRaioMm, tpSagittaMm, alturaEfetiva);
+            tpDiametroMm, tpSagittaMm, alturaEfetiva);
         if (support is null)
         {
             return SemReferencia();
@@ -112,14 +111,12 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
             EstadoMensagem: null,
             OrigemCalote: origem,
             DiametroMm: support.Referencia.DiametroMm,
-            RaioDesenhoMm: support.RaioDesenhoMm,
             AlturaReferenciaMm: support.Referencia.AlturaMm,
             AlturaEfetivaMm: support.Efetivo.AlturaMm,
             RaioReferenciaMm: support.Referencia.RaioMm,
             VolumeReferenciaCm3: support.Referencia.VolumeCm3,
             RaioCalculadoMm: support.Efetivo.RaioMm,
             VolumeEfetivoCm3: support.Efetivo.VolumeCm3,
-            DiferencaDesenhoMm: support.DiferencaDesenhoMm,
             DeltaRaioMm: support.DeltaRaioMm,
             DeltaVolumeCm3: support.DeltaVolumeCm3);
     }
@@ -130,17 +127,15 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
     /// </summary>
     private static PesoCapSupportReadModel SemReferencia() => new(
         TemReferencia: false,
-        EstadoMensagem: "Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.",
+        EstadoMensagem: "Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.",
         OrigemCalote: string.Empty,
         DiametroMm: null,
-        RaioDesenhoMm: null,
         AlturaReferenciaMm: null,
         AlturaEfetivaMm: null,
         RaioReferenciaMm: null,
         VolumeReferenciaCm3: null,
         RaioCalculadoMm: null,
         VolumeEfetivoCm3: null,
-        DiferencaDesenhoMm: null,
         DeltaRaioMm: null,
         DeltaVolumeCm3: null);
 }

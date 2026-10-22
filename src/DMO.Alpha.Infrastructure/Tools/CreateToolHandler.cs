@@ -79,6 +79,13 @@ public sealed class CreateToolHandler : ICreateToolHandler
         // get-or-create do passo 5 abre-a em vez de criar outra.
         var typedLot = command.Lot?.Trim();
         var lotDefaulted = string.IsNullOrEmpty(typedLot);
+        // A BQ sem lote é recusada (Diogo, 22/10/2026: «bloquear o registo
+        // sem lote. Precisamos do lote para tool_id»): o lote é o que separa
+        // as boquilhas da mesma referência.
+        if (type == ToolType.Bq && (lotDefaulted || string.Equals(typedLot, ToolRegistryConstants.NoLot, StringComparison.OrdinalIgnoreCase)))
+        {
+            return Refused(CreateToolResult.MissingLot);
+        }
         var lot = lotDefaulted ? ToolRegistryConstants.NoLot : typedLot!;
 
         if (command.BqAccountedQuantity is < 0) return Refused(CreateToolResult.InvalidLotQuantity);

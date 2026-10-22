@@ -48,10 +48,7 @@ public static class JobOnOverlap
             // sempre; fim null = até aviso): uma produção «até aviso»
             // sobrepõe tudo o que comece antes do seu fim; uma produção
             // sem início sobrepõe tudo o que não acabe antes de começar.
-            var overlaps =
-                (inicioEm is null || other.FimEm is null || inicioEm.Value <= other.FimEm.Value)
-                && (other.InicioEm is null || fimEm is null || other.InicioEm.Value <= fimEm.Value);
-            if (!overlaps)
+            if (!Crosses(inicioEm, fimEm, other.InicioEm, other.FimEm))
             {
                 continue;
             }
@@ -80,6 +77,17 @@ public static class JobOnOverlap
             machineCode,
             BuildMessage(inicioEm, fimEm, machineCode, conflicts));
     }
+
+    /// <summary>
+    /// Duas janelas de DIAS cruzam-se quando se intersectam, os nulls abrem
+    /// o limite correspondente (início null = desde sempre; fim null = até
+    /// aviso). O dia da troca não conta (Diogo, 21/10/2026: «uma producao
+    /// sai dia 20 outra entra dia 20»): uma produção que sai no dia em que
+    /// a outra entra não se sobrepõe a ela.
+    /// </summary>
+    public static bool Crosses(DateOnly? aInicio, DateOnly? aFim, DateOnly? bInicio, DateOnly? bFim) =>
+        (aInicio is null || bFim is null || aInicio.Value < bFim.Value)
+        && (bInicio is null || aFim is null || bInicio.Value < aFim.Value);
 
     private static DateOnly? MaxDate(DateOnly? a, DateOnly? b) =>
         a is null || b is null ? a ?? b : (a.Value > b.Value ? a.Value : b.Value);

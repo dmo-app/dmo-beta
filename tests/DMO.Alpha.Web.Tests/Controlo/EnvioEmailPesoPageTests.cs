@@ -218,6 +218,53 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
     }
 
     [Fact]
+    public async Task Enviar_ComPesoNoAssunto_OAssuntoDoEmailTrazOPesoMedioDaProducao()
+    {
+        // Diogo, 21/10/2026: «no assunto meto Peso Referencia Maquina Producao
+        // e o peso que deu». O {peso} do modelo chega ao Subject do .eml com
+        // o peso médio do vidro desta produção, como na folha («NNN,NN g»).
+        var producao = await SeedProducaoAsync();
+        var (listaId, modeloId) = SeedModelo();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.EmailModelos.Single(m => m.Id == modeloId).Assunto = "Peso {referencia} · {maquina} · {producao} · {peso}";
+            db.SaveChanges();
+        }
+        using var client = await LoginAsync("4809");
+        await CriarPesoAsync(client, producao);
+        int pesoId;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            pesoId = scope.ServiceProvider.GetRequiredService<DmoDbContext>().Pesos.AsNoTracking()
+                .Single(p => p.ControloId == producao.ControloId).Id;
+        }
+        var folha = $"/Controlo/Peso?controlo_id={producao.ControloId}";
+        foreach (var (cm, agua) in new[] { ("1", "176,4"), ("2", "177,1") })
+        {
+            using var leitura = await PostAsync(client, folha, "/Controlo/Peso?handler=RegisterMeasurement",
+                ("peso_id", pesoId.ToString()), ("cm_subject", cm), ("water_weight", agua));
+            Assert.Equal(HttpStatusCode.Redirect, leitura.StatusCode);
+        }
+        decimal media;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var lido = await scope.ServiceProvider.GetRequiredService<IPesoQuery>().FindPesoAsync(pesoId, CancellationToken.None);
+            media = Assert.IsType<decimal>(lido!.Averages?.AverageGlassWeightGrams);
+        }
+        var pesoTexto = media.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")) + " g";
+        Assert.Matches(@"^\d+,\d\d g$", pesoTexto);
+
+        using var enviado = await EnviarAsync(client, producao, modeloId, listaId);
+
+        Assert.Equal(HttpStatusCode.OK, enviado.StatusCode);
+        var eml = Encoding.ASCII.GetString(await enviado.Content.ReadAsByteArrayAsync());
+        var assunto = "Peso 5447T173 · B1 · 202605 · " + pesoTexto;
+        Assert.Contains("\r\nSubject: =?utf-8?B?" + Convert.ToBase64String(Encoding.UTF8.GetBytes(assunto)) + "?=\r\n", eml);
+        Assert.Equal(assunto, Assert.Single(Envios()).Assunto);
+    }
+
+    [Fact]
     public async Task Enviar_SemListaOuSemModelo_VoltaAoResumo_SemEmailNemRegisto_EDizPorque()
     {
         var producao = await SeedProducaoAsync();

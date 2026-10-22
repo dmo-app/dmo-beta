@@ -181,3 +181,30 @@ test('sem rede (a gravação falha), o número escrito fica no campo', async () 
     dom.window.close();
   }
 });
+
+// Diogo, 21/10/2026: «quando o numero de um puncao é diferente deveria pedir o
+// lote». O número que já está na lista mostra «Lote desta punção» e torna-o
+// obrigatório; um número novo esconde-o e não o envia.
+test('um número já registado pede o lote dessa punção; um número novo não', () => {
+  const dom = new JSDOM(`<!doctype html><body>
+    <form class="pu-add-form" data-pu-numeros="41|42">
+      <input id="pu-numero" name="numero">
+      <div class="dmo-field pu-lote-puncao" hidden><input id="pu-lote-puncao" name="lote_puncao"></div>
+    </form></body>`, { runScripts: 'outside-only' });
+  const { window } = dom;
+  window.eval(fs.readFileSync(path.join(assets, 'js/puncoes-numero.js'), 'utf8'));
+  const { document } = window;
+  const numero = document.getElementById('pu-numero');
+  const lote = document.getElementById('pu-lote-puncao');
+  const escrever = (valor) => { numero.value = valor; numero.dispatchEvent(new window.Event('input', { bubbles: true })); };
+
+  escrever('41');
+  assert.equal(lote.closest('.pu-lote-puncao').hidden, false);
+  assert.equal(lote.disabled, false);
+  assert.equal(lote.required, true);
+
+  escrever('43');
+  assert.equal(lote.closest('.pu-lote-puncao').hidden, true);
+  assert.equal(lote.disabled, true);
+  assert.equal(lote.required, false);
+});

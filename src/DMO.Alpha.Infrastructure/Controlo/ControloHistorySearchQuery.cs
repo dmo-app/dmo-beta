@@ -533,7 +533,9 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
         int? limit,
         CancellationToken cancellationToken)
     {
-        var pesos = _db.Pesos.AsNoTracking().Where(p => p.ControloId == null);
+        // Os Pesos só para comparação não estão «por associar» (o Diogo,
+        // 22/10/2026): abrem-se pelo Peso que comparam.
+        var pesos = _db.Pesos.AsNoTracking().Where(p => p.ControloId == null && p.ComparacaoDoPesoId == null);
         pesos = ComReferencia(
             pesos,
             filtro.Referencia,

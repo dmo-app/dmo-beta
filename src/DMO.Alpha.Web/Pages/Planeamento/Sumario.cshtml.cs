@@ -1,5 +1,6 @@
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Planeamento;
+using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Web.Pages.Shared;
@@ -24,6 +25,7 @@ namespace DMO.Alpha.Web.Pages.Planeamento;
 [ModuleEntry(DmoCapabilities.JobOnCreate)]
 public sealed class SumarioModel(
     ISumarioQuery sumario,
+    IJobOnListQuery jobOnList,
     CurrentUserCapabilities capabilities,
     ShellStateFactory shellState) : PageModel
 {
@@ -52,6 +54,9 @@ public sealed class SumarioModel(
     public IReadOnlyList<(SumarioTipo Tipo, IReadOnlyList<SumarioItem> Items)> Grupos { get; private set; } = [];
 
     public DmoCalendarPresentation Calendar { get; private set; } = null!;
+
+    /// <summary>O painel lateral: as próximas produções desta semana, como no Job On.</summary>
+    public IReadOnlyList<ProductionContextReadModel> ProximasEntradas { get; private set; } = [];
 
     private IReadOnlyList<string> _modulos = [];
 
@@ -107,6 +112,10 @@ public sealed class SumarioModel(
                 .Select(g => (g.Key, (IReadOnlyList<SumarioItem>)g.ToList()))
                 .ToList();
         }
+
+        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
+        ProximasEntradas = JobOn.IndexModel.ProximasEntradasDaSemana(
+            await jobOnList.ListWindowAsync(hoje, domingo, HttpContext.RequestAborted), hoje);
 
         var porDia = items.GroupBy(i => i.Dia).ToDictionary(g => g.Key, g => g.Count());
         Calendar = DmoCalendarPresentation.ForMonth(

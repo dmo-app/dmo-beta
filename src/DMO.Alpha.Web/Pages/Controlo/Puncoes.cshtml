@@ -172,8 +172,8 @@
         <span class="pu-step">01</span>
       </div>
       <div class="pu-facts">
+        @* Só a produção (Diogo, 21/10/2026: «CM por associar nao deve existir so a producao»). *@
         <div class="pu-fact"><span>Produção</span><strong>Sem Job On</strong></div>
-        <div class="pu-fact"><span>CM</span><strong>Por associar</strong></div>
       </div>
 
       @if (Model.Refusal is not null)
@@ -288,19 +288,43 @@
       <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title" data-dmo-parcial>
         <div class="pu-section-head">
           <div>
-            <h3 id="pu-list-title">Lista de punções<partial name="_DmoHelp" model="@("Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração».")" /></h3>
+            <h3 id="pu-list-title">Lista de punções<partial name="_DmoHelp" model="@("Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração» e pede o lote dessa punção. O lote de cima aplica-se às novas punções; as anteriores mantêm o seu.")" /></h3>
           </div>
-          <span class="pu-step">02</span>
+          @* UM SÓ BOTÃO «OPÇÕES» (Diogo, 21/10/2026: «um botao com opcoes e nao
+             espalhado pela pagina»): o PDF e, no registo sem Job On, o
+             associar a uma produção, numa janela pequena. *@
+          <div class="dmo-card-topo-acoes">
+            <details class="dmo-options" data-dmo-tab-menu>
+              <summary class="dmo-button" aria-label="Opções do registo das punções">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
+              <div class="dmo-options-list">
+                <button type="submit" class="dmo-options-item" form="pu-pdf-form" disabled="@(registo is null)">Extrair PDF</button>
+                @if (Model.Standalone is not null)
+                {
+                  <button type="button" class="dmo-options-item" data-dmo-dialog="pu-associar-dialog">Associar a uma produção</button>
+                }
+              </div>
+            </details>
+          </div>
         </div>
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf" id="pu-pdf-form" data-dmo-nativo>
+          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+        </form>
 
         @* O número junta-se à identificação do cartão de cima (o mesmo POST). *@
-        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Add" class="pu-add-form">
+        @* O LOTE DE UM NÚMERO REPETIDO (Diogo, 21/10/2026): outra punção com
+           o mesmo número tem outro lote; o campo aparece quando o número já
+           está na lista (puncoes-numero.js) e vale só para ela. *@
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Add" class="pu-add-form" data-pu-numeros="@string.Join("|", registo?.Rows.Select(r => r.Number).Distinct() ?? [])">
           <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
           <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
           <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
           <div class="dmo-field">
             <label for="pu-numero">Número da punção</label>
             <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
+          </div>
+          <div class="dmo-field pu-lote-puncao" hidden>
+            <label for="pu-lote-puncao">Lote desta punção</label>
+            <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Ex.: 2" />
           </div>
           <div class="dmo-field">
             <span class="dmo-label" aria-hidden="true">&nbsp;</span>
@@ -370,19 +394,7 @@
             </tbody>
           </table>
         </div>
-        <p class="pu-hint">@(registo?.Total ?? 0) número(s) registado(s). O lote de cima aplica-se às novas punções; as anteriores mantêm o seu.</p>
       </section>
-
-      <div class="pu-export">
-        <div class="pu-pdf" aria-hidden="true">PDF</div>
-        <div class="pu-export-text">
-          <h3>Relatório A4 das punções<partial name="_DmoHelp" model="@("A identificação, os três totais e as punções por ordem de registo.")" /></h3>
-        </div>
-        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf">
-          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-          <button type="submit" class="dmo-button" disabled="@(registo is null)">Descarregar PDF</button>
-        </form>
-      </div>
     }
   }
   </div>
@@ -392,16 +404,15 @@
      existe no registo sem Job On: associado, a folha passa a ser a da
      produção, com as funções do Controlo dessa produção, e a página abre
      inteira. *@
+  @* ASSOCIAR NUMA JANELA PEQUENA (Diogo, 21/10/2026), aberta pelas Opções:
+     a referência e depois a produção. A procura e as recusas trocam só a
+     zona de dentro, com a janela aberta. *@
   @if (Model.Standalone is { } semJobOn)
   {
+    <dialog id="pu-associar-dialog" class="dmo-dialog pu-associar-dialog" aria-labelledby="pu-associar-title">
     <div id="puAssociar" class="dmo-zona" data-dmo-regiao>
-    <section class="dmo-card pu-card" id="puncoes-associar" aria-labelledby="pu-associar-title" data-dmo-parcial>
-      <div class="pu-section-head">
-        <div>
-          <h3 id="pu-associar-title">Associar a uma produção<partial name="_DmoHelp" model="@("As punções não ficam ligadas sozinhas a uma produção: escolha à mão a produção NNPB deste registo. Depois de associado, o registo passa para a folha da produção e para o PDF do Resumo.")" /></h3>
-        </div>
-        <span class="pu-step">03</span>
-      </div>
+    <section id="puncoes-associar" data-dmo-parcial>
+      <h3 id="pu-associar-title">Associar a uma produção<partial name="_DmoHelp" model="@("As punções não ficam ligadas sozinhas a uma produção: escolha à mão a produção NNPB deste registo. Depois de associado, o registo passa para a folha da produção e para o PDF do Resumo.")" /></h3>
       @if (Model.JobOnRefusalMessage is { } escolhaRecusa)
       {
         <div data-dmo-toast="erro" class="pu-aviso" role="alert">@escolhaRecusa</div>
@@ -440,6 +451,10 @@
       }
     </section>
     </div>
+    <div class="dmo-dialog-actions">
+      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+    </div>
+    </dialog>
   }
 </main>
 

@@ -39,6 +39,12 @@ public sealed record PesoReadModel(
     /// 18/10/2026).
     /// </summary>
     public bool IsCurrent { get; init; } = true;
+
+    /// <summary>
+    /// O Peso para o qual este foi criado só para comparação; null num Peso
+    /// normal. Um Peso só para comparação não se associa a um Job On.
+    /// </summary>
+    public int? ComparacaoDoPesoId { get; init; }
 }
 
 /// <summary>

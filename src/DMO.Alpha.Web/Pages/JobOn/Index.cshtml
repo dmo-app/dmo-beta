@@ -33,28 +33,12 @@
      página, zero handlers locais. A seleção é só apresentação: abrir é navegar,
      e é o servidor que recompõe a ficha do Job On (a referência HTML guardava
      isso em estado de browser; aqui não se porta essa parte). *@
-  @{
-      var railLinhas = Model.ProximasEntradas
-          .Select(entrada => new DMO.Alpha.Web.Presentation.DmoRailItem(
-              Code: entrada.Machine ?? "—",
-              Detail: $"{entrada.Reference} · Produção {entrada.ProductionNumber} · {entrada.InicioEm?.ToString("dd/MM")}",
-              Href: $"/JobOn?jobon_id={entrada.JobOnId}",
-              AriaLabel: $"Abrir a produção {entrada.ProductionNumber}, que entra na {entrada.Machine} a {entrada.InicioEm?.ToString("dd/MM")}",
-              Key: entrada.JobOnId.ToString()))
-          .ToList();
-      var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
-          Title: "O que vai entrar",
-          Subtitle: "As próximas produções desta semana",
-          AriaLabel: "O que vai entrar",
-          Items: railLinhas,
-          EmptyLabel: "Sem entradas previstas esta semana.");
-  }
-  <partial name="_DmoRail" model="@rail" />
+  <partial name="_DmoRailProximasEntradas" model="Model.ProximasEntradas" />
 
   <main class="beta-light-main" id="lightMain" tabindex="-1">
 
     @* ---------------------------------------------------------------- *@
-    @* A TAB JOB ON: o título + [Criar Job On] + a grelha (o calendário
+    @* A TAB JOB ON: o título + a grelha (o calendário
        do mês | a lista do dia) + a folha.                              *@
     @* ---------------------------------------------------------------- *@
     @if (!Model.ShowHistory)
@@ -64,7 +48,6 @@
         <div>
           <h1>Job On<partial name="_DmoHelp" model="@("Selecione uma produção para consultar ou preparar as ferramentas.")" /></h1>
         </div>
-        <a class="dmo-button" asp-page="/JobOn/Index" asp-route-novo="1">Criar Job On</a>
       </div>
 
       <div id="jobonAvisos" data-dmo-regiao>
@@ -152,7 +135,17 @@
                     // a produção que entra ou a troca de um componente, a que
                     // vier primeiro, à frente da linha.
                     var proxima = row.Next is { } nx
-                      ? new { Texto = $"Mudança {nx.Dia:dd/MM/yyyy} · {nx.Texto}", Titulo = nx.EntraProducao ? $"Entra {nx.Texto} na {row.MachineCode} a {nx.Dia:dd/MM/yyyy}" : $"Troca {nx.Texto} a {nx.Dia:dd/MM/yyyy}" }
+                      ? new
+                        {
+                          Texto = $"Mudança {nx.Dia:dd/MM/yyyy} · {nx.Texto}",
+                          Titulo = nx.EntraProducao ? $"Entra {nx.Texto} na {row.MachineCode} a {nx.Dia:dd/MM/yyyy}" : $"Troca {nx.Texto} a {nx.Dia:dd/MM/yyyy}",
+                          // O link da mudança (Diogo, 21/10/2026): a produção que
+                          // entra abre o Job On no dia dela; a troca abre a ficha
+                          // da ferramenta que entra.
+                          Href = nx.JobOnId is int entraId
+                            ? Url.Page("/JobOn/Index", null, new { ano = nx.Dia.Year, mes = nx.Dia.Month, dia = nx.Dia.Day, jobon_id = entraId }, null, null, "lightFicha")
+                            : nx.ToolId is { Length: > 0 } toolId ? $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}" : null
+                        }
                       : null;
                     var ultima = row.Productions.LastOrDefault();
                   }
@@ -182,7 +175,11 @@
                         {
                           <span class="beta-light-lot-note" title="@notaLote">@notaLote</span>
                         }
-                        @if (proxima is not null && production == ultima)
+                        @if (proxima is { Href: { } proximaHref } && production == ultima)
+                        {
+                          <a class="beta-light-next" href="@proximaHref" title="@proxima.Titulo">@proxima.Texto</a>
+                        }
+                        else if (proxima is not null && production == ultima)
                         {
                           <span class="beta-light-next" title="@proxima.Titulo">@proxima.Texto</span>
                         }
@@ -201,8 +198,18 @@
                     var maquinaVazia = Model.Machines.FirstOrDefault(m => m.Code == row.MachineCode);
                     var criarAqui = maquinaVazia is null ? null
                       : $"/JobOn?novo=1&machine_id={maquinaVazia.MachineId}&inicio_em={new DateOnly(Model.Year, Model.Month, Model.SelectedDay):yyyy-MM-dd}&ano={Model.Year}&mes={Model.Month}&dia={Model.SelectedDay}#lightSheet";
-                    <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —@if (proxima is not null)
-                    {<span class="beta-light-next" title="@proxima.Titulo">@proxima.Texto</span>}</a>
+                    @* A mudança é um link à parte, fora do link de criar. *@
+                    <div class="beta-light-machine-empty-linha">
+                      <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —</a>
+                      @if (proxima is { Href: { } vaziaHref })
+                      {
+                        <a class="beta-light-next" href="@vaziaHref" title="@proxima.Titulo">@proxima.Texto</a>
+                      }
+                      else if (proxima is not null)
+                      {
+                        <span class="beta-light-next" title="@proxima.Titulo">@proxima.Texto</span>
+                      }
+                    </div>
                   }
                 </div>
               }
@@ -231,6 +238,13 @@
                      data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" data-dmo-procura-sempre />
               <span id="lightProcura" class="jobon-procura" aria-live="polite"><partial name="_JobOnProcuraProducoes" model="Model.SearchResults ?? DMO.Alpha.Web.Pages.JobOn.JobOnProcura.Vazia" /></span>
               <partial name="_DmoHelp" model="@("O primeiro campo procura a referência. O segundo é um dropdown com as produções dessa referência.")" />
+              @* «CRIAR JOB ON» À DIREITA DAS CAIXAS (Diogo, 22/10/2026): na mesma
+                 linha da procura, depois da referência e da produção; abre a folha nova já com o dia escolhido
+                 como início (sem dia escolhido, abre sem data). *@
+              <a id="jobonCriar" class="dmo-button" asp-page="/JobOn/Index" asp-route-novo="1"
+                 asp-route-inicio_em="@(Model.NoDaySelected ? null : new DateOnly(Model.Year, Model.Month, Model.SelectedDay).ToString("yyyy-MM-dd"))"
+                 asp-route-ano="@Model.Year" asp-route-mes="@Model.Month" asp-route-dia="@(Model.NoDaySelected ? null : Model.SelectedDay)"
+                 asp-fragment="lightSheet">Criar Job On</a>
             </form>
           </div>
         </section>
@@ -605,6 +619,9 @@
                     <span class="dmo-options-caret" aria-hidden="true">▾</span>
                   </summary>
                   <div class="dmo-options-list">
+                    @* Abrir a ficha da ferramenta escolhida (Diogo, 21/10/2026: «ao
+                       clicar na ferramenta deveria ir para a página da mesma»). *@
+                    <a class="dmo-options-item" data-tool-open href="@(escolhida is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(escolhida.ToolId)}")" hidden="@(escolhida is null ? "hidden" : null)">Abrir ficha @tipoSlot</a>
                     <button type="button" class="dmo-options-item" data-tool-associate>@(escolhida is null ? "Associar" : "Trocar") @tipoSlot</button>
                     <a class="dmo-options-item" href="@criarHref" data-tool-create>Criar @tipoSlot</a>
                     @* «Retirar» só no Novo Job On e nunca no MF: no Editar gravava
@@ -617,7 +634,7 @@
                   </div>
                 </details>
                 <div class="job-tool-chosen" data-tool-chosen @(escolhida is null ? "hidden" : null)>
-                  <strong class="job-tool-card-title" data-tool-title>@(escolhida is null ? "" : $"{escolhida.Reference} · Lote {escolhida.Lot}")</strong>
+                  <a class="job-tool-card-link" data-tool-open href="@(escolhida is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(escolhida.ToolId)}")" title="Abrir a ficha da ferramenta"><strong class="job-tool-card-title" data-tool-title>@(escolhida is null ? "" : $"{escolhida.Reference} · Lote {escolhida.Lot}")</strong></a>
                   @* OS DADOS TÉCNICOS NO CARTÃO DA FERRAMENTA (o Diogo,
                      17/10/2026): já não numa linha à parte por baixo. *@
                   <div class="job-tool-card-facts" data-facts-slot="@tipoSlot">

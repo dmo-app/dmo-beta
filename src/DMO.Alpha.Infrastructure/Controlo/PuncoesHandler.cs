@@ -107,7 +107,10 @@ public sealed class PuncoesHandler
     /// <summary>
     /// Regista uma punção com o lote da identificação; a punção e o
     /// arrefecedor ficam vistos por omissão. A identificação submetida com
-    /// ela é gravada na mesma escrita.
+    /// ela é gravada na mesma escrita. Um número que já está no registo é
+    /// outra punção com esse número, com o lote dela (Diogo, 21/10/2026:
+    /// «quando o numero de um puncao é diferente deveria pedir o lote»):
+    /// <paramref name="punchLot"/> vale só para ela; sem ele fica o lote de cima.
     /// </summary>
     public async Task<PuncoesResult> AddAsync(
         PuncoesTarget target,
@@ -115,7 +118,8 @@ public sealed class PuncoesHandler
         string? punchReference,
         string? lot,
         string? registeredBy,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? punchLot = null)
     {
         var canonicalNumber = number?.Trim();
         if (string.IsNullOrEmpty(canonicalNumber))
@@ -139,13 +143,25 @@ public sealed class PuncoesHandler
                 return result;
             }
 
+            var punchLotText = punchLot?.Trim();
+            var inspecaoLot = registo.Lot;
+            if (!string.IsNullOrEmpty(punchLotText) && registo.Inspecoes.Any(i => i.Number == canonicalNumber))
+            {
+                if (CanonicalLot(punchLotText) is not { } canonicalPunchLot)
+                {
+                    return PuncoesResult.InvalidLot;
+                }
+
+                inspecaoLot = canonicalPunchLot;
+            }
+
             // A mesma punção acabada de registar pela mesma pessoa (duplo
             // clique, ou outro clique por achar que está lento) não fica
             // duas vezes: repetir o número seria uma «Alteração» falsa.
             var last = registo.Inspecoes.OrderByDescending(i => i.Position).FirstOrDefault();
             if (last is not null
                 && last.Number == canonicalNumber
-                && last.Lot == registo.Lot
+                && last.Lot == inspecaoLot
                 && last.RegisteredBy == registeredBy
                 && last.RegisteredAtUtc > DateTime.UtcNow - RepeatedSubmitWindow)
             {
@@ -157,7 +173,7 @@ public sealed class PuncoesHandler
             {
                 Position = nextPosition,
                 Number = canonicalNumber,
-                Lot = registo.Lot,
+                Lot = inspecaoLot,
                 PunchSeen = true,
                 CoolerSeen = true,
                 RegisteredBy = registeredBy,

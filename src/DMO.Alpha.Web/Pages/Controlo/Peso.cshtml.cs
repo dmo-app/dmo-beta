@@ -261,6 +261,8 @@ public sealed class PesoModel : PageModel
             UnreadablePuncaoMessage + " Nenhum Peso foi criado.",
         CreateToolScopedPesoResult.UnreadableBqVolumeMarisa =>
             UnreadableMarisaMessage + " Nenhum Peso foi criado.",
+        CreateToolScopedPesoResult.ComparacaoPesoNotFound =>
+            "O Peso a comparar já não existe ou não é de uma produção. Nenhum Peso foi criado.",
         _ => string.Empty
     };
 
@@ -768,82 +770,6 @@ public sealed class PesoModel : PageModel
     /// <summary>A paginação do histórico (25 por página, feita na query).</summary>
     public ListPager? HistoryPager { get; private set; }
 
-    /// <summary>
-    /// O 1.º passo do «Comparar Pesos guardados»: a referência (da produção
-    /// ou da CM). Só com ela se leem os Pesos dos selects.
-    /// </summary>
-    public string? PesoReferencia { get; private set; }
-
-    /// <summary>A referência escrita não tem Pesos guardados: aviso âmbar, sem bloqueio.</summary>
-    public bool PesoReferenciaSemPesos { get; private set; }
-
-    /// <summary>Os Pesos guardados da referência, para os selects do «Comparar Pesos guardados».</summary>
-    public IReadOnlyList<PesoComparacaoPesoOpcao> PesoOpcoes { get; private set; } = Array.Empty<PesoComparacaoPesoOpcao>();
-
-    /// <summary>Quantos Pesos a procura ao escrever do «Comparar Pesos guardados» mostra.</summary>
-    public const int PesoProcuraLimite = 10;
-
-    /// <summary>
-    /// O rótulo de um Peso na procura (Diogo, 17/10/2026: «o filtro mostra a
-    /// produção, lote e máquinas onde trabalhou»): a produção (ou «Sem Job
-    /// On»), a referência, o lote da CM e as máquinas da CM.
-    /// </summary>
-    public static string RotuloProcura(PesoComparacaoPesoOpcao opcao)
-    {
-        var partes = new List<string> { opcao.ProductionNumber ?? "Sem Job On" };
-        var referencia = opcao.Reference ?? opcao.CmToolReference;
-        if (!string.IsNullOrEmpty(referencia)) partes.Add(referencia);
-        if (!string.IsNullOrEmpty(opcao.CmToolLot)) partes.Add($"Lote {opcao.CmToolLot}");
-        if (opcao.CmMachines is { Count: > 0 } maquinas) partes.Add(string.Join(" ", maquinas));
-        return string.Join(" · ", partes);
-    }
-
-    /// <summary>Os Pesos já escolhidos nos campos da procura (para o texto ao reabrir a página).</summary>
-    public IReadOnlyList<PesoComparacaoPesoOpcao> PesosEscolhidos { get; private set; } = Array.Empty<PesoComparacaoPesoOpcao>();
-
-    /// <summary>O rótulo do Peso já escolhido (o texto do campo ao reabrir a página).</summary>
-    public string? RotuloEscolhido(int? pesoId) =>
-        pesoId is int id && PesosEscolhidos.FirstOrDefault(o => o.PesoId == id) is { } opcao
-            ? RotuloProcura(opcao)
-            : null;
-
-    /// <summary>
-    /// A procura ao escrever do «Comparar Pesos guardados»
-    /// (?handler=ProcurarPesos&amp;q=&amp;peso_ref=): os Pesos usados numa
-    /// produção cuja referência começa pelo escrito (ou a parte BQ dela) ou
-    /// cujo nº, máquina ou lote o contém, só da referência quando ela está
-    /// preenchida. Devolve só a lista; um clique escolhe.
-    /// </summary>
-    public async Task<IActionResult> OnGetProcurarPesosAsync(
-        string? q,
-        [FromQuery(Name = "peso_ref")] string? pesoRef = null)
-    {
-        var opcoes = await ComparacaoQuery.ProcurarPesosAsync(
-            q, Sanitize(pesoRef), PesoProcuraLimite, HttpContext.RequestAborted);
-        return Partial("_PesoProcura", opcoes);
-    }
-
-    /// <summary>O primeiro Peso selecionado (o echo do select).</summary>
-    public int? Peso1 { get; private set; }
-
-    /// <summary>O segundo Peso selecionado (o echo do select).</summary>
-    public int? Peso2 { get; private set; }
-
-    /// <summary>A recusa tipada do comparar guardados (escolher | diferentes).</summary>
-    public string? CompararRefusal { get; private set; }
-
-    /// <summary>Mensagem da recusa do comparar guardados, apenas apresentação.</summary>
-    public string CompararRefusalMessage => "Escolha dois Pesos guardados no Histórico.";
-
-    /// <summary>
-    /// A18 (beta.65): o mesmo Peso escolhido nos dois selects já não é
-    /// recusa — a comparação mostra Δ = 0 e este aviso explica porquê.
-    /// </summary>
-    public bool CompararMesmoPeso { get; private set; }
-
-    /// <summary>A comparação de dois Pesos guardados (o resultado do backend).</summary>
-    public PesoComparacaoGuardadosView? PesoComparacaoGuardados { get; private set; }
-
     /// <summary>O registo de comparação guardado aberto pelo histórico (?comparacao_id — o detalhe inline).</summary>
     public PesoComparacaoReadModel? HistoricoComparacao { get; private set; }
 
@@ -892,6 +818,18 @@ public sealed class PesoModel : PageModel
     /// <summary>O aviso de que a produção anterior foi guardada (PRG).</summary>
     public bool ProducaoAnteriorGuardada { get; private set; }
 
+    /// <summary>
+    /// O Peso (de uma produção) para o qual o Novo Peso é criado só para
+    /// comparação (?comparacao_de; o Diogo, 22/10/2026); null num Novo Peso normal.
+    /// </summary>
+    public int? ComparacaoDePesoId { get; private set; }
+
+    /// <summary>
+    /// Num Peso só para comparação, o endereço do Peso que ele compara, com a
+    /// comparação escolhida; null nos outros.
+    /// </summary>
+    public string? ComparacaoVoltarUrl { get; private set; }
+
     public async Task<IActionResult> OnGetAsync(
         [FromQuery(Name = "cm_tool_id")] string? cmToolId,
         [FromQuery(Name = "bq_tool_id")] string? bqToolId,
@@ -918,8 +856,6 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "data")] string? data,
         [FromQuery(Name = "pagina")] int? pagina,
         [FromQuery(Name = "abrir")] string? abrir,
-        [FromQuery(Name = "peso_1")] int? peso1,
-        [FromQuery(Name = "peso_2")] int? peso2,
         [FromQuery(Name = "echo_temperature")] string? echoTemperature,
         [FromQuery(Name = "echo_process")] string? echoProcess,
         [FromQuery(Name = "echo_puncao")] string? echoPuncao,
@@ -932,7 +868,6 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "associacao_refusal")] string? associacaoRefusal = null,
         [FromQuery(Name = "aviso")] string? aviso = null,
         [FromQuery(Name = "ignoradas")] string? ignoradas = null,
-        [FromQuery(Name = "peso_ref")] string? pesoRef = null,
         [FromQuery(Name = "modo")] string? modo = null,
         [FromQuery(Name = "jobon_refusal")] string? jobOnRefusal = null,
         [FromQuery(Name = "maquina")] string? maquina = null,
@@ -940,7 +875,8 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "anterior")] int? anteriorJobOnId = null,
         [FromQuery(Name = "anterior_recusa")] string? anteriorRecusa = null,
         [FromQuery(Name = "anterior_peso")] string? anteriorPeso = null,
-        [FromQuery(Name = "anterior_ok")] string? anteriorOk = null)
+        [FromQuery(Name = "anterior_ok")] string? anteriorOk = null,
+        [FromQuery(Name = "comparacao_de")] int? comparacaoDe = null)
     {
         ViewData["Title"] = "Peso — Controlo";
 
@@ -1004,9 +940,9 @@ public sealed class PesoModel : PageModel
         // capability aqui).
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("controlo", "Controlo"))) with
         {
-            ActiveFunctionKey = historico == "1" ? "historico" : comparacao == "1" ? "comparacao" : "peso",
+            ActiveFunctionKey = historico == "1" ? "historico" : comparacao == "1" ? "resumo" : "peso",
             Functions = ShellStateFactory.ControloFunctions(
-                historico == "1" ? "historico" : comparacao == "1" ? "comparacao" : "peso",
+                historico == "1" ? "historico" : comparacao == "1" ? "resumo" : "peso",
                 jobOnId, controloId)
         };
 
@@ -1100,49 +1036,6 @@ public sealed class PesoModel : PageModel
             {
                 HistoricoComparacao = await ComparacaoQuery.ObterComparacaoGuardadaAsync(
                     detalheId, HttpContext.RequestAborted);
-            }
-
-            // O «Comparar Pesos guardados» (os selects primeiro/segundo peso
-            // do html): os Pesos guardados para os selects e a comparação
-            // pelos ids (o endpoint por id no backend).
-            // Dois passos (16/10/2026): a referência primeiro e só depois os
-            // Pesos dela nos selects. Um link com peso_1 e sem referência
-            // reabre os selects na referência desse Peso.
-            PesoReferencia = Sanitize(pesoRef);
-            if (PesoReferencia is null && (peso1 ?? peso2) is int pesoDoLink)
-            {
-                PesoReferencia = await ComparacaoQuery.ReferenciaDoPesoAsync(
-                    pesoDoLink, HttpContext.RequestAborted);
-            }
-
-            if (PesoReferencia is not null)
-            {
-                PesoOpcoes = await ComparacaoQuery.ListarPesosPorReferenciaAsync(
-                    PesoReferencia, HttpContext.RequestAborted);
-                PesoReferenciaSemPesos = PesoOpcoes.Count == 0;
-            }
-
-            Peso1 = peso1;
-            Peso2 = peso2;
-            var escolhidos = new[] { peso1, peso2 }.OfType<int>().Distinct().ToList();
-            PesosEscolhidos = await ComparacaoQuery.OpcoesDosPesosAsync(escolhidos, HttpContext.RequestAborted);
-            if (peso1 is int primeiro && peso2 is int segundo)
-            {
-                // O mesmo Peso nos dois lados compara-se (Δ = 0) com aviso.
-                PesoComparacaoGuardados = await ComparacaoQuery.CompararGuardadosAsync(
-                    primeiro, segundo, HttpContext.RequestAborted);
-                if (PesoComparacaoGuardados is null)
-                {
-                    CompararRefusal = "escolher";
-                }
-                else
-                {
-                    CompararMesmoPeso = primeiro == segundo;
-                }
-            }
-            else if (peso1 is not null || peso2 is not null)
-            {
-                CompararRefusal = "escolher";
             }
 
             return Page();
@@ -1269,13 +1162,14 @@ public sealed class PesoModel : PageModel
                 ComparacaoLeiturasForaGuardada = ComparacaoLeiturasFora.Count > 0;
             }
 
-            // Comparação tem tab própria e preserva o Job On da produção.
+            // A Comparação vive no Resumo da produção (Diogo, 21/10/2026):
+            // sem separador próprio, o Resumo fica ativo e com o Job On.
             if (ViewData["Shell"] is ShellPresentation shell)
             {
                 ViewData["Shell"] = shell with
                 {
                     Functions = ShellStateFactory.ControloFunctions(
-                        "comparacao", ProducaoSelecionadaJobOnId, controloId)
+                        "resumo", ProducaoSelecionadaJobOnId, controloId)
                 };
             }
             return Page();
@@ -1408,7 +1302,14 @@ public sealed class PesoModel : PageModel
                 // diferenças … e depois ao escolher aí sim a tabela com
                 // detalhes» — a procura já mostra as médias de cada produção;
                 // a tabela só aparece com uma escolha explícita.
-                var effectiveComparisonId = compararPesoId;
+                // Sem escolha, o Peso criado só para comparar com este (o
+                // Diogo, 22/10/2026): foi feito para isso, e a comparação
+                // aparece logo.
+                var effectiveComparisonId = compararPesoId
+                    ?? ComparisonCandidates
+                        .Where(c => c.ProductionNumber == PesoComparisonQuery.RotuloParaComparacao)
+                        .Select(c => (int?)c.PesoId)
+                        .FirstOrDefault();
 
                 if (effectiveComparisonId is int historicalPesoId && historicalPesoId != Peso.PesoId)
                 {
@@ -1445,10 +1346,23 @@ public sealed class PesoModel : PageModel
             {
                 // Peso sem produção: as produções cuja CM usa este tool_id e
                 // ainda sem Peso — a app pergunta; nunca associa sozinha.
-                if (Peso.ControloId is null)
+                if (Peso.ControloId is null && Peso.ComparacaoDoPesoId is null)
                 {
                     ProductionCandidates = await _pesoAssociation.FindProductionsForPesoAsync(
                         canonicalPesoId, HttpContext.RequestAborted);
+                }
+
+                // Um Peso só para comparação volta ao Peso que compara, com
+                // ele escolhido na comparação (o Diogo, 22/10/2026).
+                if (Peso.ComparacaoDoPesoId is int comparado
+                    && await _pesoQuery.FindPesoAsync(comparado, HttpContext.RequestAborted) is { ControloId: int controloComparado } pesoComparado)
+                {
+                    ComparacaoVoltarUrl = Url.Page("/Controlo/Peso", new
+                    {
+                        controlo_id = controloComparado,
+                        peso_id = pesoComparado.IsCurrent ? (int?)null : pesoComparado.PesoId,
+                        comparar = Peso.PesoId
+                    });
                 }
 
                 // Abrir por peso_id (histórico/PRG) não perde a produção
@@ -1538,6 +1452,7 @@ public sealed class PesoModel : PageModel
         // o PRG antigo), mas nenhuma folha o pede.
         RequestedCmToolId = Sanitize(cmToolId);
         RequestedBqToolId = Sanitize(bqToolId);
+        ComparacaoDePesoId = comparacaoDe;
 
         if (!string.IsNullOrWhiteSpace(cmToolId))
         {
@@ -1664,8 +1579,10 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "cm_process")] string? cmProcess,
         [FromForm(Name = "cm_volume_puncao")] string? cmVolumePuncao,
         [FromForm(Name = "cm_nominal_weight")] string? cmNominalWeight,
-        [FromForm(Name = "bq_volume_marisa")] string? bqVolumeMarisa)
+        [FromForm(Name = "bq_volume_marisa")] string? bqVolumeMarisa,
+        [FromForm(Name = "comparacao_de")] int? comparacaoDe = null)
     {
+        ComparacaoDePesoId = comparacaoDe;
         var sanitizedCmToolId = Sanitize(cmToolId);
         var sanitizedBqToolId = Sanitize(bqToolId);
 
@@ -1726,7 +1643,8 @@ public sealed class PesoModel : PageModel
                 Sanitize(cmProcess),
                 parsedPuncao,
                 parsedNominal,
-                parsedMarisa),
+                parsedMarisa,
+                ComparacaoDoPesoId: comparacaoDe),
             HttpContext.RequestAborted);
 
         if (outcome.Result == CreateToolScopedPesoResult.Success)
@@ -2991,7 +2909,8 @@ public sealed class PesoModel : PageModel
             echo_process = cmProcess,
             echo_puncao = cmVolumePuncao,
             echo_nominal = cmNominalWeight,
-            echo_marisa = bqVolumeMarisa
+            echo_marisa = bqVolumeMarisa,
+            comparacao_de = ComparacaoDePesoId
         });
 
     private static string? Sanitize(string? value)

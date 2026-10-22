@@ -148,7 +148,11 @@ public partial class BoquilhasRegistoPageTests
         // O rasto da eliminação: os factos do movimento e quem apagou.
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-        var trail = await db.BqMovementDeletions.AsNoTracking().SingleAsync(d => d.BqMovementId == saidaId);
+        // A base em memória é partilhada por todas as classes de testes (o
+        // Sumário do Planeamento semeia um apagado com movimento 99): o rasto
+        // é o deste rasto de BQ.
+        var trail = await db.BqMovementDeletions.AsNoTracking()
+            .SingleAsync(d => d.BqMovementId == saidaId && d.BqRepairTraceId == trace.Id);
         Assert.Equal(trace.Id, trail.BqRepairTraceId);
         Assert.Equal(BqMovementType.Saida, trail.Type);
         Assert.Equal(3, trail.Quantity);

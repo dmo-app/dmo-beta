@@ -7,6 +7,7 @@ using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DMO.Alpha.Web.Pages.Boquilhas;
 
@@ -28,8 +29,17 @@ public sealed class DefinicoesModel(
     IBqRepairerQuery repairerQuery,
     ICreateBqRepairerHandler createRepairer,
     IEditBqRepairerHandler editRepairer,
-    ShellStateFactory shellState) : PageModel
+    IDeleteBqRepairerHandler deleteRepairer,
+    IBqExcelBoquilhas excel,
+    ShellStateFactory shellState,
+    [FromKeyedServices(DefinicoesModel.RelogioDoExcel)] TimeProvider? relogio = null) : PageModel
 {
+    /// <summary>A chave do relógio do «hoje» do Excel das Boquilhas (os testes fixam-no).</summary>
+    public const string RelogioDoExcel = "bq-excel-relogio";
+
+    private DateOnly HojeDoExcel => DateOnly.FromDateTime(
+        DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal((relogio ?? TimeProvider.System).GetUtcNow()));
+
     /// <summary>As ENTIDADES REPARADORAS, por nome; vazia mostra o aviso de criar a primeira.</summary>
     public IReadOnlyList<BqRepairerItem> Repairers { get; private set; } = Array.Empty<BqRepairerItem>();
 
@@ -44,6 +54,7 @@ public sealed class DefinicoesModel(
     private static string MessageFor(string? save) => save switch
     {
         "ok-reparador" or "ok-rota" => "Definição gravada.",
+        "ok-removido" => "Reparador removido.",
         "vazio" => "O valor não pode ficar em branco.",
         "reparador-vazio" => "O nome do reparador não pode ficar em branco.",
         "reparador-existente" => "Já existe um reparador com esse nome.",
@@ -57,7 +68,7 @@ public sealed class DefinicoesModel(
     /// sozinha); as recusas ficam no canto até se fecharem. Uma só mensagem
     /// por gravação, na pilha do canto: não empurra os cartões.
     /// </summary>
-    public bool SaveSucceeded => SaveResult is "ok-reparador" or "ok-rota";
+    public bool SaveSucceeded => SaveResult is "ok-reparador" or "ok-rota" or "ok-removido";
 
     public async Task<IActionResult> OnGetAsync(string? save)
     {
@@ -130,6 +141,19 @@ public sealed class DefinicoesModel(
     }
 
     /// <summary>
+    /// POST: remover um reparador (Diogo, 21/10/2026). As saídas já feitas
+    /// guardam o nome; as rotas que o usavam ficam sem reparador.
+    /// </summary>
+    public async Task<IActionResult> OnPostDeleteRepairerAsync(
+        [FromForm(Name = "repairer_id")] int? repairerId)
+    {
+        var outcome = await deleteRepairer.HandleAsync(
+            new DeleteBqRepairer(repairerId ?? 0), HttpContext.RequestAborted);
+        var save = outcome.Result == BqRepairerWriteResult.Success ? "ok-removido" : "reparador-inexistente";
+        return RedirectToPage("/Boquilhas/Definicoes", new { save });
+    }
+
+    /// <summary>
     /// POST: gravar a rota das máquinas (B1..C3). Cada «machine_code» chega
     /// como «B1|3» (máquina|reparador) ou «B1|» (limpa a rota: a saída
     /// grava na mesma, sem reparador). Escolher no dropdown grava logo; a
@@ -168,4 +192,133 @@ public sealed class DefinicoesModel(
 
         return RedirectToPage("/Boquilhas/Definicoes", new { save = "ok-rota" });
     }
+
+    /// <summary>O tamanho máximo do Excel das Boquilhas que o navegador envia.</summary>
+    public const long ExcelTamanhoMaximo = 20 * 1024 * 1024;
+
+    /// <summary>
+    /// GET: a versão dos movimentos das Boquilhas. O navegador onde o Excel
+    /// do chefe está ligado compara-a com a da última escrita e só envia o
+    /// ficheiro quando mudou.
+    /// </summary>
+    public async Task<IActionResult> OnGetExcelVersaoAsync() =>
+        new JsonResult(new { versao = await excel.VersaoAsync(HttpContext.RequestAborted) });
+
+    /// <summary>
+    /// POST: o EXCEL DAS BOQUILHAS DO CHEFE (Diogo, 21/10/2026: «cada registo
+    /// que faço passa guardar a informação nesse excel que está numa pasta do
+    /// pc»). O navegador envia o ficheiro da pasta e a data desde a qual a app
+    /// escreve; a resposta é o mesmo ficheiro com esses dias escritos, que o
+    /// navegador grava por cima. O ficheiro nunca fica no servidor.
+    /// </summary>
+    [RequestSizeLimit(ExcelTamanhoMaximo + 1024 * 1024)]
+    public async Task<IActionResult> OnPostExcelAsync(
+        [FromForm(Name = "livro")] IFormFile? livro,
+        [FromForm(Name = "desde")] string? desde,
+        [FromForm(Name = "escritas")] string? escritas)
+    {
+        if (livro is null || livro.Length == 0 || livro.Length > ExcelTamanhoMaximo)
+        {
+            return ExcelRecusa("Escolha o Excel das Boquilhas (.xlsx) nas Definições das Boquilhas.");
+        }
+
+        var hoje = HojeDoExcel;
+        if (!DateOnly.TryParseExact(desde, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var inicio))
+        {
+            inicio = hoje;
+        }
+
+        var anteriores = LerEscritas(escritas);
+        using var memoria = new MemoryStream();
+        await livro.CopyToAsync(memoria, HttpContext.RequestAborted);
+        BqExcelResultado resultado;
+        try
+        {
+            resultado = await excel.EscreverAsync(memoria.ToArray(), inicio > hoje ? hoje : inicio, hoje, anteriores, HttpContext.RequestAborted);
+        }
+        catch (BqExcelInvalidoException recusa)
+        {
+            return ExcelRecusa(recusa.Message);
+        }
+
+        return ExcelFicheiro(resultado);
+    }
+
+    /// <summary>
+    /// POST: «ATUALIZAR» o Excel das Boquilhas (Diogo, 22/10/2026: «dia
+    /// anterior está igual ao que a app tem? Se sim não atualizamos, acabou.
+    /// Se não, atualiza e pergunta se o dia antes do anterior está igual …»).
+    /// Escreve hoje e recua a partir de ontem até ao primeiro dia igual; a
+    /// mensagem diz que dias foram atualizados. O ficheiro nunca fica no servidor.
+    /// </summary>
+    [RequestSizeLimit(ExcelTamanhoMaximo + 1024 * 1024)]
+    public async Task<IActionResult> OnPostExcelAtualizarAsync(
+        [FromForm(Name = "livro")] IFormFile? livro,
+        [FromForm(Name = "escritas")] string? escritas)
+    {
+        if (livro is null || livro.Length == 0 || livro.Length > ExcelTamanhoMaximo)
+        {
+            return ExcelRecusa("Escolha o Excel das Boquilhas (.xlsx) nas Definições das Boquilhas.");
+        }
+
+        var hoje = HojeDoExcel;
+        using var memoria = new MemoryStream();
+        await livro.CopyToAsync(memoria, HttpContext.RequestAborted);
+        BqExcelAtualizacao atualizacao;
+        try
+        {
+            atualizacao = await excel.AtualizarAsync(memoria.ToArray(), hoje, LerEscritas(escritas), HttpContext.RequestAborted);
+        }
+        catch (BqExcelInvalidoException recusa)
+        {
+            return ExcelRecusa(recusa.Message);
+        }
+
+        Response.Headers["X-Dmo-Excel-Mensagem"] = Uri.EscapeDataString(atualizacao.Mensagem);
+        Response.Headers["X-Dmo-Excel-Atualizados"] = string.Join(",", atualizacao.Atualizados.Select(d => d.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+        return ExcelFicheiro(atualizacao.Resultado);
+    }
+
+    private static IReadOnlyList<BqExcelEscrita> LerEscritas(string? escritas)
+    {
+        try
+        {
+            return string.IsNullOrWhiteSpace(escritas) ? [] :
+                System.Text.Json.JsonSerializer.Deserialize<List<BqExcelEscrita>>(escritas, ExcelJson) ?? [];
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return [];
+        }
+    }
+
+    private FileContentResult ExcelFicheiro(BqExcelResultado resultado)
+    {
+        Response.Headers["X-Dmo-Excel-Versao"] = resultado.Versao;
+        if (resultado.Avisos.Count > 0)
+        {
+            Response.Headers["X-Dmo-Excel-Avisos"] = Uri.EscapeDataString(string.Join("\n", resultado.Avisos));
+        }
+
+        Response.Headers["X-Dmo-Excel-Escritas"] = Uri.EscapeDataString(
+            System.Text.Json.JsonSerializer.Serialize(resultado.Escritas ?? [], ExcelJson));
+        return File(resultado.Livro, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    /// <summary>
+    /// GET: um Excel novo, vazio, no formato do Excel das Boquilhas, para o
+    /// navegador gravar na pasta escolhida (Diogo, 21/10/2026: «escolher dir
+    /// do excel que vamos criar»). O ficheiro nunca fica no servidor.
+    /// </summary>
+    public IActionResult OnGetExcelNovo([FromQuery] DateOnly? dia) =>
+        File(excel.Novo(dia ?? DateOnly.FromDateTime(DateTime.Today)), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+    private static readonly System.Text.Json.JsonSerializerOptions ExcelJson = new(System.Text.Json.JsonSerializerDefaults.Web);
+
+    private ContentResult ExcelRecusa(string mensagem) => new()
+    {
+        StatusCode = StatusCodes.Status422UnprocessableEntity,
+        ContentType = "text/plain; charset=utf-8",
+        Content = mensagem
+    };
 }

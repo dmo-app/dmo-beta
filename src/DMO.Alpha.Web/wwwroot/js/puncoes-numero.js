@@ -31,8 +31,26 @@
     selecionar(campo);
   });
 
+  // O LOTE DE UM NÚMERO REPETIDO (Diogo, 21/10/2026: «quando o numero de um
+  // puncao é diferente deveria pedir o lote»): o número que já está na lista
+  // mostra e pede «Lote desta punção»; os outros escondem-no e não o enviam.
+  function loteDoRepetido(campo) {
+    var form = campo.form;
+    var bloco = form ? form.querySelector('.pu-lote-puncao') : null;
+    if (!bloco) return;
+    var numeros = (form.getAttribute('data-pu-numeros') || '').split('|');
+    var repetido = campo.value.trim() !== '' && numeros.indexOf(campo.value.trim()) >= 0;
+    var lote = bloco.querySelector('input');
+    bloco.hidden = !repetido;
+    lote.disabled = !repetido;
+    lote.required = repetido;
+  }
+
   document.addEventListener('input', function (evento) {
-    if (evento.target && evento.target.id === ID) porEnviar = evento.target.value;
+    if (evento.target && evento.target.id === ID) {
+      porEnviar = evento.target.value;
+      loteDoRepetido(evento.target);
+    }
   });
 
   document.addEventListener('dmo:troca', function () {
@@ -44,5 +62,6 @@
     } else if (!campo.value && porEnviar) {
       campo.value = porEnviar;
     }
+    loteDoRepetido(campo);
   });
 })();

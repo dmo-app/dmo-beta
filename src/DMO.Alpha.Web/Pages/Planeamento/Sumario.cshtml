@@ -24,8 +24,12 @@
     }
 }
 @section Head {
+  <link rel="stylesheet" href="~/beta-adapter.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/dmo-sumario.css" asp-append-version="true" />
 }
+@* O painel lateral do Planeamento, como no Job On (Diogo, 21/10/2026). *@
+<div class="beta-light-layout">
+<partial name="_DmoRailProximasEntradas" model="Model.ProximasEntradas" />
 <main data-dmo-troca class="dmo-workspace sumario-page" aria-labelledby="sumario-title">
   <div class="page-head">
     <div>
@@ -136,3 +140,4 @@
     </section>
   </div>
 </main>
+</div>

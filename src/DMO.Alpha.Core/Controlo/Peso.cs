@@ -155,6 +155,15 @@ public sealed class Peso
     /// </summary>
     public decimal? ProducaoAnteriorPesoGramas { get; set; }
 
+    /// <summary>
+    /// O Peso para o qual este foi criado só para comparação (o Diogo,
+    /// 22/10/2026: «fica associado àquele peso como comparação only; não pede
+    /// para associar depois a um Job On»). Null num Peso normal. Um Peso só
+    /// para comparação nunca é associado a um Job On (CHECK na base) e é o
+    /// Peso anterior do Peso indicado aqui, na «Comparação com outro controlo».
+    /// </summary>
+    public int? ComparacaoDoPesoId { get; set; }
+
     /// <summary>Leituras físicas registadas neste Peso (factos históricos).</summary>
     public ICollection<PesoMeasurement> Measurements { get; set; } = new List<PesoMeasurement>();
 }

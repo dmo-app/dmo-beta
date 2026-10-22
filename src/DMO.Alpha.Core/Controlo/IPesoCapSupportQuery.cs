@@ -28,15 +28,12 @@ public sealed record PesoCapSupportReadModel(
     string? EstadoMensagem,
     string OrigemCalote,
     decimal? DiametroMm,
-    decimal? RaioDesenhoMm,
     decimal? AlturaReferenciaMm,
     decimal? AlturaEfetivaMm,
     decimal? RaioReferenciaMm,
     decimal? VolumeReferenciaCm3,
     decimal? RaioCalculadoMm,
     decimal? VolumeEfetivoCm3,
-    /// <summary>drawing_delta = reference.R − R_draw.</summary>
-    decimal? DiferencaDesenhoMm,
     /// <summary>ΔR = actual.R − reference.R.</summary>
     decimal? DeltaRaioMm,
     /// <summary>ΔV = actual.V − reference.V.</summary>

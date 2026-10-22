@@ -247,7 +247,8 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
             Component = component,
             CosturaMm = command.CosturaMm,
             ContraCosturaMm = command.ContraCosturaMm,
-            NominalGargaloMm = nominalGargalo
+            NominalGargaloMm = nominalGargalo,
+            NumeroFerramenta = NumeroFerramenta(command.NumeroFerramenta)
         };
         _db.PegamentosMeasurements.Add(measurement);
 
@@ -263,7 +264,8 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
                 Component = component,
                 CosturaMm = row.CosturaMm,
                 ContraCosturaMm = row.ContraCosturaMm,
-                NominalGargaloMm = nominalGargalo
+                NominalGargaloMm = nominalGargalo,
+                NumeroFerramenta = NumeroFerramenta(row.NumeroFerramenta)
             });
         }
 
@@ -304,4 +306,11 @@ public sealed class RecordPegamentosMeasurementHandler : IRecordPegamentosMeasur
 
     private static RecordPegamentosMeasurementOutcome Refused(RecordPegamentosMeasurementResult result) =>
         new(result);
+
+    /// <summary>O número da ferramenta como se grava: sem espaços à volta, vazio = null, até 20 caracteres.</summary>
+    internal static string? NumeroFerramenta(string? numero)
+    {
+        var limpo = numero?.Trim();
+        return string.IsNullOrEmpty(limpo) ? null : limpo.Length > 20 ? limpo[..20].TrimEnd() : limpo;
+    }
 }

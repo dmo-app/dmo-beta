@@ -59,7 +59,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 jobOn != null ? jobOn.InicioEm : null,
                 jobOn != null ? jobOn.FimEm : null,
                 trace.DiscrepancyResetAtUtc,
-                trace.DiscrepancyResetByNameFrozen))
+                trace.DiscrepancyResetByNameFrozen,
+                jobOn != null ? jobOn.Id : (int?)null))
             .FirstOrDefaultAsync(cancellationToken);
 
         return header is null ? null : await ComposeTraceAsync(header, movementPage, cancellationToken);
@@ -118,7 +119,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 jobOn.ProductionNumber,
                 MachineCode = machine.Code,
                 jobOn.InicioEm,
-                jobOn.FimEm
+                jobOn.FimEm,
+                JobOnId = jobOn.Id
             })
             .FirstOrDefaultAsync(cancellationToken);
         if (row is null)
@@ -143,7 +145,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                     row.InicioEm,
                     row.FimEm,
                     row.TraceResetAtUtc,
-                    row.TraceResetBy),
+                    row.TraceResetBy,
+                    row.JobOnId),
                 movementPage,
                 cancellationToken);
         }
@@ -159,7 +162,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         return new BoquilhasRegistoContext(
             bqContextId,
             row.ContextToolId,
-            new BoquilhasRegistoProductionContext(row.Reference, row.ProductionNumber, row.MachineCode, row.InicioEm, row.FimEm),
+            new BoquilhasRegistoProductionContext(row.Reference, row.ProductionNumber, row.MachineCode, row.InicioEm, row.FimEm, row.JobOnId),
             contextTool,
             contextTool is null ? null : row.ToolAccountedQuantity,
             associated);
@@ -179,7 +182,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         DateOnly? InicioEm,
         DateOnly? FimEm,
         DateTime? DiscrepancyResetAtUtc = null,
-        string? DiscrepancyResetBy = null);
+        string? DiscrepancyResetBy = null,
+        int? JobOnId = null);
 
     /// <summary>
     /// O read model a partir da linha do trace: as contas leem só os números
@@ -195,7 +199,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         var production = header.ProductionReference is not null
             && header.ProductionNumber is not null
             && header.MachineCode is not null
-            ? new BoquilhasRegistoProductionContext(header.ProductionReference, header.ProductionNumber, header.MachineCode, header.InicioEm, header.FimEm)
+            ? new BoquilhasRegistoProductionContext(header.ProductionReference, header.ProductionNumber, header.MachineCode, header.InicioEm, header.FimEm, header.JobOnId)
             : null;
 
         var movements = await _db.BqMovements

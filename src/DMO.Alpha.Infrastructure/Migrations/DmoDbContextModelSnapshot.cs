@@ -1021,6 +1021,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<decimal?>("NominalGargaloMm")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("NumeroFerramenta")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<int>("PegamentosId")
                         .HasColumnType("integer");
 
@@ -1152,6 +1156,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("CmToolReferenceFrozen")
                         .HasColumnType("text");
 
+                    b.Property<int?>("ComparacaoDoPesoId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("ControloId")
                         .HasColumnType("integer");
 
@@ -1199,6 +1206,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.HasIndex("CmToolId");
 
+                    b.HasIndex("ComparacaoDoPesoId");
+
                     b.HasIndex("ControloId");
 
                     b.HasIndex("ProducaoAnteriorControloId");
@@ -1209,7 +1218,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("\"ControloId\" IS NOT NULL AND \"CmToolId\" <> 'REMOVED' AND \"BqToolId\" <> 'REMOVED'");
 
-                    b.ToTable("Pesos");
+                    b.ToTable("Pesos", t =>
+                        {
+                            t.HasCheckConstraint("CK_Pesos_ComparacaoSemControlo", "\"ComparacaoDoPesoId\" IS NULL OR \"ControloId\" IS NULL");
+                        });
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoComparacao", b =>
@@ -2920,6 +2932,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("CmToolId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Controlo.Peso", null)
+                        .WithMany()
+                        .HasForeignKey("ComparacaoDoPesoId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DMO.Alpha.Core.Controlo.Controlo", "Controlo")
                         .WithMany()

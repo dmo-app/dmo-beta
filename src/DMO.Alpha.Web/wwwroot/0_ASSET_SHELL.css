@@ -115,6 +115,7 @@ body[data-beta-page="jobon"] .job-tool-card-head .dmo-options-caret{color:var(--
 body[data-beta-page="jobon"] .job-tool-menu .dmo-options-list{left:auto;right:8px}
 body[data-beta-page="jobon"] .job-tool-chosen{padding:10px 12px 2px}
 body[data-beta-page="jobon"] .job-tool-card-title{display:block;margin-bottom:6px;font-size:15px;font-weight:650}
+body[data-beta-page="jobon"] a.job-tool-card-link{color:inherit;text-decoration:none}body[data-beta-page="jobon"] a.job-tool-card-link[href]:hover .job-tool-card-title,body[data-beta-page="jobon"] a.job-tool-card-link[href]:focus-visible .job-tool-card-title{text-decoration:underline}
 body[data-beta-page="jobon"] .job-tool-input{padding:10px 12px}
 body[data-beta-page="jobon"] .job-tool-card-facts{display:flex;flex-wrap:wrap;gap:4px 12px;padding:0 0 10px;font-size:11.5px;color:var(--dmo-muted,#64778a)}body[data-beta-page="jobon"] .job-tool-card-facts:empty{display:none}body[data-beta-page="jobon"] .job-tool-card-facts b{color:var(--dmo-text,#172d42)}
 body[data-beta-page="jobon"] .job-tool-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding:10px 12px;border-top:1px solid var(--dmo-border)}

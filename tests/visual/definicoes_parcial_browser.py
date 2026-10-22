@@ -168,6 +168,23 @@ with sync_playwright() as playwright:
     assert foco(page) == 'repairerName', f'foco em {foco(page)}'
     assert page.locator(f'#machine-route-B1 option[value="B1|{novo_id}"]').count() == 1, 'o reparador novo não está nas rotas'
 
+    # O campo do reparador também filtra (Diogo, 21/10/2026: «nome reparador
+    # pode servir como filtro, caso não exista o operador cria»): com dois
+    # reparadores, parte de um nome deixa só esse; um nome novo cria-o.
+    outro = f'Oficina Filtro {int(time.time())}'
+    page.fill('#repairerName', outro)
+    gravar(page, pedidos, lambda: page.press('#repairerName', 'Enter'), ['#bq-def-title'], 'Boquilhas, criar o segundo reparador')
+    outro_id = sql(f'''select "Id" from "BqRepairers" where "Name" = '{outro}' ''')
+    assert outro_id, 'o segundo reparador não ficou na base'
+    expect(page.locator(f'tr[data-dmo-ficha="bqDefFicha-{outro_id}"]')).to_be_visible()
+    page.fill('#repairerName', outro.lower().replace('oficina', 'ofícina'))
+    expect(page.locator(f'tr[data-dmo-ficha="bqDefFicha-{outro_id}"]')).to_be_visible()
+    expect(page.locator(f'tr[data-dmo-ficha="bqDefFicha-{novo_id}"]')).to_be_hidden()
+    assert page.locator('#bqDefTabelaReparadores tbody tr:visible').count() == 1, 'o filtro deixa só um reparador'
+    page.fill('#repairerName', '')
+    page.dispatch_event('#repairerName', 'input')
+    expect(page.locator(f'tr[data-dmo-ficha="bqDefFicha-{novo_id}"]')).to_be_visible()
+
     # O operador abre o dropdown (o foco vai para ele) e escolhe.
     page.focus('#machine-route-B1')
     gravar(page, pedidos, lambda: page.select_option('#machine-route-B1', f'B1|{novo_id}'),
@@ -176,13 +193,16 @@ with sync_playwright() as playwright:
     assert foco(page) == 'machine-route-B1', f'foco em {foco(page)}'
     assert sql('''select "SettingValue" from "ModuleSettings" where "SettingKey" = 'Boquilhas:RepairerB1' ''') == novo_id
 
-    # O valor que chegou na zona trocada grava no sítio (JSON), sem recarregar.
+    # O nome muda na ficha do reparador (um clique na linha; Diogo,
+    # 21/10/2026) e grava no sítio (JSON), sem recarregar.
+    page.click(f'tr[data-dmo-ficha="bqDefFicha-{novo_id}"]')
     campo = f'#bq-reparador-{novo_id}'
     page.fill(campo, nome + ' x')
     with page.expect_response(lambda r: 'handler=EditRepairer' in r.url):
         gravar(page, pedidos, lambda: page.press(campo, 'Tab'), ['#bq-def-title', '#bqDefReparadores', '#bqDefRotas'],
                'Boquilhas, nome no sítio', sem_troca=True)
     assert sql(f'''select "Name" from "BqRepairers" where "Id" = {novo_id}''') == nome + ' x'
+    expect(page.locator(f'td[data-dmo-espelho="bq-reparador-{novo_id}"]')).to_have_text(nome + ' x')
     assert not erros, erros
     page.context.close()
 

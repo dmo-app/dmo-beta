@@ -76,16 +76,14 @@ public sealed class PesoCapCalculationTests
     public void Support_ComCaloteDoJobOn_ComparaComAReferencia()
     {
         // A calote efetiva da produção (9 mm) contra a referência da Tool
-        // (h_ref 10 mm) e o desenho (R_draw 24,11): R efetivo (625+81)/18 =
+        // (h_ref 10 mm): R efetivo (625+81)/18 =
         // 39,2222…; ΔR = 39,2222… − 36,25 = +2,9722…; ΔV = 9,2174… −
-        // 10,34107… = −1,1236…; drawing_delta = 36,25 − 24,11 = +12,14.
-        var support = PesoCapCalculation.Support(50m, 24.11m, 10m, 9m);
+        // 10,34107… = −1,1236….
+        var support = PesoCapCalculation.Support(50m, 10m, 9m);
 
         Assert.Equal(50m, support.Referencia.DiametroMm);
         Assert.Equal(10m, support.Referencia.AlturaMm);
         Assert.Equal(36.25m, support.Referencia.RaioMm);
-        Assert.Equal(24.11m, support.RaioDesenhoMm);
-        Assert.Equal(12.14m, support.DiferencaDesenhoMm);
         Assert.Equal(9m, support.Efetivo.AlturaMm);
         Assert.InRange(support.Efetivo.RaioMm!.Value, 39.2222m, 39.2223m);
         Assert.InRange(support.DeltaRaioMm!.Value, 2.9721m, 2.9723m);
@@ -98,7 +96,7 @@ public sealed class PesoCapCalculationTests
     {
         // O html: «effective ?? geometry.h_ref» — sem calote do Job On a
         // efetiva É a referência: ΔR = 0 e ΔV = 0 (o sinal do zero é +).
-        var support = PesoCapCalculation.Support(50m, 24.11m, 10m, null);
+        var support = PesoCapCalculation.Support(50m, 10m, null);
 
         Assert.Equal(support.Referencia.RaioMm, support.Efetivo.RaioMm);
         Assert.Equal(support.Referencia.VolumeCm3, support.Efetivo.VolumeCm3);
@@ -109,12 +107,11 @@ public sealed class PesoCapCalculationTests
     [Fact]
     public void Support_ReferenciaPlana_DiferencasDeRaioIndefinidas()
     {
-        // h_ref = 0: a referência não tem R → drawing_delta e ΔR ficam
+        // h_ref = 0: a referência não tem R → ΔR fica
         // indefinidos (null, nunca zero inventado); ΔV compara os volumes.
-        var support = PesoCapCalculation.Support(50m, 24.11m, 0m, 5m);
+        var support = PesoCapCalculation.Support(50m, 0m, 5m);
 
         Assert.Null(support.Referencia.RaioMm);
-        Assert.Null(support.DiferencaDesenhoMm);
         Assert.Null(support.DeltaRaioMm);
         Assert.InRange(support.DeltaVolumeCm3, 4.974m, 4.975m); // π·5·1900/6000 = 4,9742…
     }
@@ -124,22 +121,32 @@ public sealed class PesoCapCalculationTests
     {
         // A Tool sem TP (ou com um valor inválido) NÃO TEM apoio: null =
         // «Referência por completar» — o Peso continua 100% intacto.
-        Assert.Null(PesoCapCalculation.TrySupport(null, 24.11m, 10m, null));       // sem D
-        Assert.Null(PesoCapCalculation.TrySupport(50m, null, 10m, null));          // sem R do desenho
-        Assert.Null(PesoCapCalculation.TrySupport(50m, 24.11m, null, null));       // sem h_ref
-        Assert.Null(PesoCapCalculation.TrySupport(0m, 24.11m, 10m, null));         // D inválido
-        Assert.Null(PesoCapCalculation.TrySupport(50m, 0m, 10m, null));            // R_draw inválido
-        Assert.Null(PesoCapCalculation.TrySupport(50m, 24.11m, -1m, null));        // h_ref negativo
-        Assert.Null(PesoCapCalculation.TrySupport(50m, 24.11m, 10m, -1m));         // calote negativa
+        Assert.Null(PesoCapCalculation.TrySupport(null, 10m, null));       // sem D
+        Assert.Null(PesoCapCalculation.TrySupport(50m, null, null));       // sem h_ref
+        Assert.Null(PesoCapCalculation.TrySupport(0m, 10m, null));         // D inválido
+        Assert.Null(PesoCapCalculation.TrySupport(50m, -1m, null));        // h_ref negativo
+        Assert.Null(PesoCapCalculation.TrySupport(50m, 10m, -1m));         // calote negativa
     }
 
     [Fact]
     public void TrySupport_GeometriaCompleta_DevolveOApoio()
     {
-        var support = PesoCapCalculation.TrySupport(50m, 24.11m, 10m, 9m);
+        var support = PesoCapCalculation.TrySupport(50m, 10m, 9m);
 
         Assert.NotNull(support);
         Assert.Equal(36.25m, support!.Referencia.RaioMm);
         Assert.Equal(9m, support.Efetivo.AlturaMm);
+    }
+
+    [Fact]
+    public void TrySupport_SoComDiametroECalote_DevolveOApoioSemRaio()
+    {
+        // O raio do desenho deixou de ser pedido: D e h_ref chegam para a
+        // esfera (a = D/2; R = (a² + h²)/(2h); V = π·h·(3a² + h²)/6000).
+        var support = PesoCapCalculation.TrySupport(50m, 10m, null);
+
+        Assert.NotNull(support);
+        Assert.Equal(36.25m, support!.Referencia.RaioMm);
+        Assert.InRange(support.Referencia.VolumeCm3, 10.338m, 10.342m);
     }
 }

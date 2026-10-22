@@ -81,6 +81,29 @@ public sealed class PuncoesHandlerTests : IDisposable
     }
 
     [Fact]
+    public async Task NumeroRepetido_ComOLoteDessaPuncao_RegistaComEsseLote_EOLoteDeCimaFica()
+    {
+        // Diogo, 21/10/2026: «quando o numero de um puncao é diferente deveria
+        // pedir o lote». A 41 repetida, logo a seguir e pela mesma pessoa,
+        // com o lote 3 é outra punção (não um duplo clique); o lote de cima
+        // continua 1 para as próximas.
+        var controloId = await SeedProductionAsync(CmProcess.Nnpb);
+        var alvo = PuncoesTarget.ForControlo(controloId);
+        Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(alvo, "41", "1075", "1", "4301"));
+        Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(alvo, "41", "1075", "1", "4301", punchLot: "3"));
+        Assert.Equal(PuncoesResult.InvalidLot, await _handler.AddAsync(alvo, "41", "1075", "1", "4301", punchLot: "x"));
+        Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(alvo, "42", "1075", "1", "4301", punchLot: "9"));
+
+        _db.ChangeTracker.Clear();
+        var registo = (await _handler.GetSheetAsync(controloId))!.Registo!;
+        Assert.Equal("1", registo.Lot);
+        Assert.Equal(new[] { "41", "41", "42" }, registo.Rows.Select(r => r.Number));
+        // O 42 é novo: o lote da punção não conta, fica o de cima.
+        Assert.Equal(new[] { "1", "3", "1" }, registo.Rows.Select(r => r.Lot));
+        Assert.Equal(new[] { false, true, false }, registo.Rows.Select(r => r.IsAlteracao));
+    }
+
+    [Fact]
     public async Task SeenMarks_AndRemove_UpdateTheTotals()
     {
         var controloId = await SeedProductionAsync(CmProcess.Nnpb);

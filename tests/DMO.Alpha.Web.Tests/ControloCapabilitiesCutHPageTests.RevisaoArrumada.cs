@@ -96,6 +96,16 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Single(Regex.Matches(consulta, "data-revisao-peso-comparacao"));
         Assert.Contains("<div><span>Produção</span><strong>J10</strong></div>", consulta);
         Assert.True(consulta.IndexOf("data-revisao-peso-comparacao", StringComparison.Ordinal) < consulta.IndexOf("id=\"consultaDecisao\"", StringComparison.Ordinal));
+        // «Produção» e não «SAP» (Diogo, 21/10/2026: «sempre que for
+        // referência a produção usar produção e não SAP»): o delta da Revisão,
+        // o quadro da consulta do Peso e o Resumo do controlo.
+        Assert.Matches("<span>Delta à produção anterior</span><strong>[^<]*</strong><small>Produção 258[.,]00 g</small>", html);
+        Assert.DoesNotContain("SAP", TextoVisivel(html));
+        Assert.Contains("<span>Peso da produção anterior</span>", consulta);
+        Assert.DoesNotContain("SAP", TextoVisivel(consulta));
+        var resumoDoControlo = await GetPageHtmlAsync(client, $"/Controlo/Approve/Detalhe?controlo_id={controloId}&tipo=controlo");
+        Assert.Contains("<span>Peso da produção anterior</span>", resumoDoControlo);
+        Assert.DoesNotContain("SAP", TextoVisivel(resumoDoControlo));
         var pegamentos = await GetPageHtmlAsync(client, $"/Controlo/Approve/Detalhe?controlo_id={controloId}&tipo=pegamentos");
         Assert.DoesNotContain("consultaDecisao", pegamentos);
         Assert.Contains("<h3 class=\"revisao-section\" id=\"approve-detail-production\">Pegamentos</h3>", pegamentos);
@@ -272,6 +282,10 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         // A barra do resumo leva os links dentro dela.
         Assert.Matches("<div class=\"revisao-parte-topo revisao-topo-principal\">\\s*<h3[^>]*>Resumo do controlo</h3>\\s*<nav class=\"revisao-consultas\"", html);
     }
+
+    // O texto que se vê: sem as etiquetas, os atributos e os scripts.
+    private static string TextoVisivel(string html) =>
+        System.Net.WebUtility.HtmlDecode(Regex.Replace(Regex.Replace(html, "<(script|style)[\\s\\S]*?</\\1>", " "), "<[^>]+>", " "));
 
     private static Peso NovoPeso(int controloId, int? anteriorControloId, decimal? sap) => new()
     {

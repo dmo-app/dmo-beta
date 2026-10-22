@@ -13,3 +13,10 @@ public sealed record CreateBqRepairer(string Name);
 /// (BqRepairerNameFrozen) de cada saída é a verdade histórica dela.
 /// </summary>
 public sealed record EditBqRepairer(int BqRepairerId, string Name);
+
+/// <summary>
+/// Comando: remover uma entidade reparadora (Diogo, 21/10/2026: «não existe
+/// forma de remover ou editar reparadores»). As saídas já feitas guardam o
+/// nome com que foram feitas; as máquinas que a usavam ficam sem reparador.
+/// </summary>
+public sealed record DeleteBqRepairer(int BqRepairerId);

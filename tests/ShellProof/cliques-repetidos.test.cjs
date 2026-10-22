@@ -65,7 +65,7 @@ function paginaRegistar(avisos = '', referencia = '') {
     <div id="ferrAvisos" class="dmo-zona" data-dmo-regiao>${avisos}</div>
     <section class="dmo-card ferr-card">
       <div class="dmo-card-topo"><h3>Registar ferramenta real</h3>
-        <div class="dmo-card-topo-acoes"><button type="submit" form="ferr-create-form" id="registar" class="dmo-button">Registar ferramenta</button></div>
+        <div class="dmo-card-topo-acoes"><button type="submit" form="ferr-create-form" id="registar" class="dmo-button">Registar</button></div>
       </div>
       <form id="ferr-create-form" method="post" action="/Ferramentas?handler=Create" class="ferr-create-form" data-dmo-parcial>
         <input type="hidden" name="__RequestVerificationToken" value="token-1">

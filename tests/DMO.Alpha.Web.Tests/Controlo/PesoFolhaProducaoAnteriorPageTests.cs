@@ -244,6 +244,17 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         // as leituras ao escrever; o cartão da leitura já diz o motivo (B-peso-6).
         Assert.DoesNotContain("data-peso-refusals", html);
         Assert.Contains("Exportar PDF", html);
+        // Um só cartão (Diogo, 21/10/2026): com produção, o «Exportar PDF» está
+        // no cartão de cima, à direita da «Comparação de Peso», e o cartão do
+        // Peso não repete a produção, a referência e a CM no título.
+        var cartaoDeCima = html[Posicao(html, "aria-labelledby=\"peso-production-title\"")..Posicao(html, "aria-labelledby=\"peso-open-title\"")];
+        Assert.True(Posicao(cartaoDeCima, "Exportar PDF") > Posicao(cartaoDeCima, "Comparação de Peso"));
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "form=\"pesoPdfForm\">Exportar PDF"));
+        Assert.Contains("id=\"peso-open-title\" class=\"visually-hidden-peso\"", html);
+        // O + e o − ficam juntos, ao lado do «Registar leitura».
+        var botoes = html[Posicao(html, "class=\"peso-leitura-actions\"")..];
+        Assert.True(Posicao(botoes, "peso-registar") < Posicao(botoes, "class=\"peso-row-buttons\""));
+        Assert.True(Posicao(botoes, "class=\"peso-row-buttons\"") < Posicao(botoes, "data-peso-add-row"));
         Assert.DoesNotContain("Descarregar PDF de Peso separado", html);
         Assert.DoesNotContain("Escreva a massa", html);
     }
@@ -499,10 +510,9 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         // Sem nada guardado: a produção anterior proposta é a mais recente
         // da mesma referência, com o início e o fim do Job On.
         var before = await GetPageHtmlAsync(client, url);
-        Assert.Contains("Produção anterior", before);
-        // Diogo, 21/10/2026: na produção diz-se «produção», não «SAP» (só os atributos data-sap-* ficam).
+        Assert.Contains("id=\"peso-producao-anterior-title\">Produção anterior</h4>", before);
+        // Diogo, 21/10/2026: «sempre que for referência a produção usar produção e não SAP».
         Assert.DoesNotContain("(SAP)", before);
-        Assert.Contains("Produção anterior</h4>", before);
         Assert.Contains($"value=\"{anteriorJobOnId}\" data-inicio=\"06/04/2026\" data-fim=\"24/04/2026\" selected=\"selected\">202604 · B1</option>", before);
         Assert.Contains($"value=\"{maisAntigaJobOnId}\"", before);
         Assert.Contains("Início <span data-inicio>06/04/2026</span> · Fim <span data-fim>24/04/2026</span>", before);

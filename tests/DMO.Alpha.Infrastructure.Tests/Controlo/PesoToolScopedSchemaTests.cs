@@ -162,7 +162,10 @@ public sealed class PesoToolScopedSchemaTests
                 // A produção anterior (o Owner 2026-10-17): também um
                 // controlo, nunca um jobon_id, e o peso do SAP escrito à mão.
                 "ProducaoAnteriorControloId",
-                "ProducaoAnteriorPesoGramas"
+                "ProducaoAnteriorPesoGramas",
+                // O Peso só para comparação (o Diogo, 22/10/2026): aponta
+                // para outro Peso, nunca para uma produção.
+                "ComparacaoDoPesoId"
             },
             entityType!.GetProperties().Select(p => p.Name).ToHashSet());
 
@@ -180,8 +183,8 @@ public sealed class PesoToolScopedSchemaTests
         // produção é referenciada.
         Assert.Equal(
             // + a produção anterior (o Owner 2026-10-17), também um controlo.
-            // + o autor pelo utilizador (fundações do full), para Users.
-            new[] { "BqToolId", "CmToolId", "ControloId", "ProducaoAnteriorControloId", "RegistadoPorUserId" },
+            // + o autor pelo utilizador (fundações do full) e o Peso que um Peso só para comparação compara (22/10/2026).
+            new[] { "BqToolId", "CmToolId", "ComparacaoDoPesoId", "ControloId", "ProducaoAnteriorControloId", "RegistadoPorUserId" },
             entityType.GetForeignKeys()
                 .SelectMany(fk => fk.Properties)
                 .Select(p => p.Name)

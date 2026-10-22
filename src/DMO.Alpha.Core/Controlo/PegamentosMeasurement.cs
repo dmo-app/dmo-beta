@@ -54,6 +54,12 @@ public sealed class PegamentosMeasurement
     public decimal? NominalGargaloMm { get; set; }
 
     /// <summary>
+    /// O número da CM, da BQ ou do MF lido (ex.: CM n.º 61), escrito pelo
+    /// operador; opcional, até 20 caracteres (Diogo, 21/10/2026).
+    /// </summary>
+    public string? NumeroFerramenta { get; set; }
+
+    /// <summary>
     /// Quando a leitura foi gravada (UTC, pelo carimbo dos registos); null
     /// nas leituras anteriores a 19/10/2026. A Revisão avisa «Registado
     /// depois da aprovação» quando é posterior à decisão (Diogo, 19/10/2026,

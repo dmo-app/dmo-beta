@@ -13,7 +13,7 @@ namespace DMO.Alpha.Infrastructure.Tests.Boquilhas;
 /// nome repetido; editar o nome SEM reescrever os movimentos passados (o
 /// congelado de cada saída é a verdade histórica dela).
 /// </summary>
-public sealed class BqRepairerWriteHandlersTests
+public sealed partial class BqRepairerWriteHandlersTests
 {
     private static DmoDbContext CreateContext()
     {

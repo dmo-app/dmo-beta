@@ -291,12 +291,12 @@ public sealed class JobOnToolFactsQueryTests : IDisposable
 
     [Theory]
     [InlineData(-1, false)] // a outra acabou na véspera
-    [InlineData(0, true)]   // a outra acaba no dia em que esta começa
+    [InlineData(0, false)]  // a outra acaba no dia em que esta começa: o dia da troca
     [InlineData(1, true)]   // a outra acaba no dia seguinte
-    public async Task FindAsync_OutraAcabaNoDiaEmQueEstaComeca_Avisa_NaVesperaNao(int fimDaOutra, bool avisa)
+    public async Task FindAsync_OutraAcabaNoDiaEmQueEstaComeca_NoDiaDaTrocaNao(int fimDaOutra, bool avisa)
     {
-        // Os dias contam inteiros, como no aviso de sobreposição da mesma
-        // máquina: no dia em que esta começa, a outra ainda tem a ferramenta.
+        // Como no aviso de sobreposição da mesma máquina, o dia da troca não
+        // conta (o Diogo, 22/10/2026): a ferramenta sai de uma e entra na outra.
         var b1 = await SeedMachineAsync("B1");
         await SeedMachineAsync("C2");
         await SeedToolAsync("T3", ToolType.Cm, "5447", "3");
@@ -310,9 +310,9 @@ public sealed class JobOnToolFactsQueryTests : IDisposable
 
     [Theory]
     [InlineData(1, false)]  // a outra começa no dia seguinte ao fim desta
-    [InlineData(0, true)]   // a outra começa no dia em que esta acaba
+    [InlineData(0, false)]  // a outra começa no dia em que esta acaba: o dia da troca
     [InlineData(-1, true)]  // a outra começa na véspera do fim desta
-    public async Task FindAsync_OutraComecaNoDiaEmQueEstaAcaba_Avisa_NoDiaSeguinteNao(int inicioDaOutra, bool avisa)
+    public async Task FindAsync_OutraComecaNoDiaEmQueEstaAcaba_NoDiaDaTrocaNao_NaVesperaSim(int inicioDaOutra, bool avisa)
     {
         var b1 = await SeedMachineAsync("B1");
         await SeedMachineAsync("C2");

@@ -56,4 +56,8 @@ public sealed record DmoRailItem(
     // Uma segunda linha de detalhe (a Reparação Interna: a CM e o MF com o lote).
     string? Extra = null,
     // A linha aberta na página (o servidor sabe qual é): nasce `selected`.
-    bool Selected = false);
+    bool Selected = false,
+    // Um aviso curto por baixo da linha (a sobreposição das Boquilhas,
+    // 22/10/2026), com a ligação para corrigir. Nunca bloqueia.
+    string? Warning = null,
+    string? WarningHref = null);

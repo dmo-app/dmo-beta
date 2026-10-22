@@ -69,6 +69,26 @@ public sealed class PesoPdfGeneratorTests
     }
 
     [Fact]
+    public void ProducaoAnterior_DizProducao_ENaoSAP()
+    {
+        // Diogo, 21/10/2026: «sempre que for referência a produção usar
+        // produção e não SAP».
+        var bytes = new PesoPdfGenerator().GenerateBytes(new PesoPdfGenerator.Input(
+            ProductionNumber: "202602", Reference: "1075", Machine: "B1", CmToolId: "T3", CmReference: "ST100", CmLot: "8",
+            Process: "NNPB", WaterTemperatureC: 25, WaterDensity: 0.99603m, GlassDensity: 2.50m,
+            VolumeMarisaCm3: 10m, VolumePuncaoCm3: 24.42m, NominalWeightGrams: 138m,
+            Readings: new[] { Reading(1, "61", 71.10m, 71.38m, 142.41m) },
+            Averages: new PesoAveragesReadModel(71.10m, 71.38m, 142.41m),
+            Comparison: null, OutputFilePath: "",
+            ProducaoAnterior: new PesoProducaoAnteriorReadModel(7, "1075", "202601", "B2", null, null, 140.5m)));
+
+        var text = PdfText.Of(bytes);
+        Assert.Contains("Produção anterior 202601 · B2", text);
+        Assert.Contains("peso usado: 140.50 g", text);
+        Assert.DoesNotContain("SAP", text);
+    }
+
+    [Fact]
     public void GenerateBytes_WithoutComparison_StillProducesTheSheet()
     {
         // O primeiro controlo de uma referência não tem comparação: a

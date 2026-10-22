@@ -36,7 +36,12 @@
 
   function cartaoDoComponente(componente) { return document.querySelector('[data-peg-component="' + componente + '"]'); }
 
-  function valores(linha) { return [linha.querySelector('[data-peg-costura]').value, linha.querySelector('[data-peg-contra]').value]; }
+  // A costura, a contra costura e o número da ferramenta (só o número não
+  // conta como escrito: as contas olham para [0] e [1]).
+  function valores(linha) {
+    var numero = linha.querySelector('[data-peg-numero]');
+    return [linha.querySelector('[data-peg-costura]').value, linha.querySelector('[data-peg-contra]').value, numero ? numero.value : ''];
+  }
 
   // As leituras gravadas de um cartão (a que está em correção também conta).
   function leituras(cartao) { return cartao.querySelectorAll('tbody tr[id^="peg-linha-"]').length; }
@@ -219,8 +224,8 @@
       var linha = linhas[i] || (linhas[i] = maisLinha(cartao));
       if (!linha) return;
       // Um valor que o servidor devolveu (uma recusa) ganha ao rascunho.
-      var campos = [linha.querySelector('[data-peg-costura]'), linha.querySelector('[data-peg-contra]')];
-      campos.forEach(function (campo, j) { if (!campo.value && valores[j]) campo.value = valores[j]; });
+      var campos = [linha.querySelector('[data-peg-costura]'), linha.querySelector('[data-peg-contra]'), linha.querySelector('[data-peg-numero]')];
+      campos.forEach(function (campo, j) { if (campo && !campo.value && valores[j]) campo.value = valores[j]; });
       calcular(linha);
     });
   }
@@ -332,6 +337,8 @@
       if (!linha) return;
       linha.querySelector('[data-peg-costura]').value = par[0];
       linha.querySelector('[data-peg-contra]').value = par[1];
+      var numero = linha.querySelector('[data-peg-numero]');
+      if (numero) numero.value = par[2] || '';
       calcular(linha);
     });
   }
@@ -440,7 +447,8 @@
     var aberta = document.querySelector('tr[data-peg-cancelar][id^="peg-linha-"]');
     if (!aberta || cartao.contains(aberta)) return [];
     return [['editar_medicao', aberta.id.slice('peg-linha-'.length)],
-      ['campo', aberta.querySelector('[data-peg-contra][autofocus]') ? 'contra' : 'costura']];
+      ['campo', aberta.querySelector('[data-peg-contra][autofocus]') ? 'contra'
+        : aberta.querySelector('[data-peg-numero][autofocus]') ? 'numero' : 'costura']];
   }
 
   function levaCorrecao(form) { return cartaoDe(form) && /^peg-(registar|apagar)-/.test(form.id || ''); }

@@ -1,3 +1,5 @@
+using DMO.Alpha.Core.Production;
+using DMO.Alpha.Infrastructure.Production;
 using DMO.Alpha.Infrastructure.Tests.Production;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +22,40 @@ public sealed partial class PostgresMigrationIntegrationTests
         try
         {
             await JobOnOverlapScenario.AssertSameAsCalculatorAsync(db, prefix);
+        }
+        finally
+        {
+            await db.JobOns.Where(j => j.Reference == prefix + "REF").ExecuteDeleteAsync();
+            await db.Machines.Where(m => m.Code.StartsWith(prefix)).ExecuteDeleteAsync();
+        }
+    }
+
+    [SkippableFact]
+    public async Task Overlap_NoDiaDaTroca_NaoAvisa_ENoDiaAntesAvisa()
+    {
+        // Diogo, 21/10/2026: «uma producao sai dia 20 outra entra dia 20» não
+        // é sobreposição. No PostgreSQL, a que entra no dia em que a outra
+        // sai não avisa; a que entra no dia antes avisa.
+        SkipWithoutConnection();
+
+        await using var db = CreateContext();
+        await db.Database.MigrateAsync();
+        var prefix = "OT" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
+        try
+        {
+            var machine = new Machine { Code = prefix + "-M1" };
+            db.Machines.Add(machine);
+            var sai = new JobOn { Reference = prefix + "REF", ProductionNumber = "SAI", Machine = machine, InicioEm = new DateOnly(2026, 10, 10), FimEm = new DateOnly(2026, 10, 20) };
+            var entra = new JobOn { Reference = prefix + "REF", ProductionNumber = "ENTRA", Machine = machine };
+            db.JobOns.AddRange(sai, entra);
+            await db.SaveChangesAsync();
+
+            var noDia = await JobOnOverlapQuery.EvaluateAsync(db, entra.Id, machine.Id, machine.Code, new DateOnly(2026, 10, 20), new DateOnly(2026, 10, 30), CancellationToken.None);
+            Assert.Null(noDia);
+
+            var antes = await JobOnOverlapQuery.EvaluateAsync(db, entra.Id, machine.Id, machine.Code, new DateOnly(2026, 10, 19), new DateOnly(2026, 10, 30), CancellationToken.None);
+            Assert.NotNull(antes);
+            Assert.Equal([sai.Id], antes.Conflicts.Select(c => c.JobOnId));
         }
         finally
         {

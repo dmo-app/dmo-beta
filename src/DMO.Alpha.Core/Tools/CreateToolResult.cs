@@ -19,9 +19,9 @@ public enum CreateToolResult
     MissingReference,
 
     /// <summary>
-    /// O lote está em branco. Desde a beta.63 já não é devolvido (o lote
-    /// vazio grava «s/lote» com aviso); fica no enum para que um link antigo
-    /// com ?create_refusal=MissingLot continue a mostrar a mensagem.
+    /// O lote de uma BQ está em branco (Diogo, 22/10/2026: o lote é preciso
+    /// para identificar a boquilha). Nas CM e MF o lote vazio grava «s/lote»
+    /// com aviso (beta.63).
     /// </summary>
     MissingLot,
 

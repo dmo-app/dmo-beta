@@ -21,7 +21,7 @@ public partial class FerramentasPagesTests
         var html = (await GetPageHtmlAsync(client, $"{IndexPath}?criar=1")).Replace("\r\n", "\n");
         Assert.Contains("<main data-dmo-troca class=\"ferr-page dmo-workspace\"", html);
         Assert.Matches("<form id=\"ferr-create-form\"[^>]*\\sdata-dmo-parcial[\\s>]", html);
-        Assert.Contains("<button type=\"submit\" form=\"ferr-create-form\" class=\"dmo-button\">Registar ferramenta</button>", html);
+        Assert.Contains("<button type=\"submit\" form=\"ferr-create-form\" class=\"dmo-button\">Registar</button>", html);
         Assert.Contains("<div id=\"ferrAvisos\" class=\"dmo-zona\" data-dmo-regiao>", html);
 
         // A recusa vem na zona: a mesma recusa duas vezes seguidas (a mesma

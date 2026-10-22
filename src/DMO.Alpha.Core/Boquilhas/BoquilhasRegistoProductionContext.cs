@@ -11,4 +11,5 @@ public sealed record BoquilhasRegistoProductionContext(
     string ProductionNumber,
     string MachineCode,
     DateOnly? InicioEm = null,
-    DateOnly? FimEm = null);
+    DateOnly? FimEm = null,
+    int? JobOnId = null);

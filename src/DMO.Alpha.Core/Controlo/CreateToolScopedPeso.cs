@@ -14,6 +14,8 @@ namespace DMO.Alpha.Core.Controlo;
 /// campo que a Tool já tem registado é ignorado (completion, não correção
 /// silenciosa da Tool). <see cref="ControloId"/> só é passado pelo Peso de
 /// uma produção, para gravar o Peso e a associação de uma só vez.
+/// <see cref="ComparacaoDoPesoId"/> cria um Peso só para comparação com esse
+/// Peso (de uma produção): sem Job On, e sem nunca pedir para o associar.
 /// </summary>
 public sealed record CreateToolScopedPeso(
     string CmToolId,
@@ -23,4 +25,5 @@ public sealed record CreateToolScopedPeso(
     decimal? CmVolumePuncaoCm3 = null,
     decimal? CmNominalWeightGrams = null,
     decimal? BqVolumeMarisaCm3 = null,
-    int? ControloId = null);
+    int? ControloId = null,
+    int? ComparacaoDoPesoId = null);

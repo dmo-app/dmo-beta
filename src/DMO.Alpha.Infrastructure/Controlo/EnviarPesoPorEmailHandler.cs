@@ -44,8 +44,8 @@ public sealed class EnviarPesoPorEmailHandler(
         if (documento is null) return (EnviarPesoResultado.SemPeso, null);
 
         var destinatarios = lista.Destinatarios.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        var assunto = EnvioEmailRegras.Preencher(modelo.Assunto, documento.Reference, documento.ProductionNumber, documento.Machine);
-        var corpo = EnvioEmailRegras.Preencher(modelo.Corpo, documento.Reference, documento.ProductionNumber, documento.Machine);
+        var assunto = EnvioEmailRegras.Preencher(modelo.Assunto, documento.Reference, documento.ProductionNumber, documento.Machine, documento.PesoGramas);
+        var corpo = EnvioEmailRegras.Preencher(modelo.Corpo, documento.Reference, documento.ProductionNumber, documento.Machine, documento.PesoGramas);
         var eml = EmailRascunho.Gerar(new EmailMensagem(
             modelo.Remetente, destinatarios, assunto, corpo, documento.FileName, documento.Bytes));
 

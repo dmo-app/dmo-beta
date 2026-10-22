@@ -12,7 +12,8 @@ public sealed record PesoPdfDocumento(
     string ProductionNumber,
     string Machine,
     int PesoId,
-    int? ControloId);
+    int? ControloId,
+    decimal? PesoGramas = null);
 
 /// <summary>
 /// O PDF da folha do Peso num só sítio: o «Exportar PDF» do Peso e o
@@ -164,6 +165,7 @@ public sealed class PesoPdfDocumentBuilder(
             productionNumber,
             machine,
             peso.PesoId,
-            approvalControloId);
+            approvalControloId,
+            peso.Averages?.AverageGlassWeightGrams);
     }
 }

@@ -167,12 +167,14 @@ builder.Services.AddScoped<IBoquilhasCurrentQuery, BoquilhasCurrentQuery>();
 // HISTÓRICO (os movimentos do dia e os pontos do mês, com os filtros por
 // reparador/máquina/referência).
 builder.Services.AddScoped<IBqToolHistoryQuery, BqToolHistoryQuery>();
+builder.Services.AddScoped<IBqExcelBoquilhas, BqExcelBoquilhas>();
 // Boquilhas write path (o bloco dos reparadores): as ENTIDADES
 // REPARADORAS — o vocabulário do encaminhamento por máquina (o Owner
 // 2026-10-12: «reparadores sao as entidades para onde enviamos as
 // boquilhas»), administrado em Admin → App Definições → Boquilhas.
 builder.Services.AddScoped<ICreateBqRepairerHandler, CreateBqRepairerHandler>();
 builder.Services.AddScoped<IEditBqRepairerHandler, EditBqRepairerHandler>();
+builder.Services.AddScoped<IDeleteBqRepairerHandler, DeleteBqRepairerHandler>();
 // Boquilhas read path: a lista das entidades reparadoras para a Admin.
 builder.Services.AddScoped<IBqRepairerQuery, BqRepairerQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemPosicoes, DMO.Alpha.Infrastructure.Armazem.ArmazemPosicoes>();

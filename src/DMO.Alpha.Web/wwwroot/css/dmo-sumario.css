@@ -3,6 +3,9 @@
  * esquerda e a lista do dia escolhido à direita, por tipo de informação.
  * Cores só da paleta e dos tons do design system.
  */
+/* Ao lado do painel lateral a página estica à altura dele: o conteúdo fica
+   em cima, sem espalhar as linhas da grelha pela altura (21/10/2026). */
+.sumario-page{align-content:start}
 .sumario-filtros-card{margin-top:14px;padding:12px 16px}
 .sumario-filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:end}
 .sumario-filters > .dmo-field{flex:0 0 auto;min-width:0}

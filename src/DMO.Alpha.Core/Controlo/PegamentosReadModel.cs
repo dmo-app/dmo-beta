@@ -167,7 +167,8 @@ public sealed record PegamentosMeasurementReadModel(
     decimal CosturaMm,
     decimal? ContraCosturaMm,
     decimal? NominalGargaloMm,
-    PegamentosRowEvaluation Evaluation);
+    PegamentosRowEvaluation Evaluation,
+    string? NumeroFerramenta = null);
 
 /// <summary>
 /// Médias e contagens por componente, derivadas apenas das leituras

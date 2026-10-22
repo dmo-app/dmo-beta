@@ -95,6 +95,9 @@ public class JobOnDuplicarFolhaTests : IClassFixture<CustomWebApplicationFactory
         var b1 = new Machine { Code = "B1" };
         db.Machines.Add(b1);
         db.Tools.Add(new Tool { ToolId = "MF-DUP", Type = ToolType.Mf, Reference = "5810", Lot = "1" });
+        // Um Job On tem sempre CM, BQ e MF (Diogo, 22/10/2026).
+        db.Tools.Add(new Tool { ToolId = "CM-DUP", Type = ToolType.Cm, Reference = "1075C142", Lot = "1" });
+        db.Tools.Add(new Tool { ToolId = "BQ-DUP", Type = ToolType.Bq, Reference = "T173", Lot = "1" });
         var jobOn = new JobOn
         {
             Reference = "1075C142",
@@ -105,6 +108,8 @@ public class JobOnDuplicarFolhaTests : IClassFixture<CustomWebApplicationFactory
         };
         db.JobOns.Add(jobOn);
         db.MfContexts.Add(new MfContext { JobOn = jobOn, ToolId = "MF-DUP" });
+        db.CmContexts.Add(new CmContext { JobOn = jobOn, ToolId = "CM-DUP" });
+        db.BqContexts.Add(new BqContext { JobOn = jobOn, ToolId = "BQ-DUP" });
         await db.SaveChangesAsync();
         if (comFolha)
         {
@@ -227,8 +232,8 @@ public class JobOnDuplicarFolhaTests : IClassFixture<CustomWebApplicationFactory
         // A máquina copiada e o MF copiado; a CM e a BQ não vieram.
         Assert.Matches("Máquina / linha\\s*<span class=\"jobon-confirmar\">Confirmar</span>", duplicar);
         Assert.Matches("<strong>Molde final</strong>\\s*<span class=\"jobon-confirmar\">Confirmar</span>", duplicar);
-        Assert.DoesNotMatch("<strong>Contra molde</strong>\\s*<span class=\"jobon-confirmar\">", duplicar);
-        Assert.DoesNotMatch("<strong>Boquilha</strong>\\s*<span class=\"jobon-confirmar\">", duplicar);
+        Assert.Matches("<strong>Contra molde</strong>\\s*<span class=\"jobon-confirmar\">Confirmar</span>", duplicar); // a origem tem CM (um Job On tem sempre CM, BQ e MF)
+        Assert.Matches("<strong>Boquilha</strong>\\s*<span class=\"jobon-confirmar\">Confirmar</span>", duplicar);
 
         // Sem contadores (Diogo, 20/10): nada de «N campos alterados».
         Assert.DoesNotContain("lightAlterados", duplicar);

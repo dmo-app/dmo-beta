@@ -389,7 +389,8 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
     public async Task SecondaryNav_GroupsTheSheetsUnderFuncoes()
     {
         // Menos separadores (o Owner 16/10/2026): Resumo, «Funções» com o
-        // Peso e os Pegamentos num dropdown, e depois Comparação e Histórico.
+        // Peso e os Pegamentos num dropdown, e depois o Histórico. A
+        // Comparação abre-se no Resumo da produção (Diogo, 21/10/2026).
         SeedUser("4302", "Controlo Operador", "provider-controlo-funcoes", "ControloPass3!");
         using var client = await LoginClientAsync("4302", "ControloPass3!");
 
@@ -400,14 +401,14 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
                 "<nav class=\"tabs dmo-secondary-nav\"[\\s\\S]*?</nav>").Value;
             var labels = System.Text.RegularExpressions.Regex.Matches(nav, "<(?:a|summary)\\b[^>]*>([^<]*)<")
                 .Select(m => WebUtility.HtmlDecode(m.Groups[1].Value).Trim()).ToArray();
-            Assert.Equal(new[] { "Resumo", "Funções", "Peso", "Pegamentos", "PU NNPB", "Comparação", "Histórico", "Definições" }, labels);
+            Assert.Equal(new[] { "Resumo", "Funções", "Peso", "Pegamentos", "PU NNPB", "Histórico", "Definições" }, labels);
 
             var menu = System.Text.RegularExpressions.Regex.Match(nav,
                 "<details class=\"dmo-tab-menu[^\"]*\" data-dmo-tab-menu>[\\s\\S]*?</details>").Value;
             Assert.Contains("href=\"/Controlo/Peso\"", menu);
             Assert.Contains("href=\"/Controlo/Pegamentos\"", menu);
             Assert.Contains("href=\"/Controlo/Puncoes\"", menu);
-            Assert.DoesNotContain("Comparação", menu);
+            Assert.DoesNotContain("Comparação", nav);
             Assert.Equal(active == "Funções", menu.Contains("<summary class=\"active\">", StringComparison.Ordinal));
         }
     }

@@ -53,7 +53,8 @@ public partial class BoquilhasRegistoPageTests
         // produção e datas; sem «Máquinas compatíveis» no cabeçalho.
         Assert.Contains("<div class=\"dmo-fact\"><span>Referência</span><strong>ZQREF-51</strong></div>", html);
         Assert.Contains("<div class=\"dmo-fact\"><span>BQ · lote</span><strong>RGT951 · Lote 5</strong></div>", html);
-        Assert.Contains("<div class=\"dmo-fact\"><span>Produção</span><strong>PN-551001</strong></div>", html);
+        // A produção abre o Job On dela (Diogo, 21/10/2026).
+        Assert.Matches("<div class=\"dmo-fact\"><span>Produção</span><strong><a href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\">PN-551001</a></strong></div>", html);
         Assert.Contains("<span>Início</span>", html);
         Assert.Contains("<span>Fim</span>", html);
         var facts = html[html.IndexOf("id=\"bqRegisterFacts\"", StringComparison.Ordinal)..];

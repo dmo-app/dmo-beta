@@ -315,7 +315,12 @@
         <div class="dmo-fact"><span>Referência</span><strong>@tool.Reference</strong></div>
         <div class="dmo-fact"><span>Lote</span><strong>@tool.Lot</strong></div>
         <div class="dmo-fact"><span>Máquinas / linhas</span><strong>@machineCodes</strong></div>
-        <div class="dmo-fact"><span>Referência MF associada</span><strong>@(tool.AssociatedMfReference ?? "—")</strong></div>
+        @* Só a CM com uma referência diferente da do MF (Diogo, 21/10/2026). *@
+        @if (tool.Type == ToolType.Cm && !string.IsNullOrWhiteSpace(tool.AssociatedMfReference)
+            && !string.Equals(tool.AssociatedMfReference.Trim(), tool.Reference.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+          <div class="dmo-fact"><span>Referência MF associada</span><strong>@tool.AssociatedMfReference</strong></div>
+        }
         <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")</strong></div>
         @if (Model.Armazem is { } arm)
         {
@@ -528,7 +533,6 @@
                 "volume_marisa" => tech?.VolumeMarisaCm3,
                 "diametro_gargalo" => tech?.DiametroGargaloMm,
                 "tp_diametro" => tech?.TpDiametroMm,
-                "tp_raio" => tech?.TpRaioMm,
                 "tp_sagitta" => tech?.TpSagittaMm,
                 _ => null,
             }),

@@ -31,5 +31,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Controlo/Assets/ba-logo.png" LogicalName="DMO.Pdf.Logo.png" />
+    <!-- O formato do Excel das Boquilhas do Diogo: cores, letra, bordas e o tema do Office do ficheiro dele. -->
+    <EmbeddedResource Include="Boquilhas/Molde/bq-estilos.xml" LogicalName="DMO.Bq.Excel.Estilos.xml" />
+    <EmbeddedResource Include="Boquilhas/Molde/bq-tema.xml" LogicalName="DMO.Bq.Excel.Tema.xml" />
   </ItemGroup>
 </Project>

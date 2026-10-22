@@ -91,7 +91,8 @@ public sealed class EdicoesAoMesmoTempoTests : IDisposable
         Assert.Equal(new DateOnly(2026, 3, 20), (await _db.JobOns.SingleAsync()).FimEm);
         Assert.Equal("BQ-1", (await _db.BqContexts.SingleAsync()).ToolId);
         var linhas = await _db.JobOnChanges.Select(c => c.Field).ToListAsync();
-        Assert.Equal(new[] { JobOnChangeFields.Bq, JobOnChangeFields.End }, linhas.Order());
+        // Pôr a BQ num Job On sem BQ não é mudança de boquilhas (Diogo, 22/10/2026): só o fim mudou.
+        Assert.Equal(new[] { JobOnChangeFields.End }, linhas);
     }
 
     [Fact]

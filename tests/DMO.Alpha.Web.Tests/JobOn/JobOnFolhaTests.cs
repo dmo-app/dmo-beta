@@ -103,6 +103,9 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var b1 = new Machine { Code = "B1" };
         db.Machines.Add(b1);
         db.Tools.Add(new Tool { ToolId = "MF-FOLHA", Type = ToolType.Mf, Reference = "5810", Lot = "1" });
+        // Um Job On tem sempre CM, BQ e MF (Diogo, 22/10/2026).
+        db.Tools.Add(new Tool { ToolId = "CM-FOLHA", Type = ToolType.Cm, Reference = "1075C142", Lot = "1" });
+        db.Tools.Add(new Tool { ToolId = "BQ-FOLHA", Type = ToolType.Bq, Reference = "T173", Lot = "1" });
         var jobOn = new JobOn
         {
             Reference = "1075C142",
@@ -113,6 +116,8 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         };
         db.JobOns.Add(jobOn);
         db.MfContexts.Add(new MfContext { JobOn = jobOn, ToolId = "MF-FOLHA" });
+        db.CmContexts.Add(new CmContext { JobOn = jobOn, ToolId = "CM-FOLHA" });
+        db.BqContexts.Add(new BqContext { JobOn = jobOn, ToolId = "BQ-FOLHA" });
         await db.SaveChangesAsync();
         db.Controlos.Add(new DMO.Alpha.Core.Controlo.Controlo { JobOnId = jobOn.Id });
         await db.SaveChangesAsync();
@@ -270,7 +275,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var (_, machineId) = await SeedJobOnAsync();
         using var client = await EntrarAsync("4703");
         var novo = await HtmlAsync(client,
-            $"{PagePath}?novo=1&reference=1075C142&production_number=202699&machine_id={machineId}&mf_tool_id=MF-FOLHA");
+            $"{PagePath}?novo=1&reference=1075C142&production_number=202699&machine_id={machineId}&mf_tool_id=MF-FOLHA&cm_tool_id=CM-FOLHA&bq_tool_id=BQ-FOLHA");
 
         var (acao, campos) = EnvioDoFormulario.Preencher(novo,
             ("jobon-pu-qtd-maq", "6"),
@@ -335,7 +340,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var (_, machineId) = await SeedJobOnAsync();
         using var client = await EntrarAsync("4705");
         var novo = await HtmlAsync(client,
-            $"{PagePath}?novo=1&reference=1075C142&production_number=202698&machine_id={machineId}&mf_tool_id=MF-FOLHA");
+            $"{PagePath}?novo=1&reference=1075C142&production_number=202698&machine_id={machineId}&mf_tool_id=MF-FOLHA&cm_tool_id=CM-FOLHA&bq_tool_id=BQ-FOLHA");
         var valorLongo = new string('9', JobOnFolhaCampos.CalMaximo + 1);
 
         var (acao, campos) = EnvioDoFormulario.Preencher(novo,

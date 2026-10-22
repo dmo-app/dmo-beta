@@ -92,6 +92,8 @@
       <thead>
         <tr>
           <th>N.º</th>
+          @* O número da ferramenta lida (ex.: CM n.º 61; Diogo, 21/10/2026). *@
+          <th>N.º @componentToken</th>
           <th>Costura (0°) mm</th>
           <th>Contra costura (90°) mm</th>
           <th>Ovalização mm</th>
@@ -111,7 +113,8 @@
             var editFormId = $"peg-editar-{measurement.MeasurementId}";
             <tr id="peg-linha-@measurement.MeasurementId" class="peg-linha-nova peg-linha-editar" data-peg-linha-nova data-peg-cancelar="@sheetHref">
               <td>@numero</td>
-              <td><input id="editar-costura-@measurement.MeasurementId" name="costura" form="@editFormId" aria-label="Costura 0° (mm) da leitura @numero" type="text" inputmode="decimal" lang="en" required autofocus="@(Model.Pagina.EditarCampo != "contra" ? "autofocus" : null)" value="@PegamentosVista.Fmt(measurement.CosturaMm)" data-peg-costura /></td>
+              <td><input id="editar-numero-@measurement.MeasurementId" name="numero" form="@editFormId" class="peg-numero" aria-label="Número da @componentToken da leitura @numero" type="text" maxlength="20" autocomplete="off" autofocus="@(Model.Pagina.EditarCampo == "numero" ? "autofocus" : null)" value="@measurement.NumeroFerramenta" data-peg-numero /></td>
+              <td><input id="editar-costura-@measurement.MeasurementId" name="costura" form="@editFormId" aria-label="Costura 0° (mm) da leitura @numero" type="text" inputmode="decimal" lang="en" required autofocus="@(Model.Pagina.EditarCampo is not ("contra" or "numero") ? "autofocus" : null)" value="@PegamentosVista.Fmt(measurement.CosturaMm)" data-peg-costura /></td>
               <td><input id="editar-contra-@measurement.MeasurementId" name="contra_costura" form="@editFormId" aria-label="Contra costura 90° (mm) da leitura @numero" type="text" inputmode="decimal" lang="en" autofocus="@(Model.Pagina.EditarCampo == "contra" ? "autofocus" : null)" value="@(measurement.ContraCosturaMm is { } contraAtual ? PegamentosVista.Fmt(contraAtual) : "")" data-peg-contra /></td>
               <td data-peg-oval>—</td>
               <td data-peg-media>—</td>
@@ -126,6 +129,7 @@
           var editarHref = $"{sheetHref}&editar_medicao={measurement.MeasurementId}";
           <tr id="peg-linha-@measurement.MeasurementId">
             <td>@numero</td>
+            <td>@(measurement.NumeroFerramenta ?? "—")<a class="peg-valor" href="@($"{editarHref}&campo=numero")" title="Corrigir" aria-label="Corrigir o número da @componentToken da leitura @numero"></a></td>
             <td class="@(PegamentosVista.AxisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.Costura) ? "peg-cell-bad" : null)">@PegamentosVista.Fmt(measurement.CosturaMm)<a class="peg-valor" href="@($"{editarHref}&campo=costura")" title="Corrigir" aria-label="Corrigir a costura da leitura @numero"></a></td>
             <td class="@(PegamentosVista.AxisAlert(measurement.Evaluation, PegamentosEvaluatedAxis.ContraCostura) ? "peg-cell-bad" : null)">@PegamentosVista.FmtOptional(measurement.ContraCosturaMm)<a class="peg-valor" href="@($"{editarHref}&campo=contra")" title="Corrigir" aria-label="Corrigir a contra costura da leitura @numero"></a></td>
             @* A ovalização também tem o seu corredor (± tolerância). *@
@@ -152,6 +156,7 @@
         {
         <tr class="peg-linha-nova" data-peg-linha-nova>
           <td>@(measurementsOfComponent.Count + 1)</td>
+          <td><input id="numero-@component" name="numero" form="@formId" class="peg-numero" aria-label="Número da @componentToken" type="text" maxlength="20" autocomplete="off" data-peg-numero value="@Model.Pagina.DraftValue(componentToken, Model.Pagina.DraftNumero)" /></td>
           <td><input id="costura-@component" name="costura" form="@formId" aria-label="Costura 0° (mm)" type="@Model.Pagina.DraftInputType(componentToken, Model.Pagina.DraftCostura)" lang="en" step="0.01" required placeholder="@(nominal is { } nomCostura ? PegamentosVista.Fmt(nomCostura) : null)" data-peg-costura value="@Model.Pagina.DraftValue(componentToken, Model.Pagina.DraftCostura)" /></td>
           <td><input id="contra-@component" name="contra_costura" form="@formId" aria-label="Contra costura 90° (mm)" type="@Model.Pagina.DraftInputType(componentToken, Model.Pagina.DraftContra)" lang="en" step="0.01" placeholder="@(nominal is { } nomContra ? PegamentosVista.Fmt(nomContra) : null)" data-peg-contra value="@Model.Pagina.DraftValue(componentToken, Model.Pagina.DraftContra)" /></td>
           <td data-peg-oval>—</td>
@@ -166,6 +171,7 @@
         <tfoot>
           <tr class="peg-average-row">
             <td><strong>AVG</strong></td>
+            <td></td>
             <td>@PegamentosVista.FmtOptional(componentAverages.AverageCosturaMm)</td>
             <td>@PegamentosVista.FmtOptional(componentAverages.AverageContraCosturaMm)</td>
             <td>@PegamentosVista.FmtSigned(componentAverages.AverageOvalizacaoMm)</td>

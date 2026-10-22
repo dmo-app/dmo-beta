@@ -23,6 +23,7 @@ namespace DMO.Alpha.Core.Controlo;
 /// registo e o <see cref="ControloId"/> é ignorado.
 /// <see cref="AdditionalRows"/>: as outras linhas do mesmo envio («+ Linha»),
 /// gravadas a seguir à primeira na mesma escrita — ficam todas ou nenhuma.
+/// <see cref="NumeroFerramenta"/>: o número da CM/BQ/MF lido (opcional).
 /// </remarks>
 public sealed record RecordPegamentosMeasurement(
     int ControloId,
@@ -31,7 +32,8 @@ public sealed record RecordPegamentosMeasurement(
     decimal? ContraCosturaMm = null,
     decimal? GargaloMm = null,
     int? PegamentosId = null,
-    IReadOnlyList<PegamentosRow>? AdditionalRows = null);
+    IReadOnlyList<PegamentosRow>? AdditionalRows = null,
+    string? NumeroFerramenta = null);
 
-/// <summary>Uma linha a mais do mesmo envio: a costura e a contra costura (null = n/a).</summary>
-public sealed record PegamentosRow(decimal CosturaMm, decimal? ContraCosturaMm);
+/// <summary>Uma linha a mais do mesmo envio: a costura, a contra costura (null = n/a) e o número da ferramenta.</summary>
+public sealed record PegamentosRow(decimal CosturaMm, decimal? ContraCosturaMm, string? NumeroFerramenta = null);

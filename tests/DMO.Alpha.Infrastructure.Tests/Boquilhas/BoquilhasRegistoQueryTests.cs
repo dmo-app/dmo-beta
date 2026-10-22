@@ -265,7 +265,8 @@ public sealed class BoquilhasRegistoQueryTests : IDisposable
 
         Assert.NotNull(result);
         Assert.Equal("BQ-CTX-1", result!.ToolId);
-        Assert.Equal(new BoquilhasRegistoProductionContext("5447", "PN-1", "B2"), result.Production);
+        // A produção leva o Job On dela: o registo liga ao Job On (Diogo, 21/10/2026).
+        Assert.Equal(new BoquilhasRegistoProductionContext("5447", "PN-1", "B2", JobOnId: bq.JobOnId), result.Production);
         Assert.Equal(new ToolLookupResult("BQ-CTX-1", ToolType.Bq, "T194", "3"), result.Tool);
         Assert.Equal(120, result.ToolAccountedQuantity);
         Assert.NotNull(result.Trace);

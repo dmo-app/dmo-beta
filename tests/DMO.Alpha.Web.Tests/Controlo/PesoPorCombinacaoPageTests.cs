@@ -273,7 +273,7 @@ public class PesoPorCombinacaoPageTests : IClassFixture<CustomWebApplicationFact
 
         var resumo = await GetPageHtmlAsync(client, $"/Controlo/Resumo?jobon_id={producao.JobOnId}");
         Assert.Contains("A CM ou a BQ mudou nesta produção: falta o Peso das ferramentas atuais.", resumo);
-        Assert.Contains($"<a class=\"dmo-button\" href=\"/Controlo/Peso?controlo_id={producao.ControloId}\">Criar Peso</a>", resumo);
+        Assert.Contains($"<a class=\"dmo-button\" href=\"/Controlo/Peso?controlo_id={producao.ControloId}\" aria-label=\"Registar o Peso\">Registar</a>", resumo);
         Assert.Contains($"<a class=\"resumo-card-link\" href=\"/Controlo/Peso?controlo_id={producao.ControloId}&amp;peso_id={pesoA}\">", resumo);
     }
 
@@ -484,7 +484,7 @@ public class PesoPorCombinacaoPageTests : IClassFixture<CustomWebApplicationFact
         Assert.Contains("CM 5448 · Lote 9 · BQ T173 · Lote 4", lista);
         Assert.Contains("de antes da troca", lista);
         Assert.DoesNotContain("falta o Peso das ferramentas atuais", resumo);
-        Assert.DoesNotContain(">Criar Peso</a>", resumo);
+        Assert.DoesNotContain("aria-label=\"Registar o Peso\"", resumo);
 
         var pdfToken = HtmlFormHelpers.ExtractRequestVerificationToken(resumo)!;
         using (var pdf = await client.PostAsync("/Controlo/Resumo?handler=GeneratePdf", HtmlFormHelpers.BuildFormPost(

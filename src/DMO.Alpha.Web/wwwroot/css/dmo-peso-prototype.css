@@ -204,8 +204,12 @@
 .peso-page .peso-leitura-chip{grid-column:1/-1;min-height:26px;padding:5px 8px;border-radius:6px;background:var(--dmo-brand-050,#e8eff7);font-size:12px;color:var(--dmo-text,#1c2b3a)}
 .peso-page .peso-leitura-chip:empty{background:transparent}
 .peso-page .peso-leitura-chip.is-refused{color:var(--dmo-danger,#9a625d);font-weight:700}
-.peso-page .peso-leitura-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-.peso-page .peso-row-button{min-width:42px;font-size:18px;line-height:1}
+.peso-page .peso-leitura-actions{display:flex;gap:4px;justify-content:flex-end;align-items:stretch;margin-top:12px}
+.peso-page .peso-row-buttons{display:flex;flex-direction:column;gap:2px}
+.peso-page .peso-row-button{min-width:30px;min-height:0;height:calc(50% - 1px);flex:1 1 0;padding:0 8px;font-size:14px;line-height:1}
+.peso-page .peso-leitura-actions .peso-registar{padding:6px 12px;min-height:44px}
+.peso-page .peso-sem-cabecalho,.peso-page .peso-sem-cabecalho > div{display:contents}
+.peso-page .visually-hidden-peso{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* Um campo e o botão na mesma linha («Aplicar», «Guardar»). */
 .peso-page .peso-inline-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:8px}
 .peso-page .peso-inline-form .dmo-field{min-width:200px;flex:0 1 300px;margin:0}
@@ -218,7 +222,7 @@
 /* A leitura enviada e ainda sem resposta (peso-live.js): o estilo «à espera», sem mexer no layout. */
 .peso-page .peso-leitura-row[data-peso-leitura-pendente] input{background:var(--dmo-brand-050)}
 .peso-page .peso-leitura-nova{padding:10px;border:1px dashed var(--dmo-brand-300,#9fb7d3);border-radius:8px}
-.peso-page .peso-leitura-nova .peso-leitura-actions{flex-wrap:wrap;margin-top:10px}
+.peso-page .peso-leitura-nova .peso-leitura-actions{margin-top:10px}
 .peso-page .peso-leitura-nova .peso-registar{flex:1 1 auto}
 .peso-page [data-peso-comparacao-medias] th,.peso-page [data-peso-comparacao-medias] td{border-top:2px solid var(--dmo-border,#d5e0eb);background:var(--dmo-subtle,#f1f6fa);font-weight:700;text-align:left}
 .peso-page .peso-procura-larga .dmo-field{flex:1 1 560px;max-width:none}
