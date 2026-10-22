@@ -14,14 +14,15 @@
    pelo fundo dos campos (como na Revisão). Cada campo com a largura do que
    leva; num ecrã estreito passam à linha seguinte. */
 .ri-filtros-card{padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.ri-filtros-card .dmo-filter-bar{column-gap:10px}
 .ri-filtros-card>.dmo-zona>.dmo-filter-bar{flex:1 1 auto;min-width:0}
 html body .ri-filtros-card .dmo-filter-bar>.dmo-field{flex:0 0 auto;margin:0}
 html body .ri-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:100%}
 .ri-w-maquina{width:96px}
-.ri-w-data{width:140px}
-.ri-w-pessoa{width:170px}
+.ri-w-data{width:132px}
+.ri-w-pessoa{width:150px}
 .ri-w-tipo{width:96px}
-.ri-w-referencia{width:140px}
+.ri-w-referencia{width:124px}
 html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao{min-width:220px;max-width:100%}
 html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-width:100%}
 .ri-filtros-acoes{display:flex;gap:8px;align-items:center;margin-left:auto}
@@ -30,6 +31,18 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
 /* Links escuros (padrão da beta): a produção abre a ficha do Job On. */
 .ri-card .dmo-table td a{color:var(--dmo-brand-900);font-weight:600}
 .ri-vazia{margin:0;color:var(--dmo-muted)}
+/* «Só por associar»: a caixa alinhada pelo fundo dos campos. */
+html body .ri-filtros-card .dmo-filter-bar>.ri-so-por-associar{display:inline-flex;gap:6px;align-items:center;min-height:38px;margin:0;font-size:13.5px;color:var(--dmo-text);cursor:pointer;white-space:nowrap}
+.ri-so-por-associar input{margin:0}
+/* A marca «Por associar»: texto escuro numa pílula clara, não um botão; abre a janela de associar. */
+.ri-card .dmo-table td a.ri-por-associar{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--dmo-warning-soft);color:var(--dmo-brand-900);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
+.ri-card .dmo-table td a.ri-por-associar:hover{text-decoration:underline}
+/* A janela de associar: o formulário em grelha (dmo-normalize) dá o espaço; o dropdown curto. */
+html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
+html body .dmo-dialog.ri-janela>p{margin:0 0 12px}
+html body .dmo-dialog.ri-janela form p{margin:0}
+html body .dmo-dialog.ri-janela .dmo-field{margin:0}
+html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px,100%);max-width:100%}
 @@media (max-width:640px){
   .ri-card{padding:14px}
   .ri-card .dmo-table :is(td,th){padding:4px 6px}
@@ -47,7 +60,8 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
    pessoa os deixou (data-dmo-fica) e só trocam o dropdown das produções e a
    tabela (DmoTroca); o «Limpar filtros» abre a página inteira, vazia. Na
    tabela não há botões (padrão da beta); a produção é um link para a ficha
-   do Job On, para quem o tem. *@
+   do Job On, para quem o tem. A marca «Por associar» (peça 4) abre a janela
+   de associar a ferramenta. *@
 <main class="ri-page dmo-workspace" aria-labelledby="ri-title" data-dmo-troca>
 
   <div class="page-head">
@@ -60,7 +74,7 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
     <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
       <form id="riConsultaFiltros" method="get" asp-page="/ReparacaoInterna/Consultar" class="dmo-filter-bar" role="search">
         <div class="dmo-field ri-w-maquina">
-          <label for="riConsultaMaquina">Máquina</label>
+          <label for="riConsultaMaquina">Linha</label>
           <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit>
             <option value="" selected="@(Model.Maquina is null)">Todas</option>
             @foreach (var m in Model.Maquinas)
@@ -104,7 +118,7 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
         </div>
         @* O segundo passo: o dropdown fica sempre ao lado da referência, para
            nada mexer; desativado sem referência, com ela as últimas 5
-           produções (a referência, o nº, a máquina e o início). Escrever
+           produções (a referência, o nº, a linha e o início). Escrever
            outra referência volta-o a «Todas» (data-dmo-depende). *@
         <div id="riConsultaProducaoZona" class="dmo-field ri-w-producao" data-dmo-regiao>
           <label for="riConsultaProducao">Produção</label>
@@ -131,6 +145,8 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
             </select>
           }
         </div>
+        @* As reparações com a ferramenta escrita que ainda ninguém associou (peça 4). *@
+        <label class="ri-so-por-associar" for="riConsultaPorAssociar"><input type="checkbox" id="riConsultaPorAssociar" name="por_associar" value="true" checked="@Model.PorAssociar" data-dmo-autosubmit />Só por associar</label>
       </form>
     </div>
     <div class="ri-filtros-acoes">
@@ -138,11 +154,18 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
     </div>
   </section>
 
+  <div id="riConsultaAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.Mensagem.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.Associou ? "ok" : "erro")" role="@(Model.Associou ? "status" : "alert")">@Model.Mensagem</p>
+    }
+  </div>
+
   <section id="riConsultaResultados" class="dmo-card ri-card" aria-labelledby="ri-consulta-title" data-dmo-regiao data-dmo-parcial>
     <h3 id="ri-consulta-title">Reparações<partial name="_DmoHelp" model="@("As reparações que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional, que vira à hora do Canal Jobon.")" /></h3>
     @if (!Model.ComFiltro)
     {
-      <p class="ri-vazia" id="riConsultaConvite">Escolha a máquina, os dias, quem, CM ou MF, ou procure a produção pela referência.</p>
+      <p class="ri-vazia" id="riConsultaConvite">Escolha a linha, os dias, quem, CM ou MF, ou procure a produção pela referência.</p>
     }
     else if (Model.Lista.Items.Count == 0)
     {
@@ -152,7 +175,7 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" id="riConsultaLista" data-dmo-list="Reparações">
-          <thead><tr><th>Dia</th><th>Hora</th><th>Máquina</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th><th>Quem</th></tr></thead>
+          <thead><tr><th>Dia</th><th>Hora</th><th>Linha</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th><th>Quem</th></tr></thead>
           <tbody>
           @foreach (var r in Model.Lista.Items)
           {
@@ -162,7 +185,11 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
               <td>@ConsultarModel.Hora(r.RegistadoEmUtc)</td>
               <td>@r.Maquina</td>
               <td>
-                @if (Model.AbreJobOn)
+                @if (r.JobOnId is null)
+                {
+                  @("Sem Job On")
+                }
+                else if (Model.AbreJobOn)
                 {
                   <a href="/JobOn?jobon_id=@r.JobOnId" data-dmo-completa>@producao</a>
                 }
@@ -172,7 +199,11 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
                 }
               </td>
               <td>@RiTextos.Tipo(r.Tipo)</td>
-              <td>@ConsultarModel.Ferramenta(r.Ferramenta)</td>
+              <td>@if (Model.AbreFerramentas && ConsultarModel.ToolIdDaFicha(r) is { } toolId)
+                {<a href="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(toolId, string.Empty).Href" data-dmo-completa>@ConsultarModel.Ferramenta(r)</a>}
+                else
+                {@ConsultarModel.Ferramenta(r)}@if (r.Escrita is { PorAssociar: true })
+                {<a href="#riAssociar-@r.Id" class="ri-por-associar" data-dmo-dialog="riAssociar-@r.Id" data-dmo-por-associar="@r.Id">Por associar</a>}</td>
               <td><strong>@r.Numero</strong></td>
               <td>@(r.Quem ?? "—")</td>
             </tr>
@@ -181,6 +212,53 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
         </table>
       </div>
       <partial name="_ListPager" model="Model.Pager" />
+
+      @* A janela «Associar ferramenta» de cada reparação por associar da
+         página (a marca abre-a): as ferramentas do mesmo tipo da referência
+         e do lote escritos; sem nenhuma, as da referência; sem nenhuma, o
+         aviso com o link para a registar. Associa-se só a ferramenta. *@
+      @foreach (var r in Model.Lista.Items.Where(l => l.Escrita is { PorAssociar: true }))
+      {
+        var escrita = r.Escrita!;
+        var candidatas = escrita.Candidatas ?? [];
+        var tipoTexto = RiTextos.Tipo(r.Tipo);
+        var cm = r.Tipo == ReparacaoTipo.Cm;
+        <dialog id="riAssociar-@r.Id" class="dmo-dialog ri-janela" aria-labelledby="riAssociarTitulo-@r.Id">
+          <h3 id="riAssociarTitulo-@r.Id">Associar ferramenta</h3>
+          <p>Nº <strong>@r.Numero</strong> · @tipoTexto @(cm ? "escrita" : "escrito"): <strong>@RiTextos.Escrita(escrita.Referencia, escrita.Lote)</strong></p>
+          @if (candidatas.Count == 0)
+          {
+            <p class="dmo-aviso warn" role="status">Não há @(cm ? "nenhuma" : "nenhum") @tipoTexto @escrita.Referencia @(cm ? "registada" : "registado").<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(tipoTexto, escrita.Referencia, "Registar a ferramenta")" /></p>
+            <div class="dmo-dialog-actions">
+              <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+            </div>
+          }
+          else
+          {
+            <form method="post" asp-page="/ReparacaoInterna/Consultar" asp-page-handler="Associar" asp-all-route-data="@Model.Rota(Model.Lista.PageNumber)" data-dmo-dialog-fecha-ao-enviar>
+              <input type="hidden" name="operacao_id" value="@Guid.NewGuid()" />
+              <input type="hidden" name="reparacao_id" value="@r.Id" />
+              @if (!escrita.DoLote)
+              {
+                <p class="dmo-aviso warn" role="status">Não há @(cm ? "nenhuma" : "nenhum") @tipoTexto @escrita.Referencia com o lote @escrita.Lote: @(cm ? "estas são" : "estes são") da referência.</p>
+              }
+              <div class="dmo-field">
+                <label for="riAssociarFerramenta-@r.Id">Ferramenta</label>
+                <select id="riAssociarFerramenta-@r.Id" name="tool_id">
+                  @foreach (var c in candidatas)
+                  {
+                    <option value="@c.ToolId">@tipoTexto @RiTextos.Escrita(c.Referencia, c.Lote)</option>
+                  }
+                </select>
+              </div>
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                <button type="submit" class="dmo-button">Guardar</button>
+              </div>
+            </form>
+          }
+        </dialog>
+      }
     }
   </section>
 </main>

@@ -4,29 +4,46 @@
 @using DMO.Alpha.Web.Pages.ReparacaoInterna
 @{
     Layout = "_DmoShellLayout";
-    var doDia = Model.DoDia;
-    var producao = Model.Producao;
-    var tipo = Model.Tipo;
-    var ferramenta = Model.Ferramenta;
-    var podeRegistar = producao is not null && tipo is not null && ferramenta is not null;
 }
 @section Head {
 <style>
 .ri-page{display:flex;flex-direction:column;gap:14px}
-.ri-coluna{display:flex;flex-direction:column;gap:14px;width:fit-content;max-width:100%}
-.ri-card{padding:18px;min-width:min(520px,100%);max-width:100%}
-.ri-card h3{margin:0 0 12px;font-size:16px}
-.ri-card .dmo-card-topo{margin:0 0 12px}
-.ri-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+/* Os cartões das máquinas, uma fila por letra (B, C, outras). */
+.ri-grelha{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(380px,100%),1fr));gap:14px;align-items:start}
+.ri-card{padding:16px;min-width:0}
+.ri-card h3{margin:0;font-size:17px}
+.ri-card .dmo-card-topo{margin:0 0 10px}
+.ri-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 10px}
 .ri-linha .dmo-field{margin:0}
-html body .ri-linha .dmo-field select.ri-curto{width:auto;min-width:9ch}
 html body .ri-linha .dmo-field select.ri-producao{width:auto;max-width:100%}
-html body .ri-linha .dmo-field input.ri-numero{width:16ch}
-.ri-onde{display:flex;gap:18px;flex-wrap:wrap;margin:0}
-.ri-onde div{display:flex;flex-direction:column;gap:2px}
-.ri-onde span{font-size:12.5px;color:var(--dmo-muted)}
+html body .ri-linha .dmo-field input.ri-numero{width:14ch}
+html body .ri-linha .dmo-field input.ri-referencia{width:14ch}
+html body .ri-linha .dmo-field input.ri-lote{width:7ch}
+/* O botão CM/MF: o mesmo mecanismo do tipo de movimento das Boquilhas
+   (rádios com o rótulo como botão); o ativo em azul claro. */
+.ri-tipos{display:flex;gap:0;margin:0;padding:0;border:0}
+.ri-tipos label{position:relative;cursor:pointer}
+.ri-tipos input{position:absolute;opacity:0;width:1px;height:1px}
+.ri-tipos span{display:block;min-width:52px;padding:9px 12px;text-align:center;border:1px solid var(--dmo-border);background:var(--dmo-card);font-weight:750}
+.ri-tipos label:first-of-type span{border-radius:9px 0 0 9px}
+.ri-tipos label:last-of-type span{border-radius:0 9px 9px 0;border-left:0}
+.ri-tipos input:checked+span{background:var(--dmo-brand-100,#d9e6f2);color:var(--dmo-brand-900);border-color:var(--dmo-brand-600,#3c73a8)}
+.ri-tipos input:focus-visible+span{outline:3px solid var(--dmo-brand-600,#3c73a8);outline-offset:2px}
+/* «É outra CM/MF»: a referência e o lote só com ela marcada (sem produção ficam sempre). */
+.ri-outra-marca{display:inline-flex;gap:6px;align-items:center;margin:0 0 10px;font-size:13.5px;color:var(--dmo-text);cursor:pointer}
+.ri-outra-marca input{margin:0}
+.ri-registar:has(.ri-outra-check:not(:checked)) .ri-outra-campos{display:none}
+.ri-lista summary{cursor:pointer;font-size:13.5px;color:var(--dmo-muted);padding:6px 0 0}
+.ri-lista summary strong{color:var(--dmo-text)}
+.ri-lista[open] summary{margin-bottom:8px}
+.ri-pager{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px}
+.ri-ficha{color:var(--dmo-brand-900);font-weight:600}
+.ri-escrita{display:inline-block;margin-left:6px;font-size:12.5px;color:var(--dmo-muted)}
+.ri-onde{display:flex;gap:6px 18px;flex-wrap:wrap;margin:0 0 12px}
+.ri-onde div{display:flex;flex-direction:column;gap:1px}
+.ri-onde dt{font-size:12.5px;color:var(--dmo-muted)}
+.ri-onde dd{margin:0;font-weight:700}
 .ri-card .dmo-aviso{margin:0 0 12px}
-.ri-card .dmo-aviso ul{margin:6px 0 0;padding-left:18px}
 .ri-card .dmo-table{width:auto;min-width:100%}
 .ri-card .dmo-table td{padding:4px 8px;vertical-align:middle}
 .ri-card form.ri-registar{margin:0}
@@ -40,14 +57,15 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
 .ri-janela .dmo-field{margin:0}
 .ri-janela .dmo-field input{width:100%}
 .ri-janela p{margin:0}
-@@media (max-width:640px){.ri-card{padding:14px}.ri-card .dmo-table :is(td,th){padding:4px 6px}}
+@@media (max-width:640px){html body .ri-registar .ri-linha .dmo-button{width:auto;flex:0 0 auto}html body .ri-linha .dmo-field input.ri-numero{width:11ch}.ri-card{padding:14px}.ri-card .dmo-table :is(td,th){padding:4px 6px}.ri-escrita{display:block;margin-left:0;white-space:normal}}
 </style>
 }
 
 @* Registar na máquina: escolher a máquina (a produção do dia vem sozinha) e
    CM ou MF; escrever o número e Enter. Gravar troca só as zonas: o campo
    volta vazio e com o cursor (autofocus) e a reparação aparece no topo da
-   tabela. Os avisos de produção só avisam; sem produção nada se grava.
+   tabela. Os avisos de produção só avisam; sem produção grava-se sem Job On,
+   com a referência e o lote escritos (peça 4), e fica por associar.
    Na tabela não há botões (padrão da beta): clicar no número corrige-o e o
    «×» anula a reparação, cada um numa janela da app com o motivo opcional. *@
 <main class="ri-page dmo-workspace" aria-labelledby="ri-title" data-dmo-troca>
@@ -61,153 +79,169 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
   <div id="riAvisos" class="dmo-zona" data-dmo-regiao>
     @if (Model.Mensagem.Length > 0)
     {
-      <p data-dmo-toast="@(Model.Gravou ? "ok" : "erro")" role="@(Model.Gravou ? "status" : "alert")">@Model.Mensagem</p>
+      <p data-dmo-toast="@Model.Tom" role="@(Model.Gravou ? "status" : "alert")">@Model.Mensagem</p>
     }
   </div>
 
-  <div class="ri-coluna">
-    <section id="riContexto" class="dmo-card ri-card" aria-labelledby="ri-contexto-title" data-dmo-regiao data-dmo-parcial>
-      <h3 id="ri-contexto-title">Máquina e produção<partial name="_DmoHelp" model="@("A produção do dia vem do Job On da máquina e muda à hora de viragem do Canal Jobon.")" /></h3>
-      <form id="riEscolha" method="get" asp-page="/ReparacaoInterna/Index" class="ri-linha">
-        <div class="dmo-field">
-          <label for="riMaquina">Máquina</label>
-          <select id="riMaquina" name="maquina" class="ri-curto" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Maquina is null)">Escolha…</option>
-            @foreach (var m in Model.Maquinas)
+  @* As máquinas em cartões (Diogo, 21/10/2026): as B na primeira fila, as
+     C na segunda, as outras depois. Cada cartão é uma zona: gravar troca só
+     esse cartão e a mensagem. *@
+  @foreach (var fila in Model.Cartoes.GroupBy(c => IndexModel.Fila(c.Maquina.Code)))
+  {
+    <div class="ri-grelha">
+      @foreach (var c in fila)
+      {
+        var codigo = c.Maquina.Code;
+        var p = c.Producao;
+        var ferramenta = p?.Ferramenta(c.Tipo);
+        var cmTool = p?.Cm;
+        var mfTool = p?.Mf;
+        var foco = c.Foco;
+        <section id="riCard-@codigo" class="dmo-card ri-card ri-maquina" aria-labelledby="ri-titulo-@codigo" data-dmo-regiao data-dmo-parcial data-ri-cartao="@codigo">
+          <div class="dmo-card-topo">
+            <h3 id="ri-titulo-@codigo">@codigo</h3>
+            @if (c.Lista.Items.Count > 0)
             {
-              <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
+              <div class="dmo-card-topo-acoes">
+                <a class="dmo-button" id="riEditar-@codigo" href="@Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, producao = p?.JobOnId, editar = true })">Editar</a>
+              </div>
             }
-          </select>
-        </div>
-        @if (doDia is { VariasProducoes: true })
-        {
-          <div class="dmo-field">
-            <label for="riProducao">Produção</label>
-            <select id="riProducao" name="producao" class="ri-producao" data-dmo-autosubmit>
-              @foreach (var c in doDia.Candidatas)
-              {
-                <option value="@c.JobOnId" selected="@(producao?.JobOnId == c.JobOnId)">@RiTextos.Producao(c)</option>
-              }
-            </select>
           </div>
-        }
-        <div class="dmo-field">
-          <label for="riTipo">CM ou MF</label>
-          <select id="riTipo" name="tipo" class="ri-curto" data-dmo-autosubmit>
-            <option value="" selected="@(tipo is null)">Escolha…</option>
-            <option value="cm" selected="@(tipo == ReparacaoTipo.Cm)">CM</option>
-            <option value="mf" selected="@(tipo == ReparacaoTipo.Mf)">MF</option>
-          </select>
-        </div>
-      </form>
-
-      @if (doDia is { SemProducao: true })
-      {
-        <p class="dmo-aviso warn" id="riSemProducao" role="status">Não há produção da @(Model.Maquina!.Code) para @IndexModel.Dia(doDia.Dia). Sem produção não se pode registar.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.CriarJobOn()" /></p>
-      }
-      else if (doDia is { VariasProducoes: true })
-      {
-        <div class="dmo-aviso warn" id="riVariasProducoes" role="status">
-          Há @doDia.Candidatas.Count produções da @(Model.Maquina!.Code) para @IndexModel.Dia(doDia.Dia). Escolha a certa:
-          <ul>
-            @foreach (var c in doDia.Candidatas)
-            {
-              <li>@RiTextos.Producao(c)</li>
-            }
-          </ul>
-        </div>
-      }
-
-      @if (producao is not null)
-      {
-        <div class="ri-onde" id="riProducaoDoDia">
-          <div><span>Dia</span><strong>@IndexModel.Dia(doDia!.Dia)</strong></div>
-          <div><span>Produção</span><strong data-dmo-producao="@producao.JobOnId">@producao.Producao · @producao.Referencia</strong></div>
-          @if (tipo is { } t)
+          @if (c.DoDia.VariasProducoes)
           {
-            <div><span>Ferramenta</span><strong data-dmo-ferramenta>@(ferramenta is null ? $"Sem {RiTextos.Tipo(t)}" : RiTextos.Ferramenta(t, ferramenta))</strong></div>
+            <form method="get" asp-page="/ReparacaoInterna/Index" class="ri-linha">
+              <input type="hidden" name="maquina" value="@codigo" />
+              <div class="dmo-field">
+                <label for="riProducao-@codigo">Produção (há @c.DoDia.Candidatas.Count)</label>
+                <select id="riProducao-@codigo" name="producao" class="ri-producao" data-dmo-autosubmit>
+                  @foreach (var o in c.DoDia.Candidatas)
+                  {
+                    <option value="@o.JobOnId" selected="@(p?.JobOnId == o.JobOnId)">@RiTextos.Producao(o)</option>
+                  }
+                </select>
+              </div>
+            </form>
           }
-        </div>
-      }
-    </section>
-
-    <section id="riRegisto" class="dmo-card ri-card" aria-labelledby="ri-registo-title" data-dmo-regiao data-dmo-parcial>
-      <div class="dmo-card-topo">
-        <h3 id="ri-registo-title">Número reparado<partial name="_DmoHelp" model="@("Escreva o número da CM ou do MF reparado e carregue Enter. O campo fica pronto para o seguinte.")" /></h3>
-        @if (podeRegistar)
-        {
-          <div class="dmo-card-topo-acoes">
-            <button type="submit" form="riRegistar" class="dmo-button" id="riRegistarBotao">Registar</button>
-          </div>
-        }
-      </div>
-      @if (podeRegistar)
-      {
-        <form id="riRegistar" method="post" asp-page="/ReparacaoInterna/Index" asp-page-handler="Registar" class="ri-linha ri-registar">
-          <input type="hidden" name="operacao_id" value="@Model.OperacaoId" />
-          <input type="hidden" name="maquina" value="@(Model.Maquina!.Code)" />
-          <input type="hidden" name="producao" value="@(producao!.JobOnId)" />
-          <input type="hidden" name="tipo" value="@RiTextos.Valor(tipo!.Value)" />
-          <input type="hidden" name="contexto" value="@(ferramenta!.ContextoId)" />
-          <div class="dmo-field">
-            <label for="riNumero">Número</label>
-            <input id="riNumero" name="numero" class="ri-numero" maxlength="@Reparacao.NumeroMaxLength" autocomplete="off" required autofocus
-                   value="@Model.NumeroEscrito" />
-          </div>
-        </form>
-      }
-      else
-      {
-        <p class="ri-falta" id="riFalta">@(Model.Maquina is null
-            ? "Escolha a máquina."
-            : producao is null
-                ? "Sem produção para hoje, não há a que ligar a reparação."
-                : tipo is null
-                    ? "Escolha CM ou MF."
-                    : $"Esta produção não tem {RiTextos.Tipo(tipo.Value)}.")</p>
-      }
-    </section>
-
-    @if (producao is not null)
-    {
-      <section id="riLista" class="dmo-card ri-card" aria-labelledby="ri-lista-title" data-dmo-regiao data-dmo-parcial>
-        <h3 id="ri-lista-title">Reparações desta produção<partial name="_DmoHelp" model="@("As reparações desta máquina e produção, da mais recente para a mais antiga.")" /></h3>
-        @if (Model.Lista.Items.Count == 0)
-        {
-          <p class="ri-falta" id="riListaVazia">Ainda não há reparações nesta produção.</p>
-        }
-        else
-        {
-          <div class="dmo-table-wrap">
-            @* A máquina, a produção e a página que as janelas de corrigir e
-               anular levam para voltar ao mesmo sítio (ri-corrigir.js). *@
-            <table class="dmo-table" data-dmo-list="Reparações desta produção"
-                   data-ri-maquina="@Model.Maquina!.Code" data-ri-producao="@producao.JobOnId" data-ri-tipo="@Model.TipoTexto" data-ri-pagina="@Model.Lista.PageNumber">
-              <thead><tr><th>Número</th><th>CM/MF</th><th>Quem</th><th>Hora</th><th class="ri-col-x"><span class="dmo-visually-hidden">Anular</span></th></tr></thead>
-              <tbody>
-              @foreach (var r in Model.Lista.Items)
+          @if (c.SemProducao)
+          {
+            <p class="dmo-aviso warn" id="riSemProducao-@codigo" role="status">Não há produção da @codigo para @IndexModel.Dia(c.DoDia.Dia). Pode registar sem Job On, com a referência e o lote: fica por associar.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.CriarJobOn()" /></p>
+          }
+          else if (p is not null)
+          {
+            <dl class="ri-onde">
+              <div><dt>Produção</dt><dd data-dmo-producao="@p.JobOnId">@p.Producao · @p.Referencia</dd></div>
+              @foreach (var (t, f) in new[] { (ReparacaoTipo.Cm, cmTool), (ReparacaoTipo.Mf, mfTool) })
               {
-                <tr data-dmo-reparacao="@r.Id">
-                  <td><a href="#riCorrigirJanela" class="ri-valor" role="button" data-ri-abre="riCorrigirJanela" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Corrigir" aria-label="Corrigir o nº @r.Numero"><strong>@r.Numero</strong></a></td>
-                  <td>@RiTextos.Tipo(r.Tipo)</td>
-                  <td>@(r.Quem ?? "—")</td>
-                  <td>@IndexModel.Hora(r.RegistadoEmUtc)</td>
-                  <td class="ri-col-x"><a href="#riAnularJanela" class="ri-x" role="button" data-ri-abre="riAnularJanela" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Anular" aria-label="Anular a reparação do nº @r.Numero">×</a></td>
-                </tr>
+                <div><dt>@RiTextos.Tipo(t)</dt><dd data-dmo-ferramenta="@RiTextos.Valor(t)">@if (f is not null && f.Referencia is not null && Model.AbreFerramentas && p.ToolId(t) is { } toolId)
+                  {<a class="ri-ficha" href="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(toolId, string.Empty).Href">@RiTextos.Ferramenta(t, f)</a>}
+                  else
+                  {@(f is null ? $"Sem {RiTextos.Tipo(t)}" : RiTextos.Ferramenta(t, f))}</dd></div>
               }
-              </tbody>
-            </table>
-          </div>
-          <partial name="_ListPager" model="Model.Pager" />
-        }
-      </section>
-    }
-    else
-    {
-      <div id="riLista" class="dmo-zona" data-dmo-regiao></div>
-    }
-  </div>
+            </dl>
+          }
 
+          @* O botão CM/MF (como o tipo de movimento das Boquilhas: o ativo
+             em azul claro), o número e OK. «É outra CM/MF» mostra a
+             referência e o lote; sem produção ficam sempre, obrigatórios. *@
+          <form id="riRegistar-@codigo" method="post" asp-page="/ReparacaoInterna/Index" asp-page-handler="Registar" class="ri-registar">
+            <input type="hidden" name="operacao_id" value="@(foco ? Model.OperacaoId : Guid.NewGuid())" />
+            <input type="hidden" name="maquina" value="@codigo" />
+            @if (p is not null)
+            {
+              <input type="hidden" name="producao" value="@p.JobOnId" />
+            }
+            @if (cmTool is not null)
+            {
+              <input type="hidden" name="contexto_cm" value="@cmTool.ContextoId" />
+            }
+            @if (mfTool is not null)
+            {
+              <input type="hidden" name="contexto_mf" value="@mfTool.ContextoId" />
+            }
+            @if (c.SemProducao)
+            {
+              <input type="hidden" name="outra" value="1" />
+            }
+            <div class="ri-linha">
+              <fieldset class="ri-tipos">
+                <legend class="dmo-visually-hidden">CM ou MF</legend>
+                <label><input type="radio" id="riTipoCm-@codigo" name="tipo" value="cm" checked="@(c.Tipo == ReparacaoTipo.Cm)" /><span>CM</span></label>
+                <label><input type="radio" id="riTipoMf-@codigo" name="tipo" value="mf" checked="@(c.Tipo == ReparacaoTipo.Mf)" /><span>MF</span></label>
+              </fieldset>
+              <div class="dmo-field">
+                <label for="riNumero-@codigo">Número</label>
+                <input id="riNumero-@codigo" name="numero" class="ri-numero" maxlength="@Reparacao.NumeroMaxLength" autocomplete="off" required autofocus="@foco"
+                       value="@(foco ? Model.NumeroEscrito : null)" />
+              </div>
+              <button type="submit" class="dmo-button" id="riOk-@codigo">OK</button>
+            </div>
+            @if (!c.SemProducao)
+            {
+              <label class="ri-outra-marca" for="riOutra-@codigo"><input type="checkbox" id="riOutra-@codigo" class="ri-outra-check" name="outra" value="1" checked="@(foco && Model.OutraMarcada)" />É outra CM/MF</label>
+            }
+            <div class="ri-linha ri-outra-campos">
+              <div class="dmo-field">
+                <label for="riReferencia-@codigo">Referência</label>
+                <input id="riReferencia-@codigo" name="referencia" class="ri-referencia" maxlength="@Reparacao.ReferenciaMaxLength" autocomplete="off"
+                       data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" placeholder="5447T173"
+                       required="@c.SemProducao" aria-invalid="@(foco && Model.ErroReferencia ? "true" : null)" value="@(foco ? Model.ReferenciaEscrita : null)" />
+              </div>
+              <div class="dmo-field">
+                <label for="riLote-@codigo">Lote</label>
+                <input id="riLote-@codigo" name="lote" class="ri-lote" maxlength="@Reparacao.LoteMaxLength" autocomplete="off" placeholder="4"
+                       required="@c.SemProducao" aria-invalid="@(foco && Model.ErroLote ? "true" : null)" value="@(foco ? Model.LoteEscrito : null)" />
+              </div>
+            </div>
+          </form>
+
+          @* A tabela minimizada: só a última reparação; abre para a tabela
+             toda, em páginas de 25. Clicar no número corrige, o «×» anula. *@
+          <details id="riLista-@codigo" class="ri-lista" open="@c.Aberta">
+            <summary>@if (c.Ultima is { } u)
+              {<span data-ri-ultima>Último: <strong>@u.Numero</strong> · @RiTextos.Tipo(u.Tipo)@(u.Referencia is null ? "" : $" · outra {RiTextos.Escrita(u.Referencia, u.Lote)}") · @(u.Quem ?? "—") · @IndexModel.Hora(u.RegistadoEmUtc)</span>}
+              else
+              {<span>@(c.SemProducao ? "Ainda não há reparações sem Job On hoje." : "Ainda não há reparações nesta produção.")</span>}</summary>
+            @if (c.Lista.Items.Count > 0)
+            {
+              <div class="dmo-table-wrap">
+                <table class="dmo-table" data-dmo-list="Reparações da @codigo"
+                       data-ri-maquina="@codigo" data-ri-producao="@p?.JobOnId" data-ri-tipo="@RiTextos.Valor(c.Tipo)" data-ri-pagina="@c.Lista.PageNumber">
+                  <thead><tr><th>Número</th><th>CM/MF</th><th>Quem</th><th>Hora</th><th class="ri-col-x"><span class="dmo-visually-hidden">Anular</span></th></tr></thead>
+                  <tbody>
+                  @foreach (var r in c.Lista.Items)
+                  {
+                    <tr data-dmo-reparacao="@r.Id">
+                      <td><a href="#riCorrigirJanela" class="ri-valor" role="button" data-ri-abre="riCorrigirJanela" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Corrigir" aria-label="Corrigir o nº @r.Numero"><strong>@r.Numero</strong></a></td>
+                      <td>@RiTextos.Tipo(r.Tipo)@if (r.Referencia is not null)
+                        {<span class="ri-escrita">Outra: @RiTextos.Escrita(r.Referencia, r.Lote)</span>}</td>
+                      <td>@(r.Quem ?? "—")</td>
+                      <td>@IndexModel.Hora(r.RegistadoEmUtc)</td>
+                      <td class="ri-col-x"><a href="#riAnularJanela" class="ri-x" role="button" data-ri-abre="riAnularJanela" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Anular" aria-label="Anular a reparação do nº @r.Numero">×</a></td>
+                    </tr>
+                  }
+                  </tbody>
+                </table>
+              </div>
+              @if (c.Lista.TotalPages > 1)
+              {
+                <nav class="dmo-list-pager ri-pager" aria-label="Paginação da @codigo">
+                  @if (c.Lista.PageNumber > 1)
+                  {
+                    <a class="dmo-button dmo-arrow" href="@Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, producao = p?.JobOnId, pagina = c.Lista.PageNumber - 1 })" aria-label="Página anterior">←</a>
+                  }
+                  <span role="status">@c.Lista.PageNumber de @c.Lista.TotalPages</span>
+                  @if (c.Lista.PageNumber < c.Lista.TotalPages)
+                  {
+                    <a class="dmo-button dmo-arrow" href="@Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, producao = p?.JobOnId, pagina = c.Lista.PageNumber + 1 })" aria-label="Página seguinte">→</a>
+                  }
+                </nav>
+              }
+            }
+          </details>
+        </section>
+      }
+    </div>
+  }
   @* As janelas de corrigir e de anular: uma de cada, fora das zonas que
      trocam (como a do × dos Pegamentos), iguais em todas as páginas. O
      clique na linha enche-as (ri-corrigir.js) com a reparação, o número e
@@ -230,7 +264,7 @@ html body .ri-linha .dmo-field input.ri-numero{width:16ch}
           <label for="riCorrigirMotivo">Motivo (opcional)</label>
           <input id="riCorrigirMotivo" name="motivo" maxlength="@ReparacaoRasto.MotivoMaxLength" autocomplete="off" />
         </div>
-        <p class="dmo-aviso-discreto">Máquina, CM/MF ou produção errados: anule e registe outra vez.</p>
+        <p class="dmo-aviso-discreto">Linha, CM/MF ou produção errados: anule e registe outra vez.</p>
         <div class="dmo-dialog-actions">
           <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
           <button type="submit" class="dmo-button">Guardar</button>

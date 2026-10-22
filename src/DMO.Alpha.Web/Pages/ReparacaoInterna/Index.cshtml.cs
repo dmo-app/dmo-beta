@@ -20,15 +20,22 @@ namespace DMO.Alpha.Web.Pages.ReparacaoInterna;
 /// Enter. O campo fica vazio e com o cursor para o número seguinte, e a
 /// reparação aparece na tabela por baixo. Com duas ou mais produções para o
 /// dia a página avisa e a pessoa escolhe (a de maior <c>jobon_id</c> vem
-/// escolhida); sem nenhuma não há a que ligar e nada se grava. Na tabela,
+/// escolhida). A CM ou o MF na máquina pode não ser a do Job On (trocada
+/// antes de a troca chegar lá): «É outra CM/MF» mostra a referência e o lote
+/// a escrever, e a reparação grava-se sem o contexto, por associar (peça 4,
+/// Diogo, 21/10/2026). Sem produção para o dia, a página avisa e grava-se
+/// sempre assim, sem Job On; a tabela mostra as dessa máquina no dia. Na tabela,
 /// clicar no número corrige-o e o «×» anula a reparação (peça 2), cada um
 /// numa janela pequena com o motivo opcional; quem tem o módulo pode fazê-lo
 /// (RI-04) e fica o rasto. Gravar troca só a tabela, com a mensagem no canto.
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ReparacaoInterna)]
-public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery maquinas, ShellStateFactory shellState) : PageModel
+public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery maquinas, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
 {
+    /// <summary>Quem tem as Ferramentas abre a ficha da ferramenta pelo link; os outros veem só o texto.</summary>
+    public bool AbreFerramentas { get; private set; }
+
     [BindProperty(SupportsGet = true, Name = "maquina")]
     public string? MaquinaCodigo { get; set; }
 
@@ -37,6 +44,26 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
 
     [BindProperty(SupportsGet = true, Name = "tipo")]
     public string? TipoTexto { get; set; }
+
+    /// <summary>
+    /// A referência e o lote escritos que ficam no formulário: numa recusa,
+    /// e sem Job On depois de gravar (aí todas as reparações levam a
+    /// ferramenta escrita, e a seguinte é quase sempre da mesma).
+    /// </summary>
+    [BindProperty(SupportsGet = true, Name = "referencia")]
+    public string? ReferenciaEscrita { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "lote")]
+    public string? LoteEscrito { get; set; }
+
+    /// <summary>«É outra CM/MF» marcado (só numa recusa: depois de gravar volta a desmarcado).</summary>
+    public bool OutraMarcada { get; private set; }
+
+    /// <summary>A ferramenta escrita que a mensagem de gravado refere: falta associar.</summary>
+    public string? Escrita { get; private set; }
+
+    /// <summary>Gravou sem Job On.</summary>
+    public bool SemJobOn { get; private set; }
 
     public IReadOnlyList<MachineOption> Maquinas { get; private set; } = [];
 
@@ -75,18 +102,32 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
 
     public bool Gravou => Gravacao is "ok" or "repetido" || Correcao is "corrigido" or "anulado";
 
+    /// <summary>A mensagem no canto: gravado com a ferramenta escrita só avisa (falta associar).</summary>
+    public string Tom => Gravacao is "ok" && Escrita is not null ? "aviso" : Gravou ? "ok" : "erro";
+
+    /// <summary>Sem produção para o dia: grava-se sempre com a ferramenta escrita, sem Job On.</summary>
+    public bool SemProducao => DoDia is { SemProducao: true };
+
+    /// <summary>O campo da ferramenta escrita com a recusa (para o marcar).</summary>
+    public bool ErroReferencia => Recusa is ReparacaoResultado.SemReferencia or ReparacaoResultado.ReferenciaLonga;
+
+    public bool ErroLote => Recusa is ReparacaoResultado.SemLote or ReparacaoResultado.LoteLongo;
+
     /// <summary>Corrigir para o mesmo número: nada mudou, só avisa.</summary>
     public bool Avisou => Correcao is "igual";
 
     public string Mensagem => Gravacao switch
     {
+        "ok" when Escrita is not null && SemJobOn => $"Reparação gravada sem Job On, com a {RiTextos.Tipo(Tipo ?? ReparacaoTipo.Cm)} {Escrita}. Falta associar.",
+        "ok" when Escrita is not null => $"Reparação gravada com outra {RiTextos.Tipo(Tipo ?? ReparacaoTipo.Cm)}: {Escrita}. Falta associar.",
         "ok" => $"Reparação do nº {Numero} registada.",
         "repetido" => $"A reparação do nº {Numero} já estava registada.",
         _ when Correcao is not null => Correcao switch
         {
             "corrigido" => $"Número corrigido para {Numero}.",
             "anulado" => $"Reparação do nº {Numero} anulada.",
-            "igual" => $"O número já era {Numero}. Nada mudou.",
+            // O mesmo número: nada muda e não se avisa (Diogo, 21/10/2026).
+            "igual" => string.Empty,
             "nao-existe" => "Esta reparação já não existe. Nada mudou.",
             "ja-anulada" => $"A reparação do nº {Numero} já tinha sido anulada. Nada mudou.",
             "mudou" => $"Outra pessoa mudou esta reparação entretanto: o número agora é {Numero}. Confira e corrija outra vez.",
@@ -100,20 +141,29 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
             ReparacaoResultado.SemNumero => "Escreva o número reparado.",
             ReparacaoResultado.NumeroLongo => $"O número tem até {Reparacao.NumeroMaxLength} caracteres.",
             ReparacaoResultado.SemTipo => "Escolha CM ou MF.",
-            ReparacaoResultado.MaquinaNaoExiste => "Escolha a máquina.",
-            ReparacaoResultado.SemProducao => "Não há produção desta máquina para hoje: não há a que ligar a reparação.",
-            ReparacaoResultado.ProducaoMudou => "A produção do dia desta máquina mudou. Confira e registe outra vez.",
+            ReparacaoResultado.MaquinaNaoExiste => "Escolha a linha.",
+            ReparacaoResultado.SemReferencia => $"Escreva a referência da {RiTextos.Tipo(Tipo ?? ReparacaoTipo.Cm)}.",
+            ReparacaoResultado.ReferenciaLonga => $"A referência tem até {Reparacao.ReferenciaMaxLength} caracteres.",
+            ReparacaoResultado.SemLote => $"Escreva o lote da {RiTextos.Tipo(Tipo ?? ReparacaoTipo.Cm)}.",
+            ReparacaoResultado.LoteLongo => $"O lote tem até {Reparacao.LoteMaxLength} caracteres.",
+            ReparacaoResultado.ProducaoMudou => "A produção do dia desta linha mudou. Confira e registe outra vez.",
             ReparacaoResultado.SemFerramenta => $"Esta produção não tem {RiTextos.Tipo(Tipo ?? ReparacaoTipo.Cm)}.",
             ReparacaoResultado.FerramentaMudou => $"A {RiTextos.Tipo(Tipo ?? ReparacaoTipo.Cm)} desta produção mudou no Job On. Confira e registe outra vez.",
             _ => string.Empty
         }
     };
 
-    public async Task<IActionResult> OnGetAsync(string? gravacao, string? correcao, string? numero, int? pagina)
+    /// <summary>«Editar» no cartão: abre as reparações da máquina para corrigir (o número) ou anular (o «×»).</summary>
+    [BindProperty(SupportsGet = true, Name = "editar")]
+    public bool Editar { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(string? gravacao, string? correcao, string? numero, string? escrita, string? semjobon, int? pagina)
     {
         Gravacao = gravacao;
         Correcao = correcao;
         Numero = numero;
+        Escrita = string.IsNullOrWhiteSpace(escrita) ? null : escrita;
+        SemJobOn = semjobon == "1";
         return await DesenharAsync(pagina);
     }
 
@@ -154,6 +204,8 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
             maquina = MaquinaCodigo,
             producao = ProducaoPedida,
             tipo = TipoTexto,
+            referencia = ReferenciaEscrita,
+            lote = LoteEscrito,
             pagina,
             correcao = (saida.Resultado == CorrecaoResultado.JaFeito ? feito : saida.Resultado) switch
             {
@@ -170,35 +222,53 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
             numero = saida.Numero
         });
 
-    /// <summary>POST: registar o número escrito (Enter). Grava uma vez por envio.</summary>
+    /// <summary>
+    /// POST: registar o número escrito (Enter). Grava uma vez por envio. Com
+    /// «É outra CM/MF» (ou sem produção, o formulário leva-o sempre), a
+    /// referência e o lote escritos.
+    /// </summary>
     [EnvioUnico]
     public async Task<IActionResult> OnPostRegistarAsync(
         [FromForm(Name = "operacao_id")] Guid operacaoId,
         [FromForm(Name = "contexto")] int? contexto,
-        [FromForm(Name = "numero")] string? numero)
+        [FromForm(Name = "contexto_cm")] int? contextoCm,
+        [FromForm(Name = "contexto_mf")] int? contextoMf,
+        [FromForm(Name = "numero")] string? numero,
+        [FromForm(Name = "outra")] string? outra)
     {
         var lista = await maquinas.ListAsync(HttpContext.RequestAborted);
         var maquina = lista.FirstOrDefault(m => string.Equals(m.Code, MaquinaCodigo, StringComparison.OrdinalIgnoreCase));
         var operacao = operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId;
+        var escrita = outra is "1" or "on";
+        // O cartão leva o contexto da CM e o do MF; o botão CM/MF escolhe.
+        contexto ??= Tipo == ReparacaoTipo.Mf ? contextoMf : Tipo == ReparacaoTipo.Cm ? contextoCm : null;
         var saida = await reparacoes.RegistarAsync(
-            new PedidoDeReparacao(operacao, maquina?.MachineId, ProducaoPedida, Tipo, contexto, numero),
+            new PedidoDeReparacao(operacao, maquina?.MachineId, ProducaoPedida, Tipo, contexto, numero, escrita,
+                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null),
             HttpContext.RequestAborted);
         if (saida.Gravou)
         {
+            // «É outra CM/MF» volta a desmarcado: a seguinte é quase sempre a
+            // do Job On. Sem Job On, a referência e o lote ficam escritos.
             return RedirectToPage("/ReparacaoInterna/Index", new
             {
                 maquina = maquina?.Code,
                 producao = ProducaoPedida,
                 tipo = TipoTexto,
+                referencia = saida.SemJobOn ? saida.Referencia : null,
+                lote = saida.SemJobOn ? saida.Lote : null,
                 gravacao = saida.Resultado == ReparacaoResultado.JaRegistado ? "repetido" : "ok",
-                numero = saida.Numero
+                numero = saida.Numero,
+                escrita = saida.Referencia is { } referencia ? RiTextos.Escrita(referencia, saida.Lote) : null,
+                semjobon = saida.PorAssociar && saida.SemJobOn ? "1" : null
             });
         }
 
         // Nada ficou gravado com este identificador: o mesmo envio continua,
-        // com o número escrito no campo.
+        // com o número, a referência e o lote escritos nos campos.
         Recusa = saida.Resultado;
         NumeroEscrito = numero;
+        OutraMarcada = escrita;
         OperacaoId = operacao;
         return await DesenharAsync(null);
     }
@@ -212,27 +282,71 @@ public sealed class IndexModel(IReparacoesInternas reparacoes, IMachineListQuery
             Functions = ShellStateFactory.ReparacaoInternaFunctions("registar")
         };
 
-        Maquinas = await maquinas.ListAsync(HttpContext.RequestAborted);
+        // Todas as máquinas, cada uma no seu cartão (Diogo, 21/10/2026): as
+        // B em cima, as C em baixo, as outras depois, pelo código. O cartão
+        // da máquina do pedido (a do último registo ou da recusa) leva a
+        // produção, o tipo, a página e o que se escreveu; os outros abrem
+        // com a produção de maior jobon_id e a CM.
+        var cancelar = HttpContext.RequestAborted;
+        Maquinas = await maquinas.ListAsync(cancelar);
         Maquina = Maquinas.FirstOrDefault(m => string.Equals(m.Code, MaquinaCodigo, StringComparison.OrdinalIgnoreCase));
-        if (Maquina is null)
+        AbreFerramentas = (await capabilities.GetAsync(cancelar)).Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
+        var cartoes = new List<RiCartao>();
+        foreach (var m in Maquinas.OrderBy(m => Fila(m.Code)).ThenBy(m => m.Code, StringComparer.OrdinalIgnoreCase))
         {
-            return Page();
+            var foco = m.MachineId == Maquina?.MachineId;
+            var doDia = await reparacoes.ProducaoDoDiaAsync(m.MachineId, cancelar);
+            var producao = doDia.Escolhida(foco ? ProducaoPedida : null);
+            var paginaDoCartao = foco ? pagina : null;
+            var lista = producao is not null
+                ? await reparacoes.ListarAsync(m.MachineId, producao.JobOnId, paginaDoCartao, cancelar)
+                : doDia.SemProducao
+                    ? await reparacoes.ListarSemProducaoAsync(m.MachineId, doDia.Dia, paginaDoCartao, cancelar)
+                    : PagedList<RiLinha>.Empty;
+            var ultima = lista.PageNumber <= 1 ? lista.Items.FirstOrDefault()
+                : producao is not null ? (await reparacoes.ListarAsync(m.MachineId, producao.JobOnId, 1, cancelar)).Items.FirstOrDefault()
+                : (await reparacoes.ListarSemProducaoAsync(m.MachineId, doDia.Dia, 1, cancelar)).Items.FirstOrDefault();
+            cartoes.Add(new RiCartao(m, doDia, producao, foco ? Tipo ?? ReparacaoTipo.Cm : ReparacaoTipo.Cm, foco, lista, ultima, foco && (pagina is > 1 || Editar || Correcao is not null)));
+            if (foco)
+            {
+                DoDia = doDia;
+                Producao = producao;
+                Lista = lista;
+                Pager = ListPager.For(lista);
+            }
         }
 
-        DoDia = await reparacoes.ProducaoDoDiaAsync(Maquina.MachineId, HttpContext.RequestAborted);
-        Producao = DoDia.Escolhida(ProducaoPedida);
-        if (Producao is not null)
-        {
-            Lista = await reparacoes.ListarAsync(Maquina.MachineId, Producao.JobOnId, pagina, HttpContext.RequestAborted);
-            Pager = ListPager.For(Lista);
-        }
-
+        Cartoes = cartoes;
         return Page();
     }
+
+    // As B na primeira fila, as C na segunda, as outras depois.
+    public static int Fila(string codigo) => codigo.StartsWith('B') || codigo.StartsWith('b') ? 0 : codigo.StartsWith('C') || codigo.StartsWith('c') ? 1 : 2;
+
+    /// <summary>Os cartões das máquinas, pela ordem da página.</summary>
+    public IReadOnlyList<RiCartao> Cartoes { get; private set; } = [];
 
     /// <summary>A hora do registo, em hora local da fábrica: «21/10 08:42».</summary>
     public static string Hora(DateTime utc) =>
         DmoBusinessTime.ToLocal(utc).ToString("dd/MM HH:mm", CultureInfo.InvariantCulture);
 
     public static string Dia(DateOnly dia) => dia.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+}
+
+/// <summary>
+/// O cartão de uma máquina: a produção do dia, o tipo escolhido (CM por
+/// omissão), se é o cartão do pedido (o foco, com o que se escreveu), as
+/// reparações e a última delas, e se a tabela abre (numa página além da 1).
+/// </summary>
+public sealed record RiCartao(
+    MachineOption Maquina,
+    RiProducaoDoDia DoDia,
+    RiProducao? Producao,
+    ReparacaoTipo Tipo,
+    bool Foco,
+    PagedList<RiLinha> Lista,
+    RiLinha? Ultima,
+    bool Aberta)
+{
+    public bool SemProducao => DoDia.SemProducao;
 }

@@ -717,18 +717,38 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         // utilizador deixa a reparação sem autor (SET NULL, como nos outros
         // factos); a produção, a máquina e os contextos não se apagam por baixo
         // dela (RESTRICT; o Eliminar do Job On apaga-a com a produção).
+        // A ferramenta escrita (peça 4): ou o contexto do tipo com o Job On,
+        // ou nenhum contexto com a referência e o lote escritos (o Job On
+        // pode faltar só aqui); nunca as duas coisas. A associada só numa
+        // escrita, com quando; a ferramenta associada não se apaga por baixo
+        // (RESTRICT; o Eliminar da ferramenta passa-a para a REMOVED).
         modelBuilder.Entity<Reparacao>(entity =>
         {
             entity.ToTable("ReparacoesInternas", t =>
             {
                 t.HasCheckConstraint(
                     "CK_ReparacoesInternas_Contexto",
-                    "(\"Tipo\" = 1 AND \"CmContextId\" IS NOT NULL AND \"MfContextId\" IS NULL)"
-                    + " OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL)");
+                    "(\"JobOnId\" IS NOT NULL AND \"ReferenciaEscrita\" IS NULL AND \"LoteEscrito\" IS NULL"
+                    + " AND ((\"Tipo\" = 1 AND \"CmContextId\" IS NOT NULL AND \"MfContextId\" IS NULL)"
+                    + " OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL)))"
+                    + " OR (\"Tipo\" IN (1, 2) AND \"CmContextId\" IS NULL AND \"MfContextId\" IS NULL"
+                    + " AND \"ReferenciaEscrita\" IS NOT NULL AND \"LoteEscrito\" IS NOT NULL)");
                 t.HasCheckConstraint("CK_ReparacoesInternas_Numero", "btrim(\"Numero\") <> '' AND \"Numero\" = btrim(\"Numero\")");
+                t.HasCheckConstraint(
+                    "CK_ReparacoesInternas_Escrita",
+                    "(\"ReferenciaEscrita\" IS NULL OR (btrim(\"ReferenciaEscrita\") <> '' AND \"ReferenciaEscrita\" = btrim(\"ReferenciaEscrita\")))"
+                    + " AND (\"LoteEscrito\" IS NULL OR (btrim(\"LoteEscrito\") <> '' AND \"LoteEscrito\" = btrim(\"LoteEscrito\")))");
+                t.HasCheckConstraint(
+                    "CK_ReparacoesInternas_Associada",
+                    "(\"AssociadaToolId\" IS NULL AND \"AssociadaEmUtc\" IS NULL AND \"AssociadaPorUserId\" IS NULL)"
+                    + " OR (\"AssociadaToolId\" IS NOT NULL AND \"AssociadaEmUtc\" IS NOT NULL AND \"ReferenciaEscrita\" IS NOT NULL)");
             });
             entity.HasKey(r => r.Id);
             entity.Property(r => r.Numero).HasMaxLength(Reparacao.NumeroMaxLength).IsRequired();
+            entity.Property(r => r.ReferenciaEscrita).HasMaxLength(Reparacao.ReferenciaMaxLength);
+            entity.Property(r => r.LoteEscrito).HasMaxLength(Reparacao.LoteMaxLength);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(r => r.AssociadaToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<User>().WithMany().HasForeignKey(r => r.AssociadaPorUserId).OnDelete(DeleteBehavior.SetNull);
             entity.HasOne<JobOn>().WithMany().HasForeignKey(r => r.JobOnId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<Machine>().WithMany().HasForeignKey(r => r.MachineId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<CmContext>().WithMany().HasForeignKey(r => r.CmContextId).OnDelete(DeleteBehavior.Restrict);
@@ -740,6 +760,10 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasIndex(r => new { r.RegistadoPorUserId, r.DiaOperacional });
             // A lista da produção conta só as que não foram anuladas (peça 2).
             entity.HasIndex(r => new { r.JobOnId, r.Id }).HasFilter("\"AnuladaEmUtc\" IS NULL").HasDatabaseName("IX_ReparacoesInternas_JobOnId_Id_Ativas");
+            // As por associar (peça 4): poucas, sempre da mais recente para a mais antiga.
+            entity.HasIndex(r => r.Id)
+                .HasFilter("\"ReferenciaEscrita\" IS NOT NULL AND \"AssociadaToolId\" IS NULL AND \"AnuladaEmUtc\" IS NULL")
+                .HasDatabaseName("IX_ReparacoesInternas_PorAssociar");
             // Corrigir e anular ao mesmo tempo que outra pessoa: o segundo é avisado.
             entity.Property<uint>(RowVersion).IsRowVersion();
         });
@@ -748,13 +772,17 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         // base recusa mudar uma linha (trigger da migração
         // ReparacaoInternaRasto); a linha sai só com a reparação (CASCADE,
         // quando se elimina o Job On). Apagar o utilizador deixa-a sem autor.
+        // Associar (peça 4) guarda o tool_id associado, sem FK: o rasto não
+        // se muda, e a ferramenta pode eliminar-se depois.
         modelBuilder.Entity<ReparacaoRasto>(entity =>
         {
             entity.ToTable("ReparacoesInternasRasto", t =>
             {
                 t.HasCheckConstraint(
                     "CK_ReparacoesInternasRasto_Acao",
-                    "(\"Acao\" = 1 AND \"NumeroDepois\" IS NOT NULL) OR (\"Acao\" = 2 AND \"NumeroDepois\" IS NULL)");
+                    "(\"Acao\" = 1 AND \"NumeroDepois\" IS NOT NULL AND \"ToolIdAssociado\" IS NULL)"
+                    + " OR (\"Acao\" = 2 AND \"NumeroDepois\" IS NULL AND \"ToolIdAssociado\" IS NULL)"
+                    + " OR (\"Acao\" = 3 AND \"NumeroDepois\" IS NULL AND \"ToolIdAssociado\" IS NOT NULL)");
                 t.HasCheckConstraint(
                     "CK_ReparacoesInternasRasto_Motivo",
                     "\"Motivo\" IS NULL OR (btrim(\"Motivo\") <> '' AND \"Motivo\" = btrim(\"Motivo\"))");

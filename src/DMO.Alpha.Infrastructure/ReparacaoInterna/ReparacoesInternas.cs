@@ -18,6 +18,10 @@ namespace DMO.Alpha.Infrastructure.ReparacaoInterna;
 /// nas Boquilhas, nem no Armazém. Corrigir (só o número) e anular gravam a
 /// reparação, a linha do rasto e a operação registada na mesma transação;
 /// qualquer pessoa com o módulo o pode fazer (RI-04), e o rasto diz quem.
+/// A ferramenta escrita (peça 4): com outra CM/MF na máquina, ou sem produção
+/// para o dia, grava-se a referência e o lote escritos, sem contexto (e sem
+/// Job On, se não houver), e o responsável associa depois a ferramenta, com
+/// rasto e as mesmas regras de envio único e de concorrência.
 /// </summary>
 public sealed class ReparacoesInternas(
     DmoDbContext db,
@@ -33,6 +37,8 @@ public sealed class ReparacoesInternas(
     public const string OperacaoCorrigir = "ri.corrigir";
 
     public const string OperacaoAnular = "ri.anular";
+
+    public const string OperacaoAssociar = "ri.associar";
 
     private readonly TimeProvider _clock = clock ?? TimeProvider.System;
 
@@ -77,9 +83,11 @@ public sealed class ReparacoesInternas(
                 CmId = c != null ? c.Id : (int?)null,
                 CmReferencia = tc != null ? tc.Reference : null,
                 CmLote = tc != null ? tc.Lot : null,
+                CmToolId = tc != null ? tc.ToolId : null,
                 MfId = m != null ? m.Id : (int?)null,
                 MfReferencia = tm != null ? tm.Reference : null,
-                MfLote = tm != null ? tm.Lot : null
+                MfLote = tm != null ? tm.Lot : null,
+                MfToolId = tm != null ? tm.ToolId : null
             })
             .ToListAsync(cancellationToken);
 
@@ -91,7 +99,9 @@ public sealed class ReparacoesInternas(
                 l.InicioEm!.Value,
                 l.FimEm,
                 l.CmId is { } cm ? new RiFerramenta(cm, l.CmReferencia, l.CmLote) : null,
-                l.MfId is { } mf ? new RiFerramenta(mf, l.MfReferencia, l.MfLote) : null))
+                l.MfId is { } mf ? new RiFerramenta(mf, l.MfReferencia, l.MfLote) : null,
+                l.CmToolId,
+                l.MfToolId))
             .ToList());
     }
 
@@ -127,44 +137,85 @@ public sealed class ReparacoesInternas(
 
         // A produção e a ferramenta outra vez, agora: se mudaram desde que a
         // página abriu, nada se grava e a página mostra o que está agora,
-        // com o número escrito.
+        // com o número escrito. Sem produção para o dia, a reparação fica
+        // sem Job On, com a ferramenta escrita (Diogo, 21/10/2026); se a
+        // página mostrou uma produção que já não conta, mudou.
         var agora = _clock.GetUtcNow().UtcDateTime;
         var doDia = await ProducaoDoDiaAsync(machineId, await DiaOperacionalAsync(cancellationToken), cancellationToken);
+        RiProducao? producao = null;
         if (doDia.SemProducao)
         {
-            return new ReparacaoSaida(ReparacaoResultado.SemProducao, Numero: numero);
+            if (pedido.JobOnId is not null)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.ProducaoMudou, Numero: numero);
+            }
         }
-
-        var producao = pedido.JobOnId is { } pedida
-            ? doDia.Candidatas.FirstOrDefault(c => c.JobOnId == pedida)
-            : doDia.Escolhida(null);
-        if (producao is null)
+        else
         {
-            return new ReparacaoSaida(ReparacaoResultado.ProducaoMudou, Numero: numero);
-        }
-
-        if (producao.Ferramenta(tipo) is not { } ferramenta)
-        {
-            return new ReparacaoSaida(ReparacaoResultado.SemFerramenta, Numero: numero);
-        }
-
-        if (pedido.ContextoId is { } contexto && contexto != ferramenta.ContextoId)
-        {
-            return new ReparacaoSaida(ReparacaoResultado.FerramentaMudou, Numero: numero);
+            producao = pedido.JobOnId is { } pedida
+                ? doDia.Candidatas.FirstOrDefault(c => c.JobOnId == pedida)
+                : doDia.Escolhida(null);
+            if (producao is null)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.ProducaoMudou, Numero: numero);
+            }
         }
 
         var reparacao = new Reparacao
         {
-            JobOnId = producao.JobOnId,
+            JobOnId = producao?.JobOnId,
             MachineId = machineId,
             Tipo = tipo,
-            CmContextId = tipo == ReparacaoTipo.Cm ? ferramenta.ContextoId : null,
-            MfContextId = tipo == ReparacaoTipo.Mf ? ferramenta.ContextoId : null,
             Numero = numero,
             RegistadoPorUserId = Autor(),
             RegistadoEmUtc = agora,
             DiaOperacional = doDia.Dia
         };
+
+        if (pedido.Outra || producao is null)
+        {
+            // A ferramenta escrita: sem espaços nas pontas, a referência em
+            // maiúsculas (como nas outras procuras); as duas obrigatórias.
+            var referencia = (pedido.Referencia ?? string.Empty).Trim().ToUpperInvariant();
+            var lote = (pedido.Lote ?? string.Empty).Trim();
+            if (referencia.Length == 0)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.SemReferencia, Numero: numero);
+            }
+
+            if (referencia.Length > Reparacao.ReferenciaMaxLength)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.ReferenciaLonga, Numero: numero);
+            }
+
+            if (lote.Length == 0)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.SemLote, Numero: numero);
+            }
+
+            if (lote.Length > Reparacao.LoteMaxLength)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.LoteLongo, Numero: numero);
+            }
+
+            reparacao.ReferenciaEscrita = referencia;
+            reparacao.LoteEscrito = lote;
+        }
+        else
+        {
+            if (producao.Ferramenta(tipo) is not { } ferramenta)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.SemFerramenta, Numero: numero);
+            }
+
+            if (pedido.ContextoId is { } contexto && contexto != ferramenta.ContextoId)
+            {
+                return new ReparacaoSaida(ReparacaoResultado.FerramentaMudou, Numero: numero);
+            }
+
+            reparacao.CmContextId = tipo == ReparacaoTipo.Cm ? ferramenta.ContextoId : null;
+            reparacao.MfContextId = tipo == ReparacaoTipo.Mf ? ferramenta.ContextoId : null;
+        }
 
         try
         {
@@ -178,8 +229,11 @@ public sealed class ReparacoesInternas(
                 ?? new ReparacaoSaida(ReparacaoResultado.JaRegistado, Numero: numero);
         }
 
-        return new ReparacaoSaida(ReparacaoResultado.Gravado, reparacao.Id, numero);
+        return Saida(ReparacaoResultado.Gravado, reparacao.Id, reparacao);
     }
+
+    private static ReparacaoSaida Saida(ReparacaoResultado resultado, int? id, Reparacao reparacao) =>
+        new(resultado, id, reparacao.Numero, reparacao.ReferenciaEscrita, reparacao.LoteEscrito, reparacao.JobOnId is null);
 
     // A reparação e a operação vão juntas: o envio repetido colide na chave
     // da operação e a reparação dele não fica. O Id da reparação vai depois
@@ -215,17 +269,40 @@ public sealed class ReparacoesInternas(
             return null;
         }
 
-        var numero = operacao.ResultadoId is { } id
-            ? await db.ReparacoesInternas.AsNoTracking().Where(r => r.Id == id).Select(r => r.Numero).FirstOrDefaultAsync(cancellationToken)
+        var gravada = operacao.ResultadoId is { } id
+            ? await db.ReparacoesInternas.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id, cancellationToken)
             : null;
-        return new ReparacaoSaida(ReparacaoResultado.JaRegistado, operacao.ResultadoId, numero);
+        return gravada is null
+            ? new ReparacaoSaida(ReparacaoResultado.JaRegistado, operacao.ResultadoId)
+            : Saida(ReparacaoResultado.JaRegistado, operacao.ResultadoId, gravada);
     }
 
     // Quem grava: o utilizador da sessão; o ADMIN não é um utilizador (NULL).
     private Guid? Autor() =>
         account.Current is { IsAuthenticated: true, IsAdmin: false } actor ? actor.ActorId : null;
 
-    public async Task<CorrecaoSaida> CorrigirAsync(PedidoDeCorrecao pedido, CancellationToken cancellationToken = default)
+    // Sem recusas para o operador (Diogo, 21/10/2026): se outra pessoa mudou
+    // a reparação entretanto, aplica-se outra vez sobre a de agora (o rasto
+    // guarda as duas). Só o impossível fica: já não existe ou já foi anulada.
+    public async Task<CorrecaoSaida> CorrigirAsync(PedidoDeCorrecao pedido, CancellationToken cancellationToken = default) =>
+        await DeNovoSeMudouAsync(() => CorrigirUmaVezAsync(pedido, cancellationToken));
+
+    public async Task<CorrecaoSaida> AnularAsync(PedidoDeAnulacao pedido, CancellationToken cancellationToken = default) =>
+        await DeNovoSeMudouAsync(() => AnularUmaVezAsync(pedido, cancellationToken));
+
+    private static async Task<CorrecaoSaida> DeNovoSeMudouAsync(Func<Task<CorrecaoSaida>> fazer)
+    {
+        for (var tentativa = 1; ; tentativa++)
+        {
+            var saida = await fazer();
+            if (saida.Resultado != CorrecaoResultado.Mudou || tentativa == 3)
+            {
+                return saida;
+            }
+        }
+    }
+
+    private async Task<CorrecaoSaida> CorrigirUmaVezAsync(PedidoDeCorrecao pedido, CancellationToken cancellationToken)
     {
         if (await JaFeitoAsync(pedido.OperacaoId, cancellationToken) is { } repetido)
         {
@@ -279,7 +356,7 @@ public sealed class ReparacoesInternas(
         return await AplicarAsync(reparacao, rasto, pedido.OperacaoId, OperacaoCorrigir, CorrecaoResultado.Corrigido, cancellationToken);
     }
 
-    public async Task<CorrecaoSaida> AnularAsync(PedidoDeAnulacao pedido, CancellationToken cancellationToken = default)
+    private async Task<CorrecaoSaida> AnularUmaVezAsync(PedidoDeAnulacao pedido, CancellationToken cancellationToken)
     {
         if (await JaFeitoAsync(pedido.OperacaoId, cancellationToken) is { } repetido)
         {
@@ -323,12 +400,37 @@ public sealed class ReparacoesInternas(
         return motivo is null || motivo.Length <= ReparacaoRasto.MotivoMaxLength;
     }
 
+    // A reparação mudada e a linha do rasto, numa correção ou numa anulação.
+    private async Task<CorrecaoSaida> AplicarAsync(
+        Reparacao reparacao, ReparacaoRasto rasto, Guid operacaoId, string tipo, CorrecaoResultado feito, CancellationToken cancellationToken)
+    {
+        switch (await GravarRastoAsync(reparacao, rasto, operacaoId, tipo, cancellationToken))
+        {
+            case Gravacao.Repetida:
+                return await JaFeitoAsync(operacaoId, cancellationToken) ?? new CorrecaoSaida(CorrecaoResultado.JaFeito, rasto.NumeroDepois ?? rasto.NumeroAntes);
+            case Gravacao.Mudou:
+                var agora = await db.ReparacoesInternas.AsNoTracking().FirstOrDefaultAsync(r => r.Id == reparacao.Id, cancellationToken);
+                return agora is null ? new CorrecaoSaida(CorrecaoResultado.NaoExiste)
+                    : agora.AnuladaEmUtc is not null ? new CorrecaoSaida(CorrecaoResultado.JaAnulada, agora.Numero)
+                    : new CorrecaoSaida(CorrecaoResultado.Mudou, agora.Numero);
+            default:
+                return new CorrecaoSaida(feito, rasto.NumeroDepois ?? rasto.NumeroAntes);
+        }
+    }
+
+    private enum Gravacao
+    {
+        Feita,
+        Repetida,
+        Mudou
+    }
+
     // A reparação mudada, a linha do rasto e a operação vão juntas. Outro
     // envio com o mesmo identificador primeiro: já está feito. Outra pessoa
     // gravou na mesma reparação entretanto (a versão da linha mudou): nada
     // se grava e a pessoa é avisada do que está agora.
-    private async Task<CorrecaoSaida> AplicarAsync(
-        Reparacao reparacao, ReparacaoRasto rasto, Guid operacaoId, string tipo, CorrecaoResultado feito, CancellationToken cancellationToken)
+    private async Task<Gravacao> GravarRastoAsync(
+        Reparacao reparacao, ReparacaoRasto rasto, Guid operacaoId, string tipo, CancellationToken cancellationToken)
     {
         var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         try
@@ -340,19 +442,18 @@ public sealed class ReparacoesInternas(
             {
                 await transacao.CommitAsync(cancellationToken);
             }
+
+            return Gravacao.Feita;
         }
         catch (DbUpdateConcurrencyException)
         {
             db.ChangeTracker.Clear();
-            var agora = await db.ReparacoesInternas.AsNoTracking().FirstOrDefaultAsync(r => r.Id == reparacao.Id, cancellationToken);
-            return agora is null ? new CorrecaoSaida(CorrecaoResultado.NaoExiste)
-                : agora.AnuladaEmUtc is not null ? new CorrecaoSaida(CorrecaoResultado.JaAnulada, agora.Numero)
-                : new CorrecaoSaida(CorrecaoResultado.Mudou, agora.Numero);
+            return Gravacao.Mudou;
         }
         catch (DbUpdateException ex) when (OperacoesRegistadas.EOperacaoRepetida(ex))
         {
             db.ChangeTracker.Clear();
-            return await JaFeitoAsync(operacaoId, cancellationToken) ?? new CorrecaoSaida(CorrecaoResultado.JaFeito, rasto.NumeroDepois ?? rasto.NumeroAntes);
+            return Gravacao.Repetida;
         }
         finally
         {
@@ -361,8 +462,104 @@ public sealed class ReparacoesInternas(
                 await transacao.DisposeAsync();
             }
         }
+    }
 
-        return new CorrecaoSaida(feito, rasto.NumeroDepois ?? rasto.NumeroAntes);
+    public async Task<AssociacaoSaida> AssociarAsync(PedidoDeAssociacao pedido, CancellationToken cancellationToken = default)
+    {
+        if (await JaAssociadoAsync(pedido.OperacaoId, cancellationToken) is { } repetido)
+        {
+            return repetido;
+        }
+
+        var reparacao = await db.ReparacoesInternas.FirstOrDefaultAsync(r => r.Id == pedido.ReparacaoId, cancellationToken);
+        if (reparacao is null)
+        {
+            return new AssociacaoSaida(AssociacaoResultado.NaoExiste);
+        }
+
+        if (reparacao.AnuladaEmUtc is not null)
+        {
+            return new AssociacaoSaida(AssociacaoResultado.JaAnulada, reparacao.Numero);
+        }
+
+        if (reparacao.ReferenciaEscrita is null)
+        {
+            return new AssociacaoSaida(AssociacaoResultado.NaoEscrita, reparacao.Numero);
+        }
+
+        if (reparacao.AssociadaToolId is { } associada)
+        {
+            return new AssociacaoSaida(AssociacaoResultado.JaAssociada, reparacao.Numero, await FerramentaAsync(associada, cancellationToken));
+        }
+
+        var toolId = pedido.ToolId?.Trim();
+        if (string.IsNullOrEmpty(toolId))
+        {
+            return new AssociacaoSaida(AssociacaoResultado.SemFerramenta, reparacao.Numero);
+        }
+
+        // Só uma ferramenta registada do mesmo tipo (a REMOVED nunca). A
+        // referência e o lote não têm de ser os escritos: o escrito pode
+        // estar errado, e o responsável escolhe.
+        var tipo = reparacao.Tipo == ReparacaoTipo.Cm ? ToolType.Cm : ToolType.Mf;
+        var ferramenta = await db.Tools.AsNoTracking()
+            .Where(t => t.ToolId == toolId && t.ToolId != ToolRegistryConstants.RemovedToolId && t.Type == tipo)
+            .Select(t => new { t.Reference, t.Lot })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (ferramenta is null)
+        {
+            return new AssociacaoSaida(AssociacaoResultado.FerramentaNaoServe, reparacao.Numero);
+        }
+
+        var agora = _clock.GetUtcNow().UtcDateTime;
+        var quem = Autor();
+        var rasto = new ReparacaoRasto
+        {
+            ReparacaoId = reparacao.Id,
+            Acao = ReparacaoAcao.Associado,
+            NumeroAntes = reparacao.Numero,
+            PorUserId = quem,
+            EmUtc = agora,
+            ToolIdAssociado = toolId
+        };
+        reparacao.AssociadaToolId = toolId;
+        reparacao.AssociadaPorUserId = quem;
+        reparacao.AssociadaEmUtc = agora;
+        var texto = RiTextos.Escrita(ferramenta.Reference, ferramenta.Lot);
+        switch (await GravarRastoAsync(reparacao, rasto, pedido.OperacaoId, OperacaoAssociar, cancellationToken))
+        {
+            case Gravacao.Repetida:
+                return await JaAssociadoAsync(pedido.OperacaoId, cancellationToken) ?? new AssociacaoSaida(AssociacaoResultado.JaFeito, rasto.NumeroAntes, texto);
+            case Gravacao.Mudou:
+                var depois = await db.ReparacoesInternas.AsNoTracking().FirstOrDefaultAsync(r => r.Id == reparacao.Id, cancellationToken);
+                return depois is null ? new AssociacaoSaida(AssociacaoResultado.NaoExiste)
+                    : depois.AnuladaEmUtc is not null ? new AssociacaoSaida(AssociacaoResultado.JaAnulada, depois.Numero)
+                    : depois.AssociadaToolId is { } outra ? new AssociacaoSaida(AssociacaoResultado.JaAssociada, depois.Numero, await FerramentaAsync(outra, cancellationToken))
+                    : new AssociacaoSaida(AssociacaoResultado.Mudou, depois.Numero);
+            default:
+                return new AssociacaoSaida(AssociacaoResultado.Associado, rasto.NumeroAntes, texto);
+        }
+    }
+
+    // A ferramenta associada como a pessoa a reconhece; eliminada, sem referência.
+    private async Task<string> FerramentaAsync(string toolId, CancellationToken cancellationToken) =>
+        await db.Tools.AsNoTracking()
+            .Where(t => t.ToolId == toolId && t.ToolId != ToolRegistryConstants.RemovedToolId)
+            .Select(t => t.Reference + " · lote " + t.Lot)
+            .FirstOrDefaultAsync(cancellationToken) ?? "ferramenta eliminada";
+
+    private async Task<AssociacaoSaida?> JaAssociadoAsync(Guid operacaoId, CancellationToken cancellationToken)
+    {
+        if (operacaoId == Guid.Empty || await operacoes.ProcurarAsync(operacaoId, cancellationToken) is not { } operacao)
+        {
+            return null;
+        }
+
+        var reparacao = operacao.ResultadoId is { } id
+            ? await db.ReparacoesInternas.AsNoTracking().Where(r => r.Id == id).Select(r => new { r.Numero, r.AssociadaToolId }).FirstOrDefaultAsync(cancellationToken)
+            : null;
+        return new AssociacaoSaida(AssociacaoResultado.JaFeito, reparacao?.Numero,
+            reparacao?.AssociadaToolId is { } toolId ? await FerramentaAsync(toolId, cancellationToken) : null);
     }
 
     private async Task<CorrecaoSaida?> JaFeitoAsync(Guid operacaoId, CancellationToken cancellationToken)
@@ -379,11 +576,18 @@ public sealed class ReparacoesInternas(
     }
 
     public Task<PagedList<RiLinha>> ListarAsync(int machineId, int jobOnId, int? pagina, CancellationToken cancellationToken = default) =>
-        (from r in db.ReparacoesInternas.AsNoTracking()
-         where r.JobOnId == jobOnId && r.MachineId == machineId && r.AnuladaEmUtc == null
+        Listar(db.ReparacoesInternas.AsNoTracking().Where(r => r.JobOnId == jobOnId && r.MachineId == machineId), pagina, cancellationToken);
+
+    // Sem Job On: as desta máquina no dia operacional (pelo índice da máquina com o dia).
+    public Task<PagedList<RiLinha>> ListarSemProducaoAsync(int machineId, DateOnly dia, int? pagina, CancellationToken cancellationToken = default) =>
+        Listar(db.ReparacoesInternas.AsNoTracking().Where(r => r.JobOnId == null && r.MachineId == machineId && r.DiaOperacional == dia), pagina, cancellationToken);
+
+    private Task<PagedList<RiLinha>> Listar(IQueryable<Reparacao> reparacoes, int? pagina, CancellationToken cancellationToken) =>
+        (from r in reparacoes
+         where r.AnuladaEmUtc == null
          join u in db.Users.AsNoTracking() on r.RegistadoPorUserId equals (Guid?)u.Id into us
          from u in us.DefaultIfEmpty()
          orderby r.Id descending
-         select new RiLinha(r.Id, r.Numero, r.Tipo, u != null ? u.Name : null, r.RegistadoEmUtc))
+         select new RiLinha(r.Id, r.Numero, r.Tipo, u != null ? u.Name : null, r.RegistadoEmUtc, r.ReferenciaEscrita, r.LoteEscrito))
         .ToPagedListAsync(pagina, cancellationToken: cancellationToken);
 }

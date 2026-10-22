@@ -216,7 +216,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
 
         var tabela = Elemento(html, "id=\"riConsultaLista\"");
         Assert.Contains("class=\"dmo-table\"", tabela);
-        Assert.Contains("<th>Dia</th><th>Hora</th><th>Máquina</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th><th>Quem</th>", tabela);
+        Assert.Contains("<th>Dia</th><th>Hora</th><th>Linha</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th><th>Quem</th>", tabela);
         var ids = NaBase(db => db.ReparacoesInternas.AsNoTracking().Where(r => r.JobOnId == jobOnId).ToDictionary(r => r.Numero, r => r.Id));
         var ana = Elemento(tabela, $"data-dmo-reparacao=\"{ids["B-ANA"]}\"");
         Assert.Contains($"<td>{Hoje:dd/MM/yyyy}</td>", ana);

@@ -181,16 +181,17 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         Assert.Contains("Reparação Interna", Elemento(html, "id=\"ri-title\""));
         Assert.Matches("<a href=\"/ReparacaoInterna\"[^>]*aria-current=\"page\">Registar</a>", html);
-        Assert.Contains($"<option value=\"{codigo}\">{codigo}</option>", Elemento(html, "id=\"riMaquina\""));
-        Assert.Contains("Escolha a máquina.", Elemento(html, "id=\"riRegisto\""));
+        // Sem dropdown de máquinas: cada máquina no seu cartão (Diogo, 21/10/2026).
+        Assert.DoesNotContain("id=\"riMaquina\"", html);
+        Assert.Contains($">{codigo}</h3>", Elemento(html, $"id=\"riCard-{codigo}\""));
         // Atualizar só o que muda: a raiz, as zonas e os cliques parciais.
         Assert.Contains("data-dmo-troca", html);
-        foreach (var zona in new[] { "riAvisos", "riContexto", "riRegisto", "riLista" })
+        foreach (var zona in new[] { "riAvisos", $"riCard-{codigo}" })
         {
             Assert.Contains("data-dmo-regiao", Elemento(html, $"id=\"{zona}\""));
         }
 
-        Assert.Contains("data-dmo-parcial", Elemento(html, "id=\"riContexto\""));
+        Assert.Contains("data-dmo-parcial", Elemento(html, $"id=\"riCard-{codigo}\""));
         // Depois do login, quem só tem a Reparação Interna abre-a.
         using var inicio = await client.GetAsync("/");
         Assert.Equal("/ReparacaoInterna", inicio.Headers.Location?.ToString());
@@ -203,17 +204,17 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         using var client = await LoginOperatorAsync("6603", DmoCapabilities.ReparacaoInterna);
 
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
-        var contexto = Elemento(html, "id=\"riContexto\"");
-        Assert.Contains("CM 55B1T324 · lote 2", Elemento(contexto, "data-dmo-ferramenta"));
+        var contexto = Elemento(html, $"id=\"riCard-{codigo}\"");
+        Assert.Contains("CM 55B1T324 · lote 2", Elemento(contexto, "data-dmo-ferramenta=\"cm\""));
         Assert.Contains("B01 · 55B1T324", Elemento(contexto, $"data-dmo-producao=\"{jobOns[0]}\""));
         Assert.DoesNotContain("Molde técnico secreto", html);
         Assert.DoesNotContain("dmo-aviso", contexto);
-        Assert.Contains("Ainda não há reparações nesta produção.", Elemento(html, "id=\"riLista\""));
-        // O botão no canto do cartão, ligado ao formulário; o campo com o cursor.
-        Assert.Contains("form=\"riRegistar\"", Elemento(html, "id=\"riRegistarBotao\""));
-        Assert.Contains("autofocus", Campo(html, "riNumero"));
+        Assert.Contains("Ainda não há reparações nesta produção.", Elemento(html, $"id=\"riLista-{codigo}\""));
+        // O OK no cartão, dentro do formulário; o campo com o cursor.
+        Assert.Contains(">OK</button>", Elemento(html, $"id=\"riRegistar-{codigo}\""));
+        Assert.Contains("autofocus", Campo(html, $"riNumero-{codigo}"));
 
-        using var gravar = await EnviarAsync(client, html, ("riNumero", "  0457  "));
+        using var gravar = await EnviarAsync(client, html, ($"riNumero-{codigo}", "  0457  "));
         Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
         var destino = gravar.Headers.Location!.OriginalString;
         Assert.Contains($"maquina={codigo}", destino);
@@ -221,21 +222,21 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         var depois = await client.GetStringAsync(destino);
         Assert.Contains("Reparação do nº 0457 registada.", Elemento(depois, "id=\"riAvisos\""));
-        Assert.DoesNotContain("value=", Campo(depois, "riNumero"));
-        Assert.Contains("autofocus", Campo(depois, "riNumero"));
+        Assert.DoesNotContain("value=", Campo(depois, $"riNumero-{codigo}"));
+        Assert.Contains("autofocus", Campo(depois, $"riNumero-{codigo}"));
         var id = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.JobOnId == jobOns[0]).Id);
         var linha = Elemento(depois, $"data-dmo-reparacao=\"{id}\"");
         Assert.Contains("<strong>0457</strong>", linha);
         Assert.Contains("<td>CM</td>", linha);
         Assert.Contains("Reparador 6603", linha);
-        Assert.DoesNotContain("<button", Elemento(depois, "id=\"riLista\""));
-        Assert.Contains("class=\"dmo-table\"", Elemento(depois, "id=\"riLista\""));
+        Assert.DoesNotContain("<button", Elemento(depois, $"id=\"riLista-{codigo}\""));
+        Assert.Contains("class=\"dmo-table\"", Elemento(depois, $"id=\"riLista-{codigo}\""));
 
         // O MF a seguir, e o mais recente fica por cima.
         var mf = await client.GetStringAsync(destino.Replace("tipo=cm", "tipo=mf"));
-        using (var segunda = await EnviarAsync(client, mf, ("riNumero", "12")))
+        using (var segunda = await EnviarAsync(client, mf, ($"riNumero-{codigo}", "12")))
         {
-            var tabela = Elemento(await client.GetStringAsync(segunda.Headers.Location!.OriginalString), "id=\"riLista\"");
+            var tabela = Elemento(await client.GetStringAsync(segunda.Headers.Location!.OriginalString), $"id=\"riLista-{codigo}\"");
             Assert.True(tabela.IndexOf("<strong>12</strong>", StringComparison.Ordinal) < tabela.IndexOf("<strong>0457</strong>", StringComparison.Ordinal));
             Assert.Contains("<td>MF</td>", tabela);
         }
@@ -250,9 +251,10 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
     private static string ForaDasZonas(string html)
     {
         var raiz = Elemento(html, "data-dmo-troca");
-        foreach (var zona in new[] { "riAvisos", "riContexto", "riRegisto", "riLista" })
+        raiz = raiz.Replace(Elemento(raiz, "id=\"riAvisos\""), string.Empty, StringComparison.Ordinal);
+        while (raiz.Contains("id=\"riCard-", StringComparison.Ordinal))
         {
-            raiz = raiz.Replace(Elemento(raiz, $"id=\"{zona}\""), string.Empty, StringComparison.Ordinal);
+            raiz = raiz.Replace(Elemento(raiz, "id=\"riCard-"), string.Empty, StringComparison.Ordinal);
         }
 
         return Regex.Replace(raiz, "name=\"__RequestVerificationToken\"[^>]*", string.Empty);
@@ -266,13 +268,13 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         var vazia = await client.GetStringAsync("/ReparacaoInterna");
         var escolhida = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
-        using var gravar = await EnviarAsync(client, escolhida, ("riNumero", "3"));
+        using var gravar = await EnviarAsync(client, escolhida, ($"riNumero-{codigo}", "3"));
         var depois = await client.GetStringAsync(gravar.Headers.Location!.OriginalString);
 
         Assert.Equal(ForaDasZonas(vazia), ForaDasZonas(escolhida));
         Assert.Equal(ForaDasZonas(escolhida), ForaDasZonas(depois));
         // O formulário de registo é um envio parcial e cada página leva um envio novo.
-        Assert.Contains("data-dmo-parcial", Elemento(depois, "id=\"riRegisto\""));
+        Assert.Contains("data-dmo-parcial", Elemento(depois, $"id=\"riCard-{codigo}\""));
         Assert.NotEqual(
             Regex.Match(escolhida, "name=\"operacao_id\" value=\"([^\"]+)\"").Groups[1].Value,
             Regex.Match(depois, "name=\"operacao_id\" value=\"([^\"]+)\"").Groups[1].Value);
@@ -284,7 +286,7 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         var (codigo, jobOns) = Maquina("C", 1);
         using var client = await LoginOperatorAsync("6604", DmoCapabilities.ReparacaoInterna);
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=mf");
-        var (acao, campos) = EnvioDoFormulario.Preencher(html, ("riNumero", "77"));
+        var (acao, campos) = EnvioDoFormulario.Preencher(html, ($"riNumero-{codigo}", "77"));
 
         using var primeira = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
         using var segunda = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
@@ -301,12 +303,12 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
         var longo = new string('9', Reparacao.NumeroMaxLength + 1);
 
-        using var recusa = await EnviarAsync(client, html, ("riNumero", longo));
+        using var recusa = await EnviarAsync(client, html, ($"riNumero-{codigo}", longo));
 
         Assert.Equal(HttpStatusCode.OK, recusa.StatusCode);
         var pagina = await recusa.Content.ReadAsStringAsync();
         Assert.Contains($"O número tem até {Reparacao.NumeroMaxLength} caracteres.", Elemento(pagina, "id=\"riAvisos\""));
-        Assert.Contains($"value=\"{longo}\"", Campo(pagina, "riNumero"));
+        Assert.Contains($"value=\"{longo}\"", Campo(pagina, $"riNumero-{codigo}"));
         Assert.Empty(NaBase(db => db.ReparacoesInternas.AsNoTracking().Where(r => r.JobOnId == jobOns[0]).ToList()));
     }
 
@@ -318,36 +320,38 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
 
-        var aviso = Elemento(html, "id=\"riVariasProducoes\"");
-        Assert.Contains($"Há 2 produções da {codigo}", aviso);
-        Assert.Contains("E01 · 55E1T324", aviso);
-        Assert.Contains("E02 · 55E2T324", aviso);
-        var producao = Elemento(html, "id=\"riProducao\"");
+        // Duas produções: o dropdown pequeno no cartão, com as duas.
+        var producao = Elemento(html, $"id=\"riProducao-{codigo}\"");
+        Assert.Contains("E01 · 55E1T324", producao);
+        Assert.Contains("E02 · 55E2T324", producao);
         Assert.Contains($"<option value=\"{jobOns[1]}\" selected=\"selected\">", producao);
-        Assert.Contains("CM 55E2T324 · lote 3", Elemento(html, "data-dmo-ferramenta"));
+        Assert.Contains("CM 55E2T324 · lote 3", Elemento(Elemento(html, $"id=\"riCard-{codigo}\""), "data-dmo-ferramenta=\"cm\""));
 
         // Escolher a outra (o dropdown aplica ao escolher) e gravar nela.
         var outra = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm&producao={jobOns[0]}");
-        Assert.Contains("CM 55E1T324 · lote 2", Elemento(outra, "data-dmo-ferramenta"));
-        using var gravar = await EnviarAsync(client, outra, ("riNumero", "5"));
+        Assert.Contains("CM 55E1T324 · lote 2", Elemento(Elemento(outra, $"id=\"riCard-{codigo}\""), "data-dmo-ferramenta=\"cm\""));
+        using var gravar = await EnviarAsync(client, outra, ($"riNumero-{codigo}", "5"));
         Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
-        Assert.Equal(jobOns[0], NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Numero == "5" && jobOns.Contains(r.JobOnId)).JobOnId));
+        Assert.Equal(jobOns[0], NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Numero == "5" && r.JobOnId != null && jobOns.Contains(r.JobOnId.Value)).JobOnId));
     }
 
     [Fact]
-    public async Task SemProducao_AvisaENaoHaFormulario()
+    public async Task SemProducao_AvisaEOFormularioPedeAReferenciaEOLote()
     {
         var (codigo, _) = Maquina("F", 1, comDatas: false);
         using var client = await LoginOperatorAsync("6607", DmoCapabilities.ReparacaoInterna, DmoCapabilities.JobOnCreate);
 
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
 
-        // Sem Job On não há CM nem MF a que ligar o número: o aviso leva ao Job On.
-        Assert.Contains("Sem produção não se pode registar.", Elemento(html, "id=\"riSemProducao\""));
-        Assert.Contains("href=\"/JobOn?novo=1#lightSheet\"", Elemento(html, "id=\"riSemProducao\""));
-        Assert.DoesNotContain("id=\"riRegistar\"", html);
-        Assert.DoesNotContain("id=\"riRegistarBotao\"", html);
-        Assert.Contains("Sem produção para hoje", Elemento(html, "id=\"riRegisto\""));
+        // Sem Job On regista-se com a referência e o lote escritos (Diogo,
+        // 21/10/2026): o aviso só avisa e continua a levar ao Job On.
+        Assert.Contains("Pode registar sem Job On", Elemento(html, $"id=\"riSemProducao-{codigo}\""));
+        Assert.Contains("href=\"/JobOn?novo=1#lightSheet\"", Elemento(html, $"id=\"riSemProducao-{codigo}\""));
+        Assert.Contains($"id=\"riRegistar-{codigo}\"", html);
+        Assert.Contains($"id=\"riOk-{codigo}\"", html);
+        Assert.Contains("required", Campo(html, $"riReferencia-{codigo}"));
+        Assert.Contains("required", Campo(html, $"riLote-{codigo}"));
+        Assert.DoesNotContain($"id=\"riOutra-{codigo}\"", html);
     }
 
     [Fact]

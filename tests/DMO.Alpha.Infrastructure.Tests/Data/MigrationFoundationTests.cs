@@ -121,7 +121,7 @@ public sealed class MigrationFoundationTests
                 "20261020015832_ControloAreaIdentificacao", "20261020142103_OperacoesRegistadas", "20261020142915_AutorPorUtilizador",
                 "20261020152047_ArmazemPosicoesEReparadores", "20261020160836_ArmazemMovimentos", "20261021072622_FerramentaUtilizacao",
                 "20261021073002_AddJobOnFolha", "20261021083819_SapFabrico", "20261021085913_SapFabricoPeso",
-                "20261021100548_ReparacaoInterna", "20261021104310_ReparacaoInternaRasto" },
+                "20261021100548_ReparacaoInterna", "20261021104310_ReparacaoInternaRasto", "20261021114659_ReparacaoInternaOutraFerramenta" },
             keys);
     }
 

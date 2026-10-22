@@ -151,7 +151,7 @@ public sealed class ReparacoesInternasTests
     }
 
     [Fact]
-    public async Task SemProducaoDatada_NaoHaAQueLigar_ENadaSeGrava()
+    public async Task SemProducaoDatada_SemAFerramentaEscrita_NadaSeGrava()
     {
         using var db = CreateContext();
 
@@ -160,7 +160,8 @@ public sealed class ReparacoesInternasTests
 
         Assert.True(doDia.SemProducao);
         Assert.Null(doDia.Escolhida(null));
-        Assert.Equal(ReparacaoResultado.SemProducao, saida.Resultado);
+        // Sem Job On grava-se só com a referência e o lote escritos (Diogo, 21/10/2026).
+        Assert.Equal(ReparacaoResultado.SemReferencia, saida.Resultado);
         Assert.Empty(await db.ReparacoesInternas.ToListAsync());
     }
 
@@ -266,7 +267,7 @@ public sealed class ReparacoesInternasTests
         await Servico(db).RegistarAsync(Pedido("6", maquina: 2));
 
         Assert.Equal(new[] { (13, 104), (14, 105) },
-            (await db.ReparacoesInternas.OrderBy(r => r.Id).ToListAsync()).Select(r => (r.JobOnId, r.CmContextId!.Value)));
+            (await db.ReparacoesInternas.OrderBy(r => r.Id).ToListAsync()).Select(r => (r.JobOnId!.Value, r.CmContextId!.Value)));
     }
 
     [Fact]

@@ -110,7 +110,7 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         foreach (var numero in numeros)
         {
             var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
-            var (acao, campos) = EnvioDoFormulario.Preencher(html, ("riNumero", numero));
+            var (acao, campos) = EnvioDoFormulario.Preencher(html, ($"riNumero-{codigo}", numero));
             using var gravar = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
             Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
         }
@@ -149,7 +149,9 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
     private static (string Acao, IReadOnlyList<(string Nome, string Valor)> Campos) Janela(
         string html, int reparacaoId, string prefixo, Guid envio, params (string IdDoCampo, string Valor)[] escritos)
     {
-        var tabela = Elemento(Elemento(html, "id=\"riLista\""), "data-ri-maquina");
+        // A tabela do cartão onde está a linha (cada máquina tem a sua).
+        var linhaEm = html.IndexOf($"data-dmo-reparacao=\"{reparacaoId}\"", StringComparison.Ordinal);
+        var tabela = Elemento(html[html.LastIndexOf("<table", linhaEm, StringComparison.Ordinal)..], "data-ri-maquina");
         var ligacao = Regex.Match(Elemento(html, $"data-dmo-reparacao=\"{reparacaoId}\""), $"<a[^>]*data-ri-abre=\"{prefixo}Janela\"[^>]*>").Value;
         Assert.NotEmpty(ligacao);
         var preenchidos = new List<(string, string)>
@@ -186,7 +188,7 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
 
         var linha = Elemento(html, $"data-dmo-reparacao=\"{ids[0]}\"");
         Assert.DoesNotContain("<button", linha);
-        Assert.DoesNotContain("<button", Elemento(html, "id=\"riLista\""));
+        Assert.DoesNotContain("<button", Elemento(html, $"id=\"riLista-{codigo}\""));
         // Clicar no número corrige; o «×» anula.
         Assert.Matches($"<a href=\"#riCorrigirJanela\" class=\"ri-valor\"[^>]*data-ri-reparacao=\"{ids[0]}\" data-ri-numero=\"0457\"[^>]*><strong>0457</strong></a>", linha);
         Assert.Matches($"<a href=\"#riAnularJanela\" class=\"ri-x\"[^>]*data-ri-reparacao=\"{ids[0]}\"[^>]*>×</a>", linha);
@@ -198,7 +200,7 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
             Assert.Contains("Motivo (opcional)", dialog);
             Assert.DoesNotMatch("id=\"ri(Corrigir|Anular)Motivo\"[^>]*required", dialog);
             Assert.Matches(new Regex("<div class=\"dmo-dialog-actions\">(?:(?!<div).)*</div>\\s*(?:<input name=\"__RequestVerificationToken\"[^>]*>\\s*)?</form>\\s*</dialog>$", RegexOptions.Singleline), dialog);
-            foreach (var zona in new[] { "riAvisos", "riContexto", "riRegisto", "riLista" })
+            foreach (var zona in new[] { "riAvisos", $"riCard-{codigo}" })
             {
                 Assert.DoesNotContain($"id=\"{janela}\"", Elemento(html, $"id=\"{zona}\""));
             }

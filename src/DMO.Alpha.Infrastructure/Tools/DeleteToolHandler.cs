@@ -224,6 +224,10 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
                 ocupacao.ToolId = ToolRegistryConstants.RemovedToolId;
             }
 
+            // As reparações internas a que a tool foi associada também (a
+            // Consulta mostra-as «Eliminada»; o rasto guarda o tool_id).
+            var reparacoes = await _db.ReparacoesInternas.Where(r => r.AssociadaToolId == tool.ToolId).ToListAsync(cancellationToken);
+            reparacoes.ForEach(r => r.AssociadaToolId = ToolRegistryConstants.RemovedToolId);
             movimentos.ForEach(m => m.ToolId = ToolRegistryConstants.RemovedToolId);
             cmContexts.ForEach(c => c.ToolId = ToolRegistryConstants.RemovedToolId);
             mfContexts.ForEach(c => c.ToolId = ToolRegistryConstants.RemovedToolId);
@@ -232,7 +236,7 @@ public sealed class DeleteToolHandler : IDeleteToolHandler
 
             if (pesos.Count > 0 || pegamentos.Count > 0 || comparacoes.Count > 0
                 || cmContexts.Count > 0 || mfContexts.Count > 0 || bqContexts.Count > 0 || lotNotes.Count > 0
-                || movimentos.Count > 0 || ocupacoes.Count > 0)
+                || movimentos.Count > 0 || ocupacoes.Count > 0 || reparacoes.Count > 0)
             {
                 await _db.SaveChangesAsync(cancellationToken);
             }

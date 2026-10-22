@@ -18,9 +18,14 @@ public sealed record RiProducao(
     DateOnly InicioEm,
     DateOnly? FimEm,
     RiFerramenta? Cm,
-    RiFerramenta? Mf)
+    RiFerramenta? Mf,
+    string? CmToolId = null,
+    string? MfToolId = null)
 {
     public RiFerramenta? Ferramenta(ReparacaoTipo tipo) => tipo == ReparacaoTipo.Cm ? Cm : Mf;
+
+    /// <summary>O <c>tool_id</c> da CM ou do MF (para o link da ficha); null se foi eliminada.</summary>
+    public string? ToolId(ReparacaoTipo tipo) => tipo == ReparacaoTipo.Cm ? CmToolId : MfToolId;
 }
 
 /// <summary>
@@ -43,7 +48,10 @@ public sealed record RiProducaoDoDia(DateOnly Dia, IReadOnlyList<RiProducao> Can
 
 /// <summary>
 /// Registar uma reparação: a máquina, a produção e o contexto que a página
-/// mostrou (para ver se mudaram entretanto), o tipo e o número escrito.
+/// mostrou (para ver se mudaram entretanto), o tipo e o número escrito. Com
+/// <paramref name="Outra"/> (a CM ou o MF na máquina não é a do Job On) ou
+/// sem produção para o dia, a ferramenta vai escrita: a referência e o lote,
+/// sem contexto, por associar (peça 4).
 /// </summary>
 public sealed record PedidoDeReparacao(
     Guid OperacaoId,
@@ -51,7 +59,10 @@ public sealed record PedidoDeReparacao(
     int? JobOnId,
     ReparacaoTipo? Tipo,
     int? ContextoId,
-    string? Numero);
+    string? Numero,
+    bool Outra = false,
+    string? Referencia = null,
+    string? Lote = null);
 
 /// <summary>Como acabou um registo. Só se recusa o impossível ou o que falta.</summary>
 public enum ReparacaoResultado
@@ -62,16 +73,34 @@ public enum ReparacaoResultado
     NumeroLongo,
     SemTipo,
     MaquinaNaoExiste,
-    SemProducao,
     ProducaoMudou,
     SemFerramenta,
-    FerramentaMudou
+    FerramentaMudou,
+    /// <summary>Outra CM/MF (ou sem produção) sem a referência escrita.</summary>
+    SemReferencia,
+    ReferenciaLonga,
+    /// <summary>Outra CM/MF (ou sem produção) sem o lote escrito.</summary>
+    SemLote,
+    LoteLongo
 }
 
-/// <summary>O resultado de um registo, com o número tal como ficou (sem espaços nas pontas).</summary>
-public sealed record ReparacaoSaida(ReparacaoResultado Resultado, int? ReparacaoId = null, string? Numero = null)
+/// <summary>
+/// O resultado de um registo, com o número tal como ficou (sem espaços nas
+/// pontas) e, com a ferramenta escrita, a referência e o lote gravados e se
+/// ficou sem Job On: a página avisa que falta associar.
+/// </summary>
+public sealed record ReparacaoSaida(
+    ReparacaoResultado Resultado,
+    int? ReparacaoId = null,
+    string? Numero = null,
+    string? Referencia = null,
+    string? Lote = null,
+    bool SemJobOn = false)
 {
     public bool Gravou => Resultado is ReparacaoResultado.Gravado or ReparacaoResultado.JaRegistado;
+
+    /// <summary>Gravou com a ferramenta escrita: falta associar.</summary>
+    public bool PorAssociar => Gravou && Referencia is not null;
 }
 
 /// <summary>Corrigir o número de uma reparação (máquina, tipo ou produção errados: anula-se e regista-se outra vez).</summary>
@@ -107,8 +136,49 @@ public sealed record CorrecaoSaida(CorrecaoResultado Resultado, string? Numero =
     public bool Gravou => Resultado is CorrecaoResultado.Corrigido or CorrecaoResultado.Anulado or CorrecaoResultado.JaFeito;
 }
 
-/// <summary>Uma reparação na tabela por baixo do registo: pouco e curto.</summary>
-public sealed record RiLinha(int Id, string Numero, ReparacaoTipo Tipo, string? Quem, DateTime RegistadoEmUtc);
+/// <summary>
+/// Associar a ferramenta a uma reparação com a ferramenta escrita (peça 4):
+/// o <c>tool_id</c> escolhido na janela do responsável.
+/// </summary>
+public sealed record PedidoDeAssociacao(Guid OperacaoId, int ReparacaoId, string? ToolId);
+
+/// <summary>Como acabou uma associação. Só se recusa o impossível.</summary>
+public enum AssociacaoResultado
+{
+    Associado,
+    /// <summary>O mesmo envio outra vez: já estava feito.</summary>
+    JaFeito,
+    NaoExiste,
+    JaAnulada,
+    /// <summary>Outra pessoa já a associou (ou entretanto).</summary>
+    JaAssociada,
+    /// <summary>A reparação tem a CM ou o MF do Job On: não há nada a associar.</summary>
+    NaoEscrita,
+    /// <summary>Nenhuma ferramenta escolhida.</summary>
+    SemFerramenta,
+    /// <summary>A ferramenta não existe, foi eliminada ou não é do tipo da reparação.</summary>
+    FerramentaNaoServe,
+    Mudou
+}
+
+/// <summary>O resultado, com o número e a ferramenta associada («5447T173 · lote 4») de que a mensagem fala.</summary>
+public sealed record AssociacaoSaida(AssociacaoResultado Resultado, string? Numero = null, string? Ferramenta = null)
+{
+    public bool Gravou => Resultado is AssociacaoResultado.Associado or AssociacaoResultado.JaFeito;
+}
+
+/// <summary>
+/// Uma reparação na tabela por baixo do registo: pouco e curto. Com a
+/// ferramenta escrita, a referência e o lote («Outra: 5447T173 · lote 4»).
+/// </summary>
+public sealed record RiLinha(
+    int Id,
+    string Numero,
+    ReparacaoTipo Tipo,
+    string? Quem,
+    DateTime RegistadoEmUtc,
+    string? Referencia = null,
+    string? Lote = null);
 
 /// <summary>A Reparação Interna: o dia operacional, a produção do dia, registar, corrigir, anular e a lista.</summary>
 public interface IReparacoesInternas
@@ -127,8 +197,17 @@ public interface IReparacoesInternas
     /// <summary>Anula a reparação (fica na base), com rasto. Quem tem o módulo pode anular (RI-04).</summary>
     Task<CorrecaoSaida> AnularAsync(PedidoDeAnulacao pedido, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Associa a ferramenta escrita a uma ferramenta registada do mesmo tipo,
+    /// com rasto. Quem tem o módulo pode associar (como corrigir).
+    /// </summary>
+    Task<AssociacaoSaida> AssociarAsync(PedidoDeAssociacao pedido, CancellationToken cancellationToken = default);
+
     /// <summary>As reparações desta máquina e produção que contam (sem as anuladas), da mais recente para a mais antiga, em páginas de 25.</summary>
     Task<PagedList<RiLinha>> ListarAsync(int machineId, int jobOnId, int? pagina, CancellationToken cancellationToken = default);
+
+    /// <summary>As reparações sem Job On desta máquina neste dia operacional que contam, como em <see cref="ListarAsync"/>.</summary>
+    Task<PagedList<RiLinha>> ListarSemProducaoAsync(int machineId, DateOnly dia, int? pagina, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Os nomes que a pessoa lê.</summary>
@@ -151,6 +230,10 @@ public static class RiTextos
         ferramenta.Referencia is null
             ? $"{Tipo(tipo)} eliminada"
             : $"{Tipo(tipo)} {ferramenta.Referencia} · lote {ferramenta.Lote}";
+
+    /// <summary>A ferramenta escrita: «5447T173 · lote 4».</summary>
+    public static string Escrita(string referencia, string? lote) =>
+        string.IsNullOrEmpty(lote) ? referencia : $"{referencia} · lote {lote}";
 
     /// <summary>A produção numa lista de candidatas: «202501 · 5538T324 · 21/10 a 25/10».</summary>
     public static string Producao(RiProducao producao) =>

@@ -2089,14 +2089,27 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<DateTime?>("AnuladaEmUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("AssociadaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("AssociadaPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssociadaToolId")
+                        .HasColumnType("text");
+
                     b.Property<int?>("CmContextId")
                         .HasColumnType("integer");
 
                     b.Property<DateOnly>("DiaOperacional")
                         .HasColumnType("date");
 
-                    b.Property<int>("JobOnId")
+                    b.Property<int?>("JobOnId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("LoteEscrito")
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
 
                     b.Property<int>("MachineId")
                         .HasColumnType("integer");
@@ -2106,6 +2119,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<string>("Numero")
                         .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("ReferenciaEscrita")
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
@@ -2126,9 +2143,17 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssociadaPorUserId");
+
+                    b.HasIndex("AssociadaToolId");
+
                     b.HasIndex("CmContextId");
 
                     b.HasIndex("DiaOperacional");
+
+                    b.HasIndex("Id")
+                        .HasDatabaseName("IX_ReparacoesInternas_PorAssociar")
+                        .HasFilter("\"ReferenciaEscrita\" IS NOT NULL AND \"AssociadaToolId\" IS NULL AND \"AnuladaEmUtc\" IS NULL");
 
                     b.HasIndex("JobOnId");
 
@@ -2144,7 +2169,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.ToTable("ReparacoesInternas", null, t =>
                         {
-                            t.HasCheckConstraint("CK_ReparacoesInternas_Contexto", "(\"Tipo\" = 1 AND \"CmContextId\" IS NOT NULL AND \"MfContextId\" IS NULL) OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL)");
+                            t.HasCheckConstraint("CK_ReparacoesInternas_Associada", "(\"AssociadaToolId\" IS NULL AND \"AssociadaEmUtc\" IS NULL AND \"AssociadaPorUserId\" IS NULL) OR (\"AssociadaToolId\" IS NOT NULL AND \"AssociadaEmUtc\" IS NOT NULL AND \"ReferenciaEscrita\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_ReparacoesInternas_Contexto", "(\"JobOnId\" IS NOT NULL AND \"ReferenciaEscrita\" IS NULL AND \"LoteEscrito\" IS NULL AND ((\"Tipo\" = 1 AND \"CmContextId\" IS NOT NULL AND \"MfContextId\" IS NULL) OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL))) OR (\"Tipo\" IN (1, 2) AND \"CmContextId\" IS NULL AND \"MfContextId\" IS NULL AND \"ReferenciaEscrita\" IS NOT NULL AND \"LoteEscrito\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_ReparacoesInternas_Escrita", "(\"ReferenciaEscrita\" IS NULL OR (btrim(\"ReferenciaEscrita\") <> '' AND \"ReferenciaEscrita\" = btrim(\"ReferenciaEscrita\"))) AND (\"LoteEscrito\" IS NULL OR (btrim(\"LoteEscrito\") <> '' AND \"LoteEscrito\" = btrim(\"LoteEscrito\")))");
 
                             t.HasCheckConstraint("CK_ReparacoesInternas_Numero", "btrim(\"Numero\") <> '' AND \"Numero\" = btrim(\"Numero\")");
                         });
@@ -2183,6 +2212,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("ReparacaoId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ToolIdAssociado")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PorUserId");
@@ -2191,7 +2223,7 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.ToTable("ReparacoesInternasRasto", null, t =>
                         {
-                            t.HasCheckConstraint("CK_ReparacoesInternasRasto_Acao", "(\"Acao\" = 1 AND \"NumeroDepois\" IS NOT NULL) OR (\"Acao\" = 2 AND \"NumeroDepois\" IS NULL)");
+                            t.HasCheckConstraint("CK_ReparacoesInternasRasto_Acao", "(\"Acao\" = 1 AND \"NumeroDepois\" IS NOT NULL AND \"ToolIdAssociado\" IS NULL) OR (\"Acao\" = 2 AND \"NumeroDepois\" IS NULL AND \"ToolIdAssociado\" IS NULL) OR (\"Acao\" = 3 AND \"NumeroDepois\" IS NULL AND \"ToolIdAssociado\" IS NOT NULL)");
 
                             t.HasCheckConstraint("CK_ReparacoesInternasRasto_Motivo", "\"Motivo\" IS NULL OR (btrim(\"Motivo\") <> '' AND \"Motivo\" = btrim(\"Motivo\"))");
                         });
@@ -3151,6 +3183,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
             modelBuilder.Entity("DMO.Alpha.Core.ReparacaoInterna.Reparacao", b =>
                 {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("AssociadaPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("AssociadaToolId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("DMO.Alpha.Core.Production.CmContext", null)
                         .WithMany()
                         .HasForeignKey("CmContextId")
@@ -3159,8 +3201,7 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Production.JobOn", null)
                         .WithMany()
                         .HasForeignKey("JobOnId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DMO.Alpha.Core.Production.Machine", null)
                         .WithMany()
