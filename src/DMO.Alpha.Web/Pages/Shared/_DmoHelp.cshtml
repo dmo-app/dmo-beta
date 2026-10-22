@@ -5,7 +5,16 @@
    Dentro de um <summary> (view-data EmSumario) a dica não pode ser focável:
    o browser avisa de um elemento interativo no <summary>. Aí abre com o
    foco do próprio <summary>, e o toque mostra-a pelo script. *@
-@if (ViewData["EmSumario"] is true)
+@* Com view-data AjudaHref a dica é um link para uma página de ajuda (Diogo,
+   22/10/2026 06:57: textos grandes vão para uma página, abertos pela ajuda);
+   o texto fica só no aria-label. *@
+@if (ViewData["AjudaHref"] is string ajudaHref)
+{
+<a class="dmo-help" id="@ViewData["AjudaId"]" href="@ajudaHref" aria-label="Ajuda: @Model" title="Ajuda">
+  <svg class="dmo-help-mark" viewBox="0 0 16 14" aria-hidden="true" focusable="false"><path d="M1 1H15L8 12.8z" /></svg>
+</a>
+}
+else if (ViewData["EmSumario"] is true)
 {
 <span class="dmo-help" data-dmo-help-sumario>
   <svg class="dmo-help-mark" viewBox="0 0 16 14" aria-hidden="true" focusable="false"><path d="M1 1H15L8 12.8z" /></svg>
