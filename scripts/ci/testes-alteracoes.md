@@ -795,3 +795,184 @@ Novos: 6 · mudaram: 7 · saíram: 2
 - saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.OsCartoes_BAntesDeC_ATabelaMinimizadaComOUltimo_EditarAbre`
 
 Selo depois: `afe9406c14af4744`
+
+## A-0034 · 2026-10-22 · ok-do-diogo
+
+Porquê: 0.2.0-beta.34: as correções da beta .318–.352 levadas para o full (uma só app). Os testes vêm iguais aos da beta, já aprovados lá; nos testes da folha do Job On do full, o Job On de teste passa a ter CM e BQ, porque um Job On sem CM/BQ/MF é recusado.
+Referência: Uma só app: cmsg_01A27e9ozcpoh4jdPRsuJbFyLK1Q5dmDAEv5mfixpSmuBU; CM/BQ/MF obrigatórios: cmsg_01A27e9ozcpoh4jdPRsuJbFy9igAxMSp4hH1PfBm6xZuYZ
+Novos: 85 · mudaram: 81 · saíram: 6
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasCurrentQueryTests.cs :: HourSettings.DiaDaTroca_AProducaoQueEntra_EACorrente_MesmoRegistadaAntes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasCurrentQueryTests.cs :: HourSettings.SobreposicaoReal_MostraAsDuasProducoes_ComAviso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasCurrentQueryTests.cs :: HourSettings.UmaSoProducao_UmaLinha_SemAviso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.AsLinhasEscritasAMao_NoMesmoDia_FicamIntactas_AoEscreverEAoAnular`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.Atualizar_AsLinhasEscritasAMao_FicamIntactas_ENaoContamComoDiferenca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.Atualizar_DoisDiasDiferentes_EDepoisUmIgual_AtualizaExatamenteDois`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.Atualizar_OntemIgual_ParaLogo_ESoEscreveHoje`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.Atualizar_PassaParaOMesAnterior_EPara_NoPrimeiroDiaDaApp`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.Escreve_ARefEAsQuantidades_NaMaquinaENoDia_ESomaComoODiogo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.Escrever_NumExcelNovo_GuardaOsEstilosEAsJuncoes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.OutroAno_EMaisDeCincoBoquilhasNoDia_FicamNosAvisos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmDiaReescrito_SemOMovimentoAnulado_FicaLimpo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmExcelNovo_SoTemOsDiasDoMes_EOMesSeguinteGanhaOsQueFaltam`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmExcelNovo_TemAsJuncoesAsCoresEAsLargurasDoOriginal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmExcelNovo_TemOMesPedido_ERecebeOsMovimentos_EOsMesesSeguintes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmFicheiroQueNaoEExcel_ERecusado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmMesSemSeparador_CriaOSeparador_ComAsDatasEOsDiasDaSemana`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmMesSemSeparador_ESemMovimentos_NaoCriaNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqRepairerWriteHandlersTests.Remover.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqRepairerWriteHandlersTests.Remover.cs :: BqRepairerWriteHandlersTests.Delete_ReparadorQueNaoExiste_RecusaTipada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqRepairerWriteHandlersTests.Remover.cs :: BqRepairerWriteHandlersTests.Delete_SaiOReparador_AsSaidasGuardamONome_EAsRotasFicamSemReparador`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/EnvioEmailRegrasTests.cs :: EnvioEmailRegrasTests.Preencher_TrocaOPeso_ComAUnidade`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapCalculationTests.cs :: PesoCapCalculationTests.TrySupport_SoComDiametroECalote_DevolveOApoioSemRaio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.ProducaoAnterior_DizProducao_ENaoSAP`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.NumeroRepetido_ComOLoteDessaPuncao_RegistaComEsseLote_EOLoteDeCimaFica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_NoDiaDaTroca_NaoAvisa_ENoDiaAntesAvisa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparador.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparador.cs :: PostgresMigrationIntegrationTests.RemoverReparadorComSaidas_AsSaidasFicamComONome`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Crosses_ODiaDaTrocaNaoESobreposicao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsQueryTests.cs :: JobOnToolFactsQueryTests.FindAsync_OutraAcabaNoDiaEmQueEstaComeca_NoDiaDaTrocaNao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsQueryTests.cs :: JobOnToolFactsQueryTests.FindAsync_OutraComecaNoDiaEmQueEstaAcaba_NoDiaDaTrocaNao_NaVesperaSim`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.ReferenciasRegisto_NaBq_OQueSeVeEOQueFicaEscrito`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasHandlersTests.cs :: FerramentasHandlersTests.CreateTool_BqSemLote_ERecusada_ENadaEGravado`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HistoricoDiario.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HistoricoDiario.cs :: BoquilhasRegistoPageTests.Historico_AAbaAbreOResumoDiario_EACelulaAbreORegistoComOJobOn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.DiaDaTroca_AQueEntraSemBq_MostraAProducaoEAbreOJobOn_NaoSemProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.DiaDaTroca_OPainelMostraAsDuasProducoes_SemAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.DiaDaTroca_RegistaPeloPainelUmMovimentoEmCadaProducao_NoJobOnCerto`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.SobreposicaoReal_OPainelMostraAsDuasProducoes_ComAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.UmaSoProducao_OPainelFicaComoAntes`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_Atualizar_EscreveOntem_EDizQueDiasAtualizou`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_OCartao_AVersaoMudaComUmMovimento_EOFicheiroVoltaEscrito`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_SemFicheiroOuSemSerExcel_RespondeComAMensagem`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_UmExcelNovo_TemOSeparadorDoMes`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Remover.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Remover.cs :: BqRepairerSettingsPageTests.DeleteRepairer_PelaJanela_SaiDaLista_ASaidaGuardaONome_EARotaFicaVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.EditRepairer_InPlace_AnswersJson_AndTheTableHasNoSaveButton`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_ComPesoNoAssunto_OAssuntoDoEmailTrazOPesoMedioDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.NoResumo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.NoResumo.cs :: PesoComparacaoPageTests.Comparacao_AbreNoResumoDaProducao_SemSeparadorProprio`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_SemJobOnAssociado_EncontraOPesoSemProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: PesoSoParaComparacaoPageTests.CriarDaComparacao_LigaOPesoAoAtual_MostraAComparacao_ENuncaPedeJobOn`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: PesoSoParaComparacaoPageTests.PesoSoParaComparacao_AssociarAUmJobOn_ERecusado`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.BqDoJobOn.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.BqDoJobOn.cs :: FerramentasPagesTests.CriarBqDoJobOn_ComAReferenciaTotal_GuardaETornaAMostrarAReferenciaToda`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.BqDoJobOn.cs :: FerramentasPagesTests.CriarBqDoJobOn_SemLote_ERecusada_ENadaEGravado`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.MfAssociada.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.MfAssociada.cs :: FerramentasPagesTests.Ficha_ReferenciaMfAssociada_SoNaCmComReferenciaDiferente`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CartoesDasFerramentas_ONomeEAbrirFicha_LevamAFichaDaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.FimNoDiaDoInicioOuDepoisNaCriacao_GravaEFicaNoJobOnSemAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaVermelha_SoComSobreposicaoReal`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Create_ComOControloCriar_FicaNoJobOn_NaoVaiAoResumo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Create_SemCmOuSemBq_ERecusado_ENadaEGravado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Edit_PorABqNumJobOnSemBq_NaoEMudancaDeBoquilhas`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Edit_SemBq_ERecusado_ENadaMuda`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Planeamento_CriarJobOn_FicaNaBarraDaProcura_ADireitaDasCaixas_ComODia`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Em_curso_primeiro_e_as_que_ja_acabaram_ficam_de_fora`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.NumeroFerramenta.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.NumeroFerramenta.cs :: PegamentosPageTests.NumeroFerramenta_CartaoBqOuMf_ColunaComOSeuNomeEGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.NumeroFerramenta.cs :: PegamentosPageTests.NumeroFerramenta_Corrigir_ONumeroAbreComFocoEGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.NumeroFerramenta.cs :: PegamentosPageTests.NumeroFerramenta_Limite20_19e20GravamInteiros_21ECortadoComAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.NumeroFerramenta.cs :: PegamentosPageTests.NumeroFerramenta_LinhaSoComONumero_NaoERegistadaEAvisa`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.NumeroFerramenta.cs :: PegamentosPageTests.NumeroFerramenta_RegistarComNumero_GravaEAFolhaMostraNaColunaNoCm`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.NumeroFerramenta.cs :: PegamentosPageTests.NumeroFerramenta_VariasLinhas_CadaUmaComOSeuNumero_SoONumeroContaComoVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumeroRepetido_PeloFormularioDaPagina_GravaOLoteDessaPuncao`
+- novo: `tests/ShellProof/jobon-tool-open.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-tool-open.test.cjs :: Cartão da ferramenta: o nome e «Abrir ficha» seguem a ferramenta escolhida`
+- novo: `tests/ShellProof/puncoes-numero.test.cjs :: um número já registado pede o lote dessa punção; um número novo não`
+- novo: `tests/visual/excel_bq_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindByContext_WithAssociatedTrace_ReturnsTraceProductionAndTool`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqRepairerWriteHandlersTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.PegamentosMeasurementEntity_AppendOnlyFacts_ContraCosturaNullable`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapCalculationTests.cs :: PesoCapCalculationTests.Support_ComCaloteDoJobOn_ComparaComAReferencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapCalculationTests.cs :: PesoCapCalculationTests.Support_ReferenciaPlana_DiferencasDeRaioIndefinidas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapCalculationTests.cs :: PesoCapCalculationTests.Support_SemCaloteEfetiva_CaiNaReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapCalculationTests.cs :: PesoCapCalculationTests.TrySupport_GeometriaCompleta_DevolveOApoio`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapCalculationTests.cs :: PesoCapCalculationTests.TrySupport_GeometriaIncompleta_SemApoio`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapSupportQueryTests.cs :: PesoCapSupportQueryTests.GetAsync_ProducaoComCalote_OrigemJobOn`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapSupportQueryTests.cs :: PesoCapSupportQueryTests.GetAsync_SemControlo_UsaAReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapSupportQueryTests.cs :: PesoCapSupportQueryTests.GetAsync_ToolSemTP_ReferenciaPorCompletar`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_HasNoProductionIdentityColumns`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/EdicoesAoMesmoTempoTests.cs :: EdicoesAoMesmoTempoTests.JobOn_OMesmoEnvioOutraVez_AbreOGravado_SemOutraLinha`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_AcabaNoDiaEmQueAOutraComeca_AvisaEGrava_NaVesperaNao`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_ComecaNoDiaEmQueAOutraAcaba_AvisaEGrava_NoDiaSeguinteNao`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasHandlersTests.cs :: FerramentasHandlersTests.CreateTool_EmptyLot_SavesNoLot_AndASecondOneIsRefused`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.DeleteMovement_RecentMovementIsDeleted`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PersistedToolAndContextFacts_RenderFromServerData`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_DoesNotCreateTheTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.BoquilhasSection_RendersTheRepairerList_WithZeroEntitiesWarning`
+- mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.BoquilhasSection_WithEntities_RendersTheMachineMapOfTheSixCodes`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.CapSupportEndpoint_DevolveOCalculoDoBackend`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemTP_ReferenciaPorCompletarEPesoIntacto`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.DoisPassos_SemReferenciaNadaCarrega_ComReferenciaSoAsDela`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_Filtros_TrocamSoOsResultadosEAsProducoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoJobOnEscolhaPageTests.cs :: PesoJobOnEscolhaPageTests.JobOnIdSo_SemControlo_AbreOResumoDaProducao_SemCriarNadaNoPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoPorCombinacaoPageTests.cs :: Producao.ComDoisPesos_OResumoARevisaoEODetalheMostramOsDois`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoPorCombinacaoPageTests.cs :: Producao.DepoisDeTrocarACm_AFolhaPropoeCriarOPesoNovo_EDizPorque_SemGravarNada`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoNoBrowser.cs :: ControloCapabilitiesCutHPageTests.Resumo_SemPesoComUmPesoParaAssociar_ParaOBrowser`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Revisao_ArrumadaComoODiogoPediu`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.PesoAssociation_PrePesoWithJobOnCm_IsOfferedAndAssociatedOnlyByExplicitCreatePost`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.SecondaryNav_GroupsTheSheetsUnderFuncoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CliquesRepetidos.cs :: FerramentasPagesTests.Registar_GravaPelaFilaDaPagina_AsMensagensNumaZona`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Criar_APartirDoCartaoDoJobOn_OTipoFicaFixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_OldRefusalLinks_StillShowTheirMessages`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostCreate_EmptyLot_SavesNoLotWithWarning_AndASecondOneIsRefused`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostEditTechnical_GenesisSheetValues_PrgPersistedExactly`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.Duplicar_MarcaConfirmarNaMaquinaNasFerramentasENasUtilizacoesCopiadas`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteNaCriacao_PreservaODecimalAoGuardarEReabrir`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_MostramAProximaMudancaEmCadaMaquina`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_DatasQueNaoSeCruzam_SemAvisoDeUsoParalelo`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_OverlapWarningsReflectKnownDates_AndNeverBlockSaving`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Criar_GravaAFolhaNaMesmaEscritaDoJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.TextoLongoDemais_NoCriar_NaoCriaOJobOn_EAFolhaVoltaComOQueSeEscreveu`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: HistoryReads.Historico_AbreEmBranco_SoComOsFiltros_SemLerProducoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_WithOverlapOnSameMachine_StaysOnJobOnWithTheYellowBanner`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateRefusal_IsTypedAndRedirectsWithPreservedValues`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Create_DoubleClick_SecondSubmitOpensTheSavedJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Create_DuplicateProductionNumber_RefusedTyped`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.EditFlow_ReplansTheSameProduction_WindowLineAndTools`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.EditFlow_SavedMeanwhileByAnotherUser_RefusesAndShowsWhatWasSaved`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.EditFlow_TheSameSaveTwice_GoesWhereTheFirstWent_WithoutTheRefusal`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ProximaMudanca_FicaANegrito`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_domingo`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.ControloInformation_IsForEitherControloModule`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Planeamento_SeesTheProductionsStartingToday_AndTheTabSitsNextToJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.TheCalendarOpensTheChosenDay`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.WithoutJobOn_RegisterStandsAlone_AndIsAssociatedByHand`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.WithoutJobOn_TheAssociationSearchAndRefusals_ChangeOnlyTheirZone`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedTriangle_AndLivesOnlyInThePartial`
+- mudou: `tests/DMO.Alpha.Web.Tests/ZonasGravacao.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cliques-repetidos.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/package.json`
+- mudou: `tests/ShellProof/puncoes-numero.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/visual/definicoes_parcial_browser.py`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsQueryTests.cs :: JobOnToolFactsQueryTests.FindAsync_OutraAcabaNoDiaEmQueEstaComeca_Avisa_NaVesperaNao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsQueryTests.cs :: JobOnToolFactsQueryTests.FindAsync_OutraComecaNoDiaEmQueEstaAcaba_Avisa_NoDiaSeguinteNao`
+- saiu: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.EditRepairer_InPlace_AnswersJson_AndTheTableHasNoButtons`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CompararPesosGuardados_PorId_NosSelectsDoHistorico`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.FimNoDiaDoInicioOuDepoisNaCriacao_GravaESegueParaOResumoSemAviso`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_UnselectedBqSlot_IsNotApplicable_NoBqContextCreated`
+
+Selo depois: `013c99618fc58a39`
