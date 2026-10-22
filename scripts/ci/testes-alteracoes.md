@@ -976,3 +976,19 @@ Novos: 85 · mudaram: 81 · saíram: 6
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_UnselectedBqSlot_IsNotApplicable_NoBqContextCreated`
 
 Selo depois: `013c99618fc58a39`
+
+## A-0036 · 2026-10-22 · ok-do-diogo
+
+Porquê: App única, passo 3: interruptores dos módulos no Admin › Setup e faixa «Em desenvolvimento»; Armazém e Reparação Interna desligados por omissão. A fábrica de testes liga os módulos em desenvolvimento para os testes que já existiam.
+Referência: Diogo 22/10 12:06 aprova o plano uma-versão (cmsg_01A27e9ozcpoh4jdPRsuJbFyLK1Q5dmDAEv5mfixpSmuBU)
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.Estado_FiltraSoOsModulosDesligados`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoParaTodos_EntramTodosOsQueTemOModulo`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoSoParaTeste_EntraQuemEDeTesteEVeAFaixa`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.PorOmissao_OsModulosEmDesenvolvimentoFicamDesligados`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.Setup_MostraOsInterruptoresComOGuardarNoTopo`
+- mudou: `tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)`
+
+Selo depois: `7226add90f79243b`

@@ -1,5 +1,5 @@
 {
-  "selo": "013c99618fc58a39",
+  "selo": "7226add90f79243b",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1299,6 +1299,12 @@
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_NaoTemOCartaoSap": "6dfe8cced753ecfb",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_UtilizadorNormal_NaoVeOCartaoSap": "ef866e4122bf6b84",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.NormalUser_DoesNotSeeTheDefinicoesTab": "cb5b7b519977fe2d",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: (resto do ficheiro)": "e60ec96c2e974707",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.Estado_FiltraSoOsModulosDesligados": "0e4c6d701d79c241",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoParaTodos_EntramTodosOsQueTemOModulo": "a1e3f5b844b5a033",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.LigadoSoParaTeste_EntraQuemEDeTesteEVeAFaixa": "37c7057dc81d0188",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.PorOmissao_OsModulosEmDesenvolvimentoFicamDesligados": "dd47caa8bc0885d1",
+    "tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.Setup_MostraOsInterruptoresComOGuardarNoTopo": "12a114b93b0d0509",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: (resto do ficheiro)": "0d674996b4673d09",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminFoundationServices_RegisterWithScopedLifetime": "39db9524a363814b",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminPages_AdminEmailSettingRemoved_RevokesAdminCookie": "de1cc4ef5ca24c10",
@@ -1777,7 +1783,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.ZonasPedidas_SemOModulo_NaoDesenhaNada": "9e1f5dc723b8c100",
     "tests/DMO.Alpha.Web.Tests/ControloResumoServicesRegistrationTests.cs :: (resto do ficheiro)": "c0761f15ce1b088c",
     "tests/DMO.Alpha.Web.Tests/ControloResumoServicesRegistrationTests.cs :: ControloResumoServicesRegistrationTests.ControloResumoServices_ResolveAsScopedImplementations": "eceaf532d8dc8342",
-    "tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)": "f2aa1446334ac076",
+    "tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)": "c659f71c13e18354",
     "tests/DMO.Alpha.Web.Tests/DMO.Alpha.Web.Tests.csproj": "ccd481ea73bcba88",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: (resto do ficheiro)": "a73635c57adc3f94",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda": "d948eb4d15090941",
