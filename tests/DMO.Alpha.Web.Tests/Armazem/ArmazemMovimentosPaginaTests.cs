@@ -165,7 +165,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         var pagina = await client.GetStringAsync("/Armazem/Movimentos?q=5447");
         var lista = await client.GetStringAsync("/Armazem/Movimentos?handler=Procurar&q=t17");
 
-        Assert.Matches("<a href=\"/Armazem/Movimentos\"[^>]*aria-current=\"page\">Movimentos</a>", pagina);
+        Assert.Matches("<a href=\"/Armazem/Movimentos\"[^>]*aria-current=\"page\">Registo</a>", pagina);
         var linha = Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\"");
         Assert.Contains("CM 5447T173", linha);
         Assert.Contains("Fabrico", linha);

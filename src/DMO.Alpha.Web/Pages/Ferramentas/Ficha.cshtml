@@ -327,7 +327,7 @@
           @* Onde está e o estado, pelo Armazém (só a quem tem o Armazém). *@
           <div class="dmo-fact" id="ferrLocalizacao"><span>Localização</span><strong data-dmo-localizacao><a class="ferr-armazem-link" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = arm.ToolId })">@(arm.NoArmazem ? $"Armazém · posição {arm.Posicao}" : DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(arm.Localizacao, arm.LocalizacaoReparador))</a></strong></div>
           <div class="dmo-fact" id="ferrEstadoArmazem"><span>Estado</span><strong>@(arm.Estado is { } estadoArm ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoArm) : "—")</strong></div>
-          <div class="dmo-fact"><span>Movimentos</span><strong><a class="ferr-armazem-link" id="ferrHistoricoArmazem" href="@Url.Page("/Armazem/Historico", new { ferramenta = arm.ToolId })">Ver o histórico</a></strong></div>
+          <div class="dmo-fact"><span>Movimentos</span><strong><a class="ferr-armazem-link" id="ferrHistoricoArmazem" href="@Url.Page("/Armazem/Ultimos", new { ferramenta = arm.ToolId })">Ver os movimentos</a></strong></div>
         }
         @if (Model.Utilizacao is { Ultima: not null } or { LembreteDesdeUtc: not null } || Model.Producoes is { Pagina.TotalCount: > 0 })
         {

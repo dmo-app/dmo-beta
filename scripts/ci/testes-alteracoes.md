@@ -1023,3 +1023,34 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)`
 
 Selo depois: `c77edb7db73eac47`
+
+## A-0039 · 2026-10-22 · ok-do-diogo
+
+Porquê: Armazém: separador «Movimentos» (fora em reparação só CM/MF; últimas entradas e saídas de tudo, BQ incluídas, com filtros por dias, tipo, referência, lote, linha e reparador) substitui o Histórico; «Registo» passa a primeiro separador. A regra «abre vazio» não se aplica aqui: o Diogo pediu que a página mostre as últimas entradas e saídas (22/10 13:25).
+Referência: Diogo 22/10 13:25–13:43 (cmsg_01A27e9ozcpoh4jdPRsuJbFy12VMmFYgLHpRhn1RAK5HLp, cmsg_01A27e9ozcpoh4jdPRsuJbFyPgTMUWFVkDYEkGJU4gwQav, cmsg_01A27e9ozcpoh4jdPRsuJbFyV24qJxcxGS2xJRaWYoDSF4, cmsg_01A27e9ozcpoh4jdPRsuJbFyFf6WkWFn2hQgaVcKvKLb4j)
+Novos: 14 · mudaram: 2 · saíram: 6
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemReparacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemReparacaoTests.cs :: ArmazemReparacaoTests.Fora_SoCmEMfCujoUltimoMovimentoESaidaParaReparacao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemReparacaoTests.cs :: ArmazemReparacaoTests.Ultimas_BqIncluida_ComReparadorEPosicao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemReparacaoTests.cs :: ArmazemReparacaoTests.Ultimas_OsFiltrosNovos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemReparacao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemReparacao.cs :: PostgresMigrationIntegrationTests.Armazem_AReparacaoLeNoPostgreSql`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AFicha_MostraALocalizacaoEOsMovimentos_SoAQuemTemOArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AsFuncoes_RegistoDepoisMovimentos_SemHistorico`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Fora_SemFerramentas_NaoAbreAFicha`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Fora_SoCmEMf_ComReparadorEDia_BqNao`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.SemAChave_NaoEntra`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_OsFiltros`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_Todas_DoMaisRecente_BqIncluida_PosicaoSoNaEntrada`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOndeEstaEAbreAFerramenta`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemHistoricoPaginaTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemHistoricoPaginaTests.cs :: ArmazemHistoricoPaginaTests.AFicha_MostraALocalizacaoEOHistorico_SoAQuemTemOArmazem`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemHistoricoPaginaTests.cs :: ArmazemHistoricoPaginaTests.AbreVazio_SoComOsFiltrosSemBotao`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemHistoricoPaginaTests.cs :: ArmazemHistoricoPaginaTests.ComUmFiltro_ListaDoMaisRecente`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemHistoricoPaginaTests.cs :: ArmazemHistoricoPaginaTests.OsFiltros_TextoDestinoEDias`
+- saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemHistoricoPaginaTests.cs :: ArmazemHistoricoPaginaTests.SemAChave_NaoEntra`
+
+Selo depois: `06942017116725ab`
