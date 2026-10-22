@@ -288,6 +288,33 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         Assert.Contains("Falta: gargalo, tampão · S7A001 7", html);
     }
 
+    // «ao sair da produção entra no armazém dá o aviso, e podemos usar o
+    // sumário para dar o aviso a quem tem módulo ferramentas» (Diogo,
+    // 22/10/2026): o lembrete aberto aparece no Sumário, com o link para a ficha.
+    [Fact]
+    public async Task UtilizacaoPorAtualizar_AvisaNoSumario_SoQuemTemFerramentas()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.Tools.Add(new DMO.Alpha.Core.Tools.Tool { ToolId = "CM-USO1", Type = DMO.Alpha.Core.Tools.ToolType.Cm, Reference = "5447T173", Lot = "11" });
+            db.FerramentaLembretesUtilizacao.Add(new DMO.Alpha.Core.Tools.FerramentaLembreteUtilizacao { ToolId = "CM-USO1", CriadoEmUtc = new DateTime(2026, 10, 21, 10, 0, 0, DateTimeKind.Utc) });
+            await db.SaveChangesAsync();
+        }
+
+        using (var planeamento = await LoginAsync("5711", DmoCapabilities.JobOnCreate))
+        {
+            Assert.DoesNotContain("data-dmo-uso-por-atualizar", await GetAsync(planeamento));
+        }
+
+        using var ferramentas = await LoginAsync("5712", DmoCapabilities.JobOnCreate, DmoCapabilities.Ferramentas);
+        var html = await GetAsync(ferramentas);
+        var aviso = System.Text.RegularExpressions.Regex.Match(html, "<p class=\"dmo-aviso warn\" data-dmo-uso-por-atualizar=\"CM-USO1\">[\\s\\S]*?</p>").Value;
+        Assert.Contains("Utilização por atualizar: CM 5447T173 lote 11, desde 21/10/2026.", aviso);
+        Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=CM-USO1\"", aviso);
+        Assert.Contains(">Abrir a ficha<", aviso);
+    }
+
     [Fact]
     public async Task WithoutPlaneamento_ThePageIsRefused()
     {

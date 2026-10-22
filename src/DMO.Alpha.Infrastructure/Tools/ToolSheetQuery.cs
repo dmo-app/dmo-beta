@@ -47,6 +47,7 @@ public sealed class ToolSheetQuery : IToolSheetQuery
                 t.AssociatedMfReference,
                 t.BqAccountedQuantity,
                 t.TechnicalName,
+                t.FabricaOrigem,
                 t.DuplicateWarningAtUtc,
                 t.DuplicateWarningByNameFrozen,
                 Version = EF.Property<uint>(t, DmoDbContext.RowVersion),
@@ -97,6 +98,7 @@ public sealed class ToolSheetQuery : IToolSheetQuery
             facts.Version,
             facts.TechnicalVersion ?? 0,
             facts.DuplicateWarningAtUtc,
-            facts.DuplicateWarningByNameFrozen);
+            facts.DuplicateWarningByNameFrozen,
+            facts.FabricaOrigem);
     }
 }

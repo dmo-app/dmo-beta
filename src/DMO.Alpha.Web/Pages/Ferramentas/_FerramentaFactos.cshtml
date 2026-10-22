@@ -8,7 +8,35 @@
     var p = Model.Prefixo;
     var tipoFixo = Model.TipoFixo;
 }
-<div class="ferr-create-row">
+@* AS LINHAS POR CIMA (Diogo, 22/10/2026): os campos e a Informação opcional
+   numa só linha, alinhados pelas caixas. *@
+<div class="ferr-create-row ferr-create-row-machines">
+  <div class="dmo-field">
+    <span class="dmo-label" id="@(p)-machines">Linhas compatíveis</span>
+    <div class="ferr-checks" role="group" aria-labelledby="@(p)-machines">
+      @if (Model.Maquinas.Count == 0)
+      {
+        <span class="ferr-hint" style="margin:0">Sem máquinas registadas — pode registar a ferramenta agora e associar máquinas depois, na sua ficha.</span>
+      }
+      @foreach (var machine in Model.Maquinas)
+      {
+        <label class="ferr-check">
+          <input type="checkbox" name="machine_ids" value="@machine.MachineId" checked="@Model.MaquinaEscolhida(machine.MachineId)" />
+          <span>@machine.Code</span>
+        </label>
+      }
+    </div>
+  </div>
+  @if (Model.Criar)
+  {
+    <div class="ferr-quantity-suggestion">
+      <p id="ferr-quantity-notice" class="ferr-hint" role="status" aria-live="polite"></p>
+      <div id="ferr-quantity-choices" class="ferr-quantity-choices"></div>
+    </div>
+  }
+</div>
+<div class="ferr-editar-linha">
+<div class="ferr-create-row ferr-editar-principal">
   <div class="dmo-field ferr-w-type">
     <label for="@(p)-type">Tipo</label>
     <select id="@(p)-type" name="type_token" required data-ferr-tipo-fixo="@tipoFixo">
@@ -38,45 +66,46 @@
       <input id="ferr-quantity-manual" type="hidden" name="quantity_manual" value="@(Model.QuantidadeManual ?? "0")" />
     }
   </div>
-  <div class="dmo-field ferr-w-ref" id="@(p)-mf-field" hidden="@(Model.Tipo != "CM")">
-    <label for="@(p)-mf">Ref. MF associada</label>
-    <input id="@(p)-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RefMf" placeholder="opcional" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
+  @* O % DE USO (Diogo, 22/10/2026): escrito à mão, opcional, gravado com o
+     «Guardar» do Editar como uma leitura nova (origem manual). Vazio ou igual
+     não grava; acima de 100 grava e avisa. *@
+  @if (!Model.Criar)
+  {
+    <div class="dmo-field ferr-w-uso">
+      <label for="@(p)-uso">% uso<partial name="_DmoHelp" model="@(Model.UsoData is { } dataUso ? $"Última leitura: {dataUso}. Um valor novo fica como leitura de hoje." : "Ainda sem leitura. Um valor escrito fica como leitura de hoje.")" /></label>
+      <input id="@(p)-uso" name="uso_percentagem" type="text" inputmode="numeric" maxlength="4" value="@Model.UsoPercentagem" placeholder="sem registo" class="@(string.IsNullOrEmpty(Model.UsoPercentagem) ? "ferr-sem-registo-campo" : null)" />
+    </div>
+  }
+</div>
+<span class="ferr-tech-sep ferr-editar-sep" aria-hidden="true"></span>
+@* INFORMAÇÃO OPCIONAL (Diogo, 22/10/2026): a Ref. MF, o nome técnico e a
+   fábrica de origem num bloco à parte, ao lado, com o traço vertical das colunas da Informação técnica (Diogo, 22/10/2026). *@
+<fieldset class="ferr-tech-bloco ferr-opcional" id="@(p)-opcional">
+  <legend class="ferr-tech-titulo">Informação opcional</legend>
+  <div class="ferr-tech-campos">
+    <div class="dmo-field ferr-w-ref" id="@(p)-mf-field" hidden="@(Model.Tipo != "CM")">
+      <label for="@(p)-mf">Ref. MF associada</label>
+      <input id="@(p)-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RefMf" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
+    </div>
+    @* O NOME TÉCNICO (o código do desenho — o código de produção; o Owner:
+       «se introduzirmos o nome tecnico, ou seja o que esta no sap.
+       apresenta logo tudo»): no Criar, ao escrever, o vivo decodifica e
+       propõe o tipo; vazio = o formato simples. *@
+    <div class="dmo-field ferr-w-sap">
+      <label for="@(p)-technical">Nome técnico (produção)</label>
+      <input id="@(p)-technical" data-dmo-maiusculas autocapitalize="characters" name="technical_name" value="@Model.NomeTecnico" placeholder="Ex.: M107544MFNNV" />
+    </div>
+    @if (!Model.Criar)
+    {
+      <div class="dmo-field ferr-w-qty">
+        <label for="@(p)-fabrica">Fábrica de origem<partial name="_DmoHelp" model="@("A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas.")" /></label>
+        <input id="@(p)-fabrica" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" />
+      </div>
+    }
   </div>
-  @* O NOME TÉCNICO (o código do desenho — o que está no SAP; o Owner:
-     «se introduzirmos o nome tecnico, ou seja o que esta no sap.
-     apresenta logo tudo»): no Criar, ao escrever, o vivo decodifica e
-     propõe o tipo; vazio = o formato simples. *@
-  <div class="dmo-field ferr-w-sap">
-    <label for="@(p)-technical">Nome técnico (produção)</label>
-    <input id="@(p)-technical" data-dmo-maiusculas autocapitalize="characters" name="technical_name" value="@Model.NomeTecnico" placeholder="opcional · Ex.: M107544MFNNV" />
-  </div>
+</fieldset>
 </div>
 @if (Model.Criar)
 {
   <p class="ferr-hint" id="ferr-technical-notice" role="status" aria-live="polite"></p>
 }
-<div class="ferr-create-row ferr-create-row-machines">
-  <div class="dmo-field">
-    <span class="dmo-label" id="@(p)-machines">Máquinas / linhas compatíveis (opcional)</span>
-    <div class="ferr-checks" role="group" aria-labelledby="@(p)-machines">
-      @if (Model.Maquinas.Count == 0)
-      {
-        <span class="ferr-hint" style="margin:0">Sem máquinas registadas — pode registar a ferramenta agora e associar máquinas depois, na sua ficha.</span>
-      }
-      @foreach (var machine in Model.Maquinas)
-      {
-        <label class="ferr-check">
-          <input type="checkbox" name="machine_ids" value="@machine.MachineId" checked="@Model.MaquinaEscolhida(machine.MachineId)" />
-          <span>@machine.Code</span>
-        </label>
-      }
-    </div>
-  </div>
-  @if (Model.Criar)
-  {
-    <div class="ferr-quantity-suggestion">
-      <p id="ferr-quantity-notice" class="ferr-hint" role="status" aria-live="polite"></p>
-      <div id="ferr-quantity-choices" class="ferr-quantity-choices"></div>
-    </div>
-  }
-</div>

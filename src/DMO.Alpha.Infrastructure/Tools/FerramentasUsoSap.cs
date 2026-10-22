@@ -161,6 +161,59 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         return true;
     }
 
+    public async Task<bool> RegistarPercentagemManualAsync(string toolId, decimal percentagem, CancellationToken cancellationToken = default)
+    {
+        if (percentagem < 0 || !await db.Tools.AnyAsync(t => t.ToolId == toolId && t.ToolId != ToolRegistryConstants.RemovedToolId, cancellationToken))
+        {
+            return false;
+        }
+
+        var anterior = await db.FerramentaUtilizacoes.AsNoTracking()
+            .Where(u => u.ToolId == toolId)
+            .OrderByDescending(u => u.Id)
+            .Select(u => (decimal?)u.Percentagem)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (anterior is { } a && Math.Round(a, 0, MidpointRounding.AwayFromZero) == percentagem)
+        {
+            return false;
+        }
+
+        var agora = DateTime.UtcNow;
+        var nova = new FerramentaUtilizacao
+        {
+            ToolId = toolId,
+            Percentagem = percentagem,
+            Origem = FerramentaUtilizacao.OrigemManual,
+            RegistadaEmUtc = agora,
+            RegistadoPor = Autor()
+        };
+        db.FerramentaUtilizacoes.Add(nova);
+        await using var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+        await db.SaveChangesAsync(cancellationToken);
+        foreach (var lembrete in await db.FerramentaLembretesUtilizacao.Where(l => l.ToolId == toolId && l.FechadoEmUtc == null).ToListAsync(cancellationToken))
+        {
+            lembrete.FechadoEmUtc = agora;
+            lembrete.UtilizacaoId = nova.Id;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        if (transacao is not null)
+        {
+            await transacao.CommitAsync(cancellationToken);
+        }
+
+        return true;
+    }
+
+    public async Task<IReadOnlyList<FerramentaUsoPorAtualizar>> PorAtualizarAsync(int maximo, CancellationToken cancellationToken = default) =>
+        await (from l in db.FerramentaLembretesUtilizacao.AsNoTracking()
+               join t in db.Tools.AsNoTracking() on l.ToolId equals t.ToolId
+               where l.FechadoEmUtc == null && t.ToolId != ToolRegistryConstants.RemovedToolId
+               orderby l.CriadoEmUtc, l.Id
+               select new FerramentaUsoPorAtualizar(t.ToolId, t.Type, t.Reference, t.Lot, l.CriadoEmUtc))
+            .Take(maximo)
+            .ToListAsync(cancellationToken);
+
     /// <summary>
     /// A Entrada no Armazém vinda da Produção abre o lembrete (na mesma
     /// gravação do movimento); com um aberto, fica esse.

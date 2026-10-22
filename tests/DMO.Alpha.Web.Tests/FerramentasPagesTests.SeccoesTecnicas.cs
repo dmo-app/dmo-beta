@@ -75,7 +75,9 @@ public partial class FerramentasPagesTests
         Assert.Equal(
             ["Tipo", "Referência", "Lote", "Quantidade do lote", "Ref. MF associada", "Nome técnico (produção)"],
             Rotulos(criar, "ferr-new").Take(6));
-        Assert.Equal(Rotulos(criar, "ferr-new").Take(6), Rotulos(ficha, "ferr-edit"));
+        // A ficha acrescenta o % uso (ao lado da Quantidade) e a Fábrica de origem.
+        var doCriar = Rotulos(criar, "ferr-new").Take(6).ToList();
+        Assert.Equal(doCriar.Take(4).Append("% uso").Concat(doCriar.Skip(4)).Append("Fábrica de origem"), Rotulos(ficha, "ferr-edit"));
         // A ficha da CM só tem os campos da CM (a Marisa é da BQ).
         Assert.Equal(Rotulos(criar, "ferr-new").Skip(6).Where(r => r != "Marisa (cm³)"), Rotulos(ficha, "ferr-tech"));
 
@@ -88,5 +90,119 @@ public partial class FerramentasPagesTests
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
         Assert.Equal("M107544MFNNV", (await db.Tools.AsNoTracking().SingleAsync(t => t.ToolId == toolId)).TechnicalName);
+    }
+
+    // Diogo, 22/10/2026: «Linhas compatíveis» sem «Máquinas» nem «(opcional)»;
+    // a Ref. MF, o nome técnico e a Fábrica de origem num bloco «Informação
+    // opcional»; nunca «SAP» nos rótulos.
+    [Fact]
+    public async Task Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem()
+    {
+        SeedUser("4996", "Ferramentas Opcional", "provider-ferr-opcional", "FerrOpcional1!");
+        using var client = await LoginClientAsync("4996", "FerrOpcional1!");
+        var toolId = await SeedRealToolAsync();
+
+        var ficha = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FichaPath}?tool_id={toolId}"));
+        Assert.Contains(">Linhas compatíveis</span>", ficha, StringComparison.Ordinal);
+        Assert.Contains("<span>Linhas</span>", ficha, StringComparison.Ordinal);
+        Assert.DoesNotContain("Máquinas / linhas", ficha, StringComparison.Ordinal);
+        Assert.DoesNotContain("(SAP)", ficha, StringComparison.Ordinal);
+        var bloco = ficha[Posicao(ficha, "id=\"ferr-edit-opcional\"")..];
+        bloco = bloco[..bloco.IndexOf("</fieldset>", StringComparison.Ordinal)];
+        Assert.Contains(">Informação opcional</legend>", bloco, StringComparison.Ordinal);
+        Assert.True(Posicao(bloco, "id=\"ferr-edit-mf\"") < Posicao(bloco, "id=\"ferr-edit-technical\""));
+        Assert.True(Posicao(bloco, "id=\"ferr-edit-technical\"") < Posicao(bloco, "id=\"ferr-edit-fabrica\""));
+        // Ao lado dos campos, depois do traço vertical da Informação técnica.
+        Assert.True(Posicao(ficha, "id=\"ferr-edit-machines\"") < Posicao(ficha, "class=\"ferr-tech-sep ferr-editar-sep\""));
+        Assert.True(Posicao(ficha, "class=\"ferr-tech-sep ferr-editar-sep\"") < Posicao(ficha, "id=\"ferr-edit-opcional\""));
+
+        var token = await GetVerificationTokenAsync(client, $"{FichaPath}?tool_id={toolId}");
+        var response = await client.PostAsync($"{FichaPath}?handler=EditFacts", HtmlFormHelpers.BuildFormPost(
+            ("tool_id", toolId), ("type_token", "CM"), ("reference", "5447"), ("lot", "3"),
+            ("fabrica_origem", " mg "), ("__RequestVerificationToken", token)));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            Assert.Equal("MG", (await db.Tools.AsNoTracking().SingleAsync(t => t.ToolId == toolId)).FabricaOrigem);
+        }
+        var depois = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FichaPath}?tool_id={toolId}"));
+        Assert.Matches("<input id=\"ferr-edit-fabrica\"[^>]*value=\"MG\"", depois);
+    }
+
+    // O % uso no Editar, ao lado da Quantidade do lote (Diogo, 22/10/2026):
+    // escrito à mão, opcional, gravado com o «Guardar» como uma leitura nova
+    // (manual) que fecha o «Utilização por atualizar»; vazio ou igual não
+    // grava; acima de 100 grava e avisa; ilegível avisa e não grava.
+    [Fact]
+    public async Task Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos()
+    {
+        SeedUser("4997", "Ferramentas Uso", "provider-ferr-uso", "FerrUso1!");
+        using var client = await LoginClientAsync("4997", "FerrUso1!");
+        var toolId = await SeedRealToolAsync();
+
+        var sem = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FichaPath}?tool_id={toolId}"));
+        Assert.DoesNotContain("ferrPercentagemUso", sem, StringComparison.Ordinal);
+        Assert.Matches("<input id=\"ferr-edit-uso\" name=\"uso_percentagem\"[^>]*placeholder=\"sem registo\" class=\"ferr-sem-registo-campo\"", sem);
+        Assert.True(Posicao(sem, "id=\"ferr-edit-qty\"") < Posicao(sem, "id=\"ferr-edit-uso\""));
+        Assert.True(Posicao(sem, "id=\"ferr-edit-machines\"") < Posicao(sem, "id=\"ferr-edit-type\""));
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.FerramentaUtilizacoes.Add(new DMO.Alpha.Core.Tools.FerramentaUtilizacao { ToolId = toolId, Percentagem = 62.4m, RegistadaEmUtc = DateTime.UtcNow.AddDays(-1) });
+            db.FerramentaLembretesUtilizacao.Add(new DMO.Alpha.Core.Tools.FerramentaLembreteUtilizacao { ToolId = toolId, CriadoEmUtc = DateTime.UtcNow });
+            await db.SaveChangesAsync();
+        }
+        var com = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FichaPath}?tool_id={toolId}"));
+        Assert.Matches("<input id=\"ferr-edit-uso\" name=\"uso_percentagem\"[^>]*value=\"62\"", com);
+        Assert.DoesNotContain("class=\"ferr-sem-registo-campo\"", com, StringComparison.Ordinal);
+
+        int Leituras()
+        {
+            using var scope = _factory.Services.CreateScope();
+            return scope.ServiceProvider.GetRequiredService<DmoDbContext>().FerramentaUtilizacoes.Count(u => u.ToolId == toolId);
+        }
+        async Task<string> GuardarAsync(string uso)
+        {
+            var token = await GetVerificationTokenAsync(client, $"{FichaPath}?tool_id={toolId}");
+            var response = await client.PostAsync($"{FichaPath}?handler=EditFacts", HtmlFormHelpers.BuildFormPost(
+                ("tool_id", toolId), ("type_token", "CM"), ("reference", "5447"), ("lot", "3"),
+                ("uso_percentagem", uso), ("__RequestVerificationToken", token)));
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            return WebUtility.HtmlDecode(await GetPageHtmlAsync(client, response.Headers.Location!.ToString()));
+        }
+
+        await GuardarAsync("");
+        await GuardarAsync("62");
+        Assert.Equal(1, Leituras());
+
+        var ilegivel = await GuardarAsync("muito");
+        Assert.Equal(1, Leituras());
+        Assert.Contains("O % uso «muito» não é um número inteiro positivo e não foi gravado", ilegivel, StringComparison.Ordinal);
+
+        var depois = await GuardarAsync("75");
+        Assert.Equal(2, Leituras());
+        Assert.Matches("<input id=\"ferr-edit-uso\" name=\"uso_percentagem\"[^>]*value=\"75\"", depois);
+        Assert.DoesNotContain("id=\"ferrUtilizacaoLembrete\"", depois, StringComparison.Ordinal);
+        Assert.DoesNotContain("id=\"ferrUsoAviso\"", depois, StringComparison.Ordinal);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var ultima = scope.ServiceProvider.GetRequiredService<DmoDbContext>().FerramentaUtilizacoes
+                .Where(u => u.ToolId == toolId).OrderByDescending(u => u.Id).First();
+            Assert.Equal((75m, DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemManual, (long?)null), (ultima.Percentagem, ultima.Origem, ultima.Consumo));
+        }
+
+        // O limite do aviso: 100 grava sem aviso, 101 grava com aviso.
+        var cem = await GuardarAsync("100");
+        Assert.Equal(3, Leituras());
+        Assert.DoesNotContain("O % uso ficou acima de 100", cem, StringComparison.Ordinal);
+        var centoEUm = await GuardarAsync("101");
+        Assert.Equal(4, Leituras());
+        Assert.Contains("O % uso ficou acima de 100", centoEUm, StringComparison.Ordinal);
+
+        var acima = await GuardarAsync("120%");
+        Assert.Equal(5, Leituras());
+        Assert.Contains("O % uso ficou acima de 100", acima, StringComparison.Ordinal);
     }
 }

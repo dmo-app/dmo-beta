@@ -129,6 +129,11 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         {
             tool.TechnicalName = TrimToNull(command.TechnicalName);
         }
+        if (command.FabricaOrigem is not null)
+        {
+            var fabrica = TrimToNull(command.FabricaOrigem)?.ToUpperInvariant();
+            tool.FabricaOrigem = fabrica is { Length: > 32 } ? fabrica[..32] : fabrica;
+        }
 
         var existingLinks = await _db.ToolMachineLinks
             .Where(link => link.ToolId == tool.ToolId)

@@ -116,6 +116,7 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
             AssociatedMfReference = source.AssociatedMfReference,
             BqAccountedQuantity = source.BqAccountedQuantity,
             TechnicalName = source.TechnicalName,
+            FabricaOrigem = source.FabricaOrigem,
             RegisteredAtUtc = DateTime.UtcNow
         };
         _db.Tools.Add(tool);
