@@ -50,9 +50,12 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.AddSingleton<IUserProvisioningProvider>(
                 _ => new InMemoryUserProvisioningProvider(AuthProvider));
 
-            // Replace EF configuration with a single in-memory database instance
-            // that is reset between tests.
-            const string databaseName = "DmoAlphaTestDatabase";
+            // Replace EF configuration with an in-memory database instance
+            // that is reset between tests. Uma base por fábrica: com um nome
+            // fixo, todas as classes de testes partilhavam a mesma base em
+            // paralelo e o ResetState de uma apagava os dados de outra (e
+            // ids semeados à mão colidiam; DMO-312, 22/10/2026).
+            var databaseName = _databaseName;
             // O carimbo do registo (quando e quem gravou o Peso/Pegamentos),
             // como na aplicação.
             services.AddScoped(sp =>
@@ -65,6 +68,9 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 new DmoDbContext(sp.GetRequiredService<DbContextOptions<DmoDbContext>>()));
         });
     }
+
+    // Os WithWebHostBuilder derivados desta fábrica usam a mesma base.
+    private readonly string _databaseName = "DmoAlphaTestDatabase-" + Guid.NewGuid().ToString("N");
 
     public void ResetState()
     {
