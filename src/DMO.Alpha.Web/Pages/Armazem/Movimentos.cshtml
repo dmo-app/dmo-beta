@@ -361,11 +361,11 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           <p class="dmo-aviso warn">Ainda não há reparadores para esta ferramenta.
             @if (s.Tipo == ToolType.Bq)
             {
-              <a class="dmo-aviso-link" href="@Url.Page("/Boquilhas/Definicoes")">Criar nas Definições das Boquilhas</a>
+              <a class="dmo-aviso-link" href="/Definicoes?secao=boquilhas">Criar nas Definições das Boquilhas</a>
             }
             else
             {
-              <a class="dmo-aviso-link" href="@Url.Page("/Armazem/Definicoes")">Criar nas Definições do Armazém</a>
+              <a class="dmo-aviso-link" href="/Definicoes?secao=armazem">Criar nas Definições do Armazém</a>
             }
           </p>
         }

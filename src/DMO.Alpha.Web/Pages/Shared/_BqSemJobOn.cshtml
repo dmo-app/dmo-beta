@@ -9,7 +9,6 @@
 {
   var recusa = Model.SemJobOnResult is { Length: > 0 } r && r != "ok";
   var escolhida = Model.ToolSheet?.ToolId;
-  var referenciaEscolhida = Model.SemJobOnTools.FirstOrDefault(t => t.ToolId == escolhida)?.Reference;
     @if (Model.SemJobOnResult == "ok")
     {
       <p data-dmo-toast="ok" class="result" role="status">@Model.SemJobOnMessage</p>
@@ -22,23 +21,17 @@
           <div class="jobon-aviso warn" role="alert">@Model.SemJobOnMessage</div>
         }
         <div class="bq-sem-jobon-campos bq-sem-jobon-tres">
-          <div class="dmo-field">
-            <label for="bqSemJobOnRef">BQ</label>
-            <select id="bqSemJobOnRef" data-bq-sem-jobon-ref required>
-              <option value="">Escolher</option>
-              @foreach (var referencia in Model.SemJobOnTools.Select(t => t.Reference).Distinct())
-              {
-                <option value="@referencia" selected="@(referencia == referenciaEscolhida)">@referencia</option>
-              }
-            </select>
-          </div>
-          <div class="dmo-field">
-            <label for="bqSemJobOnLote">Lote</label>
-            <select id="bqSemJobOnLote" name="tool_id" data-bq-sem-jobon-lote required>
+          @* Uma só escolha (Diogo, 22/10/2026: «ao procurar as boquilhas deve
+             mostrar os elementos que identificam a boquilha»): cada opção é
+             uma BQ (um tool_id), com a referência, o lote e o resto que a
+             distingue. Com JavaScript, escreve-se para procurar. *@
+          <div class="dmo-field bq-sem-jobon-bq">
+            <label for="bqSemJobOnBq">BQ · lote</label>
+            <select id="bqSemJobOnBq" name="tool_id" data-bq-escolha required>
               <option value="">Escolher</option>
               @foreach (var tool in Model.SemJobOnTools)
               {
-                <option value="@tool.ToolId" data-ref="@tool.Reference" selected="@(tool.ToolId == escolhida)">@tool.Lot</option>
+                <option value="@tool.ToolId" data-procura="@tool.SearchText" selected="@(tool.ToolId == escolhida)">@tool.Label</option>
               }
             </select>
           </div>

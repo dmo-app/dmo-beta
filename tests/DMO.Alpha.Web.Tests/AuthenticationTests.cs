@@ -113,7 +113,8 @@ public partial class AuthenticationTests : IClassFixture<CustomWebApplicationFac
         var admin = await client.GetAsync("/Admin/Users");
         Assert.Equal(HttpStatusCode.OK, admin.StatusCode);
         var adminHtml = await admin.Content.ReadAsStringAsync();
-        Assert.Contains(">Setup</a>", adminHtml);
+        Assert.DoesNotContain(">Setup</a>", adminHtml);
+        Assert.Contains("data-dmo-nav-definicoes", adminHtml);
     }
 
     [Fact]
@@ -956,8 +957,8 @@ public partial class AuthenticationTests : IClassFixture<CustomWebApplicationFac
         foreach (var path in new[] { "/Admin", "/Admin/Definicoes" })
         {
             var allowed = await adminClient.GetAsync(path);
-            Assert.Equal(path == "/Admin" ? HttpStatusCode.Redirect : HttpStatusCode.OK, allowed.StatusCode);
-            if (path == "/Admin") Assert.Equal("/Admin/Definicoes", allowed.Headers.Location?.OriginalString);
+            Assert.Equal(HttpStatusCode.Redirect, allowed.StatusCode);
+            Assert.Equal(path == "/Admin" ? "/Admin/Users" : "/Definicoes?secao=app", allowed.Headers.Location?.OriginalString);
             var refused = await operatorClient.GetAsync(path);
             Assert.Equal(HttpStatusCode.Redirect, refused.StatusCode);
             Assert.Equal("/login", refused.Headers.Location?.AbsolutePath);

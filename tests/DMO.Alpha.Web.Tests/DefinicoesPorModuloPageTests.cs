@@ -16,12 +16,13 @@ namespace DMO.Alpha.Web.Tests;
 /// deve ficar no admin e o botao nao esta bem» e «separamos as definições
 /// para não ter tudo misturado numa página»): os totais de lote nas
 /// Definições das Ferramentas, com um único «Guardar»; a hora
-/// de viragem no Canal Jobon da Administração; o email do ADMIN no Setup.
+/// de viragem no Canal Jobon da Administração; o email do ADMIN e o PIN nas Definições → App.
 /// </summary>
 public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomWebApplicationFactory>
 {
     private const string FerramentasPath = "/Ferramentas/Definicoes";
     private const string CanalJobonPath = "/Admin/CanalJobon";
+    private const string AppPath = "/Definicoes?secao=app";
 
     private readonly CustomWebApplicationFactory _factory;
 
@@ -71,7 +72,7 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
             db.SaveChanges();
         }
 
-        return await LoginAsync(email, password);
+        return await DefinicoesPin.DesbloquearAsync(_factory.Services, await LoginAsync(email, password));
     }
 
     private async Task<HttpClient> LoginAdminAsync()
@@ -124,11 +125,11 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
         try
         {
             using var client = await LoginOperatorAsync("5101", DmoCapabilities.Ferramentas);
-            var html = await client.GetStringAsync(FerramentasPath);
+            var html = await client.GetStringAsync("/Definicoes");
 
             // Um separador do módulo Ferramentas; máquinas e componentes
             // legíveis; um único «Guardar» (Diogo, 17/10/2026).
-            Assert.Matches("<a href=\"/Ferramentas/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
+            Assert.Matches("<a href=\"/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
             Assert.Contains("Total do lote por máquina", html);
             Assert.Contains("<span class=\"ferr-totais-maquina mch-B1\">B1</span>", html);
             Assert.Contains("<strong>BQ</strong><small>Boquilha</small>", html);
@@ -143,7 +144,7 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
 
             async Task<HttpResponseMessage> Save(params (string Name, string Value)[] fields)
             {
-                var token = HtmlFormHelpers.ExtractRequestVerificationToken(await client.GetStringAsync(FerramentasPath))!;
+                var token = HtmlFormHelpers.ExtractRequestVerificationToken(await client.GetStringAsync("/Definicoes"))!;
                 return await client.PostAsync($"{FerramentasPath}?handler=SaveToolLotQuantities",
                     HtmlFormHelpers.BuildFormPost(fields.Append(("__RequestVerificationToken", token)).ToArray()));
             }
@@ -159,8 +160,9 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
             // A quantidade má fica de fora com aviso; a válida grava
             // (decisão do proprietário, 16/10/2026).
             var partial = await Save(($"quantities[{b1}]", "130"), ($"quantities[{c3}]", "bad"));
-            Assert.Equal(HttpStatusCode.OK, partial.StatusCode);
-            var warned = WebUtility.HtmlDecode(await partial.Content.ReadAsStringAsync());
+            // A gravação volta às Definições (PRG); o aviso vem uma vez (TempData).
+            Assert.Equal(HttpStatusCode.Redirect, partial.StatusCode);
+            var warned = WebUtility.HtmlDecode(await client.GetStringAsync(partial.Headers.Location!.ToString()));
             Assert.Contains("exceto: BQ na C3 («bad»)", warned);
             Assert.Contains("value=\"130\"", warned);
             Assert.Contains("value=\"90\"", warned);
@@ -182,20 +184,33 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
 
         using var admin = await LoginAdminAsync();
         Assert.Equal(HttpStatusCode.NotFound, (await admin.GetAsync("/Admin/Ferramentas")).StatusCode);
-        var setup = await admin.GetStringAsync("/Admin/Definicoes");
+        var pagina = await admin.GetStringAsync("/Definicoes?secao=app");
+        var setup = pagina[pagina.IndexOf("id=\"sec-app\"", StringComparison.Ordinal)..];
         Assert.DoesNotContain("href=\"/Admin/Ferramentas\"", setup);
         Assert.DoesNotContain("total do lote", setup, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task Setup_KeepsOnlyTheAdminEmail()
+    public async Task Setup_MudouSeParaAsDefinicoes_App()
     {
+        // Diogo, 22/10/2026: «setup fica dentro das definições».
         using var admin = await LoginAdminAsync();
-        var html = await admin.GetStringAsync("/Admin/Definicoes?definition=boquilhas");
-        Assert.Contains("Email do ADMIN", html);
-        Assert.Matches("<a href=\"/Admin/Definicoes\"[^>]*aria-current=\"page\"[^>]*>Setup</a>", html);
-        Assert.DoesNotContain("reparador", html, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("viragem", html, StringComparison.OrdinalIgnoreCase);
+        var antigo = await admin.GetAsync("/Admin/Definicoes?definition=boquilhas");
+        Assert.Equal(HttpStatusCode.Redirect, antigo.StatusCode);
+        Assert.Equal("/Definicoes?secao=app", antigo.Headers.Location?.OriginalString);
+        var html = await admin.GetStringAsync("/Definicoes?secao=app");
+        var app = html[html.IndexOf("id=\"sec-app\"", StringComparison.Ordinal)..];
+        Assert.Contains("Email do ADMIN", app);
+        Assert.Contains("PIN das Definições", app);
+        Assert.DoesNotContain("id=\"admModulos\"", app);
+        // Sem interruptores dos módulos: só o template decide (Diogo, 22/10/2026).
+        var templates = await admin.GetStringAsync("/Admin/Templates");
+        Assert.DoesNotContain("id=\"admModulos\"", templates);
+        Assert.DoesNotContain("name=\"testadores\"", templates);
+        Assert.DoesNotContain("id=\"canalJobonViragem\"", app);
+        Assert.Contains("<a href=\"/Definicoes?secao=app\" data-dmo-def-entrada=\"app\" class=\"active\" aria-current=\"page\"><span>App</span>", html);
+        Assert.DoesNotContain(">Setup</a>", html);
+        Assert.Contains(">Canal Jobon</a>", html);
         Assert.DoesNotContain("Definição a configurar", html);
     }
 

@@ -32,6 +32,7 @@ public sealed class MigrationFoundationTests
         "ArmazemLotesNovos",
         "ReparacaoProgramadaListas",
         "ReparacaoProgramadaItens",
+        "UserSettings",
         "ArmazemOcupacoes",
         "FerramentaLocalizacoes",
         "FerramentaEstados",
@@ -83,7 +84,7 @@ public sealed class MigrationFoundationTests
     ];
 
     // As tabelas criadas depois da Baseline, cada uma pela sua migração.
-    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto"])];
+    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto"])];
 
     private static DmoDbContext CreateNpgsqlContext()
     {
@@ -130,6 +131,7 @@ public sealed class MigrationFoundationTests
                 "20261022151113_ArmazemLotesNovos",
                 "20261022155553_ReparacaoProgramada",
                 "20261022174307_FerramentaFabricaOrigem",
+                "20261022185512_DefinicoesPessoais",
                 "20261022213128_MovimentosLinhaReparadorJobOn" },
             keys);
     }

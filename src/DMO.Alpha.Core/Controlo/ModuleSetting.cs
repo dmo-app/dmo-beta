@@ -49,6 +49,16 @@ public static class ModuleSettingKeys
     public const string BoquilhasDayChangeHour = "Boquilhas:DayChangeHour";
 
     /// <summary>
+    /// O nome da pasta partilhada dos PDFs do Controlo (Definições → Controlo →
+    /// Geral). O acesso à pasta dá-se em cada navegador; este nome diz qual é
+    /// a pasta esperada e o navegador avisa se a escolhida tiver outro nome.
+    /// </summary>
+    public const string ControloPastaPdf = "Controlo:PastaPdf";
+
+    /// <summary>O tamanho máximo do nome da pasta dos PDFs.</summary>
+    public const int ControloPastaPdfMax = 200;
+
+    /// <summary>
     /// Reparação Interna — a hora de viragem do dia operacional (0–23; a
     /// produção do dia de cada máquina muda a esta hora, o padrão é 8). Uma
     /// linha à parte da das Boquilhas no Canal Jobon (DP-15).

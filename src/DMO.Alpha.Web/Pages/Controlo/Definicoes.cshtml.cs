@@ -21,7 +21,7 @@ namespace DMO.Alpha.Web.Pages.Controlo;
 /// vidro NNPB e PS.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.ControloCreate)]
+[DefinicoesEntry("controlo", DmoCapabilities.ControloCreate)]
 public sealed class DefinicoesModel(
     IPegamentosToleranceConfiguration pegamentosTolerance,
     ISavePegamentosToleranceHandler savePegamentosTolerance,
@@ -29,7 +29,8 @@ public sealed class DefinicoesModel(
     IGlassDensityConfiguration glassDensity,
     ISaveGlassDensityHandler saveGlassDensity,
     PuncoesLinhaDefinicoes puncoesLinhas,
-    ShellStateFactory shellState) : PageModel
+    IModuleSettingsQuery moduleSettings,
+    ISaveModuleSettingHandler saveModuleSetting) : PageModel
 {
     /// <summary>As secções de cada linha para as punções PU NNPB (22/10/2026).</summary>
     public IReadOnlyList<PuncoesLinha> PuncoesLinhas { get; private set; } = Array.Empty<PuncoesLinha>();
@@ -182,16 +183,39 @@ public sealed class DefinicoesModel(
 
     private static string MaximoHabitual => PegamentosToleranceLimits.MaximumMm.ToString("0.00", DmoNumberFormat.Culture);
 
-    public async Task<IActionResult> OnGetAsync(string? save, string? envio, string? fora, string? densidade = null, string? seccoes = null)
+    /// <summary>GET: as definições vivem na página única /Definicoes (Diogo, 22/10/2026).</summary>
+    public IActionResult OnGet() => Redirect(DefinicoesAcesso.Nova(Request, "controlo"));
+
+    /// <summary>Carrega o que a secção deste módulo nas Definições mostra.</summary>
+    /// <summary>O nome da pasta partilhada dos PDFs (Geral); null sem nome definido.</summary>
+    public string? PastaPdf { get; private set; }
+
+    public string? PastaResult { get; private set; }
+
+    public bool PastaSucceeded => PastaResult == "ok";
+
+    public string PastaResultMessage => PastaResult switch
     {
+        "ok" => "Pasta dos PDFs guardada.",
+        "invalida" => $"Indique o nome da pasta (no máximo {ModuleSettingKeys.ControloPastaPdfMax} caracteres).",
+        _ => string.Empty
+    };
+
+    /// <summary>POST: o nome da pasta partilhada dos PDFs, para todos (Geral).</summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostSavePastaPdfAsync([FromForm(Name = "pasta")] string? pasta)
+    {
+        var outcome = await saveModuleSetting.HandleAsync(
+            new SaveModuleSetting(ModuleSettingKeys.ControloPastaPdf, pasta ?? string.Empty), HttpContext.RequestAborted);
+        return RedirectToPage("/Definicoes/Index", new { pasta = outcome.Result == SaveModuleSettingResult.Success ? "ok" : "invalida" });
+    }
+
+    public async Task CarregarAsync(string? save, string? envio, string? fora, string? densidade = null, string? seccoes = null, string? pasta = null)
+    {
+        PastaResult = pasta;
+        PastaPdf = await moduleSettings.FindValueAsync(ModuleSettingKeys.ControloPastaPdf, HttpContext.RequestAborted);
         SeccoesResult = seccoes;
         PuncoesLinhas = await puncoesLinhas.ListarAsync(HttpContext.RequestAborted);
-        ViewData["Title"] = "Definições — Controlo";
-        ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("controlo", "Controlo"))) with
-        {
-            ActiveFunctionKey = "definicoes",
-            Functions = ShellStateFactory.ControloFunctions("definicoes")
-        };
 
         SaveResult = save;
         DensidadeResult = densidade;
@@ -204,10 +228,10 @@ public sealed class DefinicoesModel(
         Ignorados = fora;
         Listas = await envioEmail.ListasAsync(HttpContext.RequestAborted);
         Modelos = await envioEmail.ModelosAsync(HttpContext.RequestAborted);
-        return Page();
     }
 
     /// <summary>POST: criar uma lista de destinatários. Os endereços que não são email ficam de fora, com aviso.</summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostCriarListaAsync(string? nome, string? destinatarios)
     {
         var resultado = await envioEmail.CriarListaAsync(nome, destinatarios, HttpContext.RequestAborted);
@@ -218,6 +242,7 @@ public sealed class DefinicoesModel(
     /// POST: mudar o nome ou os emails de uma lista no próprio valor da linha
     /// (data-dmo-valor: chega só o campo mudado). Sem JavaScript, volta à página.
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostMudarListaAsync(
         [FromForm(Name = "lista_id")] int? listaId, string? nome, string? destinatarios)
     {
@@ -232,13 +257,15 @@ public sealed class DefinicoesModel(
         return VoltarDaLista(resultado);
     }
 
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostApagarListaAsync([FromForm(Name = "lista_id")] int? listaId)
     {
         var apagada = await envioEmail.ApagarListaAsync(listaId ?? 0, HttpContext.RequestAborted);
-        return RedirectToPage("/Controlo/Definicoes", new { envio = apagada ? "apagada-lista" : nameof(EnvioEmailEstado.NaoExiste) });
+        return RedirectToPage("/Definicoes/Index", new { envio = apagada ? "apagada-lista" : nameof(EnvioEmailEstado.NaoExiste) });
     }
 
     /// <summary>POST: criar (sem modelo_id) ou guardar um modelo, na janela do modelo.</summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostGuardarModeloAsync(
         [FromForm(Name = "modelo_id")] int? modeloId,
         string? nome,
@@ -248,17 +275,18 @@ public sealed class DefinicoesModel(
         [FromForm(Name = "lista_id")] int? listaId)
     {
         var resultado = await envioEmail.GuardarModeloAsync(modeloId, nome, remetente, assunto, corpo, listaId, HttpContext.RequestAborted);
-        return RedirectToPage("/Controlo/Definicoes", new { envio = resultado.Gravado ? "ok-modelo" : resultado.Estado.ToString() });
+        return RedirectToPage("/Definicoes/Index", new { envio = resultado.Gravado ? "ok-modelo" : resultado.Estado.ToString() });
     }
 
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostApagarModeloAsync([FromForm(Name = "modelo_id")] int? modeloId)
     {
         var apagado = await envioEmail.ApagarModeloAsync(modeloId ?? 0, HttpContext.RequestAborted);
-        return RedirectToPage("/Controlo/Definicoes", new { envio = apagado ? "apagado-modelo" : nameof(EnvioEmailEstado.NaoExiste) });
+        return RedirectToPage("/Definicoes/Index", new { envio = apagado ? "apagado-modelo" : nameof(EnvioEmailEstado.NaoExiste) });
     }
 
     private IActionResult VoltarDaLista(EnvioEmailGravacao resultado) =>
-        RedirectToPage("/Controlo/Definicoes", resultado switch
+        RedirectToPage("/Definicoes/Index", resultado switch
         {
             { Gravado: true, Ignorados.Count: > 0 } => new { envio = "aviso-lista", fora = (string?)string.Join(", ", resultado.Ignorados) },
             { Gravado: true } => new { envio = "ok-lista", fora = (string?)null },
@@ -271,6 +299,7 @@ public sealed class DefinicoesModel(
     /// Fora do habitual ou com mais de duas casas grava com aviso; só o que
     /// não é um número sem sinal fica por gravar.
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostSavePegamentosToleranceAsync([FromForm(Name = "tolerance_mm")] string? toleranceMm)
     {
         var save = "tolerancia-invalida";
@@ -287,7 +316,7 @@ public sealed class DefinicoesModel(
             }
         }
 
-        return RedirectToPage("/Controlo/Definicoes", new { save });
+        return RedirectToPage("/Definicoes/Index", new { save });
     }
 
     /// <summary>
@@ -297,6 +326,7 @@ public sealed class DefinicoesModel(
     /// não é um número maior que zero, num dos campos, deixa os dois por
     /// gravar.
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostSaveGlassDensityAsync(
         [FromForm(Name = "densidade_nnpb")] string? nnpb,
         [FromForm(Name = "densidade_ps")] string? ps)
@@ -315,16 +345,17 @@ public sealed class DefinicoesModel(
             }
         }
 
-        return RedirectToPage("/Controlo/Definicoes", new { densidade });
+        return RedirectToPage("/Definicoes/Index", new { densidade });
     }
 
     /// <summary>POST: as secções de uma linha para a grelha das punções PU NNPB (4 posições cada).</summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostSavePuncoesSeccoesAsync(
         [FromForm(Name = "maquina")] string? maquina,
         [FromForm(Name = "seccoes")] string? seccoes)
     {
         var result = await puncoesLinhas.GuardarAsync(maquina, seccoes, HttpContext.RequestAborted);
-        return RedirectToPage("/Controlo/Definicoes", new { seccoes = result.ToString() });
+        return RedirectToPage("/Definicoes/Index", new { seccoes = result.ToString() });
     }
 
     private static string Codigo(DMO.Alpha.Core.Tools.CmProcess process) =>

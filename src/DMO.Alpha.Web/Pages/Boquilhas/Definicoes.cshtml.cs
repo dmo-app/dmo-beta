@@ -22,7 +22,7 @@ namespace DMO.Alpha.Web.Pages.Boquilhas;
 /// reparador edita-se no próprio valor da tabela.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.Boquilhas)]
+[DefinicoesEntry("boquilhas", DmoCapabilities.Boquilhas)]
 // O limite do Excel vale para a página toda: num handler o ASP.NET
 // ignora-o (aviso MVC1001).
 [RequestSizeLimit(DefinicoesModel.ExcelTamanhoMaximo + 1024 * 1024)]
@@ -34,7 +34,6 @@ public sealed class DefinicoesModel(
     IEditBqRepairerHandler editRepairer,
     IDeleteBqRepairerHandler deleteRepairer,
     IBqExcelBoquilhas excel,
-    ShellStateFactory shellState,
     [FromKeyedServices(DefinicoesModel.RelogioDoExcel)] TimeProvider? relogio = null) : PageModel
 {
     /// <summary>A chave do relógio do «hoje» do Excel das Boquilhas (os testes fixam-no).</summary>
@@ -73,14 +72,12 @@ public sealed class DefinicoesModel(
     /// </summary>
     public bool SaveSucceeded => SaveResult is "ok-reparador" or "ok-rota" or "ok-removido";
 
-    public async Task<IActionResult> OnGetAsync(string? save)
+    /// <summary>GET: as definições vivem na página única /Definicoes (Diogo, 22/10/2026).</summary>
+    public IActionResult OnGet() => Redirect(DefinicoesAcesso.Nova(Request, "boquilhas"));
+
+    /// <summary>Carrega o que a secção deste módulo nas Definições mostra.</summary>
+    public async Task CarregarAsync(string? save)
     {
-        ViewData["Title"] = "Definições — Boquilhas";
-        ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("boquilhas", "Boquilhas"))) with
-        {
-            ActiveFunctionKey = "definicoes",
-            Functions = ShellStateFactory.BoquilhasFunctions("definicoes")
-        };
 
         SaveResult = save;
         Repairers = await repairerQuery.ListAsync(HttpContext.RequestAborted);
@@ -93,13 +90,13 @@ public sealed class DefinicoesModel(
         }
 
         MachineRepairerIds = machineMap;
-        return Page();
     }
 
     /// <summary>
     /// POST: criar uma ENTIDADE REPARADORA. Recusa tipada no nome vazio e no
     /// nome repetido; a gravação nunca bloqueia a folha.
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostCreateRepairerAsync(string? name)
     {
         var outcome = await createRepairer.HandleAsync(
@@ -111,7 +108,7 @@ public sealed class DefinicoesModel(
             BqRepairerWriteResult.EmptyName => "reparador-vazio",
             _ => "reparador-existente"
         };
-        return RedirectToPage("/Boquilhas/Definicoes", new { save });
+        return RedirectToPage("/Definicoes/Index", new { save });
     }
 
     /// <summary>
@@ -119,6 +116,7 @@ public sealed class DefinicoesModel(
     /// JSON) ou por PRG. Não reescreve os movimentos passados: cada saída
     /// guarda o nome com que foi feita.
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostEditRepairerAsync(
         [FromForm(Name = "repairer_id")] int? repairerId,
         string? name)
@@ -140,20 +138,21 @@ public sealed class DefinicoesModel(
             return new JsonResult(new { ok, valor = ok ? name?.Trim() : null, aviso = ok ? null : MessageFor(save) });
         }
 
-        return RedirectToPage("/Boquilhas/Definicoes", new { save });
+        return RedirectToPage("/Definicoes/Index", new { save });
     }
 
     /// <summary>
     /// POST: remover um reparador (Diogo, 21/10/2026). As saídas já feitas
     /// guardam o nome; as rotas que o usavam ficam sem reparador.
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostDeleteRepairerAsync(
         [FromForm(Name = "repairer_id")] int? repairerId)
     {
         var outcome = await deleteRepairer.HandleAsync(
             new DeleteBqRepairer(repairerId ?? 0), HttpContext.RequestAborted);
         var save = outcome.Result == BqRepairerWriteResult.Success ? "ok-removido" : "reparador-inexistente";
-        return RedirectToPage("/Boquilhas/Definicoes", new { save });
+        return RedirectToPage("/Definicoes/Index", new { save });
     }
 
     /// <summary>
@@ -163,12 +162,13 @@ public sealed class DefinicoesModel(
     /// página envia só essa máquina (um formulário por máquina, deep sweep
     /// 18/10/2026, A1-M1).
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostSaveMachineRoutesAsync(
         [FromForm(Name = "machine_code")] List<string>? machineRoutes)
     {
         if (machineRoutes is null || machineRoutes.Count == 0)
         {
-            return RedirectToPage("/Boquilhas/Definicoes", new { save = "rota-maquina" });
+            return RedirectToPage("/Definicoes/Index", new { save = "rota-maquina" });
         }
 
         foreach (var raw in machineRoutes)
@@ -179,7 +179,7 @@ public sealed class DefinicoesModel(
 
             if (!BqRepairerRouting.TryGetMachineCode(BqRepairerRouting.SettingKeyFor(code), out _))
             {
-                return RedirectToPage("/Boquilhas/Definicoes", new { save = "rota-maquina" });
+                return RedirectToPage("/Definicoes/Index", new { save = "rota-maquina" });
             }
 
             var outcome = await saveModuleSetting.HandleAsync(
@@ -189,11 +189,11 @@ public sealed class DefinicoesModel(
             if (outcome.Result != SaveModuleSettingResult.Success
                 && outcome.Result != SaveModuleSettingResult.BoquilhasInvalidRepairerId)
             {
-                return RedirectToPage("/Boquilhas/Definicoes", new { save = "vazio" });
+                return RedirectToPage("/Definicoes/Index", new { save = "vazio" });
             }
         }
 
-        return RedirectToPage("/Boquilhas/Definicoes", new { save = "ok-rota" });
+        return RedirectToPage("/Definicoes/Index", new { save = "ok-rota" });
     }
 
     /// <summary>O tamanho máximo do Excel das Boquilhas que o navegador envia.</summary>

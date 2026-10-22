@@ -144,6 +144,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<ModuleSetting> ModuleSettings => Set<ModuleSetting>();
 
+    // As definições pessoais (Definições → Pessoal): uma por utilizador e chave.
+    public DbSet<DMO.Alpha.Core.Admin.UserSetting> UserSettings => Set<DMO.Alpha.Core.Admin.UserSetting>();
+
     public DbSet<ControloViewing> ControloViewings => Set<ControloViewing>();
 
     public DbSet<ControloAreaState> ControloAreaStates => Set<ControloAreaState>();
@@ -1336,6 +1339,15 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         // viragem do dia operacional). Chave única; o valor é texto
         // configurado pelo operador; as chaves futuras da spec
         // CONFIGURATION.md entram na mesma tabela.
+        modelBuilder.Entity<DMO.Alpha.Core.Admin.UserSetting>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.HasIndex(s => new { s.UserId, s.Key }).IsUnique();
+            entity.Property(s => s.Key).HasMaxLength(64).IsRequired();
+            entity.Property(s => s.Value).HasMaxLength(1024).IsRequired();
+            entity.HasOne<User>().WithMany().HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<ModuleSetting>(entity =>
         {
             entity.HasKey(s => s.SettingKey);

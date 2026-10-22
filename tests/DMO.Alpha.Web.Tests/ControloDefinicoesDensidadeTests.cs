@@ -56,7 +56,7 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
             ("identifier", email), ("password", password), ("returnUrl", "/"),
             ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(loginHtml)!)));
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        return client;
+        return await DefinicoesPin.DesbloquearAsync(_factory.Services, client);
     }
 
     private static async Task<string> GetAsync(HttpClient client, string url)
@@ -68,7 +68,7 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
 
     private static async Task<HttpResponseMessage> PostAsync(HttpClient client, string nnpb, string ps)
     {
-        var html = await GetAsync(client, PagePath);
+        var html = await GetAsync(client, "/Definicoes");
         return await client.PostAsync($"{PagePath}?handler=SaveGlassDensity", HtmlFormHelpers.BuildFormPost(
             ("densidade_nnpb", nnpb), ("densidade_ps", ps),
             ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(html)!)));
@@ -93,7 +93,7 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
     {
         using var client = await LoginOperatorAsync("4441", DmoCapabilities.ControloCreate);
 
-        var cartao = Cartao(await GetAsync(client, PagePath));
+        var cartao = Cartao(await GetAsync(client, "/Definicoes"));
         Assert.Contains("Densidade do vidro", cartao);
         Assert.Contains("name=\"densidade_nnpb\" inputmode=\"decimal\" size=\"8\" value=\"2.4027\"", cartao);
         Assert.Contains("name=\"densidade_ps\" inputmode=\"decimal\" size=\"8\" value=\"2.4231\"", cartao);
@@ -101,7 +101,7 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
         var response = await PostAsync(client, "2,4100", "2.4300");
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Equal("/Controlo/Definicoes?densidade=ok", response.Headers.Location!.ToString());
+        Assert.Equal("/Definicoes?densidade=ok&secao=controlo", response.Headers.Location!.ToString());
         Assert.Equal(2.41m, Guardadas()[CmProcess.Nnpb]);
         Assert.Equal(2.43m, Guardadas()[CmProcess.Ps]);
         var depois = Cartao(await GetAsync(client, response.Headers.Location!.ToString()));
@@ -119,7 +119,7 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
 
         var response = await PostAsync(client, nnpb, ps);
 
-        Assert.Equal("/Controlo/Definicoes?densidade=invalida", response.Headers.Location!.ToString());
+        Assert.Equal("/Definicoes?densidade=invalida&secao=controlo", response.Headers.Location!.ToString());
         Assert.Equal(2.4027m, Guardadas()[CmProcess.Nnpb]);
         Assert.Equal(2.4231m, Guardadas()[CmProcess.Ps]);
         var cartao = Cartao(await GetAsync(client, response.Headers.Location!.ToString()));
@@ -134,7 +134,7 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
 
         var response = await PostAsync(client, "3.5", "2.42314");
 
-        Assert.Equal("/Controlo/Definicoes?densidade=aviso-arredondada-ps-fora-nnpb", response.Headers.Location!.ToString());
+        Assert.Equal("/Definicoes?densidade=aviso-arredondada-ps-fora-nnpb&secao=controlo", response.Headers.Location!.ToString());
         Assert.Equal(3.5m, Guardadas()[CmProcess.Nnpb]);
         Assert.Equal(2.4231m, Guardadas()[CmProcess.Ps]);
         var cartao = Cartao(await GetAsync(client, response.Headers.Location!.ToString()));

@@ -47,7 +47,7 @@ public sealed partial class BqRepairerSettingsPageTests
     public async Task AdminEmailSetting_EmailSemConta_NaoGravaEAvisaComLinkParaCriarOUtilizador()
     {
         using var admin = await LoginAdminAsync();
-        var token = await GetVerificationTokenAsync(admin, SetupPath);
+        var token = await GetVerificationTokenAsync(admin, AppPath);
 
         var save = await admin.PostAsync(
             $"{SetupPath}?handler=SaveAdminEmail",
@@ -57,7 +57,7 @@ public sealed partial class BqRepairerSettingsPageTests
                 ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
         var location = save.Headers.Location?.ToString() ?? string.Empty;
-        Assert.Contains("save=admin-email-sem-conta", location, StringComparison.Ordinal);
+        Assert.Contains("app=admin-email-sem-conta", location, StringComparison.Ordinal);
 
         // Nada mudou, e o ADMIN continua dentro da app.
         Assert.Equal("repairers-admin@example.test", GuardadoNoSetup());
@@ -80,7 +80,7 @@ public sealed partial class BqRepairerSettingsPageTests
     {
         using var admin = await LoginAdminAsync();
         SeedUserWithEmail("colega@example.test");
-        var token = await GetVerificationTokenAsync(admin, SetupPath);
+        var token = await GetVerificationTokenAsync(admin, AppPath);
 
         // Sem distinguir maiúsculas nem espaços, como no login.
         var save = await admin.PostAsync(
@@ -90,7 +90,7 @@ public sealed partial class BqRepairerSettingsPageTests
                 ("admin_email_confirm", "colega@example.test"),
                 ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
-        Assert.Contains("save=ok-admin", save.Headers.Location?.ToString(), StringComparison.Ordinal);
+        Assert.Contains("app=ok-admin", save.Headers.Location?.ToString(), StringComparison.Ordinal);
         Assert.Equal("Colega@Example.test", GuardadoNoSetup());
 
         // O email novo entra e chega ao Admin.
@@ -102,7 +102,7 @@ public sealed partial class BqRepairerSettingsPageTests
             ("returnUrl", "/"),
             ("__RequestVerificationToken", loginToken)));
         Assert.Equal(HttpStatusCode.Redirect, login.StatusCode);
-        var setup = await colega.GetAsync(SetupPath);
+        var setup = await colega.GetAsync(AppPath);
         Assert.Equal(HttpStatusCode.OK, setup.StatusCode);
         Assert.Contains("value=\"Colega@Example.test\"", await setup.Content.ReadAsStringAsync(), StringComparison.Ordinal);
     }
@@ -112,7 +112,7 @@ public sealed partial class BqRepairerSettingsPageTests
     {
         // O ADMIN atual não precisa de utilizador: já entra com o email.
         using var admin = await LoginAdminAsync();
-        var token = await GetVerificationTokenAsync(admin, SetupPath);
+        var token = await GetVerificationTokenAsync(admin, AppPath);
 
         var save = await admin.PostAsync(
             $"{SetupPath}?handler=SaveAdminEmail",
@@ -121,8 +121,8 @@ public sealed partial class BqRepairerSettingsPageTests
                 ("admin_email_confirm", "Repairers-Admin@example.test"),
                 ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
-        Assert.Contains("save=ok-admin", save.Headers.Location?.ToString(), StringComparison.Ordinal);
+        Assert.Contains("app=ok-admin", save.Headers.Location?.ToString(), StringComparison.Ordinal);
         Assert.Equal("Repairers-Admin@example.test", GuardadoNoSetup());
-        Assert.Equal(HttpStatusCode.OK, (await admin.GetAsync(SetupPath)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await admin.GetAsync(AppPath)).StatusCode);
     }
 }

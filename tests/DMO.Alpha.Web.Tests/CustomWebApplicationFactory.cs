@@ -15,9 +15,6 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     public InMemoryAuthenticationProvider AuthProvider { get; } = new();
 
-    /// <summary>O modo por omissão dos módulos em desenvolvimento nos testes.</summary>
-    public string ModulosEmDesenvolvimento { get; init; } = "todos";
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -29,12 +26,6 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         builder.UseSetting(
             "Dmo:DataProtectionKeyRingPath",
             Path.Combine(Path.GetTempPath(), "dmo-alpha-web-tests", Guid.NewGuid().ToString("N")));
-
-        // Os módulos em desenvolvimento (Armazém, Reparação Interna) ficam
-        // desligados na aplicação até o ADMIN os ligar; os testes das suas
-        // páginas correm com eles ligados por omissão. Os testes dos
-        // interruptores mudam isto com WithWebHostBuilder.
-        builder.UseSetting("Dmo:ModulosEmDesenvolvimento", ModulosEmDesenvolvimento);
 
         // Os avisos do Armazém no Job On estão em espera na aplicação (Diogo,
         // 22/10/2026); os testes que os verificam correm com eles ligados.
@@ -96,12 +87,6 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
             dbContext.SaveChanges();
         }
 
-        // Os interruptores dos módulos guardados por um teste não passam ao
-        // seguinte: sem linha vale o modo por omissão da fábrica.
-        dbContext.ModuleSettings.RemoveRange(dbContext.ModuleSettings.Where(s =>
-            s.SettingKey.StartsWith(ModuleSwitchKeys.Prefix) || s.SettingKey == ModuleSwitchKeys.Testers));
-        dbContext.SaveChanges();
-        scope.ServiceProvider.GetRequiredService<ModuleSwitchCache>().Clear();
 
         dbContext.TemplateAssignments.RemoveRange(dbContext.TemplateAssignments);
         dbContext.Users.RemoveRange(dbContext.Users);

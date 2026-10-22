@@ -203,10 +203,12 @@ public sealed class AdminAuthorizationPolicyTests : IClassFixture<CustomWebAppli
         // renderizam para o ADMIN (o claim autoriza, a época é a corrente).
         var entry = await adminClient.GetAsync("/Admin");
         Assert.Equal(HttpStatusCode.Redirect, entry.StatusCode);
-        Assert.Equal("/Admin/Definicoes", entry.Headers.Location?.OriginalString);
+        Assert.Equal("/Admin/Users", entry.Headers.Location?.OriginalString);
 
+        // O Setup vive nas Definições → App (Diogo, 22/10/2026).
         var definicoes = await adminClient.GetAsync("/Admin/Definicoes/Index");
-        Assert.Equal(HttpStatusCode.OK, definicoes.StatusCode);
+        Assert.Equal("/Definicoes?secao=app", definicoes.Headers.Location?.OriginalString);
+        Assert.Equal(HttpStatusCode.OK, (await adminClient.GetAsync("/Definicoes?secao=app")).StatusCode);
 
         // The removed Setup endpoint cannot be rendered, even by Admin.
         var removedSetup = await adminClient.GetAsync("/Admin/Definicoes/Sistema");
@@ -242,7 +244,7 @@ public sealed class AdminAuthorizationPolicyTests : IClassFixture<CustomWebAppli
         var login = await LoginAsync(adminClient, "epoch-admin@example.test", "EpochAdmin123!");
         Assert.Equal(HttpStatusCode.Redirect, login.StatusCode);
 
-        var before = await adminClient.GetAsync("/Admin/Definicoes/Index");
+        var before = await adminClient.GetAsync("/Admin/Users");
         Assert.Equal(HttpStatusCode.OK, before.StatusCode);
 
         // O email do ADMIN sai das Definições: a sessão antiga deixa de
@@ -255,7 +257,7 @@ public sealed class AdminAuthorizationPolicyTests : IClassFixture<CustomWebAppli
             db.SaveChanges();
         }
 
-        var after = await adminClient.GetAsync("/Admin/Definicoes/Index");
+        var after = await adminClient.GetAsync("/Admin/Users");
         Assert.Equal(HttpStatusCode.Redirect, after.StatusCode);
         Assert.Equal("/login", after.Headers.Location?.AbsolutePath);
     }

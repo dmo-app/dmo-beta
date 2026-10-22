@@ -134,26 +134,21 @@ public sealed class DefinicoesNavTabTests : IClassFixture<CustomWebApplicationFa
         // admin o segundo tab não existe»): o tab é a ÚNICA ocorrência —
         // o item «Definições» saiu da barra da admin (a barra fica
         // Utilizadores · Templates).
-        Assert.Contains("href=\"/Admin/Definicoes\"", html, StringComparison.Ordinal);
-        Assert.Equal(1, html.Split("href=\"/Admin/Definicoes\"", StringSplitOptions.None).Length - 1);
-        Assert.Contains("style=\"margin-inline-start:auto\"", html, StringComparison.Ordinal);
-        // Desde 17/10/2026 o tab chama-se «Setup» (Diogo: «o associar email
-        // entra numa página de setup»).
-        Assert.Contains("aria-label=\"Setup (administração)\"", html, StringComparison.Ordinal);
-        Assert.Contains(">Setup</a>", html, StringComparison.Ordinal);
+        // Desde 22/10/2026 (Diogo: «setup fica dentro das definições») o
+        // tab Setup saiu: o ADMIN tem só «Definições», com a secção App.
+        Assert.Equal(1, html.Split("href=\"/Definicoes\" style=\"margin-inline-start:auto\"", StringSplitOptions.None).Length - 1);
+        Assert.DoesNotContain("href=\"/Admin/Definicoes\"", html, StringComparison.Ordinal);
+        Assert.DoesNotContain(">Setup</a>", html, StringComparison.Ordinal);
 
-        // A PÁGINA DA ADMIN: a barra interna fica Utilizadores · Templates
-        // (o item «Definições» removido — um único acesso pelo tab).
+        // A barra da admin fica Utilizadores · Templates.
         var adminPage = await (await client.GetAsync("/Admin/Users")).Content.ReadAsStringAsync();
         Assert.Contains("href=\"/Admin/Users\"", adminPage, StringComparison.Ordinal);
         Assert.Contains("href=\"/Admin/Templates\"", adminPage, StringComparison.Ordinal);
-        Assert.Equal(1, adminPage.Split("href=\"/Admin/Definicoes\"", StringSplitOptions.None).Length - 1);
-        Assert.DoesNotContain("href=\"/Admin/Definicoes?definition=", adminPage, StringComparison.Ordinal);
+        Assert.Contains("href=\"/Admin/CanalJobon\"", adminPage, StringComparison.Ordinal);
 
-        // A PÁGINA fica INTACTA e acessível ao admin (o tab muda o acesso,
-        // não a página).
+        // O endereço antigo abre as Definições → App.
         var definicoes = await client.GetAsync("/Admin/Definicoes");
-        Assert.Equal(HttpStatusCode.OK, definicoes.StatusCode);
+        Assert.Equal("/Definicoes?secao=app", definicoes.Headers.Location?.OriginalString);
     }
 
     // SAP nas Definições do Admin: o LEIA-ME saiu para a página de ajuda das
@@ -164,7 +159,7 @@ public sealed class DefinicoesNavTabTests : IClassFixture<CustomWebApplicationFa
     {
         SeedConfiguredAdmin("navtab-sap@example.test", "navtab-sap-provider", "NavTabSap1!");
         using var client = await LoginAsync("navtab-sap@example.test", "NavTabSap1!");
-        var response = await client.GetAsync("/Admin/Definicoes");
+        var response = await client.GetAsync("/Definicoes?secao=app");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = await response.Content.ReadAsStringAsync();
 

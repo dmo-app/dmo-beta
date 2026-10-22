@@ -20,6 +20,14 @@
             root.setAttribute("data-theme", novo);
             try { localStorage.setItem("dmo-tema", novo); } catch (e) { /* sem armazenamento: vale só nesta página */ }
             mostrar(botao);
+            // Guarda também na conta (Definições → Pessoal): vale noutros computadores.
+            var token = botao.getAttribute("data-dmo-tema-token");
+            if (token && window.fetch) {
+                var corpo = new FormData();
+                corpo.append("tema", novo);
+                corpo.append("__RequestVerificationToken", token);
+                fetch("/Definicoes?handler=Tema", { method: "POST", body: corpo, headers: { "Accept": "application/json" }, credentials: "same-origin" }).catch(function () { });
+            }
         });
     });
 })();

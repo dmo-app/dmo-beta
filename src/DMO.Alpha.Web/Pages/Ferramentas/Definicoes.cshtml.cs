@@ -18,12 +18,12 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 /// ferramentas já registadas.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.Ferramentas)]
+[DefinicoesEntry("ferramentas", DmoCapabilities.Ferramentas)]
 // Os limites do envio do SAP valem para a página toda: num handler o
 // ASP.NET ignora-os (aviso MVC1001) e o conteúdo ficava nos 4 MB.
 [RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
 [RequestSizeLimit(20 * 1024 * 1024)]
-public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, ShellStateFactory shellState) : PageModel
+public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap) : PageModel
 {
     /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
     public UsoSapUltimaLeitura? UltimaLeituraSap { get; private set; }
@@ -118,11 +118,14 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
         ? "Todos os totais estão definidos."
         : $"{MissingCount} de {ToolQuantities.Count} totais por definir.";
 
-    public async Task<IActionResult> OnGetAsync(int? guardado)
+    /// <summary>GET: as definições vivem na página única /Definicoes (Diogo, 22/10/2026).</summary>
+    public IActionResult OnGet() => Redirect(DefinicoesAcesso.Nova(Request, "ferramentas"));
+
+    /// <summary>Carrega o que a secção deste módulo nas Definições mostra.</summary>
+    public async Task CarregarAsync(int? guardado)
     {
         Saved = guardado == 1;
         await LoadAsync();
-        return Page();
     }
 
     /// <summary>TRUE depois de gravar sem avisos (PRG ?guardado=1).</summary>
@@ -131,39 +134,45 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
     /// <summary>O quadro submetido, devolvido quando a gravação é recusada.</summary>
     public IReadOnlyDictionary<string, string?>? ToolQuantityDraft { get; private set; }
 
+    /// <summary>TRUE quando o aviso é uma recusa (nada foi gravado).</summary>
+    public bool ToolQuantityRecusada { get; private set; }
+
     /// <summary>
     /// POST: gravar o quadro dos totais com o botão «Guardar» (Diogo,
     /// 17/10/2026: «botão pode ser apenas guardar»). Uma quantidade má não
     /// recusa as outras (decisão do proprietário, 16/10/2026): as válidas
     /// ficam gravadas e o aviso diz o que ficou de fora.
     /// </summary>
+    [DefinicaoGeral]
     public async Task<IActionResult> OnPostSaveToolLotQuantitiesAsync([FromForm] Dictionary<string, string?> quantities)
     {
         var outcome = await toolLotQuantities.SaveAsync(quantities, HttpContext.RequestAborted);
         if (outcome.Result == SaveToolLotQuantitiesResult.Success && outcome.Ignored.Count == 0)
-            return RedirectToPage("/Ferramentas/Definicoes", new { guardado = 1 });
+            return RedirectToPage("/Definicoes/Index", new { guardado = 1 });
 
-        await LoadAsync();
         if (outcome.Result == SaveToolLotQuantitiesResult.Success)
         {
             var ignored = string.Join(", ", outcome.Ignored.Select(i => $"{i.Type.ToString().ToUpperInvariant()} na {i.MachineCode} («{i.Submitted}»)"));
-            ToolQuantityWarning = $"Os outros totais foram guardados, exceto: {ignored}. Estes campos mantêm o valor anterior; use quantidades inteiras iguais ou superiores a 0.";
-            return Page();
+            TempData[AvisoTempData] = $"Os outros totais foram guardados, exceto: {ignored}. Estes campos mantêm o valor anterior; use quantidades inteiras iguais ou superiores a 0.";
+            return RedirectToPage("/Definicoes/Index");
         }
 
-        ToolQuantityDraft = quantities;
-        ToolQuantityWarning = "Uma das definições já não corresponde a uma máquina registada. Nenhuma definição foi alterada.";
-        return Page();
+        TempData[AvisoTempData] = "Uma das definições já não corresponde a uma máquina registada. Nenhuma definição foi alterada.";
+        TempData[RecusaTempData] = true;
+        return RedirectToPage("/Definicoes/Index");
     }
+
+    private const string AvisoTempData = "ferr-def-aviso";
+    private const string RecusaTempData = "ferr-def-recusa";
 
     private async Task LoadAsync()
     {
-        ViewData["Title"] = "Definições — Ferramentas";
-        ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
+        if (TempData[AvisoTempData] is string aviso)
         {
-            ActiveFunctionKey = "definicoes",
-            Functions = ShellStateFactory.FerramentasFunctions("definicoes")
-        };
+            ToolQuantityWarning = aviso;
+            ToolQuantityRecusada = TempData[RecusaTempData] is true;
+        }
+
         ToolQuantities = await toolLotQuantities.ListAsync(HttpContext.RequestAborted);
         UltimaLeituraSap = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
     }

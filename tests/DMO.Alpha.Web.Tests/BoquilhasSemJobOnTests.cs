@@ -34,13 +34,16 @@ public partial class BoquilhasRegistoPageTests
         Assert.DoesNotContain("bqSemJobOnDialog", await GetPageHtmlAsync(client, PagePath));
         var page = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1");
         Assert.Contains("<button type=\"button\" class=\"bq-sem-jobon-link\" data-dmo-dialog=\"bqSemJobOnDialog\">Registar sem Job On</button>", page);
-        Assert.Contains("<option value=\"QS173\">QS173</option>", page);
-        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-ref=\"QS173\">6</option>", page);
+        // Uma só escolha: cada opção é uma BQ (tool_id) com o que a identifica.
+        Assert.Contains("<select id=\"bqSemJobOnBq\" name=\"tool_id\" data-bq-escolha required>", page);
+        Assert.Contains("<option value=\"BQ-SEMJOB-1\" data-procura=\"qs173 · lote 5\">QS173 · Lote 5</option>", page);
+        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-procura=\"qs173 · lote 6\">QS173 · Lote 6</option>", page);
+        Assert.DoesNotContain("bqSemJobOnLote", page);
         // A linha (Diogo, 22/10/2026): ajuda a distinguir a BQ.
         Assert.Contains($"<option value=\"{c2Id}\">C2</option>", page);
 
         var (acao, campos) = EnvioDoFormulario.Enviar(page,
-            [("bqSemJobOnLote", "BQ-SEMJOB-2"), ("bqSemJobOnLinha", c2Id.ToString()), ("bqSemJobOnQtd", "4"), ("bqSemJobOnData", "2026-10-01T08:00")],
+            [("bqSemJobOnBq", "BQ-SEMJOB-2"), ("bqSemJobOnLinha", c2Id.ToString()), ("bqSemJobOnQtd", "4"), ("bqSemJobOnData", "2026-10-01T08:00")],
             radios: [("movement_type", "entrada")]);
         Assert.Contains("handler=RegistarSemJobOn", acao);
         using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
@@ -64,7 +67,8 @@ public partial class BoquilhasRegistoPageTests
         var depois = await GetPageHtmlAsync(client, location);
         Assert.Contains("Movimento registado sem Job On.", depois);
         Assert.Contains("<td>01/10/2026 08:00</td><td>Entrada</td><td>4</td><td>C2</td>", depois);
-        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-ref=\"QS173\" selected=\"selected\">6</option>", depois);
+        // Com um movimento, a opção passa a mostrar a última linha dela.
+        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-procura=\"qs173 · lote 6 · última linha c2\" selected=\"selected\">QS173 · Lote 6 · Última linha C2</option>", depois);
     }
 
     [Fact]
@@ -81,5 +85,13 @@ public partial class BoquilhasRegistoPageTests
         Assert.Contains("Indique a quantidade como um número inteiro igual ou superior a 1.", depois);
         using var scope = _factory.Services.CreateScope();
         Assert.False(await scope.ServiceProvider.GetRequiredService<DmoDbContext>().BqMovements.AnyAsync());
+    }
+
+    [Fact]
+    public void SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia()
+    {
+        var tool = new DMO.Alpha.Web.Pages.Boquilhas.SemJobOnTool("BQ-X", "QS173", "6", 120, "C1 · C2", "5447T173", "C2");
+        Assert.Equal("QS173 · Lote 6 · Qtd 120 · Máq. C1 · C2 · MF 5447T173 · Última linha C2", tool.Label);
+        Assert.Equal("QS173 · Lote 5", new DMO.Alpha.Web.Pages.Boquilhas.SemJobOnTool("BQ-Y", "QS173", "5").Label);
     }
 }

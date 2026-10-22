@@ -10,7 +10,7 @@
 <div id="resumoEnvio" class="resumo-envio" data-dmo-regiao>
   @if (Model.Mensagem.Length > 0)
   {
-    <p data-dmo-toast="erro" role="alert">@Model.Mensagem@if (Model.ResolveNasDefinicoes) {<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Definições do Controlo", "/Controlo/Definicoes", DMO.Alpha.Core.Admin.DmoCapabilities.ControloCreate))" />}</p>
+    <p data-dmo-toast="erro" role="alert">@Model.Mensagem@if (Model.ResolveNasDefinicoes) {<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Definições do Controlo", "/Definicoes?secao=controlo", DMO.Alpha.Core.Admin.DmoCapabilities.ControloCreate))" />}</p>
   }
   <button type="button" class="dmo-button" data-dmo-dialog="resumoEnvioJanela">Enviar</button>
   <dialog id="resumoEnvioJanela" class="dmo-dialog" aria-labelledby="resumoEnvioTitulo">
@@ -18,7 +18,7 @@
     <p class="resumo-envio-nota">O email abre no Outlook, com o PDF em anexo. Confirme e carregue em «Enviar» no Outlook.</p>
     @if (semDefinicoes)
     {
-      <p class="dmo-aviso-discreto" data-dmo-envio-sem-definicoes>Falta criar @(Model.Modelos.Count == 0 ? "um modelo" : "uma lista") do envio.<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Definições do Controlo", "/Controlo/Definicoes", DMO.Alpha.Core.Admin.DmoCapabilities.ControloCreate))" /></p>
+      <p class="dmo-aviso-discreto" data-dmo-envio-sem-definicoes>Falta criar @(Model.Modelos.Count == 0 ? "um modelo" : "uma lista") do envio.<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Definições do Controlo", "/Definicoes?secao=controlo", DMO.Alpha.Core.Admin.DmoCapabilities.ControloCreate))" /></p>
     }
     <form method="post" asp-page="/Controlo/EnviarPeso" class="resumo-envio-form" data-dmo-dialog-fecha-ao-enviar>
       <input type="hidden" name="jobon_id" value="@Model.JobOnId" />

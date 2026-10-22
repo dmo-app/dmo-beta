@@ -551,11 +551,24 @@ public sealed partial class IndexModel : PageModel
         {
             // «Registar sem Job On» (Diogo, 22/10/2026): as BQ registadas,
             // para a janela da página Boquilhas.
-            SemJobOnTools = await _db.Tools.AsNoTracking()
+            SemJobOnTools = (await _db.Tools.AsNoTracking()
                 .Where(t => t.Type == ToolType.Bq && t.ToolId != ToolRegistryConstants.RemovedToolId)
                 .OrderBy(t => t.Reference).ThenBy(t => t.Lot)
-                .Select(t => new SemJobOnTool(t.ToolId, t.Reference, t.Lot))
-                .ToListAsync(HttpContext.RequestAborted);
+                .Select(t => new
+                {
+                    t.ToolId, t.Reference, t.Lot, t.BqAccountedQuantity, t.AssociatedMfReference,
+                    Machines = _db.ToolMachineLinks.Where(l => l.ToolId == t.ToolId)
+                        .Select(l => l.Machine.Code).OrderBy(c => c).ToList(),
+                    LastLine = _db.BqMovements
+                        .Where(m => m.Trace.ToolId == t.ToolId && m.MachineCodeFrozen != null)
+                        .OrderByDescending(m => m.OccurredAtUtc)
+                        .Select(m => m.MachineCodeFrozen)
+                        .FirstOrDefault()
+                })
+                .ToListAsync(HttpContext.RequestAborted))
+                .Select(t => new SemJobOnTool(t.ToolId, t.Reference, t.Lot, t.BqAccountedQuantity,
+                    t.Machines.Count > 0 ? string.Join(" · ", t.Machines) : null, t.AssociatedMfReference, t.LastLine))
+                .ToList();
             SemJobOnResult = Request.Query["sem_jobon"].FirstOrDefault();
             // A linha do movimento (Diogo, 22/10/2026: ajuda a distinguir a BQ).
             SemJobOnLines = await _db.Machines.AsNoTracking()
@@ -1576,7 +1589,29 @@ public sealed record BqToolSheet(
     PagedList<BqRegisterCandidate> Registers);}
 
 /// <summary>Uma BQ na janela «Registar sem Job On».</summary>
-public sealed record SemJobOnTool(string ToolId, string Reference, string Lot);
+/// <summary>
+/// Uma BQ na escolha da janela «Registar sem Job On» (Diogo, 22/10/2026: «ao
+/// procurar as boquilhas deve mostrar os elementos que identificam a
+/// boquilha»): a referência e o lote (a identidade humana da Tool; nunca o
+/// nome técnico), a quantidade do lote, as máquinas compatíveis, a
+/// referência MF associada e a última linha onde teve movimentos.
+/// </summary>
+public sealed record SemJobOnTool(
+    string ToolId, string Reference, string Lot,
+    int? Quantity = null, string? Machines = null, string? MfReference = null, string? LastLine = null)
+{
+    public string Label => string.Join(" · ", new[]
+    {
+        Reference, $"Lote {Lot}",
+        Quantity is int q ? $"Qtd {q}" : null,
+        Machines is { Length: > 0 } m ? $"Máq. {m}" : null,
+        MfReference is { Length: > 0 } mf ? $"MF {mf}" : null,
+        LastLine is { Length: > 0 } l ? $"Última linha {l}" : null
+    }.Where(p => p is not null));
+
+    /// <summary>O texto da procura: tudo o que se vê, sem distinguir maiúsculas.</summary>
+    public string SearchText => Label.ToLowerInvariant();
+}
 
 /// <summary>Um movimento sem Job On, na ficha da BQ da página Boquilhas.</summary>
 public sealed record SemJobOnMovement(DateTime OccurredAtLocal, BqMovementType Type, int Quantity, string? MachineCode);
