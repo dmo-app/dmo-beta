@@ -20,8 +20,11 @@
    e um traço entre secções (Diogo, 18/10 e 20/10/2026). */
 .ferr-tech-bloco{display:grid;gap:6px;min-width:0;margin:0;padding:0;border:0}
 .ferr-tech-bloco[hidden]{display:none}
-.ferr-tech-titulo{display:inline-flex;align-items:center;gap:4px;padding:0;font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.04em;color:var(--dmo-brand-700,#193046)}
-.ferr-tech-campos{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.ferr-tech-titulo{display:flex;align-items:center;gap:4px;height:16px;margin:0 0 6px;padding:0;font-size:12px;line-height:16px;font-weight:750;text-transform:uppercase;letter-spacing:.04em;color:var(--dmo-brand-700,#193046)}
+/* Peso, Gargalo e Tampão: títulos iguais, alinhados em cima, e os campos na mesma linha (Diogo, 22/10/2026). */
+.ferr-create-row.ferr-tech-linha{align-items:flex-start}
+.ferr-tech-bloco{gap:0}
+.ferr-tech-campos{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
 .ferr-tech-campos > :is(.dmo-field,.dmo-fact){min-width:0;flex:0 0 auto}
 .ferr-tech-campos > .dmo-field[hidden]{display:none}
 .ferr-tech-campos > .dmo-field > :is(input,select){width:100%}

@@ -1679,7 +1679,7 @@
     (dialog.querySelector("textarea, input:not([type=hidden]), select") || dialog.querySelector(".dmo-dialog-actions > *"))?.focus();
   });
 
-  // A dica de ajuda (_DmoHelp) dentro de um <summary>: tocar no triângulo
+  // A dica de ajuda (_DmoHelp) dentro de um <summary>: tocar no círculo
   // mostra o texto sem abrir nem fechar a secção. Aí a dica não é focável
   // (o browser avisa de elementos interativos no <summary>), por isso o toque
   // abre-a com uma classe, e qualquer outro toque fecha-a.
@@ -1697,7 +1697,7 @@
 
   // A dica fica sempre dentro do ecrã (Diogo, 17/10/2026): ao abrir, o texto
   // passa a fixed (não é cortado pelos cartões) e encosta-se ao lado onde há
-  // espaço; sem espaço por baixo, abre por cima do triângulo.
+  // espaço; sem espaço por baixo, abre por cima do círculo.
   const HELP_MARGIN = 8;
   function placeHelpTip(help) {
     const tip = help.querySelector(".dmo-help-tip");

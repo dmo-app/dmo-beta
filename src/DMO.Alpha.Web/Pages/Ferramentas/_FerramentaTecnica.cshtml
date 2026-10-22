@@ -78,7 +78,7 @@
         @if (Model.VolumeTampao is { } volume)
         {
           <div class="dmo-fact ferr-w-ref" aria-live="polite">
-            <span>Volume do tampão (cm³)<partial name="_DmoHelp" model="@("Calculado com o diâmetro e a calote.")" /></span>
+            <span>Volume do tampão (cm³)<partial name="_DmoHelp" model="@("Volume de uma calote esférica, calculado com o diâmetro e a altura (calote) do tampão: V = πh(3a² + h²)/6, com a = diâmetro/2 e h = calote.")" /></span>
             <strong>@volume</strong>
           </div>
         }

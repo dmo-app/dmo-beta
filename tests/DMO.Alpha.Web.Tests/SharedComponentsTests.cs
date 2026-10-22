@@ -84,27 +84,43 @@ public sealed class SharedComponentsTests
     // A dica de ajuda (Diogo, 17/10/2026): um triângulo pequeno que inverte a
     // cor ao passar o rato e mostra o texto. Só o partial _DmoHelp a desenha.
     [Fact]
-    public void HelpTip_IsTheSharedTriangle_AndLivesOnlyInThePartial()
+    public void Caret_SoParaRecolher_ApontaParaAPalavraEAbertoParaBaixo()
+    {
+        // O triângulo fica só para o que abre e fecha (Diogo, 22/10/2026):
+        // fechado aponta para a palavra, aberto aponta para baixo.
+        var pages = Directory.GetFiles(Path.Combine(WebRoot(), "Pages"), "*.cshtml", SearchOption.AllDirectories);
+        Assert.Contains(pages, p =>
+        {
+            var text = File.ReadAllText(p);
+            return text.Contains("dmo-options-caret", StringComparison.Ordinal) || text.Contains("dmo-tab-menu-caret", StringComparison.Ordinal);
+        });
+        var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
+        Assert.Contains("html body :is(.dmo-options-caret,.dmo-tab-menu-caret){display:inline-block;width:9px;height:6px;margin-left:.4em;vertical-align:.12em;background:currentColor;clip-path:polygon(100% 0,0 50%,100% 100%)", css, StringComparison.Ordinal);
+        Assert.Contains("details[open]>summary :is(.dmo-options-caret,.dmo-tab-menu-caret){transform:rotate(-90deg)}", css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial()
     {
         var partial = File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Shared", "_DmoHelp.cshtml"));
         Assert.Contains("class=\"dmo-help-mark\"", partial, StringComparison.Ordinal);
-        Assert.Contains("<path d=\"M1 1H15L8 12.8z\" />", partial, StringComparison.Ordinal);
-        Assert.DoesNotContain(">?<", partial, StringComparison.Ordinal);
+        // Círculo vazio com «?»; o triângulo fica só para recolher (Diogo, 22/10/2026).
+        Assert.Contains("<circle cx=\"6\" cy=\"6\" r=\"5.3\" />", partial, StringComparison.Ordinal);
+        Assert.DoesNotContain("<path", partial, StringComparison.Ordinal);
 
         var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
-        Assert.Contains(".dmo-help-mark path{fill:var(--dmo-palette-mist);stroke:var(--dmo-palette-mist);", css, StringComparison.Ordinal);
+        Assert.Contains(".dmo-help-mark circle{fill:transparent;", css, StringComparison.Ordinal);
+        Assert.Contains(".dmo-help{position:relative;display:inline-flex;font-size:12px;vertical-align:.3em;", css, StringComparison.Ordinal);
         // Sempre do mesmo tamanho, não acompanha a letra (Diogo, 17/10/2026).
-        // «esse triangulo do help esta demasiado grande» (Diogo, 21/10/2026): 9 px.
-        Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:9px;height:8px}", css, StringComparison.Ordinal);
-        // O ▸/▾ dos blocos que abrem e fecham tem outra cor, para não se confundir com a ajuda.
-        Assert.Contains("summary::marker,summary.dmo-card-topo>:first-child::before{color:var(--dmo-success)}", css, StringComparison.Ordinal);
-        Assert.Contains(".dmo-help:hover .dmo-help-mark path,.dmo-help:focus .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}", css, StringComparison.Ordinal);
+        Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:12px;height:12px}", css, StringComparison.Ordinal);
+        Assert.Contains(".dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}", css, StringComparison.Ordinal);
 
         foreach (var file in PageFiles("*.cshtml"))
         {
             if (Path.GetFileName(file) == "_DmoHelp.cshtml")
                 continue;
             var html = File.ReadAllText(file);
+            Assert.DoesNotContain("caret\" aria-hidden=\"true\">▾<", html, StringComparison.Ordinal);
             Assert.False(html.Contains("dmo-help-tip", StringComparison.Ordinal) || html.Contains("dmo-help-mark", StringComparison.Ordinal),
                 $"{Path.GetFileName(file)} desenha uma dica própria; usar <partial name=\"_DmoHelp\" />.");
         }

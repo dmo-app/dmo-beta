@@ -200,23 +200,24 @@ html body .dmo-suggest-list li.active{background:var(--dmo-brand-050);color:var(
 html body .dmo-suggest-list li[aria-selected="true"]{font-weight:var(--dmo-fw-semibold)}
 html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:default;background:none}
 
-/* A dica de ajuda (partial _DmoHelp): triângulo da paleta junto ao elemento,
+/* A dica de ajuda (partial _DmoHelp): círculo vazio com «?», à direita e acima da palavra; cheio ao passar o rato,
    assente na linha de base e da altura das maiúsculas do texto ao lado; ao
    passar o rato inverte a cor (preenchido ↔ contorno) e mostra o texto.
    Num cartão sem título, .dmo-help-corner põe-no no canto de cima. */
-.dmo-help{position:relative;display:inline-flex;vertical-align:baseline;margin-left:.4em;cursor:help;outline:none;line-height:1}
-.dmo-help-mark{display:block;overflow:visible;width:9px;height:8px}
-/* O ▸/▾ dos blocos que abrem e fecham tem cor própria, para não se confundir com o triângulo da ajuda (Diogo, 21/10/2026). */
-summary::marker,summary.dmo-card-topo>:first-child::before{color:var(--dmo-success)}
-.dmo-help-mark path{fill:var(--dmo-palette-mist);stroke:var(--dmo-palette-mist);stroke-width:1.5;stroke-linejoin:round;transition:fill var(--dmo-fast),stroke var(--dmo-fast)}
-.dmo-help:hover .dmo-help-mark path,.dmo-help:focus .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}
-.dmo-help:focus-visible{outline:2px solid var(--dmo-palette-mist);outline-offset:2px;border-radius:2px}
+.dmo-help{position:relative;display:inline-flex;font-size:12px;vertical-align:.3em;margin-left:.3em;cursor:help;outline:none;line-height:1}
+.dmo-help-mark{display:block;overflow:visible;width:12px;height:12px}
+.dmo-help-mark circle{fill:transparent;stroke:var(--dmo-palette-ocean);stroke-width:1.4;transition:fill var(--dmo-fast)}
+.dmo-help-mark text{fill:var(--dmo-palette-ocean);font:700 9px/1 system-ui,sans-serif;transition:fill var(--dmo-fast)}
+.dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}
+.dmo-help:hover .dmo-help-mark text,.dmo-help:focus .dmo-help-mark text{fill:var(--dmo-card)}
+.dmo-help:focus-visible{outline:2px solid var(--dmo-palette-mist);outline-offset:2px;border-radius:50%}
 .dmo-help-tip{display:none;position:absolute;z-index:50;top:calc(100% + 6px);left:-8px;width:max-content;max-width:320px;padding:8px 10px;border-radius:var(--dmo-r-control);background:var(--dmo-palette-slate);color:var(--dmo-text-on-color);font-size:var(--dmo-fs-sm);font-weight:var(--dmo-fw-regular);letter-spacing:0;text-transform:none;text-align:left;line-height:1.4;white-space:normal;box-shadow:var(--dmo-shadow-menu)}
 .dmo-help:hover .dmo-help-tip,.dmo-help:focus .dmo-help-tip,.dmo-help:focus-within .dmo-help-tip{display:block}
 /* O texto da dica é sempre branco, mesmo dentro de blocos que pintam os <span> (como o cabeçalho da lista do Job On). */
 html body .dmo-help .dmo-help-tip{color:var(--dmo-text-on-color)}
 /* A dica dentro de um <summary> não é focável: abre com o foco do <summary> ou com um toque (classe do script). */
-summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark path,.dmo-help.dmo-help-aberta .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}
+summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark circle,.dmo-help.dmo-help-aberta .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}
+summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark text,.dmo-help.dmo-help-aberta .dmo-help-mark text{fill:var(--dmo-card)}
 summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-tip,.dmo-help.dmo-help-aberta .dmo-help-tip{display:block}
 .card:has(>.dmo-help-corner){position:relative}
 .dmo-help-corner{position:absolute;top:14px;right:14px}
@@ -234,8 +235,7 @@ html body .dmo-secondary-nav .dmo-tab-menu>summary::-webkit-details-marker{displ
 html body .dmo-secondary-nav .dmo-tab-menu>summary:hover,
 html body .dmo-secondary-nav .dmo-tab-menu>summary.active,
 html body .dmo-secondary-nav .dmo-tab-menu[open]>summary{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600)}
-html body .dmo-secondary-nav .dmo-tab-menu-caret{font-size:11px;transition:transform var(--dmo-fast)}
-html body .dmo-secondary-nav .dmo-tab-menu[open] .dmo-tab-menu-caret{transform:rotate(180deg)}
+/* Triângulo de recolher (ver .dmo-options-caret). */
 html body .dmo-secondary-nav .dmo-tab-menu-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:190px;margin-top:1px;padding:6px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
 html body .dmo-secondary-nav .dmo-tab-menu-list a{display:block;padding:9px 10px;border:0;border-radius:6px;color:var(--dmo-text);white-space:nowrap}
 html body .dmo-secondary-nav .dmo-tab-menu-list a:hover{background:var(--dmo-subtle);color:var(--dmo-brand-700)}
@@ -245,8 +245,10 @@ html body .dmo-secondary-nav .dmo-tab-menu-list a.active{background:var(--dmo-br
 html body .dmo-options{position:relative;display:inline-block}
 html body .dmo-options>summary{display:inline-flex;align-items:center;gap:6px;list-style:none;cursor:pointer;user-select:none}
 html body .dmo-options>summary::-webkit-details-marker{display:none}
-html body .dmo-options-caret{font-size:11px;transition:transform var(--dmo-fast)}
-html body .dmo-options[open] .dmo-options-caret{transform:rotate(180deg)}
+/* O triângulo só serve para recolher/abrir: estreito (isósceles, base curta),
+   à direita da palavra aponta para ela; aberto aponta para baixo. */
+html body :is(.dmo-options-caret,.dmo-tab-menu-caret){display:inline-block;width:9px;height:6px;margin-left:.4em;vertical-align:.12em;background:currentColor;clip-path:polygon(100% 0,0 50%,100% 100%);transition:transform var(--dmo-fast)}
+html body details[open]>summary :is(.dmo-options-caret,.dmo-tab-menu-caret){transform:rotate(-90deg)}
 html body .dmo-options-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:210px;margin-top:4px;padding:6px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
 html body .dmo-options-list form{display:block;margin:0}
 html body .dmo-options-item{display:block;width:100%;min-height:0;padding:9px 10px;border:0;border-radius:6px;background:none;color:var(--dmo-text);font:inherit;font-size:var(--dmo-fs-base);text-align:left;white-space:nowrap;cursor:pointer}

@@ -133,8 +133,9 @@ html body .dmo-modo .dmo-options-item[aria-current="page"]{font-weight:700;color
 .dmo-card-topo-acoes :is(.dmo-button,.button,.btn){width:auto}
 summary.dmo-card-topo{cursor:pointer;list-style:none}
 summary.dmo-card-topo::-webkit-details-marker{display:none}
-summary.dmo-card-topo>:first-child::before{content:"▸" / "";margin-right:.35em}
-details[open]>summary.dmo-card-topo>:first-child::before{content:"▾" / ""}
+/* Triângulo de recolher (só para isto): estreito, antes do título aponta para ele; aberto aponta para baixo. */
+summary.dmo-card-topo>:first-child::before{content:"";display:inline-block;padding:4.5px 3px;margin-right:.45em;vertical-align:.08em;background:currentColor;clip-path:polygon(0 0,100% 50%,0 100%);transition:transform var(--dmo-fast)}
+details[open]>summary.dmo-card-topo>:first-child::before{transform:rotate(90deg)}
 .dmo-card-dobravel{display:grid}
 .dmo-card-dobravel>:is(details,.dmo-card-topo-acoes){grid-area:1/1;min-width:0}
 .dmo-card-dobravel>.dmo-card-topo-acoes{align-self:start;justify-self:end}

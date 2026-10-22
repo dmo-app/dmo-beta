@@ -73,7 +73,7 @@ public partial class FerramentasPagesTests
             .Matches(html, $"<label for=\"{prefixo}-[a-z-]+\">([^<]+)<")
             .Select(m => m.Groups[1].Value).ToArray();
         Assert.Equal(
-            ["Tipo", "Referência", "Lote", "Quantidade do lote", "Ref. MF associada", "Nome técnico (SAP)"],
+            ["Tipo", "Referência", "Lote", "Quantidade do lote", "Ref. MF associada", "Nome técnico (produção)"],
             Rotulos(criar, "ferr-new").Take(6));
         Assert.Equal(Rotulos(criar, "ferr-new").Take(6), Rotulos(ficha, "ferr-edit"));
         // A ficha da CM só tem os campos da CM (a Marisa é da BQ).
