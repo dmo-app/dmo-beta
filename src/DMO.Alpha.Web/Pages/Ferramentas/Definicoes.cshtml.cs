@@ -19,6 +19,10 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.Ferramentas)]
+// Os limites do envio do SAP valem para a página toda: num handler o
+// ASP.NET ignora-os (aviso MVC1001) e o conteúdo ficava nos 4 MB.
+[RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
+[RequestSizeLimit(20 * 1024 * 1024)]
 public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, ShellStateFactory shellState) : PageModel
 {
     /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
@@ -50,8 +54,6 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
     /// relatório de fabrico (<see cref="FabricoSapExportacao"/>) vem pelo
     /// mesmo caminho e grava o que cada produção fez.
     /// </summary>
-    [RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
-    [RequestSizeLimit(20 * 1024 * 1024)]
     public async Task<IActionResult> OnPostImportarUsoSapAsync([FromForm] string? conteudo, [FromForm] string? ficheiro, [FromForm] long? modificado)
     {
         DateTime? modificadoEm = modificado is > 0 and < 253402300799999

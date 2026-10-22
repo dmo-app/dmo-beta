@@ -23,6 +23,9 @@ namespace DMO.Alpha.Web.Pages.Boquilhas;
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.Boquilhas)]
+// O limite do Excel vale para a página toda: num handler o ASP.NET
+// ignora-o (aviso MVC1001).
+[RequestSizeLimit(DefinicoesModel.ExcelTamanhoMaximo + 1024 * 1024)]
 public sealed class DefinicoesModel(
     IModuleSettingsQuery moduleSettings,
     ISaveModuleSettingHandler saveModuleSetting,
@@ -211,7 +214,6 @@ public sealed class DefinicoesModel(
     /// escreve; a resposta é o mesmo ficheiro com esses dias escritos, que o
     /// navegador grava por cima. O ficheiro nunca fica no servidor.
     /// </summary>
-    [RequestSizeLimit(ExcelTamanhoMaximo + 1024 * 1024)]
     public async Task<IActionResult> OnPostExcelAsync(
         [FromForm(Name = "livro")] IFormFile? livro,
         [FromForm(Name = "desde")] string? desde,
@@ -251,7 +253,6 @@ public sealed class DefinicoesModel(
     /// Escreve hoje e recua a partir de ontem até ao primeiro dia igual; a
     /// mensagem diz que dias foram atualizados. O ficheiro nunca fica no servidor.
     /// </summary>
-    [RequestSizeLimit(ExcelTamanhoMaximo + 1024 * 1024)]
     public async Task<IActionResult> OnPostExcelAtualizarAsync(
         [FromForm(Name = "livro")] IFormFile? livro,
         [FromForm(Name = "escritas")] string? escritas)

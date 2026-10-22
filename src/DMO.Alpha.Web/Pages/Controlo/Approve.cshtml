@@ -5,7 +5,6 @@
     Layout = "_DmoShellLayout";
     var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
     string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
-    string Cm3(decimal? value) => value is { } v ? v.ToString("N2", culture) + " cm³" : "—";
     string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
     string EstadoTexto(ControloRevisaoEstado estado) => estado switch
     {
@@ -154,8 +153,6 @@
         // ficar fora da decisão. Com um só, como sempre.
         var pesos = Model.Pesos.Count > 0 ? Model.Pesos : peso is null ? Array.Empty<PesoReadModel>() : new[] { peso };
         var variosPesos = pesos.Count > 1;
-        string? Juntar(IEnumerable<string?> valores) =>
-            valores.Where(v => v is not null).Distinct().ToList() is { Count: > 0 } lista ? string.Join(" / ", lista) : null;
         string CabecalhoDoPeso(PesoReadModel p, int numero) =>
             $"Peso {numero} de {pesos.Count} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(p)} · {p.Measurements.Count} leitura(s) · {(p.IsCurrent ? "ferramentas atuais" : "ferramentas anteriores")}";
         @* Sem cabeçalho (Diogo, 19/10/2026: «informação repetida»): a
