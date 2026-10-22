@@ -1,0 +1,287 @@
+@page "/Ferramentas/ReparacaoProgramada"
+@model DMO.Alpha.Web.Pages.Ferramentas.ReparacaoProgramadaModel
+@using DMO.Alpha.Core.Armazem
+@using DMO.Alpha.Web.Pages.Ferramentas
+@{
+    Layout = "_DmoShellLayout";
+    var lista = Model.Lista;
+}
+@section Head {
+<style>
+.rp-page{display:flex;flex-direction:column;gap:14px;min-width:0}
+.rp-card{padding:18px;min-width:0}
+.rp-card .dmo-card-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.rp-card .dmo-card-topo h3{margin:0;font-size:16px}
+.rp-acoes{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-left:auto}
+.rp-acoes .dmo-field{margin:0}
+.rp-filtros{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+.rp-filtros .dmo-field{margin:0;min-width:0}
+.rp-filtros-botoes{display:flex;gap:8px;margin-left:auto}
+html body .rp-filtros .dmo-field input.rp-curto{width:10ch}
+html body .rp-filtros .dmo-field input.rp-lote{width:6ch}
+html body .rp-page .dmo-field select{width:auto;max-width:22ch}
+.rp-card .dmo-table td{padding:6px 8px;vertical-align:middle}
+.rp-marca{width:34px;text-align:center}
+.rp-marca input{width:18px;height:18px;cursor:pointer}
+.rp-pos{font-variant-numeric:tabular-nums;font-weight:700}
+.rp-cabecalho{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 12px;color:var(--dmo-muted);font-size:13px}
+.rp-cabecalho strong{color:var(--dmo-text)}
+html body .rp-card .dmo-table tbody tr.rp-entrou td{color:var(--dmo-muted);background:var(--dmo-neutral-soft)}
+html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted);font-weight:600}
+.rp-saiu{font-weight:700;color:var(--dmo-amber)}
+@@media (max-width:720px){.rp-filtros-botoes,.rp-acoes{margin-left:0}}
+</style>
+}
+
+@* A Reparação Programada (Diogo, 22/10/2026). Em cima a procura (abre
+   vazia; os filtros numa linha, os botões à direita) e o associar: marcam-se
+   as ferramentas e «Associar» junta-as a uma lista nova do reparador ou a
+   uma lista ativa. Em baixo a lista, que só os movimentos do Armazém
+   atualizam. Sem botões nas linhas: a linha abre a ficha da ferramenta; a
+   caixa de marcar só marca. Cada cartão troca só a sua zona. *@
+<main class="dmo-workspace rp-page" aria-labelledby="rp-title" data-dmo-troca>
+
+  <div class="page-head">
+    <div>
+      <h1 id="rp-title">Reparação Programada<partial name="_DmoHelp" model="@("Procure as CM e os MF a enviar ao reparador, marque-os e associe-os a uma lista. Imprima a lista para quem vai retirar do armazém: cada Saída no Armazém atualiza a lista, e cada Entrada pinta a linha de cinza. A lista fecha quando a última ferramenta dá entrada.")" /></h1>
+    </div>
+  </div>
+
+  <div id="rpAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.Mensagem is { } mensagem)
+    {
+      <div data-dmo-toast="ok" class="dmo-aviso" role="status" id="rpAssociadas">@mensagem</div>
+    }
+    @if (Model.Recusa is { } recusa)
+    {
+      <div data-dmo-toast="erro" class="dmo-aviso" role="alert" id="rpRecusa">@recusa</div>
+    }
+    @foreach (var aviso in Model.Avisos)
+    {
+      <p class="dmo-aviso warn" data-dmo-aviso>@aviso</p>
+    }
+  </div>
+
+  <section id="rpProcura" class="dmo-card rp-card" aria-labelledby="rp-procura-title" data-dmo-regiao data-dmo-parcial>
+    <div class="dmo-card-topo">
+      <h3 id="rp-procura-title">Procurar ferramentas<partial name="_DmoHelp" model="@("Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote com Enter. Marque as ferramentas e associe: a uma lista nova, com o reparador, ou a uma lista ativa.")" /></h3>
+      <div class="rp-acoes">
+        <div class="dmo-field">
+          <label for="rpDestino">Lista</label>
+          <select id="rpDestino" name="destino" form="rpAssociar">
+            <option value="">Nova lista</option>
+            @foreach (var a in Model.Ativas)
+            {
+              <option value="@a.Id" selected="@(Model.ListaId == a.Id)">@ReparacaoProgramadaModel.Titulo(a)</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
+          <label for="rpReparador">Reparador<partial name="_DmoHelp" model="@("O reparador da lista nova (Armazém › Definições). Numa lista ativa, o reparador é o dela.")" /></label>
+          <select id="rpReparador" name="reparador" form="rpAssociar">
+            <option value="">Escolha…</option>
+            @foreach (var r in Model.Reparadores)
+            {
+              <option value="@r.Id">@r.Nome</option>
+            }
+          </select>
+        </div>
+        <button type="submit" form="rpAssociar" class="dmo-button" id="rpAssociarBotao">Associar</button>
+      </div>
+    </div>
+
+    <form id="rpFiltros" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros" role="search">
+      @if (Model.ListaId is { } listaAtual)
+      {
+        <input type="hidden" name="lista" value="@listaAtual" />
+      }
+      <div class="dmo-field">
+        <label for="rpTipo">Tipo</label>
+        <select id="rpTipo" name="tipo" data-dmo-autosubmit>
+          <option value="" selected="@(Model.Tipo is null)">CM e MF</option>
+          <option value="CM" selected="@(Model.TipoTexto == "CM")">CM</option>
+          <option value="MF" selected="@(Model.TipoTexto == "MF")">MF</option>
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="rpReferencia">Referência</label>
+        <input id="rpReferencia" name="referencia" class="rp-curto" value="@Model.Referencia" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="5447" />
+      </div>
+      <div class="dmo-field">
+        <label for="rpLote">Lote</label>
+        <input id="rpLote" name="lote" class="rp-lote" value="@Model.Lote" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="3" />
+      </div>
+      <div class="dmo-field">
+        <label for="rpLinha">Linha</label>
+        <select id="rpLinha" name="linha" data-dmo-autosubmit>
+          <option value="" selected="@string.IsNullOrWhiteSpace(Model.Linha)">Todas</option>
+          @foreach (var l in Model.Linhas)
+          {
+            <option value="@l" selected="@(Model.Linha == l)">@l</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="rpEstado">Estado</label>
+        <select id="rpEstado" name="estado" data-dmo-autosubmit>
+          <option value="" selected="@(Model.Estado is null)">Todos</option>
+          @foreach (var e in ReparacaoProgramadaModel.Estados)
+          {
+            <option value="@e" selected="@(Model.Estado == e)">@ArmazemTextos.Estado(e)</option>
+          }
+        </select>
+      </div>
+      <div class="rp-filtros-botoes">
+        <a class="dmo-button" id="rpLimpar" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { lista = Model.ListaId })">Limpar filtros</a>
+      </div>
+    </form>
+
+    <form id="rpAssociar" method="post" asp-page="/Ferramentas/ReparacaoProgramada" asp-page-handler="Associar">
+      <input type="hidden" name="tipo" value="@Model.TipoTexto" />
+      <input type="hidden" name="referencia" value="@Model.Referencia" />
+      <input type="hidden" name="lote" value="@Model.Lote" />
+      <input type="hidden" name="linha" value="@Model.Linha" />
+      <input type="hidden" name="estado" value="@Model.EstadoTexto" />
+    </form>
+
+    @if (Model.Procura.Vazia)
+    {
+      <p id="rpProcuraVazia"><em>Escolha um filtro e procure.</em></p>
+    }
+    else if (Model.Candidatas.Count == 0)
+    {
+      <p id="rpProcuraNada"><em>Nenhuma CM ou MF com esses filtros.</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="rpCandidatas" data-dmo-list="Ferramentas encontradas">
+          <thead><tr><th class="rp-marca"><span class="sr-only">Marcar</span></th><th>Ferramenta</th><th>% uso</th><th>Linha</th><th>Posição atual</th><th>Estado</th><th>Lista</th></tr></thead>
+          <tbody>
+          @foreach (var c in Model.Candidatas)
+          {
+            <tr data-dmo-row data-dmo-candidata="@c.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = c.ToolId })">
+              <td class="rp-marca"><input type="checkbox" name="ferramenta" value="@c.ToolId" form="rpAssociar" data-rp-marca aria-label="Marcar @ReparacaoProgramadaModel.Ferramenta(c.Tipo, c.Referencia, c.Lote)" /></td>
+              <td><strong>@ReparacaoProgramadaModel.Ferramenta(c.Tipo, c.Referencia, c.Lote)</strong></td>
+              <td>@ReparacaoProgramadaModel.Uso(c.Utilizacao)</td>
+              <td>@(c.Linhas ?? "—")</td>
+              <td>@if (c.Posicao is not null) {<span class="rp-pos">@c.Posicao</span>} else {@c.OndeEsta}</td>
+              <td>@(c.Estado is { } est ? ArmazemTextos.Estado(est) : "—")</td>
+              <td>@(c.EmLista ?? "—")</td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section id="rpLista" class="dmo-card rp-card" aria-labelledby="rp-lista-title" data-dmo-regiao data-dmo-parcial>
+    <div class="dmo-card-topo">
+      <h3 id="rp-lista-title">Lista<partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" /></h3>
+      @if (lista is not null)
+      {
+        <div class="rp-acoes">
+          <a class="dmo-button" id="rpImprimir" data-dmo-completa target="_blank" rel="noopener" href="@Url.Page("/Ferramentas/ReparacaoProgramadaImprimir", new { lista = lista.Lista.Id })">Imprimir</a>
+        </div>
+      }
+    </div>
+
+    <form id="rpEscolherLista" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros">
+      <input type="hidden" name="tipo" value="@Model.TipoTexto" />
+      <input type="hidden" name="referencia" value="@Model.Referencia" />
+      <input type="hidden" name="lote" value="@Model.Lote" />
+      <input type="hidden" name="linha" value="@Model.Linha" />
+      <input type="hidden" name="estado" value="@Model.EstadoTexto" />
+      <div class="dmo-field">
+        <label for="rpVista">Listas</label>
+        <select id="rpVista" name="vista" data-dmo-autosubmit>
+          <option value="" selected="@(!Model.VerFechadas)">Ativas</option>
+          <option value="fechadas" selected="@Model.VerFechadas">Fechadas</option>
+        </select>
+      </div>
+      @{ var escolhas = Model.VerFechadas ? Model.Fechadas : Model.Ativas; }
+      @if (escolhas.Count > 0)
+      {
+        <div class="dmo-field">
+          <label for="rpListaEscolha">Lista</label>
+          <select id="rpListaEscolha" name="lista" data-dmo-autosubmit>
+            @foreach (var a in escolhas)
+            {
+              <option value="@a.Id" selected="@(lista?.Lista.Id == a.Id)">@ReparacaoProgramadaModel.Titulo(a)</option>
+            }
+          </select>
+        </div>
+      }
+    </form>
+
+    @if (lista is null)
+    {
+      <p id="rpListaVazia"><em>@(Model.VerFechadas ? "Ainda não há listas fechadas." : "Nenhuma lista ativa. Procure as ferramentas e associe-as a um reparador.")</em></p>
+    }
+    else
+    {
+      <div class="rp-cabecalho" id="rpListaCabecalho" data-dmo-lista="@lista.Lista.Id">
+        <span>Reparador <strong>@lista.Lista.Reparador</strong></span>
+        <span>Criada <strong>@ReparacaoProgramadaModel.Dia(lista.Lista.CriadaEmUtc)</strong>@(lista.Lista.CriadaPor is { } por ? $" por {por}" : null)</span>
+        @if (lista.Lista.FechadaEmUtc is { } fechada)
+        {
+          <span id="rpListaFechada">Fechada <strong>@ReparacaoProgramadaModel.Dia(fechada)</strong>: todas deram entrada</span>
+        }
+        else
+        {
+          <span id="rpListaAtiva"><span class="dmo-pill">Ativa</span></span>
+        }
+      </div>
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="rpListaLinhas" data-dmo-list="Ferramentas da lista">
+          <thead><tr><th>Ferramenta</th><th>% uso</th><th>Linha</th><th>Posição atual</th><th>Estado</th><th>Movimento</th></tr></thead>
+          <tbody>
+          @foreach (var i in lista.Linhas)
+          {
+            var classe = i.Entrou ? "rp-entrou" : null;
+            if (i.ToolId is { } toolId)
+            {
+            <tr data-dmo-row class="@classe" data-dmo-item="@i.Id" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = toolId })">
+              <td><strong>@ReparacaoProgramadaModel.Ferramenta(i.Tipo, i.Referencia, i.Lote)</strong></td>
+              <td>@ReparacaoProgramadaModel.Uso(i.Utilizacao)</td>
+              <td>@(i.Linhas ?? "—")</td>
+              <td>@i.OndeEsta</td>
+              <td>@(i.Estado is { } est ? ArmazemTextos.Estado(est) : "—")</td>
+              <td data-dmo-progresso class="@(i.Saiu && !i.Entrou ? "rp-saiu" : null)">@ReparacaoProgramadaModel.Progresso(i)</td>
+            </tr>
+            }
+            else
+            {
+            <tr data-dmo-row class="@classe" data-dmo-item="@i.Id">
+              <td><strong>@ReparacaoProgramadaModel.Ferramenta(i.Tipo, i.Referencia, i.Lote)</strong> <span class="muted">(eliminada)</span></td>
+              <td>@ReparacaoProgramadaModel.Uso(i.Utilizacao)</td>
+              <td>@(i.Linhas ?? "—")</td>
+              <td>—</td>
+              <td>—</td>
+              <td data-dmo-progresso>@ReparacaoProgramadaModel.Progresso(i)</td>
+            </tr>
+            }
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>
+<script>
+  // A caixa de marcar só marca: não abre a ficha da linha.
+  if (!window.rpMarcaLigada) {
+    window.rpMarcaLigada = true;
+    document.addEventListener("click", function (event) {
+      var alvo = event.target;
+      if (alvo && alvo.closest && alvo.closest("td.rp-marca")) {
+        event.stopPropagation();
+        if (alvo.matches && !alvo.matches("input")) {
+          var caixa = alvo.closest("td.rp-marca").querySelector("input");
+          if (caixa) caixa.checked = !caixa.checked;
+        }
+      }
+    }, true);
+  }
+</script>

@@ -217,7 +217,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             </div>
             <div class="dmo-field">
               <label for="armEntEstado">Estado</label>
-              <select id="armEntEstado" name="estado" required>
+              <select id="armEntEstado" name="estado" required data-arm-sugerido="@(s.ListaProgramada is not null ? MovimentosModel.Valor(FerramentaEstadoTipo.Reparado) : null)">
                 <option value="" selected="@string.IsNullOrEmpty(estadoEntrada)">Escolha…</option>
                 @foreach (var opcao in ArmazemTextos.EstadosDaEntrada)
                 {
@@ -226,6 +226,14 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               </select>
             </div>
           </div>
+          @if (s.ListaProgramada is { } reparadorDaLista)
+          {
+            @* Na Reparação Programada a Entrada propõe «Reparado» (Diogo,
+               22/10/2026); a pessoa pode mudar, e o aviso aparece antes de
+               gravar. Nunca bloqueia. *@
+            <p class="dmo-aviso" id="armEntProgramada" data-dmo-aviso>Esta ferramenta está na Reparação Programada de @reparadorDaLista: o estado vem «Reparado».</p>
+            <p class="dmo-aviso warn" id="armEntEstadoAviso" role="status" hidden="@(estadoEntrada == MovimentosModel.Valor(FerramentaEstadoTipo.Reparado) ? "hidden" : null)">Mudou o estado sugerido: a ferramenta volta da Reparação Programada e entra como «Reparado». Confirme antes de registar.</p>
+          }
           @if (s.Par is { NoArmazem: false } par)
           {
             <label class="arm-par" for="armEntPar">
@@ -477,3 +485,16 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
   </div>
 </main>
 </div>
+<script>
+  // A Entrada de uma ferramenta da Reparação Programada: mudar o estado
+  // sugerido («Reparado») mostra o aviso antes de gravar (só aviso).
+  if (!window.armSugeridoLigado) {
+    window.armSugeridoLigado = true;
+    document.addEventListener("change", function (event) {
+      var campo = event.target;
+      if (!campo || campo.id !== "armEntEstado" || !campo.dataset.armSugerido) return;
+      var aviso = document.getElementById("armEntEstadoAviso");
+      if (aviso) aviso.hidden = campo.value === campo.dataset.armSugerido;
+    });
+  }
+</script>

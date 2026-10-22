@@ -236,6 +236,8 @@ public sealed class ShellStateFactory
         {
             new FunctionPresentation("ver", "Ver", "/Ferramentas", null, activeKey == "ver", true, true),
             new FunctionPresentation("criar", "Criar", "/Ferramentas?criar=1", null, activeKey == "criar", true, true),
+            // A Reparação Programada (Diogo, 22/10/2026): um separador das Ferramentas, sem chave própria.
+            new FunctionPresentation("programada", "Reparação Programada", "/Ferramentas/ReparacaoProgramada", null, activeKey == "programada", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Ferramentas/Definicoes", null, activeKey == "definicoes", true, true)
         };
 

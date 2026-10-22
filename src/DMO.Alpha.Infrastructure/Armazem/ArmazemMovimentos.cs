@@ -147,6 +147,15 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             _ => (FerramentaEstadoTipo?)null
         };
 
+        // Numa lista ativa da Reparação Programada, a Entrada propõe «Reparado».
+        var listaProgramada = posicao is null
+            ? await DMO.Alpha.Infrastructure.Programada.ReparacaoProgramadaMovimentos.ListaAtivaAsync(db, tool.ToolId, cancellationToken)
+            : null;
+        if (listaProgramada is not null)
+        {
+            estadoProposto = FerramentaEstadoTipo.Reparado;
+        }
+
         var par = await ParAsync(tool.ToolId, tool.Type, tool.Reference, tool.Lot, cancellationToken);
         var parPosicao = par is null ? null : (await PosicoesAtuaisAsync([par.ToolId], cancellationToken)).GetValueOrDefault(par.ToolId).Codigo;
 
@@ -170,7 +179,8 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             ultimos.Select(m => new ArmazemMovimentoLinha(
                 m.Id, m.Tipo, m.OcorridoEmUtc, Descricao(m, codigos), m.Observacoes, m.RegistadoPor)).ToList())
         {
-            Par = par is null ? null : new ArmazemPar(par.ToolId, par.Type, parPosicao)
+            Par = par is null ? null : new ArmazemPar(par.ToolId, par.Type, parPosicao),
+            ListaProgramada = listaProgramada
         };
     }
 
@@ -251,6 +261,12 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         await AvisosDaDataAsync(tool.ToolId, ocorrido, agora, avisos, cancellationToken);
         await AvisosDaPosicaoAsync(posicao!, tool, avisos, cancellationToken);
         var localizacao = await db.FerramentaLocalizacoes.FirstOrDefaultAsync(l => l.ToolId == tool.ToolId, cancellationToken);
+        if (pedido.Estado != FerramentaEstadoTipo.Reparado
+            && await DMO.Alpha.Infrastructure.Programada.ReparacaoProgramadaMovimentos.ListaAtivaAsync(db, tool.ToolId, cancellationToken) is { } reparadorDaLista)
+        {
+            avisos.Add($"Esta ferramenta está na Reparação Programada de {reparadorDaLista}: entrou como «{ArmazemTextos.Estado(pedido.Estado.Value)}» em vez de «Reparado».");
+        }
+
         if (localizacao?.Localizacao == FerramentaLocalizacaoTipo.Sucata)
         {
             avisos.Add("Esta ferramenta estava na Sucata. Se foi engano, a entrada fica e a ferramenta volta ao Fabrico.");
@@ -538,6 +554,13 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             operacao.ResultadoId = movimento.Id;
             await resto();
             await db.SaveChangesAsync(cancellationToken);
+            // A Reparação Programada: a Saída e a Entrada (também a do par) atualizam as listas ativas.
+            var doPar = OperacaoDoPar(movimento.OperacaoId);
+            foreach (var feito in db.ChangeTracker.Entries<ArmazemMovimento>().Select(e => e.Entity)
+                         .Where(m => m.OperacaoId == movimento.OperacaoId || m.OperacaoId == doPar).ToList())
+            {
+                await DMO.Alpha.Infrastructure.Programada.ReparacaoProgramadaMovimentos.AoMovimentoAsync(db, feito, cancellationToken);
+            }
             if (transacao is not null)
             {
                 await transacao.CommitAsync(cancellationToken);
