@@ -1297,3 +1297,35 @@ Novos: 15 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `fbaea0abc9efe7ea`
+
+## A-0049 · 2026-10-22 · ok-do-diogo
+
+Porquê: Movimentos do Armazém guardam Linha, Reparador e Job On; texto curto «Entrada 0042»/«Saída 0042» e sem «Já estava no armazém» (pedido do Diogo); lista de migrações com a nova
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy2eZhwhwphmpA9yAbNiXzTu
+Novos: 16 · mudaram: 7 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.Entrada_ComALinhaEOReparadorDoFormulario_GuardaOQueAPessoaDeixou`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.Entrada_ComOReparadorApagadoNoFormulario_FicaSemReparador`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.HistoriaDoJobOn_OReparadorCorrigidoNoRegresso_Manda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.HistoriaDoJobOn_RIEIdasAReparacao_PeloJobOnGuardadoEPelasDatasNasDeAntes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.OJobOnSegueAFerramenta_DaProducaoAReparacaoEDeVolta_ComOReparadorDaSaida`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_AntesDeAProducaoComecar_LigaAoProximoJobOnDaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_ComUmaLinhaQueNaoExiste_GravaSemLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_GuardaALinhaEOJobOnDessaFerramentaNessaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.SaidaParaProducao_NoutraLinhaSemJobOn_GuardaSoALinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemLinhaReparadorJobOnTests.cs :: ArmazemLinhaReparadorJobOnTests.Situacao_ForaPelaReparacao_PropoeALinhaEOReparadorComQueVem`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.JobOn_QuemReparouCadaFerramenta_PeloJobOnGuardadoNoMovimento`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLinhaEReparadorPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLinhaEReparadorPaginaTests.cs :: ArmazemLinhaEReparadorPaginaTests.Entrada_DaReparacao_MostraOReparadorEALinhaComQueVem_EGravaOQueAPessoaMudou`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLinhaEReparadorPaginaTests.cs :: ArmazemLinhaEReparadorPaginaTests.FichaDeUmaBq_NaoTemASeccaoDaCm`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLinhaEReparadorPaginaTests.cs :: ArmazemLinhaEReparadorPaginaTests.SaidaParaProducao_PedeALinhaDepoisDoDestino_EGravaOJobOn`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemHistoricoTests.cs :: ArmazemHistoricoTests.AFerramentaOMovimentoEODestino`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemHistoricoTests.cs :: ArmazemHistoricoTests.APaginacao_VinteECincoPorPagina`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemHistoricoTests.cs :: ArmazemHistoricoTests.SemFiltro_DoMaisRecenteParaOMaisAntigo`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Situacao_NoArmazem_MostraAPosicaoOEstadoEOsUltimosMovimentos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemHistorico.cs :: PostgresMigrationIntegrationTests.Armazem_OHistoricoFiltraNoPostgreSql`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Entrada_PeloFormulario_PoeNaPosicaoEPassaASaida`
+
+Selo depois: `ecc6ed242503eb84`

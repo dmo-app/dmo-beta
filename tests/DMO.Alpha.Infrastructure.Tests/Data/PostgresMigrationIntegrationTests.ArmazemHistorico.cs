@@ -32,7 +32,7 @@ public sealed partial class PostgresMigrationIntegrationTests
 
             Assert.Equal(2, pelaReferencia.Items.Count(l => l.ToolId == toolId));
             Assert.Equal(2, pelaPosicao.TotalCount);
-            Assert.Equal($"Saída da posição {codigos[0]} para Produção", Assert.Single(saidas.Items).Descricao);
+            Assert.Equal($"Saída {codigos[0]} para Produção", Assert.Single(saidas.Items).Descricao);
             Assert.Equal(0, amanha.TotalCount);
         }
         finally

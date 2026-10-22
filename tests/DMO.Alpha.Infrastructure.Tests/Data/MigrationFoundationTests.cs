@@ -129,7 +129,8 @@ public sealed class MigrationFoundationTests
                 "20261022081924_PesoSoParaComparacao",
                 "20261022151113_ArmazemLotesNovos",
                 "20261022155553_ReparacaoProgramada",
-                "20261022174307_FerramentaFabricaOrigem" },
+                "20261022174307_FerramentaFabricaOrigem",
+                "20261022213128_MovimentosLinhaReparadorJobOn" },
             keys);
     }
 

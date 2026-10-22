@@ -107,6 +107,12 @@ public sealed class MovimentosModel(
 
     public string? Fabrica { get; private set; }
 
+    /// <summary>A Linha escolhida (Saída para Produção, ou a Linha com que vem na Entrada).</summary>
+    public string? LinhaEscolhida { get; private set; }
+
+    /// <summary>O reparador com que a ferramenta vem, como ficou no formulário da Entrada.</summary>
+    public string? ReparadorDaVinda { get; private set; }
+
     public string? Data { get; private set; }
 
     public string? Observacoes { get; private set; }
@@ -200,17 +206,25 @@ public sealed class MovimentosModel(
         [FromForm(Name = "estado")] string? estado,
         [FromForm(Name = "data")] string? data,
         [FromForm(Name = "observacoes")] string? observacoes,
-        [FromForm(Name = "criar_posicao")] string? criarPosicao)
+        [FromForm(Name = "criar_posicao")] string? criarPosicao,
+        [FromForm(Name = "linha")] int? linha = null,
+        [FromForm(Name = "reparador_vinda")] string? reparadorVinda = null,
+        [FromForm(Name = "vinda")] string? vinda = null)
     {
+        // Com os campos da vinda no formulário, grava o que lá ficou (vazio
+        // fica vazio); sem eles (outro cliente), os da última Saída.
         var saida = await movimentos.EntradaAsync(
             new PedidoDeEntrada(Operacao(operacaoId), ToolId ?? string.Empty, posicao, OrigemDe(origem), EstadoDe(estado),
-                DataUtc(data), observacoes, criarPosicao == "1", false),
+                DataUtc(data), observacoes, criarPosicao == "1", false,
+                LinhaId: linha, Reparador: reparadorVinda, LinhaEReparadorDoFormulario: vinda == "1"),
             HttpContext.RequestAborted);
         return await Responder(saida, "entrada", operacaoId, () =>
         {
             Posicao = posicao;
             OrigemEscolhida = origem;
             EstadoEscolhido = estado;
+            LinhaEscolhida = linha?.ToString(CultureInfo.InvariantCulture);
+            ReparadorDaVinda = reparadorVinda;
             Data = data;
             Observacoes = observacoes;
         });
@@ -262,16 +276,18 @@ public sealed class MovimentosModel(
         [FromForm(Name = "fabrica")] string? fabrica,
         [FromForm(Name = "estado")] string? estado,
         [FromForm(Name = "data")] string? data,
-        [FromForm(Name = "observacoes")] string? observacoes)
+        [FromForm(Name = "observacoes")] string? observacoes,
+        [FromForm(Name = "linha")] int? linha = null)
     {
         var saida = await movimentos.SaidaAsync(
             new PedidoDeSaida(Operacao(operacaoId), ToolId ?? string.Empty, Destino, reparador, fabrica, EstadoDe(estado),
-                DataUtc(data), observacoes),
+                DataUtc(data), observacoes, Destino == ArmazemDestino.Producao ? linha : null),
             HttpContext.RequestAborted);
         return await Responder(saida, "saida", operacaoId, () =>
         {
             ReparadorEscolhido = reparador?.ToString(CultureInfo.InvariantCulture);
             Fabrica = fabrica;
+            LinhaEscolhida = linha?.ToString(CultureInfo.InvariantCulture);
             EstadoEscolhido = estado;
             Data = data;
             Observacoes = observacoes;

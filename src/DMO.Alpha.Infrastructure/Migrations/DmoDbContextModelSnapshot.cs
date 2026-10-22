@@ -169,12 +169,22 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int?>("Destino")
                         .HasColumnType("integer");
 
+                    b.Property<string>("EntradaReparadorNome")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<int?>("Estado")
                         .HasColumnType("integer");
 
                     b.Property<string>("FabricaDestino")
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
+
+                    b.Property<int?>("JobOnId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MachineId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Observacoes")
                         .HasMaxLength(200)
@@ -233,6 +243,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BqReparadorId");
+
+                    b.HasIndex("JobOnId");
+
+                    b.HasIndex("MachineId");
 
                     b.HasIndex("OcorridoEmUtc");
 
@@ -2809,6 +2823,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasOne("DMO.Alpha.Core.Boquilhas.BqRepairer", null)
                         .WithMany()
                         .HasForeignKey("BqReparadorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Production.JobOn", null)
+                        .WithMany()
+                        .HasForeignKey("JobOnId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Production.Machine", null)
+                        .WithMany()
+                        .HasForeignKey("MachineId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DMO.Alpha.Core.Armazem.ArmazemPosicao", null)
