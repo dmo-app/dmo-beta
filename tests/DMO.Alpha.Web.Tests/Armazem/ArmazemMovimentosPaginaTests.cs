@@ -158,12 +158,13 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
     }
 
     [Fact]
-    public async Task Procurar_MostraOndeEstaEAbreAFerramenta()
+    public async Task Procurar_SoNoCartaoDoTipo_MostraOndeEstaEAbreAFerramenta()
     {
         using var client = await LoginOperatorAsync("6202", DmoCapabilities.ArmazemGestao);
 
-        var pagina = await client.GetStringAsync("/Armazem/Movimentos?q=5447");
-        var lista = await client.GetStringAsync("/Armazem/Movimentos?handler=Procurar&q=t17");
+        var pagina = await client.GetStringAsync("/Armazem/Movimentos?tipo=CM&q=5447");
+        var lista = await client.GetStringAsync("/Armazem/Movimentos?handler=Procurar&tipo=BQ&q=t17");
+        var listaCm = await client.GetStringAsync("/Armazem/Movimentos?handler=Procurar&tipo=CM&q=t17");
 
         Assert.Matches("<a href=\"/Armazem/Movimentos\"[^>]*aria-current=\"page\">Registo</a>", pagina);
         var linha = Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\"");
@@ -171,8 +172,66 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Contains("Fabrico", linha);
         Assert.Contains($"/Armazem/Movimentos?ferramenta={Cm}", linha);
         Assert.Contains($"data-dmo-ferramenta=\"{Bq}\"", lista);
+        Assert.DoesNotContain($"data-dmo-ferramenta=\"{Cm}\"", lista);
+        // O cartão da CM só procura CM.
+        Assert.DoesNotContain($"data-dmo-ferramenta=\"{Bq}\"", listaCm);
         Assert.DoesNotContain("<main", lista);
-        Assert.Contains("Nenhuma ferramenta encontrada.", Elemento(await client.GetStringAsync("/Armazem/Movimentos?q=9999"), "id=\"armProcuraVazia\""));
+        var vazia = Elemento(await client.GetStringAsync("/Armazem/Movimentos?tipo=CM&q=9999"), "id=\"armProcuraVazia\"");
+        Assert.Contains("Nenhuma CM encontrada.", vazia);
+    }
+
+    [Fact]
+    public async Task Procurar_SemFerramenta_AvisaComOLinkParaAsFerramentas()
+    {
+        // Diogo: «armazem é onde se arruma a ferramenta; ferramenta tem um proprio modulo».
+        using var client = await LoginOperatorAsync("6211", DmoCapabilities.ArmazemGestao, DmoCapabilities.Ferramentas);
+
+        var vazia = Elemento(await client.GetStringAsync("/Armazem/Movimentos?handler=Procurar&tipo=MF&q=9999T1"), "id=\"armProcuraVazia\"");
+
+        Assert.Contains("Nenhum MF encontrado.", vazia);
+        Assert.Contains("href=\"/Ferramentas?criar=1&amp;type=MF&amp;reference=9999T1\"", vazia);
+    }
+
+    [Fact]
+    public async Task OPainel_TemCmMfBq_ESemTipoPedeParaEscolher()
+    {
+        using var client = await LoginOperatorAsync("6212", DmoCapabilities.ArmazemGestao);
+
+        var pagina = await client.GetStringAsync("/Armazem/Movimentos");
+        var comCm = await client.GetStringAsync("/Armazem/Movimentos?tipo=CM");
+
+        var painel = Elemento(pagina, "id=\"armTiposRail\"");
+        var cm = painel.IndexOf("data-dmo-open=\"/Armazem/Movimentos?tipo=CM\"", StringComparison.Ordinal);
+        var mf = painel.IndexOf("data-dmo-open=\"/Armazem/Movimentos?tipo=MF\"", StringComparison.Ordinal);
+        var bq = painel.IndexOf("data-dmo-open=\"/Armazem/Movimentos?tipo=BQ\"", StringComparison.Ordinal);
+        Assert.True(cm >= 0 && cm < mf && mf < bq, "CM, MF, BQ");
+        Assert.Contains("Escolha CM, MF ou BQ", Elemento(pagina, "id=\"armEscolha\""));
+        Assert.DoesNotContain("id=\"armProcura\"", pagina);
+        Assert.Contains("Registar CM", Elemento(comCm, "id=\"arm-mov-procura-title\""));
+        Assert.Contains("value=\"CM\"", Elemento(comCm, "id=\"armMovProcura\""));
+        Assert.Contains("aria-selected=\"true\"", Elemento(Elemento(comCm, "id=\"armTiposRail\""), "data-dmo-open=\"/Armazem/Movimentos?tipo=CM\""));
+        Assert.Contains("Ainda não há entradas nem saídas de CM.", Elemento(comCm, "id=\"armLogVazio\""));
+    }
+
+    [Fact]
+    public async Task OLog_MostraSoOTipo_DeTodos_EALinhaAbreAFerramenta()
+    {
+        using var client = await LoginOperatorAsync("6213", DmoCapabilities.ArmazemGestao);
+        var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Bq}");
+        // Uma ferramenta abre no cartão do tipo dela.
+        Assert.Contains("Registar BQ", Elemento(pagina, "id=\"arm-mov-procura-title\""));
+        var depois = await GravarAsync(client, pagina, "armEntRegistar",
+            ("armEntPosicao", "0042"),
+            ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
+            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo")));
+
+        var log = Elemento(depois, "id=\"armLogLista\"");
+        Assert.Contains("T173", log);
+        Assert.Contains("Operador 6213", log);
+        Assert.Contains($"data-dmo-open=\"/Armazem/Movimentos?ferramenta={Bq}\"", log);
+        Assert.DoesNotContain("<button", log);
+        Assert.Contains("1 de 1", Elemento(depois, "id=\"armLog\""));
+        Assert.Contains("Ainda não há entradas nem saídas de CM.", await client.GetStringAsync("/Armazem/Movimentos?tipo=CM"));
     }
 
     [Fact]
@@ -189,13 +248,14 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         }
         using var client = await LoginOperatorAsync("6209", DmoCapabilities.ArmazemGestao);
 
-        var pagina = await client.GetStringAsync("/Armazem/Movimentos?q=t173");
+        var pagina = await client.GetStringAsync("/Armazem/Movimentos?tipo=CM&q=t173");
+        var paginaBq = await client.GetStringAsync("/Armazem/Movimentos?tipo=BQ&q=t173");
 
         Assert.Contains("<th>Estado</th><th>Linhas</th><th>% uso</th>", Elemento(pagina, "id=\"armProcuraResultados\""));
         // A última célula de cada linha é o % de uso.
         string Uso(string linha) => System.Text.RegularExpressions.Regex.Matches(linha, "<td>([^<]*)</td>").Last().Groups[1].Value;
         Assert.Equal("47.5 %", Uso(Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\"")));
-        Assert.Equal("—", Uso(Elemento(pagina, $"data-dmo-ferramenta=\"{Bq}\"")));
+        Assert.Equal("—", Uso(Elemento(paginaBq, $"data-dmo-ferramenta=\"{Bq}\"")));
     }
 
     [Fact]

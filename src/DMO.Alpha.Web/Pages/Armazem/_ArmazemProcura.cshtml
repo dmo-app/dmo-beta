@@ -6,7 +6,10 @@
    Saída conforme está fora ou numa posição. *@
 @if (Model.Count == 0)
 {
-  <p class="muted" role="status" id="armProcuraVazia">Nenhuma ferramenta encontrada. Uma ferramenta nova regista-se primeiro nas Ferramentas.</p>
+  // O tipo e o texto vêm do pedido (a página e a procura ao escrever levam os dois).
+  var tipoProcura = DMO.Alpha.Web.Pages.Armazem.MovimentosModel.TipoDe(Context.Request.Query["tipo"]);
+  var textoProcura = ((string?)Context.Request.Query["q"])?.Trim();
+  <p class="dmo-aviso warn" role="status" id="armProcuraVazia">@(tipoProcura switch { DMO.Alpha.Core.Tools.ToolType.Mf => "Nenhum MF encontrado.", { } tp => $"Nenhuma {ArmazemTextos.Tipo(tp)} encontrada.", _ => "Nenhuma ferramenta encontrada." }) O Armazém só regista entradas e saídas: uma ferramenta nova regista-se primeiro nas Ferramentas.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(ArmazemTextos.Tipo(tipoProcura ?? DMO.Alpha.Core.Tools.ToolType.Cm), textoProcura is { Length: 4 } t4 && t4.All(char.IsAsciiDigit) ? null : textoProcura, "Registar nas Ferramentas")" /></p>
 }
 else
 {

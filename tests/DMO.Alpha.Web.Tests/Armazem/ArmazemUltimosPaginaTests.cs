@@ -150,8 +150,10 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         Assert.Contains("<title>Movimentos", html);
         var registo = html.IndexOf(">Registo</a>", StringComparison.Ordinal);
         var movimentos = html.IndexOf(">Movimentos</a>", StringComparison.Ordinal);
-        var mapa = html.IndexOf(">Mapa</a>", StringComparison.Ordinal);
-        Assert.True(registo >= 0 && registo < movimentos && movimentos < mapa, "Registo, Movimentos, Mapa");
+        var proximos = html.IndexOf(">Próximos Job On</a>", StringComparison.Ordinal);
+        Assert.True(registo >= 0 && registo < movimentos && movimentos < proximos, "Registo, Movimentos, Próximos Job On");
+        // Diogo, 22/10/2026: o Mapa já não faz falta.
+        Assert.DoesNotContain(">Mapa</a>", html);
         Assert.DoesNotContain(">Histórico</a>", html);
         Assert.DoesNotContain("/Armazem/Historico", html);
         Assert.Equal(HttpStatusCode.NotFound, antigo.StatusCode);

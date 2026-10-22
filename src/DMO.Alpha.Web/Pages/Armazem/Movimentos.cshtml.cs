@@ -1,6 +1,8 @@
 using System.Globalization;
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Armazem;
+using DMO.Alpha.Core.Paging;
+using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Web.Presentation;
@@ -22,8 +24,31 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 /// </summary>
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
-public sealed class MovimentosModel(IArmazemMovimentos movimentos, IArmazemMapa mapa, ShellStateFactory shellState) : PageModel
+public sealed class MovimentosModel(
+    IArmazemMovimentos movimentos, IArmazemMapa mapa, IArmazemHistorico historico, ShellStateFactory shellState) : PageModel
 {
+    /// <summary>Os três cartões do painel, por esta ordem (Diogo, 22/10/2026: «CM MF BQ»).</summary>
+    public static readonly IReadOnlyList<ToolType> Tipos = [ToolType.Cm, ToolType.Mf, ToolType.Bq];
+
+    /// <summary>O tipo escolhido no painel (CM, MF ou BQ); com uma ferramenta, é o dela.</summary>
+    [BindProperty(SupportsGet = true, Name = "tipo")]
+    public string? TipoTexto { get; set; }
+
+    public ToolType? Tipo { get; private set; }
+
+    /// <summary>As últimas entradas e saídas deste tipo (todas as pessoas), da mais recente para a mais antiga.</summary>
+    public PagedList<ArmazemHistoricoLinha> Log { get; private set; } = PagedList<ArmazemHistoricoLinha>.Empty;
+
+    public static string TipoValor(ToolType tipo) => ArmazemTextos.Tipo(tipo);
+
+    public static ToolType? TipoDe(string? texto) => texto?.Trim().ToUpperInvariant() switch
+    {
+        "CM" => ToolType.Cm,
+        "MF" => ToolType.Mf,
+        "BQ" => ToolType.Bq,
+        _ => null
+    };
+
     private const string FormatoData = "yyyy-MM-ddTHH:mm";
 
     [BindProperty(SupportsGet = true, Name = "q")]
@@ -111,8 +136,11 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, IArmazemMapa 
         }
     };
 
-    public async Task<IActionResult> OnGetAsync(string? gravacao, string? posicao, string[]? aviso)
+    public int Pagina { get; private set; } = 1;
+
+    public async Task<IActionResult> OnGetAsync(string? gravacao, string? posicao, string[]? aviso, int? pagina)
     {
+        Pagina = pagina is > 0 ? pagina.Value : 1;
         Gravacao = gravacao;
         RecusaPosicao = posicao;
         Avisos = aviso ?? [];
@@ -122,7 +150,8 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, IArmazemMapa 
     /// <summary>A procura ao escrever (?handler=Procurar&amp;q=): só a lista, por baixo do campo.</summary>
     public async Task<IActionResult> OnGetProcurarAsync(string? q)
     {
-        var encontradas = await movimentos.ProcurarAsync(q, HttpContext.RequestAborted);
+        Tipo = TipoDe(TipoTexto);
+        var encontradas = DoTipo(await movimentos.ProcurarAsync(q, HttpContext.RequestAborted));
         return Partial("_ArmazemProcura", encontradas);
     }
 
@@ -216,30 +245,51 @@ public sealed class MovimentosModel(IArmazemMovimentos movimentos, IArmazemMapa 
 
     private async Task<IActionResult> DesenharAsync()
     {
-        ViewData["Title"] = "Movimentos — Armazém";
+        ViewData["Title"] = "Registo — Armazém";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("armazem", "Armazém"))) with
         {
             ActiveFunctionKey = "movimentos",
             Functions = ShellStateFactory.ArmazemFunctions("movimentos")
         };
 
+        Tipo = TipoDe(TipoTexto);
         if (!string.IsNullOrWhiteSpace(ToolId))
         {
             Situacao = await movimentos.SituacaoAsync(ToolId, HttpContext.RequestAborted);
             FerramentaNaoExiste = Situacao is null;
+            // O cartão é sempre o do tipo da ferramenta: um link de outra
+            // página (a ficha, o Mapa, o par) abre já no cartão certo.
+            if (Situacao is not null)
+            {
+                Tipo = Situacao.Tipo;
+            }
             if (Situacao is { NoArmazem: false })
             {
                 PosicoesLivres = (await mapa.MapaAsync(ArmazemArmarios.Todos, ArmazemMapaFiltro.Livres, HttpContext.RequestAborted))
                     .Lista.Select(p => p.Codigo).ToList();
             }
         }
-        else if (!string.IsNullOrWhiteSpace(Procura))
+        else if (Tipo is not null && !string.IsNullOrWhiteSpace(Procura))
         {
-            Encontradas = await movimentos.ProcurarAsync(Procura, HttpContext.RequestAborted);
+            Encontradas = DoTipo(await movimentos.ProcurarAsync(Procura, HttpContext.RequestAborted));
         }
+
+        if (Tipo is { } tipo)
+        {
+            Log = await historico.ListarAsync(new ArmazemHistoricoFiltro(TipoFerramenta: tipo), Pagina, HttpContext.RequestAborted);
+        }
+
 
         return Page();
     }
+
+    private IReadOnlyList<ArmazemProcuraItem> DoTipo(IReadOnlyList<ArmazemProcuraItem> itens) =>
+        Tipo is { } tipo ? itens.Where(i => i.Tipo == tipo).ToList() : [];
+
+    /// <summary>O movimento, curto: Entrada, Saída · destino, Corrigir localização.</summary>
+    public static string Movimento(ArmazemHistoricoLinha m) => UltimosModel.Movimento(m);
+
+    public static string DataHora(DateTime utc) => DataLocal(utc);
 
     /// <summary>O valor de uma opção no formulário.</summary>
     public static string Valor<T>(T valor) where T : struct, Enum => Convert.ToInt32(valor, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
