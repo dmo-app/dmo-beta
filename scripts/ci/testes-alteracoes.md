@@ -1259,3 +1259,16 @@ Novos: 5 · mudaram: 6 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
 
 Selo depois: `66076833a517fa10`
+
+## A-0046 · 2026-10-22 · teste-novo
+
+Porquê: História de uma produção: os módulos e as suas ligações (Job On, RI, BQ, Peso, Pegamento, Armazém)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySMKCQbjDHDqNK4StKX4cvJ, cmsg_01A27e9ozcpoh4jdPRsuJbFyY8vNWWReJph26vFXSxA6MT, cmsg_01A27e9ozcpoh4jdPRsuJbFyTmS6KYpHKMqSDWhsg9NugJ, cmsg_01A27e9ozcpoh4jdPRsuJbFyL19wGTjcKJZaz9UcWt9EPV
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.JobOnAntigo_MostraQuemReparouCadaFerramenta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.MudarOJobOn_NaoPerdeNadaDosOutrosModulos`
+
+Selo depois: `771fcfc9beca2c80`
