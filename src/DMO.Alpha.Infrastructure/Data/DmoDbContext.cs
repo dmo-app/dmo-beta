@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Boquilhas;
@@ -201,7 +202,13 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(t => t.Capabilities)
                 .HasConversion(
                     c => TemplateCapabilityTokens.ToStorage(c),
-                    s => TemplateCapabilityTokens.FromStorage(s))
+                    s => TemplateCapabilityTokens.FromStorage(s),
+                    // A lista compara-se pelo conteúdo: o EF vê a mudança
+                    // mesmo quando a mesma lista é alterada no sítio.
+                    new ValueComparer<IReadOnlyList<string>>(
+                        (a, b) => (a ?? Array.Empty<string>()).SequenceEqual(b ?? Array.Empty<string>()),
+                        c => c.Aggregate(0, (h, s) => HashCode.Combine(h, s.GetHashCode())),
+                        c => c.ToList()))
                 .IsRequired();
         });
 

@@ -260,7 +260,7 @@ public sealed class DefinicoesModel(
     private IActionResult VoltarDaLista(EnvioEmailGravacao resultado) =>
         RedirectToPage("/Controlo/Definicoes", resultado switch
         {
-            { Gravado: true, Ignorados.Count: > 0 } => new { envio = "aviso-lista", fora = string.Join(", ", resultado.Ignorados) },
+            { Gravado: true, Ignorados.Count: > 0 } => new { envio = "aviso-lista", fora = (string?)string.Join(", ", resultado.Ignorados) },
             { Gravado: true } => new { envio = "ok-lista", fora = (string?)null },
             _ => new { envio = resultado.Estado.ToString(), fora = (string?)null }
         });
