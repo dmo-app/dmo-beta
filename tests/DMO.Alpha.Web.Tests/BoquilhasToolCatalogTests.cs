@@ -70,7 +70,7 @@ public partial class BoquilhasRegistoPageTests
         Assert.Contains("Ficha da boquilha — T173 · Lote 24/33", html);
         Assert.Contains("Máquinas compatíveis: B1", html);
         Assert.Contains("Editar ficha / duplicar lote", html);
-        Assert.Contains("handler=OpenHistoricalRegister", html);
+        Assert.Contains("handler=RegistarSemJobOn", html);
         ExportCatalogEvidence("sheet", html);
     }
 
@@ -189,13 +189,14 @@ public partial class BoquilhasRegistoPageTests
         Assert.Equal(new ToolCandidateFilter(Type: ToolType.Bq, MachineId: b1.Id, Search: "t17"), filtros[1]);
         Assert.Single(Regex.Matches(comMaquina, "name=\"bq_tool\""));
         Assert.Contains("value=\"BQ-MAQ-B1\"", comMaquina);
-        Assert.DoesNotContain("BQ-MAQ-C3", comMaquina);
+        // (A janela «Registar sem Job On» lista todas as BQ; a lista é que reduz.)
+        Assert.DoesNotContain("value=\"BQ-MAQ-C3\" aria-label", comMaquina);
         Assert.Contains("1 encontrada(s)", comMaquina);
 
         // O lote também mostra a lista, e a máquina continua só a reduzir.
         var porLote = await client.GetStringAsync("/Boquilhas?ficheiros=1&q=24%2F02");
         Assert.Contains("value=\"BQ-MAQ-C3\"", porLote);
-        Assert.DoesNotContain("BQ-MAQ-B1", porLote);
+        Assert.DoesNotContain("value=\"BQ-MAQ-B1\" aria-label", porLote);
         var loteNoutraMaquina = await client.GetStringAsync($"/Boquilhas?ficheiros=1&q=24%2F02&machine_id={b1.Id}");
         Assert.DoesNotContain("name=\"bq_tool\"", loteNoutraMaquina);
         Assert.Contains("0 encontrada(s)", loteNoutraMaquina);

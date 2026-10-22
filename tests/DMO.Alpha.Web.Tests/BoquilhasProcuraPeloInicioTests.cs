@@ -5,56 +5,26 @@ using Xunit;
 
 namespace DMO.Alpha.Web.Tests;
 
-// Deep sweep 2 (18/10/2026): a referência procura-se pelo início dela ou da
-// parte BQ, nunca a meio (F-2); a BQ encontrada por uma produção diz qual e
-// abre o registo dela (F-14); o «Associar Job On» lista as produções pelo
+// Deep sweep 2 (18/10/2026): o «Associar Job On» lista as produções pelo
 // início da referência ou da parte BQ, nunca a meio (F-1); a pesquisa do Histórico sugere as
-// referências das produções e a dica fala num clique (F-15).
+// referências das produções e a dica fala num clique (F-15). A procura das
+// BQ no Registo saiu (Diogo, 22/10/2026): o ProcurarBq já não responde.
 public partial class BoquilhasRegistoPageTests
 {
     [Fact]
-    public async Task Procura_PorUmaProducaoAntiga_DizQualEAbreORegistoDela()
+    public async Task ProcurarBq_JaNaoResponde_ComALista()
     {
-        await SeedToolAsync("BQ-INICIO-1", "QY171", "3");
-        await SeedToolAsync("BQ-INICIO-2", "T350", "1");
-        var antiga = await SeedProductionAsync("BQ-INICIO-1", "2847QY171", "PN-880001", "B3");
-        var atual = await SeedProductionAsync("BQ-INICIO-1", "4526QY171", "PN-880002", "B4");
-        await SeedProductionAsync("BQ-INICIO-2", "4996T350", "PN-880003", "B5");
-        var hoje = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
-        using (var scope = _factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            var jobOn = await db.JobOns.SingleAsync(j => j.ProductionNumber == "PN-880002");
-            jobOn.InicioEm = hoje.AddDays(-1);
-            await db.SaveChangesAsync();
-        }
-
-        SeedUser("4196", "Registo Procura Início", "provider-registo-procura-inicio", "RegistoInicio1!");
-        using var client = await LoginClientAsync("4196", "RegistoInicio1!");
-
-        // Pela referência de uma produção antiga: a linha diz em que produção
-        // foi encontrada e o clique abre o registo dessa produção.
-        var porAntiga = await GetPageHtmlAsync(client, "/Boquilhas?handler=ProcurarBq&q=2847");
-        Assert.Contains("<td><strong>QY171</strong></td>", porAntiga);
-        Assert.Contains("Em produção", porAntiga);
-        Assert.Contains("B4 · 4526QY171 · PN-880002", porAntiga);
-        Assert.Contains("Encontrada na produção B3 · 2847QY171 · PN-880001", porAntiga);
-        Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={antiga.Id}\"", porAntiga);
-
-        // Pela produção que está em máquina: nada a acrescentar.
-        var porAtual = await GetPageHtmlAsync(client, "/Boquilhas?handler=ProcurarBq&q=4526");
-        Assert.DoesNotContain("Encontrada na produção", porAtual);
-        Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={atual.Id}\"", porAtual);
-
-        // Pela própria BQ (a parte BQ da referência): abre a produção em máquina.
-        var porBq = await GetPageHtmlAsync(client, "/Boquilhas?handler=ProcurarBq&q=qy17");
-        Assert.DoesNotContain("Encontrada na produção", porBq);
-        Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={atual.Id}\"", porBq);
-
-        // «35» a meio da BQ T350 e da referência 4996T350 já não encontra nada;
-        // «T35», a parte BQ, encontra.
-        Assert.Contains("Nenhuma boquilha encontrada.", await GetPageHtmlAsync(client, "/Boquilhas?handler=ProcurarBq&q=35"));
-        Assert.Contains("<td><strong>T350</strong></td>", await GetPageHtmlAsync(client, "/Boquilhas?handler=ProcurarBq&q=t35"));
+        // Sem «Procurar / trocar» (Diogo, 22/10/2026): o handler saiu; o pedido
+        // cai na página, sem a lista da procura.
+        await SeedToolAsync("BQ-SEM-PROCURA", "QY179", "3");
+        SeedUser("4293", "Registo Sem Procura", "provider-registo-sem-procura", "RegistoSemProc1!");
+        using var client = await LoginClientAsync("4293", "RegistoSemProc1!");
+        using var response = await client.GetAsync("/Boquilhas?handler=ProcurarBq&q=qy17");
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode is System.Net.HttpStatusCode.NotFound || html.Contains("<!DOCTYPE html>", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain("QY179", html);
+        Assert.DoesNotContain("Nenhuma boquilha encontrada.", html);
+        Assert.DoesNotContain("class=\"bq-procura", html);
     }
 
     [Fact]

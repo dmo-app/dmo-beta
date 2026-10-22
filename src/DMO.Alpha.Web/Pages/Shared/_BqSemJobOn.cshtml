@@ -1,0 +1,79 @@
+@model DMO.Alpha.Web.Pages.Boquilhas.IndexModel
+@* A JANELA «REGISTAR SEM JOB ON» (Diogo, 22/10/2026): só o essencial — a
+   BQ e o lote, o movimento, a quantidade, a data e hora e «Registar». Grava
+   pelo RegistarSemJobOn e volta a esta página com a ficha da BQ e os
+   movimentos sem Job On dela. Com uma recusa, a janela abre outra vez com a
+   frase. *@
+<div id="bqSemJobOn" class="dmo-zona" data-dmo-regiao>
+@if (Model.SemJobOnTools.Count > 0)
+{
+  var recusa = Model.SemJobOnResult is { Length: > 0 } r && r != "ok";
+  var escolhida = Model.ToolSheet?.ToolId;
+  var referenciaEscolhida = Model.SemJobOnTools.FirstOrDefault(t => t.ToolId == escolhida)?.Reference;
+    @if (Model.SemJobOnResult == "ok")
+    {
+      <p data-dmo-toast="ok" class="result" role="status">@Model.SemJobOnMessage</p>
+    }
+    <dialog id="bqSemJobOnDialog" class="dmo-dialog bq-sem-jobon-janela" aria-labelledby="bqSemJobOnTitulo"@(recusa ? Html.Raw(" data-dmo-dialog-aberta=\"1\"") : null)>
+      <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegistarSemJobOn">
+        <h3 id="bqSemJobOnTitulo">Registar sem Job On</h3>
+        @if (recusa)
+        {
+          <div class="jobon-aviso warn" role="alert">@Model.SemJobOnMessage</div>
+        }
+        <div class="bq-sem-jobon-campos bq-sem-jobon-tres">
+          <div class="dmo-field">
+            <label for="bqSemJobOnRef">BQ</label>
+            <select id="bqSemJobOnRef" data-bq-sem-jobon-ref required>
+              <option value="">Escolher</option>
+              @foreach (var referencia in Model.SemJobOnTools.Select(t => t.Reference).Distinct())
+              {
+                <option value="@referencia" selected="@(referencia == referenciaEscolhida)">@referencia</option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field">
+            <label for="bqSemJobOnLote">Lote</label>
+            <select id="bqSemJobOnLote" name="tool_id" data-bq-sem-jobon-lote required>
+              <option value="">Escolher</option>
+              @foreach (var tool in Model.SemJobOnTools)
+              {
+                <option value="@tool.ToolId" data-ref="@tool.Reference" selected="@(tool.ToolId == escolhida)">@tool.Lot</option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field">
+            <label for="bqSemJobOnLinha">Linha</label>
+            <select id="bqSemJobOnLinha" name="movement_machine_id" required>
+              <option value="">Escolher</option>
+              @foreach (var linha in Model.SemJobOnLines)
+              {
+                <option value="@linha.MachineId">@linha.Code</option>
+              }
+            </select>
+          </div>
+        </div>
+        <fieldset class="bq-movement-types bq-sem-jobon-tipos">
+          <legend class="visually-hidden">Movimento</legend>
+          <label><input type="radio" name="movement_type" value="saida" checked required /><span>↗ Saída</span></label>
+          <label><input type="radio" name="movement_type" value="entrada" /><span>↙ Entrada</span></label>
+          <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" /><span>↙ Entrada sem reparação</span></label>
+        </fieldset>
+        <div class="bq-sem-jobon-campos">
+          <div class="dmo-field">
+            <label for="bqSemJobOnQtd">Quantidade</label>
+            <input id="bqSemJobOnQtd" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" />
+          </div>
+          <div class="dmo-field">
+            <label for="bqSemJobOnData">Data e hora reais</label>
+            <input id="bqSemJobOnData" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
+          </div>
+        </div>
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+          <button type="submit" class="dmo-button">Registar</button>
+        </div>
+      </form>
+    </dialog>
+}
+</div>

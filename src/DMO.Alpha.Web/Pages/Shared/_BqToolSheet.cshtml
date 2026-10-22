@@ -15,27 +15,34 @@
               <div><span>Registos</span><strong>@sheet.Registers.TotalCount</strong></div>
             </div>
 
-            <details class="filter-bar bq-historical-form" style="margin:14px 0 0">
-              <summary>+ Registo com data antiga</summary>
-              <h3 style="margin:0 0 10px">Recuperar movimentos antigos<partial name="_DmoHelp" model="@("Inicia um registo nesta boquilha sem preencher número ou referência de produção. Podes associar o Job On mais tarde.")" /></h3>
-              <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="OpenHistoricalRegister">
-                <input type="hidden" name="tool_id" value="@sheet.ToolId" />
-                <div class="filter-grid">
-                  <div class="field dmo-field">
-                    <label for="bqSheetMachines">Máquinas compatíveis<partial name="_DmoHelp" model="@("Máquina do movimento: escolha no registo, ao guardar a saída.")" /></label>
-                    <input id="bqSheetMachines" value="@(sheet.Machines.Count > 0 ? string.Join(", ", sheet.Machines) : "—")" readonly />
-                  </div>
-                  <div class="field dmo-field">
-                    <label for="firstOccurred">Data/hora do primeiro movimento</label>
-                    <input id="firstOccurred" name="first_occurred" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
-                  </div>
-                  <div class="field dmo-field">
-                    <span class="dmo-label" aria-hidden="true">&nbsp;</span>
-                    <button type="submit" class="btn primary">Abrir registo desta boquilha</button>
-                  </div>
+            @* OS MOVIMENTOS SEM JOB ON desta BQ (Diogo, 22/10/2026): gravam-se
+               na janela «Registar sem Job On» e veem-se aqui; o Registo é só
+               para os registos de um Job On. *@
+            <div id="bqSemJobOnMovimentos" class="bq-sem-jobon-movimentos">
+              <div class="card-head" style="margin:14px 0 4px">
+                <div>
+                  <h3>Movimentos sem Job On<partial name="_DmoHelp" model="@("Os movimentos desta BQ registados sem Job On, do mais recente para o mais antigo. Registam-se em «Registar sem Job On», no topo da página.")" /></h3>
                 </div>
-              </form>
-            </details>
+              </div>
+              @if (Model.SemJobOnMovements.Count > 0)
+              {
+                <div class="dmo-table-wrap">
+                  <table class="dmo-table" id="bqSemJobOnTabela">
+                    <thead><tr><th>Data/hora</th><th>Movimento</th><th>Qtd.</th><th>Linha</th></tr></thead>
+                    <tbody>
+                      @foreach (var m in Model.SemJobOnMovements)
+                      {
+                        <tr><td>@m.OccurredAtLocal.ToString("dd/MM/yyyy HH:mm")</td><td>@DMO.Alpha.Core.Boquilhas.BqMovementLabels.Of(m.Type.ToString())</td><td>@m.Quantity</td><td>@(m.MachineCode ?? "—")</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              else
+              {
+                <p class="muted" style="margin:4px 0 0">Ainda sem movimentos sem Job On nesta BQ.</p>
+              }
+            </div>
 
             @if (sheet.Registers.TotalCount > 0)
             {
@@ -69,7 +76,7 @@
             }
             else
             {
-              <p class="muted" style="margin:12px 0 0">Ainda sem registos nesta boquilha — o «+ Registo com data antiga» abre o primeiro.</p>
+              <p class="muted" style="margin:12px 0 0">Ainda sem registos nesta boquilha.</p>
             }
           </div>
         }
