@@ -1116,8 +1116,8 @@ Selo depois: `ec4f12892d2ba255`
 
 ## A-0043 · 2026-10-22 · ok-do-diogo
 
-Porquê: Reparação Programada no módulo Ferramentas: procurar CM/MF com filtros, associar a uma lista por reparador, imprimir pelo navegador; as saídas e entradas do Armazém atualizam a lista (entrada a cinzento com data, posição e nome) e a lista fecha com a última entrada; na entrada sugere-se «Reparado», sem bloquear. As listas de tabelas dos testes de esquema ganham as duas tabelas novas.
-Referência: Diogo 22/10 15:14–15:23 (cmsg_01A27e9ozcpoh4jdPRsuJbFy1cW4SLjtJXkpk8oM1WN5PB, cmsg_01A27e9ozcpoh4jdPRsuJbFyFvoCqZxBCfbNiMCSCaYUJr, cmsg_01A27e9ozcpoh4jdPRsuJbFy9qgxfrBEJB18gAj73jMxV9, cmsg_01A27e9ozcpoh4jdPRsuJbFyREJtBGBtAMys1aMqhj4ScT)
+Porquê: Reparação Programada (testes novos, com os dois asserts pedidos pelo Guardião)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyREJtBGBtAMys1aMqhj4ScT
 Novos: 12 · mudaram: 5 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: (resto do ficheiro)`
@@ -1138,4 +1138,4 @@ Novos: 12 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
-Selo depois: `a1b5a2538a12e0b1`
+Selo depois: `e29d4addd35df065`
