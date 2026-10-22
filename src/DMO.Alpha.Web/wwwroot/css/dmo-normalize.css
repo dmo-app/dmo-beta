@@ -360,3 +360,13 @@ html body [data-dmo-a-gravar]:is(button,input[type=submit],input[type=image]){cu
 
 /* Uma zona do «atualizar só o que muda» (data-dmo-regiao) dentro de um flex ou grid com gap: a zona não cria caixa, os cartões ficam com o espaço de sempre. */
 .dmo-zona{display:contents}
+
+/* Ecrã pequeno (teste no Chromium de 22/10/2026: o Peso e os Pegamentos passavam da largura a 360 px). Só abaixo de 600 px; o desktop fica igual.
+   A etiqueta do ambiente encolhe com reticências para o «Sair» caber; as funções do módulo passam à linha seguinte em vez de saírem do ecrã; os botões do topo de um cartão quebram o texto. */
+@media(max-width:600px){
+html body .dmo-shell-header .dmo-env-badge{flex:0 1 auto;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block;line-height:26px}
+html body .dmo-shell-navigation>.dmo-secondary-nav:has(.dmo-tab-menu){flex-wrap:wrap;height:auto;row-gap:0}
+html body .dmo-shell-navigation>.dmo-secondary-nav:has(.dmo-tab-menu)>:is(a,.dmo-tab-menu){min-height:44px}
+html body .dmo-card-topo-acoes{min-width:0;max-width:100%}
+html body .dmo-card-topo-acoes :is(.dmo-button,.button,.btn){white-space:normal;text-align:center}
+}

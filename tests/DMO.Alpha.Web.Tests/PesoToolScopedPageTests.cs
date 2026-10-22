@@ -343,6 +343,8 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         Assert.Equal(HttpStatusCode.Redirect, secondReading.StatusCode);
 
         pesoHtml = await GetPageHtmlAsync(client, pesoUrl);
+        // A folha com leituras vai para o Chromium (tests/visual/ecra_pequeno_browser.py).
+        ExportarParaOBrowser.Gravar("peso-folha.html", pesoHtml);
 
         // Cálculo por leitura com a tabela real da fábrica (0,99717 @ 20°C):
         // 199,64 → capacidade 200,2066 → (200,2066 + 10 − 30) × 2,5 = 450,52 g
