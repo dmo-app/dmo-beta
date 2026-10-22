@@ -1298,7 +1298,7 @@ Novos: 15 · mudaram: 1 · saíram: 0
 
 Selo depois: `fbaea0abc9efe7ea`
 
-## A-0049 · 2026-10-22 · ok-do-diogo
+## A-0052 · 2026-10-22 · ok-do-diogo
 
 Porquê: Movimentos do Armazém guardam Linha, Reparador e Job On; texto curto «Entrada 0042»/«Saída 0042» e sem «Já estava no armazém» (pedido do Diogo); lista de migrações com a nova
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy2eZhwhwphmpA9yAbNiXzTu
