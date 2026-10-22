@@ -52,4 +52,8 @@ public sealed record DmoRailItem(
     string Detail,
     string? Href = null,
     string? AriaLabel = null,
-    string? Key = null);
+    string? Key = null,
+    // Uma segunda linha de detalhe (a Reparação Interna: a CM e o MF com o lote).
+    string? Extra = null,
+    // A linha aberta na página (o servidor sabe qual é): nasce `selected`.
+    bool Selected = false);

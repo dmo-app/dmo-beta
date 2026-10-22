@@ -1,0 +1,36 @@
+@model DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel
+@using DMO.Alpha.Core.ReparacaoInterna
+@* A janela da reparação (Diogo, 22/10/2026: sem botões nas linhas; o duplo
+   clique abre o registo e as opções vivem aqui): corrigir o número ou
+   anular, com o motivo opcional. Uma só, fora das zonas que trocam; o
+   ri-corrigir.js enche-a com a linha, a vista de onde veio e um envio novo.
+   Gravar fecha a janela e troca só o que muda. *@
+<div data-dmo-parcial>
+  <dialog id="riCorrigirJanela" class="dmo-dialog ri-janela" aria-labelledby="riCorrigirTitulo">
+    <h3 id="riCorrigirTitulo">Reparação nº <span data-ri-numero-texto></span></h3>
+    <form id="riCorrigir" method="post" asp-page="/ReparacaoInterna/Index" asp-page-handler="Corrigir" data-dmo-dialog-fecha-ao-enviar>
+      <input type="hidden" id="riCorrigirOperacao" name="operacao_id" />
+      <input type="hidden" id="riCorrigirId" name="reparacao_id" />
+      <input type="hidden" id="riCorrigirMaquina" name="maquina" />
+      <input type="hidden" id="riCorrigirProducao" name="producao" />
+      <input type="hidden" id="riCorrigirTipo" name="tipo" />
+      <input type="hidden" id="riCorrigirDia" name="dia" />
+      <input type="hidden" id="riCorrigirPagina" name="pagina" />
+      <input type="hidden" id="riCorrigirVolta" name="volta" />
+      <div class="dmo-field">
+        <label for="riCorrigirNumero">Número</label>
+        <input id="riCorrigirNumero" name="numero" maxlength="@Reparacao.NumeroMaxLength" autocomplete="off" required />
+      </div>
+      <div class="dmo-field">
+        <label for="riCorrigirMotivo">Motivo (opcional)</label>
+        <input id="riCorrigirMotivo" name="motivo" maxlength="@ReparacaoRasto.MotivoMaxLength" autocomplete="off" />
+      </div>
+      <p class="dmo-aviso-discreto">Linha, CM/MF ou produção errados: anule e registe outra vez. Anular tira-a da lista; o registo e o rasto ficam.</p>
+      <div class="dmo-dialog-actions">
+        <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+        <button type="submit" class="dmo-button" id="riAnularBotao" formaction="@Url.Page("/ReparacaoInterna/Index", "Anular")" formnovalidate>Anular</button>
+        <button type="submit" class="dmo-button" id="riGuardarBotao">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+</div>

@@ -181,17 +181,33 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         Assert.Contains("Reparação Interna", Elemento(html, "id=\"ri-title\""));
         Assert.Matches("<a href=\"/ReparacaoInterna\"[^>]*aria-current=\"page\">Registar</a>", html);
-        // Sem dropdown de máquinas: cada máquina no seu cartão (Diogo, 21/10/2026).
-        Assert.DoesNotContain("id=\"riMaquina\"", html);
-        Assert.Contains($">{codigo}</h3>", Elemento(html, $"id=\"riCard-{codigo}\""));
+        // As tabs: Registar, Histórico (o desta pessoa) e Consultar.
+        Assert.Contains("href=\"/ReparacaoInterna?historico=1\"", html);
+        // O painel lateral das Boquilhas (o rail único) com as linhas; sem
+        // linha escolhida, o registo pede-a (Diogo, 22/10/2026).
+        var painel = Elemento(html, "id=\"riLinhasRail\"");
+        Assert.Contains("beta-production-rail", painel);
+        Assert.Contains($"<strong>{codigo}</strong>", painel);
+        Assert.Contains($"data-dmo-open=\"/ReparacaoInterna?maquina={codigo}\"", painel);
+        Assert.Contains("55A1T324 · A01", painel);
+        Assert.Contains("CM lote 2 · MF lote 2", painel);
+        Assert.DoesNotContain("Máquina", painel);
+        Assert.Contains("Escolha a linha no painel lateral para registar.", Elemento(html, "id=\"riRegisto\""));
+        Assert.DoesNotContain($"id=\"riCard-{codigo}\"", html);
         // Atualizar só o que muda: a raiz, as zonas e os cliques parciais.
         Assert.Contains("data-dmo-troca", html);
-        foreach (var zona in new[] { "riAvisos", $"riCard-{codigo}" })
+        foreach (var zona in new[] { "riAvisos", "riRegisto", "riLinhas" })
         {
             Assert.Contains("data-dmo-regiao", Elemento(html, $"id=\"{zona}\""));
         }
 
-        Assert.Contains("data-dmo-parcial", Elemento(html, $"id=\"riCard-{codigo}\""));
+        Assert.Contains("data-dmo-parcial", Elemento(html, "id=\"riLinhas\""));
+        Assert.Contains("data-dmo-parcial", Elemento(html, "id=\"riRegisto\""));
+
+        // Escolhida, a linha fica marcada no painel e abre o registo dela.
+        var escolhida = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}");
+        Assert.Contains($"Linha {codigo}</h3>", Elemento(escolhida, $"id=\"riCard-{codigo}\""));
+        Assert.Matches($"<button type=\"button\" class=\"selected\"[^>]*data-id=\"{codigo}\"", Elemento(escolhida, "id=\"riLinhasRail\""));
         // Depois do login, quem só tem a Reparação Interna abre-a.
         using var inicio = await client.GetAsync("/");
         Assert.Equal("/ReparacaoInterna", inicio.Headers.Location?.ToString());
@@ -209,7 +225,7 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Contains("B01 · 55B1T324", Elemento(contexto, $"data-dmo-producao=\"{jobOns[0]}\""));
         Assert.DoesNotContain("Molde técnico secreto", html);
         Assert.DoesNotContain("dmo-aviso", contexto);
-        Assert.Contains("Ainda não há reparações nesta produção.", Elemento(html, $"id=\"riLista-{codigo}\""));
+        Assert.Contains("Ainda não registou reparações nesta linha neste dia.", Elemento(html, $"id=\"riLista-{codigo}\""));
         // O OK no cartão, dentro do formulário; o campo com o cursor.
         Assert.Contains(">OK</button>", Elemento(html, $"id=\"riRegistar-{codigo}\""));
         Assert.Contains("autofocus", Campo(html, $"riNumero-{codigo}"));
@@ -228,7 +244,10 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         var linha = Elemento(depois, $"data-dmo-reparacao=\"{id}\"");
         Assert.Contains("<strong>0457</strong>", linha);
         Assert.Contains("<td>CM</td>", linha);
-        Assert.Contains("Reparador 6603", linha);
+        // O registo é desta pessoa: sem a coluna de quem; a linha abre com duplo clique.
+        Assert.DoesNotContain("Reparador 6603", linha);
+        Assert.Contains("data-dmo-row", linha);
+        Assert.Contains($"data-dmo-for=\"riLog-{codigo}\"", depois);
         Assert.DoesNotContain("<button", Elemento(depois, $"id=\"riLista-{codigo}\""));
         Assert.Contains("class=\"dmo-table\"", Elemento(depois, $"id=\"riLista-{codigo}\""));
 
@@ -251,10 +270,9 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
     private static string ForaDasZonas(string html)
     {
         var raiz = Elemento(html, "data-dmo-troca");
-        raiz = raiz.Replace(Elemento(raiz, "id=\"riAvisos\""), string.Empty, StringComparison.Ordinal);
-        while (raiz.Contains("id=\"riCard-", StringComparison.Ordinal))
+        foreach (var zona in new[] { "riAvisos", "riRegisto", "riLinhas" })
         {
-            raiz = raiz.Replace(Elemento(raiz, "id=\"riCard-"), string.Empty, StringComparison.Ordinal);
+            raiz = raiz.Replace(Elemento(raiz, $"id=\"{zona}\""), string.Empty, StringComparison.Ordinal);
         }
 
         return Regex.Replace(raiz, "name=\"__RequestVerificationToken\"[^>]*", string.Empty);
