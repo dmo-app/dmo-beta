@@ -20,22 +20,24 @@ public partial class BoquilhasRegistoPageTests
     public async Task MovimentoPeloFormularioDaPagina_GravaAQuantidadeEAMaquinaNaBQ()
     {
         await SeedToolAsync("BQ-FORM-4741", "RGT741", "3");
+        int b5Id;
         var trace = await SeedTraceAsync("BQ-FORM-4741");
         using (var scope = _factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            db.Machines.AddRange(new Machine { Code = "B3" }, new Machine { Code = "B5" });
+            var b5 = new Machine { Code = "B5" };
+            db.Machines.AddRange(new Machine { Code = "B3" }, b5);
             await db.SaveChangesAsync();
+            b5Id = b5.Id;
         }
         SeedUser("4741", "Registo Formulário", "provider-registo-formulario", "RegistoForm1!");
         using var client = await LoginClientAsync("4741", "RegistoForm1!");
 
-        // O operador abre o registo, escreve a quantidade e escolhe a máquina
-        // pelo nome; a Saída já vem marcada e a data e hora já vêm com o agora.
-        var html = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
-        var (acao, campos) = EnvioDoFormulario.Preencher(html,
-            ("quantity", "7"),
-            ("movementMachine", EnvioDoFormulario.Opcao(html, "movementMachine", "B5")));
+        // O operador abre o registo pela linha B5 do painel lateral (a
+        // máquina segue escondida, sem o campo «Máquina em uso») e escreve a
+        // quantidade; a Saída já vem marcada e a data e hora com o agora.
+        var html = await GetPageHtmlAsync(client, $"{TraceUrl(trace.Id)}&movement_machine_id={b5Id}");
+        var (acao, campos) = EnvioDoFormulario.Preencher(html, ("quantity", "7"));
         using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);

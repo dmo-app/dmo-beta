@@ -24,6 +24,7 @@ public sealed class JobOnChangeQuery
         var rows = await _db.JobOnChanges
             .AsNoTracking()
             .Where(c => c.JobOnId == jobOnId)
+            .Where(JobOnChangeFields.Counts)
             .OrderByDescending(c => c.ChangedAtUtc)
             .ThenBy(c => c.Id)
             .Select(c => new { c.JobOnId, c.Field, c.OldValueFrozen, c.NewValueFrozen, c.ChangedByNameFrozen, c.ChangedAtUtc })
@@ -93,6 +94,7 @@ public sealed class JobOnChangeQuery
         var rows = await _db.JobOnChanges
             .AsNoTracking()
             .Where(c => fields.Contains(c.Field))
+            .Where(JobOnChangeFields.Counts)
             .Where(afterTheRecord)
             .OrderByDescending(c => c.ChangedAtUtc)
             .ThenBy(c => c.Id)
@@ -130,6 +132,7 @@ public sealed class JobOnChangeQuery
         var rows = await _db.JobOnChanges
             .AsNoTracking()
             .Where(c => jobOnIds.Contains(c.JobOnId))
+            .Where(JobOnChangeFields.Counts)
             .OrderByDescending(c => c.ChangedAtUtc)
             .ThenBy(c => c.Id)
             .Select(c => new { c.JobOnId, c.Field, c.OldValueFrozen, c.NewValueFrozen, c.ChangedByNameFrozen, c.ChangedAtUtc, c.JobOn!.InicioEm })

@@ -122,11 +122,11 @@ with sync_playwright() as playwright:
         page.wait_for_url("**/*ferramenta=**")
         expect(page.locator("#bq-tool-sheet")).to_be_visible()
         expect(page.locator("[data-dmo-toast]").first).to_contain_text("Boquilha guardada")
-        historical = page.locator(".bq-historical-form")
-        assert historical.get_attribute("open") is None
-        historical.locator("summary").click()
-        expect(page.locator("#firstOccurred")).to_be_visible()
-        historical.locator("summary").click()
+        # «Registar sem Job On» (Diogo, 22/10/2026): a janela abre e fecha.
+        page.locator(".bq-sem-jobon-link").click()
+        expect(page.locator("#bqSemJobOnDialog")).to_be_visible()
+        page.locator("#bqSemJobOnDialog [data-dmo-dialog-close]").click()
+        expect(page.locator("#bqSemJobOnDialog")).to_be_hidden()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), width
         page.screenshot(path=str(evidence / f"sheet-{width}.png"), full_page=True)
 

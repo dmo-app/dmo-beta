@@ -4,6 +4,12 @@
   <div>
     <h2>Ferramentas · Boquilhas<partial name="_DmoHelp" model="@("Cada ferramenta BQ/lote tem uma ficha única, reutilizável em vários Job Ons.")" /></h2>
   </div>
+  @* «Registar sem Job On» (Diogo, 22/10/2026): uma janela pequena, aqui na
+     página Boquilhas; o Registo é só para os registos de um Job On. *@
+  @if (Model.SemJobOnTools.Count > 0)
+  {
+    <button type="button" class="bq-sem-jobon-link" data-dmo-dialog="bqSemJobOnDialog">Registar sem Job On</button>
+  }
 </div>
 <div id="bqCatalogoAvisos" class="dmo-zona" data-dmo-regiao>
 @* Registada no Ferramentas, a boquilha volta aqui com a ficha aberta. *@

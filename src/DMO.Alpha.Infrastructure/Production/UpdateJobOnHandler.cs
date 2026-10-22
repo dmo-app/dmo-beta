@@ -283,7 +283,7 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
             // Pôr a BQ num Job On que não tinha nenhuma completa o Job On: não
             // é uma mudança de boquilhas, sem aviso nem registo (Diogo,
             // 22/10/2026). Só uma BQ que substitui outra é mudança.
-            .Where(t => !(t.Field == JobOnChangeFields.Bq && t.Old is null))
+            .Where(t => JobOnChangeFields.IsChange(t.Field, t.Old))
             .ToList();
         if (toolChanges.Count > 0)
         {
