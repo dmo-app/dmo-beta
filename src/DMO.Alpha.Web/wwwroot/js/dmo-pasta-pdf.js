@@ -19,6 +19,7 @@
   var STORE = "pastas";
   var KEY = "controlo";
   var FOLDER_HEADER = "X-Dmo-Pdf-Pasta";
+  var COMPANION_HEADER = "X-Dmo-Pdf-Acompanha";
 
   var supported = typeof window.showDirectoryPicker === "function" && "indexedDB" in window;
 
@@ -122,7 +123,54 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
   }
 
+  // O PDF QUE ACOMPANHA (Diogo, 22/10/2026): o PDF do Controlo de uma
+  // produção com registo das punções NNPB traz no cabeçalho
+  // X-Dmo-Pdf-Acompanha o endereço do PDF das punções. Pede-se a seguir, com
+  // o mesmo token antifalsificação, e grava-se à parte na mesma pasta (o PDF
+  // do Controlo liga-o pelo nome) ou vai para as Transferências.
+  function companionRequest(response, body) {
+    var header = response.headers.get(COMPANION_HEADER);
+    if (!header || header.charAt(0) !== "/" || header.charAt(1) === "/") return null;
+    var url = new URL(header, window.location.origin);
+    if (url.origin !== window.location.origin) return null;
+    var fields = new URLSearchParams();
+    var token = body.get("__RequestVerificationToken");
+    if (token) fields.set("__RequestVerificationToken", token);
+    url.searchParams.forEach(function (value, key) { if (key !== "handler") fields.set(key, value); });
+    var handler = url.searchParams.get("handler");
+    return { action: url.pathname + (handler ? "?handler=" + encodeURIComponent(handler) : ""), body: fields };
+  }
+
+  // Grava um PDF recebido: na pasta (com licença) ou nas Transferências.
+  // Devolve a mensagem do que aconteceu.
+  function store(folder, allowed, response) {
+    var name = fileNameOf(response);
+    var parts = subfoldersOf(response);
+    return response.blob().then(function (blob) {
+      if (!folder) {
+        downloadBlob(blob, name);
+        return { ok: true, text: name };
+      }
+      if (!allowed) {
+        downloadBlob(blob, name);
+        return { ok: false, text: "Sem licença para gravar na pasta escolhida: o PDF foi para as Transferências." };
+      }
+      return writeInto(folder, parts, name, blob).then(function (path) {
+        return { ok: true, text: folder.name + "\\" + path };
+      }, function () {
+        downloadBlob(blob, name);
+        return { ok: false, text: "Não foi possível gravar na pasta escolhida: o PDF foi para as Transferências." };
+      });
+    });
+  }
+
+  function isPdf(response) {
+    return response.ok && (response.headers.get("Content-Type") || "").indexOf("application/pdf") >= 0;
+  }
+
   // Os formulários dos PDFs do Controlo (Peso, Pegamentos, PU NNPB e Resumo).
+  // Com pasta, todos; sem pasta, só os que trazem um PDF que acompanha
+  // (data-dmo-pdf-acompanha), para os dois irem para as Transferências.
   // Um envio igual ao que ainda não acabou (o mesmo formulário, com o mesmo
   // corpo) é ignorado, como no envio sem pasta: um duplo clique grava um só
   // ficheiro e mostra uma só mensagem (sweep de 19/10/2026, FE-7). Gerar
@@ -134,6 +182,7 @@
       if (!(form instanceof HTMLFormElement)) return;
       var action = form.getAttribute("action") || "";
       if (action.indexOf("handler=GeneratePdf") < 0 || event.defaultPrevented) return;
+      if (!folder && !form.getAttribute("data-dmo-pdf-acompanha")) return;
       event.preventDefault();
       // Como o envio normal: campos codificados para URL, com o botão carregado.
       var body = new URLSearchParams(new FormData(form, event.submitter || undefined));
@@ -144,28 +193,36 @@
         if (emCurso.get(form) === chave) emCurso.delete(form);
       }
 
-      ensurePermission(folder).then(function (allowed) {
+      (folder ? ensurePermission(folder) : Promise.resolve(false)).then(function (allowed) {
         return fetch(form.action, { method: "POST", body: body, credentials: "same-origin" }).then(function (response) {
-          var type = response.headers.get("Content-Type") || "";
-          if (!response.ok || type.indexOf("application/pdf") < 0) {
+          if (!isPdf(response)) {
             // Uma recusa (sem leituras, sem permissão…) volta como página:
             // o envio normal mostra-a como sempre.
             form.submit();
             return;
           }
-          var name = fileNameOf(response);
-          var parts = subfoldersOf(response);
-          return response.blob().then(function (blob) {
-            if (!allowed) {
-              downloadBlob(blob, name);
-              toast("Sem licença para gravar na pasta escolhida: o PDF foi para as Transferências.", "warn");
+          var companion = companionRequest(response, body);
+          return store(folder, allowed, response).then(function (main) {
+            if (!companion) {
+              if (folder) toast(main.ok ? "PDF guardado em " + main.text + "." : main.text, main.ok ? "success" : "warn");
               return;
             }
-            return writeInto(folder, parts, name, blob).then(function (path) {
-              toast("PDF guardado em " + folder.name + "\\" + path + ".", "success");
+            return fetch(companion.action, { method: "POST", body: companion.body, credentials: "same-origin" }).then(function (extra) {
+              if (!isPdf(extra)) {
+                toast("O PDF das punções não foi gerado. Gere-o na folha PU NNPB.", "warn");
+                return;
+              }
+              return store(folder, allowed, extra).then(function (second) {
+                if (!folder) {
+                  toast("PDFs descarregados: " + main.text + " e " + second.text + ".", "success");
+                } else if (main.ok && second.ok) {
+                  toast("PDFs guardados em " + main.text + " e " + second.text + ".", "success");
+                } else {
+                  toast(main.ok ? second.text : main.text, "warn");
+                }
+              });
             }, function () {
-              downloadBlob(blob, name);
-              toast("Não foi possível gravar na pasta escolhida: o PDF foi para as Transferências.", "warn");
+              toast("O PDF das punções não foi gerado. Gere-o na folha PU NNPB.", "warn");
             });
           });
         });
@@ -226,6 +283,7 @@
 
   loadFolder().then(function (folder) {
     bindSettings(folder || null);
-    if (folder) bindPdfForms(folder);
+    // Sem pasta, só os PDFs que trazem outro a acompanhar (precisa do fetch).
+    if (folder || typeof window.fetch === "function") bindPdfForms(folder || null);
   });
 })();

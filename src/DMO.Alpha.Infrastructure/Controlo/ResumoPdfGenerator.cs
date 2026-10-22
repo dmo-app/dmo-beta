@@ -39,7 +39,12 @@ public sealed class ResumoPdfGenerator
         IReadOnlyList<AreaState>? AreaStates = null,
         /// <summary>O registo das punções NNPB; null = produção não NNPB ou sem registo (sem cartão).</summary>
         PuncoesSummary? Puncoes = null,
-        PuncoesPdfGenerator.Input? PuncoesDocument = null,
+        /// <summary>
+        /// O PDF das punções, gravado como ficheiro à parte na mesma pasta da
+        /// produção (Diogo, 22/10/2026): o cartão liga-o pelo nome relativo;
+        /// a tabela não entra neste PDF. Null sem registo ou no PDF só do Resumo.
+        /// </summary>
+        string? PuncoesFicheiro = null,
         /// <summary>
         /// Todas as folhas de Pegamentos da produção, pela ordem (
         /// 18/10/2026): uma secção por folha, cada uma com as suas
@@ -228,7 +233,7 @@ public sealed class ResumoPdfGenerator
                     PesoCard(row.RelativeItem(), input, hasPeso);
                     PegamentosCard(row.RelativeItem(), input.Pegamentos, hasPegamentos);
                     if (input.Puncoes is { } puncoes)
-                        PuncoesCard(row.RelativeItem(), puncoes, input.PuncoesDocument is not null);
+                        PuncoesCard(row.RelativeItem(), puncoes, input.PuncoesFicheiro);
                 });
 
                 // AS FERRAMENTAS da combinação.
@@ -392,7 +397,6 @@ public sealed class ResumoPdfGenerator
                 ? PegamentosPdfGenerator.FromSheet(peg, input.GeneratedBy) : null);
             if (pegInput is not null) new PegamentosPdfGenerator().Compose(container, pegInput, combined: true);
         }
-        if (input.PuncoesDocument is { } puncoesInput) new PuncoesPdfGenerator().Compose(container, puncoesInput, combined: true);
     });
 
     private static void PesoCard(IContainer container, Input input, bool linked)
@@ -496,7 +500,7 @@ public sealed class ResumoPdfGenerator
         });
     }
 
-    private static void PuncoesCard(IContainer container, PuncoesSummary summary, bool linked)
+    private static void PuncoesCard(IContainer container, PuncoesSummary summary, string? ficheiro)
     {
         var pending = summary.Total * 2 - summary.PunchSeen - summary.CoolerSeen;
         var (status, color, background) = summary.Total == 0
@@ -508,7 +512,8 @@ public sealed class ResumoPdfGenerator
             c.Item().Row(r =>
             {
                 r.RelativeItem().Text("PU NNPB").FontSize(10).SemiBold();
-                if (linked) r.AutoItem().SectionLink("puncoes").Text("Ver detalhe →").FontSize(8).FontColor(Blue).Underline();
+                // O PDF das punções é outro ficheiro, na mesma pasta: a ligação abre-o pelo nome.
+                if (ficheiro is not null) r.AutoItem().Hyperlink(Uri.EscapeDataString(ficheiro)).Text("Abrir PDF das punções →").FontSize(8).FontColor(Blue).Underline();
             });
             c.Item().PaddingTop(8).Text(status).FontSize(13).SemiBold().FontColor(color);
             if (summary.Total > 0)

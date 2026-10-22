@@ -30,20 +30,23 @@ public sealed class PuncoesModel : PageModel
     public const string ModoJobOnValor = "jobon";
 
     private readonly PuncoesHandler _handler;
-    private readonly PuncoesPdfGenerator _pdfGenerator;
+    private readonly PuncoesPosicoesPdfGenerator _pdfGenerator;
+    private readonly PuncoesLinhaDefinicoes _linhas;
     private readonly ShellStateFactory _shellState;
     private readonly IJobOnListQuery _jobOnList;
     private readonly IEnsureControloForJobOnHandler _ensureControlo;
 
     public PuncoesModel(
         PuncoesHandler handler,
-        PuncoesPdfGenerator pdfGenerator,
+        PuncoesPosicoesPdfGenerator pdfGenerator,
+        PuncoesLinhaDefinicoes linhas,
         ShellStateFactory shellState,
         IJobOnListQuery jobOnList,
         IEnsureControloForJobOnHandler ensureControlo)
     {
         _handler = handler;
         _pdfGenerator = pdfGenerator;
+        _linhas = linhas;
         _shellState = shellState;
         _jobOnList = jobOnList;
         _ensureControlo = ensureControlo;
@@ -118,6 +121,26 @@ public sealed class PuncoesModel : PageModel
     public string? ShownLot => EchoLot ?? Sheet?.Registo?.Lot ?? Standalone?.Registo.Lot;
     public string? ShownReference => EchoReference ?? Standalone?.Reference;
 
+    /// <summary>As punções do registo nas posições da linha (a grelha, a reserva e os repetidos); null sem registo.</summary>
+    public PuncoesNaLinha? Posicoes { get; private set; }
+
+    /// <summary>O valor de ?vista que abre só a folha das punções (a tabela por posição).</summary>
+    public const string VistaFolhaValor = "folha";
+
+    /// <summary>True em ?vista=folha: a página mostra só a folha das punções.</summary>
+    public bool VistaFolha { get; private set; }
+
+    private string AlvoQuery => Standalone is { } s && Sheet is null ? $"puncoes_id={s.PuncoesId}" : $"controlo_id={Sheet?.ControloId}";
+
+    /// <summary>A folha das punções (a tabela por posição) deste registo.</summary>
+    public string LigacaoFolha => $"/Controlo/Puncoes?{AlvoQuery}&vista={VistaFolhaValor}";
+
+    /// <summary>O registo das punções (a verificação).</summary>
+    public string LigacaoRegisto => $"/Controlo/Puncoes?{AlvoQuery}";
+
+    /// <summary>A linha da grelha: a máquina da produção, ou «—» no registo sem Job On.</summary>
+    public string Linha => Sheet?.Machine ?? "—";
+
     /// <summary>O registo mostrado na lista: o da produção ou o registo sem Job On.</summary>
     public PuncoesReadModel? Registo => Sheet?.Registo ?? Standalone?.Registo;
 
@@ -139,8 +162,10 @@ public sealed class PuncoesModel : PageModel
         [FromQuery(Name = "numero")] string? number,
         [FromQuery(Name = "referencia")] string? punchReference,
         [FromQuery(Name = "lote")] string? lot,
-        [FromQuery(Name = "referencia_total")] string? reference)
+        [FromQuery(Name = "referencia_total")] string? reference,
+        [FromQuery(Name = "vista")] string? vista = null)
     {
+        VistaFolha = vista == VistaFolhaValor;
         ViewData["Title"] = "PU NNPB — Controlo";
         var shell = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("controlo", "Controlo"))) with
         {
@@ -178,6 +203,7 @@ public sealed class PuncoesModel : PageModel
             {
                 Functions = ShellStateFactory.ControloFunctions("puncoes", Sheet?.JobOnId, controloId)
             };
+            await LoadPosicoesAsync();
             return Page();
         }
 
@@ -198,6 +224,7 @@ public sealed class PuncoesModel : PageModel
                 Producoes = await _jobOnList.ListByReferenceAsync(ReferenciaProcurada, null, HttpContext.RequestAborted);
             }
 
+            await LoadPosicoesAsync();
             return Page();
         }
 
@@ -353,13 +380,16 @@ public sealed class PuncoesModel : PageModel
         return result == PuncoesResult.Success ? Back(target, "puncoes-lista") : Refused(target, result);
     }
 
-    /// <summary>O PDF da folha, gerado em memória e descarregado; nunca grava no servidor.</summary>
+    /// <summary>
+    /// O PDF das punções por posição da linha (A4 deitado, a tabela aprovada
+    /// pelo Diogo a 22/10/2026), gerado em memória e descarregado pelo
+    /// browser; nunca grava no servidor.
+    /// </summary>
     public async Task<IActionResult> OnPostGeneratePdfAsync(
         [FromForm(Name = "controlo_id")] int? controloId,
         [FromForm(Name = "puncoes_id")] int? puncoesId)
     {
         var target = Target(controloId, puncoesId);
-        var generatedBy = User.FindFirst(DmoClaimTypes.DisplayName)?.Value ?? User.FindFirst(DmoClaimTypes.Email)?.Value;
 
         if (target.PuncoesId is int registoId)
         {
@@ -369,10 +399,13 @@ public sealed class PuncoesModel : PageModel
                 return Back(target, null);
             }
 
-            var standaloneBytes = _pdfGenerator.GenerateBytes(PuncoesPdfGenerator.FromStandalone(standalone, generatedBy));
-            Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(standalone.Reference, $"SEM-JOBON-{standalone.PuncoesId}"));
-            return File(standaloneBytes, "application/pdf",
-                ControloDocumentPaths.GetPuncoesFileName(standalone.Reference, $"SEM-JOBON-{standalone.PuncoesId}"));
+            var semJobOn = $"SEM-JOBON-{standalone.PuncoesId}";
+            var standaloneBytes = _pdfGenerator.GenerateBytes(new PuncoesPosicoesPdfGenerator.Input(
+                standalone.Reference, "—", "Sem Job On", null, null,
+                await _handler.RegistadoPorAsync(standalone.Registo, HttpContext.RequestAborted),
+                PuncoesPosicoes.Distribuir(standalone.Registo.Rows, await _linhas.SeccoesAsync(null, HttpContext.RequestAborted))));
+            Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(standalone.Reference, semJobOn));
+            return File(standaloneBytes, "application/pdf", ControloDocumentPaths.GetPuncoesFileName(standalone.Reference, semJobOn));
         }
 
         var sheet = await _handler.GetSheetAsync(target.ControloId ?? 0, HttpContext.RequestAborted);
@@ -381,9 +414,20 @@ public sealed class PuncoesModel : PageModel
             return Back(target, null);
         }
 
-        var bytes = _pdfGenerator.GenerateBytes(PuncoesPdfGenerator.FromRegisto(sheet, registo, generatedBy));
+        var bytes = _pdfGenerator.GenerateBytes(new PuncoesPosicoesPdfGenerator.Input(
+            sheet.Reference, sheet.Machine, sheet.ProductionNumber, sheet.InicioEm, sheet.FimEm,
+            await _handler.RegistadoPorAsync(registo, HttpContext.RequestAborted),
+            PuncoesPosicoes.Distribuir(registo.Rows, await _linhas.SeccoesAsync(sheet.Machine, HttpContext.RequestAborted))));
         Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(sheet.Reference, sheet.ProductionNumber));
         return File(bytes, "application/pdf", ControloDocumentPaths.GetPuncoesFileName(sheet.Reference, sheet.ProductionNumber));
+    }
+
+    private async Task LoadPosicoesAsync()
+    {
+        if (Registo is { } registo)
+        {
+            Posicoes = PuncoesPosicoes.Distribuir(registo.Rows, await _linhas.SeccoesAsync(Sheet?.Machine, HttpContext.RequestAborted));
+        }
     }
 
     private static PuncoesTarget Target(int? controloId, int? puncoesId) =>

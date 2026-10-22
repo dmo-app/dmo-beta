@@ -5,7 +5,14 @@ using DMO.Alpha.Core.Tools;
 namespace DMO.Alpha.Infrastructure.Controlo;
 
 /// <summary>O PDF do Resumo feito em memória, com o nome e a pasta da produção.</summary>
-public sealed record ResumoPdfDocumento(byte[] Bytes, string FileName, string Folder);
+public sealed record ResumoPdfDocumento(byte[] Bytes, string FileName, string Folder)
+{
+    /// <summary>
+    /// O controlo cujo PDF das punções acompanha este (gravado à parte, na
+    /// mesma pasta, e ligado pelo nome); null quando não há ou no PDF só do Resumo.
+    /// </summary>
+    public int? PuncoesControloId { get; init; }
+}
 
 /// <summary>
 /// O PDF do Resumo num só sítio (sweep de 19/10/2026, A-4): o «Exportar PDF»
@@ -247,12 +254,13 @@ public sealed class ResumoPdfDocumentBuilder(
             GeneratedBy: generatedBy,
             AreaStates: areaStates?.Select(a => new ResumoPdfGenerator.AreaState(a.Area, a.Status, a.Comment, PersonLabel(a.UpdatedBy), a.UpdatedAtUtc)).ToArray(),
             // O registo das punções NNPB: o cartão quando a CM é NNPB ou já há
-            // registo; a folha no fim do PDF único quando há registo.
+            // registo; com registo, a ligação ao PDF das punções, um ficheiro à
+            // parte na mesma pasta (Diogo, 22/10/2026).
             Puncoes: puncoesSheet is { } pu && (pu.IsNnpb || pu.Registo is not null)
                 ? new ResumoPdfGenerator.PuncoesSummary(pu.Registo?.Total ?? 0, pu.Registo?.PunchSeenCount ?? 0, pu.Registo?.CoolerSeenCount ?? 0)
                 : null,
-            PuncoesDocument: summaryOnly || puncoesSheet?.Registo is not { } puRegisto ? null
-                : PuncoesPdfGenerator.FromRegisto(puncoesSheet, puRegisto, generatedBy),
+            PuncoesFicheiro: summaryOnly || puncoesSheet?.Registo is null ? null
+                : ControloDocumentPaths.GetPuncoesFileName(puncoesSheet.Reference, puncoesSheet.ProductionNumber),
             PesoDetalhe: summaryOnly || pesoDetalhe is null || !pesoCompleto(pesoDetalhe) ? null : pesoDetalhe,
             PegamentosDetalhe: summaryOnly ? null : pegamentosCompletos.Select(x => x.f).FirstOrDefault(),
             PegamentosDetalhes: summaryOnly ? null : pegamentosCompletos.Select(x => x.f).ToList(),
@@ -264,6 +272,9 @@ public sealed class ResumoPdfDocumentBuilder(
         return new ResumoPdfDocumento(
             bytes,
             fileName,
-            ControloDocumentPaths.GetProductionRelativeFolder(context.Reference, context.ProductionNumber));
+            ControloDocumentPaths.GetProductionRelativeFolder(context.Reference, context.ProductionNumber))
+        {
+            PuncoesControloId = summaryOnly || puncoesSheet?.Registo is null ? null : puncoesSheet.ControloId
+        };
     }
 }

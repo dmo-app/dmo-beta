@@ -993,3 +993,23 @@ Novos: 7 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)`
 
 Selo depois: `78c07ffe6cf4d05e`
+
+## A-0035 · 2026-10-22 · ok-do-diogo
+
+Porquê: PU NNPB: punções por posição, reserva, repetidos com lote, PDF à parte
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyLxtbXWax7U9hDSa4vVz3kV
+Novos: 6 · mudaram: 2 · saíram: 3
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CoresDeEstadoNosPdfsTests.cs :: CoresDeEstadoNosPdfsTests.Puncoes_SaemComAsCoresDeEstadoNoResumo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.FolhaDasPuncoes_LigadaDoResumoEDoRegisto_SoComRegisto_EOPdfDoControloTrazODasPuncoes`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_A1aD12_Reserva_RepetidosComLote_ETotais_NaZonaDaFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_StandaloneRegister_SaysSemJobOn`
+- mudou: `tests/visual/pasta_pdf_browser.py`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CoresDeEstadoNosPdfsTests.cs :: CoresDeEstadoNosPdfsTests.Puncoes_SaemComAsMesmasCoresNoPdfDoPuNnpbENoDoResumo`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_HasNoApprovalStamp`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_SheetAndResumoWithPuncoes_AreGeneratedInMemory`
+
+Selo depois: `64ea816d4d66879b`

@@ -1,0 +1,86 @@
+@model DMO.Alpha.Web.Pages.Controlo.PuncoesPosicoesView
+@using DMO.Alpha.Infrastructure.Controlo
+@{
+    var grelha = Model.Puncoes;
+}
+@* AS PUNÇÕES POR POSIÇÃO DA LINHA (Diogo, 22/10/2026): pela ordem de
+   registo, A1, B1, C1, D1, A2 … ; as que passam da linha são «Reserva». O
+   «PDF» é o mesmo formulário do «Extrair PDF» (gerado em memória). *@
+<section class="dmo-card pu-card" id="puncoes-posicoes" aria-labelledby="pu-pos-title">
+  <div class="pu-section-head">
+    <div>
+      <h3 id="pu-pos-title">Posições na linha @Model.Linha<partial name="_DmoHelp" model="@($"As punções entram pela ordem de registo nas posições da linha: {grelha.Seccoes} secções com as posições A a D (A1, B1, C1, D1, A2…). As que passam da linha ficam na reserva. O número das secções de cada linha muda-se nas Definições do Controlo.")" /></h3>
+    </div>
+    <div class="dmo-card-topo-acoes">
+      <button type="submit" class="dmo-button" form="pu-pdf-form" id="pu-pdf">PDF</button>
+    </div>
+  </div>
+
+  <div class="dmo-table-wrap">
+    <table class="dmo-table pu-grelha" data-pu-grelha>
+      <thead>
+        <tr><th rowspan="2" scope="col">Posição</th><th colspan="@grelha.Seccoes" scope="colgroup">Secção</th></tr>
+        <tr>
+          @for (var s = 1; s <= grelha.Seccoes; s++)
+          {
+            <th scope="col">@s</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (var p = 0; p < PuncoesPosicoes.PosicoesPorSeccao; p++)
+        {
+          <tr>
+            <th scope="row">@PuncoesPosicoes.Letra(p)</th>
+            @for (var s = 1; s <= grelha.Seccoes; s++)
+            {
+              var puncao = grelha.Em(s, p);
+              <td data-pu-posicao="@PuncoesPosicoes.Letra(p)@s" class="@(puncao?.Repetido == true ? "pu-repetido" : null)">@if (puncao is not null){<span class="pu-grelha-numero">@puncao.Number</span>@if (puncao.Repetido){<small>Lote @puncao.Lot</small>}}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pu-grelha-baixo">
+    <table class="dmo-table pu-grelha pu-grelha-reserva" data-pu-reserva>
+      <thead><tr><th colspan="@Math.Max(1, grelha.Reserva.Count)">Reserva</th></tr></thead>
+      <tbody>
+        <tr>
+          @if (grelha.Reserva.Count == 0)
+          {
+            <td class="pu-empty-cell">—</td>
+          }
+          @foreach (var puncao in grelha.Reserva)
+          {
+            <td class="@(puncao.Repetido ? "pu-repetido" : null)"><span class="pu-grelha-numero">@puncao.Number</span>@if (puncao.Repetido){<small>Lote @puncao.Lot</small>}</td>
+          }
+        </tr>
+      </tbody>
+    </table>
+
+    <dl class="pu-grelha-totais" data-pu-totais>
+      <div><dt>Punções verificados</dt><dd>@grelha.Total</dd></div>
+      <div><dt>Linha @Model.Linha</dt><dd>@grelha.Linha.Count</dd></div>
+      <div><dt>Reserva</dt><dd>@grelha.Reserva.Count</dd></div>
+    </dl>
+
+    <table class="dmo-table pu-grelha pu-grelha-repetidos" data-pu-repetidos>
+      <thead>
+        <tr><th colspan="3">Punções repetidos</th></tr>
+        <tr><th>Posição</th><th>Punção</th><th>Lote</th></tr>
+      </thead>
+      <tbody>
+        @if (grelha.Repetidos.Count == 0)
+        {
+          <tr><td colspan="3" class="pu-empty-cell">Sem punções repetidos</td></tr>
+        }
+        @foreach (var puncao in grelha.Repetidos)
+        {
+          <tr data-pu-repetido="@puncao.Etiqueta"><td>@puncao.Etiqueta</td><td><strong>@puncao.Number</strong></td><td>@puncao.Lot</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -87,6 +87,14 @@ public static class ControloDocumentPaths
     /// <summary>O cabeçalho HTTP com a subpasta da produção do PDF.</summary>
     public const string PdfFolderHeader = "X-Dmo-Pdf-Pasta";
 
+    /// <summary>
+    /// O PDF que acompanha este (Diogo, 22/10/2026: o PDF das punções ao lado
+    /// do PDF do Controlo): o endereço do POST que o gera, com os campos na
+    /// query. O browser pede-o a seguir e grava-o na mesma pasta, ou
+    /// descarrega-o sem pasta escolhida.
+    /// </summary>
+    public const string PdfCompanionHeader = "X-Dmo-Pdf-Acompanha";
+
     private static string SanitizePortableSegment(string value)
     {
         const string invalid = "<>:\"/\\|?*";

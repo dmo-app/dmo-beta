@@ -162,6 +162,20 @@
   }
 
   <div id="puFolha" class="dmo-zona" data-dmo-regiao>
+  @if (Model.VistaFolha && Model.Posicoes is { } folhaPosicoes && Model.TargetField is { } folhaAlvo)
+  {
+    @* A FOLHA DAS PUNÇÕES (Diogo, 22/10/2026): só a tabela por posição da
+       linha, com o «PDF»; a ligação volta ao registo (a verificação). *@
+    <nav class="pu-ligacoes" aria-label="PU NNPB" data-pu-ligacoes>
+      <a class="dmo-button" href="@Model.LigacaoRegisto">← Registo das punções</a>
+    </nav>
+    <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf" id="pu-pdf-form" data-dmo-nativo>
+      <input type="hidden" name="@folhaAlvo.Name" value="@folhaAlvo.Value" />
+    </form>
+    <partial name="_PuncoesPosicoes" model="@(new PuncoesPosicoesView(folhaPosicoes, Model.Linha))" />
+  }
+  else
+  {
   @if (Model.Standalone is { } standalone)
   {
     <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title" data-dmo-parcial>
@@ -298,6 +312,10 @@
               <summary class="dmo-button" aria-label="Opções do registo das punções">Opções<span class="dmo-options-caret" aria-hidden="true">▾</span></summary>
               <div class="dmo-options-list">
                 <button type="submit" class="dmo-options-item" form="pu-pdf-form" disabled="@(registo is null)">Extrair PDF</button>
+                @if (Model.Posicoes is not null)
+                {
+                  <a class="dmo-options-item" href="@Model.LigacaoFolha" data-pu-ligacoes>Folha das punções</a>
+                }
                 @if (Model.Standalone is not null)
                 {
                   <button type="button" class="dmo-options-item" data-dmo-dialog="pu-associar-dialog">Associar a uma produção</button>
@@ -395,7 +413,13 @@
           </table>
         </div>
       </section>
+
+      @if (Model.Posicoes is { } posicoes)
+      {
+        <partial name="_PuncoesPosicoes" model="@(new PuncoesPosicoesView(posicoes, Model.Linha))" />
+      }
     }
+  }
   }
   </div>
 

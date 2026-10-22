@@ -593,6 +593,11 @@ public sealed class ResumoModel : PageModel
         }
 
         Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(documento.Folder);
+        if (documento.PuncoesControloId is int puncoesControloId)
+        {
+            Response.Headers[ControloDocumentPaths.PdfCompanionHeader] = $"/Controlo/Puncoes?handler=GeneratePdf&controlo_id={puncoesControloId}";
+        }
+
         return File(documento.Bytes, "application/pdf", documento.FileName);
     }
 

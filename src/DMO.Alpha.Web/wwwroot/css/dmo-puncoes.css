@@ -49,3 +49,27 @@
 @media(max-width:600px){.pu-stats{grid-template-columns:repeat(3,1fr);gap:6px}.pu-stat{padding:10px}.pu-stat strong{font-size:22px}.pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:1 1 100%}}
 /* A associação à mão de um registo sem Job On. */
 .pu-associar-lista{display:grid;gap:8px;margin-top:12px}
+/* As punções por posição da linha (Diogo, 22/10/2026): a mesma tabela do PDF. */
+.dmo-table.pu-grelha{border-collapse:collapse;font-size:14px}
+.dmo-table.pu-grelha th,.dmo-table.pu-grelha td{border:1px solid var(--dmo-border);padding:6px;text-align:center;vertical-align:middle}
+.dmo-table.pu-grelha thead th{background:var(--dmo-brand-700);color:var(--dmo-text-on-color);font-weight:700}
+.dmo-table.pu-grelha tbody th{background:var(--dmo-subtle);font-weight:800}
+table.dmo-table.pu-grelha[data-pu-grelha]{width:100%;table-layout:fixed;min-width:640px}
+table.dmo-table.pu-grelha[data-pu-grelha] tbody td{height:58px;position:relative}
+.pu-grelha-numero{font-size:20px}
+.pu-repetido .pu-grelha-numero{font-weight:800}
+.pu-repetido small{display:block;font-size:10.5px;line-height:1;color:var(--dmo-muted);font-weight:650}
+.pu-grelha-baixo{display:flex;flex-wrap:wrap;gap:24px;margin-top:16px;align-items:flex-start}
+.dmo-table.pu-grelha.pu-grelha-reserva thead th{background:var(--dmo-warning-soft);color:var(--dmo-text)}
+.dmo-table.pu-grelha.pu-grelha-reserva td{min-width:44px}
+.dmo-table.pu-grelha.pu-grelha-repetidos thead th{background:var(--dmo-subtle);color:var(--dmo-text)}
+.dmo-table.pu-grelha.pu-grelha-repetidos td,.dmo-table.pu-grelha.pu-grelha-repetidos th{padding:6px 14px}
+.pu-grelha-totais{margin:0;display:grid;gap:4px;font-size:13px}
+.pu-grelha-totais div{display:flex;justify-content:space-between;gap:16px}
+.pu-grelha-totais dt{margin:0}
+.pu-grelha-totais dd{margin:0;font-weight:800}
+.pu-empty-cell{color:var(--dmo-muted)}
+/* A tabela partilhada ocupa a largura toda e tem os cabeçalhos em maiúsculas: aqui segue o PDF aprovado. */
+html body .pu-grelha-baixo table.dmo-table.pu-grelha{width:auto;min-width:0}
+html body table.dmo-table.pu-grelha th{text-transform:none;letter-spacing:normal;font-size:13px}
+html body table.dmo-table.pu-grelha tbody th{font-size:14px}
