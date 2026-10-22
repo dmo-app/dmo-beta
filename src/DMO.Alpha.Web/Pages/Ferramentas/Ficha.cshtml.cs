@@ -156,6 +156,9 @@ public sealed class FichaModel : PageModel
     /// </summary>
     public DMO.Alpha.Core.Armazem.ArmazemSituacao? Armazem { get; private set; }
 
+    /// <summary>Quem tem o Armazém vê também a localização e os movimentos.</summary>
+    public bool ArmazemGestao { get; private set; }
+
     /// <summary>tool_id pedido (?tool_id) — a identidade canónica no URL.</summary>
     public string? RequestedToolId { get; private set; }
 
@@ -196,6 +199,19 @@ public sealed class FichaModel : PageModel
 
     /// <summary>Aviso (?quantidade_ilegivel=…): a quantidade escrita não foi lida e ficou de fora (beta.63).</summary>
     public string? UnreadableQuantity { get; private set; }
+
+    /// <summary>
+    /// Aviso do % uso escrito no Editar (?uso_aviso=…): «acima» = gravado mas
+    /// acima de 100; outro valor = o que se escreveu, que não se leu (nada gravado).
+    /// </summary>
+    public string? UsoAviso { get; private set; }
+
+    public string? UsoAvisoMessage => UsoAviso switch
+    {
+        null => null,
+        "acima" => "O % uso ficou acima de 100: confirme que a ferramenta passou a vida prevista.",
+        var escrito => $"O % uso «{escrito}» não é um número inteiro positivo e não foi gravado; os outros factos foram gravados."
+    };
 
     /// <summary>
     /// Aviso (?tipo_anterior=…&amp;producoes=N, sweep de 19/10/2026, F-1): o
@@ -269,10 +285,10 @@ public sealed class FichaModel : PageModel
     public FactsDraftValues? FactsDraft { get; private set; }
 
     public sealed record FactsDraftValues(string Type, string Reference, string Lot, string Mf, string Quantity,
-        IReadOnlySet<int> MachineIds, string TechnicalName = "");
+        IReadOnlySet<int> MachineIds, string TechnicalName = "", string FabricaOrigem = "", string UsoPercentagem = "");
 
     /// <summary>Os nomes dos campos do Editar (os mesmos no POST e no rascunho da recusa).</summary>
-    private static readonly string[] FactsFieldNames = ["type_token", "reference", "lot", "mf_reference", "bq_quantity", "technical_name"];
+    private static readonly string[] FactsFieldNames = ["type_token", "reference", "lot", "mf_reference", "bq_quantity", "technical_name", "fabrica_origem", "uso_percentagem"];
 
     public string FactsType(ToolType stored) => FactsDraft?.Type ?? TokenTypeFor(stored);
 
@@ -287,6 +303,13 @@ public sealed class FichaModel : PageModel
         : stored?.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     public string? FactsTechnicalName(string? stored) => FactsDraft is { } draft ? draft.TechnicalName : stored;
+
+    public string? FactsFabricaOrigem(string? stored) => FactsDraft is { } draft ? draft.FabricaOrigem : stored;
+
+    /// <summary>O % uso do Editar: o escrito numa recusa, senão a última leitura (inteiro).</summary>
+    public string? FactsUso(decimal? stored) => FactsDraft is { } draft
+        ? draft.UsoPercentagem
+        : stored is { } pct ? Math.Round(pct, 0, MidpointRounding.AwayFromZero).ToString("0", System.Globalization.CultureInfo.InvariantCulture) : null;
 
     public bool FactsMachine(int machineId, bool stored) => FactsDraft is { } draft ? draft.MachineIds.Contains(machineId) : stored;
 
@@ -384,8 +407,10 @@ public sealed class FichaModel : PageModel
         [FromQuery(Name = "jobon")] string? jobOn = null,
         [FromQuery(Name = "pagina_jobon")] int? paginaJobOn = null,
         [FromQuery(Name = "armazem_entrada")] string? armazemEntrada = null,
-        [FromQuery(Name = "aviso_armazem")] string[]? avisoArmazem = null)
+        [FromQuery(Name = "aviso_armazem")] string[]? avisoArmazem = null,
+        [FromQuery(Name = "uso_aviso")] string? usoAviso = null)
     {
+        UsoAviso = string.IsNullOrWhiteSpace(usoAviso) ? null : usoAviso.Trim();
         EntradaArmazem = PosicaoCodigo.TryParse(armazemEntrada, out var codigoEntrada) ? codigoEntrada : null;
         AvisosArmazem = avisoArmazem ?? [];
         ViewData["Title"] = "Ficha de ferramenta — Ferramentas";
@@ -418,7 +443,9 @@ public sealed class FichaModel : PageModel
                         .Select(id => int.TryParse(id, System.Globalization.CultureInfo.InvariantCulture, out var parsed) ? parsed : 0)
                         .Where(id => id > 0)
                         .ToHashSet(),
-                    Request.Query["technical_name"].ToString());
+                    Request.Query["technical_name"].ToString(),
+                    Request.Query["fabrica_origem"].ToString(),
+                    Request.Query["uso_percentagem"].ToString());
             }
         }
 
@@ -487,9 +514,11 @@ public sealed class FichaModel : PageModel
             : await _sheetQuery.FindByToolIdAsync(RequestedToolId, HttpContext.RequestAborted);
 
         SheetRequestedNotFound = RequestedToolId is not null && Sheet is null;
-        if (Sheet is not null
-            && (await _capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.ArmazemGestao, StringComparer.Ordinal))
+        // A posição e o estado no Armazém (Diogo, 22/10/2026): a todos, numa
+        // só leitura; a localização e os movimentos só a quem tem o Armazém.
+        if (Sheet is not null)
         {
+            ArmazemGestao = (await _capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.ArmazemGestao, StringComparer.Ordinal);
             Armazem = await _armazem.SituacaoAsync(Sheet.ToolId, HttpContext.RequestAborted);
         }
 
@@ -527,7 +556,9 @@ public sealed class FichaModel : PageModel
         [FromForm(Name = "machine_ids")] List<string>? machineIds,
         [FromForm(Name = "continuar")] string? continuar = null,
         [FromForm(Name = "versao")] string? versao = null,
-        [FromForm(Name = "technical_name")] string? technicalName = null)
+        [FromForm(Name = "technical_name")] string? technicalName = null,
+        [FromForm(Name = "fabrica_origem")] string? fabricaOrigem = null,
+        [FromForm(Name = "uso_percentagem")] string? usoPercentagem = null)
     {
         var canonicalToolId = IndexModel.Sanitize(toolId) ?? string.Empty;
         // Aberta a partir de um fluxo: o regresso fica na ficha depois de
@@ -561,11 +592,29 @@ public sealed class FichaModel : PageModel
                     .ToList(),
                 ParseVersion(versao),
                 IndexModel.ActorName(User),
-                technicalName?.ToUpperInvariant()),
+                technicalName?.ToUpperInvariant(),
+                fabricaOrigem),
             HttpContext.RequestAborted);
 
         if (outcome.Result == EditToolFactsResult.Success)
         {
+            // O % uso (opcional; Diogo, 22/10/2026): só avisos, nunca recusa.
+            // Vazio ou igual à última leitura não grava; acima de 100 grava e avisa.
+            string? usoAviso = null;
+            var usoEscrito = (usoPercentagem ?? string.Empty).Trim().TrimEnd('%').Trim();
+            if (usoEscrito.Length > 0)
+            {
+                if (int.TryParse(usoEscrito, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var uso))
+                {
+                    var gravouUso = await _usoSap.RegistarPercentagemManualAsync(canonicalToolId, uso, HttpContext.RequestAborted);
+                    usoAviso = gravouUso && uso > 100 ? "acima" : null;
+                }
+                else
+                {
+                    usoAviso = usoEscrito.Length > 20 ? usoEscrito[..20] : usoEscrito;
+                }
+            }
+
             // O tipo de uma ferramenta já usada mudou: grava e avisa (F-1).
             var tipoMudou = outcome.Tool is { PreviousType: not null, PreviousTypeProductions: > 0 } ? outcome.Tool : null;
             return RedirectToPage("/Ferramentas/Ficha", new
@@ -576,7 +625,8 @@ public sealed class FichaModel : PageModel
                 tipo_anterior = tipoMudou is null ? null : TokenTypeFor(tipoMudou.PreviousType!.Value),
                 producoes = tipoMudou?.PreviousTypeProductions,
                 continuar = regresso,
-                guardado = SavedGeneral
+                guardado = SavedGeneral,
+                uso_aviso = usoAviso
             });
         }
 
@@ -592,7 +642,7 @@ public sealed class FichaModel : PageModel
         };
         if (outcome.Result is not (EditToolFactsResult.ChangedByAnotherUser or EditToolFactsResult.ToolNotFound))
         {
-            string?[] typed = [typeToken, reference, lot, mfReference, bqQuantity, technicalName];
+            string?[] typed = [typeToken, reference, lot, mfReference, bqQuantity, technicalName, fabricaOrigem, usoPercentagem];
             for (var i = 0; i < FactsFieldNames.Length; i++)
                 refusedValues[FactsFieldNames[i]] = typed[i] ?? string.Empty;
             refusedValues["machine_ids"] = (machineIds ?? []).Select(id => id ?? string.Empty).ToArray();

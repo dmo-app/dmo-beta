@@ -205,7 +205,7 @@
     }
     else if (Model.SavedSection == FichaModel.SavedUtilizacaoPedida)
     {
-      <div data-dmo-toast="ok" class="ferr-nota" role="status" id="ferrUtilizacaoPedida">Utilização pedida ao SAP: vem na próxima leitura.</div>
+      <div data-dmo-toast="ok" class="ferr-nota" role="status" id="ferrUtilizacaoPedida">Utilização pedida à produção: vem na próxima leitura.</div>
     }
 
     @* Avisos (beta.63, regra do Owner «tentar sempre warning»): o trabalho
@@ -216,6 +216,11 @@
     @if (Model.LotDefaultedWarning)
     {
       <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status">@Model.LotDefaultedMessage</div>
+    }
+
+    @if (Model.UsoAvisoMessage is { } usoAvisoTexto)
+    {
+      <div data-dmo-toast="aviso" class="ferr-aviso warn" role="status" id="ferrUsoAviso">@usoAvisoTexto</div>
     }
 
     @if (Model.UnreadableQuantity is not null)
@@ -311,7 +316,7 @@
               {
               <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="PedirUtilizacao" id="ferr-pedir-utilizacao">
                 <input type="hidden" name="tool_id" value="@tool.ToolId" />
-                <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Pedir a utilização ao SAP</button>
+                <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Pedir a utilização à produção</button>
               </form>
               }
             </div>
@@ -323,7 +328,7 @@
         <div class="dmo-fact"><span>Tipo</span><strong>@(tokenOf(tool.Type) switch { "CM" => "CM — Contra-molde", "BQ" => "BQ — Boquilha", _ => "MF — Molde final" })</strong></div>
         <div class="dmo-fact"><span>Referência</span><strong>@tool.Reference</strong></div>
         <div class="dmo-fact"><span>Lote</span><strong>@tool.Lot</strong></div>
-        <div class="dmo-fact"><span>Máquinas / linhas</span><strong>@machineCodes</strong></div>
+        <div class="dmo-fact"><span>Linhas</span><strong>@machineCodes</strong></div>
         @* Só a CM com uma referência diferente da do MF (Diogo, 21/10/2026). *@
         @if (tool.Type == ToolType.Cm && !string.IsNullOrWhiteSpace(tool.AssociatedMfReference)
             && !string.Equals(tool.AssociatedMfReference.Trim(), tool.Reference.Trim(), StringComparison.OrdinalIgnoreCase))
@@ -331,11 +336,17 @@
           <div class="dmo-fact"><span>Referência MF associada</span><strong>@tool.AssociatedMfReference</strong></div>
         }
         <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")</strong></div>
-        @if (Model.Armazem is { } arm)
+        @* A POSIÇÃO E O ESTADO (Diogo, 22/10/2026): do Armazém, a todos; «—» sem registo. *@
+        <div class="dmo-fact" id="ferrPosicao"><span>Posição</span><strong>@(Model.Armazem?.Posicao ?? "—")</strong></div>
+        @{ var estadoTexto = Model.Armazem?.Estado is { } estadoFicha ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoFicha) : "—"; }
+        <div class="dmo-fact" id="ferrEstadoArmazem"><span>Estado</span><strong>@if (Model.ArmazemGestao && Model.Armazem is { } armEstado)
+        {<a class="ferr-armazem-link" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = armEstado.ToolId })">@estadoTexto</a>}
+        else
+        {@estadoTexto}</strong></div>
+        @if (Model.ArmazemGestao && Model.Armazem is { } arm)
         {
           @* Onde está e o estado, pelo Armazém (só a quem tem o Armazém). *@
           <div class="dmo-fact" id="ferrLocalizacao"><span>Localização</span><strong data-dmo-localizacao><a class="ferr-armazem-link" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = arm.ToolId })">@(arm.NoArmazem ? $"Armazém · posição {arm.Posicao}" : DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(arm.Localizacao, arm.LocalizacaoReparador))</a></strong></div>
-          <div class="dmo-fact" id="ferrEstadoArmazem"><span>Estado</span><strong>@(arm.Estado is { } estadoArm ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoArm) : "—")</strong></div>
           <div class="dmo-fact"><span>Movimentos</span><strong><a class="ferr-armazem-link" id="ferrHistoricoArmazem" href="@Url.Page("/Armazem/Ultimos", new { ferramenta = arm.ToolId })">Ver os movimentos</a></strong></div>
         }
         @if (Model.Utilizacao is { Ultima: not null } or { LembreteDesdeUtc: not null } || Model.Producoes is { Pagina.TotalCount: > 0 })
@@ -372,7 +383,7 @@
          seguinte. O link leva às Definições, onde se lê a pasta do SAP. *@
       @if (Model.Utilizacao?.LembreteDesdeUtc is { } lembreteDesde)
       {
-        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura do SAP. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap" id="ferr-utilizacao-ler">Ler a pasta do SAP</a></div>
+        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura da produção. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap" id="ferr-utilizacao-ler">Ler a pasta da produção</a></div>
       }
 
       @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico
@@ -406,10 +417,10 @@
       var pecasProd = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       var leituraJanela = Model.Utilizacao?.Ultima;
       <dialog id="ferrProducoes" class="dmo-dialog ferr-producoes-janela" aria-labelledby="ferr-producoes-title" data-dmo-dialog-aberta="@(Model.ProducoesAbertas ? "1" : null)">
-        <h3 id="ferr-producoes-title">Utilização por produção<partial name="_DmoHelp" model="@("Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O produzido é a produção bruta (o total, com que se calcula o uso) do relatório de fabrico do SAP (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção. Um clique na produção abre a ficha do Job On.")" /></h3>
+        <h3 id="ferr-producoes-title">Utilização por produção<partial name="_DmoHelp" model="@("Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O produzido é a produção bruta (o total, com que se calcula o uso) do relatório de fabrico da produção (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção. Um clique na produção abre a ficha do Job On.")" /></h3>
         @if (leituraJanela is not null)
         {
-          <p class="ferr-nota" id="ferrProducoesHoje">Hoje <strong>@leituraJanela.Percentagem.ToString("0.##", pt) %</strong>@(leituraJanela is { Consumo: { } feitas, VidaPrevista: { } vida } ? $" · {feitas.ToString("#,0", pecasProd)} de {vida.ToString("#,0", pecasProd)} peças" : null) · @(leituraJanela.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "SAP" : leituraJanela.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraJanela.RegistadaEmUtc).ToString("dd/MM/yyyy", pt)</p>
+          <p class="ferr-nota" id="ferrProducoesHoje">Hoje <strong>@leituraJanela.Percentagem.ToString("0.##", pt) %</strong>@(leituraJanela is { Consumo: { } feitas, VidaPrevista: { } vida } ? $" · {feitas.ToString("#,0", pecasProd)} de {vida.ToString("#,0", pecasProd)} peças" : null) · @(leituraJanela.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "produção" : leituraJanela.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraJanela.RegistadaEmUtc).ToString("dd/MM/yyyy", pt)</p>
         }
         @if (producoesFerr.TotalCount == 0)
         {
@@ -449,7 +460,7 @@
           </div>
           @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))
           {
-            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap">Ler a pasta do SAP</a></p>
+            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="@Url.Page("/Ferramentas/Definicoes")#ferrDefSap">Ler a pasta da produção</a></p>
           }
         }
         <div class="dmo-dialog-actions">
@@ -494,7 +505,10 @@
         <partial name="_FerramentaFactos" model="@(new FerramentaFactosForm("ferr-edit", false, Model.FactsType(tool.Type), null,
             Model.FactsReference(tool.Reference), Model.FactsLot(tool.Lot), Model.FactsQuantity(tool.BqAccountedQuantity), null,
             Model.FactsMf(tool.AssociatedMfReference), Model.FactsTechnicalName(tool.TechnicalName), Model.Machines,
-            id => Model.FactsMachine(id, tool.Machines.Any(m => m.MachineId == id))))" />
+            id => Model.FactsMachine(id, tool.Machines.Any(m => m.MachineId == id)),
+            Model.FactsFabricaOrigem(tool.FabricaOrigem),
+            Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
+            Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null))" />
       </form>
 
     </section>

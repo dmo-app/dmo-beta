@@ -20,4 +20,6 @@ public sealed record EditToolFacts(
     string? RequestedBy = null,
     // O nome técnico (SAP), no mesmo formulário do registo (Diogo, 20/10/2026:
     // um só formulário de ferramenta). null = fica como está; vazio = limpa.
-    string? TechnicalName = null);
+    string? TechnicalName = null,
+    // A fábrica de origem (ex.: MG). null = fica como está; vazio = limpa.
+    string? FabricaOrigem = null);

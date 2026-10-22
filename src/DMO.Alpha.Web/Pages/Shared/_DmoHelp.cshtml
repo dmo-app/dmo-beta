@@ -1,5 +1,5 @@
 @model string
-@* A dica de ajuda: um círculo vazio com «?», à direita e acima da palavra; ao passar o rato
+@* A dica de ajuda: um círculo vazio, sem «?» (Diogo, 22/10/2026), pequeno, à direita e acima da palavra; ao lado de um botão, acima da aresta de cima do botão; ao passar o rato
    (ou com o teclado, ou com um toque) fica cheio e mostra o texto. Os
    textos explicativos ficam aqui, nunca escritos no ecrã.
    Dentro de um <summary> (view-data EmSumario) a dica não pode ser focável:
@@ -11,20 +11,20 @@
 @if (ViewData["AjudaHref"] is string ajudaHref)
 {
 <a class="dmo-help" id="@ViewData["AjudaId"]" href="@ajudaHref" aria-label="Ajuda: @Model" title="Ajuda">
-  <svg class="dmo-help-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="5.3" /><text x="6" y="6" text-anchor="middle" dominant-baseline="central">?</text></svg>
+  <svg class="dmo-help-mark" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><circle cx="5" cy="5" r="4.2" /></svg>
 </a>
 }
 else if (ViewData["EmSumario"] is true)
 {
 <span class="dmo-help" data-dmo-help-sumario>
-  <svg class="dmo-help-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="5.3" /><text x="6" y="6" text-anchor="middle" dominant-baseline="central">?</text></svg>
+  <svg class="dmo-help-mark" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><circle cx="5" cy="5" r="4.2" /></svg>
   <span class="dmo-help-tip" role="tooltip">@Model</span>
 </span>
 }
 else
 {
 <span class="dmo-help" tabindex="0" role="button" aria-label="Ajuda: @Model">
-  <svg class="dmo-help-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="5.3" /><text x="6" y="6" text-anchor="middle" dominant-baseline="central">?</text></svg>
+  <svg class="dmo-help-mark" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><circle cx="5" cy="5" r="4.2" /></svg>
   <span class="dmo-help-tip" role="tooltip">@Model</span>
 </span>
 }

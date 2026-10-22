@@ -29,4 +29,6 @@ public sealed record ToolSheetReadModel(
     uint TechnicalVersion = 0,
     /// <summary>O aviso de ferramenta repetida (Tool.DuplicateWarningAtUtc); null = sem aviso.</summary>
     DateTime? DuplicateWarningAtUtc = null,
-    string? DuplicateWarningBy = null);
+    string? DuplicateWarningBy = null,
+    /// <summary>A fábrica de origem (ex.: MG); null = não indicada.</summary>
+    string? FabricaOrigem = null);

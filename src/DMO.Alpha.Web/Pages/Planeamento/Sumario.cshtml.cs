@@ -28,6 +28,7 @@ public sealed class SumarioModel(
     IJobOnListQuery jobOnList,
     CurrentUserCapabilities capabilities,
     DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos,
+    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     ShellStateFactory shellState) : PageModel
 {
     private const string PagePath = "/Planeamento/Sumario";
@@ -66,6 +67,16 @@ public sealed class SumarioModel(
     /// </summary>
     public IReadOnlyList<DMO.Alpha.Core.Armazem.ArmazemLoteNovoItem> LotesNovos { get; private set; } = [];
 
+    /// <summary>
+    /// As ferramentas com a utilização por atualizar (Diogo, 22/10/2026: «ao
+    /// sair da produção entra no armazém dá o aviso, e podemos usar o sumário
+    /// para dar o aviso a quem tem módulo ferramentas»): o mesmo lembrete da
+    /// ficha, só a quem tem o módulo Ferramentas, com o link para a ficha.
+    /// </summary>
+    public IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaUsoPorAtualizar> UsoPorAtualizar { get; private set; } = [];
+
+    public const int UsoPorAtualizarMaximo = 20;
+
     private IReadOnlyList<string> _modulos = [];
 
     public async Task<IActionResult> OnGetAsync(
@@ -87,6 +98,7 @@ public sealed class SumarioModel(
         if (_modulos.Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal))
         {
             LotesNovos = await lotesNovos.PorCriarAsync(null, HttpContext.RequestAborted);
+            UsoPorAtualizar = await usoSap.PorAtualizarAsync(UsoPorAtualizarMaximo, HttpContext.RequestAborted);
         }
         Tipo = SumarioTipos.DaChave(tipo) is { } escolhido && TiposVisiveis.Contains(escolhido) ? escolhido : null;
         Dias = dias is { } d && PeriodosDias.Contains(d) ? d : 1;
