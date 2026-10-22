@@ -1273,14 +1273,27 @@ Novos: 4 · mudaram: 0 · saíram: 0
 
 Selo depois: `771fcfc9beca2c80`
 
-## A-0048 · 2026-10-22 · teste-novo
+## A-0048 · 2026-10-22 · contagem-lista
 
-Porquê: Rascunho do Job On guardado ao recarregar; Enter na procura da Reparação Programada
+Porquê: Rascunho do Job On guardado ao recarregar e Enter na procura da Reparação Programada: testes novos (página e ShellProof); package.json só acrescenta os dois ficheiros à lista do test:js
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyJ3Y6hLo6zvBpEqbQwNgjbV
-Novos: 3 · mudaram: 0 · saíram: 0
+Novos: 15 · mudaram: 1 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: RascunhoEEnterNaProcuraTests.NovoJobOn_AFolhaLevaAChaveDoRascunho_EOScriptQueOGuarda`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: RascunhoEEnterNaProcuraTests.ReparacaoProgramada_OEnterNaReferenciaENoLoteSubmeteAProcura_ENaoOAdicionar`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: os campos que chegam no endereço ganham ao rascunho (o regresso de «Criar CM»)`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: os rascunhos do Novo, do Duplicar X e do Editar Y não se misturam`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: quando o servidor recusa a gravação, o rascunho volta`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: recarregar a folha repõe os campos, com «Rascunho recuperado»`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: sem localStorage a folha funciona, sem erros`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: uma gravação com sucesso apaga o rascunho, e ele não volta depois`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: «Descartar rascunho» repõe os valores do servidor e apaga o rascunho`
+- novo: `tests/ShellProof/programada-enter.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/programada-enter.test.cjs :: Enter na Referência e no Lote submete o rpFiltros, nunca o rpAssociar${comCanonico ? ' (com o script da casa)' : ''}`
+- novo: `tests/ShellProof/programada-enter.test.cjs :: o script do Enter está na página`
+- novo: `tests/ShellProof/programada-enter.test.cjs :: um Enter que outro script já tratou (a sugestão escolhida) não submete outra vez`
+- mudou: `tests/ShellProof/package.json`
 
-Selo depois: `b4bfd6113a994143`
+Selo depois: `fbaea0abc9efe7ea`
