@@ -1,0 +1,32 @@
+using DMO.Alpha.Core.Admin;
+
+namespace DMO.Alpha.Web.Tests;
+
+/// <summary>
+/// A ajuda do SAP numa página própria (Diogo, 22/10/2026 06:57: «isso tem de
+/// ficar numa página readme de ajuda; o que deve ficar nas opções são as
+/// opções; nada de textos gigantes, isso é acedido através de um helpme»).
+/// </summary>
+public sealed partial class DefinicoesPorModuloPageTests
+{
+    [Fact]
+    public async Task FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda()
+    {
+        using var client = await LoginOperatorAsync("7121", DmoCapabilities.Ferramentas);
+
+        var definicoes = await client.GetStringAsync(FerramentasPath);
+        var inicio = definicoes.IndexOf("id=\"ferrDefSap\"", StringComparison.Ordinal);
+        Assert.True(inicio >= 0, "Falta o cartão Utilização pelo SAP.");
+        var cartao = definicoes[inicio..definicoes.IndexOf("</section>", inicio, StringComparison.Ordinal)];
+        Assert.Contains("id=\"ferrSapAjuda\" href=\"/Ferramentas/AjudaSap\"", cartao, StringComparison.Ordinal);
+        Assert.DoesNotContain("dmo-codigos.txt com os códigos", cartao, StringComparison.Ordinal);
+
+        var ajuda = await client.GetStringAsync("/Ferramentas/AjudaSap");
+        var inicioAjuda = ajuda.IndexOf("id=\"ajudaSap\"", StringComparison.Ordinal);
+        Assert.True(inicioAjuda >= 0, "Falta a página de ajuda do SAP.");
+        var texto = ajuda[inicioAjuda..ajuda.IndexOf("</article>", inicioAjuda, StringComparison.Ordinal)];
+        Assert.Contains("DMO_USO_SAP.vbs", texto, StringComparison.Ordinal);
+        Assert.Contains("dmo-codigos.txt", texto, StringComparison.Ordinal);
+        Assert.Contains("Se alguma coisa mudar no SAP", texto, StringComparison.Ordinal);
+    }
+}

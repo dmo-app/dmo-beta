@@ -1,5 +1,5 @@
 {
-  "selo": "fd6d3c8393596692",
+  "selo": "484f3ba6e423e1ab",
   "unidades": {
     "scripts/ci/ci-local.sh": "a73e306917a93e43",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1247,7 +1247,7 @@
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: (resto do ficheiro)": "0d4f9b5c8830f552",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Admin_SeestTheDefinicoesTab_EncostadoADireita": "e09a67e1b346094f",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Anonymous_DoesNotSeeTheDefinicoesTab": "b96c2d816e45fc4d",
-    "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_TemOCartaoSap_ComOLeiaMe": "5352729f9f976d3b",
+    "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_NaoTemOCartaoSap": "6dfe8cced753ecfb",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_UtilizadorNormal_NaoVeOCartaoSap": "ef866e4122bf6b84",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.NormalUser_DoesNotSeeTheDefinicoesTab": "cb5b7b519977fe2d",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: (resto do ficheiro)": "0d674996b4673d09",
@@ -1709,6 +1709,8 @@
     "tests/DMO.Alpha.Web.Tests/ControloResumoServicesRegistrationTests.cs :: ControloResumoServicesRegistrationTests.ControloResumoServices_ResolveAsScopedImplementations": "eceaf532d8dc8342",
     "tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)": "f2aa1446334ac076",
     "tests/DMO.Alpha.Web.Tests/DMO.Alpha.Web.Tests.csproj": "ccd481ea73bcba88",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: (resto do ficheiro)": "a73635c57adc3f94",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda": "d948eb4d15090941",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: (resto do ficheiro)": "4b395687f86794f4",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal": "43654fd8be446cef",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ORelatorioDeFabrico_MostraOQueCadaJobOnDaFerramentaProduziu": "1d48f24a3594f4c4",

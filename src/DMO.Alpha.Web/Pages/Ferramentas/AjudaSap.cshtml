@@ -1,0 +1,81 @@
+@page "/Ferramentas/AjudaSap"
+@model DMO.Alpha.Web.Pages.Ferramentas.AjudaSapModel
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.ajuda-page{max-width:820px;margin:0 auto;padding:24px 22px 40px}
+.ajuda-card{padding:18px 22px}
+.ajuda-card h2{margin:0 0 12px;font-size:20px}
+.ajuda-card dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0 0 8px}
+.ajuda-card dt{font-weight:600}
+.ajuda-card dd{margin:0}
+.ajuda-card h4{margin:16px 0 6px;font-size:15px}
+.ajuda-card ol,.ajuda-card ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.ajuda-card p{margin:0 0 6px;font-size:15px;color:inherit}
+.ajuda-card code{font-size:13px;overflow-wrap:anywhere}
+</style>
+}
+
+@* Ajuda do SAP (Diogo, 22/10/2026 06:57): «isso tem de ficar numa página
+   readme de ajuda; o que deve ficar nas opções são as opções; nada de textos
+   gigantes, isso é acedido através de um helpme». Abre-se pela ajuda do
+   cartão «Utilização pelo SAP» das Definições das Ferramentas. *@
+<main class="ajuda-page" aria-labelledby="ajuda-sap-title">
+    <article id="ajudaSap" class="dmo-card ajuda-card">
+        <h2 id="ajuda-sap-title">Ajuda: utilização pelo SAP</h2>
+        <dl>
+        <dt>Sistema</dt><dd>BAS (SAP Logon 750), mandante 100</dd>
+        <dt>Transação</dt><dd>ZPPG «Moldes Existentes» (% de uso de cada ferramenta)</dd>
+        <dt>Script</dt><dd><code>DMO_USO_SAP.vbs</code>, com o atalho <code>Moldes Existentes.SAP</code></dd>
+        <dt>Pasta</dt><dd>A pasta ligada em Ferramentas › Definições › Utilização pelo SAP</dd>
+        <dt>Ficheiros</dt><dd><code>dmo-codigos.txt</code> (o DMO escreve), <code>dmo-uso-sap.csv</code> (o script escreve), relatório de fabrico da produção</dd>
+        </dl>
+
+        <h4>1. Para que serve</h4>
+        <p>O DMO não chega ao SAP: o SAP está na rede da fábrica e o DMO está na internet. Por isso, a ligação faz-se por uma pasta no computador da fábrica. O SAP grava lá ficheiros e o DMO, aberto no Chrome ou no Edge desse computador, lê-os.</p>
+        <p>Da pasta vêm duas coisas:</p>
+        <ul>
+            <li>a <b>% de uso</b> de cada ferramenta (vida já gasta: consumo ÷ vida esperada), que aparece na página da ferramenta, na procura do Armazém e no Job On;</li>
+            <li>o <b>fabrico de cada produção</b> (produzido, peso médio, dias), que dá o «Produzido» e o «Delta» da janela da % uso e o peso da produção na folha do Peso.</li>
+        </ul>
+
+        <h4>2. Preparar uma vez</h4>
+        <ol>
+            <li>Criar uma pasta no computador, por exemplo <code>C:\temp\DMO-SAP</code>.</li>
+            <li>Pôr lá o <code>DMO_USO_SAP.vbs</code> e o <code>Moldes Existentes.SAP</code> (o atalho do SAP que abre a ZPPG).</li>
+            <li>No DMO: Ferramentas › Definições › Utilização pelo SAP › «Ligar pasta» e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
+            <li>O DMO escreve logo na pasta o <code>dmo-codigos.txt</code>.</li>
+        </ol>
+
+        <h4>3. O que pede o DMO ao SAP</h4>
+        <p>O <code>dmo-codigos.txt</code> tem um código por linha: o <b>nome técnico + lote</b> da ferramenta, que é o Equipment Code do SAP (por exemplo <code>M544744MPPSX11</code> = <code>M544744MPPSX</code> + lote <code>11</code>). Só vão as ferramentas à espera da utilização: as que entraram no Armazém vindas da Produção e as pedidas na página da ferramenta. O botão «Copiar códigos» copia a mesma lista.</p>
+
+        <h4>4. Atualizar a % de uso</h4>
+        <ol>
+            <li>Duplo clique no <code>DMO_USO_SAP.vbs</code>.</li>
+            <li>O script lê os códigos, abre o SAP na ZPPG (espera até 90 segundos), procura cada código e lê o PERC da lista.</li>
+            <li>Grava tudo no <code>dmo-uso-sap.csv</code>, na mesma pasta. Primeiro grava num ficheiro à parte e só no fim lhe dá o nome final, para o DMO nunca ler uma lista a meio.</li>
+            <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Também se pode carregar em «Ler agora».</li>
+        </ol>
+        <p>Sem script: no SAP, no campo Equipment Code, seleção múltipla › «Carregar da área de transferência» (depois de «Copiar códigos»), F8 e exportar a lista para a pasta. O DMO lê-a da mesma forma.</p>
+
+        <h4>5. O fabrico das produções</h4>
+        <p>O relatório de fabrico do SAP grava-se na mesma pasta. O DMO envia todos os ficheiros mais novos do que o último lido, do mais antigo para o mais novo, e reconhece cada um sozinho. Cada linha (material, linha, início e fim) fica uma vez; lida outra vez, atualiza-se.</p>
+        <p>Uma produção de uma ferramenta é cada Job On em que ela foi a CM, o MF ou a BQ (também quando foi trocada). O produzido é a soma das linhas do relatório da mesma referência, linha e datas do Job On. Conta o <b>total produzido (bruto)</b>, não só as peças boas: uma peça má também gastou o molde.</p>
+
+        <h4>6. Se alguma coisa mudar no SAP</h4>
+        <ul>
+            <li><b>Mudou o nome da transação ou do sistema:</b> abrir o <code>Moldes Existentes.SAP</code> no Bloco de Notas e trocar <code>Command=ZPPG</code> ou <code>Name=BAS</code>.</li>
+            <li><b>Mudou o utilizador:</b> no mesmo ficheiro, trocar <code>Name=</code> na secção <code>[User]</code>.</li>
+            <li><b>Mudou o ecrã da ZPPG</b> (o script diz «o ecrã da ZPPG não ficou pronto» ou «Search failed»): no SAP, Alt+F12 › «Gravação e reprodução de script», gravar uma procura e ver o novo nome do campo. No <code>DMO_USO_SAP.vbs</code> (Bloco de Notas), trocar <code>wnd[0]/usr/ctxtCOD_EQ-LOW</code> (campo da procura) ou <code>wnd[0]/usr/cntlCUSTOM_CONTROL_0010/shellcont/shell</code> (lista).</li>
+            <li><b>Mudaram as colunas da lista:</b> o script lê as colunas <code>EQUNR</code> (equipamento), <code>PERC</code> (% de uso), <code>DATA_UF</code> (última produção) e <code>DESC_LOTE</code> (lote); se mudarem de nome, trocá-las no <code>.vbs</code>.</li>
+            <li><b>O SAP demora mais a abrir:</b> no <code>.vbs</code>, subir <code>SAP_WAIT_SECONDS = 90</code>.</li>
+        </ul>
+        <p>Depois de mudar, correr o script uma vez e ver se o <code>dmo-uso-sap.csv</code> traz <code>FOUND</code> na coluna <code>status</code>. As linhas com <code>ERROR</code> dizem na coluna <code>error</code> o que falhou.</p>
+
+        <h4>7. Segurança</h4>
+        <p>Nenhuma palavra-passe fica nos ficheiros: o SAP pede-a ao abrir, como sempre. O DMO só lê a pasta ligada e só escreve o <code>dmo-codigos.txt</code>. A pasta fica ligada só no computador e no browser onde foi escolhida.</p>
+    </article>
+</main>

@@ -156,26 +156,20 @@ public sealed class DefinicoesNavTabTests : IClassFixture<CustomWebApplicationFa
         Assert.Equal(HttpStatusCode.OK, definicoes.StatusCode);
     }
 
-    // SAP nas Definições do Admin (Diogo, 21/10/2026 14:11–14:12): um cartão
-    // «SAP» com a informação e um LEIA-ME detalhado de como funciona.
+    // SAP nas Definições do Admin: o LEIA-ME saiu para a página de ajuda das
+    // Ferramentas (Diogo, 22/10/2026 06:57: «nada de textos gigantes, isso é
+    // acedido através de um helpme»); o Setup não tem o cartão SAP.
     [Fact]
-    public async Task Definicoes_Admin_TemOCartaoSap_ComOLeiaMe()
+    public async Task Definicoes_Admin_NaoTemOCartaoSap()
     {
         SeedConfiguredAdmin("navtab-sap@example.test", "navtab-sap-provider", "NavTabSap1!");
         using var client = await LoginAsync("navtab-sap@example.test", "NavTabSap1!");
-        var html = await (await client.GetAsync("/Admin/Definicoes")).Content.ReadAsStringAsync();
+        var response = await client.GetAsync("/Admin/Definicoes");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync();
 
-        var inicio = html.IndexOf("id=\"admSap\"", StringComparison.Ordinal);
-        Assert.True(inicio >= 0, "Falta o cartão SAP.");
-        var cartao = html[inicio..html.IndexOf("</section>", inicio, StringComparison.Ordinal)];
-        var leiaInicio = cartao.IndexOf("id=\"admSapLeiaMe\"", StringComparison.Ordinal);
-        Assert.True(leiaInicio >= 0, "Falta o LEIA-ME dentro do cartão SAP.");
-        var leiaMe = cartao[leiaInicio..cartao.IndexOf("</details>", leiaInicio, StringComparison.Ordinal)];
-
-        Assert.Contains("LEIA-ME: como funciona", leiaMe, StringComparison.Ordinal);
-        Assert.Contains("DMO_USO_SAP.vbs", leiaMe, StringComparison.Ordinal);
-        Assert.Contains("dmo-codigos.txt", leiaMe, StringComparison.Ordinal);
-        Assert.Contains("Se alguma coisa mudar no SAP", leiaMe, StringComparison.Ordinal);
+        Assert.DoesNotContain("admSap", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("LEIA-ME: como funciona", html, StringComparison.Ordinal);
     }
 
     // O cartão SAP é só do ADMIN: um utilizador normal não chega à página.

@@ -704,3 +704,16 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_UtilizadorNormal_NaoVeOCartaoSap`
 
 Selo depois: `fd6d3c8393596692`
+
+## A-0029 · 2026-10-22 · ok-do-diogo
+
+Porquê: O LEIA-ME do SAP sai do Setup do Admin para a página de ajuda das Ferramentas, aberta pela ajuda do cartão (Diogo 22/10 06:57)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBXTH55ZaH6ZdrV4jUrehGd
+Novos: 3 · mudaram: 0 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_NaoTemOCartaoSap`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda`
+- saiu: `tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_TemOCartaoSap_ComOLeiaMe`
+
+Selo depois: `484f3ba6e423e1ab`
