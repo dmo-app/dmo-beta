@@ -1441,3 +1441,16 @@ Novos: 18 · mudaram: 7 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Entrada_PeloFormulario_PoeNaPosicaoEPassaASaida`
 
 Selo depois: `aabe4ebe61e8fd49`
+
+## A-0053 · 2026-10-22 · contagem-lista
+
+Porquê: Ecrã pequeno (teste de uso real de 22/10/2026): os dois testes só passam a exportar o HTML da folha para o Chromium (ExportarParaOBrowser), sem mudar o que verificam; o CI corre o novo tests/visual/ecra_pequeno_browser.py.
+Novos: 1 · mudaram: 4 · saíram: 0
+
+- novo: `tests/visual/ecra_pequeno_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PostMeasurement_CreatesRegistro_PRG_BackToShowWithBackendCalculations`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
+
+Selo depois: `76c4b78f9b5bff97`

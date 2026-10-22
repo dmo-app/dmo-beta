@@ -430,6 +430,8 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         Assert.DoesNotContain("pegamentos_id", html);
         Assert.Contains("Mapa de limites", html);
         Assert.Contains("1 medição fora da tolerância", html);
+        // A folha com medições vai para o Chromium (tests/visual/ecra_pequeno_browser.py).
+        ExportarParaOBrowser.Gravar("pegamentos-folha.html", html);
         // O gargalo completado deixou de estar em falta na T3 (o input de
         // completion da CM desapareceu, substituído pelo facto herdado) — a
         // BQ-1 e o MF-TOOL-9 continuam em falta, o estado truthful delas

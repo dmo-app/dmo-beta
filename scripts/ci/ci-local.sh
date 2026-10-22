@@ -188,6 +188,21 @@ else
 fi
 
 echo
+echo "== Browser no ecrã pequeno"
+echo "   O Peso e os Pegamentos a 360, 768 e 1400 px, em claro e em escuro: sem scroll lateral e as tabelas largas a deslizar na sua caixa."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no ecrã pequeno (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/ecra_pequeno_browser.py "$ui" >"$logs/ui-ecra.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no ecrã pequeno")
+else
+  tail -30 "$logs/ui-ecra.log"
+  summary+=("FALHOU  Browser no ecrã pequeno")
+  failed=1
+fi
+
+echo
 echo "== Browser na pasta dos PDFs"
 echo "   A pasta dos PDFs no Chromium: sem pasta, com pasta (referência/produção), deixar de usar e duplo clique."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
