@@ -24,6 +24,14 @@ html body .rp-page .dmo-field select{width:auto;max-width:22ch}
 .rp-marca{width:34px;text-align:center}
 .rp-marca input{width:18px;height:18px;cursor:pointer}
 .rp-pos{font-variant-numeric:tabular-nums;font-weight:700}
+.rp-contents{display:contents}
+.rp-oculto{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#rpHistLinhas{margin:0}
+#rpLista .dmo-table-wrap+.rp-cabecalho{margin-top:12px}
+.rp-modo{margin-right:auto}
+.rp-modo{display:flex;gap:8px;align-items:center}
+html body .rp-modo .dmo-button.rp-modo-ativo{background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600))}
+html body .rp-card .dmo-table tbody tr.rp-hist-aberta td{background:var(--dmo-neutral-soft)}
 .rp-procura-topo{margin-top:14px!important;padding-top:12px;border-top:1px solid var(--dmo-border)}
 .rp-procura-topo h4{margin:0;font-size:14px}
 .rp-cabecalho{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 12px;color:var(--dmo-muted);font-size:13px}
@@ -66,66 +74,106 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
   </div>
 
   <section id="rpProcura" class="dmo-card rp-card" aria-labelledby="rp-lista-title" data-dmo-regiao data-dmo-parcial>
+    @* Listas | Histórico (Diogo, 22/10/2026): dois botões, o escolhido com
+       o aspeto invertido. Nas Listas escolhe-se uma lista ativa ou cria-se
+       uma nova (reparador e «Criar»); por baixo a tabela e a procura com
+       «Adicionar». No Histórico só os filtros (abre vazio) e as listas
+       fechadas; a linha abre a lista, só para ver. *@
     <div class="dmo-card-topo">
-      <h3 id="rp-lista-title">Lista</h3>
+      <h3 id="rp-lista-title" class="rp-oculto">Reparação Programada</h3>
+      <div class="rp-modo" role="group" aria-label="Listas ou histórico">
+        <a class="dmo-button@(!Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoListas" aria-pressed="@(!Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada")">Listas</a>
+        <a class="dmo-button@(Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoHistorico" aria-pressed="@(Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { vista = "fechadas" })">Histórico</a>
+        <partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" />
+      </div>
     </div>
-    @* A lista escolhe-se no mesmo cartão (Diogo, 22/10/2026): Ativas ou
-       Fechadas, a lista e «Imprimir», e a tabela logo a seguir. *@
     <div id="rpLista" class="rp-lista-zona-topo" aria-label="Lista">
+    @if (Model.VerFechadas)
+    {
     <form id="rpEscolherLista" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros">
+      <input type="hidden" name="vista" value="fechadas" />
+      <div class="dmo-field">
+        <label for="rpHistReparador">Reparador</label>
+        <select id="rpHistReparador" name="hist_reparador" data-dmo-autosubmit>
+          <option value="" selected="@string.IsNullOrWhiteSpace(Model.HistReparador)">Todos</option>
+          @foreach (var n in Model.HistReparadores)
+          {
+            <option value="@n" selected="@(string.Equals(Model.HistReparador, n, StringComparison.OrdinalIgnoreCase))">@n</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="rpHistDesde">Desde</label>
+        <input id="rpHistDesde" name="hist_desde" type="date" value="@Model.HistDesde?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
+      </div>
+      <div class="dmo-field">
+        <label for="rpHistAte">Até</label>
+        <input id="rpHistAte" name="hist_ate" type="date" value="@Model.HistAte?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
+      </div>
+      <a class="dmo-button" id="rpHistLimpar" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { vista = "fechadas" })">Limpar filtros</a>
+    </form>
+    @if (Model.HistoricoPedido && Model.Fechadas.Count > 0)
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="rpHistLinhas" data-dmo-list="Listas fechadas">
+          <thead><tr><th>Reparador</th><th>Criada</th><th>Por</th><th>Fechada</th></tr></thead>
+          <tbody>
+          @foreach (var h in Model.Fechadas)
+          {
+            <tr data-dmo-row data-dmo-historico="@h.Id" class="@(lista?.Lista.Id == h.Id ? "rp-hist-aberta" : null)" data-dmo-open="@Url.Page("/Ferramentas/ReparacaoProgramada", new { vista = "fechadas", hist_reparador = Model.HistReparador, hist_desde = Model.HistDesde?.ToString("yyyy-MM-dd"), hist_ate = Model.HistAte?.ToString("yyyy-MM-dd"), lista = h.Id })">
+              <td><strong>@h.Reparador</strong></td>
+              <td>@ReparacaoProgramadaModel.Dia(h.CriadaEmUtc)</td>
+              <td>@(h.CriadaPor ?? "—")</td>
+              <td>@(h.FechadaEmUtc is { } f ? ReparacaoProgramadaModel.Dia(f) : "—")</td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+    }
+    else
+    {
+    <div class="rp-filtros" id="rpListaLinha">
+    <form id="rpEscolherLista" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-contents">
       <input type="hidden" name="tipo" value="@Model.TipoTexto" />
       <input type="hidden" name="referencia" value="@Model.Referencia" />
       <input type="hidden" name="lote" value="@Model.Lote" />
       <input type="hidden" name="linha" value="@Model.Linha" />
       <input type="hidden" name="estado" value="@Model.EstadoTexto" />
       <div class="dmo-field">
-        <label for="rpVista">Listas<partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" /></label>
-        <select id="rpVista" name="vista" data-dmo-autosubmit>
-          <option value="" selected="@(!Model.VerFechadas)">Ativas</option>
-          <option value="fechadas" selected="@Model.VerFechadas">Fechadas</option>
+        <label for="rpListaEscolha">Lista</label>
+        <select id="rpListaEscolha" name="lista" data-dmo-autosubmit>
+          @foreach (var a in Model.Ativas)
+          {
+            <option value="@a.Id" selected="@(lista?.Lista.Id == a.Id)">@ReparacaoProgramadaModel.Titulo(a)</option>
+          }
+          <option value="0" selected="@Model.NovaLista">Nova lista</option>
         </select>
       </div>
-      @if (Model.VerFechadas)
-      {
-        @* O histórico das listas fechadas (Diogo, 22/10/2026): abre vazio;
-           o reparador ou as datas mostram as listas que batem. *@
-        <div class="dmo-field">
-          <label for="rpHistReparador">Reparador</label>
-          <select id="rpHistReparador" name="hist_reparador" data-dmo-autosubmit>
-            <option value="" selected="@string.IsNullOrWhiteSpace(Model.HistReparador)">Todos</option>
-            @foreach (var n in Model.HistReparadores)
-            {
-              <option value="@n" selected="@(string.Equals(Model.HistReparador, n, StringComparison.OrdinalIgnoreCase))">@n</option>
-            }
-          </select>
-        </div>
-        <div class="dmo-field">
-          <label for="rpHistDesde">Desde</label>
-          <input id="rpHistDesde" name="hist_desde" type="date" value="@Model.HistDesde?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
-        </div>
-        <div class="dmo-field">
-          <label for="rpHistAte">Até</label>
-          <input id="rpHistAte" name="hist_ate" type="date" value="@Model.HistAte?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
-        </div>
-      }
-      @{ var escolhas = Model.VerFechadas ? Model.Fechadas : Model.Ativas; }
-      @if (escolhas.Count > 0)
-      {
-        <div class="dmo-field">
-          <label for="rpListaEscolha">Lista</label>
-          <select id="rpListaEscolha" name="lista" data-dmo-autosubmit>
-            @foreach (var a in escolhas)
-            {
-              <option value="@a.Id" selected="@(lista?.Lista.Id == a.Id)">@ReparacaoProgramadaModel.Titulo(a)</option>
-            }
-          </select>
-        </div>
-      }
+    </form>
+    @if (Model.NovaLista)
+    {
+    <form id="rpCriar" method="post" asp-page="/Ferramentas/ReparacaoProgramada" asp-page-handler="Criar" class="rp-contents">
+      <div class="dmo-field">
+        <label for="rpReparador">Reparador<partial name="_DmoHelp" model="@("O reparador da lista nova (Armazém › Definições).")" /></label>
+        <select id="rpReparador" name="reparador">
+          <option value="">Escolha…</option>
+          @foreach (var r in Model.Reparadores)
+          {
+            <option value="@r.Id">@r.Nome</option>
+          }
+        </select>
+      </div>
+      <button type="submit" class="dmo-button" id="rpCriarBotao">Criar</button>
+    </form>
+    }
       @if (lista is not null)
       {
         <a class="dmo-button" id="rpImprimir" data-dmo-completa target="_blank" rel="noopener" href="@Url.Page("/Ferramentas/ReparacaoProgramadaImprimir", new { lista = lista.Lista.Id })">Imprimir</a>
       }
-    </form>
+    </div>
+    }
 
     @if (lista is null)
     {
@@ -133,13 +181,13 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       {
         <p id="rpHistVazio"><em>Escolha o reparador ou as datas.</em></p>
       }
-      else if (Model.VerFechadas)
+      else if (Model.VerFechadas && Model.Fechadas.Count == 0)
       {
         <p id="rpHistNada"><em>Nenhuma lista fechada com esses filtros.</em></p>
       }
-      else
+      else if (!Model.VerFechadas)
       {
-        <p id="rpListaVazia"><em>Nenhuma lista ativa. Procure as ferramentas e adicione-as a um reparador.</em></p>
+        <p id="rpListaVazia"><em>@(Model.Ativas.Count == 0 ? "Nenhuma lista ativa. Escolha o reparador e crie uma lista." : "Escolha o reparador e crie a lista.")</em></p>
       }
     }
     else
@@ -191,8 +239,10 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       </div>
     }
     </div>
+    @if (!Model.VerFechadas)
+    {
     <div class="dmo-card-topo rp-procura-topo">
-      <h4 id="rp-procura-title">Procurar ferramentas<partial name="_DmoHelp" model="@("Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote com Enter. Marque as ferramentas e adicione: a uma lista nova, com o reparador, ou a uma lista ativa.")" /></h4>
+      <h4 id="rp-procura-title">Procurar ferramentas<partial name="_DmoHelp" model="@("Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote com Enter. Marque as ferramentas e «Adicionar» junta-as à lista escolhida em cima.")" /></h4>
     </div>
 
     <form id="rpFiltros" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros" role="search">
@@ -201,20 +251,20 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
         <input type="hidden" name="lista" value="@listaAtual" />
       }
       <div class="dmo-field">
-        <label for="rpTipo">Tipo</label>
-        <select id="rpTipo" name="tipo" data-dmo-autosubmit>
-          <option value="" selected="@(Model.Tipo is null)">CM e MF</option>
-          <option value="CM" selected="@(Model.TipoTexto == "CM")">CM</option>
-          <option value="MF" selected="@(Model.TipoTexto == "MF")">MF</option>
-        </select>
-      </div>
-      <div class="dmo-field">
         <label for="rpReferencia">Referência</label>
         <input id="rpReferencia" name="referencia" class="rp-curto" value="@Model.Referencia" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="5447" />
       </div>
       <div class="dmo-field">
         <label for="rpLote">Lote</label>
         <input id="rpLote" name="lote" class="rp-lote" value="@Model.Lote" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="3" />
+      </div>
+      <div class="dmo-field">
+        <label for="rpTipo">Tipo</label>
+        <select id="rpTipo" name="tipo" data-dmo-autosubmit>
+          <option value="" selected="@(Model.Tipo is null)">Todos</option>
+          <option value="CM" selected="@(Model.TipoTexto == "CM")">CM</option>
+          <option value="MF" selected="@(Model.TipoTexto == "MF")">MF</option>
+        </select>
       </div>
       <div class="dmo-field">
         <label for="rpLinha">Linha</label>
@@ -236,26 +286,6 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
           }
         </select>
       </div>
-      <div class="dmo-field">
-        <label for="rpDestino">Lista</label>
-        <select id="rpDestino" name="destino" form="rpAssociar">
-          <option value="">Nova lista</option>
-          @foreach (var a in Model.Ativas)
-          {
-            <option value="@a.Id" selected="@(Model.ListaId == a.Id)">@ReparacaoProgramadaModel.Titulo(a)</option>
-          }
-        </select>
-      </div>
-      <div class="dmo-field">
-        <label for="rpReparador">Reparador<partial name="_DmoHelp" model="@("O reparador da lista nova (Armazém › Definições). Numa lista ativa, o reparador é o dela.")" /></label>
-        <select id="rpReparador" name="reparador" form="rpAssociar">
-          <option value="">Escolha…</option>
-          @foreach (var r in Model.Reparadores)
-          {
-            <option value="@r.Id">@r.Nome</option>
-          }
-        </select>
-      </div>
       <button type="submit" form="rpAssociar" class="dmo-button" id="rpAssociarBotao">Adicionar</button>
       <a class="dmo-button" id="rpLimpar" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { lista = Model.ListaId })">Limpar filtros</a>
     </form>
@@ -266,6 +296,8 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       <input type="hidden" name="lote" value="@Model.Lote" />
       <input type="hidden" name="linha" value="@Model.Linha" />
       <input type="hidden" name="estado" value="@Model.EstadoTexto" />
+      @* «Adicionar» junta à lista escolhida em cima; sem lista, avisa. *@
+      <input type="hidden" name="destino" value="@(lista is { Lista.Ativa: true } ? lista.Lista.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) : null)" />
     </form>
 
     @if (Model.Procura.Vazia)
@@ -299,6 +331,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       </div>
     }
 
+    }
   </section>
 </main>
 <script>

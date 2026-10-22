@@ -1,5 +1,5 @@
 {
-  "selo": "ee00bca296589d29",
+  "selo": "69bb56498f37525b",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1839,9 +1839,10 @@
     "tests/DMO.Alpha.Web.Tests/ErrorPageTests.cs :: ErrorPageTests.UnhandledLoginException_RendersSafeErrorPage_InsteadOfMissingEndpoint": "508b6bd418ba02c7",
     "tests/DMO.Alpha.Web.Tests/ExportarParaOBrowser.cs :: (resto do ficheiro)": "392c024962fa7c10",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: (resto do ficheiro)": "e650a4894dab8a31",
-    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.Imprimir_SoMostraAsPorRetirar_EAsFechadasAbremVazias_EFiltramPeloReparador": "a6ca794fbabd4609",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.Imprimir_SoMostraAsPorRetirar_EAsFechadasAbremVazias_EFiltramPeloReparador": "224c8131a25de833",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.NovaLista_CriaComOReparador_ESemListaOAdicionarAvisa": "a28f9bf4d3fc79ed",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)": "31a6a9fc5c3b4450",
-    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza": "f1630dc3c7fa90ba",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza": "50a71d3f994ff3be",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova": "5157a95de83e47bd",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.SemFerramentas_NaoEntra_NemAssocia_NemImprime": "0f2b0b090ec67465",
     "tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: (resto do ficheiro)": "1d37c8b26915f74f",
