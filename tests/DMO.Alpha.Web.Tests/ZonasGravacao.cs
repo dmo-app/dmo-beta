@@ -111,6 +111,12 @@ internal sealed class PesoQueryContado(IPesoQuery inner, LeiturasContadas leitur
         Interlocked.Increment(ref leituras.Peso);
         return inner.ListByControloAsync(controloId, cancellationToken);
     }
+
+    public Task<IReadOnlyList<PesoReadModel>> ListParaComparacaoAsync(int pesoId, CancellationToken cancellationToken = default)
+    {
+        Interlocked.Increment(ref leituras.Peso);
+        return inner.ListParaComparacaoAsync(pesoId, cancellationToken);
+    }
 }
 
 internal sealed class PegamentosQueryContado(IPegamentosQuery inner, LeiturasContadas leituras) : IPegamentosQuery

@@ -15,15 +15,16 @@ public sealed record PesoCapResult(decimal DiametroMm, decimal AlturaMm, decimal
 
 /// <summary>
 /// O apoio TP/calote — a comparação da calote efetiva com a referência da
-/// Tool e com o desenho (a função <c>support(geometry, effective)</c> do
+/// Tool (a função <c>support(geometry, effective)</c> do
 /// dmo-html): a referência é cap(D, h_ref) da Tool; a efetiva é cap(D,
 /// calote efetiva) — a calote do Job On quando existe, senão a própria h_ref
 /// da Tool. As diferenças PRESERVAM O SINAL (decisão do Owner: «+0,3 e −0,3
 /// são fatos distintos»):
 /// <code>
-/// ΔR = actual.R − reference.R;  ΔV = actual.V − reference.V;
-/// drawing_delta = reference.R − R_draw
+/// ΔR = actual.R − reference.R;  ΔV = actual.V − reference.V
 /// </code>
+/// Só precisa do diâmetro D e da calote h: a esfera fica definida por (D, h)
+/// e o raio do desenho (tp_raio) deixou de ser pedido (Diogo, 22/10/2026).
 /// O apoio é SEPARADO do cálculo principal do Peso (PesoCalculation.cs:6-7:
 /// «o cálculo de suporte TP é separado e não está neste corte») e NUNCA o
 /// bloqueia — é cálculo de apoio, nunca um gate.
@@ -31,9 +32,6 @@ public sealed record PesoCapResult(decimal DiametroMm, decimal AlturaMm, decimal
 public sealed record PesoCapSupport(
     PesoCapResult Referencia,
     PesoCapResult Efetivo,
-    decimal RaioDesenhoMm,
-    /// <summary>drawing_delta = reference.R − R_draw; null quando a referência não tem R (h_ref = 0).</summary>
-    decimal? DiferencaDesenhoMm,
     /// <summary>ΔR = actual.R − reference.R; null quando um dos lados não tem R (calote plana).</summary>
     decimal? DeltaRaioMm,
     /// <summary>ΔV = actual.V − reference.V (os volumes existem sempre; 0 cm³ na calote plana).</summary>
@@ -81,15 +79,9 @@ public static class PesoCapCalculation
     /// </summary>
     public static PesoCapSupport Support(
         decimal diametroMm,
-        decimal raioDesenhoMm,
         decimal referenciaAlturaMm,
         decimal? caloteEfetivaMm)
     {
-        if (raioDesenhoMm <= 0m)
-        {
-            throw new ArgumentOutOfRangeException(nameof(raioDesenhoMm), "O raio do desenho tem de ser positivo.");
-        }
-
         if (caloteEfetivaMm is { } efetiva && efetiva < 0m)
         {
             throw new ArgumentOutOfRangeException(nameof(caloteEfetivaMm), "A calote não pode ser negativa.");
@@ -100,8 +92,6 @@ public static class PesoCapCalculation
         return new PesoCapSupport(
             referencia,
             efetivo,
-            raioDesenhoMm,
-            referencia.RaioMm is { } raioReferencia ? raioReferencia - raioDesenhoMm : null,
             referencia.RaioMm is { } referenciaR && efetivo.RaioMm is { } efetivoR ? efetivoR - referenciaR : null,
             efetivo.VolumeCm3 - referencia.VolumeCm3);
     }
@@ -109,22 +99,16 @@ public static class PesoCapCalculation
     /// <summary>
     /// O apoio com a geometria OPICIONAL da Tool (os Tp* do
     /// ToolTechnicalContext): null quando a referência TP está por completar
-    /// (D, R do desenho ou h_ref em falta/inválidos — o estado «Referência
+    /// (D ou h_ref em falta/inválidos — o estado «Referência
     /// por completar» do html) ou quando uma calote é negativa. Nunca lança:
     /// a ausência do apoio não bloqueia nada.
     /// </summary>
     public static PesoCapSupport? TrySupport(
         decimal? diametroMm,
-        decimal? raioDesenhoMm,
         decimal? referenciaAlturaMm,
         decimal? caloteEfetivaMm)
     {
         if (diametroMm is not { } diametro || diametro <= 0m)
-        {
-            return null;
-        }
-
-        if (raioDesenhoMm is not { } raioDesenho || raioDesenho <= 0m)
         {
             return null;
         }
@@ -136,7 +120,7 @@ public static class PesoCapCalculation
 
         try
         {
-            return Support(diametro, raioDesenho, referenciaAltura, caloteEfetivaMm);
+            return Support(diametro, referenciaAltura, caloteEfetivaMm);
         }
         catch (ArgumentOutOfRangeException)
         {

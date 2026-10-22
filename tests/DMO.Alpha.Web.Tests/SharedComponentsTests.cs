@@ -94,7 +94,10 @@ public sealed class SharedComponentsTests
         var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
         Assert.Contains(".dmo-help-mark path{fill:var(--dmo-palette-mist);stroke:var(--dmo-palette-mist);", css, StringComparison.Ordinal);
         // Sempre do mesmo tamanho, não acompanha a letra (Diogo, 17/10/2026).
-        Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:12px;height:10.5px}", css, StringComparison.Ordinal);
+        // «esse triangulo do help esta demasiado grande» (Diogo, 21/10/2026): 9 px.
+        Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:9px;height:8px}", css, StringComparison.Ordinal);
+        // O ▸/▾ dos blocos que abrem e fecham tem outra cor, para não se confundir com a ajuda.
+        Assert.Contains("summary::marker,summary.dmo-card-topo>:first-child::before{color:var(--dmo-success)}", css, StringComparison.Ordinal);
         Assert.Contains(".dmo-help:hover .dmo-help-mark path,.dmo-help:focus .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}", css, StringComparison.Ordinal);
 
         foreach (var file in PageFiles("*.cshtml"))

@@ -26,7 +26,7 @@ public sealed partial class ControloCapabilitiesCutHPageTests
 
         var resumo = await GetPageHtmlAsync(client, $"/Controlo/Resumo?jobon_id={jobOnId}");
         Assert.Contains(">Associar Peso existente</a>", resumo);
-        Assert.Contains(">Criar Peso</a>", resumo);
+        Assert.Contains("aria-label=\"Registar o Peso\">Registar</a>", resumo);
         ExportarParaOBrowser.Gravar("resumo-sem-peso.html", resumo);
     }
 }

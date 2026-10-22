@@ -21,7 +21,9 @@ namespace DMO.Alpha.Infrastructure.Production;
 /// de um dos lados não há datas a comparar: sem aviso. Na MESMA máquina duas
 /// produções não trabalham ao mesmo tempo (uma segue a outra; a sobreposição
 /// das datas tem o seu próprio aviso), por isso só contam as outras máquinas
-/// (o Diogo, 17/10/2026: 202616 e 202618, ambas na C2).
+/// (o Diogo, 17/10/2026: 202616 e 202618, ambas na C2). O dia da troca não
+/// conta (o Diogo, 22/10/2026: «uma produção que vai entrar no mesmo dia que
+/// a outra vai sair não pode causar erro»), a mesma regra de JobOnOverlap.Crosses.
 /// </summary>
 public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
 {
@@ -103,8 +105,8 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 .Where(u => u.JobOnId != excluido
                     && (machineCode == null || u.Machine != machineCode)
                     && u.InicioEm != null
-                    && (fimEm == null || u.InicioEm <= fimEm)
-                    && (u.FimEm == null || u.FimEm >= inicio))
+                    && (fimEm == null || u.InicioEm < fimEm)
+                    && (u.FimEm == null || u.FimEm > inicio))
                 .Select(u => new UsoParalelo(u.ToolId, u.JobOnId, u.ProductionNumber, u.Machine))
                 .ToListAsync(cancellationToken);
         var usosPorTool = usos

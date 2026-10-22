@@ -18,7 +18,7 @@ namespace DMO.Alpha.Web.Tests;
 /// calendário escolhe o dia; filtros por tipo de informação e por dias. A
 /// informação do Controlo é de quem tem um dos módulos do Controlo.
 /// </summary>
-public sealed class PlaneamentoSumarioPageTests : IClassFixture<CustomWebApplicationFactory>
+public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWebApplicationFactory>
 {
     private const string PagePath = "/Planeamento/Sumario";
 
@@ -98,7 +98,8 @@ public sealed class PlaneamentoSumarioPageTests : IClassFixture<CustomWebApplica
         Assert.True(html.IndexOf(">Sumário</a>", StringComparison.Ordinal) < html.IndexOf(">Histórico</a>", StringComparison.Ordinal));
         Assert.Contains("<h3>Mudanças</h3>", html);
         Assert.Contains($"<a class=\"sumario-titulo\" href=\"/JobOn?jobon_id={hoje}\">S1A001 7</a>", html);
-        Assert.DoesNotContain("S1A002", html);
+        // A de amanhã só pode estar no painel lateral («O que vai entrar»).
+        Assert.DoesNotContain("S1A002", SemPainelLateral(html));
         Assert.Contains("id=\"dmoCalendario\"", html);
     }
 
@@ -165,7 +166,7 @@ public sealed class PlaneamentoSumarioPageTests : IClassFixture<CustomWebApplica
             await db.SaveChangesAsync();
         }
 
-        Assert.DoesNotContain("S2A001", await GetAsync(aprovar, "?tipo=por-ver"));
+        Assert.DoesNotContain("S2A001", SemPainelLateral(await GetAsync(aprovar, "?tipo=por-ver")));
     }
 
     [Fact]
@@ -222,7 +223,9 @@ public sealed class PlaneamentoSumarioPageTests : IClassFixture<CustomWebApplica
         await JobOnAsync("S4A001", dia);
         using var client = await LoginAsync("5401", DmoCapabilities.JobOnCreate);
 
-        Assert.DoesNotContain("S4A001", await GetAsync(client));
+        // Sem fim, a produção está em curso e aparece no painel lateral (Diogo,
+        // 22/10/2026); fora dele, só no dia escolhido.
+        Assert.DoesNotContain("S4A001", SemPainelLateral(await GetAsync(client)));
         var html = await GetAsync(client, $"?ano={dia.Year}&mes={dia.Month}&dia={dia.Day}");
         Assert.Contains("S4A001", html);
         Assert.Contains(dia.ToString("dd/MM/yyyy"), html);

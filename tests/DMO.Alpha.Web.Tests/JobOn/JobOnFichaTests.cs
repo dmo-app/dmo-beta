@@ -254,7 +254,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         }
         else
         {
-            Assert.Contains("/Controlo/Resumo", location);
+            Assert.StartsWith($"{PagePath}?jobon_id={jobOnId}", location, StringComparison.Ordinal);
             Assert.DoesNotContain("overlap=1", location);
         }
         using var finalScope = _factory.Services.CreateScope();
@@ -465,6 +465,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         // que entra a seguir ou a troca de um componente, a que vier primeiro.
         var (jobOnId, _, b1Id, c3Id) = await SeedFichaAsync();
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
+        int entraNaC3Id;
         using (var scope = _factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
@@ -473,13 +474,15 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             db.JobOns.Add(new JobOn { ProductionNumber = "202618", Reference = "6018Y232", MachineId = b1Id, InicioEm = hoje.AddDays(9) });
             db.JobOns.Add(new JobOn { ProductionNumber = "202617", Reference = "5447T173", MachineId = b1Id, InicioEm = hoje.AddDays(3) });
             db.JobOns.Add(new JobOn { ProductionNumber = "202619", Reference = "1199C194", Machine = c1, InicioEm = hoje.AddDays(5) });
-            db.JobOns.Add(new JobOn { ProductionNumber = "202620", Reference = "1075C142", MachineId = c3Id, InicioEm = hoje.AddDays(6) });
+            var entraNaC3 = new JobOn { ProductionNumber = "202620", Reference = "1075C142", MachineId = c3Id, InicioEm = hoje.AddDays(6) };
+            db.JobOns.Add(entraNaC3);
             // A B1 troca a BQ antes da produção nova: aparece a troca. A C3
             // troca depois da produção nova: aparece a produção.
             var outraC3 = db.JobOns.Single(j => j.ProductionNumber == "202602").Id;
             db.JobOnLotNotes.Add(new JobOnLotNote { JobOnId = jobOnId, Dia = hoje.AddDays(2), Slot = "BQ", NewToolId = "BQ-TOOL-9", ToolReferenceFrozen = "T194", PreviousLotFrozen = "12", NewLotFrozen = "13", CreatedAtUtc = DateTime.UtcNow });
             db.JobOnLotNotes.Add(new JobOnLotNote { JobOnId = outraC3, Dia = hoje.AddDays(8), Slot = "CM", NewToolId = "T3", ToolReferenceFrozen = "5447", PreviousLotFrozen = "3", NewLotFrozen = "4", CreatedAtUtc = DateTime.UtcNow });
             await db.SaveChangesAsync();
+            entraNaC3Id = entraNaC3.Id;
         }
         SeedUser("4596", "Planejador", "provider-jobon-proxima", "JobProxima1!");
         using var client = await LoginClientAsync("4596", "JobProxima1!");
@@ -488,21 +491,68 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Contains("<span>1075C142 202601</span>", html);
         Assert.DoesNotContain("<span>Produção 202601</span>", html);
         var troca = hoje.AddDays(2).ToString("dd/MM/yyyy");
-        Assert.Contains($"<span class=\"beta-light-next\" title=\"Troca BQ lote 12 para 13 a {troca}\">Mudança {troca} · BQ lote 12 para 13</span>", html);
-        var entraC3 = hoje.AddDays(6).ToString("dd/MM/yyyy");
-        Assert.Contains($"<span class=\"beta-light-next\" title=\"Entra 1075C142 202620 na C3 a {entraC3}\">Mudança {entraC3} · 1075C142 202620</span>", html);
+        // A mudança é um link (Diogo, 21/10/2026): a troca abre a ficha da
+        // ferramenta que entra; a produção que entra abre o Job On no dia dela.
+        Assert.Contains($"<a class=\"beta-light-next\" href=\"/Ferramentas/Ficha?tool_id=BQ-TOOL-9\" title=\"Troca BQ lote 12 para 13 a {troca}\">Mudança {troca} · BQ lote 12 para 13</a>", html);
+        var diaC3 = hoje.AddDays(6);
+        var entraC3 = diaC3.ToString("dd/MM/yyyy");
+        Assert.Contains($"<a class=\"beta-light-next\" href=\"/JobOn?ano={diaC3.Year}&mes={diaC3.Month}&dia={diaC3.Day}&jobon_id={entraNaC3Id}#lightFicha\" title=\"Entra 1075C142 202620 na C3 a {entraC3}\">Mudança {entraC3} · 1075C142 202620</a>", html);
+        // Na máquina vazia o link da mudança fica fora do link de criar.
         var entraC1 = hoje.AddDays(5).ToString("dd/MM/yyyy");
-        Assert.Contains($"<strong>C1</strong> · —<span class=\"beta-light-next\" title=\"Entra 1199C194 202619 na C1 a {entraC1}\">Mudança {entraC1} · 1199C194 202619</span>", html);
+        Assert.Matches($"<strong>C1</strong> · —</a>\\s*<a class=\"beta-light-next\" href=\"/JobOn\\?[^\"]*jobon_id=\\d+#lightFicha\" title=\"Entra 1199C194 202619 na C1 a {entraC1}\">Mudança {entraC1} · 1199C194 202619</a>", html);
+        // Os links ficam dentro da zona das produções do dia.
+        var zonaDia = html.IndexOf("<div id=\"jobonProducoes\" data-dmo-regiao>", StringComparison.Ordinal);
+        var folhas = html.IndexOf("<div id=\"jobonFolhas\" data-dmo-regiao>", StringComparison.Ordinal);
+        Assert.True(zonaDia > 0 && folhas > zonaDia);
+        Assert.True(html.IndexOf("<a class=\"beta-light-next\"", StringComparison.Ordinal) > zonaDia);
+        Assert.True(html.LastIndexOf("<a class=\"beta-light-next\"", StringComparison.Ordinal) < folhas);
         // Na B1 a próxima mudança é a troca, não a produção que entra depois.
         // (A 5447T173 pode aparecer no «O que vai entrar», que mostra a semana:
         // de segunda a quinta, hoje + 3 dias ainda é esta semana.)
-        Assert.DoesNotContain($"Mudança {hoje.AddDays(3):dd/MM/yyyy} · 5447T173 202617</span>", html);
+        Assert.DoesNotContain($"Mudança {hoje.AddDays(3):dd/MM/yyyy} · 5447T173 202617</a>", html);
 
         // Depois da troca, a B1 já mostra a produção que entra a seguir.
         var depois = hoje.AddDays(2);
         var noDia = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={depois.Year}&mes={depois.Month}&dia={depois.Day}"));
-        Assert.Contains($"Mudança {hoje.AddDays(3):dd/MM/yyyy} · 5447T173 202617</span>", noDia);
-        Assert.DoesNotContain("· BQ lote 12 para 13</span>", noDia);
+        Assert.Contains($"Mudança {hoje.AddDays(3):dd/MM/yyyy} · 5447T173 202617</a>", noDia);
+        Assert.DoesNotContain("· BQ lote 12 para 13</a>", noDia);
+    }
+
+    [Fact]
+    public async Task ProducoesDoDia_LinhaVermelha_SoComSobreposicaoReal()
+    {
+        // Diogo, 21/10/2026: «uma producao sai dia 20 outra entra dia 20» não
+        // é sobreposição. A linha da máquina só fica vermelha quando duas
+        // produções se cruzam de facto.
+        await SeedFichaAsync();
+        var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var troca = new Machine { Code = "D7" };
+            var cruza = new Machine { Code = "D8" };
+            var sozinha = new Machine { Code = "D9" };
+            db.Machines.AddRange(troca, cruza, sozinha);
+            // Na D7 uma sai hoje e a outra entra hoje: a troca, sem vermelho.
+            db.JobOns.Add(new JobOn { ProductionNumber = "202671", Reference = "5447T173", Machine = troca, InicioEm = hoje.AddDays(-5), FimEm = hoje });
+            db.JobOns.Add(new JobOn { ProductionNumber = "202672", Reference = "6018Y232", Machine = troca, InicioEm = hoje, FimEm = hoje.AddDays(5) });
+            // Na D8 a segunda entrou no dia antes de a primeira sair: vermelho.
+            db.JobOns.Add(new JobOn { ProductionNumber = "202681", Reference = "5447T173", Machine = cruza, InicioEm = hoje.AddDays(-5), FimEm = hoje });
+            db.JobOns.Add(new JobOn { ProductionNumber = "202682", Reference = "6018Y232", Machine = cruza, InicioEm = hoje.AddDays(-1), FimEm = hoje.AddDays(5) });
+            // Na D9 uma produção só: sem vermelho.
+            db.JobOns.Add(new JobOn { ProductionNumber = "202691", Reference = "1199C194", Machine = sozinha, InicioEm = hoje.AddDays(-5), FimEm = hoje.AddDays(5) });
+            await db.SaveChangesAsync();
+        }
+        SeedUser("4588", "Planejador", "provider-jobon-vermelho", "JobVermelho1!");
+        using var client = await LoginClientAsync("4588", "JobVermelho1!");
+
+        var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}"));
+        Assert.Contains("<div class=\"beta-light-machine-row mch-D7\">", html);
+        Assert.Contains("<div class=\"beta-light-machine-row mch-D8 overlap\">", html);
+        Assert.Contains("<div class=\"beta-light-machine-row mch-D9\">", html);
+        Assert.Contains("Sobreposição: 2 produções na D8 neste dia.", html);
+        Assert.DoesNotContain("produções na D7 neste dia", html);
+        Assert.DoesNotContain("produções na D9 neste dia", html);
     }
 
     [Fact]
@@ -707,8 +757,8 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             ("mf_tool_id", "MF-TOOL-9"), ("bq_tool_id", "BQ-TOOL-9"),
             ("calote_mm", submitted), ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        // Com o Controlo Criar no template, o Guardar leva ao Resumo.
-        Assert.StartsWith("/Controlo/Resumo?jobon_id=", response.Headers.Location!.OriginalString, StringComparison.Ordinal);
+        // Guardar fica no Job On do Planeamento (Diogo, 22/10/2026), mesmo com o Controlo Criar.
+        Assert.StartsWith($"{PagePath}?jobon_id=", response.Headers.Location!.OriginalString, StringComparison.Ordinal);
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
         var job = await db.JobOns.AsNoTracking().SingleAsync(x => x.ProductionNumber == "DECIMAL-TEST");
@@ -831,12 +881,13 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
     /// <summary>
     /// No mesmo dia do início ou um dia depois, as datas estão certas: grava
-    /// sem aviso e o Guardar leva ao Resumo (o template tem o Controlo Criar).
+    /// sem aviso e o Guardar fica no Job On do Planeamento, mesmo com o
+    /// Controlo Criar no template (Diogo, 22/10/2026: sem ir ao Controlo).
     /// </summary>
     [Theory]
     [InlineData("2026-05-04")] // no mesmo dia
     [InlineData("2026-05-05")] // um dia depois
-    public async Task FimNoDiaDoInicioOuDepoisNaCriacao_GravaESegueParaOResumoSemAviso(string fim)
+    public async Task FimNoDiaDoInicioOuDepoisNaCriacao_GravaEFicaNoJobOnSemAviso(string fim)
     {
         var (_, _, b1Id, _) = await SeedFichaAsync();
         SeedUser("4509", "Planejador", "provider-ficha-9", "FichaPass9!");
@@ -848,7 +899,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var job = await JobOnGravadoAsync("FIM-CERTO");
         Assert.Equal(new DateOnly(2026, 5, 4), job.InicioEm);
         Assert.Equal(DateOnly.Parse(fim, System.Globalization.CultureInfo.InvariantCulture), job.FimEm);
-        Assert.Equal($"/Controlo/Resumo?jobon_id={job.Id}", response.Headers.Location!.OriginalString);
+        Assert.Equal($"{PagePath}?jobon_id={job.Id}", response.Headers.Location!.OriginalString);
     }
 
     /// <summary>
@@ -1105,7 +1156,31 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         Assert.Null(await AvisoAsync($"&inicio_em={hoje.AddDays(-5):yyyy-MM-dd}&fim_em={hoje.AddDays(-2):yyyy-MM-dd}"));
         Assert.Null(await AvisoAsync("&inicio_em=&fim_em="));
-        Assert.Contains("202602 (C3)", await AvisoAsync($"&inicio_em={hoje.AddDays(-5):yyyy-MM-dd}&fim_em={hoje.AddDays(-1):yyyy-MM-dd}"));
+        // O dia da troca (acaba no dia em que a 202602 começou) não conta (o Diogo, 22/10/2026).
+        Assert.Null(await AvisoAsync($"&inicio_em={hoje.AddDays(-5):yyyy-MM-dd}&fim_em={hoje.AddDays(-1):yyyy-MM-dd}"));
+        Assert.Contains("202602 (C3)", await AvisoAsync($"&inicio_em={hoje.AddDays(-5):yyyy-MM-dd}&fim_em={hoje:yyyy-MM-dd}"));
+    }
+
+    [Fact]
+    public async Task CartoesDasFerramentas_ONomeEAbrirFicha_LevamAFichaDaFerramenta()
+    {
+        // Diogo, 21/10/2026: «nao consigo aceder as ferramentas a partir do
+        // jobon, apenas tem trocar remover criar. ao clicar na ferramenta
+        // deveria ir para a pagina da mesma».
+        var (jobOnId, _, _, _) = await SeedFichaAsync();
+        SeedUser("4587", "Planejador", "provider-ficha-abrir", "FichaAbrir1!");
+        using var client = await LoginClientAsync("4587", "FichaAbrir1!");
+
+        var editar = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}&editar=1");
+        foreach (var (tipo, toolId, titulo) in new[] { ("CM", "T3", "5447 · Lote 3"), ("BQ", "BQ-TOOL-9", "T194 · Lote 12"), ("MF", "MF-TOOL-9", "5810 · Lote 1") })
+        {
+            Assert.Contains($"<a class=\"dmo-options-item\" data-tool-open href=\"/Ferramentas/Ficha?tool_id={toolId}\">Abrir ficha {tipo}</a>", editar);
+            Assert.Contains($"<a class=\"job-tool-card-link\" data-tool-open href=\"/Ferramentas/Ficha?tool_id={toolId}\" title=\"Abrir a ficha da ferramenta\"><strong class=\"job-tool-card-title\" data-tool-title>{titulo}</strong></a>", editar);
+        }
+
+        // Sem ferramenta escolhida não há ficha para abrir.
+        var novo = await GetPageHtmlAsync(client, $"{PagePath}?novo=1");
+        Assert.Contains("<a class=\"dmo-options-item\" data-tool-open hidden=\"hidden\">Abrir ficha CM</a>", novo);
     }
 
     [Fact]

@@ -306,7 +306,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         // Os cartões do registo (Diogo, 17/10/2026): a referência e a
         // produção em cartões; a máquina já não aparece no cabeçalho.
         Assert.Contains("<span>Referência</span><strong>ZQREF-99</strong>", html, StringComparison.Ordinal);
-        Assert.Contains("<span>Produção</span><strong>PN-550011</strong>", html, StringComparison.Ordinal);
+        Assert.Matches("<span>Produção</span><strong><a href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\">PN-550011</a></strong>", html);
     }
 
     // ------------------------------------------------------------------

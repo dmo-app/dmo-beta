@@ -295,6 +295,22 @@ public sealed class FerramentasHandlersTests : IDisposable
         Assert.Equal(0, await _db.ToolMachineLinks.AsNoTracking().CountAsync());
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("s/lote")]
+    public async Task CreateTool_BqSemLote_ERecusada_ENadaEGravado(string lote)
+    {
+        // Diogo, 22/10/2026: «bloquear o registo sem lote. Precisamos do lote para tool_id».
+        var handler = new CreateToolHandler(_db, new ToolLotQuantitySettings(_db));
+
+        var outcome = await handler.HandleAsync(new CreateTool("BQ", "5612T173", lote));
+
+        Assert.Equal(CreateToolResult.MissingLot, outcome.Result);
+        Assert.Null(outcome.Tool);
+        Assert.False(await _db.Tools.AsNoTracking().AnyAsync());
+    }
+
     [Fact]
     public async Task CreateTool_EmptyLot_SavesNoLot_AndASecondOneIsRefused()
     {
@@ -305,18 +321,18 @@ public sealed class FerramentasHandlersTests : IDisposable
         var b1 = await SeedMachineAsync("B1");
         var handler = new CreateToolHandler(_db, new ToolLotQuantitySettings(_db));
 
-        var first = await handler.HandleAsync(new CreateTool("BQ", "T194", "   "));
+        var first = await handler.HandleAsync(new CreateTool("MF", "5810", "   "));
         Assert.Equal(CreateToolResult.Success, first.Result);
         Assert.Equal(ToolRegistryConstants.NoLot, first.Tool!.Lot);
         Assert.True(first.Tool.LotDefaulted);
 
         await RegistosAntigos.EnvelhecerAsync(_db);
-        var second = await handler.HandleAsync(new CreateTool("BQ", "T194", "", null, null, new[] { b1.Id }));
+        var second = await handler.HandleAsync(new CreateTool("MF", "5810", "", null, null, new[] { b1.Id }));
         Assert.Equal(CreateToolResult.ToolAlreadyExists, second.Result);
         Assert.Equal(first.Tool.ToolId, second.ExistingToolId);
 
         // Escrever «s/lote» à mão também é a mesma ferramenta.
-        var typed = await handler.HandleAsync(new CreateTool("BQ", "T194", ToolRegistryConstants.NoLot));
+        var typed = await handler.HandleAsync(new CreateTool("MF", "5810", ToolRegistryConstants.NoLot));
         Assert.Equal(CreateToolResult.ToolAlreadyExists, typed.Result);
 
         var persisted = await _db.Tools.AsNoTracking().SingleAsync();
@@ -324,7 +340,7 @@ public sealed class FerramentasHandlersTests : IDisposable
         Assert.Empty(await _db.ToolMachineLinks.AsNoTracking().ToListAsync());
 
         // Outra referência sem lote é outra ferramenta.
-        var other = await handler.HandleAsync(new CreateTool("BQ", "T195", ""));
+        var other = await handler.HandleAsync(new CreateTool("MF", "5811", ""));
         Assert.Equal(CreateToolResult.Success, other.Result);
         Assert.Equal(2, await _db.Tools.AsNoTracking().CountAsync());
     }

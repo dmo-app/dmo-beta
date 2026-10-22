@@ -65,6 +65,15 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
             return Refused(CreateToolScopedPesoResult.BqToolNotFound);
         }
 
+        // Um Peso só para comparação compara um Peso de uma produção; nunca
+        // é das duas coisas ao mesmo tempo (o CHECK da base também o diz).
+        if (command.ComparacaoDoPesoId is int comparacaoDe
+            && (command.ControloId is not null
+                || !await _db.Pesos.AnyAsync(p => p.Id == comparacaoDe && p.ControloId != null, cancellationToken)))
+        {
+            return Refused(CreateToolScopedPesoResult.ComparacaoPesoNotFound);
+        }
+
         // As Tools têm de existir no registo canónico Ferramentas — a
         // linha DUMMY (REMOVED) NÃO é utilizável (excluída por constante:
         // nunca é uma Tool real de pesagem). O Tool.Type nunca é um gate:
@@ -217,6 +226,7 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
                 .FirstOrDefaultAsync(cancellationToken)
             : await _db.Pesos.AsNoTracking().FirstOrDefaultAsync(p =>
                 p.ControloId == null
+                && p.ComparacaoDoPesoId == command.ComparacaoDoPesoId
                 && p.CmToolId == command.CmToolId
                 && p.BqToolId == command.BqToolId
                 && p.Process == storedProcess
@@ -260,6 +270,7 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
             BqToolReferenceFrozen = bqTool.Reference,
             BqToolLotFrozen = bqTool.Lot,
             ControloId = command.ControloId,
+            ComparacaoDoPesoId = command.ComparacaoDoPesoId,
             ProducaoAnteriorControloId = anterior?.ProducaoAnteriorControloId,
             ProducaoAnteriorPesoGramas = anterior?.ProducaoAnteriorPesoGramas
         };

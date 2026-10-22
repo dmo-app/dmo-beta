@@ -223,7 +223,6 @@ html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:aut
 .beta-bq-layout .bq-movement-line .bq-line-machine { flex:0 0 130px; }
 .beta-bq-layout .bq-movement-line .bq-line-quantity { flex:0 0 84px; }
 .beta-bq-layout .bq-movement-line .bq-line-date { flex:0 0 170px; }
-.beta-bq-layout .bq-movement-line .bq-line-save { flex:0 0 auto;white-space:nowrap; }
 @media (max-width:700px) {
   .beta-bq-layout .bq-movement-line .bq-movement-types { flex:1 1 100%;flex-wrap:wrap; }
   .beta-bq-layout .bq-movement-line .bq-line-date { flex:1 1 170px; }

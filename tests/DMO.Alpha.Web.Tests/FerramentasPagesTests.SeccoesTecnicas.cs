@@ -28,8 +28,10 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("Tampão D (mm)", html, StringComparison.Ordinal);
         Assert.DoesNotContain("Gargalo (mm)", html, StringComparison.Ordinal);
         var tampao = html[Posicao(html, ">Tampão<")..];
-        Assert.True(Posicao(tampao, ">Diâmetro (mm)</label>") < Posicao(tampao, ">Raio (mm)</label>"));
-        Assert.True(Posicao(tampao, ">Raio (mm)</label>") < Posicao(tampao, ">Calote (mm)</label>"));
+        Assert.True(Posicao(tampao, ">Diâmetro (mm)</label>") < Posicao(tampao, ">Calote (mm)</label>"));
+        // O raio deixou de ser pedido: D e calote chegam para o volume.
+        Assert.DoesNotContain(">Raio (mm)</label>", tampao);
+        Assert.DoesNotContain("name=\"tp_raio\"", tampao);
         foreach (var dica in new[] { AjudaTecnica.Peso, AjudaTecnica.Gargalo, AjudaTecnica.Tampao })
             Assert.Contains($"<span class=\"dmo-help-tip\" role=\"tooltip\">{dica}</span>", html, StringComparison.Ordinal);
         Assert.Contains("class=\"dmo-field ferr-w-processo\"", html, StringComparison.Ordinal);

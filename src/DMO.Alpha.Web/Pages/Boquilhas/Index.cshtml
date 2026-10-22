@@ -63,7 +63,6 @@
             <h2>Boquilhas · Registo de reparação</h2>
             <p>Abra uma boquilha no painel lateral para registar movimentos.</p>
           </div>
-          <div class="bq-page-actions"><span class="date-chip">Operação diária</span></div>
         </div>
 
         @* A PROCURA NO TOPO (Diogo, 17/10/2026): procurar ou trocar de
@@ -175,7 +174,12 @@
               {
                 <div class="dmo-fact"><span>Referência</span><strong>@production.Reference</strong></div>
                 <div class="dmo-fact"><span>BQ · lote</span><strong>@trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</strong></div>
-                <div class="dmo-fact"><span>Produção</span><strong>@production.ProductionNumber</strong></div>
+                @* A produção abre o Job On (Diogo, 21/10/2026: «registo associado
+                   completo, a vista da máquina + jobon»). *@
+                <div class="dmo-fact"><span>Produção</span><strong>@if (production.JobOnId is int jobOnDoRegisto)
+                {<a href="@Url.Page("/JobOn/Index", null, new { jobon_id = jobOnDoRegisto }, null, null, "lightFicha")" title="Abrir o Job On desta produção">@production.ProductionNumber</a>}
+                else
+                {@production.ProductionNumber}</strong></div>
                 @* O início e o fim são os do Job On (Diogo, 17/10/2026). Um Job On
                    sem data de início fica com um aviso amarelo discreto: falta
                    um dado que devia existir, e o fim não é «até aviso». *@
@@ -337,7 +341,14 @@
               {
                 <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
               }
-              <h3>Registar Entrada ou Saída<partial name="_DmoHelp" model="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")" /></h3>
+              @* «Guardar movimento» passa a «Registar», no canto superior
+                 direito do card (Diogo, 21/10/2026). *@
+              <div class="dmo-card-topo">
+                <h3>Registar Entrada ou Saída<partial name="_DmoHelp" model="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")" /></h3>
+                <div class="dmo-card-topo-acoes">
+                  <button type="submit" class="btn primary bq-line-save" aria-label="Registar o movimento">Registar</button>
+                </div>
+              </div>
               @* O FOCO NO PRIMEIRO CAMPO (Diogo, 17/10/2026: guardar movimento
                  atrás de movimento): depois de gravar, ou de abrir outra
                  boquilha, o foco fica no tipo do próximo movimento. Com uma
@@ -389,7 +400,6 @@
                   <label for="occurredAt">Data e hora reais</label>
                   <input id="occurredAt" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
                 </div>
-                <button type="submit" class="btn primary bq-line-save">Guardar movimento</button>
               </div>
             </form>
           </div>
@@ -1006,3 +1016,6 @@
 {
   <script src="~/js/bq-registo.js" asp-append-version="true"></script>
 }
+@* O Excel das Boquilhas do chefe: depois de cada registo, se este
+   computador tem o ficheiro ligado (Definições), escreve-o lá. *@
+<script src="~/js/dmo-excel-bq.js" asp-append-version="true" data-bq-excel-url="@Url.Page("/Boquilhas/Definicoes")"></script>

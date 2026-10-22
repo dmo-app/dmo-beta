@@ -34,12 +34,12 @@ public static class JobOnOverlapQuery
                 && (j.InicioEm != null || j.FimEm != null));
         if (inicioEm is { } inicio)
         {
-            candidates = candidates.Where(j => j.FimEm == null || inicio <= j.FimEm);
+            candidates = candidates.Where(j => j.FimEm == null || inicio < j.FimEm);
         }
 
         if (fimEm is { } fim)
         {
-            candidates = candidates.Where(j => j.InicioEm == null || j.InicioEm <= fim);
+            candidates = candidates.Where(j => j.InicioEm == null || j.InicioEm < fim);
         }
 
         var others = await candidates

@@ -9,7 +9,7 @@ namespace DMO.Alpha.Infrastructure.Tests.Controlo;
 
 /// <summary>
 /// Prova a resolução do apoio TP/calote: a geometria TP é FACTO DA TOOL
-/// (ToolTechnicalContext — D, R do desenho, h_ref), a calote efetiva é a do
+/// (ToolTechnicalContext — D, h_ref), a calote efetiva é a do
 /// JOB ON quando existe (o html: <c>ctx.production?.calote</c>), senão a
 /// h_ref da Tool («Tool CM»), e a simulação sobrepõe-se APENAS na exibição
 /// (nunca gravada). A Tool sem TP é o estado «Referência por completar» —
@@ -80,8 +80,7 @@ public sealed class PesoCapSupportQueryTests : IDisposable
     {
         // A calote efetiva é a DO JOB ON (9 mm): o html usa
         // ctx.production.calote. ΔR = 39,2222… − 36,25 = +2,9722…;
-        // ΔV = 9,2174… − 10,34107… = −1,1236…; drawing_delta = 36,25 −
-        // 24,11 = +12,14 (sinal preservado).
+        // ΔV = 9,2174… − 10,34107… = −1,1236….
         var (controloId, cmToolId) = await SeedProducaoAsync(caloteMm: 9m);
 
         var readModel = await _query.GetAsync(new PesoCapSupportRequest(cmToolId, controloId));
@@ -90,13 +89,11 @@ public sealed class PesoCapSupportQueryTests : IDisposable
         Assert.Null(readModel.EstadoMensagem);
         Assert.Equal("Job On", readModel.OrigemCalote);
         Assert.Equal(50m, readModel.DiametroMm);
-        Assert.Equal(24.11m, readModel.RaioDesenhoMm);
         Assert.Equal(10m, readModel.AlturaReferenciaMm);
         Assert.Equal(36.25m, readModel.RaioReferenciaMm);
         Assert.Equal(9m, readModel.AlturaEfetivaMm);
         Assert.InRange(readModel.RaioCalculadoMm!.Value, 39.2222m, 39.2223m);
         Assert.InRange(readModel.DeltaRaioMm!.Value, 2.9721m, 2.9723m);
-        Assert.Equal(12.14m, readModel.DiferencaDesenhoMm);
         Assert.InRange(readModel.VolumeEfetivoCm3!.Value, 9.2170m, 9.2180m);
         Assert.InRange(readModel.DeltaVolumeCm3!.Value, -1.124m, -1.123m);
     }
@@ -186,7 +183,7 @@ public sealed class PesoCapSupportQueryTests : IDisposable
         var readModel = await _query.GetAsync(new PesoCapSupportRequest("T4", controlo.Id));
 
         Assert.False(readModel.TemReferencia);
-        Assert.Contains("Complete D, R do desenho e h de referência na ferramenta CM", readModel.EstadoMensagem);
+        Assert.Contains("Complete D e h de referência na ferramenta CM", readModel.EstadoMensagem);
         Assert.Null(readModel.RaioCalculadoMm);
     }
 
@@ -207,7 +204,8 @@ public sealed class PesoCapSupportQueryTests : IDisposable
     public async Task GetAsync_SemControlo_UsaAReferenciaDaTool()
     {
         // Pesagem antes da produção (sem controlo/Job On): a calote efetiva
-        // é a h_ref da Tool — o fallback do html («Tool CM»).
+        // é a h_ref da Tool — o fallback do html («Tool CM»). Sem raio do
+        // desenho: D e h_ref chegam (o raio deixou de ser pedido).
         var machine = new Machine { Code = "B1" };
         _db.Machines.Add(machine);
         _db.Tools.Add(new Tool { ToolId = "T3", Type = ToolType.Cm, Reference = "5447", Lot = "3" });
@@ -215,7 +213,6 @@ public sealed class PesoCapSupportQueryTests : IDisposable
         {
             ToolId = "T3",
             TpDiametroMm = 50m,
-            TpRaioMm = 24.11m,
             TpSagittaMm = 10m
         });
         await _db.SaveChangesAsync();
@@ -225,5 +222,6 @@ public sealed class PesoCapSupportQueryTests : IDisposable
         Assert.True(readModel.TemReferencia);
         Assert.Equal("Tool CM", readModel.OrigemCalote);
         Assert.Equal(10m, readModel.AlturaEfetivaMm);
+        Assert.Equal(36.25m, readModel.RaioReferenciaMm);
     }
 }

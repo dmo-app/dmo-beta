@@ -129,10 +129,16 @@ public static class EnvioEmailRegras
 
     /// <summary>
     /// O assunto ou o corpo do modelo com os dados da produção:
-    /// {referencia}, {producao} e {maquina}.
+    /// {referencia}, {producao}, {maquina} e {peso} (Diogo, 21/10/2026: «no
+    /// assunto meto Peso Referencia Maquina Producao e o peso que deu»).
     /// </summary>
-    public static string Preencher(string texto, string referencia, string producao, string maquina) =>
+    public static string Preencher(string texto, string referencia, string producao, string maquina, decimal? pesoGramas = null) =>
         texto.Replace("{referencia}", referencia, StringComparison.OrdinalIgnoreCase)
             .Replace("{producao}", producao, StringComparison.OrdinalIgnoreCase)
-            .Replace("{maquina}", maquina, StringComparison.OrdinalIgnoreCase);
+            .Replace("{maquina}", maquina, StringComparison.OrdinalIgnoreCase)
+            .Replace("{peso}", FormatarPeso(pesoGramas), StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>O peso médio do vidro, como na folha: «245,30 g»; sem leituras, «—».</summary>
+    public static string FormatarPeso(decimal? gramas) =>
+        gramas is { } g ? g.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")) + " g" : "—";
 }

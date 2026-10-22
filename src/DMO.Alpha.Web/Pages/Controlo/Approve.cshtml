@@ -235,7 +235,7 @@
               <div class="revisao-facts">
                 <div class="destaque"><span>Peso médio atual</span><strong>@Grams(media)</strong></div>
                 <div><span>Delta ao controlo anterior</span><strong>@Signed(media is not null && anterior is not null ? media - anterior.AverageGlassWeightGrams : null, " g")</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
-                <div><span>Delta à produção anterior</span><strong>@Signed(media is not null && sap is not null ? media - sap : null, " g")</strong><small>@(sap is { } g ? $"SAP {Grams(g)}" : "")</small></div>
+                <div><span>Delta à produção anterior</span><strong>@Signed(media is not null && sap is not null ? media - sap : null, " g")</strong><small>@(sap is { } g ? $"Produção {Grams(g)}" : "")</small></div>
               </div>
               @* A tabela CM a CM com o controlo anterior (Diogo, 19/10/2026),
                  a mesma da comparação na página do Peso. *@

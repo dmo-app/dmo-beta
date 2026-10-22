@@ -1021,7 +1021,7 @@ public sealed partial class IndexModel : PageModel
         }
         // As máquinas do formulário: as do painel lateral, já lidas.
         var allMachines = Currents.Count > 0
-            ? Currents.Select(m => new DMO.Alpha.Core.Production.MachineOption(m.MachineId, m.MachineCode)).ToList()
+            ? Currents.DistinctBy(m => m.MachineId).Select(m => new DMO.Alpha.Core.Production.MachineOption(m.MachineId, m.MachineCode)).ToList()
             : await _db.Machines.AsNoTracking().OrderBy(m => m.Code)
                 .Select(m => new DMO.Alpha.Core.Production.MachineOption(m.Id, m.Code))
                 .ToListAsync(cancellationToken);

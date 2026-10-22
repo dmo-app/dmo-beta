@@ -31,6 +31,8 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
         var antes = Rasto(measurement, apagada: false, numero: 0);
         measurement.CosturaMm = command.CosturaMm;
         measurement.ContraCosturaMm = command.ContraCosturaMm;
+        var numeroAntes = measurement.NumeroFerramenta;
+        measurement.NumeroFerramenta = RecordPegamentosMeasurementHandler.NumeroFerramenta(command.NumeroFerramenta);
 
         // O nominal congelado na leitura não muda. Uma leitura que ficou sem
         // nominal passa a usar o da ferramenta, se entretanto foi preenchido.
@@ -50,10 +52,15 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
         }
 
         // Guardar os mesmos valores não é uma correção: nem rasto nem aviso.
+        // Só o número mudou: grava-se, sem rasto (não é uma medição).
         if (measurement.CosturaMm == antes.CosturaAntesMm
             && measurement.ContraCosturaMm == antes.ContraCosturaAntesMm
             && measurement.NominalGargaloMm == antes.NominalGargaloAntesMm)
         {
+            if (measurement.NumeroFerramenta != numeroAntes)
+            {
+                await _db.SaveChangesAsync(cancellationToken);
+            }
             return CorrectPegamentosMeasurementResult.Success;
         }
 

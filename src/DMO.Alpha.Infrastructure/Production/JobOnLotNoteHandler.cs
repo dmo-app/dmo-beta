@@ -45,7 +45,7 @@ public sealed class JobOnLotNoteHandler
             .Where(n => n.Dia > dia && jobOnIds.Contains(n.JobOnId))
             .OrderBy(n => n.Dia)
             .ThenBy(n => n.Id)
-            .Select(n => new NextLotChange(n.JobOnId, n.Dia, n.Slot, n.PreviousLotFrozen, n.NewLotFrozen))
+            .Select(n => new NextLotChange(n.JobOnId, n.Dia, n.Slot, n.PreviousLotFrozen, n.NewLotFrozen, n.NewToolId))
             .ToListAsync(cancellationToken);
         return rows.GroupBy(n => n.JobOnId).Select(g => g.First()).ToList();
     }

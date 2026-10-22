@@ -294,12 +294,13 @@ public sealed class JobOnOverlapWarningTests : IDisposable
 
     [Theory]
     [InlineData(-1, true)]  // começa na véspera do fim da existente
-    [InlineData(0, true)]   // começa no dia em que a existente acaba
+    [InlineData(0, false)]  // começa no dia em que a existente acaba: o dia da troca
     [InlineData(1, false)]  // começa no dia seguinte
     public async Task Create_ComecaNoDiaEmQueAOutraAcaba_AvisaEGrava_NoDiaSeguinteNao(int inicioDaNova, bool avisa)
     {
-        // Os dias contam inteiros: no dia em que a existente sai da B1
-        // (15/04), a nova que entra nesse dia ainda a cruza.
+        // O dia da troca não conta (Diogo, 21/10/2026: «uma producao sai
+        // dia 20 outra entra dia 20»): a nova que entra no dia em que a
+        // existente sai da B1 (15/04) não a cruza; a que entra na véspera sim.
         var b1 = await SeedMachineAsync("B1");
         await SeedToolAsync("T-MF", ToolType.Mf, "5810", "1");
         var fimDaExistente = new DateOnly(2026, 4, 15);
@@ -315,7 +316,7 @@ public sealed class JobOnOverlapWarningTests : IDisposable
 
     [Theory]
     [InlineData(1, true)]   // acaba no dia seguinte ao início da existente
-    [InlineData(0, true)]   // acaba no dia em que a existente começa
+    [InlineData(0, false)]  // acaba no dia em que a existente começa: o dia da troca
     [InlineData(-1, false)] // acaba na véspera
     public async Task Create_AcabaNoDiaEmQueAOutraComeca_AvisaEGrava_NaVesperaNao(int fimDaNova, bool avisa)
     {
@@ -356,6 +357,18 @@ public sealed class JobOnOverlapWarningTests : IDisposable
         {
             Assert.Null(outcome.OverlapWarning);
         }
+    }
+
+    [Theory]
+    [InlineData(20, 20, false)] // sai dia 20, entra dia 20: o dia da troca
+    [InlineData(20, 19, true)]  // entra na véspera da saída
+    [InlineData(20, 21, false)]
+    public void Crosses_ODiaDaTrocaNaoESobreposicao(int fimDaQueSai, int inicioDaQueEntra, bool cruza)
+    {
+        var sai = (Inicio: new DateOnly(2026, 10, 10), Fim: new DateOnly(2026, 10, fimDaQueSai));
+        var entra = new DateOnly(2026, 10, inicioDaQueEntra);
+        Assert.Equal(cruza, JobOnOverlap.Crosses(sai.Inicio, sai.Fim, entra, null));
+        Assert.Equal(cruza, JobOnOverlap.Crosses(entra, null, sai.Inicio, sai.Fim));
     }
 
     [Fact]

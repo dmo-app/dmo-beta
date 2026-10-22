@@ -203,7 +203,10 @@
   color:var(--dmo-text,#172d42);
 }
 .peg-page .peg-map-help { max-width:1100px; line-height:1.5; }
+/* O gráfico centrado no cartão, com a legenda por baixo também ao centro
+   (Diogo, 21/10/2026: «nos pegamentos temos de centrar o gráfico»). */
 .peg-page .peg-map-wrap {
+  margin-inline:auto;
   background:var(--dmo-subtle);
   border:1px solid var(--dmo-border,#d9e6f2);
   border-radius:9px;
@@ -248,6 +251,8 @@
 .peg-page .peg-card-sem-nominal .peg-nominal-falta input{border-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
 .peg-page .peg-linha-nova td{background:var(--dmo-brand-050,#ebf4fc);vertical-align:middle}
 .peg-page .peg-linha-nova input{width:100%;max-width:140px;padding:4px 6px}
+/* O número da CM/BQ/MF lido: curto, não tira largura às medidas. */
+.peg-page .peg-linha-nova input.peg-numero{max-width:64px}
 /* A costura ou a contra costura fora do corredor na linha nova (sweep de 19/10/2026, 3.12): o campo toma a cor da célula. */
 .peg-page .peg-linha-nova .peg-cell-bad input{color:inherit;font-weight:inherit}
 .peg-page .peg-registo-form{display:none}
@@ -269,3 +274,5 @@
 /* A letra do mapa é a da página, como no relatório original (Diogo,
    20/10/2026: a letra serifada do SVG); o PDF desenha com o Lato. */
 .peg-map-wrap svg text{font-family:inherit}
+
+.peg-page .peg-map-legend { justify-content:center; }

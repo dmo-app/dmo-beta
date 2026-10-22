@@ -694,10 +694,10 @@ public sealed partial class ControloCapabilitiesCutHPageTests : IClassFixture<Cu
         Assert.Matches("<div class=\"resumo-linked-card-head\">\\s*<span>Peso</span>\\s*<div class=\"dmo-card-topo-acoes resumo-card-actions\">\\s*"
             + "<span class=\"resumo-status\">Sem registo</span>\\s*"
             + "<a class=\"dmo-button\" href=\"/Controlo/Peso\\?controlo_id=\\d+#peso-associate-title\">Associar Peso existente</a>\\s*"
-            + "<a class=\"dmo-button\" href=\"/Controlo/Peso\\?controlo_id=\\d+\">Criar Peso</a>\\s*</div>\\s*</div>", resumo);
+            + "<a class=\"dmo-button\" href=\"/Controlo/Peso\\?controlo_id=\\d+\" aria-label=\"Registar o Peso\">Registar</a>\\s*</div>\\s*</div>", resumo);
         Assert.Matches("<span>Pegamentos</span>\\s*<div class=\"dmo-card-topo-acoes resumo-card-actions\">\\s*"
-            + "<span class=\"resumo-status\">Sem registo</span>\\s*<a class=\"dmo-button\"[^>]*>Registar Pegamentos</a>\\s*</div>", resumo);
-        Assert.Single(Regex.Matches(resumo, ">Criar Peso</a>"));
+            + "<span class=\"resumo-status\">Sem registo</span>\\s*<a class=\"dmo-button\"[^>]*aria-label=\"Registar os Pegamentos\">Registar</a>\\s*</div>", resumo);
+        Assert.Single(Regex.Matches(resumo, "aria-label=\"Registar o Peso\">Registar</a>"));
 
         var productionPeso = await GetPageHtmlAsync(operacional, $"/Controlo/Peso?controlo_id={controloId}");
         Assert.Contains("Associar a esta produção", productionPeso, StringComparison.Ordinal);

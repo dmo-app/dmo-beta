@@ -43,8 +43,26 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
             return Array.Empty<PesoComparisonCandidate>();
         }
 
-        return await FindCandidatesCoreAsync(controloId, peso.CmToolId, compararPesoId, cancellationToken);
+        // Os Pesos criados só para comparar com este (o Diogo, 22/10/2026:
+        // sem Pesos anteriores, cria-se um) vêm primeiro: foram feitos para ele.
+        var paraComparacao = (await _pesoQuery.ListParaComparacaoAsync(peso.PesoId, cancellationToken))
+            .Select(p => new PesoComparisonCandidate(
+                p.PesoId,
+                RotuloParaComparacao,
+                string.Empty,
+                string.Empty,
+                SameMachine: false,
+                ReadingCount: p.Measurements.Count,
+                p.Averages?.AverageWaterWeightGrams is { } agua ? Math.Round(agua, 2, MidpointRounding.AwayFromZero) : null,
+                p.Averages?.AverageCapacityCm3,
+                p.Averages?.AverageGlassWeightGrams,
+                p.CmToolLot));
+        var daReferencia = await FindCandidatesCoreAsync(controloId, peso.CmToolId, compararPesoId, cancellationToken);
+        return [.. paraComparacao, .. daReferencia];
     }
+
+    /// <summary>O nome de um Peso só para comparação, no dropdown e na tabela (não tem produção).</summary>
+    public const string RotuloParaComparacao = "Peso para comparação";
 
     private async Task<IReadOnlyList<PesoComparisonCandidate>> FindCandidatesCoreAsync(
         int controloId,
@@ -358,7 +376,8 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         return new PesoComparisonView(
             currentPesoId,
             historicalPesoId,
-            historicalFacts?.ProductionNumber ?? string.Empty,
+            historicalFacts?.ProductionNumber
+                ?? (historical.ComparacaoDoPesoId is not null ? RotuloParaComparacao : string.Empty),
             historicalFacts?.MachineCode ?? string.Empty,
             current.Averages,
             historical.Averages,

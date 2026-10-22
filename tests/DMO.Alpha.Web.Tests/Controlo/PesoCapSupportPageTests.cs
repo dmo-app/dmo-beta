@@ -255,7 +255,8 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
         // (o sinal «+» renderiza como a entidade &#x2B; — o precedente da
         // casa nos PegamentosPageTests).
         Assert.Contains("Origem do h efetivo: Job On", html);
-        Assert.Contains("&#x2B;12.140 mm", html);      // drawing_delta = R referência − R desenho
+        Assert.DoesNotContain("&#x2B;12.140 mm", html); // sem diferença ao desenho: o raio deixou de ser pedido
+        Assert.DoesNotContain("R do desenho", html);
         Assert.Contains("39.222 mm", html);            // R calculado (h = 9)
         Assert.Contains("&#x2B;2.972 mm", html);       // ΔR = actual.R − reference.R
         Assert.Contains("-1.124 cm³", html);           // ΔV = actual.V − reference.V (sinal preservado)
@@ -298,7 +299,8 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
 
         Assert.Contains("Referência por completar", html);
         Assert.Contains("Não bloqueia o Peso", html);
-        Assert.Contains("Complete D, R do desenho e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.", html);
+        Assert.Contains("Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.", html);
+        Assert.DoesNotContain("R do desenho", html);
 
         // O Peso INTACTO: as leituras e o cálculo principal continuam —
         // 199,64 g a 20 °C → (200,2066 + 10 − 30) × 2,50 = 450,52 g.
@@ -369,13 +371,13 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
         Assert.True(root.GetProperty("temReferencia").GetBoolean());
         Assert.Equal("Simulação", root.GetProperty("origemCalote").GetString());
         Assert.Equal(50m, root.GetProperty("diametroMm").GetDecimal());
-        Assert.Equal(24.11m, root.GetProperty("raioDesenhoMm").GetDecimal());
+        Assert.False(root.TryGetProperty("raioDesenhoMm", out _));
         Assert.Equal(10m, root.GetProperty("alturaReferenciaMm").GetDecimal());
         Assert.Equal(36.25m, root.GetProperty("raioReferenciaMm").GetDecimal());
         Assert.Equal(8m, root.GetProperty("alturaEfetivaMm").GetDecimal());
         Assert.Equal(43.0625m, root.GetProperty("raioCalculadoMm").GetDecimal());
         Assert.Equal(6.8125m, root.GetProperty("deltaRaioMm").GetDecimal());
-        Assert.Equal(12.14m, root.GetProperty("diferencaDesenhoMm").GetDecimal());
+        Assert.False(root.TryGetProperty("diferencaDesenhoMm", out _));
         Assert.InRange(root.GetProperty("volumeEfetivoCm3").GetDecimal(), 8.1220m, 8.1222m);
         Assert.InRange(root.GetProperty("deltaVolumeCm3").GetDecimal(), -2.220m, -2.218m);
     }

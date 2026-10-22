@@ -85,7 +85,9 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
             return Result(AssociatePesoToControloResult.Success);
         }
 
-        if (peso.ControloId is not null)
+        // Um Peso só para comparação não se associa (o Diogo, 22/10/2026):
+        // é recusado como um Peso que já tem dono.
+        if (peso.ControloId is not null || peso.ComparacaoDoPesoId is not null)
         {
             return Result(AssociatePesoToControloResult.PesoAlreadyAssociated);
         }
@@ -187,7 +189,7 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
         var (cmToolIds, bqToolIds) = (production.CmToolIds, production.BqToolIds);
         var candidates = await _db.Pesos
             .AsNoTracking()
-            .Where(p => p.ControloId == null && cmToolIds.Contains(p.CmToolId) && bqToolIds.Contains(p.BqToolId))
+            .Where(p => p.ControloId == null && p.ComparacaoDoPesoId == null && cmToolIds.Contains(p.CmToolId) && bqToolIds.Contains(p.BqToolId))
             .Where(p => !_db.Pesos.Any(o => o.ControloId == controloId && o.CmToolId == p.CmToolId && o.BqToolId == p.BqToolId))
             .OrderByDescending(p => p.Id)
             .Select(p => new UnassociatedPesoCandidate(
@@ -207,7 +209,7 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
     {
         return await _db.Pesos
             .AsNoTracking()
-            .Where(p => p.ControloId == null && p.CmToolId == cmToolId)
+            .Where(p => p.ControloId == null && p.ComparacaoDoPesoId == null && p.CmToolId == cmToolId)
             .OrderByDescending(p => p.Id)
             .Select(p => new UnassociatedPesoCandidate(
                 p.Id,
@@ -226,9 +228,10 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
         var peso = await _db.Pesos
             .AsNoTracking()
             .Where(p => p.Id == pesoId)
-            .Select(p => new { p.CmToolId, p.BqToolId, p.ControloId })
+            .Select(p => new { p.CmToolId, p.BqToolId, p.ControloId, p.ComparacaoDoPesoId })
             .FirstOrDefaultAsync(cancellationToken);
-        if (peso is null || peso.ControloId is not null)
+        // Um Peso só para comparação nunca pede um Job On (o Diogo, 22/10/2026).
+        if (peso is null || peso.ControloId is not null || peso.ComparacaoDoPesoId is not null)
         {
             return Array.Empty<PesoProductionCandidate>();
         }

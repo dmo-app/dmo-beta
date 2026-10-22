@@ -26,7 +26,7 @@
   </div>
   <div class="dmo-field ferr-w-lot">
     <label for="@(p)-lot">Lote</label>
-    <input id="@(p)-lot" name="lot" value="@Model.Lote" maxlength="3" inputmode="numeric" placeholder="3" title="Vazio grava «s/lote»" />
+    <input id="@(p)-lot" name="lot" value="@Model.Lote" maxlength="3" inputmode="numeric" placeholder="3" title="Obrigatório na BQ; na CM e na MF, vazio grava «s/lote»" />
   </div>
   @* Não diz «opcional» (Diogo, 20/10/2026): sem ela grava-se na mesma, mas a
      Fabricação das Boquilhas não é calculada e a ficha da BQ avisa. *@

@@ -231,7 +231,9 @@ public sealed class PegamentosSchemaTests
                 "ContraCosturaMm",
                 "NominalGargaloMm",
                 // ControloRevisaoDepoisDaAprovacao: quando a leitura foi gravada (C9).
-                "RegistadoEmUtc"
+                "RegistadoEmUtc",
+                // PegamentosNumeroFerramenta: o número da CM/BQ/MF lido (21/10/2026).
+                "NumeroFerramenta"
             },
             entityType.GetProperties().Select(p => p.Name).ToHashSet());
 

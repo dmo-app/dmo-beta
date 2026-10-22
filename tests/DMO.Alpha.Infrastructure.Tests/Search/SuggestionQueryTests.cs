@@ -163,6 +163,23 @@ public sealed class SuggestionQueryTests : IDisposable
     }
 
     [Fact]
+    public async Task ReferenciasRegisto_NaBq_OQueSeVeEOQueFicaEscrito()
+    {
+        // Diogo, 22/10/2026: aparecia a 5612T173 para escolher e ficava só a
+        // T173. Uma BQ antiga só com a parte BQ e a referência total associada
+        // sugere a referência total; o rótulo é sempre o valor.
+        _db.Tools.AddRange(
+            new Tool { ToolId = "bq-t173", Type = ToolType.Bq, Reference = "T173", AssociatedMfReference = "5612T173", Lot = "1" },
+            new Tool { ToolId = "bq-y079", Type = ToolType.Bq, Reference = "Y079", AssociatedMfReference = "3540", Lot = "1" });
+        await _db.SaveChangesAsync();
+
+        var t17 = Assert.Single(await _query.SuggestAsync(SuggestionSource.ReferenciasRegisto, "t17", ToolType.Bq));
+        Assert.Equal(("5612T173", "5612T173"), (t17.Value, t17.Label));
+        var y07 = Assert.Single(await _query.SuggestAsync(SuggestionSource.ReferenciasRegisto, "y07", ToolType.Bq));
+        Assert.Equal(("Y079", "Y079"), (y07.Value, y07.Label));
+    }
+
+    [Fact]
     public async Task ReferenciasEBq_ComMuitasDasDuas_MetadeDeCada()
     {
         var machine = new Machine { Code = "ZB2" };

@@ -62,5 +62,14 @@ public enum CreateJobOnResult
     /// chave vai em ChaveRecusada. Nada é gravado e a folha volta com o que
     /// se escreveu.
     /// </summary>
-    TextoLongo
+    TextoLongo,
+
+    /// <summary>
+    /// Falta a CM ou a BQ (Diogo, 22/10/2026: um Job On não se grava sem CM,
+    /// BQ e MF). Nada é gravado.
+    /// </summary>
+    MissingCmTool,
+
+    /// <summary>Falta a BQ (ver MissingCmTool).</summary>
+    MissingBqTool
 }

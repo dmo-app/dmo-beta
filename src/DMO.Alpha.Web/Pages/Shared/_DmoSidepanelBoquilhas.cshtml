@@ -13,27 +13,51 @@
     // A máquina sem boquilha em máquina NÃO tem destino: nasce não-clicável
     // («Sem produção»), que é o estado truthful do read model — nunca um botão
     // que finge abrir seja o que for.
+    // Várias produções na mesma linha (o dia da troca ou uma sobreposição
+    // real): uma entrada por produção, todas escolhíveis. Só a sobreposição
+    // real (JobOnOverlap.Crosses) leva o aviso, uma vez, na última entrada
+    // da linha (Diogo, 22/10/2026). Nunca bloqueia.
+    var ultimaDaLinha = Model
+        .Select((current, indice) => (current.MachineId, indice))
+        .GroupBy(x => x.MachineId)
+        .ToDictionary(g => g.Key, g => g.Max(x => x.indice));
     var linhas = Model
-        .Select(current =>
+        .Select((current, indice) =>
         {
-            var abre = current.BqReference is not null && current.BqContextId is int contextoId
-                ? $"/Boquilhas?bq_id={contextoId}"
-                : null;
+            var temBq = current.BqReference is not null && current.BqContextId is not null;
+            // A produção sem BQ no Job On (no dia da troca, a que entra antes
+            // de lhe porem a BQ) mostra-se com o nome e abre o Job On, onde a
+            // BQ se associa (Diogo, 22/10/2026: «deveria ser a produção que
+            // vai sair e a que vai entrar»).
+            var semBq = !temBq && current.JobOnId is not null;
+            var abre = temBq
+                ? $"/Boquilhas?bq_id={current.BqContextId}"
+                : semBq ? $"/JobOn?jobon_id={current.JobOnId}#lightFicha" : null;
             // A máquina sem nada em máquina diz «Sem produção» — com letras, não
             // com «— · —». Foi o bug que este adaptador apanhou no primeiro
             // correr: o rail antigo tinha a palavra, e perdê-la transformava um
             // estado normal do trabalho numa incógnita para o operador.
             var detalhe = abre is null
                 ? "Sem produção"
-                : $"{current.Reference ?? "—"} · {current.ProductionNumber ?? "—"}";
+                : semBq
+                    ? $"{current.Reference ?? "—"} · {current.ProductionNumber ?? "—"} · sem BQ"
+                    : $"{current.Reference ?? "—"} · {current.ProductionNumber ?? "—"}";
             return new DMO.Alpha.Web.Presentation.DmoRailItem(
                 Code: current.MachineCode,
                 Detail: detalhe,
                 Href: abre,
                 AriaLabel: abre is null
                     ? $"{current.MachineCode} sem produção"
-                    : $"Boquilha {current.BqReference} da produção {current.ProductionNumber ?? "—"} na {current.MachineCode}",
-                Key: current.BqContextId?.ToString());
+                    : semBq
+                        ? $"Produção {current.ProductionNumber ?? "—"} na {current.MachineCode} sem BQ: abrir o Job On"
+                        : $"Boquilha {current.BqReference} da produção {current.ProductionNumber ?? "—"} na {current.MachineCode}",
+                Key: current.BqContextId?.ToString(),
+                Warning: current.Overlap && ultimaDaLinha[current.MachineId] == indice
+                    ? $"Sobreposição na linha {current.MachineCode}: corrija as datas no Job On"
+                    : null,
+                WarningHref: current.Overlap && ultimaDaLinha[current.MachineId] == indice
+                    ? $"/JobOn?jobon_id={current.JobOnId}#lightFicha"
+                    : null);
         })
         .ToList();
 

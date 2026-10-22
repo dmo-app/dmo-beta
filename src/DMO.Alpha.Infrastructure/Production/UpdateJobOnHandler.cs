@@ -280,6 +280,10 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
                 (Field: JobOnChangeFields.Bq, Old: before.Bq, New: bq?.ToolId)
             }
             .Where(t => !string.Equals(t.Old, t.New, StringComparison.Ordinal))
+            // Pôr a BQ num Job On que não tinha nenhuma completa o Job On: não
+            // é uma mudança de boquilhas, sem aviso nem registo (Diogo,
+            // 22/10/2026). Só uma BQ que substitui outra é mudança.
+            .Where(t => !(t.Field == JobOnChangeFields.Bq && t.Old is null))
             .ToList();
         if (toolChanges.Count > 0)
         {
@@ -323,7 +327,7 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
 
         // Uma mudança só nos contextos (CM/MF/BQ) também muda a versão do Job
         // On, para a ficha aberta por outra pessoa ficar desatualizada.
-        if (changes.Count > 0)
+        if (changes.Count > 0 || !string.Equals(before.Bq, bq?.ToolId, StringComparison.Ordinal))
         {
             _db.Entry(jobOn).Property(j => j.MachineId).IsModified = true;
         }

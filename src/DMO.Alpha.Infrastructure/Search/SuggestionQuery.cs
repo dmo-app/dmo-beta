@@ -168,15 +168,24 @@ public sealed class SuggestionQuery : ISuggestionQuery
             query = query.Where(tool => tool.Type == type);
         }
         var rows = await query
-            .Select(tool => new { tool.Reference, tool.AssociatedMfReference })
+            .Select(tool => new { tool.Type, tool.Reference, tool.AssociatedMfReference })
             .Distinct()
             .OrderBy(row => row.Reference)
             .Take(Max)
             .ToListAsync(cancellationToken);
+        // O que se vê é o que fica escrito (Diogo, 22/10/2026: escolher a
+        // 5612T173 deixava só a T173). Só a CM mostra a referência MF
+        // associada ao lado do nome original; uma BQ antiga gravada só com a
+        // parte BQ (T173) e com a referência total associada (de antes da
+        // beta.37) sugere a referência total, nunca a parte com a total ao lado.
         var tools = rows
-            .DistinctBy(row => row.Reference)
-            .Select(row => new Suggestion(row.Reference,
-                row.AssociatedMfReference is { Length: > 0 } mf && mf != row.Reference ? $"{row.Reference} · {mf}" : row.Reference))
+            .Select(row => row.Type == ToolType.Cm
+                ? new Suggestion(row.Reference,
+                    row.AssociatedMfReference is { Length: > 0 } mf && mf != row.Reference ? $"{row.Reference} · {mf}" : row.Reference)
+                : row.Type == ToolType.Bq && TotalOfBqPart(row.Reference, row.AssociatedMfReference) is { } total
+                    ? new Suggestion(total, total)
+                    : new Suggestion(row.Reference, row.Reference))
+            .DistinctBy(suggestion => suggestion.Value)
             .ToList();
         var references = await ProductionReferencesAsync(wanted, cancellationToken);
         var fromProductions = references
@@ -186,6 +195,19 @@ public sealed class SuggestionQuery : ISuggestionQuery
 
         var toolTake = Math.Min(tools.Count, Math.Max(Max / 2, Max - fromProductions.Count));
         return tools.Take(toolTake).Concat(fromProductions.Take(Max - toolTake)).ToList();
+    }
+
+    /// <summary>
+    /// A referência total (5612T173) de uma BQ gravada só com a parte BQ
+    /// (T173): a referência associada, quando é um modelo seguido dessa
+    /// parte. Null quando a BQ já tem a referência toda ou nada a completa.
+    /// </summary>
+    private static string? TotalOfBqPart(string reference, string? associated)
+    {
+        if (string.IsNullOrWhiteSpace(associated)) return null;
+        var total = associated.Trim().ToUpperInvariant();
+        var (model, bqPart) = DMO.Alpha.Infrastructure.Tools.ToolCandidateQuery.SplitReference(total);
+        return model is not null && string.Equals(bqPart, reference.Trim(), StringComparison.OrdinalIgnoreCase) ? total : null;
     }
 
     private async Task<IReadOnlyList<Suggestion>> ReparadoresAsync(

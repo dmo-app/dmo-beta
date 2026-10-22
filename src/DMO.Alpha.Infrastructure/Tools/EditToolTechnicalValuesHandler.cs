@@ -103,9 +103,10 @@ public sealed class EditToolTechnicalValuesHandler : IEditToolTechnicalValuesHan
             technical.NominalWeightGrams = command.NominalWeightGrams;
             technical.VolumePuncaoCm3 = command.VolumePuncaoCm3;
             technical.TpDiametroMm = command.TpDiametroMm;
-            technical.TpRaioMm = command.TpRaioMm;
+            // O raio já não é pedido (só D e calote): o gravado nunca é apagado.
+            technical.TpRaioMm = command.TpRaioMm ?? technical.TpRaioMm;
             technical.TpSagittaMm = command.TpSagittaMm;
-            // A ficha só pede D, raio e calote; o volume é calculado
+            // A ficha só pede D e calote; o volume é calculado
             // (PesoCapCalculation). Os derivados antigos nunca são apagados
             // por omissão: só mudam quando o comando traz um valor.
             technical.TpRaioBaseMm = command.TpRaioBaseMm ?? technical.TpRaioBaseMm;

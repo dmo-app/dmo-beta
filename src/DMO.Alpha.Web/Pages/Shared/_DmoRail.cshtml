@@ -66,6 +66,10 @@
         }
       </button>
       }
+      @if (linha.Warning is not null)
+      {
+        <p class="dmo-rail-warning" role="note">@linha.Warning@if (linha.WarningHref is not null) {<text> </text><a href="@linha.WarningHref">Abrir o Job On</a>}</p>
+      }
     }
   </div>
 </aside>

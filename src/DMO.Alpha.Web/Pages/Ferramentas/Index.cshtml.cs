@@ -48,7 +48,7 @@ public sealed class IndexModel : PageModel
     internal static readonly string[] TechnicalFields =
     {
         "process_token", "nominal_weight", "volume_puncao", "volume_marisa",
-        "diametro_gargalo", "tp_diametro", "tp_raio", "tp_sagitta"
+        "diametro_gargalo", "tp_diametro", "tp_sagitta"
     };
 
     [BindProperty(SupportsGet = true, Name = "bq_quantity")]
@@ -146,9 +146,9 @@ public sealed class IndexModel : PageModel
         CreateToolResult.MissingReference =>
             "A referência é a identidade humana do registo («CM · 5447 · lote 3») e não pode ficar em branco. " +
             "Nenhuma ferramenta foi registada.",
-        // Já não é devolvido (beta.63: o lote vazio grava «s/lote» com aviso); fica para links antigos.
+        // Só na BQ (Diogo, 22/10/2026); na CM e na MF o lote vazio grava «s/lote» com aviso.
         CreateToolResult.MissingLot =>
-            "O lote é obrigatório — um lote diferente é uma ferramenta diferente. Nenhuma ferramenta foi registada.",
+            "Indique o lote da boquilha: é preciso para identificar a ferramenta. Nenhuma ferramenta foi registada.",
         CreateToolResult.MachineNotFound =>
             "Uma das máquinas indicadas não existe no registo. Nenhuma ferramenta foi registada.",
         CreateToolResult.ToolAlreadyExists =>
@@ -444,7 +444,7 @@ public sealed class IndexModel : PageModel
                 Value("volume_marisa"),
                 Value("diametro_gargalo"),
                 Value("tp_diametro"),
-                Value("tp_raio"),
+                null, // o raio do tampão já não é pedido
                 Value("tp_sagitta")),
             CancellationToken.None);
 

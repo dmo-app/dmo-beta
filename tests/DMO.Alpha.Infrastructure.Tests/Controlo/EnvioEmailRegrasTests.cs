@@ -32,4 +32,13 @@ public sealed class EnvioEmailRegrasTests
         Assert.Equal("Peso 5447T173 · 202605 · B1",
             EnvioEmailRegras.Preencher("Peso {referencia} · {Producao} · {MAQUINA}", "5447T173", "202605", "B1"));
     }
+
+    [Fact]
+    public void Preencher_TrocaOPeso_ComAUnidade()
+    {
+        // Diogo, 21/10/2026: o assunto diz logo o peso que deu.
+        Assert.Equal("Peso 5447T173 · B1 · 202605 · 245,30 g",
+            EnvioEmailRegras.Preencher("Peso {referencia} · {maquina} · {producao} · {PESO}", "5447T173", "202605", "B1", 245.3m));
+        Assert.Equal("Peso —", EnvioEmailRegras.Preencher("Peso {peso}", "5447T173", "202605", "B1"));
+    }
 }

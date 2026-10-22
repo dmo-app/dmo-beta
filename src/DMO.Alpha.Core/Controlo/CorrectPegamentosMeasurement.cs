@@ -7,11 +7,15 @@ namespace DMO.Alpha.Core.Controlo;
 /// </summary>
 public sealed record PegamentosMeasurementAnchor(int MeasurementId, int? ControloId, int? PegamentosId);
 
-/// <summary>A correção da costura e da contra costura de uma leitura; o nominal congelado mantém-se.</summary>
+/// <summary>
+/// A correção da costura, da contra costura e do número da ferramenta de uma
+/// leitura; o nominal congelado mantém-se.
+/// </summary>
 public sealed record EditPegamentosMeasurement(
     PegamentosMeasurementAnchor Anchor,
     decimal CosturaMm,
-    decimal? ContraCosturaMm);
+    decimal? ContraCosturaMm,
+    string? NumeroFerramenta = null);
 
 public enum CorrectPegamentosMeasurementResult
 {

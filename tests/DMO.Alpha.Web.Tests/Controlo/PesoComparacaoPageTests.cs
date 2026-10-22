@@ -721,7 +721,9 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.DoesNotContain(">Peso</td>", vazio);
         Assert.DoesNotContain(">Pegamentos</td>", vazio);
         Assert.DoesNotContain(">Comparação</td>", vazio);
-        Assert.Contains("Comparar Pesos guardados", vazio);
+        // O «Comparar Pesos guardados» saiu do Histórico (Diogo, 21/10/2026):
+        // compara-se na folha do Peso de cada produção.
+        Assert.DoesNotContain("Comparar Pesos guardados", vazio);
 
         var tudo = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&referencia=1075C142");
         Assert.Contains("Histórico do Controlo", tudo);
@@ -738,9 +740,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("<option value=\"202601|1075C142\" selected=\"selected\">202601</option>", daProducao);
         Assert.Contains(">Resumo</td>", daProducao);
         Assert.Contains("Ferramenta", tudo);
-        Assert.Contains("Comparar Pesos guardados", tudo);
-        Assert.Contains("Primeiro Peso", tudo);
-        Assert.Contains("Segundo Peso", tudo);
+        Assert.DoesNotContain("Comparar Pesos guardados", tudo);
 
         var soPegamentos = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&tipo=Pegamentos");
         Assert.Contains(">Pegamentos</td>", soPegamentos);
@@ -828,13 +828,8 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
             PesoZonas.Zona(await GetPageHtmlAsync(client, $"{PagePath}?historico=1&comparacao_id={comparacaoId}"), "pesoHistoricoDetalhe"));
 
         // A referência e a ferramenta aplicam-se ao escrever (deep sweep 2,
-        // 18/10/2026, F-10). Com o «Comparar Pesos guardados» aberto, um
-        // filtro abre a página inteira: aí só com o Enter ou a sugestão, para
-        // a página não recarregar a meio da palavra.
+        // 18/10/2026, F-10).
         Assert.Matches("<form [^>]*id=\"pesoHistoricoFiltros\" data-dmo-ao-escrever=\"pesoHistoricoResultados\"", vazio);
-        var comComparacao = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&peso_1={pesoInicialId}&peso_2={pesoInicialId}");
-        Assert.Matches("<form [^>]*id=\"pesoHistoricoFiltros\"", comComparacao);
-        Assert.DoesNotMatch("<form [^>]*id=\"pesoHistoricoFiltros\" data-dmo-ao-escrever", comComparacao);
     }
 
     [Fact]
@@ -902,7 +897,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
     }
 
     [Fact]
-    public async Task CompararPesosGuardados_PorId_NosSelectsDoHistorico()
+    public async Task Historico_SemJobOnAssociado_EncontraOPesoSemProducao()
     {
         var (_, _, pesoInicialId) = await SeedProducaoAsync();
         int segundoPesoId;
@@ -930,45 +925,12 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         SeedUser("4307", "Peso Operador", "provider-cmp-7", "PesoCmp7!");
         using var client = await LoginClientAsync("4307", "PesoCmp7!");
 
-        var html = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&peso_1={pesoInicialId}&peso_2={segundoPesoId}");
-
         // O segundo Peso não tem Job On: o filtro «Sem Job On associado» encontra-o.
         var porAssociar = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&sem_jobon=1");
         Assert.Contains($"data-dmo-open=\"/Controlo/Peso?peso_id={segundoPesoId}\"", porAssociar);
         Assert.Contains("Sem Job On · 5447", porAssociar);
         Assert.Contains("Por associar", porAssociar);
         Assert.DoesNotContain($"peso_id={pesoInicialId}\"", porAssociar);
-
-        Assert.Contains("Comparar Pesos guardados", html);
-        // A tabela CM com CM por ordem de registo, sem pares (Diogo,
-        // 17/10/2026): volume, peso e Δ por CM e a média em baixo.
-        Assert.Contains("data-peso-guardados-tabela", html);
-        Assert.Contains("<th>CM 1.º</th>", System.Net.WebUtility.HtmlDecode(html));
-        Assert.Contains("data-peso-comparacao-medias", html);
-        // O sinal «+» renderiza como a entidade &#x2B; (o precedente da casa).
-        Assert.Contains("&#x2B;2.51</strong>", html); // (450,52 − 448,01) na 1.ª CM, com o sinal
-        // Duas casas decimais também nos volumes (Diogo, 17/10/2026).
-        Assert.Contains("<td>200.21</td>", html);
-        Assert.Contains("<td>&#x2B;1.00</td>", html);
-        Assert.DoesNotContain("200.207", html);
-        Assert.DoesNotContain("Sem par", html);
-        Assert.DoesNotContain("Pares válidos", html);
-        // Os dois campos mostram o Peso escolhido, também o sem Job On.
-        Assert.Contains("value=\"202601 · 1075C142 · Lote 3\"", System.Net.WebUtility.HtmlDecode(html));
-        Assert.Contains("value=\"Sem Job On · 5447 · Lote 3\"", System.Net.WebUtility.HtmlDecode(html));
-
-        // A18 (beta.65): o mesmo id nos dois lados já não é recusa — a
-        // comparação mostra Δ = 0 em todas as CM e o aviso explica.
-        var iguais = System.Net.WebUtility.HtmlDecode(
-            await GetPageHtmlAsync(client, $"{PagePath}?historico=1&peso_1={pesoInicialId}&peso_2={pesoInicialId}"));
-        Assert.DoesNotContain("Escolha dois registos de Peso diferentes.", iguais);
-        Assert.Contains("Escolheu o mesmo Peso nos dois lados: a comparação mostra Δ = 0 em todas as CM.", iguais);
-        Assert.Contains("peso-aviso warn", iguais);
-        Assert.Contains("+0.00 (+0.00 %)</strong>", iguais);
-
-        // Um id fora do histórico: a recusa tipada.
-        var vazio = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&peso_1={pesoInicialId}&peso_2=9999");
-        Assert.Contains("Escolha dois Pesos guardados no Histórico.", vazio);
     }
 
     [Fact]
@@ -1226,9 +1188,9 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
     [Fact]
     public async Task DoisPassos_SemReferenciaNadaCarrega_ComReferenciaSoAsDela()
     {
-        // A procura em dois passos (16/10/2026): a Comparação de Peso e o
-        // «Comparar Pesos guardados» abrem vazios; a referência traz só as
-        // produções (ou os Pesos) dela; uma referência sem nada é aviso.
+        // A procura em dois passos (16/10/2026): a Comparação de Peso abre
+        // vazia; a referência traz só as produções dela; uma referência sem
+        // nada é aviso.
         var (_, jobOnId, pesoInicialId) = await SeedProducaoAsync();
         int outraJobOnId;
         int outroPesoId;
@@ -1310,53 +1272,9 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("Sem produções para «NAOEXISTE».", semProducoes);
         Assert.Contains("peso-aviso warn", semProducoes);
 
-        // «Comparar Pesos guardados» (Diogo, 17/10/2026): os campos dos Pesos
-        // procuram ao escrever pela produção; sem botão «Procurar».
-        var historico = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?historico=1"));
-        Assert.Contains("placeholder=\"Produção, referência, lote ou máquina\"", historico);
-        Assert.Contains("data-dmo-procura-valor=\"peso1Valor\"", historico);
-        Assert.Contains("data-dmo-procura-valor=\"peso2Valor\"", historico);
-        Assert.Contains("data-dmo-procura-submete", historico);
-        var inicioComparar = historico.IndexOf("peso-historico-comparar-title", StringComparison.Ordinal);
-        var blocoComparar = historico[inicioComparar..historico.IndexOf("</form>", inicioComparar, StringComparison.Ordinal)];
-        Assert.DoesNotContain("Indique a referência", blocoComparar);
-        Assert.DoesNotContain("name=\"peso_ref\"", blocoComparar);
-        Assert.DoesNotContain(">Procurar</button>", blocoComparar);
-
-        // A procura mostra a produção, o lote e as máquinas da CM.
-        var procura = System.Net.WebUtility.HtmlDecode(
-            await GetPageHtmlAsync(client, $"{PagePath}?handler=ProcurarPesos&q=2026"));
-        Assert.Contains($"data-id=\"{pesoInicialId}\" data-dmo-rotulo=\"202601 · 1075C142 · Lote 3 · B1 C3\"", procura);
-        Assert.Contains($"data-id=\"{outroPesoId}\"", procura);
-
-        var procuraProducao = await GetPageHtmlAsync(client, $"{PagePath}?handler=ProcurarPesos&q=202699");
-        Assert.Contains($"data-id=\"{outroPesoId}\"", procuraProducao);
-        Assert.DoesNotContain($"data-id=\"{pesoInicialId}\"", procuraProducao);
-
-        // A entrada pode partir de qualquer informação: a referência, a
-        // máquina (da produção ou da CM) ou o lote.
-        var procuraReferencia = await GetPageHtmlAsync(client, $"{PagePath}?handler=ProcurarPesos&q=9999x");
-        Assert.Contains($"data-id=\"{outroPesoId}\"", procuraReferencia);
-        Assert.DoesNotContain($"data-id=\"{pesoInicialId}\"", procuraReferencia);
-        var procuraMaquina = await GetPageHtmlAsync(client, $"{PagePath}?handler=ProcurarPesos&q=c3");
-        Assert.Contains($"data-id=\"{pesoInicialId}\"", procuraMaquina);
-        Assert.Contains($"data-id=\"{outroPesoId}\"", procuraMaquina);
-
-        // Com a referência no pedido, só os Pesos dela.
-        var procuraComReferencia = await GetPageHtmlAsync(client, $"{PagePath}?handler=ProcurarPesos&q=2026&peso_ref=1075c142");
-        Assert.Contains($"data-id=\"{pesoInicialId}\"", procuraComReferencia);
-        Assert.DoesNotContain($"data-id=\"{outroPesoId}\"", procuraComReferencia);
-
-        Assert.Contains("Nenhum Peso encontrado.", await GetPageHtmlAsync(client, $"{PagePath}?handler=ProcurarPesos&q=XYZ"));
-
-        // Os dois escolhidos: a página reabre com os rótulos nos campos.
-        var escolhidos = System.Net.WebUtility.HtmlDecode(
-            await GetPageHtmlAsync(client, $"{PagePath}?historico=1&peso_1={pesoInicialId}&peso_2={pesoInicialId}"));
-        Assert.Contains("value=\"202601 · 1075C142 · Lote 3 · B1 C3\"", escolhidos);
-        Assert.Contains($"name=\"peso_1\" value=\"{pesoInicialId}\"", escolhidos);
-
-        var historicoSemPesos = System.Net.WebUtility.HtmlDecode(
-            await GetPageHtmlAsync(client, $"{PagePath}?historico=1&peso_ref=NAOEXISTE"));
-        Assert.Contains("Sem Pesos guardados para «NAOEXISTE».", historicoSemPesos);
+        // O «Comparar Pesos guardados» saiu do Histórico (Diogo, 21/10/2026).
+        var historico = await GetPageHtmlAsync(client, $"{PagePath}?historico=1");
+        Assert.DoesNotContain("Comparar Pesos guardados", historico);
+        Assert.DoesNotContain("peso1Procura", historico);
     }
 }

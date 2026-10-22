@@ -172,6 +172,35 @@ public partial class PuncoesPageTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
+    public async Task NumeroRepetido_PeloFormularioDaPagina_GravaOLoteDessaPuncao()
+    {
+        // Diogo, 21/10/2026: «quando o numero de um puncao é diferente deveria
+        // pedir o lote». A 41 registada; a 41 outra vez, com «Lote desta
+        // punção» = 3, pelo formulário que a página desenha, fica com o lote 3
+        // e marcada como alteração; o lote de cima continua 1.
+        var (_, controloId) = await SeedProductionAsync(CmProcess.Nnpb);
+        SeedUser("4319", "Operador Lote Repetido", "provider-puncoes-lote", "PuncoesLote1!");
+        using var client = await LoginClientAsync("4319", "PuncoesLote1!");
+        var primeira = await PostAsync(client, controloId, "Add", ("numero", "41"), ("referencia", "1075"), ("lote", "1"));
+        Assert.DoesNotContain("recusa", primeira.Headers.Location!.ToString());
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
+        var (acao, campos) = EnvioDoFormulario.Preencher(html, ("pu-numero", "41"), ("pu-lote-puncao", "3"));
+        using var resposta = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+        Assert.Equal(HttpStatusCode.Redirect, resposta.StatusCode);
+        Assert.DoesNotContain("recusa", resposta.Headers.Location!.ToString());
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+        var linhas = await db.PuncaoInspecoes.AsNoTracking().OrderBy(i => i.Position).ToListAsync();
+        Assert.Equal(new[] { "41", "41" }, linhas.Select(l => l.Number));
+        Assert.Equal(new[] { "1", "3" }, linhas.Select(l => l.Lot));
+        var registo = (await scope.ServiceProvider.GetRequiredService<DMO.Alpha.Infrastructure.Controlo.PuncoesHandler>().GetSheetAsync(controloId))!.Registo!;
+        Assert.Equal("1", registo.Lot);
+        Assert.Equal(new[] { false, true }, registo.Rows.Select(r => r.IsAlteracao));
+    }
+
+    [Fact]
     public async Task NnpbProduction_RegistersPunches_ShowsAlteracao_TotalsResumoAndPdf()
     {
         var (jobOnId, controloId) = await SeedProductionAsync(CmProcess.Nnpb);
@@ -396,6 +425,19 @@ public partial class PuncoesPageTests : IClassFixture<CustomWebApplicationFactor
         Assert.Contains("<span>Produção</span><strong>Sem Job On</strong>", standalone);
         Assert.Contains("<span>Total de punções</span><strong>1</strong>", standalone);
         Assert.Contains("Associar a uma produção", standalone);
+        // Só a produção, sem «CM: Por associar»; o PDF e o associar nas
+        // Opções, o associar numa janela pequena (Diogo, 21/10/2026).
+        var identificacao = System.Text.RegularExpressions.Regex.Match(standalone, "<section class=\"dmo-card pu-card\" id=\"puncoes-identificacao\"[\\s\\S]*?</section>").Value;
+        Assert.Contains("<span>Produção</span><strong>Sem Job On</strong>", identificacao);
+        Assert.DoesNotContain("Por associar", identificacao);
+        Assert.DoesNotContain("<span>CM</span>", identificacao);
+        Assert.Contains("form=\"pu-pdf-form\"", standalone);
+        Assert.Contains("data-dmo-dialog=\"pu-associar-dialog\">Associar a uma produção</button>", standalone);
+        Assert.Contains("<dialog id=\"pu-associar-dialog\"", standalone);
+        Assert.DoesNotContain("pu-export", standalone);
+        // O número já registado pede o lote dessa punção.
+        Assert.Contains("data-pu-numeros=\"41\"", standalone);
+        Assert.Contains("name=\"lote_puncao\"", standalone);
         Assert.Contains(">202604 · C2</option>", standalone);
 
         var pdf = await PostFormAsync(client, sheetPath, "GeneratePdf", ("puncoes_id", puncoesId));
@@ -453,7 +495,7 @@ public partial class PuncoesPageTests : IClassFixture<CustomWebApplicationFactor
 
         var sheet = await GetPageHtmlAsync(client, sheetPath);
         Assert.Contains("<div id=\"puAssociar\" class=\"dmo-zona\" data-dmo-regiao>", sheet);
-        Assert.Contains("id=\"puncoes-associar\" aria-labelledby=\"pu-associar-title\" data-dmo-parcial>", sheet);
+        Assert.Contains("<section id=\"puncoes-associar\" data-dmo-parcial>", sheet);
         Assert.Contains("<input type=\"hidden\" name=\"procura\" value=\"1075C142\" />", sheet);
 
         var fora = Controlo.PesoZonas.ForaDasZonas(sheet);

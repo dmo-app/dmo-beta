@@ -85,6 +85,13 @@ public sealed class PesoQuery : IPesoQuery
             : peso;
     }
 
+    public async Task<IReadOnlyList<PesoReadModel>> ListParaComparacaoAsync(
+        int pesoId,
+        CancellationToken cancellationToken = default) =>
+        (await FindManyAsync(_db.Pesos.Where(p => p.ComparacaoDoPesoId == pesoId), cancellationToken))
+            .OrderByDescending(p => p.PesoId)
+            .ToList();
+
     private async Task<IReadOnlyList<PesoReadModel>> FindManyAsync(
         IQueryable<DMO.Alpha.Core.Controlo.Peso> source,
         CancellationToken cancellationToken)
@@ -116,6 +123,7 @@ public sealed class PesoQuery : IPesoQuery
                 p.NominalWeightGrams,
                 p.GlassDensityGramsPerCm3,
                 p.ControloId,
+                p.ComparacaoDoPesoId,
                 p.RegistadoEmUtc,
                 CmToolReference = cm != null ? cm.Reference : null,
                 CmToolLot = cm != null ? cm.Lot : null,
@@ -202,7 +210,8 @@ public sealed class PesoQuery : IPesoQuery
                 averages,
                 row.ControloId)
             {
-                RegistadoEmUtc = row.RegistadoEmUtc is { } em ? DateTime.SpecifyKind(em, DateTimeKind.Utc) : null
+                RegistadoEmUtc = row.RegistadoEmUtc is { } em ? DateTime.SpecifyKind(em, DateTimeKind.Utc) : null,
+                ComparacaoDoPesoId = row.ComparacaoDoPesoId
             };
         }).ToList();
     }

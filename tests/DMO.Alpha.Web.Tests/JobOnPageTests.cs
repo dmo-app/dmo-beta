@@ -244,6 +244,33 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
     }
 
     [Fact]
+    public async Task Planeamento_CriarJobOn_FicaNaBarraDaProcura_ADireitaDasCaixas_ComODia()
+    {
+        // Diogo, 22/10/2026: «Criar Job On» à frente das caixas da referência
+        // e da produção, na mesma linha, e abre a folha nova com o dia escolhido.
+        SeedUser("4296", "Job On Operador", "provider-jobon-criar-1", "JobOnCriar1!");
+        using var client = await LoginClientAsync("4296", "JobOnCriar1!");
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?ano=2026&mes=3&dia=4");
+        var bloco = html[html.IndexOf("class=\"jobon-procura-bloco\"", StringComparison.Ordinal)..];
+        bloco = bloco[..bloco.IndexOf("</form>", StringComparison.Ordinal)];
+        var criar = bloco.IndexOf(">Criar Job On</a>", StringComparison.Ordinal);
+        Assert.True(criar >= 0, "O «Criar Job On» não está na barra da procura.");
+        var referencia = bloco.IndexOf("id=\"lightSearch\"", StringComparison.Ordinal);
+        var producao = bloco.IndexOf("id=\"lightProcura\"", StringComparison.Ordinal);
+        Assert.True(referencia >= 0, "Falta a caixa da referência na barra da procura.");
+        Assert.True(producao >= 0, "Falta a caixa da produção na barra da procura.");
+        Assert.True(criar > referencia && criar > producao, "O «Criar Job On» tem de vir à direita das caixas (Diogo, 22/10).");
+        Assert.Matches("<a id=\"jobonCriar\" class=\"dmo-button\" href=\"/JobOn\\?novo=1&amp;inicio_em=2026-03-04&amp;ano=2026&amp;mes=3&amp;dia=4#lightSheet\"", bloco);
+        // Um só botão na página: o do título saiu.
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, ">Criar Job On</a>"));
+
+        // Sem dia escolhido, abre sem data de início.
+        var semDia = await GetPageHtmlAsync(client, $"{PagePath}?ano=2026&mes=3&dia=0");
+        Assert.Contains("<a id=\"jobonCriar\" class=\"dmo-button\" href=\"/JobOn?novo=1&amp;ano=2026&amp;mes=3#lightSheet\"", semDia);
+    }
+
+    [Fact]
     public async Task CreateFlow_ExplicitSelections_EstablishesQueryableContext()
     {
         var (machineB1Id, _) = await SeedRegistryAsync();
@@ -365,46 +392,130 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
         Assert.Equal("5447T173", jobOn.Reference);
     }
 
-    [Fact]
-    public async Task CreateFlow_UnselectedBqSlot_IsNotApplicable_NoBqContextCreated()
+    [Theory]
+    [InlineData("", "MF-TOOL-9", "T-BQ1", "MissingCmTool", "Falta a CM (contra molde): um Job On precisa de CM, BQ e MF.")]
+    [InlineData("T1", "MF-TOOL-9", "", "MissingBqTool", "Falta a BQ (boquilha): um Job On precisa de CM, BQ e MF.")]
+    [InlineData("T1", "", "T-BQ1", "MissingMfTool", "O MF (molde final) é obrigatório")]
+    public async Task Create_SemCmOuSemBq_ERecusado_ENadaEGravado(string cm, string mf, string bq, string recusa, string mensagem)
     {
-        // «Only applicable component contexts are created»: o MF é
-        // OBRIGATÓRIO (regra do Owner 2026-10-10 — o molde final é
-        // selecionado sempre), pelo que o slot não aplicável que resta é o
-        // BQ: uma produção com a CM e o MF selecionados nasce SEM contexto
-        // BQ — o slot sem seleção não cria contexto nenhum, e o Job On
-        // existe na verdade persistida com os contextos aplicáveis que tem.
+        // Diogo, 22/10/2026 (bloqueio autorizado): um Job On não se grava
+        // sem CM, BQ e MF. Antes, a BQ por escolher criava o Job On sem BQ.
         var (machineB1Id, _) = await SeedRegistryAsync();
         SeedUser("4201", "Job On Operador", "provider-jobon-2", "JobOnPass2!");
         using var client = await LoginClientAsync("4201", "JobOnPass2!");
 
-        var created = await PostCreateAsync(
-            client,
-            $"{PagePath}?novo=1",
-            "PN-2025-051",
-            "5810",
-            machineB1Id.ToString(),
-            "T1",
-            "MF-TOOL-9",  // o MF do desenho — obrigatório
-            "");          // BQ não aplicável
+        var refused = await PostCreateAsync(
+            client, $"{PagePath}?novo=1", "PN-2025-051", "5810", machineB1Id.ToString(), cm, mf, bq);
 
-        Assert.Equal(HttpStatusCode.Redirect, created.StatusCode);
-        var jobOnId = int.Parse(
-            System.Text.RegularExpressions.Regex
-                .Match(created.Headers.Location!.ToString(), @"jobon_id=(\d+)").Groups[1].Value);
-
-        // A folha da produção mostra a associação HUMANA exata: a CM e o MF
-        // presentes, nenhum BQ inventado (o estado incompleto mostra-se).
-        var detailHtml = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&referencia=5810");
-        Assert.Contains("<td>5447 · lote 2</td>", detailHtml);
-        Assert.Contains("<td>5810 · lote 1</td>", detailHtml);
-        Assert.DoesNotContain("<td>T194 · lote 3</td>", detailHtml);
+        Assert.Equal(HttpStatusCode.Redirect, refused.StatusCode);
+        var location = refused.Headers.Location!.ToString();
+        Assert.Contains($"create_refusal={recusa}", location, StringComparison.Ordinal);
+        var html = await GetPageHtmlAsync(client, location);
+        Assert.Contains(mensagem, html);
+        Assert.Contains("Nenhum Job On foi criado.", html);
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-        Assert.Equal(1, await db.CmContexts.AsNoTracking().CountAsync());
-        Assert.Equal(1, await db.MfContexts.AsNoTracking().CountAsync());
-        Assert.Equal(0, await db.BqContexts.AsNoTracking().CountAsync());
+        Assert.False(await db.JobOns.AsNoTracking().AnyAsync());
+        Assert.False(await db.BqContexts.AsNoTracking().AnyAsync());
+    }
+
+    [Fact]
+    public async Task Edit_SemBq_ERecusado_ENadaMuda()
+    {
+        // O mesmo bloqueio na edição: um Job On antigo sem BQ só grava completo.
+        var (machineB1Id, _) = await SeedRegistryAsync();
+        var jobOnId = await SeedExistingJobOnAsync(
+            inicioEm: new DateOnly(2026, 3, 2),
+            fimEm: new DateOnly(2026, 3, 9));
+        SeedUser("4241", "Job On Operador", "provider-jobon-sembq", "JobOnPassSB!");
+        using var client = await LoginClientAsync("4241", "JobOnPassSB!");
+
+        var refused = await PostUpdateAsync(
+            client, jobOnId.ToString(), machineB1Id.ToString(), "T1", "MF-TOOL-9", "", "2026-04-12", "");
+
+        var location = refused.Headers.Location!.ToString();
+        Assert.Contains("update_refusal=MissingBqTool", location, StringComparison.Ordinal);
+        Assert.Contains("Falta a BQ (boquilha): um Job On precisa de CM, BQ e MF.", await GetPageHtmlAsync(client, location));
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+        Assert.Equal(new DateOnly(2026, 3, 2), (await db.JobOns.AsNoTracking().SingleAsync()).InicioEm);
+    }
+
+    [Fact]
+    public async Task Edit_PorABqNumJobOnSemBq_NaoEMudancaDeBoquilhas()
+    {
+        // Diogo, 22/10/2026: pôr a BQ num Job On que não tinha completa-o; não
+        // é uma mudança de boquilhas (sem registo em «O que mudou», sem aviso).
+        // Só uma BQ que substitui outra é mudança.
+        var (machineB1Id, _) = await SeedRegistryAsync();
+        var jobOnId = await SeedExistingJobOnAsync(
+            inicioEm: new DateOnly(2026, 3, 2),
+            fimEm: new DateOnly(2026, 3, 9));
+        using (var seed = _factory.Services.CreateScope())
+        {
+            var db = seed.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.Tools.Add(new Tool { ToolId = "T-BQ2", Type = ToolType.Bq, Reference = "5810T194", Lot = "4" });
+            await db.SaveChangesAsync();
+        }
+        SeedUser("4242", "Job On Operador", "provider-jobon-pobq", "JobOnPassPB!");
+        using var client = await LoginClientAsync("4242", "JobOnPassPB!");
+
+        var completed = await PostUpdateAsync(
+            client, jobOnId.ToString(), machineB1Id.ToString(), "T1", "MF-TOOL-9", "T-BQ1", "2026-03-02", "2026-03-09");
+        Assert.Equal($"{PagePath}?jobon_id={jobOnId}", completed.Headers.Location!.ToString());
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            Assert.Equal("T-BQ1", (await db.BqContexts.AsNoTracking().SingleAsync(b => b.JobOnId == jobOnId)).ToolId);
+            Assert.False(await db.JobOnChanges.AsNoTracking().AnyAsync(c => c.JobOnId == jobOnId && c.Field == JobOnChangeFields.Bq));
+        }
+
+        // Trocar essa BQ por outra já é mudança de boquilhas.
+        var replaced = await PostUpdateAsync(
+            client, jobOnId.ToString(), machineB1Id.ToString(), "T1", "MF-TOOL-9", "T-BQ2", "2026-03-02", "2026-03-09");
+        Assert.Equal(HttpStatusCode.Redirect, replaced.StatusCode);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var change = Assert.Single(await db.JobOnChanges.AsNoTracking().Where(c => c.JobOnId == jobOnId && c.Field == JobOnChangeFields.Bq).ToListAsync());
+            Assert.Equal("T194 · lote 3", change.OldValueFrozen);
+        }
+    }
+
+    [Fact]
+    public async Task Create_ComOControloCriar_FicaNoJobOn_NaoVaiAoResumo()
+    {
+        // Diogo, 22/10/2026: depois de criar o Job On fica-se no Job On do
+        // Planeamento; já não se é levado ao Resumo do Controlo.
+        var (machineB1Id, _) = await SeedRegistryAsync();
+        SeedUser("4243", "Job On Operador", "provider-jobon-fica", "JobOnPassFi!");
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var user = await db.Users.SingleAsync(u => u.OperatorId == "4243");
+            var template = new DMO.Alpha.Core.Admin.Template
+            {
+                TemplateKey = "tpl-jobon-controlo-fica",
+                Name = "Job On e Controlo",
+                Capabilities = new[] { DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate }
+            };
+            db.Templates.Add(template);
+            await db.SaveChangesAsync();
+            db.TemplateAssignments.Add(new DMO.Alpha.Core.Admin.TemplateAssignment { UserId = user.Id, TemplateId = template.Id });
+            await db.SaveChangesAsync();
+        }
+        using var client = await LoginClientAsync("4243", "JobOnPassFi!");
+
+        var created = await PostCreateAsync(
+            client, $"{PagePath}?novo=1", "PN-FICA-1", "5810", machineB1Id.ToString(), "T1", "MF-TOOL-9", "T-BQ1");
+
+        Assert.Equal(HttpStatusCode.Redirect, created.StatusCode);
+        var location = created.Headers.Location!.ToString();
+        Assert.StartsWith($"{PagePath}?jobon_id=", location, StringComparison.Ordinal);
+        Assert.DoesNotContain("Controlo", location, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -425,7 +536,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
             machineB1Id.ToString(),
             "T-DESCONHECIDA",
             "MF-TOOL-9",
-            "");
+            "T-BQ1");
 
         Assert.Equal(HttpStatusCode.Redirect, refused.StatusCode);
         var location = refused.Headers.Location!.ToString();
@@ -453,8 +564,8 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
         SeedUser("4211", "Job On Operador", "provider-jobon-11", "JobOnPass11!");
         using var client = await LoginClientAsync("4211", "JobOnPass11!");
 
-        var first = await PostCreateAsync(client, $"{PagePath}?novo=1", "PN-DUPLO-1", "5447t194", machineB1Id.ToString(), "T1", "MF-TOOL-9", "");
-        var second = await PostCreateAsync(client, $"{PagePath}?novo=1", "PN-DUPLO-1", "5447T194", machineB1Id.ToString(), "T1", "MF-TOOL-9", "");
+        var first = await PostCreateAsync(client, $"{PagePath}?novo=1", "PN-DUPLO-1", "5447t194", machineB1Id.ToString(), "T1", "MF-TOOL-9", "T-BQ1");
+        var second = await PostCreateAsync(client, $"{PagePath}?novo=1", "PN-DUPLO-1", "5447T194", machineB1Id.ToString(), "T1", "MF-TOOL-9", "T-BQ1");
 
         Assert.Equal(HttpStatusCode.Redirect, first.StatusCode);
         Assert.Equal(HttpStatusCode.Redirect, second.StatusCode);
@@ -487,7 +598,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
             machineB1Id.ToString(),
             "T1",
             "MF-TOOL-9",
-            "");
+            "T-BQ1");
 
         Assert.Equal(HttpStatusCode.Redirect, refused.StatusCode);
         var location = refused.Headers.Location!.ToString();
@@ -578,7 +689,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
         SeedUser("4231", "Job On Operador", "provider-jobon-b4", "JobOnPassB4!");
         using var client = await LoginClientAsync("4231", "JobOnPassB4!");
         var created = await PostCreateAsync(
-            client, $"{PagePath}?novo=1", "PN-B4-1", "5810", machineB1Id.ToString(), "T2", "MF-TOOL-9", "",
+            client, $"{PagePath}?novo=1", "PN-B4-1", "5810", machineB1Id.ToString(), "T2", "MF-TOOL-9", "T-BQ1",
             fimEm: "2026-03-09");
         var jobOnId = int.Parse(
             System.Text.RegularExpressions.Regex.Match(created.Headers.Location!.ToString(), @"jobon_id=(\d+)").Groups[1].Value);
@@ -588,7 +699,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
         Assert.Contains("<input type=\"hidden\" name=\"versao\" value=\"0\" />", folha);
 
         var refused = await PostUpdateAsync(
-            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "",
+            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "T-BQ1",
             fimEm: "2026-04-01", versao: "7");
 
         Assert.Equal(HttpStatusCode.Redirect, refused.StatusCode);
@@ -605,7 +716,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
 
         // Com a versão aberta grava.
         var saved = await PostUpdateAsync(
-            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "",
+            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "T-BQ1",
             fimEm: "2026-04-01", versao: "0");
         Assert.DoesNotContain("update_refusal", saved.Headers.Location!.ToString());
     }
@@ -621,17 +732,17 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
         SeedUser("4235", "Job On Operador", "provider-jobon-j1", "JobOnPassJ1!");
         using var client = await LoginClientAsync("4235", "JobOnPassJ1!");
         var created = await PostCreateAsync(
-            client, $"{PagePath}?novo=1", "PN-J1-1", "5810", machineB1Id.ToString(), "T2", "MF-TOOL-9", "",
+            client, $"{PagePath}?novo=1", "PN-J1-1", "5810", machineB1Id.ToString(), "T2", "MF-TOOL-9", "T-BQ1",
             fimEm: "2026-03-09");
         var jobOnId = int.Parse(
             System.Text.RegularExpressions.Regex.Match(created.Headers.Location!.ToString(), @"jobon_id=(\d+)").Groups[1].Value);
 
         var primeiro = await PostUpdateAsync(
-            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "",
+            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "T-BQ1",
             fimEm: "2026-04-01", versao: "0");
         // No InMemory a versão fica sempre 0: a de antes é outra qualquer.
         var segundo = await PostUpdateAsync(
-            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "",
+            client, jobOnId.ToString(), machineB1Id.ToString(), "T2", "MF-TOOL-9", "T-BQ1",
             fimEm: "2026-04-01", versao: "7");
 
         Assert.Equal(HttpStatusCode.Redirect, segundo.StatusCode);
@@ -662,7 +773,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
             machineB1Id.ToString(),
             "T2",
             "MF-TOOL-9",
-            "");
+            "T-BQ1");
         Assert.Equal(HttpStatusCode.Redirect, created.StatusCode);
         var createdLocation = created.Headers.Location!.ToString();
         var jobOnId = int.Parse(
@@ -1000,7 +1111,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
         using var client = _factory.CreateClient();
         var css = await client.GetStringAsync("/beta-production-overview.css");
         Assert.Contains(".beta-light-productions .beta-light-production>.beta-light-next{font-size:12.5px;font-weight:700;", css);
-        Assert.Contains(".beta-light-machine-empty .beta-light-next{margin-left:auto;padding-right:4px;font-size:12.5px;font-weight:700;", css);
+        Assert.Contains(".beta-light-machine-empty-linha>.beta-light-next{margin-left:auto;padding-right:12px;white-space:nowrap;font-size:12.5px;font-weight:700;", css);
     }
 
     [Fact]
@@ -1144,7 +1255,7 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
             machineB1Id.ToString(),
             "T1",
             "MF-TOOL-9",
-            "",
+            "T-BQ1",
             inicioEm: "2026-04-12",
             fimEm: "2026-04-20");
 
@@ -1684,8 +1795,11 @@ public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDispo
         Assert.Contains("name=\"ate\"", html);
         Assert.Contains("name=\"maquina\"", html);
         Assert.DoesNotContain("name=\"producao\"", html);   // o dropdown só aparece com a referência
-        Assert.DoesNotContain("PN-HIST-1", html);
-        Assert.DoesNotContain("PN-HIST-2", html);
+        // O painel lateral mostra as produções em curso pelas datas (Diogo,
+        // 22/10/2026); o histórico em si continua sem produções.
+        var semPainel = System.Text.RegularExpressions.Regex.Replace(html, "<aside class=\"beta-light-rail beta-production-rail\"[\\s\\S]*?</aside>", string.Empty);
+        Assert.DoesNotContain("PN-HIST-1", semPainel);
+        Assert.DoesNotContain("PN-HIST-2", semPainel);
         Assert.DoesNotContain("Página 1 de", html);
 
         var searched = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&referencia=5447");

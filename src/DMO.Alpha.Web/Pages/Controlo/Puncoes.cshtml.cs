@@ -320,10 +320,11 @@ public sealed class PuncoesModel : PageModel
         [FromForm(Name = "puncoes_id")] int? puncoesId,
         [FromForm(Name = "numero")] string? number,
         [FromForm(Name = "referencia")] string? punchReference,
-        [FromForm(Name = "lote")] string? lot)
+        [FromForm(Name = "lote")] string? lot,
+        [FromForm(Name = "lote_puncao")] string? punchLot)
     {
         var target = Target(controloId, puncoesId);
-        var result = await _handler.AddAsync(target, number, punchReference, lot, Operator(), HttpContext.RequestAborted);
+        var result = await _handler.AddAsync(target, number, punchReference, lot, Operator(), HttpContext.RequestAborted, punchLot);
         return result == PuncoesResult.Success
             ? Back(target, "puncoes-lista")
             : Refused(target, result, number, punchReference, lot);

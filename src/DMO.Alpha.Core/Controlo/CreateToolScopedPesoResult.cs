@@ -64,5 +64,11 @@ public enum CreateToolScopedPesoResult
     UnreadableCmVolumePuncao,
 
     /// <summary>O volume marisa da BQ foi escrito mas é ilegível (não é «não registado»).</summary>
-    UnreadableBqVolumeMarisa
+    UnreadableBqVolumeMarisa,
+
+    /// <summary>
+    /// O Peso para o qual se cria um Peso só para comparação não existe, não
+    /// é de uma produção ou é ele próprio só para comparação.
+    /// </summary>
+    ComparacaoPesoNotFound
 }

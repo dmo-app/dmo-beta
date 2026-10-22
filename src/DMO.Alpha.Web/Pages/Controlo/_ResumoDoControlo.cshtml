@@ -26,7 +26,7 @@
     <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
     <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
     <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong><small>@Cm3(atual?.AverageCapacityCm3) agora</small></div>
-    <div><span>Peso SAP da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
+    <div><span>Peso da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
     <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
   </div>
 }

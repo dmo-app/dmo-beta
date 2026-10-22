@@ -205,7 +205,9 @@ html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:d
    passar o rato inverte a cor (preenchido ↔ contorno) e mostra o texto.
    Num cartão sem título, .dmo-help-corner põe-no no canto de cima. */
 .dmo-help{position:relative;display:inline-flex;vertical-align:baseline;margin-left:.4em;cursor:help;outline:none;line-height:1}
-.dmo-help-mark{display:block;overflow:visible;width:12px;height:10.5px}
+.dmo-help-mark{display:block;overflow:visible;width:9px;height:8px}
+/* O ▸/▾ dos blocos que abrem e fecham tem cor própria, para não se confundir com o triângulo da ajuda (Diogo, 21/10/2026). */
+summary::marker,summary.dmo-card-topo>:first-child::before{color:var(--dmo-success)}
 .dmo-help-mark path{fill:var(--dmo-palette-mist);stroke:var(--dmo-palette-mist);stroke-width:1.5;stroke-linejoin:round;transition:fill var(--dmo-fast),stroke var(--dmo-fast)}
 .dmo-help:hover .dmo-help-mark path,.dmo-help:focus .dmo-help-mark path{fill:var(--dmo-card);stroke:var(--dmo-palette-ocean)}
 .dmo-help:focus-visible{outline:2px solid var(--dmo-palette-mist);outline-offset:2px;border-radius:2px}
@@ -275,6 +277,8 @@ html body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>em{color:inherit}
    folha alinhada à direita e a tabela das produções da referência. */
 html body .dmo-search-form select{box-sizing:border-box;flex:0 1 210px;min-width:0;min-height:var(--dmo-control-height);padding:9px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:14px}
 html body .beta-light-actions .dmo-options-list{left:auto;right:0}
+/* Opções no canto superior direito de um cartão: o menu abre para a esquerda e não sai do ecrã (21/10/2026). */
+html body .dmo-card-topo-acoes .dmo-options-list{left:auto;right:0}
 html body .jobon-ref-productions{margin-top:18px}
 html body .jobon-ref-productions h3{margin:0;font-size:15px}
 html body .jobon-ref-productions .dmo-table-wrap{margin-top:10px}
@@ -285,8 +289,9 @@ html body #lightFicha>.beta-light-sheet-head>.beta-light-actions{flex-direction:
 html body a.dmo-options-item{text-decoration:none}
 html body .beta-light-productions .beta-light-card-head h2{white-space:nowrap}
 html body .beta-light-productions .dmo-search-form{flex-wrap:nowrap}
-html body .beta-light-productions .dmo-search-form input[type="search"]{flex:0 1 220px;width:220px}
-html body .beta-light-productions .dmo-search-form select{flex:0 1 220px}
+html body .beta-light-productions .dmo-search-form input[type="search"]{flex:0 1 170px;width:170px}
+html body .beta-light-productions .dmo-search-form select{flex:0 1 170px}
+html body .beta-light-productions .dmo-search-form .dmo-button{flex:0 0 auto}
 /* O dropdown «Produção» da procura do Job On fica à frente do campo, com a mesma largura (beta.166). */
 html body .dmo-search-form .jobon-procura{display:contents}
 /* O dropdown com produções destaca-se (Diogo, 19/10/2026). */

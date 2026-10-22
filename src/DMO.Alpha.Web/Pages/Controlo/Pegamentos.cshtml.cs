@@ -241,16 +241,75 @@ public sealed class PegamentosModel : PageModel
     [BindProperty(SupportsGet = true, Name = "draft_gargalo")]
     public string? DraftGargalo { get; set; }
 
+    [BindProperty(SupportsGet = true, Name = "draft_numero")]
+    public string? DraftNumero { get; set; }
+
     /// <summary>A leitura aberta para corrigir ou apagar (Diogo, 17/10/2026).</summary>
     [BindProperty(SupportsGet = true, Name = "editar_medicao")]
     public int? EditarMedicaoId { get; set; }
 
-    /// <summary>O valor carregado para corrigir: «costura» ou «contra» (recebe o foco).</summary>
+    /// <summary>O valor carregado para corrigir: «costura», «contra» ou «numero» (recebe o foco).</summary>
     [BindProperty(SupportsGet = true, Name = "campo")]
     public string? EditarCampo { get; set; }
 
     [BindProperty(SupportsGet = true, Name = "correcao")]
     public string? Correcao { get; set; }
+
+    /// <summary>
+    /// As linhas do último registo cujo número tinha mais de 20 caracteres e
+    /// foi cortado (lista «1,3», por query, PRG). «Só avisos»: o corte nunca
+    /// é silencioso (revisão dos testes, 21/10/2026).
+    /// </summary>
+    [BindProperty(SupportsGet = true, Name = "numero_cortado")]
+    public string? NumeroCortado { get; set; }
+
+    /// <summary>As linhas do último registo que só tinham o número e não foram registadas.</summary>
+    [BindProperty(SupportsGet = true, Name = "numero_sozinho")]
+    public string? NumeroSozinho { get; set; }
+
+    /// <summary>A leitura corrigida cujo número tinha mais de 20 caracteres e foi cortado.</summary>
+    [BindProperty(SupportsGet = true, Name = "numero_cortado_leitura")]
+    public int? NumeroCortadoLeitura { get; set; }
+
+    /// <summary>O comprimento máximo do número da CM/BQ/MF (o resto é cortado, com aviso).</summary>
+    public const int NumeroMaxLength = 20;
+
+    private static bool NumeroLongo(string? numero) => Sanitize(numero) is { Length: > NumeroMaxLength };
+
+    private static IEnumerable<int> Linhas(string? lista) =>
+        (lista ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(l => int.TryParse(l, out var n) && n is > 0 and < 1000 ? n : 0)
+            .Where(n => n > 0)
+            .Distinct()
+            .Take(50);
+
+    /// <summary>Os avisos do número da CM/BQ/MF (cortado ou sozinho), apenas apresentação.</summary>
+    public IReadOnlyList<string> NumeroAvisos
+    {
+        get
+        {
+            var avisos = new List<string>();
+            foreach (var linha in Linhas(NumeroCortado))
+            {
+                avisos.Add($"O número da linha {linha} tinha mais de {NumeroMaxLength} caracteres e foi cortado.");
+            }
+            foreach (var linha in Linhas(NumeroSozinho))
+            {
+                avisos.Add($"A linha {linha} só tinha o número e não foi registada.");
+            }
+            if (NumeroCortadoLeitura is int leitura)
+            {
+                var medicao = Sheet?.Pegamentos?.Measurements.FirstOrDefault(m => m.MeasurementId == leitura);
+                var posicao = medicao is null ? 0
+                    : Sheet!.Pegamentos!.Measurements.Where(m => m.Component == medicao.Component)
+                        .TakeWhile(m => m.MeasurementId != leitura).Count() + 1;
+                avisos.Add(posicao > 0
+                    ? $"O número da leitura {posicao} da {medicao!.Component.ToString().ToUpperInvariant()} tinha mais de {NumeroMaxLength} caracteres e foi cortado."
+                    : $"O número tinha mais de {NumeroMaxLength} caracteres e foi cortado.");
+            }
+            return avisos;
+        }
+    }
 
     public string? CorrecaoMessage => Correcao switch
     {
@@ -753,27 +812,42 @@ public sealed class PegamentosModel : PageModel
         // Várias linhas de uma vez («+ Linha», Diogo 17/10/2026): cada par
         // costura/contra costura é uma medição; as linhas vazias ignoram-se.
         // Uma costura ilegível recusa tudo antes de gravar a primeira.
+        // O número da CM/BQ/MF lido vai ao lado (opcional, nunca recusa);
+        // uma linha só com o número conta como vazia (Diogo, 21/10/2026).
         var costuras = Request.Form["costura"].ToList();
         var contraCosturas = Request.Form["contra_costura"].ToList();
-        var linhas = Enumerable.Range(0, Math.Max(costuras.Count, contraCosturas.Count))
-            .Select(i => (Costura: costuras.ElementAtOrDefault(i), Contra: contraCosturas.ElementAtOrDefault(i)))
+        var numeros = Request.Form["numero"].ToList();
+        var enviadas = Enumerable.Range(0, Math.Max(costuras.Count, contraCosturas.Count))
+            .Select(i => (Linha: i + 1, Costura: costuras.ElementAtOrDefault(i), Contra: contraCosturas.ElementAtOrDefault(i), Numero: numeros.ElementAtOrDefault(i)))
+            .ToList();
+        // Nada se perde em silêncio (revisão dos testes, 21/10/2026): a
+        // linha só com o número não é registada e o número longo é cortado,
+        // mas o aviso di-lo depois de gravar.
+        var sozinhos = enviadas
+            .Where(l => Sanitize(l.Costura) is null && Sanitize(l.Contra) is null && Sanitize(l.Numero) is not null)
+            .Select(l => l.Linha).ToList();
+        var linhasComValores = enviadas
             .Where(l => Sanitize(l.Costura) is not null || Sanitize(l.Contra) is not null)
             .ToList();
+        var cortados = linhasComValores.Where(l => NumeroLongo(l.Numero)).Select(l => l.Linha).ToList();
+        var linhas = linhasComValores.Select(l => (l.Costura, l.Contra, l.Numero)).ToList();
         if (linhas.Count == 0)
         {
-            linhas.Add((null, null));
+            linhas.Add((null, null, null));
         }
 
         // Uma costura ou contra costura de 0 ou menos é fisicamente
         // impossível e recusa tudo, como a ilegível (Diogo, 18/10/2026).
         var costura = linhas[0].Costura;
         var contraCostura = linhas[0].Contra;
+        var numero = linhas[0].Numero;
         var ilegivel = linhas.FindIndex(l => MeasurementDecimal.Parse(l.Costura) is not > 0m
             || ParseOptionalDecimal(l.Contra) is <= 0m);
         if (ilegivel > 0)
         {
             costura = linhas[ilegivel].Costura;
             contraCostura = linhas[ilegivel].Contra;
+            numero = linhas[ilegivel].Numero;
         }
 
         // A folha volta por onde abriu: o controlo_id da produção ou, nos
@@ -791,6 +865,12 @@ public sealed class PegamentosModel : PageModel
             {
                 values["controlo_id"] = controloId;
             }
+            // A linha só com o número não é registada, nem quando o envio é
+            // recusado: o aviso di-lo sempre.
+            if (sozinhos.Count > 0)
+            {
+                values["numero_sozinho"] = string.Join(',', sozinhos);
+            }
             return WithOpenCorrection(values);
         }
 
@@ -802,7 +882,7 @@ public sealed class PegamentosModel : PageModel
         if (MeasurementDecimal.Parse(costura) is not { } costuraMm || ilegivel >= 0)
         {
             return MeasurementRefused(Anchor(), componentToken, costura, contraCostura, gargalo,
-                RecordPegamentosMeasurementResult.InvalidMeasurementValue);
+                RecordPegamentosMeasurementResult.InvalidMeasurementValue, numero);
         }
 
         var notice = PegamentosMeasurementNotice.None;
@@ -839,7 +919,7 @@ public sealed class PegamentosModel : PageModel
                 notice |= PegamentosMeasurementNotice.ContraCosturaIgnored;
             }
 
-            outrasLinhas.Add(new PegamentosRow(MeasurementDecimal.Parse(linha.Costura)!.Value, outraContra));
+            outrasLinhas.Add(new PegamentosRow(MeasurementDecimal.Parse(linha.Costura)!.Value, outraContra, linha.Numero));
         }
 
         // O gargalo fornecido completa apenas a ferramenta que ainda não
@@ -852,7 +932,8 @@ public sealed class PegamentosModel : PageModel
                 contraCosturaMm,
                 gargaloMm,
                 pegamentosId,
-                outrasLinhas),
+                outrasLinhas,
+                numero),
             CancellationToken.None);
 
         if (outcome.Result == RecordPegamentosMeasurementResult.Success)
@@ -872,6 +953,10 @@ public sealed class PegamentosModel : PageModel
                         ? ignoredGargalo[..MaxEchoedLength] + "…"
                         : ignoredGargalo
                 });
+            if (cortados.Count > 0)
+            {
+                gravada["numero_cortado"] = string.Join(',', cortados);
+            }
 
             // Depois de trocar a CM, a BQ ou o MF a meio da produção, a
             // leitura vai para a folha das ferramentas atuais (
@@ -892,7 +977,7 @@ public sealed class PegamentosModel : PageModel
 
         if (outcome.Result == RecordPegamentosMeasurementResult.MissingGargalo)
         {
-            return MeasurementRefused(Anchor(), componentToken, costura, contraCostura, gargalo, outcome.Result);
+            return MeasurementRefused(Anchor(), componentToken, costura, contraCostura, gargalo, outcome.Result, numero);
         }
 
         return RedirectToPage("/Controlo/Pegamentos", Anchor(new
@@ -901,14 +986,15 @@ public sealed class PegamentosModel : PageModel
         }));
     }
 
-    /// <summary>Corrige a costura e a contra costura de uma leitura desta folha.</summary>
+    /// <summary>Corrige a costura, a contra costura e o número da ferramenta de uma leitura desta folha.</summary>
     public async Task<IActionResult> OnPostEditMeasurementAsync(
         [FromServices] ICorrectPegamentosMeasurementHandler handler,
         [FromForm(Name = "controlo_id")] int? controloId,
         [FromForm(Name = "pegamentos_id")] int? pegamentosId,
         [FromForm(Name = "measurement_id")] int measurementId,
         [FromForm(Name = "costura")] string? costura,
-        [FromForm(Name = "contra_costura")] string? contraCostura)
+        [FromForm(Name = "contra_costura")] string? contraCostura,
+        [FromForm(Name = "numero")] string? numero = null)
     {
         var anchor = CorrectionAnchor(controloId, pegamentosId);
         if (MeasurementDecimal.Parse(costura) is not { } costuraMm || costuraMm <= 0m)
@@ -934,7 +1020,8 @@ public sealed class PegamentosModel : PageModel
             new EditPegamentosMeasurement(
                 new PegamentosMeasurementAnchor(measurementId, controloId, controloId is null ? pegamentosId : null),
                 costuraMm,
-                contraCosturaMm),
+                contraCosturaMm,
+                numero),
             HttpContext.RequestAborted);
         if (result == CorrectPegamentosMeasurementResult.ImpossibleValue)
         {
@@ -944,6 +1031,10 @@ public sealed class PegamentosModel : PageModel
         else if (result != CorrectPegamentosMeasurementResult.Success)
         {
             anchor["correcao"] = "nao-encontrada";
+        }
+        else if (NumeroLongo(numero))
+        {
+            anchor["numero_cortado_leitura"] = measurementId;
         }
 
         return RedirectToPage("/Controlo/Pegamentos", anchor);
@@ -998,7 +1089,7 @@ public sealed class PegamentosModel : PageModel
         if (EditarMedicaoId is int aberta)
         {
             values["editar_medicao"] = aberta;
-            if (EditarCampo is "costura" or "contra")
+            if (EditarCampo is "costura" or "contra" or "numero")
             {
                 values["campo"] = EditarCampo;
             }
@@ -1007,13 +1098,14 @@ public sealed class PegamentosModel : PageModel
     }
 
     private IActionResult MeasurementRefused(RouteValueDictionary anchor, string component, string? costura,
-        string? contraCostura, string? gargalo, RecordPegamentosMeasurementResult result)
+        string? contraCostura, string? gargalo, RecordPegamentosMeasurementResult result, string? numero = null)
     {
         anchor["measurement_refusal"] = result.ToString();
         anchor["draft_component"] = component;
         anchor["draft_costura"] = CanonicalDraft(costura);
         anchor["draft_contra"] = CanonicalDraft(contraCostura);
         anchor["draft_gargalo"] = CanonicalDraft(gargalo);
+        anchor["draft_numero"] = Sanitize(numero);
         return RedirectToPage("/Controlo/Pegamentos", anchor);
     }
 

@@ -21,6 +21,10 @@
 {
   <div data-dmo-toast="aviso" class="peg-aviso warn" role="status">@folhaMudou</div>
 }
+@foreach (var numeroAviso in Model.NumeroAvisos)
+{
+  <div data-dmo-toast="aviso" class="peg-aviso warn" role="status" data-peg-aviso-numero>@numeroAviso</div>
+}
 @foreach (var noticeMessage in Model.MeasurementNoticeMessages)
 {
   <div data-dmo-toast="aviso" class="peg-aviso warn" role="status">@noticeMessage</div>

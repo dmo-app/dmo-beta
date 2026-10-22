@@ -192,7 +192,14 @@
                   {
                     <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId#peso-associate-title">Associar Peso existente</a>
                   }
-                  <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId">Criar Peso</a>
+                  <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId" aria-label="Registar o Peso">Registar</a>
+                }
+                @* A Comparação de Peso abre-se aqui, com o Peso desta produção
+                   já escolhido; a referência e a produção podem mudar para
+                   comparar com outra qualquer (Diogo, 21/10/2026). *@
+                @if (linkedPeso is not null)
+                {
+                  <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloId&amp;comparacao=1" aria-label="Comparar o Peso desta produção">Comparar</a>
                 }
               </div>
             </div>
@@ -273,7 +280,7 @@
                 <span class="resumo-status">@(!pegamentosAvailable ? "Indisponível" : pegRecord is null ? "Sem registo" : "Registado")</span>
                 @if (pegRecord is null && pegamentosAvailable)
                 {
-                  <a class="dmo-button" href="/Controlo/Pegamentos?controlo_id=@Model.ControloId">Registar Pegamentos</a>
+                  <a class="dmo-button" href="/Controlo/Pegamentos?controlo_id=@Model.ControloId" aria-label="Registar os Pegamentos">Registar</a>
                 }
               </div>
             </div>
@@ -341,7 +348,7 @@
                   <span class="resumo-status">@(puRegisto is null ? "Sem registo" : "Registado")</span>
                   @if (puRegisto is null)
                   {
-                    <a class="dmo-button" href="/Controlo/Puncoes?controlo_id=@Model.ControloId">Registar punções</a>
+                    <a class="dmo-button" href="/Controlo/Puncoes?controlo_id=@Model.ControloId" aria-label="Registar as punções">Registar</a>
                   }
                 </div>
               </div>

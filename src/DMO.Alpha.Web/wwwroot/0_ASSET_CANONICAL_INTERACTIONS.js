@@ -1618,6 +1618,46 @@
     if (janela && (event.target === janela || event.target.closest("[data-dmo-dialog-close]"))) janela.close();
   });
 
+  // A FICHA DA LINHA (Diogo, 21/10/2026: «para opções entrar na ficha do
+  // reparador clicando duas vezes»; nas tabelas nunca há botões repetidos).
+  // Uma linha com data-dmo-ficha="id" abre a janela com esse id ao clique
+  // (a regra da casa: um clique abre, 17/10/2026; o duplo clique também) ou
+  // ao Enter; as ações da linha vivem lá dentro.
+  const abrirFicha = (linha) => {
+    const ficha = document.getElementById(linha.dataset.dmoFicha);
+    if (!ficha || typeof ficha.showModal !== "function") return;
+    ficha.showModal();
+    ficha.querySelector("input:not([type=hidden]), select, textarea")?.focus();
+  };
+  document.addEventListener("click", (event) => {
+    const linha = event.target.closest && event.target.closest("[data-dmo-ficha]");
+    if (linha && !linha.closest("dialog") && !document.querySelector("dialog.dmo-dialog[open]")) abrirFicha(linha);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || !event.target.matches || !event.target.matches("[data-dmo-ficha]")) return;
+    event.preventDefault();
+    abrirFicha(event.target);
+  });
+  // O campo que também filtra (data-dmo-filtra="id da tabela"): escrever
+  // mostra só as linhas que contêm o texto (sem acentos nem maiúsculas).
+  const semAcentos = (texto) => (texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  document.addEventListener("input", (event) => {
+    const campo = event.target.closest && event.target.closest("[data-dmo-filtra]");
+    if (campo) {
+      const tabela = document.getElementById(campo.dataset.dmoFiltra);
+      const procura = semAcentos(campo.value);
+      tabela?.querySelectorAll("tbody tr").forEach((linha) => {
+        linha.hidden = procura !== "" && !semAcentos(linha.textContent).includes(procura);
+      });
+    }
+  });
+  // O texto que mostra o valor de um campo (data-dmo-espelho="id do campo"),
+  // por exemplo o nome na linha quando muda na ficha.
+  document.addEventListener("change", (event) => {
+    if (!event.target.id) return;
+    document.querySelectorAll(`[data-dmo-espelho="${event.target.id}"]`).forEach((alvo) => { alvo.textContent = event.target.value.trim(); });
+  });
+
   // Um formulário que devolve um ficheiro (data-dmo-dialog-fecha-ao-enviar,
   // o email do «Enviar» do Resumo): a página fica onde está, por isso a
   // janela fecha depois de o browser mandar o pedido.

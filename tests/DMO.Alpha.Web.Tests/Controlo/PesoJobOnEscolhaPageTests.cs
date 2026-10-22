@@ -282,7 +282,7 @@ public sealed class PesoJobOnEscolhaPageTests : IClassFixture<CustomWebApplicati
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
             controloId = await db.Controlos.AsNoTracking().Where(c => c.JobOnId == jobOnId).Select(c => c.Id).SingleAsync();
         }
-        Assert.Contains($"<a class=\"dmo-button\" href=\"/Controlo/Peso?controlo_id={controloId}\">Criar Peso</a>", resumo);
+        Assert.Contains($"<a class=\"dmo-button\" href=\"/Controlo/Peso?controlo_id={controloId}\" aria-label=\"Registar o Peso\">Registar</a>", resumo);
     }
 
     [Fact]

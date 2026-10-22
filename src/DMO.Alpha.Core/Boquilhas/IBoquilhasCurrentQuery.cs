@@ -12,7 +12,9 @@ namespace DMO.Alpha.Core.Boquilhas;
 public interface IBoquilhasCurrentQuery
 {
     /// <summary>
-    /// Todas as máquinas, cada uma com a sua produção corrente (null quando
+    /// Todas as máquinas, cada uma com a sua produção corrente — uma linha
+    /// por produção quando várias cobrem o dia operacional (a que entrou por
+    /// último primeiro) — (null quando
     /// a máquina nunca produziu — «Sem produção», nunca a mais recente
     /// futura).
     /// </summary>
@@ -43,4 +45,8 @@ public sealed record MachineCurrentBq(
     string? Reference,
     string? BqReference,
     string? BqToolId,
-    int? BqContextId = null);
+    int? BqContextId = null,
+    // A linha tem produções que se SOBREPÕEM de verdade no dia operacional
+    // (JobOnOverlap.Crosses — o dia da troca não conta). Só informa: o
+    // painel mostra todas e um aviso; nada bloqueia.
+    bool Overlap = false);

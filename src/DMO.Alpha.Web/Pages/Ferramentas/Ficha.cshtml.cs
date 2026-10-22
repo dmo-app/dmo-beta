@@ -37,7 +37,7 @@ public sealed class FichaModel : PageModel
     private static readonly string[] TechnicalFieldNames =
     [
         "process_token", "nominal_weight", "volume_puncao", "volume_marisa", "diametro_gargalo",
-        "tp_diametro", "tp_raio", "tp_sagitta"
+        "tp_diametro", "tp_sagitta"
     ];
 
     /// <summary>Rótulos humanos dos campos numéricos técnicos (os da ficha), para os avisos.</summary>
@@ -48,7 +48,6 @@ public sealed class FichaModel : PageModel
         ["volume_marisa"] = "Marisa (cm³)",
         ["diametro_gargalo"] = "Diâmetro do gargalo (mm)",
         ["tp_diametro"] = "Tampão — diâmetro (mm)",
-        ["tp_raio"] = "Tampão — raio (mm)",
         ["tp_sagitta"] = "Tampão — calote (mm)"
     };
 
@@ -596,7 +595,7 @@ public sealed class FichaModel : PageModel
     /// pesos/volumes/gargalo e a geometria TP do desenho). O valor vazio é
     /// NULL (o estado «em falta» é válido); a linha é criada quando ainda
     /// não existe; grava sempre no tool_id owner. O tampão regista só o
-    /// diâmetro, o raio e a calote (beta.37); R base, R esfera e volume já
+    /// diâmetro e a calote (o raio deixou de ser pedido; o gravado fica); R base, R esfera e volume já
     /// gravados ficam intactos e o volume é calculado a partir de D e calote.
     /// </summary>
     public async Task<IActionResult> OnPostEditTechnicalAsync(
@@ -607,7 +606,6 @@ public sealed class FichaModel : PageModel
         [FromForm(Name = "volume_marisa")] string? volumeMarisa,
         [FromForm(Name = "diametro_gargalo")] string? diametroGargalo,
         [FromForm(Name = "tp_diametro")] string? tpDiametro,
-        [FromForm(Name = "tp_raio")] string? tpRaio,
         [FromForm(Name = "tp_sagitta")] string? tpSagitta,
         [FromForm(Name = "continuar")] string? continuar = null,
         [FromForm(Name = "versao")] string? versao = null)
@@ -619,7 +617,7 @@ public sealed class FichaModel : PageModel
             ["process_token"] = processToken, ["nominal_weight"] = nominalWeight,
             ["volume_puncao"] = volumePuncao, ["volume_marisa"] = volumeMarisa,
             ["diametro_gargalo"] = diametroGargalo, ["tp_diametro"] = tpDiametro,
-            ["tp_raio"] = tpRaio, ["tp_sagitta"] = tpSagitta
+            ["tp_sagitta"] = tpSagitta
         };
 
         // beta.63 (A9): um campo ilegível já não recusa os outros. Os
@@ -649,7 +647,7 @@ public sealed class FichaModel : PageModel
                 Value("volume_marisa", stored?.VolumeMarisaCm3),
                 Value("diametro_gargalo", stored?.DiametroGargaloMm),
                 Value("tp_diametro", stored?.TpDiametroMm),
-                Value("tp_raio", stored?.TpRaioMm),
+                TpRaioMm: null, // já não é pedido; o handler mantém o gravado
                 Value("tp_sagitta", stored?.TpSagittaMm),
                 ExpectedVersion: ParseVersion(versao)),
             HttpContext.RequestAborted);

@@ -46,4 +46,12 @@ public interface IPesoQuery
     Task<IReadOnlyList<PesoReadModel>> ListByControloAsync(
         int controloId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Os Pesos criados só para comparação com este Peso, o mais recente
+    /// primeiro; vazia sem nenhum.
+    /// </summary>
+    Task<IReadOnlyList<PesoReadModel>> ListParaComparacaoAsync(
+        int pesoId,
+        CancellationToken cancellationToken = default);
 }

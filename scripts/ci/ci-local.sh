@@ -13,7 +13,7 @@
 #                      (por omissão Host=localhost;Port=5432;Username=postgres;Password=postgres)
 #   CI_SEM_POSTGRES=1  corre sem PostgreSQL (os testes de migração ficam ignorados; INCOMPLETO)
 #   CI_SEM_NODE=1      não corre os testes de JavaScript da app (tests/ShellProof; INCOMPLETO)
-#   CI_SEM_BROWSER=1   não corre os testes no browser (catálogo, paginação e pasta dos PDFs, tests/visual; INCOMPLETO)
+#   CI_SEM_BROWSER=1   não corre os testes no browser (catálogo, paginação, pasta dos PDFs e Excel das Boquilhas, tests/visual; INCOMPLETO)
 set -uo pipefail
 
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
@@ -199,6 +199,21 @@ elif python3 tests/visual/pasta_pdf_browser.py "$logs/ui-pasta" >"$logs/ui-pasta
 else
   tail -30 "$logs/ui-pasta.log"
   summary+=("FALHOU  Browser na pasta dos PDFs")
+  failed=1
+fi
+
+echo
+echo "== Browser no Excel das Boquilhas"
+echo "   O Excel das Boquilhas no Chromium: sem Excel, escrita ao abrir, versão igual, depois de um registo, recusa do servidor e deixar de usar."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no Excel das Boquilhas (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/excel_bq_browser.py "$logs/ui-excel-bq" >"$logs/ui-excel-bq.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no Excel das Boquilhas")
+else
+  tail -30 "$logs/ui-excel-bq.log"
+  summary+=("FALHOU  Browser no Excel das Boquilhas")
   failed=1
 fi
 

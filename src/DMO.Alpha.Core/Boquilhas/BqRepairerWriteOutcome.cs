@@ -21,3 +21,9 @@ public interface IEditBqRepairerHandler
 {
     Task<BqRepairerWriteOutcome> HandleAsync(EditBqRepairer command, CancellationToken cancellationToken = default);
 }
+
+/// <summary>Handler da remoção de uma entidade reparadora.</summary>
+public interface IDeleteBqRepairerHandler
+{
+    Task<BqRepairerWriteOutcome> HandleAsync(DeleteBqRepairer command, CancellationToken cancellationToken = default);
+}

@@ -174,6 +174,76 @@ public sealed class BoquilhasCurrentQueryTests
     }
 
     [Fact]
+    public async Task DiaDaTroca_AProducaoQueEntra_EACorrente_MesmoRegistadaAntes()
+    {
+        // Diogo, 21/10/2026: «uma producao sai dia 20 outra entra dia 20». A
+        // que entra foi registada primeiro; a que sai, depois. No dia 20 a
+        // máquina tem a que entra, com a BQ dela (a linha ficava vazia).
+        using var db = await CreateContextAsync();
+        var c3 = new Machine { Code = "C3" };
+        db.Machines.Add(c3);
+        db.Tools.Add(new Tool { ToolId = "BQ-ENTRA", Type = ToolType.Bq, Reference = "T324", Lot = "5" });
+        var dia = new DateOnly(2026, 10, 20);
+        var entra = new JobOn { ProductionNumber = "202604", Reference = "5538T324", Machine = c3, InicioEm = dia };
+        db.JobOns.Add(entra);
+        await db.SaveChangesAsync();
+        var sai = new JobOn { ProductionNumber = "202603", Reference = "5612T173", Machine = c3, InicioEm = dia.AddDays(-10), FimEm = dia };
+        db.JobOns.Add(sai);
+        await db.SaveChangesAsync();
+        db.BqContexts.Add(new BqContext { JobOnId = entra.Id, ToolId = "BQ-ENTRA" });
+        await db.SaveChangesAsync();
+
+        var query = new BoquilhasCurrentQuery(db, new StubSettings(), new FixedClock(new DateTimeOffset(2026, 10, 20, 10, 0, 0, TimeSpan.Zero)));
+        // Diogo, 22/10/2026: as DUAS aparecem (a que sai também se pode
+        // escolher para registar a BQ); a que entra primeiro; sem aviso, o
+        // dia da troca não é sobreposição.
+        var linhasC3 = (await query.ListAsync()).Where(c => c.MachineCode == "C3").ToList();
+
+        Assert.Equal(["202604", "202603"], linhasC3.Select(c => c.ProductionNumber));
+        Assert.Equal("T324", linhasC3[0].BqReference);
+        Assert.All(linhasC3, c => Assert.False(c.Overlap));
+    }
+
+    [Fact]
+    public async Task SobreposicaoReal_MostraAsDuasProducoes_ComAviso()
+    {
+        // Duas janelas que se cruzam de verdade (JobOnOverlap.Crosses): as
+        // duas aparecem, a que entrou por último primeiro, e a linha leva o
+        // aviso. Nada bloqueia.
+        using var db = await CreateContextAsync();
+        var b1 = new Machine { Code = "B1" };
+        db.Machines.Add(b1);
+        var dia = new DateOnly(2026, 10, 20);
+        db.JobOns.AddRange(
+            new JobOn { ProductionNumber = "202610", Reference = "A", Machine = b1, InicioEm = dia.AddDays(-5), FimEm = dia.AddDays(3) },
+            new JobOn { ProductionNumber = "202611", Reference = "B", Machine = b1, InicioEm = dia.AddDays(-1), FimEm = dia.AddDays(5) });
+        await db.SaveChangesAsync();
+
+        var query = new BoquilhasCurrentQuery(db, new StubSettings(), new FixedClock(new DateTimeOffset(2026, 10, 20, 10, 0, 0, TimeSpan.Zero)));
+        var linhasB1 = (await query.ListAsync()).Where(c => c.MachineCode == "B1").ToList();
+
+        Assert.Equal(["202611", "202610"], linhasB1.Select(c => c.ProductionNumber));
+        Assert.All(linhasB1, c => Assert.True(c.Overlap));
+    }
+
+    [Fact]
+    public async Task UmaSoProducao_UmaLinha_SemAviso()
+    {
+        using var db = await CreateContextAsync();
+        var b1 = new Machine { Code = "B1" };
+        db.Machines.Add(b1);
+        var dia = new DateOnly(2026, 10, 20);
+        db.JobOns.Add(new JobOn { ProductionNumber = "202612", Reference = "A", Machine = b1, InicioEm = dia.AddDays(-2), FimEm = dia.AddDays(2) });
+        await db.SaveChangesAsync();
+
+        var query = new BoquilhasCurrentQuery(db, new StubSettings(), new FixedClock(new DateTimeOffset(2026, 10, 20, 10, 0, 0, TimeSpan.Zero)));
+        var linha = Assert.Single(await query.ListAsync());
+
+        Assert.Equal("202612", linha.ProductionNumber);
+        Assert.False(linha.Overlap);
+    }
+
+    [Fact]
     public async Task DatedJobOn_EndedBeforeOperationalDay_FallsBackToUndated()
     {
         // A janela que JÁ PASSOU não é corrente; o FALLBACK de transição

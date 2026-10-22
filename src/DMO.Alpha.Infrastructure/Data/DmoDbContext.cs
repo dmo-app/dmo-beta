@@ -869,6 +869,20 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                     $"\"ControloId\" IS NOT NULL AND \"CmToolId\" <> '{ToolRegistryConstants.RemovedToolId}' " +
                     $"AND \"BqToolId\" <> '{ToolRegistryConstants.RemovedToolId}'");
 
+            // O Peso só para comparação (o Diogo, 22/10/2026): aponta para o
+            // Peso que compara e nunca é de uma produção (o CHECK abaixo
+            // protege-o também na base). Restrict: apagar o Job On apaga-os
+            // primeiro, no DeleteJobOnHandler.
+            entity.HasOne<DMO.Alpha.Core.Controlo.Peso>()
+                .WithMany()
+                .HasForeignKey(p => p.ComparacaoDoPesoId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(p => p.ComparacaoDoPesoId);
+            entity.ToTable(t => t.HasCheckConstraint(
+                "CK_Pesos_ComparacaoSemControlo",
+                "\"ComparacaoDoPesoId\" IS NULL OR \"ControloId\" IS NULL"));
+
             // A produção anterior de referência (o Owner 2026-10-17): o peso
             // do SAP é escrito à mão; o controlo anterior só dá o contexto.
             entity.HasOne(p => p.ProducaoAnteriorControlo)
@@ -1203,6 +1217,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                 .IsRequired();
 
             entity.Property(m => m.CosturaMm).IsRequired();
+            entity.Property(m => m.NumeroFerramenta).HasMaxLength(20);
             entity.HasIndex(m => new { m.PegamentosId, m.RowPosition }).IsUnique();
         });
 

@@ -141,7 +141,10 @@ public sealed class ShellStateFactory
     /// Navegação do módulo Controlo Criar. O Controlo Aprovar tem a sua
     /// própria barra (<see cref="ForControloReview"/>). Menos separadores
     /// (o Owner 16/10/2026): «Resumo», «Funções» com as folhas da produção
-    /// num dropdown (Peso, Pegamentos, PU NNPB) e depois Comparação e Histórico.
+    /// num dropdown (Peso, Pegamentos, PU NNPB) e depois Histórico. A
+    /// Comparação de Peso não tem separador: abre-se no Resumo da produção
+    /// (Diogo, 21/10/2026: «esta comparação passa a existir dentro do
+    /// controlo_id»).
     /// As Definições do Controlo (a pasta partilhada dos PDFs e a tolerância
     /// dos Pegamentos) fecham a barra (Diogo, 17/10/2026: «associaçao do dir
     /// fica no controlo.create»).
@@ -155,9 +158,6 @@ public sealed class ShellStateFactory
         var peso = controloId is int c ? $"/Controlo/Peso?controlo_id={c}" : "/Controlo/Peso";
         var pegamentos = controloId is int p ? $"/Controlo/Pegamentos?controlo_id={p}" : "/Controlo/Pegamentos";
         var puncoes = controloId is int pu ? $"/Controlo/Puncoes?controlo_id={pu}" : "/Controlo/Puncoes";
-        var comparacao = controloId is int cp
-            ? $"/Controlo/Peso?controlo_id={cp}&comparacao=1"
-            : "/Controlo/Peso?comparacao=1";
         var historico = "/Controlo/Peso?historico=1";
         var definicoes = "/Controlo/Definicoes";
         var funcoes = new[]
@@ -171,7 +171,6 @@ public sealed class ShellStateFactory
             new FunctionPresentation("resumo", "Resumo", resumo, null, activeKey == "resumo", true, true),
             new FunctionPresentation("funcoes", "Funções", null, null, funcoes.Any(f => f.Selected), true, true,
                 Children: funcoes),
-            new FunctionPresentation("comparacao", "Comparação", comparacao, null, activeKey == "comparacao", true, true),
             new FunctionPresentation("historico", "Histórico", historico, null, activeKey == "historico", true, true),
             new FunctionPresentation("definicoes", "Definições", definicoes, null, activeKey == "definicoes", true, true)
         };
@@ -213,7 +212,7 @@ public sealed class ShellStateFactory
         {
             new FunctionPresentation("registo", "Registo", "/Boquilhas", null, activeKey == "registo", true, true),
             new FunctionPresentation("ficheiros", "Boquilhas", "/Boquilhas?ficheiros=1", null, activeKey == "ficheiros", true, true),
-            new FunctionPresentation("historico", "Histórico", "/Boquilhas?historico=1", null, activeKey == "historico", true, true),
+            new FunctionPresentation("historico", "Histórico", "/Boquilhas?historico=1&vista=matriz", null, activeKey == "historico", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Boquilhas/Definicoes", null, activeKey == "definicoes", true, true)
         };
 
