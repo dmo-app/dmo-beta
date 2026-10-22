@@ -28,10 +28,11 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
             return null;
         }
 
-        return await db.Tools.AsNoTracking()
+        var ferramenta = await db.Tools.AsNoTracking()
             .Where(t => t.ToolId == toolId)
             .Select(t => new HistoricoFerramenta(t.ToolId, t.Type, t.Reference, t.Lot))
             .SingleOrDefaultAsync(cancellationToken);
+        return ferramenta is null ? null : ParteDaBq(ferramenta);
     }
 
     public async Task<IReadOnlyList<HistoricoLinha>> DaFerramentaAsync(string toolId, CancellationToken cancellationToken = default) =>
@@ -72,10 +73,20 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
             .Select(t => new HistoricoFerramenta(t.ToolId, t.Type, t.Reference, t.Lot))
             .Take(MaxFerramentas + 1)
             .ToListAsync(cancellationToken);
+        encontradas = encontradas.Select(ParteDaBq).ToList();
         var cortada = encontradas.Count > MaxFerramentas;
         var linhas = await LinhasAsync(encontradas.Take(MaxFerramentas).ToList(), filtro, cancellationToken);
         return new HistoricoProcura(linhas.Take(MaxLinhas).ToList(), cortada || linhas.Count > MaxLinhas);
     }
+
+    /// <summary>
+    /// A BQ mostra só a sua parte da referência (Diogo, 22/10/2026): a total é
+    /// MF + BQ, e 5447T173 fica T173 (a mesma divisão do ToolCandidateQuery).
+    /// </summary>
+    public static HistoricoFerramenta ParteDaBq(HistoricoFerramenta f) =>
+        f.Tipo == ToolType.Bq && ToolCandidateQuery.SplitReference(f.Referencia.Trim().ToUpperInvariant()).BqPart is { } parte
+            ? f with { Referencia = parte }
+            : f;
 
     private IQueryable<DMO.Alpha.Core.Production.JobOn> JobOnsDoFiltro(HistoricoFiltro filtro)
     {
@@ -141,7 +152,21 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
         var nomes = await db.Tools.AsNoTracking()
             .Where(t => toolIds.Contains(t.ToolId) && t.ToolId != ToolRegistryConstants.RemovedToolId)
             .Select(t => new HistoricoFerramenta(t.ToolId, t.Type, t.Reference, t.Lot))
-            .ToDictionaryAsync(t => t.ToolId, StringComparer.Ordinal, cancellationToken);
+            .ToDictionaryAsync(t => t.ToolId, t => ParteDaBq(t), StringComparer.Ordinal, cancellationToken);
+
+        // A % de uso de cada ferramenta em cada produção, pela mesma conta da ficha.
+        var leituras = (await db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => toolIds.Contains(u.ToolId))
+                .OrderBy(u => u.RegistadaEmUtc).ThenBy(u => u.Id)
+                .Select(u => new { u.ToolId, u.RegistadaEmUtc, u.Percentagem })
+                .ToListAsync(cancellationToken))
+            .GroupBy(u => u.ToolId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<(DateOnly Dia, decimal Percentagem)>)g
+                .Select(u => (DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem)).ToList(), StringComparer.Ordinal);
+        IReadOnlyDictionary<string, decimal?> Usos(FerramentaProducao p) => contextos
+            .Where(c => c.JobOnId == p.JobOnId)
+            .Select(c => c.ToolId).Distinct()
+            .ToDictionary(id => id, id => leituras.TryGetValue(id, out var l) ? FerramentasFabricoSap.UsoNaProducao(l, p.InicioEm, p.FimEm) : null, StringComparer.Ordinal);
 
         // A atual primeiro; as trocadas a meio a seguir, pela ordem em que entraram.
         IReadOnlyList<HistoricoFerramenta> Do(int jobOnId, ToolType tipo) => contextos
@@ -164,7 +189,8 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
                 x.Ferramenta,
                 Do(x.Producao.JobOnId, ToolType.Cm),
                 Do(x.Producao.JobOnId, ToolType.Mf),
-                Do(x.Producao.JobOnId, ToolType.Bq)))
+                Do(x.Producao.JobOnId, ToolType.Bq),
+                Usos(x.Producao)))
             .OrderByDescending(l => l.InicioEm.HasValue)
             .ThenByDescending(l => l.InicioEm)
             .ThenByDescending(l => l.JobOnId)

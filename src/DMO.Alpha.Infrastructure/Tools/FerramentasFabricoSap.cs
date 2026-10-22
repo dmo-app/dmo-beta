@@ -126,19 +126,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .Select(u => (Dia: DateOnly.FromDateTime(DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem))
             .ToList();
 
-        // Antes: a última leitura até ao dia do início (a desse dia é o ponto
-        // de partida). Depois: a
-        // primeira a partir do dia do fim; sem fim (ainda na máquina), a
-        // última desde o início.
-        decimal? Antes(DateOnly? inicio) => inicio is { } de
-            ? leituras.Where(u => u.Dia <= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
-            : null;
-        decimal? Depois(DateOnly? inicio, DateOnly? fim) => (inicio, fim) switch
-        {
-            (null, _) => null,
-            (_, { } ate) => leituras.Where(u => u.Dia >= ate).Select(u => (decimal?)u.Percentagem).FirstOrDefault(),
-            ({ } de, null) => leituras.Where(u => u.Dia >= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
-        };
+        decimal? Antes(DateOnly? inicio) => UsoAntes(leituras, inicio);
+        decimal? Depois(DateOnly? inicio, DateOnly? fim) => UsoDepois(leituras, inicio, fim);
 
         var itens = jobOns.Select(j =>
         {
@@ -161,4 +150,22 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             itens.Any(p => p.ProducaoBruta.HasValue) ? itens.Sum(p => p.ProducaoBruta ?? 0) : null,
             itens.Any(p => p.ProducaoLiquida.HasValue) ? itens.Sum(p => p.ProducaoLiquida ?? 0) : null);
     }
+
+    // Antes: a última leitura até ao dia do início (a desse dia é o ponto de
+    // partida). Depois: a primeira a partir do dia do fim; sem fim (ainda na
+    // máquina), a última desde o início. As leituras pela ordem, com o dia em Portugal.
+    public static decimal? UsoAntes(IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? inicio) => inicio is { } de
+        ? leituras.Where(u => u.Dia <= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
+        : null;
+
+    public static decimal? UsoDepois(IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? inicio, DateOnly? fim) => (inicio, fim) switch
+    {
+        (null, _) => null,
+        (_, { } ate) => leituras.Where(u => u.Dia >= ate).Select(u => (decimal?)u.Percentagem).FirstOrDefault(),
+        ({ } de, null) => leituras.Where(u => u.Dia >= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
+    };
+
+    /// <summary>A % de uso numa produção: depois − antes (a mesma conta da ficha).</summary>
+    public static decimal? UsoNaProducao(IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? inicio, DateOnly? fim) =>
+        UsoAntes(leituras, inicio) is { } antes && UsoDepois(leituras, inicio, fim) is { } depois ? depois - antes : null;
 }

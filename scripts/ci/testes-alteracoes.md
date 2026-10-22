@@ -1455,22 +1455,41 @@ Novos: 1 · mudaram: 4 · saíram: 0
 
 Selo depois: `76c4b78f9b5bff97`
 
-## A-0053 · 2026-10-22 · teste-novo
+## A-0053 · 2026-10-22 · contagem-lista
 
-Porquê: Histórico de cada ferramenta (CM, MF, BQ) e página Histórico das Ferramentas
+Porquê: Histórico de cada ferramenta e página Histórico das Ferramentas; prova do menu no ShellProof; limpeza de FerramentaUtilizacoes entre testes (dados a passar de um teste para outro)
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKAJ9KLE6sBCRubqd9wzWpT
-Novos: 11 · mudaram: 0 · saíram: 0
+Novos: 28 · mudaram: 2 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.ABq_MostraSoASuaParteDaReferencia`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AProcuraPelaLinhaEPelosDias_SemReferencia`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AProcuraPelaReferenciaEPeloTipo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AcimaDoLimite_AProcuraFicaCortada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.CadaFerramenta_TemASuaPercentagemDeUso_NaProducao`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NaBq_OsMfDeCadaJobOnPeloBqContext`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NoCm_UmaLinhaPorJobOn_ComOUsoEAsOutrasFerramentas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.OsDias_ContamODiaDoInicio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.OsDias_IncluemOsLimites_DoInicioEDoFim`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.OsDias_SemFim_ContamAteHoje`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.SemFiltro_AProcuraFicaVazia`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.UmaFerramentaQueNaoExiste_NaoTemHistorico`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AbreVazio_EProcuraPelaReferencia`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AcimaDoLimite_MostraOAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_SemAChaveDasFerramentas_NaoAbre`
+- novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.OLote_SemZerosAEsquerda`
+- novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.ONomeDoHistorico_UsaOLoteSemZero`
+- novo: `tests/ShellProof/historico-menu.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/historico-menu.test.cjs :: abrir outra linha fecha a primeira`
+- novo: `tests/ShellProof/historico-menu.test.cjs :: clicar na linha abre o menu com os três destinos desse Job On`
+- novo: `tests/ShellProof/historico-menu.test.cjs :: o script da página foi encontrado`
+- novo: `tests/ShellProof/historico-menu.test.cjs :: um clique fora da tabela fecha o menu`
+- novo: `tests/ShellProof/historico-menu.test.cjs :: um segundo clique na linha fecha o menu`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/package.json`
 
-Selo depois: `5efd8c334a85a10d`
+Selo depois: `5830da254db7491b`

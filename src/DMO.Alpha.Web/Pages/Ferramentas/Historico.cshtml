@@ -6,7 +6,8 @@
     Layout = "_DmoShellLayout";
     var ferramenta = Model.Ferramenta;
     var procura = ferramenta is null && !Model.FerramentaNaoExiste;
-    var outros = ferramenta is null ? Array.Empty<ToolType>() : HistoricoLinha.OutrosTipos(ferramenta.Tipo);
+    // A coluna destacada: a ferramenta vista, ou o tipo escolhido no filtro.
+    ToolType? destaque = ferramenta?.Tipo ?? Model.Tipo;
     var temMenu = Model.AbreControlo || Model.AbreReparacao || Model.AbreJobOn;
 }
 @section Head {
@@ -25,14 +26,16 @@ html body .hist-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:
 .hist-w-data{width:140px}
 .hist-acoes{display:flex;gap:8px;align-items:center}
 .hist-vazia{margin:0;color:var(--dmo-muted)}
-.hist-card .dmo-table td{padding:7px 8px;vertical-align:top}
-.hist-card .dmo-table td:is(:nth-child(2),:nth-child(3)){white-space:nowrap}
+/* Todas as células ao centro, com o mesmo espaço e a mesma altura de linha. */
+.hist-card .dmo-table td{padding:7px 8px;vertical-align:middle;white-space:nowrap;line-height:1.35}
+.hist-card .dmo-table :is(td,th).hist-destaque{font-weight:700;color:var(--dmo-brand-900)}
 .hist-card .dmo-table tbody tr[data-hist-linha]{cursor:pointer}
 .hist-card .dmo-table tbody tr[data-hist-linha]:hover td{background:var(--dmo-brand-050)}
-.hist-maquina{color:var(--dmo-muted);font-size:12px}
 .hist-ferr{display:block;white-space:nowrap}
+/* A % de uso de cada ferramenta nesta produção, depois do «·», mais discreta. */
+.hist-uso{color:var(--dmo-muted);font-weight:400}
 /* A trocada a meio do Job On, depois da atual. */
-.hist-ferr.hist-trocada{color:var(--dmo-muted);font-size:12.5px}
+.hist-ferr.hist-trocada{color:var(--dmo-muted);font-weight:400}
 /* O menu da linha: o texto da produção abre-o (sem botões na tabela). */
 .hist-menu>summary{font-weight:700;color:var(--dmo-brand-900)}
 .hist-menu .dmo-options-list{min-width:190px}
@@ -100,10 +103,15 @@ html body .hist-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:
       @if (ferramenta is not null)
       {
         <div class="dmo-card-topo-acoes">
-          <a class="dmo-button" id="histFicha" href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(ferramenta.ToolId)">Voltar à ficha</a>
+          <a class="dmo-button" id="histFicha" href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(ferramenta.ToolId)">Voltar</a>
         </div>
       }
     </div>
+    @* O aviso do limite também quando as primeiras ferramentas lidas não têm Job On (as seguintes podem ter). *@
+    @if (Model.Cortada)
+    {
+      <p class="dmo-aviso warn" id="histCortada" role="status">Há mais resultados: escreva mais da referência ou escolha mais filtros.</p>
+    }
     @if (Model.FerramentaNaoExiste)
     {
       <p class="hist-vazia" id="histNaoExiste">Esta ferramenta já não existe.</p>
@@ -118,31 +126,30 @@ html body .hist-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:
     }
     else
     {
-      @if (Model.Cortada)
-      {
-        <p class="dmo-aviso warn" id="histCortada" role="status">Há mais resultados: escreva mais da referência ou escolha mais filtros.</p>
-      }
       <div class="dmo-table-wrap">
         <table class="dmo-table" id="histLista" data-dmo-list="Histórico">
           <thead>
             <tr>
-              @if (procura) { <th>Ferramenta</th> }
-              <th>Produção</th><th>Data</th><th>% uso</th>
-              @if (procura) { <th>Outras ferramentas</th> }
-              else { foreach (var t in outros) { <th>@HistoricoModel.Token(t)</th> } }
+              <th>Referência</th><th>Produção</th><th>Linha</th><th>Data</th><th>Dias</th>
+              @foreach (var t in HistoricoModel.Colunas)
+              {
+                <th class="@(destaque == t ? "hist-destaque" : null)" data-hist-tipo="@HistoricoModel.Token(t)">@HistoricoModel.Token(t)</th>
+              }
             </tr>
           </thead>
           <tbody>
           @foreach (var l in Model.Linhas)
           {
-            var producao = $"{l.Referencia} · {l.Producao}";
+            var producao = l.Producao;
+            // Sem tipo escolhido, a coluna destacada é a da ferramenta encontrada.
+            var destaqueLinha = destaque ?? l.Ferramenta.Tipo;
             <tr data-hist-linha="@l.JobOnId">
-              @if (procura) { <td><span class="hist-ferr">@HistoricoModel.Nome(l.Ferramenta)</span></td> }
+              <td>@l.Referencia</td>
               <td>
                 @if (temMenu)
                 {
                   <details class="dmo-options hist-menu">
-                    <summary aria-label="Abrir a produção @producao">@producao</summary>
+                    <summary aria-label="Abrir a produção @l.Referencia @producao">@producao</summary>
                     <div class="dmo-options-list" role="menu">
                       @if (Model.AbreControlo) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ControloUrl(l)">Controlo</a> }
                       @if (Model.AbreReparacao) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ReparacaoUrl(l)">Reparação</a> }
@@ -154,30 +161,17 @@ html body .hist-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:
                 {
                   @producao
                 }
-                <span class="hist-maquina">@l.Maquina</span>
               </td>
+              <td>@l.Maquina</td>
               <td>@HistoricoModel.Datas(l.InicioEm, l.FimEm)</td>
-              <td>@HistoricoModel.Uso(l.Uso)</td>
-              @if (procura)
+              <td>@(l.Dias()?.ToString() ?? "—")</td>
+              @foreach (var t in HistoricoModel.Colunas)
               {
-                <td>
-                  @foreach (var t in HistoricoLinha.OutrosTipos(l.Ferramenta.Tipo))
-                  {
-                    var doTipo = l.DoTipo(t);
-                    for (var i = 0; i < doTipo.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(doTipo[i])</span> }
-                  }
+                var deste = l.DoTipo(t);
+                <td class="@(destaqueLinha == t ? "hist-destaque" : null)">
+                  @if (deste.Count == 0) { @("—") }
+                  @for (var i = 0; i < deste.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(deste[i])<span class="hist-uso"> · @HistoricoModel.Uso(l.UsoDe(deste[i].ToolId))</span></span> }
                 </td>
-              }
-              else
-              {
-                foreach (var t in outros)
-                {
-                  var deste = l.DoTipo(t);
-                  <td>
-                    @if (deste.Count == 0) { @("—") }
-                    @for (var i = 0; i < deste.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(deste[i])</span> }
-                  </td>
-                }
               }
             </tr>
           }

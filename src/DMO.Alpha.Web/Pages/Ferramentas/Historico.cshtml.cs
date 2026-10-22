@@ -77,6 +77,9 @@ public sealed class HistoricoModel(
         _ => null
     };
 
+    /// <summary>As colunas das ferramentas, sempre as três e por esta ordem (Diogo, 22/10/2026).</summary>
+    public static readonly IReadOnlyList<ToolType> Colunas = [ToolType.Cm, ToolType.Bq, ToolType.Mf];
+
     public static string Token(ToolType tipo) => tipo switch
     {
         ToolType.Cm => "CM",
@@ -85,7 +88,7 @@ public sealed class HistoricoModel(
     };
 
     /// <summary>«CM 5447 · Lote 3».</summary>
-    public static string Nome(HistoricoFerramenta f) => $"{Token(f.Tipo)} {f.Referencia} · Lote {f.Lote}";
+    public static string Nome(HistoricoFerramenta f) => $"{Token(f.Tipo)} {f.Referencia} · Lote {LoteTexto.Mostrar(f.Lote)}";
 
     public static string Dia(DateOnly? dia) => dia?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "—";
 

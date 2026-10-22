@@ -74,6 +74,8 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         db.BqRepairTraces.RemoveRange(db.BqRepairTraces);
         db.JobOns.RemoveRange(db.JobOns);
         db.Machines.RemoveRange(db.Machines);
+        // As leituras da % de uso (o Histórico semeia-as): sem elas a sobrar entre testes.
+        db.FerramentaUtilizacoes.RemoveRange(db.FerramentaUtilizacoes);
         db.Tools.RemoveRange(db.Tools);
         db.SaveChanges();
     }
