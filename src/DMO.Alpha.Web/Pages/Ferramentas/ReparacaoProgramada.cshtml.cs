@@ -88,6 +88,9 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
 
     public bool VerFechadas => Vista == "fechadas";
 
+    /// <summary>Nas Listas, a «Nova lista» (o reparador e «Criar»): escolhida, ou sem nenhuma ativa.</summary>
+    public bool NovaLista => !VerFechadas && (ListaId == 0 || Ativas.Count == 0);
+
     public ToolType? Tipo => TipoTexto switch
     {
         "CM" => ToolType.Cm,
@@ -102,7 +105,7 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
     public static readonly IReadOnlyList<FerramentaEstadoTipo> Estados =
         [FerramentaEstadoTipo.PorReparar, FerramentaEstadoTipo.Reparado, FerramentaEstadoTipo.Novo, FerramentaEstadoTipo.Sucatado];
 
-    public async Task<IActionResult> OnGetAsync(int? associadas, string[]? aviso, string? recusa)
+    public async Task<IActionResult> OnGetAsync(int? associadas, string[]? aviso, string? recusa, int? criada)
     {
         var ct = HttpContext.RequestAborted;
         ViewData["Title"] = "Reparação Programada — Ferramentas";
@@ -116,23 +119,18 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
         Linhas = await programada.LinhasAsync(ct);
         Candidatas = await programada.ProcurarAsync(Procura, ct);
         Ativas = await programada.ListasAsync(false, ct);
-        var precisaFechadas = VerFechadas || HistoricoPedido;
-        var todasFechadas = precisaFechadas ? await programada.ListasAsync(true, ct) : [];
-        if (VerFechadas)
-        {
-            Fechadas = todasFechadas;
-        }
-
+        // As fechadas são o histórico: abrem vazias e só com o reparador ou
+        // as datas mostram as que batem (Diogo, 22/10/2026).
+        var todasFechadas = VerFechadas ? await programada.ListasAsync(true, ct) : [];
         HistReparadores = Reparadores.Select(r => r.Nome)
-            .Concat(Ativas.Select(a => a.Reparador))
             .Concat(todasFechadas.Select(a => a.Reparador))
             .Where(n => !string.IsNullOrWhiteSpace(n))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Order(StringComparer.CurrentCultureIgnoreCase)
             .ToList();
-        if (HistoricoPedido)
+        if (VerFechadas && HistoricoPedido)
         {
-            Historico = Ativas.Concat(todasFechadas)
+            Fechadas = todasFechadas
                 .Where(a => string.IsNullOrWhiteSpace(HistReparador) || string.Equals(a.Reparador, HistReparador, StringComparison.OrdinalIgnoreCase))
                 .Where(a => HistDesde is not { } desde || DateOnly.FromDateTime(DmoBusinessTime.ToLocal(a.CriadaEmUtc)) >= desde)
                 .Where(a => HistAte is not { } ate || DateOnly.FromDateTime(DmoBusinessTime.ToLocal(a.CriadaEmUtc)) <= ate)
@@ -141,16 +139,20 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
                 .ToList();
         }
 
-        var escolhida = ListaId ?? (VerFechadas ? Fechadas.FirstOrDefault()?.Id : Ativas.FirstOrDefault()?.Id);
+        Historico = Fechadas;
+        // No Histórico só abre a lista que se clica; nas Listas, a escolhida
+        // (0 é «Nova lista») ou a mais recente.
+        var escolhida = VerFechadas ? ListaId : ListaId is > 0 ? ListaId : ListaId == 0 ? null : Ativas.FirstOrDefault()?.Id;
         if (escolhida is { } id)
         {
             Lista = await programada.ListaAsync(id, ct);
         }
 
         Avisos = aviso ?? [];
-        Mensagem = associadas is > 0 ? (associadas == 1 ? "1 ferramenta associada." : $"{associadas} ferramentas associadas.") : null;
+        Mensagem = criada == 1 ? "Lista criada. Marque as ferramentas e «Adicionar»." : associadas is > 0 ? (associadas == 1 ? "1 ferramenta associada." : $"{associadas} ferramentas associadas.") : null;
         Recusa = recusa switch
         {
+            "SemLista" => "Escolha ou crie uma lista primeiro.",
             nameof(ProgramadaAssociacao.SemFerramentas) => "Marque as ferramentas a associar.",
             nameof(ProgramadaAssociacao.SemReparador) => "Escolha o reparador da lista nova.",
             nameof(ProgramadaAssociacao.ReparadorInvalido) => "Esse reparador já não está ativo. Escolha outro.",
@@ -161,9 +163,36 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
         return Page();
     }
 
+    /// <summary>«Nova lista»: o reparador e «Criar» fazem uma lista ativa vazia.</summary>
+    public async Task<IActionResult> OnPostCriarAsync(int? reparador)
+    {
+        var saida = await programada.CriarListaAsync(reparador, HttpContext.RequestAborted);
+        return RedirectToPage("/Ferramentas/ReparacaoProgramada", new
+        {
+            lista = saida.Associou ? saida.ListaId : 0,
+            criada = saida.Associou ? 1 : (int?)null,
+            recusa = saida.Associou ? null : saida.Resultado.ToString()
+        });
+    }
+
     public async Task<IActionResult> OnPostAssociarAsync(string[]? ferramenta, string? destino, int? reparador)
     {
         int? listaDestino = int.TryParse(destino, NumberStyles.None, CultureInfo.InvariantCulture, out var l) ? l : null;
+        if (listaDestino is null && reparador is null)
+        {
+            // Sem lista escolhida em cima: avisa (não cria nada).
+            return RedirectToPage("/Ferramentas/ReparacaoProgramada", new
+            {
+                tipo = TipoTexto,
+                referencia = Referencia,
+                lote = Lote,
+                linha = Linha,
+                estado = EstadoTexto,
+                lista = 0,
+                recusa = "SemLista"
+            });
+        }
+
         var saida = await programada.AssociarAsync(ferramenta ?? [], listaDestino, reparador, HttpContext.RequestAborted);
         return RedirectToPage("/Ferramentas/ReparacaoProgramada", new
         {

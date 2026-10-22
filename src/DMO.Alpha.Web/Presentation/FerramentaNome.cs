@@ -33,4 +33,16 @@ public static class FerramentaNome
 
         return html;
     }
+
+    /// <summary>As Linhas como na procura («B1 B2»; sem nenhuma, «Todas»).</summary>
+    public static string Linhas(IReadOnlyDictionary<string, ArmazemLinhasEUso> dados, string? toolId) =>
+        toolId is not null && dados.TryGetValue(toolId, out var d)
+            ? (d.Linhas.Count > 0 ? string.Join(" ", d.Linhas) : "Todas")
+            : "—";
+
+    /// <summary>O % de uso da última leitura, como na procura.</summary>
+    public static string Uso(IReadOnlyDictionary<string, ArmazemLinhasEUso> dados, string? toolId) =>
+        toolId is not null && dados.TryGetValue(toolId, out var d) && d.Uso is { } u
+            ? u.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " %"
+            : "—";
 }

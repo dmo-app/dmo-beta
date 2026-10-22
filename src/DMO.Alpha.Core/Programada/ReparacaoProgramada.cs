@@ -150,6 +150,9 @@ public interface IReparacaoProgramada
     /// </summary>
     Task<ProgramadaAssociacaoSaida> AssociarAsync(IReadOnlyCollection<string> toolIds, int? listaId, int? reparadorId, CancellationToken cancellationToken = default);
 
+    /// <summary>Cria uma lista ativa vazia para o reparador («Nova lista» e «Criar»).</summary>
+    Task<ProgramadaAssociacaoSaida> CriarListaAsync(int? reparadorId, CancellationToken cancellationToken = default);
+
     /// <summary>As listas: as ativas, ou com <paramref name="fechadas"/> só as fechadas; das mais recentes para as mais antigas.</summary>
     Task<IReadOnlyList<ProgramadaListaResumo>> ListasAsync(bool fechadas, CancellationToken cancellationToken = default);
 

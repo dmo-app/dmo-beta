@@ -36,6 +36,10 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         // interruptores mudam isto com WithWebHostBuilder.
         builder.UseSetting("Dmo:ModulosEmDesenvolvimento", ModulosEmDesenvolvimento);
 
+        // Os avisos do Armazém no Job On estão em espera na aplicação (Diogo,
+        // 22/10/2026); os testes que os verificam correm com eles ligados.
+        builder.UseSetting("Dmo:Avisos:ArmazemSemRegisto", "true");
+
         builder.ConfigureServices(services =>
         {
             // Replace the authentication provider with the deterministic seam.

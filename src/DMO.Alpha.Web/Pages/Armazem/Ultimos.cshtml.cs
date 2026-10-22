@@ -25,9 +25,12 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
 public sealed class UltimosModel(
-    IArmazemReparacao reparacao, IArmazemHistorico historico, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
+    IArmazemReparacao reparacao, IArmazemHistorico historico, IArmazemMovimentos movimentos, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
 {
     public IReadOnlyList<ArmazemForaEmReparacao> Fora { get; private set; } = [];
+
+    /// <summary>As Linhas e o % de uso das ferramentas das duas listas.</summary>
+    public IReadOnlyDictionary<string, ArmazemLinhasEUso> LinhasEUso { get; private set; } = new Dictionary<string, ArmazemLinhasEUso>();
 
     public PagedList<ArmazemHistoricoLinha> Lista { get; private set; } = PagedList<ArmazemHistoricoLinha>.Empty;
 
@@ -105,6 +108,8 @@ public sealed class UltimosModel(
                 Reparador: Reparador),
             pagina ?? 1, ct);
         Pager = ListPager.For(Lista);
+        LinhasEUso = await movimentos.LinhasEUsoAsync(
+            Fora.Select(f => f.ToolId).Concat(Lista.Items.Select(m => m.ToolId)).OfType<string>().ToList(), ct);
         if (!string.IsNullOrWhiteSpace(ToolId) && Lista.Items.FirstOrDefault() is { } primeira)
         {
             FerramentaDoFiltro = Ferramenta(primeira);

@@ -83,6 +83,32 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
         }).ToList();
     }
 
+    public async Task<ProgramadaAssociacaoSaida> CriarListaAsync(int? reparadorId, CancellationToken cancellationToken = default)
+    {
+        if (reparadorId is null)
+        {
+            return new(ProgramadaAssociacao.SemReparador, null, 0, []);
+        }
+
+        var reparador = await db.Reparadores.AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == reparadorId && r.Ativo, cancellationToken);
+        if (reparador is null)
+        {
+            return new(ProgramadaAssociacao.ReparadorInvalido, null, 0, []);
+        }
+
+        var lista = new ReparacaoProgramadaLista
+        {
+            ReparadorId = reparador.Id,
+            ReparadorNome = reparador.Nome,
+            CriadaEmUtc = DateTime.UtcNow,
+            CriadaPor = Autor()
+        };
+        db.ReparacaoProgramadaListas.Add(lista);
+        await db.SaveChangesAsync(cancellationToken);
+        return new(ProgramadaAssociacao.Associada, lista.Id, 0, []);
+    }
+
     public async Task<ProgramadaAssociacaoSaida> AssociarAsync(
         IReadOnlyCollection<string> toolIds, int? listaId, int? reparadorId, CancellationToken cancellationToken = default)
     {

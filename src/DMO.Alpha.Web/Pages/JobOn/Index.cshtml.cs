@@ -32,6 +32,18 @@ public sealed class IndexModel : PageModel
 {
     private const string PagePath = "/JobOn";
 
+    /// <summary>
+    /// EM ESPERA (Diogo, 22/10/2026): os avisos «… não está registada no
+    /// Armazém e não tem estado» das Ferramentas usadas ficam escondidos.
+    /// Para os voltar a mostrar: Dmo:Avisos:ArmazemSemRegisto = true
+    /// (appsettings ou variável Dmo__Avisos__ArmazemSemRegisto). O
+    /// JobOnToolFactsQuery continua a calculá-los.
+    /// </summary>
+    public const string AvisoArmazemChave = "Dmo:Avisos:ArmazemSemRegisto";
+
+    /// <summary>Se os avisos do Armazém (sem registo, sem estado) se mostram.</summary>
+    public bool MostrarAvisoArmazem { get; }
+
     private readonly ICreateJobOnHandler _createJobOn;
     private readonly IUpdateJobOnHandler _updateJobOn;
     private readonly IJobOnListQuery _jobOnList;
@@ -63,8 +75,10 @@ public sealed class IndexModel : PageModel
         JobOnLotNoteHandler lotNotes,
         JobOnChangeQuery changes,
         IDeleteJobOnHandler deleteJobOn,
-        IJobOnFolhaQuery folha)
+        IJobOnFolhaQuery folha,
+        Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
+        MostrarAvisoArmazem = configuration.GetValue(AvisoArmazemChave, false);
         _createJobOn = createJobOn;
         _updateJobOn = updateJobOn;
         _jobOnList = jobOnList;
@@ -1730,7 +1744,7 @@ public sealed class IndexModel : PageModel
         {
             var node = JsonSerializer.SerializeToNode(fact, ScriptJsonOptions)!.AsObject();
             node["avisos"] = JsonSerializer.SerializeToNode(
-                AvisosDasFerramentas(fact).Select(aviso => new
+                AvisosDasFerramentas(fact, MostrarAvisoArmazem).Select(aviso => new
                 {
                     texto = aviso.Texto,
                     links = aviso.Links
@@ -1752,7 +1766,7 @@ public sealed class IndexModel : PageModel
     /// movimentos da ferramenta. Abrem noutro separador: a folha pode estar
     /// por gravar.
     /// </summary>
-    public static IReadOnlyList<JobOnToolAviso> AvisosDasFerramentas(JobOnToolFacts fact)
+    public static IReadOnlyList<JobOnToolAviso> AvisosDasFerramentas(JobOnToolFacts fact, bool comAvisoArmazem)
     {
         var avisos = new List<JobOnToolAviso>();
         if (fact.AvisoCompatibilidade is { } compatibilidade)
@@ -1770,7 +1784,7 @@ public sealed class IndexModel : PageModel
                 .ToList()));
         }
 
-        if (fact.AvisoArmazem is { } armazem)
+        if (comAvisoArmazem && fact.AvisoArmazem is { } armazem)
         {
             avisos.Add(new JobOnToolAviso(armazem,
             [

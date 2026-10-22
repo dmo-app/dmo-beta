@@ -1216,3 +1216,26 @@ Novos: 2 · mudaram: 1 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedTriangle_AndLivesOnlyInThePartial`
 
 Selo depois: `4e415b1e638138f6`
+
+## A-0044 · 2026-10-22 · ok-do-diogo
+
+Porquê: Armazém: tabelas com Linha e % uso, linha abre a ficha; avisos do Armazém no Job On em espera; Reparação Programada com Listas/Histórico separados e procura só com filtros
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyXfNU7jcpKvE6aoyJFejJsb, cmsg_01A27e9ozcpoh4jdPRsuJbFy7VQFHmWxH8LLRGu2LgzbUm, cmsg_01A27e9ozcpoh4jdPRsuJbFy3ywAgFqJ4UPrRkxVw9H1sN, cmsg_01A27e9ozcpoh4jdPRsuJbFyKSqvNb77drHCVLbJLjF6FN, cmsg_01A27e9ozcpoh4jdPRsuJbFyKNWM2e5cFZmoLvzMAqdm5s, cmsg_01A27e9ozcpoh4jdPRsuJbFy1mRo5xn7zAQy42TtGpH8pF, cmsg_01A27e9ozcpoh4jdPRsuJbFyHo7org3RGuhgc7bX2MW432, cmsg_01A27e9ozcpoh4jdPRsuJbFyBLnH9tw7Pd3XGwwRSrXdqy, cmsg_01A27e9ozcpoh4jdPRsuJbFyFePhNLVk6MX4pSvkrh3mGy
+Novos: 8 · mudaram: 5 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.ComAsFerramentas_ALinhaDasUltimasAbreAFicha_NoRegistoENosMovimentos`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.Imprimir_SoMostraAsPorRetirar_EAsFechadasAbremVazias_EFiltramPeloReparador`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.NovaLista_CriaComOReparador_ESemListaOAdicionarAvisa`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.ComOInterruptor_OAvisoDoArmazemVolta`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.SemOInterruptor_OAvisoDoArmazemNaoAparece_EOsOutrosSim`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Fora_SoCmEMf_ComReparadorEDia_BqNao`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_Todas_DoMaisRecente_BqIncluida_PosicaoSoNaEntrada`
+- mudou: `tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.Imprimir_SoMostraAsPorRetirar_EOHistoricoAbreVazio_EListaAsCriadas`
+
+Selo depois: `69bb56498f37525b`

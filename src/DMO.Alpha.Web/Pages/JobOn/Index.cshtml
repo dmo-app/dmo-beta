@@ -447,7 +447,7 @@
                       <span>@ondeEsta@(factoSlot.Estado is { } estadoFicha ? " · " + DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoFicha) : null)</span>
                     </p>
                   }
-                  @if (factoSlot.AvisoArmazem is { } avisoArmazem)
+                  @if (Model.MostrarAvisoArmazem && factoSlot.AvisoArmazem is { } avisoArmazem)
                   {
                     <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(factoSlot.ToolId, "Registar na ferramenta")" /></div>
                   }
@@ -703,7 +703,7 @@
           <div id="lightToolWarnings" class="job-tool-warnings">
             @foreach (var fact in Model.FolhaAberta ? Model.FichaFacts : Array.Empty<DMO.Alpha.Core.Production.JobOnToolFacts>())
             {
-              foreach (var avisoFerramenta in IndexModel.AvisosDasFerramentas(fact))
+              foreach (var avisoFerramenta in IndexModel.AvisosDasFerramentas(fact, Model.MostrarAvisoArmazem))
               {
                 <div class="jobon-aviso warn" role="status">@avisoFerramenta.Texto@foreach (var link in avisoFerramenta.Links)
                   {<partial name="_DmoAvisoLink" model="link" />}</div>

@@ -183,12 +183,15 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         var depois = await armazem.GetStringAsync(gravada.Headers.Location!.OriginalString);
         Assert.Contains("Reparação Programada de Moldin", WebUtility.HtmlDecode(depois));
 
-        var lista = await chefia.GetStringAsync($"{Pagina}?vista=fechadas");
+        var listaId = NaBase(db => db.ReparacaoProgramadaListas.Single().Id);
+        // No Histórico a lista abre com um clique na linha (só para ver).
+        var historico = await chefia.GetStringAsync($"{Pagina}?vista=fechadas&hist_reparador=Moldin");
+        Assert.Contains($"data-dmo-historico=\"{listaId}\"", historico);
+        var lista = await chefia.GetStringAsync($"{Pagina}?vista=fechadas&hist_reparador=Moldin&lista={listaId}");
         Assert.Contains("id=\"rpListaFechada\"", lista);
         Assert.Contains("class=\"rp-entrou\"", lista);
         Assert.Matches("Entrada \\d\\d/\\d\\d/\\d{4} · Posição 4152 · Operador 7404", WebUtility.HtmlDecode(lista));
 
-        var listaId = NaBase(db => db.ReparacaoProgramadaListas.Single().Id);
         var impressao = await chefia.GetStringAsync($"/Ferramentas/ReparacaoProgramada/Imprimir?lista={listaId}");
         Assert.Contains("window.print()", impressao);
         Assert.Contains("@media print", impressao);
