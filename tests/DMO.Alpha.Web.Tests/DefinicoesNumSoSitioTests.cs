@@ -494,4 +494,29 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         using var scope2 = _factory.Services.CreateScope();
         Assert.Equal("light", (await scope2.ServiceProvider.GetRequiredService<DmoDbContext>().UserSettings.AsNoTracking().SingleAsync(s => s.UserId == anaId)).Value);
     }
+
+    [Fact]
+    public async Task OCadeado_Depois4PinsErrados_OCertoAindaAbre()
+    {
+        await DefinicoesPin.CriarAsync(_factory.Services);
+        var (client, _) = await LoginOperatorAsync("7323", DmoCapabilities.Boquilhas);
+        for (var i = 0; i < 4; i++)
+        {
+            Assert.EndsWith("pin=errado", (await AbrirCadeadoAsync(client, "9999")).Headers.Location!.OriginalString);
+        }
+
+        // Só a quinta errada faz esperar: com quatro, o PIN certo abre.
+        var certo = await AbrirCadeadoAsync(client, DefinicoesPin.Pin);
+        Assert.EndsWith("pin=ok", certo.Headers.Location!.OriginalString);
+    }
+
+    [Fact]
+    public async Task AFaixaEmDesenvolvimento_SoNosModulosEmDesenvolvimento()
+    {
+        var (client, _) = await LoginOperatorAsync("7324",
+            DmoCapabilities.Boquilhas, DmoCapabilities.ArmazemGestao, DmoCapabilities.ReparacaoInterna);
+        Assert.Contains("data-dmo-em-desenvolvimento", await GetOkAsync(client, "/Armazem/Movimentos"));
+        Assert.Contains("data-dmo-em-desenvolvimento", await GetOkAsync(client, "/ReparacaoInterna"));
+        Assert.DoesNotContain("data-dmo-em-desenvolvimento", await GetOkAsync(client, "/Boquilhas"));
+    }
 }

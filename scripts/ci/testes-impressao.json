@@ -1,5 +1,5 @@
 {
-  "selo": "a681b8e594f1261f",
+  "selo": "ea4c2dbad41571a1",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1802,6 +1802,7 @@
     "tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)": "6a0f2f2e82d982e2",
     "tests/DMO.Alpha.Web.Tests/DMO.Alpha.Web.Tests.csproj": "ccd481ea73bcba88",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)": "732cbec2eb4452c7",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AFaixaEmDesenvolvimento_SoNosModulosEmDesenvolvimento": "c590a481dba5602f",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APalavraPasse_ComAAtualErrada_AvisaENaoMudaNada": "9d46e87beff5f429",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APalavraPasse_MudaComAAtualCerta": "6bd2f289b1c3c863",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APastaDosPdfs_GravaSeParaTodos_ComAPermissao": "f3fa2e25dafb38a1",
@@ -1812,6 +1813,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_CriaOPinNasDefinicoesApp_SoOHashFicaGuardado": "c625f24ce692d992",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_VeTodosOsModulos_EEdita": "564e5826f666c258",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_AbreComOPin_AteSair": "2db80840a7b69288",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_Depois4PinsErrados_OCertoAindaAbre": "9913504ddfe51d95",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_DepoisDe5PinsErrados_Espera": "02647e7ad713cea2",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_SemPin_PedeAoAdminParaOCriar": "e6b60cbdb9a22198",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_PessoalEOsModulosAtivos_CadaEntradaMostraSoASuaSeccao": "3864b6ed28951bde",

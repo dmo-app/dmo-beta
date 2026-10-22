@@ -1311,11 +1311,12 @@ Selo depois: `919f42fd259d5817`
 
 ## A-0051 · 2026-10-22 · ok-do-diogo
 
-Porquê: 0.3.0-beta.6: Definições num só sítio (menu à esquerda, Pessoal, cadeado do Geral com o PIN, Definições → App com PIN e email do ADMIN), sem interruptores dos módulos, Canal Jobon no Admin, «BETA» centrado (Diogo, 22/10/2026)
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
-Novos: 21 · mudaram: 59 · saíram: 8
+Porquê: 0.3.0-beta.6: Definições num só sítio (menu à esquerda, Pessoal, cadeado do Geral com o PIN, Definições → App com PIN e email do ADMIN), sem interruptores dos módulos, Canal Jobon no Admin, «BETA» centrado; testes da faixa «Em desenvolvimento» e do PIN certo depois de 4 erros (Diogo, 22/10/2026)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy9UbGxhgGjCLkfcC67zhxwF cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 23 · mudaram: 59 · saíram: 8
 
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AFaixaEmDesenvolvimento_SoNosModulosEmDesenvolvimento`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APalavraPasse_ComAAtualErrada_AvisaENaoMudaNada`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APalavraPasse_MudaComAAtualCerta`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APastaDosPdfs_GravaSeParaTodos_ComAPermissao`
@@ -1326,6 +1327,7 @@ Novos: 21 · mudaram: 59 · saíram: 8
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_CriaOPinNasDefinicoesApp_SoOHashFicaGuardado`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_VeTodosOsModulos_EEdita`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_AbreComOPin_AteSair`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_Depois4PinsErrados_OCertoAindaAbre`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_DepoisDe5PinsErrados_Espera`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_SemPin_PedeAoAdminParaOCriar`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_PessoalEOsModulosAtivos_CadaEntradaMostraSoASuaSeccao`
@@ -1404,4 +1406,4 @@ Novos: 21 · mudaram: 59 · saíram: 8
 - saiu: `tests/DMO.Alpha.Web.Tests/Admin/ModuleEntryInterruptoresTests.cs :: ModuleEntryInterruptoresTests.Setup_MostraOsInterruptoresComOGuardarNoTopo`
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Setup_KeepsOnlyTheAdminEmail`
 
-Selo depois: `a681b8e594f1261f`
+Selo depois: `ea4c2dbad41571a1`
