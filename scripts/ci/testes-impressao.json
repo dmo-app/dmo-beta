@@ -1,5 +1,5 @@
 {
-  "selo": "e29d4addd35df065",
+  "selo": "8fd5e7fcc3ef2542",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1361,7 +1361,7 @@
     "tests/DMO.Alpha.Web.Tests/AppVersionTests.cs :: AppVersionTests.Metadata_IdentifiesActualArtifact_WithoutLoginOrDatabase_AndCannotBeRenamedByRuntimeSettings": "199fff5c7cf9428a",
     "tests/DMO.Alpha.Web.Tests/AppVersionTests.cs :: AppVersionTests.VersionPage_PagesTheFixes_TenPerPage_NewestFirst": "7167e3ca2c36516e",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemEntradaComParPaginaTests.cs :: (resto do ficheiro)": "d93eec80081ebb58",
-    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemEntradaComParPaginaTests.cs :: ArmazemEntradaComParPaginaTests.ACm_MostraOMfEAsPosicoesLivres": "922b7bf23759fced",
+    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemEntradaComParPaginaTests.cs :: ArmazemEntradaComParPaginaTests.ACm_MostraOMfEAPosicaoEscritaCom4Algarismos": "b9b277dd9c8b55e2",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemEntradaComParPaginaTests.cs :: ArmazemEntradaComParPaginaTests.ComOParDesmarcado_EntraSoACm": "f520de24bd7534ed",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemEntradaComParPaginaTests.cs :: ArmazemEntradaComParPaginaTests.ComOParMarcado_ACmEOMfEntramJuntos": "e1097ee8f667ff47",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemEntradaComParPaginaTests.cs :: ArmazemEntradaComParPaginaTests.UmaFerramentaSemPar_NaoMostraAEscolha": "3ee921394070aead",
@@ -1842,6 +1842,8 @@
     "tests/DMO.Alpha.Web.Tests/ErrorPageTests.cs :: ErrorPageTests.ErrorPage_IsAnonymous_Uncached_AndIndependentOfDatabase": "ec87a082ae5208f7",
     "tests/DMO.Alpha.Web.Tests/ErrorPageTests.cs :: ErrorPageTests.UnhandledLoginException_RendersSafeErrorPage_InsteadOfMissingEndpoint": "508b6bd418ba02c7",
     "tests/DMO.Alpha.Web.Tests/ExportarParaOBrowser.cs :: (resto do ficheiro)": "392c024962fa7c10",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: (resto do ficheiro)": "e650a4894dab8a31",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.Imprimir_SoMostraAsPorRetirar_EOHistoricoAbreVazio_EListaAsCriadas": "20e2577cd788c1b8",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)": "31a6a9fc5c3b4450",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza": "1d8812bef03d0969",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova": "5157a95de83e47bd",
