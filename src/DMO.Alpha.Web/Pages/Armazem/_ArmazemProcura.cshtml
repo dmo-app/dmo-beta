@@ -9,7 +9,7 @@
   // O tipo e o texto vêm do pedido (a página e a procura ao escrever levam os dois).
   var tipoProcura = DMO.Alpha.Web.Pages.Armazem.MovimentosModel.TipoDe(Context.Request.Query["tipo"]);
   var textoProcura = ((string?)Context.Request.Query["q"])?.Trim();
-  <p class="dmo-aviso warn" role="status" id="armProcuraVazia">@(tipoProcura switch { DMO.Alpha.Core.Tools.ToolType.Mf => "Nenhum MF encontrado.", { } tp => $"Nenhuma {ArmazemTextos.Tipo(tp)} encontrada.", _ => "Nenhuma ferramenta encontrada." }) O Armazém não cria ferramentas: se é um lote novo, registe-o abaixo e quem tem o módulo Ferramentas cria-o.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(ArmazemTextos.Tipo(tipoProcura ?? DMO.Alpha.Core.Tools.ToolType.Cm), textoProcura is { Length: 4 } t4 && t4.All(char.IsAsciiDigit) ? null : textoProcura, "Registar nas Ferramentas")" /></p>
+  <p class="dmo-aviso warn" role="status" id="armProcuraVazia">@(tipoProcura switch { DMO.Alpha.Core.Tools.ToolType.Mf => "Nenhum MF encontrado.", { } tp => $"Nenhuma {ArmazemTextos.Tipo(tp)} encontrada.", _ => "Nenhuma ferramenta encontrada." }) Se é novo, «Criar novo»: quem tem as Ferramentas aprova.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(ArmazemTextos.Tipo(tipoProcura ?? DMO.Alpha.Core.Tools.ToolType.Cm), textoProcura is { Length: 4 } t4 && t4.All(char.IsAsciiDigit) ? null : textoProcura, "Registar nas Ferramentas")" /></p>
   @* REGISTAR LOTE NOVO (Diogo, 22/10/2026: «chega CM 5447 Lote 13 ... nao
      existe o registo no armazem. o operador regista com esses dados aparece
      um notice quem tem modulo ferramentas»). O Armazém não cria a
@@ -25,9 +25,9 @@
     var posLote = ViewData["LoteNovoPosicao"] as string;
     <form id="armLoteNovo" class="arm-lote-novo" method="post" asp-page="/Armazem/Movimentos" asp-page-handler="LoteNovo" asp-route-tipo="@tipoLoteTexto" aria-labelledby="arm-lote-novo-title">
       <div class="dmo-card-topo">
-        <h4 id="arm-lote-novo-title">Registar lote novo de @tipoLoteTexto<partial name="_DmoHelp" model="@($"Chegou {(tipoLote == DMO.Alpha.Core.Tools.ToolType.Mf ? "um" : "uma")} {tipoLoteTexto} que ainda não está nas Ferramentas? Escreva a referência, o lote e a posição onde fica. O registo fica «Por criar» e quem tem o módulo Ferramentas recebe um aviso para criar a ferramenta; nessa altura a entrada fica registada nesta posição.")" /></h4>
+        <h4 id="arm-lote-novo-title">Criar novo · @tipoLoteTexto<partial name="_DmoHelp" model="@($"Chegou {(tipoLote == DMO.Alpha.Core.Tools.ToolType.Mf ? "um" : "uma")} {tipoLoteTexto} que ainda não está nas Ferramentas? Escreva a referência, o lote e a posição onde fica. O registo fica «Por criar» e quem tem o módulo Ferramentas recebe um aviso para criar a ferramenta; nessa altura a entrada fica registada nesta posição.")" /></h4>
         <div class="dmo-card-topo-acoes">
-          <button type="submit" class="dmo-button" id="armLoteNovoRegistar">Registar lote novo</button>
+          <button type="submit" class="dmo-button" id="armLoteNovoRegistar">Criar novo</button>
         </div>
       </div>
       <div class="arm-linha">
@@ -52,16 +52,15 @@ else
   <div class="dmo-table-wrap">
     <table class="dmo-table" id="armProcuraResultados" data-dmo-list="Ferramentas encontradas">
       <thead>
-        <tr><th>Onde está</th><th>Ferramenta</th><th>Lote</th><th>Estado</th><th>Linhas</th><th>% uso</th></tr>
+        <tr><th>Onde está</th><th>Ferramenta</th><th>Estado</th><th>Linha</th><th>% uso</th></tr>
       </thead>
       <tbody>
         @foreach (var item in Model)
         {
-          <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId })"
+          <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-arm-no-armazem="@(item.NoArmazem ? "1" : "0")" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId })"
               aria-label="@ArmazemTextos.Ferramenta(item.Tipo, item.Referencia, item.Lote), @item.OndeEsta — um clique abre">
             <td><span class="dmo-pill @(item.NoArmazem ? "active" : "inactive")">@item.OndeEsta</span></td>
-            <td><strong>@ArmazemTextos.Tipo(item.Tipo) @item.Referencia</strong></td>
-            <td>@item.Lote</td>
+            <td><strong>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.NomeCurto(item.Tipo, item.Referencia, item.Lote)</strong></td>
             <td>@(item.Estado is { } estado ? ArmazemTextos.Estado(estado) : "—")</td>
             <td>@(item.Maquinas is { Count: > 0 } maquinas ? string.Join(" ", maquinas) : "Todas")</td>
             <td>@(item.Utilizacao is { } uso ? uso.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " %" : "—")</td>

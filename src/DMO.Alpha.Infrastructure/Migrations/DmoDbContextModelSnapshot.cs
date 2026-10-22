@@ -2164,6 +2164,107 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Programada.ReparacaoProgramadaItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AdicionadaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("EntradaMovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Linhas")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("ListaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Lote")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Referencia")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int?>("SaidaMovimentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ToolId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal?>("Utilizacao")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntradaMovimentoId");
+
+                    b.HasIndex("SaidaMovimentoId");
+
+                    b.HasIndex("ToolId");
+
+                    b.HasIndex("ListaId", "ToolId")
+                        .IsUnique()
+                        .HasFilter("\"ToolId\" <> 'REMOVED'");
+
+                    b.ToTable("ReparacaoProgramadaItens", (string)null);
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Programada.ReparacaoProgramadaLista", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CriadaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CriadaPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("CriadaPorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("FechadaEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ReparadorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReparadorNome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriadaPorUserId");
+
+                    b.HasIndex("FechadaEmUtc");
+
+                    b.HasIndex("ReparadorId");
+
+                    b.ToTable("ReparacaoProgramadaListas", (string)null);
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.ReparacaoInterna.Reparacao", b =>
                 {
                     b.Property<int>("Id")
@@ -3293,6 +3394,44 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("JobOn");
 
                     b.Navigation("ReplacedJobOn");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Programada.ReparacaoProgramadaItem", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("EntradaMovimentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Programada.ReparacaoProgramadaLista", null)
+                        .WithMany()
+                        .HasForeignKey("ListaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.ArmazemMovimento", null)
+                        .WithMany()
+                        .HasForeignKey("SaidaMovimentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMO.Alpha.Core.Tools.Tool", null)
+                        .WithMany()
+                        .HasForeignKey("ToolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Programada.ReparacaoProgramadaLista", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CriadaPorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DMO.Alpha.Core.Armazem.Reparador", null)
+                        .WithMany()
+                        .HasForeignKey("ReparadorId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.ReparacaoInterna.Reparacao", b =>

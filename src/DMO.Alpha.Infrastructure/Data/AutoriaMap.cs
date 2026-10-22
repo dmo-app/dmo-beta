@@ -82,6 +82,9 @@ public static class AutoriaMap
         Autoria.De<ArmazemLoteNovo>(l => l.ResolvidoPor, l => l.ResolvidoPorUserId),
         Autoria.De<FerramentaEstado>(e => e.RegistadoPor, e => e.RegistadoPorUserId),
 
+        // A Reparação Programada.
+        Autoria.De<DMO.Alpha.Core.Programada.ReparacaoProgramadaLista>(l => l.CriadaPor, l => l.CriadaPorUserId),
+
         // A utilização das ferramentas.
         Autoria.De<FerramentaUtilizacao>(u => u.RegistadoPor, u => u.RegistadoPorUserId),
         Autoria.De<FerramentaLembreteUtilizacao>(l => l.CriadoPor, l => l.CriadoPorUserId),

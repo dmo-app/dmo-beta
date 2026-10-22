@@ -252,7 +252,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         var pagina = await client.GetStringAsync("/Armazem/Movimentos?tipo=CM&q=t173");
         var paginaBq = await client.GetStringAsync("/Armazem/Movimentos?tipo=BQ&q=t173");
 
-        Assert.Contains("<th>Estado</th><th>Linhas</th><th>% uso</th>", Elemento(pagina, "id=\"armProcuraResultados\""));
+        Assert.Contains("<th>Estado</th><th>Linha</th><th>% uso</th>", Elemento(pagina, "id=\"armProcuraResultados\""));
         // A última célula de cada linha é o % de uso.
         string Uso(string linha) => System.Text.RegularExpressions.Regex.Matches(linha, "<td>([^<]*)</td>").Last().Groups[1].Value;
         Assert.Equal("47.5 %", Uso(Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\"")));
@@ -378,7 +378,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
     }
 
     [Fact]
-    public async Task CorrigirLocalizacao_NoOpcoesTiraDoArmazem()
+    public async Task CorrigirLocalizacao_TiraDoArmazem()
     {
         using var client = await LoginOperatorAsync("6208", DmoCapabilities.ArmazemGestao);
         var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
@@ -386,7 +386,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
             ("armEntPosicao", "0042"),
             ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
             ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo")));
-        Assert.Contains("Corrigir localização", Elemento(pagina, "data-dmo-dialog=\"arm-corrigir-dialog\""));
+        Assert.Contains("Corrigir", Elemento(pagina, "data-dmo-dialog=\"arm-corrigir-dialog\""));
 
         var depois = await GravarAsync(client, pagina, "armCorGravar", ("armCorObs", "não estava lá"));
 

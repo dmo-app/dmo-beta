@@ -81,6 +81,11 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<Reparador> Reparadores => Set<Reparador>();
 
+    // A Reparação Programada (separador das Ferramentas): as listas por reparador e as ferramentas de cada uma.
+    public DbSet<DMO.Alpha.Core.Programada.ReparacaoProgramadaLista> ReparacaoProgramadaListas => Set<DMO.Alpha.Core.Programada.ReparacaoProgramadaLista>();
+
+    public DbSet<DMO.Alpha.Core.Programada.ReparacaoProgramadaItem> ReparacaoProgramadaItens => Set<DMO.Alpha.Core.Programada.ReparacaoProgramadaItem>();
+
     // Os movimentos do Armazém, as ocupações das posições, onde está cada
     // ferramenta e os estados registados.
     public DbSet<ArmazemMovimento> ArmazemMovimentos => Set<ArmazemMovimento>();
@@ -667,6 +672,37 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasOne<Tool>().WithMany().HasForeignKey(l => l.ResolvedToolId).OnDelete(DeleteBehavior.SetNull);
             entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(l => l.MovimentoId).OnDelete(DeleteBehavior.SetNull);
             entity.HasIndex(l => new { l.Estado, l.Tipo });
+        });
+
+        // A Reparação Programada: a lista é de um reparador de CM e MF (o
+        // nome congelado) e fecha quando a última ferramenta dá entrada; cada
+        // ferramenta guarda o que se via ao associar e os movimentos do
+        // Armazém que a atualizaram. Nada se apaga.
+        modelBuilder.Entity<DMO.Alpha.Core.Programada.ReparacaoProgramadaLista>(entity =>
+        {
+            entity.ToTable("ReparacaoProgramadaListas");
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.ReparadorNome).HasMaxLength(Reparador.NomeMaxLength).IsRequired();
+            entity.Property(l => l.CriadaPor).HasMaxLength(254);
+            entity.HasOne<Reparador>().WithMany().HasForeignKey(l => l.ReparadorId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(l => l.FechadaEmUtc);
+        });
+
+        modelBuilder.Entity<DMO.Alpha.Core.Programada.ReparacaoProgramadaItem>(entity =>
+        {
+            entity.ToTable("ReparacaoProgramadaItens");
+            entity.HasKey(i => i.Id);
+            entity.Property(i => i.ToolId).HasMaxLength(100).IsRequired();
+            entity.Property(i => i.Referencia).HasMaxLength(64).IsRequired();
+            entity.Property(i => i.Lote).HasMaxLength(32).IsRequired();
+            entity.Property(i => i.Linhas).HasMaxLength(DMO.Alpha.Core.Programada.ReparacaoProgramadaItem.LinhasMaxLength);
+            entity.Property(i => i.Utilizacao).HasPrecision(9, 2);
+            entity.HasOne<DMO.Alpha.Core.Programada.ReparacaoProgramadaLista>().WithMany().HasForeignKey(i => i.ListaId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Tool>().WithMany().HasForeignKey(i => i.ToolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(i => i.SaidaMovimentoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(i => i.EntradaMovimentoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(i => new { i.ListaId, i.ToolId }).IsUnique().HasFilter("\"ToolId\" <> 'REMOVED'");
+            entity.HasIndex(i => i.ToolId);
         });
 
         modelBuilder.Entity<ArmazemOcupacao>(entity =>

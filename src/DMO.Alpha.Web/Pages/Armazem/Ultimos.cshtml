@@ -7,6 +7,7 @@
 }
 @section Head {
 <style>
+.dmo-ferr-ref{font-size:12px;font-weight:500;color:var(--dmo-muted);margin-left:4px}
 .arm-mov{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;align-items:start}
 @@media (max-width:1100px){.arm-mov{grid-template-columns:minmax(0,1fr)}}
 .arm-card{padding:18px;min-width:0}
@@ -59,7 +60,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
               if (Model.AbreFicha)
               {
               <tr data-dmo-row data-dmo-fora="@f.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = f.ToolId })">
-                <td><strong>@ArmazemTextos.Ferramenta(f.Tipo, f.Referencia, f.Lote)</strong></td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(f.Tipo, f.Referencia, f.Lote)</td>
                 <td>@(f.Reparador ?? "—")</td>
                 <td>@MovimentosModel.Dia(f.SaiuEmUtc)</td>
               </tr>
@@ -67,7 +68,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
               else
               {
               <tr data-dmo-row data-dmo-fora="@f.ToolId">
-                <td><strong>@ArmazemTextos.Ferramenta(f.Tipo, f.Referencia, f.Lote)</strong></td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(f.Tipo, f.Referencia, f.Lote)</td>
                 <td>@(f.Reparador ?? "—")</td>
                 <td>@MovimentosModel.Dia(f.SaiuEmUtc)</td>
               </tr>
@@ -161,7 +162,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
             {
               <tr data-dmo-movimento="@m.Id" title="@m.Descricao">
                 <td>@MovimentosModel.Dia(m.OcorridoEmUtc)</td>
-                <td>@UltimosModel.Ferramenta(m)@if (m.Eliminada) {<text> </text><span class="muted">(eliminada)</span>}</td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(m.Tipo, m.Referencia, m.Lote)@if (m.Eliminada) {<text> </text><span class="muted">(eliminada)</span>}</td>
                 <td>@UltimosModel.Movimento(m)</td>
                 <td>@(m.Reparador ?? "—")</td>
                 <td>@if (m.Movimento == ArmazemMovimentoTipo.Entrada && m.Posicao is not null) {<span class="arm-pos">@m.Posicao</span>} else {<text>—</text>}</td>

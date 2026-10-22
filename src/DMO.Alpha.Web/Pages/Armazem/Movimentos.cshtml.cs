@@ -111,11 +111,20 @@ public sealed class MovimentosModel(
 
     public string? Observacoes { get; private set; }
 
-    /// <summary>Se o par entra também (por omissão, não: é raro, AR-02; a recusa guarda o que a pessoa escolheu).</summary>
-    public bool ComPar { get; private set; }
+    /// <summary>
+    /// A posição escrita antes de procurar (Diogo, 22/10/2026: primeiro a
+    /// posição, depois a referência): segue para a ferramenta escolhida e
+    /// a Entrada abre já com ela.
+    /// </summary>
+    /// <summary>Entrada ou Saída escolhida nos dois botões (sem nada: a que faz sentido).</summary>
+    [BindProperty(SupportsGet = true, Name = "acao")]
+    public string? Acao { get; set; }
 
-    /// <summary>As posições livres, sugeridas no campo da posição da Entrada.</summary>
-    public IReadOnlyList<string> PosicoesLivres { get; private set; } = [];
+    [BindProperty(SupportsGet = true, Name = "pos")]
+    public string? PosicaoPedida { get; set; }
+
+    /// <summary>A posição pedida, só se tem 4 algarismos.</summary>
+    public string? PosicaoPedidaValida => PosicaoPedida?.Trim() is { Length: 4 } p && p.All(char.IsAsciiDigit) ? p : null;
 
     public ArmazemDestino? Destino => DestinoDe(DestinoTexto);
 
@@ -185,16 +194,14 @@ public sealed class MovimentosModel(
         [FromForm(Name = "estado")] string? estado,
         [FromForm(Name = "data")] string? data,
         [FromForm(Name = "observacoes")] string? observacoes,
-        [FromForm(Name = "criar_posicao")] string? criarPosicao,
-        [FromForm(Name = "com_par")] string? comPar)
+        [FromForm(Name = "criar_posicao")] string? criarPosicao)
     {
         var saida = await movimentos.EntradaAsync(
             new PedidoDeEntrada(Operacao(operacaoId), ToolId ?? string.Empty, posicao, OrigemDe(origem), EstadoDe(estado),
-                DataUtc(data), observacoes, criarPosicao == "1", comPar == "1"),
+                DataUtc(data), observacoes, criarPosicao == "1", false),
             HttpContext.RequestAborted);
-        return await Responder(saida, saida.ComPar ? "entrada-par" : "entrada", operacaoId, () =>
+        return await Responder(saida, "entrada", operacaoId, () =>
         {
-            ComPar = comPar == "1";
             Posicao = posicao;
             OrigemEscolhida = origem;
             EstadoEscolhido = estado;
@@ -324,11 +331,6 @@ public sealed class MovimentosModel(
             {
                 Tipo = Situacao.Tipo;
             }
-            if (Situacao is { NoArmazem: false })
-            {
-                PosicoesLivres = (await mapa.MapaAsync(ArmazemArmarios.Todos, ArmazemMapaFiltro.Livres, HttpContext.RequestAborted))
-                    .Lista.Select(p => p.Codigo).ToList();
-            }
         }
         else if (Tipo is not null && !string.IsNullOrWhiteSpace(Procura))
         {
@@ -353,6 +355,10 @@ public sealed class MovimentosModel(
 
     /// <summary>O movimento, curto: Entrada, Saída · destino, Corrigir localização.</summary>
     public static string Movimento(ArmazemHistoricoLinha m) => UltimosModel.Movimento(m);
+
+    public static string NomeCurto(ToolType tipo, string referencia, string lote) => FerramentaNome.Curto(tipo, referencia, lote);
+
+    public static Microsoft.AspNetCore.Html.IHtmlContent Nome(ToolType tipo, string referencia, string lote) => FerramentaNome.Html(tipo, referencia, lote);
 
     public static string DataHora(DateTime utc) => DataLocal(utc);
 

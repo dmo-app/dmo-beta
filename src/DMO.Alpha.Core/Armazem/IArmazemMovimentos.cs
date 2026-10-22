@@ -133,6 +133,13 @@ public sealed record ArmazemSituacao(
 
     /// <summary>O par desta ferramenta (o MF da CM, ou a CM do MF, da mesma referência e lote), se existir.</summary>
     public ArmazemPar? Par { get; init; }
+
+    /// <summary>
+    /// O reparador da lista ativa da Reparação Programada em que a ferramenta
+    /// está e ainda não voltou. Na Entrada o estado vem «Reparado»; a pessoa
+    /// pode mudar, com aviso (Diogo, 22/10/2026).
+    /// </summary>
+    public string? ListaProgramada { get; init; }
 }
 
 /// <summary>O par de uma CM ou de um MF, e a posição onde está (null: fora do armazém).</summary>
