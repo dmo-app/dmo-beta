@@ -205,7 +205,12 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 m.Id, m.Tipo, m.OcorridoEmUtc, Descricao(m, codigos), m.Observacoes, m.RegistadoPor)).ToList())
         {
             Par = par is null ? null : new ArmazemPar(par.ToolId, par.Type, parPosicao),
-            ListaProgramada = listaProgramada
+            ListaProgramada = listaProgramada,
+            Linhas = await LinhasAsync(cancellationToken),
+            LinhasDaFerramenta = await db.ToolMachineLinks.AsNoTracking()
+                .Where(l => l.ToolId == tool.ToolId).Select(l => l.MachineId).ToListAsync(cancellationToken),
+            VindaLinhaId = saida?.MachineId,
+            VindaReparador = saida?.ReparadorNome
         };
     }
 
@@ -306,9 +311,30 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             par = null;
         }
 
+        // A Linha, o reparador e o Job On com que a ferramenta vem: os da
+        // última Saída (a pessoa pode mudar a Linha e o reparador no formulário).
+        var vinda = await UltimoMovimentoAsync(tool.ToolId, cancellationToken) is { Tipo: ArmazemMovimentoTipo.Saida } ultimaSaida ? ultimaSaida : null;
+        int? linha;
+        string? reparadorDaVinda;
+        if (pedido.LinhaEReparadorDoFormulario)
+        {
+            linha = await LinhaValidaAsync(pedido.LinhaId, cancellationToken);
+            reparadorDaVinda = Cortado(Limpo(pedido.Reparador), Reparador.NomeMaxLength);
+        }
+        else
+        {
+            linha = vinda?.MachineId;
+            reparadorDaVinda = pedido.Origem == ArmazemOrigem.Reparacao ? vinda?.ReparadorNome : null;
+        }
+
+        var jobOnDaVinda = pedido.Origem is ArmazemOrigem.Producao or ArmazemOrigem.Reparacao ? vinda?.JobOnId : null;
+
         var movimento = Novo(pedido.OperacaoId, ArmazemMovimentoTipo.Entrada, tool.ToolId, ocorrido, agora, observacoes);
         movimento.Origem = pedido.Origem;
         movimento.Estado = pedido.Estado;
+        movimento.MachineId = linha;
+        movimento.EntradaReparadorNome = reparadorDaVinda;
+        movimento.JobOnId = jobOnDaVinda;
         var saida = await GravarAsync(movimento, posicao, async () =>
         {
             Entrar(tool.ToolId, posicao!, movimento, localizacao, pedido.Estado.Value, agora);
@@ -324,6 +350,9 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 var movimentoDoPar = Novo(OperacaoDoPar(pedido.OperacaoId), ArmazemMovimentoTipo.Entrada, par.ToolId, ocorrido, agora, observacoes);
                 movimentoDoPar.Origem = pedido.Origem;
                 movimentoDoPar.Estado = pedido.Estado;
+                movimentoDoPar.MachineId = linha;
+                movimentoDoPar.EntradaReparadorNome = reparadorDaVinda;
+                movimentoDoPar.JobOnId = jobOnDaVinda;
                 movimentoDoPar.PosicaoId = posicao!.Id;
                 db.ArmazemMovimentos.Add(movimentoDoPar);
                 await db.SaveChangesAsync(cancellationToken);
@@ -455,6 +484,21 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         movimento.ReparadorNome = reparadorNome;
         movimento.FabricaDestino = fabrica;
         movimento.Estado = estado;
+        // Para a Produção: a Linha escolhida e o Job On dessa ferramenta nessa
+        // Linha. Para o resto: a Linha e o Job On com que a ferramenta entrou.
+        if (destino == ArmazemDestino.Producao)
+        {
+            movimento.MachineId = await LinhaValidaAsync(pedido.LinhaId, cancellationToken);
+            movimento.JobOnId = movimento.MachineId is { } linhaDaSaida
+                ? await JobOnAtivoAsync(tool.ToolId, tool.Type, linhaDaSaida, ocorrido, cancellationToken)
+                : null;
+        }
+        else if (await UltimoMovimentoAsync(tool.ToolId, cancellationToken) is { Tipo: ArmazemMovimentoTipo.Entrada } entrou)
+        {
+            movimento.MachineId = entrou.MachineId;
+            movimento.JobOnId = entrou.JobOnId;
+        }
+
         var localizacao = await db.FerramentaLocalizacoes.FirstOrDefaultAsync(l => l.ToolId == tool.ToolId, cancellationToken);
         return await GravarAsync(movimento, null, async () =>
         {
@@ -642,6 +686,44 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             ? Task.FromResult<Tool?>(null)
             : db.Tools.AsNoTracking().FirstOrDefaultAsync(t => t.ToolId == toolId, cancellationToken);
 
+    private Task<ArmazemMovimento?> UltimoMovimentoAsync(string toolId, CancellationToken cancellationToken) =>
+        db.ArmazemMovimentos.AsNoTracking()
+            .Where(m => m.ToolId == toolId)
+            .OrderByDescending(m => m.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+    private async Task<IReadOnlyList<ArmazemLinhaOpcao>> LinhasAsync(CancellationToken cancellationToken) =>
+        (await db.Machines.AsNoTracking().Select(m => new ArmazemLinhaOpcao(m.Id, m.Code)).ToListAsync(cancellationToken))
+            .OrderBy(m => m.Codigo, StringComparer.OrdinalIgnoreCase).ToList();
+
+    // Uma Linha que já não existe não se grava (o movimento grava sem ela).
+    private async Task<int?> LinhaValidaAsync(int? linhaId, CancellationToken cancellationToken) =>
+        linhaId is { } id && await db.Machines.AsNoTracking().AnyAsync(m => m.Id == id, cancellationToken) ? id : null;
+
+    /// <summary>
+    /// O Job On da ferramenta nessa Linha no dia da Saída: o que já começou
+    /// (o mais recente) e ainda não acabou; senão, o próximo a começar (a
+    /// ferramenta sai do armazém antes de a produção entrar em máquina).
+    /// </summary>
+    internal async Task<int?> JobOnAtivoAsync(string toolId, ToolType tipo, int machineId, DateTime ocorridoUtc, CancellationToken cancellationToken)
+    {
+        var dia = DateOnly.FromDateTime(DmoBusinessTime.ToLocal(ocorridoUtc));
+        var jobs = db.JobOns.AsNoTracking().Where(j => j.MachineId == machineId && (j.FimEm == null || j.FimEm >= dia));
+        jobs = tipo switch
+        {
+            ToolType.Cm => jobs.Where(j => db.CmContexts.Any(c => c.JobOnId == j.Id && c.ToolId == toolId)),
+            ToolType.Mf => jobs.Where(j => db.MfContexts.Any(c => c.JobOnId == j.Id && c.ToolId == toolId)),
+            _ => jobs.Where(j => db.BqContexts.Any(c => c.JobOnId == j.Id && c.ToolId == toolId))
+        };
+        var candidatos = await jobs.Select(j => new { j.Id, j.InicioEm }).ToListAsync(cancellationToken);
+        var aCorrer = candidatos.Where(j => j.InicioEm is null || j.InicioEm <= dia)
+            .OrderByDescending(j => j.InicioEm ?? DateOnly.MinValue).ThenByDescending(j => j.Id).FirstOrDefault();
+        return aCorrer?.Id
+            ?? candidatos.OrderBy(j => j.InicioEm).ThenBy(j => j.Id).Select(j => (int?)j.Id).FirstOrDefault();
+    }
+
+    private static string? Cortado(string? texto, int max) => texto is { Length: > 0 } t && t.Length > max ? t[..max] : texto;
+
     private Task<ArmazemOcupacao?> OcupacaoAtivaAsync(string toolId, CancellationToken cancellationToken) =>
         db.ArmazemOcupacoes.AsNoTracking().FirstOrDefaultAsync(o => o.ToolId == toolId && o.LibertadaEmUtc == null, cancellationToken);
 
@@ -762,8 +844,8 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         switch (m.Tipo)
         {
             case ArmazemMovimentoTipo.Entrada:
-                var partes = new List<string> { $"Entrada na posição {Codigo(m.PosicaoId)}" };
-                if (m.Origem is { } origem)
+                var partes = new List<string> { $"Entrada {Codigo(m.PosicaoId)}" };
+                if (m.Origem is { } origem && origem != ArmazemOrigem.JaEstava)
                 {
                     partes.Add(ArmazemTextos.Origem(origem));
                 }
@@ -777,7 +859,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             case ArmazemMovimentoTipo.Saida:
                 var destino = m.Destino is { } d ? ArmazemTextos.Destino(d) : "?";
                 var detalhe = m.ReparadorNome ?? m.FabricaDestino;
-                return $"Saída da posição {Codigo(m.PosicaoAnteriorId)} para {destino}" + (detalhe is null ? string.Empty : $" · {detalhe}");
+                return $"Saída {Codigo(m.PosicaoAnteriorId)} para {destino}" + (detalhe is null ? string.Empty : $" · {detalhe}");
             default:
                 return m.PosicaoId is null
                     ? "Corrigida: não está no armazém"

@@ -652,6 +652,12 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasOne<BqRepairer>().WithMany().HasForeignKey(m => m.BqReparadorId).OnDelete(DeleteBehavior.Restrict);
             entity.Property(m => m.ToolId).HasMaxLength(100).IsRequired();
             entity.Property(m => m.ReparadorNome).HasMaxLength(Reparador.NomeMaxLength);
+            entity.Property(m => m.EntradaReparadorNome).HasMaxLength(Reparador.NomeMaxLength);
+            // A Linha e o Job On do movimento (opcionais: os movimentos de
+            // antes não os têm). Eliminar o Job On deixa o movimento sem ele.
+            entity.HasOne<Machine>().WithMany().HasForeignKey(m => m.MachineId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<JobOn>().WithMany().HasForeignKey(m => m.JobOnId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(m => m.JobOnId);
             entity.Property(m => m.FabricaDestino).HasMaxLength(ArmazemMovimento.FabricaMaxLength);
             entity.Property(m => m.Observacoes).HasMaxLength(ArmazemMovimento.ObservacoesMaxLength);
             entity.Property(m => m.RegistadoPor).HasMaxLength(254);

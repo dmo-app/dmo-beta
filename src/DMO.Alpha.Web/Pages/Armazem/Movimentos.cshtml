@@ -15,6 +15,15 @@
     var estadoEntrada = recusaEntrada ? Model.EstadoEscolhido : s?.EstadoProposto is { } e ? MovimentosModel.Valor(e) : null;
     var estadoSucata = recusaSaida ? Model.EstadoEscolhido : MovimentosModel.Valor(FerramentaEstadoTipo.Sucatado);
     var criarPosicao = Model.Recusa == ArmazemMovimentoResultado.PosicaoNaoExiste;
+    // A Linha da Saída para Produção: a escolhida, senão a única da ficha.
+    var linhaSaida = recusaSaida ? Model.LinhaEscolhida
+        : s is { LinhasDaFerramenta.Count: 1 } ? s.LinhasDaFerramenta[0].ToString(System.Globalization.CultureInfo.InvariantCulture) : null;
+    // A Entrada mostra a Linha e o reparador com que a ferramenta vem (os da
+    // última Saída), já preenchidos e sempre editáveis.
+    var mostrarVinda = recusaEntrada ? Model.LinhaEscolhida is not null || Model.ReparadorDaVinda is not null || s?.UltimaSaida is not null
+        : s?.UltimaSaida is not null;
+    var linhaVinda = recusaEntrada ? Model.LinhaEscolhida : s?.VindaLinhaId?.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    var reparadorVinda = recusaEntrada ? Model.ReparadorDaVinda : s?.VindaReparador;
 }
 @section Head {
 <style>
@@ -247,6 +256,31 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             }
           </select>
         </div>
+            @if (mostrarVinda)
+            {
+              <input type="hidden" name="vinda" value="1" />
+              <div class="dmo-field">
+                <label for="armEntLinha">Linha</label>
+                <select id="armEntLinha" name="linha">
+                  <option value="" selected="@string.IsNullOrEmpty(linhaVinda)">—</option>
+                  @foreach (var l in s.Linhas)
+                  {
+                    var lv = l.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    <option value="@lv" selected="@(linhaVinda == lv)">@l.Codigo</option>
+                  }
+                </select>
+              </div>
+              <div class="dmo-field">
+                <label for="armEntReparador">Reparador</label>
+                <input id="armEntReparador" name="reparador_vinda" class="arm-curto" list="armEntReparadores" maxlength="@Reparador.NomeMaxLength" autocomplete="off" value="@reparadorVinda" />
+                <datalist id="armEntReparadores">
+                  @foreach (var r in s.Reparadores)
+                  {
+                    <option value="@r.Nome"></option>
+                  }
+                </datalist>
+              </div>
+            }
             @if (recusaEntrada && criarPosicao)
             {
               <button type="submit" class="dmo-button" id="armEntCriar" name="criar_posicao" value="1">Criar e registar</button>
@@ -268,6 +302,20 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
                 }
               </select>
             </div>
+            @if (Model.Destino == ArmazemDestino.Producao)
+            {
+              <div class="dmo-field">
+                <label for="armSaiLinha">Linha</label>
+                <select id="armSaiLinha" name="linha">
+                  <option value="" selected="@string.IsNullOrEmpty(linhaSaida)">Escolha…</option>
+                  @foreach (var l in s.Linhas)
+                  {
+                    var lv = l.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    <option value="@lv" selected="@(linhaSaida == lv)">@l.Codigo</option>
+                  }
+                </select>
+              </div>
+            }
             @if (Model.Destino == ArmazemDestino.Reparacao)
             {
               <div class="dmo-field">

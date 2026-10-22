@@ -297,7 +297,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Contains("Entrada registada na posição 0042.", Elemento(depois, "id=\"armMovAvisos\""));
         Assert.Contains("Armazém · posição 0042", Elemento(depois, "data-dmo-onde"));
         Assert.Contains("Reparado", Elemento(depois, "data-dmo-estado"));
-        Assert.Contains("Entrada na posição 0042 · Já estava no armazém · Reparado", Elemento(depois, "id=\"armUltimos\""));
+        Assert.Contains("Entrada 0042 · Reparado", Elemento(depois, "id=\"armUltimos\""));
         Assert.Contains("id=\"armSaiDestino\"", depois);
         Assert.DoesNotContain("id=\"armEntrada\"", depois);
         var movimento = NaBase(db => db.ArmazemMovimentos.AsNoTracking().Single());

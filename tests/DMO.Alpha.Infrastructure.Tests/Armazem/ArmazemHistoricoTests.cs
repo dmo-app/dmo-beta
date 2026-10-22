@@ -65,9 +65,9 @@ public sealed class ArmazemHistoricoTests
         Assert.Equal(
             [
                 (Mf, "Corrigida para a posição 0042"),
-                (Mf, "Entrada na posição 0043 · Nova · Novo"),
-                (Cm, "Saída da posição 0042 para Reparação · Moldes Lda"),
-                (Cm, "Entrada na posição 0042 · Já estava no armazém · Reparado")
+                (Mf, "Entrada 0043 · Nova · Novo"),
+                (Cm, "Saída 0042 para Reparação · Moldes Lda"),
+                (Cm, "Entrada 0042 · Reparado")
             ],
             lista.Items.Select(l => (l.ToolId!, l.Descricao)).ToArray());
         var primeira = lista.Items[^1];
@@ -95,7 +95,7 @@ public sealed class ArmazemHistoricoTests
 
         Assert.Equal(2, (await Descricoes(db, new ArmazemHistoricoFiltro(ToolId: Mf))).Length);
         Assert.Equal(
-            ["Entrada na posição 0043 · Nova · Novo", "Entrada na posição 0042 · Já estava no armazém · Reparado"],
+            ["Entrada 0043 · Nova · Novo", "Entrada 0042 · Reparado"],
             await Descricoes(db, new ArmazemHistoricoFiltro(Tipo: ArmazemMovimentoTipo.Entrada)));
         Assert.Single(await Descricoes(db, new ArmazemHistoricoFiltro(Destino: ArmazemDestino.Reparacao)));
         Assert.Empty(await Descricoes(db, new ArmazemHistoricoFiltro(Destino: ArmazemDestino.Sucata)));
@@ -166,7 +166,7 @@ public sealed class ArmazemHistoricoTests
 
         Assert.Equal((28, 2, 2), (segunda.TotalCount, segunda.PageNumber, segunda.TotalPages));
         Assert.Equal(3, segunda.Items.Count);
-        Assert.Equal("Entrada na posição 0042 · Já estava no armazém · Reparado", segunda.Items[^1].Descricao);
+        Assert.Equal("Entrada 0042 · Reparado", segunda.Items[^1].Descricao);
     }
 
     private sealed class Sessao : ICurrentAccountContext

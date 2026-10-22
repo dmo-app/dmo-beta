@@ -91,6 +91,23 @@ public sealed class ArmazemMovimento
     /// <summary>O nome do reparador, congelado no movimento, como nas Boquilhas.</summary>
     public string? ReparadorNome { get; set; }
 
+    /// <summary>
+    /// A Linha (a máquina) do movimento: na Saída para Produção, a Linha para
+    /// onde foi; nos outros, a Linha de onde a ferramenta vem (copiada do
+    /// movimento anterior, editável na Entrada). NULL nos movimentos de antes.
+    /// </summary>
+    public int? MachineId { get; set; }
+
+    /// <summary>
+    /// O Job On a que o movimento pertence: na Saída para Produção, o Job On
+    /// dessa ferramenta nessa Linha; depois, o mesmo segue na Entrada, na ida à
+    /// Reparação e no regresso. NULL nos movimentos de antes (a história liga-os pelas datas).
+    /// </summary>
+    public int? JobOnId { get; set; }
+
+    /// <summary>O reparador com que a ferramenta volta na Entrada (o da última Saída, editável); o nome, congelado.</summary>
+    public string? EntradaReparadorNome { get; set; }
+
     /// <summary>A fábrica de destino de uma Saída para Emprestado (opcional).</summary>
     public string? FabricaDestino { get; set; }
 

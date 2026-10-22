@@ -5,7 +5,10 @@ namespace DMO.Alpha.Core.Armazem;
 /// <summary>
 /// Uma Entrada: a posição, a origem e o estado escolhidos. Data vazia é agora.
 /// <paramref name="ComPar"/>: a CM e o MF da mesma referência e lote entram
-/// juntos, na mesma posição e no mesmo envio (como no Access).
+/// juntos, na mesma posição e no mesmo envio (como no Access). A Entrada
+/// guarda a Linha e o reparador com que a ferramenta vem: com
+/// <paramref name="LinhaEReparadorDoFormulario"/>, os que a pessoa deixou no
+/// formulário (vazio fica vazio); sem ele, os da última Saída.
 /// </summary>
 public sealed record PedidoDeEntrada(
     Guid OperacaoId,
@@ -16,9 +19,12 @@ public sealed record PedidoDeEntrada(
     DateTime? OcorridoEmUtc,
     string? Observacoes,
     bool CriarPosicao = false,
-    bool ComPar = false);
+    bool ComPar = false,
+    int? LinhaId = null,
+    string? Reparador = null,
+    bool LinhaEReparadorDoFormulario = false);
 
-/// <summary>Uma Saída: o destino e, conforme o destino, o reparador, a fábrica ou o estado.</summary>
+/// <summary>Uma Saída: o destino e, conforme o destino, o reparador, a fábrica, o estado ou a Linha (Produção).</summary>
 public sealed record PedidoDeSaida(
     Guid OperacaoId,
     string ToolId,
@@ -27,7 +33,8 @@ public sealed record PedidoDeSaida(
     string? FabricaDestino,
     FerramentaEstadoTipo? Estado,
     DateTime? OcorridoEmUtc,
-    string? Observacoes);
+    string? Observacoes,
+    int? LinhaId = null);
 
 /// <summary>Corrigir localização: a posição certa, ou null para «Não está no armazém».</summary>
 public sealed record PedidoDeCorrecao(
@@ -140,7 +147,22 @@ public sealed record ArmazemSituacao(
     /// pode mudar, com aviso (Diogo, 22/10/2026).
     /// </summary>
     public string? ListaProgramada { get; init; }
+
+    /// <summary>As Linhas que se podem escolher (a Saída para Produção e a Entrada).</summary>
+    public IReadOnlyList<ArmazemLinhaOpcao> Linhas { get; init; } = [];
+
+    /// <summary>As Linhas da ficha da ferramenta (a Saída para Produção propõe a única).</summary>
+    public IReadOnlyList<int> LinhasDaFerramenta { get; init; } = [];
+
+    /// <summary>A Linha com que a ferramenta vem (a da última Saída), para a Entrada.</summary>
+    public int? VindaLinhaId { get; init; }
+
+    /// <summary>O reparador com que a ferramenta vem (o da última Saída), para a Entrada.</summary>
+    public string? VindaReparador { get; init; }
 }
+
+/// <summary>Uma Linha (máquina) que se pode escolher.</summary>
+public sealed record ArmazemLinhaOpcao(int Id, string Codigo);
 
 /// <summary>O par de uma CM ou de um MF, e a posição onde está (null: fora do armazém).</summary>
 public sealed record ArmazemPar(string ToolId, ToolType Tipo, string? Posicao)

@@ -430,7 +430,7 @@ public sealed class ArmazemMovimentosTests
 
         Assert.Equal(("0043", FerramentaEstadoTipo.Reparado), (situacao.Posicao, situacao.Estado));
         Assert.Equal(
-            ["Entrada na posição 0043 · Reparação · Reparado", "Saída da posição 0042 para Reparação · Moldes Lda", "Entrada na posição 0042 · Já estava no armazém · Reparado"],
+            ["Entrada 0043 · Reparação · Reparado", "Saída 0042 para Reparação · Moldes Lda", "Entrada 0042 · Reparado"],
             situacao.UltimosMovimentos.Select(m => m.Descricao));
     }
 

@@ -262,6 +262,69 @@ public sealed partial class PostgresMigrationIntegrationTests
         }
     }
 
+    [SkippableFact]
+    public async Task JobOn_QuemReparouCadaFerramenta_PeloJobOnGuardadoNoMovimento()
+    {
+        SkipWithoutConnection();
+        var c = await HistoriaSementeAsync();
+        try
+        {
+            await HistoriaRegistosAsync(c);
+
+            // A CM volta à B1 pela Saída para Produção (o movimento guarda a
+            // Linha e o Job On 202601), entra vinda da Produção, vai à
+            // Reparação (Moldin) e volta: todos levam o mesmo Job On.
+            await using (var db = CreateContext())
+            {
+                var armazem = Movimentos(db);
+                var operacoes = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+                c.Operacoes.AddRange(operacoes);
+                Assert.True((await armazem.SaidaAsync(new PedidoDeSaida(operacoes[0], c.Cm, ArmazemDestino.Producao, null, null, null,
+                    new DateTime(2026, 9, 9, 8, 0, 0, DateTimeKind.Utc), null, LinhaId: c.B1))).Gravou);
+                Assert.True((await armazem.EntradaAsync(new PedidoDeEntrada(operacoes[1], c.Cm, HistoriaPosicao, ArmazemOrigem.Producao,
+                    FerramentaEstadoTipo.PorReparar, new DateTime(2026, 9, 9, 12, 0, 0, DateTimeKind.Utc), null))).Gravou);
+                Assert.True((await armazem.SaidaAsync(new PedidoDeSaida(operacoes[2], c.Cm, ArmazemDestino.Reparacao, c.ReparadorId, null, null,
+                    new DateTime(2026, 9, 9, 14, 0, 0, DateTimeKind.Utc), null))).Gravou);
+                Assert.True((await armazem.EntradaAsync(new PedidoDeEntrada(operacoes[3], c.Cm, HistoriaPosicao, ArmazemOrigem.Reparacao,
+                    FerramentaEstadoTipo.Reparado, new DateTime(2026, 9, 10, 8, 0, 0, DateTimeKind.Utc), null))).Gravou);
+
+                var gravados = await db.ArmazemMovimentos.AsNoTracking()
+                    .Where(m => operacoes.Contains(m.OperacaoId)).OrderBy(m => m.Id).ToListAsync();
+                Assert.Equal(4, gravados.Count);
+                Assert.All(gravados, m => Assert.Equal(((int?)c.JobOn1, (int?)c.B1), (m.JobOnId, m.MachineId)));
+                Assert.Equal(HistoriaReparador, gravados[3].EntradaReparadorNome);
+            }
+
+            await using var leitura = CreateContext();
+            var historia = await new HistoriaDasReparacoes(leitura).DoJobOnAsync(c.JobOn1);
+
+            // As RI da CM e do MF (quem registou), e as idas à Reparação: a de
+            // 9 de setembro pelo Job On guardado; as de antes, pelas datas.
+            Assert.Equal(2, historia.Count(h => h.Origem == QuemReparouOrigem.ReparacaoInterna));
+            Assert.All(historia.Where(h => h.Origem == QuemReparouOrigem.ReparacaoInterna), h => Assert.Equal("Ana " + c.Marca, h.Reparador));
+            var guardada = Assert.Single(historia, h => h.Origem == QuemReparouOrigem.Armazem && !h.PelaData);
+            Assert.Equal((c.Cm, HistoriaReparador, new DateTime(2026, 9, 9, 14, 0, 0, DateTimeKind.Utc), (DateTime?)new DateTime(2026, 9, 10, 8, 0, 0, DateTimeKind.Utc)),
+                (guardada.ToolId, guardada.Reparador, guardada.EmUtc, guardada.RegressoEmUtc));
+            var pelaData = historia.Where(h => h.Origem == QuemReparouOrigem.Armazem && h.PelaData).ToList();
+            Assert.Equal(new[] { (c.Cm, new DateTime(2026, 9, 5, 10, 0, 0, DateTimeKind.Utc)), (c.Mf, new DateTime(2026, 9, 6, 10, 0, 0, DateTimeKind.Utc)) },
+                pelaData.Select(h => (h.ToolId, h.EmUtc)));
+
+            // O segundo Job On da mesma CM (começa a 10) não fica com a ida guardada no primeiro.
+            Assert.DoesNotContain(await new HistoriaDasReparacoes(leitura).DoJobOnAsync(c.JobOn2),
+                h => h.Origem == QuemReparouOrigem.Armazem && h.EmUtc == guardada.EmUtc);
+        }
+        finally
+        {
+            // A Entrada vinda da Produção abre o lembrete da utilização: sai antes dos movimentos.
+            await using (var db = CreateContext())
+            {
+                await db.FerramentaLembretesUtilizacao.Where(l => l.ToolId == c.Cm).ExecuteDeleteAsync();
+            }
+
+            await HistoriaLimparAsync(c);
+        }
+    }
+
     private sealed record HistoriaContagens(
         int Ri, int Pesos, int Pegamentos, int MovimentosBq, int MovimentosArmazem, int ProducoesDaCm, int JobsDaBq);
 
