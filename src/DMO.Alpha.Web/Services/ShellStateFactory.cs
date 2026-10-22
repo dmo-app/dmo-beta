@@ -248,7 +248,6 @@ public sealed class ShellStateFactory
         {
             new FunctionPresentation("movimentos", "Registo", "/Armazem/Movimentos", null, activeKey == "movimentos", true, true),
             new FunctionPresentation("ultimos", "Movimentos", "/Armazem/Ultimos", null, activeKey == "ultimos", true, true),
-            new FunctionPresentation("mapa", "Mapa", "/Armazem/Mapa", null, activeKey == "mapa", true, true),
             new FunctionPresentation("proximos", "Próximos Job On", "/Armazem/Proximos", null, activeKey == "proximos", true, true),
             new FunctionPresentation("posicoes", "Posições", "/Armazem/Posicoes", null, activeKey == "posicoes", true, true),
             new FunctionPresentation("definicoes", "Definições", "/Armazem/Definicoes", null, activeKey == "definicoes", true, true)

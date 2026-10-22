@@ -18,7 +18,12 @@
 }
 @section Head {
 <style>
-.arm-page{display:flex;flex-direction:column;gap:14px}
+.arm-page{display:flex;flex-direction:column;gap:14px;min-width:0}
+html body #armMovProcura.arm-card{min-width:min(520px,100%)}
+#armMovProcura .dmo-card-topo{justify-content:space-between}
+.arm-log{width:auto}
+.arm-log .dmo-table{width:100%}
+.arm-log .dmo-table tbody tr[data-dmo-open]{cursor:pointer}
 .arm-card{padding:18px;width:fit-content;min-width:min(520px,100%);max-width:100%}
 .arm-card h3{margin:0 0 12px;font-size:16px}
 .arm-card .dmo-card-topo{margin:0 0 12px}
@@ -41,16 +46,41 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
 </style>
 }
 
-@* Procurar a ferramenta, ver onde está e registar o movimento: a Entrada
-   quando está fora, a Saída quando está numa posição. Corrigir localização
-   é raro: fica no «Opções». Os avisos (data no futuro, posição arquivada ou
-   com outra ferramenta...) ficam no cartão da ferramenta depois de gravar;
-   as recusas voltam com o que a pessoa escreveu. *@
-<main class="arm-page dmo-workspace" aria-labelledby="arm-mov-title" data-dmo-troca>
+@* REGISTO (Diogo, 22/10/2026: «similar ao Reparação interna... cartões com
+   Tipo Ferramenta. CM MF BQ. por baixo o log de entrada e saída de cada»):
+   o painel lateral com CM, MF e BQ; um clique abre o registo desse tipo.
+   Procurar a ferramenta (só desse tipo), ver onde está e registar: a Entrada
+   quando está fora, a Saída quando está numa posição. O tipo vem do cartão:
+   a pessoa não o escolhe. O Armazém só regista movimentos; uma ferramenta
+   nova regista-se nas Ferramentas. Corrigir localização fica no «Opções».
+   Os avisos ficam no cartão da ferramenta depois de gravar; as recusas
+   voltam com o que a pessoa escreveu. Por baixo, as últimas entradas e
+   saídas do tipo (todas as pessoas); um clique numa linha abre a
+   ferramenta, com o «Corrigir localização». *@
+<div class="beta-light-layout arm-layout" data-dmo-troca>
+  <div id="armTipos" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
+    @{
+        var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
+            Title: "Tipo de ferramenta",
+            Subtitle: "Entrada e saída",
+            AriaLabel: "Tipo de ferramenta",
+            Items: MovimentosModel.Tipos.Select(t => new DMO.Alpha.Web.Presentation.DmoRailItem(
+                Code: ArmazemTextos.Tipo(t),
+                Detail: $"Registar {ArmazemTextos.Tipo(t)}",
+                Href: Url.Page("/Armazem/Movimentos", new { tipo = MovimentosModel.TipoValor(t) }),
+                AriaLabel: $"Registar entrada ou saída de {ArmazemTextos.Tipo(t)}",
+                Key: MovimentosModel.TipoValor(t),
+                Selected: Model.Tipo == t)).ToList(),
+            Id: "armTiposRail");
+    }
+    <partial name="_DmoRail" model="@rail" />
+  </div>
+
+<main class="beta-light-main arm-page" aria-labelledby="arm-mov-title">
 
   <div class="page-head">
     <div>
-      <h1 id="arm-mov-title">Movimentos do Armazém</h1>
+      <h1 id="arm-mov-title">Registo do Armazém</h1>
     </div>
   </div>
 
@@ -61,27 +91,55 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     }
   </div>
 
-  <section id="armMovProcura" class="dmo-card arm-card" aria-labelledby="arm-mov-procura-title" data-dmo-regiao data-dmo-parcial>
-    <h3 id="arm-mov-procura-title">Procurar ferramenta<partial name="_DmoHelp" model="@("Escreva a referência, o lote ou a posição (CM, MF ou BQ). Um clique numa ferramenta abre-a, com a Entrada se está fora do armazém ou a Saída se está numa posição.")" /></h3>
+  <div id="armRegisto" class="dmo-zona arm-page" data-dmo-regiao data-dmo-parcial>
+  @if (Model.Tipo is not { } tipoEscolhido)
+  {
+    <section class="dmo-card arm-card" id="armEscolha">
+      @if (Model.FerramentaNaoExiste)
+      {
+        <p class="dmo-aviso warn" id="armNaoExiste">Esta ferramenta já não existe. Uma ferramenta nova regista-se nas Ferramentas.<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Ferramentas", "/Ferramentas", DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas))" /></p>
+      }
+      <p class="muted">Escolha CM, MF ou BQ no painel lateral para registar.</p>
+    </section>
+  }
+  else
+  {
+    var tipoTexto = ArmazemTextos.Tipo(tipoEscolhido);
+    // O MF é masculino; a CM e a BQ, femininas.
+    var masc = tipoEscolhido == ToolType.Mf;
+  <section id="armMovProcura" class="dmo-card arm-card" aria-labelledby="arm-mov-procura-title" data-dmo-regiao data-dmo-parcial data-arm-tipo="@tipoTexto">
+    <div class="dmo-card-topo">
+      <h3 id="arm-mov-procura-title">Registar @tipoTexto<partial name="_DmoHelp" model="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Um clique na ferramenta abre-a, com a Entrada se está fora do armazém ou a Saída se está numa posição. {(masc ? "Um" : "Uma")} {tipoTexto} que não existe regista-se primeiro nas Ferramentas.")" /></h3>
+      @if (s is not null || Model.FerramentaNaoExiste)
+      {
+        <div class="dmo-card-topo-acoes">
+          <a class="dmo-button" id="armOutra" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto })">@(masc ? "Outro" : "Outra") @tipoTexto</a>
+        </div>
+      }
+    </div>
+    @if (s is null)
+    {
     <form method="get" asp-page="/Armazem/Movimentos" class="arm-linha" role="search">
+      <input type="hidden" name="tipo" value="@tipoTexto" />
       <div class="dmo-field">
         <label for="armProcura">Referência, lote ou posição</label>
-        <input id="armProcura" name="q" type="search" class="arm-procura" value="@Model.Procura" data-dmo-maiusculas autocapitalize="characters"
-               placeholder="Ex.: 5447, T173 ou 0042" data-dmo-procura="@Url.Page("/Armazem/Movimentos", "Procurar")" data-dmo-procura-alvo="armProcuraLista" />
+        <input id="armProcura" name="q" type="search" class="arm-procura" value="@Model.Procura" data-dmo-maiusculas autocapitalize="characters" autofocus
+               placeholder="@(tipoEscolhido == ToolType.Bq ? "Ex.: T173 ou 0042" : "Ex.: 5447, T173 ou 0042")" data-dmo-procura="@Url.Page("/Armazem/Movimentos", "Procurar", new { tipo = tipoTexto })" data-dmo-procura-alvo="armProcuraLista" />
       </div>
     </form>
     <div id="armProcuraLista" aria-live="polite" data-dmo-parcial>
-      @if (s is null && !string.IsNullOrWhiteSpace(Model.Procura))
+      @if (!string.IsNullOrWhiteSpace(Model.Procura))
       {
         <partial name="_ArmazemProcura" model="Model.Encontradas" />
       }
     </div>
+    }
   </section>
 
   @if (Model.FerramentaNaoExiste)
   {
     <section id="armMovFerramenta" class="dmo-card arm-card" data-dmo-regiao>
-      <p class="dmo-aviso warn">Esta ferramenta já não existe. Procure outra acima.</p>
+      <p class="dmo-aviso warn">Esta ferramenta já não existe. Procure outra acima; uma ferramenta nova regista-se nas Ferramentas.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(ArmazemTextos.Tipo(Model.Tipo ?? ToolType.Cm), null, "Abrir as Ferramentas")" /></p>
     </section>
   }
   else if (s is not null)
@@ -331,4 +389,73 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       </form>
     </dialog>
   }
+
+  <section id="armLog" class="dmo-card arm-card arm-log" aria-labelledby="arm-log-title" data-dmo-parcial>
+    <div class="dmo-card-topo">
+      <h3 id="arm-log-title">Últimas entradas e saídas de @tipoTexto<partial name="_DmoHelp" model="@($"As entradas e saídas de {tipoTexto} de todas as pessoas, da mais recente para a mais antiga. Um clique numa linha abre a ferramenta, onde pode corrigir a localização.")" /></h3>
+    </div>
+    @if (Model.Log.Items.Count == 0)
+    {
+      <p class="muted" id="armLogVazio">Ainda não há entradas nem saídas de @tipoTexto.</p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="armLogLista" data-dmo-list="Últimas entradas e saídas de @tipoTexto">
+          <thead><tr><th>Data</th><th>Ferramenta</th><th>Movimento</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
+          <tbody>
+          @foreach (var m in Model.Log.Items)
+          {
+            @* Os data-* não desaparecem com null no Razor: a ferramenta eliminada nasce sem destino. *@
+            if (m.ToolId is { } logTool)
+            {
+            <tr data-dmo-row data-id="@m.Id" data-dmo-movimento="@m.Id" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = logTool })" title="@m.Descricao">
+              <td>@MovimentosModel.DataHora(m.OcorridoEmUtc)</td>
+              <td><strong>@m.Referencia</strong> · lote @m.Lote</td>
+              <td>@MovimentosModel.Movimento(m)</td>
+              <td>@(m.Reparador ?? "—")</td>
+              <td>@(m.Posicao ?? "—")</td>
+              <td>@(m.RegistadoPor ?? "—")</td>
+            </tr>
+            }
+            else
+            {
+            <tr data-dmo-row data-id="@m.Id" data-dmo-movimento="@m.Id" title="@m.Descricao">
+              <td>@MovimentosModel.DataHora(m.OcorridoEmUtc)</td>
+              <td><strong>@m.Referencia</strong> · lote @m.Lote <span class="muted">(eliminada)</span></td>
+              <td>@MovimentosModel.Movimento(m)</td>
+              <td>@(m.Reparador ?? "—")</td>
+              <td>@(m.Posicao ?? "—")</td>
+              <td>@(m.RegistadoPor ?? "—")</td>
+            </tr>
+            }
+          }
+          </tbody>
+        </table>
+      </div>
+      @* A paginação da casa («1 de 5»), com os links do próprio tipo: depois de uma recusa, o pedido é um POST. *@
+      <nav data-dmo-parcial class="dmo-list-pager" aria-label="Paginação" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:12px">
+        @if (Model.Log.PageNumber > 1)
+        {
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">←</a>
+        }
+        else
+        {
+          <span class="dmo-button dmo-arrow" aria-disabled="true" aria-label="Página anterior">←</span>
+        }
+        <span role="status" aria-label="Página @Model.Log.PageNumber de @Model.Log.TotalPages">@Model.Log.PageNumber de @Model.Log.TotalPages</span>
+        @if (Model.Log.PageNumber < Model.Log.TotalPages)
+        {
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">→</a>
+        }
+        else
+        {
+          <span class="dmo-button dmo-arrow" aria-disabled="true" aria-label="Página seguinte">→</span>
+        }
+      </nav>
+    }
+  </section>
+  }
+  </div>
 </main>
+</div>
