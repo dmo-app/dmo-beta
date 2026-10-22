@@ -97,11 +97,19 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         string? text,
         CancellationToken cancellationToken = default,
         int? limit = null,
-        string? toolId = null)
+        string? toolId = null,
+        int? jobOnId = null)
     {
         var (startUtc, endUtc) = UtcBounds(desde, ate);
 
-        var rows = Filter(Rows(), startUtc, endUtc, machine, ParseType(type), operatorId, text, toolId: toolId)
+        var filtered = Filter(Rows(), startUtc, endUtc, machine, ParseType(type), operatorId, text, toolId: toolId);
+        // Uma produção (o painel das linhas de quem só vê): pelo id do Job On, exato.
+        if (jobOnId is int wantedJobOn)
+        {
+            filtered = filtered.Where(row => row.JobOnId == wantedJobOn);
+        }
+
+        var rows = filtered
             .OrderByDescending(row => row.OccurredAtUtc);
         return await ToItems(limit is int max ? rows.Take(max) : rows)
             .ToListAsync(cancellationToken);
@@ -148,6 +156,7 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         public string? MachineCode { get; set; }
         public string? ProductionNumber { get; set; }
         public string? ProductionReference { get; set; }
+        public int? JobOnId { get; set; }
     }
 
     private IQueryable<HistoryRow> Rows() =>
@@ -189,7 +198,8 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
                         .FirstOrDefault()
                     : null,
             ProductionNumber = j != null ? j.ProductionNumber : null,
-            ProductionReference = j != null ? j.Reference : null
+            ProductionReference = j != null ? j.Reference : null,
+            JobOnId = j != null ? j.Id : (int?)null
         };
 
     /// <summary>

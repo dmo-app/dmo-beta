@@ -16,9 +16,12 @@ namespace DMO.Alpha.Web.Authorization;
 /// alteração do template vale no pedido seguinte.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class ModuleEntryAttribute(string module) : Attribute, IAsyncPageFilter
+public sealed class ModuleEntryAttribute(string module, params string[] alsoModules) : Attribute, IAsyncPageFilter
 {
     public string Module { get; } = module;
+
+    /// <summary>Outros módulos que também abrem a página (por exemplo «Boquilhas · ver»).</summary>
+    public IReadOnlyList<string> AlsoModules { get; } = alsoModules;
 
     public Task OnPageHandlerSelectionAsync(PageHandlerSelectedContext context) => Task.CompletedTask;
 
@@ -26,7 +29,8 @@ public sealed class ModuleEntryAttribute(string module) : Attribute, IAsyncPageF
     {
         var capabilities = context.HttpContext.RequestServices.GetRequiredService<CurrentUserCapabilities>();
         var granted = await capabilities.GetAsync(context.HttpContext.RequestAborted);
-        if (granted.Contains(Module, StringComparer.Ordinal))
+        if (granted.Contains(Module, StringComparer.Ordinal)
+            || AlsoModules.Any(m => granted.Contains(m, StringComparer.Ordinal)))
         {
             await next();
             return;

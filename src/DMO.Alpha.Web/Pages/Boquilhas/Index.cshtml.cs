@@ -9,6 +9,7 @@ using DMO.Alpha.Web.Presentation;
 using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,9 +28,50 @@ namespace DMO.Alpha.Web.Pages.Boquilhas;
 /// nem no BqContext; mutação nativa exige sessão autenticada.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.Boquilhas)]
+[ModuleEntry(DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView)]
 public sealed partial class IndexModel : PageModel
 {
+    /// <summary>
+    /// Só «Boquilhas · ver» (Diogo, 22/10/2026): o Histórico em leitura, com
+    /// o painel das linhas. Sem registo, sem fichas e sem correções.
+    /// </summary>
+    public bool OnlyView { get; private set; }
+
+    private readonly CurrentUserCapabilities _capabilities;
+
+    /// <summary>
+    /// A entrada de quem só vê: qualquer POST é recusado (403) e qualquer
+    /// outra vista que não o Histórico (ou o seu PDF) volta ao Histórico.
+    /// Quem tem «criar» passa como sempre.
+    /// </summary>
+    public override async Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next)
+    {
+        OnlyView = DmoCapabilities.BoquilhasOnlyView(await _capabilities.GetAsync(HttpContext.RequestAborted));
+        if (OnlyView)
+        {
+            ViewData["BqOnlyView"] = true;
+            if (!HttpMethods.IsGet(Request.Method) && !HttpMethods.IsHead(Request.Method))
+            {
+                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+                return;
+            }
+
+            var handler = context.HandlerMethod?.Name;
+            var readOnly = handler == "PdfHistorico"
+                || (handler is null && Request.Query["historico"] == "1"
+                    && string.IsNullOrEmpty(Request.Query["ficheiros"])
+                    && string.IsNullOrEmpty(Request.Query["trace_id"])
+                    && string.IsNullOrEmpty(Request.Query["bq_id"]));
+            if (!readOnly)
+            {
+                context.Result = new RedirectResult(DmoCapabilities.BoquilhasViewHome);
+                return;
+            }
+        }
+
+        await next();
+    }
+
     private readonly IBoquilhasRegistoQuery _registoQuery;
     private readonly IRegisterBqMovementHandler _movementHandler;
     private readonly IBoquilhasCurrentQuery _currentQuery;
@@ -55,8 +97,10 @@ public sealed partial class IndexModel : PageModel
         IToolCandidateQuery toolCandidates,
         DmoDbContext db,
         DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
-        DMO.Alpha.Core.Production.IProductionPickerQuery productionPicker)
+        DMO.Alpha.Core.Production.IProductionPickerQuery productionPicker,
+        CurrentUserCapabilities capabilities)
     {
+        _capabilities = capabilities;
         _registoQuery = registoQuery;
         _movementHandler = movementHandler;
         _currentQuery = currentQuery;
@@ -378,6 +422,19 @@ public sealed partial class IndexModel : PageModel
     /// quando a ferramenta já não existe.</summary>
     public string? FilterToolId { get; private set; }
 
+    /// <summary>
+    /// Uma produção (?jobon_id=): o link do painel das linhas para quem só
+    /// vê. Só os movimentos dessa produção; null sem filtro ou quando o Job
+    /// On não existe.
+    /// </summary>
+    public int? FilterJobOnId { get; private set; }
+
+    /// <summary>A produção do filtro, para a mostrar no card dos filtros.</summary>
+    public string? FilterJobOnLabel { get; private set; }
+
+    /// <summary>Os filtros atuais sem o da produção.</summary>
+    public string HistoryWithoutJobOnHref { get; private set; } = "/Boquilhas?historico=1";
+
     /// <summary>A BQ e o lote do filtro, para o mostrar no card dos filtros.</summary>
     public string? FilterToolLabel { get; private set; }
 
@@ -579,7 +636,7 @@ public sealed partial class IndexModel : PageModel
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new("boquilhas", "Boquilhas"))) with
         {
             ActiveFunctionKey = activeKey,
-            Functions = ShellStateFactory.BoquilhasFunctions(activeKey)
+            Functions = ShellStateFactory.BoquilhasFunctions(activeKey, OnlyView)
         };
 
         var authenticated = User?.Identity?.IsAuthenticated == true;
@@ -745,6 +802,19 @@ public sealed partial class IndexModel : PageModel
                 FilterToolLabel = $"BQ {filterTool.Reference}" + (filterTool.Lot is { Length: > 0 } lot ? $" · Lote {lot}" : "");
             }
         }
+        if (int.TryParse(Request.Query["jobon_id"], NumberStyles.None, CultureInfo.InvariantCulture, out var wantedJobOn))
+        {
+            var filterJobOn = await _db.JobOns
+                .AsNoTracking()
+                .Where(j => j.Id == wantedJobOn)
+                .Select(j => new { j.Id, j.ProductionNumber, j.Reference, Line = j.Machine.Code })
+                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            if (filterJobOn is not null)
+            {
+                FilterJobOnId = filterJobOn.Id;
+                FilterJobOnLabel = $"Produção {filterJobOn.ProductionNumber} · {filterJobOn.Reference} · Linha {filterJobOn.Line}";
+            }
+        }
         var today = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
         // O SELETOR DE MÊS (o histMonthQuick do html — yyyy-MM): a
         // âncora do ano/mês quando presente.
@@ -834,7 +904,7 @@ public sealed partial class IndexModel : PageModel
         HistorySearchApplied = listStart is not null || listEnd is not null
             || !string.IsNullOrEmpty(FilterMachine) || !string.IsNullOrEmpty(FilterType)
             || !string.IsNullOrEmpty(FilterOperator) || !string.IsNullOrEmpty(FilterText)
-            || FilterToolId is not null;
+            || FilterToolId is not null || FilterJobOnId is not null;
 
         // A LISTA dos movimentos detalhados (TABELA da casa — nunca os
         // cards espremidos) + OS CONTADORES do filtro (as SOMAS DE
@@ -844,7 +914,9 @@ public sealed partial class IndexModel : PageModel
         // movimentos mais recentes até ao limite e avisa, em vez de ler
         // todos os movimentos de sempre (desempenho, 18/10/2026).
         var semPeriodo = !ShowMatrix && listStart is null && listEnd is null;
-        Movements = ShowMatrix || HistorySearchApplied
+        // Quem só vê (Diogo, 22/10/2026) vê logo os registos mais recentes,
+        // sem ter de escolher um período primeiro.
+        Movements = ShowMatrix || HistorySearchApplied || OnlyView
             ? await _history.ListMovementsAsync(
                 ShowMatrix ? matrixStart : listStart,
                 ShowMatrix ? matrixEnd : listEnd,
@@ -854,7 +926,8 @@ public sealed partial class IndexModel : PageModel
                 FilterText,
                 HttpContext.RequestAborted,
                 semPeriodo ? MaxListMovements + 1 : null,
-                FilterToolId)
+                FilterToolId,
+                FilterJobOnId)
             : [];
         if (semPeriodo && Movements.Count > MaxListMovements)
         {
@@ -874,6 +947,7 @@ public sealed partial class IndexModel : PageModel
             ["maquina"] = FilterMachine, ["tipo"] = FilterType,
             ["reparador"] = FilterOperator, ["pesquisa"] = FilterText,
             ["bq_ferramenta"] = FilterToolId,
+            ["jobon_id"] = FilterJobOnId?.ToString(CultureInfo.InvariantCulture),
             ["desde"] = FilterDesde?.ToString("yyyy-MM-dd"),
             ["ate"] = FilterAte?.ToString("yyyy-MM-dd"),
             ["mes_ano"] = FilterMonth,
@@ -883,6 +957,8 @@ public sealed partial class IndexModel : PageModel
             query.Where(p => p.Key is not ("desde" or "ate" or "dia" or "mes_ano") && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
         HistoryWithoutToolHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
             query.Where(p => p.Key != "bq_ferramenta" && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
+        HistoryWithoutJobOnHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
+            query.Where(p => p.Key != "jobon_id" && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
         var todayQuery = new Dictionary<string, string?>(query)
         {
             ["ano"] = today.Year.ToString(CultureInfo.InvariantCulture),
@@ -954,6 +1030,10 @@ public sealed partial class IndexModel : PageModel
         {
             calendarPreserved["bq_ferramenta"] = calendarTool;
         }
+        if (FilterJobOnId is int calendarJobOn)
+        {
+            calendarPreserved["jobon_id"] = calendarJobOn.ToString(CultureInfo.InvariantCulture);
+        }
         // Escolher um dia substitui desde/até; os restantes filtros mantêm-se.
         HistoryCalendar = ComporCalendar(HistoryYear, HistoryMonth, MonthCounts, HistoryDay, calendarPreserved);
 
@@ -971,7 +1051,8 @@ public sealed partial class IndexModel : PageModel
         if (desde is null && ate is null && dia is null && string.IsNullOrWhiteSpace(mesAno)
             && string.IsNullOrWhiteSpace(maquina) && string.IsNullOrWhiteSpace(tipo)
             && string.IsNullOrWhiteSpace(reparador) && string.IsNullOrWhiteSpace(pesquisa)
-            && string.IsNullOrWhiteSpace(bqFerramenta))
+            && string.IsNullOrWhiteSpace(bqFerramenta)
+            && string.IsNullOrWhiteSpace(Request.Query["jobon_id"]))
         {
             var today = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
             var year = ano is int y && y is > 1999 and < 3000 ? y : today.Year;
@@ -996,7 +1077,8 @@ public sealed partial class IndexModel : PageModel
                     + (FilterType is { Length: > 0 } ? $" · {BqMovementLabels.Of(FilterType)}" : "")
                     + (FilterOperator is { Length: > 0 } ? $" · Reparador {FilterOperator}" : "")
                     + (FilterText is { Length: > 0 } ? $" · Pesquisa {FilterText}" : "")
-                    + (FilterToolLabel is { Length: > 0 } ? $" · {FilterToolLabel}" : ""),
+                    + (FilterToolLabel is { Length: > 0 } ? $" · {FilterToolLabel}" : "")
+                    + (FilterJobOnLabel is { Length: > 0 } ? $" · {FilterJobOnLabel}" : ""),
                 Movements, generatedBy, GroupByMachineAndTrace: ShowGrouped));
         return File(bytes, "application/pdf", $"BOQUILHAS-{HistoryView}.pdf");
     }

@@ -21,6 +21,9 @@
         .Select((current, indice) => (current.MachineId, indice))
         .GroupBy(x => x.MachineId)
         .ToDictionary(g => g.Key, g => g.Max(x => x.indice));
+    // Só «Boquilhas · ver» (Diogo, 22/10/2026): um clique na produção abre
+    // o Histórico dessa produção, em leitura; nunca o registo nem o Job On.
+    var onlyView = ViewData["BqOnlyView"] is true;
     var linhas = Model
         .Select((current, indice) =>
         {
@@ -30,7 +33,11 @@
             // BQ se associa (Diogo, 22/10/2026: «deveria ser a produção que
             // vai sair e a que vai entrar»).
             var semBq = !temBq && current.JobOnId is not null;
-            var abre = temBq
+            var abre = onlyView
+                ? current.JobOnId is int jobOnDaLinha
+                    ? $"{DMO.Alpha.Core.Admin.DmoCapabilities.BoquilhasViewHome}&jobon_id={jobOnDaLinha}"
+                    : null
+                : temBq
                 ? $"/Boquilhas?bq_id={current.BqContextId}"
                 : semBq ? $"/JobOn?jobon_id={current.JobOnId}#lightFicha" : null;
             // A máquina sem nada em máquina diz «Sem produção» — com letras, não
@@ -46,7 +53,9 @@
                 Code: current.MachineCode,
                 Detail: detalhe,
                 Href: abre,
-                AriaLabel: abre is null
+                AriaLabel: onlyView && abre is not null
+                    ? $"Movimentos da produção {current.ProductionNumber} na {current.MachineCode}"
+                    : abre is null
                     ? $"{current.MachineCode} sem produção"
                     : semBq
                         ? $"Produção {current.ProductionNumber ?? "—"} na {current.MachineCode} sem BQ: abrir o Job On"
@@ -55,7 +64,7 @@
                 Warning: current.Overlap && ultimaDaLinha[current.MachineId] == indice
                     ? $"Sobreposição na linha {current.MachineCode}: corrija as datas no Job On"
                     : null,
-                WarningHref: current.Overlap && ultimaDaLinha[current.MachineId] == indice
+                WarningHref: !onlyView && current.Overlap && ultimaDaLinha[current.MachineId] == indice
                     ? $"/JobOn?jobon_id={current.JobOnId}#lightFicha"
                     : null);
         })

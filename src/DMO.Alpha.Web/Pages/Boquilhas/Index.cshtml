@@ -84,7 +84,7 @@
                    não o MF: a mesma BQ serve várias referências totais). *@
                 @if (trace.ToolId is { } historyToolId)
                 {
-                  <a class="bq-register-history-link" href="/Boquilhas?historico=1&amp;bq_ferramenta=@Uri.EscapeDataString(historyToolId)" title="Histórico desta BQ e lote">Histórico</a>
+                  <a class="bq-register-history-link" href="/Boquilhas?historico=1&amp;bq_ferramenta=@Uri.EscapeDataString(historyToolId)" title="Movimentos desta BQ e lote">Movimentos</a>
                 }
               </div>
             </div>
@@ -595,10 +595,15 @@
             : Model.ShowMovements
             ? "Todos os movimentos do filtro, um por linha, do mais recente para o mais antigo. Um clique num dia do calendário mostra os movimentos desse dia; um clique numa linha abre a ficha da ferramenta. O PDF usa esta lista."
             : "Os movimentos agrupados por máquina, Job On e BQ/lote, cada grupo com o seu cabeçalho. Um clique num dia do calendário mostra as fichas de BQ usadas nesse dia; um clique numa ficha abre-a com todos os movimentos. O PDF mantém estes cabeçalhos.";
+          // Só «ver»: as linhas não abrem nada, a ajuda não o promete.
+          if (Model.OnlyView)
+          {
+            viewHelp = "Os movimentos do filtro, do mais recente para o mais antigo. Um clique num dia do calendário ou numa linha do painel filtra a lista. O PDF usa esta lista.";
+          }
         }
         <div class="page-head">
           <div>
-            <h2>Histórico de movimentos<partial name="_DmoHelp" model="@("Todos os movimentos, incluindo produções já retiradas do painel. A vista, a máquina, o tipo e as datas aplicam-se logo; a pesquisa e o reparador aplicam-se ao escrever. O mês muda-se no calendário.")" /></h2>
+            <h2>Movimentos<partial name="_DmoHelp" model="@("Todos os movimentos, incluindo produções já retiradas do painel. A vista, a máquina, o tipo e as datas aplicam-se logo; a pesquisa e o reparador aplicam-se ao escrever. O mês muda-se no calendário.")" /></h2>
           </div>
           <div class="bq-page-actions"></div>
         </div>
@@ -627,6 +632,10 @@
             {
               <input type="hidden" name="bq_ferramenta" value="@filterToolId" />
             }
+            @if (Model.FilterJobOnId is int filterJobOnId)
+            {
+              <input type="hidden" name="jobon_id" value="@filterJobOnId" />
+            }
             </div>
             @* Diogo, 18/10: a contagem e os botões no canto superior direito do
                card; os campos todos numa linha, a vista num dropdown antes da
@@ -637,6 +646,11 @@
               {
                 @* O filtro do «Histórico BQ»: a BQ e o lote, e o link para o tirar (os outros filtros ficam). *@
                 <span class="bq-history-tool-filter">@filterToolLabel <a href="@Model.HistoryWithoutToolHref" title="Tirar o filtro da BQ">Tirar filtro</a></span>
+              }
+              @if (Model.FilterJobOnLabel is { } filterJobOnLabel)
+              {
+                @* O filtro da produção (o painel das linhas): a produção e a linha, e o link para o tirar. *@
+                <span class="bq-history-tool-filter" data-dmo-filtro-producao>@filterJobOnLabel <a href="@Model.HistoryWithoutJobOnHref" title="Tirar o filtro da produção">Tirar filtro</a></span>
               }
               @if (Model.ShowMatrix || Model.HistorySearchApplied)
               {
@@ -663,7 +677,7 @@
                 <option value="movimentos" selected="@Model.ShowMovements">Movimentos detalhados</option>
               </select></div>
               <div class="field dmo-field"><label for="pesquisa">Referência / pesquisa</label><input id="pesquisa" data-dmo-maiusculas autocapitalize="characters" name="pesquisa" value="@Model.FilterText" placeholder="Referência, BQ, lote, máquina..." data-dmo-suggest="referencias_bq" data-dmo-suggest-submit /></div>
-              <div class="field dmo-field"><label for="maquina">Máquina</label><select id="maquina" name="maquina" data-dmo-autosubmit><option value="">Todas</option>
+              <div class="field dmo-field"><label for="maquina">Linha</label><select id="maquina" name="maquina" data-dmo-autosubmit><option value="">Todas</option>
                 @foreach (var code in houseMachines)
                 { <option value="@code" selected="@(Model.FilterMachine == code)">@code</option> }
               </select></div>
@@ -689,7 +703,7 @@
           <div class="card bq-history-day">
             <div class="bq-history-day-grid">
               <div id="bqHistDia" class="bq-day-summary" data-dmo-regiao>
-                <h3>@(Model.HistoryDay is { } titleDay ? $"Fichas usadas a {titleDay:dd/MM/yyyy}" : "Fichas usadas no dia")<partial name="_DmoHelp" model="@("Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por máquina. Clique outra vez no dia escolhido para tirar a seleção. Um clique ou Enter numa ficha abre-a com a produção, a máquina e todos os movimentos.")" /></h3>
+                <h3>@(Model.HistoryDay is { } titleDay ? $"Fichas usadas a {titleDay:dd/MM/yyyy}" : "Fichas usadas no dia")<partial name="_DmoHelp" model="@(Model.OnlyView ? "Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por linha. Clique outra vez no dia escolhido para tirar a seleção." : "Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por máquina. Clique outra vez no dia escolhido para tirar a seleção. Um clique ou Enter numa ficha abre-a com a produção, a máquina e todos os movimentos.")" /></h3>
                 @if (Model.HistoryDay is null)
                 {
                   <p class="muted">Escolha um dia no calendário.</p>
@@ -712,7 +726,7 @@
                         @foreach (var group in machineGroups)
                         {
                           <div class="beta-light-production" data-dmo-row data-id="@group.TraceId"
-                               data-dmo-open="@Url.Page("/Boquilhas/Index", new { trace_id = group.TraceId })"
+                               @(Model.OnlyView ? null : Html.Raw("data-dmo-open=\"" + System.Text.Encodings.Web.HtmlEncoder.Default.Encode((Url.Page("/Boquilhas/Index", new { trace_id = group.TraceId })) ?? string.Empty) + "\""))
                                aria-label="Ficha da BQ @group.ToolReference, lote @group.ToolLot na @(machine ?? "máquina por indicar") — selecionar e abrir">
                             <input type="radio" name="bq_day_trace" value="@group.TraceId" class="dmo-visually-hidden" aria-label="Ficha da BQ @group.ToolReference" />
                             <strong>@(machine ?? "Sem máquina")</strong>
@@ -796,7 +810,7 @@
                               @foreach (var entry in cellEntries)
                               {
                                 <div data-dmo-row data-id="@entry.BqRepairTraceId"
-                                      data-dmo-open="@Url.Page("/Boquilhas/Index", new { trace_id = entry.BqRepairTraceId })"
+                                      @(Model.OnlyView ? null : Html.Raw("data-dmo-open=\"" + System.Text.Encodings.Web.HtmlEncoder.Default.Encode((Url.Page("/Boquilhas/Index", new { trace_id = entry.BqRepairTraceId })) ?? string.Empty) + "\""))
                                       title="Um clique ou Enter abre o registo">
                                   <div><strong>@(entry.ProductionReference ?? entry.ToolReference)</strong></div>
                                   <div class="muted">BQ @entry.ToolReference@(entry.ToolLot is { } el ? $" · Lote {el}" : null)@(entry.ProductionNumber is string ejn ? $" · JO {ejn}" : " · Sem Job On")</div>
@@ -922,4 +936,7 @@
 }
 @* O Excel das Boquilhas do chefe: depois de cada registo, se este
    computador tem o ficheiro ligado (Definições), escreve-o lá. *@
+@if (!Model.OnlyView)
+{
 <script src="~/js/dmo-excel-bq.js" asp-append-version="true" data-bq-excel-url="@Url.Page("/Boquilhas/Definicoes")"></script>
+}

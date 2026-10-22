@@ -27,7 +27,7 @@ public partial class BoquilhasRegistoPageTests
 
         var page = await GetPageHtmlAsync(client, $"/Boquilhas?bq_id={bq.Id}");
         Assert.Contains("id=\"bqRegisterFacts\"", page);
-        Assert.Contains("<a class=\"bq-register-history-link\" href=\"/Boquilhas?historico=1&amp;bq_ferramenta=BQ-USOS-1\" title=\"Histórico desta BQ e lote\">Histórico</a>", page);
+        Assert.Contains("<a class=\"bq-register-history-link\" href=\"/Boquilhas?historico=1&amp;bq_ferramenta=BQ-USOS-1\" title=\"Movimentos desta BQ e lote\">Movimentos</a>", page);
         Assert.DoesNotContain("Histórico BQ", page);
         Assert.DoesNotContain("dmo-options", page);
         Assert.DoesNotContain("Onde esta boquilha foi usada", page);
