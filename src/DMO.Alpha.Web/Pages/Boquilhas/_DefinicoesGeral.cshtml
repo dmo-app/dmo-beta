@@ -3,6 +3,8 @@
 .bq-def-page{display:flex;flex-direction:column;gap:14px}
 .bq-def-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
 .bq-def-card h3{margin:0 0 12px;font-size:16px}
+.bq-def-card .dmo-card-topo{margin-bottom:10px}
+.bq-def-card .dmo-card-topo h3{margin:0}
 .bq-def-criar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
 .bq-def-criar .dmo-field{margin:0;min-width:220px}
 .bq-def-lado{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
@@ -30,14 +32,16 @@ html body #bqDefExcel [hidden]{display:none}
 
   <div class="bq-def-lado">
   <section id="bqDefReparadores" class="dmo-card bq-def-card" aria-labelledby="boquilhas-repairers-title" data-dmo-regiao data-dmo-parcial>
+    <div class="dmo-card-topo">
     <h3 id="boquilhas-repairers-title">Reparadores<partial name="_DmoHelp" model="@("As entidades para onde se enviam as boquilhas; a saída de cada linha usa o reparador configurado para ela. Escreva um nome para procurar; se não existir, «Criar reparador» cria-o. Clicar num reparador abre a ficha dele: mudar o nome ou remover. Mudar o nome não altera os movimentos passados.")" /></h3>
+      <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="bqDefCriar" form="bqDefCriarForm">Criar reparador</button></div>
+    </div>
 
-    <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="CreateRepairer" class="bq-def-criar">
+    <form id="bqDefCriarForm" method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="CreateRepairer" class="bq-def-criar">
       <div class="dmo-field">
         <label for="repairerName">Reparador</label>
         <input id="repairerName" name="name" placeholder="Procurar ou criar" autocomplete="off" data-dmo-filtra="bqDefTabelaReparadores" required />
       </div>
-      <button type="submit" class="dmo-button" id="bqDefCriar">Criar reparador</button>
     </form>
 
     @if (Model.Repairers.Count == 0)

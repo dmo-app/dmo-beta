@@ -209,8 +209,8 @@ with sync_playwright() as playwright:
     # -------------------------------------------------------------------- Admin
     page, pedidos, erros = entrar(browser, admin_email)
 
-    # Definições → App (antes o Setup): o email do ADMIN (o mesmo, para a sessão continuar).
-    page.goto(base + '/Definicoes?secao=app')
+    # Definições → Admin → App: o email do ADMIN (o mesmo, para a sessão continuar).
+    page.goto(base + '/Definicoes?secao=admin&sub=app')
     no_canto(page, '#admEmailGuardar', '#admEmail', '#adminEmail')
     page.fill('#adminEmail', admin_email)
     page.fill('#adminEmailConfirm', admin_email)
@@ -221,10 +221,10 @@ with sync_playwright() as playwright:
     assert foco(page) == 'admEmailGuardar', f'foco em {foco(page)}'
 
     # Canal Jobon: a hora grava ao escolher; o foco fica no dropdown.
-    page.goto(base + '/Admin/CanalJobon')
+    page.goto(base + '/Definicoes?secao=admin&sub=canal')
     hora = str((int(page.input_value('#dayChangeHour')) + 1) % 24)
     page.focus('#dayChangeHour')
-    gravar(page, pedidos, lambda: page.select_option('#dayChangeHour', hora), ['#canal-jobon-title'], 'Canal Jobon, hora')
+    gravar(page, pedidos, lambda: page.select_option('#dayChangeHour', hora), ['#def-title'], 'Canal Jobon, hora')
     toast(page, 'Hora de viragem gravada.')
     assert page.input_value('#dayChangeHour') == hora
     assert foco(page) == 'dayChangeHour', f'foco em {foco(page)}'

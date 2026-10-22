@@ -17,7 +17,7 @@
 .def-menu-cadeado svg,.def-cadeado svg{width:13px;height:13px}
 .def-secao{display:flex;flex-direction:column;gap:14px;min-width:0}
 html body .def-secao[hidden]{display:none}
-.def-secao > h2{display:flex;align-items:center;gap:8px;margin:0;font-size:19px}
+.def-secao > h2{display:flex;align-items:center;gap:0;margin:0;font-size:19px}
 .def-parte{display:flex;flex-direction:column;gap:10px;min-width:0}
 .def-parte > h3.def-parte-titulo{display:flex;align-items:center;gap:8px;margin:4px 0 0;font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--dmo-muted)}
 .def-cartoes{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
@@ -32,7 +32,7 @@ button.def-cadeado:hover{filter:brightness(.95)}
 .def-tema{padding:18px;width:fit-content;min-width:min(320px,100%)}
 .def-tema h3{margin:0 0 10px;font-size:16px}
 .def-pessoal-topo{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.def-pessoal-topo h2{display:flex;align-items:center;gap:8px;margin:0;font-size:19px}
+.def-pessoal-topo h2{display:flex;align-items:center;gap:0;margin:0;font-size:19px}
 .def-linha{padding:12px 16px}
 .def-linha h3{margin:0;font-size:15px}
 .def-linha .dmo-card-topo,.def-linha > h3{margin-bottom:8px}
@@ -41,18 +41,29 @@ button.def-cadeado:hover{filter:brightness(.95)}
 .def-conta dd{margin:2px 0 0}
 .def-palavra{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
 .def-palavra .dmo-field{margin:0;flex:1 1 160px;max-width:240px}
-.adm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.ctl-def-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;width:100%}
+html body .ctl-def-grade[hidden]{display:none}
+.adm-app-cartoes{align-items:stretch}
+.adm-card{padding:16px 18px;min-width:0;margin:0}
 .adm-card h3{margin:0 0 12px;font-size:16px}
 .adm-card .dmo-card-topo{margin:0 0 12px}
 .adm-card .dmo-card-topo h3{margin:0}
 .adm-email-form{display:grid;gap:12px;width:100%}
-.def-app-cartoes{display:grid;grid-template-columns:repeat(2,minmax(0,360px));gap:14px;align-items:stretch}
-.def-app-cartoes > .adm-card{width:auto;min-width:0;margin:0}
-@@media(max-width:760px){.def-app-cartoes{grid-template-columns:minmax(0,1fr)}}
+#canalJobonViragem .dmo-field,#canalJobonViragemRi .dmo-field{max-width:220px}
+.def-menu-grupo{display:flex;flex-direction:column;gap:2px}
+.def-menu a.def-menu-titulo{justify-content:flex-start}
+.def-menu-titulo .def-menu-cadeado{margin-left:auto}
+.def-menu-sub{display:flex;flex-direction:column;gap:2px;padding-left:14px}
+html body .def-menu-sub[hidden]{display:none}
+.def-menu .def-menu-sub a{font-weight:500;padding:7px 12px}
+.ctl-def-computador{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:12px 0 0;font-size:14px}
+.ctl-def-link{border:0;background:none;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--dmo-brand-700);text-decoration:underline;cursor:pointer}
 @@media(max-width:760px){
   .def-layout{grid-template-columns:minmax(0,1fr);gap:14px}
   .def-menu{flex-direction:row;overflow-x:auto;position:static;padding:4px}
   .def-menu a{white-space:nowrap;padding:8px 12px}
+  .def-menu-grupo,.def-menu-sub{flex-direction:row}
+  .def-menu-sub{padding-left:0}
   .def-menu a.active{box-shadow:inset 0 -3px 0 var(--dmo-brand-600)}
 }
 </style>
@@ -87,7 +98,24 @@ button.def-cadeado:hover{filter:brightness(.95)}
       @foreach (var (chave, nome) in Model.Entradas)
       {
         var ativa = chave == Model.Secao;
-        <a href="/Definicoes?secao=@chave" data-dmo-def-entrada="@chave" class="@(ativa ? "active" : null)" aria-current="@(ativa ? "page" : null)"><span>@nome</span>@if (cadeado && chave != "pessoal") {<span class="def-menu-cadeado" data-dmo-menu-cadeado title="Geral só de leitura">@Html.Raw(CadeadoSvg)<span class="dmo-visually-hidden">(geral só de leitura)</span></span>}</a>
+        var cadeadoMenu = cadeado && chave != "pessoal" ? Html.Raw($"<span class=\"def-menu-cadeado\" data-dmo-menu-cadeado title=\"Geral só de leitura\">{CadeadoSvg}<span class=\"dmo-visually-hidden\">(geral só de leitura)</span></span>") : null;
+        if (Model.FuncoesDe(chave) is { } funcoes)
+        {
+          @* Um grupo (Diogo, 22/10/2026: «usa apenas sidepanel, Controlo expande, fica como título, por baixo as funções»); o grupo Admin só para o ADMIN. *@
+          var subAberto = Model.SubDe(chave);
+          <div class="def-menu-grupo" data-dmo-def-grupo="@chave" data-aberto="@(ativa ? "" : null)">
+            <a href="/Definicoes?secao=@chave&amp;sub=@funcoes[0].Chave" class="def-menu-titulo" data-dmo-def-grupo-titulo aria-expanded="@(ativa ? "true" : "false")" aria-controls="defMenu-@chave"><span class="dmo-caret" aria-hidden="true"></span><span>@nome</span>@(chave == "admin" ? null : cadeadoMenu)</a>
+            <div class="def-menu-sub" id="defMenu-@chave" hidden="@(!ativa)">
+              @foreach (var (sub, subNome) in funcoes)
+              {
+                var subAtivo = ativa && sub == subAberto;
+                <a href="/Definicoes?secao=@chave&amp;sub=@sub" data-dmo-ctl-tab="@sub" data-dmo-grupo="@chave" class="@(subAtivo ? "active" : null)" aria-current="@(subAtivo ? "page" : null)">@subNome</a>
+              }
+            </div>
+          </div>
+          continue;
+        }
+        <a href="/Definicoes?secao=@chave" data-dmo-def-entrada="@chave" class="@(ativa ? "active" : null)" aria-current="@(ativa ? "page" : null)"><span>@nome</span>@cadeadoMenu</a>
       }
     </nav>
 
@@ -139,9 +167,9 @@ button.def-cadeado:hover{filter:brightness(.95)}
           <h2 id="def-controlo-title">Controlo</h2>
           <div class="def-parte" id="controlo">
             <h3 class="def-parte-titulo">Geral<partial name="_DefinicoesCadeado" model="cadeado" /></h3>
-            <div class="def-cartoes"><partial name="/Pages/Controlo/_DefinicoesPasta.cshtml" model="controlo" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" /></div>
+            <div class="ctl-def-grade" data-dmo-ctl-sub="pdfs" data-dmo-grupo="controlo" hidden="@(Model.ControloSub != "pdfs")"><partial name="/Pages/Controlo/_DefinicoesPasta.cshtml" model="controlo" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" /></div>
             <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais do Controlo</legend>
-              <div class="def-cartoes"><partial name="/Pages/Controlo/_DefinicoesGeral.cshtml" model="controlo" /></div>
+              <partial name="/Pages/Controlo/_DefinicoesGeral.cshtml" model="controlo" view-data="@(new ViewDataDictionary(ViewData) { ["CtlSub"] = Model.ControloSub })" />
             </fieldset>
           </div>
         </section>
@@ -184,14 +212,18 @@ button.def-cadeado:hover{filter:brightness(.95)}
           </div>
         </section>
       }
-      @if (Model.Setup is { } setup)
+      @if (Model.App is { } app && Model.CanalJobon is { } canal)
       {
-        @* A configuração da app (Diogo, 22/10/2026): o que estava no Setup do Admin (PIN e email do ADMIN). Só o ADMIN a vê. *@
-        <section id="sec-app" class="def-secao" data-dmo-def-secao="app" aria-labelledby="def-app-title" hidden="@(Model.Secao != "app")">
-          <h2 id="def-app-title">App<partial name="_DmoHelp" model="@("A configuração da app, só para o ADMIN: o PIN das Definições e o email do ADMIN.")" /></h2>
-          <div class="def-parte" id="app">
-            <h3 class="def-parte-titulo">Geral</h3>
-            <div class="def-cartoes def-app-cartoes"><partial name="/Pages/Admin/Definicoes/_DefinicoesApp.cshtml" model="setup" /></div>
+        @* As Definições do ADMIN (Diogo, 22/10/2026): o Canal Jobon e a App. Só o ADMIN as vê; gravam pelas páginas de /Admin, só do ADMIN. *@
+        <section id="sec-admin" class="def-secao" data-dmo-def-secao="admin" aria-labelledby="def-admin-title" hidden="@(Model.Secao != "admin")">
+          <h2 id="def-admin-title">Admin</h2>
+          <div class="def-parte" id="admin">
+            <div class="ctl-def-grade" data-dmo-ctl-sub="canal" data-dmo-grupo="admin" hidden="@(Model.AdminSub != "canal")">
+              <partial name="/Pages/Admin/CanalJobon/_DefinicoesCanal.cshtml" model="canal" />
+            </div>
+            <div class="ctl-def-grade adm-app-cartoes" data-dmo-ctl-sub="app" data-dmo-grupo="admin" hidden="@(Model.AdminSub != "app")">
+              <partial name="/Pages/Admin/Definicoes/_DefinicoesApp.cshtml" model="app" />
+            </div>
           </div>
         </section>
       }
@@ -248,6 +280,9 @@ button.def-cadeado:hover{filter:brightness(.95)}
       a.classList.toggle("active", ativa);
       if (ativa) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
+    document.querySelectorAll("[data-dmo-ctl-tab]").forEach(function (t) {
+      if (t.getAttribute("data-dmo-grupo") !== chave) { t.classList.remove("active"); t.removeAttribute("aria-current"); }
+    });
     var pinSecao = document.getElementById("defPinSecao");
     if (pinSecao) pinSecao.value = chave;
     if (empurrar) {
@@ -262,6 +297,36 @@ button.def-cadeado:hover{filter:brightness(.95)}
     var a = e.target && e.target.closest ? e.target.closest("[data-dmo-def-entrada]") : null;
     if (!a || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
     if (mostrar(a.getAttribute("data-dmo-def-entrada"), true)) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  // O grupo Controlo no menu: as funções por baixo; cada uma mostra só os seus cartões (?sub=…).
+  function abrirSub(grupoChave, chave) {
+    mostrar(grupoChave, false);
+    document.querySelectorAll('[data-dmo-ctl-sub][data-dmo-grupo="' + grupoChave + '"]').forEach(function (g) { g.hidden = g.getAttribute("data-dmo-ctl-sub") !== chave; });
+    document.querySelectorAll("[data-dmo-ctl-tab]").forEach(function (t) {
+      var ativo = t.getAttribute("data-dmo-grupo") === grupoChave && t.getAttribute("data-dmo-ctl-tab") === chave; t.classList.toggle("active", ativo);
+      if (ativo) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current");
+    });
+    var url = new URL(window.location.href); url.searchParams.set("secao", grupoChave); url.searchParams.set("sub", chave); url.hash = "";
+    window.history.pushState(null, "", url.href);
+  }
+  function grupo(g, aberto) {
+    if (!g) return;
+    if (aberto) g.setAttribute("data-aberto", ""); else g.removeAttribute("data-aberto");
+    g.querySelector(".def-menu-sub").hidden = !aberto;
+    g.querySelector("[data-dmo-def-grupo-titulo]").setAttribute("aria-expanded", aberto ? "true" : "false");
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target || !e.target.closest || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    var sub = e.target.closest("[data-dmo-ctl-tab]");
+    if (sub) { grupo(sub.closest("[data-dmo-def-grupo]"), true); abrirSub(sub.getAttribute("data-dmo-grupo"), sub.getAttribute("data-dmo-ctl-tab")); e.preventDefault(); return; }
+    var titulo = e.target.closest("[data-dmo-def-grupo-titulo]");
+    if (!titulo) return;
+    e.preventDefault();
+    var g = titulo.closest("[data-dmo-def-grupo]");
+    if (g.hasAttribute("data-aberto")) { grupo(g, false); return; }
+    grupo(g, true);
+    var primeiro = g.querySelector("[data-dmo-ctl-tab]");
+    if (primeiro) abrirSub(primeiro.getAttribute("data-dmo-grupo"), primeiro.getAttribute("data-dmo-ctl-tab"));
   }, true);
   window.addEventListener("popstate", function () {
     mostrar(new URL(window.location.href).searchParams.get("secao") || "pessoal", false);

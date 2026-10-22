@@ -15,7 +15,7 @@ namespace DMO.Alpha.Web.Pages.Definicoes;
 /// cima, com duas partes. «Pessoal» vale só para quem a muda (o modo escuro
 /// e as pastas deste computador). «Geral» vale para todos: lê-se sempre, mas
 /// só a muda o ADMIN ou quem abriu o cadeado com o PIN das Definições
-/// (criado pelo ADMIN em Definições → App; vale até sair). Em cada parte, uma secção por módulo, só dos módulos ativos para
+/// (criado pelo ADMIN em Definições → Admin → App; vale até sair). Em cada parte, uma secção por módulo, só dos módulos ativos para
 /// o utilizador. Os formulários de cada módulo continuam a gravar pelos
 /// handlers das páginas antigas (/Boquilhas/Definicoes…), que voltam aqui.
 /// </summary>
@@ -31,7 +31,8 @@ public sealed class IndexModel(
     Boquilhas.DefinicoesModel boquilhas,
     Ferramentas.DefinicoesModel ferramentas,
     Armazem.DefinicoesModel armazem,
-    Admin.Definicoes.IndexModel setup) : PageModel
+    Admin.Definicoes.IndexModel app,
+    Admin.CanalJobon.IndexModel canalJobon) : PageModel
 {
     public bool EAdmin { get; private set; }
 
@@ -52,12 +53,56 @@ public sealed class IndexModel(
 
     public Controlo.DefinicoesModel? Controlo { get; private set; }
 
+    /// <summary>
+    /// Os separadores do Controlo (Diogo, 22/10/2026: «o que é usado no Peso
+    /// um separador com Peso, Pegamentos separador com Pegamentos», «email um
+    /// separador com email»): cada um só com o que essa área lê.
+    /// </summary>
+    public static readonly IReadOnlyList<(string Chave, string Nome)> ControloSeparadores =
+    [
+        ("peso", "Peso"),
+        ("pegamentos", "Pegamentos"),
+        ("puncoes", "PU NNPB"),
+        ("email", "Email"),
+        ("pdfs", "PDFs")
+    ];
+
+    /// <summary>
+    /// O grupo Admin, só do ADMIN (Diogo, 22/10/2026: «canal jobon e app
+    /// ficam dentro das definições do admin, admin tem definições diferentes
+    /// dos users»).
+    /// </summary>
+    public static readonly IReadOnlyList<(string Chave, string Nome)> AdminSeparadores =
+    [
+        ("canal", "Canal Jobon"),
+        ("app", "App")
+    ];
+
+    public Admin.Definicoes.IndexModel? App { get; private set; }
+
+    public Admin.CanalJobon.IndexModel? CanalJobon { get; private set; }
+
+    /// <summary>A função aberta do grupo Admin (?sub=…).</summary>
+    public string AdminSub { get; private set; } = "canal";
+
+    /// <summary>As funções de um grupo do menu (null para uma entrada simples).</summary>
+    public IReadOnlyList<(string Chave, string Nome)>? FuncoesDe(string chave) => chave switch
+    {
+        "controlo" => ControloSeparadores,
+        "admin" => AdminSeparadores,
+        _ => null
+    };
+
+    /// <summary>A função aberta de um grupo.</summary>
+    public string SubDe(string chave) => chave == "admin" ? AdminSub : ControloSub;
+
+    /// <summary>O separador do Controlo aberto (?sub=…).</summary>
+    public string ControloSub { get; private set; } = "peso";
+
     public Ferramentas.DefinicoesModel? Ferramentas { get; private set; }
 
     public Armazem.DefinicoesModel? Armazem { get; private set; }
 
-    /// <summary>A secção App (só o ADMIN): o PIN e o email do ADMIN.</summary>
-    public Admin.Definicoes.IndexModel? Setup { get; private set; }
 
     /// <summary>A entrada do menu aberta: «pessoal» ou a de um módulo ativo (?secao=…).</summary>
     public string Secao { get; private set; } = "pessoal";
@@ -84,6 +129,12 @@ public sealed class IndexModel(
     public async Task<IActionResult> OnGetAsync()
     {
         EAdmin = DefinicoesAcesso.EAdmin(HttpContext);
+        if (EAdmin && Request.Query["secao"] == "app")
+        {
+            // A App vive no grupo Admin das Definições (Diogo, 22/10/2026): o link antigo abre lá.
+            return Redirect(Admin.Definicoes.IndexModel.Destino);
+        }
+
         PodeEditarGeral = await DefinicoesAcesso.PodeEditarGeralAsync(HttpContext);
         ViewData["Title"] = "Definições";
         if (EAdmin)
@@ -126,6 +177,13 @@ public sealed class IndexModel(
         if (await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ControloCreate))
         {
             Controlo = Ligar(controlo);
+            ControloSub = Q("sub") is { } pedidoSub && ControloSeparadores.Any(t => t.Chave == pedidoSub) ? pedidoSub
+                : Q("densidade") is not null ? "peso"
+                : Q("save") is not null ? "pegamentos"
+                : Q("envio") is not null ? "email"
+                : Q("seccoes") is not null ? "puncoes"
+                : Q("pasta") is not null ? "pdfs"
+                : "peso";
             await Controlo.CarregarAsync(Q("save"), Q("envio"), Q("fora"), Q("densidade"), Q("seccoes"), Q("pasta"));
         }
 
@@ -154,10 +212,14 @@ public sealed class IndexModel(
         if (Armazem is not null) entradas.Add(("armazem", "Armazém"));
         if (EAdmin)
         {
-            // «setup fica dentro das definições» (Diogo, 22/10/2026).
-            Setup = Ligar(setup);
-            await Setup.CarregarAsync(Q("app"), Q("email"), Q("pinapp"));
-            entradas.Add(("app", "App"));
+            App = Ligar(app);
+            await App.CarregarAsync(Q("app"), Q("email"), Q("pinapp"));
+            CanalJobon = Ligar(canalJobon);
+            await CanalJobon.CarregarAsync(Q("viragem"), Q("de"));
+            AdminSub = Q("sub") is { } subAdmin && AdminSeparadores.Any(t => t.Chave == subAdmin) ? subAdmin
+                : Q("app") is not null || Q("pinapp") is not null ? "app"
+                : "canal";
+            entradas.Add(("admin", "Admin"));
         }
         Entradas = entradas;
         var pedida = Q("secao");
@@ -213,7 +275,7 @@ public sealed class IndexModel(
         _ => string.Empty
     };
 
-    public const string SemPinMensagem = "Ainda não há PIN das Definições. Peça ao ADMIN para o criar em Definições → App.";
+    public const string SemPinMensagem = "Ainda não há PIN das Definições. Peça ao ADMIN para o criar em Definições → Admin → App.";
 
     private const string PalavraPasseErroTempData = "def-palavra-passe-erro";
 

@@ -171,7 +171,7 @@ builder.Services.AddScoped<IBqExcelBoquilhas, BqExcelBoquilhas>();
 // Boquilhas write path (o bloco dos reparadores): as ENTIDADES
 // REPARADORAS — o vocabulário do encaminhamento por máquina (o Owner
 // 2026-10-12: «reparadores sao as entidades para onde enviamos as
-// boquilhas»), administrado em Admin → App Definições → Boquilhas.
+// boquilhas»), administrado em Definições → Admin → App Definições → Boquilhas.
 builder.Services.AddScoped<ICreateBqRepairerHandler, CreateBqRepairerHandler>();
 builder.Services.AddScoped<IEditBqRepairerHandler, EditBqRepairerHandler>();
 builder.Services.AddScoped<IDeleteBqRepairerHandler, DeleteBqRepairerHandler>();
@@ -274,6 +274,7 @@ builder.Services.AddTransient<DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Armazem.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.Admin.CanalJobon.IndexModel>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnviarPesoPorEmailHandler>();
 // O APPROVE-MÍNIMO (a decisão GATE 4): o registo de visão da folha do
 // controlo — quem abriu e quando; nunca é gate.

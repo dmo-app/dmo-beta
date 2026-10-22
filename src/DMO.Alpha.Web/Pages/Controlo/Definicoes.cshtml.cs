@@ -348,7 +348,39 @@ public sealed class DefinicoesModel(
         return RedirectToPage("/Definicoes/Index", new { densidade });
     }
 
-    /// <summary>POST: as secções de uma linha para a grelha das punções PU NNPB (4 posições cada).</summary>
+    /// <summary>As linhas com PU NNPB (Diogo, 22/10/2026: «NNPB só existe na B1 e por vezes na C3»).</summary>
+    public static readonly IReadOnlyList<string> LinhasNnpb = ["B1", "C3"];
+
+    /// <summary>
+    /// POST: as secções de todas as linhas do cartão de uma vez (um só
+    /// «Guardar»). Só as linhas NNPB; o primeiro erro é o que se mostra.
+    /// </summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostSavePuncoesSeccoesTodasAsync(
+        [FromForm(Name = "maquina")] List<string>? maquinas,
+        [FromForm(Name = "seccoes")] List<string>? seccoes)
+    {
+        maquinas ??= [];
+        seccoes ??= [];
+        var resultado = PuncoesSeccoesGravacao.Gravado;
+        for (var i = 0; i < Math.Min(maquinas.Count, seccoes.Count); i++)
+        {
+            if (!LinhasNnpb.Contains(maquinas[i]))
+            {
+                continue;
+            }
+
+            var r = await puncoesLinhas.GuardarAsync(maquinas[i], seccoes[i], HttpContext.RequestAborted);
+            if (r != PuncoesSeccoesGravacao.Gravado && resultado == PuncoesSeccoesGravacao.Gravado)
+            {
+                resultado = r;
+            }
+        }
+
+        return RedirectToPage("/Definicoes/Index", new { seccoes = resultado.ToString() });
+    }
+
+    /// <summary>POST: as secções de uma linha (compatibilidade: o cartão grava todas com SavePuncoesSeccoesTodas).</summary>
     [DefinicaoGeral]
     public async Task<IActionResult> OnPostSavePuncoesSeccoesAsync(
         [FromForm(Name = "maquina")] string? maquina,

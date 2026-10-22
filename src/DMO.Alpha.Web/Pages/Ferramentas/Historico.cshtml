@@ -152,7 +152,7 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
                 @if (temMenu)
                 {
                   <details class="dmo-options hist-menu">
-                    <summary aria-label="Abrir a produção @l.Referencia @producao">@producao</summary>
+                    <summary aria-label="Abrir a produção @l.Referencia @producao"><span class="dmo-caret" aria-hidden="true"></span>@producao</summary>
                     <div class="dmo-options-list" role="menu">
                       @if (Model.AbreControlo) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ControloUrl(l)">Controlo</a> }
                       @if (Model.AbreReparacao) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ReparacaoUrl(l)">Reparação</a> }

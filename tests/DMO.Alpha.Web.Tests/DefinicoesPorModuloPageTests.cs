@@ -22,7 +22,7 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
 {
     private const string FerramentasPath = "/Ferramentas/Definicoes";
     private const string CanalJobonPath = "/Admin/CanalJobon";
-    private const string AppPath = "/Definicoes?secao=app";
+    private const string AppPath = "/Definicoes?secao=admin&sub=app";
 
     private readonly CustomWebApplicationFactory _factory;
 
@@ -184,52 +184,64 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
 
         using var admin = await LoginAdminAsync();
         Assert.Equal(HttpStatusCode.NotFound, (await admin.GetAsync("/Admin/Ferramentas")).StatusCode);
-        var pagina = await admin.GetStringAsync("/Definicoes?secao=app");
-        var setup = pagina[pagina.IndexOf("id=\"sec-app\"", StringComparison.Ordinal)..];
+        var pagina = await admin.GetStringAsync("/Definicoes?secao=admin&sub=app");
+        var setup = pagina[pagina.IndexOf("id=\"sec-admin\"", StringComparison.Ordinal)..];
         Assert.DoesNotContain("href=\"/Admin/Ferramentas\"", setup);
         Assert.DoesNotContain("total do lote", setup, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task Setup_MudouSeParaAsDefinicoes_App()
+    public async Task Admin_TemDefinicoesProprias_CanalJobonEApp()
     {
-        // Diogo, 22/10/2026: «setup fica dentro das definições».
+        // Diogo, 22/10/2026: «canal jobon e app ficam dentro das definições do admin, admin tem definições diferentes dos users».
         using var admin = await LoginAdminAsync();
-        var antigo = await admin.GetAsync("/Admin/Definicoes?definition=boquilhas");
-        Assert.Equal(HttpStatusCode.Redirect, antigo.StatusCode);
-        Assert.Equal("/Definicoes?secao=app", antigo.Headers.Location?.OriginalString);
-        var html = await admin.GetStringAsync("/Definicoes?secao=app");
-        var app = html[html.IndexOf("id=\"sec-app\"", StringComparison.Ordinal)..];
+        foreach (var (antigo, novo) in new[] { ("/Admin/Definicoes?definition=boquilhas", "/Definicoes?secao=admin&sub=app"), ("/Admin/CanalJobon", "/Definicoes?secao=admin&sub=canal"), ("/Definicoes?secao=app", "/Definicoes?secao=admin&sub=app") })
+        {
+            var r = await admin.GetAsync(antigo);
+            Assert.Equal(HttpStatusCode.Redirect, r.StatusCode);
+            Assert.Equal(novo, r.Headers.Location?.OriginalString);
+        }
+
+        var html = await admin.GetStringAsync("/Definicoes?secao=admin&sub=app");
+        var menu = System.Text.RegularExpressions.Regex.Match(html, "<nav class=\"def-menu\"[\\s\\S]*?</nav>").Value;
+        Assert.Contains("data-dmo-def-grupo=\"admin\" data-aberto=\"\"", menu);
+        Assert.Contains("data-dmo-ctl-tab=\"canal\" data-dmo-grupo=\"admin\"", menu);
+        Assert.Contains("data-dmo-ctl-tab=\"app\" data-dmo-grupo=\"admin\" class=\"active\"", menu);
+        var app = html[html.IndexOf("id=\"sec-admin\"", StringComparison.Ordinal)..];
         Assert.Contains("Email do ADMIN", app);
         Assert.Contains("PIN das Definições", app);
-        Assert.DoesNotContain("id=\"admModulos\"", app);
-        // Sem interruptores dos módulos: só o template decide (Diogo, 22/10/2026).
-        var templates = await admin.GetStringAsync("/Admin/Templates");
-        Assert.DoesNotContain("id=\"admModulos\"", templates);
-        Assert.DoesNotContain("name=\"testadores\"", templates);
-        Assert.DoesNotContain("id=\"canalJobonViragem\"", app);
-        Assert.Contains("<a href=\"/Definicoes?secao=app\" data-dmo-def-entrada=\"app\" class=\"active\" aria-current=\"page\"><span>App</span>", html);
-        Assert.DoesNotContain(">Setup</a>", html);
-        Assert.Contains(">Canal Jobon</a>", html);
-        Assert.DoesNotContain("Definição a configurar", html);
+        Assert.Contains("id=\"canalJobonViragem\"", app);
+        Assert.Contains("data-dmo-ctl-sub=\"canal\" data-dmo-grupo=\"admin\" hidden=\"hidden\"", app);
+
+        // O Admin fica só com Utilizadores e Templates.
+        var users = await admin.GetStringAsync("/Admin/Users");
+        Assert.DoesNotContain(">Canal Jobon</a>", users);
+        Assert.DoesNotContain(">App</a>", users);
+        Assert.DoesNotContain(">Setup</a>", users);
+
+        // Quem não é ADMIN não vê o grupo.
+        using var op = await LoginOperatorAsync("5104", DmoCapabilities.Boquilhas);
+        var opHtml = await op.GetStringAsync("/Definicoes?secao=admin&sub=app");
+        Assert.DoesNotContain("data-dmo-def-grupo=\"admin\"", opHtml);
+        Assert.DoesNotContain("id=\"sec-admin\"", opHtml);
+        Assert.DoesNotContain("admEmail", opHtml);
     }
 
     [Fact]
     public async Task CanalJobon_SavesTheDayChangeHour_ForTheAdminOnly()
     {
         using var admin = await LoginAdminAsync();
-        var html = await admin.GetStringAsync(CanalJobonPath);
+        var html = await admin.GetStringAsync("/Definicoes?secao=admin&sub=canal");
         Assert.Contains("Boquilhas — hora de viragem do dia", html);
-        Assert.Matches("<a href=\"/Admin/CanalJobon\"\\s+class=\"active\"\\s+aria-current=\"page\">Canal Jobon</a>", html);
         Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", html);
         Assert.Contains("data-dmo-autosubmit", html);
 
         var save = await admin.PostAsync($"{CanalJobonPath}?handler=SaveBoquilhasDayChangeHour", HtmlFormHelpers.BuildFormPost(
             ("dayChangeHour", "6"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(html)!)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
-        Assert.Contains("save=ok", save.Headers.Location?.ToString());
+        Assert.Equal("/Definicoes?secao=admin&sub=canal&viragem=ok", save.Headers.Location?.ToString());
         Assert.Equal("6", Stored(ModuleSettingKeys.BoquilhasDayChangeHour));
-        Assert.Contains("<option value=\"6\" selected=\"selected\">6:00</option>", await admin.GetStringAsync(CanalJobonPath));
+        Assert.Contains("<option value=\"6\" selected=\"selected\">6:00</option>", await admin.GetStringAsync("/Definicoes?secao=admin&sub=canal"));
 
         using var op = await LoginOperatorAsync("5103", DmoCapabilities.Boquilhas);
         var denied = await op.GetAsync(CanalJobonPath);

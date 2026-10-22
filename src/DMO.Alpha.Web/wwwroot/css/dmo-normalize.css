@@ -69,11 +69,13 @@ html body .dmo-calendar .icon-btn{box-sizing:border-box;width:var(--dmo-control-
 html body .dmo-shell-header .dmo-shell-logout{min-height:0;margin-left:18px;padding:4px 2px;border:0;border-radius:4px;background:none;color:var(--dmo-brand-700);font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);line-height:1.2;text-decoration:none}
 html body .dmo-shell-header .dmo-shell-logout:is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);text-decoration:underline;text-underline-offset:3px;outline:0}
 html body .dmo-shell-header .dmo-shell-logout:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
+/* Bloco da conta em duas linhas, encostado à direita: o utilizador; por baixo «Admin» · «Sair». */
+html body .dmo-shell-header .dmo-shell-conta{flex:0 1 auto;min-width:0;margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{margin-left:0;max-width:100%}
+html body .dmo-shell-header .dmo-shell-acoes{display:flex;align-items:center;gap:14px}
+html body .dmo-shell-header .dmo-shell-acoes .dmo-shell-logout{margin-left:0;padding:1px 2px}
+@media(max-width:600px){html body .dmo-shell-header .dmo-env-badge{flex:0 1 auto;min-width:0;max-width:110px;margin-right:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;line-height:26px}html body .dmo-shell-header .dmo-shell-conta{flex:none;max-width:120px}html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{max-width:120px}html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html body .dmo-shell-header .dmo-shell-acoes{gap:10px}}
 /* «Modo escuro / Modo claro»: só a palavra, como o «Sair» (Diogo, 21/10/2026). */
-html body .dmo-shell-header .dmo-shell-tema{flex:none;white-space:nowrap;min-height:0;margin-left:18px;padding:4px 2px;border:0;border-radius:4px;background:none;color:var(--dmo-brand-700);font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);line-height:1.2;cursor:pointer}
-html body .dmo-shell-header .dmo-shell-tema:is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);text-decoration:underline;text-underline-offset:3px;outline:0}
-html body .dmo-shell-header .dmo-shell-tema:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
-@media(max-width:600px){html body .dmo-shell-header .dmo-shell-tema{margin-left:6px}html body .dmo-shell-header .dmo-shell-tema-texto{display:none}html body .dmo-shell-header .dmo-shell-tema::before{content:"◐";font-size:16px}}
 /* Indisponível (desativado ou sem seleção): cinzento, sem hover. */
 html body :is(.dmo-button,.button,.btn):is(:disabled,[aria-disabled="true"]),
 html body :is(.dmo-button,.button,.btn):is(:disabled,[aria-disabled="true"]):hover{background:var(--dmo-disabled);border-color:var(--dmo-disabled);color:var(--dmo-text-on-color);outline:0;opacity:1;cursor:not-allowed;pointer-events:none}
@@ -204,7 +206,10 @@ html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:d
    assente na linha de base e da altura das maiúsculas do texto ao lado; ao
    passar o rato inverte a cor (preenchido ↔ contorno) e mostra o texto.
    Num cartão sem título, .dmo-help-corner põe-no no canto de cima. */
-.dmo-help{position:relative;display:inline-flex;font-size:12px;vertical-align:.3em;margin-left:.3em;cursor:help;outline:none;line-height:1}
+/* A dica fica sempre no mesmo sítio em relação ao texto (Diogo, 22/10/2026): em em, à altura das maiúsculas, em cima à direita da última palavra, seja qual for o tamanho da letra; em linha ou num flex (align-self:baseline). */
+.dmo-help{position:relative;display:inline-block;height:.72em;font-size:inherit;vertical-align:baseline;align-self:baseline;margin-left:.22em;cursor:help;outline:none;line-height:1}
+/* Um título flex com dica alinha pela linha de base, para a dica ficar no mesmo sítio que num título em linha. */
+html body :is(h1,h2,h3,h4,label,legend,summary):has(>.dmo-help){align-items:baseline}
 .dmo-help-mark{display:block;overflow:visible;width:9px;height:9px}
 .dmo-help-mark circle{fill:transparent;stroke:var(--dmo-palette-ocean);stroke-width:1.3;transition:fill var(--dmo-fast)}
 .dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}
@@ -218,7 +223,8 @@ summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-mark circle,.dm
 summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-tip,.dmo-help.dmo-help-aberta .dmo-help-tip{display:block}
 .card:has(>.dmo-help-corner){position:relative}
 /* Ao lado de um botão (Diogo, 22/10/2026): por cima da aresta de cima do botão, como um expoente, nunca ao meio. */
-:is(.dmo-button,button,.dmo-options)+.dmo-help{align-self:flex-start;vertical-align:top;margin-top:-5px;margin-left:.25em}
+/* Ao lado de um botão, a mesma regra: em cima à direita do texto do botão. */
+:is(.dmo-button,button,.dmo-options)+.dmo-help{margin-left:.25em}
 .dmo-help-corner{position:absolute;top:14px;right:14px}
 .dmo-help-corner .dmo-help{margin-left:0}
 .dmo-help-corner .dmo-help-tip{left:auto;right:-8px}
@@ -234,7 +240,7 @@ html body .dmo-secondary-nav .dmo-tab-menu>summary::-webkit-details-marker{displ
 html body .dmo-secondary-nav .dmo-tab-menu>summary:hover,
 html body .dmo-secondary-nav .dmo-tab-menu>summary.active,
 html body .dmo-secondary-nav .dmo-tab-menu[open]>summary{color:var(--dmo-brand-700);border-bottom-color:var(--dmo-brand-600)}
-/* Triângulo de recolher (ver .dmo-options-caret). */
+/* Triângulo de recolher: ver .dmo-caret. */
 html body .dmo-secondary-nav .dmo-tab-menu-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:190px;margin-top:1px;padding:6px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
 html body .dmo-secondary-nav .dmo-tab-menu-list a{display:block;padding:9px 10px;border:0;border-radius:6px;color:var(--dmo-text);white-space:nowrap}
 html body .dmo-secondary-nav .dmo-tab-menu-list a:hover{background:var(--dmo-subtle);color:var(--dmo-brand-700)}
@@ -244,10 +250,18 @@ html body .dmo-secondary-nav .dmo-tab-menu-list a.active{background:var(--dmo-br
 html body .dmo-options{position:relative;display:inline-block}
 html body .dmo-options>summary{display:inline-flex;align-items:center;gap:6px;list-style:none;cursor:pointer;user-select:none}
 html body .dmo-options>summary::-webkit-details-marker{display:none}
-/* O triângulo só serve para recolher/abrir: estreito (isósceles, base curta),
-   à direita da palavra aponta para ela; aberto aponta para baixo. */
-html body :is(.dmo-options-caret,.dmo-tab-menu-caret){display:inline-block;width:9px;height:6px;margin-left:.4em;vertical-align:.12em;background:currentColor;clip-path:polygon(100% 0,0 50%,100% 100%);transition:transform var(--dmo-fast)}
-html body details[open]>summary :is(.dmo-options-caret,.dmo-tab-menu-caret){transform:rotate(-90deg)}
+/* Triângulo de recolher/abrir: uma regra para tudo (Diogo, 22/10/2026: «sempre do
+   lado esquerdo e mais perto do font»). Sempre à esquerda do texto, tamanho e cor
+   fixos; fechado aponta para a direita, aberto roda para baixo. Nenhuma página
+   define o seu (guarda em SharedComponentsTests). */
+html body summary{list-style:none}
+html body summary::-webkit-details-marker{display:none}
+html body .dmo-caret{display:inline-block;flex:none;width:6px;height:9px;margin-right:.25em;vertical-align:.02em;background:currentColor;clip-path:polygon(0 0,100% 50%,0 100%);transition:transform var(--dmo-fast)}
+html body :is(details[open]>summary,[aria-expanded="true"]) .dmo-caret{transform:rotate(90deg)}
+html body details:not([open])>summary .dmo-caret{transform:none}
+/* Só a folga do triângulo conta: o gap do contentor não se soma. */
+html body :is(summary,.def-menu-titulo):not(.job-tool-card-head):has(>.dmo-caret:first-child){column-gap:0}
+html body .job-tool-card-head>.dmo-caret{margin-right:calc(.25em - 10px)}
 html body .dmo-options-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:210px;margin-top:4px;padding:6px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
 html body .dmo-options-list form{display:block;margin:0}
 html body .dmo-options-item{display:block;width:100%;min-height:0;padding:9px 10px;border:0;border-radius:6px;background:none;color:var(--dmo-text);font:inherit;font-size:var(--dmo-fs-base);text-align:left;white-space:nowrap;cursor:pointer}
