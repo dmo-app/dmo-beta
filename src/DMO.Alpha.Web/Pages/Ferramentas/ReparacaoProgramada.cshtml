@@ -28,13 +28,15 @@ html body .rp-page .dmo-field select{width:auto;max-width:22ch}
 .rp-oculto{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 #rpHistLinhas{margin:0}
 #rpLista .dmo-table-wrap+.rp-cabecalho{margin-top:12px}
-.rp-modo{margin-right:auto}
+.rp-modo-direita{margin-left:auto;align-self:end}
 .rp-modo{display:flex;gap:8px;align-items:center}
 html body .rp-modo .dmo-button.rp-modo-ativo{background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600))}
 html body .rp-card .dmo-table tbody tr.rp-hist-aberta td{background:var(--dmo-neutral-soft)}
 .rp-procura-topo{margin-top:14px!important;padding-top:12px;border-top:1px solid var(--dmo-border)}
 .rp-procura-topo h4{margin:0;font-size:14px}
-.rp-cabecalho{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 12px;color:var(--dmo-muted);font-size:13px}
+.rp-cabecalho{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:0 0 12px;color:var(--dmo-muted);font-size:13px}
+#rpListaAtiva{display:inline-flex;align-items:center}
+#rpListaAtiva .dmo-pill{margin:0;line-height:1.2;vertical-align:middle}
 .rp-cabecalho strong{color:var(--dmo-text)}
 html body .rp-card .dmo-table tbody tr.rp-entrou td{color:var(--dmo-muted);background:var(--dmo-neutral-soft)}
 html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted);font-weight:600}
@@ -79,14 +81,14 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
        uma nova (reparador e «Criar»); por baixo a tabela e a procura com
        «Adicionar». No Histórico só os filtros (abre vazio) e as listas
        fechadas; a linha abre a lista, só para ver. *@
-    <div class="dmo-card-topo">
       <h3 id="rp-lista-title" class="rp-oculto">Reparação Programada</h3>
-      <div class="rp-modo" role="group" aria-label="Listas ou histórico">
+    @{ Func<object, object> modoListas = @<text>
+      <div class="rp-modo rp-modo-direita" role="group" aria-label="Listas ou histórico">
         <a class="dmo-button@(!Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoListas" aria-pressed="@(!Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada")">Listas</a>
         <a class="dmo-button@(Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoHistorico" aria-pressed="@(Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { vista = "fechadas" })">Histórico</a>
         <partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" />
       </div>
-    </div>
+    </text>; }
     <div id="rpLista" class="rp-lista-zona-topo" aria-label="Lista">
     @if (Model.VerFechadas)
     {
@@ -111,6 +113,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
         <input id="rpHistAte" name="hist_ate" type="date" value="@Model.HistAte?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
       </div>
       <a class="dmo-button" id="rpHistLimpar" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { vista = "fechadas" })">Limpar filtros</a>
+      @modoListas(null)
     </form>
     @if (Model.HistoricoPedido && Model.Fechadas.Count > 0)
     {
@@ -172,6 +175,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       {
         <a class="dmo-button" id="rpImprimir" data-dmo-completa target="_blank" rel="noopener" href="@Url.Page("/Ferramentas/ReparacaoProgramadaImprimir", new { lista = lista.Lista.Id })">Imprimir</a>
       }
+    @modoListas(null)
     </div>
     }
 
