@@ -151,8 +151,9 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         Assert.Contains("<title>Movimentos", html);
         var registo = html.IndexOf(">Registo</a>", StringComparison.Ordinal);
         var movimentos = html.IndexOf(">Movimentos</a>", StringComparison.Ordinal);
-        var definicoes = html.IndexOf(">Definições</a>", StringComparison.Ordinal);
-        Assert.True(registo >= 0 && registo < movimentos && movimentos < definicoes, "Registo, Movimentos, Definições");
+        // As Definições saíram da barra do módulo para a barra de cima (Diogo, 22/10/2026).
+        Assert.True(registo >= 0 && registo < movimentos, "Registo, Movimentos");
+        Assert.DoesNotContain("href=\"/Armazem/Definicoes\"", html);
         Assert.DoesNotContain(">Próximos Job On</a>", html);
         Assert.DoesNotContain(">Posições</a>", html);
         // Diogo, 22/10/2026: o Mapa já não faz falta.

@@ -95,7 +95,7 @@ public sealed record DmoAvisoLink(string Texto, string Href, string? Modulo = nu
 
     /// <summary>As Definições do Controlo (a densidade do vidro, a tolerância dos Pegamentos).</summary>
     public static DmoAvisoLink DefinicoesDoControlo(string texto) =>
-        new(texto, "/Controlo/Definicoes", DmoCapabilities.ControloCreate);
+        new(texto, "/Definicoes?secao=controlo", DmoCapabilities.ControloCreate);
 
     /// <summary>Criar um Job On novo, com a referência já escrita quando se sabe.</summary>
     public static DmoAvisoLink CriarJobOn(string? referencia = null, string texto = "Criar o Job On") =>

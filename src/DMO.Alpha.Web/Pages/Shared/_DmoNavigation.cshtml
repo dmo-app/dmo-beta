@@ -8,7 +8,7 @@
     <nav class="dmo-primary-nav" aria-label="@(isAdmin ? "Administração" : "Módulos")">
     @if (isAdmin)
     {
-        @* A administração usa uma única barra: Utilizadores, Templates, Canal Jobon e, à direita, o Setup (o email do ADMIN, em /Admin/Definicoes). *@
+        @* A administração usa uma única barra: Utilizadores, Templates (com os Módulos), Canal Jobon e, à direita, as Definições (o PIN e o email do ADMIN vivem em Definições → App). *@
         @foreach (var entry in Model.Functions.Where(entry => entry.Visible))
         {
             <a href="@(entry.Enabled ? entry.Href : null)"
@@ -16,11 +16,11 @@
                aria-current="@(entry.Selected ? "page" : null)"
                aria-disabled="@(!entry.Enabled ? "true" : null)">@entry.Label</a>
         }
-        var definitionsSelected = Model.ActiveFunctionKey == "definicoes";
-        <a href="/Admin/Definicoes" style="margin-inline-start:auto"
-           class="@(definitionsSelected ? "active" : null)"
-           aria-current="@(definitionsSelected ? "page" : null)"
-           aria-label="Setup (administração)">Setup</a>
+        var geraisSelected = Model.ActiveFunctionKey == "definicoes-gerais";
+        @* As Definições num só sítio (Diogo, 22/10/2026): o ADMIN muda lá a parte Geral de todos os módulos. *@
+        <a href="/Definicoes" style="margin-inline-start:auto" data-dmo-nav-definicoes
+           class="@(geraisSelected ? "active" : null)"
+           aria-current="@(geraisSelected ? "page" : null)">Definições</a>
     }
     else
     {
@@ -31,12 +31,17 @@
                aria-current="@(destination.Selected ? "page" : null)"
                aria-disabled="@(!destination.Enabled ? "true" : null)">@destination.Label</a>
         }
+        @* AS DEFINIÇÕES NUM SÓ SÍTIO (Diogo, 22/10/2026): um separador da barra
+           de cima, encostado à direita, ao nível dos módulos. *@
+        var definicoesSelected = Model.ActiveShellDestination == "Definicoes";
+        <a href="/Definicoes" style="margin-inline-start:auto" data-dmo-nav-definicoes
+           class="@(definicoesSelected ? "active" : null)"
+           aria-current="@(definicoesSelected ? "page" : null)">Definições</a>
     }
     </nav>
     @if (!isAdmin)
     {
-        // «Definições» fica no fim, encostado à direita (_ModuleFunctionEntry).
-        var moduleFunctions = Model.Functions.Concat(Model.ModuleLinks ?? []).OrderBy(f => f.Key == "definicoes").ToArray();
+        var moduleFunctions = Model.Functions.Concat(Model.ModuleLinks ?? []).ToArray();
         <partial name="_ModuleFunctionsContainer" model="moduleFunctions" />
     }
 </div>

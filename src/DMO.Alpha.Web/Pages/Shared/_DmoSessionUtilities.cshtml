@@ -1,10 +1,11 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @model SessionPresentation
 <partial name="_DmoVersionBadge" />
 <div class="dmo-shell-user admin-user">
     <strong data-user-profile-name>@Model.Name</strong>
     <span data-user-profile-title>@Model.Title</span>
 </div>
-<button type="button" class="dmo-shell-tema" data-dmo-tema aria-pressed="false" aria-label="Modo escuro"><span class="dmo-shell-tema-texto">Modo escuro</span></button>
+<button type="button" class="dmo-shell-tema" data-dmo-tema data-dmo-tema-token="@Antiforgery.GetAndStoreTokens(Context).RequestToken" aria-pressed="false" aria-label="Modo escuro"><span class="dmo-shell-tema-texto">Modo escuro</span></button>
 @if (Model.ShowLogout)
 {
     <a class="dmo-shell-logout" href="@Model.LogoutHref" aria-label="Terminar sessão">Sair</a>

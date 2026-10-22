@@ -1088,7 +1088,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
             _factory, "nav-admin@example.test", "NavAdmin123!");
 
         // BETA: só as Definições comuns. A página Sistema/Setup foi removida.
-        foreach (var path in new[] { "/Admin/Definicoes/Index" })
+        foreach (var path in new[] { "/Definicoes?secao=app" })
         {
             var page = await adminClient.GetAsync(path);
             page.EnsureSuccessStatusCode();
@@ -1099,7 +1099,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
             Assert.Contains("Utilizadores", primary, StringComparison.Ordinal);
             Assert.Contains("Templates de acesso", primary, StringComparison.Ordinal);
             Assert.Contains("Canal Jobon", primary, StringComparison.Ordinal);
-            Assert.Contains(">Setup</a>", primary, StringComparison.Ordinal);
+            Assert.DoesNotContain(">Setup</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain(">Ferramentas</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain("dmo-secondary-nav", html, StringComparison.Ordinal);
             Assert.Contains("href=\"/Admin/Users\"", html, StringComparison.Ordinal);
@@ -1125,7 +1125,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
             Assert.Contains("Utilizadores", primary, StringComparison.Ordinal);
             Assert.Contains("Templates de acesso", primary, StringComparison.Ordinal);
             Assert.Contains("Canal Jobon", primary, StringComparison.Ordinal);
-            Assert.Contains(">Setup</a>", primary, StringComparison.Ordinal);
+            Assert.DoesNotContain(">Setup</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain(">Ferramentas</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain("dmo-secondary-nav", html, StringComparison.Ordinal);
             Assert.Matches($"href=\"{selectedHref}\"\\s+class=\"active\"\\s+aria-current=\"page\"", primary);

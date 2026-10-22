@@ -401,7 +401,7 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
                 "<nav class=\"tabs dmo-secondary-nav\"[\\s\\S]*?</nav>").Value;
             var labels = System.Text.RegularExpressions.Regex.Matches(nav, "<(?:a|summary)\\b[^>]*>([^<]*)<")
                 .Select(m => WebUtility.HtmlDecode(m.Groups[1].Value).Trim()).ToArray();
-            Assert.Equal(new[] { "Resumo", "Funções", "Peso", "Pegamentos", "PU NNPB", "Histórico", "Definições" }, labels);
+            Assert.Equal(new[] { "Resumo", "Funções", "Peso", "Pegamentos", "PU NNPB", "Histórico" }, labels);
 
             var menu = System.Text.RegularExpressions.Regex.Match(nav,
                 "<details class=\"dmo-tab-menu[^\"]*\" data-dmo-tab-menu>[\\s\\S]*?</details>").Value;

@@ -37,7 +37,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var nome = "MUS" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant() + "MPPSX";
         var toolId = SeedToolComNomeTecnico(nome, "11");
         var client = await LoginOperatorAsync("7101", DmoCapabilities.Ferramentas);
-        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync(FerramentasPath)).Content.ReadAsStringAsync())!;
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync("/Definicoes")).Content.ReadAsStringAsync())!;
 
         var resposta = await client.PostAsync($"{FerramentasPath}?handler=ImportarUsoSap", HtmlFormHelpers.BuildFormPost(
             ("conteudo", ListaDoSap(nome + "11", "90,2")),
@@ -53,7 +53,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var utilizacao = ZonaUsoSap(ficha, "ferrUtilizacao");
         Assert.Contains("Utilização", utilizacao, StringComparison.Ordinal);
         Assert.Contains("90.2 %", utilizacao, StringComparison.Ordinal);
-        var definicoes = await (await client.GetAsync(FerramentasPath)).Content.ReadAsStringAsync();
+        var definicoes = await (await client.GetAsync("/Definicoes")).Content.ReadAsStringAsync();
         Assert.Contains("(ficheiro percentagem.HTML)", definicoes, StringComparison.Ordinal);
     }
 
@@ -61,7 +61,7 @@ public sealed partial class DefinicoesPorModuloPageTests
     public async Task UmFicheiroQueNaoEALista_DizQueNadaFoiGravado()
     {
         var client = await LoginOperatorAsync("7102", DmoCapabilities.Ferramentas);
-        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync(FerramentasPath)).Content.ReadAsStringAsync())!;
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync("/Definicoes")).Content.ReadAsStringAsync())!;
 
         var resposta = await client.PostAsync($"{FerramentasPath}?handler=ImportarUsoSap", HtmlFormHelpers.BuildFormPost(
             ("conteudo", "notas soltas"),

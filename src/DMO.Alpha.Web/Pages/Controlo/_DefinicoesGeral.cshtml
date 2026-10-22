@@ -1,0 +1,210 @@
+@model DMO.Alpha.Web.Pages.Controlo.DefinicoesModel
+
+@{
+    // Os campos de um modelo (criar e mudar usam a mesma janela).
+    var listaOpcoes = Model.Listas;
+}
+<style>
+.ctl-def-page{display:flex;flex-direction:column;gap:14px}
+.ctl-def-page .page-head{margin:0 0 2px}
+.ctl-def-card{padding:18px}
+.ctl-def-card h3{margin:0 0 10px;font-size:16px}
+.ctl-def-card .dmo-card-topo{margin-bottom:10px}
+.ctl-def-acoes{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.ctl-def-acoes .dmo-field{margin:0}
+.ctl-def-nota{margin:6px 0 0;color:var(--dmo-muted);font-size:12px}
+.ctl-def-card .dmo-table td{padding:4px 8px;vertical-align:middle}
+.ctl-def-emails{min-width:min(360px,100%)}
+.ctl-def-x{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
+.ctl-def-x:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
+.ctl-def-valor{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted}
+.ctl-def-modelo{display:grid;gap:10px;min-width:min(480px,100%)}
+.ctl-def-modelo .dmo-field{margin:0}
+.ctl-def-modelo textarea{min-height:140px}
+</style>
+  <section id="ctlDefTolerancia" class="dmo-card ctl-def-card" aria-labelledby="pegamentos-settings-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="pegamentos-settings-title">Pegamentos — tolerância<partial name="_DmoHelp" model="@("A tolerância (± mm) à volta do gargalo do CM, BQ e MF. A norma é 0,20 mm. Cada registo de Pegamentos guarda a tolerância com que foi criado: mudar este valor não altera registos já feitos.")" /></h3>
+    @if (Model.SaveResultMessage.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.SaveSucceeded ? "ok" : Model.SaveWarned ? "aviso" : "erro")" role="@(Model.SaveSucceeded || Model.SaveWarned ? "status" : "alert")">@Model.SaveResultMessage</p>
+    }
+    <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePegamentosTolerance" class="ctl-def-acoes">
+      <div class="dmo-field">
+        <label for="pegamentosTolerance">Tolerância (± mm)</label>
+        <input id="pegamentosTolerance" name="tolerance_mm" inputmode="decimal" value="@Model.PegamentosToleranceMm.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" required />
+      </div>
+      <button type="submit" class="dmo-button" id="ctlDefGuardar">Guardar</button>
+    </form>
+    @if (Model.PegamentosToleranceIsDefault)
+    {
+      <p class="ctl-def-nota">Sem valor guardado: vale a norma de 0,20 mm.</p>
+    }
+  </section>
+  @* O ENVIO DO PDF DO PESO POR EMAIL (Diogo, 19/10/2026, D9): as listas de
+     destinatários e os modelos (assunto, corpo e o email que envia). O
+     «Enviar» está no Resumo do controlo. *@
+  <div id="ctlDefEnvioAvisos" class="dmo-zona" data-dmo-regiao>
+    @if (Model.EnvioResultMessage.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.EnvioSucceeded ? "ok" : Model.EnvioWarned ? "aviso" : "erro")" role="@(Model.EnvioSucceeded || Model.EnvioWarned ? "status" : "alert")">@Model.EnvioResultMessage</p>
+    }
+  </div>
+
+  <section id="ctlDefListas" class="dmo-card ctl-def-card" aria-labelledby="envio-listas-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="envio-listas-title">Envio por email — listas<partial name="_DmoHelp" model="@("Quem recebe o PDF do Peso. Escreva os emails separados por vírgula ou espaço; o que não for um email fica de fora, com aviso. Clique no nome ou nos emails de uma lista para os mudar; grava ao sair do campo.")" /></h3>
+    <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="CriarLista" class="ctl-def-acoes">
+      <div class="dmo-field">
+        <label for="listaNome">Nova lista</label>
+        <input id="listaNome" name="nome" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.NomeMax" placeholder="Ex.: Produção" required />
+      </div>
+      <div class="dmo-field ctl-def-emails">
+        <label for="listaEmails">Emails</label>
+        <input id="listaEmails" name="destinatarios" placeholder="producao@fabrica.pt, chefe@fabrica.pt" required />
+      </div>
+      <button type="submit" class="dmo-button" id="ctlDefCriarLista">Criar lista</button>
+    </form>
+    @if (Model.Listas.Count > 0)
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-listas-email>
+          <thead><tr><th>Lista</th><th>Emails</th><th><span class="dmo-visually-hidden">Apagar</span></th></tr></thead>
+          <tbody>
+          @foreach (var lista in Model.Listas)
+          {
+            var emails = string.Join(", ", lista.Destinatarios.Split('\n', StringSplitOptions.RemoveEmptyEntries));
+            <tr data-dmo-lista-email="@lista.Id">
+              <td><form id="ctlDefLista-@lista.Id" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarLista"><input type="hidden" name="lista_id" value="@lista.Id" /><input id="ctl-lista-nome-@lista.Id" class="dmo-valor" data-dmo-valor name="nome" value="@lista.Nome" autocomplete="off" aria-label="Nome da lista @lista.Nome" required /></form></td>
+              <td><form id="ctlDefListaEmails-@lista.Id" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarLista"><input type="hidden" name="lista_id" value="@lista.Id" /><input id="ctl-lista-emails-@lista.Id" class="dmo-valor ctl-def-emails" data-dmo-valor name="destinatarios" value="@emails" autocomplete="off" aria-label="Emails da lista @lista.Nome" required /></form></td>
+              <td>
+                <button type="button" class="ctl-def-x" data-dmo-dialog="ctl-lista-apagar-@lista.Id" aria-label="Apagar a lista @lista.Nome" title="Apagar">×</button>
+                <dialog id="ctl-lista-apagar-@lista.Id" class="dmo-dialog" aria-labelledby="ctl-lista-apagar-titulo-@lista.Id">
+                  <h3 id="ctl-lista-apagar-titulo-@lista.Id">Apagar lista</h3>
+                  <p class="dmo-aviso-discreto">Apagar a lista @lista.Nome? Os envios já feitos ficam registados.</p>
+                  <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="ApagarLista">
+                    <input type="hidden" name="lista_id" value="@lista.Id" />
+                    <div class="dmo-dialog-actions">
+                      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                      <button type="submit" class="dmo-button">Apagar</button>
+                    </div>
+                  </form>
+                </dialog>
+              </td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section id="ctlDefModelos" class="dmo-card ctl-def-card" aria-labelledby="envio-modelos-title" data-dmo-regiao data-dmo-parcial>
+    <div class="dmo-card-topo">
+      <h3 id="envio-modelos-title">Envio por email — modelos<partial name="_DmoHelp" model="@("O assunto e o corpo do email, reutilizáveis, e o email que envia. {referencia}, {producao}, {maquina} e {peso} trocam-se pelos dados da produção ({peso} é o peso médio do vidro, por exemplo 245,30 g). A lista do modelo é a proposta ao enviar; no envio pode escolher outra. Clique no nome de um modelo para o mudar.")" /></h3>
+      <div class="dmo-card-topo-acoes">
+        <button type="button" class="dmo-button" data-dmo-dialog="ctl-modelo-novo">Novo modelo</button>
+      </div>
+    </div>
+    @if (Model.Modelos.Count == 0)
+    {
+      <p><em>Sem modelos. Crie o primeiro para poder enviar o PDF do Peso.</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-modelos-email>
+          <thead><tr><th>Modelo</th><th>Assunto</th><th>Lista</th><th><span class="dmo-visually-hidden">Apagar</span></th></tr></thead>
+          <tbody>
+          @foreach (var modelo in Model.Modelos)
+          {
+            <tr data-dmo-modelo-email="@modelo.Id">
+              <td><button type="button" class="ctl-def-valor" data-dmo-dialog="ctl-modelo-@modelo.Id">@modelo.Nome</button></td>
+              <td>@modelo.Assunto</td>
+              <td>@(listaOpcoes.FirstOrDefault(l => l.Id == modelo.ListaId)?.Nome ?? "—")</td>
+              <td>
+                <button type="button" class="ctl-def-x" data-dmo-dialog="ctl-modelo-apagar-@modelo.Id" aria-label="Apagar o modelo @modelo.Nome" title="Apagar">×</button>
+                <dialog id="ctl-modelo-apagar-@modelo.Id" class="dmo-dialog" aria-labelledby="ctl-modelo-apagar-titulo-@modelo.Id">
+                  <h3 id="ctl-modelo-apagar-titulo-@modelo.Id">Apagar modelo</h3>
+                  <p class="dmo-aviso-discreto">Apagar o modelo @modelo.Nome? Os envios já feitos ficam registados.</p>
+                  <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="ApagarModelo">
+                    <input type="hidden" name="modelo_id" value="@modelo.Id" />
+                    <div class="dmo-dialog-actions">
+                      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                      <button type="submit" class="dmo-button">Apagar</button>
+                    </div>
+                  </form>
+                </dialog>
+                @await Html.PartialAsync("/Pages/Controlo/_EnvioModeloJanela.cshtml", new DMO.Alpha.Web.Pages.Controlo.EnvioModeloJanela(modelo, listaOpcoes))
+              </td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+    @await Html.PartialAsync("/Pages/Controlo/_EnvioModeloJanela.cshtml", new DMO.Alpha.Web.Pages.Controlo.EnvioModeloJanela(null, listaOpcoes))
+  </section>
+
+  @* A densidade do vidro (D15, 19/10/2026): um formulário com os dois
+     processos; guardar troca só este cartão. *@
+  <section id="ctlDefDensidade" class="dmo-card ctl-def-card" aria-labelledby="densidade-vidro-title" data-dmo-regiao data-dmo-parcial>
+    <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SaveGlassDensity">
+      <div class="dmo-card-topo">
+        <h3 id="densidade-vidro-title">Densidade do vidro<partial name="_DmoHelp" model="@("A densidade do vidro (g/cm³) de cada processo da CM, usada no peso do vidro do Peso. Cada Peso guarda a densidade com que foi criado: mudar estes valores só vale para os Pesos novos e para as comparações feitas a seguir.")" /></h3>
+        <div class="dmo-card-topo-acoes">
+          <button type="submit" class="dmo-button" id="ctlDefDensidadeGuardar">Guardar</button>
+        </div>
+      </div>
+      @if (Model.DensidadeResultMessage.Length > 0)
+      {
+        <p data-dmo-toast="@(Model.DensidadeSucceeded ? "ok" : Model.DensidadeWarned ? "aviso" : "erro")" role="@(Model.DensidadeSucceeded || Model.DensidadeWarned ? "status" : "alert")">@Model.DensidadeResultMessage</p>
+      }
+      <div class="ctl-def-acoes">
+        <div class="dmo-field">
+          <label for="densidadeNnpb">NNPB (g/cm³)</label>
+          <input id="densidadeNnpb" name="densidade_nnpb" inputmode="decimal" size="8" value="@DMO.Alpha.Web.Pages.Controlo.DefinicoesModel.FormatarDensidade(Model.DensidadeNnpb)" required />
+        </div>
+        <div class="dmo-field">
+          <label for="densidadePs">PS (g/cm³)</label>
+          <input id="densidadePs" name="densidade_ps" inputmode="decimal" size="8" value="@DMO.Alpha.Web.Pages.Controlo.DefinicoesModel.FormatarDensidade(Model.DensidadePs)" required />
+        </div>
+      </div>
+    </form>
+  </section>
+
+  @* AS SECÇÕES DE CADA LINHA (Diogo, 22/10/2026): a grelha das punções PU
+     NNPB enche as secções da linha, 4 posições cada (A a D). *@
+  <section id="ctlDefPuncoesSeccoes" class="dmo-card ctl-def-card" aria-labelledby="puncoes-seccoes-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="puncoes-seccoes-title">PU NNPB — secções por linha<partial name="_DmoHelp" model="@($"As punções registadas entram pela ordem de registo nas posições da linha: A1, B1, C1, D1, A2… Cada secção tem 4 posições (A a D); as punções que passam da linha ficam na reserva. Enquanto não se guardar outro número, a linha tem {DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.SeccoesPorOmissao} secções.")" /></h3>
+    @if (Model.SeccoesResultMessage.Length > 0)
+    {
+      <p data-dmo-toast="@(Model.SeccoesSucceeded ? "ok" : "erro")" role="@(Model.SeccoesSucceeded ? "status" : "alert")">@Model.SeccoesResultMessage</p>
+    }
+    @if (Model.PuncoesLinhas.Count == 0)
+    {
+      <p><em>Sem linhas registadas.</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-puncoes-seccoes>
+          <thead><tr><th>Linha</th><th>Secções</th><th>Posições</th><th><span class="dmo-visually-hidden">Guardar</span></th></tr></thead>
+          <tbody>
+          @foreach (var linha in Model.PuncoesLinhas)
+          {
+            <tr data-dmo-linha="@linha.Maquina">
+              <td>@linha.Maquina</td>
+              <td>
+                <form id="ctlDefSeccoes-@linha.Maquina" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePuncoesSeccoes">
+                  <input type="hidden" name="maquina" value="@linha.Maquina" />
+                  <input name="seccoes" inputmode="numeric" size="4" value="@linha.Seccoes" aria-label="Secções da linha @linha.Maquina" required />
+                </form>
+              </td>
+              <td>@(linha.Seccoes * DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.PosicoesPorSeccao)@(linha.PorOmissao ? " (por omissão)" : null)</td>
+              <td><button type="submit" class="dmo-button" form="ctlDefSeccoes-@linha.Maquina">Guardar</button></td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>

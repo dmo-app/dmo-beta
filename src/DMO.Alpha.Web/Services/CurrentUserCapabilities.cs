@@ -21,8 +21,7 @@ namespace DMO.Alpha.Web.Services;
 /// </summary>
 public sealed class CurrentUserCapabilities(
     IAdminAuthorizationService authorization,
-    ICurrentAccountContext account,
-    IModuleSwitches switches)
+    ICurrentAccountContext account)
 {
     private IReadOnlyList<string>? _template;
     private IReadOnlyList<string>? _resolved;
@@ -51,11 +50,8 @@ public sealed class CurrentUserCapabilities(
             await ResolveTemplateAsync(userId, cancellationToken);
         }
 
-        // Os interruptores dos módulos (Admin → Setup): um módulo desligado
-        // para este utilizador sai das capabilities, por isso some do menu e
-        // a entrada no módulo trata-o como sem acesso.
-        var state = await switches.GetAsync(cancellationToken);
-        _resolved = state.Filter(_template!, userId);
+        // Só o template decide (Diogo, 22/10/2026): sem interruptores.
+        _resolved = _template!;
         return _resolved;
     }
 

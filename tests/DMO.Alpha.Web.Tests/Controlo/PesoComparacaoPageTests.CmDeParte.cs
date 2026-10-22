@@ -203,7 +203,7 @@ public partial class PesoComparacaoPageTests
         Assert.Contains("Não comparável.", resultado);
         Assert.Contains("A densidade do vidro é 2.4027 g/cm³ e no Peso inicial era 2.5000 g/cm³.", resultado);
         Assert.DoesNotContain("A punção da CM", resultado);
-        Assert.Contains("href=\"/Controlo/Definicoes\">Ver a densidade nas Definições do Controlo</a>", resultado);
+        Assert.Contains("href=\"/Definicoes?secao=controlo\">Ver a densidade nas Definições do Controlo</a>", resultado);
     }
 
     private async Task<int> PrimeiraLeituraAsync(int comparacaoId)

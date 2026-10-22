@@ -81,6 +81,35 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("TemplateAssignments");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Admin.UserSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Key")
+                        .IsUnique();
+
+                    b.ToTable("UserSettings");
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemLoteNovo", b =>
                 {
                     b.Property<int>("Id")
@@ -2779,6 +2808,15 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Navigation("Template");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Admin.UserSetting", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.ArmazemLoteNovo", b =>

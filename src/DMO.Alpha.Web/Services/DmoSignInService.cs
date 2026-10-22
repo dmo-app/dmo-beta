@@ -16,7 +16,6 @@ public sealed class DmoSignInService
     private readonly IAdminEmailSettings _adminEmailSettings;
     private readonly DmoDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IModuleSwitches _moduleSwitches;
 
     // As recusas antes de a palavra-passe ser verificada dizem todas o mesmo:
     // o ecrã de entrada não revela que números de operador existem.
@@ -31,10 +30,8 @@ public sealed class DmoSignInService
         IAdminAuthorizationService authorization,
         IAdminEmailSettings adminEmailSettings,
         DmoDbContext dbContext,
-        IHttpContextAccessor httpContextAccessor,
-        IModuleSwitches moduleSwitches)
+        IHttpContextAccessor httpContextAccessor)
     {
-        _moduleSwitches = moduleSwitches;
         _provider = provider;
         _authorization = authorization;
         _adminEmailSettings = adminEmailSettings;
@@ -236,6 +233,20 @@ public sealed class DmoSignInService
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+        // Uma sessão nova começa com o cadeado das Definições fechado.
+        DesbloqueioDasDefinicoes.Fechar(httpContext);
+
+        // O modo claro/escuro guardado na conta (Definições → Pessoal) vem
+        // para este computador ao entrar; as páginas leem-no do cookie, sem
+        // ir à base em cada pedido.
+        if (Guid.TryParse(claimsPrincipal.FindFirst(DmoClaimTypes.ActorId)?.Value, out var actorId))
+        {
+            var tema = await _dbContext.UserSettings.AsNoTracking()
+                .Where(s => s.UserId == actorId && s.Key == DMO.Alpha.Core.Admin.UserSettingKeys.Tema)
+                .Select(s => s.Value)
+                .FirstOrDefaultAsync();
+            TemaPessoal.Escrever(httpContext, tema);
+        }
 
         if (requiresPasswordChange)
         {
@@ -267,10 +278,7 @@ public sealed class DmoSignInService
         var effective = Guid.TryParse(principal.FindFirst(DmoClaimTypes.ActorId)?.Value, out var actorId)
             ? await _authorization.ResolveEffectiveAccessAsync(actorId)
             : null;
-        // Sem os módulos desligados nos interruptores (Admin → Setup): a
-        // primeira página é um módulo em que se entra.
-        var switches = await _moduleSwitches.GetAsync();
-        var capabilities = switches.Filter(effective?.Capabilities ?? Array.Empty<string>(), effective is null ? null : actorId);
+        var capabilities = effective?.Capabilities ?? Array.Empty<string>();
         var initialPage = DmoCapabilities.HomeFor(capabilities) ?? "/Modules/Home";
         // Só caminhos desta aplicação: nunca outro site depois do login.
         return !LocalUrl.IsSafe(returnUrl) || returnUrl is "/JobOn" or "/"

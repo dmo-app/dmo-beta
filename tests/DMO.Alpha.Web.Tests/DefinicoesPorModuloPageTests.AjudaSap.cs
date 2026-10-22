@@ -14,7 +14,7 @@ public sealed partial class DefinicoesPorModuloPageTests
     {
         using var client = await LoginOperatorAsync("7121", DmoCapabilities.Ferramentas);
 
-        var definicoes = await client.GetStringAsync(FerramentasPath);
+        var definicoes = await client.GetStringAsync("/Definicoes");
         var inicio = definicoes.IndexOf("id=\"ferrDefSap\"", StringComparison.Ordinal);
         Assert.True(inicio >= 0, "Falta o cartão Utilização pelo SAP.");
         var cartao = definicoes[inicio..definicoes.IndexOf("</section>", inicio, StringComparison.Ordinal)];

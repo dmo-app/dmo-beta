@@ -27,6 +27,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
 {
     private const string PagePath = "/Boquilhas/Definicoes";
     private const string SetupPath = "/Admin/Definicoes/Index";
+    private const string AppPath = "/Definicoes?secao=app";
 
     private readonly CustomWebApplicationFactory _factory;
 
@@ -121,7 +122,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
             ("returnUrl", "/"),
             ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        return client;
+        return await DefinicoesPin.DesbloquearAsync(app.Services, client);
     }
 
     private async Task<string> GetVerificationTokenAsync(HttpClient client, string path)
@@ -136,7 +137,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
     private async Task<string> GetPageHtmlAsync(HttpClient client, string? extraQuery = null)
     {
         var response = await client.GetAsync(
-            $"{PagePath}{(string.IsNullOrEmpty(extraQuery) ? null : $"?{extraQuery}")}");
+            $"/Definicoes{(string.IsNullOrEmpty(extraQuery) ? null : $"?{extraQuery}")}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
     }
@@ -245,7 +246,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
             client, "CreateRepairer", ("name", "Vidroart"));
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         var location = response.Headers.Location?.OriginalString ?? string.Empty;
-        Assert.StartsWith("/Boquilhas/Definicoes", location);
+        Assert.StartsWith("/Definicoes", location);
         Assert.Contains("save=ok-reparador", location);
 
         using (var scope = _factory.Services.CreateScope())
@@ -464,12 +465,18 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
     {
         using var client = await LoginBoquilhasAsync();
         var html = await GetPageHtmlAsync(client);
-        Assert.Matches("<a href=\"/Boquilhas/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
+        // As Definições estão na barra de cima, com a secção das Boquilhas (Diogo, 22/10/2026).
+        Assert.Matches("<a href=\"/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
+        Assert.Contains("id=\"bqDefReparadores\"", html);
+        Assert.DoesNotContain("href=\"/Boquilhas/Definicoes\"", html);
 
-        // Sem o módulo Boquilhas, a página não abre.
+        // Sem o módulo Boquilhas, a secção não aparece e a página antiga não abre.
         using var other = await LoginBoquilhasAsync("4712", DmoCapabilities.Ferramentas);
+        var semModulo = await (await other.GetAsync("/Definicoes")).Content.ReadAsStringAsync();
+        Assert.DoesNotContain("id=\"bqDefReparadores\"", semModulo);
         var denied = await other.GetAsync(PagePath);
         Assert.Equal(HttpStatusCode.Redirect, denied.StatusCode);
+        Assert.DoesNotContain("/Definicoes", denied.Headers.Location!.ToString());
     }
 
     [Fact]
@@ -504,10 +511,10 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
     public async Task AdminEmailSetting_SaveUpdatesTheFieldAndPreviousSessionDies()
     {
         using var admin = await LoginAdminAsync();
-        var token = await GetVerificationTokenAsync(admin, SetupPath);
+        var token = await GetVerificationTokenAsync(admin, AppPath);
 
         // O campo existe com o email corrente do ADMIN.
-        var html = await (await admin.GetAsync(SetupPath)).Content.ReadAsStringAsync();
+        var html = await (await admin.GetAsync(AppPath)).Content.ReadAsStringAsync();
         Assert.Contains("Email do ADMIN", html, StringComparison.Ordinal);
         Assert.Contains("value=\"repairers-admin@example.test\"", html, StringComparison.Ordinal);
 
@@ -523,7 +530,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
                 ("admin_email_confirm", "novo.admin@example.test"),
                 ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
-        Assert.Contains("save=ok-admin", save.Headers.Location?.ToString(), StringComparison.Ordinal);
+        Assert.Contains("app=ok-admin", save.Headers.Location?.ToString(), StringComparison.Ordinal);
 
         // O campo ficou com o novo email.
         using (var scope = _factory.Services.CreateScope())
@@ -536,7 +543,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
 
         // A sessão do ADMIN anterior morre no pedido seguinte (a validação
         // compara o email da sessão com o campo das Definições).
-        var after = await admin.GetAsync(SetupPath);
+        var after = await admin.GetAsync(AppPath);
         Assert.Equal(HttpStatusCode.Redirect, after.StatusCode);
         Assert.Contains("/login", after.Headers.Location?.ToString(), StringComparison.OrdinalIgnoreCase);
     }
@@ -545,7 +552,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
     public async Task AdminEmailSetting_InvalidEmail_IsTypedRefusalAndKeepsTheField()
     {
         using var admin = await LoginAdminAsync();
-        var token = await GetVerificationTokenAsync(admin, SetupPath);
+        var token = await GetVerificationTokenAsync(admin, AppPath);
 
         var save = await admin.PostAsync(
             $"{SetupPath}?handler=SaveAdminEmail",
@@ -554,7 +561,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
                 ("admin_email_confirm", "sem-arroba"),
                 ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
-        Assert.Contains("save=admin-email-invalida", save.Headers.Location?.ToString(), StringComparison.Ordinal);
+        Assert.Contains("app=admin-email-invalida", save.Headers.Location?.ToString(), StringComparison.Ordinal);
 
         // O campo anterior fica intocado.
         using (var scope = _factory.Services.CreateScope())
@@ -569,7 +576,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
     public async Task AdminEmailSetting_ConfirmationMismatch_KeepsTheFieldAndTheSession()
     {
         using var admin = await LoginAdminAsync();
-        var token = await GetVerificationTokenAsync(admin, SetupPath);
+        var token = await GetVerificationTokenAsync(admin, AppPath);
 
         // Um erro de escrita na confirmação não grava nada: o ADMIN
         // continua dentro da app.
@@ -580,7 +587,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
                 ("admin_email_confirm", "novo.admin@example.tset"),
                 ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
-        Assert.Contains("save=admin-email-diferente", save.Headers.Location?.ToString(), StringComparison.Ordinal);
+        Assert.Contains("app=admin-email-diferente", save.Headers.Location?.ToString(), StringComparison.Ordinal);
 
         using (var scope = _factory.Services.CreateScope())
         {
@@ -590,7 +597,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
             Assert.Equal("repairers-admin@example.test", setting.SettingValue);
         }
 
-        var after = await admin.GetAsync(SetupPath + "?save=admin-email-diferente");
+        var after = await admin.GetAsync(AppPath + "&app=admin-email-diferente");
         Assert.Equal(HttpStatusCode.OK, after.StatusCode);
         Assert.Contains("Os dois emails não coincidem", await after.Content.ReadAsStringAsync(), StringComparison.Ordinal);
     }
