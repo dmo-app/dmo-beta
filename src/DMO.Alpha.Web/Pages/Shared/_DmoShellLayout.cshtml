@@ -44,6 +44,12 @@
     {
         <div data-dmo-toast="ok" role="status"><strong>Palavra-passe alterada com sucesso.</strong></div>
     }
+    @* Módulo em desenvolvimento ligado (plano de uma versão, §2): uma faixa
+       discreta no topo das suas páginas. *@
+    @if (DMO.Alpha.Web.Services.ShellStateFactory.IsEmDesenvolvimento(shell.CurrentModule?.Key))
+    {
+        <div class="dmo-faixa-dev" role="note" data-dmo-em-desenvolvimento>Em desenvolvimento: pode mudar e os dados podem ser de teste</div>
+    }
     @RenderBody()
 </div>
 @* F0: camada comum de comportamento vivo (interações canónicas + utilidades) — antes dos scripts de página *@

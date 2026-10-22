@@ -21,8 +21,10 @@ namespace DMO.Alpha.Web.Services;
 /// </summary>
 public sealed class CurrentUserCapabilities(
     IAdminAuthorizationService authorization,
-    ICurrentAccountContext account)
+    ICurrentAccountContext account,
+    IModuleSwitches switches)
 {
+    private IReadOnlyList<string>? _template;
     private IReadOnlyList<string>? _resolved;
     private string? _templateName;
 
@@ -44,6 +46,21 @@ public sealed class CurrentUserCapabilities(
             return _resolved;
         }
 
+        if (_template is null)
+        {
+            await ResolveTemplateAsync(userId, cancellationToken);
+        }
+
+        // Os interruptores dos módulos (Admin → Setup): um módulo desligado
+        // para este utilizador sai das capabilities, por isso some do menu e
+        // a entrada no módulo trata-o como sem acesso.
+        var state = await switches.GetAsync(cancellationToken);
+        _resolved = state.Filter(_template!, userId);
+        return _resolved;
+    }
+
+    private async Task ResolveTemplateAsync(Guid userId, CancellationToken cancellationToken)
+    {
         // O caminho COMUM para todos os autenticados (o corte H): o serviço
         // canónico resolve — para o ADMIN (sem template) devolve a lista
         // VAZIA (a fronteira ADMIN do AdminAuthorizationService), para os
@@ -54,8 +71,7 @@ public sealed class CurrentUserCapabilities(
         // template com a capability.
         var effective = await authorization.ResolveEffectiveAccessAsync(userId, cancellationToken);
         _templateName = effective?.TemplateName;
-        _resolved = effective?.Capabilities ?? Array.Empty<string>();
-        return _resolved;
+        _template = effective?.Capabilities ?? Array.Empty<string>();
     }
 
     /// <summary>
@@ -65,7 +81,8 @@ public sealed class CurrentUserCapabilities(
     public void Prime(EffectiveAccess access)
     {
         _templateName = access.TemplateName;
-        _resolved = access.Capabilities;
+        _template = access.Capabilities;
+        _resolved = null;
     }
 
     /// <summary>True quando o utilizador tem a capability no template corrente.</summary>
@@ -86,7 +103,7 @@ public sealed class CurrentUserCapabilities(
     /// </summary>
     public async Task<string?> GetTemplateNameAsync(CancellationToken cancellationToken = default)
     {
-        if (_resolved is null)
+        if (_template is null)
         {
             await GetAsync(cancellationToken);
         }
