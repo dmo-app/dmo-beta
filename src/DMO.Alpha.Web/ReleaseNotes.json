@@ -306,7 +306,9 @@
     { "id": "DMO-310", "module": "Controlo", "description": "Peso só para comparação: na escolha da produção anterior, «Criar» abre um Peso sem Job On que serve só para comparar; nunca pede para ser associado." },
     { "id": "DMO-312", "module": "Testes", "description": "O teste de apagar um movimento de BQ deixa de falhar às vezes: o rasto do apagado procura-se também pelo rasto da BQ. A app não muda." },
     { "id": "DMO-313", "module": "Planeamento", "description": "«Criar Job On» passa para a frente das caixas Referência e Produção, que ficam mais curtas; com um dia escolhido, o Job On novo começa nesse dia." },
-    { "id": "DMO-314", "module": "Planeamento", "description": "«Criar Job On» passa para a direita das caixas Referência e Produção." }
+    { "id": "DMO-314", "module": "Planeamento", "description": "«Criar Job On» passa para a direita das caixas Referência e Produção." },
+    { "id": "DMO-315", "module": "Aplicação", "description": "0.3.0-beta.1: a primeira 0.3.0. A beta e o full passam a ser uma só app." },
+    { "id": "DMO-316", "module": "Aplicação", "description": "A ajuda passa a ser um círculo vazio à direita da palavra, que fica cheio ao passar e mostra a explicação; o triângulo fica só para o que abre e fecha. Na ficha da ferramenta, Peso, Gargalo e Tampão alinhados, «Nome técnico (produção)» e a fórmula do volume do tampão na ajuda." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

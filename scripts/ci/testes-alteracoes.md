@@ -1203,3 +1203,16 @@ Novos: 17 · mudaram: 8 · saíram: 4
 - saiu: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.CorrigirLocalizacao_NoOpcoesTiraDoArmazem`
 
 Selo depois: `4997387bbc158b7c`
+
+## A-0037 · 2026-10-22 · ok-do-diogo
+
+Porquê: Ícones: ajuda em círculo, triângulo só para recolher (também pedido em cmsg_01A27e9ozcpoh4jdPRsuJbFyAPrbKkhtKC5EQrkAhMNtXx); Peso, Gargalo e Tampão alinhados (cmsg_01A27e9ozcpoh4jdPRsuJbFyXBzFqVnzmNuHBDNNhA9M9W)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyTwmoz769Le9LdAjXagR781
+Novos: 2 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_SoParaRecolher_ApontaParaAPalavraEAbertoParaBaixo`
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
+- saiu: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedTriangle_AndLivesOnlyInThePartial`
+
+Selo depois: `4e415b1e638138f6`

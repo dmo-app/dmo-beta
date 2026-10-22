@@ -1,6 +1,6 @@
 @model string
-@* A dica de ajuda: um triângulo pequeno, de vértice para baixo (não confundir com o Δ), junto ao elemento; ao passar o rato
-   (ou com o teclado, ou com um toque) inverte a cor e mostra o texto. Os
+@* A dica de ajuda: um círculo vazio com «?», à direita e acima da palavra; ao passar o rato
+   (ou com o teclado, ou com um toque) fica cheio e mostra o texto. Os
    textos explicativos ficam aqui, nunca escritos no ecrã.
    Dentro de um <summary> (view-data EmSumario) a dica não pode ser focável:
    o browser avisa de um elemento interativo no <summary>. Aí abre com o
@@ -11,20 +11,20 @@
 @if (ViewData["AjudaHref"] is string ajudaHref)
 {
 <a class="dmo-help" id="@ViewData["AjudaId"]" href="@ajudaHref" aria-label="Ajuda: @Model" title="Ajuda">
-  <svg class="dmo-help-mark" viewBox="0 0 16 14" aria-hidden="true" focusable="false"><path d="M1 1H15L8 12.8z" /></svg>
+  <svg class="dmo-help-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="5.3" /><text x="6" y="6" text-anchor="middle" dominant-baseline="central">?</text></svg>
 </a>
 }
 else if (ViewData["EmSumario"] is true)
 {
 <span class="dmo-help" data-dmo-help-sumario>
-  <svg class="dmo-help-mark" viewBox="0 0 16 14" aria-hidden="true" focusable="false"><path d="M1 1H15L8 12.8z" /></svg>
+  <svg class="dmo-help-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="5.3" /><text x="6" y="6" text-anchor="middle" dominant-baseline="central">?</text></svg>
   <span class="dmo-help-tip" role="tooltip">@Model</span>
 </span>
 }
 else
 {
 <span class="dmo-help" tabindex="0" role="button" aria-label="Ajuda: @Model">
-  <svg class="dmo-help-mark" viewBox="0 0 16 14" aria-hidden="true" focusable="false"><path d="M1 1H15L8 12.8z" /></svg>
+  <svg class="dmo-help-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="5.3" /><text x="6" y="6" text-anchor="middle" dominant-baseline="central">?</text></svg>
   <span class="dmo-help-tip" role="tooltip">@Model</span>
 </span>
 }
