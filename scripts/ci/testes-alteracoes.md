@@ -1055,7 +1055,7 @@ Novos: 14 · mudaram: 2 · saíram: 6
 
 Selo depois: `06942017116725ab`
 
-## A-0040 · 2026-10-22 · ok-do-diogo
+## A-0041 · 2026-10-22 · ok-do-diogo
 
 Porquê: Armazém: o Registo passa a ter o painel CM, MF, BQ (como na Reparação Interna), com a procura só do tipo escolhido e o log das últimas entradas e saídas desse tipo; o Mapa sai (não é preciso mapear o Armazém, basta a posição de 4 algarismos).
 Referência: Diogo 22/10 13:41 (cmsg_01A27e9ozcpoh4jdPRsuJbFyV24qJxcxGS2xJRaWYoDSF4), 14:32–14:33 (cmsg_01A27e9ozcpoh4jdPRsuJbFyH7TVX6tBZwy8eVzpn12kHf, cmsg_01A27e9ozcpoh4jdPRsuJbFyUCfpU1YNPJKA9oJM1VMmA3)
