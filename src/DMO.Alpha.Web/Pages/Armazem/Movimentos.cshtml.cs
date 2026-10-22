@@ -25,7 +25,7 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
 public sealed class MovimentosModel(
-    IArmazemMovimentos movimentos, IArmazemMapa mapa, IArmazemHistorico historico, IArmazemLotesNovos lotesNovos, ShellStateFactory shellState) : PageModel
+    IArmazemMovimentos movimentos, IArmazemMapa mapa, IArmazemHistorico historico, IArmazemLotesNovos lotesNovos, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
 {
     /// <summary>Os três cartões do painel, por esta ordem (Diogo, 22/10/2026: «CM MF BQ»).</summary>
     public static readonly IReadOnlyList<ToolType> Tipos = [ToolType.Cm, ToolType.Mf, ToolType.Bq];
@@ -117,6 +117,9 @@ public sealed class MovimentosModel(
     /// a Entrada abre já com ela.
     /// </summary>
     /// <summary>Entrada ou Saída escolhida nos dois botões (sem nada: a que faz sentido).</summary>
+    /// <summary>Com as Ferramentas, a linha das últimas abre a ficha; sem elas, a ferramenta aqui.</summary>
+    public bool AbreFicha { get; private set; }
+
     /// <summary>As Linhas e o % de uso das ferramentas da lista das últimas.</summary>
     public IReadOnlyDictionary<string, ArmazemLinhasEUso> LinhasEUso { get; private set; } = new Dictionary<string, ArmazemLinhasEUso>();
 
@@ -342,6 +345,7 @@ public sealed class MovimentosModel(
 
         if (Tipo is { } tipo)
         {
+            AbreFicha = (await capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
             Log = await historico.ListarAsync(new ArmazemHistoricoFiltro(TipoFerramenta: tipo), Pagina, HttpContext.RequestAborted);
             LinhasEUso = await movimentos.LinhasEUsoAsync(Log.Items.Select(m => m.ToolId).OfType<string>().ToList(), HttpContext.RequestAborted);
             if (Pagina == 1)

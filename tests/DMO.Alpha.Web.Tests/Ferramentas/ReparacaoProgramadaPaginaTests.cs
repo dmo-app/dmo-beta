@@ -183,7 +183,7 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         var depois = await armazem.GetStringAsync(gravada.Headers.Location!.OriginalString);
         Assert.Contains("Reparação Programada de Moldin", WebUtility.HtmlDecode(depois));
 
-        var lista = await chefia.GetStringAsync($"{Pagina}?vista=fechadas");
+        var lista = await chefia.GetStringAsync($"{Pagina}?vista=fechadas&hist_reparador=Moldin");
         Assert.Contains("id=\"rpListaFechada\"", lista);
         Assert.Contains("class=\"rp-entrou\"", lista);
         Assert.Matches("Entrada \\d\\d/\\d\\d/\\d{4} · Posição 4152 · Operador 7404", WebUtility.HtmlDecode(lista));

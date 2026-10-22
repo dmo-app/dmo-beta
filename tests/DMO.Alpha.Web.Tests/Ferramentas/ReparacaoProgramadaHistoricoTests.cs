@@ -96,7 +96,7 @@ public sealed class ReparacaoProgramadaHistoricoTests : IClassFixture<CustomWebA
     private int ReparadorId() => NaBase(db => db.Reparadores.Single().Id);
 
     [Fact]
-    public async Task Imprimir_SoMostraAsPorRetirar_EOHistoricoAbreVazio_EListaAsCriadas()
+    public async Task Imprimir_SoMostraAsPorRetirar_EAsFechadasAbremVazias_EFiltramPeloReparador()
     {
         await NoArmazemAsync(m => m.EntradaAsync(new PedidoDeEntrada(Guid.NewGuid(), Cm, "1033", ArmazemOrigem.JaEstava, FerramentaEstadoTipo.PorReparar, null, null)));
         using (var scope = _factory.Services.CreateScope())
@@ -115,15 +115,18 @@ public sealed class ReparacaoProgramadaHistoricoTests : IClassFixture<CustomWebA
         Assert.DoesNotContain("5447RP", depois);
         Assert.Contains("id=\"rpImpNada\"", depois);
 
-        var vazio = await chefia.GetStringAsync(Pagina);
+        // As fechadas são o histórico: abrem vazias, sem nenhuma lista.
+        var vazio = await chefia.GetStringAsync($"{Pagina}?vista=fechadas");
         Assert.Contains("id=\"rpHistVazio\"", vazio);
-        Assert.DoesNotContain("data-dmo-historico=", vazio);
+        Assert.DoesNotContain("id=\"rpListaCabecalho\"", vazio);
 
-        var historico = await chefia.GetStringAsync($"{Pagina}?hist_reparador=Moldin");
-        Assert.Contains($"data-dmo-historico=\"{listaId}\"", historico);
-        Assert.Contains($"data-dmo-open=\"/Ferramentas/ReparacaoProgramada?lista={listaId}\"", historico);
+        // A ferramenta volta: a lista fecha e aparece pelo reparador.
+        await NoArmazemAsync(m => m.EntradaAsync(new PedidoDeEntrada(Guid.NewGuid(), Cm, "4152", ArmazemOrigem.Reparacao, FerramentaEstadoTipo.Reparado, null, null)));
+        var historico = await chefia.GetStringAsync($"{Pagina}?vista=fechadas&hist_reparador=Moldin");
+        Assert.Contains("id=\"rpListaFechada\"", historico);
+        Assert.Contains($"data-dmo-lista=\"{listaId}\"", historico);
 
-        var outroDia = await chefia.GetStringAsync($"{Pagina}?hist_ate=2000-01-01");
+        var outroDia = await chefia.GetStringAsync($"{Pagina}?vista=fechadas&hist_ate=2000-01-01");
         Assert.Contains("id=\"rpHistNada\"", outroDia);
     }
 }

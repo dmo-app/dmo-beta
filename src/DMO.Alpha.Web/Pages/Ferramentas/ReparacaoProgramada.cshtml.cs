@@ -116,23 +116,18 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
         Linhas = await programada.LinhasAsync(ct);
         Candidatas = await programada.ProcurarAsync(Procura, ct);
         Ativas = await programada.ListasAsync(false, ct);
-        var precisaFechadas = VerFechadas || HistoricoPedido;
-        var todasFechadas = precisaFechadas ? await programada.ListasAsync(true, ct) : [];
-        if (VerFechadas)
-        {
-            Fechadas = todasFechadas;
-        }
-
+        // As fechadas são o histórico: abrem vazias e só com o reparador ou
+        // as datas mostram as que batem (Diogo, 22/10/2026).
+        var todasFechadas = VerFechadas ? await programada.ListasAsync(true, ct) : [];
         HistReparadores = Reparadores.Select(r => r.Nome)
-            .Concat(Ativas.Select(a => a.Reparador))
             .Concat(todasFechadas.Select(a => a.Reparador))
             .Where(n => !string.IsNullOrWhiteSpace(n))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Order(StringComparer.CurrentCultureIgnoreCase)
             .ToList();
-        if (HistoricoPedido)
+        if (VerFechadas && HistoricoPedido)
         {
-            Historico = Ativas.Concat(todasFechadas)
+            Fechadas = todasFechadas
                 .Where(a => string.IsNullOrWhiteSpace(HistReparador) || string.Equals(a.Reparador, HistReparador, StringComparison.OrdinalIgnoreCase))
                 .Where(a => HistDesde is not { } desde || DateOnly.FromDateTime(DmoBusinessTime.ToLocal(a.CriadaEmUtc)) >= desde)
                 .Where(a => HistAte is not { } ate || DateOnly.FromDateTime(DmoBusinessTime.ToLocal(a.CriadaEmUtc)) <= ate)
@@ -141,6 +136,7 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
                 .ToList();
         }
 
+        Historico = Fechadas;
         var escolhida = ListaId ?? (VerFechadas ? Fechadas.FirstOrDefault()?.Id : Ativas.FirstOrDefault()?.Id);
         if (escolhida is { } id)
         {

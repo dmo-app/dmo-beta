@@ -215,6 +215,27 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
     }
 
     [Fact]
+    public async Task ComAsFerramentas_ALinhaDasUltimasAbreAFicha_NoRegistoENosMovimentos()
+    {
+        // Diogo (22/10/2026): um clique na linha abre a ficha da ferramenta.
+        using var client = await LoginOperatorAsync("6214", DmoCapabilities.ArmazemGestao, DmoCapabilities.Ferramentas);
+        var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Bq}");
+        var depois = await GravarAsync(client, pagina, "armEntRegistar",
+            ("armEntPosicao", "0042"),
+            ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
+            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo")));
+
+        var log = Elemento(depois, "id=\"armLogLista\"");
+        Assert.Contains($"data-dmo-open=\"/Ferramentas/Ficha?tool_id={Bq}\"", log);
+        Assert.DoesNotContain("<button", log);
+
+        var movimentos = await client.GetStringAsync("/Armazem/Ultimos");
+        var lista = Elemento(movimentos, "id=\"armMovLista\"");
+        Assert.Contains($"data-dmo-open=\"/Ferramentas/Ficha?tool_id={Bq}\"", lista);
+        Assert.DoesNotContain("<button", lista);
+    }
+
+    [Fact]
     public async Task OLog_MostraSoOTipo_DeTodos_EALinhaAbreAFerramenta()
     {
         using var client = await LoginOperatorAsync("6213", DmoCapabilities.ArmazemGestao);

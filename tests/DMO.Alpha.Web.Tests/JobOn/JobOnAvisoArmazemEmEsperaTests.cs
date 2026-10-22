@@ -39,6 +39,7 @@ public sealed class JobOnAvisoArmazemEmEsperaTests
     public void PorOmissao_AAplicacaoNaoOLigaNasDefinicoes()
     {
         var raiz = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../src/DMO.Alpha.Web"));
+        Assert.True(File.Exists(Path.Combine(raiz, "appsettings.json")));
         var config = new ConfigurationBuilder()
             .AddJsonFile(Path.Combine(raiz, "appsettings.json"), optional: true)
             .AddJsonFile(Path.Combine(raiz, "appsettings.Production.json"), optional: true)

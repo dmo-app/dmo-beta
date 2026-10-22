@@ -7,6 +7,7 @@ using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -1129,6 +1130,48 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         // A folha desenhada pelo servidor (o Editar) leva os mesmos links.
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(comFerramentas, $"{PagePath}?jobon_id={jobOnId}&editar=1"));
         Assert.Contains($"<a class=\"dmo-aviso-link\" href=\"/JobOn?jobon_id={outraId}\" target=\"_blank\" rel=\"noopener\">Abrir 202602 (C3)</a>", html);
+    }
+
+    [Fact]
+    public async Task AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim()
+    {
+        // Os avisos do Armazém estão em espera (Diogo, 22/10/2026): com o
+        // interruptor desligado, a CM T3 (sem registo no Armazém) não avisa,
+        // mas o uso paralelo continua a avisar.
+        var (jobOnId, _, _, _) = await SeedFichaAsync();
+        int b2Id;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var b2 = new Machine { Code = "B2" };
+            db.Machines.Add(b2);
+            db.SaveChanges();
+            b2Id = b2.Id;
+        }
+
+        SeedUser("4531", "Planejador", "provider-ficha-31", "FichaPass31!");
+        using var desligado = _factory.WithWebHostBuilder(b => b.UseSetting("Dmo:Avisos:ArmazemSemRegisto", "false"));
+        using var client = desligado.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var loginHtml = await (await client.GetAsync("/login")).Content.ReadAsStringAsync();
+        var login = await client.PostAsync("/login", HtmlFormHelpers.BuildFormPost(
+            ("identifier", "4531"),
+            ("password", "FichaPass31!"),
+            ("returnUrl", "/"),
+            ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(loginHtml)!)));
+        Assert.Equal(HttpStatusCode.Redirect, login.StatusCode);
+
+        var inicio = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(-3).ToString("yyyy-MM-dd");
+        var resposta = await client.GetAsync($"{PagePath}?handler=ToolFacts&cm_tool_id=T3&machine_id={b2Id}&jobon_id={jobOnId}&inicio_em={inicio}&fim_em=");
+        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        var textos = JsonDocument.Parse(await resposta.Content.ReadAsStringAsync()).RootElement[0].GetProperty("avisos")
+            .EnumerateArray().Select(a => a.GetProperty("texto").GetString() ?? string.Empty).ToList();
+        Assert.Contains(textos, t => t.Contains("também está associado", StringComparison.Ordinal));
+        Assert.DoesNotContain(textos, t => t.Contains("não está registada no Armazém", StringComparison.Ordinal));
+
+        var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}&editar=1"));
+        Assert.Contains("também está associado", html);
+        Assert.DoesNotContain("não está registada no Armazém", html);
+        Assert.DoesNotContain("data-dmo-aviso-armazem", html);
     }
 
     [Fact]

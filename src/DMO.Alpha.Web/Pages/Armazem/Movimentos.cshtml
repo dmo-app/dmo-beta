@@ -468,7 +468,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             @* Os data-* não desaparecem com null no Razor: a ferramenta eliminada nasce sem destino. *@
             if (m.ToolId is { } logTool)
             {
-            <tr data-dmo-row data-id="@m.Id" data-dmo-movimento="@m.Id" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = logTool })" title="@m.Descricao">
+            <tr data-dmo-row data-id="@m.Id" data-dmo-movimento="@m.Id" data-dmo-open="@(Model.AbreFicha ? Url.Page("/Ferramentas/Ficha", new { tool_id = logTool }) : Url.Page("/Armazem/Movimentos", new { ferramenta = logTool }))" title="@m.Descricao">
               <td>@MovimentosModel.DataHora(m.OcorridoEmUtc)</td>
               <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(m.Tipo ?? Model.Tipo, m.Referencia, m.Lote)</strong></td>
               <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, m.ToolId)</td>
