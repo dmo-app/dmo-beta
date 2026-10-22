@@ -52,7 +52,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
       {
         <div class="dmo-table-wrap">
           <table class="dmo-table" id="armRepForaLista" data-dmo-list="Fora, em reparação">
-            <thead><tr><th>Ferramenta</th><th>Reparador</th><th>Saiu</th></tr></thead>
+            <thead><tr><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Reparador</th><th>Saiu</th></tr></thead>
             <tbody>
             @foreach (var f in Model.Fora)
             {
@@ -60,7 +60,9 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
               if (Model.AbreFicha)
               {
               <tr data-dmo-row data-dmo-fora="@f.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = f.ToolId })">
-                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(f.Tipo, f.Referencia, f.Lote)</td>
+                <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(f.Tipo, f.Referencia, f.Lote)</strong></td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, f.ToolId)</td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, f.ToolId)</td>
                 <td>@(f.Reparador ?? "—")</td>
                 <td>@MovimentosModel.Dia(f.SaiuEmUtc)</td>
               </tr>
@@ -68,7 +70,9 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
               else
               {
               <tr data-dmo-row data-dmo-fora="@f.ToolId">
-                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(f.Tipo, f.Referencia, f.Lote)</td>
+                <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(f.Tipo, f.Referencia, f.Lote)</strong></td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, f.ToolId)</td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, f.ToolId)</td>
                 <td>@(f.Reparador ?? "—")</td>
                 <td>@MovimentosModel.Dia(f.SaiuEmUtc)</td>
               </tr>
@@ -156,13 +160,15 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
       {
         <div class="dmo-table-wrap">
           <table class="dmo-table" id="armMovLista" data-dmo-list="Últimas entradas e saídas">
-            <thead><tr><th>Dia</th><th>Ferramenta</th><th>Movimento</th><th>Reparador</th><th>Posição</th></tr></thead>
+            <thead><tr><th>Dia</th><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Movimento</th><th>Reparador</th><th>Posição</th></tr></thead>
             <tbody>
             @foreach (var m in Model.Lista.Items)
             {
               <tr data-dmo-movimento="@m.Id" title="@m.Descricao">
                 <td>@MovimentosModel.Dia(m.OcorridoEmUtc)</td>
-                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(m.Tipo, m.Referencia, m.Lote)@if (m.Eliminada) {<text> </text><span class="muted">(eliminada)</span>}</td>
+                <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(m.Tipo, m.Referencia, m.Lote)</strong>@if (m.Eliminada) {<text> </text><span class="muted">(eliminada)</span>}</td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, m.ToolId)</td>
+                <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId)</td>
                 <td>@UltimosModel.Movimento(m)</td>
                 <td>@(m.Reparador ?? "—")</td>
                 <td>@if (m.Movimento == ArmazemMovimentoTipo.Entrada && m.Posicao is not null) {<span class="arm-pos">@m.Posicao</span>} else {<text>—</text>}</td>

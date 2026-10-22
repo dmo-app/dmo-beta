@@ -24,6 +24,7 @@ html body .rp-page .dmo-field select{width:auto;max-width:22ch}
 .rp-marca{width:34px;text-align:center}
 .rp-marca input{width:18px;height:18px;cursor:pointer}
 .rp-pos{font-variant-numeric:tabular-nums;font-weight:700}
+.rp-lista-zona{margin-top:14px;padding-top:12px;border-top:1px solid var(--dmo-border)}
 .rp-cabecalho{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 12px;color:var(--dmo-muted);font-size:13px}
 .rp-cabecalho strong{color:var(--dmo-text)}
 html body .rp-card .dmo-table tbody tr.rp-entrou td{color:var(--dmo-muted);background:var(--dmo-neutral-soft)}
@@ -44,7 +45,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
 
   <div class="page-head">
     <div>
-      <h1 id="rp-title">Reparação Programada<partial name="_DmoHelp" model="@("Procure as CM e os MF a enviar ao reparador, marque-os e associe-os a uma lista. Imprima a lista para quem vai retirar do armazém: cada Saída no Armazém atualiza a lista, e cada Entrada pinta a linha de cinza. A lista fecha quando a última ferramenta dá entrada.")" /></h1>
+      <h1 id="rp-title">Reparação Programada<partial name="_DmoHelp" model="@("Procure as CM e os MF a enviar ao reparador, marque-os e adicione-os a uma lista. Imprima a lista para quem vai retirar do armazém: cada Saída no Armazém atualiza a lista, e cada Entrada pinta a linha de cinza. A lista fecha quando a última ferramenta dá entrada.")" /></h1>
     </div>
   </div>
 
@@ -65,7 +66,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
 
   <section id="rpProcura" class="dmo-card rp-card" aria-labelledby="rp-procura-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-      <h3 id="rp-procura-title">Procurar ferramentas<partial name="_DmoHelp" model="@("Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote com Enter. Marque as ferramentas e associe: a uma lista nova, com o reparador, ou a uma lista ativa.")" /></h3>
+      <h3 id="rp-procura-title">Procurar ferramentas<partial name="_DmoHelp" model="@("Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote com Enter. Marque as ferramentas e adicione: a uma lista nova, com o reparador, ou a uma lista ativa.")" /></h3>
     </div>
 
     <form id="rpFiltros" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros" role="search">
@@ -129,7 +130,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
           }
         </select>
       </div>
-      <button type="submit" form="rpAssociar" class="dmo-button" id="rpAssociarBotao">Associar</button>
+      <button type="submit" form="rpAssociar" class="dmo-button" id="rpAssociarBotao">Adicionar</button>
       <a class="dmo-button" id="rpLimpar" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { lista = Model.ListaId })">Limpar filtros</a>
     </form>
 
@@ -171,19 +172,10 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
         </table>
       </div>
     }
-  </section>
 
-  <section id="rpLista" class="dmo-card rp-card" aria-labelledby="rp-lista-title" data-dmo-regiao data-dmo-parcial>
-    <div class="dmo-card-topo">
-      <h3 id="rp-lista-title">Lista<partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" /></h3>
-      @if (lista is not null)
-      {
-        <div class="rp-acoes">
-          <a class="dmo-button" id="rpImprimir" data-dmo-completa target="_blank" rel="noopener" href="@Url.Page("/Ferramentas/ReparacaoProgramadaImprimir", new { lista = lista.Lista.Id })">Imprimir</a>
-        </div>
-      }
-    </div>
-
+    @* A lista escolhe-se no mesmo cartão (Diogo, 22/10/2026): Ativas ou
+       Fechadas, a lista e «Imprimir», e a tabela logo a seguir. *@
+    <div id="rpLista" class="rp-lista-zona" aria-label="Lista">
     <form id="rpEscolherLista" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros">
       <input type="hidden" name="tipo" value="@Model.TipoTexto" />
       <input type="hidden" name="referencia" value="@Model.Referencia" />
@@ -191,7 +183,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       <input type="hidden" name="linha" value="@Model.Linha" />
       <input type="hidden" name="estado" value="@Model.EstadoTexto" />
       <div class="dmo-field">
-        <label for="rpVista">Listas</label>
+        <label for="rpVista">Listas<partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" /></label>
         <select id="rpVista" name="vista" data-dmo-autosubmit>
           <option value="" selected="@(!Model.VerFechadas)">Ativas</option>
           <option value="fechadas" selected="@Model.VerFechadas">Fechadas</option>
@@ -209,6 +201,10 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
             }
           </select>
         </div>
+      }
+      @if (lista is not null)
+      {
+        <a class="dmo-button" id="rpImprimir" data-dmo-completa target="_blank" rel="noopener" href="@Url.Page("/Ferramentas/ReparacaoProgramadaImprimir", new { lista = lista.Lista.Id })">Imprimir</a>
       }
     </form>
 
@@ -264,6 +260,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
         </table>
       </div>
     }
+    </div>
   </section>
   <section id="rpHistorico" class="dmo-card rp-card" aria-labelledby="rp-historico-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">

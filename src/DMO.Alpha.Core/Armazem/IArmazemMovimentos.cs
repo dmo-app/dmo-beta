@@ -152,8 +152,14 @@ public sealed record ArmazemPar(string ToolId, ToolType Tipo, string? Posicao)
 public sealed record ArmazemPosicaoOcupacao(int PosicaoId, IReadOnlyList<ArmazemOcupante> Ferramentas);
 
 /// <summary>Os movimentos do Armazém: procurar, ver onde está, Entrada, Saída e Corrigir localização.</summary>
+/// <summary>As Linhas da ferramenta e o % de uso da última leitura (para distinguir os lotes nas listas).</summary>
+public sealed record ArmazemLinhasEUso(IReadOnlyList<string> Linhas, decimal? Uso);
+
 public interface IArmazemMovimentos
 {
+    /// <summary>As Linhas e o % de uso de cada ferramenta (as que não existem não vêm).</summary>
+    Task<IReadOnlyDictionary<string, ArmazemLinhasEUso>> LinhasEUsoAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default);
+
     /// <summary>As ferramentas cuja referência ou lote correspondem ao texto, ou que estão na posição com esse código.</summary>
     Task<IReadOnlyList<ArmazemProcuraItem>> ProcurarAsync(string? texto, CancellationToken cancellationToken = default);
 

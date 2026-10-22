@@ -445,7 +445,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" id="armLogLista" data-dmo-list="Últimas entradas e saídas de @tipoTexto">
-          <thead><tr><th>Data</th><th>Ferramenta</th><th>Movimento</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
+          <thead><tr><th>Data</th><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Movimento</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
           <tbody>
           @* Os lotes novos por criar no topo: ainda não são ferramenta nem
              movimento; a entrada fica registada quando a ferramenta for
@@ -454,7 +454,9 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           {
             <tr data-dmo-row data-dmo-lote-novo="@l.Id" title="Lote novo por criar nas Ferramentas">
               <td>@MovimentosModel.DataHora(l.RegistadoEmUtc)</td>
-              <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(Model.Tipo, l.Referencia, l.Lote)</td>
+              <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(Model.Tipo, l.Referencia, l.Lote)</strong></td>
+              <td>—</td>
+              <td>—</td>
               <td><span class="dmo-pill inactive">Por criar</span></td>
               <td>—</td>
               <td>@l.Posicao</td>
@@ -468,7 +470,9 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             {
             <tr data-dmo-row data-id="@m.Id" data-dmo-movimento="@m.Id" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = logTool })" title="@m.Descricao">
               <td>@MovimentosModel.DataHora(m.OcorridoEmUtc)</td>
-              <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(m.Tipo ?? Model.Tipo, m.Referencia, m.Lote)</td>
+              <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(m.Tipo ?? Model.Tipo, m.Referencia, m.Lote)</strong></td>
+              <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, m.ToolId)</td>
+              <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId)</td>
               <td>@MovimentosModel.Movimento(m)</td>
               <td>@(m.Reparador ?? "—")</td>
               <td>@(m.Posicao ?? "—")</td>
@@ -479,7 +483,9 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             {
             <tr data-dmo-row data-id="@m.Id" data-dmo-movimento="@m.Id" title="@m.Descricao">
               <td>@MovimentosModel.DataHora(m.OcorridoEmUtc)</td>
-              <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Html(m.Tipo ?? Model.Tipo, m.Referencia, m.Lote) <span class="muted">(eliminada)</span></td>
+              <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(m.Tipo ?? Model.Tipo, m.Referencia, m.Lote)</strong> <span class="muted">(eliminada)</span></td>
+              <td>—</td>
+              <td>—</td>
               <td>@MovimentosModel.Movimento(m)</td>
               <td>@(m.Reparador ?? "—")</td>
               <td>@(m.Posicao ?? "—")</td>

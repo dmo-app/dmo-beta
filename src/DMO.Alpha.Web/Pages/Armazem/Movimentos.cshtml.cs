@@ -117,6 +117,9 @@ public sealed class MovimentosModel(
     /// a Entrada abre já com ela.
     /// </summary>
     /// <summary>Entrada ou Saída escolhida nos dois botões (sem nada: a que faz sentido).</summary>
+    /// <summary>As Linhas e o % de uso das ferramentas da lista das últimas.</summary>
+    public IReadOnlyDictionary<string, ArmazemLinhasEUso> LinhasEUso { get; private set; } = new Dictionary<string, ArmazemLinhasEUso>();
+
     [BindProperty(SupportsGet = true, Name = "acao")]
     public string? Acao { get; set; }
 
@@ -340,6 +343,7 @@ public sealed class MovimentosModel(
         if (Tipo is { } tipo)
         {
             Log = await historico.ListarAsync(new ArmazemHistoricoFiltro(TipoFerramenta: tipo), Pagina, HttpContext.RequestAborted);
+            LinhasEUso = await movimentos.LinhasEUsoAsync(Log.Items.Select(m => m.ToolId).OfType<string>().ToList(), HttpContext.RequestAborted);
             if (Pagina == 1)
             {
                 PorCriar = await lotesNovos.PorCriarAsync(tipo, HttpContext.RequestAborted);

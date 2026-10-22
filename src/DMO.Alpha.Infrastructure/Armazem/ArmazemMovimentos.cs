@@ -98,6 +98,31 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         }).ToList();
     }
 
+    public async Task<IReadOnlyDictionary<string, ArmazemLinhasEUso>> LinhasEUsoAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default)
+    {
+        var ids = toolIds.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct(StringComparer.Ordinal).ToList();
+        if (ids.Count == 0)
+        {
+            return new Dictionary<string, ArmazemLinhasEUso>();
+        }
+
+        var maquinas = (await db.ToolMachineLinks.AsNoTracking()
+                .Where(m => ids.Contains(m.ToolId))
+                .Select(m => new { m.ToolId, m.Machine.Code })
+                .ToListAsync(cancellationToken))
+            .GroupBy(m => m.ToolId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(m => m.Code).Order(StringComparer.OrdinalIgnoreCase).ToList());
+        var usos = (await db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => ids.Contains(u.ToolId))
+                .Select(u => new { u.Id, u.ToolId, u.Percentagem })
+                .ToListAsync(cancellationToken))
+            .GroupBy(u => u.ToolId)
+            .ToDictionary(g => g.Key, g => g.MaxBy(u => u.Id)!.Percentagem);
+        return ids.ToDictionary(id => id, id => new ArmazemLinhasEUso(
+            maquinas.TryGetValue(id, out var m) ? m : [],
+            usos.TryGetValue(id, out var u) ? u : null), StringComparer.Ordinal);
+    }
+
     public async Task<ArmazemSituacao?> SituacaoAsync(string? toolId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(toolId) || toolId == ToolRegistryConstants.RemovedToolId)
