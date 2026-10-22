@@ -74,7 +74,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
     <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
       <form id="riConsultaFiltros" method="get" asp-page="/ReparacaoInterna/Consultar" class="dmo-filter-bar" role="search">
         <div class="dmo-field ri-w-maquina">
-          <label for="riConsultaMaquina">Máquina</label>
+          <label for="riConsultaMaquina">Linha</label>
           <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit>
             <option value="" selected="@(Model.Maquina is null)">Todas</option>
             @foreach (var m in Model.Maquinas)
@@ -118,7 +118,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
         </div>
         @* O segundo passo: o dropdown fica sempre ao lado da referência, para
            nada mexer; desativado sem referência, com ela as últimas 5
-           produções (a referência, o nº, a máquina e o início). Escrever
+           produções (a referência, o nº, a linha e o início). Escrever
            outra referência volta-o a «Todas» (data-dmo-depende). *@
         <div id="riConsultaProducaoZona" class="dmo-field ri-w-producao" data-dmo-regiao>
           <label for="riConsultaProducao">Produção</label>
@@ -165,7 +165,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
     <h3 id="ri-consulta-title">Reparações<partial name="_DmoHelp" model="@("As reparações que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional, que vira à hora do Canal Jobon.")" /></h3>
     @if (!Model.ComFiltro)
     {
-      <p class="ri-vazia" id="riConsultaConvite">Escolha a máquina, os dias, quem, CM ou MF, ou procure a produção pela referência.</p>
+      <p class="ri-vazia" id="riConsultaConvite">Escolha a linha, os dias, quem, CM ou MF, ou procure a produção pela referência.</p>
     }
     else if (Model.Lista.Items.Count == 0)
     {
@@ -175,7 +175,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" id="riConsultaLista" data-dmo-list="Reparações">
-          <thead><tr><th>Dia</th><th>Hora</th><th>Máquina</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th><th>Quem</th></tr></thead>
+          <thead><tr><th>Dia</th><th>Hora</th><th>Linha</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th><th>Quem</th></tr></thead>
           <tbody>
           @foreach (var r in Model.Lista.Items)
           {
