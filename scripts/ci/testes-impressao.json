@@ -1,5 +1,5 @@
 {
-  "selo": "69bb56498f37525b",
+  "selo": "cbe3769ad52ba7bc",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -803,6 +803,10 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EstadoDaAprovacao.cs :: PostgresMigrationIntegrationTests.EstadoDaAprovacao_SoOPesoDecide_PegamentosDepoisNaoMudam_PesoNovoVoltaAosPendentes_NoPostgres": "5c1d67ab5ac28687",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: (resto do ficheiro)": "a3e8705dee83f8e2",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: PostgresMigrationIntegrationTests.FabricoSap_LerDuasVezesUmaSoLinha_NoPostgreSql": "3afc26d09d836290",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)": "b9b5b8b4123a283f",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo": "52164f2d5545b543",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.JobOnAntigo_MostraQuemReparouCadaFerramenta": "7c6b5acafd310907",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.MudarOJobOn_NaoPerdeNadaDosOutrosModulos": "29cfac95a1ec3190",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoControlo.cs :: (resto do ficheiro)": "588b11ba8a3d7b1a",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoControlo.cs :: PostgresMigrationIntegrationTests.HistoricoDoControlo_ReferenciaDataEProducao_NoPostgres": "ee635572ab4c10aa",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.IntegrityRules.cs :: (resto do ficheiro)": "cdc43668506bafc9",

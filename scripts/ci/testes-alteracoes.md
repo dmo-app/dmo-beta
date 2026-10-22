@@ -1239,3 +1239,16 @@ Novos: 8 · mudaram: 5 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.Imprimir_SoMostraAsPorRetirar_EOHistoricoAbreVazio_EListaAsCriadas`
 
 Selo depois: `69bb56498f37525b`
+
+## A-0046 · 2026-10-22 · teste-novo
+
+Porquê: História de uma produção: os módulos e as suas ligações (Job On, RI, BQ, Peso, Pegamento, Armazém)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySMKCQbjDHDqNK4StKX4cvJ, cmsg_01A27e9ozcpoh4jdPRsuJbFyY8vNWWReJph26vFXSxA6MT, cmsg_01A27e9ozcpoh4jdPRsuJbFyTmS6KYpHKMqSDWhsg9NugJ, cmsg_01A27e9ozcpoh4jdPRsuJbFyL19wGTjcKJZaz9UcWt9EPV
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.JobOnAntigo_MostraQuemReparouCadaFerramenta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.MudarOJobOn_NaoPerdeNadaDosOutrosModulos`
+
+Selo depois: `cbe3769ad52ba7bc`
