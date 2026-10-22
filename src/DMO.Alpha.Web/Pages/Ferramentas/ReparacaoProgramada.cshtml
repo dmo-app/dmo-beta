@@ -8,6 +8,7 @@
 }
 @section Head {
 <style>
+.dmo-ferr-ref{font-size:12px;font-weight:500;color:var(--dmo-muted);margin-left:4px}
 .rp-page{display:flex;flex-direction:column;gap:14px;min-width:0}
 .rp-card{padding:18px;min-width:0}
 .rp-card .dmo-card-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px}
@@ -158,7 +159,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
           {
             <tr data-dmo-row data-dmo-candidata="@c.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = c.ToolId })">
               <td class="rp-marca"><input type="checkbox" name="ferramenta" value="@c.ToolId" form="rpAssociar" data-rp-marca aria-label="Marcar @ReparacaoProgramadaModel.Ferramenta(c.Tipo, c.Referencia, c.Lote)" /></td>
-              <td><strong>@ReparacaoProgramadaModel.Ferramenta(c.Tipo, c.Referencia, c.Lote)</strong></td>
+              <td>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Nome(c.Tipo, c.Referencia, c.Lote)</td>
               <td>@ReparacaoProgramadaModel.Uso(c.Utilizacao)</td>
               <td>@(c.Linhas ?? "—")</td>
               <td>@if (c.Posicao is not null) {<span class="rp-pos">@c.Posicao</span>} else {@c.OndeEsta}</td>
@@ -239,7 +240,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
             if (i.ToolId is { } toolId)
             {
             <tr data-dmo-row class="@classe" data-dmo-item="@i.Id" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = toolId })">
-              <td><strong>@ReparacaoProgramadaModel.Ferramenta(i.Tipo, i.Referencia, i.Lote)</strong></td>
+              <td>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Nome(i.Tipo, i.Referencia, i.Lote)</td>
               <td>@ReparacaoProgramadaModel.Uso(i.Utilizacao)</td>
               <td>@(i.Linhas ?? "—")</td>
               <td>@i.OndeEsta</td>
@@ -250,7 +251,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
             else
             {
             <tr data-dmo-row class="@classe" data-dmo-item="@i.Id">
-              <td><strong>@ReparacaoProgramadaModel.Ferramenta(i.Tipo, i.Referencia, i.Lote)</strong> <span class="muted">(eliminada)</span></td>
+              <td>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Nome(i.Tipo, i.Referencia, i.Lote) <span class="muted">(eliminada)</span></td>
               <td>@ReparacaoProgramadaModel.Uso(i.Utilizacao)</td>
               <td>@(i.Linhas ?? "—")</td>
               <td>—</td>

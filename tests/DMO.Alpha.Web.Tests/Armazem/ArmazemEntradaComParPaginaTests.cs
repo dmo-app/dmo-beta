@@ -148,19 +148,15 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
     }
 
     [Fact]
-    public async Task ACm_MostraOMfEAPosicaoEscritaCom4Algarismos()
+    public async Task ACm_NaoMostraOPar_EAPosicaoEscritaCom4Algarismos()
     {
         using var client = await LoginOperatorAsync("6401", DmoCapabilities.ArmazemGestao);
 
         var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
 
-        var par = Elemento(pagina, "data-dmo-armazem-par");
-        Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Mf}\">MF</a>", par);
-        Assert.Contains("fora do armazém", par);
-        // Guardar a CM e o MF juntos é raro (Diogo 21/10, AR-02): a escolha vem desmarcada.
-        var escolha = Campo(pagina, "armEntPar");
-        Assert.DoesNotContain("checked", escolha);
-        Assert.Contains("Entrar também MF 5447T173 · lote 3, na mesma posição", System.Net.WebUtility.HtmlDecode(Elemento(pagina, "for=\"armEntPar\"")));
+        // O par saiu do cartão (Diogo 22/10, 17:01): pode ser um de vários lotes.
+        Assert.DoesNotContain("data-dmo-armazem-par", pagina);
+        Assert.DoesNotContain("id=\"armEntPar\"", pagina);
         // A posição escreve-se com 4 algarismos, sem lista (Diogo 22/10 16:31).
         var posicao = Campo(pagina, "armEntPosicao");
         Assert.DoesNotContain("list=", posicao);
@@ -169,32 +165,7 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
     }
 
     [Fact]
-    public async Task ComOParMarcado_ACmEOMfEntramJuntos()
-    {
-        using var client = await LoginOperatorAsync("6402", DmoCapabilities.ArmazemGestao);
-        var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
-
-        var (acao, campos) = EnvioDoFormulario.Enviar(pagina,
-        [
-            ("armEntPosicao", "0042"),
-            ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Reparação")),
-            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Reparado"))
-        ], idDoBotao: "armEntRegistar");
-        // A pessoa marca «Entrar também o MF».
-        using var resposta = await client.PostAsync(acao, EnvioDoFormulario.Corpo([.. campos, ("com_par", "1")]));
-        var depois = await client.GetStringAsync(resposta.Headers.Location!.OriginalString);
-
-        Assert.Contains("Entrada da CM e do MF registada na posição 0042.", Elemento(depois, "id=\"armMovAvisos\""));
-        Assert.Contains("posição 0042", Elemento(depois, "data-dmo-armazem-par"));
-        var doMf = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Mf}");
-        Assert.Contains("Armazém · posição 0042", Elemento(doMf, "data-dmo-onde"));
-        Assert.Contains("Reparado", Elemento(doMf, "data-dmo-estado"));
-        Assert.Contains("Entrada na posição 0042 · Reparação · Reparado", Elemento(doMf, "id=\"armUltimos\""));
-        Assert.Equal([Cm, Mf], NaBase(db => db.ArmazemMovimentos.AsNoTracking().OrderBy(m => m.Id).Select(m => m.ToolId).ToArray()));
-    }
-
-    [Fact]
-    public async Task ComOParDesmarcado_EntraSoACm()
+    public async Task AEntrada_EntraSoACm()
     {
         using var client = await LoginOperatorAsync("6403", DmoCapabilities.ArmazemGestao);
         var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
@@ -210,7 +181,6 @@ public sealed class ArmazemEntradaComParPaginaTests : IClassFixture<CustomWebApp
         var depois = await client.GetStringAsync(resposta.Headers.Location!.OriginalString);
 
         Assert.Contains("Entrada registada na posição 0042.", Elemento(depois, "id=\"armMovAvisos\""));
-        Assert.Contains("fora do armazém", Elemento(depois, "data-dmo-armazem-par"));
         Assert.Equal([Cm], NaBase(db => db.ArmazemMovimentos.AsNoTracking().Select(m => m.ToolId).ToArray()));
     }
 

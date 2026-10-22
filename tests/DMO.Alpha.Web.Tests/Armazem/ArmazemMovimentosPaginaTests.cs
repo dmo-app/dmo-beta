@@ -378,7 +378,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
     }
 
     [Fact]
-    public async Task CorrigirLocalizacao_NoOpcoesTiraDoArmazem()
+    public async Task CorrigirLocalizacao_TiraDoArmazem()
     {
         using var client = await LoginOperatorAsync("6208", DmoCapabilities.ArmazemGestao);
         var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
@@ -386,7 +386,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
             ("armEntPosicao", "0042"),
             ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
             ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo")));
-        Assert.Contains("Corrigir localização", Elemento(pagina, "data-dmo-dialog=\"arm-corrigir-dialog\""));
+        Assert.Contains("Corrigir", Elemento(pagina, "data-dmo-dialog=\"arm-corrigir-dialog\""));
 
         var depois = await GravarAsync(client, pagina, "armCorGravar", ("armCorObs", "não estava lá"));
 

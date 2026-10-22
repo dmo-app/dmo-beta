@@ -175,7 +175,7 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         var linha = Assert.Single(Regex.Matches(fora, "<tr data-dmo-row[^>]*>"));
         Assert.Contains($"data-dmo-fora=\"{Mf}\"", linha.Value);
         Assert.Contains($"data-dmo-open=\"/Ferramentas/Ficha?tool_id={Mf}\"", linha.Value);
-        Assert.Contains("MF 6012A118 · lote 7 Moldes Lda 12/10/2026", Texto(fora));
+        Assert.Contains("MF 6012 · Lote 7 6012A118 Moldes Lda 12/10/2026", Texto(fora));
         Assert.DoesNotContain(Bq, fora);
         Assert.DoesNotContain(Cm, fora);
         Assert.DoesNotContain("<button", fora);
@@ -210,13 +210,13 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
             .Select(m => Texto(m.Groups[1].Value)).ToArray();
         Assert.Equal(
             [
-                "14/10/2026 CM 5447T173 · lote 3 Entrada Moldes Lda 0042",
-                "13/10/2026 BQ T173 · lote 01 Saída · Reparação LE —",
-                "12/10/2026 MF 6012A118 · lote 7 Saída · Reparação Moldes Lda —",
-                "11/10/2026 CM 5447T173 · lote 3 Saída · Reparação Moldes Lda —",
-                "10/10/2026 BQ T173 · lote 01 Entrada — 5001",
-                "10/10/2026 MF 6012A118 · lote 7 Entrada — 0043",
-                "10/10/2026 CM 5447T173 · lote 3 Entrada — 0042"
+                "14/10/2026 CM 5447 · Lote 3 5447T173 Entrada Moldes Lda 0042",
+                "13/10/2026 BQ T173 · Lote 01 Saída · Reparação LE —",
+                "12/10/2026 MF 6012 · Lote 7 6012A118 Saída · Reparação Moldes Lda —",
+                "11/10/2026 CM 5447 · Lote 3 5447T173 Saída · Reparação Moldes Lda —",
+                "10/10/2026 BQ T173 · Lote 01 Entrada — 5001",
+                "10/10/2026 MF 6012 · Lote 7 6012A118 Entrada — 0043",
+                "10/10/2026 CM 5447 · Lote 3 5447T173 Entrada — 0042"
             ],
             linhas);
         Assert.DoesNotContain("<button", lista);

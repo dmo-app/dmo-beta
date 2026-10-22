@@ -52,7 +52,7 @@ else
   <div class="dmo-table-wrap">
     <table class="dmo-table" id="armProcuraResultados" data-dmo-list="Ferramentas encontradas">
       <thead>
-        <tr><th>Onde está</th><th>Ferramenta</th><th>Lote</th><th>Estado</th><th>Linhas</th><th>% uso</th></tr>
+        <tr><th>Onde está</th><th>Ferramenta</th><th>Estado</th><th>Linhas</th><th>% uso</th></tr>
       </thead>
       <tbody>
         @foreach (var item in Model)
@@ -60,8 +60,7 @@ else
           <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-arm-no-armazem="@(item.NoArmazem ? "1" : "0")" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId })"
               aria-label="@ArmazemTextos.Ferramenta(item.Tipo, item.Referencia, item.Lote), @item.OndeEsta — um clique abre">
             <td><span class="dmo-pill @(item.NoArmazem ? "active" : "inactive")">@item.OndeEsta</span></td>
-            <td><strong>@ArmazemTextos.Tipo(item.Tipo) @item.Referencia</strong></td>
-            <td>@item.Lote</td>
+            <td>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Nome(item.Tipo, item.Referencia, item.Lote)</td>
             <td>@(item.Estado is { } estado ? ArmazemTextos.Estado(estado) : "—")</td>
             <td>@(item.Maquinas is { Count: > 0 } maquinas ? string.Join(" ", maquinas) : "Todas")</td>
             <td>@(item.Utilizacao is { } uso ? uso.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " %" : "—")</td>
