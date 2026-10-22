@@ -321,7 +321,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("<th>Movimento</th>", html);
         Assert.Contains("<th>Qtd.</th>", html);
         Assert.Contains("<th>Reparador</th>", html);
-        Assert.Contains("<th>Máquina</th>", html);
+        Assert.Contains("<th>Linha</th>", html);
         Assert.Contains("<th>Produção</th>", html);
         Assert.Contains("<th>Saldo</th>", html);
 

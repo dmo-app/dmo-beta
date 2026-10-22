@@ -54,6 +54,7 @@ public sealed class ShellStateFactory
         DmoCapabilities.ControloCreate => moduleKey is "controlo" or "controlo-create",
         DmoCapabilities.ControloApprove => moduleKey == "controlo-approve",
         DmoCapabilities.Boquilhas => moduleKey == "boquilhas",
+        DmoCapabilities.BoquilhasView => moduleKey == "boquilhas",
         DmoCapabilities.Ferramentas => moduleKey == "ferramentas",
         DmoCapabilities.ArmazemGestao => moduleKey == "armazem",
         DmoCapabilities.ReparacaoInterna => moduleKey == "reparacao-interna",
@@ -212,12 +213,17 @@ public sealed class ShellStateFactory
     /// escondida). As DEFINIÇÕES (os reparadores e a rota por máquina) fecham
     /// a barra (Diogo, 17/10/2026: «separamos as definições»).
     /// </summary>
-    public static IReadOnlyList<FunctionPresentation> BoquilhasFunctions(string activeKey) =>
-        new[]
+    public static IReadOnlyList<FunctionPresentation> BoquilhasFunctions(string activeKey, bool onlyView = false) =>
+        onlyView
+        ? new[]
+        {
+            new FunctionPresentation("historico", "Movimentos", DmoCapabilities.BoquilhasViewHome, null, true, true, true)
+        }
+        : new[]
         {
             new FunctionPresentation("registo", "Registo", "/Boquilhas", null, activeKey == "registo", true, true),
             new FunctionPresentation("ficheiros", "Boquilhas", "/Boquilhas?ficheiros=1", null, activeKey == "ficheiros", true, true),
-            new FunctionPresentation("historico", "Histórico", "/Boquilhas?historico=1&vista=matriz", null, activeKey == "historico", true, true)
+            new FunctionPresentation("historico", "Movimentos", "/Boquilhas?historico=1&vista=matriz", null, activeKey == "historico", true, true)
         };
 
     /// <summary>

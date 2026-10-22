@@ -46,7 +46,8 @@ public interface IBqToolHistoryQuery
         string? text,
         CancellationToken cancellationToken = default,
         int? limit = null,
-        string? toolId = null);
+        string? toolId = null,
+        int? jobOnId = null);
 
 }
 

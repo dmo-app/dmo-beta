@@ -1454,3 +1454,19 @@ Novos: 1 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
 
 Selo depois: `76c4b78f9b5bff97`
+
+## A-0049 · 2026-10-22 · ok-do-diogo
+
+Porquê: Diogo aprovou a Boquilhas ver (ok para tudo)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 5 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.O_painel_de_quem_so_ve_abre_os_movimentos_da_producao_escolhida_e_so_esses`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_cria_nas_Boquilhas_continua_a_registar_e_a_abrir_os_registos`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_so_ve_as_Boquilhas_e_recusado_ao_registar_e_nada_fica_gravado`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_so_ve_as_Boquilhas_ve_os_registos_no_Historico_sem_formularios_de_registo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DetailedMovements_AreATableWithTheHumanFacts_AndTheDoubleClickOpens`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
+
+Selo depois: `9619ddd13d4b61e1`
