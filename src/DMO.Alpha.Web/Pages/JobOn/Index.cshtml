@@ -543,7 +543,7 @@
         {
           <div data-dmo-toast="erro" class="jobon-aviso" role="alert">@(Model.CreateRefusal is not null ? Model.CreateRefusalMessage : Model.UpdateRefusalMessage)</div>
         }
-        <form id="lightForm" data-dmo-script method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
+        <form id="lightForm" data-dmo-script data-jobon-rascunho="@(Model.FolhaEdicao ? $"editar:{Model.OpenJobOn!.JobOnId}" : Model.DuplicarDe is { } duplicada ? $"duplicar:{duplicada}" : "novo")" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
           @* O MODO EDIÇÃO: o jobon_edit_id vai no POST (a produção
              re-planeada — o jobon_id é o MESMO; a identidade read-only). *@
           @if (Model.FolhaEdicao)
@@ -814,6 +814,7 @@
 
 @section Scripts {
 <script src="~/js/jobon-tool-picker.js" asp-append-version="true" defer></script>
+<script src="~/js/jobon-rascunho.js" asp-append-version="true" defer></script>
 <script>
 // A FICHA (o showToolFacts + a calote — o enhancement mínimo da casa,
 // o padrão do peso-live): TODO o cálculo é do backend — o endpoint

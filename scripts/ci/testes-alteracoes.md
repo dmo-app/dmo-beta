@@ -1272,3 +1272,15 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.MudarOJobOn_NaoPerdeNadaDosOutrosModulos`
 
 Selo depois: `771fcfc9beca2c80`
+
+## A-0047 · 2026-10-22 · teste-novo
+
+Porquê: Rascunho do Job On guardado ao recarregar; Enter na procura da Reparação Programada
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyJ3Y6hLo6zvBpEqbQwNgjbV
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: RascunhoEEnterNaProcuraTests.NovoJobOn_AFolhaLevaAChaveDoRascunho_EOScriptQueOGuarda`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: RascunhoEEnterNaProcuraTests.ReparacaoProgramada_OEnterNaReferenciaENoLoteSubmeteAProcura_ENaoOAdicionar`
+
+Selo depois: `b4bfd6113a994143`
