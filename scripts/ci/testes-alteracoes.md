@@ -772,7 +772,7 @@ Novos: 30 · mudaram: 13 · saíram: 2
 
 Selo depois: `e1eaa30f9e45e768`
 
-## A-0031 · 2026-10-22 · ok-do-diogo
+## A-0033 · 2026-10-22 · ok-do-diogo
 
 Porquê: Reparação Interna: o Registar passa a usar o painel lateral das linhas (como nas Boquilhas), com dia livre, log da pessoa e um separador Histórico por linha e dias, sem filtro de quem.
 Referência: Diogo 22/10 11:40 (cmsg_01A27e9ozcpoh4jdPRsuJbFyLWQ8XqSjRnSAL3FNbDmZne)
