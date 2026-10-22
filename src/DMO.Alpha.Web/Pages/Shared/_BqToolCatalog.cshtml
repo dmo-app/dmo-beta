@@ -79,14 +79,14 @@
   {
     <div class="dmo-table-wrap">
       <table class="dmo-table" id="bqToolList" data-dmo-list="Boquilhas registadas">
-        <thead><tr><th style="width:0"></th><th>Referência</th><th>Lote</th><th>Quantidade</th><th>Máquinas compatíveis</th></tr></thead>
+        <thead><tr><th style="width:0"></th><th>Referência</th><th>Lote</th><th>Quantidade</th><th>Máquinas compatíveis</th><th>MF associada</th></tr></thead>
         <tbody>
           @foreach (var tool in Model.CatalogTools)
           {
             <tr data-dmo-row data-id="@tool.ToolId" data-dmo-open="@(Model.CatalogLink(Model.CatalogPageNumber, tool.ToolId) + "#bq-tool-sheet")">
               <td><input type="radio" name="bq_tool" value="@tool.ToolId" aria-label="BQ @tool.Reference · lote @tool.Lot" /></td>
               <td><strong>@tool.Reference</strong></td><td>@tool.Lot</td>
-              <td>@(tool.AccountedQuantity?.ToString() ?? "—")</td><td>@(string.IsNullOrWhiteSpace(tool.MachineCodes) ? "—" : tool.MachineCodes)</td>
+              <td>@(tool.AccountedQuantity?.ToString() ?? "—")</td><td>@(string.IsNullOrWhiteSpace(tool.MachineCodes) ? "—" : tool.MachineCodes)</td><td>@(string.IsNullOrWhiteSpace(tool.AssociatedMfReference) ? "—" : tool.AssociatedMfReference)</td>
             </tr>
           }
         </tbody>
