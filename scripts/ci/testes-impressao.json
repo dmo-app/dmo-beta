@@ -1,5 +1,5 @@
 {
-  "selo": "64ea816d4d66879b",
+  "selo": "c77edb7db73eac47",
   "unidades": {
     "scripts/ci/ci-local.sh": "56a440ff59681c06",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1783,7 +1783,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.ZonasPedidas_SemOModulo_NaoDesenhaNada": "9e1f5dc723b8c100",
     "tests/DMO.Alpha.Web.Tests/ControloResumoServicesRegistrationTests.cs :: (resto do ficheiro)": "c0761f15ce1b088c",
     "tests/DMO.Alpha.Web.Tests/ControloResumoServicesRegistrationTests.cs :: ControloResumoServicesRegistrationTests.ControloResumoServices_ResolveAsScopedImplementations": "eceaf532d8dc8342",
-    "tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)": "c659f71c13e18354",
+    "tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)": "b4185fb2adb8aa4b",
     "tests/DMO.Alpha.Web.Tests/DMO.Alpha.Web.Tests.csproj": "ccd481ea73bcba88",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: (resto do ficheiro)": "a73635c57adc3f94",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda": "d948eb4d15090941",

@@ -1013,3 +1013,13 @@ Novos: 6 · mudaram: 2 · saíram: 3
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_SheetAndResumoWithPuncoes_AreGeneratedInMemory`
 
 Selo depois: `64ea816d4d66879b`
+
+## A-0038 · 2026-10-22 · ok-do-diogo
+
+Porquê: Testes web: cada fábrica tem a sua base em memória (antes uma só para todas as classes, que corriam em paralelo e apagavam os dados umas das outras; DMO-312)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/CustomWebApplicationFactory.cs :: (resto do ficheiro)`
+
+Selo depois: `c77edb7db73eac47`
