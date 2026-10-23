@@ -1616,3 +1616,18 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova`
 
 Selo depois: `e34f8d72d0d0e910`
+
+## A-0060 · 2026-10-23 · contagem-lista
+
+Porquê: PERF-10: testes novos do cancelamento das sugestões; package.json passa a correr o ficheiro novo
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
+Novos: 5 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: escrever depressa cancela o pedido anterior e só o texto atual mostra sugestões`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: limpar o campo cancela o pedido em voo`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: sair do campo cancela o pedido em voo`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: um pedido cancelado não mostra mensagem de erro`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `5f9bb3bf3356252d`
