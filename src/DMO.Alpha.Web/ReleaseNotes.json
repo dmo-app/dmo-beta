@@ -336,7 +336,8 @@
     { "id": "DMO-343", "module": "Job On", "description": "«Remover por engano» apaga a alteração de vez: deixa de aparecer em «O que mudou»." },
     { "id": "DMO-344", "module": "Controlo", "description": "0.3.0-beta.30: listas de email nas Definições com tabela Nome | Email, minimizáveis, um só «Adicionar» e colar uma lista do Outlook; um email que já está na lista avisa e não se repete." },
     { "id": "DMO-345", "module": "Job On", "description": "Folha: a Referência do cabeçalho mostra o código inteiro e a fila de cima alinha com o Imprimir." },
-    { "id": "DMO-346", "module": "Ferramentas", "description": "Pesquisar: os cartões não encolhem quando aparecem os resultados." }
+    { "id": "DMO-346", "module": "Ferramentas", "description": "Pesquisar: os cartões não encolhem quando aparecem os resultados." },
+    { "id": "DMO-347", "module": "Admin", "description": "0.3.0-beta.33: criar um template depois de outro já não grava por cima do primeiro; Ferramentas e Armazém juntos em «Gestão» nos templates; a densidade do vidro grava só com um valor." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

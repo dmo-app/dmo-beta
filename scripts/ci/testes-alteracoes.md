@@ -1996,3 +1996,23 @@ Novos: 6 · mudaram: 1 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ListaSemNenhumEmail_OuComNomeRepetido_NaoGrava`
 
 Selo depois: `65cddedf2800e31e`
+
+## A-0083 · 2026-10-23 · ok-do-diogo
+
+Porquê: Templates: criar um segundo template já não grava por cima do primeiro; Ferramentas e Armazém juntos na secção Gestão; a densidade do vidro grava com um só valor
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyNkoBTrMhAR3VewhBFWsKgJ cmsg_01A27e9ozcpoh4jdPRsuJbFyJk91Dmz4xRbnKyYghwkojw cmsg_01A27e9ozcpoh4jdPRsuJbFy4nkxmWrrwW4tabZAcvT81m
+Novos: 9 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_FerramentasEArmazem_NaSeccaoGestao`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_CriarDuasSeguidas_FicamDuas_APrimeiraNaoMuda`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_GuardarAAberta_AtualizaEssa`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.OsDoisVazios_NadaMuda_ComAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.SoNnpb_Grava_PsFicaComoEstava`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.SoPs_Grava_NnpbFicaComoEstava`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.UmInvalido_OOutroGrava_ComAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.AdminTemplates_MostraAChaveDoArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.NaoENumeroMaiorQueZero_NenhumaGrava`
+
+Selo depois: `14d84e20af09ab60`
