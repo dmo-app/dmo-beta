@@ -7,7 +7,7 @@ HTML exportado pelos testes HTTP reais (DMO_UI_EVIDENCE_DIR):
 Só ficheiros locais; nada vai ao DEV.
 
 No Planeamento (caixa «Produção» e «Criar Job On») e no Registar Reparação
-(«Histórico» e o «Reparador» do «Criar»), a 1400 px em claro e em escuro: o
+(«Histórico» e «Criar»), a 1400 px em claro e em escuro: o
 círculo fica a <= 0,5em da caixa ou do botão a que pertence, bem mais longe
 do que do seguinte, e com o topo acima do meio dele (elevado).
 """
@@ -26,7 +26,7 @@ assets = Path(__file__).resolve().parents[2] / 'src/DMO.Alpha.Web/wwwroot'
 CASOS = [
     ('jobon-ajuda.html', '/JobOn', '#lightProcura select, #lightProcura', '#lightProcura + .dmo-help', '#jobonCriar'),
     ('rp-ajuda.html', '/Ferramentas/ReparacaoProgramada', '#rpModoHistorico', '#rpModoHistorico + .dmo-help', None),
-    ('rp-ajuda.html', '/Ferramentas/ReparacaoProgramada', 'label[for=rpReparador]', 'label[for=rpReparador] > .dmo-help', None),
+    ('rp-ajuda.html', '/Ferramentas/ReparacaoProgramada', '#rpCriarBotao', '#rpCriarBotao + .dmo-help', None),
 ]
 MEDIR = '''([dono, ajuda, seguinte]) => {
   const d = document.querySelector(dono), a = document.querySelector(ajuda);

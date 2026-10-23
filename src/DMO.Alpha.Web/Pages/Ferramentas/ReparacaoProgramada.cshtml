@@ -168,7 +168,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
           }
         </select>
       </div>
-      <button type="submit" class="dmo-button" id="rpCriarBotao">Criar</button><partial name="_DmoHelp" model="@("Escolha o reparador (Armazém › Definições) e crie a lista. A lista fica com o nome do reparador e o dia, por exemplo «Moldes do Norte · 23/10/2026».")" />
+      <span class="dmo-com-ajuda"><button type="submit" class="dmo-button" id="rpCriarBotao">Criar</button><partial name="_DmoHelp" model="@("Escolha o reparador (Armazém › Definições) e crie a lista. A lista fica com o nome do reparador e o dia, por exemplo «Moldes do Norte · 23/10/2026».")" /></span>
     </form>
     }
       @if (lista is not null)
