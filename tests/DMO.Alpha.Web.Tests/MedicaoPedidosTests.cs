@@ -140,6 +140,31 @@ public sealed class MedicaoPedidosTests
         Assert.DoesNotContain(logs.Entries, e => e.Message.Contains(Sentinela, StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// O ramo de erro: quando o pedido lança uma exceção, a linha de medição
+    /// existe e diz 500 (e não o 200 que a resposta ainda tinha).
+    /// </summary>
+    [Fact]
+    public async Task PedidoQueLancaExcecao_ALinhaDizQuinhentos()
+    {
+        using var baseFactory = new CustomWebApplicationFactory();
+        var logs = new CapturingLoggerProvider();
+        using var factory = baseFactory.WithWebHostBuilder(b =>
+        {
+            b.ConfigureLogging(l => l.AddProvider(logs));
+            Microsoft.AspNetCore.TestHost.WebHostBuilderExtensions.ConfigureTestServices(b, s =>
+                s.AddSingleton<DMO.Alpha.Core.Authentication.IAuthenticationProvider, FornecedorDeAutenticacaoQueFalha>());
+        });
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+
+        using var resposta = await PostFormAsync(client, "/login", ("identifier", "falha.perf01@dmo.test"), ("password", Sentinela), ("returnUrl", "/"));
+        Assert.Equal(HttpStatusCode.InternalServerError, resposta.StatusCode);
+
+        var linhas = logs.Entries.Where(e => e.Category == "DMO.Medicao").Select(e => e.Message).ToList();
+        Assert.Contains(linhas, l => l.StartsWith("Pedido POST /login", StringComparison.OrdinalIgnoreCase) && l.Contains("-> 500"));
+        Assert.DoesNotContain(linhas, l => l.Contains(Sentinela, StringComparison.Ordinal) || l.Contains("falha.perf01", StringComparison.Ordinal));
+    }
+
     private sealed class ContadorDeComandos : DbCommandInterceptor
     {
         private int _comandos;
