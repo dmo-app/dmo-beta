@@ -2031,7 +2031,7 @@ Selo depois: `eeea5e50049f15e3`
 
 ## A-0085 · 2026-10-23 · ok-do-diogo
 
-Porquê: O Diogo pediu que o Job On novo abra com o template vazio, sem Editar, só com Referência e Produção; por isso ?novo=1 abre esse template e o Criar passa a etapa=criar; e o Peso mostra no máximo duas casas, sem zeros no fim.
+Porquê: O Diogo pediu que o Job On novo abra com o template vazio, sem Editar, só com Referência e Produção; por isso ?novo=1 abre esse template (quem só vê continua sem forma de criar) e o Criar passa a etapa=criar; e o Peso mostra no máximo duas casas, sem zeros no fim.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyDVmzwNXmJ27Y9wujPVctWi, cmsg_01A27e9ozcpoh4jdPRsuJbFy7ptiGBcxeK1STv81feVGJJ, cmsg_01A27e9ozcpoh4jdPRsuJbFy5bGHNtwLZnbmHdtmqXcSce
 Novos: 2 · mudaram: 5 · saíram: 0
 
@@ -2043,4 +2043,4 @@ Novos: 2 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_SemCmBqOuMf_ERecusado_AFolhaVoltaComOQueSeEscreveu_ENadaEGravado`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe`
 
-Selo depois: `083863e74166795a`
+Selo depois: `2f13253978d003d5`

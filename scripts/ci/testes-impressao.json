@@ -1,5 +1,5 @@
 {
-  "selo": "083863e74166795a",
+  "selo": "2f13253978d003d5",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2110,7 +2110,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_NumeroRepetido_ERecusadoTipado_ESoAvisaAsDatasTrocadas": "50f9ae21dcef6926",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_SemCmBqOuMf_ERecusado_AFolhaVoltaComOQueSeEscreveu_ENadaEGravado": "accc8f19b9af4e93",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatasNemNumero_ComODiaDoCalendario_EGravaUmaProducaoNova": "fe5df90f8a65ec9e",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe": "7d5e0621a316ef4e",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe": "c86dd8cad0607626",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_TP_ODiametroSemPS_ECampoIgual": "6b8216b15f60bd60",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.Planeamento_EscolherUmaProducao_AbreAFolhaNova_SemAFichaAntiga": "33f35e0563b6c5e2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: (resto do ficheiro)": "e0d01ce9aa695bc2",
