@@ -201,4 +201,32 @@ public partial class FerramentasPagesTests
         Assert.Contains("Há mais resultados", acima);
         Assert.DoesNotContain("id=\"histCortada\"", dentro);
     }
+
+    /// <summary>
+    /// Os separadores das Ferramentas (Diogo, 22/10/2026): «Ver» passa a
+    /// «Pesquisar» e «Reparação Programada» a «Registar Reparação»; os
+    /// endereços ficam. Só a barra dos separadores do módulo conta.
+    /// </summary>
+    [Fact]
+    public async Task BarraDasFerramentas_PesquisarERegistarReparacao_SemOsNomesAntigos()
+    {
+        SeedUser("4500", "Ferramentas Separadores", "provider-ferr-hist6", "FerrHist00!");
+        using var client = await LoginClientAsync("4500", "FerrHist00!");
+
+        var html = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, HistoricoPath));
+        var barra = System.Text.RegularExpressions.Regex.Match(html,
+            "<nav class=\"tabs dmo-secondary-nav\"[^>]*>.*?</nav>", System.Text.RegularExpressions.RegexOptions.Singleline).Value;
+        Assert.NotEmpty(barra);
+        var links = System.Text.RegularExpressions.Regex.Matches(barra, "<a[^>]*href=\"([^\"]*)\"[^>]*>\\s*([^<]*?)\\s*</a>")
+            .Select(m => (Texto: m.Groups[2].Value, Href: m.Groups[1].Value))
+            .ToList();
+
+        // 1. Os nomes novos, com os endereços de sempre.
+        Assert.Contains(("Pesquisar", "/Ferramentas"), links);
+        Assert.Contains(("Registar Reparação", "/Ferramentas/ReparacaoProgramada"), links);
+
+        // 2. Só depois: os nomes antigos já não estão na barra.
+        Assert.DoesNotContain("Reparação Programada", barra);
+        Assert.DoesNotContain(links, l => l.Texto == "Ver");
+    }
 }

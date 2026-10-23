@@ -1471,11 +1471,11 @@ Novos: 5 · mudaram: 2 · saíram: 0
 
 Selo depois: `9619ddd13d4b61e1`
 
-## A-0053 · 2026-10-22 · ok-do-diogo
+## A-0053 · 2026-10-23 · ok-do-diogo
 
-Porquê: Histórico de cada ferramenta e página Histórico das Ferramentas (tabela única, testes do Guardião); separadores «Registar Reparação» e «Pesquisar» (pedido do Diogo)
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySf77yPB56WfLMogMFxpVjS, cmsg_01A27e9ozcpoh4jdPRsuJbFy1J4L47FJGZPpVSWAoFSZNR
-Novos: 28 · mudaram: 3 · saíram: 0
+Porquê: Histórico de cada ferramenta e página Histórico das Ferramentas (tabela única, testes do Guardião); separadores «Registar Reparação» e «Pesquisar» (pedido do Diogo); teste da RI deixa de depender da hora (sementes do dia operacional; mesmas verificações)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySf77yPB56WfLMogMFxpVjS, cmsg_01A27e9ozcpoh4jdPRsuJbFy1J4L47FJGZPpVSWAoFSZNR, cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 31 · mudaram: 5 · saíram: 1
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.ABq_MostraSoASuaParteDaReferencia`
@@ -1491,6 +1491,7 @@ Novos: 28 · mudaram: 3 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.SemFiltro_AProcuraFicaVazia`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.UmaFerramentaQueNaoExiste_NaoTemHistorico`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.BarraDasFerramentas_PesquisarERegistarReparacao_SemOsNomesAntigos`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AbreVazio_EProcuraPelaReferencia`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AcimaDoLimite_MostraOAviso`
@@ -1499,6 +1500,8 @@ Novos: 28 · mudaram: 3 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.OLote_SemZerosAEsquerda`
 - novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.ONomeDoHistorico_UsaOLoteSemZero`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: RelogioFixo.CorrigirParaOMesmoNumero_NadaMuda_ESemAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.OPainel_LogoDepoisDaMeiaNoite_ORegistoDoDiaOperacional`
 - novo: `tests/ShellProof/historico-menu.test.cjs :: (resto do ficheiro)`
 - novo: `tests/ShellProof/historico-menu.test.cjs :: abrir outra linha fecha a primeira`
 - novo: `tests/ShellProof/historico-menu.test.cjs :: clicar na linha abre o menu com os três destinos desse Job On`
@@ -1507,6 +1510,9 @@ Novos: 28 · mudaram: 3 · saíram: 0
 - novo: `tests/ShellProof/historico-menu.test.cjs :: um segundo clique na linha fecha o menu`
 - mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.OPainel_BAntesDeC_ORegistoSoDestaPessoa_EditarNoCanto`
 - mudou: `tests/ShellProof/package.json`
+- saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.CorrigirParaOMesmoNumero_NadaMuda_ESemAviso`
 
-Selo depois: `431c3aebcea96e8b`
+Selo depois: `cd160122db68743a`
