@@ -203,6 +203,21 @@ else
 fi
 
 echo
+echo "== Browser nas cores do painel da Folha"
+echo "   Os cartões do painel da Folha com a cor da sua linha, o escolhido com a cor de escolhido e o selo centrado (claro e escuro)."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser nas cores do painel da Folha (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/painel_cores_linhas_browser.py >"$logs/ui-painel-cores.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser nas cores do painel da Folha")
+else
+  tail -30 "$logs/ui-painel-cores.log"
+  summary+=("FALHOU  Browser nas cores do painel da Folha")
+  failed=1
+fi
+
+echo
 echo "== Browser na tabela das punções"
 echo "   As colunas da lista das punções ficam com a mesma largura ao trocar «Visto» por «Por verificar»."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then

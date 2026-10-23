@@ -52,6 +52,12 @@ public sealed class IndexModel : PageModel
         "diametro_gargalo", "tp_diametro", "tp_sagitta"
     };
 
+    private readonly IFerramentasUsoSap _usoSap;
+
+    /// <summary>O % uso escrito, de volta numa recusa.</summary>
+    [BindProperty(SupportsGet = true, Name = "uso_percentagem")]
+    public string? RequestedUsoPercentagem { get; set; }
+
     [BindProperty(SupportsGet = true, Name = "bq_quantity")]
     public string? RequestedLotQuantity { get; set; }
     [BindProperty(SupportsGet = true, Name = "quantity_manual")]
@@ -66,8 +72,10 @@ public sealed class IndexModel : PageModel
         ShellStateFactory shellState,
         IToolLotQuantitySettings lotQuantities,
         IEditToolTechnicalValuesHandler editTechnical,
-        DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos)
+        DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos,
+        IFerramentasUsoSap usoSap)
     {
+        _usoSap = usoSap;
         _lotesNovos = lotesNovos;
         _editTechnical = editTechnical;
         _candidateQuery = candidateQuery;
@@ -339,7 +347,8 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "technical_name")] string? technicalName,
         [FromForm(Name = "return")] string? returnUrl,
         [FromForm(Name = "quantity_manual")] string? quantityManual,
-        [FromForm(Name = "lote_novo")] int? loteNovo = null)
+        [FromForm(Name = "lote_novo")] int? loteNovo = null,
+        [FromForm(Name = "uso_percentagem")] string? usoPercentagem = null)
     {
         // beta.63 (A11): a quantidade ilegível não recusa a ferramenta — grava
         // sem quantidade (sem a sugestão automática, que o operador quis
@@ -386,8 +395,25 @@ public sealed class IndexModel : PageModel
                 resolucao = await _lotesNovos.ResolverAsync(loteNovoId, created.ToolId, CancellationToken.None);
             }
 
+            // O % uso (opcional): nunca recusa. Grava como a primeira leitura
+            // (origem manual); 100 ou mais grava sem aviso nenhum (Diogo,
+            // 23/10/2026); ilegível ou negativo não grava e avisa.
+            string? usoAviso = null;
+            var usoEscrito = (usoPercentagem ?? string.Empty).Trim().TrimEnd('%').Trim();
+            if (usoEscrito.Length > 0 && !created.AlreadyExisted)
+            {
+                if (int.TryParse(usoEscrito, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var uso))
+                {
+                    await _usoSap.RegistarPercentagemManualAsync(created.ToolId, uso, CancellationToken.None);
+                }
+                else
+                {
+                    usoAviso = usoEscrito.Length > 20 ? usoEscrito[..20] : usoEscrito;
+                }
+            }
+
             var avisosArmazem = resolucao is { Resolveu: true } ? resolucao.Avisos.ToArray() : [];
-            var hasWarnings = created.LotDefaulted || unreadableQuantity || unreadableTechnical.Count > 0 || avisosArmazem.Length > 0;
+            var hasWarnings = usoAviso is not null || created.LotDefaulted || unreadableQuantity || unreadableTechnical.Count > 0 || avisosArmazem.Length > 0;
 
             // Fluxo contextual: o chamador recebe o tool_id resultante
             // substituído no SEU template local. Sem template (ou inválido),
@@ -412,7 +438,8 @@ public sealed class IndexModel : PageModel
                 quantidade_ilegivel = unreadableQuantity ? typedQuantity : null,
                 continuar = IsSafeLocalReturnTemplate(returnUrl) ? returnUrl.Replace("{tool_id}", created.ToolId) : null,
                 armazem_entrada = resolucao is { Resolveu: true } ? posicaoArmazem : null,
-                aviso_armazem = avisosArmazem.Length > 0 ? avisosArmazem : null
+                aviso_armazem = avisosArmazem.Length > 0 ? avisosArmazem : null,
+                uso_aviso = usoAviso
             });
             foreach (var field in unreadableTechnical)
                 fichaValues[field.Key] = field.Value;
@@ -436,7 +463,8 @@ public sealed class IndexModel : PageModel
             quantity_manual = quantityManual,
             machine_ids = machineIds,
             @return = returnUrl,
-            lote_novo = loteNovo
+            lote_novo = loteNovo,
+            uso_percentagem = Sanitize(usoPercentagem)
         });
         foreach (var field in technical.Where(field => field.Value is not null))
             refusalValues[field.Key] = field.Value;

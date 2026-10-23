@@ -39,6 +39,22 @@ MEDIR = '''([dono, ajuda, seguinte]) => {
            elevado: d.matches('label') ? circulo.top < caixa.top + caixa.height / 2 : circulo.top <= caixa.top + caixa.height * 0.25, visivel: circulo.width > 0 };
 }'''
 
+# Todas as ajudas ao lado de texto (títulos de página, de cartão, rótulos): o mesmo
+# círculo (8px), a mesma folga à palavra (3px) e o topo 4px acima das maiúsculas
+# da letra do dono (Diogo, 23/10/2026: «da mesma forma posição para tudo»).
+MEDIR_TODAS = '''() => [...document.querySelectorAll('.dmo-help')].filter(a => a.getClientRects().length).map(a => {
+  let antes = a.previousSibling;
+  while (antes && antes.nodeType === 3 && !antes.textContent.trim()) antes = antes.previousSibling;
+  if (!antes || antes.nodeType !== 3) return null;
+  const texto = antes.textContent.trimEnd(), r = document.createRange();
+  r.setStart(antes, texto.length - 1); r.setEnd(antes, texto.length);
+  const letra = [...r.getClientRects()].pop(), circulo = a.querySelector('.dmo-help-mark').getBoundingClientRect();
+  const ctx = document.createElement('canvas').getContext('2d'); ctx.font = getComputedStyle(antes.parentElement).font;
+  const base = a.getBoundingClientRect().bottom, topoMaiusculas = base - ctx.measureText('H').actualBoundingBoxAscent;
+  return { dono: antes.parentElement.tagName + ' «' + texto.trim().slice(-20) + '»', tamanho: circulo.width,
+           folga: circulo.left - letra.right, topo: circulo.top - topoMaiusculas };
+}).filter(Boolean)'''
+
 falhas = []
 with sync_playwright() as playwright:
     browser = launch_chromium(playwright)
@@ -65,6 +81,9 @@ with sync_playwright() as playwright:
             context.route('**/*', fazer(html, caminho))
             page.goto('http://dmo.test' + caminho)
             page.wait_for_load_state('load')
+            for t in page.evaluate(MEDIR_TODAS):
+                if abs(t['tamanho'] - 8) > 0.1 or abs(t['folga'] - 3) > 0.6 or abs(t['topo'] + 4) > 1.5:
+                    falhas.append(f'{caminho} {tema} {t["dono"]}: círculo {t["tamanho"]:.1f}px, a {t["folga"]:.1f}px, topo {t["topo"]:+.1f}px das maiúsculas (esperado 8px, 3px, -4px)')
             alvos = [d.strip() for d in dono.split(',')]
             m = page.evaluate(MEDIR, [next((d for d in alvos if page.locator(d).count()), alvos[-1]), ajuda, seguinte])
             print(f'{caminho} {dono} {tema}: {m}')

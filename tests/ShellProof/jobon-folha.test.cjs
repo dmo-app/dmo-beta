@@ -68,7 +68,8 @@ test('Editar: escolher outra ferramenta muda o cartão e a ficha do duplo clique
   assert.equal(doc.querySelector('[data-jof-tool-lote]').textContent, '9');
   assert.equal(doc.querySelector('[data-jof-tool-procura]').hidden, true);
   duplo(window, doc.querySelector('[data-jof-tool]'));
-  assert.deepEqual(idas, ['/Ferramentas/Ficha?tool_id=T9']);
+  // A ficha leva o regresso à folha (o «Voltar ao Job On», Diogo 23/10/2026).
+  assert.deepEqual(idas, ['/Ferramentas/Ficha?tool_id=T9&voltar=%2FJobOn%2FFolha%3Fjobon_id%3D1']);
   window.close();
 });
 

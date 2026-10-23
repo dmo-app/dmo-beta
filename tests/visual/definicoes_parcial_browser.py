@@ -144,15 +144,16 @@ MEDIR_AJUDA = """(h) => {
     if (antes.nodeType === 3) { const r = document.createRange(); r.selectNodeContents(antes); direita = r.getBoundingClientRect().right; }
     else direita = antes.getBoundingClientRect().right;
     const em = parseFloat(getComputedStyle(h).fontSize);
-    return { topo: topoMarca - topo, folga: (marca.getBoundingClientRect().left - direita) / em };
+    return { topo: topoMarca - topo, folga: marca.getBoundingClientRect().left - direita, tamanho: marca.getBoundingClientRect().width };
 }"""
 
 
 def ajuda_no_sitio(page, seletor, folga_esperada=None):
     m = page.eval_on_selector(seletor, MEDIR_AJUDA)
-    assert abs(m['topo']) <= 1.5, f'{seletor}: topo da ajuda a {m["topo"]:.1f}px da altura das maiúsculas'
-    if folga_esperada is not None:
-        assert abs(m['folga'] - folga_esperada) <= 0.03, f'{seletor}: ajuda a {m["folga"]:.2f}em (os outros títulos: {folga_esperada:.2f}em)'
+    # Um só tamanho e um só sítio (Diogo, 23/10/2026): 8px, a 3px do que vem antes, o topo 4px acima das maiúsculas.
+    assert abs(m['topo'] + 4) <= 1.5, f'{seletor}: topo da ajuda a {m["topo"]:.1f}px da altura das maiúsculas (esperado -4)'
+    assert abs(m['folga'] - 3) <= 0.6, f'{seletor}: ajuda a {m["folga"]:.1f}px do texto (esperado 3px)'
+    assert abs(m['tamanho'] - 8) <= 0.1, f'{seletor}: círculo de {m["tamanho"]:.1f}px (esperado 8px)'
     return m
 
 
@@ -167,7 +168,7 @@ with sync_playwright() as playwright:
     # fica encostada e elevada como nos outros títulos (Diogo, 23/10/2026).
     page.goto(base + '/Definicoes?secao=controlo&sub=pegamentos')
     folga_cadeado = ajuda_no_sitio(page, '#sec-controlo h3.def-parte-titulo:has(.def-cadeado)')
-    resultados.append(f'Ajuda do cadeado: topo a {folga_cadeado["topo"]:.1f}px das maiúsculas, a {folga_cadeado["folga"]:.2f}em da etiqueta')
+    resultados.append(f'Ajuda do cadeado: topo a {folga_cadeado["topo"]:.1f}px das maiúsculas, a {folga_cadeado["folga"]:.1f}px da etiqueta')
 
     # Controlo → Definições: a tolerância; duplo clique no «Guardar» = 1 POST, 1 mensagem.
     page.goto(base + '/Controlo/Definicoes')
@@ -314,7 +315,7 @@ with sync_playwright() as playwright:
     page.goto(base + '/Definicoes?secao=admin&sub=app')
     ajuda = ajuda_no_sitio(page, '#admin-email-title')
     desvio = ajuda['topo']
-    assert abs(ajuda['folga'] - folga_cadeado['folga']) <= 0.03, f'ajuda do cadeado a {folga_cadeado["folga"]:.2f}em, nos títulos a {ajuda["folga"]:.2f}em'
+    assert abs(ajuda['folga'] - folga_cadeado['folga']) <= 0.6, f'ajuda do cadeado a {folga_cadeado["folga"]:.1f}px, nos títulos a {ajuda["folga"]:.1f}px'
     resultados.append(f'Triângulo a {m["folga"]:.1f}px/{m2["folga"]:.1f}px do texto; topo da ajuda a {desvio:.1f}px da altura das maiúsculas')
 
     # Utilizadores: criar; o PIN fica no canto; o formulário limpa; a lista mostra-o.
