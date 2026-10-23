@@ -25,7 +25,7 @@ public sealed class ArmazemMapa(DmoDbContext db) : IArmazemMapa
             .ToListAsync(cancellationToken);
         var ids = ocupacoes.Select(o => o.ToolId).Distinct().ToList();
         var estados = (await db.FerramentaEstados.AsNoTracking()
-                .Where(e => ids.Contains(e.ToolId))
+                .Where(e => ids.Contains(e.ToolId) && !db.FerramentaEstados.Any(outra => outra.ToolId == e.ToolId && outra.Id > e.Id))
                 .Select(e => new { e.ToolId, e.Id, e.Estado })
                 .ToListAsync(cancellationToken))
             .GroupBy(e => e.ToolId)

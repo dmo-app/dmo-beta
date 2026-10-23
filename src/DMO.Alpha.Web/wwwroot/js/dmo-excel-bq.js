@@ -24,6 +24,10 @@
   var supported = typeof window.showOpenFilePicker === "function" && typeof window.showDirectoryPicker === "function" && "indexedDB" in window;
   var aEscrever = null;
   var avisouFalha = false;
+  var pendente = false;
+  var manualPendente = false;
+  var atualizarPendente = false;
+  var estadoAtual = "";
 
   function toast(message, kind) {
     if (window.DMOLive && window.DMOLive.toast) window.DMOLive.toast(message, { kind: kind || "info" });
@@ -95,8 +99,47 @@
   // atualizar: o botão «Atualizar» (Diogo, 22/10/2026): o servidor escreve
   // hoje e recua a partir de ontem, um dia de cada vez, até a um dia igual.
   function escrever(manual, atualizar) {
+    pendente = true;
+    manualPendente = manualPendente || !!manual;
+    atualizarPendente = atualizarPendente || !!atualizar;
     if (aEscrever) return aEscrever;
-    aEscrever = load().then(function (ligado) {
+    async function fila() {
+      var resultado = null;
+      while (pendente) {
+        var pedir = manualPendente;
+        var reconciliar = atualizarPendente;
+        pendente = manualPendente = atualizarPendente = false;
+        estadoAtual = "A atualizar…";
+        mostrar();
+        resultado = await escreverUmaVez(pedir, reconciliar);
+        if (!resultado) break; // Uma recusa não se repete sem um novo evento/clique.
+        var ligado = await load();
+        var versao = await versaoAtual();
+        if (ligado && versao && versao !== ligado.versao) pendente = true;
+      }
+      return resultado;
+    }
+    // O ficheiro e os metadados são lidos DEPOIS do trinco: outra aba pode
+    // ter acabado de escrever. O trinco nunca substitui a fila desta aba.
+    aEscrever = Promise.resolve().then(function () {
+      return navigator.locks && navigator.locks.request
+        ? navigator.locks.request("dmo-excel-bq-escrita", fila) : fila();
+    }).then(function (resultado) {
+      aEscrever = null;
+      estadoAtual = resultado ? "" : "Por atualizar";
+      mostrar();
+      return resultado;
+    }, function () {
+      aEscrever = null;
+      estadoAtual = "Por atualizar";
+      mostrar();
+      return null;
+    });
+    return aEscrever;
+  }
+
+  function escreverUmaVez(manual, atualizar) {
+    return load().then(function (ligado) {
       if (!ligado || !ligado.handle) return null;
       return permission(ligado.handle, manual).then(function (ok) {
         if (!ok) {
@@ -109,7 +152,7 @@
           });
         }
         return versaoAtual().then(function (versao) {
-          if (!manual && versao && versao === ligado.versao) return null;
+          if (!manual && versao && versao === ligado.versao) return true;
           var mensagem = null;
           return ligado.handle.getFile().then(function (ficheiro) {
             var corpo = new FormData();
@@ -130,6 +173,7 @@
             var avisos = resposta.headers.get("X-Dmo-Excel-Avisos");
             var escritas = resposta.headers.get("X-Dmo-Excel-Escritas");
             var texto = resposta.headers.get("X-Dmo-Excel-Mensagem");
+            var completo = resposta.headers.get("X-Dmo-Excel-Completo") !== "false" && !avisos;
             if (texto) mensagem = decodeURIComponent(texto);
             return resposta.blob().then(function (livro) {
               return ligado.handle.createWritable().then(function (escrita) {
@@ -139,9 +183,10 @@
               ligado.versao = novaVersao;
               if (escritas) ligado.escritas = JSON.parse(decodeURIComponent(escritas));
               ligado.escritoEm = new Date().toISOString();
+              ligado.pendencias = !completo;
               avisouFalha = false;
               return save(ligado).then(function () {
-                toast(mensagem || "Excel das Boquilhas atualizado.", "ok");
+                toast(completo ? (mensagem || "Excel das Boquilhas atualizado.") : "Excel das Boquilhas atualizado com pendências: nem todos os movimentos foram escritos.", completo ? "ok" : "aviso");
                 if (avisos) decodeURIComponent(avisos).split("\n").forEach(function (aviso) { toast(aviso, "aviso"); });
                 mostrar();
                 return true;
@@ -156,8 +201,7 @@
         toast("Não foi possível gravar o Excel das Boquilhas. Se estiver aberto, feche-o e use «Atualizar» nas Definições das Boquilhas.", "erro");
       }
       return null;
-    }).then(function (r) { aEscrever = null; return r; }, function () { aEscrever = null; return null; });
-    return aEscrever;
+    });
   }
 
   // O cartão das Definições das Boquilhas.
@@ -177,6 +221,17 @@
       var tem = !!(ligado && ligado.handle);
       Array.prototype.forEach.call(ligadas, function (item) { item.hidden = !tem; });
       escolher.textContent = tem ? "Escolher outra pasta" : "Escolher a pasta";
+      var sincronizacao = card.querySelector("[data-bq-excel-sincronizacao]");
+      if (!sincronizacao) {
+        sincronizacao = document.createElement("p");
+        sincronizacao.setAttribute("data-bq-excel-sincronizacao", "");
+        sincronizacao.setAttribute("role", "status");
+        card.appendChild(sincronizacao);
+      }
+      sincronizacao.hidden = !tem;
+      sincronizacao.textContent = estadoAtual || (ligado && ligado.pendencias
+        ? "Atualizado com pendências: consulte os avisos e use Atualizar."
+        : ligado && ligado.escritoEm ? "Atualizado em " + new Date(ligado.escritoEm).toLocaleString("pt-PT") + "." : "Por atualizar");
       estado.textContent = tem
         ? "«" + ligado.handle.name + "» · escreve os movimentos a partir de " + dataPt(ligado.desde) + "."
         : "Nenhum Excel escolhido neste computador.";
@@ -249,6 +304,9 @@
     mostrar();
     escrever(false);
   });
+
+  window.addEventListener("online", function () { escrever(false); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) escrever(false); });
 
   window.DMOExcelBq = { escrever: escrever };
   mostrar();

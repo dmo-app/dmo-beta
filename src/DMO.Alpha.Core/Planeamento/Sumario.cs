@@ -167,8 +167,13 @@ public static class SumarioTipos
 }
 
 /// <summary>A leitura do Sumário: só os tipos pedidos, num período de dias (hora de Lisboa).</summary>
+public sealed record SumarioPagina(IReadOnlyList<SumarioItem> Items, bool HaMais);
+
 public interface ISumarioQuery
 {
+    /// <summary>Blocos de pendências por tipo, com continuação explícita para não ocultar as posteriores ao limite.</summary>
+    Task<SumarioPagina> PorResolverPaginaAsync(DateOnly hoje, IReadOnlyCollection<SumarioTipo> tipos, int pagina, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// As linhas dos tipos pedidos com dia entre <paramref name="from"/>
     /// (incluído) e <paramref name="toExclusive"/>, as mais recentes primeiro.

@@ -69,13 +69,11 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
                 // Supabase, 5xx o serviço) não diz nada da palavra-passe.
                 if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.UnprocessableEntity)
                 {
-                    _logger.LogWarning("Supabase authentication failed for {Identifier}: {Status} {Body}",
-                        identifier, response.StatusCode, json);
+                    _logger.LogWarning("Supabase authentication failed: {Status}", response.StatusCode);
                     return AuthenticateResult.Failed("Invalid credentials.");
                 }
 
-                _logger.LogError("Supabase authentication unavailable for {Identifier}: {Status} {Body}",
-                    identifier, response.StatusCode, json);
+                _logger.LogError("Supabase authentication unavailable: {Status}", response.StatusCode);
                 return AuthenticateResult.Unavailable("Authentication provider unavailable.");
             }
 
@@ -96,9 +94,13 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
 
             return AuthenticateResult.Succeeded(providerUserId, email, isTemporaryPassword);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Supabase authentication request failed for {Identifier}", identifier);
+            _logger.LogError("Supabase authentication request failed: {ExceptionType}", ex.GetType().Name);
             return AuthenticateResult.Unavailable("Authentication provider unavailable.");
         }
     }
@@ -138,8 +140,7 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
             }
 
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logger.LogWarning("Supabase change-password failed for {ProviderUserId}: {Status} {Body}",
-                providerUserId, response.StatusCode, body);
+            _logger.LogWarning("Supabase change-password failed: {Status}", response.StatusCode);
 
             // 422 / weak_password: the GoTrue password policy refused the new
             // password — a distinct, operator-visible outcome (2026-10-11: the
@@ -151,9 +152,13 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
 
             return ChangePasswordResult.ProviderError;
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Supabase change-password request failed for {ProviderUserId}", providerUserId);
+            _logger.LogError("Supabase change-password request failed: {ExceptionType}", ex.GetType().Name);
             return ChangePasswordResult.ProviderError;
         }
     }
@@ -171,7 +176,7 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
         // the admin-by-id endpoint. Other values are not resolvable without additional API support.
         if (!Guid.TryParse(identifier, out var providerUserId))
         {
-            _logger.LogWarning("Supabase identity-existence check requires a provider user id (UUID); received {Identifier}", identifier);
+            _logger.LogWarning("Supabase identity-existence check requires a provider user id (UUID)");
             return false;
         }
 
@@ -186,9 +191,13 @@ public sealed class SupabaseAuthenticationProvider : IAuthenticationProvider, ID
             using var response = await _httpClient.SendAsync(request, cancellationToken);
             return response.IsSuccessStatusCode;
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Supabase identity-existence check failed for {Identifier}", identifier);
+            _logger.LogError("Supabase identity-existence check failed: {ExceptionType}", ex.GetType().Name);
             return false;
         }
     }

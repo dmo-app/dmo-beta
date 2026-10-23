@@ -15,7 +15,14 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// </summary>
 public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account) : IFerramentasFabricoSap
 {
-    public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken = default)
+    public Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(db, async () =>
+        {
+            await DbWrite.LockAsync(db, "sap:fabrico:importar", cancellationToken);
+            return await ImportarCoreAsync(linhas, ficheiro, ficheiroModificadoEmUtc, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<ImportarFabricoSapOutcome> ImportarCoreAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken)
     {
         var agora = DateTime.UtcNow;
         var actor = account.Current;
@@ -28,11 +35,11 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var materiais = unicas.Select(l => l.Material).Distinct().ToList();
         var existentes = await db.SapFabricos
             .Where(s => materiais.Contains(s.Material))
-            .ToListAsync(cancellationToken);
+            .ToDictionaryAsync(s => new { s.Material, s.Linha, s.InicioEm, s.FimEm }, cancellationToken);
         var novas = 0;
         foreach (var linha in unicas)
         {
-            var existente = existentes.FirstOrDefault(s => s.Material == linha.Material && s.Linha == linha.Linha && s.InicioEm == linha.InicioEm && s.FimEm == linha.FimEm);
+            existentes.TryGetValue(new { linha.Material, linha.Linha, linha.InicioEm, linha.FimEm }, out var existente);
             if (existente is null)
             {
                 existente = new SapFabrico { Material = linha.Material, Linha = linha.Linha, InicioEm = linha.InicioEm, FimEm = linha.FimEm };

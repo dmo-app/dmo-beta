@@ -18,7 +18,7 @@ namespace DMO.Alpha.Infrastructure.Planeamento;
 /// texto das alterações (<see cref="JobOnChangeFields.Describe"/>) e o
 /// registo de visão do Resumo (<see cref="ControloViewing"/>).
 /// </summary>
-public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao) : ISumarioQuery
+public sealed class SumarioQuery(DmoDbContext db) : ISumarioQuery
 {
     /// <summary>O máximo de linhas por tipo num período (o calendário pede um mês).</summary>
     private const int MaxPorTipo = 500;
@@ -50,14 +50,7 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
 
         if (tipos.Contains(SumarioTipo.ControloPorAprovar))
         {
-            var pendentes = await revisao.PeriodAsync(from, toExclusive, null, ControloRevisaoEstado.Pendente, null, MaxPorTipo, cancellationToken);
-            items.AddRange(pendentes.Select(p => new SumarioItem(
-                SumarioTipo.ControloPorAprovar,
-                Dia(p.RegistadoEmUtc!.Value),
-                p.RegistadoEmUtc,
-                Producao(p.Reference, p.ProductionNumber),
-                null,
-                p.RegistadoPor) { JobOnId = p.JobOnId, Maquina = p.Machine }));
+            items.AddRange(await PorAprovarAsync(fromUtc, toUtc, cancellationToken));
         }
 
         if (tipos.Contains(SumarioTipo.ControloNaoAprovado))
@@ -108,10 +101,19 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
     // primeiros não têm limite de dias; os outros olham para os últimos
     // DiasPorResolver dias e só para produções que não acabaram antes de
     // hoje (os por ver e os dados em falta).
-    public async Task<IReadOnlyList<SumarioItem>> PorResolverAsync(
-        DateOnly hoje,
-        IReadOnlyCollection<SumarioTipo> tipos,
-        CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<SumarioItem>> PorResolverAsync(DateOnly hoje, IReadOnlyCollection<SumarioTipo> tipos, CancellationToken cancellationToken = default) =>
+        PorResolverCoreAsync(hoje, tipos, cancellationToken, 0, null);
+
+    public async Task<SumarioPagina> PorResolverPaginaAsync(DateOnly hoje, IReadOnlyCollection<SumarioTipo> tipos, int pagina, CancellationToken cancellationToken = default)
+    {
+        var haMais = false;
+        var offset = (Math.Clamp(pagina, 1, int.MaxValue / MaxPorTipo) - 1) * MaxPorTipo;
+        var items = await PorResolverCoreAsync(hoje, tipos, cancellationToken, offset, mais => haMais |= mais);
+        return new(items, haMais);
+    }
+
+    private async Task<IReadOnlyList<SumarioItem>> PorResolverCoreAsync(
+        DateOnly hoje, IReadOnlyCollection<SumarioTipo> tipos, CancellationToken cancellationToken, int offset, Action<bool>? continuar)
     {
         var amanha = hoje.AddDays(1);
         var desde = hoje.AddDays(-DiasPorResolver);
@@ -120,19 +122,12 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
 
         if (tipos.Contains(SumarioTipo.ControloPorAprovar))
         {
-            var pendentes = await revisao.PeriodAsync(new DateOnly(2000, 1, 1), amanha, null, ControloRevisaoEstado.Pendente, null, MaxPorTipo, cancellationToken);
-            items.AddRange(pendentes.Select(p => new SumarioItem(
-                SumarioTipo.ControloPorAprovar,
-                Dia(p.RegistadoEmUtc!.Value),
-                p.RegistadoEmUtc,
-                Producao(p.Reference, p.ProductionNumber),
-                null,
-                p.RegistadoPor) { JobOnId = p.JobOnId, Maquina = p.Machine }));
+            items.AddRange(await PorAprovarAsync(Utc(new DateOnly(2000, 1, 1)), Utc(amanha), cancellationToken, offset, continuar));
         }
 
         if (tipos.Contains(SumarioTipo.ControloNaoAprovado))
         {
-            items.AddRange(await NaoAprovadosAsync(Utc(new DateOnly(2000, 1, 1)), Utc(amanha), cancellationToken));
+            items.AddRange(await NaoAprovadosAsync(Utc(new DateOnly(2000, 1, 1)), Utc(amanha), cancellationToken, offset, continuar));
         }
 
         if (tipos.Contains(SumarioTipo.JobOnPorVer))
@@ -141,10 +136,11 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
                 .Where(j => (j.FimEm == null || j.FimEm >= hoje)
                     && (j.CriadoEmUtc >= desdeUtc || (j.CriadoEmUtc == null && j.InicioEm >= desde && j.InicioEm <= hoje))
                     && !db.ControloViewings.Any(v => v.Controlo!.JobOnId == j.Id))
-                .OrderByDescending(j => j.CriadoEmUtc)
-                .Take(MaxPorTipo)
+                .OrderByDescending(j => j.CriadoEmUtc).ThenByDescending(j => j.Id)
+                .Skip(offset).Take(MaxPorTipo + 1)
                 .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Machine = j.Machine.Code, j.InicioEm, j.CriadoEmUtc })
                 .ToListAsync(cancellationToken);
+            Limitar(rows, continuar);
             items.AddRange(rows.Select(r => new SumarioItem(
                 SumarioTipo.JobOnPorVer,
                 r.CriadoEmUtc is { } criado ? Dia(criado) : r.InicioEm!.Value,
@@ -156,18 +152,18 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
 
         if (tipos.Contains(SumarioTipo.BqMovimentoApagado))
         {
-            items.AddRange(await BqApagadosAsync(Utc(hoje.AddDays(1 - DiasBqApagados)), Utc(amanha), cancellationToken));
+            items.AddRange(await BqApagadosAsync(Utc(hoje.AddDays(1 - DiasBqApagados)), Utc(amanha), cancellationToken, offset, continuar));
         }
 
         if (tipos.Contains(SumarioTipo.FerramentaDadosEmFalta))
         {
             items.AddRange(await DadosEmFaltaAsync(
-                j => j.InicioEm >= desde && j.InicioEm <= hoje && (j.FimEm == null || j.FimEm >= hoje), cancellationToken));
+                j => j.InicioEm >= desde && j.InicioEm <= hoje && (j.FimEm == null || j.FimEm >= hoje), cancellationToken, offset, continuar));
         }
 
         if (tipos.Contains(SumarioTipo.UsoAtualizado))
         {
-            items.AddRange((await UsoAtualizadoAsync(j => j.FimEm >= desde && j.FimEm <= hoje, cancellationToken)).Where(i => !i.Resolvido));
+            items.AddRange((await UsoAtualizadoAsync(j => j.FimEm >= desde && j.FimEm <= hoje, cancellationToken, offset, continuar)).Where(i => !i.Resolvido));
         }
 
         return items
@@ -281,8 +277,45 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
             .DistinctBy(i => (i.JobOnId, i.Detalhe, i.Por, (i.QuandoUtc ?? default).Ticks / TimeSpan.TicksPerMinute));
     }
 
+    // O Sumário só precisa da produção e do primeiro registo. Não carregar
+    // a projeção completa da Revisão (ferramentas, médias e leituras do Peso).
+    // O estado continua a vir da mesma regra de aprovação.
+    private async Task<IEnumerable<SumarioItem>> PorAprovarAsync(DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken, int offset = 0, Action<bool>? continuar = null)
+    {
+        var rows = await (
+                from e in ControloAprovacao.Estados(db)
+                where e.ApprovedAtUtc == null && e.NotApprovedAtUtc == null
+                let pesosEm = db.Pesos.Where(p => p.ControloId == e.ControloId).Min(p => p.RegistadoEmUtc)
+                let pegamentosEm = db.Pegamentos.Where(p => p.ControloId == e.ControloId).Min(p => p.RegistadoEmUtc)
+                let em = pesosEm ?? pegamentosEm
+                where em >= fromUtc && em < toUtc
+                join j in db.JobOns.AsNoTracking() on e.JobOnId equals j.Id
+                select new
+                {
+                    e.JobOnId,
+                    j.Reference,
+                    j.ProductionNumber,
+                    Machine = j.Machine.Code,
+                    Em = em!.Value,
+                    Por = pesosEm != null
+                        ? db.Pesos.Where(p => p.ControloId == e.ControloId && p.RegistadoEmUtc != null)
+                            .OrderBy(p => p.RegistadoEmUtc).Select(p => p.RegistadoPor).FirstOrDefault()
+                        : db.Pegamentos.Where(p => p.ControloId == e.ControloId && p.RegistadoEmUtc != null)
+                            .OrderBy(p => p.RegistadoEmUtc).Select(p => p.RegistadoPor).FirstOrDefault()
+                })
+            .OrderByDescending(r => r.Em).ThenByDescending(r => r.JobOnId)
+            .Skip(offset).Take(MaxPorTipo + 1)
+            .ToListAsync(cancellationToken);
+        Limitar(rows, continuar);
+
+        return rows.Select(r => new SumarioItem(
+            SumarioTipo.ControloPorAprovar, Dia(r.Em), r.Em,
+            Producao(r.Reference, r.ProductionNumber), null, r.Por)
+            { JobOnId = r.JobOnId, Maquina = r.Machine });
+    }
+
     /// <summary>Os controlos não aprovados no período (pelo dia da decisão).</summary>
-    private async Task<IEnumerable<SumarioItem>> NaoAprovadosAsync(DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken)
+    private async Task<IEnumerable<SumarioItem>> NaoAprovadosAsync(DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken, int offset = 0, Action<bool>? continuar = null)
     {
         var rows = await (
                 from e in ControloAprovacao.Estados(db)
@@ -300,9 +333,10 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
                     Por = db.Users.Where(u => u.OperatorId == e.NotApprovedByOperatorId).Select(u => u.Name).FirstOrDefault()
                         ?? e.NotApprovedByOperatorId
                 })
-            .OrderByDescending(r => r.Em)
-            .Take(MaxPorTipo)
+            .OrderByDescending(r => r.Em).ThenByDescending(r => r.JobOnId)
+            .Skip(offset).Take(MaxPorTipo + 1)
             .ToListAsync(cancellationToken);
+        Limitar(rows, continuar);
 
         return rows.Select(r => new SumarioItem(
             SumarioTipo.ControloNaoAprovado,
@@ -314,7 +348,7 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
     }
 
     /// <summary>Os movimentos de boquilhas apagados no período (o rasto do apagar).</summary>
-    private async Task<IEnumerable<SumarioItem>> BqApagadosAsync(DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken)
+    private async Task<IEnumerable<SumarioItem>> BqApagadosAsync(DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken, int offset = 0, Action<bool>? continuar = null)
     {
         var rows = await (
                 from d in db.BqMovementDeletions.AsNoTracking()
@@ -323,6 +357,7 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
                 from t in traces.DefaultIfEmpty()
                 select new
                 {
+                    d.Id,
                     d.Type,
                     d.Quantity,
                     d.MachineCodeFrozen,
@@ -332,9 +367,10 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
                     Lot = t == null ? null : t.ToolLotFrozen ?? t.Tool!.Lot,
                     BqContextId = t == null ? null : t.BqContextId
                 })
-            .OrderByDescending(r => r.DeletedAtUtc)
-            .Take(MaxPorTipo)
+            .OrderByDescending(r => r.DeletedAtUtc).ThenByDescending(r => r.Id)
+            .Skip(offset).Take(MaxPorTipo + 1)
             .ToListAsync(cancellationToken);
+        Limitar(rows, continuar);
 
         return rows.Select(r => new SumarioItem(
             SumarioTipo.BqMovimentoApagado,
@@ -350,13 +386,13 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
     /// técnicos (Diogo, 19/10/2026: «dados técnicos em falta faz mais
     /// sentido»), uma linha por ferramenta e produção, no dia do início.
     /// </summary>
-    private async Task<IEnumerable<SumarioItem>> DadosEmFaltaAsync(Expression<Func<JobOn, bool>> quais, CancellationToken cancellationToken)
+    private async Task<IEnumerable<SumarioItem>> DadosEmFaltaAsync(Expression<Func<JobOn, bool>> quais, CancellationToken cancellationToken, int offset = 0, Action<bool>? continuar = null)
     {
         var producoes = await db.JobOns.AsNoTracking()
             .Where(quais)
             .Where(j => j.InicioEm != null)
-            .OrderBy(j => j.InicioEm)
-            .Take(MaxPorTipo)
+            .OrderBy(j => j.InicioEm).ThenBy(j => j.Id)
+            .Skip(offset).Take(MaxPorTipo + 1)
             .Select(j => new
             {
                 j.Id,
@@ -369,6 +405,7 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
                 Bq = j.BqContext == null ? null : j.BqContext.ToolId
             })
             .ToListAsync(cancellationToken);
+        Limitar(producoes, continuar);
 
         var toolIds = producoes.SelectMany(p => new[] { p.Cm, p.Mf, p.Bq }).OfType<string>().Distinct().ToList();
         var tools = await db.Tools.AsNoTracking()
@@ -416,13 +453,13 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
     /// dia do fim menos a do início); sem a leitura do fim, a linha diz que
     /// falta, porque é isso que fica por fazer na ficha.
     /// </summary>
-    private async Task<IEnumerable<SumarioItem>> UsoAtualizadoAsync(Expression<Func<JobOn, bool>> quais, CancellationToken cancellationToken)
+    private async Task<IEnumerable<SumarioItem>> UsoAtualizadoAsync(Expression<Func<JobOn, bool>> quais, CancellationToken cancellationToken, int offset = 0, Action<bool>? continuar = null)
     {
         var producoes = await db.JobOns.AsNoTracking()
             .Where(quais)
             .Where(j => j.FimEm != null)
-            .OrderBy(j => j.FimEm)
-            .Take(MaxPorTipo)
+            .OrderBy(j => j.FimEm).ThenBy(j => j.Id)
+            .Skip(offset).Take(MaxPorTipo + 1)
             .Select(j => new
             {
                 j.Id,
@@ -436,6 +473,7 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
                 Bq = j.BqContext == null ? null : j.BqContext.ToolId
             })
             .ToListAsync(cancellationToken);
+        Limitar(producoes, continuar);
 
         var toolIds = producoes.SelectMany(p => new[] { p.Cm, p.Mf, p.Bq }).OfType<string>().Distinct().ToList();
         var tools = await db.Tools.AsNoTracking()
@@ -478,6 +516,13 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
         }
 
         return items;
+    }
+
+    private static void Limitar<T>(List<T> rows, Action<bool>? continuar)
+    {
+        var mais = rows.Count > MaxPorTipo;
+        continuar?.Invoke(mais);
+        if (mais) rows.RemoveRange(MaxPorTipo, rows.Count - MaxPorTipo);
     }
 
     private static string Percentagem(decimal valor) =>

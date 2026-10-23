@@ -37,12 +37,18 @@
   function init() {
     const form = document.getElementById('lightForm');
     const folha = form && form.getAttribute('data-jobon-rascunho');
+    const conta = document.querySelector('[data-dmo-account]')?.getAttribute('data-dmo-account');
+    if (!conta) return; // Nunca recuperar rascunhos sem um dono identificado.
+    const daConta = conta + ':';
+    const identidade = daConta + folha;
+    const versao = form?.querySelector('[name=versao]')?.value || 'novo';
+    const fotografiaComVersao = campos => ({ esquema: 1, versao, guardado: new Date().toISOString(), campos });
     // Sem folha aberta: um envio que esperava a resposta gravou (a folha fechou).
-    chavesDe('sessionStorage', ENVIADO).forEach(chave => {
-      if (!folha || chave !== ENVIADO + folha) apagar('sessionStorage', chave);
+    chavesDe('sessionStorage', ENVIADO + daConta).forEach(chave => {
+      if (!folha || chave !== ENVIADO + identidade) apagar('sessionStorage', chave);
     });
     if (!form || !folha) return;
-    const chave = PREFIXO + folha;
+    const chave = PREFIXO + identidade;
 
     function campos() { return Array.from(form.querySelectorAll(CAMPOS)); }
     function valor(campo) {
@@ -95,8 +101,8 @@
     let enviado = false;
 
     // Uma gravação que o servidor recusou: o que se enviou volta a ser rascunho.
-    const pendente = ler('sessionStorage', ENVIADO + folha);
-    apagar('sessionStorage', ENVIADO + folha);
+    const pendente = ler('sessionStorage', ENVIADO + identidade);
+    apagar('sessionStorage', ENVIADO + identidade);
     if (pendente && document.querySelector('#lightSheet [data-dmo-toast="erro"]')) {
       escrever('localStorage', chave, pendente);
     }
@@ -105,40 +111,58 @@
     function tirarNota() { if (nota) { nota.remove(); nota = null; } }
     const rascunho = ler('localStorage', chave);
     if (rascunho && Array.isArray(rascunho.campos)) {
-      const doEndereco = new Set(Array.from(new URLSearchParams(location.search).keys()));
-      if (aplicar(rascunho.campos, doEndereco)) {
-        nota = document.createElement('div');
-        nota.className = 'jobon-aviso info';
-        nota.id = 'jobonRascunhoNota';
-        nota.setAttribute('role', 'status');
-        let quando = '';
-        try {
-          if (rascunho.guardado) quando = ' (' + new Date(rascunho.guardado).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' }) + ')';
-        } catch (e) { quando = ''; }
-        nota.append('Rascunho recuperado' + quando + ': esta folha tem alterações por gravar que estavam neste browser. ');
-        const descartar = document.createElement('button');
-        descartar.type = 'button';
-        descartar.className = 'dmo-button';
-        descartar.id = 'jobonRascunhoDescartar';
-        descartar.textContent = 'Descartar rascunho';
-        descartar.addEventListener('click', () => {
-          apagar('localStorage', chave);
-          aplicar(inicial, null);
-          tirarNota();
-        });
-        nota.append(descartar);
-        form.parentNode.insertBefore(nota, form);
-      } else {
-        // O rascunho já é o que a folha mostra.
+      const idade = Date.now() - Date.parse(rascunho.guardado);
+      if (!Number.isFinite(idade) || idade < 0 || idade > 30 * 86400000 || rascunho.esquema !== 1) {
         apagar('localStorage', chave);
+      } else {
+        const doEndereco = new Set(Array.from(new URLSearchParams(location.search).keys()));
+        const antiga = rascunho.versao !== versao;
+        if (antiga || aplicar(rascunho.campos, doEndereco)) {
+          nota = document.createElement('div');
+          nota.className = 'jobon-aviso info';
+          nota.id = 'jobonRascunhoNota';
+          nota.setAttribute('role', 'status');
+          let quando = '';
+          try {
+            if (rascunho.guardado) quando = ' (' + new Date(rascunho.guardado).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' }) + ')';
+          } catch (e) { quando = ''; }
+          nota.append(antiga
+            ? 'Existe um rascunho de uma versão anterior' + quando + '. A folha mantém o que está gravado no servidor. '
+            : 'Rascunho recuperado' + quando + ': esta folha tem alterações por gravar que estavam neste browser. ');
+          if (antiga) {
+            const detalhes = document.createElement('details');
+            const titulo = document.createElement('summary');
+            titulo.textContent = 'Consultar valores do rascunho';
+            const texto = document.createElement('pre');
+            texto.textContent = rascunho.campos.map(linha => linha.t || linha.v).filter(Boolean).join('\n');
+            detalhes.append(titulo, texto);
+            nota.append(detalhes);
+          }
+          const descartar = document.createElement('button');
+          descartar.type = 'button';
+          descartar.className = 'dmo-button';
+          descartar.id = 'jobonRascunhoDescartar';
+          descartar.textContent = 'Descartar rascunho';
+          descartar.addEventListener('click', () => {
+            apagar('localStorage', chave);
+            aplicar(inicial, null);
+            tirarNota();
+          });
+          nota.append(descartar);
+          form.parentNode.insertBefore(nota, form);
+        } else {
+          // O rascunho já é o que a folha mostra.
+          apagar('localStorage', chave);
+        }
       }
     }
+
 
     function guardar() {
       if (enviado) return;
       const agora = fotografia();
       if (igual(agora, inicial)) { apagar('localStorage', chave); return; }
-      escrever('localStorage', chave, { guardado: new Date().toISOString(), campos: agora });
+      escrever('localStorage', chave, fotografiaComVersao(agora));
     }
     form.addEventListener('input', guardar);
     form.addEventListener('change', guardar);
@@ -147,7 +171,7 @@
       // O envio leva os dados; se o servidor recusar, voltam (ver pendente).
       const agora = fotografia();
       enviado = true;
-      escrever('sessionStorage', ENVIADO + folha, { guardado: new Date().toISOString(), campos: agora });
+      escrever('sessionStorage', ENVIADO + identidade, fotografiaComVersao(agora));
       apagar('localStorage', chave);
       tirarNota();
     });

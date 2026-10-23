@@ -37,7 +37,7 @@ public sealed class SumarioNovidades(
 
     public static readonly TimeSpan Validade = TimeSpan.FromMinutes(1);
 
-    private static string Chave(Guid userId) => $"dmo-sumario-ultimo:{userId:N}";
+    private static string Chave(Guid userId, IReadOnlyCollection<string> modulos) => $"dmo-sumario-ultimo:{userId:N}:{string.Join(",", modulos.Order(StringComparer.Ordinal))}";
 
     /// <summary>True quando há uma linha importante mais recente do que a última vez que a conta abriu o Sumário.</summary>
     public async Task<bool> TemNovoAsync(CancellationToken cancellationToken = default)
@@ -47,7 +47,8 @@ public sealed class SumarioNovidades(
             return false;
         }
 
-        var ultimo = await cache.GetOrCreateAsync(Chave(userId), async entrada =>
+        var modulos = await capabilities.GetAsync(cancellationToken);
+        var ultimo = await cache.GetOrCreateAsync(Chave(userId, modulos), async entrada =>
         {
             entrada.AbsoluteExpirationRelativeToNow = Validade;
             return await UltimoImportanteAsync(cancellationToken);
@@ -71,7 +72,7 @@ public sealed class SumarioNovidades(
         }
 
         await pessoais.GravarAsync(userId, UserSettingKeys.SumarioVistoEm, DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture), cancellationToken);
-        cache.Remove(Chave(userId));
+        cache.Remove(Chave(userId, await capabilities.GetAsync(cancellationToken)));
     }
 
     private async Task<DateTime?> UltimoImportanteAsync(CancellationToken cancellationToken)
@@ -87,20 +88,30 @@ public sealed class SumarioNovidades(
     }
 
     /// <summary>Os importantes por resolver que os módulos deixam ver, os mais recentes primeiro.</summary>
-    public async Task<IReadOnlyList<SumarioItem>> ImportantesAsync(IReadOnlyCollection<string> modulos, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<SumarioItem>> ImportantesAsync(IReadOnlyCollection<string> modulos, CancellationToken cancellationToken = default) =>
+        (await ImportantesPaginaAsync(modulos, 1, null, cancellationToken)).Items;
+
+    public async Task<SumarioPagina> ImportantesPaginaAsync(IReadOnlyCollection<string> modulos, int pagina, SumarioTipo? filtroTipo, CancellationToken cancellationToken = default)
     {
-        var tipos = SumarioTipos.Visiveis(modulos).Where(SumarioTipos.Importante).ToList();
+        pagina = Math.Clamp(pagina, 1, int.MaxValue / 500);
+        var offset = (pagina - 1) * 500;
+        var haMais = false;
+        var tipos = SumarioTipos.Visiveis(modulos).Where(SumarioTipos.Importante).Where(t => filtroTipo is null || t == filtroTipo).ToList();
         var items = new List<SumarioItem>();
         var daConsulta = tipos.Where(SumarioTipos.DoPeriodo).ToList();
         if (daConsulta.Count > 0)
         {
-            items.AddRange(await sumario.PorResolverAsync(DateOnly.FromDateTime(DmoBusinessTime.Now), daConsulta, cancellationToken));
+            var bloco = await sumario.PorResolverPaginaAsync(DateOnly.FromDateTime(DmoBusinessTime.Now), daConsulta, pagina, cancellationToken);
+            items.AddRange(bloco.Items);
+            haMais |= bloco.HaMais;
         }
 
         // O lote novo sai quando a ferramenta é criada (ou ligada a uma existente).
         if (tipos.Contains(SumarioTipo.LoteNovoPorCriar))
         {
-            foreach (var lote in await lotesNovos.PorCriarAsync(null, cancellationToken))
+            var lotes = await lotesNovos.PorCriarAsync(null, cancellationToken);
+            haMais |= lotes.Count > offset + 500;
+            foreach (var lote in lotes.Skip(offset).Take(500))
             {
                 var tipo = ArmazemTextos.Tipo(lote.Tipo);
                 var em = DateTime.SpecifyKind(lote.RegistadoEmUtc, DateTimeKind.Utc);
@@ -123,7 +134,10 @@ public sealed class SumarioNovidades(
         if (tipos.Contains(SumarioTipo.UsoAtualizado))
         {
             var ja = items.Where(i => i.Tipo == SumarioTipo.UsoAtualizado).Select(i => i.ToolId).ToHashSet(StringComparer.Ordinal);
-            foreach (var uso in await usoSap.PorAtualizarAsync(LembretesMaximo, cancellationToken))
+            var offsetLembretes = (pagina - 1) * LembretesMaximo;
+            var lembretes = await usoSap.PorAtualizarAsync(offsetLembretes + LembretesMaximo + 1, cancellationToken);
+            haMais |= lembretes.Count > offsetLembretes + LembretesMaximo;
+            foreach (var uso in lembretes.Skip(offsetLembretes).Take(LembretesMaximo))
             {
                 if (ja.Contains(uso.ToolId))
                 {
@@ -141,6 +155,6 @@ public sealed class SumarioNovidades(
             }
         }
 
-        return items.OrderByDescending(i => i.InstanteUtc).ThenBy(i => i.Tipo).ToList();
+        return new SumarioPagina(items.OrderByDescending(i => i.InstanteUtc).ThenBy(i => i.Tipo).ToList(), haMais);
     }
 }

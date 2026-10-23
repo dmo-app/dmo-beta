@@ -216,7 +216,7 @@ public sealed class FolhaModel(
     {
         VistaAlteracoes = vista == "alteracoes";
         AlteracaoRemovida = removida == "1";
-        await ComporPaginaAsync();
+        await ComporPaginaAsync(editar == "1" || novo == "1" || duplicar is not null);
         var ct = HttpContext.RequestAborted;
         DiaPlaneamento = DateOnly.TryParseExact(dia, "yyyy-MM-dd", out var diaValor) ? diaValor : null;
         NovoMachineId = machineId;
@@ -294,7 +294,7 @@ public sealed class FolhaModel(
         [FromForm(Name = "calote_mm")] string? caloteMm,
         [FromForm(Name = "duplicar_de")] int? duplicarDe)
     {
-        await ComporPaginaAsync();
+        await ComporPaginaAsync(semPainel: true);
         if (!PodeEditar)
         {
             return Redirect("/JobOn/Folha");
@@ -337,7 +337,7 @@ public sealed class FolhaModel(
         }
     }
 
-    private async Task ComporPaginaAsync()
+    private async Task ComporPaginaAsync(bool semPainel = false)
     {
         ViewData["Title"] = "Job On";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
@@ -352,9 +352,14 @@ public sealed class FolhaModel(
         VeBoquilhas = await capabilities.HasAsync(DmoCapabilities.Boquilhas, ct);
         Capacidades = await capabilities.GetAsync();
 
-        var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
-        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
-        ProximasEntradas = IndexModel.ProximasEntradasDaSemana(await jobOnList.ListWindowAsync(hoje, domingo, ct), hoje);
+        // Em Editar/Criar a folha não desenha o painel. Não carregar todas
+        // as produções em curso para depois as deitar fora.
+        if (!semPainel || !PodeEditar)
+        {
+            var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
+            var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
+            ProximasEntradas = IndexModel.ProximasEntradasDaSemana(await jobOnList.ListWindowAsync(hoje, domingo, ct), hoje);
+        }
     }
 
     private async Task<IActionResult> AbrirAsync(int? jobOnId, string? editar, string? gravado, string? overlap, string? caloteIgnorada, string? fimAntesInicio)

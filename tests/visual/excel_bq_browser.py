@@ -130,7 +130,7 @@ with sync_playwright() as playwright:
     assert b"ANTIGO" in posts[0] and b'name="desde"\r\n\r\n2026-10-20' in posts[0], posts[0][:400]
     assert b'name="__RequestVerificationToken"\r\n\r\ntok-1' in posts[0]
     assert page.evaluate(READ_FILE) == "ESCRITO-1.1.0"
-    assert "Excel das Boquilhas atualizado." in toasts(page), toasts(page)
+    assert "Excel das Boquilhas atualizado com pendências: nem todos os movimentos foram escritos." in toasts(page), toasts(page)
     assert any("ficaram de fora T6/1." in t for t in toasts(page)), toasts(page)
     assert page.locator("[data-bq-excel-estado]").inner_text() == \
         "«Saida Entrada BQ 2026.xlsx» · escreve os movimentos a partir de 20/10/2026."
@@ -196,6 +196,28 @@ with sync_playwright() as playwright:
     page.click("[data-bq-excel-pasta]")
     page.wait_for_timeout(800)
     assert len(novos) == 1, "o Excel que já existe na pasta não é substituído"
+
+    # Um movimento enquanto se escreve deixa outra passagem na fila.
+    state["versao"] = "4.4.0"
+    page.evaluate("""() => {
+      const original = window.fetch;
+      window.fetch = async function(url, options) {
+        const response = await original(url, options);
+        if (!window.__holdUsed && options && options.method === 'POST' && String(url).includes('handler=Excel')) {
+          window.__holdUsed = true;
+          window.__excelReady = true;
+          await new Promise(resolve => { window.__releaseExcel = resolve; });
+        }
+        return response;
+      };
+      window.DMOExcelBq.escrever(false).then(() => {window.__excelDone = true;});
+    }""")
+    page.wait_for_function("window.__excelReady === true")
+    state["versao"] = "5.5.0"
+    page.evaluate("document.dispatchEvent(new CustomEvent('dmo:troca', { detail: { recusa: false } }))")
+    page.evaluate("window.__releaseExcel()")
+    page.wait_for_function("window.__excelDone === true")
+    assert page.evaluate(READ_FILE) == "ESCRITO-5.5.0", "o movimento que chega durante a escrita também tem de chegar ao Excel"
 
     assert errors == [], errors
     browser.close()

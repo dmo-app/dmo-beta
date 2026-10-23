@@ -1,4 +1,5 @@
 using DMO.Alpha.Core.Production;
+using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -73,7 +74,18 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 DiametroGargaloMm = tc != null ? tc.DiametroGargaloMm : null,
                 TpDiametroMm = tc != null ? tc.TpDiametroMm : null,
                 TpRaioMm = tc != null ? tc.TpRaioMm : null,
-                TpSagittaMm = tc != null ? tc.TpSagittaMm : null
+                TpSagittaMm = tc != null ? tc.TpSagittaMm : null,
+                Posicao = (from o in _db.ArmazemOcupacoes
+                           join p in _db.ArmazemPosicoes on o.PosicaoId equals p.Id
+                           where o.ToolId == t.ToolId && o.LibertadaEmUtc == null
+                           select p.Codigo).FirstOrDefault(),
+                Localizacao = _db.FerramentaLocalizacoes.Where(l => l.ToolId == t.ToolId)
+                    .Select(l => new { l.Localizacao, l.ReparadorNome }).FirstOrDefault(),
+                Registada = _db.ArmazemMovimentos.Any(m => m.ToolId == t.ToolId),
+                Estado = _db.FerramentaEstados.Where(e => e.ToolId == t.ToolId)
+                    .OrderByDescending(e => e.Id).Select(e => (FerramentaEstadoTipo?)e.Estado).FirstOrDefault(),
+                Utilizacao = _db.FerramentaUtilizacoes.Where(u => u.ToolId == t.ToolId)
+                    .OrderByDescending(u => u.Id).Select(u => (decimal?)u.Percentagem).FirstOrDefault()
             })
             .ToListAsync(cancellationToken);
 
@@ -120,38 +132,8 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                     .ThenBy(uso => uso.JobOnId)
                     .ToList());
 
-        // O ARMAZÉM (Diogo 21/10, FER-E-03): onde está, o último estado e o
-        // aviso quando a ferramenta não está registada ou não tem estado.
-        var posicoes = (await (
-                from o in _db.ArmazemOcupacoes.AsNoTracking()
-                join p in _db.ArmazemPosicoes.AsNoTracking() on o.PosicaoId equals p.Id
-                where ids.Contains(o.ToolId) && o.LibertadaEmUtc == null
-                select new { o.ToolId, p.Codigo })
-            .ToListAsync(cancellationToken))
-            .GroupBy(o => o.ToolId)
-            .ToDictionary(g => g.Key, g => g.First().Codigo);
-        var localizacoes = await _db.FerramentaLocalizacoes.AsNoTracking()
-            .Where(l => ids.Contains(l.ToolId))
-            .ToDictionaryAsync(l => l.ToolId, cancellationToken);
-        var registadas = (await _db.ArmazemMovimentos.AsNoTracking()
-                .Where(m => ids.Contains(m.ToolId))
-                .Select(m => m.ToolId)
-                .Distinct()
-                .ToListAsync(cancellationToken))
-            .ToHashSet(StringComparer.Ordinal);
-        var estados = (await _db.FerramentaEstados.AsNoTracking()
-                .Where(e => ids.Contains(e.ToolId))
-                .Select(e => new { e.ToolId, e.Id, e.Estado })
-                .ToListAsync(cancellationToken))
-            .GroupBy(e => e.ToolId)
-            .ToDictionary(g => g.Key, g => g.MaxBy(e => e.Id)!.Estado);
-        var utilizacoes = (await _db.FerramentaUtilizacoes.AsNoTracking()
-                .Where(u => ids.Contains(u.ToolId))
-                .Select(u => new { u.ToolId, u.Id, u.Percentagem })
-                .ToListAsync(cancellationToken))
-            .GroupBy(u => u.ToolId)
-            .ToDictionary(g => g.Key, g => g.MaxBy(u => u.Id)!.Percentagem);
-
+        // Localização/estado/uso vêm na projeção das ferramentas: só o último
+        // estado e a última leitura, sem transferir o histórico inteiro.
         var result = new List<JobOnToolFacts>(tools.Count);
         foreach (var tool in tools)
         {
@@ -185,11 +167,11 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
             }
 
             var nome = $"{tool.Type.ToString().ToUpperInvariant()} {tool.Reference} / lote {tool.Lot}";
-            var registada = registadas.Contains(tool.ToolId);
-            var temEstado = estados.TryGetValue(tool.ToolId, out var estado);
-            string? ondeEsta = posicoes.TryGetValue(tool.ToolId, out var posicao)
+            var registada = tool.Registada;
+            var temEstado = tool.Estado is not null;
+            string? ondeEsta = tool.Posicao is { } posicao
                 ? $"Armazém · posição {posicao}"
-                : localizacoes.TryGetValue(tool.ToolId, out var localizacao)
+                : tool.Localizacao is { } localizacao
                     ? DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(localizacao.Localizacao, localizacao.ReparadorNome)
                     : registada ? "Fabrico" : null;
             var avisoArmazem = (registada, temEstado) switch
@@ -221,8 +203,8 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
             {
                 UsosParalelos = usosDaTool ?? new List<JobOnToolUsoParalelo>(),
                 OndeEsta = ondeEsta,
-                Estado = temEstado ? estado : null,
-                Utilizacao = utilizacoes.TryGetValue(tool.ToolId, out var utilizacao) ? utilizacao : null,
+                Estado = tool.Estado,
+                Utilizacao = tool.Utilizacao,
                 AvisoArmazem = avisoArmazem
             });
         }

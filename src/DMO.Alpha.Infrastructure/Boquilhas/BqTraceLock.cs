@@ -21,12 +21,12 @@ internal static class BqTraceLock
         int traceId,
         CancellationToken cancellationToken)
     {
-        if (!db.Database.IsRelational() || db.Database.CurrentTransaction is not null)
+        if (!db.Database.IsRelational())
         {
             return null;
         }
 
-        var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var transaction = db.Database.CurrentTransaction is null ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         await db.Database.ExecuteSqlInterpolatedAsync(
             $"""SELECT 1 FROM "BqRepairTraces" WHERE "Id" = {traceId} FOR UPDATE""",
             cancellationToken);

@@ -14,14 +14,14 @@ const script = fs.readFileSync(path.resolve(__dirname, '../../src/DMO.Alpha.Web/
 // O que o servidor desenha: a folha nova vazia, a duplicada com os valores da
 // produção de origem, a de edição com os valores gravados (referência e
 // número só de leitura). recusa: a mensagem de erro que volta com a folha.
-function folha({ chave = 'novo', valores = {}, edicao = false, recusa = '', mfOpcao = null } = {}) {
+function folha({ chave = 'novo', valores = {}, edicao = false, recusa = '', mfOpcao = null, conta = 'operador-a', versao = '3' } = {}) {
   const v = (nome) => valores[nome] ?? '';
   const mf = mfOpcao ? `<option value="${mfOpcao.id}" selected>${mfOpcao.texto}</option>` : '';
-  return `<section id="lightSheet">
+  return `<section id="lightSheet" data-dmo-account="${conta}">
     ${recusa ? `<div data-dmo-toast="erro" class="jobon-aviso" role="alert">${recusa}</div>` : ''}
     <form id="lightForm" data-dmo-script data-jobon-rascunho="${chave}" method="post" action="/JobOn?handler=${edicao ? 'Update' : 'Create'}">
       <input name="__RequestVerificationToken" type="hidden" value="tok">
-      ${edicao ? '<input type="hidden" id="lightEditId" name="jobon_edit_id" value="77"><input type="hidden" name="versao" value="3">' : ''}
+      ${edicao ? '<input type="hidden" id="lightEditId" name="jobon_edit_id" value="77"><input type="hidden" name="versao" value="' + versao + '">' : ''}
       <input id="lightReference" name="reference" value="${v('reference')}"${edicao ? ' readonly' : ''}>
       <input id="lightProduction" name="production_number" value="${v('production_number')}"${edicao ? ' readonly' : ''}>
       <select id="lightMachine" name="machine_id"><option value="">Selecionar</option>
@@ -36,7 +36,7 @@ function folha({ chave = 'novo', valores = {}, edicao = false, recusa = '', mfOp
   </section>`;
 }
 // A ficha de um Job On gravado: sem folha aberta.
-const ficha = '<section id="lightFicha"><h2>Job On</h2></section>';
+const ficha = '<section data-dmo-account="operador-a" id="lightFicha"><h2>Job On</h2></section>';
 
 // Um browser: o armazenamento fica entre as janelas (recarregar, navegar).
 function browser({ semArmazenamento = false } = {}) {
@@ -159,7 +159,7 @@ test('uma gravação com sucesso apaga o rascunho, e ele não volta depois', asy
     escrever(j, `[name=${nome}]`, id);
   }
   await tick();
-  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:novo']);
+  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:operador-a:novo']);
   gravar(j);
   await tick(); j.fechar();
   assert.deepEqual(rascunhos(b), [], 'o envio apaga o rascunho');
@@ -196,7 +196,7 @@ test('quando o servidor recusa a gravação, o rascunho volta', async () => {
   assert.equal(valor(j, '#lightReference'), '5447T173');
   assert.ok(nota(j));
   j.fechar();
-  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:novo'], 'volta a ser rascunho');
+  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:operador-a:novo'], 'volta a ser rascunho');
 
   // E fica: recarregar a folha nova traz tudo.
   j = await b.abrir(folha(), 'http://dmo.test/JobOn?novo=1');
@@ -259,7 +259,7 @@ test('os rascunhos do Novo, do Duplicar X e do Editar Y não se misturam', async
   let j = await novo(); escrever(j, '#cmNotas', 'NOVO'); await tick(); j.fechar();
   j = await duplicar(40); escrever(j, '#cmNotas', 'DUP40'); await tick(); j.fechar();
   j = await editar(77); escrever(j, '#cmNotas', 'EDIT77'); escrever(j, '#lightMachine', '2'); await tick(); j.fechar();
-  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:duplicar:40', 'dmo-jobon-rascunho:editar:77', 'dmo-jobon-rascunho:novo']);
+  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:operador-a:duplicar:40', 'dmo-jobon-rascunho:operador-a:editar:77', 'dmo-jobon-rascunho:operador-a:novo']);
 
   j = await novo(); assert.equal(valor(j, '#cmNotas'), 'NOVO'); j.fechar();
   j = await duplicar(40); assert.equal(valor(j, '#cmNotas'), 'DUP40'); assert.equal(valor(j, '#lightProduction'), '202640'); j.fechar();
@@ -273,6 +273,30 @@ test('os rascunhos do Novo, do Duplicar X e do Editar Y não se misturam', async
 
   // Gravar o Editar 77 só apaga o dele.
   j = await editar(77); gravar(j); await tick(); j.fechar();
-  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:duplicar:40', 'dmo-jobon-rascunho:novo']);
+  assert.deepEqual(rascunhos(b), ['dmo-jobon-rascunho:operador-a:duplicar:40', 'dmo-jobon-rascunho:operador-a:novo']);
   assert.deepEqual(b.erros, []);
+});
+
+
+test('O rascunho de uma conta não aparece noutra no mesmo browser', async () => {
+  const b = browser();
+  let w = await b.abrir(folha({conta: 'a'}), 'http://dmo.local/JobOn');
+  w.document.querySelector('#lightReference').value = 'DA-CONTA-A';
+  w.document.querySelector('#lightReference').dispatchEvent(new w.window.Event('input', {bubbles:true}));
+  w.fechar();
+  w = await b.abrir(folha({conta: 'b'}), 'http://dmo.local/JobOn');
+  assert.equal(w.document.querySelector('#lightReference').value, '');
+  w = await b.abrir(folha({conta: 'a'}), 'http://dmo.local/JobOn');
+  assert.equal(w.document.querySelector('#lightReference').value, 'DA-CONTA-A');
+});
+
+test('Um rascunho de outra versão não substitui automaticamente o servidor', async () => {
+  const b = browser();
+  let w = await b.abrir(folha({chave:'editar:77', edicao:true, versao:'3'}), 'http://dmo.local/JobOn');
+  w.document.querySelector('#cmNotas').value = 'trabalho antigo';
+  w.document.querySelector('#cmNotas').dispatchEvent(new w.window.Event('input', {bubbles:true}));
+  w.fechar();
+  w = await b.abrir(folha({chave:'editar:77', edicao:true, versao:'4', valores:{folha_cm_notas:'servidor novo'}}), 'http://dmo.local/JobOn');
+  assert.equal(w.document.querySelector('#cmNotas').value, 'servidor novo');
+  assert.match(w.document.querySelector('#jobonRascunhoNota').textContent, /versão anterior/);
 });

@@ -11,8 +11,8 @@ Em claro e em escuro:
   escuro enquanto o fundo anima).
 """
 import sys
-import tempfile
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from playwright.sync_api import sync_playwright
 
@@ -22,7 +22,7 @@ www = Path(__file__).resolve().parents[2] / 'src/DMO.Alpha.Web/wwwroot'
 CSS = ['0_ASSET_CANONICAL_DESIGN_SYSTEM.css', '0_ASSET_SHELL.css', 'beta-shell.css',
        'beta-production-overview.css', 'css/dmo-normalize.css']
 HTML = '<!doctype html><html><head><meta charset="utf-8">' + ''.join(
-    f'<link rel="stylesheet" href="{(www / c).as_uri()}">' for c in CSS) + '''</head>
+    f'<link rel="stylesheet" href="/{c}">' for c in CSS) + '''</head>
 <body><aside class="beta-production-rail"><div class="beta-production-lines" data-dmo-list="Linhas">
 <button type="button" data-dmo-row id="a"><strong>B1</strong><span>1075 · Lote 13</span></button>
 <button type="button" data-dmo-row id="b"><strong>B2</strong><span>2040 · Lote 4</span></button>
@@ -44,13 +44,23 @@ CONTRASTE = '''(id) => {
 }'''
 
 falhas = []
-pagina = Path(tempfile.mkdtemp()) / 'painel.html'
-pagina.write_text(HTML, encoding='utf-8')
 with sync_playwright() as playwright:
     browser = launch_chromium(playwright)
     for tema in ('light', 'dark'):
         page = browser.new_page(viewport={'width': 400, 'height': 500}, color_scheme=tema)
-        page.goto(pagina.as_uri())
+        def servir(route):
+            path = urlparse(route.request.url).path
+            if path == '/painel.html':
+                route.fulfill(content_type='text/html; charset=utf-8', body=HTML)
+                return
+            asset = (www / unquote(path).lstrip('/')).resolve()
+            if asset.is_relative_to(www) and asset.is_file() and asset.suffix == '.css':
+                route.fulfill(content_type='text/css', body=asset.read_bytes())
+            else:
+                route.fulfill(status=404, body='')
+
+        page.route('**/*', servir)
+        page.goto('http://dmo.test/painel.html')
         assert page.evaluate("getComputedStyle(document.getElementById('a')).height") == '72px', 'CSS não carregou'
         page.wait_for_load_state('load')
         for id in ('a', 'v'):

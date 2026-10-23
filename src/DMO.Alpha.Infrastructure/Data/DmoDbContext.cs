@@ -226,6 +226,8 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(o => o.Id).ValueGeneratedNever();
             entity.Property(o => o.Tipo).HasMaxLength(64).IsRequired();
             entity.Property(o => o.ResultadoTipo).HasMaxLength(64).IsRequired();
+            entity.Property(o => o.EnvioHash).HasMaxLength(64);
+            entity.Property(o => o.EnvioResposta).HasMaxLength(16384);
         });
 
         // Admin foundation (TEMPLATES.md §"Access model"): a relação

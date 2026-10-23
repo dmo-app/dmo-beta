@@ -146,6 +146,8 @@ builder.Services.AddSingleton<DMO.Alpha.Infrastructure.Controlo.RegistoCarimboIn
 builder.Services.AddSingleton<DMO.Alpha.Web.Services.MedicaoPedidoInterceptor>();
 builder.Services.AddScoped<ShellStateFactory>();
 builder.Services.AddSingleton<EnviosGravados>();
+builder.Services.AddScoped<EnvioWebPersistido>();
+builder.Services.AddScoped<EnvioUnicoFilter>();
 // O envio único guardado na base, no mesmo SaveChanges do facto (E4 do DMO-FULL).
 builder.Services.AddScoped<IOperacoesRegistadas, OperacoesRegistadas>();
 builder.Services.AddScoped<DmoSignInService>();
@@ -397,6 +399,7 @@ builder.Services
         options.AccessDeniedPath = "/login";
         options.Cookie.Name = "DmoAuth";
         options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
@@ -415,6 +418,7 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new AdminAreaRequirement()));
 });
 builder.Services.AddAntiforgery();
+builder.Services.AddHealthChecks().AddCheck<DmoReadinessCheck>("pronto");
 
 // Razor writes pt-PT text (à, ç, ·, —) literally instead of numeric entities:
 // the default HtmlEncoder entity-encodes every non-Basic-Latin character.
@@ -431,7 +435,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Admin", AdminAuthorizationPolicies.RequireAdmin);
     // Um envio grava uma vez (deep sweep, 18/10/2026): os handlers com
     // [EnvioUnico] não gravam duas vezes a mesma chave X-Dmo-Envio.
-    options.Conventions.ConfigureFilter(new EnvioUnicoFilter());
+    options.Conventions.ConfigureFilter(new Microsoft.AspNetCore.Mvc.ServiceFilterAttribute(typeof(EnvioUnicoFilter)) { Order = 1 });
 });
 
 // Durable DataProtection keyring: antiforgery tokens and the DmoAuth cookie
@@ -536,6 +540,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -617,6 +628,7 @@ app.Use(async (context, next) =>
         var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
         if (!string.Equals(path.TrimEnd('/'), "/error", StringComparison.Ordinal) &&
             !string.Equals(path.TrimEnd('/'), "/versao", StringComparison.Ordinal) &&
+            !path.StartsWith("/health/", StringComparison.Ordinal) &&
             !path.StartsWith("/change-password", StringComparison.Ordinal) &&
             !path.StartsWith("/logout", StringComparison.Ordinal) &&
             !path.StartsWith("/login", StringComparison.Ordinal) &&
@@ -632,6 +644,11 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false
+}).AllowAnonymous();
+app.MapHealthChecks("/health/ready").AllowAnonymous();
 app.MapRazorPages();
 
 // As sugestões ao escrever (DMO-044): só para sessões autenticadas; fonte e

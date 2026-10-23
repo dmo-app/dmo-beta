@@ -30,7 +30,7 @@
     @* Normalização geral (tipografia, botões, campos): sempre a última folha. *@
     <link rel="stylesheet" href="~/css/dmo-normalize.css" asp-append-version="true">
 </head>
-<body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())">
+<body data-dmo-account="@User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.ActorId)?.Value" data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())">
 <div class="app">
     <header class="dmo-shell-header">
         <partial name="_DmoBranding" model="shell.CurrentModule" />

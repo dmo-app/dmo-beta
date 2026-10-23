@@ -86,13 +86,21 @@
          ficam sempre no topo até resolver»): os por resolver, seja qual for o
          dia escolhido, com a data completa e o tipo à frente; os lotes novos
          e os lembretes da ficha, antes avisos à parte, são linhas daqui. *@
-      @if (Model.Importantes.Count > 0 || Model.SoImportante)
+      @if (Model.Importantes.Count > 0 || Model.SoImportante || Model.PaginaPendentes > 1 || Model.HaMaisPendentes)
       {
         <div class="sumario-grupo sumario-importante sumario-topo" data-sumario-tipo="importante">
           <h3>Importante</h3>
+          @if (Model.PaginaPendentes > 1 || Model.HaMaisPendentes)
+          {
+            <nav aria-label="Páginas das pendências">
+              @if (Model.PaginaPendentes > 1) { <a href="@Model.PaginaPendentesHref(Model.PaginaPendentes - 1)">Pendências anteriores</a> }
+              <span>Página @Model.PaginaPendentes</span>
+              @if (Model.HaMaisPendentes) { <a href="@Model.PaginaPendentesHref(Model.PaginaPendentes + 1)">Mais pendências</a> }
+            </nav>
+          }
           @if (Model.Importantes.Count == 0)
           {
-            <p class="sumario-vazio">Nada por resolver.</p>
+            <p class="sumario-vazio">@(Model.PaginaPendentes > 1 ? "Sem pendências nesta página." : "Nada por resolver.")</p>
           }
           <ul>
             @foreach (var item in Model.Importantes)

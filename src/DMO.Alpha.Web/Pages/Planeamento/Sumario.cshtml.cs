@@ -74,6 +74,9 @@ public sealed class SumarioModel(
     /// <summary>O filtro «Importante»: só o grupo do topo, sem a informação do período.</summary>
     public bool SoImportante { get; private set; }
 
+    public int PaginaPendentes { get; private set; } = 1;
+    public bool HaMaisPendentes { get; private set; }
+
     /// <summary>Os tipos de informação que os módulos deixam ver (as opções do filtro a seguir a «Importante»).</summary>
     public IReadOnlyList<SumarioTipo> TiposInformacao { get; private set; } = [];
 
@@ -87,7 +90,8 @@ public sealed class SumarioModel(
         [FromQuery(Name = "mes")] int? mes,
         [FromQuery(Name = "dia")] int? dia,
         [FromQuery(Name = "tipo")] string? tipo,
-        [FromQuery(Name = "dias")] int? dias)
+        [FromQuery(Name = "dias")] int? dias,
+        [FromQuery(Name = "pendentes")] int? pendentes = null)
     {
         ViewData["Title"] = "Sumário";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
@@ -111,8 +115,10 @@ public sealed class SumarioModel(
         SoImportante = VeImportantes && (tipo == ChaveImportante || Tipo is { } ti && SumarioTipos.Importante(ti));
         if (VeImportantes && (Tipo is null || SoImportante))
         {
-            var importantes = await novidades.ImportantesAsync(_modulos, HttpContext.RequestAborted);
-            Importantes = Tipo is { } so ? importantes.Where(i => i.Tipo == so).ToList() : importantes;
+            PaginaPendentes = Math.Clamp(pendentes ?? 1, 1, int.MaxValue / 500);
+            var bloco = await novidades.ImportantesPaginaAsync(_modulos, PaginaPendentes, Tipo, HttpContext.RequestAborted);
+            Importantes = bloco.Items;
+            HaMaisPendentes = bloco.HaMais;
         }
 
         Dias = dias is { } d && PeriodosDias.Contains(d) ? d : 1;
@@ -163,6 +169,16 @@ public sealed class SumarioModel(
             navigationPage: PagePath,
             preservedQuery: FiltrosQuery()) with { LegendLabel = "Com informação" };
         return Page();
+    }
+
+    public string PaginaPendentesHref(int pagina)
+    {
+        var query = new Dictionary<string, string?>(FiltrosQuery().ToDictionary(k => k.Key, k => (string?)k.Value))
+        {
+            ["ano"] = Year.ToString(), ["mes"] = Month.ToString(),
+            ["dia"] = (Day?.Day ?? 0).ToString(), ["pendentes"] = pagina.ToString()
+        };
+        return Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(PagePath, query);
     }
 
     /// <summary>Os filtros que o calendário e os links levam (o tipo e os dias).</summary>

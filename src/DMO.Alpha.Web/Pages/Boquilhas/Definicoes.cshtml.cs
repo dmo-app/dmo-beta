@@ -296,6 +296,7 @@ public sealed class DefinicoesModel(
     private FileContentResult ExcelFicheiro(BqExcelResultado resultado)
     {
         Response.Headers["X-Dmo-Excel-Versao"] = resultado.Versao;
+        Response.Headers["X-Dmo-Excel-Completo"] = resultado.Avisos.Count == 0 ? "true" : "false";
         if (resultado.Avisos.Count > 0)
         {
             Response.Headers["X-Dmo-Excel-Avisos"] = Uri.EscapeDataString(string.Join("\n", resultado.Avisos));

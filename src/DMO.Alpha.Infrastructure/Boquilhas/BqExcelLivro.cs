@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using System.Xml;
 using DMO.Alpha.Core.Boquilhas;
 
 namespace DMO.Alpha.Infrastructure.Boquilhas;
@@ -569,17 +570,41 @@ public static class BqExcelLivro
 
         public Pacote(ZipArchive zip)
         {
+            const long maxParte = 16 * 1024 * 1024;
+            if (zip.Entries.Count > 4096 || zip.Entries.Any(e => e.Length > maxParte)
+                || zip.Entries.Sum(e => e.Length) > 64L * 1024 * 1024
+                || zip.Entries.Select(e => e.FullName).Distinct(StringComparer.Ordinal).Count() != zip.Entries.Count)
+            {
+                throw new BqExcelInvalidoException("O Excel tem demasiados dados descomprimidos ou partes repetidas. Escolha um livro mais pequeno e válido.");
+            }
             _zip = zip;
             _livro = Ler("xl/workbook.xml") ?? throw new BqExcelInvalidoException("O ficheiro escolhido não é um livro do Excel (.xlsx).");
             _relacoes = Ler("xl/_rels/workbook.xml.rels") ?? throw new BqExcelInvalidoException("O ficheiro escolhido não é um livro do Excel (.xlsx).");
             _tipos = Ler("[Content_Types].xml") ?? throw new BqExcelInvalidoException("O ficheiro escolhido não é um livro do Excel (.xlsx).");
-            var alvos = _relacoes.Root!.Elements(Pr + "Relationship")
-                .ToDictionary(r => (string)r.Attribute("Id")!, r => Caminho((string)r.Attribute("Target")!));
-            _folhas = _livro.Root!.Element(S + "sheets")!.Elements(S + "sheet")
-                .Select(s => ((string)s.Attribute("name")!, alvos.GetValueOrDefault((string?)s.Attribute(R + "id") ?? "") ?? ""))
-                .Where(s => s.Item2.Length > 0)
-                .ToList();
-            Textos = Ler("xl/sharedStrings.xml")?.Root!.Elements(S + "si")
+            if (_livro.Root?.Name != S + "workbook" || _livro.Root.Element(S + "sheets") is not { } sheets
+                || _relacoes.Root?.Name != Pr + "Relationships"
+                || _tipos.Root?.Name != XName.Get("Types", "http://schemas.openxmlformats.org/package/2006/content-types"))
+            {
+                throw new BqExcelInvalidoException("O ficheiro não tem a estrutura de um livro Excel (.xlsx) válido.");
+            }
+            var alvos = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var relation in _relacoes.Root.Elements(Pr + "Relationship"))
+            {
+                var id = (string?)relation.Attribute("Id");
+                var target = (string?)relation.Attribute("Target");
+                if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(target) || !alvos.TryAdd(id, Caminho(target)))
+                    throw new BqExcelInvalidoException("O Excel tem ligações internas em falta ou repetidas.");
+            }
+            _folhas = [];
+            foreach (var sheet in sheets.Elements(S + "sheet"))
+            {
+                var name = (string?)sheet.Attribute("name");
+                var id = (string?)sheet.Attribute(R + "id");
+                if (string.IsNullOrWhiteSpace(name) || id is null || !alvos.TryGetValue(id, out var caminho))
+                    throw new BqExcelInvalidoException("O Excel tem um separador sem nome ou sem ligação interna.");
+                _folhas.Add((name, caminho));
+            }
+            Textos = Ler("xl/sharedStrings.xml")?.Root?.Elements(S + "si")
                 .Select(si => string.Concat(si.Descendants(S + "t").Select(t => t.Value)))
                 .ToList() ?? [];
         }
@@ -591,7 +616,13 @@ public static class BqExcelLivro
             var entrada = _zip.GetEntry(caminho);
             if (entrada is null) return null;
             using var fluxo = entrada.Open();
-            return XDocument.Load(fluxo);
+            using var reader = XmlReader.Create(fluxo, new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                XmlResolver = null,
+                MaxCharactersInDocument = 16 * 1024 * 1024
+            });
+            return XDocument.Load(reader);
         }
 
         private void Escrever(string caminho, XDocument documento)

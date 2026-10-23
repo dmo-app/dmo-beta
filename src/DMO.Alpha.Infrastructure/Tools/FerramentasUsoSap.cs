@@ -14,7 +14,14 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// </summary>
 public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext account) : IFerramentasUsoSap
 {
-    public async Task<ImportarUsoSapOutcome> ImportarAsync(string? conteudo, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken = default)
+    public Task<ImportarUsoSapOutcome> ImportarAsync(string? conteudo, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(db, async () =>
+        {
+            await DbWrite.LockAsync(db, "sap:uso:importar", cancellationToken);
+            return await ImportarCoreAsync(conteudo, ficheiro, ficheiroModificadoEmUtc, cancellationToken);
+        }, cancellationToken);
+
+    private async Task<ImportarUsoSapOutcome> ImportarCoreAsync(string? conteudo, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken)
     {
         var leitura = UsoSapExportacao.Ler(conteudo);
         if (!leitura.CabecalhoEncontrado)
@@ -26,6 +33,15 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             .Where(t => t.TechnicalName != null && t.TechnicalName != "" && t.ToolId != ToolRegistryConstants.RemovedToolId)
             .Select(t => new { t.ToolId, t.TechnicalName, t.Lot })
             .ToListAsync(cancellationToken);
+        var ids = ferramentas.Where(t => leitura.Linhas.Any(l => UsoSapCodigo.Corresponde(l.CodigoEquipamento, t.TechnicalName, t.Lot)))
+            .Select(t => t.ToolId).ToList();
+        // Duas leituras em lote, em vez de duas consultas por ferramenta.
+        var abertos = (await db.FerramentaLembretesUtilizacao
+            .Where(l => ids.Contains(l.ToolId) && l.FechadoEmUtc == null).ToListAsync(cancellationToken))
+            .ToLookup(l => l.ToolId, StringComparer.Ordinal);
+        var ultimas = await db.FerramentaUtilizacoes.AsNoTracking()
+            .Where(u => ids.Contains(u.ToolId) && !db.FerramentaUtilizacoes.Any(outra => outra.ToolId == u.ToolId && outra.Id > u.Id))
+            .Select(u => new { u.ToolId, u.Percentagem }).ToDictionaryAsync(u => u.ToolId, u => u.Percentagem, cancellationToken);
         var agora = DateTime.UtcNow;
         var autor = Autor();
         var nome = ficheiro is { Length: > 0 } f ? f[..Math.Min(f.Length, FerramentaUtilizacao.FicheiroMaxLength)] : null;
@@ -43,14 +59,8 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
 
             foreach (var ferramenta in daLinha.Where(t => vistas.Add(t.ToolId)))
             {
-                var lembretes = await db.FerramentaLembretesUtilizacao
-                    .Where(l => l.ToolId == ferramenta.ToolId && l.FechadoEmUtc == null)
-                    .ToListAsync(cancellationToken);
-                var ultima = await db.FerramentaUtilizacoes.AsNoTracking()
-                    .Where(u => u.ToolId == ferramenta.ToolId)
-                    .OrderByDescending(u => u.Id)
-                    .Select(u => (decimal?)u.Percentagem)
-                    .FirstOrDefaultAsync(cancellationToken);
+                var lembretes = abertos[ferramenta.ToolId].ToList();
+                var ultima = ultimas.TryGetValue(ferramenta.ToolId, out var percentagem) ? (decimal?)percentagem : null;
                 if (lembretes.Count == 0 && ultima == linha.PercentagemUso)
                 {
                     continue;
@@ -74,7 +84,6 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             }
         }
 
-        await using var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         await db.SaveChangesAsync(cancellationToken);
         foreach (var (nova, lembretes) in novas)
         {
@@ -86,10 +95,6 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         }
 
         await db.SaveChangesAsync(cancellationToken);
-        if (transacao is not null)
-        {
-            await transacao.CommitAsync(cancellationToken);
-        }
 
         return new ImportarUsoSapOutcome(ImportarUsoSapResultado.Gravado, leitura.Linhas.Count, novas.Count, semFerramenta.Distinct().ToList());
     }

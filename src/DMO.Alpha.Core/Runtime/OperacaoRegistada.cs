@@ -35,6 +35,11 @@ public sealed class OperacaoRegistada
     /// <summary>O identificador do resultado (o registo criado ou a folha onde gravou); NULL quando não tem.</summary>
     public int? ResultadoId { get; set; }
 
+    /// <summary>Envio web: impressão dos dados (sem guardar o formulário) e redirect local para repetição segura.</summary>
+    public string? EnvioHash { get; set; }
+
+    public string? EnvioResposta { get; set; }
+
     /// <summary>Quando a operação foi registada (UTC).</summary>
     public DateTimeOffset MomentoUtc { get; init; }
 }

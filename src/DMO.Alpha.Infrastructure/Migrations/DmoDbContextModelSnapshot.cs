@@ -2488,6 +2488,14 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<Guid?>("AutorUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("EnvioHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("EnvioResposta")
+                        .HasMaxLength(16384)
+                        .HasColumnType("character varying(16384)");
+
                     b.Property<DateTimeOffset>("MomentoUtc")
                         .HasColumnType("timestamp with time zone");
 

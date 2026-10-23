@@ -66,7 +66,7 @@ public sealed class PlaneamentoSumarioPostgresTests
 
         try
         {
-            var query = new SumarioQuery(db, new ControloRevisaoQuery(db));
+            var query = new SumarioQuery(db);
             var items = await query.PeriodAsync(hoje.AddDays(-7), hoje.AddDays(1), SumarioTipos.Todos);
             var meus = items.Where(i => i.Titulo.Contains(p, StringComparison.Ordinal)
                 || i.Detalhe?.Contains(p, StringComparison.Ordinal) == true

@@ -1961,3 +1961,47 @@ Novos: 1 · mudaram: 2 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina`
 
 Selo depois: `e7b31ffc3658f539`
+
+## A-0081 · 2026-10-23 · ok-do-diogo
+
+Porquê: Reaplicação da entrega autorizada sobre main 0.3.0-beta.28. Mantém os testes novos/alterações da beta.24: consultas do Sumário, fila Excel, rascunhos por conta/versão, SAP concorrente, envio durável/rollback/conflito de conteúdo, readiness/logs, Editar sem painel e máximo de três consultas com histórico. A lista canónica inclui as duas migrações novas por ordem. O painel Chromium usa HTTP simulado com as mesmas verificações. Preservam-se os testes e registos de main; impressão e registo foram tomados de main e regenerados pelo comando oficial, conforme a regra de rebase.
+Referência: Conversa de 23/10/2026: aplicar melhorias, verificar Editar Job On e registar versão/páginas em dmo-Improvements
+Novos: 27 · mudaram: 8 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelValidationTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelValidationTests.cs :: BqExcelValidationTests.ExcelComXmlDemasiadoGrande_RecusaAntesDeExpandir`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelValidationTests.cs :: BqExcelValidationTests.ExcelSemEstrutura_RecusaSemErroInterno`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EnviosWeb.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EnviosWeb.cs :: PostgresMigrationIntegrationTests.EnvioWeb_RepetidoNoutraInstancia_NaoRepeteOFacto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EnviosWeb.cs :: PostgresMigrationIntegrationTests.EnvioWeb_SeFalhar_NemOFactoNemARespostaFicamGravados`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnEditar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnEditar.cs :: PostgresMigrationIntegrationTests.JobOnEditar_HistoricoDasFerramentas_NaoAumentaConsultasNemTrocaUltimoEstado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapConcorrente.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapConcorrente.cs :: AtrasarLeituraSap.MesmoFabricoSapEmDuasContas_NaoColideNemDuplica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapConcorrente.cs :: AtrasarLeituraSap.MesmoFicheiroSapEmDuasContas_GravaUmaSoLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SumarioPagina.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SumarioPagina.cs :: PostgresMigrationIntegrationTests.Sumario_MaisDeQuinhentasPendencias_TodasAcessiveisSemRepetir`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/SupabaseAuthenticationPrivacyTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/SupabaseAuthenticationPrivacyTests.cs :: CollectedLogs.CancelamentoDoUtilizador_NaoSeTornaErroDoFornecedor`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/SupabaseAuthenticationPrivacyTests.cs :: CollectedLogs.FalhaDeLogin_NaoRegistaEmailNemCorpoDoFornecedor`
+- novo: `tests/DMO.Alpha.Web.Tests/EnvioUnicoPostgresPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/EnvioUnicoPostgresPageTests.cs :: EnvioUnicoPostgresPageTests.Movimento_RepetidoNoPostgres_RedirectPersistidoEConflitoSemDuplicacao`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.EditarPerformance.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.EditarPerformance.cs :: JobOnPageTests.EditarFolha_NaoCarregaProducoesDoPainelQueNaoMostra`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioQueryTests.cs :: PlaneamentoSumarioQueryTests.PorAprovar_MantemOsResultadosDaRevisao_SemCalcularPesos`
+- novo: `tests/DMO.Alpha.Web.Tests/ReadinessPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReadinessPageTests.cs :: ReadinessPageTests.ConfiguracaoAuthIncompleta_NaoEstaPronta_MasProcessoVive`
+- novo: `tests/DMO.Alpha.Web.Tests/ReadinessPageTests.cs :: ReadinessPageTests.ProcessoEFluxoLocal_RespondemSemSessao`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: O rascunho de uma conta não aparece noutra no mesmo browser`
+- novo: `tests/ShellProof/jobon-rascunho.test.cjs :: Um rascunho de outra versão não substitui automaticamente o servidor`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: PlaneamentoSumarioPostgresTests.TodosOsTipos_NoPostgres`
+- mudou: `tests/ShellProof/jobon-rascunho.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-rascunho.test.cjs :: os rascunhos do Novo, do Duplicar X e do Editar Y não se misturam`
+- mudou: `tests/ShellProof/jobon-rascunho.test.cjs :: quando o servidor recusa a gravação, o rascunho volta`
+- mudou: `tests/ShellProof/jobon-rascunho.test.cjs :: uma gravação com sucesso apaga o rascunho, e ele não volta depois`
+- mudou: `tests/visual/excel_bq_browser.py`
+- mudou: `tests/visual/painel_lateral_browser.py`
+
+Selo depois: `a58e28feffc41dea`

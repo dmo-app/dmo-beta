@@ -1,4 +1,11 @@
 using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Globalization;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
+using DMO.Alpha.Infrastructure.Data;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +21,7 @@ namespace DMO.Alpha.Web.Services;
 /// cabeçalho <c>X-Dmo-Envio</c>, e o mesmo envio outra vez (o operador carrega
 /// outra vez no botão depois de a ligação falhar) leva a mesma chave. Num
 /// handler marcado com este atributo, a primeira vez grava e o redirect da
-/// resposta (PRG) fica lembrado durante <see cref="EnviosGravados.Janela"/>:
+/// resposta (PRG) fica persistido na mesma transação em PostgreSQL:
 /// um POST com uma chave já gravada não corre o handler e recebe o mesmo
 /// redirect; um que chega enquanto o primeiro ainda grava espera por ele.
 /// Sem o cabeçalho (o envio nativo do browser) nada muda. Ver
@@ -32,7 +39,7 @@ public sealed class EnvioUnicoAttribute : Attribute;
 /// <c>Page()</c>) ou um erro não ficam, e o mesmo envio outra vez corre o
 /// handler como da primeira vez.
 /// </summary>
-public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
+public sealed partial class EnvioUnicoFilter(DmoDbContext db, EnvioWebPersistido persistidos, IUrlHelperFactory urlHelpers) : IAsyncPageFilter, IOrderedFilter
 {
     /// <summary>O cabeçalho com a chave do envio (DmoTroca).</summary>
     public const string Cabecalho = "X-Dmo-Envio";
@@ -55,11 +62,41 @@ public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
         }
 
         var quem = context.HttpContext.User.FindFirst(DmoClaimTypes.ProviderUserId)?.Value ?? string.Empty;
+        var scope = $"{quem}\n{context.ActionDescriptor.ViewEnginePath}\n{handler.Name}\n{chave}";
+        var form = await request.ReadFormAsync(context.HttpContext.RequestAborted);
+        // Fronteiras explícitas entre campos e valores: um campo repetido
+        // não pode produzir a impressão de vários campos diferentes.
+        var normalized = JsonSerializer.Serialize(new
+        {
+            Query = request.Query.OrderBy(f => f.Key, StringComparer.Ordinal).Select(f => new { f.Key, Values = f.Value.ToArray() }),
+            Form = form.Where(f => f.Key != "__RequestVerificationToken").OrderBy(f => f.Key, StringComparer.Ordinal)
+                .Select(f => new { f.Key, Values = f.Value.ToArray() })
+        });
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized)));
+        if (db.Database.IsRelational())
+        {
+            var id = new Guid(SHA256.HashData(Encoding.UTF8.GetBytes(scope)).AsSpan(0, 16));
+            var actor = Guid.TryParse(context.HttpContext.User.FindFirst(DmoClaimTypes.ActorId)?.Value, out var userId) ? userId : (Guid?)null;
+            var resultado = await persistidos.ExecutarAsync(id, actor, hash, async () =>
+            {
+                var executed = await next();
+                if (executed.Exception is not null && !executed.ExceptionHandled) throw executed.Exception;
+                return EnvioRedirect.Guardar(executed.Result, urlHelpers.GetUrlHelper(context));
+            }, context.HttpContext.RequestAborted);
+            if (resultado.Conflito) context.Result = Conflito();
+            else if (resultado.Resposta is { } resposta) context.Result = EnvioRedirect.Ler(resposta);
+            return;
+        }
         var envios = context.HttpContext.RequestServices.GetRequiredService<EnviosGravados>();
-        var envio = envios.De($"{quem}\n{context.ActionDescriptor.ViewEnginePath}\n{handler.Name}\n{chave}");
+        var envio = envios.De(scope);
         await envio.Vez.WaitAsync(context.HttpContext.RequestAborted);
         try
         {
+            if (envio.Hash is { } recebido && recebido != hash)
+            {
+                context.Result = Conflito();
+                return;
+            }
             if (envio.Resposta is { } primeira)
             {
                 context.Result = primeira;
@@ -70,6 +107,7 @@ public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
             if (executado.Exception is null
                 && executado.Result is RedirectToPageResult or RedirectResult or LocalRedirectResult or RedirectToRouteResult or RedirectToActionResult)
             {
+                envio.Hash = hash;
                 envio.Resposta = executado.Result;
             }
         }
@@ -79,14 +117,21 @@ public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
         }
     }
 
+    private static ContentResult Conflito() => new()
+    {
+        StatusCode = StatusCodes.Status409Conflict,
+        ContentType = "text/plain; charset=utf-8",
+        Content = "Os dados deste envio mudaram. Atualize a página e tente de novo. Nenhuma alteração foi guardada."
+    };
+
     [GeneratedRegex("^[A-Za-z0-9_-]{16,64}$")]
     private static partial Regex ChaveValida();
 }
 
 /// <summary>
-/// Os envios gravados (ver <see cref="EnvioUnicoAttribute"/>), em memória: a
-/// aplicação corre numa só instância e não é preciso uma tabela. Cada chave
-/// fica <see cref="Janela"/> depois do primeiro envio; um reinício esquece-as.
+/// Alternativa em memória para desenvolvimento/testes sem base relacional.
+/// Cada chave fica <see cref="Janela"/> depois do primeiro envio. Em PostgreSQL
+/// o filtro usa EnvioWebPersistido, partilhado entre instâncias e reinícios.
 /// </summary>
 public sealed class EnviosGravados
 {
@@ -109,6 +154,8 @@ public sealed class EnviosGravados
         public SemaphoreSlim Vez { get; } = new(1, 1);
 
         public IActionResult? Resposta { get; set; }
+
+        public string? Hash { get; set; }
     }
 
     /// <summary>O envio desta chave (novo, se ainda não existe).</summary>
