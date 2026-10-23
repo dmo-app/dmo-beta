@@ -2087,3 +2087,19 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrigir.cs :: PostgresMigrationIntegrationTests.Pegamentos_DuasCorrecoesAoMesmoTempo_OHistoricoFicaEmCadeia`
 
 Selo depois: `8bd45e1e8bfd79c4`
+
+## A-0088 · 2026-10-23 · teste-novo
+
+Porquê: A04: duas devoluções ao mesmo tempo fecham a lista da Programada e não se associa a uma lista que está a fechar; A08: o mesmo envio (Boquilhas sem Job On, criar lista da Programada) grava uma só vez
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy2osxiK3ZUCa4WJNsdkGvTg
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: PostgresMigrationIntegrationTests.Programada_AdicionarEnquantoAUltimaFerramentaVolta_NaoAcrescentaAUmaListaFechada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: PostgresMigrationIntegrationTests.Programada_AsDuasUltimasFerramentasVoltamAoMesmoTempo_AListaFecha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOn.EnvioUnico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOn.EnvioUnico.cs :: BoquilhasRegistoPageTests.SemJobOn_OMesmoEnvioGravaUmaVez_OutraChavePermiteOutroMovimento`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: ReparacaoProgramadaEnvioUnicoTests.CriarLista_OMesmoEnvioCriaUmaSo_OutraChaveCriaOutraLista`
+
+Selo depois: `d9f3f5bde5c67ac0`

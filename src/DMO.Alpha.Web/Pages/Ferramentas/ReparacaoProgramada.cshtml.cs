@@ -164,6 +164,7 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
     }
 
     /// <summary>«Nova lista»: o reparador e «Criar» fazem uma lista ativa vazia.</summary>
+    [EnvioUnico]
     public async Task<IActionResult> OnPostCriarAsync(int? reparador)
     {
         var saida = await programada.CriarListaAsync(reparador, HttpContext.RequestAborted);

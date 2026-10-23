@@ -342,7 +342,8 @@
     { "id": "DMO-349", "module": "Job On", "description": "O Job On novo abre com o template vazio, sem Editar: escreve-se a referência e a produção e depois Criar. TP, CS e PU numa linha, CAL compacto por baixo, números com duas casas no máximo e sem zeros no fim." },
     { "id": "DMO-350", "module": "Controlo", "description": "0.3.0-beta.36: o PDF e o anexo do Peso só aparecem aprovados se a aprovação cobre esse Peso; Reparação Interna com «registar» e «ver» separados nos templates." },
     { "id": "DMO-351", "module": "Controlo", "description": "0.3.0-beta.37: Pegamentos: duas correções da mesma leitura ao mesmo tempo ficam em cadeia no histórico." },
-    { "id": "DMO-352", "module": "Job On", "description": "No cabeçalho da folha, das datas às secções fica num painel centrado, com rótulos pequenos e valores em destaque; no Editar os números vêm sem zeros no fim e o «Modo Editar» fica centrado." }
+    { "id": "DMO-352", "module": "Job On", "description": "No cabeçalho da folha, das datas às secções fica num painel centrado, com rótulos pequenos e valores em destaque; no Editar os números vêm sem zeros no fim e o «Modo Editar» fica centrado." },
+    { "id": "DMO-353", "module": "Ferramentas", "description": "0.3.0-beta.39: Reparação Programada: duas devoluções ao mesmo tempo fecham a lista; o mesmo envio não cria listas nem movimentos de boquilha repetidos." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
