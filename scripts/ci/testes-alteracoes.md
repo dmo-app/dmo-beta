@@ -2045,9 +2045,10 @@ Novos: 2 · mudaram: 5 · saíram: 0
 
 Selo depois: `2f13253978d003d5`
 
-## A-0086 · 2026-10-24 · contagem-lista
+## A-0086 · 2026-10-23 · ok-do-diogo
 
-Porquê: A01/A02: novos testes da aprovação do Peso no PDF/anexo e dos percursos RI separados, incluindo revogação com formulários abertos. Nos testes existentes só se acertam as listas de capabilities dos utilizadores de consulta para incluir ri.view; o caso de associação usa só ri.view. Todas as verificações anteriores mantêm-se. Registo gerado sobre snapshot parcial de ea9aee59af9f5989b57378410d9cedf54ac956c9, preservando as unidades dos ficheiros não alterados; CI integral e execução .NET pendentes.
+Porquê: A01: o PDF e o anexo do Peso só mostram a aprovação que cobre esse Peso. A02: a Reparação Interna separa «registar» (ri) de «ver» (ri.view, a página Consultar dos registos para a chefia). Os 11 testes mudados acrescentam ri.view aos utilizadores de consulta porque quem só tem ri deixa de abrir o Consultar. CI local OK, guarda OK; regressão provada (ParteAsync de volta: 3 falham; chave ri no Consultar: 4 falham).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6rzgTJY4GZEkr9rGWXFVHW cmsg_01A27e9ozcpoh4jdPRsuJbFy2q3RzcQZhibvbAjWKqHtBi cmsg_01A27e9ozcpoh4jdPRsuJbFy1hsBucu2Xnx9BvmUL7uLWt
 Novos: 12 · mudaram: 11 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: (resto do ficheiro)`
