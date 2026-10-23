@@ -1517,7 +1517,7 @@ Selo depois: `c3c2038d14994c36`
 
 ## A-0054 · 2026-10-23 · ok-do-diogo
 
-Porquê: O Diogo aprovou («perfeito», «ok»): /Admin só com Utilizadores e Templates; Canal Jobon e App num grupo «Admin» nas Definições (só ADMIN); Controlo no painel lateral e um botão por cartão; PU NNPB só B1 e C3 (as outras linhas ficam como estão, a C2 continua com 8 posições); círculo de ajuda de 9px alinhado em em; um só triângulo de recolher (.dmo-caret) à esquerda, a .25em do texto, medido no browser; o grupo do menu lateral abre e fecha com um clique; modo escuro só nas Definições; cabeçalho com o utilizador e, por baixo, «Admin» e «Sair». Pedido do Guardião: repostas as verificações do Admin/Templates.
+Porquê: O Diogo aprovou («perfeito», «ok»): /Admin só com Utilizadores e Templates; Canal Jobon e App num grupo «Admin» nas Definições (só ADMIN); Controlo no painel lateral e um botão por cartão; PU NNPB só B1 e C3 (as outras linhas ficam como estão, a C2 continua com 8 posições); círculo de ajuda de 9px com o topo na altura das maiúsculas (±1,5 px, medido no browser); um só triângulo de recolher (.dmo-caret) à esquerda, a .25em do texto, medido no browser; o grupo do menu lateral abre e fecha com um clique; modo escuro só nas Definições; cabeçalho com o utilizador e, por baixo, «Admin» e «Sair». Pedido do Guardião: repostas as verificações do Admin/Templates.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy8Q2gT3FH9nxyd16FyYaewB
 Novos: 4 · mudaram: 25 · saíram: 2
 
@@ -1553,4 +1553,4 @@ Novos: 4 · mudaram: 25 · saíram: 2
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Setup_MudouSeParaAsDefinicoes_App`
 - saiu: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_SoParaRecolher_ApontaParaAPalavraEAbertoParaBaixo`
 
-Selo depois: `79d2d165fb7780a5`
+Selo depois: `45baba8c0122ac1a`

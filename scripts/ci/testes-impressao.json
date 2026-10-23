@@ -1,5 +1,5 @@
 {
-  "selo": "79d2d165fb7780a5",
+  "selo": "45baba8c0122ac1a",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2559,7 +2559,7 @@
     "tests/visual/README.md": "e945d763593851fe",
     "tests/visual/boquilhas_catalog_browser.py": "fe5cfe4882d86f67",
     "tests/visual/calendario_parcial_browser.py": "e8db227590a44c8f",
-    "tests/visual/definicoes_parcial_browser.py": "b8d8f12b6f54b9fc",
+    "tests/visual/definicoes_parcial_browser.py": "4e7d5480c36d0f6c",
     "tests/visual/dmo_chromium.py": "ab6ea3e604de9fe7",
     "tests/visual/ecra_pequeno_browser.py": "1438dc6f03dd16d8",
     "tests/visual/excel_bq_browser.py": "85aab5b8d8c454e9",

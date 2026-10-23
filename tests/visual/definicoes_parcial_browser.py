@@ -253,7 +253,7 @@ with sync_playwright() as playwright:
     resultados.append('Menu lateral: «Controlo» abre e fecha com um clique; o triângulo roda')
 
     # Triângulo e ajuda medidos no Chromium: o triângulo acaba antes do texto (0 a 0,5em);
-    # o fundo do círculo da ajuda fica na linha de base do texto (±2 px).
+    # o topo do círculo da ajuda fica na altura das maiúsculas (±1,5 px).
     medir_caret = """(s) => {
         const c = s.querySelector('.dmo-caret');
         const t = document.createTreeWalker(s, NodeFilter.SHOW_TEXT, { acceptNode: n => n.textContent.trim() ? 1 : 3 });
@@ -269,17 +269,27 @@ with sync_playwright() as playwright:
     m2 = page.eval_on_selector(titulo, medir_caret)
     assert 0 <= m2['folga'] <= 0.5 * m2['em'], f'triângulo do menu a {m2["folga"]:.1f}px do texto'
     page.goto(base + '/Definicoes?secao=admin&sub=app')
-    base_ajuda = page.eval_on_selector('#admin-email-title', """(h) => {
-        const ajuda = h.querySelector('.dmo-help-mark');
-        const linha = document.createElement('span');
-        linha.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
-        h.insertBefore(linha, h.firstChild);
-        const resultado = { fundo: ajuda.getBoundingClientRect().bottom, base: linha.getBoundingClientRect().bottom };
-        linha.remove();
+    # O topo do círculo fica na altura das maiúsculas da fonte do título (±1,5 px): um span
+    # de medição com «H» no mesmo título dá a linha de base e a altura do «H» nessa fonte.
+    ajuda = page.eval_on_selector('#admin-email-title', """(h) => {
+        const marca = h.querySelector('.dmo-help-mark');
+        const medida = document.createElement('span');
+        medida.textContent = 'H';
+        medida.style.cssText = 'visibility:hidden;position:relative';
+        const base = document.createElement('span');
+        base.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+        medida.appendChild(base);
+        h.insertBefore(medida, h.firstChild);
+        const ctx = document.createElement('canvas').getContext('2d');
+        ctx.font = getComputedStyle(medida).font;
+        const topoMaiusculas = base.getBoundingClientRect().bottom - ctx.measureText('H').actualBoundingBoxAscent;
+        const resultado = { topo: marca.getBoundingClientRect().top, maiusculas: topoMaiusculas };
+        medida.remove();
         return resultado;
     }""")
-    assert abs(base_ajuda['fundo'] - base_ajuda['base']) <= 2, f'ajuda {base_ajuda["fundo"] - base_ajuda["base"]:.1f}px fora da linha de base'
-    resultados.append(f'Triângulo a {m["folga"]:.1f}px/{m2["folga"]:.1f}px do texto; ajuda a {base_ajuda["fundo"] - base_ajuda["base"]:.1f}px da linha de base')
+    desvio = ajuda['topo'] - ajuda['maiusculas']
+    assert abs(desvio) <= 1.5, f'topo da ajuda a {desvio:.1f}px da altura das maiúsculas'
+    resultados.append(f'Triângulo a {m["folga"]:.1f}px/{m2["folga"]:.1f}px do texto; topo da ajuda a {desvio:.1f}px da altura das maiúsculas')
 
     # Utilizadores: criar; o PIN fica no canto; o formulário limpa; a lista mostra-o.
     page.goto(base + '/Admin/Users')
