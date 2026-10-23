@@ -1795,7 +1795,7 @@ Selo depois: `7e4bced974268ae6`
 ## A-0075 · 2026-10-23 · ok-do-diogo
 
 Porquê: Job On: a folha nova em todo o lado; Planeamento abre a folha numa página; Criar e Duplicar na folha em Editar; ficha antiga sai; o onde está no Armazém e o aviso sem registo passam para a folha (FER-E-03, nada se perde); sem títulos dos grupos; TP Diâmetro
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyE7tiP6DoaPx4TJH65FxhpT
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy2K1Lvbfz3uREZWHLw2fG5Z, cmsg_01A27e9ozcpoh4jdPRsuJbFyX1cpKvWD5T4iNh6m2fxmk8, cmsg_01A27e9ozcpoh4jdPRsuJbFyVj2pwZirzCvvjyAJSrtbZw, cmsg_01A27e9ozcpoh4jdPRsuJbFyYcQC3nnmqGaiZPRBg32T17, cmsg_01A27e9ozcpoh4jdPRsuJbFyAx6Epq4SUz2pLfR2jqH3uP, cmsg_01A27e9ozcpoh4jdPRsuJbFyAyKSbk4nLWfmjr4m9CBWPn, cmsg_01A27e9ozcpoh4jdPRsuJbFyE7tiP6DoaPx4TJH65FxhpT
 Novos: 12 · mudaram: 22 · saíram: 4
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_ACalMostraAsLinhasGravadas_ComAQtdMaq_NaFolhaNova`
