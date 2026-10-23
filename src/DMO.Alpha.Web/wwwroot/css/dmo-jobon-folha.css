@@ -572,4 +572,7 @@ html body .jof2 .facts-dados .fact-col{padding:0 18px}
 html body .jof2 .facts-dados .fl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted, #64748b)}
 html body .jof2 .facts-dados .fv strong{font-size:19px}
 html body .jof2.editing .facts-dados{padding:6px 2px}
-html body .jof2 .facts-dados .unit{font-size:13px;font-weight:600;margin-left:3px}
+html body .jof2 .facts-dados .fv{gap:0}
+html body .jof2 .facts-dados .unit{font-size:13px;font-weight:600;margin-left:2px}
+html body .jof2 .jof-modo-editar{justify-content:center;align-self:center;box-sizing:border-box;height:38px;min-height:38px;line-height:1;padding:0 16px;font-size:16px}
+@media (max-width:900px){html body .jof2 .facts-dados{flex-wrap:wrap;max-width:100%;min-width:0;margin:0;row-gap:10px}html body .jof2 .facts-dados .fact-col{padding:0 12px}}
