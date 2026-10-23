@@ -162,6 +162,20 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.True(resumo >= 0 && ultimoCartao >= 0, $"Falta o resumo ({resumo}) ou os cartões ({ultimoCartao}).");
         Assert.True(resumo > ultimoCartao, $"O resumo ({resumo}) não vem depois do último cartão ({ultimoCartao}).");
 
+        // A ordem dos cartões (Diogo, 23/10/2026): TP e CS logo a seguir aos
+        // moldes, depois os Calibres; o PI na coluna da direita, depois das Notas gerais.
+        var tp = html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal);
+        var cs = html.IndexOf("data-jof-familia=\"CS\"", StringComparison.Ordinal);
+        var pu = html.IndexOf("data-jof-familia=\"PU\"", StringComparison.Ordinal);
+        var cal = html.IndexOf("cal-card", StringComparison.Ordinal);
+        var notasGerais = html.IndexOf("id=\"notesTitle\"", StringComparison.Ordinal);
+        var piCartao = html.IndexOf("data-jof-familia=\"PI\"", StringComparison.Ordinal);
+        Assert.True(new[] { bq, tp, cs, pu, cal, notasGerais, piCartao }.All(i => i >= 0), "Falta um dos cartões.");
+        Assert.True(moldes + bq < tp && tp < cs && cs < cal, $"A ordem não é moldes, TP, CS, Calibres ({bq}, {tp}, {cs}, {cal}).");
+        Assert.True(notasGerais < piCartao, $"O PI não vem depois das Notas gerais ({notasGerais}, {piCartao}).");
+        var lado = html.IndexOf("<aside class=\"side\">", StringComparison.Ordinal);
+        Assert.True(lado >= 0 && lado < piCartao && piCartao < html.IndexOf("</aside>", lado, StringComparison.Ordinal), "O PI não está na coluna da direita.");
+
         // A imagem do artigo.
         Assert.Contains("data-jof-artigo", html);
 

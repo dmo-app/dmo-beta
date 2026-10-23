@@ -1937,11 +1937,13 @@ Selo depois: `64b5fd86806ae05e`
 
 ## A-0080 · 2026-10-23 · ok-do-diogo
 
-Porquê: Folha do Job On: ordem dos cartões (TP e CS, Calibres, PI à direita) e linha vazia do Planeamento abre a folha em branco para duplicar ou criar com a linha e o dia (Diogo 23/10)
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR9DLoJRShGmbTL76USNiBk, cmsg_01A27e9ozcpoh4jdPRsuJbFySZCHF2SYMQvqF5oC5ivr8C, cmsg_01A27e9ozcpoh4jdPRsuJbFy6p8hzdVZKJQNmZvY3owES7
-Novos: 1 · mudaram: 0 · saíram: 1
+Porquê: Folha do Job On: ordem dos cartões (TP e CS, Calibres, PI à direita), CM/MF/BQ numa fila também a 1366, sem esticar com a Informação técnica aberta, e linha vazia abre a folha em branco para duplicar ou criar com a linha e o dia (Diogo 23/10)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR9DLoJRShGmbTL76USNiBk, cmsg_01A27e9ozcpoh4jdPRsuJbFySZCHF2SYMQvqF5oC5ivr8C, cmsg_01A27e9ozcpoh4jdPRsuJbFy6p8hzdVZKJQNmZvY3owES7, cmsg_01A27e9ozcpoh4jdPRsuJbFy7pCVHGx9xRydNF3aQSC1ms, cmsg_01A27e9ozcpoh4jdPRsuJbFyVRtpXnEHc2wm7aHQrAtbhJ
+Novos: 1 · mudaram: 2 · saíram: 1
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+- mudou: `tests/visual/jobon_folha_browser.py`
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina`
 
-Selo depois: `b95e3c82dc107a15`
+Selo depois: `e008949efda068ba`

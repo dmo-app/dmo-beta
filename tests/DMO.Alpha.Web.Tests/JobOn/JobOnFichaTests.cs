@@ -435,7 +435,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         // máquina e a data. Desde 23/10/2026 (09:48) abre a folha em branco,
         // sem Editar, para procurar um Job On antigo e duplicá-lo; o Duplicar
         // e o «Criar em branco» levam a linha e o dia como início.
-        var (origemId, _, _, c3Id) = await SeedFichaAsync();
+        var (_, _, _, c3Id) = await SeedFichaAsync();
         SeedUser("4597", "Planejador", "provider-jobon-criar", "JobCriar1!");
         using var client = await LoginClientAsync("4597", "JobCriar1!");
         var dia = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(-10); // antes das duas produções: C3 vazia
@@ -469,12 +469,17 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var folhaAntiga = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, antigo));
         var duplicar = System.Text.RegularExpressions.Regex.Match(folhaAntiga, "href=\"(?<h>/JobOn/Folha\\?duplicar=\\d+[^\"]*)\" data-jof-duplicar");
         Assert.True(duplicar.Success);
+        // A procura abre a última produção da referência; o Duplicar é dela.
+        var antigoId = System.Text.RegularExpressions.Regex.Match(antigo, "jobon_id=(\\d+)").Groups[1].Value;
+        Assert.NotEqual(string.Empty, antigoId);
+        Assert.StartsWith($"/JobOn/Folha?duplicar={antigoId}&", duplicar.Groups["h"].Value, StringComparison.Ordinal);
         Assert.EndsWith(destino, duplicar.Groups["h"].Value, StringComparison.Ordinal);
         var duplicado = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, duplicar.Groups["h"].Value));
         Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", duplicado);
         Assert.Contains($"<option value=\"{c3Id}\" selected=\"selected\">C3</option>", duplicado);
         Assert.Contains($"name=\"inicio_em\" type=\"date\" value=\"{dia:yyyy-MM-dd}\"", duplicado);
-        _ = origemId;
+        // É o duplicado da origem, não uma folha nova vazia: traz a referência dela.
+        Assert.Contains("value=\"1075C142\"", duplicado);
     }
 
     [Fact]

@@ -78,6 +78,20 @@ with sync_playwright() as playwright:
             if largura == 1440 and len(linhas) != 1:
                 falhas.append(f'{nome}: CM, MF e BQ não estão na mesma fila ({fila})')
 
+        # A ordem dos cartões (Diogo, 23/10/2026): TP e CS logo a seguir aos
+        # moldes, os Calibres por baixo deles, o PI à direita, por baixo das Notas gerais.
+        if largura == 1440:
+            pos = page.evaluate("""() => Object.fromEntries(['CM', 'TP', 'CS', 'PI'].map(f => {
+                const r = document.querySelector(`[data-jof-familia="${f}"]`).getBoundingClientRect();
+                return [f, { left: Math.round(r.left), top: Math.round(r.top) }];
+              }).concat([['CAL', (() => { const r = document.querySelector('.cal-card').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()],
+                         ['NOTAS', (() => { const r = document.querySelector('#notesTitle').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()]]))""")
+            print(f'{nome} ordem: {pos}')
+            if not (pos['CM']['top'] < pos['TP']['top'] == pos['CS']['top'] < pos['CAL']['top']):
+                falhas.append(f'{nome}: TP e CS não estão entre os moldes e os Calibres ({pos})')
+            if not (pos['PI']['left'] > max(pos['TP']['left'], pos['CS']['left'], pos['CAL']['left']) and pos['PI']['top'] > pos['NOTAS']['top']):
+                falhas.append(f'{nome}: o PI não está à direita, por baixo das Notas gerais ({pos})')
+
         # As notas ampliam e fecham.
         page.locator('[data-jof-familia="CM"] [data-jof-nota]').click()
         nota = page.evaluate(NOTA)
