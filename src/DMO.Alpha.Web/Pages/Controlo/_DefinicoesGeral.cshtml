@@ -192,6 +192,8 @@ html body .ctl-def-grade[hidden]{display:none}
   <div class="ctl-def-grade" data-dmo-ctl-sub="peso" data-dmo-grupo="controlo" hidden="@(sub != "peso")">
   @* A densidade do vidro (D15, 19/10/2026): um formulário com os dois
      processos; guardar troca só este cartão. *@
+  @* Grava só com um valor (Diogo, 24/10/2026): os campos não são obrigatórios;
+     o vazio fica como está. *@
   <section id="ctlDefDensidade" class="dmo-card ctl-def-card" aria-labelledby="densidade-vidro-title" data-dmo-regiao data-dmo-parcial>
     <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SaveGlassDensity">
       <div class="dmo-card-topo">
@@ -207,11 +209,11 @@ html body .ctl-def-grade[hidden]{display:none}
       <div class="ctl-def-acoes">
         <div class="dmo-field">
           <label for="densidadeNnpb">NNPB (g/cm³)</label>
-          <input id="densidadeNnpb" name="densidade_nnpb" inputmode="decimal" size="8" value="@DMO.Alpha.Web.Pages.Controlo.DefinicoesModel.FormatarDensidade(Model.DensidadeNnpb)" required />
+          <input id="densidadeNnpb" name="densidade_nnpb" inputmode="decimal" size="8" value="@DMO.Alpha.Web.Pages.Controlo.DefinicoesModel.FormatarDensidade(Model.DensidadeNnpb)" />
         </div>
         <div class="dmo-field">
           <label for="densidadePs">PS (g/cm³)</label>
-          <input id="densidadePs" name="densidade_ps" inputmode="decimal" size="8" value="@DMO.Alpha.Web.Pages.Controlo.DefinicoesModel.FormatarDensidade(Model.DensidadePs)" required />
+          <input id="densidadePs" name="densidade_ps" inputmode="decimal" size="8" value="@DMO.Alpha.Web.Pages.Controlo.DefinicoesModel.FormatarDensidade(Model.DensidadePs)" />
         </div>
       </div>
     </form>

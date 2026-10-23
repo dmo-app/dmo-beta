@@ -111,7 +111,8 @@ public sealed class DefinicoesModel(
     public string DensidadeResultMessage => DensidadeResult switch
     {
         "ok" => "Densidade do vidro guardada. Vale para os próximos Pesos; os Pesos já gravados ficam com a que usaram.",
-        "invalida" => "A densidade do vidro é um número maior que zero, em g/cm³ (por exemplo 2,4027), nos dois campos. Não foi guardada.",
+        "invalida" => "A densidade do vidro é um número maior que zero, em g/cm³ (por exemplo 2,4027). Não foi guardada.",
+        "aviso-vazia" => "Sem densidade escrita: nada mudou.",
         _ when DensidadeWarned => DensidadeWarningMessage(),
         _ => string.Empty
     };
@@ -123,6 +124,12 @@ public sealed class DefinicoesModel(
         {
             var arredondada = DensidadeResult!.Contains($"-arredondada-{codigo}", StringComparison.Ordinal);
             var fora = DensidadeResult.Contains($"-fora-{codigo}", StringComparison.Ordinal);
+            if (DensidadeResult.Contains($"-invalida-{codigo}", StringComparison.Ordinal))
+            {
+                partes.Add($"{nome} não é um número maior que zero e não foi guardada");
+                continue;
+            }
+
             if (!arredondada && !fora)
             {
                 continue;
@@ -368,17 +375,32 @@ public sealed class DefinicoesModel(
         [FromForm(Name = "densidade_nnpb")] string? nnpb,
         [FromForm(Name = "densidade_ps")] string? ps)
     {
-        var densidade = "invalida";
-        if (LerDensidade(nnpb) is { } valorNnpb && LerDensidade(ps) is { } valorPs)
+        // Grava só com um valor (Diogo, 24/10/2026): o campo vazio fica como
+        // está; o que não é um número maior que zero avisa e não grava, mas
+        // não impede o outro.
+        decimal? Valida(string? texto) => LerDensidade(texto) is { } v && GlassDensityLimits.Normalize(v) > 0m ? v : null;
+        var valorNnpb = Valida(nnpb);
+        var valorPs = Valida(ps);
+        var invalidas = string.Concat(new[] { ("nnpb", nnpb, valorNnpb), ("ps", ps, valorPs) }
+            .Where(c => !string.IsNullOrWhiteSpace(c.Item2) && c.Item3 is null)
+            .Select(c => "-invalida-" + c.Item1));
+        string densidade;
+        if (valorNnpb is null && valorPs is null)
         {
+            densidade = invalidas.Length > 0 ? "invalida" : "aviso-vazia";
+        }
+        else
+        {
+            densidade = "invalida";
             var result = await saveGlassDensity.SaveAsync(valorNnpb, valorPs, HttpContext.RequestAborted);
             if (result.Saved)
             {
-                densidade = result.Rounded.Count == 0 && result.OutsideUsualRange.Count == 0
+                densidade = result.Rounded.Count == 0 && result.OutsideUsualRange.Count == 0 && invalidas.Length == 0
                     ? "ok"
                     : "aviso"
                         + string.Concat(result.Rounded.Select(p => "-arredondada-" + Codigo(p)))
-                        + string.Concat(result.OutsideUsualRange.Select(p => "-fora-" + Codigo(p)));
+                        + string.Concat(result.OutsideUsualRange.Select(p => "-fora-" + Codigo(p)))
+                        + invalidas;
             }
         }
 
