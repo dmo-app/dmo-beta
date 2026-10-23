@@ -22,7 +22,7 @@ namespace DMO.Alpha.Web.Pages.ReparacaoInterna;
 /// em dois passos (a referência, depois uma das últimas 5 produções dela,
 /// como no Resumo do controlo). Os dropdowns e as datas aplicam ao escolher;
 /// a referência com Enter ou a sugestão. Só a tabela e o dropdown das
-/// produções trocam (DmoTroca). A mesma chave do módulo (ri).
+/// produções trocam (DmoTroca). A chave própria dos responsáveis (ri.view).
 /// As reparações com a ferramenta escrita (peça 4, Diogo, 21/10/2026) levam
 /// a marca «Por associar» e o filtro «Só por associar» mostra só essas; a
 /// marca abre a janela «Associar ferramenta» com as ferramentas do mesmo
@@ -31,7 +31,7 @@ namespace DMO.Alpha.Web.Pages.ReparacaoInterna;
 /// de uma reparação sem Job On fica por ligar nesta peça.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.ReparacaoInterna)]
+[ModuleEntry(DmoCapabilities.ReparacaoInternaView)]
 public sealed class ConsultarModel(
     IReparacoesInternasConsulta consulta,
     IReparacoesInternas reparacoes,
@@ -132,7 +132,7 @@ public sealed class ConsultarModel(
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("reparacao-interna", "Reparação Interna"))) with
         {
             ActiveFunctionKey = "consultar",
-            Functions = ShellStateFactory.ReparacaoInternaFunctions("consultar")
+            Functions = ShellStateFactory.ReparacaoInternaFunctions("consultar", await capabilities.GetAsync(HttpContext.RequestAborted))
         };
 
         var cancelar = HttpContext.RequestAborted;

@@ -53,9 +53,14 @@ public static class DmoCapabilities
 
     /// <summary>
     /// Reparação Interna (módulo do full, peça D do plano): registar na
-    /// máquina cada número de CM ou MF reparado. Só o ADMIN a dá num Template.
+    /// máquina cada número de CM ou MF reparado e consultar o próprio histórico.
+    /// A chave histórica «ri» mantém só este acesso; nunca concede a consulta
+    /// dos responsáveis. Só o ADMIN a dá num Template.
     /// </summary>
     public const string ReparacaoInterna = "ri";
+
+    /// <summary>Reparação Interna · ver: consulta dos responsáveis e associação de ferramentas.</summary>
+    public const string ReparacaoInternaView = "ri.view";
 
     /// <summary>
     /// A lista única dos módulos, pela ordem da barra principal. O menu, a
@@ -71,7 +76,8 @@ public static class DmoCapabilities
         new(BoquilhasView, "Boquilhas", BoquilhasViewHome),
         new(Ferramentas, "Ferramentas", "/Ferramentas"),
         new(ArmazemGestao, "Armazém", "/Armazem/Movimentos", EmDesenvolvimento: true),
-        new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna", EmDesenvolvimento: true)
+        new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna", EmDesenvolvimento: true),
+        new(ReparacaoInternaView, "Reparação Interna", "/ReparacaoInterna/Consultar", EmDesenvolvimento: true)
     ];
 
     /// <summary>A entrada de quem só vê as Boquilhas: o Histórico, um movimento por linha.</summary>
