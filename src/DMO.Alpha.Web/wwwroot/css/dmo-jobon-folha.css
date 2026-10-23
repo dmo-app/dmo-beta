@@ -564,3 +564,12 @@ html body .jof2 .calv td input.f{width:5em;min-width:0}
 html body .jof2 .calv th,html body .jof2 .calv td{padding:4px 10px}
 html body .jof2 .cal-card .table-wrap{width:fit-content;max-width:100%}
 html body .jof2 .calv tbody th input.f{width:10em}
+/* Das datas às secções: painel centrado entre a linha e os botões, com rótulos pequenos (Diogo, 23/10/2026). */
+html body .jof2 .page-head .facts{flex:1 1 auto}
+html body .jof2 .facts-dados{display:flex;align-items:stretch;margin:0 auto;padding:10px 6px;border:1px solid var(--dmo-border);border-radius:12px;background:var(--dmo-card);box-shadow:0 1px 3px rgba(15,23,42,.06)}
+html body .jof2 .facts-dados .fact-col:first-child{border-left:0;padding-left:18px}
+html body .jof2 .facts-dados .fact-col{padding:0 18px}
+html body .jof2 .facts-dados .fl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted, #64748b)}
+html body .jof2 .facts-dados .fv strong{font-size:19px}
+html body .jof2.editing .facts-dados{padding:6px 2px}
+html body .jof2 .facts-dados .unit{font-size:13px;font-weight:600;margin-left:3px}

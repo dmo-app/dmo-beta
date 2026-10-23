@@ -339,7 +339,8 @@
     { "id": "DMO-346", "module": "Ferramentas", "description": "Pesquisar: os cartões não encolhem quando aparecem os resultados." },
     { "id": "DMO-347", "module": "Admin", "description": "0.3.0-beta.33: criar um template depois de outro já não grava por cima do primeiro; Ferramentas e Armazém juntos em «Gestão» nos templates; a densidade do vidro grava só com um valor." },
     { "id": "DMO-348", "module": "Job On", "description": "A lista de ferramentas nunca vem vazia quando existem (sem ligação à linha, mostra-as com aviso); a procura da folha em branco é um campo normal; no Editar a Referência já não fica por cima da Produção." },
-    { "id": "DMO-349", "module": "Job On", "description": "O Job On novo abre com o template vazio, sem Editar: escreve-se a referência e a produção e depois Criar. TP, CS e PU numa linha, CAL compacto por baixo, números com duas casas no máximo e sem zeros no fim." }
+    { "id": "DMO-349", "module": "Job On", "description": "O Job On novo abre com o template vazio, sem Editar: escreve-se a referência e a produção e depois Criar. TP, CS e PU numa linha, CAL compacto por baixo, números com duas casas no máximo e sem zeros no fim." },
+    { "id": "DMO-350", "module": "Job On", "description": "No cabeçalho da folha, das datas às secções fica num painel centrado, com rótulos pequenos e valores em destaque." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
