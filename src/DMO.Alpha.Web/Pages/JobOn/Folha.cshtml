@@ -50,7 +50,7 @@
         var valor = Model.Folha.Valor(chave);
         if (editar)
         {
-            <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@valor" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
+            <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(valor)" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
         }
         else if (Mostra(valor) is { } escrito)
         {
@@ -121,7 +121,7 @@
           <div class="use-top"><span>Utilização</span>
             @if (editar)
             {
-              <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" value="@valor" aria-label="@campo.RotuloAlteracao" /><text>%</text>
+              <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" value="@Mostra(valor)" aria-label="@campo.RotuloAlteracao" /><text>%</text>
             }
             else
             {
@@ -265,7 +265,7 @@
                 <dd>
                   @if (editar)
                   {
-                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="ferramenta" value="@Model.JobOn?.CaloteMm?.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Calote (mm)" />
+                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="ferramenta" value="@Model.JobOn?.CaloteMm?.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Calote (mm)" />
                   }
                   else if (Model.JobOn?.CaloteMm is { } valorCalote)
                   {
@@ -401,6 +401,8 @@ else
             <span class="@linhaCor" data-jof-linha>@jobOn.Machine</span>
           }
         </span></div>
+        @* Das datas às secções num painel centrado (Diogo, 23/10/2026: «fica muito bare»). *@
+        <div class="facts-dados">
         <div class="fact-col">
           <span class="fl">Início</span><span class="fv">@if (editar) {<input class="f" id="lightStart" name="inicio_em" type="date" value="@jobOn.InicioEm?.ToString("yyyy-MM-dd")" aria-label="Início" />} else {<strong>@(jobOn.InicioEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
           <span class="fl">Fim</span><span class="fv">@if (editar) {<input class="f" id="lightEnd" name="fim_em" type="date" value="@jobOn.FimEm?.ToString("yyyy-MM-dd")" aria-label="Fim" />} else {<strong>@(jobOn.FimEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
@@ -433,7 +435,7 @@ else
                 }
                 else if (editar)
                 {
-                  <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Model.Folha.Valor(chave)" aria-label="@rotulo" data-edit="@chave" />
+                  <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(Model.Folha.Valor(chave))" aria-label="@rotulo" data-edit="@chave" />
                 }
                 else
                 {
@@ -443,6 +445,7 @@ else
             }
           </div>
         }
+        </div>
       </div>
       <div class="head-right">
         <div class="pick-block@(Model.Escolher ? " is-novo" : null)">
@@ -655,8 +658,8 @@ else
                               @l.Designacao
                             }
                           </th>
-                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@l.Valor" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Mostra(l.Valor) ?? "—")}</td>
-                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@l.QtdMaq" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Mostra(l.QtdMaq) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@Mostra(l.Valor)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Mostra(l.Valor) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@Mostra(l.QtdMaq)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Mostra(l.QtdMaq) ?? "—")}</td>
                         </tr>
                       }
                     </tbody>
