@@ -1631,3 +1631,15 @@ Novos: 5 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `5f9bb3bf3356252d`
+
+## A-0061 · 2026-10-23 · teste-novo
+
+Porquê: PERF-05: fallback das Boquilhas escolhido na base; resultado igual e contagem de linhas
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NaoTrazTodasAsSemDatasParaAMemoria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NoPostgres_EscolheAsMesmasProducoes`
+
+Selo depois: `58e4cf95052cd365`
