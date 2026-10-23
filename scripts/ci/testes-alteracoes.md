@@ -1792,7 +1792,7 @@ Novos: 14 · mudaram: 55 · saíram: 1
 
 Selo depois: `7e4bced974268ae6`
 
-## A-0074 · 2026-10-23 · ok-do-diogo
+## A-0075 · 2026-10-23 · ok-do-diogo
 
 Porquê: Job On: a folha nova em todo o lado; Planeamento abre a folha numa página; Criar e Duplicar na folha em Editar; ficha antiga sai; sem títulos dos grupos; TP Diâmetro
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyE7tiP6DoaPx4TJH65FxhpT
