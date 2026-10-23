@@ -1,7 +1,7 @@
 {
-  "selo": "22459bb94c36bcbd",
+  "selo": "03737f8e82d29d30",
   "unidades": {
-    "scripts/ci/ci-local.sh": "3c99e93e0a359bcf",
+    "scripts/ci/ci-local.sh": "365629154ce859ec",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
     "scripts/ci/guarda-testes.py": "5b1b5836ee0813fa",
     "scripts/ci/testes.md": "b632b7ff0a758a55",
@@ -2058,6 +2058,10 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_DatasQueNaoSeCruzam_SemAvisoDeUsoParalelo": "33ae979484039be7",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_FatosEAvisos_DoBackend": "5f631ce1dec18c61",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_OverlapWarningsReflectKnownDates_AndNeverBlockSaving": "467df1a55bb5002c",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)": "a224ecaf17fae59b",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Editar_ModoEditarNoLugarDaProcura_EOProcessoNnpbPs_ComODaCmSugerido": "c5554a8392e17404",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes": "3d294e3466754198",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.SoVer_NaoTemEditar_NemModoEditar_MesmoPedindoOEditar": "bd90ceb163ead087",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)": "847484a07a5c0d5f",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Criar_GravaAFolhaNaMesmaEscritaDoJobOn": "674b5a367fadf53a",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Editar_MostraAsFamiliasAosPares_ComAQtdStockEAQtdMaqEmCadaFamiliaENaCal": "512606ac27ec348f",
@@ -2659,6 +2663,7 @@
     "tests/visual/ficha_botoes_browser.py": "1005ac3e76ade43a",
     "tests/visual/gravacoes_zonas_browser.py": "ab540e418fe53d49",
     "tests/visual/historicos_parcial_browser.py": "64ce36444badbae3",
+    "tests/visual/jobon_folha_browser.py": "93d8719302b1b1cb",
     "tests/visual/nok_agente_browser.py": "5a99dbfda60ac927",
     "tests/visual/paginacao_parcial_browser.py": "571e64a6f5ea69fc",
     "tests/visual/painel_lateral_browser.py": "85c135a8f92bce44",
