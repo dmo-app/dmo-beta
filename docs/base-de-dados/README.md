@@ -8,11 +8,11 @@ Desde a 0.2.0-beta.4, o deploy aplica as migrações sozinho: o comando de pré-
 
 À mão:
 
-`dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web` cria todas as tabelas, da `Baseline` até à última migração (`20261020015832_ControloAreaIdentificacao`).
+`dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web` aplica a `Baseline` e todas as migrações posteriores incluídas na versão do código em utilização. A lista está em `src/DMO.Alpha.Infrastructure/Migrations/`; a última migração varia com a versão.
 
 ## Base que já estava na 0.2.0-beta.2
 
-Correr [`atualizar-de-0.2.0-beta.2.sql`](atualizar-de-0.2.0-beta.2.sql). É o SQL das migrações 3 a 20, igual ao que foi aplicado no DEV da DMO-BETA-DEV antes de cada merge. Cada bloco só acrescenta (as atualizações que tem preenchem colunas novas) e pode correr-se mais de uma vez. No fim, `__EFMigrationsHistory` tem 20 linhas.
+Correr [`atualizar-de-0.2.0-beta.2.sql`](atualizar-de-0.2.0-beta.2.sql). É o SQL das migrações 3 a 20, igual ao que foi aplicado no DEV da DMO-BETA-DEV antes de cada merge. Cada bloco só acrescenta (as atualizações que tem preenchem colunas novas) e pode correr-se mais de uma vez. No fim deste SQL, `__EFMigrationsHistory` tem 20 linhas. Esse é um ponto intermédio histórico: para chegar à versão atual, aplicar depois as migrações restantes com o pacote de migração dessa versão ou com o comando `dotnet ef database update` indicado acima.
 
 ## Acesso do utilizador da app
 

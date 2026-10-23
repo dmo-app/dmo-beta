@@ -2,7 +2,7 @@
 
 Aplicação ASP.NET Core (.NET 10) com PostgreSQL e autenticação Supabase, publicada no Railway com `Dockerfile` e `entrypoint.sh`. Módulos: Job On, Controlo (Peso, Pegamentos, PU NNPB, Resumo e Revisão), Boquilhas, Ferramentas e Administração.
 
-Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146 e atualizada por envios únicos da `main` da DMO-BETA-DEV (o último: 0.2.0-beta.3, da beta.316, commit `420d5d5`). Tem só o que a app precisa para compilar e correr; os testes e as ferramentas de desenvolvimento ficam no repositório de desenvolvimento. A versão atual está em `version.props` e as correções incluídas aparecem na página `/versao` da app (fonte: `src/DMO.Alpha.Web/ReleaseNotes.json`).
+Este repositório inclui o código da aplicação, os testes e as ferramentas de desenvolvimento. O histórico parte da baseline DMO-BETA-0.2, feita a partir da 0.1.0-beta.146, e inclui as alterações posteriores. A versão atual está em `version.props` e as correções incluídas aparecem na página `/versao` da app (fonte: `src/DMO.Alpha.Web/ReleaseNotes.json`).
 
 ## Estrutura
 
@@ -12,6 +12,8 @@ Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146 e atuali
 - `docs/ui-reference/`: paleta oficial e componentes partilhados.
 - `docs/architecture/`: decisões aprovadas e ainda por implementar.
 - `docs/PENDENCIAS.md`: funcionalidades em falta.
+- `tests/`: testes da aplicação e cenários de browser.
+- `scripts/ci/`: CI local, catálogo e registo das alterações aos testes.
 
 ## Configuração
 
@@ -24,7 +26,7 @@ Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146 e atuali
 
 ## Base de dados
 
-- O schema completo está numa única migração, `Baseline`. Uma base nova é criada com `dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web`.
+- O schema é definido pela migração `Baseline` e pelas migrações posteriores em `src/DMO.Alpha.Infrastructure/Migrations/`. Uma base nova é criada com `dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web`.
 - A app não aplica migrações ao arrancar. O deploy aplica-as antes de a versão nova arrancar (`migrate.sh`, comando de pré-deploy do Railway), com o pacote de migração gerado no build da imagem.
 - Uma base criada antes desta baseline tem o histórico de migrações atualizado uma única vez para a `Baseline`, sem mudar tabelas nem dados.
 - Alterações futuras ao modelo entram como migrações novas a seguir à `Baseline`.
