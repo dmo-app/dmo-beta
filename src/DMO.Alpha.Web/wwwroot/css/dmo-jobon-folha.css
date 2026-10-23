@@ -576,3 +576,21 @@ html body .jof2 .facts-dados .fv{gap:0}
 html body .jof2 .facts-dados .unit{font-size:13px;font-weight:600;margin-left:2px}
 html body .jof2 .jof-modo-editar{justify-content:center;align-self:center;box-sizing:border-box;height:38px;min-height:38px;line-height:1;padding:0 16px;font-size:16px}
 @media (max-width:900px){html body .jof2 .facts-dados{flex-wrap:wrap;max-width:100%;min-width:0;margin:0;row-gap:10px}html body .jof2 .facts-dados .fact-col{padding:0 12px}}
+/* Folha compacta: linhas mais baixas para menos scroll a 1366x768 (Diogo, 23/10/2026: «menos scroll possível»). */
+html body .jof2 .kv dt,html body .jof2 .kv dd{padding:4px 0}
+html body .jof2.editing .kv dt,html body .jof2.editing .kv dd{padding:2px 0;display:flex;align-items:center}
+html body .jof2.editing .kv dd{justify-content:flex-end}
+html body .jof2.editing .kv dd input.f,html body .jof2.editing .cal-card input.f,html body .jof2.editing .dims input.f,html body .jof2.editing .mini input.f{height:28px;min-height:28px;padding-top:2px;padding-bottom:2px;box-sizing:border-box}
+html body .jof2 .calv th,html body .jof2 .calv td{padding:3px 10px}
+html body .jof2.editing .calv td{padding:2px 6px}
+/* No Editar, a Informação técnica em dois pares por linha: metade da altura. */
+html body .jof2.editing .more-body .kv{grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr) 68px;column-gap:8px}
+html body .jof2.editing .more-body .kv>:nth-child(3),html body .jof2.editing .more-body .kv>:nth-child(4){border-top:0}
+html body .jof2.editing .more-body .kv dt{font-size:12.5px;padding-right:2px;line-height:1.15}
+html body .jof2.editing .more-body .kv dd input.f{width:68px;font-size:13px;padding-left:4px;padding-right:4px}
+html body .jof2.editing .calv input.f{height:26px;min-height:26px;padding:1px 6px;box-sizing:border-box}
+html body .jof2.editing .calv td,html body .jof2.editing .calv th{padding-top:1px;padding-bottom:1px}
+html body .jof2.editing .dims th,html body .jof2.editing .dims td{padding-top:2px;padding-bottom:2px}
+html body .jof2.editing .dims td:first-child,html body .jof2.editing .dims th:first-child{white-space:nowrap;font-size:12.5px}
+html body .jof2.editing .dims input.f{height:26px;min-height:26px}
+html body .jof2.editing .calv td input.f[name$=".Valor"]{width:8.5em}
