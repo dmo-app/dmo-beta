@@ -24,7 +24,9 @@ MEDIR = """() => [...document.querySelectorAll('.ferr-create-tech .ferr-tech-blo
   const caixas = s => [...b.querySelectorAll(s)].filter(e => e.getClientRects().length).map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.height)]; });
   return { titulo: caixas('legend'), rotulos: caixas('label'), campos: caixas('input,select') };
 })"""
-SEPS = """() => [...document.querySelectorAll('.ferr-create-tech .ferr-tech-sep')].filter(e => e.getClientRects().length).map(e => Math.round(e.getBoundingClientRect().top))"""
+SEPS = """() => [...document.querySelectorAll('.ferr-create-tech .ferr-tech-sep')].filter(e => e.getClientRects().length).map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.height)]; })"""
+# Os grupos de cada tipo (a MF só tem o Gargalo).
+GRUPOS = {'CM': 3, 'BQ': 2, 'MF': 1}
 
 falhas = []
 with sync_playwright() as playwright:
@@ -47,19 +49,31 @@ with sync_playwright() as playwright:
                 page.evaluate("document.querySelectorAll('details.ferr-create-tech').forEach(d => d.open = true)")
                 page.wait_for_timeout(200)
                 grupos = page.evaluate(MEDIR)
+                if len(grupos) != GRUPOS[tipo]:
+                    falhas.append(f'{tema} {largura} {tipo}: {len(grupos)} grupos visíveis (esperados {GRUPOS[tipo]})')
                 # Os grupos na mesma linha (o mesmo topo do título) comparam-se entre si.
                 linhas = {}
                 for g in grupos:
                     linhas.setdefault(g['titulo'][0][0], []).append(g)
+                # Com mais de um grupo, a 1200 px ou mais ficam todos lado a lado.
+                if GRUPOS[tipo] > 1 and largura >= 1200 and max((len(gs) for gs in linhas.values()), default=0) < 2:
+                    falhas.append(f'{tema} {largura} {tipo}: menos de 2 grupos lado a lado')
                 for topo, gs in linhas.items():
                     for chave in ('rotulos', 'campos'):
                         primeiros = {tuple(g[chave][0]) for g in gs}
                         dentro = {tuple(c) for g in gs for c in g[chave] if abs(c[0] - g[chave][0][0]) < 30}
                         if len(primeiros) > 1 or len(dentro) > 1:
                             falhas.append(f'{tema} {largura} {tipo}: {chave} desalinhados {sorted(dentro)}')
-                    for sep in page.evaluate(SEPS):
-                        if sep in linhas and sep != topo and abs(sep - topo) < 30:
-                            falhas.append(f'{tema} {largura} {tipo}: traço em {sep}, títulos em {topo}')
+                # Cada traço pertence à linha de grupos mais próxima: começa no topo dos
+                # títulos dela e acaba no fundo das caixas dela (±1px).
+                for sep_topo, sep_altura in page.evaluate(SEPS):
+                    if not linhas:
+                        falhas.append(f'{tema} {largura} {tipo}: traço sem grupos')
+                        break
+                    topo = min(linhas, key=lambda t: abs(t - sep_topo))
+                    fundo = max(c[0] + c[1] for g in linhas[topo] for c in g['campos'])
+                    if abs(sep_topo - topo) > 1 or abs(sep_topo + sep_altura - fundo) > 1:
+                        falhas.append(f'{tema} {largura} {tipo}: traço de {sep_topo} a {sep_topo + sep_altura}, a linha vai de {topo} a {fundo}')
                 print(tema, largura, tipo, [(g['titulo'][0], g['rotulos'][0], g['campos'][0]) for g in grupos])
                 page.close()
     browser.close()

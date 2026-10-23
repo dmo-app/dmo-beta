@@ -58,4 +58,35 @@ public partial class FerramentasPagesTests
         else
             Assert.Contains(aviso, ficha, StringComparison.Ordinal);
     }
+
+    // O % uso ilegível no Criar (o Guardião, 23/10/2026): «abc» e «12,5» (com
+    // vírgula — o % uso é um número inteiro, não se lê como 12,5 nem como 125)
+    // não gravam leitura nenhuma; a ferramenta grava na mesma e a ficha avisa
+    // com o que se escreveu.
+    [Theory]
+    [InlineData("abc", "61")]
+    [InlineData("12,5", "62")]
+    public async Task Criar_PercentagemDeUsoIlegivel_NaoGrava_EAvisa(string uso, string lote)
+    {
+        SeedUser("4994", "Ferramentas Uso", "provider-ferr-uso-ilegivel", "FerrUsoI1!");
+        using var client = await LoginClientAsync("4994", "FerrUsoI1!");
+
+        var token = await GetVerificationTokenAsync(client, $"{IndexPath}?criar=1");
+        var response = await client.PostAsync($"{IndexPath}?handler=Create", HtmlFormHelpers.BuildFormPost(
+            ("type_token", "CM"), ("reference", "6124"), ("lot", lote),
+            ("uso_percentagem", uso), ("__RequestVerificationToken", token)));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        var location = response.Headers.Location!.ToString();
+        Assert.StartsWith("/Ferramentas/Ficha?tool_id=", location, StringComparison.Ordinal);
+        var ficha = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, location));
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var toolId = db.Tools.Single(t => t.Reference == "6124" && t.Lot == lote).ToolId;
+            Assert.Empty(db.FerramentaUtilizacoes.Where(u => u.ToolId == toolId));
+        }
+        Assert.Contains("id=\"ferrUsoAviso\"", ficha, StringComparison.Ordinal);
+        Assert.Contains($"O % uso «{uso}» não é um número inteiro positivo e não foi gravado", ficha, StringComparison.Ordinal);
+    }
 }
