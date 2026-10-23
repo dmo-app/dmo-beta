@@ -224,6 +224,11 @@ public partial class JobOnPageTests
         var criar = await client.GetAsync($"{FolhaPath}?novo=1");
         Assert.Equal(HttpStatusCode.Redirect, criar.StatusCode);
         Assert.Equal("/JobOn/Folha", criar.Headers.Location!.ToString());
+        var linhaVazia = await client.GetAsync($"{FolhaPath}?novo=1&machine_id={await MachineIdAsync("B2")}&inicio_em=2026-11-02");
+        Assert.Equal(HttpStatusCode.Redirect, linhaVazia.StatusCode);
+        var semCriar = await GetPageHtmlAsync(client, linhaVazia.Headers.Location!.ToString());
+        Assert.DoesNotContain("jofNovo", semCriar, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-jof-criar", semCriar, StringComparison.Ordinal);
         var duplicar = await client.GetAsync($"{FolhaPath}?duplicar={id}");
         Assert.Equal(HttpStatusCode.Redirect, duplicar.StatusCode);
         Assert.Equal($"/JobOn/Folha?jobon_id={id}", duplicar.Headers.Location!.ToString());

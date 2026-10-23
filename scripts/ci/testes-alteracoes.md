@@ -2031,7 +2031,7 @@ Selo depois: `eeea5e50049f15e3`
 
 ## A-0085 · 2026-10-23 · ok-do-diogo
 
-Porquê: Job On novo abre com o template sem Editar (só Referência e Produção); testes do Criar passam a usar etapa=criar; números com duas casas no máximo
+Porquê: O Diogo pediu que o Job On novo abra com o template vazio, sem Editar, só com Referência e Produção; por isso ?novo=1 abre esse template e o Criar passa a etapa=criar; e o Peso mostra no máximo duas casas, sem zeros no fim.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyDVmzwNXmJ27Y9wujPVctWi, cmsg_01A27e9ozcpoh4jdPRsuJbFy7ptiGBcxeK1STv81feVGJJ, cmsg_01A27e9ozcpoh4jdPRsuJbFy5bGHNtwLZnbmHdtmqXcSce
 Novos: 2 · mudaram: 5 · saíram: 0
 
