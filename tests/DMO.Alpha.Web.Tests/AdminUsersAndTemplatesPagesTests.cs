@@ -1061,12 +1061,13 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
         Assert.Contains("Sem capabilities", listHtml, StringComparison.Ordinal);
 
         // O matrix de permissões por módulo do mockup NÃO é vocabulário
-        // Beta: um POST forjado com jobon.view é recusado tipadamente
-        // (UnknownCapability) e renderizado por PRG.
+        // Beta: um POST forjado com jobon.edit é recusado tipadamente
+        // (UnknownCapability) e renderizado por PRG. (O jobon.view passou a
+        // ser a chave «Job On ver», Diogo 22/10/2026.)
         var nonBeta = await PostAsync(
             adminClient, "/Admin/Templates?handler=Create",
             ("name", "Forjada"),
-            ("capabilities", "jobon.view"));
+            ("capabilities", "jobon.edit"));
         Assert.Equal(HttpStatusCode.Redirect, nonBeta.StatusCode);
         Assert.Equal("UnknownCapability", LocationQueryValue(nonBeta, "create_refusal"));
 

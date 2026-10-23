@@ -112,7 +112,8 @@ public sealed class IndexModel : PageModel
         {
             ("Planeamento · Job On", new[]
             {
-                DmoCapabilities.JobOnCreate
+                DmoCapabilities.JobOnCreate,
+                DmoCapabilities.JobOnView
             }),
             ("Controlo (Criar: Resumo · Peso · Pegamentos · Histórico; Aprovar: Revisão)", new[]
             {
@@ -142,6 +143,7 @@ public sealed class IndexModel : PageModel
     public static string CapabilityLabel(string capability) => capability switch
     {
         DmoCapabilities.JobOnCreate => "Planeamento",
+        DmoCapabilities.JobOnView => "Job On ver",
         DmoCapabilities.ControloCreate => "Controlo — Criar",
         DmoCapabilities.ControloApprove => "Controlo — Aprovar",
         DmoCapabilities.Boquilhas => "Boquilhas · criar",
