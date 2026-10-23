@@ -1906,3 +1906,31 @@ Novos: 12 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.OQueMudou_SoAsAlteracoesFeitasDepoisDoInicio`
 
 Selo depois: `8caa9df1fe235bb8`
+
+## A-0077 · 2026-10-23 · ok-do-diogo
+
+Porquê: Pacote de interface aprovado pelo Diogo: painel lateral com as cores do Planeamento, «Voltar ao Job On», % uso no Criar, círculos de ajuda iguais, «Por página» junto da paginação
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy4sDMLbGy5vRjHMGnQ33SSe
+Novos: 11 · mudaram: 8 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_PorPagina_NaPaginacao_NuncaNosFiltros`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoNoCriar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoNoCriar.cs :: FerramentasPagesTests.Criar_PercentagemDeUsoIlegivel_NaoGrava_EAvisa`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoNoCriar.cs :: FerramentasPagesTests.Criar_PercentagemDeUso_GravaAPrimeiraLeitura_SoAvisos`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VoltarJobOn.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VoltarJobOn.cs :: FerramentasPagesTests.Ficha_ComVoltarDoJobOn_MostraOVoltarParaAFolhaExata`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VoltarJobOn.cs :: FerramentasPagesTests.Ficha_SemVoltarValido_NaoMostraOVoltarAoJobOn`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: JobOnPageTests.FolhaNova_PainelLateral_CadaCartaoLevaACorDaSuaLinha`
+- novo: `tests/visual/painel_cores_linhas_browser.py`
+- novo: `tests/visual/tecnica_alinhada_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_AbremAFichaDaFerramenta_SemAvisoDeDadosEmFalta`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: Editar: escolher outra ferramenta muda o cartão e a ficha do duplo clique`
+- mudou: `tests/visual/ajuda_junto_browser.py`
+- mudou: `tests/visual/definicoes_parcial_browser.py`
+
+Selo depois: `64b5fd86806ae05e`
