@@ -1586,3 +1586,13 @@ Novos: 19 · mudaram: 4 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `22a5bbe559777eb6`
+
+## A-0056 · 2026-10-23 · ok-do-diogo
+
+Porquê: Reparadores de CM e MF: sem o «Recebe» ao criar (o Diogo); o reparador novo recebe CM e MF e o teste passa a criar sem escolher.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyCHtQM4phYkHQ6fUzkVEKMv
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Definicoes_CriarEMudarReparadores`
+
+Selo depois: `f8014bd20313ba06`

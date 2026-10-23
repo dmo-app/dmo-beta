@@ -31,14 +31,8 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
         <label for="armRepNome">Novo reparador</label>
         <input id="armRepNome" name="nome" maxlength="100" autocomplete="off" placeholder="Ex.: Moldes Lda" required />
       </div>
-      <div class="dmo-field">
-        <label for="armRepFamilias">Recebe</label>
-        <select id="armRepFamilias" name="familias">
-          <option value="ambos" selected>CM e MF</option>
-          <option value="cm">Só CM</option>
-          <option value="mf">Só MF</option>
-        </select>
-      </div>
+      @* O reparador novo recebe CM e MF; muda-se na tabela (Diogo, 23/10/2026: «aqui não precisa do recebe»). *@
+      <input type="hidden" name="familias" value="ambos" />
     </form>
 
     @if (Model.Reparadores.Count == 0)
