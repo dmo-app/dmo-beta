@@ -1,21 +1,9 @@
+using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Infrastructure.Controlo;
-
-/// <summary>
-/// Os factos das ferramentas herdadas pela folha do Peso.
-/// Tool null para tool_id desconhecido ou REMOVED; técnico null sem linha
-/// técnica; densidade do vidro só quando a CM tem processo configurado.
-/// </summary>
-public sealed record PesoToolFacts(
-    ToolLookupResult? CmTool,
-    ToolTechnicalReadModel? CmTechnical,
-    decimal? CmGlassDensity,
-    ToolLookupResult? BqTool,
-    ToolTechnicalReadModel? BqTechnical,
-    ToolLookupResult? MfTool);
 
 /// <summary>
 /// CM, BQ e MF por tool_id, com o contexto técnico e a densidade do vidro
