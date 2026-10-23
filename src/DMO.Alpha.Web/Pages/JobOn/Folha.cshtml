@@ -29,6 +29,15 @@
 @functions {
     private static string? Vazio(string? v) => string.IsNullOrWhiteSpace(v) ? null : v.Trim();
 
+    // Os números da folha com duas casas decimais no máximo e sem zeros no fim
+    // («365.000» → «365», «36.850» → «36.85», «2,50» → «2,5»: a vírgula de quem escreveu fica; Diogo, 23/10/2026). Texto fica como está.
+    private static string? Mostra(string? v) =>
+        Vazio(v) is not { } t ? null
+        : System.Text.RegularExpressions.Regex.IsMatch(t, @"^-?\d+([.,]\d+)?$")
+          && decimal.TryParse(t.Replace(',', '.'), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d)
+            ? (t.Contains(',') ? Math.Round(d, 2, MidpointRounding.AwayFromZero).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') : Math.Round(d, 2, MidpointRounding.AwayFromZero).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))
+            : t;
+
     private static decimal? Numero(string? v) =>
         decimal.TryParse(v?.Replace(',', '.').Replace("%", "").Trim(), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : null;
 }
@@ -43,7 +52,7 @@
         {
             <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@valor" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
         }
-        else if (Vazio(valor) is { } escrito)
+        else if (Mostra(valor) is { } escrito)
         {
             @escrito
         }
@@ -428,7 +437,7 @@ else
                 }
                 else
                 {
-                  <strong>@(Cab(chave) ?? "—")</strong>@if (unidade.Length > 0 && Cab(chave) is not null) {<span class="unit">@unidade</span>}
+                  <strong>@(Mostra(Cab(chave)) ?? "—")</strong>@if (unidade.Length > 0 && Cab(chave) is not null) {<span class="unit">@unidade</span>}
                 }
               </span>
             }
@@ -436,8 +445,8 @@ else
         }
       </div>
       <div class="head-right">
-        <div class="pick-block">
-          @if (Model.Criar)
+        <div class="pick-block@(Model.Escolher ? " is-novo" : null)">
+          @if (Model.Criar && !Model.Escolher)
           {
             <span class="eyebrow">@(Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On")</span>
           }
@@ -447,7 +456,18 @@ else
             {
               <button class="btn rail-toggle" type="button" data-jof-rail-abrir aria-expanded="false" aria-controls="jofRail" title="Planeamento: as produções desta semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg><span class="rail-toggle-txt">Linhas</span><span class="count">@Model.ProximasEntradas.Count</span></button>
             }
-            @if (Model.Criar)
+            @if (Model.Escolher)
+            {
+              @* O Job On novo: a Referência e a Produção no mesmo sítio, sem Editar (Diogo, 23/10/2026). *@
+              <div class="pick-campo"><label class="pick-rotulo" for="jofReferencia">Referência</label>
+              <div class="ref-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+                <input type="search" form="jofNovo" name="referencia" id="jofReferencia" aria-label="Referência do Job On novo" placeholder="Escreva" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-suggest="referencias" required />
+              </div></div>
+              <div class="pick-campo"><label class="pick-rotulo" for="jofNovoProducao">Produção</label>
+              <input class="prod-select" id="jofNovoProducao" form="jofNovo" name="producao" type="text" aria-label="Número da produção" placeholder="N.º" autocomplete="off" /></div>
+            }
+            else if (Model.Criar)
             {
               @* No Criar e no Duplicar escrevem-se a referência e o nº da produção nova. *@
               <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input id="lightReference" name="reference" type="text" value="@jobOn.Reference" aria-label="Referência da produção" placeholder="Referência" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-maiusculas data-dmo-suggest="referencias" /></div>
@@ -479,7 +499,11 @@ else
               </select></div>
             }
           </div>
-          @if (!editar)
+          @if (Model.Escolher)
+          {
+            <div class="head-acoes"><button class="btn" type="submit" form="jofNovo">Criar</button></div>
+          }
+          else if (!editar)
           {
             <div class="head-acoes">
               @* Quem só tem «Job On ver» só vê a folha como está e abre ou fecha as secções: sem Imprimir (Diogo, 23/10/2026). *@
@@ -631,17 +655,13 @@ else
                               @l.Designacao
                             }
                           </th>
-                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@l.Valor" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Vazio(l.Valor) ?? "—")}</td>
-                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@l.QtdMaq" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Vazio(l.QtdMaq) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@l.Valor" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Mostra(l.Valor) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@l.QtdMaq" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Mostra(l.QtdMaq) ?? "—")}</td>
                         </tr>
                       }
                     </tbody>
                   </table>
                 </div>
-                @if (editar)
-                {
-                  <p class="empty-text">A última linha serve para acrescentar uma medida; para retirar uma, apague o que tem escrito.</p>
-                }
               }
             </article>
           </div>
@@ -743,6 +763,15 @@ else
       }
     }
   </form>
+  @if (Model.Escolher)
+  {
+    <form id="jofNovo" method="get" action="/JobOn/Folha" hidden data-jof-novo>
+      <input type="hidden" name="novo" value="1" />
+      <input type="hidden" name="etapa" value="criar" />
+      @if (Model.NovoMachineId is { } nm) { <input type="hidden" name="machine_id" value="@nm" /> }
+      @if (Model.NovoInicio is { } ni2) { <input type="hidden" name="inicio_em" value="@ni2.ToString("yyyy-MM-dd")" /> }
+    </form>
+  }
   @if (!editar)
   {
     <form id="jofProcura" method="get" action="/JobOn/Folha" hidden>
