@@ -1,5 +1,5 @@
 {
-  "selo": "d47cbaa35324c42d",
+  "selo": "33dd2100ff4eeb26",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1990,6 +1990,7 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Registry_PagesTenOrTwentyRows_AndNavigationPreservesFiltersAndReturn": "ea387e6e0b23647d",
     "tests/DMO.Alpha.Web.Tests/FerramentasServicesRegistrationTests.cs :: (resto do ficheiro)": "cebcd78f52045f03",
     "tests/DMO.Alpha.Web.Tests/FerramentasServicesRegistrationTests.cs :: FerramentasServicesRegistrationTests.FerramentasServices_ResolveAsScopedImplementations": "205591dc58563768",
+    "tests/DMO.Alpha.Web.Tests/FornecedorDeAutenticacaoQueFalha.cs :: (resto do ficheiro)": "660066da10954937",
     "tests/DMO.Alpha.Web.Tests/HtmlFormHelpers.cs :: (resto do ficheiro)": "59c88aaf2ca796f2",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: (resto do ficheiro)": "2c6949579f13c3f3",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.ComOInterruptor_OAvisoDoArmazemVolta": "54d1954406b14a97",
@@ -2128,6 +2129,7 @@
     "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.Desligada_NaoPoeOCabecalho_NemALinha_EONoStoreFica": "57b719c33050cc45",
     "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.NoPostgres_ONumeroDeConsultasBateComOsComandos_EOParametroNaoVaiParaOLog": "c6ead46701d56cd4",
     "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.PaginaAutenticada_TemServerTiming_EOsEstaticosNao_EOLogNaoLevaValores": "6d18282cf4da498f",
+    "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.PedidoQueLancaExcecao_ALinhaDizQuinhentos": "23b4bf5c847a244c",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: (resto do ficheiro)": "43046f1cba8c57a5",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.BothControlos_OpenTheirOwnPages": "8d88c153a20f155e",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.InsideTheModule_PagesShowNoPermissionNotices": "8f671c1f279633aa",
