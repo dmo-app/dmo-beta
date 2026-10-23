@@ -207,11 +207,14 @@ html body .dmo-suggest-list li.dmo-suggest-empty{color:var(--dmo-muted);cursor:d
    passar o rato inverte a cor (preenchido ↔ contorno) e mostra o texto.
    Num cartão sem título, .dmo-help-corner põe-no no canto de cima. */
 /* A dica fica sempre no mesmo sítio em relação ao texto (Diogo, 22/10/2026): em em, à altura das maiúsculas, em cima à direita da última palavra, seja qual for o tamanho da letra; em linha ou num flex (align-self:baseline). */
-.dmo-help{position:relative;display:inline-block;height:.72em;font-size:inherit;vertical-align:baseline;align-self:baseline;margin-left:.22em;cursor:help;outline:none;line-height:1}
+/* UM SÓ TAMANHO E UM SÓ SÍTIO (Diogo, 23/10/2026: «normalizar os círculos do help, as páginas variam, meter mais pequeno e da mesma forma posição para tudo»):
+   8px, a 3px da palavra, e elevado como um expoente — o fundo do círculo 4px abaixo do topo das maiúsculas (a caixa da dica tem a altura das
+   maiúsculas, .72em, assente na linha de base) — igual em títulos de página, de cartão, rótulos e botões. Tudo em px, nunca em em. */
+.dmo-help{position:relative;display:inline-block;width:8px;height:.72em;font-size:inherit;vertical-align:baseline;align-self:baseline;margin-left:3px;cursor:help;outline:none;line-height:1;flex:none}
 /* Um título flex com dica alinha pela linha de base, para a dica ficar no mesmo sítio que num título em linha
    (!important: os títulos das páginas, como .def-parte > h3, têm align-items:center mais específico). */
 html body :is(h1,h2,h3,h4,label,legend,summary):has(>:is(.dmo-help,.dmo-com-ajuda)){align-items:baseline!important}
-.dmo-help-mark{display:block;overflow:visible;width:9px;height:9px}
+.dmo-help-mark{position:absolute;left:0;top:-4px;display:block;overflow:visible;width:8px;height:8px}
 .dmo-help-mark circle{fill:transparent;stroke:var(--dmo-palette-ocean);stroke-width:1.3;transition:fill var(--dmo-fast)}
 .dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}
 .dmo-help:focus-visible{outline:2px solid var(--dmo-palette-mist);outline-offset:2px;border-radius:50%}
@@ -225,7 +228,7 @@ summary:focus-visible .dmo-help[data-dmo-help-sumario] .dmo-help-tip,.dmo-help.d
 .card:has(>.dmo-help-corner){position:relative}
 /* Ao lado de um botão (Diogo, 22/10/2026): por cima da aresta de cima do botão, como um expoente, nunca ao meio. */
 /* Ao lado de um botão, a mesma regra: em cima à direita do texto do botão. */
-:is(.dmo-button,button,.dmo-options)+.dmo-help{margin-left:.22em}
+:is(.dmo-button,button,.dmo-options)+.dmo-help{margin-left:3px}
 /* Um elemento e a sua ajuda juntos (p. ex. a etiqueta «Só de leitura»): o gap de um título
    em flex não os separa e a ajuda fica encostada e elevada como nos outros títulos. */
 html body .dmo-com-ajuda{display:inline-flex;align-items:baseline}
