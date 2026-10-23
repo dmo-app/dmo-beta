@@ -460,3 +460,14 @@ html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
 .jof-onde{font-size:11px;color:var(--dmo-muted,#66809a);margin:4px 0 0}
 /* O aviso do Editar, no lugar da procura (Diogo, 23/10/2026). */
 .jof2 .jof-modo-editar{display:flex;align-items:center;min-height:42px;padding:0 18px;border-radius:8px;background:var(--dmo-warning-soft);color:var(--dmo-warning);border:1px solid color-mix(in srgb,var(--dmo-warning) 35%,transparent);font-size:18px;font-weight:800;letter-spacing:.02em}
+/* Cartões compactos: menos scroll, a mesma informação à vista (Diogo, 23/10/2026). */
+.jof2 .sec{padding:9px 12px 10px;gap:7px}
+.jof2 .board,.jof2 .col3{gap:10px}
+.jof2 .zones{row-gap:12px}
+.jof2 .hv b{font-size:20px}
+.jof2 .sec-head{min-height:28px}
+.jof2 .use{gap:4px}
+.jof2 .bar{height:6px}
+.jof2 .note-view p{padding:4px 7px;line-height:1.4}
+.jof2 .notes{padding:10px 14px}
+.jof2 .notes li.view{padding:3px 8px;line-height:1.4}
