@@ -116,6 +116,12 @@ public partial class PuncoesPageTests
             // O cartão das Definições só mostra B1 e C3 (Diogo, 22/10/2026); o valor da C2 fica guardado e usado.
             var definicoes = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, "/Definicoes?secao=controlo&sub=puncoes"));
             Assert.DoesNotContain("data-dmo-linha=\"C2\"", definicoes);
+            using (var scope = _factory.Services.CreateScope())
+            {
+                // A C2 continua com o valor gravado: 2 secções, 8 posições (4 por secção, A a D).
+                var linhas = scope.ServiceProvider.GetRequiredService<PuncoesLinhaDefinicoes>();
+                Assert.Equal(8, await linhas.SeccoesAsync("C2") * 4);
+            }
 
             var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
             Assert.Equal(lista[7].Numero, Celula(html, "D2"));

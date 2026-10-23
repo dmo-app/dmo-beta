@@ -230,6 +230,57 @@ with sync_playwright() as playwright:
     assert foco(page) == 'dayChangeHour', f'foco em {foco(page)}'
     assert sql('''select "SettingValue" from "ModuleSettings" where "SettingKey" = 'Boquilhas:DayChangeHour' ''') == hora
 
+    # Menu lateral: um clique em «Controlo» abre o grupo, outro fecha-o; o triângulo roda.
+    page.goto(base + '/Definicoes?secao=admin&sub=canal')
+    titulo = '[data-dmo-def-grupo="controlo"] [data-dmo-def-grupo-titulo]'
+    sub = '#defMenu-controlo'
+    rodar = f'{titulo} .dmo-caret'
+    angulo = lambda: page.eval_on_selector(rodar, "e => getComputedStyle(e).transform")
+    assert page.get_attribute(titulo, 'aria-expanded') == 'false'
+    assert page.eval_on_selector(sub, 'e => e.hidden') is True
+    fechado = angulo()
+    page.click(titulo)
+    expect(page.locator(titulo)).to_have_attribute('aria-expanded', 'true')
+    assert page.eval_on_selector(sub, 'e => e.hidden') is False
+    page.wait_for_timeout(300)
+    aberto = angulo()
+    assert aberto != fechado and aberto not in ('none', ''), f'o triângulo não rodou ({fechado} -> {aberto})'
+    page.click(titulo)
+    expect(page.locator(titulo)).to_have_attribute('aria-expanded', 'false')
+    assert page.eval_on_selector(sub, 'e => e.hidden') is True
+    page.wait_for_timeout(300)
+    assert angulo() == fechado, 'o triângulo não voltou'
+    resultados.append('Menu lateral: «Controlo» abre e fecha com um clique; o triângulo roda')
+
+    # Triângulo e ajuda medidos no Chromium: o triângulo acaba antes do texto (0 a 0,5em);
+    # o fundo do círculo da ajuda fica na linha de base do texto (±2 px).
+    medir_caret = """(s) => {
+        const c = s.querySelector('.dmo-caret');
+        const t = document.createTreeWalker(s, NodeFilter.SHOW_TEXT, { acceptNode: n => n.textContent.trim() ? 1 : 3 });
+        let n = t.nextNode();
+        while (n && !(c.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING)) n = t.nextNode();
+        const r = document.createRange(); r.selectNodeContents(n);
+        const em = parseFloat(getComputedStyle(n.parentElement).fontSize);
+        return { folga: r.getBoundingClientRect().left - c.getBoundingClientRect().right, em };
+    }"""
+    page.goto(base + '/Definicoes?secao=boquilhas')
+    m = page.eval_on_selector('summary:has(> .dmo-caret)', medir_caret)
+    assert 0 <= m['folga'] <= 0.5 * m['em'], f'triângulo do <summary> a {m["folga"]:.1f}px do texto (1em = {m["em"]}px)'
+    m2 = page.eval_on_selector(titulo, medir_caret)
+    assert 0 <= m2['folga'] <= 0.5 * m2['em'], f'triângulo do menu a {m2["folga"]:.1f}px do texto'
+    page.goto(base + '/Definicoes?secao=admin&sub=app')
+    base_ajuda = page.eval_on_selector('#admin-email-title', """(h) => {
+        const ajuda = h.querySelector('.dmo-help-mark');
+        const linha = document.createElement('span');
+        linha.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+        h.insertBefore(linha, h.firstChild);
+        const resultado = { fundo: ajuda.getBoundingClientRect().bottom, base: linha.getBoundingClientRect().bottom };
+        linha.remove();
+        return resultado;
+    }""")
+    assert abs(base_ajuda['fundo'] - base_ajuda['base']) <= 2, f'ajuda {base_ajuda["fundo"] - base_ajuda["base"]:.1f}px fora da linha de base'
+    resultados.append(f'Triângulo a {m["folga"]:.1f}px/{m2["folga"]:.1f}px do texto; ajuda a {base_ajuda["fundo"] - base_ajuda["base"]:.1f}px da linha de base')
+
     # Utilizadores: criar; o PIN fica no canto; o formulário limpa; a lista mostra-o.
     page.goto(base + '/Admin/Users')
     no_canto(page, '#dmuCriarBotao', '#dmuCriar', '#dmu-name')

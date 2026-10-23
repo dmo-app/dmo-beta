@@ -103,7 +103,8 @@ html body .def-menu-sub[hidden]{display:none}
         {
           @* Um grupo (Diogo, 22/10/2026: «usa apenas sidepanel, Controlo expande, fica como título, por baixo as funções»); o grupo Admin só para o ADMIN. *@
           var subAberto = Model.SubDe(chave);
-          <div class="def-menu-grupo" data-dmo-def-grupo="@chave" data-aberto="@(ativa ? "" : null)">
+          @* O Razor não tira um data-* nulo (fica data-aberto=""): o atributo só se escreve no grupo ativo. *@
+          <div class="def-menu-grupo" data-dmo-def-grupo="@chave" @(ativa ? Html.Raw("data-aberto") : null)>
             <a href="/Definicoes?secao=@chave&amp;sub=@funcoes[0].Chave" class="def-menu-titulo" data-dmo-def-grupo-titulo aria-expanded="@(ativa ? "true" : "false")" aria-controls="defMenu-@chave"><span class="dmo-caret" aria-hidden="true"></span><span>@nome</span>@(chave == "admin" ? null : cadeadoMenu)</a>
             <div class="def-menu-sub" id="defMenu-@chave" hidden="@(!ativa)">
               @foreach (var (sub, subNome) in funcoes)

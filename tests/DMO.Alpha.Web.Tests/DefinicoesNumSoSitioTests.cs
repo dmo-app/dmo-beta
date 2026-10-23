@@ -531,7 +531,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var (client, _) = await LoginOperatorAsync("7325", DmoCapabilities.ControloCreate);
         var html = await GetOkAsync(client, "/Definicoes?secao=controlo&sub=pegamentos");
         var menu = Menu(html);
-        Assert.Contains("data-dmo-def-grupo=\"controlo\" data-aberto=\"\"", menu);
+        Assert.Contains("data-dmo-def-grupo=\"controlo\" data-aberto>", menu);
         Assert.Contains("aria-expanded=\"true\"", menu);
         Assert.Contains("class=\"dmo-caret\"", menu);
         Assert.Contains("<div class=\"def-menu-sub\" id=\"defMenu-controlo\">", menu);
@@ -577,6 +577,12 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("data-dmo-linha=\"C3\"", html);
         Assert.DoesNotContain("data-dmo-linha=\"B2\"", html);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "id=\"ctlDefSeccoesGuardar\""));
+        int b2Antes;
+        using (var antes = _factory.Services.CreateScope())
+        {
+            b2Antes = await antes.ServiceProvider.GetRequiredService<DMO.Alpha.Infrastructure.Controlo.PuncoesLinhaDefinicoes>().SeccoesAsync("B2");
+        }
+
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
         var r = await client.PostAsync("/Controlo/Definicoes?handler=SavePuncoesSeccoesTodas", HtmlFormHelpers.BuildFormPost(
             ("maquina", "B1"), ("seccoes", "3"), ("maquina", "C3"), ("seccoes", "4"), ("maquina", "B2"), ("seccoes", "9"),
@@ -586,6 +592,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var linhas = scope.ServiceProvider.GetRequiredService<DMO.Alpha.Infrastructure.Controlo.PuncoesLinhaDefinicoes>();
         Assert.Equal(3, await linhas.SeccoesAsync("B1"));
         Assert.Equal(4, await linhas.SeccoesAsync("C3"));
-        Assert.NotEqual(9, await linhas.SeccoesAsync("B2"));
+        // A B2 não está no cartão: o que vier no pedido não a muda.
+        Assert.Equal(b2Antes, await linhas.SeccoesAsync("B2"));
     }
 }

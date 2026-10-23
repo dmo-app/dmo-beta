@@ -204,7 +204,9 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
 
         var html = await admin.GetStringAsync("/Definicoes?secao=admin&sub=app");
         var menu = System.Text.RegularExpressions.Regex.Match(html, "<nav class=\"def-menu\"[\\s\\S]*?</nav>").Value;
-        Assert.Contains("data-dmo-def-grupo=\"admin\" data-aberto=\"\"", menu);
+        Assert.Contains("data-dmo-def-grupo=\"admin\" data-aberto>", menu);
+        // O grupo fechado não leva data-aberto (o Razor não tira um data-* nulo).
+        Assert.DoesNotContain("data-dmo-def-grupo=\"controlo\" data-aberto", menu);
         Assert.Contains("data-dmo-ctl-tab=\"canal\" data-dmo-grupo=\"admin\"", menu);
         Assert.Contains("data-dmo-ctl-tab=\"app\" data-dmo-grupo=\"admin\" class=\"active\"", menu);
         var app = html[html.IndexOf("id=\"sec-admin\"", StringComparison.Ordinal)..];
@@ -212,12 +214,16 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
         Assert.Contains("PIN das Definições", app);
         Assert.Contains("id=\"canalJobonViragem\"", app);
         Assert.Contains("data-dmo-ctl-sub=\"canal\" data-dmo-grupo=\"admin\" hidden=\"hidden\"", app);
+        Assert.DoesNotContain("id=\"admModulos\"", app);
 
         // O Admin fica só com Utilizadores e Templates.
         var users = await admin.GetStringAsync("/Admin/Users");
         Assert.DoesNotContain(">Canal Jobon</a>", users);
         Assert.DoesNotContain(">App</a>", users);
         Assert.DoesNotContain(">Setup</a>", users);
+        var templates = await admin.GetStringAsync("/Admin/Templates");
+        Assert.DoesNotContain("id=\"admModulos\"", templates);
+        Assert.DoesNotContain("name=\"testadores\"", templates);
 
         // Quem não é ADMIN não vê o grupo.
         using var op = await LoginOperatorAsync("5104", DmoCapabilities.Boquilhas);
