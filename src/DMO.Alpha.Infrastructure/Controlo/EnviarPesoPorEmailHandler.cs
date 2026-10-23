@@ -43,7 +43,8 @@ public sealed class EnviarPesoPorEmailHandler(
         var documento = await pdfDocument.BuildAsync(controloId, null, null, null, generatedBy, cancellationToken);
         if (documento is null) return (EnviarPesoResultado.SemPeso, null);
 
-        var destinatarios = lista.Destinatarios.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        // Só os emails vão para o «Para» (os nomes ficam na lista, Diogo 23/10/2026).
+        var destinatarios = EnvioEmailRegras.LerLista(lista.Destinatarios).Select(p => p.Email).ToArray();
         var assunto = EnvioEmailRegras.Preencher(modelo.Assunto, documento.Reference, documento.ProductionNumber, documento.Machine, documento.PesoGramas);
         var corpo = EnvioEmailRegras.Preencher(modelo.Corpo, documento.Reference, documento.ProductionNumber, documento.Machine, documento.PesoGramas);
         var eml = EmailRascunho.Gerar(new EmailMensagem(

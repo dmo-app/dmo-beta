@@ -1979,3 +1979,20 @@ Novos: 1 · mudaram: 7 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnRemoverAlteracaoTests.cs :: JobOnRemoverAlteracaoTests.RemoverAUltimaAtiva_AMarcaSai_AFolhaContinuaAMostrarAsRemovidas_EUmSegundoEnvioNaoMuda`
 
 Selo depois: `32a264ffb223c884`
+
+## A-0081 · 2026-10-23 · ok-do-diogo
+
+Porquê: Listas de email: tabela Nome | Email, listas minimizáveis, colar do Outlook; nome de lista existente junta a pessoa (pedido do Diogo cmsg_01A27e9ozcpoh4jdPRsuJbFyYXh1fnoybcdjcLEghEQiQc); email já na lista avisa e não duplica
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyW4qmvhz9g3JgigBx2NddUm
+Novos: 6 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ColarComUmEmailErrado_AvisaENaoOGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ColarListaDoOutlook_GuardaNomesEEmails`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_JuntarAUmaLista_UmEmailQueJaLaEsta_NaoDuplica_EAvisa`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ListaSemNenhumEmail_NaoGrava_EONomeDeUmaQueExisteJuntaAPessoa`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ListasDeAntes_SemNomes_MostramSeFechadasComOTraco`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_PessoaDaLista_MudarNomeEEmail_Tirar_EJuntar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_CriarLista_GuardaOsEmails_EAvisaDosQueNaoSaoEmails`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ListaSemNenhumEmail_OuComNomeRepetido_NaoGrava`
+
+Selo depois: `65cddedf2800e31e`

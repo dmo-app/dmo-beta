@@ -25,6 +25,15 @@ html body .ctl-def-grade[hidden]{display:none}
 .ctl-def-emails{min-width:min(360px,100%)}
 .ctl-def-x{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
 .ctl-def-x:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
+/* As listas do email: o espaço normal entre os campos e as listas; cada lista abre pelo triângulo à esquerda do nome. */
+.ctl-def-listas{display:grid;gap:var(--dmo-space-2);margin-top:var(--dmo-space-4)}
+.ctl-def-lista{border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card)}
+.ctl-def-lista>summary{display:flex;align-items:center;gap:var(--dmo-space-2);padding:10px 12px;cursor:pointer;list-style:none;font-weight:700}
+.ctl-def-lista>summary::-webkit-details-marker{display:none}
+.ctl-def-lista-conta{margin-left:auto;color:var(--dmo-muted);font-size:12px;font-weight:400}
+.ctl-def-lista-corpo{padding:0 12px 12px}
+.ctl-def-lista-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--dmo-space-3);margin-bottom:var(--dmo-space-3)}
+.ctl-def-lista-topo .dmo-field{margin:0}
 .ctl-def-valor{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted}
 .ctl-def-modelo{display:grid;gap:10px;min-width:min(480px,100%)}
 .ctl-def-modelo .dmo-field{margin:0}
@@ -65,49 +74,68 @@ html body .ctl-def-grade[hidden]{display:none}
   <div class="ctl-def-grade" data-dmo-ctl-sub="email" data-dmo-grupo="controlo" hidden="@(sub != "email")">
   <section id="ctlDefListas" class="dmo-card ctl-def-card" aria-labelledby="envio-listas-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-    <h3 id="envio-listas-title">Envio por email — listas<partial name="_DmoHelp" model="@("Quem recebe o PDF do Peso. Escreva os emails separados por vírgula ou espaço; o que não for um email fica de fora, com aviso. Clique no nome ou nos emails de uma lista para os mudar; grava ao sair do campo.")" /></h3>
-      <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefCriarLista" form="ctlDefCriarListaForm">Criar lista</button></div>
+    <h3 id="envio-listas-title">Envio por email — listas<partial name="_DmoHelp" model="@("Quem recebe o PDF do Peso. Escreva o nome da lista, o nome e o email da pessoa e carregue em Adicionar: uma lista nova cria-se, a uma que já existe junta-se a pessoa. Pode colar uma lista do Outlook («\"Leal, Sergio\" <sleal@fabrica.pt>; …»): cada pessoa entra com o seu nome. O que não for um email fica de fora, com aviso. Abra uma lista pelo triângulo; clique no nome ou no email de uma pessoa para os mudar (grava ao sair do campo).")" /></h3>
+      <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefCriarLista" form="ctlDefCriarListaForm">Adicionar</button></div>
     </div>
     <form id="ctlDefCriarListaForm" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="CriarLista" class="ctl-def-acoes">
       <div class="dmo-field">
-        <label for="listaNome">Nova lista</label>
-        <input id="listaNome" name="nome" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.NomeMax" placeholder="Ex.: Produção" required />
+        <label for="listaNome">Lista</label>
+        <input id="listaNome" name="nome" list="ctlDefListasNomes" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.NomeMax" placeholder="Ex.: Produção" autocomplete="off" required />
+        <datalist id="ctlDefListasNomes">@foreach (var l in Model.Listas) {<option value="@l.Nome"></option>}</datalist>
+      </div>
+      <div class="dmo-field">
+        <label for="listaPessoa">Nome</label>
+        <input id="listaPessoa" name="pessoa" maxlength="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.NomeMax" placeholder="Ex.: Sérgio Leal" autocomplete="off" />
       </div>
       <div class="dmo-field ctl-def-emails">
-        <label for="listaEmails">Emails</label>
-        <input id="listaEmails" name="destinatarios" placeholder="producao@fabrica.pt, chefe@fabrica.pt" required />
+        <label for="listaEmails">Email</label>
+        <input id="listaEmails" name="destinatarios" placeholder="sleal@fabrica.pt" autocomplete="off" required />
       </div>
     </form>
     @if (Model.Listas.Count > 0)
     {
-      <div class="dmo-table-wrap">
-        <table class="dmo-table" data-dmo-listas-email>
-          <thead><tr><th>Lista</th><th>Emails</th><th><span class="dmo-visually-hidden">Apagar</span></th></tr></thead>
-          <tbody>
-          @foreach (var lista in Model.Listas)
-          {
-            var emails = string.Join(", ", lista.Destinatarios.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-            <tr data-dmo-lista-email="@lista.Id">
-              <td><form id="ctlDefLista-@lista.Id" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarLista"><input type="hidden" name="lista_id" value="@lista.Id" /><input id="ctl-lista-nome-@lista.Id" class="dmo-valor" data-dmo-valor name="nome" value="@lista.Nome" autocomplete="off" aria-label="Nome da lista @lista.Nome" required /></form></td>
-              <td><form id="ctlDefListaEmails-@lista.Id" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarLista"><input type="hidden" name="lista_id" value="@lista.Id" /><input id="ctl-lista-emails-@lista.Id" class="dmo-valor ctl-def-emails" data-dmo-valor name="destinatarios" value="@emails" autocomplete="off" aria-label="Emails da lista @lista.Nome" required /></form></td>
-              <td>
-                <button type="button" class="ctl-def-x" data-dmo-dialog="ctl-lista-apagar-@lista.Id" aria-label="Apagar a lista @lista.Nome" title="Apagar">×</button>
-                <dialog id="ctl-lista-apagar-@lista.Id" class="dmo-dialog" aria-labelledby="ctl-lista-apagar-titulo-@lista.Id">
-                  <h3 id="ctl-lista-apagar-titulo-@lista.Id">Apagar lista</h3>
-                  <p class="dmo-aviso-discreto">Apagar a lista @lista.Nome? Os envios já feitos ficam registados.</p>
-                  <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="ApagarLista">
-                    <input type="hidden" name="lista_id" value="@lista.Id" />
-                    <div class="dmo-dialog-actions">
-                      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-                      <button type="submit" class="dmo-button">Apagar</button>
-                    </div>
-                  </form>
-                </dialog>
-              </td>
-            </tr>
-          }
-          </tbody>
-        </table>
+      @* As listas fechadas por omissão, o triângulo à esquerda do nome (Diogo, 23/10/2026). *@
+      <div class="ctl-def-listas" data-dmo-listas-email>
+      @foreach (var lista in Model.Listas)
+      {
+        var pessoas = DMO.Alpha.Core.Controlo.EnvioEmailRegras.LerLista(lista.Destinatarios);
+        <details class="ctl-def-lista" data-dmo-lista-email="@lista.Id" open="@(Model.ListaAberta == lista.Id)">
+          <summary><span class="dmo-caret" aria-hidden="true"></span><span class="ctl-def-lista-nome">@lista.Nome</span><span class="ctl-def-lista-conta">@pessoas.Count @(pessoas.Count == 1 ? "pessoa" : "pessoas")</span></summary>
+          <div class="ctl-def-lista-corpo">
+            <div class="ctl-def-lista-topo">
+              <form id="ctlDefLista-@lista.Id" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarLista" class="dmo-field"><input type="hidden" name="lista_id" value="@lista.Id" /><label for="ctl-lista-nome-@lista.Id">Nome da lista</label><input id="ctl-lista-nome-@lista.Id" class="dmo-valor" data-dmo-valor name="nome" value="@lista.Nome" autocomplete="off" required /></form>
+              <button type="button" class="ctl-def-x" data-dmo-dialog="ctl-lista-apagar-@lista.Id" aria-label="Apagar a lista @lista.Nome" title="Apagar a lista">×</button>
+            </div>
+            <dialog id="ctl-lista-apagar-@lista.Id" class="dmo-dialog" aria-labelledby="ctl-lista-apagar-titulo-@lista.Id">
+              <h3 id="ctl-lista-apagar-titulo-@lista.Id">Apagar lista</h3>
+              <p class="dmo-aviso-discreto">Apagar a lista @lista.Nome? Os envios já feitos ficam registados.</p>
+              <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="ApagarLista">
+                <input type="hidden" name="lista_id" value="@lista.Id" />
+                <div class="dmo-dialog-actions">
+                  <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                  <button type="submit" class="dmo-button">Apagar</button>
+                </div>
+              </form>
+            </dialog>
+            <div class="dmo-table-wrap">
+              <table class="dmo-table" data-dmo-pessoas-email="@lista.Id">
+                <thead><tr><th>Nome</th><th>Email</th><th><span class="dmo-visually-hidden">Tirar</span></th></tr></thead>
+                <tbody>
+                @for (var i = 0; i < pessoas.Count; i++)
+                {
+                  var pessoa = pessoas[i];
+                  <tr data-dmo-pessoa-email="@i">
+                    <td><form id="ctlDefPessoa-@lista.Id-@i" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarPessoa"><input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="pessoa" value="@i" /></form><input form="ctlDefPessoa-@lista.Id-@i" class="dmo-valor" data-dmo-valor name="nome" value="@pessoa.Nome" placeholder="—" autocomplete="off" aria-label="Nome de @pessoa.Email" /></td>
+                    <td><input form="ctlDefPessoa-@lista.Id-@i" class="dmo-valor ctl-def-emails" data-dmo-valor name="email" value="@pessoa.Email" autocomplete="off" aria-label="Email de @(pessoa.Nome ?? pessoa.Email)" required /></td>
+                    <td><form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="RemoverPessoa"><input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="pessoa" value="@i" /><button type="submit" class="ctl-def-x" aria-label="Tirar @(pessoa.Nome ?? pessoa.Email) da lista" title="Tirar da lista">×</button></form></td>
+                  </tr>
+                }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+      }
       </div>
     }
   </section>

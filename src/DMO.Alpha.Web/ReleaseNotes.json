@@ -333,7 +333,8 @@
     { "id": "DMO-339", "module": "Geral", "description": "0.3.0-beta.26: painel lateral do Job On com as cores das linhas do Planeamento e o selo centrado; «Voltar ao Job On» na ficha da ferramenta; «% uso» ao criar uma ferramenta; círculos de ajuda iguais em toda a app; «Por página» junto da paginação no catálogo das Boquilhas." },
     { "id": "DMO-340", "module": "Ferramentas", "description": "0.3.0-beta.27: a 100% de uso a referência e o lote mudam ligeiramente de cor na ficha e no Pesquisar, sem aviso nem bloqueio; «Registar ferramenta» sem «real»." },
     { "id": "DMO-341", "module": "Job On", "description": "0.3.0-beta.28: na Folha, TP e CS logo a seguir aos moldes, depois os Calibres, e o PI por baixo das Notas gerais; uma linha vazia do Planeamento abre a folha em branco, sem Editar, para duplicar um Job On antigo ou criar em branco, já com a linha e o dia." },
-    { "id": "DMO-343", "module": "Job On", "description": "«Remover por engano» apaga a alteração de vez: deixa de aparecer em «O que mudou»." }
+    { "id": "DMO-343", "module": "Job On", "description": "«Remover por engano» apaga a alteração de vez: deixa de aparecer em «O que mudou»." },
+    { "id": "DMO-344", "module": "Controlo", "description": "0.3.0-beta.30: listas de email nas Definições com tabela Nome | Email, minimizáveis, um só «Adicionar» e colar uma lista do Outlook; um email que já está na lista avisa e não se repete." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
