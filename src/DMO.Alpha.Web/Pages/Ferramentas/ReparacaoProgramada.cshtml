@@ -159,7 +159,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
     {
     <form id="rpCriar" method="post" asp-page="/Ferramentas/ReparacaoProgramada" asp-page-handler="Criar" class="rp-contents">
       <div class="dmo-field">
-        <label for="rpReparador">Reparador<partial name="_DmoHelp" model="@("O reparador da lista nova (Armazém › Definições).")" /></label>
+        <label for="rpReparador">Reparador</label>
         <select id="rpReparador" name="reparador">
           <option value="">Escolha…</option>
           @foreach (var r in Model.Reparadores)
@@ -168,7 +168,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
           }
         </select>
       </div>
-      <button type="submit" class="dmo-button" id="rpCriarBotao">Criar</button>
+      <button type="submit" class="dmo-button" id="rpCriarBotao">Criar</button><partial name="_DmoHelp" model="@("Escolha o reparador (Armazém › Definições) e crie a lista. A lista fica com o nome do reparador e o dia, por exemplo «Moldes do Norte · 23/10/2026».")" />
     </form>
     }
       @if (lista is not null)
@@ -188,10 +188,6 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       else if (Model.VerFechadas && Model.Fechadas.Count == 0)
       {
         <p id="rpHistNada"><em>Nenhuma lista fechada com esses filtros.</em></p>
-      }
-      else if (!Model.VerFechadas)
-      {
-        <p id="rpListaVazia"><em>@(Model.Ativas.Count == 0 ? "Nenhuma lista ativa. Escolha o reparador e crie uma lista." : "Escolha o reparador e crie a lista.")</em></p>
       }
     }
     else
@@ -304,9 +300,9 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       <input type="hidden" name="destino" value="@(lista is { Lista.Ativa: true } ? lista.Lista.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) : null)" />
     </form>
 
+    @* Sem frases de ajuda no ecrã (Diogo, 23/10/2026: «remover comentários»): a procura vazia não mostra nada. *@
     @if (Model.Procura.Vazia)
     {
-      <p id="rpProcuraVazia"><em>Escolha um filtro e procure.</em></p>
     }
     else if (Model.Candidatas.Count == 0)
     {

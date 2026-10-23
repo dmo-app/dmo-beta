@@ -1,5 +1,5 @@
 {
-  "selo": "d96a7f2ee41e164c",
+  "selo": "e34f8d72d0d0e910",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1906,7 +1906,7 @@
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.NovaLista_CriaComOReparador_ESemListaOAdicionarAvisa": "a28f9bf4d3fc79ed",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)": "31a6a9fc5c3b4450",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza": "50a71d3f994ff3be",
-    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova": "5e48f2dfd9b89b0e",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova": "b87faebd75758a97",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.SemFerramentas_NaoEntra_NemAssocia_NemImprime": "0f2b0b090ec67465",
     "tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: (resto do ficheiro)": "1d37c8b26915f74f",
     "tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: FerramentasPagesTests.Ficha_AbertaDeUmFluxo_GuardarOEditarMantemORegresso": "66fd0a959ed3c3e4",

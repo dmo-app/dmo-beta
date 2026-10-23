@@ -129,9 +129,9 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         var vazia = await chefia.GetStringAsync(Pagina);
         Assert.Contains("Registar Reparação", vazia);
         Assert.Contains("href=\"/Ferramentas/ReparacaoProgramada\"", vazia);
-        Assert.Contains("id=\"rpProcuraVazia\"", vazia);
+        Assert.DoesNotContain("Escolha um filtro e procure.", vazia);
         Assert.DoesNotContain("id=\"rpCandidatas\"", vazia);
-        Assert.Contains("id=\"rpListaVazia\"", vazia);
+        Assert.DoesNotContain("Nenhuma lista ativa", vazia);
 
         var procura = await chefia.GetStringAsync($"{Pagina}?estado=PorReparar&referencia=5447RP");
         Assert.Contains($"data-dmo-candidata=\"{Cm}\"", procura);
@@ -147,6 +147,11 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         Assert.Contains("1 ferramenta associada.", lista);
         Assert.Contains("id=\"rpListaAtiva\"", lista);
         Assert.Contains("<strong>Moldin</strong>", lista);
+        // O nome da lista nova (Diogo, 23/10/2026: «nova lista fica com que nome?»): o reparador e o dia de Lisboa em que foi criada.
+        var criada = NaBase(db => db.ReparacaoProgramadaListas.Single());
+        var dia = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(criada.CriadaEmUtc).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        Assert.Equal(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(DateTime.UtcNow).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture), dia);
+        Assert.Matches($"<option value=\"{criada.Id}\" selected=\"selected\">Moldin · {Regex.Escape(dia)}</option>", lista);
         Assert.Matches("data-dmo-progresso[^>]*>Por retirar<", lista);
         Assert.Contains("id=\"rpImprimir\"", lista);
         var item = NaBase(db => db.ReparacaoProgramadaItens.Single());
