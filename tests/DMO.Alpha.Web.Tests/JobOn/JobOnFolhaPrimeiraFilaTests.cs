@@ -156,6 +156,12 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         }
         Assert.Contains("class=\"note-box note-view is-empty\" data-jof-campo=\"mf_notas\" data-jof-nota", html);
 
+        // «O que mudou» no fim da folha, depois do último cartão (Diogo, 23/10/2026).
+        var resumo = html.IndexOf("id=\"fichaMudancas\"", StringComparison.Ordinal);
+        var ultimoCartao = html.LastIndexOf("data-jof-familia=", StringComparison.Ordinal);
+        Assert.True(resumo >= 0 && ultimoCartao >= 0, $"Falta o resumo ({resumo}) ou os cartões ({ultimoCartao}).");
+        Assert.True(resumo > ultimoCartao, $"O resumo ({resumo}) não vem depois do último cartão ({ultimoCartao}).");
+
         // A imagem do artigo.
         Assert.Contains("data-jof-artigo", html);
 
@@ -203,5 +209,30 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.DoesNotContain("data-jof-modo-editar", pedido);
         Assert.DoesNotContain("data-edit=\"cab_processo\"", pedido);
         Assert.Contains("id=\"jofReferencia\"", pedido);
+    }
+
+    // Os Dias na linha do Início (Diogo, 23/10/2026): fim − início + 1; sem fim, «—».
+    [Theory]
+    [InlineData(0, 0, "1")]
+    [InlineData(-2, 0, "3")]
+    [InlineData(-2, null, "—")]
+    public async Task Dias_NaLinhaDoInicio_FimMenosInicioMaisUm(int inicio, int? fim, string esperado)
+    {
+        var jobOnId = await SeedAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var jobOn = db.JobOns.Single(j => j.Id == jobOnId);
+            var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
+            jobOn.InicioEm = hoje.AddDays(inicio);
+            jobOn.FimEm = fim is int f ? hoje.AddDays(f) : null;
+            await db.SaveChangesAsync();
+        }
+        using var client = await LoginAsync("7304", DmoCapabilities.JobOnCreate);
+
+        var html = await PageAsync(client, $"/JobOn/Folha?jobon_id={jobOnId}");
+        var dias = Regex.Match(html, "<div class=\"fact-col fact-dias\">\\s*<span class=\"fl\">Dias</span><span class=\"fv\"><strong[^>]*>(?<v>[^<]*)</strong></span>\\s*(?:@\\*[^*]*\\*@\\s*)?<span class=\"fl\" aria-hidden=\"true\">");
+        Assert.True(dias.Success, "Os Dias não estão na coluna com a linha vazia (a linha do Início).");
+        Assert.Equal(esperado, dias.Groups["v"].Value);
     }
 }

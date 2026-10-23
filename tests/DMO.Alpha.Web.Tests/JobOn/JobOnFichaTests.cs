@@ -1308,6 +1308,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
         var dia = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}"));
         // Sem o aviso amarelo das alterações na lista do dia: ficam no resumo da folha (Diogo, 23/10/2026).
+        Assert.Contains("<span>1075C142 202601</span>", dia);
         Assert.DoesNotContain("beta-light-changes", dia);
         Assert.DoesNotContain("Mudou a BQ: T194 · lote 12 → T194 · lote 13", dia);
 
@@ -1416,6 +1417,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
         var dia = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}"));
+        Assert.Contains("<span>1075C142 202601</span>", dia);
         Assert.DoesNotContain("beta-light-changes", dia);
         Assert.DoesNotContain("Calote · Sai", dia);
 
@@ -1428,7 +1430,9 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         }
         var semAlteracoes = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
         Assert.DoesNotContain("jobon-mudancas", semAlteracoes);
-        Assert.DoesNotContain("beta-light-changes", await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}"));
+        var diaSem = await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}");
+        Assert.Contains("<span>1075C142 202601</span>", diaSem);
+        Assert.DoesNotContain("beta-light-changes", diaSem);
     }
 
     [Fact]

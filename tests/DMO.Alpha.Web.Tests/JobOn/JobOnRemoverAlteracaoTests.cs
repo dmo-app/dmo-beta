@@ -158,7 +158,9 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
         Assert.Contains("<dialog id=\"jobon-remover-alteracao\"", antes);
         Assert.Contains(">Remover por engano</button>", antes);
         // Sem o aviso amarelo na lista do dia (Diogo, 23/10/2026): as alterações vivem na folha e no Sumário.
-        Assert.DoesNotContain("BQ · Sai 12 entra 13", await PageAsync(client, Dia()));
+        var diaAntes = await PageAsync(client, Dia());
+        Assert.Contains("<span>5447T194 202677</span>", diaAntes);
+        Assert.DoesNotContain("BQ · Sai 12 entra 13", diaAntes);
         Assert.Contains("Mudou a BQ: T194 · lote 12 → T194 · lote 13", await PageAsync(client, "/Planeamento/Sumario?tipo=alteracoes"));
 
         var resposta = await RemoverAsync(client, jobOnId, bqId, HtmlFormHelpers.ExtractRequestVerificationToken(antes)!);
@@ -188,6 +190,7 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
 
         // A marca laranja do dia e o Sumário: só a que ficou.
         var dia = await PageAsync(client, Dia());
+        Assert.Contains("<span>5447T194 202677</span>", dia);
         Assert.DoesNotContain("beta-light-changes", dia);
         Assert.DoesNotContain("Sai 12 entra 13", dia);
         var sumario = await PageAsync(client, "/Planeamento/Sumario?tipo=alteracoes");
@@ -211,12 +214,12 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
 
         Assert.Equal(HttpStatusCode.Redirect, (await RemoverAsync(client, jobOnId, bqId, token)).StatusCode);
         // Com uma ativa ainda há marca e janela.
-        Assert.DoesNotContain("beta-light-changes", await PageAsync(client, Dia()));
+        { var d = await PageAsync(client, Dia()); Assert.Contains("<span>5447T194 202677</span>", d); Assert.DoesNotContain("beta-light-changes", d); }
         Assert.Contains("<dialog id=\"jobon-remover-alteracao\"", await PageAsync(client, Folha(jobOnId)));
 
         Assert.Equal(HttpStatusCode.Redirect, (await RemoverAsync(client, jobOnId, fimId, token)).StatusCode);
         // Sem nenhuma ativa: a marca sai, o Sumário fica sem elas, a folha mostra as duas riscadas e já não tem a janela.
-        Assert.DoesNotContain("beta-light-changes", await PageAsync(client, Dia()));
+        { var d = await PageAsync(client, Dia()); Assert.Contains("<span>5447T194 202677</span>", d); Assert.DoesNotContain("beta-light-changes", d); }
         var sumario = await PageAsync(client, "/Planeamento/Sumario?tipo=alteracoes");
         Assert.DoesNotContain("T194 · lote 12 → T194 · lote 13", sumario);
         Assert.DoesNotContain("31/12/2026", sumario);
