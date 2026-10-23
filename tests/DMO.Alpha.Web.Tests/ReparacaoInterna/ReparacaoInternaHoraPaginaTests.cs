@@ -243,6 +243,33 @@ public sealed class ReparacaoInternaHoraPaginaTests : IClassFixture<CustomWebApp
         Assert.False(NaBase(db => db.ReparacoesInternas.Any(x => x.JobOnId == jobOn)));
     }
 
+    // Os limites da hora: 00:00 e 23:59 gravam, 24:00 recusa sem gravar.
+    [Theory]
+    [InlineData("G", "6807", "00:00", true)]
+    [InlineData("H", "6808", "23:59", true)]
+    [InlineData("J", "6809", "24:00", false)]
+    public async Task OsLimitesDaHora_DaMeiaNoiteAo2359_E24Recusa(string sufixo, string operador, string valor, bool grava)
+    {
+        var (codigo, jobOn) = Maquina(sufixo);
+        using var client = await LoginOperatorAsync(operador, DmoCapabilities.ReparacaoInterna);
+        var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        var (acao, campos) = EnvioDoFormulario.Preencher(html, ($"riNumero-{codigo}", "12"), ($"riHora-{codigo}", valor));
+
+        using var gravar = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+
+        if (grava)
+        {
+            Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
+            Assert.Equal(TimeOnly.ParseExact(valor, "HH:mm"), NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(x => x.JobOnId == jobOn)).Hora);
+        }
+        else
+        {
+            Assert.Equal(HttpStatusCode.OK, gravar.StatusCode);
+            Assert.Contains("Hora inválida: use HH:mm (ex.: 14:30). Nada foi gravado.", Elemento(await gravar.Content.ReadAsStringAsync(), "id=\"riAvisos\""));
+            Assert.False(NaBase(db => db.ReparacoesInternas.Any(x => x.JobOnId == jobOn)));
+        }
+    }
+
     [Fact]
     public async Task UmaDeAntes_SemHora_MostraAHoraDoRegisto()
     {
