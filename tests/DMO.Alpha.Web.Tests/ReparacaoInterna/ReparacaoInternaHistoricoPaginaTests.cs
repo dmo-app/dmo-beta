@@ -230,7 +230,7 @@ public sealed class ReparacaoInternaHistoricoPaginaTests : IClassFixture<CustomW
         Assert.StartsWith("/ReparacaoInterna?historico=1", destino);
         Assert.Contains($"maquina={codigo}", destino);
         var depois = await client.GetStringAsync(destino);
-        Assert.Contains("Número corrigido para 72.", Elemento(depois, "id=\"riAvisos\""));
+        Assert.Contains("Reparação do nº 72 corrigida.", Elemento(depois, "id=\"riAvisos\""));
         Assert.Contains("<strong>72</strong>", Elemento(depois, "id=\"riHistLista\""));
 
         // Outro sítio que não esta página não serve de volta.

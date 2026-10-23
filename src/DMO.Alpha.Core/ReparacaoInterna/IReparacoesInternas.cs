@@ -53,7 +53,8 @@ public sealed record RiProducaoDoDia(DateOnly Dia, IReadOnlyList<RiProducao> Can
 /// sem produção para o dia, a ferramenta vai escrita: a referência e o lote,
 /// sem contexto, por associar (peça 4). <paramref name="Dia"/>: o dia
 /// operacional escolhido na página (as datas são livres, Diogo, 22/10/2026);
-/// sem ele, o de agora.
+/// sem ele, o de agora. <paramref name="Hora"/>: a hora da reparação
+/// escrita na página (vem com a de agora); sem ela, a hora local de agora.
 /// </summary>
 public sealed record PedidoDeReparacao(
     Guid OperacaoId,
@@ -65,7 +66,8 @@ public sealed record PedidoDeReparacao(
     bool Outra = false,
     string? Referencia = null,
     string? Lote = null,
-    DateOnly? Dia = null);
+    DateOnly? Dia = null,
+    TimeOnly? Hora = null);
 
 /// <summary>Como acabou um registo. Só se recusa o impossível ou o que falta.</summary>
 public enum ReparacaoResultado
@@ -106,8 +108,9 @@ public sealed record ReparacaoSaida(
     public bool PorAssociar => Gravou && Referencia is not null;
 }
 
-/// <summary>Corrigir o número de uma reparação (máquina, tipo ou produção errados: anula-se e regista-se outra vez).</summary>
-public sealed record PedidoDeCorrecao(Guid OperacaoId, int ReparacaoId, string? Numero, string? Motivo = null);
+// Máquina, tipo ou produção errados: anula-se e regista-se outra vez.
+/// <summary>Corrigir o número e a hora de uma reparação; <paramref name="Hora"/> NULL deixa a hora como está.</summary>
+public sealed record PedidoDeCorrecao(Guid OperacaoId, int ReparacaoId, string? Numero, string? Motivo = null, TimeOnly? Hora = null);
 
 /// <summary>Anular uma reparação: sai da lista e das contagens e fica na base com o rasto.</summary>
 public sealed record PedidoDeAnulacao(Guid OperacaoId, int ReparacaoId, string? Motivo = null);
@@ -123,7 +126,7 @@ public enum CorrecaoResultado
     Anulado,
     /// <summary>O mesmo envio outra vez: já estava feito.</summary>
     JaFeito,
-    /// <summary>O número já era esse: nada mudou.</summary>
+    /// <summary>O número e a hora já eram esses: nada mudou.</summary>
     Igual,
     NaoExiste,
     JaAnulada,
@@ -181,7 +184,8 @@ public sealed record RiLinha(
     string? Quem,
     DateTime RegistadoEmUtc,
     string? Referencia = null,
-    string? Lote = null);
+    string? Lote = null,
+    TimeOnly? Hora = null);
 
 /// <summary>A Reparação Interna: o dia operacional, a produção do dia, registar, corrigir, anular e a lista.</summary>
 public interface IReparacoesInternas

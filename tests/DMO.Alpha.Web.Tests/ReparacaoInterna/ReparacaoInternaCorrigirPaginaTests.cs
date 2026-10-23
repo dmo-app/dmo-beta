@@ -235,7 +235,7 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         Assert.Contains($"maquina={codigo}", destino);
         Assert.Contains("tipo=cm", destino);
         var depois = await outra.GetStringAsync(destino);
-        Assert.Contains("Número corrigido para 475.", Elemento(depois, "id=\"riAvisos\""));
+        Assert.Contains("Reparação do nº 475 corrigida.", Elemento(depois, "id=\"riAvisos\""));
         Assert.Contains("data-dmo-toast=\"ok\"", Elemento(depois, "id=\"riAvisos\""));
         // Quem registou continua a ser o autor (está no registo dele); o rasto diz quem corrigiu.
         Assert.DoesNotContain($"data-dmo-reparacao=\"{ids[0]}\"", depois);

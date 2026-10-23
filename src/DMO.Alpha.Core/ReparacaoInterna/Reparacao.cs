@@ -64,6 +64,16 @@ public sealed class Reparacao
     /// <summary>O dia operacional da fábrica em que se registou (vira à hora do Canal Jobon).</summary>
     public DateOnly DiaOperacional { get; set; }
 
+    /// <summary>
+    /// A hora da reparação, em hora local da fábrica (Diogo, 23/10/2026): vem
+    /// com a hora de agora e a pessoa pode mudá-la. Vai com o
+    /// <see cref="DiaOperacional"/> (o dia vira à hora do Canal Jobon, por isso
+    /// não se junta numa data: 03:00 do dia 22 é de madrugada de 23).
+    /// NULL nas reparações de antes: mostra-se a hora do registo.
+    /// <see cref="RegistadoEmUtc"/> fica como o carimbo de quando se registou.
+    /// </summary>
+    public TimeOnly? Hora { get; set; }
+
     /// <summary>Quando foi anulada; NULL enquanto conta. Quem anulou e o motivo estão no rasto.</summary>
     public DateTime? AnuladaEmUtc { get; set; }
 
@@ -122,6 +132,12 @@ public sealed class ReparacaoRasto
     public DateTime EmUtc { get; set; }
 
     public string? Motivo { get; set; }
+
+    /// <summary>A hora antes de corrigir (só quando a correção a mudou; NULL se não tinha).</summary>
+    public TimeOnly? HoraAntes { get; set; }
+
+    /// <summary>A hora corrigida (só quando a correção a mudou).</summary>
+    public TimeOnly? HoraDepois { get; set; }
 
     /// <summary>O <c>tool_id</c> associado (só ao associar). Fica como estava, mesmo que a ferramenta se elimine.</summary>
     public string? ToolIdAssociado { get; set; }

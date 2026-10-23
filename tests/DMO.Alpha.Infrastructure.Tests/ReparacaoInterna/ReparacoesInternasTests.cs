@@ -298,7 +298,7 @@ public sealed class ReparacoesInternasTests
         var segunda = await Servico(db).ListarAsync(1, 11, 2);
 
         Assert.Equal((27, 25, 2), (primeira.TotalCount, primeira.Items.Count, primeira.TotalPages));
-        Assert.Equal(new RiLinha(primeira.Items[0].Id, "27", ReparacaoTipo.Cm, "Rui Costa", Manha.UtcDateTime.AddMinutes(27)), primeira.Items[0]);
+        Assert.Equal(new RiLinha(primeira.Items[0].Id, "27", ReparacaoTipo.Cm, "Rui Costa", Manha.UtcDateTime.AddMinutes(27), Hora: new TimeOnly(10, 27)), primeira.Items[0]);
         Assert.Equal(ReparacaoTipo.Mf, primeira.Items[1].Tipo);
         Assert.Equal(new[] { "2", "1" }, segunda.Items.Select(l => l.Numero));
         Assert.Empty((await Servico(db).ListarAsync(2, 11, null)).Items);

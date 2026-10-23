@@ -23,6 +23,7 @@ html body .ri-linha .dmo-field input.ri-numero{width:14ch}
 html body .ri-linha .dmo-field input.ri-referencia{width:14ch}
 html body .ri-linha .dmo-field input.ri-lote{width:7ch}
 html body .ri-linha .dmo-field input.ri-dia{width:auto}
+html body .ri-linha .dmo-field input.ri-hora{width:auto}
 /* O botão CM/MF: o mesmo mecanismo do tipo de movimento das Boquilhas
    (rádios com o rótulo como botão); o ativo em azul claro. */
 /* CM e MF: dois botões separados (Diogo, 23/10/2026), não um interruptor colado. */
@@ -194,9 +195,9 @@ html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
             <tbody>
             @foreach (var r in Model.Historia.Items)
             {
-              <tr data-dmo-row data-id="@r.Id" data-dmo-reparacao="@r.Id" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Duplo clique para corrigir ou anular">
+              <tr data-dmo-row data-id="@r.Id" data-dmo-reparacao="@r.Id" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" data-ri-hora="@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)" title="Duplo clique para corrigir ou anular">
                 <td>@ConsultarModel.Dia(r.Dia)</td>
-                <td>@IndexModel.Hora(r.RegistadoEmUtc)</td>
+                <td>@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)</td>
                 <td>@r.Maquina</td>
                 <td>@(r.JobOnId is null ? "Sem Job On" : $"{r.Referencia} · {r.Producao}")</td>
                 <td>@RiTextos.Tipo(r.Tipo)</td>
@@ -309,6 +310,12 @@ else
               <label for="riDia-@codigo">Dia</label>
               <input id="riDia-@codigo" name="dia" type="date" class="ri-dia" value="@IndexModel.Data(Model.DiaDoRegisto)" data-dmo-autosubmit />
             </div>
+            @* A hora da reparação, ao lado do dia: vai com o registo (form=), vem com a de agora. *@
+            <div class="dmo-field">
+              <label for="riHora-@codigo">Hora</label>
+              <input id="riHora-@codigo" name="hora" type="time" class="ri-hora" form="riRegistar-@codigo" value="@Model.HoraDoCampo"
+                     pattern="[0-2][0-9]:[0-5][0-9]" title="Hora (HH:mm)" aria-invalid="@(Model.HoraInvalida ? "true" : null)" required />
+            </div>
             @if (c.DoDia.VariasProducoes)
             {
               <div class="dmo-field">
@@ -404,8 +411,8 @@ else
                   <tbody>
                   @foreach (var r in Model.Log.Items)
                   {
-                    <tr data-dmo-row data-id="@r.Id" data-dmo-reparacao="@r.Id" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" title="Duplo clique para corrigir ou anular">
-                      <td>@IndexModel.Hora(r.RegistadoEmUtc)</td>
+                    <tr data-dmo-row data-id="@r.Id" data-dmo-reparacao="@r.Id" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" data-ri-hora="@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)" title="Duplo clique para corrigir ou anular">
+                      <td>@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)</td>
                       <td>@(r.JobOnId is null ? "Sem Job On" : r.Producao)</td>
                       <td>@RiTextos.Tipo(r.Tipo)@if (r.Escrita is { } e)
                         {<span class="ri-escrita">Outra: @RiTextos.Escrita(e.Referencia, e.Lote)</span>}</td>
