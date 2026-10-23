@@ -39,3 +39,5 @@
 .ferr-quantity-suggestion .ferr-hint{margin:0}
 /* A linha do título com os botões do card (.dmo-card-topo, canto superior direito). */
 .ferr-card .dmo-card-topo{margin-bottom:12px}
+/* Os cartões não encolhem quando os resultados fazem aparecer a barra de scroll (Diogo, 23/10/2026). */
+html:has(.ferr-card){scrollbar-gutter:stable}
