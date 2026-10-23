@@ -1617,7 +1617,58 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `e34f8d72d0d0e910`
 
-## A-0059 · 2026-10-23 · ok-do-diogo
+## A-0060 · 2026-10-23 · contagem-lista
+
+Porquê: PERF-10: testes novos do cancelamento das sugestões; package.json passa a correr o ficheiro novo
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
+Novos: 5 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: escrever depressa cancela o pedido anterior e só o texto atual mostra sugestões`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: limpar o campo cancela o pedido em voo`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: sair do campo cancela o pedido em voo`
+- novo: `tests/ShellProof/dmo-suggest-abort.test.cjs :: um pedido cancelado não mostra mensagem de erro`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `5f9bb3bf3356252d`
+
+## A-0061 · 2026-10-23 · teste-novo
+
+Porquê: PERF-05: fallback das Boquilhas escolhido na base; resultado igual e contagem de linhas
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NaoTrazTodasAsSemDatasParaAMemoria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NoPostgres_EscolheAsMesmasProducoes`
+
+Selo depois: `58e4cf95052cd365`
+
+## A-0062 · 2026-10-23 · teste-novo
+
+Porquê: PERF-01: medir pedidos completos
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.Desligada_NaoPoeOCabecalho_NemALinha_EONoStoreFica`
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.NoPostgres_ONumeroDeConsultasBateComOsComandos_EOParametroNaoVaiParaOLog`
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.PaginaAutenticada_TemServerTiming_EOsEstaticosNao_EOLogNaoLevaValores`
+
+Selo depois: `d47cbaa35324c42d`
+
+## A-0072 · 2026-10-23 · teste-novo
+
+Porquê: PERF-01: ramo de erro regista -> 500 (nota do Guardião)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FornecedorDeAutenticacaoQueFalha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.PedidoQueLancaExcecao_ALinhaDizQuinhentos`
+
+Selo depois: `33dd2100ff4eeb26`
+
+## A-0073 · 2026-10-23 · ok-do-diogo
 
 Porquê: Sumário: dados técnicos em falta para quem tem Controlo criar (Peso e Pegamentos precisam deles); % de uso para Ferramentas; lote novo por criar; grupo Importante no topo até resolver; links; ponto; sem duplicados (A-0059)
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPoQF4rYmk1aqAzjBow6N1m
@@ -1647,4 +1698,4 @@ Novos: 14 · mudaram: 8 · saíram: 1
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: PlaneamentoSumarioPostgresTests.TodosOsTipos_NoPostgres`
 - saiu: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.ToolsWithMissingTechnicalData_AreOnlyForFerramentas`
 
-Selo depois: `2cb5f69fb649821c`
+Selo depois: `1a1003013dd1bbee`

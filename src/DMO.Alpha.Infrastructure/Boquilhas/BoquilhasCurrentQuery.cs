@@ -56,13 +56,18 @@ public sealed class BoquilhasCurrentQuery : IBoquilhasCurrentQuery
         // e a referência da Tool numa consulta; a escolha por máquina faz-se
         // em memória com as mesmas regras. As candidatas: as produções
         // datadas que cobrem o dia operacional e as SEM datas (o fallback de
-        // transição).
+        // transição) — destas, só a ÚLTIMA (o maior Id) de cada máquina, já
+        // escolhida na base de dados (PERF-05: nunca trazer todas as sem
+        // datas para a memória).
         var candidates = await (
             from j in _db.JobOns.AsNoTracking()
             where (j.InicioEm != null
                     && j.InicioEm <= operationalDay
                     && (j.FimEm == null || j.FimEm >= operationalDay))
-                || j.InicioEm == null
+                || (j.InicioEm == null
+                    && j.Id == _db.JobOns
+                        .Where(u => u.InicioEm == null && u.MachineId == j.MachineId)
+                        .Max(u => u.Id))
             join c in _db.BqContexts.AsNoTracking() on j.Id equals c.JobOnId into contexts
             from c in contexts.DefaultIfEmpty()
             join t in _db.Tools.AsNoTracking().Where(x => x.ToolId != DMO.Alpha.Core.Tools.ToolRegistryConstants.RemovedToolId) on (c != null ? c.ToolId : null) equals t.ToolId into tools
