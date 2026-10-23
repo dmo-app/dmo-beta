@@ -390,20 +390,7 @@ else
               var campo = JobOnFolhaCampos.Encontrar(chave)!;
               <span class="fl">@rotulo</span>
               <span class="fv">
-                @if (editar && chave == "cab_processo")
-                {
-                  @* Processo: só NNPB ou PS; vazio, vem o da CM, que se pode mudar (Diogo, 23/10/2026). *@
-                  var gravado = Vazio(Model.Folha.Valor(chave))?.Trim().ToUpperInvariant();
-                  var processo = gravado ?? Model.Fact(jobOn.CmToolId)?.Processo;
-                  <select class="f" id="@campo.Id" name="@campo.NomeNoFormulario" aria-label="@rotulo" data-edit="@chave" data-jof-processo-sugerido="@(gravado is null && processo is not null ? "cm" : null)">
-                    <option value="" selected="@(processo is null ? "selected" : null)">—</option>
-                    @foreach (var opcao in new[] { "NNPB", "PS" }.Concat(processo is { } outro && outro is not ("NNPB" or "PS") ? [outro] : []))
-                    {
-                      <option value="@opcao" selected="@(opcao == processo ? "selected" : null)">@opcao</option>
-                    }
-                  </select>
-                }
-                else if (editar)
+                @if (editar)
                 {
                   <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Model.Folha.Valor(chave)" aria-label="@rotulo" data-edit="@chave" />
                 }
