@@ -2028,3 +2028,28 @@ Novos: 1 · mudaram: 1 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina`
 
 Selo depois: `eeea5e50049f15e3`
+
+## A-0085 · 2026-10-23 · teste-novo
+
+Porquê: PR1: production Peso loading preserves selection, frozen facts, support and association without writes; PostgreSQL query budgets and page access/echo tests. Existing tests unchanged. Mutation: current fallback replaced by LastOrDefault; compiled test DepoisDaTroca_SemPesoAtual_NaoAbreOUltimoENaoAssociaSozinho failed Assert.Null with an old Peso. Mutation reverted.
+Novos: 17 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.AntesDoPrimeiroPeso_MostraFactosDaProducaoECandidatosSemCriarNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.CaloteSimulada_MudaSoAApresentacaoSemRelerTecnicos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.CancelarOCarregamento_PropagaOCancelamentoSemGravar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.ControloInexistente_DevolveAFolhaVaziaSemInventarContexto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.DepoisDaTroca_SemPesoAtual_NaoAbreOUltimoENaoAssociaSozinho`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.IdentificadorNaoCanonico_MantemORecursoAQueryDoApoio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.PesoAnteriorEscolhido_MantemValoresCongeladosEUsaASuaCmNoApoio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.PesoDeOutraProducao_NaoSubstituiOPesoDestaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.SemEscolhaValida_AbreOPesoAtualDaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.TecnicosEmFalta_NaoImpedemAbrirAFolhaNemInventamValores`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoFolha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoFolha.cs :: PostgresMigrationIntegrationTests.PesoFolha_CarregamentoSoLeSemAumentarConsultas`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.AbrirProducao_MostraCriacaoEAssociacaoSemGravar`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.RecusaDeCriacao_PreservaATemperaturaEscritaEAMensagem`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.SemSessaoOuSemModulo_NaoExecutaOCarregamentoDaFolha`
+
+Selo depois: `213623d4e61ee9e1`

@@ -79,7 +79,7 @@ public sealed class PesoModel : PageModel
         IEnsureControloForJobOnHandler ensureControlo,
         IJobOnListQuery jobOnList,
         IPesoCapSupportQuery capSupportQuery,
-        PesoToolFactsQuery toolFactsQuery,
+        IPesoFolhaQuery folhaQuery,
         JobOnChangeQuery changeQuery,
         PesoComparisonQuery comparacaoQuery,
         PesoProducaoAnteriorQuery producaoAnteriorQuery,
@@ -91,7 +91,7 @@ public sealed class PesoModel : PageModel
         _fabricoSap = fabricoSap;
         _jobOnList = jobOnList;
         CapSupportQuery = capSupportQuery;
-        ToolFactsQuery = toolFactsQuery;
+        FolhaQuery = folhaQuery;
         ChangeQuery = changeQuery;
         ComparacaoQuery = comparacaoQuery;
         ProducaoAnteriorQuery = producaoAnteriorQuery;
@@ -119,8 +119,8 @@ public sealed class PesoModel : PageModel
     /// <summary>A query do apoio TP/calote (a mesma fonte do cálculo da ficha do Job On).</summary>
     private IPesoCapSupportQuery CapSupportQuery { get; }
 
-    /// <summary>As ferramentas herdadas da produção numa só consulta.</summary>
-    private PesoToolFactsQuery ToolFactsQuery { get; }
+    /// <summary>The initial production sheet, composed without writes.</summary>
+    private IPesoFolhaQuery FolhaQuery { get; }
 
     /// <summary>As alterações do Job On, para o aviso no Peso aberto.</summary>
     private JobOnChangeQuery ChangeQuery { get; }
@@ -1213,73 +1213,20 @@ public sealed class PesoModel : PageModel
         if (controloId is int canonicalControloId)
         {
             ControloIdFromQuery = canonicalControloId;
-            ProductionContext = await _productionContext.GetByControloAsync(
-                canonicalControloId, HttpContext.RequestAborted);
-
-            // Os Pesos da produção, um por CM+BQ (18/10/2026): a folha abre o
-            // Peso das ferramentas que a produção tem agora; um de antes de
-            // uma troca abre pelo peso_id dele (só se for desta produção).
-            // Depois de uma troca sem o Peso novo ainda, a folha propõe
-            // criá-lo; nada é gravado ao abrir.
-            Pesos = await _pesoQuery.ListByControloAsync(canonicalControloId, HttpContext.RequestAborted);
+            var folha = await FolhaQuery.CarregarAsync(
+                canonicalControloId, pesoId, capSimulada, HttpContext.RequestAborted);
+            ProductionContext = folha.ProductionContext;
+            Pesos = folha.Pesos;
             PesosControloId = canonicalControloId;
-            Peso = (pesoId is int pesoPedido ? Pesos.FirstOrDefault(p => p.PesoId == pesoPedido) : null)
-                ?? Pesos.FirstOrDefault(p => p.IsCurrent);
-
-            // Os factos técnicos atuais das ferramentas HERDADAS do contexto
-            // (não do Peso!): sem o peso ainda, o formulário precisa deles
-            // para saber o que já está registado (só a temperatura e os
-            // técnicos EM FALTA pedem input humano).
-            // CM, BQ e MF (o MF só pela referência) com o técnico e a
-            // densidade do vidro numa só consulta. Um Peso de antes de uma
-            // troca mostra os valores congelados nele (na página).
-            if (ProductionContext is not null)
-            {
-                var ferramentas = await ToolFactsQuery.GetAsync(
-                    ProductionContext.CmToolId,
-                    ProductionContext.BqToolId,
-                    ProductionContext.MfToolId,
-                    HttpContext.RequestAborted);
-                CmTool = ferramentas.CmTool;
-                CmTechnical = ferramentas.CmTechnical;
-                ConfiguredGlassDensity = ferramentas.CmGlassDensity;
-                BqTool = ferramentas.BqTool;
-                BqTechnical = ferramentas.BqTechnical;
-                MfTool = ferramentas.MfTool;
-            }
-
-            // O APOIO TP/CALOTE (o painel de factos): a calote efetiva é a do
-            // Job On quando existe, senão a h_ref da Tool — calculado PELO
-            // BACKEND pela query canónica (fonte única; o browser nunca
-            // calcula física). A simulação (cap_h) sobrepõe-se na exibição.
-            if (PesoAnterior)
-            {
-                // O apoio de um Peso de antes de uma troca: a CM dele, com a
-                // calote do Job On.
-                CapSupport = await CapSupportQuery.GetAsync(
-                    new PesoCapSupportRequest(Peso!.CmToolId, canonicalControloId, capSimulada),
-                    HttpContext.RequestAborted);
-            }
-            else if (ProductionContext?.CmToolId is { } capContextCmToolId)
-            {
-                // O técnico da CM e a calote do Job On já foram lidos.
-                CapSupport = capContextCmToolId.Length > 0 && capContextCmToolId.Trim() == capContextCmToolId
-                    ? PesoCapSupportQuery.FromKnown(CmTechnical, ProductionContext.CaloteMm, capSimulada)
-                    : await CapSupportQuery.GetAsync(
-                        new PesoCapSupportRequest(capContextCmToolId, canonicalControloId, capSimulada),
-                        HttpContext.RequestAborted);
-            }
-
-            // A ASSOCIAÇÃO POSTERIOR (o Owner 2026-10-16): sem Peso ainda,
-            // os Pesos sem produção da MESMA CM (tool_id) do Job On são
-            // propostos — associar é sempre o botão explícito. Depois de uma
-            // troca, os que a associação aceita (a CM e a BQ desta produção,
-            // agora ou antes da troca; resposta R16-6 do especialista).
-            if (Peso is null)
-            {
-                AssociationCandidates = await _pesoAssociation.FindCandidatesForControloAsync(
-                    canonicalControloId, HttpContext.RequestAborted);
-            }
+            Peso = folha.Peso;
+            CmTool = folha.ToolFacts?.CmTool;
+            CmTechnical = folha.ToolFacts?.CmTechnical;
+            ConfiguredGlassDensity = folha.ToolFacts?.CmGlassDensity;
+            BqTool = folha.ToolFacts?.BqTool;
+            BqTechnical = folha.ToolFacts?.BqTechnical;
+            MfTool = folha.ToolFacts?.MfTool;
+            CapSupport = folha.CapSupport;
+            AssociationCandidates = folha.AssociationCandidates;
 
             if (Peso is not null)
             {
