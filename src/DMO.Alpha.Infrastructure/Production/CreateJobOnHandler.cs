@@ -207,16 +207,16 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
         return new CreateJobOnOutcome(
             CreateJobOnResult.Success,
             new ProductionContextReadModel(
-                jobOn.Id,
-                jobOn.Reference,
-                jobOn.ProductionNumber,
-                machine.Code,
-                cm?.Id,
-                cm?.ToolId,
-                mf?.Id,
-                mf?.ToolId,
-                bq?.Id,
-                bq?.ToolId),
+                JobOnId: jobOn.Id,
+                Reference: jobOn.Reference,
+                ProductionNumber: jobOn.ProductionNumber,
+                Machine: machine.Code,
+                CmId: cm?.Id,
+                CmToolId: cm?.ToolId,
+                MfId: mf?.Id,
+                MfToolId: mf?.ToolId,
+                BqId: bq?.Id,
+                BqToolId: bq?.ToolId),
             overlapWarning);
     }
 

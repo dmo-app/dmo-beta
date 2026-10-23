@@ -176,16 +176,16 @@ public sealed class JobOnListQuery : IJobOnListQuery
         from bq in bqGroup.DefaultIfEmpty()
         orderby j.Id descending
         select new ProductionContextReadModel(
-            j.Id,
-            j.Reference,
-            j.ProductionNumber,
-            m.Code,
-            cm != null ? cm.Id : (int?)null,
-            cm != null ? cm.ToolId : null,
-            mf != null ? mf.Id : (int?)null,
-            mf != null ? mf.ToolId : null,
-            bq != null ? bq.Id : (int?)null,
-            bq != null ? bq.ToolId : null,
-            j.InicioEm,
-            j.FimEm);
+            JobOnId: j.Id,
+            Reference: j.Reference,
+            ProductionNumber: j.ProductionNumber,
+            Machine: m.Code,
+            CmId: cm != null ? cm.Id : (int?)null,
+            CmToolId: cm != null ? cm.ToolId : null,
+            MfId: mf != null ? mf.Id : (int?)null,
+            MfToolId: mf != null ? mf.ToolId : null,
+            BqId: bq != null ? bq.Id : (int?)null,
+            BqToolId: bq != null ? bq.ToolId : null,
+            InicioEm: j.InicioEm,
+            FimEm: j.FimEm);
 }
