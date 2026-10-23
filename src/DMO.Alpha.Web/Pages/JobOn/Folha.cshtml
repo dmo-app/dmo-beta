@@ -90,11 +90,13 @@
         var valor = Model.Folha.Valor(chave);
         if (editar)
         {
-            <label class="note-edit@(Vazio(valor) is null ? " is-empty" : null)"><span>Notas</span><textarea class="dmo-valor" id="@campo.Id" name="@campo.NomeNoFormulario" rows="2" maxlength="@campo.Maximo" placeholder="+ Adicionar nota" aria-label="@campo.RotuloAlteracao">@valor</textarea></label>
+            <label class="note-box note-edit@(Vazio(valor) is null ? " is-empty" : null)" data-jof-nota><span>Notas</span><textarea class="dmo-valor" id="@campo.Id" name="@campo.NomeNoFormulario" rows="2" maxlength="@campo.Maximo" placeholder="+ Adicionar nota" aria-label="@campo.RotuloAlteracao">@valor</textarea></label>
         }
-        else if (Vazio(valor) is { } escrito)
+        else
         {
-            <div class="note-view" data-jof-campo="@chave"><span>Notas</span><p>@escrito</p></div>
+            @* As notas, mesmo vazias, enchem o cartão até à altura dos vizinhos;
+               um clique amplia-as (Diogo, 23/10/2026). *@
+            <div class="note-box note-view@(Vazio(valor) is null ? " is-empty" : null)" data-jof-campo="@chave" data-jof-nota tabindex="0"><span>Notas</span><p>@Vazio(valor)</p></div>
         }
     }
 

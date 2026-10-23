@@ -384,7 +384,7 @@
 .jof2 textarea.jof-notas-gerais{min-height:180px;resize:vertical;overflow:auto}
 /* O artigo: no Editar, clicar escolhe a imagem. */
 .jof2 .jof-artigo{display:grid;place-items:center;position:relative;border-radius:8px}
-.jof2 .jof-artigo img{max-width:100%;max-height:340px;object-fit:contain}
+.jof2 .jof-artigo img{width:100%;height:auto;max-height:340px;object-fit:contain}
 .jof2 .jof-artigo-escolher{cursor:pointer;outline:1px dashed var(--dmo-border)}
 .jof2 .jof-artigo-escolher:hover,.jof2 .jof-artigo-escolher:focus-within{outline-color:var(--dmo-brand-600)}
 /* O painel: o regresso ao Planeamento e o vazio. */
@@ -471,3 +471,17 @@ html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
 .jof2 .note-view p{padding:4px 7px;line-height:1.4}
 .jof2 .notes{padding:10px 14px}
 .jof2 .notes li.view{padding:3px 8px;line-height:1.4}
+
+/* Cartões da mesma fila com a mesma altura: as notas, mesmo vazias, ocupam o
+   espaço que sobra; um clique amplia-as por cima da folha (Diogo, 23/10/2026). */
+.jof2 .board{align-items:stretch}
+.jof2 .card.pair{display:flex;flex-direction:column}
+.jof2 .pair-in{flex:1;display:flex;flex-direction:column}
+.jof2 .pair-in>.sec{flex:1}
+.jof2 .note-box{flex:1 1 auto;display:flex;flex-direction:column;gap:3px;min-height:52px}
+.jof2 .note-box>p,.jof2 .note-box>textarea.dmo-valor{flex:1;min-height:30px}
+.jof2 .note-view{cursor:zoom-in}
+.jof2 .note-view.is-empty p{background:transparent;border:1px dashed var(--dmo-border)}
+.jof2 .note-box.is-ampliada{position:fixed;z-index:60;top:18vh;left:50%;transform:translateX(-50%);width:min(560px,calc(100vw - 32px));min-height:0;padding:12px 14px;border:1px solid var(--dmo-border);border-radius:var(--r-card);background:var(--dmo-card);box-shadow:0 18px 48px rgba(0,0,0,.28);cursor:default}
+.jof2 .note-box.is-ampliada>p,.jof2 .note-box.is-ampliada>textarea.dmo-valor{min-height:240px;max-height:60vh;overflow:auto;font-size:15px}
+.jof2 .note-box.is-ampliada>span{font-size:13px;letter-spacing:.04em;color:var(--dmo-text)}
