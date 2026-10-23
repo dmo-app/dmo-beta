@@ -129,6 +129,30 @@ public sealed class MovimentosModel(
     /// <summary>As Linhas e o % de uso das ferramentas da lista das últimas.</summary>
     public IReadOnlyDictionary<string, ArmazemLinhasEUso> LinhasEUso { get; private set; } = new Dictionary<string, ArmazemLinhasEUso>();
 
+    /// <summary>
+    /// Entrada ou Saída no «Registar …» (Diogo, 23/10/2026: «No armazém
+    /// deveria primeiro aparecer entrada saída porque isso ajuda a filtrar o
+    /// que existe para entrar e sair»): ?modo=entrada|saida; sem nada, a da
+    /// ferramenta aberta, senão a Entrada.
+    /// </summary>
+    [BindProperty(SupportsGet = true, Name = "modo")]
+    public string? ModoTexto { get; set; }
+
+    /// <summary>O modo escolhido: «entrada» ou «saida».</summary>
+    public string Modo => ModoTexto?.Trim().ToLowerInvariant() switch
+    {
+        "entrada" => "entrada",
+        "saida" => "saida",
+        _ => Acao switch
+        {
+            "entrada" => "entrada",
+            "saida" => "saida",
+            _ => Situacao is { NoArmazem: true } ? "saida" : "entrada"
+        }
+    };
+
+    public bool ModoSaida => Modo == "saida";
+
     [BindProperty(SupportsGet = true, Name = "acao")]
     public string? Acao { get; set; }
 
@@ -194,7 +218,8 @@ public sealed class MovimentosModel(
     public async Task<IActionResult> OnGetProcurarAsync(string? q)
     {
         Tipo = TipoDe(TipoTexto);
-        var encontradas = DoTipo(await movimentos.ProcurarAsync(q, HttpContext.RequestAborted));
+        ViewData["ArmModo"] = Modo;
+        var encontradas = DoModo(DoTipo(await movimentos.ProcurarAsync(q, HttpContext.RequestAborted)));
         return Partial("_ArmazemProcura", encontradas);
     }
 
@@ -252,6 +277,7 @@ public sealed class MovimentosModel(
             return RedirectToPage("/Armazem/Movimentos", new
             {
                 tipo = TipoValor(tipo),
+                modo = "entrada",
                 gravacao = "lote-novo",
                 posicao = posicao?.Trim(),
                 aviso = (saida.Avisos ?? []).ToArray()
@@ -318,6 +344,8 @@ public sealed class MovimentosModel(
             return RedirectToPage("/Armazem/Movimentos", new
             {
                 ferramenta = ToolId,
+                // O modo continua o mesmo: quem dá entradas continua nas entradas.
+                modo = de is "entrada" or "saida" ? de : null,
                 gravacao = saida.Resultado == ArmazemMovimentoResultado.JaRegistado ? "repetido" : de,
                 posicao = saida.Posicao,
                 aviso = saida.Avisos.ToArray()
@@ -356,8 +384,15 @@ public sealed class MovimentosModel(
         }
         else if (Tipo is not null && !string.IsNullOrWhiteSpace(Procura))
         {
-            Encontradas = DoTipo(await movimentos.ProcurarAsync(Procura, HttpContext.RequestAborted));
+            Encontradas = DoModo(DoTipo(await movimentos.ProcurarAsync(Procura, HttpContext.RequestAborted)));
         }
+        else if (Tipo is not null && ModoSaida && PosicaoPedidaValida is { } posSaida)
+        {
+            // Na Saída, a posição procura o que lá está.
+            Encontradas = DoModo(DoTipo(await movimentos.ProcurarAsync(posSaida, HttpContext.RequestAborted)));
+        }
+
+        ViewData["ArmModo"] = Modo;
 
         if (Tipo is { } tipo)
         {
@@ -376,6 +411,22 @@ public sealed class MovimentosModel(
 
     private IReadOnlyList<ArmazemProcuraItem> DoTipo(IReadOnlyList<ArmazemProcuraItem> itens) =>
         Tipo is { } tipo ? itens.Where(i => i.Tipo == tipo).ToList() : [];
+
+    /// <summary>
+    /// O filtro do modo (Diogo, 23/10/2026): a Entrada só mostra as que estão
+    /// fora do armazém; a Saída só as que estão numa posição (e, com a
+    /// posição escrita, só as dessa posição).
+    /// </summary>
+    private IReadOnlyList<ArmazemProcuraItem> DoModo(IReadOnlyList<ArmazemProcuraItem> itens)
+    {
+        var pos = PosicaoPedidaValida;
+        var ficam = ModoSaida
+            ? itens.Where(i => i.NoArmazem && (pos is null || i.OndeEsta.EndsWith(pos, StringComparison.Ordinal))).ToList()
+            : itens.Where(i => !i.NoArmazem).ToList();
+        // Nada se perde: as que ficam de fora contam-se, com o outro modo.
+        ViewData["ArmOcultas"] = ModoSaida ? itens.Count(i => !i.NoArmazem) : itens.Count(i => i.NoArmazem);
+        return ficam;
+    }
 
     /// <summary>O movimento, curto: Entrada, Saída · destino, Corrigir localização.</summary>
     public static string Movimento(ArmazemHistoricoLinha m) => UltimosModel.Movimento(m);

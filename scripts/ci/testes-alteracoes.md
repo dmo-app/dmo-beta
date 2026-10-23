@@ -1699,3 +1699,16 @@ Novos: 14 · mudaram: 8 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.ToolsWithMissingTechnicalData_AreOnlyForFerramentas`
 
 Selo depois: `1a1003013dd1bbee`
+
+## A-0073 · 2026-10-23 · ok-do-diogo
+
+Porquê: Armazém: o Registo começa por Entrada | Saída, que filtra o que pode entrar e sair (A-0073)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySoxoY816HBEaSQf6CywFGN
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.Entrada_MostraSoAsDeFora_ComOLoteNovo_EAbreAEntrada`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.Saida_MostraSoAsDasPosicoes_SemLoteNovo_EAPosicaoProcuraOQueLaEsta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.SemModo_EAEntrada_EOModoSegueNaProcura`
+
+Selo depois: `37e0e498134759a2`

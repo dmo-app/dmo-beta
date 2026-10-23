@@ -1,14 +1,31 @@
 @model IReadOnlyList<DMO.Alpha.Core.Armazem.ArmazemProcuraItem>
 @using DMO.Alpha.Core.Armazem
+@{
+  // Diogo, 23/10/2026: as que o modo esconde não se perdem; o outro modo mostra-as.
+  var armOcultas = ViewData["ArmOcultas"] as int? ?? 0;
+  var armModoSaida = (ViewData["ArmModo"] as string ?? (string?)Context.Request.Query["modo"]) == "saida";
+}
 @* As ferramentas encontradas ao escrever: onde estão, o tipo, a
    referência, o lote, o estado, as linhas e o % de uso (Diogo,
    21/10/2026). Um clique ou Enter abre a ferramenta, com a Entrada ou a
    Saída conforme está fora ou numa posição. *@
+@if (armOcultas > 0)
+{
+  <p class="arm-nota" id="armProcuraOcultas">@(armOcultas == 1 ? "1 ferramenta" : $"{armOcultas} ferramentas") @(armModoSaida ? (armOcultas == 1 ? "está fora do armazém: escolha «Entrada»." : "estão fora do armazém: escolha «Entrada».") : (armOcultas == 1 ? "está numa posição: escolha «Saída»." : "estão numa posição: escolha «Saída»."))</p>
+}
 @if (Model.Count == 0)
 {
   // O tipo e o texto vêm do pedido (a página e a procura ao escrever levam os dois).
   var tipoProcura = DMO.Alpha.Web.Pages.Armazem.MovimentosModel.TipoDe(Context.Request.Query["tipo"]);
   var textoProcura = ((string?)Context.Request.Query["q"])?.Trim();
+  // Diogo, 23/10/2026: na Saída só contam as que estão numa posição; o lote
+  // novo (que ainda não existe) só faz sentido na Entrada.
+  if (armModoSaida)
+  {
+    <p class="dmo-aviso warn" role="status" id="armProcuraVazia">@(tipoProcura switch { DMO.Alpha.Core.Tools.ToolType.Mf => "Nenhum MF numa posição do armazém.", { } tp => $"Nenhuma {ArmazemTextos.Tipo(tp)} numa posição do armazém.", _ => "Nenhuma ferramenta numa posição do armazém." }) Se está fora, escolha «Entrada».</p>
+  }
+  else
+  {
   <p class="dmo-aviso warn" role="status" id="armProcuraVazia">@(tipoProcura switch { DMO.Alpha.Core.Tools.ToolType.Mf => "Nenhum MF encontrado.", { } tp => $"Nenhuma {ArmazemTextos.Tipo(tp)} encontrada.", _ => "Nenhuma ferramenta encontrada." }) Se é novo, «Criar novo»: quem tem as Ferramentas aprova.<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.RegistarFerramenta(ArmazemTextos.Tipo(tipoProcura ?? DMO.Alpha.Core.Tools.ToolType.Cm), textoProcura is { Length: 4 } t4 && t4.All(char.IsAsciiDigit) ? null : textoProcura, "Registar nas Ferramentas")" /></p>
   @* REGISTAR LOTE NOVO (Diogo, 22/10/2026: «chega CM 5447 Lote 13 ... nao
      existe o registo no armazem. o operador regista com esses dados aparece
@@ -46,6 +63,7 @@
       </div>
     </form>
   }
+  }
 }
 else
 {
@@ -57,7 +75,7 @@ else
       <tbody>
         @foreach (var item in Model)
         {
-          <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-arm-no-armazem="@(item.NoArmazem ? "1" : "0")" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId })"
+          <tr data-dmo-row data-dmo-ferramenta="@item.ToolId" data-arm-no-armazem="@(item.NoArmazem ? "1" : "0")" data-dmo-open="@Url.Page("/Armazem/Movimentos", new { ferramenta = item.ToolId, acao = item.NoArmazem ? "saida" : "entrada" })"
               aria-label="@ArmazemTextos.Ferramenta(item.Tipo, item.Referencia, item.Lote), @item.OndeEsta — um clique abre">
             <td><span class="dmo-pill @(item.NoArmazem ? "active" : "inactive")">@item.OndeEsta</span></td>
             <td><strong>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.NomeCurto(item.Tipo, item.Referencia, item.Lote)</strong></td>
