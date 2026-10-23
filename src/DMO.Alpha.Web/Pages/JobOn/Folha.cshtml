@@ -405,10 +405,7 @@ else
       </div>
       <div class="head-right">
         <div class="pick-block">
-          @if (!editar || Model.Criar)
-          {
-            <span class="eyebrow">@(Model.Criar ? (Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On") : "Ficha de moldes")</span>
-          }
+          <span class="eyebrow">@(Model.Criar ? (Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On") : editar ? $"A editar · {jobOn.ProductionNumber}" : "Ficha de moldes")</span>
           <h1 class="sr-only">@Model.ReferenciaTotal</h1>
           <div class="pick-row">
             @if (!editar)
@@ -423,8 +420,8 @@ else
             }
             else if (editar)
             {
-              @* No Editar não se procura nem se troca de produção: só o aviso grande (Diogo, 23/10/2026). *@
-              <div class="jof-modo-editar" role="status" data-jof-modo-editar>Modo Editar</div>
+              <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input type="search" value="@Model.ReferenciaTotal" aria-label="Referência" disabled /></div>
+              <select class="prod-select" aria-label="Produção desta referência" disabled><option>@jobOn.ProductionNumber · @jobOn.Machine</option></select>
             }
             else
             {
@@ -555,23 +552,22 @@ else
           <div class="board" id="gMoldes">
             @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
             @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
-            @* A BQ (com o AN) na primeira fila, com a CM e o MF (Diogo, 23/10/2026). *@
-            <article class="card pair"><div class="pair-in">
-              <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
-                @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
-                @{ Uso("bq_utilizacao", bqFact); }
-                @{ Notas("bq_notas"); }
-                @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
-              </div>
-              <div class="sec" data-jof-familia="AN" aria-label="Anel">
-                @{ Simples("AN", "an_referencia", [], [], lote: bqFact is null ? "—" : FolhaModel.Lote(bqFact.Lot)); }
-              </div>
-            </div></article>
           </div>
         </section>
         <div class="col3">
           <section class="group g-gargalo" aria-label="Gargalo">
             <div class="board" id="gGargalo">
+              <article class="card pair"><div class="pair-in">
+                <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
+                  @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
+                  @{ Uso("bq_utilizacao", bqFact); }
+                  @{ Notas("bq_notas"); }
+                  @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
+                </div>
+                <div class="sec" data-jof-familia="AN" aria-label="Anel">
+                  @{ Simples("AN", "an_referencia", [], [], lote: bqFact is null ? "—" : FolhaModel.Lote(bqFact.Lot)); }
+                </div>
+              </div></article>
               <article class="card pair"><div class="pair-in">
                 <div class="sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</div>
                 <div class="sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</div>
