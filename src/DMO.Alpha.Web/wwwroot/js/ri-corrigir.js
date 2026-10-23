@@ -39,6 +39,7 @@
     por("pagina", dados.riPagina);
     por("volta", dados.riVolta);
     por("numero", linha.dataset.riNumero);
+    por("hora", linha.dataset.riHora);
     por("motivo", "");
     janela.querySelectorAll("[data-ri-numero-texto]").forEach((texto) => { texto.textContent = linha.dataset.riNumero; });
     janela.showModal();

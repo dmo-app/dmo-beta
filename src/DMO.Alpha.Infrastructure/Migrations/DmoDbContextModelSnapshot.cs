@@ -2334,6 +2334,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<DateOnly>("DiaOperacional")
                         .HasColumnType("date");
 
+                    b.Property<TimeOnly?>("Hora")
+                        .HasColumnType("time without time zone");
+
                     b.Property<int?>("JobOnId")
                         .HasColumnType("integer");
 
@@ -2422,6 +2425,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<DateTime>("EmUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeOnly?>("HoraAntes")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<TimeOnly?>("HoraDepois")
+                        .HasColumnType("time without time zone");
 
                     b.Property<string>("Motivo")
                         .HasMaxLength(200)

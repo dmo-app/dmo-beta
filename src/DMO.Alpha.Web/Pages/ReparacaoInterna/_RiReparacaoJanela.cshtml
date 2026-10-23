@@ -1,7 +1,7 @@
 @model DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel
 @using DMO.Alpha.Core.ReparacaoInterna
 @* A janela da reparação (Diogo, 22/10/2026: sem botões nas linhas; o duplo
-   clique abre o registo e as opções vivem aqui): corrigir o número ou
+   clique abre o registo e as opções vivem aqui): corrigir o número e a hora ou
    anular, com o motivo opcional. Uma só, fora das zonas que trocam; o
    ri-corrigir.js enche-a com a linha, a vista de onde veio e um envio novo.
    Gravar fecha a janela e troca só o que muda. *@
@@ -20,6 +20,10 @@
       <div class="dmo-field">
         <label for="riCorrigirNumero">Número</label>
         <input id="riCorrigirNumero" name="numero" inputmode="numeric" maxlength="@DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.NumeroAlgarismos" pattern="[0-9]{1,@DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.NumeroAlgarismos}" title="Só algarismos, até @DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.NumeroAlgarismos" autocomplete="off" required />
+      </div>
+      <div class="dmo-field">
+        <label for="riCorrigirHora">Hora</label>
+        <input id="riCorrigirHora" name="hora" type="time" title="Hora (HH:mm)" />
       </div>
       <div class="dmo-field">
         <label for="riCorrigirMotivo">Motivo (opcional)</label>

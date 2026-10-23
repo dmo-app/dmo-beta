@@ -108,6 +108,36 @@ public sealed class IndexModel(
     public static bool NumeroValido(string? numero) =>
         numero?.Trim() is { Length: > 0 and <= NumeroAlgarismos } n && n.All(char.IsAsciiDigit);
 
+    /// <summary>A hora escrita não é uma hora (HH:mm): nada foi gravado.</summary>
+    public bool HoraInvalida { get; private set; }
+
+    /// <summary>A hora escrita numa recusa, para ficar no campo.</summary>
+    public string? HoraEscrita { get; private set; }
+
+    /// <summary>A hora no campo «Hora»: a escrita numa recusa, senão a hora local de agora.</summary>
+    public string HoraDoCampo => HoraEscrita ?? HoraTexto(DateTime.UtcNow);
+
+    /// <summary>
+    /// A hora escrita: «HH:mm» (o campo time do browser; aceita também «H:mm»
+    /// e os segundos, que se deitam fora). Vazia: a de agora (null, válida).
+    /// </summary>
+    public static bool LerHora(string? texto, out TimeOnly? hora)
+    {
+        hora = null;
+        if (string.IsNullOrWhiteSpace(texto))
+        {
+            return true;
+        }
+
+        if (TimeOnly.TryParseExact(texto.Trim(), ["HH:mm", "H:mm", "HH:mm:ss"], CultureInfo.InvariantCulture, DateTimeStyles.None, out var h))
+        {
+            hora = new TimeOnly(h.Hour, h.Minute);
+            return true;
+        }
+
+        return false;
+    }
+
     /// <summary>O número escrito numa recusa, para ficar no campo.</summary>
     public string? NumeroEscrito { get; private set; }
 
@@ -138,7 +168,7 @@ public sealed class IndexModel(
         "repetido" => $"A reparação do nº {Numero} já estava registada.",
         _ when Correcao is not null => Correcao switch
         {
-            "corrigido" => $"Número corrigido para {Numero}.",
+            "corrigido" => $"Reparação do nº {Numero} corrigida.",
             "anulado" => $"Reparação do nº {Numero} anulada.",
             // O mesmo número: nada muda e não se avisa (Diogo, 21/10/2026).
             "igual" => string.Empty,
@@ -148,10 +178,12 @@ public sealed class IndexModel(
             "sem-numero" => "Escreva o número corrigido. Nada mudou.",
             "numero-longo" => $"O número tem até {Reparacao.NumeroMaxLength} caracteres. Nada mudou.",
             "numero-invalido" => $"O número tem só algarismos, até {NumeroAlgarismos}. Nada mudou.",
+            "hora-invalida" => "Hora inválida: use HH:mm (ex.: 14:30). Nada mudou.",
             "motivo-longo" => $"O motivo tem até {ReparacaoRasto.MotivoMaxLength} caracteres. Nada mudou.",
             _ => string.Empty
         },
         _ when NumeroInvalido => $"O número tem só algarismos, até {NumeroAlgarismos}.",
+        _ when HoraInvalida => "Hora inválida: use HH:mm (ex.: 14:30). Nada foi gravado.",
         _ => Recusa switch
         {
             ReparacaoResultado.SemNumero => "Escreva o número reparado.",
@@ -238,9 +270,16 @@ public sealed class IndexModel(
         [FromForm(Name = "reparacao_id")] int reparacaoId,
         [FromForm(Name = "numero")] string? numero,
         [FromForm(Name = "motivo")] string? motivo,
+        [FromForm(Name = "hora")] string? hora,
         [FromForm(Name = "pagina")] int? pagina,
         [FromForm(Name = "volta")] string? volta)
     {
+        // A hora: vazia fica como está; inválida não grava nada.
+        if (!LerHora(hora, out var horaCorrigida))
+        {
+            return VoltarComCorrecao("hora-invalida", null, pagina, volta);
+        }
+
         // Só algarismos, até 3, como no registo (Diogo, 24/10/2026); vazio segue para a recusa de sempre.
         if (!string.IsNullOrWhiteSpace(numero) && !NumeroValido(numero))
         {
@@ -248,7 +287,7 @@ public sealed class IndexModel(
         }
 
         var saida = await reparacoes.CorrigirAsync(
-            new PedidoDeCorrecao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, numero, motivo),
+            new PedidoDeCorrecao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, numero, motivo, horaCorrigida),
             HttpContext.RequestAborted);
         return DepoisDaCorrecao(saida, CorrecaoResultado.Corrigido, pagina, volta);
     }
@@ -333,7 +372,8 @@ public sealed class IndexModel(
         [FromForm(Name = "contexto_cm")] int? contextoCm,
         [FromForm(Name = "contexto_mf")] int? contextoMf,
         [FromForm(Name = "numero")] string? numero,
-        [FromForm(Name = "outra")] string? outra)
+        [FromForm(Name = "outra")] string? outra,
+        [FromForm(Name = "hora")] string? hora)
     {
         var lista = await maquinas.ListAsync(HttpContext.RequestAborted);
         var maquina = lista.FirstOrDefault(m => string.Equals(m.Code, MaquinaCodigo, StringComparison.OrdinalIgnoreCase));
@@ -348,11 +388,23 @@ public sealed class IndexModel(
             OperacaoId = operacao;
             return await DesenharAsync(null);
         }
+
+        // A hora da reparação (vem com a de agora; a pessoa pode mudá-la): inválida, nada se grava.
+        if (!LerHora(hora, out var horaDaReparacao))
+        {
+            HoraInvalida = true;
+            HoraEscrita = hora;
+            NumeroEscrito = numero;
+            OutraMarcada = escrita;
+            OperacaoId = operacao;
+            return await DesenharAsync(null);
+        }
+
         // O cartão leva o contexto da CM e o do MF; o botão CM/MF escolhe.
         contexto ??= Tipo == ReparacaoTipo.Mf ? contextoMf : Tipo == ReparacaoTipo.Cm ? contextoCm : null;
         var saida = await reparacoes.RegistarAsync(
             new PedidoDeReparacao(operacao, maquina?.MachineId, ProducaoPedida, Tipo, contexto, numero, escrita,
-                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null, DiaPedido),
+                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null, DiaPedido, horaDaReparacao),
             HttpContext.RequestAborted);
         if (saida.Gravou)
         {
@@ -377,6 +429,7 @@ public sealed class IndexModel(
         // com o número, a referência e o lote escritos nos campos.
         Recusa = saida.Resultado;
         NumeroEscrito = numero;
+        HoraEscrita = hora;
         OutraMarcada = escrita;
         OperacaoId = operacao;
         return await DesenharAsync(null);
@@ -475,6 +528,12 @@ public sealed class IndexModel(
     /// <summary>A hora do registo, em hora local da fábrica: «08:42».</summary>
     public static string Hora(DateTime utc) =>
         DmoBusinessTime.ToLocal(utc).ToString("HH:mm", CultureInfo.InvariantCulture);
+
+    /// <summary>A hora da reparação; nas de antes (sem hora), a hora do registo.</summary>
+    public static string Hora(TimeOnly? hora, DateTime registadoEmUtc) =>
+        hora is { } h ? h.ToString("HH:mm", CultureInfo.InvariantCulture) : Hora(registadoEmUtc);
+
+    private static string HoraTexto(DateTime utc) => Hora(utc);
 
     public static string Dia(DateOnly dia) => dia.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 }

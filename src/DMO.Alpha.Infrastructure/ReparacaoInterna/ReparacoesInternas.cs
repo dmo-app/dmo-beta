@@ -170,7 +170,9 @@ public sealed class ReparacoesInternas(
             Numero = numero,
             RegistadoPorUserId = Autor(),
             RegistadoEmUtc = agora,
-            DiaOperacional = doDia.Dia
+            DiaOperacional = doDia.Dia,
+            // A hora escrita na página; sem ela, a de agora (hora local, ao minuto).
+            Hora = pedido.Hora ?? HoraLocal(agora)
         };
 
         if (pedido.Outra || producao is null)
@@ -231,6 +233,13 @@ public sealed class ReparacoesInternas(
         }
 
         return Saida(ReparacaoResultado.Gravado, reparacao.Id, reparacao);
+    }
+
+    /// <summary>A hora local da fábrica, ao minuto (como a página a mostra).</summary>
+    public static TimeOnly HoraLocal(DateTime utc)
+    {
+        var local = TimeOnly.FromDateTime(DmoBusinessTime.ToLocal(utc));
+        return new TimeOnly(local.Hour, local.Minute);
     }
 
     private static ReparacaoSaida Saida(ReparacaoResultado resultado, int? id, Reparacao reparacao) =>
@@ -338,7 +347,10 @@ public sealed class ReparacoesInternas(
             return new CorrecaoSaida(CorrecaoResultado.JaAnulada, reparacao.Numero);
         }
 
-        if (reparacao.Numero == numero)
+        // A hora: NULL deixa-a como está; muda-se só ao minuto.
+        var hora = pedido.Hora is { } h ? new TimeOnly(h.Hour, h.Minute) : reparacao.Hora;
+        var horaMudou = hora != reparacao.Hora;
+        if (reparacao.Numero == numero && !horaMudou)
         {
             return new CorrecaoSaida(CorrecaoResultado.Igual, numero);
         }
@@ -351,9 +363,12 @@ public sealed class ReparacoesInternas(
             NumeroDepois = numero,
             PorUserId = Autor(),
             EmUtc = _clock.GetUtcNow().UtcDateTime,
-            Motivo = motivo
+            Motivo = motivo,
+            HoraAntes = horaMudou ? reparacao.Hora : null,
+            HoraDepois = horaMudou ? hora : null
         };
         reparacao.Numero = numero;
+        reparacao.Hora = hora;
         return await AplicarAsync(reparacao, rasto, pedido.OperacaoId, OperacaoCorrigir, CorrecaoResultado.Corrigido, cancellationToken);
     }
 
@@ -589,6 +604,6 @@ public sealed class ReparacoesInternas(
          join u in db.Users.AsNoTracking() on r.RegistadoPorUserId equals (Guid?)u.Id into us
          from u in us.DefaultIfEmpty()
          orderby r.Id descending
-         select new RiLinha(r.Id, r.Numero, r.Tipo, u != null ? u.Name : null, r.RegistadoEmUtc, r.ReferenciaEscrita, r.LoteEscrito))
+         select new RiLinha(r.Id, r.Numero, r.Tipo, u != null ? u.Name : null, r.RegistadoEmUtc, r.ReferenciaEscrita, r.LoteEscrito, r.Hora))
         .ToPagedListAsync(pagina, cancellationToken: cancellationToken);
 }
