@@ -395,17 +395,16 @@ public sealed class IndexModel : PageModel
                 resolucao = await _lotesNovos.ResolverAsync(loteNovoId, created.ToolId, CancellationToken.None);
             }
 
-            // O % uso (opcional), como no Editar da ficha: só avisos, nunca
-            // recusa. Grava como a primeira leitura (origem manual); acima de
-            // 100 grava e avisa; ilegível ou negativo não grava e avisa.
+            // O % uso (opcional): nunca recusa. Grava como a primeira leitura
+            // (origem manual); 100 ou mais grava sem aviso nenhum (Diogo,
+            // 23/10/2026); ilegível ou negativo não grava e avisa.
             string? usoAviso = null;
             var usoEscrito = (usoPercentagem ?? string.Empty).Trim().TrimEnd('%').Trim();
             if (usoEscrito.Length > 0 && !created.AlreadyExisted)
             {
                 if (int.TryParse(usoEscrito, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var uso))
                 {
-                    var gravouUso = await _usoSap.RegistarPercentagemManualAsync(created.ToolId, uso, CancellationToken.None);
-                    usoAviso = gravouUso && uso > 100 ? "acima" : null;
+                    await _usoSap.RegistarPercentagemManualAsync(created.ToolId, uso, CancellationToken.None);
                 }
                 else
                 {

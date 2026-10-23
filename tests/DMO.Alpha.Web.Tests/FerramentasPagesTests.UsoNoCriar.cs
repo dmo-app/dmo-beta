@@ -10,11 +10,11 @@ public partial class FerramentasPagesTests
     // O % uso também no «Registar ferramenta real» (Diogo, 23/10/2026: «não
     // tem a percentagem de uso»): ao lado da Quantidade do lote, opcional;
     // grava como a primeira leitura (manual) e a ficha mostra-o; acima de 100
-    // grava e avisa; negativo ou ilegível não grava e avisa — nunca recusa.
+    // grava sem aviso nenhum; negativo ou ilegível não grava e avisa — nunca recusa.
     [Theory]
     [InlineData("0", 0, null)]
     [InlineData("100", 100, null)]
-    [InlineData("101", 101, "O % uso ficou acima de 100")]
+    [InlineData("101", 101, null)]
     [InlineData("-1", null, "O % uso «-1» não é um número inteiro positivo e não foi gravado")]
     [InlineData("", null, null)]
     public async Task Criar_PercentagemDeUso_GravaAPrimeiraLeitura_SoAvisos(string uso, int? gravado, string? aviso)
