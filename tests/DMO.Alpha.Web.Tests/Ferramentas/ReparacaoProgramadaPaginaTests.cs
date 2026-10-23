@@ -127,7 +127,7 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         using var chefia = await LoginAsync("7402", DmoCapabilities.Ferramentas);
 
         var vazia = await chefia.GetStringAsync(Pagina);
-        Assert.Contains("Reparação Programada", vazia);
+        Assert.Contains("Registar Reparação", vazia);
         Assert.Contains("href=\"/Ferramentas/ReparacaoProgramada\"", vazia);
         Assert.Contains("id=\"rpProcuraVazia\"", vazia);
         Assert.DoesNotContain("id=\"rpCandidatas\"", vazia);
