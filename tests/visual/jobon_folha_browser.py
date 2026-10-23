@@ -6,7 +6,7 @@ HTML exportado pelos testes HTTP reais (DMO_UI_EVIDENCE_DIR):
   python tests/visual/jobon_folha_browser.py <pasta>
 Só ficheiros locais; nada vai ao DEV.
 
-A 1440 e a 390 px:
+A 1440, 1366 (o ecrã base do Diogo), 1280 (o mesmo com zoom ou barra lateral) e 390 px:
 - os cartões da primeira fila (CM, MF e BQ) têm a mesma altura quando estão lado a lado;
 - um clique nas notas amplia-as com «CM 5809 · Lote 1 · Notas» no título; Esc e um clique fora fecham;
 - clicar numa alteração de «O que mudou» abre «Remover por engano»; a removida não abre;
@@ -51,9 +51,9 @@ NOTA = '''() => { const c = document.querySelector('[data-jof-familia="CM"] [dat
 falhas = []
 with sync_playwright() as playwright:
     browser = launch_chromium(playwright)
-    for largura in (1440, 390):
+    for largura in (1440, 1366, 1280, 390):
         nome = f'{largura}px'
-        context = browser.new_context(viewport={'width': largura, 'height': 900}, locale='pt-PT', timezone_id='Europe/Lisbon')
+        context = browser.new_context(viewport={'width': largura, 'height': 768 if largura == 1366 else 900}, locale='pt-PT', timezone_id='Europe/Lisbon')
         context.route('**/*', servir)
         page = context.new_page()
         erros = []
@@ -75,8 +75,41 @@ with sync_playwright() as playwright:
             for top, alturas in linhas.items():
                 if max(alturas) - min(alturas) > 2:
                     falhas.append(f'{nome}: cartões da mesma fila com alturas diferentes ({alturas})')
-            if largura == 1440 and len(linhas) != 1:
+            if largura in (1440, 1366, 1280) and len(linhas) != 1:
                 falhas.append(f'{nome}: CM, MF e BQ não estão na mesma fila ({fila})')
+
+        # A ordem dos cartões (Diogo, 23/10/2026): TP e CS logo a seguir aos
+        # moldes, os Calibres por baixo deles, o PI à direita, por baixo das Notas gerais.
+        if largura == 1440:
+            pos = page.evaluate("""() => Object.fromEntries(['CM', 'TP', 'CS', 'PI'].map(f => {
+                const r = document.querySelector(`[data-jof-familia="${f}"]`).getBoundingClientRect();
+                return [f, { left: Math.round(r.left), top: Math.round(r.top) }];
+              }).concat([['CAL', (() => { const r = document.querySelector('.cal-card').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()],
+                         ['NOTAS', (() => { const r = document.querySelector('#notesTitle').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()]]))""")
+            print(f'{nome} ordem: {pos}')
+            if not (pos['CM']['top'] < pos['TP']['top'] == pos['CS']['top'] < pos['CAL']['top']):
+                falhas.append(f'{nome}: TP e CS não estão entre os moldes e os Calibres ({pos})')
+            if not (pos['PI']['left'] > max(pos['TP']['left'], pos['CS']['left'], pos['CAL']['left']) and pos['PI']['top'] > pos['NOTAS']['top']):
+                falhas.append(f'{nome}: o PI não está à direita, por baixo das Notas gerais ({pos})')
+
+        if largura in (1440, 1366, 1280):
+            # A produção do cabeçalho numa só linha (Diogo, 23/10/2026).
+            prod = page.evaluate("""() => { const e = document.querySelector('.pick-row .prod-trigger, .pick-row .prod-drop, .pick-row select.prod-select');
+              const cs = getComputedStyle(e); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+              const t = e.querySelector('.prod-trigger') || e;
+              const r = document.createRange(); r.selectNodeContents(t); const linhas = new Set([...r.getClientRects()].map(x => Math.round(x.top))).size;
+              return { linhas, h: Math.round(t.getBoundingClientRect().height), lh, texto: t.textContent.trim() }; }""")
+            print(f'{nome} produção: {prod}')
+            if prod['linhas'] > 1:
+                falhas.append(f'{nome}: a produção parte em duas linhas ({prod})')
+            # Com a Informação técnica da CM aberta, as notas da MF não esticam.
+            antes = page.evaluate("() => Math.round(document.querySelector('[data-jof-familia=\"MF\"] [data-jof-nota]').getBoundingClientRect().height)")
+            page.locator('[data-jof-tecnica="CM"] summary').click()
+            depois = page.evaluate("() => Math.round(document.querySelector('[data-jof-familia=\"MF\"] [data-jof-nota]').getBoundingClientRect().height)")
+            print(f'{nome} notas MF: fechada {antes}, aberta {depois}')
+            if depois > antes + 2:
+                falhas.append(f'{nome}: com a Informação técnica aberta, as notas da MF esticaram ({antes} → {depois})')
+            page.locator('[data-jof-tecnica="CM"] summary').click()
 
         # As notas ampliam e fecham.
         page.locator('[data-jof-familia="CM"] [data-jof-nota]').click()

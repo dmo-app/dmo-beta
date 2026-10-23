@@ -1948,3 +1948,16 @@ Novos: 2 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
 Selo depois: `e4001b1e522a0ccf`
+
+## A-0080 · 2026-10-23 · ok-do-diogo
+
+Porquê: Folha do Job On: ordem dos cartões (TP e CS, Calibres, PI à direita), CM/MF/BQ numa fila a 1366 e 1280, sem esticar com a Informação técnica aberta, produção numa linha, e linha vazia abre a folha em branco para duplicar ou criar com a linha e o dia (Diogo 23/10)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR9DLoJRShGmbTL76USNiBk, cmsg_01A27e9ozcpoh4jdPRsuJbFySZCHF2SYMQvqF5oC5ivr8C, cmsg_01A27e9ozcpoh4jdPRsuJbFy6p8hzdVZKJQNmZvY3owES7, cmsg_01A27e9ozcpoh4jdPRsuJbFy7pCVHGx9xRydNF3aQSC1ms, cmsg_01A27e9ozcpoh4jdPRsuJbFyVRtpXnEHc2wm7aHQrAtbhJ, cmsg_01A27e9ozcpoh4jdPRsuJbFyRUM1ouKf6v9y7Lv1c816xB
+Novos: 1 · mudaram: 2 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+- mudou: `tests/visual/jobon_folha_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina`
+
+Selo depois: `e7b31ffc3658f539`

@@ -103,8 +103,22 @@ public sealed class FolhaModel(
     public DateOnly? DiaPlaneamento { get; private set; }
 
     /// <summary>O «Duplicar» da folha: a folha nova com os dados desta produção.</summary>
-    public string DuplicarHref => JobOn is null ? "/JobOn/Folha?novo=1"
-        : $"/JobOn/Folha?duplicar={JobOn.JobOnId}{(DiaPlaneamento is { } d ? $"&inicio_em={d:yyyy-MM-dd}" : "")}";
+    public string DuplicarHref => JobOn is null ? "/JobOn/Folha?novo=1" + NovoDestino
+        : $"/JobOn/Folha?duplicar={JobOn.JobOnId}{NovoDestino}";
+
+    /// <summary>
+    /// A linha e o dia escolhidos no painel do Planeamento (uma linha vazia,
+    /// Diogo 23/10/2026): a folha abre em branco, sem Editar, para procurar um
+    /// Job On antigo; o Duplicar e o Criar levam já essa linha e esse início.
+    /// </summary>
+    public int? NovoMachineId { get; private set; }
+    public DateOnly? NovoInicio { get; private set; }
+    public string? NovoLinha { get; private set; }
+
+    /// <summary>O «&amp;machine_id=…&amp;inicio_em=…» que segue de página em página.</summary>
+    public string NovoDestino =>
+        (NovoMachineId is int m ? $"&machine_id={m}" : "")
+        + ((NovoInicio ?? DiaPlaneamento) is { } d ? $"&inicio_em={d:yyyy-MM-dd}" : "");
 
     /// <summary>O Cancelar: no Editar a folha bloqueada; no Duplicar a de origem; no Criar o Planeamento.</summary>
     public string CancelarHref => !Criar ? Href() : DuplicarDe is { } origem ? $"/JobOn/Folha?jobon_id={origem}" : "/JobOn";
@@ -205,6 +219,12 @@ public sealed class FolhaModel(
         await ComporPaginaAsync();
         var ct = HttpContext.RequestAborted;
         DiaPlaneamento = DateOnly.TryParseExact(dia, "yyyy-MM-dd", out var diaValor) ? diaValor : null;
+        NovoMachineId = machineId;
+        NovoInicio = DateOnly.TryParseExact(inicioEm, "yyyy-MM-dd", out var novoInicio) ? novoInicio : null;
+        if (machineId is not null && novo != "1" && duplicar is null)
+        {
+            NovoLinha = (await machineList.ListAsync(ct)).FirstOrDefault(m => m.MachineId == machineId)?.Code;
+        }
 
         // Criar e Duplicar abrem a folha em Editar; só quem tem o Planeamento.
         if (novo == "1" || duplicar is not null)
@@ -224,8 +244,10 @@ public sealed class FolhaModel(
                 }
                 // Os dados copiados; o nº e as datas da produção nova ficam por
                 // preencher (o início é o dia escolhido no calendário).
+                // Vindo de uma linha do painel, a produção nova vai para essa linha.
+                var linhaEscolhida = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code;
                 await AbrirCriarAsync(
-                    origem with { JobOnId = 0, ProductionNumber = string.Empty, InicioEm = inicio, FimEm = null, Version = 0 },
+                    origem with { JobOnId = 0, ProductionNumber = string.Empty, InicioEm = inicio, FimEm = null, Version = 0, Machine = linhaEscolhida ?? origem.Machine },
                     FolhaDoJobOnVista.DoDuplicar(await folha.ForJobOnAsync(origem.JobOnId, ct)),
                     numero: null, origem.JobOnId, origem.ProductionNumber, recusa: null);
                 return Page();
@@ -245,7 +267,7 @@ public sealed class FolhaModel(
             if (dela.Count > 0)
             {
                 var ultima = dela.OrderByDescending(p => p.ProductionNumber, StringComparer.Ordinal).First();
-                return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}");
+                return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}{NovoDestino}");
             }
             ReferenciaSemProducoes = true;
         }

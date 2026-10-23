@@ -429,12 +429,12 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     }
 
     [Fact]
-    public async Task PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina()
+    public async Task PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina()
     {
-        // O Diogo, 17/10/2026: «Preparar produção» não fica sempre aberto;
-        // abre no «Criar Job On» ou ao carregar numa máquina vazia do dia,
-        // já com a máquina e a data. Desde 23/10/2026 abre a folha nova vazia,
-        // em Editar (o Criar), com a linha e o dia como início.
+        // O Diogo, 17/10/2026: ao carregar numa máquina vazia do dia, já com a
+        // máquina e a data. Desde 23/10/2026 (09:48) abre a folha em branco,
+        // sem Editar, para procurar um Job On antigo e duplicá-lo; o Duplicar
+        // e o «Criar em branco» levam a linha e o dia como início.
         var (_, _, _, c3Id) = await SeedFichaAsync();
         SeedUser("4597", "Planejador", "provider-jobon-criar", "JobCriar1!");
         using var client = await LoginClientAsync("4597", "JobCriar1!");
@@ -442,13 +442,44 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         var pagina = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={dia.Year}&mes={dia.Month}&dia={dia.Day}"));
         Assert.DoesNotContain("id=\"lightSheet\"", pagina);
-        var criarAqui = $"/JobOn/Folha?novo=1&machine_id={c3Id}&inicio_em={dia:yyyy-MM-dd}";
-        Assert.Contains($"<a class=\"beta-light-machine-empty\" href=\"{criarAqui}\"", pagina);
+        var destino = $"machine_id={c3Id}&inicio_em={dia:yyyy-MM-dd}";
+        var abrir = $"/JobOn/Folha?{destino}";
+        Assert.Contains($"<a class=\"beta-light-machine-empty\" href=\"{abrir}\"", pagina);
 
-        var folha = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, criarAqui));
-        Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", folha);
-        Assert.Contains($"<option value=\"{c3Id}\" selected=\"selected\">C3</option>", folha);
-        Assert.Contains($"name=\"inicio_em\" type=\"date\" value=\"{dia:yyyy-MM-dd}\"", folha);
+        // Em branco, sem Editar: a procura leva a linha e o dia.
+        var branco = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, abrir));
+        Assert.DoesNotContain("data-jof-folha=\"editar\"", branco);
+        Assert.Contains("class=\"ref-search jof-ref-vazia\"", branco);
+        Assert.Contains($"<input type=\"hidden\" name=\"machine_id\" value=\"{c3Id}\" />", branco);
+        Assert.Contains($"<input type=\"hidden\" name=\"inicio_em\" value=\"{dia:yyyy-MM-dd}\" />", branco);
+        var criarBranco = $"/JobOn/Folha?novo=1&{destino}";
+        Assert.Contains($"<a class=\"btn\" href=\"{criarBranco}\" data-jof-criar-branco>Criar em branco</a>", branco);
+
+        // «Criar em branco»: a folha nova em Editar, na C3, com o dia como início.
+        var criar = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, criarBranco));
+        Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", criar);
+        Assert.Contains($"<option value=\"{c3Id}\" selected=\"selected\">C3</option>", criar);
+        Assert.Contains($"name=\"inicio_em\" type=\"date\" value=\"{dia:yyyy-MM-dd}\"", criar);
+
+        // Procurar a referência abre o Job On antigo com a linha e o dia; o Duplicar leva-os.
+        var procura = await client.GetAsync($"/JobOn/Folha?referencia=1075C142&{destino}");
+        Assert.Equal(HttpStatusCode.Redirect, procura.StatusCode);
+        var antigo = procura.Headers.Location!.OriginalString;
+        Assert.EndsWith(destino, antigo, StringComparison.Ordinal);
+        var folhaAntiga = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, antigo));
+        var duplicar = System.Text.RegularExpressions.Regex.Match(folhaAntiga, "href=\"(?<h>/JobOn/Folha\\?duplicar=\\d+[^\"]*)\" data-jof-duplicar");
+        Assert.True(duplicar.Success);
+        // A procura abre a última produção da referência; o Duplicar é dela.
+        var antigoId = System.Text.RegularExpressions.Regex.Match(antigo, "jobon_id=(\\d+)").Groups[1].Value;
+        Assert.NotEqual(string.Empty, antigoId);
+        Assert.StartsWith($"/JobOn/Folha?duplicar={antigoId}&", duplicar.Groups["h"].Value, StringComparison.Ordinal);
+        Assert.EndsWith(destino, duplicar.Groups["h"].Value, StringComparison.Ordinal);
+        var duplicado = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, duplicar.Groups["h"].Value));
+        Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", duplicado);
+        Assert.Contains($"<option value=\"{c3Id}\" selected=\"selected\">C3</option>", duplicado);
+        Assert.Contains($"name=\"inicio_em\" type=\"date\" value=\"{dia:yyyy-MM-dd}\"", duplicado);
+        // É o duplicado da origem, não uma folha nova vazia: traz a referência dela.
+        Assert.Contains("value=\"1075C142\"", duplicado);
     }
 
     [Fact]
