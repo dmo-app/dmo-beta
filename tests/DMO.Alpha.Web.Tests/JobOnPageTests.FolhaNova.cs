@@ -234,12 +234,58 @@ public partial class JobOnPageTests
         Assert.Equal(HttpStatusCode.Redirect, planeamento.StatusCode);
         Assert.Equal($"/JobOn/Folha?jobon_id={id}", planeamento.Headers.Location!.ToString());
 
-        // E o Guardar do Planeamento não lhe abre a porta.
+        // E o Guardar do Planeamento não lhe abre a porta: o envio completo de
+        // quem edita (com a nota mudada), forjado com o token de quem só vê.
+        SeedUser("4413", "Chefe folha 13", "provider-folha-13", "Folha1234!");
+        using var chefe = await LoginClientAsync("4413", "Folha1234!");
+        var editar = await GetPageHtmlAsync(chefe, $"{FolhaPath}?jobon_id={id}&editar=1");
+        var (acao, campos) = EnvioDoFormulario.Mudar(editar, "jobon-cm-notas", "Forjado por quem só vê.");
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
-        var post = await client.PostAsync("/JobOn?handler=Update", HtmlFormHelpers.BuildFormPost(
-            ("jobon_edit_id", id.ToString()), ("__RequestVerificationToken", token)));
+        var forjados = campos.Select(c => c.Nome == "__RequestVerificationToken" ? (c.Nome, token) : c).ToList();
+        var antes = await LerJobOnAsync(id);
+        var post = await client.PostAsync(acao, EnvioDoFormulario.Corpo(forjados));
         Assert.Equal(HttpStatusCode.Redirect, post.StatusCode);
         Assert.DoesNotContain("gravado", post.Headers.Location!.ToString(), StringComparison.Ordinal);
+        Assert.Equal(antes, await LerJobOnAsync(id));
+        Assert.DoesNotContain("Forjado por quem só vê.", antes, StringComparison.Ordinal);
+    }
+
+    // A referência, as datas, a linha e as notas da folha, para comparar antes e depois.
+    private async Task<string> LerJobOnAsync(int id)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+        var j = await db.JobOns.AsNoTracking().Include(x => x.Machine).SingleAsync(x => x.Id == id);
+        var folha = await db.JobOnFolhas.AsNoTracking().SingleOrDefaultAsync(x => x.JobOnId == id);
+        return $"{j.Reference}|{j.ProductionNumber}|{j.InicioEm}|{j.FimEm}|{j.Machine?.Code}|{folha?.CmNotas}|{folha?.MfNotas}";
+    }
+
+    [Fact]
+    public async Task FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao()
+    {
+        const string op = "4414";
+        var email = $"{op}@dmo.local";
+        _factory.AuthProvider.AddAccount(email, "provider-folha-ctl", "Folha1234!", email);
+        var id = await SeedJobOnCompletoAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var user = new User { Id = Guid.NewGuid(), OperatorId = op, Name = "Chefe Controlo", ProviderUserId = "provider-folha-ctl" };
+            db.Users.Add(user);
+            var template = new Template { Id = Guid.NewGuid(), TemplateKey = "tpl-test-jobon-ctl", Name = "Job On + Controlo", Capabilities = new[] { DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate } };
+            db.Templates.Add(template);
+            db.TemplateAssignments.Add(new TemplateAssignment { Id = Guid.NewGuid(), UserId = user.Id, TemplateId = template.Id });
+            db.SaveChanges();
+        }
+        using var client = await LoginClientAsync(op, "Folha1234!");
+
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}");
+        var opcoes = Zona(html, "data-jof-opcoes");
+        opcoes = opcoes[..opcoes.IndexOf("</details>", StringComparison.Ordinal)];
+        var controlo = opcoes.IndexOf($"href=\"/Controlo/Resumo?jobon_id={id}\">Controlo</a>", StringComparison.Ordinal);
+        var reparacao = opcoes.IndexOf($"href=\"/JobOn/Reparacao?jobon_id={id}\">Reparação</a>", StringComparison.Ordinal);
+        Assert.True(controlo >= 0, "As Opções não têm o Controlo.");
+        Assert.True(reparacao > controlo, "O Controlo vem antes da Reparação.");
     }
 
     [Fact]
