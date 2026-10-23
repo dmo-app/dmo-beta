@@ -27,6 +27,9 @@
 .ferr-filter-actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
 .ferr-pagination{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:18px}
 .ferr-pagination [aria-disabled="true"]{pointer-events:none;cursor:default}
+.ferr-pagination .ferr-w-page-size{display:flex;align-items:center;gap:8px;width:auto;margin:0}
+.ferr-pagination .ferr-w-page-size label{margin:0;white-space:nowrap}
+.ferr-pagination .ferr-w-page-size select{width:76px}
 
 .ferr-quantity-choices{display:flex;flex-wrap:wrap;gap:8px}
 .ferr-create-tech{margin-top:14px;padding-top:12px;border-top:1px solid var(--dmo-border,#d9e6f2)}

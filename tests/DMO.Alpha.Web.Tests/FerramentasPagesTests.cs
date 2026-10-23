@@ -279,9 +279,19 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         // Os traços da informação técnica: Processo/Peso/Punção, Gargalo, Tampão.
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(livre, "class=\"ferr-tech-sep\"").Count);
 
-        // No Ver, a Máquina vem antes da Referência (Diogo, 18/10/2026).
+        // No Ver, a Referência vem primeiro (Diogo, 23/10/2026: «começar com
+        // campo de filtrar»; antes, 18/10, a Máquina vinha antes), a «Linha»
+        // a seguir ao Tipo, e o «Por página» sai dos filtros para junto da
+        // paginação, ligado ao formulário (uma opção da página).
         var ver = await GetPageHtmlAsync(client, IndexPath);
-        Assert.True(Posicao(ver, "id=\"ferr-machine\"") < Posicao(ver, "id=\"ferr-reference\""));
+        Assert.True(Posicao(ver, "id=\"ferr-reference\"") < Posicao(ver, "id=\"ferr-type\""));
+        Assert.True(Posicao(ver, "id=\"ferr-type\"") < Posicao(ver, "id=\"ferr-machine\""));
+        Assert.Contains("<label for=\"ferr-machine\">Linha</label>", ver, StringComparison.Ordinal);
+        Assert.DoesNotContain("Máquina / linha", ver, StringComparison.Ordinal);
+        Assert.DoesNotContain("id=\"ferr-page-size\"", ver[..ver.IndexOf("</form>", Posicao(ver, "id=\"ferrFiltros\""), StringComparison.Ordinal)], StringComparison.Ordinal);
+        var comResultados = await GetPageHtmlAsync(client, $"{IndexPath}?reference=5");
+        Assert.True(Posicao(comResultados, "id=\"ferr-page-size\"") > Posicao(comResultados, "aria-label=\"Paginação de ferramentas\""));
+        Assert.Contains("<select id=\"ferr-page-size\" name=\"por_pagina\" form=\"ferrFiltros\"", comResultados, StringComparison.Ordinal);
         // Os filtros e os dois botões numa linha (Diogo, 19/10/2026): «Criar
         // ferramenta» sai do topo do card e fica a seguir a «Limpar filtros»,
         // no fim do formulário, e abre a página inteira.
@@ -290,7 +300,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.True(Posicao(acoes, ">Limpar filtros</a>") < Posicao(acoes, ">Criar ferramenta</a>"));
         Assert.Matches("<a class=\"dmo-button\" id=\"ferrCriarFerramenta\" data-dmo-completa href=\"/Ferramentas\\?criar=1\">Criar ferramenta</a>", acoes);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(ver, ">Criar ferramenta</a>"));
-        foreach (var largura in new[] { "ferr-w-type", "ferr-w-machine", "ferr-w-ref", "ferr-w-lot", "ferr-w-page-size" })
+        foreach (var largura in new[] { "ferr-w-type", "ferr-w-machine", "ferr-w-ref", "ferr-w-lot" })
             Assert.Contains($"class=\"dmo-field {largura}\"", filtros, StringComparison.Ordinal);
     }
 

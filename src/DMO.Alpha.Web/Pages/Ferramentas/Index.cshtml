@@ -51,11 +51,16 @@
        resto»): os filtros com a largura do conteúdo e os dois botões no fim
        da mesma linha, encostados à direita. Os links abrem a página inteira
        (data-dmo-completa): o formulário troca só a lista dos resultados. *@
-    <form method="get" asp-page="/Ferramentas/Index" class="ferr-filters" data-dmo-fica data-dmo-parcial data-dmo-handler="Resultados" data-dmo-alvo="ferrResultados" data-dmo-ao-escrever="ferrResultados">
+    <form method="get" asp-page="/Ferramentas/Index" id="ferrFiltros" class="ferr-filters" data-dmo-fica data-dmo-parcial data-dmo-handler="Resultados" data-dmo-alvo="ferrResultados" data-dmo-ao-escrever="ferrResultados">
       @if (Model.ReturnTemplate is not null)
       {
         <input type="hidden" name="return" value="@Model.ReturnTemplate" />
       }
+      @* A Referência primeiro (Diogo, 23/10/2026: «começar com campo de filtrar»). *@
+      <div class="dmo-field ferr-w-ref">
+        <label for="ferr-reference">Referência<partial name="_DmoHelp" model="@("A referência da ferramenta ou a referência MF em que encaixa (por exemplo 5447, T194 ou 5810).")" /></label>
+        <input id="ferr-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@(Model.RequestedReference ?? (Model.ShowCreate ? null : Model.RequestedMfReference))" placeholder="5447 · T194" />
+      </div>
       <div class="dmo-field ferr-w-type">
         <label for="ferr-type">Tipo</label>
         <select id="ferr-type" name="type" data-dmo-autosubmit>
@@ -66,7 +71,7 @@
         </select>
       </div>
       <div class="dmo-field ferr-w-machine">
-        <label for="ferr-machine">Máquina / linha</label>
+        <label for="ferr-machine">Linha</label>
         <select id="ferr-machine" name="machine_id" data-dmo-autosubmit>
           <option value="">Todas</option>
           @foreach (var machine in Model.Machines)
@@ -75,20 +80,9 @@
           }
         </select>
       </div>
-      <div class="dmo-field ferr-w-ref">
-        <label for="ferr-reference">Referência<partial name="_DmoHelp" model="@("A referência da ferramenta ou a referência MF em que encaixa (por exemplo 5447, T194 ou 5810).")" /></label>
-        <input id="ferr-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@(Model.RequestedReference ?? (Model.ShowCreate ? null : Model.RequestedMfReference))" placeholder="5447 · T194" />
-      </div>
       <div class="dmo-field ferr-w-lot">
         <label for="ferr-lot">Lote</label>
         <input id="ferr-lot" name="lot" value="@Model.RequestedLot" placeholder="3" />
-      </div>
-      <div class="dmo-field ferr-w-page-size">
-        <label for="ferr-page-size">Por página</label>
-        <select id="ferr-page-size" name="por_pagina" data-dmo-autosubmit>
-          <option value="10" selected="@(Model.PageSize == 10)">10</option>
-          <option value="20" selected="@(Model.PageSize == 20)">20</option>
-        </select>
       </div>
       <div class="ferr-filter-actions">
         <a class="dmo-button" data-dmo-completa href="@Url.Page("/Ferramentas/Index", new { @return = Model.ReturnTemplate, por_pagina = Model.PageSize })">Limpar filtros</a>

@@ -63,6 +63,14 @@
       <span role="status" aria-label="Página @Model.PageNumber de @Model.TotalPages">@Model.PageNumber de @Model.TotalPages</span>
       <a class="dmo-button dmo-arrow" href="@(Model.PageNumber < Model.TotalPages ? Model.PageLink(Model.PageNumber + 1) : null)"
          aria-label="Página seguinte" aria-disabled="@(Model.PageNumber >= Model.TotalPages ? "true" : null)">→</a>
+      @* «Por página» é uma opção da página, não um dado da ferramenta: junto da paginação (Diogo, 23/10/2026). *@
+      <span class="dmo-field ferr-w-page-size">
+        <label for="ferr-page-size">Por página</label>
+        <select id="ferr-page-size" name="por_pagina" form="ferrFiltros" data-dmo-autosubmit>
+          <option value="10" selected="@(Model.PageSize == 10)">10</option>
+          <option value="20" selected="@(Model.PageSize == 20)">20</option>
+        </select>
+      </span>
     </nav>
     }
   </section>
