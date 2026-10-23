@@ -388,7 +388,7 @@
 .jof2 .jof-artigo-escolher{cursor:pointer;outline:1px dashed var(--dmo-border)}
 .jof2 .jof-artigo-escolher:hover,.jof2 .jof-artigo-escolher:focus-within{outline-color:var(--dmo-brand-600)}
 /* O painel: o regresso ao Planeamento e o vazio. */
-.jof2-gaveta .rail-voltar{display:inline-block;margin-top:10px;color:var(--rail-muted);font-size:13px;font-weight:700;text-decoration:none}
+.jof2-gaveta .rail-voltar{display:inline-block;margin-right:auto;font-size:14px;color:var(--rail-muted);font-size:13px;font-weight:700;text-decoration:none}
 .jof2-gaveta .rail-voltar:hover{color:var(--rail-text);text-decoration:underline}
 .jof2-gaveta .rail-item{text-decoration:none}
 .jof2-gaveta .rail-vazio{margin:0;color:var(--rail-muted);font-size:13px}
@@ -455,3 +455,6 @@ html body .jof2 .pick-block{gap:12px}
 /* Triângulos à esquerda, junto ao texto — SÓ na folha do Job On (a regra da app é do Especialista). */
 html body .jof2 .jof-furos-campo{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--dmo-muted)}
 html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
+
+/* Onde está no Armazém, por baixo da cabeça da ferramenta (FER-E-03). */
+.jof-onde{font-size:11px;color:var(--dmo-muted,#66809a);margin:4px 0 0}

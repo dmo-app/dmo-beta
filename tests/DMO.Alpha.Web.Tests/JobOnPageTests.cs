@@ -153,6 +153,15 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
     private async Task<string> GetVerificationTokenAsync(HttpClient client, string path)
     {
         var response = await client.GetAsync(path);
+        // O Planeamento leva à folha nova (Diogo, 23/10/2026: escolher uma
+        // produção, o Criar e o Duplicar abrem /JobOn/Folha): o token lê-se
+        // onde o redirect chega.
+        if (response.StatusCode == System.Net.HttpStatusCode.Redirect
+            && response.Headers.Location?.ToString() is { } destino
+            && destino.StartsWith("/JobOn/Folha", StringComparison.Ordinal))
+        {
+            response = await client.GetAsync(destino);
+        }
         response.EnsureSuccessStatusCode();
         var html = await response.Content.ReadAsStringAsync();
         return HtmlFormHelpers.ExtractRequestVerificationToken(html)
@@ -162,6 +171,14 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
     private async Task<string> GetPageHtmlAsync(HttpClient client, string url)
     {
         var response = await client.GetAsync(url);
+        // A ficha antiga do Planeamento deixou de existir (Diogo, 23/10/2026):
+        // /JobOn?jobon_id=N leva à folha nova, que é a página que se lê.
+        if (response.StatusCode == HttpStatusCode.Redirect
+            && response.Headers.Location?.ToString() is { } folha
+            && folha.StartsWith("/JobOn/Folha", StringComparison.Ordinal))
+        {
+            response = await client.GetAsync(folha);
+        }
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
     }
@@ -261,7 +278,8 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         Assert.True(referencia >= 0, "Falta a caixa da referência na barra da procura.");
         Assert.True(producao >= 0, "Falta a caixa da produção na barra da procura.");
         Assert.True(criar > referencia && criar > producao, "O «Criar Job On» tem de vir à direita das caixas (Diogo, 22/10).");
-        Assert.Matches("<a id=\"jobonCriar\" class=\"dmo-button\" href=\"/JobOn\\?novo=1&amp;inicio_em=2026-03-04&amp;ano=2026&amp;mes=3&amp;dia=4#lightSheet\"", bloco);
+        // Abre a folha nova vazia, em Editar (Diogo, 23/10/2026), com o dia como início.
+        Assert.Matches("<a id=\"jobonCriar\" class=\"dmo-button\" href=\"/JobOn/Folha\\?novo=1&amp;inicio_em=2026-03-04\"", bloco);
         // Um só botão na página: o do título saiu.
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, ">Criar Job On</a>"));
         // A ajuda da produção encostada à caixa (Diogo, 24/10/2026); o Chromium mede-a
@@ -271,7 +289,7 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
 
         // Sem dia escolhido, abre sem data de início.
         var semDia = await GetPageHtmlAsync(client, $"{PagePath}?ano=2026&mes=3&dia=0");
-        Assert.Contains("<a id=\"jobonCriar\" class=\"dmo-button\" href=\"/JobOn?novo=1&amp;ano=2026&amp;mes=3#lightSheet\"", semDia);
+        Assert.Contains("<a id=\"jobonCriar\" class=\"dmo-button\" href=\"/JobOn/Folha?novo=1\"", semDia);
     }
 
     [Fact]
@@ -342,12 +360,13 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         // a produção com os factos humanos — as tools PELOS NOMES COM LOTE
         // (o contrato: «CM ST100 lote 12 · MF 5447 lote 08 · BQ T173
         // lote 04»), nunca os tool_ids como factos da folha.
+        // Abre na folha nova (Diogo, 23/10/2026), com o lote sem o zero à esquerda.
         var detailHtml = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
         Assert.Contains("PN-2025-050", detailHtml);
         Assert.Contains("5810", detailHtml);
-        Assert.Contains("Contra molde 5447 · lote 3", detailHtml);   // a CM escolhida (T2), humano
-        Assert.Contains("Molde final 5810 · lote 1", detailHtml);   // o MF do desenho, humano
-        Assert.Contains("Boquilha T194 · lote 3", detailHtml);  // a BQ escolhida, humano
+        Assert.Contains("aria-label=\"Contra molde 5447 lote 3\"", detailHtml);   // a CM escolhida (T2), humano
+        Assert.Contains("aria-label=\"Molde final 5810 lote 1\"", detailHtml);   // o MF do desenho, humano
+        Assert.Contains("aria-label=\"Boquilha T194 lote 3\"", detailHtml);  // a BQ escolhida, humano
         Assert.Contains("B1", detailHtml);
 
         // O histórico encontra as duas produções pela referência de cada
@@ -788,9 +807,10 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         // tinha de levar o editar=1, senão o botão reabria a ficha FECHADA e
         // ninguém conseguia emendar uma produção. Afirma-se o HREF, não só o
         // resultado: é o link que está em causa.
+        // A ficha é agora a folha nova (Diogo, 23/10/2026): o Editar dela.
         var fichaHtml = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
         Assert.Contains(
-            $"href=\"/JobOn?jobon_id={jobOnId}&editar=1#lightSheet\">Editar</a>",
+            $"href=\"/JobOn/Folha?jobon_id={jobOnId}&amp;editar=1\" data-jof-editar>Editar</a>",
             fichaHtml,
             StringComparison.Ordinal);
 
@@ -818,8 +838,10 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.Redirect, updated.StatusCode);
         var updatedLocation = updated.Headers.Location!.ToString();
         Assert.Equal($"{PagePath}?jobon_id={jobOnId}", updatedLocation);
+        // O Planeamento abre a produção na folha nova (Diogo, 23/10/2026).
         var savedSheet = await client.GetAsync(updatedLocation);
-        Assert.Equal(HttpStatusCode.OK, savedSheet.StatusCode);
+        Assert.Equal(HttpStatusCode.Redirect, savedSheet.StatusCode);
+        Assert.Equal($"/JobOn/Folha?jobon_id={jobOnId}", savedSheet.Headers.Location!.ToString());
 
         // Verdade persistida: UM jobon (o nº não duplica) com a
         // identidade IMUTÁVEL e os factos novos — a linha B2, a janela
@@ -1505,14 +1527,9 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Contains("<nav data-dmo-parcial class=\"dmo-list-pager\"", page1);
         Assert.Contains("<td>PAG-05</td>", page2);
         Assert.DoesNotContain("<td>PAG-06</td>", page2);
-        int firstJobOn;
-        using (var scope = _factory.Services.CreateScope())
-            firstJobOn = scope.ServiceProvider.GetRequiredService<DmoDbContext>().JobOns.First().Id;
-        var ficha = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={firstJobOn}&producoes_ref=1");
-        Assert.Contains("data-dmo-regiao id=\"fichaProducoes\"", ficha);
-        Assert.Contains("pagina_ref=2", ficha);
-        var fichaNext = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={firstJobOn}&producoes_ref=1&pagina_ref=2");
-        Assert.Contains("Página 2 de 3", fichaNext);
+        // A tabela «Produções desta referência» era da ficha antiga, que
+        // deixou de existir (Diogo, 23/10/2026): ver
+        // Ficha_ProducoesDaReferencia_SaiComAFichaAntiga_AFolhaTemODropdown.
     }
 
     [Fact]
@@ -1572,7 +1589,8 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Matches(@">202607 [A-Z]\d+</option>", dropdown);
         Assert.DoesNotContain(">202606 ", dropdown);
         Assert.DoesNotContain(">202609 ", dropdown);
-        Assert.Contains($"value=\"/JobOn?ano=2026&amp;mes=3&amp;dia=4&amp;jobon_id={newestId}#lightFicha\"", dropdown);
+        // Escolher uma produção abre a folha nova, com o dia escolhido (Diogo, 23/10/2026).
+        Assert.Contains($"value=\"/JobOn/Folha?jobon_id={newestId}&amp;dia=2026-03-04\"", dropdown);
 
         // O início não enche o dropdown (Diogo, 20/10/2026: «primeiro campo
         // filtra apenas referências completas, segundo aparece dropdown das
@@ -1646,7 +1664,7 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task Ficha_Opcoes_ProducoesDaReferencia_TabelaPaginadaSoQuandoSeAbre()
+    public async Task Ficha_ProducoesDaReferencia_SaiComAFichaAntiga_AFolhaTemODropdown()
     {
         await SeedRegistryAsync();
         var jobOnId = await SeedExistingJobOnAsync(new DateOnly(2026, 3, 2), new DateOnly(2026, 3, 9));
@@ -1658,30 +1676,22 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         SeedUser("4296", "Job On Operador", "provider-jobon-procura-2", "JobOnProc2!");
         using var client = await LoginClientAsync("4296", "JobOnProc2!", factory);
 
-        var ficha = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
-        Assert.Contains("class=\"dmo-options\"", ficha);
-        // As Opções ficam no topo, ao lado do Fechar (Diogo, 17/10/2026).
-        var topo = ficha[ficha.IndexOf("id=\"fichaTitle\"", StringComparison.Ordinal)..];
-        Assert.True(Posicao(topo, "class=\"dmo-options\"") < Posicao(topo, ">Fechar</a>"));
-        Assert.True(topo.IndexOf(">Fechar</a>", StringComparison.Ordinal) < topo.IndexOf("Ferramentas usadas", StringComparison.Ordinal));
-        Assert.Contains($"jobon_id={jobOnId}&producoes_ref=1#fichaProducoes", ficha);
-        Assert.Contains($"jobon_id={jobOnId}&duplicar=1", ficha);
-        Assert.DoesNotContain("id=\"fichaProducoes\"", ficha);
+        // A FICHA ANTIGA SAIU (Diogo, 23/10/2026: «esta versão do Job On já não
+        // deveria existir»): o link antigo da tabela leva à folha nova, sem ler
+        // a tabela; as produções da referência estão no dropdown da folha.
+        var antigo = await client.GetAsync($"{PagePath}?jobon_id={jobOnId}&producoes_ref=1");
+        Assert.Equal(HttpStatusCode.Redirect, antigo.StatusCode);
+        Assert.Equal($"/JobOn/Folha?jobon_id={jobOnId}", antigo.Headers.Location!.ToString());
         Assert.Equal(0, reads.ReferencePages);
 
-        var aberta = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}&producoes_ref=1");
-        Assert.Equal(1, reads.ReferencePages);
-        Assert.Contains("id=\"fichaProducoes\"", aberta);
-        Assert.Contains("Produções de 5447", aberta);
-        Assert.Contains("<strong>PN-EXISTENTE-1</strong>", aberta);
-        Assert.Contains("<strong>PN-ANTIGA</strong>", aberta);
-        Assert.DoesNotContain("PN-OUTRA-REF", aberta);
-        Assert.Contains("02/03/2026", aberta);
-        Assert.Contains("09/03/2026", aberta);
-        Assert.Contains("5447 · lote 2", aberta);   // a CM e o lote usados
-        Assert.Contains("5810 · lote 1", aberta);   // o MF e o lote usados
-        Assert.Contains(">1 de 1</span>", aberta);   // só «página de total», sem «Página» nem registos
-        Assert.DoesNotContain("· 2 registos", aberta);
+        var folha = await GetPageHtmlAsync(client, antigo.Headers.Location!.ToString());
+        Assert.DoesNotContain("id=\"fichaProducoes\"", folha);
+        Assert.DoesNotContain("Ficha da produção", folha);
+        var dropdown = folha[folha.IndexOf("id=\"jofProducoes\"", StringComparison.Ordinal)..];
+        dropdown = dropdown[..dropdown.IndexOf("</select>", StringComparison.Ordinal)];
+        Assert.Contains($"value=\"/JobOn/Folha?jobon_id={jobOnId}\" selected=\"selected\">PN-EXISTENTE-1", dropdown);
+        Assert.DoesNotContain("PN-OUTRA-REF", dropdown);
+        Assert.Equal(0, reads.ReferencePages);
     }
 
     private void SeedHistoryJobOns(params (string Reference, string ProductionNumber, DateOnly? InicioEm, DateOnly? FimEm)[] jobOns)

@@ -126,6 +126,15 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     private async Task<string> GetVerificationTokenAsync(HttpClient client, string path)
     {
         var response = await client.GetAsync(path);
+        // O Planeamento leva à folha nova (Diogo, 23/10/2026: escolher uma
+        // produção, o Criar e o Duplicar abrem /JobOn/Folha): o token lê-se
+        // onde o redirect chega.
+        if (response.StatusCode == System.Net.HttpStatusCode.Redirect
+            && response.Headers.Location?.ToString() is { } destino
+            && destino.StartsWith("/JobOn/Folha", StringComparison.Ordinal))
+        {
+            response = await client.GetAsync(destino);
+        }
         response.EnsureSuccessStatusCode();
         var html = await response.Content.ReadAsStringAsync();
         return HtmlFormHelpers.ExtractRequestVerificationToken(html)
@@ -135,6 +144,14 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     private async Task<string> GetPageHtmlAsync(HttpClient client, string url)
     {
         var response = await client.GetAsync(url);
+        // A ficha antiga do Planeamento deixou de existir (Diogo, 23/10/2026):
+        // /JobOn?jobon_id=N leva à folha nova, que é a página que se lê.
+        if (response.StatusCode == HttpStatusCode.Redirect
+            && response.Headers.Location?.ToString() is { } folha
+            && folha.StartsWith("/JobOn/Folha", StringComparison.Ordinal))
+        {
+            response = await client.GetAsync(folha);
+        }
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
     }
@@ -270,25 +287,28 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     [Fact]
     public async Task Opcoes_EditarPrimeiro_SemDuplicarLote_EFecharVoltaAFicha()
     {
-        // O Diogo, 17/10/2026: as Opções começam por Editar e Duplicar Job
-        // On; o «Duplicar lote» sai (um lote novo associa-se no Editar e fica
-        // como alteração). O Fechar do Editar volta à ficha e o da ficha sai.
+        // O Diogo, 17/10/2026: sem «Duplicar lote» (um lote novo associa-se no
+        // Editar e fica como alteração). Desde 23/10/2026 a ficha é a folha
+        // nova: Editar e Duplicar à vista, o Controlo nas Opções; o Duplicar
+        // leva o dia escolhido no calendário como início.
         var (jobOnId, _, _, _) = await SeedFichaAsync();
         SeedUser("4592", "Planejador", "provider-jobon-lote", "JobLote1!");
         using var client = await LoginClientAsync("4592", "JobLote1!");
 
-        var ficha = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}&ano=2026&mes=10&dia=5"));
-        var editar = ficha.IndexOf("editar=1#lightSheet\">Editar</a>", StringComparison.Ordinal);
-        var duplicar = ficha.IndexOf("duplicar=1\">Duplicar Job On</a>", StringComparison.Ordinal);
+        var escolher = await client.GetAsync($"{PagePath}?jobon_id={jobOnId}&ano=2026&mes=10&dia=5");
+        Assert.Equal(HttpStatusCode.Redirect, escolher.StatusCode);
+        Assert.Equal($"/JobOn/Folha?jobon_id={jobOnId}&dia=2026-10-05", escolher.Headers.Location!.ToString());
+        var ficha = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, escolher.Headers.Location!.ToString()));
+        var duplicar = ficha.IndexOf($"href=\"/JobOn/Folha?duplicar={jobOnId}&inicio_em=2026-10-05\" data-jof-duplicar>Duplicar</a>", StringComparison.Ordinal);
+        var editar = ficha.IndexOf($"href=\"/JobOn/Folha?jobon_id={jobOnId}&editar=1\" data-jof-editar>Editar</a>", StringComparison.Ordinal);
         var controlo = ficha.IndexOf($"href=\"/Controlo/Resumo?jobon_id={jobOnId}\">Controlo</a>", StringComparison.Ordinal);
-        Assert.True(editar >= 0 && editar < duplicar && duplicar < controlo);
+        Assert.True(duplicar >= 0 && duplicar < editar && editar < controlo);
         Assert.DoesNotContain("Duplicar lote", ficha);
         Assert.DoesNotContain("duplicar=lote", ficha);
-        Assert.Contains("<a class=\"dmo-button\" href=\"/JobOn?ano=2026&mes=10&dia=5\" data-dmo-parcial>Fechar</a>", ficha);
 
         // O formulário antigo da mudança de lote já não abre.
-        var antigo = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}&duplicar=lote"));
-        Assert.DoesNotContain("Mudança de lote", antigo);
+        var antigo = await client.GetAsync($"{PagePath}?jobon_id={jobOnId}&duplicar=lote");
+        Assert.DoesNotContain("Mudança de lote", await antigo.Content.ReadAsStringAsync());
 
         var edicao = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}&editar=1"));
         Assert.Contains($"<a class=\"dmo-button\" href=\"/JobOn?jobon_id={jobOnId}#lightFicha\">Fechar</a>", edicao);
@@ -413,7 +433,8 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     {
         // O Diogo, 17/10/2026: «Preparar produção» não fica sempre aberto;
         // abre no «Criar Job On» ou ao carregar numa máquina vazia do dia,
-        // já com a máquina e a data.
+        // já com a máquina e a data. Desde 23/10/2026 abre a folha nova vazia,
+        // em Editar (o Criar), com a linha e o dia como início.
         var (_, _, _, c3Id) = await SeedFichaAsync();
         SeedUser("4597", "Planejador", "provider-jobon-criar", "JobCriar1!");
         using var client = await LoginClientAsync("4597", "JobCriar1!");
@@ -421,11 +442,11 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         var pagina = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={dia.Year}&mes={dia.Month}&dia={dia.Day}"));
         Assert.DoesNotContain("id=\"lightSheet\"", pagina);
-        var criarAqui = $"/JobOn?novo=1&machine_id={c3Id}&inicio_em={dia:yyyy-MM-dd}&ano={dia.Year}&mes={dia.Month}&dia={dia.Day}#lightSheet";
+        var criarAqui = $"/JobOn/Folha?novo=1&machine_id={c3Id}&inicio_em={dia:yyyy-MM-dd}";
         Assert.Contains($"<a class=\"beta-light-machine-empty\" href=\"{criarAqui}\"", pagina);
 
-        var folha = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, criarAqui.Split('#')[0]));
-        Assert.Contains("id=\"lightSheet\"", folha);
+        var folha = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, criarAqui));
+        Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", folha);
         Assert.Contains($"<option value=\"{c3Id}\" selected=\"selected\">C3</option>", folha);
         Assert.Contains($"name=\"inicio_em\" type=\"date\" value=\"{dia:yyyy-MM-dd}\"", folha);
     }
@@ -497,10 +518,11 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Contains($"<a class=\"beta-light-next\" href=\"/Ferramentas/Ficha?tool_id=BQ-TOOL-9\" title=\"Troca BQ lote 12 para 13 a {troca}\">Mudança {troca} · BQ lote 12 para 13</a>", html);
         var diaC3 = hoje.AddDays(6);
         var entraC3 = diaC3.ToString("dd/MM/yyyy");
-        Assert.Contains($"<a class=\"beta-light-next\" href=\"/JobOn?ano={diaC3.Year}&mes={diaC3.Month}&dia={diaC3.Day}&jobon_id={entraNaC3Id}#lightFicha\" title=\"Entra 1075C142 202620 na C3 a {entraC3}\">Mudança {entraC3} · 1075C142 202620</a>", html);
+        // A produção que entra abre a folha nova, com o dia dela (Diogo, 23/10/2026).
+        Assert.Contains($"<a class=\"beta-light-next\" href=\"/JobOn/Folha?jobon_id={entraNaC3Id}&dia={diaC3:yyyy-MM-dd}\" title=\"Entra 1075C142 202620 na C3 a {entraC3}\">Mudança {entraC3} · 1075C142 202620</a>", html);
         // Na máquina vazia o link da mudança fica fora do link de criar.
         var entraC1 = hoje.AddDays(5).ToString("dd/MM/yyyy");
-        Assert.Matches($"<strong>C1</strong> · —</a>\\s*<a class=\"beta-light-next\" href=\"/JobOn\\?[^\"]*jobon_id=\\d+#lightFicha\" title=\"Entra 1199C194 202619 na C1 a {entraC1}\">Mudança {entraC1} · 1199C194 202619</a>", html);
+        Assert.Matches($"<strong>C1</strong> · —</a>\\s*<a class=\"beta-light-next\" href=\"/JobOn/Folha\\?jobon_id=\\d+&dia=[0-9-]+\" title=\"Entra 1199C194 202619 na C1 a {entraC1}\">Mudança {entraC1} · 1199C194 202619</a>", html);
         // Os links ficam dentro da zona das produções do dia.
         var zonaDia = html.IndexOf("<div id=\"jobonProducoes\" data-dmo-regiao>", StringComparison.Ordinal);
         var folhas = html.IndexOf("<div id=\"jobonFolhas\" data-dmo-regiao>", StringComparison.Ordinal);
@@ -559,11 +581,9 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     [Fact]
     public async Task Ficha_FerramentasUsadas_AbremAFichaDaFerramenta_SemAvisoDeDadosEmFalta()
     {
-        // O Diogo, 17/10/2026: «nao temos forma de inserir informaçao tecnica
-        // nas ferramentas». A referência abre a ficha da ferramenta na
-        // informação técnica e volta a esta ficha. Sem aviso de dados em
-        // falta: esse fica nos módulos que os usam (Peso, Pegamentos). Sem o
-        // módulo Ferramentas não há link.
+        // O Diogo, 17/10/2026: a ferramenta leva à ficha dela, sem aviso de
+        // dados em falta (esse fica nos módulos que os usam). Desde 23/10/2026
+        // a ficha é a folha nova: o duplo clique no cartão abre a ficha.
         var (jobOnId, _, _, _) = await SeedFichaAsync();
         using (var scope = _factory.Services.CreateScope())
         {
@@ -572,61 +592,16 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             db.SaveChanges();
         }
         SeedUser("4597", "Planejador", "provider-jobon-tecnica", "JobTecnica1!");
-        using var semFerramentas = await LoginClientAsync("4597", "JobTecnica1!");
-        var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(semFerramentas, $"{PagePath}?jobon_id={jobOnId}"));
-        // A zona mostra o MF sem gargalo e nenhum aviso de dados em falta (os
-        // avisos da casa levam role="status" ou role="alert"). O aviso do
-        // Armazém (não registada, sem estado; Diogo 21/10) é outro e sai da conta.
-        var ferramentas = SemAvisoDoArmazem(FerramentasUsadas(html));
-        Assert.Contains("Molde final 5810 · lote 1", ferramentas);
-        Assert.DoesNotContain("role=\"status\"", ferramentas);
-        Assert.DoesNotContain("role=\"alert\"", ferramentas);
-        Assert.DoesNotContain("/Ferramentas/Ficha?tool_id=", html);
+        using var client = await LoginClientAsync("4597", "JobTecnica1!");
+        var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
 
-        using (var scope = _factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            var template = db.Templates.Single(t => t.TemplateKey == "tpl-test-planejador");
-            template.Capabilities = template.Capabilities.Append(DmoCapabilities.Ferramentas).ToArray();
-            db.SaveChanges();
-        }
-        using var comFerramentas = await LoginClientAsync("4597", "JobTecnica1!");
-        var comLink = WebUtility.HtmlDecode(await GetPageHtmlAsync(comFerramentas, $"{PagePath}?jobon_id={jobOnId}"));
-        var fichaMf = $"/Ferramentas/Ficha?tool_id=MF-TOOL-9&tecnica=1&continuar=%2FJobOn%3Fjobon_id%3D{jobOnId}";
-        Assert.Contains($"<a class=\"jobon-ferramenta-link\" href=\"{fichaMf}\"", comLink);
-        Assert.DoesNotContain(">Completar</a>", comLink);
-        Assert.Contains("/Ferramentas/Ficha?tool_id=T3&tecnica=1", comLink);
-        var ferramentasComLink = SemAvisoDoArmazem(FerramentasUsadas(comLink));
-        Assert.Contains($"href=\"{fichaMf}\"", ferramentasComLink);
-        Assert.DoesNotContain("role=\"status\"", ferramentasComLink);
-        Assert.DoesNotContain("role=\"alert\"", ferramentasComLink);
-    }
-
-    /// <summary>
-    /// A zona «Ferramentas usadas» da ficha: a grelha a seguir ao título. Não
-    /// tem id nem data-*, por isso encontra-se pelo título que o operador lê.
-    /// </summary>
-    private static string FerramentasUsadas(string html)
-    {
-        var titulo = html.IndexOf(">Ferramentas usadas</h3>", StringComparison.Ordinal);
-        Assert.True(titulo >= 0, "A ficha não tem a zona «Ferramentas usadas».");
-        return ElementoAteAoFecho(html, html.IndexOf("<div", titulo, StringComparison.Ordinal), "div");
-    }
-
-    /// <summary>O elemento que abre em <paramref name="inicio"/>, até ao seu fecho (conta os aninhados).</summary>
-    private static string ElementoAteAoFecho(string html, int inicio, string tag)
-    {
-        var nivel = 0;
-        foreach (Match m in Regex.Matches(html[inicio..], $"<{tag}\\b|</{tag}>"))
-        {
-            nivel += m.Value == $"</{tag}>" ? -1 : 1;
-            if (nivel == 0)
-            {
-                return html.Substring(inicio, m.Index + m.Length);
-            }
-        }
-
-        throw new InvalidOperationException($"Um <{tag}> da página ficou por fechar.");
+        var mf = html[html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal)..];
+        mf = SemAvisoDoArmazem(mf[..mf.IndexOf("</article>", StringComparison.Ordinal)]);
+        Assert.Contains("aria-label=\"Molde final 5810 lote 1\"", mf);
+        Assert.Contains("data-jof-ficha=\"/Ferramentas/Ficha?tool_id=MF-TOOL-9\"", mf);
+        Assert.DoesNotContain("role=\"status\"", mf);
+        Assert.DoesNotContain("role=\"alert\"", mf);
+        Assert.DoesNotContain(">Completar</a>", html);
     }
 
     [Fact]
@@ -639,47 +614,30 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         SeedUser("4501", "Planejador", "provider-ficha-1", "FichaPass1!");
         using var client = await LoginClientAsync("4501", "FichaPass1!");
 
+        // Desde 23/10/2026 a ficha é a folha nova (Diogo: «esta versão do Job
+        // On já não deveria existir»): a referência, o nº, a calote no TP e
+        // as ações; os dados técnicos das ferramentas ficam no Editar.
         var html = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
 
-        Assert.Contains("Ficha da produção", html);
-        Assert.Contains("Ficha da produção", html); Assert.Contains(">1075C142</strong>", html); Assert.Contains(">202601</strong>", html);
-        Assert.DoesNotContain("Calote desta produção (mm)", html); // «Preparar produção» só no Editar
-        Assert.Contains(">9.5 mm</strong>", html);      // o facto da calote (2 casas pt-PT)
+        Assert.DoesNotContain("Ficha da produção", html);
+        Assert.Contains("data-jof-folha=\"bloqueada\"", html);
+        Assert.Contains("aria-label=\"Folha do Job On 202601\"", html);
+        Assert.Contains("value=\"/JobOn/Folha?jobon_id=" + jobOnId + "\" selected=\"selected\">202601", html);
+        Assert.DoesNotContain("Calote desta produção (mm)", html); // só no Editar
+        var tp = html[html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal)..];
+        Assert.Contains("9.5", tp[..tp.IndexOf("</article>", StringComparison.Ordinal)]);   // o facto da calote
 
-        // AS AÇÕES do job-sheet do dmo-html.
+        // AS AÇÕES: Editar, Duplicar e o Controlo (nas Opções), que abre o Resumo.
         Assert.Contains(">Editar</a>", html); Assert.DoesNotContain("Abrir Resumo", html); Assert.DoesNotContain("Abrir Peso", html); Assert.DoesNotContain("Abrir Pegamentos", html);
-        Assert.Contains(">Duplicar Job On</a>", html);
+        Assert.Contains("data-jof-duplicar>Duplicar</a>", html);
         Assert.DoesNotContain(">Duplicar lote</a>", html);
         Assert.Contains(">Controlo</a>", html);
-        
-        
-        // O BOTÃO [Controlo] é UM SÓ e abre o RESUMO do controlo desta
-        // produção (a DECISÃO DO OWNER, verbatim: «abrir resumo, peso e
-        // pegamentos é redundante, só precisa abrir resumo e depois ver peso e
-        // pegamentos... já sabemos que vai abrir o resumo do controlo para este
-        // jobon, e lá vemos o peso e pegamentos»): o controlo_id NÃO viaja no
-        // URL da ficha — quem o procura é o Resumo. A afirmação anterior
-        // (/Controlo/Peso?controlo_id=N) era a pré-história e contradizia o
-        // DoesNotContain(«Abrir Peso») três linhas acima.
         Assert.Contains($"/Controlo/Resumo?jobon_id={jobOnId}", html, StringComparison.Ordinal);
         Assert.DoesNotContain($"/Controlo/Peso?controlo_id={controloId}", html, StringComparison.Ordinal);
-
-        // AS FERRAMENTAS USADAS (os contextos registados) com os fatos
-        // técnicos que os controlos consomem.
-        Assert.Contains("Ferramentas usadas</h3>", html);
+        Assert.Contains("data-jof-tool-ref>5447</b>", html);
+        Assert.Contains("data-jof-tool-lote>3</b>", html);
         Assert.DoesNotContain("Histórico de alterações", html);
         Assert.DoesNotContain("Aplicável agora", html); Assert.DoesNotContain("Contextos registados", html);
-        Assert.Contains("5447 · lote 3", html);
-        
-        Assert.Contains("NNPB", html);
-        Assert.Contains("Punção <b", html);
-        Assert.Contains("30 cm³", html);
-        Assert.Contains("TP: D <b", html);
-        Assert.Contains("24.11 mm", html);
-        Assert.Contains("Marisa <b", html);
-        Assert.Contains("10 cm³", html);
-        Assert.Contains("800 peças", html);
-        Assert.Contains("Gargalo nominal <b", html);
 
         // OS AVISOS INFORMATIVOS (nunca bloqueiam) só ao associar (o Diogo,
         // 17/10/2026: ao abrir um Job On pelo calendário não aparecem). A
@@ -698,7 +656,6 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.True(Posicao(edicao, "id=\"lightToolWarnings\"")
             > Posicao(edicao, "<details class=\"jobon-mais-detalhes\">"));
         Assert.DoesNotContain("role=\"status\" style=\"margin:0\"", edicao);
-        Assert.Contains("<span>TP Calote</span>", html);
 
         // Os ids fora das folhas (o tool_id nunca é facto da folha).
         Assert.DoesNotContain(">T3<", html);
@@ -1285,27 +1242,25 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     {
         // A decisão do Owner 14/10: a colocação em máquina segue AS DATAS
         // do Job On — a ficha NUNCA traz a colocação manual nem o retirar
-        // do planeamento.
-        var (jobOnId, _, b1Id, _) = await SeedFichaAsync();
+        // do planeamento. Desde 23/10/2026 a ficha é a folha nova, bloqueada.
+        var (jobOnId, _, _, _) = await SeedFichaAsync();
         SeedUser("4506", "Planejador", "provider-ficha-6", "FichaPass6!");
         using var client = await LoginClientAsync("4506", "FichaPass6!");
 
         var html = await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
 
-        // A ficha (#lightFicha) está desenhada, com as ações nas Opções...
-        var marca = html.IndexOf("id=\"lightFicha\"", StringComparison.Ordinal);
-        Assert.True(marca >= 0, "A ficha da produção não aparece.");
-        var ficha = ElementoAteAoFecho(html, html.LastIndexOf("<section", marca, StringComparison.Ordinal), "section");
-        Assert.Contains("202601", ficha);
-        Assert.Contains(">Editar</a>", ficha);
-        // ...e nenhuma grava a partir dela: colocar, substituir ou retirar
-        // seria um envio daqui, e a ficha não tem formulário nem botão de envio.
-        Assert.DoesNotContain("<form", ficha);
-        Assert.DoesNotContain("<button", ficha);
-        Assert.DoesNotContain("type=\"submit\"", ficha);
-        Assert.DoesNotContain("Colocar na máquina", ficha);
-        Assert.DoesNotContain("Substituir na máquina", ficha);
-        Assert.DoesNotContain("Retirar do planeamento", ficha);
+        Assert.Contains("data-jof-folha=\"bloqueada\"", html);
+        Assert.Contains("202601", html);
+        Assert.Contains(">Editar</a>", html);
+        Assert.DoesNotContain("id=\"lightFicha\"", html);
+        // Bloqueada, nada grava a partir dela: sem Guardar nem envio.
+        Assert.DoesNotContain("data-jof-guardar", html);
+        // (O único envio é o «Eliminar» da janela de confirmação, fora da folha.)
+        var dialogo = html.IndexOf("<dialog", StringComparison.Ordinal);
+        Assert.DoesNotContain("type=\"submit\"", dialogo >= 0 ? html[..dialogo] : html);
+        Assert.DoesNotContain("Colocar na máquina", html);
+        Assert.DoesNotContain("Substituir na máquina", html);
+        Assert.DoesNotContain("Retirar do planeamento", html);
     }
     [Fact]
     public async Task Editar_RegistaOQueMudou_EAFichaMostraAAcao()
@@ -1328,7 +1283,8 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         // Menos botões (o Diogo, 17/10/2026): sem separadores; à vista só o
         // Editar, e o Controlo passa para as Opções.
         Assert.DoesNotContain("jobon-ficha-tabs", antes);
-        Assert.Contains("<a class=\"dmo-options-item\" href=\"/Controlo/Resumo?jobon_id=" + jobOnId + "\">Controlo</a>", antes);
+        // A ficha é a folha nova (Diogo, 23/10/2026): o Controlo nas Opções dela.
+        Assert.Contains("<a href=\"/Controlo/Resumo?jobon_id=" + jobOnId + "\">Controlo</a>", antes);
 
         var inicio = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(-3);
         var token = await GetVerificationTokenAsync(client, $"{PagePath}?jobon_id={jobOnId}&editar=1");
@@ -1539,7 +1495,8 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     [Fact]
     public async Task Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura()
     {
-        // Diogo, 21/10/2026: «no Job On também mostrar o % uso».
+        // Diogo, 21/10/2026: «no Job On também mostrar o % uso». Na folha nova
+        // (23/10/2026) a última leitura é a marca «antes» da utilização.
         var (jobOnId, _, _, _) = await SeedFichaAsync();
         SeedUser("4599", "Planejador", "provider-jobon-uso", "JobUso1!");
         using (var scope = _factory.Services.CreateScope())
@@ -1554,11 +1511,13 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         try
         {
             using var client = await LoginClientAsync("4599", "JobUso1!");
-            var ferramentas = WebUtility.HtmlDecode(FerramentasUsadas(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}")));
+            var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
 
-            // Só a CM tem leitura: um só «Uso», com a mais recente.
-            var usos = System.Text.RegularExpressions.Regex.Matches(ferramentas, "<p[^>]*data-dmo-uso[^>]*>Uso <b[^>]*>([^<]*)</b></p>");
-            Assert.Equal("33.5 %", Assert.Single(usos).Groups[1].Value);
+            // Só a CM tem leitura: um só «antes», com a mais recente.
+            var usos = Regex.Matches(html, "<em class=\"was\" title=\"A última leitura do uso\">antes ([^<]*)</em>");
+            Assert.Equal("33.5%", Assert.Single(usos).Groups[1].Value);
+            Assert.True(usos[0].Index > html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal));
+            Assert.True(usos[0].Index < html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal));
         }
         finally
         {
@@ -1573,7 +1532,9 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     public async Task Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto()
     {
         // Diogo 21/10 (FER-E-03): a ferramenta não registada no Armazém ou
-        // sem estado só avisa, com o link para os movimentos dela.
+        // sem estado só avisa, com o link para a ficha dela. Com a ficha
+        // antiga fora (23/10/2026) passa para a folha, por baixo da cabeça
+        // de cada ferramenta: nada se perde.
         var (jobOnId, _, _, _) = await SeedFichaAsync();
         SeedUser("4598", "Planejador", "provider-jobon-armazem", "JobArmazem1!");
         using (var scope = _factory.Services.CreateScope())
@@ -1598,12 +1559,17 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         try
         {
             using var client = await LoginClientAsync("4598", "JobArmazem1!");
-            var ferramentas = WebUtility.HtmlDecode(FerramentasUsadas(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}")));
+            var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"/JobOn/Folha?jobon_id={jobOnId}"));
+            var cm = html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal);
+            var mf = html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal);
+            var onde = html.IndexOf("Armazém · posição 1033 · Reparado", StringComparison.Ordinal);
+            var aviso = html.IndexOf("MF 5810 / lote 1 não está registada no Armazém e não tem estado.", StringComparison.Ordinal);
 
-            Assert.Contains("Armazém · posição 1033 · Reparado", ferramentas);
-            Assert.Contains("MF 5810 / lote 1 não está registada no Armazém e não tem estado.", ferramentas);
-            Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=MF-TOOL-9\"", ferramentas);
-            Assert.DoesNotContain("CM 5447 / lote 3 não", ferramentas);
+            // Na CM, compacto, junto da ferramenta; o aviso da MF na MF, com o link.
+            Assert.True(cm >= 0 && onde > cm && onde < mf);
+            Assert.True(aviso > mf);
+            Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=MF-TOOL-9\"", html);
+            Assert.DoesNotContain("CM 5447 / lote 3 não", html);
         }
         finally
         {

@@ -168,6 +168,16 @@
               <span class="tool-hint"><span class="dmo-caret" aria-hidden="true"></span> <span class="hint-txt">Trocar</span></span>
             }
           </button>
+          @* Onde está pelo Armazém e o estado; sem registo, só um aviso com o link
+             (Diogo 21/10, FER-E-03; veio da ficha antiga, nada se perde). *@
+          @if (f?.OndeEsta is { } ondeEsta)
+          {
+            <p class="jof-onde" data-dmo-onde-esta>@ondeEsta@(f.Estado is { } estado ? " · " + DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado) : null)</p>
+          }
+          @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
+          {
+            <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem@{ var link = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Registar na ferramenta"); }@if (link.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@link.Href">@link.Texto</a>}</div>
+          }
           @if (editar)
           {
             <div class="jof-tool-procura" data-jof-tool-procura hidden>
@@ -304,9 +314,10 @@ else
   {
     <div class="jof2-gaveta">
       <div class="rail-backdrop" data-jof-rail-fundo hidden></div>
-      <aside class="rail" id="jofRail" aria-label="O que vai entrar" aria-hidden="true" inert data-jof-rail>
-        <div class="rail-head"><div><strong>O que vai entrar</strong><span>As produções em curso e as que entram esta semana</span></div><button class="rail-close" type="button" data-jof-rail-fechar aria-label="Esconder o painel">×</button></div>
-        <a class="rail-voltar" href="@Model.PlaneamentoHref">‹ Planeamento</a>
+      @* O cabeçalho do painel é só «Planeamento», um link para o Planeamento
+         (Diogo, 23/10/2026); o × continua a fechar a gaveta. *@
+      <aside class="rail" id="jofRail" aria-label="Planeamento" aria-hidden="true" inert data-jof-rail>
+        <div class="rail-head"><a class="rail-voltar" href="@FolhaModel.PlaneamentoHref">Planeamento</a><button class="rail-close" type="button" data-jof-rail-fechar aria-label="Esconder o painel">×</button></div>
         <div class="rail-list">
           @if (Model.ProximasEntradas.Count == 0)
           {
@@ -321,9 +332,20 @@ else
       </aside>
     </div>
   }
-  <form class="jof2-form" id="@(editar ? "lightForm" : "jofLeitura")" method="post" asp-page="/JobOn/Index" asp-page-handler="Update"
-        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jobon-rascunho="@(editar ? $"editar:{jobOn.JobOnId}" : null)" aria-label="Folha do Job On @jobOn.ProductionNumber">
-    @if (editar)
+  @* O Criar e o Duplicar guardam pelo mesmo Create do Planeamento (as
+     mesmas recusas tipadas) e voltam a esta folha (Diogo, 23/10/2026). *@
+  var rascunho = !editar ? null : Model.Criar ? (Model.DuplicarDe is { } origemRascunho ? $"duplicar:{origemRascunho}" : "novo") : $"editar:{jobOn.JobOnId}";
+  <form class="jof2-form" id="@(editar ? "lightForm" : "jofLeitura")" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.Criar ? "Create" : "Update")"
+        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jof-criar="@(Model.Criar ? "true" : null)" data-jobon-rascunho="@rascunho" aria-label="@(Model.Criar ? "Folha do Job On novo" : $"Folha do Job On {jobOn.ProductionNumber}")">
+    @if (Model.Criar)
+    {
+      <input type="hidden" name="voltar" value="folha" />
+      @if (Model.DuplicarDe is { } origemDuplicar)
+      {
+        <input type="hidden" name="duplicar_de" value="@origemDuplicar" />
+      }
+    }
+    else if (editar)
     {
       <input type="hidden" name="jobon_edit_id" value="@jobOn.JobOnId" />
       <input type="hidden" name="versao" value="@jobOn.Version" />
@@ -338,6 +360,10 @@ else
           @if (editar)
           {
             <select class="f" id="lightMachine" name="machine_id" aria-label="Linha">
+              @if (Model.Criar)
+              {
+                <option value="" selected="@(Model.Machines.Any(m => m.Code == jobOn.Machine) ? null : "selected")">Linha</option>
+              }
               @foreach (var m in Model.Machines)
               {
                 <option value="@m.MachineId" selected="@(m.Code == jobOn.Machine ? "selected" : null)">@m.Code</option>
@@ -379,14 +405,20 @@ else
       </div>
       <div class="head-right">
         <div class="pick-block">
-          <span class="eyebrow">@(editar ? $"A editar · {jobOn.ProductionNumber}" : "Ficha de moldes")</span>
+          <span class="eyebrow">@(Model.Criar ? (Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On") : editar ? $"A editar · {jobOn.ProductionNumber}" : "Ficha de moldes")</span>
           <h1 class="sr-only">@Model.ReferenciaTotal</h1>
           <div class="pick-row">
             @if (!editar)
             {
-              <button class="btn rail-toggle" type="button" data-jof-rail-abrir aria-expanded="false" aria-controls="jofRail" title="O que vai entrar: as produções desta semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg><span class="rail-toggle-txt">Linhas</span><span class="count">@Model.ProximasEntradas.Count</span></button>
+              <button class="btn rail-toggle" type="button" data-jof-rail-abrir aria-expanded="false" aria-controls="jofRail" title="Planeamento: as produções desta semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg><span class="rail-toggle-txt">Linhas</span><span class="count">@Model.ProximasEntradas.Count</span></button>
             }
-            @if (editar)
+            @if (Model.Criar)
+            {
+              @* No Criar e no Duplicar escrevem-se a referência e o nº da produção nova. *@
+              <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input id="lightReference" name="reference" type="text" value="@jobOn.Reference" aria-label="Referência da produção" placeholder="Referência" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-maiusculas data-dmo-suggest="referencias" /></div>
+              <input class="prod-select" id="lightProduction" name="production_number" type="text" value="@(Model.NumeroEscrito ?? string.Empty)" aria-label="Número da produção" placeholder="N.º de produção" autocomplete="off" />
+            }
+            else if (editar)
             {
               <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input type="search" value="@Model.ReferenciaTotal" aria-label="Referência" disabled /></div>
               <select class="prod-select" aria-label="Produção desta referência" disabled><option>@jobOn.ProductionNumber · @jobOn.Machine</option></select>
@@ -416,7 +448,7 @@ else
               @if (Model.PodeEditar)
               {
                 <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
-                <a class="btn" href="/JobOn?jobon_id=@jobOn.JobOnId&amp;duplicar=1" data-jof-duplicar>Duplicar</a>
+                <a class="btn" href="@Model.DuplicarHref" data-jof-duplicar>Duplicar</a>
                 <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
               }
                 @* Só a chefia (Job On criar) tem as Opções; quem só tem «Job On ver» não vê o Controlo, as Boquilhas nem a Reparação (Diogo, 23/10/2026). *@
@@ -430,6 +462,10 @@ else
                         <a href="/Controlo/Resumo?jobon_id=@jobOn.JobOnId">Controlo</a>
                       }
                       <a href="/JobOn/Reparacao?jobon_id=@jobOn.JobOnId">Reparação</a>
+                      @if (Model.Eliminar is not null)
+                      {
+                        <a href="#jobon-delete-dialog" role="button" data-dmo-dialog="jobon-delete-dialog">Eliminar Job On</a>
+                      }
                     @* BQs: o registo da BQ desta produção (bq_id = o contexto da BQ do Job On, o filtro por Job On que as Boquilhas já têm). *@
                     @if (Model.VeBoquilhas && jobOn.BqId is { } bqId)
                     {
@@ -444,7 +480,7 @@ else
         @if (editar)
         {
           <div class="head-tools">
-            <a class="btn" href="@Model.Href()">Cancelar</a>
+            <a class="btn" href="@Model.CancelarHref">Cancelar</a>
             <button class="btn" type="submit" data-jof-guardar>Guardar</button>
           </div>
         }
@@ -452,14 +488,53 @@ else
       </div>
     </div>
 
+    @* O QUE MUDOU desde o início (veio da ficha antiga do Planeamento, Diogo
+       23/10/2026): fechado; os avisos dos módulos (?vista=alteracoes) abrem-no. *@
+    @if (Model.Resumo.Count > 0)
+    {
+      <details class="jobon-mudancas" id="fichaMudancas" open="@Model.VistaAlteracoes">
+        <summary><span class="dmo-caret" aria-hidden="true"></span>O que mudou desde o início (@Model.Resumo.Count @(Model.Resumo.Count == 1 ? "alteração" : "alterações"))</summary>
+        <ul class="jobon-resumo" aria-label="O que mudou">
+          @foreach (var entrada in Model.Resumo)
+          {
+            <li>
+              <div>
+                <strong>@entrada.Text</strong>
+                <span>@entrada.When@(entrada.Who is { } quemMudou ? " · " + quemMudou : "")</span>
+              </div>
+              @if (entrada.ActionHref is { } acaoHref)
+              {
+                <a class="dmo-button" href="@acaoHref">@entrada.ActionLabel</a>
+              }
+            </li>
+          }
+        </ul>
+      </details>
+    }
+    @if (Model.RecusaCriar is { } recusaCriar)
+    {
+      <div data-dmo-toast="erro" class="jobon-aviso" role="alert" data-jof-recusa>@recusaCriar</div>
+    }
     @if (Model.Gravado)
     {
       <div data-dmo-toast="ok" role="status">Job On guardado.</div>
     }
-    @foreach (var aviso in Model.AvisosGravacao)
-    {
-      <div class="jobon-aviso warn" role="status">@aviso</div>
-    }
+    @* Os avisos da gravação, os mesmos do Planeamento (Diogo, 23/10/2026). *@
+    <div id="jobonAvisos">
+      @if (Model.AvisoSobreposicao is { } sobreposicao)
+      {
+        <div class="jobon-aviso warn" role="status">@sobreposicao.Message@foreach (var conflito in sobreposicao.Conflicts)
+          {<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.JobOn(conflito.JobOnId, $"Editar {conflito.Reference} · nº {conflito.ProductionNumber}", editar: true)" />}</div>
+      }
+      @if (Model.AvisoCalote is { } avisoCalote)
+      {
+        <div data-dmo-toast="aviso" role="status">@avisoCalote<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.JobOn(jobOn.JobOnId, "Editar a calote", editar: true)" /></div>
+      }
+      @if (Model.AvisoFimAntesDoInicio is { } avisoFim)
+      {
+        <div data-dmo-toast="aviso" role="status">@avisoFim<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.JobOn(jobOn.JobOnId, "Editar as datas", editar: true)" /></div>
+      }
+    </div>
     @if (Model.Faltam.Count > 0)
     {
       <div class="jobon-aviso warn" role="status" data-jof-falta>Falta @string.Join(", ", Model.Faltam): o Job On precisa de CM, MF e BQ.@(editar ? " Clique no cartão para escolher." : null)</div>
@@ -471,16 +546,16 @@ else
 
     <div class="sheet">
       <div class="sheet-main"><div class="zones">
-        <section class="group g-moldes" aria-labelledby="hMoldes">
-          <div class="group-head"><h2 id="hMoldes">Moldes</h2></div>
+        @* Sem os títulos dos grupos (Moldes, Gargalo, Sopro, Calibres; Diogo,
+           23/10/2026): os códigos dos cartões já dizem o que é. *@
+        <section class="group g-moldes" aria-label="Moldes">
           <div class="board" id="gMoldes">
             @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
             @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
           </div>
         </section>
         <div class="col3">
-          <section class="group g-gargalo" aria-labelledby="hGargalo">
-            <div class="group-head"><h2 id="hGargalo">Gargalo</h2></div>
+          <section class="group g-gargalo" aria-label="Gargalo">
             <div class="board" id="gGargalo">
               <article class="card pair"><div class="pair-in">
                 <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
@@ -505,15 +580,13 @@ else
             </div>
           </section>
         </div>
-        <section class="group g-sopro" aria-labelledby="hSopro">
-          <div class="group-head"><h2 id="hSopro">Sopro</h2></div>
+        <section class="group g-sopro" aria-label="Sopro">
           <div class="board" id="gSopro">
-            <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro PS", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
+            <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
             <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock"), ("QTD máq.", "cs_qtd_maq")]); }</article>
           </div>
         </section>
-        <section class="group g-cal" aria-labelledby="hCal">
-          <div class="group-head"><h2 id="hCal">Calibres</h2></div>
+        <section class="group g-cal" aria-label="Calibres">
           <div class="board" id="gCal">
             @{ var linhas = Model.Folha.Cal.Where(l => editar || (!l.Extra && (Vazio(l.Valor) is not null || Vazio(l.QtdMaq) is not null))).ToList(); }
             <article class="card sec span-all cal-card">
@@ -627,6 +700,10 @@ else
   @if (!editar)
   {
     <form id="jofProcura" method="get" action="/JobOn/Folha" hidden></form>
+    @if (Model.Eliminar is { } eliminar)
+    {
+      <partial name="_JobOnEliminar" model="eliminar" />
+    }
   }
 }
 @section Scripts {

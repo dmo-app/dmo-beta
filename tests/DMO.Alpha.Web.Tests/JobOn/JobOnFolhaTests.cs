@@ -127,6 +127,14 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     private static async Task<string> HtmlAsync(HttpClient client, string url)
     {
         var response = await client.GetAsync(url);
+        // A ficha antiga do Planeamento deixou de existir (Diogo, 23/10/2026):
+        // /JobOn?jobon_id=N leva à folha nova, que é a página que se lê.
+        if (response.StatusCode == HttpStatusCode.Redirect
+            && response.Headers.Location?.ToString() is { } folha
+            && folha.StartsWith("/JobOn/Folha", StringComparison.Ordinal))
+        {
+            response = await client.GetAsync(folha);
+        }
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
     }
@@ -371,43 +379,12 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Equal(HttpStatusCode.Redirect, (await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos))).StatusCode);
     }
 
-    /// <summary>A folha na ficha em leitura (#fichaFolha); falha quando não existe.</summary>
-    private static string FolhaNaFicha(string html) => Controlo.PesoZonas.Zona(html, "fichaFolha");
-
-    /// <summary>A família da folha na ficha, até ao seu fecho; null quando a família não aparece.</summary>
-    private static string? FamiliaNaFicha(string zona, string familia)
-    {
-        var abertura = Regex.Match(zona, $"<section\\b[^>]*\\bdata-jobon-ficha-familia=\"{Regex.Escape(familia)}\"");
-        if (!abertura.Success)
-        {
-            return null;
-        }
-
-        var nivel = 0;
-        foreach (Match m in Regex.Matches(zona[abertura.Index..], "<section\\b|</section>"))
-        {
-            nivel += m.Value == "</section>" ? -1 : 1;
-            if (nivel == 0)
-            {
-                return zona.Substring(abertura.Index, m.Index + m.Length);
-            }
-        }
-
-        throw new InvalidOperationException($"A família {familia} da ficha ficou por fechar.");
-    }
-
-    /// <summary>Os campos de uma família na ficha, como o operador os lê: (rótulo, valor), pela ordem.</summary>
-    private static IReadOnlyList<(string Rotulo, string Valor)> CamposNaFicha(string zona, string familia)
-    {
-        var secao = FamiliaNaFicha(zona, familia);
-        Assert.True(secao is not null, $"A ficha não mostra a família {familia}.");
-        return Regex.Matches(secao!, "<dt\\b[^>]*>(?<r>.*?)</dt>\\s*<dd>(?<v>.*?)</dd>", RegexOptions.Singleline)
-            .Select(m => (WebUtility.HtmlDecode(m.Groups["r"].Value), WebUtility.HtmlDecode(m.Groups["v"].Value).Replace("\r\n", "\n")))
-            .ToList();
-    }
-
+    // A FICHA ANTIGA SAIU (Diogo, 23/10/2026: «esta versão do Job On já não
+    // deveria existir»): a folha da fábrica lê-se na folha nova (/JobOn/Folha),
+    // bloqueada. Os três testes seguintes liam a zona #fichaFolha da ficha
+    // antiga; agora leem o mesmo na folha nova.
     [Fact]
-    public async Task Ficha_MostraSoAsFamiliasEOsCamposEscritos_ComAQtdStockEAQtdMaq()
+    public async Task Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada()
     {
         var (jobOnId, _) = await SeedJobOnAsync();
         using var client = await EntrarAsync("4706");
@@ -420,32 +397,27 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             ("jobon-tp-qtd-maq", "2"),
             ("jobon-notas-gerais", "Emparelhar MF+FF"));
 
-        var zona = FolhaNaFicha(await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
+        var html = WebUtility.HtmlDecode(await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
 
-        // Só os campos escritos, pela ordem da folha (as notas no fim da
-        // família), com a QTD Stock e a QTD Máq. à vista; sem «—» nos vazios.
-        Assert.Equal(
-            [("QTD Stock", "12"), ("QTD Máq.", "4"), ("Tol. diâm. pata (mm)", "0.05"), ("Notas", "Polir a pata\nVer folga")],
-            CamposNaFicha(zona, "CM"));
-        Assert.Equal([("QTD Máq.", "2")], CamposNaFicha(zona, "TP"));
-        Assert.Equal([("Secções", "11")], CamposNaFicha(zona, "Cabeçalho"));
-        Assert.Equal([("Notas gerais", "Emparelhar MF+FF")], CamposNaFicha(zona, "Notas gerais"));
-        Assert.DoesNotContain("—", zona);
-
-        // As famílias sem nada escrito não aparecem, nem a CAL sem linhas gravadas.
-        foreach (var vazia in new[] { "MF", "CS", "BQ", "AN", "PU", "ARR", "PI", "CAL" })
-        {
-            Assert.Null(FamiliaNaFicha(zona, vazia));
-        }
-
-        Assert.DoesNotContain(FichaDaFolhaVista.SemNadaEscrito, zona);
-        // Em leitura: nada se escreve na ficha.
-        Assert.DoesNotContain("<input", zona);
-        Assert.DoesNotContain("<textarea", zona);
+        Assert.Contains("data-jof-folha=\"bloqueada\"", html);
+        Assert.DoesNotContain("id=\"fichaFolha\"", html);
+        Assert.Contains("<strong>11</strong>", html);   // Secções, no cabeçalho
+        var cm = html[html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal)..];
+        cm = cm[..cm.IndexOf("</article>", StringComparison.Ordinal)];
+        Assert.Contains("Polir a pata", cm);
+        Assert.Contains("<dt>Stock</dt><dd>12</dd>", cm);
+        Assert.Contains("<dt>QTD máq.</dt><dd>4</dd>", cm);
+        Assert.Contains("0.05", cm);
+        var tp = html[html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal)..];
+        tp = tp[..tp.IndexOf("</article>", StringComparison.Ordinal)];
+        Assert.Contains("<dt>QTD máq.</dt><dd>2</dd>", tp);
+        Assert.Contains("<li class=\"view\">Emparelhar MF+FF</li>", html);
+        // Bloqueada: nada se escreve.
+        Assert.DoesNotContain("name=\"Folha.", html);
     }
 
     [Fact]
-    public async Task Ficha_ACalMostraAsLinhasGravadas_ComAQtdMaq()
+    public async Task Folha_ACalMostraAsLinhasGravadas_ComAQtdMaq_NaFolhaNova()
     {
         var (jobOnId, _) = await SeedJobOnAsync();
         using var client = await EntrarAsync("4707");
@@ -456,32 +428,29 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             ("jobon-cal-2-designacao", "Tampão novo"),
             ("jobon-cal-2-qtd-maq", "1"));
 
-        var zona = FolhaNaFicha(await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
-
-        var cal = FamiliaNaFicha(zona, "CAL");
-        Assert.True(cal is not null, "A ficha não mostra a CAL.");
-        Assert.Contains(">QTD Máq.</th>", cal);
-        var linhas = Regex.Matches(cal!, "<tr data-jobon-ficha-cal>(?<l>.*?)</tr>", RegexOptions.Singleline)
-            .Select(l => Regex.Matches(l.Groups["l"].Value, "<td>(?<c>.*?)</td>").Select(c => WebUtility.HtmlDecode(c.Groups["c"].Value)).ToList())
-            .Select(c => (c[0], c[1], c[2]))
+        var html = WebUtility.HtmlDecode(await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
+        var cal = html[html.IndexOf("data-jof-cal", StringComparison.Ordinal)..];
+        cal = cal[..cal.IndexOf("</table>", StringComparison.Ordinal)];
+        var linhas = Regex.Matches(cal, "<tr>\\s*<th scope=\"row\">\\s*(?<d>.*?)\\s*</th>\\s*<td>(?<v>.*?)</td>\\s*<td>(?<q>.*?)</td>", RegexOptions.Singleline)
+            .Select(m => (m.Groups["d"].Value.Trim(), m.Groups["v"].Value.Trim(), m.Groups["q"].Value.Trim()))
             .ToList();
-        // As três linhas gravadas, pela ordem; as cinco medidas por omissão por escrever não.
-        Assert.Equal([("Bucha Marcada", "8151", "3"), ("CS P Interna", "2,5", ""), ("Tampão novo", "", "1")], linhas);
-        // O PI, o par da CAL, não tem nada escrito e não aparece.
-        Assert.Null(FamiliaNaFicha(zona, "PI"));
+        // As três linhas gravadas, pela ordem; as medidas por omissão por escrever não aparecem.
+        Assert.Equal([("Bucha Marcada", "8151", "3"), ("CS P Interna", "2,5", "—"), ("Tampão novo", "—", "1")], linhas);
     }
 
     [Fact]
-    public async Task Ficha_SemNadaEscritoNaFolha_DizSoIssoComOEditar()
+    public async Task Folha_SemNadaEscrito_MostraOsVaziosEOEditar_SemAFichaAntiga()
     {
         var (jobOnId, _) = await SeedJobOnAsync();
         using var client = await EntrarAsync("4708");
 
-        var zona = FolhaNaFicha(await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
+        var html = await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
 
-        Assert.Contains(FichaDaFolhaVista.SemNadaEscrito, zona);
-        Assert.Contains($"href=\"/JobOn?jobon_id={jobOnId}&amp;editar=1#lightSheet\">Editar</a>", zona);
-        Assert.DoesNotContain("data-jobon-ficha-familia", zona);
+        Assert.DoesNotContain("id=\"fichaFolha\"", html);
+        Assert.DoesNotContain(FichaDaFolhaVista.SemNadaEscrito, html);
+        Assert.Contains("Sem calibres escritos.", html);
+        Assert.Contains("<li class=\"view empty-text\">Sem notas.</li>", html);
+        Assert.Contains($"href=\"/JobOn/Folha?jobon_id={jobOnId}&amp;editar=1\" data-jof-editar>Editar</a>", html);
     }
 
     /// <summary>O texto do aviso de recusa da folha (data-dmo-toast="erro").</summary>

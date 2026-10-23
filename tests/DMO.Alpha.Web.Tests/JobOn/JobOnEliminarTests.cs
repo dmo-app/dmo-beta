@@ -87,6 +87,14 @@ public class JobOnEliminarTests : IClassFixture<CustomWebApplicationFactory>, ID
     private static async Task<string> PageAsync(HttpClient client, string url)
     {
         var response = await client.GetAsync(url);
+        // A ficha antiga do Planeamento deixou de existir (Diogo, 23/10/2026):
+        // /JobOn?jobon_id=N leva à folha nova, que é a página que se lê.
+        if (response.StatusCode == HttpStatusCode.Redirect
+            && response.Headers.Location?.ToString() is { } folha
+            && folha.StartsWith("/JobOn/Folha", StringComparison.Ordinal))
+        {
+            response = await client.GetAsync(folha);
+        }
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
     }
