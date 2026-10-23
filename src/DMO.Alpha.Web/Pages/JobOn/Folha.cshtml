@@ -510,12 +510,26 @@ else
        23/10/2026): fechado; os avisos dos módulos (?vista=alteracoes) abrem-no. *@
     @if (Model.Resumo.Count > 0)
     {
+      var removidas = Model.Resumo.Count - Model.ResumoAtivas;
       <details class="jobon-mudancas" id="fichaMudancas" open="@Model.VistaAlteracoes">
-        <summary><span class="dmo-caret" aria-hidden="true"></span>O que mudou desde o início (@Model.Resumo.Count @(Model.Resumo.Count == 1 ? "alteração" : "alterações"))</summary>
+        <summary><span class="dmo-caret" aria-hidden="true"></span>O que mudou desde o início (@Model.ResumoAtivas @(Model.ResumoAtivas == 1 ? "alteração" : "alterações")@(removidas > 0 ? $" · {removidas} {(removidas == 1 ? "removida" : "removidas")}" : ""))</summary>
         <ul class="jobon-resumo" aria-label="O que mudou">
           @foreach (var entrada in Model.Resumo)
           {
-            <li>
+            @* REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa alteração
+               abre a janela; a removida fica riscada, com quem e quando. *@
+            if (entrada.IsRemoved)
+            {
+              <li class="is-removida" data-jof-alteracao-removida="@entrada.ChangeId">
+                <div>
+                  <strong><s>@entrada.Text</s></strong>
+                  <span>@entrada.When@(entrada.Who is { } quemMudouAntes ? " · " + quemMudouAntes : "")</span>
+                  <span class="jof-removida">@entrada.Removida</span>
+                </div>
+              </li>
+              continue;
+            }
+            <li data-jof-alteracao="@entrada.ChangeId" data-jof-alteracao-texto="@entrada.Text" data-jof-alteracao-quando="@entrada.When@(entrada.Who is { } q ? " · " + q : "")" tabindex="@(entrada.ChangeId is null ? null : "0")" title="@(entrada.ChangeId is null ? null : "Abrir")">
               <div>
                 <strong>@entrada.Text</strong>
                 <span>@entrada.When@(entrada.Who is { } quemMudou ? " · " + quemMudou : "")</span>
@@ -528,6 +542,10 @@ else
           }
         </ul>
       </details>
+      @if (Model.AlteracaoRemovida)
+      {
+        <div data-dmo-toast="ok" role="status">Alteração removida. Os valores do Job On não mudaram.</div>
+      }
     }
     @if (Model.RecusaCriar is { } recusaCriar)
     {
@@ -722,6 +740,10 @@ else
     @if (Model.Eliminar is { } eliminar)
     {
       <partial name="_JobOnEliminar" model="eliminar" />
+    }
+    @if (Model.PodeEditar && Model.JobOn is { } jobOnRemover && Model.Resumo.Any(e => e.ChangeId is not null && !e.IsRemoved))
+    {
+      <partial name="_JobOnRemoverAlteracao" model="jobOnRemover.JobOnId" />
     }
   }
 }

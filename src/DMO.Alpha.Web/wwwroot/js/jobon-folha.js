@@ -293,8 +293,50 @@
     document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
   }
 
+  // REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa linha de «O que
+  // mudou» (fora do botão da ação) abre a janela com essa alteração;
+  // «Remover por engano» mostra a confirmação.
+  function alteracoes() {
+    const janela = document.querySelector('[data-jof-remover]');
+    if (!janela || typeof janela.showModal !== 'function') return;
+    const id = janela.querySelector('[data-jof-remover-id]');
+    const texto = janela.querySelector('[data-jof-remover-texto]');
+    const quando = janela.querySelector('[data-jof-remover-quando]');
+    const pedir = janela.querySelector('[data-jof-remover-pedir]');
+    const sim = janela.querySelector('[data-jof-remover-sim]');
+    const confirmar = janela.querySelector('[data-jof-remover-confirmar]');
+    function abrir(linha) {
+      id.value = linha.getAttribute('data-jof-alteracao');
+      texto.textContent = linha.getAttribute('data-jof-alteracao-texto') || '';
+      quando.textContent = linha.getAttribute('data-jof-alteracao-quando') || '';
+      pedir.hidden = false;
+      sim.hidden = true;
+      confirmar.hidden = true;
+      janela.showModal();
+      pedir.focus();
+    }
+    pedir.addEventListener('click', () => {
+      pedir.hidden = true;
+      sim.hidden = false;
+      confirmar.hidden = false;
+      sim.focus();
+    });
+    document.querySelectorAll('li[data-jof-alteracao]').forEach(linha => {
+      if (!linha.getAttribute('data-jof-alteracao')) return;
+      linha.classList.add('is-abrivel');
+      linha.addEventListener('click', event => {
+        if (event.target.closest('a, button')) return;
+        abrir(linha);
+      });
+      linha.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && event.target === linha) { event.preventDefault(); abrir(linha); }
+      });
+    });
+  }
+
   function init() {
     painel();
+    alteracoes();
     imprimir();
     producoes();
     furos();

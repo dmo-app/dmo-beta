@@ -250,6 +250,8 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
     {
         var rows = await db.JobOnChanges.AsNoTracking()
             .Where(c => c.ChangedAtUtc >= fromUtc && c.ChangedAtUtc < toUtc)
+            // As removidas por engano não entram (Diogo, 23/10/2026).
+            .Where(JobOnChangeFields.Active)
             .OrderByDescending(c => c.ChangedAtUtc)
             .Take(MaxPorTipo)
             .Select(c => new

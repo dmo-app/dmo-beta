@@ -1,0 +1,20 @@
+@model int
+@* REMOVER POR ENGANO (Diogo, 23/10/2026: «ter forma de remover o notice de
+   troca em caso de engano»): uma só janela pequena para «O que mudou»;
+   clicar numa alteração abre-a com essa alteração. «Remover por engano» pede
+   a confirmação. Nada se perde: a alteração fica riscada, com quem e quando,
+   e os valores do Job On não mudam. Só para quem tem o Job On criar. *@
+<dialog id="jobon-remover-alteracao" class="dmo-dialog" aria-labelledby="jobon-remover-alteracao-title" data-jof-remover>
+  <h3 id="jobon-remover-alteracao-title">Alteração</h3>
+  <p><strong data-jof-remover-texto></strong><br /><small data-jof-remover-quando></small></p>
+  <form method="post" asp-page="/JobOn/RemoverAlteracao" data-dmo-parcial>
+    <input type="hidden" name="jobon_id" value="@Model" />
+    <input type="hidden" name="change_id" value="" data-jof-remover-id />
+    <p class="dmo-aviso-discreto" data-jof-remover-confirmar hidden>O aviso sai do Planeamento, do Sumário e dos módulos. Os valores do Job On não mudam e a alteração fica no histórico, riscada.</p>
+    <div class="dmo-dialog-actions">
+      <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+      <button type="button" class="dmo-button" data-jof-remover-pedir>Remover por engano</button>
+      <button type="submit" class="dmo-button" data-jof-remover-sim hidden>Confirmar</button>
+    </div>
+  </form>
+</dialog>
