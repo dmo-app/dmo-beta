@@ -24,9 +24,10 @@ public sealed partial class PlaneamentoSumarioPageTests
         var html = await GetAsync(client);
         var painel = Regex.Match(html, "<aside class=\"beta-light-rail beta-production-rail\"[\\s\\S]*?</aside>").Value;
         Assert.Contains("O que vai entrar", painel);
-        Assert.Contains($"data-dmo-open=\"/JobOn?jobon_id={entraHoje}\"", painel);
+        // Cada produção abre a folha nova (Diogo, 23/10/2026: a ficha antiga deixou de existir).
+        Assert.Contains($"data-dmo-open=\"/JobOn/Folha?jobon_id={entraHoje}\"", painel);
         Assert.Contains("S9P001", painel);
-        Assert.Contains($"data-dmo-open=\"/JobOn?jobon_id={entrouOntem}\"", painel);
+        Assert.Contains($"data-dmo-open=\"/JobOn/Folha?jobon_id={entrouOntem}\"", painel);
         Assert.Contains($"S9P002 · Produção 7 · em curso desde {Hoje.AddDays(-1):dd/MM}", painel);
         Assert.True(painel.IndexOf($"jobon_id={entrouOntem}\"", StringComparison.Ordinal)
             < painel.IndexOf($"jobon_id={entraHoje}\"", StringComparison.Ordinal));

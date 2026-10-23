@@ -143,7 +143,7 @@
                           // entra abre o Job On no dia dela; a troca abre a ficha
                           // da ferramenta que entra.
                           Href = nx.JobOnId is int entraId
-                            ? Url.Page("/JobOn/Index", null, new { ano = nx.Dia.Year, mes = nx.Dia.Month, dia = nx.Dia.Day, jobon_id = entraId }, null, null, "lightFicha")
+                            ? IndexModel.FolhaHref(entraId, nx.Dia.Year, nx.Dia.Month, nx.Dia.Day)
                             : nx.ToolId is { Length: > 0 } toolId ? $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}" : null
                         }
                       : null;
@@ -155,10 +155,10 @@
                     {
                       var aberta = Model.OpenJobOn?.JobOnId == production.JobOnId && Model.DuplicarDe is null;
                       <div class="beta-light-production@(aberta ? " selected" : "")" id="jobonLinha-@production.JobOnId" data-dmo-row data-id="@production.JobOnId"
-                              data-dmo-open="@Url.Page("/JobOn/Index", null, new { ano = Model.Year, mes = Model.Month, dia = Model.SelectedDay, jobon_id = production.JobOnId }, null, null, "lightFicha")"
+                              data-dmo-open="@IndexModel.FolhaHref(production.JobOnId, Model.Year, Model.Month, Model.SelectedDay)"
                               data-dmo-fechar="@Url.Page("/JobOn/Index", new { ano = Model.Year, mes = Model.Month, dia = Model.SelectedDay })"
                               aria-selected="@(aberta ? "true" : "false")"
-                              aria-label="Produção @production.ProductionNumber na @row.MachineCode — um clique abre a ficha, outro tira">
+                              aria-label="Produção @production.ProductionNumber na @row.MachineCode — um clique abre a folha">
                         <input type="radio" name="jobon_id" value="@production.JobOnId" class="dmo-visually-hidden" aria-label="Produção @production.ProductionNumber" checked="@aberta" />
                         <strong>@row.MachineCode</strong>
                         <span>@production.Reference @production.ProductionNumber</span>
@@ -193,11 +193,11 @@
                   else
                   {
                     @* UMA MÁQUINA VAZIA CRIA UM JOB ON (o Diogo, 17/10/2026): um
-                       clique abre «Preparar produção» já com a máquina e o
-                       dia como início. *@
+                       clique abre a folha nova em Editar (Diogo, 23/10/2026)
+                       já com a linha e o dia como início. *@
                     var maquinaVazia = Model.Machines.FirstOrDefault(m => m.Code == row.MachineCode);
                     var criarAqui = maquinaVazia is null ? null
-                      : $"/JobOn?novo=1&machine_id={maquinaVazia.MachineId}&inicio_em={new DateOnly(Model.Year, Model.Month, Model.SelectedDay):yyyy-MM-dd}&ano={Model.Year}&mes={Model.Month}&dia={Model.SelectedDay}#lightSheet";
+                      : $"/JobOn/Folha?novo=1&machine_id={maquinaVazia.MachineId}&inicio_em={new DateOnly(Model.Year, Model.Month, Model.SelectedDay):yyyy-MM-dd}";
                     @* A mudança é um link à parte, fora do link de criar. *@
                     <div class="beta-light-machine-empty-linha">
                       <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —</a>
@@ -241,282 +241,18 @@
               @* «CRIAR JOB ON» À DIREITA DAS CAIXAS (Diogo, 22/10/2026): na mesma
                  linha da procura, depois da referência e da produção; abre a folha nova já com o dia escolhido
                  como início (sem dia escolhido, abre sem data). *@
-              <a id="jobonCriar" class="dmo-button" asp-page="/JobOn/Index" asp-route-novo="1"
-                 asp-route-inicio_em="@(Model.NoDaySelected ? null : new DateOnly(Model.Year, Model.Month, Model.SelectedDay).ToString("yyyy-MM-dd"))"
-                 asp-route-ano="@Model.Year" asp-route-mes="@Model.Month" asp-route-dia="@(Model.NoDaySelected ? null : Model.SelectedDay)"
-                 asp-fragment="lightSheet">Criar Job On</a>
+              @* O «Criar Job On» abre a folha nova vazia, em Editar (Diogo, 23/10/2026). *@
+              <a id="jobonCriar" class="dmo-button" asp-page="/JobOn/Folha" asp-route-novo="1"
+                 asp-route-inicio_em="@(Model.NoDaySelected ? null : new DateOnly(Model.Year, Model.Month, Model.SelectedDay).ToString("yyyy-MM-dd"))">Criar Job On</a>
             </form>
           </div>
         </section>
       </div>
 
-      @* A FICHA DA PRODUÇÃO (o job-sheet do dmo-html, server-render): os
-         factos da produção, o campo Calote, as FERRAMENTAS USADAS com os
-         fatos técnicos de cada uma e os AVISOS INFORMATIVOS (a
-         compatibilidade registada e o uso paralelo — nunca um bloqueio),
-         e as AÇÕES do html: Editar, Duplicar este Job On, Abrir
-         Resumo/Peso/Pegamentos. A colocação em máquina segue AS DATAS do
-         Job On (a decisão 14/10) — sem «Colocar na máquina» manual e sem
-         «Retirar do planeamento». *@
+      @* SEM A FICHA ANTIGA (Diogo, 23/10/2026: «esta versão do Job On já não
+         deveria existir»): escolher uma produção abre a folha nova
+         (/JobOn/Folha), onde estão a ficha, o Editar, o Duplicar e as Opções. *@
       <div id="jobonFolhas" data-dmo-regiao>
-      @if (Model.OpenJobOn is { } ficha && Model.DuplicarDe is null)
-      {
-        var fichaFact = (string? toolId) => Model.FichaFacts.FirstOrDefault(f => f.ToolId == toolId);
-        // A referência abre a ficha da ferramenta na informação técnica e,
-        // gravada, volta a esta ficha (quem tem o módulo Ferramentas).
-        var podeAbrirFerramenta = (await UserCapabilities.GetAsync()).Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas, StringComparer.Ordinal);
-        var fichaFerramentaHref = (string toolId) => $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&tecnica=1&continuar={Uri.EscapeDataString($"/JobOn?jobon_id={ficha.JobOnId}")}";
-        var fichaCalote = ficha.CaloteMm is { } caloteFicha
-            ? caloteFicha.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm"
-            : "Usar referência da Tool";
-        <section class="dmo-card beta-light-sheet" id="lightFicha" aria-labelledby="fichaTitle">
-          <div class="beta-light-sheet-head">
-            <div>
-              <span style="font-size:11px;color:var(--dmo-muted,#66809a);text-transform:uppercase;letter-spacing:.04em;font-weight:700">Ficha da produção</span>
-              <h2 id="fichaTitle">Job On</h2>
-            </div>
-            @* AS OPÇÕES AO LADO DO FECHAR, NO TOPO (o Diogo, 17/10/2026: «meter
-               opções ao lado de fechar»), como o Fechar e o Guardar do Editar. *@
-            <div class="beta-light-actions" style="margin-top:0">
-              @* O [Editar] PRECISA do editar=1 (a C1): o contrato da folha é
-                 «?editar=1&jobon_id=N abre-a EM EDIÇÃO» — sem o parâmetro o
-                 link reabria a ficha FECHADA, o botão não editava nada e o
-                 jobon_edit_id nunca ia no POST. O [Duplicar] já levava o
-                 duplicar=1; o [Editar] ficou sem efeito na refunda. *@
-              @* MENOS CLUTTER (o Diogo, 17/10/2026): as ações raras da folha
-                 num só botão «Opções». «Produções desta referência» abre, por
-                 baixo, a tabela paginada de todas as produções que já existiram
-                 com a referência (produção, máquina, início, fim e a CM, MF e
-                 BQ com os lotes usados); só é lida quando se abre. *@
-              <details class="dmo-options" data-dmo-tab-menu>
-                <summary class="dmo-button" aria-label="Opções do Job On @ficha.ProductionNumber"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
-                <div class="dmo-options-list">
-                  @* MENOS BOTÕES (o Diogo, 17/10/2026: «muito botão»; «editar vai
-                     para dentro das opções»): todas as ações da ficha ficam nas
-                     Opções. *@
-                  @* A ORDEM DAS OPÇÕES (o Diogo, 17/10/2026): Editar, Duplicar Job
-                     On e depois o resto. Sem «Duplicar lote»: um lote novo
-                     associa-se no Editar e fica registado como alteração. *@
-                  <a class="dmo-options-item" href="/JobOn/Folha?jobon_id=@ficha.JobOnId">Abrir a folha</a>
-                  <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&editar=1#lightSheet">Editar</a>
-                  <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&duplicar=1">Duplicar Job On</a>
-                  @* O CONTROLO SÓ PARA QUEM TEM UM MÓDULO DO CONTROLO (Diogo,
-                     19/10/2026: «aparece a quem tem modulos do controlo»). *@
-                  @if (Model.VeControlo)
-                  {
-                    <a class="dmo-options-item" href="/Controlo/Resumo?jobon_id=@ficha.JobOnId">Controlo</a>
-                  }
-                  <a class="dmo-options-item" href="/JobOn?jobon_id=@ficha.JobOnId&producoes_ref=1#fichaProducoes">Produções desta referência</a>
-                  @if (Model.FichaEliminar is not null)
-                  {
-                    <a class="dmo-options-item" href="#jobon-delete-dialog" role="button" data-dmo-dialog="jobon-delete-dialog">Eliminar Job On</a>
-                  }
-                </div>
-              </details>
-              @* O FECHAR DA FICHA SAI DO JOB ON (o Diogo, 17/10/2026): volta ao
-                 calendário no dia em que estava. O Fechar do Editar volta aqui. *@
-              <a class="dmo-button" href="/JobOn?ano=@Model.Year&mes=@Model.Month&dia=@(Model.NoDaySelected ? 0 : Model.SelectedDay)" data-dmo-parcial>Fechar</a>
-            </div>
-          </div>
-          @* O QUE MUDOU (o Diogo, 17/10/2026: «não deveria ser um botão, mas
-             apenas um resumo no início da página podendo fazer minimize»; «o
-             histórico fica hidden, com minimizar»): sem separadores. Quando a
-             produção mudou, o resumo fica no topo da ficha, fechado, e abre no
-             triângulo, como o «Mais detalhes»; cada linha leva a ação no
-             módulo que ela afeta, só a quem tem esse módulo. Os avisos dos
-             módulos (?vista=alteracoes) chegam com ele aberto. *@
-          @if (Model.FichaResumo.Count > 0)
-          {
-            <details class="jobon-mudancas" id="fichaMudancas" open="@Model.VistaAlteracoes">
-              <summary><span class="dmo-caret" aria-hidden="true"></span>O que mudou desde o início (@Model.FichaResumo.Count @(Model.FichaResumo.Count == 1 ? "alteração" : "alterações"))</summary>
-              <ul class="jobon-resumo" aria-label="O que mudou">
-                @foreach (var entrada in Model.FichaResumo)
-                {
-                  <li>
-                    <div>
-                      <strong>@entrada.Text</strong>
-                      <span>@entrada.When@(entrada.Who is { } quemMudou ? " · " + quemMudou : "")</span>
-                    </div>
-                    @if (entrada.ActionHref is { } acaoHref)
-                    {
-                      <a class="dmo-button" href="@acaoHref">@entrada.ActionLabel</a>
-                    }
-                  </li>
-                }
-              </ul>
-            </details>
-          }
-          @* O CABEÇALHO DOS FACTOS (o achado do Owner 14/10: «fonte tão
-             pequena para um espaço tão grande») — O PADRÃO DO HTML (os
-             cards das médias dos Pegamentos): o RÓTULO pequeno por cima, O
-             VALOR GRANDE por baixo («34,55 mm» em destaque) — o facto é o
-             que se lê primeiro; os factos preenchem o card (a densidade do
-             layout à altura do card). *@
-          <div class="jobon-production-facts">
-            <div>
-              <span>Referência</span>
-              <strong>@ficha.Reference</strong>
-            </div>
-            <div>
-              <span>Nº de produção</span>
-              <strong>@ficha.ProductionNumber</strong>
-            </div>
-            <div>
-              <span>Máquina</span>
-              <strong>@ficha.Machine</strong>
-            </div>
-            <div>
-              <span>Início</span>
-              <strong>@(ficha.InicioEm is { } fichaInicio ? fichaInicio.ToString("dd/MM/yyyy") : "—")</strong>
-            </div>
-            <div>
-              <span>Fim</span>
-              <strong>@(ficha.FimEm is { } fichaFim ? fichaFim.ToString("dd/MM/yyyy") : "—")</strong>
-            </div>
-            <div>
-              <span>TP Calote</span>
-              <strong>@fichaCalote</strong>
-            </div>
-          </div>
-
-          @* SEM AVISOS DAS FERRAMENTAS NA FICHA (o Diogo, 17/10/2026: ao
-             abrir um Job On pelo calendário não aparecem): a compatibilidade
-             e o uso paralelo servem para escolher as ferramentas, por isso
-             só aparecem ao associar, no formulário de edição. *@
-
-          @* O HISTÓRICO É SÓ O «O QUE MUDOU» NO TOPO (o Diogo, 17/10/2026:
-             «histórico de alterações só deve conter informação de alterações
-             feitas depois do início do Job On»): estes cartões são as
-             ferramentas da produção, não histórico. *@
-          @* AS FERRAMENTAS DA PRODUÇÃO (a crítica do Owner 14/10: os rótulos de implementação saem — «Contextos registados» é linguagem do código e o chip «Aplicável agora» é estado interno; o card diz O TIPO + O FACTO + os técnicos. O
-             renderContextActions do html): os contextos registados da
-             produção com os FATOS TÉCNICOS de cada ferramenta — o que o
-             Peso/Pegamentos consomem. Sem tool no contexto: «Não
-             aplicável / por indicar» (o html). *@
-          <h3 style="font-size:15px;margin:18px 0 10px">Ferramentas usadas</h3>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px" class="jobon-context-grid">
-            @foreach (var (tipoSlot, toolSlot, rotuloSlot) in new[] { ("CM", ficha.CmToolId, "Contra molde"), ("MF", ficha.MfToolId, "Molde final"), ("BQ", ficha.BqToolId, "Boquilha") })
-            {
-              var factoSlot = fichaFact(toolSlot);
-              <div style="background:var(--dmo-subtle,#f1f6fa);border-radius:8px;padding:12px">
-                
-                @if (toolSlot is null || factoSlot is null)
-                {
-                  <p style="font-size:12px;margin:5px 0"><strong>@rotuloSlot</strong> · Não aplicável / por indicar</p>
-                }
-                else
-                {
-                  <p style="font-size:12px;margin:5px 0">
-                    @if (podeAbrirFerramenta)
-                    {
-                      <a class="jobon-ferramenta-link" href="@fichaFerramentaHref(toolSlot)" title="Abrir a ficha da ferramenta"><strong>@rotuloSlot @factoSlot.Reference · lote @factoSlot.Lot</strong></a>
-                    }
-                    else
-                    {
-                      <strong>@rotuloSlot @factoSlot.Reference · lote @factoSlot.Lot</strong>
-                    }
-                  </p>
-                  <p style="font-size:11px;color:var(--dmo-muted,#66809a);margin:5px 0">
-                    @if (tipoSlot == "CM")
-                    {
-                      <span>Processo <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.Processo ?? "Por completar")</b> · Punção <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.VolumePuncaoCm3 is { } puncaoFicha ? puncaoFicha.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " cm³" : "—")</b> · Gargalo <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.DiametroGargaloMm is { } gargaloFicha ? gargaloFicha.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm" : "—")</b></span>
-                      if (factoSlot.TpDiametroMm is { } tpD)
-                      {
-                        <span style="display:block">TP: D <b style="color:var(--dmo-text,#1c2b3a)">@tpD.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) mm</b> · R <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.TpRaioMm is { } tpR ? tpR.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm" : "—")</b> · h <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.TpSagittaMm is { } tpH ? tpH.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm" : "—")</b></span>
-                      }
-                    }
-                    else if (tipoSlot == "BQ")
-                    {
-                      <span>Marisa <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.VolumeMarisaCm3 is { } marisaFicha ? marisaFicha.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " cm³" : "—")</b> · Gargalo <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.DiametroGargaloMm is { } gargaloBq ? gargaloBq.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm" : "—")</b> · Lote <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.Quantidade is { } qtdFicha ? qtdFicha + " peças" : "—")</b></span>
-                    }
-                    else
-                    {
-                      <span>Gargalo nominal <b style="color:var(--dmo-text,#1c2b3a)">@(factoSlot.DiametroGargaloMm is { } gargaloMf ? gargaloMf.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm" : "—")</b></span>
-                    }
-                  </p>
-                  @* Onde está pelo Armazém e o estado; sem registo ou sem
-                     estado, só um aviso com o link para o Armazém (Diogo
-                     21/10, FER-E-03). *@
-                  @if (factoSlot.Utilizacao is { } usoFicha)
-                  {
-                    @* O % de uso da última leitura (Diogo, 21/10/2026). *@
-                    <p style="font-size:11px;color:var(--dmo-muted,#66809a);margin:5px 0" data-dmo-uso>Uso <b style="color:var(--dmo-text,#1c2b3a)">@usoFicha.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) %</b></p>
-                  }
-                  @if (factoSlot.OndeEsta is { } ondeEsta)
-                  {
-                    <p style="font-size:11px;color:var(--dmo-muted,#66809a);margin:5px 0" data-dmo-onde-esta>
-                      <span>@ondeEsta@(factoSlot.Estado is { } estadoFicha ? " · " + DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoFicha) : null)</span>
-                    </p>
-                  }
-                  @if (Model.MostrarAvisoArmazem && factoSlot.AvisoArmazem is { } avisoArmazem)
-                  {
-                    <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(factoSlot.ToolId, "Registar na ferramenta")" /></div>
-                  }
-                }
-              </div>
-            }
-          </div>
-
-          @* A FOLHA DA FÁBRICA EM LEITURA, por famílias, por baixo das
-             ferramentas: só o que tem alguma coisa escrito (Diogo, 21/10/2026). *@
-          @if (Model.FichaFolha is { } fichaFolha)
-          {
-            <partial name="_JobOnFichaFolha" model="fichaFolha" />
-          }
-
-          @if (Model.ReferenceProductionsPage is { } producoesRef)
-          {
-            <section data-dmo-regiao id="fichaProducoes" class="jobon-ref-productions" aria-labelledby="fichaProducoesTitle">
-              <div class="beta-light-sheet-head">
-                <h3 id="fichaProducoesTitle">Produções de @ficha.Reference</h3>
-                <a class="dmo-button" href="/JobOn?jobon_id=@ficha.JobOnId#lightFicha">Fechar</a>
-              </div>
-              @* Um clique numa linha abre a folha dessa produção. *@
-              <div class="dmo-table-wrap">
-                <table class="dmo-table" data-dmo-list="Produções de @ficha.Reference">
-                  <thead>
-                    <tr>
-                      <th>Produção</th>
-                      <th>Máquina</th>
-                      <th>Início</th>
-                      <th>Fim</th>
-                      <th>CM</th>
-                      <th>MF</th>
-                      <th>BQ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach (var producaoRef in producoesRef.Items)
-                    {
-                      <tr data-dmo-row data-id="@producaoRef.JobOnId"
-                          data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = producaoRef.JobOnId })"
-                          class="@(producaoRef.JobOnId == ficha.JobOnId ? "jobon-ref-current" : null)"
-                          aria-label="Produção @producaoRef.ProductionNumber — um clique abre a folha">
-                        <td><strong>@producaoRef.ProductionNumber</strong></td>
-                        <td>@producaoRef.Machine</td>
-                        <td>@(producaoRef.InicioEm?.ToString("dd/MM/yyyy") ?? "—")</td>
-                        <td>@(producaoRef.FimEm?.ToString("dd/MM/yyyy") ?? "—")</td>
-                        <td>@(Fact(producaoRef.CmToolId) ?? "—")</td>
-                        <td>@(Fact(producaoRef.MfToolId) ?? "—")</td>
-                        <td>@(Fact(producaoRef.BqToolId) ?? "—")</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-              @{ var producoesRefPager = ListPager.For(producoesRef, "pagina_ref", "fichaProducoes"); }
-              <partial name="_ListPager" model="producoesRefPager" />
-            </section>
-          }
-        </section>
-        @* A janela do Eliminar fica fora da ficha: a ficha só mostra e leva às
-           ações, não grava nada a partir dela. *@
-        @if (Model.FichaEliminar is { } fichaEliminar)
-        {
-          <partial name="_JobOnEliminar" model="fichaEliminar" />
-        }
-      }
-
       @* A FOLHA da produção (a sheet do mockup sobre a base atual: o
          POST canónico Create com as recusas tipadas). *@
       @* «PREPARAR PRODUÇÃO» SÓ QUANDO SE PEDE (o Diogo, 17/10/2026): a

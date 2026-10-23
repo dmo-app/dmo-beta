@@ -196,9 +196,11 @@ public sealed class IndexModel : PageModel
     /// calote gravada da produção aberta: com valor, foi uma edição que o
     /// manteve; sem valor, a produção ficou sem calote.
     /// </summary>
-    public string? CaloteIgnoradaMessage => CaloteIgnorada is not { } valor
-        ? null
-        : OpenJobOn?.CaloteMm is { } mantida
+    public string? CaloteIgnoradaMessage => CaloteIgnorada is not { } valor ? null : MensagemCaloteIgnorada(valor, OpenJobOn?.CaloteMm);
+
+    /// <summary>A mensagem da calote ignorada, a mesma no Planeamento e na folha nova.</summary>
+    public static string MensagemCaloteIgnorada(string valor, decimal? mantidaGravada) =>
+        mantidaGravada is { } mantida
             ? $"Job On guardado: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior ({mantida.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)} mm)."
             : $"Job On guardado sem calote: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado. Vale a calote de referência da ferramenta; para a indicar, use Editar.";
 
@@ -215,9 +217,13 @@ public sealed class IndexModel : PageModel
     /// </summary>
     public string? FimAntesDoInicioMessage => FimAntesDoInicio
         && OpenJobOn is { InicioEm: { } inicio, FimEm: { } fim } && fim < inicio
-        ? $"Job On guardado com o fim ({fim.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)}) antes do início ({inicio.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)}). " +
-          "Enquanto o fim for antes do início, a produção não aparece em nenhum dia do calendário. Para corrigir as datas, use Editar."
+        ? MensagemFimAntesDoInicio(inicio, fim)
         : null;
+
+    /// <summary>A mensagem do fim antes do início, a mesma no Planeamento e na folha nova.</summary>
+    public static string MensagemFimAntesDoInicio(DateOnly inicio, DateOnly fim) =>
+        $"Job On guardado com o fim ({fim.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)}) antes do início ({inicio.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)}). " +
+          "Enquanto o fim for antes do início, a produção não aparece em nenhum dia do calendário. Para corrigir as datas, use Editar.";
 
     /// <summary>A TAB do Histórico (?historico=1 — o padrão do Controlo/Peso): as produções anteriores e os sem dia.</summary>
     public bool ShowHistory { get; private set; }
@@ -440,7 +446,13 @@ public sealed class IndexModel : PageModel
     public UpdateJobOnResult? UpdateRefusal { get; private set; }
 
     /// <summary>Mensagem da recusa tipada, apenas apresentação.</summary>
-    public string CreateRefusalMessage => CreateRefusal switch
+    public string CreateRefusalMessage => CreateRefusal is { } recusa ? MensagemRecusaCriar(recusa, Folha) : string.Empty;
+
+    /// <summary>
+    /// A mensagem de uma recusa tipada do Create, a mesma no Planeamento e na
+    /// folha nova (/JobOn/Folha, Diogo 23/10/2026: o Criar e o Duplicar abrem lá).
+    /// </summary>
+    public static string MensagemRecusaCriar(CreateJobOnResult recusa, FolhaDoJobOnVista folha) => recusa switch
     {
         CreateJobOnResult.MissingProductionNumber =>
             "O nº de produção está em branco. Nenhum Job On foi criado.",
@@ -465,7 +477,7 @@ public sealed class IndexModel : PageModel
         CreateJobOnResult.InvalidCalote =>
             "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhum Job On foi criado.",
         CreateJobOnResult.TextoLongo =>
-            Folha.MensagemTextoLongo("Nenhum Job On foi criado.") ?? "Um texto da folha é longo demais. Nenhum Job On foi criado.",
+            folha.MensagemTextoLongo("Nenhum Job On foi criado.") ?? "Um texto da folha é longo demais. Nenhum Job On foi criado.",
         _ => string.Empty
     };
 
@@ -792,6 +804,31 @@ public sealed class IndexModel : PageModel
         {
             OpenJobOn = await _productionContext.GetAsync(canonicalJobOnId, HttpContext.RequestAborted);
             JobOnRequestedNotFound = OpenJobOn is null;
+        }
+
+        // A FICHA ANTIGA DEIXA DE EXISTIR (Diogo, 23/10/2026: «esta versão do
+        // Job On já não deveria existir»): escolher uma produção no Planeamento
+        // abre a folha nova (/JobOn/Folha), e o Criar e o Duplicar abrem-na em
+        // Editar. Ficam aqui só o Editar antigo e as recusas que voltam ao
+        // formulário (o Update e o «Criar CM/MF/BQ» com ?retoma=1). Os botões
+        // Criar e Duplicar já levam à folha nova; os endereços antigos
+        // (?novo=1, ?duplicar=1) ainda abrem o formulário antigo.
+        if (CreateRefusal is null && UpdateRefusal is null && retoma != "1" && !ShowHistory)
+        {
+            var diaEscolhido = diaSelected is int d && d >= 1 && d <= DateTime.DaysInMonth(Year, Month)
+                ? new DateOnly(Year, Month, d) : (DateOnly?)null;
+            if (OpenJobOn is { } escolhida && editar != "1" && duplicar != "1" && novo != "1")
+            {
+                return RedirectToPage("/JobOn/Folha", new
+                {
+                    jobon_id = escolhida.JobOnId,
+                    dia = diaEscolhido?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                    overlap = overlap == "1" ? "1" : null,
+                    calote_ignorada = CaloteIgnorada,
+                    fim_antes_inicio = FimAntesDoInicio ? "1" : null,
+                    vista = vista == "alteracoes" ? vista : null
+                });
+            }
         }
 
         // A procura ao escrever, desenhada pelo servidor quando chega pelo Enter.
@@ -1125,6 +1162,15 @@ public sealed class IndexModel : PageModel
         return Partial("_JobOnProcuraProducoes", resultados);
     }
 
+    /// <summary>
+    /// A folha nova de uma produção escolhida no Planeamento (Diogo, 23/10/2026),
+    /// com o dia escolhido no calendário (o início do Duplicar), quando há.
+    /// </summary>
+    public static string FolhaHref(int jobOnId, int? ano = null, int? mes = null, int? dia = null) =>
+        $"/JobOn/Folha?jobon_id={jobOnId}"
+        + (ano is int a and > 1999 and < 3000 && mes is int m and >= 1 and <= 12 && dia is int d && d >= 1 && d <= DateTime.DaysInMonth(a, m)
+            ? $"&dia={new DateOnly(a, m, d):yyyy-MM-dd}" : "");
+
     private async Task<JobOnProcura> ProcurarProducoesAsync(string? search, string? procuraRef, int? ano, int? mes, int? dia)
     {
         // Só a referência completa (sem distinção de maiúsculas); o início fica para as sugestões.
@@ -1137,7 +1183,7 @@ public sealed class IndexModel : PageModel
             referencia,
             producoes.Select(item => new JobOnProcuraLinha(
                     item,
-                    Url.Page("/JobOn/Index", null, new { ano, mes, dia, jobon_id = item.JobOnId }, null, null, "lightFicha")!))
+                    FolhaHref(item.JobOnId, ano, mes, dia)))
                 .ToList());
     }
 
@@ -1237,8 +1283,13 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "bq_tool_id")] string? bqToolId,
         [FromForm(Name = "inicio_em")] string? inicioEm,
         [FromForm(Name = "fim_em")] string? fimEm,
-        [FromForm(Name = "calote_mm")] string? caloteMm)
+        [FromForm(Name = "calote_mm")] string? caloteMm,
+        [FromForm(Name = "voltar")] string? voltar = null)
     {
+        // A folha nova (/JobOn/Folha) guarda pelo mesmo Create (Diogo,
+        // 23/10/2026): gravado, volta à folha da produção nova; recusado, o
+        // mesmo envio volta à folha (307) com tudo o que se escreveu.
+        var folhaNova = voltar == "folha";
         var sanitizedProductionNumber = Sanitize(productionNumber);
         var sanitizedReference = Sanitize(reference)?.ToUpperInvariant();
         var sanitizedCmToolId = Sanitize(cmToolId);
@@ -1272,6 +1323,10 @@ public sealed class IndexModel : PageModel
         // autorizado). Sem MF, a recusa do MF (a do handler) vem primeiro.
         if (sanitizedMfToolId is not null && MissingCmOrBq(sanitizedCmToolId, sanitizedBqToolId) is { } faltaCriar)
         {
+            if (folhaNova)
+            {
+                return RecusaNaFolha(faltaCriar == "CM" ? CreateJobOnResult.MissingCmTool : CreateJobOnResult.MissingBqTool, null);
+            }
             return CreateRefused(
                 sanitizedProductionNumber, sanitizedReference, parsedMachineId,
                 sanitizedCmToolId, sanitizedMfToolId, sanitizedBqToolId,
@@ -1298,6 +1353,11 @@ public sealed class IndexModel : PageModel
                 envio.Cal),
             HttpContext.RequestAborted);
 
+        if (outcome.Result == CreateJobOnResult.Success && folhaNova)
+        {
+            return FolhaGravada(outcome.JobOn!.JobOnId, outcome.OverlapWarning is not null, caloteIgnorada, fimAntesDoInicio);
+        }
+
         if (outcome.Result == CreateJobOnResult.Success)
         {
             // O OVERLAP NÃO BLOQUEIA (o Owner: «overlap da maquina deve
@@ -1323,7 +1383,14 @@ public sealed class IndexModel : PageModel
                 sanitizedCmToolId, sanitizedMfToolId, sanitizedBqToolId,
                 parsedInicioEm, parsedFimEm, parsedCalote, envio) is int gravado)
         {
-            return await SavedRedirectAsync(gravado, false, caloteIgnorada, fimAntesDoInicio);
+            return folhaNova
+                ? FolhaGravada(gravado, false, caloteIgnorada, fimAntesDoInicio)
+                : await SavedRedirectAsync(gravado, false, caloteIgnorada, fimAntesDoInicio);
+        }
+
+        if (folhaNova)
+        {
+            return RecusaNaFolha(outcome.Result, outcome.ChaveRecusada);
         }
 
         // A FOLHA ESCRITA NÃO SE PERDE: o texto longo demais, ou outra recusa
@@ -1610,6 +1677,25 @@ public sealed class IndexModel : PageModel
             fim_antes_inicio = fimAntesDoInicio ? "1" : null
         }));
     }
+
+    /// <summary>A folha nova da produção acabada de gravar, bloqueada, com os avisos da gravação.</summary>
+    private RedirectToPageResult FolhaGravada(int jobOnId, bool overlap, string? caloteIgnorada, bool fimAntesDoInicio) =>
+        RedirectToPage("/JobOn/Folha", new
+        {
+            jobon_id = jobOnId,
+            gravado = "1",
+            overlap = overlap ? "1" : null,
+            calote_ignorada = caloteIgnorada,
+            fim_antes_inicio = fimAntesDoInicio ? "1" : null
+        });
+
+    /// <summary>
+    /// Uma recusa do Create pedido pela folha nova: o mesmo envio vai de volta
+    /// à folha (307, o formulário inteiro), que só o desenha com a mensagem.
+    /// </summary>
+    private RedirectResult RecusaNaFolha(CreateJobOnResult recusa, string? chave) =>
+        RedirectPreserveMethod("/JobOn/Folha?handler=Recusa&create_refusal=" + recusa
+            + (chave is null ? "" : "&chave=" + Uri.EscapeDataString(chave)));
 
     /// <summary>«CM» ou «BQ» quando falta essa ferramenta; null quando estão as duas.</summary>
     internal static string? MissingCmOrBq(string? cmToolId, string? bqToolId) =>

@@ -388,7 +388,7 @@
 .jof2 .jof-artigo-escolher{cursor:pointer;outline:1px dashed var(--dmo-border)}
 .jof2 .jof-artigo-escolher:hover,.jof2 .jof-artigo-escolher:focus-within{outline-color:var(--dmo-brand-600)}
 /* O painel: o regresso ao Planeamento e o vazio. */
-.jof2-gaveta .rail-voltar{display:inline-block;margin-top:10px;color:var(--rail-muted);font-size:13px;font-weight:700;text-decoration:none}
+.jof2-gaveta .rail-voltar{display:inline-block;margin-right:auto;font-size:14px;color:var(--rail-muted);font-size:13px;font-weight:700;text-decoration:none}
 .jof2-gaveta .rail-voltar:hover{color:var(--rail-text);text-decoration:underline}
 .jof2-gaveta .rail-item{text-decoration:none}
 .jof2-gaveta .rail-vazio{margin:0;color:var(--rail-muted);font-size:13px}

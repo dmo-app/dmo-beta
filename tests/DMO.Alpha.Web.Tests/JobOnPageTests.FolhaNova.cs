@@ -111,9 +111,19 @@ public partial class JobOnPageTests
         Assert.StartsWith("data-jof-folha=\"bloqueada\"", folha, StringComparison.Ordinal);
         // Bloqueada: nenhum campo da folha se escreve.
         Assert.DoesNotContain("name=\"Folha.CmNotas\"", html, StringComparison.Ordinal);
-        // O painel lateral do Planeamento e o regresso.
-        Assert.Contains("O que vai entrar", html, StringComparison.Ordinal);
-        Assert.Contains(">‹ Planeamento</a>", html, StringComparison.Ordinal);
+        // O cabeçalho do painel lateral é só «Planeamento», um link para /JobOn (Diogo, 23/10/2026).
+        var painel = Zona(html, "<aside class=\"rail\"");
+        painel = painel[..painel.IndexOf("class=\"rail-list\"", StringComparison.Ordinal)];
+        Assert.Contains("<div class=\"rail-head\"><a class=\"rail-voltar\" href=\"/JobOn\">Planeamento</a><button", painel, StringComparison.Ordinal);
+        Assert.DoesNotContain("O que vai entrar", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("As produções em curso e as que entram esta semana", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("‹ Planeamento", html, StringComparison.Ordinal);
+        // Sem os títulos dos grupos (Diogo, 23/10/2026): Moldes, Gargalo, Sopro, Calibres.
+        Assert.DoesNotContain("class=\"group-head\"", html, StringComparison.Ordinal);
+        foreach (var titulo in new[] { "Moldes", "Gargalo", "Sopro", "Calibres" })
+        {
+            Assert.DoesNotContain($">{titulo}</h2>", html, StringComparison.Ordinal);
+        }
         // A referência total é MF + BQ e as ferramentas leem-se «CM 5809 · Lote 01».
         Assert.Contains("<h1 class=\"sr-only\">5810T188</h1>", html, StringComparison.Ordinal);
         // O lote sem o zero à esquerda: «Lote 1», nunca «Lote 01».
@@ -150,7 +160,8 @@ public partial class JobOnPageTests
         // No Sopro, o TP (trabalha com o CM) vem antes do CS (trabalha com o MF).
         Assert.True(html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal) < html.IndexOf("data-jof-familia=\"CS\"", StringComparison.Ordinal));
         Assert.Contains($"href=\"/JobOn/Folha?jobon_id={id}&amp;editar=1\" data-jof-editar>Editar</a>", acoes, StringComparison.Ordinal);
-        Assert.Contains($"href=\"/JobOn?jobon_id={id}&amp;duplicar=1\" data-jof-duplicar>Duplicar</a>", acoes, StringComparison.Ordinal);
+        // O Duplicar abre a folha nova em Editar com os dados copiados (Diogo, 23/10/2026).
+        Assert.Contains($"href=\"/JobOn/Folha?duplicar={id}\" data-jof-duplicar>Duplicar</a>", acoes, StringComparison.Ordinal);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "data-jof-editar"));
         Assert.Contains($"href=\"/JobOn/Reparacao?jobon_id={id}\">Reparação</a>", opcoes, StringComparison.Ordinal);
         Assert.DoesNotContain(">Controlo</a>", opcoes, StringComparison.Ordinal);

@@ -13,7 +13,7 @@
             Detail: emCurso
                 ? $"{entrada.Reference} · Produção {entrada.ProductionNumber} · em curso desde {entrada.InicioEm?.ToString("dd/MM")}"
                 : $"{entrada.Reference} · Produção {entrada.ProductionNumber} · {entrada.InicioEm?.ToString("dd/MM")}",
-            Href: $"/JobOn?jobon_id={entrada.JobOnId}",
+            Href: $"/JobOn/Folha?jobon_id={entrada.JobOnId}",
             AriaLabel: emCurso
                 ? $"Abrir a produção {entrada.ProductionNumber}, em curso na {entrada.Machine} desde {entrada.InicioEm?.ToString("dd/MM")}"
                 : $"Abrir a produção {entrada.ProductionNumber}, que entra na {entrada.Machine} a {entrada.InicioEm?.ToString("dd/MM")}",

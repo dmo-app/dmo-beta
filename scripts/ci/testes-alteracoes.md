@@ -1791,3 +1791,50 @@ Novos: 14 · mudaram: 55 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.Pdf_WithoutMeasurements_DownloadsBlankSheet_WithoutWriting`
 
 Selo depois: `7e4bced974268ae6`
+
+## A-0074 · 2026-10-23 · ok-do-diogo
+
+Porquê: Job On: a folha nova em todo o lado; Planeamento abre a folha numa página; Criar e Duplicar na folha em Editar; ficha antiga sai; sem títulos dos grupos; TP Diâmetro
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyE7tiP6DoaPx4TJH65FxhpT
+Novos: 12 · mudaram: 21 · saíram: 5
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_ACalMostraAsLinhasGravadas_ComAQtdMaq_NaFolhaNova`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_SemNadaEscrito_MostraOsVaziosEOEditar_SemAFichaAntiga`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_AbreVaziaEmEditar_EGuardaPeloCreateEVoltaAFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_NumeroRepetido_ERecusadoTipado_ESoAvisaAsDatasTrocadas`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_SemCmBqOuMf_ERecusado_AFolhaVoltaComOQueSeEscreveu_ENadaEGravado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatasNemNumero_ComODiaDoCalendario_EGravaUmaProducaoNova`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_TP_ODiametroSemPS_ECampoIgual`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.Planeamento_EscolherUmaProducao_AbreAFolhaNova_SemAFichaAntiga`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Ficha_ProducoesDaReferencia_SaiComAFichaAntiga_AFolhaTemODropdown`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Editar_RegistaOQueMudou_EAFichaMostraAAcao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_AcoesEFactos_AoUsoDoHtml`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_AbremAFichaDaFerramenta_SemAvisoDeDadosEmFalta`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_SemColocacaoManualNemRetirarDoPlaneamento`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Opcoes_EditarPrimeiro_SemDuplicarLote_EFecharVoltaAFicha`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_MostramAProximaMudancaEmCadaMaquina`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.EditFlow_ReplansTheSameProduction_WindowLineAndTools`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Historico_Mostra25ProducoesPorPagina_MaisRecentesPrimeiro`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Planeamento_CriarJobOn_FicaNaBarraDaProcura_ADireitaDasCaixas_ComODia`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EliminarJobOnComReparacoes_AJanelaDizQuantasSePerdem`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Ficha_ACalMostraAsLinhasGravadas_ComAQtdMaq`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Ficha_MostraSoAsFamiliasEOsCamposEscritos_ComAQtdStockEAQtdMaq`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Ficha_SemNadaEscritoNaFolha_DizSoIssoComOEditar`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Ficha_Opcoes_ProducoesDaReferencia_TabelaPaginadaSoQuandoSeAbre`
+
+Selo depois: `031b6cee24738ca0`

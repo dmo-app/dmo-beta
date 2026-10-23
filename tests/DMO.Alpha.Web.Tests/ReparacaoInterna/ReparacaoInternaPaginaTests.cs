@@ -452,7 +452,7 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         });
         using var client = await LoginOperatorAsync($"661{quantas}", DmoCapabilities.JobOnCreate);
 
-        var ficha = WebUtility.HtmlDecode(await client.GetStringAsync($"/JobOn?jobon_id={jobOns[0]}"));
+        var ficha = WebUtility.HtmlDecode(await client.GetStringAsync($"/JobOn/Folha?jobon_id={jobOns[0]}"));
         var inicio = ficha.IndexOf("<dialog id=\"jobon-delete-dialog\"", StringComparison.Ordinal);
         Assert.True(inicio >= 0, "a janela do Eliminar não está na ficha");
         var janela = ficha[inicio..(ficha.IndexOf("</dialog>", inicio, StringComparison.Ordinal) + 9)];

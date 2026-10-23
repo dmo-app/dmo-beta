@@ -142,6 +142,15 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
     private async Task<string> GetVerificationTokenAsync(HttpClient client, string path)
     {
         var response = await client.GetAsync(path);
+        // O Planeamento leva à folha nova (Diogo, 23/10/2026: escolher uma
+        // produção, o Criar e o Duplicar abrem /JobOn/Folha): o token lê-se
+        // onde o redirect chega.
+        if (response.StatusCode == System.Net.HttpStatusCode.Redirect
+            && response.Headers.Location?.ToString() is { } destino
+            && destino.StartsWith("/JobOn/Folha", StringComparison.Ordinal))
+        {
+            response = await client.GetAsync(destino);
+        }
         response.EnsureSuccessStatusCode();
         var html = await response.Content.ReadAsStringAsync();
         return HtmlFormHelpers.ExtractRequestVerificationToken(html)
