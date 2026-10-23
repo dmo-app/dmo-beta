@@ -74,7 +74,7 @@ public partial class PuncoesPageTests
         using var client = await LoginClientAsync("4330", "PuncoesPos1!");
         var lista = await SeedTabelaAprovadaAsync(controloId);
 
-        var zona = Zona(WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}")));
+        var zona = Zona(WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&vista=folha")));
 
         Assert.Equal("1", Celula(zona, "A1"));
         Assert.Equal("2", Celula(zona, "B1"));
@@ -123,7 +123,7 @@ public partial class PuncoesPageTests
                 Assert.Equal(8, await linhas.SeccoesAsync("C2") * 4);
             }
 
-            var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
+            var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&vista=folha"));
             Assert.Equal(lista[7].Numero, Celula(html, "D2"));
             Assert.DoesNotContain("data-pu-posicao=\"A3\"", html);
             Assert.Equal("Punções verificados 51 Linha C2 8 Reserva 43", Texto(Bloco(html, "data-pu-totais", "dl")));
@@ -158,6 +158,9 @@ public partial class PuncoesPageTests
 
         var registo = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
         Assert.Contains($"href=\"/Controlo/Puncoes?controlo_id={controloId}&vista=folha\" data-pu-ligacoes>Folha das punções</a>", registo);
+        // O cartão das posições já não está no registo, só na folha (Diogo, 24/10/2026).
+        Assert.DoesNotContain("data-pu-grelha", registo);
+        Assert.DoesNotContain("Posições na linha", registo);
 
         var folha = Zona(WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&vista=folha")));
         Assert.Contains($"href=\"/Controlo/Puncoes?controlo_id={controloId}\">← Registo das punções</a>", Bloco(folha, "data-pu-ligacoes", "nav"));

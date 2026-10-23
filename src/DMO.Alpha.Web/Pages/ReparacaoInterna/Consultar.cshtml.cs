@@ -128,7 +128,7 @@ public sealed class ConsultarModel(
         Numero = numero;
         FerramentaAssociada = ferramenta;
 
-        ViewData["Title"] = "Consultar — Reparação Interna";
+        ViewData["Title"] = "Consultar — Reparação";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("reparacao-interna", "Reparação Interna"))) with
         {
             ActiveFunctionKey = "consultar",

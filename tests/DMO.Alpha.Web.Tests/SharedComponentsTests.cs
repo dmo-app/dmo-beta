@@ -134,10 +134,13 @@ public sealed class SharedComponentsTests
         // da linha de base à altura das maiúsculas (em em), com o círculo em cima,
         // em linha ou num flex alinhado pela linha de base.
         Assert.Contains(".dmo-help{position:relative;display:inline-block;height:.72em;font-size:inherit;vertical-align:baseline;align-self:baseline;", css, StringComparison.Ordinal);
-        Assert.Contains("html body :is(h1,h2,h3,h4,label,legend,summary):has(>.dmo-help){align-items:baseline}", css, StringComparison.Ordinal);
+        Assert.Contains("html body :is(h1,h2,h3,h4,label,legend,summary):has(>:is(.dmo-help,.dmo-com-ajuda)){align-items:baseline!important}", css, StringComparison.Ordinal);
+        // Um elemento com a sua ajuda (a etiqueta «Só de leitura») fica junto: o gap do título não os separa.
+        Assert.Contains("html body .dmo-com-ajuda{display:inline-flex;align-items:baseline}", css, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"dmo-com-ajuda\"><button type=\"button\" class=\"def-cadeado\"", File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Definicoes", "_DefinicoesCadeado.cshtml")), StringComparison.Ordinal);
         Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:9px;height:9px}", css, StringComparison.Ordinal);
         // Ao lado de um botão, a mesma regra.
-        Assert.Contains(":is(.dmo-button,button,.dmo-options)+.dmo-help{margin-left:.25em}", css, StringComparison.Ordinal);
+        Assert.Contains(":is(.dmo-button,button,.dmo-options)+.dmo-help{margin-left:.22em}", css, StringComparison.Ordinal);
         Assert.DoesNotContain("margin-top:-5px", css, StringComparison.Ordinal);
         Assert.Contains(".dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}", css, StringComparison.Ordinal);
 

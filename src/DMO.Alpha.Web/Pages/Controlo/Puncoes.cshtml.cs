@@ -107,6 +107,14 @@ public sealed class PuncoesModel : PageModel
         _ => string.Empty
     };
 
+    /// <summary>O lote da punção repetida, para a mensagem junto ao formulário.</summary>
+    public string? EchoPunchLot { get; private set; }
+
+    /// <summary>«A punção 12 do lote 13 já está registada.» — junto ao formulário das punções.</summary>
+    public string? DuplicateMessage => Refusal == PuncoesResult.DuplicatePunch
+        ? $"A punção {EchoNumber} do lote {DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(EchoPunchLot ?? EchoLot ?? string.Empty)} já está registada."
+        : null;
+
     public string? JobOnRefusalMessage => JobOnRefusal switch
     {
         "sem-escolha" => "Escolha a produção.",
@@ -163,7 +171,8 @@ public sealed class PuncoesModel : PageModel
         [FromQuery(Name = "referencia")] string? punchReference,
         [FromQuery(Name = "lote")] string? lot,
         [FromQuery(Name = "referencia_total")] string? reference,
-        [FromQuery(Name = "vista")] string? vista = null)
+        [FromQuery(Name = "vista")] string? vista = null,
+        [FromQuery(Name = "lote_puncao")] string? punchLotEcho = null)
     {
         VistaFolha = vista == VistaFolhaValor;
         ViewData["Title"] = "PU NNPB — Controlo";
@@ -181,6 +190,7 @@ public sealed class PuncoesModel : PageModel
             EchoPunchReference = Limit(punchReference, DMO.Alpha.Core.Controlo.Puncoes.PunchReferenceMaxLength);
             EchoLot = Limit(lot, DMO.Alpha.Core.Controlo.Puncoes.LotMaxLength);
             EchoReference = Limit(reference, DMO.Alpha.Core.Controlo.Puncoes.ReferenceMaxLength);
+            EchoPunchLot = Limit(punchLotEcho, DMO.Alpha.Core.Controlo.Puncoes.LotMaxLength);
         }
 
         JobOnRefusal = jobOnRefusal;
@@ -352,6 +362,16 @@ public sealed class PuncoesModel : PageModel
     {
         var target = Target(controloId, puncoesId);
         var result = await _handler.AddAsync(target, number, punchReference, lot, Operator(), HttpContext.RequestAborted, punchLot);
+        if (result == PuncoesResult.DuplicatePunch)
+        {
+            var route = TargetRoute(target);
+            route["recusa"] = result.ToString();
+            route["numero"] = Limit(number, PuncaoInspecao.NumberMaxLength);
+            route["lote"] = Limit(lot, DMO.Alpha.Core.Controlo.Puncoes.LotMaxLength);
+            route["lote_puncao"] = Limit(punchLot, DMO.Alpha.Core.Controlo.Puncoes.LotMaxLength);
+            return RedirectToPage("/Controlo/Puncoes", null, route, "puncoes-lista");
+        }
+
         return result == PuncoesResult.Success
             ? Back(target, "puncoes-lista")
             : Refused(target, result, number, punchReference, lot);

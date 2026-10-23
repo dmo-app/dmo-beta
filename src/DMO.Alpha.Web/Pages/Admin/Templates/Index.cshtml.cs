@@ -110,17 +110,17 @@ public sealed class IndexModel : PageModel
     public static IReadOnlyList<(string Module, IReadOnlyList<string> Capabilities)> BetaCapabilityGroups =>
         new (string, IReadOnlyList<string>)[]
         {
-            ("Planeamento · Job On", new[]
+            ("Planeamento", new[]
             {
                 DmoCapabilities.JobOnCreate,
                 DmoCapabilities.JobOnView
             }),
-            ("Controlo (Criar: Resumo · Peso · Pegamentos · Histórico; Aprovar: Revisão)", new[]
+            ("Controlo", new[]
             {
                 DmoCapabilities.ControloCreate,
                 DmoCapabilities.ControloApprove
             }),
-            ("Boquilhas (Criar: Registo · Boquilhas · Movimentos · Definições; Ver: só os Movimentos)", new[]
+            ("Boquilhas", new[]
             {
                 DmoCapabilities.Boquilhas,
                 DmoCapabilities.BoquilhasView
@@ -129,11 +129,11 @@ public sealed class IndexModel : PageModel
             {
                 DmoCapabilities.Ferramentas
             }),
-            ("Armazém (Gestão: Movimentos · Mapa · Histórico · Próximos Job On · Posições · Definições)", new[]
+            ("Armazém", new[]
             {
                 DmoCapabilities.ArmazemGestao
             }),
-            ("Reparação Interna (Registar)", new[]
+            ("Reparação Interna", new[]
             {
                 DmoCapabilities.ReparacaoInterna
             })
@@ -142,15 +142,17 @@ public sealed class IndexModel : PageModel
     /// <summary>Rótulo pt-PT da capability (o token canónico é a autoridade; o rótulo é display).</summary>
     public static string CapabilityLabel(string capability) => capability switch
     {
-        DmoCapabilities.JobOnCreate => "Planeamento",
-        DmoCapabilities.JobOnView => "Job On ver",
-        DmoCapabilities.ControloCreate => "Controlo — Criar",
-        DmoCapabilities.ControloApprove => "Controlo — Aprovar",
+        // Um só formato, «Módulo · ação», a ação em minúscula (Diogo, 24/10/2026);
+        // as chaves não mudam, só os rótulos.
+        DmoCapabilities.JobOnCreate => "Job On · criar",
+        DmoCapabilities.JobOnView => "Job On · ver",
+        DmoCapabilities.ControloCreate => "Controlo · criar",
+        DmoCapabilities.ControloApprove => "Controlo · aprovar",
         DmoCapabilities.Boquilhas => "Boquilhas · criar",
         DmoCapabilities.BoquilhasView => "Boquilhas · ver",
-        DmoCapabilities.Ferramentas => "Ferramentas",
-        DmoCapabilities.ArmazemGestao => "Armazém — Gestão",
-        DmoCapabilities.ReparacaoInterna => "Reparação Interna",
+        DmoCapabilities.Ferramentas => "Ferramentas · gerir",
+        DmoCapabilities.ArmazemGestao => "Armazém · gestão",
+        DmoCapabilities.ReparacaoInterna => "Reparação Interna · registar",
         _ => capability
     };
 

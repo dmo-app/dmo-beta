@@ -98,7 +98,7 @@ html body .def-menu-sub[hidden]{display:none}
       @foreach (var (chave, nome) in Model.Entradas)
       {
         var ativa = chave == Model.Secao;
-        var cadeadoMenu = cadeado && chave != "pessoal" ? Html.Raw($"<span class=\"def-menu-cadeado\" data-dmo-menu-cadeado title=\"Geral só de leitura\">{CadeadoSvg}<span class=\"dmo-visually-hidden\">(geral só de leitura)</span></span>") : null;
+        var cadeadoMenu = cadeado && chave is not ("pessoal" or "armazem") ? Html.Raw($"<span class=\"def-menu-cadeado\" data-dmo-menu-cadeado title=\"Geral só de leitura\">{CadeadoSvg}<span class=\"dmo-visually-hidden\">(geral só de leitura)</span></span>") : null;
         if (Model.FuncoesDe(chave) is { } funcoes)
         {
           @* Um grupo (Diogo, 22/10/2026: «usa apenas sidepanel, Controlo expande, fica como título, por baixo as funções»); o grupo Admin só para o ADMIN. *@
@@ -206,10 +206,9 @@ html body .def-menu-sub[hidden]{display:none}
         <section id="sec-armazem" class="def-secao" data-dmo-def-secao="armazem" aria-labelledby="def-armazem-title" hidden="@(Model.Secao != "armazem")">
           <h2 id="def-armazem-title">Armazém</h2>
           <div class="def-parte" id="armazem">
-            <h3 class="def-parte-titulo">Geral<partial name="_DefinicoesCadeado" model="cadeado" /></h3>
-            <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais do Armazém</legend>
-              <div class="def-cartoes"><partial name="/Pages/Armazem/_DefinicoesGeral.cshtml" model="armazem" /></div>
-            </fieldset>
+            @* Sem cadeado: os reparadores editam-se sem PIN, como nas Boquilhas (Diogo, 24/10/2026). *@
+            <h3 class="def-parte-titulo">Geral</h3>
+            <div class="def-cartoes"><partial name="/Pages/Armazem/_DefinicoesGeral.cshtml" model="armazem" /></div>
           </div>
         </section>
       }

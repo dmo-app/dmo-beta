@@ -53,7 +53,7 @@
          baixo (form=); enquanto a referência escrita não é a das produções,
          fica desativado (data-dmo-depende). *@
       <div id="puEscolhaAvisos" class="dmo-zona" data-dmo-regiao>
-      @if (Model.Refusal is not null)
+      @if (Model.RefusalMessage is { Length: > 0 })
       {
         <div data-dmo-toast="erro" class="pu-aviso" role="alert">@Model.RefusalMessage</div>
       }
@@ -183,14 +183,14 @@
         <div>
           <h3 id="pu-id-title">Identificação do registo<partial name="_DmoHelp" model="@("Registo sem Job On. A referência da punção e o lote aplicam-se às próximas punções.")" /></h3>
         </div>
-        <span class="pu-step">01</span>
+        <span class="pu-step">1</span>
       </div>
       <div class="pu-facts">
         @* Só a produção (Diogo, 21/10/2026: «CM por associar nao deve existir so a producao»). *@
         <div class="pu-fact"><span>Produção</span><strong>Sem Job On</strong></div>
       </div>
 
-      @if (Model.Refusal is not null)
+      @if (Model.RefusalMessage is { Length: > 0 })
       {
         <div data-dmo-toast="erro" class="pu-aviso" role="alert">@Model.RefusalMessage</div>
       }
@@ -222,24 +222,36 @@
     <section class="dmo-card pu-card" id="puncoes-identificacao" aria-labelledby="pu-id-title" data-dmo-parcial>
       <div class="pu-section-head">
         <div>
-          <h3 id="pu-id-title">Identificação da produção<partial name="_DmoHelp" model="@("A produção e a CM vêm do Job On. A referência da punção e o lote aplicam-se às próximas punções.")" /></h3>
+          <h3 id="pu-id-title">Identificação da produção<partial name="_DmoHelp" model="@("A produção, a CM e a referência da punção vêm do Job On. A referência da punção e o lote aplicam-se às próximas punções.")" /></h3>
         </div>
-        <span class="pu-step">01</span>
+        @* O «Guardar identificação» no canto superior direito (Diogo, 23/10/2026). *@
+        <div class="dmo-card-topo-acoes">
+          @if (Model.CanRegister)
+          {
+            <button type="submit" form="pu-id-form" class="dmo-button" id="pu-id-guardar">Guardar identificação</button>
+          }
+          <span class="pu-step">1</span>
+        </div>
       </div>
       <div class="pu-facts">
         <div class="pu-fact"><span>Produção</span><strong>@sheet.ProductionNumber</strong></div>
         <div class="pu-fact"><span>Referência total</span><strong>@sheet.Reference</strong></div>
-        <div class="pu-fact"><span>Máquina</span><strong>@sheet.Machine</strong></div>
-        <div class="pu-fact"><span>CM</span><strong>@(sheet.CmReference ?? "—")@(sheet.CmLot is { } cmLot ? $" · Lote {cmLot}" : null)</strong></div>
+        <div class="pu-fact"><span>Linha</span><strong>@sheet.Machine</strong></div>
+        <div class="pu-fact"><span>CM</span><strong>@(sheet.CmReference ?? "—")@(sheet.CmLot is { } cmLot ? $" · Lote {DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(cmLot)}" : null)</strong></div>
         <div class="pu-fact"><span>Processo da CM</span><strong>@(sheet.IsNnpb ? "NNPB" : sheet.CmProcess ?? "Por preencher")</strong>
           @if (sheet.NnpbSource == PuncoesNnpbSource.NomeTecnico)
           {
             <small>pelo nome técnico da CM; a ficha não tem processo</small>
           }
         </div>
+        @* A punção como os outros: um mini-cartão, já preenchido ao iniciar (Diogo, 23/10/2026). *@
+        @if (Model.CanRegister && Model.ShownPunchReference is { Length: > 0 } puRef)
+        {
+          <div class="pu-fact" data-pu-puncao><span>Punção</span><strong>@puRef@(Model.ShownLot is { Length: > 0 } puLote ? $" · Lote {DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(puLote)}" : null)</strong></div>
+        }
       </div>
 
-      @if (Model.Refusal is not null)
+      @if (Model.RefusalMessage is { Length: > 0 })
       {
         <div data-dmo-toast="erro" class="pu-aviso" role="alert">@Model.RefusalMessage</div>
       }
@@ -254,21 +266,22 @@
       }
       else
       {
-        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Identification" class="pu-id-form" id="pu-id-form">
-          <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
-          <div class="dmo-field">
-            <label for="pu-referencia">Referência da punção</label>
-            <input id="pu-referencia" name="referencia" maxlength="100" required value="@Model.ShownPunchReference" placeholder="Ex.: 1075" />
-          </div>
-          <div class="dmo-field">
-            <label for="pu-lote">Lote</label>
-            <input id="pu-lote" name="lote" inputmode="numeric" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
-          </div>
-          <div class="dmo-field">
-            <span class="dmo-label" aria-hidden="true">&nbsp;</span>
-            <button type="submit" class="dmo-button">Guardar identificação</button>
-          </div>
-        </form>
+        @* Os campos só para editar: abertos quando falta a referência ou o lote, ou numa recusa. *@
+        var puEditarAberto = Model.RefusalMessage is { Length: > 0 } || string.IsNullOrEmpty(Model.ShownPunchReference) || string.IsNullOrEmpty(Model.ShownLot);
+        <details class="pu-id-editar" open="@(puEditarAberto ? "open" : null)">
+          <summary><span class="dmo-caret" aria-hidden="true"></span>Editar a punção</summary>
+          <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Identification" class="pu-id-form" id="pu-id-form">
+            <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
+            <div class="dmo-field">
+              <label for="pu-referencia">Referência da punção</label>
+              <input id="pu-referencia" name="referencia" maxlength="100" required value="@Model.ShownPunchReference" placeholder="Ex.: 1075" />
+            </div>
+            <div class="dmo-field">
+              <label for="pu-lote">Lote</label>
+              <input id="pu-lote" name="lote" inputmode="numeric" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
+            </div>
+          </form>
+        </details>
       }
 
       @if (sheet.Registo is null && Model.RegistosSemJobOn.Count > 0)
@@ -328,6 +341,10 @@
           <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
         </form>
 
+        @if (Model.DuplicateMessage is { } repetida)
+        {
+          <div data-dmo-toast="erro" class="pu-aviso" role="alert" data-pu-repetida>@repetida</div>
+        }
         @* O número junta-se à identificação do cartão de cima (o mesmo POST). *@
         @* O LOTE DE UM NÚMERO REPETIDO (Diogo, 21/10/2026): outra punção com
            o mesmo número tem outro lote; o campo aparece quando o número já
@@ -351,7 +368,9 @@
         </form>
 
         <div class="dmo-table-wrap">
-          <table class="dmo-table pu-table">
+          @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
+          <table class="dmo-table pu-table pu-table-fixa">
+            <colgroup><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
             <thead>
               <tr>
                 <th>N.º da punção</th>
@@ -414,10 +433,7 @@
         </div>
       </section>
 
-      @if (Model.Posicoes is { } posicoes)
-      {
-        <partial name="_PuncoesPosicoes" model="@(new PuncoesPosicoesView(posicoes, Model.Linha))" />
-      }
+      @* Sem o cartão «Posições na linha» aqui (Diogo, 24/10/2026): a folha das posições está nas Opções. *@
     }
   }
   }

@@ -166,7 +166,7 @@ public partial class BoquilhasRegistoPageTests
 
         var html = await GetPageHtmlAsync(client, $"{PagePath}?bq_id={bq.Id}");
 
-        Assert.Contains("Esta boquilha tem um registo sem Job On com 1 movimento(s).", html);
+        Assert.Contains("Esta boquilha tem um registo sem Job On com 1 movimento.", html);
         // Os movimentos sem Job On veem-se na página Boquilhas (Diogo, 22/10/2026).
         Assert.Contains("href=\"/Boquilhas?ficheiros=1&amp;ferramenta=BQ-OPEN-4#bqSemJobOnMovimentos\">Ver os movimentos sem Job On</a>", html);
         using (var scope = _factory.Services.CreateScope())

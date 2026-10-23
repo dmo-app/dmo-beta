@@ -30,6 +30,9 @@
     };
     var shownReference = recordedReference ?? componentContext.ToolReference;
     var shownLot = recordedLot ?? componentContext.ToolLot;
+    // O contexto no título (Diogo, 24/10/2026): «CM ST100 · Lote 8»; a BQ só com a referência curta; o lote sem zeros à esquerda.
+    var tituloRef = shownReference is { Length: > 0 } r ? (component == PegamentosComponent.Bq ? DMO.Alpha.Web.Presentation.FerramentaNome.ReferenciaCurta(r) : r) : null;
+    var tituloLote = shownLot is { Length: > 0 } l ? DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(l) : null;
     // Uma folha de antes de uma troca da CM, da BQ ou do MF não recebe
     // leituras novas; as dela ainda se corrigem e apagam (18/10/2026).
     var podeRegistar = sheet.Pegamentos?.IsCurrent != false;
@@ -46,7 +49,12 @@
 <section class="dmo-card peg-card@(toolSemNominal ? " peg-card-sem-nominal" : "")" aria-labelledby="peg-comp-@component-title" data-peg-component="@componentToken" data-dmo-parcial data-dmo-zonas="@PegamentosModel.ZonaAvisos @PegamentosModel.ZonaMapa@(sheet.Pegamentos is null ? " " + PegamentosModel.ZonaContexto : null)@(Model.Pagina.ShowSheets ? " " + PegamentosModel.ZonaFolhas : null)">
   <div class="peg-section-head">
     <div>
-      <h3 id="peg-comp-@component-title">@PegamentosVista.ComponentLabel(component)<partial name="_DmoHelp" model="@($"Cada eixo é comparado com o nominal ± {PegamentosVista.Fmt(Model.Pagina.ShownTolerance)} mm; um alerta é só um aviso. A ovalização mantém o sinal e fica vazia com um só eixo. Na linha AVG, a contra costura e a ovalização contam só as leituras que as têm.")" /></h3>
+      <h3 id="peg-comp-@component-title" data-peg-titulo>@PegamentosVista.ComponentLabel(component)@if (tituloRef is not null)
+        {@(" ")@if (podeAbrirFicha)
+          {<a class="peg-ficha-link" href="@fichaHref" title="Abrir a ficha da ferramenta">@tituloRef</a>}
+          else
+          {@tituloRef}}@if (tituloLote is not null)
+        {@($" · Lote {tituloLote}")}<partial name="_DmoHelp" model="@($"Cada eixo é comparado com o nominal ± {PegamentosVista.Fmt(Model.Pagina.ShownTolerance)} mm; um alerta é só um aviso. A ovalização mantém o sinal e fica vazia com um só eixo. Na linha AVG, a contra costura e a ovalização contam só as leituras que as têm.")" /></h3>
     </div>
     <span class="peg-step">2 · Medições</span>
   </div>
@@ -57,11 +65,6 @@
      contexto da ferramenta e ficam neutros, sem verde. Sem nominal na
      ferramenta, o card fica amarelo e o nominal escreve-se aqui. *@
   <dl class="peg-ferramenta-linha">
-    <div><dt>Referência</dt><dd>@if (podeAbrirFicha)
-        {<a class="peg-ficha-link" href="@fichaHref" title="Abrir a ficha da ferramenta">@(shownReference ?? "—")</a>}
-        else
-        {@(shownReference ?? "—")}</dd></div>
-    <div><dt>Lote</dt><dd>@(shownLot ?? "—")</dd></div>
     @if (!toolSemNominal && (nominal ?? componentContext.DiametroGargaloMm) is { } nominalValue)
     {
       <div><dt>Nominal (mm)</dt><dd>@PegamentosVista.Fmt(nominalValue)</dd></div>

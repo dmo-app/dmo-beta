@@ -20,6 +20,20 @@ public sealed class UiStyleRuleTests
         File.ReadAllText(Path.Combine([WebRoot(), .. parts]));
 
     [Fact]
+    public void LinksNosMiniCartoes_TemACorDoValor_SemSublinhado_NemNoHover()
+    {
+        // Diogo, 24/10/2026: o link da produção num mini-cartão tinha a cor e o
+        // sublinhado do browser. A regra partilhada vale para toda a app.
+        var css = Read("wwwroot", "css", "dmo-normalize.css");
+        const string cartoes = ":is(.dmo-fact,.dmo-facts,.dmo-fact-stack,.pu-fact,.pu-stat,.peso-fact,.peso-facts,.revisao-facts,.facts,.fact-col,.lot-data,.resumo-stats,.jobon-production-facts,.job-tool-card-facts) a:not(.dmo-button):not(.btn)";
+        Assert.Contains($"html body {cartoes}{{color:inherit;text-decoration:none;cursor:pointer;", css, StringComparison.Ordinal);
+        Assert.Contains($"html body {cartoes}:is(:hover,:focus-visible){{color:var(--dmo-brand-700);text-decoration:none}}", css, StringComparison.Ordinal);
+        // O hover é um token que o modo escuro redefine (não uma cor fixa).
+        var tokens = Read("wwwroot", "0_ASSET_CANONICAL_DESIGN_SYSTEM.css");
+        Assert.Matches(":root\\[data-theme=\"dark\"\\]\\{[^}]*--dmo-brand-700:", tokens);
+    }
+
+    [Fact]
     public void Buttons_HaveOneLook_BlueWithWhiteText_HoverInverts()
     {
         var css = Read("wwwroot", "css", "dmo-normalize.css");
@@ -122,8 +136,10 @@ public sealed class UiStyleRuleTests
         var cabecalho = Read("Pages", "Shared", "_DmoSessionUtilities.cshtml");
         Assert.DoesNotContain("data-dmo-tema", cabecalho, StringComparison.Ordinal);
         Assert.DoesNotContain("Modo escuro", cabecalho, StringComparison.Ordinal);
-        Assert.Contains("<a class=\"dmo-shell-logout dmo-shell-admin\" href=\"/Admin\" data-dmo-cabecalho-admin>Admin</a>", cabecalho, StringComparison.Ordinal);
-        Assert.True(cabecalho.IndexOf("data-dmo-cabecalho-admin", StringComparison.Ordinal) < cabecalho.IndexOf(">Sair<", StringComparison.Ordinal));
+        // Sem o link «Admin» (Diogo, 23/10/2026: «remover o link admin, deixar o sair»): só o «Sair» por baixo do utilizador.
+        Assert.DoesNotContain("href=\"/Admin\"", cabecalho, StringComparison.Ordinal);
+        Assert.DoesNotContain(">Admin<", cabecalho, StringComparison.Ordinal);
+        Assert.True(cabecalho.IndexOf("data-user-profile-name", StringComparison.Ordinal) < cabecalho.IndexOf(">Sair<", StringComparison.Ordinal));
         Assert.Contains("id=\"defTemaBotao\"", Read("Pages", "Definicoes", "Index.cshtml"), StringComparison.Ordinal);
         Assert.Contains("<partial name=\"_DmoTemaInicial\" />", Read("Pages", "Shared", "_DmoShellLayout.cshtml"), StringComparison.Ordinal);
         Assert.Contains("<partial name=\"_DmoTemaInicial\" />", Read("Pages", "Shared", "_DmoAccountLayout.cshtml"), StringComparison.Ordinal);

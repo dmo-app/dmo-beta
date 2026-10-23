@@ -73,3 +73,16 @@ table.dmo-table.pu-grelha[data-pu-grelha] tbody td{height:58px;position:relative
 html body .pu-grelha-baixo table.dmo-table.pu-grelha{width:auto;min-width:0}
 html body table.dmo-table.pu-grelha th{text-transform:none;letter-spacing:normal;font-size:13px}
 html body table.dmo-table.pu-grelha tbody th{font-size:14px}
+
+/* «Editar a punção»: os campos da identificação só para editar (Diogo, 23/10/2026). */
+.pu-id-editar{margin-top:10px}
+.pu-id-editar>summary{cursor:pointer;color:var(--dmo-brand-700);font-weight:600;font-size:13px}
+.pu-id-editar[open]>summary{margin-bottom:8px}
+
+/* A tabela das punções com larguras fixas: o estado («Visto» / «Por verificar») não mexe as colunas (Diogo, 24/10/2026). */
+.pu-table-fixa{table-layout:fixed;width:100%;min-width:560px}
+.pu-table-fixa .pu-col-numero{width:26%}
+.pu-table-fixa .pu-col-lote{width:14%}
+.pu-table-fixa .pu-col-estado{width:24%}
+.pu-table-fixa .pu-col-acoes{width:12%}
+.pu-table-fixa td,.pu-table-fixa th{overflow-wrap:anywhere}

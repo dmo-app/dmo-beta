@@ -205,7 +205,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         using var client = await LoginOperatorAsync("6802", DmoCapabilities.ReparacaoInterna);
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
 
-        using var gravar = await RegistarOutraAsync(client, codigo, html, " 0457 ", " 5447t173 ", " 4 ");
+        using var gravar = await RegistarOutraAsync(client, codigo, html, " 457 ", " 5447t173 ", " 4 ");
 
         Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
         var depois = await client.GetStringAsync(gravar.Headers.Location!.OriginalString);
@@ -218,7 +218,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         Assert.DoesNotContain("checked", Campo(depois, $"riOutra-{codigo}"));
         Assert.DoesNotContain("value=", Campo(depois, $"riReferencia-{codigo}"));
         var r = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(x => x.JobOnId == jobOn));
-        Assert.Equal(((int?)null, "5447T173", "4", "0457"), (r.CmContextId, r.ReferenciaEscrita, r.LoteEscrito, r.Numero));
+        Assert.Equal(((int?)null, "5447T173", "4", "457"), (r.CmContextId, r.ReferenciaEscrita, r.LoteEscrito, r.Numero));
         var linha = Elemento(depois, $"data-dmo-reparacao=\"{r.Id}\"");
         Assert.Contains("Outra: 5447T173 · lote 4", linha);
         Assert.DoesNotContain("<button", Elemento(depois, $"id=\"riLista-{codigo}\""));

@@ -22,8 +22,10 @@
 .peg-map-card h3{color:var(--dmo-brand-600)}
 .peg-map-card .peg-map-help{font-size:12px;color:var(--dmo-muted);margin:0 0 10px}
 /* O mapa mais pequeno (Diogo, 19/10/2026: «meter grafico mais pequeno»): no máximo 760px, à largura em que a letra fica ao nível da página. */
-.peg-map-wrap{width:100%;max-width:762px;overflow-x:auto;border:1px solid var(--dmo-border);border-radius:7px;background:var(--dmo-subtle)}
-.peg-map-wrap svg{display:block;width:760px;height:auto}
+/* Mais largo e centrado (Diogo, 23/10/2026: «aumentar tamanho do gráfico nos pegamentos na horizontal», «deixar centrado»):
+   ocupa a largura do cartão; o desenho é mais largo (PegamentosLimitMap.LarguraNaPagina), por isso a altura fica. */
+.peg-map-wrap{width:100%;margin-inline:auto;overflow-x:auto;border:1px solid var(--dmo-border);border-radius:7px;background:var(--dmo-subtle)}
+.peg-map-wrap svg{display:block;width:100%;min-width:760px;height:auto;margin-inline:auto}
 .peg-map-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:11px;color:var(--dmo-muted)}
 .peg-map-legend span{display:inline-flex;align-items:center;gap:5px}
 .peg-map-legend .peg-line{width:2px;height:14px;display:inline-block;background:currentColor}
@@ -214,8 +216,9 @@
 .peg-page .peg-map-wrap svg {
   display:block;
   min-width:760px;
-  width:760px;
+  width:100%;
   height:auto;
+  margin-inline:auto;
 }
 .peg-page .peg-map-legend {
   align-items:center;

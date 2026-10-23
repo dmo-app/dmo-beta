@@ -194,7 +194,15 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
 
         var html = await admin.GetStringAsync("/Admin/Templates");
 
-        Assert.Contains("Armazém — Gestão", html);
+        Assert.Contains("Armazém · gestão", html);
         Assert.Contains(DmoCapabilities.ArmazemGestao, html);
+        // Um só formato «Módulo · ação» e títulos curtos (Diogo, 24/10/2026); as chaves não mudam.
+        var texto = System.Net.WebUtility.HtmlDecode(html);
+        foreach (var rotulo in new[] { "Job On · criar", "Job On · ver", "Controlo · criar", "Controlo · aprovar", "Boquilhas · criar", "Boquilhas · ver", "Ferramentas · gerir", "Reparação Interna · registar" })
+            Assert.Contains(rotulo, texto);
+        foreach (var antigo in new[] { "Controlo — Criar", "Armazém — Gestão", "Job On ver<", "Controlo (Criar", "Boquilhas (Criar", "Armazém (Gestão", "Reparação Interna (Registar)", "Planeamento · Job On" })
+            Assert.DoesNotContain(antigo, texto);
+        foreach (var chave in new[] { DmoCapabilities.JobOnCreate, DmoCapabilities.JobOnView, DmoCapabilities.ControloCreate, DmoCapabilities.ReparacaoInterna })
+            Assert.Contains(chave, texto);
     }
 }

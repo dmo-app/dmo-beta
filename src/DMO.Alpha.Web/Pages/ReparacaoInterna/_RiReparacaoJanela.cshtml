@@ -19,7 +19,7 @@
       <input type="hidden" id="riCorrigirVolta" name="volta" />
       <div class="dmo-field">
         <label for="riCorrigirNumero">Número</label>
-        <input id="riCorrigirNumero" name="numero" maxlength="@Reparacao.NumeroMaxLength" autocomplete="off" required />
+        <input id="riCorrigirNumero" name="numero" inputmode="numeric" maxlength="@DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.NumeroAlgarismos" pattern="[0-9]{1,@DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.NumeroAlgarismos}" title="Só algarismos, até @DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.NumeroAlgarismos" autocomplete="off" required />
       </div>
       <div class="dmo-field">
         <label for="riCorrigirMotivo">Motivo (opcional)</label>

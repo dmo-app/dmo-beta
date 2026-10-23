@@ -12,6 +12,9 @@ public static class PegamentosLimitMap
     // 18/10/2026, regra 98: a legenda tinha um azul que o mapa nunca usa).
     // Ficam de propósito fora da paleta oficial: a identidade das componentes
     // e o cinzento de «não avaliável» (docs/ui-reference/paleta-oficial.md).
+    /// <summary>A largura do mapa na página: à largura de um cartão de 1400 px, com a altura de sempre.</summary>
+    public const int LarguraNaPagina = 1700;
+
     public const string AlertColor = DmoPdfPalette.Nok;
     public const string NotEvaluableColor = DmoPdfPalette.NotEvaluable;
 
@@ -22,8 +25,11 @@ public static class PegamentosLimitMap
         _ => "#0891B2"
     };
 
-    public static string Render(PegamentosPdfGenerator.Input input)
+    /// <param name="largura">A largura do desenho (a altura fica a mesma). O PDF usa 1000; a página,
+    /// mais larga (Diogo, 23/10/2026: «aumentar tamanho do gráfico nos pegamentos na horizontal»).</param>
+    public static string Render(PegamentosPdfGenerator.Input input, int largura = 1000)
     {
+        var direita = largura - 35m;
         static string N(decimal n) => n.ToString("0.###", CultureInfo.InvariantCulture);
         static string E(string s) => SecurityElement.Escape(s) ?? "";
         var values = new List<decimal>();
@@ -42,18 +48,18 @@ public static class PegamentosLimitMap
         var min = values.Count == 0 ? 0 : decimal.Floor((values.Min() - .04m) / .05m) * .05m;
         var max = values.Count == 0 ? 1 : decimal.Ceiling((values.Max() + .04m) / .05m) * .05m;
         if (max - min < .60m) { var mid = (max + min) / 2; min = mid - .30m; max = mid + .30m; }
-        decimal X(decimal v) => 115 + (v - min) / (max - min) * 850;
+        decimal X(decimal v) => 115 + (v - min) / (max - min) * (direita - 115);
         // O desenho do relatório original (Diogo, 19/10/2026: «melhorar o
         // aspecto do gráfico»): área do gráfico em branco com moldura, uma
         // faixa por componente na sua cor, a linha do nominal com o nome e o
         // valor por cima, as linhas tracejadas dos limites de fora (CM − tol.
         // e MF + tol.), círculos pequenos e o losango da média com o valor.
         const decimal Top = 44m, Bottom = 206m;
-        var svg = new StringBuilder("<svg xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Mapa de limites dos Pegamentos\" width=\"1000\" height=\"245\" viewBox=\"0 0 1000 245\">");
+        var svg = new StringBuilder("<svg xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Mapa de limites dos Pegamentos\" width=\"" + largura + "\" height=\"245\" viewBox=\"0 0 " + largura + " 245\">");
         void Text(decimal x, decimal y, string text, string color = DmoPdfPalette.Muted, int size = 11, string anchor = "middle", bool bold = false) =>
             svg.Append($"<text x='{N(x)}' y='{N(y)}' fill='{color}' font-family='Lato' font-size='{size}'{(bold ? " font-weight='700'" : "")} text-anchor='{anchor}'>{E(text)}</text>");
         string Mm(decimal v) => v.ToString("0.00", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture);
-        svg.Append($"<path d='M115 {N(Top)}H965V{N(Bottom)}H115Z' fill='#ffffff' stroke='#d9e6f2'/>");
+        svg.Append($"<path d='M115 {N(Top)}H{N(direita)}V{N(Bottom)}H115Z' fill='#ffffff' stroke='#d9e6f2'/>");
         var step = decimal.Ceiling((max - min) / 20 / .05m) * .05m;
         for (var tick = min; tick <= max; tick += step)
         {
@@ -71,7 +77,7 @@ public static class PegamentosLimitMap
             var color = ComponentColor(key);
             var table = input.Tables.FirstOrDefault(t => t.Component.Equals(key, StringComparison.OrdinalIgnoreCase));
             Text(104, y + 4, PegamentosPdfGenerator.Label(key), DmoPdfPalette.Ink, 12, "end", bold: true);
-            svg.Append($"<line x1='115' x2='965' y1='{N(y)}' y2='{N(y)}' stroke='#cbd5e1'/>");
+            svg.Append($"<line x1='115' x2='{N(direita)}' y1='{N(y)}' y2='{N(y)}' stroke='#cbd5e1'/>");
             // If rows have different frozen nominals, display every historical corridor.
             var corridors = table?.Rows.Where(r => r.NominalMm != null && r.LowerMm != null && r.UpperMm != null)
                 .Select(r => (Nominal: r.NominalMm!.Value, Lower: r.LowerMm!.Value, Upper: r.UpperMm!.Value)).Distinct().ToArray() ?? [];

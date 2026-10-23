@@ -35,11 +35,7 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
       <input type="hidden" name="familias" value="ambos" />
     </form>
 
-    @if (Model.Reparadores.Count == 0)
-    {
-      <p><em>Ainda não há reparadores de CM e MF. Crie o primeiro acima.</em></p>
-    }
-    else
+    @if (Model.Reparadores.Count > 0)
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" data-dmo-list="Reparadores de CM e MF">

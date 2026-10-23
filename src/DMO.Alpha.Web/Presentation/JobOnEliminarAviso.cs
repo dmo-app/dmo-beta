@@ -46,8 +46,8 @@ public sealed record JobOnEliminarAviso(int JobOnId, string Pergunta, string? Ja
         if (preview.ReparacoesInternas > 0)
         {
             perdas.Add(preview.ReparacoesInternas == 1
-                ? "1 reparação da Reparação Interna"
-                : $"{preview.ReparacoesInternas} reparações da Reparação Interna");
+                ? "1 reparação"
+                : $"{preview.ReparacoesInternas} reparações");
         }
 
         var perde = perdas.Count == 0 ? null : "Perde-se também: " + Join(perdas) + ".";

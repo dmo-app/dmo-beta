@@ -114,10 +114,10 @@ public sealed class BqHistoryPdfGeneratorTests
             Subtitle: "Período 01/08/2026 — 31/08/2026",
             Entries: Array.Empty<BqDailySummaryEntry>(),
             Machines: Machines,
-            WithoutMachineWarning: "2 movimentos sem máquina não aparecem na grelha, mas contam nos totais. Estão na vista «Por máquina / Job On».");
+            WithoutMachineWarning: "2 movimentos sem máquina não aparecem na grelha, mas contam nos totais. Estão na vista «Por linha / Job On».");
 
         Assert.Contains(
-            "Aviso: 2 movimentos sem máquina não aparecem na grelha, mas contam nos totais. Estão na vista «Por máquina / Job On».",
+            "Aviso: 2 movimentos sem máquina não aparecem na grelha, mas contam nos totais. Estão na vista «Por linha / Job On».",
             PdfText.Of(generator.GenerateDailyMatrix(matrix)));
         Assert.DoesNotContain("Aviso:", PdfText.Of(generator.GenerateDailyMatrix(matrix with { WithoutMachineWarning = null })));
     }
@@ -189,7 +189,7 @@ public sealed class BqHistoryPdfGeneratorTests
         Assert.Equal(new[] { 1, 2 }, groups.Single(g => g.TraceId == 1 && g.MachineCode == "B1").Movements.Select(m => m.MovementId));
         Assert.Single(groups, g => g.MachineCode is null);
         var pdf = new BqHistoryPdfGenerator().GenerateMovementList(new(
-            "Boquilhas · Por máquina / Job On", "Todos os dias", movements, GroupByMachineAndTrace: true));
+            "Boquilhas · Por linha / Job On", "Todos os dias", movements, GroupByMachineAndTrace: true));
         AssertRealPdf(pdf);
         var text = PdfText.Of(pdf);
         Assert.Contains("Máquina Por indicar · Sem Job On · 5447T173 · BQ T173 · Lote 8", text);

@@ -235,3 +235,11 @@
 .peso-sap-delta{color:var(--dmo-muted);font-size:12px}
 .peso-sap-delta[hidden],.peso-sap-caixa [hidden]{display:none}
 .peso-sap-caixa > [data-sap-sem]{color:var(--dmo-muted);font-size:12px}
+/* O registo da leitura fica fixo no canto direito (Diogo, 23/10/2026: «a página de
+   registar fica fixa no canto direito»): sempre à vista ao descer, numa coluna
+   reservada à direita da página. No ecrã pequeno volta ao fluxo normal. */
+@media (min-width:601px){
+  .peso-page:has(.peso-leitura-nova){padding-right:calc(var(--peso-registo-largura,260px) + 40px)}
+  .peso-page .peso-leitura-grade .peso-leitura-nova{position:fixed;z-index:30;top:180px;right:16px;width:var(--peso-registo-largura,260px);max-height:calc(100vh - 196px);overflow:auto;background:var(--dmo-card,#fff);box-shadow:var(--dmo-shadow,0 8px 24px rgb(0 0 0 / .12))}
+}
+@media (min-width:601px) and (max-width:900px){.peso-page{--peso-registo-largura:220px}}

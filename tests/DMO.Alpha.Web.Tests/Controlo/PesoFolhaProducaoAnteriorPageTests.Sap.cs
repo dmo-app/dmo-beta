@@ -53,7 +53,7 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         var visivel = System.Text.RegularExpressions.Regex.Replace(sap[..sap.IndexOf("<span data-sap-sem", StringComparison.Ordinal)], "<[^>]+>", " ");
         Assert.DoesNotContain("SAP", visivel, StringComparison.Ordinal);
         Assert.Contains("Média 181.67 g", texto, StringComparison.Ordinal);
-        Assert.Contains("Moda 181.00 g", texto, StringComparison.Ordinal);
+        Assert.Contains("Moda 181 g", texto, StringComparison.Ordinal);
         // A Média vem escolhida, com a diferença do peso de hoje; a Moda escolhe-se (ou as duas).
         Assert.Contains("<input type=\"checkbox\" data-sap-ver=\"media\" checked />", sap, StringComparison.Ordinal);
         Assert.Contains("<input type=\"checkbox\" data-sap-ver=\"moda\" />", sap, StringComparison.Ordinal);
@@ -62,7 +62,7 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         Assert.DoesNotContain("data-sap-usar", sap, StringComparison.Ordinal);
         Assert.Contains("id=\"producaoAnteriorPeso\" name=\"anterior_peso\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"Peso usado (g)\" aria-label=\"Peso usado na produção (g)\" value=\"181.67\"", WebUtility.HtmlDecode(html), StringComparison.Ordinal);
         // Cada produção do select leva o seu peso; a mais antiga não tem ordens do SAP.
-        Assert.Contains($"data-sap-opcao=\"{anteriorJobOnId}\" data-sap-media=\"181.67\" data-sap-moda=\"181.00\" data-sap-dias=\"18\"", sap, StringComparison.Ordinal);
+        Assert.Contains($"data-sap-opcao=\"{anteriorJobOnId}\" data-sap-media=\"181.67\" data-sap-moda=\"181\" data-sap-dias=\"18\"", sap, StringComparison.Ordinal);
         Assert.DoesNotContain($"data-sap-opcao=\"{maisAntigaJobOnId}\"", sap, StringComparison.Ordinal);
     }
 
@@ -76,6 +76,9 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         var sap = ZonaSap(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
 
         Assert.Contains("<span data-sap-sem>Ainda não há o peso desta produção.", sap, StringComparison.Ordinal);
+        // «Ler a pasta» é um botão e diz «produção», nunca «SAP» (Diogo, 23/10/2026).
+        Assert.Contains("<a class=\"dmo-button\" href=\"/Definicoes?secao=ferramentas\">Ler a pasta da produção</a>", sap, StringComparison.Ordinal);
+        Assert.DoesNotContain("Ler a pasta do SAP", sap, StringComparison.Ordinal);
         Assert.Contains("<div data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
     }
 }

@@ -166,6 +166,21 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.DoesNotContain("data-dmo-menu-cadeado", Menu(await GetOkAsync(comPermissao, "/Definicoes")));
     }
 
+    [Fact]
+    public async Task Armazem_SemCadeado_ESemTextoComAListaVazia()
+    {
+        var (client, _) = await LoginOperatorAsync("7319", DmoCapabilities.ArmazemGestao, DmoCapabilities.Boquilhas);
+        var html = await GetOkAsync(client, "/Definicoes?secao=armazem");
+        var armazem = Regex.Match(html, "<section id=\"sec-armazem\"[\\s\\S]*?(?=<section id=\"sec-|</main>)").Value;
+        Assert.Contains("armDefReparadores", armazem);
+        Assert.DoesNotContain("data-dmo-cadeado", armazem);
+        Assert.DoesNotContain("def-geral-campos", armazem);
+        Assert.DoesNotContain("disabled", armazem);
+        Assert.DoesNotContain("Ainda não há reparadores", armazem);
+        Assert.DoesNotContain("data-dmo-list=\"Reparadores de CM e MF\"", armazem);
+        Assert.DoesNotMatch("data-dmo-def-entrada=\"armazem\"[^>]*><span>[^<]*</span><span class=\"def-menu-cadeado\"", Menu(html));
+    }
+
     [Theory]
     [InlineData("/Boquilhas/Definicoes", "/Definicoes?secao=boquilhas")]
     [InlineData("/Ferramentas/Definicoes", "/Definicoes?secao=ferramentas")]
