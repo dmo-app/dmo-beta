@@ -9,18 +9,15 @@ public enum RemoveJobOnChangeResult
 {
     Removed,
 
-    /// <summary>Já estava removida (um segundo envio): nada muda.</summary>
-    AlreadyRemoved,
-
     /// <summary>A alteração não existe (ou não é deste Job On).</summary>
     NotFound
 }
 
 /// <summary>
 /// REMOVER UMA ALTERAÇÃO POR ENGANO (Diogo, 23/10/2026: «ter forma de
-/// remover o notice de troca em caso de engano»). Nada se perde: a linha não
-/// se apaga, fica marcada como removida com quem e quando. Os valores do Job
-/// On não mudam: só o aviso deixa de contar.
+/// remover o notice de troca em caso de engano»). Os valores do Job
+/// On não mudam: só o aviso deixa de contar. Desde 23/10/2026 a alteração
+/// apaga-se de vez (Diogo: «remover por completo, senão pode começar a angariar lixo»).
 /// </summary>
 public sealed class RemoveJobOnChangeHandler(DmoDbContext db)
 {
@@ -33,14 +30,7 @@ public sealed class RemoveJobOnChangeHandler(DmoDbContext db)
             return RemoveJobOnChangeResult.NotFound;
         }
 
-        if (change.RemovedAtUtc is not null)
-        {
-            return RemoveJobOnChangeResult.AlreadyRemoved;
-        }
-
-        change.RemovedAtUtc = DateTime.UtcNow;
-        var quem = removedBy?.Trim();
-        change.RemovedByNameFrozen = string.IsNullOrEmpty(quem) ? null : quem.Length > 254 ? quem[..254] : quem;
+        db.JobOnChanges.Remove(change);
         await db.SaveChangesAsync(cancellationToken);
         return RemoveJobOnChangeResult.Removed;
     }

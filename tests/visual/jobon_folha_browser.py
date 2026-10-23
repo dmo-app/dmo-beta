@@ -9,7 +9,7 @@ Só ficheiros locais; nada vai ao DEV.
 A 1440, 1366 (o ecrã base do Diogo), 1280 (o mesmo com zoom ou barra lateral) e 390 px:
 - os cartões da primeira fila (CM, MF e BQ) têm a mesma altura quando estão lado a lado;
 - um clique nas notas amplia-as com «CM 5809 · Lote 1 · Notas» no título; Esc e um clique fora fecham;
-- clicar numa alteração de «O que mudou» abre «Remover por engano»; a removida não abre;
+- clicar numa alteração de «O que mudou» abre «Remover por engano»; a removida não aparece;
 - «Modo Editar» aparece no Editar e não na folha.
 """
 import mimetypes
@@ -126,12 +126,9 @@ with sync_playwright() as playwright:
         if page.evaluate(NOTA)['aberta']:
             falhas.append(f'{nome}: um clique fora não fechou a nota')
 
-        # «O que mudou»: a alteração abre a janela, a removida não.
-        removida = page.locator('li[data-jof-alteracao-removida]').first
-        removida.scroll_into_view_if_needed()
-        removida.click()
-        if page.evaluate("document.querySelector('[data-jof-remover]').open"):
-            falhas.append(f'{nome}: a alteração removida abriu a janela')
+        # «O que mudou»: a removida não aparece (Diogo, 23/10/2026); a outra abre a janela.
+        if page.locator('.jobon-resumo li').count() != 1 or 'T188' in page.locator('.jobon-resumo').inner_text():
+            falhas.append(f'{nome}: a alteração removida aparece em «O que mudou»')
         linha = page.locator('li[data-jof-alteracao]:not([data-jof-alteracao=""])').first
         linha.scroll_into_view_if_needed()
         linha.click()

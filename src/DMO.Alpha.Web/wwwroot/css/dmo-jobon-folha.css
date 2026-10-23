@@ -489,11 +489,9 @@ html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
 .jof2 .note-box.is-ampliada>p,.jof2 .note-box.is-ampliada>textarea.dmo-valor{min-height:240px;max-height:60vh;overflow:auto;font-size:15px}
 .jof2 .note-box.is-ampliada>span{font-size:13px;letter-spacing:.04em;color:var(--dmo-text)}
 
-/* REMOVER POR ENGANO (Diogo, 23/10/2026): a alteração de «O que mudou» abre com um clique; a removida fica riscada. */
+/* REMOVER POR ENGANO (Diogo, 23/10/2026): a alteração de «O que mudou» abre com um clique; a removida desaparece. */
 .jobon-resumo li.is-abrivel{cursor:pointer}
 .jobon-resumo li.is-abrivel:hover,.jobon-resumo li.is-abrivel:focus-visible{background:var(--dmo-hover,#e6eef5)}
-.jobon-resumo li.is-removida{border-left-color:var(--dmo-line,#c7d3de);opacity:.75}
-.jobon-resumo li.is-removida s{color:var(--dmo-muted,#66809a)}
 /* A procura encolhe para o botão das linhas ficar alinhado por cima do Imprimir
    e as duas filas terem a mesma largura (Diogo, 23/10/2026). */
 .jof2 .pick-block{display:grid;width:max-content}

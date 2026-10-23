@@ -386,7 +386,7 @@ public sealed class FolhaModel(
             {
                 // O que mudou e o Eliminar, como na ficha antiga, só a quem tem o Planeamento.
                 var notas = await lotNotes.ForJobOnAsync(aberto.JobOnId, ct);
-                var resumo = JobOnSummaryEntry.Compose(aberto.JobOnId, aberto.InicioEm, await changes.ForJobOnAsync(aberto.JobOnId, ct), notas, incluirRemovidas: true);
+                var resumo = JobOnSummaryEntry.Compose(aberto.JobOnId, aberto.InicioEm, await changes.ForJobOnAsync(aberto.JobOnId, ct), notas);
                 var permitidas = new HashSet<string>();
                 foreach (var capability in resumo.Select(e => e.ActionCapability).Distinct())
                 {
