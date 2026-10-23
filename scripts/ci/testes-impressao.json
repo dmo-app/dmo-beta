@@ -1,5 +1,5 @@
 {
-  "selo": "99995dcb276a8d80",
+  "selo": "74948639fa47de50",
   "unidades": {
     "scripts/ci/ci-local.sh": "cfe04bab4cb09104",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1956,7 +1956,7 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: (resto do ficheiro)": "bba0582e30a6b642",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.AnonymousRequests_ChallengedBeforeAnyReadOrWrite": "be71f239a2d4842d",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Create_LowercaseReferences_AreSavedInUppercase": "bbc0ef542810381f",
-    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Criar_APartirDoCartaoDoJobOn_OTipoFicaFixo": "4d73dfcb0272717a",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Criar_APartirDoCartaoDoJobOn_OTipoFicaFixo": "b9b519c2aafb78ae",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_FiltersOnlyReduceCandidates_ExcludingDummy": "0eb39d88e973c588",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField": "3ff22ea194d48b08",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Pagination_PreservesFilters_AndExportsBothPagesForBrowserChecks": "db3e5eb793ccd259",
@@ -2638,7 +2638,7 @@
     "tests/visual/gravacoes_zonas_browser.py": "ab540e418fe53d49",
     "tests/visual/historicos_parcial_browser.py": "64ce36444badbae3",
     "tests/visual/nok_agente_browser.py": "5a99dbfda60ac927",
-    "tests/visual/paginacao_parcial_browser.py": "78c97d43f760f84c",
+    "tests/visual/paginacao_parcial_browser.py": "571e64a6f5ea69fc",
     "tests/visual/painel_lateral_browser.py": "85c135a8f92bce44",
     "tests/visual/pasta_pdf_browser.py": "9d48fc2ea93cddb1",
     "tests/visual/puncoes_tabela_browser.py": "496bcb55ffc73c97",

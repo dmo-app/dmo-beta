@@ -75,10 +75,11 @@ with sync_playwright() as playwright:
                     const card = form.closest('.dmo-card').getBoundingClientRect();
                     const acoes = form.querySelector('.ferr-filter-actions').getBoundingClientRect();
                     return { n: caixas.length, bottoms: caixas.map(c => Math.round(c.bottom)),
-                             largest: Math.max(...caixas.slice(0, 5).map(c => c.width)),
+                             largest: Math.max(...caixas.slice(0, 4).map(c => c.width)),
                              right: card.right - acoes.right, overflow: form.scrollWidth - form.clientWidth };
                 }''')
-                assert linha['n'] == 7, linha
+                # «Por página» é opção da página, junto da paginação (Diogo, 23/10/2026).
+                assert linha['n'] == 6, linha
                 assert max(linha['bottoms']) - min(linha['bottoms']) <= 2, f'Os filtros e os botões não estão na mesma linha: {linha}'
                 assert linha['largest'] <= 200, f'Um campo ocupa demasiado: {linha}'
                 assert linha['right'] <= 40 and linha['overflow'] <= 0, linha
