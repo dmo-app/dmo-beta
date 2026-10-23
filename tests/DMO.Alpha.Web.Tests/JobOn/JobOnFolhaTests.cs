@@ -22,7 +22,7 @@ namespace DMO.Alpha.Web.Tests;
 /// formulário que a página desenha grava a folha, o Editar volta a mostrá-la,
 /// e um texto longo demais é recusado e a folha volta com o que se escreveu.
 /// </summary>
-public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
+public partial class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private const string PagePath = "/JobOn";
 
