@@ -2092,3 +2092,44 @@ Novos: 9 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: ReparacaoProgramadaEnvioUnicoTests.CriarLista_OMesmoEnvioCriaUmaSo_OutraChaveCriaOutraLista`
 
 Selo depois: `5c43d6bfd2d521d4`
+
+## A-0088 · 2026-10-23 · ok-do-diogo
+
+Porquê: A06/A07: novas regressões de replay do email, formulários antigos e concorrência PostgreSQL; os testes existentes recebem apenas o novo campo de versão obrigatório, sem retirar nem alterar verificações; classe parcial para partilhar os helpers e novo teste JavaScript no ficheiro existente.
+Referência: Pedido do proprietário nesta conversa, 23/10/2026: «entao vamos melhorar», prioridade «Gravações: repetição e concorrência» e «continua»
+Novos: 9 · mudaram: 4 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EmailListas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EmailListas.cs :: PostgresMigrationIntegrationTests.EmailLista_UmaGravacaoConcorrenteNaoApagaAAlteracaoDeOutraPessoa`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Email_OMesmoEnvioDevolveOMesmoFicheiroERegistaUmaVez_OutraChavePreparaOutro`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Email_SemEspacoParaNovosFicheiros_NaoPreparaOutro_MasPermiteRepetirOPrimeiro`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Lista_RepetirARemocaoNaoRetiraAPessoaQuePassouParaAMesmaPosicao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Lista_SemAVersaoDoFormularioNaoGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Lista_UmFormularioAntigoNaoSubstituiAAlteracaoDeOutraAba`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: A06: editar atualiza a versão dos formulários da mesma lista e isola as outras listas`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_MudarOsEmailsNaLinha_GravaEDevolveOValor`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_PessoaDaLista_MudarNomeEEmail_Tirar_EJuntar`
+- mudou: `tests/ShellProof/troca-parcial.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `c7e250b0cccbfa78`
+
+## A-0089 · 2026-10-23 · ok-do-diogo
+
+Porquê: Acertar apenas o login de preparação da nova regressão de memória: o formulário de login omite action e não é suportado pelo extrator; o email testado continua a vir do formulário real e todas as verificações são preservadas.
+Referência: Continuação autorizada pelo proprietário nesta conversa em 23/10/2026
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Email_SemEspacoParaNovosFicheiros_NaoPreparaOutro_MasPermiteRepetirOPrimeiro`
+
+Selo depois: `20858169852844fb`
+
+## A-0090 · 2026-10-23 · contagem-lista
+
+Porquê: Acrescentar EmailListasConcorrencia à lista canónica de migrações (41→42), preservando a Baseline e a ordem das migrações anteriores.
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `c2c0162638c7441b`
