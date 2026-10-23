@@ -1,5 +1,5 @@
 {
-  "selo": "f1d73210fa39da9b",
+  "selo": "6989efd1793a6715",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2112,7 +2112,10 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes": "ead751d419e4affb",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_SemZerosNoFim": "92c172c5db1b401e",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.SoVer_NaoTemEditar_NemModoEditar_MesmoPedindoOEditar": "bd90ceb163ead087",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)": "847484a07a5c0d5f",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.PreservarValores.cs :: (resto do ficheiro)": "1ad5eaee48fbe175",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.PreservarValores.cs :: JobOnFolhaTests.GuardarOuDuplicar_PreservaTextoEPrecisaoDosCamposNaoAlterados": "a9f485f5e5a04261",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.PreservarValores.cs :: JobOnFolhaTests.Leitura_RemoveZerosDecimaisDasMedidas_MasPreservaIdentificadores": "01da7ac4c823b41e",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)": "b617c24a972735f8",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Criar_GravaAFolhaNaMesmaEscritaDoJobOn": "674b5a367fadf53a",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Editar_MostraAsFamiliasAosPares_ComAQtdStockEAQtdMaqEmCadaFamiliaENaCal": "512606ac27ec348f",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_ACalMostraAsLinhasGravadas_ComAQtdMaq_NaFolhaNova": "16ff521108fd2c42",

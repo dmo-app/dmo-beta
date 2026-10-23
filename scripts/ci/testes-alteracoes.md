@@ -2126,3 +2126,16 @@ Novos: 9 · mudaram: 5 · saíram: 0
 - mudou: `tests/ShellProof/troca-parcial.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f1d73210fa39da9b`
+
+## A-0090 · 2026-10-23 · ok-do-diogo
+
+Porquê: Correcao N01 do Job On: novos testes de formulario para preservar identificadores, precisao, CAL e calote ao editar ou duplicar; apresentacao sem zeros decimais desnecessarios. A classe de testes passa a partial apenas para alojar estes casos, sem alterar as assercoes existentes.
+Referência: Pedido do Diogo nesta conversa: sim aplicar, quando nao tem casas decimais remover .00; publicar na branch fix/jobon-preservar-valores-decimais.
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.PreservarValores.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.PreservarValores.cs :: JobOnFolhaTests.GuardarOuDuplicar_PreservaTextoEPrecisaoDosCamposNaoAlterados`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.PreservarValores.cs :: JobOnFolhaTests.Leitura_RemoveZerosDecimaisDasMedidas_MasPreservaIdentificadores`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
+
+Selo depois: `6989efd1793a6715`
