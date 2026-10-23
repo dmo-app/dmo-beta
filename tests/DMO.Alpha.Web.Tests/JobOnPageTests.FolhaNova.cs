@@ -221,8 +221,10 @@ public partial class JobOnPageTests
         Assert.Contains("<h1 class=\"sr-only\">5810T188</h1>", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-editar", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-duplicar", html, StringComparison.Ordinal);
-        Assert.Contains("data-jof-imprimir>Imprimir</button>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-jof-imprimir", html, StringComparison.Ordinal);
         Assert.DoesNotContain("/JobOn/Reparacao", html, StringComparison.Ordinal);
+        // Quem só vê não tem Opções (Diogo, 23/10/2026: «não vê controlo, boquilhas e reparação»).
+        Assert.DoesNotContain("data-jof-opcoes", html, StringComparison.Ordinal);
 
         // Nem pelo endereço se desbloqueia.
         var forcado = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}&editar=1");

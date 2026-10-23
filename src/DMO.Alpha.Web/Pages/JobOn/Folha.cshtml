@@ -412,13 +412,15 @@ else
           @if (!editar)
           {
             <div class="head-acoes">
-              <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
+              @* Quem só tem «Job On ver» só vê a folha como está e abre ou fecha as secções: sem Imprimir (Diogo, 23/10/2026). *@
               @if (Model.PodeEditar)
               {
+                <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
                 <a class="btn" href="/JobOn?jobon_id=@jobOn.JobOnId&amp;duplicar=1" data-jof-duplicar>Duplicar</a>
                 <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
               }
-                @if (Model.VeControlo || Model.PodeEditar || (Model.VeBoquilhas && jobOn.BqId is not null))
+                @* Só a chefia (Job On criar) tem as Opções; quem só tem «Job On ver» não vê o Controlo, as Boquilhas nem a Reparação (Diogo, 23/10/2026). *@
+                @if (Model.PodeEditar)
                 {
                   <details class="menu" data-jof-opcoes>
                     <summary class="btn" aria-label="Opções do Job On @jobOn.ProductionNumber"><span class="dmo-caret" aria-hidden="true"></span> Opções</summary>
@@ -427,10 +429,7 @@ else
                       {
                         <a href="/Controlo/Resumo?jobon_id=@jobOn.JobOnId">Controlo</a>
                       }
-                      @if (Model.PodeEditar)
-                      {
-                        <a href="/JobOn/Reparacao?jobon_id=@jobOn.JobOnId">Reparação</a>
-                      }
+                      <a href="/JobOn/Reparacao?jobon_id=@jobOn.JobOnId">Reparação</a>
                     @* BQs: o registo da BQ desta produção (bq_id = o contexto da BQ do Job On, o filtro por Job On que as Boquilhas já têm). *@
                     @if (Model.VeBoquilhas && jobOn.BqId is { } bqId)
                     {

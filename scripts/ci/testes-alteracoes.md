@@ -1596,3 +1596,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Definicoes_CriarEMudarReparadores`
 
 Selo depois: `f8014bd20313ba06`
+
+## A-0057 · 2026-10-23 · ok-do-diogo
+
+Porquê: Job On ver: quem só vê não tem Imprimir nem Opções (o Diogo); só vê a folha e abre ou fecha as secções.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyFYtHKazbRHUoLDGDAbesVv, cmsg_01A27e9ozcpoh4jdPRsuJbFyLFFLDNwAj7EmL6hfwiKkSw
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+
+Selo depois: `d96a7f2ee41e164c`
