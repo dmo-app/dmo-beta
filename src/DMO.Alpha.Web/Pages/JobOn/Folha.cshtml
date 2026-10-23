@@ -287,7 +287,7 @@
   <main class="jof2" id="main">
     <div class="wrap">
       <div class="page-head">
-        <div><span class="eyebrow">Ficha de moldes</span><h1>Job On</h1></div>
+        <div><h1>Job On</h1></div>
       </div>
       @if (Model.NaoExiste)
       {
@@ -308,7 +308,7 @@
       {
         @* Vindo de uma linha vazia do painel: procura-se um Job On antigo para
            duplicar, ou cria-se em branco já com a linha e o início (Diogo, 23/10/2026). *@
-        <p class="jof-novo-linha">Procure a referência para duplicar um Job On antigo, ou <a class="btn" href="@Model.DuplicarHref" data-jof-criar-branco>Criar em branco</a></p>
+        <p class="jof-novo-linha">@(Model.NovoLinha is { } nl ? $"{nl} · " : "")@(Model.NovoInicio is { } ni ? $"início {ni:dd/MM/yyyy}. " : "")Procure a referência para duplicar um Job On antigo, ou <a class="btn" href="@Model.DuplicarHref" data-jof-criar-branco>Criar em branco</a></p>
       }
       @if (Model.ReferenciaSemProducoes)
       {

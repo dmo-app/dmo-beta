@@ -113,6 +113,7 @@ public sealed class FolhaModel(
     /// </summary>
     public int? NovoMachineId { get; private set; }
     public DateOnly? NovoInicio { get; private set; }
+    public string? NovoLinha { get; private set; }
 
     /// <summary>O «&amp;machine_id=…&amp;inicio_em=…» que segue de página em página.</summary>
     public string NovoDestino =>
@@ -220,6 +221,10 @@ public sealed class FolhaModel(
         DiaPlaneamento = DateOnly.TryParseExact(dia, "yyyy-MM-dd", out var diaValor) ? diaValor : null;
         NovoMachineId = machineId;
         NovoInicio = DateOnly.TryParseExact(inicioEm, "yyyy-MM-dd", out var novoInicio) ? novoInicio : null;
+        if (machineId is not null && novo != "1" && duplicar is null)
+        {
+            NovoLinha = (await machineList.ListAsync(ct)).FirstOrDefault(m => m.MachineId == machineId)?.Code;
+        }
 
         // Criar e Duplicar abrem a folha em Editar; só quem tem o Planeamento.
         if (novo == "1" || duplicar is not null)
