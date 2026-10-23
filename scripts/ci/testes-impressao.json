@@ -1,5 +1,5 @@
 {
-  "selo": "c1072eb40d05b45e",
+  "selo": "8bd45e1e8bfd79c4",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -875,6 +875,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: (resto do ficheiro)": "2f8ab848a085dc32",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_FilteredInSql_GivesTheSameWarningAsComparingEveryProduction": "0841073132aa4475",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_NoDiaDaTroca_NaoAvisa_ENoDiaAntesAvisa": "1b6e80efb6a46fd7",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrigir.cs :: (resto do ficheiro)": "425b83a9e4c30eaa",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrigir.cs :: PostgresMigrationIntegrationTests.Pegamentos_DuasCorrecoesAoMesmoTempo_OHistoricoFicaEmCadeia": "3cc550d0edf2d26a",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosFolhas.cs :: (resto do ficheiro)": "c8733da744471d8b",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosFolhas.cs :: PostgresMigrationIntegrationTests.Pegamentos_AssociarComSoAFolhaDeAntesDaTroca_FicaAFolhaDasFerramentasAtuais": "9afd7931306c58c5",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosFolhas.cs :: PostgresMigrationIntegrationTests.Pegamentos_DepoisDeTrocarABq_DuasPrimeirasLeiturasAoMesmoTempo_FicamNumaSoFolhaNova": "546109579e7ef947",
