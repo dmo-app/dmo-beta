@@ -1668,7 +1668,7 @@ Novos: 2 · mudaram: 0 · saíram: 0
 
 Selo depois: `33dd2100ff4eeb26`
 
-## A-0073 · 2026-10-23 · ok-do-diogo
+## A-0059 · 2026-10-23 · ok-do-diogo
 
 Porquê: Sumário: dados técnicos em falta para quem tem Controlo criar (Peso e Pegamentos precisam deles); % de uso para Ferramentas; lote novo por criar; grupo Importante no topo até resolver; links; ponto; sem duplicados (A-0059)
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPoQF4rYmk1aqAzjBow6N1m
