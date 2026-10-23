@@ -1307,9 +1307,9 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
         var dia = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}"));
-        // A barra da máquina diz qual foi a alteração (o Diogo, 17/10/2026).
-        Assert.Contains("<b class=\"beta-light-changes\">Mudança BQ · Sai 12 entra 13</b>", dia);
-        Assert.Contains("Mudou a BQ: T194 · lote 12 → T194 · lote 13\"", dia);
+        // Sem o aviso amarelo das alterações na lista do dia: ficam no resumo da folha (Diogo, 23/10/2026).
+        Assert.DoesNotContain("beta-light-changes", dia);
+        Assert.DoesNotContain("Mudou a BQ: T194 · lote 12 → T194 · lote 13", dia);
 
         using var finalScope = _factory.Services.CreateScope();
         var finalDb = finalScope.ServiceProvider.GetRequiredService<DmoDbContext>();
@@ -1416,7 +1416,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
         var dia = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}"));
-        Assert.Contains("<b class=\"beta-light-changes\">Mudança Fim · Sai — entra 31/12/2026</b>", dia);
+        Assert.DoesNotContain("beta-light-changes", dia);
         Assert.DoesNotContain("Calote · Sai", dia);
 
         // Só com alterações de antes do início, a ficha não mostra o resumo.

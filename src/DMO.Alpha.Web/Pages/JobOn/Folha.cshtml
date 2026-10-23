@@ -381,8 +381,10 @@ else
           <span class="fl">Início</span><span class="fv">@if (editar) {<input class="f" id="lightStart" name="inicio_em" type="date" value="@jobOn.InicioEm?.ToString("yyyy-MM-dd")" aria-label="Início" />} else {<strong>@(jobOn.InicioEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
           <span class="fl">Fim</span><span class="fv">@if (editar) {<input class="f" id="lightEnd" name="fim_em" type="date" value="@jobOn.FimEm?.ToString("yyyy-MM-dd")" aria-label="Fim" />} else {<strong>@(jobOn.FimEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
         </div>
-        <div class="fact-col">
+        <div class="fact-col fact-dias">
           <span class="fl">Dias</span><span class="fv"><strong title="Fim − início + 1">@(Model.Dias?.ToString() ?? "—")</strong></span>
+          @* Uma segunda linha vazia: os dias ficam na linha do Início (Diogo, 23/10/2026). *@
+          <span class="fl" aria-hidden="true">&nbsp;</span><span class="fv" aria-hidden="true">&nbsp;</span>
         </div>
         @foreach (var par in new[] { new[] { ("Processo", "cab_processo", ""), ("Peso", "cab_peso", "g") }, new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", "") } })
         {
@@ -509,47 +511,6 @@ else
       </div>
     </div>
 
-    @* O QUE MUDOU desde o início (veio da ficha antiga do Planeamento, Diogo
-       23/10/2026): fechado; os avisos dos módulos (?vista=alteracoes) abrem-no. *@
-    @if (Model.Resumo.Count > 0)
-    {
-      var removidas = Model.Resumo.Count - Model.ResumoAtivas;
-      <details class="jobon-mudancas" id="fichaMudancas" open="@Model.VistaAlteracoes">
-        <summary><span class="dmo-caret" aria-hidden="true"></span>O que mudou desde o início (@Model.ResumoAtivas @(Model.ResumoAtivas == 1 ? "alteração" : "alterações")@(removidas > 0 ? $" · {removidas} {(removidas == 1 ? "removida" : "removidas")}" : ""))</summary>
-        <ul class="jobon-resumo" aria-label="O que mudou">
-          @foreach (var entrada in Model.Resumo)
-          {
-            @* REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa alteração
-               abre a janela; a removida fica riscada, com quem e quando. *@
-            if (entrada.IsRemoved)
-            {
-              <li class="is-removida" data-jof-alteracao-removida="@entrada.ChangeId">
-                <div>
-                  <strong><s>@entrada.Text</s></strong>
-                  <span>@entrada.When@(entrada.Who is { } quemMudouAntes ? " · " + quemMudouAntes : "")</span>
-                  <span class="jof-removida">@entrada.Removida</span>
-                </div>
-              </li>
-              continue;
-            }
-            <li data-jof-alteracao="@entrada.ChangeId" data-jof-alteracao-texto="@entrada.Text" data-jof-alteracao-quando="@entrada.When@(entrada.Who is { } q ? " · " + q : "")" tabindex="@(entrada.ChangeId is null ? null : "0")" title="@(entrada.ChangeId is null ? null : "Abrir")">
-              <div>
-                <strong>@entrada.Text</strong>
-                <span>@entrada.When@(entrada.Who is { } quemMudou ? " · " + quemMudou : "")</span>
-              </div>
-              @if (entrada.ActionHref is { } acaoHref)
-              {
-                <a class="dmo-button" href="@acaoHref">@entrada.ActionLabel</a>
-              }
-            </li>
-          }
-        </ul>
-      </details>
-      @if (Model.AlteracaoRemovida)
-      {
-        <div data-dmo-toast="ok" role="status">Alteração removida. Os valores do Job On não mudaram.</div>
-      }
-    }
     @if (Model.RecusaCriar is { } recusaCriar)
     {
       <div data-dmo-toast="erro" class="jobon-aviso" role="alert" data-jof-recusa>@recusaCriar</div>
@@ -726,6 +687,48 @@ else
         </section>
       </aside>
     </div>
+    @* No fim da folha, o resumo das alterações durante o fabrico (Diogo, 23/10/2026).
+       O QUE MUDOU desde o início (veio da ficha antiga do Planeamento, Diogo
+       23/10/2026): fechado; os avisos dos módulos (?vista=alteracoes) abrem-no. *@
+    @if (Model.Resumo.Count > 0)
+    {
+      var removidas = Model.Resumo.Count - Model.ResumoAtivas;
+      <details class="jobon-mudancas" id="fichaMudancas" open="@Model.VistaAlteracoes">
+        <summary><span class="dmo-caret" aria-hidden="true"></span>O que mudou desde o início (@Model.ResumoAtivas @(Model.ResumoAtivas == 1 ? "alteração" : "alterações")@(removidas > 0 ? $" · {removidas} {(removidas == 1 ? "removida" : "removidas")}" : ""))</summary>
+        <ul class="jobon-resumo" aria-label="O que mudou">
+          @foreach (var entrada in Model.Resumo)
+          {
+            @* REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa alteração
+               abre a janela; a removida fica riscada, com quem e quando. *@
+            if (entrada.IsRemoved)
+            {
+              <li class="is-removida" data-jof-alteracao-removida="@entrada.ChangeId">
+                <div>
+                  <strong><s>@entrada.Text</s></strong>
+                  <span>@entrada.When@(entrada.Who is { } quemMudouAntes ? " · " + quemMudouAntes : "")</span>
+                  <span class="jof-removida">@entrada.Removida</span>
+                </div>
+              </li>
+              continue;
+            }
+            <li data-jof-alteracao="@entrada.ChangeId" data-jof-alteracao-texto="@entrada.Text" data-jof-alteracao-quando="@entrada.When@(entrada.Who is { } q ? " · " + q : "")" tabindex="@(entrada.ChangeId is null ? null : "0")" title="@(entrada.ChangeId is null ? null : "Abrir")">
+              <div>
+                <strong>@entrada.Text</strong>
+                <span>@entrada.When@(entrada.Who is { } quemMudou ? " · " + quemMudou : "")</span>
+              </div>
+              @if (entrada.ActionHref is { } acaoHref)
+              {
+                <a class="dmo-button" href="@acaoHref">@entrada.ActionLabel</a>
+              }
+            </li>
+          }
+        </ul>
+      </details>
+      @if (Model.AlteracaoRemovida)
+      {
+        <div data-dmo-toast="ok" role="status">Alteração removida. Os valores do Job On não mudaram.</div>
+      }
+    }
     </div>
   </main>
     @if (editar)

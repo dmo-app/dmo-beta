@@ -1884,9 +1884,9 @@ Selo depois: `76537f95ac3f30e1`
 
 ## A-0078 · 2026-10-23 · ok-do-diogo
 
-Porquê: Folha do Job On (primeira fila, notas que enchem e ampliam, Processo, Modo Editar, imagem) e remover por engano uma alteração; testes de servidor e de browser da Folha pedidos pelo Guardião (Diogo 23/10)
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6eUpe6BnLNwfd19yFYYkoX, cmsg_01A27e9ozcpoh4jdPRsuJbFy4me2Hy8H4GGhtRH8r8ABnD, cmsg_01A27e9ozcpoh4jdPRsuJbFyCEQjg5VC9S8WCqR94sTGb9, cmsg_01A27e9ozcpoh4jdPRsuJbFyLeuZcWmha6UGYYqqE86j2F
-Novos: 11 · mudaram: 2 · saíram: 0
+Porquê: Folha do Job On (primeira fila, notas, Processo, Modo Editar, imagem, cabeçalho), resumo das alterações no fim da folha sem o aviso amarelo na lista do dia, e remover por engano (Diogo 23/10)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6eUpe6BnLNwfd19yFYYkoX, cmsg_01A27e9ozcpoh4jdPRsuJbFy4me2Hy8H4GGhtRH8r8ABnD, cmsg_01A27e9ozcpoh4jdPRsuJbFyCEQjg5VC9S8WCqR94sTGb9, cmsg_01A27e9ozcpoh4jdPRsuJbFyLeuZcWmha6UGYYqqE86j2F, cmsg_01A27e9ozcpoh4jdPRsuJbFyNmPuTERBdjo1amXaDtngmf, cmsg_01A27e9ozcpoh4jdPRsuJbFyM2andZbUn9D3FdwWyMFgh1
+Novos: 11 · mudaram: 4 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnChangeTests.cs :: JobOnChangeTests.RemoveByMistake_KeepsTheRow_MarksWhoAndWhen_HidesItFromTheMarkerAndNotices_ValuesUnchanged`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)`
@@ -1901,5 +1901,7 @@ Novos: 11 · mudaram: 2 · saíram: 0
 - novo: `tests/visual/jobon_folha_browser.py`
 - mudou: `scripts/ci/ci-local.sh`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Editar_RegistaOQueMudou_EAFichaMostraAAcao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.OQueMudou_SoAsAlteracoesFeitasDepoisDoInicio`
 
-Selo depois: `03737f8e82d29d30`
+Selo depois: `bd33f2af1a0d93cf`

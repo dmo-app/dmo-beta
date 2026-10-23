@@ -510,3 +510,8 @@ html body .jof2 .pick-row .rail-toggle{height:38px;min-height:38px;box-sizing:bo
 /* «Informação técnica» sozinha ao lado do triângulo; o resto só ao abrir (Diogo, 23/10/2026). */
 .jof2 .more-preview{display:none}
 html body .jof2 .pick-campo>.prod-drop,html body .jof2 .pick-campo>select.prod-select,html body .jof2 .pick-campo>.ref-search{flex:none}
+/* Os dias na linha do Início, alinhados com as datas e os outros valores (Diogo, 23/10/2026). */
+/* O Artigo e as Notas gerais ficam no sítio ao fazer scroll (Diogo, 23/10/2026). */
+html body .jof2 .side{position:static;max-height:none}
+/* O resumo das alterações no fim da folha, com espaço da grelha (Diogo, 23/10/2026). */
+.jof2 .sheet + .jobon-mudancas{margin-top:16px}

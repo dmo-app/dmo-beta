@@ -163,18 +163,9 @@
                         <strong>@row.MachineCode</strong>
                         <span>@production.Reference @production.ProductionNumber</span>
                         @{ var notaLote = string.Join(" · ", production.LotNotes); }
-                        @* A BARRA DIZ QUAL FOI A ALTERAÇÃO (o Diogo, 17/10/2026: só
-                           «1 alteração» não chega): o valor atual de cada campo
-                           alterado; a dica tem cada alteração por extenso. *@
-                        @if (production.ChangeSummary is { } marcaAlteracoes)
-                        {
-                          var dicaAlteracoes = string.Join("\n", production.LotNotes.Concat(production.ChangeDetails));
-                          <span class="beta-light-lot-note" title="@dicaAlteracoes">@notaLote<b class="beta-light-changes">@marcaAlteracoes</b></span>
-                        }
-                        else
-                        {
-                          <span class="beta-light-lot-note" title="@notaLote">@notaLote</span>
-                        }
+                        @* Sem o aviso amarelo das alterações na lista do dia: vivem no
+                           resumo do fim da folha do Job On (Diogo, 23/10/2026). *@
+                        <span class="beta-light-lot-note" title="@notaLote">@notaLote</span>
                         @if (proxima is { Href: { } proximaHref } && production == ultima)
                         {
                           <a class="beta-light-next" href="@proximaHref" title="@proxima.Titulo">@proxima.Texto</a>
