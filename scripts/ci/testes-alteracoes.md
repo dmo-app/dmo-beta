@@ -2019,10 +2019,12 @@ Selo depois: `14d84e20af09ab60`
 
 ## A-0084 · 2026-10-23 · ok-do-diogo
 
-Porquê: O Diogo disse que as ferramentas existem mas o Job On não as mostra: a lista deixa de esconder as que não estão ligadas à linha e mostra-as com o aviso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVweZF5BqmFCDP3QHKq7FjK, cmsg_01A27e9ozcpoh4jdPRsuJbFyW2wtvBq2yfV36NJ9YU9WuP
-Novos: 0 · mudaram: 1 · saíram: 0
+Porquê: O Diogo disse que as ferramentas existem mas o Job On não as mostra (a lista deixa de esconder as que não estão ligadas à linha, com aviso) e que a máquina vazia abre logo o Job On vazio para escrever referência e produção.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVweZF5BqmFCDP3QHKq7FjK, cmsg_01A27e9ozcpoh4jdPRsuJbFyToPe3xxvGaCQmMVePiptBA
+Novos: 1 · mudaram: 1 · saíram: 1
 
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreOJobOnVazio_ComDiaEMaquina`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Mf_ShowsOnlyTheMfOfTheChosenCm_AndTheMachine`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina`
 
-Selo depois: `172d4e7b796772ce`
+Selo depois: `eeea5e50049f15e3`
