@@ -43,8 +43,12 @@ public sealed class FolhaModel(
     JobOnLotNoteHandler lotNotes,
     JobOnChangeQuery changes,
     IDeleteJobOnHandler deleteJobOn,
-    DMO.Alpha.Infrastructure.Data.DmoDbContext db) : PageModel
+    DMO.Alpha.Infrastructure.Data.DmoDbContext db,
+    IConfiguration configuration) : PageModel
 {
+    /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
+    public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, false);
+
     /// <summary>
     /// Os avisos depois de gravar, os mesmos do Planeamento (a ficha antiga
     /// deixou de existir, Diogo 23/10/2026): a sobreposição na linha com as
@@ -107,6 +111,8 @@ public sealed class FolhaModel(
 
     /// <summary>Tem a chave das Boquilhas: vê «BQs» nas Opções (os movimentos da BQ deste Job On).</summary>
     public bool VeBoquilhas { get; private set; }
+    /// <summary>A capacidade de abrir a ficha da ferramenta (o link do aviso do Armazém).</summary>
+    public IReadOnlyCollection<string> Capacidades { get; private set; } = [];
 
     /// <summary>A folha da fábrica gravada.</summary>
     public FolhaDoJobOnVista Folha { get; private set; } = FolhaDoJobOnVista.Vazia();
@@ -314,6 +320,7 @@ public sealed class FolhaModel(
         VeControlo = await capabilities.HasAsync(DmoCapabilities.ControloCreate, ct)
             || await capabilities.HasAsync(DmoCapabilities.ControloApprove, ct);
         VeBoquilhas = await capabilities.HasAsync(DmoCapabilities.Boquilhas, ct);
+        Capacidades = await capabilities.GetAsync();
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
         var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);

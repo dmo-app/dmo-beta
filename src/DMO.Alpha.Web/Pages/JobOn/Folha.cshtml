@@ -168,6 +168,16 @@
               <span class="tool-hint"><span class="dmo-caret" aria-hidden="true"></span> <span class="hint-txt">Trocar</span></span>
             }
           </button>
+          @* Onde está pelo Armazém e o estado; sem registo, só um aviso com o link
+             (Diogo 21/10, FER-E-03; veio da ficha antiga, nada se perde). *@
+          @if (f?.OndeEsta is { } ondeEsta)
+          {
+            <p class="jof-onde" data-dmo-onde-esta>@ondeEsta@(f.Estado is { } estado ? " · " + DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado) : null)</p>
+          }
+          @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
+          {
+            <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem@{ var link = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Registar na ferramenta"); }@if (link.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@link.Href">@link.Texto</a>}</div>
+          }
           @if (editar)
           {
             <div class="jof-tool-procura" data-jof-tool-procura hidden>

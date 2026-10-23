@@ -1,5 +1,5 @@
 {
-  "selo": "031b6cee24738ca0",
+  "selo": "99995dcb276a8d80",
   "unidades": {
     "scripts/ci/ci-local.sh": "cfe04bab4cb09104",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2013,7 +2013,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.Eliminar_AntesDoInicio_SemRegistos_SoPergunta": "1565217999aa97d7",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.Eliminar_DepoisDoInicio_AvisaQuePodeTerProduzido_EDizOQueSePerde_EElimina": "3e8e46950e0152be",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.SemModuloDoControlo_AFichaNaoMostraOControlo_NemContaOsRegistosDele": "6ef3c5a35cf92c8e",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)": "5c9cdae33976e72d",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)": "f43682350c356c72",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim": "16af5678edf6d124",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteEditavel_GravaPelaEdicao": "c8afdc3c1aa64ed4",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteIgnorada_NaCriacao_GravaOJobOnSemCaloteEAvisa": "db38940359035b77",
@@ -2030,8 +2030,9 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Editar_DepoisDaAprovacao_OControloAvisaEMantemAAprovacao": "091327d2b9b9177b",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Editar_RegistaOQueMudou_EAFichaMostraAAcao": "1134d9e61976b83c",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_AcoesEFactos_AoUsoDoHtml": "3fb24b27a84d6be0",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_AbremAFichaDaFerramenta_SemAvisoDeDadosEmFalta": "118d840be7241a6d",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_AbremAFichaDaFerramenta_SemAvisoDeDadosEmFalta": "791cfc0f6f68b151",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura": "35d2c881f4043ad7",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto": "b59265c32dbf4527",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_SemColocacaoManualNemRetirarDoPlaneamento": "44e764f9c30fe84e",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.FimAntesDoInicio_NaEdicao_GravaEAvisa": "789f34b146d1017c",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.FimNoDiaDoInicioOuDepoisNaCriacao_GravaEFicaNoJobOnSemAviso": "849aca7c4353cce1",
