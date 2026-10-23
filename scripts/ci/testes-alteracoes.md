@@ -1996,3 +1996,13 @@ Novos: 6 · mudaram: 1 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ListaSemNenhumEmail_OuComNomeRepetido_NaoGrava`
 
 Selo depois: `65cddedf2800e31e`
+
+## A-0083 · 2026-10-23 · ok-do-diogo
+
+Porquê: O Diogo disse que as ferramentas existem mas o Job On não as mostra: a lista deixa de esconder as que não estão ligadas à linha e mostra-as com o aviso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVweZF5BqmFCDP3QHKq7FjK, cmsg_01A27e9ozcpoh4jdPRsuJbFyW2wtvBq2yfV36NJ9YU9WuP
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Mf_ShowsOnlyTheMfOfTheChosenCm_AndTheMachine`
+
+Selo depois: `6c3c7cb792912d50`

@@ -1,5 +1,5 @@
 {
-  "selo": "65cddedf2800e31e",
+  "selo": "6c3c7cb792912d50",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2155,7 +2155,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Sheet_RendersOnlyTheChosenTools_NeverTheWholeCatalog": "769a28e08f4263d4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Cm_FollowsTheChosenMfAndMachine_AndFallsBackToTheProductionReference": "b7fb0e1309e23b2f",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_FilterByMachineAndProduction_AndShowAllRestoresAlternatives": "704e59c89104066a",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Mf_ShowsOnlyTheMfOfTheChosenCm_AndTheMachine": "248b46d72a00a1c8",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Mf_ShowsOnlyTheMfOfTheChosenCm_AndTheMachine": "c2d91bb12d5e0587",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_ReturnAtMost20_WithTheTotal": "21386bce4006cc0b",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_SearchAsYouType_FindsByPartialReferenceOrLot": "3b3862981fc34fc9",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.UnauthenticatedRequests_ReceiveNoPageAndNoMutation": "e552f102d4fb71ad",

@@ -1439,8 +1439,11 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         // referência da produção quando nada corresponde.
         using var byReference = await GetJsonAsync(client, "/JobOn?handler=ToolCandidates&type=MF&cm_tool_id=T1&reference=5810");
         Assert.Equal(new[] { "MF-5447" }, ToolIds(byReference));
+        // Nunca esconder (Diogo, 23/10/2026: «nas ferramentas estão lá mas o Job On não filtra»):
+        // nenhuma MF da CM ligada à linha → as da CM sem o filtro de linha, com o aviso.
         using var none = await GetJsonAsync(client, $"/JobOn?handler=ToolCandidates&type=MF&machine_id={b1}&cm_tool_id=T1&reference=5810");
-        Assert.Empty(ToolIds(none));
+        Assert.Equal(new[] { "MF-5447" }, ToolIds(none));
+        Assert.Equal("Filtrado por máquina e pela CM 5447 (nenhuma ligada a esta linha: sem filtro de linha)", none.RootElement.GetProperty("filtro").GetString());
 
         // «Mostrar todas» ignora a CM.
         using var all = await GetJsonAsync(client, "/JobOn?handler=ToolCandidates&type=MF&cm_tool_id=CM-ST100&all=true");
