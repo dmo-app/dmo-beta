@@ -92,6 +92,11 @@ public sealed record EmailPessoa(string? Nome, string Email);
 /// <summary>As regras do texto dos modelos e das listas, num só sítio.</summary>
 public static class EnvioEmailRegras
 {
+    /// <summary>A versão do conteúdo que a aba leu; não depende da posição da pessoa.</summary>
+    public static string Versao(EmailLista lista) => Convert.ToHexString(
+        System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(
+            $"{lista.Id}\0{lista.Nome}\0{lista.Destinatarios}")));
+
     public const int NomeMax = 100;
     public const int AssuntoMax = 200;
     public const int CorpoMax = 4000;

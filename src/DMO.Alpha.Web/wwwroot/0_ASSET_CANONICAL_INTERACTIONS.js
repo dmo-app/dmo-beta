@@ -1531,7 +1531,9 @@
     const token = form.querySelector("input[name=__RequestVerificationToken]");
     if (token) body.append(token.name, token.value);
     const row = input.closest("tr") || input.parentElement;
-    row.querySelectorAll("input[type=hidden]:not([name=__RequestVerificationToken])").forEach((hidden) => body.append(hidden.name, hidden.value));
+    row.querySelectorAll("input[type=hidden]:not([name=__RequestVerificationToken])").forEach((hidden) => {
+      if (!body.has(hidden.name)) body.append(hidden.name, hidden.value);
+    });
     body.append(input.name, valor);
     const resumo = form.querySelector("[data-dmo-valor-resumo]");
     try {
@@ -1542,6 +1544,14 @@
       const mostrar = ultimo() && !(document.activeElement === input && input.value !== valor);
       document.querySelectorAll("[data-dmo-valor-recusa]").forEach((antes) => antes.remove());
       if (data.ok) {
+        // A versão nova vale para os outros formulários da mesma lista, só
+        // se ainda trazem a versão deste pedido. Outra aba mantém a antiga.
+        const grupo = form.closest("[data-dmo-versao-grupo]");
+        if (grupo && typeof data.versao === "string" && body.has("versao")) {
+          grupo.querySelectorAll('input[name="versao"]').forEach((hidden) => {
+            if (hidden.value === body.get("versao")) hidden.value = data.versao;
+          });
+        }
         input.defaultValue = data.valor ?? valor;
         if (mostrar) {
           input.value = input.defaultValue;

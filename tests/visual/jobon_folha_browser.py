@@ -79,16 +79,18 @@ with sync_playwright() as playwright:
                 falhas.append(f'{nome}: CM, MF e BQ não estão na mesma fila ({fila})')
 
         # A ordem dos cartões (Diogo, 23/10/2026): TP e CS logo a seguir aos
-        # moldes, os Calibres por baixo deles, o PI à direita, por baixo das Notas gerais.
+        # moldes, os Calibres por baixo do PU, o PI à direita, por baixo das Notas gerais.
         if largura == 1440:
-            pos = page.evaluate("""() => Object.fromEntries(['CM', 'TP', 'CS', 'PI'].map(f => {
+            pos = page.evaluate("""() => Object.fromEntries(['CM', 'TP', 'CS', 'PU', 'PI'].map(f => {
                 const r = document.querySelector(`[data-jof-familia="${f}"]`).getBoundingClientRect();
                 return [f, { left: Math.round(r.left), top: Math.round(r.top) }];
               }).concat([['CAL', (() => { const r = document.querySelector('.cal-card').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()],
                          ['NOTAS', (() => { const r = document.querySelector('#notesTitle').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()]]))""")
             print(f'{nome} ordem: {pos}')
-            if not (pos['CM']['top'] < pos['TP']['top'] == pos['CS']['top'] < pos['CAL']['top']):
-                falhas.append(f'{nome}: TP e CS não estão entre os moldes e os Calibres ({pos})')
+            if not (pos['CM']['top'] < pos['TP']['top'] == pos['CS']['top']):
+                falhas.append(f'{nome}: TP e CS não estão logo a seguir aos moldes ({pos})')
+            if not (pos['PU']['top'] < pos['CAL']['top'] and abs(pos['CAL']['left'] - pos['PU']['left']) <= 2 and pos['CAL']['left'] > pos['CS']['left']):
+                falhas.append(f'{nome}: os Calibres não estão por baixo do PU ({pos})')
             if not (pos['PI']['left'] > max(pos['TP']['left'], pos['CS']['left'], pos['CAL']['left']) and pos['PI']['top'] > pos['NOTAS']['top']):
                 falhas.append(f'{nome}: o PI não está à direita, por baixo das Notas gerais ({pos})')
 

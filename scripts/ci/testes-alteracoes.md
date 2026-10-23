@@ -2103,3 +2103,36 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: ReparacaoProgramadaEnvioUnicoTests.CriarLista_OMesmoEnvioCriaUmaSo_OutraChaveCriaOutraLista`
 
 Selo depois: `d9f3f5bde5c67ac0`
+
+## A-0089 · 2026-10-23 · ok-do-diogo
+
+Porquê: A07: o mesmo pedido de email (X-Dmo-Envio) devolve o mesmo ficheiro e regista um só envio. A06: uma aba antiga das listas de email (versão diferente) recebe Conflito e não grava. Os testes antigos do email só recebem o campo versao; o inventário de migrações passa a 42
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyYSQ4sP37o7nTgtUsn2mB9L
+Novos: 9 · mudaram: 5 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EmailListas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.EmailListas.cs :: PostgresMigrationIntegrationTests.EmailLista_UmaGravacaoConcorrenteNaoApagaAAlteracaoDeOutraPessoa`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Email_OMesmoEnvioDevolveOMesmoFicheiroERegistaUmaVez_OutraChavePreparaOutro`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Email_SemEspacoParaNovosFicheiros_NaoPreparaOutro_MasPermiteRepetirOPrimeiro`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Lista_RepetirARemocaoNaoRetiraAPessoaQuePassouParaAMesmaPosicao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Lista_SemAVersaoDoFormularioNaoGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Lista_UmFormularioAntigoNaoSubstituiAAlteracaoDeOutraAba`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: A06: editar atualiza a versão dos formulários da mesma lista e isola as outras listas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_MudarOsEmailsNaLinha_GravaEDevolveOValor`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_PessoaDaLista_MudarNomeEEmail_Tirar_EJuntar`
+- mudou: `tests/ShellProof/troca-parcial.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `f1d73210fa39da9b`
+
+## A-0090 · 2026-10-23 · ok-do-diogo
+
+Porquê: O Diogo pediu o PU na primeira fila e os Calibres por baixo do PU (na vertical), com o TP e o CS mais estreitos; o teste do browser passa a esperar os Calibres por baixo do PU em vez de por baixo do TP e do CS.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyMLJyVMvSHt8nCnfDQJj14J, cmsg_01A27e9ozcpoh4jdPRsuJbFy5CvC5vHd3UG6j4st2ydTvC, cmsg_01A27e9ozcpoh4jdPRsuJbFyNGXdPSjqk8Vph85X5iBU3N
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/jobon_folha_browser.py`
+
+Selo depois: `a4389f90937b433d`

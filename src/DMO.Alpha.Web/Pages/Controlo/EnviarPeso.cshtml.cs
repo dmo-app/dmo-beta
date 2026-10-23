@@ -31,7 +31,7 @@ public sealed class EnviarPesoModel(
     /// POST: preparar o email. O mesmo envio repetido pela ligação
     /// (X-Dmo-Envio) não regista outra vez; um clique novo é um envio novo.
     /// </summary>
-    [EnvioUnico]
+    [EnvioUnico(GuardarFicheiro = true)]
     public async Task<IActionResult> OnPostAsync(
         [FromForm(Name = "jobon_id")] int? jobOnId,
         [FromForm(Name = "modelo_id")] int? modeloId,

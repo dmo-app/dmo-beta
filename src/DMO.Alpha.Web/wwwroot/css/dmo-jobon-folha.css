@@ -594,34 +594,13 @@ html body .jof2.editing .dims th,html body .jof2.editing .dims td{padding-top:2p
 html body .jof2.editing .dims td:first-child,html body .jof2.editing .dims th:first-child{white-space:nowrap;font-size:12.5px}
 html body .jof2.editing .dims input.f{height:26px;min-height:26px}
 html body .jof2.editing .calv td input.f[name$=".Valor"]{width:8.5em}
-/* CAL na horizontal: cada medida é uma coluna (Diogo, 23/10/2026: «flatten cal na horizontal»). */
+/* CAL na vertical, por baixo do PU; TP e CS mais estreitos (Diogo, 23/10/2026). */
 @container board (min-width:640px){
-html body .jof2 .cal-card .table-wrap{width:100%}
-html body .jof2 table.calv{display:flex;width:100%;border-collapse:separate}
-html body .jof2 table.calv thead,html body .jof2 table.calv tbody{display:flex}
-html body .jof2 table.calv tbody{flex:1 1 auto;min-width:0}
-html body .jof2 table.calv tr{display:flex;flex-direction:column;flex:1 1 0;min-width:0}
-html body .jof2 table.calv thead tr{flex:none}
-html body .jof2 table.calv th,html body .jof2 table.calv td{display:flex;align-items:center;justify-content:center;height:30px;box-sizing:border-box;padding:2px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:1px solid var(--dmo-border)}
-html body .jof2 table.calv thead th{justify-content:flex-start;border-left:0;padding-right:10px}
-html body .jof2 table.calv tbody th{font-size:11px}
-html body .jof2.editing table.calv input.f{width:100%;min-width:0;text-align:center}
-}
-@container board (min-width:640px){
-html body .jof2 table.calv th,html body .jof2 table.calv td{height:auto;min-height:30px;white-space:normal;overflow:visible;line-height:1.15;font-size:12.5px;word-break:normal;overflow-wrap:anywhere}
-html body .jof2 table.calv tbody th{font-size:10.5px;letter-spacing:0;min-height:34px}
-html body .jof2 table.calv thead th:first-child{min-height:34px}
-html body .jof2 table.calv thead th{font-size:10.5px;padding:2px 6px}
-}
-/* Em grelha: as três filas (medida, componentes, QTD máq.) ficam alinhadas entre colunas. */
-@container board (min-width:640px){
-html body .jof2 table.calv{display:grid;grid-auto-flow:column;grid-template-rows:auto auto auto;grid-auto-columns:minmax(0,1fr);grid-template-columns:auto}
-html body .jof2 table.calv thead,html body .jof2 table.calv tbody,html body .jof2 table.calv tr{display:contents}
-}
-/* O CAL horizontal ocupa a largura toda, por baixo de TP, CS e PU. */
-@container board (min-width:640px){
-  html body .jof2 .zones{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:none;grid-template-areas:"moldes moldes moldes col3" "sopro sopro sopro col3" "cal cal cal cal";align-items:start}
+  html body .jof2 .zones{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:none;grid-template-areas:"moldes moldes moldes col3" "sopro sopro . cal";align-items:start}
   html body .jof2 #gSopro{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body .jof2 .cal-card .table-wrap{width:100%}
+  html body .jof2 .calv{width:100%}
+  html body .jof2 .calv input.f,html body .jof2 .calv td input.f{width:100%;min-width:0}
 }
 /* Cartões estreitos (quatro por fila): um par por linha, para os rótulos caberem. */
 @container (max-width:300px){
@@ -634,4 +613,20 @@ html body .jof2 table.calv thead,html body .jof2 table.calv tbody,html body .jof
   html body .jof2.editing table.dims:not(.calv){width:100%;table-layout:fixed}
   html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:33%;white-space:normal;font-size:11.5px}
   html body .jof2.editing table.dims:not(.calv) td,html body .jof2.editing table.dims:not(.calv) th{padding-left:3px;padding-right:3px}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv{table-layout:fixed;width:100%}
+  html body .jof2 table.calv th:nth-child(1){width:38%}
+  html body .jof2 table.calv th:nth-child(2){width:38%}
+  html body .jof2 table.calv th:nth-child(3){width:24%}
+  html body .jof2 table.calv th,html body .jof2 table.calv td{padding:3px 4px;white-space:normal;overflow-wrap:anywhere;font-size:12.5px;line-height:1.15}
+  html body .jof2 table.calv thead th{font-size:10px;letter-spacing:0}
+  html body .jof2 table.calv tbody th{font-size:10px}
+  html body .jof2.editing table.calv input.f{padding:1px 3px;font-size:12.5px;text-align:left}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv thead th{font-size:9px;padding:3px 2px;overflow-wrap:normal;word-break:normal;hyphens:none}
+  html body .jof2 table.calv th:nth-child(1){width:36%}
+  html body .jof2 table.calv th:nth-child(2){width:40%}
+  html body .jof2 table.calv th:nth-child(3){width:24%}
 }

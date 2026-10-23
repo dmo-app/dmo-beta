@@ -1159,9 +1159,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
         {
             entity.ToTable("EmailListas");
             entity.HasKey(l => l.Id);
-            entity.Property(l => l.Nome).HasMaxLength(EnvioEmailRegras.NomeMax).IsRequired();
+            entity.Property(l => l.Nome).HasMaxLength(EnvioEmailRegras.NomeMax).IsRequired().IsConcurrencyToken();
             entity.HasIndex(l => l.Nome).IsUnique();
-            entity.Property(l => l.Destinatarios).HasMaxLength(13000).IsRequired();
+            entity.Property(l => l.Destinatarios).HasMaxLength(13000).IsRequired().IsConcurrencyToken();
         });
 
         modelBuilder.Entity<EmailModelo>(entity =>
