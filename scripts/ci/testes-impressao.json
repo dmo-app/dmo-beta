@@ -1,5 +1,5 @@
 {
-  "selo": "e34f8d72d0d0e910",
+  "selo": "5f9bb3bf3356252d",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2367,6 +2367,11 @@
     "tests/ShellProof/dmo-live-toast.test.cjs :: Fechado o aviso, a mesma mensagem volta a aparecer na falha seguinte": "32520db887fe29d2",
     "tests/ShellProof/dmo-live-toast.test.cjs :: Os tipos seguem os da casa: erro, aviso e ok; mensagens diferentes empilham-se": "cfa7af56bd6aa6e4",
     "tests/ShellProof/dmo-live-toast.test.cjs :: Sem rede, seis falhas da pré-visualização mostram um só aviso, na pilha da casa": "4a5faf43e516ed4b",
+    "tests/ShellProof/dmo-suggest-abort.test.cjs :: (resto do ficheiro)": "8ec8d798a3297baf",
+    "tests/ShellProof/dmo-suggest-abort.test.cjs :: escrever depressa cancela o pedido anterior e só o texto atual mostra sugestões": "ff043c332b36aa17",
+    "tests/ShellProof/dmo-suggest-abort.test.cjs :: limpar o campo cancela o pedido em voo": "1f9ec38dd92cbbb6",
+    "tests/ShellProof/dmo-suggest-abort.test.cjs :: sair do campo cancela o pedido em voo": "b1892a4f82baa90d",
+    "tests/ShellProof/dmo-suggest-abort.test.cjs :: um pedido cancelado não mostra mensagem de erro": "978d42a46322ab5f",
     "tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)": "22bb40d0636916ac",
     "tests/ShellProof/dmo-suggest.test.cjs :: Enter enquanto a procura nova não responde não escolhe a linha da lista anterior": "cc07dd96e307583b",
     "tests/ShellProof/dmo-suggest.test.cjs :: Enter na procura da BQ antes de a lista abrir não envia a folha": "ed40f381d5449db0",
@@ -2433,7 +2438,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "aa1e0eddb32fadc5",
+    "tests/ShellProof/package.json": "81925351643c0ee2",
     "tests/ShellProof/pegamentos-previsao.casos.json": "2b25d4ad3dc0e568",
     "tests/ShellProof/pegamentos-previsao.test.cjs :: (resto do ficheiro)": "d35d80827ba2eec6",
     "tests/ShellProof/pegamentos-previsao.test.cjs :: 3.12: a pré-visualização é a do servidor: ${caso.nome}": "cafe33bf79815d20",

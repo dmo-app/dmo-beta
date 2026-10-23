@@ -198,6 +198,13 @@
   function enhanceInput(input) {
     var request = 0;
     var timer = null;
+    // Um pedido de sugestões em voo por campo: o texto mudou, o campo ficou
+    // vazio, perdeu o foco ou a página saiu, e o anterior é cancelado. Só
+    // para sugestões (GET); nunca para gravar.
+    var controller = null;
+    function abortPending() {
+      if (controller) { controller.abort(); controller = null; }
+    }
     var list = createList(input, function (item) {
       input.value = item.value;
       input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -224,25 +231,47 @@
       var term = input.value.trim();
       var mine = ++request;
       var fonte = input.getAttribute("data-dmo-suggest");
+      abortPending();
       if (term.length < (MIN_CHARS_FONTE[fonte] || MIN_CHARS)) { list.close(); return; }
       var query = new URLSearchParams({ fonte: fonte, q: term });
       var tipo = input.getAttribute("data-dmo-suggest-tipo");
       if (tipo) query.set("tipo", tipo);
-      fetch("/Sugestoes?" + query, { credentials: "same-origin", headers: { Accept: "application/json" } })
+      var options = { credentials: "same-origin", headers: { Accept: "application/json" } };
+      if (typeof AbortController === "function") {
+        controller = new AbortController();
+        options.signal = controller.signal;
+      }
+      fetch("/Sugestoes?" + query, options)
         .then(function (response) { return response.ok ? response.json() : []; })
         .then(function (data) {
           // Só a resposta da última tecla conta, e só com o campo ainda ativo.
           if (mine !== request || document.activeElement !== input) return;
           list.render(Array.isArray(data) ? data : [], "Sem sugestões");
         })
-        .catch(function () { if (mine === request) list.close(); });
+        .catch(function (error) {
+          // Um pedido cancelado não é uma falha: não mostra nada.
+          if (error && error.name === "AbortError") return;
+          if (mine === request) list.close();
+        });
     }
 
     input.addEventListener("input", function (event) {
       if (!event.isTrusted) return;
       clearTimeout(timer);
       ++request; // invalida uma resposta pendente já durante a espera
+      abortPending();
+      if (!input.value.trim()) { list.close(); return; }
       timer = setTimeout(fetchNow, WAIT_MS);
+    });
+    input.addEventListener("blur", function () {
+      clearTimeout(timer);
+      ++request;
+      abortPending();
+    });
+    window.addEventListener("pagehide", function () {
+      clearTimeout(timer);
+      ++request;
+      abortPending();
     });
   }
 
