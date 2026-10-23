@@ -152,7 +152,8 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         Assert.Contains($"href=\"/Controlo/Resumo?jobon_id={jobOnId}\">S2A001", await GetAsync(criar, "?tipo=por-ver"));
         using var aprovar = await LoginAsync("5202", DmoCapabilities.JobOnCreate, DmoCapabilities.ControloApprove);
         var porVer = await GetAsync(aprovar, "?tipo=por-ver");
-        Assert.Contains("<h3>Job Ons por ver no Controlo</h3>", porVer);
+        // No grupo «Importante» do topo, com o tipo na etiqueta (Diogo, 23/10/2026).
+        Assert.Contains("<span class=\"sumario-etiqueta\">Job Ons por ver no Controlo</span>", porVer);
         Assert.Contains($"href=\"/Controlo/Approve?jobon_id={jobOnId}\">S2A001", porVer);
 
         // Depois de alguém abrir o Resumo, já não está por ver.
@@ -167,6 +168,39 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         }
 
         Assert.DoesNotContain("S2A001", SemPainelLateral(await GetAsync(aprovar, "?tipo=por-ver")));
+    }
+
+    [Fact]
+    public async Task AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua()
+    {
+        // «Se a informação já existe não duplicar no sumário» (Diogo, 23/10/2026).
+        var jobOnId = await JobOnAsync("S3D001", Hoje);
+        var agora = DateTime.UtcNow;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            foreach (var quando in new[] { agora, agora.AddSeconds(-1) })
+            {
+                db.JobOnChanges.Add(new JobOnChange
+                {
+                    JobOnId = jobOnId, Field = JobOnChangeFields.Machine, OldValueFrozen = "S3DM1", NewValueFrozen = "S3DM2",
+                    ChangedByNameFrozen = "Diogo", ChangedAtUtc = quando
+                });
+            }
+            // Outra alteração (outro valor) não se junta.
+            db.JobOnChanges.Add(new JobOnChange
+            {
+                JobOnId = jobOnId, Field = JobOnChangeFields.Machine, OldValueFrozen = "S3DM2", NewValueFrozen = "S3DM3",
+                ChangedByNameFrozen = "Diogo", ChangedAtUtc = agora
+            });
+            await db.SaveChangesAsync();
+        }
+
+        using var client = await LoginAsync("5303", DmoCapabilities.JobOnCreate);
+        var html = await GetAsync(client, "?tipo=alteracoes");
+
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "Mudou a linha: S3DM1 → S3DM2"));
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "Mudou a linha: S3DM2 → S3DM3"));
     }
 
     [Fact]
@@ -195,7 +229,7 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         Assert.DoesNotContain("S3M1", await GetAsync(client, "?tipo=alteracoes"));
         var semana = await GetAsync(client, "?tipo=alteracoes&dias=7");
         Assert.Contains("<h3>Alterações a Job Ons</h3>", semana);
-        Assert.Contains("Mudou a máquina: S3M1 → S3M2", semana);
+        Assert.Contains("Mudou a linha: S3M1 → S3M2", semana);
         Assert.Contains("Chefe", semana);
         Assert.Contains("S3C1 → S3C2", await GetAsync(client, "?tipo=alteracoes&dias=30"));
         // O filtro por tipo deixa só esse tipo.
@@ -254,14 +288,18 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
 
         using var boquilhas = await LoginAsync("5502", DmoCapabilities.JobOnCreate, DmoCapabilities.Boquilhas);
         var html = await GetAsync(boquilhas, "?tipo=bq-apagados");
-        Assert.Contains("<h3>Movimentos de boquilhas apagados</h3>", html);
+        Assert.Contains("<span class=\"sumario-etiqueta\">Movimentos de boquilhas apagados</span>", html);
         Assert.Contains("<strong class=\"sumario-maquina\">C2</strong>", html);
         Assert.Contains("Saída de 3", html);
         Assert.Contains("Operador Sumário 5502", html);
     }
 
+    // Diogo, 23/10/2026: os dados técnicos fazem falta ao Peso e aos
+    // Pegamentos, por isso vê-os quem tem o Controlo Criar, não o módulo
+    // Ferramentas. Com Ferramentas a linha abre a ficha técnica; sem ele, o
+    // Resumo do controlo da produção.
     [Fact]
-    public async Task ToolsWithMissingTechnicalData_AreOnlyForFerramentas()
+    public async Task ToolsWithMissingTechnicalData_AreForControloCreate_NotForFerramentas()
     {
         var jobOnId = await JobOnAsync("S7A001", Hoje);
         using (var scope = _factory.Services.CreateScope())
@@ -281,11 +319,23 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
             Assert.DoesNotContain("CM-S7A001", await GetAsync(planeamento));
         }
 
-        using var ferramentas = await LoginAsync("5702", DmoCapabilities.JobOnCreate, DmoCapabilities.Ferramentas);
-        var html = await GetAsync(ferramentas, "?tipo=dados-em-falta");
-        Assert.Contains("<h3>Ferramentas com dados técnicos em falta</h3>", html);
-        Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=CM-S7A001&tecnica=1\">CM S7A001 · lote 2</a>", html);
-        Assert.Contains("Falta: gargalo, tampão · S7A001 7", html);
+        using (var ferramentas = await LoginAsync("5702", DmoCapabilities.JobOnCreate, DmoCapabilities.Ferramentas))
+        {
+            var semControlo = await GetAsync(ferramentas, "?tipo=dados-em-falta");
+            Assert.DoesNotContain("Ferramentas com dados técnicos em falta", semControlo);
+            Assert.DoesNotContain("S7A001 · Lote 2", semControlo);
+        }
+
+        using (var controlo = await LoginAsync("5703", DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate))
+        {
+            var html = await GetAsync(controlo, "?tipo=dados-em-falta");
+            Assert.Contains("<span class=\"sumario-etiqueta\">Ferramentas com dados técnicos em falta</span>", html);
+            Assert.Contains($"href=\"/Controlo/Resumo?jobon_id={jobOnId}\">CM S7A001 · Lote 2</a>", html);
+            Assert.Contains("Falta: gargalo, tampão · S7A001 7", html);
+        }
+
+        using var ambos = await LoginAsync("5704", DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
+        Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=CM-S7A001&tecnica=1\">CM S7A001 · Lote 2</a>", await GetAsync(ambos, "?tipo=dados-em-falta"));
     }
 
     // «ao sair da produção entra no armazém dá o aviso, e podemos usar o
@@ -309,10 +359,13 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
 
         using var ferramentas = await LoginAsync("5712", DmoCapabilities.JobOnCreate, DmoCapabilities.Ferramentas);
         var html = await GetAsync(ferramentas);
-        var aviso = System.Text.RegularExpressions.Regex.Match(html, "<p class=\"dmo-aviso warn\" data-dmo-uso-por-atualizar=\"CM-USO1\">[\\s\\S]*?</p>").Value;
-        Assert.Contains("Utilização por atualizar: CM 5447T173 lote 11, desde 21/10/2026.", aviso);
-        Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=CM-USO1\"", aviso);
-        Assert.Contains(">Abrir a ficha<", aviso);
+        // Já não é um aviso à parte: é uma linha do grupo «Importante» (Diogo, 23/10/2026).
+        Assert.DoesNotContain("<p class=\"dmo-aviso warn\" data-dmo-uso-por-atualizar", html);
+        var linha = System.Text.RegularExpressions.Regex.Match(html, "<li [^>]*data-dmo-uso-por-atualizar=\"CM-USO1\">[\\s\\S]*?</li>").Value;
+        Assert.Contains(" 21/10 ", linha);
+        Assert.Contains("<span class=\"sumario-etiqueta\">% de uso atualizada</span>", linha);
+        Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=CM-USO1\">CM 5447T173 · Lote 11</a>", linha);
+        Assert.Contains("Utilização por atualizar (entrou no Armazém)", linha);
     }
 
     [Fact]

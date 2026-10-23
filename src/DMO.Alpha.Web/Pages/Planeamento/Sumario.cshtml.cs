@@ -27,8 +27,7 @@ public sealed class SumarioModel(
     ISumarioQuery sumario,
     IJobOnListQuery jobOnList,
     CurrentUserCapabilities capabilities,
-    DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos,
-    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
+    SumarioNovidades novidades,
     ShellStateFactory shellState) : PageModel
 {
     private const string PagePath = "/Planeamento/Sumario";
@@ -60,22 +59,26 @@ public sealed class SumarioModel(
     /// <summary>O painel lateral: as próximas produções desta semana, como no Job On.</summary>
     public IReadOnlyList<ProductionContextReadModel> ProximasEntradas { get; private set; } = [];
 
-    /// <summary>
-    /// Os lotes novos registados no Armazém por criar (Diogo, 22/10/2026:
-    /// «poderia ser um aviso Ferramenta Registo novo no armazem»): só a quem
-    /// tem o módulo Ferramentas, sempre (não dependem do dia escolhido).
-    /// </summary>
-    public IReadOnlyList<DMO.Alpha.Core.Armazem.ArmazemLoteNovoItem> LotesNovos { get; private set; } = [];
+    /// <summary>A chave do filtro «Importante» (só o grupo do topo).</summary>
+    public const string ChaveImportante = "importante";
 
     /// <summary>
-    /// As ferramentas com a utilização por atualizar (Diogo, 22/10/2026: «ao
-    /// sair da produção entra no armazém dá o aviso, e podemos usar o sumário
-    /// para dar o aviso a quem tem módulo ferramentas»): o mesmo lembrete da
-    /// ficha, só a quem tem o módulo Ferramentas, com o link para a ficha.
+    /// O GRUPO «IMPORTANTE» NO TOPO (Diogo, 23/10/2026: «os notices
+    /// importantes entram no sumário. Criar uma Informação "Importante" e
+    /// ficam sempre no topo até resolver»): os por resolver, seja qual for o
+    /// dia escolhido, com os lotes novos por criar e os lembretes da ficha
+    /// (antes avisos à parte). Vazio com um filtro de informação.
     /// </summary>
-    public IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaUsoPorAtualizar> UsoPorAtualizar { get; private set; } = [];
+    public IReadOnlyList<SumarioItem> Importantes { get; private set; } = [];
 
-    public const int UsoPorAtualizarMaximo = 20;
+    /// <summary>O filtro «Importante»: só o grupo do topo, sem a informação do período.</summary>
+    public bool SoImportante { get; private set; }
+
+    /// <summary>Os tipos de informação que os módulos deixam ver (as opções do filtro a seguir a «Importante»).</summary>
+    public IReadOnlyList<SumarioTipo> TiposInformacao { get; private set; } = [];
+
+    /// <summary>A conta vê algum tipo importante (o filtro mostra «Importante»).</summary>
+    public bool VeImportantes { get; private set; }
 
     private IReadOnlyList<string> _modulos = [];
 
@@ -93,14 +96,25 @@ public sealed class SumarioModel(
             Functions = ShellStateFactory.PlanningFunctions("sumario")
         };
 
+        // Abrir o Sumário é ver os importantes: o ponto do separador apaga-se
+        // (Diogo, 23/10/2026).
+        await novidades.MarcarVistoAsync(HttpContext.RequestAborted);
+
         _modulos = await capabilities.GetAsync(HttpContext.RequestAborted);
-        TiposVisiveis = SumarioTipos.Visiveis(_modulos);
-        if (_modulos.Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal))
+        var visiveis = SumarioTipos.Visiveis(_modulos);
+        TiposVisiveis = visiveis.Where(SumarioTipos.DoPeriodo).ToArray();
+        TiposInformacao = TiposVisiveis.Where(t => !SumarioTipos.Importante(t)).ToArray();
+        VeImportantes = visiveis.Any(SumarioTipos.Importante);
+        // Um tipo importante no endereço (os links antigos) abre o grupo do
+        // topo só com esse tipo.
+        Tipo = SumarioTipos.DaChave(tipo) is { } escolhido && visiveis.Contains(escolhido) ? escolhido : null;
+        SoImportante = VeImportantes && (tipo == ChaveImportante || Tipo is { } ti && SumarioTipos.Importante(ti));
+        if (VeImportantes && (Tipo is null || SoImportante))
         {
-            LotesNovos = await lotesNovos.PorCriarAsync(null, HttpContext.RequestAborted);
-            UsoPorAtualizar = await usoSap.PorAtualizarAsync(UsoPorAtualizarMaximo, HttpContext.RequestAborted);
+            var importantes = await novidades.ImportantesAsync(_modulos, HttpContext.RequestAborted);
+            Importantes = Tipo is { } so ? importantes.Where(i => i.Tipo == so).ToList() : importantes;
         }
-        Tipo = SumarioTipos.DaChave(tipo) is { } escolhido && TiposVisiveis.Contains(escolhido) ? escolhido : null;
+
         Dias = dias is { } d && PeriodosDias.Contains(d) ? d : 1;
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
@@ -121,7 +135,7 @@ public sealed class SumarioModel(
         var inicioMes = new DateOnly(Year, Month, 1);
         var fimMes = inicioMes.AddMonths(1);
         var de = Day is { } escolhidoDia && escolhidoDia.AddDays(1 - Dias) < inicioMes ? escolhidoDia.AddDays(1 - Dias) : inicioMes;
-        IReadOnlyList<SumarioTipo> tipos = Tipo is { } t ? [t] : TiposVisiveis;
+        IReadOnlyList<SumarioTipo> tipos = SoImportante ? [] : Tipo is { } t ? [t] : TiposInformacao;
         IReadOnlyList<SumarioItem> items = tipos.Count == 0
             ? []
             : await sumario.PeriodAsync(de, fimMes, tipos, HttpContext.RequestAborted);
@@ -155,7 +169,11 @@ public sealed class SumarioModel(
     public IReadOnlyDictionary<string, string> FiltrosQuery()
     {
         var query = new Dictionary<string, string>();
-        if (Tipo is { } t)
+        if (SoImportante && Tipo is null)
+        {
+            query["tipo"] = ChaveImportante;
+        }
+        else if (Tipo is { } t)
         {
             query["tipo"] = SumarioTipos.Chave(t);
         }
@@ -169,12 +187,26 @@ public sealed class SumarioModel(
     }
 
     /// <summary>
-    /// A página onde a linha se vê. As linhas do Controlo abrem o Resumo a quem
-    /// tem o Controlo e a Revisão a quem só aprova; null quando não há página.
+    /// A página que resolve a linha (Diogo, 23/10/2026: «no sumário mostrar
+    /// sempre os links que levam à página que resolve o problema»), sempre uma
+    /// que a conta abre. As linhas do Controlo abrem o Resumo a quem tem o
+    /// Controlo e a Revisão a quem só aprova; os por aprovar abrem a Revisão a
+    /// quem aprova. Os dados técnicos resolvem-se na ficha; sem o módulo
+    /// Ferramentas, no Resumo do controlo da produção que precisa deles.
     /// </summary>
-    public string? Href(SumarioItem item)
+    public string? Href(SumarioItem item) => Href(item, _modulos);
+
+    /// <inheritdoc cref="Href(SumarioItem)"/>
+    public static string? Href(SumarioItem item, IReadOnlyCollection<string> modulos)
     {
-        var temControlo = _modulos.Contains(DmoCapabilities.ControloCreate, StringComparer.Ordinal);
+        var temControlo = modulos.Contains(DmoCapabilities.ControloCreate, StringComparer.Ordinal);
+        var aprova = modulos.Contains(DmoCapabilities.ControloApprove, StringComparer.Ordinal);
+        var temFerramentas = modulos.Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
+        if (item.Link is { } link)
+        {
+            return link;
+        }
+
         return item.Tipo switch
         {
             SumarioTipo.JobOnCriado or SumarioTipo.ProducaoComeca or SumarioTipo.JobOnAlterado when item.JobOnId is { } id =>
@@ -182,11 +214,15 @@ public sealed class SumarioModel(
             SumarioTipo.JobOnPorVer or SumarioTipo.ControloNaoAprovado when item.JobOnId is { } id =>
                 temControlo ? $"/Controlo/Resumo?jobon_id={id}" : $"/Controlo/Approve?jobon_id={id}",
             SumarioTipo.ControloPorAprovar when item.JobOnId is { } id =>
-                $"/Controlo/Approve?jobon_id={id}&ano={item.Dia.Year}&mes={item.Dia.Month}&dia={item.Dia.Day}",
+                aprova ? $"/Controlo/Approve?jobon_id={id}&ano={item.Dia.Year}&mes={item.Dia.Month}&dia={item.Dia.Day}" : $"/Controlo/Resumo?jobon_id={id}",
             SumarioTipo.BqMovimentoApagado =>
                 item.BqContextId is { } bq ? $"/Boquilhas?bq_id={bq}" : "/Boquilhas?historico=1",
-            SumarioTipo.FerramentaDadosEmFalta when item.ToolId is { } toolId =>
+            SumarioTipo.FerramentaDadosEmFalta when item.ToolId is { } toolId && temFerramentas =>
                 DmoAvisoLink.FichaFerramenta(toolId, item.Titulo, tecnica: true).Href,
+            SumarioTipo.FerramentaDadosEmFalta when item.JobOnId is { } id =>
+                $"/Controlo/Resumo?jobon_id={id}",
+            SumarioTipo.UsoAtualizado when item.ToolId is { } toolId =>
+                DmoAvisoLink.FichaFerramenta(toolId, item.Titulo).Href,
             _ => null
         };
     }

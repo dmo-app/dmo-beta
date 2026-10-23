@@ -384,3 +384,6 @@ html body .dmo-shell-navigation>.dmo-secondary-nav:has(.dmo-tab-menu)>:is(a,.dmo
 html body .dmo-card-topo-acoes{min-width:0;max-width:100%}
 html body .dmo-card-topo-acoes :is(.dmo-button,.button,.btn){white-space:normal;text-align:center}
 }
+/* O ponto do Sumário no separador do Planeamento (Diogo, 23/10/2026): um
+   ponto pequeno, sem número, quando há importantes por ver. */
+.dmo-tab-novo::after{content:"";display:inline-block;width:7px;height:7px;margin-inline-start:6px;border-radius:50%;background:var(--dmo-warning);vertical-align:super}

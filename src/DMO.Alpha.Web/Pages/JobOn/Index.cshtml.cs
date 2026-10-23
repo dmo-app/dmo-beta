@@ -741,7 +741,7 @@ public sealed class IndexModel : PageModel
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = ShowHistory ? "historico" : "jobon",
-            Functions = ShellStateFactory.PlanningFunctions(ShowHistory ? "historico" : "jobon")
+            Functions = await _shellState.PlanningFunctionsAsync(ShowHistory ? "historico" : "jobon")
         };
 
         // Recusa tipada do POST anterior, transportada por query (PRG) com o

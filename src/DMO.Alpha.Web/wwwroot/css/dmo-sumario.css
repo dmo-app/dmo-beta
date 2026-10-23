@@ -38,4 +38,12 @@
 a.sumario-titulo:hover,a.sumario-titulo:focus-visible{color:var(--dmo-palette-ocean);text-decoration:underline}
 .sumario-detalhe{color:var(--dmo-text);font-size:13px}
 .sumario-item small{margin-left:auto;color:var(--dmo-text-muted);font-size:12px}
+/* Os importantes (Diogo, 23/10/2026): a cor dos avisos (dmo-aviso warn) na
+   barra do título e no lado de cada linha; a informação fica como estava. */
+.sumario-grupo.sumario-importante h3{border-bottom-color:var(--dmo-warning)}
+.sumario-grupo.sumario-importante .sumario-item{box-shadow:inset 3px 0 0 var(--dmo-warning)}
+/* O grupo «Importante» no topo da lista (Diogo, 23/10/2026): antes do dia
+   escolhido, com o tipo de cada linha numa etiqueta discreta. */
+.sumario-grupo.sumario-topo{margin:0 0 18px}
+.sumario-etiqueta{color:var(--dmo-warning);font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
 @media (max-width:900px){.sumario-grid{grid-template-columns:minmax(0,1fr)}}

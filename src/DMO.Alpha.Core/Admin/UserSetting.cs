@@ -22,6 +22,13 @@ public static class UserSettingKeys
 {
     /// <summary>O modo claro ou escuro: «light» ou «dark».</summary>
     public const string Tema = "Pessoal:Tema";
+
+    /// <summary>
+    /// A última vez que a conta abriu o Sumário do Planeamento (UTC, ISO
+    /// 8601): o ponto do separador só aparece com linhas importantes depois
+    /// disto (Diogo, 23/10/2026).
+    /// </summary>
+    public const string SumarioVistoEm = "Pessoal:SumarioVistoEm";
 }
 
 /// <summary>Lê e grava as definições pessoais do utilizador.</summary>

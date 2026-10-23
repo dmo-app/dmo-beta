@@ -272,6 +272,7 @@ builder.Services.AddScoped<DMO.Alpha.Web.Services.MudancaDePalavraPasse>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<DMO.Alpha.Core.Admin.IPinDasDefinicoes, DMO.Alpha.Infrastructure.Admin.PinDasDefinicoes>();
 builder.Services.AddScoped<DMO.Alpha.Web.Services.DesbloqueioDasDefinicoes>();
+builder.Services.AddScoped<DMO.Alpha.Web.Services.SumarioNovidades>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Controlo.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel>();
