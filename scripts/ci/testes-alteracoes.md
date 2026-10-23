@@ -1838,3 +1838,14 @@ Novos: 12 · mudaram: 22 · saíram: 4
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Ficha_Opcoes_ProducoesDaReferencia_TabelaPaginadaSoQuandoSeAbre`
 
 Selo depois: `99995dcb276a8d80`
+
+## A-0076 · 2026-10-23 · ok-do-diogo
+
+Porquê: Pesquisar ferramentas: Referência primeiro, «Linha», «Por página» junto da paginação (Diogo 23/10)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyLMarZyqR8Ep4yGP6vNwa3g, cmsg_01A27e9ozcpoh4jdPRsuJbFyWEszyPXLLpKWk5nPM2SGoS, cmsg_01A27e9ozcpoh4jdPRsuJbFyViwxtVYh2GuyQND76gdr9K
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Criar_APartirDoCartaoDoJobOn_OTipoFicaFixo`
+- mudou: `tests/visual/paginacao_parcial_browser.py`
+
+Selo depois: `74948639fa47de50`
