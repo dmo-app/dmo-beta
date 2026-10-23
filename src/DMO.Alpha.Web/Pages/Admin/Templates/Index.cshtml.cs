@@ -107,9 +107,10 @@ public sealed class IndexModel : PageModel
     /// do gate 3: a autorização é MODULE-OWNED), na ordem da navegação
     /// dos módulos — nunca a lista plana.
     /// </summary>
+    public const bool GestaoJunta = true;
+
     public static IReadOnlyList<(string Module, IReadOnlyList<string> Capabilities)> BetaCapabilityGroups =>
-        new (string, IReadOnlyList<string>)[]
-        {
+        [
             ("Planeamento", new[]
             {
                 DmoCapabilities.JobOnCreate,
@@ -125,19 +126,16 @@ public sealed class IndexModel : PageModel
                 DmoCapabilities.Boquilhas,
                 DmoCapabilities.BoquilhasView
             }),
-            ("Ferramentas", new[]
-            {
-                DmoCapabilities.Ferramentas
-            }),
-            ("Armazém", new[]
-            {
-                DmoCapabilities.ArmazemGestao
-            }),
+            // «Gestão» (Diogo, 24/10/2026): Ferramentas e Armazém numa só secção.
+            // Para voltar a secções separadas: GestaoJunta = false.
+            .. (GestaoJunta
+                ? new (string, IReadOnlyList<string>)[] { ("Gestão", new[] { DmoCapabilities.Ferramentas, DmoCapabilities.ArmazemGestao }) }
+                : new (string, IReadOnlyList<string>)[] { ("Ferramentas", new[] { DmoCapabilities.Ferramentas }), ("Armazém", new[] { DmoCapabilities.ArmazemGestao }) }),
             ("Reparação Interna", new[]
             {
                 DmoCapabilities.ReparacaoInterna
             })
-        };
+        ];
 
     /// <summary>Rótulo pt-PT da capability (o token canónico é a autoridade; o rótulo é display).</summary>
     public static string CapabilityLabel(string capability) => capability switch
@@ -150,7 +148,7 @@ public sealed class IndexModel : PageModel
         DmoCapabilities.ControloApprove => "Controlo · aprovar",
         DmoCapabilities.Boquilhas => "Boquilhas · criar",
         DmoCapabilities.BoquilhasView => "Boquilhas · ver",
-        DmoCapabilities.Ferramentas => "Ferramentas · gerir",
+        DmoCapabilities.Ferramentas => "Ferramentas · gestão",
         DmoCapabilities.ArmazemGestao => "Armazém · gestão",
         DmoCapabilities.ReparacaoInterna => "Reparação Interna · registar",
         _ => capability
