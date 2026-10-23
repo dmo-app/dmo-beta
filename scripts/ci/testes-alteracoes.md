@@ -2076,3 +2076,14 @@ Novos: 12 · mudaram: 11 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_SemFerramentaQueSirva_AJanelaAvisaComOLinkParaRegistar`
 
 Selo depois: `c1072eb40d05b45e`
+
+## A-0087 · 2026-10-23 · teste-novo
+
+Porquê: A05: duas correções da mesma leitura dos Pegamentos ao mesmo tempo gravavam 10→11 e 10→12; com o trinco da folha o histórico fica em cadeia
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5RDFe9ayKRzmBAFe1ejsru
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrigir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrigir.cs :: PostgresMigrationIntegrationTests.Pegamentos_DuasCorrecoesAoMesmoTempo_OHistoricoFicaEmCadeia`
+
+Selo depois: `8bd45e1e8bfd79c4`

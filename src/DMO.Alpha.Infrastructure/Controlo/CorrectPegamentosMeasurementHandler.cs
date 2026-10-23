@@ -13,15 +13,21 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
         _db = db;
     }
 
-    public async Task<CorrectPegamentosMeasurementResult> EditAsync(
+    public Task<CorrectPegamentosMeasurementResult> EditAsync(
         EditPegamentosMeasurement command,
-        CancellationToken cancellationToken = default)
-    {
-        if (command.CosturaMm <= 0m || command.ContraCosturaMm is <= 0m)
-        {
-            return CorrectPegamentosMeasurementResult.ImpossibleValue;
-        }
+        CancellationToken cancellationToken = default) =>
+        command.CosturaMm <= 0m || command.ContraCosturaMm is <= 0m
+            ? Task.FromResult(CorrectPegamentosMeasurementResult.ImpossibleValue)
+            : DbWrite.InTransactionAsync(_db, () => EditOnceAsync(command, cancellationToken), cancellationToken);
 
+    // A05 (23/10/2026): duas correções da mesma leitura ao mesmo tempo liam o
+    // mesmo valor e gravavam 10→11 e 10→12 no histórico. Com o trinco da folha,
+    // a segunda espera e lê o valor que a primeira gravou (10→11, 11→12).
+    private async Task<CorrectPegamentosMeasurementResult> EditOnceAsync(
+        EditPegamentosMeasurement command,
+        CancellationToken cancellationToken)
+    {
+        await LockSheetOfAsync(command.Anchor, cancellationToken);
         var measurement = await FindAsync(command.Anchor, cancellationToken);
         if (measurement is null)
         {
@@ -92,15 +98,7 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
         PegamentosMeasurementAnchor anchor,
         CancellationToken cancellationToken)
     {
-        var sheetId = await _db.PegamentosMeasurements
-            .AsNoTracking()
-            .Where(m => m.Id == anchor.MeasurementId)
-            .Select(m => (int?)m.PegamentosId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (sheetId is int lockedSheet)
-        {
-            await RecordPegamentosMeasurementHandler.LockSheetAsync(_db, lockedSheet, cancellationToken);
-        }
+        await LockSheetOfAsync(anchor, cancellationToken);
 
         var measurement = await FindAsync(anchor, cancellationToken);
         if (measurement is null)
@@ -133,6 +131,19 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
 
     // O rasto com os valores da leitura antes da correção; quem corrigiu é
     // carimbado ao gravar (RegistoCarimboInterceptor).
+    private async Task LockSheetOfAsync(PegamentosMeasurementAnchor anchor, CancellationToken cancellationToken)
+    {
+        var sheetId = await _db.PegamentosMeasurements
+            .AsNoTracking()
+            .Where(m => m.Id == anchor.MeasurementId)
+            .Select(m => (int?)m.PegamentosId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (sheetId is int lockedSheet)
+        {
+            await RecordPegamentosMeasurementHandler.LockSheetAsync(_db, lockedSheet, cancellationToken);
+        }
+    }
+
     private static PegamentosMeasurementHistorico Rasto(PegamentosMeasurement measurement, bool apagada, int numero) => new()
     {
         PegamentosId = measurement.PegamentosId,
