@@ -318,7 +318,8 @@
     { "id": "DMO-323", "module": "Definições", "description": "0.3.0-beta.11: Definições arrumadas no menu lateral: o Controlo abre em Peso, Pegamentos, PU NNPB (só B1 e C3), Email e PDFs; o grupo Admin (só para o ADMIN) tem o Canal Jobon e o App (email do ADMIN e PIN). Um só botão por cartão. O triângulo de abrir fica sempre à esquerda do texto e o círculo da ajuda sempre na mesma posição. No cabeçalho, o email com «Admin · Sair» por baixo; o modo escuro fica só nas Definições → Pessoal." },
     { "id": "DMO-324", "module": "Job On", "description": "0.3.0-beta.12: folha nova do Job On: abre bloqueada e o «Editar» desbloqueia; Imprimir, Duplicar, Editar e Opções (Controlo, Reparação, Boquilhas) por baixo da referência; dropdown das produções anteriores; painel das linhas escondível; TP com a CM e CS com o MF; CS Furos com Abertos e Fechados; lotes sem zero. Nova chave «Job On ver» para ver a folha sem editar." },
     { "id": "DMO-325", "module": "Armazém", "description": "0.3.0-beta.13: criar um reparador de CM e MF pede só o nome; recebe CM e MF e muda-se na tabela." },
-    { "id": "DMO-326", "module": "Job On", "description": "0.3.0-beta.14: quem só tem «Job On ver» vê a folha como está, abre e fecha as secções, sem Imprimir nem Opções." }
+    { "id": "DMO-326", "module": "Job On", "description": "0.3.0-beta.14: quem só tem «Job On ver» vê a folha como está, abre e fecha as secções, sem Imprimir nem Opções." },
+    { "id": "DMO-327", "module": "Job On", "description": "0.3.0-beta.15: no Planeamento, a ajuda da procura fica encostada ao dropdown «Produção», em cima à direita. No Registar Reparação saem as frases em itálico e a ajuda fica encostada aos botões; a lista nova chama-se pelo reparador e o dia." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

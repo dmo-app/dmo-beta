@@ -129,9 +129,9 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         var vazia = await chefia.GetStringAsync(Pagina);
         Assert.Contains("Registar Reparação", vazia);
         Assert.Contains("href=\"/Ferramentas/ReparacaoProgramada\"", vazia);
-        Assert.Contains("id=\"rpProcuraVazia\"", vazia);
+        Assert.DoesNotContain("Escolha um filtro e procure.", vazia);
         Assert.DoesNotContain("id=\"rpCandidatas\"", vazia);
-        Assert.Contains("id=\"rpListaVazia\"", vazia);
+        Assert.DoesNotContain("Nenhuma lista ativa", vazia);
 
         var procura = await chefia.GetStringAsync($"{Pagina}?estado=PorReparar&referencia=5447RP");
         Assert.Contains($"data-dmo-candidata=\"{Cm}\"", procura);

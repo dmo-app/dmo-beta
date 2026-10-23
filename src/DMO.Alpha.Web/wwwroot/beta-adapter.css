@@ -103,3 +103,5 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
 
 /* A cor da linha no painel lateral (Diogo, 22/10/2026): a mesma da lista do dia. */
 .beta-production-lines .dmo-linha-cor{border-left:4px solid var(--dmo-machine-color)}
+/* A ajuda da procura do Planeamento fica encostada ao dropdown «Produção», em cima à direita, e não solta entre as caixas e o «Criar Job On» (Diogo, 23/10/2026: «help icon no centro, não sei onde pertence»). */
+html body .beta-light-productions .dmo-search-form>.dmo-help{align-self:flex-start;margin-left:calc(.25em - 8px);margin-top:-3px}
