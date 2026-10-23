@@ -289,7 +289,7 @@
                  com a referência (produção, máquina, início, fim e a CM, MF e
                  BQ com os lotes usados); só é lida quando se abre. *@
               <details class="dmo-options" data-dmo-tab-menu>
-                <summary class="dmo-button" aria-label="Opções do Job On @ficha.ProductionNumber">Opções<span class="dmo-options-caret" aria-hidden="true"></span></summary>
+                <summary class="dmo-button" aria-label="Opções do Job On @ficha.ProductionNumber"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
                 <div class="dmo-options-list">
                   @* MENOS BOTÕES (o Diogo, 17/10/2026: «muito botão»; «editar vai
                      para dentro das opções»): todas as ações da ficha ficam nas
@@ -328,7 +328,7 @@
           @if (Model.FichaResumo.Count > 0)
           {
             <details class="jobon-mudancas" id="fichaMudancas" open="@Model.VistaAlteracoes">
-              <summary>O que mudou desde o início (@Model.FichaResumo.Count @(Model.FichaResumo.Count == 1 ? "alteração" : "alterações"))</summary>
+              <summary><span class="dmo-caret" aria-hidden="true"></span>O que mudou desde o início (@Model.FichaResumo.Count @(Model.FichaResumo.Count == 1 ? "alteração" : "alterações"))</summary>
               <ul class="jobon-resumo" aria-label="O que mudou">
                 @foreach (var entrada in Model.FichaResumo)
                 {
@@ -609,7 +609,7 @@
                  só aparecem na procura. Sem script, a procura fica visível. *@
               <section class="job-tool-card" data-tool-card="@tipoSlot">
                 <details class="dmo-options job-tool-menu">
-                  <summary class="job-tool-card-head" aria-label="@rotuloSlot: associar ou criar">
+                  <summary class="job-tool-card-head" aria-label="@rotuloSlot: associar ou criar"><span class="dmo-caret" aria-hidden="true"></span>
                     <span class="job-tool-badge">@tipoSlot</span>
                     <strong>@rotuloSlot</strong>
                     @if (Model.DuplicarDe is not null && escolhida is not null)
@@ -617,7 +617,6 @@
                       <span class="jobon-confirmar">Confirmar</span>
                     }
                     <span class="job-tool-card-hint" data-tool-hint>@(escolhida is null ? "Associar ou criar" : "")</span>
-                    <span class="dmo-options-caret" aria-hidden="true"></span>
                   </summary>
                   <div class="dmo-options-list">
                     @* Abrir a ficha da ferramenta escolhida (Diogo, 21/10/2026: «ao

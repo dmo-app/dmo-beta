@@ -27,7 +27,7 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
 {
     private const string PagePath = "/Boquilhas/Definicoes";
     private const string SetupPath = "/Admin/Definicoes/Index";
-    private const string AppPath = "/Definicoes?secao=app";
+    private const string AppPath = "/Definicoes?secao=admin&sub=app";
 
     private readonly CustomWebApplicationFactory _factory;
 

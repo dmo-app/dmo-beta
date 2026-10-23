@@ -958,7 +958,7 @@ public partial class AuthenticationTests : IClassFixture<CustomWebApplicationFac
         {
             var allowed = await adminClient.GetAsync(path);
             Assert.Equal(HttpStatusCode.Redirect, allowed.StatusCode);
-            Assert.Equal(path == "/Admin" ? "/Admin/Users" : "/Definicoes?secao=app", allowed.Headers.Location?.OriginalString);
+            Assert.Equal(path == "/Admin" ? "/Admin/Users" : "/Definicoes?secao=admin&sub=app", allowed.Headers.Location?.OriginalString);
             var refused = await operatorClient.GetAsync(path);
             Assert.Equal(HttpStatusCode.Redirect, refused.StatusCode);
             Assert.Equal("/login", refused.Headers.Location?.AbsolutePath);

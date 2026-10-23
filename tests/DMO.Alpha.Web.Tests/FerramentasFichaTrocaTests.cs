@@ -103,7 +103,7 @@ public partial class FerramentasPagesTests
         // interativo lá dentro); o «Guardar» vem logo a seguir ao <details>,
         // dentro do card (.dmo-card-dobravel põe-no sobre a linha do título),
         // e grava o formulário da técnica pelo atributo form.
-        Assert.Matches("<summary id=\"ferrTecnicaTitulo\" class=\"dmo-card-topo\" data-dmo-regiao><h3 id=\"ferr-tech-title\">Informação técnica[\\s\\S]*?</h3></summary>", html);
+        Assert.Matches("<summary id=\"ferrTecnicaTitulo\" class=\"dmo-card-topo\" data-dmo-regiao><h3 id=\"ferr-tech-title\"><span class=\"dmo-caret\" aria-hidden=\"true\"></span>Informação técnica[\\s\\S]*?</h3></summary>", html);
         Assert.Matches("</details>\\s*<div class=\"dmo-card-topo-acoes\">\\s*<button type=\"submit\" class=\"dmo-button\" id=\"ferr-tech-guardar\" form=\"ferr-tech-form\">Guardar</button>\\s*</div>\\s*</section>", html);
         Assert.Contains("<form method=\"post\" id=\"ferr-tech-form\" action=\"/Ferramentas/Ficha?handler=EditTechnical\">", html);
         Assert.Single(Regex.Matches(html, "id=\"ferr-tech-form\""));

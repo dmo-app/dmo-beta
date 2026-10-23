@@ -209,8 +209,8 @@ with sync_playwright() as playwright:
     # -------------------------------------------------------------------- Admin
     page, pedidos, erros = entrar(browser, admin_email)
 
-    # Definições → App (antes o Setup): o email do ADMIN (o mesmo, para a sessão continuar).
-    page.goto(base + '/Definicoes?secao=app')
+    # Definições → Admin → App: o email do ADMIN (o mesmo, para a sessão continuar).
+    page.goto(base + '/Definicoes?secao=admin&sub=app')
     no_canto(page, '#admEmailGuardar', '#admEmail', '#adminEmail')
     page.fill('#adminEmail', admin_email)
     page.fill('#adminEmailConfirm', admin_email)
@@ -221,14 +221,75 @@ with sync_playwright() as playwright:
     assert foco(page) == 'admEmailGuardar', f'foco em {foco(page)}'
 
     # Canal Jobon: a hora grava ao escolher; o foco fica no dropdown.
-    page.goto(base + '/Admin/CanalJobon')
+    page.goto(base + '/Definicoes?secao=admin&sub=canal')
     hora = str((int(page.input_value('#dayChangeHour')) + 1) % 24)
     page.focus('#dayChangeHour')
-    gravar(page, pedidos, lambda: page.select_option('#dayChangeHour', hora), ['#canal-jobon-title'], 'Canal Jobon, hora')
+    gravar(page, pedidos, lambda: page.select_option('#dayChangeHour', hora), ['#def-title'], 'Canal Jobon, hora')
     toast(page, 'Hora de viragem gravada.')
     assert page.input_value('#dayChangeHour') == hora
     assert foco(page) == 'dayChangeHour', f'foco em {foco(page)}'
     assert sql('''select "SettingValue" from "ModuleSettings" where "SettingKey" = 'Boquilhas:DayChangeHour' ''') == hora
+
+    # Menu lateral: um clique em «Controlo» abre o grupo, outro fecha-o; o triângulo roda.
+    page.goto(base + '/Definicoes?secao=admin&sub=canal')
+    titulo = '[data-dmo-def-grupo="controlo"] [data-dmo-def-grupo-titulo]'
+    sub = '#defMenu-controlo'
+    rodar = f'{titulo} .dmo-caret'
+    angulo = lambda: page.eval_on_selector(rodar, "e => getComputedStyle(e).transform")
+    assert page.get_attribute(titulo, 'aria-expanded') == 'false'
+    assert page.eval_on_selector(sub, 'e => e.hidden') is True
+    fechado = angulo()
+    page.click(titulo)
+    expect(page.locator(titulo)).to_have_attribute('aria-expanded', 'true')
+    assert page.eval_on_selector(sub, 'e => e.hidden') is False
+    page.wait_for_timeout(300)
+    aberto = angulo()
+    assert aberto != fechado and aberto not in ('none', ''), f'o triângulo não rodou ({fechado} -> {aberto})'
+    page.click(titulo)
+    expect(page.locator(titulo)).to_have_attribute('aria-expanded', 'false')
+    assert page.eval_on_selector(sub, 'e => e.hidden') is True
+    page.wait_for_timeout(300)
+    assert angulo() == fechado, 'o triângulo não voltou'
+    resultados.append('Menu lateral: «Controlo» abre e fecha com um clique; o triângulo roda')
+
+    # Triângulo e ajuda medidos no Chromium: o triângulo acaba antes do texto (0 a 0,5em);
+    # o topo do círculo da ajuda fica na altura das maiúsculas (±1,5 px).
+    medir_caret = """(s) => {
+        const c = s.querySelector('.dmo-caret');
+        const t = document.createTreeWalker(s, NodeFilter.SHOW_TEXT, { acceptNode: n => n.textContent.trim() ? 1 : 3 });
+        let n = t.nextNode();
+        while (n && !(c.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING)) n = t.nextNode();
+        const r = document.createRange(); r.selectNodeContents(n);
+        const em = parseFloat(getComputedStyle(n.parentElement).fontSize);
+        return { folga: r.getBoundingClientRect().left - c.getBoundingClientRect().right, em };
+    }"""
+    page.goto(base + '/Definicoes?secao=boquilhas')
+    m = page.eval_on_selector('summary:has(> .dmo-caret)', medir_caret)
+    assert 0 <= m['folga'] <= 0.5 * m['em'], f'triângulo do <summary> a {m["folga"]:.1f}px do texto (1em = {m["em"]}px)'
+    m2 = page.eval_on_selector(titulo, medir_caret)
+    assert 0 <= m2['folga'] <= 0.5 * m2['em'], f'triângulo do menu a {m2["folga"]:.1f}px do texto'
+    page.goto(base + '/Definicoes?secao=admin&sub=app')
+    # O topo do círculo fica na altura das maiúsculas da fonte do título (±1,5 px): um span
+    # de medição com «H» no mesmo título dá a linha de base e a altura do «H» nessa fonte.
+    ajuda = page.eval_on_selector('#admin-email-title', """(h) => {
+        const marca = h.querySelector('.dmo-help-mark');
+        const medida = document.createElement('span');
+        medida.textContent = 'H';
+        medida.style.cssText = 'visibility:hidden;position:relative';
+        const base = document.createElement('span');
+        base.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+        medida.appendChild(base);
+        h.insertBefore(medida, h.firstChild);
+        const ctx = document.createElement('canvas').getContext('2d');
+        ctx.font = getComputedStyle(medida).font;
+        const topoMaiusculas = base.getBoundingClientRect().bottom - ctx.measureText('H').actualBoundingBoxAscent;
+        const resultado = { topo: marca.getBoundingClientRect().top, maiusculas: topoMaiusculas };
+        medida.remove();
+        return resultado;
+    }""")
+    desvio = ajuda['topo'] - ajuda['maiusculas']
+    assert abs(desvio) <= 1.5, f'topo da ajuda a {desvio:.1f}px da altura das maiúsculas'
+    resultados.append(f'Triângulo a {m["folga"]:.1f}px/{m2["folga"]:.1f}px do texto; topo da ajuda a {desvio:.1f}px da altura das maiúsculas')
 
     # Utilizadores: criar; o PIN fica no canto; o formulário limpa; a lista mostra-o.
     page.goto(base + '/Admin/Users')

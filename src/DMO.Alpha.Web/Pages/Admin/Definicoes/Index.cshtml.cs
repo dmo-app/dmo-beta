@@ -79,16 +79,12 @@ public class IndexModel(
     /// <summary>TRUE quando o save transportado é uma gravação feita (a mensagem fecha sozinha).</summary>
     public bool SaveSucceeded => SaveResult is "ok-admin";
 
-    /// <summary>
-    /// O Setup mudou-se para as Definições → App (Diogo, 22/10/2026: «setup
-    /// fica dentro das definições»): o endereço antigo abre lá.
-    /// </summary>
+    /// <summary>GET: a App vive nas Definições do ADMIN (Diogo, 22/10/2026).</summary>
     public IActionResult OnGet() => Redirect(Destino);
 
-    /// <summary>A secção App das Definições, onde estes cartões vivem.</summary>
-    public const string Destino = "/Definicoes?secao=app";
+    public const string Destino = "/Definicoes?secao=admin&sub=app";
 
-    /// <summary>Carrega os cartões para a secção App das Definições (?app=…, ?pinapp=…).</summary>
+    /// <summary>Carrega os cartões para as Definições → Admin → App (?app=…, ?pinapp=…).</summary>
     public async Task CarregarAsync(string? save, string? email, string? pin)
     {
         PinResult = pin;
@@ -106,7 +102,7 @@ public class IndexModel(
 
     private RedirectToPageResult Voltar(object valores, string? fragmento = null)
     {
-        var rota = new RouteValueDictionary { ["secao"] = "app" };
+        var rota = new RouteValueDictionary { ["secao"] = "admin", ["sub"] = "app" };
         foreach (var (chave, valor) in new RouteValueDictionary(valores))
         {
             rota[chave] = valor;

@@ -134,21 +134,19 @@ public sealed class DefinicoesNavTabTests : IClassFixture<CustomWebApplicationFa
         // admin o segundo tab não existe»): o tab é a ÚNICA ocorrência —
         // o item «Definições» saiu da barra da admin (a barra fica
         // Utilizadores · Templates).
-        // Desde 22/10/2026 (Diogo: «setup fica dentro das definições») o
-        // tab Setup saiu: o ADMIN tem só «Definições», com a secção App.
+        // Desde 22/10/2026 a App e o Canal Jobon vivem nas Definições do ADMIN.
         Assert.Equal(1, html.Split("href=\"/Definicoes\" style=\"margin-inline-start:auto\"", StringSplitOptions.None).Length - 1);
-        Assert.DoesNotContain("href=\"/Admin/Definicoes\"", html, StringComparison.Ordinal);
+        Assert.DoesNotContain(">App</a>", html, StringComparison.Ordinal);
         Assert.DoesNotContain(">Setup</a>", html, StringComparison.Ordinal);
 
         // A barra da admin fica Utilizadores · Templates.
         var adminPage = await (await client.GetAsync("/Admin/Users")).Content.ReadAsStringAsync();
         Assert.Contains("href=\"/Admin/Users\"", adminPage, StringComparison.Ordinal);
         Assert.Contains("href=\"/Admin/Templates\"", adminPage, StringComparison.Ordinal);
-        Assert.Contains("href=\"/Admin/CanalJobon\"", adminPage, StringComparison.Ordinal);
+        Assert.DoesNotContain("href=\"/Admin/CanalJobon\"", adminPage, StringComparison.Ordinal);
 
-        // O endereço antigo abre as Definições → App.
         var definicoes = await client.GetAsync("/Admin/Definicoes");
-        Assert.Equal("/Definicoes?secao=app", definicoes.Headers.Location?.OriginalString);
+        Assert.Equal("/Definicoes?secao=admin&sub=app", definicoes.Headers.Location?.OriginalString);
     }
 
     // SAP nas Definições do Admin: o LEIA-ME saiu para a página de ajuda das
@@ -159,7 +157,7 @@ public sealed class DefinicoesNavTabTests : IClassFixture<CustomWebApplicationFa
     {
         SeedConfiguredAdmin("navtab-sap@example.test", "navtab-sap-provider", "NavTabSap1!");
         using var client = await LoginAsync("navtab-sap@example.test", "NavTabSap1!");
-        var response = await client.GetAsync("/Definicoes?secao=app");
+        var response = await client.GetAsync("/Definicoes?secao=admin&sub=app");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = await response.Content.ReadAsStringAsync();
 

@@ -108,7 +108,7 @@
         <span class="revisao-pill big @EstadoClasse(estadoAberto)">@EstadoTexto(estadoAberto)</span>
         @* Os mesmos PDFs do Exportar do Resumo (19/10/2026). *@
         <details class="dmo-options resumo-export" data-dmo-tab-menu>
-          <summary class="dmo-button">Exportar<span class="dmo-options-caret" aria-hidden="true"></span></summary>
+          <summary class="dmo-button"><span class="dmo-caret" aria-hidden="true"></span>Exportar</summary>
           <div class="dmo-options-list">
             <form method="post" asp-page="/Controlo/Approve" asp-page-handler="ResumoPdf">
               <input type="hidden" name="jobon_id" value="@aberta.JobOnId" />

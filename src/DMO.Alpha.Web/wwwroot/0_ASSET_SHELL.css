@@ -111,7 +111,6 @@ body[data-beta-page="jobon"] .job-tool-card-head:hover{background:var(--dmo-bran
 body[data-beta-page="jobon"] .job-tool-card-head strong{font-size:14px}
 body[data-beta-page="jobon"] .job-tool-badge{display:inline-block;min-width:32px;text-align:center;padding:6px 7px;border-radius:8px;background:var(--dmo-brand-600,#3c73a8);color:var(--dmo-text-on-color);font-weight:800;font-size:11px}
 body[data-beta-page="jobon"] .job-tool-card-hint{margin-left:auto;color:var(--dmo-muted);font-size:12px}
-body[data-beta-page="jobon"] .job-tool-card-head .dmo-options-caret{color:var(--dmo-muted)}
 body[data-beta-page="jobon"] .job-tool-menu .dmo-options-list{left:auto;right:8px}
 body[data-beta-page="jobon"] .job-tool-chosen{padding:10px 12px 2px}
 body[data-beta-page="jobon"] .job-tool-card-title{display:block;margin-bottom:6px;font-size:15px;font-weight:650}

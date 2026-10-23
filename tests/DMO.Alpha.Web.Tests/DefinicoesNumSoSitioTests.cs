@@ -130,8 +130,12 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var html = await GetOkAsync(client, "/Definicoes");
         var menu = Menu(html);
         var entradas = Regex.Matches(menu, "data-dmo-def-entrada=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray();
-        Assert.Equal(new[] { "pessoal", "controlo", "boquilhas" }, entradas);
+        Assert.Equal(new[] { "pessoal", "boquilhas" }, entradas);
         Assert.Contains("href=\"/Definicoes?secao=boquilhas\"", menu);
+        // O Controlo é um grupo no menu, fechado enquanto não está aberto.
+        Assert.Contains("data-dmo-def-grupo=\"controlo\"", menu);
+        Assert.Contains("aria-expanded=\"false\"", menu);
+        Assert.Contains("<div class=\"def-menu-sub\" id=\"defMenu-controlo\" hidden=\"hidden\">", menu);
 
         // Por omissão, Pessoal: a única secção à vista, marcada no menu.
         Assert.Matches("<a href=\"/Definicoes\\?secao=pessoal\" data-dmo-def-entrada=\"pessoal\" class=\"active\" aria-current=\"page\">", menu);
@@ -340,7 +344,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var html = WebUtility.HtmlDecode(await GetOkAsync(client, "/Definicoes?secao=boquilhas"));
         Assert.Contains("data-dmo-dialog=\"defPinJanela\"", html);
         Assert.Contains("<dialog id=\"defPinJanela\"", html);
-        Assert.Contains("data-dmo-sem-pin>Ainda não há PIN das Definições. Peça ao ADMIN para o criar em Definições → App.", html);
+        Assert.Contains("data-dmo-sem-pin>Ainda não há PIN das Definições. Peça ao ADMIN para o criar em Definições → Admin → App.", html);
         Assert.DoesNotContain("id=\"defPinForm\"", html);
         var resposta = await AbrirCadeadoAsync(client, "1234");
         Assert.Equal("/Definicoes?secao=boquilhas&pin=sem-pin", resposta.Headers.Location!.OriginalString);
@@ -392,7 +396,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     public async Task OAdmin_CriaOPinNasDefinicoesApp_SoOHashFicaGuardado()
     {
         using var admin = await LoginAdminAsync();
-        var setup = await GetOkAsync(admin, "/Definicoes?secao=app");
+        var setup = await GetOkAsync(admin, "/Definicoes?secao=admin&sub=app");
         Assert.Contains("id=\"admPin\"", setup);
         Assert.Contains("Ainda não há PIN", setup);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(setup)!;
@@ -407,7 +411,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var gravado = await admin.PostAsync("/Admin/Definicoes?handler=SavePin", HtmlFormHelpers.BuildFormPost(
             ("pin", "1357"), ("pin_confirmar", "1357"), ("__RequestVerificationToken", token)));
         Assert.EndsWith("pinapp=ok", gravado.Headers.Location!.OriginalString);
-        Assert.Contains("O PIN está criado.", await GetOkAsync(admin, "/Definicoes?secao=app"));
+        Assert.Contains("O PIN está criado.", await GetOkAsync(admin, "/Definicoes?secao=admin&sub=app"));
 
         using (var scope = _factory.Services.CreateScope())
         {
@@ -518,5 +522,77 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("data-dmo-em-desenvolvimento", await GetOkAsync(client, "/Armazem/Movimentos"));
         Assert.Contains("data-dmo-em-desenvolvimento", await GetOkAsync(client, "/ReparacaoInterna"));
         Assert.DoesNotContain("data-dmo-em-desenvolvimento", await GetOkAsync(client, "/Boquilhas"));
+    }
+
+    [Fact]
+    public async Task Controlo_FuncoesNoMenuLateral_UmBotaoPorCartao()
+    {
+        // Diogo, 22/10/2026: «usa apenas sidepanel, Controlo expande, fica como título, por baixo as funções».
+        var (client, _) = await LoginOperatorAsync("7325", DmoCapabilities.ControloCreate);
+        var html = await GetOkAsync(client, "/Definicoes?secao=controlo&sub=pegamentos");
+        var menu = Menu(html);
+        Assert.Contains("data-dmo-def-grupo=\"controlo\" data-aberto>", menu);
+        Assert.Contains("aria-expanded=\"true\"", menu);
+        Assert.Contains("class=\"dmo-caret\"", menu);
+        Assert.Contains("<div class=\"def-menu-sub\" id=\"defMenu-controlo\">", menu);
+        Assert.DoesNotContain("def-subtabs", html);
+        foreach (var sub in new[] { "peso", "pegamentos", "puncoes", "email", "pdfs" })
+        {
+            Assert.Contains($"href=\"/Definicoes?secao=controlo&amp;sub={sub}\" data-dmo-ctl-tab=\"{sub}\"", html);
+        }
+
+        Assert.Contains("data-dmo-ctl-tab=\"pegamentos\" data-dmo-grupo=\"controlo\" class=\"active\"", html);
+        Assert.Contains("data-dmo-ctl-sub=\"pegamentos\" data-dmo-grupo=\"controlo\">", html);
+        Assert.Contains("data-dmo-ctl-sub=\"peso\" data-dmo-grupo=\"controlo\" hidden=\"hidden\"", html);
+        // Cada área no seu separador.
+        Assert.True(html.IndexOf("data-dmo-ctl-sub=\"peso\"", StringComparison.Ordinal) < html.IndexOf("id=\"ctlDefDensidade\"", StringComparison.Ordinal));
+        Assert.True(html.IndexOf("data-dmo-ctl-sub=\"pdfs\"", StringComparison.Ordinal) < html.IndexOf("id=\"ctlDefPastaPdf\"", StringComparison.Ordinal));
+        // Sem «Guardar» ao lado dos campos nem por linha.
+        Assert.Contains("form=\"ctlDefPastaForm\"", html);
+        Assert.Contains("form=\"ctlDefCriarListaForm\"", html);
+        Assert.DoesNotContain("form=\"ctlDefSeccoes-", html);
+        // Sem sub, um resultado abre o separador da sua área.
+        Assert.Contains("data-dmo-ctl-tab=\"peso\" data-dmo-grupo=\"controlo\" class=\"active\"", await GetOkAsync(client, "/Definicoes?secao=controlo&densidade=ok"));
+    }
+
+    [Fact]
+    public async Task PuNnpb_UmGuardarParaB1EC3_AsOutrasLinhasFicamComoEstao()
+    {
+        using (var seed = _factory.Services.CreateScope())
+        {
+            var db = seed.ServiceProvider.GetRequiredService<DmoDbContext>();
+            foreach (var codigo in new[] { "B1", "B2", "C3" }.Where(c => !db.Machines.Any(m => m.Code == c)).ToArray())
+            {
+                db.Machines.Add(new DMO.Alpha.Core.Production.Machine { Code = codigo });
+            }
+
+            db.SaveChanges();
+        }
+
+        var (client, _) = await LoginOperatorAsync("7326", DmoCapabilities.ControloCreate);
+        await DefinicoesPin.CriarAsync(_factory.Services);
+        await DefinicoesPin.DesbloquearAsync(_factory.Services, client);
+        var html = await GetOkAsync(client, "/Definicoes?secao=controlo&sub=puncoes");
+        Assert.Contains("data-dmo-linha=\"B1\"", html);
+        Assert.Contains("data-dmo-linha=\"C3\"", html);
+        Assert.DoesNotContain("data-dmo-linha=\"B2\"", html);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "id=\"ctlDefSeccoesGuardar\""));
+        int b2Antes;
+        using (var antes = _factory.Services.CreateScope())
+        {
+            b2Antes = await antes.ServiceProvider.GetRequiredService<DMO.Alpha.Infrastructure.Controlo.PuncoesLinhaDefinicoes>().SeccoesAsync("B2");
+        }
+
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
+        var r = await client.PostAsync("/Controlo/Definicoes?handler=SavePuncoesSeccoesTodas", HtmlFormHelpers.BuildFormPost(
+            ("maquina", "B1"), ("seccoes", "3"), ("maquina", "C3"), ("seccoes", "4"), ("maquina", "B2"), ("seccoes", "9"),
+            ("__RequestVerificationToken", token)));
+        Assert.Contains("seccoes=Gravado", r.Headers.Location!.ToString());
+        using var scope = _factory.Services.CreateScope();
+        var linhas = scope.ServiceProvider.GetRequiredService<DMO.Alpha.Infrastructure.Controlo.PuncoesLinhaDefinicoes>();
+        Assert.Equal(3, await linhas.SeccoesAsync("B1"));
+        Assert.Equal(4, await linhas.SeccoesAsync("C3"));
+        // A B2 não está no cartão: o que vier no pedido não a muda.
+        Assert.Equal(b2Antes, await linhas.SeccoesAsync("B2"));
     }
 }

@@ -1089,7 +1089,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
             _factory, "nav-admin@example.test", "NavAdmin123!");
 
         // BETA: só as Definições comuns. A página Sistema/Setup foi removida.
-        foreach (var path in new[] { "/Definicoes?secao=app" })
+        foreach (var path in new[] { "/Admin/Users" })
         {
             var page = await adminClient.GetAsync(path);
             page.EnsureSuccessStatusCode();
@@ -1099,7 +1099,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
                 html, "<nav class=\"dmo-primary-nav\"[\\s\\S]*?</nav>").Value;
             Assert.Contains("Utilizadores", primary, StringComparison.Ordinal);
             Assert.Contains("Templates de acesso", primary, StringComparison.Ordinal);
-            Assert.Contains("Canal Jobon", primary, StringComparison.Ordinal);
+            Assert.DoesNotContain("Canal Jobon", primary, StringComparison.Ordinal);
             Assert.DoesNotContain(">Setup</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain(">Ferramentas</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain("dmo-secondary-nav", html, StringComparison.Ordinal);
@@ -1125,7 +1125,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
                 html, "<nav class=\"dmo-primary-nav\"[\\s\\S]*?</nav>").Value;
             Assert.Contains("Utilizadores", primary, StringComparison.Ordinal);
             Assert.Contains("Templates de acesso", primary, StringComparison.Ordinal);
-            Assert.Contains("Canal Jobon", primary, StringComparison.Ordinal);
+            Assert.DoesNotContain("Canal Jobon", primary, StringComparison.Ordinal);
             Assert.DoesNotContain(">Setup</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain(">Ferramentas</a>", primary, StringComparison.Ordinal);
             Assert.DoesNotContain("dmo-secondary-nav", html, StringComparison.Ordinal);

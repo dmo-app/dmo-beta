@@ -7,7 +7,7 @@
 @{ var escolhido = Model.ModoJobOn ? "Associar Job On" : "Sem Job On"; }
 <nav class="dmo-modo" aria-label="Tipo de registo" data-dmo-modo>
   <details class="dmo-options" data-dmo-tab-menu>
-    <summary class="dmo-button" aria-label="Tipo de registo: @escolhido">@escolhido<span class="dmo-options-caret" aria-hidden="true"></span></summary>
+    <summary class="dmo-button" aria-label="Tipo de registo: @escolhido"><span class="dmo-caret" aria-hidden="true"></span>@escolhido</summary>
     <div class="dmo-options-list">
       <a class="dmo-options-item" href="@Model.Path" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
       <a class="dmo-options-item" href="@(Model.Path)?modo=jobon" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar Job On</a>

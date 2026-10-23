@@ -308,7 +308,7 @@
           @* O HISTÓRICO (Diogo, 22/10/2026): os Job On desta ferramenta numa página própria, nada na ficha. *@
           <a class="dmo-button" id="ferrHistorico" href="@Url.Page("/Ferramentas/Historico", new { tool_id = tool.ToolId })">Histórico</a>
           <details class="dmo-options" data-dmo-tab-menu>
-            <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts">Opções<span class="dmo-options-caret" aria-hidden="true"></span></summary>
+            <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
             <div class="dmo-options-list" id="ferrOpcoes">
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
@@ -527,7 +527,7 @@
        muda com o tipo) e o formulário são zonas. *@
     <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-tech-title" data-dmo-fica data-dmo-parcial>
       <details open="@Model.ShowTechnical">
-      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title">Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM e do tampão. No Job On, a calote da produção dá o volume desse controlo." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
+      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM e do tampão. No Job On, a calote da produção dá o volume desse controlo." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
       @{
           // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
           // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.
