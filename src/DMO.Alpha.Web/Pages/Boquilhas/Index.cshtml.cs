@@ -1201,6 +1201,7 @@ public sealed partial class IndexModel : PageModel
     /// mesmos handlers do Registo; volta à página Boquilhas com a ficha dessa
     /// BQ e os movimentos dela.
     /// </summary>
+    [EnvioUnico]
     public async Task<IActionResult> OnPostRegistarSemJobOnAsync(
         [FromForm(Name = "tool_id")] string? toolId,
         [FromForm(Name = "movement_type")] string? movementType,

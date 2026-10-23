@@ -13,16 +13,21 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
         _db = db;
     }
 
-    public async Task<CorrectPegamentosMeasurementResult> EditAsync(
+    public Task<CorrectPegamentosMeasurementResult> EditAsync(
         EditPegamentosMeasurement command,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(_db, () => EditOnceAsync(command, cancellationToken), cancellationToken);
+
+    private async Task<CorrectPegamentosMeasurementResult> EditOnceAsync(
+        EditPegamentosMeasurement command,
+        CancellationToken cancellationToken)
     {
         if (command.CosturaMm <= 0m || command.ContraCosturaMm is <= 0m)
         {
             return CorrectPegamentosMeasurementResult.ImpossibleValue;
         }
 
-        var measurement = await FindAsync(command.Anchor, cancellationToken);
+        var measurement = await FindLockedAsync(command.Anchor, cancellationToken);
         if (measurement is null)
         {
             return CorrectPegamentosMeasurementResult.MeasurementNotFound;
@@ -92,17 +97,7 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
         PegamentosMeasurementAnchor anchor,
         CancellationToken cancellationToken)
     {
-        var sheetId = await _db.PegamentosMeasurements
-            .AsNoTracking()
-            .Where(m => m.Id == anchor.MeasurementId)
-            .Select(m => (int?)m.PegamentosId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (sheetId is int lockedSheet)
-        {
-            await RecordPegamentosMeasurementHandler.LockSheetAsync(_db, lockedSheet, cancellationToken);
-        }
-
-        var measurement = await FindAsync(anchor, cancellationToken);
+        var measurement = await FindLockedAsync(anchor, cancellationToken);
         if (measurement is null)
         {
             return CorrectPegamentosMeasurementResult.MeasurementNotFound;
@@ -145,6 +140,28 @@ public sealed class CorrectPegamentosMeasurementHandler : ICorrectPegamentosMeas
         NominalGargaloAntesMm = measurement.NominalGargaloMm,
         EmUtc = DateTime.UtcNow
     };
+
+    // O mesmo trinco do registar/apagar, antes de ler os valores e formar o
+    // rasto. Uma segunda correção lê o que a primeira acabou de gravar.
+    private async Task<PegamentosMeasurement?> FindLockedAsync(PegamentosMeasurementAnchor anchor, CancellationToken cancellationToken)
+    {
+        var sheetId = await _db.PegamentosMeasurements.AsNoTracking()
+            .Where(m => m.Id == anchor.MeasurementId)
+            .Select(m => (int?)m.PegamentosId).FirstOrDefaultAsync(cancellationToken);
+        if (sheetId is int lockedSheet)
+        {
+            await RecordPegamentosMeasurementHandler.LockSheetAsync(_db, lockedSheet, cancellationToken);
+        }
+
+        var measurement = await FindAsync(anchor, cancellationToken);
+        if (measurement is not null && _db.Database.IsRelational())
+        {
+            // O contexto pode já ter lido estas entidades antes do trinco.
+            await _db.Entry(measurement).ReloadAsync(cancellationToken);
+            await _db.Entry(measurement.Pegamentos).ReloadAsync(cancellationToken);
+        }
+        return measurement;
+    }
 
     private Task<PegamentosMeasurement?> FindAsync(PegamentosMeasurementAnchor anchor, CancellationToken cancellationToken) =>
         _db.PegamentosMeasurements

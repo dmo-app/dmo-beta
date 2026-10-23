@@ -625,11 +625,9 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             await db.SaveChangesAsync(cancellationToken);
             // A Reparação Programada: a Saída e a Entrada (também a do par) atualizam as listas ativas.
             var doPar = OperacaoDoPar(movimento.OperacaoId);
-            foreach (var feito in db.ChangeTracker.Entries<ArmazemMovimento>().Select(e => e.Entity)
-                         .Where(m => m.OperacaoId == movimento.OperacaoId || m.OperacaoId == doPar).ToList())
-            {
-                await DMO.Alpha.Infrastructure.Programada.ReparacaoProgramadaMovimentos.AoMovimentoAsync(db, feito, cancellationToken);
-            }
+            var feitos = db.ChangeTracker.Entries<ArmazemMovimento>().Select(e => e.Entity)
+                .Where(m => m.OperacaoId == movimento.OperacaoId || m.OperacaoId == doPar).ToList();
+            await DMO.Alpha.Infrastructure.Programada.ReparacaoProgramadaMovimentos.AoMovimentosAsync(db, feitos, cancellationToken);
             if (transacao is not null)
             {
                 await transacao.CommitAsync(cancellationToken);

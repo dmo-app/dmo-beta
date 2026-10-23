@@ -2075,3 +2075,20 @@ Novos: 12 · mudaram: 11 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_SemFerramentaQueSirva_AJanelaAvisaComOLinkParaRegistar`
 
 Selo depois: `c1072eb40d05b45e`
+
+## A-0087 · 2026-10-23 · teste-novo
+
+Porquê: A04/A05/A08: regressões novas provam histórico contínuo nas correções simultâneas de Pegamentos, fecho e associação de Programada em PostgreSQL, e um movimento/lista por chave de envio, preservando repetições intencionais com chaves diferentes. Falhas antes da correção reproduzidas; não se alteram testes existentes.
+Novos: 9 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrecoesConcorrentes.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrecoesConcorrentes.cs :: PostgresMigrationIntegrationTests.Pegamentos_DuasCorrecoesDaMesmaLeitura_OHistoricoContinuaDeUmaParaAOutra`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: PostgresMigrationIntegrationTests.Programada_AdicionarEnquantoAUltimaFerramentaVolta_NaoAcrescentaAUmaListaFechada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: PostgresMigrationIntegrationTests.Programada_AsDuasUltimasFerramentasVoltamAoMesmoTempo_AListaFecha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOn.EnvioUnico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOn.EnvioUnico.cs :: BoquilhasRegistoPageTests.SemJobOn_OMesmoEnvioGravaUmaVez_OutraChavePermiteOutroMovimento`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: ReparacaoProgramadaEnvioUnicoTests.CriarLista_OMesmoEnvioCriaUmaSo_OutraChaveCriaOutraLista`
+
+Selo depois: `5c43d6bfd2d521d4`
