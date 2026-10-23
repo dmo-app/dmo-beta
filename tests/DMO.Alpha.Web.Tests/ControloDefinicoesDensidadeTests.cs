@@ -109,10 +109,11 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
         Assert.Contains("value=\"2.4100\"", depois);
     }
 
+    // Grava só com um valor (Diogo, 24/10/2026): o inválido avisa e não grava; o outro grava.
     [Theory]
-    [InlineData("4442", "abc", "2.4231")]
-    [InlineData("4443", "2.4027", "0")]
-    [InlineData("4444", "", "2.4231")]
+    [InlineData("4442", "abc", "")]
+    [InlineData("4443", "", "0")]
+    [InlineData("4444", "-1", "x")]
     public async Task NaoENumeroMaiorQueZero_NenhumaGrava(string operatorId, string nnpb, string ps)
     {
         using var client = await LoginOperatorAsync(operatorId, DmoCapabilities.ControloCreate);
@@ -152,5 +153,52 @@ public sealed class ControloDefinicoesDensidadeTests : IClassFixture<CustomWebAp
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(2.4027m, Guardadas()[CmProcess.Nnpb]);
+    }
+
+    [Fact]
+    public async Task SoNnpb_Grava_PsFicaComoEstava()
+    {
+        using var client = await LoginOperatorAsync("4451", DmoCapabilities.ControloCreate);
+        Assert.DoesNotContain(" required", Cartao(await GetAsync(client, "/Definicoes")).Split("</section>")[0]);
+        var response = await PostAsync(client, "2,4100", "");
+        Assert.Equal("/Definicoes?densidade=ok&secao=controlo", response.Headers.Location!.ToString());
+        Assert.Equal(2.41m, Guardadas()[CmProcess.Nnpb]);
+        Assert.Equal(2.4231m, Guardadas()[CmProcess.Ps]);
+    }
+
+    [Fact]
+    public async Task SoPs_Grava_NnpbFicaComoEstava()
+    {
+        using var client = await LoginOperatorAsync("4452", DmoCapabilities.ControloCreate);
+        var response = await PostAsync(client, "", "2.4300");
+        Assert.Equal("/Definicoes?densidade=ok&secao=controlo", response.Headers.Location!.ToString());
+        Assert.Equal(2.4027m, Guardadas()[CmProcess.Nnpb]);
+        Assert.Equal(2.43m, Guardadas()[CmProcess.Ps]);
+    }
+
+    [Fact]
+    public async Task OsDoisVazios_NadaMuda_ComAviso()
+    {
+        using var client = await LoginOperatorAsync("4453", DmoCapabilities.ControloCreate);
+        var response = await PostAsync(client, "", " ");
+        Assert.Equal("/Definicoes?densidade=aviso-vazia&secao=controlo", response.Headers.Location!.ToString());
+        Assert.Equal(2.4027m, Guardadas()[CmProcess.Nnpb]);
+        Assert.Equal(2.4231m, Guardadas()[CmProcess.Ps]);
+        var cartao = Cartao(await GetAsync(client, response.Headers.Location!.ToString()));
+        Assert.Contains("data-dmo-toast=\"aviso\"", cartao);
+        Assert.Contains("Sem densidade escrita: nada mudou.", cartao);
+    }
+
+    [Fact]
+    public async Task UmInvalido_OOutroGrava_ComAviso()
+    {
+        using var client = await LoginOperatorAsync("4454", DmoCapabilities.ControloCreate);
+        var response = await PostAsync(client, "abc", "2.4300");
+        Assert.Equal("/Definicoes?densidade=aviso-invalida-nnpb&secao=controlo", response.Headers.Location!.ToString());
+        Assert.Equal(2.4027m, Guardadas()[CmProcess.Nnpb]);
+        Assert.Equal(2.43m, Guardadas()[CmProcess.Ps]);
+        var cartao = Cartao(await GetAsync(client, response.Headers.Location!.ToString()));
+        Assert.Contains("data-dmo-toast=\"aviso\"", cartao);
+        Assert.Contains("NNPB não é um número maior que zero e não foi guardada", cartao);
     }
 }

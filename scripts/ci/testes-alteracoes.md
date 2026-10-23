@@ -1999,10 +1999,30 @@ Selo depois: `65cddedf2800e31e`
 
 ## A-0083 · 2026-10-23 · ok-do-diogo
 
+Porquê: Templates: criar um segundo template já não grava por cima do primeiro; Ferramentas e Armazém juntos na secção Gestão; a densidade do vidro grava com um só valor
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyNkoBTrMhAR3VewhBFWsKgJ cmsg_01A27e9ozcpoh4jdPRsuJbFyJk91Dmz4xRbnKyYghwkojw cmsg_01A27e9ozcpoh4jdPRsuJbFy4nkxmWrrwW4tabZAcvT81m
+Novos: 9 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_FerramentasEArmazem_NaSeccaoGestao`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_CriarDuasSeguidas_FicamDuas_APrimeiraNaoMuda`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_GuardarAAberta_AtualizaEssa`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.OsDoisVazios_NadaMuda_ComAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.SoNnpb_Grava_PsFicaComoEstava`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.SoPs_Grava_NnpbFicaComoEstava`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.UmInvalido_OOutroGrava_ComAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.AdminTemplates_MostraAChaveDoArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesDensidadeTests.cs :: ControloDefinicoesDensidadeTests.NaoENumeroMaiorQueZero_NenhumaGrava`
+
+Selo depois: `14d84e20af09ab60`
+
+## A-0084 · 2026-10-23 · ok-do-diogo
+
 Porquê: O Diogo disse que as ferramentas existem mas o Job On não as mostra: a lista deixa de esconder as que não estão ligadas à linha e mostra-as com o aviso.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVweZF5BqmFCDP3QHKq7FjK, cmsg_01A27e9ozcpoh4jdPRsuJbFyW2wtvBq2yfV36NJ9YU9WuP
 Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Mf_ShowsOnlyTheMfOfTheChosenCm_AndTheMachine`
 
-Selo depois: `6c3c7cb792912d50`
+Selo depois: `172d4e7b796772ce`

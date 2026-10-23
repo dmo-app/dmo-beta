@@ -14,11 +14,15 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 public sealed class SaveGlassDensityHandler(DmoDbContext db) : ISaveGlassDensityHandler
 {
     public async Task<SaveGlassDensityResult> SaveAsync(
-        decimal nnpbGramsPerCm3,
-        decimal psGramsPerCm3,
+        decimal? nnpbGramsPerCm3,
+        decimal? psGramsPerCm3,
         CancellationToken cancellationToken = default)
     {
-        var pedidas = new[] { (CmProcess.Nnpb, nnpbGramsPerCm3), (CmProcess.Ps, psGramsPerCm3) };
+        // Null = esse processo fica como está (grava só com um valor, Diogo 24/10/2026).
+        var pedidas = new[] { (CmProcess.Nnpb, nnpbGramsPerCm3), (CmProcess.Ps, psGramsPerCm3) }
+            .Where(p => p.Item2 is not null)
+            .Select(p => (p.Item1, p.Item2!.Value))
+            .ToArray();
         if (pedidas.Any(p => GlassDensityLimits.Normalize(p.Item2) <= 0m))
         {
             return SaveGlassDensityResult.NotPositive;

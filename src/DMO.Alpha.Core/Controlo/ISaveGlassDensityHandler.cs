@@ -11,8 +11,8 @@ namespace DMO.Alpha.Core.Controlo;
 public interface ISaveGlassDensityHandler
 {
     Task<SaveGlassDensityResult> SaveAsync(
-        decimal nnpbGramsPerCm3,
-        decimal psGramsPerCm3,
+        decimal? nnpbGramsPerCm3,
+        decimal? psGramsPerCm3,
         CancellationToken cancellationToken = default);
 }
 
