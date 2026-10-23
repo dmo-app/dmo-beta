@@ -320,7 +320,8 @@
     { "id": "DMO-325", "module": "Armazém", "description": "0.3.0-beta.13: criar um reparador de CM e MF pede só o nome; recebe CM e MF e muda-se na tabela." },
     { "id": "DMO-326", "module": "Job On", "description": "0.3.0-beta.14: quem só tem «Job On ver» vê a folha como está, abre e fecha as secções, sem Imprimir nem Opções." },
     { "id": "DMO-327", "module": "Job On", "description": "0.3.0-beta.15: no Registar Reparação saem as frases em itálico; a ajuda da lista passa para junto do «Criar» e explica que a lista nova se chama pelo reparador e o dia." },
-    { "id": "DMO-328", "module": "Geral", "description": "0.3.0-beta.16: as sugestões dos campos de procura cancelam os pedidos antigos quando se continua a escrever (PERF-10)." }
+    { "id": "DMO-328", "module": "Geral", "description": "0.3.0-beta.16: as sugestões dos campos de procura cancelam os pedidos antigos quando se continua a escrever (PERF-10)." },
+    { "id": "DMO-329", "module": "Boquilhas", "description": "0.3.0-beta.17: a escolha da produção atual de cada linha lê da base só a última produção sem datas, em vez de todas (PERF-05)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
