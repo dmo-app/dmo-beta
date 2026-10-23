@@ -751,7 +751,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         using var client = await LoginClientAsync("4418", "FerrTec1!");
 
         var form = await GetPageHtmlAsync(client, $"{IndexPath}?criar=1&type=BQ");
-        Assert.Contains("<summary>Informação técnica (opcional)</summary>", form);
+        Assert.Contains("<summary><span class=\"dmo-caret\" aria-hidden=\"true\"></span>Informação técnica (opcional)</summary>", form);
         Assert.Contains("data-ferr-tech-tipo=\"CM\" hidden=\"hidden\"", form);
         Assert.Contains("data-ferr-tech-tipo=\"BQ\">", form);
 

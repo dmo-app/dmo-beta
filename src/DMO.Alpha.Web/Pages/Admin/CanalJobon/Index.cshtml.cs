@@ -34,7 +34,13 @@ public class IndexModel(IModuleSettingsQuery moduleSettings, ISaveModuleSettingH
         _ => string.Empty
     };
 
-    public async Task<IActionResult> OnGetAsync(string? save, string? de)
+    /// <summary>GET: o Canal Jobon vive nas Definições do ADMIN (Diogo, 22/10/2026: «canal jobon e app ficam dentro das definições do admin»).</summary>
+    public IActionResult OnGet() => Redirect(Destino);
+
+    public const string Destino = "/Definicoes?secao=admin&sub=canal";
+
+    /// <summary>Carrega os cartões para as Definições → Admin → Canal Jobon (?viragem=…&amp;de=ri).</summary>
+    public async Task CarregarAsync(string? save, string? de)
     {
         SaveResult = save;
         SaveFrom = de;
@@ -44,7 +50,6 @@ public class IndexModel(IModuleSettingsQuery moduleSettings, ISaveModuleSettingH
         var ri = await moduleSettings.FindValueAsync(
             ModuleSettingKeys.ReparacaoInternaDayChangeHour, HttpContext.RequestAborted);
         ReparacaoInternaDayChangeHour = int.TryParse(ri, out var riHour) ? riHour : null;
-        return Page();
     }
 
     /// <summary>A mensagem do resultado, só no cartão que gravou.</summary>
@@ -63,7 +68,7 @@ public class IndexModel(IModuleSettingsQuery moduleSettings, ISaveModuleSettingH
             SaveModuleSettingResult.BoquilhasInvalidHour => "hora-invalida",
             _ => "vazio"
         };
-        return RedirectToPage("/Admin/CanalJobon/Index", new { save });
+        return RedirectToPage("/Definicoes/Index", new { secao = "admin", sub = "canal", viragem = save });
     }
 
     /// <summary>POST: gravar a hora de viragem do dia da Reparação Interna (0–23), à parte da das Boquilhas.</summary>
@@ -79,6 +84,6 @@ public class IndexModel(IModuleSettingsQuery moduleSettings, ISaveModuleSettingH
             SaveModuleSettingResult.BoquilhasInvalidHour => "hora-invalida",
             _ => "vazio"
         };
-        return RedirectToPage("/Admin/CanalJobon/Index", new { save, de = "ri" });
+        return RedirectToPage("/Definicoes/Index", new { secao = "admin", sub = "canal", viragem = save, de = "ri" });
     }
 }

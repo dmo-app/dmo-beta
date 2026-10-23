@@ -118,7 +118,13 @@ public sealed class UiStyleRuleTests
             var match = branco.Match(text);
             Assert.False(match.Success, $"{Path.GetFileName(file)} pinta {match.Value}: use var(--dmo-card)");
         }
-        Assert.Contains("data-dmo-tema", Read("Pages", "Shared", "_DmoSessionUtilities.cshtml"), StringComparison.Ordinal);
+        // O modo escuro saiu do cabeçalho (Diogo, 22/10/2026): vive em Definições → Pessoal.
+        var cabecalho = Read("Pages", "Shared", "_DmoSessionUtilities.cshtml");
+        Assert.DoesNotContain("data-dmo-tema", cabecalho, StringComparison.Ordinal);
+        Assert.DoesNotContain("Modo escuro", cabecalho, StringComparison.Ordinal);
+        Assert.Contains("<a class=\"dmo-shell-logout dmo-shell-admin\" href=\"/Admin\" data-dmo-cabecalho-admin>Admin</a>", cabecalho, StringComparison.Ordinal);
+        Assert.True(cabecalho.IndexOf("data-dmo-cabecalho-admin", StringComparison.Ordinal) < cabecalho.IndexOf(">Sair<", StringComparison.Ordinal));
+        Assert.Contains("id=\"defTemaBotao\"", Read("Pages", "Definicoes", "Index.cshtml"), StringComparison.Ordinal);
         Assert.Contains("<partial name=\"_DmoTemaInicial\" />", Read("Pages", "Shared", "_DmoShellLayout.cshtml"), StringComparison.Ordinal);
         Assert.Contains("<partial name=\"_DmoTemaInicial\" />", Read("Pages", "Shared", "_DmoAccountLayout.cshtml"), StringComparison.Ordinal);
     }

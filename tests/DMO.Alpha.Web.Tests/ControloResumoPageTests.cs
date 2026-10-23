@@ -399,7 +399,7 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
             var html = await GetPageHtmlAsync(client, path);
             var nav = System.Text.RegularExpressions.Regex.Match(html,
                 "<nav class=\"tabs dmo-secondary-nav\"[\\s\\S]*?</nav>").Value;
-            var labels = System.Text.RegularExpressions.Regex.Matches(nav, "<(?:a|summary)\\b[^>]*>([^<]*)<")
+            var labels = System.Text.RegularExpressions.Regex.Matches(nav, "<(?:a|summary)\\b[^>]*>(?:<span class=\"dmo-caret\" aria-hidden=\"true\"></span>)?([^<]*)<")
                 .Select(m => WebUtility.HtmlDecode(m.Groups[1].Value).Trim()).ToArray();
             Assert.Equal(new[] { "Resumo", "Funções", "Peso", "Pegamentos", "PU NNPB", "Histórico" }, labels);
 

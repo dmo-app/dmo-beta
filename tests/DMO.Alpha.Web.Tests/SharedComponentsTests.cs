@@ -84,19 +84,38 @@ public sealed class SharedComponentsTests
     // A dica de ajuda (Diogo, 17/10/2026): um triângulo pequeno que inverte a
     // cor ao passar o rato e mostra o texto. Só o partial _DmoHelp a desenha.
     [Fact]
-    public void Caret_SoParaRecolher_ApontaParaAPalavraEAbertoParaBaixo()
+    public void Caret_UmaRegraParaTudo_AEsquerdaDoTexto()
     {
-        // O triângulo fica só para o que abre e fecha (Diogo, 22/10/2026):
-        // fechado aponta para a palavra, aberto aponta para baixo.
-        var pages = Directory.GetFiles(Path.Combine(WebRoot(), "Pages"), "*.cshtml", SearchOption.AllDirectories);
-        Assert.Contains(pages, p =>
-        {
-            var text = File.ReadAllText(p);
-            return text.Contains("dmo-options-caret", StringComparison.Ordinal) || text.Contains("dmo-tab-menu-caret", StringComparison.Ordinal);
-        });
+        // «Sempre do lado esquerdo e mais perto do font», «uma regra para tudo»
+        // (Diogo, 22/10/2026): só .dmo-caret em dmo-normalize.css desenha o triângulo.
+        const string caret = "<span class=\"dmo-caret\" aria-hidden=\"true\"></span>";
         var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
-        Assert.Contains("html body :is(.dmo-options-caret,.dmo-tab-menu-caret){display:inline-block;width:9px;height:6px;margin-left:.4em;vertical-align:.12em;background:currentColor;clip-path:polygon(100% 0,0 50%,100% 100%)", css, StringComparison.Ordinal);
-        Assert.Contains("details[open]>summary :is(.dmo-options-caret,.dmo-tab-menu-caret){transform:rotate(-90deg)}", css, StringComparison.Ordinal);
+        Assert.Contains("html body .dmo-caret{display:inline-block;flex:none;width:6px;height:9px;margin-right:.25em;", css, StringComparison.Ordinal);
+        Assert.Contains("clip-path:polygon(0 0,100% 50%,0 100%)", css, StringComparison.Ordinal);
+        Assert.Contains("html body :is(details[open]>summary,[aria-expanded=\"true\"]) .dmo-caret{transform:rotate(90deg)}", css, StringComparison.Ordinal);
+
+        // Nenhuma outra folha de estilo nem página define o seu triângulo.
+        var estilos = Directory.GetFiles(Path.Combine(WebRoot(), "wwwroot"), "*.css", SearchOption.AllDirectories)
+            .Where(f => !f.EndsWith(".min.css", StringComparison.Ordinal));
+        var paginas = Directory.GetFiles(Path.Combine(WebRoot(), "Pages"), "*.cshtml", SearchOption.AllDirectories);
+        foreach (var f in estilos.Concat(paginas))
+        {
+            var text = File.ReadAllText(f).Replace("caret-color", "", StringComparison.Ordinal);
+            Assert.DoesNotMatch(new System.Text.RegularExpressions.Regex(@"caret(?<!dmo-caret)"), text);
+            if (!f.EndsWith("dmo-normalize.css", StringComparison.Ordinal))
+                Assert.DoesNotContain(".dmo-caret", text, StringComparison.Ordinal);
+        }
+
+        // Cada <summary> e cada grupo do painel das Definições abre com o triângulo partilhado.
+        foreach (var f in paginas)
+        {
+            var text = File.ReadAllText(f);
+            foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(text, @"(?<!/// )<summary\b[^>]*>(?<corpo>[\s\S]*?)</summary>"))
+                Assert.True(m.Groups["corpo"].Value.Contains(caret, StringComparison.Ordinal), $"{Path.GetFileName(f)}: {m.Value[..Math.Min(80, m.Value.Length)]}");
+        }
+        var definicoes = File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Definicoes", "Index.cshtml"));
+        Assert.Contains("data-dmo-def-grupo-titulo", definicoes, StringComparison.Ordinal);
+        Assert.Contains(caret + "<span>@nome</span>", definicoes, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -111,11 +130,15 @@ public sealed class SharedComponentsTests
 
         var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
         Assert.Contains(".dmo-help-mark circle{fill:transparent;", css, StringComparison.Ordinal);
-        Assert.Contains(".dmo-help{position:relative;display:inline-flex;font-size:12px;vertical-align:.3em;", css, StringComparison.Ordinal);
-        // Sempre do mesmo tamanho, não acompanha a letra (Diogo, 17/10/2026).
+        // Sempre no mesmo sítio em relação ao texto (Diogo, 22/10/2026): uma caixa
+        // da linha de base à altura das maiúsculas (em em), com o círculo em cima,
+        // em linha ou num flex alinhado pela linha de base.
+        Assert.Contains(".dmo-help{position:relative;display:inline-block;height:.72em;font-size:inherit;vertical-align:baseline;align-self:baseline;", css, StringComparison.Ordinal);
+        Assert.Contains("html body :is(h1,h2,h3,h4,label,legend,summary):has(>.dmo-help){align-items:baseline}", css, StringComparison.Ordinal);
         Assert.Contains(".dmo-help-mark{display:block;overflow:visible;width:9px;height:9px}", css, StringComparison.Ordinal);
-        // Ao lado de um botão, por cima da aresta de cima (Diogo, 22/10/2026).
-        Assert.Contains(":is(.dmo-button,button,.dmo-options)+.dmo-help{align-self:flex-start;vertical-align:top;margin-top:-5px;", css, StringComparison.Ordinal);
+        // Ao lado de um botão, a mesma regra.
+        Assert.Contains(":is(.dmo-button,button,.dmo-options)+.dmo-help{margin-left:.25em}", css, StringComparison.Ordinal);
+        Assert.DoesNotContain("margin-top:-5px", css, StringComparison.Ordinal);
         Assert.Contains(".dmo-help:hover .dmo-help-mark circle,.dmo-help:focus .dmo-help-mark circle{fill:var(--dmo-palette-ocean)}", css, StringComparison.Ordinal);
 
         foreach (var file in PageFiles("*.cshtml"))

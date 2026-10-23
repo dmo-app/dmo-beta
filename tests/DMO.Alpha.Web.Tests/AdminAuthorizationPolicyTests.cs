@@ -205,10 +205,8 @@ public sealed class AdminAuthorizationPolicyTests : IClassFixture<CustomWebAppli
         Assert.Equal(HttpStatusCode.Redirect, entry.StatusCode);
         Assert.Equal("/Admin/Users", entry.Headers.Location?.OriginalString);
 
-        // O Setup vive nas Definições → App (Diogo, 22/10/2026).
-        var definicoes = await adminClient.GetAsync("/Admin/Definicoes/Index");
-        Assert.Equal("/Definicoes?secao=app", definicoes.Headers.Location?.OriginalString);
-        Assert.Equal(HttpStatusCode.OK, (await adminClient.GetAsync("/Definicoes?secao=app")).StatusCode);
+        // A App vive nas Definições do ADMIN (Diogo, 22/10/2026).
+        Assert.Equal("/Definicoes?secao=admin&sub=app", (await adminClient.GetAsync("/Admin/Definicoes/Index")).Headers.Location?.OriginalString);
 
         // The removed Setup endpoint cannot be rendered, even by Admin.
         var removedSetup = await adminClient.GetAsync("/Admin/Definicoes/Sistema");

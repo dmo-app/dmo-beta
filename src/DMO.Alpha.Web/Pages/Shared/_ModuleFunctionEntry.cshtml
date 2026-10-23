@@ -6,7 +6,7 @@
         @* Separador com dropdown (o «Funções» do Controlo): as entradas
            continuam a ser links da mesma barra. *@
         <details class="dmo-tab-menu @Model.CssClass" data-dmo-tab-menu>
-            <summary class="@(Model.Selected ? "active" : null)">@Model.Label<span class="dmo-tab-menu-caret" aria-hidden="true"></span></summary>
+            <summary class="@(Model.Selected ? "active" : null)"><span class="dmo-caret" aria-hidden="true"></span>@Model.Label</summary>
             <div class="dmo-tab-menu-list">
             @foreach (var child in children)
             {

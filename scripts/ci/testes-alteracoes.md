@@ -1514,3 +1514,43 @@ Novos: 30 · mudaram: 5 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `c3c2038d14994c36`
+
+## A-0054 · 2026-10-23 · ok-do-diogo
+
+Porquê: O Diogo aprovou («perfeito», «ok»): /Admin só com Utilizadores e Templates; Canal Jobon e App num grupo «Admin» nas Definições (só ADMIN); Controlo no painel lateral e um botão por cartão; PU NNPB só B1 e C3 (as outras linhas ficam como estão, a C2 continua com 8 posições); círculo de ajuda de 9px com o topo na altura das maiúsculas (±1,5 px, medido no browser); um só triângulo de recolher (.dmo-caret) à esquerda, a .25em do texto, medido no browser; o grupo do menu lateral abre e fecha com um clique; modo escuro só nas Definições; cabeçalho com o utilizador e, por baixo, «Admin» e «Sair». Pedido do Guardião: repostas as verificações do Admin/Templates.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy8Q2gT3FH9nxyd16FyYaewB
+Novos: 4 · mudaram: 25 · saíram: 2
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_FuncoesNoMenuLateral_UmBotaoPorCartao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.PuNnpb_UmGuardarParaB1EC3_AsOutrasLinhasFicamComoEstao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Admin_TemDefinicoesProprias_CanalJobonEApp`
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_UmaRegraParaTudo_AEsquerdaDoTexto`
+- mudou: `tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Admin_SeestTheDefinicoesTab_EncostadoADireita`
+- mudou: `tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_NaoTemOCartaoSap`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminPages_ConfiguredInstallation_AdminSessionIsAllowed`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.Admin_DefinicoesPlaceholdersAreLinked_AndNewPagesAreDressedWithTheAdminShell`
+- mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminHierarchy_AfterActivation_RequiresAdmin`
+- mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloDefinicoesPageTests.cs :: ControloDefinicoesPageTests.AdminDefinicoes_NoLongerCarryTheControloSettings`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.SecondaryNav_GroupsTheSheetsUnderFuncoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_CriaOPinNasDefinicoesApp_SoOHashFicaGuardado`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_SemPin_PedeAoAdminParaOCriar`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_PessoalEOsModulosAtivos_CadaEntradaMostraSoASuaSeccao`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.CanalJobon_SavesTheDayChangeHour_ForTheAdminOnly`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OnlyForWhoHasTheModule_AndLeftTheAdmin`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_BoquilhasDefinicoes_ReparadoresERotasEmZonas_UmaMensagemNoCanto`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_ControloDefinicoes_ToleranciaNumaZona_APastaDosPdfsFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_SetupECanalJobon_CartaoNumaZona_MensagemNoCanto`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: FerramentasPagesTests.Ficha_BotoesDeCadaCard_NoCantoSuperiorDireito`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostCreate_WithTechnicalValues_SavesThemOnTheNewTool_AndReturnsToTheFlow`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Editar_MostraAsFamiliasAosPares_ComAQtdStockEAQtdMaqEmCadaFamiliaENaCal`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.AdminTemplatesECanal_AChaveEAHoraDaReparacaoInterna`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
+- mudou: `tests/visual/definicoes_parcial_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Setup_MudouSeParaAsDefinicoes_App`
+- saiu: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_SoParaRecolher_ApontaParaAPalavraEAbertoParaBaixo`
+
+Selo depois: `45baba8c0122ac1a`

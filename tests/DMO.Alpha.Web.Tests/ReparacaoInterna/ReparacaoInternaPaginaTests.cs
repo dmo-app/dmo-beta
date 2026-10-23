@@ -389,7 +389,7 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Contains("Reparação Interna", templates);
         Assert.Contains($"value=\"{DmoCapabilities.ReparacaoInterna}\"", templates);
 
-        var canal = await admin.GetStringAsync("/Admin/CanalJobon");
+        var canal = await admin.GetStringAsync("/Definicoes?secao=admin&sub=canal");
         var cartao = Elemento(canal, "id=\"canalJobonViragemRi\"");
         Assert.Contains("Reparação Interna — hora de viragem do dia", cartao);
         Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", cartao);

@@ -240,13 +240,10 @@ public sealed class ControloDefinicoesPageTests : IClassFixture<CustomWebApplica
 
         foreach (var url in new[] { "/Admin/Definicoes/Index", "/Admin/Definicoes/Index?definition=controlo", "/Admin/Definicoes/Index?definition=pegamentos" })
         {
-            // O Setup vive nas Definições → App (Diogo, 22/10/2026); o
-            // Controlo tem a sua secção à parte.
-            var response = await client.GetAsync(url);
-            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-            Assert.Equal("/Definicoes?secao=app", response.Headers.Location?.OriginalString);
-            var html = await client.GetStringAsync("/Definicoes?secao=app");
-            var app = html[html.IndexOf("id=\"sec-app\"", StringComparison.Ordinal)..];
+            // A App nas Definições do ADMIN: só o email do ADMIN e o PIN.
+            Assert.Equal("/Definicoes?secao=admin&sub=app", (await client.GetAsync(url)).Headers.Location?.OriginalString);
+            var html = await client.GetStringAsync("/Definicoes?secao=admin&sub=app");
+            var app = html[html.IndexOf("id=\"sec-admin\"", StringComparison.Ordinal)..];
             Assert.DoesNotContain("name=\"tolerance_mm\"", app);
             Assert.DoesNotContain("data-dmo-pasta-pdf-escolher", app);
             Assert.Contains("Email do ADMIN", app);

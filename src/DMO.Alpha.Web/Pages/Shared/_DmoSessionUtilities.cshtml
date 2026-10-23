@@ -1,12 +1,25 @@
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @model SessionPresentation
-<partial name="_DmoVersionBadge" />
-<div class="dmo-shell-user admin-user">
-    <strong data-user-profile-name>@Model.Name</strong>
-    <span data-user-profile-title>@Model.Title</span>
-</div>
-<button type="button" class="dmo-shell-tema" data-dmo-tema data-dmo-tema-token="@Antiforgery.GetAndStoreTokens(Context).RequestToken" aria-pressed="false" aria-label="Modo escuro"><span class="dmo-shell-tema-texto">Modo escuro</span></button>
-@if (Model.ShowLogout)
-{
-    <a class="dmo-shell-logout" href="@Model.LogoutHref" aria-label="Terminar sessão">Sair</a>
+@{
+    var isAdmin = Context.User.Identity?.IsAuthenticated == true
+        && Context.User.HasClaim(DMO.Alpha.Web.Services.DmoClaimTypes.IsAdmin, bool.TrueString);
 }
+<partial name="_DmoVersionBadge" />
+@* «Admin fica em cima de sair» / «fica por cima do sair» (Diogo, 22/10/2026):
+   um bloco à direita em duas linhas: o utilizador; por baixo «Admin» (só ADMIN)
+   e «Sair». O modo claro/escuro vive em Definições → Pessoal. *@
+<div class="dmo-shell-conta">
+    <div class="dmo-shell-user admin-user">
+        <strong data-user-profile-name>@Model.Name</strong>
+        <span data-user-profile-title>@Model.Title</span>
+    </div>
+    <div class="dmo-shell-acoes">
+        @if (isAdmin)
+        {
+            <a class="dmo-shell-logout dmo-shell-admin" href="/Admin" data-dmo-cabecalho-admin>Admin</a>
+        }
+        @if (Model.ShowLogout)
+        {
+            <a class="dmo-shell-logout" href="@Model.LogoutHref" aria-label="Terminar sessão">Sair</a>
+        }
+    </div>
+</div>

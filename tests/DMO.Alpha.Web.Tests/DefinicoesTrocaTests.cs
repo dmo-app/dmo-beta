@@ -66,7 +66,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.True(raiz < pasta && pasta < zona, "a pasta dos PDFs fica fora da zona, antes dela");
         Assert.True(Posicao(html, "handler=SavePegamentosTolerance") > zona);
         Assert.True(Posicao(html, "<p data-dmo-toast=\"ok\" role=\"status\">Tolerância guardada. Vale para") > zona);
-        Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"ctlDefGuardar\">Guardar</button>", html);
+        Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"ctlDefGuardar\" form=\"ctlDefToleranciaForm\">Guardar</button>", html);
         SemAvisosNoFluxo(html);
 
         var recusa = await client.GetStringAsync("/Definicoes?save=tolerancia-invalida");
@@ -131,7 +131,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.True(Posicao(html, "<p data-dmo-toast=\"ok\" role=\"status\">Definição gravada.</p>") < reparadores);
         Assert.Matches("<input id=\"bq-reparador-\\d+\" class=\"dmo-valor\" data-dmo-valor name=\"name\" value=\"Reparador E10\"", html);
         Assert.True(Posicao(html, "id=\"machine-route-B1\"") > rotas);
-        Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"bqDefCriar\">Criar reparador</button>", html);
+        Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"bqDefCriar\" form=\"bqDefCriarForm\">Criar reparador</button>", html);
         SemAvisosNoFluxo(html);
 
         var recusa = await client.GetStringAsync("/Definicoes?save=reparador-inexistente");
@@ -144,7 +144,7 @@ public sealed partial class DefinicoesPorModuloPageTests
     {
         using var admin = await LoginAdminAsync();
 
-        var setup = await admin.GetStringAsync("/Definicoes?secao=app&app=ok-admin");
+        var setup = await admin.GetStringAsync("/Definicoes?secao=admin&sub=app&app=ok-admin");
         Posicao(setup, "<main class=\"def-page dmo-workspace\" aria-labelledby=\"def-title\" data-dmo-troca>");
         var zona = Posicao(setup, "<section id=\"admEmail\" class=\"dmo-card adm-card\" aria-labelledby=\"admin-email-title\" data-dmo-regiao data-dmo-parcial>");
         Assert.True(Posicao(setup, "<p data-dmo-toast=\"ok\" role=\"status\">Email do ADMIN guardado.</p>") > zona);
@@ -153,16 +153,15 @@ public sealed partial class DefinicoesPorModuloPageTests
             "<button type=\"submit\" class=\"dmo-button\" id=\"admEmailGuardar\" form=\"admEmailForm\">Guardar</button>", "admEmailForm");
         SemAvisosNoFluxo(setup);
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">Os dois emails não coincidem.",
-            await admin.GetStringAsync("/Definicoes?secao=app&app=admin-email-diferente"));
+            await admin.GetStringAsync("/Definicoes?secao=admin&sub=app&app=admin-email-diferente"));
 
-        var canal = await admin.GetStringAsync($"{CanalJobonPath}?save=ok");
-        Posicao(canal, "<main class=\"adm-page\" aria-labelledby=\"canal-jobon-title\" data-dmo-troca>");
+        var canal = await admin.GetStringAsync($"/Definicoes?secao=admin&sub=canal&viragem=ok");
         var cartao = Posicao(canal, "<section id=\"canalJobonViragem\" class=\"dmo-card adm-card\" aria-labelledby=\"boquilhas-settings-title\" data-dmo-regiao data-dmo-parcial>");
         Assert.True(Posicao(canal, "<p data-dmo-toast=\"ok\" role=\"status\">Hora de viragem gravada.</p>") > cartao);
         Assert.True(Posicao(canal, "<select id=\"dayChangeHour\" name=\"dayChangeHour\" data-dmo-autosubmit>") > cartao);
         SemAvisosNoFluxo(canal);
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">A hora de viragem é um inteiro entre 0 e 23.</p>",
-            await admin.GetStringAsync($"{CanalJobonPath}?save=hora-invalida"));
+            await admin.GetStringAsync($"/Definicoes?secao=admin&sub=canal&viragem=hora-invalida"));
     }
 
     [Fact]

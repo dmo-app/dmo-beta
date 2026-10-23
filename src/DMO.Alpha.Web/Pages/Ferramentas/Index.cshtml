@@ -179,7 +179,7 @@
          fechada (a decisão de 16/10: só aparece quando se pede); cada tipo
          mostra só os seus campos, os mesmos da ficha. *@
       <details class="ferr-create-tech" open="@(Model.RequestedTechnicalOpen ? "open" : null)">
-        <summary>Informação técnica (opcional)</summary>
+        <summary><span class="dmo-caret" aria-hidden="true"></span>Informação técnica (opcional)</summary>
         <partial name="_FerramentaTecnica" model="@(new FerramentaTecnicaForm("ferr-new", true, Model.RequestedTypeToken ?? "CM",
             nome => Model.RequestedTechnical(nome), _ => null, null, null))" />
       </details>

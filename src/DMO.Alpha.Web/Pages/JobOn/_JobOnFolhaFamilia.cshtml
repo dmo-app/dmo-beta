@@ -106,7 +106,7 @@
     {
       var abrir = detalhes.Any(c => folha.Invalido(c.Id));
       <details class="jobon-mais-detalhes" open="@abrir">
-        <summary>Mais detalhes</summary>
+        <summary><span class="dmo-caret" aria-hidden="true"></span>Mais detalhes</summary>
         <div class="jobon-campos">
           @if (familia == JobOnFolhaCampos.Tp)
           {

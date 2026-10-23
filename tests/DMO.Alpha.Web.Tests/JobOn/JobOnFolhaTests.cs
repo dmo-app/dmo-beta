@@ -206,7 +206,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         // Os campos menos usados ficam no «Mais detalhes» da família, e
         // nenhum campo se diz opcional.
-        Assert.True(Posicao(folha, "<summary>Mais detalhes</summary>") < Posicao(folha, "id=\"jobon-cm-pata\""));
+        Assert.True(Posicao(folha, "<summary><span class=\"dmo-caret\" aria-hidden=\"true\"></span>Mais detalhes</summary>") < Posicao(folha, "id=\"jobon-cm-pata\""));
         Assert.DoesNotContain("opcional", folha, StringComparison.OrdinalIgnoreCase);
     }
 

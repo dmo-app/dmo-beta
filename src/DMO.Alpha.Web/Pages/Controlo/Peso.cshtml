@@ -734,7 +734,7 @@
         <div class="dmo-zona" data-dmo-fica>
         <details class="tp-support" data-cap-url="@Url.Page("/Controlo/Peso", "CapSupport")" data-cap-params="controlo_id=@Model.ControloIdFromQuery@(Model.PesoIdNoEndereco is { } capPesoParam ? $"&peso_id={capPesoParam}" : null)" open="@(Model.CapAberto ? "open" : null)">
           <summary class="tp-button">
-            <span>TP / calote · Apoio separado</span>
+            <span><span class="dmo-caret" aria-hidden="true"></span>TP / calote · Apoio separado</span>
             @if (Model.CapSupport is { TemReferencia: true } botaoCap)
             {
               <strong>@(fmtCap(botaoCap.VolumeEfetivoCm3)) cm³</strong>
@@ -1119,7 +1119,7 @@
         </div>
         <details class="tp-support" data-cap-url="@Url.Page("/Controlo/Peso", "CapSupport")" data-cap-params="cm_tool_id=@Model.RequestedCmToolId" open="@(Model.CapAberto ? "open" : null)">
           <summary class="tp-button">
-            <span>TP / calote · Apoio separado</span>
+            <span><span class="dmo-caret" aria-hidden="true"></span>TP / calote · Apoio separado</span>
             @if (Model.CapSupport is { TemReferencia: true } botaoCapTool)
             {
               <strong>@(fmtCap(botaoCapTool.VolumeEfetivoCm3)) cm³</strong>

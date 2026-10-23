@@ -3,6 +3,8 @@
 .arm-page{display:flex;flex-direction:column;gap:14px}
 .arm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
 .arm-card h3{margin:0 0 12px;font-size:16px}
+.arm-card .dmo-card-topo{margin-bottom:10px}
+.arm-card .dmo-card-topo h3{margin:0}
 .arm-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
 .arm-linha .dmo-field{margin:0}
 html body .arm-linha .dmo-field input{width:min(260px,100%)}
@@ -19,9 +21,12 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
   </div>
 
   <section id="armDefReparadores" class="dmo-card arm-card" aria-labelledby="arm-def-rep-title" data-dmo-regiao data-dmo-parcial>
+    <div class="dmo-card-topo">
     <h3 id="arm-def-rep-title">Reparadores de CM e MF<partial name="_DmoHelp" model="@("Para onde vão as CM e os MF na Saída para Reparação. São outros que os reparadores das Boquilhas, que ficam nas Definições das Boquilhas. Clique num nome para o mudar; mudar o nome não altera os movimentos passados. Um reparador arquivado sai das escolhas novas.")" /></h3>
+      <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="armRepCriar" form="armRepCriarForm">Criar reparador</button></div>
+    </div>
 
-    <form method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Criar" class="arm-linha">
+    <form id="armRepCriarForm" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Criar" class="arm-linha">
       <div class="dmo-field">
         <label for="armRepNome">Novo reparador</label>
         <input id="armRepNome" name="nome" maxlength="100" autocomplete="off" placeholder="Ex.: Moldes Lda" required />
@@ -34,7 +39,6 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
           <option value="mf">Só MF</option>
         </select>
       </div>
-      <button type="submit" class="dmo-button" id="armRepCriar">Criar reparador</button>
     </form>
 
     @if (Model.Reparadores.Count == 0)
