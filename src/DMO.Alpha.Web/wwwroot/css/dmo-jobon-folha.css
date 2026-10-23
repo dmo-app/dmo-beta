@@ -553,9 +553,9 @@ html body .jof2.editing .pick-row input::placeholder{font-size:14px;font-weight:
 }
 /* O Job On novo: Referência e Produção no sítio de sempre, com o Criar por baixo à direita. */
 html body .jof2 .pick-block.is-novo .pick-row{width:auto;min-width:0}
-html body .jof2 .pick-block.is-novo .ref-search{flex:none;width:150px}
-html body .jof2 .pick-block.is-novo .ref-search input{width:150px;min-width:150px}
-html body .jof2 .pick-block.is-novo input.prod-select{width:120px;min-width:120px;flex:none}
+html body .jof2 .pick-block.is-novo .ref-search{flex:none;width:140px}
+html body .jof2 .pick-block.is-novo .ref-search input,html body .jof2 .pick-block.is-novo input.prod-select{box-sizing:border-box;width:140px;min-width:140px;height:38px;min-height:38px;flex:none;margin:0;font-size:15px;font-weight:700}
+html body .jof2 .pick-block.is-novo .pick-row{align-items:flex-end}
 html body .jof2 .pick-block.is-novo input::placeholder{font-size:14px;font-weight:500;text-transform:none;letter-spacing:0}
 /* Os Calibres compactos: colunas à medida do conteúdo, por baixo de TP e CS (Diogo, 23/10/2026). */
 html body .jof2 .calv{width:auto;max-width:100%}
