@@ -264,7 +264,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Matches($"<option value=\"{tipo}\" selected=\"selected\">", html);
         foreach (var outro in new[] { "CM", "BQ", "MF" }.Where(t => t != tipo))
             Assert.Contains($"<option value=\"{outro}\" disabled=\"disabled\">", html, StringComparison.Ordinal);
-        Assert.Contains("<h3 id=\"ferr-create-title\">Registar ferramenta real", html, StringComparison.Ordinal);
+        Assert.Contains("<h3 id=\"ferr-create-title\">Registar ferramenta<", html, StringComparison.Ordinal);
         Assert.DoesNotContain("type=\"hidden\" name=\"type_token\"", html, StringComparison.Ordinal);
         // A Referência sugere as referências completas do tipo (Diogo, 19/10/2026).
         Assert.Contains($"data-dmo-suggest=\"referencias_registo\" data-dmo-suggest-tipo=\"{tipo.ToLowerInvariant()}\"", html, StringComparison.Ordinal);
@@ -272,7 +272,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         // Sem vir do Job On, o mesmo formulário com todos os tipos disponíveis.
         var livre = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{IndexPath}?criar=1&type={tipo}"));
         Assert.Contains("<select id=\"ferr-new-type\" name=\"type_token\" required data-ferr-tipo-fixo=\"\">", livre, StringComparison.Ordinal);
-        Assert.Contains("<h3 id=\"ferr-create-title\">Registar ferramenta real", livre, StringComparison.Ordinal);
+        Assert.Contains("<h3 id=\"ferr-create-title\">Registar ferramenta<", livre, StringComparison.Ordinal);
         Assert.DoesNotContain("disabled=\"disabled\">", livre[livre.IndexOf("id=\"ferr-new-type\"", StringComparison.Ordinal)..livre.IndexOf("</select>", livre.IndexOf("id=\"ferr-new-type\"", StringComparison.Ordinal), StringComparison.Ordinal)], StringComparison.Ordinal);
         // O botão fica no canto superior direito do card, ligado ao formulário.
         Assert.Contains("<button type=\"submit\" form=\"ferr-create-form\" class=\"dmo-button\">Registar</button>", livre, StringComparison.Ordinal);
@@ -374,8 +374,8 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         // folha (nunca recusa).
         // A TAB CRIAR (o Owner 2026-10-13: [um tab para criar e outro para ver o que existe]): o form vive no ?criar=1.
         var criarHtml = await client.GetStringAsync("/Ferramentas?criar=1");
-        Assert.Contains("Registar ferramenta real", criarHtml);
-        Assert.DoesNotContain("Registar ferramenta real", html);
+        Assert.Contains("ferr-create-title", criarHtml);
+        Assert.DoesNotContain("ferr-create-title", html);
         // A ajuda pede a referência toda (sweep de 19/10/2026, 3.15): a
         // regra «CM = dígitos» saiu a 17/10/2026.
         Assert.Contains("A referência toda, como no desenho: 1075C142, 5447T173 ou ST100.", criarHtml);
