@@ -54,6 +54,11 @@ public sealed class IndexModel : PageModel
 
     private readonly IFerramentasUsoSap _usoSap;
 
+    /// <summary>O % uso da última leitura das ferramentas desta página (para a cor do uso cheio).</summary>
+    public IReadOnlyDictionary<string, decimal> Usos { get; private set; } = new Dictionary<string, decimal>();
+
+    public decimal? UsoDe(string toolId) => Usos.TryGetValue(toolId, out var uso) ? uso : null;
+
     /// <summary>O % uso escrito, de volta numa recusa.</summary>
     [BindProperty(SupportsGet = true, Name = "uso_percentagem")]
     public string? RequestedUsoPercentagem { get; set; }
@@ -287,6 +292,7 @@ public sealed class IndexModel : PageModel
         {
             var page = await _candidateQuery.FindPageAsync(filter, pageNumber ?? 1, pageSize ?? 10, HttpContext.RequestAborted);
             Candidates = page.Items;
+            Usos = await _usoSap.UltimasPercentagensAsync(page.Items.Select(c => c.ToolId).ToList(), HttpContext.RequestAborted);
             TotalCandidates = page.TotalCount;
             PageNumber = page.PageNumber;
             PageSize = page.PageSize;

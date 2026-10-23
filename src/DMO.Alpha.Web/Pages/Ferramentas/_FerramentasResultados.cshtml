@@ -49,7 +49,7 @@
                   data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = candidate.ToolId })"
                   aria-label="Ferramenta @humanFacts(candidate) — @(Model.ReturnTemplate is null ? "um clique abre a ficha" : "um clique seleciona, duplo clique abre a ficha")">
                 <td><input type="radio" name="ferr_tool" value="@candidate.ToolId" aria-label="Ferramenta @humanFacts(candidate)" /></td>
-                <td><strong>@humanFacts(candidate)</strong></td>
+                <td><strong class="@DMO.Alpha.Web.Presentation.UsoCheio.ClasseDe(Model.UsoDe(candidate.ToolId))">@humanFacts(candidate)</strong></td>
                 <td>@(candidate.MachineCodes ?? "—")</td>
               </tr>
             }

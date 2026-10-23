@@ -133,7 +133,7 @@ public partial class FerramentasPagesTests
     // O % uso no Editar, ao lado da Quantidade do lote (Diogo, 22/10/2026):
     // escrito à mão, opcional, gravado com o «Guardar» como uma leitura nova
     // (manual) que fecha o «Utilização por atualizar»; vazio ou igual não
-    // grava; acima de 100 grava e avisa; ilegível avisa e não grava.
+    // grava; 100 ou mais grava sem aviso; ilegível avisa e não grava.
     [Fact]
     public async Task Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos()
     {
@@ -193,16 +193,16 @@ public partial class FerramentasPagesTests
             Assert.Equal((75m, DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemManual, (long?)null), (ultima.Percentagem, ultima.Origem, ultima.Consumo));
         }
 
-        // O limite do aviso: 100 grava sem aviso, 101 grava com aviso.
+        // 100 ou mais grava sem aviso nenhum (Diogo, 23/10/2026: só a cor muda).
         var cem = await GuardarAsync("100");
         Assert.Equal(3, Leituras());
-        Assert.DoesNotContain("O % uso ficou acima de 100", cem, StringComparison.Ordinal);
+        Assert.DoesNotContain("id=\"ferrUsoAviso\"", cem, StringComparison.Ordinal);
         var centoEUm = await GuardarAsync("101");
         Assert.Equal(4, Leituras());
-        Assert.Contains("O % uso ficou acima de 100", centoEUm, StringComparison.Ordinal);
+        Assert.DoesNotContain("id=\"ferrUsoAviso\"", centoEUm, StringComparison.Ordinal);
 
         var acima = await GuardarAsync("120%");
         Assert.Equal(5, Leituras());
-        Assert.Contains("O % uso ficou acima de 100", acima, StringComparison.Ordinal);
+        Assert.DoesNotContain("id=\"ferrUsoAviso\"", acima, StringComparison.Ordinal);
     }
 }
