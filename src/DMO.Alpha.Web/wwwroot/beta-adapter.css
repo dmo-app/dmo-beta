@@ -81,12 +81,12 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
    máquina, a referência e a produção juntos); os VAZIOS com o mesmo
    layout (a máquina + o «—»). */
 .beta-light-machine-row{display:grid;gap:8px;border-radius:8px;background:color-mix(in srgb,var(--dmo-machine-color) 12%,transparent)}
-.beta-light-machine-row.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
-.beta-light-machine-row.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
-.beta-light-machine-row.mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
-.beta-light-machine-row.mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
-.beta-light-machine-row.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
-.beta-light-machine-row.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
 .beta-light-machine-row .beta-light-production strong{color:var(--dmo-machine-color)}
 .beta-light-machine-row:has(input:checked){background:var(--dmo-machine-color)}
 .beta-light-machine-row:has(input:checked) .beta-light-production{background:transparent}
@@ -100,3 +100,6 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
 .beta-light-machine-empty{display:inline-block;padding:10px 12px;font-size:12.5px;color:var(--dmo-muted,#66809a)}
 .beta-light-machine-empty strong{color:var(--dmo-text,#1c2b3a)}
 
+
+/* A cor da linha no painel lateral (Diogo, 22/10/2026): a mesma da lista do dia. */
+.beta-production-lines .dmo-linha-cor{border-left:4px solid var(--dmo-machine-color)}

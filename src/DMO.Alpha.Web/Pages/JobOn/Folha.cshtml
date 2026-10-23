@@ -1,0 +1,639 @@
+@page "/JobOn/Folha"
+@model DMO.Alpha.Web.Pages.JobOn.FolhaModel
+@using DMO.Alpha.Core.Production
+@using DMO.Alpha.Web.Pages.JobOn
+@*
+  A FOLHA DO JOB ON pelo mockup do Diogo (Job_On_v2.html): a mesma
+  estrutura, ordem e aspeto (o cabeçalho com os factos, a referência e o
+  dropdown das produções, as Opções; Moldes, Gargalo, Sopro e Calibres; o
+  Artigo e as Notas gerais ao lado; o painel das linhas como gaveta), com
+  só o que o Diogo pediu mudado: abre bloqueada e «Editar» vem nas Opções;
+  TP ao lado do CS; CAL na horizontal por baixo; o lote do AN é o da BQ; a
+  informação técnica recolhe no triângulo (à esquerda do texto); os
+  detalhes curtos (referência, lote, %, notas); um clique na ferramenta,
+  no Editar, muda-a e o duplo clique leva à ficha; Opções = Editar,
+  Controlo e Reparação; clicar no artigo escolhe a imagem; a cor da linha
+  é a do Planeamento; «Lote 1» sem o zero.
+*@
+@{
+    Layout = "_DmoShellLayout";
+    ViewData["BetaPage"] = "jobon";
+    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
+    var editar = Model.Editar;
+    var desenhados = new HashSet<string>(StringComparer.Ordinal);
+}
+@section Head {
+<link rel="stylesheet" href="~/beta-adapter.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/dmo-jobon-folha.css" asp-append-version="true">
+}
+@functions {
+    private static string? Vazio(string? v) => string.IsNullOrWhiteSpace(v) ? null : v.Trim();
+
+    private static decimal? Numero(string? v) =>
+        decimal.TryParse(v?.Replace(',', '.').Replace("%", "").Trim(), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : null;
+}
+@{
+    // O valor de um campo da folha: no Editar a caixa, bloqueada o texto (ou «—»).
+    void Valor(string chave, string? rotulo = null)
+    {
+        var campo = JobOnFolhaCampos.Encontrar(chave)!;
+        desenhados.Add(chave);
+        var valor = Model.Folha.Valor(chave);
+        if (editar)
+        {
+            <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@valor" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
+        }
+        else if (Vazio(valor) is { } escrito)
+        {
+            @escrito
+        }
+        else
+        {
+            <span class="v-empty">—</span>
+        }
+    }
+
+    // CS · Furos: Aberto/Fechado + número, no mesmo campo de texto (cs_furos), «Fechado · 4».
+    // No Editar o JS junta a escolha e o número no campo escondido; um valor antigo («4 × 4») mostra-se tal e qual.
+    void Furos(string chave)
+    {
+        if (!editar) { Valor(chave); return; }
+        var campo = JobOnFolhaCampos.Encontrar(chave)!;
+        desenhados.Add(chave);
+        var valor = Model.Folha.Valor(chave);
+        var (lido, abertos, fechados) = DMO.Alpha.Core.Production.CsFurosTexto.Ler(valor);
+        <span class="jof-furos" data-jof-furos>
+          <input type="hidden" id="@campo.Id" name="@campo.NomeNoFormulario" value="@valor" data-jof-furos-valor />
+          <label class="jof-furos-campo"><span>Aberto</span><input class="f" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="off" value="@abertos" aria-label="CS furos abertos (0 a 9)" data-jof-furos-abertos /></label>
+          <label class="jof-furos-campo"><span>Fechado</span><input class="f" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="off" value="@fechados" aria-label="CS furos fechados (0 a 9)" data-jof-furos-fechados /></label>
+          @if (!lido && Vazio(valor) is { } antigo)
+          {
+            <small class="jof-furos-antigo" title="Valor antigo; escreva os abertos e os fechados para o substituir">era «@antigo»</small>
+          }
+        </span>
+    }
+
+    void Kv(IEnumerable<(string Rotulo, string Chave)> linhas)
+    {
+        <dl class="kv">
+          @foreach (var (rotulo, chave) in linhas)
+          {
+            <dt>@rotulo</dt><dd>@{ Valor(chave, rotulo); }</dd>
+          }
+        </dl>
+    }
+
+    void Notas(string chave)
+    {
+        var campo = JobOnFolhaCampos.Encontrar(chave)!;
+        desenhados.Add(chave);
+        var valor = Model.Folha.Valor(chave);
+        if (editar)
+        {
+            <label class="note-edit@(Vazio(valor) is null ? " is-empty" : null)"><span>Notas</span><textarea class="dmo-valor" id="@campo.Id" name="@campo.NomeNoFormulario" rows="2" maxlength="@campo.Maximo" placeholder="+ Adicionar nota" aria-label="@campo.RotuloAlteracao">@valor</textarea></label>
+        }
+        else if (Vazio(valor) is { } escrito)
+        {
+            <div class="note-view" data-jof-campo="@chave"><span>Notas</span><p>@escrito</p></div>
+        }
+    }
+
+    // A utilização: o valor da folha, a barra e a marca do valor anterior (a última leitura).
+    void Uso(string chave, JobOnToolFacts? f)
+    {
+        desenhados.Add(chave);
+        var campo = JobOnFolhaCampos.Encontrar(chave)!;
+        var valor = Vazio(Model.Folha.Valor(chave));
+        var agora = Numero(valor);
+        var antes = f?.Utilizacao;
+        <div class="use">
+          <div class="use-top"><span>Utilização</span>
+            @if (editar)
+            {
+              <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" value="@valor" aria-label="@campo.RotuloAlteracao" /><text>%</text>
+            }
+            else
+            {
+              <b>@(valor is null ? "—" : valor.TrimEnd('%') + "%")</b>
+              @if (antes is { } a)
+              {
+                <em class="was" title="A última leitura do uso">antes @a.ToString("0.##", culture)%</em>
+              }
+            }
+          </div>
+          <div class="bar" role="img" aria-label="Utilização @(valor ?? "—")%"><i style="width:@(Math.Min(agora ?? 0, 100).ToString(System.Globalization.CultureInfo.InvariantCulture))%"></i>@if (antes is { } m) {<s style="left:@(Math.Min(m, 100).ToString(System.Globalization.CultureInfo.InvariantCulture))%" title="Antes @m.ToString("0.##", culture)%"></s>}</div>
+        </div>
+    }
+
+    // A informação técnica: recolhe e expande pelo triângulo, à esquerda do texto.
+    void TecnicaAbre(string familia, IEnumerable<string> chaves)
+    {
+        var resumo = string.Join(" · ", chaves
+            .Select(c => (Campo: JobOnFolhaCampos.Encontrar(c)!, Valor: Vazio(Model.Folha.Valor(c))))
+            .Where(x => x.Valor is not null)
+            .Select(x => $"{(x.Campo.Grupo is null ? x.Campo.Rotulo : "Folgas")} {x.Valor}"));
+        var classe = resumo.Length == 0 && !editar ? "more empty" : "more";
+        @Html.Raw($"<details class=\"{classe}\" data-jof-tecnica=\"{familia}\"{(editar ? " open" : "")}>")
+        <summary><span class="dmo-caret" aria-hidden="true"></span><span>Informação técnica</span><span class="more-preview">@resumo</span></summary>
+        @Html.Raw("<div class=\"more-body\">")
+    }
+
+    void TecnicaFecha()
+    {
+        @Html.Raw("</div></details>")
+    }
+
+    // A cabeça das ferramentas (CM, MF, BQ): o código, a referência e o lote.
+    // Um clique, no Editar, muda a ferramenta; o duplo clique leva à ficha.
+    void CabecaFerramenta(string tipo, string? toolId, string nome)
+    {
+        var f = Model.Fact(toolId);
+        var ficha = toolId is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}";
+        <div class="jof-tool-slot" data-jof-tool-slot="@tipo">
+          <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
+                  title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
+                  aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
+            <span class="code">@tipo</span>
+            @if (f is null)
+            {
+              <span class="muted">Sem @nome.ToLowerInvariant()</span>
+            }
+            else
+            {
+              <span class="hv"><small>Referência</small><b data-jof-tool-ref>@f.Reference</b></span>
+              <span class="hv"><small>Lote</small><b data-jof-tool-lote>@FolhaModel.Lote(f.Lot)</b></span>
+            }
+            @if (editar)
+            {
+              <span class="tool-hint"><span class="dmo-caret" aria-hidden="true"></span> <span class="hint-txt">Trocar</span></span>
+            }
+          </button>
+          @if (editar)
+          {
+            <div class="jof-tool-procura" data-jof-tool-procura hidden>
+              <select name="@(tipo.ToLowerInvariant())_tool_id" data-facts-type="@tipo" data-dmo-filter aria-label="Mudar @tipo: escreva a referência">
+                <!option value="">Escreva a referência da @tipo</!option>
+                @if (toolId is not null)
+                {
+                  <!option value="@toolId" selected="selected">@(f is null ? toolId : $"{f.Reference} · Lote {FolhaModel.Lote(f.Lot)}")</!option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+    }
+
+    // CM e MF: a cabeça, a utilização e as notas; as medidas e o resto na informação técnica.
+    void Molde(string tipo, string? toolId, string nome)
+    {
+        var f = Model.Fact(toolId);
+        var p = tipo.ToLowerInvariant();
+        var medidas = tipo == "CM"
+            ? new[] { ("Diâm. pata", "cm_pata", "cm_pata_tol"), ("Diâm. gargalo", "cm_gargalo", "cm_gargalo_tol"), ("Diâm. exterior", "cm_exterior", "cm_exterior_tol") }
+            : new[] { ("Diâm. corpo", "mf_corpo", "mf_corpo_tol"), ("Diâm. gargalo", "mf_gargalo", "mf_gargalo_tol"), ("Diâm. exterior", "mf_exterior", "mf_exterior_tol") };
+        var resto = tipo == "CM"
+            ? new[] { ("Tipo", "cm_tipo"), ("Reparador", "cm_reparador"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3"), ("Stock", "cm_qtd_stock"), ("QTD máq.", "cm_qtd_maq") }
+            : new[] { ("Tipo", "mf_tipo"), ("Reparador", "mf_reparador"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso"), ("Fundo final", "mf_fundo_final"), ("Stock", "mf_qtd_stock"), ("QTD máq.", "mf_qtd_maq") };
+        var folgas = new[] { p + "_folga1", p + "_folga2", p + "_folga3" };
+        <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
+          @{ CabecaFerramenta(tipo, toolId, nome); }
+          @{ Uso(p + "_utilizacao", f); }
+          @{ Notas(p + "_notas"); }
+          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
+          <div class="table-wrap"><table class="dmo-table dims"><thead><tr><th>Medida (mm)</th><th>Valor</th><th>Tol.</th></tr></thead><tbody>
+            @foreach (var (rotulo, valor, tol) in medidas)
+            {
+              <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }</td><td>@{ Valor(tol, $"{tipo} {rotulo} tolerância"); }</td></tr>
+            }
+          </tbody></table></div>
+          <div class="folgas"><span>Folgas</span>
+            @foreach (var folga in folgas)
+            {
+              if (editar) { Valor(folga); } else { <span class="folga">@{ Valor(folga); }</span> }
+            }
+          </div>
+          @{ Kv(resto); }
+          @{ TecnicaFecha(); }
+        </article>
+    }
+
+    // Os cartões sem ferramenta registada: a cabeça com a referência, os valores, as notas e a informação técnica.
+    void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? lote = null)
+    {
+        var notas = JobOnFolhaCampos.DaFamilia(codigo).FirstOrDefault(c => c.Tipo == JobOnFolhaTipoCampo.Nota)?.Chave;
+        <div class="sec-head"><span class="code">@codigo</span>
+          @if (chaveRef is not null)
+          {
+            <span class="hv"><small>Referência</small><b>@{ Valor(chaveRef, $"{codigo} referência"); }</b></span>
+          }
+          @if (lote is not null)
+          {
+            <span class="hv" title="O lote do AN é o da BQ"><small>Lote</small><b data-jof-an-lote>@lote</b></span>
+          }
+        </div>
+        if (linhas.Length > 0 || calote)
+        {
+            <dl class="kv">
+              @foreach (var (rotulo, chave) in linhas)
+              {
+                <dt>@rotulo</dt><dd>@if (chave == "cs_furos") { Furos(chave); } else { Valor(chave, $"{codigo} {rotulo}"); }</dd>
+              }
+              @if (calote)
+              {
+                <dt title="Calote / altura: entra no cálculo do peso">Calote</dt>
+                <dd>
+                  @if (editar)
+                  {
+                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="ferramenta" value="@Model.JobOn?.CaloteMm?.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Calote (mm)" />
+                  }
+                  else if (Model.JobOn?.CaloteMm is { } valorCalote)
+                  {
+                    @valorCalote.ToString("0.##", culture)
+                  }
+                  else
+                  {
+                    <span class="v-empty" title="Usa a calote registada na ferramenta">ferramenta</span>
+                  }
+                </dd>
+              }
+            </dl>
+        }
+        if (notas is not null)
+        {
+            Notas(notas);
+        }
+        if (tecnica.Length > 0)
+        {
+            TecnicaAbre(codigo, tecnica.Select(t => t.Item2));
+            Kv(tecnica);
+            TecnicaFecha();
+        }
+    }
+}
+@if (Model.JobOn is not { } jobOn)
+{
+  <main class="jof2" id="main">
+    <div class="wrap">
+      <div class="page-head">
+        <div><span class="eyebrow">Ficha de moldes</span><h1>Job On</h1></div>
+      </div>
+      @if (Model.NaoExiste)
+      {
+        <div class="jobon-aviso" role="alert">A produção indicada não existe.</div>
+      }
+      <form class="ref-search jof-ref-vazia" method="get" action="/JobOn/Folha" role="search">
+        <input type="search" name="referencia" value="@Model.ReferenciaProcurada" aria-label="Referência: escreva para abrir a última produção" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-suggest="referencias" data-dmo-suggest-submit placeholder="Referência" />
+      </form>
+      @if (Model.ReferenciaSemProducoes)
+      {
+        <p class="empty-text" role="status">Sem produções da referência @Model.ReferenciaProcurada.</p>
+      }
+    </div>
+  </main>
+}
+else
+{
+  var bqFact = Model.Fact(jobOn.BqToolId);
+  var linhaCor = $"mch dmo-linha-cor mch-{jobOn.Machine}";
+  foreach (var c in new[] { "cab_seccoes", "cab_gota", "cab_processo", "cab_peso" }) desenhados.Add(c);
+  string? Cab(string chave) => Vazio(Model.Folha.Valor(chave));
+  @* O PAINEL DAS LINHAS (o mockup: uma gaveta que o botão «Linhas» abre e o ×
+     fecha; não existe no Editar): as produções em curso e as que entram esta
+     semana, como no Planeamento, e o regresso ao Planeamento. *@
+  @if (!editar)
+  {
+    <div class="jof2-gaveta">
+      <div class="rail-backdrop" data-jof-rail-fundo hidden></div>
+      <aside class="rail" id="jofRail" aria-label="O que vai entrar" aria-hidden="true" inert data-jof-rail>
+        <div class="rail-head"><div><strong>O que vai entrar</strong><span>As produções em curso e as que entram esta semana</span></div><button class="rail-close" type="button" data-jof-rail-fechar aria-label="Esconder o painel">×</button></div>
+        <a class="rail-voltar" href="@Model.PlaneamentoHref">‹ Planeamento</a>
+        <div class="rail-list">
+          @if (Model.ProximasEntradas.Count == 0)
+          {
+            <p class="rail-vazio">Sem produções em curso nem entradas esta semana.</p>
+          }
+          @foreach (var e in Model.ProximasEntradas)
+          {
+            var sel = e.JobOnId == jobOn.JobOnId;
+            <a class="rail-item@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>Produção @e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
+          }
+        </div>
+      </aside>
+    </div>
+  }
+  <form class="jof2-form" id="@(editar ? "lightForm" : "jofLeitura")" method="post" asp-page="/JobOn/Index" asp-page-handler="Update"
+        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jobon-rascunho="@(editar ? $"editar:{jobOn.JobOnId}" : null)" aria-label="Folha do Job On @jobOn.ProductionNumber">
+    @if (editar)
+    {
+      <input type="hidden" name="jobon_edit_id" value="@jobOn.JobOnId" />
+      <input type="hidden" name="versao" value="@jobOn.Version" />
+      <input type="hidden" name="voltar" value="folha" />
+      <input type="hidden" id="lightReference" value="@jobOn.Reference" />
+    }
+  <main class="jof2@(editar ? " editing" : null)" id="main">
+    <div class="wrap">
+    <div class="page-head">
+      <div class="facts" role="group" aria-label="Dados da produção">
+        <div class="fact-col mach" title="Linha"><span class="sr-only">Linha</span><span class="fv">
+          @if (editar)
+          {
+            <select class="f" id="lightMachine" name="machine_id" aria-label="Linha">
+              @foreach (var m in Model.Machines)
+              {
+                <option value="@m.MachineId" selected="@(m.Code == jobOn.Machine ? "selected" : null)">@m.Code</option>
+              }
+            </select>
+          }
+          else
+          {
+            <span class="@linhaCor" data-jof-linha>@jobOn.Machine</span>
+          }
+        </span></div>
+        <div class="fact-col">
+          <span class="fl">Início</span><span class="fv">@if (editar) {<input class="f" id="lightStart" name="inicio_em" type="date" value="@jobOn.InicioEm?.ToString("yyyy-MM-dd")" aria-label="Início" />} else {<strong>@(jobOn.InicioEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
+          <span class="fl">Fim</span><span class="fv">@if (editar) {<input class="f" id="lightEnd" name="fim_em" type="date" value="@jobOn.FimEm?.ToString("yyyy-MM-dd")" aria-label="Fim" />} else {<strong>@(jobOn.FimEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
+        </div>
+        <div class="fact-col">
+          <span class="fl">Dias</span><span class="fv"><strong title="Fim − início + 1">@(Model.Dias?.ToString() ?? "—")</strong></span>
+        </div>
+        @foreach (var par in new[] { new[] { ("Processo", "cab_processo", ""), ("Peso", "cab_peso", "g") }, new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", "") } })
+        {
+          <div class="fact-col">
+            @foreach (var (rotulo, chave, unidade) in par)
+            {
+              var campo = JobOnFolhaCampos.Encontrar(chave)!;
+              <span class="fl">@rotulo</span>
+              <span class="fv">
+                @if (editar)
+                {
+                  <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Model.Folha.Valor(chave)" aria-label="@rotulo" data-edit="@chave" />
+                }
+                else
+                {
+                  <strong>@(Cab(chave) ?? "—")</strong>@if (unidade.Length > 0 && Cab(chave) is not null) {<span class="unit">@unidade</span>}
+                }
+              </span>
+            }
+          </div>
+        }
+      </div>
+      <div class="head-right">
+        <div class="pick-block">
+          <span class="eyebrow">@(editar ? $"A editar · {jobOn.ProductionNumber}" : "Ficha de moldes")</span>
+          <h1 class="sr-only">@Model.ReferenciaTotal</h1>
+          <div class="pick-row">
+            @if (!editar)
+            {
+              <button class="btn rail-toggle" type="button" data-jof-rail-abrir aria-expanded="false" aria-controls="jofRail" title="O que vai entrar: as produções desta semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg><span class="rail-toggle-txt">Linhas</span><span class="count">@Model.ProximasEntradas.Count</span></button>
+            }
+            @if (editar)
+            {
+              <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input type="search" value="@Model.ReferenciaTotal" aria-label="Referência" disabled /></div>
+              <select class="prod-select" aria-label="Produção desta referência" disabled><option>@jobOn.ProductionNumber · @jobOn.Machine</option></select>
+            }
+            else
+            {
+              <div class="ref-search" role="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+                <input type="search" form="jofProcura" name="referencia" id="jofReferencia" value="@Model.ReferenciaTotal" aria-label="Referência: escreva para procurar outra" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+              </div>
+              <select id="jofProducoes" class="prod-select" data-dmo-ir aria-label="Produção desta referência">
+                @foreach (var p in Model.Producoes)
+                {
+                  <option value="/JobOn/Folha?jobon_id=@p.JobOnId" selected="@(p.JobOnId == jobOn.JobOnId ? "selected" : null)">@p.ProductionNumber · @p.Machine</option>
+                }
+                @if (!Model.Producoes.Any(p => p.JobOnId == jobOn.JobOnId))
+                {
+                  <option value="/JobOn/Folha?jobon_id=@jobOn.JobOnId" selected="selected">@jobOn.ProductionNumber · @jobOn.Machine</option>
+                }
+              </select>
+            }
+          </div>
+          @if (!editar)
+          {
+            <div class="head-acoes">
+              <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
+              @if (Model.PodeEditar)
+              {
+                <a class="btn" href="/JobOn?jobon_id=@jobOn.JobOnId&amp;duplicar=1" data-jof-duplicar>Duplicar</a>
+                <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
+              }
+                @if (Model.VeControlo || Model.PodeEditar || (Model.VeBoquilhas && jobOn.BqId is not null))
+                {
+                  <details class="menu" data-jof-opcoes>
+                    <summary class="btn" aria-label="Opções do Job On @jobOn.ProductionNumber"><span class="dmo-caret" aria-hidden="true"></span> Opções</summary>
+                    <div class="menu-list">
+                      @if (Model.VeControlo)
+                      {
+                        <a href="/Controlo/Resumo?jobon_id=@jobOn.JobOnId">Controlo</a>
+                      }
+                      @if (Model.PodeEditar)
+                      {
+                        <a href="/JobOn/Reparacao?jobon_id=@jobOn.JobOnId">Reparação</a>
+                      }
+                    @* BQs: o registo da BQ desta produção (bq_id = o contexto da BQ do Job On, o filtro por Job On que as Boquilhas já têm). *@
+                    @if (Model.VeBoquilhas && jobOn.BqId is { } bqId)
+                    {
+                      <a href="/Boquilhas?bq_id=@bqId" data-jof-bqs>Boquilhas</a>
+                    }
+                    </div>
+                  </details>
+                }
+            </div>
+          }
+        </div>
+        @if (editar)
+        {
+          <div class="head-tools">
+            <a class="btn" href="@Model.Href()">Cancelar</a>
+            <button class="btn" type="submit" data-jof-guardar>Guardar</button>
+          </div>
+        }
+
+      </div>
+    </div>
+
+    @if (Model.Gravado)
+    {
+      <div data-dmo-toast="ok" role="status">Job On guardado.</div>
+    }
+    @foreach (var aviso in Model.AvisosGravacao)
+    {
+      <div class="jobon-aviso warn" role="status">@aviso</div>
+    }
+    @if (Model.Faltam.Count > 0)
+    {
+      <div class="jobon-aviso warn" role="status" data-jof-falta>Falta @string.Join(", ", Model.Faltam): o Job On precisa de CM, MF e BQ.@(editar ? " Clique no cartão para escolher." : null)</div>
+    }
+    @if (Model.AvisoReferencia is { } avisoReferencia)
+    {
+      <div class="jobon-aviso warn" role="status" data-jof-aviso-referencia>@avisoReferencia</div>
+    }
+
+    <div class="sheet">
+      <div class="sheet-main"><div class="zones">
+        <section class="group g-moldes" aria-labelledby="hMoldes">
+          <div class="group-head"><h2 id="hMoldes">Moldes</h2></div>
+          <div class="board" id="gMoldes">
+            @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
+            @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
+          </div>
+        </section>
+        <div class="col3">
+          <section class="group g-gargalo" aria-labelledby="hGargalo">
+            <div class="group-head"><h2 id="hGargalo">Gargalo</h2></div>
+            <div class="board" id="gGargalo">
+              <article class="card pair"><div class="pair-in">
+                <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
+                  @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
+                  @{ Uso("bq_utilizacao", bqFact); }
+                  @{ Notas("bq_notas"); }
+                  @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
+                </div>
+                <div class="sec" data-jof-familia="AN" aria-label="Anel">
+                  @{ Simples("AN", "an_referencia", [], [], lote: bqFact is null ? "—" : FolhaModel.Lote(bqFact.Lot)); }
+                </div>
+              </div></article>
+              <article class="card pair"><div class="pair-in">
+                <div class="sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</div>
+                <div class="sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</div>
+              </div></article>
+            </div>
+          </section>
+          <section class="group g-pinfo" aria-label="Pinças">
+            <div class="board" id="gPinfo">
+              <article class="card sec" data-jof-familia="PI">@{ Simples("PI", null, [("Pinças", "pi_pincas"), ("Diâmetro", "pi_diametro")], []); }</article>
+            </div>
+          </section>
+        </div>
+        <section class="group g-sopro" aria-labelledby="hSopro">
+          <div class="group-head"><h2 id="hSopro">Sopro</h2></div>
+          <div class="board" id="gSopro">
+            <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro PS", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
+            <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock"), ("QTD máq.", "cs_qtd_maq")]); }</article>
+          </div>
+        </section>
+        <section class="group g-cal" aria-labelledby="hCal">
+          <div class="group-head"><h2 id="hCal">Calibres</h2></div>
+          <div class="board" id="gCal">
+            @{ var linhas = Model.Folha.Cal.Where(l => editar || (!l.Extra && (Vazio(l.Valor) is not null || Vazio(l.QtdMaq) is not null))).ToList(); }
+            <article class="card sec span-all cal-card">
+              <div class="sec-head"><span class="code">CAL</span></div>
+              @if (linhas.Count == 0)
+              {
+                <p class="empty-text">Sem calibres escritos.</p>
+              }
+              else
+              {
+                <div class="table-wrap">
+                  <table class="dmo-table dims calv" data-jof-cal>
+                    <thead>
+                      <tr><th scope="col">Medida</th><th scope="col">Componentes</th><th scope="col">QTD máq.</th></tr>
+                    </thead>
+                    <tbody>
+                      @foreach (var l in linhas)
+                      {
+                        <tr>
+                          <th scope="row">
+                            @if (editar)
+                            {
+                              if (l.Padrao is { } padrao)
+                              {
+                                <input type="hidden" name="Cal[@l.Indice].Padrao" value="@padrao" />
+                              }
+                              <input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Designacao)" name="Cal[@l.Indice].Designacao" value="@l.Designacao" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="@(l.Extra ? "Medida nova" : $"Medida {l.Indice + 1}")" placeholder="@(l.Extra ? "+ Medida" : null)" />
+                            }
+                            else
+                            {
+                              @l.Designacao
+                            }
+                          </th>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@l.Valor" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Vazio(l.Valor) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@l.QtdMaq" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Vazio(l.QtdMaq) ?? "—")}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                @if (editar)
+                {
+                  <p class="empty-text">A última linha serve para acrescentar uma medida; para retirar uma, apague o que tem escrito.</p>
+                }
+              }
+            </article>
+          </div>
+        </section>
+      </div></div>
+      <aside class="side">
+        <section class="card article" aria-label="Artigo">
+          <div class="article-head"><strong>Artigo</strong><span>@Model.ReferenciaTotal</span></div>
+          <label class="jof-artigo@(editar ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" title="@(editar ? "Clique para escolher a imagem do artigo" : null)">
+            @if (editar)
+            {
+              <input type="file" accept="image/*" class="sr-only" data-jof-artigo-ficheiro aria-label="Escolher a imagem do artigo" />
+            }
+            <img data-jof-artigo-img alt="Imagem do artigo @Model.ReferenciaTotal" hidden />
+            <svg data-jof-artigo-vazio viewBox="0 0 120 230" role="img" aria-label="Silhueta do artigo"><g fill="var(--bottle-fill)" stroke="var(--bottle-stroke)" stroke-width="2" stroke-linejoin="round"><path d="M54 10h12v6c0 6 2 10 4 18 5 18 18 26 18 46v120c0 8-6 12-14 12H46c-8 0-14-4-14-12V80c0-20 13-28 18-46 2-8 4-12 4-18z" /><path d="M52 16h16" /><path d="M36 150h48" opacity=".5" /></g></svg>
+          </label>
+          @if (editar)
+          {
+            <p>Clique na imagem para escolher a do artigo.</p>
+          }
+        </section>
+        <section class="card notes" aria-labelledby="notesTitle">
+          <h2 id="notesTitle">Notas gerais</h2>
+          @{
+              desenhados.Add("notas_gerais");
+              var gerais = Model.Folha.Valor("notas_gerais");
+          }
+          @if (editar)
+          {
+            <textarea class="dmo-valor jof-notas-gerais" id="jobon-notas-gerais" name="Folha.NotasGerais" rows="8" maxlength="@JobOnFolhaCampos.MaximoNotasGerais" aria-label="Notas gerais" placeholder="+ Adicionar nota">@gerais</textarea>
+            <p class="notes-foot">Uma nota por linha. Grava com Guardar.</p>
+          }
+          else
+          {
+            <ul>
+              @if (Vazio(gerais) is null)
+              {
+                <li class="view empty-text">Sem notas.</li>
+              }
+              else
+              {
+                foreach (var linha in gerais!.Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0))
+                {
+                  <li class="view">@linha</li>
+                }
+              }
+            </ul>
+            @if (Model.PodeEditar)
+            {
+              <p class="notes-foot">Para mudar as notas, use Editar.</p>
+            }
+          }
+        </section>
+      </aside>
+    </div>
+    </div>
+  </main>
+    @if (editar)
+    {
+      @* Os campos da folha que não aparecem neste ecrã vão como estão. *@
+      foreach (var campo in JobOnFolhaCampos.Todos.Where(c => !desenhados.Contains(c.Chave)))
+      {
+        <input type="hidden" name="@campo.NomeNoFormulario" value="@Model.Folha.Valor(campo.Chave)" />
+      }
+    }
+  </form>
+  @if (!editar)
+  {
+    <form id="jofProcura" method="get" action="/JobOn/Folha" hidden></form>
+  }
+}
+@section Scripts {
+<script src="~/js/jobon-folha.js" asp-append-version="true" defer></script>
+@if (editar)
+{
+<script src="~/js/jobon-rascunho.js" asp-append-version="true" defer></script>
+}
+}

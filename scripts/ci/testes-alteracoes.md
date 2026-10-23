@@ -1554,3 +1554,35 @@ Novos: 4 · mudaram: 25 · saíram: 2
 - saiu: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_SoParaRecolher_ApontaParaAPalavraEAbertoParaBaixo`
 
 Selo depois: `45baba8c0122ac1a`
+
+## A-0055 · 2026-10-23 · ok-do-diogo
+
+Porquê: Folha nova do Job On (A-0055): testes da folha bloqueada, do Editar, do «Job On ver» (POST forjado não muda nada), das Opções com Controlo, Reparação e Boquilhas, das produções e do CsFurosTexto; dois testes do Admin passam a usar jobon.edit como chave desconhecida, porque jobon.view passou a existir.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW, cmsg_01A27e9ozcpoh4jdPRsuJbFy93maEKN2ZCLoyGMNntC5BN
+Novos: 19 · mudaram: 4 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Escrever`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Ler`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesBoquilhas_SoComBoquilhas_AbreOsMovimentosDaBQDesteJobOn`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_ProducoesAnteriores_NoDropdown_AbremAFolhaDeCada`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_SemReferenciaMfMaisBq_SoAvisa`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique não faz nada; o duplo clique leva à ficha`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: um dígito de abertos e outro de fechados vão para o campo como «Abertos 4 / Fechados 2»`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: escolher outra ferramenta muda o cartão e a ficha do duplo clique`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: um clique abre a procura; o duplo clique leva à ficha sem abrir a procura`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Imprimir: abre a informação técnica e chama window.print(); o gancho dmoJobOnImprimir substitui-o`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: O painel das linhas: «Linhas» abre, o × esconde, e a escolha fica no browser`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Produções: lista fechada; abrir cai por cima; escolher outra muda a <select> e dispara change`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/TemplateAdminServiceTests.cs :: TemplateAdminServiceTests.CreateTemplate_InvariantViolations_AreTypedRefusals`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_ZeroCapabilitiesAllowed_NonBetaVocabularyRefused`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `22a5bbe559777eb6`

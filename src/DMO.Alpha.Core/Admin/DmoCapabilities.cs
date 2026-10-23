@@ -19,6 +19,12 @@ public static class DmoCapabilities
     /// <summary>Planeamento (Job On). A chave histórica mantém-se.</summary>
     public const string JobOnCreate = "jobon.create";
 
+    /// <summary>
+    /// Job On ver (Diogo, 22/10/2026): abre a folha do Job On só em leitura,
+    /// sem Editar nem Eliminar. Quem tem <see cref="JobOnCreate"/> vê e edita.
+    /// </summary>
+    public const string JobOnView = "jobon.view";
+
     /// <summary>Controlo Criar: Resumo, Peso, Pegamentos, Comparação e Histórico.</summary>
     public const string ControloCreate = "controlo.create";
 
@@ -58,6 +64,7 @@ public static class DmoCapabilities
     public static readonly IReadOnlyList<DmoModule> Modules =
     [
         new(JobOnCreate, "Planeamento", "/JobOn"),
+        new(JobOnView, "Planeamento", "/JobOn/Folha"),
         new(ControloCreate, "Controlo", "/Controlo/Resumo"),
         new(ControloApprove, "Controlo", "/Controlo/Approve"),
         new(Boquilhas, "Boquilhas", "/Boquilhas"),

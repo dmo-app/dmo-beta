@@ -162,10 +162,10 @@ public sealed class TemplateAdminServiceTests : IDisposable
         string name, CreateTemplateResult expected)
     {
         // O matrix de permissões por módulo do mockup NÃO é vocabulário
-        // Beta: jobon.view/controlo.edit/peso.aprovar/admin.gerir são
+        // Beta: jobon.edit/controlo.edit/peso.aprovar/admin.gerir são
         // recusados tipadamente (UnknownCapability).
         var outcome = await _service.CreateTemplateAsync(
-            new CreateTemplate(name, [DmoCapabilities.JobOnCreate, "jobon.view"]));
+            new CreateTemplate(name, [DmoCapabilities.JobOnCreate, "jobon.edit"]));
 
         Assert.Equal(expected, outcome.Result);
         Assert.Null(outcome.Template);

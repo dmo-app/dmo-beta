@@ -1432,7 +1432,8 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "inicio_em")] string? inicioEm,
         [FromForm(Name = "fim_em")] string? fimEm,
         [FromForm(Name = "calote_mm")] string? caloteMm,
-        [FromForm(Name = "versao")] string? versao)
+        [FromForm(Name = "versao")] string? versao,
+        [FromForm(Name = "voltar")] string? voltar = null)
     {
         var sanitizedCmToolId = Sanitize(cmToolId);
         var sanitizedMfToolId = Sanitize(mfToolId);
@@ -1508,11 +1509,25 @@ public sealed class IndexModel : PageModel
             // O OVERLAP NÃO BLOQUEIA (a edição gravou na mesma): o mesmo
             // destino do Create; o jobon_id não muda na edição. O fim antes
             // do início também grava e a folha avisa (Diogo, 19/10/2026).
+            var fimAntes = parsedInicioEm is { } inicioDia && parsedFimEm is { } fimDia && fimDia < inicioDia;
+            // A folha nova (/JobOn/Folha) volta a si mesma, bloqueada.
+            if (voltar == "folha")
+            {
+                return RedirectToPage("/JobOn/Folha", new
+                {
+                    jobon_id = outcome.JobOn!.JobOnId,
+                    gravado = "1",
+                    overlap = outcome.OverlapWarning is not null ? "1" : null,
+                    calote_ignorada = caloteIgnorada,
+                    fim_antes_inicio = fimAntes ? "1" : null
+                });
+            }
+
             return await SavedRedirectAsync(
                 outcome.JobOn!.JobOnId,
                 outcome.OverlapWarning is not null,
                 caloteIgnorada,
-                parsedInicioEm is { } inicioDia && parsedFimEm is { } fimDia && fimDia < inicioDia);
+                fimAntes);
         }
 
         // Gravada por outra pessoa: reabre a edição com o que ficou gravado

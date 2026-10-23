@@ -39,7 +39,7 @@ namespace DMO.Alpha.Web.Tests;
 /// obrigatório herda; o jobon inexistente é JobOnNotFound limpa)
 /// preserva o formulário submetido com a BD inalterada.
 /// </summary>
-public class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
+public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private const string PagePath = "/JobOn";
 
