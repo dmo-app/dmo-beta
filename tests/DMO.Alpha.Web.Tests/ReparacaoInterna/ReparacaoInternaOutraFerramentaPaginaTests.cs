@@ -286,7 +286,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         var (semJobOn, _) = Maquina("F", comProducao: false);
         var primeira = Escrita(codigo, jobOn, "E1", Trocada("E"), "4");
         var segunda = Escrita(semJobOn, null, "F1", Trocada("E"), "9");
-        using var client = await LoginOperatorAsync("6805", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6805", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
 
         var html = await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}");
         var filtro = Elemento(html, "class=\"ri-so-por-associar\"");
@@ -315,7 +315,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
     {
         var (codigo, jobOn) = Maquina("G");
         var id = Escrita(codigo, jobOn, "G1", Trocada("G"), "4");
-        using var client = await LoginOperatorAsync("6806", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6806", DmoCapabilities.ReparacaoInternaView);
         var url = $"/ReparacaoInterna/Consultar?maquina={codigo}";
         var html = await client.GetStringAsync(url);
 
@@ -353,7 +353,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
     {
         var (codigo, jobOn) = Maquina("H");
         var id = Escrita(codigo, jobOn, "H1", $"{Marca}H0000", "1");
-        using var client = await LoginOperatorAsync("6807", DmoCapabilities.ReparacaoInterna, DmoCapabilities.Ferramentas);
+        using var client = await LoginOperatorAsync("6807", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView, DmoCapabilities.Ferramentas);
 
         var html = await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}");
 
@@ -384,8 +384,8 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
             });
             return db.SaveChanges();
         });
-        using var comFicha = await LoginOperatorAsync("6808", DmoCapabilities.ReparacaoInterna, DmoCapabilities.Ferramentas);
-        using var semFicha = await LoginOperatorAsync("6809", DmoCapabilities.ReparacaoInterna);
+        using var comFicha = await LoginOperatorAsync("6808", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView, DmoCapabilities.Ferramentas);
+        using var semFicha = await LoginOperatorAsync("6809", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
         var doJobOn = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(x => x.Numero == "J3" && x.JobOnId == jobOn).Id);
 
         var consulta = await comFicha.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}");
@@ -477,6 +477,63 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         var html = await client.GetStringAsync("/ReparacaoInterna?correcao=igual&numero=5");
 
         Assert.DoesNotContain("data-dmo-toast", Elemento(html, "id=\"riAvisos\""));
+    }
+
+    [Fact]
+    public async Task RetirarAConsultaRecusaOFormularioDeAssociacaoJaAberto_SemAlterarORegisto()
+    {
+        var (codigo, jobOn) = Maquina("R");
+        var id = Escrita(codigo, jobOn, "R1", Trocada("R"), "4");
+        const string operador = "6891";
+        using var client = await LoginOperatorAsync(operador,
+            DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
+        var url = $"/ReparacaoInterna/Consultar?maquina={codigo}";
+        var janela = Elemento(await client.GetStringAsync(url), $"id=\"riAssociar-{id}\"");
+        var (acao, campos) = EnvioDoFormulario.Preencher(janela, ($"riAssociarFerramenta-{id}", $"{codigo}-x4"));
+        Assert.Null(NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Id == id).AssociadaToolId));
+
+        NaBase(db =>
+        {
+            var userId = db.Users.Single(u => u.OperatorId == operador).Id;
+            var templateId = db.TemplateAssignments.Single(a => a.UserId == userId).TemplateId;
+            db.Templates.Single(t => t.Id == templateId).Capabilities = [DmoCapabilities.ReparacaoInterna];
+            return db.SaveChanges();
+        });
+
+        using var get = await client.GetAsync(url);
+        Assert.Equal(HttpStatusCode.Redirect, get.StatusCode);
+        Assert.Equal("/ReparacaoInterna", get.Headers.Location?.OriginalString);
+        using var post = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+        Assert.Equal(HttpStatusCode.Redirect, post.StatusCode);
+        Assert.Equal("/ReparacaoInterna", post.Headers.Location?.OriginalString);
+        Assert.Null(NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Id == id).AssociadaToolId));
+        Assert.Empty(NaBase(db => db.ReparacoesInternasRasto.AsNoTracking().Where(r => r.ReparacaoId == id).ToList()));
+    }
+
+    [Fact]
+    public async Task RetirarORegistoMantendoAConsultaRecusaOFormularioDeRegistoJaAberto()
+    {
+        var (codigo, _) = Maquina("S");
+        const string operador = "6892";
+        using var client = await LoginOperatorAsync(operador,
+            DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
+        var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        var (acao, campos) = EnvioDoFormulario.Preencher(html, ($"riNumero-{codigo}", "123"));
+        var maquinaId = NaBase(db => db.Machines.AsNoTracking().Single(m => m.Code == codigo).Id);
+        var antes = NaBase(db => db.ReparacoesInternas.AsNoTracking().Count(r => r.MachineId == maquinaId));
+        NaBase(db =>
+        {
+            var userId = db.Users.Single(u => u.OperatorId == operador).Id;
+            var templateId = db.TemplateAssignments.Single(a => a.UserId == userId).TemplateId;
+            db.Templates.Single(t => t.Id == templateId).Capabilities = [DmoCapabilities.ReparacaoInternaView];
+            return db.SaveChanges();
+        });
+
+        using var post = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+        Assert.Equal(HttpStatusCode.Redirect, post.StatusCode);
+        Assert.Equal("/ReparacaoInterna/Consultar", post.Headers.Location?.OriginalString);
+        Assert.Equal(antes, NaBase(db => db.ReparacoesInternas.AsNoTracking().Count(r => r.MachineId == maquinaId)));
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/ReparacaoInterna/Consultar")).StatusCode);
     }
 
     private sealed class RelogioFixo(DateTime utc) : TimeProvider

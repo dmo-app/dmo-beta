@@ -25,8 +25,14 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// </summary>
 internal static class ControloAprovacao
 {
-    public static IQueryable<ControloAprovacaoEstado> Estados(DmoDbContext db) =>
+    /// <summary>
+    /// Sem pesoId, resolve o estado corrente do controlo. Com pesoId, resolve
+    /// a decisão aplicável só à folha pedida, sem invalidar uma folha antiga
+    /// por causa de outra mais recente. Nunca cruza o Peso com outro controlo.
+    /// </summary>
+    public static IQueryable<ControloAprovacaoEstado> Estados(DmoDbContext db, int? pesoId = null) =>
         (from c in db.Controlos.AsNoTracking()
+         where pesoId == null || db.Pesos.Any(p => p.Id == pesoId && p.ControloId == c.Id)
          from peso in db.ControloDecisoes
              .Where(d => d.ControloId == c.Id && d.Parte == ControloParte.Peso)
              .DefaultIfEmpty()
@@ -38,7 +44,8 @@ internal static class ControloAprovacao
              // Um Peso novo depois da decisão (a CM ou a BQ trocou): tem
              // aprovação própria (Diogo, 19/10/2026, C7).
              Aprovado = peso != null && peso.Aprovado
-                 && !db.Pesos.Any(p => p.ControloId == c.Id && p.RegistadoEmUtc > peso.EmUtc),
+                 && !db.Pesos.Any(p => p.ControloId == c.Id && (pesoId == null || p.Id == pesoId)
+                     && p.RegistadoEmUtc > peso.EmUtc),
              NaoAprovado = peso != null && !peso.Aprovado
          })
         .Select(x => new ControloAprovacaoEstado

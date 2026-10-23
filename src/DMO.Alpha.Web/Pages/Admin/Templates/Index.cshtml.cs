@@ -133,7 +133,8 @@ public sealed class IndexModel : PageModel
                 : new (string, IReadOnlyList<string>)[] { ("Ferramentas", new[] { DmoCapabilities.Ferramentas }), ("Armazém", new[] { DmoCapabilities.ArmazemGestao }) }),
             ("Reparação Interna", new[]
             {
-                DmoCapabilities.ReparacaoInterna
+                DmoCapabilities.ReparacaoInterna,
+                DmoCapabilities.ReparacaoInternaView
             })
         ];
 
@@ -151,6 +152,7 @@ public sealed class IndexModel : PageModel
         DmoCapabilities.Ferramentas => "Ferramentas · gestão",
         DmoCapabilities.ArmazemGestao => "Armazém · gestão",
         DmoCapabilities.ReparacaoInterna => "Reparação Interna · registar",
+        DmoCapabilities.ReparacaoInternaView => "Reparação Interna · ver",
         _ => capability
     };
 

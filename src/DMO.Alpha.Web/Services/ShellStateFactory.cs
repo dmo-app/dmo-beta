@@ -60,6 +60,7 @@ public sealed class ShellStateFactory
         DmoCapabilities.Ferramentas => moduleKey == "ferramentas",
         DmoCapabilities.ArmazemGestao => moduleKey == "armazem",
         DmoCapabilities.ReparacaoInterna => moduleKey == "reparacao-interna",
+        DmoCapabilities.ReparacaoInternaView => moduleKey == "reparacao-interna",
         _ => false
     };
 
@@ -271,11 +272,11 @@ public sealed class ShellStateFactory
     /// As funções da Reparação Interna (módulo do full): o Registar na
     /// máquina e a Consulta dos chefes (quem reparou o quê e em que produção).
     /// </summary>
-    public static IReadOnlyList<FunctionPresentation> ReparacaoInternaFunctions(string activeKey) =>
+    public static IReadOnlyList<FunctionPresentation> ReparacaoInternaFunctions(string activeKey, IReadOnlyList<string> granted) =>
         new[]
         {
-            new FunctionPresentation("registar", "Registar", "/ReparacaoInterna", null, activeKey == "registar", true, true),
-            new FunctionPresentation("historico", "Histórico", "/ReparacaoInterna?historico=1", null, activeKey == "historico", true, true),
-            new FunctionPresentation("consultar", "Consultar", "/ReparacaoInterna/Consultar", null, activeKey == "consultar", true, true)
+            new FunctionPresentation("registar", "Registar", "/ReparacaoInterna", null, activeKey == "registar", granted.Contains(DmoCapabilities.ReparacaoInterna, StringComparer.Ordinal), true),
+            new FunctionPresentation("historico", "Histórico", "/ReparacaoInterna?historico=1", null, activeKey == "historico", granted.Contains(DmoCapabilities.ReparacaoInterna, StringComparer.Ordinal), true),
+            new FunctionPresentation("consultar", "Consultar", "/ReparacaoInterna/Consultar", null, activeKey == "consultar", granted.Contains(DmoCapabilities.ReparacaoInternaView, StringComparer.Ordinal), true)
         };
 }

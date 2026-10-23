@@ -246,6 +246,18 @@ public sealed class ControloApprovalHandler
         FirstAsync(e => e.JobOnId == jobOnId, cancellationToken);
 
     /// <summary>
+    /// A decisão aplicável ao Peso exportado, pela mesma regra do estado
+    /// corrente. Um Peso criado depois de uma aprovação fica por aprovar;
+    /// outro Peso mais recente não invalida a folha histórica pedida. Um
+    /// «Não aprovar» mantém-se. Null se o Peso não pertence ao controlo.
+    /// </summary>
+    public async Task<ControloApprovalReadModel?> PesoAsync(
+        int controloId,
+        int pesoId,
+        CancellationToken cancellationToken = default) =>
+        (await FirstAsync(e => e.ControloId == controloId, cancellationToken, pesoId))?.Approval;
+
+    /// <summary>
     /// A decisão de uma parte, com a forma do estado do controlo, para o PDF
     /// dessa parte (sweep de 19/10/2026, C-3: cada PDF mostra a decisão da
     /// sua parte): aprovada ou não aprovada, por quem, quando e a nota; sem
@@ -290,9 +302,10 @@ public sealed class ControloApprovalHandler
     /// </summary>
     private async Task<(int ControloId, ControloApprovalReadModel Approval)?> FirstAsync(
         Expression<Func<ControloAprovacaoEstado, bool>> onde,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        int? pesoId = null)
     {
-        var linha = await ControloAprovacao.Estados(_db)
+        var linha = await ControloAprovacao.Estados(_db, pesoId)
             .Where(onde)
             .Select(e => new
             {
