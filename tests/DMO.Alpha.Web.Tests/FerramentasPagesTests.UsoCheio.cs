@@ -7,8 +7,8 @@ namespace DMO.Alpha.Web.Tests;
 public partial class FerramentasPagesTests
 {
     // O USO CHEIO (Diogo, 23/10/2026): com 100% ou mais a ficha e o Pesquisar
-    // abrem como sempre, sem aviso nenhum; só a referência e o lote (e o
-    // título da ficha) levam a classe dmo-uso-cheio. Abaixo de 100, nada muda.
+    // abrem como sempre, sem aviso nenhum; só a referência e o lote
+    // levam a classe dmo-uso-cheio. Abaixo de 100, nada muda.
     [Theory]
     [InlineData(null, false)]
     [InlineData(99, false)]
@@ -37,7 +37,6 @@ public partial class FerramentasPagesTests
         {
             Assert.Contains("<strong class=\"dmo-uso-cheio\">5447</strong>", fichaHtml, StringComparison.Ordinal);
             Assert.Contains("<strong class=\"dmo-uso-cheio\">3</strong>", fichaHtml, StringComparison.Ordinal);
-            Assert.Contains($"<span class=\"dmo-uso-cheio\" data-ferr-tool-id=\"{toolId}\">", fichaHtml, StringComparison.Ordinal);
             Assert.Contains("<strong class=\"dmo-uso-cheio\">CM · 5447 · lote 3</strong>", pesquisar, StringComparison.Ordinal);
         }
         else
