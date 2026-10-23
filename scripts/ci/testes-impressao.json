@@ -1,5 +1,5 @@
 {
-  "selo": "8caa9df1fe235bb8",
+  "selo": "e0431f83e0ce52de",
   "unidades": {
     "scripts/ci/ci-local.sh": "365629154ce859ec",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2049,7 +2049,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.MudarACm_VerificarOPeso_AbreOPesoDaProducao": "8af71c6b78777c03",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.OQueMudou_SoAsAlteracoesFeitasDepoisDoInicio": "2ffb480bda265caf",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Opcoes_EditarPrimeiro_SemDuplicarLote_EFecharVoltaAFicha": "a132df3724b188a2",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina": "4ba72467ff1fc09c",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina": "8f39396362317078",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_DuasNaMesmaMaquina_MarcaASobreposicao": "1bb5ed31bce77b95",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaVermelha_SoComSobreposicaoReal": "ac3eec84e01b4408",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_MostramAProximaMudancaEmCadaMaquina": "ab9d03f6b44bd4f5",

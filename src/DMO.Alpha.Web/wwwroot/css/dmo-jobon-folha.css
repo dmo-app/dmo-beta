@@ -515,3 +515,9 @@ html body .jof2 .pick-campo>.prod-drop,html body .jof2 .pick-campo>select.prod-s
 html body .jof2 .side{position:static;max-height:none}
 /* O resumo das alterações no fim da folha, com espaço da grelha (Diogo, 23/10/2026). */
 .jof2 .sheet + .jobon-mudancas{margin-top:16px}
+/* TP e CS logo a seguir aos moldes, depois os calibres (Diogo, 23/10/2026). */
+@container board (min-width:640px) and (max-width:939px){html body .jof2 .zones{grid-template-areas:"moldes moldes" "sopro sopro" "col3 col3" "cal cal"}}
+html body .jof2 .zones{align-items:stretch}
+html body .jof2 .zones>.group,html body .jof2 .col3>.group{display:flex;flex-direction:column}
+html body .jof2 .zones .board{flex:1}
+html body .jof2 .side>.g-pinfo,html body .jof2 .side>.g-pinfo .board{display:block;width:100%}

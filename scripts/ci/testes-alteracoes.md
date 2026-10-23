@@ -1906,3 +1906,14 @@ Novos: 12 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.OQueMudou_SoAsAlteracoesFeitasDepoisDoInicio`
 
 Selo depois: `8caa9df1fe235bb8`
+
+## A-0079 · 2026-10-23 · ok-do-diogo
+
+Porquê: Folha do Job On: ordem dos cartões (TP e CS, Calibres, PI à direita) e linha vazia do Planeamento abre a folha em branco para duplicar ou criar com a linha e o dia (Diogo 23/10)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR9DLoJRShGmbTL76USNiBk, cmsg_01A27e9ozcpoh4jdPRsuJbFySZCHF2SYMQvqF5oC5ivr8C, cmsg_01A27e9ozcpoh4jdPRsuJbFy6p8hzdVZKJQNmZvY3owES7
+Novos: 1 · mudaram: 0 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina`
+
+Selo depois: `e0431f83e0ce52de`

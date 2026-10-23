@@ -184,11 +184,11 @@
                   else
                   {
                     @* UMA MÁQUINA VAZIA CRIA UM JOB ON (o Diogo, 17/10/2026): um
-                       clique abre a folha nova em Editar (Diogo, 23/10/2026)
-                       já com a linha e o dia como início. *@
+                       clique abre a folha em branco, sem Editar, para
+                       duplicar um antigo ou criar; a linha e o dia vão junto (Diogo, 23/10/2026). *@
                     var maquinaVazia = Model.Machines.FirstOrDefault(m => m.Code == row.MachineCode);
                     var criarAqui = maquinaVazia is null ? null
-                      : $"/JobOn/Folha?novo=1&machine_id={maquinaVazia.MachineId}&inicio_em={new DateOnly(Model.Year, Model.Month, Model.SelectedDay):yyyy-MM-dd}";
+                      : $"/JobOn/Folha?machine_id={maquinaVazia.MachineId}&inicio_em={new DateOnly(Model.Year, Model.Month, Model.SelectedDay):yyyy-MM-dd}";
                     @* A mudança é um link à parte, fora do link de criar. *@
                     <div class="beta-light-machine-empty-linha">
                       <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —</a>

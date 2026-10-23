@@ -295,7 +295,21 @@
       }
       <form class="ref-search jof-ref-vazia" method="get" action="/JobOn/Folha" role="search">
         <input type="search" name="referencia" value="@Model.ReferenciaProcurada" aria-label="Referência: escreva para abrir a última produção" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-suggest="referencias" data-dmo-suggest-submit placeholder="Referência" />
+        @if (Model.NovoMachineId is int linhaNova)
+        {
+          <input type="hidden" name="machine_id" value="@linhaNova" />
+        }
+        @if (Model.NovoInicio is { } inicioNovo)
+        {
+          <input type="hidden" name="inicio_em" value="@inicioNovo.ToString("yyyy-MM-dd")" />
+        }
       </form>
+      @if (Model.PodeEditar && Model.NovoMachineId is not null)
+      {
+        @* Vindo de uma linha vazia do painel: procura-se um Job On antigo para
+           duplicar, ou cria-se em branco já com a linha e o início (Diogo, 23/10/2026). *@
+        <p class="jof-novo-linha">Procure a referência para duplicar um Job On antigo, ou <a class="btn" href="@Model.DuplicarHref" data-jof-criar-branco>Criar em branco</a></p>
+      }
       @if (Model.ReferenciaSemProducoes)
       {
         <p class="empty-text" role="status">Sem produções da referência @Model.ReferenciaProcurada.</p>
@@ -455,11 +469,11 @@ else
               <select id="jofProducoes" class="prod-select" data-dmo-ir aria-label="Produção desta referência">
                 @foreach (var p in Model.Producoes)
                 {
-                  <option value="/JobOn/Folha?jobon_id=@p.JobOnId" selected="@(p.JobOnId == jobOn.JobOnId ? "selected" : null)">@p.ProductionNumber · @p.Machine</option>
+                  <option value="/JobOn/Folha?jobon_id=@p.JobOnId@Model.NovoDestino" selected="@(p.JobOnId == jobOn.JobOnId ? "selected" : null)">@p.ProductionNumber · @p.Machine</option>
                 }
                 @if (!Model.Producoes.Any(p => p.JobOnId == jobOn.JobOnId))
                 {
-                  <option value="/JobOn/Folha?jobon_id=@jobOn.JobOnId" selected="selected">@jobOn.ProductionNumber · @jobOn.Machine</option>
+                  <option value="/JobOn/Folha?jobon_id=@jobOn.JobOnId@Model.NovoDestino" selected="selected">@jobOn.ProductionNumber · @jobOn.Machine</option>
                 }
               </select></div>
             }
@@ -575,11 +589,6 @@ else
               </div></article>
             </div>
           </section>
-          <section class="group g-pinfo" aria-label="Pinças">
-            <div class="board" id="gPinfo">
-              <article class="card sec" data-jof-familia="PI">@{ Simples("PI", null, [("Pinças", "pi_pincas"), ("Diâmetro", "pi_diametro")], []); }</article>
-            </div>
-          </section>
         </div>
         <section class="group g-sopro" aria-label="Sopro">
           <div class="board" id="gSopro">
@@ -685,6 +694,12 @@ else
             }
           }
         </section>
+        @* O PI na coluna da direita, por baixo das Notas gerais (Diogo, 23/10/2026). *@
+        <section class="group g-pinfo" aria-label="Pinças">
+          <div class="board" id="gPinfo">
+            <article class="card sec" data-jof-familia="PI">@{ Simples("PI", null, [("Pinças", "pi_pincas"), ("Diâmetro", "pi_diametro")], []); }</article>
+          </div>
+        </section>
       </aside>
     </div>
     @* No fim da folha, o resumo das alterações durante o fabrico (Diogo, 23/10/2026).
@@ -742,7 +757,16 @@ else
   </form>
   @if (!editar)
   {
-    <form id="jofProcura" method="get" action="/JobOn/Folha" hidden></form>
+    <form id="jofProcura" method="get" action="/JobOn/Folha" hidden>
+      @if (Model.NovoMachineId is int linhaProcura)
+      {
+        <input type="hidden" name="machine_id" value="@linhaProcura" />
+      }
+      @if (Model.NovoInicio is { } inicioProcura)
+      {
+        <input type="hidden" name="inicio_em" value="@inicioProcura.ToString("yyyy-MM-dd")" />
+      }
+    </form>
     @if (Model.Eliminar is { } eliminar)
     {
       <partial name="_JobOnEliminar" model="eliminar" />
