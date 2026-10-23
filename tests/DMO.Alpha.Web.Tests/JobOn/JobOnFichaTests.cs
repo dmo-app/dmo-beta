@@ -448,7 +448,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.DoesNotContain($"href=\"/JobOn/Folha?{destino}\"", pagina);
 
         // «Criar em branco»: a folha nova em Editar, na C3, com o dia como início.
-        var criar = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, criarBranco));
+        var criar = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, criarBranco + "&etapa=criar"));
         Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", criar);
         Assert.Contains($"<option value=\"{c3Id}\" selected=\"selected\">C3</option>", criar);
         Assert.Contains($"name=\"inicio_em\" type=\"date\" value=\"{dia:yyyy-MM-dd}\"", criar);

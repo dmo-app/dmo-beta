@@ -87,6 +87,9 @@ public sealed class FolhaModel(
     /// <summary>A folha está desbloqueada (Editar).</summary>
     public bool Editar { get; private set; }
 
+    /// <summary>O Job On novo antes da referência: o template vazio, sem Editar; só a Referência e a Produção.</summary>
+    public bool Escolher { get; private set; }
+
     /// <summary>A folha é de um Job On novo (Criar ou Duplicar): guarda pelo Create.</summary>
     public bool Criar { get; private set; }
 
@@ -212,7 +215,9 @@ public sealed class FolhaModel(
         [FromQuery(Name = "inicio_em")] string? inicioEm = null,
         [FromQuery(Name = "dia")] string? dia = null,
         [FromQuery(Name = "vista")] string? vista = null,
-        [FromQuery(Name = "removida")] string? removida = null)
+        [FromQuery(Name = "removida")] string? removida = null,
+        [FromQuery(Name = "etapa")] string? etapa = null,
+        [FromQuery(Name = "producao")] string? producao = null)
     {
         VistaAlteracoes = vista == "alteracoes";
         AlteracaoRemovida = removida == "1";
@@ -235,6 +240,26 @@ public sealed class FolhaModel(
             }
             var inicio = DateOnly.TryParseExact(inicioEm, "yyyy-MM-dd", out var inicioValor) ? inicioValor : (DateOnly?)null;
             Machines = await machineList.ListAsync(ct);
+            // O JOB ON NOVO (Diogo, 23/10/2026: «primeiro procura-se ou escreve-se a
+            // referência e depois sim criar/editar»; «template vazio, deixa escrever
+            // referência e produção, simples»): o template vazio à vista, sem Editar;
+            // escrita a referência, abre a última dela para ver e duplicar («muitas vezes
+            // procuram a partir do template e só depois fazem duplicar»), ou em branco em Editar.
+            var numeroNovo = producao?.Trim() is { Length: > 0 } pn ? pn : null;
+            if (duplicar is null && etapa == "criar" && referencia?.Trim().ToUpperInvariant() is { Length: > 0 } refNova)
+            {
+                var dela = await productionPicker.ListOfReferenceAsync(refNova, ct);
+                if (dela.Count > 0)
+                {
+                    var ultima = dela.OrderByDescending(p => p.ProductionNumber, StringComparer.Ordinal).First();
+                    return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}{NovoDestino}");
+                }
+                var maquinaNova = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code ?? string.Empty;
+                await AbrirCriarAsync(
+                    new ProductionContextReadModel(0, refNova, string.Empty, maquinaNova, null, null, null, null, null, null, inicio),
+                    FolhaDoJobOnVista.Vazia(), numero: numeroNovo, origemId: null, origemNumero: null, recusa: null);
+                return Page();
+            }
             if (duplicar is int origemId)
             {
                 if (await productionContext.GetAsync(origemId, ct) is not { } origem)
@@ -249,13 +274,18 @@ public sealed class FolhaModel(
                 await AbrirCriarAsync(
                     origem with { JobOnId = 0, ProductionNumber = string.Empty, InicioEm = inicio, FimEm = null, Version = 0, Machine = linhaEscolhida ?? origem.Machine },
                     FolhaDoJobOnVista.DoDuplicar(await folha.ForJobOnAsync(origem.JobOnId, ct)),
-                    numero: null, origem.JobOnId, origem.ProductionNumber, recusa: null);
+                    numero: numeroNovo, origem.JobOnId, origem.ProductionNumber, recusa: null);
                 return Page();
             }
             var maquina = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code ?? string.Empty;
             await AbrirCriarAsync(
                 new ProductionContextReadModel(0, string.Empty, string.Empty, maquina, null, null, null, null, null, null, inicio),
                 FolhaDoJobOnVista.Vazia(), numero: null, origemId: null, origemNumero: null, recusa: null);
+            if (etapa != "criar")
+            {
+                Editar = false;
+                Escolher = true;
+            }
             return Page();
         }
 

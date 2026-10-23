@@ -545,3 +545,22 @@ html body .jof2.editing .pick-row .ref-search{flex:none;width:130px}
 html body .jof2.editing .pick-row .ref-search input{width:130px;min-width:130px}
 html body .jof2.editing .pick-row input.prod-select{width:130px;min-width:130px;flex:none}
 html body .jof2.editing .pick-row input::placeholder{font-size:14px;font-weight:500;text-transform:none;letter-spacing:0}
+/* TP, CS e PU na mesma fila; os Calibres mais estreitos, por baixo de TP e CS (Diogo, 23/10/2026). */
+@container board (min-width:640px) and (max-width:939px){
+  html body .jof2 .zones{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"moldes moldes moldes" "sopro sopro col3" "cal cal col3"}
+  html body .jof2 #gSopro{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body .jof2 .col3 .board{grid-template-columns:minmax(0,1fr)}
+}
+/* O Job On novo: Referência e Produção no sítio de sempre, com o Criar por baixo à direita. */
+html body .jof2 .pick-block.is-novo .pick-row{width:auto;min-width:0}
+html body .jof2 .pick-block.is-novo .ref-search{flex:none;width:150px}
+html body .jof2 .pick-block.is-novo .ref-search input{width:150px;min-width:150px}
+html body .jof2 .pick-block.is-novo input.prod-select{width:120px;min-width:120px;flex:none}
+html body .jof2 .pick-block.is-novo input::placeholder{font-size:14px;font-weight:500;text-transform:none;letter-spacing:0}
+/* Os Calibres compactos: colunas à medida do conteúdo, por baixo de TP e CS (Diogo, 23/10/2026). */
+html body .jof2 .calv{width:auto;max-width:100%}
+html body .jof2 .calv input.f{width:7em;min-width:0}
+html body .jof2 .calv td input.f{width:5em;min-width:0}
+html body .jof2 .calv th,html body .jof2 .calv td{padding:4px 10px}
+html body .jof2 .cal-card .table-wrap{width:fit-content;max-width:100%}
+html body .jof2 .calv tbody th input.f{width:10em}

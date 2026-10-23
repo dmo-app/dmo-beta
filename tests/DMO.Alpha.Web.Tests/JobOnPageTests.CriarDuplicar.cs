@@ -37,7 +37,7 @@ public partial class JobOnPageTests
         var b2 = await MachineIdAsync("B2");
         using var client = await LoginClientAsync("4421", "Folha1234!");
 
-        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&machine_id={b2}&inicio_em=2026-11-02");
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&etapa=criar&machine_id={b2}&inicio_em=2026-11-02");
         Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", html, StringComparison.Ordinal);
         Assert.Contains("action=\"/JobOn?handler=Create\"", html, StringComparison.Ordinal);
         Assert.Contains("<input type=\"hidden\" name=\"voltar\" value=\"folha\" />", html, StringComparison.Ordinal);
@@ -85,7 +85,7 @@ public partial class JobOnPageTests
         SeedUser(operador, "Chefe recusa", $"provider-folha-recusa-{recusa}", "Folha1234!");
         await SeedJobOnCompletoAsync();
         using var client = await LoginClientAsync(operador, "Folha1234!");
-        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&machine_id={await MachineIdAsync("B2")}");
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&etapa=criar&machine_id={await MachineIdAsync("B2")}");
         var (acao, campos) = EnvioDoFormulario.Preencher(html,
             ("lightReference", "5810T188"), ("lightProduction", "202651"), ("jobon-cm-notas", "Escrito antes da recusa."));
         var envio = ComValores(campos, ("cm_tool_id", cm), ("mf_tool_id", mf), ("bq_tool_id", bq));
@@ -116,7 +116,7 @@ public partial class JobOnPageTests
         SeedUser("4441", "Chefe repetido", "provider-folha-repetido", "Folha1234!");
         await SeedJobOnCompletoAsync();
         using var client = await LoginClientAsync("4441", "Folha1234!");
-        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&machine_id={await MachineIdAsync("B2")}");
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&etapa=criar&machine_id={await MachineIdAsync("B2")}");
         var ferramentas = new[] { ("cm_tool_id", "F-CM"), ("mf_tool_id", "F-MF"), ("bq_tool_id", "F-BQ") };
 
         // O mesmo nº na mesma referência: a recusa tipada de sempre.
@@ -192,6 +192,29 @@ public partial class JobOnPageTests
     }
 
     [Fact]
+    public async Task FolhaNova_AbreComOTemplateSemEditar_SoReferenciaEProducao_EDepoisCria()
+    {
+        SeedUser("4425", "Chefe escolher", "provider-folha-escolher", "Folha1234!");
+        var id = await SeedJobOnCompletoAsync();
+        var b2 = await MachineIdAsync("B2");
+        using var client = await LoginClientAsync("4425", "Folha1234!");
+
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&machine_id={b2}&inicio_em=2026-11-02");
+        Assert.DoesNotContain("data-jof-folha=\"editar\"", html, StringComparison.Ordinal);
+        Assert.Contains("<form id=\"jofNovo\" method=\"get\" action=\"/JobOn/Folha\"", html, StringComparison.Ordinal);
+        Assert.Contains("form=\"jofNovo\"", html, StringComparison.Ordinal);
+
+        var existente = await client.GetAsync($"{FolhaPath}?novo=1&etapa=criar&machine_id={b2}&inicio_em=2026-11-02&referencia=5810t188");
+        Assert.Equal(HttpStatusCode.Redirect, existente.StatusCode);
+        Assert.StartsWith($"/JobOn/Folha?jobon_id={id}", existente.Headers.Location!.ToString(), StringComparison.Ordinal);
+
+        var nova = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&etapa=criar&machine_id={b2}&inicio_em=2026-11-02&referencia=9999t1&producao=202690");
+        Assert.Contains("data-jof-folha=\"editar\" data-jof-criar=\"true\"", nova, StringComparison.Ordinal);
+        Assert.Contains("id=\"lightReference\" name=\"reference\" type=\"text\" value=\"9999T1\"", nova, StringComparison.Ordinal);
+        Assert.Contains("id=\"lightProduction\" name=\"production_number\" type=\"text\" value=\"202690\"", nova, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe()
     {
         SeedUserSoVer("4423", "provider-folha-ver-criar", "Folha1234!");
@@ -208,7 +231,7 @@ public partial class JobOnPageTests
         // Nem forjando o envio do Criar com o token de quem só vê.
         SeedUser("4424", "Chefe ver criar", "provider-folha-ver-criar-chefe", "Folha1234!");
         using var chefe = await LoginClientAsync("4424", "Folha1234!");
-        var html = await GetPageHtmlAsync(chefe, $"{FolhaPath}?novo=1&machine_id={await MachineIdAsync("B2")}");
+        var html = await GetPageHtmlAsync(chefe, $"{FolhaPath}?novo=1&etapa=criar&machine_id={await MachineIdAsync("B2")}");
         var (acao, campos) = EnvioDoFormulario.Preencher(html, ("lightReference", "5810T188"), ("lightProduction", "202670"));
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}"))!;
         var forjados = ComValores(campos, ("cm_tool_id", "F-CM"), ("mf_tool_id", "F-MF"), ("bq_tool_id", "F-BQ"), ("__RequestVerificationToken", token));

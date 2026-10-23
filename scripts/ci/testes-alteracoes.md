@@ -2028,3 +2028,19 @@ Novos: 1 · mudaram: 1 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina`
 
 Selo depois: `eeea5e50049f15e3`
+
+## A-0085 · 2026-10-23 · ok-do-diogo
+
+Porquê: Job On novo abre com o template sem Editar (só Referência e Produção); testes do Criar passam a usar etapa=criar; números com duas casas no máximo
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyDVmzwNXmJ27Y9wujPVctWi, cmsg_01A27e9ozcpoh4jdPRsuJbFy7ptiGBcxeK1STv81feVGJJ, cmsg_01A27e9ozcpoh4jdPRsuJbFy5bGHNtwLZnbmHdtmqXcSce
+Novos: 2 · mudaram: 5 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_SemZerosNoFim`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_AbreComOTemplateSemEditar_SoReferenciaEProducao_EDepoisCria`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreOJobOnVazio_ComDiaEMaquina`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_AbreVaziaEmEditar_EGuardaPeloCreateEVoltaAFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_NumeroRepetido_ERecusadoTipado_ESoAvisaAsDatasTrocadas`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_SemCmBqOuMf_ERecusado_AFolhaVoltaComOQueSeEscreveu_ENadaEGravado`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe`
+
+Selo depois: `083863e74166795a`
