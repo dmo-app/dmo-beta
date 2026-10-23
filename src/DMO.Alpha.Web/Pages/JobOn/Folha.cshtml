@@ -134,7 +134,7 @@
             .Select(x => $"{(x.Campo.Grupo is null ? x.Campo.Rotulo : "Folgas")} {x.Valor}"));
         var classe = resumo.Length == 0 && !editar ? "more empty" : "more";
         @Html.Raw($"<details class=\"{classe}\" data-jof-tecnica=\"{familia}\"{(editar ? " open" : "")}>")
-        <summary><span class="dmo-options-caret" aria-hidden="true"></span><span>Informação técnica</span><span class="more-preview">@resumo</span></summary>
+        <summary><span class="dmo-caret" aria-hidden="true"></span><span>Informação técnica</span><span class="more-preview">@resumo</span></summary>
         @Html.Raw("<div class=\"more-body\">")
     }
 
@@ -165,7 +165,7 @@
             }
             @if (editar)
             {
-              <span class="tool-hint"><span class="dmo-options-caret" aria-hidden="true"></span> <span class="hint-txt">Trocar</span></span>
+              <span class="tool-hint"><span class="dmo-caret" aria-hidden="true"></span> <span class="hint-txt">Trocar</span></span>
             }
           </button>
           @if (editar)
@@ -421,7 +421,7 @@ else
                 @if (Model.VeControlo || Model.PodeEditar || (Model.VeBoquilhas && jobOn.BqId is not null))
                 {
                   <details class="menu" data-jof-opcoes>
-                    <summary class="btn" aria-label="Opções do Job On @jobOn.ProductionNumber"><span class="dmo-options-caret" aria-hidden="true"></span> Opções</summary>
+                    <summary class="btn" aria-label="Opções do Job On @jobOn.ProductionNumber"><span class="dmo-caret" aria-hidden="true"></span> Opções</summary>
                     <div class="menu-list">
                       @if (Model.VeControlo)
                       {
