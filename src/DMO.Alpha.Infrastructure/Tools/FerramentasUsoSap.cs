@@ -132,6 +132,17 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         return new FerramentaUtilizacaoAtual(ultima, lembrete);
     }
 
+    public async Task<IReadOnlyDictionary<string, decimal>> UltimasPercentagensAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default)
+    {
+        if (toolIds.Count == 0) return new Dictionary<string, decimal>();
+        return (await db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => toolIds.Contains(u.ToolId))
+                .Select(u => new { u.ToolId, u.Id, u.Percentagem })
+                .ToListAsync(cancellationToken))
+            .GroupBy(u => u.ToolId)
+            .ToDictionary(g => g.Key, g => g.MaxBy(u => u.Id)!.Percentagem);
+    }
+
     public async Task<bool> PedirAsync(string toolId, CancellationToken cancellationToken = default)
     {
         if (!await db.Tools.AnyAsync(t => t.ToolId == toolId && t.ToolId != ToolRegistryConstants.RemovedToolId, cancellationToken))

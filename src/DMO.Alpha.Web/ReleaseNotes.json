@@ -330,7 +330,8 @@
     { "id": "DMO-335", "module": "Ferramentas", "description": "0.3.0-beta.23: no Pesquisar a Referência vem primeiro, «Máquina / linha» passa a «Linha» e o «Por página» sai dos filtros para junto da paginação da tabela." },
     { "id": "DMO-336", "module": "Reparação Interna", "description": "0.3.0-beta.24: «Hora» ao lado do «Dia» na Reparação Interna, preenchida com a hora atual e editável; também se corrige no Corrigir, com rasto." },
     { "id": "DMO-338", "module": "Job On", "description": "0.3.0-beta.25: na Folha, CM, MF e BQ na primeira fila e cartões compactos com a mesma altura; as notas ampliam com um clique e mostram a ferramenta; Processo NNPB|PS com o da CM sugerido; «Modo Editar» no lugar da procura; a imagem do artigo encaixa sozinha; e uma alteração de «O que mudou» pode ser removida por engano, sem se perder." },
-    { "id": "DMO-339", "module": "Geral", "description": "0.3.0-beta.26: painel lateral do Job On com as cores das linhas do Planeamento e o selo centrado; «Voltar ao Job On» na ficha da ferramenta; «% uso» ao criar uma ferramenta; círculos de ajuda iguais em toda a app; «Por página» junto da paginação no catálogo das Boquilhas." }
+    { "id": "DMO-339", "module": "Geral", "description": "0.3.0-beta.26: painel lateral do Job On com as cores das linhas do Planeamento e o selo centrado; «Voltar ao Job On» na ficha da ferramenta; «% uso» ao criar uma ferramenta; círculos de ajuda iguais em toda a app; «Por página» junto da paginação no catálogo das Boquilhas." },
+    { "id": "DMO-340", "module": "Ferramentas", "description": "0.3.0-beta.27: a 100% de uso a referência e o lote mudam ligeiramente de cor na ficha e no Pesquisar, sem aviso nem bloqueio; «Registar ferramenta» sem «real»." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
