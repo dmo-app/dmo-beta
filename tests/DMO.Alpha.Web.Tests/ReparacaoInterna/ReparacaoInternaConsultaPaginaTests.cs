@@ -164,7 +164,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
     [Fact]
     public async Task OsDoisSeparadores_RegistarEConsultar()
     {
-        using var client = await LoginOperatorAsync("6702", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6702", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
 
         var consultar = await client.GetStringAsync("/ReparacaoInterna/Consultar");
         var registar = await client.GetStringAsync("/ReparacaoInterna");
@@ -180,7 +180,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
     public async Task AbreVazia_SoComOsFiltros()
     {
         var (codigo, _, _, _, _) = Cenario("A");
-        using var client = await LoginOperatorAsync("6703", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6703", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
 
         var html = await client.GetStringAsync("/ReparacaoInterna/Consultar");
 
@@ -210,7 +210,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
     public async Task DepoisDeFiltrar_AsReparacoes_SemBotoes_ENuncaONomeTecnico()
     {
         var (codigo, jobOnId, referencia, _, _) = Cenario("B");
-        using var client = await LoginOperatorAsync("6704", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6704", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
 
         var html = await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}");
 
@@ -241,7 +241,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
     public async Task ComOJobOn_AProducaoAbreAFicha()
     {
         var (codigo, jobOnId, _, _, _) = Cenario("C");
-        using var client = await LoginOperatorAsync("6705", DmoCapabilities.ReparacaoInterna, DmoCapabilities.JobOnCreate);
+        using var client = await LoginOperatorAsync("6705", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView, DmoCapabilities.JobOnCreate);
 
         var tabela = Elemento(await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}&tipo=cm"), "id=\"riConsultaLista\"");
 
@@ -254,7 +254,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
     public async Task AsPessoasEOsDias_Filtram()
     {
         var (codigo, _, _, ana, rui) = Cenario("D");
-        using var client = await LoginOperatorAsync("6706", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6706", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
 
         var doRui = Elemento(await client.GetStringAsync($"/ReparacaoInterna/Consultar?pessoa={rui}"), "id=\"riConsultaResultados\"");
         var daAnaHoje = await client.GetStringAsync($"/ReparacaoInterna/Consultar?pessoa={ana}&de={Hoje:yyyy-MM-dd}&ate={Hoje:yyyy-MM-dd}");
@@ -286,7 +286,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
             db.SaveChanges();
             return novas.Select(j => j.Id).ToList();
         });
-        using var client = await LoginOperatorAsync("6707", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6707", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
 
         // O início da referência (como «60» traz todas as que começam por 60).
         var html = await client.GetStringAsync($"/ReparacaoInterna/Consultar?referencia={referencia[..4].ToLowerInvariant()}");
@@ -315,6 +315,42 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
         Assert.Contains(referencia, sugestoes);
     }
 
+    [Fact]
+    public async Task AChaveAntigaSoPermiteRegistar_EConsultarExigeAChaveDosResponsaveis()
+    {
+        using var operador = await LoginOperatorAsync("6791", DmoCapabilities.ReparacaoInterna);
+        using var responsavel = await LoginOperatorAsync("6792", DmoCapabilities.ReparacaoInternaView);
+
+        var registar = await operador.GetStringAsync("/ReparacaoInterna");
+        var consultar = await responsavel.GetStringAsync("/ReparacaoInterna/Consultar");
+        Assert.Contains("href=\"/ReparacaoInterna/Consultar\"", consultar);
+        Assert.DoesNotContain("href=\"/ReparacaoInterna/Consultar\"", registar);
+        Assert.Contains("href=\"/ReparacaoInterna\"", registar);
+        Assert.DoesNotContain("href=\"/ReparacaoInterna\"", consultar);
+        Assert.DoesNotContain("href=\"/ReparacaoInterna?historico=1\"", consultar);
+
+        using var consultaRecusada = await operador.GetAsync("/ReparacaoInterna/Consultar?pessoa=" + Guid.NewGuid());
+        Assert.Equal(HttpStatusCode.Redirect, consultaRecusada.StatusCode);
+        Assert.Equal("/ReparacaoInterna", consultaRecusada.Headers.Location?.OriginalString);
+        foreach (var url in new[] { "/ReparacaoInterna", "/ReparacaoInterna?historico=1" })
+        {
+            using var registoRecusado = await responsavel.GetAsync(url);
+            Assert.Equal(HttpStatusCode.Redirect, registoRecusado.StatusCode);
+            Assert.Equal("/ReparacaoInterna/Consultar", registoRecusado.Headers.Location?.OriginalString);
+        }
+        Assert.Equal("/ReparacaoInterna", DmoCapabilities.HomeFor([DmoCapabilities.ReparacaoInterna]));
+        Assert.Equal("/ReparacaoInterna/Consultar", DmoCapabilities.HomeFor([DmoCapabilities.ReparacaoInternaView]));
+        Assert.True(DmoCapabilities.IsBetaCapability(DmoCapabilities.ReparacaoInternaView));
+    }
+
+    [Fact]
+    public async Task QuemSoConsultaPodeProcurarAsReferencias()
+    {
+        var (_, _, referencia, _, _) = Cenario("V");
+        using var responsavel = await LoginOperatorAsync("6793", DmoCapabilities.ReparacaoInternaView);
+        Assert.Contains(referencia, await responsavel.GetStringAsync($"/Sugestoes?fonte=referencias&q={referencia[..4]}"));
+    }
+
     /// <summary>A raiz data-dmo-troca sem as zonas, sem os filtros que ficam e sem o token.</summary>
     private static string ForaDasZonas(string html)
     {
@@ -328,7 +364,7 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
     public async Task Filtrar_SoMudamAsZonas()
     {
         var (codigo, _, referencia, _, _) = Cenario("F");
-        using var client = await LoginOperatorAsync("6708", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync("6708", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
 
         var vazia = await client.GetStringAsync("/ReparacaoInterna/Consultar");
         var filtrada = await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}&referencia={referencia}&pagina=1");

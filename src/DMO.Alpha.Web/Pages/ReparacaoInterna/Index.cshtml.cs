@@ -442,7 +442,7 @@ public sealed class IndexModel(
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("reparacao-interna", "Reparação Interna"))) with
         {
             ActiveFunctionKey = chave,
-            Functions = ShellStateFactory.ReparacaoInternaFunctions(chave)
+            Functions = ShellStateFactory.ReparacaoInternaFunctions(chave, await capabilities.GetAsync(HttpContext.RequestAborted))
         };
 
         var cancelar = HttpContext.RequestAborted;

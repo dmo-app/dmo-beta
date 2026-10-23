@@ -642,7 +642,7 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
 {
     ["producoes"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove],
     ["numeros"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove],
-    ["referencias"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas, DmoCapabilities.ReparacaoInterna],
+    ["referencias"] = [DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas, DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView],
     ["ferramentas"] = [DmoCapabilities.Ferramentas, DmoCapabilities.ControloCreate, DmoCapabilities.Boquilhas],
     ["reparadores"] = [DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView],
     ["referencias_bq"] = [DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView],

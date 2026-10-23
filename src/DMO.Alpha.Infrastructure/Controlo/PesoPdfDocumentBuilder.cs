@@ -122,7 +122,7 @@ public sealed class PesoPdfDocumentBuilder(
         // controlo) simplesmente não tem selo.
         var approvalControloId = controloId ?? peso.ControloId;
         var approval = approvalControloId is { } decisaoControloId
-            ? await approvalHandler.ParteAsync(decisaoControloId, ControloParte.Peso, cancellationToken)
+            ? await approvalHandler.PesoAsync(decisaoControloId, peso.PesoId, cancellationToken)
             : null;
 
         // O volume do tampão desta produção (a calote do Job On; sem controlo, a referência da CM).

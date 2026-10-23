@@ -2044,3 +2044,34 @@ Novos: 2 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe`
 
 Selo depois: `2f13253978d003d5`
+
+## A-0086 · 2026-10-24 · contagem-lista
+
+Porquê: A01/A02: novos testes da aprovação do Peso no PDF/anexo e dos percursos RI separados, incluindo revogação com formulários abertos. Nos testes existentes só se acertam as listas de capabilities dos utilizadores de consulta para incluir ri.view; o caso de associação usa só ri.view. Todas as verificações anteriores mantêm-se. Registo gerado sobre snapshot parcial de ea9aee59af9f5989b57378410d9cedf54ac956c9, preservando as unidades dos ficheiros não alterados; CI integral e execução .NET pendentes.
+Novos: 12 · mudaram: 11 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: PesoAprovacaoDocumentoTests.AprovacaoSoCobrePesosRegistadosAteAoInstanteDaDecisao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: PesoAprovacaoDocumentoTests.NaoAprovarMantemSeNoPdfDepoisDeUmPesoNovo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: PesoAprovacaoDocumentoTests.OAnexoDoEmailTambemFicaPorAprovar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: PesoAprovacaoDocumentoTests.PesoNovoNaoHerdaAAprovacaoNoPdf_ENoHistoricoAPrimeiraFolhaContinuaAprovada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: PesoAprovacaoDocumentoTests.ReaprovarDepoisDoPesoNovoAtualizaOPdf`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: PesoAprovacaoDocumentoTests.UmPesoDeOutroControloOuInexistenteNaoRecebeADecisao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: PesoAprovacaoDocumentoTests.UmaLeituraNovaNaoInvalidaAAprovacaoDaFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.AChaveAntigaSoPermiteRegistar_EConsultarExigeAChaveDosResponsaveis`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.QuemSoConsultaPodeProcurarAsReferencias`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.RetirarAConsultaRecusaOFormularioDeAssociacaoJaAberto_SemAlterarORegisto`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.RetirarORegistoMantendoAConsultaRecusaOFormularioDeRegistoJaAberto`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.AProducaoEmDoisPassos_AReferenciaDepoisAsUltimas5`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.AbreVazia_SoComOsFiltros`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.AsPessoasEOsDias_Filtram`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.ComOJobOn_AProducaoAbreAFicha`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.DepoisDeFiltrar_AsReparacoes_SemBotoes_ENuncaONomeTecnico`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.Filtrar_SoMudamAsZonas`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.OsDoisSeparadores_RegistarEConsultar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.AFerramentaMostrada_LevaAFicha_SoComAsFerramentas_AEscritaFicaTexto`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_AJanelaAssociar_GravaUmaVez_EALinhaFicaComAFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_SemFerramentaQueSirva_AJanelaAvisaComOLinkParaRegistar`
+
+Selo depois: `c1072eb40d05b45e`
