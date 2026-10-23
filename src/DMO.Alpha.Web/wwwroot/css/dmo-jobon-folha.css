@@ -105,6 +105,7 @@
 .jof2 .g-cal{grid-area:cal}
 .jof2 #gSopro,.jof2 #gCal{grid-template-columns:minmax(0,1fr)}}
 @container board (min-width:940px){.jof2 .zones{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto auto 1fr;grid-template-areas:"moldes moldes col3" "sopro cal col3" ". . col3"}
+.jof2 #gMoldes{grid-template-columns:repeat(3,minmax(0,1fr))}
 .jof2 .g-moldes{grid-area:moldes}
 .jof2 .col3{grid-area:col3}
 .jof2 .g-sopro{grid-area:sopro}
@@ -264,7 +265,6 @@
 .jof2 .sec-head input.f{max-width:150px;font-size:14px}
 .jof2-gaveta .rail-item:disabled.selected{opacity:1}
 .jof2 .side{display:flex;flex-direction:column;gap:14px;position:sticky;top:12px;max-height:calc(100vh - 24px)}
-@media (min-width:1181px){.jof2 .side{margin-top:calc(13px * 1.45 + 8px)}}
 .jof2 .article{padding:12px 14px;flex:none}
 .jof2 .article-head{display:flex;justify-content:space-between;align-items:center}
 .jof2 .article-head strong{font-size:15px}
@@ -361,7 +361,7 @@
 .jof2 .jof-tool-procura{margin-top:8px}
 /* TP ao lado do CS; os calibres na horizontal, por baixo de Sopro, com todas as medidas à vista. */
 @container board (min-width:940px){
-  .jof2 .zones{grid-template-areas:"moldes moldes col3" "sopro sopro col3" "cal cal col3" ". . col3"}
+  .jof2 .zones{grid-template-areas:"moldes moldes moldes" "sopro sopro col3" "cal cal col3" ". . col3"}
   .jof2 #gSopro{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @container board (min-width:640px) and (max-width:939px){
@@ -458,3 +458,5 @@ html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
 
 /* Onde está no Armazém, por baixo da cabeça da ferramenta (FER-E-03). */
 .jof-onde{font-size:11px;color:var(--dmo-muted,#66809a);margin:4px 0 0}
+/* O aviso do Editar, no lugar da procura (Diogo, 23/10/2026). */
+.jof2 .jof-modo-editar{display:flex;align-items:center;min-height:42px;padding:0 18px;border-radius:8px;background:var(--dmo-warning-soft);color:var(--dmo-warning);border:1px solid color-mix(in srgb,var(--dmo-warning) 35%,transparent);font-size:18px;font-weight:800;letter-spacing:.02em}
