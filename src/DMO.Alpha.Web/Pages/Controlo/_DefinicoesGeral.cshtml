@@ -101,16 +101,16 @@ html body .ctl-def-grade[hidden]{display:none}
         var pessoas = DMO.Alpha.Core.Controlo.EnvioEmailRegras.LerLista(lista.Destinatarios);
         <details class="ctl-def-lista" data-dmo-lista-email="@lista.Id" open="@(Model.ListaAberta == lista.Id)">
           <summary><span class="dmo-caret" aria-hidden="true"></span><span class="ctl-def-lista-nome">@lista.Nome</span><span class="ctl-def-lista-conta">@pessoas.Count @(pessoas.Count == 1 ? "pessoa" : "pessoas")</span></summary>
-          <div class="ctl-def-lista-corpo">
+          <div class="ctl-def-lista-corpo" data-dmo-versao-grupo>
             <div class="ctl-def-lista-topo">
-              <form id="ctlDefLista-@lista.Id" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarLista" class="dmo-field"><input type="hidden" name="lista_id" value="@lista.Id" /><label for="ctl-lista-nome-@lista.Id">Nome da lista</label><input id="ctl-lista-nome-@lista.Id" class="dmo-valor" data-dmo-valor name="nome" value="@lista.Nome" autocomplete="off" required /></form>
+              <form id="ctlDefLista-@lista.Id" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarLista" class="dmo-field"><input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="versao" value="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.Versao(lista)" /><label for="ctl-lista-nome-@lista.Id">Nome da lista</label><input id="ctl-lista-nome-@lista.Id" class="dmo-valor" data-dmo-valor name="nome" value="@lista.Nome" autocomplete="off" required /></form>
               <button type="button" class="ctl-def-x" data-dmo-dialog="ctl-lista-apagar-@lista.Id" aria-label="Apagar a lista @lista.Nome" title="Apagar a lista">×</button>
             </div>
             <dialog id="ctl-lista-apagar-@lista.Id" class="dmo-dialog" aria-labelledby="ctl-lista-apagar-titulo-@lista.Id">
               <h3 id="ctl-lista-apagar-titulo-@lista.Id">Apagar lista</h3>
               <p class="dmo-aviso-discreto">Apagar a lista @lista.Nome? Os envios já feitos ficam registados.</p>
               <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="ApagarLista">
-                <input type="hidden" name="lista_id" value="@lista.Id" />
+                <input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="versao" value="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.Versao(lista)" />
                 <div class="dmo-dialog-actions">
                   <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
                   <button type="submit" class="dmo-button">Apagar</button>
@@ -125,9 +125,9 @@ html body .ctl-def-grade[hidden]{display:none}
                 {
                   var pessoa = pessoas[i];
                   <tr data-dmo-pessoa-email="@i">
-                    <td><form id="ctlDefPessoa-@lista.Id-@i" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarPessoa"><input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="pessoa" value="@i" /></form><input form="ctlDefPessoa-@lista.Id-@i" class="dmo-valor" data-dmo-valor name="nome" value="@pessoa.Nome" placeholder="—" autocomplete="off" aria-label="Nome de @pessoa.Email" /></td>
+                    <td><form id="ctlDefPessoa-@lista.Id-@i" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="MudarPessoa"><input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="versao" value="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.Versao(lista)" /><input type="hidden" name="pessoa" value="@i" /></form><input form="ctlDefPessoa-@lista.Id-@i" class="dmo-valor" data-dmo-valor name="nome" value="@pessoa.Nome" placeholder="—" autocomplete="off" aria-label="Nome de @pessoa.Email" /></td>
                     <td><input form="ctlDefPessoa-@lista.Id-@i" class="dmo-valor ctl-def-emails" data-dmo-valor name="email" value="@pessoa.Email" autocomplete="off" aria-label="Email de @(pessoa.Nome ?? pessoa.Email)" required /></td>
-                    <td><form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="RemoverPessoa"><input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="pessoa" value="@i" /><button type="submit" class="ctl-def-x" aria-label="Tirar @(pessoa.Nome ?? pessoa.Email) da lista" title="Tirar da lista">×</button></form></td>
+                    <td><form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="RemoverPessoa"><input type="hidden" name="lista_id" value="@lista.Id" /><input type="hidden" name="versao" value="@DMO.Alpha.Core.Controlo.EnvioEmailRegras.Versao(lista)" /><input type="hidden" name="pessoa" value="@i" /><button type="submit" id="ctl-tirar-@lista.Id-@i" class="ctl-def-x" aria-label="Tirar @(pessoa.Nome ?? pessoa.Email) da lista" title="Tirar da lista">×</button></form></td>
                   </tr>
                 }
                 </tbody>

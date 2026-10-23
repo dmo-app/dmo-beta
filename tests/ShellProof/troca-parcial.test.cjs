@@ -1883,6 +1883,30 @@ function mudarValor(window, campo, valor) {
   campo.dispatchEvent(new window.Event('change', { bubbles: true }));
 }
 
+test('A06: editar atualiza a versão dos formulários da mesma lista e isola as outras listas', async () => {
+  const lista = (id, versao) => `<section data-dmo-versao-grupo><table><tbody><tr><td>
+    <form id="editar-${id}" action="/Controlo/Definicoes?handler=MudarPessoa" method="post">
+      <input type="hidden" name="__RequestVerificationToken" value="tok">
+      <input type="hidden" name="lista_id" value="${id}"><input type="hidden" name="versao" value="${versao}">
+      <input id="pessoa-${id}" name="nome" data-dmo-valor value="Ana">
+    </form></td><td><form><input type="hidden" name="versao" value="${versao}"></form></td></tr></tbody></table></section>`;
+  const enviados = [];
+  const { dom, window, document } = await abrirPu((url, opcoes) => {
+    enviados.push(opcoes.body.getAll('versao'));
+    return { tipo: 'application/json', body: JSON.stringify({ ok: true, valor: 'Ana Silva', versao: 'nova' }) };
+  }, { html: lista(1, 'antiga') + lista(2, 'outra'), endereco: DEFINICOES_BQ });
+  try {
+    mudarValor(window, document.getElementById('pessoa-1'), 'Ana Silva');
+    await esperar();
+    assert.deepEqual(enviados, [['antiga']], 'o pedido só leva uma versão');
+    assert.deepEqual([...document.querySelectorAll('[data-dmo-versao-grupo]')].map(grupo =>
+      [...grupo.querySelectorAll('input[name="versao"]')].map(input => input.value)), [['nova', 'nova'], ['outra', 'outra']]);
+    mudarValor(window, document.getElementById('pessoa-1'), 'Ana Maria');
+    await esperar();
+    assert.deepEqual(enviados, [['antiga'], ['nova']], 'a edição seguinte leva a versão atualizada');
+  } finally { dom.window.close(); }
+});
+
 test('E10: criar um reparador troca a lista com os valores editáveis, sem abrir a página inteira', async () => {
   const nomes = ['Vidroart'];
   const desenhar = () => `<!doctype html><title>Definições</title><body>${paginaReparadores(nomes,
