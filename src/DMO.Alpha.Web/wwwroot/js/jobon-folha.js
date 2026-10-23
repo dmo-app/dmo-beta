@@ -83,6 +83,40 @@
     });
   }
 
+  // A imagem do artigo encaixa sozinha: corta as margens vazias (brancas ou
+  // transparentes) e reduz a no máximo 1200 px, sem deformar (Diogo, 23/10/2026).
+  function ajustar(src, pronto) {
+    const imagem = new Image();
+    imagem.onerror = () => pronto(src);
+    imagem.onload = () => {
+      try {
+        const w = imagem.naturalWidth, h = imagem.naturalHeight;
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const g = c.getContext('2d');
+        g.drawImage(imagem, 0, 0);
+        const d = g.getImageData(0, 0, w, h).data;
+        const vazio = (i) => d[i + 3] < 16 || (d[i] > 240 && d[i + 1] > 240 && d[i + 2] > 240);
+        let x0 = w, y0 = h, x1 = -1, y1 = -1;
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          if (vazio((y * w + x) * 4)) continue;
+          if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+        }
+        if (x1 < 0) { pronto(src); return; }
+        const m = 8;
+        x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m);
+        x1 = Math.min(w - 1, x1 + m); y1 = Math.min(h - 1, y1 + m);
+        const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+        const escala = Math.min(1, 1200 / Math.max(cw, ch));
+        const out = document.createElement('canvas');
+        out.width = Math.round(cw * escala); out.height = Math.round(ch * escala);
+        out.getContext('2d').drawImage(c, x0, y0, cw, ch, 0, 0, out.width, out.height);
+        pronto(out.toDataURL('image/png'));
+      } catch (e) { pronto(src); }
+    };
+    imagem.src = src;
+  }
+
   function artigo(folha) {
     const figura = folha.querySelector('[data-jof-artigo]');
     if (!figura) return;
@@ -102,10 +136,10 @@
       const escolhido = ficheiro.files && ficheiro.files[0];
       if (!escolhido || !/^image\//.test(escolhido.type)) return;
       const leitor = new FileReader();
-      leitor.onload = () => {
-        mostrar(String(leitor.result));
-        escrever(chave, String(leitor.result));
-      };
+      leitor.onload = () => ajustar(String(leitor.result), (src) => {
+        mostrar(src);
+        escrever(chave, src);
+      });
       leitor.readAsDataURL(escolhido);
     });
   }
@@ -219,8 +253,90 @@
     });
   }
 
+  // As notas ampliam-se com um clique e voltam ao cartão com Esc ou um clique fora (Diogo, 23/10/2026).
+  function notas(folha) {
+    let aberta = null;
+    // Ampliada, o título diz de que ferramenta é a nota: «CM 5809 · Lote 1 · Notas».
+    const titulo = (caixa) => {
+      const sec = caixa.closest('[data-jof-familia]');
+      if (!sec) return 'Notas';
+      const valor = (rotulo) => {
+        const hv = [...sec.querySelectorAll(':scope > .sec-head .hv, :scope > .tool-head .hv, :scope > * > .tool-head .hv')].find(h => (h.querySelector('small')?.textContent || '').trim() === rotulo);
+        const b = hv?.querySelector('b');
+        const v = (b?.querySelector('input')?.value ?? b?.textContent ?? '').trim();
+        return v && v !== '—' ? v : '';
+      };
+      const ref = valor('Referência'), lote = valor('Lote');
+      return [sec.getAttribute('data-jof-familia') + (ref ? ' ' + ref : ''), lote ? 'Lote ' + lote : '', 'Notas'].filter(Boolean).join(' · ');
+    };
+    const fechar = () => {
+      if (!aberta) return;
+      const rotulo = aberta.querySelector(':scope > span');
+      if (rotulo) rotulo.textContent = 'Notas';
+      aberta.classList.remove('is-ampliada');
+      aberta = null;
+    };
+    folha.addEventListener('click', (e) => {
+      const caixa = e.target.closest('[data-jof-nota]');
+      if (caixa === aberta) return;
+      fechar();
+      if (!caixa) return;
+      const rotulo = caixa.querySelector(':scope > span');
+      if (rotulo) rotulo.textContent = titulo(caixa);
+      caixa.classList.add('is-ampliada');
+      aberta = caixa;
+    });
+    folha.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') fechar();
+      else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
+    });
+    document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
+  }
+
+  // REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa linha de «O que
+  // mudou» (fora do botão da ação) abre a janela com essa alteração;
+  // «Remover por engano» mostra a confirmação.
+  function alteracoes() {
+    const janela = document.querySelector('[data-jof-remover]');
+    if (!janela || typeof janela.showModal !== 'function') return;
+    const id = janela.querySelector('[data-jof-remover-id]');
+    const texto = janela.querySelector('[data-jof-remover-texto]');
+    const quando = janela.querySelector('[data-jof-remover-quando]');
+    const pedir = janela.querySelector('[data-jof-remover-pedir]');
+    const sim = janela.querySelector('[data-jof-remover-sim]');
+    const confirmar = janela.querySelector('[data-jof-remover-confirmar]');
+    function abrir(linha) {
+      id.value = linha.getAttribute('data-jof-alteracao');
+      texto.textContent = linha.getAttribute('data-jof-alteracao-texto') || '';
+      quando.textContent = linha.getAttribute('data-jof-alteracao-quando') || '';
+      pedir.hidden = false;
+      sim.hidden = true;
+      confirmar.hidden = true;
+      janela.showModal();
+      pedir.focus();
+    }
+    pedir.addEventListener('click', () => {
+      pedir.hidden = true;
+      sim.hidden = false;
+      confirmar.hidden = false;
+      sim.focus();
+    });
+    document.querySelectorAll('li[data-jof-alteracao]').forEach(linha => {
+      if (!linha.getAttribute('data-jof-alteracao')) return;
+      linha.classList.add('is-abrivel');
+      linha.addEventListener('click', event => {
+        if (event.target.closest('a, button')) return;
+        abrir(linha);
+      });
+      linha.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && event.target === linha) { event.preventDefault(); abrir(linha); }
+      });
+    });
+  }
+
   function init() {
     painel();
+    alteracoes();
     imprimir();
     producoes();
     furos();
@@ -229,6 +345,7 @@
     const editar = folha.getAttribute('data-jof-folha') === 'editar';
     ferramentas(folha, editar);
     artigo(folha);
+    notas(folha);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

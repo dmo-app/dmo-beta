@@ -66,6 +66,12 @@ public sealed class FolhaModel(
     /// </summary>
     public IReadOnlyList<JobOnSummaryEntry> Resumo { get; private set; } = [];
 
+    /// <summary>As entradas ativas de «O que mudou» (sem as removidas por engano): a contagem do título.</summary>
+    public int ResumoAtivas => Resumo.Count(e => !e.IsRemoved);
+
+    /// <summary>Depois do «Remover por engano»: a confirmação.</summary>
+    public bool AlteracaoRemovida { get; private set; }
+
     /// <summary>O link dos avisos dos módulos (?vista=alteracoes): «O que mudou» já aberto.</summary>
     public bool VistaAlteracoes { get; private set; }
 
@@ -191,9 +197,11 @@ public sealed class FolhaModel(
         [FromQuery(Name = "machine_id")] int? machineId = null,
         [FromQuery(Name = "inicio_em")] string? inicioEm = null,
         [FromQuery(Name = "dia")] string? dia = null,
-        [FromQuery(Name = "vista")] string? vista = null)
+        [FromQuery(Name = "vista")] string? vista = null,
+        [FromQuery(Name = "removida")] string? removida = null)
     {
         VistaAlteracoes = vista == "alteracoes";
+        AlteracaoRemovida = removida == "1";
         await ComporPaginaAsync();
         var ct = HttpContext.RequestAborted;
         DiaPlaneamento = DateOnly.TryParseExact(dia, "yyyy-MM-dd", out var diaValor) ? diaValor : null;
@@ -356,7 +364,7 @@ public sealed class FolhaModel(
             {
                 // O que mudou e o Eliminar, como na ficha antiga, só a quem tem o Planeamento.
                 var notas = await lotNotes.ForJobOnAsync(aberto.JobOnId, ct);
-                var resumo = JobOnSummaryEntry.Compose(aberto.JobOnId, aberto.InicioEm, await changes.ForJobOnAsync(aberto.JobOnId, ct), notas);
+                var resumo = JobOnSummaryEntry.Compose(aberto.JobOnId, aberto.InicioEm, await changes.ForJobOnAsync(aberto.JobOnId, ct), notas, incluirRemovidas: true);
                 var permitidas = new HashSet<string>();
                 foreach (var capability in resumo.Select(e => e.ActionCapability).Distinct())
                 {

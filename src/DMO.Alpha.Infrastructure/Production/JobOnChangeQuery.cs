@@ -27,15 +27,21 @@ public sealed class JobOnChangeQuery
             .Where(JobOnChangeFields.Counts)
             .OrderByDescending(c => c.ChangedAtUtc)
             .ThenBy(c => c.Id)
-            .Select(c => new { c.JobOnId, c.Field, c.OldValueFrozen, c.NewValueFrozen, c.ChangedByNameFrozen, c.ChangedAtUtc })
+            .Select(c => new { c.Id, c.JobOnId, c.Field, c.OldValueFrozen, c.NewValueFrozen, c.ChangedByNameFrozen, c.ChangedAtUtc, c.RemovedAtUtc, c.RemovedByNameFrozen })
             .ToListAsync(cancellationToken);
+        // As removidas por engano vêm também (marcadas): «O que mudou» mostra-as riscadas.
         return rows
             .Select(c => new JobOnChangeView(
                 c.JobOnId,
                 c.Field,
                 JobOnChangeFields.Describe(c.Field, c.OldValueFrozen, c.NewValueFrozen),
                 c.ChangedByNameFrozen,
-                c.ChangedAtUtc))
+                c.ChangedAtUtc)
+            {
+                Id = c.Id,
+                RemovedAtUtc = c.RemovedAtUtc,
+                RemovedBy = c.RemovedByNameFrozen
+            })
             .ToList();
     }
 
@@ -95,6 +101,7 @@ public sealed class JobOnChangeQuery
             .AsNoTracking()
             .Where(c => fields.Contains(c.Field))
             .Where(JobOnChangeFields.Counts)
+            .Where(JobOnChangeFields.Active)
             .Where(afterTheRecord)
             .OrderByDescending(c => c.ChangedAtUtc)
             .ThenBy(c => c.Id)
@@ -133,6 +140,7 @@ public sealed class JobOnChangeQuery
             .AsNoTracking()
             .Where(c => jobOnIds.Contains(c.JobOnId))
             .Where(JobOnChangeFields.Counts)
+            .Where(JobOnChangeFields.Active)
             .OrderByDescending(c => c.ChangedAtUtc)
             .ThenBy(c => c.Id)
             .Select(c => new { c.JobOnId, c.Field, c.OldValueFrozen, c.NewValueFrozen, c.ChangedByNameFrozen, c.ChangedAtUtc, c.JobOn!.InicioEm })

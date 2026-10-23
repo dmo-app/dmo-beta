@@ -73,6 +73,7 @@ public static class AutoriaMap
 
         // O Job On e as Ferramentas.
         Autoria.De<JobOnChange>(c => c.ChangedByNameFrozen, c => c.ChangedByUserId),
+        Autoria.De<JobOnChange>(c => c.RemovedByNameFrozen, c => c.RemovedByUserId),
         Autoria.De<Tool>(t => t.DuplicateWarningByNameFrozen, t => t.DuplicateWarningByUserId),
 
         // O Armazém.

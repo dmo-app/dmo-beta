@@ -1819,9 +1819,21 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
+                    b.Property<DateTime?>("RemovedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RemovedByNameFrozen")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("RemovedByUserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("RemovedByUserId");
 
                     b.HasIndex("JobOnId", "ChangedAtUtc");
 
@@ -3405,6 +3417,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasForeignKey("JobOnId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("RemovedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("JobOn");
                 });

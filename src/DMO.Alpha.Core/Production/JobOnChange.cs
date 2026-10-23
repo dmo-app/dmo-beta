@@ -35,6 +35,20 @@ public sealed class JobOnChange
 
     public DateTime ChangedAtUtc { get; set; }
 
+    // REMOVER POR ENGANO (Diogo, 23/10/2026: «ter forma de remover o notice
+    // de troca em caso de engano»). Nada se perde: a linha fica, marcada como
+    // removida, com quem e quando. Os valores do Job On não mudam; só o aviso
+    // sai da marca laranja, do resumo da linha, do Sumário e dos módulos.
+
+    /// <summary>Quando foi removida por engano (UTC); null = ativa.</summary>
+    public DateTime? RemovedAtUtc { get; set; }
+
+    /// <summary>O nome de quem removeu, congelado.</summary>
+    public string? RemovedByNameFrozen { get; set; }
+
+    /// <summary>O utilizador de <see cref="RemovedByNameFrozen"/> (<c>Users.Id</c>).</summary>
+    public Guid? RemovedByUserId { get; set; }
+
     /// <summary>
     /// O histórico só conta o que mudou depois de a produção começar (o Diogo,
     /// 17/10/2026): uma alteração feita no dia de início ou depois, no dia da
@@ -75,6 +89,10 @@ public static class JobOnChangeFields
     /// <summary>A regra de <see cref="IsChange"/> para as consultas.</summary>
     public static readonly System.Linq.Expressions.Expression<Func<JobOnChange, bool>> Counts =
         c => !(c.Field == Bq && c.OldValueFrozen == null);
+
+    /// <summary>A alteração não foi removida por engano: só estas contam na marca, no resumo, no Sumário e nos avisos.</summary>
+    public static readonly System.Linq.Expressions.Expression<Func<JobOnChange, bool>> Active =
+        c => c.RemovedAtUtc == null;
 
     /// <summary>O nome do campo como se lê na ficha.</summary>
     public static string Label(string field) => field switch
@@ -216,6 +234,15 @@ public sealed record JobOnChangeView(
 
     /// <summary>O valor depois da alteração (para a linha da máquina).</summary>
     public string? NewValue { get; init; }
+
+    /// <summary>O Id da linha (o «Remover por engano»).</summary>
+    public int Id { get; init; }
+
+    /// <summary>Quando foi removida por engano; null = ativa.</summary>
+    public DateTime? RemovedAtUtc { get; init; }
+
+    /// <summary>Quem a removeu.</summary>
+    public string? RemovedBy { get; init; }
 }
 
 /// <summary>

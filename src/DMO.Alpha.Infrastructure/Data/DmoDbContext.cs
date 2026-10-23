@@ -1474,6 +1474,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(c => c.OldValueFrozen).HasMaxLength(JobOnChange.ValueMaxLength);
             entity.Property(c => c.NewValueFrozen).HasMaxLength(JobOnChange.ValueMaxLength);
             entity.Property(c => c.ChangedByNameFrozen).HasMaxLength(254);
+            entity.Property(c => c.RemovedByNameFrozen).HasMaxLength(254);
 
             entity.HasOne(c => c.JobOn)
                 .WithMany()

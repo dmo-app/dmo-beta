@@ -259,4 +259,49 @@ public sealed class JobOnChangeTests : IDisposable
         Assert.Equal(expected, JobOnChangeFields.FollowUp(field));
         Assert.Equal(label, JobOnChangeFields.FollowUpLabel(expected));
     }
+
+    [Fact]
+    public async Task RemoveByMistake_KeepsTheRow_MarksWhoAndWhen_HidesItFromTheMarkerAndNotices_ValuesUnchanged()
+    {
+        // «Remover o notice de troca em caso de engano» (Diogo, 23/10/2026): nada se perde.
+        var (jobOnId, _, _) = await SeedAsync();
+        await _update.HandleAsync(new UpdateJobOn(
+            jobOnId, (await _db.JobOns.SingleAsync(j => j.Id == jobOnId)).MachineId, "CM-2", "MF-1", "BQ-7",
+            InicioEm: new DateOnly(2026, 3, 2), FimEm: new DateOnly(2026, 3, 9), CaloteMm: 4.5m, ChangedBy: "Diogo"));
+        var cm = await _db.JobOnChanges.SingleAsync(c => c.Field == JobOnChangeFields.Cm);
+        var bq = await _db.JobOnChanges.SingleAsync(c => c.Field == JobOnChangeFields.Bq);
+        var controlo = await _db.Controlos.SingleAsync(c => c.JobOnId == jobOnId);
+        var peso = new Peso { CmToolId = "CM-2", BqToolId = "BQ-7", Process = "SG", ControloId = controlo.Id, RegistadoEmUtc = cm.ChangedAtUtc.AddMinutes(-1) };
+        _db.Pesos.Add(peso);
+        await _db.SaveChangesAsync();
+        Assert.Equal(new[] { "BQ", "CM" }, (await _query.ForPesoAsync(peso.Id))!.Changes.Select(c => c.Field).OrderBy(f => f).ToArray());
+
+        var handler = new RemoveJobOnChangeHandler(_db);
+        Assert.Equal(RemoveJobOnChangeResult.NotFound, await handler.HandleAsync(jobOnId + 1, cm.Id, "Rui"));
+        Assert.Null((await _db.JobOnChanges.AsNoTracking().SingleAsync(c => c.Id == cm.Id)).RemovedAtUtc);
+        Assert.Equal(RemoveJobOnChangeResult.Removed, await handler.HandleAsync(jobOnId, cm.Id, " Rui "));
+        Assert.Equal(RemoveJobOnChangeResult.AlreadyRemoved, await handler.HandleAsync(jobOnId, cm.Id, "Outro"));
+
+        var row = await _db.JobOnChanges.AsNoTracking().SingleAsync(c => c.Id == cm.Id);
+        Assert.Equal("Rui", row.RemovedByNameFrozen);
+        Assert.NotNull(row.RemovedAtUtc);
+        Assert.Equal("5447 · lote 3", row.NewValueFrozen);
+        Assert.Equal(2, await _db.JobOnChanges.CountAsync(c => c.JobOnId == jobOnId));
+
+        // «O que mudou» continua a ter a removida (marcada); a marca e os avisos não.
+        var all = await _query.ForJobOnAsync(jobOnId);
+        Assert.Equal("Rui", Assert.Single(all, c => c.Id == cm.Id).RemovedBy);
+        Assert.Null(Assert.Single(all, c => c.Id == bq.Id).RemovedAtUtc);
+        var marker = await _query.AfterStartAsync(new[] { jobOnId });
+        Assert.Equal(new[] { JobOnChangeFields.Bq }, marker[jobOnId].Select(c => c.Field).ToArray());
+        Assert.Equal(new[] { "BQ" }, (await _query.ForPesoAsync(peso.Id))!.Changes.Select(c => c.Field).ToArray());
+
+        // Os valores do Job On não mudam.
+        Assert.Equal("CM-2", await _db.CmContexts.Where(c => c.JobOnId == jobOnId).Select(c => c.ToolId).SingleAsync());
+
+        // Removida a última, a produção sai da marca.
+        Assert.Equal(RemoveJobOnChangeResult.Removed, await handler.HandleAsync(jobOnId, bq.Id, "Rui"));
+        Assert.False((await _query.AfterStartAsync(new[] { jobOnId })).ContainsKey(jobOnId));
+        Assert.Null(await _query.ForPesoAsync(peso.Id));
+    }
 }

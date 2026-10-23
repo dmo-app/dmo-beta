@@ -18,6 +18,19 @@ public sealed record JobOnSummaryEntry(
     string? ActionHref,
     string ActionCapability)
 {
+    /// <summary>A alteração gravada (o «Remover por engano»); null numa mudança de lote.</summary>
+    public int? ChangeId { get; init; }
+
+    /// <summary>«Removida por X a dd/MM/yyyy HH:mm» quando foi removida por engano; null = ativa.</summary>
+    public string? Removida { get; init; }
+
+    /// <summary>Removida por engano: fica visível, riscada, sem ação.</summary>
+    public bool IsRemoved => Removida is not null;
+
+    /// <summary>«Removida por Diogo a 23/10/2026 14:05».</summary>
+    public static string RemovidaTexto(string? por, DateTime removedAtUtc) =>
+        $"Removida{(string.IsNullOrWhiteSpace(por) ? "" : " por " + por)} a {DmoBusinessTime.ToLocal(removedAtUtc):dd/MM/yyyy HH:mm}";
+
     /// <summary>
     /// Sem o módulo da ação, a linha fica só como informação (o Diogo,
     /// 17/10/2026: o botão «deve aparecer apenas a quem tem» o módulo).
@@ -36,13 +49,25 @@ public sealed record JobOnSummaryEntry(
         int jobOnId,
         DateOnly? inicioEm,
         IReadOnlyList<JobOnChangeView> changes,
-        IReadOnlyList<LotNoteView> lotNotes)
+        IReadOnlyList<LotNoteView> lotNotes,
+        bool incluirRemovidas = false)
     {
-        var fromChanges = changes.Where(c => JobOnChange.AfterStart(c.ChangedAtUtc, inicioEm)).Select(c =>
+        // As removidas por engano só entram em «O que mudou» da folha (riscadas).
+        var fromChanges = changes
+            .Where(c => incluirRemovidas || c.RemovedAtUtc is null)
+            .Where(c => JobOnChange.AfterStart(c.ChangedAtUtc, inicioEm)).Select(c =>
         {
             var local = DmoBusinessTime.ToLocal(c.ChangedAtUtc);
-            return (Day: DateOnly.FromDateTime(local), Order: 1, Time: local,
-                Entry: Build(jobOnId, local.ToString("dd/MM/yyyy HH:mm"), c.Text, c.ChangedBy, c.Field));
+            var entry = Build(jobOnId, local.ToString("dd/MM/yyyy HH:mm"), c.Text, c.ChangedBy, c.Field) with
+            {
+                ChangeId = c.Id == 0 ? null : c.Id,
+                Removida = c.RemovedAtUtc is { } removida ? RemovidaTexto(c.RemovedBy, removida) : null
+            };
+            if (entry.IsRemoved)
+            {
+                entry = entry with { ActionHref = null };
+            }
+            return (Day: DateOnly.FromDateTime(local), Order: 1, Time: local, Entry: entry);
         });
         var fromLotNotes = lotNotes.Where(n => inicioEm is { } inicio && n.Dia >= inicio).Select(n =>
             (Day: n.Dia, Order: 0, Time: DateTime.MinValue,

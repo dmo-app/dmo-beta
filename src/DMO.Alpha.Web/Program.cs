@@ -295,6 +295,7 @@ builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoesPdfG
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PuncoesLinhaDefinicoes>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnLotNoteHandler>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnChangeQuery>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.RemoveJobOnChangeHandler>();
 builder.Services.AddScoped<DMO.Alpha.Core.Planeamento.ISumarioQuery, DMO.Alpha.Infrastructure.Planeamento.SumarioQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IPesoCapSupportQuery, DMO.Alpha.Infrastructure.Controlo.PesoCapSupportQuery>();
 // O MODO CHEFE (o corte H-lite, o Owner 2026-10-12: «controlo.approve é o
