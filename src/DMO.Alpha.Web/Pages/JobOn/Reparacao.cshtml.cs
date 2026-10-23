@@ -40,7 +40,7 @@ public sealed class ReparacaoModel(
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = "jobon",
-            Functions = ShellStateFactory.PlanningFunctions("jobon")
+            Functions = await shellState.PlanningFunctionsAsync("jobon")
         };
         var ct = HttpContext.RequestAborted;
         if (jobOnId is int id && await productionContext.GetAsync(id, ct) is { } aberto)

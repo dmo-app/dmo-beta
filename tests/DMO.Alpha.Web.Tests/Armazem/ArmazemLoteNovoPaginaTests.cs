@@ -143,8 +143,10 @@ public sealed class ArmazemLoteNovoPaginaTests : IClassFixture<CustomWebApplicat
 
         Assert.DoesNotContain("Ferramenta nova registada no Armazém", await semFerramentas.GetStringAsync("/Planeamento/Sumario"));
         var sumario = await ferramentas.GetStringAsync("/Planeamento/Sumario");
-        var aviso = Regex.Match(sumario, $"<p class=\"dmo-aviso warn\" data-dmo-lote-novo=\"{id}\">[\\s\\S]*?</p>").Value;
-        Assert.Contains($"Ferramenta nova registada no Armazém: CM {Referencia} lote 13 (posição 1033)", aviso);
+        // Uma linha do grupo «Importante» do Sumário (Diogo, 23/10/2026), já não um aviso à parte.
+        var aviso = Regex.Match(sumario, $"<li [^>]*data-dmo-lote-novo=\"{id}\"[^>]*>[\\s\\S]*?</li>").Value;
+        Assert.Contains($">CM {Referencia} · Lote 13</a>", aviso);
+        Assert.Contains("Ferramenta nova registada no Armazém, posição 1033", aviso);
         var href = WebUtility.HtmlDecode(Regex.Match(aviso, "href=\"([^\"]+)\"").Groups[1].Value);
         Assert.Equal($"/Ferramentas?criar=1&type=CM&reference={Referencia}&lot=13&lote_novo={id}", href);
 

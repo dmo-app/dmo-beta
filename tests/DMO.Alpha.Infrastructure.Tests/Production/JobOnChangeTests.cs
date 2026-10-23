@@ -82,7 +82,7 @@ public sealed class JobOnChangeTests : IDisposable
 
         var views = await _query.ForJobOnAsync(jobOnId);
         Assert.Contains(views, v => v.Text == "Mudou a BQ: T194 · lote 6 → T194 · lote 7");
-        Assert.Contains(views, v => v.Text == "Mudou a máquina: B1 → B2");
+        Assert.Contains(views, v => v.Text == "Mudou a linha: B1 → B2");
 
         var porProducao = await _query.AfterStartAsync(new[] { jobOnId, jobOnId + 99 });
         Assert.Equal(5, porProducao[jobOnId].Count);

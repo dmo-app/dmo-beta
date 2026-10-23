@@ -79,7 +79,7 @@ public static class JobOnChangeFields
     /// <summary>O nome do campo como se lê na ficha.</summary>
     public static string Label(string field) => field switch
     {
-        Machine => "a máquina",
+        Machine => "a linha", // «Linha», nunca «máquina» (Diogo, 23/10/2026)
         Start => "o início",
         End => "o fim",
         Calote => "a calote",

@@ -54,8 +54,12 @@
       <div class="dmo-field sumario-w-tipo">
         <label for="sumario-tipo">Informação</label>
         <select id="sumario-tipo" name="tipo" data-dmo-autosubmit>
-          <option value="" selected="@(tipoParam is null ? "selected" : null)">Toda</option>
-          @foreach (var tipo in Model.TiposVisiveis)
+          <option value="" selected="@(tipoParam is null && !Model.SoImportante ? "selected" : null)">Toda</option>
+          @if (Model.VeImportantes)
+          {
+            <option value="@DMO.Alpha.Web.Pages.Planeamento.SumarioModel.ChaveImportante" selected="@(Model.SoImportante ? "selected" : null)">Importante</option>
+          }
+          @foreach (var tipo in Model.TiposInformacao)
           {
             <option value="@SumarioTipos.Chave(tipo)" selected="@(tipoParam == SumarioTipos.Chave(tipo) ? "selected" : null)">@SumarioTipos.Nome(tipo)</option>
           }
@@ -73,28 +77,65 @@
     </form>
   </section>
 
-  @* OS LOTES NOVOS DO ARMAZÉM (Diogo, 22/10/2026: «clicar e ir dar logo a
-     pagina da ferramenta em questao e dar o aprove»): um aviso por registo,
-     só a quem tem o módulo Ferramentas; desaparece quando a ferramenta é
-     criada (ou ligada a uma existente). *@
-  <div id="sumarioAvisos" class="dmo-zona" data-dmo-regiao>
-    @foreach (var lote in Model.LotesNovos)
-    {
-      var tipoLote = DMO.Alpha.Core.Armazem.ArmazemTextos.Tipo(lote.Tipo);
-      <p class="dmo-aviso warn" data-dmo-lote-novo="@lote.Id">Ferramenta nova registada no Armazém: @tipoLote @lote.Referencia lote @lote.Lote (posição @lote.Posicao)@(lote.RegistadoPor is { } por ? $", por {por}" : null).<partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.CriarLoteNovo(lote.Id, tipoLote, lote.Referencia, lote.Lote)" /></p>
-    }
-    @foreach (var uso in Model.UsoPorAtualizar)
-    {
-      var tipoUso = uso.Tipo.ToString().ToUpperInvariant();
-      <p class="dmo-aviso warn" data-dmo-uso-por-atualizar="@uso.ToolId">Utilização por atualizar: @tipoUso @uso.Referencia lote @uso.Lote, desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(uso.DesdeUtc).ToString("dd/MM/yyyy").<partial name="_DmoAvisoLink" model="@(DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(uso.ToolId, "Abrir a ficha"))" /></p>
-    }
-  </div>
-
   <div class="sumario-grid">
     <partial name="_DmoCalendar" model="Model.Calendar" />
 
     <section id="sumarioLista" data-dmo-regiao class="dmo-card sumario-lista" aria-labelledby="sumario-lista-title">
-      @if (Model.Day is not { } dia)
+      @* O GRUPO «IMPORTANTE» NO TOPO (Diogo, 23/10/2026: «os notices
+         importantes entram no sumário. Criar uma Informação "Importante" e
+         ficam sempre no topo até resolver»): os por resolver, seja qual for o
+         dia escolhido, com a data completa e o tipo à frente; os lotes novos
+         e os lembretes da ficha, antes avisos à parte, são linhas daqui. *@
+      @if (Model.Importantes.Count > 0 || Model.SoImportante)
+      {
+        <div class="sumario-grupo sumario-importante sumario-topo" data-sumario-tipo="importante">
+          <h3>Importante</h3>
+          @if (Model.Importantes.Count == 0)
+          {
+            <p class="sumario-vazio">Nada por resolver.</p>
+          }
+          <ul>
+            @foreach (var item in Model.Importantes)
+            {
+              var href = Model.Href(item);
+              var local = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(item.InstanteUtc);
+              var quando = item.QuandoUtc is null ? $"{SemanaCurta(item.Dia)} {item.Dia:dd/MM}" : $"{SemanaCurta(DateOnly.FromDateTime(local))} {local:dd/MM HH:mm}";
+              // A chave do registo (o lote novo, o lembrete da ficha) só nas linhas que a têm.
+              var chave = item.LoteNovoId is { } loteNovoId ? $" data-dmo-lote-novo=\"{loteNovoId}\""
+                  : item.Lembrete && item.ToolId is { } lembrete ? $" data-dmo-uso-por-atualizar=\"{System.Net.WebUtility.HtmlEncode(lembrete)}\"" : "";
+              <li class="sumario-item@(item.Maquina is { } maquina ? $" mch-{maquina}" : null)" data-sumario-tipo="@SumarioTipos.Chave(item.Tipo)"@Html.Raw(chave)>
+                <time class="sumario-quando">@quando</time>
+                <span class="sumario-etiqueta">@SumarioTipos.Nome(item.Tipo)</span>
+                @if (item.Maquina is not null)
+                {
+                  <strong class="sumario-maquina">@item.Maquina</strong>
+                }
+                @if (href is null)
+                {
+                  <span class="sumario-titulo">@item.Titulo</span>
+                }
+                else
+                {
+                  <a class="sumario-titulo" href="@href">@item.Titulo</a>
+                }
+                @if (item.Detalhe is not null)
+                {
+                  <span class="sumario-detalhe">@item.Detalhe</span>
+                }
+                @if (item.Por is not null)
+                {
+                  <small>@item.Por</small>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (Model.SoImportante)
+      {
+      }
+      else if (Model.Day is not { } dia)
       {
         <h2 id="sumario-lista-title">Escolha um dia</h2>
         <p class="sumario-vazio">Escolha um dia no calendário para ver o sumário.</p>
@@ -102,11 +143,11 @@
       else
       {
         <h2 id="sumario-lista-title">@(Model.Dias == 1 ? $"{Semana(dia)}, {dia:dd/MM/yyyy}" : $"{Semana(dia.AddDays(1 - Model.Dias))}, {dia.AddDays(1 - Model.Dias):dd/MM/yyyy} a {Semana(dia)}, {dia:dd/MM/yyyy}")</h2>
-        @if (Model.TiposVisiveis.Count == 0)
+        @if (Model.TiposInformacao.Count == 0 && !Model.VeImportantes)
         {
           <p class="sumario-vazio">A sua conta não tem módulos com informação para o sumário.</p>
         }
-        else if (Model.Grupos.Count == 0)
+        else if (Model.Grupos.Count == 0 && Model.TiposInformacao.Count > 0)
         {
           <p class="sumario-vazio">Nada para mostrar neste período.</p>
         }
@@ -114,9 +155,13 @@
            «as datas estão no fim»; «remover os (1)»): a data à frente, a
            máquina com a cor dela, a referência e a produção; o grupo sem
            contagem. *@
+        @* IMPORTANTE OU INFORMAÇÃO (Diogo, 23/10/2026): os grupos que pedem
+           uma ação levam a cor dos avisos (dmo-aviso warn) na barra do título
+           e no lado de cada linha, sem contagens. *@
         @foreach (var grupo in Model.Grupos)
         {
-          <div class="sumario-grupo" data-sumario-tipo="@SumarioTipos.Chave(grupo.Tipo)">
+          var importante = SumarioTipos.Importante(grupo.Tipo);
+          <div class="sumario-grupo@(importante ? " sumario-importante" : null)" data-sumario-tipo="@SumarioTipos.Chave(grupo.Tipo)">
             <h3>@SumarioTipos.Nome(grupo.Tipo)</h3>
             <ul>
               @foreach (var item in grupo.Items)

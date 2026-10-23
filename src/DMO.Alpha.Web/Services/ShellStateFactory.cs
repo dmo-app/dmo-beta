@@ -14,11 +14,13 @@ public sealed class ShellStateFactory
 {
     private readonly ICurrentAccountContext _accountContext;
     private readonly CurrentUserCapabilities _capabilities;
+    private readonly SumarioNovidades _sumario;
 
-    public ShellStateFactory(ICurrentAccountContext accountContext, CurrentUserCapabilities capabilities)
+    public ShellStateFactory(ICurrentAccountContext accountContext, CurrentUserCapabilities capabilities, SumarioNovidades sumario)
     {
         _accountContext = accountContext;
         _capabilities = capabilities;
+        _sumario = sumario;
     }
 
     /// <summary>
@@ -196,13 +198,22 @@ public sealed class ShellStateFactory
     /// dmo-calendar DENTRO do Job On. SUMÁRIO ao lado do Job On (Diogo,
     /// 19/10/2026): o que há para fazer e o que mudou, pelos módulos da conta.
     /// </summary>
-    public static IReadOnlyList<FunctionPresentation> PlanningFunctions(string activeKey) =>
+    public static IReadOnlyList<FunctionPresentation> PlanningFunctions(string activeKey, bool sumarioNovo = false) =>
         new[]
         {
             new FunctionPresentation("jobon", "Job On", "/JobOn", null, activeKey == "jobon", true, true),
-            new FunctionPresentation("sumario", "Sumário", "/Planeamento/Sumario", null, activeKey == "sumario", true, true),
+            new FunctionPresentation("sumario", "Sumário", "/Planeamento/Sumario", null, activeKey == "sumario", true, true,
+                sumarioNovo ? "dmo-tab-novo" : ""),
             new FunctionPresentation("historico", "Histórico", "/JobOn?historico=1", null, activeKey == "historico", true, true)
         };
+
+    /// <summary>
+    /// As funções do Planeamento com o ponto do Sumário (Diogo, 23/10/2026:
+    /// um ponto sem número quando há importantes por ver): no próprio Sumário
+    /// não aparece, porque abri-lo é vê-los.
+    /// </summary>
+    public async Task<IReadOnlyList<FunctionPresentation>> PlanningFunctionsAsync(string activeKey, CancellationToken cancellationToken = default) =>
+        PlanningFunctions(activeKey, activeKey != "sumario" && await _sumario.TemNovoAsync(cancellationToken));
 
     /// <summary>
     /// AS FUNÇÕES DO MÓDULO BOQUILHAS (o Owner 2026-10-13: «registo e

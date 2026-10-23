@@ -1526,14 +1526,14 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             new[]
             {
                 new DMO.Alpha.Core.Production.JobOnChangeView(7, "BQ", "Mudou a BQ: a → b", "Diogo", DateTime.UtcNow),
-                new DMO.Alpha.Core.Production.JobOnChangeView(7, "Maquina", "Mudou a máquina: B1 → B2", "Diogo", DateTime.UtcNow)
+                new DMO.Alpha.Core.Production.JobOnChangeView(7, "Maquina", "Mudou a linha: B1 → B2", "Diogo", DateTime.UtcNow)
             },
             Array.Empty<DMO.Alpha.Core.Production.LotNoteView>());
 
         var soBoquilhas = DMO.Alpha.Web.Presentation.JobOnSummaryEntry.ForCapabilities(linhas, c => c == DmoCapabilities.Boquilhas);
 
         Assert.Null(soBoquilhas.Single(l => l.Text.StartsWith("Mudou a BQ")).ActionHref);
-        Assert.Equal("/Boquilhas", soBoquilhas.Single(l => l.Text.StartsWith("Mudou a máquina")).ActionHref);
+        Assert.Equal("/Boquilhas", soBoquilhas.Single(l => l.Text.StartsWith("Mudou a linha")).ActionHref);
     }
 
     [Fact]

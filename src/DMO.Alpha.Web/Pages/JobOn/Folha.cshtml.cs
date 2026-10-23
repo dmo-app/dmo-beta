@@ -127,7 +127,7 @@ public sealed class FolhaModel(
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = "jobon",
-            Functions = ShellStateFactory.PlanningFunctions("jobon")
+            Functions = await shellState.PlanningFunctionsAsync("jobon")
         };
         var ct = HttpContext.RequestAborted;
         PodeEditar = await capabilities.HasAsync(DmoCapabilities.JobOnCreate, ct);

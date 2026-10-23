@@ -41,13 +41,19 @@ public sealed class PlaneamentoSumarioPostgresTests
         db.Machines.Add(machine);
         var porVer = new JobOn { Reference = $"S{p}A", ProductionNumber = "1", Machine = machine, InicioEm = hoje };
         var visto = new JobOn { Reference = $"S{p}B", ProductionNumber = "2", Machine = machine, InicioEm = hoje.AddDays(-5), CriadoEmUtc = agora };
-        db.JobOns.AddRange(porVer, visto);
+        // Começou antes do período e acabou hoje: só conta no % de uso atualizado.
+        var acabou = new JobOn { Reference = $"S{p}C", ProductionNumber = "3", Machine = machine, InicioEm = hoje.AddDays(-30), FimEm = hoje };
+        db.JobOns.AddRange(porVer, visto, acabou);
         db.Tools.Add(new Tool { ToolId = $"BQ-PGS-{p}", Type = ToolType.Bq, Reference = $"R{p}", Lot = "4" });
         await db.SaveChangesAsync();
         var controlo = new DMO.Alpha.Core.Controlo.Controlo { JobOnId = visto.Id };
         db.Controlos.Add(controlo);
         await db.SaveChangesAsync();
         db.BqContexts.Add(new BqContext { JobOnId = porVer.Id, ToolId = $"BQ-PGS-{p}" });
+        // O % de uso atualizado (Diogo, 23/10/2026): a BQ também trabalhou no Job On que acabou hoje.
+        db.BqContexts.Add(new BqContext { JobOnId = acabou.Id, ToolId = $"BQ-PGS-{p}" });
+        db.FerramentaUtilizacoes.Add(new FerramentaUtilizacao { ToolId = $"BQ-PGS-{p}", Percentagem = 20m, RegistadaEmUtc = agora.AddDays(-31) });
+        db.FerramentaUtilizacoes.Add(new FerramentaUtilizacao { ToolId = $"BQ-PGS-{p}", Percentagem = 23m, RegistadaEmUtc = agora });
         db.ControloViewings.Add(new ControloViewing { ControloId = controlo.Id, OperatorId = p[..4], ViewedAtUtc = agora });
         db.ControloDecisoes.Add(new ControloDecisao { ControloId = controlo.Id, Parte = ControloParte.Peso, Aprovado = false, OperatorId = p[..4], EmUtc = agora, Nota = "Refazer" });
         db.JobOnChanges.Add(new JobOnChange { JobOnId = visto.Id, Field = JobOnChangeFields.Machine, OldValueFrozen = "B1", NewValueFrozen = "B2", ChangedAtUtc = agora });
@@ -70,7 +76,7 @@ public sealed class PlaneamentoSumarioPostgresTests
             Assert.Contains(meus, i => i.Tipo == SumarioTipo.ProducaoComeca && i.JobOnId == visto.Id);
             Assert.Equal(porVer.Id, Assert.Single(meus, i => i.Tipo == SumarioTipo.JobOnPorVer).JobOnId);
             Assert.Equal(visto.Id, Assert.Single(meus, i => i.Tipo == SumarioTipo.JobOnCriado).JobOnId);
-            Assert.Equal("Mudou a máquina: B1 → B2", Assert.Single(meus, i => i.Tipo == SumarioTipo.JobOnAlterado).Detalhe);
+            Assert.Equal("Mudou a linha: B1 → B2", Assert.Single(meus, i => i.Tipo == SumarioTipo.JobOnAlterado).Detalhe);
             Assert.Equal("Refazer", Assert.Single(meus, i => i.Tipo == SumarioTipo.ControloNaoAprovado).Detalhe);
             var apagado = Assert.Single(meus, i => i.Tipo == SumarioTipo.BqMovimentoApagado);
             Assert.Equal("Entrada de 2", apagado.Detalhe);
@@ -78,13 +84,29 @@ public sealed class PlaneamentoSumarioPostgresTests
             var emFalta = Assert.Single(meus, i => i.Tipo == SumarioTipo.FerramentaDadosEmFalta);
             Assert.Equal($"BQ-PGS-{p}", emFalta.ToolId);
             Assert.StartsWith("Falta: marisa, gargalo · ", emFalta.Detalhe);
+            var uso = Assert.Single(meus, i => i.Tipo == SumarioTipo.UsoAtualizado);
+            Assert.Equal((acabou.Id, $"BQ-PGS-{p}", hoje), (uso.JobOnId!.Value, uso.ToolId, uso.Dia));
+            Assert.StartsWith("+3 % nesta produção · agora 23 % · ", uso.Detalhe);
+
+            // Os por resolver do grupo «Importante» (Diogo, 23/10/2026), também traduzidos no PostgreSQL.
+            var porResolver = (await query.PorResolverAsync(hoje, SumarioTipos.Todos))
+                .Where(i => i.Titulo.Contains(p, StringComparison.Ordinal) || i.Por?.Contains(p, StringComparison.Ordinal) == true).ToList();
+            Assert.Contains(porResolver, i => i.Tipo == SumarioTipo.JobOnPorVer && i.JobOnId == porVer.Id);
+            Assert.DoesNotContain(porResolver, i => i.Tipo == SumarioTipo.JobOnPorVer && i.JobOnId == visto.Id);
+            Assert.Equal(visto.Id, Assert.Single(porResolver, i => i.Tipo == SumarioTipo.ControloNaoAprovado).JobOnId);
+            Assert.Single(porResolver, i => i.Tipo == SumarioTipo.BqMovimentoApagado);
+            // Os dados em falta das produções que não acabaram antes de hoje (a que acabou hoje também).
+            Assert.Equal([porVer.Id, acabou.Id], porResolver.Where(i => i.Tipo == SumarioTipo.FerramentaDadosEmFalta).Select(i => i.JobOnId!.Value).Order().ToArray());
+            // A BQ tem a leitura do fim: o % de uso está resolvido.
+            Assert.DoesNotContain(porResolver, i => i.Tipo == SumarioTipo.UsoAtualizado);
         }
         finally
         {
             db.ChangeTracker.Clear();
             await db.BqMovementDeletions.Where(d => d.DeletedByNameFrozen == $"Apagou {p}").ExecuteDeleteAsync();
             await db.JobOnChanges.Where(c => c.JobOnId == visto.Id).ExecuteDeleteAsync();
-            await db.BqContexts.Where(c => c.JobOnId == porVer.Id).ExecuteDeleteAsync();
+            await db.BqContexts.Where(c => c.JobOnId == porVer.Id || c.JobOnId == acabou.Id).ExecuteDeleteAsync();
+            await db.FerramentaUtilizacoes.Where(u => u.ToolId == $"BQ-PGS-{p}").ExecuteDeleteAsync();
             await db.ControloDecisoes.Where(d => d.ControloId == controlo.Id).ExecuteDeleteAsync();
             await db.ControloViewings.Where(v => v.ControloId == controlo.Id).ExecuteDeleteAsync();
             await db.Controlos.Where(c => c.Id == controlo.Id).ExecuteDeleteAsync();
