@@ -57,7 +57,10 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         HandleCookies = true
     });
 
-    private async Task<HttpClient> LoginOperatorAsync(string operatorId, params string[] capabilities)
+    private Task<HttpClient> LoginOperatorAsync(string operatorId, params string[] capabilities) =>
+        LoginOperatorAsync(_factory, operatorId, capabilities);
+
+    private async Task<HttpClient> LoginOperatorAsync(WebApplicationFactory<Program> host, string operatorId, params string[] capabilities)
     {
         var email = $"{operatorId}@dmo.local";
         var password = $"Outra{operatorId}!";
@@ -72,7 +75,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
             db.TemplateAssignments.Add(new TemplateAssignment { UserId = user.Id, TemplateId = template.Id });
             return db.SaveChanges();
         });
-        var client = CreateClient();
+        var client = host.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
         var loginHtml = await (await client.GetAsync("/login")).Content.ReadAsStringAsync();
         var response = await client.PostAsync("/login", HtmlFormHelpers.BuildFormPost(
             ("identifier", email),
@@ -400,14 +403,39 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         Assert.Contains("CM 55JT324 · lote 2", semRegistar);
     }
 
+    // O dia e a hora do registo vêm do MESMO instante e do dia operacional
+    // da própria aplicação (hora de Lisboa e hora de viragem), nunca da data
+    // UTC: entre a meia-noite UTC e a viragem, a data UTC já é amanhã e o
+    // registo do dia ficava vazio (o teste falhava de madrugada).
     [Fact]
-    public async Task OPainel_BAntesDeC_ORegistoSoDestaPessoa_EditarNoCanto()
+    public Task OPainel_BAntesDeC_ORegistoSoDestaPessoa_EditarNoCanto() => PainelAsync(_factory, "6810");
+
+    // O mesmo, com o relógio logo a seguir à meia-noite em Lisboa (00:05).
+    [Fact]
+    public async Task OPainel_LogoDepoisDaMeiaNoite_ORegistoDoDiaOperacional()
+    {
+        // Hoje em Lisboa às 00:05 (a produção da máquina cobre de anteontem a depois de amanhã).
+        var hojeLisboa = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
+        var meiaNoite = new RelogioFixo(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToUtc(hojeLisboa.ToDateTime(new TimeOnly(0, 5))));
+        await using var host = _factory.WithWebHostBuilder(b => b.ConfigureServices(s => s.AddSingleton<TimeProvider>(meiaNoite)));
+        await PainelAsync(host, "6811");
+    }
+
+    private async Task PainelAsync(WebApplicationFactory<Program> host, string operador)
     {
         var (codigo, jobOn) = Maquina("K");
-        using var client = await LoginOperatorAsync("6810", DmoCapabilities.ReparacaoInterna);
+        using var client = await LoginOperatorAsync(host, operador, DmoCapabilities.ReparacaoInterna);
+        // Um só instante: o relógio da aplicação e o dia operacional que ela calcula com ele.
+        DateTime agora;
+        DateOnly dia;
+        using (var scope = host.Services.CreateScope())
+        {
+            agora = (scope.ServiceProvider.GetService<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime;
+            dia = await scope.ServiceProvider.GetRequiredService<IReparacoesInternas>().DiaOperacionalAsync();
+        }
         NaBase(db =>
         {
-            var eu = db.Users.AsNoTracking().Single(u => u.OperatorId == "6810").Id;
+            var eu = db.Users.AsNoTracking().Single(u => u.OperatorId == operador).Id;
             var m = db.Machines.AsNoTracking().Single(x => x.Code == codigo);
             var cm = db.CmContexts.AsNoTracking().Single(c => c.JobOnId == jobOn);
             foreach (var (n, min, quem) in new[] { ("K1", 10, (Guid?)eu), ("K2", 5, (Guid?)eu), ("K3", 1, (Guid?)null) })
@@ -415,7 +443,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
                 db.ReparacoesInternas.Add(new Reparacao
                 {
                     JobOnId = jobOn, MachineId = m.Id, Tipo = ReparacaoTipo.Cm, CmContextId = cm.Id, Numero = n,
-                    RegistadoEmUtc = DateTime.UtcNow.AddMinutes(-min), DiaOperacional = Hoje, RegistadoPorUserId = quem
+                    RegistadoEmUtc = agora.AddMinutes(-min), DiaOperacional = dia, RegistadoPorUserId = quem
                 });
                 db.SaveChanges();
             }
@@ -449,5 +477,10 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         var html = await client.GetStringAsync("/ReparacaoInterna?correcao=igual&numero=5");
 
         Assert.DoesNotContain("data-dmo-toast", Elemento(html, "id=\"riAvisos\""));
+    }
+
+    private sealed class RelogioFixo(DateTime utc) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => new(DateTime.SpecifyKind(utc, DateTimeKind.Utc));
     }
 }

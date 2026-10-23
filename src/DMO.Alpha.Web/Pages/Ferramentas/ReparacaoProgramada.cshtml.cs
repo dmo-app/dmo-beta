@@ -108,7 +108,7 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
     public async Task<IActionResult> OnGetAsync(int? associadas, string[]? aviso, string? recusa, int? criada)
     {
         var ct = HttpContext.RequestAborted;
-        ViewData["Title"] = "Reparação Programada — Ferramentas";
+        ViewData["Title"] = "Registar Reparação — Ferramentas";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
         {
             ActiveFunctionKey = "programada",
