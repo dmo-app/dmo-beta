@@ -498,3 +498,15 @@ html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
 html body .jof2 .pick-row select.prod-select,html body .jof2 .pick-row .prod-drop{flex:0 0 128px;width:128px;min-width:0}
 .jof2 .pick-row .ref-search{flex:1 1 0;min-width:0}
 .jof2 .pick-row .ref-search input{width:100%;min-width:0}
+/* Rótulos pequenos por cima da procura e da produção; o botão das linhas com a
+   mesma altura das caixas e alinhado em baixo (Diogo, 23/10/2026). */
+html body .jof2 .pick-row{display:flex;align-items:flex-end;flex-wrap:nowrap}
+html body .jof2 .pick-row>.pick-campo{display:flex;flex-direction:column;gap:3px;min-width:0;flex:none}
+html body .jof2 .pick-row>.pick-campo:has(.ref-search){flex:1 1 0}
+.jof2 .pick-rotulo{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
+html body .jof2 .pick-row .rail-toggle{height:38px;min-height:38px;box-sizing:border-box}
+/* Cabeçalho com letra maior, para usar o espaço em branco (Diogo, 23/10/2026). */
+@media (min-width:1241px){html body .jof2 .fv{font-size:24px}html body .jof2 .fl{font-size:17px}}
+/* «Informação técnica» sozinha ao lado do triângulo; o resto só ao abrir (Diogo, 23/10/2026). */
+.jof2 .more-preview{display:none}
+html body .jof2 .pick-campo>.prod-drop,html body .jof2 .pick-campo>select.prod-select,html body .jof2 .pick-campo>.ref-search{flex:none}

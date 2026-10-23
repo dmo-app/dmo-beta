@@ -420,9 +420,9 @@ else
       </div>
       <div class="head-right">
         <div class="pick-block">
-          @if (!editar || Model.Criar)
+          @if (Model.Criar)
           {
-            <span class="eyebrow">@(Model.Criar ? (Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On") : "Ficha de moldes")</span>
+            <span class="eyebrow">@(Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On")</span>
           }
           <h1 class="sr-only">@Model.ReferenciaTotal</h1>
           <div class="pick-row">
@@ -443,10 +443,13 @@ else
             }
             else
             {
+              @* Sem «Ficha de moldes»: cada caixa diz o que é, em letra pequena (Diogo, 23/10/2026). *@
+              <div class="pick-campo"><label class="pick-rotulo" for="jofReferencia">Referência</label>
               <div class="ref-search" role="search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
                 <input type="search" form="jofProcura" name="referencia" id="jofReferencia" value="@Model.ReferenciaTotal" aria-label="Referência: escreva para procurar outra" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-suggest="referencias" data-dmo-suggest-submit />
-              </div>
+              </div></div>
+              <div class="pick-campo"><label class="pick-rotulo" for="jofProducoes">Produção</label>
               <select id="jofProducoes" class="prod-select" data-dmo-ir aria-label="Produção desta referência">
                 @foreach (var p in Model.Producoes)
                 {
@@ -456,7 +459,7 @@ else
                 {
                   <option value="/JobOn/Folha?jobon_id=@jobOn.JobOnId" selected="selected">@jobOn.ProductionNumber · @jobOn.Machine</option>
                 }
-              </select>
+              </select></div>
             }
           </div>
           @if (!editar)
