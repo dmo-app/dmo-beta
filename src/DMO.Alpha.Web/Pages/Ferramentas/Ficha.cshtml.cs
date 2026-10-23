@@ -241,6 +241,13 @@ public sealed class FichaModel : PageModel
     /// </summary>
     public string? ContinueUrl { get; private set; }
 
+    /// <summary>O regresso à folha do Job On que abriu esta ficha (o duplo
+    /// clique numa ferramenta da /JobOn/Folha). Só caminhos locais do Job On.</summary>
+    public string? VoltarJobOn { get; private set; }
+
+    public static string? SafeVoltarJobOn(string? voltar) =>
+        LocalUrl.IsSafe(voltar) && voltar.StartsWith("/JobOn/", StringComparison.Ordinal) ? voltar : null;
+
     /// <summary>Na recusa LotAlreadyExists da edição: a ferramenta que já tem esses factos.</summary>
     public string? ExistingToolId { get; private set; }
 
@@ -507,6 +514,7 @@ public sealed class FichaModel : PageModel
                 ? IndexModel.Sanitize(existingToolId)
                 : null;
         ContinueUrl = SafeReturn(continuar);
+        VoltarJobOn = SafeVoltarJobOn(Request.Query["voltar"]);
 
         RequestedToolId = IndexModel.Sanitize(toolId);
         Sheet = RequestedToolId is null

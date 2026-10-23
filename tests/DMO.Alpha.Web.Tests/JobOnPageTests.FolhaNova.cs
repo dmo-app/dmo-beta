@@ -134,7 +134,7 @@ public partial class JobOnPageTests
         Assert.DoesNotContain("Lote 01", html, StringComparison.Ordinal);
         // A cor da linha vem da mesma fonte do Planeamento (mch-B2).
         Assert.Contains("class=\"mch dmo-linha-cor mch-B2\" data-jof-linha>B2</span>", html, StringComparison.Ordinal);
-        Assert.Contains($"data-jof-ficha=\"/Ferramentas/Ficha?tool_id=F-CM\"", html, StringComparison.Ordinal);
+        Assert.Contains($"data-jof-ficha=\"/Ferramentas/Ficha?tool_id=F-CM&amp;voltar=%2FJobOn%2FFolha%3Fjobon_id%3D{id}\"", html, StringComparison.Ordinal);
         // As Opções: Reparação (Planeamento); sem Controlo sem módulo do Controlo; nunca «Nova produção».
         var opcoes = Zona(html, "data-jof-opcoes");
         opcoes = opcoes[..opcoes.IndexOf("</details>", StringComparison.Ordinal)];

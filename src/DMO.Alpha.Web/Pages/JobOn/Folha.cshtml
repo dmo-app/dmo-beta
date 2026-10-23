@@ -150,7 +150,7 @@
     void CabecaFerramenta(string tipo, string? toolId, string nome)
     {
         var f = Model.Fact(toolId);
-        var ficha = toolId is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}";
+        var ficha = toolId is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&voltar={Uri.EscapeDataString($"{Model.Request.Path}{Model.Request.QueryString}")}";
         <div class="jof-tool-slot" data-jof-tool-slot="@tipo">
           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
                   title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
