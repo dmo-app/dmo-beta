@@ -323,6 +323,10 @@
               }
             </div>
           </details>
+          @if (Model.VoltarJobOn is { } voltarJobOn)
+          {
+            <a class="dmo-button" href="@voltarJobOn" data-ferr-voltar-jobon>Voltar ao Job On</a>
+          }
           <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
         </div>
       </div>

@@ -69,13 +69,12 @@
   @* O % DE USO (Diogo, 22/10/2026): escrito à mão, opcional, gravado com o
      «Guardar» do Editar como uma leitura nova (origem manual). Vazio ou igual
      não grava; acima de 100 grava e avisa. *@
-  @if (!Model.Criar)
-  {
+  @* Também no Criar (Diogo, 23/10/2026: «não tem a percentagem de uso»):
+     grava como a primeira leitura da ferramenta. *@
     <div class="dmo-field ferr-w-uso">
       <label for="@(p)-uso">% uso<partial name="_DmoHelp" model="@(Model.UsoData is { } dataUso ? $"Última leitura: {dataUso}. Um valor novo fica como leitura de hoje." : "Ainda sem leitura. Um valor escrito fica como leitura de hoje.")" /></label>
-      <input id="@(p)-uso" name="uso_percentagem" type="text" inputmode="numeric" maxlength="4" value="@Model.UsoPercentagem" placeholder="sem registo" class="@(string.IsNullOrEmpty(Model.UsoPercentagem) ? "ferr-sem-registo-campo" : null)" />
+      <input id="@(p)-uso" name="uso_percentagem" type="text" inputmode="numeric" maxlength="4" value="@Model.UsoPercentagem" placeholder="@(Model.Criar ? null : "sem registo")" class="@(!Model.Criar && string.IsNullOrEmpty(Model.UsoPercentagem) ? "ferr-sem-registo-campo" : null)" />
     </div>
-  }
 </div>
 <span class="ferr-tech-sep ferr-editar-sep" aria-hidden="true"></span>
 @* INFORMAÇÃO OPCIONAL (Diogo, 22/10/2026): a Ref. MF, o nome técnico e a

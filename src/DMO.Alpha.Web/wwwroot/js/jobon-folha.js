@@ -72,7 +72,7 @@
           if (ref) ref.textContent = partes[0] || '';
           if (lt) lt.textContent = lote((partes[1] || '').replace(/^Lote\s*/, ''));
           botao.classList.remove('tool-empty');
-          botao.setAttribute('data-jof-ficha', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value));
+          botao.setAttribute('data-jof-ficha', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value) + '&voltar=' + encodeURIComponent(location.pathname + location.search));
         }
         procura.hidden = true;
         slot.classList.remove('is-mudar');

@@ -55,13 +55,9 @@
         }
       </select>
     </div>
-    <div class="field dmo-field">
-      <label for="bq-tool-size">Por página</label>
-      <select id="bq-tool-size" name="por_pagina" data-dmo-autosubmit>
-        <option value="10" selected="@(Model.CatalogPageSize == 10)">10</option>
-        <option value="20" selected="@(Model.CatalogPageSize == 20)">20</option>
-      </select>
-    </div>
+    @* O «Por página» é da página, junto da paginação, nunca nos filtros
+       (Diogo, 23/10/2026); os filtros guardam-no ao pesquisar. *@
+    <input type="hidden" name="por_pagina" value="@Model.CatalogPageSize" />
     <div class="bq-tool-actions">
       <a class="btn" href="@Url.Page("/Boquilhas/Index", new { ficheiros = 1, por_pagina = Model.CatalogPageSize })">Limpar</a>
     </div>
@@ -97,6 +93,17 @@
     <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber > 1 ? Model.CatalogLink(Model.CatalogPageNumber - 1) : null)" aria-label="Página anterior" aria-disabled="@(Model.CatalogPageNumber <= 1 ? "true" : null)">←</a>
     <span aria-label="Página @Model.CatalogPageNumber de @Model.CatalogPages">@Model.CatalogPageNumber de @Model.CatalogPages</span>
     <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber < Model.CatalogPages ? Model.CatalogLink(Model.CatalogPageNumber + 1) : null)" aria-label="Página seguinte" aria-disabled="@(Model.CatalogPageNumber >= Model.CatalogPages ? "true" : null)">→</a>
+    @* Mudar o «Por página» mantém os filtros e volta à página 1. *@
+    <form method="get" asp-page="/Boquilhas/Index" class="dmo-por-pagina" data-dmo-fica data-dmo-parcial>
+      <input type="hidden" name="ficheiros" value="1" />
+      @if (!string.IsNullOrEmpty(Model.CatalogSearch)) {<input type="hidden" name="q" value="@Model.CatalogSearch" />}
+      @if (Model.CatalogMachineId is { } maquinaFiltro) {<input type="hidden" name="machine_id" value="@maquinaFiltro" />}
+      <label for="bq-tool-size">Por página</label>
+      <select id="bq-tool-size" name="por_pagina" data-dmo-autosubmit>
+        <option value="10" selected="@(Model.CatalogPageSize == 10)">10</option>
+        <option value="20" selected="@(Model.CatalogPageSize == 20)">20</option>
+      </select>
+    </form>
   </nav>
   }
 </div>

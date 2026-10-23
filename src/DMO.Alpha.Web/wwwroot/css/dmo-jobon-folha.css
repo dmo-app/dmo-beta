@@ -394,7 +394,10 @@
 .jof2-gaveta .rail-vazio{margin:0;color:var(--rail-muted);font-size:13px}
 .jof2 .jobon-aviso{margin:0 0 12px}
 .jof2 .jof-ref-vazia input{width:220px}
-.jof2-gaveta .mch{display:inline-block;min-width:30px;text-align:center;padding:3px 6px;border-radius:6px;color:#fff;font-size:11px;font-weight:800}
+.jof2-gaveta .mch{display:inline-grid;place-items:center;box-sizing:border-box;min-width:30px;height:20px;padding:0 6px;line-height:1;border-radius:6px;color:#fff;font-size:11px;font-weight:800}
+/* O painel com as cores do Planeamento (Diogo, 23/10/2026): o cartão leva o soft da linha,
+   a mesma mistura da lista do dia (.beta-light-machine-row, 12% de --dmo-machine-color). */
+.jof2-gaveta .rail-item.dmo-linha-cor:not(.selected){background:color-mix(in srgb,var(--dmo-machine-color) 12%,var(--rail-item))}
 html body .jof2 select.prod-select,html body .jof2 .ref-search input{height:42px;font-size:19px;font-weight:800}
 html body .jof2 .ref-search input{padding-left:32px}
 html body .jof2 .fv input[type="date"]{width:150px}

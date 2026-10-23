@@ -150,7 +150,7 @@
     void CabecaFerramenta(string tipo, string? toolId, string nome)
     {
         var f = Model.Fact(toolId);
-        var ficha = toolId is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}";
+        var ficha = toolId is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&voltar={Uri.EscapeDataString($"{Model.Request.Path}{Model.Request.QueryString}")}";
         <div class="jof-tool-slot" data-jof-tool-slot="@tipo">
           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
                   title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
@@ -342,7 +342,7 @@ else
           @foreach (var e in Model.ProximasEntradas)
           {
             var sel = e.JobOnId == jobOn.JobOnId;
-            <a class="rail-item@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>Produção @e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
+            <a class="rail-item dmo-linha-cor mch-@e.Machine@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>Produção @e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
           }
         </div>
       </aside>

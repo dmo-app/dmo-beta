@@ -126,6 +126,44 @@ public partial class BoquilhasRegistoPageTests
         ExportCatalogEvidence("catalog-all", allMachines);
     }
 
+    // O «Por página» é da página, junto da paginação, nunca nos filtros (Diogo,
+    // 23/10/2026): muda mantendo a pesquisa e a máquina e volta à página 1;
+    // os filtros guardam o tamanho escolhido; sem pesquisa não aparece.
+    [Fact]
+    public async Task ToolCatalog_PorPagina_NaPaginacao_NuncaNosFiltros()
+    {
+        SeedUser("4923", "Por página BQ", "catalog-por-pagina", "CatalogPass1!", withFerramentas: true);
+        using var client = await LoginClientAsync("4923", "CatalogPass1!");
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+        var machine = new Machine { Code = "C2" };
+        db.Machines.Add(machine);
+        for (var i = 1; i <= 12; i++)
+        {
+            var tool = new Tool { ToolId = $"porpag-{i:00}", Type = ToolType.Bq, Reference = "T909", Lot = $"9/{i:00}", BqAccountedQuantity = 10 };
+            db.Tools.Add(tool);
+            db.ToolMachineLinks.Add(new ToolMachineLink { Tool = tool, Machine = machine });
+        }
+        await db.SaveChangesAsync();
+
+        var vazia = await client.GetStringAsync("/Boquilhas?ficheiros=1");
+        Assert.DoesNotContain("id=\"bq-tool-size\"", vazia);
+
+        var html = await client.GetStringAsync($"/Boquilhas?ficheiros=1&q=t909&machine_id={machine.Id}&pagina=2&por_pagina=10");
+        var filtros = Regex.Match(html, "<form[^>]*class=\"bq-tool-search\"[\\s\\S]*?</form>").Value;
+        Assert.DoesNotContain("<select id=\"bq-tool-size\"", filtros);
+        Assert.Contains("<input type=\"hidden\" name=\"por_pagina\" value=\"10\" />", filtros);
+        var paginacao = Regex.Match(html, "<nav[^>]*class=\"bq-tool-pagination\"[\\s\\S]*?</nav>").Value;
+        Assert.Contains("<select id=\"bq-tool-size\" name=\"por_pagina\"", paginacao);
+        Assert.Contains("name=\"q\" value=\"t909\"", paginacao);
+        Assert.Contains($"name=\"machine_id\" value=\"{machine.Id}\"", paginacao);
+        Assert.DoesNotContain("name=\"pagina\"", paginacao);
+
+        var vinte = await client.GetStringAsync($"/Boquilhas?ficheiros=1&q=t909&machine_id={machine.Id}&por_pagina=20");
+        Assert.Equal(12, Regex.Matches(vinte, "name=\"bq_tool\"").Count);
+        Assert.Contains(">1 de 1</span>", vinte);
+    }
+
     [Fact]
     public async Task ToolCatalog_SoAMaquinaNaoMostraALista_OTextoMostra_EAMaquinaSoReduz()
     {

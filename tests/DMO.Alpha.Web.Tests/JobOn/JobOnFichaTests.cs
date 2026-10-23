@@ -624,7 +624,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var mf = html[html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal)..];
         mf = SemAvisoDoArmazem(mf[..mf.IndexOf("</article>", StringComparison.Ordinal)]);
         Assert.Contains("aria-label=\"Molde final 5810 lote 1\"", mf);
-        Assert.Contains("data-jof-ficha=\"/Ferramentas/Ficha?tool_id=MF-TOOL-9\"", mf);
+        Assert.Contains("data-jof-ficha=\"/Ferramentas/Ficha?tool_id=MF-TOOL-9&voltar=", mf);
         Assert.DoesNotContain("role=\"status\"", mf);
         Assert.DoesNotContain("role=\"alert\"", mf);
         Assert.DoesNotContain(">Completar</a>", html);
