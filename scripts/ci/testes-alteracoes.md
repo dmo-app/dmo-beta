@@ -2005,3 +2005,13 @@ Novos: 27 · mudaram: 8 · saíram: 0
 - mudou: `tests/visual/painel_lateral_browser.py`
 
 Selo depois: `a58e28feffc41dea`
+
+## A-0082 · 2026-10-23 · ok-do-diogo
+
+Porquê: O novo teste de cores do painel que chegou de main beta.28 também usava file://. Adapta apenas o transporte para HTTP simulado, mantendo os mesmos CSS e todas as verificações de cores, seleção e centragem. O Chromium do ambiente bloqueia file:// por política.
+Referência: Conversa de 23/10/2026: aplicar melhorias e validar sobre a versão atual, sem perder as alterações recentes
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/painel_cores_linhas_browser.py`
+
+Selo depois: `516904313d3e1a72`

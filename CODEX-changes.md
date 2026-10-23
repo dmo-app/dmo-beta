@@ -1,7 +1,7 @@
 # CODEX-changes
 
 Alterações de 23/10/2026 sobre **DMO 0.3.0-beta.24**, commit de origem `996cb0e190322aee8f9274ac6f0207c4e0a8b94f`.
-A versão da app não foi incrementada. CI completo aprovado na base beta.24; compatibilização com main beta.28 em curso. Sem merge nem deploy. O registo por página fica em [dmo-Improvements](https://github.com/dmo-app/dmo-Improvements).
+Diagnóstico e primeira validação na beta.24; entrega integrada sobre **0.3.0-beta.28**, main `fee8fc79c0d80ec5e04e761f7a4e31c220cd108b`. O número recebido de main foi preservado. CI completo da integração **OK**; sem merge nem deploy. O registo por página fica em [dmo-Improvements](https://github.com/dmo-app/dmo-Improvements).
 
 ## Alterações e motivos
 
@@ -25,13 +25,13 @@ A versão da app não foi incrementada. CI completo aprovado na base beta.24; co
 | Operação | /health/live e /health/ready com configuração/base/migrações e timeout de 3 s | Distingue processo vivo de aplicação pronta, sem migrar nem chamar Supabase na sonda |
 | HTTP | nosniff, Referrer-Policy e cookie Secure obrigatório fora de Development | Reforça proteção mantendo os fluxos locais |
 | Build / ambiente | SDK 10.0.402 fixado no global.json, Docker e instalação cloud; runtime Docker 10.0.13 | Reduz diferenças entre compilação local e imagem de publicação |
-| CI / navegador | Teste do painel carrega os mesmos ficheiros por HTTP simulado em vez de file://; lista de migrações inclui a migração nova | Permite executar a mesma verificação num Chromium que bloqueia file://; preserva as medições de contraste |
+| CI / navegador | Testes dos painéis lateral e de cores carregam os mesmos ficheiros por HTTP simulado em vez de file://; lista de migrações inclui a migração nova | Permite executar a mesma verificação num Chromium que bloqueia file://; preserva as medições de contraste |
 
 ## Provas antes da correção
 
 - Editar: teste autenticado recebia 500 ao tentar carregar o painel que o formulário não mostra; passou após retirar a leitura desnecessária.
 - Factos do Job On: o teste com a consulta antiga falhou com `Assert.InRange: Range (1 - 3), Actual 8`; o código corrigido faz três consultas e mantém os últimos valores.
-- Medição local da consulta: três ferramentas, 1.000 estados e 1.000 utilizações por ferramenta; mediana de cinco execuções após aquecimento: **8 consultas / 44,2 ms → 3 consultas / 3,1 ms**. Não é o tempo total da página nem uma medição em produção.
+- Medição local da consulta na base inicial beta.24: três ferramentas, 1.000 estados e 1.000 utilizações por ferramenta; mediana de cinco execuções após aquecimento: **8 consultas / 44,2 ms → 3 consultas / 3,1 ms**. Não é o tempo total da página nem uma medição em produção.
 - Excel: Chromium falhava com «o movimento que chega durante a escrita também tem de chegar ao Excel»; a fila corrigida passou.
 - Rascunhos: os testes recuperavam «DA-CONTA-A» na conta B e «trabalho antigo» sobre «servidor novo» antes do isolamento/versão.
 - Excel inválido: estrutura incompleta dava NullReferenceException; um livro com parte expandida excessiva era aceite.
@@ -40,7 +40,7 @@ A versão da app não foi incrementada. CI completo aprovado na base beta.24; co
 
 ## Validação
 
-CI oficial na base beta.24: **OK**, sem partes desligadas. Infrastructure: 1.656 aprovados e 6 testes externos separados; Web: 1.043 aprovados; JavaScript: 243 aprovados; todos os cenários Chromium aprovados. Supabase Auth repetido com o código atualizado: **6/6 aprovados**, contas temporárias removidas. A integração com main beta.28 exige nova execução do CI.
+CI oficial na base beta.24: **OK**, sem partes desligadas. Infrastructure: 1.656 aprovados e 6 testes externos separados; Web: 1.043 aprovados; JavaScript: 243 aprovados; todos os cenários Chromium aprovados. Supabase Auth repetido com o código atualizado: **6/6 aprovados**, contas temporárias removidas. Após integrar main beta.28: **CI local: OK**, com **1.657 Infrastructure**, **1.072 Web**, **243 JavaScript** e todos os cenários Chromium, incluindo os novos testes da Folha. Os seis testes externos mantêm a execução separada acima.
 
 Comando reproduzido no ambiente preparado:
 
@@ -56,7 +56,7 @@ NODE_OPTIONS=--test-reporter=tap \
 bash scripts/ci/ci-local.sh
 ```
 
-`NODE_OPTIONS` fixa o formato do relatório que o CI conta. A guarda dos testes foi atualizada pelos comandos oficiais, com a autorização desta conversa e a mudança da lista de migrações registadas em `scripts/ci/testes-alteracoes.md`.
+`NODE_OPTIONS` fixa o formato do relatório que o CI conta. A guarda dos testes foi atualizada pelos comandos oficiais. No rebase, os dois ficheiros da guarda foram tomados de main e regenerados; as entradas finais A-0081/A-0082 preservam a autorização e a proveniência, sem duplicar os IDs entretanto usados em main.
 
 ## Migração e publicação
 
@@ -74,8 +74,13 @@ bash scripts/ci/ci-local.sh
 - Proxy, backups/PITR, restauro e latência no alojamento não foram verificados. Os testes do Excel em Chromium não substituem testar ficheiro aberto no Microsoft Excel em Windows.
 - Os registos persistidos dos envios não têm expiração automática nesta alteração; uma política de retenção futura deve preservar o período de repetição necessário.
 
+## Integração com main beta.28
+
+Preservadas as alterações recentes da Folha, a remoção de alterações por engano e a migração `20261023075945_JobOnAlteracaoRemovida`. O snapshot e o modelo de destino da migração nova incluem também essa evolução. A lista de migrações mantém ambas por ordem. Os testes novos da Folha de main entram no CI final. O teste novo de cores recebeu apenas a mesma adaptação de transporte HTTP do painel antigo.
+
 ## Inventário dos ficheiros alterados
 
+- `CODEX-changes.md`
 - `Dockerfile`
 - `global.json`
 - `scripts/ci/testes-alteracoes.md`
@@ -121,5 +126,5 @@ bash scripts/ci/ci-local.sh
 - `tests/DMO.Alpha.Web.Tests/ReadinessPageTests.cs`
 - `tests/ShellProof/jobon-rascunho.test.cjs`
 - `tests/visual/excel_bq_browser.py`
+- `tests/visual/painel_cores_linhas_browser.py`
 - `tests/visual/painel_lateral_browser.py`
-- `CODEX-changes.md` (este registo).

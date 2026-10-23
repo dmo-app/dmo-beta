@@ -11,8 +11,8 @@ Em claro e em escuro:
 - o texto do selo está centrado (a folga de cima e a de baixo diferem <= 1px).
 """
 import sys
-import tempfile
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from playwright.sync_api import sync_playwright
 
@@ -30,7 +30,7 @@ def cartao(id, linha, escolhido=False):
 
 
 HTML = '<!doctype html><html><head><meta charset="utf-8">' + ''.join(
-    f'<link rel="stylesheet" href="{(www / c).as_uri()}">' for c in CSS) + '''</head>
+    f'<link rel="stylesheet" href="/{c}">' for c in CSS) + '''</head>
 <body><div class="jof2-gaveta"><aside class="rail is-open" id="jofRail" style="transform:none;visibility:visible">
 <div class="rail-list">''' + cartao('b1', 'B1') + cartao('c2', 'C2') + cartao('sem', None) + cartao('esc', 'C3', True) \
     + cartao('escsem', None, True) + '</div></aside></div></body></html>'
@@ -44,13 +44,23 @@ MEDIR = '''() => {
 }'''
 
 falhas = []
-pagina = Path(tempfile.mkdtemp()) / 'painel-cores.html'
-pagina.write_text(HTML, encoding='utf-8')
 with sync_playwright() as playwright:
     browser = launch_chromium(playwright)
     for tema in ('light', 'dark'):
         page = browser.new_page(viewport={'width': 400, 'height': 700}, color_scheme=tema)
-        page.goto(pagina.as_uri())
+        def servir(route):
+            path = urlparse(route.request.url).path
+            if path == '/painel-cores.html':
+                route.fulfill(content_type='text/html; charset=utf-8', body=HTML)
+                return
+            asset = (www / unquote(path).lstrip('/')).resolve()
+            if asset.is_relative_to(www) and asset.is_file() and asset.suffix == '.css':
+                route.fulfill(content_type='text/css', body=asset.read_bytes())
+            else:
+                route.fulfill(status=404, body='')
+
+        page.route('**/*', servir)
+        page.goto('http://dmo.test/painel-cores.html')
         page.evaluate(f"document.documentElement.setAttribute('data-theme','{tema}')")
         page.wait_for_load_state('load')
         page.wait_for_timeout(400)  # as transições de fundo do cartão acabam
