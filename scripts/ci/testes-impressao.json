@@ -1,5 +1,5 @@
 {
-  "selo": "f8014bd20313ba06",
+  "selo": "d96a7f2ee41e164c",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2053,7 +2053,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: (resto do ficheiro)": "e0d01ce9aa695bc2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao": "6cb4ad7599210631",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou": "663bf5854cb671e5",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha": "60cead4abdb331b5",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha": "33918bec7a98680e",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesBoquilhas_SoComBoquilhas_AbreOsMovimentosDaBQDesteJobOn": "429b2b720c96d829",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao": "49c558747d318304",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_ProducoesAnteriores_NoDropdown_AbremAFolhaDeCada": "b5692b4c3553d365",
