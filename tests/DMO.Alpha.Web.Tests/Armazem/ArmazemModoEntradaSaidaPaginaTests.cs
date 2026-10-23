@@ -124,6 +124,11 @@ public sealed class ArmazemModoEntradaSaidaPaginaTests : IClassFixture<CustomWeb
         Assert.DoesNotContain(Linha(Dentro), semModo);
         Assert.Contains("id=\"armProcuraModoEntrada\" aria-pressed=\"true\"", semModo);
         Assert.Contains("<input type=\"hidden\" name=\"modo\" value=\"entrada\" />", semModo);
+        // A escolha vem primeiro: antes da Posição e da Referência do formulário.
+        var modo = semModo.IndexOf("id=\"armProcuraModoEntrada\"", StringComparison.Ordinal);
+        Assert.True(modo >= 0);
+        Assert.True(modo < semModo.IndexOf("id=\"armRapPosicao\"", StringComparison.Ordinal));
+        Assert.True(modo < semModo.IndexOf("id=\"armProcura\" ", StringComparison.Ordinal));
         // Saída: o formulário da procura e a procura ao escrever levam o modo; os links levam a procura.
         Assert.Contains("id=\"armProcuraModoSaida\" aria-pressed=\"true\"", saida);
         Assert.Contains("<input type=\"hidden\" name=\"modo\" value=\"saida\" />", saida);

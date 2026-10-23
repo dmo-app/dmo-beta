@@ -1,5 +1,5 @@
 {
-  "selo": "37e0e498134759a2",
+  "selo": "ff1839e76e72ab4c",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1409,7 +1409,7 @@
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: (resto do ficheiro)": "a00742272be2051c",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.Entrada_MostraSoAsDeFora_ComOLoteNovo_EAbreAEntrada": "18aea98610dd61f3",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.Saida_MostraSoAsDasPosicoes_SemLoteNovo_EAPosicaoProcuraOQueLaEsta": "b94edf357b2e14c3",
-    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.SemModo_EAEntrada_EOModoSegueNaProcura": "e639f3ef435164f7",
+    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.SemModo_EAEntrada_EOModoSegueNaProcura": "12002eb76f5606da",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: (resto do ficheiro)": "52059ae4ff615b4a",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.ComAsFerramentas_ALinhaDasUltimasAbreAFicha_NoRegistoENosMovimentos": "07d75578ee4e40e2",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.CorrigirLocalizacao_TiraDoArmazem": "9bd22f788d9a0a21",
