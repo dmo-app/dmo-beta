@@ -1961,3 +1961,21 @@ Novos: 1 · mudaram: 2 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina`
 
 Selo depois: `e7b31ffc3658f539`
+
+## A-0082 · 2026-10-23 · ok-do-diogo
+
+Porquê: O Diogo pediu que a alteração removida por engano se apague por completo, para não juntar lixo; os testes passam a verificar que a linha desaparece.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyS6ySBbPmD2UR76TUjZLB2N, cmsg_01A27e9ozcpoh4jdPRsuJbFy8V5jRJ6Vyt7H3A32Ud2CoD
+Novos: 1 · mudaram: 7 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnRemoverAlteracaoTests.cs :: JobOnRemoverAlteracaoTests.RemoverAUltima_AMarcaSai_OQueMudouDesaparece_EUmSegundoEnvioNaoFalha`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnChangeTests.cs :: JobOnChangeTests.RemoveByMistake_KeepsTheRow_MarksWhoAndWhen_HidesItFromTheMarkerAndNotices_ValuesUnchanged`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnRemoverAlteracaoTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnRemoverAlteracaoTests.cs :: JobOnRemoverAlteracaoTests.QuemSoVeOJobOn_NaoVeAJanela_EUmPostForjadoNaoMudaNada`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnRemoverAlteracaoTests.cs :: JobOnRemoverAlteracaoTests.Remover_SaiDaMarcaEDoSumario_FicaRiscadaComQuemEQuando_EOsValoresNaoMudam`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnRemoverAlteracaoTests.cs :: JobOnRemoverAlteracaoTests.UmaAlteracaoDeOutroJobOn_NaoSeRemove`
+- mudou: `tests/visual/jobon_folha_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnRemoverAlteracaoTests.cs :: JobOnRemoverAlteracaoTests.RemoverAUltimaAtiva_AMarcaSai_AFolhaContinuaAMostrarAsRemovidas_EUmSegundoEnvioNaoMuda`
+
+Selo depois: `32a264ffb223c884`
