@@ -6,18 +6,22 @@ namespace DMO.Alpha.Infrastructure.Tests.Tools;
 public sealed class CsFurosTextoTests
 {
     [Theory]
-    [InlineData("Fechado · 4", "Fechado", "4")]
-    [InlineData("aberto · 12", "Aberto", "12")]
-    [InlineData("Fechado", "Fechado", null)]
-    [InlineData("4 × 4", null, null)]
-    [InlineData(null, null, null)]
-    public void Ler(string? texto, string? estado, string? numero)
-        => Assert.Equal((estado, numero), CsFurosTexto.Ler(texto));
+    [InlineData("Abertos 4 / Fechados 2", true, "4", "2")]
+    [InlineData("abertos 0 / fechados 9", true, "0", "9")]
+    [InlineData("Abertos 3", true, "3", null)]
+    [InlineData("Fechados 1", true, null, "1")]
+    [InlineData("4 × 4", false, null, null)]
+    [InlineData("Abertos 12 / Fechados 2", false, null, null)]
+    [InlineData(null, false, null, null)]
+    public void Ler(string? texto, bool lido, string? abertos, string? fechados)
+        => Assert.Equal((lido, abertos, fechados), CsFurosTexto.Ler(texto));
 
     [Theory]
-    [InlineData("Fechado", "4", "Fechado · 4")]
-    [InlineData("Aberto", null, "Aberto")]
+    [InlineData("4", "2", "Abertos 4 / Fechados 2")]
+    [InlineData("4", null, "Abertos 4")]
+    [InlineData(null, "2", "Fechados 2")]
+    [InlineData("12", "x", "")]
     [InlineData(null, null, "")]
-    public void Escrever(string? estado, string? numero, string texto)
-        => Assert.Equal(texto, CsFurosTexto.Escrever(estado, numero));
+    public void Escrever(string? abertos, string? fechados, string texto)
+        => Assert.Equal(texto, CsFurosTexto.Escrever(abertos, fechados));
 }

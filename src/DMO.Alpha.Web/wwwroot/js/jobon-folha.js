@@ -128,20 +128,22 @@
       });
     });
   }
-  // CS · Furos no Editar: junta Aberto/Fechado e o número em «Fechado · 4» no campo cs_furos.
+  // CS · Furos no Editar: dois dígitos (abertos, fechados) vão para o campo cs_furos
+  // como «Abertos 4 / Fechados 2» (o CsFurosTexto lê-o).
   function furos() {
     document.querySelectorAll('[data-jof-furos]').forEach(function (z) {
       var valor = z.querySelector('[data-jof-furos-valor]');
-      var estado = z.querySelector('[data-jof-furos-estado]');
-      var numero = z.querySelector('[data-jof-furos-numero]');
+      var abertos = z.querySelector('[data-jof-furos-abertos]');
+      var fechados = z.querySelector('[data-jof-furos-fechados]');
+      function digito(i) { var d = (i.value || '').replace(/[^0-9]/g, '').slice(0, 1); if (i.value !== d) i.value = d; return d; }
       function juntar() {
-        var e = estado.value, n = (numero.value || '').trim();
-        if (!e && !n) return; // nada escolhido: o valor antigo fica
-        valor.value = e ? (n ? e + ' · ' + n : e) : n;
+        var a = digito(abertos), f = digito(fechados);
+        if (!a && !f) return; // nada escrito: o valor antigo fica
+        valor.value = a && f ? 'Abertos ' + a + ' / Fechados ' + f : a ? 'Abertos ' + a : 'Fechados ' + f;
         valor.dispatchEvent(new Event('input', { bubbles: true }));
       }
-      estado.addEventListener('change', juntar);
-      numero.addEventListener('input', juntar);
+      abertos.addEventListener('input', juntar);
+      fechados.addEventListener('input', juntar);
     });
   }
   // Produções: a <select> fica (sem JS funciona e é ela que o data-dmo-ir segue);

@@ -72,7 +72,7 @@ public partial class JobOnPageTests
     }
 
     [Fact]
-    public async Task FolhaNova_OpcoesBQs_SoComBoquilhas_AbreOsMovimentosDaBQDesteJobOn()
+    public async Task FolhaNova_OpcoesBoquilhas_SoComBoquilhas_AbreOsMovimentosDaBQDesteJobOn()
     {
         const string op = "4409";
         var email = $"{op}@dmo.local";
@@ -95,8 +95,8 @@ public partial class JobOnPageTests
         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}");
         var opcoes = Zona(html, "data-jof-opcoes");
         opcoes = opcoes[..opcoes.IndexOf("</details>", StringComparison.Ordinal)];
-        Assert.Contains($"href=\"/Boquilhas?bq_id={bqId}\" data-jof-bqs>BQs</a>", opcoes, StringComparison.Ordinal);
-        Assert.True(opcoes.IndexOf(">Reparação</a>", StringComparison.Ordinal) < opcoes.IndexOf(">BQs</a>", StringComparison.Ordinal));
+        Assert.Contains($"href=\"/Boquilhas?bq_id={bqId}\" data-jof-bqs>Boquilhas</a>", opcoes, StringComparison.Ordinal);
+        Assert.True(opcoes.IndexOf(">Reparação</a>", StringComparison.Ordinal) < opcoes.IndexOf(">Boquilhas</a>", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -188,15 +188,20 @@ public partial class JobOnPageTests
         Assert.Contains("Rodar 1/4 de volta.", lida, StringComparison.Ordinal);
         Assert.Contains("Tratar gravações.", lida, StringComparison.Ordinal);
 
-        // CS · Furos: Aberto/Fechado + número no mesmo campo de texto («Fechado · 4»).
+        // CS · Furos: abertos e fechados (um dígito cada) no mesmo campo de texto («Abertos 4 / Fechados 2»).
         var editar3 = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}&editar=1");
-        Assert.Contains("data-jof-furos-estado", editar3, StringComparison.Ordinal);
+        Assert.Contains("inputmode=\"numeric\" pattern=\"[0-9]\" maxlength=\"1\"", editar3, StringComparison.Ordinal);
+        Assert.Contains("aria-label=\"CS furos abertos (0 a 9)\"", editar3, StringComparison.Ordinal);
+        Assert.Contains("aria-label=\"CS furos fechados (0 a 9)\"", editar3, StringComparison.Ordinal);
         Assert.DoesNotContain("Bacia PS", editar3, StringComparison.Ordinal);
-        var (acao3, campos3) = EnvioDoFormulario.Mudar(editar3, "jobon-cs-furos", "Fechado · 4");
+        var (acao3, campos3) = EnvioDoFormulario.Mudar(editar3, "jobon-cs-furos", "Abertos 4 / Fechados 2");
         Assert.Equal(HttpStatusCode.Redirect, (await client.PostAsync(acao3, EnvioDoFormulario.Corpo(campos3))).StatusCode);
         var editar4 = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}&editar=1");
-        Assert.Contains("<option value=\"Fechado\" selected=\"selected\">Fechado</option>", editar4, StringComparison.Ordinal);
-        Assert.Contains("value=\"4\" aria-label=\"CS furos: número\"", editar4, StringComparison.Ordinal);
+        Assert.Contains("value=\"4\" aria-label=\"CS furos abertos (0 a 9)\"", editar4, StringComparison.Ordinal);
+        Assert.Contains("value=\"2\" aria-label=\"CS furos fechados (0 a 9)\"", editar4, StringComparison.Ordinal);
+        Assert.DoesNotContain("era «", editar4, StringComparison.Ordinal);
+        var lida2 = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}");
+        Assert.Contains("Abertos 4 / Fechados 2", lida2, StringComparison.Ordinal);
         Assert.Contains("Tratar gravações.", lida, StringComparison.Ordinal);
 
         using var scope = _factory.Services.CreateScope();

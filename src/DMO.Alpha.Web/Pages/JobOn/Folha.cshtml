@@ -61,18 +61,14 @@
         var campo = JobOnFolhaCampos.Encontrar(chave)!;
         desenhados.Add(chave);
         var valor = Model.Folha.Valor(chave);
-        var (estado, numero) = DMO.Alpha.Core.Production.CsFurosTexto.Ler(valor);
+        var (lido, abertos, fechados) = DMO.Alpha.Core.Production.CsFurosTexto.Ler(valor);
         <span class="jof-furos" data-jof-furos>
           <input type="hidden" id="@campo.Id" name="@campo.NomeNoFormulario" value="@valor" data-jof-furos-valor />
-          <select class="f" aria-label="CS furos: aberto ou fechado" data-jof-furos-estado>
-            <!option value="">—</!option>
-            <!option value="Aberto" selected="@(estado == "Aberto" ? "selected" : null)">Aberto</!option>
-            <!option value="Fechado" selected="@(estado == "Fechado" ? "selected" : null)">Fechado</!option>
-          </select>
-          <input class="f" type="number" min="0" step="1" inputmode="numeric" value="@numero" aria-label="CS furos: número" data-jof-furos-numero />
-          @if (estado is null && Vazio(valor) is { } antigo)
+          <label class="jof-furos-campo"><span>Aberto</span><input class="f" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="off" value="@abertos" aria-label="CS furos abertos (0 a 9)" data-jof-furos-abertos /></label>
+          <label class="jof-furos-campo"><span>Fechado</span><input class="f" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="off" value="@fechados" aria-label="CS furos fechados (0 a 9)" data-jof-furos-fechados /></label>
+          @if (!lido && Vazio(valor) is { } antigo)
           {
-            <small class="jof-furos-antigo" title="Valor antigo; escolha Aberto/Fechado para o substituir">era «@antigo»</small>
+            <small class="jof-furos-antigo" title="Valor antigo; escreva os abertos e os fechados para o substituir">era «@antigo»</small>
           }
         </span>
     }
@@ -438,7 +434,7 @@ else
                     @* BQs: o registo da BQ desta produção (bq_id = o contexto da BQ do Job On, o filtro por Job On que as Boquilhas já têm). *@
                     @if (Model.VeBoquilhas && jobOn.BqId is { } bqId)
                     {
-                      <a href="/Boquilhas?bq_id=@bqId" data-jof-bqs>BQs</a>
+                      <a href="/Boquilhas?bq_id=@bqId" data-jof-bqs>Boquilhas</a>
                     }
                     </div>
                   </details>

@@ -1515,7 +1515,7 @@ Novos: 30 · mudaram: 5 · saíram: 0
 
 Selo depois: `c3c2038d14994c36`
 
-## A-0054 · 2026-10-23 · ok-do-diogo
+## A-0055 · 2026-10-23 · ok-do-diogo
 
 Porquê: Folha nova do Job On (a partir do mockup do Diogo) e permissão «Job On ver»; jobon.view deixa de servir de exemplo de chave desconhecida
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6B9KeB9Jzr8yXWk84Apjee, cmsg_01A27e9ozcpoh4jdPRsuJbFyYATjpNENwRNwQ6BmRHN4Xo, cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
@@ -1528,12 +1528,12 @@ Novos: 18 · mudaram: 4 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesBQs_SoComBoquilhas_AbreOsMovimentosDaBQDesteJobOn`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesBoquilhas_SoComBoquilhas_AbreOsMovimentosDaBQDesteJobOn`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_ProducoesAnteriores_NoDropdown_AbremAFolhaDeCada`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_SemReferenciaMfMaisBq_SoAvisa`
 - novo: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
 - novo: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique não faz nada; o duplo clique leva à ficha`
-- novo: `tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: Aberto/Fechado + número vão para o campo como «Fechado · 4»`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: um dígito de abertos e outro de fechados vão para o campo como «Abertos 4 / Fechados 2»`
 - novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: escolher outra ferramenta muda o cartão e a ficha do duplo clique`
 - novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: um clique abre a procura; o duplo clique leva à ficha sem abrir a procura`
 - novo: `tests/ShellProof/jobon-folha.test.cjs :: Imprimir: abre a informação técnica e chama window.print(); o gancho dmoJobOnImprimir substitui-o`
@@ -1544,4 +1544,4 @@ Novos: 18 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)`
 - mudou: `tests/ShellProof/package.json`
 
-Selo depois: `bc9fb34acfae5425`
+Selo depois: `ffc19ef0c0b829ab`

@@ -460,3 +460,5 @@ html body .jof2 .pick-block{gap:12px}
 /* Triângulos à esquerda, junto ao texto — SÓ na folha do Job On (a regra da app é do Especialista). */
 html body .jof2 :is(.dmo-options-caret,.dmo-tab-menu-caret){order:-1;width:6px;height:9px;margin-left:0;margin-right:0;vertical-align:.02em;clip-path:polygon(0 0,100% 50%,0 100%)}
 html body .jof2 details[open]>summary :is(.dmo-options-caret,.dmo-tab-menu-caret){transform:rotate(90deg)}
+html body .jof2 .jof-furos-campo{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--dmo-muted)}
+html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}

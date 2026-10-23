@@ -119,23 +119,23 @@ test('Imprimir: abre a informação técnica e chama window.print(); o gancho dm
   dom.window.close();
 });
 
-test('CS furos no Editar: Aberto/Fechado + número vão para o campo como «Fechado · 4»', async () => {
+test('CS furos no Editar: um dígito de abertos e outro de fechados vão para o campo como «Abertos 4 / Fechados 2»', async () => {
   const html = `<!doctype html><body><form data-jof-folha="editar"><span data-jof-furos>
     <input type="hidden" name="Folha.cs_furos" value="4 × 4" data-jof-furos-valor />
-    <select data-jof-furos-estado><option value=""></option><option>Aberto</option><option>Fechado</option></select>
-    <input type="number" data-jof-furos-numero /></span></form></body>`;
+    <input type="text" maxlength="1" data-jof-furos-abertos /><input type="text" maxlength="1" data-jof-furos-fechados /></span></form></body>`;
   const dom = new JSDOM(html, { url: 'http://dmo.test/JobOn/Folha?jobon_id=1&editar=1', runScripts: 'outside-only' });
   dom.window.eval(fs.readFileSync(path.join(assets, 'js/jobon-folha.js'), 'utf8'));
   if (dom.window.document.readyState === 'loading') await new Promise(r => dom.window.addEventListener('DOMContentLoaded', r));
   const d = dom.window.document;
   const valor = d.querySelector('[data-jof-furos-valor]');
+  const a = d.querySelector('[data-jof-furos-abertos]');
+  const f = d.querySelector('[data-jof-furos-fechados]');
   assert.equal(valor.value, '4 × 4');
-  d.querySelector('[data-jof-furos-estado]').value = 'Fechado';
-  d.querySelector('[data-jof-furos-estado]').dispatchEvent(new dom.window.Event('change'));
-  assert.equal(valor.value, 'Fechado');
-  const n = d.querySelector('[data-jof-furos-numero]');
-  n.value = '4'; n.dispatchEvent(new dom.window.Event('input'));
-  assert.equal(valor.value, 'Fechado · 4');
+  a.value = '4'; a.dispatchEvent(new dom.window.Event('input'));
+  assert.equal(valor.value, 'Abertos 4');
+  f.value = 'x2'; f.dispatchEvent(new dom.window.Event('input'));
+  assert.equal(f.value, '2');
+  assert.equal(valor.value, 'Abertos 4 / Fechados 2');
   dom.window.close();
 });
 
