@@ -1619,7 +1619,7 @@ Selo depois: `e34f8d72d0d0e910`
 
 ## A-0059 · 2026-10-23 · ok-do-diogo
 
-Porquê: Sumário: Importante no topo até resolver, links que resolvem, ponto ao lado de Sumário, sem duplicados (A-0059)
+Porquê: Sumário: dados técnicos em falta para quem tem Controlo criar (Peso e Pegamentos precisam deles); % de uso para Ferramentas; lote novo por criar; grupo Importante no topo até resolver; links; ponto; sem duplicados (A-0059)
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPoQF4rYmk1aqAzjBow6N1m
 Novos: 14 · mudaram: 8 · saíram: 1
 
