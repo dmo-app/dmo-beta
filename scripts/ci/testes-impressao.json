@@ -1,5 +1,5 @@
 {
-  "selo": "58e4cf95052cd365",
+  "selo": "d47cbaa35324c42d",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2124,6 +2124,10 @@
     "tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: (resto do ficheiro)": "7d50ba1dca0d893d",
     "tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.OLote_SemZerosAEsquerda": "2783fa84ebda4fd7",
     "tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.ONomeDoHistorico_UsaOLoteSemZero": "c7a9226d75b7760d",
+    "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: (resto do ficheiro)": "c9704e49cb580c12",
+    "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.Desligada_NaoPoeOCabecalho_NemALinha_EONoStoreFica": "57b719c33050cc45",
+    "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.NoPostgres_ONumeroDeConsultasBateComOsComandos_EOParametroNaoVaiParaOLog": "c6ead46701d56cd4",
+    "tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.PaginaAutenticada_TemServerTiming_EOsEstaticosNao_EOLogNaoLevaValores": "6d18282cf4da498f",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: (resto do ficheiro)": "43046f1cba8c57a5",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.BothControlos_OpenTheirOwnPages": "8d88c153a20f155e",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.InsideTheModule_PagesShowNoPermissionNotices": "8f671c1f279633aa",

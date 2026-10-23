@@ -1643,3 +1643,16 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NoPostgres_EscolheAsMesmasProducoes`
 
 Selo depois: `58e4cf95052cd365`
+
+## A-0062 · 2026-10-23 · teste-novo
+
+Porquê: PERF-01: medir pedidos completos
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.Desligada_NaoPoeOCabecalho_NemALinha_EONoStoreFica`
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.NoPostgres_ONumeroDeConsultasBateComOsComandos_EOParametroNaoVaiParaOLog`
+- novo: `tests/DMO.Alpha.Web.Tests/MedicaoPedidosTests.cs :: MedicaoPedidosTests.PaginaAutenticada_TemServerTiming_EOsEstaticosNao_EOLogNaoLevaValores`
+
+Selo depois: `d47cbaa35324c42d`

@@ -98,6 +98,8 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
 {
     // O carimbo de quando e quem gravou cada Peso e Pegamentos (17/10/2026).
     options.AddInterceptors(serviceProvider.GetRequiredService<DMO.Alpha.Infrastructure.Controlo.RegistoCarimboInterceptor>());
+    // PERF-01: conta as consultas e o tempo da base de cada pedido.
+    options.AddInterceptors(serviceProvider.GetRequiredService<DMO.Alpha.Web.Services.MedicaoPedidoInterceptor>());
     var config = serviceProvider.GetRequiredService<IConfiguration>();
     var databaseConnection = config.GetConnectionString("DmoDatabase");
     var devPoolerHost = config["Dmo:DevPoolerHost"];
@@ -141,6 +143,7 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<ICurrentAccountContext, HttpContextCurrentAccountContext>();
 builder.Services.AddSingleton<DMO.Alpha.Infrastructure.Controlo.RegistoCarimboInterceptor>();
+builder.Services.AddSingleton<DMO.Alpha.Web.Services.MedicaoPedidoInterceptor>();
 builder.Services.AddScoped<ShellStateFactory>();
 builder.Services.AddSingleton<EnviosGravados>();
 // O envio único guardado na base, no mesmo SaveChanges do facto (E4 do DMO-FULL).
@@ -533,6 +536,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// PERF-01: mede o pedido completo (Server-Timing e uma linha no log); os
+// ficheiros estáticos, servidos acima, ficam de fora. Ver docs/medicao-pedidos.md.
+app.UseMedicaoPedidos();
 
 app.UseRouting();
 app.UseAuthentication();
