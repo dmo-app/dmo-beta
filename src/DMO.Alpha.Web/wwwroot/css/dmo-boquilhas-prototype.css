@@ -252,6 +252,9 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 .beta-bq-layout .bq-tool-search > * {min-width:0}
 .beta-bq-layout .bq-tool-actions {display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .beta-bq-layout .bq-tool-pagination {display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;margin-top:18px}
+.beta-bq-layout .bq-tool-pagination .dmo-por-pagina {display:inline-flex;align-items:center;gap:6px;margin:0 0 0 12px}
+.beta-bq-layout .bq-tool-pagination .dmo-por-pagina label {margin:0;font-size:13px;color:var(--dmo-muted)}
+.beta-bq-layout .bq-tool-pagination .dmo-por-pagina select {width:auto;min-height:34px}
 .beta-bq-layout .bq-tool-pagination [aria-disabled="true"], .beta-bq-layout .bq-tool-actions [aria-disabled="true"] {pointer-events:none}
 .beta-bq-layout #bq-tool-results .card-head {flex-wrap:wrap}
 .beta-bq-layout #bq-tool-sheet {scroll-margin-top:20px}
