@@ -332,8 +332,9 @@
       </div>
       <div class="dmo-facts">
         <div class="dmo-fact"><span>Tipo</span><strong>@(tokenOf(tool.Type) switch { "CM" => "CM — Contra-molde", "BQ" => "BQ — Boquilha", _ => "MF — Molde final" })</strong></div>
-        <div class="dmo-fact"><span>Referência</span><strong>@tool.Reference</strong></div>
-        <div class="dmo-fact"><span>Lote</span><strong>@tool.Lot</strong></div>
+        @{ var usoCheio = DMO.Alpha.Web.Presentation.UsoCheio.ClasseDe(Model.Utilizacao?.Ultima?.Percentagem); }
+        <div class="dmo-fact"><span>Referência</span><strong class="@usoCheio">@tool.Reference</strong></div>
+        <div class="dmo-fact"><span>Lote</span><strong class="@usoCheio">@tool.Lot</strong></div>
         <div class="dmo-fact"><span>Linhas</span><strong>@machineCodes</strong></div>
         @* Só a CM com uma referência diferente da do MF (Diogo, 21/10/2026). *@
         @if (tool.Type == ToolType.Cm && !string.IsNullOrWhiteSpace(tool.AssociatedMfReference)

@@ -331,6 +331,9 @@ public interface IFerramentasUsoSap
 
     Task<FerramentaUtilizacaoAtual> DaFerramentaAsync(string toolId, CancellationToken cancellationToken = default);
 
+    /// <summary>O % uso da última leitura de cada ferramenta (as que não têm leitura ficam de fora).</summary>
+    Task<IReadOnlyDictionary<string, decimal>> UltimasPercentagensAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default);
+
     /// <summary>Abrir o lembrete na ficha («Pedir a utilização ao SAP»); FALSE quando a ferramenta não existe. Com um aberto, não abre outro.</summary>
     Task<bool> PedirAsync(string toolId, CancellationToken cancellationToken = default);
 

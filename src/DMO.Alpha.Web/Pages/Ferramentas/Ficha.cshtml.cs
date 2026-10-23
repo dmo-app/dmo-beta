@@ -607,15 +607,15 @@ public sealed class FichaModel : PageModel
         if (outcome.Result == EditToolFactsResult.Success)
         {
             // O % uso (opcional; Diogo, 22/10/2026): só avisos, nunca recusa.
-            // Vazio ou igual à última leitura não grava; acima de 100 grava e avisa.
+            // Vazio ou igual à última leitura não grava; 100 ou mais grava sem aviso.
             string? usoAviso = null;
             var usoEscrito = (usoPercentagem ?? string.Empty).Trim().TrimEnd('%').Trim();
             if (usoEscrito.Length > 0)
             {
                 if (int.TryParse(usoEscrito, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var uso))
                 {
-                    var gravouUso = await _usoSap.RegistarPercentagemManualAsync(canonicalToolId, uso, HttpContext.RequestAborted);
-                    usoAviso = gravouUso && uso > 100 ? "acima" : null;
+                    // 100 ou mais grava sem aviso nenhum (Diogo, 23/10/2026: só a cor muda).
+                    await _usoSap.RegistarPercentagemManualAsync(canonicalToolId, uso, HttpContext.RequestAborted);
                 }
                 else
                 {

@@ -1935,15 +1935,16 @@ Novos: 11 · mudaram: 8 · saíram: 0
 
 Selo depois: `64b5fd86806ae05e`
 
-## A-0080 · 2026-10-23 · ok-do-diogo
+## A-0079 · 2026-10-23 · ok-do-diogo
 
-Porquê: Folha do Job On: ordem dos cartões (TP e CS, Calibres, PI à direita), CM/MF/BQ numa fila também a 1366, sem esticar com a Informação técnica aberta, e linha vazia abre a folha em branco para duplicar ou criar com a linha e o dia (Diogo 23/10)
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR9DLoJRShGmbTL76USNiBk, cmsg_01A27e9ozcpoh4jdPRsuJbFySZCHF2SYMQvqF5oC5ivr8C, cmsg_01A27e9ozcpoh4jdPRsuJbFy6p8hzdVZKJQNmZvY3owES7, cmsg_01A27e9ozcpoh4jdPRsuJbFy7pCVHGx9xRydNF3aQSC1ms, cmsg_01A27e9ozcpoh4jdPRsuJbFyVRtpXnEHc2wm7aHQrAtbhJ
-Novos: 1 · mudaram: 2 · saíram: 1
+Porquê: Cor leve a 100% de uso (aprovada pelo Diogo), sem aviso a ≥100 no Editar; «Registar ferramenta» sem «real» (cmsg_01A27e9ozcpoh4jdPRsuJbFyX2adtku5aR57VcmvT5faWQ)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBDuxhn9W8xLtDxJ4KkoCkn
+Novos: 2 · mudaram: 3 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
-- mudou: `tests/visual/jobon_folha_browser.py`
-- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_SoAoCriar_EAMaquinaVaziaAbreACriacaoComDiaEMaquina`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Criar_APartirDoCartaoDoJobOn_OTipoFicaFixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
-Selo depois: `e008949efda068ba`
+Selo depois: `e4001b1e522a0ccf`

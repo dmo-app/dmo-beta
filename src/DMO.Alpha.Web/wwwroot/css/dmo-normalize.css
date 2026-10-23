@@ -403,3 +403,6 @@ html body .dmo-card-topo-acoes :is(.dmo-button,.button,.btn){white-space:normal;
    mostram que se pode carregar. Claro e escuro pelos tokens. */
 html body :is(.dmo-fact,.dmo-facts,.dmo-fact-stack,.pu-fact,.pu-stat,.peso-fact,.peso-facts,.revisao-facts,.facts,.fact-col,.lot-data,.resumo-stats,.jobon-production-facts,.job-tool-card-facts) a:not(.dmo-button):not(.btn){color:inherit;text-decoration:none;cursor:pointer;transition:color var(--dmo-fast)}
 html body :is(.dmo-fact,.dmo-facts,.dmo-fact-stack,.pu-fact,.pu-stat,.peso-fact,.peso-facts,.revisao-facts,.facts,.fact-col,.lot-data,.resumo-stats,.jobon-production-facts,.job-tool-card-facts) a:not(.dmo-button):not(.btn):is(:hover,:focus-visible){color:var(--dmo-brand-700);text-decoration:none}
+
+/* .dmo-uso-cheio: a ferramenta com 100% ou mais de uso (UsoCheio.ClasseDe) — só a cor do tool_id, da referência e do lote muda; nunca aviso nem bloqueio (Diogo, 23/10/2026). */
+html body .dmo-uso-cheio{color:color-mix(in srgb,var(--dmo-warning) 70%,var(--dmo-text))}
