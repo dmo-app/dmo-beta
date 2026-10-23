@@ -1475,7 +1475,7 @@ Selo depois: `9619ddd13d4b61e1`
 
 Porquê: Histórico de cada ferramenta e página Histórico das Ferramentas (tabela única, testes do Guardião); separadores «Registar Reparação» e «Pesquisar» (pedido do Diogo); teste da RI deixa de depender da hora (sementes do dia operacional; mesmas verificações)
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySf77yPB56WfLMogMFxpVjS, cmsg_01A27e9ozcpoh4jdPRsuJbFy1J4L47FJGZPpVSWAoFSZNR, cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
-Novos: 31 · mudaram: 5 · saíram: 1
+Novos: 30 · mudaram: 5 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.ABq_MostraSoASuaParteDaReferencia`
@@ -1500,7 +1500,6 @@ Novos: 31 · mudaram: 5 · saíram: 1
 - novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.OLote_SemZerosAEsquerda`
 - novo: `tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.ONomeDoHistorico_UsaOLoteSemZero`
-- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: RelogioFixo.CorrigirParaOMesmoNumero_NadaMuda_ESemAviso`
 - novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.OPainel_LogoDepoisDaMeiaNoite_ORegistoDoDiaOperacional`
 - novo: `tests/ShellProof/historico-menu.test.cjs :: (resto do ficheiro)`
 - novo: `tests/ShellProof/historico-menu.test.cjs :: abrir outra linha fecha a primeira`
@@ -1513,6 +1512,5 @@ Novos: 31 · mudaram: 5 · saíram: 1
 - mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.OPainel_BAntesDeC_ORegistoSoDestaPessoa_EditarNoCanto`
 - mudou: `tests/ShellProof/package.json`
-- saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.CorrigirParaOMesmoNumero_NadaMuda_ESemAviso`
 
-Selo depois: `cd160122db68743a`
+Selo depois: `c3c2038d14994c36`

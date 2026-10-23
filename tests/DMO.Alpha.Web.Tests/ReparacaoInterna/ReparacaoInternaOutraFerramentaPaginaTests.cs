@@ -421,11 +421,6 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         await PainelAsync(host, "6811");
     }
 
-    private sealed class RelogioFixo(DateTime utc) : TimeProvider
-    {
-        public override DateTimeOffset GetUtcNow() => new(DateTime.SpecifyKind(utc, DateTimeKind.Utc));
-    }
-
     private async Task PainelAsync(WebApplicationFactory<Program> host, string operador)
     {
         var (codigo, jobOn) = Maquina("K");
@@ -482,5 +477,10 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         var html = await client.GetStringAsync("/ReparacaoInterna?correcao=igual&numero=5");
 
         Assert.DoesNotContain("data-dmo-toast", Elemento(html, "id=\"riAvisos\""));
+    }
+
+    private sealed class RelogioFixo(DateTime utc) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => new(DateTime.SpecifyKind(utc, DateTimeKind.Utc));
     }
 }
