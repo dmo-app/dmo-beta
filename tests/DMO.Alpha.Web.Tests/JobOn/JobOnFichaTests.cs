@@ -429,12 +429,12 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     }
 
     [Fact]
-    public async Task PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina()
+    public async Task PrepararProducao_AMaquinaVaziaAbreOJobOnVazio_ComDiaEMaquina()
     {
         // O Diogo, 17/10/2026: ao carregar numa máquina vazia do dia, já com a
-        // máquina e a data. Desde 23/10/2026 (09:48) abre a folha em branco,
-        // sem Editar, para procurar um Job On antigo e duplicá-lo; o Duplicar
-        // e o «Criar em branco» levam a linha e o dia como início.
+        // máquina e a data. Desde 23/10/2026 (14:50, «mete o jobon template vazio
+        // e deixa escrever referência e produção, simples») abre logo o Job On
+        // vazio, sem a página só com a procura.
         var (_, _, _, c3Id) = await SeedFichaAsync();
         SeedUser("4597", "Planejador", "provider-jobon-criar", "JobCriar1!");
         using var client = await LoginClientAsync("4597", "JobCriar1!");
@@ -443,17 +443,9 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var pagina = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={dia.Year}&mes={dia.Month}&dia={dia.Day}"));
         Assert.DoesNotContain("id=\"lightSheet\"", pagina);
         var destino = $"machine_id={c3Id}&inicio_em={dia:yyyy-MM-dd}";
-        var abrir = $"/JobOn/Folha?{destino}";
-        Assert.Contains($"<a class=\"beta-light-machine-empty\" href=\"{abrir}\"", pagina);
-
-        // Em branco, sem Editar: a procura leva a linha e o dia.
-        var branco = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, abrir));
-        Assert.DoesNotContain("data-jof-folha=\"editar\"", branco);
-        Assert.Contains("class=\"ref-search jof-ref-vazia\"", branco);
-        Assert.Contains($"<input type=\"hidden\" name=\"machine_id\" value=\"{c3Id}\" />", branco);
-        Assert.Contains($"<input type=\"hidden\" name=\"inicio_em\" value=\"{dia:yyyy-MM-dd}\" />", branco);
         var criarBranco = $"/JobOn/Folha?novo=1&{destino}";
-        Assert.Contains($"<a class=\"btn\" href=\"{criarBranco}\" data-jof-criar-branco>Criar em branco</a>", branco);
+        Assert.Contains($"<a class=\"beta-light-machine-empty\" href=\"{criarBranco}\"", pagina);
+        Assert.DoesNotContain($"href=\"/JobOn/Folha?{destino}\"", pagina);
 
         // «Criar em branco»: a folha nova em Editar, na C3, com o dia como início.
         var criar = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, criarBranco));

@@ -1,5 +1,5 @@
 {
-  "selo": "14d84e20af09ab60",
+  "selo": "eeea5e50049f15e3",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2072,7 +2072,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.MudarACm_VerificarOPeso_AbreOPesoDaProducao": "8af71c6b78777c03",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.OQueMudou_SoAsAlteracoesFeitasDepoisDoInicio": "2ffb480bda265caf",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Opcoes_EditarPrimeiro_SemDuplicarLote_EFecharVoltaAFicha": "a132df3724b188a2",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreAFolhaEmBranco_ParaDuplicarOuCriar_ComDiaEMaquina": "47c3465ce3840b5f",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreOJobOnVazio_ComDiaEMaquina": "abd5d0c975a46277",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_DuasNaMesmaMaquina_MarcaASobreposicao": "1bb5ed31bce77b95",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaVermelha_SoComSobreposicaoReal": "ac3eec84e01b4408",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_MostramAProximaMudancaEmCadaMaquina": "ab9d03f6b44bd4f5",
@@ -2164,7 +2164,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Sheet_RendersOnlyTheChosenTools_NeverTheWholeCatalog": "769a28e08f4263d4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Cm_FollowsTheChosenMfAndMachine_AndFallsBackToTheProductionReference": "b7fb0e1309e23b2f",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_FilterByMachineAndProduction_AndShowAllRestoresAlternatives": "704e59c89104066a",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Mf_ShowsOnlyTheMfOfTheChosenCm_AndTheMachine": "248b46d72a00a1c8",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_Mf_ShowsOnlyTheMfOfTheChosenCm_AndTheMachine": "c2d91bb12d5e0587",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_ReturnAtMost20_WithTheTotal": "21386bce4006cc0b",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_SearchAsYouType_FindsByPartialReferenceOrLot": "3b3862981fc34fc9",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.UnauthenticatedRequests_ReceiveNoPageAndNoMutation": "e552f102d4fb71ad",

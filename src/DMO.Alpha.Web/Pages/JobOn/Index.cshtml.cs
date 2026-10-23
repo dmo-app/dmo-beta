@@ -1232,6 +1232,7 @@ public sealed class IndexModel : PageModel
         else
         {
             filtro = machineId is null ? "Filtrado pela referência" : "Filtrado por máquina e referência";
+            ToolCandidateFilter? usado = null;
             if (slot == ToolType.Cm && Sanitize(mfToolId) is { } mfId)
             {
                 var mfReference = await _db.Tools.AsNoTracking()
@@ -1240,12 +1241,12 @@ public sealed class IndexModel : PageModel
                     .FirstOrDefaultAsync(HttpContext.RequestAborted);
                 if (mfReference is not null)
                 {
-                    var byMf = await _toolCandidates.FindPageAsync(
-                        new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term),
-                        1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term);
+                    var byMf = await _toolCandidates.FindPageAsync(porMf, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                     if (byMf.TotalCount > 0)
                     {
                         page = byMf;
+                        usado = porMf;
                         filtro = (machineId is null ? "Filtrado pela MF " : "Filtrado por máquina e pela MF ") + mfReference;
                     }
                 }
@@ -1260,15 +1261,32 @@ public sealed class IndexModel : PageModel
                     .FirstOrDefaultAsync(HttpContext.RequestAborted);
                 if (cmMfReference is not null)
                 {
-                    page = await _toolCandidates.FindPageAsync(
-                        new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term),
-                        1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term);
+                    page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                     filtro = (machineId is null ? "Filtrado pela CM " : "Filtrado por máquina e pela CM ") + cmMfReference;
                 }
             }
-            page ??= await _toolCandidates.FindPageAsync(
-                new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term),
-                1, ToolSuggestionLimit, HttpContext.RequestAborted);
+            if (page is null)
+            {
+                usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term);
+                page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+            }
+
+            // Nunca esconder por falta de compatibilidade (Diogo, 23/10/2026: «nas
+            // ferramentas estão lá mas o Job On não filtra»): as ferramentas
+            // importadas sem linhas ligadas aparecem; sem nada pela referência,
+            // o catálogo do tipo.
+            if (page.TotalCount == 0 && machineId is not null)
+            {
+                page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
+            }
+            if (page.TotalCount == 0)
+            {
+                page = await _toolCandidates.FindPageAsync(
+                    new ToolCandidateFilter(Type: slot, Search: term), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                filtro = "Catálogo completo (nenhuma corresponde)";
+            }
         }
 
         return new JsonResult(new { items = page.Items, total = page.TotalCount, filtro });

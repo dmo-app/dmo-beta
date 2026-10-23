@@ -531,6 +531,17 @@ html body .jof2 .board:has(details.more[open]) .note-box{flex:none}
 html body .jof2 .pick-row select.prod-select,html body .jof2 .pick-row .prod-drop,html body .jof2 .pick-row .prod-trigger{width:auto;min-width:max-content;white-space:nowrap}
 html body .jof2 .pick-row .prod-drop *{white-space:nowrap}
 /* A referência cabe inteira na procura («5447T173»); a fila de cima tem a largura dos botões (Diogo, 23/10/2026). */
-html body .jof2 .pick-row .ref-search input{min-width:calc(8.5ch + 34px)}
+html body .jof2 .pick-row .ref-search input#jofReferencia{min-width:calc(8.5ch + 34px)}
 /* A Produção um pouco mais larga; a fila de cima começa onde começa o Imprimir (Diogo, 23/10/2026). */
 html body .jof2 .pick-row .prod-trigger,html body .jof2 .pick-row select.prod-select{padding-left:14px;padding-right:30px}
+/* A procura da folha em branco é um campo normal, com a linha e o dia ao lado (Diogo, 23/10/2026: «ISTO ESTÁ MAL»). */
+html body .jof2 .jof-ref-vazia{display:inline-block;vertical-align:middle;margin:0 12px 0 0}
+html body .jof2 .jof-ref-vazia input{width:320px;min-width:0;height:42px;font-size:17px;font-weight:700;text-transform:uppercase;background:var(--dmo-card);border:1px solid var(--dmo-border-strong,var(--dmo-border))}
+html body .jof2 .jof-ref-vazia input::placeholder{text-transform:none;font-weight:400;color:var(--dmo-muted,#66809a);letter-spacing:0}
+html body .jof2 .jof-ref-vazia+.jof-novo-linha{display:inline-flex;align-items:center;gap:8px;vertical-align:middle;margin:0}
+/* No Editar não há botões por baixo: a Referência e a Produção lado a lado, sem se sobreporem. */
+html body .jof2.editing .pick-row{width:auto;min-width:0}
+html body .jof2.editing .pick-row .ref-search{flex:none;width:130px}
+html body .jof2.editing .pick-row .ref-search input{width:130px;min-width:130px}
+html body .jof2.editing .pick-row input.prod-select{width:130px;min-width:130px;flex:none}
+html body .jof2.editing .pick-row input::placeholder{font-size:14px;font-weight:500;text-transform:none;letter-spacing:0}

@@ -294,7 +294,8 @@
         <div class="jobon-aviso" role="alert">A produção indicada não existe.</div>
       }
       <form class="ref-search jof-ref-vazia" method="get" action="/JobOn/Folha" role="search">
-        <input type="search" name="referencia" value="@Model.ReferenciaProcurada" aria-label="Referência: escreva para abrir a última produção" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-suggest="referencias" data-dmo-suggest-submit placeholder="Referência" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+        <input type="search" name="referencia" value="@Model.ReferenciaProcurada" aria-label="Referência: escreva para abrir a última produção" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-suggest="referencias" data-dmo-suggest-submit placeholder="Escreva a referência" />
         @if (Model.NovoMachineId is int linhaNova)
         {
           <input type="hidden" name="machine_id" value="@linhaNova" />
