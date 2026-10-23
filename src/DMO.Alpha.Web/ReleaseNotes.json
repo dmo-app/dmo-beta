@@ -344,7 +344,8 @@
     { "id": "DMO-351", "module": "Controlo", "description": "0.3.0-beta.37: Pegamentos: duas correções da mesma leitura ao mesmo tempo ficam em cadeia no histórico." },
     { "id": "DMO-352", "module": "Job On", "description": "No cabeçalho da folha, das datas às secções fica num painel centrado, com rótulos pequenos e valores em destaque; no Editar os números vêm sem zeros no fim e o «Modo Editar» fica centrado." },
     { "id": "DMO-353", "module": "Ferramentas", "description": "0.3.0-beta.39: Reparação Programada: duas devoluções ao mesmo tempo fecham a lista; o mesmo envio não cria listas nem movimentos de boquilha repetidos." },
-    { "id": "DMO-354", "module": "Controlo", "description": "0.3.0-beta.40: o mesmo pedido de email devolve o mesmo email sem registar outro; uma aba antiga das listas de email já não grava por cima nem tira a pessoa errada." }
+    { "id": "DMO-354", "module": "Controlo", "description": "0.3.0-beta.40: o mesmo pedido de email devolve o mesmo email sem registar outro; uma aba antiga das listas de email já não grava por cima nem tira a pessoa errada." },
+    { "id": "DMO-356", "module": "Controlo", "description": "0.3.0-beta.42: o Peso abre a folha com o mesmo aspeto e comportamento, mas o carregamento passa a ser um serviço próprio só de leitura, com menos consultas à base." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

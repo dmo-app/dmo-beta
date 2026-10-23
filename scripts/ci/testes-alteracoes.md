@@ -2126,3 +2126,29 @@ Novos: 9 · mudaram: 5 · saíram: 0
 - mudou: `tests/ShellProof/troca-parcial.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f1d73210fa39da9b`
+
+## A-0090 · 2026-10-23 · teste-novo
+
+Porquê: PR1 do Peso (outra ferramenta, ramo draft/peso-pr1-extraction): o carregamento da folha do Peso passa para PesoFolhaQuery; testes do serviço, do Postgres (só SELECT, orçamento de consultas) e da página
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy7fMDaiggYKqjtZpaBVbvjH
+Novos: 17 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.AntesDoPrimeiroPeso_MostraFactosDaProducaoECandidatosSemCriarNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.CaloteSimulada_MudaSoAApresentacaoSemRelerTecnicos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.CancelarOCarregamento_PropagaOCancelamentoSemGravar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.ControloInexistente_DevolveAFolhaVaziaSemInventarContexto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.DepoisDaTroca_SemPesoAtual_NaoAbreOUltimoENaoAssociaSozinho`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.IdentificadorNaoCanonico_MantemORecursoAQueryDoApoio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.PesoAnteriorEscolhido_MantemValoresCongeladosEUsaASuaCmNoApoio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.PesoDeOutraProducao_NaoSubstituiOPesoDestaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.SemEscolhaValida_AbreOPesoAtualDaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.TecnicosEmFalta_NaoImpedemAbrirAFolhaNemInventamValores`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoFolha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoFolha.cs :: PostgresMigrationIntegrationTests.PesoFolha_CarregamentoSoLeSemAumentarConsultas`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.AbrirProducao_MostraCriacaoEAssociacaoSemGravar`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.RecusaDeCriacao_PreservaATemperaturaEscritaEAMensagem`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.SemSessaoOuSemModulo_NaoExecutaOCarregamentoDaFolha`
+
+Selo depois: `aa3a46108bd59cc6`
