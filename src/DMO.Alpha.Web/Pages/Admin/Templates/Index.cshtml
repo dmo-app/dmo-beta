@@ -148,6 +148,10 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
           @{ var emUso = Model.UserCount(selected.TemplateKey); }
           <div class="dmo-card-topo-acoes">
             <button type="submit" class="dmo-button" id="dmtGuardar" form="dmtEditarForm">Guardar template</button>
+            @* NOVA TEMPLATE (Diogo, 24/10/2026): depois de criar, a template criada fica
+               aberta para editar; sem este botão, a «segunda» escrevia-se por cima
+               dela e o «Guardar» gravava na primeira. Abre o formulário vazio. *@
+            <a class="dmo-button" id="dmtNova" href="@Url.Page("/Admin/Templates/Index")">Nova template</a>
             <details class="dmo-options" data-dmo-tab-menu>
               <summary class="dmo-button" aria-label="Opções da template @selected.Name"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
               <div class="dmo-options-list">
