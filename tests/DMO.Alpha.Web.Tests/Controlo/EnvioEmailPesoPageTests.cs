@@ -332,24 +332,29 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
 
         var html = await GetAsync(client, criada.Headers.Location!.ToString());
         Assert.Contains("Lista gravada. Ficaram de fora, por não serem emails: nao-e-email.", html);
-        Assert.Contains("value=\"producao@fabrica.pt, chefe@fabrica.pt\"", html);
+        // Uma pessoa por linha, as listas de antes sem nome («—»).
+        Assert.Contains("name=\"email\" value=\"producao@fabrica.pt\"", html);
+        Assert.Contains("name=\"email\" value=\"chefe@fabrica.pt\"", html);
     }
 
     [Fact]
-    public async Task Definicoes_ListaSemNenhumEmail_OuComNomeRepetido_NaoGrava()
+    public async Task Definicoes_ListaSemNenhumEmail_NaoGrava_EONomeDeUmaQueExisteJuntaAPessoa()
     {
         using var client = await LoginAsync("4806");
         SeedModelo();
 
         using var semEmails = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
             ("nome", "Qualidade"), ("destinatarios", "qualidade"));
-        using var repetida = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
-            ("nome", "produção"), ("destinatarios", "outro@fabrica.pt"));
+        // Um só botão no cartão (Diogo, 23/10/2026): o nome de uma lista que já existe junta-lhe a pessoa.
+        using var junta = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+            ("nome", "produção"), ("pessoa", "Outro Nome"), ("destinatarios", "outro@fabrica.pt"));
 
         Assert.EndsWith("envio=SemEnderecos&secao=controlo", semEmails.Headers.Location!.ToString());
-        Assert.EndsWith("envio=NomeRepetido&secao=controlo", repetida.Headers.Location!.ToString());
+        Assert.Contains("envio=ok-lista", junta.Headers.Location!.ToString());
         using var scope = _factory.Services.CreateScope();
-        Assert.Equal(new[] { "Produção" }, scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailListas.AsNoTracking().Select(l => l.Nome).ToArray());
+        var lista = Assert.Single(scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailListas.AsNoTracking());
+        Assert.Equal("Produção", lista.Nome);
+        Assert.EndsWith("\nOutro Nome <outro@fabrica.pt>", lista.Destinatarios);
     }
 
     [Fact]
@@ -398,5 +403,135 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
 
         var html = await GetAsync(client, "/Definicoes");
         Assert.Contains("data-dmo-dialog=\"ctl-modelo-" + modelo.Id + "\">Qualidade</button>", html);
+    }
+
+    // AS LISTAS COM NOMES (Diogo, 23/10/2026): colar a lista do Outlook guarda
+    // cada pessoa com o seu nome (os nomes com vírgula entre aspas não partem);
+    // grava-se «Nome <email>» por linha, na mesma coluna.
+    [Fact]
+    public async Task Definicoes_ColarListaDoOutlook_GuardaNomesEEmails()
+    {
+        using var client = await LoginAsync("4821");
+
+        using var criada = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+            ("nome", "Qualidade"), ("destinatarios", "\"Leal, Sergio\" <sleal@baglass.com>; \"Marinho, Carlos\" <cmarinho@baglass.com>; plain@x.pt"));
+
+        var location = criada.Headers.Location!.ToString();
+        Assert.Contains("envio=ok-lista", location);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var lista = Assert.Single(scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailListas.AsNoTracking());
+            Assert.Equal("Leal, Sergio <sleal@baglass.com>\nMarinho, Carlos <cmarinho@baglass.com>\nplain@x.pt", lista.Destinatarios);
+            Assert.Contains($"lista={lista.Id}", location);
+        }
+
+        var html = await GetAsync(client, location);
+        Assert.Contains("name=\"nome\" value=\"Leal, Sergio\" placeholder=\"—\"", html);
+        Assert.Contains("name=\"email\" value=\"cmarinho@baglass.com\"", html);
+        Assert.Contains("name=\"nome\" placeholder=\"—\"", html);
+        Assert.Contains(">3 pessoas</span>", html);
+        // Depois de lhe mexer, a lista volta aberta.
+        Assert.Matches("<details class=\"ctl-def-lista\" data-dmo-lista-email=\"\\d+\" open=\"open\">", html);
+    }
+
+    [Fact]
+    public async Task Definicoes_ColarComUmEmailErrado_AvisaENaoOGrava()
+    {
+        using var client = await LoginAsync("4822");
+
+        using var criada = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+            ("nome", "Qualidade"), ("destinatarios", "\"Leal, Sergio\" <sleal@baglass.com>; \"Errado, Ze\" <nao-e-email>"));
+
+        Assert.Contains("envio=aviso-lista", criada.Headers.Location!.ToString());
+        using var scope = _factory.Services.CreateScope();
+        var lista = Assert.Single(scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailListas.AsNoTracking());
+        Assert.Equal("Leal, Sergio <sleal@baglass.com>", lista.Destinatarios);
+        var html = await GetAsync(client, criada.Headers.Location!.ToString());
+        Assert.Contains("Ficaram de fora, por não serem emails: \"Errado, Ze\" <nao-e-email>.", html);
+    }
+
+    [Fact]
+    public async Task Definicoes_PessoaDaLista_MudarNomeEEmail_Tirar_EJuntar()
+    {
+        using var client = await LoginAsync("4823");
+        var (listaId, _) = SeedModelo();
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync("/Definicoes")).Content.ReadAsStringAsync())!;
+        async Task<System.Text.Json.JsonElement> MudarAsync(string pessoa, string campo, string valor)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/Controlo/Definicoes?handler=MudarPessoa")
+            {
+                Content = HtmlFormHelpers.BuildFormPost(("__RequestVerificationToken", token), ("lista_id", listaId.ToString()), ("pessoa", pessoa), (campo, valor))
+            };
+            request.Headers.Accept.ParseAdd("application/json");
+            using var response = await client.SendAsync(request);
+            return System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement.Clone();
+        }
+        string Destinatarios()
+        {
+            using var scope = _factory.Services.CreateScope();
+            return scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailListas.AsNoTracking().Single().Destinatarios;
+        }
+
+        var nome = await MudarAsync("1", "nome", "Chefe de Turno");
+        Assert.True(nome.GetProperty("ok").GetBoolean());
+        Assert.Equal("producao@fabrica.pt\nChefe de Turno <chefe@fabrica.pt>", Destinatarios());
+
+        var email = await MudarAsync("0", "email", "fabrico@fabrica.pt");
+        Assert.True(email.GetProperty("ok").GetBoolean());
+        Assert.Equal("fabrico@fabrica.pt", email.GetProperty("valor").GetString());
+
+        var errado = await MudarAsync("0", "email", "nao-e-email");
+        Assert.False(errado.GetProperty("ok").GetBoolean());
+        Assert.Equal("«nao-e-email» não é um email. Não foi gravado.", errado.GetProperty("aviso").GetString());
+        var repetido = await MudarAsync("0", "email", "chefe@fabrica.pt");
+        Assert.False(repetido.GetProperty("ok").GetBoolean());
+        Assert.Equal("fabrico@fabrica.pt\nChefe de Turno <chefe@fabrica.pt>", Destinatarios());
+
+        using var tirada = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=RemoverPessoa",
+            ("lista_id", listaId.ToString()), ("pessoa", "0"));
+        Assert.Contains("envio=ok-lista", tirada.Headers.Location!.ToString());
+        Assert.Equal("Chefe de Turno <chefe@fabrica.pt>", Destinatarios());
+        // A última pessoa não sai: a lista ficava sem emails.
+        using var ultima = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=RemoverPessoa",
+            ("lista_id", listaId.ToString()), ("pessoa", "0"));
+        Assert.Contains("envio=SemEnderecos", ultima.Headers.Location!.ToString());
+
+        using var junta = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+            ("nome", "Produção"), ("pessoa", "Ana Silva"), ("destinatarios", "asilva@fabrica.pt"));
+        Assert.Equal("Chefe de Turno <chefe@fabrica.pt>\nAna Silva <asilva@fabrica.pt>", Destinatarios());
+    }
+
+    [Fact]
+    public async Task Definicoes_JuntarAUmaLista_UmEmailQueJaLaEsta_NaoDuplica_EAvisa()
+    {
+        using var client = await LoginAsync("4825");
+        var (listaId, _) = SeedModelo();
+        string Destinatarios()
+        {
+            using var scope = _factory.Services.CreateScope();
+            return scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailListas.AsNoTracking().Single().Destinatarios;
+        }
+        var antes = Destinatarios();
+
+        using var junta = await PostAsync(client, "/Definicoes", "/Controlo/Definicoes?handler=CriarLista",
+            ("nome", "Produção"), ("pessoa", "Chefe"), ("destinatarios", "chefe@fabrica.pt"));
+
+        Assert.Equal(antes, Destinatarios());
+        Assert.Contains("envio=EmailRepetido", junta.Headers.Location!.ToString());
+    }
+
+    [Fact]
+    public async Task Definicoes_ListasDeAntes_SemNomes_MostramSeFechadasComOTraco()
+    {
+        using var client = await LoginAsync("4824");
+        var (listaId, _) = SeedModelo();
+
+        var html = await GetAsync(client, "/Definicoes?secao=controlo&sub=email");
+        Assert.Contains($"<details class=\"ctl-def-lista\" data-dmo-lista-email=\"{listaId}\">", html);
+        Assert.Contains("<summary><span class=\"dmo-caret\" aria-hidden=\"true\"></span><span class=\"ctl-def-lista-nome\">Produção</span>", html);
+        Assert.Contains("name=\"email\" value=\"producao@fabrica.pt\"", html);
+        Assert.Contains("name=\"nome\" placeholder=\"—\"", html);
+        // O espaço entre os campos e as listas é o do cartão.
+        Assert.Contains(".ctl-def-listas{display:grid;gap:var(--dmo-space-2);margin-top:var(--dmo-space-4)}", html);
     }
 }

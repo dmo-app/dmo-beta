@@ -86,6 +86,9 @@ public sealed record EmailMensagem(
     string AnexoNome,
     byte[] Anexo);
 
+/// <summary>Uma pessoa de uma lista: o nome (opcional; as listas de antes não o têm) e o email.</summary>
+public sealed record EmailPessoa(string? Nome, string Email);
+
 /// <summary>As regras do texto dos modelos e das listas, num só sítio.</summary>
 public static class EnvioEmailRegras
 {
@@ -117,6 +120,109 @@ public static class EnvioEmailRegras
         }
 
         return (validos, invalidos);
+    }
+
+    /// <summary>
+    /// As pessoas de um texto livre, também colado do Outlook (Diogo, 23/10/2026):
+    /// «"Leal, Sergio" &lt;sleal@x.pt&gt;; Carlos Marinho &lt;cm@x.pt&gt;; simples@x.pt».
+    /// Separa em «;», «,» e linhas novas fora de aspas e de &lt;…&gt;; uma parte sem
+    /// &lt;…&gt; separa-se também nos espaços (cada pedaço um email, como antes).
+    /// Devolve as válidas, sem emails repetidos e por ordem, e o texto das que
+    /// não são um email.
+    /// </summary>
+    public static (IReadOnlyList<EmailPessoa> Validas, IReadOnlyList<string> Invalidas) Pessoas(string? texto)
+    {
+        var validas = new List<EmailPessoa>();
+        var invalidas = new List<string>();
+        void Juntar(EmailPessoa pessoa)
+        {
+            if (!validas.Any(v => string.Equals(v.Email, pessoa.Email, StringComparison.OrdinalIgnoreCase))) validas.Add(pessoa);
+        }
+
+        foreach (var parte in Partes(texto ?? ""))
+        {
+            var abre = parte.LastIndexOf('<');
+            if (abre >= 0)
+            {
+                var fecha = parte.IndexOf('>', abre);
+                var email = (fecha > abre ? parte[(abre + 1)..fecha] : parte[(abre + 1)..]).Trim();
+                var nome = LimparNome(parte[..abre]);
+                if (EmailValido(email) && (fecha < 0 || parte[(fecha + 1)..].Trim().Length == 0)) Juntar(new EmailPessoa(nome, email));
+                else invalidas.Add(parte.Trim());
+                continue;
+            }
+
+            if (parte.Contains('"'))
+            {
+                invalidas.Add(parte.Trim());
+                continue;
+            }
+
+            foreach (var pedaco in parte.Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (EmailValido(pedaco)) Juntar(new EmailPessoa(null, pedaco));
+                else invalidas.Add(pedaco);
+            }
+        }
+
+        return (validas, invalidas);
+    }
+
+    /// <summary>Uma linha gravada da lista: «Nome &lt;email&gt;» ou só «email» (as listas de antes).</summary>
+    public static EmailPessoa LerLinha(string linha)
+    {
+        var abre = linha.LastIndexOf('<');
+        var fecha = linha.LastIndexOf('>');
+        return abre >= 0 && fecha > abre
+            ? new EmailPessoa(LimparNome(linha[..abre]), linha[(abre + 1)..fecha].Trim())
+            : new EmailPessoa(null, linha.Trim());
+    }
+
+    /// <summary>As pessoas gravadas numa lista (uma por linha).</summary>
+    public static IReadOnlyList<EmailPessoa> LerLista(string? destinatarios) =>
+        (destinatarios ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(LerLinha).ToList();
+
+    /// <summary>Como se grava uma pessoa: «Nome &lt;email&gt;», ou só o email sem nome.</summary>
+    public static string Linha(EmailPessoa pessoa) =>
+        string.IsNullOrEmpty(pessoa.Nome) ? pessoa.Email : $"{pessoa.Nome} <{pessoa.Email}>";
+
+    /// <summary>
+    /// As pessoas num texto que se volta a ler com <see cref="Pessoas"/>: o nome
+    /// entre aspas quando tem vírgula ou ponto e vírgula («"Leal, Sergio" &lt;…&gt;»).
+    /// </summary>
+    public static string Texto(IEnumerable<EmailPessoa> pessoas) =>
+        string.Join(", ", pessoas.Select(p => string.IsNullOrEmpty(p.Nome) ? p.Email
+            : p.Nome.IndexOfAny([',', ';']) >= 0 ? $"\"{p.Nome}\" <{p.Email}>" : $"{p.Nome} <{p.Email}>"));
+
+    /// <summary>O nome limpo: sem aspas, sem &lt; &gt;, sem quebras, até <see cref="NomeMax"/>; vazio = null.</summary>
+    public static string? LimparNome(string? nome)
+    {
+        var limpo = new string((nome ?? "").Where(c => !char.IsControl(c) && c is not ('"' or '<' or '>')).ToArray()).Trim();
+        if (limpo.Length > NomeMax) limpo = limpo[..NomeMax].Trim();
+        return limpo.Length == 0 ? null : limpo;
+    }
+
+    private static IEnumerable<string> Partes(string texto)
+    {
+        var atual = new System.Text.StringBuilder();
+        var aspas = false;
+        var angulo = false;
+        foreach (var c in texto)
+        {
+            if (c == '"' && !angulo) aspas = !aspas;
+            else if (c == '<' && !aspas) angulo = true;
+            else if (c == '>' && !aspas) angulo = false;
+            if (!aspas && !angulo && c is ';' or ',' or '\n' or '\r')
+            {
+                if (atual.ToString().Trim().Length > 0) yield return atual.ToString();
+                atual.Clear();
+                continue;
+            }
+
+            atual.Append(c);
+        }
+
+        if (atual.ToString().Trim().Length > 0) yield return atual.ToString();
     }
 
     /// <summary>Um só endereço, sem nome à frente (ex. «producao@fabrica.pt»).</summary>

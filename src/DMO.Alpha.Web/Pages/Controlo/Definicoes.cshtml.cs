@@ -57,6 +57,9 @@ public sealed class DefinicoesModel(
     /// <summary>Os endereços que ficaram de fora da última lista gravada (não são emails).</summary>
     public string? Ignorados { get; private set; }
 
+    /// <summary>A lista que volta aberta depois de lhe mexer (?lista=id); as outras ficam fechadas.</summary>
+    public int? ListaAberta { get; private set; }
+
     /// <summary>O resultado das listas e dos modelos (PRG), só apresentação.</summary>
     public string? EnvioResult { get; private set; }
 
@@ -84,6 +87,7 @@ public sealed class DefinicoesModel(
         nameof(EnvioEmailEstado.DemasiadosEnderecos) => $"Uma lista leva até {EnvioEmailRegras.DestinatariosMax} emails. Não foi gravada.",
         nameof(EnvioEmailEstado.RemetenteInvalido) => "O email que envia não é um email válido. Não foi gravado.",
         nameof(EnvioEmailEstado.NaoExiste) => "Já não existe (outra pessoa apagou-o). Nada mudou.",
+        nameof(EnvioEmailEstado.EmailRepetido) => "Esse email já está na lista. Não foi gravado.",
         _ => string.Empty
     };
 
@@ -226,16 +230,49 @@ public sealed class DefinicoesModel(
         PegamentosToleranceMm = configured ?? PegamentosCalculation.DefaultToleranceMm;
         EnvioResult = envio;
         Ignorados = fora;
+        ListaAberta = int.TryParse(Request.Query["lista"], out var aberta) ? aberta : null;
         Listas = await envioEmail.ListasAsync(HttpContext.RequestAborted);
         Modelos = await envioEmail.ModelosAsync(HttpContext.RequestAborted);
     }
 
     /// <summary>POST: criar uma lista de destinatários. Os endereços que não são email ficam de fora, com aviso.</summary>
     [DefinicaoGeral]
-    public async Task<IActionResult> OnPostCriarListaAsync(string? nome, string? destinatarios)
+    public async Task<IActionResult> OnPostCriarListaAsync(string? nome, string? destinatarios, string? pessoa)
     {
-        var resultado = await envioEmail.CriarListaAsync(nome, destinatarios, HttpContext.RequestAborted);
-        return VoltarDaLista(resultado);
+        var resultado = await envioEmail.CriarListaAsync(nome, destinatarios, HttpContext.RequestAborted, pessoa);
+        var limpo = nome?.Trim() ?? "";
+        var id = resultado.Gravado
+            ? (await envioEmail.ListasAsync(HttpContext.RequestAborted)).FirstOrDefault(l => string.Equals(l.Nome, limpo, StringComparison.OrdinalIgnoreCase))?.Id
+            : null;
+        return VoltarDaLista(resultado, id);
+    }
+
+    /// <summary>
+    /// POST: mudar o nome ou o email de uma pessoa da lista no próprio valor
+    /// da linha (data-dmo-valor). Sem JavaScript, volta à página com a lista aberta.
+    /// </summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostMudarPessoaAsync(
+        [FromForm(Name = "lista_id")] int? listaId, [FromForm(Name = "pessoa")] int? pessoa, string? nome, string? email)
+    {
+        var resultado = await envioEmail.MudarPessoaAsync(listaId ?? 0, pessoa ?? -1, email is null ? nome ?? "" : null, email, HttpContext.RequestAborted);
+        if (Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            var aviso = resultado.Gravado ? null
+                : resultado.Estado == EnvioEmailEstado.SemEnderecos ? $"«{string.Join(", ", resultado.Ignorados)}» não é um email. Não foi gravado."
+                : EnvioRecusa(resultado.Estado.ToString());
+            return new JsonResult(new { ok = resultado.Gravado, valor = resultado.Valor, aviso });
+        }
+
+        return VoltarDaLista(resultado, listaId);
+    }
+
+    /// <summary>POST: tirar uma pessoa da lista (o × da linha).</summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostRemoverPessoaAsync([FromForm(Name = "lista_id")] int? listaId, [FromForm(Name = "pessoa")] int? pessoa)
+    {
+        var resultado = await envioEmail.RemoverPessoaAsync(listaId ?? 0, pessoa ?? -1, HttpContext.RequestAborted);
+        return VoltarDaLista(resultado, listaId);
     }
 
     /// <summary>
@@ -285,12 +322,12 @@ public sealed class DefinicoesModel(
         return RedirectToPage("/Definicoes/Index", new { envio = apagado ? "apagado-modelo" : nameof(EnvioEmailEstado.NaoExiste) });
     }
 
-    private IActionResult VoltarDaLista(EnvioEmailGravacao resultado) =>
+    private IActionResult VoltarDaLista(EnvioEmailGravacao resultado, int? lista = null) =>
         RedirectToPage("/Definicoes/Index", resultado switch
         {
-            { Gravado: true, Ignorados.Count: > 0 } => new { envio = "aviso-lista", fora = (string?)string.Join(", ", resultado.Ignorados) },
-            { Gravado: true } => new { envio = "ok-lista", fora = (string?)null },
-            _ => new { envio = resultado.Estado.ToString(), fora = (string?)null }
+            { Gravado: true, Ignorados.Count: > 0 } => new { envio = "aviso-lista", fora = (string?)string.Join(", ", resultado.Ignorados), lista },
+            { Gravado: true } => new { envio = "ok-lista", fora = (string?)null, lista },
+            _ => new { envio = resultado.Estado.ToString(), fora = (string?)null, lista }
         });
 
     /// <summary>
