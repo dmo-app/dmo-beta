@@ -1617,7 +1617,7 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `e34f8d72d0d0e910`
 
-## A-0059 · 2026-10-23 · contagem-lista
+## A-0060 · 2026-10-23 · contagem-lista
 
 Porquê: PERF-10: testes novos do cancelamento das sugestões; package.json passa a correr o ficheiro novo
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAriKefh54B7BZbzJjE5Emb
