@@ -46,6 +46,7 @@ html body .arm-linha .dmo-field input.arm-pos{width:7ch;font-variant-numeric:tab
 #armProcuraLista.arm-so-fora tr[data-arm-no-armazem="1"]{display:none}
 #armEntrada .dmo-aviso{margin:0 0 8px}
 .arm-modo{display:flex;gap:8px;align-items:end;align-self:end}
+.arm-modo-direita{margin-left:auto;order:1}
 #armEntEstadoAviso[hidden]{display:none}
 .arm-de-onde{align-self:end;margin:0 0 10px;white-space:nowrap}
 html body .arm-modo .dmo-button.arm-modo-ativo{background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600))}
@@ -133,7 +134,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     var masc = tipoEscolhido == ToolType.Mf;
   <section id="armMovProcura" class="dmo-card arm-card" aria-labelledby="arm-mov-procura-title" data-dmo-regiao data-dmo-parcial data-arm-tipo="@tipoTexto">
     <div class="dmo-card-topo">
-      <h3 id="arm-mov-procura-title">Registar @tipoTexto<partial name="_DmoHelp" model="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Um clique na ferramenta abre-a, com a Entrada se está fora do armazém ou a Saída se está numa posição. {(masc ? "Um" : "Uma")} {tipoTexto} que não existe regista-se como lote novo: fica «Por criar» até quem tem o módulo Ferramentas a criar.")" /></h3>
+      <h3 id="arm-mov-procura-title">Registar @tipoTexto<partial name="_DmoHelp" model="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Primeiro escolha Entrada ou Saída: a Entrada mostra só as que estão fora do armazém; a Saída, só as que estão numa posição. Um clique na ferramenta abre-a já com o formulário escolhido. Na Entrada, {(masc ? "um" : "uma")} {tipoTexto} que não existe regista-se como lote novo: fica «Por criar» até quem tem o módulo Ferramentas a criar.")" /></h3>
     </div>
     @* A procura fica sempre no topo (Diogo, 22/10/2026): filtra as
        ferramentas registadas do tipo enquanto se escreve; sem resultados,
@@ -143,20 +144,36 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
        22/10/2026): com a posição escrita, a lista mostra só as que estão
        fora do armazém, com de onde vêm, e a escolhida abre com a Entrada
        já nessa posição. *@
-    <form method="get" asp-page="/Armazem/Movimentos" class="arm-linha" role="search">
+    @* ENTRADA | SAÍDA PRIMEIRO (Diogo, 23/10/2026: «No armazém deveria
+       primeiro aparecer entrada saída porque isso ajuda a filtrar o que
+       existe para entrar e sair»): a Entrada mostra só as que estão fora do
+       armazém (e o lote novo); a Saída, só as que estão numa posição, e a
+       Posição procura o que lá está. O modo vai no endereço (?modo=) e
+       segue na procura; sem script, os dois são links. Na mesma linha, à
+       direita (primeiro no código, que é o que se escolhe primeiro); o escolhido com o aspeto invertido (o do hover). *@
+    <form method="get" asp-page="/Armazem/Movimentos" class="arm-linha" role="search" id="armProcuraForm">
       <input type="hidden" name="tipo" value="@tipoTexto" />
+      <input type="hidden" name="modo" value="@Model.Modo" />
+      <div class="arm-modo arm-modo-direita" role="group" aria-label="Entrada ou saída" id="armProcuraModo">
+        <a class="dmo-button@(!Model.ModoSaida ? " arm-modo-ativo" : null)" id="armProcuraModoEntrada" aria-pressed="@(!Model.ModoSaida ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "entrada", q = Model.Procura, pos = Model.PosicaoPedidaValida })">Entrada</a>
+        <a class="dmo-button@(Model.ModoSaida ? " arm-modo-ativo" : null)" id="armProcuraModoSaida" aria-pressed="@(Model.ModoSaida ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "saida", q = Model.Procura, pos = Model.PosicaoPedidaValida })">Saída</a>
+      </div>
       <div class="dmo-field">
         <label for="armRapPosicao">Posição</label>
         <input id="armRapPosicao" name="pos" type="text" class="arm-pos" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" autocomplete="off"
-               title="4 algarismos, por exemplo 0042" value="@Model.PosicaoPedidaValida" placeholder="0042" />
+               title="@(Model.ModoSaida ? "A posição de onde sai: 4 algarismos, por exemplo 0042" : "4 algarismos, por exemplo 0042")" value="@Model.PosicaoPedidaValida" placeholder="0042" />
       </div>
       <div class="dmo-field">
         <label for="armProcura">Referência</label>
         <input id="armProcura" name="q" type="search" class="arm-procura" value="@Model.Procura" data-dmo-maiusculas autocapitalize="characters" autofocus="@(s is null)"
-               placeholder="@(tipoEscolhido == ToolType.Bq ? "Ex.: T173 ou 0042" : "Ex.: 5447, T173 ou 0042")" data-dmo-procura="@Url.Page("/Armazem/Movimentos", "Procurar", new { tipo = tipoTexto })" data-dmo-procura-alvo="armProcuraLista" />
+               placeholder="@(tipoEscolhido == ToolType.Bq ? "Ex.: T173 ou 0042" : "Ex.: 5447, T173 ou 0042")" data-dmo-procura="@Url.Page("/Armazem/Movimentos", "Procurar", new { tipo = tipoTexto, modo = Model.Modo })" data-dmo-procura-alvo="armProcuraLista" />
       </div>
     </form>
-    <div id="armProcuraLista" aria-live="polite" data-dmo-parcial class="@(Model.PosicaoPedidaValida is not null ? "arm-so-fora" : null)">
+    <div id="armProcuraLista" aria-live="polite" data-dmo-parcial data-arm-modo="@Model.Modo" class="@(!Model.ModoSaida && Model.PosicaoPedidaValida is not null ? "arm-so-fora" : null)">
+      @if (Model.ModoSaida && s is null && !Model.FerramentaNaoExiste && string.IsNullOrWhiteSpace(Model.Procura) && Model.PosicaoPedidaValida is not null && Model.LoteNovoRecusa is null)
+      {
+        <partial name="_ArmazemProcura" model="Model.Encontradas" />
+      }
       @if (!string.IsNullOrWhiteSpace(Model.Procura) || Model.LoteNovoRecusa is not null)
       {
         <partial name="_ArmazemProcura" model="Model.Encontradas" />
