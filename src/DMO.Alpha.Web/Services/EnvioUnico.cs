@@ -21,16 +21,19 @@ namespace DMO.Alpha.Web.Services;
 /// <see cref="EnvioUnicoFilter"/> e docs/ui-reference/atualizar-so-o-que-muda.md.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class EnvioUnicoAttribute : Attribute;
+public sealed class EnvioUnicoAttribute : Attribute
+{
+    /// <summary>Permite repetir um ficheiro em memória, além dos redirects.</summary>
+    public bool GuardarFicheiro { get; set; }
+}
 
 /// <summary>
 /// O filtro de <see cref="EnvioUnicoAttribute"/>, registado para todas as
 /// páginas: só atua num POST com <c>X-Dmo-Envio</c> a um handler marcado.
 /// A chave conta por pessoa, página e handler. Corre depois da entrada no
 /// módulo (<c>ModuleEntry</c>, ordem 0): quem não entra não grava nem repete.
-/// Só se lembra de um redirect: uma resposta desenhada (uma recusa com
-/// <c>Page()</c>) ou um erro não ficam, e o mesmo envio outra vez corre o
-/// handler como da primeira vez.
+/// Lembra os redirects e, por opção explícita do handler, ficheiros em
+/// memória. Uma resposta Page() ou uma exceção não ficam guardadas.
 /// </summary>
 public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
 {
@@ -58,6 +61,7 @@ public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
         var envios = context.HttpContext.RequestServices.GetRequiredService<EnviosGravados>();
         var envio = envios.De($"{quem}\n{context.ActionDescriptor.ViewEnginePath}\n{handler.Name}\n{chave}");
         await envio.Vez.WaitAsync(context.HttpContext.RequestAborted);
+        var ficheiro = false;
         try
         {
             if (envio.Resposta is { } primeira)
@@ -66,15 +70,39 @@ public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
                 return;
             }
 
+            if (handler.MethodInfo.GetCustomAttributes(typeof(EnvioUnicoAttribute), false)
+                .OfType<EnvioUnicoAttribute>().Single().GuardarFicheiro)
+            {
+                // Admissão antes de preparar: nunca gravar e só depois descobrir
+                // que não há espaço para lembrar o resultado. Uma preparação de
+                // cada vez limita a ultrapassagem do orçamento a um ficheiro.
+                await envios.PreparacaoDeFicheiro.WaitAsync(context.HttpContext.RequestAborted);
+                ficheiro = true;
+                if (!envios.CabeOutroFicheiro)
+                {
+                    context.Result = new ContentResult
+                    {
+                        StatusCode = StatusCodes.Status503ServiceUnavailable,
+                        Content = "Não foi preparado nenhum email. Há muitos emails recentes; tente novamente mais tarde."
+                    };
+                    return;
+                }
+            }
+
             var executado = await next();
             if (executado.Exception is null
                 && executado.Result is RedirectToPageResult or RedirectResult or LocalRedirectResult or RedirectToRouteResult or RedirectToActionResult)
             {
                 envio.Resposta = executado.Result;
             }
+            else if (executado.Exception is null && ficheiro && executado.Result is FileContentResult resultado)
+            {
+                envios.GuardarFicheiro(envio, resultado);
+            }
         }
         finally
         {
+            if (ficheiro) envios.PreparacaoDeFicheiro.Release();
             envio.Vez.Release();
         }
     }
@@ -88,7 +116,7 @@ public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
 /// aplicação corre numa só instância e não é preciso uma tabela. Cada chave
 /// fica <see cref="Janela"/> depois do primeiro envio; um reinício esquece-as.
 /// </summary>
-public sealed class EnviosGravados
+public sealed class EnviosGravados(long orcamentoDeFicheiros = 64 * 1024 * 1024)
 {
     /// <summary>
     /// Quanto tempo uma chave fica lembrada: o operador pode carregar outra vez
@@ -98,6 +126,16 @@ public sealed class EnviosGravados
 
     private readonly ConcurrentDictionary<string, Envio> _envios = new(StringComparer.Ordinal);
     private long _proximaLimpeza;
+    private long _bytesDeFicheiros;
+    internal SemaphoreSlim PreparacaoDeFicheiro { get; } = new(1, 1);
+    internal bool CabeOutroFicheiro => Interlocked.Read(ref _bytesDeFicheiros) < orcamentoDeFicheiros;
+
+    internal void GuardarFicheiro(Envio envio, FileContentResult resultado)
+    {
+        envio.Bytes = resultado.FileContents.LongLength;
+        envio.Resposta = resultado;
+        Interlocked.Add(ref _bytesDeFicheiros, envio.Bytes);
+    }
 
     /// <summary>Um envio: um de cada vez (Vez) e a resposta do primeiro que gravou.</summary>
     public sealed class Envio
@@ -105,6 +143,7 @@ public sealed class EnviosGravados
         internal Envio(DateTime desde) => Desde = desde;
 
         internal DateTime Desde { get; }
+        internal long Bytes { get; set; }
 
         public SemaphoreSlim Vez { get; } = new(1, 1);
 
@@ -133,7 +172,8 @@ public sealed class EnviosGravados
         {
             if (envio.Desde < agora - Janela && envio.Vez.CurrentCount == 1)
             {
-                _envios.TryRemove(chave, out _);
+                if (_envios.TryRemove(chave, out var removido))
+                    Interlocked.Add(ref _bytesDeFicheiros, -removido.Bytes);
             }
         }
     }

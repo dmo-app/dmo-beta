@@ -14,7 +14,8 @@ public enum EnvioEmailEstado
     DemasiadosEnderecos,
     RemetenteInvalido,
     NaoExiste,
-    EmailRepetido
+    EmailRepetido,
+    Conflito
 }
 
 /// <summary>
@@ -22,7 +23,7 @@ public enum EnvioEmailEstado
 /// email ficam de fora e voltam em <see cref="Ignorados"/>, para o aviso: a
 /// lista grava com os outros (regra de 19/10/2026, avisos em vez de recusas).
 /// </summary>
-public sealed record EnvioEmailGravacao(EnvioEmailEstado Estado, IReadOnlyList<string> Ignorados, string? Valor = null)
+public sealed record EnvioEmailGravacao(EnvioEmailEstado Estado, IReadOnlyList<string> Ignorados, string? Valor = null, string? Versao = null)
 {
     public bool Gravado => Estado == EnvioEmailEstado.Gravado;
 
@@ -68,25 +69,27 @@ public sealed class EnvioEmailDefinicoes(DmoDbContext db)
     }
 
     /// <summary>Muda só o campo enviado (o nome ou os endereços), como na linha da tabela.</summary>
-    public async Task<EnvioEmailGravacao> MudarListaAsync(int id, string? nome, string? destinatarios, CancellationToken cancellationToken = default)
+    public async Task<EnvioEmailGravacao> MudarListaAsync(int id, string? nome, string? destinatarios, CancellationToken cancellationToken = default, string? versao = null)
     {
         var lista = await db.EmailListas.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
         if (lista is null) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.NaoExiste);
+        if (Desatualizada(lista, versao)) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.Conflito);
         if (nome is not null)
         {
             var recusa = await NomeDaListaAsync(lista, nome, cancellationToken);
             if (recusa is not null) return recusa;
-            return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, Array.Empty<string>(), lista.Nome), cancellationToken);
+            return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, Array.Empty<string>(), lista.Nome, EnvioEmailRegras.Versao(lista)), cancellationToken);
         }
 
         var enderecos = Enderecos(lista, destinatarios);
-        return enderecos.Gravado ? await GravarAsync(enderecos, cancellationToken) : enderecos;
+        return enderecos.Gravado ? await GravarAsync(enderecos with { Versao = EnvioEmailRegras.Versao(lista) }, cancellationToken) : enderecos;
     }
 
     /// <summary>Mudar o nome ou o email de uma pessoa da lista (a posição na lista), no próprio valor da linha.</summary>
-    public async Task<EnvioEmailGravacao> MudarPessoaAsync(int id, int indice, string? nome, string? email, CancellationToken cancellationToken = default)
+    public async Task<EnvioEmailGravacao> MudarPessoaAsync(int id, int indice, string? nome, string? email, CancellationToken cancellationToken = default, string? versao = null)
     {
         var lista = await db.EmailListas.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
+        if (lista is not null && Desatualizada(lista, versao)) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.Conflito);
         var pessoas = lista is null ? [] : EnvioEmailRegras.LerLista(lista.Destinatarios).ToList();
         if (lista is null || indice < 0 || indice >= pessoas.Count) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.NaoExiste);
         if (email is not null)
@@ -97,20 +100,21 @@ public sealed class EnvioEmailDefinicoes(DmoDbContext db)
                 return EnvioEmailGravacao.Recusa(EnvioEmailEstado.EmailRepetido);
             pessoas[indice] = pessoas[indice] with { Email = limpo };
             lista.Destinatarios = string.Join("\n", pessoas.Select(EnvioEmailRegras.Linha));
-            return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, [], limpo), cancellationToken);
+            return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, [], limpo, EnvioEmailRegras.Versao(lista)), cancellationToken);
         }
 
         var nomeLimpo = EnvioEmailRegras.LimparNome(nome);
         pessoas[indice] = pessoas[indice] with { Nome = nomeLimpo };
         lista.Destinatarios = string.Join("\n", pessoas.Select(EnvioEmailRegras.Linha));
         if (lista.Destinatarios.Length > DestinatariosTextoMax) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.TextoLongo);
-        return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, [], nomeLimpo ?? ""), cancellationToken);
+        return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, [], nomeLimpo ?? "", EnvioEmailRegras.Versao(lista)), cancellationToken);
     }
 
     /// <summary>Tirar uma pessoa da lista (a posição); a última não sai (a lista ficava sem emails).</summary>
-    public async Task<EnvioEmailGravacao> RemoverPessoaAsync(int id, int indice, CancellationToken cancellationToken = default)
+    public async Task<EnvioEmailGravacao> RemoverPessoaAsync(int id, int indice, CancellationToken cancellationToken = default, string? versao = null)
     {
         var lista = await db.EmailListas.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
+        if (lista is not null && Desatualizada(lista, versao)) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.Conflito);
         var pessoas = lista is null ? [] : EnvioEmailRegras.LerLista(lista.Destinatarios).ToList();
         if (lista is null || indice < 0 || indice >= pessoas.Count) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.NaoExiste);
         if (pessoas.Count == 1) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.SemEnderecos);
@@ -119,10 +123,11 @@ public sealed class EnvioEmailDefinicoes(DmoDbContext db)
         return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, []), cancellationToken);
     }
 
-    public async Task<bool> ApagarListaAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<EnvioEmailGravacao> ApagarListaAsync(int id, CancellationToken cancellationToken = default, string? versao = null)
     {
         var lista = await db.EmailListas.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
-        if (lista is null) return false;
+        if (lista is null) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.NaoExiste);
+        if (Desatualizada(lista, versao)) return EnvioEmailGravacao.Recusa(EnvioEmailEstado.Conflito);
         // Os modelos que a propunham ficam sem lista proposta (também na base, SetNull).
         await foreach (var modelo in db.EmailModelos.Where(m => m.ListaId == id).AsAsyncEnumerable().WithCancellation(cancellationToken))
         {
@@ -130,8 +135,7 @@ public sealed class EnvioEmailDefinicoes(DmoDbContext db)
         }
 
         db.EmailListas.Remove(lista);
-        await db.SaveChangesAsync(cancellationToken);
-        return true;
+        return await GravarAsync(new EnvioEmailGravacao(EnvioEmailEstado.Gravado, []), cancellationToken);
     }
 
     /// <summary>Cria (id null) ou guarda o modelo inteiro, como na janela do modelo.</summary>
@@ -202,6 +206,11 @@ public sealed class EnvioEmailDefinicoes(DmoDbContext db)
     /// <summary>O tamanho da coluna dos destinatários (HasMaxLength na base).</summary>
     private const int DestinatariosTextoMax = 13000;
 
+    // null só para chamadas internas; os POST passam "" quando o campo falta,
+    // para que formulários antigos ou incompletos nunca saltem a verificação.
+    private static bool Desatualizada(EmailLista lista, string? versao) =>
+        versao is not null && !string.Equals(EnvioEmailRegras.Versao(lista), versao, StringComparison.Ordinal);
+
     /// <summary>
     /// As pessoas escritas (também coladas do Outlook, com os nomes) gravam-se
     /// uma por linha, «Nome &lt;email&gt;» ou só o email; com <paramref name="antes"/>
@@ -238,6 +247,11 @@ public sealed class EnvioEmailDefinicoes(DmoDbContext db)
         {
             db.ChangeTracker.Clear();
             return EnvioEmailGravacao.Recusa(EnvioEmailEstado.NomeRepetido);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            db.ChangeTracker.Clear();
+            return EnvioEmailGravacao.Recusa(EnvioEmailEstado.Conflito);
         }
     }
 }

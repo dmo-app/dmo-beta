@@ -959,11 +959,13 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Destinatarios")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasMaxLength(13000)
                         .HasColumnType("character varying(13000)");
 
                     b.Property<string>("Nome")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");

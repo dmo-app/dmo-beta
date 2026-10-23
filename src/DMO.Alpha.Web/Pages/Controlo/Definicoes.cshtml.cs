@@ -88,6 +88,7 @@ public sealed class DefinicoesModel(
         nameof(EnvioEmailEstado.RemetenteInvalido) => "O email que envia não é um email válido. Não foi gravado.",
         nameof(EnvioEmailEstado.NaoExiste) => "Já não existe (outra pessoa apagou-o). Nada mudou.",
         nameof(EnvioEmailEstado.EmailRepetido) => "Esse email já está na lista. Não foi gravado.",
+        nameof(EnvioEmailEstado.Conflito) => "A lista mudou entretanto. Nada foi gravado. Atualize a página antes de voltar a alterar a lista.",
         _ => string.Empty
     };
 
@@ -260,15 +261,15 @@ public sealed class DefinicoesModel(
     /// </summary>
     [DefinicaoGeral]
     public async Task<IActionResult> OnPostMudarPessoaAsync(
-        [FromForm(Name = "lista_id")] int? listaId, [FromForm(Name = "pessoa")] int? pessoa, string? nome, string? email)
+        [FromForm(Name = "lista_id")] int? listaId, [FromForm(Name = "pessoa")] int? pessoa, string? nome, string? email, string? versao)
     {
-        var resultado = await envioEmail.MudarPessoaAsync(listaId ?? 0, pessoa ?? -1, email is null ? nome ?? "" : null, email, HttpContext.RequestAborted);
+        var resultado = await envioEmail.MudarPessoaAsync(listaId ?? 0, pessoa ?? -1, email is null ? nome ?? "" : null, email, HttpContext.RequestAborted, versao ?? "");
         if (Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
         {
             var aviso = resultado.Gravado ? null
                 : resultado.Estado == EnvioEmailEstado.SemEnderecos ? $"«{string.Join(", ", resultado.Ignorados)}» não é um email. Não foi gravado."
                 : EnvioRecusa(resultado.Estado.ToString());
-            return new JsonResult(new { ok = resultado.Gravado, valor = resultado.Valor, aviso });
+            return new JsonResult(new { ok = resultado.Gravado, valor = resultado.Valor, aviso, versao = resultado.Versao });
         }
 
         return VoltarDaLista(resultado, listaId);
@@ -276,9 +277,9 @@ public sealed class DefinicoesModel(
 
     /// <summary>POST: tirar uma pessoa da lista (o × da linha).</summary>
     [DefinicaoGeral]
-    public async Task<IActionResult> OnPostRemoverPessoaAsync([FromForm(Name = "lista_id")] int? listaId, [FromForm(Name = "pessoa")] int? pessoa)
+    public async Task<IActionResult> OnPostRemoverPessoaAsync([FromForm(Name = "lista_id")] int? listaId, [FromForm(Name = "pessoa")] int? pessoa, string? versao)
     {
-        var resultado = await envioEmail.RemoverPessoaAsync(listaId ?? 0, pessoa ?? -1, HttpContext.RequestAborted);
+        var resultado = await envioEmail.RemoverPessoaAsync(listaId ?? 0, pessoa ?? -1, HttpContext.RequestAborted, versao ?? "");
         return VoltarDaLista(resultado, listaId);
     }
 
@@ -288,24 +289,24 @@ public sealed class DefinicoesModel(
     /// </summary>
     [DefinicaoGeral]
     public async Task<IActionResult> OnPostMudarListaAsync(
-        [FromForm(Name = "lista_id")] int? listaId, string? nome, string? destinatarios)
+        [FromForm(Name = "lista_id")] int? listaId, string? nome, string? destinatarios, string? versao)
     {
-        var resultado = await envioEmail.MudarListaAsync(listaId ?? 0, nome, nome is null ? destinatarios ?? "" : null, HttpContext.RequestAborted);
+        var resultado = await envioEmail.MudarListaAsync(listaId ?? 0, nome, nome is null ? destinatarios ?? "" : null, HttpContext.RequestAborted, versao ?? "");
         if (Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
         {
             var aviso = !resultado.Gravado ? EnvioRecusa(resultado.Estado.ToString())
                 : resultado.Ignorados.Count > 0 ? $"Ficaram de fora, por não serem emails: {string.Join(", ", resultado.Ignorados)}." : null;
-            return new JsonResult(new { ok = resultado.Gravado, valor = resultado.Valor, aviso });
+            return new JsonResult(new { ok = resultado.Gravado, valor = resultado.Valor, aviso, versao = resultado.Versao });
         }
 
         return VoltarDaLista(resultado);
     }
 
     [DefinicaoGeral]
-    public async Task<IActionResult> OnPostApagarListaAsync([FromForm(Name = "lista_id")] int? listaId)
+    public async Task<IActionResult> OnPostApagarListaAsync([FromForm(Name = "lista_id")] int? listaId, string? versao)
     {
-        var apagada = await envioEmail.ApagarListaAsync(listaId ?? 0, HttpContext.RequestAborted);
-        return RedirectToPage("/Definicoes/Index", new { envio = apagada ? "apagada-lista" : nameof(EnvioEmailEstado.NaoExiste) });
+        var resultado = await envioEmail.ApagarListaAsync(listaId ?? 0, HttpContext.RequestAborted, versao ?? "");
+        return RedirectToPage("/Definicoes/Index", new { envio = resultado.Gravado ? "apagada-lista" : resultado.Estado.ToString() });
     }
 
     /// <summary>POST: criar (sem modelo_id) ou guardar um modelo, na janela do modelo.</summary>

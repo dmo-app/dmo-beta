@@ -21,7 +21,7 @@ namespace DMO.Alpha.Web.Tests.Controlo;
 /// na hora e nunca fica no servidor; fica só o registo do envio. O email sai
 /// pelo Outlook do PC (Diogo, 21/10/2026): o «Enviar» devolve um .eml.
 /// </summary>
-public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
+public sealed partial class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private readonly WebApplicationFactory<Program> _factory;
     private readonly CustomWebApplicationFactory _base;
@@ -100,7 +100,14 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
 
     private static async Task<HttpResponseMessage> PostAsync(HttpClient client, string pageForToken, string url, params (string, string)[] fields)
     {
-        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await (await client.GetAsync(pageForToken)).Content.ReadAsStringAsync())!;
+        var html = await (await client.GetAsync(pageForToken)).Content.ReadAsStringAsync();
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
+        if (url.Contains("handler=RemoverPessoa", StringComparison.Ordinal))
+        {
+            var id = fields.Single(f => f.Item1 == "lista_id").Item2;
+            var (_, atuais) = EnvioDoFormulario.Mudar(html, $"ctl-lista-nome-{id}", "");
+            fields = fields.Append(("versao", atuais.Single(c => c.Nome == "versao").Valor)).ToArray();
+        }
         return await client.PostAsync(url, HtmlFormHelpers.BuildFormPost(fields.Append(("__RequestVerificationToken", token)).ToArray()));
     }
 
@@ -366,7 +373,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "/Controlo/Definicoes?handler=MudarLista")
         {
-            Content = HtmlFormHelpers.BuildFormPost(("__RequestVerificationToken", token), ("lista_id", listaId.ToString()), ("destinatarios", "novo@fabrica.pt x"))
+            Content = HtmlFormHelpers.BuildFormPost(("__RequestVerificationToken", token), ("lista_id", listaId.ToString()), ("versao", VersaoDaLista(listaId)), ("destinatarios", "novo@fabrica.pt x"))
         };
         request.Headers.Accept.ParseAdd("application/json");
         using var response = await client.SendAsync(request);
@@ -460,7 +467,7 @@ public sealed class EnvioEmailPesoPageTests : IClassFixture<CustomWebApplication
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, "/Controlo/Definicoes?handler=MudarPessoa")
             {
-                Content = HtmlFormHelpers.BuildFormPost(("__RequestVerificationToken", token), ("lista_id", listaId.ToString()), ("pessoa", pessoa), (campo, valor))
+                Content = HtmlFormHelpers.BuildFormPost(("__RequestVerificationToken", token), ("lista_id", listaId.ToString()), ("versao", VersaoDaLista(listaId)), ("pessoa", pessoa), (campo, valor))
             };
             request.Headers.Accept.ParseAdd("application/json");
             using var response = await client.SendAsync(request);
