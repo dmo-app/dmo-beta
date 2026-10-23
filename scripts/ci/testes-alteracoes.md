@@ -1609,10 +1609,10 @@ Selo depois: `d96a7f2ee41e164c`
 
 ## A-0058 · 2026-10-23 · ok-do-diogo
 
-Porquê: Registar Reparação sem as frases «Nenhuma lista ativa…» e «Escolha um filtro e procure.» (o Diogo: «remover comentários»); o teste passa a provar que não aparecem.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyQd8YbYN5Lfe9Y35h2uvui6, cmsg_01A27e9ozcpoh4jdPRsuJbFyEYj4jAdmPBR3GuBoG7dKj6
+Porquê: Registar Reparação sem as frases «Nenhuma lista ativa…» e «Escolha um filtro e procure.» (o Diogo: «remover comentários»); o teste prova que não aparecem e que a lista nova se chama «reparador · dd/mm/aaaa» (o Diogo: «nova lista fica com que nome?»).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyQd8YbYN5Lfe9Y35h2uvui6, cmsg_01A27e9ozcpoh4jdPRsuJbFyEYj4jAdmPBR3GuBoG7dKj6, cmsg_01A27e9ozcpoh4jdPRsuJbFyJf9MUgTsdJTXN3CZeLafvu
 Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova`
 
-Selo depois: `76b815df59115132`
+Selo depois: `e34f8d72d0d0e910`

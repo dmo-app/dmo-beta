@@ -147,6 +147,11 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         Assert.Contains("1 ferramenta associada.", lista);
         Assert.Contains("id=\"rpListaAtiva\"", lista);
         Assert.Contains("<strong>Moldin</strong>", lista);
+        // O nome da lista nova (Diogo, 23/10/2026: «nova lista fica com que nome?»): o reparador e o dia de Lisboa em que foi criada.
+        var criada = NaBase(db => db.ReparacaoProgramadaListas.Single());
+        var dia = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(criada.CriadaEmUtc).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        Assert.Equal(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(DateTime.UtcNow).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture), dia);
+        Assert.Matches($"<option value=\"{criada.Id}\" selected=\"selected\">Moldin · {Regex.Escape(dia)}</option>", lista);
         Assert.Matches("data-dmo-progresso[^>]*>Por retirar<", lista);
         Assert.Contains("id=\"rpImprimir\"", lista);
         var item = NaBase(db => db.ReparacaoProgramadaItens.Single());
