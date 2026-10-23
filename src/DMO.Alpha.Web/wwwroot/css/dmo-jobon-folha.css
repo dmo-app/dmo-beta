@@ -530,3 +530,7 @@ html body .jof2 .board:has(details.more[open]) .note-box{flex:none}
 /* A produção cabe toda numa linha («202604 · C3»); a procura encolhe (Diogo, 23/10/2026). */
 html body .jof2 .pick-row select.prod-select,html body .jof2 .pick-row .prod-drop,html body .jof2 .pick-row .prod-trigger{width:auto;min-width:max-content;white-space:nowrap}
 html body .jof2 .pick-row .prod-drop *{white-space:nowrap}
+/* A referência cabe inteira na procura («5447T173»); a fila de cima tem a largura dos botões (Diogo, 23/10/2026). */
+html body .jof2 .pick-row .ref-search input{min-width:calc(8.5ch + 34px)}
+/* A Produção um pouco mais larga; a fila de cima começa onde começa o Imprimir (Diogo, 23/10/2026). */
+html body .jof2 .pick-row .prod-trigger,html body .jof2 .pick-row select.prod-select{padding-left:14px;padding-right:30px}
