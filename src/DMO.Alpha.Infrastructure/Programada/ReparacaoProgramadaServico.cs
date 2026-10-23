@@ -109,8 +109,12 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
         return new(ProgramadaAssociacao.Associada, lista.Id, 0, []);
     }
 
-    public async Task<ProgramadaAssociacaoSaida> AssociarAsync(
-        IReadOnlyCollection<string> toolIds, int? listaId, int? reparadorId, CancellationToken cancellationToken = default)
+    public Task<ProgramadaAssociacaoSaida> AssociarAsync(
+        IReadOnlyCollection<string> toolIds, int? listaId, int? reparadorId, CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(db, () => AssociarUmaVezAsync(toolIds, listaId, reparadorId, cancellationToken), cancellationToken);
+
+    private async Task<ProgramadaAssociacaoSaida> AssociarUmaVezAsync(
+        IReadOnlyCollection<string> toolIds, int? listaId, int? reparadorId, CancellationToken cancellationToken)
     {
         var pedidas = toolIds.Where(id => !string.IsNullOrWhiteSpace(id) && id != ToolRegistryConstants.RemovedToolId).Distinct().ToList();
         if (pedidas.Count == 0)
@@ -121,12 +125,17 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
         ReparacaoProgramadaLista? lista;
         if (listaId is { } id)
         {
+            await ReparacaoProgramadaMovimentos.TrancarListaAsync(db, id, cancellationToken);
             lista = await db.ReparacaoProgramadaListas.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
             if (lista is null)
             {
                 return new(ProgramadaAssociacao.ListaNaoExiste, null, 0, []);
             }
 
+            if (db.Database.IsRelational())
+            {
+                await db.Entry(lista).ReloadAsync(cancellationToken);
+            }
             if (lista.FechadaEmUtc is not null)
             {
                 return new(ProgramadaAssociacao.ListaFechada, lista.Id, 0, []);
@@ -355,9 +364,39 @@ public static class ReparacaoProgramadaMovimentos
                 select l.ReparadorNome)
             .FirstOrDefaultAsync(cancellationToken);
 
-    public static async Task AoMovimentoAsync(DmoDbContext db, ArmazemMovimento movimento, CancellationToken cancellationToken)
+    public static Task AoMovimentoAsync(DmoDbContext db, ArmazemMovimento movimento, CancellationToken cancellationToken) =>
+        AoMovimentosAsync(db, [movimento], cancellationToken);
+
+    // O movimento pode levar a CM e o MF juntos. Todos os trincos das suas
+    // listas são adquiridos por Id antes de atualizar qualquer uma delas.
+    public static Task AoMovimentosAsync(DmoDbContext db, IReadOnlyCollection<ArmazemMovimento> movimentos, CancellationToken cancellationToken) =>
+        DbWrite.InTransactionAsync(db, async () =>
+        {
+            var ferramentas = movimentos.Where(m => m.Tipo != ArmazemMovimentoTipo.Corrigir)
+                .Select(m => m.ToolId).Distinct().ToList();
+            var listas = await (
+                    from i in db.ReparacaoProgramadaItens.AsNoTracking()
+                    join l in db.ReparacaoProgramadaListas.AsNoTracking() on i.ListaId equals l.Id
+                    where l.FechadaEmUtc == null && i.EntradaMovimentoId == null && ferramentas.Contains(i.ToolId)
+                    select l.Id)
+                .Distinct().OrderBy(id => id).ToListAsync(cancellationToken);
+            foreach (var id in listas)
+            {
+                await TrancarListaAsync(db, id, cancellationToken);
+            }
+            foreach (var movimento in movimentos.Where(m => m.Tipo != ArmazemMovimentoTipo.Corrigir))
+            {
+                await AtualizarAsync(db, movimento, listas, cancellationToken);
+            }
+            return true;
+        }, cancellationToken);
+
+    internal static Task TrancarListaAsync(DmoDbContext db, int listaId, CancellationToken cancellationToken) =>
+        DbWrite.LockAsync(db, $"programada:lista:{listaId}", cancellationToken);
+
+    private static async Task AtualizarAsync(DmoDbContext db, ArmazemMovimento movimento, List<int> listasTrancadas, CancellationToken cancellationToken)
     {
-        if (movimento.Tipo == ArmazemMovimentoTipo.Corrigir)
+        if (listasTrancadas.Count == 0)
         {
             return;
         }
@@ -365,7 +404,8 @@ public static class ReparacaoProgramadaMovimentos
         var itens = await (
                 from i in db.ReparacaoProgramadaItens
                 join l in db.ReparacaoProgramadaListas on i.ListaId equals l.Id
-                where l.FechadaEmUtc == null && i.ToolId == movimento.ToolId && i.EntradaMovimentoId == null
+                where listasTrancadas.Contains(l.Id) && l.FechadaEmUtc == null
+                    && i.ToolId == movimento.ToolId && i.EntradaMovimentoId == null
                 select i)
             .ToListAsync(cancellationToken);
         if (itens.Count == 0)

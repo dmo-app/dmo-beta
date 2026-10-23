@@ -620,5 +620,18 @@ html body .jof2 table.calv thead,html body .jof2 table.calv tbody,html body .jof
 }
 /* O CAL horizontal ocupa a largura toda, por baixo de TP, CS e PU. */
 @container board (min-width:640px){
-  html body .jof2 .zones{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:none;grid-template-areas:"moldes moldes moldes" "sopro sopro col3" "cal cal cal"}
+  html body .jof2 .zones{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:none;grid-template-areas:"moldes moldes moldes col3" "sopro sopro sopro col3" "cal cal cal cal";align-items:start}
+  html body .jof2 #gSopro{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* Cartões estreitos (quatro por fila): um par por linha, para os rótulos caberem. */
+@container (max-width:300px){
+  html body .jof2.editing .more-body .kv{grid-template-columns:minmax(0,1fr) 96px;column-gap:6px}
+  html body .jof2.editing .more-body .kv>:nth-child(3),html body .jof2.editing .more-body .kv>:nth-child(4){border-top:1px solid var(--dmo-border)}
+  html body .jof2.editing .more-body .kv dd input.f{width:96px}
+  html body .jof2.editing .dims input.f{width:100%;min-width:0}
+}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv){width:100%;table-layout:fixed}
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:33%;white-space:normal;font-size:11.5px}
+  html body .jof2.editing table.dims:not(.calv) td,html body .jof2.editing table.dims:not(.calv) th{padding-left:3px;padding-right:3px}
 }
