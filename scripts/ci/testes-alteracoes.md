@@ -1849,3 +1849,35 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/visual/paginacao_parcial_browser.py`
 
 Selo depois: `74948639fa47de50`
+
+## A-0074 · 2026-10-23 · ok-do-diogo
+
+Porquê: Hora na Reparação Interna, preenchida com a hora atual e editável; rasto fixo também nas horas; limites 00:00, 23:59 e 24:00; nova migração na lista
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAdjqLNEgQ9Y4VgMMMXYG4N
+Novos: 17 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInternaHora.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInternaHora.cs :: PostgresMigrationIntegrationTests.ReparacaoInternaHora_ORastoNaoMudaAsHoras`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasHoraTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasHoraTests.cs :: ReparacoesInternasHoraTests.Corrigir_SemHora_DeixaAHora_ENumeroEHoraIguais_NadaMuda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasHoraTests.cs :: ReparacoesInternasHoraTests.Corrigir_SoAHora_MudaAHora_ComRasto_EONumeroFica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasHoraTests.cs :: ReparacoesInternasHoraTests.Registar_ComAHoraMudada_GravaAEscrita`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasHoraTests.cs :: ReparacoesInternasHoraTests.Registar_SemHora_GravaAHoraLocalDeAgora_AoMinuto_EORegistadoEmFicaIgual`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasHoraTests.cs :: ReparacoesInternasHoraTests.UmaDeAntes_SemHora_ListaComHoraNula_ECorrigirDaLheHora`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: ReparacaoInternaHoraPaginaTests.AHoraMudada_FicaGravada_EAparecenoRegisto`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: ReparacaoInternaHoraPaginaTests.Corrigir_ComUmaHoraInvalida_NadaMuda`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: ReparacaoInternaHoraPaginaTests.Corrigir_MudaAHora_ComRasto`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: ReparacaoInternaHoraPaginaTests.OCampoHora_AoLadoDoDia_VemComAHoraDeAgora_EGravaSeComOsMinutos`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: ReparacaoInternaHoraPaginaTests.OsLimitesDaHora_DaMeiaNoiteAo2359_E24Recusa`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: ReparacaoInternaHoraPaginaTests.UmaDeAntes_SemHora_MostraAHoraDoRegisto`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHoraPaginaTests.cs :: ReparacaoInternaHoraPaginaTests.UmaHoraInvalida_Recusa_ComMensagem_ENadaSeGrava`
+- novo: `tests/visual/ri_hora_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasTests.cs :: ReparacoesInternasTests.ALista_DestaMaquinaEProducao_DaMaisRecente_EmPaginasDe25`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_CorrigeONumero_ComRasto_EOMesmoEnvioAplicaUmaVez`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHistoricoPaginaTests.cs :: ReparacaoInternaHistoricoPaginaTests.CorrigirNoHistorico_VoltaAoHistoricoComOsFiltros`
+
+Selo depois: `76537f95ac3f30e1`
