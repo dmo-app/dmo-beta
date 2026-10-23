@@ -68,7 +68,8 @@ public sealed record RiConsultaLinha(
     string Numero,
     string? Quem,
     RiEscrita? Escrita = null,
-    string? FerramentaToolId = null);
+    string? FerramentaToolId = null,
+    TimeOnly? Hora = null);
 
 /// <summary>Uma pessoa do filtro «Quem»: um utilizador que já registou reparações.</summary>
 public sealed record RiPessoa(Guid Id, string Nome);

@@ -115,6 +115,7 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
                 r.Id,
                 r.DiaOperacional,
                 r.RegistadoEmUtc,
+                r.Hora,
                 Maquina = m.Code,
                 r.JobOnId,
                 ProductionNumber = j != null ? j.ProductionNumber : null,
@@ -158,7 +159,8 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
                 l.ReferenciaEscrita is null ? null : Escrita(
                     l.ReferenciaEscrita, l.LoteEscrito!, l.AssociadaToolId, l.AssociadaReferencia, l.AssociadaLote,
                     l.AssociadaToolId is null ? candidatas.GetValueOrDefault((l.Tipo, l.ReferenciaEscrita)) ?? [] : null),
-                l.FerramentaToolId))
+                l.FerramentaToolId,
+                l.Hora))
             .ToList();
         return new PagedList<RiConsultaLinha>(resultado, ids.TotalCount, ids.PageNumber, ids.PageSize);
     }

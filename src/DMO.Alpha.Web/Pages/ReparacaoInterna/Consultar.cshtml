@@ -182,7 +182,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
             var producao = $"{r.Referencia} · {r.Producao}";
             <tr data-dmo-reparacao="@r.Id">
               <td>@ConsultarModel.Dia(r.Dia)</td>
-              <td>@ConsultarModel.Hora(r.RegistadoEmUtc)</td>
+              <td>@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)</td>
               <td>@r.Maquina</td>
               <td>
                 @if (r.JobOnId is null)

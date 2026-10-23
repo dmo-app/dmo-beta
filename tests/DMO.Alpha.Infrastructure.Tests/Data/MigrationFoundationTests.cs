@@ -133,6 +133,7 @@ public sealed class MigrationFoundationTests
                 "20261022174307_FerramentaFabricaOrigem",
                 "20261022185512_DefinicoesPessoais",
                 "20261022213128_MovimentosLinhaReparadorJobOn",
+                "20261023063227_ReparacaoInternaHora",
                 "20261023075945_JobOnAlteracaoRemovida" },
             keys);
     }
