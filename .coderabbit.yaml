@@ -1,0 +1,56 @@
+# Configuracao CodeRabbit para dmo-app/dmo-beta-full-merge
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "pt-PT"
+tone_instructions: >-
+  Usa portugues de Portugal, com comentarios objetivos e acionaveis.
+  Prioriza impacto real, risco de regressao e provas com testes.
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+  path_filters:
+    - "!docs/releases/**"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+  path_instructions:
+    - path: "src/DMO.Alpha.Core/**"
+      instructions: |
+        Verifica invariantes de negocio e fonte unica de regras.
+        Preserva identidades canonicas, rastreabilidade, historico e precisao decimal.
+        Evita duplicar regras entre dominios, paginas e PDFs.
+    - path: "src/DMO.Alpha.Infrastructure/**"
+      instructions: |
+        Verifica transacoes, concorrencia, versoes e idempotencia nas gravacoes.
+        Verifica constraints e migracoes PostgreSQL sem perder dados existentes.
+        Identifica consultas N+1 e sugere medir antes de otimizar.
+        Mantem segredos fora do codigo e os PDFs apenas em memoria.
+        Nao proponhas alteracoes destrutivas de dados sem aprovacao.
+    - path: "src/DMO.Alpha.Web/**"
+      instructions: |
+        Verifica autenticacao e autorizacao em GET e POST, antiforgery,
+        validacao no servidor e escape de conteudo nao confiavel.
+        Verifica pedidos assincronos antigos, mensagens de erro e preservacao
+        de formularios. Respeita DmoTroca e os componentes partilhados.
+        Nao introduzas scripts inline; texto visivel em portugues de Portugal.
+    - path: "tests/**"
+      instructions: |
+        Pede regressao que falhe no codigo anterior e passe com a correcao.
+        Verifica limites, casos negativos e efeitos reais na base.
+        Exige PostgreSQL para concorrencia, transacoes e indices unicos.
+        Nao sugiras enfraquecer ou retirar testes existentes sem aprovacao.
+        Respeita a guarda e o registo de alteracoes dos testes.
+    - path: "{Dockerfile,entrypoint.sh,migrate.sh,scripts/**}"
+      instructions: |
+        Verifica versoes .NET, seguranca de deploy e migracoes antes do arranque.
+        O CI local so e OK se todas as verificacoes obrigatorias correrem.
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "docs/architecture/REGRAS-DE-CODIGO.md"
+      - "docs/architecture/REGRAS-DOS-TESTES.md"
