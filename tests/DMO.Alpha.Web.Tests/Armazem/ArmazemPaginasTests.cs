@@ -147,10 +147,12 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
         var pagina = await client.GetStringAsync("/Definicoes");
 
         var depois = await client.GetStringAsync(await EnviarAsync(client, pagina,
-            ("armRepNome", "Moldes Lda"), ("armRepFamilias", EnvioDoFormulario.Opcao(pagina, "armRepFamilias", "Só CM"))));
+            ("armRepNome", "Moldes Lda")));
+        // Sem «Recebe» ao criar (Diogo, 23/10/2026): o novo recebe CM e MF.
+        Assert.DoesNotContain("id=\"armRepFamilias\"", pagina, StringComparison.Ordinal);
         Assert.Contains("Definição gravada.", Elemento(depois, "id=\"armDefAvisos\""));
         var r = NaBase(db => db.Reparadores.AsNoTracking().Single());
-        Assert.Equal(("Moldes Lda", true, false), (r.Nome, r.AplicaCm, r.AplicaMf));
+        Assert.Equal(("Moldes Lda", true, true), (r.Nome, r.AplicaCm, r.AplicaMf));
         Assert.Contains("Moldes Lda", Elemento(depois, $"data-dmo-reparador=\"{r.Id}\""));
 
         var repetido = await client.GetStringAsync(await EnviarAsync(client, depois, ("armRepNome", "moldes lda")));
