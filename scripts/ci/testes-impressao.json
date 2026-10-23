@@ -1,5 +1,5 @@
 {
-  "selo": "5f9bb3bf3356252d",
+  "selo": "58e4cf95052cd365",
   "unidades": {
     "scripts/ci/ci-local.sh": "5ef64f1c58142528",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -780,6 +780,9 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AutorPorUtilizador.cs :: (resto do ficheiro)": "b90a5775ac4ef4db",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AutorPorUtilizador.cs :: PostgresMigrationIntegrationTests.AutorPorUtilizador_EliminarOUtilizador_OFactoFicaComOTexto": "2d31b9d1430154ff",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AutorPorUtilizador.cs :: PostgresMigrationIntegrationTests.AutorPorUtilizador_UmIdentificadorSemUtilizador_ERecusado": "fa4ebe64274b9d2e",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: (resto do ficheiro)": "5071be414698c918",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NaoTrazTodasAsSemDatasParaAMemoria": "a25cddaa27e3ff06",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NoPostgres_EscolheAsMesmasProducoes": "c6fdf73095e8c496",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqConcurrency.cs :: (resto do ficheiro)": "3cc9f1d85dd5ce9d",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqConcurrency.cs :: PostgresMigrationIntegrationTests.BqMovements_EntradasSimultaneas_RecalculamADiscrepancia": "13920812ef0ad798",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqConcurrency.cs :: PostgresMigrationIntegrationTests.BqMovements_PrimeirosMovimentosDeDuasProducoesAoMesmoTempo_CadaUmaFicaComOSeuRegisto": "2573d8da3ded6b4b",
