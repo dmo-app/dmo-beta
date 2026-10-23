@@ -264,7 +264,7 @@ fi
 
 echo
 echo "== Browser na Folha do Job On"
-echo "   CM, MF e BQ com a mesma altura; as notas ampliam e fecham; uma alteração abre «Remover por engano», a removida não; «Modo Editar» só no Editar (1440 e 390 px)."
+echo "   CM, MF e BQ com a mesma altura; as notas ampliam e fecham; uma alteração abre «Remover por engano», a removida não aparece; «Modo Editar» só no Editar (1440 e 390 px)."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
   echo "   não corrido (CI_SEM_BROWSER=1)"
   summary+=("--      Browser na Folha do Job On (CI_SEM_BROWSER=1)")

@@ -137,6 +137,12 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
         await client.PostAsync("/JobOn/RemoverAlteracao", HtmlFormHelpers.BuildFormPost(
             ("jobon_id", jobOnId.ToString()), ("change_id", changeId.ToString()), ("__RequestVerificationToken", token)));
 
+    private async Task<bool> ExisteAsync(int id)
+    {
+        using var scope = _factory.Services.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<DmoDbContext>().JobOnChanges.AnyAsync(c => c.Id == id);
+    }
+
     private async Task<JobOnChange> ChangeAsync(int id)
     {
         using var scope = _factory.Services.CreateScope();
@@ -147,7 +153,7 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
     public async Task Remover_SaiDaMarcaEDoSumario_FicaRiscadaComQuemEQuando_EOsValoresNaoMudam()
     {
         var (jobOnId, bqId, fimId) = await SeedAsync();
-        var (client, userId) = await LoginAsync("7201", DmoCapabilities.JobOnCreate);
+        var (client, _) = await LoginAsync("7201", DmoCapabilities.JobOnCreate);
         using var _ = client;
 
         // Antes: as duas na folha (abríveis), na marca do dia e no Sumário.
@@ -167,21 +173,16 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
         Assert.Equal(HttpStatusCode.Redirect, resposta.StatusCode);
         Assert.Equal($"/JobOn/Folha?jobon_id={jobOnId}&vista=alteracoes&removida=1", resposta.Headers.Location!.OriginalString);
 
-        // Nada se perde: a linha fica, com quem e quando.
-        var removida = await ChangeAsync(bqId);
-        Assert.NotNull(removida.RemovedAtUtc);
-        Assert.Equal("Planeador 7201", removida.RemovedByNameFrozen);
-        Assert.Equal(userId, removida.RemovedByUserId);
-        Assert.Equal("T194 · lote 13", removida.NewValueFrozen);
-        Assert.Null((await ChangeAsync(fimId)).RemovedAtUtc);
+        // Remover por completo (Diogo, 23/10/2026: «senão pode começar a angariar lixo»): a linha apaga-se; a outra fica.
+        Assert.False(await ExisteAsync(bqId));
+        Assert.True(await ExisteAsync(fimId));
 
-        // «O que mudou»: a removida riscada, com «Removida por X a dd/MM/yyyy HH:mm»; a outra ativa.
+        // «O que mudou»: a removida não aparece; a outra continua.
         var depois = await PageAsync(client, resposta.Headers.Location!.OriginalString);
         ExportarParaOBrowser.Gravar("jobon-remover-alteracao.html", depois);
-        Assert.Contains("O que mudou desde o início (1 alteração · 1 removida)", depois);
-        Assert.Contains($"data-jof-alteracao-removida=\"{bqId}\"", depois);
-        Assert.Contains("<strong><s>Mudou a BQ: T194 · lote 12 → T194 · lote 13</s></strong>", depois);
-        Assert.Contains($"Removida por Planeador 7201 a {DmoBusinessTime.ToLocal(removida.RemovedAtUtc!.Value):dd/MM/yyyy HH:mm}", depois);
+        Assert.Contains("O que mudou desde o início (1 alteração)</summary>", depois);
+        Assert.DoesNotContain("Mudou a BQ: T194 · lote 12 → T194 · lote 13", depois);
+        Assert.DoesNotContain("jof-alteracao-removida", depois);
         Assert.DoesNotContain($"data-jof-alteracao=\"{bqId}\"", depois);
         Assert.Contains($"data-jof-alteracao=\"{fimId}\"", depois);
         Assert.Contains("Alteração removida. Os valores do Job On não mudaram.", depois);
@@ -201,11 +202,11 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
         Assert.Equal("BQ-R", await db.BqContexts.AsNoTracking().Where(c => c.JobOnId == jobOnId).Select(c => c.ToolId).SingleAsync());
-        Assert.Equal(2, await db.JobOnChanges.AsNoTracking().CountAsync(c => c.JobOnId == jobOnId));
+        Assert.Equal(1, await db.JobOnChanges.AsNoTracking().CountAsync(c => c.JobOnId == jobOnId));
     }
 
     [Fact]
-    public async Task RemoverAUltimaAtiva_AMarcaSai_AFolhaContinuaAMostrarAsRemovidas_EUmSegundoEnvioNaoMuda()
+    public async Task RemoverAUltima_AMarcaSai_OQueMudouDesaparece_EUmSegundoEnvioNaoFalha()
     {
         var (jobOnId, bqId, fimId) = await SeedAsync();
         var (client, _) = await LoginAsync("7202", DmoCapabilities.JobOnCreate);
@@ -218,20 +219,20 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
         Assert.Contains("<dialog id=\"jobon-remover-alteracao\"", await PageAsync(client, Folha(jobOnId)));
 
         Assert.Equal(HttpStatusCode.Redirect, (await RemoverAsync(client, jobOnId, fimId, token)).StatusCode);
-        // Sem nenhuma ativa: a marca sai, o Sumário fica sem elas, a folha mostra as duas riscadas e já não tem a janela.
+        // Sem nenhuma: a marca sai, o Sumário fica sem elas e a folha já não tem «O que mudou» nem a janela.
         { var d = await PageAsync(client, Dia()); Assert.Contains("<span>5447T194 202677</span>", d); Assert.DoesNotContain("beta-light-changes", d); }
         var sumario = await PageAsync(client, "/Planeamento/Sumario?tipo=alteracoes");
         Assert.DoesNotContain("T194 · lote 12 → T194 · lote 13", sumario);
         Assert.DoesNotContain("31/12/2026", sumario);
         var folha = await PageAsync(client, Folha(jobOnId));
-        Assert.Contains("O que mudou desde o início (0 alterações · 2 removidas)", folha);
+        Assert.Contains("data-jof-familia=\"CM\"", folha);
+        Assert.DoesNotContain("O que mudou desde o início", folha);
         Assert.DoesNotContain("<dialog id=\"jobon-remover-alteracao\"", folha);
 
-        // Um segundo envio (duplo clique) não muda quem nem quando.
-        var primeiro = await ChangeAsync(bqId);
+        // Um segundo envio (duplo clique) volta à folha sem erro.
         var repetido = await RemoverAsync(client, jobOnId, bqId, token);
         Assert.Equal($"/JobOn/Folha?jobon_id={jobOnId}&vista=alteracoes", repetido.Headers.Location!.OriginalString);
-        Assert.Equal(primeiro.RemovedAtUtc, (await ChangeAsync(bqId)).RemovedAtUtc);
+        Assert.False(await ExisteAsync(bqId));
     }
 
     [Fact]
@@ -245,7 +246,7 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
         var resposta = await RemoverAsync(client, jobOnId + 1000, bqId, token);
 
         Assert.Equal(HttpStatusCode.Redirect, resposta.StatusCode);
-        Assert.Null((await ChangeAsync(bqId)).RemovedAtUtc);
+        Assert.True(await ExisteAsync(bqId));
     }
 
     [Fact]
@@ -263,8 +264,6 @@ public class JobOnRemoverAlteracaoTests : IClassFixture<CustomWebApplicationFact
         var resposta = await RemoverAsync(client, jobOnId, bqId, HtmlFormHelpers.ExtractRequestVerificationToken(folha) ?? string.Empty);
 
         Assert.NotEqual(HttpStatusCode.OK, resposta.StatusCode);
-        var change = await ChangeAsync(bqId);
-        Assert.Null(change.RemovedAtUtc);
-        Assert.Null(change.RemovedByNameFrozen);
+        Assert.True(await ExisteAsync(bqId));
     }
 }

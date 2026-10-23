@@ -263,7 +263,7 @@ public sealed class JobOnChangeTests : IDisposable
     [Fact]
     public async Task RemoveByMistake_KeepsTheRow_MarksWhoAndWhen_HidesItFromTheMarkerAndNotices_ValuesUnchanged()
     {
-        // «Remover o notice de troca em caso de engano» (Diogo, 23/10/2026): nada se perde.
+        // «Remover o notice de troca em caso de engano» (Diogo, 23/10/2026): por completo.
         var (jobOnId, _, _) = await SeedAsync();
         await _update.HandleAsync(new UpdateJobOn(
             jobOnId, (await _db.JobOns.SingleAsync(j => j.Id == jobOnId)).MachineId, "CM-2", "MF-1", "BQ-7",
@@ -278,20 +278,14 @@ public sealed class JobOnChangeTests : IDisposable
 
         var handler = new RemoveJobOnChangeHandler(_db);
         Assert.Equal(RemoveJobOnChangeResult.NotFound, await handler.HandleAsync(jobOnId + 1, cm.Id, "Rui"));
-        Assert.Null((await _db.JobOnChanges.AsNoTracking().SingleAsync(c => c.Id == cm.Id)).RemovedAtUtc);
+        Assert.True(await _db.JobOnChanges.AnyAsync(c => c.Id == cm.Id));
         Assert.Equal(RemoveJobOnChangeResult.Removed, await handler.HandleAsync(jobOnId, cm.Id, " Rui "));
-        Assert.Equal(RemoveJobOnChangeResult.AlreadyRemoved, await handler.HandleAsync(jobOnId, cm.Id, "Outro"));
+        Assert.Equal(RemoveJobOnChangeResult.NotFound, await handler.HandleAsync(jobOnId, cm.Id, "Outro"));
 
-        var row = await _db.JobOnChanges.AsNoTracking().SingleAsync(c => c.Id == cm.Id);
-        Assert.Equal("Rui", row.RemovedByNameFrozen);
-        Assert.NotNull(row.RemovedAtUtc);
-        Assert.Equal("5447 · lote 3", row.NewValueFrozen);
-        Assert.Equal(2, await _db.JobOnChanges.CountAsync(c => c.JobOnId == jobOnId));
-
-        // «O que mudou» continua a ter a removida (marcada); a marca e os avisos não.
+        // Remover por completo (Diogo, 23/10/2026): a linha apaga-se, a outra fica.
+        Assert.Equal(1, await _db.JobOnChanges.CountAsync(c => c.JobOnId == jobOnId));
         var all = await _query.ForJobOnAsync(jobOnId);
-        Assert.Equal("Rui", Assert.Single(all, c => c.Id == cm.Id).RemovedBy);
-        Assert.Null(Assert.Single(all, c => c.Id == bq.Id).RemovedAtUtc);
+        Assert.Equal(bq.Id, Assert.Single(all).Id);
         var marker = await _query.AfterStartAsync(new[] { jobOnId });
         Assert.Equal(new[] { JobOnChangeFields.Bq }, marker[jobOnId].Select(c => c.Field).ToArray());
         Assert.Equal(new[] { "BQ" }, (await _query.ForPesoAsync(peso.Id))!.Changes.Select(c => c.Field).ToArray());
