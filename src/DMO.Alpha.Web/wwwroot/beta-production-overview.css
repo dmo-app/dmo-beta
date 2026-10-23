@@ -5,6 +5,8 @@
 .beta-production-rail-head span{font-size:11px;color:var(--dmo-brand-300)}
 .beta-production-lines{display:grid;gap:7px}
 .beta-production-lines :is(button,.dmo-rail-link){box-sizing:border-box;display:block;width:100%;height:72px;min-height:72px;margin:0;padding:10px 12px;background:var(--dmo-deep-800);color:var(--dmo-text-on-color);border:1px solid var(--dmo-brand-700);border-radius:8px;text-align:left;font:inherit;cursor:pointer;overflow:hidden}
+/* Sem transição nos cartões do painel: ao escolher, o fundo passava de escuro a claro em várias imagens enquanto o texto já tinha a cor do selecionado, e via-se um clarão escuro (Diogo, 24/10/2026). */
+[data-dmo-list] .beta-production-lines [data-dmo-row],.beta-production-lines :is(button,.dmo-rail-link){transition:none}
 /* A seleccao canónica da casa é a classe `selected` (é o que o
    0_ASSET_CANONICAL_INTERACTIONS.js alterna); o rail das folhas antigas usava
    `.active` (o fixture aceite). Aceitam-se as duas: um rail só, uma gramática,

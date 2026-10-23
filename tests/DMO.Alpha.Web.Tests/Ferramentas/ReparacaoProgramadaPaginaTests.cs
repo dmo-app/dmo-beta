@@ -128,6 +128,9 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
 
         var vazia = await chefia.GetStringAsync(Pagina);
         Assert.Contains("Registar Reparação", vazia);
+        // A ajuda do «Histórico» encostada ao botão (Diogo, 24/10/2026); o Chromium mede-a.
+        Assert.Contains("<span class=\"dmo-com-ajuda\"><a class=\"dmo-button\" id=\"rpModoHistorico\"", vazia);
+        ExportarParaOBrowser.Gravar("rp-ajuda.html", vazia);
         Assert.Contains("href=\"/Ferramentas/ReparacaoProgramada\"", vazia);
         Assert.DoesNotContain("Escolha um filtro e procure.", vazia);
         Assert.DoesNotContain("id=\"rpCandidatas\"", vazia);

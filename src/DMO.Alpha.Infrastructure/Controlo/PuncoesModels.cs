@@ -33,7 +33,9 @@ public enum PuncoesResult
     MissingReference,
     RegistoNotFound,
     AlreadyAssociated,
-    ControloHasRegisto
+    ControloHasRegisto,
+    /// <summary>Já há uma punção com este número e este lote: é a mesma punção (Diogo, 24/10/2026).</summary>
+    DuplicatePunch
 }
 
 /// <summary>

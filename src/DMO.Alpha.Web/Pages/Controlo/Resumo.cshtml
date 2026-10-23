@@ -212,7 +212,7 @@
               var deviation = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, linkedPesoValue.NominalWeightGrams);
               @if (average is { } mean)
               {
-                <strong class="resumo-big-number">@mean.ToString("0.00", fmt)<small> g</small></strong>
+                <strong class="resumo-big-number">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(mean)<small> g</small></strong>
                 <small>Peso médio do vidro</small>
               }
               else
@@ -223,7 +223,7 @@
               <small>@linkedPesoValue.Measurements.Count leitura(s) · água a @linkedPesoValue.WaterTemperatureC °C</small>
               @if (linkedPesoValue.NominalWeightGrams is { } nominal)
               {
-                <small>Nominal @nominal.ToString("0.00", fmt) g@(deviation.Grams is { } dg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg)} g" : "")@(deviation.Percent is { } dp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp)} %)" : "")</small>
+                <small>Nominal @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(nominal) g@(deviation.Grams is { } dg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg)} g" : "")@(deviation.Percent is { } dp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp)} %)" : "")</small>
               }
               @if (!Model.HasCurrentPeso)
               {
@@ -241,7 +241,7 @@
                     <li>
                       <a href="@Model.PesoHref(pesoDaLista)">Peso @numero</a>
                       · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(pesoDaLista)
-                      · @pesoDaLista.Measurements.Count leitura(s)@(mediaDaLista is { } m ? $" · média {m.ToString("0.00", fmt)} g" : "")@(pesoDaLista.IsCurrent ? "" : " · de antes da troca")
+                      · @pesoDaLista.Measurements.Count leitura(s)@(mediaDaLista is { } m ? $" · média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(m)} g" : "")@(pesoDaLista.IsCurrent ? "" : " · de antes da troca")
                     </li>
                   }
                 </ul>

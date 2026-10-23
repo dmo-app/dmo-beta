@@ -16,7 +16,8 @@
     </div>
     <p class="peg-map-help">Cada faixa horizontal é o corredor de um componente (nominal da sua ferramenta ± tolerância); as linhas verticais são os nominais; os círculos são as médias das medições; o losango é a média global do componente. Vermelho = medição fora (atingiu ou ultrapassou um limite).</p>
     <div class="peg-map-wrap">
-      @Html.Raw(PegamentosLimitMap.Render(input))
+      @* Mais largo e centrado (Diogo, 23/10/2026): o desenho estica na horizontal e a altura fica. *@
+      @Html.Raw(PegamentosLimitMap.Render(input, PegamentosLimitMap.LarguraNaPagina))
     </div>
     @* A legenda mostra as cores que o desenho usa (deep sweep de 18/10/2026,
        regra 98): a de cada componente (corredor, nominal, círculos e

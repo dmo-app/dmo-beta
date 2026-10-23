@@ -432,14 +432,14 @@ public sealed partial class IndexModel : PageModel
     /// <summary>A produção do filtro, para a mostrar no card dos filtros.</summary>
     public string? FilterJobOnLabel { get; private set; }
 
-    /// <summary>Os filtros atuais sem o da produção.</summary>
-    public string HistoryWithoutJobOnHref { get; private set; } = "/Boquilhas?historico=1";
 
-    /// <summary>A BQ e o lote do filtro, para o mostrar no card dos filtros.</summary>
+    /// <summary>A BQ e o lote do filtro, para o PDF.</summary>
     public string? FilterToolLabel { get; private set; }
 
-    /// <summary>Os filtros atuais sem o da BQ (o «Tirar» do card dos filtros).</summary>
-    public string HistoryWithoutToolHref { get; private set; } = "/Boquilhas?historico=1";
+    /// <summary>O lote do filtro (?lote=), com a referência da BQ no campo «Referência»
+    /// (Diogo, 24/10/2026): os dois juntos escolhem a BQ e o lote.</summary>
+    public string? FilterLote { get; private set; }
+
 
     /// <summary>O mês escolhido no seletor (yyyy-MM), só quando o utilizador o
     /// escolheu: sem desde/até nem dia, é o período da lista.</summary>
@@ -787,8 +787,11 @@ public sealed partial class IndexModel : PageModel
         string? vista, string? mesAno, string? bqFerramenta = null)
     {
         ShowHistory = true;
-        // O «Histórico BQ» (Diogo, 19/10/2026): a ferramenta do registo, com
-        // a BQ e o lote à vista no card dos filtros.
+        // O «Histórico BQ» (Diogo, 19/10/2026): a ferramenta do registo.
+        // Uma pesquisa vinda de uma ferramenta preenche os filtros à vista
+        // (Diogo, 24/10/2026): a referência vai para «Referência» e o lote
+        // para «Lote»; os dois juntos escolhem a BQ e o lote.
+        var loteQuery = Request.Query["lote"].ToString().Trim();
         if (bqFerramenta?.Trim() is { Length: > 0 } wantedTool)
         {
             var filterTool = await _db.Tools
@@ -798,9 +801,26 @@ public sealed partial class IndexModel : PageModel
                 .FirstOrDefaultAsync(HttpContext.RequestAborted);
             if (filterTool is not null)
             {
-                FilterToolId = filterTool.ToolId;
-                FilterToolLabel = $"BQ {filterTool.Reference}" + (filterTool.Lot is { Length: > 0 } lot ? $" · Lote {lot}" : "");
+                pesquisa = filterTool.Reference;
+                loteQuery = filterTool.Lot ?? string.Empty;
             }
+        }
+        FilterLote = loteQuery.Length > 0 ? loteQuery : null;
+        // O lote só filtra com a referência da BQ: sozinho fica no campo, à espera dela.
+        if (loteQuery.Length > 0 && pesquisa?.Trim() is { Length: > 0 })
+        {
+            var referencia = pesquisa.Trim().ToUpperInvariant();
+            var semZeros = loteQuery.TrimStart('0');
+            var candidatas = await _db.Tools
+                .AsNoTracking()
+                .Where(t => t.Type == ToolType.Bq && t.Reference.ToUpper() == referencia && t.Lot != null)
+                .Select(t => new { t.ToolId, t.Reference, t.Lot })
+                .ToListAsync(HttpContext.RequestAborted);
+            var escolhida = candidatas.FirstOrDefault(t => t.Lot == loteQuery)
+                ?? candidatas.FirstOrDefault(t => t.Lot!.TrimStart('0') == semZeros);
+            // Sem BQ com esta referência e lote: a lista fica vazia, não ignora o lote.
+            FilterToolId = escolhida?.ToolId ?? "\u0000sem-bq";
+            FilterToolLabel = $"BQ {escolhida?.Reference ?? referencia} · Lote {loteQuery}";
         }
         if (int.TryParse(Request.Query["jobon_id"], NumberStyles.None, CultureInfo.InvariantCulture, out var wantedJobOn))
         {
@@ -845,7 +865,7 @@ public sealed partial class IndexModel : PageModel
         FilterMachine = maquina?.Trim();
         FilterType = tipo?.Trim();
         FilterOperator = reparador?.Trim();
-        FilterText = pesquisa?.Trim();
+        FilterText = pesquisa?.Trim() is { Length: > 0 } texto ? texto : null;
         FilterDesde = desde;
         FilterAte = ate;
 
@@ -946,7 +966,7 @@ public sealed partial class IndexModel : PageModel
             ["mes"] = HistoryMonth.ToString(CultureInfo.InvariantCulture),
             ["maquina"] = FilterMachine, ["tipo"] = FilterType,
             ["reparador"] = FilterOperator, ["pesquisa"] = FilterText,
-            ["bq_ferramenta"] = FilterToolId,
+            ["lote"] = FilterLote,
             ["jobon_id"] = FilterJobOnId?.ToString(CultureInfo.InvariantCulture),
             ["desde"] = FilterDesde?.ToString("yyyy-MM-dd"),
             ["ate"] = FilterAte?.ToString("yyyy-MM-dd"),
@@ -955,10 +975,6 @@ public sealed partial class IndexModel : PageModel
         };
         HistoryAllDaysHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
             query.Where(p => p.Key is not ("desde" or "ate" or "dia" or "mes_ano") && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
-        HistoryWithoutToolHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
-            query.Where(p => p.Key != "bq_ferramenta" && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
-        HistoryWithoutJobOnHref = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Boquilhas",
-            query.Where(p => p.Key != "jobon_id" && !string.IsNullOrEmpty(p.Value)).ToDictionary(p => p.Key, p => p.Value));
         var todayQuery = new Dictionary<string, string?>(query)
         {
             ["ano"] = today.Year.ToString(CultureInfo.InvariantCulture),
@@ -1026,9 +1042,9 @@ public sealed partial class IndexModel : PageModel
         {
             calendarPreserved["pesquisa"] = calendarText;
         }
-        if (FilterToolId is { } calendarTool)
+        if (FilterLote is { } calendarLote)
         {
-            calendarPreserved["bq_ferramenta"] = calendarTool;
+            calendarPreserved["lote"] = calendarLote;
         }
         if (FilterJobOnId is int calendarJobOn)
         {
@@ -1051,7 +1067,7 @@ public sealed partial class IndexModel : PageModel
         if (desde is null && ate is null && dia is null && string.IsNullOrWhiteSpace(mesAno)
             && string.IsNullOrWhiteSpace(maquina) && string.IsNullOrWhiteSpace(tipo)
             && string.IsNullOrWhiteSpace(reparador) && string.IsNullOrWhiteSpace(pesquisa)
-            && string.IsNullOrWhiteSpace(bqFerramenta)
+            && string.IsNullOrWhiteSpace(bqFerramenta) && string.IsNullOrWhiteSpace(Request.Query["lote"])
             && string.IsNullOrWhiteSpace(Request.Query["jobon_id"]))
         {
             var today = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
@@ -1067,17 +1083,16 @@ public sealed partial class IndexModel : PageModel
                 DMO.Alpha.Infrastructure.Boquilhas.BqHistoryPdfGenerator.HouseMachines, generatedBy,
                 Warning: MatrixPeriodWarning,
                 WithoutMachineWarning: MatrixWithoutMachineWarning is { } semMaquina
-                    ? $"{semMaquina} Estão na vista «Por máquina / Job On»."
+                    ? $"{semMaquina} Estão na vista «Por linha / Job On»."
                     : null))
             : generator.GenerateMovementList(new(
-                ShowMovements ? "Boquilhas · Movimentos detalhados" : "Boquilhas · Por máquina / Job On",
-                (ListLimitWarning is not null ? $"Os {HistoryMovementCount} movimentos mais recentes" : $"{HistoryMovementCount} movimento(s)")
+                ShowMovements ? "Boquilhas · Movimentos detalhados" : "Boquilhas · Por linha / Job On",
+                (ListLimitWarning is not null ? $"Os {HistoryMovementCount} movimentos mais recentes" : $"{HistoryMovementCount} {(HistoryMovementCount == 1 ? "movimento" : "movimentos")}")
                     + $" · {HistoryPeriodLabel}"
                     + (FilterMachine is { Length: > 0 } ? $" · Máquina {FilterMachine}" : "")
                     + (FilterType is { Length: > 0 } ? $" · {BqMovementLabels.Of(FilterType)}" : "")
                     + (FilterOperator is { Length: > 0 } ? $" · Reparador {FilterOperator}" : "")
-                    + (FilterText is { Length: > 0 } ? $" · Pesquisa {FilterText}" : "")
-                    + (FilterToolLabel is { Length: > 0 } ? $" · {FilterToolLabel}" : "")
+                    + (FilterToolLabel is { Length: > 0 } ? $" · {FilterToolLabel}" : FilterText is { Length: > 0 } ? $" · Referência {FilterText}" : "")
                     + (FilterJobOnLabel is { Length: > 0 } ? $" · {FilterJobOnLabel}" : ""),
                 Movements, generatedBy, GroupByMachineAndTrace: ShowGrouped));
         return File(bytes, "application/pdf", $"BOQUILHAS-{HistoryView}.pdf");

@@ -260,7 +260,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("<span>Saídas</span><strong>3</strong>", html);
         Assert.Contains("<span>Entradas</span><strong>2</strong>", html);
         Assert.Contains("<span>Entradas sem reparação</span><strong>1</strong>", html);
-        Assert.Contains("3 movimento(s)", html);
+        Assert.Contains("3 movimentos", html);
         Assert.Contains("Totais de movimentos do filtro, não saldos de stock.", html);
     }
 
@@ -393,9 +393,9 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         var html = await GetPageHtmlAsync(client, $"{PagePath}?historico=1");
 
         // Três vistas, num dropdown «Vista» antes da referência (Diogo,
-        // 18/10): «Por máquina / Job On» (a predefinida), «Resumo diário» e
+        // 18/10): «Por linha / Job On» (a predefinida), «Resumo diário» e
         // «Movimentos detalhados» (de volta a 19/10). Sem «Selecionar mês».
-        Assert.Matches("<select id=\"vista\" name=\"vista\" data-dmo-autosubmit>\\s*<option value=\"grupos\" selected=\"selected\">Por máquina / Job On</option>", html);
+        Assert.Matches("<select id=\"vista\" name=\"vista\" data-dmo-autosubmit>\\s*<option value=\"grupos\" selected=\"selected\">Por linha / Job On</option>", html);
         Assert.Contains("<option value=\"matriz\">Resumo diário · 6 máquinas</option>", html, StringComparison.Ordinal);
         Assert.True(html.IndexOf("id=\"vista\"", StringComparison.Ordinal) < html.IndexOf("id=\"pesquisa\"", StringComparison.Ordinal));
         Assert.DoesNotContain("bq-history-tab", html);
@@ -477,7 +477,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
 
         // Com um período escolhido, a lista é a do período, sem limite.
         var period = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?historico=1&maquina=B1&desde=2025-01-01&ate=2025-12-31"));
-        Assert.Contains($"{DMO.Alpha.Web.Pages.Boquilhas.IndexModel.MaxListMovements + 5} movimento(s)", period);
+        Assert.Contains($"{DMO.Alpha.Web.Pages.Boquilhas.IndexModel.MaxListMovements + 5} movimentos", period);
 
         var pdf = await client.GetAsync($"{PagePath}?historico=1&handler=PdfHistorico&maquina=B1");
         Assert.Equal(HttpStatusCode.OK, pdf.StatusCode);
@@ -722,7 +722,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
 
         Assert.Contains("<option value=\"movimentos\" selected=\"selected\">Movimentos detalhados</option>", html, StringComparison.Ordinal);
         Assert.Contains("Movimentos — um por linha", html);
-        Assert.Contains("3 movimento(s)", html);
+        Assert.Contains("3 movimentos", html);
         var rows = System.Text.RegularExpressions.Regex.Matches(html, "<tr data-dmo-row").Count;
         Assert.Equal(3, rows);
         Assert.DoesNotContain("bq-machine-group", html);
@@ -744,9 +744,12 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         SeedUser("4292", "Histórico diário", "provider-day-1", "HistDay1!");
         using var client = await LoginClientAsync("4292", "HistDay1!");
         var html = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&vista=grupos&ano=2026&mes=8&dia=12&maquina=B1&tipo=saida&pesquisa=T173");
-        Assert.Contains("1 movimento(s)", html);
+        Assert.Contains("1 movimento</span>", html);
         // O dia mostra as fichas de BQ usadas, uma linha por máquina na cor dela.
-        Assert.Contains("Fichas usadas a 12/08/2026", html);
+        Assert.Contains("Registo da 12/08/2026", html);
+        Assert.DoesNotContain("</strong> · —</span>", html);
+        Assert.Contains("sem fichas neste dia\"><strong>B2</strong></span>", html);
+        Assert.DoesNotContain("movimento(s)", html);
         Assert.Contains("beta-light-machine-row mch-B1", html);
         Assert.Contains($"<input type=\"radio\" name=\"bq_day_trace\" value=\"{trace.Id}\"", html);
         Assert.Contains("<span>T173 · Lote 8</span>", html);
@@ -758,7 +761,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         foreach (var view in new[] { "matriz", "grupos" })
         {
             var viewHtml = await GetPageHtmlAsync(client, $"/Boquilhas?historico=1&vista={view}&ano=2026&mes=8&dia=12&tipo=saida");
-            Assert.Contains("1 movimento(s)", viewHtml);
+            Assert.Contains("1 movimento", viewHtml);
             Assert.Contains("<span>Saídas</span><strong>4</strong>", viewHtml);
             var pdf = await client.GetAsync($"/Boquilhas?handler=PdfHistorico&vista={view}&ano=2026&mes=8&dia=12&tipo=saida");
             Assert.Equal("application/pdf", pdf.Content.Headers.ContentType?.MediaType);
@@ -786,7 +789,9 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         {
             var blank = await GetPageHtmlAsync(client, $"/Boquilhas?historico=1&vista={view}");
             Assert.Contains("Escolha um período ou pesquise para ver os movimentos.", blank);
-            Assert.Contains("<label for=\"pesquisa\">Referência / pesquisa</label>", blank);
+            Assert.Contains("<label for=\"pesquisa\">Referência</label>", blank);
+            Assert.Contains("<label for=\"lote\">Lote</label>", blank);
+            Assert.DoesNotContain("Referência / pesquisa", blank);
             Assert.Contains("name=\"desde\" type=\"date\"", blank);
             Assert.Contains("name=\"ate\" type=\"date\"", blank);
             Assert.DoesNotContain("<td>Saída</td>", blank);
@@ -802,7 +807,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
 
         var byPeriod = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&desde=2026-08-01&ate=2026-08-31");
         Assert.Contains("<td>Saída</td>", byPeriod);
-        Assert.Contains("1 movimento(s)", byPeriod);
+        Assert.Contains("1 movimento", byPeriod);
 
         // A grelha mantém-se como estava: carrega o mês sem pesquisa.
         var matriz = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&vista=matriz&ano=2026&mes=8");
@@ -893,8 +898,8 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         var b1 = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&maquina=B1&desde=2026-09-01&ate=2026-09-30");
         var saidas = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&maquina=B1&tipo=saida&desde=2026-09-01&ate=2026-09-30");
         Assert.NotEqual(Controlo.PesoZonas.Zona(b1, "bqHistTotais"), Controlo.PesoZonas.Zona(saidas, "bqHistTotais"));
-        Assert.Contains("2 movimento(s)", Controlo.PesoZonas.Zona(b1, "bqHistContagem"));
-        Assert.Contains("1 movimento(s)", Controlo.PesoZonas.Zona(saidas, "bqHistContagem"));
+        Assert.Contains("2 movimentos", Controlo.PesoZonas.Zona(b1, "bqHistContagem"));
+        Assert.Contains("1 movimento", Controlo.PesoZonas.Zona(saidas, "bqHistContagem"));
     }
 
     [Fact]
@@ -913,7 +918,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         Assert.DoesNotContain("name=\"mes_ano\" value=", blank);
 
         var october = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&vista=grupos&mes_ano=2026-10&desde=&ate=&reparador=&pesquisa=&maquina=&tipo=");
-        Assert.Contains("1 movimento(s)", october);
+        Assert.Contains("1 movimento", october);
         Assert.Contains("<td>Entrada</td>", october);
         Assert.DoesNotContain("<td>Saída</td>", october);
 

@@ -21,6 +21,9 @@ public partial class PegamentosPageTests
 
         var html = await GetPageHtmlAsync(client, url);
         var svg = Regex.Match(html, "<svg[^>]*aria-label=\"Mapa de limites dos Pegamentos\"[\\s\\S]*?</svg>").Value;
+        // Mais largo e centrado na página (Diogo, 23/10/2026): o desenho estica na horizontal, a altura fica; o PDF continua com 1000.
+        Assert.Contains("width=\"1700\" height=\"245\" viewBox=\"0 0 1700 245\"", svg);
+        Assert.Contains("<path d='M115 44H1665V206H115Z'", svg);
         var legenda = Regex.Match(html, "<div class=\"peg-map-legend\">([\\s\\S]*?)</div>").Groups[1].Value;
         Assert.NotEmpty(svg);
         Assert.NotEmpty(legenda);

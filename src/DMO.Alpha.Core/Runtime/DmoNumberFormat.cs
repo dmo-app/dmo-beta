@@ -14,6 +14,16 @@ public static class DmoNumberFormat
         return (rounded >= 0 ? "+" : "−") + Math.Abs(rounded).ToString("0.00", Culture);
     }
 
+    /// <summary>
+    /// Duas casas, sem «.00» num número inteiro (Diogo, 23/10/2026: «100.00 g» é «100 g»);
+    /// com parte decimal ficam as duas casas («100.50»).
+    /// </summary>
+    public static string Decimal2(decimal value)
+    {
+        var rounded = Math.Round(value, 2, MidpointRounding.AwayFromZero);
+        return rounded.ToString(rounded == decimal.Truncate(rounded) ? "0" : "0.00", Culture);
+    }
+
     private static CultureInfo CreateCulture()
     {
         var culture = (CultureInfo)CultureInfo.GetCultureInfo("pt-PT").Clone();

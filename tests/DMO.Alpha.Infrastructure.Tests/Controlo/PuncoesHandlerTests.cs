@@ -251,9 +251,11 @@ public sealed class PuncoesHandlerTests : IDisposable
         var target = PuncoesTarget.ForRegisto(puncoesId!.Value);
 
         Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(target, "41", "1075", "1", "4301"));
-        // A mesma punção registada outra vez mais tarde é uma «Alteração».
+        // O mesmo número com o mesmo lote é a mesma punção: recusada (Diogo,
+        // 24/10/2026). Com outro lote é uma «Alteração».
         await AgeInspecoesAsync(puncoesId.Value);
-        Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(target, "41", "1075", "1", "4301"));
+        Assert.Equal(PuncoesResult.DuplicatePunch, await _handler.AddAsync(target, "41", "1075", "1", "4301"));
+        Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(target, "41", "1075", "1", "4301", punchLot: "2"));
         _db.ChangeTracker.Clear();
 
         var sheet = (await _handler.GetStandaloneAsync(puncoesId.Value))!;
@@ -308,7 +310,8 @@ public sealed class PuncoesHandlerTests : IDisposable
 
         var target = PuncoesTarget.ForRegisto(first.PuncoesId!.Value);
         Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(target, "41", "1075", "1", "4301"));
-        Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(target, "41", "1075", "1", "4301"));
+        // A segunda vez é a mesma punção: não se grava e diz-se (Diogo, 24/10/2026).
+        Assert.Equal(PuncoesResult.DuplicatePunch, await _handler.AddAsync(target, "41", "1075", "1", "4301"));
         Assert.Equal(PuncoesResult.Success, await _handler.AddAsync(target, "42", "1075", "1", "4301"));
         _db.ChangeTracker.Clear();
         var sheet = (await _handler.GetStandaloneAsync(first.PuncoesId.Value))!;

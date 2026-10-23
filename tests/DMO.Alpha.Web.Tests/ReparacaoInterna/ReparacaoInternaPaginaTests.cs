@@ -179,7 +179,9 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         var html = await client.GetStringAsync("/ReparacaoInterna");
 
-        Assert.Contains("Reparação Interna", Elemento(html, "id=\"ri-title\""));
+        // Dentro das páginas diz só «Reparação»; o módulo continua «Reparação Interna» (Diogo, 23/10/2026).
+        Assert.Equal("<h1 id=\"ri-title\">Reparação</h1>", Elemento(html, "id=\"ri-title\""));
+        Assert.Contains(">Reparação Interna<", html);
         Assert.Matches("<a href=\"/ReparacaoInterna\"[^>]*aria-current=\"page\">Registar</a>", html);
         // As tabs: Registar, Histórico (o desta pessoa) e Consultar.
         Assert.Contains("href=\"/ReparacaoInterna?historico=1\"", html);
@@ -230,19 +232,19 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Contains(">OK</button>", Elemento(html, $"id=\"riRegistar-{codigo}\""));
         Assert.Contains("autofocus", Campo(html, $"riNumero-{codigo}"));
 
-        using var gravar = await EnviarAsync(client, html, ($"riNumero-{codigo}", "  0457  "));
+        using var gravar = await EnviarAsync(client, html, ($"riNumero-{codigo}", "  457  "));
         Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
         var destino = gravar.Headers.Location!.OriginalString;
         Assert.Contains($"maquina={codigo}", destino);
         Assert.Contains("tipo=cm", destino);
 
         var depois = await client.GetStringAsync(destino);
-        Assert.Contains("Reparação do nº 0457 registada.", Elemento(depois, "id=\"riAvisos\""));
+        Assert.Contains("Reparação do nº 457 registada.", Elemento(depois, "id=\"riAvisos\""));
         Assert.DoesNotContain("value=", Campo(depois, $"riNumero-{codigo}"));
         Assert.Contains("autofocus", Campo(depois, $"riNumero-{codigo}"));
         var id = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.JobOnId == jobOns[0]).Id);
         var linha = Elemento(depois, $"data-dmo-reparacao=\"{id}\"");
-        Assert.Contains("<strong>0457</strong>", linha);
+        Assert.Contains("<strong>457</strong>", linha);
         Assert.Contains("<td>CM</td>", linha);
         // O registo é desta pessoa: sem a coluna de quem; a linha abre com duplo clique.
         Assert.DoesNotContain("Reparador 6603", linha);
@@ -256,12 +258,12 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         using (var segunda = await EnviarAsync(client, mf, ($"riNumero-{codigo}", "12")))
         {
             var tabela = Elemento(await client.GetStringAsync(segunda.Headers.Location!.OriginalString), $"id=\"riLista-{codigo}\"");
-            Assert.True(tabela.IndexOf("<strong>12</strong>", StringComparison.Ordinal) < tabela.IndexOf("<strong>0457</strong>", StringComparison.Ordinal));
+            Assert.True(tabela.IndexOf("<strong>12</strong>", StringComparison.Ordinal) < tabela.IndexOf("<strong>457</strong>", StringComparison.Ordinal));
             Assert.Contains("<td>MF</td>", tabela);
         }
 
         var gravadas = NaBase(db => db.ReparacoesInternas.AsNoTracking().Where(r => r.JobOnId == jobOns[0]).OrderBy(r => r.Id).ToList());
-        Assert.Equal(new[] { ("0457", ReparacaoTipo.Cm), ("12", ReparacaoTipo.Mf) }, gravadas.Select(r => (r.Numero, r.Tipo)));
+        Assert.Equal(new[] { ("457", ReparacaoTipo.Cm), ("12", ReparacaoTipo.Mf) }, gravadas.Select(r => (r.Numero, r.Tipo)));
         Assert.NotNull(gravadas[0].CmContextId);
         Assert.NotNull(gravadas[1].MfContextId);
     }
@@ -313,21 +315,42 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Single(NaBase(db => db.ReparacoesInternas.AsNoTracking().Where(r => r.JobOnId == jobOns[0]).ToList()));
     }
 
-    [Fact]
-    public async Task UmaRecusa_VoltaComONumeroEscrito_ENadaSeGrava()
+    // O número reparado: só algarismos, até 3 (Diogo, 23/10/2026). Os dois lados do limite.
+    [Theory]
+    [InlineData("1000")]
+    [InlineData("12a")]
+    [InlineData("1.5")]
+    public async Task UmaRecusa_VoltaComONumeroEscrito_ENadaSeGrava(string numero)
     {
         var (codigo, jobOns) = Maquina("D", 1);
         using var client = await LoginOperatorAsync("6605", DmoCapabilities.ReparacaoInterna);
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
-        var longo = new string('9', Reparacao.NumeroMaxLength + 1);
 
-        using var recusa = await EnviarAsync(client, html, ($"riNumero-{codigo}", longo));
+        using var recusa = await EnviarAsync(client, html, ($"riNumero-{codigo}", numero));
 
         Assert.Equal(HttpStatusCode.OK, recusa.StatusCode);
         var pagina = await recusa.Content.ReadAsStringAsync();
-        Assert.Contains($"O número tem até {Reparacao.NumeroMaxLength} caracteres.", Elemento(pagina, "id=\"riAvisos\""));
-        Assert.Contains($"value=\"{longo}\"", Campo(pagina, $"riNumero-{codigo}"));
+        Assert.Contains("O número tem só algarismos, até 3.", Elemento(pagina, "id=\"riAvisos\""));
+        Assert.Contains($"value=\"{numero}\"", Campo(pagina, $"riNumero-{codigo}"));
+        Assert.Contains("aria-invalid=\"true\"", Campo(pagina, $"riNumero-{codigo}"));
         Assert.Empty(NaBase(db => db.ReparacoesInternas.AsNoTracking().Where(r => r.JobOnId == jobOns[0]).ToList()));
+    }
+
+    [Fact]
+    public async Task ONumero_TresAlgarismos_Grava_EOCampoSoAceitaAlgarismos()
+    {
+        var (codigo, jobOns) = Maquina("D", 1);
+        using var client = await LoginOperatorAsync("6606", DmoCapabilities.ReparacaoInterna);
+        var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        var campo = Campo(html, $"riNumero-{codigo}");
+        Assert.Contains("inputmode=\"numeric\"", campo);
+        Assert.Contains("maxlength=\"3\"", campo);
+        Assert.Contains("pattern=\"[0-9]{1,3}\"", campo);
+
+        using var gravar = await EnviarAsync(client, html, ($"riNumero-{codigo}", "999"));
+
+        Assert.Equal(HttpStatusCode.Found, gravar.StatusCode);
+        Assert.Equal("999", NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.JobOnId == jobOns[0]).Numero));
     }
 
     [Fact]
@@ -391,7 +414,7 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         var canal = await admin.GetStringAsync("/Definicoes?secao=admin&sub=canal");
         var cartao = Elemento(canal, "id=\"canalJobonViragemRi\"");
-        Assert.Contains("Reparação Interna — hora de viragem do dia", cartao);
+        Assert.Contains("Reparação — hora de viragem do dia", cartao);
         Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", cartao);
         Assert.Contains("Boquilhas — hora de viragem do dia", canal);
 
@@ -407,8 +430,8 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
     }
 
     [Theory]
-    [InlineData("G", 1, "Perde-se também: 1 reparação da Reparação Interna.")]
-    [InlineData("H", 3, "Perde-se também: 3 reparações da Reparação Interna.")]
+    [InlineData("G", 1, "Perde-se também: 1 reparação.")]
+    [InlineData("H", 3, "Perde-se também: 3 reparações.")]
     public async Task EliminarJobOnComReparacoes_AJanelaDizQuantasSePerdem(string sufixo, int quantas, string esperado)
     {
         var (_, jobOns) = Maquina(sufixo, 1);
@@ -444,6 +467,6 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
 
         var aviso = JobOnEliminarAviso.From(preview, veControlo: false);
 
-        Assert.Equal("Perde-se também: 3 reparações da Reparação Interna.", aviso.Perde);
+        Assert.Equal("Perde-se também: 3 reparações.", aviso.Perde);
     }
 }

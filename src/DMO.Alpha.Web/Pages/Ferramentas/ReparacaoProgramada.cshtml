@@ -85,8 +85,8 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
     @{ Func<object, object> modoListas = @<text>
       <div class="rp-modo rp-modo-direita" role="group" aria-label="Listas ou histórico">
         <a class="dmo-button@(!Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoListas" aria-pressed="@(!Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada")">Listas</a>
-        <a class="dmo-button@(Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoHistorico" aria-pressed="@(Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { vista = "fechadas" })">Histórico</a>
-        <partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" />
+        @* A ajuda encostada ao botão a que pertence (.dmo-com-ajuda, regra partilhada; Diogo, 24/10/2026). *@
+        <span class="dmo-com-ajuda"><a class="dmo-button@(Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoHistorico" aria-pressed="@(Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada", new { vista = "fechadas" })">Histórico</a><partial name="_DmoHelp" model="@("A Saída no Armazém mostra «Saída» e o dia; a Entrada pinta a linha de cinza, com o dia, a posição e quem deu entrada. Um clique na linha abre a ficha da ferramenta.")" /></span>
       </div>
     </text>; }
     <div id="rpLista" class="rp-lista-zona-topo" aria-label="Lista">
@@ -168,7 +168,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
           }
         </select>
       </div>
-      <button type="submit" class="dmo-button" id="rpCriarBotao">Criar</button><partial name="_DmoHelp" model="@("Escolha o reparador (Armazém › Definições) e crie a lista. A lista fica com o nome do reparador e o dia, por exemplo «Moldes do Norte · 23/10/2026».")" />
+      <span class="dmo-com-ajuda"><button type="submit" class="dmo-button" id="rpCriarBotao">Criar</button><partial name="_DmoHelp" model="@("Escolha o reparador (Armazém › Definições) e crie a lista. A lista fica com o nome do reparador e o dia, por exemplo «Moldes do Norte · 23/10/2026».")" /></span>
     </form>
     }
       @if (lista is not null)

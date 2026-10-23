@@ -185,7 +185,7 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
     {
         var (codigo, jobOn) = Maquina("A");
         using var client = await LoginOperatorAsync("6701", DmoCapabilities.ReparacaoInterna);
-        var ids = await RegistarAsync(client, codigo, jobOn, "0457");
+        var ids = await RegistarAsync(client, codigo, jobOn, "457");
 
         var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
 
@@ -194,7 +194,7 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         Assert.DoesNotContain("<a ", linha);
         Assert.DoesNotContain("<button", Elemento(html, $"id=\"riLista-{codigo}\""));
         // Um clique escolhe, o duplo clique abre (a lista tem ações fora, data-dmo-for).
-        Assert.Matches($"<tr data-dmo-row data-id=\"{ids[0]}\" data-dmo-reparacao=\"{ids[0]}\" data-ri-reparacao=\"{ids[0]}\" data-ri-numero=\"0457\"", linha);
+        Assert.Matches($"<tr data-dmo-row data-id=\"{ids[0]}\" data-dmo-reparacao=\"{ids[0]}\" data-ri-reparacao=\"{ids[0]}\" data-ri-numero=\"457\"", linha);
         // «Editar» no canto do cartão abre a linha escolhida.
         Assert.Contains($"data-ri-editar=\"riLog-{codigo}\"", Elemento(html, $"data-dmo-for=\"riLog-{codigo}\""));
         // A janela: uma, fora das zonas, com o motivo opcional e as opções em baixo.
@@ -218,13 +218,13 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
     {
         var (codigo, jobOn) = Maquina("B");
         using var autor = await LoginOperatorAsync("6702", DmoCapabilities.ReparacaoInterna);
-        var ids = await RegistarAsync(autor, codigo, jobOn, "0457", "88");
+        var ids = await RegistarAsync(autor, codigo, jobOn, "457", "88");
         using var outra = await LoginOperatorAsync("6703", DmoCapabilities.ReparacaoInterna);
         // O registo de cada um é dele: a reparação vem da página do autor,
         // e outra pessoa com o módulo corrige-a (RI-04).
         var html = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
         var envio = Guid.NewGuid();
-        var (acao, doAutor) = Janela(html, ids[0], "riCorrigir", envio, ("riCorrigirNumero", " 0475 "), ("riCorrigirMotivo", "trocou os algarismos"));
+        var (acao, doAutor) = Janela(html, ids[0], "riCorrigir", envio, ("riCorrigirNumero", " 475 "), ("riCorrigirMotivo", "trocou os algarismos"));
         var campos = ComTokenDe(doAutor, await outra.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm"));
 
         using var corrigir = await outra.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
@@ -235,17 +235,17 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         Assert.Contains($"maquina={codigo}", destino);
         Assert.Contains("tipo=cm", destino);
         var depois = await outra.GetStringAsync(destino);
-        Assert.Contains("Número corrigido para 0475.", Elemento(depois, "id=\"riAvisos\""));
+        Assert.Contains("Número corrigido para 475.", Elemento(depois, "id=\"riAvisos\""));
         Assert.Contains("data-dmo-toast=\"ok\"", Elemento(depois, "id=\"riAvisos\""));
         // Quem registou continua a ser o autor (está no registo dele); o rasto diz quem corrigiu.
         Assert.DoesNotContain($"data-dmo-reparacao=\"{ids[0]}\"", depois);
         var doAutorDepois = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
-        Assert.Contains("<strong>0475</strong>", Elemento(doAutorDepois, $"data-dmo-reparacao=\"{ids[0]}\""));
+        Assert.Contains("<strong>475</strong>", Elemento(doAutorDepois, $"data-dmo-reparacao=\"{ids[0]}\""));
         Assert.Contains("<strong>88</strong>", Elemento(doAutorDepois, $"data-dmo-reparacao=\"{ids[1]}\""));
         Assert.Equal((Guid?)Utilizador("6702"), NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Id == ids[0]).RegistadoPorUserId));
         Assert.Equal(HttpStatusCode.Redirect, outraVez.StatusCode);
         var rasto = Assert.Single(NaBase(db => db.ReparacoesInternasRasto.AsNoTracking().Where(r => ids.Contains(r.ReparacaoId)).ToList()));
-        Assert.Equal((ReparacaoAcao.Corrigido, "0457", "0475", (Guid?)Utilizador("6703"), "trocou os algarismos"),
+        Assert.Equal((ReparacaoAcao.Corrigido, "457", "475", (Guid?)Utilizador("6703"), "trocou os algarismos"),
             (rasto.Acao, rasto.NumeroAntes, rasto.NumeroDepois, rasto.PorUserId, rasto.Motivo));
     }
 
@@ -318,8 +318,29 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         using var corrigir = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
 
         var depois = await client.GetStringAsync(corrigir.Headers.Location!.OriginalString);
-        Assert.Contains($"O número tem até {Reparacao.NumeroMaxLength} caracteres. Nada mudou.", Elemento(depois, "id=\"riAvisos\""));
+        // Agora recusado já pela regra dos algarismos (até 3), antes do limite da base.
+        Assert.Contains("O número tem só algarismos, até 3. Nada mudou.", Elemento(depois, "id=\"riAvisos\""));
         Assert.Equal("9", NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Id == ids[0]).Numero));
+    }
+
+    [Theory]
+    [InlineData("1234")]
+    [InlineData("A1")]
+    public async Task CorrigirComNumeroQueNaoESoAlgarismosAte3_Recusa_ENadaMuda(string escrito)
+    {
+        // Diogo, 24/10/2026: o Corrigir aceita o mesmo que o registo.
+        var (codigo, jobOn) = Maquina(escrito == "A1" ? "G" : "H");
+        using var client = await LoginOperatorAsync(escrito == "A1" ? "6711" : "6712", DmoCapabilities.ReparacaoInterna);
+        var ids = await RegistarAsync(client, codigo, jobOn, "9");
+        var html = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        var (acao, campos) = Janela(html, ids[0], "riCorrigir", Guid.NewGuid(), ("riCorrigirNumero", escrito));
+
+        using var corrigir = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+
+        var depois = await client.GetStringAsync(corrigir.Headers.Location!.OriginalString);
+        Assert.Contains("O número tem só algarismos, até 3. Nada mudou.", Elemento(depois, "id=\"riAvisos\""));
+        Assert.Equal("9", NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Id == ids[0]).Numero));
+        Assert.Empty(NaBase(db => db.ReparacoesInternasRasto.AsNoTracking().Where(r => r.ReparacaoId == ids[0]).ToList()));
     }
 
     [Fact]

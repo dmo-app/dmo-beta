@@ -99,6 +99,15 @@ public sealed class IndexModel(
 
     public ReparacaoResultado? Recusa { get; private set; }
 
+    /// <summary>O número reparado: só algarismos, até 3 (Diogo, 23/10/2026).</summary>
+    public const int NumeroAlgarismos = 3;
+
+    /// <summary>O número escrito não é só algarismos ou passa de <see cref="NumeroAlgarismos"/>: nada foi gravado.</summary>
+    public bool NumeroInvalido { get; private set; }
+
+    public static bool NumeroValido(string? numero) =>
+        numero?.Trim() is { Length: > 0 and <= NumeroAlgarismos } n && n.All(char.IsAsciiDigit);
+
     /// <summary>O número escrito numa recusa, para ficar no campo.</summary>
     public string? NumeroEscrito { get; private set; }
 
@@ -138,9 +147,11 @@ public sealed class IndexModel(
             "mudou" => $"Outra pessoa mudou esta reparação entretanto: o número agora é {Numero}. Confira e corrija outra vez.",
             "sem-numero" => "Escreva o número corrigido. Nada mudou.",
             "numero-longo" => $"O número tem até {Reparacao.NumeroMaxLength} caracteres. Nada mudou.",
+            "numero-invalido" => $"O número tem só algarismos, até {NumeroAlgarismos}. Nada mudou.",
             "motivo-longo" => $"O motivo tem até {ReparacaoRasto.MotivoMaxLength} caracteres. Nada mudou.",
             _ => string.Empty
         },
+        _ when NumeroInvalido => $"O número tem só algarismos, até {NumeroAlgarismos}.",
         _ => Recusa switch
         {
             ReparacaoResultado.SemNumero => "Escreva o número reparado.",
@@ -230,6 +241,12 @@ public sealed class IndexModel(
         [FromForm(Name = "pagina")] int? pagina,
         [FromForm(Name = "volta")] string? volta)
     {
+        // Só algarismos, até 3, como no registo (Diogo, 24/10/2026); vazio segue para a recusa de sempre.
+        if (!string.IsNullOrWhiteSpace(numero) && !NumeroValido(numero))
+        {
+            return VoltarComCorrecao("numero-invalido", null, pagina, volta);
+        }
+
         var saida = await reparacoes.CorrigirAsync(
             new PedidoDeCorrecao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, numero, motivo),
             HttpContext.RequestAborted);
@@ -268,6 +285,11 @@ public sealed class IndexModel(
             CorrecaoResultado.NumeroLongo => "numero-longo",
             _ => "motivo-longo"
         };
+        return VoltarComCorrecao(correcao, saida.Numero, pagina, volta);
+    }
+
+    private IActionResult VoltarComCorrecao(string correcao, string? numero, int? pagina, string? volta)
+    {
         if (VoltaDestaPagina(volta) is { } destino)
         {
             var q = destino.IndexOf('?', StringComparison.Ordinal);
@@ -275,7 +297,7 @@ public sealed class IndexModel(
                 .Where(p => p.Key is not ("correcao" or "numero" or "gravacao" or "escrita" or "semjobon"))
                 .SelectMany(p => p.Value.Select(v => new KeyValuePair<string, string?>(p.Key, v)))
                 .Append(new("correcao", correcao))
-                .Append(new("numero", saida.Numero));
+                .Append(new("numero", numero));
             return LocalRedirect(QueryHelpers.AddQueryString(destino[..q], query));
         }
 
@@ -289,7 +311,7 @@ public sealed class IndexModel(
             lote = LoteEscrito,
             pagina,
             correcao,
-            numero = saida.Numero
+            numero
         });
     }
 
@@ -317,6 +339,15 @@ public sealed class IndexModel(
         var maquina = lista.FirstOrDefault(m => string.Equals(m.Code, MaquinaCodigo, StringComparison.OrdinalIgnoreCase));
         var operacao = operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId;
         var escrita = outra is "1" or "on";
+        // Só algarismos, até 3 (Diogo, 23/10/2026); vazio segue para a recusa de sempre.
+        if (!string.IsNullOrWhiteSpace(numero) && !NumeroValido(numero))
+        {
+            NumeroInvalido = true;
+            NumeroEscrito = numero;
+            OutraMarcada = escrita;
+            OperacaoId = operacao;
+            return await DesenharAsync(null);
+        }
         // O cartão leva o contexto da CM e o do MF; o botão CM/MF escolhe.
         contexto ??= Tipo == ReparacaoTipo.Mf ? contextoMf : Tipo == ReparacaoTipo.Cm ? contextoCm : null;
         var saida = await reparacoes.RegistarAsync(
@@ -354,7 +385,7 @@ public sealed class IndexModel(
     private async Task<IActionResult> DesenharAsync(int? pagina)
     {
         var chave = Historico ? "historico" : "registar";
-        ViewData["Title"] = Historico ? "Histórico — Reparação Interna" : "Reparação Interna";
+        ViewData["Title"] = Historico ? "Histórico — Reparação" : "Reparação";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("reparacao-interna", "Reparação Interna"))) with
         {
             ActiveFunctionKey = chave,

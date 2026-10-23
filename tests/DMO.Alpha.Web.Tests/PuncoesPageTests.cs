@@ -211,6 +211,10 @@ public partial class PuncoesPageTests : IClassFixture<CustomWebApplicationFactor
         Assert.Contains("Identificação da produção", empty);
         Assert.Contains("value=\"1075\"", empty);
         Assert.Contains("Sem punções registadas", empty);
+        Assert.Contains("<span>Linha</span>", empty);
+        Assert.DoesNotContain("<span>Máquina</span>", empty);
+        Assert.Contains("data-pu-puncao><span>Punção</span><strong>1075", empty);
+        Assert.Matches("dmo-card-topo-acoes[^>]*>\\s*<button[^>]*form=\"pu-id-form\"[^>]*id=\"pu-id-guardar\"", empty);
 
         foreach (var (number, lot) in new[] { ("41", "1"), ("42", "1"), ("41", "2") })
         {

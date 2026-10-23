@@ -8,6 +8,7 @@ Só ficheiros locais; nada vai ao DEV.
 
 A 360, 768 e 1400 px, em claro e em escuro: a página não tem scroll lateral, o
 «Sair» do topo cabe no ecrã e as tabelas largas deslizam dentro da sua caixa.
+No Peso, o registo da leitura fica fixo à direita e à vista ao descer (no fluxo abaixo de 600 px).
 """
 import mimetypes
 import sys
@@ -61,6 +62,19 @@ with sync_playwright() as playwright:
                 assert tabelas, f'{onde}: sem tabelas'
                 for tabela in tabelas:
                     assert tabela['dentro'] and tabela['desliza'] in ('auto', 'scroll'), f'{onde}: tabela {tabela}'
+                if nome == 'peso-folha.html':
+                    # O registo da leitura fica fixo à direita e à vista ao descer (Diogo, 23/10/2026);
+                    # abaixo de 600 px volta ao fluxo normal.
+                    registo = '.peso-leitura-nova'
+                    posicao = page.eval_on_selector(registo, 'e => getComputedStyle(e).position')
+                    if largura <= 600:
+                        assert posicao == 'static', f'{onde}: o registo devia estar no fluxo ({posicao})'
+                    else:
+                        assert posicao == 'fixed', f'{onde}: o registo devia estar fixo ({posicao})'
+                        for descer in (0, 600, 100000):
+                            page.evaluate(f'window.scrollTo(0, {descer})')
+                            caixa = page.eval_on_selector(registo, 'e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom, r.right]; }')
+                            assert 0 <= caixa[0] and caixa[1] <= 900 + 0.5 and caixa[2] <= largura + 0.5, f'{onde}: registo fora do ecrã ao descer {descer}: {caixa}'
                 assert not erros, erros
                 context.close()
     browser.close()

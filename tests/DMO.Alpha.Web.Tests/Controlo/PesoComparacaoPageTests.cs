@@ -261,20 +261,16 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains($"<option value=\"{anteriorId}\"", semEscolha);
         Assert.DoesNotContain($"<option value=\"{outroId}\"", semEscolha);
         Assert.DoesNotContain("data-peso-comparacao-tabela", semEscolha);
-        Assert.Contains("Calote atual: 3.000 mm (Job On)", semEscolha);
+        // A «Calote Tampo» (antes «Supomos») saiu deste cartão (Diogo, 23/10/2026); o cálculo
+        // fica (PesoSuposicaoCalculationTests) até o Diogo dizer onde vai.
+        Assert.DoesNotContain("<h4 style=\"margin:0 0 6px\">Supomos</h4>", semEscolha);
+        Assert.DoesNotContain("Calote do tampão suposta", semEscolha);
 
         var html = await GetPageHtmlAsync(client, $"{PagePath}?peso_id={pesoId}&comparar={outroId}&supor_calote=5,2");
         Assert.Contains($"<option value=\"{outroId}\" selected=\"selected\">", html);
         Assert.Contains("data-peso-comparacao-tabela", html);
-        Assert.Contains("3.000 → 5.200 mm", html);
-        Assert.Contains("2.959 → 5.179 cm³", html);
-        Assert.Contains("7.40 &#x2192; 12.95 g", html);
-        Assert.Contains("&#x2B;5.55 g", html);
-        Assert.Contains("325.39 &#x2192; 330.94 g", html);
-        Assert.Contains("Diferença para 202602", html);
-
-        var ilegivel = await GetPageHtmlAsync(client, $"{PagePath}?peso_id={pesoId}&comparar={outroId}&supor_calote=abc");
-        Assert.Contains("não é um número válido", ilegivel);
+        Assert.DoesNotContain("id=\"pesoSupomos\"", html);
+        Assert.DoesNotContain("3.000 → 5.200 mm", html);
 
         using var finalScope = _factory.Services.CreateScope();
         var finalDb = finalScope.ServiceProvider.GetRequiredService<DmoDbContext>();
@@ -312,7 +308,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         const string supor = "<input type=\"hidden\" name=\"supor_calote\" value=\"5,2\" />";
 
         var folha = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&comparar={outroId}&supor_calote=5,2");
-        Assert.Contains("3.000 → 5.200 mm", PesoZonas.Zona(folha, "pesoSupomos"));
+        Assert.DoesNotContain("id=\"pesoSupomos\"", folha);
         foreach (var zona in new[] { "pesoLeituraContexto", "pesoAnteriorContexto", "pesoCapContexto" })
         {
             var campos = PesoZonas.Zona(folha, zona);
@@ -330,8 +326,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.DoesNotContain("controlo_id", leituras);
 
         var ilegivel = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&comparar={outroId}&supor_calote=abc");
-        Assert.Contains("<div data-dmo-toast=\"erro\" class=\"peso-aviso\" role=\"alert\">A calote suposta «abc» não é um número válido.", PesoZonas.Zona(ilegivel, "pesoSupomos"));
-        Assert.DoesNotContain("peso-aviso-simples", PesoZonas.Zona(ilegivel, "pesoSupomos"));
+        Assert.DoesNotContain("id=\"pesoSupomos\"", ilegivel);
         foreach (var zona in new[] { "pesoLeituraContexto", "pesoAnteriorContexto", "pesoCapContexto", "pesoComparacao" })
         {
             Assert.DoesNotContain("name=\"supor_calote\" value", PesoZonas.Zona(ilegivel, zona));

@@ -188,6 +188,51 @@ else
 fi
 
 echo
+echo "== Browser no painel lateral"
+echo "   Os cartões das linhas: texto legível ao passar o rato (também sem produção) e sem clarão ao escolher."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no painel lateral (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/painel_lateral_browser.py >"$logs/ui-painel.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no painel lateral")
+else
+  tail -30 "$logs/ui-painel.log"
+  summary+=("FALHOU  Browser no painel lateral")
+  failed=1
+fi
+
+echo
+echo "== Browser na tabela das punções"
+echo "   As colunas da lista das punções ficam com a mesma largura ao trocar «Visto» por «Por verificar»."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na tabela das punções (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/puncoes_tabela_browser.py "$ui" >"$logs/ui-puncoes-tabela.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na tabela das punções")
+else
+  tail -30 "$logs/ui-puncoes-tabela.log"
+  summary+=("FALHOU  Browser na tabela das punções")
+  failed=1
+fi
+
+echo
+echo "== Browser na ajuda encostada"
+echo "   No Planeamento e no Registar Reparação, o círculo da ajuda fica encostado à caixa ou ao botão a que pertence, elevado e longe do seguinte."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na ajuda encostada (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/ajuda_junto_browser.py "$ui" >"$logs/ui-ajuda.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na ajuda encostada")
+else
+  tail -30 "$logs/ui-ajuda.log"
+  summary+=("FALHOU  Browser na ajuda encostada")
+  failed=1
+fi
+
+echo
 echo "== Browser no ecrã pequeno"
 echo "   O Peso e os Pegamentos a 360, 768 e 1400 px, em claro e em escuro: sem scroll lateral e as tabelas largas a deslizar na sua caixa."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then

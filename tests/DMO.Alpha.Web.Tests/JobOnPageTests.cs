@@ -264,6 +264,10 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Matches("<a id=\"jobonCriar\" class=\"dmo-button\" href=\"/JobOn\\?novo=1&amp;inicio_em=2026-03-04&amp;ano=2026&amp;mes=3&amp;dia=4#lightSheet\"", bloco);
         // Um só botão na página: o do título saiu.
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, ">Criar Job On</a>"));
+        // A ajuda da produção encostada à caixa (Diogo, 24/10/2026); o Chromium mede-a
+        // (tests/visual/ajuda_junto_browser.py).
+        Assert.Matches("<span class=\"dmo-com-ajuda\"><span id=\"lightProcura\"[\\s\\S]*?</span><span class=\"dmo-help\"", bloco);
+        ExportarParaOBrowser.Gravar("jobon-ajuda.html", html);
 
         // Sem dia escolhido, abre sem data de início.
         var semDia = await GetPageHtmlAsync(client, $"{PagePath}?ano=2026&mes=3&dia=0");

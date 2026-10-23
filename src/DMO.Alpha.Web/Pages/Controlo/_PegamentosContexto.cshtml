@@ -19,13 +19,16 @@
     @* O PDF DA FOLHA (o corte PDF estendido aos Pegamentos): as fichas
        congeladas + as medições por componente com o gesto em cruz + as
        médias — por download local com o nome canónico. Sem medições
-       ainda, a folha sai em branco para preencher à mão. No canto
+       não há botão: não se gera folha em branco (Diogo, 24/10/2026). No canto
        superior direito do card (Diogo, 18/10/2026). *@
     <div class="dmo-card-topo-acoes">
-      <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
-        <partial name="_PegamentosAncora" model="sheet" />
-        <button type="submit" class="dmo-button">@(sheet.Pegamentos is null ? "Descarregar folha de Pegamentos em branco (PDF)" : "Descarregar PDF de Pegamentos separado")</button>
-      </form>
+      @if (sheet.Pegamentos is not null)
+      {
+        <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
+          <partial name="_PegamentosAncora" model="sheet" />
+          <button type="submit" class="dmo-button" id="pegExtrairPdf">Extrair PDF</button>
+        </form>
+      }
       @if (sheet.SemJobOn && !Model.AssociarAberto)
       {
         <a class="dmo-button" href="/Controlo/Pegamentos?pegamentos_id=@sheet.Pegamentos?.PegamentosId&associar=1#peg-associar-title">Associar Job On</a>
@@ -67,13 +70,9 @@
     </div>
   </div>
   <div class="peg-context-notes">
-  @if (sheet.Pegamentos is null && sheet.Sheets.Count == 0)
+  @if (sheet.Pegamentos is null && sheet.Sheets.Count > 0)
   {
-    <p class="peg-hint">Ainda sem medições nesta produção. O PDF sai em branco (ferramentas, nominal e tolerância) para preencher à mão.</p>
-  }
-  else if (sheet.Pegamentos is null)
-  {
-    <p class="peg-hint">As ferramentas mudaram: a próxima leitura começa uma folha nova com estas ferramentas. As folhas anteriores ficaram como estavam e estão em «Folhas desta produção». O PDF sai em branco para preencher à mão.</p>
+    <p class="peg-hint">As ferramentas mudaram: a próxima leitura começa uma folha nova com estas ferramentas. As folhas anteriores ficaram como estavam e estão em «Folhas desta produção».</p>
   }
   else if (folhaAnterior)
   {

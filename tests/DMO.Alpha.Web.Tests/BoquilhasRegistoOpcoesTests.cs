@@ -33,11 +33,20 @@ public partial class BoquilhasRegistoPageTests
         Assert.DoesNotContain("Onde esta boquilha foi usada", page);
 
         var historico = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&bq_ferramenta=BQ-USOS-1");
-        Assert.Contains("BQ QU501 · Lote 3", historico);
-        Assert.Contains("<input type=\"hidden\" name=\"bq_ferramenta\" value=\"BQ-USOS-1\" />", historico);
-        Assert.Contains("2 movimento(s)", historico);
+        // A BQ escolhida preenche os filtros à vista (Diogo, 24/10/2026).
+        Assert.Matches("<input id=\"pesquisa\"[^>]*value=\"QU501\"", historico);
+        Assert.Matches("<input id=\"lote\" name=\"lote\" value=\"3\"", historico);
+        Assert.DoesNotContain("name=\"bq_ferramenta\"", historico);
+        Assert.Contains("2 movimentos", historico);
         Assert.Contains("5447QU501", historico);
         Assert.Contains("5531QU501", historico);
-        Assert.Contains("title=\"Tirar o filtro da BQ\">Tirar filtro</a>", historico);
+        Assert.DoesNotContain("Tirar filtro", historico);
+        Assert.Contains("<a class=\"btn\" href=\"/Boquilhas?historico=1&amp;vista=grupos\">Limpar filtros</a>", historico);
+
+        // Os dois campos escritos à mão dão o mesmo filtro; outro lote, nenhum movimento.
+        var escrito = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&pesquisa=QU501&lote=3");
+        Assert.Contains("2 movimentos", escrito);
+        var outroLote = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&pesquisa=QU501&lote=9");
+        Assert.Contains("0 movimentos", outroLote);
     }
 }

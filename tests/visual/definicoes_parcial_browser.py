@@ -119,12 +119,55 @@ def toast(page, texto):
     return mensagem
 
 
+# A ajuda de um título medida no Chromium: o topo do círculo em relação à altura das
+# maiúsculas da fonte do título (um span de medição com «H» no próprio título) e a distância
+# horizontal, em em, ao que vem antes (o texto ou a etiqueta «Só de leitura»).
+MEDIR_AJUDA = """(h) => {
+    const marca = h.querySelector(':scope > .dmo-help .dmo-help-mark, :scope > .dmo-com-ajuda > .dmo-help .dmo-help-mark');
+    const medida = document.createElement('span');
+    medida.textContent = 'H';
+    medida.style.cssText = 'visibility:hidden;display:inline-block;width:0;white-space:nowrap';
+    const base = document.createElement('span');
+    base.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+    medida.appendChild(base);
+    h.insertBefore(medida, h.firstChild);
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.font = getComputedStyle(medida).font;
+    const topo = base.getBoundingClientRect().bottom - ctx.measureText('H').actualBoundingBoxAscent;
+    const topoMarca = marca.getBoundingClientRect().top;
+    medida.remove();
+    const ajuda = marca.closest('.dmo-help');
+    // O que vem antes da ajuda: o texto do título ou o elemento anterior (a etiqueta do cadeado).
+    let antes = ajuda.previousSibling;
+    while (antes && antes.nodeType === 3 && !antes.textContent.trim()) antes = antes.previousSibling;
+    let direita;
+    if (antes.nodeType === 3) { const r = document.createRange(); r.selectNodeContents(antes); direita = r.getBoundingClientRect().right; }
+    else direita = antes.getBoundingClientRect().right;
+    const em = parseFloat(getComputedStyle(h).fontSize);
+    return { topo: topoMarca - topo, folga: (marca.getBoundingClientRect().left - direita) / em };
+}"""
+
+
+def ajuda_no_sitio(page, seletor, folga_esperada=None):
+    m = page.eval_on_selector(seletor, MEDIR_AJUDA)
+    assert abs(m['topo']) <= 1.5, f'{seletor}: topo da ajuda a {m["topo"]:.1f}px da altura das maiúsculas'
+    if folga_esperada is not None:
+        assert abs(m['folga'] - folga_esperada) <= 0.03, f'{seletor}: ajuda a {m["folga"]:.2f}em (os outros títulos: {folga_esperada:.2f}em)'
+    return m
+
+
 with sync_playwright() as playwright:
     browser = playwright.chromium.launch(executable_path=os.environ.get('DMO_CHROMIUM', '/usr/bin/chromium'),
                                          args=['--no-sandbox'])
 
     # ------------------------------------------------------------------ módulos
     page, pedidos, erros = entrar(browser, operador)
+
+    # A ajuda do «GERAL · Só de leitura» (sessão nova: as Definições Gerais estão fechadas)
+    # fica encostada e elevada como nos outros títulos (Diogo, 23/10/2026).
+    page.goto(base + '/Definicoes?secao=controlo&sub=pegamentos')
+    folga_cadeado = ajuda_no_sitio(page, '#sec-controlo h3.def-parte-titulo:has(.def-cadeado)')
+    resultados.append(f'Ajuda do cadeado: topo a {folga_cadeado["topo"]:.1f}px das maiúsculas, a {folga_cadeado["folga"]:.2f}em da etiqueta')
 
     # Controlo → Definições: a tolerância; duplo clique no «Guardar» = 1 POST, 1 mensagem.
     page.goto(base + '/Controlo/Definicoes')
@@ -269,26 +312,9 @@ with sync_playwright() as playwright:
     m2 = page.eval_on_selector(titulo, medir_caret)
     assert 0 <= m2['folga'] <= 0.5 * m2['em'], f'triângulo do menu a {m2["folga"]:.1f}px do texto'
     page.goto(base + '/Definicoes?secao=admin&sub=app')
-    # O topo do círculo fica na altura das maiúsculas da fonte do título (±1,5 px): um span
-    # de medição com «H» no mesmo título dá a linha de base e a altura do «H» nessa fonte.
-    ajuda = page.eval_on_selector('#admin-email-title', """(h) => {
-        const marca = h.querySelector('.dmo-help-mark');
-        const medida = document.createElement('span');
-        medida.textContent = 'H';
-        medida.style.cssText = 'visibility:hidden;position:relative';
-        const base = document.createElement('span');
-        base.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
-        medida.appendChild(base);
-        h.insertBefore(medida, h.firstChild);
-        const ctx = document.createElement('canvas').getContext('2d');
-        ctx.font = getComputedStyle(medida).font;
-        const topoMaiusculas = base.getBoundingClientRect().bottom - ctx.measureText('H').actualBoundingBoxAscent;
-        const resultado = { topo: marca.getBoundingClientRect().top, maiusculas: topoMaiusculas };
-        medida.remove();
-        return resultado;
-    }""")
-    desvio = ajuda['topo'] - ajuda['maiusculas']
-    assert abs(desvio) <= 1.5, f'topo da ajuda a {desvio:.1f}px da altura das maiúsculas'
+    ajuda = ajuda_no_sitio(page, '#admin-email-title')
+    desvio = ajuda['topo']
+    assert abs(ajuda['folga'] - folga_cadeado['folga']) <= 0.03, f'ajuda do cadeado a {folga_cadeado["folga"]:.2f}em, nos títulos a {ajuda["folga"]:.2f}em'
     resultados.append(f'Triângulo a {m["folga"]:.1f}px/{m2["folga"]:.1f}px do texto; topo da ajuda a {desvio:.1f}px da altura das maiúsculas')
 
     # Utilizadores: criar; o PIN fica no canto; o formulário limpa; a lista mostra-o.

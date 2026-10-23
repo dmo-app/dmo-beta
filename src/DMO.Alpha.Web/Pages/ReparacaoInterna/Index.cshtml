@@ -25,12 +25,12 @@ html body .ri-linha .dmo-field input.ri-lote{width:7ch}
 html body .ri-linha .dmo-field input.ri-dia{width:auto}
 /* O botão CM/MF: o mesmo mecanismo do tipo de movimento das Boquilhas
    (rádios com o rótulo como botão); o ativo em azul claro. */
-.ri-tipos{display:flex;gap:0;margin:0;padding:0;border:0}
+/* CM e MF: dois botões separados (Diogo, 23/10/2026), não um interruptor colado. */
+.ri-tipos{display:flex;gap:8px;margin:0;padding:0;border:0}
 .ri-tipos label{position:relative;cursor:pointer}
 .ri-tipos input{position:absolute;opacity:0;width:1px;height:1px}
 .ri-tipos span{display:block;min-width:52px;padding:9px 12px;text-align:center;border:1px solid var(--dmo-border);background:var(--dmo-card);font-weight:750}
-.ri-tipos label:first-of-type span{border-radius:9px 0 0 9px}
-.ri-tipos label:last-of-type span{border-radius:0 9px 9px 0;border-left:0}
+.ri-tipos span{border-radius:9px}
 .ri-tipos input:checked+span{background:var(--dmo-brand-100,#d9e6f2);color:var(--dmo-brand-900);border-color:var(--dmo-brand-600,#3c73a8)}
 .ri-tipos input:focus-visible+span{outline:3px solid var(--dmo-brand-600,#3c73a8);outline-offset:2px}
 /* «É outra CM/MF»: a referência e o lote só com ela marcada (sem produção ficam sempre). */
@@ -39,10 +39,19 @@ html body .ri-linha .dmo-field input.ri-dia{width:auto}
 .ri-registar:has(.ri-outra-check:not(:checked)) .ri-outra-campos{display:none}
 .ri-ficha{color:var(--dmo-brand-900);font-weight:600}
 .ri-escrita{display:inline-block;margin-left:6px;font-size:12.5px;color:var(--dmo-muted)}
-.ri-onde{display:flex;gap:6px 18px;flex-wrap:wrap;margin:0 0 12px}
-.ri-onde div{display:flex;flex-direction:column;gap:1px}
-.ri-onde dt{font-size:12.5px;color:var(--dmo-muted)}
-.ri-onde dd{margin:0;font-weight:700}
+/* A produção, a CM e o MF em três cartões pequenos, como os do resumo do Peso
+   (Diogo, 23/10/2026: «aumentar esta informação, pode ficar dentro de cartões separados»). */
+.ri-onde{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 12px}
+.ri-onde div{display:flex;flex-direction:column;gap:3px;padding:10px 14px;background:var(--dmo-subtle,#f1f6fa);border-radius:8px;min-width:0}
+.ri-onde dt{font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em;color:var(--dmo-muted)}
+.ri-onde dd{margin:0;font-size:16px;font-weight:750;overflow-wrap:anywhere}
+@@media(max-width:600px){.ri-onde{grid-template-columns:1fr}}
+/* O dia, CM e MF, o número e OK numa só linha (Diogo, 23/10/2026); «É outra CM/MF» e
+   os campos dela ficam por baixo. Os dois formulários continuam separados. */
+.ri-registo-linha{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:0 0 10px}
+.ri-registo-linha>form{display:contents}
+.ri-registo-linha .ri-linha{margin:0}
+.ri-registo-linha>form>:is(.ri-outra-marca,.ri-outra-campos){flex-basis:100%}
 .ri-card .dmo-aviso{margin:0 0 12px}
 .ri-card .dmo-table td{padding:5px 8px;vertical-align:middle}
 .ri-card .dmo-table td:not(:last-child){white-space:nowrap}
@@ -89,7 +98,7 @@ html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
   <main class="ri-page dmo-workspace" aria-labelledby="ri-title" data-dmo-troca>
     <div class="page-head">
       <div>
-        <h1 id="ri-title">Reparação Interna · Histórico</h1>
+        <h1 id="ri-title">Reparação · Histórico</h1>
       </div>
     </div>
 
@@ -236,7 +245,7 @@ else
     <main class="beta-light-main ri-page" aria-labelledby="ri-title">
       <div class="page-head">
         <div>
-          <h1 id="ri-title">Reparação Interna</h1>
+          <h1 id="ri-title">Reparação</h1>
         </div>
       </div>
 
@@ -292,6 +301,7 @@ else
 
           @* O dia e a produção: aplicam ao escolher. As datas são livres;
              outro dia que não o de hoje só avisa. *@
+          <div class="ri-registo-linha">
           <form id="riDiaForm-@codigo" method="get" asp-page="/ReparacaoInterna/Index" class="ri-linha">
             <input type="hidden" name="maquina" value="@codigo" />
             <input type="hidden" name="tipo" value="@RiTextos.Valor(c.Tipo)" />
@@ -312,10 +322,6 @@ else
               </div>
             }
           </form>
-          @if (Model.OutroDia)
-          {
-            <p class="dmo-aviso warn" id="riOutroDia-@codigo" role="status">Está a registar no dia @IndexModel.Dia(Model.DiaDoRegisto), não no de hoje (@IndexModel.Dia(Model.Hoje)). <a href="@Model.HrefDaLinhaHoje(codigo)">Voltar a hoje</a></p>
-          }
 
           @* O botão CM/MF (como o tipo de movimento das Boquilhas: o ativo
              em azul claro), o número e OK. «É outra CM/MF» mostra a
@@ -351,7 +357,7 @@ else
               </fieldset>
               <div class="dmo-field">
                 <label for="riNumero-@codigo">Número</label>
-                <input id="riNumero-@codigo" name="numero" class="ri-numero" maxlength="@Reparacao.NumeroMaxLength" autocomplete="off" required autofocus
+                <input id="riNumero-@codigo" name="numero" class="ri-numero" inputmode="numeric" maxlength="@IndexModel.NumeroAlgarismos" pattern="[0-9]{1,@IndexModel.NumeroAlgarismos}" title="Só algarismos, até @IndexModel.NumeroAlgarismos" aria-invalid="@(Model.NumeroInvalido ? "true" : null)" autocomplete="off" required autofocus
                        value="@Model.NumeroEscrito" />
               </div>
               <button type="submit" class="dmo-button" id="riOk-@codigo">OK</button>
@@ -374,6 +380,11 @@ else
               </div>
             </div>
           </form>
+          </div>
+          @if (Model.OutroDia)
+          {
+            <p class="dmo-aviso warn" id="riOutroDia-@codigo" role="status">Está a registar no dia @IndexModel.Dia(Model.DiaDoRegisto), não no de hoje (@IndexModel.Dia(Model.Hoje)). <a href="@Model.HrefDaLinhaHoje(codigo)">Voltar a hoje</a></p>
+          }
 
           @* O registo (log): as reparações desta pessoa nesta linha neste
              dia, a mais recente em cima. Sem botões nas linhas: o duplo

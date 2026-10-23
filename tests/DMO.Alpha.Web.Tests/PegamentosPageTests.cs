@@ -327,9 +327,9 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         // O cartão MF (cor #0891B2 no mapa, nome «MF») — herdado
         // do Job On com a sua tool, referência do desenho e lote: o MF
         // dá a forma do produto e a base 4-dígitos da referência.
-        Assert.Contains("id=\"peg-comp-Mf-title\">MF<", html);
+        Assert.Contains("id=\"peg-comp-Mf-title\" data-peg-titulo>MF ", html);
         Assert.DoesNotContain(">MF-TOOL-9<", html);
-        Assert.Contains("<dt>Lote</dt><dd>1</dd>", html);
+        Assert.Contains(" · Lote 1<", html);
         // O gargalo em falta: campo de completion no fluxo — também no MF
         // (a ferramenta nova só tem o gargalo como valor técnico — regra
         // do Owner).
@@ -343,8 +343,9 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("não tem nominal do gargalo", cartaoMf);
         Assert.DoesNotContain("name=\"gargalo\"", cartaoMf);
         Assert.DoesNotContain("id=\"costura-Mf\"", html);
-        // O registo ausente é o estado válido antes da primeira medição.
-        Assert.Contains("Ainda sem medições nesta produção.", html);
+        // O registo ausente é o estado válido antes da primeira medição: sem texto e sem «Extrair PDF».
+        Assert.DoesNotContain("Ainda sem medições nesta produção.", html);
+        Assert.DoesNotContain("id=\"pegExtrairPdf\"", html);
         // O default do Owner exibido como tolerância efetiva corrente.
         Assert.Contains("nominal ± 0.20 mm", html);
         // O form da medição em cruz presente por componente.
@@ -464,7 +465,11 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         // A linha da BQ: ovalização «—» (indefinida) — o estado truthful
         // do eixo único, nunca um segundo eixo fabricado.
         Assert.Contains("—", html);
-        Assert.Contains("id=\"peg-comp-Bq-title\">BQ<", html);
+        Assert.Contains("id=\"peg-comp-Bq-title\" data-peg-titulo>BQ ", html);
+        // O contexto no título, sem repetir no cartão (Diogo, 24/10/2026).
+        Assert.Matches("data-peg-titulo>BQ (<a[^>]*>)?T194(</a>)? · Lote 12<", html);
+        Assert.DoesNotContain("<dt>Lote</dt>", html);
+        Assert.DoesNotContain("<dt>Referência</dt>", html);
 
         using (var scope = _factory.Services.CreateScope())
         {
@@ -524,7 +529,7 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         // Owner) e o gargalo completado — o form de completion do MF
         // desapareceu (a BQ-1 continua em falta, o estado truthful dela).
         var html = await GetPageHtmlAsync(client, sheetUrl);
-        Assert.Contains("id=\"peg-comp-Mf-title\">MF<", html);
+        Assert.Contains("id=\"peg-comp-Mf-title\" data-peg-titulo>MF ", html);
         Assert.Contains("59.00", html);
         Assert.Contains("#0891B2", html);
         Assert.Contains("id=\"costura-Mf\"", html);
@@ -1054,8 +1059,8 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         var html = await GetPageHtmlAsync(client, url);
         var card = System.Text.RegularExpressions.Regex.Match(html,
             "data-peg-component=\"CM\"[\\s\\S]*?</section>").Value;
-        Assert.Contains("<dt>Referência</dt><dd>5447</dd>", card);
-        Assert.Contains("<dt>Lote</dt><dd>3</dd>", card);
+        Assert.Contains("data-peg-titulo>CM 5447 · Lote", card);
+        Assert.Contains(" · Lote 3<", card);
         Assert.Contains("peg-cell-bad\">70.50", card);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
         using var response = await client.PostAsync($"{PagePath}?handler=GeneratePdf", HtmlFormHelpers.BuildFormPost(
@@ -1205,7 +1210,8 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Equal(comContexto, ZonasGravacao.Regiao(resposta));
         var html = await resposta.Content.ReadAsStringAsync();
         Assert.Equal(comContexto.Split(' '), ZonasGravacao.Raizes(html));
-        Assert.Contains("Descarregar PDF de Pegamentos separado", html);
+        Assert.Matches("dmo-card-topo-acoes\">\\s*<form[^>]*GeneratePdf[\\s\\S]*?<button type=\"submit\" class=\"dmo-button\" id=\"pegExtrairPdf\">Extrair PDF</button>", html);
+        Assert.DoesNotContain("Descarregar", html);
         Assert.Contains("5447", html);
         Assert.Equal(1, leituras.FolhasPegamentos);
         Assert.Equal(3, leituras.Ferramentas);
@@ -1257,34 +1263,27 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
     }
 
     [Fact]
-    public async Task Pdf_WithoutMeasurements_DownloadsBlankSheet_WithoutWriting()
+    public async Task Pdf_WithoutMeasurements_NoButton_AndPostIsRefused_WithoutWriting()
     {
-        // Owner 16/10/2026: sem medições, o PDF já não é recusado — sai a
-        // folha em branco (ferramentas, nominal, tolerância) para
-        // preencher à mão; gerada em memória, nada é gravado.
+        // Diogo, 24/10/2026: ninguém preenche Pegamentos à mão — sem medições
+        // não há «Extrair PDF» e o POST direto não gera folha em branco.
         SeedUser("4492", "Pegamentos Operador", "provider-peg-blank-pdf", "PegBlank1!");
         using var client = await LoginClientAsync("4492", "PegBlank1!");
         var controloId = await SeedRealProductionAsync();
         var url = $"{PagePath}?controlo_id={controloId}";
 
         var html = await GetPageHtmlAsync(client, url);
-        Assert.Contains("Descarregar folha de Pegamentos em branco (PDF)", html);
-        Assert.Contains("O PDF sai em branco (ferramentas, nominal e tolerância) para preencher à mão.", html);
+        Assert.DoesNotContain("id=\"pegExtrairPdf\"", html);
+        Assert.DoesNotContain("em branco", html);
 
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
         using var response = await client.PostAsync($"{PagePath}?handler=GeneratePdf", HtmlFormHelpers.BuildFormPost(
             ("controlo_id", controloId.ToString()),
             ("__RequestVerificationToken", token)));
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("application/pdf", response.Content.Headers.ContentType?.MediaType);
-        Assert.Equal("attachment", response.Content.Headers.ContentDisposition?.DispositionType);
-        var bytes = await response.Content.ReadAsByteArrayAsync();
-        Assert.StartsWith("%PDF-", System.Text.Encoding.ASCII.GetString(bytes[..5]));
-        if (Environment.GetEnvironmentVariable("DMO_PDF_EVIDENCE_DIR") is { } root)
-        {
-            Directory.CreateDirectory(root);
-            File.WriteAllBytes(Path.Combine(root, "pegamentos-em-branco.pdf"), bytes);
-        }
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("pdf_refusal=sem-medicoes", response.Headers.Location!.ToString());
+        var aviso = await GetPageHtmlAsync(client, response.Headers.Location!.ToString());
+        Assert.Contains("Ainda não há medições", System.Net.WebUtility.HtmlDecode(aviso));
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();

@@ -383,6 +383,7 @@ public sealed class PegamentosModel : PageModel
     public string PdfRefusalMessage => PdfRefusal switch
     {
         "sem-controlo" => "Abra uma folha de Pegamentos (de uma produção ou sem Job On) para gerar o PDF.",
+        "sem-medicoes" => "Ainda não há medições: o PDF dos Pegamentos sai com os dados registados.",
         _ => string.Empty
     };
 
@@ -1160,9 +1161,15 @@ public sealed class PegamentosModel : PageModel
         var fileName = ControloDocumentPaths.GetPegamentosFileName(
             sheet.Reference, sheet.ProductionNumber, sheet.SheetNumber(sheet.Pegamentos) ?? sheet.Sheets.Count + 1);
 
-        // Sem registo ainda: a folha em branco para preencher à mão.
-        var bytes = _pdfGenerator.GenerateBytes(PegamentosPdfGenerator.FromSheet(sheet, generatedBy)
-            with { BlankForHandFilling = sheet.Pegamentos is null });
+        // Sem medições não há PDF: ninguém preenche Pegamentos à mão (Diogo, 24/10/2026).
+        if (sheet.Pegamentos is null)
+        {
+            return controloId is not null
+                ? RedirectToPage("/Controlo/Pegamentos", new { controlo_id = controloId, pdf_refusal = "sem-medicoes" })
+                : RedirectToPage("/Controlo/Pegamentos", new { pegamentos_id = pegamentosId, pdf_refusal = "sem-medicoes" });
+        }
+
+        var bytes = _pdfGenerator.GenerateBytes(PegamentosPdfGenerator.FromSheet(sheet, generatedBy));
         Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(sheet.Reference, sheet.ProductionNumber));
         return File(bytes, "application/pdf", fileName);
     }

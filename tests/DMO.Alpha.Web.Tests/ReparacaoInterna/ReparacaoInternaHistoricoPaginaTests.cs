@@ -146,16 +146,16 @@ public sealed class ReparacaoInternaHistoricoPaginaTests : IClassFixture<CustomW
         Assert.Contains("não no de hoje", Elemento(card, $"id=\"riOutroDia-{codigo}\""));
         Assert.Contains("Registo de " + ontem.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture), card);
 
-        await RegistarAsync(client, codigo, "D1", ontem);
+        await RegistarAsync(client, codigo, "71", ontem);
 
-        var r = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(x => x.Numero == "D1" && x.JobOnId == jobOn));
+        var r = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(x => x.Numero == "71" && x.JobOnId == jobOn));
         Assert.Equal(ontem, r.DiaOperacional);
         // No dia de hoje não aparece; no dia escolhido sim.
         var hoje = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}");
-        Assert.DoesNotContain("<strong>D1</strong>", Elemento(hoje, $"id=\"riLista-{codigo}\""));
+        Assert.DoesNotContain("<strong>71</strong>", Elemento(hoje, $"id=\"riLista-{codigo}\""));
         Assert.DoesNotContain($"id=\"riOutroDia-{codigo}\"", hoje);
         var nesse = await client.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&dia={Data(ontem)}");
-        Assert.Contains("<strong>D1</strong>", Elemento(nesse, $"id=\"riLista-{codigo}\""));
+        Assert.Contains("<strong>71</strong>", Elemento(nesse, $"id=\"riLista-{codigo}\""));
     }
 
     [Fact]
@@ -165,10 +165,10 @@ public sealed class ReparacaoInternaHistoricoPaginaTests : IClassFixture<CustomW
         var (outra, _) = Maquina("C");
         using var eu = await LoginOperatorAsync("6902");
         using var colega = await LoginOperatorAsync("6903");
-        await RegistarAsync(eu, codigo, "H1");
-        await RegistarAsync(eu, codigo, "H2", Hoje.AddDays(-4));
-        await RegistarAsync(eu, outra, "H3");
-        await RegistarAsync(colega, codigo, "X9");
+        await RegistarAsync(eu, codigo, "61");
+        await RegistarAsync(eu, codigo, "62", Hoje.AddDays(-4));
+        await RegistarAsync(eu, outra, "63");
+        await RegistarAsync(colega, codigo, "69");
 
         var vazio = await eu.GetStringAsync("/ReparacaoInterna?historico=1");
 
@@ -188,23 +188,23 @@ public sealed class ReparacaoInternaHistoricoPaginaTests : IClassFixture<CustomW
 
         // A linha: só as minhas, de todos os dias.
         var porLinha = Elemento(await eu.GetStringAsync($"/ReparacaoInterna?historico=1&maquina={codigo}"), "id=\"riHistLista\"");
-        Assert.Contains("<strong>H1</strong>", porLinha);
-        Assert.Contains("<strong>H2</strong>", porLinha);
-        Assert.DoesNotContain("<strong>H3</strong>", porLinha);
-        Assert.DoesNotContain("<strong>X9</strong>", porLinha);
+        Assert.Contains("<strong>61</strong>", porLinha);
+        Assert.Contains("<strong>62</strong>", porLinha);
+        Assert.DoesNotContain("<strong>63</strong>", porLinha);
+        Assert.DoesNotContain("<strong>69</strong>", porLinha);
         Assert.DoesNotContain("<button", porLinha);
         Assert.Contains("data-ri-editar=\"riHistLista\"", Elemento(await eu.GetStringAsync($"/ReparacaoInterna?historico=1&maquina={codigo}"), "data-dmo-for=\"riHistLista\""));
 
         // Os dias (de / até): só os do intervalo.
         var dias = Elemento(await eu.GetStringAsync($"/ReparacaoInterna?historico=1&de={Data(Hoje.AddDays(-5))}&ate={Data(Hoje.AddDays(-2))}"), "id=\"riHistLista\"");
-        Assert.Contains("<strong>H2</strong>", dias);
-        Assert.DoesNotContain("<strong>H1</strong>", dias);
-        Assert.DoesNotContain("<strong>H3</strong>", dias);
+        Assert.Contains("<strong>62</strong>", dias);
+        Assert.DoesNotContain("<strong>61</strong>", dias);
+        Assert.DoesNotContain("<strong>63</strong>", dias);
 
         // A referência: as produções dela no dropdown e as reparações delas.
         var porReferencia = await eu.GetStringAsync("/ReparacaoInterna?historico=1&referencia=88ct324");
-        Assert.Contains("<strong>H3</strong>", Elemento(porReferencia, "id=\"riHistLista\""));
-        Assert.DoesNotContain("<strong>H1</strong>", Elemento(porReferencia, "id=\"riHistLista\""));
+        Assert.Contains("<strong>63</strong>", Elemento(porReferencia, "id=\"riHistLista\""));
+        Assert.DoesNotContain("<strong>61</strong>", Elemento(porReferencia, "id=\"riHistLista\""));
         Assert.Contains("data-dmo-autosubmit", Regex.Match(Elemento(porReferencia, "id=\"riHistProducaoZona\""), "<select[^>]*>").Value);
     }
 
@@ -213,7 +213,7 @@ public sealed class ReparacaoInternaHistoricoPaginaTests : IClassFixture<CustomW
     {
         var (codigo, jobOn) = Maquina("D");
         using var client = await LoginOperatorAsync("6904");
-        await RegistarAsync(client, codigo, "V1");
+        await RegistarAsync(client, codigo, "81");
         var id = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.JobOnId == jobOn).Id);
         var vista = $"/ReparacaoInterna?historico=1&maquina={codigo}";
         var html = await client.GetStringAsync(vista);
@@ -221,7 +221,7 @@ public sealed class ReparacaoInternaHistoricoPaginaTests : IClassFixture<CustomW
         Assert.Equal(vista, WebUtility.HtmlDecode(Regex.Match(tabela, "data-ri-volta=\"([^\"]*)\"").Groups[1].Value));
 
         var (acao, campos) = EnvioDoFormulario.Enviar(html,
-            [("riCorrigirOperacao", Guid.NewGuid().ToString()), ("riCorrigirId", id.ToString()), ("riCorrigirNumero", "V2"), ("riCorrigirVolta", vista)],
+            [("riCorrigirOperacao", Guid.NewGuid().ToString()), ("riCorrigirId", id.ToString()), ("riCorrigirNumero", "72"), ("riCorrigirVolta", vista)],
             idDoBotao: "riGuardarBotao");
         using var corrigir = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
 
@@ -230,8 +230,8 @@ public sealed class ReparacaoInternaHistoricoPaginaTests : IClassFixture<CustomW
         Assert.StartsWith("/ReparacaoInterna?historico=1", destino);
         Assert.Contains($"maquina={codigo}", destino);
         var depois = await client.GetStringAsync(destino);
-        Assert.Contains("Número corrigido para V2.", Elemento(depois, "id=\"riAvisos\""));
-        Assert.Contains("<strong>V2</strong>", Elemento(depois, "id=\"riHistLista\""));
+        Assert.Contains("Número corrigido para 72.", Elemento(depois, "id=\"riAvisos\""));
+        Assert.Contains("<strong>72</strong>", Elemento(depois, "id=\"riHistLista\""));
 
         // Outro sítio que não esta página não serve de volta.
         var (acaoFora, camposFora) = EnvioDoFormulario.Enviar(html,

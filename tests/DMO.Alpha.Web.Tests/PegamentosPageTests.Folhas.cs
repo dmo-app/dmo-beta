@@ -98,7 +98,7 @@ public partial class PegamentosPageTests
         Assert.Contains("As ferramentas mudaram: a próxima leitura começa uma folha nova com estas ferramentas.", pending);
         Assert.Contains("Folhas desta produção", pending);
         Assert.Contains("começa na próxima leitura · aberta", pending);
-        Assert.Contains("<dt>Lote</dt><dd>4</dd>", Section(pending, "data-peg-component=\"CM\""));
+        Assert.Contains(" · Lote 4<", Section(pending, "data-peg-component=\"CM\""));
 
         // Registar a partir da página antiga: a leitura vai para a folha da
         // T4 e a página abre inteira nessa folha, com o aviso.
@@ -116,7 +116,7 @@ public partial class PegamentosPageTests
         Assert.Contains("Ferramentas anteriores", folhas);
         Assert.Contains("Ferramentas atuais · aberta", folhas);
         Assert.Contains("1 · 1 fora", folhas);
-        Assert.Contains("<dt>Lote</dt><dd>4</dd>", Section(html, "data-peg-component=\"CM\""));
+        Assert.Contains(" · Lote 4<", Section(html, "data-peg-component=\"CM\""));
         Assert.Contains("congelada nesta folha", html);
 
         using var scope = _factory.Services.CreateScope();
@@ -138,7 +138,7 @@ public partial class PegamentosPageTests
         var html = await GetPageHtmlAsync(client, oldUrl);
 
         var card = Section(html, "data-peg-component=\"CM\"");
-        Assert.Contains("<dt>Lote</dt><dd>3</dd>", card);
+        Assert.Contains(" · Lote 3<", card);
         Assert.Contains("70.10", card);
         Assert.DoesNotContain("id=\"costura-Cm\"", html);
         Assert.DoesNotContain("data-peg-mais-linha", html);
@@ -196,7 +196,7 @@ public partial class PegamentosPageTests
         Assert.Equal($"{PagePath}?controlo_id={controloId}", aberto.Headers.Location!.ToString());
 
         var html = await GetPageHtmlAsync(client, aberto.Headers.Location!.ToString());
-        Assert.Contains("<dt>Lote</dt><dd>4</dd>", Section(html, "data-peg-component=\"CM\""));
+        Assert.Contains(" · Lote 4<", Section(html, "data-peg-component=\"CM\""));
         Assert.Contains("id=\"costura-Cm\"", html);
         var folhas = System.Text.RegularExpressions.Regex.Match(html, "data-dmo-list=\"Folhas desta produção\"[\\s\\S]*?</table>").Value;
         Assert.Contains("Ferramentas atuais · aberta", folhas);

@@ -1712,3 +1712,82 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemModoEntradaSaidaPaginaTests.cs :: ArmazemModoEntradaSaidaPaginaTests.SemModo_EAEntrada_EOModoSegueNaProcura`
 
 Selo depois: `ff1839e76e72ab4c`
+
+## A-0063 · 2026-10-23 · ok-do-diogo
+
+Porquê: Lote de interface aprovado pelo Diogo (06:11). Pedidos: cmsg_01A27e9ozcpoh4jdPRsuJbFy6rLgP521oC99oR5byhRkDm (Pegamentos sem folha em branco), cmsg_01A27e9ozcpoh4jdPRsuJbFySqjDpVw7BPpYM4AFah3cqt (número até 3 algarismos), cmsg_01A27e9ozcpoh4jdPRsuJbFyF3oHFEm7oGxuXL9oNakayW (título Reparação), cmsg_01A27e9ozcpoh4jdPRsuJbFyEjinZZrxBuxnqgR2Y5TBbn (punção repetida), cmsg_01A27e9ozcpoh4jdPRsuJbFySnJZd4dRs6kx9PdDMuA1zi (cabeçalho só com Sair, substitui a verificação do #54)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyB1ubohd4RHovJaSj5pTEv4
+Novos: 14 · mudaram: 55 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Armazem_SemCadeado_ESemTextoComAListaVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.Decimal2_SemZerosNumInteiro_DuasCasasComDecimais`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.Pdf_WithoutMeasurements_NoButton_AndPostIsRefused_WithoutWriting`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Repetida.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Repetida.cs :: PuncoesPageTests.MesmoNumeroEMesmoLote_ERecusada_ComAMensagem_EOutroLoteGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.TabelaNoBrowser.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.TabelaNoBrowser.cs :: PuncoesPageTests.Tabela_TemLargurasFixas_EVaiParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.CorrigirComNumeroQueNaoESoAlgarismosAte3_Recusa_ENadaMuda`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ONumero_TresAlgarismos_Grava_EOCampoSoAceitaAlgarismos`
+- novo: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.LinksNosMiniCartoes_TemACorDoValor_SemSublinhado_NemNoHover`
+- novo: `tests/visual/ajuda_junto_browser.py`
+- novo: `tests/visual/painel_lateral_browser.py`
+- novo: `tests/visual/puncoes_tabela_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryPdfGeneratorTests.cs :: BqHistoryPdfGeneratorTests.DailyMatrix_ComMovimentosSemMaquina_AvisaNoPapel`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryPdfGeneratorTests.cs :: BqHistoryPdfGeneratorTests.GroupedHistory_PreservesEveryMovementIncludingUnknownMachineAndSeparateLots`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.RepeatedClicks_StartTheRegisterAndRegisterThePunchOnlyOnce`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.WithoutJobOn_RegisterStandsAlone_ListedByReference`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.AdminTemplates_MostraAChaveDoArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DetailedMovementsView_ListsOneMovementPerLine_WithoutGroupHeaders_AndItsPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.FilterCounters_AreQuantitySums_NotStockBalances`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_Filters_ChangeOnlyTheZones`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_MonthOnly_ListsThatMonthsMovements`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.MachineFilterWithoutPeriod_ShowsOnlyTheMostRecent_AndTheListAndPdfAgree`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_WarnsAboutTheUnresolvedTraceOfTheSameBq`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Folha_OsFormulariosLevamAComparacaoEOSupomos_ERecusaDoSupomosNoCanto`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_GravaSemRecarregar_ZonasTrocadasELeituraNovaQueFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Planeamento_CriarJobOn_FicaNaBarraDaProcura_ADireitaDasCaixas_ComODia`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.CmChanged_PageIsReadyForANewSheet_TheFirstReadingStartsIt_AndThePageSaysSo`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.EscolhaDoJobOn_DepoisDeTrocarACm_AbreAFolhaDasFerramentasAtuais`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.OldSheet_OpensWithItsTools_NoNewReadingRow_CorrectionReturnsToIt_PdfNamesFollowTheSheet`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Legenda.cs :: PegamentosPageTests.MapaDeLimites_ALegendaMostraAsCoresDoDesenho`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.GetFolha_ControloId_ShowsInheritedContext_GargaloMissing_MfAlwaysInherited`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.HistoricalToolFacts_RemainOnReadingCardAndPdf_AfterCatalogEdit`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PostMeasurement_MfInProduction_RegistersWithInFlowGargaloCompletion`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PostMeasurement_SingleAxis_OvalizacaoUndefined_MediaEqualsCostura`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.RegistarLeitura_ZonasPedidas_DesenhaSoAsZonas_SemLerAsFerramentas`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.FolhaDasPuncoes_LigadaDoResumoEDoRegisto_SoComRegisto_EOPdfDoControloTrazODasPuncoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_A1aD12_Reserva_RepetidosComLote_ETotais_NaZonaDaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NnpbProduction_RegistersPunches_ShowsAlteracao_TotalsResumoAndPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.ATabela_SemBotoes_ODuploCliqueAbreAReparacao_ComCorrigirEAnular`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_CorrigeONumero_ComRasto_EOMesmoEnvioAplicaUmaVez`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.UmNumeroLongo_Recusa_ENadaMuda`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHistoricoPaginaTests.cs :: ReparacaoInternaHistoricoPaginaTests.CorrigirNoHistorico_VoltaAoHistoricoComOsFiltros`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHistoricoPaginaTests.cs :: ReparacaoInternaHistoricoPaginaTests.MudarODia_RegistaNesseDia_ESoAvisa`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaHistoricoPaginaTests.cs :: ReparacaoInternaHistoricoPaginaTests.OHistorico_AbreVazio_SemFiltroDeQuem_EMostraSoAsDestaPessoa`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.GravarComOutraCm_AvisaQueFaltaAssociar_EOCampoVoltaVazioEDesmarcado`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.AdminTemplatesECanal_AChaveEAHoraDaReparacaoInterna`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EliminarAProducao_AvisaQueSePerdemAsReparacoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EliminarJobOnComReparacoes_AJanelaDizQuantasSePerdem`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.EscreverONumeroEEnter_Grava_OCampoVoltaVazio_EALinhaApareceNoTopo`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.UmaRecusa_VoltaComONumeroEscrito_ENadaSeGrava`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
+- mudou: `tests/visual/definicoes_parcial_browser.py`
+- mudou: `tests/visual/ecra_pequeno_browser.py`
+- mudou: `tests/visual/nok_agente_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.Pdf_WithoutMeasurements_DownloadsBlankSheet_WithoutWriting`
+
+Selo depois: `7e4bced974268ae6`

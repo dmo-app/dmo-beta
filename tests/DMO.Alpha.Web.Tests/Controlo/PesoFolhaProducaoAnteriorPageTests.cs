@@ -280,7 +280,8 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         {
             Assert.Contains($"<div id=\"{zona}\" class=\"dmo-zona\" data-dmo-regiao>", html);
         }
-        Assert.Contains("<div id=\"pesoSupomos\" class=\"peso-supomos\" data-peso-supomos data-dmo-regiao", html);
+        // A «Calote Tampo» (antes «Supomos») saiu deste cartão (Diogo, 23/10/2026).
+        Assert.DoesNotContain("id=\"pesoSupomos\"", html);
         // A produção anterior fica como o operador a deixou (E4-01): o peso
         // escrito e por guardar não se perde quando outra parte da folha troca.
         Assert.Contains("<div id=\"pesoAnterior\" class=\"dmo-zona\" data-dmo-fica>", html);
@@ -301,7 +302,14 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
 
         // O «Guardar» da produção anterior tem id: o foco fica nele depois de
         // gravar. (A CM do exemplo não tem geometria: sem «Supomos».)
-        Assert.Contains("id=\"producaoAnteriorGuardar\">Guardar</button>", html);
+        // Os botões do cartão no canto superior direito, um de cada (Diogo, 23/10/2026).
+        var topo = System.Text.RegularExpressions.Regex.Match(html, "<h3 id=\"peso-comparacao-title\">[\\s\\S]*?</div>\\s*</div>").Value;
+        Assert.Contains("<div class=\"dmo-card-topo-acoes\">", topo);
+        Assert.Contains("data-peso-comparacao-criar>Criar</a>", topo);
+        Assert.Contains("<button type=\"submit\" form=\"pesoAnteriorForm\" class=\"dmo-button\" id=\"producaoAnteriorGuardar\">Guardar</button>", topo);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "id=\"producaoAnteriorGuardar\""));
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "data-peso-comparacao-criar"));
+        Assert.Contains("<form id=\"pesoAnteriorForm\" method=\"post\"", html);
 
         // A comparação escolhida volta depois de gravar: o campo vai na zona
         // do formulário das leituras.
@@ -539,7 +547,7 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         var after = await GetPageHtmlAsync(client, save.Headers.Location!.ToString());
         Assert.Contains("Produção anterior guardada.", after);
         Assert.Contains("data-producao-anterior-delta", after);
-        Assert.Contains("Peso usado — 202604 · B1</span><strong>181.00 g</strong>", after);
+        Assert.Contains("Peso usado — 202604 · B1</span><strong>181 g</strong>", after);
         Assert.Contains("&#x2212;3.69 g", after);
         Assert.Contains("&#x2212;2.04 %", after);
         Assert.Contains("value=\"181\"", after);

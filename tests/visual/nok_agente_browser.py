@@ -115,11 +115,11 @@ with sync_playwright() as playwright:
     context, page, erros = abrir(browser, 'puncoes.html', '/Controlo/Puncoes', 1400)
     lote = page.locator('#pu-lote')
     lote.fill('abc')
-    form = lote.locator('xpath=ancestor::form')
     # Lido antes do clique: o envio navega e a página deixa de responder.
     assert lote.evaluate('campo => campo.validity.patternMismatch') is False
     with page.expect_request(lambda pedido: pedido.method == 'POST'):
-        form.get_by_role('button', name='Guardar identificação').click()
+        # O botão está no canto do cartão, fora do formulário (form="pu-id-form").
+        page.locator('#pu-id-guardar').click()
     assert not erros, erros
     context.close()
 

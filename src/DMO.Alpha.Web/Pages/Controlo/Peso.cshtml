@@ -10,8 +10,8 @@
     // Ponto decimal canónico (decisão do proprietário de 15/10/2026): 2 casas
     // na UI. As densidades são metrologia — mantêm a precisão da tabela real
     // da fábrica (decisão Owner 1b, 5 casas disponíveis).
-    var fmt = new Func<decimal, string>(value =>
-        value.ToString("0.00", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture));
+    // Sem «.00» num inteiro (Diogo, 23/10/2026: «100 g», não «100.00 g»).
+    var fmt = new Func<decimal, string>(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2);
     var fmtDensity = new Func<decimal, string>(value =>
         value.ToString("0.#####", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture));
     // O sinal preservado nas diferenças da Comparação_B (o alvo 22: o
@@ -1545,17 +1545,28 @@
        trocam só as zonas deste cartão; uma leitura gravada troca a tabela, o
        delta e o «Supomos», e o peso da produção anterior ainda por guardar
        fica como o operador o escreveu. *@
+    var mostrarCaloteTampo = false;
+    var semProducaoAnteriorTopo = Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null;
     <section class="dmo-card peso-card peso-compare" aria-labelledby="peso-comparacao-title" data-dmo-parcial>
-      <div class="peso-card-heading"><h3 id="peso-comparacao-title">Comparação com outro controlo</h3></div>
+      @* Os botões do cartão no canto superior direito, um de cada (Diogo, 23/10/2026). *@
+      <div class="peso-card-heading dmo-card-topo"><h3 id="peso-comparacao-title">Comparação com outro controlo</h3>
+        <div class="dmo-card-topo-acoes">
+          <a class="dmo-button" href="/Controlo/Peso?comparacao_de=@currentPesoForComparison.PesoId" data-peso-comparacao-criar>Criar</a>
+          @if (!semProducaoAnteriorTopo)
+          {
+            @* O id deixa o foco no «Guardar» depois de gravar sem recarregar. *@
+            <button type="submit" form="pesoAnteriorForm" class="dmo-button" id="producaoAnteriorGuardar">Guardar</button>
+          }
+        </div>
+      </div>
       <div id="pesoComparacao" class="dmo-zona" data-dmo-regiao>
       @* «Criar» (o Diogo, 22/10/2026): sem Pesos anteriores não havia
          comparação. Abre o Novo Peso sem Job On; o Peso criado fica só para
          comparar com este, nunca pede um Job On, e volta-se aqui com ele
          escolhido. *@
-      @{ var criarComparacaoUrl = $"/Controlo/Peso?comparacao_de={currentPesoForComparison.PesoId}"; }
       @if (Model.ComparisonCandidates.Count == 0)
       {
-        <p class="card-note">Sem Pesos anteriores para esta referência. <a class="dmo-button" href="@criarComparacaoUrl" data-peso-comparacao-criar>Criar</a></p>
+        <p class="card-note">Sem Pesos anteriores para esta referência.</p>
       }
       else
       {
@@ -1593,11 +1604,7 @@
               }
             </select>
           </div>
-          @* Escolher aplica logo (o Owner 2026-10-17: «o aplicar é redundante»). *@
-          <div class="dmo-field">
-            <span class="dmo-label" aria-hidden="true">&nbsp;</span>
-            <a class="dmo-button" href="@criarComparacaoUrl" data-peso-comparacao-criar>Criar</a>
-          </div>
+          @* Escolher aplica logo (o Owner 2026-10-17: «o aplicar é redundante»); o «Criar» está no canto do cartão. *@
         </form>
       }
 
@@ -1702,7 +1709,7 @@
         var pesoEcho = Model.ProducaoAnteriorEcho
             ?? (pesoGuardadoDaEscolhida is { } pg ? pg.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) : null)
             ?? (sapDaEscolhida is not null ? fmt(sapDaEscolhida.MediaGramas) : null);
-        <form method="post" asp-page="/Controlo/Peso" asp-page-handler="GuardarProducaoAnterior" class="peso-inline-form" data-producao-anterior>
+        <form id="pesoAnteriorForm" method="post" asp-page="/Controlo/Peso" asp-page-handler="GuardarProducaoAnterior" class="peso-inline-form" data-producao-anterior>
           <div id="pesoAnteriorContexto" class="dmo-zona" data-dmo-regiao>
             <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
             <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
@@ -1736,8 +1743,6 @@
             @* Sem rótulo à vista (o Owner 2026-10-17: «remove»); o nome fica no aria-label. *@
             <input id="producaoAnteriorPeso" name="anterior_peso" type="text" inputmode="decimal" autocomplete="off" placeholder="Peso usado (g)" aria-label="Peso usado na produção (g)" value="@pesoEcho" />
           </div>
-          @* O id deixa o foco no «Guardar» depois de gravar sem recarregar. *@
-          <button type="submit" class="dmo-button" id="producaoAnteriorGuardar">Guardar</button>
         </form>
         <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
         @* O PESO DO SAP (Diogo, 21/10/2026): pelas datas da produção escolhida
@@ -1760,7 +1765,7 @@
               <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="moda" /> Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda" hidden>@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></label>
             </div>
           </div>
-          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a href="/Definicoes?secao=ferramentas">Ler a pasta do SAP</a></span>
+          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=ferramentas">Ler a pasta da produção</a></span>
           @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {
@@ -1785,6 +1790,11 @@
          produção fosse outra? O backend recalcula o peso médio com a
          calote suposta e a diferença para a produção escolhida. Nada é
          gravado: o Peso e o Job On ficam como estão. *@
+      @* A «Calote Tampo» (antes «Supomos») sai deste cartão (Diogo, 23/10/2026: é uma
+         comparação de pesos já feitos, não fica na «Comparação com outro controlo»).
+         O cálculo e esta vista ficam guardados até o Diogo dizer para onde vão. *@
+      @if (mostrarCaloteTampo)
+      {
       <div id="pesoSupomos" class="peso-supomos" data-peso-supomos data-dmo-regiao style="margin-top:16px">
         <h4 style="margin:0 0 6px">Supomos</h4>
         @if (Model.CaloteDaComparacao is { TemReferencia: true } caloteAtual)
@@ -1847,6 +1857,7 @@
           <p class="card-note">Tampão sem geometria na CM.</p>
         }
       </div>
+      }
     </section>
   }
 

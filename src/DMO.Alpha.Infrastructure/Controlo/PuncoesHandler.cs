@@ -66,6 +66,11 @@ public sealed class PuncoesHandler
             .FirstOrDefaultAsync(p => p.ControloId == controloId, cancellationToken);
 
         var (isNnpb, source) = ResolveNnpb(context.CmProcess, context.CmTechnicalName);
+        // A referência da punção vem do Job On (PU · Referência) quando está escrita
+        // (Diogo, 23/10/2026); senão, o modelo da referência da produção.
+        var folha = await _db.JobOnFolhas.AsNoTracking()
+            .FirstOrDefaultAsync(f => f.JobOnId == context.JobOnId, cancellationToken);
+        var puDoJobOn = folha?.Valor("pu_referencia")?.Trim();
         return new PuncoesSheet(
             context.ControloId,
             context.JobOnId,
@@ -77,7 +82,7 @@ public sealed class PuncoesHandler
             context.CmProcess is { } process ? (process == CmProcess.Nnpb ? "NNPB" : "PS") : null,
             isNnpb,
             source,
-            DefaultPunchReference(context.Reference),
+            string.IsNullOrEmpty(puDoJobOn) ? DefaultPunchReference(context.Reference) : puDoJobOn,
             registo is null ? null : ToReadModel(registo))
         {
             CmToolId = context.CmToolId,
@@ -186,17 +191,13 @@ public sealed class PuncoesHandler
                 inspecaoLot = canonicalPunchLot;
             }
 
-            // A mesma punção acabada de registar pela mesma pessoa (duplo
-            // clique, ou outro clique por achar que está lento) não fica
-            // duas vezes: repetir o número seria uma «Alteração» falsa.
-            var last = registo.Inspecoes.OrderByDescending(i => i.Position).FirstOrDefault();
-            if (last is not null
-                && last.Number == canonicalNumber
-                && last.Lot == inspecaoLot
-                && last.RegisteredBy == registeredBy
-                && last.RegisteredAtUtc > DateTime.UtcNow - RepeatedSubmitWindow)
+            // O mesmo número e o mesmo lote são a mesma punção: não se grava
+            // outra vez e a página diz que já está registada (Diogo,
+            // 24/10/2026; antes não gravava e não dizia nada). O duplo
+            // envio do mesmo pedido continua a ser tratado pela chave do envio.
+            if (registo.Inspecoes.Any(i => i.Number == canonicalNumber && i.Lot == inspecaoLot))
             {
-                return PuncoesResult.Success;
+                return PuncoesResult.DuplicatePunch;
             }
 
             var nextPosition = registo.Inspecoes.Count == 0 ? 1 : registo.Inspecoes.Max(i => i.Position) + 1;
@@ -570,8 +571,6 @@ public sealed class PuncoesHandler
         return trimmed.Length > Puncoes.ReferenceMaxLength ? trimmed[..Puncoes.ReferenceMaxLength] : trimmed;
     }
 
-    /// <summary>Quanto tempo a mesma punção da mesma pessoa conta como o mesmo clique.</summary>
-    internal static readonly TimeSpan RepeatedSubmitWindow = TimeSpan.FromSeconds(10);
 
     private static void Touch(Puncoes registo, string? updatedBy)
     {
