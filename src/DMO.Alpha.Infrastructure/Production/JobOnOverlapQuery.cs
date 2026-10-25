@@ -12,6 +12,9 @@ namespace DMO.Alpha.Infrastructure.Production;
 /// </summary>
 public static class JobOnOverlapQuery
 {
+    /// <summary>Desligado: só as BQ avisam de sobreposição.</summary>
+    private const bool AvisarProducoesDaMesmaLinha = false;
+
     public static async Task<OverlapWarning?> EvaluateAsync(
         DmoDbContext db,
         int jobOnId,
@@ -21,6 +24,15 @@ public static class JobOnOverlapQuery
         DateOnly? fimEm,
         CancellationToken cancellationToken)
     {
+        // Duas produções da mesma linha nunca dão aviso de sobreposição
+        // (Diogo, 25/10/2026: «nao deve existir sobreposiçao devido a data
+        // de entrada e saida, so se aplica as bqs»): a sobreposição só
+        // existe nas Boquilhas (JobOnOverlap.Crosses nas BQ).
+        if (!AvisarProducoesDaMesmaLinha)
+        {
+            return null;
+        }
+
         // A janela inteiramente em aberto não afirma período nenhum.
         if (inicioEm is null && fimEm is null)
         {

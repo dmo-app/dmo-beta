@@ -132,7 +132,7 @@ public sealed class JobOnOverlapWarningTests : IDisposable
     }
 
     [Fact]
-    public async Task Create_WithOverlapOnSameMachine_SavesAndWarnsInDetail()
+    public async Task Create_WithOverlapOnSameMachine_SavesWithoutWarning()
     {
         // A produção existente na B1: 10/04–15/04. A nova na MESMA
         // máquina: 12/04–20/04 — sobrepõe 12/04–15/04.
@@ -157,33 +157,13 @@ public sealed class JobOnOverlapWarningTests : IDisposable
         var persisted = await _db.JobOns.AsNoTracking().SingleAsync(j => j.ProductionNumber == "PN-NOVA");
         Assert.Equal(new DateOnly(2026, 4, 12), persisted.InicioEm);
 
-        // O AVISO DETALHADO: a produção em conflito (a referência
-        // TOTAL, o nº, AS JANELAS de cada) e o período exato.
-        Assert.NotNull(outcome.OverlapWarning);
-        var warning = outcome.OverlapWarning!;
-        var conflict = Assert.Single(warning.Conflicts);
-        Assert.Equal("PN-EXISTENTE", conflict.ProductionNumber);
-        Assert.Equal("1075C142", conflict.Reference);
-        Assert.Equal(new DateOnly(2026, 4, 10), conflict.InicioEm);
-        Assert.Equal(new DateOnly(2026, 4, 15), conflict.FimEm);
-        Assert.Equal(new DateOnly(2026, 4, 12), conflict.OverlapFrom);
-        Assert.Equal(new DateOnly(2026, 4, 15), conflict.OverlapUntil);
-        Assert.Equal("B1", warning.MachineCode);
-
-        // O TEXTO diz tudo: as janelas, o período exato e COMO RESOLVER
-        // (o ajuste concreto — o início da nova para depois do fim da
-        // existente, ou a edição da anterior na folha do Job On).
-        Assert.Contains("12/04/2026–20/04/2026", warning.Message);
-        Assert.Contains("PN-EXISTENTE", warning.Message);
-        Assert.Contains("1075C142", warning.Message);
-        Assert.Contains("10/04/2026–15/04/2026", warning.Message);
-        Assert.Contains("12/04/2026–15/04/2026", warning.Message);
-        Assert.Contains("Ajusta o início da nova para depois de 15/04/2026", warning.Message);
-        Assert.Contains("edita a anterior na folha do Job On", warning.Message);
+        // Sem aviso entre produções da mesma linha (Diogo, 25/10/2026:
+        // «so se aplica as bqs»): a sobreposição fica para as BQ.
+        Assert.Null(outcome.OverlapWarning);
     }
 
     [Fact]
-    public async Task Update_WithOverlapOnSameMachine_SavesAndWarnsInDetail()
+    public async Task Update_WithOverlapOnSameMachine_SavesWithoutWarning()
     {
         // Duas produções na B1 em janelas DISJUNTAS (a edição original
         // sem aviso); a edição RE-PLANEIA a segunda para cima da
@@ -205,15 +185,7 @@ public sealed class JobOnOverlapWarningTests : IDisposable
         Assert.Equal(new DateOnly(2026, 5, 3), persisted.InicioEm);
         Assert.Equal(new DateOnly(2026, 5, 12), persisted.FimEm);
 
-        Assert.NotNull(outcome.OverlapWarning);
-        var warning = outcome.OverlapWarning!;
-        var conflict = Assert.Single(warning.Conflicts);
-        Assert.Equal("PN-UM", conflict.ProductionNumber);
-        Assert.Equal(new DateOnly(2026, 5, 3), conflict.OverlapFrom);
-        Assert.Equal(new DateOnly(2026, 5, 5), conflict.OverlapUntil);
-        Assert.Contains("PN-UM", warning.Message);
-        Assert.Contains("03/05/2026–05/05/2026", warning.Message);
-        Assert.Contains("Ajusta o início da nova para depois de 05/05/2026", warning.Message);
+        Assert.Null(outcome.OverlapWarning);
     }
 
     [Fact]
@@ -261,7 +233,7 @@ public sealed class JobOnOverlapWarningTests : IDisposable
     }
 
     [Fact]
-    public async Task Create_OpenEndAgainstOpenStart_TheHonestOverlapText()
+    public async Task Create_OpenEndAgainstOpenStart_SavesWithoutWarning()
     {
         // A existente «até aviso» (fim null) e a nova com início dentro:
         // a janela DELA diz-se «até aviso», a sobreposição é o período
@@ -276,27 +248,14 @@ public sealed class JobOnOverlapWarningTests : IDisposable
             InicioEm: new DateOnly(2026, 4, 12), FimEm: new DateOnly(2026, 4, 20)));
 
         Assert.Equal(CreateJobOnResult.Success, outcome.Result);
-        Assert.NotNull(outcome.OverlapWarning);
-        var warning = outcome.OverlapWarning!;
-        var conflict = Assert.Single(warning.Conflicts);
-        // A sobreposição exata: o fim da NOVA limita o período concreto.
-        Assert.Equal(new DateOnly(2026, 4, 12), conflict.OverlapFrom);
-        Assert.Equal(new DateOnly(2026, 4, 20), conflict.OverlapUntil);
-        // A janela da EXISTENTE diz-se «até aviso»; a da nova, inteira.
-        Assert.Contains("de 10/04/2026 até aviso", warning.Message);
-        Assert.Contains("PN-EM-MAQUINA", warning.Message);
-        Assert.Contains("12/04/2026–20/04/2026", warning.Message);
-        // A resolução: o fim da anterior está em aberto — define-o na
-        // folha (o texto diz-o abertamente).
-        Assert.Contains("ainda está em aberto", warning.Message);
-        Assert.Contains("define-o na folha do Job On", warning.Message);
+        Assert.Null(outcome.OverlapWarning);
     }
 
     [Theory]
     [InlineData(-1, true)]  // começa na véspera do fim da existente
     [InlineData(0, false)]  // começa no dia em que a existente acaba: o dia da troca
     [InlineData(1, false)]  // começa no dia seguinte
-    public async Task Create_ComecaNoDiaEmQueAOutraAcaba_AvisaEGrava_NoDiaSeguinteNao(int inicioDaNova, bool avisa)
+    public async Task Create_ComecaNoDiaEmQueAOutraAcaba_GravaSemAviso_NoDiaSeguinteNaoCruza(int inicioDaNova, bool avisa)
     {
         // O dia da troca não conta (Diogo, 21/10/2026: «uma producao sai
         // dia 20 outra entra dia 20»): a nova que entra no dia em que a
@@ -311,14 +270,14 @@ public sealed class JobOnOverlapWarningTests : IDisposable
         var outcome = await _createHandler.HandleAsync(new CreateJobOn(
             "PN-NOVA", "1075C142", b1.Id, MfToolId: "T-MF", InicioEm: inicio, FimEm: fim));
 
-        await AssertGravadaComAvisoAsync(outcome, inicio, fim, avisa, overlapFrom: inicio, overlapUntil: fimDaExistente);
+        await AssertGravadaSemAvisoAsync(outcome, inicio, fim, avisa, overlapFrom: inicio, overlapUntil: fimDaExistente);
     }
 
     [Theory]
     [InlineData(1, true)]   // acaba no dia seguinte ao início da existente
     [InlineData(0, false)]  // acaba no dia em que a existente começa: o dia da troca
     [InlineData(-1, false)] // acaba na véspera
-    public async Task Create_AcabaNoDiaEmQueAOutraComeca_AvisaEGrava_NaVesperaNao(int fimDaNova, bool avisa)
+    public async Task Create_AcabaNoDiaEmQueAOutraComeca_GravaSemAviso_NaVesperaNaoCruza(int fimDaNova, bool avisa)
     {
         var b1 = await SeedMachineAsync("B1");
         await SeedToolAsync("T-MF", ToolType.Mf, "5810", "1");
@@ -330,33 +289,24 @@ public sealed class JobOnOverlapWarningTests : IDisposable
         var outcome = await _createHandler.HandleAsync(new CreateJobOn(
             "PN-NOVA", "1075C142", b1.Id, MfToolId: "T-MF", InicioEm: inicio, FimEm: fim));
 
-        await AssertGravadaComAvisoAsync(outcome, inicio, fim, avisa, overlapFrom: inicioDaExistente, overlapUntil: fim);
+        await AssertGravadaSemAvisoAsync(outcome, inicio, fim, avisa, overlapFrom: inicioDaExistente, overlapUntil: fim);
     }
 
     /// <summary>
     /// A nova fica sempre gravada (lida de novo da base); com aviso, o
     /// conflito é a PN-EXISTENTE no período indicado; sem aviso, nenhum.
     /// </summary>
-    private async Task AssertGravadaComAvisoAsync(
+    private async Task AssertGravadaSemAvisoAsync(
         CreateJobOnOutcome outcome, DateOnly inicio, DateOnly fim, bool avisa, DateOnly overlapFrom, DateOnly overlapUntil)
     {
         Assert.Equal(CreateJobOnResult.Success, outcome.Result);
         var persisted = await _db.JobOns.AsNoTracking().SingleAsync(j => j.ProductionNumber == "PN-NOVA");
         Assert.Equal(inicio, persisted.InicioEm);
         Assert.Equal(fim, persisted.FimEm);
-        if (avisa)
-        {
-            Assert.NotNull(outcome.OverlapWarning);
-            var conflict = Assert.Single(outcome.OverlapWarning!.Conflicts);
-            Assert.Equal("PN-EXISTENTE", conflict.ProductionNumber);
-            Assert.Equal(overlapFrom, conflict.OverlapFrom);
-            Assert.Equal(overlapUntil, conflict.OverlapUntil);
-            Assert.Contains("PN-EXISTENTE", outcome.OverlapWarning.Message);
-        }
-        else
-        {
-            Assert.Null(outcome.OverlapWarning);
-        }
+        // A produção nunca avisa; o cruzamento das datas (a regra das BQ)
+        // distingue a véspera do dia da troca.
+        Assert.Null(outcome.OverlapWarning);
+        Assert.Equal(avisa, JobOnOverlap.Crosses(inicio, fim, overlapFrom == inicio ? new DateOnly(2026, 4, 10) : overlapFrom, overlapFrom == inicio ? overlapUntil : new DateOnly(2026, 4, 15)));
     }
 
     [Theory]

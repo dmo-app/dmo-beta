@@ -14,7 +14,7 @@ namespace DMO.Alpha.Infrastructure.Tests.Production;
 public sealed class JobOnOverlapQueryTests
 {
     [Fact]
-    public async Task EveryWindow_GivesTheSameWarningAsComparingEveryProduction_InMemory()
+    public async Task EveryWindow_NeverWarnsBetweenProductionsOfTheSameLine_InMemory()
     {
         var options = new DbContextOptionsBuilder<DmoDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -73,10 +73,10 @@ public static class JobOnOverlapScenario
         {
             var expected = JobOnOverlap.Evaluate(inicio, fim, machine.Code, others);
             var actual = await JobOnOverlapQuery.EvaluateAsync(db, self.JobOnId, machine.Id, machine.Code, inicio, fim, CancellationToken.None);
-            Assert.Equal(expected?.Message, actual?.Message);
-            Assert.Equal(
-                (expected?.Conflicts ?? []).Select(c => c.JobOnId).Order(),
-                (actual?.Conflicts ?? []).Select(c => c.JobOnId).Order());
+            // Entre produções da mesma linha não há aviso (Diogo, 25/10/2026:
+            // «so se aplica as bqs»), mesmo quando a calculadora cruza as janelas.
+            Assert.Null(actual);
+            _ = expected;
         }
     }
 }
