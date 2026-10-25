@@ -1,3 +1,4 @@
+using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Core.Admin;
@@ -73,10 +74,10 @@ public sealed class FichaModel : PageModel
     // Um valor que não se leu (?ilegivel_…) fica escrito no campo, para o
     // operador o corrigir sem o escrever de novo; gravado ficou o anterior.
     public string TechnicalValue(string name, decimal? stored) => TechnicalDraft is { } draft
-        ? ParseOptionalDecimal(draft[name])?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? draft[name] ?? string.Empty
+        ? (ParseOptionalDecimal(draft[name]) is { } lido ? DmoNumberFormat.Decimal2(lido) : null) ?? draft[name] ?? string.Empty
         : UnreadableTyped.TryGetValue(name, out var typed)
             ? typed
-            : stored?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+            : stored is { } gravado ? DmoNumberFormat.Decimal2(gravado) : string.Empty;
 
     /// <summary>aria-invalid do campo técnico que não se leu no último POST (null nos outros).</summary>
     public string? TechnicalInvalid(string name) => UnreadableTyped.ContainsKey(name) ? "true" : null;
