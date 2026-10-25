@@ -1307,6 +1307,12 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<Guid?>("RegistadoPorUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<decimal?>("TampaoCaloteMm")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("TampaoDiametroMm")
+                        .HasColumnType("numeric");
+
                     b.Property<decimal>("VolumeMarisaCm3")
                         .HasColumnType("numeric");
 
@@ -1766,6 +1772,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<decimal?>("TampaoDiametroMm")
+                        .HasColumnType("numeric");
 
                     b.Property<uint>("Version")
                         .IsConcurrencyToken()

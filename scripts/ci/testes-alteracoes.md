@@ -2208,6 +2208,35 @@ Novos: 8 · mudaram: 0 · saíram: 0
 
 Selo depois: `4aa1a9dc98189376`
 
+## A-0093 · 2026-10-25 · contagem-lista
+
+Porquê: Tampão da produção no Job On e no Peso (Diogo 23/10): 17 testes novos (apoio do Peso, Job On, congelamento no Peso); três testes de esquema ganham só as colunas e a migração novas; nenhuma verificação sai.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy7KQihN8Vng87o3q7BE8DiM
+Novos: 17 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CreateToolScopedPesoTampaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CreateToolScopedPesoTampaoTests.cs :: CreateToolScopedPesoTampaoTests.ComJobOn_CongelaOTampaoDoJobOn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CreateToolScopedPesoTampaoTests.cs :: CreateToolScopedPesoTampaoTests.SemJobOn_CongelaOQueACmTemDeArranque`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CreateToolScopedPesoTampaoTests.cs :: CreateToolScopedPesoTampaoTests.SemTampaoEmLadoNenhum_PesoCriaSeComOTampaoVazio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.DiametroDoJobOn_MandaSobreODaCm`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.FromKnown_UsaODiametroDoJobOn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.JobOnSemDiametro_CaiNoDaCmDeArranque`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.SemTampaoEmLado_Nenhum_ReferenciaPorCompletarSemBloquear`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.SemTampaoNaCm_OJobOnBasta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnTampaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnTampaoTests.cs :: JobOnTampaoTests.Create_GravaODiametro`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnTampaoTests.cs :: JobOnTampaoTests.Create_ZeroOuNegativo_RecusaSemEscrita`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnTampaoTests.cs :: JobOnTampaoTests.Update_ComOCampo_GravaERegistaAMudanca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnTampaoTests.cs :: JobOnTampaoTests.Update_EnviadoVazio_LimpaOTampao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnTampaoTests.cs :: JobOnTampaoTests.Update_SemOCampo_NaoLimpaOTampao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnTampaoTests.cs :: JobOnTampaoTests.Update_Zero_RecusaSemMexerNoFacto`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_HasNoProductionIdentityColumns`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `512faa69805daf54`
+
 ## A-0094 · 2026-10-25 · teste-novo
 
 Porquê: Reshape do Peso, PR3: produções da referência, base e contra-moldes da comparação passam para PesoComparacaoEstadoQuery; testes do serviço e orçamento de consultas no Postgres
@@ -2229,4 +2258,4 @@ Novos: 14 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoComparacaoEstado.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoComparacaoEstado.cs :: PostgresMigrationIntegrationTests.PesoComparacaoEstado_CadaLeituraSoLeSemAumentarConsultas`
 
-Selo depois: `034af013649e100c`
+Selo depois: `911671ed878ed020`

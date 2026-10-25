@@ -147,6 +147,8 @@ public sealed class PesoToolScopedSchemaTests
                 "WaterDensityGramsPerCm3",
                 "VolumeMarisaCm3",
                 "VolumePuncaoCm3",
+                "TampaoDiametroMm",
+                "TampaoCaloteMm",
                 "NominalWeightGrams",
                 "GlassDensityGramsPerCm3",
                 "CmToolReferenceFrozen",

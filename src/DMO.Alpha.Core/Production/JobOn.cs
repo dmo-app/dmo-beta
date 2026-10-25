@@ -40,6 +40,14 @@ public sealed class JobOn
     public decimal? CaloteMm { get; set; }
 
     /// <summary>
+    /// Diâmetro D (mm) do tampão DESTA produção (Diogo, 23/10/2026: o Tampão
+    /// passa da ficha da CM para o Job On e para o Peso). Com a calote forma
+    /// o tampão da produção; o Peso congela-o ao ser criado. Null = ainda
+    /// não registado (o Peso continua, o apoio fica «por completar»).
+    /// </summary>
+    public decimal? TampaoDiametroMm { get; set; }
+
+    /// <summary>
     /// Quando o Job On foi gravado pela primeira vez (UTC). O Sumário do
     /// Planeamento mostra-o nesse dia (Diogo, 19/10/2026: «quando damos lock
     /// deveria guardar»). Null nos Job Ons gravados antes desta coluna.
