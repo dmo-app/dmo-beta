@@ -236,6 +236,7 @@ builder.Services.AddScoped<IRecordPesoMeasurementHandler, RecordPesoMeasurementH
 builder.Services.AddScoped<IPesoQuery, PesoQuery>();
 builder.Services.AddScoped<IPesoFolhaQuery, PesoFolhaQuery>();
 builder.Services.AddScoped<IPesoEscolhasQuery, PesoEscolhasQuery>();
+builder.Services.AddScoped<IPesoComparacaoEstadoQuery, PesoComparacaoEstadoQuery>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoProducaoAnteriorQuery>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.RevisaoControloAnteriorQuery>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PegamentosHistoricoQuery>();

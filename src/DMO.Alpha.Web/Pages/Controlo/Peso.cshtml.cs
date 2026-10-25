@@ -54,7 +54,7 @@ public sealed class PesoModel : PageModel
     private readonly PesoPdfDocumentBuilder _pdfDocument;
     private readonly IModuleSettingsQuery _moduleSettings;
     private readonly IPesoEscolhasQuery _escolhas;
-    private readonly IToolCandidateQuery _toolCandidates;
+    private readonly IPesoComparacaoEstadoQuery _comparacaoEstado;
     private readonly IAssociatePesoToControloHandler _associatePeso;
     private readonly IPesoAssociationQuery _pesoAssociation;
     private readonly IEnsureControloForJobOnHandler _ensureControlo;
@@ -73,7 +73,7 @@ public sealed class PesoModel : PageModel
         PesoPdfDocumentBuilder pdfDocument,
         IModuleSettingsQuery moduleSettings,
         IPesoEscolhasQuery escolhas,
-        IToolCandidateQuery toolCandidates,
+        IPesoComparacaoEstadoQuery comparacaoEstado,
         IAssociatePesoToControloHandler associatePeso,
         IPesoAssociationQuery pesoAssociation,
         IEnsureControloForJobOnHandler ensureControlo,
@@ -85,7 +85,6 @@ public sealed class PesoModel : PageModel
         PesoProducaoAnteriorQuery producaoAnteriorQuery,
         ICreatePesoComparacaoHandler comparacaoHandler,
         IControloHistorySearchQuery historicoControloQuery,
-        IProductionPickerQuery productionPicker,
         DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap)
     {
         _fabricoSap = fabricoSap;
@@ -97,7 +96,6 @@ public sealed class PesoModel : PageModel
         ProducaoAnteriorQuery = producaoAnteriorQuery;
         ComparacaoHandler = comparacaoHandler;
         HistoricoControloQuery = historicoControloQuery;
-        ProductionPicker = productionPicker;
         _associatePeso = associatePeso;
         _pesoAssociation = pesoAssociation;
         _ensureControlo = ensureControlo;
@@ -113,7 +111,7 @@ public sealed class PesoModel : PageModel
         _pdfDocument = pdfDocument;
         _moduleSettings = moduleSettings;
         _escolhas = escolhas;
-        _toolCandidates = toolCandidates;
+        _comparacaoEstado = comparacaoEstado;
     }
 
     /// <summary>A query do apoio TP/calote (a mesma fonte do cálculo da ficha do Job On).</summary>
@@ -158,9 +156,6 @@ public sealed class PesoModel : PageModel
 
     /// <summary>A procura unificada do histórico do Controlo (os três tipos).</summary>
     private IControloHistorySearchQuery HistoricoControloQuery { get; }
-
-    /// <summary>As produções de uma referência (a procura em dois passos, 16/10/2026).</summary>
-    private IProductionPickerQuery ProductionPicker { get; }
 
     /// <summary>Pesos sem produção da CM do Job On (modo controlo_id, sem Peso ainda).</summary>
     public IReadOnlyList<UnassociatedPesoCandidate> AssociationCandidates { get; private set; } = Array.Empty<UnassociatedPesoCandidate>();
@@ -2357,22 +2352,11 @@ public sealed class PesoModel : PageModel
             return;
         }
 
-        BaseDaComparacao = await _pesoQuery.FindPesoAsync(pesoBaseId, cancellationToken);
-        if (BaseDaComparacao is not { Averages: { } mediasBase } baseLida)
-        {
-            return;
-        }
-
-        InfluenciaDaBase = PesoComparacaoInfluenciaCalculation.DaBase(
-            baseLida.Measurements.OrderBy(m => m.RowPosition)
-                .Select(m => (m.CmSubject, m.GlassWeightGrams)).ToList());
-
-        var pares = ResultadoComparacao?.Pares ?? ComparacaoGuardada?.Pares;
-        if (pares is not null)
-        {
-            InfluenciaDasNovas = PesoComparacaoInfluenciaCalculation.Novas(
-                pares.Rows, mediasBase.AverageGlassWeightGrams, baseLida.Measurements.Count);
-        }
+        var lida = await _comparacaoEstado.BaseAsync(
+            pesoBaseId, ResultadoComparacao?.Pares ?? ComparacaoGuardada?.Pares, cancellationToken);
+        BaseDaComparacao = lida.Base;
+        InfluenciaDaBase = lida.InfluenciaDaBase;
+        InfluenciaDasNovas = lida.InfluenciaDasNovas;
     }
 
     /// <summary>
@@ -2386,32 +2370,12 @@ public sealed class PesoModel : PageModel
         int? producaoPedida,
         CancellationToken cancellationToken)
     {
-        var pedida = producaoPedida is int pedidaId
-            ? await ProductionPicker.FindAsync(pedidaId, cancellationToken)
-            : null;
-        ReferenciaComparacao = referenciaEscrita ?? pedida?.Reference;
-        if (ReferenciaComparacao is null)
-        {
-            return;
-        }
-
-        var producoes = (await ProductionPicker.ListByReferenceAsync(ReferenciaComparacao, cancellationToken)).ToList();
-        ReferenciaComparacaoSemProducoes = producoes.Count == 0;
-
-        // A produção pedida desta referência fica no select mesmo além das
-        // mais recentes (o atalho da folha numa produção antiga), com a mesma
-        // regra do select: o início da referência ou da parte BQ, nunca a meio.
-        if (pedida is not null
-            && producoes.All(p => p.JobOnId != pedida.JobOnId)
-            && DMO.Alpha.Infrastructure.Search.ReferenceMatch.Matches(pedida.Reference, ReferenciaComparacao))
-        {
-            producoes.Add(pedida);
-        }
-
-        Producoes = producoes;
-        ProducaoSelecionadaJobOnId = pedida is not null && producoes.Any(p => p.JobOnId == pedida.JobOnId)
-            ? pedida.JobOnId
-            : null;
+        var lidas = await _comparacaoEstado.ProducoesDaReferenciaAsync(
+            referenciaEscrita, producaoPedida, cancellationToken);
+        ReferenciaComparacao = lidas.Referencia;
+        ReferenciaComparacaoSemProducoes = lidas.SemProducoes;
+        Producoes = lidas.Producoes;
+        ProducaoSelecionadaJobOnId = lidas.SelecionadaJobOnId;
     }
 
     /// <summary>
@@ -2423,11 +2387,7 @@ public sealed class PesoModel : PageModel
     {
         var referenciaDoInicial = Iniciais
             .FirstOrDefault(i => i.PesoId == PesoInicialSelecionado)?.CmToolReference;
-        ContraMoldes = (await _toolCandidates.FindCandidatesAsync(
-                new ToolCandidateFilter(ToolType.Cm), cancellationToken))
-            .OrderBy(t => referenciaDoInicial is { } referencia && t.Reference == referencia ? 0 : 1)
-            .ThenBy(t => t.Reference, StringComparer.Ordinal)
-            .ToList();
+        ContraMoldes = await _comparacaoEstado.ContraMoldesAsync(referenciaDoInicial, cancellationToken);
     }
 
     /// <summary>
