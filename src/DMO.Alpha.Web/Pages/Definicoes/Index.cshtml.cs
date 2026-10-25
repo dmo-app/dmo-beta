@@ -172,7 +172,7 @@ public sealed class IndexModel(
             Tema = await pessoais.LerAsync(userId, UserSettingKeys.Tema, HttpContext.RequestAborted);
         }
 
-        if (await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ControloCreate))
+        if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ControloCreate))
         {
             Controlo = Ligar(controlo);
             ControloSub = Q("sub") is { } pedidoSub && ControloSeparadores.Any(t => t.Chave == pedidoSub) ? pedidoSub
@@ -185,25 +185,26 @@ public sealed class IndexModel(
             await Controlo.CarregarAsync(Q("save"), Q("envio"), Q("fora"), Q("densidade"), Q("seccoes"), Q("pasta"));
         }
 
-        if (await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.Boquilhas))
+        if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.Boquilhas))
         {
             Boquilhas = Ligar(boquilhas);
             await Boquilhas.CarregarAsync(Q("save"));
         }
 
-        if (await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.Ferramentas))
+        if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.Ferramentas))
         {
             Ferramentas = Ligar(ferramentas);
             await Ferramentas.CarregarAsync(int.TryParse(Q("guardado"), out var g) ? g : null);
         }
 
-        if (await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ArmazemGestao))
+        if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ArmazemGestao))
         {
             Armazem = Ligar(armazem);
             await Armazem.CarregarAsync(Q("gravacao"));
         }
 
-        if (await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ReparacaoInternaView))
+        // Diogo, 25/10/2026: o ADMIN só vê as definições do Admin; cada módulo só a quem o tem.
+        if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.BoquilhasView))
         {
             Reparacao = Ligar(reparacao);
             await Reparacao.CarregarAsync(Q("gravacao"));

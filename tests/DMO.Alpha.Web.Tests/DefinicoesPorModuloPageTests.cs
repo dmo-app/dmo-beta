@@ -236,29 +236,30 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
     [Fact]
     public async Task HoraDeViragem_CadaUmaNoSeuModulo_ComOsSeusHandlers()
     {
-        using var admin = await LoginAdminAsync();
-        var html = await admin.GetStringAsync("/Definicoes?secao=boquilhas");
+        using var bq = await LoginOperatorAsync("5105", DmoCapabilities.Boquilhas);
+        var html = await bq.GetStringAsync("/Definicoes?secao=boquilhas");
         var cartao = html[html.IndexOf("id=\"bqDefViragem\"", StringComparison.Ordinal)..];
         Assert.Contains("Hora de viragem do dia", cartao);
         Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", cartao);
         Assert.Contains("data-dmo-autosubmit", cartao);
 
+        using var admin = await LoginAdminAsync();
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await admin.GetStringAsync("/Definicoes"))!;
         var save = await admin.PostAsync("/Boquilhas/Definicoes?handler=SaveDayChangeHour", HtmlFormHelpers.BuildFormPost(
-            ("dayChangeHour", "6"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(html)!)));
+            ("dayChangeHour", "6"), ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
         Assert.Equal("6", Stored(ModuleSettingKeys.BoquilhasDayChangeHour));
-        Assert.Contains("<option value=\"6\" selected=\"selected\">6:00</option>", await admin.GetStringAsync("/Definicoes?secao=boquilhas"));
+        Assert.Contains("<option value=\"6\" selected=\"selected\">6:00</option>", await bq.GetStringAsync("/Definicoes?secao=boquilhas"));
 
-        var ri = await admin.GetStringAsync("/Definicoes?secao=reparacao");
-        Assert.Contains("id=\"riDefViragem\"", ri);
         var saveRi = await admin.PostAsync("/ReparacaoInterna/Definicoes?handler=SaveDayChangeHour", HtmlFormHelpers.BuildFormPost(
-            ("dayChangeHour", "7"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(ri)!)));
+            ("dayChangeHour", "7"), ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, saveRi.StatusCode);
         Assert.Equal("7", Stored(ModuleSettingKeys.ReparacaoInternaDayChangeHour));
         Assert.Equal("6", Stored(ModuleSettingKeys.BoquilhasDayChangeHour));
 
-        using var op = await LoginOperatorAsync("5103", DmoCapabilities.Boquilhas);
-        var opHtml = await op.GetStringAsync("/Definicoes");
-        Assert.DoesNotContain("id=\"riDefViragem\"", opHtml);
+        // A Reparação está em «Boquilhas · ver»: quem só tem a Reparação não a vê.
+        using var chefe = await LoginOperatorAsync("5106", DmoCapabilities.BoquilhasView);
+        Assert.Contains("id=\"riDefViragem\"", await chefe.GetStringAsync("/Definicoes?secao=reparacao"));
+        Assert.DoesNotContain("id=\"riDefViragem\"", await bq.GetStringAsync("/Definicoes"));
     }
 }

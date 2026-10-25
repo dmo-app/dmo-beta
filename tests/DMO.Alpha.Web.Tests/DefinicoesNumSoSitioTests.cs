@@ -239,15 +239,17 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     }
 
     [Fact]
-    public async Task OAdmin_VeTodosOsModulos_EEdita()
+    public async Task OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos()
     {
         using var client = await LoginAdminAsync();
         var html = await GetOkAsync(client, "/Definicoes");
         Assert.DoesNotContain("data-dmo-cadeado", html);
-        foreach (var id in new[] { "id=\"controlo\"", "id=\"boquilhas\"", "id=\"ferramentas\"", "id=\"armazem\"" })
+        // Diogo, 25/10/2026: «no admin só deve ter definições importantes»; cada módulo só a quem o tem.
+        foreach (var id in new[] { "id=\"controlo\"", "id=\"boquilhas\"", "id=\"ferramentas\"", "id=\"armazem\"", "id=\"reparacao\"" })
         {
-            Assert.Contains(id, html);
+            Assert.DoesNotContain(id, html);
         }
+        Assert.Contains("data-dmo-def-entrada=\"admin\"", html);
 
         Assert.Matches("<a href=\"/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;

@@ -412,14 +412,19 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Contains("Reparação Interna", templates);
         Assert.Contains($"value=\"{DmoCapabilities.ReparacaoInterna}\"", templates);
 
-        var canal = await admin.GetStringAsync("/Definicoes?secao=reparacao");
+        using var chefe = await LoginOperatorAsync("6604", DmoCapabilities.BoquilhasView);
+        var canal = await chefe.GetStringAsync("/Definicoes?secao=reparacao");
+        // O ADMIN só vê as definições do Admin (Diogo, 25/10/2026): o cartão é de «Boquilhas · ver».
+        Assert.DoesNotContain("id=\"riDefViragem\"", await admin.GetStringAsync("/Definicoes?secao=reparacao"));
         var cartao = Elemento(canal, "id=\"riDefViragem\"");
         Assert.Contains("Hora de viragem do dia", cartao);
         Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", cartao);
 
-        using var gravar = await EnviarAsync(admin, canal, ("riDayChangeHour", "6"));
+        var adminHtml = await admin.GetStringAsync("/Definicoes");
+        using var gravar = await admin.PostAsync("/ReparacaoInterna/Definicoes?handler=SaveDayChangeHour", HtmlFormHelpers.BuildFormPost(
+            ("dayChangeHour", "6"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(adminHtml)!)));
         Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
-        var depois = await admin.GetStringAsync(gravar.Headers.Location!.OriginalString);
+        var depois = await chefe.GetStringAsync(gravar.Headers.Location!.OriginalString);
         Assert.Contains("Hora de viragem gravada.", Elemento(depois, "id=\"riDefViragem\""));
         // A das Boquilhas fica como estava.
         Assert.Equal(("6", boquilhas), NaBase(db => (

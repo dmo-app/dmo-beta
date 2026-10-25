@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace DMO.Alpha.Web.Pages.ReparacaoInterna;
 
 /// <summary>
-/// As Definições da Reparação Interna (Diogo, 25/10/2026: «cada uma no seu»):
+/// As Definições da Reparação Interna (Diogo, 25/10/2026: «cada uma no seu»; ficam em «Boquilhas · ver»):
 /// a hora de viragem do dia, que estava no Canal Jobon do Admin. A partir
 /// desta hora a Reparação liga as reparações à nova produção de cada linha.
 /// </summary>
 [Authorize]
-[DefinicoesEntry("reparacao", DmoCapabilities.ReparacaoInternaView)]
+[DefinicoesEntry("reparacao", DmoCapabilities.BoquilhasView)]
 public sealed class DefinicoesModel(
     IModuleSettingsQuery moduleSettings,
     ISaveModuleSettingHandler saveModuleSetting) : PageModel
