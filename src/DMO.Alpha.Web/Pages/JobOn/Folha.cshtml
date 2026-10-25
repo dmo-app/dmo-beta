@@ -409,8 +409,6 @@ else
         </div>
         <div class="fact-col fact-dias">
           <span class="fl">Dias</span><span class="fv"><strong title="Fim − início + 1">@(Model.Dias?.ToString() ?? "—")</strong></span>
-          @* Uma segunda linha vazia: os dias ficam na linha do Início (Diogo, 23/10/2026). *@
-          <span class="fl" aria-hidden="true">&nbsp;</span><span class="fv" aria-hidden="true">&nbsp;</span>
         </div>
         @foreach (var par in new[] { new[] { ("Processo", "cab_processo", ""), ("Peso", "cab_peso", "g") }, new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", "") } })
         {

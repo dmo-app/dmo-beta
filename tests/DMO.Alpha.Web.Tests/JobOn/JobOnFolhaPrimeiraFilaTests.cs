@@ -225,12 +225,12 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("id=\"jofReferencia\"", pedido);
     }
 
-    // Os Dias na linha do Início (Diogo, 23/10/2026): fim − início + 1; sem fim, «—».
+    // Os Dias ao centro, entre as barras (Diogo, 25/10/2026): fim − início + 1; sem fim, «—».
     [Theory]
     [InlineData(0, 0, "1")]
     [InlineData(-2, 0, "3")]
     [InlineData(-2, null, "—")]
-    public async Task Dias_NaLinhaDoInicio_FimMenosInicioMaisUm(int inicio, int? fim, string esperado)
+    public async Task Dias_AoCentro_FimMenosInicioMaisUm(int inicio, int? fim, string esperado)
     {
         var jobOnId = await SeedAsync();
         using (var scope = _factory.Services.CreateScope())
@@ -245,8 +245,8 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         using var client = await LoginAsync("7304", DmoCapabilities.JobOnCreate);
 
         var html = await PageAsync(client, $"/JobOn/Folha?jobon_id={jobOnId}");
-        var dias = Regex.Match(html, "<div class=\"fact-col fact-dias\">\\s*<span class=\"fl\">Dias</span><span class=\"fv\"><strong[^>]*>(?<v>[^<]*)</strong></span>\\s*(?:@\\*[^*]*\\*@\\s*)?<span class=\"fl\" aria-hidden=\"true\">");
-        Assert.True(dias.Success, "Os Dias não estão na coluna com a linha vazia (a linha do Início).");
+        var dias = Regex.Match(html, "<div class=\"fact-col fact-dias\">\\s*<span class=\"fl\">Dias</span><span class=\"fv\"><strong[^>]*>(?<v>[^<]*)</strong></span>\\s*</div>");
+        Assert.True(dias.Success, "Os Dias não estão sozinhos na sua coluna (ao centro, sem a linha vazia).");
         Assert.Equal(esperado, dias.Groups["v"].Value);
     }
 

@@ -239,7 +239,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task Update_OverlapWarningsReflectKnownDates_AndNeverBlockSaving(bool realConflicts)
+    public async Task Update_SemAvisoDeSobreposicaoEntreProducoesDaLinha_ENuncaBloqueiaAGravacao(bool realConflicts)
     {
         var (jobOnId, controloId, machineId, _) = await SeedFichaAsync();
         SeedUser("4591", "Planejador", "provider-jobon-warnings", "JobWarning1!");
@@ -263,18 +263,10 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
         var location = saved.Headers.Location!.ToString();
-        if (realConflicts)
-        {
-            Assert.Contains("overlap=1", location);
-            var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, location));
-            Assert.Contains("ainda está em aberto", html);
-            Assert.DoesNotContain("Ajusta o início da nova para depois de 15/04/2026", html);
-        }
-        else
-        {
-            Assert.StartsWith($"{PagePath}?jobon_id={jobOnId}", location, StringComparison.Ordinal);
-            Assert.DoesNotContain("overlap=1", location);
-        }
+        // Nunca há aviso de sobreposição entre produções da linha (Diogo,
+        // 25/10/2026: «so se aplica as bqs»), haja ou não conflitos reais.
+        Assert.StartsWith($"{PagePath}?jobon_id={jobOnId}", location, StringComparison.Ordinal);
+        Assert.DoesNotContain("overlap=1", location);
         using var finalScope = _factory.Services.CreateScope();
         var finalDb = finalScope.ServiceProvider.GetRequiredService<DmoDbContext>();
         var job = await finalDb.JobOns.SingleAsync(j => j.Id == jobOnId);
@@ -475,7 +467,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     }
 
     [Fact]
-    public async Task ProducoesDoDia_DuasNaMesmaMaquina_MarcaASobreposicao()
+    public async Task ProducoesDoDia_DuasNaMesmaMaquina_NaoMarcamSobreposicao()
     {
         // A sobreposição grava com aviso (o proprietário, 16/10/2026: «Manter
         // o aviso») e a linha da máquina fica marcada a vermelho no dia.
@@ -492,8 +484,10 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         var dia = hoje.AddDays(-1);
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={dia.Year}&mes={dia.Month}&dia={dia.Day}"));
-        Assert.Contains("beta-light-machine-row mch-B1 overlap", html);
-        Assert.Contains("Sobreposição: 2 produções na B1 neste dia.", html);
+        // Sem marca de sobreposição entre produções da linha (Diogo,
+        // 25/10/2026: «so se aplica as bqs»).
+        Assert.Contains("beta-light-machine-row mch-B1\"", html);
+        Assert.DoesNotContain("Sobreposição:", html);
         Assert.DoesNotContain("mch-C3 overlap", html);
 
         var antes = hoje.AddDays(-3);
@@ -565,7 +559,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     }
 
     [Fact]
-    public async Task ProducoesDoDia_LinhaVermelha_SoComSobreposicaoReal()
+    public async Task ProducoesDoDia_LinhaNuncaFicaVermelha_PorProducoesQueSeCruzam()
     {
         // Diogo, 21/10/2026: «uma producao sai dia 20 outra entra dia 20» não
         // é sobreposição. A linha da máquina só fica vermelha quando duas
@@ -594,9 +588,9 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?ano={hoje.Year}&mes={hoje.Month}&dia={hoje.Day}"));
         Assert.Contains("<div class=\"beta-light-machine-row mch-D7\">", html);
-        Assert.Contains("<div class=\"beta-light-machine-row mch-D8 overlap\">", html);
+        Assert.Contains("<div class=\"beta-light-machine-row mch-D8\">", html);
         Assert.Contains("<div class=\"beta-light-machine-row mch-D9\">", html);
-        Assert.Contains("Sobreposição: 2 produções na D8 neste dia.", html);
+        Assert.DoesNotContain("Sobreposição:", html);
         Assert.DoesNotContain("produções na D7 neste dia", html);
         Assert.DoesNotContain("produções na D9 neste dia", html);
     }

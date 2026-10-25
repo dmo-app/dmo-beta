@@ -12,7 +12,7 @@ namespace DMO.Alpha.Infrastructure.Tests.Data;
 public sealed partial class PostgresMigrationIntegrationTests
 {
     [SkippableFact]
-    public async Task Overlap_FilteredInSql_GivesTheSameWarningAsComparingEveryProduction()
+    public async Task Overlap_FilteredInSql_NuncaAvisaEntreProducoesDaLinha()
     {
         SkipWithoutConnection();
 
@@ -31,7 +31,7 @@ public sealed partial class PostgresMigrationIntegrationTests
     }
 
     [SkippableFact]
-    public async Task Overlap_NoDiaDaTroca_NaoAvisa_ENoDiaAntesAvisa()
+    public async Task Overlap_NoDiaDaTroca_ENoDiaAntes_NuncaAvisam()
     {
         // Diogo, 21/10/2026: «uma producao sai dia 20 outra entra dia 20» não
         // é sobreposição. No PostgreSQL, a que entra no dia em que a outra
@@ -54,8 +54,11 @@ public sealed partial class PostgresMigrationIntegrationTests
             Assert.Null(noDia);
 
             var antes = await JobOnOverlapQuery.EvaluateAsync(db, entra.Id, machine.Id, machine.Code, new DateOnly(2026, 10, 19), new DateOnly(2026, 10, 30), CancellationToken.None);
-            Assert.NotNull(antes);
-            Assert.Equal([sai.Id], antes.Conflicts.Select(c => c.JobOnId));
+            // Sem aviso entre produções da linha (Diogo, 25/10/2026: só as BQ);
+            // a calculadora continua a distinguir a véspera do dia da troca.
+            Assert.Null(antes);
+            Assert.False(JobOnOverlap.Crosses(sai.InicioEm, sai.FimEm, new DateOnly(2026, 10, 20), new DateOnly(2026, 10, 30)));
+            Assert.True(JobOnOverlap.Crosses(sai.InicioEm, sai.FimEm, new DateOnly(2026, 10, 19), new DateOnly(2026, 10, 30)));
         }
         finally
         {
