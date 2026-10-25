@@ -350,7 +350,8 @@
     { "id": "DMO-357", "module": "Controlo", "description": "0.3.0-beta.43: o Peso mantém o mesmo aspeto e comportamento; as consultas de apoio da página (controlo da produção, máquinas, comparação guardada) passam para um serviço próprio, sem mudança visível." },
     { "id": "DMO-358", "module": "Controlo", "description": "0.3.0-beta.44: o tampão passa a ser da produção: o Job On guarda o diâmetro, o Peso usa-o com a calote do Job On e congela-o; a CM só serve de valor de arranque." },
     { "id": "DMO-359", "module": "Controlo", "description": "0.3.0-beta.45: o Peso mantém o mesmo aspeto e comportamento; as leituras do ecrã da Comparação (produções da referência, base e contra-moldes) passam para um serviço próprio, sem mudança visível." },
-    { "id": "DMO-360", "module": "Job On", "description": "0.3.0-beta.46: o Job On mantém o mesmo aspeto e comportamento; as consultas de apoio da página (histórico antigo, sobreposição, referências da MF, produção igual, calote e máquina) passam para um serviço próprio, sem mudança visível." }
+    { "id": "DMO-360", "module": "Job On", "description": "0.3.0-beta.46: o Job On mantém o mesmo aspeto e comportamento; as consultas de apoio da página (histórico antigo, sobreposição, referências da MF, produção igual, calote e máquina) passam para um serviço próprio, sem mudança visível." },
+    { "id": "DMO-361", "module": "Job On", "description": "0.3.0-beta.47: na Folha do Job On, ao passar o rato numa ferramenta (CM, MF, BQ) aparece a mão e um fundo azul claro, e a referência fica azul: duplo clique abre a ficha. O realce não encosta ao aviso por baixo; igual no modo escuro." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
