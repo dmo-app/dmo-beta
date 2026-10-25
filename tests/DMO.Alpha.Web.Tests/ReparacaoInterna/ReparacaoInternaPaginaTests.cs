@@ -412,17 +412,15 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Contains("Reparação Interna", templates);
         Assert.Contains($"value=\"{DmoCapabilities.ReparacaoInterna}\"", templates);
 
-        var canal = await admin.GetStringAsync("/Definicoes?secao=admin&sub=canal");
-        var cartao = Elemento(canal, "id=\"canalJobonViragemRi\"");
-        Assert.Contains("Reparação — hora de viragem do dia", cartao);
+        var canal = await admin.GetStringAsync("/Definicoes?secao=reparacao");
+        var cartao = Elemento(canal, "id=\"riDefViragem\"");
+        Assert.Contains("Hora de viragem do dia", cartao);
         Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", cartao);
-        Assert.Contains("Boquilhas — hora de viragem do dia", canal);
 
         using var gravar = await EnviarAsync(admin, canal, ("riDayChangeHour", "6"));
         Assert.Equal(HttpStatusCode.Redirect, gravar.StatusCode);
         var depois = await admin.GetStringAsync(gravar.Headers.Location!.OriginalString);
-        Assert.Contains("Hora de viragem gravada.", Elemento(depois, "id=\"canalJobonViragemRi\""));
-        Assert.DoesNotContain("Hora de viragem gravada.", Elemento(depois, "id=\"canalJobonViragem\""));
+        Assert.Contains("Hora de viragem gravada.", Elemento(depois, "id=\"riDefViragem\""));
         // A das Boquilhas fica como estava.
         Assert.Equal(("6", boquilhas), NaBase(db => (
             db.ModuleSettings.AsNoTracking().Single(s => s.SettingKey == ModuleSettingKeys.ReparacaoInternaDayChangeHour).SettingValue,

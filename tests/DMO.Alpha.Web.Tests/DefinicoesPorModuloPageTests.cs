@@ -21,7 +21,6 @@ namespace DMO.Alpha.Web.Tests;
 public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomWebApplicationFactory>
 {
     private const string FerramentasPath = "/Ferramentas/Definicoes";
-    private const string CanalJobonPath = "/Admin/CanalJobon";
     private const string AppPath = "/Definicoes?secao=admin&sub=app";
 
     private readonly CustomWebApplicationFactory _factory;
@@ -191,11 +190,11 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
     }
 
     [Fact]
-    public async Task Admin_TemDefinicoesProprias_CanalJobonEApp()
+    public async Task Admin_TemDefinicoesProprias_SoAApp()
     {
-        // Diogo, 22/10/2026: «canal jobon e app ficam dentro das definições do admin, admin tem definições diferentes dos users».
+        // Diogo, 22/10/2026: «canal jobon e app ficam dentro das definições do admin»; a 25/10 as horas de viragem foram cada uma para o seu módulo e o Admin ficou só com a App.
         using var admin = await LoginAdminAsync();
-        foreach (var (antigo, novo) in new[] { ("/Admin/Definicoes?definition=boquilhas", "/Definicoes?secao=admin&sub=app"), ("/Admin/CanalJobon", "/Definicoes?secao=admin&sub=canal"), ("/Definicoes?secao=app", "/Definicoes?secao=admin&sub=app") })
+        foreach (var (antigo, novo) in new[] { ("/Admin/Definicoes?definition=boquilhas", "/Definicoes?secao=admin&sub=app"), ("/Definicoes?secao=app", "/Definicoes?secao=admin&sub=app") })
         {
             var r = await admin.GetAsync(antigo);
             Assert.Equal(HttpStatusCode.Redirect, r.StatusCode);
@@ -204,16 +203,17 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
 
         var html = await admin.GetStringAsync("/Definicoes?secao=admin&sub=app");
         var menu = System.Text.RegularExpressions.Regex.Match(html, "<nav class=\"def-menu\"[\\s\\S]*?</nav>").Value;
-        Assert.Contains("data-dmo-def-grupo=\"admin\" data-aberto>", menu);
+        Assert.Contains("data-dmo-def-entrada=\"admin\" class=\"active\"", menu);
+        Assert.DoesNotContain("data-dmo-def-grupo=\"admin\"", menu);
         // O grupo fechado não leva data-aberto (o Razor não tira um data-* nulo).
         Assert.DoesNotContain("data-dmo-def-grupo=\"controlo\" data-aberto", menu);
-        Assert.Contains("data-dmo-ctl-tab=\"canal\" data-dmo-grupo=\"admin\"", menu);
-        Assert.Contains("data-dmo-ctl-tab=\"app\" data-dmo-grupo=\"admin\" class=\"active\"", menu);
+        Assert.DoesNotContain("data-dmo-ctl-tab=\"canal\"", menu);
+        Assert.Equal(HttpStatusCode.NotFound, (await admin.GetAsync("/Admin/CanalJobon")).StatusCode);
         var app = html[html.IndexOf("id=\"sec-admin\"", StringComparison.Ordinal)..];
         Assert.Contains("Email do ADMIN", app);
         Assert.Contains("PIN das Definições", app);
-        Assert.Contains("id=\"canalJobonViragem\"", app);
-        Assert.Contains("data-dmo-ctl-sub=\"canal\" data-dmo-grupo=\"admin\" hidden=\"hidden\"", app);
+        Assert.DoesNotContain("ViragemRi", app);
+        Assert.DoesNotContain("hora de viragem", app, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("id=\"admModulos\"", app);
 
         // O Admin fica só com Utilizadores e Templates.
@@ -234,23 +234,31 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
     }
 
     [Fact]
-    public async Task CanalJobon_SavesTheDayChangeHour_ForTheAdminOnly()
+    public async Task HoraDeViragem_CadaUmaNoSeuModulo_ComOsSeusHandlers()
     {
         using var admin = await LoginAdminAsync();
-        var html = await admin.GetStringAsync("/Definicoes?secao=admin&sub=canal");
-        Assert.Contains("Boquilhas — hora de viragem do dia", html);
-        Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", html);
-        Assert.Contains("data-dmo-autosubmit", html);
+        var html = await admin.GetStringAsync("/Definicoes?secao=boquilhas");
+        var cartao = html[html.IndexOf("id=\"bqDefViragem\"", StringComparison.Ordinal)..];
+        Assert.Contains("Hora de viragem do dia", cartao);
+        Assert.Contains("<option value=\"8\" selected=\"selected\">8:00</option>", cartao);
+        Assert.Contains("data-dmo-autosubmit", cartao);
 
-        var save = await admin.PostAsync($"{CanalJobonPath}?handler=SaveBoquilhasDayChangeHour", HtmlFormHelpers.BuildFormPost(
+        var save = await admin.PostAsync("/Boquilhas/Definicoes?handler=SaveDayChangeHour", HtmlFormHelpers.BuildFormPost(
             ("dayChangeHour", "6"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(html)!)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
-        Assert.Equal("/Definicoes?secao=admin&sub=canal&viragem=ok", save.Headers.Location?.ToString());
         Assert.Equal("6", Stored(ModuleSettingKeys.BoquilhasDayChangeHour));
-        Assert.Contains("<option value=\"6\" selected=\"selected\">6:00</option>", await admin.GetStringAsync("/Definicoes?secao=admin&sub=canal"));
+        Assert.Contains("<option value=\"6\" selected=\"selected\">6:00</option>", await admin.GetStringAsync("/Definicoes?secao=boquilhas"));
+
+        var ri = await admin.GetStringAsync("/Definicoes?secao=reparacao");
+        Assert.Contains("id=\"riDefViragem\"", ri);
+        var saveRi = await admin.PostAsync("/ReparacaoInterna/Definicoes?handler=SaveDayChangeHour", HtmlFormHelpers.BuildFormPost(
+            ("dayChangeHour", "7"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(ri)!)));
+        Assert.Equal(HttpStatusCode.Redirect, saveRi.StatusCode);
+        Assert.Equal("7", Stored(ModuleSettingKeys.ReparacaoInternaDayChangeHour));
+        Assert.Equal("6", Stored(ModuleSettingKeys.BoquilhasDayChangeHour));
 
         using var op = await LoginOperatorAsync("5103", DmoCapabilities.Boquilhas);
-        var denied = await op.GetAsync(CanalJobonPath);
-        Assert.NotEqual(HttpStatusCode.OK, denied.StatusCode);
+        var opHtml = await op.GetStringAsync("/Definicoes");
+        Assert.DoesNotContain("id=\"riDefViragem\"", opHtml);
     }
 }

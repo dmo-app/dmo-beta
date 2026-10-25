@@ -31,8 +31,8 @@ public sealed class IndexModel(
     Boquilhas.DefinicoesModel boquilhas,
     Ferramentas.DefinicoesModel ferramentas,
     Armazem.DefinicoesModel armazem,
-    Admin.Definicoes.IndexModel app,
-    Admin.CanalJobon.IndexModel canalJobon) : PageModel
+    ReparacaoInterna.DefinicoesModel reparacao,
+    Admin.Definicoes.IndexModel app) : PageModel
 {
     public bool EAdmin { get; private set; }
 
@@ -74,27 +74,23 @@ public sealed class IndexModel(
     /// </summary>
     public static readonly IReadOnlyList<(string Chave, string Nome)> AdminSeparadores =
     [
-        ("canal", "Canal Jobon"),
         ("app", "App")
     ];
 
     public Admin.Definicoes.IndexModel? App { get; private set; }
 
-    public Admin.CanalJobon.IndexModel? CanalJobon { get; private set; }
-
     /// <summary>A função aberta do grupo Admin (?sub=…).</summary>
-    public string AdminSub { get; private set; } = "canal";
+    public string AdminSub { get; private set; } = "app";
 
     /// <summary>As funções de um grupo do menu (null para uma entrada simples).</summary>
     public IReadOnlyList<(string Chave, string Nome)>? FuncoesDe(string chave) => chave switch
     {
         "controlo" => ControloSeparadores,
-        "admin" => AdminSeparadores,
         _ => null
     };
 
     /// <summary>A função aberta de um grupo.</summary>
-    public string SubDe(string chave) => chave == "admin" ? AdminSub : ControloSub;
+    public string SubDe(string chave) => ControloSub;
 
     /// <summary>O separador do Controlo aberto (?sub=…).</summary>
     public string ControloSub { get; private set; } = "peso";
@@ -102,6 +98,8 @@ public sealed class IndexModel(
     public Ferramentas.DefinicoesModel? Ferramentas { get; private set; }
 
     public Armazem.DefinicoesModel? Armazem { get; private set; }
+
+    public ReparacaoInterna.DefinicoesModel? Reparacao { get; private set; }
 
 
     /// <summary>A entrada do menu aberta: «pessoal» ou a de um módulo ativo (?secao=…).</summary>
@@ -124,7 +122,7 @@ public sealed class IndexModel(
 
     public bool PalavraPasseMudou { get; private set; }
 
-    public bool TemModulos => Boquilhas is not null || Controlo is not null || Ferramentas is not null || Armazem is not null;
+    public bool TemModulos => Boquilhas is not null || Controlo is not null || Ferramentas is not null || Armazem is not null || Reparacao is not null;
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -205,20 +203,23 @@ public sealed class IndexModel(
             await Armazem.CarregarAsync(Q("gravacao"));
         }
 
+        if (await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ReparacaoInternaView))
+        {
+            Reparacao = Ligar(reparacao);
+            await Reparacao.CarregarAsync(Q("gravacao"));
+        }
+
         var entradas = new List<(string, string)> { ("pessoal", "Pessoal") };
         if (Controlo is not null) entradas.Add(("controlo", "Controlo"));
         if (Boquilhas is not null) entradas.Add(("boquilhas", "Boquilhas"));
         if (Ferramentas is not null) entradas.Add(("ferramentas", "Ferramentas"));
         if (Armazem is not null) entradas.Add(("armazem", "Armazém"));
+        if (Reparacao is not null) entradas.Add(("reparacao", "Reparação"));
         if (EAdmin)
         {
             App = Ligar(app);
             await App.CarregarAsync(Q("app"), Q("email"), Q("pinapp"));
-            CanalJobon = Ligar(canalJobon);
-            await CanalJobon.CarregarAsync(Q("viragem"), Q("de"));
-            AdminSub = Q("sub") is { } subAdmin && AdminSeparadores.Any(t => t.Chave == subAdmin) ? subAdmin
-                : Q("app") is not null || Q("pinapp") is not null ? "app"
-                : "canal";
+            AdminSub = "app";
             entradas.Add(("admin", "Admin"));
         }
         Entradas = entradas;

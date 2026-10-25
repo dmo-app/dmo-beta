@@ -45,6 +45,13 @@ public sealed class DefinicoesModel(
     /// <summary>As ENTIDADES REPARADORAS, por nome; vazia mostra o aviso de criar a primeira.</summary>
     public IReadOnlyList<BqRepairerItem> Repairers { get; private set; } = Array.Empty<BqRepairerItem>();
 
+    /// <summary>
+    /// A hora de viragem do dia das Boquilhas (Diogo, 25/10/2026: sai do
+    /// Admin para as Definições do módulo); null = ainda não configurada, o
+    /// consumo usa o padrão 8.
+    /// </summary>
+    public int? DayChangeHour { get; private set; }
+
     /// <summary>O MAPA das 6 máquinas: B1..C3 → o Id do reparador (null = sem rota).</summary>
     public IReadOnlyDictionary<string, int?> MachineRepairerIds { get; private set; } = new Dictionary<string, int?>();
 
@@ -61,6 +68,8 @@ public sealed class DefinicoesModel(
         "reparador-vazio" => "O nome do reparador não pode ficar em branco.",
         "reparador-existente" => "Já existe um reparador com esse nome.",
         "reparador-inexistente" => "O reparador indicado já não existe. Crie-o primeiro e volte a escolher.",
+        "ok-hora" => "Hora de viragem gravada.",
+        "hora-invalida" => "A hora de viragem é um inteiro entre 0 e 23.",
         "rota-maquina" => "O código de máquina não é um dos 6 do encaminhamento (B1, B2, B3, C1, C2, C3).",
         _ => string.Empty
     };
@@ -70,7 +79,7 @@ public sealed class DefinicoesModel(
     /// sozinha); as recusas ficam no canto até se fecharem. Uma só mensagem
     /// por gravação, na pilha do canto: não empurra os cartões.
     /// </summary>
-    public bool SaveSucceeded => SaveResult is "ok-reparador" or "ok-rota" or "ok-removido";
+    public bool SaveSucceeded => SaveResult is "ok-reparador" or "ok-rota" or "ok-removido" or "ok-hora";
 
     /// <summary>GET: as definições vivem na página única /Definicoes (Diogo, 22/10/2026).</summary>
     public IActionResult OnGet() => Redirect(DefinicoesAcesso.Nova(Request, "boquilhas"));
@@ -90,6 +99,27 @@ public sealed class DefinicoesModel(
         }
 
         MachineRepairerIds = machineMap;
+
+        var hora = await moduleSettings.FindValueAsync(
+            ModuleSettingKeys.BoquilhasDayChangeHour, HttpContext.RequestAborted);
+        DayChangeHour = int.TryParse(hora, out var viragem) ? viragem : null;
+    }
+
+    /// <summary>POST: gravar a hora de viragem do dia das Boquilhas (0–23). Escolher no dropdown grava logo.</summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostSaveDayChangeHourAsync(int? dayChangeHour)
+    {
+        var outcome = await saveModuleSetting.HandleAsync(
+            new SaveModuleSetting(ModuleSettingKeys.BoquilhasDayChangeHour, dayChangeHour?.ToString() ?? string.Empty),
+            HttpContext.RequestAborted);
+
+        var save = outcome.Result switch
+        {
+            SaveModuleSettingResult.Success => "ok-hora",
+            SaveModuleSettingResult.BoquilhasInvalidHour => "hora-invalida",
+            _ => "vazio"
+        };
+        return RedirectToPage("/Definicoes/Index", new { save });
     }
 
     /// <summary>
