@@ -2208,7 +2208,7 @@ Novos: 8 · mudaram: 0 · saíram: 0
 
 Selo depois: `4aa1a9dc98189376`
 
-## A-0093 · 2026-10-25 · teste-novo
+## A-0094 · 2026-10-25 · teste-novo
 
 Porquê: Reshape do Peso, PR3: produções da referência, base e contra-moldes da comparação passam para PesoComparacaoEstadoQuery; testes do serviço e orçamento de consultas no Postgres
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyJGqu987Ms3tuZqAaDhS7mh
