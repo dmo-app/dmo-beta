@@ -2155,9 +2155,9 @@ Selo depois: `aa3a46108bd59cc6`
 
 ## A-0091 · 2026-10-25 · ok-do-diogo
 
-Porquê: O Diogo pediu o PU na primeira fila e os Calibres por baixo do PU (na vertical), com o TP e o CS mais estreitos (o teste do browser espera os Calibres por baixo do PU), e que a sobreposição só se aplique às BQ: os testes que esperavam aviso, marca vermelha ou banner entre produções da mesma linha passam a esperar que não haja, e a calculadora continua a distinguir a véspera do dia da troca.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyMLJyVMvSHt8nCnfDQJj14J, cmsg_01A27e9ozcpoh4jdPRsuJbFy5CvC5vHd3UG6j4st2ydTvC, cmsg_01A27e9ozcpoh4jdPRsuJbFyNGXdPSjqk8Vph85X5iBU3N, cmsg_01A27e9ozcpoh4jdPRsuJbFyL3Zdukw69fdMxwmGuyEqvb
-Novos: 12 · mudaram: 3 · saíram: 12
+Porquê: O Diogo pediu o PU na primeira fila e os Calibres na horizontal ao lado do CS, com o TP e o CS mais estreitos (o teste do browser espera os Calibres ao lado do CS), os Dias outra vez ao centro entre as barras (o teste dos Dias deixa de esperar a linha vazia), e que a sobreposição só se aplique às BQ: os testes que esperavam aviso, marca vermelha ou banner entre produções da mesma linha passam a esperar que não haja, e a calculadora continua a distinguir a véspera do dia da troca.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyMLJyVMvSHt8nCnfDQJj14J, cmsg_01A27e9ozcpoh4jdPRsuJbFy5CvC5vHd3UG6j4st2ydTvC, cmsg_01A27e9ozcpoh4jdPRsuJbFyNGXdPSjqk8Vph85X5iBU3N, cmsg_01A27e9ozcpoh4jdPRsuJbFyL3Zdukw69fdMxwmGuyEqvb, cmsg_01A27e9ozcpoh4jdPRsuJbFyBMNxZJTp39f529kPPQ3h2V, cmsg_01A27e9ozcpoh4jdPRsuJbFyC7FrQwjiFkEemquds2jsub, cmsg_01A27e9ozcpoh4jdPRsuJbFyEcpedrzXjuZLgaunpXbMky
+Novos: 13 · mudaram: 3 · saíram: 13
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_FilteredInSql_NuncaAvisaEntreProducoesDaLinha`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_NoDiaDaTroca_ENoDiaAntes_NuncaAvisam`
@@ -2170,6 +2170,7 @@ Novos: 12 · mudaram: 3 · saíram: 12
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_DuasNaMesmaMaquina_NaoMarcamSobreposicao`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaNuncaFicaVermelha_PorProducoesQueSeCruzam`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_SemAvisoDeSobreposicaoEntreProducoesDaLinha_ENuncaBloqueiaAGravacao`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Dias_AoCentro_FimMenosInicioMaisUm`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_WithOverlapOnSameMachine_SavesWithoutBanner`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapQueryTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: (resto do ficheiro)`
@@ -2185,6 +2186,7 @@ Novos: 12 · mudaram: 3 · saíram: 12
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_DuasNaMesmaMaquina_MarcaASobreposicao`
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaVermelha_SoComSobreposicaoReal`
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_OverlapWarningsReflectKnownDates_AndNeverBlockSaving`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Dias_NaLinhaDoInicio_FimMenosInicioMaisUm`
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_WithOverlapOnSameMachine_StaysOnJobOnWithTheYellowBanner`
 
-Selo depois: `913b261f826153c3`
+Selo depois: `c20f63ff70a5681e`

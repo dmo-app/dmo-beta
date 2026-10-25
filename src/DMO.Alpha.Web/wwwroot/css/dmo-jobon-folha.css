@@ -630,3 +630,91 @@ html body .jof2.editing .calv td input.f[name$=".Valor"]{width:8.5em}
   html body .jof2 table.calv th:nth-child(2){width:40%}
   html body .jof2 table.calv th:nth-child(3){width:24%}
 }
+/* CAL na horizontal, ao lado do CS (Diogo, 25/10/2026): uma coluna por medida. */
+@container board (min-width:640px){
+  html body .jof2 .zones{grid-template-areas:"moldes moldes moldes col3" "sopro sopro cal cal"}
+  html body .jof2 table.calv{display:grid;grid-auto-flow:column;grid-template-rows:auto auto auto;grid-auto-columns:minmax(0,1fr);width:100%}
+  html body .jof2 table.calv thead,html body .jof2 table.calv tbody,html body .jof2 table.calv tr{display:contents}
+  html body .jof2 table.calv th,html body .jof2 table.calv td{width:auto;display:flex;align-items:center;justify-content:center;text-align:center;min-height:28px;padding:2px 3px;border-bottom:1px solid var(--dmo-border)}
+  html body .jof2 table.calv thead th{font-size:9px}
+  html body .jof2.editing table.calv input.f,html body .jof2.editing .calv td input.f[name$=".Valor"]{width:100%;min-width:0;text-align:center}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv{grid-template-columns:58px}
+  html body .jof2 table.calv th:nth-child(n),html body .jof2 table.calv td:nth-child(n){width:auto;overflow-wrap:normal;word-break:normal;hyphens:none}
+  html body .jof2 table.calv thead th{font-size:9px;line-height:1.1}
+  html body .jof2 table.calv tbody th{font-size:9.5px;line-height:1.15}
+  html body .jof2 table.calv tr>:first-child{justify-content:flex-start;text-align:left}
+  html body .jof2.editing table.calv input.f{padding:1px 2px;font-size:12px}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv{grid-template-columns:76px}
+  html body .jof2 table.calv th,html body .jof2 table.calv td{white-space:normal;overflow:visible;text-overflow:clip;max-width:none}
+  html body .jof2 table.calv tbody th,html body .jof2 table.calv thead th{font-size:9px}
+  html body .jof2.editing table.calv input.f{padding:1px;font-size:10.5px;text-align:center}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv tbody th{text-transform:none;letter-spacing:0;font-size:10px;overflow-wrap:break-word}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv tbody th:nth-child(n){font-size:9px;overflow-wrap:anywhere;line-height:1.1}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv{grid-auto-columns:auto;grid-template-columns:auto;column-gap:0}
+  html body .jof2 table.calv tbody th:nth-child(n){overflow-wrap:normal}
+}
+@container board (min-width:640px){
+  html body .jof2 table.calv{grid-template-columns:66px;grid-auto-columns:minmax(0,1fr)}
+  html body .jof2 table.calv th:nth-child(n),html body .jof2 table.calv td:nth-child(n){padding:2px 1px}
+  html body .jof2 table.calv thead th:nth-child(n){font-size:8.5px}
+  html body .jof2 table.calv tbody th:nth-child(n){font-size:8.5px}
+  /* No Editar o CAL fica ao lado do CS mas na vertical, para os campos caberem. */
+  html body .jof2.editing table.calv{display:table;table-layout:fixed;width:100%}
+  html body .jof2.editing table.calv thead{display:table-header-group}
+  html body .jof2.editing table.calv tbody{display:table-row-group}
+  html body .jof2.editing table.calv tr{display:table-row}
+  html body .jof2.editing table.calv th:nth-child(n),html body .jof2.editing table.calv td:nth-child(n){display:table-cell;text-align:left;padding:2px 4px;vertical-align:middle}
+  html body .jof2.editing table.calv thead th:nth-child(1){width:44%}
+  html body .jof2.editing table.calv thead th:nth-child(2){width:34%}
+  html body .jof2.editing table.calv thead th:nth-child(3){width:22%}
+  html body .jof2.editing table.calv input.f{font-size:12.5px;text-align:left;padding:1px 4px}
+}
+@container board (min-width:640px){
+  html body .jof2.editing table.calv thead th:nth-child(n){font-size:9.5px}
+}
+/* TP e CS um pouco mais estreitos, para o CAL caber sem cortar (Diogo, 25/10/2026). */
+@container board (min-width:640px){
+  html body .jof2 .zones{grid-template-columns:repeat(24,minmax(0,1fr));grid-template-areas:none;column-gap:0}
+  html body .jof2 .g-moldes{grid-area:auto;grid-row:1;grid-column:1/19}
+  html body .jof2 .col3{grid-area:auto;grid-row:1;grid-column:19/25;margin-left:14px}
+  html body .jof2 .g-sopro{grid-area:auto;grid-row:2;grid-column:1/11}
+  html body .jof2 .g-cal{grid-area:auto;grid-row:2;grid-column:11/25;margin-left:14px}
+}
+@container board (min-width:640px){
+  html body .jof2:not(.editing) table.calv tbody th:nth-child(n){font-size:10.5px;justify-content:center;text-align:center}
+  html body .jof2:not(.editing) table.calv td:nth-child(n){text-align:center;justify-content:center}
+}
+/* CAL no Ver: linhas mais altas, títulos centrados, valores em letra mais pequena (Diogo, 25/10/2026). */
+@container board (min-width:640px){
+  html body .jof2:not(.editing) table.calv th:nth-child(n),html body .jof2:not(.editing) table.calv td:nth-child(n){min-height:38px;padding:4px 2px}
+  html body .jof2:not(.editing) table.calv thead th:nth-child(n){justify-content:center;text-align:center}
+  html body .jof2:not(.editing) table.calv td:nth-child(n){font-size:11.5px}
+}
+@container board (min-width:640px){
+  html body .jof2:not(.editing) table.calv td:nth-child(n){font-size:10.5px;padding:4px 3px}
+  html body .jof2:not(.editing) table.calv tbody th:nth-child(n){font-size:10px}
+}
+/* Os dias ao centro, na vertical, entre as barras (Diogo, 25/10/2026). */
+html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;align-self:stretch}
+@container board (min-width:640px){
+  html body .jof2 .g-sopro{grid-column:1/9}
+  html body .jof2 .g-cal{grid-column:9/25}
+}
+@container board (min-width:640px){
+  html body .jof2 .zones{grid-template-columns:repeat(48,minmax(0,1fr))}
+  html body .jof2 .g-moldes{grid-column:1/37}
+  html body .jof2 .col3{grid-column:37/49}
+  html body .jof2 .g-sopro{grid-column:1/20}
+  html body .jof2 .g-cal{grid-column:20/49}
+  html body .jof2:not(.editing) table.calv td:nth-child(n){white-space:normal;font-size:10.5px}
+}

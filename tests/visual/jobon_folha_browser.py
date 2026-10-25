@@ -89,8 +89,8 @@ with sync_playwright() as playwright:
             print(f'{nome} ordem: {pos}')
             if not (pos['CM']['top'] < pos['TP']['top'] == pos['CS']['top']):
                 falhas.append(f'{nome}: TP e CS não estão logo a seguir aos moldes ({pos})')
-            if not (pos['PU']['top'] < pos['CAL']['top'] and abs(pos['CAL']['left'] - pos['PU']['left']) <= 2 and pos['CAL']['left'] > pos['CS']['left']):
-                falhas.append(f'{nome}: os Calibres não estão por baixo do PU ({pos})')
+            if not (pos['PU']['top'] < pos['CAL']['top'] and abs(pos['CAL']['top'] - pos['CS']['top']) <= 2 and pos['CAL']['left'] > pos['CS']['left']):
+                falhas.append(f'{nome}: os Calibres não estão ao lado do CS ({pos})')
             if not (pos['PI']['left'] > max(pos['TP']['left'], pos['CS']['left'], pos['CAL']['left']) and pos['PI']['top'] > pos['NOTAS']['top']):
                 falhas.append(f'{nome}: o PI não está à direita, por baixo das Notas gerais ({pos})')
 
