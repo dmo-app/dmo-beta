@@ -76,6 +76,15 @@ public sealed class Peso
     public decimal VolumePuncaoCm3 { get; set; }
 
     /// <summary>
+    /// Diâmetro D (mm) do tampão, congelado com a punção no momento do Peso
+    /// (Diogo, 23/10/2026). Null nos Pesos anteriores a esta coluna.
+    /// </summary>
+    public decimal? TampaoDiametroMm { get; set; }
+
+    /// <summary>Calote (mm) do tampão, congelada com a punção. Null = não registada.</summary>
+    public decimal? TampaoCaloteMm { get; set; }
+
+    /// <summary>
     /// Peso nominal (g) consumido da CM Tool quando existia; null quando a
     /// Tool ainda não tinha peso nominal registado (dado opcional — a ausência
     /// nunca bloqueou a criação do Peso).

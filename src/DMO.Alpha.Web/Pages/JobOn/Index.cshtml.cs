@@ -476,6 +476,8 @@ public sealed class IndexModel : PageModel
             "Já existe um Job On desta referência com este nº de produção — uma produção nova tem nº próprio. Nenhum Job On foi criado.",
         CreateJobOnResult.InvalidCalote =>
             "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhum Job On foi criado.",
+        CreateJobOnResult.InvalidTampao =>
+            "O diâmetro do tampão não é utilizável — escreve um número em mm maior que 0. Nenhum Job On foi criado.",
         CreateJobOnResult.TextoLongo =>
             folha.MensagemTextoLongo("Nenhum Job On foi criado.") ?? "Um texto da folha é longo demais. Nenhum Job On foi criado.",
         _ => string.Empty
@@ -502,6 +504,8 @@ public sealed class IndexModel : PageModel
             "A boquilha (BQ) selecionada não está registada no Ferramentas. Nenhuma alteração foi guardada.",
         UpdateJobOnResult.InvalidCalote =>
             "A calote desta produção não é utilizável — escreve um número em mm (0 ou mais; vazio usa a referência da Tool). Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.InvalidTampao =>
+            "O diâmetro do tampão não é utilizável — escreve um número em mm maior que 0. Nenhuma alteração foi guardada.",
         UpdateJobOnResult.ChangedByAnotherUser =>
             "Outra pessoa gravou esta produção depois de a abrires. Nenhuma alteração foi guardada: a folha mostra agora o que ficou gravado; volta a fazer a tua alteração.",
         UpdateJobOnResult.TextoLongo =>

@@ -51,5 +51,6 @@ public sealed class ProductionContextQuery : IProductionContextQuery
             j.InicioEm,
             j.FimEm,
             j.CaloteMm,
-            EF.Property<uint>(j, DmoDbContext.RowVersion));
+            EF.Property<uint>(j, DmoDbContext.RowVersion),
+            j.TampaoDiametroMm);
 }

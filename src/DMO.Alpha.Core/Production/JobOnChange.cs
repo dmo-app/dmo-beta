@@ -66,6 +66,7 @@ public static class JobOnChangeFields
     public const string Start = "Inicio";
     public const string End = "Fim";
     public const string Calote = "Calote";
+    public const string Tampao = "Tampao";
     public const string Cm = "CM";
     public const string Mf = "MF";
     public const string Bq = "BQ";
@@ -101,6 +102,7 @@ public static class JobOnChangeFields
         Start => "o início",
         End => "o fim",
         Calote => "a calote",
+        Tampao => "o tampão",
         Cm => "a CM",
         Mf => "o MF",
         Bq => "a BQ",
@@ -116,7 +118,7 @@ public static class JobOnChangeFields
     /// </summary>
     public static JobOnFollowUp FollowUp(string field) => field switch
     {
-        Cm or Calote => JobOnFollowUp.Peso,
+        Cm or Calote or Tampao => JobOnFollowUp.Peso,
         Mf => JobOnFollowUp.Pegamentos,
         Bq => JobOnFollowUp.Controlo,
         // A folha é informação para quem prepara a máquina: nenhum módulo a rever.
@@ -135,13 +137,13 @@ public static class JobOnChangeFields
     };
 
     /// <summary>O que o Peso vigia: a CM, a BQ e a calote entram no registo do Peso.</summary>
-    public static readonly IReadOnlyList<string> PesoWatches = new[] { Cm, Bq, Calote };
+    public static readonly IReadOnlyList<string> PesoWatches = new[] { Cm, Bq, Calote, Tampao };
 
     /// <summary>O que os Pegamentos vigiam: as três ferramentas da combinação.</summary>
     public static readonly IReadOnlyList<string> PegamentosWatches = new[] { Cm, Mf, Bq };
 
     /// <summary>O que a aprovação do Controlo vigia: as ferramentas e a calote.</summary>
-    public static readonly IReadOnlyList<string> ControloWatches = new[] { Cm, Mf, Bq, Calote };
+    public static readonly IReadOnlyList<string> ControloWatches = new[] { Cm, Mf, Bq, Calote, Tampao };
 
     /// <summary>O que um registo das Boquilhas vigia: a máquina, as datas e a BQ.</summary>
     public static readonly IReadOnlyList<string> BoquilhasWatches = new[] { Machine, Start, End, Bq };
@@ -153,6 +155,7 @@ public static class JobOnChangeFields
         Start => "Início",
         End => "Fim",
         Calote => "Calote",
+        Tampao => "Tampão",
         Folha => "Folha",
         _ => field
     };

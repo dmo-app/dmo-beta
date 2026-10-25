@@ -36,31 +36,33 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
             return SemReferencia();
         }
 
-        // A geometria TP de referência é FACTO DA TOOL (regra «TP drawing/
-        // reference geometry»: não varia por módulo nem por produção).
+        // O Tampão é da PRODUÇÃO (Diogo, 23/10/2026): o D e a calote do Job On
+        // do controlo mandam; o que a CM ainda tem fica só de arranque, para
+        // as produções a que ninguém registou o Tampão.
         var tp = await _db.ToolTechnicalContexts
             .AsNoTracking()
             .Where(t => t.ToolId == toolId)
             .Select(t => new { t.TpDiametroMm, t.TpSagittaMm })
             .FirstOrDefaultAsync(cancellationToken);
-        if (tp is null)
-        {
-            return SemReferencia();
-        }
 
-        // A calote do Job On (quando o pedido vem pelo controlo): a produção
-        // manda na calote efetiva — o html usa ctx.production.calote.
         decimal? caloteJobOn = null;
+        decimal? diametroJobOn = null;
         if (request.ControloId is int controloId)
         {
-            caloteJobOn = await _db.Controlos
+            var doJobOn = await _db.Controlos
                 .AsNoTracking()
                 .Where(c => c.Id == controloId)
-                .Select(c => c.JobOn.CaloteMm)
+                .Select(c => new { c.JobOn.CaloteMm, c.JobOn.TampaoDiametroMm })
                 .FirstOrDefaultAsync(cancellationToken);
+            caloteJobOn = doJobOn?.CaloteMm;
+            diametroJobOn = doJobOn?.TampaoDiametroMm;
         }
 
-        return Calcular(tp.TpDiametroMm, tp.TpSagittaMm, caloteJobOn, request.CaloteSimuladaMm);
+        return Calcular(
+            diametroJobOn ?? tp?.TpDiametroMm,
+            tp?.TpSagittaMm ?? caloteJobOn,
+            caloteJobOn,
+            request.CaloteSimuladaMm);
     }
 
     /// <summary>
@@ -70,10 +72,15 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
     public static PesoCapSupportReadModel FromKnown(
         ToolTechnicalReadModel? cmTechnical,
         decimal? caloteJobOn,
-        decimal? caloteSimuladaMm) =>
-        cmTechnical is null
+        decimal? caloteSimuladaMm,
+        decimal? diametroJobOn = null) =>
+        cmTechnical is null && diametroJobOn is null && caloteJobOn is null
             ? SemReferencia()
-            : Calcular(cmTechnical.TpDiametroMm, cmTechnical.TpSagittaMm, caloteJobOn, caloteSimuladaMm);
+            : Calcular(
+                diametroJobOn ?? cmTechnical?.TpDiametroMm,
+                cmTechnical?.TpSagittaMm ?? caloteJobOn,
+                caloteJobOn,
+                caloteSimuladaMm);
 
     private static PesoCapSupportReadModel Calcular(
         decimal? tpDiametroMm,
