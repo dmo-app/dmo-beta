@@ -2153,7 +2153,7 @@ Novos: 17 · mudaram: 0 · saíram: 0
 
 Selo depois: `aa3a46108bd59cc6`
 
-## A-0091 · 2026-10-25 · teste-novo
+## A-0092 · 2026-10-25 · teste-novo
 
 Porquê: Reshape do Peso, PR2: os 4 acessos diretos à base da página passam para PesoEscolhasQuery; testes do serviço e orçamento de consultas no Postgres
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyJGqu987Ms3tuZqAaDhS7mh
