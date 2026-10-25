@@ -2259,3 +2259,23 @@ Novos: 14 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoComparacaoEstado.cs :: PostgresMigrationIntegrationTests.PesoComparacaoEstado_CadaLeituraSoLeSemAumentarConsultas`
 
 Selo depois: `911671ed878ed020`
+
+## A-0095 · 2026-10-25 · teste-novo
+
+Porquê: Reshape do Job On, J1: os acessos diretos à base de JobOn/Index.cshtml.cs passam para JobOnPaginaQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyJGqu987Ms3tuZqAaDhS7mh
+Novos: 11 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnPagina.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnPagina.cs :: PostgresMigrationIntegrationTests.JobOnPagina_CadaPedidoFazUmaSoConsultaDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.AvisoDeSobreposicao_EntreProducoesDaMesmaLinhaNaoAvisa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.AvisoDeSobreposicao_ProducaoInexistenteNaoDaAviso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.CaloteECodigoDaMaquina_LeemOGuardadoEDevolvemNuloSeNaoExiste`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.OsPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.ProducaoComReferenciaENumero_DevolveFerramentasEDatas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.ProducaoDoHistorico_ComVariasReferenciasDoMesmoInicio_EscolheAMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.ProducaoDoHistorico_EscolheAMaisRecenteComEsseNumero`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.ReferenciasDeMf_SoParaAFerramentaDoTipoCerto`
+
+Selo depois: `77e42f1b702b86d7`

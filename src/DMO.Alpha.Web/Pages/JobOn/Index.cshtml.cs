@@ -52,7 +52,7 @@ public sealed class IndexModel : PageModel
     private readonly IToolCandidateQuery _toolCandidates;
     private readonly IJobOnToolFactsQuery _toolFacts;
     private readonly IProductionPickerQuery _productionPicker;
-    private readonly DmoDbContext _db;
+    private readonly IJobOnPaginaQuery _pagina;
     private readonly ShellStateFactory _shellState;
     private readonly CurrentUserCapabilities _capabilities;
     private readonly JobOnLotNoteHandler _lotNotes;
@@ -69,7 +69,7 @@ public sealed class IndexModel : PageModel
         IToolCandidateQuery toolCandidates,
         IJobOnToolFactsQuery toolFacts,
         IProductionPickerQuery productionPicker,
-        DmoDbContext db,
+        IJobOnPaginaQuery pagina,
         ShellStateFactory shellState,
         CurrentUserCapabilities capabilities,
         JobOnLotNoteHandler lotNotes,
@@ -87,7 +87,7 @@ public sealed class IndexModel : PageModel
         _toolCandidates = toolCandidates;
         _toolFacts = toolFacts;
         _productionPicker = productionPicker;
-        _db = db;
+        _pagina = pagina;
         _shellState = shellState;
         _capabilities = capabilities;
         _lotNotes = lotNotes;
@@ -621,21 +621,8 @@ public sealed class IndexModel : PageModel
             // por link continua a filtrar e entra no dropdown.
             if (wanted is not null && escolhida is null)
             {
-                var antigas = _db.JobOns.AsNoTracking()
-                    .Where(ReferenceMatch.Predicate<DMO.Alpha.Core.Production.JobOn>(j => j.Reference, reference))
-                    .Where(j => j.ProductionNumber == wanted);
-                if (wantedReference is not null)
-                {
-                    antigas = antigas.Where(j => j.Reference == wantedReference);
-                }
-                if (HistoryMachineId is int maquinaPedida)
-                {
-                    antigas = antigas.Where(j => j.MachineId == maquinaPedida);
-                }
-                escolhida = await antigas
-                    .OrderByDescending(j => j.Id)
-                    .Select(j => new JobOnProductionOption(j.ProductionNumber, j.Reference))
-                    .FirstOrDefaultAsync(cancellationToken);
+                escolhida = await _pagina.ProducaoDoHistoricoAsync(
+                    reference, wanted, wantedReference, HistoryMachineId, cancellationToken);
                 if (escolhida is not null)
                 {
                     HistoryProductions = [.. HistoryProductions, escolhida];
@@ -856,17 +843,9 @@ public sealed class IndexModel : PageModel
         // resolver) vem todo no <see cref="OverlapWarning.Message"/>.
         if (overlap == "1" && OpenJobOn is { } overlapOpen)
         {
-            var overlapMachineId = await _db.JobOns
-                .AsNoTracking()
-                .Where(j => j.Id == overlapOpen.JobOnId)
-                .Select(j => j.MachineId)
-                .FirstOrDefaultAsync(HttpContext.RequestAborted);
-            if (overlapMachineId != 0)
-            {
-                OverlapWarning = await DMO.Alpha.Infrastructure.Production.JobOnOverlapQuery.EvaluateAsync(
-                    _db, overlapOpen.JobOnId, overlapMachineId, overlapOpen.Machine,
-                    overlapOpen.InicioEm, overlapOpen.FimEm, HttpContext.RequestAborted);
-            }
+            OverlapWarning = await _pagina.AvisoDeSobreposicaoAsync(
+                overlapOpen.JobOnId, overlapOpen.Machine,
+                overlapOpen.InicioEm, overlapOpen.FimEm, HttpContext.RequestAborted);
         }
 
         // Só as produções que o calendário do mês, o dia e o rail da semana
@@ -1238,10 +1217,7 @@ public sealed class IndexModel : PageModel
             ToolCandidateFilter? usado = null;
             if (slot == ToolType.Cm && Sanitize(mfToolId) is { } mfId)
             {
-                var mfReference = await _db.Tools.AsNoTracking()
-                    .Where(tool => tool.ToolId == mfId && tool.Type == ToolType.Mf)
-                    .Select(tool => tool.Reference)
-                    .FirstOrDefaultAsync(HttpContext.RequestAborted);
+                var mfReference = await _pagina.ReferenciaDaMfAsync(mfId, HttpContext.RequestAborted);
                 if (mfReference is not null)
                 {
                     var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term);
@@ -1258,10 +1234,7 @@ public sealed class IndexModel : PageModel
             {
                 // Sem volta à referência da produção: com a CM escolhida, a
                 // lista mostra só as MF que encaixam nela.
-                var cmMfReference = await _db.Tools.AsNoTracking()
-                    .Where(tool => tool.ToolId == cmId && tool.Type == ToolType.Cm)
-                    .Select(tool => tool.AssociatedMfReference ?? tool.Reference)
-                    .FirstOrDefaultAsync(HttpContext.RequestAborted);
+                var cmMfReference = await _pagina.ReferenciaMfDaCmAsync(cmId, HttpContext.RequestAborted);
                 if (cmMfReference is not null)
                 {
                     usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term);
@@ -1465,17 +1438,8 @@ public sealed class IndexModel : PageModel
             return null;
         }
 
-        var existing = await _db.JobOns
-            .AsNoTracking()
-            .Where(j => j.ProductionNumber == productionNumber && j.Reference.ToUpper() == reference)
-            .Select(j => new
-            {
-                j.Id, j.MachineId, j.InicioEm, j.FimEm, j.CaloteMm,
-                Cm = j.CmContext == null ? null : j.CmContext.ToolId,
-                Mf = j.MfContext == null ? null : j.MfContext.ToolId,
-                Bq = j.BqContext == null ? null : j.BqContext.ToolId
-            })
-            .FirstOrDefaultAsync(HttpContext.RequestAborted);
+        var existing = await _pagina.ProducaoComReferenciaENumeroAsync(
+            reference, productionNumber, HttpContext.RequestAborted);
 
         if (existing is null
             || existing.MachineId != machineId
@@ -1555,11 +1519,7 @@ public sealed class IndexModel : PageModel
         var parsedCalote = ParseCalote(caloteMm, out var caloteIgnorada);
         if (caloteIgnorada is not null)
         {
-            parsedCalote = await _db.JobOns
-                .AsNoTracking()
-                .Where(j => j.Id == parsedJobOnId)
-                .Select(j => j.CaloteMm)
-                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            parsedCalote = await _pagina.CaloteGuardadaAsync(parsedJobOnId, HttpContext.RequestAborted);
         }
 
         if (sanitizedMfToolId is not null && MissingCmOrBq(sanitizedCmToolId, sanitizedBqToolId) is { } faltaEditar)
@@ -1841,11 +1801,7 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "fim_em")] DateOnly? fimEm)
     {
         var machineCode = machineId is int id
-            ? await _db.Machines
-                .AsNoTracking()
-                .Where(m => m.Id == id)
-                .Select(m => (string?)m.Code)
-                .FirstOrDefaultAsync(HttpContext.RequestAborted)
+            ? await _pagina.CodigoDaMaquinaAsync(id, HttpContext.RequestAborted)
             : null;
 
         var toolIds = new[] { Sanitize(cmToolId), Sanitize(mfToolId), Sanitize(bqToolId) }
