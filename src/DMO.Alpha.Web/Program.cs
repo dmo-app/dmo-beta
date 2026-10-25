@@ -328,6 +328,7 @@ builder.Services.AddScoped<IDeleteJobOnHandler, DeleteJobOnHandler>();
 // + máquinas persistidas para seleção explícita.
 builder.Services.AddScoped<IProductionContextQuery, ProductionContextQuery>();
 builder.Services.AddScoped<IJobOnListQuery, JobOnListQuery>();
+builder.Services.AddScoped<IJobOnPaginaQuery, JobOnPaginaQuery>();
 builder.Services.AddScoped<IProductionPickerQuery, ProductionPickerQuery>();
 // As sugestões ao escrever dos campos de procura (DMO-044): uma consulta
 // curta por pedido, servida por GET /Sugestoes e usada por js/dmo-suggest.js.
