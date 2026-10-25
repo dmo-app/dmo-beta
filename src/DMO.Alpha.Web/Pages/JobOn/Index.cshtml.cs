@@ -566,10 +566,9 @@ public sealed class IndexModel : PageModel
         foreach (var machine in machines)
         {
             var doDia = cobre.Where(j => j.Machine == machine.Code).OrderBy(j => j.Reference).ToList();
-            // A sobreposição: duas produções que se cruzam, pela regra do aviso
-            // ao gravar (a que sai no dia em que a outra entra não conta).
-            var cruzam = doDia.Any(a => doDia.Any(b => a.JobOnId < b.JobOnId
-                && DMO.Alpha.Core.Production.JobOnOverlap.Crosses(a.InicioEm, a.FimEm, b.InicioEm, b.FimEm)));
+            // Sem sobreposição entre produções da linha: só as BQ a têm
+            // (Diogo, 25/10/2026).
+            const bool cruzam = false;
             rows.Add(new(machine.Code, doDia.Select(x => new DMO.Alpha.Web.Presentation.DayProduction(x.JobOnId, x.Reference, x.ProductionNumber)).ToList())
             {
                 HasOverlap = cruzam

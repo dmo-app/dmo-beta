@@ -2153,12 +2153,38 @@ Novos: 17 · mudaram: 0 · saíram: 0
 
 Selo depois: `aa3a46108bd59cc6`
 
-## A-0091 · 2026-10-23 · ok-do-diogo
+## A-0091 · 2026-10-25 · ok-do-diogo
 
-Porquê: O Diogo pediu o PU na primeira fila e os Calibres por baixo do PU (na vertical), com o TP e o CS mais estreitos; o teste do browser passa a esperar os Calibres por baixo do PU em vez de por baixo do TP e do CS.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyMLJyVMvSHt8nCnfDQJj14J, cmsg_01A27e9ozcpoh4jdPRsuJbFy5CvC5vHd3UG6j4st2ydTvC, cmsg_01A27e9ozcpoh4jdPRsuJbFyNGXdPSjqk8Vph85X5iBU3N
-Novos: 0 · mudaram: 1 · saíram: 0
+Porquê: O Diogo pediu o PU na primeira fila e os Calibres por baixo do PU (na vertical), com o TP e o CS mais estreitos (o teste do browser espera os Calibres por baixo do PU), e que a sobreposição só se aplique às BQ: os testes que esperavam aviso, marca vermelha ou banner entre produções da mesma linha passam a esperar que não haja, e a calculadora continua a distinguir a véspera do dia da troca.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyMLJyVMvSHt8nCnfDQJj14J, cmsg_01A27e9ozcpoh4jdPRsuJbFy5CvC5vHd3UG6j4st2ydTvC, cmsg_01A27e9ozcpoh4jdPRsuJbFyNGXdPSjqk8Vph85X5iBU3N, cmsg_01A27e9ozcpoh4jdPRsuJbFyL3Zdukw69fdMxwmGuyEqvb
+Novos: 12 · mudaram: 3 · saíram: 12
 
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_FilteredInSql_NuncaAvisaEntreProducoesDaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_NoDiaDaTroca_ENoDiaAntes_NuncaAvisam`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapQueryTests.cs :: JobOnOverlapQueryTests.EveryWindow_NeverWarnsBetweenProductionsOfTheSameLine_InMemory`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_AcabaNoDiaEmQueAOutraComeca_GravaSemAviso_NaVesperaNaoCruza`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_ComecaNoDiaEmQueAOutraAcaba_GravaSemAviso_NoDiaSeguinteNaoCruza`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_OpenEndAgainstOpenStart_SavesWithoutWarning`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_WithOverlapOnSameMachine_SavesWithoutWarning`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Update_WithOverlapOnSameMachine_SavesWithoutWarning`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_DuasNaMesmaMaquina_NaoMarcamSobreposicao`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaNuncaFicaVermelha_PorProducoesQueSeCruzam`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_SemAvisoDeSobreposicaoEntreProducoesDaLinha_ENuncaBloqueiaAGravacao`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_WithOverlapOnSameMachine_SavesWithoutBanner`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapQueryTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: (resto do ficheiro)`
 - mudou: `tests/visual/jobon_folha_browser.py`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_FilteredInSql_GivesTheSameWarningAsComparingEveryProduction`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_NoDiaDaTroca_NaoAvisa_ENoDiaAntesAvisa`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapQueryTests.cs :: JobOnOverlapQueryTests.EveryWindow_GivesTheSameWarningAsComparingEveryProduction_InMemory`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_AcabaNoDiaEmQueAOutraComeca_AvisaEGrava_NaVesperaNao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_ComecaNoDiaEmQueAOutraAcaba_AvisaEGrava_NoDiaSeguinteNao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_OpenEndAgainstOpenStart_TheHonestOverlapText`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Create_WithOverlapOnSameMachine_SavesAndWarnsInDetail`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: JobOnOverlapWarningTests.Update_WithOverlapOnSameMachine_SavesAndWarnsInDetail`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_DuasNaMesmaMaquina_MarcaASobreposicao`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaVermelha_SoComSobreposicaoReal`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_OverlapWarningsReflectKnownDates_AndNeverBlockSaving`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_WithOverlapOnSameMachine_StaysOnJobOnWithTheYellowBanner`
 
-Selo depois: `14c37efac6213bfd`
+Selo depois: `913b261f826153c3`

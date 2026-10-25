@@ -1237,7 +1237,7 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task CreateFlow_WithOverlapOnSameMachine_StaysOnJobOnWithTheYellowBanner()
+    public async Task CreateFlow_WithOverlapOnSameMachine_SavesWithoutBanner()
     {
         // A3 — O AVISO AMARELO DO OVERLAP (o Owner: «overlap da maquina
         // deve dar um warning, nao deve bloquear, o warning deve dizer
@@ -1291,7 +1291,7 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.Redirect, created.StatusCode);
         var location = created.Headers.Location!.ToString();
         Assert.StartsWith("/JobOn", location, StringComparison.Ordinal);
-        Assert.Contains("overlap=1", location, StringComparison.Ordinal);
+        Assert.DoesNotContain("overlap=1", location, StringComparison.Ordinal);
         Assert.Contains("jobon_id=", location, StringComparison.Ordinal);
 
         // A verdade persistida: DUAS produções na B1 (a nova está lá — o
@@ -1302,29 +1302,13 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
             Assert.Equal(2, await db.JobOns.AsNoTracking().CountAsync());
         }
 
-        // O BANNER depois do redirect: o AVISO AMARELO (a classe warn —
-        // nunca o vermelho da recusa) com o DETALHE — a produção em
-        // conflito pelo nº, a janela dela, o período exato da
-        // sobreposição e a sugestão concreta de resolução.
+        // Sem banner de sobreposição entre produções da linha (Diogo,
+        // 25/10/2026: «so se aplica as bqs»).
         var bannerHtml = await GetPageHtmlAsync(client, location);
-        Assert.Contains("jobon-aviso warn", bannerHtml);
-        Assert.Contains("PN-EXISTENTE-1", bannerHtml);
-        Assert.Contains("12/04/2026–20/04/2026", bannerHtml);
-        Assert.Contains("10/04/2026–15/04/2026", bannerHtml);
-        Assert.Contains("12/04/2026–15/04/2026", bannerHtml);
-        Assert.Contains("Ajusta o início da nova para depois de 15/04/2026", bannerHtml);
-        Assert.Contains("edita a anterior na folha do Job On", bannerHtml);
-
-        // O link do aviso leva ao Editar da produção em conflito (Diogo,
-        // 19/10/2026: os avisos levam à página onde se resolvem).
-        int existenteId;
-        using (var scope = _factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            existenteId = await db.JobOns.AsNoTracking().Where(j => j.ProductionNumber == "PN-EXISTENTE-1").Select(j => j.Id).SingleAsync();
-        }
-        Assert.Contains($"<a class=\"dmo-aviso-link\" href=\"/JobOn?jobon_id={existenteId}&amp;editar=1#lightSheet\">Editar ", bannerHtml);
+        Assert.DoesNotContain("sobrepõe-se", bannerHtml);
+        Assert.DoesNotContain("12/04/2026–15/04/2026", bannerHtml);
     }
+
     [Fact]
     public async Task ToolCandidates_FilterByMachineAndProduction_AndShowAllRestoresAlternatives()
     {
