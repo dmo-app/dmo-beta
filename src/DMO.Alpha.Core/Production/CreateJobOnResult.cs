@@ -57,6 +57,9 @@ public enum CreateJobOnResult
     /// </summary>
     InvalidCalote,
 
+    /// <summary>O diâmetro do tampão é zero ou negativo (fisicamente impossível).</summary>
+    InvalidTampao,
+
     /// <summary>
     /// Um texto da folha passa o máximo do catálogo (JobOnFolhaCampos): a
     /// chave vai em ChaveRecusada. Nada é gravado e a folha volta com o que

@@ -41,4 +41,9 @@ public sealed record UpdateJobOn(
     // a folha e ela fica como está. Gravam na mesma escrita do Job On, e o
     // que mudou fica numa linha de «O que mudou».
     IReadOnlyDictionary<string, string?>? Folha = null,
-    IReadOnlyList<LinhaCalEnvio>? Cal = null);
+    IReadOnlyList<LinhaCalEnvio>? Cal = null,
+    // O diâmetro D (mm) do tampão (Diogo, 23/10/2026). Só grava quando
+    // TampaoEnviado: os envios que não trazem o campo não o limpam. Enviado e
+    // null = limpo. Zero ou negativo é recusa tipada (InvalidTampao).
+    decimal? TampaoDiametroMm = null,
+    bool TampaoEnviado = false);

@@ -45,6 +45,9 @@ public enum UpdateJobOnResult
     /// </summary>
     InvalidCalote,
 
+    /// <summary>O diâmetro do tampão é zero ou negativo (fisicamente impossível).</summary>
+    InvalidTampao,
+
     /// <summary>
     /// Outra pessoa gravou esta produção depois de a ficha ser aberta (a versão
     /// enviada já não é a gravada). Nada foi gravado: a ficha volta com o

@@ -33,4 +33,7 @@ public sealed record CreateJobOn(
     // (JobOnFolhaCampos) e as linhas CAL, pela ordem. Null = o envio não traz
     // a folha (nada se grava nela). Gravam na mesma escrita do Job On.
     IReadOnlyDictionary<string, string?>? Folha = null,
-    IReadOnlyList<LinhaCalEnvio>? Cal = null);
+    IReadOnlyList<LinhaCalEnvio>? Cal = null,
+    // O diâmetro D (mm) do tampão desta produção (Diogo, 23/10/2026); zero ou
+    // negativo é recusa tipada (InvalidTampao); null = ainda não registado.
+    decimal? TampaoDiametroMm = null);

@@ -254,8 +254,20 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
+        // O TAMPÃO congela-se com a punção (Diogo, 23/10/2026): o do Job On do
+        // controlo; sem Job On (ou sem valor), o que a CM ainda tem de arranque.
+        var tampaoJobOn = command.ControloId is int controloDoTampao
+            ? await _db.Controlos
+                .AsNoTracking()
+                .Where(c => c.Id == controloDoTampao)
+                .Select(c => new { c.JobOn.TampaoDiametroMm, c.JobOn.CaloteMm })
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
         var peso = new Peso
         {
+            TampaoDiametroMm = tampaoJobOn?.TampaoDiametroMm ?? cmTechnical?.TpDiametroMm,
+            TampaoCaloteMm = tampaoJobOn?.CaloteMm ?? cmTechnical?.TpSagittaMm,
             CmToolId = command.CmToolId,
             BqToolId = command.BqToolId,
             Process = storedProcess,

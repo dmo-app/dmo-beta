@@ -106,6 +106,11 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
             return Refused(CreateJobOnResult.InvalidCalote);
         }
 
+        if (command.TampaoDiametroMm is <= 0m)
+        {
+            return Refused(CreateJobOnResult.InvalidTampao);
+        }
+
         // A FOLHA DA FÁBRICA: os textos normalizados; um texto acima do
         // máximo do catálogo é a única recusa da folha (um dado que não cabe),
         // antes de qualquer escrita. Nenhum campo é obrigatório.
@@ -136,6 +141,7 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
             // dmo-html): null = a referência da Tool manda (o apoio
             // TP/calote do Peso usa-a automaticamente — a B1).
             CaloteMm = command.CaloteMm,
+            TampaoDiametroMm = command.TampaoDiametroMm,
             CriadoEmUtc = DateTime.UtcNow
         };
 

@@ -104,6 +104,11 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
             return Refused(UpdateJobOnResult.InvalidCalote);
         }
 
+        if (command.TampaoEnviado && command.TampaoDiametroMm is <= 0m)
+        {
+            return Refused(UpdateJobOnResult.InvalidTampao);
+        }
+
         // Um texto da folha acima do máximo do catálogo é a única recusa da
         // folha (um dado que não cabe), antes de qualquer escrita.
         if (folhaEnviada.ChaveLonga is { } chaveLonga)
@@ -125,6 +130,7 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
             jobOn.InicioEm,
             jobOn.FimEm,
             jobOn.CaloteMm,
+            jobOn.TampaoDiametroMm,
             Cm = jobOn.CmContext?.ToolId,
             Mf = jobOn.MfContext?.ToolId,
             Bq = jobOn.BqContext?.ToolId
@@ -137,6 +143,10 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         // preenchido com o valor corrente da ficha); null = a calote limpa
         // (a referência da Tool manda no apoio TP/calote do Peso).
         jobOn.CaloteMm = command.CaloteMm;
+        if (command.TampaoEnviado)
+        {
+            jobOn.TampaoDiametroMm = command.TampaoDiametroMm;
+        }
 
         // Trocar a CM é outro cm_id (Diogo, 18/10/2026; Decisão 001): o cm_id
         // é o retrato de um tool_id naquele momento. O anterior fica no
@@ -273,6 +283,11 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
             changes.Add((JobOnChangeFields.Calote, FormatCalote(before.CaloteMm), FormatCalote(jobOn.CaloteMm)));
         }
 
+        if (before.TampaoDiametroMm != jobOn.TampaoDiametroMm)
+        {
+            changes.Add((JobOnChangeFields.Tampao, FormatTampao(before.TampaoDiametroMm), FormatTampao(jobOn.TampaoDiametroMm)));
+        }
+
         var toolChanges = new[]
             {
                 (Field: JobOnChangeFields.Cm, Old: before.Cm, New: cm?.ToolId),
@@ -386,6 +401,7 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         && jobOn.InicioEm == command.InicioEm
         && jobOn.FimEm == command.FimEm
         && jobOn.CaloteMm == command.CaloteMm
+        && (!command.TampaoEnviado || jobOn.TampaoDiametroMm == command.TampaoDiametroMm)
         && IsSavedTool(jobOn.CmContext?.ToolId, command.CmToolId)
         && IsSavedTool(jobOn.MfContext?.ToolId, command.MfToolId)
         && IsSavedTool(jobOn.BqContext?.ToolId, command.BqToolId);
@@ -401,6 +417,11 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         calote is { } value
             ? value.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm"
             : "Usar referência da Tool";
+
+    private static string FormatTampao(decimal? diametro) =>
+        diametro is { } value
+            ? "Ø " + value.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " mm"
+            : "Sem tampão";
 
     private static string? Truncate(string? value, int max) =>
         string.IsNullOrEmpty(value) ? null : value.Length <= max ? value : value[..max];

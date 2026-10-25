@@ -58,7 +58,8 @@ public sealed class PesoFolhaQuery(
         {
             // O técnico da CM e a calote do Job On já foram lidos.
             capSupport = cmToolId.Length > 0 && cmToolId.Trim() == cmToolId
-                ? PesoCapSupportQuery.FromKnown(facts?.CmTechnical, context.CaloteMm, caloteSimulada)
+                ? PesoCapSupportQuery.FromKnown(
+                    facts?.CmTechnical, context.CaloteMm, caloteSimulada, context.TampaoDiametroMm)
                 : await capSupportQuery.GetAsync(
                     new PesoCapSupportRequest(cmToolId, controloId, caloteSimulada), cancellationToken);
         }
