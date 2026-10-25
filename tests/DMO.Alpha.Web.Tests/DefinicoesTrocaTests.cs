@@ -155,7 +155,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">Os dois emails não coincidem.",
             await admin.GetStringAsync("/Definicoes?secao=admin&sub=app&app=admin-email-diferente"));
 
-        using var chefe = await LoginOperatorAsync("5112", DmoCapabilities.BoquilhasView);
+        using var chefe = await LoginOperatorAsync("5112", DmoCapabilities.Boquilhas);
         var ri = await chefe.GetStringAsync("/Definicoes?secao=reparacao&gravacao=ok-hora");
         var cartao = Posicao(ri, "<section id=\"riDefViragem\" class=\"dmo-card adm-card\" aria-labelledby=\"ri-settings-title\" data-dmo-regiao data-dmo-parcial>");
         Assert.True(Posicao(ri, "<p data-dmo-toast=\"ok\" role=\"status\">Hora de viragem gravada.</p>") > cartao);

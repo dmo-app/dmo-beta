@@ -257,9 +257,10 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
         Assert.Equal("7", Stored(ModuleSettingKeys.ReparacaoInternaDayChangeHour));
         Assert.Equal("6", Stored(ModuleSettingKeys.BoquilhasDayChangeHour));
 
-        // A Reparação está em «Boquilhas · ver»: quem só tem a Reparação não a vê.
-        using var chefe = await LoginOperatorAsync("5106", DmoCapabilities.BoquilhasView);
-        Assert.Contains("id=\"riDefViragem\"", await chefe.GetStringAsync("/Definicoes?secao=reparacao"));
-        Assert.DoesNotContain("id=\"riDefViragem\"", await bq.GetStringAsync("/Definicoes"));
+        // A Reparação fica com «Boquilhas · criar»; quem só tem «ver» não a vê.
+        Assert.Contains("id=\"riDefViragem\"", await bq.GetStringAsync("/Definicoes?secao=reparacao"));
+        using var soVer = await LoginOperatorAsync("5106", DmoCapabilities.BoquilhasView);
+        Assert.DoesNotContain("id=\"riDefViragem\"", await soVer.GetStringAsync("/Definicoes"));
+        Assert.DoesNotContain("id=\"bqDefViragem\"", await soVer.GetStringAsync("/Definicoes"));
     }
 }

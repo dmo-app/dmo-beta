@@ -412,9 +412,9 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Contains("Reparação Interna", templates);
         Assert.Contains($"value=\"{DmoCapabilities.ReparacaoInterna}\"", templates);
 
-        using var chefe = await LoginOperatorAsync("6604", DmoCapabilities.BoquilhasView);
+        using var chefe = await LoginOperatorAsync("6604", DmoCapabilities.Boquilhas);
         var canal = await chefe.GetStringAsync("/Definicoes?secao=reparacao");
-        // O ADMIN só vê as definições do Admin (Diogo, 25/10/2026): o cartão é de «Boquilhas · ver».
+        // O ADMIN só vê as definições do Admin (Diogo, 25/10/2026): o cartão é de «Boquilhas · criar».
         Assert.DoesNotContain("id=\"riDefViragem\"", await admin.GetStringAsync("/Definicoes?secao=reparacao"));
         var cartao = Elemento(canal, "id=\"riDefViragem\"");
         Assert.Contains("Hora de viragem do dia", cartao);

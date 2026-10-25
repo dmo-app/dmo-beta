@@ -204,7 +204,7 @@ public sealed class IndexModel(
         }
 
         // Diogo, 25/10/2026: o ADMIN só vê as definições do Admin; cada módulo só a quem o tem.
-        if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.BoquilhasView))
+        if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.Boquilhas))
         {
             Reparacao = Ligar(reparacao);
             await Reparacao.CarregarAsync(Q("gravacao"));
