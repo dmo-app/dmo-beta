@@ -53,7 +53,7 @@ public sealed class PesoModel : PageModel
     private readonly IProductionContextQuery _productionContext;
     private readonly PesoPdfDocumentBuilder _pdfDocument;
     private readonly IModuleSettingsQuery _moduleSettings;
-    private readonly DmoDbContext _db;
+    private readonly IPesoEscolhasQuery _escolhas;
     private readonly IToolCandidateQuery _toolCandidates;
     private readonly IAssociatePesoToControloHandler _associatePeso;
     private readonly IPesoAssociationQuery _pesoAssociation;
@@ -72,7 +72,7 @@ public sealed class PesoModel : PageModel
         IProductionContextQuery productionContext,
         PesoPdfDocumentBuilder pdfDocument,
         IModuleSettingsQuery moduleSettings,
-        DmoDbContext db,
+        IPesoEscolhasQuery escolhas,
         IToolCandidateQuery toolCandidates,
         IAssociatePesoToControloHandler associatePeso,
         IPesoAssociationQuery pesoAssociation,
@@ -112,7 +112,7 @@ public sealed class PesoModel : PageModel
         _productionContext = productionContext;
         _pdfDocument = pdfDocument;
         _moduleSettings = moduleSettings;
-        _db = db;
+        _escolhas = escolhas;
         _toolCandidates = toolCandidates;
     }
 
@@ -887,10 +887,7 @@ public sealed class PesoModel : PageModel
         if (jobOnId is int soJobOnId && controloId is null && pesoId is null
             && modo is null && historico != "1" && comparacao != "1")
         {
-            var controloDaProducao = await _db.Controlos.AsNoTracking()
-                .Where(c => c.JobOnId == soJobOnId)
-                .Select(c => (int?)c.Id)
-                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            var controloDaProducao = await _escolhas.ControloDaProducaoAsync(soJobOnId, HttpContext.RequestAborted);
             return controloDaProducao is int abrirControloId
                 ? RedirectToPage("/Controlo/Peso", new { controlo_id = abrirControloId })
                 : RedirectToPage("/Controlo/Resumo", new { jobon_id = soJobOnId });
@@ -1091,10 +1088,7 @@ public sealed class PesoModel : PageModel
             int? producaoPedida = jobOnId;
             if (producaoPedida is null && controloId is int controloDaComparacao)
             {
-                producaoPedida = await _db.Controlos.AsNoTracking()
-                    .Where(c => c.Id == controloDaComparacao)
-                    .Select(c => (int?)c.JobOnId)
-                    .FirstOrDefaultAsync(HttpContext.RequestAborted);
+                producaoPedida = await _escolhas.ProducaoDoControloAsync(controloDaComparacao, HttpContext.RequestAborted);
             }
 
             // Dois passos (16/10/2026): a referência primeiro; o select só
@@ -1371,10 +1365,7 @@ public sealed class PesoModel : PageModel
         {
             JobOnReferencia = Sanitize(referencia);
             JobOnMaquina = Sanitize(maquina);
-            Maquinas = await _db.Machines.AsNoTracking()
-                .OrderBy(m => m.Code)
-                .Select(m => m.Code)
-                .ToListAsync(HttpContext.RequestAborted);
+            Maquinas = await _escolhas.CodigosDeMaquinasAsync(HttpContext.RequestAborted);
             if (JobOnReferencia is { } referenciaProcurada)
             {
                 ProducoesJobOn = await _jobOnList.ListByReferenceAsync(
@@ -2269,8 +2260,7 @@ public sealed class PesoModel : PageModel
             && pesoInicialId is int inicialGuardado
             && (cmSubjects ?? []).All(string.IsNullOrWhiteSpace)
             && (waterWeights ?? []).All(string.IsNullOrWhiteSpace)
-            && await _db.PesoComparacoes.AsNoTracking()
-                .AnyAsync(c => c.Id == guardadaId && c.PesoInicialId == inicialGuardado, HttpContext.RequestAborted))
+            && await _escolhas.ComparacaoGuardadaExisteAsync(guardadaId, inicialGuardado, HttpContext.RequestAborted))
         {
             return RedirectToPage("/Controlo/Peso", new
             {

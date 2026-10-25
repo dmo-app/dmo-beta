@@ -1,5 +1,5 @@
 {
-  "selo": "aa3a46108bd59cc6",
+  "selo": "acf857f4d5021735",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -634,6 +634,12 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoDecisoesDoDiogoTests.cs :: PesoDecisoesDoDiogoTests.MudarAEscolha_TiraAAprovacao_EManterNaoVaiParaAprovacao": "f512206131500651",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoDecisoesDoDiogoTests.cs :: PesoDecisoesDoDiogoTests.PesoGravado_UsaADensidadeDaAguaQueGuardou_NaoADaTabelaCorrigida": "7410a69de2659212",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoDecisoesDoDiogoTests.cs :: PesoDecisoesDoDiogoTests.PesoNovo_GravaADensidadeDaAguaQueUsou": "3f32f3110e930454",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: (resto do ficheiro)": "35d1e408ba34e3ff",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.CodigosDeMaquinas_VemPorOrdemDoCodigo": "68f24bc0a6231db5",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.ComparacaoGuardada_SoExisteComOParDeIdentificadoresCerto": "3fa023b82355d8d6",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.ControloDaProducao_DevolveOControloDessaProducaoESemControloDevolveNulo": "3238a2c250a86b86",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.OsQuatroPedidos_NaoGravamNada": "a73a2e3db5855ae9",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.ProducaoDoControlo_DevolveAProducaoEControloInexistenteDevolveNulo": "8a7f68eddf798bbb",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: (resto do ficheiro)": "95a30ea9f2e11c17",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.AntesDoPrimeiroPeso_MostraFactosDaProducaoECandidatosSemCriarNada": "e3780fba5c869df8",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoFolhaQueryTests.cs :: PesoFolhaQueryTests.CaloteSimulada_MudaSoAApresentacaoSemRelerTecnicos": "bfe3a4975ab7ef00",
@@ -901,6 +907,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosPosicoes.cs :: (resto do ficheiro)": "b7a1079bcf05381e",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosPosicoes.cs :: PostgresMigrationIntegrationTests.Pegamentos_ComUmBuracoJaGravadoNasPosicoes_UmaLeituraNovaGrava": "9fb459d9964bd6ac",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosPosicoes.cs :: PostgresMigrationIntegrationTests.Pegamentos_RegistarEApagarAoMesmoTempo_NaoDeixaBuracoNasPosicoes": "21d112ec7903d489",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoEscolhas.cs :: (resto do ficheiro)": "0af0585547aa4b12",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoEscolhas.cs :: PostgresMigrationIntegrationTests.PesoEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura": "e2d5dbd704a3f55c",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoFolha.cs :: (resto do ficheiro)": "0d7b0be5d87dae16",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoFolha.cs :: PostgresMigrationIntegrationTests.PesoFolha_CarregamentoSoLeSemAumentarConsultas": "a3ea7b2a6b3746b3",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoPerToolCombination.cs :: (resto do ficheiro)": "e5e94c6041cb58fb",
