@@ -99,12 +99,13 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
           <input type="hidden" name="ferramenta" value="@Model.ToolId" />
         }
         <div class="dmo-field">
-          <label for="armMovDe">De</label>
-          <input id="armMovDe" name="de" type="date" value="@UltimosModel.Data(Model.De)" data-dmo-autosubmit />
+          <label for="armMovReferencia">Referência</label>
+          <input id="armMovReferencia" name="referencia" class="arm-curto" value="@Model.Referencia" autocomplete="off" data-dmo-maiusculas autocapitalize="characters"
+                 placeholder="5447" data-dmo-suggest="ferramentas" data-dmo-suggest-submit />
         </div>
         <div class="dmo-field">
-          <label for="armMovAte">Até</label>
-          <input id="armMovAte" name="ate" type="date" value="@UltimosModel.Data(Model.Ate)" data-dmo-autosubmit />
+          <label for="armMovLote">Lote</label>
+          <input id="armMovLote" name="lote" class="arm-lote" value="@Model.Lote" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="3" />
         </div>
         <div class="dmo-field">
           <label for="armMovTipo">Tipo</label>
@@ -117,13 +118,12 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
           </select>
         </div>
         <div class="dmo-field">
-          <label for="armMovReferencia">Referência</label>
-          <input id="armMovReferencia" name="referencia" class="arm-curto" value="@Model.Referencia" autocomplete="off" data-dmo-maiusculas autocapitalize="characters"
-                 placeholder="5447" data-dmo-suggest="ferramentas" data-dmo-suggest-submit />
+          <label for="armMovDe">De</label>
+          <input id="armMovDe" name="de" type="date" value="@UltimosModel.Data(Model.De)" data-dmo-autosubmit />
         </div>
         <div class="dmo-field">
-          <label for="armMovLote">Lote</label>
-          <input id="armMovLote" name="lote" class="arm-lote" value="@Model.Lote" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="3" />
+          <label for="armMovAte">Até</label>
+          <input id="armMovAte" name="ate" type="date" value="@UltimosModel.Data(Model.Ate)" data-dmo-autosubmit />
         </div>
         <div class="dmo-field">
           <label for="armMovLinha">Linha</label>
