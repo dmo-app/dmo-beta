@@ -358,6 +358,13 @@
 .jof2 button.tool-head{width:calc(100% + 16px);border:0;background:none;text-align:left;cursor:default}
 .jof2.editing button.tool-head{cursor:pointer}
 .jof2:not(.editing) button.tool-head:hover{background:none}
+/* Diogo 25/10: perceber que se pode abrir a ficha. Com ferramenta, a mão, o fundo
+   ao passar e a referência na cor dos links. */
+.jof2:not(.editing) button.tool-head[data-jof-ficha]{cursor:pointer}
+.jof2:not(.editing) button.tool-head[data-jof-ficha]:hover{background:var(--dmo-brand-050)}
+.jof2:not(.editing) button.tool-head[data-jof-ficha]:hover [data-jof-tool-ref]{color:var(--dmo-brand-700)}
+/* O realce ao passar não encosta à caixa do aviso por baixo (Diogo 25/10). */
+.jof2 .jof-tool-slot > .jobon-aviso{margin-top:8px}
 .jof2 .jof-tool-procura{margin-top:8px}
 /* TP ao lado do CS; os calibres na horizontal, por baixo de Sopro, com todas as medidas à vista. */
 @container board (min-width:940px){
