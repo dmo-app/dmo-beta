@@ -2190,3 +2190,20 @@ Novos: 13 · mudaram: 3 · saíram: 13
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_WithOverlapOnSameMachine_StaysOnJobOnWithTheYellowBanner`
 
 Selo depois: `c20f63ff70a5681e`
+
+## A-0092 · 2026-10-25 · teste-novo
+
+Porquê: Reshape do Peso, PR2: os 4 acessos diretos à base da página passam para PesoEscolhasQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyJGqu987Ms3tuZqAaDhS7mh
+Novos: 8 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.CodigosDeMaquinas_VemPorOrdemDoCodigo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.ComparacaoGuardada_SoExisteComOParDeIdentificadoresCerto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.ControloDaProducao_DevolveOControloDessaProducaoESemControloDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.OsQuatroPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoEscolhasQueryTests.cs :: PesoEscolhasQueryTests.ProducaoDoControlo_DevolveAProducaoEControloInexistenteDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoEscolhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoEscolhas.cs :: PostgresMigrationIntegrationTests.PesoEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
+
+Selo depois: `4aa1a9dc98189376`
