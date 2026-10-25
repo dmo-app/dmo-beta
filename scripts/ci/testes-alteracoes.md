@@ -2207,3 +2207,26 @@ Novos: 8 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoEscolhas.cs :: PostgresMigrationIntegrationTests.PesoEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
 
 Selo depois: `4aa1a9dc98189376`
+
+## A-0093 · 2026-10-25 · teste-novo
+
+Porquê: Reshape do Peso, PR3: produções da referência, base e contra-moldes da comparação passam para PesoComparacaoEstadoQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyJGqu987Ms3tuZqAaDhS7mh
+Novos: 14 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.Base_ComLeituras_CalculaAInfluenciaDaBasePelaOrdemDasPosicoes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.Base_ComPares_CalculaAInfluenciaDasNovasContraAMediaDaBase`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.Base_Inexistente_DevolveBaseNulaSemInfluencias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.Base_SemLeituras_MostraAPesoMasSemInfluencias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.ContraMoldes_AReferenciaDoInicialVemPrimeiroDepoisPorReferencia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.OsTresPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.ProducaoAntigaAlemDasUltimasCinco_FicaNoSelectEEscolhida`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.ProducaoPedidaDeOutraReferencia_NaoFicaEscolhida`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.ProducaoPedida_SemReferenciaEscrita_UsaAReferenciaDela`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.ReferenciaEscritaSemProducoes_DizQueNaoHaProducoes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoEstadoQueryTests.cs :: PesoComparacaoEstadoQueryTests.SemReferenciaNemProducaoPedida_DevolveOSelectVazio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoComparacaoEstado.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoComparacaoEstado.cs :: PostgresMigrationIntegrationTests.PesoComparacaoEstado_CadaLeituraSoLeSemAumentarConsultas`
+
+Selo depois: `034af013649e100c`
