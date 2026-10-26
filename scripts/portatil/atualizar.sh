@@ -11,7 +11,7 @@
 #   3. tira uma cópia da base antes de mexer (pg_dump);
 #   4. aplica as migrações com a imagem nova (migrate.sh, com o dono da base);
 #   5. troca o contentor e espera que a página de entrada responda;
-#   6. se a versão nova não responder, volta a pôr a anterior a correr.
+#   6. se a versão nova não arrancar ou não responder, volta a pôr a anterior a correr.
 # As migrações só acrescentam; se o passo 6 voltar atrás, a versão anterior
 # continua a funcionar com a base já migrada (é a regra dos PRs).
 #
@@ -44,6 +44,30 @@ base_ct="dmo-pg"
 passo() { echo; echo "== $*"; }
 falha() { echo "atualizar: FALHOU. $*" >&2; exit 1; }
 
+# Tira a versão nova e volta a pôr a anterior a correr, com o nome e o
+# arranque automático de sempre. Falha se não havia versão anterior.
+repor_anterior() {
+  docker rm -f "$nome" >/dev/null 2>&1 || true
+  docker inspect "$anterior" >/dev/null 2>&1 || return 1
+  docker rename "$anterior" "$nome"
+  docker update --restart=unless-stopped "$nome" >/dev/null
+  docker start "$nome" >/dev/null
+}
+
+# Depois de a versão anterior parar, qualquer erro (o set -e sai logo, por
+# exemplo se o docker run da nova falhar) tem de a repor; senão a app fica parada.
+recuar_se_sair() {
+  local rc=$?
+  trap - EXIT
+  echo "atualizar: FALHOU a meio da troca; volta a versão anterior." >&2
+  if repor_anterior; then
+    echo "Voltou a versão anterior. A cópia da base de antes está em $copia." >&2
+  else
+    echo "Não havia versão anterior para repor. A cópia da base está em $copia." >&2
+  fi
+  exit "$rc"
+}
+
 [ -f "$env_app" ] || falha "Não encontrei $env_app."
 [ -f "$env_migrar" ] || env_migrar="$env_app"
 
@@ -74,6 +98,7 @@ docker run --rm --network "$rede" --env-file "$env_migrar" \
 
 passo "5. Trocar o contentor"
 docker rm -f "$anterior" >/dev/null 2>&1 || true
+trap recuar_se_sair EXIT
 if docker inspect "$nome" >/dev/null 2>&1; then
   docker stop "$nome" >/dev/null
   docker rename "$nome" "$anterior"
@@ -91,6 +116,7 @@ for _ in $(seq 1 30); do
 done
 
 if [ -n "$ok" ]; then
+  trap - EXIT
   docker tag "dmo-local:$rev" dmo-local:latest
   echo
   echo "atualizar: OK. A app está no commit $rev (ramo $ramo)."
@@ -99,12 +125,9 @@ if [ -n "$ok" ]; then
 fi
 
 passo "6. A versão nova não respondeu: volta a anterior"
+trap - EXIT
 docker logs --tail 40 "$nome" >&2 || true
-docker rm -f "$nome" >/dev/null
-if docker inspect "$anterior" >/dev/null 2>&1; then
-  docker rename "$anterior" "$nome"
-  docker update --restart=unless-stopped "$nome" >/dev/null
-  docker start "$nome" >/dev/null
+if repor_anterior; then
   falha "Voltou a versão anterior. A cópia da base de antes está em $copia."
 fi
 falha "Não havia versão anterior para repor. A cópia da base está em $copia."
