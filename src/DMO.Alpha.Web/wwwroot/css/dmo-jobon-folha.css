@@ -824,3 +824,15 @@ html body .jof2.editing .sec-head:has(.hv input)>.code{margin-bottom:0}
   html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:35%}
   html body .jof2.editing table.dims:not(.calv) td:nth-child(2) input.f{padding-inline:3px}
 }
+/* Referência longa (ex. 1075C142): o Lote fica na mesma linha e o cartão não cresce. */
+html body .jof2 .tool-head{flex-wrap:nowrap}
+html body .jof2 .tool-head>.hv{min-width:0}
+html body .jof2 .tool-head>.hv:has([data-jof-tool-ref]){flex:0 1 auto}
+html body .jof2 .tool-head [data-jof-tool-ref]{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@container (max-width:300px){
+  html body .jof2 .tool-head [data-jof-tool-ref]{font-size:19px}
+}
+@container (max-width:300px){
+  html body .jof2.editing .tool-head{gap:6px}
+  html body .jof2.editing .tool-head [data-jof-tool-ref]{font-size:17px}
+}
