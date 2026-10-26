@@ -432,7 +432,6 @@ public sealed partial class BqRepairerSettingsPageTests : IClassFixture<CustomWe
         // O campo do nome novo também filtra a tabela.
         Assert.Contains("data-dmo-filtra=\"bqDefTabelaReparadores\"", html);
         Assert.DoesNotContain("type=\"submit\"", tabela, StringComparison.Ordinal);
-        Assert.DoesNotContain("Hora de viragem", html);
 
         async Task<string> EditJson(string name)
         {

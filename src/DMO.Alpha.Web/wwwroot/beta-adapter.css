@@ -103,3 +103,8 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
 
 /* A cor da linha no painel lateral (Diogo, 22/10/2026): a mesma da lista do dia. */
 .beta-production-lines .dmo-linha-cor{border-left:4px solid var(--dmo-machine-color)}
+/* Hover do quadro do dia: em vez do azul, a cor da própria linha fica mais clara no modo claro
+   e mais escura no modo escuro (Diogo, 26/10/2026). */
+.beta-light-machine-row .beta-light-production:hover{background:transparent;border-color:transparent}
+.beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 6%,var(--dmo-card))}
+@media screen{:root[data-theme="dark"] .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 10%,#070b0e)}}

@@ -138,4 +138,19 @@ html body #bqDefExcel [hidden]{display:none}
       </div>
     }
   </section>
+
+  <section id="bqDefViragem" class="dmo-card bq-def-card" aria-labelledby="boquilhas-viragem-title" data-dmo-regiao data-dmo-parcial>
+    <h3 id="boquilhas-viragem-title">Hora de viragem do dia<partial name="_DmoHelp" model="@("A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On). O padrão é 8:00, a manhã da fábrica.")" /></h3>
+    <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="SaveDayChangeHour">
+      <div class="dmo-field">
+        <label for="dayChangeHour">Hora de viragem</label>
+        <select id="dayChangeHour" name="dayChangeHour" data-dmo-autosubmit>
+          @for (var h = 0; h <= 23; h++)
+          {
+            <option value="@h" selected="@(Model.DayChangeHour == h || (Model.DayChangeHour is null && h == 8))">@h:00</option>
+          }
+        </select>
+      </div>
+    </form>
+  </section>
   </div>

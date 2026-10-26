@@ -140,7 +140,7 @@ public sealed partial class DefinicoesPorModuloPageTests
     }
 
     [Fact]
-    public async Task E10_SetupECanalJobon_CartaoNumaZona_MensagemNoCanto()
+    public async Task E10_SetupEReparacao_CartaoNumaZona_MensagemNoCanto()
     {
         using var admin = await LoginAdminAsync();
 
@@ -155,13 +155,14 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">Os dois emails não coincidem.",
             await admin.GetStringAsync("/Definicoes?secao=admin&sub=app&app=admin-email-diferente"));
 
-        var canal = await admin.GetStringAsync($"/Definicoes?secao=admin&sub=canal&viragem=ok");
-        var cartao = Posicao(canal, "<section id=\"canalJobonViragem\" class=\"dmo-card adm-card\" aria-labelledby=\"boquilhas-settings-title\" data-dmo-regiao data-dmo-parcial>");
-        Assert.True(Posicao(canal, "<p data-dmo-toast=\"ok\" role=\"status\">Hora de viragem gravada.</p>") > cartao);
-        Assert.True(Posicao(canal, "<select id=\"dayChangeHour\" name=\"dayChangeHour\" data-dmo-autosubmit>") > cartao);
-        SemAvisosNoFluxo(canal);
+        using var chefe = await LoginOperatorAsync("5112", DmoCapabilities.Boquilhas);
+        var ri = await chefe.GetStringAsync("/Definicoes?secao=reparacao&gravacao=ok-hora");
+        var cartao = Posicao(ri, "<section id=\"riDefViragem\" class=\"dmo-card adm-card\" aria-labelledby=\"ri-settings-title\" data-dmo-regiao data-dmo-parcial>");
+        Assert.True(Posicao(ri, "<p data-dmo-toast=\"ok\" role=\"status\">Hora de viragem gravada.</p>") > cartao);
+        Assert.True(Posicao(ri, "<select id=\"riDayChangeHour\" name=\"dayChangeHour\" data-dmo-autosubmit>") > cartao);
+        SemAvisosNoFluxo(ri);
         Assert.Contains("<p data-dmo-toast=\"erro\" role=\"alert\">A hora de viragem é um inteiro entre 0 e 23.</p>",
-            await admin.GetStringAsync($"/Definicoes?secao=admin&sub=canal&viragem=hora-invalida"));
+            await chefe.GetStringAsync("/Definicoes?secao=reparacao&gravacao=hora-invalida"));
     }
 
     [Fact]

@@ -31,7 +31,14 @@
       var listaId = (Model.Id ?? "dmoRail") + "-list";
   }
   <div class="beta-production-rail-head">
-    <strong>@Model.Title</strong>
+    @if (Model.TitleHref is not null)
+    {
+      <a class="beta-production-rail-title" href="@Model.TitleHref">@Model.Title</a>
+    }
+    else
+    {
+      <strong>@Model.Title</strong>
+    }
     <span>@Model.Subtitle</span>
   </div>
   @* Um clique ou o Enter abrem a linha (Diogo, 17/10/2026). Sem destino, a
@@ -47,15 +54,15 @@
       var rotulo = linha.AriaLabel ?? $"{linha.Code} — {linha.Detail}";
       @if (Model.OpenOnClick && abre is not null)
       {
-        <a class="dmo-rail-link" href="@abre" aria-label="@rotulo" title="@rotulo">
+        <a class="dmo-rail-link@(linha.CssClass is null ? null : " " + linha.CssClass)" href="@abre" aria-label="@rotulo" title="@rotulo">
           <strong>@linha.Code</strong>
           <span>@linha.Detail</span>
         </a>
       }
       else
       {
-      var classe = abre is null ? "bq-line-empty" : linha.Selected ? "selected" : null;
-      <button type="button" class="@classe"
+      var classe = string.Join(' ', new[] { abre is null ? "bq-line-empty" : linha.Selected ? "selected" : null, linha.CssClass }.Where(c => c is not null));
+      <button type="button" class="@(classe.Length > 0 ? classe : null)"
               data-dmo-row data-dmo-open="@abre" data-id="@linha.Key"
               aria-label="@rotulo" title="@rotulo" aria-selected="@(linha.Selected ? "true" : null)">
         <strong>@linha.Code</strong>
