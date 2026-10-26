@@ -8,6 +8,7 @@ namespace DMO.Alpha.Web.Pages.Boquilhas;
 public sealed partial class IndexModel
 {
     [BindProperty(SupportsGet = true, Name = "q")] public string? CatalogSearch { get; set; }
+    [BindProperty(SupportsGet = true, Name = "lote")] public string? CatalogLot { get; set; }
     [BindProperty(SupportsGet = true, Name = "machine_id")] public int? CatalogMachineId { get; set; }
     [BindProperty(SupportsGet = true, Name = "pagina")] public int CatalogPageNumber { get; set; } = 1;
     [BindProperty(SupportsGet = true, Name = "por_pagina")] public int CatalogPageSize { get; set; } = 10;
@@ -25,11 +26,11 @@ public sealed partial class IndexModel
     /// todas as BQ dela (deep sweep 2, 18/10/2026, F-16). «Criar boquilha»
     /// continua a levar a máquina do filtro.
     /// </summary>
-    public bool CatalogSearched => !string.IsNullOrWhiteSpace(CatalogSearch);
+    public bool CatalogSearched => !string.IsNullOrWhiteSpace(CatalogSearch) || !string.IsNullOrWhiteSpace(CatalogLot);
 
     public string? CatalogLink(int page, string? toolId = null, string? saved = null) => Url.Page("/Boquilhas/Index", new
     {
-        ficheiros = 1, q = CatalogSearch, machine_id = CatalogMachineId,
+        ficheiros = 1, q = CatalogSearch, lote = CatalogLot, machine_id = CatalogMachineId,
         pagina = page, por_pagina = CatalogPageSize, ferramenta = toolId, saved
     });
 
@@ -63,7 +64,7 @@ public sealed partial class IndexModel
         CatalogMachines = await _machineList.ListAsync(HttpContext.RequestAborted);
         if (!CatalogSearched) return;
         var page = await _toolCandidates.FindPageAsync(
-            new ToolCandidateFilter(Type: ToolType.Bq, MachineId: CatalogMachineId, Search: CatalogSearch),
+            new ToolCandidateFilter(Type: ToolType.Bq, MachineId: CatalogMachineId, Lot: CatalogLot?.Trim(), Search: CatalogSearch),
             CatalogPageNumber, CatalogPageSize, HttpContext.RequestAborted);
         CatalogTools = page.Items;
         CatalogCount = page.TotalCount;

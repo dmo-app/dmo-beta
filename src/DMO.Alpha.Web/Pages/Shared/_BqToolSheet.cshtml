@@ -2,17 +2,21 @@
         @if (Model.ToolSheet is { } sheet)
         {
           <div class="card register-open" id="bq-tool-sheet">
-            <div class="card-head">
+            <div class="card-head dmo-card-topo">
               <div>
                 <h3>Ficha da boquilha — @sheet.Reference@(sheet.Lot is { } sheetLot ? $" · Lote {sheetLot}" : null)</h3>
                 <p>@(sheet.Machines.Count > 0 ? $"Máquinas compatíveis: {string.Join(", ", sheet.Machines)}" : "Sem máquinas compatíveis associadas no Ferramentas.")</p>
               </div>
-              <a class="btn" href="@Model.CatalogLink(Model.CatalogPageNumber)">Fechar ficha</a>
+              <div class="dmo-card-topo-acoes">
+                <a class="btn" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = sheet.ToolId })">Editar ficha / duplicar lote</a>
+                <a class="btn" href="@Model.CatalogLink(Model.CatalogPageNumber)">Fechar ficha</a>
+              </div>
             </div>
-            <p><a class="btn" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = sheet.ToolId })">Editar ficha / duplicar lote</a></p>
-            <div class="lot-data">
+            <div class="lot-data bq-sheet-dados">
               <div><span>Quantidade do lote</span><strong>@(sheet.AccountedQuantity is int sheetLotQty ? sheetLotQty.ToString() : "—")</strong></div>
               <div><span>Registos</span><strong>@sheet.Registers.TotalCount</strong></div>
+              <div><span>Movimentos sem Job On</span><strong>@Model.SemJobOnMovements.Count</strong></div>
+              <div><span>Linhas compatíveis</span><strong>@sheet.Machines.Count</strong></div>
             </div>
 
             @* OS MOVIMENTOS SEM JOB ON desta BQ (Diogo, 22/10/2026): gravam-se
@@ -40,7 +44,7 @@
               }
               else
               {
-                <p class="muted" style="margin:4px 0 0">Ainda sem movimentos sem Job On nesta BQ.</p>
+                <p class="muted bq-sheet-vazio">Sem movimentos sem Job On.</p>
               }
             </div>
 
@@ -76,7 +80,7 @@
             }
             else
             {
-              <p class="muted" style="margin:12px 0 0">Ainda sem registos nesta boquilha.</p>
+              <p class="muted bq-sheet-vazio">Sem registos nesta boquilha.</p>
             }
           </div>
         }

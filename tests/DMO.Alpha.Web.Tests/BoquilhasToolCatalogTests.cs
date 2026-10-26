@@ -110,7 +110,10 @@ public partial class BoquilhasRegistoPageTests
         var nextHtml = await client.GetStringAsync(next);
         Assert.Equal(5, Regex.Matches(nextHtml, "name=\"bq_tool\"").Count);
         ExportCatalogEvidence("catalog-next", nextHtml);
-        var sheet = WebUtility.HtmlDecode(Regex.Match(html, "data-dmo-open=\"([^\"]*ferramenta=catalog-[^\"]*)\"").Groups[1].Value);
+        // Diogo, 26/10/2026: o clique na boquilha abre a Ficha da ferramenta; a ficha em página abre por ?ferramenta=.
+        var toolId = Regex.Match(html, "data-dmo-open=\"/Ferramentas/Ficha\\?tool_id=(catalog-[^\"&]*)\"").Groups[1].Value;
+        Assert.NotEmpty(toolId);
+        var sheet = $"{url}&ferramenta={toolId}";
         var sheetHtml = await client.GetStringAsync(sheet);
         Assert.Contains("Ficha da boquilha — T173", sheetHtml);
         Assert.Contains(">2 de 3</span>", sheetHtml);

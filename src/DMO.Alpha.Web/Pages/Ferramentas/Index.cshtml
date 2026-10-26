@@ -61,6 +61,10 @@
         <label for="ferr-reference">Referência<partial name="_DmoHelp" model="@("A referência da ferramenta ou a referência MF em que encaixa (por exemplo 5447, T194 ou 5810).")" /></label>
         <input id="ferr-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@(Model.RequestedReference ?? (Model.ShowCreate ? null : Model.RequestedMfReference))" placeholder="5447 · T194" />
       </div>
+      <div class="dmo-field ferr-w-lot">
+        <label for="ferr-lot">Lote</label>
+        <input id="ferr-lot" name="lot" value="@Model.RequestedLot" placeholder="3" />
+      </div>
       <div class="dmo-field ferr-w-type">
         <label for="ferr-type">Tipo</label>
         <select id="ferr-type" name="type" data-dmo-autosubmit>
@@ -79,10 +83,6 @@
             <option value="@machine.MachineId" selected="@(Model.RequestedMachineId == machine.MachineId)">@machine.Code</option>
           }
         </select>
-      </div>
-      <div class="dmo-field ferr-w-lot">
-        <label for="ferr-lot">Lote</label>
-        <input id="ferr-lot" name="lot" value="@Model.RequestedLot" placeholder="3" />
       </div>
       <div class="ferr-filter-actions">
         <a class="dmo-button" data-dmo-completa href="@Url.Page("/Ferramentas/Index", new { @return = Model.ReturnTemplate, por_pagina = Model.PageSize })">Limpar filtros</a>
