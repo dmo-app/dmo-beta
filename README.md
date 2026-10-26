@@ -46,6 +46,8 @@ dotnet build DMO.Alpha.slnx
 bash scripts/ci/ci-local.sh   # o CI completo; precisa de um PostgreSQL local
 ```
 
+Nas sessões do Claude na nuvem, `.claude/hooks/session-start.sh` instala o .NET 10 e arranca um PostgreSQL local descartável (base `dmo_test`, só dentro da sessão), por isso todos os testes correm. No GitHub, `.github/workflows/ci.yml` corre o mesmo `ci-local.sh` com um PostgreSQL temporário.
+
 Depois de publicar, validar autenticação, Job On, Controlo, Boquilhas, Ferramentas, Administração e acesso aos dados. Um deploy com estado SUCCESS não prova que os ecrãs funcionam.
 
 Os requisitos funcionais estão no repositório `dmo-app/blueprint`.
