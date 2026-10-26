@@ -2845,40 +2845,9 @@ Novos: 3 · mudaram: 1 · saíram: 1
 
 Selo depois: `7ca7ff243aac45b1`
 
-## A-0139 · 2026-10-26 · ok-do-diogo
-
-Porquê: Registo do integracao acertado pela main 3eefda1 (.81) + PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 19 · mudaram: 3 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_AUtilizacaoDaFolhaPassaParaADoLoteNovo_0SeENovo`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_DuasVezes_TodosOsLotesUsados_PelaOrdem`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_LoteNovoNumBqIdNovo_OAntigoFicaNaProducao_ComRasto`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_NumLoteJaTrocado_NaoMudaNada`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_OutraReferenciaOutroTipoOuOMesmo_NaoServe_ENadaMuda`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Lotes_SoAsOutrasBqDaMesmaReferencia_PorOrdemDoLote`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaNova_Utilizacao0_ESemJobOnNenhum`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaUsada_AUltimaPercentagemDela_EAsNotasDoUltimoJobOn`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_AlterarLote_ABqPassaParaOLoteEscolhido_EORegistoAbreNoLoteNovo`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Editar_AFerramentaNovaTrazOsDadosDela_UsoA0`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes`
-- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas`
-- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
-- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
-
-Selo depois: `67b76288f2c98d48`
-
 ## A-0140 · 2026-10-26 · ok-do-diogo
 
-Porquê: PR #141 (Especialista): Tampão da Folha, Lote FF, ficha da CM sem Tampão/Punção, um só Voltar, Volume na BQ, apoio TP do Peso
+Porquê: Testes novos: Tampão da Folha = tampão da CM, Lote FF, sem Tampão na CM, Volume na BQ. Mudanças: Tampão e Punção saem da ficha da CM (cmsg_01A27e9ozcpoh4jdPRsuJbFyR4JxijzJuzAZzq37Qzi296); um só Voltar (cmsg_01A27e9ozcpoh4jdPRsuJbFyRfdwnWiuT6MCVrPw2pdSRm); Volume na BQ (cmsg_01A27e9ozcpoh4jdPRsuJbFyWtKmjoyB3wGtxzcCSxX69C); apoio TP do Peso com h nominal e h Job On (cmsg_01A27e9ozcpoh4jdPRsuJbFyJeXejBKtyrUeFgGaVPybCd) e só volume nominal, do Job On e Δ (cmsg_01A27e9ozcpoh4jdPRsuJbFyGfg3KWEXc5o6gr5g6qLJzG), a 2 casas pela regra dos números do Diogo; mensagem sem tampão aponta à Folha do Job On
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR4JxijzJuzAZzq37Qzi296
 Novos: 8 · mudaram: 25 · saíram: 0
 
@@ -2915,5 +2884,36 @@ Novos: 8 · mudaram: 25 · saíram: 0
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: a resposta de uma calote anterior que chega depois da atual não substitui os valores da atual`
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: escrever outra vez durante a espera invalida logo o pedido que já saiu`
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: sem resposta, com erro do servidor ou sem apoio, os valores da calote anterior saem («—»)`
+
+Selo depois: `df200d8b62e76eb5`
+
+## A-0141 · 2026-10-26 · ok-do-diogo
+
+Porquê: Registo do integracao acertado pela main 66314d0: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 19 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_AUtilizacaoDaFolhaPassaParaADoLoteNovo_0SeENovo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_DuasVezes_TodosOsLotesUsados_PelaOrdem`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_LoteNovoNumBqIdNovo_OAntigoFicaNaProducao_ComRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_NumLoteJaTrocado_NaoMudaNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_OutraReferenciaOutroTipoOuOMesmo_NaoServe_ENadaMuda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Lotes_SoAsOutrasBqDaMesmaReferencia_PorOrdemDoLote`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaNova_Utilizacao0_ESemJobOnNenhum`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaUsada_AUltimaPercentagemDela_EAsNotasDoUltimoJobOn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_AlterarLote_ABqPassaParaOLoteEscolhido_EORegistoAbreNoLoteNovo`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Editar_AFerramentaNovaTrazOsDadosDela_UsoA0`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
 Selo depois: `eeae6112a6c4d093`
