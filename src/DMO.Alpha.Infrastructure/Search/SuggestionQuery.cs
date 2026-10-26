@@ -66,7 +66,7 @@ public sealed class SuggestionQuery : ISuggestionQuery
         var rows = await (
             from j in jobs
             join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-            orderby j.Id descending
+            orderby j.ProductionNumber descending, j.Id descending
             select new { j.Reference, j.ProductionNumber, Machine = m.Code })
             .Take(Max)
             .ToListAsync(cancellationToken);
