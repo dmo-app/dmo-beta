@@ -104,8 +104,10 @@ public sealed partial class IndexModel : PageModel
         DMO.Alpha.Core.Production.IMachineListQuery machineList,
         DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
         DMO.Alpha.Core.Production.IProductionPickerQuery productionPicker,
-        CurrentUserCapabilities capabilities)
+        CurrentUserCapabilities capabilities,
+        DMO.Alpha.Core.Production.IAlterarLoteBq alterarLote)
     {
+        _alterarLote = alterarLote;
         _capabilities = capabilities;
         _registoQuery = registoQuery;
         _movementHandler = movementHandler;
@@ -1081,6 +1083,11 @@ public sealed partial class IndexModel : PageModel
     // Ambos os destinos (?bq_id e ?trace_id) compõem a mesma ficha.
     private async Task LoadRegisterFactsAsync(CancellationToken cancellationToken)
     {
+        if (RegistoTrace?.BqContextId is int registoBqId)
+        {
+            LotesParaAlterar = await _alterarLote.LotesAsync(registoBqId, cancellationToken);
+        }
+
         // Os fatos do lote para o painel das quantidades calculadas
         // (o dmo-html: «Quantidade do lote — Fabricação — Em
         // reparação — Discrepância acumulada»): a quantidade

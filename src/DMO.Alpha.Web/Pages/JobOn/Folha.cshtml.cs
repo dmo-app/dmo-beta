@@ -45,8 +45,42 @@ public sealed class FolhaModel(
     IDeleteJobOnHandler deleteJobOn,
     IJobOnPaginaQuery jobOnPagina,
     IConfiguration configuration,
-    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap) : PageModel
+    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
+    IAlterarLoteBq alterarLote,
+    IFolhaDaFerramenta folhaDaFerramenta) : PageModel
 {
+    /// <summary>
+    /// No Editar, a ferramenta escolhida traz os dados dela para o cartão
+    /// (Diogo, 26/10/2026): a % de uso dela (0 se é nova) e as notas e a
+    /// informação técnica do último Job On em que foi usada. Pelo id de cada
+    /// campo no ecrã; sem esse Job On, só a utilização.
+    /// </summary>
+    public async Task<IActionResult> OnGetDadosDaFerramentaAsync(
+        [FromQuery(Name = "tipo")] string? tipo,
+        [FromQuery(Name = "tool_id")] string? toolId,
+        [FromQuery(Name = "jobon_id")] int? jobOnId)
+    {
+        var familia = tipo?.Trim().ToUpperInvariant();
+        if (familia is not (JobOnFolhaCampos.Cm or JobOnFolhaCampos.Mf or JobOnFolhaCampos.Bq) || string.IsNullOrWhiteSpace(toolId))
+        {
+            return BadRequest();
+        }
+
+        var dados = await folhaDaFerramenta.ParaAsync(familia, toolId.Trim(), jobOnId, HttpContext.RequestAborted);
+        return new JsonResult(new
+        {
+            utilizacao = new { id = JobOnFolhaCampos.IdDe(familia.ToLowerInvariant() + "_utilizacao"), valor = dados.Utilizacao.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) },
+            doJobOn = dados.DoJobOn,
+            campos = dados.Campos.Select(c => new { id = JobOnFolhaCampos.IdDe(c.Key), valor = c.Value ?? string.Empty })
+        });
+    }
+
+    /// <summary>Os lotes da BQ usados nesta produção, do primeiro ao atual (vazio sem BQ).</summary>
+    public IReadOnlyList<string> LotesBqUsados { get; private set; } = [];
+
+    /// <summary>Os lotes que a BQ teve antes do atual, para a cabeça da BQ («antes 165»).</summary>
+    public IReadOnlyList<string> LotesBqAntes => LotesBqUsados.Count > 1 ? LotesBqUsados.Take(LotesBqUsados.Count - 1).Where(l => l != LotesBqUsados[^1]).Distinct().ToList() : [];
+
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
     public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, false);
 
@@ -434,6 +468,7 @@ public sealed class FolhaModel(
                 Facts = await toolFacts.FindAsync(ids, aberto.Machine, aberto.JobOnId, aberto.InicioEm, aberto.FimEm, ct);
                 Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
             }
+            LotesBqUsados = await alterarLote.LotesUsadosAsync(aberto.JobOnId, ct);
             if (Editar)
             {
                 Machines = await machineList.ListAsync(ct);

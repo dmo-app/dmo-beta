@@ -227,32 +227,7 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         if (command.BqToolId is { Length: > 0 } selectedBqToolId
             && !string.Equals(bq?.ToolId, selectedBqToolId, StringComparison.Ordinal))
         {
-            if (bq is not null)
-            {
-                bq.JobOnId = null;
-                bq.ReplacedJobOnId = jobOn.Id;
-                bq.ReplacedAtUtc = DateTime.UtcNow;
-            }
-
-            // Voltar a uma BQ que esta produção já usou retoma o bq_id dela
-            // (um bq_id por BQ e produção, com um só registo de reparação):
-            // a produção não aparece duas vezes no histórico da BQ.
-            var previous = await _db.BqContexts.FirstOrDefaultAsync(
-                c => c.ReplacedJobOnId == jobOn.Id && c.ToolId == selectedBqToolId, cancellationToken);
-            if (previous is not null)
-            {
-                previous.ReplacedJobOnId = null;
-                previous.ReplacedAtUtc = null;
-                previous.JobOnId = jobOn.Id;
-                bq = previous;
-            }
-            else
-            {
-                bq = new BqContext { JobOnId = jobOn.Id, ToolId = selectedBqToolId };
-                _db.BqContexts.Add(bq);
-            }
-
-            jobOn.BqContext = bq;
+            bq = await BqContextTroca.TrocarAsync(_db, jobOn, selectedBqToolId, cancellationToken);
         }
 
         // O QUE MUDOU (o proprietário, 17/10/2026): uma linha por campo

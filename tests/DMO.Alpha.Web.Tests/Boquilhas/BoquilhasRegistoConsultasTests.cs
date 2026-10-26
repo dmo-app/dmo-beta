@@ -73,12 +73,14 @@ public sealed class BoquilhasRegistoConsultasTests : IClassFixture<CustomWebAppl
         // beta.187: +1 nas aberturas com registo. As contas leem só os números
         // de todos os movimentos e uma segunda consulta lê as linhas dos 25
         // da página, em vez de todos os movimentos por inteiro.
+        // beta.81: +1 nas aberturas com bq_id, a consulta única dos lotes do
+        // «Alterar lote» (Diogo, 26/10/2026).
         var limits = new Dictionary<string, int>
         {
             ["registo"] = 4,
-            ["bq_id com registo"] = 11,
-            ["bq_id sem registo"] = 10,
-            ["trace_id associado"] = 8,
+            ["bq_id com registo"] = 12,
+            ["bq_id sem registo"] = 11,
+            ["trace_id associado"] = 9,
             ["trace_id sem Job On"] = 8,
             ["historico"] = 5,
             ["historico grelha"] = 6

@@ -298,9 +298,6 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 .bq-reset-modal{width:min(480px,100%)}
 .bq-reset-modal .dmo-modal-body p{margin:0}
 
-/* «Histórico» à vista no canto do registo (Diogo, 22/10/2026). */
-.beta-bq-layout .bq-register-history-link { font-weight:650;color:var(--dmo-brand-600,#3c73a8);text-decoration:none; }
-.beta-bq-layout .bq-register-history-link:hover { text-decoration:underline; }
 /* «Registar sem Job On» (Diogo, 22/10/2026): o link azul no canto e a janela. */
 .beta-bq-layout .bq-sem-jobon-link { margin-left:auto;align-self:center;padding:0;border:0;background:none;cursor:pointer;font:inherit;font-weight:650;color:var(--dmo-brand-600,#3c73a8); }
 .beta-bq-layout .bq-sem-jobon-link:hover { text-decoration:underline; }
