@@ -19,11 +19,13 @@
     var signed = new Func<decimal, string>(DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed);
     // O APOIO TP/CALOTE (o fmt(x,3) do dmo-html): as métricas do cálculo
     // esférico a 3 casas, com o sinal preservado nas diferenças.
+    // Desde 25/10/2026 (Diogo: «duas decimais mas só quando for necessário»)
+    // também aqui: inteiros sem casas, com decimais sempre duas.
     var fmtCap = new Func<decimal?, string>(value => value is { } v
-        ? v.ToString("0.000", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)
+        ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(v)
         : "—");
     var fmtCapSigned = new Func<decimal?, string>(value => value is { } v
-        ? (v >= 0 ? "+" : "") + v.ToString("0.000", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture)
+        ? (v >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(v)
         : "—");
     // O rótulo humano de um Peso guardado (os selects da comparação —
     // factos apenas, nunca um id; o padrão do pesoLabel do html sem o id).
@@ -783,7 +785,7 @@
                 <div class="dmo-field">
                   <label for="capSimulada">Calote simulada h (mm)</label>
                   <input id="capSimulada" name="cap_h" type="text" inputmode="decimal" autocomplete="off"
-                         value="@(Model.CapSimulada is { } simulada ? simulada.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : (apoioCap.AlturaEfetivaMm is { } efetiva ? efetiva.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : null))"
+                         value="@(Model.CapSimulada is { } simulada ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(simulada) : (apoioCap.AlturaEfetivaMm is { } efetiva ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(efetiva) : null))"
                          placeholder="Usar @apoioCap.OrigemCalote" />
                 </div>
                 <div class="dmo-field">
@@ -1156,7 +1158,7 @@
                 <div class="dmo-field">
                   <label for="capSimulada">Calote simulada h (mm)</label>
                   <input id="capSimulada" name="cap_h" type="text" inputmode="decimal" autocomplete="off"
-                         value="@(Model.CapSimulada is { } simuladaTool ? simuladaTool.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : (apoioCapTool.AlturaEfetivaMm is { } efetivaTool ? efetivaTool.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) : null))"
+                         value="@(Model.CapSimulada is { } simuladaTool ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(simuladaTool) : (apoioCapTool.AlturaEfetivaMm is { } efetivaTool ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(efetivaTool) : null))"
                          placeholder="Usar @apoioCapTool.OrigemCalote" />
                 </div>
                 <div class="dmo-field">

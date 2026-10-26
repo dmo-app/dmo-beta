@@ -2338,3 +2338,28 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosEscolhas.cs :: PostgresMigrationIntegrationTests.PegamentosEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
 
 Selo depois: `8c61c6519de55957`
+
+## A-0101 · 2026-10-26 · ok-do-diogo
+
+Porquê: O Diogo pediu números com duas casas só quando necessário (inteiros sem .00; com decimais sempre duas, 2.50; ponto decimal) na ficha da ferramenta, na calote e no apoio do tampão do Peso; os testes que esperavam 3 casas (70.362, 9.217, D 50.000) ou uma casa (2.5, 9.5, 70.1) passam a esperar o formato novo (70.36, 9.22, D 50, 2.50, 9.50, 70.10). Nos campos de editar um valor com 3 casas fica igual (0.125). Nenhuma verificação sai; um teste novo da ficha (140.000 → 140).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPkQLjid1XkSfzAcW3RZ9Ne, cmsg_01A27e9ozcpoh4jdPRsuJbFyRoekZxLPcSo1TQzEC9J7rY, cmsg_01A27e9ozcpoh4jdPRsuJbFy2EadhQLcRARQPVdSprtcV6
+Novos: 3 · mudaram: 13 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Decimais.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Decimais.cs :: FichaDecimaisTests.Decimal2_InteirosSemCasas_DecimaisComDuas`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Ficha_CamposTecnicos_NoMaximoDuasCasas_SemZerosNoFim`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemCaloteNoJobOn_UsaAReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoIlegivel_AvisoHonestoSemBloqueio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoPorGet_RecalculaPeloBackendEAbreOApoio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ToolScopedMode_ApoioSemProducao_UsaAReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: PesoSoParaComparacaoPageTests.CriarDaComparacao_LigaOPesoAoAtual_MostraAComparacao_ENuncaPedeJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteEditavel_GravaPelaEdicao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteIgnorada_NaEdicao_MantemACaloteAnteriorEAvisa`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteNaCriacao_PreservaODecimalAoGuardarEReabrir`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CriarCmNoEditar_VoltaAEdicaoDoMesmoJobOnERegistaATroca`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.DuplicarEsteJobOn_CopiaOsDadosParaUmaProducaoNova`
+
+Selo depois: `269869e315a430fa`
