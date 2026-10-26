@@ -499,3 +499,4 @@
 .resumo-mini-card.resumo-approval form { margin: 0; }
 .resumo-linked-card { min-height: 0; padding: 10px 12px; gap: 4px; }
 .resumo-linked-card .resumo-big-number { font-size: 28px; }
+.resumo-peso-deltas { display: grid; gap: 1px; }
