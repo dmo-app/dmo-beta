@@ -2914,7 +2914,7 @@ Selo depois: `efca3bbb72e1c0c8`
 
 ## A-0142 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main 69d9511: fica o da main + esta entrada para os PRs em curso.
+Porquê: Registo do integracao acertado pela main 4ac3e6b: fica o da main + esta entrada para os PRs em curso.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
 Novos: 5 · mudaram: 1 · saíram: 0
 
