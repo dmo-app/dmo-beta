@@ -10,7 +10,9 @@ public sealed class CsFurosTextoTests
     [InlineData("abertos 0 / fechados 9", true, "0", "9")]
     [InlineData("Abertos 3", true, "3", null)]
     [InlineData("Fechados 1", true, null, "1")]
-    [InlineData("4 × 4", false, null, null)]
+    [InlineData("4X4", true, "4", "0")]
+    [InlineData("4 × 2", true, "2", "2")]
+    [InlineData("3X4", true, "3", "1")]
     [InlineData("Abertos 12 / Fechados 2", false, null, null)]
     [InlineData(null, false, null, null)]
     public void Ler(string? texto, bool lido, string? abertos, string? fechados)

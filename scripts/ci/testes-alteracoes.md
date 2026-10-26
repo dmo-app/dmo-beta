@@ -3100,3 +3100,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: JobOnCabecalhoCssTests.CabecalhoDoJobOn_ReferenciaEProducaoNaoSeTocam`
 
 Selo depois: `973b7e99f4ebd5d6`
+
+## A-0168 · 2026-10-26 · ok-do-diogo
+
+Porquê: CS · Furos: o formato antigo «4X4», «4X2», «3X4» lê-se como abertos e fechados (Diogo 26/10 20:30)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPaL9FV6fUfot3pWo9RAcag
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Ler`
+
+Selo depois: `903451198ac59828`
