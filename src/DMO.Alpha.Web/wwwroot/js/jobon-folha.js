@@ -200,15 +200,44 @@
   // IMPRIMIR — PONTO DE TROCA: hoje imprime a folha no browser (window.print()
   // e o @media print do dmo-jobon-folha.css). O gerador das 4 folhas, quando
   // chegar, substitui window.dmoJobOnImprimir (recebe o jobon_id); nunca PDF no servidor.
-  window.dmoJobOnImprimir = window.dmoJobOnImprimir || function () {
-    document.querySelectorAll('[data-jof-tecnica]').forEach(function (d) { d.open = true; });
+  // As 4 folhas (Ficha de Artigo, Trabalho de Equipa, Preparador, Pinças) vêm
+  // escondidas na página ([data-jof-impressao]); imprimir copia as escolhidas
+  // para o fim do body e o @media print só mostra essas.
+  window.dmoJobOnImprimir = window.dmoJobOnImprimir || function (_id, qual) {
+    var origem = document.querySelector('[data-jof-impressao]');
+    if (!origem || !qual || qual === 'ecra') {
+      document.querySelectorAll('[data-jof-tecnica]').forEach(function (d) { d.open = true; });
+      window.print();
+      return;
+    }
+    var caixa = document.createElement('div');
+    caixa.className = 'jof-impressao-print';
+    origem.querySelectorAll('[data-jof-folha]').forEach(function (f) {
+      if (qual === 'todas' || f.getAttribute('data-jof-folha') === qual) caixa.appendChild(f.cloneNode(true));
+    });
+    var img = document.querySelector('img[data-jof-artigo-img]');
+    if (img && img.getAttribute('src') && !img.hidden) {
+      caixa.querySelectorAll('[data-jof-folha-artigo]').forEach(function (a) {
+        a.textContent = '';
+        var i = document.createElement('img'); i.src = img.src; i.alt = img.alt; a.appendChild(i);
+      });
+    }
+    document.body.appendChild(caixa);
+    document.documentElement.setAttribute('data-jof-imprimir-folhas', '');
+    var limpar = function () {
+      document.documentElement.removeAttribute('data-jof-imprimir-folhas');
+      caixa.remove();
+      window.removeEventListener('afterprint', limpar);
+    };
+    window.addEventListener('afterprint', limpar);
     window.print();
   };
   function imprimir() {
     document.querySelectorAll('[data-jof-imprimir]').forEach(function (b) {
       b.addEventListener('click', function () {
         var m = /jobon_id=(\d+)/.exec(location.search);
-        window.dmoJobOnImprimir(m ? Number(m[1]) : null);
+        var menu = b.closest('details'); if (menu) menu.open = false;
+        window.dmoJobOnImprimir(m ? Number(m[1]) : null, b.getAttribute('data-jof-imprimir') || 'ecra');
       });
     });
   }

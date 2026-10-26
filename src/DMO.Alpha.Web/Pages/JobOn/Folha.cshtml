@@ -512,7 +512,18 @@ else
               @* Quem só tem «Job On ver» só vê a folha como está e abre ou fecha as secções: sem Imprimir (Diogo, 23/10/2026). *@
               @if (Model.PodeEditar)
               {
-                <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
+                @* As 4 folhas do Imprimir (Diogo, 26/10/2026): escolhe-se a folha; o browser imprime (nunca PDF no servidor). *@
+                <details class="menu" data-jof-imprimir-menu>
+                  <summary class="btn" aria-label="Imprimir o Job On @jobOn.ProductionNumber"><span class="dmo-caret" aria-hidden="true"></span> Imprimir</summary>
+                  <div class="menu-list">
+                    <button type="button" data-jof-imprimir="todas">As 4 folhas</button>
+                    <button type="button" data-jof-imprimir="ficha">Ficha de Artigo</button>
+                    <button type="button" data-jof-imprimir="equipa">Trabalho de Equipa</button>
+                    <button type="button" data-jof-imprimir="preparador">Preparador - DMO</button>
+                    <button type="button" data-jof-imprimir="pincas">Pinças - DMO</button>
+                    <button type="button" data-jof-imprimir="ecra">Esta folha (ecrã)</button>
+                  </div>
+                </details>
                 <a class="btn" href="@Model.DuplicarHref" data-jof-duplicar>Duplicar</a>
                 <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
               }
@@ -787,6 +798,10 @@ else
         <input type="hidden" name="inicio_em" value="@inicioProcura.ToString("yyyy-MM-dd")" />
       }
     </form>
+    @if (!editar && !Model.Escolher && Model.PodeEditar && Model.JobOn is not null)
+    {
+      <partial name="_JobOnFolhasImprimir" model="Model" />
+    }
     @if (Model.Eliminar is { } eliminar)
     {
       <partial name="_JobOnEliminar" model="eliminar" />
