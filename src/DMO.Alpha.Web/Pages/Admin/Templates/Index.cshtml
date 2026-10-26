@@ -59,8 +59,14 @@
 .dmt-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .dmt-caps-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 html body .dmt-detail .dmo-options-list{left:auto;right:0}
+.dmt-users-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:8px}
+.dmt-users-grid .dmt-module-head,.dmt-users-grid .dmt-users-vazio{grid-column:1/-1}
+.dmt-users-vazio{margin:0}
+.dmt-check .dmt-ficha{align-self:center;margin-right:10px;font-size:11.5px;color:var(--dmo-muted);text-decoration:underline}
+.dmt-check .dmt-ficha:hover,.dmt-check .dmt-ficha:focus-visible{color:var(--dmo-brand-600,#3c73a8)}
+.dmt-check:has(input:checked) .dmt-ficha{color:#fff}
 .dmt-module-head{font-size:10.5px;font-weight:800;color:var(--dmo-brand-600,#3c73a8);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--dmo-border,#d9e6f2);padding-bottom:4px}
-@@media(max-width:900px){.dmt-grid{grid-template-columns:1fr}}
+@@media(max-width:900px){.dmt-grid,.dmt-users-grid{grid-template-columns:1fr}}
 </style>
 }
 
@@ -129,7 +135,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
             <span>@capsOf(template)</span>
           </a>
           <a id="dmt-contagem-@template.TemplateKey" class="dmo-pill dmt-users-link" href="@(Url.Page("/Admin/Templates/Index", new { template = template.TemplateKey }) + "#dmt-users")"
-             aria-label="Ver os utilizadores da template @template.Name">@contagem utilizador@(contagem == 1 ? "" : "es")</a>
+             aria-label="Escolher os utilizadores da template @template.Name">@contagem utilizador@(contagem == 1 ? "" : "es")</a>
         </div>
       }
     </aside>
@@ -198,6 +204,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
         }
         <form id="dmtEditarForm" method="post" asp-page="/Admin/Templates/Index" asp-page-handler="Edit">
           <input type="hidden" name="template_key" value="@selected.TemplateKey" />
+          <input type="hidden" name="utilizadores" value="1" />
           <div class="dmo-field">
             <label for="dmt-edit-name">Nome (apenas rótulo)</label>
             <input id="dmt-edit-name" name="name" value="@selected.Name" required maxlength="100" autofocus="@(Model.CreatedNote ? "autofocus" : null)" />
@@ -221,32 +228,50 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
           </div>
         </form>
 
+        @* OS UTILIZADORES COMO OS MÓDULOS (Diogo, 26/10/2026: «ao selecionar
+           utilizadores deveria abrir uma lista dos que não têm template para
+           poder associar, e remover se já estão inseridos, usando o mesmo
+           formato que escolher os módulos»): o pill da contagem traz aqui.
+           Escolhido = escuro com letra branca; clicar liga e desliga; grava
+           com o «Guardar template» (as caixas vão no dmtEditarForm). Quem já
+           tem OUTRA template não aparece: muda-se na ficha dele. *@
         <section id="dmt-users" class="dmt-users" aria-labelledby="dmt-users-title">
-          <h4 id="dmt-users-title">Utilizadores com esta template<partial name="_DmoHelp" model="@("A template atribui-se na ficha do utilizador. Na lista, um clique abre a ficha.")" /></h4>
-          @if (Model.SelectedTemplateUsers.Count == 0)
+          <h4 id="dmt-users-title">Utilizadores desta template<partial name="_DmoHelp" model="@("Clique num utilizador para o juntar ou tirar e depois em «Guardar template». Quem já tem outra template muda-se na ficha dele.")" /></h4>
+          @if (Model.UsersNotSaved > 0)
           {
-            <p class="dmt-hint" style="margin:4px 0 0">Nenhum utilizador tem esta template.</p>
+            <div class="dmo-aviso warn" role="status" style="margin-top:8px">@(Model.UsersNotSaved == 1 ? "1 utilizador não foi mudado" : $"{Model.UsersNotSaved} utilizadores não foram mudados") (entretanto apagado ou é o ADMIN). Os restantes ficaram guardados.</div>
+          }
+          @if (Model.SelectedTemplateUsers.Count == 0 && Model.UsersWithoutTemplate.Count == 0)
+          {
+            <p class="dmt-hint" style="margin:4px 0 0">Nenhum utilizador tem esta template e não há utilizadores sem template.</p>
           }
           else
           {
-            <p class="dmt-hint" style="margin:4px 0 8px">@Model.SelectedTemplateUsers.Count utilizador(es)</p>
-            <div class="dmo-table-wrap">
-              <table class="dmo-table" data-dmo-list="Utilizadores com esta template">
-                <thead><tr><th>Nome</th><th>Nº operador</th><th>Email</th><th>Estado</th></tr></thead>
-                <tbody>
-                  @foreach (var user in Model.SelectedTemplateUsers)
-                  {
-                    <tr data-dmo-row data-id="@user.OperatorId"
-                        data-dmo-open="/Admin/Users/Ficha?operator_id=@user.OperatorId"
-                        aria-label="Utilizador @user.Name, nº @user.OperatorId — um clique abre a ficha">
-                      <td><strong>@user.Name</strong></td>
-                      <td>@user.OperatorId</td>
-                      <td>@(user.Email ?? "—")</td>
-                      <td>@if (user.IsStandBy) { <span class="dmo-pill">Arquivado</span> } else { <span class="dmo-pill active">Ativo</span> }</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+            <div class="dmt-checks dmt-users-grid">
+              @foreach (var (grupo, lista, marcado) in new[]
+              {
+                  ($"Com esta template ({Model.SelectedTemplateUsers.Count})", Model.SelectedTemplateUsers, true),
+                  ($"Sem template ({Model.UsersWithoutTemplate.Count})", Model.UsersWithoutTemplate, false)
+              })
+              {
+                <p class="dmt-module-head" style="margin:10px 0 2px">@grupo</p>
+                if (lista.Count == 0)
+                {
+                  <p class="dmt-hint dmt-users-vazio">@(marcado ? "Ninguém ainda: escolha em baixo." : "Todos os utilizadores já têm template.")</p>
+                }
+                foreach (var user in lista)
+                {
+                  <div class="dmt-check">
+                    <input type="checkbox" id="dmt-user-@user.OperatorId" name="operator_ids" value="@user.OperatorId" form="dmtEditarForm"
+                           checked="@marcado" />
+                    <label for="dmt-user-@user.OperatorId">
+                      @user.Name
+                      <span>nº @user.OperatorId@(user.IsStandBy ? " · Arquivado" : "")</span>
+                    </label>
+                    <a class="dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a ficha de @user.Name">Ficha</a>
+                  </div>
+                }
+              }
             </div>
           }
         </section>
