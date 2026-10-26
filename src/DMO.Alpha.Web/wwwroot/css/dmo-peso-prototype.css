@@ -267,7 +267,9 @@
 .peso-page .peso-anterior-linha>.dmo-zona{display:contents}
 .peso-page .peso-anterior-linha .peso-inline-form{margin-top:0;flex-wrap:nowrap}
 .peso-page .peso-anterior-linha .peso-inline-form .dmo-field{min-width:120px;flex:0 1 190px}
-.peso-page .peso-anterior-linha .peso-inline-form .dmo-field:nth-of-type(2){flex-basis:100px;min-width:80px}
+.peso-page .peso-anterior-linha .peso-inline-form .dmo-field:nth-of-type(2){flex:0 0 210px;min-width:210px}
+.peso-page .peso-anterior-linha .peso-inline-form .dmo-field:nth-of-type(2) label{white-space:nowrap}
+.peso-page .peso-anterior-linha .peso-inline-form .dmo-field:nth-of-type(3){flex-basis:100px;min-width:80px}
 .peso-page .peso-anterior-linha .peso-sap-caixa{margin:0;padding:6px 10px;max-width:none}
 .peso-page .peso-anterior-linha .peso-hint{margin:0 !important;align-self:center}
 .peso-page .peso-anterior-linha .peso-resumo{display:flex;gap:8px;margin:0}
