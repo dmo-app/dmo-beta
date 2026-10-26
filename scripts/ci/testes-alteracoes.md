@@ -2279,3 +2279,24 @@ Novos: 11 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.ReferenciasDeMf_SoParaAFerramentaDoTipoCerto`
 
 Selo depois: `77e42f1b702b86d7`
+
+## A-0096 · 2026-10-25 · teste-novo
+
+Porquê: Reshape do Job On, J2: o quadro do dia de JobOn/Index.cshtml.cs passa para JobOnQuadroDoDiaQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAmgz6Smt5sJ1FZ7Riri2Hy
+Novos: 12 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.QuadroDoDia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.QuadroDoDia.cs :: PostgresMigrationIntegrationTests.JobOnQuadroDoDia_CadaPedidoFazSoAsConsultasDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.DuasProducoesDaMesmaLinhaQueSeCruzam_NaoMarcamSobreposicao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.NotasDeLoteDoDiaEResumoDasAlteracoes_ficamNaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.OPedido_NaoGravaNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProducaoAteAviso_CobreOsDiasDepoisDoInicio_MasNaoOsAntes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProducaoCobreOPrimeiroEOUltimoDia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProximaMudanca_ASeguinteMaisCedoQueATroca_GanhaAProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProximaMudanca_EscolheAMaisCedoEntreAProducaoSeguinteEATrocaDeComponente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.SemDiaEscolhido_NaoHaProximaMudanca_MasHaProducoesDoDiaInicial`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAsProducoesDoDiaPorReferencia`
+
+Selo depois: `dccfc5697c021f5a`
