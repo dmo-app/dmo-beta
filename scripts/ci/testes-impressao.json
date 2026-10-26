@@ -1,5 +1,5 @@
 {
-  "selo": "890a09c4992c79e5",
+  "selo": "bfb24a5eaf62cccf",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2319,6 +2319,9 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao": "49c558747d318304",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_ProducoesAnteriores_NoDropdown_AbremAFolhaDeCada": "b5692b4c3553d365",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_SemReferenciaMfMaisBq_SoAvisa": "cb38e13db9c3e901",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)": "69b5c204a0772cd2",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas": "af1a39a2c6d7c0d2",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "b1e09244d6808d3e",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: (resto do ficheiro)": "b7c082c0cb268916",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: JobOnPageTests.FolhaNova_PainelLateral_CadaCartaoLevaACorDaSuaLinha": "fc1116bfdf0baef4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)": "4caac937ec2d97cf",
@@ -2494,6 +2497,7 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.OsImportantes_FicamNumGrupoNoTopo_AInformacaoPorBaixo": "efc7021765aac4b3",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.QuemVe_DadosEmFaltaComOControloCriar_UsoELotesComAsFerramentas": "6fa106b3f24f8976",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportanteDeOutroDia_FicaAteResolver_EDepoisSai": "401ff4039e6fc7a7",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve": "25f57c459621c346",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UsoAtualizado_FicaAteHaverALeituraDoFim_SoQuemTemFerramentas": "f72c14787f483a61",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: (resto do ficheiro)": "e64b63a54b76b0e5",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "7227c6abc82733c4",

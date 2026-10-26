@@ -81,12 +81,12 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
    máquina, a referência e a produção juntos); os VAZIOS com o mesmo
    layout (a máquina + o «—»). */
 .beta-light-machine-row{display:grid;gap:8px;border-radius:8px;background:color-mix(in srgb,var(--dmo-machine-color) 12%,transparent)}
-:is(.beta-light-machine-row,.dmo-linha-cor).mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
-:is(.beta-light-machine-row,.dmo-linha-cor).mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
-:is(.beta-light-machine-row,.dmo-linha-cor).mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
-:is(.beta-light-machine-row,.dmo-linha-cor).mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
-:is(.beta-light-machine-row,.dmo-linha-cor).mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
-:is(.beta-light-machine-row,.dmo-linha-cor).mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-B1,[data-dmo-linha-cor="B1"]{--dmo-machine-color:var(--dmo-machine-b1)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-B2,[data-dmo-linha-cor="B2"]{--dmo-machine-color:var(--dmo-machine-b2)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-B3,[data-dmo-linha-cor="B3"]{--dmo-machine-color:var(--dmo-machine-b3)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-C1,[data-dmo-linha-cor="C1"]{--dmo-machine-color:var(--dmo-machine-c1)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-C2,[data-dmo-linha-cor="C2"]{--dmo-machine-color:var(--dmo-machine-c2)}
+:is(.beta-light-machine-row,.dmo-linha-cor).mch-C3,[data-dmo-linha-cor="C3"]{--dmo-machine-color:var(--dmo-machine-c3)}
 .beta-light-machine-row .beta-light-production strong{color:var(--dmo-machine-color)}
 .beta-light-machine-row:has(input:checked){background:var(--dmo-machine-color)}
 .beta-light-machine-row:has(input:checked) .beta-light-production{background:transparent}
@@ -107,4 +107,6 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
    e mais escura no modo escuro (Diogo, 26/10/2026). */
 .beta-light-machine-row .beta-light-production:hover{background:transparent;border-color:transparent}
 .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 6%,var(--dmo-card))}
-@media screen{:root[data-theme="dark"] .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 10%,#070b0e)}}
+@media screen{:root[data-theme="dark"] .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 22%,#070b0e)}}
+/* A barra da esquerda no hover leva a cor da linha, nunca o azul (Diogo, 26/10/2026). */
+.beta-light-machine-row .beta-light-production[data-dmo-row]:hover{box-shadow:inset 3px 0 0 var(--dmo-machine-color)}
