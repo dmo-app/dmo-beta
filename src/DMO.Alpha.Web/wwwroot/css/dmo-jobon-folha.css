@@ -1049,10 +1049,8 @@ html body .jof2 .more-body .dims th:nth-child(2){width:50%}
 html body .jof2 .more-body .dims th:nth-child(3){width:20%}
 
 /* As páginas do Imprimir como as da fábrica (Job-ON Moldes, Equipa, Ficha), no aspeto da app. */
-.jfi-factos4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.jfi-factos4{grid-template-columns:1.9fr 1.9fr 1fr 1fr 1fr 1.2fr}
 .jfi-factos4>div{min-height:8mm}
-.jfi-factos4>div:nth-child(n+5){border-top:1px solid #9aa3ad}
-.jfi-factos4>div:nth-child(5){border-left:0}
 .jfi-moldes{gap:0}
 .jfi-moldes>.jfi-topo{margin-bottom:2.2mm}
 .jfi-moldes>.jfi-factos{margin-bottom:2.2mm}
@@ -1085,3 +1083,100 @@ html body .jfi-folha .jfi-comp td.jfi-lote{font-size:16pt;font-weight:700;text-a
 .jfi-calequipa th{text-align:center}
 html body .jfi-folha .jfi-calval td{height:14mm;text-align:center;vertical-align:middle;font-weight:700}
 .jfb-dados td.jfb-r2v{text-align:right;padding-right:1.5mm}
+
+.jfi-equipa{align-items:start;gap:4mm}
+.jfi-equipa .jfi-col{display:flex;flex-direction:column;gap:1.6mm}
+.jfc-lista{display:flex;flex-direction:column;gap:1.6mm}
+.jfc{box-sizing:border-box;height:23mm;border:1px solid #15191e;border-radius:2mm;padding:1.4mm 3mm;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.jfc-nome{font-size:10pt;font-weight:700;color:#15191e;text-transform:uppercase}
+.jfc-ref{display:flex;align-items:center;justify-content:space-between;gap:3mm;font-size:15pt}
+.jfc-ref>b{font-weight:700}
+.jfc-lote{font-size:9pt;color:#15191e;font-weight:700;white-space:nowrap}.jfc-lote b{font-size:15pt}
+.jfc-lote-d{box-sizing:border-box;width:27mm;height:9mm;display:flex;align-items:center;justify-content:center;gap:1.5mm;border:1.5px solid #15191e;border-radius:1.5mm}.jfc-lote-d b{font-size:16pt}
+.jfc-obs{font-size:10pt;font-weight:700;line-height:1.15;min-height:4mm}
+.jfi-calequipa{table-layout:fixed}
+.jfi-calequipa th:first-child{width:14%}
+html body .jfi-folha .jfi-calval td{height:16mm;font-size:15pt}
+.jfi-moldes .jfb-cab{font-size:10pt}
+.jfi-moldes .jfb-nome b{font-size:12pt}
+.jfi-moldes .jfb-lado{font-size:8.6pt}
+.jfi-moldes .jfb-dados{font-size:9.8pt}
+.jfi-moldes .jfb-dados th,.jfi-moldes .jfb-dados td{padding:.9mm 1.5mm}
+.jfi-moldes .jfb-notas,.jfi-moldes .jfb-geral-texto{font-size:9.4pt}
+.jfi-moldes .jfb-cal i{font-size:11pt}.jfi-moldes .jfb-cal span{font-size:7.5pt}
+.jfc{height:26mm}
+html body .jfi-folha .jfi-calval td{font-size:12.5pt}
+.jfi-moldes .jfb-cab,.jfi-moldes .jfb{grid-template-columns:36mm minmax(0,1fr) 50mm}
+.jfi-moldes .jfb-nome b{font-size:11.5pt;white-space:nowrap}
+.jfi-moldes .jfb-dados{font-size:10.8pt}
+.jfi-moldes .jfb-dados th,.jfi-moldes .jfb-dados td{padding:1.5mm 1.5mm}
+.jfi-moldes .jfb-lado{font-size:9pt}
+.jfi-moldes .jfb-notas,.jfi-moldes .jfb-geral-texto{font-size:10pt}
+.jfi-moldes .jfb-cal i{font-size:10.5pt}
+.jfc{height:28mm}
+.jfi-calequipa th:first-child{width:11%}.jfi-calequipa th:last-child{width:23%}
+html body .jfi-folha .jfi-calval td{font-size:12pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-dados{font-size:11.5pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-dados th,.jfi-moldes[data-jof-folha="moldes"] .jfb-dados td{padding:2.1mm 1.5mm}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-notas,.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{font-size:10.5pt}
+.jfi-moldes[data-jof-folha="ficha"] .jfb-dados{font-size:9.6pt}
+.jfi-moldes[data-jof-folha="ficha"] .jfb-dados th,.jfi-moldes[data-jof-folha="ficha"] .jfb-dados td{padding:.9mm 1.5mm}
+.jfi-moldes[data-jof-folha="ficha"] .jfb-fim{min-height:42mm;flex:1 0 auto}
+.jfb-cal{flex:none}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-dados{font-size:12pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-dados th,.jfi-moldes[data-jof-folha="moldes"] .jfb-dados td{padding:2.7mm 1.5mm}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-nome b{font-size:12.5pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-lado{font-size:9.6pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{min-height:20mm}
+.jfi-equipa .jfc-lista{height:176mm}
+.jfi-equipa .jfc{height:auto;flex:1;min-height:0;justify-content:space-evenly}
+.jfc-obs{white-space:pre-line}
+.jfi-moldes .jfb-dados{table-layout:fixed}
+.jfi-moldes .jfb-dados th:nth-child(1){width:27mm}
+.jfi-moldes .jfb-dados tr>:nth-child(2){width:27mm}
+.jfi-moldes .jfb-dados th:nth-child(3),.jfi-moldes .jfb-dados th.jfb-r2{width:27mm}
+.jfi-moldes .jfb-dados td,.jfi-moldes .jfb-dados th{vertical-align:middle;line-height:1.2;overflow:hidden}
+.jfi-moldes .jfb-dados td{text-align:left}
+/* Grelha única das folhas Moldes e Ficha: componentes em cartões separados, colunas fixas iguais */
+.jfi-moldes{gap:2.2mm}
+.jfi-moldes .jfb-cab,.jfi-moldes .jfb{grid-template-columns:36mm minmax(0,1fr) 48mm}
+.jfi-moldes .jfb{border:1px solid #9aa3ad;border-radius:2mm;overflow:hidden;flex:1 1 auto;min-height:0}
+.jfi-moldes .jfb-cab{border-radius:2mm}
+.jfi-moldes .jfb-dados{align-self:center;table-layout:fixed;font-size:10.5pt}
+.jfi-moldes .jfb-dados col.c1,.jfi-moldes .jfb-dados col.c3{width:27mm}
+.jfi-moldes .jfb-dados col.c2{width:30mm}
+.jfi-moldes .jfb-dados th{font-size:9.5pt;text-align:right;padding:1.3mm 2mm 1.3mm 0}
+.jfi-moldes .jfb-dados td{font-size:11pt;text-align:left;padding:1.3mm 0}
+.jfi-moldes .jfb-nome b{font-size:12pt}
+.jfi-moldes .jfb-lado{font-size:9pt}
+.jfi-moldes .jfb-notas,.jfi-moldes .jfb-geral-texto{font-size:10pt}
+.jfi-moldes[data-jof-folha] .jfb-dados th,.jfi-moldes[data-jof-folha] .jfb-dados td{padding-top:1.3mm;padding-bottom:1.3mm}
+.jfi-moldes[data-jof-folha] .jfb-dados{font-size:11pt}
+.jfi-moldes[data-jof-folha] .jfb-notas,.jfi-moldes[data-jof-folha] .jfb-geral-texto{font-size:10pt}
+.jfi-moldes[data-jof-folha] .jfb-nome b{font-size:12pt}
+.jfi-moldes[data-jof-folha] .jfb-lado{font-size:9pt}
+.jfi-moldes .jfb-geral{border:1px solid #9aa3ad;border-radius:2mm}
+.jfi-moldes .jfb-dados tr>:nth-child(2){width:auto}
+.jfi-moldes[data-jof-folha="ficha"] .jfb{flex:none}
+.jfi-moldes[data-jof-folha="ficha"] .jfb-dados th,.jfi-moldes[data-jof-folha="ficha"] .jfb-dados td{padding-top:.45mm;padding-bottom:.45mm}
+.jfi-moldes[data-jof-folha="ficha"]{gap:1.6mm}
+.jfi-moldes[data-jof-folha="ficha"] .jfb-fim{flex:1 1 auto;min-height:30mm}
+.jfi-equipa .jfc{justify-content:flex-start;gap:1.6mm;padding-top:3mm}
+.jfi-equipa .jfc-ref{font-size:19pt}.jfi-equipa .jfc-nome{font-size:10.5pt}.jfi-equipa .jfc-obs{font-size:11pt}
+.jfi-equipa .jfc-lote b{font-size:19pt}.jfi-equipa .jfc-lote-d b{font-size:18pt}.jfi-equipa .jfc-lote{font-size:10pt}
+.jfi-equipa .jfc{padding-top:2mm;gap:.8mm}.jfi-equipa .jfc-ref{font-size:17pt}.jfi-equipa .jfc-lote b{font-size:17pt}
+/* Dados mais estreitos: mais espaço para Ferramenta e Notas (Diogo 21:48) */
+.jfi-moldes .jfb-cab,.jfi-moldes .jfb{grid-template-columns:46mm 84mm minmax(0,1fr)}
+.jfi-moldes .jfb-dados{width:84mm}
+.jfi-moldes .jfb-dados col.c1{width:24mm}.jfi-moldes .jfb-dados col.c2{width:19mm}.jfi-moldes .jfb-dados col.c3{width:22mm}.jfi-moldes .jfb-dados col.c4{width:19mm}
+.jfi-moldes[data-jof-folha] .jfb-nome b{font-size:13pt}
+.jfi-moldes[data-jof-folha] .jfb-lado{font-size:10pt}
+.jfi-moldes[data-jof-folha] .jfb-notas,.jfi-moldes[data-jof-folha] .jfb-geral-texto{font-size:11pt}
+.jfi-moldes .jfb-fim{gap:2.2mm}
+.jfi-moldes .jfb-fim .jfb-geral+.jfb-geral{border-left:1px solid #9aa3ad}
+.jfi-moldes .jfb-geral,.jfi-moldes .jfb-fim .jfb-geral{border-top:1px solid #9aa3ad;overflow:hidden}
+.jfi-moldes .jfb-cal{border:1px solid #9aa3ad;border-radius:2mm;overflow:hidden;margin:0}
+.jfi-moldes .jfb-geral .jfi-sub{border-bottom:1px solid #9aa3ad}
+.jfi-moldes .jfb-dados td,.jfi-moldes .jfb-dados th{vertical-align:baseline}
+.jfi-moldes .jfb-dados td.jfb-r2v{text-align:left}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{min-height:36mm}

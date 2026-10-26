@@ -72,8 +72,6 @@
             <div><span>Gota</span><b>@F("cab_gota")</b></div>
             <div><span>Peso</span><b>@Peso()</b></div>
             <div><span>Cadência</span><b></b></div>
-            <div><span>Horas</span><b></b></div>
-            <div><span>Dia da semana</span><b>@(inicio is { } d0 ? char.ToUpper(d0.ToString("dddd", cultura)[0]) + d0.ToString("dddd", cultura)[1..] : "")</b></div>
           </div>
       }
       // Um componente: o nome e os dados do lado, os Dados no meio, as Notas à direita (ficha da fábrica).
@@ -81,8 +79,16 @@
       {
           <div class="jfb">
             <div class="jfb-nome"><b>@nome</b>@foreach (var (r, v) in lado) { <div class="jfb-lado"><span>@r</span><i>@v</i></div> }</div>
-            <table class="jfb-dados">
-              @foreach (var (r, v, r2, v2) in dados)
+            <table class="jfb-dados"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
+              @if (dados.All(x => x.Item3 is null))
+              {
+                foreach (var (x, y) in Pares(dados))
+                {
+                  if (y is null) { <tr><th>@x.Item1</th><td colspan="3">@x.Item2</td></tr> }
+                  else { <tr><th>@x.Item1</th><td>@x.Item2</td><th class="jfb-r2">@y.Value.Item1</th><td>@y.Value.Item2</td></tr> }
+                }
+              }
+              else foreach (var (r, v, r2, v2) in dados)
               {
                 if (r2 is null) { <tr><th>@r</th><td colspan="3">@v</td></tr> }
                 else if (r == "Folgas") { <tr><th>@r</th><td>@v</td><td class="jfb-r2v">@r2</td><td>@v2</td></tr> }
@@ -91,6 +97,17 @@
             </table>
             <div class="jfb-notas">@foreach (var n in Notas(chaveNotas)) { <div>@n</div> }</div>
           </div>
+      }
+      // Dados sem tolerância em 2 colunas; valores compridos ocupam a linha toda.
+      List<((string, string, string?, string?), (string, string, string?, string?)?)> Pares((string, string, string?, string?)[] ds)
+      {
+          var l = new List<((string, string, string?, string?), (string, string, string?, string?)?)>();
+          for (var i = 0; i < ds.Length; i++)
+          {
+              if (ds[i].Item2.Length > 14 || i + 1 >= ds.Length || ds[i + 1].Item2.Length > 14) { l.Add((ds[i], null)); continue; }
+              l.Add((ds[i], ds[i + 1])); i++;
+          }
+          return l;
       }
       (string, string) Q(string chave) => ("Quantidade", F(chave));
       (string, string, string?, string?) D(string r, string v) => (r, v, null, null);
@@ -149,17 +166,19 @@
         {
             <div class="jfi-col">
               <div class="jfi-barra"><span>@titulo</span></div>
-              <table class="dmo-table jfi-t jfi-lista jfi-comp">
-                <tr><th>Componente</th><th>Ref.</th><th>Lote</th><th>Observações</th></tr>
-                @{ linhas(); }
-              </table>
+              <div class="jfc-lista">@{ linhas(); }</div>
             </div>
         }
         void C(string nome, string? ref2, string lote, string obs, bool destaque = false)
         {
-            <tr><td>@nome</td><td>@ref2</td><td class="@(destaque ? "jfi-lote" : null)">@lote</td><td>@obs</td></tr>
+            <div class="jfc">
+              <div class="jfc-nome">@nome</div>
+              <div class="jfc-ref"><b>@(string.IsNullOrEmpty(ref2) ? "—" : ref2)</b>@if (lote.Length > 0 || destaque) { <span class="@(destaque ? "jfc-lote jfc-lote-d" : "jfc-lote")">Lote <b>@(lote.Length > 0 ? lote : "   ")</b></span> }</div>
+              <div class="jfc-obs">@obs</div>
+            </div>
         }
     }
+    <div class="jfi-duas jfi-equipa">
     @{
         Lado("LADO DO CONTRA-MOLDE", () =>
         {
@@ -170,14 +189,15 @@
         });
         Lado("LADO DO MOLDE FINAL", () =>
         {
-            C("MF · Molde final", mf?.Reference, LoteDe(mf), "");
+            C("MF · Molde final", mf?.Reference, LoteDe(mf), "", true);
             C("Fundo final", F("mf_fundo_final"), "", "");
-            C("BQ · Boquilha", bq?.Reference, LoteDe(bq), "");
-            C("AN · Anel", F("an_referencia"), AnLote(), "");
-            C("CS · Cab. enchimento", F("cs_referencia"), "", Junta(Com("Furos", Furos()), Com("Tubo", F("cs_tubo"))));
+            C("BQ · Boquilha", bq?.Reference, LoteDe(bq), "", true);
+            C("AN · Anel", F("an_referencia"), AnLote(), "", true);
+            C("CS · Cab. enchimento", F("cs_referencia"), "", string.Join("\n", new[] { Com("Furos", Furos()), Com("Tubo", F("cs_tubo")) }.Where(x => x.Length > 0)));
             C("PI · Pinça", F("pi_diametro") is { Length: > 0 } pd ? "Ø " + pd : "", "", TipoPinca());
         });
     }
+    </div>
     <div class="jfi-col">
       <div class="jfi-barra"><span>CALIBRES</span></div>
       <table class="dmo-table jfi-t jfi-calequipa">
