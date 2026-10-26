@@ -55,15 +55,7 @@ public sealed partial class IndexModel
         // Sem movimentos não há nada para corrigir.
         EditMovementsFlag = null;
 
-        var unresolved = await _db.BqRepairTraces
-            .AsNoTracking()
-            .Where(t => t.ToolId == toolId && t.BqContextId == null)
-            .Select(t => new
-            {
-                t.Id,
-                Movements = _db.BqMovements.Count(m => m.BqRepairTraceId == t.Id)
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+        var unresolved = await _associacao.RegistoSemJobOnAsync(toolId, cancellationToken);
         if (unresolved is { Movements: > 0 })
         {
             PendingUnresolvedTraceId = unresolved.Id;

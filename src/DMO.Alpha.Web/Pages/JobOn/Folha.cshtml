@@ -471,8 +471,10 @@ else
             else if (Model.Criar)
             {
               @* No Criar e no Duplicar escrevem-se a referência e o nº da produção nova. *@
-              <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input id="lightReference" name="reference" type="text" value="@jobOn.Reference" aria-label="Referência da produção" placeholder="Referência" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-maiusculas data-dmo-suggest="referencias" data-dmo-suggest-linha="#lightMachine" /></div>
-              <input class="prod-select" id="lightProduction" name="production_number" type="text" value="@(Model.NumeroEscrito ?? string.Empty)" aria-label="Número da produção" placeholder="N.º de produção" autocomplete="off" />
+              <div class="pick-campo"><label class="pick-rotulo" for="lightReference">Referência</label>
+              <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input id="lightReference" name="reference" type="text" value="@jobOn.Reference" aria-label="Referência da produção" placeholder="Referência" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-maiusculas data-dmo-suggest="referencias" data-dmo-suggest-linha="#lightMachine" /></div></div>
+              <div class="pick-campo"><label class="pick-rotulo" for="lightProduction">Produção</label>
+              <input class="prod-select" id="lightProduction" name="production_number" type="text" value="@(Model.NumeroEscrito ?? string.Empty)" aria-label="Número da produção" placeholder="N.º" autocomplete="off" /></div>
             }
             else if (editar)
             {
@@ -510,7 +512,16 @@ else
               @* Quem só tem «Job On ver» só vê a folha como está e abre ou fecha as secções: sem Imprimir (Diogo, 23/10/2026). *@
               @if (Model.PodeEditar)
               {
-                <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
+                @* As 4 folhas do Imprimir (Diogo, 26/10/2026): escolhe-se a folha; o browser imprime (nunca PDF no servidor). *@
+                <div class="menu" data-jof-imprimir-menu>
+                  <button class="btn" type="button" aria-haspopup="true" aria-expanded="false" data-jof-imprimir>Imprimir</button>
+                  <div class="menu-list" data-jof-imprimir-lista hidden>
+                    <button type="button" data-jof-imprimir-folha="todas">As 2 folhas</button>
+                    <button type="button" data-jof-imprimir-folha="ficha">Ficha de Artigo</button>
+                    <button type="button" data-jof-imprimir-folha="equipa">Trabalho de Equipa</button>
+                    <button type="button" data-jof-imprimir-folha="ecra">Esta folha (ecrã)</button>
+                  </div>
+                </div>
                 <a class="btn" href="@Model.DuplicarHref" data-jof-duplicar>Duplicar</a>
                 <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
               }
@@ -785,6 +796,10 @@ else
         <input type="hidden" name="inicio_em" value="@inicioProcura.ToString("yyyy-MM-dd")" />
       }
     </form>
+    @if (!editar && !Model.Escolher && Model.PodeEditar && Model.JobOn is not null)
+    {
+      <partial name="_JobOnFolhasImprimir" model="Model" />
+    }
     @if (Model.Eliminar is { } eliminar)
     {
       <partial name="_JobOnEliminar" model="eliminar" />

@@ -10,21 +10,26 @@
             var emCurso = entrada.InicioEm is { } inicio && inicio < DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
             return new DMO.Alpha.Web.Presentation.DmoRailItem(
             Code: entrada.Machine ?? "—",
-            Detail: emCurso
-                ? $"{entrada.Reference} · Produção {entrada.ProductionNumber} · em curso desde {entrada.InicioEm?.ToString("dd/MM")}"
-                : $"{entrada.Reference} · Produção {entrada.ProductionNumber} · {entrada.InicioEm?.ToString("dd/MM")}",
+            // A referência e a produção numa linha, o estado noutra: nada cortado (Diogo, 26/10/2026).
+            Detail: $"{entrada.Reference} · Produção {entrada.ProductionNumber}",
+            Extra: emCurso
+                ? $"Em curso desde {entrada.InicioEm?.ToString("dd/MM")}"
+                : $"Entra a {entrada.InicioEm?.ToString("dd/MM")}",
             Href: $"/JobOn/Folha?jobon_id={entrada.JobOnId}",
             AriaLabel: emCurso
                 ? $"Abrir a produção {entrada.ProductionNumber}, em curso na {entrada.Machine} desde {entrada.InicioEm?.ToString("dd/MM")}"
                 : $"Abrir a produção {entrada.ProductionNumber}, que entra na {entrada.Machine} a {entrada.InicioEm?.ToString("dd/MM")}",
-            Key: entrada.JobOnId.ToString());
+            Key: entrada.JobOnId.ToString(),
+            CssClass: $"dmo-linha-cor mch-{entrada.Machine}");
         })
         .ToList();
     var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
-        Title: "O que vai entrar",
+        // «Planeamento», um link para o calendário do Job On (Diogo, 26/10/2026).
+        Title: "Planeamento",
         Subtitle: "As produções em curso e as que entram esta semana",
-        AriaLabel: "O que vai entrar",
+        AriaLabel: "Planeamento",
         Items: railLinhas,
-        EmptyLabel: "Sem produções em curso nem entradas esta semana.");
+        EmptyLabel: "Sem produções em curso nem entradas esta semana.",
+        TitleHref: "/JobOn");
 }
 <partial name="_DmoRail" model="@rail" />
