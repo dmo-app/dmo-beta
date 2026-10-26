@@ -12,10 +12,12 @@ namespace DMO.Alpha.Web.Pages;
 public class LoginModel : PageModel
 {
     private readonly DmoSignInService _signInService;
+    private readonly InstalacaoInicial _instalacao;
 
-    public LoginModel(DmoSignInService signInService)
+    public LoginModel(DmoSignInService signInService, InstalacaoInicial instalacao)
     {
         _signInService = signInService;
+        _instalacao = instalacao;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -25,14 +27,26 @@ public class LoginModel : PageModel
 
     public string? ErrorMessage { get; set; }
 
-    public void OnGet()
+    /// <summary>Acabou de se fazer a primeira instalação (/instalar).</summary>
+    public bool Instalado { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(bool instalado = false)
     {
+        // Base sem ADMIN com o login próprio: ninguém consegue entrar, por
+        // isso o login leva à primeira instalação.
+        if (await _instalacao.PendenteAsync(HttpContext.RequestAborted))
+        {
+            return Redirect("/instalar");
+        }
+
+        Instalado = instalado;
         // O LOGIN ENTRA LOGO NO PLANEAMENTO (o Owner 2026-10-12: «a pagina
         // que aparece depois do login pode desaparecer e entrar logo com o
         // user no planeamento» — a home com o [Continuar] roubava um clique
         // a cada entrada). O returnUrl explícito mantém-se (os fluxos
         // forçados: a mudança de palavra-passe, os deep-links).
         ReturnUrl ??= "/JobOn";
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(

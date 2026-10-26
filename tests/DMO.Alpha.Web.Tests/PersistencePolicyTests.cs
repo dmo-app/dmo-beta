@@ -39,10 +39,26 @@ public sealed class PersistencePolicyTests
 
     [Theory]
     [InlineData("Production", "")]
+    [InlineData("Production", "Local")]
+    [InlineData("Staging", "")]
+    public void NonDevelopment_SemFornecedorOuLocal_UsaOLoginProprio(
+        string environment, string provider)
+    {
+        // O servidor do portátil (26/10/2026): sem escolha, o login é o da app.
+        using var factory = CreateUnconfiguredFactory(environment, provider);
+        using var client = factory.CreateClient();
+        using var scope = factory.Services.CreateScope();
+
+        Assert.IsType<DMO.Alpha.Infrastructure.Authentication.Local.LocalAuthenticationProvider>(
+            scope.ServiceProvider.GetRequiredService<IAuthenticationProvider>());
+        Assert.IsType<DMO.Alpha.Infrastructure.Authentication.Local.LocalAuthenticationProvider>(
+            scope.ServiceProvider.GetRequiredService<IUserProvisioningProvider>());
+    }
+
+    [Theory]
     [InlineData("Production", "InMemory")]
     [InlineData("Production", "Supabse")]
     [InlineData("Production", "Supabase")]
-    [InlineData("Staging", "")]
     [InlineData("Staging", "InMemory")]
     public void NonDevelopment_AlwaysRegistersRealAuthenticationAndProvisioning(
         string environment, string provider)
@@ -154,36 +170,4 @@ public sealed class PersistencePolicyTests
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
         Assert.Equal("Npgsql.EntityFrameworkCore.PostgreSQL", db.Database.ProviderName);
     }
-    [Fact]
-    public void Beta_DevPoolerOverride_ReusesStoredTechnicalCredential()
-    {
-        const string connection =
-            "Host=db.gkblhzonflzwxvbbullv.supabase.co;Database=postgres;" +
-            "Username=dmo_beta_dev_runtime;Password=not-real";
-        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.UseEnvironment("Development");
-            builder.UseSetting("Dmo:AuthenticationProvider", "InMemory");
-            builder.UseSetting("Dmo:DataProtectionKeyRingPath", TempKeyRing());
-            builder.UseSetting("Dmo:DevConnectionProbe", "false");
-            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:DmoDatabase"] = connection,
-                    ["Dmo:DevPoolerHost"] = "aws-0-eu-west-1.pooler.supabase.com"
-                }));
-        });
-
-        using var client = factory.CreateClient();
-        using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-        var effective = new NpgsqlConnectionStringBuilder(
-            db.Database.GetDbConnection().ConnectionString);
-
-        Assert.Equal("aws-0-eu-west-1.pooler.supabase.com", effective.Host);
-        Assert.Equal(5432, effective.Port);
-        Assert.Equal("dmo_beta_dev_runtime.gkblhzonflzwxvbbullv", effective.Username);
-        Assert.Equal("not-real", effective.Password);
-    }
-
 }

@@ -189,6 +189,11 @@
     color: var(--dmo-warning);
 }
 
+.dmo-account-page .alert-success {
+    background: var(--dmo-success-soft);
+    color: var(--dmo-success);
+}
+
 .dmo-account-page .recovery-note {
     margin: 22px 0 0;
     padding-top: 16px;

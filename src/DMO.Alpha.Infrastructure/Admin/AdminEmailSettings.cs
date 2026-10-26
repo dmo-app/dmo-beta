@@ -175,7 +175,7 @@ public sealed class AdminEmailSettings : IAdminEmailSettings
     /// um único '@' (o provider Auth é a autoridade real; aqui só se recusa
     /// o evidentemente inválido, sem inventar regras).
     /// </summary>
-    private static bool IsUsableEmail(string email)
+    public static bool IsUsableEmail(string email)
     {
         var at = email.IndexOf('@');
         return at > 0
