@@ -14,7 +14,7 @@
     input.type = 'search';
     input.id = select.id + 'Procura';
     input.autocomplete = 'off';
-    input.placeholder = 'Referência ou lote';
+    input.placeholder = 'Escreva a referência ou o lote';
     input.setAttribute('role', 'combobox');
     input.setAttribute('aria-expanded', 'false');
     input.setAttribute('aria-controls', select.id + 'Lista');
@@ -42,6 +42,7 @@
       }
       lista.append(li);
     }
+    const curto = texto => texto.split(' · ').slice(0, 2).join(' · ');
     const marcar = i => {
       const v = visiveis();
       v.forEach((li, n) => li.setAttribute('aria-selected', n === i ? 'true' : 'false'));
@@ -51,19 +52,20 @@
     const abrir = () => { lista.hidden = false; input.setAttribute('aria-expanded', 'true'); };
     const fechar = () => { lista.hidden = true; input.setAttribute('aria-expanded', 'false'); ativa = -1; };
     const filtrar = () => {
-      const termos = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+      const termos = input.value.toLowerCase().replace(/^bq\s+/, '').split(/\s+/).filter(Boolean);
+      if (!termos.length) { fechar(); return; }
       for (const li of lista.children) li.hidden = !termos.every(t => li.dataset.procura.includes(t));
       marcar(-1);
       abrir();
     };
     const escolher = li => {
       select.value = li.dataset.value;
-      input.value = select.selectedOptions[0].text;
+      input.value = curto(select.selectedOptions[0].text);
       select.dispatchEvent(new Event('change', { bubbles: true }));
       fechar();
     };
     input.addEventListener('input', () => { select.value = ''; filtrar(); });
-    input.addEventListener('focus', () => { if (!select.value) filtrar(); });
+    input.addEventListener('focus', () => { input.select(); if (!select.value && input.value) filtrar(); });
     input.addEventListener('keydown', e => {
       const v = visiveis();
       if (e.key === 'ArrowDown') { e.preventDefault(); abrir(); marcar(Math.min(ativa + 1, v.length - 1)); }
@@ -83,7 +85,7 @@
     caixa.append(input, lista, select);
     const label = document.querySelector(`label[for="${select.id}"]`);
     if (label) label.htmlFor = input.id;
-    if (select.value) input.value = select.selectedOptions[0].text;
+    if (select.value) input.value = curto(select.selectedOptions[0].text);
     select.addEventListener('invalid', () => input.focus());
   };
   ligar();
