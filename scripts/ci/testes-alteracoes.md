@@ -2805,3 +2805,17 @@ Novos: 8 · mudaram: 6 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `e3b8d1822d04685e`
+
+## A-0137 · 2026-10-26 · contagem-lista
+
+Porquê: Testes novos: Tampão do Diâmetro do TP da folha (Diogo, 26/10) e Lote FF no bloco MF (Diogo, 22/10 08:17, Q14). Mudados sem mudar o cenário: Assert.Single em vez de Assert.Equal(1, ….Count) (TEC-004) e a lista das migrações com a nova JobOnFolhaLoteFf
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: JobOnPageTests.FolhaNova_LoteFf_AbreComOLoteDoMf_EGravaOutro`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: JobOnPageTests.FolhaNova_DiametroDoTp_EOTampaoDaProducao`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: (resto do ficheiro)`
+
+Selo depois: `67628fb69854a89d`
