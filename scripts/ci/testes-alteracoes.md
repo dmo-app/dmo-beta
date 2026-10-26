@@ -2534,10 +2534,10 @@ Novos: 0 · mudaram: 2 · saíram: 0
 
 Selo depois: `63d6530418f8c955`
 
-## A-0116 · 2026-10-26 · ok-do-diogo
+## A-0114 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main 3ecf06d: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Porquê: O Editar antigo do Job On (JobOn/Index) deixa de ler notas de lote, alterações e o que se perde ao eliminar, que nenhuma vista mostrava: JobOnFichaQuery passa a ler só os factos das ferramentas e a folha gravada. Os testes do #112 perdem as asserções dessas leituras (4 renomeados, 2 saem), o orçamento de consultas desce (16→10, 4→2, 8→2) e um teste novo prova que essas leituras já não se fazem.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3dUaW7rit23pc6wmyyXQ44
 Novos: 5 · mudaram: 5 · saíram: 6
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_FactosEFolha`
@@ -2559,14 +2559,47 @@ Novos: 5 · mudaram: 5 · saíram: 6
 
 Selo depois: `2a6fb53ba94863bb`
 
-## A-0117 · 2026-10-26 · ok-do-diogo
+## A-0116 · 2026-10-26 · ok-do-diogo
 
-Porquê: Junção do PR #118 (folhas do Imprimir do Job On) no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR #118
-Novos: 3 · mudaram: 0 · saíram: 0
+Porquê: Registo do integracao acertado pela main 2abce2e: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 27 · mudaram: 7 · saíram: 2
 
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Apagar_TiraOAcesso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Cifra_TemSalDiferenteEVerificaSoACerta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.CincoFalhasSeguidas_BloqueiamMesmoComACerta_EDepoisVoltaAEntrar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Criar_EntraComATemporariaEPedeMudanca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.EmailRepetido_EhRecusado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Espera_DobraAteQuinzeMinutos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Mudar_TiraATemporariaEAAntigaDeixaDeServir`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.PalavraPasseDoSupabase_Entra_EFicaCifradaNoFormatoDaApp`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.PalavraPasseErrada_OuEmailDesconhecido_Falha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Repor_VoltaATemporaria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/RelogioDeTeste.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.BaseVazia_ComOCodigo_CriaOAdmin_QueEntraComAPalavraPasse`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoErrado_NaoCriaNada`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoSorteado_MudaAoFimDeCincoEnganos`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComAdminJaGravado_NaoHaInstalacao`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComPalavrasPasseNaBase_NaoHaInstalacao`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DadosQueNaoServem_NaoCriamNada`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DepoisDeFeita_OCodigoNaoVoltaAServir`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.SemLoginProprio_NaoHaInstalacao`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+- novo: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_SemFornecedorOuLocal_UsaOLoginProprio`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_ComFornecedorDesconhecido_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemFornecedorDeclarado_UsaOLoginProprio_SemAviso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.DeleteUser_TwoStepConfirmation_RemovesTheRow_AdminNever`
+- mudou: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_AlwaysRegistersRealAuthenticationAndProvisioning`
+- saiu: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.Beta_DevPoolerOverride_ReusesStoredTechnicalCredential`
+- saiu: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemOFornecedorDeclarado_Avisa`
 
-Selo depois: `426e7f7360b2b2f5`
+Selo depois: `b0631f8a7fd8c229`
