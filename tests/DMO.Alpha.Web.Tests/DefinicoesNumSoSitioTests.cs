@@ -107,6 +107,9 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     private static string Menu(string html) =>
         Regex.Match(html, "<nav class=\"def-menu\"[\\s\\S]*?</nav>").Value;
 
+    private static string Modulos(string html) =>
+        Regex.Match(html, "<nav class=\"def-modulos\"[\\s\\S]*?</nav>").Value;
+
     [Fact]
     public async Task ASDefinicoes_EstaoNaBarraDeCima_EJaNaoNaBarraDosModulos()
     {
@@ -124,61 +127,77 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     }
 
     [Fact]
-    public async Task OMenu_PessoalEOsModulosAtivos_CadaEntradaMostraSoASuaSeccao()
+    public async Task OsSeparadores_AMinhaContaEsteComputadorEGerais_CadaEntradaMostraSoASuaSeccao()
     {
+        // Três separadores (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP); os módulos ativos dentro de «Gerais da fábrica».
         var (client, _) = await LoginOperatorAsync("7310", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate);
         var html = await GetOkAsync(client, "/Definicoes");
         var menu = Menu(html);
-        var entradas = Regex.Matches(menu, "data-dmo-def-entrada=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray();
-        Assert.Equal(new[] { "pessoal", "boquilhas", "reparacao" }, entradas);
-        Assert.Contains("href=\"/Definicoes?secao=boquilhas\"", menu);
-        // O Controlo é um grupo no menu, fechado enquanto não está aberto.
-        Assert.Contains("data-dmo-def-grupo=\"controlo\"", menu);
-        Assert.Contains("aria-expanded=\"false\"", menu);
-        Assert.Contains("<div class=\"def-menu-sub\" id=\"defMenu-controlo\" hidden=\"hidden\">", menu);
+        Assert.Equal(new[] { "pessoal", "computador", "gerais" }, Regex.Matches(menu, "data-dmo-def-separador=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray());
+        Assert.Contains(">A minha conta</a>", menu);
+        Assert.Contains(">Este computador</a>", menu);
+        Assert.Contains("href=\"/Definicoes?secao=controlo\" data-dmo-def-separador=\"gerais\" data-dmo-def-abre=\"controlo\">Gerais da fábrica</a>", menu);
+        var modulos = Modulos(html);
+        Assert.Equal(new[] { "controlo", "boquilhas", "reparacao" }, Regex.Matches(modulos, "data-dmo-def-entrada=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray());
+        Assert.Contains("href=\"/Definicoes?secao=boquilhas\"", modulos);
 
-        // Por omissão, Pessoal: a única secção à vista, marcada no menu.
-        Assert.Matches("<a href=\"/Definicoes\\?secao=pessoal\" data-dmo-def-entrada=\"pessoal\" class=\"active\" aria-current=\"page\">", menu);
+        // Por omissão, A minha conta: a única secção à vista; os módulos escondidos.
+        Assert.Matches("<a href=\"/Definicoes\\?secao=pessoal\" data-dmo-def-separador=\"pessoal\" data-dmo-def-abre=\"pessoal\" class=\"active\" aria-current=\"page\">", menu);
+        Assert.Contains("hidden", Regex.Match(html, "<nav class=\"def-modulos\"[^>]*>").Value);
         Assert.DoesNotContain("hidden", Secao(html, "pessoal"));
+        Assert.Contains("hidden", Secao(html, "computador"));
         Assert.Contains("hidden", Secao(html, "boquilhas"));
         Assert.Contains("hidden", Secao(html, "controlo"));
 
-        // Sem JavaScript, o link abre a entrada.
+        // Sem JavaScript, o link abre a entrada, dentro de Gerais.
         var boquilhas = await GetOkAsync(client, "/Definicoes?secao=boquilhas");
         Assert.DoesNotContain("hidden", Secao(boquilhas, "boquilhas"));
         Assert.Contains("hidden", Secao(boquilhas, "pessoal"));
-        Assert.Matches("data-dmo-def-entrada=\"boquilhas\" class=\"active\" aria-current=\"page\"", Menu(boquilhas));
+        Assert.Matches("data-dmo-def-separador=\"gerais\"[^>]*class=\"active\"", Menu(boquilhas));
+        Assert.Matches("data-dmo-def-entrada=\"boquilhas\" class=\"active\" aria-current=\"page\"", Modulos(boquilhas));
+        Assert.DoesNotContain("hidden", Regex.Match(boquilhas, "<nav class=\"def-modulos\"[^>]*>").Value);
 
-        // Uma entrada que não é do utilizador abre Pessoal.
+        // Os links antigos: Job On e a pasta dos PDFs abrem Este computador; «gerais», o primeiro módulo.
+        Assert.DoesNotContain("hidden", Secao(await GetOkAsync(client, "/Definicoes?secao=jobon"), "computador"));
+        Assert.DoesNotContain("hidden", Secao(await GetOkAsync(client, "/Definicoes?secao=controlo&pasta=ok"), "computador"));
+        Assert.DoesNotContain("hidden", Secao(await GetOkAsync(client, "/Definicoes?secao=gerais"), "controlo"));
+
+        // Uma entrada que não é do utilizador abre A minha conta.
         Assert.DoesNotContain("hidden", Secao(await GetOkAsync(client, "/Definicoes?secao=armazem"), "pessoal"));
     }
 
     [Fact]
-    public async Task OMenu_TemOCadeadoNosModulos_QuandoOGeralESoDeLeitura()
+    public async Task UmSoCadeado_PorCimaDasPastasEDasGerais_QuandoSaoSoDeLeitura()
     {
+        // Um só aviso com «Abrir com PIN» (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP), à vista em Este computador e em Gerais.
         var (semPermissao, _) = await LoginOperatorAsync("7311", DmoCapabilities.Boquilhas);
-        var menu = Menu(await GetOkAsync(semPermissao, "/Definicoes"));
-        Assert.Matches("data-dmo-def-entrada=\"boquilhas\"[^>]*><span>Boquilhas</span><span class=\"def-menu-cadeado\" data-dmo-menu-cadeado", menu);
-        Assert.DoesNotMatch("data-dmo-def-entrada=\"pessoal\"[^>]*><span>Pessoal</span><span class=\"def-menu-cadeado\"", menu);
+        var pessoal = await GetOkAsync(semPermissao, "/Definicoes");
+        Assert.Single(Regex.Matches(pessoal, "<div class=\"def-geral-aviso\"[^>]*>"));
+        Assert.Matches("<div class=\"def-geral-aviso\" data-dmo-def-aviso-geral hidden=\"hidden\">", pessoal);
+        Assert.Contains("data-dmo-cadeado data-dmo-dialog=\"defPinJanela\">Abrir com PIN</button>", pessoal);
+        Assert.DoesNotContain("def-menu-cadeado", pessoal);
+        foreach (var secao in new[] { "computador", "boquilhas" })
+        {
+            Assert.Matches("<div class=\"def-geral-aviso\" data-dmo-def-aviso-geral>", await GetOkAsync(semPermissao, "/Definicoes?secao=" + secao));
+        }
 
         var (comPermissao, _) = await LoginOperatorAsync("7312", DmoCapabilities.Boquilhas);
         await DefinicoesPin.DesbloquearAsync(_factory.Services, comPermissao);
-        Assert.DoesNotContain("data-dmo-menu-cadeado", Menu(await GetOkAsync(comPermissao, "/Definicoes")));
+        Assert.DoesNotContain("<div class=\"def-geral-aviso\"", await GetOkAsync(comPermissao, "/Definicoes?secao=boquilhas"));
     }
 
     [Fact]
-    public async Task Armazem_SemCadeado_ESemTextoComAListaVazia()
+    public async Task Armazem_AtrasDoMesmoCadeado_ESemTextoComAListaVazia()
     {
+        // Gravar já pedia o PIN ([DefinicaoGeral]); agora o cartão também fica só de leitura (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         var (client, _) = await LoginOperatorAsync("7319", DmoCapabilities.ArmazemGestao, DmoCapabilities.Boquilhas);
         var html = await GetOkAsync(client, "/Definicoes?secao=armazem");
         var armazem = Regex.Match(html, "<section id=\"sec-armazem\"[\\s\\S]*?(?=<section id=\"sec-|</main>)").Value;
         Assert.Contains("armDefReparadores", armazem);
-        Assert.DoesNotContain("data-dmo-cadeado", armazem);
-        Assert.DoesNotContain("def-geral-campos", armazem);
-        Assert.DoesNotContain("disabled", armazem);
+        Assert.Contains("<fieldset class=\"def-geral-campos\" disabled=\"disabled\">", armazem);
+        Assert.Matches("<div class=\"def-geral-aviso\" data-dmo-def-aviso-geral>", html);
         Assert.DoesNotContain("Ainda não há reparadores", armazem);
         Assert.DoesNotContain("data-dmo-list=\"Reparadores de CM e MF\"", armazem);
-        Assert.DoesNotMatch("data-dmo-def-entrada=\"armazem\"[^>]*><span>[^<]*</span><span class=\"def-menu-cadeado\"", Menu(html));
     }
 
     [Theory]
@@ -249,7 +268,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         {
             Assert.DoesNotContain(id, html);
         }
-        Assert.Contains("data-dmo-def-entrada=\"admin\"", html);
+        Assert.Contains("data-dmo-def-separador=\"admin\"", html);
 
         Assert.Matches("<a href=\"/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
@@ -276,11 +295,11 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     {
         var (client, _) = await LoginOperatorAsync("7313", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
         var html = await GetOkAsync(client, "/Definicoes");
-        var pessoal = Regex.Match(html, "<section id=\"sec-pessoal\"[\\s\\S]*?(?=<section id=\"sec-controlo\")").Value;
+        var pessoal = Regex.Match(html, "<section id=\"sec-pessoal\"[\\s\\S]*?(?=<section id=\"sec-computador\")").Value;
         var cartoes = Regex.Matches(pessoal, "<section id=\"(\\w+)\" class=\"dmo-card").Select(m => m.Groups[1].Value).ToArray();
-        Assert.Equal(new[] { "defConta", "defPalavraPasse" }, cartoes);
-        // A aparência é um botão no canto do título de Pessoal; o «Mudar» está no título do cartão.
-        Assert.Matches("<div class=\"def-pessoal-topo\">[\\s\\S]*?id=\"defTemaBotao\"", pessoal);
+        // A aparência passa a cartão, ao lado da sessão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP); o «Mudar» está no título do cartão.
+        Assert.Equal(new[] { "defConta", "defTema", "defPalavraPasse" }, cartoes);
+        Assert.Matches("<section id=\"defTema\"[\\s\\S]*?id=\"defTemaBotao\"", pessoal);
         Assert.Matches("<div class=\"dmo-card-topo-acoes\"><button type=\"submit\" class=\"dmo-button\" id=\"defPalavraGuardar\" form=\"defPalavraPasseForm\">", pessoal);
 
         var conta = WebUtility.HtmlDecode(Regex.Match(pessoal, "<section id=\"defConta\"[\\s\\S]*?</section>").Value);
@@ -306,7 +325,9 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("data-ferr-sap-pasta disabled=\"disabled\"", producao);
         Assert.Contains("data-ferr-sap-codigos disabled=\"disabled\"", producao);
         Assert.Matches("data-ferr-sap-ler>Ler agora", producao);
-        Assert.True(html.IndexOf("id=\"ferrDefSap\"", StringComparison.Ordinal) > html.IndexOf("<div class=\"def-parte\" id=\"ferramentas\">", StringComparison.Ordinal));
+        // As pastas juntas em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
+        var computador = Regex.Match(html, "<section id=\"sec-computador\"[\\s\\S]*?(?=<section id=\"sec-controlo\")").Value;
+        Assert.Contains("id=\"ferrDefSap\"", computador);
 
         // Boquilhas: a pasta e o ficheiro com cadeado; «Atualizar» fica.
         var excel = Regex.Match(html, "<section id=\"bqDefExcel\"[\\s\\S]*?</section>").Value;
@@ -318,7 +339,8 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var pasta = Regex.Match(html, "<section id=\"ctlDefPastaPdf\"[\\s\\S]*?</section>").Value;
         Assert.Matches("<input id=\"pastaPdfNome\"[^>]*disabled=\"disabled\"", pasta);
         Assert.DoesNotMatch("data-dmo-pasta-pdf-escolher[^>]*disabled", pasta);
-        Assert.True(html.IndexOf("id=\"ctlDefPastaPdf\"", StringComparison.Ordinal) > html.IndexOf("<div class=\"def-parte\" id=\"controlo\">", StringComparison.Ordinal));
+        Assert.Contains("id=\"ctlDefPastaPdf\"", computador);
+        Assert.Contains("id=\"bqDefExcel\"", computador);
     }
 
     [Fact]
@@ -544,28 +566,27 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     }
 
     [Fact]
-    public async Task Controlo_FuncoesNoMenuLateral_UmBotaoPorCartao()
+    public async Task Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao()
     {
-        // Diogo, 22/10/2026: «usa apenas sidepanel, Controlo expande, fica como título, por baixo as funções».
+        // Diogo, 22/10/2026: uma parte para o Peso, os Pegamentos, as PU NNPB e o Email; a pasta dos PDFs
+        // passou para Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         var (client, _) = await LoginOperatorAsync("7325", DmoCapabilities.ControloCreate);
         var html = await GetOkAsync(client, "/Definicoes?secao=controlo&sub=pegamentos");
-        var menu = Menu(html);
-        Assert.Contains("data-dmo-def-grupo=\"controlo\" data-aberto>", menu);
-        Assert.Contains("aria-expanded=\"true\"", menu);
-        Assert.Contains("class=\"dmo-caret\"", menu);
-        Assert.Contains("<div class=\"def-menu-sub\" id=\"defMenu-controlo\">", menu);
-        Assert.DoesNotContain("def-subtabs", html);
-        foreach (var sub in new[] { "peso", "pegamentos", "puncoes", "email", "pdfs" })
+        var partes = Regex.Match(html, "<nav class=\"def-funcoes\"[\\s\\S]*?</nav>").Value;
+        Assert.Equal(new[] { "peso", "pegamentos", "puncoes", "email" }, Regex.Matches(partes, "data-dmo-ctl-tab=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray());
+        foreach (var sub in new[] { "peso", "pegamentos", "puncoes", "email" })
         {
-            Assert.Contains($"href=\"/Definicoes?secao=controlo&amp;sub={sub}\" data-dmo-ctl-tab=\"{sub}\"", html);
+            Assert.Contains($"href=\"/Definicoes?secao=controlo&amp;sub={sub}\" data-dmo-ctl-tab=\"{sub}\"", partes);
         }
 
         Assert.Contains("data-dmo-ctl-tab=\"pegamentos\" data-dmo-grupo=\"controlo\" class=\"active\"", html);
         Assert.Contains("data-dmo-ctl-sub=\"pegamentos\" data-dmo-grupo=\"controlo\">", html);
         Assert.Contains("data-dmo-ctl-sub=\"peso\" data-dmo-grupo=\"controlo\" hidden=\"hidden\"", html);
+        Assert.DoesNotContain("data-dmo-ctl-sub=\"pdfs\"", html);
         // Cada área no seu separador.
         Assert.True(html.IndexOf("data-dmo-ctl-sub=\"peso\"", StringComparison.Ordinal) < html.IndexOf("id=\"ctlDefDensidade\"", StringComparison.Ordinal));
-        Assert.True(html.IndexOf("data-dmo-ctl-sub=\"pdfs\"", StringComparison.Ordinal) < html.IndexOf("id=\"ctlDefPastaPdf\"", StringComparison.Ordinal));
+        Assert.True(html.IndexOf("id=\"sec-computador\"", StringComparison.Ordinal) < html.IndexOf("id=\"ctlDefPastaPdf\"", StringComparison.Ordinal));
+        Assert.True(html.IndexOf("id=\"ctlDefPastaPdf\"", StringComparison.Ordinal) < html.IndexOf("id=\"sec-controlo\"", StringComparison.Ordinal));
         // Sem «Guardar» ao lado dos campos nem por linha.
         Assert.Contains("form=\"ctlDefPastaForm\"", html);
         Assert.Contains("form=\"ctlDefCriarListaForm\"", html);

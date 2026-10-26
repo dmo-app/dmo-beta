@@ -117,7 +117,7 @@ input.dmo-valor.dmo-valor-gravado{background:var(--dmo-brand-050)}
 input.dmo-valor[aria-invalid=true]{border-color:var(--dmo-warning)}
 /* Aviso amarelo discreto quando falta um dado que devia existir (Diogo, 17/10/2026), por exemplo o total do lote de uma máquina. */
 .dmo-aviso-discreto{display:inline-block;margin:6px 0 0;padding:6px 10px;border-left:3px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:6px;color:var(--dmo-text);font-size:12.5px}
-.dmo-aviso-discreto:empty{display:none}
+.dmo-aviso-discreto:empty,.dmo-aviso-discreto[hidden]{display:none}
 /* A escolha «Sem Job On» / «Associar Job On» no cartão do registo (Diogo, 17/10/2026): botões normais, com o tamanho que vem só da letra e do padding da casa (sem larguras fixas). O que não está escolhido fica branco com contorno e, como qualquer botão, inverte a cor ao passar o rato. */
 .dmo-modo{display:inline-flex;position:relative}
 /* O tipo de registo num dropdown (21/10/2026): abre para a esquerda e o escolhido fica a negrito. */

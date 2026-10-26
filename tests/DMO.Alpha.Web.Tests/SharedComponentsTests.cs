@@ -106,16 +106,13 @@ public sealed class SharedComponentsTests
                 Assert.DoesNotContain(".dmo-caret", text, StringComparison.Ordinal);
         }
 
-        // Cada <summary> e cada grupo do painel das Definições abre com o triângulo partilhado.
+        // Cada <summary> abre com o triângulo partilhado.
         foreach (var f in paginas)
         {
             var text = File.ReadAllText(f);
             foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(text, @"(?<!/// )<summary\b[^>]*>(?<corpo>[\s\S]*?)</summary>"))
                 Assert.True(m.Groups["corpo"].Value.Contains(caret, StringComparison.Ordinal), $"{Path.GetFileName(f)}: {m.Value[..Math.Min(80, m.Value.Length)]}");
         }
-        var definicoes = File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Definicoes", "Index.cshtml"));
-        Assert.Contains("data-dmo-def-grupo-titulo", definicoes, StringComparison.Ordinal);
-        Assert.Contains(caret + "<span>@nome</span>", definicoes, StringComparison.Ordinal);
     }
 
     // UM SÓ TRIÂNGULO E O INVERTIDO BRANCO (Diogo, 26/10/2026: «dois triângulos»;
@@ -170,7 +167,6 @@ public sealed class SharedComponentsTests
         Assert.Contains("html body :is(h1,h2,h3,h4,label,legend,summary):has(>:is(.dmo-help,.dmo-com-ajuda)){align-items:baseline!important}", css, StringComparison.Ordinal);
         // Um elemento com a sua ajuda (a etiqueta «Só de leitura») fica junto: o gap do título não os separa.
         Assert.Contains("html body .dmo-com-ajuda{display:inline-flex;align-items:baseline}", css, StringComparison.Ordinal);
-        Assert.Contains("<span class=\"dmo-com-ajuda\"><button type=\"button\" class=\"def-cadeado\"", File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Definicoes", "_DefinicoesCadeado.cshtml")), StringComparison.Ordinal);
         Assert.Contains(".dmo-help-mark{position:absolute;left:0;top:-4px;display:block;overflow:visible;width:8px;height:8px}", css, StringComparison.Ordinal);
         // Ao lado de um botão, a mesma regra.
         Assert.Contains(":is(.dmo-button,button,.dmo-options)+.dmo-help{margin-left:3px}", css, StringComparison.Ordinal);
