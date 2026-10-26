@@ -117,9 +117,13 @@ with sync_playwright() as playwright:
         row = page.locator("#bqToolList tbody tr").first
         # Um clique abre a ficha da linha (beta.113: «listas abrem com um clique»).
         destino = row.get_attribute("data-dmo-open")
-        assert "ferramenta=" in destino and "#bq-tool-sheet" in destino
+        # Diogo, 26/10/2026: «carregar aqui na boquilha deverias abrir a folha da ferramenta dela».
+        assert "/Ferramentas/Ficha" in destino and "tool_id=" in destino
+        tool_id = destino.split("tool_id=")[1].split("&")[0]
         row.click()
-        page.wait_for_url("**/*ferramenta=**")
+        page.wait_for_url("**/Ferramentas/Ficha**")
+        # A ficha em página (Editar/Registos/Movimentos) continua a abrir por ?ferramenta=.
+        page.goto(f"http://dmo.test/Boquilhas?ficheiros=1&ferramenta={tool_id}&saved=created#bq-tool-sheet")
         expect(page.locator("#bq-tool-sheet")).to_be_visible()
         expect(page.locator("[data-dmo-toast]").first).to_contain_text("Boquilha guardada")
         # «Registar sem Job On» (Diogo, 22/10/2026): a janela abre e fecha.
@@ -132,7 +136,7 @@ with sync_playwright() as playwright:
 
         page.goto("http://dmo.test/Boquilhas?ficheiros=1")
         page.locator("#bqToolList tbody tr").first.press("Enter")
-        page.wait_for_url("**/*ferramenta=**")
+        page.wait_for_url("**/Ferramentas/Ficha**")
         assert not errors, errors
         results.append({"width": width, "create_link": "passed", "create_link_follows_machine_filter": "passed", "machine_only_hides_list": "passed", "row_click_and_enter_open": "passed", "horizontal_overflow": False, "javascript_errors": errors})
         context.close()
