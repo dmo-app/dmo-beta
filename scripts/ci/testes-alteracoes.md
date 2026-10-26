@@ -2643,30 +2643,21 @@ Selo depois: `bfb24a5eaf62cccf`
 
 ## A-0121 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main afb00f2: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 1 · mudaram: 0 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto`
-
-Selo depois: `cc1db24dc6a41164`
-
-## A-0122 · 2026-10-26 · ok-do-diogo
-
-Porquê: O teste das alterações no mesmo minuto falhava aos :00 segundos; a segunda hora fica sempre no minuto de «agora» (PR #121).
+Porquê: O teste das alterações no mesmo minuto falhava quando corria aos :00 segundos: criava «agora» e «agora − 1 s», que caíam em minutos diferentes e davam duas linhas. A segunda hora fica até 1 s antes sem sair do minuto de «agora»; as asserções ficam iguais. Muda a preparação de um teste existente: autorização de testes do Diogo.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
 Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua`
 
-Selo depois: `41023790522b6229`
+Selo depois: `99b5882a21ea6965`
 
-## A-0123 · 2026-10-26 · ok-do-diogo
+## A-0122 · 2026-10-26 · ok-do-diogo
 
-Porquê: Junção do PR 122b no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 122b
-Novos: 1 · mudaram: 1 · saíram: 1
+Porquê: Registo do integracao acertado pela main 531a6b4: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 2 · mudaram: 1 · saíram: 1
 
+- novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_ComPonto`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_ACalMostraAsLinhasGravadas_ComAQtdMaq_NaFolhaNova`
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_SemZerosNoFim`
