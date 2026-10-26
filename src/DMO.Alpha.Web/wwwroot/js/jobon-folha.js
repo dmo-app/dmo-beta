@@ -110,6 +110,9 @@
           if (tipo === 'BQ' && lt) folha.querySelectorAll('[data-jof-an-lote]').forEach(an => { an.textContent = lt.textContent; });
           botao.classList.remove('tool-empty');
           botao.setAttribute('data-jof-ficha', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value) + '&voltar=' + encodeURIComponent(location.pathname + location.search));
+          // A cor do uso cheio era da ferramenta antiga.
+          [ref, lt].forEach(b => b && b.classList.remove('dmo-uso-cheio'));
+          dadosDaFerramenta(folha, tipo, select.value);
         }
         procura.hidden = true;
         slot.classList.remove('is-mudar');
@@ -119,6 +122,38 @@
         if (event.key === 'Escape') { procura.hidden = true; slot.classList.remove('is-mudar'); botao.focus(); }
       });
     });
+  }
+
+  // A ferramenta escolhida traz os dados dela para o cartão (Diogo, 26/10/2026:
+  // «quando altero para ferramenta nova não atualiza em tempo real»): a % de uso
+  // dela (0 se é nova), e as notas e a informação técnica do último Job On em
+  // que foi usada. Sem esse Job On, o resto fica como está.
+  async function dadosDaFerramenta(folha, tipo, toolId) {
+    const query = new URLSearchParams({ handler: 'DadosDaFerramenta', tipo: tipo, tool_id: toolId });
+    const jobOnId = new URLSearchParams(location.search).get('jobon_id');
+    if (jobOnId) query.set('jobon_id', jobOnId);
+    let dados;
+    try {
+      const response = await fetch('/JobOn/Folha?' + query, { credentials: 'same-origin' });
+      if (!response.ok) return;
+      dados = await response.json();
+    } catch (e) { return; }
+    const por = (id, valor) => {
+      const campo = document.getElementById(id);
+      if (!campo || campo.value === valor) return;
+      campo.value = valor;
+      const nota = campo.closest('[data-jof-nota]');
+      if (nota) nota.classList.toggle('is-empty', !valor);
+      campo.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    por(dados.utilizacao.id, dados.utilizacao.valor);
+    const uso = document.getElementById(dados.utilizacao.id);
+    const barra = uso && uso.closest('.use') && uso.closest('.use').querySelector('.bar > i');
+    if (barra) barra.style.width = Math.min(parseFloat(dados.utilizacao.valor) || 0, 100) + '%';
+    // A marca «antes» da barra era a da ferramenta antiga.
+    const marca = barra && barra.parentElement.querySelector('s');
+    if (marca) marca.remove();
+    (dados.campos || []).forEach(c => por(c.id, c.valor));
   }
 
   // O aviso «Falta CM, MF, BQ» acompanha o que já se escolheu, sem esperar pelo Guardar.
