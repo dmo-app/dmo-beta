@@ -398,7 +398,8 @@
     { "id": "DMO-405", "module": "Ferramentas", "description": "0.3.0-beta.91: em Registar ferramenta, os botões das linhas compatíveis (B1, B2…) ficam com as cores invertidas (fundo branco, letra azul) quando se passa o rato e quando estão selecionados, como nos outros botões de escolha da app." },
     { "id": "DMO-406", "module": "Controlo → Resumo", "description": "0.3.0-beta.92: os cartões do Resumo (Início, Fim, Aprovação, CM, MF, BQ e Controlos associados) ficam compactos, com o rótulo e o valor na mesma linha, para caber mais a 1366×768." },
     { "id": "DMO-407", "module": "Controlo → Peso", "description": "0.3.0-beta.93: na Comparação do Peso, a comparação começa com uma linha e os botões «+» e «−» acrescentam ou tiram leituras; o cartão da produção anterior fica compacto, numa só linha." },
-    { "id": "DMO-408", "module": "Peso e Reparação Interna", "description": "0.3.0-beta.94: o campo do nº de produção nos filtros (Histórico do Peso e Reparação Interna) mostra só «Produção», numa linha." }
+    { "id": "DMO-408", "module": "Peso e Reparação Interna", "description": "0.3.0-beta.94: o campo do nº de produção nos filtros (Histórico do Peso e Reparação Interna) mostra só «Produção», numa linha." },
+    { "id": "DMO-409", "module": "Job On", "description": "0.3.0-beta.95: na Folha, a coluna do PU e do ARR tem largura mínima e aguenta o zoom (100% e 125%) e janelas estreitas, sem partir «N.º de desenho»; com a informação técnica aberta mostra o título e a versão." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
