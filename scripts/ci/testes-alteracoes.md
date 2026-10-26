@@ -3002,6 +3002,37 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `dc6a82a28326fe61`
 
+## A-0156 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha do Job On: o Imprimir passa a um só clique (sem lista de folhas) e as migrações ganham a coluna AnLote; um teste novo guarda as decisões do Diogo sobre a Folha
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAcHKLAVvVgvoPwNUk8FP7t
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `0a2ef153938dc2f0`
+
+## A-0158 · 2026-10-26 · ok-do-diogo
+
+Porquê: O hover escuro dos botões azuis passa de fundo branco para fundo azul, letra e contorno brancos (Diogo, 26/10: «sim as três»); o teste CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro passa a esperar a regra nova em dmo-normalize.css.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVXGyDiJHgyTJP2v8ShT1rm
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+
+Selo depois: `3e3c12c08ee5874d`
+
+## A-0155 · 2026-10-26 · teste-novo
+
+Porquê: Teste novo ResumoPorPessoa_ContaReparacoesDiasEMedia_SemAsAnuladas (resumo por pessoa da Consulta da RI, PR #160, .101); a lista de migrações ganha ReparacaoInternaTrabalho sem mudar o que o teste verifica
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasConsultaTests.cs :: ReparacoesInternasConsultaTests.ResumoPorPessoa_ContaReparacoesDiasEMedia_SemAsAnuladas`
+
+Selo depois: `0974a6d25321d126`
+
 ## A-0157 · 2026-10-26 · teste-novo
 
 Porquê: SAP: «Apagar lidos», corrida às 18:00 na ajuda e leitura do relatório «produções» (Diogo 22/10 07:43 e 26/10 16:08)
@@ -3010,4 +3041,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ORelatorioProducoes_DaAsGarrafasBrutasDeCadaProducao`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
 
-Selo depois: `d6171e976e051502`
+Selo depois: `4b12b7b049b2c65c`
+
+## A-0159 · 2026-10-26 · teste-novo
+
+Porquê: A referência toda (1075C142) encontra a CM/MF e a BQ registadas só com uma parte
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AWholeReferenceAlsoFindsTheToolsRegisteredWithOnlyOnePart`
+
+Selo depois: `f100f52b5cd8b3c9`

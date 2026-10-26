@@ -248,7 +248,7 @@
     }
 
     // Os cartões sem ferramenta registada: a cabeça com a referência, os valores, as notas e a informação técnica.
-    void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? lote = null)
+    void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? chaveLote = null)
     {
         var notas = JobOnFolhaCampos.DaFamilia(codigo).FirstOrDefault(c => c.Tipo == JobOnFolhaTipoCampo.Nota)?.Chave;
         <div class="sec-head"><span class="code">@codigo</span>
@@ -256,9 +256,9 @@
           {
             <span class="hv"><small>Referência</small><b>@{ Valor(chaveRef, $"{codigo} referência"); }</b></span>
           }
-          @if (lote is not null)
+          @if (chaveLote is not null)
           {
-            <span class="hv" title="O lote do AN é o da BQ"><small>Lote</small><b data-jof-an-lote>@lote</b></span>
+            <span class="hv"><small>Lote</small><b>@{ Valor(chaveLote, $"{codigo} lote"); }</b></span>
           }
         </div>
         if (linhas.Length > 0 || calote)
@@ -533,15 +533,7 @@ else
               @if (Model.PodeEditar)
               {
                 @* As 4 folhas do Imprimir (Diogo, 26/10/2026): escolhe-se a folha; o browser imprime (nunca PDF no servidor). *@
-                <div class="menu" data-jof-imprimir-menu>
-                  <button class="btn" type="button" aria-haspopup="true" aria-expanded="false" data-jof-imprimir>Imprimir</button>
-                  <div class="menu-list" data-jof-imprimir-lista hidden>
-                    <button type="button" data-jof-imprimir-folha="todas">As 2 folhas</button>
-                    <button type="button" data-jof-imprimir-folha="ficha">Ficha de Artigo</button>
-                    <button type="button" data-jof-imprimir-folha="equipa">Trabalho de Equipa</button>
-                    <button type="button" data-jof-imprimir-folha="ecra">Esta folha (ecrã)</button>
-                  </div>
-                </div>
+                <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
                 <a class="btn" href="@Model.DuplicarHref" data-jof-duplicar>Duplicar</a>
                 <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
               }
@@ -624,6 +616,8 @@ else
             @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
             @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
             @* A BQ (com o AN) na primeira fila, com a CM e o MF (Diogo, 23/10/2026). *@
+            @* A BQ e o AN, cada um no seu cartão, na mesma coluna da primeira fila. *@
+            <div class="card col-bq">
             <article class="card pair"><div class="pair-in">
               <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
                 @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
@@ -631,19 +625,18 @@ else
                 @{ Notas("bq_notas"); }
                 @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
               </div>
-              <div class="sec" data-jof-familia="AN" aria-label="Anel">
-                @{ Simples("AN", "an_referencia", [], [], lote: bqFact is null ? "—" : FolhaModel.Lote(bqFact.Lot)); }
-              </div>
             </div></article>
+            @* O AN no seu cartão, com o lote dele (Diogo, 26/10/2026). *@
+            <article class="card sec" data-jof-familia="AN" aria-label="Anel">@{ Simples("AN", "an_referencia", [], [], chaveLote: "an_lote"); }</article>
+            </div>
           </div>
         </section>
         <div class="col3">
           <section class="group g-gargalo" aria-label="Gargalo">
             <div class="board" id="gGargalo">
-              <article class="card pair"><div class="pair-in">
-                <div class="sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</div>
-                <div class="sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</div>
-              </div></article>
+              @* PU e ARR: o mesmo componente, mas cada um no seu cartão, um por baixo do outro (Diogo, 26/10/2026). *@
+              <article class="card sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</article>
+              <article class="card sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</article>
             </div>
           </section>
         </div>

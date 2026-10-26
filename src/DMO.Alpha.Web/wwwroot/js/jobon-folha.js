@@ -107,8 +107,6 @@
           }
           if (ref) ref.textContent = (partes[0] || '').replace(new RegExp('^' + tipo + '\\s+'), '');
           if (lt) lt.textContent = partes[1] === 'sem lote' ? 's/lote' : lote((partes[1] || '').replace(/^Lote\s*/, ''));
-          // BQ e AN são um componente: o lote do AN é o da BQ (Diogo, 26/10/2026).
-          if (tipo === 'BQ' && lt) folha.querySelectorAll('[data-jof-an-lote]').forEach(an => { an.textContent = lt.textContent; });
           botao.classList.remove('tool-empty');
           botao.setAttribute('data-jof-ficha', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value) + '&voltar=' + encodeURIComponent(location.pathname + location.search));
           // A cor do uso cheio era da ferramenta antiga.
@@ -431,7 +429,7 @@
       var lista = b.parentElement && b.parentElement.querySelector('[data-jof-imprimir-lista]');
       var fechar = function () { lista.hidden = true; b.setAttribute('aria-expanded', 'false'); };
       b.addEventListener('click', function () {
-        if (!lista) { window.dmoJobOnImprimir(id()); return; }
+        if (!lista) { window.dmoJobOnImprimir(id(), 'todas'); return; }
         lista.hidden = !lista.hidden;
         b.setAttribute('aria-expanded', String(!lista.hidden));
       });

@@ -301,4 +301,19 @@ public sealed class ReparacoesInternasConsultaTests
 
         Assert.Equal(new[] { new RiPessoa(Ana, "Ana Lopes"), new RiPessoa(Rui, "Rui Costa") }, pessoas);
     }
+
+    [Fact]
+    public async Task ResumoPorPessoa_ContaReparacoesDiasEMedia_SemAsAnuladas()
+    {
+        using var db = ComAsSeis();
+        var consulta = new ReparacoesInternasConsulta(db);
+
+        var resumo = await consulta.ResumoPorPessoaAsync(new RiConsultaFiltro(De: Dia10));
+
+        // Rui: 1, 3 e 5 em três dias (a 6 está anulada); Ana: 2 e 4 em dois dias.
+        Assert.Collection(resumo,
+            rui => Assert.Equal(("Rui Costa", 3, 3, 1.00m), (rui.Nome, rui.Reparacoes, rui.Dias, rui.MediaPorDia)),
+            ana => Assert.Equal(("Ana Lopes", 2, 2, 1.00m), (ana.Nome, ana.Reparacoes, ana.Dias, ana.MediaPorDia)));
+        Assert.Empty(await consulta.ResumoPorPessoaAsync(new RiConsultaFiltro()));
+    }
 }

@@ -1864,6 +1864,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("AnNotas")
                         .HasColumnType("text");
 
+                    b.Property<string>("AnLote")
+                        .HasColumnType("text");
+
                     b.Property<string>("AnReferencia")
                         .HasColumnType("text");
 
@@ -2399,6 +2402,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("Tipo")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Trabalho")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -2440,6 +2448,8 @@ namespace DMO.Alpha.Infrastructure.Migrations
                             t.HasCheckConstraint("CK_ReparacoesInternas_Escrita", "(\"ReferenciaEscrita\" IS NULL OR (btrim(\"ReferenciaEscrita\") <> '' AND \"ReferenciaEscrita\" = btrim(\"ReferenciaEscrita\"))) AND (\"LoteEscrito\" IS NULL OR (btrim(\"LoteEscrito\") <> '' AND \"LoteEscrito\" = btrim(\"LoteEscrito\")))");
 
                             t.HasCheckConstraint("CK_ReparacoesInternas_Numero", "btrim(\"Numero\") <> '' AND \"Numero\" = btrim(\"Numero\")");
+
+                            t.HasCheckConstraint("CK_ReparacoesInternas_Trabalho", "\"Trabalho\" IN (1, 2, 3)");
                         });
                 });
 

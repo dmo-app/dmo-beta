@@ -54,6 +54,12 @@ public sealed class IndexModel(
     [BindProperty(SupportsGet = true, Name = "tipo")]
     public string? TipoTexto { get; set; }
 
+    /// <summary>Reparação, Soldar ou Polir (Reparação por omissão).</summary>
+    [BindProperty(SupportsGet = true, Name = "trabalho")]
+    public string? TrabalhoTexto { get; set; }
+
+    public ReparacaoTrabalho Trabalho => RiTextos.TrabalhoDe(TrabalhoTexto);
+
     /// <summary>
     /// A referência e o lote escritos que ficam no formulário: numa recusa,
     /// e sem Job On depois de gravar (aí todas as reparações levam a
@@ -417,7 +423,7 @@ public sealed class IndexModel(
         contexto ??= Tipo == ReparacaoTipo.Mf ? contextoMf : Tipo == ReparacaoTipo.Cm ? contextoCm : null;
         var saida = await reparacoes.RegistarAsync(
             new PedidoDeReparacao(operacao, maquina?.MachineId, ProducaoPedida, Tipo, contexto, numero, escrita,
-                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null, DiaPedido, horaDaReparacao),
+                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null, DiaPedido, horaDaReparacao, Trabalho),
             HttpContext.RequestAborted);
         if (saida.Gravou)
         {
@@ -428,6 +434,7 @@ public sealed class IndexModel(
                 maquina = maquina?.Code,
                 producao = ProducaoPedida,
                 tipo = TipoTexto,
+                trabalho = Trabalho == ReparacaoTrabalho.Reparacao ? null : RiTextos.TrabalhoValor(Trabalho),
                 dia = DiaPedido is { } d ? Data(d) : null,
                 referencia = saida.SemJobOn ? saida.Referencia : null,
                 lote = saida.SemJobOn ? saida.Lote : null,

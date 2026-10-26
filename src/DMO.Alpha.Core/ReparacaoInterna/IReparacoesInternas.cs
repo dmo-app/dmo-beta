@@ -67,7 +67,8 @@ public sealed record PedidoDeReparacao(
     string? Referencia = null,
     string? Lote = null,
     DateOnly? Dia = null,
-    TimeOnly? Hora = null);
+    TimeOnly? Hora = null,
+    ReparacaoTrabalho Trabalho = ReparacaoTrabalho.Reparacao);
 
 /// <summary>Como acabou um registo. Só se recusa o impossível ou o que falta.</summary>
 public enum ReparacaoResultado
@@ -192,7 +193,8 @@ public sealed record RiLinha(
     DateTime RegistadoEmUtc,
     string? Referencia = null,
     string? Lote = null,
-    TimeOnly? Hora = null);
+    TimeOnly? Hora = null,
+    ReparacaoTrabalho Trabalho = ReparacaoTrabalho.Reparacao);
 
 /// <summary>A Reparação Interna: o dia operacional, a produção do dia, registar, corrigir, anular e a lista.</summary>
 public interface IReparacoesInternas
@@ -247,6 +249,29 @@ public static class RiTextos
         "cm" => ReparacaoTipo.Cm,
         "mf" => ReparacaoTipo.Mf,
         _ => null
+    };
+
+    public static string Trabalho(ReparacaoTrabalho trabalho) => trabalho switch
+    {
+        ReparacaoTrabalho.Soldar => "Soldar",
+        ReparacaoTrabalho.Polir => "Polir",
+        _ => "Reparação"
+    };
+
+    /// <summary>O trabalho no formulário: reparacao, soldar ou polir.</summary>
+    public static string TrabalhoValor(ReparacaoTrabalho trabalho) => trabalho switch
+    {
+        ReparacaoTrabalho.Soldar => "soldar",
+        ReparacaoTrabalho.Polir => "polir",
+        _ => "reparacao"
+    };
+
+    /// <summary>Sem texto, ou com um que não se conhece, é Reparação.</summary>
+    public static ReparacaoTrabalho TrabalhoDe(string? texto) => texto?.Trim().ToLowerInvariant() switch
+    {
+        "soldar" => ReparacaoTrabalho.Soldar,
+        "polir" => ReparacaoTrabalho.Polir,
+        _ => ReparacaoTrabalho.Reparacao
     };
 
     /// <summary>A ferramenta como a pessoa a reconhece: «CM 5538T324 · lote 2».</summary>
