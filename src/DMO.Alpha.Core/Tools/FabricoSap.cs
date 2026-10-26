@@ -243,4 +243,7 @@ public interface IFerramentasFabricoSap
 
     /// <summary>Os Job On em que a ferramenta foi a CM, o MF ou a BQ, do mais recente para o mais antigo.</summary>
     Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default);
+
+    /// <summary>As produções de várias ferramentas numa só passagem, só as que cabem na linha e nos dias do filtro; sem produções, fica de fora.</summary>
+    Task<IReadOnlyDictionary<string, IReadOnlyList<FerramentaProducao>>> ProducoesDeFerramentasAsync(IReadOnlyCollection<string> toolIds, HistoricoFiltro? filtro, CancellationToken cancellationToken = default);
 }
