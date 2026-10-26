@@ -218,6 +218,9 @@ public sealed class FolhaModel(
     public IReadOnlyList<ProductionSearchItem> Producoes { get; private set; } = [];
 
     /// <summary>O lote sem zeros à esquerda («Lote 1»).</summary>
+    /// <summary>O lote da BQ do Job On, que o AN herda quando não tem lote escrito.</summary>
+    public string? AnLoteDaBq => Lote(Fact(JobOn?.BqToolId)?.Lot) is { Length: > 0 } l && l != "—" ? l : null;
+
     public static string Lote(string? lote) => DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(lote);
 
     /// <summary>O % de uso da última leitura de cada ferramenta da folha.</summary>

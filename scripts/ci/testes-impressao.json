@@ -1,5 +1,5 @@
 {
-  "selo": "a1189c0ece6af100",
+  "selo": "dcd2cf8064dc349b",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2373,6 +2373,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: JobOnPageTests.Folha_FerramentaA100PorCento_ReferenciaELoteComCorLigeira": "3ad16e30ba23e0b5",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)": "69b5c204a0772cd2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios": "5740daa9cd40254d",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SaemAsQuatroFolhasSemComentarios": "8f721aa31e9b8a93",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas": "af1a39a2c6d7c0d2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "aa5709137509fb34",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: (resto do ficheiro)": "c27b7b56c41f0aa4",

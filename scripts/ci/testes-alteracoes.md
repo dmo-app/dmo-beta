@@ -3060,3 +3060,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn`
 
 Selo depois: `a1189c0ece6af100`
+
+## A-0169 · 2026-10-26 · teste-novo
+
+Porquê: Imprimir da folha do Job On: as 4 folhas (Ficha de Artigo, Trabalho de Equipa, Preparador, Pinças) e sem comentários (Diogo 26/10, A-0169)
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SaemAsQuatroFolhasSemComentarios`
+
+Selo depois: `dcd2cf8064dc349b`

@@ -1005,3 +1005,21 @@ html body .jof2 .head-tools .field select[data-facts-type]{width:100%;min-width:
 .jof2 .note-view p,.jof2 .note-edit textarea{overflow-wrap:break-word;word-break:normal}
 .jof2 .col-bq.card{display:flex;flex-direction:column;gap:14px;background:none;border:0;box-shadow:none;border-radius:0}
 .jof2 .col-bq>.card.pair{flex:1}
+
+/* Tudo dentro do A4: colunas e tabelas nunca passam da largura da folha (DMO-433). */
+.jfi-duas,.jfi-duas>*,.jfi-tres>*,.jfi-fundo>*,.jfi-col{min-width:0}
+.jfi-duas.jfi-cmmfbq{grid-template-columns:repeat(4,minmax(0,1fr))}
+.jfi-t{table-layout:fixed;max-width:100%}
+.jfi-t th,.jfi-t td{overflow-wrap:anywhere}
+.jfi-kv th{width:46%}
+.jfi-fundo{grid-template-columns:1fr}
+.jfi-lista th:nth-child(1){width:30%}
+.jfi-verif th:nth-child(1),.jfi-verif td:nth-child(1){width:46%}
+.jfi-verif .ck{width:11.5mm;text-align:center}
+.jfi-pincas th:nth-child(1),.jfi-pincas td:nth-child(1){width:10mm}
+.jfi-pincas th:nth-child(2),.jfi-pincas td:nth-child(2){width:18mm}
+html body .jfi-folha .jfi-pincas td{height:8.6mm}
+html body .jfi-folha .jfi-verif td{height:5.6mm}
+.jfi-assinar{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+html body .jfi-folha .jfi-t th,html body .jfi-folha .jfi-t td{white-space:normal;overflow:hidden;text-overflow:clip;word-break:normal;overflow-wrap:break-word;hyphens:manual}
+html body .jfi-folha .jfi-kv th{font-size:7.8pt;padding-left:1.2mm;padding-right:1mm}
