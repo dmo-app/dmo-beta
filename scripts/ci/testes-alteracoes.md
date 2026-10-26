@@ -2690,3 +2690,16 @@ Novos: 3 · mudaram: 0 · saíram: 3
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/RelogioDeTeste.cs :: (resto do ficheiro)`
 
 Selo depois: `349a29c1afb472af`
+
+## A-0125 · 2026-10-26 · ok-do-diogo
+
+Porquê: Mudar a palavra-passe passa a pedir a atual, exceto quando é temporária (auditoria externa DS-LOG-03): os 2 testes do ADMIN que mudam a palavra-passe enviam a atual; teste novo prova que sem ela nada muda
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyUctKbk5MGZ3NjoGuDF1Jdp
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.PalavraPasseAtual.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.PalavraPasseAtual.cs :: AuthenticationTests.ChangePassword_WithoutTemporaryPassword_AsksForTheCurrentOne`
+- mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.PedidoCortado.cs :: AuthenticationTests.AdminPasswordChange_ClientLeavesAfterTheProviderChange_TheOtherAdminSessionsStillEnd`
+- mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions`
+
+Selo depois: `9e35d09198cfa9e0`
