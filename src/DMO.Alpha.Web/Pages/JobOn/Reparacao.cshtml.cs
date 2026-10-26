@@ -2,14 +2,12 @@ using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Paging;
 using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.ReparacaoInterna;
-using DMO.Alpha.Infrastructure.Data;
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Web.Presentation;
 using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Web.Pages.JobOn;
 
@@ -23,7 +21,7 @@ namespace DMO.Alpha.Web.Pages.JobOn;
 public sealed class ReparacaoModel(
     IProductionContextQuery productionContext,
     IReparacoesInternas reparacoes,
-    DmoDbContext db,
+    IJobOnPaginaQuery jobOnPagina,
     ShellStateFactory shellState) : PageModel
 {
     public ProductionContextReadModel? JobOn { get; private set; }
@@ -46,7 +44,7 @@ public sealed class ReparacaoModel(
         if (jobOnId is int id && await productionContext.GetAsync(id, ct) is { } aberto)
         {
             JobOn = aberto;
-            var machineId = await db.JobOns.AsNoTracking().Where(j => j.Id == id).Select(j => j.MachineId).FirstOrDefaultAsync(ct);
+            var machineId = await jobOnPagina.MaquinaDoJobOnAsync(id, ct);
             Linhas = await reparacoes.ListarAsync(machineId, id, pagina, ct);
         }
 
