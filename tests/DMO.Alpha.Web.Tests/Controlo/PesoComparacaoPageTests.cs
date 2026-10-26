@@ -426,8 +426,8 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         // «Comparar pesos» e «Guardar comparação», e não por baixo das
         // leituras (regra 74 do deep sweep de 18/10/2026).
         Assert.Matches("<div class=\"dmo-card-topo-acoes\">\\s*"
-            + "<button type=\"button\" class=\"dmo-button\" form=\"cmpForm\" data-cmp-add-row>Adicionar leitura</button>\\s*"
-            + "<button type=\"button\" class=\"dmo-button\" form=\"cmpForm\" data-cmp-remove-row>Remover leitura</button>\\s*"
+            + "<button type=\"button\" class=\"dmo-button peso-row-button peso-cmp-mais\" form=\"cmpForm\" data-cmp-add-row aria-label=\"Adicionar leitura\" title=\"Adicionar leitura\">+</button>\\s*"
+            + "<button type=\"button\" class=\"dmo-button peso-row-button peso-cmp-mais\" form=\"cmpForm\" data-cmp-remove-row aria-label=\"Remover leitura\" title=\"Remover leitura\">−</button>\\s*"
             + "<button type=\"submit\" class=\"dmo-button\" form=\"cmpForm\">Comparar pesos</button>", html);
         var cmpForm = System.Text.RegularExpressions.Regex.Match(html, "<form [^>]*id=\"cmpForm\"[^>]*>[\\s\\S]*?</form>").Value;
         Assert.NotEmpty(cmpForm);

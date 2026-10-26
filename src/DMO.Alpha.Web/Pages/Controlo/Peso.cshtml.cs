@@ -1127,12 +1127,11 @@ public sealed class PesoModel : PageModel
             ContraMoldeSelecionado = Sanitize(cmToolId)
                 ?? Iniciais.FirstOrDefault(i => i.PesoId == PesoInicialSelecionado)?.CmToolId;
 
-            // As linhas por omissão (o html começa com UMA leitura; o form
-            // nativo sem JS renderiza quatro — as linhas em branco são
-            // ignoradas pelo backend).
+            // As linhas por omissão: UMA leitura; «+», «−» e o «×» da linha
+            // acrescentam e tiram (as em branco são ignoradas pelo backend).
             if (ComparacaoLinhas.Count == 0)
             {
-                ComparacaoLinhas = Enumerable.Range(0, 4).Select(_ => ((string?)null, (string?)null)).ToList();
+                ComparacaoLinhas = new List<(string?, string?)> { (null, null) };
             }
 
             // O resultado do registo guardado (?comparacao_id — o PRG do
