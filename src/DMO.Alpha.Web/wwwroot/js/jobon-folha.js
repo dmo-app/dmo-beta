@@ -436,6 +436,13 @@
     if (!folha) return;
     const editar = folha.getAttribute('data-jof-folha') === 'editar';
     ferramentas(folha, editar);
+    // A procura da Referência: um clique seleciona-a toda, para o Backspace a apagar logo (Diogo, 26/10/2026).
+    const procuraRef = document.getElementById('jofReferencia');
+    if (procuraRef) {
+      let selecionar = false;
+      procuraRef.addEventListener('focus', () => { procuraRef.select(); selecionar = true; });
+      procuraRef.addEventListener('mouseup', event => { if (selecionar) { event.preventDefault(); procuraRef.select(); selecionar = false; } });
+    }
     artigo(folha);
     notas(folha);
   }
