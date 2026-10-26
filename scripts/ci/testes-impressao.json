@@ -1,5 +1,5 @@
 {
-  "selo": "ef4aad3b1a043aef",
+  "selo": "008c5cfe0a157f97",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2582,7 +2582,8 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.TheCalendarOpensTheChosenDay": "2264372d47110a13",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.ToolsWithMissingTechnicalData_AreForControloCreate_NotForFerramentas": "7188e04b398a69b2",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.UtilizacaoPorAtualizar_AvisaNoSumario_SoQuemTemFerramentas": "287bbc9048c35e2b",
-    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.WithoutPlaneamento_ThePageOpensWithOnlyTheAccountModules": "77724d3ae9e7b5f9",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.WithJobOnView_ThePageOpensWithOnlyTheAccountModules": "4e2647f2db65b967",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.WithoutPlaneamento_ThePageIsRefused": "4f441921a2addc47",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: (resto do ficheiro)": "eb7797ac6343a080",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: PlaneamentoSumarioPostgresTests.TodosOsTipos_NoPostgres": "c010c12fabe9ce06",
     "tests/DMO.Alpha.Web.Tests/PosicaoNoHtml.cs :: (resto do ficheiro)": "4dc7b7e9532ec166",

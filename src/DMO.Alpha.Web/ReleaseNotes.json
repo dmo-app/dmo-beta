@@ -422,7 +422,7 @@
     { "id": "DMO-432", "module": "Job On", "description": "0.3.0-beta.118: na Folha, o furos da CS no formato antigo (4X4, 4X2) volta a aparecer como Abertos e Fechados: o maior número são os furos e o menor os abertos (4X4 = 4 abertos; 4X2 = 2 abertos e 2 fechados)." },
     { "id": "DMO-434", "module": "Job On", "description": "0.3.0-beta.120: na Folha, os cartões ficam em quatro colunas iguais, cada um com a altura do seu conteúdo (PU e ARR já não ficam uma faixa estreita), as medidas mostram o valor inteiro por baixo do nome (sem scroll) e o campo «Calote» mostra o valor em vez da palavra «bacia»." },
     { "id": "DMO-435", "module": "Job On", "description": "0.3.0-beta.121: o Imprimir passa a gerar, num só clique, as 4 folhas como as da fábrica (Job-ON Moldes duas vezes, Trabalho de Equipa e Ficha de Artigo), com cada componente num cartão, a referência e o lote dentro da Ferramenta, sem Horas, Dia da semana nem Quantidade." },
-    { "id": "DMO-438", "module": "Planeamento", "description": "0.3.0-beta.124: o Sumário abre para todas as contas; quem não tem o Planeamento vê «Planeamento» na barra, que abre só o Sumário, e cada aviso continua a aparecer só a quem tem o módulo dele." }
+    { "id": "DMO-438", "module": "Planeamento", "description": "0.3.0-beta.124: o Sumário abre também a quem tem o Job On ver; cada aviso continua a aparecer só a quem tem o módulo dele." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

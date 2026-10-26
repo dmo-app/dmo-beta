@@ -3147,13 +3147,12 @@ Novos: 1 · mudaram: 2 · saíram: 0
 
 Selo depois: `bd963d170146d957`
 
-## A-0173 · 2026-10-26 · ok-do-diogo
+## A-0173 · 2026-10-26 · teste-novo
 
-Porquê: O Sumário abre para todas as contas (DMO-438): o teste que recusava a página sem o Planeamento passa a verificar que ela abre só com a informação dos módulos da conta.
-Referência: cmsg_01K75FTs9bQnbhhH7qttpgraPQfnCaE1DxfHtBcTqVgauB, cmsg_01K75FTs9bQnbhhH7qttpgraBRRtFkYDYBHpT78ajBQGib
-Novos: 1 · mudaram: 0 · saíram: 1
+Porquê: Sumário também para o Job On ver (DMO-438): teste novo.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWEaSsUNtRHvwj5NTeZSM7f
+Novos: 1 · mudaram: 0 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.WithoutPlaneamento_ThePageOpensWithOnlyTheAccountModules`
-- saiu: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.WithoutPlaneamento_ThePageIsRefused`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.WithJobOnView_ThePageOpensWithOnlyTheAccountModules`
 
-Selo depois: `ef4aad3b1a043aef`
+Selo depois: `008c5cfe0a157f97`
