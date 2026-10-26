@@ -554,3 +554,38 @@ html body .ri-page .ri-onde dt{font-size:12px;font-weight:500;text-transform:non
 html body .ri-page .ri-onde dd{font-size:18px;font-weight:700}
 html body .ri-page .ri-registo-linha{gap:12px;padding-bottom:12px;border-bottom:1px solid var(--dmo-border)}
 html body .ri-page .ri-lista h4{font-size:16px;font-weight:650;margin:12px 0 8px}
+
+/* Admin: page titles like every other page (26px, text colour); group labels in sentence case. */
+html body :is(#dmu-title,#dmt-title,#dmr-title){font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
+html body .dmt-module-head{font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--dmo-muted)}
+html body .dmu-entrega .dmu-token span{text-transform:none;letter-spacing:0;font-size:12px}
+
+/* Definições: no side menu (mockups: navigation on top). The sections become a row of text tabs
+   above the content, the open one underlined like the module tabs; a locked section keeps its
+   meaning in a muted label, without the padlock glyph. */
+@media (min-width:801px){
+  html body .def-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+  html body .def-menu{position:static;flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:4px 22px;padding:0 4px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none}
+  html body .def-menu-grupo{flex-direction:row;align-items:stretch;gap:0 22px}
+  html body .def-menu-sub{flex-direction:row;padding-left:0;gap:0 18px}
+  html body .def-menu a{padding:8px 2px;border-radius:0;border-bottom:3px solid transparent;font-size:13px;font-weight:500;color:var(--dmo-muted);background:none;box-shadow:none}
+  html body .def-menu a:hover{color:var(--dmo-text);background:var(--dmo-brand-050)}
+  html body .def-menu a.active{color:var(--dmo-brand-700);font-weight:650;border-bottom-color:var(--design-blue);background:none;box-shadow:none}
+  html body .def-menu .def-menu-sub a{padding:8px 2px;font-weight:500}
+}
+html body :is(.def-menu-cadeado,.def-cadeado) svg{display:none}
+html body .def-menu a:has(.def-menu-cadeado){color:var(--dmo-muted);opacity:.75}
+
+/* Login and Versão: the identity side is a flat light surface, no gradient. */
+html body.dmo-account-page .identity{background:var(--dmo-subtle)}
+/* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
+html body :is(.peg-aviso,.peso-aviso)::before{content:none}
+
+/* Value strips everywhere (Peso, PU NNPB, Revisão): one surface with hairline dividers instead of
+   one tinted or edged box per value — as the metrics strip of mockups 04 and 05. */
+html body :is(.peso-facts,.peso-live-strip,.pu-stats,.revisao-facts){display:flex;flex-wrap:wrap;gap:0;padding:10px 0;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
+html body :is(.peso-facts,.peso-live-strip,.pu-stats,.revisao-facts)>*{flex:1 1 140px;margin:0;padding:2px 16px!important;border:0!important;border-left:1px solid var(--dmo-border)!important;border-radius:0!important;background:none!important;min-width:0}
+html body :is(.peso-facts,.peso-live-strip,.pu-stats,.revisao-facts)>*:first-child{border-left:0!important}
+html body .pu-stat::before{content:none}
+html body .pu-stat strong{font-size:22px}
+html body .peso-fact strong{font-size:18px}

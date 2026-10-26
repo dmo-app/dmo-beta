@@ -24,7 +24,8 @@ Este repositório contém a base Razor Pages proveniente do dmo-beta (`3e3b175`,
   - Armazém › Registo em três colunas (Owner, sobre o mockup 06): tipo e procura à esquerda, registo ao centro, ferramenta selecionada à direita; últimas entradas e saídas por baixo.
   - Controlo › Resumo como o mockup 04: procura numa linha; datas e aprovação numa faixa; combinação numa linha; Peso à esquerda com Pegamentos e PU NNPB empilhados à direita; estado do documento em linhas (área, estado, OK/NOK, comentário); «Visto por» e «Aprovado por» lado a lado.
   - Reparação como o mockup 07: «Linha …» em título, produção/CM/MF numa faixa, formulário numa linha.
-  - Tudo em `css/dmo-design.css` (só ecrã), sem mudar marcação, handlers nem permissões.
+  - Resto da app: Peso, PU NNPB e Revisão com valores numa faixa; Definições com as secções em separadores no topo (sem menu lateral nem cadeado); Admin com títulos como as outras páginas e grupos em caixa normal; Login e Versão sem gradiente; sem pictogramas (⚠ dos avisos, ↗ ↙ das Boquilhas — este na marcação).
+  - Tudo em `css/dmo-design.css` (só ecrã), sem mudar handlers nem permissões; na marcação só saíram os glifos das Boquilhas.
   - Design system de referência: https://claude.ai/artifact/CaxJKWoDpibvJSCheUbuRp (página App para explorar).
 
 ## Verificado

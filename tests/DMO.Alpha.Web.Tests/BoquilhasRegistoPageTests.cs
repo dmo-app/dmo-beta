@@ -1196,9 +1196,9 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         Assert.DoesNotContain("for=\"movementMachine\"", html);
         Assert.DoesNotContain("<select id=\"movementMachine\"", html);
         Assert.Contains("<input type=\"hidden\" id=\"movementMachine\" name=\"movement_machine_id\" />", html);
-        Assert.True(Posicao(html, ">Registar</button>") < Posicao(html, "<span>↗ Saída</span>"),
+        Assert.True(Posicao(html, ">Registar</button>") < Posicao(html, "<span>Saída</span>"),
             "O Registar vem antes da Saída.");
-        Assert.True(Posicao(html, "<span>↗ Saída</span>") < Posicao(html, "for=\"quantity\""));
+        Assert.True(Posicao(html, "<span>Saída</span>") < Posicao(html, "for=\"quantity\""));
     }
 
     [Fact]

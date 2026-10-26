@@ -1,5 +1,5 @@
 {
-  "selo": "e0110985db52409c",
+  "selo": "a9bd88ce2c50d331",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1798,7 +1798,7 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.Historico_ReparadorColumn_ShowsTheFrozenNameOfTheRoutedSaida": "6f5db72ae9a9098c",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.Historico_ShowsTheDayMovementsTable_AndTheSidepanelSurvivesTheTabs": "c3facc77110582de",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.LastMovements_ShowTheRealDateAndTheFrozenRepairer": "adde5a0fee656ba6",
-    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst": "8119b6d8b518cd0a",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst": "e2c3b6301539c0e1",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesCard_ShowsTheThreeLiveValues_WhenTheCurrentBqExists": "b1141dc7edd1b81d",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesCard_WithoutCurrentProduction_StaysAsIs_NoLiveValues": "8da9c84ddb236e82",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed": "7767513fe7b1639f",

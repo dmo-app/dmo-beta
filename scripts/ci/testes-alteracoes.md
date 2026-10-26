@@ -3019,3 +3019,13 @@ Novos: 1 · mudaram: 8 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.PdfGenerators_UseThePalette_NotTheOldBlues`
 
 Selo depois: `e0110985db52409c`
+
+## A-0156 · 2026-10-26 · ok-do-diogo
+
+Porquê: Boquilhas: os rótulos do movimento perdem os glifos ↗ ↙ (os mockups não têm ícones); o teste procura «<span>Saída</span>» em vez de «<span>↗ Saída</span>», a ordem verificada é a mesma
+Referência: Sessão Claude Code 26/10/2026, branch claude/design-mockups: ok do proprietário para converter a app toda ao design dos mockups (sem ícones)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
+
+Selo depois: `a9bd88ce2c50d331`
