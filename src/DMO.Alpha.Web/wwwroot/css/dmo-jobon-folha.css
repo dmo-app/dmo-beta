@@ -1183,3 +1183,18 @@ html body .jfi-folha .jfi-calval td{font-size:12pt}
 .jfi-equipa .jfc-ref{justify-content:flex-start;gap:5mm}
 .jfi-equipa .jfc-lote-d{width:auto;min-width:26mm;padding:0 2.5mm}
 .jfi-equipa .jfc-ref>b{min-width:30mm}
+.jfi-moldes .jfb-lado i{font-size:11pt}
+/* Referência e Lote dentro da Ferramenta: coluna compacta; notas com letra mais pequena (Diogo 22:03) */
+.jfi-moldes[data-jof-folha] .jfb-lado{font-size:8.8pt;line-height:1.15;padding-top:0}
+.jfi-moldes[data-jof-folha] .jfb-lado i{font-size:10pt}
+.jfi-moldes[data-jof-folha] .jfb-nome{padding:1mm 1.6mm}
+.jfi-moldes[data-jof-folha] .jfb-nome b{font-size:11.5pt;margin-bottom:.3mm}
+.jfi-moldes[data-jof-folha] .jfb-notas,.jfi-moldes[data-jof-folha] .jfb-geral-texto{font-size:8.6pt}
+.jfi-moldes[data-jof-folha] .jfb-dados th,.jfi-moldes[data-jof-folha] .jfb-dados td{padding-top:.5mm;padding-bottom:.5mm}
+.jfi-moldes{gap:1.6mm}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{min-height:30mm}
+.jfi-moldes[data-jof-folha="ficha"] .jfb-fim{min-height:26mm}
+.jfi-moldes .jfb{flex:1 0 auto}
+.jfb-reflote{display:flex;align-items:baseline;gap:2.5mm;margin:.3mm 0 .8mm}
+.jfb-reflote strong{font-size:13pt;font-weight:700}
+.jfb-reflote span{font-size:8.8pt;color:#3c454f}.jfb-reflote span i{font-style:normal;font-weight:700;font-size:10pt;color:#15191e}
