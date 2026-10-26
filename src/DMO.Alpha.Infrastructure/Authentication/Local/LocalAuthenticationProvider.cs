@@ -27,6 +27,20 @@ public sealed class LocalAuthenticationProvider : IAuthenticationProvider, IUser
         _time = time ?? TimeProvider.System;
     }
 
+    /// <summary>Falhas seguidas antes de o login começar a esperar.</summary>
+    public const int FreeAttempts = 5;
+
+    /// <summary>
+    /// A espera depois da 5.ª falha seguida: 30 s, e o dobro a cada falha a
+    /// mais, até 15 minutos. Um login certo põe tudo a zero.
+    /// </summary>
+    public static TimeSpan LockFor(int failedAttempts)
+    {
+        var extra = Math.Clamp(failedAttempts - FreeAttempts, 0, 5);
+        var seconds = Math.Min(30 * (1 << extra), 15 * 60);
+        return TimeSpan.FromSeconds(seconds);
+    }
+
     private static string Normalize(string email) => email.Trim().ToLowerInvariant();
 
     public async Task<AuthenticateResult> AuthenticateAsync(string identifier, string password, CancellationToken cancellationToken = default)
@@ -37,13 +51,47 @@ public sealed class LocalAuthenticationProvider : IAuthenticationProvider, IUser
         try
         {
             var email = Normalize(identifier);
-            var credential = await _db.LocalCredentials.AsNoTracking()
+            var credential = await _db.LocalCredentials
                 .FirstOrDefaultAsync(c => c.Email == email, cancellationToken);
 
-            if (credential is null || !LocalPasswordHasher.Verify(password, credential.PasswordHash))
+            if (credential is null)
             {
                 _logger.LogWarning("Local authentication failed for {Identifier}", identifier);
                 return AuthenticateResult.Failed("Invalid credentials.");
+            }
+
+            var now = _time.GetUtcNow();
+            if (credential.LockedUntil is { } locked && locked > now)
+            {
+                // Bloqueado: nem se verifica, para não se poder adivinhar à pressa.
+                _logger.LogWarning("Local authentication locked for {Identifier} until {LockedUntil}", identifier, locked);
+                return AuthenticateResult.Failed("Invalid credentials.");
+            }
+
+            if (!LocalPasswordHasher.Verify(password, credential.PasswordHash))
+            {
+                credential.FailedAttempts++;
+                if (credential.FailedAttempts >= FreeAttempts)
+                {
+                    credential.LockedUntil = now + LockFor(credential.FailedAttempts);
+                }
+
+                await _db.SaveChangesAsync(cancellationToken);
+                _logger.LogWarning("Local authentication failed for {Identifier} ({Attempts} seguidas)", identifier, credential.FailedAttempts);
+                return AuthenticateResult.Failed("Invalid credentials.");
+            }
+
+            if (credential.FailedAttempts != 0 || credential.LockedUntil is not null || LocalPasswordHasher.IsLegacy(credential.PasswordHash))
+            {
+                credential.FailedAttempts = 0;
+                credential.LockedUntil = null;
+                if (LocalPasswordHasher.IsLegacy(credential.PasswordHash))
+                {
+                    credential.PasswordHash = LocalPasswordHasher.Hash(password);
+                    credential.UpdatedAt = now;
+                }
+
+                await _db.SaveChangesAsync(cancellationToken);
             }
 
             return AuthenticateResult.Succeeded(credential.ProviderUserId, credential.Email, credential.IsTemporaryPassword);
@@ -128,6 +176,8 @@ public sealed class LocalAuthenticationProvider : IAuthenticationProvider, IUser
 
         credential.PasswordHash = LocalPasswordHasher.Hash(temporaryPassword);
         credential.IsTemporaryPassword = true;
+        credential.FailedAttempts = 0;
+        credential.LockedUntil = null;
         credential.UpdatedAt = _time.GetUtcNow();
         await _db.SaveChangesAsync(cancellationToken);
         return UserProvisioningResetResult.Success();

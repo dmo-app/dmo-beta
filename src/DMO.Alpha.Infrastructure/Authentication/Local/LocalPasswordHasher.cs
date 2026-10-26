@@ -22,11 +22,30 @@ public static class LocalPasswordHasher
         return $"{Prefix}${Iterations}${Convert.ToBase64String(salt)}${Convert.ToBase64String(key)}";
     }
 
+    /// <summary>
+    /// A palavra-passe cifrada veio do Supabase (bcrypt, «$2a$…»/«$2b$…»):
+    /// quem entra com ela é cifrado de novo no formato da app.
+    /// </summary>
+    public static bool IsLegacy(string stored) => stored.StartsWith("$2", StringComparison.Ordinal);
+
     public static bool Verify(string password, string stored)
     {
         if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(stored))
         {
             return false;
+        }
+
+        if (IsLegacy(stored))
+        {
+            // O Supabase cifrou a palavra-passe já com o prefixo das curtas.
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(SupabasePassword.ToProvider(password), stored);
+            }
+            catch (BCrypt.Net.SaltParseException)
+            {
+                return false;
+            }
         }
 
         var parts = stored.Split('$');

@@ -109,4 +109,53 @@ public sealed class LocalAuthenticationProviderTests
         Assert.False(LocalPasswordHasher.Verify("1235", a));
         Assert.False(LocalPasswordHasher.Verify("1234", "lixo"));
     }
+
+    [Fact]
+    public async Task CincoFalhasSeguidas_BloqueiamMesmoComACerta_EDepoisVoltaAEntrar()
+    {
+        var db = new DmoDbContext(new DbContextOptionsBuilder<DmoDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        var relogio = new Relogio();
+        var provider = new LocalAuthenticationProvider(db, NullLogger<LocalAuthenticationProvider>.Instance, relogio);
+        await provider.CreateAsync("ana@fabrica.pt", "1234");
+
+        for (var i = 0; i < 5; i++)
+        {
+            await provider.AuthenticateAsync("ana@fabrica.pt", "errada");
+        }
+
+        Assert.False((await provider.AuthenticateAsync("ana@fabrica.pt", "1234")).Success);
+
+        relogio.Agora += TimeSpan.FromSeconds(31);
+        Assert.True((await provider.AuthenticateAsync("ana@fabrica.pt", "1234")).Success);
+        Assert.Equal(0, db.LocalCredentials.Single().FailedAttempts);
+    }
+
+    [Fact]
+    public void Espera_DobraAteQuinzeMinutos()
+    {
+        Assert.Equal(TimeSpan.FromSeconds(30), LocalAuthenticationProvider.LockFor(5));
+        Assert.Equal(TimeSpan.FromSeconds(60), LocalAuthenticationProvider.LockFor(6));
+        Assert.Equal(TimeSpan.FromMinutes(15), LocalAuthenticationProvider.LockFor(40));
+    }
+
+    [Fact]
+    public async Task PalavraPasseDoSupabase_Entra_EFicaCifradaNoFormatoDaApp()
+    {
+        var provider = NewProvider(out var db);
+        db.LocalCredentials.Add(new LocalCredential
+        {
+            ProviderUserId = "11111111-2222-3333-4444-555555555555",
+            Email = "rui@fabrica.pt",
+            // Como o Supabase guarda: bcrypt da palavra-passe com o prefixo das curtas.
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Dmo#1:4821", 4),
+            UpdatedAt = DateTimeOffset.UtcNow
+        });
+        await db.SaveChangesAsync();
+
+        Assert.True((await provider.AuthenticateAsync("rui@fabrica.pt", "4821")).Success);
+        Assert.StartsWith("pbkdf2-sha256$", db.LocalCredentials.Single().PasswordHash);
+        Assert.True((await provider.AuthenticateAsync("rui@fabrica.pt", "4821")).Success);
+        Assert.False((await provider.AuthenticateAsync("rui@fabrica.pt", "4822")).Success);
+    }
 }

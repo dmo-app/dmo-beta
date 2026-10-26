@@ -18,4 +18,10 @@ public sealed class LocalCredential
     public bool IsTemporaryPassword { get; set; }
 
     public DateTimeOffset UpdatedAt { get; set; }
+
+    /// <summary>Falhas seguidas desde o último login certo.</summary>
+    public int FailedAttempts { get; set; }
+
+    /// <summary>Até quando o login fica recusado depois de muitas falhas seguidas.</summary>
+    public DateTimeOffset? LockedUntil { get; set; }
 }
