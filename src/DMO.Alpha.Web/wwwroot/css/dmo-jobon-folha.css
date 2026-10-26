@@ -1047,3 +1047,40 @@ html body .jof2 .more-body .dims{table-layout:fixed}
 html body .jof2 .more-body .dims th:nth-child(1){width:30%}
 html body .jof2 .more-body .dims th:nth-child(2){width:50%}
 html body .jof2 .more-body .dims th:nth-child(3){width:20%}
+
+/* As páginas do Imprimir como as da fábrica (Job-ON Moldes, Equipa, Ficha), no aspeto da app. */
+.jfi-factos4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.jfi-factos4>div{min-height:8mm}
+.jfi-factos4>div:nth-child(n+5){border-top:1px solid #9aa3ad}
+.jfi-factos4>div:nth-child(5){border-left:0}
+.jfi-moldes{gap:0}
+.jfi-moldes>.jfi-topo{margin-bottom:2.2mm}
+.jfi-moldes>.jfi-factos{margin-bottom:2.2mm}
+.jfb-cab,.jfb{display:grid;grid-template-columns:30mm minmax(0,1fr) 52mm}
+.jfb-cab{background:#15191e;color:#fff;font-weight:700;font-size:8.5pt}
+.jfb-cab span{padding:1.1mm 2mm}
+.jfb{border:1px solid #9aa3ad;border-top:1px solid #9aa3ad;break-inside:avoid}
+.jfb-nome{background:#eef1f4;padding:1.2mm 1.6mm;border-right:1px solid #9aa3ad}
+.jfb-nome b{display:block;font-size:9.5pt;margin-bottom:.8mm}
+.jfb-lado{display:flex;justify-content:space-between;gap:1mm;font-size:7.4pt;color:#3c454f;padding-top:.4mm}
+.jfb-lado i{font-style:normal;font-weight:700;color:#15191e}
+.jfb-dados{width:100%;border-collapse:collapse;font-size:8pt;align-self:start}
+.jfb-dados th{font-weight:400;color:#3c454f;text-align:right;padding:.55mm 1.5mm;width:24mm;white-space:nowrap}
+.jfb-dados td{font-weight:700;padding:.55mm 1.5mm}
+.jfb-dados th.jfb-r2{width:9mm;text-align:right}
+.jfb-notas{border-left:1px solid #9aa3ad;padding:1.2mm 2mm;font-size:7.8pt;overflow-wrap:break-word}
+.jfb-geral{border:1px solid #9aa3ad;border-top:0;display:flex;flex-direction:column;min-width:0}
+.jfb-geral-texto{padding:1.2mm 2mm;font-size:7.8pt;min-height:16mm;overflow-wrap:break-word}
+.jfb-fim{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.jfb-fim .jfb-geral+.jfb-geral{border-left:0}
+.jfb-cal{display:grid;grid-template-columns:22mm repeat(4,minmax(0,1fr));border:1px solid #9aa3ad;border-top:0;margin-bottom:2mm}
+.jfb-cal5{grid-template-columns:20mm repeat(5,minmax(0,1fr))}
+.jfb-cal>*{padding:1mm 1.6mm;border-left:1px solid #9aa3ad}
+.jfb-cal>b:first-child{border-left:0;background:#eef1f4;font-size:8.5pt}
+.jfb-cal span{display:block;font-size:6.5pt;color:#5b6570}
+.jfb-cal i{font-style:normal;font-weight:700;font-size:8.5pt}
+.jfi-comp th:nth-child(1){width:30%}.jfi-comp th:nth-child(2){width:18%}.jfi-comp th:nth-child(3){width:14%}
+html body .jfi-folha .jfi-comp td{height:11mm;vertical-align:middle}
+html body .jfi-folha .jfi-comp td.jfi-lote{font-size:13pt;font-weight:700}
+.jfi-calequipa th{text-align:center}
+html body .jfi-folha .jfi-calval td{height:14mm;text-align:center;vertical-align:middle;font-weight:700}
