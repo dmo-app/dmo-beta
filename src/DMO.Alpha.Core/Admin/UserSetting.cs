@@ -29,6 +29,23 @@ public static class UserSettingKeys
     /// disto (Diogo, 23/10/2026).
     /// </summary>
     public const string SumarioVistoEm = "Pessoal:SumarioVistoEm";
+
+    /// <summary>
+    /// Quantas horas a sessão dura sem atividade, escolhidas pelo utilizador
+    /// (Diogo, 26/10/2026); vale a partir da entrada seguinte.
+    /// </summary>
+    public const string SessaoHoras = "Pessoal:SessaoHoras";
+}
+
+/// <summary>As durações de sessão permitidas (horas) e a por omissão.</summary>
+public static class SessaoDuracao
+{
+    public const int PorOmissao = 1;
+
+    public static readonly int[] Opcoes = [1, 2, 4, 8, 12, 24];
+
+    public static int Ler(string? valor) =>
+        int.TryParse(valor, out var h) && Opcoes.Contains(h) ? h : PorOmissao;
 }
 
 /// <summary>Lê e grava as definições pessoais do utilizador.</summary>

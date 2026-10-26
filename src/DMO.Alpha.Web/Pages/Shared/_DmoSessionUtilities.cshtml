@@ -1,4 +1,10 @@
 @model SessionPresentation
+@using Microsoft.AspNetCore.Authentication
+@{
+    // Quando esta sessão termina (Diogo, 26/10/2026: quem partilha computador
+    // vê o tempo que falta e sai a tempo).
+    var fim = Model.ShowLogout ? (await Context.AuthenticateAsync()).Properties?.ExpiresUtc : null;
+}
 <partial name="_DmoVersionBadge" />
 @* Um bloco à direita em duas linhas: o utilizador; por baixo só o «Sair» (Diogo,
    23/10/2026: «remover o link admin, deixar o sair»; o /Admin abre-se pelo menu
@@ -11,7 +17,30 @@
     @if (Model.ShowLogout)
     {
         <div class="dmo-shell-acoes">
+            @if (fim is { } terminaEm)
+            {
+                <span data-dmo-sessao-fim="@terminaEm.UtcDateTime.ToString("O", System.Globalization.CultureInfo.InvariantCulture)"
+                      title="Hora a que a sessão termina por inatividade"></span>
+            }
             <a class="dmo-shell-logout" href="@Model.LogoutHref" aria-label="Terminar sessão">Sair</a>
         </div>
     }
 </div>
+@if (fim is not null)
+{
+<script>
+(function () {
+  "use strict";
+  var el = document.querySelector("[data-dmo-sessao-fim]");
+  if (!el) return;
+  var fim = new Date(el.getAttribute("data-dmo-sessao-fim"));
+  function p(n) { return (n < 10 ? "0" : "") + n; }
+  function atualizar() {
+    var m = Math.max(0, Math.round((fim - new Date()) / 60000));
+    el.textContent = "Sessão até " + p(fim.getHours()) + ":" + p(fim.getMinutes()) + " · faltam " + Math.floor(m / 60) + " h " + p(m % 60) + " min";
+  }
+  atualizar();
+  setInterval(atualizar, 30000);
+})();
+</script>
+}

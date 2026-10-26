@@ -2912,7 +2912,29 @@ Novos: 14 · mudaram: 2 · saíram: 0
 
 Selo depois: `efca3bbb72e1c0c8`
 
-## A-0142 · 2026-10-26 · teste-novo
+## A-0143 · 2026-10-26 · contagem-lista
+
+Porquê: a lista das migrações e as colunas do Job On ganham a Experiencia (migração JobOnExperiencia); teste novo: a experiência usa o nº AAAA00, entra e sai no mesmo dia e convive com a produção da linha
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: CreateJobOnExperienciaTests.Experiencia_UsaAnoZeroZero_EntraESaiNoMesmoDia_ENaoBloqueiaAProducaoDaLinha`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `de6e4f299d90520b`
+
+## A-0144 · 2026-10-26 · ok-do-diogo
+
+Porquê: o registo da leitura do Peso deixa de ser fixo à direita e fica no fluxo da página (pedido do Diogo, #145)
+Referência: Diogo, 26/10/2026: «o inserir os valores não fica fora» (PR #145)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/ecra_pequeno_browser.py`
+
+Selo depois: `fb64851554ffdfc4`
+
+## A-0145 · 2026-10-26 · teste-novo
 
 Porquê: Testes novos da ronda de erros de 26/10: forma do número em O que mudou, caixa do uso, Criar com referência existente, utilização com ponto e cor
 Novos: 7 · mudaram: 0 · saíram: 0
@@ -2925,4 +2947,4 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor`
 
-Selo depois: `3e5ebb0b3b92d091`
+Selo depois: `ab9e2d6aa5e7ad1b`

@@ -190,6 +190,9 @@ public sealed class FolhaModel(
     /// <summary>O nº de produção escrito no Criar (vazio no Duplicar; o escrito depois de uma recusa).</summary>
     public string? NumeroEscrito { get; private set; }
 
+    /// <summary>A folha nova é de uma experiência e não de uma produção (Diogo, 26/10/2026).</summary>
+    public bool Experiencia { get; private set; }
+
     /// <summary>
     /// A produção sugerida no Duplicar (Diogo, 26/10/2026: «se for 202601 ao
     /// duplicar meter 202602»): a seguinte à maior desta referência, com os
@@ -274,7 +277,8 @@ public sealed class FolhaModel(
         [FromQuery(Name = "vista")] string? vista = null,
         [FromQuery(Name = "removida")] string? removida = null,
         [FromQuery(Name = "etapa")] string? etapa = null,
-        [FromQuery(Name = "producao")] string? producao = null)
+        [FromQuery(Name = "producao")] string? producao = null,
+        [FromQuery(Name = "tipo")] string? tipo = null)
     {
         VistaAlteracoes = vista == "alteracoes";
         AlteracaoRemovida = removida == "1";
@@ -303,6 +307,17 @@ public sealed class FolhaModel(
             // escrita a referência, abre a última dela para ver e duplicar («muitas vezes
             // procuram a partir do template e só depois fazem duplicar»), ou em branco em Editar.
             var numeroNovo = producao?.Trim() is { Length: > 0 } pn ? pn : null;
+            // A EXPERIÊNCIA (Diogo, 26/10/2026): só no Criar, nunca no Duplicar; abre a
+            // folha em branco com o nº AAAA00 e não a última produção da referência.
+            if (duplicar is null && etapa == "criar" && tipo == "experiencia" && referencia?.Trim().ToUpperInvariant() is { Length: > 0 } refExp)
+            {
+                var maquinaExp = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code ?? string.Empty;
+                var diaExp = inicio ?? DateOnly.FromDateTime(DateTime.Today);
+                await AbrirCriarAsync(
+                    new ProductionContextReadModel(0, refExp, string.Empty, maquinaExp, null, null, null, null, null, null, diaExp, diaExp),
+                    FolhaDoJobOnVista.Vazia(), numero: $"{diaExp.Year}00", origemId: null, origemNumero: null, recusa: null, experiencia: true);
+                return Page();
+            }
             if (duplicar is null && etapa == "criar" && referencia?.Trim().ToUpperInvariant() is { Length: > 0 } refNova)
             {
                 var dela = await productionPicker.ListOfReferenceAsync(refNova, ct);
@@ -391,7 +406,8 @@ public sealed class FolhaModel(
         [FromForm(Name = "inicio_em")] string? inicioEm,
         [FromForm(Name = "fim_em")] string? fimEm,
         [FromForm(Name = "calote_mm")] string? caloteMm,
-        [FromForm(Name = "duplicar_de")] int? duplicarDe)
+        [FromForm(Name = "duplicar_de")] int? duplicarDe,
+        [FromForm(Name = "tipo")] string? tipo = null)
     {
         await ComporPaginaAsync();
         if (!PodeEditar)
@@ -413,15 +429,16 @@ public sealed class FolhaModel(
             calote);
         var origem = duplicarDe is int o ? await productionContext.GetAsync(o, ct) : null;
         await AbrirCriarAsync(escrito, folhaEscrita, Limpo(productionNumber), origem?.JobOnId, origem?.ProductionNumber,
-            IndexModel.MensagemRecusaCriar(resultado, folhaEscrita));
+            IndexModel.MensagemRecusaCriar(resultado, folhaEscrita), experiencia: tipo == "experiencia");
         return Page();
     }
 
     private async Task AbrirCriarAsync(
         ProductionContextReadModel novo, FolhaDoJobOnVista folhaNova, string? numero,
-        int? origemId, string? origemNumero, string? recusa)
+        int? origemId, string? origemNumero, string? recusa, bool experiencia = false)
     {
         Criar = true;
+        Experiencia = experiencia;
         Editar = true;
         JobOn = novo;
         Folha = folhaNova;

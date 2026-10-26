@@ -41,7 +41,8 @@ public sealed record NextChange(
 public sealed record DayProduction(
     int JobOnId,
     string Reference,
-    string? ProductionNumber)
+    string? ProductionNumber,
+    bool Experiencia = false)
 {
     public IReadOnlyList<string> LotNotes { get; init; } = [];
 
