@@ -3002,3 +3002,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_ATerraPreselecionadoPelaFolha`
 
 Selo depois: `6f2668a55ab42923`
+
+## A-0152 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR 152 no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 152
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
+
+Selo depois: `f752da73bcc42b27`

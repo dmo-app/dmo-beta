@@ -1,5 +1,5 @@
 {
-  "selo": "6f2668a55ab42923",
+  "selo": "f752da73bcc42b27",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1953,7 +1953,7 @@
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.GuardarComparacao_ExisteOModuloControloCriar": "95005ca832d8efe5",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.GuardarComparacao_GravaAsLeiturasUtilizaveisEAvisaAsDeFora": "d9d818ef69906aa3",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_Filtros_TrocamSoOsResultadosEAsProducoes": "a2bb10d8fea33e3a",
-    "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos": "7362bdccc9e1a805",
+    "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos": "b1a2674ea5a5fe28",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_SemJobOnAssociado_EncontraOPesoSemProducao": "48f623e7f214bbb5",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar": "d1a1e0653bddf164",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.RecusasTipadas_PreservamOFormulario": "55ff30a6cc0ddfd8",
