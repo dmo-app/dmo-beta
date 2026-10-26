@@ -11,7 +11,7 @@ Esta é a baseline limpa DMO-BETA-0.2, feita a partir da 0.1.0-beta.146 e atuali
 - `src/DMO.Alpha.Web`: Razor Pages, serviços web e ficheiros estáticos.
 - `docs/ui-reference/`: paleta oficial e componentes partilhados.
 - `docs/architecture/`: decisões aprovadas e ainda por implementar.
-- `docs/PENDENCIAS.md`: funcionalidades em falta.
+- Auditorias, decisões e notas antigas: repositório dmo-app/dmo-Improvements.
 
 ## Configuração
 
