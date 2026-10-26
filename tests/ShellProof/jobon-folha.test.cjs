@@ -163,3 +163,31 @@ test('Produções: lista fechada; abrir cai por cima; escolher outra muda a <sel
   assert.equal(lista.hidden, true);
   dom.window.close();
 });
+
+test('Editar: no cartão vazio, escolher a CM mostra a referência e o lote e tira a CM do aviso', async () => {
+  // Verificação antes da apresentação (25/10/2026): no Job On novo o cartão vazio só
+  // tinha «Sem contra molde»; escolher a CM deixava o cartão e o aviso como estavam.
+  const dom = new JSDOM(`<!doctype html><body><div class="jobon-aviso warn" data-jof-falta>Falta CM, BQ: o Job On precisa de CM, MF e BQ. Clique no cartão para escolher.</div>
+    <form data-jof-folha="editar"><input type="hidden" id="lightReference" value="5447T173" />
+    <div class="jof-tool-slot" data-jof-tool-slot="CM">
+      <button type="button" class="tool-head tool-empty" data-jof-tool="CM"><span class="code">CM</span><span class="muted">Sem contra molde</span></button>
+      <div class="jof-tool-procura" data-jof-tool-procura hidden><select name="cm_tool_id" data-facts-type="CM" data-dmo-filter>
+        <option value="">Escreva</option><option value="T4">5447T173 · Lote 04</option></select></div>
+    </div>
+    <div class="jof-tool-slot" data-jof-tool-slot="BQ"><button type="button" class="tool-head tool-empty" data-jof-tool="BQ"><span class="code">BQ</span><span class="muted">Sem boquilha</span></button></div>
+    </form></body>`, { url: 'http://dmo.test/JobOn/Folha?novo=1', runScripts: 'outside-only' });
+  const { window } = dom;
+  window.eval(fs.readFileSync(path.join(assets, 'js/jobon-folha.js'), 'utf8'));
+  if (window.document.readyState === 'loading') await new Promise(r => window.addEventListener('DOMContentLoaded', r));
+  const doc = window.document;
+  const select = doc.querySelector('select[name="cm_tool_id"]');
+  select.value = 'T4';
+  select.dispatchEvent(new window.Event('change', { bubbles: true }));
+  const botao = doc.querySelector('[data-jof-tool="CM"]');
+  assert.equal(botao.querySelector('[data-jof-tool-ref]').textContent, '5447T173');
+  assert.equal(botao.querySelector('[data-jof-tool-lote]').textContent, '4');
+  assert.equal(botao.querySelector('.muted'), null);
+  assert.equal(botao.classList.contains('tool-empty'), false);
+  assert.match(doc.querySelector('[data-jof-falta]').textContent, /^Falta BQ: o Job On precisa de CM, MF e BQ\./);
+  window.close();
+});

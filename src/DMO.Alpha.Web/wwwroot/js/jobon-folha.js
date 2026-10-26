@@ -22,8 +22,8 @@
       const botao = slot.querySelector('[data-jof-tool]');
       const procura = slot.querySelector('[data-jof-tool-procura]');
       const select = procura && procura.querySelector('select');
-      const ref = botao && botao.querySelector('[data-jof-tool-ref]');
-      const lt = botao && botao.querySelector('[data-jof-tool-lote]');
+      let ref = botao && botao.querySelector('[data-jof-tool-ref]');
+      let lt = botao && botao.querySelector('[data-jof-tool-lote]');
       if (!botao) return;
       const tipo = botao.getAttribute('data-jof-tool');
       let espera = null;
@@ -69,6 +69,25 @@
         if (select.value && option) {
           // «5447 · Lote 3» → a referência e o lote na cabeça do cartão.
           const partes = option.text.trim().split(' · ');
+          // O cartão vazio só tem «Sem …»: cria a referência e o lote no lugar dele.
+          if (!ref || !lt) {
+            const vazio = botao.querySelector('.muted');
+            const campo = (rotulo, atributo) => {
+              const hv = document.createElement('span');
+              hv.className = 'hv';
+              const small = document.createElement('small');
+              small.textContent = rotulo;
+              const b = document.createElement('b');
+              b.setAttribute(atributo, '');
+              hv.append(small, b);
+              return [hv, b];
+            };
+            const [hvRef, bRef] = campo('Referência', 'data-jof-tool-ref');
+            const [hvLote, bLote] = campo('Lote', 'data-jof-tool-lote');
+            if (vazio) vazio.replaceWith(hvRef, hvLote);
+            else botao.querySelector('.code').after(hvRef, hvLote);
+            ref = bRef; lt = bLote;
+          }
           if (ref) ref.textContent = partes[0] || '';
           if (lt) lt.textContent = lote((partes[1] || '').replace(/^Lote\s*/, ''));
           botao.classList.remove('tool-empty');
@@ -76,11 +95,26 @@
         }
         procura.hidden = true;
         slot.classList.remove('is-mudar');
+        faltam(folha);
       });
       procura.addEventListener('keydown', event => {
         if (event.key === 'Escape') { procura.hidden = true; slot.classList.remove('is-mudar'); botao.focus(); }
       });
     });
+  }
+
+  // O aviso «Falta CM, MF, BQ» acompanha o que já se escolheu, sem esperar pelo Guardar.
+  function faltam(folha) {
+    const aviso = document.querySelector('[data-jof-falta]');
+    if (!aviso) return;
+    const falta = [];
+    folha.querySelectorAll('[data-jof-tool-slot]').forEach(slot => {
+      const botao = slot.querySelector('[data-jof-tool]');
+      if (botao && botao.classList.contains('tool-empty')) falta.push(botao.getAttribute('data-jof-tool'));
+    });
+    if (!falta.length) { aviso.hidden = true; aviso.style.display = 'none'; return; }
+    aviso.hidden = false; aviso.style.display = '';
+    aviso.textContent = aviso.textContent.replace(/^Falta [^:]*:/, 'Falta ' + falta.join(', ') + ':');
   }
 
   // A imagem do artigo encaixa sozinha: corta as margens vazias (brancas ou
