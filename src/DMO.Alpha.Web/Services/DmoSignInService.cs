@@ -328,6 +328,53 @@ public sealed class DmoSignInService
             ? initialPage : returnUrl;
     }
 
+    /// <summary>
+    /// A entrada do POSTO da Reparação Interna: o PIN já foi conferido por
+    /// quem chama. A sessão é a de um login normal (mesmas claims), sem
+    /// palavra-passe nem email.
+    /// </summary>
+    public async Task<SignInOutcome> SignInPostoAsync(Guid userId)
+    {
+        var httpContext = _httpContextAccessor.HttpContext
+            ?? throw new InvalidOperationException("No active HTTP context.");
+        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null || user.IsStandBy || string.IsNullOrWhiteSpace(user.ProviderUserId))
+        {
+            return SignInOutcome.Failed(InvalidCredentials);
+        }
+
+        List<Claim> claims =
+        [
+            new Claim(DmoClaimTypes.ActorId, user.Id.ToString()),
+            new Claim(DmoClaimTypes.DisplayName, user.Name),
+            new Claim(DmoClaimTypes.IsAdmin, bool.FalseString),
+            new Claim(DmoClaimTypes.OperatorId, user.OperatorId),
+            new Claim(DmoClaimTypes.ProviderUserId, user.ProviderUserId),
+            SessionVersionClaim(user)
+        ];
+        if (!string.IsNullOrWhiteSpace(user.TemplateName))
+        {
+            claims.Add(new Claim(DmoClaimTypes.ProfileLabel, user.TemplateName));
+        }
+
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+        var horas = SessaoDuracao.Ler(await _dbContext.UserSettings.AsNoTracking()
+            .Where(s => s.UserId == user.Id && s.Key == UserSettingKeys.SessaoHoras)
+            .Select(s => s.Value)
+            .FirstOrDefaultAsync());
+        await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+            new AuthenticationProperties { ExpiresUtc = DateTimeOffset.UtcNow.AddHours(horas) });
+        DesbloqueioDasDefinicoes.Fechar(httpContext);
+
+        var tema = await _dbContext.UserSettings.AsNoTracking()
+            .Where(s => s.UserId == user.Id && s.Key == UserSettingKeys.Tema)
+            .Select(s => s.Value)
+            .FirstOrDefaultAsync();
+        TemaPessoal.Escrever(httpContext, tema);
+
+        return SignInOutcome.RedirectTo(await ResolveLandingAsync(principal));
+    }
+
     public async Task<SignInOutcome> RefreshSignInAsync(string identifier, string password, string? returnUrl = null)
     {
         // Re-authenticate after a password change so the session reflects the new credential

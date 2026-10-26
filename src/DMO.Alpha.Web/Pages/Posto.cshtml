@@ -1,0 +1,31 @@
+@page
+@model PostoModel
+@{
+    Layout = "_DmoAccountLayout";
+    ViewData["Title"] = "Posto de Reparação";
+}
+
+<form method="post" class="login-form" aria-labelledby="posto-title">
+    <h2 id="posto-title">Posto de Reparação</h2>
+    <div class="dmo-field">
+        <label for="posto-nome">Nome</label>
+        <select id="posto-nome" name="utilizador">
+            <option value="">Escolha o seu nome</option>
+            @foreach (var r in Model.Reparadores)
+            {
+                <option value="@r.Id" selected="@(Model.Escolhido == r.Id)">@r.Nome</option>
+            }
+        </select>
+    </div>
+    <div class="dmo-field">
+        <label for="posto-pin">PIN</label>
+        <input id="posto-pin" name="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="12" />
+    </div>
+    <button type="submit" class="dmo-button submit">Entrar</button>
+    <a class="dmo-button" href="/login" id="posto-voltar">Voltar</a>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger form-message" role="alert">@Model.ErrorMessage</div>
+    }
+</form>

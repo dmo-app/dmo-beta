@@ -130,6 +130,25 @@
     </section>
     </div>
 
+    @if (!user.IsAdmin)
+    {
+      <section class="dmo-card dfu-card" aria-labelledby="dfu-pin-title">
+        <h3 id="dfu-pin-title">PIN do posto de Reparação<partial name="_DmoHelp" model="@("Com o PIN, quem tem a Reparação Interna (ver ou criar) entra pelo botão «Posto de Reparação» do login, sem palavra-passe. De 4 a 12 algarismos; guarda-se só o hash. Escolher um PIN novo substitui o anterior.")" /></h3>
+        <form method="post" asp-page="/Admin/Users/Ficha" asp-page-handler="PinPosto" class="dfu-actions">
+          <input type="hidden" name="operator_id" value="@user.OperatorId" />
+          <div class="dmo-field">
+            <label for="dfu-pin">@(Model.TemPinPosto ? "PIN novo (já tem PIN)" : "PIN (ainda não tem)")</label>
+            <input id="dfu-pin" name="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="12" />
+          </div>
+          <button type="submit" class="dmo-button" id="dfu-pin-guardar">Guardar</button>
+        </form>
+        @if (Model.PinMensagem is { } pinMensagem)
+        {
+          <div class="dfu-nota" role="status">@pinMensagem</div>
+        }
+      </section>
+    }
+
     @* ------------------------------------------------------------------ *@
     @* 2. AS AÇÕES — os forms que viviam na tabela, o trabalho da folha.   *@
     @*    A GRAMÁTICA GLOBAL: nas tabelas não existem botões — os botões  *@
