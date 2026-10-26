@@ -173,7 +173,7 @@
         {
             <div class="jfc">
               <div class="jfc-nome">@nome</div>
-              <div class="jfc-ref"><b>@(string.IsNullOrEmpty(ref2) ? "—" : ref2)</b>@if (lote.Length > 0 || destaque) { <span class="@(destaque ? "jfc-lote jfc-lote-d" : "jfc-lote")">Lote <b>@(lote.Length > 0 ? lote : "   ")</b></span> }</div>
+              <div class="jfc-ref"><b>@(string.IsNullOrEmpty(ref2) ? "—" : ref2)</b>@if (lote.Length > 0) { <span class="@(destaque ? "jfc-lote jfc-lote-d" : "jfc-lote")">Lote <b>@lote</b></span> }</div>
               <div class="jfc-obs">@obs</div>
             </div>
         }

@@ -1180,3 +1180,6 @@ html body .jfi-folha .jfi-calval td{font-size:12pt}
 .jfi-moldes .jfb-dados td,.jfi-moldes .jfb-dados th{vertical-align:baseline}
 .jfi-moldes .jfb-dados td.jfb-r2v{text-align:left}
 .jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{min-height:36mm}
+.jfi-equipa .jfc-ref{justify-content:flex-start;gap:5mm}
+.jfi-equipa .jfc-lote-d{width:auto;min-width:26mm;padding:0 2.5mm}
+.jfi-equipa .jfc-ref>b{min-width:30mm}
