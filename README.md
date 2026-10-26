@@ -1,3 +1,13 @@
+# DMO Design
+
+Entrada para continuar o redesenho: [DESIGN.md](DESIGN.md), [handoff Astra](docs/design/HANDOFF-ASTRA.md) e [guia](docs/design/CONTINUAR.md).
+
+Base Razor Pages importada do dmo-beta. O redesenho ainda não está concluído nem aprovado; a tentativa experimental fica num patch separado. Este repositório não foi ligado a um deploy.
+
+---
+
+## Documentação da base importada
+
 # DMO
 
 Aplicação ASP.NET Core (.NET 10) com PostgreSQL, em `Dockerfile` e `entrypoint.sh`. Módulos: Job On, Controlo (Peso, Pegamentos, PU NNPB, Resumo e Revisão), Boquilhas, Ferramentas, Armazém, Reparação Interna e Administração.
@@ -49,3 +59,4 @@ bash scripts/ci/ci-local.sh   # o CI completo; precisa de um PostgreSQL local
 Depois de publicar, validar autenticação, Job On, Controlo, Boquilhas, Ferramentas, Administração e acesso aos dados. Um deploy com estado SUCCESS não prova que os ecrãs funcionam.
 
 Os requisitos funcionais estão no repositório `dmo-app/blueprint`.
+
