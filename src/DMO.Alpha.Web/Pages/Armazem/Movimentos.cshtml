@@ -417,7 +417,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
        formulário da Entrada, pelo atributo form) e, por baixo, o «Corrigir
        localização». *@
     <dialog id="arm-corrigir-dialog" class="dmo-dialog" aria-labelledby="arm-corrigir-title" data-dmo-dialog-aberta="@(abrirCorrigir ? "1" : null)">
-      <h3 id="arm-corrigir-title">Corrigir</h3>
+      <h3 id="arm-corrigir-title">@(recusaEntrada && semOrigemEstado && !recusaCorrigir ? "Origem da entrada" : "Corrigir")</h3>
       @if (mostrarEntrada)
       {
         <h4 class="arm-subtitulo">Entrada</h4>

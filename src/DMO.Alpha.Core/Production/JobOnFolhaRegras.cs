@@ -185,7 +185,7 @@ public static class JobOnFolhaRegras
             foreach (var campo in JobOnFolhaCampos.Todos)
             {
                 var enviado = folha.TryGetValue(campo.Chave, out var valor) ? valor : null;
-                if (!string.Equals(gravada.Valor(campo.Chave), enviado, StringComparison.Ordinal))
+                if (!MesmoValor(gravada.Valor(campo.Chave), enviado))
                 {
                     mudou.Add(campo.RotuloAlteracao);
                 }
@@ -199,6 +199,16 @@ public static class JobOnFolhaRegras
 
         return mudou;
     }
+
+    /// <summary>
+    /// O mesmo valor, também quando só muda a forma do número (ronda de
+    /// 26/10/2026, J7: guardar sem mexer registava «12.5 → 12.50»): a folha
+    /// mostra os números com ponto e duas casas, e a caixa envia-os assim.
+    /// </summary>
+    private static bool MesmoValor(string? gravado, string? enviado) =>
+        string.Equals(gravado, enviado, StringComparison.Ordinal)
+        || (gravado is not null && enviado is not null
+            && string.Equals(Runtime.DmoNumberFormat.FolhaTexto(gravado), Runtime.DmoNumberFormat.FolhaTexto(enviado), StringComparison.Ordinal));
 
     /// <summary>
     /// O texto da alteração da folha em «O que mudou»: os rótulos do que mudou,
