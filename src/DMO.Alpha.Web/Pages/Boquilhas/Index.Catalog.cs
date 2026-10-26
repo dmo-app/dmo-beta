@@ -60,8 +60,7 @@ public sealed partial class IndexModel
 
     private async Task LoadCatalogAsync()
     {
-        CatalogMachines = await _db.Machines.AsNoTracking().OrderBy(m => m.Code)
-            .Select(m => new MachineOption(m.Id, m.Code)).ToListAsync(HttpContext.RequestAborted);
+        CatalogMachines = await _machineList.ListAsync(HttpContext.RequestAborted);
         if (!CatalogSearched) return;
         var page = await _toolCandidates.FindPageAsync(
             new ToolCandidateFilter(Type: ToolType.Bq, MachineId: CatalogMachineId, Search: CatalogSearch),

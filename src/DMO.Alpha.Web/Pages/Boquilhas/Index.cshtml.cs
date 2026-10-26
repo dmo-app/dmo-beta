@@ -81,9 +81,9 @@ public sealed partial class IndexModel : PageModel
     private readonly IBqToolHistoryQuery _history;
     private readonly IAssociateBqRepairTraceToContextHandler _associate;
     private readonly IToolCandidateQuery _toolCandidates;
-    private readonly DmoDbContext _db;
     private readonly IBoquilhasEscolhasQuery _escolhas;
     private readonly IBoquilhasFichaQuery _ficha;
+    private readonly IBoquilhasAssociacaoQuery _associacao;
     private readonly DMO.Alpha.Core.Production.IMachineListQuery _machineList;
     private readonly DMO.Alpha.Infrastructure.Production.JobOnChangeQuery _changes;
     private readonly DMO.Alpha.Core.Production.IProductionPickerQuery _productionPicker;
@@ -98,9 +98,9 @@ public sealed partial class IndexModel : PageModel
         IBqToolHistoryQuery history,
         IAssociateBqRepairTraceToContextHandler associate,
         IToolCandidateQuery toolCandidates,
-        DmoDbContext db,
         IBoquilhasEscolhasQuery escolhas,
         IBoquilhasFichaQuery ficha,
+        IBoquilhasAssociacaoQuery associacao,
         DMO.Alpha.Core.Production.IMachineListQuery machineList,
         DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
         DMO.Alpha.Core.Production.IProductionPickerQuery productionPicker,
@@ -116,9 +116,9 @@ public sealed partial class IndexModel : PageModel
         _history = history;
         _associate = associate;
         _toolCandidates = toolCandidates;
-        _db = db;
         _escolhas = escolhas;
         _ficha = ficha;
+        _associacao = associacao;
         _machineList = machineList;
         _changes = changes;
         _productionPicker = productionPicker;
@@ -1243,35 +1243,7 @@ public sealed partial class IndexModel : PageModel
         int? pageNumber,
         CancellationToken cancellationToken)
     {
-        var traces = await _db.BqRepairTraces
-            .AsNoTracking()
-            .Where(t => t.ToolId == toolId
-                || (t.BqContext != null && t.BqContext.ToolId == toolId))
-            .OrderByDescending(t => t.Id)
-            .Select(t => new
-            {
-                t.Id,
-                t.BqContextId,
-                // A BQ deste registo foi trocada no Job On (18/10/2026): a
-                // produção pode estar em máquina, mas já com outra BQ.
-                Trocada = t.BqContext != null && t.BqContext.JobOnId == null,
-                // Um bq_id de uma BQ trocada continua a mostrar a produção.
-                ProductionNumber = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.ProductionNumber : t.BqContext.ReplacedJobOn!.ProductionNumber,
-                ProductionReference = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.Reference : t.BqContext.ReplacedJobOn!.Reference,
-                MachineCode = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.Machine.Code : t.BqContext.ReplacedJobOn!.Machine.Code,
-                InicioEm = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.InicioEm : t.BqContext.ReplacedJobOn!.InicioEm,
-                FimEm = t.BqContext == null ? null : t.BqContext.JobOn != null ? t.BqContext.JobOn.FimEm : t.BqContext.ReplacedJobOn!.FimEm
-            })
-            .ToPagedListAsync(pageNumber, cancellationToken: cancellationToken);
-
-        // As contagens só dos registos da página.
-        var traceIds = traces.Items.Select(t => t.Id).ToList();
-        var movementCounts = await _db.BqMovements
-            .AsNoTracking()
-            .Where(m => traceIds.Contains(m.BqRepairTraceId))
-            .GroupBy(m => m.BqRepairTraceId)
-            .Select(g => new { TraceId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(g => g.TraceId, g => g.Count, cancellationToken);
+        var traces = await _associacao.RegistosDaBqAsync(toolId, pageNumber, cancellationToken);
 
         // O estado pelo dia operacional, como o painel e a procura.
         var hoje = await _currentQuery.OperationalDayAsync(cancellationToken);
@@ -1285,7 +1257,7 @@ public sealed partial class IndexModel : PageModel
                 : t.Trocada
                 ? "BQ trocada nesta produção"
                 : ProductionStateLabel(t.InicioEm, t.FimEm, hoje),
-            movementCounts.TryGetValue(t.Id, out var count) ? count : 0)).ToList(),
+            t.MovementCount)).ToList(),
             traces.TotalCount, traces.PageNumber, traces.PageSize);
     }
 
@@ -1511,31 +1483,20 @@ public sealed partial class IndexModel : PageModel
         //    mesmo nº. Com o nº e o texto escrito, «2847» associava a
         //    4526Y171 · 2026999 em vez da 2847Y171 · 2026999 (deep sweep 2,
         //    F-1, 18/10/2026).
-        DMO.Alpha.Core.Production.JobOn? jobOn;
+        BqProducaoParaAssociar? jobOn;
         if (jobOnId is { } chosenId)
         {
-            jobOn = await _db.JobOns
-                .AsNoTracking()
-                .FirstOrDefaultAsync(j => j.Id == chosenId, HttpContext.RequestAborted);
+            jobOn = await _associacao.ProducaoAsync(chosenId, HttpContext.RequestAborted);
             reference = null;
         }
         else
         {
-            var candidates = await _db.JobOns
-                .AsNoTracking()
-                .Where(j => j.ProductionNumber == number)
-                .OrderByDescending(j => j.Id)
-                .Select(j => new
-                {
-                    JobOn = j,
-                    HasBq = _db.BqContexts.Any(c => c.JobOnId == j.Id && c.ToolId == trace.ToolId)
-                })
-                .ToListAsync(HttpContext.RequestAborted);
+            var candidates = await _associacao.ProducoesDoNumeroAsync(number!, trace.ToolId, HttpContext.RequestAborted);
             jobOn = candidates
                 .OrderByDescending(c => !string.IsNullOrEmpty(reference)
-                    && string.Equals(reference, c.JobOn.Reference, StringComparison.OrdinalIgnoreCase))
-                .ThenByDescending(c => c.HasBq)
-                .Select(c => c.JobOn)
+                    && string.Equals(reference, c.Reference, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(c => c.TemBq)
+                .Select(c => new BqProducaoParaAssociar(c.Id, c.Reference))
                 .FirstOrDefault();
         }
         if (jobOn is null)
@@ -1552,11 +1513,8 @@ public sealed partial class IndexModel : PageModel
         //    da produção que partilha o tool_id canónico do trace (a
         //    correlação do handler, AssociateBqRepairTraceToContextHandler
         //    L68-76 — a página apenas a antecipa com a causa em PT).
-        var bqContext = await _db.BqContexts
-            .AsNoTracking()
-            .Where(c => c.JobOnId == jobOn.Id && c.ToolId == trace.ToolId)
-            .FirstOrDefaultAsync(HttpContext.RequestAborted);
-        if (bqContext is null)
+        var bqContextId = await _associacao.ContextoDaBqNaProducaoAsync(jobOn.Id, trace.ToolId, HttpContext.RequestAborted);
+        if (bqContextId is null)
         {
             return RedirectToPage("/Boquilhas/Index", new
             {
@@ -1571,7 +1529,7 @@ public sealed partial class IndexModel : PageModel
         //    copia o trace), limpa a âncora direta e respeita
         //    um-trace-por-bq_id com recusas tipadas próprias.
         var outcome = await _associate.HandleAsync(
-            new AssociateBqRepairTraceToContext(traceId, bqContext.Id),
+            new AssociateBqRepairTraceToContext(traceId, bqContextId.Value),
             HttpContext.RequestAborted);
 
         if (outcome.Result == AssociateBqRepairTraceToContextResult.Success)
