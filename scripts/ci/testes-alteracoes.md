@@ -2558,3 +2558,15 @@ Novos: 5 · mudaram: 5 · saíram: 6
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SemNotasNemAlteracoes_ListasVazias`
 
 Selo depois: `2a6fb53ba94863bb`
+
+## A-0117 · 2026-10-26 · teste-novo
+
+Porquê: Testes novos das folhas do Imprimir do Job On (Ficha de Artigo e Trabalho de Equipa): o botão Imprimir abre a lista das folhas, as folhas vêm com os dados do Job On, e quem só tem «Job On ver» não as recebe.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPAdng59k4sXTVH3yh5tyX2
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `3b6824c4d32faea1`
