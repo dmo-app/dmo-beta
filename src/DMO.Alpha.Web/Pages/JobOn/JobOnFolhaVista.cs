@@ -174,6 +174,21 @@ public sealed class FolhaDoJobOnVista
     public static FolhaDoJobOnVista DoEnvio(EnvioDaFolha envio, string? chaveRecusada) =>
         new(envio.Folha ?? new Dictionary<string, string?>(), ComExtra(envio.Cal ?? []), chaveRecusada);
 
+    /// <summary>
+    /// O «Lote FF» vazio abre com o lote do MF (Diogo, 22/10/2026: o FF quase
+    /// sempre trabalha com o lote do MF; muda-se quando não). Escrito, fica.
+    /// </summary>
+    public FolhaDoJobOnVista ComLoteFfDoMf(string? loteMf)
+    {
+        if (string.IsNullOrWhiteSpace(loteMf) || !string.IsNullOrWhiteSpace(Valor("mf_lote_ff")))
+        {
+            return this;
+        }
+
+        var valores = new Dictionary<string, string?>(_valores, StringComparer.Ordinal) { ["mf_lote_ff"] = loteMf };
+        return new FolhaDoJobOnVista(valores, Cal, ChaveRecusada, Duplicada);
+    }
+
     /// <summary>O id no ecrã de um campo de uma linha CAL pelo índice no formulário.</summary>
     public static string IdCal(int indice, JobOnFolhaCampoCal campo) => campo switch
     {

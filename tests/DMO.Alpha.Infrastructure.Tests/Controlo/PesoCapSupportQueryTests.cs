@@ -183,7 +183,7 @@ public sealed class PesoCapSupportQueryTests : IDisposable
         var readModel = await _query.GetAsync(new PesoCapSupportRequest("T4", controlo.Id));
 
         Assert.False(readModel.TemReferencia);
-        Assert.Contains("Complete D e h de referência na ferramenta CM", readModel.EstadoMensagem);
+        Assert.Contains("Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP)", readModel.EstadoMensagem);
         Assert.Null(readModel.RaioCalculadoMm);
     }
 

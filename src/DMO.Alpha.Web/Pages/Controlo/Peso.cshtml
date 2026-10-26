@@ -24,6 +24,10 @@
     var fmtCap = new Func<decimal?, string>(value => value is { } v
         ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(v)
         : "—");
+    // O h do apoio pelo sítio de onde vem: o Job On, a simulação ou, sem
+    // Job On, nenhum (fica «—» e o volume é só o nominal).
+    string RotuloH(string origem) => origem == "Simulação" ? "h simulado" : "h Job On";
+    bool SemJobOn(DMO.Alpha.Core.Controlo.PesoCapSupportReadModel apoio) => apoio.OrigemCalote == "Tool CM";
     var fmtCapSigned = new Func<decimal?, string>(value => value is { } v
         ? (v >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(v)
         : "—");
@@ -751,17 +755,18 @@
           <div class="tp-support-body">
             @if (Model.CapSupport is { TemReferencia: true } apoioCap)
             {
+              @* «h referencia fica nominal, o efetivo fica jobon»; «por baixo
+                 apenas mostramos volume do nominal, volume do jobon e o delta»
+                 (Diogo, 26/10/2026): a origem do h vai para a dica. *@
               <div class="peso-facts">
-                <div class="peso-fact"><span>D fixo</span><strong>@(fmtCap(apoioCap.DiametroMm)) mm</strong></div>
-                <div class="peso-fact"><span>h de referência</span><strong>@(fmtCap(apoioCap.AlturaReferenciaMm)) mm</strong></div>
-                <div class="peso-fact"><span>h efetivo</span><strong>@(fmtCap(apoioCap.AlturaEfetivaMm)) mm</strong></div>
+                <div class="peso-fact"><span>D</span><strong>@(fmtCap(apoioCap.DiametroMm)) mm</strong></div>
+                <div class="peso-fact"><span>h nominal</span><strong>@(fmtCap(apoioCap.AlturaReferenciaMm)) mm</strong></div>
+                <div class="peso-fact"><span>@(RotuloH(apoioCap.OrigemCalote))<partial name="_DmoHelp" model="@($"Origem do h: {apoioCap.OrigemCalote}. O volume calcula-se com o D e o h; não é aplicada uma tolerância oculta.")" /></span><strong>@(SemJobOn(apoioCap) ? "—" : fmtCap(apoioCap.AlturaEfetivaMm) + " mm")</strong></div>
               </div>
-              <p class="peso-hint">Origem do h efetivo: @apoioCap.OrigemCalote. Não é aplicada uma tolerância oculta.</p>
               <div class="peso-facts" data-cap-result>
-                <div class="peso-fact"><span>R calculado</span><strong>@(fmtCap(apoioCap.RaioCalculadoMm)) mm</strong></div>
-                <div class="peso-fact"><span>Volume</span><strong>@(fmtCap(apoioCap.VolumeEfetivoCm3)) cm³</strong></div>
-                <div class="peso-fact"><span>Δ R / referência</span><strong>@(fmtCapSigned(apoioCap.DeltaRaioMm)) mm</strong></div>
-                <div class="peso-fact"><span>Δ V / referência</span><strong>@(fmtCapSigned(apoioCap.DeltaVolumeCm3)) cm³</strong></div>
+                <div class="peso-fact"><span>Volume nominal</span><strong>@(fmtCap(apoioCap.VolumeReferenciaCm3)) cm³</strong></div>
+                <div class="peso-fact"><span>Volume @(RotuloH(apoioCap.OrigemCalote)[2..])</span><strong>@(SemJobOn(apoioCap) ? "—" : fmtCap(apoioCap.VolumeEfetivoCm3) + " cm³")</strong></div>
+                <div class="peso-fact"><span>Δ volume</span><strong>@(SemJobOn(apoioCap) ? "—" : fmtCapSigned(apoioCap.DeltaVolumeCm3) + " cm³")</strong></div>
               </div>
               <form method="get" asp-page="/Controlo/Peso" class="tp-sim-form">
                 @* O «Calcular» abre a folha de novo: leva a comparação e o
@@ -796,7 +801,7 @@
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.@if (productionCtx.CmToolId is { } capCmToolId) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(capCmToolId, "Completar na ficha da CM", tecnica: true, continuar: voltarAqui)" />}</div>
+              <div class="peso-aviso-simples" role="status">Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP). O Peso pode continuar sem este apoio.@if (productionCtx.JobOnId > 0) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(productionCtx.JobOnId, "Completar no Job On", editar: true)" />}</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -1136,17 +1141,18 @@
           <div class="tp-support-body">
             @if (Model.CapSupport is { TemReferencia: true } apoioCapTool)
             {
+              @* «h referencia fica nominal, o efetivo fica jobon»; «por baixo
+                 apenas mostramos volume do nominal, volume do jobon e o delta»
+                 (Diogo, 26/10/2026): a origem do h vai para a dica. *@
               <div class="peso-facts">
-                <div class="peso-fact"><span>D fixo</span><strong>@(fmtCap(apoioCapTool.DiametroMm)) mm</strong></div>
-                <div class="peso-fact"><span>h de referência</span><strong>@(fmtCap(apoioCapTool.AlturaReferenciaMm)) mm</strong></div>
-                <div class="peso-fact"><span>h efetivo</span><strong>@(fmtCap(apoioCapTool.AlturaEfetivaMm)) mm</strong></div>
+                <div class="peso-fact"><span>D</span><strong>@(fmtCap(apoioCapTool.DiametroMm)) mm</strong></div>
+                <div class="peso-fact"><span>h nominal</span><strong>@(fmtCap(apoioCapTool.AlturaReferenciaMm)) mm</strong></div>
+                <div class="peso-fact"><span>@(RotuloH(apoioCapTool.OrigemCalote))<partial name="_DmoHelp" model="@($"Origem do h: {apoioCapTool.OrigemCalote}. O volume calcula-se com o D e o h; não é aplicada uma tolerância oculta.")" /></span><strong>@(SemJobOn(apoioCapTool) ? "—" : fmtCap(apoioCapTool.AlturaEfetivaMm) + " mm")</strong></div>
               </div>
-              <p class="peso-hint">Origem do h efetivo: @apoioCapTool.OrigemCalote. Não é aplicada uma tolerância oculta.</p>
               <div class="peso-facts" data-cap-result>
-                <div class="peso-fact"><span>R calculado</span><strong>@(fmtCap(apoioCapTool.RaioCalculadoMm)) mm</strong></div>
-                <div class="peso-fact"><span>Volume</span><strong>@(fmtCap(apoioCapTool.VolumeEfetivoCm3)) cm³</strong></div>
-                <div class="peso-fact"><span>Δ R / referência</span><strong>@(fmtCapSigned(apoioCapTool.DeltaRaioMm)) mm</strong></div>
-                <div class="peso-fact"><span>Δ V / referência</span><strong>@(fmtCapSigned(apoioCapTool.DeltaVolumeCm3)) cm³</strong></div>
+                <div class="peso-fact"><span>Volume nominal</span><strong>@(fmtCap(apoioCapTool.VolumeReferenciaCm3)) cm³</strong></div>
+                <div class="peso-fact"><span>Volume @(RotuloH(apoioCapTool.OrigemCalote)[2..])</span><strong>@(SemJobOn(apoioCapTool) ? "—" : fmtCap(apoioCapTool.VolumeEfetivoCm3) + " cm³")</strong></div>
+                <div class="peso-fact"><span>Δ volume</span><strong>@(SemJobOn(apoioCapTool) ? "—" : fmtCapSigned(apoioCapTool.DeltaVolumeCm3) + " cm³")</strong></div>
               </div>
               <form method="get" asp-page="/Controlo/Peso" class="tp-sim-form">
                 <input type="hidden" name="cm_tool_id" value="@Model.RequestedCmToolId" />
@@ -1169,7 +1175,7 @@
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.@if (Model.CmTool is { } capCmTool) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(capCmTool.ToolId, "Completar na ficha da CM", tecnica: true, continuar: voltarAqui)" />}</div>
+              <div class="peso-aviso-simples" role="status">Sem tampão registado para esta CM: o tampão escreve-se na Folha do Job On. O Peso pode continuar sem este apoio.</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -1856,7 +1862,7 @@
         {
           @* Texto para o «?»: para simular a calote, complete D, R do
              desenho e h de referência na ferramenta CM. *@
-          <p class="card-note">Tampão sem geometria na CM.</p>
+          <p class="card-note">Tampão sem diâmetro nem calote.</p>
         }
       </div>
       }
@@ -2107,14 +2113,18 @@
   var params = details.getAttribute('data-cap-params') || '';
   if (!input || !result || !url) return;
 
-  function fmt(value, decimals, unit) {
-    if (value === null || value === undefined) return "—";
-    return Number(value).toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + (unit ? " " + unit : "");
-  }
-  function signed(value, decimals, unit) {
-    if (value === null || value === undefined) return "—";
+  // Os números da app: inteiros sem casas, os outros com duas e ponto.
+  function num(value) {
     var n = Number(value);
-    return (n > 0 ? "+" : "") + n.toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + (unit ? " " + unit : "");
+    return Number.isInteger(n) ? String(n) : n.toFixed(2);
+  }
+  function fmt(value, unit) {
+    if (value === null || value === undefined) return "—";
+    return num(value) + unit;
+  }
+  function signed(value, unit) {
+    if (value === null || value === undefined) return "—";
+    return (Number(value) >= 0 ? "+" : "") + num(value) + unit;
   }
   function metric(label, value) {
     return '<div class="peso-fact"><span>' + label + '</span><strong>' + value + '</strong></div>';
@@ -2130,10 +2140,9 @@
   // da calote anterior: ficam «—» até à tecla seguinte ou ao «Calcular».
   function semValores() {
     result.innerHTML =
-      metric('R calculado', '—') +
-      metric('Volume', '—') +
-      metric('Δ R / referência', '—') +
-      metric('Δ V / referência', '—');
+      metric('Volume nominal', '—') +
+      metric('Volume simulado', '—') +
+      metric('Δ volume', '—');
   }
   input.addEventListener('input', function () {
     if (timer) clearTimeout(timer);
@@ -2150,10 +2159,9 @@
           if (meu !== pedido) return;
           if (!data || !data.temReferencia) { semValores(); return; }
           result.innerHTML =
-            metric('R calculado', fmt(data.raioCalculadoMm, 3, ' mm')) +
-            metric('Volume', fmt(data.volumeEfetivoCm3, 3, ' cm³')) +
-            metric('Δ R / referência', signed(data.deltaRaioMm, 3, ' mm')) +
-            metric('Δ V / referência', signed(data.deltaVolumeCm3, 3, ' cm³'));
+            metric('Volume nominal', fmt(data.volumeReferenciaCm3, ' cm³')) +
+            metric('Volume simulado', fmt(data.volumeEfetivoCm3, ' cm³')) +
+            metric('Δ volume', signed(data.deltaVolumeCm3, ' cm³'));
         })
         .catch(function () { if (meu === pedido) semValores(); });
     }, 300);

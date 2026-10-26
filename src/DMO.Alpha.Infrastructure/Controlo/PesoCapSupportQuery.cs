@@ -134,7 +134,7 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
     /// </summary>
     private static PesoCapSupportReadModel SemReferencia() => new(
         TemReferencia: false,
-        EstadoMensagem: "Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.",
+        EstadoMensagem: "Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP). O Peso pode continuar sem este apoio.",
         OrigemCalote: string.Empty,
         DiametroMm: null,
         AlturaReferenciaMm: null,

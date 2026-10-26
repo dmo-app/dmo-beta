@@ -97,7 +97,7 @@
     </div>
     @if (!Model.Criar)
     {
-      <div class="dmo-field ferr-w-qty">
+      <div class="dmo-field ferr-w-fab">
         <label for="@(p)-fabrica">Fábrica de origem<partial name="_DmoHelp" model="@("A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas.")" /></label>
         <input id="@(p)-fabrica" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" />
       </div>

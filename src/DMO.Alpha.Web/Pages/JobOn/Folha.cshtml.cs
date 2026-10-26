@@ -478,6 +478,7 @@ public sealed class FolhaModel(
             {
                 Facts = await toolFacts.FindAsync(ids, aberto.Machine, aberto.JobOnId, aberto.InicioEm, aberto.FimEm, ct);
                 Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
+                Folha = Folha.ComLoteFfDoMf(Fact(aberto.MfToolId)?.Lot);
             }
             LotesBqUsados = await alterarLote.LotesUsadosAsync(aberto.JobOnId, ct);
             if (Editar)
