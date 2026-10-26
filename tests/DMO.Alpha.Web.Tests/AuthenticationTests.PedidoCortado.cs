@@ -33,7 +33,7 @@ public partial class AuthenticationTests
         try
         {
             await owner.PostAsync("/change-password", HtmlFormHelpers.BuildFormPost(
-                ("newPassword", "AdminNew456!"), ("confirmPassword", "AdminNew456!"),
+                ("currentPassword", "AdminOld123!"), ("newPassword", "AdminNew456!"), ("confirmPassword", "AdminNew456!"),
                 ("__RequestVerificationToken", token)));
         }
         catch (Exception exception) when (exception is HttpRequestException or OperationCanceledException or IOException)

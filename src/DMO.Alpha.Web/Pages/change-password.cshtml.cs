@@ -40,7 +40,7 @@ public class ChangePasswordModel : PageModel
         }
     }
 
-    public async Task<IActionResult> OnPostAsync(string newPassword, string confirmPassword)
+    public async Task<IActionResult> OnPostAsync(string? currentPassword, string newPassword, string confirmPassword)
     {
         RequiresPasswordChange = User.HasClaim(DmoClaimTypes.RequiresPasswordChange, bool.TrueString);
         if (!_accountContext.Current.IsAuthenticated)
@@ -53,7 +53,10 @@ public class ChangePasswordModel : PageModel
         // so the operator sees the change was applied — never a silent
         // redirect (2026-10-11, pedido do Owner).
         TempData["PasswordChanged"] = "1";
-        var resultado = await _mudanca.MudarAsync(User, pedirAtual: false, atual: null, newPassword, confirmPassword, "/JobOn");
+        // Só a mudança obrigatória (palavra-passe temporária) dispensa a atual:
+        // quem encontra uma sessão aberta não troca a palavra-passe do dono
+        // (auditoria externa DS-LOG-03, 26/10/2026).
+        var resultado = await _mudanca.MudarAsync(User, pedirAtual: !RequiresPasswordChange, atual: currentPassword, newPassword, confirmPassword, "/JobOn");
         if (resultado.Erro is not null)
         {
             if (!resultado.Mudou)
