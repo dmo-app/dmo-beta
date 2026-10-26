@@ -2690,3 +2690,13 @@ Novos: 3 · mudaram: 0 · saíram: 3
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/RelogioDeTeste.cs :: (resto do ficheiro)`
 
 Selo depois: `349a29c1afb472af`
+
+## A-0126 · 2026-10-26 · teste-novo
+
+Porquê: Templates do Admin: o Diogo pediu as permissões sem caixas, as não escolhidas leves e as escolhidas escuras com letra branca. O teste novo prova que a caixa continua no formulário (escondida), que o cartão é a etiqueta e as regras de cor, também no modo escuro.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6QVqRVdiThbepM8QkqjAGZ
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_SemCaixas_EscolhidoEscuroComLetraBranca`
+
+Selo depois: `1bc8bd89cbd3cd46`
