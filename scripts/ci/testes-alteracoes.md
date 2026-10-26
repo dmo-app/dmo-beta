@@ -2280,7 +2280,7 @@ Novos: 11 · mudaram: 0 · saíram: 0
 
 Selo depois: `77e42f1b702b86d7`
 
-## A-0096 · 2026-10-26 · teste-novo
+## A-0097 · 2026-10-26 · teste-novo
 
 Porquê: Reshape de Controlo/Pegamentos (B1): os 2 acessos diretos à base de Pegamentos.cshtml.cs passam para PegamentosEscolhasQuery; testes do serviço e orçamento de consultas no Postgres
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
