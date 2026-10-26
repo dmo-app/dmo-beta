@@ -19,8 +19,6 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
     /// <summary>Quantas linhas a procura mostra.</summary>
     public const int MaxLinhas = 300;
 
-    private const int TodasAsProducoes = 100_000;
-
     public async Task<HistoricoFerramenta?> FerramentaAsync(string? toolId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(toolId) || toolId == ToolRegistryConstants.RemovedToolId)
@@ -119,11 +117,14 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
 
     private async Task<List<HistoricoLinha>> LinhasAsync(IReadOnlyList<HistoricoFerramenta> ferramentas, HistoricoFiltro? filtro, CancellationToken cancellationToken)
     {
+        var porFerramenta = await fabrico.ProducoesDeFerramentasAsync(ferramentas.Select(f => f.ToolId).ToList(), filtro, cancellationToken);
         var producoes = new List<(HistoricoFerramenta Ferramenta, FerramentaProducao Producao)>();
         foreach (var ferramenta in ferramentas)
         {
-            var dela = await fabrico.ProducoesAsync(ferramenta.ToolId, 1, TodasAsProducoes, cancellationToken);
-            producoes.AddRange(dela.Pagina.Items.Where(p => Cabe(p, filtro)).Select(p => (ferramenta, p)));
+            if (porFerramenta.TryGetValue(ferramenta.ToolId, out var dela))
+            {
+                producoes.AddRange(dela.Where(p => Cabe(p, filtro)).Select(p => (ferramenta, p)));
+            }
         }
 
         if (producoes.Count == 0)
