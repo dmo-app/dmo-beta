@@ -219,7 +219,7 @@ public sealed partial class ControloCapabilitiesCutHPageTests
 
         var html = await GetPageHtmlAsync(client, pagina);
         Assert.Contains("name=\"voltar\" value=\"resumo-controlo\"", html);
-        Assert.Contains("Associar link do mcaliper", html);
+        Assert.DoesNotContain("Associar link do mcaliper", html);
         var token = await GetVerificationTokenAsync(client, pagina);
 
         var estado = await client.PostAsync("/Controlo/Resumo?handler=AreaState", HtmlFormHelpers.BuildFormPost(

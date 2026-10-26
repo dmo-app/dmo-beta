@@ -596,9 +596,9 @@ public sealed partial class ControloCapabilitiesCutHPageTests : IClassFixture<Cu
         using (var operacional = await LoginClientAsync("4706", "OperMcalPass1!"))
         {
             var sheetBefore = await operacional.GetStringAsync($"/Controlo/Resumo?jobon_id={jobOnId}");
-            Assert.Contains("Associar link do mcaliper", sheetBefore, StringComparison.Ordinal);
-            Assert.Contains("resumo-mcaliper-dialog-BQ", sheetBefore, StringComparison.Ordinal);
-            Assert.DoesNotContain("resumo-mcaliper-dialog-PU", sheetBefore, StringComparison.Ordinal);
+            // O Resumo só abre o link (Diogo, 26/10/2026): quem o muda é quem tem Criar.
+            Assert.DoesNotContain("Associar link do mcaliper", sheetBefore, StringComparison.Ordinal);
+            Assert.DoesNotContain("resumo-mcaliper-dialog", sheetBefore, StringComparison.Ordinal);
 
             var token = await GetVerificationTokenAsync(operacional, $"/Controlo/Resumo?jobon_id={jobOnId}");
             var refused = await operacional.PostAsync(
@@ -618,6 +618,8 @@ public sealed partial class ControloCapabilitiesCutHPageTests : IClassFixture<Cu
 
             var sheet = await operacional.GetStringAsync($"/Controlo/Resumo?jobon_id={jobOnId}");
             Assert.Contains("Link do mcaliper associado", sheet, StringComparison.Ordinal);
+            Assert.Contains($"href=\"{url}\"", sheet, StringComparison.Ordinal);
+            Assert.DoesNotContain("resumo-mcaliper-dialog", sheet, StringComparison.Ordinal);
         }
 
         using (var scope = _factory.Services.CreateScope())

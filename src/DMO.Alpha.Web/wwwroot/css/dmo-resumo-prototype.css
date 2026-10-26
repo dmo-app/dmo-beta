@@ -506,6 +506,4 @@
 /* Aprovação por registar não chama a atenção (Diogo, 26/10/2026): neutra; só o aprovado e o não aprovado têm cor. */
 .resumo-page .resumo-mini-card.resumo-approval.pending { border-color: var(--dmo-border); background: var(--dmo-card, #fff); }
 .resumo-page .resumo-mini-card.resumo-approval.pending > strong { color: var(--dmo-brand-900); }
-.resumo-area-link-grupo { display: inline-flex; align-items: center; gap: 6px; }
 a.resumo-area-link { text-decoration: none; }
-.resumo-area-link-editar { padding: 0 4px; }
