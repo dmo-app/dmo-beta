@@ -2911,3 +2911,15 @@ Novos: 14 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
 
 Selo depois: `efca3bbb72e1c0c8`
+
+## A-0143 · 2026-10-26 · contagem-lista
+
+Porquê: a lista das migrações e as colunas do Job On ganham a Experiencia (migração JobOnExperiencia); teste novo: a experiência usa o nº AAAA00, entra e sai no mesmo dia e convive com a produção da linha
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: CreateJobOnExperienciaTests.Experiencia_UsaAnoZeroZero_EntraESaiNoMesmoDia_ENaoBloqueiaAProducaoDaLinha`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `de6e4f299d90520b`
