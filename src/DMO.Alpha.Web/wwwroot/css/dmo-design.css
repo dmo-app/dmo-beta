@@ -814,7 +814,7 @@ html body .jof2 .side>.notes{min-height:0}
 html body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 0;min-height:0}
 /* Logótipo do tamanho original; mais claro no escuro (Diogo, 26/10/2026). */
 :root[data-theme="dark"] body .dmo-shell-header .dmo-shell-logo{filter:brightness(1.45) saturate(.55)}
-/* Separadores: sem caixa no hover, só o texto e um traço suave por baixo (Diogo, 26/10/2026). */
-html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover{background:none;border-bottom-color:var(--dmo-border)}
-html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:is(.active,[aria-current="page"]):hover{border-bottom-color:var(--design-blue)}
-:root[data-theme="dark"] body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.active):not([aria-current="page"]):hover{border-bottom-color:#fff;color:#fff}
+/* Separadores: no hover só muda a cor do texto (branco no escuro); o traço fica só no separador selecionado (Diogo, 26/10/2026). */
+html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.active):not([aria-current="page"]):hover{background:none;border-bottom-color:transparent}
+:root[data-theme="dark"] body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.active):not([aria-current="page"]):hover{color:#fff}
+html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover{background:none}
