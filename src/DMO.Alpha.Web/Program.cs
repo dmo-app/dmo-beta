@@ -407,7 +407,7 @@ builder.Services
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.SlidingExpiration = true;
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.ExpireTimeSpan = TimeSpan.FromHours(DMO.Alpha.Core.Admin.SessaoDuracao.PorOmissao);
         // ADMIN-only session invalidation: the session's email claim must
         // still be the email kept in the Definições (o ADMIN é o email —
         // o Owner 2026-10-16). Operator principals are untouched; changing

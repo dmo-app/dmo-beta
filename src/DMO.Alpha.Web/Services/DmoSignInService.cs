@@ -263,7 +263,19 @@ public sealed class DmoSignInService
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+        // A duração da sessão é a que o utilizador escolheu nas Definições
+        // (Pessoal); sem escolha (ou o ADMIN), 12 h.
+        var horasSessao = SessaoDuracao.PorOmissao;
+        if (Guid.TryParse(claimsPrincipal.FindFirst(DmoClaimTypes.ActorId)?.Value, out var sessaoActorId))
+        {
+            horasSessao = SessaoDuracao.Ler(await _dbContext.UserSettings.AsNoTracking()
+                .Where(s => s.UserId == sessaoActorId && s.Key == UserSettingKeys.SessaoHoras)
+                .Select(s => s.Value)
+                .FirstOrDefaultAsync());
+        }
+
+        await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal,
+            new AuthenticationProperties { ExpiresUtc = DateTimeOffset.UtcNow.AddHours(horasSessao) });
         // Uma sessão nova começa com o cadeado das Definições fechado.
         DesbloqueioDasDefinicoes.Fechar(httpContext);
 
