@@ -33,7 +33,9 @@ public partial class BoquilhasRegistoPageTests
         Assert.True(start >= 0, "a página não tem o Histórico");
         var end = html.IndexOf("</main>", start, StringComparison.Ordinal);
         Assert.True(end > start, "o Histórico não fecha");
-        return html[start..end];
+        // O painel das linhas fica por baixo do título, dentro da secção (mockups, 26/10/2026), mas não
+        // faz parte do Histórico: verifica-se à parte. Tira-se da zona, como quando estava ao lado.
+        return System.Text.RegularExpressions.Regex.Replace(html[start..end], "<aside class=\"beta-light-rail beta-production-rail\"[\\s\\S]*?</aside>", "");
     }
 
     [Fact]

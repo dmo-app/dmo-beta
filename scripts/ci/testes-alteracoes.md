@@ -3029,3 +3029,14 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
 
 Selo depois: `a9bd88ce2c50d331`
+
+## A-0157 · 2026-10-26 · ok-do-diogo
+
+Porquê: O painel das linhas passa de ao lado da página para dentro dela, por baixo do título (Job On, Sumário, Boquilhas, Reparação, Armazém). O Sumário verifica agora o painel dentro do <main>, depois do título; o HistoryZone das Boquilhas tira o painel da zona, que antes estava fora dela — as verificações do Histórico ficam iguais
+Referência: Sessão Claude Code 26/10/2026, branch claude/design-mockups: ok do proprietário («muda a marcação para os seletores das linhas ficarem por baixo do título, como nos mockups»)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+
+Selo depois: `ee66f3a555642a55`

@@ -82,6 +82,15 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
    saídas do tipo (todas as pessoas); um clique numa linha abre a
    ferramenta, com o «Corrigir localização». *@
 <div class="beta-light-layout arm-layout" data-dmo-troca>
+
+<main class="beta-light-main arm-page" aria-labelledby="arm-mov-title">
+
+  <div class="page-head">
+    <div>
+      <h1 id="arm-mov-title">Registo do Armazém</h1>
+    </div>
+  </div>
+  @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
   <div id="armTipos" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
     @{
         var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
@@ -98,14 +107,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             Id: "armTiposRail");
     }
     <partial name="_DmoRail" model="@rail" />
-  </div>
-
-<main class="beta-light-main arm-page" aria-labelledby="arm-mov-title">
-
-  <div class="page-head">
-    <div>
-      <h1 id="arm-mov-title">Registo do Armazém</h1>
-    </div>
   </div>
 
   <div id="armMovAvisos" class="dmo-zona" data-dmo-regiao>

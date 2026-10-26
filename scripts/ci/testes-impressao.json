@@ -1,5 +1,5 @@
 {
-  "selo": "a9bd88ce2c50d331",
+  "selo": "ee66f3a555642a55",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1777,7 +1777,7 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HoraDeViragem.cs :: BoquilhasRegistoPageTests.DeNoiteAntesDaViragem_AProcuraEOsRegistosSeguemAProducaoEmMaquina": "dd6ababc7d6014b8",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.RecusaGuardaOEscrito.cs :: (resto do ficheiro)": "faa94b17fcf4649e",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.RecusaGuardaOEscrito.cs :: BoquilhasRegistoPageTests.RecusaDoMovimento_OFormularioVoltaComOQueSeEscreveu_ENadaGrava": "5afb21cd3cc89ff9",
-    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)": "e5b71961e3f2f381",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)": "a1aaaccc208699c2",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.O_painel_de_quem_so_ve_abre_os_movimentos_da_producao_escolhida_e_so_esses": "1a2d06f495ca024d",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_cria_nas_Boquilhas_continua_a_registar_e_a_abrir_os_registos": "b2eb6bb1acadbb89",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: BoquilhasRegistoPageTests.Quem_so_ve_as_Boquilhas_e_recusado_ao_registar_e_nada_fica_gravado": "d684b200dc4753b0",
@@ -2557,7 +2557,7 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve": "25f57c459621c346",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UsoAtualizado_FicaAteHaverALeituraDoFim_SoQuemTemFerramentas": "f72c14787f483a61",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: (resto do ficheiro)": "e64b63a54b76b0e5",
-    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "7227c6abc82733c4",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "f1979d977084d449",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: (resto do ficheiro)": "e5f51c0eb89f2172",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart": "ee52c6b7ca1d9366",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua": "376e81eb9b606242",

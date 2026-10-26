@@ -589,3 +589,8 @@ html body :is(.peso-facts,.peso-live-strip,.pu-stats,.revisao-facts)>*:first-chi
 html body .pu-stat::before{content:none}
 html body .pu-stat strong{font-size:22px}
 html body .peso-fact strong{font-size:18px}
+/* The line selectors now sit inside the page, under its title: no outer margin of their own. */
+@media (min-width:801px){
+  html body main .beta-production-rail{margin:0}
+  html body main .dmo-zona:has(>.beta-production-rail){margin:0}
+}
