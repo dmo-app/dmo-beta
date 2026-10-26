@@ -2745,7 +2745,7 @@ Novos: 2 · mudaram: 2 · saíram: 0
 
 Selo depois: `b1fbf8371e3118cd`
 
-## A-0135 · 2026-10-26 · ok-do-diogo
+## A-0137 · 2026-10-26 · ok-do-diogo
 
 Porquê: DS-PERM-01: na Reparação Interna só quem registou e a chefia (a Consulta) corrigem ou anulam. Os testes em que outra pessoa corrigia ou anulava passam a usar a chefia; testes novos mostram que outro operador sem a chefia não muda nada.
 Referência: Diogo «sim» ao DS-PERM-01 (26/10/2026)
