@@ -226,6 +226,34 @@ public sealed class ToolCandidateQueryTests : IDisposable
         Assert.Empty(await Find("075"));                            // nunca a meio da 1075
     }
 
+    // Verificação antes da apresentação (25/10/2026): na B1, com o lote 3 ligado,
+    // o lote 4 sem linhas nunca aparecia. Com IncluirSemLinha aparecem as da linha
+    // e as sem linha nenhuma; a de outra linha continua de fora, e sem a opção
+    // o filtro de linha fica como era.
+    [Fact]
+    public async Task MachineFilter_IncluirSemLinha_JuntaAsSemLinha_NuncaAsDeOutraLinha()
+    {
+        var b1 = new Machine { Code = "B1" };
+        var b2 = new Machine { Code = "B2" };
+        _db.Machines.AddRange(b1, b2);
+        _db.Tools.AddRange(
+            new Tool { ToolId = "CM-L3", Type = ToolType.Cm, Reference = "5447T173", Lot = "3" },
+            new Tool { ToolId = "CM-L4", Type = ToolType.Cm, Reference = "5447T173", Lot = "4" },
+            new Tool { ToolId = "CM-L5", Type = ToolType.Cm, Reference = "5447T173", Lot = "5" });
+        await _db.SaveChangesAsync();
+        _db.ToolMachineLinks.AddRange(
+            new ToolMachineLink { ToolId = "CM-L3", MachineId = b1.Id },
+            new ToolMachineLink { ToolId = "CM-L5", MachineId = b2.Id });
+        await _db.SaveChangesAsync();
+
+        async Task<string[]> Find(bool semLinha) => (await _query.FindCandidatesAsync(
+                new ToolCandidateFilter(Type: ToolType.Cm, MachineId: b1.Id, Search: "5447", IncluirSemLinha: semLinha)))
+            .Select(c => c.ToolId).OrderBy(id => id).ToArray();
+
+        Assert.Equal(new[] { "CM-L3", "CM-L4" }, await Find(true));
+        Assert.Equal(new[] { "CM-L3" }, await Find(false));
+    }
+
     [Fact]
     public async Task FindCandidatesAsync_SingleRemainingCandidate_StaysAnUnselectedCandidate_NeverAutoSelects()
     {

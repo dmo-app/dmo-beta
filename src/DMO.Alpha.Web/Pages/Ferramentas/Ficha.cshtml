@@ -567,7 +567,7 @@
                 _ => null,
             }),
             Model.TechnicalInvalid, Model.TechnicalFocus,
-            isCm ? (volumeTampao is { } vt ? vt.ToString("0.###", pt) : "—") : null))" />
+            isCm ? (volumeTampao is { } vt ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(vt) : "—") : null))" />
       </form>
       </div>
       </details>

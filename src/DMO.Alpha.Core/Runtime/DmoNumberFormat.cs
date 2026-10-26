@@ -24,6 +24,14 @@ public static class DmoNumberFormat
         return rounded.ToString(rounded == decimal.Truncate(rounded) ? "0" : "0.00", Culture);
     }
 
+    /// <summary>
+    /// Para os campos de editar: como <see cref="Decimal2"/> quando o valor
+    /// cabe em duas casas; com mais casas, mostra-as todas (sem zeros no fim),
+    /// para gravar outra vez não arredondar o que foi medido (nada se perde).
+    /// </summary>
+    public static string Decimal2SemPerda(decimal value) =>
+        Math.Round(value, 2) == value ? Decimal2(value) : value.ToString("0.#####", Culture);
+
     private static CultureInfo CreateCulture()
     {
         var culture = (CultureInfo)CultureInfo.GetCultureInfo("pt-PT").Clone();

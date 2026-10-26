@@ -2301,7 +2301,70 @@ Novos: 12 · mudaram: 0 · saíram: 0
 
 Selo depois: `dccfc5697c021f5a`
 
-## A-0104 · 2026-10-25 · teste-novo
+## A-0098 · 2026-10-26 · contagem-lista
+
+Porquê: Verificação antes da apresentação (25/10/2026): dois testes novos. No Job On novo, o cartão vazio passa a mostrar a ferramenta escolhida e o aviso de falta acompanha a escolha. A lista de ferramentas da linha passa a juntar as que não têm linha nenhuma. No jobon-folha.test.cjs, o «resto do ficheiro» só muda pelo «;» do teste acrescentado no fim; nenhum teste existente foi alterado.
+Referência: relatório /mnt/project-files/analises/filtros-apresentacao-2026-10-26/relatorio.md
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.MachineFilter_IncluirSemLinha_JuntaAsSemLinha_NuncaAsDeOutraLinha`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: no cartão vazio, escolher a CM mostra a referência e o lote e tira a CM do aviso`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `11ee7a625f27ba46`
+
+## A-0099 · 2026-10-26 · ok-do-diogo
+
+Porquê: O teste do Sumário «criado hoje, começa depois» punha o início a +5 dias, que no fim do mês cai dentro do mês que o «começam» mostra (falhava desde 26/10). Passa a +40 dias, sempre fora; o que o teste verifica fica igual.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW (autorização de testes do Diogo, anexada pelo coordenador a 26/10)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart`
+
+Selo depois: `d26cb179d634ae6e`
+
+## A-0097 · 2026-10-26 · teste-novo
+
+Porquê: Reshape de Controlo/Pegamentos (B1): os 2 acessos diretos à base de Pegamentos.cshtml.cs passam para PegamentosEscolhasQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.CodigosDeMaquinas_VemPorOrdemDoCodigo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.LotesDaReferencia_ReferenciaEmBranco_NaoDevolveNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.LotesDaReferencia_VemComOLoteMaisAltoPrimeiroSemMisturarTiposNemReferencias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.OsDoisPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosEscolhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosEscolhas.cs :: PostgresMigrationIntegrationTests.PegamentosEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
+
+Selo depois: `8c61c6519de55957`
+
+## A-0101 · 2026-10-26 · ok-do-diogo
+
+Porquê: O Diogo pediu números com duas casas só quando necessário (inteiros sem .00; com decimais sempre duas, 2.50; ponto decimal) na ficha da ferramenta, na calote e no apoio do tampão do Peso; os testes que esperavam 3 casas (70.362, 9.217, D 50.000) ou uma casa (2.5, 9.5, 70.1) passam a esperar o formato novo (70.36, 9.22, D 50, 2.50, 9.50, 70.10). Nos campos de editar um valor com 3 casas fica igual (0.125). Nenhuma verificação sai; um teste novo da ficha (140.000 → 140).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPkQLjid1XkSfzAcW3RZ9Ne, cmsg_01A27e9ozcpoh4jdPRsuJbFyRoekZxLPcSo1TQzEC9J7rY, cmsg_01A27e9ozcpoh4jdPRsuJbFy2EadhQLcRARQPVdSprtcV6
+Novos: 3 · mudaram: 13 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Decimais.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Decimais.cs :: FichaDecimaisTests.Decimal2_InteirosSemCasas_DecimaisComDuas`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Ficha_CamposTecnicos_NoMaximoDuasCasas_SemZerosNoFim`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemCaloteNoJobOn_UsaAReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoIlegivel_AvisoHonestoSemBloqueio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoPorGet_RecalculaPeloBackendEAbreOApoio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ToolScopedMode_ApoioSemProducao_UsaAReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: PesoSoParaComparacaoPageTests.CriarDaComparacao_LigaOPesoAoAtual_MostraAComparacao_ENuncaPedeJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteEditavel_GravaPelaEdicao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteIgnorada_NaEdicao_MantemACaloteAnteriorEAvisa`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteNaCriacao_PreservaODecimalAoGuardarEReabrir`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CriarCmNoEditar_VoltaAEdicaoDoMesmoJobOnERegistaATroca`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.DuplicarEsteJobOn_CopiaOsDadosParaUmaProducaoNova`
+
+Selo depois: `269869e315a430fa`
+
+## A-0104 · 2026-10-26 · teste-novo
 
 Porquê: Reshape do Job On, J3: o histórico de JobOn/Index.cshtml.cs passa para JobOnHistoricoQuery; testes do serviço e orçamento de consultas no Postgres
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAmgz6Smt5sJ1FZ7Riri2Hy
@@ -2324,4 +2387,4 @@ Novos: 16 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.SemFiltro_NaoProcuraENaoLePagina`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.SoReferencia_ListaAsProducoesEPesquisaPelaReferencia`
 
-Selo depois: `55c26dae9ac35a93`
+Selo depois: `1d85ff80026183a9`
