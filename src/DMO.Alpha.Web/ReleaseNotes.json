@@ -404,7 +404,8 @@
     { "id": "DMO-411", "module": "Job On", "description": "0.3.0-beta.97: em Opções, «Reparação» abre a Reparação Interna (ver) já filtrada pela referência, produção e linha do Job On; a página antiga de Reparação sai." },
     { "id": "DMO-412", "module": "Boquilhas", "description": "0.3.0-beta.98: a janela «Registar sem Job On» ficou arrumada: sugestões da BQ com o tema certo, só depois de escrever, formato «BQ C002 · Lote 18», «Registar» no canto superior direito." },
     { "id": "DMO-413", "module": "Boquilhas", "description": "0.3.0-beta.99: ao meter a discrepância a zero, o Saldo das linhas anteriores ao zero deixa de aparecer na tabela «Últimos movimentos» (fica «—»). Os movimentos não se apagam e fica o rasto de quem a meteu a zero e quando." },
-    { "id": "DMO-414", "module": "Cabeçalho", "description": "0.3.0-beta.100: o cabeçalho ocupa menos altura: a nota da sessão passa a letra pequena no topo, o nome e o papel ficam na mesma linha («Diogo · Controlo») e o «Sair» fica por baixo." }
+    { "id": "DMO-414", "module": "Cabeçalho", "description": "0.3.0-beta.100: o cabeçalho ocupa menos altura: a nota da sessão passa a letra pequena no topo, o nome e o papel ficam na mesma linha («Diogo · Controlo») e o «Sair» fica por baixo." },
+    { "id": "DMO-420", "module": "Ferramentas", "description": "0.3.0-beta.106: em Ferramentas → Pesquisar, a referência toda (por exemplo 1075C142) volta a encontrar a CM/MF 1075 e a BQ C142 registadas só com uma parte." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
