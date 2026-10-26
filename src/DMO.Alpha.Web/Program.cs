@@ -552,6 +552,19 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Cabeçalhos de segurança em todas as respostas (auditoria externa 01 do
+// login, 26/10/2026): o browser não adivinha o tipo dos ficheiros, a app não
+// abre dentro de páginas de outros sítios e o endereço não sai para fora.
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "SAMEORIGIN";
+    headers["Referrer-Policy"] = "same-origin";
+    await next();
+});
+
 app.UseStaticFiles();
 
 // PERF-01: mede o pedido completo (Server-Timing e uma linha no log); os

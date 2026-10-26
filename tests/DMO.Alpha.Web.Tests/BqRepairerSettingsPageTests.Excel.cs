@@ -67,7 +67,10 @@ public sealed partial class BqRepairerSettingsPageTests
         var livro = XDocument.Load(zip.GetEntry("xl/workbook.xml")!.Open());
         var mes = new[] { "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro" }[hoje.Month - 1];
         Assert.Contains(livro.Descendants(Sml + "sheet"), s => (string)s.Attribute("name")! == mes);
-        var folha = XDocument.Load(zip.GetEntry(hoje.Month == 1 ? "xl/worksheets/sheet1.xml" : "xl/worksheets/sheet2.xml")!.Open()).Root!;
+        // O separador do mês pelo nome: o livro ganha os 12 meses (Diogo, 26/10/2026).
+        var rId = (string)livro.Descendants(Sml + "sheet").Single(s => (string)s.Attribute("name")! == mes).Attribute(XName.Get("id", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"))!;
+        var alvo = (string)XDocument.Load(zip.GetEntry("xl/_rels/workbook.xml.rels")!.Open()).Root!.Elements().Single(r => (string?)r.Attribute("Id") == rId).Attribute("Target")!;
+        var folha = XDocument.Load(zip.GetEntry(alvo.StartsWith('/') ? alvo[1..] : "xl/" + alvo)!.Open()).Root!;
         var linha = 4 + 5 * (hoje.Day - 1);
         var refCelula = folha.Descendants(Sml + "c").Single(c => (string)c.Attribute("r")! == $"V{linha}");
         Assert.Equal("T173/89", string.Concat(refCelula.Descendants(Sml + "t").Select(t => t.Value)));
@@ -85,7 +88,10 @@ public sealed partial class BqRepairerSettingsPageTests
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", resposta.Content.Headers.ContentType?.MediaType);
         using var zip = new ZipArchive(new MemoryStream(await resposta.Content.ReadAsByteArrayAsync()));
         var livro = XDocument.Load(zip.GetEntry("xl/workbook.xml")!.Open());
-        Assert.Equal("Outubro", (string)livro.Descendants(Sml + "sheet").Single().Attribute("name")!);
+        // Os 12 meses, cada um no seu separador (Diogo, 26/10/2026).
+        Assert.Equal(
+            ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+            livro.Descendants(Sml + "sheet").Select(s => (string)s.Attribute("name")!));
     }
 
     [Fact]

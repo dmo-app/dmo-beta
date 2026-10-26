@@ -100,6 +100,10 @@
       if (!ligado || !ligado.handle) return null;
       return permission(ligado.handle, manual).then(function (ok) {
         if (!ok) {
+          // Sem licença (o Chrome pede-a de novo depois de fechado): pede-a
+          // no próximo clique na página, que o Chrome aceita como gesto do
+          // utilizador (Diogo, 26/10/2026: «os registos não ficam no excel»).
+          pedirNoProximoClique();
           return versaoAtual().then(function (versao) {
             if (versao && versao !== ligado.versao && !avisouFalha) {
               avisouFalha = true;
@@ -158,6 +162,21 @@
       return null;
     }).then(function (r) { aEscrever = null; return r; }, function () { aEscrever = null; return null; });
     return aEscrever;
+  }
+
+  var aPedir = false;
+  function pedirNoProximoClique() {
+    if (aPedir) return;
+    aPedir = true;
+    document.addEventListener("click", function () {
+      aPedir = false;
+      load().then(function (ligado) {
+        if (!ligado || !ligado.handle) return;
+        return ligado.handle.requestPermission({ mode: "readwrite" }).then(function (estado) {
+          if (estado === "granted") escrever(false);
+        });
+      }).catch(function () { /* recusado: fica o aviso para «Atualizar» */ });
+    }, { once: true, capture: true });
   }
 
   // O cartão das Definições das Boquilhas.

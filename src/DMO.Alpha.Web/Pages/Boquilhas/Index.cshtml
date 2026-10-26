@@ -472,18 +472,21 @@
                   {
                     <p class="muted" id="bqMovementCorrectedBy" style="margin:0 0 8px">@correctionNote</p>
                   }
+                  @* Os tipos com o tamanho do texto e a quantidade e a data na mesma
+                     linha, como no Registar (Diogo, 26/10/2026: «botões de registo muito
+                     grandes, meter tudo numa linha»). *@
+                  <div class="bq-movement-line">
                   <fieldset class="bq-movement-types">
                     <legend class="visually-hidden">Movimento</legend>
                     <label><input type="radio" name="movement_type" value="saida" checked="@(editing.MovementType == "saida")" autofocus="@(editing.MovementType == "saida" ? "autofocus" : null)" required /><span>↗ Saída</span></label>
                     <label><input type="radio" name="movement_type" value="entrada" checked="@(editing.MovementType == "entrada")" autofocus="@(editing.MovementType == "entrada" ? "autofocus" : null)" /><span>↙ Entrada</span></label>
                     <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(editing.MovementType == "entrada_sem_reparacao")" autofocus="@(editing.MovementType == "entrada_sem_reparacao" ? "autofocus" : null)" /><span>↙ Entrada sem reparação</span></label>
                   </fieldset>
-                  <div class="filter-grid">
-                    <div class="field dmo-field">
+                    <div class="field dmo-field bq-line-quantity">
                       <label for="editQuantity">Quantidade</label>
                       <input id="editQuantity" name="quantity" type="number" lang="en" min="1" required value="@editing.Quantity" />
                     </div>
-                    <div class="field dmo-field">
+                    <div class="field dmo-field bq-line-date">
                       <label for="editOccurredAt">Data e hora reais</label>
                       <input id="editOccurredAt" name="occurred_at" type="datetime-local" value="@Model.EditingMovementOccurredAt" required />
                     </div>
