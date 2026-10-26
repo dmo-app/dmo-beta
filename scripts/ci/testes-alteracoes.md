@@ -2678,33 +2678,26 @@ Selo depois: `e4f3ba263bddfa5c`
 
 ## A-0124 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main e0fc1cb: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 1 · mudaram: 0 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-
-Selo depois: `63dc3b05f4b2aa09`
-
-## A-0125 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção do PR 125 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 125
-Novos: 1 · mudaram: 0 · saíram: 3
+Porquê: Login próprio: deixa de bloquear depois de 5 erros (a palavra-passe certa entra sempre; fica só o aviso «Consulte o ADMIN»); o teste do bloqueio passa a provar que não bloqueia, sai o da espera, e um teste Web novo prova o mesmo com o LocalAuthenticationProvider
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3mFwYjgASf4KLxaoXW6mfD
+Novos: 3 · mudaram: 0 · saíram: 3
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.CincoFalhasSeguidas_NaoBloqueiam_ACertaEntraLogo`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.LoginLocal.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.LoginLocal.cs :: AuthenticationTests.LoginLocal_RepeatedFailures_WarnButNeverLockTheUser`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.CincoFalhasSeguidas_BloqueiamMesmoComACerta_EDepoisVoltaAEntrar`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Espera_DobraAteQuinzeMinutos`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/RelogioDeTeste.cs :: (resto do ficheiro)`
 
-Selo depois: `61a375c660e678ad`
+Selo depois: `349a29c1afb472af`
 
-## A-0126 · 2026-10-26 · teste-novo
+## A-0125 · 2026-10-26 · ok-do-diogo
 
-Porquê: Templates do Admin sem caixas: escolhidas escuras com letra branca, as outras leves (PR #126).
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6QVqRVdiThbepM8QkqjAGZ
-Novos: 1 · mudaram: 0 · saíram: 0
+Porquê: Registo do integracao acertado pela main 5c6303b (.71) + PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_SemCaixas_EscolhidoEscuroComLetraBranca`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 
-Selo depois: `0e8a4453463f44d1`
+Selo depois: `7765399926e97d94`
