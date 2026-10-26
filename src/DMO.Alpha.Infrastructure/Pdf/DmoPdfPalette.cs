@@ -1,37 +1,38 @@
 namespace DMO.Alpha.Infrastructure.Pdf;
 
 /// <summary>
-/// A PALETA OFICIAL DO DMO (decisão do Diogo, 17/10/2026;
-/// docs/ui-reference/paleta-oficial.md) nos PDFs: os mesmos tons que
-/// `--dmo-palette-*` e `--dmo-brand-*` em wwwroot/0_ASSET_CANONICAL_DESIGN_SYSTEM.css.
-/// Se a paleta mudar lá, muda-se também aqui. As cores de estado ficam fora
-/// da paleta, de propósito, mas também vivem aqui (abaixo): os geradores não
-/// têm cores soltas.
+/// A PALETA OFICIAL DO DMO (decisão do Diogo, 26/10/2026, handoff
+/// dmo-mockup-handoff; docs/ui-reference/paleta-oficial.md) nos PDFs: os
+/// mesmos tons que `--dmo-palette-*` e `--dmo-brand-*` em
+/// wwwroot/0_ASSET_CANONICAL_DESIGN_SYSTEM.css. Se a paleta mudar lá,
+/// muda-se também aqui. As cores de estado ficam fora da paleta, de
+/// propósito, mas também vivem aqui (abaixo): os geradores não têm cores
+/// soltas.
 /// </summary>
 internal static class DmoPdfPalette
 {
-    public const string Sky = "#afd1f2";
-    public const string Mist = "#92b4cc";
-    public const string Steel = "#6494b4";
-    public const string Ocean = "#4c7c9c";
-    public const string Slate = "#44647c";
+    public const string Sky = "#b7c9e2";
+    public const string Mist = "#779ecb";
+    public const string Steel = "#779ecb";
+    public const string Ocean = "#4f6f9c";
+    public const string Slate = "#4f6f9c";
 
-    /// <summary>Cabeçalhos, títulos e links (como os botões da app).</summary>
+    /// <summary>Cabeçalhos, títulos e links (como a navegação da app).</summary>
     public const string Accent = Slate;
     /// <summary>Fundo escuro dos cartões em destaque (--dmo-brand-700).</summary>
-    public const string Deep = "#3c586d";
-    /// <summary>Texto principal (--dmo-brand-900).</summary>
-    public const string Ink = "#253744";
+    public const string Deep = "#41567a";
+    /// <summary>Texto principal (--dmo-text).</summary>
+    public const string Ink = "#0b1320";
     /// <summary>Texto secundário (--dmo-muted).</summary>
-    public const string Muted = "#577389";
+    public const string Muted = "#586a80";
     /// <summary>Linhas e contornos (--dmo-border).</summary>
-    public const string Line = "#d9e5ed";
+    public const string Line = "#ccd7e4";
     /// <summary>Texto claro sobre fundo escuro (--dmo-brand-100).</summary>
-    public const string OnDeep = "#d7e8f8";
+    public const string OnDeep = "#dbe6f3";
     /// <summary>Fundo suave azul (--dmo-brand-050).</summary>
-    public const string Tint = "#ebf4fc";
+    public const string Tint = "#eaf1f9";
     /// <summary>Fundo quase branco (--dmo-subtle).</summary>
-    public const string Soft = "#f3f8fd";
+    public const string Soft = "#eef2f7";
     /// <summary>Fundo branco dos cartões e das linhas pares.</summary>
     public const string White = "#ffffff";
 

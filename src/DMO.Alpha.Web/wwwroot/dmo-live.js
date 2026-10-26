@@ -107,6 +107,7 @@
     // Linha sem destino (a máquina «Sem produção», o dia vazio): não há nada a
     // abrir, e não se inventa um sítio para onde ir.
     if (!destino) return;
+    if (global.DmoSupport && global.DmoSupport.tryOpen(destino, row)) return;
     // Dentro de uma zona data-dmo-parcial, troca só o que muda na página.
     if (global.DmoTroca) global.DmoTroca.ir(destino, row);
     else global.location.href = destino;

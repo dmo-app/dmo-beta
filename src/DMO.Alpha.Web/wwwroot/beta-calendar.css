@@ -1,6 +1,6 @@
 /* Shared calendar geometry for Job On, Controlo, Aprovações and Boquilhas. */
 /* The partial owns its card, including when placed directly in a workspace. */
-html body .dmo-calendar.card{box-sizing:border-box;width:min(320px,100%);min-width:0;margin:0;padding:16px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-card);background:var(--dmo-card);box-shadow:var(--dmo-shadow)}
+html body .dmo-calendar.card{box-sizing:border-box;width:min(320px,100%);min-width:0;margin:0;padding:16px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-card);background:var(--dmo-card)}
 .dmo-calendar .dmo-calendar-legend{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;color:var(--dmo-muted);font-size:11px;line-height:1.4}
 .dmo-calendar .dmo-calendar-legend span{display:inline-flex;align-items:center;gap:5px}
 .dmo-calendar .dmo-calendar-legend i{width:8px;height:2px;border-radius:1px;background:var(--dmo-warning)}

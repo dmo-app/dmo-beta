@@ -169,7 +169,7 @@
           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
                   title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
                   aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
-            <span class="code">@tipo</span>
+            <span class="design-tool-heading"><span class="code">@tipo</span><span class="design-tool-name">@nome</span></span>
             @if (f is null)
             {
               <span class="muted">Sem @nome.ToLowerInvariant()</span>
@@ -254,7 +254,8 @@
     void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? chaveLote = null)
     {
         var notas = JobOnFolhaCampos.DaFamilia(codigo).FirstOrDefault(c => c.Tipo == JobOnFolhaTipoCampo.Nota)?.Chave;
-        <div class="sec-head"><span class="code">@codigo</span>
+        var nome = codigo switch { "PU" => "Punção", "TP" => "Tampão", "CS" => "Cabeça de sopro", "PI" => "Pinças", "AN" => "Anel", _ => "" };
+        <div class="sec-head"><span class="design-tool-heading"><span class="code">@codigo</span><span class="design-tool-name">@nome</span></span>
           @if (chaveRef is not null)
           {
             <span class="hv"><small>Referência</small><b>@{ Valor(chaveRef, $"{codigo} referência"); }</b></span>
@@ -471,7 +472,7 @@ else
           {
             <span class="eyebrow">@(Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On")</span>
           }
-          <h1 class="sr-only">@Model.ReferenciaTotal</h1>
+          <h1 class="design-jobon-title">Job On</h1>
           <div class="pick-row">
             @if (!editar)
             {

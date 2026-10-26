@@ -84,3 +84,4 @@ data-protection/
 
 # cache do Python (tests/visual importa dmo_chromium.py); sem isto a árvore conta como alterada
 __pycache__/
+artifacts/

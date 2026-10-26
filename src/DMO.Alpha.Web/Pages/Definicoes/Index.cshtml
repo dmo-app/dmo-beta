@@ -164,10 +164,14 @@ html body .def-menu-sub[hidden]{display:none}
           }
           else
           {
-            <table class="dmo-table def-conta-modulos" data-dmo-conta-modulos aria-label="Módulos">
-              <thead><tr>@foreach (var (modulo, _) in Model.ModulosAcesso) {<th scope="col">@modulo</th>}</tr></thead>
-              <tbody><tr>@foreach (var (_, acesso) in Model.ModulosAcesso) {<td>@acesso</td>}</tr></tbody>
-            </table>
+            @* A tabela vive sempre em `dmo-table-wrap` (componentes-partilhados.md):
+               é o invólucro que a faz rolar no telemóvel em vez de alargar a página. *@
+            <div class="dmo-table-wrap">
+              <table class="dmo-table def-conta-modulos" data-dmo-conta-modulos aria-label="Módulos">
+                <thead><tr>@foreach (var (modulo, _) in Model.ModulosAcesso) {<th scope="col">@modulo</th>}</tr></thead>
+                <tbody><tr>@foreach (var (_, acesso) in Model.ModulosAcesso) {<td>@acesso</td>}</tr></tbody>
+              </table>
+            </div>
           }
         </section>
         <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>

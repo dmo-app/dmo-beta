@@ -186,7 +186,6 @@ else
      registo e a mensagem; o campo do número volta vazio e com o cursor.
      Os avisos de produção só avisam; sem produção grava-se sem Job On. *@
   <div class="beta-light-layout ri-layout" data-dmo-troca>
-    <partial name="_RiLinhas" model="Model" />
 
     <main class="beta-light-main ri-page" aria-labelledby="ri-title">
       <div class="page-head">
@@ -194,6 +193,8 @@ else
           <h1 id="ri-title">Reparação</h1>
         </div>
       </div>
+      @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
+      <partial name="_RiLinhas" model="Model" />
 
       <partial name="_RiAvisos" model="Model" />
 

@@ -37,7 +37,6 @@
   @* ------------------------------------------------------------------ *@
   @* Um clique numa máquina abre o registo dela; na vista Registo troca só o
      registo, sem recarregar (data-dmo-parcial; ver a vista Registo). *@
-  <div class="dmo-zona" data-dmo-parcial><partial name="_DmoSidepanelBoquilhas" model="Model.Currents" /></div>
 
   <main class="main beta-light-main">
     @* AS TABS DE VISTA (o 31: a dmo-secondary-nav com os .tab). *@
@@ -65,6 +64,8 @@
             <p>Abra uma boquilha no painel lateral para registar movimentos.</p>
           </div>
         </div>
+        @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
+        <div class="dmo-zona" data-dmo-parcial><partial name="_DmoSidepanelBoquilhas" model="Model.Currents" /></div>
 
         @* AS ZONAS DO REGISTO (cada uma existe sempre, mesmo vazia): o
            cabeçalho, o formulário do movimento, os números e os últimos
@@ -346,9 +347,9 @@
               <div class="bq-movement-line">
                 <fieldset class="bq-movement-types">
                   <legend class="visually-hidden">Movimento</legend>
-                  <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" required /><span>↗ Saída</span></label>
-                  <label><input type="radio" name="movement_type" value="entrada" checked="@(Model.MovementFormType == "entrada")" /><span>↙ Entrada</span></label>
-                  <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" /><span>↙ Entrada sem reparação</span></label>
+                  <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" required /><span>Saída</span></label>
+                  <label><input type="radio" name="movement_type" value="entrada" checked="@(Model.MovementFormType == "entrada")" /><span>Entrada</span></label>
+                  <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" /><span>Entrada sem reparação</span></label>
                 </fieldset>
                 <div class="field dmo-field bq-line-quantity">
                   <label for="quantity">Quantidade</label>
@@ -543,9 +544,9 @@
                   <div class="bq-movement-line">
                   <fieldset class="bq-movement-types">
                     <legend class="visually-hidden">Movimento</legend>
-                    <label><input type="radio" name="movement_type" value="saida" checked="@(editing.MovementType == "saida")" autofocus="@(editing.MovementType == "saida" ? "autofocus" : null)" required /><span>↗ Saída</span></label>
-                    <label><input type="radio" name="movement_type" value="entrada" checked="@(editing.MovementType == "entrada")" autofocus="@(editing.MovementType == "entrada" ? "autofocus" : null)" /><span>↙ Entrada</span></label>
-                    <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(editing.MovementType == "entrada_sem_reparacao")" autofocus="@(editing.MovementType == "entrada_sem_reparacao" ? "autofocus" : null)" /><span>↙ Entrada sem reparação</span></label>
+                    <label><input type="radio" name="movement_type" value="saida" checked="@(editing.MovementType == "saida")" autofocus="@(editing.MovementType == "saida" ? "autofocus" : null)" required /><span>Saída</span></label>
+                    <label><input type="radio" name="movement_type" value="entrada" checked="@(editing.MovementType == "entrada")" autofocus="@(editing.MovementType == "entrada" ? "autofocus" : null)" /><span>Entrada</span></label>
+                    <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(editing.MovementType == "entrada_sem_reparacao")" autofocus="@(editing.MovementType == "entrada_sem_reparacao" ? "autofocus" : null)" /><span>Entrada sem reparação</span></label>
                   </fieldset>
                     <div class="field dmo-field bq-line-quantity">
                       <label for="editQuantity">Quantidade</label>
@@ -675,6 +676,8 @@
           </div>
           <div class="bq-page-actions"></div>
         </div>
+        @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
+        <div class="dmo-zona" data-dmo-parcial><partial name="_DmoSidepanelBoquilhas" model="Model.Currents" /></div>
 
         @* Os campos ficam (data-dmo-fica); trocam só as zonas de dentro: o
            mês e o dia do calendário (escondidos), a contagem, os links (com

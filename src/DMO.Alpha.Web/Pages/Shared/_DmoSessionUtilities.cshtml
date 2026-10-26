@@ -26,21 +26,4 @@
         </div>
     }
 </div>
-@if (fim is not null)
-{
-<script>
-(function () {
-  "use strict";
-  var el = document.querySelector("[data-dmo-sessao-fim]");
-  if (!el) return;
-  var fim = new Date(el.getAttribute("data-dmo-sessao-fim"));
-  function p(n) { return (n < 10 ? "0" : "") + n; }
-  function atualizar() {
-    var m = Math.max(0, Math.round((fim - new Date()) / 60000));
-    el.textContent = "Sessão até " + p(fim.getHours()) + ":" + p(fim.getMinutes()) + " · faltam " + Math.floor(m / 60) + " h " + p(m % 60) + " min";
-  }
-  atualizar();
-  setInterval(atualizar, 30000);
-})();
-</script>
-}
+

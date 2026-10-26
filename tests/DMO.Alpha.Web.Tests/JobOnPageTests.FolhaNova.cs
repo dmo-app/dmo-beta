@@ -125,7 +125,7 @@ public partial class JobOnPageTests
             Assert.DoesNotContain($">{titulo}</h2>", html, StringComparison.Ordinal);
         }
         // A referência total é MF + BQ e as ferramentas leem-se «CM 5809 · Lote 01».
-        Assert.Contains("<h1 class=\"sr-only\">5810T188</h1>", html, StringComparison.Ordinal);
+        Assert.Contains("<h1 class=\"design-jobon-title\">Job On</h1>", html, StringComparison.Ordinal);
         // O lote sem o zero à esquerda: «Lote 1», nunca «Lote 01».
         var cm = Zona(html, "data-jof-tool=\"CM\"");
         cm = cm[..cm.IndexOf("</button>", StringComparison.Ordinal)];
@@ -230,7 +230,7 @@ public partial class JobOnPageTests
 
         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}");
         Assert.Contains("data-jof-folha=\"bloqueada\"", html, StringComparison.Ordinal);
-        Assert.Contains("<h1 class=\"sr-only\">5810T188</h1>", html, StringComparison.Ordinal);
+        Assert.Contains("<h1 class=\"design-jobon-title\">Job On</h1>", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-editar", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-duplicar", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-imprimir", html, StringComparison.Ordinal);
