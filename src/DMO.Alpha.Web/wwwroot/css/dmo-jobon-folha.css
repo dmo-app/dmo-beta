@@ -782,3 +782,25 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
 }
 /* No Editar, todas as caixas dos cartões com a mesma altura e a mesma letra; a largura continua a do conteúdo (Diogo, 26/10/2026). */
 html body .jof2.editing .card input.f:not(.sr-only),html body .jof2.editing .card select.f{height:28px;min-height:28px;box-sizing:border-box;font-size:13.5px}
+/* No Editar, o código (PU, ARR, AN, CS...) fica ao centro da caixa da referência, não do nome com a caixa. */
+html body .jof2.editing .sec-head:has(.hv input){align-items:flex-end}
+html body .jof2.editing .sec-head:has(.hv input)>.code{margin-bottom:-1px}
+/* Tabela das medidas e Folgas nos cartões estreitos: nomes numa só linha, o valor inteiro à vista
+   e as Folgas numa só linha (Diogo, 26/10/2026: «melhorar as caixas», «folgas em linha»). */
+html body .jof2.editing .more-body>*{min-width:0}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:42%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
+  html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:33%}
+  html body .jof2.editing table.dims:not(.calv) input.f{height:28px;min-height:28px;font-size:13px;padding-inline:4px}
+}
+html body .jof2.editing .folgas{flex-wrap:nowrap;gap:4px;min-width:0}
+html body .jof2.editing .folgas>span:first-child{flex:none;margin-right:2px;font-size:12.5px}
+html body .jof2.editing .folgas input.f{flex:1 1 0;width:auto;min-width:0;height:28px;min-height:28px;padding-inline:3px;font-size:12.5px;box-sizing:border-box}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child{overflow:visible;letter-spacing:0;font-size:10px}
+}
+html body .jof2.editing .folgas{gap:3px}
+html body .jof2.editing .folgas>span:first-child{margin-right:1px;font-size:12px}
+html body .jof2.editing .folgas input.f{padding-inline:2px;font-size:12px;text-overflow:clip}
+html body .jof2.editing .folgas input.f:nth-of-type(1){flex-grow:.85}
+html body .jof2.editing .folgas input.f:nth-of-type(2){flex-grow:1.35}
