@@ -83,7 +83,7 @@ public sealed class JobOnListQuery : IJobOnListQuery
         var total = await filtered.CountAsync(cancellationToken);
         var page = ListPaging.ClampPage(pageNumber, total, pageSize);
         var jobs = filtered
-            .OrderByDescending(j => j.Id)
+            .OrderByDescending(j => j.ProductionNumber).ThenByDescending(j => j.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize);
         var items = await Project(jobs).ToListAsync(cancellationToken);
@@ -109,7 +109,7 @@ public sealed class JobOnListQuery : IJobOnListQuery
         // (deep sweep 2, F-17: os repetidos tirados depois do corte deixavam
         // menos de 5 e juntavam as duas referências numa opção).
         return await jobs
-            .OrderByDescending(j => j.Id)
+            .OrderByDescending(j => j.ProductionNumber).ThenByDescending(j => j.Id)
             .Select(j => new JobOnProductionOption(j.ProductionNumber, j.Reference))
             .Take(IProductionPickerQuery.MaxResults)
             .ToListAsync(cancellationToken);
@@ -125,7 +125,7 @@ public sealed class JobOnListQuery : IJobOnListQuery
         var jobs = _db.JobOns.AsNoTracking().Where(j => j.Reference == referencia);
         var total = await jobs.CountAsync(cancellationToken);
         var page = ListPaging.ClampPage(pageNumber, total, pageSize);
-        var items = await Project(jobs.OrderByDescending(j => j.Id).Skip((page - 1) * pageSize).Take(pageSize))
+        var items = await Project(jobs.OrderByDescending(j => j.ProductionNumber).ThenByDescending(j => j.Id).Skip((page - 1) * pageSize).Take(pageSize))
             .ToListAsync(cancellationToken);
         return new PagedList<ProductionContextReadModel>(items, total, page, pageSize);
     }
@@ -174,7 +174,7 @@ public sealed class JobOnListQuery : IJobOnListQuery
         from mf in mfGroup.DefaultIfEmpty()
         join bq in _db.BqContexts on j.Id equals bq.JobOnId into bqGroup
         from bq in bqGroup.DefaultIfEmpty()
-        orderby j.Id descending
+        orderby j.ProductionNumber descending, j.Id descending
         select new ProductionContextReadModel(
             j.Id,
             j.Reference,

@@ -52,7 +52,7 @@ public sealed class ResumoProductionQuery : IResumoProductionQuery
         var baseQuery =
             from j in jobQuery
             join m in _db.Machines on j.MachineId equals m.Id
-            orderby j.Id descending
+            orderby j.ProductionNumber descending, j.Id descending
             select new ResumoProductionItem(j.Id, j.ProductionNumber, j.Reference, m.Code);
 
         // A CONTAGEM total (para a paginação) antes do corte da página.
