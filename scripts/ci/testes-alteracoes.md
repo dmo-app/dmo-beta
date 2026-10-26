@@ -2675,3 +2675,13 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_RepeatedFailures_NeverLockTheUser`
 
 Selo depois: `e4f3ba263bddfa5c`
+
+## A-0123 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR 124 no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 124
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOPreparadorEOJobOnMoldesEmDuasCopias`
+
+Selo depois: `9329a184b5b91681`
