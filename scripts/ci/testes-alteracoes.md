@@ -2732,7 +2732,7 @@ Novos: 2 · mudaram: 6 · saíram: 1
 
 Selo depois: `3b25a8fc9f9336fe`
 
-## A-0134 · 2026-10-26 · teste-novo
+## A-0135 · 2026-10-26 · teste-novo
 
 Porquê: Reshape: as últimas leituras diretas da base (Folha e Reparação do Job On) passam pelo IJobOnPaginaQuery; testes novos do MaquinaDoJobOnAsync
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyG4kTeYNHDJtHEYeeMzqUiT
