@@ -315,7 +315,7 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         // correntes em máquina); exigi-lo aqui era pedir ao planeamento a
         // vista de outro módulo.
         Assert.Contains("beta-production-rail", html);
-        Assert.Contains("O que vai entrar", html);
+        Assert.Contains("href=\"/JobOn\">Planeamento</a>", html);
         Assert.Contains("B1", html);
         Assert.Contains("B2", html);
         // As ferramentas procuram-se ao escrever: o catálogo não vem na página.

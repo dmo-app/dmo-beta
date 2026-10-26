@@ -31,7 +31,9 @@ public sealed record DmoRailPresentation(
     // layout do grid a #bqCurrentLines). Nulo = sem id.
     string? Id = null,
     // Navegação direta, pedida para o painel das Boquilhas em 16/10/2026.
-    bool OpenOnClick = false);
+    bool OpenOnClick = false,
+    // O título como link (o «Planeamento» abre o calendário do Job On; Diogo, 26/10/2026).
+    string? TitleHref = null);
 
 /// <summary>
 /// UMA linha do rail. A <c>Href</c> existe só quando há realmente aonde ir:
@@ -60,4 +62,6 @@ public sealed record DmoRailItem(
     // Um aviso curto por baixo da linha (a sobreposição das Boquilhas,
     // 22/10/2026), com a ligação para corrigir. Nunca bloqueia.
     string? Warning = null,
-    string? WarningHref = null);
+    string? WarningHref = null,
+    // Classes extra do cartão (a cor da linha: «dmo-linha-cor mch-B1»).
+    string? CssClass = null);
