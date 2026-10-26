@@ -3013,3 +3013,13 @@ Novos: 1 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
 Selo depois: `0a2ef153938dc2f0`
+
+## A-0158 · 2026-10-26 · ok-do-diogo
+
+Porquê: O hover escuro dos botões azuis passa de fundo branco para fundo azul, letra e contorno brancos (Diogo, 26/10: «sim as três»); o teste CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro passa a esperar a regra nova em dmo-normalize.css.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVXGyDiJHgyTJP2v8ShT1rm
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+
+Selo depois: `3e3c12c08ee5874d`

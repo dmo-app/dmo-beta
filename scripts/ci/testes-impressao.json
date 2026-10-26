@@ -1,5 +1,5 @@
 {
-  "selo": "0a2ef153938dc2f0",
+  "selo": "3e3c12c08ee5874d",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2675,7 +2675,7 @@
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_MarkupLivesOnlyInTheSharedPartial": "166010b19973b529",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground": "24df592d494267ab",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_Today_IsOnlyBold": "424b3a381a1394ac",
-    "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro": "764c8837be88f98b",
+    "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro": "4517dd19e4d2f81e",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_UmaRegraParaTudo_AEsquerdaDoTexto": "df6be70d1ea23735",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Dropdowns_ApplyOnChoose_WithoutAnApplyButton": "911ec497e04ea766",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.FerramentasTechnicalNotice_KeepsItsLine": "85e37b0c516361c6",
