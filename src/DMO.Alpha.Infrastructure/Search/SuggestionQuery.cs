@@ -30,6 +30,7 @@ public sealed class SuggestionQuery : ISuggestionQuery
         SuggestionSource source,
         string? term,
         ToolType? toolType = null,
+        int? machineId = null,
         CancellationToken cancellationToken = default)
     {
         var minimum = source == SuggestionSource.Reparadores
@@ -44,7 +45,7 @@ public sealed class SuggestionQuery : ISuggestionQuery
         {
             SuggestionSource.Producoes => await ProducoesAsync(wanted, byReference: true, cancellationToken),
             SuggestionSource.NumerosProducao => await ProducoesAsync(wanted, byReference: false, cancellationToken),
-            SuggestionSource.Referencias => await ReferenciasAsync(wanted, cancellationToken),
+            SuggestionSource.Referencias => await ReferenciasAsync(wanted, machineId, cancellationToken),
             SuggestionSource.Ferramentas => await FerramentasAsync(wanted, toolType, cancellationToken),
             SuggestionSource.Reparadores => await ReparadoresAsync(wanted, cancellationToken),
             SuggestionSource.ReferenciasEBq => await ReferenciasEBqAsync(wanted, cancellationToken),
@@ -80,9 +81,10 @@ public sealed class SuggestionQuery : ISuggestionQuery
             .ToList();
     }
 
-    private Task<List<string>> ProductionReferencesAsync(string wanted, CancellationToken cancellationToken) =>
+    private Task<List<string>> ProductionReferencesAsync(string wanted, CancellationToken cancellationToken, int? machineId = null) =>
         _db.JobOns.AsNoTracking()
             .Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, wanted))
+            .Where(j => machineId == null || j.MachineId == machineId)
             .Select(j => j.Reference)
             .Distinct()
             .OrderBy(reference => reference)
@@ -90,9 +92,17 @@ public sealed class SuggestionQuery : ISuggestionQuery
             .ToListAsync(cancellationToken);
 
     private async Task<IReadOnlyList<Suggestion>> ReferenciasAsync(
-        string wanted, CancellationToken cancellationToken)
+        string wanted, int? machineId, CancellationToken cancellationToken)
     {
-        var references = await ProductionReferencesAsync(wanted, cancellationToken);
+        // Com a linha, só as referências que já correram nela (Diogo, 26/10/2026:
+        // «ao procurar uma referência ainda apareciam muitas»); nenhuma, todas.
+        var references = machineId is null
+            ? new List<string>()
+            : await ProductionReferencesAsync(wanted, cancellationToken, machineId);
+        if (references.Count == 0)
+        {
+            references = await ProductionReferencesAsync(wanted, cancellationToken);
+        }
         return references.Select(reference => new Suggestion(reference, reference)).ToList();
     }
 
