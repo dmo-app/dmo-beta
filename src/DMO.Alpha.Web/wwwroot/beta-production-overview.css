@@ -69,15 +69,19 @@ a.beta-light-next{text-decoration:none}a.beta-light-next:hover,a.beta-light-next
    o hover fica mais claro no modo claro e mais escuro no modo escuro. */
 .beta-production-rail-head .beta-production-rail-title{font-size:16px;font-weight:800;color:var(--dmo-text-on-color);text-decoration:none}
 .beta-production-rail-head .beta-production-rail-title:hover,.beta-production-rail-head .beta-production-rail-title:focus-visible{color:var(--dmo-brand-300);outline:0}
-.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){height:auto;min-height:0;padding:9px 12px 10px;border:0;border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 22%,var(--dmo-deep-800))}
+.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){height:auto;min-height:0;padding:9px 12px 10px;border:0;border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 82%,#000)}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) strong{color:var(--dmo-text-on-color);font-size:15px}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span{white-space:normal;overflow:visible;margin-top:2px;color:var(--dmo-text-on-color)}
-.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:var(--dmo-deep-text);font-size:11.5px}
-.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 34%,var(--dmo-deep-800))}
-@media screen{:root[data-theme="dark"] .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color) 24%,#070b0e)}}
+.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:var(--dmo-text-on-color);opacity:.85;font-size:11.5px}
+.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 62%,#000)}
+@media screen{:root[data-theme="dark"] .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color) 42%,#000)}}
 /* O mesmo cartão com a cor da linha em todos os painéis laterais (Diogo, 26/10/2026: Planeamento,
    Boquilhas, Reparação Interna…): o hover fica num tom da cor da própria linha e a barra da
    esquerda é dessa cor, nunca o azul. A linha aberta continua marcada com o contorno. */
 .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover{box-shadow:none}
-.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 40%,var(--dmo-deep-800));color:var(--dmo-text-on-color);outline-color:var(--dmo-machine-color)}
+.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 62%,#000);color:var(--dmo-text-on-color);outline-color:var(--dmo-text-on-color)}
 [data-dmo-linha-cor="B1"]{--dmo-machine-color:var(--dmo-machine-b1)}[data-dmo-linha-cor="B2"]{--dmo-machine-color:var(--dmo-machine-b2)}[data-dmo-linha-cor="B3"]{--dmo-machine-color:var(--dmo-machine-b3)}[data-dmo-linha-cor="C1"]{--dmo-machine-color:var(--dmo-machine-c1)}[data-dmo-linha-cor="C2"]{--dmo-machine-color:var(--dmo-machine-c2)}[data-dmo-linha-cor="C3"]{--dmo-machine-color:var(--dmo-machine-c3)}
+
+/* Cartões com a cor forte da linha e letra branca, como os botões (Diogo, 26/10/2026 05:32).
+   No escuro as cores das linhas são mais claras, por isso escurecem mais. */
+@media screen{:root[data-theme="dark"] .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(:hover){background:color-mix(in srgb,var(--dmo-machine-color) 58%,#000)}}
