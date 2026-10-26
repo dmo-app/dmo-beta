@@ -1622,6 +1622,13 @@
       @if (Model.Comparison is { } comparison && currentPesoForComparison.Averages is not null)
       {
         var historicoRotulo = comparison.HistoricalProductionNumber;
+        @* O peso escrito à mão da produção anterior (Diogo, 26/10/2026) vale em todo o lado:
+           a média e a diferença da tabela usam-no em vez da média do controlo anterior. *@
+        decimal? pesoManualAnterior = Model.ProducaoAnterior?.PesoGramas;
+        decimal? mediaAnteriorPeso = pesoManualAnterior ?? comparison.HistoricalAverages?.AverageGlassWeightGrams;
+        var (difMediaGrams, difMediaPct) = pesoManualAnterior is { } manualRef
+            ? DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(comparison.CurrentAverages?.AverageGlassWeightGrams, manualRef)
+            : (comparison.Deltas.GlassWeightDifferenceGrams, comparison.Deltas.GlassWeightVariationPercent);
         @* A produção escolhida é só a procura; a tabela compara CM com CM
            pela ordem das leituras, sem exigir o mesmo número de CM (o Owner
            2026-10-17: «comparando cm com cm, não precisa de ser par»), com o
@@ -1665,9 +1672,9 @@
                 <td>@(comparison.CurrentAverages is { } ca1 ? fmt(ca1.AverageGlassWeightGrams) : "—")</td>
                 <td></td>
                 <td>@(comparison.HistoricalAverages is { } ha ? fmtCap(ha.AverageCapacityCm3) : "—")</td>
-                <td>@(comparison.HistoricalAverages is { } ha1 ? fmt(ha1.AverageGlassWeightGrams) : "—")</td>
+                <td>@(mediaAnteriorPeso is { } ha1 ? fmt(ha1) : "—")</td>
                 <td>@(comparison.Deltas.CapacityDifferenceCm3 is { } cd ? signed(cd) : "—")</td>
-                <td><strong class="@(comparison.Deltas.GlassWeightDifferenceGrams is { } gd && gd < 0 ? "peso-valor-negativo" : null)">@(comparison.Deltas.GlassWeightDifferenceGrams is { } gd2 ? signed(gd2) : "—")@(comparison.Deltas.GlassWeightVariationPercent is { } gv ? $" ({signed(gv)} %)" : null)</strong></td>
+                <td><strong class="@(difMediaGrams is { } gd && gd < 0 ? "peso-valor-negativo" : null)">@(difMediaGrams is { } gd2 ? signed(gd2) : "—")@(difMediaPct is { } gv ? $" ({signed(gv)} %)" : null)</strong></td>
               </tr>
             </tfoot>
           </table>
