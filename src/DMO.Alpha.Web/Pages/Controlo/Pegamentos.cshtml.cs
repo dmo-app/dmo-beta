@@ -50,7 +50,7 @@ public sealed class PegamentosModel : PageModel
     private readonly IAssociatePegamentosToControloHandler _associate;
     private readonly IEnsureControloForJobOnHandler _ensureControlo;
     private readonly DMO.Alpha.Core.Production.IJobOnListQuery _jobOnList;
-    private readonly DMO.Alpha.Infrastructure.Data.DmoDbContext _db;
+    private readonly IPegamentosEscolhasQuery _escolhas;
 
     private readonly DMO.Alpha.Infrastructure.Production.JobOnChangeQuery _changes;
 
@@ -67,13 +67,13 @@ public sealed class PegamentosModel : PageModel
         IAssociatePegamentosToControloHandler associate,
         IEnsureControloForJobOnHandler ensureControlo,
         DMO.Alpha.Core.Production.IJobOnListQuery jobOnList,
-        DMO.Alpha.Infrastructure.Data.DmoDbContext db)
+        IPegamentosEscolhasQuery escolhas)
     {
         _createToolScoped = createToolScoped;
         _associate = associate;
         _ensureControlo = ensureControlo;
         _jobOnList = jobOnList;
-        _db = db;
+        _escolhas = escolhas;
         _recordMeasurement = recordMeasurement;
         _changes = changes;
         _pegamentosQuery = pegamentosQuery;
@@ -658,7 +658,7 @@ public sealed class PegamentosModel : PageModel
             return (null, false, semLotes);
         }
 
-        var lotes = await DMO.Alpha.Infrastructure.Tools.ToolLookupQuery.ListByReferenceAsync(_db, requested, type, HttpContext.RequestAborted);
+        var lotes = await _escolhas.LotesDaReferenciaAsync(requested, type, HttpContext.RequestAborted);
         if (lotes.Count > 1)
         {
             return (lotes.FirstOrDefault(t => t.ToolId == chosenToolId), false, lotes);
@@ -677,8 +677,7 @@ public sealed class PegamentosModel : PageModel
     {
         JobOnReferencia = Sanitize(referencia);
         JobOnMaquina = Sanitize(maquina);
-        Maquinas = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(
-            _db.Machines.OrderBy(m => m.Code).Select(m => m.Code), HttpContext.RequestAborted);
+        Maquinas = await _escolhas.CodigosDeMaquinasAsync(HttpContext.RequestAborted);
         if (JobOnReferencia is { } referenciaProcurada)
         {
             Producoes = await _jobOnList.ListByReferenceAsync(referenciaProcurada, JobOnMaquina, HttpContext.RequestAborted);
