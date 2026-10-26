@@ -1,5 +1,5 @@
 {
-  "selo": "4b12b7b049b2c65c",
+  "selo": "f100f52b5cd8b3c9",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1533,6 +1533,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.Paging_AppliesFiltersBeforeCountingAndSlicing_AndKeepsStableDistinctPages": "b2bf767be81609b3",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ProductionReference_FerramentasComSoUmaParte_TambemPertencem": "3036b47e958d6990",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ProductionSuggestions_UseRecordedContextsAndMachineLinks_WithoutInferringReferences": "d1008e70b3a19044",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AWholeReferenceAlsoFindsTheToolsRegisteredWithOnlyOnePart": "10b5508ae260736d",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_MatchesTheStartOfTheReferenceOfItsBqPartOrOfTheAssociatedMf": "b58de9e2c9f08eaa",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.Search_ReferenceByItsStartOrBqPart_LotAndMachineByPart": "07e737a486974a75",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.SplitReference_ModeloEParteBq": "9221eedc8a145cb4",

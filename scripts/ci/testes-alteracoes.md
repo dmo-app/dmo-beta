@@ -3042,3 +3042,12 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
 
 Selo depois: `4b12b7b049b2c65c`
+
+## A-0159 · 2026-10-26 · teste-novo
+
+Porquê: A referência toda (1075C142) encontra a CM/MF e a BQ registadas só com uma parte
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AWholeReferenceAlsoFindsTheToolsRegisteredWithOnlyOnePart`
+
+Selo depois: `f100f52b5cd8b3c9`
