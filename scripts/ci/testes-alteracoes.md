@@ -2522,3 +2522,14 @@ Novos: 10 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasAssociacao.cs :: PostgresMigrationIntegrationTests.BoquilhasAssociacao_CadaPedidoMantemOCustoEmConsultasDeLeitura`
 
 Selo depois: `57ab224e182ba5d2`
+
+## A-0113 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR #116 (painel lateral Planeamento) no ramo integracao; o registo do próprio PR (A-0115) entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR #116
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+
+Selo depois: `63d6530418f8c955`
