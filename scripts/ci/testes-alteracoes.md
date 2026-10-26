@@ -2960,3 +2960,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/visual/boquilhas_catalog_browser.py`
 
 Selo depois: `1f5b3db999a31bde`
+
+## A-0151 · 2026-10-26 · ok-do-diogo
+
+Porquê: O Resumo deixa de ter «Associar link do mcaliper» e a janela; só abre o link (quem muda o link é quem tem Criar, na ficha). O teste do link do mcaliper passa a verificar isso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySu9kGPCHGA7bwP7E8ViUxQ
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+
+Selo depois: `6db60bb76d73efbb`
