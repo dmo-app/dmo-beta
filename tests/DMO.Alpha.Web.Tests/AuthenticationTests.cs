@@ -336,13 +336,14 @@ public partial class AuthenticationTests : IClassFixture<CustomWebApplicationFac
         // Diogo, 18/10/2026: «não tranques nada; a última coisa de que
         // preciso é ficar sem aceder a uma ferramenta de trabalho». Falhas
         // seguidas não travam o utilizador: a palavra-passe certa entra.
+        // Diogo, 26/10/2026: da 5.ª em diante manda consultar o ADMIN.
         SeedUser("9881", "Carlos", "provider-user-9881", "right");
 
         using var client = CreateClient();
-        for (var i = 0; i < 6; i++)
+        for (var i = 1; i <= 6; i++)
         {
             var failed = await LoginAsync(client, "9881", "wrong");
-            Assert.Contains("Credenciais inv", await failed.Content.ReadAsStringAsync());
+            Assert.Contains(i < 5 ? "Credenciais inv" : "Consulte o ADMIN para rever a palavra-passe", await failed.Content.ReadAsStringAsync());
         }
 
         var ok = await LoginAsync(client, "9881", "right");
