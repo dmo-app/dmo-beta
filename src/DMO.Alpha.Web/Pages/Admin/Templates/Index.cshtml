@@ -40,11 +40,20 @@
 .dmt-check{display:flex;gap:9px;align-items:start;padding:10px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
 /* Cartões dos módulos com cor da paleta (Diogo 17/10: «a página está muito
    branca»); o módulo escolhido fica mais marcado. */
-.dmt-check{background:var(--dmo-brand-050);border-color:var(--dmo-palette-sky)}
-.dmt-check:has(input:checked){background:var(--dmo-brand-100);border-color:var(--dmo-palette-steel)}
-.dmt-check input{width:auto;min-height:0;margin-top:2px}
-.dmt-check label{display:grid;gap:1px;font-weight:700;cursor:pointer}
+/* SEM CAIXAS (Diogo, 26/10/2026: «deixar em branco ou mais leve o que não
+   está selecionado e mais escuro com font branco o que está e remover as
+   boxes»): a caixa fica escondida, mas é ela que vai no formulário; clicar
+   no cartão liga e desliga. Escolhido: escuro com letra branca. */
+.dmt-check{position:relative;padding:0;background:var(--dmo-card);border-color:var(--dmo-border,#d9e6f2)}
+.dmt-check:has(input:checked){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate)}
+.dmt-check input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.dmt-check label{display:grid;flex:1;gap:1px;padding:10px 12px;font-weight:700;cursor:pointer;user-select:none}
 .dmt-check label span{font-weight:400;color:var(--dmo-muted);font-size:11.5px}
+.dmt-check:has(input:checked) label,.dmt-check:has(input:checked) label span{color:#fff}
+.dmt-check:not(:has(input:checked)):hover{background:var(--dmo-brand-050)}
+.dmt-check:has(input:focus-visible){outline:2px solid var(--dmo-palette-ocean);outline-offset:1px}
+[data-theme="dark"] .dmt-check:has(input:checked){background:var(--dmo-palette-ocean);border-color:var(--dmo-palette-ocean)}
+[data-theme="dark"] .dmt-check:not(:has(input:checked)):hover{background:color-mix(in srgb,var(--dmo-palette-ocean) 18%,transparent)}
 .dmt-detail .dmo-card-topo{margin:0 0 12px}
 .dmt-detail .dmo-card-topo h3{margin:0}
 .dmt-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}

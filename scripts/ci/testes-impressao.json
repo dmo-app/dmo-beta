@@ -1,5 +1,5 @@
 {
-  "selo": "9e35d09198cfa9e0",
+  "selo": "79f54fc617b75cbe",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1549,6 +1549,7 @@
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.CliquesRepetidos.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_CriarOutraVezDepoisDeUmaFalha_AbreATemplateJaCriada": "41dc4128c192f249",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: (resto do ficheiro)": "e06145bce6e7ecfc",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_FerramentasEArmazem_NaSeccaoGestao": "dad4f8a06cc33bbc",
+    "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_SemCaixas_EscolhidoEscuroComLetraBranca": "245db86f2dc57d2e",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: (resto do ficheiro)": "cf436cd30754c45a",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_CriarDuasSeguidas_FicamDuas_APrimeiraNaoMuda": "aa08bf7c304e6d5c",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.NovaTemplate.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_GuardarAAberta_AtualizaEssa": "db636013e3382fce",

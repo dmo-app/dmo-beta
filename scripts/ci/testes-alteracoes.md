@@ -2691,7 +2691,17 @@ Novos: 3 · mudaram: 0 · saíram: 3
 
 Selo depois: `349a29c1afb472af`
 
-## A-0125 · 2026-10-26 · ok-do-diogo
+## A-0126 · 2026-10-26 · teste-novo
+
+Porquê: Templates do Admin: o Diogo pediu as permissões sem caixas, as não escolhidas leves e as escolhidas escuras com letra branca. O teste novo prova que a caixa continua no formulário (escondida), que o cartão é a etiqueta e as regras de cor, também no modo escuro.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6QVqRVdiThbepM8QkqjAGZ
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_SemCaixas_EscolhidoEscuroComLetraBranca`
+
+Selo depois: `1bc8bd89cbd3cd46`
+
+## A-0127 · 2026-10-26 · ok-do-diogo
 
 Porquê: Mudar a palavra-passe passa a pedir a atual, exceto quando é temporária (auditoria externa DS-LOG-03): os 2 testes do ADMIN que mudam a palavra-passe enviam a atual; teste novo prova que sem ela nada muda
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyUctKbk5MGZ3NjoGuDF1Jdp
@@ -2702,4 +2712,4 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.PedidoCortado.cs :: AuthenticationTests.AdminPasswordChange_ClientLeavesAfterTheProviderChange_TheOtherAdminSessionsStillEnd`
 - mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions`
 
-Selo depois: `9e35d09198cfa9e0`
+Selo depois: `79f54fc617b75cbe`
