@@ -2756,13 +2756,29 @@ Novos: 2 · mudaram: 0 · saíram: 0
 
 Selo depois: `2ed82e8fca8a939f`
 
-## A-0135 · 2026-10-26 · ok-do-diogo
+## A-0135 · 2026-10-26 · teste-novo
 
-Porquê: Folha do Job On: os furos do CS no ver aparecem «Abertos N» e «Fechados N» um por baixo do outro, sem a «/», como o Diogo pediu; teste novo: as produções da referência vêm da mais recente para a mais antiga.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyELUj7Rp8tMrtt8xnuiRtQz
-Novos: 1 · mudaram: 1 · saíram: 0
+Porquê: Reshape: as últimas leituras diretas da base (Folha e Reparação do Job On) passam pelo IJobOnPaginaQuery; testes novos do MaquinaDoJobOnAsync
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyG4kTeYNHDJtHEYeeMzqUiT
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: PostgresMigrationIntegrationTests.JobOnMaquina_FazUmaSoConsultaDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: JobOnMaquinaDoJobOnTests.MaquinaDoJobOn_DevolveALinhaDaProducao_OuZeroQuandoNaoExiste`
+
+Selo depois: `11e205f5bd501994`
+
+## A-0136 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha do Job On, pedidos do Diogo a 26/10/2026: os furos do CS no ver sem a «/» (um por baixo do outro); o Duplicar sugere a produção seguinte à última da referência (o teste do Duplicar passa a esperar 202603 em vez do campo vazio, e muda de nome); testes novos: a produção sugerida e as produções da referência da mais recente para a mais antiga.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyELUj7Rp8tMrtt8xnuiRtQz, cmsg_01A27e9ozcpoh4jdPRsuJbFyVApVgtiy5mqC98Db9xbXo8
+Novos: 3 · mudaram: 1 · saíram: 1
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/ProductionPickerQueryTests.cs :: ProductionPickerQueryTests.Procura_AMaisRecentePrimeiro_PeloInicioEDepoisPeloNumero`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.Duplicar_AProducaoSugerida_EASeguinteAMaior`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatas_ComAProducaoSeguinte_ComODiaDoCalendario_EGravaUmaProducaoNova`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatasNemNumero_ComODiaDoCalendario_EGravaUmaProducaoNova`
 
-Selo depois: `123cc06c8443ca86`
+Selo depois: `4bd0a82be1a30cb3`

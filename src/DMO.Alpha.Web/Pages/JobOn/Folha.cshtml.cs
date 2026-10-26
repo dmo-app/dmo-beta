@@ -43,7 +43,7 @@ public sealed class FolhaModel(
     JobOnLotNoteHandler lotNotes,
     JobOnChangeQuery changes,
     IDeleteJobOnHandler deleteJobOn,
-    DMO.Alpha.Infrastructure.Data.DmoDbContext db,
+    IJobOnPaginaQuery jobOnPagina,
     IConfiguration configuration) : PageModel
 {
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
@@ -448,12 +448,8 @@ public sealed class FolhaModel(
             Gravado = gravado == "1";
             if (overlap == "1")
             {
-                var maquinaId = await db.JobOns.AsNoTracking().Where(j => j.Id == aberto.JobOnId).Select(j => j.MachineId).FirstOrDefaultAsync(ct);
-                if (maquinaId != 0)
-                {
-                    AvisoSobreposicao = await JobOnOverlapQuery.EvaluateAsync(
-                        db, aberto.JobOnId, maquinaId, aberto.Machine, aberto.InicioEm, aberto.FimEm, ct);
-                }
+                AvisoSobreposicao = await jobOnPagina.AvisoDeSobreposicaoAsync(
+                    aberto.JobOnId, aberto.Machine, aberto.InicioEm, aberto.FimEm, ct);
             }
             if (caloteIgnorada?.Trim() is { Length: > 0 } valorIgnorado)
             {
