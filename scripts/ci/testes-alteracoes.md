@@ -2714,44 +2714,10 @@ Novos: 2 · mudaram: 2 · saíram: 0
 
 Selo depois: `79f54fc617b75cbe`
 
-## A-0128 · 2026-10-26 · ok-do-diogo
+## A-0133 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main 72f9430: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 1 · mudaram: 0 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-
-Selo depois: `4e66001173df6d35`
-
-## A-0129 · 2026-10-26 · ok-do-diogo
-
-Porquê: A-0129 no integracao (PR #129): título da ficha sem repetir Tipo/Ref/Lote; dia escolhido do calendário com letra branca; testes novos do triângulo único, invertido branco, tipos de movimento das BQ e sem itálico.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyWEXEuqNDbtKB7hrcdSAPWz
-Novos: 2 · mudaram: 2 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
-- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.SemItalico_EmTodaAApp`
-- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
-- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
-
-Selo depois: `fddca170dc40b491`
-
-## A-0130 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção do PR 131 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 131
-Novos: 2 · mudaram: 0 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
-
-Selo depois: `2c25a92b829dcdd0`
-
-## A-0131 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção do PR 130 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 130
+Porquê: Excel das Boquilhas: os 12 meses ficam cada um no seu separador (pedido do Diogo 26/10); os testes procuram o separador pelo nome; a data passa a ter o valor escrito; teste novo do domingo vazio no Atualizar.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyMR6KCaxK4JedPnkWmiSBgT
 Novos: 2 · mudaram: 6 · saíram: 1
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.Atualizar_UmDomingoVazio_NaoPara_EEscreveOsDiasDeAntes`
@@ -2763,5 +2729,21 @@ Novos: 2 · mudaram: 6 · saíram: 1
 - mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_OCartao_AVersaoMudaComUmMovimento_EOFicheiroVoltaEscrito`
 - mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_UmExcelNovo_TemOSeparadorDoMes`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmMesSemSeparador_ESemMovimentos_NaoCriaNada`
+
+Selo depois: `3b25a8fc9f9336fe`
+
+## A-0134 · 2026-10-26 · ok-do-diogo
+
+Porquê: Registo do integracao acertado pela main 2d4bb89: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 5 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.SemItalico_EmTodaAApp`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
 
 Selo depois: `1b4cffce6b107993`
