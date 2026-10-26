@@ -1,0 +1,34 @@
+@page "/instalar"
+@model InstalarModel
+@{
+    Layout = "_DmoAccountLayout";
+    ViewData["Title"] = "Primeira instalação";
+}
+
+<form method="post" class="login-form" aria-labelledby="instalar-title">
+    <h2 id="instalar-title">Primeira instalação</h2>
+    <p class="lead">Crie o ADMIN da app. Os utilizadores criam-se depois em Admin › Utilizadores.</p>
+    <div class="dmo-field">
+        <label for="codigo">Código de instalação</label>
+        <input id="codigo" name="codigo" type="text" maxlength="64" autocomplete="off"
+               autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" />
+    </div>
+    <div class="dmo-field">
+        <label for="email">Email do ADMIN</label>
+        <input id="email" name="email" type="email" value="@Model.Email" maxlength="256" autocomplete="username" />
+    </div>
+    <div class="dmo-field">
+        <label for="palavraPasse">Palavra-passe</label>
+        <input id="palavraPasse" name="palavraPasse" type="password" maxlength="128" autocomplete="new-password" />
+    </div>
+    <div class="dmo-field">
+        <label for="confirmar">Confirmar palavra-passe</label>
+        <input id="confirmar" name="confirmar" type="password" maxlength="128" autocomplete="new-password" />
+    </div>
+    <button type="submit" class="dmo-button submit">Criar ADMIN</button>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger form-message" role="alert">@Model.ErrorMessage</div>
+    }
+</form>

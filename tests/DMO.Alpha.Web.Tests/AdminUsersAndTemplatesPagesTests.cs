@@ -1264,7 +1264,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
         var list = await client.GetAsync(second.Headers.Location!.ToString());
         var listHtml = await list.Content.ReadAsStringAsync();
         Assert.DoesNotContain("Para Apagar", listHtml, StringComparison.Ordinal);
-        Assert.Contains("Utilizador eliminado na app e no Supabase.", listHtml, StringComparison.Ordinal);
+        Assert.Contains("Utilizador eliminado.", listHtml, StringComparison.Ordinal);
         // A mensagem do resultado flutua por cima da página: não empurra a lista.
         Assert.Contains("<div data-dmo-toast=\"ok\" class=\"dmu-aviso\" role=\"status\">Utilizador eliminado", listHtml, StringComparison.Ordinal);
 
