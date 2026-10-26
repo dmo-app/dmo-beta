@@ -821,6 +821,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                     + " OR (\"Tipo\" = 2 AND \"MfContextId\" IS NOT NULL AND \"CmContextId\" IS NULL)))"
                     + " OR (\"Tipo\" IN (1, 2) AND \"CmContextId\" IS NULL AND \"MfContextId\" IS NULL"
                     + " AND \"ReferenciaEscrita\" IS NOT NULL AND \"LoteEscrito\" IS NOT NULL)");
+                t.HasCheckConstraint("CK_ReparacoesInternas_Trabalho", "\"Trabalho\" IN (1, 2, 3)");
                 t.HasCheckConstraint("CK_ReparacoesInternas_Numero", "btrim(\"Numero\") <> '' AND \"Numero\" = btrim(\"Numero\")");
                 t.HasCheckConstraint(
                     "CK_ReparacoesInternas_Escrita",
@@ -833,6 +834,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             });
             entity.HasKey(r => r.Id);
             entity.Property(r => r.Numero).HasMaxLength(Reparacao.NumeroMaxLength).IsRequired();
+            entity.Property(r => r.Trabalho).HasDefaultValue(ReparacaoTrabalho.Reparacao);
             entity.Property(r => r.ReferenciaEscrita).HasMaxLength(Reparacao.ReferenciaMaxLength);
             entity.Property(r => r.LoteEscrito).HasMaxLength(Reparacao.LoteMaxLength);
             entity.HasOne<Tool>().WithMany().HasForeignKey(r => r.AssociadaToolId).OnDelete(DeleteBehavior.Restrict);

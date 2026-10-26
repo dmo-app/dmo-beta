@@ -33,6 +33,96 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
             return PagedList<RiConsultaLinha>.Empty;
         }
 
+        var query = Filtrar(filtro);
+
+        // Da mais recente para a mais antiga: o Id cresce com o registo (a
+        // hora é a do servidor ao gravar), por isso ordena-se pela chave e
+        // a base não tem de ordenar pela hora.
+        var ids = await query.OrderByDescending(r => r.Id).Select(r => r.Id)
+            .ToPagedListAsync(pagina, cancellationToken: cancellationToken);
+        if (ids.Items.Count == 0)
+        {
+            return new PagedList<RiConsultaLinha>([], ids.TotalCount, ids.PageNumber, ids.PageSize);
+        }
+
+        var daPagina = ids.Items.ToList();
+        var ferramentas = db.Tools.AsNoTracking().Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId);
+        var linhas = await (
+            from r in db.ReparacoesInternas.AsNoTracking()
+            where daPagina.Contains(r.Id)
+            join j in db.JobOns.AsNoTracking() on r.JobOnId equals (int?)j.Id into js
+            from j in js.DefaultIfEmpty()
+            join m in db.Machines.AsNoTracking() on r.MachineId equals m.Id
+            join u in db.Users.AsNoTracking() on r.RegistadoPorUserId equals (Guid?)u.Id into us
+            from u in us.DefaultIfEmpty()
+            join c in db.CmContexts.AsNoTracking() on r.CmContextId equals (int?)c.Id into cs
+            from c in cs.DefaultIfEmpty()
+            join f in db.MfContexts.AsNoTracking() on r.MfContextId equals (int?)f.Id into fs
+            from f in fs.DefaultIfEmpty()
+            join t in ferramentas on (c != null ? c.ToolId : f != null ? f.ToolId : null) equals t.ToolId into ts
+            from t in ts.DefaultIfEmpty()
+            join a in ferramentas on r.AssociadaToolId equals a.ToolId into ats
+            from a in ats.DefaultIfEmpty()
+            select new
+            {
+                r.Id,
+                r.DiaOperacional,
+                r.RegistadoEmUtc,
+                r.Hora,
+                r.Trabalho,
+                Maquina = m.Code,
+                r.JobOnId,
+                ProductionNumber = j != null ? j.ProductionNumber : null,
+                Reference = j != null ? j.Reference : null,
+                r.Tipo,
+                ContextoId = c != null ? c.Id : f != null ? f.Id : (int?)null,
+                FerramentaReferencia = t != null ? t.Reference : null,
+                FerramentaLote = t != null ? t.Lot : null,
+                FerramentaToolId = t != null ? t.ToolId : null,
+                r.Numero,
+                Quem = u != null ? u.Name : null,
+                r.ReferenciaEscrita,
+                r.LoteEscrito,
+                r.AssociadaToolId,
+                AssociadaReferencia = a != null ? a.Reference : null,
+                AssociadaLote = a != null ? a.Lot : null
+            })
+            .ToListAsync(cancellationToken);
+
+        var candidatas = await CandidatasAsync(
+            linhas.Where(l => l.ReferenciaEscrita != null && l.AssociadaToolId == null)
+                .Select(l => (l.Tipo, l.ReferenciaEscrita!)).Distinct().ToList(),
+            cancellationToken);
+
+        // A ordem da página (a consulta das linhas não a garante). Sem
+        // referência, a ferramenta foi eliminada (o contexto passou para a
+        // REMOVED); sem contexto, não há ferramenta a mostrar.
+        var porId = linhas.ToDictionary(l => l.Id);
+        var resultado = daPagina.Where(porId.ContainsKey).Select(id => porId[id]).Select(l => new RiConsultaLinha(
+                l.Id,
+                l.DiaOperacional,
+                l.RegistadoEmUtc,
+                l.Maquina,
+                l.JobOnId,
+                l.ProductionNumber,
+                l.Reference,
+                l.Tipo,
+                l.ContextoId is { } contexto ? new RiFerramenta(contexto, l.FerramentaReferencia, l.FerramentaLote) : null,
+                l.Numero,
+                l.Quem,
+                l.ReferenciaEscrita is null ? null : Escrita(
+                    l.ReferenciaEscrita, l.LoteEscrito!, l.AssociadaToolId, l.AssociadaReferencia, l.AssociadaLote,
+                    l.AssociadaToolId is null ? candidatas.GetValueOrDefault((l.Tipo, l.ReferenciaEscrita)) ?? [] : null),
+                l.FerramentaToolId,
+                l.Hora,
+                l.Trabalho))
+            .ToList();
+        return new PagedList<RiConsultaLinha>(resultado, ids.TotalCount, ids.PageNumber, ids.PageSize);
+    }
+
+    // As reparações que contam (sem as anuladas, como na lista do registo) com os filtros.
+    private IQueryable<Reparacao> Filtrar(RiConsultaFiltro filtro)
+    {
         // As anuladas não contam, como na lista do registo.
         var query = db.ReparacoesInternas.AsNoTracking().Where(r => r.AnuladaEmUtc == null);
         if (filtro.MachineId is { } maquina)
@@ -82,87 +172,29 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
             query = query.Where(r => producoes.Contains(r.JobOnId));
         }
 
-        // Da mais recente para a mais antiga: o Id cresce com o registo (a
-        // hora é a do servidor ao gravar), por isso ordena-se pela chave e
-        // a base não tem de ordenar pela hora.
-        var ids = await query.OrderByDescending(r => r.Id).Select(r => r.Id)
-            .ToPagedListAsync(pagina, cancellationToken: cancellationToken);
-        if (ids.Items.Count == 0)
+        return query;
+    }
+
+    public async Task<IReadOnlyList<RiResumoPessoa>> ResumoPorPessoaAsync(
+        RiConsultaFiltro filtro, CancellationToken cancellationToken = default)
+    {
+        if (!filtro.ComFiltro)
         {
-            return new PagedList<RiConsultaLinha>([], ids.TotalCount, ids.PageNumber, ids.PageSize);
+            return [];
         }
 
-        var daPagina = ids.Items.ToList();
-        var ferramentas = db.Tools.AsNoTracking().Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId);
-        var linhas = await (
-            from r in db.ReparacoesInternas.AsNoTracking()
-            where daPagina.Contains(r.Id)
-            join j in db.JobOns.AsNoTracking() on r.JobOnId equals (int?)j.Id into js
-            from j in js.DefaultIfEmpty()
-            join m in db.Machines.AsNoTracking() on r.MachineId equals m.Id
-            join u in db.Users.AsNoTracking() on r.RegistadoPorUserId equals (Guid?)u.Id into us
-            from u in us.DefaultIfEmpty()
-            join c in db.CmContexts.AsNoTracking() on r.CmContextId equals (int?)c.Id into cs
-            from c in cs.DefaultIfEmpty()
-            join f in db.MfContexts.AsNoTracking() on r.MfContextId equals (int?)f.Id into fs
-            from f in fs.DefaultIfEmpty()
-            join t in ferramentas on (c != null ? c.ToolId : f != null ? f.ToolId : null) equals t.ToolId into ts
-            from t in ts.DefaultIfEmpty()
-            join a in ferramentas on r.AssociadaToolId equals a.ToolId into ats
-            from a in ats.DefaultIfEmpty()
-            select new
-            {
-                r.Id,
-                r.DiaOperacional,
-                r.RegistadoEmUtc,
-                r.Hora,
-                Maquina = m.Code,
-                r.JobOnId,
-                ProductionNumber = j != null ? j.ProductionNumber : null,
-                Reference = j != null ? j.Reference : null,
-                r.Tipo,
-                ContextoId = c != null ? c.Id : f != null ? f.Id : (int?)null,
-                FerramentaReferencia = t != null ? t.Reference : null,
-                FerramentaLote = t != null ? t.Lot : null,
-                FerramentaToolId = t != null ? t.ToolId : null,
-                r.Numero,
-                Quem = u != null ? u.Name : null,
-                r.ReferenciaEscrita,
-                r.LoteEscrito,
-                r.AssociadaToolId,
-                AssociadaReferencia = a != null ? a.Reference : null,
-                AssociadaLote = a != null ? a.Lot : null
-            })
+        // Uma só consulta agrupada: reparações e dias diferentes por pessoa.
+        var grupos = await Filtrar(filtro)
+            .GroupBy(r => r.RegistadoPorUserId)
+            .Select(g => new { PessoaId = g.Key, Reparacoes = g.Count(), Dias = g.Select(r => r.DiaOperacional).Distinct().Count() })
             .ToListAsync(cancellationToken);
-
-        var candidatas = await CandidatasAsync(
-            linhas.Where(l => l.ReferenciaEscrita != null && l.AssociadaToolId == null)
-                .Select(l => (l.Tipo, l.ReferenciaEscrita!)).Distinct().ToList(),
-            cancellationToken);
-
-        // A ordem da página (a consulta das linhas não a garante). Sem
-        // referência, a ferramenta foi eliminada (o contexto passou para a
-        // REMOVED); sem contexto, não há ferramenta a mostrar.
-        var porId = linhas.ToDictionary(l => l.Id);
-        var resultado = daPagina.Where(porId.ContainsKey).Select(id => porId[id]).Select(l => new RiConsultaLinha(
-                l.Id,
-                l.DiaOperacional,
-                l.RegistadoEmUtc,
-                l.Maquina,
-                l.JobOnId,
-                l.ProductionNumber,
-                l.Reference,
-                l.Tipo,
-                l.ContextoId is { } contexto ? new RiFerramenta(contexto, l.FerramentaReferencia, l.FerramentaLote) : null,
-                l.Numero,
-                l.Quem,
-                l.ReferenciaEscrita is null ? null : Escrita(
-                    l.ReferenciaEscrita, l.LoteEscrito!, l.AssociadaToolId, l.AssociadaReferencia, l.AssociadaLote,
-                    l.AssociadaToolId is null ? candidatas.GetValueOrDefault((l.Tipo, l.ReferenciaEscrita)) ?? [] : null),
-                l.FerramentaToolId,
-                l.Hora))
+        var ids = grupos.Where(g => g.PessoaId != null).Select(g => g.PessoaId!.Value).ToList();
+        var nomes = await db.Users.AsNoTracking().Where(u => ids.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.Name, cancellationToken);
+        return grupos
+            .Select(g => new RiResumoPessoa(g.PessoaId, g.PessoaId is { } id && nomes.TryGetValue(id, out var nome) ? nome : "—", g.Reparacoes, g.Dias))
+            .OrderByDescending(r => r.Reparacoes).ThenBy(r => r.Nome, StringComparer.Ordinal)
             .ToList();
-        return new PagedList<RiConsultaLinha>(resultado, ids.TotalCount, ids.PageNumber, ids.PageSize);
     }
 
     // As ferramentas registadas do mesmo tipo e da referência escrita (sem a
