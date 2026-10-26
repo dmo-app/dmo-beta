@@ -412,7 +412,8 @@
     { "id": "DMO-420", "module": "Ferramentas", "description": "0.3.0-beta.106: em Ferramentas → Pesquisar, a referência toda (por exemplo 1075C142) volta a encontrar a CM/MF 1075 e a BQ C142 registadas só com uma parte." },
     { "id": "DMO-421", "module": "Cabeçalho", "description": "0.3.0-beta.107: mais um pouco de espaço entre a linha da sessão, o nome e o «Sair» no cabeçalho." },
     { "id": "DMO-422", "module": "Ferramentas", "description": "0.3.0-beta.108: na ficha da ferramenta há um cartão «Histórico de produções»: uma linha por Job On em que a ferramenta esteve, com as datas, as garrafas, o peso da produção (média e moda), a diferença de peso para a produção anterior e a % de uso, e um total no fim." },
-    { "id": "DMO-424", "module": "Ferramentas", "description": "0.3.0-beta.110: em Registar ferramenta, as linhas compatíveis (B1, B2…) voltam a mostrar a seleção: discretas por omissão e, no hover e selecionadas, fundo branco com letra e contorno azuis (modo escuro: fundo azul, letra e contorno brancos)." }
+    { "id": "DMO-424", "module": "Ferramentas", "description": "0.3.0-beta.110: em Registar ferramenta, as linhas compatíveis (B1, B2…) voltam a mostrar a seleção: discretas por omissão e, no hover e selecionadas, fundo branco com letra e contorno azuis (modo escuro: fundo azul, letra e contorno brancos)." },
+    { "id": "DMO-425", "module": "Ferramentas", "description": "0.3.0-beta.111: o «Histórico de produções» da ferramenta passa a mostrar as garrafas e a % de uso de cada produção (o ficheiro do SAP vindo do PC da fábrica não era lido), a diferença de garrafas para a produção anterior e, no peso médio, uma janela com a moda e a diferença de peso." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
