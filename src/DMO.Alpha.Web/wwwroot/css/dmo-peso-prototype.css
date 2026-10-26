@@ -177,7 +177,7 @@
     .peso-page .tp-support>summary.tp-button:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
     .peso-page .tp-support>summary.tp-button{list-style:none;width:100%;text-align:left;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px;background:var(--dmo-brand-050,#e8eff7);cursor:pointer;padding:10px;color:var(--dmo-text,#1c2b3a)}
     .peso-page .tp-support>summary.tp-button::-webkit-details-marker{display:none}
-    .peso-page .tp-button span,.peso-page .tp-button small{display:block;font-size:11px}
+    .peso-page .tp-button > span,.peso-page .tp-button small{display:block;font-size:11px}
     .peso-page .tp-button small{color:var(--dmo-muted,#5a6b7c)}
     .peso-page .tp-button strong{display:block;font-size:14px;margin-top:2px}
     .peso-page .tp-support-body{margin-top:10px;padding:12px 14px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:9px;background:var(--dmo-card,#fff)}
@@ -191,7 +191,6 @@
 .peso-page .peso-facts > .tp-support,
 .peso-page .peso-facts > .dmo-zona > .tp-support{position:relative;margin-top:0;flex:1;min-width:0}
 .peso-page .peso-facts .tp-support>summary.tp-button{height:100%;display:flex;flex-direction:column;justify-content:center;padding:10px 12px;border:0;border-left:3px solid var(--dmo-brand-600,#3c73a8);border-radius:8px;background:var(--dmo-subtle,#f1f6fa)}
-.peso-page .peso-facts .tp-button .dmo-caret{display:inline-block;margin-right:4px}
 /* A dica dentro do rótulo de um facto: o círculo na linha e o texto normal. */
 .peso-page .peso-fact > span > .dmo-help{display:inline-block}
 .peso-page .peso-fact > span > .dmo-help .dmo-help-tip{text-transform:none;letter-spacing:normal;font-weight:500}

@@ -98,7 +98,7 @@ public sealed partial class PostgresMigrationIntegrationTests
             var resultados = await Task.WhenAll(Enumerable.Range(0, 4).Select(async _ =>
             {
                 await using var db = CreateContext();
-                return (await Reparacoes(db).AnularAsync(new PedidoDeAnulacao(Guid.NewGuid(), id))).Resultado;
+                return (await Reparacoes(db).AnularAsync(new PedidoDeAnulacao(Guid.NewGuid(), id, Chefia: true))).Resultado;
             }));
 
             Assert.Single(resultados, r => r == CorrecaoResultado.Anulado);
@@ -127,8 +127,8 @@ public sealed partial class PostgresMigrationIntegrationTests
                 var servico = Reparacoes(db);
                 var corrigida = (await servico.RegistarAsync(new PedidoDeReparacao(envios[0], cenario.MachineId, cenario.JobOnId, ReparacaoTipo.Cm, cenario.CmId, "1"))).ReparacaoId!.Value;
                 var anulada = (await servico.RegistarAsync(new PedidoDeReparacao(envios[1], cenario.MachineId, cenario.JobOnId, ReparacaoTipo.Mf, cenario.MfId, "2"))).ReparacaoId!.Value;
-                Assert.True((await servico.CorrigirAsync(new PedidoDeCorrecao(envios[2], corrigida, "10"))).Gravou);
-                Assert.True((await servico.AnularAsync(new PedidoDeAnulacao(envios[3], anulada, "errada"))).Gravou);
+                Assert.True((await servico.CorrigirAsync(new PedidoDeCorrecao(envios[2], corrigida, "10", Chefia: true))).Gravou);
+                Assert.True((await servico.AnularAsync(new PedidoDeAnulacao(envios[3], anulada, "errada", Chefia: true))).Gravou);
             }
 
             await using (var outra = CreateContext())

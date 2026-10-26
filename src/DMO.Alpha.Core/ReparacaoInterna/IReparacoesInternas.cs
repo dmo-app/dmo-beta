@@ -109,16 +109,21 @@ public sealed record ReparacaoSaida(
 }
 
 // Máquina, tipo ou produção errados: anula-se e regista-se outra vez.
-/// <summary>Corrigir o número e a hora de uma reparação; <paramref name="Hora"/> NULL deixa a hora como está.</summary>
-public sealed record PedidoDeCorrecao(Guid OperacaoId, int ReparacaoId, string? Numero, string? Motivo = null, TimeOnly? Hora = null);
+/// <summary>
+/// Corrigir o número e a hora de uma reparação; <paramref name="Hora"/> NULL
+/// deixa a hora como está. <paramref name="Chefia"/>: quem pede tem a Consulta
+/// da Reparação Interna e pode corrigir as de todos; os outros só as suas.
+/// </summary>
+public sealed record PedidoDeCorrecao(Guid OperacaoId, int ReparacaoId, string? Numero, string? Motivo = null, TimeOnly? Hora = null, bool Chefia = false);
 
-/// <summary>Anular uma reparação: sai da lista e das contagens e fica na base com o rasto.</summary>
-public sealed record PedidoDeAnulacao(Guid OperacaoId, int ReparacaoId, string? Motivo = null);
+/// <summary>Anular uma reparação: sai da lista e das contagens e fica na base com o rasto. <paramref name="Chefia"/> como em <see cref="PedidoDeCorrecao"/>.</summary>
+public sealed record PedidoDeAnulacao(Guid OperacaoId, int ReparacaoId, string? Motivo = null, bool Chefia = false);
 
 /// <summary>
 /// Como acabou uma correção ou uma anulação. Só se recusa o impossível (a
 /// reparação já não existe, já foi anulada ou outra pessoa mudou-a
-/// entretanto) e o que o registo também recusa.
+/// entretanto), o que o registo também recusa e a reparação de outra pessoa
+/// a quem não é chefia (DS-PERM-01, Diogo 26/10/2026).
 /// </summary>
 public enum CorrecaoResultado
 {
@@ -133,7 +138,9 @@ public enum CorrecaoResultado
     Mudou,
     SemNumero,
     NumeroLongo,
-    MotivoLongo
+    MotivoLongo,
+    /// <summary>A reparação é de outra pessoa: só quem a registou e a chefia a corrigem ou anulam.</summary>
+    SoQuemRegistou
 }
 
 /// <summary>O resultado, com o número de que a mensagem fala (o corrigido ou o anulado).</summary>
@@ -208,10 +215,10 @@ public interface IReparacoesInternas
 
     Task<ReparacaoSaida> RegistarAsync(PedidoDeReparacao pedido, CancellationToken cancellationToken = default);
 
-    /// <summary>Corrige o número (as mesmas regras do registo), com rasto. Quem tem o módulo pode corrigir (RI-04).</summary>
+    /// <summary>Corrige o número (as mesmas regras do registo), com rasto. Só quem a registou e a chefia (DS-PERM-01).</summary>
     Task<CorrecaoSaida> CorrigirAsync(PedidoDeCorrecao pedido, CancellationToken cancellationToken = default);
 
-    /// <summary>Anula a reparação (fica na base), com rasto. Quem tem o módulo pode anular (RI-04).</summary>
+    /// <summary>Anula a reparação (fica na base), com rasto. Só quem a registou e a chefia (DS-PERM-01).</summary>
     Task<CorrecaoSaida> AnularAsync(PedidoDeAnulacao pedido, CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -2806,32 +2806,55 @@ Novos: 8 · mudaram: 6 · saíram: 0
 
 Selo depois: `e3b8d1822d04685e`
 
-## A-0137 · 2026-10-26 · contagem-lista
+## A-0137 · 2026-10-26 · ok-do-diogo
 
-Porquê: Testes novos: Tampão do Diâmetro do TP da folha (Diogo, 26/10) e Lote FF no bloco MF (Diogo, 22/10 08:17, Q14). Mudados sem mudar o cenário: Assert.Single em vez de Assert.Equal(1, ….Count) (TEC-004) e a lista das migrações com a nova JobOnFolhaLoteFf
-Novos: 4 · mudaram: 2 · saíram: 0
+Porquê: DS-PERM-01: na Reparação Interna só quem registou e a chefia (a Consulta) corrigem ou anulam. Os testes em que outra pessoa (ou o serviço sem sessão) corrigia ou anulava passam a usar a chefia; testes novos mostram que outro operador sem a chefia não muda nada.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyCwjpBqhTBK4Sd2W4oD7FYF (Diogo «sim» ao DS-PERM-01, 26/10/2026)
+Novos: 6 · mudaram: 6 · saíram: 4
 
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: JobOnPageTests.FolhaNova_LoteFf_AbreComOLoteDoMf_EGravaOutro`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: JobOnPageTests.FolhaNova_DiametroDoTp_EOTampaoDaProducao`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
-- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Anular_AChefia_ADeOutraPessoaSaiDaListaEDasContagens_FicaNaBase_ComRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Corrigir_AChefia_MudaSoONumeroDeOutraPessoa_EDeixaRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.OutraPessoaSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_AnulaADeOutraPessoa_ALinhaSai_EFicaNaBase`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_CorrigeONumeroDeOutraPessoa_ComRasto_EOMesmoEnvioAplicaUmaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutroOperadorSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInternaRasto.cs :: PostgresMigrationIntegrationTests.ReparacaoInternaRasto_AnularAoMesmoTempo_AnulaUmaVez`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInternaRasto.cs :: PostgresMigrationIntegrationTests.ReparacaoInternaRasto_EliminarOJobOn_LevaAsReparacoesEORasto`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.DuasCorrecoes_DoisRastos_PelaOrdem`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.UmaAnulada_NaoSeCorrigeNemSeAnulaOutraVez`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Anular_OutraPessoa_SaiDaListaEDasContagens_FicaNaBase_ComRasto`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Corrigir_OutraPessoaComOModulo_MudaSoONumero_EDeixaRasto`
+- saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_Anula_ALinhaSai_EFicaNaBase`
+- saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_CorrigeONumero_ComRasto_EOMesmoEnvioAplicaUmaVez`
 
-Selo depois: `67628fb69854a89d`
+Selo depois: `73089c51f2cc3956`
 
 ## A-0138 · 2026-10-26 · ok-do-diogo
 
-Porquê: Tampão e Punção saem da ficha da CM; um só Voltar (cmsg_01A27e9ozcpoh4jdPRsuJbFyRfdwnWiuT6MCVrPw2pdSRm); Volume na BQ (cmsg_01A27e9ozcpoh4jdPRsuJbFyWtKmjoyB3wGtxzcCSxX69C)
+Porquê: Tampão da Folha = tampão da CM e Lote FF (testes novos); Tampão e Punção saem da ficha da CM; um só Voltar (cmsg_01A27e9ozcpoh4jdPRsuJbFyRfdwnWiuT6MCVrPw2pdSRm); Volume na BQ (cmsg_01A27e9ozcpoh4jdPRsuJbFyWtKmjoyB3wGtxzcCSxX69C); apoio TP do Peso com h nominal, h Job On e só volumes e Δ (cmsg_01A27e9ozcpoh4jdPRsuJbFyGfg3KWEXc5o6gr5g6qLJzG, cmsg_01A27e9ozcpoh4jdPRsuJbFyJeXejBKtyrUeFgGaVPybCd); mensagem sem tampão aponta à Folha do Job On
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR4JxijzJuzAZzq37Qzi296
-Novos: 4 · mudaram: 13 · saíram: 0
+Novos: 8 · mudaram: 25 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_GuardarSemTampaoNemPuncao_MantemOsValoresGravados`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VolumeDaBq.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VolumeDaBq.cs :: FerramentasPagesTests.Criar_TituloDoBloco_VolumeNaBqEPesoNaCm`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: JobOnPageTests.FolhaNova_LoteFf_AbreComOLoteDoMf_EGravaOutro`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: JobOnPageTests.FolhaNova_DiametroDoTp_EOTampaoDaProducao`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapSupportQueryTests.cs :: PesoCapSupportQueryTests.GetAsync_ToolSemTP_ReferenciaPorCompletar`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.SemTampaoEmLado_Nenhum_ReferenciaPorCompletarSemBloquear`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemCaloteNoJobOn_UsaAReferenciaDaTool`
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemTP_ReferenciaPorCompletarEPesoIntacto`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoIlegivel_AvisoHonestoSemBloqueio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoPorGet_RecalculaPeloBackendEAbreOApoio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ToolScopedMode_ApoioSemProducao_UsaAReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: FerramentasPagesTests.Ficha_BotoesDeCadaCard_NoCantoSuperiorDireito`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: FerramentasPagesTests.Ficha_ValorTecnicoPorLer_FicaNoCampoParaCorrigir_ComOFoco`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf`
@@ -2843,24 +2866,9 @@ Novos: 4 · mudaram: 13 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostCreate_Refusal_KeepsTheTechnicalValues_AndOpensThem`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostDuplicate_NewLotRequired_OpensNewToolFicha_SourceIntact`
-
-Selo depois: `48228fa0baa61d4d`
-
-## A-0139 · 2026-10-26 · ok-do-diogo
-
-Porquê: Apoio TP do Peso: h nominal e h Job On, por baixo só volume nominal, volume do Job On e o Δ (cmsg_01A27e9ozcpoh4jdPRsuJbFyJeXejBKtyrUeFgGaVPybCd); mensagem sem tampão aponta à Folha do Job On
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyGfg3KWEXc5o6gr5g6qLJzG
-Novos: 0 · mudaram: 10 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.SemTampaoEmLado_Nenhum_ReferenciaPorCompletarSemBloquear`
-- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn`
-- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemCaloteNoJobOn_UsaAReferenciaDaTool`
-- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoIlegivel_AvisoHonestoSemBloqueio`
-- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoPorGet_RecalculaPeloBackendEAbreOApoio`
-- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ToolScopedMode_ApoioSemProducao_UsaAReferenciaDaTool`
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: (resto do ficheiro)`
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: a resposta de uma calote anterior que chega depois da atual não substitui os valores da atual`
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: escrever outra vez durante a espera invalida logo o pedido que já saiu`
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: sem resposta, com erro do servidor ou sem apoio, os valores da calote anterior saem («—»)`
 
-Selo depois: `66bcd095dca37831`
+Selo depois: `cb6e62cabe2a9f13`
