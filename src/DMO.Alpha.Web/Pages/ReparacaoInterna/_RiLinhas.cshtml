@@ -1,0 +1,22 @@
+@model DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel
+@using DMO.Alpha.Core.ReparacaoInterna
+@using DMO.Alpha.Web.Pages.ReparacaoInterna
+<div id="riLinhas" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
+  @{
+      var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
+          Title: "Linhas",
+          Subtitle: $"Em produção · {IndexModel.Dia(Model.DiaDoRegisto)}",
+          AriaLabel: "Linhas",
+          Items: Model.Linhas.Select(l => new DMO.Alpha.Web.Presentation.DmoRailItem(
+              Code: l.Maquina.Code,
+              Detail: l.Detalhe,
+              Href: Model.HrefDaLinha(l.Maquina.Code),
+              AriaLabel: l.Producao is { } p ? $"Linha {l.Maquina.Code}: {p.Referencia}, produção {p.Producao}, {l.Ferramentas}" : $"Linha {l.Maquina.Code} sem produção",
+              Key: l.Maquina.Code,
+              Extra: l.Ferramentas,
+              Selected: l.Foco)).ToList(),
+          EmptyLabel: "Sem linhas registadas.",
+          Id: "riLinhasRail");
+  }
+  <partial name="_DmoRail" model="@rail" />
+</div>
