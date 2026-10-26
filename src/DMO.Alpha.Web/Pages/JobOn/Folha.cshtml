@@ -61,11 +61,16 @@
     // No Editar o JS junta a escolha e o número no campo escondido; um valor antigo («4 × 4») mostra-se tal e qual.
     void Furos(string chave)
     {
-        if (!editar) { Valor(chave); return; }
-        var campo = JobOnFolhaCampos.Encontrar(chave)!;
-        desenhados.Add(chave);
         var valor = Model.Folha.Valor(chave);
         var (lido, abertos, fechados) = DMO.Alpha.Core.Production.CsFurosTexto.Ler(valor);
+        if (!editar)
+        {
+            // No ver, os abertos e os fechados um por baixo do outro, sem a «/» (Diogo, 26/10/2026).
+            if (lido) { <span class="jof-furos-ver"><span>Abertos @abertos</span><span>Fechados @fechados</span></span> } else { Valor(chave); }
+            return;
+        }
+        var campo = JobOnFolhaCampos.Encontrar(chave)!;
+        desenhados.Add(chave);
         <span class="jof-furos" data-jof-furos>
           <input type="hidden" id="@campo.Id" name="@campo.NomeNoFormulario" value="@valor" data-jof-furos-valor />
           <label class="jof-furos-campo"><span>Aberto</span><input class="f" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="off" value="@abertos" aria-label="CS furos abertos (0 a 9)" data-jof-furos-abertos /></label>

@@ -949,3 +949,7 @@ html body .jof2.editing .sec-head:has(.hv input) .hv{gap:1px}
 html body .jof2.editing .sec-head:has(.hv input) .hv input.f{height:26px;min-height:26px;width:96px;padding-block:0}
 html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){height:26px;font-size:20px}
 html body .jof2.editing .sec-head:has(.hv input) .hv+.hv{margin-left:0;padding-left:10px}
+/* CS · Furos no ver: «Abertos N» e «Fechados N» um por baixo do outro, alinhados à direita, sem barra. */
+html body .jof2 .jof-furos-ver{display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px;font-weight:800;font-variant-numeric:tabular-nums}
+/* A referência inteira cabe na procura do cabeçalho (Diogo, 26/10/2026: «2032C00…» ficava cortada). */
+html body .jof2 .pick-row .ref-search input#jofReferencia{min-width:calc(11ch + 36px)}

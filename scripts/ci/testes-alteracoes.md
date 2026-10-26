@@ -2755,3 +2755,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: CabecalhosDeSegurancaTests.Resposta_LevaOsCabecalhosDeSeguranca`
 
 Selo depois: `2ed82e8fca8a939f`
+
+## A-0135 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha do Job On: os furos do CS no ver aparecem «Abertos N» e «Fechados N» um por baixo do outro, sem a «/», como o Diogo pediu; teste novo: as produções da referência vêm da mais recente para a mais antiga.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyELUj7Rp8tMrtt8xnuiRtQz
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/ProductionPickerQueryTests.cs :: ProductionPickerQueryTests.Procura_AMaisRecentePrimeiro_PeloInicioEDepoisPeloNumero`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
+
+Selo depois: `123cc06c8443ca86`
