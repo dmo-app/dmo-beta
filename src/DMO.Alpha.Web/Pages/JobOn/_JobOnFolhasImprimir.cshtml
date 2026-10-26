@@ -80,20 +80,20 @@
         <tr><th>Ferramenta</th><th>Dados</th><th>Notas Job-On</th></tr>
         @{
             string U(string chave) => F(chave) is { Length: > 0 } u ? u.TrimEnd('%') + "%" : "";
-            Linha("Contra-moldes", [("Quantidade", F("cm_qtd_maq")), ("Reparador", F("cm_reparador")), ("Utilização", U("cm_utilizacao"))],
-                [("Referência", cm?.Reference ?? ""), ("Lote", cm is null ? "" : FolhaModel.Lote(cm.Lot)), ("Adaptador", F("cm_adaptador")), ("Inversão", F("cm_inversao")), ("Tipo", F("cm_tipo"))], Notas("cm_notas"));
-            Linha("Tampões", [("Quantidade", F("tp_qtd_maq"))],
-                [("Referência", F("tp_referencia")), ("Diâmetro", F("tp_diametro_ps")), ("Bacia", F("tp_bacia_ps")), ("Calote", Calote())], Notas("tp_notas"));
-            Linha("Moldes finais", [("Quantidade", F("mf_qtd_maq")), ("Reparador", F("mf_reparador")), ("Utilização", U("mf_utilizacao"))],
-                [("Referência", mf?.Reference ?? ""), ("Lote", mf is null ? "" : FolhaModel.Lote(mf.Lot)), ("Fundo final", F("mf_fundo_final")), ("Adaptador", F("mf_adaptador")), ("Inversão", F("mf_inversao")), ("Tipo", F("mf_tipo"))], Notas("mf_notas"));
-            Linha("Boquilhas", [("Utilização", U("bq_utilizacao"))],
-                [("Referência", bq?.Reference ?? ""), ("Lote", bq is null ? "" : FolhaModel.Lote(bq.Lot)), ("Quantidade", F("bq_qtd_maq"))], Notas("bq_notas"));
-            Linha("Anel", [], [("Referência", F("an_referencia"))], Notas("an_notas"));
-            Linha("Punções + arrefecedores", [("Quantidade", F("pu_qtd_maq"))],
-                [("PU referência", F("pu_referencia")), ("Versão", F("pu_versao")), ("ARR referência", F("arr_referencia"))], Notas("pu_notas").Concat(Notas("arr_notas")));
+            Linha("Contra-moldes", [("Referência", cm?.Reference ?? ""), ("Lote", cm is null ? "" : FolhaModel.Lote(cm.Lot)), ("Quantidade", F("cm_qtd_maq")), ("Reparador", F("cm_reparador")), ("Utilização", U("cm_utilizacao"))],
+                [("Adaptador", F("cm_adaptador")), ("Inversão", F("cm_inversao")), ("Tipo", F("cm_tipo"))], Notas("cm_notas"));
+            Linha("Tampões", [("Referência", F("tp_referencia")), ("Quantidade", F("tp_qtd_maq"))],
+                [("Diâmetro", F("tp_diametro_ps")), ("Bacia", F("tp_bacia_ps")), ("Calote", Calote())], Notas("tp_notas"));
+            Linha("Moldes finais", [("Referência", mf?.Reference ?? ""), ("Lote", mf is null ? "" : FolhaModel.Lote(mf.Lot)), ("Quantidade", F("mf_qtd_maq")), ("Reparador", F("mf_reparador")), ("Utilização", U("mf_utilizacao"))],
+                [("Fundo final", F("mf_fundo_final")), ("Adaptador", F("mf_adaptador")), ("Inversão", F("mf_inversao")), ("Tipo", F("mf_tipo"))], Notas("mf_notas"));
+            Linha("Boquilhas", [("Referência", bq?.Reference ?? ""), ("Lote", bq is null ? "" : FolhaModel.Lote(bq.Lot)), ("Utilização", U("bq_utilizacao"))],
+                [("Quantidade", F("bq_qtd_maq"))], Notas("bq_notas"));
+            Linha("Anel", [("Referência", F("an_referencia"))], [], Notas("an_notas"));
+            Linha("Punções + arrefecedores", [("PU referência", F("pu_referencia")), ("ARR referência", F("arr_referencia")), ("Quantidade", F("pu_qtd_maq"))],
+                [("Versão", F("pu_versao"))], Notas("pu_notas").Concat(Notas("arr_notas")));
             Linha("Forro", [], [("Tipo", ""), ("Quantidade", "")], []);
-            Linha("C. de sopro", [("Quantidade", F("cs_qtd_maq"))],
-                [("Referência", F("cs_referencia")), ("Furos", F("cs_furos")), ("Tubo", F("cs_tubo"))], Notas("cs_notas"));
+            Linha("C. de sopro", [("Referência", F("cs_referencia")), ("Quantidade", F("cs_qtd_maq"))],
+                [("Furos", F("cs_furos")), ("Tubo", F("cs_tubo"))], Notas("cs_notas"));
             Linha("Pinças", [], [("Diâmetro", F("pi_diametro")), ("Tipo", F("pi_pincas"))], Notas("pi_notas"));
         }
       </table>
@@ -103,7 +103,11 @@
         <div class="jfi-cal">
           @foreach (var l in calibres)
           {
-            <div><span>@l.Nome</span><b>@N(l.Valor)</b></div>
+            <div><span>@l.Nome</span><b>@N(l.Valor)</b>@if (V(l.QtdMaq) is { } q) {<small>QTD máq. @q</small>}</div>
+          }
+          @if (calibres.Count == 0)
+          {
+            <div><span>Calibres</span><b>____</b></div>
           }
         </div>
       </div>
