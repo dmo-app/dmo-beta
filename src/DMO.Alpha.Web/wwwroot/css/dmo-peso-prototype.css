@@ -270,3 +270,6 @@
 .peso-page .peso-anterior-linha .peso-hint{margin:0 !important;align-self:center}
 .peso-page .peso-anterior-linha .peso-resumo{display:flex;gap:8px;margin:0}
 .peso-page .peso-anterior-linha .peso-resumo .peso-fact{padding:5px 10px;min-width:0}
+/* Os três valores à mesma altura, qualquer que seja o tamanho da etiqueta. */
+.peso-page .peso-anterior-linha .peso-resumo{align-items:stretch}
+.peso-page .peso-anterior-linha .peso-resumo .peso-fact{display:flex;flex-direction:column;justify-content:space-between;gap:4px}
