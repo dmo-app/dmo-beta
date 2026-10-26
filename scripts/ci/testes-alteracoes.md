@@ -3146,3 +3146,15 @@ Novos: 1 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
 Selo depois: `bd963d170146d957`
+
+## A-0174 · 2026-10-26 · ok-do-diogo
+
+Porquê: A punção voltou à informação técnica da CM (Criar e ficha, um só formulário), visível e editável: os testes que recusavam o campo «Volume punção (cm³)» passam a esperá-lo; teste novo para ver e gravar o valor na ficha.
+Referência: Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraT5faqGrCPjdkUkYmc6GCBM («nao gosto do facto de nao conseguir ver o valor»)
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_Cm_MostraOVolumeDaPuncao_EGuardaOValorEditado`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+
+Selo depois: `6c67ffefb43aac18`
