@@ -8,18 +8,20 @@
 @section Head {
 <style>
 .dmo-ferr-ref{font-size:12px;font-weight:500;color:var(--dmo-muted);margin-left:4px}
-.arm-mov{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;align-items:start}
+.arm-mov{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,5fr);gap:14px;align-items:start}
 @@media (max-width:1100px){.arm-mov{grid-template-columns:minmax(0,1fr)}}
-.arm-card{padding:18px;min-width:0}
+.arm-card{padding:14px;min-width:0}
+#armRepFora .dmo-table{font-size:12px}
+#armRepFora .dmo-table th,#armRepFora .dmo-table td{padding:5px 6px}
 .arm-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}
 .arm-card h3{margin:0;font-size:16px}
 .arm-card .dmo-table td{padding:6px 8px;vertical-align:top}
-.arm-filtros{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+.arm-filtros{display:flex;gap:8px;align-items:end;flex-wrap:nowrap;margin:0 0 12px}
 .arm-filtros .dmo-field{margin:0;min-width:0}
 html body .arm-filtros .dmo-field input.arm-curto{width:9ch}
 html body .arm-filtros .dmo-field input.arm-lote{width:6ch}
-html body .arm-filtros .dmo-field input[type=date]{width:142px}
-html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
+html body .arm-filtros .dmo-field input[type=date]{width:130px}
+html body .arm-filtros .dmo-field select{width:auto;max-width:14ch}
 .arm-filtro-ferramenta{margin:0 0 12px}
 .arm-pos{font-variant-numeric:tabular-nums;font-weight:700}
 </style>
@@ -86,7 +88,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
 
     <section id="armMovimentos" class="dmo-card arm-card" aria-labelledby="arm-mov-lista-title" data-dmo-regiao data-dmo-parcial>
       <div class="arm-card-head">
-        <h3 id="arm-mov-lista-title">Últimas entradas e saídas<partial name="_DmoHelp" model="@("Todas as entradas e saídas do armazém, do mais recente para o mais antigo. Na Entrada, a posição onde ficou; na Saída para Reparação e na Entrada que volta dela, o reparador. Os filtros aplicam ao escolher; a referência e o lote com Enter.")" /></h3>
+        <h3 id="arm-mov-lista-title">Registo de movimentos<partial name="_DmoHelp" model="@("Todas as entradas e saídas do armazém, do mais recente para o mais antigo. Na Entrada, a posição onde ficou; na Saída para Reparação e na Entrada que volta dela, o reparador. Os filtros aplicam ao escolher; a referência e o lote com Enter.")" /></h3>
         @if (Model.ComFiltro)
         {
           <a class="dmo-button" id="armMovLimpar" href="@Url.Page("/Armazem/Ultimos")">Limpar filtros</a>
@@ -159,7 +161,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
       else
       {
         <div class="dmo-table-wrap">
-          <table class="dmo-table" id="armMovLista" data-dmo-list="Últimas entradas e saídas">
+          <table class="dmo-table" id="armMovLista" data-dmo-list="Registo de movimentos">
             <thead><tr><th>Dia</th><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Movimento</th><th>Reparador</th><th>Posição</th></tr></thead>
             <tbody>
             @foreach (var m in Model.Lista.Items)
