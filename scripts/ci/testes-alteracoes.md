@@ -2934,24 +2934,32 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `fb64851554ffdfc4`
 
-## A-0145 · 2026-10-26 · ok-do-diogo
+## A-0145 · 2026-10-26 · teste-novo
 
-Porquê: Registo do integracao acertado pela main caf73e7: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 12 · mudaram: 1 · saíram: 0
+Porquê: Testes novos da ronda de erros de 26/10: forma do número em O que mudou, caixa do uso, Criar com referência existente, utilização com ponto e cor
+Novos: 7 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: JobOnFolhaRondaTests.Alteracoes_SoAFormaDoNumero_NaoEMudanca`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: FerramentasPagesTests.Criar_CaixaDoUso_DeixaEscreverOValorTodo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor`
+
+Selo depois: `ab9e2d6aa5e7ad1b`
+
+## A-0146 · 2026-10-26 · ok-do-diogo
+
+Porquê: Registo do integracao acertado pela main 2d9f14a: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 5 · mudaram: 1 · saíram: 0
+
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
 - novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: FerramentasPagesTests.Criar_CaixaDoUso_DeixaEscreverOValorTodo`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
 Selo depois: `4068ebba6a5a757a`
