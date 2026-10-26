@@ -2666,10 +2666,10 @@ Selo depois: `d56824e14c3ac255`
 
 ## A-0122 · 2026-10-26 · teste-novo
 
-Porquê: Folhas Preparador - DMO e Job-ON Moldes (2 cópias) no Imprimir do Job On, como no Excel do Diogo de 21/10
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKDJ8zZui3W6yJSGDxU5PUZ
+Porquê: Folha Job-ON Moldes (2 cópias) no Imprimir do Job On, como no Excel do Diogo de 21/10; em «Todas as folhas» sai primeiro
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAsYZXbcvxhHQUvZYDu8EcV
 Novos: 1 · mudaram: 0 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOPreparadorEOJobOnMoldesEmDuasCopias`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 
-Selo depois: `f795b9221b5a1541`
+Selo depois: `5ca1a05652b1b080`
