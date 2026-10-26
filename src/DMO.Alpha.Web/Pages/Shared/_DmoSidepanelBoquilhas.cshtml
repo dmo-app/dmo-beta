@@ -52,6 +52,8 @@
             return new DMO.Alpha.Web.Presentation.DmoRailItem(
                 Code: current.MachineCode,
                 Detail: detalhe,
+                // A BQ só com a referência dela e o lote, sem zero à esquerda (Diogo, 26/10/2026).
+                Extra: temBq ? $"BQ {current.BqReference}" + (DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(current.BqLot) is { Length: > 0 } lote ? $" · Lote {lote}" : "") : null,
                 Href: abre,
                 AriaLabel: onlyView && abre is not null
                     ? $"Movimentos da produção {current.ProductionNumber} na {current.MachineCode}"
