@@ -2951,10 +2951,12 @@ Selo depois: `ab9e2d6aa5e7ad1b`
 
 ## A-0146 · 2026-10-26 · ok-do-diogo
 
-Porquê: Clicar numa boquilha da lista Boquilhas registadas abre a Ficha da ferramenta em vez da ficha em página; o teste espera /Ferramentas/Ficha
+Porquê: Clicar numa boquilha da lista Boquilhas registadas abre a Ficha da ferramenta em vez da ficha em página; os testes esperam /Ferramentas/Ficha (visual e 2 testes Web)
 Referência: Diogo, 26/10/2026 14:12 (cmsg_01A27e9ozcpoh4jdPRsuJbFyYB4H83f1h22SW7XdyLPDdV): «carregar aqui na boquilha deverias abrir a fgolha da ferramenta dela» (PR #149)
-Novos: 0 · mudaram: 1 · saíram: 0
+Novos: 0 · mudaram: 3 · saíram: 0
 
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CatalogRows_OpenTheToolSheetOnDoubleClick`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_SearchAndPaginationPreserveSelectionContext_AndExcludeOtherToolTypes`
 - mudou: `tests/visual/boquilhas_catalog_browser.py`
 
-Selo depois: `4121492fbe9f1b93`
+Selo depois: `1f5b3db999a31bde`
