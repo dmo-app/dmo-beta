@@ -3061,7 +3061,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `a1189c0ece6af100`
 
-## A-0161 · 2026-10-26 · ok-do-diogo
+## A-0170 · 2026-10-26 · ok-do-diogo
 
 Porquê: Folha do Job On sem comentarios (sem Notas nos cartoes nem Notas gerais) e sem QTD maq. na informacao tecnica: os testes que escreviam ou liam as notas passam a usar o Reparador; o de primeira fila prova que as notas ja nao aparecem; novo teste contra cartoes de largura colapsada.
 Referência: Diogo 26/10 16:02-16:05 (Folha sem comentarios) e capturas da Folha 26/10 20:31 (cmsg_01A27e9ozcpoh4jdPRsuJbFy1oho61coXRmycTwVNJ2Jau)
