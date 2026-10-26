@@ -48,6 +48,9 @@ public interface IJobOnPaginaQuery
 
     /// <summary>The code of a machine; null when it does not exist.</summary>
     Task<string?> CodigoDaMaquinaAsync(int machineId, CancellationToken cancellationToken = default);
+
+    /// <summary>The machine id of a production; 0 when it does not exist.</summary>
+    Task<int> MaquinaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>A saved production as the create form compares it against what was submitted.</summary>
