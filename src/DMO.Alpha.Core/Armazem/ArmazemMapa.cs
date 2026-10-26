@@ -8,9 +8,7 @@ public enum ArmazemMapaFiltro
     Todas,
     Livres,
     Ocupadas,
-    PorReparar,
-    /// <summary>Só as posições com uma ferramenta que está também noutra posição.</summary>
-    Duplicadas
+    PorReparar
 }
 
 /// <summary>Uma ferramenta numa posição do mapa, com o último estado registado.</summary>
@@ -27,7 +25,7 @@ public sealed record ArmazemMapaFerramenta(
 /// mesma referência e lote (guardam-se juntos); <see cref="Misturada"/> diz
 /// que há ferramentas de referências ou lotes diferentes.
 /// </summary>
-public sealed record ArmazemMapaPosicao(int Id, string Codigo, bool Ativa, IReadOnlyList<ArmazemMapaFerramenta> Ferramentas, bool EmDuplicado = false)
+public sealed record ArmazemMapaPosicao(int Id, string Codigo, bool Ativa, IReadOnlyList<ArmazemMapaFerramenta> Ferramentas)
 {
     public bool Livre => Ferramentas.Count == 0;
 

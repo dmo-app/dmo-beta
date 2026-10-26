@@ -52,13 +52,10 @@ public sealed class ArmazemMapa(DmoDbContext db) : IArmazemMapa
                         estados.TryGetValue(o.ToolId, out var estado) ? estado : null))
                     .ToList());
 
-        // A mesma ferramenta em mais de uma posição (Diogo, 26/10/2026): as posições onde isso acontece.
-        var emVarias = ocupacoes.GroupBy(o => o.ToolId).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet(StringComparer.Ordinal);
         var todas = posicoes
             .Select(p => new ArmazemMapaPosicao(
                 p.Id, p.Codigo, p.Ativa,
-                porPosicao.TryGetValue(p.Id, out var ferramentas) ? ferramentas : [],
-                porPosicao.TryGetValue(p.Id, out var comFerramentas) && comFerramentas.Any(f => emVarias.Contains(f.ToolId))))
+                porPosicao.TryGetValue(p.Id, out var ferramentas) ? ferramentas : []))
             .Where(p => p.Ativa || !p.Livre)
             .OrderBy(p => p.Codigo, StringComparer.Ordinal)
             .ToList();
@@ -86,7 +83,6 @@ public sealed class ArmazemMapa(DmoDbContext db) : IArmazemMapa
             ArmazemMapaFiltro.Livres => doArmario.Where(p => p.Livre).ToList(),
             ArmazemMapaFiltro.Ocupadas => doArmario.Where(p => !p.Livre).ToList(),
             ArmazemMapaFiltro.PorReparar => doArmario.Where(p => p.PorReparar).ToList(),
-            ArmazemMapaFiltro.Duplicadas => doArmario.Where(p => p.EmDuplicado).ToList(),
             _ => doArmario
         };
 

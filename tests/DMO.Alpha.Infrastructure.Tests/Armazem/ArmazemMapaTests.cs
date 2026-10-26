@@ -106,20 +106,6 @@ public sealed class ArmazemMapaTests
         Assert.False(lista.Single(p => p.Codigo == "4005").Ativa);
     }
 
-    [Fact]
-    public async Task OFiltroDuplicadas_MostraAsPosicoesComUmaFerramentaQueEstaTambemNoutraPosicao()
-    {
-        using var db = CreateContext();
-        db.ArmazemOcupacoes.Add(Ocupacao(7, "cm-5447", 3));
-        db.SaveChanges();
-        db.ChangeTracker.Clear();
-
-        var mapa = await new ArmazemMapa(db).MapaAsync("400", ArmazemMapaFiltro.Duplicadas);
-
-        Assert.Equal(["4001", "4003"], mapa.Lista.Select(p => p.Codigo).ToArray());
-        Assert.All(mapa.Lista, p => Assert.True(p.EmDuplicado));
-    }
-
     [Theory]
     [InlineData(ArmazemMapaFiltro.Livres, new[] { "4003" })]
     [InlineData(ArmazemMapaFiltro.Ocupadas, new[] { "4001", "4002", "4005" })]
