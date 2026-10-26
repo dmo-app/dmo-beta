@@ -24,8 +24,8 @@ public partial class JobOnPageTests
         Assert.Contains("data-jof-folha=\"ficha\"", html, StringComparison.Ordinal);
         Assert.Contains("data-jof-folha=\"equipa\"", html, StringComparison.Ordinal);
         Assert.Contains("<div class=\"jfi-ref\">5810T188</div>", html, StringComparison.Ordinal);
-        Assert.Contains("<span>BOQUILHA (BQ)</span><span>Lote 21</span>", html, StringComparison.Ordinal);
-        Assert.Contains("<tr><td>CM · Contra-molde</td><td>5809</td><td>1</td><td></td></tr>", html, StringComparison.Ordinal);
+        Assert.Contains("<span>BQ · Boquilha</span><span>Lote 21</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<tr><td>CM · Contra-molde</td><td>5809</td><td></td><td>Lote 1</td></tr>", html, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public partial class JobOnPageTests
         Assert.DoesNotContain("COMENTÁRIOS", html, StringComparison.Ordinal);
         // O AN é um componente à parte, com lote próprio, no ecrã e na impressão.
         Assert.Contains("data-jof-familia=\"AN\"", html, StringComparison.Ordinal);
-        Assert.Contains("<span>ANEL (AN)</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<span>AN · Anel</span>", html, StringComparison.Ordinal);
         // Cada componente na sua linha do Trabalho de Equipa.
         foreach (var linha in new[] { "CM · Contra-molde", "TP · Tampão", "PU · Punção", "ARR · Arrefecedor", "MF · Molde final", "BQ · Boquilha", "AN · Anel", "CS · Cab. de sopro", "PI · Pinça" })
             Assert.Contains("<td>" + linha + "</td>", html, StringComparison.Ordinal);
@@ -82,5 +82,27 @@ public partial class JobOnPageTests
         // Sem comentários na impressão: nem «Notas do Job On» nem «Tratar».
         Assert.DoesNotContain("NOTAS DO JOB ON", html, StringComparison.Ordinal);
         Assert.DoesNotContain("<b>Tratar:</b>", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Folha_Imprimir_CamposDaFabrica_EquipaComLadosECalibresComQtd_TpSoComCalote()
+    {
+        SeedUser("4585", "Chefe fabrica", "provider-folha-imprimir-5", "Folha1234!");
+        var jobOnId = await SeedJobOnCompletoAsync();
+        using var client = await LoginClientAsync("4585", "Folha1234!");
+
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={jobOnId}");
+        // Trabalho de Equipa como o da fábrica: os dois lados e os 6 calibres cada um com «Qtd.».
+        Assert.Contains("<span>LADO DO CONTRA-MOLDE</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<span>LADO DO MOLDE FINAL</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<tr><th>Nível</th><th>CM</th><th>MF</th><th>Tampão</th><th>CS</th><th>Pinças</th></tr>", html, StringComparison.Ordinal);
+        Assert.Equal(6, System.Text.RegularExpressions.Regex.Matches(html, "<td>Qtd\\.:</td>").Count);
+        // Ficha de Artigo: Dados, Valor e Tol. separados, e cada componente com rótulos.
+        Assert.Contains("<tr class=\"jfi-cab\"><th>Dados</th><td>Valor</td><td>Tol.</td></tr>", html, StringComparison.Ordinal);
+        Assert.Contains("<tr><th>Calote</th>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("<tr><th>Bacia</th>", html, StringComparison.Ordinal);
+        // Preparador com os dados da fábrica (Loc., Qtd.) e unidades sempre em «mm».
+        Assert.Contains("Loc.: ____", html, StringComparison.Ordinal);
+        Assert.DoesNotContain(" MM<", html, StringComparison.Ordinal);
     }
 }

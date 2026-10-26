@@ -3089,3 +3089,16 @@ Novos: 2 · mudaram: 8 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
 
 Selo depois: `7d90677e6e7e33fa`
+
+## A-0171 · 2026-10-26 · ok-do-diogo
+
+Porquê: Impressão das 4 folhas como as da fábrica (componentes em cartões, Trabalho de Equipa com lados e calibres com Qtd.): o teste do Imprimir passa a ver os novos títulos dos cartões; acrescentado um teste dos campos da fábrica
+Referência: Diogo 26/10 20:29 (cmsg_01A27e9ozcpoh4jdPRsuJbFySZW88Bs2sLPxbgg7hB4UHx) e decisões da thread Job On 26/10
+Novos: 1 · mudaram: 2 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_CamposDaFabrica_EquipaComLadosECalibresComQtd_TpSoComCalote`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+- saiu: `(impressão mexida à mão)`
+
+Selo depois: `efb6474e2943e0f2`

@@ -23,7 +23,6 @@
     string Lote(JobOnToolFacts? f) => f is null ? "" : "Lote " + FolhaModel.Lote(f.Lot);
     string Peso() => F("cab_peso") is { Length: > 0 } p ? p + " g" : "";
     string Calote() => jobOn.CaloteMm is { } c ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(c) + " mm" : "";
-    string Tol(string valor, string tol) => string.Join(" ", new[] { F(valor), V(Model.Folha.Valor(tol)) is { } t ? "(" + t + ")" : null }.Where(s => !string.IsNullOrEmpty(s)));
     string Folga(string tipo, int n) => F($"{tipo}_folga{n}");
     string Un(string chave) => F(chave) is { Length: > 0 } x ? x.TrimEnd('%') + "%" : "";
     string Com(string rotulo, string valor) => valor.Length > 0 ? rotulo + " " + valor : "";
@@ -246,7 +245,7 @@
         @{
             Prep("CM", RefLote(cm?.Reference, cm), [.. LocQtd(F("cm_qtd_stock")), "Carcaça: ____", "Inversão: " + F("cm_inversao"), "Parafuso: " + F("cm_parafuso")], ["3.ª almofada / carcaça / parafuso", "Calibre", "Caixa", "Confirmação da montagem"]);
             Prep("MF", RefLote(mf?.Reference, mf), [.. LocQtd(F("mf_qtd_stock")), "Carcaça: ____", "Inversão: " + F("mf_inversao"), "Parafuso: " + F("mf_parafuso")], ["Rebaixe, raio e chanfros", "Ano, gravações e LNM", "Aspeto da zona moldante", "Homogeneidade recartilha FF", "Furos roscados para alicate", "Ajuste e folga com o FF", "Calibre", "Furos de vácuo", "VertiFlow"]);
-            Prep("TP", F("tp_referencia"), [.. LocQtd(F("tp_qtd_stock")), Junta(Com("Ø", F("tp_diametro_ps")), CaloteTp().Length > 0 ? "calote " + CaloteTp() : "")], ["Estado", "Folga"]);
+            Prep("CS", F("cs_referencia"), [Com("Furos:", F("cs_furos")), Com("Tubo:", F("cs_tubo")), .. LocQtd(F("cs_qtd_stock"))], ["Inspeção visual", "Furos de escape", "Tubo de enchimento"]);
         }
       </div>
       <div class="jfi-pilha">
@@ -255,7 +254,7 @@
             Prep("ARR", F("arr_referencia"), [Com("Versão:", F("arr_versao"))], ["Estado e folga (PS)"]);
             Prep("BQ", RefLote(bq?.Reference, bq), [Com("Utilização:", Un("bq_utilizacao")), .. LocQtd(F("bq_qtd_stock"))], ["Furo e ensaio forro/PU", "Diâmetro pegamento", "Diâmetro núcleo e filete"]);
             Prep("AN", Junta(F("an_referencia"), AnLote().Length > 0 ? "Lote " + AnLote() : ""), [.. LocQtd(F("an_qtd_stock"))], ["Folga anel/boquilha"]);
-            Prep("CS", F("cs_referencia"), [Com("Furos:", F("cs_furos")), Com("Tubo:", F("cs_tubo")), .. LocQtd(F("cs_qtd_stock"))], ["Inspeção visual", "Furos de escape", "Tubo de enchimento"]);
+            Prep("TP", F("tp_referencia"), [.. LocQtd(F("tp_qtd_stock")), Junta(Com("Ø", F("tp_diametro_ps")), CaloteTp().Length > 0 ? "calote " + CaloteTp() : "")], ["Estado", "Folga"]);
             Prep("PI", Com("Ø", F("pi_diametro")), ["Latão " + (latao ? "☒" : "☐"), "Grafite " + (grafite ? "☒" : "☐"), "Qtd.: ____"], ["Estado das pinças"]);
         }
       </div>

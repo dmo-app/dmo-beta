@@ -1047,3 +1047,38 @@ html body .jof2 .more-body .dims{table-layout:fixed}
 html body .jof2 .more-body .dims th:nth-child(1){width:30%}
 html body .jof2 .more-body .dims th:nth-child(2){width:50%}
 html body .jof2 .more-body .dims th:nth-child(3){width:20%}
+
+/* As 4 folhas, como as da fábrica: cartões por componente, Dados/Valor/Tol., Artigo ao lado dos Calibres (DMO-433). */
+.jfi-g2{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.jfi-g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2.4mm}
+.jfi-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2.4mm}
+.jfi-g2>*,.jfi-g3>*,.jfi-g4>*{min-width:0}
+.jfi-cartao{display:flex;flex-direction:column}
+.jfi-cartao>.jfi-barra{margin:0;gap:2mm}
+.jfi-cartao>.jfi-kv{flex:1;border:0}
+html body .jfi-folha .jfi-kv3 th{width:40%;padding:1.1mm 1.5mm}
+html body .jfi-folha .jfi-kv3 td{padding:1.1mm 1.5mm}
+html body .jfi-folha .jfi-kv3 tr:first-child th{background:transparent}
+html body .jfi-folha .jfi-kv3 tr.jfi-cab th,html body .jfi-folha .jfi-kv3 tr.jfi-cab td{background:#eef1f4;font-weight:700;color:#15191e;font-size:7.4pt}
+.jfi-kv3 tr:first-child>*{border-top:0}
+.jfi-kv3 tr>*:first-child{border-left:0}
+.jfi-kv3 tr>*:last-child{border-right:0}
+.jfi-kv3 tr:last-child>*{border-bottom:0}
+.jfi-fundo{grid-template-columns:3fr 2fr;gap:3mm}
+.jfi-calcol{display:flex;flex-direction:column}
+.jfi-calcol>.jfi-barra{margin:0}
+.jfi-calcol>.jfi-kv{border:0}
+.jfi-calcol .jfi-kv3 th{width:46%}
+.jfi-comp th:nth-child(1){width:27%}.jfi-comp th:nth-child(2){width:18%}.jfi-comp th:nth-child(3){width:11%}
+html body .jfi-folha .jfi-comp td{height:11mm;vertical-align:middle}
+.jfi-calequipa th{text-align:center}
+html body .jfi-folha .jfi-calval td{height:14mm;text-align:center;vertical-align:middle;font-weight:700}
+html body .jfi-folha .jfi-calqtd td{height:11mm;vertical-align:bottom;color:#3c454f}
+.jfi-extras{display:flex;flex-wrap:wrap;gap:0 4mm;padding:.8mm 2mm;font-size:7.4pt;color:#3c454f;border-bottom:1px solid #9aa3ad}
+.jfi-duas>.jfi-pilha{display:flex;flex-direction:column;justify-content:space-between}
+.jfi-factos2{grid-template-columns:1fr 5fr}
+.jfi-factos2 .jfi-larga{grid-column:auto}
+html body .jfi-folha .jfi-pincas td{height:auto}
+html body .jfi-folha .jfi-pincas td{height:9.4mm}
+.jfi-calcol .jfi-kv3 tr:last-child>*{border-bottom:1px solid #9aa3ad}
+html body .jfi-folha .jfi-verif td{height:6.6mm}
