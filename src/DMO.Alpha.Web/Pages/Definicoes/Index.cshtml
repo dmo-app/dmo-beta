@@ -140,7 +140,7 @@ html body .def-menu-sub[hidden]{display:none}
           <section class="dmo-card def-linha" aria-labelledby="def-sessao-title">
             <h3 id="def-sessao-title">Sessão<partial name="_DmoHelp" model="@("Quanto tempo a sessão fica aberta sem atividade. Vale a partir da próxima vez que entrar.")" /></h3>
             <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Sessao">
-              <select name="horas" aria-label="Duração da sessão" onchange="this.form.submit()">
+              <select name="horas" aria-label="Duração da sessão" data-dmo-autosubmit>
                 @foreach (var h in DMO.Alpha.Core.Admin.SessaoDuracao.Opcoes)
                 {
                   <option value="@h" selected="@(h == Model.SessaoHoras)">@h @(h == 1 ? "hora" : "horas")</option>

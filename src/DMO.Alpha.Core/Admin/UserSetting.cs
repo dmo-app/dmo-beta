@@ -40,7 +40,7 @@ public static class UserSettingKeys
 /// <summary>As durações de sessão permitidas (horas) e a por omissão.</summary>
 public static class SessaoDuracao
 {
-    public const int PorOmissao = 12;
+    public const int PorOmissao = 1;
 
     public static readonly int[] Opcoes = [1, 2, 4, 8, 12, 24];
 
