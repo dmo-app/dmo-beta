@@ -1,5 +1,5 @@
 {
-  "selo": "7765399926e97d94",
+  "selo": "031ab3173d544d27",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1683,7 +1683,7 @@
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_CalendarDay_ChangesOnlyTheZones": "89c144937665807f",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_Filters_ChangeOnlyTheZones": "722e2fe588c6cdab",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_MonthOnly_ListsThatMonthsMovements": "bee65b7bd7f57a24",
-    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched": "a44f6aface2824dd",
+    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched": "b3307f94c4115934",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.MachineFilterWithoutPeriod_ShowsOnlyTheMostRecent_AndTheListAndPdfAgree": "7054a6aa1d3ab6c7",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Matrix_LongerThan366Days_ShowsTheFirst366AndWarns": "64a0e485fd39e45e",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Matrix_MovimentosSemMaquina_AvisaComLinkParaALista": "32ab863c48fc50ea",

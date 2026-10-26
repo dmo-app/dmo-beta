@@ -2710,3 +2710,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 
 Selo depois: `7765399926e97d94`
+
+## A-0129 · 2026-10-26 · ok-do-diogo
+
+Porquê: O painel lateral das Boquilhas passa a mostrar a BQ em máquina com o lote; o teste do histórico em branco verifica agora só fora do painel
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy8me1oxs8XTwYCxyNJo7cVh
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched`
+
+Selo depois: `031ab3173d544d27`
