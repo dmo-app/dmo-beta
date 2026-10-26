@@ -2992,3 +2992,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements`
 
 Selo depois: `789f49b8dfc0de3f`
+
+## A-0151 · 2026-10-26 · ok-do-diogo
+
+Porquê: Placeholder do filtro de produção passa a «Produção» em Historico_ProcuraUnificadaPelosQuatroTipos (Diogo 26/10)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVXGyDiJHgyTJP2v8ShT1rm
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
+
+Selo depois: `dc6a82a28326fe61`
