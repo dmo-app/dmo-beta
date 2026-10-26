@@ -1,0 +1,83 @@
+# A instalação do DMO num servidor (portátil, PC ou servidor da empresa).
+# Corre-se com ./instalar.sh, que cria o .env com as palavras-passe e mostra
+# no fim o endereço e o código da primeira instalação.
+#
+#   base     PostgreSQL 17 nesta máquina (perfil base-local, o de omissão no .env;
+#            para usar uma base que já existe, tira-se o perfil e diz-se onde
+#            ela está em DMO_BASE_HOST/PORTA/NOME/DONO no .env)
+#   migrar   aplica as migrações com o dono da base e termina
+#   papeis   cria/atualiza dmo_app (a app) e dmo_backup (cópias) e termina
+#   app      a app, com o login próprio, ligada como dmo_app
+name: dmo
+
+x-imagem-da-app: &imagem-da-app
+  image: dmo-app:${DMO_REVISAO:-local}
+  build:
+    context: ..
+    args:
+      DMO_SOURCE_REVISION: ${DMO_REVISAO:-}
+      DMO_SOURCE_STATE: ${DMO_ESTADO:-unverified}
+
+services:
+  base:
+    image: postgres:17
+    profiles: ["base-local"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DMO_BASE_NOME:-dmo}
+      POSTGRES_USER: ${DMO_BASE_DONO:-postgres}
+      POSTGRES_PASSWORD: ${DMO_BASE_DONO_PW:?falta DMO_BASE_DONO_PW no .env}
+      TZ: Europe/Lisbon
+    volumes:
+      - dmo-dados:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      retries: 60
+
+  migrar:
+    <<: *imagem-da-app
+    command: ["./migrate.sh"]
+    restart: "no"
+    environment:
+      DMO_MIGRATOR_CONNECTION: "Host=${DMO_BASE_HOST:-base};Port=${DMO_BASE_PORTA:-5432};Database=${DMO_BASE_NOME:-dmo};Username=${DMO_BASE_DONO:-postgres};Password=${DMO_BASE_DONO_PW}"
+    depends_on:
+      base:
+        condition: service_healthy
+        required: false
+
+  papeis:
+    image: postgres:17
+    restart: "no"
+    command: ["sh", "-c", "psql -v ON_ERROR_STOP=1 -v app_pw=\"$$DMO_APP_PW\" -v backup_pw=\"$$DMO_BACKUP_PW\" -qf /papeis.sql"]
+    environment:
+      PGHOST: ${DMO_BASE_HOST:-base}
+      PGPORT: ${DMO_BASE_PORTA:-5432}
+      PGDATABASE: ${DMO_BASE_NOME:-dmo}
+      PGUSER: ${DMO_BASE_DONO:-postgres}
+      PGPASSWORD: ${DMO_BASE_DONO_PW}
+      DMO_APP_PW: ${DMO_APP_PW:?falta DMO_APP_PW no .env}
+      DMO_BACKUP_PW: ${DMO_BACKUP_PW:?falta DMO_BACKUP_PW no .env}
+    volumes:
+      - ../scripts/portatil/papeis.sql:/papeis.sql:ro
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+
+  app:
+    <<: *imagem-da-app
+    restart: unless-stopped
+    ports:
+      - "${DMO_PORTA:-8080}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      TZ: Europe/Lisbon
+      ConnectionStrings__DmoDatabase: "Host=${DMO_BASE_HOST:-base};Port=${DMO_BASE_PORTA:-5432};Database=${DMO_BASE_NOME:-dmo};Username=dmo_app;Password=${DMO_APP_PW}"
+      Dmo__CodigoDeInstalacao: ${DMO_CODIGO_INSTALACAO:-}
+      Dmo__EnvironmentLabel: ${DMO_ROTULO:-}
+    depends_on:
+      papeis:
+        condition: service_completed_successfully
+
+volumes:
+  dmo-dados:
