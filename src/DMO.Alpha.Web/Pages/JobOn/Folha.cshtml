@@ -471,8 +471,10 @@ else
             else if (Model.Criar)
             {
               @* No Criar e no Duplicar escrevem-se a referência e o nº da produção nova. *@
-              <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input id="lightReference" name="reference" type="text" value="@jobOn.Reference" aria-label="Referência da produção" placeholder="Referência" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-maiusculas data-dmo-suggest="referencias" /></div>
-              <input class="prod-select" id="lightProduction" name="production_number" type="text" value="@(Model.NumeroEscrito ?? string.Empty)" aria-label="Número da produção" placeholder="N.º de produção" autocomplete="off" />
+              <div class="pick-campo"><label class="pick-rotulo" for="lightReference">Referência</label>
+              <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input id="lightReference" name="reference" type="text" value="@jobOn.Reference" aria-label="Referência da produção" placeholder="Referência" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-maiusculas data-dmo-suggest="referencias" /></div></div>
+              <div class="pick-campo"><label class="pick-rotulo" for="lightProduction">Produção</label>
+              <input class="prod-select" id="lightProduction" name="production_number" type="text" value="@(Model.NumeroEscrito ?? string.Empty)" aria-label="Número da produção" placeholder="N.º" autocomplete="off" /></div>
             }
             else if (editar)
             {

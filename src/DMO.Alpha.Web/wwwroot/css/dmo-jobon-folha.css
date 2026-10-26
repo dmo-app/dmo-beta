@@ -748,3 +748,12 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
   html body .jof2 .page-head .pick-block>.eyebrow{position:static;margin:0 0 2px}
   html body .jof2 .page-head .pick-block.is-novo{flex-direction:row;align-items:flex-end}
 }
+/* No Criar, «Novo Job On» é uma etiqueta pousada no rebordo de cima da barra, sem roubar lugar aos campos. */
+@media (min-width:901px){
+  html body .jof2 .page-head{position:relative}
+  html body .jof2 .page-head .pick-block:has(>.eyebrow){position:static}
+  html body .jof2 .page-head .pick-block>.eyebrow{position:absolute;top:-10px;right:16px;left:auto;bottom:auto;margin:0;padding:2px 10px;border:1px solid color-mix(in srgb,var(--dmo-warning) 45%,transparent);border-radius:999px;background:var(--dmo-warning-soft);font-size:11px;line-height:14px;white-space:nowrap}
+}
+@media (min-width:901px){
+  html body .jof2 .page-head .facts-dados{padding-left:18px}
+}
