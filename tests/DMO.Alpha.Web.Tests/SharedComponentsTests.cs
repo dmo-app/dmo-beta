@@ -118,6 +118,25 @@ public sealed class SharedComponentsTests
         Assert.Contains(caret + "<span>@nome</span>", definicoes, StringComparison.Ordinal);
     }
 
+    // UM SÓ TRIÂNGULO E O INVERTIDO BRANCO (Diogo, 26/10/2026: «dois triângulos»;
+    // «invertido deveria ser branco em todos»; os tipos de movimento das BQ
+    // «iguais aos botões, o escolhido invertido»).
+    [Fact]
+    public void CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro()
+    {
+        var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
+        Assert.Contains("html body summary.dmo-card-topo>:first-child::before{content:none}", css, StringComparison.Ordinal);
+        Assert.Contains("html[data-theme=\"dark\"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-invertido)}", css, StringComparison.Ordinal);
+
+        var bq = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-boquilhas-prototype.css"));
+        foreach (var raiz in new[] { ".beta-bq-layout", ".bq-sem-jobon-janela" })
+        {
+            Assert.Contains(raiz + " .bq-movement-types span { background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color); }", bq, StringComparison.Ordinal);
+            Assert.Contains(raiz + " .bq-movement-types :is(label:hover input, input:checked) + span { background:var(--dmo-invertido);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600); }", bq, StringComparison.Ordinal);
+            Assert.Contains(raiz + " .bq-movement-types input:focus-visible + span { outline:0;", bq, StringComparison.Ordinal);
+        }
+    }
+
     [Fact]
     public void HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial()
     {
@@ -413,7 +432,7 @@ public sealed class SharedComponentsTests
     {
         var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "beta-calendar.css"));
         var hover = css.IndexOf(":not(.empty):hover,", StringComparison.Ordinal);
-        var rule = ".dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty):is(:hover,:focus-visible){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:var(--dmo-card);";
+        var rule = ".dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty):is(:hover,:focus-visible){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:var(--dmo-text-on-color);";
         var selectedHover = css.IndexOf(rule, StringComparison.Ordinal);
         Assert.True(hover >= 0 && selectedHover > hover, "O dia selecionado com o rato por cima tem de manter o fundo slate depois da regra do hover.");
     }

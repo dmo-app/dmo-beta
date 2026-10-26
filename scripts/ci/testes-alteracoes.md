@@ -2713,3 +2713,15 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions`
 
 Selo depois: `79f54fc617b75cbe`
+
+## A-0129 · 2026-10-26 · ok-do-diogo
+
+Porquê: Pedidos do Diogo (26/10/2026): o título da ficha deixa de repetir Tipo/Referência/Lote (o teste do uso cheio vê a cor no título); o dia escolhido do calendário fica com letra branca também no escuro (--dmo-text-on-color em vez de --dmo-card). Teste novo: um só triângulo nos cards que abrem e fecham, botão invertido branco no escuro (--dmo-invertido) e os tipos de movimento das BQ iguais aos botões.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyWEXEuqNDbtKB7hrcdSAPWz
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
+
+Selo depois: `fe9cb6a704e0fdac`

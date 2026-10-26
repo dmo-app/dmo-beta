@@ -1,5 +1,5 @@
 {
-  "selo": "79f54fc617b75cbe",
+  "selo": "fe9cb6a704e0fdac",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2172,7 +2172,7 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos": "d2730da3c6f698f1",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf": "534fbfdc8b4c44b0",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: (resto do ficheiro)": "fe018c5dcee25cce",
-    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia": "53cee08ad7f216e4",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia": "2a60e122fdd9c264",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoNoCriar.cs :: (resto do ficheiro)": "59f07e9ed82889d4",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoNoCriar.cs :: FerramentasPagesTests.Criar_PercentagemDeUsoIlegivel_NaoGrava_EAvisa": "61ee1808f234333f",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoNoCriar.cs :: FerramentasPagesTests.Criar_PercentagemDeUso_GravaAPrimeiraLeitura_SoAvisos": "d4c113e43520da2b",
@@ -2620,8 +2620,9 @@
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Buttons_PressShowsALighterBlue": "98411695ff59eb5b",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_DaysAreBuiltOnlyByForMonth": "39529982e8af52d8",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_MarkupLivesOnlyInTheSharedPartial": "166010b19973b529",
-    "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground": "1d9eebd6537a9da6",
+    "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground": "24df592d494267ab",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_Today_IsOnlyBold": "424b3a381a1394ac",
+    "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro": "764c8837be88f98b",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_UmaRegraParaTudo_AEsquerdaDoTexto": "df6be70d1ea23735",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Dropdowns_ApplyOnChoose_WithoutAnApplyButton": "911ec497e04ea766",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.FerramentasTechnicalNotice_KeepsItsLine": "85e37b0c516361c6",
