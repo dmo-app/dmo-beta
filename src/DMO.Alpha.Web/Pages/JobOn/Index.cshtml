@@ -233,7 +233,7 @@
                  linha da procura, depois da referência e da produção; abre a folha nova já com o dia escolhido
                  como início (sem dia escolhido, abre sem data). *@
               @* O «Criar Job On» abre a folha nova vazia, em Editar (Diogo, 23/10/2026). *@
-              <a id="jobonCriar" class="dmo-button" asp-page="/JobOn/Folha" asp-route-novo="1"
+              <a id="jobonCriar" class="dmo-button design-primary" asp-page="/JobOn/Folha" asp-route-novo="1"
                  asp-route-inicio_em="@(Model.NoDaySelected ? null : new DateOnly(Model.Year, Model.Month, Model.SelectedDay).ToString("yyyy-MM-dd"))">Criar Job On</a>
             </form>
           </div>

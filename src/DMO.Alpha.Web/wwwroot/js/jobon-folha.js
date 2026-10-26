@@ -40,6 +40,7 @@
 
       function abrirFicha() {
         const ficha = botao.getAttribute('data-jof-ficha');
+        if (ficha && window.DmoSupport?.tryOpen(ficha, botao)) return;
         if (ficha) (window.dmoIr || (url => window.location.assign(url)))(ficha);
       }
       function mudar() {

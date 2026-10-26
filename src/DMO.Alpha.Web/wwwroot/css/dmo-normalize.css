@@ -52,10 +52,10 @@ html body :is(.dmo-card,.beta-bq-layout .card) h4{font-size:var(--dmo-fs-base);f
    altura das maiúsculas e à linha de base, para o flex a centrar sem depender
    das métricas do tipo de letra em cada sistema. */
 html body :is(.dmo-button,.button,.btn){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 16px;white-space:nowrap;font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);letter-spacing:0;line-height:1;text-box:trim-both cap alphabetic}
-html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-brand-600));color:var(--dmo-text-on-color);border:1px solid var(--button-color,var(--dmo-brand-600))}
+html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));color:var(--dmo-text-on-color);border:1px solid var(--button-color,var(--dmo-action,var(--dmo-brand-600)))}
 /* Só a linha fina do botão, sem a segunda borda à volta (Diogo, 17/10/2026).
    O hover inverte as cores; o foco do teclado é um halo suave da paleta. */
-html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600));outline:0}
+html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));outline:0}
 /* O botão invertido é branco também no escuro (Diogo, 26/10/2026: «invertido deveria ser branco em todos»). */
 :root{--dmo-invertido:#fff}
 /* Sem itálico (regra do Diogo; 26/10/2026: «estes botões seguem a regra padrão?»): os <em> e <i> e as dicas dos campos ficam direitos em toda a app. */

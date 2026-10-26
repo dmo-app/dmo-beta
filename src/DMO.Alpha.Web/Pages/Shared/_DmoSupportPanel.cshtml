@@ -1,0 +1,20 @@
+@* One contextual support surface. Pages inside remain real Razor Pages. *@
+<dialog class="dmo-support" id="dmoSupport" aria-labelledby="dmoSupportTitle">
+  <header class="dmo-support-head">
+    <div><span class="dmo-support-eyebrow">Consulta de apoio</span><h2 id="dmoSupportTitle">Detalhe</h2></div>
+    <a id="dmoSupportFull" target="_blank" rel="noopener">Abrir página</a>
+    <button type="button" class="btn" data-support-close>Fechar</button>
+  </header>
+  <div class="dmo-support-confirm" hidden>
+    <p>Existem alterações por guardar neste painel.</p>
+    <button type="button" class="btn" data-support-keep>Continuar a editar</button>
+    <button type="button" class="btn" data-support-discard>Fechar sem guardar</button>
+  </div>
+  <p class="dmo-support-loading" role="status">A carregar…</p>
+  <iframe title="Página de apoio" class="dmo-support-frame"></iframe>
+</dialog>
+<div class="dmo-support-refresh" hidden role="status">
+  Foi enviada uma operação no painel de apoio.
+  <button type="button" class="btn" data-support-refresh>Atualizar esta página</button>
+  <button type="button" class="btn" data-support-dismiss>Dispensar</button>
+</div>

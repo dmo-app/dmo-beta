@@ -4,7 +4,7 @@
     var openSidepanel = shell.Sidepanel is { Visible: true } panel ? panel : null;
 }
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-PT" data-dmo-embedded="@(Context.Request.Query["painel"] == "1" ? "true" : null)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,14 +29,15 @@
     <link rel="stylesheet" href="~/shell-proof.css" asp-append-version="true">
     @* Normalização geral (tipografia, botões, campos): sempre a última folha. *@
     <link rel="stylesheet" href="~/css/dmo-normalize.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/dmo-design.css" asp-append-version="true" media="screen">
 </head>
 <body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())">
 <div class="app">
     <header class="dmo-shell-header">
         <partial name="_DmoBranding" model="shell.CurrentModule" />
+        <partial name="_DmoNavigation" model="shell" />
         <partial name="_DmoSessionUtilities" model="shell.Session" />
     </header>
-    <partial name="_DmoNavigation" model="shell" />
     @* O AVISO DA MUDANÇA DE SENHA (a casa antiga era a home, que morreu —
        o Owner 2026-10-12: o login entra logo no Planeamento): o TempData
        vive no SHELL, onde quer que a aterragem seja. *@
@@ -52,11 +53,14 @@
     }
     @RenderBody()
 </div>
+<partial name="_DmoSupportPanel" />
 @* F0: camada comum de comportamento vivo (interações canónicas + utilidades) — antes dos scripts de página *@
 <script src="~/0_ASSET_CANONICAL_INTERACTIONS.js" asp-append-version="true"></script>
+<script src="~/js/dmo-support.js" asp-append-version="true"></script>
 <script src="~/dmo-live.js" asp-append-version="true"></script>
 <script src="~/js/dmo-suggest.js" asp-append-version="true"></script>
 <script src="~/js/dmo-pasta-pdf.js" asp-append-version="true"></script>
+<script src="~/js/dmo-session.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 <div id="dmoFim" hidden></div>
 </body>

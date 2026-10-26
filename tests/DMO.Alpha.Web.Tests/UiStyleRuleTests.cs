@@ -38,10 +38,10 @@ public sealed class UiStyleRuleTests
     {
         var css = Read("wwwroot", "css", "dmo-normalize.css");
         Assert.Contains(
-            "html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-brand-600));color:var(--dmo-text-on-color)",
+            "html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));color:var(--dmo-text-on-color)",
             css, StringComparison.Ordinal);
         Assert.Contains(
-            "html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600))",
+            "html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-action,var(--dmo-brand-600)))",
             css, StringComparison.Ordinal);
         // A variante branca («ghost») deixou de existir no CSS e no markup.
         Assert.DoesNotContain(".ghost", css, StringComparison.Ordinal);
@@ -74,7 +74,7 @@ public sealed class UiStyleRuleTests
     {
         var css = Read("wwwroot", "0_ASSET_CANONICAL_DESIGN_SYSTEM.css");
         Assert.Contains(
-            ":root{--dmo-palette-sky:#afd1f2;--dmo-palette-mist:#92b4cc;--dmo-palette-steel:#6494b4;--dmo-palette-ocean:#4c7c9c;--dmo-palette-slate:#44647c}",
+            ":root{--dmo-palette-sky:#b7c9e2;--dmo-palette-mist:#779ecb;--dmo-palette-steel:#779ecb;--dmo-palette-ocean:#4f6f9c;--dmo-palette-slate:#4f6f9c}",
             css, StringComparison.Ordinal);
         Assert.Contains("--dmo-brand-600:var(--dmo-palette-slate);", css, StringComparison.Ordinal);
         Assert.Contains("--dmo-row-hover:var(--dmo-brand-200);", css, StringComparison.Ordinal);
@@ -119,7 +119,7 @@ public sealed class UiStyleRuleTests
     {
         var css = Read("wwwroot", "0_ASSET_CANONICAL_DESIGN_SYSTEM.css");
         Assert.Contains("@media screen{:root[data-theme=\"dark\"]{color-scheme:dark;--dmo-page:", css, StringComparison.Ordinal);
-        Assert.Contains("--dmo-page:#e4ebf2;", css, StringComparison.Ordinal);
+        Assert.Contains("--dmo-page:#e5eaf1;", css, StringComparison.Ordinal);
         var branco = new System.Text.RegularExpressions.Regex(@"background(-color)?\s*:\s*(#fff\b|#ffffff\b|white\b|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         // As folhas e também os <style> e style="" das páginas.
         var cssFiles = Directory.EnumerateFiles(Path.Combine(WebRoot(), "wwwroot"), "*.css", SearchOption.AllDirectories)
@@ -167,7 +167,7 @@ public sealed class UiStyleRuleTests
     public void PdfGenerators_UseThePalette_NotTheOldBlues()
     {
         var infra = Path.Combine(Path.GetDirectoryName(WebRoot())!, "DMO.Alpha.Infrastructure");
-        Assert.Contains("public const string Slate = \"#44647c\";", File.ReadAllText(Path.Combine(infra, "Pdf", "DmoPdfPalette.cs")), StringComparison.Ordinal);
+        Assert.Contains("public const string Slate = \"#4f6f9c\";", File.ReadAllText(Path.Combine(infra, "Pdf", "DmoPdfPalette.cs")), StringComparison.Ordinal);
         string[] oldBlues = ["#3c73a8", "#087bc1", "#0066a0", "#0089d7", "#174a80", "#16365c", "#193046", "#d9e6f2", "#d0e0f1"];
         foreach (var file in Directory.EnumerateFiles(infra, "*PdfGenerator.cs", SearchOption.AllDirectories))
         {

@@ -147,14 +147,11 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         var bq = fila.IndexOf("data-jof-familia=\"BQ\"", StringComparison.Ordinal);
         Assert.True(cm >= 0 && cm < mf && mf < bq, $"A primeira fila não é CM, MF, BQ ({cm}, {mf}, {bq}).");
 
-        // As notas em cada cartão, mesmo vazias (o MF não tem nota escrita).
+        // Notas escritas continuam acessíveis; notas vazias não ocupam a vista de leitura.
         Assert.Contains("CX rodar justa 1/4 de volta.", Cartao(html, "CM"));
         Assert.Contains("class=\"note-box note-view\" data-jof-campo=\"cm_notas\" data-jof-nota", html);
-        foreach (var familia in new[] { "CM", "MF", "BQ", "TP", "CS" })
-        {
-            Assert.Contains("data-jof-nota", Cartao(html, familia));
-        }
-        Assert.Contains("class=\"note-box note-view is-empty\" data-jof-campo=\"mf_notas\" data-jof-nota", html);
+        Assert.DoesNotContain("data-jof-nota", Cartao(html, "MF"));
+        Assert.DoesNotContain("note-box note-view is-empty", html);
 
         // «O que mudou» no fim da folha, depois do último cartão (Diogo, 23/10/2026).
         var resumo = html.IndexOf("id=\"fichaMudancas\"", StringComparison.Ordinal);

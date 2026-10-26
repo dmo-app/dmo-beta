@@ -405,12 +405,12 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var cm = html[html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal)..];
         cm = cm[..cm.IndexOf("</article>", StringComparison.Ordinal)];
         Assert.Contains("Polir a pata", cm);
-        Assert.Contains("<dt>Stock</dt><dd>12</dd>", cm);
-        Assert.Contains("<dt>QTD máq.</dt><dd>4</dd>", cm);
+        Assert.Contains("<span>Stock</span><strong>12</strong>", cm);
+        Assert.Contains("<span>QTD máq.</span><strong>4</strong>", cm);
         Assert.Contains("0.05", cm);
         var tp = html[html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal)..];
         tp = tp[..tp.IndexOf("</article>", StringComparison.Ordinal)];
-        Assert.Contains("<dt>QTD máq.</dt><dd>2</dd>", tp);
+        Assert.Contains("<span>QTD máq.</span><strong>2</strong>", tp);
         Assert.Contains("<li class=\"view\">Emparelhar MF+FF</li>", html);
         // Bloqueada: nada se escreve.
         Assert.DoesNotContain("name=\"Folha.", html);
