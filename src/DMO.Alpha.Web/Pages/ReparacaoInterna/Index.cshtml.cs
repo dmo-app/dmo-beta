@@ -180,6 +180,7 @@ public sealed class IndexModel(
             "numero-invalido" => $"O número tem só algarismos, até {NumeroAlgarismos}. Nada mudou.",
             "hora-invalida" => "Hora inválida: use HH:mm (ex.: 14:30). Nada mudou.",
             "motivo-longo" => $"O motivo tem até {ReparacaoRasto.MotivoMaxLength} caracteres. Nada mudou.",
+            "so-quem-registou" => $"A reparação do nº {Numero} é de outra pessoa: só quem a registou e a chefia a corrigem ou anulam. Nada mudou.",
             _ => string.Empty
         },
         _ when NumeroInvalido => $"O número tem só algarismos, até {NumeroAlgarismos}.",
@@ -293,7 +294,7 @@ public sealed class IndexModel(
         }
 
         var saida = await reparacoes.CorrigirAsync(
-            new PedidoDeCorrecao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, numero, motivo, horaCorrigida),
+            new PedidoDeCorrecao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, numero, motivo, horaCorrigida, await ChefiaAsync()),
             HttpContext.RequestAborted);
         return DepoisDaCorrecao(saida, CorrecaoResultado.Corrigido, pagina, volta);
     }
@@ -308,10 +309,15 @@ public sealed class IndexModel(
         [FromForm(Name = "volta")] string? volta)
     {
         var saida = await reparacoes.AnularAsync(
-            new PedidoDeAnulacao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, motivo),
+            new PedidoDeAnulacao(operacaoId == Guid.Empty ? Guid.NewGuid() : operacaoId, reparacaoId, motivo, await ChefiaAsync()),
             HttpContext.RequestAborted);
         return DepoisDaCorrecao(saida, CorrecaoResultado.Anulado, pagina, volta);
     }
+
+    // A chefia é quem tem a Consulta da Reparação Interna: corrige e anula as
+    // reparações de todos; os outros só as suas (DS-PERM-01).
+    private async Task<bool> ChefiaAsync() =>
+        (await capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.ReparacaoInternaView, StringComparer.Ordinal);
 
     // Volta à mesma linha, dia e página, com a mensagem (PRG); da tab
     // Histórico, à mesma vista com os filtros (volta, só desta página). O
@@ -328,6 +334,7 @@ public sealed class IndexModel(
             CorrecaoResultado.Mudou => "mudou",
             CorrecaoResultado.SemNumero => "sem-numero",
             CorrecaoResultado.NumeroLongo => "numero-longo",
+            CorrecaoResultado.SoQuemRegistou => "so-quem-registou",
             _ => "motivo-longo"
         };
         return VoltarComCorrecao(correcao, saida.Numero, pagina, volta);
