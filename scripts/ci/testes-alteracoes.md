@@ -3060,3 +3060,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn`
 
 Selo depois: `a1189c0ece6af100`
+
+## A-0163 · 2026-10-26 · ok-do-diogo
+
+Porquê: Peso: a caixa do peso da produção anterior mostra só a média e a moda abre numa janela (A-0163); o teste deixa de pedir as caixas Média/Moda (Diogo 26/10 20:18).
+Referência: Diogo, thread Mostrar só a média no peso da produção, cmsg_01A27e9ozcpoh4jdPRsuJbFy3gTYGTcTs8P97dEqSZ6wty
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+
+Selo depois: `633dfd7d1934251a`

@@ -244,6 +244,8 @@
 .peso-sap-caixa{margin:8px 0 0;padding:10px 12px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);max-width:520px}
 .peso-sap-titulo{font-weight:700;font-size:13px;margin:0 0 6px}
 .peso-sap-titulo .peso-hint{margin:0;font-weight:400}
+.peso-sap-abrir{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;width:100%;margin:0;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.peso-sap-abrir .peso-sap-titulo{margin:0}
 .peso-sap-opcoes{display:flex;flex-wrap:wrap;gap:6px 18px}
 .peso-sap-opcao{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
 .peso-sap-delta{color:var(--dmo-muted);font-size:12px}

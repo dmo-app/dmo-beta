@@ -27,7 +27,8 @@ public sealed class PesoPdfDocumentBuilder(
     ControloApprovalHandler approvalHandler,
     IPesoCapSupportQuery capSupport,
     PesoProducaoAnteriorQuery producaoAnterior,
-    PesoPdfGenerator pdfGenerator)
+    PesoPdfGenerator pdfGenerator,
+    DMO.Alpha.Core.Tools.IFerramentasFabricoSap? fabricoSap = null)
 {
     /// <summary>
     /// O PDF do Peso da folha da produção (controloId: o pedido, se é desta
@@ -129,6 +130,16 @@ public sealed class PesoPdfDocumentBuilder(
         var cap = await capSupport.GetAsync(new PesoCapSupportRequest(peso.CmToolId, approvalControloId), cancellationToken);
 
         var machine = context?.Machine ?? "—";
+        // O peso da produção anterior: média e moda pelas ordens do relatório
+        // de produções (Diogo, 26/10/2026); sem relatório, só o peso usado.
+        var anterior = await producaoAnterior.FindAsync(peso.PesoId, cancellationToken);
+        DMO.Alpha.Core.Tools.PesoSapResumo? pesoSap = null;
+        if (fabricoSap is not null && anterior?.JobOnId is int anteriorJobOnId)
+        {
+            var porJobOn = await fabricoSap.PesoDosJobOnsAsync(new[] { anteriorJobOnId }, cancellationToken);
+            pesoSap = porJobOn.GetValueOrDefault(anteriorJobOnId);
+        }
+
         var bytes = pdfGenerator.GenerateBytes(new PesoPdfGenerator.Input(
             productionNumber,
             reference,
@@ -152,9 +163,10 @@ public sealed class PesoPdfDocumentBuilder(
             PreviousPesoComparison: previousPesoComparison,
             InicioEm: context?.InicioEm, FimEm: context?.FimEm,
             VolumeTampaoCm3: cap.VolumeEfetivoCm3, CaloteMm: cap.AlturaEfetivaMm,
-            ProducaoAnterior: await producaoAnterior.FindAsync(peso.PesoId, cancellationToken))
+            ProducaoAnterior: anterior)
         {
-            SheetLabel = PesoPdfGenerator.SheetLabelOf(peso, pesosDaProducao)
+            SheetLabel = PesoPdfGenerator.SheetLabelOf(peso, pesosDaProducao),
+            PesoProducaoSap = pesoSap
         });
 
         return new PesoPdfDocumento(

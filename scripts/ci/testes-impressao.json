@@ -1,5 +1,5 @@
 {
-  "selo": "a1189c0ece6af100",
+  "selo": "633dfd7d1934251a",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1965,7 +1965,7 @@
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.RecusaDeCriacao_PreservaATemperaturaEscritaEAMensagem": "f0176ebcbe7a3cf8",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaCarregamentoPageTests.cs :: PesoFolhaCarregamentoPageTests.SemSessaoOuSemModulo_NaoExecutaOCarregamentoDaFolha": "44e355030c34bf57",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: (resto do ficheiro)": "0015822ae01ab4fb",
-    "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia": "a96e97d7c68acf83",
+    "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia": "e750a23fe051aa8c",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso": "3c0f14a467fc0cfa",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: (resto do ficheiro)": "80cacdf3d3bcf957",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_GravaSemRecarregar_ZonasTrocadasELeituraNovaQueFica": "653dcf6e309f37f5",
