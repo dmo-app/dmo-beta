@@ -20,7 +20,8 @@ html body .bq-def-card .dmo-table-wrap{max-width:420px;max-height:calc(5 * 34px 
 .bq-def-excel-topo h3{margin:0}
 #bqDefExcel .card-note{margin:10px 0 0}
 html body #bqDefExcel [hidden]{display:none}
-.bq-def-rotas{display:grid;grid-template-columns:repeat(2,minmax(0,160px));gap:10px 14px}
+/* As linhas B numa coluna e as C noutra (Diogo, 26/10/2026: «linha B de um lado e C do outro»). */
+.bq-def-rotas{display:grid;grid-template-columns:repeat(2,minmax(0,160px));grid-template-rows:repeat(3,auto);grid-auto-flow:column;gap:10px 14px}
 @@media(max-width:720px){.bq-def-rotas{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
   <div id="bqDefAvisos" class="dmo-zona" data-dmo-regiao>
