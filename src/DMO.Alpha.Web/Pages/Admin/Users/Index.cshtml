@@ -57,15 +57,26 @@ html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{
   {
     <section class="dmu-entrega" data-dmo-toast="aviso" data-dmo-toast-fica role="status" aria-label="Utilizador criado">
       <h3>Utilizador criado — @Model.CreatedUserName (nº @Model.CreatedUserOperatorId)</h3>
-      <div class="dmu-token">
-        <span>Email de autenticação</span>
-        <strong>@Model.CreatedUserEmail</strong>
-      </div>
+      @* Sem email, a conta entra só pelo nº (Diogo, 26/10/2026). *@
+      @if (string.IsNullOrEmpty(Model.CreatedUserEmail))
+      {
+        <div class="dmu-token">
+          <span>Entra com o nº de operador</span>
+          <strong>@Model.CreatedUserOperatorId</strong>
+        </div>
+      }
+      else
+      {
+        <div class="dmu-token">
+          <span>Email de autenticação</span>
+          <strong>@Model.CreatedUserEmail</strong>
+        </div>
+      }
       <div class="dmu-token">
         <span>PIN temporário (mostrado uma vez)</span>
         <strong>@Model.CreatedUserTemporaryPassword</strong>
       </div>
-      <p class="dmu-nota">Entregue o email e o PIN temporário ao utilizador; no 1.º login terá de escolher a palavra-passe definitiva e este par não volta a ser mostrado.</p>
+      <p class="dmu-nota">Entregue o PIN temporário ao utilizador; no 1.º login terá de escolher a palavra-passe definitiva e este par não volta a ser mostrado.</p>
     </section>
   }
 
@@ -133,8 +144,9 @@ html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{
         <input id="dmu-operator" name="operator_id" value="@Model.RequestedOperatorId" required inputmode="numeric" pattern="[0-9]{1,4}" maxlength="4" placeholder="Ex.: 0042" />
       </div>
       <div class="dmo-field">
-        <label for="dmu-email">Email de autenticação</label>
-        <input id="dmu-email" name="email" type="email" value="@Model.RequestedEmail" required maxlength="256" placeholder="ana.martins@empresa.pt" />
+        @* Opcional: a conta entra pelo nº (Diogo, 26/10/2026). *@
+        <label for="dmu-email">Email (opcional)</label>
+        <input id="dmu-email" name="email" type="email" value="@Model.RequestedEmail" maxlength="256" placeholder="ana.martins@empresa.pt" />
       </div>
       <div class="dmo-field">
         <label for="dmu-template">Template de acesso</label>
