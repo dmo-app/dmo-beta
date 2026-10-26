@@ -2664,10 +2664,10 @@ Novos: 2 · mudaram: 1 · saíram: 1
 
 Selo depois: `d56824e14c3ac255`
 
-## A-0122 · 2026-10-26 · ok-do-diogo
+## A-0123 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main 360f00d: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Porquê: Login: da 5.ª palavra-passe errada seguida em diante o ecrã manda consultar o ADMIN; a conta nunca fica bloqueada e a certa entra sempre
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3mFwYjgASf4KLxaoXW6mfD
 Novos: 2 · mudaram: 1 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: (resto do ficheiro)`
@@ -2676,23 +2676,12 @@ Novos: 2 · mudaram: 1 · saíram: 0
 
 Selo depois: `e4f3ba263bddfa5c`
 
-## A-0123 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção do PR 124 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 124
-Novos: 1 · mudaram: 0 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOPreparadorEOJobOnMoldesEmDuasCopias`
-
-Selo depois: `9329a184b5b91681`
-
 ## A-0124 · 2026-10-26 · ok-do-diogo
 
-Porquê: Junção do PR 124b no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 124b
-Novos: 1 · mudaram: 0 · saíram: 1
+Porquê: Registo do integracao acertado pela main e0fc1cb: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 1 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOPreparadorEOJobOnMoldesEmDuasCopias`
 
 Selo depois: `63dc3b05f4b2aa09`
