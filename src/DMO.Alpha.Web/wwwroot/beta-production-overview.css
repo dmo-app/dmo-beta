@@ -64,3 +64,14 @@ a.beta-light-machine-empty:hover,a.beta-light-machine-empty:focus-visible{backgr
 a.beta-light-next{text-decoration:none}a.beta-light-next:hover,a.beta-light-next:focus-visible{text-decoration:underline}
 .beta-production-lines .dmo-rail-warning{margin:0;padding:4px 2px;font-size:12px;line-height:1.3;color:var(--dmo-warning)}
 .beta-production-lines .dmo-rail-warning a{color:inherit;text-decoration:underline}
+/* Painel «Planeamento» (Diogo, 26/10/2026): o título é um link para o calendário; cada cartão
+   tem a cor da sua linha; a referência e a produção numa linha, o estado noutra, sem cortes;
+   o hover fica mais claro no modo claro e mais escuro no modo escuro. */
+.beta-production-rail-head .beta-production-rail-title{font-size:16px;font-weight:800;color:var(--dmo-text-on-color);text-decoration:none}
+.beta-production-rail-head .beta-production-rail-title:hover,.beta-production-rail-head .beta-production-rail-title:focus-visible{color:var(--dmo-brand-300);outline:0}
+.beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor{height:auto;min-height:0;padding:9px 12px 10px;border:0;border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 22%,var(--dmo-deep-800))}
+.beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor strong{color:var(--dmo-text-on-color);font-size:15px}
+.beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor span{white-space:normal;overflow:visible;margin-top:2px;color:var(--dmo-text-on-color)}
+.beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor span+span{color:var(--dmo-deep-text);font-size:11.5px}
+.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor:hover:not(.selected):not(.active){border-color:var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 34%,var(--dmo-deep-800))}
+@media screen{:root[data-theme="dark"] .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor:hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color) 12%,#05080a)}}
