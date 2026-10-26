@@ -2731,3 +2731,16 @@ Novos: 2 · mudaram: 6 · saíram: 1
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmMesSemSeparador_ESemMovimentos_NaoCriaNada`
 
 Selo depois: `3b25a8fc9f9336fe`
+
+## A-0134 · 2026-10-26 · teste-novo
+
+Porquê: Reshape: as últimas leituras diretas da base (Folha e Reparação do Job On) passam pelo IJobOnPaginaQuery; testes novos do MaquinaDoJobOnAsync
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyG4kTeYNHDJtHEYeeMzqUiT
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: PostgresMigrationIntegrationTests.JobOnMaquina_FazUmaSoConsultaDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: JobOnMaquinaDoJobOnTests.MaquinaDoJobOn_DevolveALinhaDaProducao_OuZeroQuandoNaoExiste`
+
+Selo depois: `d14dc3ed6e86e5ad`
