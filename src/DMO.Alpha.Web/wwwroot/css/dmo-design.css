@@ -1,11 +1,11 @@
 /* DMO Design — screen-only presentation. See docs/design/CONTINUAR.md.
    Domain state colours and print layouts remain owned by the application. */
 :root {
-  --design-blue: #4f6f9c;
-  --design-medium: #779ecb;
-  --design-pale: #b7c9e2;
-  --design-navy: #1b263b;
-  --design-ink: #0b1320;
+  --design-blue: #4b6387;
+  --design-medium: #6582aa;
+  --design-pale: #a5c5f1;
+  --design-navy: #1e2b40;
+  --design-ink: #0c121d;
   --dmo-palette-slate: var(--design-blue);
   --dmo-palette-ocean: var(--design-blue);
   --dmo-palette-steel: var(--design-medium);

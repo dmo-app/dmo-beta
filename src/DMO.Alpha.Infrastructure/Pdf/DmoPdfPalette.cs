@@ -11,18 +11,18 @@ namespace DMO.Alpha.Infrastructure.Pdf;
 /// </summary>
 internal static class DmoPdfPalette
 {
-    public const string Sky = "#b7c9e2";
-    public const string Mist = "#779ecb";
-    public const string Steel = "#779ecb";
-    public const string Ocean = "#4f6f9c";
-    public const string Slate = "#4f6f9c";
+    public const string Sky = "#a5c5f1";
+    public const string Mist = "#6582aa";
+    public const string Steel = "#6582aa";
+    public const string Ocean = "#4b6387";
+    public const string Slate = "#4b6387";
 
     /// <summary>Cabeçalhos, títulos e links (como a navegação da app).</summary>
     public const string Accent = Slate;
     /// <summary>Fundo escuro dos cartões em destaque (--dmo-brand-700).</summary>
     public const string Deep = "#41567a";
     /// <summary>Texto principal (--dmo-text).</summary>
-    public const string Ink = "#0b1320";
+    public const string Ink = "#0c121d";
     /// <summary>Texto secundário (--dmo-muted).</summary>
     public const string Muted = "#586a80";
     /// <summary>Linhas e contornos (--dmo-border).</summary>

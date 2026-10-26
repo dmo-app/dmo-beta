@@ -74,7 +74,7 @@ public sealed class UiStyleRuleTests
     {
         var css = Read("wwwroot", "0_ASSET_CANONICAL_DESIGN_SYSTEM.css");
         Assert.Contains(
-            ":root{--dmo-palette-sky:#b7c9e2;--dmo-palette-mist:#779ecb;--dmo-palette-steel:#779ecb;--dmo-palette-ocean:#4f6f9c;--dmo-palette-slate:#4f6f9c}",
+            ":root{--dmo-palette-sky:#a5c5f1;--dmo-palette-mist:#6582aa;--dmo-palette-steel:#6582aa;--dmo-palette-ocean:#4b6387;--dmo-palette-slate:#4b6387}",
             css, StringComparison.Ordinal);
         Assert.Contains("--dmo-brand-600:var(--dmo-palette-slate);", css, StringComparison.Ordinal);
         Assert.Contains("--dmo-row-hover:var(--dmo-brand-200);", css, StringComparison.Ordinal);
@@ -167,7 +167,7 @@ public sealed class UiStyleRuleTests
     public void PdfGenerators_UseThePalette_NotTheOldBlues()
     {
         var infra = Path.Combine(Path.GetDirectoryName(WebRoot())!, "DMO.Alpha.Infrastructure");
-        Assert.Contains("public const string Slate = \"#4f6f9c\";", File.ReadAllText(Path.Combine(infra, "Pdf", "DmoPdfPalette.cs")), StringComparison.Ordinal);
+        Assert.Contains("public const string Slate = \"#4b6387\";", File.ReadAllText(Path.Combine(infra, "Pdf", "DmoPdfPalette.cs")), StringComparison.Ordinal);
         string[] oldBlues = ["#3c73a8", "#087bc1", "#0066a0", "#0089d7", "#174a80", "#16365c", "#193046", "#d9e6f2", "#d0e0f1"];
         foreach (var file in Directory.EnumerateFiles(infra, "*PdfGenerator.cs", SearchOption.AllDirectories))
         {
