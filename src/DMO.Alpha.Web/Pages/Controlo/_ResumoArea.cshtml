@@ -8,7 +8,7 @@
 }
 <div id="resumo-area-@Model.Estado.Area" class="dmo-zona" data-dmo-regiao>
 <div class="resumo-area @stateClass">
-  <span>@Model.Estado.Area</span>
+  <span>@Model.Estado.Area@if (Model.Pagina.AreaDetalhe(Model.Estado.Area) is { } areaDetalhe) {<small class="resumo-area-ferramenta"> @areaDetalhe</small>}</span>
   <strong>@(Model.Estado.Status ?? "não registado")</strong>
   @if (Model.Pagina.SelectedProduction is { } areaProduction)
   {

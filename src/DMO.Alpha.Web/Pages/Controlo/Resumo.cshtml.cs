@@ -238,6 +238,13 @@ public sealed class ResumoModel : PageModel
     public IReadOnlyList<string> ZonasPedidas { get; private set; } = Array.Empty<string>();
 
     /// <summary>As áreas do estado do documento: as registadas, ou as cinco por registar.</summary>
+    /// <summary>A referência e o lote da ferramenta da área («9262 · Lote 16»); null nas áreas sem ferramenta ou sem dados.</summary>
+    public string? AreaDetalhe(string area)
+    {
+        var tool = area switch { "CM" => CmTool, "MF" => MfTool, "BQ" => BqTool, _ => null };
+        return tool is null ? null : $"{tool.Reference} · Lote {tool.Lot}";
+    }
+
     public IReadOnlyList<DMO.Alpha.Infrastructure.Controlo.ControloAreaStateReadModel> AreasMostradas =>
         AreaStates.Count > 0
             ? AreaStates
@@ -433,6 +440,11 @@ public sealed class ResumoModel : PageModel
         if (zonas.Any(zona => zona is not ZonaAvisos and not ZonaVistoPor))
         {
             await LoadMcaliperLinksAsync(SelectedProduction);
+            var zonaTools = await _toolLookup.FindByToolIdsAsync(
+                new[] { SelectedProduction.CmToolId, SelectedProduction.MfToolId, SelectedProduction.BqToolId }, ct);
+            CmTool = SelectedProduction.CmToolId is { } zCm ? zonaTools.GetValueOrDefault(zCm) : null;
+            MfTool = SelectedProduction.MfToolId is { } zMf ? zonaTools.GetValueOrDefault(zMf) : null;
+            BqTool = SelectedProduction.BqToolId is { } zBq ? zonaTools.GetValueOrDefault(zBq) : null;
             AreaStates = await _areaStateHandler.GetAsync(existing.ControloId, ct);
         }
 
