@@ -17,9 +17,9 @@ public partial class JobOnPageTests
 
         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={jobOnId}");
         Assert.Contains("data-jof-imprimir>Imprimir</button>", html, StringComparison.Ordinal);
-        Assert.Contains("<div class=\"menu-list\" data-jof-imprimir-lista hidden>", html, StringComparison.Ordinal);
-        Assert.Contains("data-jof-imprimir-folha=\"ficha\">Ficha de Artigo</button>", html, StringComparison.Ordinal);
-        Assert.Contains("data-jof-imprimir-folha=\"equipa\">Trabalho de Equipa</button>", html, StringComparison.Ordinal);
+        // Um só clique imprime as duas folhas juntas: sem lista para escolher (Diogo, 26/10/2026).
+        Assert.DoesNotContain("data-jof-imprimir-lista", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("COMENTÁRIOS", html, StringComparison.Ordinal);
         Assert.Contains("<div class=\"jof-impressao\" data-jof-impressao hidden>", html, StringComparison.Ordinal);
         Assert.Contains("data-jof-folha=\"ficha\"", html, StringComparison.Ordinal);
         Assert.Contains("data-jof-folha=\"equipa\"", html, StringComparison.Ordinal);

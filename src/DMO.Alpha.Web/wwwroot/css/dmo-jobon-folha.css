@@ -871,7 +871,7 @@ html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:
 .jfi-t .ck{text-align:center;width:11mm}
 .jfi-t .obs{width:34%}
 .jfi-duas{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
-.jfi-duas.jfi-cmmfbq{grid-template-columns:1fr 1fr .8fr}
+.jfi-duas.jfi-cmmfbq{grid-template-columns:1fr 1fr .8fr .8fr}
 .jfi-duas.jfi-cmmfbq .jfi-kv th{width:48%}
 .jfi-tres{display:grid;grid-template-columns:repeat(4,1fr);gap:2.4mm}
 .jfi-bloco{border:1px solid #9aa3ad;break-inside:avoid}
@@ -879,10 +879,9 @@ html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:
 .jfi-corpo{padding:1.5mm 2mm;font-size:8.5pt}
 .jfi-caixa{border:1px solid #9aa3ad;border-top:0;padding:1.5mm 2mm;min-height:9mm;font-size:8.5pt}
 .jfi-folha>.jfi-caixa{border-top:1px solid #9aa3ad}
-.jfi-cal{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid #9aa3ad;border-top:0}
-.jfi-cal>div{padding:1.2mm 2mm;border-left:1px solid #9aa3ad;border-top:1px solid #9aa3ad}
-.jfi-cal>div:nth-child(6n+1){border-left:0}
-.jfi-cal>div:nth-child(-n+6){border-top:0}
+.jfi-cal{display:grid;grid-template-columns:repeat(2,1fr);grid-auto-flow:column;grid-template-rows:repeat(var(--jfi-linhas,1),auto);border:1px solid #9aa3ad;border-top:0}
+.jfi-cal>div{padding:1.2mm 2mm;border-top:1px solid #9aa3ad}
+.jfi-cal>div.jfi-c2{border-left:1px solid #9aa3ad}
 .jfi-cal small{display:block;font-size:6.5pt;color:#5b6570}
 .jfi-fundo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;flex:1;min-height:0}
 .jfi-notas ul{margin:0;padding:1.5mm 2mm 1.5mm 6mm;font-size:8.5pt}

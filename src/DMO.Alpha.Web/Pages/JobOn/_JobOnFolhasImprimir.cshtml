@@ -83,12 +83,17 @@
         <table class="dmo-table jfi-t jfi-kv">
           <tr><th>Referência</th><td>@bq?.Reference</td></tr>
           <tr><th>Utilização</th><td>@(F("bq_utilizacao") is { Length: > 0 } ub ? ub.TrimEnd('%') + "%" : "")</td></tr>
-          <tr><th>Anilha (AN)</th><td>@F("an_referencia")</td></tr>
+        </table>
+      </div>
+      <div class="jfi-col">
+        <div class="jfi-barra"><span>ANEL (AN)</span><span>@(F("an_lote") is { Length: > 0 } anl ? "Lote " + anl : "")</span></div>
+        <table class="dmo-table jfi-t jfi-kv">
+          <tr><th>Referência</th><td>@F("an_referencia")</td></tr>
         </table>
       </div>
     </div>
     <div class="jfi-tres">
-      <div class="jfi-bloco"><div class="jfi-sub"><span>TAMPÕES</span></div><div class="jfi-corpo">Diâmetro @(F("tp_diametro_ps") is { Length: > 0 } tpd ? tpd : "____") · Bacia @(F("tp_bacia_ps") is { Length: > 0 } tpb ? tpb : "____")<br>Calote @(Calote() is { Length: > 0 } cal ? cal : "____")</div></div>
+      <div class="jfi-bloco"><div class="jfi-sub"><span>TAMPÕES</span></div><div class="jfi-corpo">Diâmetro @(F("tp_diametro_ps") is { Length: > 0 } tpd ? tpd : "____") · Calote @(Calote() is { Length: > 0 } cal ? cal : (F("tp_bacia_ps") is { Length: > 0 } tpb ? tpb : "____"))</div></div>
       @* Punção e arrefecedor são um só componente (Diogo 26/10). *@
       <div class="jfi-bloco"><div class="jfi-sub"><span>PUNÇÃO + ARREFECEDOR</span></div><div class="jfi-corpo">PU @(F("pu_referencia") is { Length: > 0 } pur ? pur : "____")@(F("pu_versao") is { Length: > 0 } puv ? " · v. " + puv : "")<br>ARR @(F("arr_referencia") is { Length: > 0 } arr ? arr : "____")@(F("arr_versao") is { Length: > 0 } arv ? " · v. " + arv : "")</div></div>
       <div class="jfi-bloco"><div class="jfi-sub"><span>CAB. DE SOPRO</span></div><div class="jfi-corpo">Ref. @(F("cs_referencia") is { Length: > 0 } csr ? csr : "____")<br>Furos @(F("cs_furos") is { Length: > 0 } csf ? csf : "____") · Tubo @(F("cs_tubo") is { Length: > 0 } cst ? cst : "____")</div></div>
@@ -96,10 +101,11 @@
     </div>
     <div class="jfi-col">
       <div class="jfi-barra"><span>CALIBRES</span></div>
-      <div class="jfi-cal">
+      @{ var metade = (calibres.Count + 1) / 2; var iCal = 0; }
+      <div class="jfi-cal" style="--jfi-linhas:@Math.Max(metade, 1)">
         @foreach (var l in calibres)
         {
-          <div><span>@l.Nome</span><b>@N(l.Valor)</b>@if (V(l.QtdMaq) is { } q) {<small>QTD máq. @q</small>}</div>
+          <div class="@(iCal++ >= metade ? "jfi-c2" : null)"><span>@l.Nome</span><b>@N(l.Valor)</b>@if (V(l.QtdMaq) is { } q) {<small>QTD máq. @q</small>}</div>
         }
         @if (calibres.Count == 0)
         {
@@ -109,7 +115,6 @@
     </div>
     <div class="jfi-fundo">
       <div class="jfi-bloco jfi-notas"><div class="jfi-barra"><span>NOTAS DO JOB ON</span></div><ul>@foreach (var n in Notas("notas_gerais")) {<li>@n</li>}</ul></div>
-      <div class="jfi-bloco jfi-comentarios"><div class="jfi-barra"><span>COMENTÁRIOS</span></div><div class="jfi-linhas"><i></i><i></i><i></i><i></i></div></div>
       <div class="jfi-bloco jfi-artigo"><div class="jfi-sub"><span>ARTIGO</span></div><div class="jfi-artigo-img" data-jof-folha-artigo><span>Sem imagem do artigo</span></div></div>
     </div>
     <footer class="jfi-rodape"><span>FOR 05 MOL 001 (pt)</span><span>Impresso pela DMO</span></footer>
