@@ -84,7 +84,9 @@
               if (d.Item1 == "Referência") { refTxt = d.Item2; if (d.Item3 == "Lote") loteTxt = d.Item4 ?? ""; }
               else if (d.Item1 == "Lote") loteTxt = d.Item2;
           }
-          dados = dados.Where(d => !(d.Item1 == "Referência" || d.Item1 == "Lote")).ToArray();
+          // Sem Quantidade (Diogo 22:06: não se utiliza e ocupa espaço)
+          dados = dados.Where(d => !(d.Item1 == "Referência" || d.Item1 == "Lote" || d.Item1 == "Quantidade")).ToArray();
+          lado = lado.Where(l => l.Item1 != "Quantidade").ToArray();
           <div class="jfb">
             <div class="jfb-nome"><b>@nome</b>@if (refTxt.Length > 0 || loteTxt.Length > 0) { <div class="jfb-reflote"><strong>@refTxt</strong>@if (loteTxt.Length > 0) { <span>Lote <i>@loteTxt</i></span> }</div> }@foreach (var (r, v) in lado) { <div class="jfb-lado"><span>@r</span><i>@v</i></div> }</div>
             <table class="jfb-dados"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
