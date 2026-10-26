@@ -69,32 +69,24 @@ a.beta-light-next{text-decoration:none}a.beta-light-next:hover,a.beta-light-next
    o hover fica mais claro no modo claro e mais escuro no modo escuro. */
 .beta-production-rail-head .beta-production-rail-title{font-size:16px;font-weight:800;color:var(--dmo-text-on-color);text-decoration:none}
 .beta-production-rail-head .beta-production-rail-title:hover,.beta-production-rail-head .beta-production-rail-title:focus-visible{color:var(--dmo-brand-300);outline:0}
-.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){height:auto;min-height:0;padding:9px 12px 10px;border:0;border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 82%,#000)}
+.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){height:auto;min-height:0;padding:9px 12px 10px;border:0;border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 22%,var(--dmo-deep-800))}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) strong{color:var(--dmo-text-on-color);font-size:15px}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span{white-space:normal;overflow:visible;margin-top:2px;color:var(--dmo-text-on-color)}
-.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:var(--dmo-text-on-color);opacity:.85;font-size:11.5px}
-.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:color-mix(in srgb,var(--dmo-machine-color) 72%,#fff);background:color-mix(in srgb,var(--dmo-machine-color) 72%,#fff)}
-@media screen{:root[data-theme="dark"] .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:color-mix(in srgb,var(--dmo-machine-color) 45%,#000);background:color-mix(in srgb,var(--dmo-machine-color) 45%,#000)}}
+.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:var(--dmo-deep-text);font-size:11.5px}
+.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 34%,var(--dmo-deep-800))}
+@media screen{:root[data-theme="dark"] .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color) 24%,#070b0e)}}
 /* O mesmo cartão com a cor da linha em todos os painéis laterais (Diogo, 26/10/2026: Planeamento,
    Boquilhas, Reparação Interna…): o hover fica num tom da cor da própria linha e a barra da
    esquerda é dessa cor, nunca o azul. A linha aberta continua marcada com o contorno. */
 .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover{box-shadow:none}
-.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 62%,#000);color:var(--dmo-text-on-color);outline-color:var(--dmo-text-on-color)}
+.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 40%,var(--dmo-deep-800));color:var(--dmo-text-on-color);outline-color:var(--dmo-machine-color)}
 [data-dmo-linha-cor="B1"]{--dmo-machine-color:var(--dmo-machine-b1)}[data-dmo-linha-cor="B2"]{--dmo-machine-color:var(--dmo-machine-b2)}[data-dmo-linha-cor="B3"]{--dmo-machine-color:var(--dmo-machine-b3)}[data-dmo-linha-cor="C1"]{--dmo-machine-color:var(--dmo-machine-c1)}[data-dmo-linha-cor="C2"]{--dmo-machine-color:var(--dmo-machine-c2)}[data-dmo-linha-cor="C3"]{--dmo-machine-color:var(--dmo-machine-c3)}
-
-/* Cartões com a cor forte da linha e letra branca, como os botões (Diogo, 26/10/2026 05:32).
-   No escuro as cores das linhas são mais claras, por isso escurecem mais. */
-@media screen{:root[data-theme="dark"] .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(:hover){background:color-mix(in srgb,var(--dmo-machine-color) 78%,#000)}}
-/* Cartões com a cor da linha como os botões (Diogo, 26/10/2026 05:49–05:50): no claro começam na cor
-   forte com letra branca e no hover invertem para a cor clara com letra escura; no escuro ficam na cor
-   forte com letra branca e escurecem no hover (Diogo 06:02). A barra da esquerda tem sempre a cor do próprio cartão. */
-html body :is(.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]),.beta-light-machine-row){
-  --dmo-cartao-fundo:var(--dmo-machine-color);--dmo-cartao-letra:#fff;
-  --dmo-cartao-fundo-h:color-mix(in srgb,var(--dmo-machine-color) 22%,#fff);--dmo-cartao-letra-h:#1c2b3a}
-@media screen{:root[data-theme="dark"] body :is(.beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]),.beta-light-machine-row){
-  --dmo-cartao-fundo:color-mix(in srgb,var(--dmo-machine-color) 85%,#000);--dmo-cartao-letra:#fff;
-  --dmo-cartao-fundo-h:color-mix(in srgb,var(--dmo-machine-color) 50%,#000);--dmo-cartao-letra-h:#fff}}
-html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(:hover),html body .beta-light-machine-row:not(:has(.beta-light-production:hover)){background:var(--dmo-cartao-fundo)!important;border-left-color:var(--dmo-cartao-fundo)!important}
-html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(:hover) :is(strong,span),html body .beta-light-machine-row:not(:has(.beta-light-production:hover)) :is(strong,span){color:var(--dmo-cartao-letra)!important}
-html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover,html body .beta-light-machine-row:has(.beta-light-production:hover){background:var(--dmo-cartao-fundo-h)!important;border-left-color:var(--dmo-cartao-fundo-h)!important}
-html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover :is(strong,span),html body .beta-light-machine-row:has(.beta-light-production:hover) :is(strong,span){color:var(--dmo-cartao-letra-h)!important}
+/* Cartões com a cor da linha (Diogo, 26/10/2026 06:14): começam como estavam e, no hover e ao
+   clicar, enchem-se com a cor da barra da esquerda, com letra branca. */
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(:hover,.selected,.active),
+html body .beta-light-machine-row:is(:has(.beta-light-production:hover),:has(input:checked)){background:var(--dmo-machine-color)!important;border-left-color:var(--dmo-machine-color)!important;box-shadow:none!important}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(:hover,.selected,.active) :is(strong,span),
+html body .beta-light-machine-row:is(:has(.beta-light-production:hover),:has(input:checked)) :is(strong,span){color:var(--dmo-text-on-color)!important;opacity:1}
+html body .beta-light-machine-row .beta-light-production[data-dmo-row]:hover{box-shadow:none}
+/* As Produções do dia ao lado do calendário levam a mesma barra da esquerda na cor da linha. */
+html body .beta-light-machine-row{border-left:4px solid var(--dmo-machine-color)}
