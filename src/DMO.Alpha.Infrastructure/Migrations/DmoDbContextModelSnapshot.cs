@@ -1801,6 +1801,33 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("JobOns");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnArtigoImagem", b =>
+                {
+                    b.Property<string>("ReferenciaTotal")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("AtualizadoEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("Dados")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.HasKey("ReferenciaTotal");
+
+                    b.ToTable("JobOnArtigoImagens");
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Production.JobOnChange", b =>
                 {
                     b.Property<int>("Id")

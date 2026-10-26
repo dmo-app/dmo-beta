@@ -207,31 +207,92 @@
     imagem.src = src;
   }
 
+  // A imagem do artigo vive no servidor, por referência completa
+  // (/JobOn/ArtigoImagem): igual em todos os Job On dessa referência. Quem
+  // pode editar clica, escolhe e fica guardada; o × retira. A que ficou
+  // antes neste browser (localStorage) passa para o servidor uma vez.
   function artigo(folha) {
     const figura = folha.querySelector('[data-jof-artigo]');
     if (!figura) return;
+    const referencia = figura.getAttribute('data-jof-artigo') || '';
     const img = figura.querySelector('[data-jof-artigo-img]');
     const vazio = figura.querySelector('[data-jof-artigo-vazio]');
     const ficheiro = figura.querySelector('[data-jof-artigo-ficheiro]');
-    const chave = IMAGEM + (figura.getAttribute('data-jof-artigo') || '');
-    function mostrar(src) {
-      if (!img || !src) return;
-      img.src = src;
-      img.hidden = false;
-      if (vazio) vazio.style.display = 'none';
+    const retirar = folha.querySelector('[data-jof-artigo-retirar]');
+    const chave = IMAGEM + referencia;
+    const url = '/JobOn/ArtigoImagem';
+    function token() {
+      const campo = figura.querySelector('input[name=__RequestVerificationToken]');
+      return campo ? campo.value : '';
     }
-    mostrar(ler(chave));
+    function enviar(acao, blob) {
+      const corpo = new FormData();
+      corpo.append('__RequestVerificationToken', token());
+      corpo.append('ref', referencia);
+      if (blob) corpo.append('imagem', blob, 'artigo');
+      return fetch(url + (acao ? '?handler=' + acao : ''), { method: 'POST', body: corpo, credentials: 'same-origin' });
+    }
+    function mostrar(src) {
+      if (!img) return;
+      if (src) {
+        img.src = src;
+        img.hidden = false;
+        if (vazio) vazio.style.display = 'none';
+      } else {
+        img.hidden = true;
+        img.removeAttribute('src');
+        if (vazio) vazio.style.display = '';
+      }
+      if (retirar) retirar.hidden = !src;
+    }
+    const caixaAviso = folha.querySelector('[data-jof-artigo-aviso]');
+    function aviso(texto) {
+      if (!caixaAviso) return;
+      caixaAviso.textContent = texto;
+      caixaAviso.hidden = false;
+      window.setTimeout(() => { caixaAviso.hidden = true; }, 6000);
+    }
+    if (referencia) {
+      fetch(url + '?ref=' + encodeURIComponent(referencia), { credentials: 'same-origin', cache: 'no-cache' })
+        .then((r) => (r.ok ? r.blob() : null))
+        .then((blob) => {
+          if (blob) { mostrar(URL.createObjectURL(blob)); return; }
+          const antiga = ler(chave);
+          if (!antiga) return;
+          mostrar(antiga);
+          if (!ficheiro) return;
+          fetch(antiga).then((r) => r.blob()).then((b) => enviar('', b)).then((r) => {
+            if (r.ok) { try { window.localStorage.removeItem(chave); } catch (e) { /* sem efeito */ } }
+          }).catch(() => {});
+        })
+        .catch(() => {});
+    }
     if (!ficheiro) return;
     ficheiro.addEventListener('change', () => {
       const escolhido = ficheiro.files && ficheiro.files[0];
-      if (!escolhido || !/^image\//.test(escolhido.type)) return;
+      ficheiro.value = '';
+      if (!escolhido || !/^image\/(png|jpeg|webp|gif)$/.test(escolhido.type)) {
+        aviso('Escolha uma imagem PNG, JPG, WEBP ou GIF.');
+        return;
+      }
       const leitor = new FileReader();
       leitor.onload = () => ajustar(String(leitor.result), (src) => {
-        mostrar(src);
-        escrever(chave, src);
+        fetch(src).then((r) => r.blob()).then((blob) => enviar('', blob).then((r) => {
+          if (r.ok) mostrar(URL.createObjectURL(blob));
+          else aviso('A imagem não ficou guardada. Tente outra, até 5 MB.');
+        })).catch(() => aviso('A imagem não ficou guardada. Tente outra vez.'));
       });
       leitor.readAsDataURL(escolhido);
     });
+    if (retirar) {
+      retirar.addEventListener('click', (e) => {
+        e.preventDefault();
+        enviar('Retirar').then((r) => {
+          if (r.ok) mostrar(null);
+          else aviso('Não foi possível retirar a imagem.');
+        }).catch(() => aviso('Não foi possível retirar a imagem.'));
+      });
+    }
   }
 
   // O painel das linhas (o mockup: uma gaveta que o botão «Linhas» abre e o
