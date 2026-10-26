@@ -299,7 +299,18 @@
 
     <section id="ferrGeral" class="dmo-card ferr-card" aria-labelledby="ferr-facts-title" data-dmo-regiao>
       <div class="dmo-card-topo">
-        <h3 id="ferr-facts-title">Geral — @humanFacts</h3>
+        @* SEM REPETIR O TÍTULO (Diogo, 26/10/2026: «tínhamos decidido retirar
+           estes porque repete a informação de cima»): o tipo, a referência e o
+           lote ficam só aqui; a cor leve dos 100% de uso também. *@
+        @{ var usoCheio = DMO.Alpha.Web.Presentation.UsoCheio.ClasseDe(Model.Utilizacao?.Ultima?.Percentagem); }
+        @if (usoCheio is null)
+        {
+          <h3 id="ferr-facts-title">Geral — @humanFacts</h3>
+        }
+        else
+        {
+          <h3 id="ferr-facts-title">Geral — <span class="@usoCheio">@humanFacts</span></h3>
+        }
         <div class="dmo-card-topo-acoes">
           @* AÇÕES RARAS NO «OPÇÕES» (Diogo, 17/10/2026: «criar opções pode ir
              para topo lado direito, e nas opções meter o duplicar e eliminar»):
@@ -331,10 +342,6 @@
         </div>
       </div>
       <div class="dmo-facts">
-        <div class="dmo-fact"><span>Tipo</span><strong>@(tokenOf(tool.Type) switch { "CM" => "CM — Contra-molde", "BQ" => "BQ — Boquilha", _ => "MF — Molde final" })</strong></div>
-        @{ var usoCheio = DMO.Alpha.Web.Presentation.UsoCheio.ClasseDe(Model.Utilizacao?.Ultima?.Percentagem); }
-        <div class="dmo-fact"><span>Referência</span><strong class="@usoCheio">@tool.Reference</strong></div>
-        <div class="dmo-fact"><span>Lote</span><strong class="@usoCheio">@tool.Lot</strong></div>
         <div class="dmo-fact"><span>Linhas</span><strong>@machineCodes</strong></div>
         @* Só a CM com uma referência diferente da do MF (Diogo, 21/10/2026). *@
         @if (tool.Type == ToolType.Cm && !string.IsNullOrWhiteSpace(tool.AssociatedMfReference)

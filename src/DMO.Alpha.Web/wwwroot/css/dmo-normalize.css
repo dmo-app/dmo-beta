@@ -54,6 +54,11 @@ html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-
 /* Só a linha fina do botão, sem a segunda borda à volta (Diogo, 17/10/2026).
    O hover inverte as cores; o foco do teclado é um halo suave da paleta. */
 html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600));outline:0}
+/* O botão invertido é branco também no escuro (Diogo, 26/10/2026: «invertido deveria ser branco em todos»). */
+:root{--dmo-invertido:#fff}
+/* Sem itálico (regra do Diogo; 26/10/2026: «estes botões seguem a regra padrão?»): os <em> e <i> e as dicas dos campos ficam direitos em toda a app. */
+html body :is(em,i,cite,dfn,var,address),html body ::placeholder{font-style:normal}
+html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-invertido)}
 /* Todos os botões iguais (Diogo, 19/10/2026): azul com letra branca; o rato
    por cima inverte; ao carregar fica um azul mais claro da paleta. */
 html body :is(.dmo-button,.button,.btn):focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
@@ -89,6 +94,17 @@ html body select:not([multiple]):not([size]){box-sizing:border-box;min-width:0;m
 /* A seta é obrigatória: as regras de campo antigas têm seletores mais fortes e repunham o fundo. */
 html body select:not([multiple]):not([size]){padding-right:32px !important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364778a' stroke-width='1.6'/%3E%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:right 11px center !important}
 html body select:not([multiple]):not([size]):focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
+/* A lista que abre de um seletor (Diogo, 26/10/2026: «feio», «não deveria ser assim»): a nativa do browser ficava azul-clara no escuro. Onde o browser deixa (appearance:base-select), a lista usa as cores da app: fundo do cartão, a opção por baixo do rato na cor dos botões com letra branca, a escolhida a negrito. */
+@supports (appearance:base-select){
+html body select:not([multiple]):not([size]),html body select:not([multiple]):not([size])::picker(select){appearance:base-select}
+html body select:not([multiple]):not([size])::picker-icon{display:none}
+html body select:not([multiple]):not([size])::picker(select){margin-top:4px;padding:4px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);box-shadow:var(--dmo-shadow)}
+html body select:not([multiple]):not([size]) option{padding:7px 10px;border-radius:6px;background:transparent;color:var(--dmo-text);font-weight:var(--dmo-fw-regular)}
+html body select:not([multiple]):not([size]) option::checkmark{display:none}
+html body select:not([multiple]):not([size]) option:checked{font-weight:var(--dmo-fw-semibold)}
+html body select:not([multiple]):not([size]) option:is(:hover,:focus-visible){background:var(--dmo-brand-600);color:var(--dmo-text-on-color);outline:0}
+html body select:not([multiple]):not([size]) option:disabled{color:var(--dmo-muted)}
+}
 html body select:disabled{background-color:var(--dmo-subtle);color:var(--dmo-muted);cursor:not-allowed}
 html body :is(.dmo-field,.beta-light-fields) :is(input:not([type=radio]):not([type=checkbox]),textarea){font-size:var(--dmo-fs-base)}
 
@@ -194,6 +210,8 @@ html body input.dmo-suggest-input:focus{border-color:var(--dmo-brand-600);outlin
    text-box). Um píxel a mais em cima e a menos em baixo, com a mesma altura,
    em todos os campos partilhados. */
 html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input){padding-top:10px;padding-bottom:8px}
+/* Com a lista da app (base-select) o texto do select fica mais acima: mais um píxel em cima e menos em baixo (medido no browser). */
+@supports (appearance:base-select){html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input):is(select){padding-top:11px;padding-bottom:7px}}
 html body input.dmo-suggest-input:disabled{background-color:var(--dmo-subtle);color:var(--dmo-muted);cursor:not-allowed}
 html body .dmo-suggest-list{position:fixed;z-index:200;min-width:220px;max-height:min(320px,50vh);overflow-y:auto;margin:0;padding:4px;list-style:none;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow-menu)}
 html body .dmo-suggest-list li{padding:8px 10px;border-radius:6px;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);color:var(--dmo-text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -270,6 +288,8 @@ html body summary::-webkit-details-marker{display:none}
 html body .dmo-caret{display:inline-block;flex:none;width:6px;height:9px;margin-right:.25em;vertical-align:.02em;background:currentColor;clip-path:polygon(0 0,100% 50%,0 100%);transition:transform var(--dmo-fast)}
 html body :is(details[open]>summary,[aria-expanded="true"]) .dmo-caret{transform:rotate(90deg)}
 html body details:not([open])>summary .dmo-caret{transform:none}
+/* Um só triângulo (Diogo, 26/10/2026: «dois triângulos»): o título de um card que abre e fecha já traz o .dmo-caret; o desenhado pelo .dmo-card-topo do design system sai. */
+html body summary.dmo-card-topo>:first-child::before{content:none}
 /* Só a folga do triângulo conta: o gap do contentor não se soma. */
 html body :is(summary,.def-menu-titulo):not(.job-tool-card-head):has(>.dmo-caret:first-child){column-gap:0}
 html body .job-tool-card-head>.dmo-caret{margin-right:calc(.25em - 10px)}
