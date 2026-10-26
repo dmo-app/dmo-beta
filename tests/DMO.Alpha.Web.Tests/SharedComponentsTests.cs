@@ -137,6 +137,19 @@ public sealed class SharedComponentsTests
         }
     }
 
+    // SEM ITÁLICO (regra do Diogo; 26/10/2026: «estes botões seguem a regra padrão?»).
+    [Fact]
+    public void SemItalico_EmTodaAApp()
+    {
+        var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
+        Assert.Contains("html body :is(em,i,cite,dfn,var,address),html body ::placeholder{font-style:normal}", css, StringComparison.Ordinal);
+        var estilos = Directory.GetFiles(Path.Combine(WebRoot(), "wwwroot"), "*.css", SearchOption.AllDirectories)
+            .Where(f => !f.EndsWith(".min.css", StringComparison.Ordinal) && !f.Contains(Path.DirectorySeparatorChar + "lib" + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+            .Concat(Directory.GetFiles(Path.Combine(WebRoot(), "Pages"), "*.cshtml", SearchOption.AllDirectories));
+        foreach (var f in estilos)
+            Assert.DoesNotContain("italic", File.ReadAllText(f), StringComparison.OrdinalIgnoreCase);
+    }
+
     [Fact]
     public void HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial()
     {

@@ -56,6 +56,8 @@ html body :is(.dmo-button,.button,.btn){background:var(--button-color,var(--dmo-
 html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--button-color,var(--dmo-brand-600));outline:0}
 /* O botão invertido é branco também no escuro (Diogo, 26/10/2026: «invertido deveria ser branco em todos»). */
 :root{--dmo-invertido:#fff}
+/* Sem itálico (regra do Diogo; 26/10/2026: «estes botões seguem a regra padrão?»): os <em> e <i> e as dicas dos campos ficam direitos em toda a app. */
+html body :is(em,i,cite,dfn,var,address),html body ::placeholder{font-style:normal}
 html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-invertido)}
 /* Todos os botões iguais (Diogo, 19/10/2026): azul com letra branca; o rato
    por cima inverte; ao carregar fica um azul mais claro da paleta. */

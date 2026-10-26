@@ -2716,12 +2716,13 @@ Selo depois: `79f54fc617b75cbe`
 
 ## A-0129 · 2026-10-26 · ok-do-diogo
 
-Porquê: Pedidos do Diogo (26/10/2026): o título da ficha deixa de repetir Tipo/Referência/Lote (o teste do uso cheio vê a cor no título); o dia escolhido do calendário fica com letra branca também no escuro (--dmo-text-on-color em vez de --dmo-card). Teste novo: um só triângulo nos cards que abrem e fecham, botão invertido branco no escuro (--dmo-invertido) e os tipos de movimento das BQ iguais aos botões.
+Porquê: Pedidos do Diogo (26/10/2026): o título da ficha deixa de repetir Tipo/Referência/Lote (o teste do uso cheio vê a cor no título); o dia escolhido do calendário fica com letra branca também no escuro (--dmo-text-on-color em vez de --dmo-card). Testes novos: um só triângulo nos cards que abrem e fecham, botão invertido branco no escuro (--dmo-invertido) e os tipos de movimento das BQ iguais aos botões; sem itálico em toda a app.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyWEXEuqNDbtKB7hrcdSAPWz
-Novos: 1 · mudaram: 2 · saíram: 0
+Novos: 2 · mudaram: 2 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.SemItalico_EmTodaAApp`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
 - mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
 
-Selo depois: `fe9cb6a704e0fdac`
+Selo depois: `8fcff187abd8f5cd`
