@@ -29,8 +29,11 @@ public sealed class ArtigoImagemModel(JobOnArtigoImagemHandler imagens, CurrentU
         }
         Response.Headers.CacheControl = "private, no-cache";
         Response.Headers.XContentTypeOptions = "nosniff";
-        return File(imagem.Dados, imagem.ContentType, imagem.AtualizadoEmUtc, new Microsoft.Net.Http.Headers.EntityTagHeaderValue(
-            $"\"{imagem.AtualizadoEmUtc.Ticks:x}\""));
+        return new FileContentResult(imagem.Dados, imagem.ContentType)
+        {
+            LastModified = imagem.AtualizadoEmUtc,
+            EntityTag = new Microsoft.Net.Http.Headers.EntityTagHeaderValue($"\"{imagem.AtualizadoEmUtc.Ticks:x}\""),
+        };
     }
 
     public async Task<IActionResult> OnPostAsync(
