@@ -3070,3 +3070,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ORelatorioProducoesReal_LigaAsProducoesDaCmDaB1_ComGarrafas`
 
 Selo depois: `0e773a7349323fea`
+
+## A-0163 · 2026-10-26 · ok-do-diogo
+
+Porquê: Peso: a caixa do peso da produção anterior mostra só a média e a moda abre numa janela (A-0163); o teste deixa de pedir as caixas Média/Moda (Diogo 26/10 20:18).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3gTYGTcTs8P97dEqSZ6wty
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+
+Selo depois: `bca6c7d6576d340c`

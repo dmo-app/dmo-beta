@@ -54,11 +54,11 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         Assert.DoesNotContain("SAP", visivel, StringComparison.Ordinal);
         Assert.Contains("Média 181.67 g", texto, StringComparison.Ordinal);
         Assert.Contains("Moda 181 g", texto, StringComparison.Ordinal);
-        // A Média vem escolhida, com a diferença do peso de hoje; a Moda escolhe-se (ou as duas).
-        Assert.Contains("<input type=\"checkbox\" data-sap-ver=\"media\" checked />", sap, StringComparison.Ordinal);
-        Assert.Contains("<input type=\"checkbox\" data-sap-ver=\"moda\" />", sap, StringComparison.Ordinal);
+        // A caixa mostra só a média, com a diferença do peso de hoje; a moda e a sua diferença abrem numa janela pequena.
+        Assert.DoesNotContain("data-sap-ver", sap, StringComparison.Ordinal);
+        Assert.Contains("data-dmo-dialog=\"pesoSapModa\"", sap, StringComparison.Ordinal);
         Assert.Matches("data-sap-delta=\"media\">Hoje [+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
-        Assert.Contains("data-sap-delta=\"moda\" hidden>Hoje ", sap, StringComparison.Ordinal);
+        Assert.Matches("data-sap-delta=\"moda\">Hoje [+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
         Assert.DoesNotContain("data-sap-usar", sap, StringComparison.Ordinal);
         Assert.Contains("id=\"producaoAnteriorPeso\" name=\"anterior_peso\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"Peso usado (g)\" aria-label=\"Peso usado na produção (g)\" value=\"181.67\"", WebUtility.HtmlDecode(html), StringComparison.Ordinal);
         // Cada produção do select leva o seu peso; a mais antiga não tem ordens do SAP.
