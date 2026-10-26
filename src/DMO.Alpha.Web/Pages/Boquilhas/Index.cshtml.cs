@@ -82,6 +82,8 @@ public sealed partial class IndexModel : PageModel
     private readonly IAssociateBqRepairTraceToContextHandler _associate;
     private readonly IToolCandidateQuery _toolCandidates;
     private readonly DmoDbContext _db;
+    private readonly IBoquilhasEscolhasQuery _escolhas;
+    private readonly DMO.Alpha.Core.Production.IMachineListQuery _machineList;
     private readonly DMO.Alpha.Infrastructure.Production.JobOnChangeQuery _changes;
     private readonly DMO.Alpha.Core.Production.IProductionPickerQuery _productionPicker;
 
@@ -96,6 +98,8 @@ public sealed partial class IndexModel : PageModel
         IAssociateBqRepairTraceToContextHandler associate,
         IToolCandidateQuery toolCandidates,
         DmoDbContext db,
+        IBoquilhasEscolhasQuery escolhas,
+        DMO.Alpha.Core.Production.IMachineListQuery machineList,
         DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
         DMO.Alpha.Core.Production.IProductionPickerQuery productionPicker,
         CurrentUserCapabilities capabilities)
@@ -111,6 +115,8 @@ public sealed partial class IndexModel : PageModel
         _associate = associate;
         _toolCandidates = toolCandidates;
         _db = db;
+        _escolhas = escolhas;
+        _machineList = machineList;
         _changes = changes;
         _productionPicker = productionPicker;
     }
@@ -608,30 +614,13 @@ public sealed partial class IndexModel : PageModel
         {
             // «Registar sem Job On» (Diogo, 22/10/2026): as BQ registadas,
             // para a janela da página Boquilhas.
-            SemJobOnTools = (await _db.Tools.AsNoTracking()
-                .Where(t => t.Type == ToolType.Bq && t.ToolId != ToolRegistryConstants.RemovedToolId)
-                .OrderBy(t => t.Reference).ThenBy(t => t.Lot)
-                .Select(t => new
-                {
-                    t.ToolId, t.Reference, t.Lot, t.BqAccountedQuantity, t.AssociatedMfReference,
-                    Machines = _db.ToolMachineLinks.Where(l => l.ToolId == t.ToolId)
-                        .Select(l => l.Machine.Code).OrderBy(c => c).ToList(),
-                    LastLine = _db.BqMovements
-                        .Where(m => m.Trace.ToolId == t.ToolId && m.MachineCodeFrozen != null)
-                        .OrderByDescending(m => m.OccurredAtUtc)
-                        .Select(m => m.MachineCodeFrozen)
-                        .FirstOrDefault()
-                })
-                .ToListAsync(HttpContext.RequestAborted))
-                .Select(t => new SemJobOnTool(t.ToolId, t.Reference, t.Lot, t.BqAccountedQuantity,
-                    t.Machines.Count > 0 ? string.Join(" · ", t.Machines) : null, t.AssociatedMfReference, t.LastLine))
+            SemJobOnTools = (await _escolhas.BqSemJobOnAsync(HttpContext.RequestAborted))
+                .Select(t => new SemJobOnTool(t.ToolId, t.Reference, t.Lot, t.Quantity,
+                    t.Machines.Count > 0 ? string.Join(" · ", t.Machines) : null, t.MfReference, t.LastLine))
                 .ToList();
             SemJobOnResult = Request.Query["sem_jobon"].FirstOrDefault();
             // A linha do movimento (Diogo, 22/10/2026: ajuda a distinguir a BQ).
-            SemJobOnLines = await _db.Machines.AsNoTracking()
-                .OrderBy(m => m.Code)
-                .Select(m => new DMO.Alpha.Core.Production.MachineOption(m.Id, m.Code))
-                .ToListAsync(HttpContext.RequestAborted);
+            SemJobOnLines = await _machineList.ListAsync(HttpContext.RequestAborted);
         }
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new("boquilhas", "Boquilhas"))) with
         {
@@ -794,11 +783,7 @@ public sealed partial class IndexModel : PageModel
         var loteQuery = Request.Query["lote"].ToString().Trim();
         if (bqFerramenta?.Trim() is { Length: > 0 } wantedTool)
         {
-            var filterTool = await _db.Tools
-                .AsNoTracking()
-                .Where(t => t.ToolId == wantedTool)
-                .Select(t => new { t.ToolId, t.Reference, t.Lot })
-                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            var filterTool = await _escolhas.FerramentaAsync(wantedTool, HttpContext.RequestAborted);
             if (filterTool is not null)
             {
                 pesquisa = filterTool.Reference;
@@ -811,11 +796,7 @@ public sealed partial class IndexModel : PageModel
         {
             var referencia = pesquisa.Trim().ToUpperInvariant();
             var semZeros = loteQuery.TrimStart('0');
-            var candidatas = await _db.Tools
-                .AsNoTracking()
-                .Where(t => t.Type == ToolType.Bq && t.Reference.ToUpper() == referencia && t.Lot != null)
-                .Select(t => new { t.ToolId, t.Reference, t.Lot })
-                .ToListAsync(HttpContext.RequestAborted);
+            var candidatas = await _escolhas.BqsDaReferenciaAsync(referencia, HttpContext.RequestAborted);
             var escolhida = candidatas.FirstOrDefault(t => t.Lot == loteQuery)
                 ?? candidatas.FirstOrDefault(t => t.Lot!.TrimStart('0') == semZeros);
             // Sem BQ com esta referência e lote: a lista fica vazia, não ignora o lote.
@@ -824,11 +805,7 @@ public sealed partial class IndexModel : PageModel
         }
         if (int.TryParse(Request.Query["jobon_id"], NumberStyles.None, CultureInfo.InvariantCulture, out var wantedJobOn))
         {
-            var filterJobOn = await _db.JobOns
-                .AsNoTracking()
-                .Where(j => j.Id == wantedJobOn)
-                .Select(j => new { j.Id, j.ProductionNumber, j.Reference, Line = j.Machine.Code })
-                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+            var filterJobOn = await _escolhas.ProducaoDoFiltroAsync(wantedJobOn, HttpContext.RequestAborted);
             if (filterJobOn is not null)
             {
                 FilterJobOnId = filterJobOn.Id;
