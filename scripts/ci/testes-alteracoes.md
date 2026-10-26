@@ -2912,25 +2912,9 @@ Novos: 14 · mudaram: 2 · saíram: 0
 
 Selo depois: `efca3bbb72e1c0c8`
 
-## A-0142 · 2026-10-26 · ok-do-diogo
+## A-0143 · 2026-10-26 · contagem-lista
 
-Porquê: Registo do integracao acertado pela main 4ac3e6b: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 5 · mudaram: 1 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
-
-Selo depois: `eeae6112a6c4d093`
-
-## A-0143 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção do PR 144 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 144
+Porquê: a lista das migrações e as colunas do Job On ganham a Experiencia (migração JobOnExperiencia); teste novo: a experiência usa o nº AAAA00, entra e sai no mesmo dia e convive com a produção da linha
 Novos: 2 · mudaram: 2 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: (resto do ficheiro)`
@@ -2938,30 +2922,27 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
-Selo depois: `36c96f7cdb8ca39d`
+Selo depois: `de6e4f299d90520b`
 
 ## A-0144 · 2026-10-26 · ok-do-diogo
 
-Porquê: Junção do PR #142 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR #142
-Novos: 7 · mudaram: 0 · saíram: 0
+Porquê: Registo do integracao acertado pela main .86 + PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 12 · mudaram: 2 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: JobOnFolhaRondaTests.Alteracoes_SoAFormaDoNumero_NaoEMudanca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: FerramentasPagesTests.Criar_CaixaDoUso_DeixaEscreverOValorTodo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor`
-
-Selo depois: `051430a6f2918d77`
-
-## A-0145 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção do PR 145b no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 145b
-Novos: 0 · mudaram: 1 · saíram: 0
-
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 - mudou: `tests/visual/ecra_pequeno_browser.py`
 
 Selo depois: `4068ebba6a5a757a`
