@@ -1,0 +1,95 @@
+@page "/Admin/Registos"
+@model DMO.Alpha.Web.Pages.Admin.Registos.IndexModel
+@using DMO.Alpha.Core.Admin
+@{
+    Layout = "_DmoShellLayout";
+    var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
+}
+@section Head {
+<style>
+.dmr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.dmr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700)}
+.dmr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.dmr-card{padding:18px}
+.dmr-card h3{margin:0 0 12px;font-size:16px}
+.dmr-filtros{display:grid;grid-template-columns:minmax(200px,1.6fr) minmax(160px,1fr) minmax(140px,.8fr) minmax(140px,.8fr);gap:10px;align-items:end}
+.dmr-card .card-note{margin:0 0 12px;color:var(--dmo-muted);font-size:12.5px}
+.dmr-vazia{padding:30px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border);border-radius:12px}
+.dmr-card .dmo-table td,.dmr-card .dmo-table th{text-align:center}
+@@media(max-width:900px){.dmr-filtros{grid-template-columns:1fr}}
+</style>
+}
+<main class="dmr-page" aria-labelledby="dmr-title">
+  <div class="page-head">
+    <h2 id="dmr-title">Registos</h2>
+    <p>O que cada utilizador registou, corrigiu ou anulou nos módulos.</p>
+  </div>
+
+  <section class="dmo-card dmr-card" aria-labelledby="dmr-filtros-title">
+    <h3 id="dmr-filtros-title">Filtrar registos</h3>
+    <form method="get" class="dmr-filtros" id="dmrFiltros">
+      <div class="dmo-field">
+        <label for="dmr-utilizador">Utilizador</label>
+        <select id="dmr-utilizador" name="utilizador" data-dmo-autosubmit>
+          <option value="">Todos</option>
+          @foreach (var u in Model.Utilizadores)
+          {
+            <option value="@u.OperatorId" selected="@(u.OperatorId == Model.RequestedOperatorId)">@u.Name (@u.OperatorId)</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="dmr-modulo">Módulo</label>
+        <select id="dmr-modulo" name="modulo" data-dmo-autosubmit>
+          <option value="">Todos</option>
+          @foreach (var modulo in Enum.GetValues<RegistoModulo>())
+          {
+            <option value="@modulo" selected="@(modulo == Model.RequestedModulo)">@IRegistosDosUtilizadores.Nome(modulo)</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field">
+        <label for="dmr-de">De</label>
+        <input id="dmr-de" type="date" name="de" value="@Model.RequestedDe?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
+      </div>
+      <div class="dmo-field">
+        <label for="dmr-ate">Até</label>
+        <input id="dmr-ate" type="date" name="ate" value="@Model.RequestedAte?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
+      </div>
+      <noscript><button type="submit" class="dmo-button">Filtrar</button></noscript>
+    </form>
+  </section>
+
+  @if (Model.Procurou)
+  {
+  <section class="dmo-card dmr-card" id="dmrResultados" aria-labelledby="dmr-lista-title">
+    <h3 id="dmr-lista-title">Registos</h3>
+    <p class="card-note">@Model.Pagina.TotalCount registo(s)</p>
+    @if (Model.Pagina.Items.Count == 0)
+    {
+      <div class="dmr-vazia">Nenhum registo com estes filtros.</div>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-list="Registos">
+          <thead><tr><th>Quando</th><th>Utilizador</th><th>Módulo</th><th>Ação</th><th>Detalhe</th></tr></thead>
+          <tbody>
+            @foreach (var r in Model.Pagina.Items)
+            {
+              <tr>
+                <td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(r.EmUtc).ToString("dd/MM/yyyy HH:mm", pt)</td>
+                <td>@(r.Utilizador ?? "—")</td>
+                <td>@IRegistosDosUtilizadores.Nome(r.Modulo)</td>
+                <td>@r.Acao</td>
+                <td>@r.Detalhe</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <partial name="_ListPager" model="Model.Pager" />
+    }
+  </section>
+  }
+</main>

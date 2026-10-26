@@ -166,8 +166,9 @@
             }
             else
             {
-              <span class="hv"><small>Referência</small><b data-jof-tool-ref>@f.Reference</b></span>
-              <span class="hv"><small>Lote</small><b data-jof-tool-lote>@FolhaModel.Lote(f.Lot)</b></span>
+              @* Com o uso cheio, só a cor da referência e do lote muda (Diogo, 23/10/2026). *@
+              <span class="hv"><small>Referência</small><b data-jof-tool-ref class="@Model.UsoCheioDe(toolId)">@f.Reference</b></span>
+              <span class="hv"><small>Lote</small><b data-jof-tool-lote class="@Model.UsoCheioDe(toolId)">@FolhaModel.Lote(f.Lot)</b></span>
             }
             @if (editar)
             {
