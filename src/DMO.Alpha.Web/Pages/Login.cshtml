@@ -23,7 +23,8 @@
     </div>
     <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
     <button type="submit" class="dmo-button submit" data-login-submit>Entrar</button>
-    <a class="dmo-button" href="/Posto" id="login-posto">Posto de Reparação</a>
+    @* Só «Reparação», no canto inferior direito do quadro (Diogo, 26/10/2026). *@
+    <a class="dmo-button" href="/Posto" id="login-posto" aria-label="Posto de Reparação">Reparação</a>
 
     @if (Model.Instalado)
     {
