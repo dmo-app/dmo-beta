@@ -70,6 +70,7 @@ public sealed class PegamentosSchemaTests
             new HashSet<string>
             {
                 "Users",
+                "LocalCredentials",
                 "Templates",
                 "TemplateAssignments",
                 "Machines",
