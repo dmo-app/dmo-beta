@@ -463,10 +463,11 @@ public sealed class IndexModel(
         // fim, cada uma com a produção do dia do registo. A linha do pedido
         // leva a produção escolhida, o tipo e o que se escreveu.
         var linhas = new List<RiCartao>();
+        var doDiaDeCada = await reparacoes.ProducoesDoDiaAsync([.. Maquinas.Select(m => m.MachineId)], DiaDoRegisto, cancelar);
         foreach (var m in Maquinas.OrderBy(m => Fila(m.Code)).ThenBy(m => m.Code, StringComparer.OrdinalIgnoreCase))
         {
             var foco = m.MachineId == Maquina?.MachineId;
-            var doDia = await reparacoes.ProducaoDoDiaAsync(m.MachineId, DiaDoRegisto, cancelar);
+            var doDia = doDiaDeCada[m.MachineId];
             var producao = doDia.Escolhida(foco ? ProducaoPedida : null);
             var cartao = new RiCartao(m, doDia, producao, foco ? Tipo ?? ReparacaoTipo.Cm : ReparacaoTipo.Cm, foco);
             linhas.Add(cartao);

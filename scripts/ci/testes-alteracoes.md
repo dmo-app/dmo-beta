@@ -2279,3 +2279,13 @@ Novos: 11 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.ReferenciasDeMf_SoParaAFerramentaDoTipoCerto`
 
 Selo depois: `77e42f1b702b86d7`
+
+## A-0096 · 2026-10-26 · teste-novo
+
+Porquê: PERF-02: teste novo (Postgres) da produção do dia da Reparação Interna numa só leitura para todas as linhas, igual à leitura linha a linha
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: PostgresMigrationIntegrationTests.ReparacaoInterna_ProducoesDoDia_NumaSoLeituraComOMesmoResultadoQueUmaPorUma`
+
+Selo depois: `f5460727dd7957fa`

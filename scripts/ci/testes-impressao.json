@@ -1,5 +1,5 @@
 {
-  "selo": "77e42f1b702b86d7",
+  "selo": "f5460727dd7957fa",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -951,6 +951,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProcuraParteBq.cs :: PostgresMigrationIntegrationTests.ProcuraPelaParteBq_ComecaNaPrimeiraLetra_NoPostgres": "800ad7e4ea2bb593",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProcuraPeloInicio.cs :: (resto do ficheiro)": "64200a8be026da0e",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProcuraPeloInicio.cs :: PostgresMigrationIntegrationTests.ProcuraPeloInicio_TodasAsConsultas_NoPostgres": "90d96dfe6809f1af",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: (resto do ficheiro)": "fd21c561ce967f61",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: PostgresMigrationIntegrationTests.ReparacaoInterna_ProducoesDoDia_NumaSoLeituraComOMesmoResultadoQueUmaPorUma": "1f6a5b2db69e2b17",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: (resto do ficheiro)": "fab8c02ca04edd65",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: PostgresMigrationIntegrationTests.Programada_AdicionarEnquantoAUltimaFerramentaVolta_NaoAcrescentaAUmaListaFechada": "5d58a53e0698650b",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: PostgresMigrationIntegrationTests.Programada_AsDuasUltimasFerramentasVoltamAoMesmoTempo_AListaFecha": "25e9ed428a68cc09",
