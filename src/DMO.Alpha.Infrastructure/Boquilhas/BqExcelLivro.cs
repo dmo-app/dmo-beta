@@ -38,6 +38,9 @@ public static class BqExcelLivro
 
     private static readonly string[] DiasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
+    /// <summary>O formato das datas: dd/mm/aaaa em qualquer computador.</summary>
+    public const string FormatoData = "dd/mm/yyyy";
+
     public static int LinhaDoDia(int dia) => PrimeiraLinha + LinhasPorDia * (dia - 1);
 
     /// <summary>
@@ -178,6 +181,13 @@ public static class BqExcelLivro
             {
                 var pacote = new Pacote(zip);
                 var ano = pacote.Ano();
+                // Cada mês no seu separador (Diogo, 26/10/2026: «cada mês deveria
+                // ser uma página diferente»): os que faltam criam-se já, por ordem.
+                for (var m = 1; m <= 12; m++)
+                {
+                    if (pacote.Folha(m) is null) pacote.CriarFolha(ano, m);
+                }
+
                 foreach (var mes in dias.GroupBy(dia => (dia.Dia.Year, dia.Dia.Month)))
                 {
                     if (mes.Key.Year != ano)
@@ -254,9 +264,8 @@ public static class BqExcelLivro
                 var folha = pacote.Folha(dia.Dia.Month);
                 if (folha is null)
                 {
-                    // Sem separador do mês: igual se a app também não tem nada nesse dia.
-                    if (!TemLinhas(dia)) break;
-                    atualizados.Add(dia);
+                    // Sem separador do mês: um dia vazio na app não tem nada a escrever.
+                    if (TemLinhas(dia)) atualizados.Add(dia);
                     continue;
                 }
 
@@ -268,7 +277,15 @@ public static class BqExcelLivro
                     break;
                 }
 
-                if (DiaIgual(folha.Xml, colunas, pacote.Textos, dia, anteriores)) break;
+                // Só pára num dia com movimentos já igual (Diogo, 26/10/2026: «ao
+                // carregar atualizar não mete os movimentos»): um dia vazio na app
+                // e no Excel (um domingo) não diz nada sobre os dias de antes.
+                if (DiaIgual(folha.Xml, colunas, pacote.Textos, dia, anteriores))
+                {
+                    if (TemLinhas(dia)) break;
+                    continue;
+                }
+
                 atualizados.Add(dia);
             }
         }
@@ -705,7 +722,23 @@ public static class BqExcelLivro
                 new XAttribute("Id", id), new XAttribute("Type", TipoFolha), new XAttribute("Target", $"worksheets/sheet{numero}.xml")));
             var folhas = _livro.Root!.Element(S + "sheets")!;
             var sheetId = folhas.Elements(S + "sheet").Select(s => (int)s.Attribute("sheetId")!).DefaultIfEmpty(0).Max() + 1;
-            folhas.Add(new XElement(S + "sheet", new XAttribute("name", nome), new XAttribute("sheetId", sheetId), new XAttribute(R + "id", id)));
+            var separador = new XElement(S + "sheet", new XAttribute("name", nome), new XAttribute("sheetId", sheetId), new XAttribute(R + "id", id));
+            // Por ordem dos meses: antes do primeiro separador de um mês depois deste.
+            var ordem = Meses.Select(SemAcentos).ToList();
+            var depois = folhas.Elements(S + "sheet").FirstOrDefault(s => ordem.IndexOf(SemAcentos((string)s.Attribute("name")!)) >= mes);
+            if (depois is null)
+            {
+                folhas.Add(separador);
+            }
+            else
+            {
+                depois.AddBeforeSelf(separador);
+                // O separador ativo (activeTab) é uma posição: passa uma para a frente.
+                var vista = _livro.Root!.Element(S + "bookViews")?.Element(S + "workbookView");
+                var ativo = (int?)vista?.Attribute("activeTab") ?? 0;
+                var posicao = folhas.Elements(S + "sheet").ToList().IndexOf(separador);
+                if (vista is not null && ativo >= posicao) vista.SetAttributeValue("activeTab", ativo + 1);
+            }
             _tipos.Root!.Add(new XElement(Ct + "Override",
                 new XAttribute("PartName", "/" + caminho), new XAttribute("ContentType", ConteudoFolha)));
 
@@ -714,6 +747,34 @@ public static class BqExcelLivro
             _abertas[caminho] = nova;
             _novas.Add(nova);
             return nova;
+        }
+
+        /// <summary>
+        /// As datas em dd/mm/aaaa (Diogo, 26/10/2026): o formato 14 do Excel
+        /// muda com o computador (saía mm-dd-yy); os estilos com ele passam a
+        /// um formato próprio «dd/mm/yyyy».
+        /// </summary>
+        private void DatasPt()
+        {
+            var estilos = Ler("xl/styles.xml");
+            var raiz = estilos?.Root;
+            if (raiz is null) return;
+            var comData = raiz.Element(S + "cellXfs")?.Elements(S + "xf").Where(x => (string?)x.Attribute("numFmtId") == "14").ToList() ?? [];
+            if (comData.Count == 0) return;
+            var formatos = raiz.Element(S + "numFmts");
+            if (formatos is null)
+            {
+                formatos = new XElement(S + "numFmts");
+                raiz.AddFirst(formatos);
+            }
+
+            var proprio = formatos.Elements(S + "numFmt").FirstOrDefault(f => (string?)f.Attribute("formatCode") == FormatoData);
+            var id = (int?)proprio?.Attribute("numFmtId")
+                ?? Math.Max(164, formatos.Elements(S + "numFmt").Select(f => (int)f.Attribute("numFmtId")! + 1).DefaultIfEmpty(164).Max());
+            if (proprio is null) formatos.Add(new XElement(S + "numFmt", new XAttribute("numFmtId", id), new XAttribute("formatCode", FormatoData)));
+            formatos.SetAttributeValue("count", formatos.Elements(S + "numFmt").Count());
+            foreach (var xf in comData) xf.SetAttributeValue("numFmtId", id);
+            Escrever("xl/styles.xml", estilos!);
         }
 
         /// <summary>
@@ -745,6 +806,7 @@ public static class BqExcelLivro
             }
 
             calculo.SetAttributeValue("fullCalcOnLoad", "1");
+            DatasPt();
 
             Escrever("xl/workbook.xml", _livro);
             Escrever("xl/_rels/workbook.xml.rels", _relacoes);

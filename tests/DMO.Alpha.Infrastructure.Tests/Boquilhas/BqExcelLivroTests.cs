@@ -145,7 +145,7 @@ public sealed class BqExcelLivroTests
             [Movimento(1, "Saida", 5, 2026, 3, 31, "C2", "T282", "76")], new(2026, 3, 1), new(2026, 3, 31)));
 
         Assert.Empty(resultado.Avisos);
-        var marco = Folha(resultado.Livro, "xl/worksheets/sheet2.xml");
+        var marco = FolhaDoMes(resultado.Livro, "Março");
         Assert.Equal("A149+1", Celula(marco, "A154")!.Element(S + "f")!.Value);
         Assert.Equal("Terça", Texto(marco, "A155"));
         Assert.Equal("T282/76", Texto(marco, "R154"));
@@ -176,7 +176,12 @@ public sealed class BqExcelLivroTests
         Assert.Equal(antes.Element(S + "cols")!.ToString(), depois.Element(S + "cols")!.ToString());
         using var zip = new ZipArchive(new MemoryStream(resultado.Livro));
         using var original = new ZipArchive(new MemoryStream(livro));
-        Assert.Equal(Ler(original, "xl/styles.xml"), Ler(zip, "xl/styles.xml"));
+        // Os estilos ficam os mesmos; só as datas passam a dd/mm/aaaa.
+        var estilosAntes = XDocument.Parse(Ler(original, "xl/styles.xml")).Root!;
+        var estilosDepois = XDocument.Parse(Ler(zip, "xl/styles.xml")).Root!;
+        Assert.Equal(estilosAntes.Element(S + "cellXfs")!.Elements().Count(), estilosDepois.Element(S + "cellXfs")!.Elements().Count());
+        Assert.Contains(estilosDepois.Descendants(S + "numFmt"), f => (string?)f.Attribute("formatCode") == "dd/mm/yyyy");
+        Assert.DoesNotContain(estilosDepois.Descendants(S + "xf"), x => (string?)x.Attribute("numFmtId") == "14");
     }
 
     [Fact]
@@ -241,9 +246,7 @@ public sealed class BqExcelLivroTests
         var outubro = livro.Descendants(S + "sheet").Single(s => (string)s.Attribute("name")! == "Outubro");
         var id = (string)outubro.Attribute(XName.Get("id", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"))!;
         Assert.Contains($"Id=\"{id}\"", Ler(zip, "xl/_rels/workbook.xml.rels"));
-        Assert.Contains("/xl/worksheets/sheet2.xml", Ler(zip, "[Content_Types].xml"));
-
-        var folha = Folha(resultado.Livro, "xl/worksheets/sheet2.xml");
+        var folha = FolhaDoMes(resultado.Livro, "Outubro");
         Assert.Equal("DATE(2026,10,1)", Celula(folha, "A4")!.Element(S + "f")!.Value);
         Assert.Null(Celula(folha, "A4")!.Element(S + "v"));
         Assert.Equal("Quinta", Texto(folha, "A5"));
@@ -260,13 +263,39 @@ public sealed class BqExcelLivroTests
     }
 
     [Fact]
-    public void UmMesSemSeparador_ESemMovimentos_NaoCriaNada()
+    public void CadaMes_FicaNoSeuSeparador_PorOrdem_ComAsDatasEmDiaMesAno()
     {
-        var resultado = BqExcelLivro.Escrever(LivroDeJulho(), BqExcelPlano.From([], new(2026, 9, 1), new(2026, 9, 30)));
+        // Diogo, 26/10/2026: «data deveria seguir dd/mm/aaaa, e cada mês
+        // deveria ser uma página diferente».
+        var resultado = BqExcelLivro.Escrever(BqExcelLivro.Novo(2026, 7), BqExcelPlano.From([], new(2026, 9, 1), new(2026, 9, 30)));
 
         using var zip = new ZipArchive(new MemoryStream(resultado.Livro));
-        Assert.DoesNotContain("Setembro", Ler(zip, "xl/workbook.xml"));
-        Assert.Null(zip.GetEntry("xl/worksheets/sheet2.xml"));
+        var nomes = XDocument.Parse(Ler(zip, "xl/workbook.xml")).Descendants(S + "sheet").Select(s => (string)s.Attribute("name")!).ToList();
+        Assert.Equal(BqExcelLivro.Meses, nomes.Where(n => BqExcelLivro.Meses.Contains(n)));
+        var setembro = FolhaDoMes(resultado.Livro, "Setembro");
+        Assert.Equal("DATE(2026,9,1)", Celula(setembro, "A4")!.Element(S + "f")!.Value);
+        Assert.Equal("Terça", Texto(setembro, "A5"));
+        Assert.Equal("dd/mm/yyyy", new Estilos(resultado.Livro).FormatoDoNumero(setembro, "A4"));
+    }
+
+    [Fact]
+    public void Atualizar_UmDomingoVazio_NaoPara_EEscreveOsDiasDeAntes()
+    {
+        // Diogo, 26/10/2026: «ao carregar actualizar não mete os movimentos».
+        // Ontem (domingo, 26/07) sem movimentos: igual no Excel, mas os dias
+        // de antes estão por escrever.
+        var movimentos = new[]
+        {
+            Movimento(1, "Saida", 5, 2026, 7, 23, "B1", "T1", "1"),
+            Movimento(2, "Entrada", 3, 2026, 7, 24, "C2", "T2", "2"),
+        };
+
+        var atualizacao = BqExcelLivro.Atualizar(LivroDeJulho(), BqExcelPlano.From(movimentos, new(2026, 7, 23), new(2026, 7, 27)), new(2026, 7, 26));
+
+        Assert.Equal([new DateOnly(2026, 7, 23), new DateOnly(2026, 7, 24)], atualizacao.Atualizados);
+        var julho = FolhaDoMes(atualizacao.Resultado.Livro, "Julho");
+        Assert.Equal("T1/1", Texto(julho, $"B{BqExcelLivro.LinhaDoDia(23)}"));
+        Assert.Equal("T2/2", Texto(julho, $"R{BqExcelLivro.LinhaDoDia(24)}"));
     }
 
     [Fact]
@@ -403,6 +432,17 @@ public sealed class BqExcelLivroTests
         return XDocument.Parse(Ler(zip, caminho)).Root!;
     }
 
+    /// <summary>O separador de um mês, pelo nome (os ficheiros sheetN mudam com os meses criados).</summary>
+    private static XElement FolhaDoMes(byte[] livro, string mes)
+    {
+        using var zip = new ZipArchive(new MemoryStream(livro));
+        var separador = XDocument.Parse(Ler(zip, "xl/workbook.xml")).Descendants(S + "sheet").Single(s => (string)s.Attribute("name")! == mes);
+        var id = (string)separador.Attribute(XName.Get("id", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"))!;
+        var alvo = (string)XDocument.Parse(Ler(zip, "xl/_rels/workbook.xml.rels")).Root!.Elements()
+            .Single(r => (string?)r.Attribute("Id") == id).Attribute("Target")!;
+        return Folha(livro, alvo.StartsWith('/') ? alvo[1..] : "xl/" + alvo);
+    }
+
     private static string Ler(ZipArchive zip, string caminho)
     {
         using var leitor = new StreamReader(zip.GetEntry(caminho)!.Open());
@@ -422,6 +462,7 @@ public sealed class BqExcelLivroTests
         private readonly List<XElement> _fontes;
         private readonly List<XElement> _fundos;
         private readonly List<XElement> _bordas;
+        private readonly List<XElement> _numeros;
 
         public Estilos(byte[] livro)
         {
@@ -431,6 +472,7 @@ public sealed class BqExcelLivroTests
             _fontes = estilos.Element(S + "fonts")!.Elements(S + "font").ToList();
             _fundos = estilos.Element(S + "fills")!.Elements(S + "fill").ToList();
             _bordas = estilos.Element(S + "borders")!.Elements(S + "border").ToList();
+            _numeros = estilos.Element(S + "numFmts")?.Elements(S + "numFmt").ToList() ?? [];
         }
 
         private XElement Xf(XElement folha, string celula) => _xfs[int.Parse((string)Celula(folha, celula)!.Attribute("s")!)];
@@ -451,6 +493,12 @@ public sealed class BqExcelLivroTests
 
         public string? CorDaLetra(XElement folha, string celula) =>
             (string?)Parte(_fontes, folha, celula, "fontId").Element(S + "color")?.Attribute("theme");
+
+        public string? FormatoDoNumero(XElement folha, string celula)
+        {
+            var id = (string?)Xf(folha, celula).Attribute("numFmtId");
+            return (string?)_numeros.SingleOrDefault(f => (string?)f.Attribute("numFmtId") == id)?.Attribute("formatCode") ?? id;
+        }
 
         public string? Borda(XElement folha, string celula, string lado) =>
             (string?)Parte(_bordas, folha, celula, "borderId").Element(S + lado)?.Attribute("style");

@@ -21,7 +21,8 @@ public sealed class BqExcelBoquilhas(DmoDbContext db, IBqToolHistoryQuery histor
         return string.Create(CultureInfo.InvariantCulture, $"{total}.{maiorId}.{corrigido?.Ticks ?? 0}");
     }
 
-    public byte[] Novo(DateOnly dia) => BqExcelLivro.Novo(dia.Year, dia.Month);
+    // Com os 12 meses, cada um no seu separador, e as datas em dd/mm/aaaa.
+    public byte[] Novo(DateOnly dia) => BqExcelLivro.Escrever(BqExcelLivro.Novo(dia.Year, dia.Month), []).Livro;
 
     public async Task<BqExcelResultado> EscreverAsync(byte[] livro, DateOnly desde, DateOnly ate, IReadOnlyList<BqExcelEscrita> anteriores, CancellationToken cancellationToken = default)
     {
