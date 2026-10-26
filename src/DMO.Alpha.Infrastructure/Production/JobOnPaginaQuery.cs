@@ -93,4 +93,11 @@ public sealed class JobOnPaginaQuery(DmoDbContext db) : IJobOnPaginaQuery
             .Where(m => m.Id == machineId)
             .Select(m => (string?)m.Code)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<int> MaquinaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default) =>
+        db.JobOns
+            .AsNoTracking()
+            .Where(j => j.Id == jobOnId)
+            .Select(j => j.MachineId)
+            .FirstOrDefaultAsync(cancellationToken);
 }
