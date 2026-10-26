@@ -49,7 +49,7 @@ html body .ctl-def-grade[hidden]{display:none}
 .adm-card .dmo-card-topo{margin:0 0 12px}
 .adm-card .dmo-card-topo h3{margin:0}
 .adm-email-form{display:grid;gap:12px;width:100%}
-#canalJobonViragem .dmo-field,#canalJobonViragemRi .dmo-field{max-width:220px}
+#bqDefViragem .dmo-field,#riDefViragem .dmo-field{max-width:220px}
 .def-menu-grupo{display:flex;flex-direction:column;gap:2px}
 .def-menu a.def-menu-titulo{justify-content:flex-start}
 .def-menu-titulo .def-menu-cadeado{margin-left:auto}
@@ -98,7 +98,7 @@ html body .def-menu-sub[hidden]{display:none}
       @foreach (var (chave, nome) in Model.Entradas)
       {
         var ativa = chave == Model.Secao;
-        var cadeadoMenu = cadeado && chave is not ("pessoal" or "armazem") ? Html.Raw($"<span class=\"def-menu-cadeado\" data-dmo-menu-cadeado title=\"Geral só de leitura\">{CadeadoSvg}<span class=\"dmo-visually-hidden\">(geral só de leitura)</span></span>") : null;
+        var cadeadoMenu = cadeado && chave is not ("pessoal" or "armazem" or "admin") ? Html.Raw($"<span class=\"def-menu-cadeado\" data-dmo-menu-cadeado title=\"Geral só de leitura\">{CadeadoSvg}<span class=\"dmo-visually-hidden\">(geral só de leitura)</span></span>") : null;
         if (Model.FuncoesDe(chave) is { } funcoes)
         {
           @* Um grupo (Diogo, 22/10/2026: «usa apenas sidepanel, Controlo expande, fica como título, por baixo as funções»); o grupo Admin só para o ADMIN. *@
@@ -212,15 +212,22 @@ html body .def-menu-sub[hidden]{display:none}
           </div>
         </section>
       }
-      @if (Model.App is { } app && Model.CanalJobon is { } canal)
+      @if (Model.Reparacao is { } reparacao)
       {
-        @* As Definições do ADMIN (Diogo, 22/10/2026): o Canal Jobon e a App. Só o ADMIN as vê; gravam pelas páginas de /Admin, só do ADMIN. *@
+        <section id="sec-reparacao" class="def-secao" data-dmo-def-secao="reparacao" aria-labelledby="def-reparacao-title" hidden="@(Model.Secao != "reparacao")">
+          <h2 id="def-reparacao-title">Reparação</h2>
+          <div class="def-parte" id="reparacao">
+            <h3 class="def-parte-titulo">Geral</h3>
+            <div class="def-cartoes"><partial name="/Pages/ReparacaoInterna/_DefinicoesGeral.cshtml" model="reparacao" /></div>
+          </div>
+        </section>
+      }
+      @if (Model.App is { } app)
+      {
+        @* As Definições do ADMIN (Diogo, 22/10/2026): só a App (Email do ADMIN e PIN). As horas de viragem foram cada uma para o seu módulo (Diogo, 25/10/2026). Só o ADMIN as vê; gravam pelas páginas de /Admin, só do ADMIN. *@
         <section id="sec-admin" class="def-secao" data-dmo-def-secao="admin" aria-labelledby="def-admin-title" hidden="@(Model.Secao != "admin")">
           <h2 id="def-admin-title">Admin</h2>
           <div class="def-parte" id="admin">
-            <div class="ctl-def-grade" data-dmo-ctl-sub="canal" data-dmo-grupo="admin" hidden="@(Model.AdminSub != "canal")">
-              <partial name="/Pages/Admin/CanalJobon/_DefinicoesCanal.cshtml" model="canal" />
-            </div>
             <div class="ctl-def-grade adm-app-cartoes" data-dmo-ctl-sub="app" data-dmo-grupo="admin" hidden="@(Model.AdminSub != "app")">
               <partial name="/Pages/Admin/Definicoes/_DefinicoesApp.cshtml" model="app" />
             </div>
