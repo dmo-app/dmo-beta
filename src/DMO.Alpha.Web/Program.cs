@@ -35,10 +35,21 @@ var builder = WebApplication.CreateBuilder(args);
 var authProviderName = builder.Configuration.GetValue<string>("Dmo:AuthenticationProvider");
 // Resolve the effective provider before registering either authentication or
 // provisioning. InMemory is a local Development seam, never a deployment fallback.
-var useSupabase = !builder.Environment.IsDevelopment()
-    || string.Equals(authProviderName, "Supabase", StringComparison.OrdinalIgnoreCase);
+// Local: o login da própria app, com as palavras-passe cifradas na base
+// (LocalCredentials), para correr sem Supabase. Só com escolha explícita.
+var useLocalAuth = string.Equals(authProviderName, "Local", StringComparison.OrdinalIgnoreCase);
+var useSupabase = !useLocalAuth && (!builder.Environment.IsDevelopment()
+    || string.Equals(authProviderName, "Supabase", StringComparison.OrdinalIgnoreCase));
 
-if (useSupabase)
+if (useLocalAuth)
+{
+    builder.Services.AddScoped<DMO.Alpha.Infrastructure.Authentication.Local.LocalAuthenticationProvider>();
+    builder.Services.AddScoped<IAuthenticationProvider>(sp =>
+        sp.GetRequiredService<DMO.Alpha.Infrastructure.Authentication.Local.LocalAuthenticationProvider>());
+    builder.Services.AddScoped<IUserProvisioningProvider>(sp =>
+        sp.GetRequiredService<DMO.Alpha.Infrastructure.Authentication.Local.LocalAuthenticationProvider>());
+}
+else if (useSupabase)
 {
     builder.Services.AddSingleton<IOptions<SupabaseAuthOptions>>(_ =>
         Options.Create(new SupabaseAuthOptions

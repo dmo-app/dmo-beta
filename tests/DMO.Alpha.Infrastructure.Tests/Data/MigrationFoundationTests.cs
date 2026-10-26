@@ -25,6 +25,7 @@ public sealed class MigrationFoundationTests
     private static readonly HashSet<string> ModelTables =
     [
         "Users",
+        "LocalCredentials",
         "OperacoesRegistadas",
         "ArmazemPosicoes",
         "Reparadores",
@@ -84,7 +85,7 @@ public sealed class MigrationFoundationTests
     ];
 
     // As tabelas criadas depois da Baseline, cada uma pela sua migração.
-    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto"])];
+    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto", "LocalCredentials"])];
 
     private static DmoDbContext CreateNpgsqlContext()
     {
@@ -135,7 +136,7 @@ public sealed class MigrationFoundationTests
                 "20261022213128_MovimentosLinhaReparadorJobOn",
                 "20261023063227_ReparacaoInternaHora",
                 "20261023075945_JobOnAlteracaoRemovida", "20261023175737_EmailListasConcorrencia",
-                "20261023190401_TampaoNoJobOnEPeso" },
+                "20261023190401_TampaoNoJobOnEPeso", "20261026000909_LoginLocal" },
             keys);
     }
 

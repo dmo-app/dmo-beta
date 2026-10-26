@@ -32,11 +32,13 @@ public static class StartupConfigurationCheck
         }
         else
         {
-            if (!string.Equals(configuration["Dmo:AuthenticationProvider"], "Supabase", StringComparison.OrdinalIgnoreCase))
+            var provider = configuration["Dmo:AuthenticationProvider"];
+            if (!string.Equals(provider, "Supabase", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase))
             {
                 problems.Add(new(LogLevel.Warning,
                     "Authentication and user provisioning use Supabase outside Development. " +
-                    "Set Dmo__AuthenticationProvider=Supabase explicitly; InMemory is only available in Development."));
+                    "Set Dmo__AuthenticationProvider=Supabase (or Local) explicitly; InMemory is only available in Development."));
             }
 
             if (string.IsNullOrWhiteSpace(configuration.GetConnectionString("DmoDatabase")))
