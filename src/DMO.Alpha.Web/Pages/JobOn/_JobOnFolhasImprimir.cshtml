@@ -75,7 +75,6 @@
             <tr><th>Diâm. gargalo</th><td>@Tol($"{tipo}_gargalo", $"{tipo}_gargalo_tol")</td></tr>
             <tr><th>Folgas</th><td>@Folgas(tipo)</td></tr>
           </table>
-          <div class="jfi-caixa"><b>Tratar:</b> @(string.Join("; ", Notas($"{tipo}_notas")))</div>
         </div>
       }
       <div class="jfi-col">
@@ -106,7 +105,7 @@
       <div class="jfi-cal" style="--jfi-linhas:@Math.Max(metade, 1)">
         @foreach (var l in calibres)
         {
-          <div class="@(iCal++ >= metade ? "jfi-c2" : null)"><span>@l.Nome</span><b>@N(l.Valor)</b>@if (V(l.QtdMaq) is { } q) {<small>QTD máq. @q</small>}</div>
+          <div class="@(iCal++ >= metade ? "jfi-c2" : null)"><span>@l.Nome</span><b>@N(l.Valor)</b></div>
         }
         @if (calibres.Count == 0)
         {
@@ -115,7 +114,6 @@
       </div>
     </div>
     <div class="jfi-fundo">
-      <div class="jfi-bloco jfi-notas"><div class="jfi-barra"><span>NOTAS DO JOB ON</span></div><ul>@foreach (var n in Notas("notas_gerais")) {<li>@n</li>}</ul></div>
       <div class="jfi-bloco jfi-artigo"><div class="jfi-sub"><span>ARTIGO</span></div><div class="jfi-artigo-img" data-jof-folha-artigo><span>Sem imagem do artigo</span></div></div>
     </div>
     <footer class="jfi-rodape"><span>FOR 05 MOL 001 (pt)</span><span>Impresso pela DMO</span></footer>
@@ -168,6 +166,93 @@
     <div class="jfi-crescer"></div>
     <div class="jfi-lema">TRABALHO DE EQUIPA!</div>
     <footer class="jfi-rodape"><span>FOR 05 MOL 004 (pt)</span><span>Impresso pela DMO</span></footer>
+  </section>
+
+  @* ── PREPARADOR (FOR 05 MOL 006) ─────────────────────────────── *@
+  <section class="jfi-folha jfi-densa" data-jof-folha="preparador" aria-label="Preparador">
+    <header class="jfi-topo">
+      <div><div class="jfi-eyebrow">DMO-MG · PREPARADOR</div><div class="jfi-ref">@referencia</div></div>
+      <div class="jfi-topo-dir"><div><span>LINHA</span><b class="jfi-linha">@jobOn.Machine</b></div><div><span>PRODUÇÃO</span><b>@jobOn.ProductionNumber</b></div></div>
+    </header>
+    <div class="jfi-factos">
+      <div><span>Dia da semana</span><b>@Dia(inicio)</b></div>
+      <div><span>Secções</span><b>@F("cab_seccoes")</b></div>
+      <div><span>Gota</span><b>@F("cab_gota")</b></div>
+      <div><span>Peso</span><b>@Peso()</b></div>
+      <div><span>Cadência</span><b></b></div>
+      <div><span>Horas</span><b></b></div>
+    </div>
+    @{
+        void Bloco(string titulo, string detalhe, string[] verificacoes)
+        {
+            <div class="jfi-bloco jfi-prep">
+              <div class="jfi-sub"><span>@titulo</span><span>@detalhe</span></div>
+              <table class="dmo-table jfi-t jfi-verif">
+                <tr><th>Verificação</th><th class="ck">OK</th><th class="ck">NOK</th><th>Obs.</th></tr>
+                @foreach (var v in verificacoes)
+                {
+                  <tr><td>@v</td><td class="ck"></td><td class="ck"></td><td></td></tr>
+                }
+              </table>
+            </div>
+        }
+    }
+    <div class="jfi-duas">
+      <div class="jfi-pilha">
+        @{ Bloco("CM", cm is null ? "" : cm.Reference + " · " + Lote(cm), new[] { "3.ª almofada / carcaça / parafuso", "Calibre", "Caixa", "Confirmação da montagem" }); }
+        @{ Bloco("MF", mf is null ? "" : mf.Reference + " · " + Lote(mf), new[] { "Rebaixe, raio e chanfros", "Ano, gravações e LNM", "Aspeto da zona moldante", "Homogeneidade recartilha FF", "Furos roscados para alicate", "Ajuste e folga com o FF", "Calibre", "Furos de vácuo", "VertiFlow" }); }
+        @{ Bloco("TP", F("tp_referencia"), new[] { "Estado", "Folga" }); }
+      </div>
+      <div class="jfi-pilha">
+        @{ Bloco("PU + ARR", F("pu_referencia"), new[] { "Inspeção visual", "Furos de rompimento", "Estado e folga do arrefecedor (PS)" }); }
+        @{ Bloco("BQ + AN", (bq?.Reference ?? "") + (bq is null ? "" : " · " + Lote(bq)), new[] { "Furo do anel e ensaio forro/PU", "Folga anel/boquilha", "Diâmetro pegamento", "Diâmetro núcleo e filete" }); }
+        @{ Bloco("CS", F("cs_referencia"), new[] { "Inspeção visual", "Furos de escape", "Tubo de enchimento" }); }
+        @{ Bloco("PI", F("pi_diametro") is { Length: > 0 } pd ? "Ø " + pd : "", new[] { "Estado das pinças" }); }
+      </div>
+    </div>
+    <div class="jfi-col">
+      <div class="jfi-barra"><span>CALIBRES (DIMENSÕES)</span></div>
+      <div class="jfi-cal" style="--jfi-linhas:@Math.Max((calibres.Count + 1) / 2, 1)">
+        @{ var iCp = 0; var metadeP = (calibres.Count + 1) / 2; }
+        @foreach (var l in calibres)
+        {
+          <div class="@(iCp++ >= metadeP ? "jfi-c2" : null)"><span>@l.Nome</span><b>@N(l.Valor)</b></div>
+        }
+        @if (calibres.Count == 0) {<div><span>Calibres</span><b>____</b></div>}
+      </div>
+    </div>
+    <div class="jfi-crescer"></div>
+    <div class="jfi-assinar"><div><span>Preparador</span></div><div><span>Rub.</span></div><div><span>Data / Hora</span></div><div><span>OK Supervisor</span></div></div>
+    <footer class="jfi-rodape"><span>FOR 05 MOL 006 (pt)</span><span>Impresso pela DMO</span></footer>
+  </section>
+
+  @* ── PINÇAS (Mudança de Fabrico) ─────────────────────────────── *@
+  <section class="jfi-folha jfi-densa" data-jof-folha="pincas" aria-label="Pinças">
+    <header class="jfi-topo">
+      <div><div class="jfi-eyebrow">DMO-MG · PINÇAS · MUDANÇA DE FABRICO</div><div class="jfi-ref">@referencia</div></div>
+      <div class="jfi-topo-dir"><div><span>LINHA</span><b class="jfi-linha">@jobOn.Machine</b></div><div><span>PRODUÇÃO</span><b>@jobOn.ProductionNumber</b></div></div>
+    </header>
+    <div class="jfi-factos">
+      <div><span>Data de entrada</span><b>@Dia(inicio)</b></div>
+      <div><span>Secções</span><b>@F("cab_seccoes")</b></div>
+      <div><span>Gotas</span><b>@F("cab_gota")</b></div>
+      <div><span>Cadência</span><b></b></div>
+      <div><span>Ø</span><b>@F("pi_diametro")</b></div>
+      <div><span>Latão / Grafite · Qtd.</span><b>@F("pi_pincas")</b></div>
+    </div>
+    <div class="jfi-col">
+      <div class="jfi-barra"><span>VERIFICAÇÃO DAS PINÇAS</span></div>
+      <table class="dmo-table jfi-t jfi-lista jfi-pincas">
+        <tr><th class="ck">N.º</th><th class="ck">OK / NOK</th><th>Contactos sem rebarbas</th><th>Diâmetro a 90º (−0,0 +0,3 mm)</th><th>Diâmetro na junta (−0,0 +0,3 mm)</th></tr>
+        @for (var n = 1; n <= 20; n++)
+        {
+          <tr><td class="ck">@n</td><td class="ck"></td><td></td><td></td><td></td></tr>
+        }
+      </table>
+    </div>
+    <div class="jfi-crescer"></div>
+    <div class="jfi-assinar"><div><span>Preencher pelo Responsável de Pinças</span></div><div><span>Rub.</span></div><div><span>Data</span></div></div>
+    <footer class="jfi-rodape"><span>Pinças - DMO</span><span>Impresso pela DMO</span></footer>
   </section>
 
 </div>

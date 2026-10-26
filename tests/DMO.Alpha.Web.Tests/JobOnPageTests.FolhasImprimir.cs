@@ -63,4 +63,24 @@ public partial class JobOnPageTests
         Assert.DoesNotContain("data-jof-impressao", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-imprimir", html, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task Folha_Imprimir_SaemAsQuatroFolhasSemComentarios()
+    {
+        SeedUser("4584", "Chefe quatro folhas", "provider-folha-imprimir-4", "Folha1234!");
+        var jobOnId = await SeedJobOnCompletoAsync();
+        using var client = await LoginClientAsync("4584", "Folha1234!");
+
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={jobOnId}");
+        // Um clique imprime as 4 folhas, nesta ordem (Diogo, 26/10/2026; Excel dos documentos).
+        var ordem = new[] { "ficha", "equipa", "preparador", "pincas" }
+            .Select(f => html.IndexOf($"data-jof-folha=\"{f}\"", StringComparison.Ordinal)).ToArray();
+        Assert.All(ordem, i => Assert.True(i > 0));
+        Assert.Equal(ordem.OrderBy(i => i), ordem);
+        Assert.Contains("FOR 05 MOL 006 (pt)", html, StringComparison.Ordinal);
+        Assert.Contains("Pinças - DMO", html, StringComparison.Ordinal);
+        // Sem comentários na impressão: nem «Notas do Job On» nem «Tratar».
+        Assert.DoesNotContain("NOTAS DO JOB ON", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("<b>Tratar:</b>", html, StringComparison.Ordinal);
+    }
 }
