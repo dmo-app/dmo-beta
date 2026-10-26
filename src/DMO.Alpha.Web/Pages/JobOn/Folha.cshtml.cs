@@ -308,7 +308,18 @@ public sealed class FolhaModel(
                 var dela = await productionPicker.ListOfReferenceAsync(refNova, ct);
                 if (dela.Count > 0)
                 {
+                    // A produção escrita que já existe abre-se; uma nova não se perde
+                    // (ronda de 26/10/2026, J3): abre o Duplicar da última, com essa
+                    // produção e a linha escolhida.
+                    if (numeroNovo is not null && dela.FirstOrDefault(p => string.Equals(p.ProductionNumber, numeroNovo, StringComparison.OrdinalIgnoreCase)) is { } escrita)
+                    {
+                        return Redirect($"/JobOn/Folha?jobon_id={escrita.JobOnId}{NovoDestino}");
+                    }
                     var ultima = dela.OrderByDescending(p => p.ProductionNumber, StringComparer.Ordinal).First();
+                    if (numeroNovo is not null)
+                    {
+                        return Redirect($"/JobOn/Folha?duplicar={ultima.JobOnId}&producao={Uri.EscapeDataString(numeroNovo)}{NovoDestino}");
+                    }
                     return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}{NovoDestino}");
                 }
                 var maquinaNova = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code ?? string.Empty;

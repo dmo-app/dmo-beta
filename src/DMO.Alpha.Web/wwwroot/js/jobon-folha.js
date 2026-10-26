@@ -75,7 +75,8 @@
         const contagem = page.total > page.items.length ? page.items.length + ' de ' + page.total + '. Escreva para afinar.' : '';
         return {
           // A linha ao lado do lote: o contexto que distingue os lotes.
-          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · Lote ' + lote(item.lot) + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
+          // «CM 5447 · Lote 3» (ronda de 26/10/2026, J10); sem lote, «sem lote».
+          items: page.items.map(item => ({ value: item.toolId, label: tipo + ' ' + item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
           note: nota(page.filtro) || contagem,
           empty: term ? 'Sem resultados para «' + term + '».' : 'Escreva a referência da ' + tipo + '.'
         };
@@ -104,8 +105,8 @@
             else botao.querySelector('.code').after(hvRef, hvLote);
             ref = bRef; lt = bLote;
           }
-          if (ref) ref.textContent = partes[0] || '';
-          if (lt) lt.textContent = lote((partes[1] || '').replace(/^Lote\s*/, ''));
+          if (ref) ref.textContent = (partes[0] || '').replace(new RegExp('^' + tipo + '\\s+'), '');
+          if (lt) lt.textContent = partes[1] === 'sem lote' ? 's/lote' : lote((partes[1] || '').replace(/^Lote\s*/, ''));
           // BQ e AN são um componente: o lote do AN é o da BQ (Diogo, 26/10/2026).
           if (tipo === 'BQ' && lt) folha.querySelectorAll('[data-jof-an-lote]').forEach(an => { an.textContent = lt.textContent; });
           botao.classList.remove('tool-empty');
