@@ -409,6 +409,7 @@
     { "id": "DMO-417", "module": "Job On", "description": "0.3.0-beta.103: Folha: o AN tem o seu cartão com lote próprio; Imprimir é um só clique e imprime as duas folhas; na impressão o TP tem só a Calote, sem Comentários, com os calibres em duas colunas e cada componente na sua linha no Trabalho de Equipa; as notas já não partem letra a letra." },
     { "id": "DMO-418", "module": "Ferramentas", "description": "0.3.0-beta.104: SAP: o cartão «Utilização pela produção» tem «Apagar lidos» (apaga da pasta os ficheiros que o DMO já leu, com confirmação), a ajuda explica a corrida automática às 18:00, e a app lê também o relatório «produções» exportado do SAP." },
     { "id": "DMO-419", "module": "Aspeto", "description": "0.3.0-beta.105: no modo escuro, passar o rato por cima de um botão azul deixa-o azul com a letra e o contorno brancos, igual aos botões de escolha." },
+    { "id": "DMO-420", "module": "Ferramentas", "description": "0.3.0-beta.106: em Ferramentas → Pesquisar, a referência toda (por exemplo 1075C142) volta a encontrar a CM/MF 1075 e a BQ C142 registadas só com uma parte." },
     { "id": "DMO-421", "module": "Cabeçalho", "description": "0.3.0-beta.107: mais um pouco de espaço entre a linha da sessão, o nome e o «Sair» no cabeçalho." }
   ],
   "pending": [
