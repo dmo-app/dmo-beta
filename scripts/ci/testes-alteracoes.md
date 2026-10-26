@@ -2580,3 +2580,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve`
 
 Selo depois: `6f637b56f2125107`
+
+## A-0118 · 2026-10-26 · contagem-lista
+
+Porquê: O teste das alterações no mesmo minuto falhava quando corria aos :00 segundos: criava «agora» e «agora − 1 s», que caíam em minutos diferentes e davam duas linhas. A segunda hora fica até 1 s antes sem sair do minuto; o que o teste verifica fica igual.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua`
+
+Selo depois: `16012bd0fcf868cd`

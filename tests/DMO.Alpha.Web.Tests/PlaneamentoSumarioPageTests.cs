@@ -176,10 +176,13 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         // «Se a informação já existe não duplicar no sumário» (Diogo, 23/10/2026).
         var jobOnId = await JobOnAsync("S3D001", Hoje);
         var agora = DateTime.UtcNow;
+        // Até 1 s antes, sem sair do minuto de «agora» (aos :00 segundos o
+        // «agora − 1 s» caía no minuto anterior e eram duas linhas).
+        var antes = agora.AddTicks(-Math.Min(TimeSpan.TicksPerSecond, agora.Ticks % TimeSpan.TicksPerMinute));
         using (var scope = _factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            foreach (var quando in new[] { agora, agora.AddSeconds(-1) })
+            foreach (var quando in new[] { agora, antes })
             {
                 db.JobOnChanges.Add(new JobOnChange
                 {
