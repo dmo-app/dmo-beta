@@ -825,3 +825,7 @@ html body :is(a.dmo-fact.dmo-fact-link):is(:hover,:focus-visible) :is(span,stron
 html body :is(.jof2 .del,.pu-remove,.peg-page .peg-x):is(:hover,:focus-visible){color:var(--dmo-danger)}
 :root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.pu-check,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
 :root[data-theme="dark"] body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible) :is(span,strong,em){color:#fff}
+/* Linhas das tabelas: o hover usa o mesmo azul da barra da esquerda, com letra branca (Diogo, 26/10/2026). */
+html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:var(--dmo-brand-600);color:#fff}
+html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:#fff}
+html body [data-dmo-list] [data-dmo-row]:hover{background:var(--dmo-brand-600);color:#fff}
