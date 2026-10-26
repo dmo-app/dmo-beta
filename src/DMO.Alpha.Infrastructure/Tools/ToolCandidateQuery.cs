@@ -89,9 +89,14 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
             {
                 // Compatibilidade de máquina (via ligações persistidas):
                 // reduz candidatos, nunca determina identidade.
-                query = query.Where(tool =>
-                    _db.ToolMachineLinks.Any(link =>
-                        link.ToolId == tool.ToolId && link.MachineId == machineId));
+                query = filter.IncluirSemLinha
+                    ? query.Where(tool =>
+                        _db.ToolMachineLinks.Any(link =>
+                            link.ToolId == tool.ToolId && link.MachineId == machineId)
+                        || !_db.ToolMachineLinks.Any(link => link.ToolId == tool.ToolId))
+                    : query.Where(tool =>
+                        _db.ToolMachineLinks.Any(link =>
+                            link.ToolId == tool.ToolId && link.MachineId == machineId));
             }
 
             if (!string.IsNullOrWhiteSpace(filter.MfReference))
