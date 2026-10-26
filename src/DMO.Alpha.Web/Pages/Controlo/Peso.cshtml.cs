@@ -59,6 +59,7 @@ public sealed class PesoModel : PageModel
     private readonly IPesoAssociationQuery _pesoAssociation;
     private readonly IEnsureControloForJobOnHandler _ensureControlo;
     private readonly IJobOnListQuery _jobOnList;
+    private readonly IPegamentosEscolhasQuery _lotes;
 
     public PesoModel(
         IToolLookupQuery toolLookup,
@@ -85,8 +86,10 @@ public sealed class PesoModel : PageModel
         PesoProducaoAnteriorQuery producaoAnteriorQuery,
         ICreatePesoComparacaoHandler comparacaoHandler,
         IControloHistorySearchQuery historicoControloQuery,
-        DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap)
+        DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
+        IPegamentosEscolhasQuery lotes)
     {
+        _lotes = lotes;
         _fabricoSap = fabricoSap;
         _jobOnList = jobOnList;
         CapSupportQuery = capSupportQuery;
@@ -213,6 +216,18 @@ public sealed class PesoModel : PageModel
 
     /// <summary>Valor submetido do tool_id da BQ (contexto de escolha de ferramentas).</summary>
     public string? RequestedBqToolId { get; private set; }
+
+    /// <summary>Os lotes da CM escrita quando são vários: o operador escolhe o lote (como nos Pegamentos).</summary>
+    public IReadOnlyList<ToolLookupResult> CmLotes { get; private set; } = Array.Empty<ToolLookupResult>();
+
+    /// <summary>Os lotes da BQ escrita quando são vários.</summary>
+    public IReadOnlyList<ToolLookupResult> BqLotes { get; private set; } = Array.Empty<ToolLookupResult>();
+
+    /// <summary>O lote escolhido da CM (cm_lote); null sem escolha.</summary>
+    public string? ChosenCmLote { get; private set; }
+
+    /// <summary>O lote escolhido da BQ (bq_lote); null sem escolha.</summary>
+    public string? ChosenBqLote { get; private set; }
 
     /// <summary>True quando um tool_id da CM foi submetido e não resolve no registo.</summary>
     public bool CmToolRequestedNotFound { get; private set; }
@@ -1389,8 +1404,9 @@ public sealed class PesoModel : PageModel
 
         if (!string.IsNullOrWhiteSpace(cmToolId))
         {
-            CmTool = await ResolveToolAsync(cmToolId, ToolType.Cm, HttpContext.RequestAborted);
-            CmToolRequestedNotFound = CmTool is null;
+            ChosenCmLote = Sanitize(Request.Query["cm_lote"].ToString());
+            (CmTool, CmLotes) = await ResolveSlotAsync(cmToolId, ToolType.Cm, ChosenCmLote, HttpContext.RequestAborted);
+            CmToolRequestedNotFound = CmTool is null && CmLotes.Count <= 1;
             if (CmTool is not null)
             {
                 CmTechnical = await _toolTechnical.FindByToolIdAsync(CmTool.ToolId, HttpContext.RequestAborted);
@@ -1405,8 +1421,9 @@ public sealed class PesoModel : PageModel
 
         if (!string.IsNullOrWhiteSpace(bqToolId))
         {
-            BqTool = await ResolveToolAsync(bqToolId, ToolType.Bq, HttpContext.RequestAborted);
-            BqToolRequestedNotFound = BqTool is null;
+            ChosenBqLote = Sanitize(Request.Query["bq_lote"].ToString());
+            (BqTool, BqLotes) = await ResolveSlotAsync(bqToolId, ToolType.Bq, ChosenBqLote, HttpContext.RequestAborted);
+            BqToolRequestedNotFound = BqTool is null && BqLotes.Count <= 1;
             if (BqTool is not null)
             {
                 BqTechnical = await _toolTechnical.FindByToolIdAsync(BqTool.ToolId, HttpContext.RequestAborted);
@@ -1478,6 +1495,27 @@ public sealed class PesoModel : PageModel
     /// profundo de sempre). Null quando nada do pedido resolve no
     /// registo do tipo certo.
     /// </summary>
+    /// <summary>
+    /// O slot da CM ou da BQ com vários lotes (Diogo, 26/10/2026: «ao criar
+    /// comparação não me deixa escolher o lote»): sem lote escolhido não há
+    /// ferramenta e a página mostra a escolha; com um só lote, ou sem a
+    /// referência nos lotes, segue a resolução de sempre.
+    /// </summary>
+    private async Task<(ToolLookupResult? Tool, IReadOnlyList<ToolLookupResult> Lotes)> ResolveSlotAsync(
+        string requested,
+        ToolType expectedType,
+        string? chosenToolId,
+        CancellationToken cancellationToken)
+    {
+        var lotes = await _lotes.LotesDaReferenciaAsync(requested.Trim(), expectedType, cancellationToken);
+        if (lotes.Count > 1)
+        {
+            return (lotes.FirstOrDefault(t => t.ToolId == chosenToolId), lotes);
+        }
+
+        return (await ResolveToolAsync(requested, expectedType, cancellationToken), Array.Empty<ToolLookupResult>());
+    }
+
     private async Task<ToolLookupResult?> ResolveToolAsync(
         string requested,
         ToolType expectedType,
