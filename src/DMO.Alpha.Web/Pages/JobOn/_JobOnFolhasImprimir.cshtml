@@ -85,6 +85,7 @@
               @foreach (var (r, v, r2, v2) in dados)
               {
                 if (r2 is null) { <tr><th>@r</th><td colspan="3">@v</td></tr> }
+                else if (r == "Folgas") { <tr><th>@r</th><td>@v</td><td class="jfb-r2v">@r2</td><td>@v2</td></tr> }
                 else { <tr><th>@r</th><td>@v</td><th class="jfb-r2">@r2</th><td>@v2</td></tr> }
               }
             </table>
@@ -101,7 +102,8 @@
           if (!m.Success) return F("cs_furos");
           int a = int.Parse(m.Groups[1].Value), b = int.Parse(m.Groups[2].Value);
           int total = Math.Max(a, b), abertos = Math.Min(a, b);
-          return $"{F("cs_furos")} · {abertos} abertos, {total - abertos} fechados";
+          int fechados = total - abertos;
+          return $"{F("cs_furos")} · {abertos} {(abertos == 1 ? "aberto" : "abertos")}, {fechados} {(fechados == 1 ? "fechado" : "fechados")}";
       }
       string TipoPinca() => latao ? "Latão" : (grafite ? "Grafite" : pincasMaterial);
   }
@@ -194,9 +196,9 @@
     <div class="jfb-cab"><span>Ferramenta</span><span>Dados</span><span>Notas</span></div>
     @{
         Bloco("Contra-Moldes", [("Tipo", F("cm_tipo")), ("Utilização", Un("cm_utilizacao"))],
-            [("Referência", cm?.Reference ?? "", "Lote", LoteDe(cm)), DT("Diâm. Exterior", F("cm_exterior"), F("cm_exterior_tol")), DT("Diâm. Pata", F("cm_pata"), F("cm_pata_tol")), DT("Diâm. Gargalo", F("cm_gargalo"), F("cm_gargalo_tol")), ("Folgas", Folga("cm", 1), "", Junta(Folga("cm", 2), Folga("cm", 3)))], "cm_notas");
+            [("Referência", cm?.Reference ?? "", "Lote", LoteDe(cm)), DT("Diâm. Exterior", F("cm_exterior"), F("cm_exterior_tol")), DT("Diâm. Pata", F("cm_pata"), F("cm_pata_tol")), DT("Diâm. Gargalo", F("cm_gargalo"), F("cm_gargalo_tol")), ("Folgas", Folga("cm", 1), Folga("cm", 2), Folga("cm", 3))], "cm_notas");
         Bloco("Moldes Finais", [("Tipo", F("mf_tipo")), ("Utilização", Un("mf_utilizacao"))],
-            [("Referência", mf?.Reference ?? "", "Lote", LoteDe(mf)), ("Fundo Final", F("mf_fundo_final"), "Lote", F("mf_lote_ff")), DT("Diâm. Exterior", F("mf_exterior"), F("mf_exterior_tol")), DT("Diâm. Corpo", F("mf_corpo"), F("mf_corpo_tol")), DT("Diâm. Gargalo", F("mf_gargalo"), F("mf_gargalo_tol")), ("Folgas", Folga("mf", 1), "", Junta(Folga("mf", 2), Folga("mf", 3)))], "mf_notas");
+            [("Referência", mf?.Reference ?? "", "Lote", LoteDe(mf)), ("Fundo Final", F("mf_fundo_final"), "Lote", F("mf_lote_ff")), DT("Diâm. Exterior", F("mf_exterior"), F("mf_exterior_tol")), DT("Diâm. Corpo", F("mf_corpo"), F("mf_corpo_tol")), DT("Diâm. Gargalo", F("mf_gargalo"), F("mf_gargalo_tol")), ("Folgas", Folga("mf", 1), Folga("mf", 2), Folga("mf", 3))], "mf_notas");
         Bloco("Tampões", [Q("tp_qtd_stock")], [D("Referência", F("tp_referencia")), D("Diâmetro", F("tp_diametro_ps")), D("Calote", CaloteTp())], "tp_notas");
         Bloco("Boquilhas", [("Utilização", Un("bq_utilizacao"))], [D("Referência", bq?.Reference ?? ""), D("Lote", LoteDe(bq)), D("Quantidade", F("bq_qtd_stock"))], "bq_notas");
         Bloco("Anilha", [], [D("Referência", F("an_referencia")), D("Lote", AnLote())], "an_notas");
