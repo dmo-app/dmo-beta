@@ -39,4 +39,7 @@ public sealed record ToolCandidateFilter(
     IReadOnlyCollection<string>? ToolIds = null,
     // Ferramentas page: start of the tool reference, of its BQ part or of the associated
     // MF reference («Y2» finds Y232 and 6018Y232; «0» finds 0132T173, not 1075), case-insensitive.
-    string? ReferenceContains = null);
+    string? ReferenceContains = null,
+    // Job On picker: with MachineId, also the tools with no line linked at all (imported
+    // without links), so a lot never hides behind the line filter (Diogo, 23/10/2026).
+    bool IncluirSemLinha = false);

@@ -2279,3 +2279,15 @@ Novos: 11 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnPaginaQueryTests.cs :: JobOnPaginaQueryTests.ReferenciasDeMf_SoParaAFerramentaDoTipoCerto`
 
 Selo depois: `77e42f1b702b86d7`
+
+## A-0096 · 2026-10-25 · contagem-lista
+
+Porquê: Verificação antes da apresentação (25/10/2026): dois testes novos. No Job On novo, o cartão vazio passa a mostrar a ferramenta escolhida e o aviso de falta acompanha a escolha. A lista de ferramentas da linha passa a juntar as que não têm linha nenhuma. No jobon-folha.test.cjs, o «resto do ficheiro» só muda pelo «;» do teste acrescentado no fim; nenhum teste existente foi alterado.
+Referência: relatório /mnt/project-files/analises/filtros-apresentacao-2026-10-26/relatorio.md
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.MachineFilter_IncluirSemLinha_JuntaAsSemLinha_NuncaAsDeOutraLinha`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: no cartão vazio, escolher a CM mostra a referência e o lote e tira a CM do aviso`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `decac123d5c36a82`
