@@ -1,5 +1,5 @@
 {
-  "selo": "5ca1a05652b1b080",
+  "selo": "63dc3b05f4b2aa09",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1628,6 +1628,8 @@
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.ServicoIndisponivel.cs :: (resto do ficheiro)": "fc7cfcc93632942f",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.ServicoIndisponivel.cs :: AuthenticationTests.Login_EmSupabase_OPedidoEsperaNoMaximo15Segundos": "64a7c22b527c69d1",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.ServicoIndisponivel.cs :: AuthenticationTests.Login_ServicoDeAutenticacaoSemResposta_DizQueOServicoNaoRespondeu": "66c35e4775ee31f9",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: (resto do ficheiro)": "1a7e8bda3c19a94c",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: AuthenticationTests.Login_CincoPalavrasPasseErradas_MandaConsultarOAdmin": "ea1a01d7b0043dec",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: (resto do ficheiro)": "f464e4969e7087e0",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminBootstrap_EmptySetting_FirstEmailLoginBecomesAdmin": "94872ba0942a4315",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminBootstrap_EmptySetting_UserEmailLoginDoesNotClaimAdmin": "55bda15552e5f5c0",
@@ -1665,7 +1667,7 @@
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_Failure_UnknownOperator": "8558e3600eea236c",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_Failure_WrongPassword": "c6816153c1c90308",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_PreservesLeadingZeros": "318eb892aefcebed",
-    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_RepeatedFailures_NeverLockTheUser": "b905d838d359faa0",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_RepeatedFailures_NeverLockTheUser": "23111cbcac422dbd",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_Success_RedirectsToHome": "66ec5d9de6035900",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: (resto do ficheiro)": "b6ec3bd7fb4fb439",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ClampMatrixPeriod_CutsAtTheFirst366DaysAndExplains": "dd01762e922a4f8d",

@@ -2664,6 +2664,18 @@ Novos: 2 · mudaram: 1 · saíram: 1
 
 Selo depois: `d56824e14c3ac255`
 
+## A-0123 · 2026-10-26 · ok-do-diogo
+
+Porquê: Login: da 5.ª palavra-passe errada seguida em diante o ecrã manda consultar o ADMIN; a conta nunca fica bloqueada e a certa entra sempre
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3mFwYjgASf4KLxaoXW6mfD
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: AuthenticationTests.Login_CincoPalavrasPasseErradas_MandaConsultarOAdmin`
+- mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_RepeatedFailures_NeverLockTheUser`
+
+Selo depois: `e4f3ba263bddfa5c`
+
 ## A-0122 · 2026-10-26 · teste-novo
 
 Porquê: Folha Job-ON Moldes (2 cópias) no Imprimir do Job On, como no Excel do Diogo de 21/10; em «Todas as folhas» sai primeiro
@@ -2672,4 +2684,4 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 
-Selo depois: `5ca1a05652b1b080`
+Selo depois: `63dc3b05f4b2aa09`
