@@ -192,9 +192,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     <section id="armMovFerramenta" class="dmo-card arm-card" aria-labelledby="arm-mov-ferr-title" data-dmo-regiao data-dmo-parcial data-dmo-ferramenta="@s.ToolId">
       <div class="dmo-card-topo">
         <h3 id="arm-mov-ferr-title">@MovimentosModel.Nome(s.Tipo, s.Referencia, s.Lote)</h3>
-        <div class="dmo-card-topo-acoes">
-          <button type="button" class="dmo-button" id="armCorrigirBotao" data-dmo-dialog="arm-corrigir-dialog">Corrigir</button>
-        </div>
       </div>
 
       @foreach (var aviso in Model.Avisos)
@@ -243,6 +240,12 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       <form id="@(mostrarEntrada ? "armEntrada" : Model.Destino is null ? "armSaidaSemDestino" : "armSaida")" method="post" asp-page="/Armazem/Movimentos" asp-page-handler="@(mostrarEntrada ? "Entrada" : "Saida")">
         <input type="hidden" name="operacao_id" value="@Model.OperacaoId" />
         <input type="hidden" name="ferramenta" value="@s.ToolId" />
+        @* O título do registo com «Corrigir» e «Registar» na mesma linha, à direita (mockup 06,
+           Owner 26/10/2026). «Corrigir» só abre a janela: type="button", não envia o formulário. *@
+        <div class="arm-registar-topo">
+          <h3 class="arm-registar-titulo">@(mostrarEntrada ? "Registar entrada" : "Registar saída")</h3>
+          <button type="button" class="dmo-button" id="armCorrigirBotao" data-dmo-dialog="arm-corrigir-dialog">Corrigir</button>
+        </div>
         @if (!mostrarEntrada && Model.Destino is { } destinoEscolhido)
         {
           <input type="hidden" name="destino" value="@MovimentosModel.Valor(destinoEscolhido)" />
