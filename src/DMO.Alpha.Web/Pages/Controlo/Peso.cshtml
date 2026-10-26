@@ -465,8 +465,8 @@
            botao.form). O handler de gravação no backend é a fonte única do
            cálculo. *@
         <div class="dmo-card-topo-acoes">
-          <button type="button" class="dmo-button" form="cmpForm" data-cmp-add-row>Adicionar leitura</button>
-          <button type="button" class="dmo-button" form="cmpForm" data-cmp-remove-row>Remover leitura</button>
+          <button type="button" class="dmo-button peso-row-button peso-cmp-mais" form="cmpForm" data-cmp-add-row aria-label="Adicionar leitura" title="Adicionar leitura">+</button>
+          <button type="button" class="dmo-button peso-row-button peso-cmp-mais" form="cmpForm" data-cmp-remove-row aria-label="Remover leitura" title="Remover leitura">−</button>
           <button type="submit" class="dmo-button" form="cmpForm">Comparar pesos</button>
           <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button" form="cmpForm">Guardar comparação</button>
         </div>
@@ -501,18 +501,19 @@
         @* As leituras dos contra-moldes (o padrão do html: adicionar/
            remover ao vivo; sem JS o form nativo traz quatro linhas — as
            em branco são ignoradas pelo backend). *@
-        <div class="peso-form-grid wide" style="grid-template-columns:1fr;margin-top:12px" data-cmp-readings>
+        <div class="peso-leitura-rows peso-cmp-leituras wide" data-cmp-readings>
           @for (var i = 0; i < Model.ComparacaoLinhas.Count; i++)
           {
-            <div class="peso-form-grid" style="grid-template-columns:minmax(120px,180px) minmax(140px,200px)" data-cmp-row>
+            <div class="peso-leitura-row" data-cmp-row>
               <div class="dmo-field">
                 <label for="cmpSubject-@i">N.º CM</label>
-                <input id="cmpSubject-@i" name="cm_subject" value="@Model.ComparacaoLinhas[i].Subject" placeholder="Número da peça física" />
+                <input id="cmpSubject-@i" name="cm_subject" value="@Model.ComparacaoLinhas[i].Subject" placeholder="Ex.: 12" />
               </div>
               <div class="dmo-field">
                 <label for="cmpWater-@i">Massa de água (g)</label>
-                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 199,64 ou 199.64" />
+                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 70,5" />
               </div>
+              <span class="peso-cmp-x" role="button" tabindex="0" data-cmp-del-row aria-label="Remover esta leitura" title="Remover esta leitura">×</span>
             </div>
           }
         </div>
@@ -1705,6 +1706,7 @@
         <div data-dmo-toast="ok" class="peso-aviso-simples" role="status">Produção anterior guardada.</div>
       }
       </div>
+      <div class="peso-anterior-linha">
       <div id="pesoAnterior" class="dmo-zona" data-dmo-fica>
       @if (semProducaoAnterior)
       {
@@ -1797,6 +1799,7 @@
           <div class="peso-fact"><span>Variação</span><strong>@(deltaSap.Percent is { } dpc ? $"{signed(dpc)} %" : "—")</strong></div>
         </div>
       }
+      </div>
       </div>
 
       @* O «SUPOMOS» (o Diogo, 16/10): e se a calote do tampão desta
@@ -1927,24 +1930,51 @@
   // comparação estão em zonas trocadas sem recarregar (data-dmo-regiao; as
   // leituras da comparação desde o deep sweep, 18/10/2026, B-peso-4).
 
+  var seqLinha = 1000;
   function adicionarLinha(readings) {
-    var last = readings.querySelector('[data-cmp-row]:last-of-type');
-    if (!last) { return false; }
-    var clone = last.cloneNode(true);
-    clone.querySelectorAll('input').forEach(function (input) { input.value = ''; });
-    last.after(clone);
-    return true;
+    var ultima = readings.querySelector('[data-cmp-row]:last-child');
+    var modelo = ultima || readings.querySelector('[data-cmp-row]');
+    if (!modelo) { return null; }
+    var clone = modelo.cloneNode(true);
+    seqLinha++;
+    clone.querySelectorAll('input').forEach(function (input) {
+      input.value = '';
+      input.id = (input.name === 'cm_subject' ? 'cmpSubject-' : 'cmpWater-') + seqLinha;
+      var rotulo = clone.querySelector('label[for="' + input.id + '"]');
+      var campo = input.closest('.dmo-field');
+      var l = campo && campo.querySelector('label');
+      if (l) { l.setAttribute('for', input.id); }
+    });
+    readings.appendChild(clone);
+    return clone;
+  }
+  function tirarLinha(readings, linha) {
+    var rows = readings.querySelectorAll('[data-cmp-row]');
+    if (rows.length > 1) { linha.remove(); return; }
+    // A última linha não sai: limpa-se.
+    linha.querySelectorAll('input').forEach(function (input) { input.value = ''; });
   }
 
-  document.addEventListener('click', function (event) {
-    var botao = event.target.closest && event.target.closest('[data-cmp-add-row], [data-cmp-remove-row]');
-    // Os botões estão no canto do cartão, fora do <form>: são dele pelo form=.
-    var form = botao && (botao.form || botao.closest('form'));
+  function aoCarregar(event) {
+    var alvo = event.target.closest && event.target.closest('[data-cmp-add-row], [data-cmp-remove-row], [data-cmp-del-row]');
+    if (!alvo) { return; }
+    var form = alvo.form || alvo.closest('form') || document.getElementById('cmpForm');
     var readings = form && form.querySelector('[data-cmp-readings]');
     if (!readings) { return; }
-    if (botao.hasAttribute('data-cmp-add-row')) { adicionarLinha(readings); return; }
+    event.preventDefault();
+    if (alvo.hasAttribute('data-cmp-add-row')) {
+      var nova = adicionarLinha(readings);
+      var campo = nova && nova.querySelector('input');
+      if (campo) { campo.focus(); }
+      return;
+    }
+    if (alvo.hasAttribute('data-cmp-del-row')) { tirarLinha(readings, alvo.closest('[data-cmp-row]')); return; }
     var rows = readings.querySelectorAll('[data-cmp-row]');
     if (rows.length > 1) { rows[rows.length - 1].remove(); }
+  }
+  document.addEventListener('click', aoCarregar);
+  document.addEventListener('keydown', function (event) {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.hasAttribute && event.target.hasAttribute('data-cmp-del-row')) { aoCarregar(event); }
   });
 
   // A LIGAÇÃO FALHOU AO COMPARAR OU GUARDAR (deep sweep, 18/10/2026,
