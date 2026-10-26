@@ -2330,7 +2330,7 @@ Novos: 7 · mudaram: 0 · saíram: 0
 
 Selo depois: `8c61c6519de55957`
 
-## A-0099 · 2026-10-26 · teste-novo
+## A-0104 · 2026-10-26 · teste-novo
 
 Porquê: Reshape do Job On, J3 (PR #104) junto ao integracao: testes do JobOnHistoricoQuery
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAmgz6Smt5sJ1FZ7Riri2Hy
