@@ -2744,3 +2744,14 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
 
 Selo depois: `b1fbf8371e3118cd`
+
+## A-0134 · 2026-10-26 · teste-novo
+
+Porquê: Cabeçalhos de segurança em todas as respostas
+Referência: A-0134
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: CabecalhosDeSegurancaTests.Resposta_LevaOsCabecalhosDeSeguranca`
+
+Selo depois: `2ed82e8fca8a939f`
