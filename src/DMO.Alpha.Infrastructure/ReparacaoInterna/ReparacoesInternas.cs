@@ -1,5 +1,6 @@
 using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Paging;
+using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.ReparacaoInterna;
 using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
@@ -54,14 +55,45 @@ public sealed class ReparacoesInternas(
 
     public async Task<RiProducaoDoDia> ProducaoDoDiaAsync(int machineId, DateOnly dia, CancellationToken cancellationToken = default)
     {
-        // Numa consulta: as produções da máquina cujas datas cobrem o dia (sem
-        // fim, conta desde o início), com o cm_id e o mf_id em uso e a
-        // referência e o lote das ferramentas. Uma produção sem datas não conta.
+        var linhas = await CandidatasQuery(db.JobOns.AsNoTracking().Where(j => j.MachineId == machineId), dia)
+            .ToListAsync(cancellationToken);
+        return Montar(dia, linhas);
+    }
+
+    // A mesma regra numa só leitura para todas as máquinas pedidas (o painel
+    // tem uma linha por máquina). Cada máquina fica com o que a leitura
+    // individual lhe daria, pela mesma ordem; sem produção, vem vazia.
+    public async Task<IReadOnlyDictionary<int, RiProducaoDoDia>> ProducoesDoDiaAsync(
+        IReadOnlyCollection<int> machineIds, DateOnly dia, CancellationToken cancellationToken = default)
+    {
+        var ids = machineIds.Distinct().ToArray();
+        var porMaquina = new Dictionary<int, RiProducaoDoDia>(ids.Length);
+        if (ids.Length == 0)
+        {
+            return porMaquina;
+        }
+
+        var linhas = await CandidatasQuery(db.JobOns.AsNoTracking().Where(j => ids.Contains(j.MachineId)), dia)
+            .ToListAsync(cancellationToken);
+        var agrupadas = linhas.ToLookup(l => l.MachineId);
+        foreach (var id in ids)
+        {
+            porMaquina[id] = Montar(dia, agrupadas[id].ToList());
+        }
+
+        return porMaquina;
+    }
+
+    // Numa consulta: as produções cujas datas cobrem o dia (sem fim, conta
+    // desde o início), com o cm_id e o mf_id em uso e a referência e o lote das
+    // ferramentas. Uma produção sem datas não conta. Da de maior jobon_id para
+    // a de menor. Partilhada pela leitura de uma máquina e pela de várias.
+    private IQueryable<CandidataLinha> CandidatasQuery(IQueryable<JobOn> jobOns, DateOnly dia)
+    {
         var ferramentas = db.Tools.AsNoTracking().Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId);
-        var linhas = await (
-            from j in db.JobOns.AsNoTracking()
-            where j.MachineId == machineId
-                && j.InicioEm != null
+        return
+            from j in jobOns
+            where j.InicioEm != null
                 && j.InicioEm <= dia
                 && (j.FimEm == null || j.FimEm >= dia)
             join c in db.CmContexts.AsNoTracking() on (int?)j.Id equals c.JobOnId into cms
@@ -73,13 +105,14 @@ public sealed class ReparacoesInternas(
             join tm in ferramentas on (m != null ? m.ToolId : null) equals tm.ToolId into tms
             from tm in tms.DefaultIfEmpty()
             orderby j.Id descending
-            select new
+            select new CandidataLinha
             {
-                j.Id,
-                j.ProductionNumber,
-                j.Reference,
-                j.InicioEm,
-                j.FimEm,
+                MachineId = j.MachineId,
+                Id = j.Id,
+                ProductionNumber = j.ProductionNumber,
+                Reference = j.Reference,
+                InicioEm = j.InicioEm,
+                FimEm = j.FimEm,
                 CmId = c != null ? c.Id : (int?)null,
                 CmReferencia = tc != null ? tc.Reference : null,
                 CmLote = tc != null ? tc.Lot : null,
@@ -88,10 +121,11 @@ public sealed class ReparacoesInternas(
                 MfReferencia = tm != null ? tm.Reference : null,
                 MfLote = tm != null ? tm.Lot : null,
                 MfToolId = tm != null ? tm.ToolId : null
-            })
-            .ToListAsync(cancellationToken);
+            };
+    }
 
-        return new RiProducaoDoDia(dia, linhas
+    private static RiProducaoDoDia Montar(DateOnly dia, List<CandidataLinha> linhas) =>
+        new(dia, linhas
             .Select(l => new RiProducao(
                 l.Id,
                 l.ProductionNumber,
@@ -103,6 +137,23 @@ public sealed class ReparacoesInternas(
                 l.CmToolId,
                 l.MfToolId))
             .ToList());
+
+    private sealed class CandidataLinha
+    {
+        public int MachineId { get; init; }
+        public int Id { get; init; }
+        public string ProductionNumber { get; init; } = string.Empty;
+        public string Reference { get; init; } = string.Empty;
+        public DateOnly? InicioEm { get; init; }
+        public DateOnly? FimEm { get; init; }
+        public int? CmId { get; init; }
+        public string? CmReferencia { get; init; }
+        public string? CmLote { get; init; }
+        public string? CmToolId { get; init; }
+        public int? MfId { get; init; }
+        public string? MfReferencia { get; init; }
+        public string? MfLote { get; init; }
+        public string? MfToolId { get; init; }
     }
 
     public async Task<ReparacaoSaida> RegistarAsync(PedidoDeReparacao pedido, CancellationToken cancellationToken = default)

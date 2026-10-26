@@ -207,9 +207,9 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         var leituras = html[html.IndexOf("data-peso-leituras", StringComparison.Ordinal)..];
         leituras = leituras[..leituras.IndexOf("</table>", StringComparison.Ordinal)];
         Assert.Contains("<th>Volume (cm³)</th>", leituras);
-        Assert.Contains("<td>70.362</td>", leituras);
+        Assert.Contains("<td>70.36</td>", leituras);
         Assert.Contains("<strong>176.51</strong>", leituras);
-        Assert.Contains("<td>70.894</td>", leituras);
+        Assert.Contains("<td>70.89</td>", leituras);
         Assert.Contains("<strong>177.78</strong>", leituras);
         Assert.DoesNotContain("202604", leituras);
 
@@ -217,7 +217,7 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         // ainda não aparece (o Owner 2026-10-17: «ao escolher aí sim a tabela
         // com detalhes»).
         Assert.Contains("Procurar produção…", html);
-        Assert.Contains("202604 · Lote 8 · B1 · Peso 176.75 g (&#x394; &#x2B;0.56) · Volume 70.462 cm³ (&#x394; &#x2B;0.23)", html);
+        Assert.Contains("202604 · Lote 8 · B1 · Peso 176.75 g (&#x394; &#x2B;0.56) · Volume 70.46 cm³ (&#x394; &#x2B;0.23)", html);
         Assert.DoesNotContain("data-peso-comparacao-tabela", html);
         var escolhida = System.Text.RegularExpressions.Regex.Match(html, "<option value=\"(\\d+)\"[^>]*>\\s*202604 ").Groups[1].Value;
         html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&comparar={escolhida}");
@@ -231,8 +231,8 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         // A produção é só a procura; a tabela compara CM com CM pela ordem
         // das leituras (o Owner 2026-10-17), sem «Sem par», e as médias no fim.
         Assert.Contains("<th>CM anterior · 202604</th>", html);
-        Assert.Contains("<td>70.261</td>", html);
-        Assert.Contains("<td>70.462</td>", html);
+        Assert.Contains("<td>70.26</td>", html);
+        Assert.Contains("<td>70.46</td>", html);
         Assert.Contains("data-peso-comparacao-medias", html);
         Assert.DoesNotContain("Sem par", html);
         Assert.DoesNotContain("a mesma máquina", html);

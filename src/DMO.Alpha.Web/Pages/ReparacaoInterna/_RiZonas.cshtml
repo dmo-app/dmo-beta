@@ -1,0 +1,23 @@
+@model DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel
+@* Só as zonas pedidas (PERF-09: cabeçalho X-Dmo-Zonas), pela ordem pedida,
+   com os mesmos partials da página completa. Ver
+   docs/ui-reference/atualizar-so-o-que-muda.md. *@
+@foreach (var zona in Model.ZonasPedidas)
+{
+  if (zona == DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.ZonaLinhas)
+  {
+    <partial name="_RiLinhas" model="Model" />
+  }
+  else if (zona == DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.ZonaAvisos)
+  {
+    <partial name="_RiAvisos" model="Model" />
+  }
+  else if (zona == DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel.ZonaRegisto)
+  {
+    <partial name="_RiRegisto" model="Model" />
+  }
+  else
+  {
+    <partial name="_RiHistResultados" model="Model" />
+  }
+}
