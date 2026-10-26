@@ -158,6 +158,7 @@ builder.Services.AddScoped<IDeleteBqMovementHandler, DeleteBqMovementHandler>();
 // Boquilhas read path: read model consumer-specific do surface Registo.
 builder.Services.AddScoped<IBoquilhasRegistoQuery, BoquilhasRegistoQuery>();
 builder.Services.AddScoped<IBoquilhasEscolhasQuery, BoquilhasEscolhasQuery>();
+builder.Services.AddScoped<IBoquilhasFichaQuery, BoquilhasFichaQuery>();
 // Boquilhas write path: criar um trace ancorado a um tool_id e associá-lo
 // mais tarde ao seu bq_id de produção.
 builder.Services.AddScoped<ICreateBqRepairTraceHandler, CreateBqRepairTraceHandler>();
@@ -282,8 +283,8 @@ builder.Services.AddTransient<DMO.Alpha.Web.Pages.Controlo.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Armazem.DefinicoesModel>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.ReparacaoInterna.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel>();
-builder.Services.AddTransient<DMO.Alpha.Web.Pages.Admin.CanalJobon.IndexModel>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnviarPesoPorEmailHandler>();
 // O APPROVE-MÍNIMO (a decisão GATE 4): o registo de visão da folha do
 // controlo — quem abriu e quando; nunca é gate.

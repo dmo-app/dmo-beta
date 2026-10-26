@@ -264,18 +264,18 @@ with sync_playwright() as playwright:
     assert page.input_value('#adminEmailConfirm') == ''
     assert foco(page) == 'admEmailGuardar', f'foco em {foco(page)}'
 
-    # Canal Jobon: a hora grava ao escolher; o foco fica no dropdown.
-    page.goto(base + '/Definicoes?secao=admin&sub=canal')
+    # Boquilhas: a hora grava ao escolher; o foco fica no dropdown.
+    page.goto(base + '/Definicoes?secao=boquilhas')
     hora = str((int(page.input_value('#dayChangeHour')) + 1) % 24)
     page.focus('#dayChangeHour')
-    gravar(page, pedidos, lambda: page.select_option('#dayChangeHour', hora), ['#def-title'], 'Canal Jobon, hora')
+    gravar(page, pedidos, lambda: page.select_option('#dayChangeHour', hora), ['#def-title'], 'Boquilhas, hora')
     toast(page, 'Hora de viragem gravada.')
     assert page.input_value('#dayChangeHour') == hora
     assert foco(page) == 'dayChangeHour', f'foco em {foco(page)}'
     assert sql('''select "SettingValue" from "ModuleSettings" where "SettingKey" = 'Boquilhas:DayChangeHour' ''') == hora
 
     # Menu lateral: um clique em «Controlo» abre o grupo, outro fecha-o; o triângulo roda.
-    page.goto(base + '/Definicoes?secao=admin&sub=canal')
+    page.goto(base + '/Definicoes?secao=admin&sub=app')
     titulo = '[data-dmo-def-grupo="controlo"] [data-dmo-def-grupo-titulo]'
     sub = '#defMenu-controlo'
     rodar = f'{titulo} .dmo-caret'
