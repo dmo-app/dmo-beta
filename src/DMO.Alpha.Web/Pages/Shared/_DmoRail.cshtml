@@ -52,9 +52,11 @@
     {
       var abre = string.IsNullOrWhiteSpace(linha.Href) ? null : linha.Href;
       var rotulo = linha.AriaLabel ?? $"{linha.Code} — {linha.Detail}";
+      // Cada linha com a sua cor em todos os painéis (Diogo, 26/10/2026); quem já dá a classe fica com ela.
+      var corDaLinha = linha.CssClass is null && LinhasComCor.Contains(linha.Code) ? linha.Code : null;
       @if (Model.OpenOnClick && abre is not null)
       {
-        <a class="dmo-rail-link@(linha.CssClass is null ? null : " " + linha.CssClass)" href="@abre" aria-label="@rotulo" title="@rotulo">
+        <a class="dmo-rail-link@(linha.CssClass is null ? null : " " + linha.CssClass)" data-dmo-linha-cor="@corDaLinha" href="@abre" aria-label="@rotulo" title="@rotulo">
           <strong>@linha.Code</strong>
           <span>@linha.Detail</span>
         </a>
@@ -62,7 +64,7 @@
       else
       {
       var classe = string.Join(' ', new[] { abre is null ? "bq-line-empty" : linha.Selected ? "selected" : null, linha.CssClass }.Where(c => c is not null));
-      <button type="button" class="@(classe.Length > 0 ? classe : null)"
+      <button type="button" class="@(classe.Length > 0 ? classe : null)" data-dmo-linha-cor="@corDaLinha"
               data-dmo-row data-dmo-open="@abre" data-id="@linha.Key"
               aria-label="@rotulo" title="@rotulo" aria-selected="@(linha.Selected ? "true" : null)">
         <strong>@linha.Code</strong>
@@ -80,3 +82,6 @@
     }
   </div>
 </aside>
+@functions {
+    private static readonly HashSet<string> LinhasComCor = new(StringComparer.Ordinal) { "B1", "B2", "B3", "C1", "C2", "C3" };
+}
