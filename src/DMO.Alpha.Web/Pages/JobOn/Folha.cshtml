@@ -617,7 +617,7 @@ else
     <div class="sheet">
       <div class="sheet-main"><div class="zones">
         @* Quatro colunas independentes, cada cartão com a altura do seu conteúdo (Diogo, 26/10/2026):
-           CM e TP; MF e CS; BQ e AN; PU e ARR. Os Calibres, por baixo das quatro colunas. *@
+           CM e TP; MF e CS; BQ e AN; PU e ARR. Os Calibres, por baixo de BQ+AN e PU+ARR. *@
         <div class="fcol board" id="gMoldes">
           @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
           <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
@@ -626,6 +626,7 @@ else
           @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
           <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock"), ("QTD máq.", "cs_qtd_maq")]); }</article>
         </div>
+        <div class="fright"><div class="frow">
         <div class="fcol board col-bq">
           @* A BQ e o AN, cada um no seu cartão, um por baixo do outro (AN com o lote dele; Diogo, 26/10/2026). *@
           <article class="card pair"><div class="pair-in">
@@ -642,6 +643,7 @@ else
           @* PU e ARR: o mesmo componente, mas cada um no seu cartão, um por baixo do outro (Diogo, 26/10/2026). *@
           <article class="card sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</article>
           <article class="card sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</article>
+        </div>
         </div>
         <section class="group g-cal" aria-label="Calibres">
           <div class="board" id="gCal">
@@ -688,6 +690,7 @@ else
             </article>
           </div>
         </section>
+        </div>
       </div></div>
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }

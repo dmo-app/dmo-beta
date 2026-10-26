@@ -197,7 +197,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         var css = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
             "src", "DMO.Alpha.Web", "wwwroot", "css", "dmo-jobon-folha.css"));
         Assert.Contains(".board>.card.sec{min-width:150px", css);
-        Assert.Contains(".zones>.fcol{display:flex;flex-direction:column", css);
+        Assert.Contains(".fcol{display:flex;flex-direction:column", css);
         Assert.Contains("grid-template-columns:repeat(4,minmax(0,1fr))", css);
         Assert.Contains(".more-body .table-wrap{overflow-x:visible}", css);
     }
