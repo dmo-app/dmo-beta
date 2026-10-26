@@ -2613,3 +2613,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
 Selo depois: `2114046428f6af0d`
+
+## A-0118 · 2026-10-26 · teste-novo
+
+Porquê: Sumário: a linha inteira dos avisos do «Importante» abre a página que resolve (Diogo: «não tem os links para a página onde se pode corrigir»); o teste novo prova o link na linha, sem botões, e as regras do CSS.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyDm7rAVnv8boHSLPT52F7YR
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve`
+
+Selo depois: `bfb24a5eaf62cccf`

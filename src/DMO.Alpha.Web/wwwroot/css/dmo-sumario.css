@@ -35,7 +35,17 @@
 .sumario-quando{min-width:46px;color:var(--dmo-palette-slate);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
 .sumario-maquina{min-width:26px;color:var(--dmo-machine-color);font-size:14px}
 .sumario-titulo{color:var(--dmo-text);font-size:14px;font-weight:600;text-decoration:none}
-a.sumario-titulo:hover,a.sumario-titulo:focus-visible{color:var(--dmo-palette-ocean);text-decoration:underline}
+/* A LINHA INTEIRA ABRE (Diogo, 26/10/2026: «não tem os links para a página
+   onde se pode corrigir»): o link do título estica-se pela linha toda, e a
+   linha com página mostra a mão e escurece ao passar; sem sublinhado. */
+.sumario-item{position:relative}
+.sumario-item:has(> a.sumario-titulo){cursor:pointer}
+.sumario-item > a.sumario-titulo::after{content:"";position:absolute;inset:0;border-radius:8px}
+.sumario-item:has(> a.sumario-titulo):hover,.sumario-item:has(> a.sumario-titulo:focus-visible){background:color-mix(in srgb,var(--dmo-machine-color) 24%,transparent)}
+.sumario-item:has(> a.sumario-titulo):hover > a.sumario-titulo,a.sumario-titulo:focus-visible{color:var(--dmo-palette-ocean)}
+a.sumario-titulo:focus-visible{outline:none}
+[data-theme="dark"] .sumario-item:has(> a.sumario-titulo):hover > a.sumario-titulo,[data-theme="dark"] a.sumario-titulo:focus-visible{color:var(--dmo-palette-sky)}
+.sumario-item:has(> a.sumario-titulo:focus-visible){outline:2px solid var(--dmo-palette-ocean);outline-offset:1px}
 .sumario-detalhe{color:var(--dmo-text);font-size:13px}
 .sumario-item small{margin-left:auto;color:var(--dmo-text-muted);font-size:12px}
 /* Os importantes (Diogo, 23/10/2026): a cor dos avisos (dmo-aviso warn) na
