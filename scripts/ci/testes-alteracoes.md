@@ -2487,3 +2487,19 @@ Novos: 4 · mudaram: 6 · saíram: 4
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_SetupECanalJobon_CartaoNumaZona_MensagemNoCanto`
 
 Selo depois: `f870f0a656abcc8b`
+
+## A-0109 · 2026-10-26 · teste-novo
+
+Porquê: Reshape de Boquilhas (B3a): as leituras da ficha da BQ de Boquilhas/Index.cshtml.cs passam para BoquilhasFichaQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.Ferramenta_DevolveReferenciaLoteEQuantidadeESemFerramentaDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.MaquinasDaFerramenta_VemPorOrdemDoIdDaMaquina_SoDessaFerramenta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.MovimentosSemJobOn_SoDestaBqSemJobOn_MaisRecentesPrimeiro_ComLimite`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.OsTresPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasFicha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasFicha.cs :: PostgresMigrationIntegrationTests.BoquilhasFicha_CadaPedidoFazUmaSoConsultaDeLeitura`
+
+Selo depois: `8f7cf08cf9932c69`
