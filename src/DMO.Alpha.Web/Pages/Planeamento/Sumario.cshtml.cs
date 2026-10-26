@@ -20,9 +20,11 @@ namespace DMO.Alpha.Web.Pages.Planeamento;
 /// que mostra e dias»). Abre no dia de hoje. Cada tipo só aparece a quem tem
 /// o módulo dele (<see cref="SumarioTipos.PodeVer"/>) e cada linha abre a
 /// página onde se vê. Só leitura.
+/// Abre a qualquer conta com sessão (Diogo, 26/10/2026: «sumario abre para
+/// todos mas as notificaçoes dependem dos modulos»): sem [ModuleEntry]; o
+/// Job On, o Histórico e o painel das produções só a quem tem o Planeamento.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.JobOnCreate)]
 public sealed class SumarioModel(
     ISumarioQuery sumario,
     IJobOnListQuery jobOnList,
@@ -80,6 +82,9 @@ public sealed class SumarioModel(
     /// <summary>A conta vê algum tipo importante (o filtro mostra «Importante»).</summary>
     public bool VeImportantes { get; private set; }
 
+    /// <summary>A conta tem o Planeamento (Job On criar ou ver): vê o Job On, o Histórico e o painel lateral.</summary>
+    public bool VePlaneamento { get; private set; }
+
     private IReadOnlyList<string> _modulos = [];
 
     public async Task<IActionResult> OnGetAsync(
@@ -89,18 +94,23 @@ public sealed class SumarioModel(
         [FromQuery(Name = "tipo")] string? tipo,
         [FromQuery(Name = "dias")] int? dias)
     {
+        _modulos = await capabilities.GetAsync(HttpContext.RequestAborted);
+        VePlaneamento = _modulos.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal)
+            || _modulos.Contains(DmoCapabilities.JobOnView, StringComparer.Ordinal);
+
         ViewData["Title"] = "Sumário";
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = "sumario",
-            Functions = ShellStateFactory.PlanningFunctions("sumario")
+            Functions = VePlaneamento
+                ? ShellStateFactory.PlanningFunctions("sumario")
+                : ShellStateFactory.PlanningFunctions("sumario").Where(f => f.Key == "sumario").ToArray()
         };
 
         // Abrir o Sumário é ver os importantes: o ponto do separador apaga-se
         // (Diogo, 23/10/2026).
         await novidades.MarcarVistoAsync(HttpContext.RequestAborted);
 
-        _modulos = await capabilities.GetAsync(HttpContext.RequestAborted);
         var visiveis = SumarioTipos.Visiveis(_modulos);
         TiposVisiveis = visiveis.Where(SumarioTipos.DoPeriodo).ToArray();
         TiposInformacao = TiposVisiveis.Where(t => !SumarioTipos.Importante(t)).ToArray();
@@ -151,9 +161,12 @@ public sealed class SumarioModel(
                 .ToList();
         }
 
-        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
-        ProximasEntradas = JobOn.IndexModel.ProximasEntradasDaSemana(
-            await jobOnList.ListWindowAsync(hoje, domingo, HttpContext.RequestAborted), hoje);
+        if (VePlaneamento)
+        {
+            var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
+            ProximasEntradas = JobOn.IndexModel.ProximasEntradasDaSemana(
+                await jobOnList.ListWindowAsync(hoje, domingo, HttpContext.RequestAborted), hoje);
+        }
 
         var porDia = items.GroupBy(i => i.Dia).ToDictionary(g => g.Key, g => g.Count());
         Calendar = DmoCalendarPresentation.ForMonth(

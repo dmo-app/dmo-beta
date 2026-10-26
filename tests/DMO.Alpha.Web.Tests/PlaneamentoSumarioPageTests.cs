@@ -372,10 +372,44 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         Assert.Contains("Utilização por atualizar (entrou no Armazém)", linha);
     }
 
+    // Diogo, 26/10/2026 (cmsg_01K75FTs9bQnbhhH7qttpgraPQfnCaE1DxfHtBcTqVgauB):
+    // «sumario abre para todos mas as notificaçoes dependem dos modulos».
+    // Sem o Planeamento: a barra tem «Planeamento», que abre só o Sumário,
+    // sem o Job On, o Histórico nem o painel das produções; e só a
+    // informação dos módulos da conta.
     [Fact]
-    public async Task WithoutPlaneamento_ThePageIsRefused()
+    public async Task WithoutPlaneamento_ThePageOpensWithOnlyTheAccountModules()
     {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.BqMovementDeletions.Add(new BqMovementDeletion
+            {
+                BqMovementId = 98, BqRepairTraceId = 9998, Type = BqMovementType.Saida, Quantity = 2,
+                OccurredAtUtc = DateTime.UtcNow, MachineCodeFrozen = "C3", DeletedByNameFrozen = "Operador Sumário 5601", DeletedAtUtc = DateTime.UtcNow
+            });
+            await db.SaveChangesAsync();
+        }
+
+        await JobOnAsync("S6L001", Hoje, DateTime.UtcNow);
         using var client = await LoginAsync("5601", DmoCapabilities.Boquilhas);
-        Assert.Equal(HttpStatusCode.Redirect, (await client.GetAsync(PagePath)).StatusCode);
+        var html = await GetAsync(client);
+
+        var menu = System.Text.RegularExpressions.Regex.Match(html, "<nav class=\"dmo-primary-nav\"[\\s\\S]*?</nav>").Value;
+        Assert.Contains("href=\"/Planeamento/Sumario\"", menu);
+        Assert.Contains("href=\"/Boquilhas\"", menu);
+        Assert.DoesNotContain("href=\"/JobOn", menu);
+        var funcoes = System.Text.RegularExpressions.Regex.Match(html, "<nav class=\"tabs dmo-secondary-nav\"[\\s\\S]*?</nav>").Value;
+        Assert.Contains("Sumário", funcoes);
+        Assert.DoesNotContain("/JobOn", funcoes);
+        Assert.DoesNotContain("As produções em curso e as que entram esta semana", html);
+        Assert.DoesNotContain("/JobOn/Folha?jobon_id=", html);
+
+        Assert.Contains("<span class=\"sumario-etiqueta\">Movimentos de boquilhas apagados</span>", html);
+        Assert.DoesNotContain("S6L001", html);
+
+        // O menu das Boquilhas também leva ao Sumário.
+        var boquilhas = WebUtility.HtmlDecode(await client.GetStringAsync("/Boquilhas"));
+        Assert.Contains("href=\"/Planeamento/Sumario\"", System.Text.RegularExpressions.Regex.Match(boquilhas, "<nav class=\"dmo-primary-nav\"[\\s\\S]*?</nav>").Value);
     }
 }

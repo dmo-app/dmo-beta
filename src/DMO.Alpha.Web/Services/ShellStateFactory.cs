@@ -29,10 +29,13 @@ public sealed class ShellStateFactory
     /// → Ferramentas, a ordem do Owner 2026-10-12). Os dois Controlos
     /// chamam-se «Controlo»: com os dois há uma só entrada, que fica
     /// marcada no Criar e na Revisão.
+    /// Sem o Planeamento, a barra abre com «Planeamento», que leva só ao
+    /// Sumário (Diogo, 26/10/2026: «sumario abre para todos»).
     /// </summary>
     public static IReadOnlyList<DestinationPresentation> ModuleDestinations(
-        string? moduleKey, IReadOnlyList<string> granted) =>
-        DmoCapabilities.MenuModules(granted)
+        string? moduleKey, IReadOnlyList<string> granted)
+    {
+        var modulos = DmoCapabilities.MenuModules(granted)
             .Select(m => new DestinationPresentation(
                 Label: m.Label,
                 Href: m.Home,
@@ -41,7 +44,22 @@ public sealed class ShellStateFactory
                     .Any(other => IsSelected(other.Key, moduleKey)),
                 Visible: true,
                 Enabled: true))
-            .ToArray();
+            .ToList();
+        if (modulos.Count > 0 && !modulos.Any(m => m.Label == "Planeamento"))
+        {
+            modulos.Insert(0, new DestinationPresentation(
+                Label: "Planeamento",
+                Href: SumarioHref,
+                Selected: moduleKey == "planeamento",
+                Visible: true,
+                Enabled: true));
+        }
+
+        return modulos;
+    }
+
+    /// <summary>O Sumário do Planeamento, aberto a todas as contas.</summary>
+    public const string SumarioHref = "/Planeamento/Sumario";
 
     /// <summary>
     /// True nas páginas de um módulo em desenvolvimento (Armazém, Reparação
