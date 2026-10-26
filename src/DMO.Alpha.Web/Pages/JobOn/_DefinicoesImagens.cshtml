@@ -1,0 +1,20 @@
+@* A PASTA DAS IMAGENS DOS ARTIGOS (Diogo, 26/10/2026): o mesmo mecanismo da
+   pasta dos PDFs do Controlo. Escolhe-se uma vez, em cada computador, a
+   pasta geral (Chrome ou Edge guardam-na só neste navegador); a Folha do Job
+   On cria lá a pasta da referência e grava a imagem do artigo. Geral, com
+   cadeado: só se associa ou remove com o PIN. *@
+@{ var cadeado = ViewData["DefCadeado"] is true; }
+<section id="jobonDefImagens" class="dmo-card" aria-labelledby="jobon-imagens-title" data-dmo-pasta-artigos>
+  <div class="dmo-card-topo">
+    <h3 id="jobon-imagens-title">Pasta das imagens dos artigos<partial name="_DmoHelp" model="@("A pasta geral do servidor da fábrica onde ficam as imagens dos artigos. A app cria lá uma pasta por referência completa e grava a imagem. Associe-a em cada computador (Chrome ou Edge).")" /></h3>
+    <div class="dmo-card-topo-acoes">
+      <button type="button" class="dmo-button" data-dmo-pasta-artigos-escolher disabled="@cadeado" hidden>Associar</button>
+    </div>
+  </div>
+  <p><strong>Neste computador:</strong> <span data-dmo-pasta-artigos-nome>Nenhuma</span>
+    <button type="button" class="ctl-def-link" data-dmo-pasta-artigos-esquecer disabled="@cadeado" hidden>Remover</button>
+  </p>
+  <p data-dmo-pasta-artigos-sem-suporte hidden>Use o Chrome ou o Edge para associar a pasta.</p>
+  <p data-dmo-pasta-artigos-aviso role="status" hidden></p>
+</section>
+<script src="~/js/dmo-pasta-artigos.js" asp-append-version="true"></script>
