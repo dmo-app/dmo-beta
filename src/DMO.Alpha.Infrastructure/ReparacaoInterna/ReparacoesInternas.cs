@@ -218,6 +218,7 @@ public sealed class ReparacoesInternas(
             JobOnId = producao?.JobOnId,
             MachineId = machineId,
             Tipo = tipo,
+            Trabalho = Enum.IsDefined(pedido.Trabalho) ? pedido.Trabalho : ReparacaoTrabalho.Reparacao,
             Numero = numero,
             RegistadoPorUserId = Autor(),
             RegistadoEmUtc = agora,
@@ -669,6 +670,6 @@ public sealed class ReparacoesInternas(
          join u in db.Users.AsNoTracking() on r.RegistadoPorUserId equals (Guid?)u.Id into us
          from u in us.DefaultIfEmpty()
          orderby r.Id descending
-         select new RiLinha(r.Id, r.Numero, r.Tipo, u != null ? u.Name : null, r.RegistadoEmUtc, r.ReferenciaEscrita, r.LoteEscrito, r.Hora))
+         select new RiLinha(r.Id, r.Numero, r.Tipo, u != null ? u.Name : null, r.RegistadoEmUtc, r.ReferenciaEscrita, r.LoteEscrito, r.Hora, r.Trabalho))
         .ToPagedListAsync(pagina, cancellationToken: cancellationToken);
 }

@@ -107,6 +107,15 @@ else
           <label><input type="radio" id="riTipoMf-@codigo" name="tipo" value="mf" checked="@(c.Tipo == ReparacaoTipo.Mf)" /><span>MF</span></label>
         </fieldset>
         <div class="dmo-field">
+          <label for="riTrabalho-@codigo">Trabalho</label>
+          <select id="riTrabalho-@codigo" name="trabalho" class="ri-trabalho">
+            @foreach (var t in new[] { ReparacaoTrabalho.Reparacao, ReparacaoTrabalho.Soldar, ReparacaoTrabalho.Polir })
+            {
+              <option value="@RiTextos.TrabalhoValor(t)" selected="@(Model.Trabalho == t)">@RiTextos.Trabalho(t)</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field">
           <label for="riNumero-@codigo">Número</label>
           <input id="riNumero-@codigo" name="numero" class="ri-numero" inputmode="numeric" maxlength="@IndexModel.NumeroAlgarismos" pattern="[0-9]{1,@IndexModel.NumeroAlgarismos}" title="Só algarismos, até @IndexModel.NumeroAlgarismos" aria-invalid="@(Model.NumeroInvalido ? "true" : null)" autocomplete="off" required autofocus
                  value="@Model.NumeroEscrito" />
@@ -151,7 +160,7 @@ else
         <div class="dmo-table-wrap">
           <table class="dmo-table" id="riLog-@codigo" data-dmo-list="Reparações da linha @codigo"
                  data-ri-maquina="@codigo" data-ri-producao="@p?.JobOnId" data-ri-tipo="@RiTextos.Valor(c.Tipo)" data-ri-dia="@dia" data-ri-pagina="@Model.Log.PageNumber">
-            <thead><tr><th>Hora</th><th>Produção</th><th>CM/MF</th><th>Número</th></tr></thead>
+            <thead><tr><th>Hora</th><th>Produção</th><th>CM/MF</th><th>Trabalho</th><th>Número</th></tr></thead>
             <tbody>
             @foreach (var r in Model.Log.Items)
             {
@@ -160,6 +169,7 @@ else
                 <td>@(r.JobOnId is null ? "Sem Job On" : r.Producao)</td>
                 <td>@RiTextos.Tipo(r.Tipo)@if (r.Escrita is { } e)
                   {<span class="ri-escrita">Outra: @RiTextos.Escrita(e.Referencia, e.Lote)</span>}</td>
+                <td>@RiTextos.Trabalho(r.Trabalho)</td>
                 <td><strong>@r.Numero</strong></td>
               </tr>
             }

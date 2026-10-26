@@ -101,6 +101,9 @@ public sealed class ConsultarModel(
     /// <summary>O segundo passo: as últimas 5 produções da referência escrita.</summary>
     public IReadOnlyList<ProductionPickItem> Producoes { get; private set; } = [];
 
+    /// <summary>O resumo por pessoa das reparações com estes filtros (só a chefia: a Consulta é da chefia).</summary>
+    public IReadOnlyList<RiResumoPessoa> Resumo { get; private set; } = [];
+
     public PagedList<RiConsultaLinha> Lista { get; private set; } = PagedList<RiConsultaLinha>.Empty;
 
     public ListPager Pager { get; private set; } = new(1, 1, 0);
@@ -163,6 +166,7 @@ public sealed class ConsultarModel(
             return Page();
         }
 
+        Resumo = await consulta.ResumoPorPessoaAsync(filtro, cancelar);
         Lista = await consulta.ConsultarAsync(filtro, pagina, cancelar);
         Pager = ListPager.For(Lista);
         var podes = await capabilities.GetAsync(cancelar);

@@ -163,6 +163,28 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
 
   <section id="riConsultaResultados" class="dmo-card ri-card" aria-labelledby="ri-consulta-title" data-dmo-regiao data-dmo-parcial>
     <h3 id="ri-consulta-title">Reparações<partial name="_DmoHelp" model="@("As reparações que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional, que vira à hora do Canal Jobon.")" /></h3>
+    @if (Model.Resumo.Count > 0)
+    {
+      <div id="riConsultaResumo" class="ri-resumo">
+        <h4 id="ri-resumo-title">Resumo por pessoa<partial name="_DmoHelp" model="@("Reparações que contam com estes filtros, os dias diferentes em que cada pessoa registou e a média de reparações por dia.")" /></h4>
+        <div class="dmo-table-wrap">
+          <table class="dmo-table" id="riConsultaResumoLista" data-dmo-list="Resumo por pessoa">
+            <thead><tr><th>Pessoa</th><th>Reparações</th><th>Dias</th><th>Média por dia</th></tr></thead>
+            <tbody>
+            @foreach (var p in Model.Resumo)
+            {
+              <tr>
+                <td>@p.Nome</td>
+                <td>@p.Reparacoes.ToString(System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td>@p.Dias.ToString(System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td>@p.MediaPorDia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)</td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
     @if (!Model.ComFiltro)
     {
       <p class="ri-vazia" id="riConsultaConvite">Escolha a linha, os dias, quem, CM ou MF, ou procure a produção pela referência.</p>
@@ -198,7 +220,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
                   @producao
                 }
               </td>
-              <td>@RiTextos.Tipo(r.Tipo)</td>
+              <td>@RiTextos.Tipo(r.Tipo)@if (r.Trabalho != ReparacaoTrabalho.Reparacao){<text> · @RiTextos.Trabalho(r.Trabalho)</text>}</td>
               <td>@if (Model.AbreFerramentas && ConsultarModel.ToolIdDaFicha(r) is { } toolId)
                 {<a href="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(toolId, string.Empty).Href" data-dmo-completa>@ConsultarModel.Ferramenta(r)</a>}
                 else
