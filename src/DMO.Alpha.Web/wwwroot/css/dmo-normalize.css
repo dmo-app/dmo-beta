@@ -437,3 +437,5 @@ html body .dmo-uso-cheio{color:color-mix(in srgb,var(--dmo-warning) 70%,var(--dm
    enchem de azul com a letra branca. Um só estilo para a app: Saída/Entrada, linhas das ferramentas, Produção/Experiência, CM/MF. */
 html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input+span{background:var(--dmo-card);border:1px solid var(--dmo-border,#b9d0e6);color:var(--dmo-text)}
 html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:#fff}
+/* No modo escuro (Diogo, 26/10/2026) o hover e o selecionado mantêm o fundo do cartão com a letra branca; o enchimento azul é só do modo claro. */
+html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-card);border-color:var(--dmo-brand-600);color:#fff}
