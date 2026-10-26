@@ -772,3 +772,9 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
 @media (min-width:901px){
   html body .jof2 .page-head .pick-block>.eyebrow{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;white-space:nowrap}
 }
+/* Processo, Peso, Secções e Gota: caixas do mesmo tamanho (Diogo, 26/10/2026). */
+@media (min-width:901px){
+  html body .jof2 .page-head .facts-dados input.f:not([type=date]),html body .jof2 .page-head .facts-dados select.f{width:76px;min-width:0;height:34px;min-height:34px;box-sizing:border-box}
+  html body .jof2 .page-head .facts-dados select.f{padding:0 22px 0 10px;background-position:right 6px center}
+  html body .jof2 .page-head .facts-dados input.f[type=date]{height:34px;min-height:34px;box-sizing:border-box}
+}
