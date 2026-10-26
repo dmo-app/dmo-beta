@@ -129,7 +129,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 select new { o.ToolId, p.Codigo })
             .ToListAsync(cancellationToken))
             .GroupBy(o => o.ToolId)
-            .ToDictionary(g => g.Key, g => g.First().Codigo);
+            .ToDictionary(g => g.Key, g => string.Join(", ", g.Select(o => o.Codigo)));
         var localizacoes = await _db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => ids.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);

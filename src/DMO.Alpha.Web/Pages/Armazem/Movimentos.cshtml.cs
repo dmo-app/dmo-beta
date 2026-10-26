@@ -99,6 +99,9 @@ public sealed class MovimentosModel(
     // O que a pessoa escreveu, para voltar a desenhar o formulário recusado.
     public string? Posicao { get; private set; }
 
+    /// <summary>A posição escolhida na Saída quando a ferramenta está em mais de uma.</summary>
+    public string? PosicaoSaida { get; private set; }
+
     public string? OrigemEscolhida { get; private set; }
 
     public string? EstadoEscolhido { get; private set; }
@@ -188,6 +191,7 @@ public sealed class MovimentosModel(
             ArmazemMovimentoResultado.FerramentaNaoExiste => "Esta ferramenta já não existe.",
             ArmazemMovimentoResultado.JaNoArmazem => $"Esta ferramenta já está no armazém, na posição {RecusaPosicao}.",
             ArmazemMovimentoResultado.NaoEstaNoArmazem => "Esta ferramenta não está no armazém.",
+            ArmazemMovimentoResultado.PosicaoPorEscolher => $"Esta ferramenta está em mais de uma posição ({RecusaPosicao}). Escolha a posição.",
             ArmazemMovimentoResultado.PosicaoInvalida => "Escreva a posição com os 4 algarismos (ex.: 0042).",
             ArmazemMovimentoResultado.PosicaoNaoExiste => $"A posição {RecusaPosicao} não existe. Criar?",
             ArmazemMovimentoResultado.SemOrigem => "Escolha a origem.",
@@ -303,14 +307,16 @@ public sealed class MovimentosModel(
         [FromForm(Name = "estado")] string? estado,
         [FromForm(Name = "data")] string? data,
         [FromForm(Name = "observacoes")] string? observacoes,
-        [FromForm(Name = "linha")] int? linha = null)
+        [FromForm(Name = "linha")] int? linha = null,
+        [FromForm(Name = "posicao")] string? posicao = null)
     {
         var saida = await movimentos.SaidaAsync(
             new PedidoDeSaida(Operacao(operacaoId), ToolId ?? string.Empty, Destino, reparador, fabrica, EstadoDe(estado),
-                DataUtc(data), observacoes, Destino == ArmazemDestino.Producao ? linha : null),
+                DataUtc(data), observacoes, Destino == ArmazemDestino.Producao ? linha : null, posicao),
             HttpContext.RequestAborted);
         return await Responder(saida, "saida", operacaoId, () =>
         {
+            PosicaoSaida = posicao;
             ReparadorEscolhido = reparador?.ToString(CultureInfo.InvariantCulture);
             Fabrica = fabrica;
             LinhaEscolhida = linha?.ToString(CultureInfo.InvariantCulture);
@@ -325,10 +331,11 @@ public sealed class MovimentosModel(
         [FromForm(Name = "operacao_id")] Guid operacaoId,
         [FromForm(Name = "posicao")] string? posicao,
         [FromForm(Name = "observacoes")] string? observacoes,
-        [FromForm(Name = "criar_posicao")] string? criarPosicao)
+        [FromForm(Name = "criar_posicao")] string? criarPosicao,
+        [FromForm(Name = "posicao_anterior")] string? posicaoAnterior = null)
     {
         var saida = await movimentos.CorrigirAsync(
-            new PedidoDeCorrecao(Operacao(operacaoId), ToolId ?? string.Empty, posicao, observacoes, criarPosicao == "1"),
+            new PedidoDeCorrecao(Operacao(operacaoId), ToolId ?? string.Empty, posicao, observacoes, criarPosicao == "1", posicaoAnterior),
             HttpContext.RequestAborted);
         return await Responder(saida, "corrigir", operacaoId, () =>
         {
@@ -421,7 +428,7 @@ public sealed class MovimentosModel(
     {
         var pos = PosicaoPedidaValida;
         var ficam = ModoSaida
-            ? itens.Where(i => i.NoArmazem && (pos is null || i.OndeEsta.EndsWith(pos, StringComparison.Ordinal))).ToList()
+            ? itens.Where(i => i.NoArmazem && (pos is null || i.OndeEsta.Contains(pos, StringComparison.Ordinal))).ToList()
             : itens.Where(i => !i.NoArmazem).ToList();
         // Nada se perde: as que ficam de fora contam-se, com o outro modo.
         ViewData["ArmOcultas"] = ModoSaida ? itens.Count(i => !i.NoArmazem) : itens.Count(i => i.NoArmazem);

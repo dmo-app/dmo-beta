@@ -205,6 +205,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 m.Id, m.Tipo, m.OcorridoEmUtc, Descricao(m, codigos), m.Observacoes, m.RegistadoPor)).ToList())
         {
             Par = par is null ? null : new ArmazemPar(par.ToolId, par.Type, parPosicao),
+            Posicoes = posicao is null ? [] : posicao.Value.Codigo.Split(", "),
             ListaProgramada = listaProgramada,
             Linhas = await LinhasAsync(cancellationToken),
             LinhasDaFerramenta = await db.ToolMachineLinks.AsNoTracking()
@@ -258,16 +259,18 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.FerramentaNaoExiste);
         }
 
-        var atual = await OcupacaoAtivaAsync(tool.ToolId, cancellationToken);
-        if (atual is not null)
-        {
-            return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.JaNoArmazem, await CodigoAsync(atual.PosicaoId, cancellationToken));
-        }
-
         var (recusa, posicao, codigo) = await PosicaoAsync(pedido.Posicao, pedido.CriarPosicao, cancellationToken);
         if (recusa is { } r)
         {
             return ArmazemMovimentoSaida.Recusa(r, codigo);
+        }
+
+        // A mesma ferramenta pode estar em mais de uma posição (Diogo, 26/10/2026):
+        // só se recusa entrar outra vez na mesma posição; nas outras grava e avisa.
+        var atuais = await OcupacoesAtivasAsync(tool.ToolId, asNoTracking: true, cancellationToken);
+        if (posicao is { Id: > 0 } && atuais.Any(o => o.PosicaoId == posicao.Id))
+        {
+            return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.JaNoArmazem, codigo);
         }
 
         if (pedido.Origem is null)
@@ -288,6 +291,12 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         var agora = DateTime.UtcNow;
         var ocorrido = pedido.OcorridoEmUtc ?? agora;
         var avisos = new List<string>();
+        if (atuais.Count > 0)
+        {
+            var onde = await CodigosAsync(atuais.Select(o => (int?)o.PosicaoId), cancellationToken);
+            avisos.Add($"Esta ferramenta já estava no armazém, na posição {string.Join(", ", atuais.Select(o => onde[o.PosicaoId]))}: fica também na {posicao!.Codigo}.");
+        }
+
         await AvisosDaDataAsync(tool.ToolId, ocorrido, agora, avisos, cancellationToken);
         await AvisosDaPosicaoAsync(posicao!, tool, avisos, cancellationToken);
         var localizacao = await db.FerramentaLocalizacoes.FirstOrDefaultAsync(l => l.ToolId == tool.ToolId, cancellationToken);
@@ -417,11 +426,17 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.FerramentaNaoExiste);
         }
 
-        var ocupacao = await db.ArmazemOcupacoes
-            .FirstOrDefaultAsync(o => o.ToolId == tool.ToolId && o.LibertadaEmUtc == null, cancellationToken);
-        if (ocupacao is null)
+        var ocupacoes = await OcupacoesAtivasAsync(tool.ToolId, asNoTracking: false, cancellationToken);
+        if (ocupacoes.Count == 0)
         {
             return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.NaoEstaNoArmazem);
+        }
+
+        // Em mais de uma posição, quem dá a Saída escolhe de qual sai.
+        var (ocupacao, escolha) = await EscolherOcupacaoAsync(ocupacoes, pedido.Posicao, cancellationToken);
+        if (ocupacao is null)
+        {
+            return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.PosicaoPorEscolher, escolha);
         }
 
         var codigo = await CodigoAsync(ocupacao.PosicaoId, cancellationToken);
@@ -534,8 +549,18 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.FerramentaNaoExiste);
         }
 
-        var ocupacao = await db.ArmazemOcupacoes
-            .FirstOrDefaultAsync(o => o.ToolId == tool.ToolId && o.LibertadaEmUtc == null, cancellationToken);
+        var ocupacoes = await OcupacoesAtivasAsync(tool.ToolId, asNoTracking: false, cancellationToken);
+        ArmazemOcupacao? ocupacao = null;
+        if (ocupacoes.Count > 0)
+        {
+            string? escolha;
+            (ocupacao, escolha) = await EscolherOcupacaoAsync(ocupacoes, pedido.PosicaoAnterior, cancellationToken);
+            if (ocupacao is null)
+            {
+                return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.PosicaoPorEscolher, escolha);
+            }
+        }
+
         var foraDoArmazem = string.IsNullOrWhiteSpace(pedido.Posicao);
         ArmazemPosicao? posicao = null;
         string? codigo = null;
@@ -549,7 +574,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             }
         }
 
-        if ((foraDoArmazem && ocupacao is null) || (posicao is not null && ocupacao?.PosicaoId == posicao.Id))
+        if ((foraDoArmazem && ocupacao is null) || (posicao is not null && ocupacoes.Any(o => o.PosicaoId == posicao.Id)))
         {
             return ArmazemMovimentoSaida.Recusa(ArmazemMovimentoResultado.NadaAMudar, codigo);
         }
@@ -722,6 +747,34 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
 
     private static string? Cortado(string? texto, int max) => texto is { Length: > 0 } t && t.Length > max ? t[..max] : texto;
 
+    private async Task<List<ArmazemOcupacao>> OcupacoesAtivasAsync(string toolId, bool asNoTracking, CancellationToken cancellationToken)
+    {
+        var consulta = asNoTracking ? db.ArmazemOcupacoes.AsNoTracking() : db.ArmazemOcupacoes;
+        return await consulta.Where(o => o.ToolId == toolId && o.LibertadaEmUtc == null)
+            .OrderBy(o => o.DesdeUtc).ThenBy(o => o.Id).ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// A ocupação de onde sai (ou de onde se corrige): a única, ou a da posição
+    /// escolhida. Em mais de uma e sem escolha válida devolve null e as
+    /// posições, para a pessoa escolher.
+    /// </summary>
+    private async Task<(ArmazemOcupacao? Ocupacao, string? Posicoes)> EscolherOcupacaoAsync(
+        List<ArmazemOcupacao> ocupacoes, string? escolhida, CancellationToken cancellationToken)
+    {
+        if (ocupacoes.Count == 1)
+        {
+            return (ocupacoes[0], null);
+        }
+
+        var codigos = await CodigosAsync(ocupacoes.Select(o => (int?)o.PosicaoId), cancellationToken);
+        var pedida = escolhida?.Trim();
+        var ocupacao = string.IsNullOrEmpty(pedida)
+            ? null
+            : ocupacoes.FirstOrDefault(o => string.Equals(codigos[o.PosicaoId], pedida, StringComparison.OrdinalIgnoreCase));
+        return (ocupacao, string.Join(", ", ocupacoes.Select(o => codigos[o.PosicaoId])));
+    }
+
     private Task<ArmazemOcupacao?> OcupacaoAtivaAsync(string toolId, CancellationToken cancellationToken) =>
         db.ArmazemOcupacoes.AsNoTracking().FirstOrDefaultAsync(o => o.ToolId == toolId && o.LibertadaEmUtc == null, cancellationToken);
 
@@ -821,9 +874,12 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 from o in db.ArmazemOcupacoes.AsNoTracking()
                 join p in db.ArmazemPosicoes.AsNoTracking() on o.PosicaoId equals p.Id
                 where o.LibertadaEmUtc == null && toolIds.Contains(o.ToolId)
+                orderby o.DesdeUtc, o.Id
                 select new { o.ToolId, p.Codigo, o.DesdeUtc })
             .ToListAsync(cancellationToken);
-        return linhas.ToDictionary(l => l.ToolId, l => (l.Codigo, l.DesdeUtc));
+        // Em mais de uma posição, o código junta-as («2111, 3184») e a data é a mais antiga.
+        return linhas.GroupBy(l => l.ToolId)
+            .ToDictionary(g => g.Key, g => (string.Join(", ", g.Select(l => l.Codigo)), g.Min(l => l.DesdeUtc)));
     }
 
     private async Task<Dictionary<int, string>> CodigosAsync(IEnumerable<int?> ids, CancellationToken cancellationToken)

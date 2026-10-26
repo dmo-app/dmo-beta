@@ -341,9 +341,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.HasIndex("PosicaoId")
                         .HasFilter("\"LibertadaEmUtc\" IS NULL");
 
-                    b.HasIndex("ToolId")
+                    b.HasIndex("ToolId", "PosicaoId")
                         .IsUnique()
-                        .HasDatabaseName("IX_ArmazemOcupacoes_ToolId_Ativa")
+                        .HasDatabaseName("IX_ArmazemOcupacoes_ToolId_PosicaoId_Ativa")
                         .HasFilter("\"LibertadaEmUtc\" IS NULL");
 
                     b.ToTable("ArmazemOcupacoes", (string)null);
@@ -1861,10 +1861,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("JobOnId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AnNotas")
+                    b.Property<string>("AnLote")
                         .HasColumnType("text");
 
-                    b.Property<string>("AnLote")
+                    b.Property<string>("AnNotas")
                         .HasColumnType("text");
 
                     b.Property<string>("AnReferencia")

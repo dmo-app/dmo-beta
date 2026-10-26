@@ -300,7 +300,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
                 where o.LibertadaEmUtc == null && ids.Contains(o.ToolId)
                 select new { o.ToolId, p.Codigo })
             .ToListAsync(cancellationToken))
-            .GroupBy(p => p.ToolId).ToDictionary(g => g.Key, g => g.First().Codigo);
+            .GroupBy(p => p.ToolId).ToDictionary(g => g.Key, g => string.Join(", ", g.Select(p => p.Codigo)));
         var localizacoes = await db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => ids.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);
