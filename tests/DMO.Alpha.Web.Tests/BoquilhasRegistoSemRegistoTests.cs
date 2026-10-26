@@ -51,10 +51,10 @@ public partial class BoquilhasRegistoPageTests
         Assert.Contains("Registo — BQ RGT951 · Lote 5", html);
         // Os cartões do registo (Diogo, 17/10/2026): referência, BQ e lote,
         // produção e datas; sem «Máquinas compatíveis» no cabeçalho.
-        Assert.Contains("<div class=\"dmo-fact\"><span>Referência</span><strong>ZQREF-51</strong></div>", html);
+        Assert.Matches("<a class=\"dmo-fact dmo-fact-link\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Referência</span><strong>ZQREF-51</strong></a>", html);
         Assert.Contains("<div class=\"dmo-fact\"><span>BQ · lote</span><strong>RGT951 · Lote 5</strong></div>", html);
         // A produção abre o Job On dela (Diogo, 21/10/2026).
-        Assert.Matches("<div class=\"dmo-fact\"><span>Produção</span><strong><a href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\">PN-551001</a></strong></div>", html);
+        Assert.Matches("<a class=\"dmo-fact dmo-fact-link\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Produção</span><strong>PN-551001</strong></a>", html);
         Assert.Contains("<span>Início</span>", html);
         Assert.Contains("<span>Fim</span>", html);
         var facts = html[html.IndexOf("id=\"bqRegisterFacts\"", StringComparison.Ordinal)..];
@@ -88,13 +88,13 @@ public partial class BoquilhasRegistoPageTests
         using var client = await LoginClientAsync("4503", "OpenPass3!");
 
         var sem = await GetPageHtmlAsync(client, $"{PagePath}?bq_id={semData.Id}");
-        Assert.Contains("<div class=\"dmo-fact dmo-fact-falta\"><span>Início</span><strong>Sem data no Job On</strong></div>", sem);
-        Assert.Contains("<div class=\"dmo-fact\"><span>Fim</span><strong>—</strong></div>", sem);
+        Assert.Matches("<a class=\"dmo-fact dmo-fact-link dmo-fact-falta\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Início</span><strong>Sem data no Job On</strong></a>", sem);
+        Assert.Matches("<a class=\"dmo-fact dmo-fact-link\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Fim</span><strong>—</strong></a>", sem);
         Assert.DoesNotContain("Até aviso", sem);
 
         var com = await GetPageHtmlAsync(client, $"{PagePath}?bq_id={comData.Id}");
-        Assert.Contains("<div class=\"dmo-fact\"><span>Início</span><strong>12/10/2026</strong></div>", com);
-        Assert.Contains("<div class=\"dmo-fact\"><span>Fim</span><strong>Até aviso</strong></div>", com);
+        Assert.Matches("<a class=\"dmo-fact dmo-fact-link\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Início</span><strong>12/10/2026</strong></a>", com);
+        Assert.Matches("<a class=\"dmo-fact dmo-fact-link\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Fim</span><strong>Até aviso</strong></a>", com);
         Assert.DoesNotContain("dmo-fact-falta", com);
     }
 

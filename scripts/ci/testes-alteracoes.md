@@ -2774,3 +2774,26 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: JobOnMaquinaDoJobOnTests.MaquinaDoJobOn_DevolveALinhaDaProducao_OuZeroQuandoNaoExiste`
 
 Selo depois: `2a77037c4adaf9a6`
+
+## A-0130 · 2026-10-26 · ok-do-diogo
+
+Porquê: A-0130 no integracao: Voltar, cartões BQ com link, módulos do Pessoal em tabela
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5hWpevZxdmL29DgykSdZi6
+Novos: 8 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CartoesComLink.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CartoesComLink.cs :: BoquilhasRegistoPageTests.Cartoes_BqLoteAbreAFicha_ORestoAbreOJobOnDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Voltar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Voltar.cs :: FerramentasPagesTests.Ficha_OVoltar_VoltaAPaginaDeOndeSeVeio_SemOrigemALista`
+- novo: `tests/ShellProof/voltar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar.test.cjs :: depois de guardar (vindo da própria ficha) ou do Histórico, a origem mantém-se`
+- novo: `tests/ShellProof/voltar.test.cjs :: sem origem do mesmo site, fica o link do servidor`
+- novo: `tests/ShellProof/voltar.test.cjs :: vindo de outra página, o Voltar volta lá com os filtros`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HistoricoDiario.cs :: BoquilhasRegistoPageTests.Historico_AAbaAbreOResumoDiario_EACelulaAbreORegistoComOJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PersistedToolAndContextFacts_RenderFromServerData`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.Cartoes_InicioEFimSaoOsDoJobOn_SemInicioAvisoAmarelo`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_DoesNotCreateTheTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `97b8665552385661`
