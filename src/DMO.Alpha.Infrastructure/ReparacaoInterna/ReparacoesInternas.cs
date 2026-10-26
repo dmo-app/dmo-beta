@@ -398,6 +398,11 @@ public sealed class ReparacoesInternas(
             return new CorrecaoSaida(CorrecaoResultado.JaAnulada, reparacao.Numero);
         }
 
+        if (!PodeMudar(reparacao, pedido.Chefia))
+        {
+            return new CorrecaoSaida(CorrecaoResultado.SoQuemRegistou, reparacao.Numero);
+        }
+
         // A hora: NULL deixa-a como está; muda-se só ao minuto.
         var hora = pedido.Hora is { } h ? new TimeOnly(h.Hour, h.Minute) : reparacao.Hora;
         var horaMudou = hora != reparacao.Hora;
@@ -446,6 +451,11 @@ public sealed class ReparacoesInternas(
             return new CorrecaoSaida(CorrecaoResultado.JaAnulada, reparacao.Numero);
         }
 
+        if (!PodeMudar(reparacao, pedido.Chefia))
+        {
+            return new CorrecaoSaida(CorrecaoResultado.SoQuemRegistou, reparacao.Numero);
+        }
+
         var agora = _clock.GetUtcNow().UtcDateTime;
         var rasto = new ReparacaoRasto
         {
@@ -459,6 +469,10 @@ public sealed class ReparacoesInternas(
         reparacao.AnuladaEmUtc = agora;
         return await AplicarAsync(reparacao, rasto, pedido.OperacaoId, OperacaoAnular, CorrecaoResultado.Anulado, cancellationToken);
     }
+
+    // Só quem a registou e a chefia corrigem ou anulam (DS-PERM-01, Diogo 26/10/2026).
+    private bool PodeMudar(Reparacao reparacao, bool chefia) =>
+        chefia || (Autor() is { } eu && reparacao.RegistadoPorUserId == eu);
 
     // O motivo é opcional: sem espaços nas pontas, vazio fica NULL, até 200.
     private static bool Motivo(string? escrito, out string? motivo)

@@ -240,6 +240,41 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { montarToasts(); });
   else montarToasts();
 
+  /* ---------- O VOLTAR (Diogo, 26/10/2026: «o voltar quando entramos numa página a partir de outra não volta à página anterior») ----------
+   * Um link [data-dmo-voltar="<chave>"] volta à página de onde se veio, com os
+   * filtros que lá estavam. A origem é a página anterior do mesmo site
+   * (document.referrer) e fica guardada no separador (sessionStorage) por
+   * página + chave: guardar ou abrir uma página filha (data-dmo-voltar-ignorar)
+   * e voltar não a perde. Sem origem conhecida, o link fica como o servidor o
+   * escreveu (a lista do módulo). */
+  function montarVoltar() {
+    var links = document.querySelectorAll("a[data-dmo-voltar]");
+    if (links.length === 0) return;
+    var aqui = global.location.pathname.toLowerCase();
+    var anterior = null;
+    try { anterior = document.referrer ? new URL(document.referrer) : null; } catch (e) { anterior = null; }
+    Array.prototype.forEach.call(links, function (link) {
+      var chave = "dmo-voltar:" + aqui + ":" + link.getAttribute("data-dmo-voltar");
+      var ignorar = (link.getAttribute("data-dmo-voltar-ignorar") || "").toLowerCase().split(/\s+/).filter(Boolean).concat([aqui, "/login", "/"]);
+      var origem = null;
+      if (anterior && anterior.origin === global.location.origin && ignorar.indexOf(anterior.pathname.toLowerCase()) < 0) {
+        origem = anterior.pathname + anterior.search;
+      }
+      try {
+        if (origem) global.sessionStorage.setItem(chave, origem);
+        else origem = global.sessionStorage.getItem(chave);
+      } catch (e) { /* sem sessionStorage: fica o link do servidor */ }
+      if (!origem) return;
+      link.setAttribute("href", origem);
+      var texto = link.getAttribute("data-dmo-voltar-texto");
+      if (texto) link.textContent = texto;
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", montarVoltar);
+  else montarVoltar();
+  // Uma zona trocada sem recarregar pode trazer o link de novo como o servidor o escreveu.
+  document.addEventListener("dmo:troca", montarVoltar);
+
   global.DMOLive = {
     toast: toast,
     escapeHtml: escapeHtml,

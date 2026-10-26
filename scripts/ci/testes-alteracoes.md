@@ -2769,6 +2769,68 @@ Novos: 4 · mudaram: 0 · saíram: 0
 
 Selo depois: `11e205f5bd501994`
 
+## A-0136 · 2026-10-26 · teste-novo
+
+Porquê: Testes novos: Registos por utilizador no Admin (abrem vazios, filtram por utilizador e módulo, só o ADMIN entra) e a cor ligeira da ferramenta a 100% na Folha do Job On.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKDJ8zZui3W6yJSGDxU5PUZ
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_AbremVazios_EFiltramPorUtilizadorEModulo`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_SoOAdminEntra`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: JobOnPageTests.Folha_FerramentaA100PorCento_ReferenciaELoteComCorLigeira`
+
+Selo depois: `291bede439cd4981`
+
+## A-0130 · 2026-10-26 · ok-do-diogo
+
+Porquê: Diogo pediu: Voltar volta à página anterior, cartões do registo das Boquilhas com link à ferramenta e ao Job On, módulos do Pessoal em tabela (cmsg_01A27e9ozcpoh4jdPRsuJbFyNKpEEbQzJxBt6UxyAm6UQH)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5hWpevZxdmL29DgykSdZi6
+Novos: 8 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CartoesComLink.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CartoesComLink.cs :: BoquilhasRegistoPageTests.Cartoes_BqLoteAbreAFicha_ORestoAbreOJobOnDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Voltar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Voltar.cs :: FerramentasPagesTests.Ficha_OVoltar_VoltaAPaginaDeOndeSeVeio_SemOrigemALista`
+- novo: `tests/ShellProof/voltar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar.test.cjs :: depois de guardar (vindo da própria ficha) ou do Histórico, a origem mantém-se`
+- novo: `tests/ShellProof/voltar.test.cjs :: sem origem do mesmo site, fica o link do servidor`
+- novo: `tests/ShellProof/voltar.test.cjs :: vindo de outra página, o Voltar volta lá com os filtros`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HistoricoDiario.cs :: BoquilhasRegistoPageTests.Historico_AAbaAbreOResumoDiario_EACelulaAbreORegistoComOJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PersistedToolAndContextFacts_RenderFromServerData`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.Cartoes_InicioEFimSaoOsDoJobOn_SemInicioAvisoAmarelo`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_DoesNotCreateTheTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `e3b8d1822d04685e`
+
+## A-0137 · 2026-10-26 · ok-do-diogo
+
+Porquê: DS-PERM-01: na Reparação Interna só quem registou e a chefia (a Consulta) corrigem ou anulam. Os testes em que outra pessoa (ou o serviço sem sessão) corrigia ou anulava passam a usar a chefia; testes novos mostram que outro operador sem a chefia não muda nada.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyCwjpBqhTBK4Sd2W4oD7FYF (Diogo «sim» ao DS-PERM-01, 26/10/2026)
+Novos: 6 · mudaram: 6 · saíram: 4
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Anular_AChefia_ADeOutraPessoaSaiDaListaEDasContagens_FicaNaBase_ComRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Corrigir_AChefia_MudaSoONumeroDeOutraPessoa_EDeixaRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.OutraPessoaSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_AnulaADeOutraPessoa_ALinhaSai_EFicaNaBase`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_CorrigeONumeroDeOutraPessoa_ComRasto_EOMesmoEnvioAplicaUmaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutroOperadorSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInternaRasto.cs :: PostgresMigrationIntegrationTests.ReparacaoInternaRasto_AnularAoMesmoTempo_AnulaUmaVez`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInternaRasto.cs :: PostgresMigrationIntegrationTests.ReparacaoInternaRasto_EliminarOJobOn_LevaAsReparacoesEORasto`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.DuasCorrecoes_DoisRastos_PelaOrdem`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.UmaAnulada_NaoSeCorrigeNemSeAnulaOutraVez`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Anular_OutraPessoa_SaiDaListaEDasContagens_FicaNaBase_ComRasto`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Corrigir_OutraPessoaComOModulo_MudaSoONumero_EDeixaRasto`
+- saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_Anula_ALinhaSai_EFicaNaBase`
+- saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_CorrigeONumero_ComRasto_EOMesmoEnvioAplicaUmaVez`
+
+Selo depois: `73089c51f2cc3956`
+
 ## A-0138 · 2026-10-26 · ok-do-diogo
 
 Porquê: Folha do Job On, pedidos do Diogo a 26/10/2026: os furos do CS no ver sem a «/» (um por baixo do outro); o Duplicar sugere a produção seguinte à última da referência (o teste do Duplicar passa a esperar 202603 em vez do campo vazio, e muda de nome); testes novos: a produção sugerida e as produções da referência da mais recente para a mais antiga.
@@ -2781,4 +2843,4 @@ Novos: 3 · mudaram: 1 · saíram: 1
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatasNemNumero_ComODiaDoCalendario_EGravaUmaProducaoNova`
 
-Selo depois: `4bd0a82be1a30cb3`
+Selo depois: `7ca7ff243aac45b1`
