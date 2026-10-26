@@ -82,7 +82,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
        «Adicionar». No Histórico só os filtros (abre vazio) e as listas
        fechadas; a linha abre a lista, só para ver. *@
       <h3 id="rp-lista-title" class="rp-oculto">Registar Reparação</h3>
-    @{ Func<object, object> modoListas = @<text>
+    @{ Func<object?, object> modoListas = @<text>
       <div class="rp-modo rp-modo-direita" role="group" aria-label="Listas ou histórico">
         <a class="dmo-button@(!Model.VerFechadas ? " rp-modo-ativo" : null)" id="rpModoListas" aria-pressed="@(!Model.VerFechadas ? "true" : "false")" href="@Url.Page("/Ferramentas/ReparacaoProgramada")">Listas</a>
         @* A ajuda encostada ao botão a que pertence (.dmo-com-ajuda, regra partilhada; Diogo, 24/10/2026). *@

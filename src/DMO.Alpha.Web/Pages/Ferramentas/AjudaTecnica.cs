@@ -10,7 +10,7 @@ public static class AjudaTecnica
     /// <summary>Processo, peso nominal e punção (CM); marisa (BQ): PesoCalculation e PesoToolFactsQuery.</summary>
     public const string Peso =
         "Usados no Peso. O processo (NNPB ou PS) escolhe a densidade do vidro. " +
-        "A punção (CM) e a marisa (BQ) entram no peso do vidro: (capacidade + marisa − punção) × densidade. " +
+        "A marisa (BQ) entra no peso do vidro: (capacidade + marisa − punção) × densidade; a punção pede-a o Peso. " +
         "O peso nominal é o peso do desenho com que o peso médio é comparado. O processo, a punção e a marisa também aparecem no Job On.";
 
     /// <summary>O gargalo nominal de cada componente: PegamentosQuery e RecordPegamentosMeasurementHandler.</summary>

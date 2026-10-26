@@ -27,12 +27,12 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("placeholder", quantidade, StringComparison.Ordinal);
         Assert.DoesNotContain("Tampão D (mm)", html, StringComparison.Ordinal);
         Assert.DoesNotContain("Gargalo (mm)", html, StringComparison.Ordinal);
-        var tampao = html[Posicao(html, ">Tampão<")..];
-        Assert.True(Posicao(tampao, ">Diâmetro (mm)</label>") < Posicao(tampao, ">Calote (mm)</label>"));
-        // O raio deixou de ser pedido: D e calote chegam para o volume.
-        Assert.DoesNotContain(">Raio (mm)</label>", tampao);
-        Assert.DoesNotContain("name=\"tp_raio\"", tampao);
-        foreach (var dica in new[] { AjudaTecnica.Peso, AjudaTecnica.Gargalo, AjudaTecnica.Tampao })
+        // O Tampão e a Punção saíram da CM (Diogo, 26/10/2026): o tampão
+        // escreve-se na Folha do Job On e a punção no Peso.
+        Assert.DoesNotContain(">Tampão<", html);
+        Assert.DoesNotContain("name=\"tp_diametro\"", html);
+        Assert.DoesNotContain("name=\"volume_puncao\"", html);
+        foreach (var dica in new[] { AjudaTecnica.Peso, AjudaTecnica.Gargalo })
             Assert.Contains($"<span class=\"dmo-help-tip\" role=\"tooltip\">{dica}</span>", html, StringComparison.Ordinal);
         Assert.Contains("class=\"dmo-field ferr-w-processo\"", html, StringComparison.Ordinal);
     }

@@ -15,7 +15,7 @@ public partial class FerramentasPagesTests
 
         var html = await GetPageHtmlAsync(client, $"/Ferramentas/Ficha?tool_id={toolId}");
 
-        Assert.Contains($"<a class=\"dmo-button\" id=\"ferrVoltar\" href=\"/Ferramentas\" data-dmo-voltar=\"{toolId}\" data-dmo-voltar-ignorar=\"/Ferramentas/Ficha /Ferramentas/Historico\" data-dmo-voltar-texto=\"Voltar\">Voltar à lista</a>", html, StringComparison.Ordinal);
+        Assert.Contains($"<a class=\"dmo-button\" id=\"ferrVoltar\" href=\"/Ferramentas\" data-dmo-voltar=\"{toolId}\" data-dmo-voltar-ignorar=\"/Ferramentas/Ficha /Ferramentas/Historico\" data-dmo-voltar-texto=\"Voltar\">Voltar</a>", html, StringComparison.Ordinal);
         Assert.Contains("dmo-live.js", html, StringComparison.Ordinal);
     }
 }

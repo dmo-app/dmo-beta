@@ -27,10 +27,9 @@ const HTML = `<!doctype html><title>Peso</title><body>
   <summary class="tp-button"><span>TP / calote · Apoio separado</span></summary>
   <div class="tp-support-body">
     <div class="peso-facts" data-cap-result>
-      <div class="peso-fact"><span>R calculado</span><strong>36.250 mm</strong></div>
-      <div class="peso-fact"><span>Volume</span><strong>10.338 cm³</strong></div>
-      <div class="peso-fact"><span>Δ R / referência</span><strong>0.000 mm</strong></div>
-      <div class="peso-fact"><span>Δ V / referência</span><strong>0.000 cm³</strong></div>
+      <div class="peso-fact"><span>Volume nominal</span><strong>10.34 cm³</strong></div>
+      <div class="peso-fact"><span>Volume Job On</span><strong>10.34 cm³</strong></div>
+      <div class="peso-fact"><span>Δ volume</span><strong>+0 cm³</strong></div>
     </div>
     <form method="get" class="tp-sim-form"><input id="capSimulada" name="cap_h" value="10" /></form>
   </div>
@@ -39,7 +38,7 @@ const HTML = `<!doctype html><title>Peso</title><body>
 
 // O apoio que o servidor devolve para uma calote (só os campos que a página mostra).
 const apoio = (raio, volume) => ({
-  temReferencia: true, raioCalculadoMm: raio, volumeEfetivoCm3: volume, deltaRaioMm: raio - 36.25, deltaVolumeCm3: volume - 10.338
+  temReferencia: true, volumeReferenciaCm3: 10.338, raioCalculadoMm: raio, volumeEfetivoCm3: volume, deltaRaioMm: raio - 36.25, deltaVolumeCm3: volume - 10.338
 });
 
 function abrir() {
@@ -82,11 +81,11 @@ test('a resposta de uma calote anterior que chega depois da atual não substitui
 
     pedidos[1].responder(apoio(65.103, 5.201));
     await respostasAplicadas();
-    assert.deepEqual(valores(), ['65.103 mm', '5.201 cm³', '+28.853 mm', '-5.137 cm³']);
+    assert.deepEqual(valores(), ['10.34 cm³', '5.20 cm³', '-5.14 cm³']);
 
     pedidos[0].responder(apoio(65.625, 5.0));
     await respostasAplicadas();
-    assert.deepEqual(valores(), ['65.103 mm', '5.201 cm³', '+28.853 mm', '-5.137 cm³'], 'a resposta de 5 chegou tarde e não conta');
+    assert.deepEqual(valores(), ['10.34 cm³', '5.20 cm³', '-5.14 cm³'], 'a resposta de 5 chegou tarde e não conta');
   } finally {
     dom.window.close();
   }
@@ -100,13 +99,13 @@ test('escrever outra vez durante a espera invalida logo o pedido que já saiu', 
     escrever('6');
     pedidos[0].responder(apoio(65.625, 5.0));
     await respostasAplicadas();
-    assert.deepEqual(valores(), ['36.250 mm', '10.338 cm³', '0.000 mm', '0.000 cm³'], 'o 5 já não é o que está no campo');
+    assert.deepEqual(valores(), ['10.34 cm³', '10.34 cm³', '+0 cm³'], 'o 5 já não é o que está no campo');
 
     await esperar(DEPOIS_DA_ESPERA);
     assert.deepEqual(pedidos.map((p) => p.calote), ['5', '6']);
     pedidos[1].responder(apoio(55.083, 6.0));
     await respostasAplicadas();
-    assert.deepEqual(valores(), ['55.083 mm', '6.000 cm³', '+18.833 mm', '-4.338 cm³']);
+    assert.deepEqual(valores(), ['10.34 cm³', '6 cm³', '-4.34 cm³']);
   } finally {
     dom.window.close();
   }
@@ -114,7 +113,7 @@ test('escrever outra vez durante a espera invalida logo o pedido que já saiu', 
 
 test('sem resposta, com erro do servidor ou sem apoio, os valores da calote anterior saem («—»)', async () => {
   const { dom, pedidos, escrever, valores } = abrir();
-  const vazios = ['—', '—', '—', '—'];
+  const vazios = ['—', '—', '—'];
   try {
     escrever('5');
     await esperar(DEPOIS_DA_ESPERA);
@@ -126,7 +125,7 @@ test('sem resposta, com erro do servidor ou sem apoio, os valores da calote ante
     await esperar(DEPOIS_DA_ESPERA);
     pedidos[1].responder(apoio(55.083, 6.0));
     await respostasAplicadas();
-    assert.deepEqual(valores(), ['55.083 mm', '6.000 cm³', '+18.833 mm', '-4.338 cm³'], 'a tecla seguinte volta a calcular');
+    assert.deepEqual(valores(), ['10.34 cm³', '6 cm³', '-4.34 cm³'], 'a tecla seguinte volta a calcular');
 
     escrever('7');
     await esperar(DEPOIS_DA_ESPERA);
@@ -149,7 +148,7 @@ test('sem resposta, com erro do servidor ou sem apoio, os valores da calote ante
     await respostasAplicadas();
     pedidos[4].falhar();
     await respostasAplicadas();
-    assert.deepEqual(valores(), ['50.000 mm', '7.000 cm³', '+13.750 mm', '-3.338 cm³']);
+    assert.deepEqual(valores(), ['10.34 cm³', '7 cm³', '-3.34 cm³']);
   } finally {
     dom.window.close();
   }

@@ -102,7 +102,7 @@ public sealed class PesoTampaoDoJobOnTests : IDisposable
         var apoio = await _query.GetAsync(new PesoCapSupportRequest("T3", controloId));
 
         Assert.False(apoio.TemReferencia);
-        Assert.Contains("ferramenta CM", apoio.EstadoMensagem);
+        Assert.Contains("Folha do Job On", apoio.EstadoMensagem);
     }
 
     [Fact]

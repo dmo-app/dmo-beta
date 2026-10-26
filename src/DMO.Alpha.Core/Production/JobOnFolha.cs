@@ -190,6 +190,13 @@ public sealed class JobOnFolha
     /// <summary>MF · Fundo final (<c>mf_fundo_final</c>).</summary>
     public string? MfFundoFinal { get; set; }
 
+    /// <summary>
+    /// MF · Lote FF (<c>mf_lote_ff</c>): o lote do fundo, quando o FF trabalha
+    /// com outro lote que não o do MF (Diogo, 22/10/2026). A folha abre-o com o
+    /// lote do MF enquanto está vazio.
+    /// </summary>
+    public string? MfLoteFf { get; set; }
+
     /// <summary>CS · Referência (<c>cs_referencia</c>).</summary>
     public string? CsReferencia { get; set; }
 

@@ -177,11 +177,25 @@
     .peso-page .tp-support>summary.tp-button:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
     .peso-page .tp-support>summary.tp-button{list-style:none;width:100%;text-align:left;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px;background:var(--dmo-brand-050,#e8eff7);cursor:pointer;padding:10px;color:var(--dmo-text,#1c2b3a)}
     .peso-page .tp-support>summary.tp-button::-webkit-details-marker{display:none}
-    .peso-page .tp-button span,.peso-page .tp-button small{display:block;font-size:11px}
+    .peso-page .tp-button > span,.peso-page .tp-button small{display:block;font-size:11px}
     .peso-page .tp-button small{color:var(--dmo-muted,#5a6b7c)}
     .peso-page .tp-button strong{display:block;font-size:14px;margin-top:2px}
     .peso-page .tp-support-body{margin-top:10px;padding:12px 14px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:9px;background:var(--dmo-card,#fff)}
     .peso-page .tp-support-body .peso-facts{margin-top:0}
+/* O apoio TP na fila dos volumes (Diogo, 26/10/2026: «não parece centrado»;
+   «este maximizar do tp não deve puxar tudo, cria por cima só para ver»):
+   o botão é um cartão igual aos outros, o conteúdo dos cartões ao centro, e
+   o apoio aberto fica por cima da página, sem esticar a fila. */
+.peso-page .peso-facts > .peso-fact{display:flex;flex-direction:column;justify-content:center}
+.peso-page .peso-facts > .dmo-zona{display:flex;min-width:0}
+.peso-page .peso-facts > .tp-support,
+.peso-page .peso-facts > .dmo-zona > .tp-support{position:relative;margin-top:0;flex:1;min-width:0}
+.peso-page .peso-facts .tp-support>summary.tp-button{height:100%;display:flex;flex-direction:column;justify-content:center;padding:10px 12px;border:0;border-left:3px solid var(--dmo-brand-600,#3c73a8);border-radius:8px;background:var(--dmo-subtle,#f1f6fa)}
+/* A dica dentro do rótulo de um facto: o círculo na linha e o texto normal. */
+.peso-page .peso-fact > span > .dmo-help{display:inline-block}
+.peso-page .peso-fact > span > .dmo-help .dmo-help-tip{text-transform:none;letter-spacing:normal;font-weight:500}
+.peso-page .peso-card:has(.peso-facts .tp-support[open]){overflow:visible;position:relative;z-index:30}
+.peso-page .peso-facts .tp-support[open]>.tp-support-body{position:absolute;top:calc(100% + 6px);right:0;z-index:40;width:min(520px,calc(100vw - 32px));margin-top:0;box-shadow:0 12px 32px rgba(0,0,0,.28)}
     .peso-page .tp-sim-form{display:grid;grid-template-columns:minmax(170px,240px) auto;gap:12px;align-items:end;margin-top:12px;max-width:520px}
     .peso-page .tp-sim-form .dmo-field{min-width:0}
     @media (max-width:900px){.peso-page .tp-sim-form{grid-template-columns:1fr}}
