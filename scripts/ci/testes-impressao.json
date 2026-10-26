@@ -1,5 +1,5 @@
 {
-  "selo": "5845e064a19bb9ba",
+  "selo": "080daba69b900db8",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -825,7 +825,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_GeneratesValidPostgreSql": "3ec4c3399af184d1",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_SeedsTheRemovedTool": "258c965fc3f28c69",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.CurrentModel_HasExactlyTheCanonicalTables": "20bd7dffb43a4e78",
-    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "a045e922373f7c07",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "9bbcecb0652c2131",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.PesoPerToolCombination_OnePesoPerControloForEachCmAndBq": "947b1fc638c05771",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Snapshot_MatchesCurrentModelExactly": "415260325a6f9c86",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AoMesmoTempo.cs :: (resto do ficheiro)": "78c9042c39dc7d44",
@@ -2368,8 +2368,9 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: (resto do ficheiro)": "dc7af088cc485bd5",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: JobOnPageTests.Folha_FerramentaA100PorCento_ReferenciaELoteComCorLigeira": "3ad16e30ba23e0b5",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)": "69b5c204a0772cd2",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios": "5740daa9cd40254d",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas": "af1a39a2c6d7c0d2",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "b1e09244d6808d3e",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "aa5709137509fb34",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: (resto do ficheiro)": "c27b7b56c41f0aa4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: JobOnPageTests.FolhaNova_LoteFf_AbreComOLoteDoMf_EGravaOutro": "5495b0d8ac4fffbd",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: (resto do ficheiro)": "23f69a0c9d6034c4",
