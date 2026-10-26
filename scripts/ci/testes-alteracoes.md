@@ -2465,10 +2465,10 @@ Novos: 12 · mudaram: 0 · saíram: 0
 
 Selo depois: `5dce71a3ddc81f12`
 
-## A-0108 · 2026-10-26 · ok-do-diogo
+## A-0103 · 2026-10-26 · ok-do-diogo
 
-Porquê: Ramo integracao posto em dia com a main (.58) e com o #106 final (ccc7458): o registo fica o da main e esta entrada cobre os testes dos PRs em curso juntos no integracao; cada PR traz o seu registo para a main.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Porquê: Definições: o Diogo pediu que o ADMIN só veja as definições do Admin («no admin só deve ter definições importantes»; «as definições da app abrangem os módulos e só mostram os módulos que um user tem») e que quem só tem «Boquilhas · ver» não tenha horas de viragem. O Canal Jobon sai do Admin: a hora das Boquilhas vai para as Definições das Boquilhas e a da Reparação para uma entrada «Reparação», ambas com «Boquilhas · criar». Saem os testes que esperavam o ADMIN a ver os módulos e o Canal Jobon; entram os que provam o contrário. Tira acesso ao ADMIN: ok do Diogo.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyYRyWGv6Y5CabLhDFr1DLwa, cmsg_01A27e9ozcpoh4jdPRsuJbFyQ8WiYwTVK78uuk1DvMwT8X, cmsg_01A27e9ozcpoh4jdPRsuJbFyCVtCLc1FuK1Ug3hF8cdhTG, cmsg_01A27e9ozcpoh4jdPRsuJbFyUJwYKkR1Jw5deUYwen5U5c
 Novos: 4 · mudaram: 6 · saíram: 4
 
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos`
@@ -2488,7 +2488,7 @@ Novos: 4 · mudaram: 6 · saíram: 4
 
 Selo depois: `f870f0a656abcc8b`
 
-## A-0109 · 2026-10-26 · teste-novo
+## A-0111 · 2026-10-26 · teste-novo
 
 Porquê: Reshape de Boquilhas (B3a): as leituras da ficha da BQ de Boquilhas/Index.cshtml.cs passam para BoquilhasFichaQuery; testes do serviço e orçamento de consultas no Postgres
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
@@ -2504,10 +2504,10 @@ Novos: 7 · mudaram: 0 · saíram: 0
 
 Selo depois: `8f7cf08cf9932c69`
 
-## A-0112 · 2026-10-26 · teste-novo
+## A-0112 · 2026-10-26 · ok-do-diogo
 
-Porquê: Reshape de Boquilhas (B3b): os registos de uma BQ, a associação a um Job On e o registo pendente passam para BoquilhasAssociacaoQuery; a página Boquilhas já não lê a base; testes do serviço e orçamento de consultas no Postgres
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Porquê: Registo do integracao acertado pelo da main 94fc450 (.61): fica o da main, e esta entrada cobre os testes dos PRs em curso juntos no integracao (#113, #114 e outros); cada PR traz o seu registo para a main.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
 Novos: 10 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: (resto do ficheiro)`
