@@ -3024,7 +3024,7 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `3e3c12c08ee5874d`
 
-## A-0159 · 2026-10-26 · teste-novo
+## A-0155 · 2026-10-26 · teste-novo
 
 Porquê: Teste novo ResumoPorPessoa_ContaReparacoesDiasEMedia_SemAsAnuladas (resumo por pessoa da Consulta da RI, PR #160, .101); a lista de migrações ganha ReparacaoInternaTrabalho sem mudar o que o teste verifica
 Novos: 1 · mudaram: 0 · saíram: 0
