@@ -1003,3 +1003,5 @@ html body .jof2 .head-tools .field select[data-facts-type]{width:100%;min-width:
 /* As notas nunca partem letra a letra: a coluna do PU/ARR tem uma largura mínima (Diogo, 26/10/2026). */
 .jof2 .col3{min-width:min(100%,200px)}
 .jof2 .note-view p,.jof2 .note-edit textarea{overflow-wrap:break-word;word-break:normal}
+.jof2 .col-bq.card{display:flex;flex-direction:column;gap:14px;background:none;border:0;box-shadow:none;border-radius:0}
+.jof2 .col-bq>.card.pair{flex:1}

@@ -616,6 +616,8 @@ else
             @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
             @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
             @* A BQ (com o AN) na primeira fila, com a CM e o MF (Diogo, 23/10/2026). *@
+            @* A BQ e o AN, cada um no seu cartão, na mesma coluna da primeira fila. *@
+            <div class="card col-bq">
             <article class="card pair"><div class="pair-in">
               <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
                 @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
@@ -626,6 +628,7 @@ else
             </div></article>
             @* O AN no seu cartão, com o lote dele (Diogo, 26/10/2026). *@
             <article class="card sec" data-jof-familia="AN" aria-label="Anel">@{ Simples("AN", "an_referencia", [], [], chaveLote: "an_lote"); }</article>
+            </div>
           </div>
         </section>
         <div class="col3">
