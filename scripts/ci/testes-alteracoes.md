@@ -3001,3 +3001,15 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements`
 
 Selo depois: `dc6a82a28326fe61`
+
+## A-0156 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha do Job On: o Imprimir passa a um só clique (sem lista de folhas) e as migrações ganham a coluna AnLote; um teste novo guarda as decisões do Diogo sobre a Folha
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAcHKLAVvVgvoPwNUk8FP7t
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `0a2ef153938dc2f0`

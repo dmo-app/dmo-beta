@@ -1864,6 +1864,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("AnNotas")
                         .HasColumnType("text");
 
+                    b.Property<string>("AnLote")
+                        .HasColumnType("text");
+
                     b.Property<string>("AnReferencia")
                         .HasColumnType("text");
 
