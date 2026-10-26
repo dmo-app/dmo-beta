@@ -1,5 +1,5 @@
 {
-  "selo": "2a6fb53ba94863bb",
+  "selo": "426e7f7360b2b2f5",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2298,6 +2298,9 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao": "49c558747d318304",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_ProducoesAnteriores_NoDropdown_AbremAFolhaDeCada": "b5692b4c3553d365",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_SemReferenciaMfMaisBq_SoAvisa": "cb38e13db9c3e901",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)": "69b5c204a0772cd2",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas": "af1a39a2c6d7c0d2",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "c8a5478cec28f62f",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: (resto do ficheiro)": "b7c082c0cb268916",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: JobOnPageTests.FolhaNova_PainelLateral_CadaCartaoLevaACorDaSuaLinha": "fc1116bfdf0baef4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)": "4caac937ec2d97cf",
