@@ -157,6 +157,7 @@ builder.Services.AddScoped<IResetBqDiscrepancyHandler, ResetBqDiscrepancyHandler
 builder.Services.AddScoped<IDeleteBqMovementHandler, DeleteBqMovementHandler>();
 // Boquilhas read path: read model consumer-specific do surface Registo.
 builder.Services.AddScoped<IBoquilhasRegistoQuery, BoquilhasRegistoQuery>();
+builder.Services.AddScoped<IBoquilhasEscolhasQuery, BoquilhasEscolhasQuery>();
 // Boquilhas write path: criar um trace ancorado a um tool_id e associá-lo
 // mais tarde ao seu bq_id de produção.
 builder.Services.AddScoped<ICreateBqRepairTraceHandler, CreateBqRepairTraceHandler>();
