@@ -1,5 +1,5 @@
 {
-  "selo": "ab9e2d6aa5e7ad1b",
+  "selo": "4121492fbe9f1b93",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2962,7 +2962,7 @@
     "tests/ShellProof/voltar.test.cjs :: vindo de outra página, o Voltar volta lá com os filtros": "538ba708ae2c1c98",
     "tests/visual/README.md": "e945d763593851fe",
     "tests/visual/ajuda_junto_browser.py": "a854e14551cdb9c6",
-    "tests/visual/boquilhas_catalog_browser.py": "fe5cfe4882d86f67",
+    "tests/visual/boquilhas_catalog_browser.py": "d804b1f1e10291bb",
     "tests/visual/calendario_parcial_browser.py": "e8db227590a44c8f",
     "tests/visual/definicoes_parcial_browser.py": "f7cf0c1e49df81f7",
     "tests/visual/dmo_chromium.py": "ab6ea3e604de9fe7",
