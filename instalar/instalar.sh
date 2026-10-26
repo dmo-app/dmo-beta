@@ -38,7 +38,23 @@ fi
 set -a; . ./.env; set +a
 DMO_REVISAO="$(git rev-parse --short=7 HEAD 2>/dev/null || echo local)"
 export DMO_REVISAO
-if git diff --quiet HEAD 2>/dev/null; then export DMO_ESTADO=clean; fi
+if [ -z "$(git status --porcelain 2>/dev/null)" ] && git rev-parse HEAD >/dev/null 2>&1; then export DMO_ESTADO=clean; fi
+
+# A atualizar uma instalação que já tem base nesta máquina: cópia da base
+# antes de migrar, verificada, para se poder voltar atrás (pg_restore).
+if [ -n "$(docker compose ps --status running -q base 2>/dev/null)" ]; then
+  mkdir -p copias
+  copia="copias/dmo-$(date +%Y%m%d-%H%M%S)-antes-de-$DMO_REVISAO.dump"
+  dono="${DMO_BASE_DONO:-postgres}"
+  nome_base="${DMO_BASE_NOME:-dmo}"
+  (umask 077; docker compose exec -T base pg_dump -U "$dono" -d "$nome_base" -Fc > "$copia")
+  if ! docker compose exec -T base pg_restore --list < "$copia" >/dev/null 2>&1; then
+    echo "instalar: FALHOU. A cópia da base ($copia) não se consegue ler; nada foi mudado." >&2
+    exit 1
+  fi
+  echo "Cópia da base antes de atualizar: instalar/$copia"
+  ls -1t copias/*.dump | tail -n +11 | xargs -r rm --
+fi
 
 echo "A construir e a arrancar (versão $DMO_REVISAO)…"
 docker compose up -d --build --remove-orphans
