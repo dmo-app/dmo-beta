@@ -2713,3 +2713,17 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions`
 
 Selo depois: `79f54fc617b75cbe`
+
+## A-0134 · 2026-10-26 · teste-novo
+
+Porquê: Testes novos: Registos por utilizador no Admin (abrem vazios, filtram por utilizador e módulo, só o ADMIN entra) e a cor ligeira da ferramenta a 100% na Folha do Job On.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKDJ8zZui3W6yJSGDxU5PUZ
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_AbremVazios_EFiltramPorUtilizadorEModulo`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_SoOAdminEntra`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: JobOnPageTests.Folha_FerramentaA100PorCento_ReferenciaELoteComCorLigeira`
+
+Selo depois: `01ffb38f4beac635`

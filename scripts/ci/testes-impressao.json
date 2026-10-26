@@ -1,5 +1,5 @@
 {
-  "selo": "79f54fc617b75cbe",
+  "selo": "01ffb38f4beac635",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1537,6 +1537,9 @@
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_Admin_NaoTemOCartaoSap": "0d4b57ef9f08b411",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.Definicoes_UtilizadorNormal_NaoVeOCartaoSap": "ef866e4122bf6b84",
     "tests/DMO.Alpha.Web.Tests/Admin/DefinicoesNavTabTests.cs :: DefinicoesNavTabTests.NormalUser_DoesNotSeeTheDefinicoesTab": "cb5b7b519977fe2d",
+    "tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: (resto do ficheiro)": "74c1000c830d9174",
+    "tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_AbremVazios_EFiltramPorUtilizadorEModulo": "fe414333a3406806",
+    "tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_SoOAdminEntra": "41cd48bdf0d94a66",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: (resto do ficheiro)": "0d674996b4673d09",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminFoundationServices_RegisterWithScopedLifetime": "39db9524a363814b",
     "tests/DMO.Alpha.Web.Tests/AdminAuthorizationPolicyTests.cs :: AdminAuthorizationPolicyTests.AdminPages_AdminEmailSettingRemoved_RevokesAdminCookie": "68cfbcf509c482c4",
@@ -2325,6 +2328,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao": "49c558747d318304",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_ProducoesAnteriores_NoDropdown_AbremAFolhaDeCada": "b5692b4c3553d365",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_SemReferenciaMfMaisBq_SoAvisa": "cb38e13db9c3e901",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: (resto do ficheiro)": "dc7af088cc485bd5",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: JobOnPageTests.Folha_FerramentaA100PorCento_ReferenciaELoteComCorLigeira": "3ad16e30ba23e0b5",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)": "69b5c204a0772cd2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas": "af1a39a2c6d7c0d2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "b1e09244d6808d3e",
