@@ -10,6 +10,11 @@
    23/10/2026: «remover o link admin, deixar o sair»; o /Admin abre-se pelo menu
    e pelas Definições → Admin). O modo claro/escuro vive em Definições → Pessoal. *@
 <div class="dmo-shell-conta">
+    @if (fim is { } terminaEm)
+    {
+        <span class="dmo-shell-sessao" data-dmo-sessao-fim="@terminaEm.UtcDateTime.ToString("O", System.Globalization.CultureInfo.InvariantCulture)"
+              title="Hora a que a sessão termina por inatividade"></span>
+    }
     <div class="dmo-shell-user admin-user">
         <strong data-user-profile-name>@Model.Name</strong>
         <span data-user-profile-title>@Model.Title</span>
@@ -17,11 +22,6 @@
     @if (Model.ShowLogout)
     {
         <div class="dmo-shell-acoes">
-            @if (fim is { } terminaEm)
-            {
-                <span data-dmo-sessao-fim="@terminaEm.UtcDateTime.ToString("O", System.Globalization.CultureInfo.InvariantCulture)"
-                      title="Hora a que a sessão termina por inatividade"></span>
-            }
             <a class="dmo-shell-logout" href="@Model.LogoutHref" aria-label="Terminar sessão">Sair</a>
         </div>
     }
