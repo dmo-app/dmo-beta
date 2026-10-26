@@ -60,7 +60,7 @@ html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var
 :root{--dmo-invertido:#fff}
 /* Sem itálico (regra do Diogo; 26/10/2026: «estes botões seguem a regra padrão?»): os <em> e <i> e as dicas dos campos ficam direitos em toda a app. */
 html body :is(em,i,cite,dfn,var,address),html body ::placeholder{font-style:normal}
-html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--button-color,var(--dmo-brand-600));border-color:#fff;color:#fff}
+html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-invertido)}
 /* Todos os botões iguais (Diogo, 19/10/2026): azul com letra branca; o rato
    por cima inverte; ao carregar fica um azul mais claro da paleta. */
 html body :is(.dmo-button,.button,.btn):focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
