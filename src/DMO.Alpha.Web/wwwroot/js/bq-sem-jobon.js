@@ -23,6 +23,11 @@
     lista.className = 'bq-escolha-lista';
     lista.setAttribute('role', 'listbox');
     lista.hidden = true;
+    // «BQ C002 · Lote 18»: lote sem zeros à esquerda (só na apresentação).
+    const curto = texto => {
+      const [ref, lote = ''] = texto.split(' · ');
+      return `BQ ${ref} · ${lote.replace(/^(Lote\s+)0+(?=\d)/, '$1')}`;
+    };
     const opcoes = [...select.options].filter(o => o.value);
     let ativa = -1;
     const visiveis = () => [...lista.children].filter(li => !li.hidden);
@@ -31,10 +36,11 @@
       li.setAttribute('role', 'option');
       li.dataset.value = option.value;
       li.dataset.procura = option.dataset.procura || option.text.toLowerCase();
-      const [ref, lote, ...resto] = option.text.split(' · ');
       const forte = document.createElement('strong');
-      forte.textContent = `${ref} · ${lote}`;
+      forte.textContent = curto(option.text);
       li.append(forte);
+      // O resto que identifica a BQ (sem as máquinas: a linha não fica presa à ficha).
+      const resto = option.text.split(' · ').slice(2).filter(p => !p.startsWith('Máq.'));
       if (resto.length) {
         const extra = document.createElement('span');
         extra.textContent = resto.join(' · ');
@@ -42,7 +48,6 @@
       }
       lista.append(li);
     }
-    const curto = texto => texto.split(' · ').slice(0, 2).join(' · ');
     const marcar = i => {
       const v = visiveis();
       v.forEach((li, n) => li.setAttribute('aria-selected', n === i ? 'true' : 'false'));
