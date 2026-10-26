@@ -42,7 +42,7 @@ public static class SessaoDuracao
 {
     public const int PorOmissao = 12;
 
-    public static readonly int[] Opcoes = [4, 8, 12, 24];
+    public static readonly int[] Opcoes = [1, 2, 4, 8, 12, 24];
 
     public static int Ler(string? valor) =>
         int.TryParse(valor, out var h) && Opcoes.Contains(h) ? h : PorOmissao;
