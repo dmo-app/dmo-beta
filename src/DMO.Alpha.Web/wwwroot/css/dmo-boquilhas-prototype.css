@@ -205,6 +205,8 @@ html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:aut
 .beta-bq-layout .bq-movement-types span { display:block;padding:14px;text-align:center;border:1px solid var(--dmo-border,#b9d0e6);border-radius:9px;background:var(--dmo-card);font-weight:750; }
 /* OS TIPOS SÃO BOTÕES (Diogo, 26/10/2026: «deveria ser igual aos botões, mas o que fica selecionado fica invertido»; «este rebordo está de volta»):
    azuis com letra branca como o «Registar»; o escolhido e o rato por cima invertem (branco, letra azul), sem anel do foco por fora. */
+.beta-bq-layout .bq-movement-types span { background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color); }
+.beta-bq-layout .bq-movement-types :is(label:hover input, input:checked) + span { background:var(--dmo-invertido);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600); }
 .beta-bq-layout .bq-movement-types input:focus-visible + span { outline:0;border-color:var(--dmo-brand-600); }
 
 .beta-bq-layout .bq-movement-form .filter-grid { align-items:start; }
@@ -305,6 +307,8 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 .bq-sem-jobon-janela .bq-movement-types label { flex:1 1 auto;position:relative;cursor:pointer; }
 .bq-sem-jobon-janela .bq-movement-types input { position:absolute;opacity:0;width:1px;height:1px; }
 .bq-sem-jobon-janela .bq-movement-types span { display:block;padding:9px 12px;text-align:center;border:1px solid var(--dmo-border,#b9d0e6);border-radius:9px;font-weight:750;white-space:nowrap; }
+.bq-sem-jobon-janela .bq-movement-types span { background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color); }
+.bq-sem-jobon-janela .bq-movement-types :is(label:hover input, input:checked) + span { background:var(--dmo-invertido);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600); }
 .bq-sem-jobon-janela .bq-movement-types input:focus-visible + span { outline:0;border-color:var(--dmo-brand-600); }
 @media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos { grid-template-columns:1fr; } }
 /* BQ, Lote e Linha numa só linha (Diogo, 22/10/2026). */

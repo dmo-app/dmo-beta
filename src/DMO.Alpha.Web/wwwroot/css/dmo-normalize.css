@@ -435,10 +435,10 @@ html body .dmo-uso-cheio{color:color-mix(in srgb,var(--dmo-warning) 70%,var(--dm
 
 /* ALTERNADORES (escolhas, não ações; Diogo, 26/10/2026): discretos (fundo do cartão e contorno); o rato por cima e o selecionado
    ficam como o hover dos botões. Um só estilo para a app: Saída/Entrada, linhas das ferramentas, Produção/Experiência, CM/MF. */
-html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input+span{background:var(--dmo-card);border:1px solid var(--dmo-border,#b9d0e6);color:var(--dmo-text)}
-html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-card);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600)}
+html body :is(.bq-movement-types,.ferr-check,.dmo-alternador):is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input+span{background:var(--dmo-card);border:1px solid var(--dmo-border,#b9d0e6);color:var(--dmo-text)}
+html body :is(.bq-movement-types,.ferr-check,.dmo-alternador):is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html body :is(.bq-movement-types,.ferr-check,.dmo-alternador):is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-card);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600)}
 /* Hover e selecionado: o fundo do botão iguala o fundo (claro: fundo branco e letra azul; escuro: fundo azul, letra e contorno brancos) (Diogo, 26/10/2026). */
-html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-brand-600);border-color:#fff;color:#fff}
+html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador):is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador):is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-brand-600);border-color:#fff;color:#fff}
 /* Mesma regra nos alternadores feitos de ligações (Armazém: Entrada/Saída) e nas listas laterais sem cor de linha (Armazém: CM/MF/BQ), com o selecionado igual ao hover (Diogo, 26/10/2026). */
 html body .arm-modo .dmo-button{background:var(--dmo-card);border:1px solid var(--dmo-border,#b9d0e6);color:var(--dmo-text)}
 html body .arm-modo .dmo-button:is(:hover,:focus-visible,.arm-modo-ativo),html body .beta-production-lines button.selected:not([data-dmo-linha-cor]){background:var(--dmo-card);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600);outline:0}
