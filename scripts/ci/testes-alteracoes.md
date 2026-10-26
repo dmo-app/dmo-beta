@@ -3001,3 +3001,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements`
 
 Selo depois: `dc6a82a28326fe61`
+
+## A-0158 · 2026-10-26 · ok-do-diogo
+
+Porquê: O hover escuro dos botões azuis passa de fundo branco para fundo azul, letra e contorno brancos (Diogo, 26/10: «sim as três»); o teste CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro passa a esperar a regra nova em dmo-normalize.css.
+Referência: Diogo 26/10 15:26 cmsg_01A27e9ozcpoh4jdPRsuJbFyVXGyDiJHgyTJP2v8ShT1rm
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+
+Selo depois: `fd9b3435f1939424`
