@@ -1167,7 +1167,8 @@ public sealed class IndexModel : PageModel
                 parsedFimEm,
                 parsedCalote,
                 envio.Folha,
-                envio.Cal),
+                envio.Cal,
+                TampaoDaFolha(envio).Diametro),
             HttpContext.RequestAborted);
 
         if (outcome.Result == CreateJobOnResult.Success && folhaNova)
@@ -1358,6 +1359,7 @@ public sealed class IndexModel : PageModel
         // A FOLHA DA FÁBRICA: os campos escritos e as linhas CAL do envio.
         var envio = LerEnvioDaFolha();
         var versaoAberta = Ferramentas.FichaModel.ParseVersion(versao);
+        var tampao = TampaoDaFolha(envio);
 
         var outcome = await _updateJobOn.HandleAsync(
             new UpdateJobOn(
@@ -1372,7 +1374,9 @@ public sealed class IndexModel : PageModel
                 CurrentActorName(),
                 versaoAberta,
                 envio.Folha,
-                envio.Cal),
+                envio.Cal,
+                tampao.Diametro,
+                tampao.Enviado),
             HttpContext.RequestAborted);
 
         if (outcome.Result == UpdateJobOnResult.Success)
@@ -1566,6 +1570,33 @@ public sealed class IndexModel : PageModel
             calote_mm = caloteMm,
             update_refusal = result.ToString()
         });
+    }
+
+    /// <summary>
+    /// O diâmetro do tampão desta produção vem do «Diâmetro» do bloco TP da
+    /// folha (<c>tp_diametro_ps</c>), o mesmo valor que o Peso usa (Diogo,
+    /// 26/10/2026: um só campo). Ponto ou vírgula; vazio limpa. Um texto que
+    /// não é um número maior que 0 fica na folha como foi escrito e não mexe
+    /// no diâmetro gravado. Sem folha no envio, não mexe.
+    /// </summary>
+    private static (decimal? Diametro, bool Enviado) TampaoDaFolha(EnvioDaFolha envio)
+    {
+        if (envio.Folha is null || !envio.Folha.TryGetValue("tp_diametro_ps", out var escrito))
+        {
+            return (null, false);
+        }
+
+        var raw = Sanitize(escrito);
+        if (raw is null)
+        {
+            return (null, true);
+        }
+
+        return decimal.TryParse(raw.Replace(',', '.'),
+            System.Globalization.NumberStyles.AllowDecimalPoint,
+            System.Globalization.CultureInfo.InvariantCulture, out var d) && d > 0m
+            ? (d, true)
+            : (null, false);
     }
 
     /// <summary>

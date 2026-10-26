@@ -276,8 +276,8 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.DoesNotContain("disabled=\"disabled\">", livre[livre.IndexOf("id=\"ferr-new-type\"", StringComparison.Ordinal)..livre.IndexOf("</select>", livre.IndexOf("id=\"ferr-new-type\"", StringComparison.Ordinal), StringComparison.Ordinal)], StringComparison.Ordinal);
         // O botão fica no canto superior direito do card, ligado ao formulário.
         Assert.Contains("<button type=\"submit\" form=\"ferr-create-form\" class=\"dmo-button\">Registar</button>", livre, StringComparison.Ordinal);
-        // Os traços da informação técnica: Processo/Peso/Punção, Gargalo, Tampão.
-        Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(livre, "class=\"ferr-tech-sep\"").Count);
+        // O traço da informação técnica: Peso, Gargalo (o Tampão saiu da CM, Diogo 26/10/2026).
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(livre, "class=\"ferr-tech-sep\""));
 
         // No Ver, a Referência vem primeiro (Diogo, 23/10/2026: «começar com
         // campo de filtrar»; antes, 18/10, a Máquina vinha antes), a «Linha»
@@ -832,13 +832,13 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
             ("type_token", "CM"),
             ("reference", ""),
             ("lot", "3"),
-            ("volume_puncao", "30,2"),
+            ("nominal_weight", "30,2"),
             ("__RequestVerificationToken", token)));
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         var html = await client.GetStringAsync(response.Headers.Location!.ToString());
         Assert.Contains("<details class=\"ferr-create-tech\" open=\"open\">", html);
-        Assert.Contains("name=\"volume_puncao\" type=\"text\" inputmode=\"decimal\" value=\"30,2\"", html);
+        Assert.Contains("name=\"nominal_weight\" type=\"text\" inputmode=\"decimal\" value=\"30,2\"", html);
     }
 
     [Fact]
@@ -932,15 +932,15 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains("B1", html);
         Assert.Contains("NNPB", html);
 
-        // beta.37: o tampão mostra só diâmetro e calote (o raio deixou de ser pedido); o volume é
-        // calculado (π·h·(3a² + h²)/6000 cm³, a = D/2) e os derivados antigos
-        // gravados (R base, R esfera, volume) deixam de aparecer na ficha.
-        Assert.Contains("28.45", html);
+        // O tampão e a punção saíram da ficha da CM (Diogo, 26/10/2026): o
+        // tampão escreve-se na Folha do Job On e a punção no Peso; os valores
+        // gravados ficam na base, sem aparecer.
+        Assert.DoesNotContain("name=\"tp_diametro\"", html);
+        Assert.DoesNotContain("name=\"tp_sagitta\"", html);
+        Assert.DoesNotContain("name=\"volume_puncao\"", html);
         Assert.DoesNotContain("name=\"tp_raio\"", html);
         Assert.DoesNotContain("Raio (mm)", html);
-        Assert.Contains("4.5", html);
-        Assert.Contains("Volume do tampão (cm³)", html);
-        Assert.Contains("<strong>1.48</strong>", html);
+        Assert.DoesNotContain("Volume do tampão (cm³)", html);
         Assert.DoesNotContain("14.225", html);
         Assert.DoesNotContain("28.84061800082953", html);
         Assert.DoesNotContain("1438.3860504277206", html);
@@ -955,11 +955,11 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains(">Editar</h3>", html);
         Assert.Contains("Geral — CM · 5447 · lote 3", html);
         Assert.Contains("Informação técnica", html);
-        Assert.Contains("Punção (cm³)", html);
+        Assert.DoesNotContain("Punção (cm³)", html);
         Assert.Contains("<legend class=\"ferr-tech-titulo\">Gargalo<", html);
         Assert.Contains("Informação técnica", html);
-        Assert.Contains("<legend class=\"ferr-tech-titulo\">Tampão<", html);
-        Assert.Contains("Calote (mm)", html);
+        Assert.DoesNotContain("<legend class=\"ferr-tech-titulo\">Tampão<", html);
+        Assert.DoesNotContain("Calote (mm)", html);
         Assert.DoesNotContain("Marisa (cm³)", html);
         Assert.Contains(">Guardar</button>", html);
         Assert.DoesNotContain("Guardar valores técnicos", html);
@@ -1298,7 +1298,6 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         // herdados como defaults; a FONTE continua no registo.
         var newHtml = await GetPageHtmlAsync(client, location);
         Assert.Contains("CM · 5447 · lote 8", newHtml);
-        Assert.Contains("28.45", newHtml);
 
         using (var scope = _factory.Services.CreateScope())
         {
@@ -1840,7 +1839,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
 
         Assert.Contains("name=\"nominal_weight\" type=\"text\" inputmode=\"decimal\" value=\"140\"", html);
         Assert.Contains("name=\"diametro_gargalo\" type=\"text\" inputmode=\"decimal\" value=\"36.85\"", html);
-        Assert.Contains("name=\"tp_diametro\" type=\"text\" inputmode=\"decimal\" value=\"28.45\"", html);
+        Assert.DoesNotContain("name=\"tp_diametro\"", html);
         Assert.DoesNotContain("140.000", html);
     }
 }

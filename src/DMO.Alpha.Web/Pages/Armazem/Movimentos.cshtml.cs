@@ -25,7 +25,7 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
 public sealed class MovimentosModel(
-    IArmazemMovimentos movimentos, IArmazemMapa mapa, IArmazemHistorico historico, IArmazemLotesNovos lotesNovos, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
+    IArmazemMovimentos movimentos, IArmazemHistorico historico, IArmazemLotesNovos lotesNovos, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
 {
     /// <summary>Os três cartões do painel, por esta ordem (Diogo, 22/10/2026: «CM MF BQ»).</summary>
     public static readonly IReadOnlyList<ToolType> Tipos = [ToolType.Cm, ToolType.Mf, ToolType.Bq];

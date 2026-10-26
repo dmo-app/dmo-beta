@@ -334,16 +334,17 @@
               }
             </div>
           </details>
+          @* UM SÓ «VOLTAR» (Diogo, 26/10/2026: «o voltar depende da página»):
+             volta à página de onde se veio, com os filtros; sem origem
+             conhecida, à folha do Job On de onde se abriu ou à lista. O
+             Histórico da ficha não conta como origem. *@
           @if (Model.VoltarJobOn is { } voltarJobOn)
           {
-            <a class="dmo-button" href="@voltarJobOn" data-ferr-voltar-jobon>Voltar ao Job On</a>
-            <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+            <a class="dmo-button" id="ferrVoltar" href="@voltarJobOn" data-ferr-voltar-jobon data-dmo-voltar="@tool.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico" data-dmo-voltar-texto="Voltar">Voltar</a>
           }
           else
           {
-            @* O Voltar volta à página de onde se veio, com os filtros (Diogo, 26/10/2026);
-               sem origem conhecida, a lista. O Histórico da ficha não conta como origem. *@
-            <a class="dmo-button" id="ferrVoltar" href="@Url.Page("/Ferramentas/Index")" data-dmo-voltar="@tool.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico" data-dmo-voltar-texto="Voltar">Voltar à lista</a>
+            <a class="dmo-button" id="ferrVoltar" href="@Url.Page("/Ferramentas/Index")" data-dmo-voltar="@tool.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico" data-dmo-voltar-texto="Voltar">Voltar</a>
           }
         </div>
       </div>
@@ -545,7 +546,7 @@
        muda com o tipo) e o formulário são zonas. *@
     <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-tech-title" data-dmo-fica data-dmo-parcial>
       <details open="@Model.ShowTechnical">
-      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM e do tampão. No Job On, a calote da produção dá o volume desse controlo." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
+      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM. O tampão escreve-se na Folha do Job On (bloco TP) e a punção no Peso." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
       @{
           // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
           // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.
