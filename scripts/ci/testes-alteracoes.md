@@ -2732,13 +2732,26 @@ Novos: 2 · mudaram: 6 · saíram: 1
 
 Selo depois: `3b25a8fc9f9336fe`
 
+## A-0129 · 2026-10-26 · ok-do-diogo
+
+Porquê: Diogo pediu: um só triângulo nos cartões dobráveis, botão invertido branco no escuro, sem itálico, toggles nas caixas da ferramenta, hover do calendário
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5hWpevZxdmL29DgykSdZi6
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.SemItalico_EmTodaAApp`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
+
+Selo depois: `b1fbf8371e3118cd`
+
 ## A-0134 · 2026-10-26 · teste-novo
 
-Porquê: Cabeçalhos de segurança em todas as respostas (auditoria externa 01 do login): teste novo do login e de um ficheiro estático
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyG4XwbZ4jCMtjGAQF61FbxP
+Porquê: Cabeçalhos de segurança em todas as respostas
+Referência: A-0134
 Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: CabecalhosDeSegurancaTests.Resposta_LevaOsCabecalhosDeSeguranca`
 
-Selo depois: `70ee9098ff107dcc`
+Selo depois: `2ed82e8fca8a939f`

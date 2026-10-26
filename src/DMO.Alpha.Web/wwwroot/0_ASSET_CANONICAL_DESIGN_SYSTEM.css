@@ -108,7 +108,7 @@ html body :is(.dmo-field select,.beta-light-fields select,.beta-light-tool-view 
 .dmo-matrix [data-dmo-row]+[data-dmo-row]{margin-top:6px}
 /* Editar no próprio valor (Diogo, 17/10/2026: «para editar, clica-se no valor da linha e muda-se ali mesmo»): o valor parece texto; a borda aparece ao passar o rato e ao editar. Grava ao sair do campo (0_ASSET_CANONICAL_INTERACTIONS.js, [data-dmo-valor]). */
 input.dmo-valor{width:100%;min-width:64px;height:auto;min-height:0;margin:0;padding:5px 8px;border:1px solid transparent;border-radius:6px;background:transparent;box-shadow:none;color:var(--dmo-text);font:inherit;transition:border-color var(--dmo-fast),background-color var(--dmo-fast)}
-input.dmo-valor::placeholder{color:var(--dmo-muted);font-style:italic}
+input.dmo-valor::placeholder{color:var(--dmo-muted)}
 input.dmo-valor:hover{border-color:var(--dmo-border);cursor:text}
 input.dmo-valor:focus{border-color:var(--dmo-brand-400);background:var(--dmo-card);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 input.dmo-valor.dmo-valor-gravado{background:var(--dmo-brand-050)}

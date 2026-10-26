@@ -9,10 +9,11 @@
 #   1. vai buscar o ramo ao GitHub e põe ~/dmo-beta nesse commit;
 #   2. constrói a imagem nova (com o número do commit, que a app mostra);
 #   3. tira uma cópia da base antes de mexer (pg_dump);
-#   4. aplica as migrações com a imagem nova (migrate.sh, com o dono da base);
-#   5. troca o contentor e espera que a página de entrada responda;
-#   6. se a versão nova não arrancar ou não responder, volta a pôr a anterior a correr.
-# As migrações só acrescentam; se o passo 6 voltar atrás, a versão anterior
+#   4. ensaia as migrações numa cópia da base e pára se alguma tabela perder linhas;
+#   5. aplica as migrações com a imagem nova (migrate.sh, com o dono da base);
+#   6. troca o contentor e espera que a página de entrada responda;
+#   7. se a versão nova não arrancar ou não responder, volta a pôr a anterior a correr.
+# As migrações só acrescentam; se o passo 7 voltar atrás, a versão anterior
 # continua a funcionar com a base já migrada (é a regra dos PRs).
 #
 # Configuração (variáveis de ambiente, todas com valor por omissão):
@@ -48,7 +49,7 @@ falha() { echo "atualizar: FALHOU. $*" >&2; exit 1; }
 # arranque automático de sempre. Falha se não havia versão anterior.
 repor_anterior() {
   docker rm -f "$nome" >/dev/null 2>&1 || true
-  docker inspect "$anterior" >/dev/null 2>&1 || return 1
+  docker container inspect "$anterior" >/dev/null 2>&1 || return 1
   docker rename "$anterior" "$nome"
   docker update --restart=unless-stopped "$nome" >/dev/null
   docker start "$nome" >/dev/null
@@ -71,17 +72,34 @@ recuar_se_sair() {
 [ -f "$env_app" ] || falha "Não encontrei $env_app."
 [ -f "$env_migrar" ] || env_migrar="$env_app"
 
+# A app liga com o papel que só lê e grava dados (papeis.sql), nunca com o
+# dono da base nem com outro superutilizador.
+utilizador_app="$(grep -m1 '^ConnectionStrings__DmoDatabase=' "$env_app" | tr ';' '\n' \
+  | grep -i -E '^ *(username|user id|userid|user) *=' | head -1 | cut -d= -f2- | tr -d ' "')"
+[ -n "$utilizador_app" ] || falha "Em $env_app, ConnectionStrings__DmoDatabase não diz o utilizador (Username=dmo_app)."
+poderes="$(docker exec "$base_ct" psql -U postgres -d dmo -tAc \
+  "SELECT rolsuper OR rolcreaterole OR rolcreatedb FROM pg_roles WHERE rolname = '${utilizador_app//\'/}'")"
+[ -n "$poderes" ] || falha "O utilizador da app ($utilizador_app) não existe na base. Corra o papeis.sql (scripts/portatil/LEIA-ME.md)."
+[ "$poderes" = "f" ] || falha "A app liga como $utilizador_app, que manda na base. Use Username=dmo_app em $env_app (scripts/portatil/LEIA-ME.md)."
+
 passo "1. Código: ramo $ramo"
 cd "$repo"
 git fetch --quiet origin "$ramo"
 git checkout --quiet --detach "origin/$ramo"
 rev="$(git rev-parse --short=7 HEAD)"
 echo "commit $rev: $(git log -1 --format=%s)"
+# O checkout mantém ficheiros mudados à mão ou novos; a app só se diz «clean»
+# quando a pasta é exatamente o commit.
+estado=clean
+if [ -n "$(git status --porcelain)" ]; then
+  estado=modified
+  echo "Atenção: a pasta $repo tem ficheiros mudados ou novos; a versão fica marcada como modificada."
+fi
 
 passo "2. Imagem dmo-local:$rev"
 docker build --quiet \
   --build-arg DMO_SOURCE_REVISION="$rev" \
-  --build-arg DMO_SOURCE_STATE=clean \
+  --build-arg DMO_SOURCE_STATE="$estado" \
   -t "dmo-local:$rev" . >/dev/null
 echo "imagem pronta"
 
@@ -89,17 +107,52 @@ passo "3. Cópia da base antes de mexer"
 mkdir -p "$copias"
 copia="$copias/dmo-$(date +%Y%m%d-%H%M%S)-antes-de-$rev.dump"
 docker exec "$base_ct" pg_dump -U postgres -d dmo -Fc > "$copia"
-echo "$copia ($(du -h "$copia" | cut -f1))"
+# A cópia só conta se se conseguir ler e tiver os dados de todas as tabelas.
+tabelas_copia="$(docker exec -i "$base_ct" pg_restore --list < "$copia" | grep -c ' TABLE DATA public ' || true)"
+tabelas_base="$(docker exec "$base_ct" psql -U postgres -d dmo -tAc \
+  "SELECT count(*) FROM pg_tables WHERE schemaname = 'public'")"
+[ "$tabelas_copia" = "$tabelas_base" ] \
+  || falha "A cópia $copia não está boa ($tabelas_copia de $tabelas_base tabelas). Nada foi mudado."
+echo "$copia ($(du -h "$copia" | cut -f1), $tabelas_copia tabelas)"
 ls -1t "$copias"/*.dump | tail -n +11 | xargs -r rm --
 
-passo "4. Migrações"
+passo "4. Ensaio das migrações numa cópia da base"
+# As migrações correm primeiro numa base à parte, reposta da cópia; se alguma
+# tabela perder linhas, pára aqui sem ter tocado na base da app.
+ensaio="dmo_ensaio_atualizar"
+psql_base() { docker exec -i "$base_ct" psql -U postgres -v ON_ERROR_STOP=1 -qtA "$@"; }
+contagens() {
+  psql_base -d "$1" -c "SELECT table_name || ' ' || (xpath('/row/c/text()', query_to_xml(
+      format('SELECT count(*) AS c FROM public.%I', table_name), false, true, '')))[1]::text
+    FROM information_schema.tables
+   WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY 1"
+}
+psql_base -d postgres -c "DROP DATABASE IF EXISTS $ensaio WITH (FORCE)" -c "CREATE DATABASE $ensaio"
+docker exec -i "$base_ct" pg_restore -U postgres -d "$ensaio" --no-owner --exit-on-error < "$copia"
+env_ensaio="$(mktemp)"
+sed -E 's/((^|;)[[:space:]]*[Dd]atabase[[:space:]]*=)[^;]*/\1'"$ensaio"'/' "$env_migrar" > "$env_ensaio"
+antes="$(contagens "$ensaio")"
+if ! docker run --rm --network "$rede" --env-file "$env_ensaio" "dmo-local:$rev" ./migrate.sh >/dev/null; then
+  rm -f "$env_ensaio"
+  falha "As migrações falharam na cópia ($ensaio fica para ver). A base da app não foi mexida."
+fi
+rm -f "$env_ensaio"
+depois="$(contagens "$ensaio")"
+perdas="$(LC_ALL=C join <(LC_ALL=C sort <<<"$antes") <(LC_ALL=C sort <<<"$depois") | awk '$3 < $2 { print $1 ": " $2 " → " $3 }')"
+[ -z "$perdas" ] || falha "As migrações apagam linhas ($ensaio fica para ver):
+$perdas
+A base da app não foi mexida."
+psql_base -d postgres -c "DROP DATABASE $ensaio"
+echo "ensaio OK: $(echo "$antes" | wc -l) tabelas, nenhuma perdeu linhas"
+
+passo "5. Migrações"
 docker run --rm --network "$rede" --env-file "$env_migrar" \
   "dmo-local:$rev" ./migrate.sh
 
-passo "5. Trocar o contentor"
+passo "6. Trocar o contentor"
 docker rm -f "$anterior" >/dev/null 2>&1 || true
 trap recuar_se_sair EXIT
-if docker inspect "$nome" >/dev/null 2>&1; then
+if docker container inspect "$nome" >/dev/null 2>&1; then
   docker stop "$nome" >/dev/null
   docker rename "$nome" "$anterior"
   docker update --restart=no "$anterior" >/dev/null
@@ -124,7 +177,7 @@ if [ -n "$ok" ]; then
   exit 0
 fi
 
-passo "6. A versão nova não respondeu: volta a anterior"
+passo "7. A versão nova não respondeu: volta a anterior"
 trap - EXIT
 docker logs --tail 40 "$nome" >&2 || true
 if repor_anterior; then
