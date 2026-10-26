@@ -1,7 +1,7 @@
 @model DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel
 @* A utilização pela produção é uma definição GERAL (Diogo, 22/10/2026): ligar
    a pasta e copiar os códigos só com a permissão de Definições gerais
-   (cadeado); «Ler agora» fica para quem tem as Ferramentas. *@
+   (cadeado), e também apagar os lidos; «Ler agora» fica para quem tem as Ferramentas. *@
 @{ var cadeado = ViewData["DefCadeado"] is true; }
 @* USO NO SAP (Diogo, 20–21/10/2026): a pasta onde o SAP grava a lista do
      relatório «Gestão de Moldes» (ZPPF) fica ligada neste browser. Ao abrir
@@ -17,6 +17,7 @@
         <button type="button" class="dmo-button" id="ferrSapPasta" data-ferr-sap-pasta disabled="@cadeado">Ligar pasta</button>
         <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler agora</button>
         <button type="button" class="dmo-button" id="ferrSapCodigos" data-ferr-sap-codigos disabled="@cadeado">Copiar códigos</button>
+        <button type="button" class="dmo-button" id="ferrSapApagar" data-ferr-sap-apagar disabled="@cadeado">Apagar lidos</button>
       </div>
     </div>
     @Html.AntiForgeryToken()
