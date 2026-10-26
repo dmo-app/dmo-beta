@@ -2622,3 +2622,13 @@ Novos: 24 · mudaram: 7 · saíram: 2
 - saiu: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemOFornecedorDeclarado_Avisa`
 
 Selo depois: `bfb24a5eaf62cccf`
+
+## A-0119 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR 122 no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 122
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto`
+
+Selo depois: `cc1db24dc6a41164`

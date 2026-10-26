@@ -20,4 +20,24 @@ public class DmoNumberFormatTests
     {
         Assert.Equal(esperado, DmoNumberFormat.Decimal2(decimal.Parse(valor, System.Globalization.CultureInfo.InvariantCulture)));
     }
+
+    // A folha do Job On (Diogo, 26/10/2026): ponto em vez de vírgula e duas casas quando há
+    // casas, também dentro do texto; um inteiro fica inteiro e o texto fica como está.
+    [Theory]
+    [InlineData("365.000", "365")]
+    [InlineData("2,5", "2.50")]
+    [InlineData("36.85", "36.85")]
+    [InlineData("70/69,4", "70/69.40")]
+    [InlineData("56,4 × 43,3", "56.40 × 43.30")]
+    [InlineData("0/+0,03", "0/+0.03")]
+    [InlineData("0,005", "0.01")]
+    [InlineData("± 0,005 mm", "± 0.005 mm")]
+    [InlineData("6 1/4\"", "6 1/4\"")]
+    [InlineData("21.10.2026", "21.10.2026")]
+    [InlineData("Abertos 4 / Fechados 2", "Abertos 4 / Fechados 2")]
+    [InlineData("  ", null)]
+    public void FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto(string valor, string? esperado)
+    {
+        Assert.Equal(esperado, DmoNumberFormat.FolhaTexto(valor));
+    }
 }

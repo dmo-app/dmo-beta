@@ -1,5 +1,5 @@
 {
-  "selo": "bfb24a5eaf62cccf",
+  "selo": "cc1db24dc6a41164",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2107,6 +2107,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_Utilizadores_CriarTrocaAsZonas_OPinFicaNoCanto": "f7a94a7be25a10e5",
     "tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: (resto do ficheiro)": "68cb12eed1c95e94",
     "tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.Decimal2_SemZerosNumInteiro_DuasCasasComDecimais": "cb02deaf5d079598",
+    "tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto": "2cafbeaa7ddbc51a",
     "tests/DMO.Alpha.Web.Tests/EnvioDoFormulario.cs :: (resto do ficheiro)": "7466c2a64e312da3",
     "tests/DMO.Alpha.Web.Tests/EnvioDoFormularioTests.cs :: (resto do ficheiro)": "be44b1e396b60d71",
     "tests/DMO.Alpha.Web.Tests/EnvioDoFormularioTests.cs :: EnvioDoFormularioTests.OBotaoCarregadoLevaONameEValue_EOFormaction": "6f8206f8735955df",
