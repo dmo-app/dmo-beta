@@ -345,7 +345,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Contains("<option value=\"T4\" selected=\"selected\">", voltou);
         Assert.Contains("<option value=\"MF-TOOL-9\" selected=\"selected\">", voltou);
         Assert.DoesNotContain("<option value=\"T3\" selected=\"selected\">", voltou);
-        Assert.Contains("value=\"9.5\"", voltou);
+        Assert.Contains("value=\"9.50\"", voltou);
 
         var token = await GetVerificationTokenAsync(client, $"{PagePath}?jobon_id={jobOnId}&editar=1");
         using var response = await client.PostAsync($"{PagePath}?handler=Update", HtmlFormHelpers.BuildFormPost(
@@ -681,10 +681,10 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
     [Theory]
     [InlineData("8", "8")]
-    [InlineData("2,5", "2.5")]
+    [InlineData("2,5", "2.50")]
     [InlineData("3.25", "3.25")]
     [InlineData("0,125", "0.125")]
-    [InlineData(" 2,5 ", "2.5")]
+    [InlineData(" 2,5 ", "2.50")]
     [InlineData("0", "0")]
     public async Task CaloteEditavel_GravaPelaEdicao(string submitted, string expected)
     {
@@ -716,7 +716,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     }
 
     [Theory]
-    [InlineData("2,5", "2.5")]
+    [InlineData("2,5", "2.50")]
     [InlineData("3.25", "3.25")]
     [InlineData("0,125", "0.125")]
     [InlineData("0", "0")]
@@ -773,7 +773,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Contains("calote_ignorada=", location, StringComparison.Ordinal);
 
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, location));
-        Assert.Contains($"Job On guardado: «{submitted}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior (9.5 mm).", html);
+        Assert.Contains($"Job On guardado: «{submitted}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior (9.50 mm).", html);
         // O resultado da gravação vai para o canto: não empurra a grelha (regra 53).
         Assert.Contains($"<div data-dmo-toast=\"aviso\" role=\"status\">Job On guardado: «{submitted}»", html);
         Assert.DoesNotContain("<div class=\"jobon-aviso warn\" role=\"status\">Job On guardado", html);
@@ -990,7 +990,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.DoesNotContain("Ficha da produção", html);
         Assert.Contains("name=\"reference\" required placeholder=\"Ex.: 0109S022\" value=\"1075C142\"", html);
         Assert.Contains("<option value=\"T3\" selected=\"selected\">", html);
-        Assert.Contains("name=\"calote_mm\" type=\"number\" lang=\"en\" min=\"0\" step=\"any\" placeholder=\"Usar referência da Tool\" value=\"9.5\"", html);
+        Assert.Contains("name=\"calote_mm\" type=\"number\" lang=\"en\" min=\"0\" step=\"any\" placeholder=\"Usar referência da Tool\" value=\"9.50\"", html);
         Assert.DoesNotContain("value=\"202601\"", html); // o nº é NOVO (por preencher)
     }
 

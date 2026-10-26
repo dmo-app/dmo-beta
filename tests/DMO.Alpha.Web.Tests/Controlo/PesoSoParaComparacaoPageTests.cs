@@ -264,14 +264,14 @@ public class PesoSoParaComparacaoPageTests : IClassFixture<CustomWebApplicationF
         Assert.Contains($"controlo_id={controloId}", voltar);
         html = await GetPageHtmlAsync(client, voltar);
         Assert.Contains("Peso para comparação", html);
-        // Na tabela: o CM 45 atual (70.1 g de água → 70.362 cm³, 176.51 g de
+        // Na tabela: o CM 45 atual (70.1 g de água → 70.36 cm³, 176.51 g de
         // vidro) ao lado do 45 do Peso criado (70.0 g → 70.261 cm³, 176.27 g)
         // e a diferença; o 54 não tem par. As médias comparam o mesmo.
         var linhas = Linhas(Tabela(html));
         Assert.Equal(4, linhas.Count);
-        Assert.Equal(new[] { "45", "70.362", "176.51", "45", "70.261", "176.27", "+0.10", "+0.24" }, linhas[1]);
-        Assert.Equal(new[] { "54", "70.763", "177.47", "—", "—", "—", "—", "—" }, linhas[2]);
-        Assert.Equal(new[] { "Média", "70.562", "176.99", "", "70.261", "176.27", "+0.30", "+0.72 (+0.41 %)" }, linhas[3]);
+        Assert.Equal(new[] { "45", "70.36", "176.51", "45", "70.26", "176.27", "+0.10", "+0.24" }, linhas[1]);
+        Assert.Equal(new[] { "54", "70.76", "177.47", "—", "—", "—", "—", "—" }, linhas[2]);
+        Assert.Equal(new[] { "Média", "70.56", "176.99", "", "70.26", "176.27", "+0.30", "+0.72 (+0.41 %)" }, linhas[3]);
 
         // Sem escolha no endereço, a folha da produção também o compara.
         html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
