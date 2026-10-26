@@ -8,6 +8,8 @@ Este repositório contém a base Razor Pages proveniente do dmo-beta (`3e3b175`,
 
 O design da `claude/design-mockups` adaptado ao `dmo-beta` `main` (0.3.0-beta.108). Nos conflitos: dados e funcionalidades novas da app ficam da app (lote do AN editável — por omissão o da BQ, `AnLoteDaBq` —, cartões próprios de PU/ARR e AN, «Trabalho» da Reparação, histórico de produções na ficha, hover escuro dos botões); decisões de design ficam do design. A folha do Job On segue a composição nova da app (colunas CM+TP, MF+CS, BQ+AN, PU+ARR); as regras de grelha antigas do `dmo-design.css` saíram. Registos da guarda do design renumerados: A-0172 substitui A-0155..A-0158.
 
+Altura (1366 × 768, ecrãs até 900 px de altura): na folha do Job On (leitura) as zonas, o Artigo, as Notas e as Pinças cabem; em edição a folha rola. No Controlo › Resumo cabem a identidade, a combinação, os controlos associados e o estado do documento — Pegamentos e PU NNPB ficam lado a lado à direita do Peso (empilhados em ecrãs mais altos); «Visto por» e «Aprovado por» ficam por baixo. Ainda acima de 768 px: Pegamentos (folha), Revisão com filtros, Templates, Boquilhas, catálogo, Peso (folha), Ferramentas, detalhe da Revisão.
+
 ## Regra (Owner, 26/10/2026)
 
 O design muda só a aparência. O comportamento e a informação vêm da app (dmo-beta) e do blueprint: nada se esconde, nada muda de sítio no fluxo, nenhum teste da app se enfraquece para o design passar. Antes de mexer num ecrã, confirmar na app e no blueprint como ele funciona.

@@ -686,3 +686,38 @@ html body .jof2 .notes :is(ul,.notes-vazio,p){min-height:72px;border:1px dashed 
 /* Job On sheet on the dmo-beta composition (columns CM+TP, MF+CS, BQ+AN, PU+ARR): the BQ card holds
    an inner section; it takes no extra padding, so every family starts on the same line. */
 html body .jof2 .card.pair .sec{padding:0}
+
+/* 1366×768 (blueprint FRONTEND § Ecrã): the sheet's main content fits the screen. The side column
+   (Artigo, Notas gerais, Pinças) ends with the families: a slightly shorter picture and notes area. */
+@media (min-width:1100px) and (max-height:900px){
+  html body .jof2 .jof-artigo{height:180px}
+  html body .jof2 .jof-artigo :is(svg,img){height:170px;max-height:170px}
+  html body .jof2 .notes{min-height:104px}
+  html body .jof2 .notes :is(ul,.notes-vazio,p){min-height:52px}
+  html body .jof2 .side{gap:10px}
+}
+@media (min-width:1100px) and (max-height:900px){
+  html body .jof2{padding-top:8px;padding-bottom:4px}
+  html body .jof2 .page-head,html body .jof2.editing .page-head{gap:8px}
+  html body .jof2 .sheet,html body .jof2.editing .sheet{margin-top:8px}
+  html body .jof2 .jobon-mudancas{margin-top:6px}
+}
+
+/* Controlo › Resumo at 1366×768: identity, combination, linked controls and the document state fit
+   the screen. Pegamentos and PU NNPB sit side by side to the right of Peso instead of stacked;
+   «Visto por» and «Aprovado por» follow below. */
+@media (min-width:1100px) and (max-height:900px){
+  html body .resumo-page .resumo-sheet{gap:8px}
+  html body main.resumo-page.dmo-workspace{padding-top:8px}
+  html body .resumo-page:has(.resumo-sheet) .resumo-browser.resumo-card{padding:6px 18px}
+  html body .resumo-page .resumo-sheet-intro{padding-top:6px;padding-bottom:6px}
+  html body .resumo-page .resumo-context-grid>.resumo-approval{flex:2.4}
+  html body .resumo-page .resumo-sheet-intro h3{font-size:20px}
+  html body .resumo-page .resumo-linked-grid:has(.resumo-linked-pu){grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
+  html body .resumo-page .resumo-linked-grid>.resumo-linked-peso{grid-row:auto}
+  html body .resumo-page .resumo-linked-grid>.resumo-linked-peg{grid-column:2}
+  html body .resumo-page .resumo-linked-grid>.resumo-linked-pu{grid-column:3}
+  html body .resumo-page .resumo-linked-card{padding:10px 14px;gap:4px}
+  html body .resumo-page .resumo-areas .resumo-area{padding:3px 4px}
+  html body .resumo-page .resumo-areas .resumo-area :is(select,.resumo-area-note){height:var(--dmo-control-height-compact,30px);min-height:var(--dmo-control-height-compact,30px)}
+}
