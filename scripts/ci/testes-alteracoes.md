@@ -2830,3 +2830,17 @@ Novos: 6 · mudaram: 6 · saíram: 4
 - saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_CorrigeONumero_ComRasto_EOMesmoEnvioAplicaUmaVez`
 
 Selo depois: `73089c51f2cc3956`
+
+## A-0138 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha do Job On, pedidos do Diogo a 26/10/2026: os furos do CS no ver sem a «/» (um por baixo do outro); o Duplicar sugere a produção seguinte à última da referência (o teste do Duplicar passa a esperar 202603 em vez do campo vazio, e muda de nome); testes novos: a produção sugerida e as produções da referência da mais recente para a mais antiga.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyELUj7Rp8tMrtt8xnuiRtQz, cmsg_01A27e9ozcpoh4jdPRsuJbFyVApVgtiy5mqC98Db9xbXo8
+Novos: 3 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/ProductionPickerQueryTests.cs :: ProductionPickerQueryTests.Procura_AMaisRecentePrimeiro_PeloInicioEDepoisPeloNumero`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.Duplicar_AProducaoSugerida_EASeguinteAMaior`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatas_ComAProducaoSeguinte_ComODiaDoCalendario_EGravaUmaProducaoNova`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatasNemNumero_ComODiaDoCalendario_EGravaUmaProducaoNova`
+
+Selo depois: `7ca7ff243aac45b1`
