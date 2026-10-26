@@ -2580,3 +2580,63 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve`
 
 Selo depois: `6f637b56f2125107`
+
+## A-0118 · 2026-10-26 · contagem-lista
+
+Porquê: Login próprio da app (modo Local, sem Supabase), do PR #101: testes do fornecedor Local (palavras-passe do Supabase, limite de tentativas); a tabela LocalCredentials entra nas listas de tabelas e de migrações.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy7oqPGxoe5kii8iFPC2Mgwk
+Novos: 12 · mudaram: 5 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Apagar_TiraOAcesso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Cifra_TemSalDiferenteEVerificaSoACerta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.CincoFalhasSeguidas_BloqueiamMesmoComACerta_EDepoisVoltaAEntrar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Criar_EntraComATemporariaEPedeMudanca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.EmailRepetido_EhRecusado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Espera_DobraAteQuinzeMinutos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Mudar_TiraATemporariaEAAntigaDeixaDeServir`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.PalavraPasseDoSupabase_Entra_EFicaCifradaNoFormatoDaApp`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.PalavraPasseErrada_OuEmailDesconhecido_Falha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Repor_VoltaATemporaria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/RelogioDeTeste.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `106a406a6df785bb`
+
+## A-0119 · 2026-10-26 · ok-do-diogo
+
+Porquê: PR #109/#120, passo 3 da app no portátil: sem Dmo__AuthenticationProvider, fora de Development, o login passa a ser o da app (Local); um valor desconhecido continua no Supabase, com aviso. Sai o atalho do pooler do Supabase (DevPoolerHost) e o seu teste. As mensagens do Admin deixam de dizer «Supabase». Os casos Production/Staging vazios passam do teste antigo para o novo (Local); os restantes ficam iguais.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRYz9rVfSPGua8CqeapJTKF (Diogo «sim» ao plano https://claude.ai/artifact/RBi5qndtR3xsjwyTPgpLV9)
+Novos: 3 · mudaram: 2 · saíram: 2
+
+- novo: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_SemFornecedorOuLocal_UsaOLoginProprio`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_ComFornecedorDesconhecido_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemFornecedorDeclarado_UsaOLoginProprio_SemAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.DeleteUser_TwoStepConfirmation_RemovesTheRow_AdminNever`
+- mudou: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_AlwaysRegistersRealAuthenticationAndProvisioning`
+- saiu: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.Beta_DevPoolerOverride_ReusesStoredTechnicalCredential`
+- saiu: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemOFornecedorDeclarado_Avisa`
+
+Selo depois: `3ea761a7a6b4d133`
+
+## A-0120 · 2026-10-26 · teste-novo
+
+Porquê: PR #109/#120: primeira instalação (/instalar), que cria o ADMIN numa base sem ADMIN nem palavras-passe, só com o login próprio e com o código de instalação (Diogo, 26/10/2026).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyWbdS4e71SJst8xdH6RU2EW
+Novos: 9 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.BaseVazia_ComOCodigo_CriaOAdmin_QueEntraComAPalavraPasse`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoErrado_NaoCriaNada`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoSorteado_MudaAoFimDeCincoEnganos`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComAdminJaGravado_NaoHaInstalacao`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComPalavrasPasseNaBase_NaoHaInstalacao`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DadosQueNaoServem_NaoCriamNada`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DepoisDeFeita_OCodigoNaoVoltaAServir`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.SemLoginProprio_NaoHaInstalacao`
+
+Selo depois: `bfb24a5eaf62cccf`

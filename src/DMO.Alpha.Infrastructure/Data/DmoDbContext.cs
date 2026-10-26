@@ -13,6 +13,7 @@ using DMO.Alpha.Core.ReparacaoInterna;
 using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Admin;
+using DMO.Alpha.Infrastructure.Authentication.Local;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -174,9 +175,22 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     // O envio único guardado na base (E4 do DMO-FULL): um envio, uma linha.
     public DbSet<OperacaoRegistada> OperacoesRegistadas => Set<OperacaoRegistada>();
 
+    // As palavras-passe cifradas do login próprio da app (modo Local, sem Supabase).
+    public DbSet<LocalCredential> LocalCredentials => Set<LocalCredential>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<LocalCredential>(entity =>
+        {
+            entity.ToTable("LocalCredentials");
+            entity.HasKey(c => c.ProviderUserId);
+            entity.Property(c => c.ProviderUserId).ValueGeneratedNever();
+            entity.Property(c => c.Email).HasMaxLength(254).IsRequired();
+            entity.HasIndex(c => c.Email).IsUnique();
+            entity.Property(c => c.PasswordHash).IsRequired();
+        });
 
         modelBuilder.Entity<User>(entity =>
         {

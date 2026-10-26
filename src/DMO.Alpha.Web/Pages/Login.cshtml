@@ -24,6 +24,10 @@
     <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
     <button type="submit" class="dmo-button submit" data-login-submit>Entrar</button>
 
+    @if (Model.Instalado)
+    {
+        <div class="alert alert-success form-message" role="status">ADMIN criado. Entre com o email e a palavra-passe que escolheu.</div>
+    }
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
         <div class="alert alert-danger form-message" role="alert">@Model.ErrorMessage</div>

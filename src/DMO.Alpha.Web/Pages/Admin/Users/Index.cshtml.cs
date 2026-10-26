@@ -109,7 +109,7 @@ public sealed class IndexModel : PageModel
             ? $"Esse email já é do utilizador {EmailOwnerName} (nº {EmailOwnerOperatorId}). Nenhum utilizador foi criado."
             : "Esse email já é de outro utilizador da lista. Nenhum utilizador foi criado.",
         CreateDmoUserResult.EmailExists =>
-            "Esse email já existe no Supabase, mas não é de nenhum utilizador da app. Nenhum utilizador foi criado.",
+            "Esse email já existe no login, mas não é de nenhum utilizador da app. Nenhum utilizador foi criado.",
         CreateDmoUserResult.ProviderFailure =>
             "O provedor de autenticação recusou a criação. Nenhum utilizador foi criado.",
         CreateDmoUserResult.AdminUserRefused =>
@@ -160,9 +160,9 @@ public sealed class IndexModel : PageModel
         DeleteUserResult.AdminRefused => "A identidade ADMIN não pode ser eliminada.",
         DeleteUserResult.UserNotFound => "O utilizador já não existe.",
         DeleteUserResult.ProviderFailure =>
-            "O Supabase Auth não confirmou a eliminação. O utilizador DMO foi mantido.",
+            "O login não confirmou a eliminação. O utilizador DMO foi mantido.",
         DeleteUserResult.PersistenceFailure =>
-            "A identidade no Supabase foi apagada, mas o utilizador DMO não foi removido. Repita a eliminação.",
+            "O acesso ao login foi apagado, mas o utilizador DMO não foi removido. Repita a eliminação.",
         _ => string.Empty
     };
 
@@ -171,8 +171,8 @@ public sealed class IndexModel : PageModel
 
     public string DeletedMessage => Deleted switch
     {
-        "1" => "Utilizador eliminado na app e no Supabase.",
-        "sem-identidade" => "Utilizador eliminado na app. A identidade no Supabase já não existia.",
+        "1" => "Utilizador eliminado.",
+        "sem-identidade" => "Utilizador eliminado. O acesso ao login já não existia.",
         _ => string.Empty
     };
 

@@ -64,6 +64,7 @@ public sealed class PesoToolScopedSchemaTests
             new HashSet<string>
             {
                 "Users",
+                "LocalCredentials",
                 "Templates",
                 "TemplateAssignments",
                 "Machines",
