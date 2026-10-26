@@ -2650,3 +2650,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto`
 
 Selo depois: `cc1db24dc6a41164`
+
+## A-0122 · 2026-10-26 · ok-do-diogo
+
+Porquê: O teste das alterações no mesmo minuto falhava aos :00 segundos; a segunda hora fica sempre no minuto de «agora» (PR #121).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua`
+
+Selo depois: `41023790522b6229`

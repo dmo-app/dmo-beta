@@ -1,5 +1,5 @@
 {
-  "selo": "cc1db24dc6a41164",
+  "selo": "41023790522b6229",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2504,7 +2504,7 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "7227c6abc82733c4",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: (resto do ficheiro)": "e5f51c0eb89f2172",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart": "ee52c6b7ca1d9366",
-    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua": "20117f0d70526eb0",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua": "376e81eb9b606242",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Changes_AreListed_AlsoBeforeTheStart_AndTheDaysFilterReachesBack": "4b29d5b809c9afa0",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.ControloInformation_IsForEitherControloModule": "190ce63720d60897",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.DeletedBqMovements_AreOnlyForBoquilhas": "ce5229760b998fa1",
