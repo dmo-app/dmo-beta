@@ -60,6 +60,8 @@
             <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Também se pode carregar em «Ler agora».</li>
         </ol>
         <p>Sem script: no SAP, no campo Equipment Code, seleção múltipla › «Carregar da área de transferência» (depois de «Copiar códigos»), F8 e exportar a lista para a pasta. O DMO lê-a da mesma forma.</p>
+        <p><b>Sozinho ao fim do dia:</b> duplo clique uma vez no <code>AGENDAR_18H.cmd</code>, na mesma pasta. O Windows corre o script todos os dias às 18:00, com o SAP minimizado e sem mensagem no fim. Para tirar: Agendador de Tarefas › «DMO uso SAP» › Eliminar.</p>
+        <p><b>Limpar a pasta:</b> «Apagar lidos» apaga da pasta os ficheiros que o DMO já leu. O <code>dmo-codigos.txt</code>, o script e o atalho ficam.</p>
 
         <h4>5. O fabrico das produções</h4>
         <p>O relatório de fabrico do SAP grava-se na mesma pasta. O DMO envia todos os ficheiros mais novos do que o último lido, do mais antigo para o mais novo, e reconhece cada um sozinho. Cada linha (material, linha, início e fim) fica uma vez; lida outra vez, atualiza-se.</p>
