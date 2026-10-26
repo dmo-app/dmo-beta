@@ -2411,11 +2411,11 @@ Novos: 14 · mudaram: 0 · saíram: 0
 
 Selo depois: `3b7fb22d41c58d7b`
 
-## A-0107 · 2026-10-26 · ok-do-diogo
+## A-0102 · 2026-10-26 · teste-novo
 
-Porquê: Ramo integracao posto em dia com a main (7915b48, .54): o registo fica o da main e esta entrada cobre os testes dos PRs em curso juntos no integracao (#98, #100, #105, #108 e os que já lá estavam); cada PR traz o seu registo para a main.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 26 · mudaram: 1 · saíram: 0
+Porquê: Reshape de Boquilhas (B2): as leituras de escolha e de filtro de Boquilhas/Index.cshtml.cs passam para BoquilhasEscolhasQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Novos: 8 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.BqSemJobOn_SoAsBqSemATombstone_PorReferenciaELote_ComMaquinasEUltimaLinha`
@@ -2425,8 +2425,31 @@ Novos: 26 · mudaram: 1 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.ProducaoDoFiltro_DevolveNumeroReferenciaELinhaESemProducaoDevolveNulo`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: PostgresMigrationIntegrationTests.BoquilhasEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
+
+Selo depois: `13c21601efbecfee`
+
+## A-0107 · 2026-10-26 · contagem-lista
+
+Porquê: Job On novo: as listas de CM/MF/BQ filtram-se pelas ferramentas já escolhidas, pela referência total e pela linha, e a referência do Job On novo sugere só as que correram na linha. Testes novos do serviço, do Postgres, da página e do JavaScript; no jobon-folha.test.cjs só se acrescentou um teste no fim (nenhum teste existente mudou)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyXr51rqHqoEPfuXFy99ZQ6F
+Novos: 6 · mudaram: 1 · saíram: 0
+
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FerramentasRelacionadas.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FerramentasRelacionadas.cs :: PostgresMigrationIntegrationTests.FerramentasRelacionadas_OrdemEFiltro_NoPostgres`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Referencias_ComLinha_SoAsQueCorreramNela_SemNenhumaTodas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.JobOn_Companheiras_OrdenamPrimeiroAsUsadasComElas_ESoRelacionadasTiraAsOutras`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_ComCmEscolhida_ABqMostraAsRelacionadas_EEscreverMostraTodas`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a procura da BQ leva a CM e a MF escolhidas, e a lista mostra a linha e o filtro`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `d9e0ee510f9834d7`
+
+## A-0108 · 2026-10-26 · ok-do-diogo
+
+Porquê: Ramo integracao posto em dia com a main 9d184ad (.57): o registo fica o da main e esta entrada cobre os testes dos PRs em curso juntos no integracao (J4 #112, #110, #106, #105, #100 e outros); cada PR traz o seu registo para a main.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 16 · mudaram: 6 · saíram: 4
+
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnFicha.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnFicha.cs :: PostgresMigrationIntegrationTests.JobOnFicha_CadaPedidoFazSoAsConsultasDeLeitura`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: (resto do ficheiro)`
@@ -2439,20 +2462,6 @@ Novos: 26 · mudaram: 1 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SemFerramentas_NaoLeFactos_MasLePreview`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SemNotasNemAlteracoes_ListasVazias`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SoUmaFerramenta_LeFactosSoDessa`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Referencias_ComLinha_SoAsQueCorreramNela_SemNenhumaTodas`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.JobOn_Companheiras_OrdenamPrimeiroAsUsadasComElas_ESoRelacionadasTiraAsOutras`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_ComCmEscolhida_ABqMostraAsRelacionadas_EEscreverMostraTodas`
-- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a procura da BQ leva a CM e a MF escolhidas, e a lista mostra a linha e o filtro`
-- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
-
-Selo depois: `5dce71a3ddc81f12`
-
-## A-0108 · 2026-10-26 · ok-do-diogo
-
-Porquê: Definições: o Diogo pediu que o ADMIN só veja as definições do Admin («no admin só deve ter definições importantes»; «as definições da app abrangem os módulos e só mostram os módulos que um user tem») e que quem só tem «Boquilhas · ver» não tenha horas de viragem. O Canal Jobon sai do Admin: a hora das Boquilhas vai para as Definições das Boquilhas e a da Reparação para uma entrada «Reparação», ambas com «Boquilhas · criar». Saem os testes que esperavam o ADMIN a ver os módulos e o Canal Jobon; entram os que provam o contrário. Tira acesso ao ADMIN: ok do Diogo.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyYRyWGv6Y5CabLhDFr1DLwa, cmsg_01A27e9ozcpoh4jdPRsuJbFyQ8WiYwTVK78uuk1DvMwT8X, cmsg_01A27e9ozcpoh4jdPRsuJbFyCVtCLc1FuK1Ug3hF8cdhTG, cmsg_01A27e9ozcpoh4jdPRsuJbFyUJwYKkR1Jw5deUYwen5U5c
-Novos: 4 · mudaram: 6 · saíram: 4
-
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Admin_TemDefinicoesProprias_SoAApp`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.HoraDeViragem_CadaUmaNoSeuModulo_ComOsSeusHandlers`
