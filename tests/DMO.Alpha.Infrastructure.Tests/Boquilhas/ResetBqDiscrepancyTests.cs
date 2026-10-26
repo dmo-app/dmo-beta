@@ -106,6 +106,27 @@ public sealed class ResetBqDiscrepancyTests : IDisposable
         Assert.Equal(-1, (await query.FindTraceAsync(traceId))!.AccumulatedDiscrepancy);
     }
 
+    [Fact]
+    public async Task Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements()
+    {
+        var traceId = await SeedTraceAsync();
+        await RegisterAsync(traceId, "entrada", 4, ResetAt.AddDays(-1));
+        var query = new BoquilhasRegistoQuery(_db);
+        Assert.Equal(-4, (await query.FindTraceAsync(traceId))!.Movements.Single().Discrepancy);
+
+        await new ResetBqDiscrepancyHandler(_db, new FixedClock(ResetAt))
+            .HandleAsync(new ResetBqDiscrepancy(traceId, "Diogo"));
+        await RegisterAsync(traceId, "saida", 2, ResetAt.AddHours(1));
+        await RegisterAsync(traceId, "entrada", 3, ResetAt.AddHours(2));
+        _db.ChangeTracker.Clear();
+
+        var movements = (await query.FindTraceAsync(traceId))!.Movements;
+        Assert.Equal(3, movements.Count);
+        Assert.Equal(-1, movements[0].Discrepancy);
+        Assert.Null(movements[2].Discrepancy);
+        Assert.Equal(-4, _db.BqMovements.AsNoTracking().Single(x => x.Quantity == 4).Discrepancy);
+    }
+
     // O campo da hora só tem minutos (teste do agente de 19/10/2026, T616eb4d):
     // pôr a zero às 10:20:56 e gravar logo a seguir com a hora pré-preenchida
     // (10:20) volta a contar, como num minuto seguinte.

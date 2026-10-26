@@ -17,15 +17,11 @@
 /* AS LINHAS COMO BOTÕES (Diogo, 26/10/2026: «criar botões para as máquinas
    que ficam selecionados similar ao que está no admin nos cartões dos
    templates»): a caixa fica escondida, mas é ela que vai no formulário;
-   escolhida, escura com letra branca. */
+   escolhida, invertida. */
 .ferr-check{position:relative;display:inline-flex}
 .ferr-check input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
 .ferr-check span{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:34px;padding:0 12px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px;background:var(--dmo-card);color:var(--dmo-text,#172d42);font-size:13px;font-weight:700;cursor:pointer;user-select:none}
-.ferr-check:hover input:not(:checked) + span{background:var(--dmo-brand-050)}
-.ferr-check input:checked + span{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff}
 .ferr-check input:focus-visible + span{outline:2px solid var(--dmo-palette-ocean);outline-offset:1px}
-[data-theme="dark"] .ferr-check input:checked + span{background:var(--dmo-palette-ocean);border-color:var(--dmo-palette-ocean)}
-[data-theme="dark"] .ferr-check:hover input:not(:checked) + span{background:color-mix(in srgb,var(--dmo-palette-ocean) 18%,transparent)}
 /* As secções da informação técnica: o título com a dica por cima dos campos
    e um traço entre secções (Diogo, 18/10 e 20/10/2026). */
 .ferr-tech-bloco{display:grid;gap:6px;min-width:0;margin:0;padding:0;border:0}

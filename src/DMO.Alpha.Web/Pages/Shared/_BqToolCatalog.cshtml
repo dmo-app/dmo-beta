@@ -46,6 +46,10 @@
       <input id="bq-tool-search" name="q" value="@Model.CatalogSearch" placeholder="Referência, lote ou linha" />
     </div>
     <div class="field dmo-field">
+      <label for="bq-tool-lot">Lote</label>
+      <input id="bq-tool-lot" name="lote" value="@Model.CatalogLot" placeholder="3" />
+    </div>
+    <div class="field dmo-field">
       <label for="bq-tool-machine">Máquina compatível</label>
       <select id="bq-tool-machine" name="machine_id" data-dmo-autosubmit>
         <option value="">Todas</option>
@@ -66,7 +70,7 @@
 <div class="card" id="bq-tool-results" hidden="@(!Model.CatalogSearched)" data-dmo-regiao>
   @if (Model.CatalogSearched)
   {
-  <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da boquilha.")" /></h3><span>@Model.CatalogCount encontrada(s)</span></div>
+  <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da ferramenta desta boquilha.")" /></h3><span>@Model.CatalogCount encontrada(s)</span></div>
   @if (Model.CatalogTools.Count == 0)
   {
     <p class="muted">Nenhuma boquilha encontrada com os filtros atuais.</p>
@@ -79,7 +83,7 @@
         <tbody>
           @foreach (var tool in Model.CatalogTools)
           {
-            <tr data-dmo-row data-id="@tool.ToolId" data-dmo-open="@(Model.CatalogLink(Model.CatalogPageNumber, tool.ToolId) + "#bq-tool-sheet")">
+            <tr data-dmo-row data-id="@tool.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId })">
               <td><input type="radio" name="bq_tool" value="@tool.ToolId" aria-label="BQ @tool.Reference · lote @tool.Lot" /></td>
               <td><strong>@tool.Reference</strong></td><td>@tool.Lot</td>
               <td>@(tool.AccountedQuantity?.ToString() ?? "—")</td><td>@(string.IsNullOrWhiteSpace(tool.MachineCodes) ? "—" : tool.MachineCodes)</td><td>@(string.IsNullOrWhiteSpace(tool.AssociatedMfReference) ? "—" : tool.AssociatedMfReference)</td>
@@ -97,6 +101,7 @@
     <form method="get" asp-page="/Boquilhas/Index" class="dmo-por-pagina" data-dmo-fica data-dmo-parcial>
       <input type="hidden" name="ficheiros" value="1" />
       @if (!string.IsNullOrEmpty(Model.CatalogSearch)) {<input type="hidden" name="q" value="@Model.CatalogSearch" />}
+      @if (!string.IsNullOrEmpty(Model.CatalogLot)) {<input type="hidden" name="lote" value="@Model.CatalogLot" />}
       @if (Model.CatalogMachineId is { } maquinaFiltro) {<input type="hidden" name="machine_id" value="@maquinaFiltro" />}
       <label for="bq-tool-size">Por página</label>
       <select id="bq-tool-size" name="por_pagina" data-dmo-autosubmit>

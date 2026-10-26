@@ -54,6 +54,9 @@ public sealed class ResumoModel : PageModel
     private readonly DMO.Alpha.Infrastructure.Production.JobOnChangeQuery _changes;
     private readonly CurrentUserCapabilities _capabilities;
     private readonly DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks _mcaliper;
+    private readonly IControloRevisaoQuery _revisaoQuery;
+    private readonly DMO.Alpha.Infrastructure.Tools.ToolEtiquetas _etiquetas;
+    private readonly PesoProducaoAnteriorQuery _producaoAnteriorQuery;
 
     public ResumoModel(
         IResumoProductionQuery resumoProductions,
@@ -71,8 +74,14 @@ public sealed class ResumoModel : PageModel
         DMO.Alpha.Infrastructure.Controlo.PuncoesHandler puncoesHandler,
         DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
         CurrentUserCapabilities capabilities,
-        DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks mcaliper)
+        DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks mcaliper,
+        IControloRevisaoQuery revisaoQuery,
+        DMO.Alpha.Infrastructure.Tools.ToolEtiquetas etiquetas,
+        PesoProducaoAnteriorQuery producaoAnteriorQuery)
     {
+        _revisaoQuery = revisaoQuery;
+        _etiquetas = etiquetas;
+        _producaoAnteriorQuery = producaoAnteriorQuery;
         _mcaliper = mcaliper;
         _capabilities = capabilities;
         _puncoesHandler = puncoesHandler;
@@ -141,6 +150,12 @@ public sealed class ResumoModel : PageModel
     /// Peso novo ainda) o mais recente; null quando ainda não existe.
     /// </summary>
     public PesoReadModel? LinkedPeso { get; private set; }
+
+    /// <summary>O controlo anterior da mesma referência com Peso (peso médio para o delta no cartão do Peso); null sem ele.</summary>
+    public ControloRevisaoItem? ControloAnterior { get; private set; }
+
+    /// <summary>A produção anterior guardada no Peso (peso da produção anterior); null sem ela.</summary>
+    public PesoProducaoAnteriorReadModel? ProducaoAnterior { get; private set; }
 
     /// <summary>
     /// Todos os Pesos da produção, pela ordem de gravação: um por CM+BQ
@@ -226,6 +241,16 @@ public sealed class ResumoModel : PageModel
     public IReadOnlyList<string> ZonasPedidas { get; private set; } = Array.Empty<string>();
 
     /// <summary>As áreas do estado do documento: as registadas, ou as cinco por registar.</summary>
+    /// <summary>A referência e o lote da ferramenta da área («9262 · Lote 16»); null nas áreas sem ferramenta ou sem dados.</summary>
+    public string? AreaDetalhe(string area)
+    {
+        if (AreaEtiquetas.TryGetValue(area, out var etiqueta)) return etiqueta;
+        var tool = area switch { "CM" => CmTool, "MF" => MfTool, "BQ" => BqTool, _ => null };
+        return tool is null ? null : $"{tool.Reference} · Lote {tool.Lot}";
+    }
+
+    private Dictionary<string, string> AreaEtiquetas { get; set; } = new();
+
     public IReadOnlyList<DMO.Alpha.Infrastructure.Controlo.ControloAreaStateReadModel> AreasMostradas =>
         AreaStates.Count > 0
             ? AreaStates
@@ -421,6 +446,13 @@ public sealed class ResumoModel : PageModel
         if (zonas.Any(zona => zona is not ZonaAvisos and not ZonaVistoPor))
         {
             await LoadMcaliperLinksAsync(SelectedProduction);
+            var etiquetas = await _etiquetas.GetAsync(
+                new[] { SelectedProduction.CmToolId, SelectedProduction.MfToolId, SelectedProduction.BqToolId }, ct);
+            AreaEtiquetas = new Dictionary<string, string>();
+            foreach (var (area, id) in new[] { ("CM", SelectedProduction.CmToolId), ("MF", SelectedProduction.MfToolId), ("BQ", SelectedProduction.BqToolId) })
+            {
+                if (id is not null && etiquetas.TryGetValue(id, out var etiqueta)) AreaEtiquetas[area] = etiqueta;
+            }
             AreaStates = await _areaStateHandler.GetAsync(existing.ControloId, ct);
         }
 
@@ -492,6 +524,11 @@ public sealed class ResumoModel : PageModel
         // das ferramentas atuais, senão o mais recente.
         Pesos = await _pesoQuery.ListByControloAsync(controloId, ct);
         LinkedPeso = Pesos.FirstOrDefault(p => p.IsCurrent) ?? Pesos.LastOrDefault();
+        if (LinkedPeso is { } pesoLigado)
+        {
+            ControloAnterior = await _revisaoQuery.FindPreviousWithPesoAsync(production.JobOnId, ct);
+            ProducaoAnterior = await _producaoAnteriorQuery.FindAsync(pesoLigado.PesoId, ct);
+        }
         if (!HasCurrentPeso && production.CmToolId is not null)
         {
             // Sem o Peso das ferramentas atuais (ainda sem Peso, ou depois de

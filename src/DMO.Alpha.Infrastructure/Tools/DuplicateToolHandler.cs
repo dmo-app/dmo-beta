@@ -139,7 +139,8 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
                 TpSagittaMm = sourceTechnical.TpSagittaMm,
                 TpRaioBaseMm = sourceTechnical.TpRaioBaseMm,
                 TpRaioEsferaMm = sourceTechnical.TpRaioEsferaMm,
-                TpVolumeMm3 = sourceTechnical.TpVolumeMm3
+                TpVolumeMm3 = sourceTechnical.TpVolumeMm3,
+                McaliperUrl = sourceTechnical.McaliperUrl
             });
         }
 

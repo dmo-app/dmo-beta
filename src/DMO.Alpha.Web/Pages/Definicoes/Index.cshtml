@@ -204,6 +204,16 @@ html body .def-menu-sub[hidden]{display:none}
           </div>
         </section>
       }
+      @if (Model.TemJobOn)
+      {
+        <section id="sec-jobon" class="def-secao" data-dmo-def-secao="jobon" aria-labelledby="def-jobon-title" hidden="@(Model.Secao != "jobon")">
+          <h2 id="def-jobon-title">Job On</h2>
+          <div class="def-parte" id="jobon">
+            <h3 class="def-parte-titulo">Geral<partial name="_DefinicoesCadeado" model="cadeado" /></h3>
+            <div class="def-cartoes"><partial name="/Pages/JobOn/_DefinicoesImagens.cshtml" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" /></div>
+          </div>
+        </section>
+      }
       @if (Model.Boquilhas is { } boquilhas)
       {
         <section id="sec-boquilhas" class="def-secao" data-dmo-def-secao="boquilhas" aria-labelledby="def-boquilhas-title" hidden="@(Model.Secao != "boquilhas")">
