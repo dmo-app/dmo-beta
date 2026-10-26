@@ -1,5 +1,5 @@
 {
-  "selo": "d0c1ab9dcc86a382",
+  "selo": "f27c31b9a7ed1685",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2207,8 +2207,9 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_BqSemQuantidade_AvisaQueAFabricacaoNaoECalculada": "694fc0fe4c0cfc84",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem": "98b09aa6026954cb",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos": "d2730da3c6f698f1",
-    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf": "605303e7c3054a96",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf": "88622d2c97276fe8",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: (resto do ficheiro)": "38aff1b8828b1495",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_Cm_MostraOVolumeDaPuncao_EGuardaOValorEditado": "81b35ec055453b8c",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_GuardarSemTampaoNemPuncao_MantemOsValoresGravados": "4b716bda32f183cf",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: (resto do ficheiro)": "fe018c5dcee25cce",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia": "2a60e122fdd9c264",
@@ -2240,7 +2241,7 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Ficha_CamposTecnicos_NoMaximoDuasCasas_SemZerosNoFim": "0f8e725edd971cb4",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Ficha_SemMaquinas_AvisaComLinkParaOEditar": "024662b750ffc71c",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_Bq_ShowsOnlyBqTechnicalFields_AndPostKeepsCmValuesOffTheBq": "7ce9895bab307537",
-    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered": "ccd404e71b33596d",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered": "5de773ce595ff69c",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_OldRefusalLinks_StillShowTheirMessages": "ac3ba73a8a8eca24",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_UnknownToolId_CleanWarning_NothingInvented": "cc6a6dbda12bea61",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostCreate_ContextualReturnTemplate_GetsMintedToolIdBack": "1578f55ea7c3a0a5",
