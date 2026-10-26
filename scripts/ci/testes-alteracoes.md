@@ -3001,3 +3001,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements`
 
 Selo depois: `dc6a82a28326fe61`
+
+## A-0157 · 2026-10-26 · teste-novo
+
+Porquê: SAP: «Apagar lidos», corrida às 18:00 na ajuda e leitura do relatório «produções» (Diogo 22/10 07:43 e 26/10 16:08)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ORelatorioProducoes_DaAsGarrafasBrutasDeCadaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
+
+Selo depois: `d6171e976e051502`
