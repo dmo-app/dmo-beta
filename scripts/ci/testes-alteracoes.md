@@ -2301,7 +2301,7 @@ Novos: 12 · mudaram: 0 · saíram: 0
 
 Selo depois: `dccfc5697c021f5a`
 
-## A-0097 · 2026-10-25 · teste-novo
+## A-0104 · 2026-10-25 · teste-novo
 
 Porquê: Reshape do Job On, J3: o histórico de JobOn/Index.cshtml.cs passa para JobOnHistoricoQuery; testes do serviço e orçamento de consultas no Postgres
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAmgz6Smt5sJ1FZ7Riri2Hy
