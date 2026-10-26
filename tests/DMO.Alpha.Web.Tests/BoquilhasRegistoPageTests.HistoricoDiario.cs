@@ -22,7 +22,7 @@ public partial class BoquilhasRegistoPageTests
 
         var registo = await GetPageHtmlAsync(client, $"/Boquilhas?trace_id={trace.Id}");
         Assert.Contains("href=\"/Boquilhas?historico=1&amp;vista=matriz\"", registo);
-        Assert.Matches("<span>Produção</span><strong><a href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\">PN-550080</a></strong>", registo);
+        Assert.Matches("<a class=\"dmo-fact dmo-fact-link\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Produção</span><strong>PN-550080</strong></a>", registo);
 
         var matriz = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&vista=matriz");
         var tabela = Regex.Match(matriz, "<table class=\"dmo-table dmo-matrix\".*?</table>", RegexOptions.Singleline);
