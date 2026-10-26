@@ -287,7 +287,9 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("<dd data-dmo-conta-nome>Operador 7313</dd>", conta);
         Assert.Contains("<dd data-dmo-conta-email>7313@dmo.local</dd>", conta);
         Assert.Contains("<dd data-dmo-conta-numero>7313</dd>", conta);
-        Assert.Contains("<dd data-dmo-conta-modulos>Controlo, Boquilhas, Ferramentas</dd>", conta);
+        // Os módulos numa tabela, cada um com o acesso (Diogo, 26/10/2026).
+        Assert.Contains("<thead><tr><th scope=\"col\">Controlo</th><th scope=\"col\">Boquilhas</th><th scope=\"col\">Ferramentas</th></tr></thead>", conta);
+        Assert.Contains("<tbody><tr><td>Criar</td><td>Criar</td><td>Ver e editar</td></tr></tbody>", conta);
         Assert.DoesNotContain("<input", conta);
     }
 

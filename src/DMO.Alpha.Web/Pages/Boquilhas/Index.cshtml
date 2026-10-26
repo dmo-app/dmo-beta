@@ -2,6 +2,7 @@
 @model DMO.Alpha.Web.Pages.Boquilhas.IndexModel
 @using DMO.Alpha.Core.Boquilhas
 @using DMO.Alpha.Web.Pages.Shared
+@inject DMO.Alpha.Web.Services.CurrentUserCapabilities UserCapabilities
 @{
     Layout = "_DmoShellLayout";
     var fmtDate = new Func<DateTime, string>(v =>
@@ -92,34 +93,44 @@
                total, a BQ com o lote, a produção e as datas; as máquinas
                compatíveis não têm relevância aqui. *@
             @{ var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-PT"); }
+            @* OS CARTÕES ABREM O QUE MOSTRAM (Diogo, 26/10/2026: «meter no BQ lote um link para ir à
+               ferramenta em questão … metemos um link no resto que leva ao Job On», «o jobon_id, não o
+               Job On geral»): a BQ · lote abre a ficha da ferramenta (o Voltar regressa aqui); a
+               referência, a produção e as datas abrem esse Job On. O cartão inteiro é o link e enche-se
+               com a cor da barra (a.dmo-fact-link). Sem destino, fica o cartão simples. *@
+            @{
+                // A ficha só para quem tem o módulo Ferramentas (só chefia); os outros veem o cartão simples.
+                var fichaDaBq = trace.ToolId is { } fichaToolId && (await UserCapabilities.GetAsync()).Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas)
+                    ? $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(fichaToolId)}"
+                    : null;
+                var jobOnDoRegisto = Model.ProductionContext?.JobOnId is int jobOnId
+                    ? Url.Page("/JobOn/Index", null, new { jobon_id = jobOnId }, null, null, "lightFicha")
+                    : null;
+                var bqLote = $"{trace.ToolReference}{(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")}";
+            }
             <div class="dmo-facts" id="bqRegisterFacts">
               @if (Model.ProductionContext is { } production)
               {
-                <div class="dmo-fact"><span>Referência</span><strong>@production.Reference</strong></div>
-                <div class="dmo-fact"><span>BQ · lote</span><strong>@trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</strong></div>
-                @* A produção abre o Job On (Diogo, 21/10/2026: «registo associado
-                   completo, a vista da máquina + jobon»). *@
-                <div class="dmo-fact"><span>Produção</span><strong>@if (production.JobOnId is int jobOnDoRegisto)
-                {<a href="@Url.Page("/JobOn/Index", null, new { jobon_id = jobOnDoRegisto }, null, null, "lightFicha")" title="Abrir o Job On desta produção">@production.ProductionNumber</a>}
-                else
-                {@production.ProductionNumber}</strong></div>
+                <partial name="_BqRegistoFacto" model="@(("Referência", (string?)production.Reference, jobOnDoRegisto, "Abrir o Job On desta produção", false))" />
+                <partial name="_BqRegistoFacto" model="@(("BQ · lote", (string?)bqLote, fichaDaBq, "Abrir a ficha desta BQ", false))" />
+                <partial name="_BqRegistoFacto" model="@(("Produção", (string?)production.ProductionNumber, jobOnDoRegisto, "Abrir o Job On desta produção", false))" />
                 @* O início e o fim são os do Job On (Diogo, 17/10/2026). Um Job On
                    sem data de início fica com um aviso amarelo discreto: falta
                    um dado que devia existir, e o fim não é «até aviso». *@
                 if (production.InicioEm is { } inicio)
                 {
-                  <div class="dmo-fact"><span>Início</span><strong>@inicio.ToString("dd/MM/yyyy", pt)</strong></div>
-                  <div class="dmo-fact"><span>Fim</span><strong>@(production.FimEm?.ToString("dd/MM/yyyy", pt) ?? "Até aviso")</strong></div>
+                  <partial name="_BqRegistoFacto" model="@(("Início", (string?)inicio.ToString("dd/MM/yyyy", pt), jobOnDoRegisto, "Abrir o Job On desta produção", false))" />
+                  <partial name="_BqRegistoFacto" model="@(("Fim", (string?)(production.FimEm?.ToString("dd/MM/yyyy", pt) ?? "Até aviso"), jobOnDoRegisto, "Abrir o Job On desta produção", false))" />
                 }
                 else
                 {
-                  <div class="dmo-fact dmo-fact-falta"><span>Início</span><strong>Sem data no Job On</strong></div>
-                  <div class="dmo-fact"><span>Fim</span><strong>@(production.FimEm?.ToString("dd/MM/yyyy", pt) ?? "—")</strong></div>
+                  <partial name="_BqRegistoFacto" model="@(("Início", (string?)"Sem data no Job On", jobOnDoRegisto, "Abrir o Job On desta produção", true))" />
+                  <partial name="_BqRegistoFacto" model="@(("Fim", (string?)(production.FimEm?.ToString("dd/MM/yyyy", pt) ?? "—"), jobOnDoRegisto, "Abrir o Job On desta produção", false))" />
                 }
               }
               else
               {
-                <div class="dmo-fact"><span>BQ · lote</span><strong>@trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</strong></div>
+                <partial name="_BqRegistoFacto" model="@(("BQ · lote", (string?)bqLote, fichaDaBq, "Abrir a ficha desta BQ", false))" />
                 <div class="dmo-fact"><span>Produção</span><strong>Por associar</strong></div>
               }
             </div>

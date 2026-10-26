@@ -39,6 +39,9 @@ button.def-cadeado:hover{filter:brightness(.95)}
 .def-conta{display:flex;flex-wrap:wrap;gap:6px 28px;margin:0;font-size:14px}
 .def-conta dt{color:var(--dmo-muted);font-weight:700;font-size:11.5px}
 .def-conta dd{margin:2px 0 0}
+.def-conta-modulos{width:auto;margin-top:12px}
+.def-conta-modulos :is(th,td){text-align:center;padding:6px 14px}
+.def-conta-sem-modulos{margin:10px 0 0;color:var(--dmo-muted)}
 .def-palavra{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
 .def-palavra .dmo-field{margin:0;flex:1 1 160px;max-width:240px}
 .ctl-def-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;width:100%}
@@ -138,8 +141,20 @@ html body .def-menu-sub[hidden]{display:none}
             <div><dt>Nome</dt><dd data-dmo-conta-nome>@Model.Nome</dd></div>
             <div><dt>Email</dt><dd data-dmo-conta-email>@(Model.Email ?? "—")</dd></div>
             <div><dt>Número</dt><dd data-dmo-conta-numero>@(Model.NumeroOperador ?? "—")</dd></div>
-            <div><dt>Módulos</dt><dd data-dmo-conta-modulos>@(Model.Modulos.Count == 0 ? "Nenhum" : string.Join(", ", Model.Modulos))</dd></div>
           </dl>
+          @* Os módulos numa pequena tabela, cada um com o acesso (Diogo, 26/10/2026:
+             «os módulos em seguida com vírgulas fica mal, preferível uma tabela»). *@
+          @if (Model.ModulosAcesso.Count == 0)
+          {
+            <p class="def-conta-sem-modulos" data-dmo-conta-modulos>Módulos: nenhum</p>
+          }
+          else
+          {
+            <table class="dmo-table def-conta-modulos" data-dmo-conta-modulos aria-label="Módulos">
+              <thead><tr>@foreach (var (modulo, _) in Model.ModulosAcesso) {<th scope="col">@modulo</th>}</tr></thead>
+              <tbody><tr>@foreach (var (_, acesso) in Model.ModulosAcesso) {<td>@acesso</td>}</tr></tbody>
+            </table>
+          }
         </section>
         <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
           <div class="dmo-card-topo">
