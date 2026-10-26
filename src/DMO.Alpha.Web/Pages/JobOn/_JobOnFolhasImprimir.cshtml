@@ -28,21 +28,13 @@
 @functions {
     private static string? V(string? v) => string.IsNullOrWhiteSpace(v) ? null : v.Trim();
 
-    // Um número puro com ponto e até duas casas («36.85», «365»); o resto como está escrito.
-    private static string N(string? v)
-    {
-        if (V(v) is not { } t) return "";
-        return System.Text.RegularExpressions.Regex.IsMatch(t, @"^-?\d+([.,]\d+)?$")
-            && decimal.TryParse(t.Replace(',', '.'), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d)
-            ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(d)
-            // Nas folhas, ponto em vez de vírgula também nos números dentro do texto («56.4 × 43.3»).
-            : System.Text.RegularExpressions.Regex.Replace(t, @"(\d),(\d)", "$1.$2");
-    }
+    // Os números como na folha do Job On: ponto e duas casas quando têm casas («70/69.40»).
+    private static string N(string? v) => DMO.Alpha.Core.Runtime.DmoNumberFormat.FolhaTexto(v) ?? "";
 
     private string F(string chave) => N(Model.Folha.Valor(chave));
 
     private IEnumerable<string> Notas(string chave) =>
-        (V(Model.Folha.Valor(chave)) ?? "").Split('\n').Select(l => System.Text.RegularExpressions.Regex.Replace(l.Trim(), @"(\d),(\d)", "$1.$2")).Where(l => l.Length > 0);
+        (V(Model.Folha.Valor(chave)) ?? "").Split('\n').Select(l => N(l)).Where(l => l.Length > 0);
 }
 <div class="jof-impressao" data-jof-impressao hidden>
   @* ── FICHA DE ARTIGO ─────────────────────────────────────────── *@

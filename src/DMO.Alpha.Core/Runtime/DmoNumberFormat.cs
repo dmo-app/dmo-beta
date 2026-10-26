@@ -32,6 +32,26 @@ public static class DmoNumberFormat
     public static string Decimal2SemPerda(decimal value) =>
         Math.Round(value, 2) == value ? Decimal2(value) : value.ToString("0.#####", Culture);
 
+    /// <summary>
+    /// Um valor escrito na folha do Job On como se mostra (Diogo, 26/10/2026: «sempre 2 casas
+    /// decimais se existir necessidade», «2.5 fica 2.50», «. em vez de ,»): um número puro sai
+    /// com <see cref="Decimal2"/> («365», «36.85»); dentro de texto, cada número com casas
+    /// passa a ponto e a duas casas («70/69,4» → «70/69.40»), sem perder casas a mais.
+    /// O resto do texto fica como está.
+    /// </summary>
+    public static string? FolhaTexto(string? valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor)) return null;
+        var t = valor.Trim();
+        if (System.Text.RegularExpressions.Regex.IsMatch(t, @"^-?\d+([.,]\d+)?$")
+            && decimal.TryParse(t.Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out var d))
+            return Decimal2(d);
+        return System.Text.RegularExpressions.Regex.Replace(t, @"(?<![\d.,])\d+[.,]\d+(?![.,]?\d)", m =>
+            decimal.TryParse(m.Value.Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out var n)
+                ? Decimal2SemPerda(n)
+                : m.Value);
+    }
+
     private static CultureInfo CreateCulture()
     {
         var culture = (CultureInfo)CultureInfo.GetCultureInfo("pt-PT").Clone();

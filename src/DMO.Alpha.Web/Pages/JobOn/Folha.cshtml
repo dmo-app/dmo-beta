@@ -29,14 +29,9 @@
 @functions {
     private static string? Vazio(string? v) => string.IsNullOrWhiteSpace(v) ? null : v.Trim();
 
-    // Os números da folha com duas casas decimais no máximo e sem zeros no fim
-    // («365.000» → «365», «36.850» → «36.85», «2,50» → «2,5»: a vírgula de quem escreveu fica; Diogo, 23/10/2026). Texto fica como está.
-    private static string? Mostra(string? v) =>
-        Vazio(v) is not { } t ? null
-        : System.Text.RegularExpressions.Regex.IsMatch(t, @"^-?\d+([.,]\d+)?$")
-          && decimal.TryParse(t.Replace(',', '.'), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d)
-            ? (t.Contains(',') ? Math.Round(d, 2, MidpointRounding.AwayFromZero).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') : Math.Round(d, 2, MidpointRounding.AwayFromZero).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))
-            : t;
+    // Os números da folha com ponto e duas casas quando têm casas, também dentro do texto
+    // («70/69,4» → «70/69.40»; Diogo, 26/10/2026). O resto do texto fica como está.
+    private static string? Mostra(string? v) => DMO.Alpha.Core.Runtime.DmoNumberFormat.FolhaTexto(v);
 
     private static decimal? Numero(string? v) =>
         decimal.TryParse(v?.Replace(',', '.').Replace("%", "").Trim(), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : null;

@@ -2580,3 +2580,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve`
 
 Selo depois: `6f637b56f2125107`
+
+## A-0113 · 2026-10-26 · teste-novo
+
+Porquê: Teste novo dos números da folha do Job On: ponto em vez de vírgula e duas casas quando há casas, também dentro do texto («70/69,4» → «70/69.40»), a pedido do Diogo (26/10/2026).
+Referência: pedido do Diogo de 26/10 00:51 reencaminhado pelo coordenador; autorização de testes cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto`
+
+Selo depois: `a1f70e12af2092b2`
