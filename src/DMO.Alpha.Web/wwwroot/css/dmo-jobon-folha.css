@@ -758,7 +758,6 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
   html body .jof2.editing .page-head .head-right>.pick-block,html body .jof2.editing .page-head .head-right>.head-tools{align-self:flex-end}
   html body .jof2.editing .page-head .head-right:not(:has(.eyebrow)){align-items:center}
   html body .jof2.editing .page-head .head-right:not(:has(.eyebrow))>*{align-self:center}
-  html body .jof2 .page-head .head-right .head-tools .btn{min-height:38px;height:38px;box-sizing:border-box}
 }
 @media (min-width:901px){
   html body .jof2 .page-head .facts-dados{padding-left:18px;padding-right:18px}
@@ -766,7 +765,7 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
 @media (min-width:901px){
   html body .jof2 .page-head .facts-dados input.f{width:68px}
   html body .jof2 .page-head .facts-dados input.f[type=date]{width:140px}
-  html body .jof2 .page-head .pick-row .ref-search,html body .jof2 .page-head .pick-row input.prod-select{height:38px;min-height:38px;box-sizing:border-box}
+  html body .jof2 .page-head .pick-row .ref-search,html body .jof2 .page-head .pick-row input.prod-select,html body .jof2 .page-head .pick-row .prod-trigger,html body .jof2 .page-head .pick-row select.prod-select{height:40px;min-height:40px;box-sizing:border-box}
 }
 /* Sem a etiqueta «Novo Job On» na barra (Diogo, 26/10/2026: «não é necessário»); fica só para leitores de ecrã. */
 @media (min-width:901px){
@@ -777,4 +776,7 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
   html body .jof2 .page-head .facts-dados input.f:not([type=date]),html body .jof2 .page-head .facts-dados select.f{width:76px;min-width:0;height:34px;min-height:34px;box-sizing:border-box}
   html body .jof2 .page-head .facts-dados select.f{padding:0 22px 0 10px;background-position:right 6px center}
   html body .jof2 .page-head .facts-dados input.f[type=date]{height:34px;min-height:34px;box-sizing:border-box}
+}
+@media (min-width:901px){
+  html body .jof2 .page-head .pick-row .ref-search input{height:40px;min-height:40px;box-sizing:border-box}
 }
