@@ -67,17 +67,17 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
             return Refused(DuplicateToolResult.MissingNewLot);
         }
 
-        // O lote já registado para esta referência numa das mesmas máquinas é
-        // recusado (o proprietário, 18/10/2026; as máquinas contam desde
-        // 19/10/2026) e a existente fica com o aviso de ferramenta repetida.
-        // A cópia leva as máquinas da fonte. A fonte fica intacta.
+        // Só o mesmo tipo + referência + lote já registado é recusado (Diogo,
+        // 26/10/2026: as linhas não entram na regra do Duplicar) e a existente
+        // fica com o aviso de ferramenta repetida. A cópia leva as linhas da
+        // fonte. A fonte fica intacta.
         var sourceMachineIds = await _db.ToolMachineLinks
             .AsNoTracking()
             .Where(link => link.ToolId == source.ToolId)
             .Select(link => link.MachineId)
             .ToListAsync(cancellationToken);
         var existing = await ToolDuplicateWarnings.FindRepeatedAsync(
-            _db, source.Type, source.Reference, newLot, sourceMachineIds, exceptToolId: null, cancellationToken);
+            _db, source.Type, source.Reference, newLot, Array.Empty<int>(), exceptToolId: null, cancellationToken);
         if (existing is not null)
         {
             // O duplo clique: o resultado do primeiro clique, sem recusa nem aviso.
@@ -139,7 +139,8 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
                 TpSagittaMm = sourceTechnical.TpSagittaMm,
                 TpRaioBaseMm = sourceTechnical.TpRaioBaseMm,
                 TpRaioEsferaMm = sourceTechnical.TpRaioEsferaMm,
-                TpVolumeMm3 = sourceTechnical.TpVolumeMm3
+                TpVolumeMm3 = sourceTechnical.TpVolumeMm3,
+                McaliperUrl = sourceTechnical.McaliperUrl
             });
         }
 
