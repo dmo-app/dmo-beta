@@ -1,5 +1,5 @@
 {
-  "selo": "a1189c0ece6af100",
+  "selo": "f3d0930dcde0345f",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1419,7 +1419,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/SupabaseUserProvisioningProviderTests.cs :: FakeHttpHandler.ResetAsync_Success_PutsNewTemporaryPasswordAndRearmsTheForcedChange": "116421614f5fe32a",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: (resto do ficheiro)": "173a2a1b6dfb31ab",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Escrever": "6b9e06005613a816",
-    "tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Ler": "38c23c1a33f34775",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Ler": "807871e250a45058",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)": "21e9ff5ac1f7869e",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.ABq_MostraSoASuaParteDaReferencia": "a789ff10036379b3",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.AProcuraPelaLinhaEPelosDias_SemReferencia": "7fc9138e20b1675d",
