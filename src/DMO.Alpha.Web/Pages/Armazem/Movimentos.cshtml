@@ -159,14 +159,14 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <a class="dmo-button@(Model.ModoSaida ? " arm-modo-ativo" : null)" id="armProcuraModoSaida" aria-pressed="@(Model.ModoSaida ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "saida", q = Model.Procura, pos = Model.PosicaoPedidaValida })">Saída</a>
       </div>
       <div class="dmo-field">
-        <label for="armRapPosicao">Posição</label>
-        <input id="armRapPosicao" name="pos" type="text" class="arm-pos" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" autocomplete="off"
-               title="@(Model.ModoSaida ? "A posição de onde sai: 4 algarismos, por exemplo 0042" : "4 algarismos, por exemplo 0042")" value="@Model.PosicaoPedidaValida" placeholder="0042" />
-      </div>
-      <div class="dmo-field">
         <label for="armProcura">Referência</label>
         <input id="armProcura" name="q" type="search" class="arm-procura" value="@Model.Procura" data-dmo-maiusculas autocapitalize="characters" autofocus="@(s is null)"
                placeholder="@(tipoEscolhido == ToolType.Bq ? "Ex.: T173 ou 0042" : "Ex.: 5447, T173 ou 0042")" data-dmo-procura="@Url.Page("/Armazem/Movimentos", "Procurar", new { tipo = tipoTexto, modo = Model.Modo })" data-dmo-procura-alvo="armProcuraLista" />
+      </div>
+      <div class="dmo-field">
+        <label for="armRapPosicao">Posição</label>
+        <input id="armRapPosicao" name="pos" type="text" class="arm-pos" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" autocomplete="off"
+               title="@(Model.ModoSaida ? "A posição de onde sai: 4 algarismos, por exemplo 0042" : "4 algarismos, por exemplo 0042")" value="@Model.PosicaoPedidaValida" placeholder="0042" />
       </div>
     </form>
     <div id="armProcuraLista" aria-live="polite" data-dmo-parcial data-arm-modo="@Model.Modo" class="@(!Model.ModoSaida && Model.PosicaoPedidaValida is not null ? "arm-so-fora" : null)">
