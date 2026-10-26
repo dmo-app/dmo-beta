@@ -2939,3 +2939,19 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `36c96f7cdb8ca39d`
+
+## A-0144 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR #142 no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR #142
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: JobOnFolhaRondaTests.Alteracoes_SoAFormaDoNumero_NaoEMudanca`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoEscrito.cs :: FerramentasPagesTests.Criar_CaixaDoUso_DeixaEscreverOValorTodo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor`
+
+Selo depois: `051430a6f2918d77`

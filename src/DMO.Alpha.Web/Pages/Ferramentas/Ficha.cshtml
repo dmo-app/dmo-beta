@@ -417,7 +417,7 @@
         <div style="margin-top:12px;padding:11px 13px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px">
           <strong style="overflow-wrap:anywhere">Nome técnico: @technicalName</strong>
           <div style="margin-top:6px;color:var(--dmo-muted);font-size:12.5px">
-            @(decoded.Family)@(decoded.InferredType is { } inferred ? $" · tipo inferido {tokenOf(inferred)}" : null)@(decoded.InferredReference is { } inferredRef ? $" · referência {inferredRef}" : null)@(decoded.Dimension is { } dimension ? $" · {dimension}" : null)@(decoded.Process is { } process ? $" · {process}" : null)@(decoded.Ventilation is { } ventilation ? $" · ventilação {ventilation}" : null)
+            @(decoded.Family == "desconhecido" ? null : decoded.Family)@(decoded.InferredType is { } inferred ? $" · tipo inferido {tokenOf(inferred)}" : null)@(decoded.InferredReference is { } inferredRef ? $" · referência {inferredRef}" : null)@(decoded.Dimension is { } dimension ? $" · {dimension}" : null)@(decoded.Process is { } process ? $" · {process}" : null)@(decoded.Ventilation is { } ventilation ? $" · ventilação {ventilation}" : null)
           </div>
         </div>
       }
