@@ -2388,3 +2388,42 @@ Novos: 16 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.SoReferencia_ListaAsProducoesEPesquisaPelaReferencia`
 
 Selo depois: `1d85ff80026183a9`
+
+## A-0106 · 2026-10-26 · teste-novo
+
+Porquê: PERF-02/09/03/06: Reparação Interna e Histórico das Ferramentas leem menos da base; testes de leituras no Postgres e das zonas da página
+Novos: 14 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemMapaEstados.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemMapaEstados.cs :: PostgresMigrationIntegrationTests.ArmazemMapa_UltimoEstadoNaBase_IgualAoDeMemoria_ELinhasLidasNaoDependemDaHistoria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: PostgresMigrationIntegrationTests.ReparacaoInterna_ProducoesDoDia_NumaSoLeituraComOMesmoResultadoQueUmaPorUma`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.AAutorizacaoEADaPagina_ComECemOCabecalho`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.DepoisDeGravar_RegistoEAvisos_SaoOsMesmosPartialsDaPaginaInteira`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OHistorico_ZonaDosResultados_ESoAsMinhasReparacoes_SaoOsMesmosPartials`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OPainelDasLinhas_PedidoSozinho_ELinhaSemEscolher_SaoOsMesmosPartials`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OsPedidosComZonas_LeemMenosDaBaseQueAPaginaInteira_NoPostgres`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.SemOCabecalho_AResposta_EAPaginaInteiraDeSempre`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.ZonaDesconhecidaOuDeOutraVista_RespondeComAPaginaInteira`
+
+Selo depois: `3b7fb22d41c58d7b`
+
+## A-0102 · 2026-10-26 · teste-novo
+
+Porquê: Reshape de Boquilhas (B2): as leituras de escolha e de filtro de Boquilhas/Index.cshtml.cs passam para BoquilhasEscolhasQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Novos: 8 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.BqSemJobOn_SoAsBqSemATombstone_PorReferenciaELote_ComMaquinasEUltimaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.BqsDaReferencia_SoBqDaReferenciaSemDistinguirMaiusculasEMisturarTipos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.Ferramenta_DevolveAReferenciaEOLoteESemFerramentaDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.OsQuatroPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.ProducaoDoFiltro_DevolveNumeroReferenciaELinhaESemProducaoDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: PostgresMigrationIntegrationTests.BoquilhasEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
+
+Selo depois: `13c21601efbecfee`

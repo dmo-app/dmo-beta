@@ -1,0 +1,9 @@
+@model DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel
+@using DMO.Alpha.Core.ReparacaoInterna
+@using DMO.Alpha.Web.Pages.ReparacaoInterna
+<div id="riAvisos" class="dmo-zona" data-dmo-regiao>
+  @if (Model.Mensagem.Length > 0)
+  {
+    <p data-dmo-toast="@Model.Tom" role="@(Model.Gravou ? "status" : "alert")">@Model.Mensagem</p>
+  }
+</div>
