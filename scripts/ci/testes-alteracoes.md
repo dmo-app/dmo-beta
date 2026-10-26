@@ -2280,7 +2280,7 @@ Novos: 11 · mudaram: 0 · saíram: 0
 
 Selo depois: `77e42f1b702b86d7`
 
-## A-0096 · 2026-10-26 · contagem-lista
+## A-0100 · 2026-10-26 · contagem-lista
 
 Porquê: Login próprio da app (modo Local, sem Supabase): testes do fornecedor Local; a tabela LocalCredentials entra nas listas de tabelas e de migrações
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyE95btRoeMmUogpFHEuxZvH
