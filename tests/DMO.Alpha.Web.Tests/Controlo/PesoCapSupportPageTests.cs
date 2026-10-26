@@ -299,7 +299,8 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
 
         Assert.Contains("Referência por completar", html);
         Assert.Contains("Não bloqueia o Peso", html);
-        Assert.Contains("Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.", html);
+        Assert.Contains("O Peso pode continuar sem este apoio.", html);
+        Assert.DoesNotContain("Completar na ficha da CM", html);
         Assert.DoesNotContain("R do desenho", html);
 
         // O Peso INTACTO: as leituras e o cálculo principal continuam —

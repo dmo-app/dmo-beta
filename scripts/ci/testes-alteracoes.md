@@ -2819,3 +2819,29 @@ Novos: 4 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: (resto do ficheiro)`
 
 Selo depois: `67628fb69854a89d`
+
+## A-0138 · 2026-10-26 · ok-do-diogo
+
+Porquê: Tampão e Punção saem da ficha da CM; um só Voltar (cmsg_01A27e9ozcpoh4jdPRsuJbFyRfdwnWiuT6MCVrPw2pdSRm); Volume na BQ (cmsg_01A27e9ozcpoh4jdPRsuJbFyWtKmjoyB3wGtxzcCSxX69C)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR4JxijzJuzAZzq37Qzi296
+Novos: 4 · mudaram: 13 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_GuardarSemTampaoNemPuncao_MantemOsValoresGravados`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VolumeDaBq.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VolumeDaBq.cs :: FerramentasPagesTests.Criar_TituloDoBloco_VolumeNaBqEPesoNaCm`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCapSupportQueryTests.cs :: PesoCapSupportQueryTests.GetAsync_ToolSemTP_ReferenciaPorCompletar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemTP_ReferenciaPorCompletarEPesoIntacto`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: FerramentasPagesTests.Ficha_BotoesDeCadaCard_NoCantoSuperiorDireito`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: FerramentasPagesTests.Ficha_ValorTecnicoPorLer_FicaNoCampoParaCorrigir_ComOFoco`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Voltar.cs :: FerramentasPagesTests.Ficha_OVoltar_VoltaAPaginaDeOndeSeVeio_SemOrigemALista`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VoltarJobOn.cs :: FerramentasPagesTests.Ficha_ComVoltarDoJobOn_MostraOVoltarParaAFolhaExata`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.VoltarJobOn.cs :: FerramentasPagesTests.Ficha_SemVoltarValido_NaoMostraOVoltarAoJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Criar_APartirDoCartaoDoJobOn_OTipoFicaFixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Ficha_CamposTecnicos_NoMaximoDuasCasas_SemZerosNoFim`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostCreate_Refusal_KeepsTheTechnicalValues_AndOpensThem`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostDuplicate_NewLotRequired_OpensNewToolFicha_SourceIntact`
+
+Selo depois: `48228fa0baa61d4d`

@@ -796,7 +796,7 @@
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.@if (productionCtx.CmToolId is { } capCmToolId) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(capCmToolId, "Completar na ficha da CM", tecnica: true, continuar: voltarAqui)" />}</div>
+              <div class="peso-aviso-simples" role="status">Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP). O Peso pode continuar sem este apoio.@if (productionCtx.JobOnId > 0) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(productionCtx.JobOnId, "Completar no Job On", editar: true)" />}</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -1169,7 +1169,7 @@
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete D e h de referência na ferramenta CM. O Peso pode continuar sem este apoio.@if (Model.CmTool is { } capCmTool) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FichaFerramenta(capCmTool.ToolId, "Completar na ficha da CM", tecnica: true, continuar: voltarAqui)" />}</div>
+              <div class="peso-aviso-simples" role="status">Sem tampão registado para esta CM: o tampão escreve-se na Folha do Job On. O Peso pode continuar sem este apoio.</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -1856,7 +1856,7 @@
         {
           @* Texto para o «?»: para simular a calote, complete D, R do
              desenho e h de referência na ferramenta CM. *@
-          <p class="card-note">Tampão sem geometria na CM.</p>
+          <p class="card-note">Tampão sem diâmetro nem calote.</p>
         }
       </div>
       }

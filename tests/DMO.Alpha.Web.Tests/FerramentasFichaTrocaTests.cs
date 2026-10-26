@@ -86,14 +86,15 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("class=\"ferr-actions\"", html);
         Assert.DoesNotContain("ferr-tech-actions", html);
 
-        // Geral: título e, à direita, «Opções» e «Voltar à lista», antes dos factos.
+        // Geral: título e, à direita, «Opções» e o único «Voltar», antes dos factos.
         Assert.Matches("<section id=\"ferrGeral\"[^>]*>\\s*<div class=\"dmo-card-topo\">\\s*<h3 id=\"ferr-facts-title\">Geral — [^<]*</h3>\\s*<div class=\"dmo-card-topo-acoes\">", html);
         var geral = html.IndexOf("<section id=\"ferrGeral\"", StringComparison.Ordinal);
         var opcoes = html.IndexOf("aria-label=\"Opções da ferramenta", StringComparison.Ordinal);
-        var voltar = html.IndexOf(">Voltar à lista</a>", StringComparison.Ordinal);
+        var voltar = html.IndexOf("id=\"ferrVoltar\"", StringComparison.Ordinal);
         var factos = html.IndexOf("<div class=\"dmo-facts\">", StringComparison.Ordinal);
         Assert.True(geral < opcoes && opcoes < voltar && voltar < factos);
-        Assert.Single(Regex.Matches(html, ">Voltar à lista</a>"));
+        Assert.Single(Regex.Matches(html, ">Voltar</a>"));
+        Assert.DoesNotContain(">Voltar à lista</a>", html);
 
         // Editar: o título e o «Guardar» dentro do formulário, antes dos campos.
         Assert.Matches("handler=EditFacts\"[^>]*>\\s*<div class=\"dmo-card-topo\">\\s*<h3 id=\"ferr-edit-facts-title\">Editar</h3>\\s*<div class=\"dmo-card-topo-acoes\">\\s*<button type=\"submit\" class=\"dmo-button\" id=\"ferr-edit-guardar\">Guardar</button>", html);
@@ -147,7 +148,7 @@ public partial class FerramentasPagesTests
         var token = await GetVerificationTokenAsync(client, $"{FichaPath}?tool_id={toolId}");
 
         using var response = await client.PostAsync($"{FichaPath}?handler=EditTechnical", HtmlFormHelpers.BuildFormPost(
-            ("tool_id", toolId), ("process_token", "NNPB"), ("nominal_weight", "1.234,5"), ("volume_puncao", "12..5"),
+            ("tool_id", toolId), ("process_token", "NNPB"), ("nominal_weight", "1.234,5"), ("volume_marisa", "12..5"),
             ("diametro_gargalo", "70,10"), ("__RequestVerificationToken", token)));
         var location = response.Headers.Location!.OriginalString;
         Assert.Contains("guardado=tecnica", location);
@@ -156,7 +157,6 @@ public partial class FerramentasPagesTests
         // O que se escreveu fica no campo, marcado; o foco vai para o primeiro
         // (pela ordem da ficha). O legível gravou e aparece como gravado.
         Assert.Contains("id=\"ferr-tech-nominal\" name=\"nominal_weight\" type=\"text\" inputmode=\"decimal\" value=\"1.234,5\" aria-invalid=\"true\" autofocus=\"autofocus\"", html);
-        Assert.Contains("id=\"ferr-tech-puncao\" name=\"volume_puncao\" type=\"text\" inputmode=\"decimal\" value=\"12..5\" aria-invalid=\"true\" />", html);
         Assert.Contains("id=\"ferr-tech-gargalo\" name=\"diametro_gargalo\" type=\"text\" inputmode=\"decimal\" value=\"70.10\" />", html);
         Assert.Single(Regex.Matches(html, " autofocus"));
         Assert.Contains("Isso não foi gravado (fica o valor anterior)", html);
