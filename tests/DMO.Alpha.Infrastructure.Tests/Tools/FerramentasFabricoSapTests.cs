@@ -78,6 +78,27 @@ public sealed class FerramentasFabricoSapTests
             leitura.Linhas);
     }
 
+    // O relatório «produções» exportado em HTML (Diogo, 26/10/2026): MM,
+    // Linha, DATA I/DATA F com espaço inseparável, QBRUTA, QUTIL e N_DIAS.
+    [Fact]
+    public void ORelatorioProducoes_DaAsGarrafasBrutasDeCadaProducao()
+    {
+        const string html = "<table><tr><td>MM</td><td>FABRICO</td><td>Linha</td><td>DATA&nbsp;I</td><td>DATA&nbsp;F</td><td>N_DIAS</td><td>Peso</td><td>QBRUTA</td><td>QUTIL</td></tr>"
+            + "<tr><td>5227S368</td><td>202502</td><td>C2</td><td>24.11.2025</td><td>14.01.2026</td><td>52</td><td>130,072</td><td>45.999.205</td><td>41.298.660</td></tr></table>";
+
+        var leitura = FabricoSapExportacao.Ler(html);
+
+        Assert.True(leitura.CabecalhoEncontrado);
+        var linha = Assert.Single(leitura.Linhas);
+        Assert.Equal("5227S368", linha.Material);
+        Assert.Equal("C2", linha.Linha);
+        Assert.Equal(new DateOnly(2025, 11, 24), linha.InicioEm);
+        Assert.Equal(new DateOnly(2026, 1, 14), linha.FimEm);
+        Assert.Equal(45_999_205, linha.ProducaoBruta);
+        Assert.Equal(41_298_660, linha.ProducaoLiquida);
+        Assert.Equal(52, linha.DiasProducao);
+    }
+
     [Fact]
     public void UmFicheiroSemOCabecalhoDoFabrico_NaoEORelatorio()
     {
