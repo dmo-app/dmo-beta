@@ -2280,7 +2280,7 @@ Novos: 11 · mudaram: 0 · saíram: 0
 
 Selo depois: `77e42f1b702b86d7`
 
-## A-0096 · 2026-10-25 · contagem-lista
+## A-0098 · 2026-10-25 · contagem-lista
 
 Porquê: Verificação antes da apresentação (25/10/2026): dois testes novos. No Job On novo, o cartão vazio passa a mostrar a ferramenta escolhida e o aviso de falta acompanha a escolha. A lista de ferramentas da linha passa a juntar as que não têm linha nenhuma. No jobon-folha.test.cjs, o «resto do ficheiro» só muda pelo «;» do teste acrescentado no fim; nenhum teste existente foi alterado.
 Referência: relatório /mnt/project-files/analises/filtros-apresentacao-2026-10-26/relatorio.md
@@ -2292,7 +2292,7 @@ Novos: 2 · mudaram: 1 · saíram: 0
 
 Selo depois: `decac123d5c36a82`
 
-## A-0097 · 2026-10-26 · ok-do-diogo
+## A-0099 · 2026-10-26 · ok-do-diogo
 
 Porquê: O teste do Sumário «criado hoje, começa depois» punha o início a +5 dias, que no fim do mês cai dentro do mês que o «começam» mostra (falhava desde 26/10). Passa a +40 dias, sempre fora; o que o teste verifica fica igual.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW (autorização de testes do Diogo, anexada pelo coordenador a 26/10)
