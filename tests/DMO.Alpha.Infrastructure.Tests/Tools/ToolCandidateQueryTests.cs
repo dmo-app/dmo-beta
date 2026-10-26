@@ -173,6 +173,22 @@ public sealed class ToolCandidateQueryTests : IDisposable
     }
 
     [Fact]
+    public async Task ReferenceContains_AWholeReferenceAlsoFindsTheToolsRegisteredWithOnlyOnePart()
+    {
+        _db.Tools.AddRange(
+            new Tool { ToolId = "CM-1075", Type = ToolType.Cm, Reference = "1075", Lot = "1" },
+            new Tool { ToolId = "BQ-C142", Type = ToolType.Bq, Reference = "C142", Lot = "1" },
+            new Tool { ToolId = "BQ-C999", Type = ToolType.Bq, Reference = "C999", Lot = "1" },
+            new Tool { ToolId = "CM-2000", Type = ToolType.Cm, Reference = "2000", Lot = "1" });
+        await _db.SaveChangesAsync();
+
+        var found = (await _query.FindCandidatesAsync(new ToolCandidateFilter(ReferenceContains: "1075c142")))
+            .Select(c => c.ToolId).OrderBy(id => id).ToArray();
+
+        Assert.Equal(new[] { "BQ-C142", "CM-1075" }, found);
+    }
+
+    [Fact]
     public async Task ReferenceContains_MatchesTheStartOfTheReferenceOfItsBqPartOrOfTheAssociatedMf()
     {
         _db.Tools.AddRange(
