@@ -2503,3 +2503,22 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasFicha.cs :: PostgresMigrationIntegrationTests.BoquilhasFicha_CadaPedidoFazUmaSoConsultaDeLeitura`
 
 Selo depois: `8f7cf08cf9932c69`
+
+## A-0112 · 2026-10-26 · teste-novo
+
+Porquê: Reshape de Boquilhas (B3b): os registos de uma BQ, a associação a um Job On e o registo pendente passam para BoquilhasAssociacaoQuery; a página Boquilhas já não lê a base; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Novos: 10 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.ContextoDaBqNaProducao_SoDaProducaoEDaFerramentaDoRegisto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.OsPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.Producao_DevolveIdEReferenciaESemProducaoDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.ProducoesDoNumero_MaisRecentePrimeiro_ComAIndicacaoDeTerAMesmaBq`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistoSemJobOn_DevolveOTraceAvulsoComOsMovimentosESemEleDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistosDaBq_PaginaPedidaForaDoFimFicaNaUltima`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistosDaBq_VemOsDaFerramentaEOsAssociadosMaisRecentesPrimeiro_ComProducaoEMovimentos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasAssociacao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasAssociacao.cs :: PostgresMigrationIntegrationTests.BoquilhasAssociacao_CadaPedidoMantemOCustoEmConsultasDeLeitura`
+
+Selo depois: `57ab224e182ba5d2`
