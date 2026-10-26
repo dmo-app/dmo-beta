@@ -2503,3 +2503,14 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasFicha.cs :: PostgresMigrationIntegrationTests.BoquilhasFicha_CadaPedidoFazUmaSoConsultaDeLeitura`
 
 Selo depois: `8f7cf08cf9932c69`
+
+## A-0112 · 2026-10-26 · ok-do-diogo
+
+Porquê: O painel lateral do Planeamento passa a ter o título «Planeamento» como link para /JobOn e a mostrar a referência e a produção numa linha e o estado noutra, a pedido do Diogo (26/10/2026). Os testes seguem o texto novo; o que verificam (o painel, os links, a ordem) não muda.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyNF2jrGSXBjoNJpEQKJVTrc; cmsg_01A27e9ozcpoh4jdPRsuJbFyLZ7gLSKXpt1YiJZRMTdjh1; autorização de testes cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+
+Selo depois: `7bc8262d83fbffa5`

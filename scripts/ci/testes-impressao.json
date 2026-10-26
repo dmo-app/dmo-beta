@@ -1,5 +1,5 @@
 {
-  "selo": "8f7cf08cf9932c69",
+  "selo": "7bc8262d83fbffa5",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2303,7 +2303,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CalendarDay_NeverRemovesTheProductionFromItsDates": "61fcbc3e730ca58d",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Calendario_ELinhasDoDia_TemIdsEstaveis_ParaOFocoFicarNoSitio": "8bd2a97f59462fe2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Calendario_SoMarcaOsDiasEmQueUmaLinhaMuda": "b793b273999bd44a",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext": "cc6cf09c8b597004",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext": "b4f01e9a6e2bd835",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_WithOverlapOnSameMachine_SavesWithoutBanner": "32c56f1010122967",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateRefusal_IsTypedAndRedirectsWithPreservedValues": "e56f0fcc580fa34e",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Create_ComOControloCriar_FicaNoJobOn_NaoVaiAoResumo": "d637d0a8bc0f4820",
@@ -2466,7 +2466,7 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportanteDeOutroDia_FicaAteResolver_EDepoisSai": "401ff4039e6fc7a7",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UsoAtualizado_FicaAteHaverALeituraDoFim_SoQuemTemFerramentas": "f72c14787f483a61",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: (resto do ficheiro)": "e64b63a54b76b0e5",
-    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "0b991863fc3d553d",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "7227c6abc82733c4",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: (resto do ficheiro)": "e5f51c0eb89f2172",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart": "ee52c6b7ca1d9366",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua": "20117f0d70526eb0",
