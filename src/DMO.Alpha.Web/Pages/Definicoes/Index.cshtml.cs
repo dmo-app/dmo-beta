@@ -115,7 +115,24 @@ public sealed class IndexModel(
 
     public string? NumeroOperador { get; private set; }
 
-    public IReadOnlyList<string> Modulos { get; private set; } = [];
+    /// <summary>
+    /// Os módulos da conta, cada um com o que a pessoa pode fazer lá (Diogo,
+    /// 26/10/2026: «os módulos em seguida com vírgulas fica mal, preferível
+    /// uma tabela»). Pela ordem da barra principal; um por nome.
+    /// </summary>
+    public IReadOnlyList<(string Modulo, string Acesso)> ModulosAcesso { get; private set; } = [];
+
+    /// <summary>O nome curto de cada acesso, como na gestão de templates.</summary>
+    public static string NomeDoAcesso(string capability) => capability switch
+    {
+        DmoCapabilities.JobOnCreate or DmoCapabilities.Boquilhas or DmoCapabilities.ControloCreate => "Criar",
+        DmoCapabilities.JobOnView or DmoCapabilities.BoquilhasView or DmoCapabilities.ReparacaoInternaView => "Ver",
+        DmoCapabilities.ControloApprove => "Aprovar",
+        DmoCapabilities.Ferramentas => "Ver e editar",
+        DmoCapabilities.ArmazemGestao => "Gestão",
+        DmoCapabilities.ReparacaoInterna => "Registar",
+        _ => capability
+    };
 
     /// <summary>O aviso da mudança da palavra-passe (nada mudou).</summary>
     public string? PalavraPasseErro { get; private set; }
@@ -161,9 +178,13 @@ public sealed class IndexModel(
         Nome = atual.DisplayName ?? string.Empty;
         Email = User.FindFirst(DmoClaimTypes.Email)?.Value;
         NumeroOperador = EAdmin ? null : atual.OperatorId;
-        Modulos = EAdmin
-            ? ["Administração"]
-            : DmoCapabilities.MenuModules(await capabilities.GetAsync(HttpContext.RequestAborted)).Select(m => m.Label).ToArray();
+        var dadas = EAdmin ? [] : await capabilities.GetAsync(HttpContext.RequestAborted);
+        ModulosAcesso = EAdmin
+            ? [("Administração", "Gerir")]
+            : DmoCapabilities.Modules.Where(m => dadas.Contains(m.Key, StringComparer.Ordinal))
+                .GroupBy(m => m.Label)
+                .Select(g => (g.Key, string.Join(" · ", g.Select(m => NomeDoAcesso(m.Key)))))
+                .ToArray();
         PalavraPasseErro = TempData[PalavraPasseErroTempData] as string;
         PalavraPasseMudou = Q("palavra-passe") == "ok";
 

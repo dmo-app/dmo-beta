@@ -14,7 +14,8 @@ namespace DMO.Alpha.Infrastructure.Tests.ReparacaoInterna;
 /// <summary>
 /// A Reparação Interna, peça 2 (RI-04): corrigir só o número, com as regras
 /// do registo, e anular (a reparação sai da lista e das contagens e fica na
-/// base). Quem tem o módulo pode fazê-lo, não só quem registou; cada um
+/// base). Só quem registou e a chefia o fazem (DS-PERM-01, Diogo
+/// 26/10/2026); cada um
 /// deixa uma linha no rasto (antes, depois, quem, quando, motivo opcional).
 /// O mesmo envio duas vezes aplica-se uma; uma anulada já não se corrige nem
 /// se anula outra vez.
@@ -63,17 +64,17 @@ public sealed class ReparacoesInternasCorrigirTests
         return saida.ReparacaoId!.Value;
     }
 
-    private static PedidoDeCorrecao Correcao(int id, string? numero, string? motivo = null) => new(Guid.NewGuid(), id, numero, motivo);
+    private static PedidoDeCorrecao Correcao(int id, string? numero, string? motivo = null, bool chefia = false) => new(Guid.NewGuid(), id, numero, motivo, Chefia: chefia);
 
-    private static PedidoDeAnulacao Anulacao(int id, string? motivo = null) => new(Guid.NewGuid(), id, motivo);
+    private static PedidoDeAnulacao Anulacao(int id, string? motivo = null, bool chefia = false) => new(Guid.NewGuid(), id, motivo, chefia);
 
     [Fact]
-    public async Task Corrigir_OutraPessoaComOModulo_MudaSoONumero_EDeixaRasto()
+    public async Task Corrigir_AChefia_MudaSoONumeroDeOutraPessoa_EDeixaRasto()
     {
         using var db = CreateContext();
         var id = await RegistadaAsync(db, "0457");
 
-        var saida = await Servico(db, Ana, Manha.AddMinutes(5)).CorrigirAsync(Correcao(id, "  0475 ", "  trocou os algarismos "));
+        var saida = await Servico(db, Ana, Manha.AddMinutes(5)).CorrigirAsync(Correcao(id, "  0475 ", "  trocou os algarismos ", chefia: true));
 
         Assert.Equal((CorrecaoResultado.Corrigido, "0475"), (saida.Resultado, saida.Numero));
         Assert.True(saida.Gravou);
@@ -165,14 +166,14 @@ public sealed class ReparacoesInternasCorrigirTests
     }
 
     [Fact]
-    public async Task Anular_OutraPessoa_SaiDaListaEDasContagens_FicaNaBase_ComRasto()
+    public async Task Anular_AChefia_ADeOutraPessoaSaiDaListaEDasContagens_FicaNaBase_ComRasto()
     {
         using var db = CreateContext();
         var fica = await RegistadaAsync(db, "1");
         var sai = await RegistadaAsync(db, "2");
         await RegistadaAsync(db, "noutra", maquina: 2);
 
-        var saida = await Servico(db, Ana, Manha.AddMinutes(9)).AnularAsync(Anulacao(sai, "máquina errada"));
+        var saida = await Servico(db, Ana, Manha.AddMinutes(9)).AnularAsync(Anulacao(sai, "máquina errada", chefia: true));
 
         Assert.Equal((CorrecaoResultado.Anulado, "2"), Par(saida));
         var lista = await Servico(db).ListarAsync(1, 11, null);
@@ -182,6 +183,22 @@ public sealed class ReparacoesInternasCorrigirTests
         var rasto = await db.ReparacoesInternasRasto.AsNoTracking().SingleAsync();
         Assert.Equal((sai, ReparacaoAcao.Anulado, "2", (string?)null, (Guid?)Ana, Manha.UtcDateTime.AddMinutes(9), "máquina errada"),
             (rasto.ReparacaoId, rasto.Acao, rasto.NumeroAntes, rasto.NumeroDepois, rasto.PorUserId, rasto.EmUtc, rasto.Motivo));
+    }
+
+    [Fact]
+    public async Task OutraPessoaSemAChefia_NaoCorrigeNemAnula_ENadaMuda()
+    {
+        using var db = CreateContext();
+        var id = await RegistadaAsync(db, "7");
+
+        Assert.Equal((CorrecaoResultado.SoQuemRegistou, "7"), Par(await Servico(db, Ana).CorrigirAsync(Correcao(id, "8"))));
+        Assert.Equal((CorrecaoResultado.SoQuemRegistou, "7"), Par(await Servico(db, Ana).AnularAsync(Anulacao(id))));
+        Assert.False((await Servico(db, Ana).AnularAsync(Anulacao(id))).Gravou);
+        var r = await db.ReparacoesInternas.AsNoTracking().SingleAsync();
+        Assert.Equal(("7", (DateTime?)null), (r.Numero, r.AnuladaEmUtc));
+        Assert.Empty(await db.ReparacoesInternasRasto.ToListAsync());
+        // Quem registou continua a poder.
+        Assert.Equal(CorrecaoResultado.Corrigido, (await Servico(db, Rui).CorrigirAsync(Correcao(id, "8"))).Resultado);
     }
 
     [Fact]
@@ -208,7 +225,7 @@ public sealed class ReparacoesInternasCorrigirTests
     {
         using var db = CreateContext();
         var id = await RegistadaAsync(db, "5");
-        await Servico(db, Ana).AnularAsync(Anulacao(id));
+        await Servico(db, Ana).AnularAsync(Anulacao(id, chefia: true));
 
         Assert.Equal((CorrecaoResultado.JaAnulada, "5"), Par(await Servico(db).CorrigirAsync(Correcao(id, "6"))));
         Assert.Equal((CorrecaoResultado.JaAnulada, "5"), Par(await Servico(db).AnularAsync(Anulacao(id))));
@@ -254,9 +271,9 @@ public sealed class ReparacoesInternasCorrigirTests
         using var db = CreateContext();
         var id = await RegistadaAsync(db, "1");
 
-        await Servico(db, Ana, Manha.AddMinutes(1)).CorrigirAsync(Correcao(id, "2"));
+        await Servico(db, Ana, Manha.AddMinutes(1)).CorrigirAsync(Correcao(id, "2", chefia: true));
         await Servico(db, Rui, Manha.AddMinutes(2)).CorrigirAsync(Correcao(id, "3"));
-        await Servico(db, Ana, Manha.AddMinutes(3)).AnularAsync(Anulacao(id));
+        await Servico(db, Ana, Manha.AddMinutes(3)).AnularAsync(Anulacao(id, chefia: true));
 
         Assert.Equal(
             new[] { (ReparacaoAcao.Corrigido, "1", "2", (Guid?)Ana), (ReparacaoAcao.Corrigido, "2", "3", (Guid?)Rui), (ReparacaoAcao.Anulado, "3", (string?)null, (Guid?)Ana) },

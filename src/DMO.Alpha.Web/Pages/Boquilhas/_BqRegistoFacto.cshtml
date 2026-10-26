@@ -1,0 +1,10 @@
+@model (string Rotulo, string? Valor, string? Href, string Titulo, bool Falta)
+@* Um cartão do Registo das BQ: com destino, o cartão inteiro é o link. *@
+@if (Model.Href is { } href)
+{
+  <a class="dmo-fact dmo-fact-link@(Model.Falta ? " dmo-fact-falta" : null)" href="@href" title="@Model.Titulo"><span>@Model.Rotulo</span><strong>@Model.Valor</strong></a>
+}
+else
+{
+  <div class="dmo-fact@(Model.Falta ? " dmo-fact-falta" : null)"><span>@Model.Rotulo</span><strong>@Model.Valor</strong></div>
+}

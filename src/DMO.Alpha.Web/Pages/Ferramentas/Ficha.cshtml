@@ -337,8 +337,14 @@
           @if (Model.VoltarJobOn is { } voltarJobOn)
           {
             <a class="dmo-button" href="@voltarJobOn" data-ferr-voltar-jobon>Voltar ao Job On</a>
+            <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
           }
-          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+          else
+          {
+            @* O Voltar volta à página de onde se veio, com os filtros (Diogo, 26/10/2026);
+               sem origem conhecida, a lista. O Histórico da ficha não conta como origem. *@
+            <a class="dmo-button" id="ferrVoltar" href="@Url.Page("/Ferramentas/Index")" data-dmo-voltar="@tool.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico" data-dmo-voltar-texto="Voltar">Voltar à lista</a>
+          }
         </div>
       </div>
       <div class="dmo-facts">
