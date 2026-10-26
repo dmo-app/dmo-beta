@@ -24,8 +24,10 @@ public partial class JobOnPageTests
         Assert.Contains("data-jof-folha=\"ficha\"", html, StringComparison.Ordinal);
         Assert.Contains("data-jof-folha=\"equipa\"", html, StringComparison.Ordinal);
         Assert.Contains("<div class=\"jfi-ref\">5810T188</div>", html, StringComparison.Ordinal);
-        Assert.Contains("<span>BOQUILHA (BQ)</span><span>Lote 21</span>", html, StringComparison.Ordinal);
-        Assert.Contains("<tr><td>CM · Contra-molde</td><td>5809</td><td>1</td><td></td></tr>", html, StringComparison.Ordinal);
+        // Referência e lote dentro da Ferramenta (Diogo, 26/10/2026 22:02), e no cartão da Equipa.
+        Assert.Contains("<strong>T188</strong> <span>Lote <i>21</i></span>", html, StringComparison.Ordinal);
+        Assert.Contains("<div class=\"jfc-nome\">CM · Contra-molde</div>", html, StringComparison.Ordinal);
+        Assert.Contains("<b>5809</b> <span class=\"jfc-lote jfc-lote-d\">Lote <b>1</b></span>", html, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,13 +45,35 @@ public partial class JobOnPageTests
         Assert.DoesNotContain("COMENTÁRIOS", html, StringComparison.Ordinal);
         // O AN é um componente à parte, com lote próprio, no ecrã e na impressão.
         Assert.Contains("data-jof-familia=\"AN\"", html, StringComparison.Ordinal);
-        Assert.Contains("<span>ANEL (AN)</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<b>Anel</b>", html, StringComparison.Ordinal);
         // Cada componente na sua linha do Trabalho de Equipa.
-        foreach (var linha in new[] { "CM · Contra-molde", "TP · Tampão", "PU · Punção", "ARR · Arrefecedor", "MF · Molde final", "BQ · Boquilha", "AN · Anel", "CS · Cab. de sopro", "PI · Pinça" })
-            Assert.Contains("<td>" + linha + "</td>", html, StringComparison.Ordinal);
+        foreach (var linha in new[] { "CM · Contra-molde", "TP · Tampão", "PU · Punção", "ARR · Arrefecedor", "MF · Molde final", "BQ · Boquilha", "AN · Anel", "CS · Cab. enchimento", "PI · Pinça" })
+            Assert.Contains("<div class=\"jfc-nome\">" + linha + "</div>", html, StringComparison.Ordinal);
         // Calote e bacia do TP são a mesma coisa: só «Calote» na impressão; calibres só com «Qtd.».
         Assert.DoesNotContain("· Bacia ", html, StringComparison.Ordinal);
         Assert.DoesNotContain("<th>QTD máq.</th><th>Qtd.</th>", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Folha_Imprimir_SaemAsQuatroFolhasComoAsDaFabrica()
+    {
+        SeedUser("4584", "Chefe quatro folhas", "provider-folha-imprimir-4", "Folha1234!");
+        var jobOnId = await SeedJobOnCompletoAsync();
+        using var client = await LoginClientAsync("4584", "Folha1234!");
+
+        var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={jobOnId}");
+        // Job-ON Moldes (2 vezes), Trabalho de Equipa e Ficha de Artigo, por esta ordem (Diogo, 26/10/2026 21:10).
+        var ordem = System.Text.RegularExpressions.Regex.Matches(html, "data-jof-folha=\"(moldes|equipa|ficha)\"")
+            .Select(m => m.Groups[1].Value).ToArray();
+        Assert.Equal(new[] { "moldes", "moldes", "equipa", "ficha" }, ordem);
+        Assert.DoesNotContain("Preparador", html, StringComparison.Ordinal);
+        // Sem Horas nem Dia da semana, sem Quantidade e sem Forro nas folhas (Diogo, 26/10/2026).
+        Assert.DoesNotContain("<span>Horas</span>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("<span>Dia da semana</span>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Forro", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("<div class=\"jfb-lado\"><span>Quantidade</span>", html, StringComparison.Ordinal);
+        // Os dados dos componentes usam a tabela do sistema (dmo-table).
+        Assert.Contains("<table class=\"dmo-table jfb-dados\">", html, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -3134,3 +3134,15 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/visual/jobon_folha_browser.py`
 
 Selo depois: `e98bc8f3a267f285`
+
+## A-0172 · 2026-10-26 · ok-do-diogo
+
+Porquê: Impressão das folhas como as da fábrica (DMO-435): dois testes antigos da impressão passam às regras novas e entra o teste das 4 folhas como as da fábrica (sim do Diogo à pergunta cmsg_01A27e9ozcpoh4jdPRsuJbFy2HNdo7uGLa6e8xKZGB1qax).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyKnqyqqivyphUNaRPhHdDCD
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SaemAsQuatroFolhasComoAsDaFabrica`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `bd963d170146d957`
