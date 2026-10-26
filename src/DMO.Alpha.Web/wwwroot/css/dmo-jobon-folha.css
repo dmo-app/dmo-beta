@@ -949,3 +949,4 @@ html body .jfi-folha .jfm-cal th:first-child{text-align:left;font-size:6.5pt}
 .jfi-corpo-sep{border-top:1px solid #d5dae0}
 .jfi-nota{font-weight:700;font-size:7pt}
 .jfm-baixo{margin-top:1.4mm;padding-top:1mm;border-top:1px solid #9aa3ad}
+.jfm-grelha4{grid-template-columns:repeat(4,1fr)}

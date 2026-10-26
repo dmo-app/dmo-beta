@@ -93,6 +93,10 @@
             Cartao("BQ", "Boquilhas", [("Referência", bq?.Reference ?? ""), ("Lote", bq is null ? "" : FolhaModel.Lote(bq.Lot))],
                 [("Utilização", U("bq_utilizacao")), ("Quantidade", F("bq_qtd_maq"))], Notas("bq_notas"),
                 ("AN", "Anel", [("Referência", F("an_referencia"))], Notas("an_notas")));
+        }
+      </div>
+      <div class="jfm-grelha jfm-grelha4">
+        @{
             Cartao("PU", "Punções", [("Referência", F("pu_referencia"))],
                 [("Versão", F("pu_versao")), ("Quantidade", F("pu_qtd_maq"))], Notas("pu_notas"),
                 ("ARR", "Arrefecedores", [("Referência", F("arr_referencia"))], Notas("arr_notas")));
@@ -101,7 +105,6 @@
             Cartao("CS", "Cabeça de sopro", [("Referência", F("cs_referencia"))],
                 [("Furos", F("cs_furos")), ("Tubo", F("cs_tubo")), ("Quantidade", F("cs_qtd_maq"))], Notas("cs_notas"));
             Cartao("PI", "Pinças", [], [("Diâmetro", F("pi_diametro")), ("Tipo", F("pi_pincas"))], Notas("pi_notas"));
-            Cartao("FO", "Forro", [], [("Tipo", ""), ("Quantidade", "")], []);
         }
       </div>
       <div class="jfi-bloco jfi-notas"><div class="jfi-barra"><span>JOB-ON NOTAS</span></div><ul>@foreach (var n in Notas("notas_gerais")) {<li>@n</li>}</ul></div>
