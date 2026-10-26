@@ -15,10 +15,36 @@ namespace DMO.Alpha.Infrastructure.Tests.Data;
 public sealed partial class PostgresMigrationIntegrationTests
 {
     [SkippableFact]
-    public async Task Armazem_AMesmaFerramentaEntraAoMesmoTempo_FicaNumaPosicaoSo()
+    public async Task Armazem_AMesmaFerramentaEntraAoMesmoTempoNaMesmaPosicao_FicaUmaSo()
     {
         SkipWithoutConnection();
         var (toolId, codigos) = await FerramentaEPosicoesAsync(4);
+        try
+        {
+            var resultados = await Task.WhenAll(codigos.Select(async _ =>
+            {
+                await using var db = CreateContext();
+                return (await Movimentos(db).EntradaAsync(new PedidoDeEntrada(
+                    Guid.NewGuid(), toolId, codigos[0], ArmazemOrigem.JaEstava, FerramentaEstadoTipo.Reparado, null, null))).Resultado;
+            }));
+
+            Assert.Single(resultados, r => r == ArmazemMovimentoResultado.Gravado);
+            Assert.All(resultados.Where(r => r != ArmazemMovimentoResultado.Gravado), r => Assert.Equal(ArmazemMovimentoResultado.JaNoArmazem, r));
+            await using var leitura = CreateContext();
+            Assert.Equal(1, await leitura.ArmazemMovimentos.CountAsync(m => m.ToolId == toolId));
+            Assert.Equal(1, await leitura.ArmazemOcupacoes.CountAsync(o => o.ToolId == toolId));
+        }
+        finally
+        {
+            await LimparAsync(toolId, codigos);
+        }
+    }
+
+    [SkippableFact]
+    public async Task Armazem_AMesmaFerramentaEntraEmDuasPosicoes_FicaNasDuasESaiDaEscolhida()
+    {
+        SkipWithoutConnection();
+        var (toolId, codigos) = await FerramentaEPosicoesAsync(2);
         try
         {
             var resultados = await Task.WhenAll(codigos.Select(async codigo =>
@@ -28,11 +54,16 @@ public sealed partial class PostgresMigrationIntegrationTests
                     Guid.NewGuid(), toolId, codigo, ArmazemOrigem.JaEstava, FerramentaEstadoTipo.Reparado, null, null))).Resultado;
             }));
 
-            Assert.Single(resultados, r => r == ArmazemMovimentoResultado.Gravado);
-            Assert.All(resultados.Where(r => r != ArmazemMovimentoResultado.Gravado), r => Assert.Equal(ArmazemMovimentoResultado.JaNoArmazem, r));
+            Assert.All(resultados, r => Assert.Equal(ArmazemMovimentoResultado.Gravado, r));
+            await using (var db = CreateContext())
+            {
+                var saida = await Movimentos(db).SaidaAsync(new PedidoDeSaida(
+                    Guid.NewGuid(), toolId, ArmazemDestino.Producao, null, null, null, null, null, Posicao: codigos[1]));
+                Assert.Equal(ArmazemMovimentoResultado.Gravado, saida.Resultado);
+            }
+
             await using var leitura = CreateContext();
-            Assert.Equal(1, await leitura.ArmazemMovimentos.CountAsync(m => m.ToolId == toolId));
-            Assert.Equal(1, await leitura.ArmazemOcupacoes.CountAsync(o => o.ToolId == toolId));
+            Assert.Equal(1, await leitura.ArmazemOcupacoes.CountAsync(o => o.ToolId == toolId && o.LibertadaEmUtc == null));
         }
         finally
         {

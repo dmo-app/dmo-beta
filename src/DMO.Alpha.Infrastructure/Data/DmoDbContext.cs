@@ -652,9 +652,10 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
         // Os movimentos do Armazém só se acrescentam. O reparador é de CM/MF
         // ou de BQ, nunca os dois; a data real e o momento do registo ficam
-        // os dois. A ocupação ativa é única por ferramenta (o índice parcial)
-        // e tem versão, como a localização: dois movimentos da mesma
-        // ferramenta ao mesmo tempo não passam os dois.
+        // os dois. A ferramenta pode estar em mais de uma posição (Diogo,
+        // 26/10/2026); a ocupação ativa é única por ferramenta e posição (o
+        // índice parcial) e tem versão, como a localização: dois movimentos
+        // da mesma ferramenta e posição ao mesmo tempo não passam os dois.
         modelBuilder.Entity<ArmazemMovimento>(entity =>
         {
             entity.ToTable("ArmazemMovimentos", t =>
@@ -739,7 +740,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(o => o.MovimentoId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<ArmazemMovimento>().WithMany().HasForeignKey(o => o.LibertadaPorMovimentoId).OnDelete(DeleteBehavior.Restrict);
             entity.Property(o => o.ToolId).HasMaxLength(100).IsRequired();
-            entity.HasIndex(o => o.ToolId).IsUnique().HasFilter("\"LibertadaEmUtc\" IS NULL").HasDatabaseName("IX_ArmazemOcupacoes_ToolId_Ativa");
+            entity.HasIndex(o => new { o.ToolId, o.PosicaoId }).IsUnique().HasFilter("\"LibertadaEmUtc\" IS NULL").HasDatabaseName("IX_ArmazemOcupacoes_ToolId_PosicaoId_Ativa");
             entity.HasIndex(o => o.PosicaoId).HasFilter("\"LibertadaEmUtc\" IS NULL");
             entity.Property<uint>(RowVersion).IsRowVersion();
         });

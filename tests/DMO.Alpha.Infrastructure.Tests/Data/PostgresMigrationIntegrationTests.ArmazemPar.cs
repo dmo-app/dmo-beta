@@ -35,7 +35,7 @@ public sealed partial class PostgresMigrationIntegrationTests
     }
 
     [SkippableFact]
-    public async Task Armazem_OParEOMfSozinhoAoMesmoTempo_OMfFicaNumaPosicaoSo()
+    public async Task Armazem_OParEOMfSozinhoAoMesmoTempoNaMesmaPosicao_OMfFicaNumaPosicaoSo()
     {
         SkipWithoutConnection();
         var (cm, mf, codigos) = await ParEPosicoesAsync(2);
@@ -51,7 +51,7 @@ public sealed partial class PostgresMigrationIntegrationTests
             {
                 await using var db = CreateContext();
                 return await Movimentos(db).EntradaAsync(new PedidoDeEntrada(
-                    Guid.NewGuid(), mf, codigos[1], ArmazemOrigem.Nova, FerramentaEstadoTipo.Novo, null, null));
+                    Guid.NewGuid(), mf, codigos[0], ArmazemOrigem.Nova, FerramentaEstadoTipo.Novo, null, null));
             });
             await Task.WhenAll(comPar, sozinho);
 

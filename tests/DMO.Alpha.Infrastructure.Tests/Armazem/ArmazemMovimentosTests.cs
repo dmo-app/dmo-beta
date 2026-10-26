@@ -127,15 +127,62 @@ public sealed class ArmazemMovimentosTests
     }
 
     [Fact]
-    public async Task Entrada_JaEstaNoArmazem_RecusaEDizAPosicao()
+    public async Task Entrada_JaEstaNessaPosicao_RecusaEDizAPosicao()
+    {
+        using var db = CreateContext();
+        await Servico(db).EntradaAsync(Entrada());
+
+        var saida = await Servico(db).EntradaAsync(Entrada());
+
+        Assert.Equal((ArmazemMovimentoResultado.JaNoArmazem, "0042"), (saida.Resultado, saida.Posicao));
+        Assert.Equal(1, await db.ArmazemMovimentos.CountAsync());
+    }
+
+    [Fact]
+    public async Task Entrada_JaEstaNoutraPosicao_GravaAvisaEFicaNasDuas()
     {
         using var db = CreateContext();
         await Servico(db).EntradaAsync(Entrada());
 
         var saida = await Servico(db).EntradaAsync(Entrada(posicao: "0043"));
 
-        Assert.Equal((ArmazemMovimentoResultado.JaNoArmazem, "0042"), (saida.Resultado, saida.Posicao));
-        Assert.Equal(1, await db.ArmazemMovimentos.CountAsync());
+        Assert.Equal((ArmazemMovimentoResultado.Gravado, "0043"), (saida.Resultado, saida.Posicao));
+        Assert.Contains(saida.Avisos, a => a.Contains("já estava no armazém, na posição 0042", StringComparison.Ordinal));
+        Assert.Equal(2, await db.ArmazemOcupacoes.CountAsync(o => o.LibertadaEmUtc == null));
+        var situacao = await Servico(db).SituacaoAsync(Cm);
+        Assert.Equal(["0042", "0043"], situacao!.Posicoes);
+        Assert.Equal("0042, 0043", situacao.Posicao);
+    }
+
+    [Fact]
+    public async Task Saida_EmDuasPosicoes_PedeAPosicaoELibertaSoAEscolhida()
+    {
+        using var db = CreateContext();
+        await Servico(db).EntradaAsync(Entrada());
+        await Servico(db).EntradaAsync(Entrada(posicao: "0043"));
+
+        var semEscolha = await Servico(db).SaidaAsync(Saida(ArmazemDestino.Producao));
+        var escolhida = await Servico(db).SaidaAsync(Saida(ArmazemDestino.Producao) with { Posicao = "0043" });
+
+        Assert.Equal((ArmazemMovimentoResultado.PosicaoPorEscolher, "0042, 0043"), (semEscolha.Resultado, semEscolha.Posicao));
+        Assert.Equal((ArmazemMovimentoResultado.Gravado, "0043"), (escolhida.Resultado, escolhida.Posicao));
+        var ativa = await db.ArmazemOcupacoes.AsNoTracking().SingleAsync(o => o.LibertadaEmUtc == null);
+        Assert.Equal(1, ativa.PosicaoId);
+    }
+
+    [Fact]
+    public async Task Corrigir_EmDuasPosicoes_PedeAPosicaoErradaECorrigeSoEssa()
+    {
+        using var db = CreateContext();
+        await Servico(db).EntradaAsync(Entrada());
+        await Servico(db).EntradaAsync(Entrada(posicao: "0043"));
+
+        var semEscolha = await Servico(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), Cm, null, null));
+        var corrigida = await Servico(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), Cm, null, null, PosicaoAnterior: "0042"));
+
+        Assert.Equal(ArmazemMovimentoResultado.PosicaoPorEscolher, semEscolha.Resultado);
+        Assert.Equal(ArmazemMovimentoResultado.Gravado, corrigida.Resultado);
+        Assert.Equal(2, (await db.ArmazemOcupacoes.AsNoTracking().SingleAsync(o => o.LibertadaEmUtc == null)).PosicaoId);
     }
 
     [Theory]

@@ -34,7 +34,8 @@ public sealed record PedidoDeSaida(
     FerramentaEstadoTipo? Estado,
     DateTime? OcorridoEmUtc,
     string? Observacoes,
-    int? LinhaId = null);
+    int? LinhaId = null,
+    string? Posicao = null);
 
 /// <summary>Corrigir localização: a posição certa, ou null para «Não está no armazém».</summary>
 public sealed record PedidoDeCorrecao(
@@ -42,7 +43,8 @@ public sealed record PedidoDeCorrecao(
     string ToolId,
     string? Posicao,
     string? Observacoes,
-    bool CriarPosicao = false);
+    bool CriarPosicao = false,
+    string? PosicaoAnterior = null);
 
 /// <summary>Como acabou um movimento. Só se recusa o impossível ou o que falta; o resto grava e avisa.</summary>
 public enum ArmazemMovimentoResultado
@@ -62,7 +64,8 @@ public enum ArmazemMovimentoResultado
     ObservacoesLongas,
     FabricaLonga,
     NadaAMudar,
-    MudouEntretanto
+    MudouEntretanto,
+    PosicaoPorEscolher
 }
 
 /// <summary>O resultado de um movimento, com os avisos do que gravou mesmo assim.</summary>
@@ -138,6 +141,9 @@ public sealed record ArmazemSituacao(
 {
     public bool NoArmazem => Posicao is not null;
 
+    /// <summary>Todas as posições onde a ferramenta está agora (pode estar em mais de uma); <see cref="Posicao"/> junta-as.</summary>
+    public IReadOnlyList<string> Posicoes { get; init; } = [];
+
     /// <summary>O par desta ferramenta (o MF da CM, ou a CM do MF, da mesma referência e lote), se existir.</summary>
     public ArmazemPar? Par { get; init; }
 
@@ -168,6 +174,9 @@ public sealed record ArmazemLinhaOpcao(int Id, string Codigo);
 public sealed record ArmazemPar(string ToolId, ToolType Tipo, string? Posicao)
 {
     public bool NoArmazem => Posicao is not null;
+
+    /// <summary>Todas as posições onde a ferramenta está agora (pode estar em mais de uma); <see cref="Posicao"/> junta-as.</summary>
+    public IReadOnlyList<string> Posicoes { get; init; } = [];
 }
 
 /// <summary>Uma posição com as ferramentas que lá estão (a lista das Posições).</summary>

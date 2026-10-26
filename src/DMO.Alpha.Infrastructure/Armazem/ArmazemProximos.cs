@@ -37,12 +37,15 @@ public sealed class ArmazemProximos(DmoDbContext db) : IArmazemProximos
         var tools = await db.Tools.AsNoTracking()
             .Where(t => toolIds.Contains(t.ToolId))
             .ToDictionaryAsync(t => t.ToolId, cancellationToken);
-        var posicoes = await (
+        var posicoes = (await (
                 from o in db.ArmazemOcupacoes.AsNoTracking()
                 join p in db.ArmazemPosicoes.AsNoTracking() on o.PosicaoId equals p.Id
                 where o.LibertadaEmUtc == null && toolIds.Contains(o.ToolId)
+                orderby o.DesdeUtc, o.Id
                 select new { o.ToolId, p.Codigo })
-            .ToDictionaryAsync(o => o.ToolId, o => o.Codigo, cancellationToken);
+            .ToListAsync(cancellationToken))
+            .GroupBy(o => o.ToolId)
+            .ToDictionary(g => g.Key, g => string.Join(", ", g.Select(o => o.Codigo)));
         var localizacoes = await db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => toolIds.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);

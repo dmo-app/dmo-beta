@@ -227,6 +227,10 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         }
       </div>
 
+      @if (s.Posicoes.Count > 1)
+      {
+        <p class="dmo-aviso warn" id="armVariasPosicoes">Esta ferramenta está em mais de uma posição (@string.Join(", ", s.Posicoes)). Se uma for engano, use «Corrigir localização» para a apagar.</p>
+      }
       @* UMA LINHA (Diogo, 22/10/2026): Entrada | Saída · Posição (só na
          Entrada) · as opções da escolhida · «Registar»; «Corrigir» no canto. O botão
          escolhido fica com o aspeto invertido (o do hover). A origem, a data
@@ -318,6 +322,21 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
                 }
               </select>
             </div>
+            @if (s.Posicoes.Count > 1)
+            {
+              @* Em mais de uma posição, quem dá a Saída escolhe de qual sai (Diogo, 26/10/2026). *@
+              var posicaoSaida = Model.PosicaoSaida ?? Model.PosicaoPedidaValida;
+              <div class="dmo-field">
+                <label for="armSaiPosicao">Posição</label>
+                <select id="armSaiPosicao" name="posicao" required>
+                  <option value="" selected="@string.IsNullOrEmpty(posicaoSaida)">Escolha…</option>
+                  @foreach (var codigoPosicao in s.Posicoes)
+                  {
+                    <option value="@codigoPosicao" selected="@(posicaoSaida == codigoPosicao)">@codigoPosicao</option>
+                  }
+                </select>
+              </div>
+            }
             @if (Model.Destino == ArmazemDestino.Producao)
             {
               <div class="dmo-field">
@@ -477,6 +496,19 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             <label for="armCorPosicao">Posição certa<partial name="_DmoHelp" model="@("Deixe vazio se a ferramenta não está no armazém.")" /></label>
             <input id="armCorPosicao" name="posicao" class="arm-curto" maxlength="4" inputmode="numeric" autocomplete="off" value="@(recusaCorrigir ? Model.Posicao : null)" placeholder="Não está" />
           </div>
+          @if (s.Posicoes.Count > 1)
+          {
+            <div class="dmo-field">
+              <label for="armCorAnterior">Posição errada<partial name="_DmoHelp" model="@("A ferramenta está em mais de uma posição: escolha a que se corrige.")" /></label>
+              <select id="armCorAnterior" name="posicao_anterior" required>
+                <option value="">Escolha…</option>
+                @foreach (var codigoPosicao in s.Posicoes)
+                {
+                  <option value="@codigoPosicao">@codigoPosicao</option>
+                }
+              </select>
+            </div>
+          }
           <div class="dmo-field">
             <label for="armCorObs">Observações</label>
             <input id="armCorObs" name="observacoes" class="arm-obs" maxlength="@ArmazemMovimento.ObservacoesMaxLength" autocomplete="off" value="@(recusaCorrigir ? Model.Observacoes : null)" />
