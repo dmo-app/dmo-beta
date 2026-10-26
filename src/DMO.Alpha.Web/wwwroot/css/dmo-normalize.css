@@ -432,3 +432,8 @@ html body .dmo-facts a.dmo-fact.dmo-fact-link.dmo-fact-falta:is(:hover,:focus-vi
 
 /* .dmo-uso-cheio: a ferramenta com 100% ou mais de uso (UsoCheio.ClasseDe) — só a cor do tool_id, da referência e do lote muda; nunca aviso nem bloqueio (Diogo, 23/10/2026). */
 html body .dmo-uso-cheio{color:color-mix(in srgb,var(--dmo-warning) 70%,var(--dmo-text))}
+
+/* ALTERNADORES (escolhas, não ações; Diogo, 26/10/2026): discretos (fundo do cartão e contorno); o rato por cima e o selecionado
+   enchem de azul com a letra branca. Um só estilo para a app: Saída/Entrada, linhas das ferramentas, Produção/Experiência, CM/MF. */
+html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input+span{background:var(--dmo-card);border:1px solid var(--dmo-border,#b9d0e6);color:var(--dmo-text)}
+html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:#fff}

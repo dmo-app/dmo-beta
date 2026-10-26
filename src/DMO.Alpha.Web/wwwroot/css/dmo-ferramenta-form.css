@@ -21,8 +21,6 @@
 .ferr-check{position:relative;display:inline-flex}
 .ferr-check input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
 .ferr-check span{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:34px;padding:0 12px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px;background:var(--dmo-card);color:var(--dmo-text,#172d42);font-size:13px;font-weight:700;cursor:pointer;user-select:none}
-/* Hover e selecionado: cores invertidas (Diogo, 26/10/2026), como os tipos de movimento das Boquilhas. */
-.ferr-check:hover input + span,.ferr-check input:checked + span{background:var(--dmo-invertido);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600)}
 .ferr-check input:focus-visible + span{outline:2px solid var(--dmo-palette-ocean);outline-offset:1px}
 /* As secções da informação técnica: o título com a dica por cima dos campos
    e um traço entre secções (Diogo, 18/10 e 20/10/2026). */
