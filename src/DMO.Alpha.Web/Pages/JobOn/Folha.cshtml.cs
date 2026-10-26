@@ -23,7 +23,7 @@ namespace DMO.Alpha.Web.Pages.JobOn;
 /// mesmo POST do Planeamento (Update) e volta aqui.
 /// CRIAR E DUPLICAR NA FOLHA NOVA (Diogo, 23/10/2026: «esta versão do Job On
 /// já não deveria existir»): ?novo=1 abre a folha vazia em Editar e
-/// ?duplicar=N abre-a com os dados da produção N, sem datas nem nº (o início
+/// ?duplicar=N abre-a com os dados da produção N, sem datas e com o nº seguinte ao último da referência sugerido (o início
 /// é o dia escolhido no calendário, quando há). Guardar usa o mesmo POST
 /// canónico do Planeamento (Create, com as mesmas recusas tipadas) e volta
 /// aqui; uma recusa volta a esta folha com tudo o que se escreveu (OnPostRecusa
@@ -156,6 +156,21 @@ public sealed class FolhaModel(
     /// <summary>O nº de produção escrito no Criar (vazio no Duplicar; o escrito depois de uma recusa).</summary>
     public string? NumeroEscrito { get; private set; }
 
+    /// <summary>
+    /// A produção sugerida no Duplicar (Diogo, 26/10/2026: «se for 202601 ao
+    /// duplicar meter 202602»): a seguinte à maior desta referência, com os
+    /// mesmos algarismos; sem nenhuma só com algarismos, nada (escreve-se).
+    /// </summary>
+    public static string? ProximaProducao(IEnumerable<string?> producoes)
+    {
+        var maior = producoes
+            .Select(p => p?.Trim())
+            .Where(p => p is { Length: > 0 and <= 18 } && p.All(char.IsAsciiDigit))
+            .OrderByDescending(p => long.Parse(p!, System.Globalization.CultureInfo.InvariantCulture))
+            .FirstOrDefault();
+        return maior is null ? null : (long.Parse(maior, System.Globalization.CultureInfo.InvariantCulture) + 1).ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(maior.Length, '0');
+    }
+
     /// <summary>A referência escrita na procura do cabeçalho.</summary>
     public string? ReferenciaProcurada { get; private set; }
 
@@ -282,7 +297,8 @@ public sealed class FolhaModel(
                 await AbrirCriarAsync(
                     origem with { JobOnId = 0, ProductionNumber = string.Empty, InicioEm = inicio, FimEm = null, Version = 0, Machine = linhaEscolhida ?? origem.Machine },
                     FolhaDoJobOnVista.DoDuplicar(await folha.ForJobOnAsync(origem.JobOnId, ct)),
-                    numero: numeroNovo, origem.JobOnId, origem.ProductionNumber, recusa: null);
+                    numero: numeroNovo ?? ProximaProducao((await productionPicker.ListOfReferenceAsync(origem.Reference, ct)).Select(p => p.ProductionNumber).Append(origem.ProductionNumber)),
+                    origem.JobOnId, origem.ProductionNumber, recusa: null);
                 return Page();
             }
             var maquina = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code ?? string.Empty;

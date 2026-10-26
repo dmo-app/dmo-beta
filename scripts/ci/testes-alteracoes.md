@@ -2833,7 +2833,21 @@ Selo depois: `73089c51f2cc3956`
 
 ## A-0138 · 2026-10-26 · ok-do-diogo
 
-Porquê: Tampão da Folha = tampão da CM e Lote FF (testes novos); Tampão e Punção saem da ficha da CM; um só Voltar (cmsg_01A27e9ozcpoh4jdPRsuJbFyRfdwnWiuT6MCVrPw2pdSRm); Volume na BQ (cmsg_01A27e9ozcpoh4jdPRsuJbFyWtKmjoyB3wGtxzcCSxX69C); apoio TP do Peso com h nominal, h Job On e só volumes e Δ (cmsg_01A27e9ozcpoh4jdPRsuJbFyGfg3KWEXc5o6gr5g6qLJzG, cmsg_01A27e9ozcpoh4jdPRsuJbFyJeXejBKtyrUeFgGaVPybCd); mensagem sem tampão aponta à Folha do Job On
+Porquê: Folha do Job On, pedidos do Diogo a 26/10/2026: os furos do CS no ver sem a «/» (um por baixo do outro); o Duplicar sugere a produção seguinte à última da referência (o teste do Duplicar passa a esperar 202603 em vez do campo vazio, e muda de nome); testes novos: a produção sugerida e as produções da referência da mais recente para a mais antiga.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyELUj7Rp8tMrtt8xnuiRtQz, cmsg_01A27e9ozcpoh4jdPRsuJbFyVApVgtiy5mqC98Db9xbXo8
+Novos: 3 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/ProductionPickerQueryTests.cs :: ProductionPickerQueryTests.Procura_AMaisRecentePrimeiro_PeloInicioEDepoisPeloNumero`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.Duplicar_AProducaoSugerida_EASeguinteAMaior`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatas_ComAProducaoSeguinte_ComODiaDoCalendario_EGravaUmaProducaoNova`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatasNemNumero_ComODiaDoCalendario_EGravaUmaProducaoNova`
+
+Selo depois: `7ca7ff243aac45b1`
+
+## A-0140 · 2026-10-26 · ok-do-diogo
+
+Porquê: Testes novos: Tampão da Folha = tampão da CM, Lote FF, sem Tampão na CM, Volume na BQ. Mudanças: Tampão e Punção saem da ficha da CM (cmsg_01A27e9ozcpoh4jdPRsuJbFyR4JxijzJuzAZzq37Qzi296); um só Voltar (cmsg_01A27e9ozcpoh4jdPRsuJbFyRfdwnWiuT6MCVrPw2pdSRm); Volume na BQ (cmsg_01A27e9ozcpoh4jdPRsuJbFyWtKmjoyB3wGtxzcCSxX69C); apoio TP do Peso com h nominal e h Job On (cmsg_01A27e9ozcpoh4jdPRsuJbFyJeXejBKtyrUeFgGaVPybCd) e só volume nominal, do Job On e Δ (cmsg_01A27e9ozcpoh4jdPRsuJbFyGfg3KWEXc5o6gr5g6qLJzG), a 2 casas pela regra dos números do Diogo; mensagem sem tampão aponta à Folha do Job On
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyR4JxijzJuzAZzq37Qzi296
 Novos: 8 · mudaram: 25 · saíram: 0
 
@@ -2871,4 +2885,4 @@ Novos: 8 · mudaram: 25 · saíram: 0
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: escrever outra vez durante a espera invalida logo o pedido que já saiu`
 - mudou: `tests/ShellProof/peso-calote.test.cjs :: sem resposta, com erro do servidor ou sem apoio, os valores da calote anterior saem («—»)`
 
-Selo depois: `cb6e62cabe2a9f13`
+Selo depois: `df200d8b62e76eb5`
