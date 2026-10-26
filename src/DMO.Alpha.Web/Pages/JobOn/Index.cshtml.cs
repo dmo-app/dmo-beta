@@ -201,7 +201,7 @@ public sealed class IndexModel : PageModel
     /// <summary>A mensagem da calote ignorada, a mesma no Planeamento e na folha nova.</summary>
     public static string MensagemCaloteIgnorada(string valor, decimal? mantidaGravada) =>
         mantidaGravada is { } mantida
-            ? $"Job On guardado: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior ({mantida.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)} mm)."
+            ? $"Job On guardado: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(mantida)} mm)."
             : $"Job On guardado sem calote: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado. Vale a calote de referência da ferramenta; para a indicar, use Editar.";
 
     /// <summary>
@@ -808,7 +808,7 @@ public sealed class IndexModel : PageModel
 
         if (OpenJobOn is { } fichaJobOn)
         {
-            FichaCaloteEcho = fichaJobOn.CaloteMm?.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            FichaCaloteEcho = (fichaJobOn.CaloteMm is { } caloteFicha ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteFicha) : null);
             if (duplicar == "1")
             {
                 DuplicarDe = fichaJobOn.JobOnId;
