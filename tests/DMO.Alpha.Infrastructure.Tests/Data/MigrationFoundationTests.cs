@@ -136,7 +136,8 @@ public sealed class MigrationFoundationTests
                 "20261022213128_MovimentosLinhaReparadorJobOn",
                 "20261023063227_ReparacaoInternaHora",
                 "20261023075945_JobOnAlteracaoRemovida", "20261023175737_EmailListasConcorrencia",
-                "20261023190401_TampaoNoJobOnEPeso", "20261026000909_LoginLocal", "20261026012536_LoginLocalTentativas" },
+                "20261023190401_TampaoNoJobOnEPeso", "20261026000909_LoginLocal", "20261026012536_LoginLocalTentativas",
+                "20261026082355_JobOnFolhaLoteFf" },
             keys);
     }
 

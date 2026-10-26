@@ -416,7 +416,11 @@ public sealed class FolhaModel(
             if (ids.Count > 0)
             {
                 Facts = await toolFacts.FindAsync(ids, aberto.Machine, aberto.JobOnId, aberto.InicioEm, aberto.FimEm, ct);
+<<<<<<< HEAD
                 Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
+=======
+                Folha = Folha.ComLoteFfDoMf(Fact(aberto.MfToolId)?.Lot);
+>>>>>>> aecf4c1 (Lote FF no bloco MF da folha, com o lote do MF por omissão)
             }
             if (Editar)
             {

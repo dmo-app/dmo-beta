@@ -189,6 +189,7 @@ public static class JobOnFolhaCampos
         Folga("mf_folga3", Mf, 3),
         Detalhe("mf_inversao", Mf, "Inversão (mm)"),
         Detalhe("mf_fundo_final", Mf, "Fundo final"),
+        Detalhe("mf_lote_ff", Mf, "Lote FF"),
 
         Curto("cs_referencia", Cs, "Referência"),
         Curto("cs_qtd_stock", Cs, QtdStock),
