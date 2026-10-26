@@ -2536,7 +2536,7 @@ Selo depois: `63d6530418f8c955`
 
 ## A-0117 · 2026-10-26 · teste-novo
 
-Porquê: Testes novos das folhas do Imprimir do Job On (Ficha de Artigo e Trabalho de Equipa): o menu, as folhas com os dados do Job On, e quem só tem «Job On ver» não as recebe.
+Porquê: Testes novos das folhas do Imprimir do Job On (Ficha de Artigo e Trabalho de Equipa): o botão Imprimir abre a lista das folhas, as folhas vêm com os dados do Job On, e quem só tem «Job On ver» não as recebe.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPAdng59k4sXTVH3yh5tyX2
 Novos: 3 · mudaram: 0 · saíram: 0
 
@@ -2544,4 +2544,4 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
-Selo depois: `efd221076014a7c8`
+Selo depois: `d16717eb0b5699b3`

@@ -513,15 +513,15 @@ else
               @if (Model.PodeEditar)
               {
                 @* As 4 folhas do Imprimir (Diogo, 26/10/2026): escolhe-se a folha; o browser imprime (nunca PDF no servidor). *@
-                <details class="menu" data-jof-imprimir-menu>
-                  <summary class="btn" aria-label="Imprimir o Job On @jobOn.ProductionNumber"><span class="dmo-caret" aria-hidden="true"></span> Imprimir</summary>
-                  <div class="menu-list">
-                    <button type="button" data-jof-imprimir="todas">As 2 folhas</button>
-                    <button type="button" data-jof-imprimir="ficha">Ficha de Artigo</button>
-                    <button type="button" data-jof-imprimir="equipa">Trabalho de Equipa</button>
-                    <button type="button" data-jof-imprimir="ecra">Esta folha (ecrã)</button>
+                <div class="menu" data-jof-imprimir-menu>
+                  <button class="btn" type="button" aria-haspopup="true" aria-expanded="false" data-jof-imprimir>Imprimir</button>
+                  <div class="menu-list" data-jof-imprimir-lista hidden>
+                    <button type="button" data-jof-imprimir-folha="todas">As 2 folhas</button>
+                    <button type="button" data-jof-imprimir-folha="ficha">Ficha de Artigo</button>
+                    <button type="button" data-jof-imprimir-folha="equipa">Trabalho de Equipa</button>
+                    <button type="button" data-jof-imprimir-folha="ecra">Esta folha (ecrã)</button>
                   </div>
-                </details>
+                </div>
                 <a class="btn" href="@Model.DuplicarHref" data-jof-duplicar>Duplicar</a>
                 <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
               }

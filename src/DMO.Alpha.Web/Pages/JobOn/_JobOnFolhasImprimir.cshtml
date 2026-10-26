@@ -65,7 +65,7 @@
       {
         <div class="jfi-col">
           <div class="jfi-barra"><span>@nome</span><span>@Lote(f)</span></div>
-          <table class="jfi-t jfi-kv">
+          <table class="dmo-table jfi-t jfi-kv">
             <tr><th>Referência</th><td>@(f?.Reference)@(tipo == "mf" && F("mf_fundo_final") is { Length: > 0 } ff ? " · FF " + ff : null)</td></tr>
             <tr><th>Tipo</th><td>@F($"{tipo}_tipo")</td></tr>
             <tr><th>Reparador</th><td>@F($"{tipo}_reparador")</td></tr>
@@ -88,7 +88,7 @@
       }
       <div class="jfi-col">
         <div class="jfi-barra"><span>BOQUILHA (BQ)</span><span>@Lote(bq)</span></div>
-        <table class="jfi-t jfi-kv">
+        <table class="dmo-table jfi-t jfi-kv">
           <tr><th>Referência</th><td>@bq?.Reference</td></tr>
           <tr><th>Utilização</th><td>@(F("bq_utilizacao") is { Length: > 0 } ub ? ub.TrimEnd('%') + "%" : "")</td></tr>
           <tr><th>Anilha (AN)</th><td>@F("an_referencia")</td></tr>
@@ -139,7 +139,7 @@
     </div>
     <div class="jfi-col">
       <div class="jfi-barra"><span>CONTRA-MOLDE</span></div>
-      <table class="jfi-t jfi-lista">
+      <table class="dmo-table jfi-t jfi-lista">
         <tr><th>Peça</th><th>Ref.</th><th>Lote</th><th>Observações</th></tr>
         <tr><td>Contra-molde</td><td>@cm?.Reference</td><td>@(cm is null ? "" : FolhaModel.Lote(cm.Lot))</td><td></td></tr>
         <tr><td>Tampão</td><td>@F("tp_referencia")</td><td></td><td>@(string.Join(" × ", new[] { F("tp_diametro_ps"), Calote() }.Where(s => s.Length > 0)))</td></tr>
@@ -148,7 +148,7 @@
     </div>
     <div class="jfi-col">
       <div class="jfi-barra"><span>MOLDE FINAL</span></div>
-      <table class="jfi-t jfi-lista">
+      <table class="dmo-table jfi-t jfi-lista">
         <tr><th>Peça</th><th>Ref.</th><th>Lote</th><th>Observações</th></tr>
         <tr><td>Molde final</td><td>@mf?.Reference</td><td>@(mf is null ? "" : FolhaModel.Lote(mf.Lot))</td><td></td></tr>
         <tr><td>Fundo final</td><td>@F("mf_fundo_final")</td><td></td><td></td></tr>
@@ -159,7 +159,7 @@
     </div>
     <div class="jfi-col">
       <div class="jfi-barra"><span>CALIBRES</span></div>
-      <table class="jfi-t jfi-lista">
+      <table class="dmo-table jfi-t jfi-lista">
         <tr><th>Medida</th><th>Componentes</th><th>QTD máq.</th><th>Qtd.</th></tr>
         @foreach (var l in calibres)
         {
