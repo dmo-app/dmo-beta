@@ -50,6 +50,17 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
         // NULL) em branco são recusa tipada — nunca texto inventado. Os
         // valores persistem SEM espaços envolventes (facto limpo).
         var productionNumber = command.ProductionNumber?.Trim();
+        // A EXPERIÊNCIA (Diogo, 26/10/2026): o número é sempre AAAA00 (o ano do
+        // dia em que entra) e entra e sai no mesmo dia.
+        var inicioEm = command.InicioEm;
+        var fimEm = command.FimEm;
+        if (command.Experiencia)
+        {
+            inicioEm ??= DateOnly.FromDateTime(DateTime.UtcNow);
+            fimEm = inicioEm;
+            productionNumber = $"{inicioEm.Value.Year}00";
+        }
+
         if (string.IsNullOrEmpty(productionNumber))
         {
             return Refused(CreateJobOnResult.MissingProductionNumber);
@@ -135,8 +146,9 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
             // esta hj em maquina e segue as datas do jobon»): o dia em
             // que entra/sai de máquina; os nulls = a janela em aberto (o
             // fallback é a última produção da máquina).
-            InicioEm = command.InicioEm,
-            FimEm = command.FimEm,
+            InicioEm = inicioEm,
+            FimEm = fimEm,
+            Experiencia = command.Experiencia,
             // A CALOTE DESTA PRODUÇÃO (o campo j-calote da ficha do
             // dmo-html): null = a referência da Tool manda (o apoio
             // TP/calote do Peso usa-a automaticamente — a B1).

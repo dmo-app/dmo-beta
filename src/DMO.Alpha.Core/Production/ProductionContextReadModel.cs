@@ -25,4 +25,5 @@ public sealed record ProductionContextReadModel(
     /// <summary>A versão gravada do Job On (vai escondida na folha de edição; ver UpdateJobOn.ExpectedVersion).</summary>
     uint Version = 0,
     /// <summary>O diâmetro D (mm) do tampão desta produção (Diogo, 23/10/2026); null = não registado.</summary>
-    decimal? TampaoDiametroMm = null);
+    decimal? TampaoDiametroMm = null,
+    bool Experiencia = false);
