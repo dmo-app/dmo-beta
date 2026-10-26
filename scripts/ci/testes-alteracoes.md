@@ -3061,11 +3061,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `a1189c0ece6af100`
 
-## A-0161 · 2026-10-26 · teste-novo
+## A-0162 · 2026-10-26 · teste-novo
 
-Porquê: Histórico de produções: Δ garrafas contra a produção anterior e janela do peso médio com moda e Δ peso (Diogo 26/10 19:58).
-Novos: 1 · mudaram: 0 · saíram: 0
+Porquê: Histórico de produções: Δ garrafas contra a produção anterior e janela do peso médio com moda e Δ peso (Diogo 26/10 19:58) e ligação das produções do relatório real do PC da fábrica (BOM no início do ficheiro) ao Job On.
+Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ORelatorioProducoesReal_LigaAsProducoesDaCmDaB1_ComGarrafas`
 
-Selo depois: `d09ad439a3150e98`
+Selo depois: `0e773a7349323fea`

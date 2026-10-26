@@ -264,6 +264,28 @@ public sealed class FerramentasFabricoSapTests
         Assert.False(pesos.ContainsKey(4));
     }
 
+    [Fact]
+    public async Task ORelatorioProducoesReal_LigaAsProducoesDaCmDaB1_ComGarrafas()
+    {
+        // O ficheiro do PC da fábrica: BOM, fim de linha do Windows, «Line» sem tabulação à frente.
+        const string Real = "\uFEFFMaterial\tLine\tPlant\tBegin Date\tEnd Date\tProd. Days\tCadência\tGob\tSectores\tKCR\tAvg weight\tΔ weight\tGross Prod\tNet Prod.\tPack to pull\tNet Quant\tPallet\tTotal Rej.\tRej.MIL\tHotEnd%\r\n" +
+            "1075C142BRA\tB1\tMG\t29.07.2026\t04.08.2026\t6\t636\t4\t12\t159,551\t145\t5\t784.875\t668.273\t85,14\t4.629.836\t1.173,0\t2,22\t9,30\t95,29\r\n" +
+            "1075C142BRA\tB1\tMG\t19.10.2026\t25.10.2026\t6\t636\t4\t12\t158,447\t143\t3\t907.617\t766.203\t84,42\t5.339.476\t1.548,0\t4,13\t8,20\t94,90\r\n";
+        using var db = CreateContext();
+        db.Tools.Add(new Tool { ToolId = "st100", Type = ToolType.Cm, Reference = "1075C142", Lot = "1" });
+        db.JobOns.AddRange(
+            new JobOn { Id = 10, Reference = "1075C142", ProductionNumber = "202603", MachineId = 4, InicioEm = new DateOnly(2026, 7, 29), FimEm = new DateOnly(2026, 8, 4) },
+            new JobOn { Id = 11, Reference = "1075C142", ProductionNumber = "202604", MachineId = 4, InicioEm = new DateOnly(2026, 10, 19), FimEm = null });
+        db.CmContexts.AddRange(new CmContext { JobOnId = 10, ToolId = "st100" }, new CmContext { JobOnId = 11, ToolId = "st100" });
+        db.SaveChanges();
+        db.ChangeTracker.Clear();
+        await Servico(db).ImportarAsync(FabricoSapExportacao.Ler(Real).Linhas, "dmo-fabrico-sap.txt", DateTime.UtcNow);
+
+        var producoes = await Servico(db).ProducoesAsync("st100", null, 10);
+
+        Assert.Equal(new long?[] { 907_617, 784_875 }, producoes.Pagina.Items.Select(p => p.ProducaoBruta));
+    }
+
     private static FerramentaUtilizacao Leitura(long id, DateOnly dia, decimal percentagem) => new()
     {
         Id = id, ToolId = "cm", Percentagem = percentagem,
