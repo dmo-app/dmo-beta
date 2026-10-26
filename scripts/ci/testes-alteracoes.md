@@ -2926,9 +2926,19 @@ Selo depois: `de6e4f299d90520b`
 
 ## A-0144 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main .86 + PRs em curso.
+Porquê: o registo da leitura do Peso deixa de ser fixo à direita e fica no fluxo da página (pedido do Diogo, #145)
+Referência: Diogo, 26/10/2026: «o inserir os valores não fica fora» (PR #145)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/ecra_pequeno_browser.py`
+
+Selo depois: `fb64851554ffdfc4`
+
+## A-0145 · 2026-10-26 · ok-do-diogo
+
+Porquê: Registo do integracao acertado pela main caf73e7: fica o da main + esta entrada para os PRs em curso.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 12 · mudaram: 2 · saíram: 0
+Novos: 12 · mudaram: 1 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolhaRondaTests.cs :: JobOnFolhaRondaTests.Alteracoes_SoAFormaDoNumero_NaoEMudanca`
@@ -2943,6 +2953,5 @@ Novos: 12 · mudaram: 2 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
-- mudou: `tests/visual/ecra_pequeno_browser.py`
 
 Selo depois: `4068ebba6a5a757a`
