@@ -3051,3 +3051,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AWholeReferenceAlsoFindsTheToolsRegisteredWithOnlyOnePart`
 
 Selo depois: `f100f52b5cd8b3c9`
+
+## A-0160 · 2026-10-26 · teste-novo
+
+Porquê: Ficha da ferramenta: cartão «Histórico de produções» por baixo da informação técnica, com garrafas, peso da produção (média, moda e delta contra a anterior), % de cada Job On e total (Diogo 26/10 17:16 e 17:48).
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn`
+
+Selo depois: `a1189c0ece6af100`

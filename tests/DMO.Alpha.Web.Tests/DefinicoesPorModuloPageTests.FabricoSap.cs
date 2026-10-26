@@ -137,4 +137,43 @@ public sealed partial class DefinicoesPorModuloPageTests
 
         Assert.Contains("Esta ferramenta ainda não esteve em nenhum Job On.", producoes, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn()
+    {
+        // Diogo (26/10/2026): por baixo da informação técnica, dobrável, cada
+        // Job On com as garrafas, o peso da produção e a % de uso.
+        var (toolId, referencia, maquina) = SeedJobOnComCm();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.SapFabricos.Add(new SapFabrico
+            {
+                Material = referencia + "BRA", Linha = maquina, InicioEm = new DateOnly(2025, 1, 21), FimEm = new DateOnly(2025, 2, 4),
+                ProducaoBruta = 1_404_234, ProducaoLiquida = 1_309_264, PesoMedioGramas = 81.25m, LidoEmUtc = DateTime.UtcNow
+            });
+            db.FerramentaUtilizacoes.AddRange(
+                new FerramentaUtilizacao { ToolId = toolId, Percentagem = 40m, RegistadaEmUtc = new DateTime(2025, 1, 10, 12, 0, 0, DateTimeKind.Utc) },
+                new FerramentaUtilizacao { ToolId = toolId, Percentagem = 47.5m, RegistadaEmUtc = new DateTime(2025, 2, 6, 12, 0, 0, DateTimeKind.Utc) });
+            db.SaveChanges();
+        }
+
+        var client = await LoginOperatorAsync("7109", DmoCapabilities.Ferramentas);
+        var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
+
+        // Vem depois da informação técnica, fechado.
+        Assert.True(ficha.IndexOf("id=\"ferrHistoricoProducoes\"", StringComparison.Ordinal) > ficha.IndexOf("id=\"ferr-tech-title\"", StringComparison.Ordinal));
+        var historico = WebUtility.HtmlDecode(ZonaUsoSap(ficha, "ferrHistoricoProducoes"));
+        Assert.Contains("Histórico de produções", historico, StringComparison.Ordinal);
+        Assert.Contains("<details>", historico, StringComparison.Ordinal);
+        Assert.Contains("202501", historico, StringComparison.Ordinal);
+        Assert.Contains("21/01/2025 a 04/02/2025", historico, StringComparison.Ordinal);
+        Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), historico, StringComparison.Ordinal);
+        Assert.Contains("81.25 g", historico, StringComparison.Ordinal);
+        Assert.Contains("+7.50 %", historico, StringComparison.Ordinal);
+        var total = WebUtility.HtmlDecode(ZonaUsoSap(historico, "ferrHistoricoTotal"));
+        Assert.Contains("Total · 1 produção", total, StringComparison.Ordinal);
+        Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
+        Assert.Contains("47.50 %", total, StringComparison.Ordinal);
+    }
 }

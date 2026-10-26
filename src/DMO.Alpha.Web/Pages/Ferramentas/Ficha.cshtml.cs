@@ -145,6 +145,9 @@ public sealed class FichaModel : PageModel
     /// </summary>
     public FerramentaProducoes? Producoes { get; private set; }
 
+    /// <summary>O peso do SAP (média e moda) de cada Job On do histórico de produções.</summary>
+    public IReadOnlyDictionary<int, PesoSapResumo> PesoProducoes { get; private set; } = new Dictionary<int, PesoSapResumo>();
+
     /// <summary>A janela das produções abre com a página (?jobon=1).</summary>
     public bool ProducoesAbertas { get; private set; }
 
@@ -536,6 +539,7 @@ public sealed class FichaModel : PageModel
             Utilizacao = await _usoSap.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
             Producoes = await _fabricoSap.ProducoesAsync(Sheet.ToolId, paginaJobOn, ProducoesPorPagina, HttpContext.RequestAborted);
             ProducoesAbertas = jobOn == "1";
+            PesoProducoes = await _fabricoSap.PesoDosJobOnsAsync(Producoes.Pagina.Items.Select(p => p.JobOnId).ToList(), HttpContext.RequestAborted);
         }
 
         TypeChangedWarning = Sheet is { } mudada ? TypeChangedMessage(tipoAnterior, producoes, mudada.Type) : null;
