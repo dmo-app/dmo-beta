@@ -928,13 +928,20 @@ html body .jfi-folha .jfi-lista td{height:6.4mm}
 html body .jfi-folha .dmo-table tr:first-child th{background:#eef1f4;color:#15191e}
 html body .jfi-folha .jfi-kv th{background:transparent!important;color:#3c454f}
 /* Preparador - DMO e Job-ON Moldes (Diogo, 26/10/2026, pelo Excel de 21/10). */
-html body .jfi-folha .jfm-t td,html body .jfi-folha .jfm-t th{padding:.6mm 1.8mm;font-size:7.8pt;vertical-align:top}
-html body .jfi-folha .jfm-t tr:first-child th{text-align:center}
-html body .jfi-folha .jfm-t .jfm-ferr{width:30%;background:transparent!important;font-weight:400}
-html body .jfi-folha .jfm-t .jfm-dados{width:36%}
 .jfm-factos{grid-template-columns:repeat(7,1fr)}
-.jfm-nome{font-weight:700;font-size:9pt;margin-bottom:.4mm}
+
+.jfm-grelha{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}
+.jfm-cartao{border:1px solid #9aa3ad;padding:1.4mm 2mm;font-size:7.8pt;display:flex;flex-direction:column;gap:.4mm;break-inside:avoid}
+.jfm-cab{display:flex;align-items:center;gap:2mm;margin-bottom:.6mm}
+.jfm-cod{background:#3c454f;color:#f4f6f8;font-weight:700;font-size:7.5pt;padding:.3mm 1.6mm;border-radius:1mm}
+.jfm-nome{font-weight:700;font-size:8.5pt}
+.jfm-topo{display:flex;gap:5mm;border-bottom:1px solid #d5dae0;padding-bottom:.6mm;margin-bottom:.4mm}
+.jfm-topo span{display:block;font-size:6.2pt;color:#5b6570;text-transform:uppercase}
+.jfm-topo b{font-size:10pt}
 .jfm-kv{display:flex;justify-content:space-between;gap:2mm}
 .jfm-kv span{color:#5b6570}
-.jfm-kv b{font-weight:700}
-.jfm-notas{font-size:7pt;font-weight:700;text-transform:uppercase}
+.jfm-kv b{font-weight:700;text-align:right}
+.jfm-notas{margin-top:auto;padding-top:.6mm;border-top:1px solid #d5dae0;min-height:7mm;font-weight:700}
+.jfm-notas span{display:block;font-size:6.2pt;color:#5b6570;font-weight:400;text-transform:uppercase}
+html body .jfi-folha .jfm-cal th,html body .jfi-folha .jfm-cal td{text-align:center;padding:.6mm 1mm;font-size:7.4pt}
+html body .jfi-folha .jfm-cal th:first-child{text-align:left;font-size:6.5pt}

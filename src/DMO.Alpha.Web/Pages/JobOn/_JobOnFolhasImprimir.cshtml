@@ -40,24 +40,23 @@
 <div class="jof-impressao" data-jof-impressao hidden>
   @* ── JOB-ON MOLDES (FOR 05 MOL 001), sai em duas cópias como no Excel do Diogo de 21/10 ── *@
   @{
-      void Linha(string ferramenta, (string Rotulo, string Valor)[] esquerda, (string Rotulo, string Valor)[] dados, IEnumerable<string> notas)
+      void Cartao(string codigo, string nome, (string Rotulo, string Valor)[] topo, (string Rotulo, string Valor)[] dados, IEnumerable<string> notas)
       {
-          <tr class="jfm-grupo">
-            <th class="jfm-ferr">
-              <div class="jfm-nome">@ferramenta</div>
-              @foreach (var (r, v) in esquerda)
-              {
-                <div class="jfm-kv"><span>@r</span><b>@v</b></div>
-              }
-            </th>
-            <td class="jfm-dados">
-              @foreach (var (r, v) in dados)
-              {
-                <div class="jfm-kv"><span>@r</span><b>@v</b></div>
-              }
-            </td>
-            <td class="jfm-notas">@foreach (var n in notas) {<div>@n</div>}</td>
-          </tr>
+          <div class="jfm-cartao">
+            <div class="jfm-cab">
+              <span class="jfm-cod">@codigo</span>
+              <span class="jfm-nome">@nome</span>
+            </div>
+            @if (topo.Length > 0)
+            {
+              <div class="jfm-topo">@foreach (var (r, v) in topo) {<div><span>@r</span><b>@v</b></div>}</div>
+            }
+            @foreach (var (r, v) in dados)
+            {
+              <div class="jfm-kv"><span>@r</span><b>@v</b></div>
+            }
+            <div class="jfm-notas"><span>Notas</span>@foreach (var n in notas) {<div>@n</div>}</div>
+          </div>
       }
   }
   @for (var copia = 1; copia <= 2; copia++)
@@ -76,40 +75,34 @@
         <div><span>Peso</span><b>@Peso()</b></div>
         <div><span>Cadência</span><b></b></div>
       </div>
-      <table class="dmo-table jfi-t jfm-t">
-        <tr><th>Ferramenta</th><th>Dados</th><th>Notas Job-On</th></tr>
+      <div class="jfm-grelha">
         @{
             string U(string chave) => F(chave) is { Length: > 0 } u ? u.TrimEnd('%') + "%" : "";
-            Linha("Contra-moldes", [("Referência", cm?.Reference ?? ""), ("Lote", cm is null ? "" : FolhaModel.Lote(cm.Lot)), ("Quantidade", F("cm_qtd_maq")), ("Reparador", F("cm_reparador")), ("Utilização", U("cm_utilizacao"))],
-                [("Adaptador", F("cm_adaptador")), ("Inversão", F("cm_inversao")), ("Tipo", F("cm_tipo"))], Notas("cm_notas"));
-            Linha("Tampões", [("Referência", F("tp_referencia")), ("Quantidade", F("tp_qtd_maq"))],
-                [("Diâmetro", F("tp_diametro_ps")), ("Bacia", F("tp_bacia_ps")), ("Calote", Calote())], Notas("tp_notas"));
-            Linha("Moldes finais", [("Referência", mf?.Reference ?? ""), ("Lote", mf is null ? "" : FolhaModel.Lote(mf.Lot)), ("Quantidade", F("mf_qtd_maq")), ("Reparador", F("mf_reparador")), ("Utilização", U("mf_utilizacao"))],
-                [("Fundo final", F("mf_fundo_final")), ("Adaptador", F("mf_adaptador")), ("Inversão", F("mf_inversao")), ("Tipo", F("mf_tipo"))], Notas("mf_notas"));
-            Linha("Boquilhas", [("Referência", bq?.Reference ?? ""), ("Lote", bq is null ? "" : FolhaModel.Lote(bq.Lot)), ("Utilização", U("bq_utilizacao"))],
-                [("Quantidade", F("bq_qtd_maq"))], Notas("bq_notas"));
-            Linha("Anel", [("Referência", F("an_referencia"))], [], Notas("an_notas"));
-            Linha("Punções + arrefecedores", [("PU referência", F("pu_referencia")), ("ARR referência", F("arr_referencia")), ("Quantidade", F("pu_qtd_maq"))],
-                [("Versão", F("pu_versao"))], Notas("pu_notas").Concat(Notas("arr_notas")));
-            Linha("Forro", [], [("Tipo", ""), ("Quantidade", "")], []);
-            Linha("C. de sopro", [("Referência", F("cs_referencia")), ("Quantidade", F("cs_qtd_maq"))],
-                [("Furos", F("cs_furos")), ("Tubo", F("cs_tubo"))], Notas("cs_notas"));
-            Linha("Pinças", [], [("Diâmetro", F("pi_diametro")), ("Tipo", F("pi_pincas"))], Notas("pi_notas"));
+            Cartao("CM", "Contra-moldes", [("Referência", cm?.Reference ?? ""), ("Lote", cm is null ? "" : FolhaModel.Lote(cm.Lot))],
+                [("Utilização", U("cm_utilizacao")), ("Quantidade", F("cm_qtd_maq")), ("Reparador", F("cm_reparador")), ("Adaptador", F("cm_adaptador")), ("Inversão", F("cm_inversao")), ("Tipo", F("cm_tipo"))], Notas("cm_notas"));
+            Cartao("MF", "Moldes finais", [("Referência", mf?.Reference ?? ""), ("Lote", mf is null ? "" : FolhaModel.Lote(mf.Lot))],
+                [("Utilização", U("mf_utilizacao")), ("Quantidade", F("mf_qtd_maq")), ("Reparador", F("mf_reparador")), ("Fundo final", F("mf_fundo_final")), ("Adaptador", F("mf_adaptador")), ("Inversão", F("mf_inversao")), ("Tipo", F("mf_tipo"))], Notas("mf_notas"));
+            Cartao("BQ", "Boquilhas", [("Referência", bq?.Reference ?? ""), ("Lote", bq is null ? "" : FolhaModel.Lote(bq.Lot))],
+                [("Utilização", U("bq_utilizacao")), ("Quantidade", F("bq_qtd_maq"))], Notas("bq_notas"));
+            Cartao("PU", "Punções + arrefecedores", [("PU", F("pu_referencia")), ("ARR", F("arr_referencia"))],
+                [("Versão", F("pu_versao")), ("Quantidade", F("pu_qtd_maq"))], Notas("pu_notas").Concat(Notas("arr_notas")));
+            Cartao("AN", "Anel", [("Referência", F("an_referencia"))], [], Notas("an_notas"));
+            Cartao("TP", "Tampões", [("Referência", F("tp_referencia"))],
+                [("Diâmetro", F("tp_diametro_ps")), ("Bacia", F("tp_bacia_ps")), ("Calote", Calote()), ("Quantidade", F("tp_qtd_maq"))], Notas("tp_notas"));
+            Cartao("CS", "Cabeça de sopro", [("Referência", F("cs_referencia"))],
+                [("Furos", F("cs_furos")), ("Tubo", F("cs_tubo")), ("Quantidade", F("cs_qtd_maq"))], Notas("cs_notas"));
+            Cartao("PI", "Pinças", [], [("Diâmetro", F("pi_diametro")), ("Tipo", F("pi_pincas"))], Notas("pi_notas"));
+            Cartao("FO", "Forro", [], [("Tipo", ""), ("Quantidade", "")], []);
         }
-      </table>
+      </div>
       <div class="jfi-bloco jfi-notas"><div class="jfi-barra"><span>JOB-ON NOTAS</span></div><ul>@foreach (var n in Notas("notas_gerais")) {<li>@n</li>}</ul></div>
       <div class="jfi-col">
         <div class="jfi-barra"><span>CALIBRES</span></div>
-        <div class="jfi-cal">
-          @foreach (var l in calibres)
-          {
-            <div><span>@l.Nome</span><b>@N(l.Valor)</b>@if (V(l.QtdMaq) is { } q) {<small>QTD máq. @q</small>}</div>
-          }
-          @if (calibres.Count == 0)
-          {
-            <div><span>Calibres</span><b>____</b></div>
-          }
-        </div>
+        <table class="dmo-table jfi-t jfm-cal">
+          <tr><th>Medida</th>@foreach (var l in calibres) {<th>@l.Nome</th>}</tr>
+          <tr><th>Componentes</th>@foreach (var l in calibres) {<td>@N(l.Valor)</td>}</tr>
+          <tr><th>QTD máq.</th>@foreach (var l in calibres) {<td>@V(l.QtdMaq)</td>}</tr>
+        </table>
       </div>
       <div class="jfi-crescer"></div>
       <footer class="jfi-rodape"><span>FOR 05 MOL 001 (pt)</span><span>Impresso pela DMO</span></footer>
