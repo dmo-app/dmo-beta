@@ -27,20 +27,6 @@ public sealed class LocalAuthenticationProvider : IAuthenticationProvider, IUser
         _time = time ?? TimeProvider.System;
     }
 
-    /// <summary>Falhas seguidas antes de o login começar a esperar.</summary>
-    public const int FreeAttempts = 5;
-
-    /// <summary>
-    /// A espera depois da 5.ª falha seguida: 30 s, e o dobro a cada falha a
-    /// mais, até 15 minutos. Um login certo põe tudo a zero.
-    /// </summary>
-    public static TimeSpan LockFor(int failedAttempts)
-    {
-        var extra = Math.Clamp(failedAttempts - FreeAttempts, 0, 5);
-        var seconds = Math.Min(30 * (1 << extra), 15 * 60);
-        return TimeSpan.FromSeconds(seconds);
-    }
-
     private static string Normalize(string email) => email.Trim().ToLowerInvariant();
 
     public async Task<AuthenticateResult> AuthenticateAsync(string identifier, string password, CancellationToken cancellationToken = default)
@@ -61,20 +47,11 @@ public sealed class LocalAuthenticationProvider : IAuthenticationProvider, IUser
             }
 
             var now = _time.GetUtcNow();
-            if (credential.LockedUntil is { } locked && locked > now)
-            {
-                // Bloqueado: nem se verifica, para não se poder adivinhar à pressa.
-                _logger.LogWarning("Local authentication locked for {Identifier} until {LockedUntil}", identifier, locked);
-                return AuthenticateResult.Failed("Invalid credentials.");
-            }
-
             if (!LocalPasswordHasher.Verify(password, credential.PasswordHash))
             {
+                // Conta as falhas seguidas, mas nunca bloqueia (Diogo, 26/10): outra
+                // pessoa podia errar de propósito e deixar o dono da conta de fora.
                 credential.FailedAttempts++;
-                if (credential.FailedAttempts >= FreeAttempts)
-                {
-                    credential.LockedUntil = now + LockFor(credential.FailedAttempts);
-                }
 
                 await _db.SaveChangesAsync(cancellationToken);
                 _logger.LogWarning("Local authentication failed for {Identifier} ({Attempts} seguidas)", identifier, credential.FailedAttempts);
