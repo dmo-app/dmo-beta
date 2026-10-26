@@ -2828,8 +2828,14 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsTemporaryPassword")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

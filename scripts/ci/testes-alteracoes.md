@@ -2282,22 +2282,26 @@ Selo depois: `77e42f1b702b86d7`
 
 ## A-0100 · 2026-10-26 · contagem-lista
 
-Porquê: Login próprio da app (modo Local, sem Supabase): testes do fornecedor Local; a tabela LocalCredentials entra nas listas de tabelas e de migrações
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyE95btRoeMmUogpFHEuxZvH
-Novos: 8 · mudaram: 5 · saíram: 0
+Porquê: Login próprio da app (modo Local, sem Supabase): testes do fornecedor Local (palavras-passe do Supabase, limite de tentativas); a tabela LocalCredentials entra nas listas de tabelas e de migrações
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy7oqPGxoe5kii8iFPC2Mgwk
+Novos: 12 · mudaram: 5 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Apagar_TiraOAcesso`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Cifra_TemSalDiferenteEVerificaSoACerta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.CincoFalhasSeguidas_BloqueiamMesmoComACerta_EDepoisVoltaAEntrar`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Criar_EntraComATemporariaEPedeMudanca`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.EmailRepetido_EhRecusado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Espera_DobraAteQuinzeMinutos`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Mudar_TiraATemporariaEAAntigaDeixaDeServir`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.PalavraPasseDoSupabase_Entra_EFicaCifradaNoFormatoDaApp`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.PalavraPasseErrada_OuEmailDesconhecido_Falha`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/LocalAuthenticationProviderTests.cs :: LocalAuthenticationProviderTests.Repor_VoltaATemporaria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/RelogioDeTeste.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
-Selo depois: `ba8c6ed8a40203be`
+Selo depois: `cc17643d37438709`
