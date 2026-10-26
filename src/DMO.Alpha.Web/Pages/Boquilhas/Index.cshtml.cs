@@ -1628,7 +1628,6 @@ public sealed record SemJobOnTool(
     {
         $"BQ {Reference}", $"Lote {LotShown}",
         Quantity is int q ? $"Qtd {q}" : null,
-        Machines is { Length: > 0 } m ? $"Máq. {m}" : null,
         MfReference is { Length: > 0 } mf ? $"MF {mf}" : null,
         LastLine is { Length: > 0 } l ? $"Última linha {l}" : null
     }.Where(p => p is not null));
