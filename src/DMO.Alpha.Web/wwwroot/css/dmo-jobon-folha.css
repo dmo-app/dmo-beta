@@ -835,3 +835,5 @@ html body .jof2 .tool-head [data-jof-tool-ref]{display:block;overflow:hidden;tex
   html body .jof2.editing .tool-head{gap:6px}
   html body .jof2.editing .tool-head [data-jof-tool-ref]{font-size:17px}
 }
+/* No Editar, o Lote ao lado da caixa da referência (AN) com a mesma altura dela, para os nomes ficarem na mesma linha. */
+html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:flex;align-items:center;height:30px}
