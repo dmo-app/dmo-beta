@@ -212,7 +212,8 @@ public partial class JobOnPageTests
         Assert.Contains("value=\"2\" aria-label=\"CS furos fechados (0 a 9)\"", editar4, StringComparison.Ordinal);
         Assert.DoesNotContain("era «", editar4, StringComparison.Ordinal);
         var lida2 = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}");
-        Assert.Contains("Abertos 4 / Fechados 2", lida2, StringComparison.Ordinal);
+        // No ver, um por baixo do outro e sem a «/» (Diogo, 26/10/2026).
+        Assert.Contains("<span class=\"jof-furos-ver\"><span>Abertos 4</span><span>Fechados 2</span></span>", lida2, StringComparison.Ordinal);
         Assert.Contains("Tratar gravações.", lida, StringComparison.Ordinal);
 
         using var scope = _factory.Services.CreateScope();

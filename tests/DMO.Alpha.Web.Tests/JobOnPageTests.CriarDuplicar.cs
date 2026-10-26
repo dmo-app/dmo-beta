@@ -138,7 +138,7 @@ public partial class JobOnPageTests
     }
 
     [Fact]
-    public async Task FolhaNova_Duplicar_CopiaOsDados_SemDatasNemNumero_ComODiaDoCalendario_EGravaUmaProducaoNova()
+    public async Task FolhaNova_Duplicar_CopiaOsDados_SemDatas_ComAProducaoSeguinte_ComODiaDoCalendario_EGravaUmaProducaoNova()
     {
         SeedUser("4422", "Chefe duplicar", "provider-folha-duplicar-1", "Folha1234!");
         var origem = await SeedJobOnCompletoAsync();
@@ -159,7 +159,8 @@ public partial class JobOnPageTests
         Assert.Contains($"data-jobon-rascunho=\"duplicar:{origem}\"", html, StringComparison.Ordinal);
         Assert.Contains(">Novo Job On · duplicado de 202602</span>", html, StringComparison.Ordinal);
         Assert.Contains("name=\"reference\" type=\"text\" value=\"5810T188\"", html, StringComparison.Ordinal);
-        Assert.Contains("name=\"production_number\" type=\"text\" value=\"\"", html, StringComparison.Ordinal);
+        // A produção sugerida é a seguinte à última da referência (Diogo, 26/10/2026); escreve-se por cima.
+        Assert.Contains("name=\"production_number\" type=\"text\" value=\"202603\"", html, StringComparison.Ordinal);
         Assert.Contains("name=\"inicio_em\" type=\"date\" value=\"2026-11-05\"", html, StringComparison.Ordinal);
         Assert.Contains("name=\"fim_em\" type=\"date\" aria-label=\"Fim\"", html, StringComparison.Ordinal);
         Assert.Contains("<option value=\"F-CM\" selected=\"selected\">", html, StringComparison.Ordinal);
@@ -296,4 +297,12 @@ public partial class JobOnPageTests
         Assert.Contains("name=\"Folha.TpDiametroPs\"", editar, StringComparison.Ordinal);
         Assert.Contains("aria-label=\"TP Diâmetro\"", editar, StringComparison.Ordinal);
     }
+
+    [Theory]
+    [InlineData(new[] { "202601" }, "202602")]
+    [InlineData(new[] { "202603", "202605", "202602" }, "202606")]
+    [InlineData(new[] { "0099", "X12" }, "0100")]
+    [InlineData(new[] { "X12", "" }, null)]
+    public void Duplicar_AProducaoSugerida_EASeguinteAMaior(string[] producoes, string? esperada) =>
+        Assert.Equal(esperada, DMO.Alpha.Web.Pages.JobOn.FolhaModel.ProximaProducao(producoes));
 }

@@ -70,7 +70,9 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
         var found = await (
                 from j in _db.JobOns.AsNoTracking().Where(j => j.Reference != null && j.Reference.ToUpper() == wanted)
                 join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-                orderby j.Id descending
+                // A mais recente primeiro (Diogo, 26/10/2026): pelo início, depois pelo
+                // nº da produção; sem início vão para o fim.
+                orderby j.InicioEm == null, j.InicioEm descending, j.ProductionNumber descending, j.Id descending
                 select new { j.Id, j.Reference, j.ProductionNumber, Machine = m.Code, j.InicioEm, j.FimEm })
             .Take(IProductionPickerQuery.ProductionsOfReferenceLimit)
             .ToListAsync(cancellationToken);

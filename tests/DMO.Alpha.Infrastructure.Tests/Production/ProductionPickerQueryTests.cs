@@ -223,4 +223,25 @@ public sealed class ProductionPickerQueryTests : IDisposable
         Assert.Equal("202612", found[0].ProductionNumber);
         Assert.Equal("202608", found[^1].ProductionNumber);
     }
+
+    // Diogo, 26/10/2026: «deveria aparecer o mais recente primeiro» (as importadas
+    // entraram fora de ordem: 202603, 202604, 202605, 202602, 202601).
+    [Fact]
+    public async Task Procura_AMaisRecentePrimeiro_PeloInicioEDepoisPeloNumero()
+    {
+        var machine = await SeedMachineAsync();
+        foreach (var (numero, inicio) in new (string, DateOnly?)[]
+                 {
+                     ("202603", new DateOnly(2026, 3, 1)), ("202604", new DateOnly(2026, 4, 1)), ("202605", new DateOnly(2026, 5, 1)),
+                     ("202602", new DateOnly(2026, 2, 1)), ("202601", null)
+                 })
+        {
+            _db.JobOns.Add(new JobOn { Reference = "9262T288", ProductionNumber = numero, MachineId = machine.Id, InicioEm = inicio });
+        }
+        await _db.SaveChangesAsync();
+
+        var found = await _query.ListOfReferenceAsync("9262T288");
+
+        Assert.Equal(["202605", "202604", "202603", "202602", "202601"], found.Select(p => p.ProductionNumber));
+    }
 }
