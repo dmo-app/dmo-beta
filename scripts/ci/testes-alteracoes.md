@@ -2970,3 +2970,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
 
 Selo depois: `6db60bb76d73efbb`
+
+## A-0152 · 2026-10-26 · ok-do-diogo
+
+Porquê: Placeholder do filtro de produção passa a «Produção» em Historico_ProcuraUnificadaPelosQuatroTipos (Diogo 26/10)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVXGyDiJHgyTJP2v8ShT1rm
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
+
+Selo depois: `862512d39e8a2f1a`
