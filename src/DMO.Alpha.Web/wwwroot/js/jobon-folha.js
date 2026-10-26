@@ -15,6 +15,16 @@
   function ler(chave) { try { return window.localStorage.getItem(chave); } catch (e) { return null; } }
   function escrever(chave, valor) { try { window.localStorage.setItem(chave, valor); return true; } catch (e) { return false; } }
 
+  // A nota curta da lista: só quando explica o que não se vê (a lista é estreita).
+  function nota(filtro) {
+    const texto = String(filtro || '');
+    const mais = /escreva para ver mais (\d+)/.exec(texto);
+    if (mais) return 'Escreva para ver mais ' + mais[1] + '.';
+    if (/^Catálogo completo \(/.test(texto)) return 'Nenhuma da referência: todas.';
+    if (/nenhuma ligada a esta linha/.test(texto)) return 'Nenhuma ligada a esta linha.';
+    return '';
+  }
+
   function ferramentas(folha, editar) {
     const reference = document.getElementById('lightReference');
     const machine = document.getElementById('lightMachine');
@@ -55,12 +65,18 @@
       select.dmoSource = async term => {
         const query = new URLSearchParams({ handler: 'ToolCandidates', type: tipo, q: term, reference: reference ? reference.value.trim() : '', all: 'false' });
         if (machine && machine.value) query.set('machine_id', machine.value);
+        // As ferramentas já escolhidas nos outros cartões filtram esta lista (Diogo, 26/10/2026).
+        folha.querySelectorAll('[data-jof-tool-procura] select').forEach(outro => {
+          if (outro !== select && outro.value && /^(cm|mf|bq)_tool_id$/.test(outro.name)) query.set(outro.name, outro.value);
+        });
         const response = await fetch('/JobOn?' + query, { credentials: 'same-origin' });
         if (!response.ok) throw new Error('Sem sugestões');
         const page = await response.json();
+        const contagem = page.total > page.items.length ? page.items.length + ' de ' + page.total + '. Escreva para afinar.' : '';
         return {
-          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · Lote ' + lote(item.lot) })),
-          note: page.total > page.items.length ? page.items.length + ' de ' + page.total + '. Escreva para afinar.' : '',
+          // A linha ao lado do lote: o contexto que distingue os lotes.
+          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · Lote ' + lote(item.lot) + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
+          note: nota(page.filtro) || contagem,
           empty: term ? 'Sem resultados para «' + term + '».' : 'Escreva a referência da ' + tipo + '.'
         };
       };

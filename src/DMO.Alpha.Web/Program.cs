@@ -655,7 +655,7 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
     ["referencias_registo"] = [DmoCapabilities.Ferramentas],
 };
 app.MapGet("/Sugestoes", async (
-    string? fonte, string? q, string? tipo,
+    string? fonte, string? q, string? tipo, int? linha,
     DMO.Alpha.Core.Search.ISuggestionQuery suggestions, CurrentUserCapabilities capabilities, HttpContext context) =>
 {
     var fonteKey = fonte?.Trim().ToLowerInvariant() ?? string.Empty;
@@ -684,7 +684,7 @@ app.MapGet("/Sugestoes", async (
         "bq" => ToolType.Bq,
         _ => (ToolType?)null
     };
-    var items = await suggestions.SuggestAsync(source.Value, q, toolType, context.RequestAborted);
+    var items = await suggestions.SuggestAsync(source.Value, q, toolType, linha, context.RequestAborted);
     return Results.Json(items.Select(item => new { value = item.Value, label = item.Label }));
 }).RequireAuthorization();
 

@@ -1100,6 +1100,10 @@ public sealed class IndexModel : PageModel
     /// produção). Na MF, com uma CM escolhida, só as MF que trabalham com
     /// essa CM: a referência MF associada da CM ou, sem ela, a referência
     /// da CM; com máquina, também só as dessa máquina (o Diogo, 17/10/2026).
+    /// As ferramentas já escolhidas nos outros cartões (CM, MF, BQ) e a
+    /// referência total ordenam a lista: primeiro as usadas com elas, depois
+    /// as usadas nesta referência, depois as da linha. Sem nada escrito, só
+    /// essas relacionadas; escrever mostra as outras (Diogo, 26/10/2026).
     /// Com «Mostrar todas», procura no catálogo inteiro. Nunca muda a
     /// ferramenta já escolhida.
     /// </summary>
@@ -1110,6 +1114,7 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "reference")] string? reference,
         [FromQuery(Name = "mf_tool_id")] string? mfToolId,
         [FromQuery(Name = "cm_tool_id")] string? cmToolId,
+        [FromQuery(Name = "bq_tool_id")] string? bqToolId = null,
         [FromQuery(Name = "all")] bool showAll = false)
     {
         ToolType? toolType = Sanitize(type)?.ToUpperInvariant() switch
@@ -1127,6 +1132,7 @@ public sealed class IndexModel : PageModel
         var term = Sanitize(search);
         ToolCandidatePage? page = null;
         string filtro;
+        var maisPorEscrever = 0;
         if (showAll)
         {
             filtro = "Catálogo completo";
@@ -1137,13 +1143,36 @@ public sealed class IndexModel : PageModel
         {
             filtro = machineId is null ? "Filtrado pela referência" : "Filtrado por máquina e referência";
             ToolCandidateFilter? usado = null;
+            // As ferramentas já escolhidas nos outros cartões puxam para cima as que
+            // foram usadas com elas; sem nada escrito, só as relacionadas (Diogo,
+            // 26/10/2026: «um CM já inserido deveria filtrar»).
+            var companheiras = new[] { (ToolType.Cm, cmToolId), (ToolType.Mf, mfToolId), (ToolType.Bq, bqToolId) }
+                .Where(par => par.Item1 != slot && Sanitize(par.Item2) is not null)
+                .Select(par => Sanitize(par.Item2)!)
+                .ToArray();
+            var soRelacionadas = term is null;
+            async Task<ToolCandidatePage> Procurar(ToolCandidateFilter filter)
+            {
+                var todas = filter with { CompanheiraToolIds = companheiras, ReferenciaTotal = Sanitize(reference) };
+                if (soRelacionadas)
+                {
+                    var relacionadas = await _toolCandidates.FindPageAsync(todas with { SoRelacionadas = true }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    if (relacionadas.TotalCount > 0)
+                    {
+                        var total = (await _toolCandidates.FindPageAsync(todas, 1, 1, HttpContext.RequestAborted)).TotalCount;
+                        maisPorEscrever = total - relacionadas.TotalCount;
+                        return relacionadas;
+                    }
+                }
+                return await _toolCandidates.FindPageAsync(todas, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+            }
             if (slot == ToolType.Cm && Sanitize(mfToolId) is { } mfId)
             {
                 var mfReference = await _pagina.ReferenciaDaMfAsync(mfId, HttpContext.RequestAborted);
                 if (mfReference is not null)
                 {
                     var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term, IncluirSemLinha: true);
-                    var byMf = await _toolCandidates.FindPageAsync(porMf, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    var byMf = await Procurar(porMf);
                     if (byMf.TotalCount > 0)
                     {
                         page = byMf;
@@ -1160,14 +1189,14 @@ public sealed class IndexModel : PageModel
                 if (cmMfReference is not null)
                 {
                     usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term, IncluirSemLinha: true);
-                    page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    page = await Procurar(usado);
                     filtro = (machineId is null ? "Filtrado pela CM " : "Filtrado por máquina e pela CM ") + cmMfReference;
                 }
             }
             if (page is null)
             {
                 usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term, IncluirSemLinha: true);
-                page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                page = await Procurar(usado);
             }
 
             // Nunca esconder por falta de compatibilidade (Diogo, 23/10/2026: «nas
@@ -1183,14 +1212,19 @@ public sealed class IndexModel : PageModel
             }
             if (page.TotalCount == 0 && machineId is not null)
             {
-                page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null, CompanheiraToolIds = companheiras, ReferenciaTotal = Sanitize(reference) }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                 filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
             }
             if (page.TotalCount == 0)
             {
                 page = await _toolCandidates.FindPageAsync(
-                    new ToolCandidateFilter(Type: slot, Search: term), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    new ToolCandidateFilter(Type: slot, Search: term, CompanheiraToolIds: companheiras, ReferenciaTotal: Sanitize(reference)), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                 filtro = "Catálogo completo (nenhuma corresponde)";
+                maisPorEscrever = 0;
+            }
+            if (maisPorEscrever > 0)
+            {
+                filtro += $" · só as relacionadas; escreva para ver mais {maisPorEscrever}";
             }
         }
 
