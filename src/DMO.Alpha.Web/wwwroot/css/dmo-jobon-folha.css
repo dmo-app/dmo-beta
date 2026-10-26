@@ -883,7 +883,7 @@ html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:
 .jfi-cal>div{padding:1.2mm 2mm;border-top:1px solid #9aa3ad}
 .jfi-cal>div.jfi-c2{border-left:1px solid #9aa3ad}
 .jfi-cal small{display:block;font-size:6.5pt;color:#5b6570}
-.jfi-fundo{display:grid;grid-template-columns:1fr;gap:3mm;flex:1;min-height:0}
+.jfi-fundo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;flex:1;min-height:0}
 .jfi-notas ul{margin:0;padding:1.5mm 2mm 1.5mm 6mm;font-size:8.5pt}
 .jfi-linhas{padding:1mm 2mm}
 .jfi-linhas i{display:block;height:7mm;border-bottom:1px solid #c4cad1}
