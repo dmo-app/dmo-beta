@@ -267,8 +267,8 @@
 .jof2 .article{padding:12px 14px;flex:none}
 .jof2 .article-head{display:flex;justify-content:space-between;align-items:center}
 .jof2 .article-head strong{font-size:15px}
-.jof2 .article-head span{font-size:12px;color:var(--dmo-muted)}
-.jof2 .article svg{display:block;width:100%;max-width:100%;height:clamp(230px,32vh,340px);margin-top:4px}
+.jof2 .article-head>span{font-size:12px;color:var(--dmo-muted)}
+.jof2 .article svg:not(.dmo-help-mark){display:block;width:100%;max-width:100%;height:clamp(230px,32vh,340px);margin-top:4px}
 .jof2 .article p{margin:6px 0 0;font-size:12px;color:var(--dmo-muted)}
 .jof2 .notes{padding:14px 16px;min-height:0;overflow:auto;background:linear-gradient(var(--dmo-card) 30%,transparent) top/100% 28px no-repeat local,linear-gradient(transparent,var(--dmo-card) 70%) bottom/100% 28px no-repeat local,radial-gradient(farthest-side at 50% 0,rgba(0,0,0,.14),transparent) top/100% 10px no-repeat scroll,radial-gradient(farthest-side at 50% 100%,rgba(0,0,0,.14),transparent) bottom/100% 10px no-repeat scroll,var(--dmo-card)}
 .jof2 .notes h2{margin:0 0 8px;font-size:16px;font-weight:800}
@@ -967,4 +967,14 @@ html body .jof2 .pick-row .ref-search input#jofReferencia{min-width:calc(11ch + 
   html body .jof2:not(.editing) table.calv tbody th:nth-child(n){font-size:9px;letter-spacing:0}
   html body .jof2:not(.editing) table.calv td:nth-child(n){font-size:10px}
   html body .jof2:not(.editing) table.calv{grid-template-columns:80px}
+}
+/* Medidas e Folgas com valores compostos (ex. «70/69.40», «0/+0.03») à vista no Editar
+   a 1366 e a 1263 (ronda de erros, 26/10/2026). */
+html body .jof2.editing table.dims:not(.calv) input.f{padding-inline:3px}
+html body .jof2.editing .folgas{gap:2px}
+html body .jof2.editing .folgas>span:first-child{margin-right:0}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:40%}
+  html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:39%}
+  html body .jof2.editing table.dims:not(.calv) td:nth-child(2) input.f{padding-inline:2px}
 }

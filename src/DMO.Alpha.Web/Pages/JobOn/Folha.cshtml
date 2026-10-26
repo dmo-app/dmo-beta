@@ -597,7 +597,7 @@ else
     </div>
     @if (Model.Faltam.Count > 0)
     {
-      <div class="jobon-aviso warn" role="status" data-jof-falta>Falta @string.Join(", ", Model.Faltam): o Job On precisa de CM, MF e BQ.@(editar ? " Clique no cartão para escolher." : null)</div>
+      <div class="jobon-aviso warn" role="status" data-jof-falta>Falta @string.Join(", ", Model.Faltam): o Job On precisa de CM, MF e BQ.@if (editar) {<partial name="_DmoHelp" model="@("Clique no cartão para escolher.")" />}</div>
     }
     @if (Model.AvisoReferencia is { } avisoReferencia)
     {
@@ -690,7 +690,7 @@ else
       </div></div>
       <aside class="side">
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong>Artigo</strong><span>@Model.ReferenciaTotal</span></div>
+          <div class="article-head"><strong>Artigo @if (editar) {<partial name="_DmoHelp" model="@("Clique na imagem para escolher a do artigo.")" />}</strong><span>@Model.ReferenciaTotal</span></div>
           <label class="jof-artigo@(editar ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" title="@(editar ? "Clique para escolher a imagem do artigo" : null)">
             @if (editar)
             {
@@ -699,13 +699,10 @@ else
             <img data-jof-artigo-img alt="Imagem do artigo @Model.ReferenciaTotal" hidden />
             <svg data-jof-artigo-vazio viewBox="0 0 120 230" role="img" aria-label="Silhueta do artigo"><g fill="var(--bottle-fill)" stroke="var(--bottle-stroke)" stroke-width="2" stroke-linejoin="round"><path d="M54 10h12v6c0 6 2 10 4 18 5 18 18 26 18 46v120c0 8-6 12-14 12H46c-8 0-14-4-14-12V80c0-20 13-28 18-46 2-8 4-12 4-18z" /><path d="M52 16h16" /><path d="M36 150h48" opacity=".5" /></g></svg>
           </label>
-          @if (editar)
-          {
-            <p>Clique na imagem para escolher a do artigo.</p>
-          }
         </section>
         <section class="card notes" aria-labelledby="notesTitle">
-          <h2 id="notesTitle">Notas gerais</h2>
+          @* As ajudas no triângulo, não escritas no ecrã (ronda de 26/10/2026, J8). *@
+          <h2 id="notesTitle">Notas gerais @if (editar) {<partial name="_DmoHelp" model="@("Uma nota por linha. Grava com Guardar.")" />} else if (Model.PodeEditar) {<partial name="_DmoHelp" model="@("Para mudar as notas, use Editar.")" />}</h2>
           @{
               desenhados.Add("notas_gerais");
               var gerais = Model.Folha.Valor("notas_gerais");
@@ -713,7 +710,6 @@ else
           @if (editar)
           {
             <textarea class="dmo-valor jof-notas-gerais" id="jobon-notas-gerais" name="Folha.NotasGerais" rows="8" maxlength="@JobOnFolhaCampos.MaximoNotasGerais" aria-label="Notas gerais" placeholder="+ Adicionar nota">@gerais</textarea>
-            <p class="notes-foot">Uma nota por linha. Grava com Guardar.</p>
           }
           else
           {
@@ -730,10 +726,6 @@ else
                 }
               }
             </ul>
-            @if (Model.PodeEditar)
-            {
-              <p class="notes-foot">Para mudar as notas, use Editar.</p>
-            }
           }
         </section>
         @* O PI na coluna da direita, por baixo das Notas gerais (Diogo, 23/10/2026). *@

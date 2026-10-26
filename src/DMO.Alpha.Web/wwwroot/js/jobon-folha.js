@@ -75,8 +75,8 @@
         const contagem = page.total > page.items.length ? page.items.length + ' de ' + page.total + '. Escreva para afinar.' : '';
         return {
           // A linha ao lado do lote: o contexto que distingue os lotes.
-          // «CM 5447 · Lote 3» (ronda de 26/10/2026, J10); sem lote, «sem lote».
-          items: page.items.map(item => ({ value: item.toolId, label: tipo + ' ' + item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
+          // Sem lote, «sem lote» e não «Lote s/lote» (ronda de 26/10/2026, J10).
+          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
           note: nota(page.filtro) || contagem,
           empty: term ? 'Sem resultados para «' + term + '».' : 'Escreva a referência da ' + tipo + '.'
         };
@@ -168,7 +168,9 @@
     });
     if (!falta.length) { aviso.hidden = true; aviso.style.display = 'none'; return; }
     aviso.hidden = false; aviso.style.display = '';
-    aviso.textContent = aviso.textContent.replace(/^Falta [^:]*:/, 'Falta ' + falta.join(', ') + ':');
+    // Só o texto: a ajuda (o círculo) que vem a seguir fica.
+    const texto = [...aviso.childNodes].find(n => n.nodeType === 3 && /Falta /.test(n.nodeValue));
+    if (texto) texto.nodeValue = texto.nodeValue.replace(/Falta [^:]*:/, 'Falta ' + falta.join(', ') + ':');
   }
 
   // A imagem do artigo encaixa sozinha: corta as margens vazias (brancas ou
