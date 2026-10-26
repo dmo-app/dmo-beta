@@ -1048,3 +1048,12 @@ html body .jof2 .fright>.g-cal{margin:0}
 }
 /* «Informação técnica» à vista em todos os cartões, também fechada e sem valores. */
 html body .jof2 .more.empty>summary>span:not([aria-hidden]):not(.more-preview){position:static;width:auto;height:auto;overflow:visible;clip:auto}
+/* A referência e o lote do cabeçalho vêm inteiros («5447T173», «LOTE»): sem corte nem quebra (integração 26/10/2026). */
+html body .jof2 .tool-head{gap:6px}
+html body .jof2 .tool-head>.hv{min-width:min-content}
+html body .jof2 .tool-head .hv small{white-space:nowrap}
+html body .jof2 .tool-head [data-jof-tool-ref],html body .jof2 .tool-head [data-jof-tool-lote]{white-space:nowrap;overflow:visible;text-overflow:clip;font-size:17px}
+html body .jof2 .tool-head .hv+.hv{margin-left:0;padding-left:8px}
+/* As notas vazias ocupam menos, para a folha caber a 1366×768 com a Informação técnica fechada. */
+html body .jof2 .note-box.is-empty{min-height:34px}
+html body .jof2 .note-box.is-empty>p,html body .jof2 .note-box.is-empty>textarea.dmo-valor{min-height:18px}

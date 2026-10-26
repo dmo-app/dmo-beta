@@ -3063,13 +3063,14 @@ Selo depois: `a1189c0ece6af100`
 
 ## A-0170 · 2026-10-26 · ok-do-diogo
 
-Porquê: Folha do Job On: grelha em 4 colunas independentes; o teste de primeira fila acompanha a nova ordem dos cartoes; dois testes novos (colunas sem colapsar, calote com valor).
+Porquê: Folha do Job On: grelha em 4 colunas independentes; o teste de primeira fila acompanha a nova ordem dos cartoes e leva notas longas no PU e ARR; dois testes novos (colunas sem colapsar, calote com valor).
 Referência: Diogo 26/10 capturas da Folha (cmsg_01A27e9ozcpoh4jdPRsuJbFy1oho61coXRmycTwVNJ2Jau)
-Novos: 2 · mudaram: 2 · saíram: 0
+Novos: 2 · mudaram: 3 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_TpMostraACaloteGravada_NuncaAPalavraBacia`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+- mudou: `tests/visual/jobon_folha_browser.py`
 
-Selo depois: `2dc25231e6fbb425`
+Selo depois: `ebeb4fcf85d44fdc`
