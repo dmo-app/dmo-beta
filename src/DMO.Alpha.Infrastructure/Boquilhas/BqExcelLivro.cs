@@ -138,7 +138,8 @@ public static class BqExcelLivro
             Parte("xl/styles.xml", Recurso("DMO.Bq.Excel.Estilos.xml"));
         }
 
-        return memoria.ToArray();
+        // Com os 12 meses, as datas em dd/mm/aaaa e as juntas sem linhas por dentro.
+        return Escrever(memoria.ToArray(), []).Livro;
 
         static string Inline(string celula, string texto) =>
             $"<c r=\"{celula}\" s=\"{{s}}\" t=\"inlineStr\"><is><t>{System.Security.SecurityElement.Escape(texto)}</t></is></c>";
@@ -185,7 +186,9 @@ public static class BqExcelLivro
                 // ser uma página diferente»): os que faltam criam-se já, por ordem.
                 for (var m = 1; m <= 12; m++)
                 {
-                    if (pacote.Folha(m) is null) pacote.CriarFolha(ano, m);
+                    var doMes = pacote.Folha(m) ?? pacote.CriarFolha(ano, m);
+                    DatasComValor(doMes.Xml, ano, m);
+                    doMes.Mudou = true;
                 }
 
                 foreach (var mes in dias.GroupBy(dia => (dia.Dia.Year, dia.Dia.Month)))
@@ -487,10 +490,28 @@ public static class BqExcelLivro
         }
     }
 
-    private static void Formula(XElement c, string formula)
+    private static void Formula(XElement c, string formula, double? valor = null)
     {
         Limpar(c);
         c.Add(new XElement(S + "f", formula));
+        if (valor is { } v) c.Add(new XElement(S + "v", v.ToString(CultureInfo.InvariantCulture)));
+    }
+
+    /// <summary>
+    /// A data de cada dia fica também escrita na célula (Diogo, 26/10/2026:
+    /// «não tem dia dd/mm/aaaa»): só com a fórmula, quem abre o ficheiro sem
+    /// recalcular (pré-visualização, telemóvel) via a célula vazia.
+    /// </summary>
+    private static void DatasComValor(XElement folha, int ano, int mes)
+    {
+        var serie = new DateTime(ano, mes, 1).ToOADate();
+        for (var dia = 1; dia <= DateTime.DaysInMonth(ano, mes); dia++)
+        {
+            var c = Celula(folha, LinhaDoDia(dia), 1, criar: false);
+            if (c?.Element(S + "f") is null) continue;
+            c.Element(S + "v")?.Remove();
+            c.Add(new XElement(S + "v", (serie + dia - 1).ToString(CultureInfo.InvariantCulture)));
+        }
     }
 
     private static IEnumerable<XElement> Linhas(XElement folha) =>
@@ -703,7 +724,7 @@ public static class BqExcelLivro
                 var linha = LinhaDoDia(dia);
                 Formula(Celula(xml, linha, 1, criar: true)!, dia == 1
                     ? $"DATE({ano},{mes},1)"
-                    : $"A{linha - LinhasPorDia}+1");
+                    : $"A{linha - LinhasPorDia}+1", new DateTime(ano, mes, dia).ToOADate());
                 Texto(Celula(xml, linha + 1, 1, criar: true)!, DiasDaSemana[(int)new DateTime(ano, mes, dia).DayOfWeek]);
             }
 
@@ -778,11 +799,90 @@ public static class BqExcelLivro
         }
 
         /// <summary>
+        /// As células juntas (B1:E2 …) sem linhas por dentro (Diogo, 26/10/2026:
+        /// «merge das células»): as células tapadas pela junção levavam as
+        /// bordas finas de cada coluna, e há programas que as desenham. Cada
+        /// uma passa a um estilo igual mas só com as bordas de fora.
+        /// </summary>
+        private void JuntasSemLinhasPorDentro()
+        {
+            var estilos = Ler("xl/styles.xml");
+            var xfs = estilos?.Root!.Element(S + "cellXfs");
+            var bordas = estilos?.Root!.Element(S + "borders");
+            if (xfs is null || bordas is null) return;
+            var lista = xfs.Elements(S + "xf").ToList();
+            var listaBordas = bordas.Elements(S + "border").ToList();
+            var feitos = new Dictionary<(int, int), int>();
+            var mudou = false;
+            foreach (var folha in _abertas.Values.Where(f => f.Mudou))
+            {
+                foreach (var junta in folha.Xml.Descendants(S + "mergeCell"))
+                {
+                    var partes = ((string)junta.Attribute("ref")!).Split(':');
+                    if (partes.Length != 2) continue;
+                    var (c1, l1) = Referencia(new XElement("c", new XAttribute("r", partes[0])));
+                    var (c2, l2) = Referencia(new XElement("c", new XAttribute("r", partes[1])));
+                    for (var l = l1; l <= l2; l++)
+                    {
+                        for (var c = c1; c <= c2; c++)
+                        {
+                            var celula = Celula(folha.Xml, l, c, criar: false);
+                            if (celula is null) continue;
+                            var mascara = (c > c1 ? 1 : 0) | (c < c2 ? 2 : 0) | (l > l1 ? 4 : 0) | (l < l2 ? 8 : 0);
+                            var estilo = (int?)celula.Attribute("s") ?? 0;
+                            if (mascara == 0 || estilo >= lista.Count) continue;
+                            if (!feitos.TryGetValue((estilo, mascara), out var novo))
+                            {
+                                var xf = new XElement(lista[estilo]);
+                                var idBorda = (int?)xf.Attribute("borderId") ?? 0;
+                                var borda = new XElement(idBorda < listaBordas.Count ? listaBordas[idBorda] : new XElement(S + "border"));
+                                foreach (var (bit, lado) in new[] { (1, "left"), (2, "right"), (4, "top"), (8, "bottom") })
+                                {
+                                    if ((mascara & bit) == 0) continue;
+                                    borda.Element(S + lado)?.ReplaceWith(new XElement(S + lado));
+                                }
+
+                                if (!XNode.DeepEquals(borda, idBorda < listaBordas.Count ? listaBordas[idBorda] : null))
+                                {
+                                    bordas.Add(borda);
+                                    listaBordas.Add(borda);
+                                    xf.SetAttributeValue("borderId", listaBordas.Count - 1);
+                                    xf.SetAttributeValue("applyBorder", "1");
+                                    xfs.Add(xf);
+                                    lista.Add(xf);
+                                    novo = lista.Count - 1;
+                                }
+                                else
+                                {
+                                    novo = estilo;
+                                }
+
+                                feitos[(estilo, mascara)] = novo;
+                            }
+
+                            if (novo != estilo)
+                            {
+                                celula.SetAttributeValue("s", novo);
+                                mudou = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!mudou) return;
+            bordas.SetAttributeValue("count", listaBordas.Count);
+            xfs.SetAttributeValue("count", lista.Count);
+            Escrever("xl/styles.xml", estilos!);
+        }
+
+        /// <summary>
         /// Grava as partes mudadas. A cadeia de cálculo (calcChain) sai, porque
         /// as fórmulas mudaram de sítio, e o Excel recalcula tudo ao abrir.
         /// </summary>
         public void Gravar()
         {
+            JuntasSemLinhasPorDentro();
             foreach (var folha in _abertas.Values.Where(f => f.Mudou))
             {
                 Escrever(folha.Caminho, folha.Documento);

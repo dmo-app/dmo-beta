@@ -248,7 +248,7 @@ public sealed class BqExcelLivroTests
         Assert.Contains($"Id=\"{id}\"", Ler(zip, "xl/_rels/workbook.xml.rels"));
         var folha = FolhaDoMes(resultado.Livro, "Outubro");
         Assert.Equal("DATE(2026,10,1)", Celula(folha, "A4")!.Element(S + "f")!.Value);
-        Assert.Null(Celula(folha, "A4")!.Element(S + "v"));
+        Assert.Equal(new DateTime(2026, 10, 1).ToOADate().ToString(System.Globalization.CultureInfo.InvariantCulture), Celula(folha, "A4")!.Element(S + "v")!.Value);
         Assert.Equal("Quinta", Texto(folha, "A5"));
         Assert.Equal("A99+1", Celula(folha, "A104")!.Element(S + "f")!.Value);
         Assert.Equal("Quarta", Texto(folha, "A105"));
