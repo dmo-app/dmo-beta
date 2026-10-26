@@ -510,22 +510,6 @@ html body :is(#dmu-title,#dmt-title,#dmr-title){font-size:26px;font-weight:650;l
 html body .dmt-module-head{font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--dmo-muted)}
 html body .dmu-entrega .dmu-token span{text-transform:none;letter-spacing:0;font-size:12px}
 
-/* Definições: no side menu (mockups: navigation on top). The sections become a row of text tabs
-   above the content, the open one underlined like the module tabs; a locked section keeps its
-   meaning in a muted label, without the padlock glyph. */
-@media (min-width:801px){
-  html body .def-layout{grid-template-columns:minmax(0,1fr);gap:14px}
-  html body .def-menu{position:static;flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:4px 22px;padding:0 4px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none}
-  html body .def-menu-grupo{flex-direction:row;align-items:stretch;gap:0 22px}
-  html body .def-menu-sub{flex-direction:row;padding-left:0;gap:0 18px}
-  html body .def-menu a{padding:8px 2px;border-radius:0;border-bottom:3px solid transparent;font-size:13px;font-weight:500;color:var(--dmo-muted);background:none;box-shadow:none}
-  html body .def-menu a:hover{color:var(--dmo-text);background:var(--dmo-brand-050)}
-  html body .def-menu a.active{color:var(--dmo-brand-700);font-weight:650;border-bottom-color:var(--design-blue);background:none;box-shadow:none}
-  html body .def-menu .def-menu-sub a{padding:8px 2px;font-weight:500}
-}
-html body :is(.def-menu-cadeado,.def-cadeado) svg{display:none}
-html body .def-menu a:has(.def-menu-cadeado){color:var(--dmo-muted);opacity:.75}
-
 /* Login and Versão: the identity side is a flat light surface, no gradient. */
 html body.dmo-account-page .identity{background:var(--dmo-subtle)}
 /* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
