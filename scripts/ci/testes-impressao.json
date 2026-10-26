@@ -1,5 +1,5 @@
 {
-  "selo": "f5460727dd7957fa",
+  "selo": "47be9d992eb0463b",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2491,6 +2491,14 @@
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.SemAChave_NaoEntra": "592556a573ec3fe8",
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.SemProducao_AvisaEOFormularioPedeAReferenciaEOLote": "633eab492206a54c",
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.UmaRecusa_VoltaComONumeroEscrito_ENadaSeGrava": "cdc03ea3abb0bdef",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: (resto do ficheiro)": "f4c60e379e8265a1",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.AAutorizacaoEADaPagina_ComECemOCabecalho": "36e3a3c2630cef16",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.DepoisDeGravar_RegistoEAvisos_SaoOsMesmosPartialsDaPaginaInteira": "0dafae0a70951d53",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OHistorico_ZonaDosResultados_ESoAsMinhasReparacoes_SaoOsMesmosPartials": "17edb1769b56f280",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OPainelDasLinhas_PedidoSozinho_ELinhaSemEscolher_SaoOsMesmosPartials": "c1b972ecb64aa17c",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OsPedidosComZonas_LeemMenosDaBaseQueAPaginaInteira_NoPostgres": "3b9101ef6dba3d5c",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.SemOCabecalho_AResposta_EAPaginaInteiraDeSempre": "63ebe67559a643d7",
+    "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.ZonaDesconhecidaOuDeOutraVista_RespondeComAPaginaInteira": "fb45713dc9fe7014",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: (resto do ficheiro)": "289f7a55e9569fac",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.AdminUsersToasts_StayClearOfTheCreateButton": "5987abdee347b3af",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Buttons_HaveOnlyTheirThinBorder_NoOutlineAround": "9f4a75a9e10dd4f1",

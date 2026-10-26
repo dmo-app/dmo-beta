@@ -260,6 +260,12 @@ public sealed class IndexModel(
         Numero = numero;
         Escrita = string.IsNullOrWhiteSpace(escrita) ? null : escrita;
         SemJobOn = semjobon == "1";
+        // Depois de gravar (PERF-09): só as zonas pedidas, sem o resto da página.
+        if (DmoZonasPedidas.Ler(Request, ZonaConhecida) is { } zonas)
+        {
+            return await ZonasAsync(zonas, pagina);
+        }
+
         return await DesenharAsync(pagina);
     }
 
@@ -433,6 +439,84 @@ public sealed class IndexModel(
         OutraMarcada = escrita;
         OperacaoId = operacao;
         return await DesenharAsync(null);
+    }
+
+    public const string ZonaLinhas = "riLinhas";
+    public const string ZonaAvisos = "riAvisos";
+    public const string ZonaRegisto = "riRegisto";
+    public const string ZonaHistorico = "riHistResultados";
+
+    /// <summary>As zonas pedidas pelo GET que segue uma gravação (PERF-09); vazio na página inteira.</summary>
+    public IReadOnlyList<string> ZonasPedidas { get; private set; } = [];
+
+    // As zonas que cada vista conhece: a outra vista não as tem, e a página inteira responde.
+    private bool ZonaConhecida(string zona) => Historico
+        ? zona is ZonaAvisos or ZonaHistorico
+        : zona is ZonaLinhas or ZonaAvisos or ZonaRegisto;
+
+    /// <summary>
+    /// Só as zonas pedidas (PERF-09), com os mesmos partials da página
+    /// completa e só os dados que elas mostram: sem a barra do módulo, sem as
+    /// produções das outras linhas (o registo precisa só da linha aberta) e
+    /// sem o painel quando não é pedido. A mensagem não lê nada. Gravar um
+    /// número não muda o painel (a produção do dia vem do Job On), por isso o
+    /// registo e a mensagem bastam; quem quiser o painel pede-o. Uma linha
+    /// pedida que não existe deixa o registo no convite, como na página.
+    /// </summary>
+    private async Task<IActionResult> ZonasAsync(IReadOnlyList<string> zonas, int? pagina)
+    {
+        var cancelar = HttpContext.RequestAborted;
+        var eu = conta.Current is { IsAuthenticated: true, IsAdmin: false, ActorId: { } id } ? id : (Guid?)null;
+        var comLinhas = zonas.Contains(ZonaLinhas);
+        var comRegisto = zonas.Contains(ZonaRegisto);
+        var comHistorico = zonas.Contains(ZonaHistorico);
+        if (comLinhas || comRegisto || comHistorico)
+        {
+            Maquinas = await maquinas.ListAsync(cancelar);
+            Maquina = Maquinas.FirstOrDefault(m => string.Equals(m.Code, MaquinaCodigo, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (comHistorico)
+        {
+            await HistoricoAsync(eu, pagina, cancelar);
+        }
+
+        if (comLinhas || (comRegisto && Maquina is not null))
+        {
+            Hoje = await reparacoes.DiaOperacionalAsync(cancelar);
+            // O painel precisa de todas as linhas; o registo, só da aberta.
+            var pedidas = comLinhas ? Maquinas : [Maquina!];
+            var doDiaDeCada = await reparacoes.ProducoesDoDiaAsync([.. pedidas.Select(m => m.MachineId)], DiaDoRegisto, cancelar);
+            Linhas = [.. pedidas.OrderBy(m => Fila(m.Code)).ThenBy(m => m.Code, StringComparer.OrdinalIgnoreCase).Select(CartaoDe)];
+            DoDia = Cartao?.DoDia;
+            Producao = Cartao?.Producao;
+            RiCartao CartaoDe(MachineOption m)
+            {
+                var foco = m.MachineId == Maquina?.MachineId;
+                var doDia = doDiaDeCada[m.MachineId];
+                var producao = doDia.Escolhida(foco ? ProducaoPedida : null);
+                var cartao = new RiCartao(m, doDia, producao, foco ? Tipo ?? ReparacaoTipo.Cm : ReparacaoTipo.Cm, foco);
+                if (foco)
+                {
+                    Cartao = cartao;
+                }
+
+                return cartao;
+            }
+        }
+
+        if (comRegisto)
+        {
+            AbreFerramentas = (await capabilities.GetAsync(cancelar)).Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
+            if (Cartao is not null && eu is { } pessoa)
+            {
+                Log = await consulta.ConsultarAsync(new RiConsultaFiltro(Cartao.Maquina.MachineId, DiaDoRegisto, DiaDoRegisto, pessoa), pagina, cancelar);
+            }
+        }
+
+        ZonasPedidas = zonas;
+        DmoZonasPedidas.Marcar(Response, zonas);
+        return Partial("_RiZonas", this);
     }
 
     private async Task<IActionResult> DesenharAsync(int? pagina)
