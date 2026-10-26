@@ -873,7 +873,7 @@ html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:
 .jfi-duas{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
 .jfi-duas.jfi-cmmfbq{grid-template-columns:1fr 1fr .8fr .8fr}
 .jfi-duas.jfi-cmmfbq .jfi-kv th{width:48%}
-.jfi-tres{display:grid;grid-template-columns:repeat(4,1fr);gap:2.4mm}
+.jfi-tres{display:grid;grid-template-columns:repeat(5,1fr);gap:2.4mm}
 .jfi-bloco{border:1px solid #9aa3ad;break-inside:avoid}
 .jfi-bloco>.jfi-barra{margin:-1px -1px 0}
 .jfi-corpo{padding:1.5mm 2mm;font-size:8.5pt}
