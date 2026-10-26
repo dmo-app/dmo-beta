@@ -40,7 +40,7 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
         return await (
                 from j in _db.JobOns.AsNoTracking().Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, term))
                 join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
-                orderby j.ProductionNumber descending, j.Id descending
+                orderby j.Id descending
                 select new ProductionPickItem(j.Id, j.ProductionNumber, j.Reference, m.Code, j.InicioEm))
             .Take(IProductionPickerQuery.MaxResults)
             .ToListAsync(cancellationToken);

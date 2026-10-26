@@ -55,6 +55,7 @@ public sealed class ResumoModel : PageModel
     private readonly CurrentUserCapabilities _capabilities;
     private readonly DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks _mcaliper;
     private readonly IControloRevisaoQuery _revisaoQuery;
+    private readonly DMO.Alpha.Infrastructure.Tools.ToolEtiquetas _etiquetas;
     private readonly PesoProducaoAnteriorQuery _producaoAnteriorQuery;
 
     public ResumoModel(
@@ -75,9 +76,11 @@ public sealed class ResumoModel : PageModel
         CurrentUserCapabilities capabilities,
         DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks mcaliper,
         IControloRevisaoQuery revisaoQuery,
+        DMO.Alpha.Infrastructure.Tools.ToolEtiquetas etiquetas,
         PesoProducaoAnteriorQuery producaoAnteriorQuery)
     {
         _revisaoQuery = revisaoQuery;
+        _etiquetas = etiquetas;
         _producaoAnteriorQuery = producaoAnteriorQuery;
         _mcaliper = mcaliper;
         _capabilities = capabilities;
@@ -241,9 +244,12 @@ public sealed class ResumoModel : PageModel
     /// <summary>A referência e o lote da ferramenta da área («9262 · Lote 16»); null nas áreas sem ferramenta ou sem dados.</summary>
     public string? AreaDetalhe(string area)
     {
+        if (AreaEtiquetas.TryGetValue(area, out var etiqueta)) return etiqueta;
         var tool = area switch { "CM" => CmTool, "MF" => MfTool, "BQ" => BqTool, _ => null };
         return tool is null ? null : $"{tool.Reference} · Lote {tool.Lot}";
     }
+
+    private Dictionary<string, string> AreaEtiquetas { get; set; } = new();
 
     public IReadOnlyList<DMO.Alpha.Infrastructure.Controlo.ControloAreaStateReadModel> AreasMostradas =>
         AreaStates.Count > 0
@@ -440,11 +446,13 @@ public sealed class ResumoModel : PageModel
         if (zonas.Any(zona => zona is not ZonaAvisos and not ZonaVistoPor))
         {
             await LoadMcaliperLinksAsync(SelectedProduction);
-            var zonaTools = await _toolLookup.FindByToolIdsAsync(
+            var etiquetas = await _etiquetas.GetAsync(
                 new[] { SelectedProduction.CmToolId, SelectedProduction.MfToolId, SelectedProduction.BqToolId }, ct);
-            CmTool = SelectedProduction.CmToolId is { } zCm ? zonaTools.GetValueOrDefault(zCm) : null;
-            MfTool = SelectedProduction.MfToolId is { } zMf ? zonaTools.GetValueOrDefault(zMf) : null;
-            BqTool = SelectedProduction.BqToolId is { } zBq ? zonaTools.GetValueOrDefault(zBq) : null;
+            AreaEtiquetas = new Dictionary<string, string>();
+            foreach (var (area, id) in new[] { ("CM", SelectedProduction.CmToolId), ("MF", SelectedProduction.MfToolId), ("BQ", SelectedProduction.BqToolId) })
+            {
+                if (id is not null && etiquetas.TryGetValue(id, out var etiqueta)) AreaEtiquetas[area] = etiqueta;
+            }
             AreaStates = await _areaStateHandler.GetAsync(existing.ControloId, ct);
         }
 

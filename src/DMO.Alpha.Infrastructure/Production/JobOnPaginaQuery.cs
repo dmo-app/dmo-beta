@@ -31,7 +31,7 @@ public sealed class JobOnPaginaQuery(DmoDbContext db) : IJobOnPaginaQuery
             antigas = antigas.Where(j => j.MachineId == maquinaPedida);
         }
         return await antigas
-            .OrderByDescending(j => j.ProductionNumber).ThenByDescending(j => j.Id)
+            .OrderByDescending(j => j.Id)
             .Select(j => new JobOnProductionOption(j.ProductionNumber, j.Reference))
             .FirstOrDefaultAsync(cancellationToken);
     }
