@@ -13,7 +13,7 @@ namespace DMO.Alpha.Infrastructure.Production;
 public static class JobOnOverlapQuery
 {
     /// <summary>Desligado: só as BQ avisam de sobreposição.</summary>
-    private const bool AvisarProducoesDaMesmaLinha = false;
+    private static readonly bool AvisarProducoesDaMesmaLinha = false;
 
     public static async Task<OverlapWarning?> EvaluateAsync(
         DmoDbContext db,

@@ -2009,6 +2009,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("MfInversao")
                         .HasColumnType("text");
 
+                    b.Property<string>("MfLoteFf")
+                        .HasColumnType("text");
+
                     b.Property<string>("MfNotas")
                         .HasColumnType("text");
 

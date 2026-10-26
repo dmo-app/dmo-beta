@@ -701,12 +701,17 @@ public sealed class FichaModel : PageModel
             .Where(field => field.Key != "process_token"
                 && ParseOptionalDecimal(field.Value) is { } value && IsImpossible(field.Key, value))
             .ToDictionary(field => field.Key, field => field.Value!.Trim());
-        var sheet = unreadable.Count == 0 && impossible.Count == 0 || string.IsNullOrEmpty(canonicalToolId)
+        // Um campo que a ficha já não mostra (o Tampão e a Punção da CM,
+        // Diogo 26/10/2026) não vem no envio: fica o valor gravado.
+        var ausentes = submitted.Keys
+            .Where(name => name != "process_token" && Request.HasFormContentType && !Request.Form.ContainsKey(name))
+            .ToHashSet(StringComparer.Ordinal);
+        var sheet = unreadable.Count == 0 && impossible.Count == 0 && ausentes.Count == 0 || string.IsNullOrEmpty(canonicalToolId)
             ? null
             : await _sheetQuery.FindByToolIdAsync(canonicalToolId, HttpContext.RequestAborted);
         var stored = sheet?.Technical;
         decimal? Value(string name, decimal? previous) =>
-            unreadable.ContainsKey(name) || impossible.ContainsKey(name) ? previous : ParseOptionalDecimal(submitted[name]);
+            ausentes.Contains(name) || unreadable.ContainsKey(name) || impossible.ContainsKey(name) ? previous : ParseOptionalDecimal(submitted[name]);
 
         var outcome = await _editTechnical.HandleAsync(
             new EditToolTechnicalValues(

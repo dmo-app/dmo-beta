@@ -50,7 +50,14 @@ html body .ferr-tech-campos .dmo-field input[aria-invalid=true]{border-color:var
 .ferr-editar-linha > .ferr-opcional{flex:1 1 320px;min-width:0}
 .ferr-editar-linha > .ferr-editar-sep{align-self:stretch}
 @media (max-width:900px){.ferr-editar-sep{display:none}.ferr-editar-linha > .ferr-opcional{flex-basis:100%;padding-top:12px;border-top:1px solid var(--dmo-border)}}
-.ferr-w-uso{width:96px}
+.ferr-w-uso{width:112px}
 input.ferr-sem-registo-campo{background:var(--dmo-warning-soft)}
 input.ferr-sem-registo-campo::placeholder{color:var(--dmo-warning)}
 .ferr-editar-linha .dmo-field > label{min-height:20px}
+/* A Informação opcional numa só linha e a Fábrica de origem estreita: leva
+   duas letras, como MG (Diogo, 26/10/2026). */
+.ferr-editar-linha > .ferr-opcional > .ferr-tech-campos{flex-wrap:nowrap}
+.ferr-w-fab{width:auto;flex:0 0 auto}
+html body .ferr-tech-campos > .ferr-w-fab > input[name=fabrica_origem]{width:64px}
+/* O título da ficha destaca-se: maior e mais forte (Diogo, 26/10/2026). */
+html body #ferrGeral #ferr-facts-title{font-size:22px;font-weight:700;line-height:1.25}

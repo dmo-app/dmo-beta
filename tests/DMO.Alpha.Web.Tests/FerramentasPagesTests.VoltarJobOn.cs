@@ -3,8 +3,9 @@ namespace DMO.Alpha.Web.Tests;
 public partial class FerramentasPagesTests
 {
     // O regresso à folha do Job On (duplo clique numa ferramenta da
-    // /JobOn/Folha): com «voltar» local do Job On, a ficha mostra «Voltar ao
-    // Job On» para essa folha; com outro destino, nada muda.
+    // /JobOn/Folha): com «voltar» local do Job On, o único «Voltar» da ficha
+    // leva a essa folha quando não há página anterior (Diogo, 26/10/2026: um
+    // só «Voltar»); com outro destino, leva à lista.
     [Fact]
     public async Task Ficha_ComVoltarDoJobOn_MostraOVoltarParaAFolhaExata()
     {
@@ -14,7 +15,9 @@ public partial class FerramentasPagesTests
 
         var html = await GetPageHtmlAsync(client, $"/Ferramentas/Ficha?tool_id={toolId}&voltar={Uri.EscapeDataString("/JobOn/Folha?jobon_id=7&dia=23")}");
 
-        Assert.Contains("<a class=\"dmo-button\" href=\"/JobOn/Folha?jobon_id=7&amp;dia=23\" data-ferr-voltar-jobon>Voltar ao Job On</a>", html, StringComparison.Ordinal);
+        Assert.Contains("id=\"ferrVoltar\" href=\"/JobOn/Folha?jobon_id=7&amp;dia=23\" data-ferr-voltar-jobon", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Voltar ao Job On", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Voltar à lista", html, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -33,6 +36,7 @@ public partial class FerramentasPagesTests
 
         Assert.DoesNotContain("data-ferr-voltar-jobon", html, StringComparison.Ordinal);
         Assert.DoesNotContain("Voltar ao Job On", html, StringComparison.Ordinal);
-        Assert.Contains("Voltar à lista", html, StringComparison.Ordinal);
+        Assert.Contains("id=\"ferrVoltar\" href=\"/Ferramentas\"", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Voltar à lista", html, StringComparison.Ordinal);
     }
 }
