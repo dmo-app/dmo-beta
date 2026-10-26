@@ -77,8 +77,11 @@ html body .dmo-shell-header .dmo-shell-logout{min-height:0;margin-left:18px;padd
 html body .dmo-shell-header .dmo-shell-logout:is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);text-decoration:underline;text-underline-offset:3px;outline:0}
 html body .dmo-shell-header .dmo-shell-logout:focus-visible{outline:2px solid var(--dmo-brand-600);outline-offset:2px}
 /* Bloco da conta em duas linhas, encostado à direita: o utilizador; por baixo «Admin» · «Sair». */
-html body .dmo-shell-header .dmo-shell-conta{flex:0 1 auto;min-width:0;margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{margin-left:0;max-width:100%}
+html body .dmo-shell-header .dmo-shell-conta{flex:0 1 auto;min-width:0;margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:0}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{margin-left:0;max-width:100%;white-space:nowrap}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user :is(strong,span){display:inline;margin:0}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span::before{content:" · "}
+html body .dmo-shell-header .dmo-shell-sessao{font-size:10px;line-height:1.2;color:var(--dmo-muted);white-space:nowrap}
 html body .dmo-shell-header .dmo-shell-acoes{display:flex;align-items:center;gap:14px}
 html body .dmo-shell-header .dmo-shell-acoes .dmo-shell-logout{margin-left:0;padding:1px 2px}
 @media(max-width:600px){html body .dmo-shell-header .dmo-env-badge{flex:0 1 auto;min-width:0;max-width:110px;margin-right:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;line-height:26px}html body .dmo-shell-header .dmo-shell-conta{flex:none;max-width:120px}html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{max-width:120px}html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html body .dmo-shell-header .dmo-shell-acoes{gap:10px}}
