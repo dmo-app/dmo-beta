@@ -2291,3 +2291,13 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `decac123d5c36a82`
+
+## A-0097 · 2026-10-26 · ok-do-diogo
+
+Porquê: O teste do Sumário «criado hoje, começa depois» punha o início a +5 dias, que no fim do mês cai dentro do mês que o «começam» mostra (falhava desde 26/10). Passa a +40 dias, sempre fora; o que o teste verifica fica igual.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW (autorização de testes do Diogo, anexada pelo coordenador a 26/10)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart`
+
+Selo depois: `29d6bd3c30b4cd69`
