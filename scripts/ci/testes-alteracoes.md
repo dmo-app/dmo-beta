@@ -2745,80 +2745,62 @@ Novos: 2 · mudaram: 2 · saíram: 0
 
 Selo depois: `b1fbf8371e3118cd`
 
-## A-0134 · 2026-10-26 · ok-do-diogo
+## A-0134 · 2026-10-26 · teste-novo
 
-Porquê: Registo do integracao acertado pela main e2871b1: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 7 · mudaram: 1 · saíram: 0
+Porquê: Cabeçalhos de segurança em todas as respostas
+Referência: A-0134
+Novos: 2 · mudaram: 0 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
 - novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: CabecalhosDeSegurancaTests.Resposta_LevaOsCabecalhosDeSeguranca`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
-Selo depois: `c697cb965d38984f`
+Selo depois: `2ed82e8fca8a939f`
 
 ## A-0135 · 2026-10-26 · ok-do-diogo
 
-Porquê: Junção do PR 136 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 136
-Novos: 4 · mudaram: 0 · saíram: 0
+Porquê: Registo do integracao acertado pela main 30fa258: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 28 · mudaram: 11 · saíram: 4
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: PostgresMigrationIntegrationTests.JobOnMaquina_FazUmaSoConsultaDeLeitura`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: JobOnMaquinaDoJobOnTests.MaquinaDoJobOn_DevolveALinhaDaProducao_OuZeroQuandoNaoExiste`
-
-Selo depois: `2a77037c4adaf9a6`
-
-## A-0130 · 2026-10-26 · ok-do-diogo
-
-Porquê: A-0130 no integracao: Voltar, cartões BQ com link, módulos do Pessoal em tabela
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5hWpevZxdmL29DgykSdZi6
-Novos: 8 · mudaram: 6 · saíram: 0
-
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Anular_AChefia_ADeOutraPessoaSaiDaListaEDasContagens_FicaNaBase_ComRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Corrigir_AChefia_MudaSoONumeroDeOutraPessoa_EDeixaRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.OutraPessoaSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_AbremVazios_EFiltramPorUtilizadorEModulo`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_SoOAdminEntra`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CartoesComLink.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CartoesComLink.cs :: BoquilhasRegistoPageTests.Cartoes_BqLoteAbreAFicha_ORestoAbreOJobOnDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Voltar.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Voltar.cs :: FerramentasPagesTests.Ficha_OVoltar_VoltaAPaginaDeOndeSeVeio_SemOrigemALista`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: JobOnPageTests.Folha_FerramentaA100PorCento_ReferenciaELoteComCorLigeira`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_AnulaADeOutraPessoa_ALinhaSai_EFicaNaBase`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_CorrigeONumeroDeOutraPessoa_ComRasto_EOMesmoEnvioAplicaUmaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutroOperadorSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
 - novo: `tests/ShellProof/voltar.test.cjs :: (resto do ficheiro)`
 - novo: `tests/ShellProof/voltar.test.cjs :: depois de guardar (vindo da própria ficha) ou do Histórico, a origem mantém-se`
 - novo: `tests/ShellProof/voltar.test.cjs :: sem origem do mesmo site, fica o link do servidor`
 - novo: `tests/ShellProof/voltar.test.cjs :: vindo de outra página, o Voltar volta lá com os filtros`
+- mudou: `scripts/ci/testes.md`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.DuasCorrecoes_DoisRastos_PelaOrdem`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.UmaAnulada_NaoSeCorrigeNemSeAnulaOutraVez`
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.HistoricoDiario.cs :: BoquilhasRegistoPageTests.Historico_AAbaAbreOResumoDiario_EACelulaAbreORegistoComOJobOn`
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PersistedToolAndContextFacts_RenderFromServerData`
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.Cartoes_InicioEFimSaoOsDoJobOn_SemInicioAvisoAmarelo`
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_DoesNotCreateTheTrace`
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 - mudou: `tests/ShellProof/package.json`
-
-Selo depois: `97b8665552385661`
-
-## A-0136 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção dos PRs #135 e #138 (e #137 já junto) no ramo integracao; cada PR leva o seu registo para a main.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs #135 #138 #137
-Novos: 11 · mudaram: 4 · saíram: 4
-
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Anular_AChefia_ADeOutraPessoaSaiDaListaEDasContagens_FicaNaBase_ComRasto`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Corrigir_AChefia_MudaSoONumeroDeOutraPessoa_EDeixaRasto`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.OutraPessoaSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
-- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_AbremVazios_EFiltramPorUtilizadorEModulo`
-- novo: `tests/DMO.Alpha.Web.Tests/Admin/RegistosPorUtilizadorTests.cs :: RegistosPorUtilizadorTests.Registos_SoOAdminEntra`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaUsoCheio.cs :: JobOnPageTests.Folha_FerramentaA100PorCento_ReferenciaELoteComCorLigeira`
-- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_AnulaADeOutraPessoa_ALinhaSai_EFicaNaBase`
-- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.AChefia_CorrigeONumeroDeOutraPessoa_ComRasto_EOMesmoEnvioAplicaUmaVez`
-- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutroOperadorSemAChefia_NaoCorrigeNemAnula_ENadaMuda`
-- mudou: `scripts/ci/testes.md`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: (resto do ficheiro)`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.DuasCorrecoes_DoisRastos_PelaOrdem`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.UmaAnulada_NaoSeCorrigeNemSeAnulaOutraVez`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Anular_OutraPessoa_SaiDaListaEDasContagens_FicaNaBase_ComRasto`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasCorrigirTests.cs :: ReparacoesInternasCorrigirTests.Corrigir_OutraPessoaComOModulo_MudaSoONumero_EDeixaRasto`
 - saiu: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaCorrigirPaginaTests.cs :: ReparacaoInternaCorrigirPaginaTests.OutraPessoaComOModulo_Anula_ALinhaSai_EFicaNaBase`
