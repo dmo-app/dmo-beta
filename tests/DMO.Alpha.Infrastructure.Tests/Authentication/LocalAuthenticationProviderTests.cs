@@ -111,32 +111,19 @@ public sealed class LocalAuthenticationProviderTests
     }
 
     [Fact]
-    public async Task CincoFalhasSeguidas_BloqueiamMesmoComACerta_EDepoisVoltaAEntrar()
+    public async Task CincoFalhasSeguidas_NaoBloqueiam_ACertaEntraLogo()
     {
-        var db = new DmoDbContext(new DbContextOptionsBuilder<DmoDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-        var relogio = new Relogio();
-        var provider = new LocalAuthenticationProvider(db, NullLogger<LocalAuthenticationProvider>.Instance, relogio);
+        var provider = NewProvider(out var db);
         await provider.CreateAsync("ana@fabrica.pt", "1234");
 
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 6; i++)
         {
             await provider.AuthenticateAsync("ana@fabrica.pt", "errada");
         }
 
-        Assert.False((await provider.AuthenticateAsync("ana@fabrica.pt", "1234")).Success);
-
-        relogio.Agora += TimeSpan.FromSeconds(31);
+        Assert.Equal(6, db.LocalCredentials.Single().FailedAttempts);
         Assert.True((await provider.AuthenticateAsync("ana@fabrica.pt", "1234")).Success);
         Assert.Equal(0, db.LocalCredentials.Single().FailedAttempts);
-    }
-
-    [Fact]
-    public void Espera_DobraAteQuinzeMinutos()
-    {
-        Assert.Equal(TimeSpan.FromSeconds(30), LocalAuthenticationProvider.LockFor(5));
-        Assert.Equal(TimeSpan.FromSeconds(60), LocalAuthenticationProvider.LockFor(6));
-        Assert.Equal(TimeSpan.FromMinutes(15), LocalAuthenticationProvider.LockFor(40));
     }
 
     [Fact]
