@@ -465,8 +465,8 @@
            botao.form). O handler de gravação no backend é a fonte única do
            cálculo. *@
         <div class="dmo-card-topo-acoes">
-          <button type="button" class="dmo-button peso-row-button peso-cmp-mais" form="cmpForm" data-cmp-add-row aria-label="Adicionar leitura" title="Adicionar leitura">+</button>
-          <button type="button" class="dmo-button peso-row-button peso-cmp-mais" form="cmpForm" data-cmp-remove-row aria-label="Remover leitura" title="Remover leitura">−</button>
+          <button type="button" class="dmo-button" form="cmpForm" data-cmp-add-row>Adicionar leitura</button>
+          <button type="button" class="dmo-button" form="cmpForm" data-cmp-remove-row>Remover leitura</button>
           <button type="submit" class="dmo-button" form="cmpForm">Comparar pesos</button>
           <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button" form="cmpForm">Guardar comparação</button>
         </div>
@@ -511,7 +511,7 @@
               </div>
               <div class="dmo-field">
                 <label for="cmpWater-@i">Massa de água (g)</label>
-                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 70,5" />
+                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 199,64 ou 199.64" />
               </div>
               <span class="peso-cmp-x" role="button" tabindex="0" data-cmp-del-row aria-label="Remover esta leitura" title="Remover esta leitura">×</span>
             </div>
