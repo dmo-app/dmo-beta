@@ -31,7 +31,7 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
 /* Links escuros (padrão da beta): a produção abre a ficha do Job On. */
 .ri-card .dmo-table td a{color:var(--dmo-brand-900);font-weight:600}
 .ri-vazia{margin:0;color:var(--dmo-muted)}
-/* «Só por associar»: a caixa alinhada pelo fundo dos campos. */
+/* «Sem Job On»: a caixa alinhada pelo fundo dos campos. */
 html body .ri-filtros-card .dmo-filter-bar>.ri-so-por-associar{display:inline-flex;gap:6px;align-items:center;min-height:38px;margin:0;font-size:13.5px;color:var(--dmo-text);cursor:pointer;white-space:nowrap}
 .ri-so-por-associar input{margin:0}
 /* A marca «Por associar»: texto escuro numa pílula clara, não um botão; abre a janela de associar. */
@@ -73,44 +73,6 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
   <section class="dmo-card ri-filtros-card" aria-label="Filtros da consulta">
     <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
       <form id="riConsultaFiltros" method="get" asp-page="/ReparacaoInterna/Consultar" class="dmo-filter-bar" role="search">
-        <div class="dmo-field ri-w-maquina">
-          <label for="riConsultaMaquina">Linha</label>
-          <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Maquina is null)">Todas</option>
-            @foreach (var m in Model.Maquinas)
-            {
-              <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
-            }
-          </select>
-        </div>
-        <div class="dmo-field ri-w-data">
-          <label for="riConsultaDe">Dia de</label>
-          <input id="riConsultaDe" name="de" type="date" value="@ConsultarModel.Data(Model.De)" data-dmo-autosubmit />
-        </div>
-        <div class="dmo-field ri-w-data">
-          <label for="riConsultaAte">Até</label>
-          <input id="riConsultaAte" name="ate" type="date" value="@ConsultarModel.Data(Model.Ate)" data-dmo-autosubmit />
-        </div>
-        @* Só os utilizadores que já registaram reparações (o nome vem do
-           utilizador, nunca copiado para a reparação). *@
-        <div class="dmo-field ri-w-pessoa">
-          <label for="riConsultaPessoa">Quem</label>
-          <select id="riConsultaPessoa" name="pessoa" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Pessoas.All(p => p.Id != Model.PessoaId))">Todos</option>
-            @foreach (var p in Model.Pessoas)
-            {
-              <option value="@p.Id" selected="@(p.Id == Model.PessoaId)">@p.Nome</option>
-            }
-          </select>
-        </div>
-        <div class="dmo-field ri-w-tipo">
-          <label for="riConsultaTipo">CM ou MF</label>
-          <select id="riConsultaTipo" name="tipo" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Tipo is null)">Todos</option>
-            <option value="cm" selected="@(Model.Tipo == ReparacaoTipo.Cm)">CM</option>
-            <option value="mf" selected="@(Model.Tipo == ReparacaoTipo.Mf)">MF</option>
-          </select>
-        </div>
         <div class="dmo-field ri-w-referencia">
           <label for="riConsultaReferencia">Referência<partial name="_DmoHelp" model="@("Escreva o início da referência e carregue Enter (ou escolha a sugestão): «60» traz todas as que começam por 60. Depois pode escolher uma das últimas 5 produções.")" /></label>
           <input id="riConsultaReferencia" name="referencia" value="@Model.Referencia" placeholder="Ex.: 5538" autocomplete="off"
@@ -145,8 +107,55 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
             </select>
           }
         </div>
+        <div class="dmo-field ri-w-tipo">
+          <label for="riConsultaTrabalho">Tipo de trabalho</label>
+          <select id="riConsultaTrabalho" name="trabalho" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Trabalho is null)">Todos</option>
+            <option value="reparacao" selected="@(Model.Trabalho == ReparacaoTrabalho.Reparacao)">Reparação</option>
+            <option value="soldar" selected="@(Model.Trabalho == ReparacaoTrabalho.Soldar)">Soldar</option>
+            <option value="polir" selected="@(Model.Trabalho == ReparacaoTrabalho.Polir)">Polir</option>
+          </select>
+        </div>
+        <div class="dmo-field ri-w-maquina">
+          <label for="riConsultaMaquina">Linha</label>
+          <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Maquina is null)">Todas</option>
+            @foreach (var m in Model.Maquinas)
+            {
+              <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
+            }
+          </select>
+        </div>
+        @* Só os utilizadores que já registaram reparações (o nome vem do
+           utilizador, nunca copiado para a reparação). *@
+        <div class="dmo-field ri-w-pessoa">
+          <label for="riConsultaPessoa">Quem</label>
+          <select id="riConsultaPessoa" name="pessoa" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Pessoas.All(p => p.Id != Model.PessoaId))">Todos</option>
+            @foreach (var p in Model.Pessoas)
+            {
+              <option value="@p.Id" selected="@(p.Id == Model.PessoaId)">@p.Nome</option>
+            }
+          </select>
+        </div>
+        <div class="dmo-field ri-w-tipo">
+          <label for="riConsultaTipo">CM ou MF</label>
+          <select id="riConsultaTipo" name="tipo" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Tipo is null)">Todos</option>
+            <option value="cm" selected="@(Model.Tipo == ReparacaoTipo.Cm)">CM</option>
+            <option value="mf" selected="@(Model.Tipo == ReparacaoTipo.Mf)">MF</option>
+          </select>
+        </div>
         @* As reparações com a ferramenta escrita que ainda ninguém associou (peça 4). *@
-        <label class="ri-so-por-associar" for="riConsultaPorAssociar"><input type="checkbox" id="riConsultaPorAssociar" name="por_associar" value="true" checked="@Model.PorAssociar" data-dmo-autosubmit />Só por associar</label>
+        <label class="ri-so-por-associar" for="riConsultaPorAssociar"><input type="checkbox" id="riConsultaPorAssociar" name="por_associar" value="true" checked="@Model.PorAssociar" data-dmo-autosubmit />Sem Job On<partial name="_DmoHelp" model="@("Reparações sem Job On, com a ferramenta escrita à mão e ainda não ligada a uma ferramenta da lista. Quem tem Criar pode associá-las aqui.")" /></label>
+        <div class="dmo-field ri-w-data">
+          <label for="riConsultaDe">Dia de</label>
+          <input id="riConsultaDe" name="de" type="date" value="@ConsultarModel.Data(Model.De)" data-dmo-autosubmit />
+        </div>
+        <div class="dmo-field ri-w-data">
+          <label for="riConsultaAte">Até</label>
+          <input id="riConsultaAte" name="ate" type="date" value="@ConsultarModel.Data(Model.Ate)" data-dmo-autosubmit />
+        </div>
       </form>
     </div>
     <div class="ri-filtros-acoes">
@@ -163,6 +172,28 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
 
   <section id="riConsultaResultados" class="dmo-card ri-card" aria-labelledby="ri-consulta-title" data-dmo-regiao data-dmo-parcial>
     <h3 id="ri-consulta-title">Reparações<partial name="_DmoHelp" model="@("As reparações que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional, que vira à hora do Canal Jobon.")" /></h3>
+    @if (Model.Resumo.Count > 0)
+    {
+      <div id="riConsultaResumo" class="ri-resumo">
+        <h4 id="ri-resumo-title">Resumo por pessoa<partial name="_DmoHelp" model="@("Reparações que contam com estes filtros, os dias diferentes em que cada pessoa registou e a média de reparações por dia.")" /></h4>
+        <div class="dmo-table-wrap">
+          <table class="dmo-table" id="riConsultaResumoLista" data-dmo-list="Resumo por pessoa">
+            <thead><tr><th>Pessoa</th><th>Reparações</th><th>Dias</th><th>Média por dia</th></tr></thead>
+            <tbody>
+            @foreach (var p in Model.Resumo)
+            {
+              <tr>
+                <td>@p.Nome</td>
+                <td>@p.Reparacoes.ToString(System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td>@p.Dias.ToString(System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td>@p.MediaPorDia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)</td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
     @if (!Model.ComFiltro)
     {
       <p class="ri-vazia" id="riConsultaConvite">Escolha a linha, os dias, quem, CM ou MF, ou procure a produção pela referência.</p>
@@ -198,7 +229,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
                   @producao
                 }
               </td>
-              <td>@RiTextos.Tipo(r.Tipo)</td>
+              <td>@RiTextos.Tipo(r.Tipo)@if (r.Trabalho != ReparacaoTrabalho.Reparacao){<text> · @RiTextos.Trabalho(r.Trabalho)</text>}</td>
               <td>@if (Model.AbreFerramentas && ConsultarModel.ToolIdDaFicha(r) is { } toolId)
                 {<a href="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(toolId, string.Empty).Href" data-dmo-completa>@ConsultarModel.Ferramenta(r)</a>}
                 else

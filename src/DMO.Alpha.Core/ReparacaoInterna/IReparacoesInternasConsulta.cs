@@ -19,11 +19,12 @@ public sealed record RiConsultaFiltro(
     ReparacaoTipo? Tipo = null,
     string? Referencia = null,
     int? JobOnId = null,
-    bool PorAssociar = false)
+    bool PorAssociar = false,
+    ReparacaoTrabalho? Trabalho = null)
 {
     /// <summary>Há pelo menos um filtro: sem nenhum a Consulta não lê nada (abre vazia).</summary>
     public bool ComFiltro => MachineId is not null || De is not null || Ate is not null || PessoaId is not null
-        || Tipo is not null || !string.IsNullOrWhiteSpace(Referencia) || JobOnId is not null || PorAssociar;
+        || Tipo is not null || !string.IsNullOrWhiteSpace(Referencia) || JobOnId is not null || PorAssociar || Trabalho is not null;
 }
 
 /// <summary>Uma ferramenta registada que serve para associar: o <c>tool_id</c>, a referência e o lote.</summary>
@@ -69,10 +70,20 @@ public sealed record RiConsultaLinha(
     string? Quem,
     RiEscrita? Escrita = null,
     string? FerramentaToolId = null,
-    TimeOnly? Hora = null);
+    TimeOnly? Hora = null,
+    ReparacaoTrabalho Trabalho = ReparacaoTrabalho.Reparacao);
 
 /// <summary>Uma pessoa do filtro «Quem»: um utilizador que já registou reparações.</summary>
 public sealed record RiPessoa(Guid Id, string Nome);
+
+/// <summary>
+/// O resumo de uma pessoa nos filtros da Consulta: quantas reparações, em
+/// quantos dias diferentes e a média por dia trabalhado.
+/// </summary>
+public sealed record RiResumoPessoa(Guid? PessoaId, string Nome, int Reparacoes, int Dias)
+{
+    public decimal MediaPorDia => Dias == 0 ? 0 : decimal.Round((decimal)Reparacoes / Dias, 2);
+}
 
 /// <summary>
 /// A Consulta dos chefes: quem reparou o quê e em que produção. Só lê; as
@@ -82,6 +93,9 @@ public interface IReparacoesInternasConsulta
 {
     /// <summary>As reparações que contam com estes filtros, da mais recente para a mais antiga, em páginas de 25. Sem filtro, vazia.</summary>
     Task<PagedList<RiConsultaLinha>> ConsultarAsync(RiConsultaFiltro filtro, int? pagina, CancellationToken cancellationToken = default);
+
+    /// <summary>O resumo por pessoa das reparações que contam com estes filtros (a mais ativa primeiro). Sem filtro, vazio.</summary>
+    Task<IReadOnlyList<RiResumoPessoa>> ResumoPorPessoaAsync(RiConsultaFiltro filtro, CancellationToken cancellationToken = default);
 
     /// <summary>Os utilizadores que já registaram reparações (só utilizadores, nunca nomes copiados), por nome.</summary>
     Task<IReadOnlyList<RiPessoa>> PessoasAsync(CancellationToken cancellationToken = default);

@@ -43,13 +43,16 @@
         var campo = JobOnFolhaCampos.Encontrar(chave)!;
         desenhados.Add(chave);
         var valor = Model.Folha.Valor(chave);
+        // O lote do AN é, por omissão, o da BQ; só muda se alguém o escrever à mão (Diogo, 26/10/2026).
+        string? herdado = chave == "an_lote" && string.IsNullOrWhiteSpace(valor) ? Model.AnLoteDaBq : null;
         if (editar)
         {
-            <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(valor)" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
+            <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(valor)" placeholder="@herdado" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
         }
-        else if (Mostra(valor) is { } escrito)
+        else if (Mostra(valor ?? herdado) is { } escrito)
         {
-            @escrito
+            @* Uma medida com vários valores («54.02/52.02/…») parte depois de cada «/», nunca a meio de um número. *@
+            @escrito.Replace("/", "/\u200b")
         }
         else
         {
@@ -248,7 +251,7 @@
     }
 
     // Os cartões sem ferramenta registada: a cabeça com a referência, os valores, as notas e a informação técnica.
-    void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? lote = null)
+    void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? chaveLote = null)
     {
         var notas = JobOnFolhaCampos.DaFamilia(codigo).FirstOrDefault(c => c.Tipo == JobOnFolhaTipoCampo.Nota)?.Chave;
         var nome = codigo switch { "PU" => "Punção", "TP" => "Tampão", "CS" => "Cabeça de sopro", "PI" => "Pinças", "AN" => "Anel", _ => "" };
@@ -257,9 +260,9 @@
           {
             <span class="hv"><small>Referência</small><b>@{ Valor(chaveRef, $"{codigo} referência"); }</b></span>
           }
-          @if (lote is not null)
+          @if (chaveLote is not null)
           {
-            <span class="hv" title="O lote do AN é o da BQ"><small>Lote</small><b data-jof-an-lote>@lote</b></span>
+            <span class="hv"><small>Lote</small><b>@{ Valor(chaveLote, $"{codigo} lote"); }</b></span>
           }
         </div>
         if (linhas.Length > 0 || calote)
@@ -275,15 +278,19 @@
                 <dd>
                   @if (editar)
                   {
-                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="bacia" value="@(Model.JobOn?.CaloteMm is { } caloteValor ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteValor) : null)" aria-label="Calote (mm)" />
+                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="—" value="@(Model.JobOn?.CaloteMm is { } caloteValor ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteValor) : null)" aria-label="Calote (mm)" />
                   }
                   else if (Model.JobOn?.CaloteMm is { } valorCalote)
                   {
                     @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(valorCalote)
                   }
+                  else if (Vazio(Model.Folha.Valor("tp_bacia_ps")) is { } caloteBacia)
+                  {
+                    @caloteBacia
+                  }
                   else
                   {
-                    <span class="v-empty" title="Usa a calote registada na bacia">bacia</span>
+                    <span class="v-empty">—</span>
                   }
                 </dd>
               }
@@ -534,15 +541,7 @@ else
               @if (Model.PodeEditar)
               {
                 @* As 4 folhas do Imprimir (Diogo, 26/10/2026): escolhe-se a folha; o browser imprime (nunca PDF no servidor). *@
-                <div class="menu" data-jof-imprimir-menu>
-                  <button class="btn" type="button" aria-haspopup="true" aria-expanded="false" data-jof-imprimir>Imprimir</button>
-                  <div class="menu-list" data-jof-imprimir-lista hidden>
-                    <button type="button" data-jof-imprimir-folha="todas">As 2 folhas</button>
-                    <button type="button" data-jof-imprimir-folha="ficha">Ficha de Artigo</button>
-                    <button type="button" data-jof-imprimir-folha="equipa">Trabalho de Equipa</button>
-                    <button type="button" data-jof-imprimir-folha="ecra">Esta folha (ecrã)</button>
-                  </div>
-                </div>
+                <button class="btn" type="button" data-jof-imprimir>Imprimir</button>
                 <a class="btn" href="@Model.DuplicarHref" data-jof-duplicar>Duplicar</a>
                 <a class="btn" href="@Model.Href(editar: true)" data-jof-editar>Editar</a>
               }
@@ -618,42 +617,35 @@ else
 
     <div class="sheet">
       <div class="sheet-main"><div class="zones">
-        @* Sem os títulos dos grupos (Moldes, Gargalo, Sopro, Calibres; Diogo,
-           23/10/2026): os códigos dos cartões já dizem o que é. *@
-        <section class="group g-moldes" aria-label="Moldes">
-          <div class="board" id="gMoldes">
-            @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
-            @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
-            @* A BQ (com o AN) na primeira fila, com a CM e o MF (Diogo, 23/10/2026). *@
-            <article class="card pair"><div class="pair-in">
-              <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
-                @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
-                @{ Uso("bq_utilizacao", bqFact); }
-                @{ Notas("bq_notas"); }
-                @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
-              </div>
-              <div class="sec" data-jof-familia="AN" aria-label="Anel">
-                @{ Simples("AN", "an_referencia", [], [], lote: bqFact is null ? "—" : FolhaModel.Lote(bqFact.Lot)); }
-              </div>
-            </div></article>
-          </div>
-        </section>
-        <div class="col3">
-          <section class="group g-gargalo" aria-label="Gargalo">
-            <div class="board" id="gGargalo">
-              <article class="card pair"><div class="pair-in">
-                <div class="sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</div>
-                <div class="sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</div>
-              </div></article>
-            </div>
-          </section>
+        @* Quatro colunas independentes, cada cartão com a altura do seu conteúdo (Diogo, 26/10/2026):
+           CM e TP; MF e CS; BQ e AN; PU e ARR. Os Calibres, por baixo de BQ+AN e PU+ARR. *@
+        <div class="fcol board" id="gMoldes">
+          @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
+          <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
         </div>
-        <section class="group g-sopro" aria-label="Sopro">
-          <div class="board" id="gSopro">
-            <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
-            <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock"), ("QTD máq.", "cs_qtd_maq")]); }</article>
-          </div>
-        </section>
+        <div class="fcol board">
+          @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
+          <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock"), ("QTD máq.", "cs_qtd_maq")]); }</article>
+        </div>
+        <div class="fright"><div class="frow">
+        <div class="fcol board col-bq">
+          @* A BQ e o AN, cada um no seu cartão, um por baixo do outro (AN com o lote dele; Diogo, 26/10/2026). *@
+          <article class="card pair"><div class="pair-in">
+            <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
+              @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
+              @{ Uso("bq_utilizacao", bqFact); }
+              @{ Notas("bq_notas"); }
+              @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
+            </div>
+          </div></article>
+          <article class="card sec" data-jof-familia="AN" aria-label="Anel">@{ Simples("AN", "an_referencia", [], [], chaveLote: "an_lote"); }</article>
+        </div>
+        <div class="fcol board">
+          @* PU e ARR: o mesmo componente, mas cada um no seu cartão, um por baixo do outro (Diogo, 26/10/2026). *@
+          <article class="card sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</article>
+          <article class="card sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</article>
+        </div>
+        </div>
         <section class="group g-cal" aria-label="Calibres">
           <div class="board" id="gCal">
             @{ var linhas = Model.Folha.Cal.Where(l => editar || (!l.Extra && (Vazio(l.Valor) is not null || Vazio(l.QtdMaq) is not null))).ToList(); }
@@ -699,6 +691,7 @@ else
             </article>
           </div>
         </section>
+        </div>
       </div></div>
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }

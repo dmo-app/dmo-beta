@@ -54,6 +54,18 @@ public sealed class IndexModel(
     [BindProperty(SupportsGet = true, Name = "tipo")]
     public string? TipoTexto { get; set; }
 
+    /// <summary>O filtro «Tipo de trabalho» do Histórico (vazio = todos).</summary>
+    [BindProperty(SupportsGet = true, Name = "tipo_trabalho")]
+    public string? TrabalhoFiltroTexto { get; set; }
+
+    public ReparacaoTrabalho? TrabalhoFiltro => string.IsNullOrWhiteSpace(TrabalhoFiltroTexto) ? null : RiTextos.TrabalhoDe(TrabalhoFiltroTexto);
+
+    /// <summary>Reparação, Soldar ou Polir (Reparação por omissão).</summary>
+    [BindProperty(SupportsGet = true, Name = "trabalho")]
+    public string? TrabalhoTexto { get; set; }
+
+    public ReparacaoTrabalho Trabalho => RiTextos.TrabalhoDe(TrabalhoTexto);
+
     /// <summary>
     /// A referência e o lote escritos que ficam no formulário: numa recusa,
     /// e sem Job On depois de gravar (aí todas as reparações levam a
@@ -417,7 +429,7 @@ public sealed class IndexModel(
         contexto ??= Tipo == ReparacaoTipo.Mf ? contextoMf : Tipo == ReparacaoTipo.Cm ? contextoCm : null;
         var saida = await reparacoes.RegistarAsync(
             new PedidoDeReparacao(operacao, maquina?.MachineId, ProducaoPedida, Tipo, contexto, numero, escrita,
-                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null, DiaPedido, horaDaReparacao),
+                escrita ? ReferenciaEscrita : null, escrita ? LoteEscrito : null, DiaPedido, horaDaReparacao, Trabalho),
             HttpContext.RequestAborted);
         if (saida.Gravou)
         {
@@ -428,6 +440,7 @@ public sealed class IndexModel(
                 maquina = maquina?.Code,
                 producao = ProducaoPedida,
                 tipo = TipoTexto,
+                trabalho = Trabalho == ReparacaoTrabalho.Reparacao ? null : RiTextos.TrabalhoValor(Trabalho),
                 dia = DiaPedido is { } d ? Data(d) : null,
                 referencia = saida.SemJobOn ? saida.Referencia : null,
                 lote = saida.SemJobOn ? saida.Lote : null,
@@ -594,13 +607,13 @@ public sealed class IndexModel(
         }
 
         var producao = Producoes.Any(p => p.JobOnId == ProducaoPedida) ? ProducaoPedida : null;
-        ComFiltro = Maquina is not null || De is not null || Ate is not null || ReferenciaFiltro is not null || producao is not null;
+        ComFiltro = Maquina is not null || De is not null || Ate is not null || ReferenciaFiltro is not null || producao is not null || TrabalhoFiltro is not null;
         if (!ComFiltro || eu is not { } pessoa)
         {
             return;
         }
 
-        Historia = await consulta.ConsultarAsync(new RiConsultaFiltro(Maquina?.MachineId, De, Ate, pessoa, null, ReferenciaFiltro, producao), pagina, cancelar);
+        Historia = await consulta.ConsultarAsync(new RiConsultaFiltro(Maquina?.MachineId, De, Ate, pessoa, null, ReferenciaFiltro, producao, false, TrabalhoFiltro), pagina, cancelar);
         HistoriaPager = ListPager.For(Historia);
     }
 

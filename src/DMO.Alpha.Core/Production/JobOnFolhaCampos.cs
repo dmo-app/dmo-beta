@@ -204,6 +204,7 @@ public static class JobOnFolhaCampos
         Notas("bq_notas", Bq),
 
         Curto("an_referencia", An, "Referência"),
+        Curto("an_lote", An, "Lote"),
         Notas("an_notas", An),
 
         Curto("pu_referencia", Pu, "Referência"),

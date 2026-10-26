@@ -4,6 +4,10 @@ Começar pelo [handoff para Astra](docs/design/HANDOFF-ASTRA.md) e pelo [guia de
 
 Este repositório contém a base Razor Pages proveniente do dmo-beta (`3e3b175`, `0.3.0-beta.100`) com a camada de design aplicada no working tree. A primeira tentativa, rejeitada, continua guardada em [rascunho-rejeitado.patch](docs/design/rascunho-rejeitado.patch) e **não** deve ser aplicada.
 
+## Branch `claude/design-adaptado` (26/10/2026)
+
+O design da `claude/design-mockups` adaptado ao `dmo-beta` `main` (0.3.0-beta.108). Nos conflitos: dados e funcionalidades novas da app ficam da app (lote do AN editável — por omissão o da BQ, `AnLoteDaBq` —, cartões próprios de PU/ARR e AN, «Trabalho» da Reparação, histórico de produções na ficha, hover escuro dos botões); decisões de design ficam do design. A folha do Job On segue a composição nova da app (colunas CM+TP, MF+CS, BQ+AN, PU+ARR); as regras de grelha antigas do `dmo-design.css` saíram. Registos da guarda do design renumerados: A-0172 substitui A-0155..A-0158.
+
 ## Regra (Owner, 26/10/2026)
 
 O design muda só a aparência. O comportamento e a informação vêm da app (dmo-beta) e do blueprint: nada se esconde, nada muda de sítio no fluxo, nenhum teste da app se enfraquece para o design passar. Antes de mexer num ecrã, confirmar na app e no blueprint como ele funciona.

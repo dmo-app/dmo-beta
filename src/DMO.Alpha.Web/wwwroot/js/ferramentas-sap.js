@@ -177,6 +177,30 @@
     await sincronizar(pasta, true);
   }
 
+  // Apagar da pasta os ficheiros do SAP que o DMO já leu (Diogo, 22/10/2026:
+  // «depois uma opção para apagar»). Só os que vieram do SAP e são tão ou
+  // mais antigos do que o último lido; o dmo-codigos.txt, o LEIA-ME, o
+  // script e o atalho ficam.
+  async function apagarLidos() {
+    const pasta = await pastaGuardada();
+    if (!pasta) {
+      mensagem("aviso", "Ligue primeiro a pasta do SAP («Ligar pasta»).");
+      return;
+    }
+    if (!(await permissao(pasta, true))) return;
+    const info = await infoServidor();
+    const lidos = info.ficheiroModificadoEm
+      ? (await ficheirosDoSap(pasta)).filter((f) => f.lastModified <= info.ficheiroModificadoEm)
+      : [];
+    if (lidos.length === 0) {
+      mensagem("aviso", "Não há ficheiros lidos para apagar na pasta «" + pasta.name + "».");
+      return;
+    }
+    if (!window.confirm("Apagar " + lidos.length + (lidos.length === 1 ? " ficheiro já lido" : " ficheiros já lidos") + " da pasta «" + pasta.name + "»?")) return;
+    for (const f of lidos) await pasta.removeEntry(f.name);
+    mensagem("ok", lidos.length + (lidos.length === 1 ? " ficheiro apagado" : " ficheiros apagados") + " da pasta «" + pasta.name + "».");
+  }
+
   async function copiarCodigos() {
     const info = await infoServidor();
     const codigos = info.codigos || [];
@@ -203,10 +227,12 @@
     const ligar = cartao.querySelector("[data-ferr-sap-pasta]");
     const ler = cartao.querySelector("[data-ferr-sap-ler]");
     const copiar = cartao.querySelector("[data-ferr-sap-codigos]");
+    const apagar = cartao.querySelector("[data-ferr-sap-apagar]");
     copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
     if (!suportado) {
       ligar.disabled = true;
       ler.disabled = true;
+      apagar.disabled = true;
       mostrarEstado("Este browser não deixa ligar uma pasta. Use o Chrome ou o Edge; o «Copiar códigos» funciona na mesma.");
       return;
     }
@@ -215,6 +241,7 @@
       falhou(erro);
     }));
     ler.addEventListener("click", () => lerComPedido(true).catch(falhou));
+    apagar.addEventListener("click", () => apagarLidos().catch(falhou));
   }
 
   if (suportado) aoAbrir().catch(falhou);

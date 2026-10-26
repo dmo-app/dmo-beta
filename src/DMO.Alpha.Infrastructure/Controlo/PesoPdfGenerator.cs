@@ -51,6 +51,9 @@ public sealed class PesoPdfGenerator
         /// </summary>
         public string? SheetLabel { get; init; }
 
+        /// <summary>Média e moda do peso da produção anterior (relatório de produções); null = sem dados.</summary>
+        public DMO.Alpha.Core.Tools.PesoSapResumo? PesoProducaoSap { get; init; }
+
         /// <summary>A secção deste Peso no PDF composto do Resumo (uma por Peso).</summary>
         public string SectionName { get; init; } = "peso";
     }
@@ -273,7 +276,10 @@ public sealed class PesoPdfGenerator
             c.Item().PaddingTop(3).Text("Produção anterior " + anteriorNumero + " · " + (anterior.Machine ?? "—") +
                 " · início: " + (anterior.InicioEm?.ToString("d", Pt) ?? "—") +
                 " · fim: " + (anterior.FimEm?.ToString("d", Pt) ?? "—") +
-                " · peso usado: " + (anterior.PesoGramas is { } sap ? Fmt(sap) + " g" : "—")).FontSize(7).FontColor(Muted);
+                " · peso usado: " + (anterior.PesoGramas is { } sap ? Fmt(sap) + " g" : "—") +
+                (input.PesoProducaoSap is { } producao
+                    ? " · peso da produção: média " + Fmt(producao.MediaGramas) + " g · moda " + Fmt(producao.ModaGramas) + " g"
+                    : "")).FontSize(7).FontColor(Muted);
         }
         // A decisão do Peso (sweep de 19/10/2026, C-3): aprovado, não aprovado
         // com a nota, ou por aprovar.

@@ -89,7 +89,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         {
             Reference = "5810T188", ProductionNumber = "202602", Machine = b2,
             InicioEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(-2),
-            FimEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(5)
+            FimEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(5), CaloteMm = 3.5m
         };
         db.JobOns.Add(jobOn);
         db.CmContexts.Add(new CmContext { JobOn = jobOn, ToolId = "CM-PF" });
@@ -109,7 +109,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
                 ChangedByNameFrozen = "Diogo", ChangedAtUtc = agora.AddMinutes(-2)
             });
         await db.SaveChangesAsync();
-        db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOn.Id, CmNotas = "CX rodar justa 1/4 de volta." });
+        db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOn.Id, CmNotas = "CX rodar justa 1/4 de volta.", MfCorpo = "54.02/52.02/54.02/44.10/45.20", MfCorpoTol = "0.05", MfGargalo = "21.5", PuNotas = "CONFIRMAR LIGAÇÃO AN-PU", ArrNotas = "VER FOLGA DO ARR COM O PU ANTES DE ARRANCAR A PRODUÇÃO" });
         await db.SaveChangesAsync();
         return jobOn.Id;
     }
@@ -171,7 +171,9 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         var notasGerais = html.IndexOf("id=\"notesTitle\"", StringComparison.Ordinal);
         var piCartao = html.IndexOf("data-jof-familia=\"PI\"", StringComparison.Ordinal);
         Assert.True(new[] { bq, tp, cs, pu, cal, notasGerais, piCartao }.All(i => i >= 0), "Falta um dos cartões.");
-        Assert.True(moldes + bq < tp && tp < cs && cs < cal, $"A ordem não é moldes, TP, CS, Calibres ({bq}, {tp}, {cs}, {cal}).");
+        var mfHtml = html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal);
+        var bqHtml = html.IndexOf("data-jof-familia=\"BQ\"", StringComparison.Ordinal);
+        Assert.True(tp < mfHtml && mfHtml < cs && cs < bqHtml && bqHtml < pu && pu < cal, $"A ordem não é CM+TP, MF+CS, BQ+AN, PU+ARR, Calibres ({tp}, {mfHtml}, {cs}, {bqHtml}, {pu}, {cal}).");
         Assert.True(notasGerais < piCartao, $"O PI não vem depois das Notas gerais ({notasGerais}, {piCartao}).");
         var lado = html.IndexOf("<aside class=\"side\">", StringComparison.Ordinal);
         Assert.True(lado >= 0 && lado < piCartao && piCartao < html.IndexOf("</aside>", lado, StringComparison.Ordinal), "O PI não está na coluna da direita.");
@@ -185,6 +187,32 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.DoesNotContain("Ficha de moldes", html);
         Assert.DoesNotContain("data-jof-modo-editar", html);
         Assert.Contains($"href=\"/JobOn/Folha?jobon_id={jobOnId}&amp;editar=1\" data-jof-editar>Editar</a>", html);
+    }
+
+    [Fact]
+    public async Task Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll()
+    {
+        // Um cartão (PU, ARR…) ficou uma faixa estreita com uma letra por linha (Diogo, 26/10/2026):
+        // cada cartão tem largura mínima, a grelha tem 4 colunas iguais e as medidas não têm scroll.
+        var css = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
+            "src", "DMO.Alpha.Web", "wwwroot", "css", "dmo-jobon-folha.css"));
+        Assert.Contains(".board>.card.sec{min-width:150px", css);
+        Assert.Contains(".fcol{display:flex;flex-direction:column", css);
+        Assert.Contains("grid-template-columns:repeat(4,minmax(0,1fr))", css);
+        Assert.Contains(".more-body .table-wrap{overflow-x:visible}", css);
+    }
+
+    [Fact]
+    public async Task Folha_TpMostraACaloteGravada_NuncaAPalavraBacia()
+    {
+        var jobOnId = await SeedAsync();
+        using var client = await LoginAsync("7303", DmoCapabilities.JobOnCreate);
+
+        var html = await PageAsync(client, $"/JobOn/Folha?jobon_id={jobOnId}");
+
+        var tp = Cartao(html, "TP");
+        Assert.Contains("3.50", tp);
+        Assert.DoesNotContain("bacia", tp, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

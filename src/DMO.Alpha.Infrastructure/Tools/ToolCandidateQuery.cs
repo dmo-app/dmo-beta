@@ -181,8 +181,15 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
             // encontra a Y232 e a 6018Y232; «0» encontra a 0132T173, nunca a
             // 1075 só por ter um 0 no meio), ou o início da referência MF
             // associada. A regra da referência está em ReferenceMatch.
+            // Uma referência toda (1075C142) também encontra as ferramentas
+            // registadas só com uma parte: a CM/MF 1075 e a BQ C142.
+            var (model, bqPart) = SplitReference(part);
             query = query.Where(ReferenceMatch.Predicate<Tool>(tool => tool.Reference, part)
-                .Or(tool => tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper().StartsWith(part)));
+                .Or(tool => tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper().StartsWith(part))
+                .Or(tool => bqPart != null && tool.Type == ToolType.Bq && tool.Reference.ToUpper() == bqPart)
+                .Or(tool => model != null && tool.Type != ToolType.Bq
+                    && (tool.Reference.ToUpper() == model
+                        || (tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper() == model))));
         }
 
         if (ReferenceMatch.Normalize(filter?.Search) is { } search)

@@ -60,7 +60,9 @@ public sealed record FabricoSapLinha(string Material, string Linha, DateOnly Ini
 /// tabulações (como o SAP o grava) ou em HTML: o cabeçalho com «Material»,
 /// «Line», «Begin Date» e «End Date» e pelo menos uma das produções («Gross
 /// Prod», «Net Prod.»). As datas vêm como 21.01.2025 e os números no formato
-/// português (1.404.234). Uma linha ilegível fica de fora.
+/// português (1.404.234). Uma linha ilegível fica de fora. Também lê o
+/// relatório «produções» (Diogo, 26/10/2026): MM, Linha, DATA I, DATA F,
+/// QBRUTA (garrafas, bruto), QUTIL e N_DIAS.
 /// </summary>
 public static class FabricoSapExportacao
 {
@@ -79,14 +81,14 @@ public static class FabricoSapExportacao
         for (var i = 0; i < tabela.Count; i++)
         {
             var cabecalho = tabela[i];
-            var material = UsoSapExportacao.Coluna(cabecalho, c => c is "material");
+            var material = UsoSapExportacao.Coluna(cabecalho, c => c is "material" or "mm");
             var linha = UsoSapExportacao.Coluna(cabecalho, c => c is "line" or "linha");
-            var inicio = UsoSapExportacao.Coluna(cabecalho, c => c is "begin date" or "data início" or "data inicio");
-            var fim = UsoSapExportacao.Coluna(cabecalho, c => c is "end date" or "data fim");
-            var bruta = UsoSapExportacao.Coluna(cabecalho, c => c.StartsWith("gross prod", StringComparison.Ordinal));
-            var liquida = UsoSapExportacao.Coluna(cabecalho, c => c.StartsWith("net prod", StringComparison.Ordinal));
+            var inicio = UsoSapExportacao.Coluna(cabecalho, c => c is "begin date" or "data início" or "data inicio" || Sem(c) == "data i");
+            var fim = UsoSapExportacao.Coluna(cabecalho, c => c is "end date" or "data fim" || Sem(c) == "data f");
+            var bruta = UsoSapExportacao.Coluna(cabecalho, c => c.StartsWith("gross prod", StringComparison.Ordinal) || c is "qbruta");
+            var liquida = UsoSapExportacao.Coluna(cabecalho, c => c.StartsWith("net prod", StringComparison.Ordinal) || c is "qutil");
             var peso = UsoSapExportacao.Coluna(cabecalho, c => c is "avg weight" or "peso médio" or "peso medio");
-            var dias = UsoSapExportacao.Coluna(cabecalho, c => c is "prod. days" or "prod days" or "dias");
+            var dias = UsoSapExportacao.Coluna(cabecalho, c => c is "prod. days" or "prod days" or "dias" or "n_dias");
             if (material < 0 || linha < 0 || inicio < 0 || fim < 0 || (bruta < 0 && liquida < 0))
             {
                 continue;
@@ -120,6 +122,10 @@ public static class FabricoSapExportacao
 
         return new Leitura(false, []);
     }
+
+    // O relatório «produções» (Diogo, 26/10/2026) traz «DATA I» com um espaço
+    // inseparável; aqui vale como espaço.
+    private static string Sem(string cabecalho) => cabecalho.Replace('\u00a0', ' ');
 
     private static bool Data(string texto, out DateOnly data) =>
         DateOnly.TryParseExact(texto.Trim(), FormatosData, CultureInfo.InvariantCulture, DateTimeStyles.None, out data);

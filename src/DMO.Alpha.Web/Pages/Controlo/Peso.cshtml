@@ -1523,7 +1523,7 @@
                   </div>
                   <div class="dmo-field">
                     <label for="waterWeight">Massa de água (g)</label>
-                    <input id="waterWeight" name="water_weight" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 70,5" value="@Model.EchoLeituraWater" />
+                    <input id="waterWeight" name="water_weight" type="text" inputmode="decimal" autocomplete="off" required placeholder="Ex.: 70.5" value="@Model.EchoLeituraWater" />
                   </div>
                   <output class="peso-leitura-chip" data-peso-row-result></output>
                 </div>
@@ -1760,12 +1760,11 @@
           <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "AbrirJobOn")" formtarget="_self" formnovalidate data-peso-anterior-abrir>Abrir o Peso desta produção</button>
         </form>
         <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
-        @* O PESO DO SAP (Diogo, 21/10/2026): pelas datas da produção escolhida
-           e a referência, a média pelos dias de cada ordem e a moda (o peso
-           com mais dias). Numa caixa com a Média e a Moda: escolhe-se uma, a
-           outra ou as duas, e cada escolhida mostra a diferença do peso de
-           hoje para ela (Diogo: «um box Média Moda, selecionar um ou outro
-           ou ambos»). A escolha fica no browser. *@
+        @* O PESO DA PRODUÇÃO (Diogo, 21/10/2026; 26/10/2026): pelas datas da
+           produção escolhida e a referência, a média pelos dias de cada ordem
+           e a moda (o peso com mais dias). A caixa mostra só a média com a
+           diferença do peso de hoje; ao carregar abre uma janela pequena com a
+           moda e a sua diferença, como no Histórico de produções da ferramenta. *@
         var pesoAtualSap = currentPesoForComparison.Averages?.AverageGlassWeightGrams;
         string deltaSapTexto(decimal pesoSapRef)
         {
@@ -1774,14 +1773,24 @@
         }
         <div class="peso-sap-caixa" id="pesoAnteriorSap" data-producao-anterior-sap data-peso-atual="@(pesoAtualSap is { } pa ? fmt(pa) : null)">
           <div data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">
-            <div class="peso-sap-titulo">Peso da produção <span class="peso-hint">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></div>
-            <div class="peso-sap-opcoes">
-              <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="media" checked /> Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></label>
-              <label class="peso-sap-opcao"><input type="checkbox" data-sap-ver="moda" /> Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda" hidden>@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></label>
-            </div>
+            <button type="button" class="peso-sap-abrir" data-dmo-dialog="pesoSapModa" aria-label="Peso da produção: moda e diferença">
+              <span class="peso-sap-titulo">Peso da produção <span class="peso-hint">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></span>
+              <span class="peso-sap-opcao">Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></span>
+              <partial name="_DmoHelp" model="@("Carrega para ver a moda (o peso com mais dias) e a diferença do peso de hoje para ela.")" />
+            </button>
+            <dialog id="pesoSapModa" class="dmo-dialog" aria-labelledby="pesoSapModa-title">
+              <h3 id="pesoSapModa-title">Peso da produção</h3>
+              <div class="peso-sap-opcoes">
+                <span class="peso-sap-opcao">Média <strong data-sap-media-dialog>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media-dialog">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></span>
+                <span class="peso-sap-opcao">Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></span>
+              </div>
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+              </div>
+            </dialog>
           </div>
           <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=ferramentas">Ler a pasta da produção</a></span>
-          @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
+          @* O peso da produção de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {
             <span hidden data-sap-opcao="@sapJobOnId" data-sap-media="@fmt(sapOpcao.MediaGramas)" data-sap-moda="@fmt(sapOpcao.ModaGramas)" data-sap-dias="@sapOpcao.Dias"></span>
@@ -2035,22 +2044,22 @@
     sap.querySelector('[data-sap-sem]').hidden = !!media;
     if (media) {
       sap.querySelector('strong[data-sap-media]').textContent = media;
+      sap.querySelector('strong[data-sap-media-dialog]').textContent = media;
       sap.querySelector('strong[data-sap-moda]').textContent = dados.getAttribute('data-sap-moda') || '';
       sap.querySelector('span[data-sap-dias]').textContent = dados.getAttribute('data-sap-dias') || '';
       deltasSap(sap);
     }
   });
 
-  // A caixa do peso do SAP: a Média, a Moda ou as duas, cada uma com a
-  // diferença do peso de hoje para ela. A escolha fica no browser.
+  // A caixa do peso da produção: a média na caixa e, na janela, a moda,
+  // cada uma com a diferença do peso de hoje para ela.
   function deltasSap(sap) {
     var atual = parseFloat(sap.getAttribute('data-peso-atual'));
-    ['media', 'moda'].forEach(function (qual) {
-      var delta = sap.querySelector('[data-sap-delta="' + qual + '"]');
-      var ver = sap.querySelector('[data-sap-ver="' + qual + '"]');
-      var ref = parseFloat(sap.querySelector('strong[data-sap-' + qual + ']').textContent);
-      if (!delta || !ver) { return; }
-      delta.hidden = !ver.checked;
+    [['media', 'media'], ['media-dialog', 'media'], ['moda', 'moda']].forEach(function (par) {
+      var delta = sap.querySelector('[data-sap-delta="' + par[0] + '"]');
+      var valor = sap.querySelector('strong[data-sap-' + par[0] + ']');
+      if (!delta || !valor) { return; }
+      var ref = parseFloat(valor.textContent);
       if (isNaN(atual) || isNaN(ref)) { delta.textContent = ''; return; }
       var g = atual - ref;
       var sinal = function (v) { var r = Math.round(v * 100) / 100; return (r >= 0 ? '+' : '\u2212') + Math.abs(r).toFixed(2); };
@@ -2059,24 +2068,8 @@
   }
   (function () {
     var sap = document.querySelector('[data-producao-anterior-sap]');
-    if (!sap) { return; }
-    var guardado = null;
-    try { guardado = window.localStorage.getItem('dmo.peso.sapVer'); } catch (e) { guardado = null; }
-    if (guardado) {
-      sap.querySelectorAll('[data-sap-ver]').forEach(function (caixa) {
-        caixa.checked = guardado.split(',').indexOf(caixa.getAttribute('data-sap-ver')) >= 0;
-      });
-    }
-    deltasSap(sap);
+    if (sap) { deltasSap(sap); }
   })();
-  document.addEventListener('change', function (event) {
-    if (!event.target.matches || !event.target.matches('[data-sap-ver]')) { return; }
-    var sap = event.target.closest('[data-producao-anterior-sap]');
-    deltasSap(sap);
-    var escolhidas = [];
-    sap.querySelectorAll('[data-sap-ver]').forEach(function (caixa) { if (caixa.checked) { escolhidas.push(caixa.getAttribute('data-sap-ver')); } });
-    try { window.localStorage.setItem('dmo.peso.sapVer', escolhidas.join(',') || 'nenhuma'); } catch (e) { /* sem armazenamento: fica a escolha da página */ }
-  });
 
   // Um formulário GET dentro de data-dmo-parcial (escolher a comparação, o
   // «Supomos» e, desde o deep sweep 2 de 18/10/2026 (F-8), a referência e a

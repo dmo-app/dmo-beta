@@ -230,6 +230,9 @@ public sealed class JobOnFolha
     /// <summary>AN · Referência (<c>an_referencia</c>).</summary>
     public string? AnReferencia { get; set; }
 
+    /// <summary>AN · Lote (<c>an_lote</c>).</summary>
+    public string? AnLote { get; set; }
+
     /// <summary>AN · Notas (<c>an_notas</c>).</summary>
     public string? AnNotas { get; set; }
 

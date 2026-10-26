@@ -7,7 +7,7 @@ HTML exportado pelos testes HTTP reais (DMO_UI_EVIDENCE_DIR):
 Só ficheiros locais; nada vai ao DEV.
 
 A 1440, 1366 (o ecrã base do Diogo), 1280 (o mesmo com zoom ou barra lateral) e 390 px:
-- os cartões da primeira fila (CM, MF e BQ) têm a mesma altura quando estão lado a lado;
+- a grelha em quatro colunas iguais (CM+TP, MF+CS, BQ+AN, PU+ARR), os Calibres por baixo de BQ+AN e PU+ARR e a referência e o lote do cabeçalho inteiros;
 - um clique nas notas amplia-as com «CM 5809 · Lote 1 · Notas» no título; Esc e um clique fora fecham;
 - clicar numa alteração de «O que mudou» abre «Remover por engano»; a removida não aparece;
 - «Modo Editar» aparece no Editar e não na folha.
@@ -42,7 +42,7 @@ def servir(route):
         route.fulfill(status=404, body='')
 
 
-FILA = '''() => [...document.querySelectorAll('#gMoldes > .card')].map(c => {
+FILA = '''() => ['CM', 'MF', 'BQ'].map(f => document.querySelector(`.zones [data-jof-familia="${f}"]`).closest('.fcol > .card, .fcol > .pair, .fcol > article') || document.querySelector(`[data-jof-familia="${f}"]`)).map(c => {
   const r = c.getBoundingClientRect(); return { top: Math.round(r.top), h: Math.round(r.height) };
 })'''
 NOTA = '''() => { const c = document.querySelector('[data-jof-familia="CM"] [data-jof-nota]');
@@ -63,36 +63,34 @@ with sync_playwright() as playwright:
         page.goto('http://dmo.test/JobOn/Folha?jobon_id=1&vista=alteracoes')
         page.wait_for_load_state('load')
 
-        # A primeira fila: lado a lado, a mesma altura.
-        fila = page.evaluate(FILA)
-        print(f'{nome} fila: {fila}')
-        if len(fila) != 3:
-            falhas.append(f'{nome}: a primeira fila não tem 3 cartões ({fila})')
-        else:
-            linhas = {}
-            for c in fila:
-                linhas.setdefault(c['top'], []).append(c['h'])
-            for top, alturas in linhas.items():
-                if max(alturas) - min(alturas) > 2:
-                    falhas.append(f'{nome}: cartões da mesma fila com alturas diferentes ({alturas})')
-            if largura in (1440, 1366, 1280) and len(linhas) != 1:
-                falhas.append(f'{nome}: CM, MF e BQ não estão na mesma fila ({fila})')
-
-        # A ordem dos cartões (Diogo, 23/10/2026): TP e CS logo a seguir aos
-        # moldes, os Calibres por baixo do PU, o PI à direita, por baixo das Notas gerais.
-        if largura == 1440:
-            pos = page.evaluate("""() => Object.fromEntries(['CM', 'TP', 'CS', 'PU', 'PI'].map(f => {
+        # A grelha (Diogo, 26/10/2026): quatro colunas iguais e independentes — CM+TP, MF+CS, BQ+AN,
+        # PU+ARR —, os Calibres por baixo de BQ+AN e PU+ARR, o PI à direita por baixo das Notas gerais.
+        # Nenhum cartão fica estreito, nem com a referência cortada nem o «Lote» partido.
+        if largura in (1440, 1366, 1280):
+            pos = page.evaluate("""() => Object.fromEntries(['CM', 'TP', 'MF', 'CS', 'BQ', 'AN', 'PU', 'ARR', 'PI'].map(f => {
                 const r = document.querySelector(`[data-jof-familia="${f}"]`).getBoundingClientRect();
-                return [f, { left: Math.round(r.left), top: Math.round(r.top) }];
-              }).concat([['CAL', (() => { const r = document.querySelector('.cal-card').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()],
-                         ['NOTAS', (() => { const r = document.querySelector('#notesTitle').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top) }; })()]]))""")
-            print(f'{nome} ordem: {pos}')
-            if not (pos['CM']['top'] < pos['TP']['top'] == pos['CS']['top']):
-                falhas.append(f'{nome}: TP e CS não estão logo a seguir aos moldes ({pos})')
-            if not (pos['PU']['top'] < pos['CAL']['top'] and abs(pos['CAL']['top'] - pos['CS']['top']) <= 2 and pos['CAL']['left'] > pos['CS']['left']):
-                falhas.append(f'{nome}: os Calibres não estão ao lado do CS ({pos})')
-            if not (pos['PI']['left'] > max(pos['TP']['left'], pos['CS']['left'], pos['CAL']['left']) and pos['PI']['top'] > pos['NOTAS']['top']):
-                falhas.append(f'{nome}: o PI não está à direita, por baixo das Notas gerais ({pos})')
+                return [f, { left: Math.round(r.left), top: Math.round(r.top), w: Math.round(r.width) }];
+              }).concat([['CAL', (() => { const r = document.querySelector('.cal-card').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top), w: Math.round(r.width) }; })()],
+                         ['NOTAS', (() => { const r = document.querySelector('#notesTitle').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top), w: Math.round(r.width) }; })()]]))""")
+            print(f'{nome} grelha: {pos}')
+            larguras = [pos[f]['w'] for f in ('CM', 'TP', 'MF', 'CS', 'BQ', 'AN', 'PU', 'ARR')]
+            if max(larguras) - min(larguras) > 6 or min(larguras) < 190:
+                falhas.append(f'{nome}: os cartões não têm a mesma largura ({larguras})')
+            if not (abs(pos['CM']['left'] - pos['TP']['left']) <= 3 and abs(pos['MF']['left'] - pos['CS']['left']) <= 3 and abs(pos['BQ']['left'] - pos['AN']['left']) <= 3 and abs(pos['PU']['left'] - pos['ARR']['left']) <= 3):
+                falhas.append(f'{nome}: as colunas não estão alinhadas ({pos})')
+            if not (pos['CM']['left'] < pos['MF']['left'] < pos['BQ']['left'] < pos['PU']['left'] < pos['PI']['left']):
+                falhas.append(f'{nome}: a ordem das colunas não é CM, MF, BQ, PU, PI ({pos})')
+            if not (abs(pos['CAL']['left'] - pos['AN']['left']) <= 3 and pos['CAL']['top'] > pos['AN']['top'] and pos['CAL']['top'] > pos['ARR']['top']):
+                falhas.append(f'{nome}: os Calibres não estão por baixo de BQ+AN e PU+ARR ({pos})')
+            if not (pos['PI']['top'] > pos['NOTAS']['top']):
+                falhas.append(f'{nome}: o PI não está por baixo das Notas gerais ({pos})')
+            cortados = page.evaluate("""() => [...document.querySelectorAll('.tool-head [data-jof-tool-ref], .tool-head [data-jof-tool-lote]')]
+                .filter(e => e.scrollWidth > e.clientWidth + 1 || e.getClientRects().length > 1).map(e => e.textContent.trim())""")
+            if cortados:
+                falhas.append(f'{nome}: referência ou lote cortados no cabeçalho ({cortados})')
+            medidas = page.evaluate("() => [...document.querySelectorAll('.table-wrap')].some(t => t.scrollWidth > t.clientWidth + 1)")
+            if medidas:
+                falhas.append(f'{nome}: uma tabela de medidas tem scroll horizontal')
 
         if largura in (1440, 1366, 1280):
             # A produção do cabeçalho numa só linha (Diogo, 23/10/2026).

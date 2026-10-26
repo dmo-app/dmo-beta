@@ -168,8 +168,10 @@ public static class UsoSapExportacao
     }
 
     /// <summary>As linhas e as células de uma exportação do SAP, em HTML ou em texto.</summary>
+    // O ficheiro do PC da fábrica começa com o BOM do UTF-8: sem o tirar, a
+    // primeira coluna («Material») não era reconhecida.
     internal static List<IReadOnlyList<string>> Tabela(string conteudo) =>
-        conteudo.Contains("<tr", StringComparison.OrdinalIgnoreCase) ? TabelaHtml(conteudo) : TabelaTexto(conteudo);
+        (conteudo = conteudo.TrimStart('\uFEFF')).Contains("<tr", StringComparison.OrdinalIgnoreCase) ? TabelaHtml(conteudo) : TabelaTexto(conteudo);
 
     internal static int Coluna(IReadOnlyList<string> cabecalho, Func<string, bool> nome)
     {

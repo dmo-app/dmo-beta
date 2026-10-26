@@ -208,45 +208,8 @@ html body .jof2 .design-warning p {margin:6px 0 0}
   html body .jof2 .fl,html body .jof2 .fv {font-size:12px}
   html body .jof2 .facts-dados .fv strong {font-size:13px}
   html body .jof2 .facts-dados .fl {text-transform:none;letter-spacing:0;font-weight:400}
-  html body .jof2 .zones {grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:auto auto;grid-template-areas:none;gap:12px 0}
-  html body .jof2 .g-moldes {grid-column:1/4;grid-row:1;margin:0;padding:14px 0 14px 6px;background:var(--dmo-card);border-radius:8px 0 0 8px}
-  html body .jof2 .col3 {grid-column:4;grid-row:1;margin:0;padding:14px 6px 14px 0;background:var(--dmo-card);border-radius:0 8px 8px 0}
-  html body .jof2 #gMoldes {grid-template-columns:repeat(3,minmax(0,1fr));gap:0;align-items:stretch}
-  html body .jof2 #gMoldes>.card {border:0;border-right:1px solid var(--dmo-border);border-radius:0;background:none}
-  html body .jof2 #gGargalo>.card {border:0;border-radius:0;background:none}
-  html body .jof2 #gMoldes>.sec,html body .jof2 .pair-in>.sec {padding:0 14px;gap:7px}
-  html body .jof2 .pair-in>.sec+.sec {margin:12px 14px 0;padding:12px 0 0}
-  html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .sec-head {flex-wrap:nowrap;gap:8px}
-  html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .design-tool-heading {width:auto}
-  html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .hv {display:flex;gap:4px;align-items:baseline}
-  html body .jof2 .g-sopro {grid-column:1/3;grid-row:2;margin:0 12px 0 0}
-  html body .jof2 #gSopro {grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  html body .jof2 .g-cal {grid-column:3/5;grid-row:2;margin:0}
-  html body .jof2 #gSopro>.card {border:0}
-  html body .jof2 #gSopro .kv {grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:auto auto;column-gap:12px}
-  html body .jof2 #gSopro .kv :is(dt,dd) {text-align:left;border:0;padding:2px 0}
-  html body .jof2 #gSopro .kv dd {font-weight:600;font-size:14px}
-  html body .jof2 #gSopro .sec-head>.hv {display:flex;gap:4px;align-items:baseline}
-  html body .jof2 #gSopro .sec-head .code {font-size:21px}
-  html body .jof2 .cal-card {border:0}
-  html body .jof2 .article,html body .jof2 .notes,html body .jof2 #gPinfo .card {border:0}
-  html body .jof2 .jof-artigo {height:145px;border:0}
-  html body .jof2 .jof-artigo :is(svg,img) {height:140px;max-height:140px}
-  html body .jof2 #gCal {grid-template-columns:1fr}
-  html body .jof2:not(.editing) table.calv :is(th,td):nth-child(n) {font-size:11px;min-height:34px;padding:5px 3px;line-height:1.3}
-  html body .jof2:not(.editing) table.calv {min-width:430px;grid-template-columns:70px}
-  html body .jof2:not(.editing) .pair-in {flex:0 0 auto}
-  html body .jof2:not(.editing) .pair-in>.sec {flex:0 0 auto}
   html body .jof2 .page-head .facts {min-height:44px;padding-block:6px}
   html body .jof2 .jof-onde {margin:3px 0;font-size:11px}
-}
-@media(min-width:1600px) {
-  html body .jof2 .sheet {grid-template-columns:minmax(0,1fr) 240px}
-  html body .jof2 .zones {grid-template-columns:repeat(12,minmax(0,1fr))}
-  html body .jof2 .g-moldes {grid-column:1/10}
-  html body .jof2 .col3 {grid-column:10/13}
-  html body .jof2 .g-sopro {grid-column:1/5}
-  html body .jof2 .g-cal {grid-column:5/13}
 }
 @media(max-width:1199px) {
   html body .dmo-shell-header {gap:0 12px}
@@ -328,7 +291,6 @@ html body .jof2{padding:10px 24px 8px}
 html body .jof2 .jobon-aviso{margin:6px 0 0;padding:4px 10px;font-size:11px}
 html body .jof2 .design-stock{padding:2px 0}
 html body .jof2 .design-dimensions .dims tr :is(th,td){padding:2px 0}
-html body .jof2 .zones{gap:8px 0}
 html body .jof2 .sec{padding:8px 12px;gap:5px}
 html body .jof2 .card{padding:8px 12px}
 html body .jof2 .use-top{margin-bottom:2px}
@@ -690,7 +652,6 @@ html body .beta-production-rail-head :is(strong,.beta-production-rail-title){tex
    information folded, nothing moved). Only the look is set here. */
 @media (min-width:1100px){
   /* Every family starts on the same line: the paired cards (BQ/AN, PU/ARR) lose their extra top padding. */
-  html body .jof2 #gMoldes>.card.pair{padding:0}
   /* Facts read left to right with even gaps, not spread across the width. */
   html body .jof2 .page-head .facts-dados{justify-content:flex-start;gap:28px}
 }
@@ -705,7 +666,6 @@ html body .jof2 .tool-head .hv b{font-size:14px;font-weight:650}
 html body .jof2 .pick-row{align-items:flex-end}
 html body .jof2 .pick-row :is(input,select,.prod-trigger,.btn){height:var(--dmo-control-height);min-height:var(--dmo-control-height);box-sizing:border-box}
 @media (min-width:1100px){
-  html body .jof2 .zones .card.pair{padding-top:0}
 }
 html body .jof2 .page-head .pick-row :is(.ref-search input,.dmo-suggest input,input#jofReferencia,select.prod-select,.prod-trigger){height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
 html body .jof2 .page-head .pick-row .ref-search input{display:block}
@@ -723,3 +683,6 @@ html body .jof2 .jof-artigo{height:220px}
 html body .jof2 .jof-artigo :is(svg,img){height:210px;max-height:210px}
 html body .jof2 .notes{min-height:140px}
 html body .jof2 .notes :is(ul,.notes-vazio,p){min-height:72px;border:1px dashed var(--dmo-border);border-radius:6px;padding:6px 9px}
+/* Job On sheet on the dmo-beta composition (columns CM+TP, MF+CS, BQ+AN, PU+ARR): the BQ card holds
+   an inner section; it takes no extra padding, so every family starts on the same line. */
+html body .jof2 .card.pair .sec{padding:0}

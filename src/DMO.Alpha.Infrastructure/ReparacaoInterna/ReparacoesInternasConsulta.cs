@@ -33,54 +33,7 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
             return PagedList<RiConsultaLinha>.Empty;
         }
 
-        // As anuladas não contam, como na lista do registo.
-        var query = db.ReparacoesInternas.AsNoTracking().Where(r => r.AnuladaEmUtc == null);
-        if (filtro.MachineId is { } maquina)
-        {
-            query = query.Where(r => r.MachineId == maquina);
-        }
-
-        // Os dias são o dia operacional (o da viragem), os dois inclusive.
-        if (filtro.De is { } de)
-        {
-            query = query.Where(r => r.DiaOperacional >= de);
-        }
-
-        if (filtro.Ate is { } ate)
-        {
-            query = query.Where(r => r.DiaOperacional <= ate);
-        }
-
-        if (filtro.PessoaId is { } pessoa)
-        {
-            query = query.Where(r => r.RegistadoPorUserId == pessoa);
-        }
-
-        if (filtro.Tipo is { } tipo)
-        {
-            query = query.Where(r => r.Tipo == tipo);
-        }
-
-        // Só as por associar: pelo índice filtrado delas.
-        if (filtro.PorAssociar)
-        {
-            query = query.Where(r => r.ReferenciaEscrita != null && r.AssociadaToolId == null);
-        }
-
-        // A produção escolhida manda; só com a referência, as produções cuja
-        // referência começa pelo texto (a regra única das procuras: «60»
-        // traz todas as que começam por 60), numa subconsulta pelo jobon_id.
-        if (filtro.JobOnId is { } jobOnId)
-        {
-            query = query.Where(r => r.JobOnId == jobOnId);
-        }
-        else if (ReferenceMatch.Normalize(filtro.Referencia) is { } referencia)
-        {
-            var producoes = db.JobOns.AsNoTracking()
-                .Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, referencia))
-                .Select(j => (int?)j.Id);
-            query = query.Where(r => producoes.Contains(r.JobOnId));
-        }
+        var query = Filtrar(filtro);
 
         // Da mais recente para a mais antiga: o Id cresce com o registo (a
         // hora é a do servidor ao gravar), por isso ordena-se pela chave e
@@ -116,6 +69,7 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
                 r.DiaOperacional,
                 r.RegistadoEmUtc,
                 r.Hora,
+                r.Trabalho,
                 Maquina = m.Code,
                 r.JobOnId,
                 ProductionNumber = j != null ? j.ProductionNumber : null,
@@ -160,9 +114,92 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
                     l.ReferenciaEscrita, l.LoteEscrito!, l.AssociadaToolId, l.AssociadaReferencia, l.AssociadaLote,
                     l.AssociadaToolId is null ? candidatas.GetValueOrDefault((l.Tipo, l.ReferenciaEscrita)) ?? [] : null),
                 l.FerramentaToolId,
-                l.Hora))
+                l.Hora,
+                l.Trabalho))
             .ToList();
         return new PagedList<RiConsultaLinha>(resultado, ids.TotalCount, ids.PageNumber, ids.PageSize);
+    }
+
+    // As reparações que contam (sem as anuladas, como na lista do registo) com os filtros.
+    private IQueryable<Reparacao> Filtrar(RiConsultaFiltro filtro)
+    {
+        // As anuladas não contam, como na lista do registo.
+        var query = db.ReparacoesInternas.AsNoTracking().Where(r => r.AnuladaEmUtc == null);
+        if (filtro.MachineId is { } maquina)
+        {
+            query = query.Where(r => r.MachineId == maquina);
+        }
+
+        // Os dias são o dia operacional (o da viragem), os dois inclusive.
+        if (filtro.De is { } de)
+        {
+            query = query.Where(r => r.DiaOperacional >= de);
+        }
+
+        if (filtro.Ate is { } ate)
+        {
+            query = query.Where(r => r.DiaOperacional <= ate);
+        }
+
+        if (filtro.PessoaId is { } pessoa)
+        {
+            query = query.Where(r => r.RegistadoPorUserId == pessoa);
+        }
+
+        if (filtro.Tipo is { } tipo)
+        {
+            query = query.Where(r => r.Tipo == tipo);
+        }
+
+        if (filtro.Trabalho is { } trabalho)
+        {
+            query = query.Where(r => r.Trabalho == trabalho);
+        }
+
+        // Só as por associar: pelo índice filtrado delas.
+        if (filtro.PorAssociar)
+        {
+            query = query.Where(r => r.ReferenciaEscrita != null && r.AssociadaToolId == null);
+        }
+
+        // A produção escolhida manda; só com a referência, as produções cuja
+        // referência começa pelo texto (a regra única das procuras: «60»
+        // traz todas as que começam por 60), numa subconsulta pelo jobon_id.
+        if (filtro.JobOnId is { } jobOnId)
+        {
+            query = query.Where(r => r.JobOnId == jobOnId);
+        }
+        else if (ReferenceMatch.Normalize(filtro.Referencia) is { } referencia)
+        {
+            var producoes = db.JobOns.AsNoTracking()
+                .Where(ReferenceMatch.Predicate<JobOn>(j => j.Reference, referencia))
+                .Select(j => (int?)j.Id);
+            query = query.Where(r => producoes.Contains(r.JobOnId));
+        }
+
+        return query;
+    }
+
+    public async Task<IReadOnlyList<RiResumoPessoa>> ResumoPorPessoaAsync(
+        RiConsultaFiltro filtro, CancellationToken cancellationToken = default)
+    {
+        if (!filtro.ComFiltro)
+        {
+            return [];
+        }
+
+        // Uma só consulta agrupada: reparações e dias diferentes por pessoa.
+        var grupos = await Filtrar(filtro)
+            .GroupBy(r => r.RegistadoPorUserId)
+            .Select(g => new { PessoaId = g.Key, Reparacoes = g.Count(), Dias = g.Select(r => r.DiaOperacional).Distinct().Count() })
+            .ToListAsync(cancellationToken);
+        var ids = grupos.Where(g => g.PessoaId != null).Select(g => g.PessoaId!.Value).ToList();
+        var nomes = await db.Users.AsNoTracking().Where(u => ids.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.Name, cancellationToken);
+        return grupos
+            .Select(g => new RiResumoPessoa(g.PessoaId, g.PessoaId is { } id && nomes.TryGetValue(id, out var nome) ? nome : "—", g.Reparacoes, g.Dias))
+            .OrderByDescending(r => r.Reparacoes).ThenBy(r => r.Nome, StringComparer.Ordinal)
+            .ToList();
     }
 
     // As ferramentas registadas do mesmo tipo e da referência escrita (sem a

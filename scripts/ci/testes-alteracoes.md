@@ -3002,52 +3002,154 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `dc6a82a28326fe61`
 
-## A-0155 · 2026-10-26 · ok-do-diogo
+## A-0156 · 2026-10-26 · ok-do-diogo
 
-Porquê: Design dos mockups: paleta do Owner de 26/10/2026 (#4f6f9c, #779ecb, #b7c9e2) nos testes de paleta, PDFs e modo escuro (--dmo-page #e5eaf1); botões leem --dmo-action (slate) antes de --dmo-brand-600; folha do Job On redesenhada (notas vazias não ocupam a leitura, Stock/QTD máq. em span/strong, título «Job On» visível); novo tests/visual/design-review.cjs revê os HTML exportados a 1366x768
-Referência: Sessão Claude Code 26/10/2026, branch claude/design-mockups: ok do proprietário («já tens permissões») sobre o design do dmo-mockup-handoff
-Novos: 1 · mudaram: 8 · saíram: 0
+Porquê: Folha do Job On: o Imprimir passa a um só clique (sem lista de folhas) e as migrações ganham a coluna AnLote; um teste novo guarda as decisões do Diogo sobre a Folha
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAcHKLAVvVgvoPwNUk8FP7t
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `0a2ef153938dc2f0`
+
+## A-0158 · 2026-10-26 · ok-do-diogo
+
+Porquê: O hover escuro dos botões azuis passa de fundo branco para fundo azul, letra e contorno brancos (Diogo, 26/10: «sim as três»); o teste CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro passa a esperar a regra nova em dmo-normalize.css.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVXGyDiJHgyTJP2v8ShT1rm
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+
+Selo depois: `3e3c12c08ee5874d`
+
+## A-0155 · 2026-10-26 · teste-novo
+
+Porquê: Teste novo ResumoPorPessoa_ContaReparacoesDiasEMedia_SemAsAnuladas (resumo por pessoa da Consulta da RI, PR #160, .101); a lista de migrações ganha ReparacaoInternaTrabalho sem mudar o que o teste verifica
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasConsultaTests.cs :: ReparacoesInternasConsultaTests.ResumoPorPessoa_ContaReparacoesDiasEMedia_SemAsAnuladas`
+
+Selo depois: `0974a6d25321d126`
+
+## A-0157 · 2026-10-26 · teste-novo
+
+Porquê: SAP: «Apagar lidos», corrida às 18:00 na ajuda e leitura do relatório «produções» (Diogo 22/10 07:43 e 26/10 16:08)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ORelatorioProducoes_DaAsGarrafasBrutasDeCadaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
+
+Selo depois: `4b12b7b049b2c65c`
+
+## A-0159 · 2026-10-26 · teste-novo
+
+Porquê: A referência toda (1075C142) encontra a CM/MF e a BQ registadas só com uma parte
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AWholeReferenceAlsoFindsTheToolsRegisteredWithOnlyOnePart`
+
+Selo depois: `f100f52b5cd8b3c9`
+
+## A-0160 · 2026-10-26 · teste-novo
+
+Porquê: Ficha da ferramenta: cartão «Histórico de produções» por baixo da informação técnica, com garrafas, peso da produção (média, moda e delta contra a anterior), % de cada Job On e total (Diogo 26/10 17:16 e 17:48).
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn`
+
+Selo depois: `a1189c0ece6af100`
+
+## A-0162 · 2026-10-26 · teste-novo
+
+Porquê: Histórico de produções: Δ garrafas contra a produção anterior e janela do peso médio com moda e Δ peso (Diogo 26/10 19:58) e ligação das produções do relatório real do PC da fábrica (BOM no início do ficheiro) ao Job On.
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ORelatorioProducoesReal_LigaAsProducoesDaCmDaB1_ComGarrafas`
+
+Selo depois: `0e773a7349323fea`
+
+## A-0163 · 2026-10-26 · ok-do-diogo
+
+Porquê: Peso: a caixa do peso da produção anterior mostra só a média e a moda abre numa janela (A-0163); o teste deixa de pedir as caixas Média/Moda (Diogo 26/10 20:18).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3gTYGTcTs8P97dEqSZ6wty
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+
+Selo depois: `bca6c7d6576d340c`
+
+## A-0165 · 2026-10-26 · ok-do-diogo
+
+Porquê: Reparação Interna, Consulta: a caixa «Só por associar» passa a «Sem Job On» (Diogo 26/10 20:24); o teste Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas espera o texto novo.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVghyhABryEjx37ZczZBUwu
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas`
+
+Selo depois: `0c2d1d933f0fcb50`
+
+## A-0166 · 2026-10-26 · teste-novo
+
+Porquê: Teste novo JobOnCabecalhoCssTests: a regra do cabeçalho do Job On (Referência e Produção sem sobreposição) não pode desaparecer (PR #174)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: JobOnCabecalhoCssTests.CabecalhoDoJobOn_ReferenciaEProducaoNaoSeTocam`
+
+Selo depois: `973b7e99f4ebd5d6`
+
+## A-0168 · 2026-10-26 · ok-do-diogo
+
+Porquê: CS · Furos: o formato antigo «4X4», «4X2», «3X4» lê-se como abertos e fechados (Diogo 26/10 20:30)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyPaL9FV6fUfot3pWo9RAcag
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Ler`
+
+Selo depois: `903451198ac59828`
+
+## A-0170 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha sem comentários (DMO-434): o teste das notas nos cartões passa a verificar o Reparador; testes novos da largura mínima e da calote.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_TpMostraACaloteGravada_NuncaAPalavraBacia`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+
+Selo depois: `a3a46538a4781592`
+
+## A-0171 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha DMO-434: a verificação do browser e o teste da primeira fila passam à grelha em 4 colunas.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/visual/jobon_folha_browser.py`
+
+Selo depois: `e98bc8f3a267f285`
+
+## A-0172 · 2026-10-26 · ok-do-diogo
+
+Porquê: Branch claude/design-adaptado = claude/design-mockups + dmo-beta main (0.3.0-beta.108). Os registos A-0155..A-0158 do design colidiam com os da main; ficam substituídos por este. Diferenças do design face à main: paleta do Owner (#4f6f9c…) nos testes da paleta, modo escuro e PDFs; botões lidos através de --dmo-action (= slate); h1 da folha «Job On»; sem glifos ↗ ↙ nas Boquilhas; o painel de linhas por baixo do título, dentro da página (Sumário e Histórico das Boquilhas); novo tests/visual/design-review.cjs
+Referência: Sessão Claude Code 26/10/2026: o proprietário pediu o design adaptado ao dmo-beta main antes de ir para a main («faz [pull] da dmo-beta e continua melhorar o design»; «usar versão design»)
+Novos: 1 · mudaram: 9 · saíram: 0
 
 - novo: `tests/visual/design-review.cjs :: (resto do ficheiro)`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 - mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Buttons_HaveOneLook_BlueWithWhiteText_HoverInverts`
 - mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
 - mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Palette_IsDefinedOnce_AndDrivesButtonsRowsAndHover`
 - mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.PdfGenerators_UseThePalette_NotTheOldBlues`
 
-Selo depois: `e0110985db52409c`
-
-## A-0156 · 2026-10-26 · ok-do-diogo
-
-Porquê: Boquilhas: os rótulos do movimento perdem os glifos ↗ ↙ (os mockups não têm ícones); o teste procura «<span>Saída</span>» em vez de «<span>↗ Saída</span>», a ordem verificada é a mesma
-Referência: Sessão Claude Code 26/10/2026, branch claude/design-mockups: ok do proprietário para converter a app toda ao design dos mockups (sem ícones)
-Novos: 0 · mudaram: 1 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
-
-Selo depois: `a9bd88ce2c50d331`
-
-## A-0157 · 2026-10-26 · ok-do-diogo
-
-Porquê: O painel das linhas passa de ao lado da página para dentro dela, por baixo do título (Job On, Sumário, Boquilhas, Reparação, Armazém). O Sumário verifica agora o painel dentro do <main>, depois do título; o HistoryZone das Boquilhas tira o painel da zona, que antes estava fora dela — as verificações do Histórico ficam iguais
-Referência: Sessão Claude Code 26/10/2026, branch claude/design-mockups: ok do proprietário («muda a marcação para os seletores das linhas ficarem por baixo do título, como nos mockups»)
-Novos: 0 · mudaram: 2 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
-- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
-
-Selo depois: `ee66f3a555642a55`
-
-## A-0158 · 2026-10-26 · ok-do-diogo
-
-Porquê: Os dois testes voltam exatamente ao que eram na app (b90c43c): notas em todos os cartões, mesmo vazias, e Stock/QTD máq. dentro da informação técnica. A camada de design anterior tinha-os enfraquecido para esconder as notas vazias; a folha volta à marcação da app
-Referência: Sessão Claude Code 26/10/2026: o proprietário pediu as notas sempre visíveis e a informação técnica recolhida, como na app (decisão de 23/10/2026: «as notas, mesmo vazias, enchem o cartão»)
-Novos: 0 · mudaram: 2 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada`
-
-Selo depois: `6ca10dded9f549f6`
+Selo depois: `58e338af65bc4ed0`

@@ -290,7 +290,7 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
 
         var html = await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}");
         var filtro = Elemento(html, "class=\"ri-so-por-associar\"");
-        Assert.Contains("Só por associar", filtro);
+        Assert.Contains("Sem Job On", filtro);
         Assert.Contains("type=\"checkbox\" id=\"riConsultaPorAssociar\" name=\"por_associar\" value=\"true\"", filtro);
         Assert.Contains("data-dmo-autosubmit", filtro);
         var linha = Elemento(html, $"data-dmo-reparacao=\"{primeira}\"");

@@ -181,7 +181,7 @@
 .jof2 .note-edit{display:grid;gap:3px}
 .jof2 .note-view{display:grid;gap:3px}
 .jof2 .note-view>span{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
-.jof2 .note-view p{margin:0;padding:6px 8px;border-radius:6px;background:var(--dmo-subtle);font-size:13.5px;line-height:1.5;white-space:pre-line;overflow-wrap:anywhere}
+.jof2 .note-view p{margin:0;padding:6px 8px;border-radius:6px;background:var(--dmo-subtle);font-size:13.5px;line-height:1.5;white-space:pre-line;overflow-wrap:break-word;word-break:normal}
 .jof2 .note-edit>span{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
 .jof2 textarea.dmo-valor{display:block;width:100%;min-height:34px;margin:0;padding:6px 8px;border:1px solid transparent;border-radius:6px;background:var(--dmo-subtle);color:var(--dmo-text);font-size:13.5px;line-height:1.5;resize:none;overflow:hidden;transition:border-color var(--fast),background-color var(--fast)}
 .jof2 textarea.dmo-valor::placeholder{color:var(--dmo-muted)}
@@ -276,7 +276,7 @@
 .jof2 .notes ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .jof2 .notes li{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px}
 .jof2 .notes li textarea.dmo-valor{background:transparent}
-.jof2 .notes li.view{display:block;padding:6px 9px;font-size:14.5px;line-height:1.5;white-space:pre-line;overflow-wrap:anywhere}
+.jof2 .notes li.view{display:block;padding:6px 9px;font-size:14.5px;line-height:1.5;white-space:pre-line;overflow-wrap:break-word;word-break:normal}
 .jof2 .notes li.view.head{font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
 .jof2 .notes li textarea.dmo-valor:hover{background:var(--dmo-subtle)}
 .jof2 .notes li.head textarea{font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
@@ -871,18 +871,17 @@ html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:
 .jfi-t .ck{text-align:center;width:11mm}
 .jfi-t .obs{width:34%}
 .jfi-duas{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
-.jfi-duas.jfi-cmmfbq{grid-template-columns:1fr 1fr .8fr}
+.jfi-duas.jfi-cmmfbq{grid-template-columns:1fr 1fr .8fr .8fr}
 .jfi-duas.jfi-cmmfbq .jfi-kv th{width:48%}
-.jfi-tres{display:grid;grid-template-columns:repeat(4,1fr);gap:2.4mm}
+.jfi-tres{display:grid;grid-template-columns:repeat(5,1fr);gap:2.4mm}
 .jfi-bloco{border:1px solid #9aa3ad;break-inside:avoid}
 .jfi-bloco>.jfi-barra{margin:-1px -1px 0}
 .jfi-corpo{padding:1.5mm 2mm;font-size:8.5pt}
 .jfi-caixa{border:1px solid #9aa3ad;border-top:0;padding:1.5mm 2mm;min-height:9mm;font-size:8.5pt}
 .jfi-folha>.jfi-caixa{border-top:1px solid #9aa3ad}
-.jfi-cal{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid #9aa3ad;border-top:0}
-.jfi-cal>div{padding:1.2mm 2mm;border-left:1px solid #9aa3ad;border-top:1px solid #9aa3ad}
-.jfi-cal>div:nth-child(6n+1){border-left:0}
-.jfi-cal>div:nth-child(-n+6){border-top:0}
+.jfi-cal{display:grid;grid-template-columns:repeat(2,1fr);grid-auto-flow:column;grid-template-rows:repeat(var(--jfi-linhas,1),auto);border:1px solid #9aa3ad;border-top:0}
+.jfi-cal>div{padding:1.2mm 2mm;border-top:1px solid #9aa3ad}
+.jfi-cal>div.jfi-c2{border-left:1px solid #9aa3ad}
 .jfi-cal small{display:block;font-size:6.5pt;color:#5b6570}
 .jfi-fundo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;flex:1;min-height:0}
 .jfi-notas ul{margin:0;padding:1.5mm 2mm 1.5mm 6mm;font-size:8.5pt}
@@ -1000,3 +999,76 @@ html body .jof2 .head-tools .field select[data-facts-type]{width:100%;min-width:
 .jof2 .more.empty[open]>summary>span:not([aria-hidden]):not(.more-preview){position:static;width:auto;height:auto;overflow:visible;clip:auto}
 .jof2 .more[open]>.more-body{margin-top:6px}
 .jof2 .more-body .kv dt{overflow:visible}
+
+/* As notas nunca partem letra a letra: a coluna do PU/ARR tem uma largura mínima (Diogo, 26/10/2026). */
+.jof2 .col3{min-width:min(100%,200px)}
+.jof2 .note-view p,.jof2 .note-edit textarea{overflow-wrap:break-word;word-break:normal}
+.jof2 .col-bq.card{display:flex;flex-direction:column;gap:14px;background:none;border:0;box-shadow:none;border-radius:0}
+.jof2 .col-bq>.card.pair{flex:1}
+/* Referência e Produção nunca se tocam nem se cortam (Diogo, 26/10/2026: «voltou o bug»; DMO-431).
+   A fila deixa de ter largura 0 (que encolhia a procura por baixo do dropdown): a procura tem a
+   largura da referência inteira, a produção a do texto, com espaço entre as duas; quem encolhe
+   é a zona dos dados, para o cabeçalho caber todo a 1366 sem cortar as Linhas e o Imprimir. */
+@media (min-width:901px){
+  html body .jof2 .page-head .pick-block{width:auto;max-width:100%}
+  html body .jof2 .page-head .pick-row{width:auto;min-width:0;gap:12px;flex-wrap:nowrap}
+  html body .jof2 .page-head .pick-row>.pick-campo:has(.ref-search){flex:none}
+  html body .jof2 .page-head .pick-row .ref-search{flex:none;width:calc(11ch + 44px)}
+  html body .jof2 .page-head .pick-row .ref-search input{width:100%;min-width:calc(11ch + 44px)}
+  html body .jof2 .page-head .pick-row>.pick-campo:has(.prod-drop,.prod-select){flex:none;margin-left:4px}
+  html body .jof2 .page-head .head-right{min-width:max-content}
+  html body .jof2 .page-head .facts,html body .jof2 .page-head .facts-dados{min-width:0;overflow:hidden}
+  html body .jof2 .page-head .facts-dados{padding-left:12px;padding-right:12px;gap:0}
+}
+
+/* A grelha da folha: 4 colunas independentes e iguais (CM+TP, MF+CS, BQ+AN, PU+ARR), cada
+   cartão com a altura do seu conteúdo, sem esticar até ao cartão mais alto (Diogo, 26/10/2026).
+   Os cartões têm largura mínima, qualquer que seja o texto lá dentro. */
+html body .jof2 .zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-areas:none;grid-template-rows:none;gap:14px;align-items:start}
+html body .jof2 .fcol{display:flex;flex-direction:column;gap:14px;align-items:stretch;min-width:0;margin:0}
+html body .jof2 .fcol>.card{width:auto;margin:0;align-self:stretch}
+@container board (max-width:639px){
+  html body .jof2 .zones{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@container board (max-width:419px){
+  html body .jof2 .zones{grid-template-columns:minmax(0,1fr)}
+}
+html body .jof2 .board>.card.sec{min-width:150px;overflow-wrap:anywhere}
+/* A tabela das medidas nunca tem scroll: o valor parte em linhas dentro da célula. */
+html body .jof2 .more-body .table-wrap{overflow-x:visible}
+html body .jof2 .more-body .dims td:nth-child(2),html body .jof2 .more-body .dims td:nth-child(3){white-space:normal;overflow-wrap:anywhere}
+html body .jof2 .more-body .dims td:first-child{white-space:normal;overflow-wrap:normal}
+html body .jof2 .more-body .dims th{overflow-wrap:normal;word-break:normal;white-space:nowrap;padding-inline:6px}
+html body .jof2 .more-body .dims td{padding-inline:6px}
+html body .jof2 .more-body .dims{table-layout:fixed}
+html body .jof2 .more-body .dims th:nth-child(1){width:28%}
+html body .jof2 .more-body .dims th:nth-child(2){width:46%}
+html body .jof2 .more-body .dims th:nth-child(3){width:26%}
+/* Medidas (ver): o nome e a tolerância numa linha, o valor inteiro por baixo (Diogo, 26/10/2026). */
+html body .jof2:not(.editing) .more-body .dims{table-layout:auto;display:block}
+html body .jof2:not(.editing) .more-body .dims thead{display:none}
+html body .jof2:not(.editing) .more-body .dims tbody{display:block}
+html body .jof2:not(.editing) .more-body .dims tr{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;padding:4px 8px;border-top:1px solid var(--dmo-border)}
+html body .jof2:not(.editing) .more-body .dims tr:first-child{border-top:0}
+html body .jof2:not(.editing) .more-body .dims td{display:block;border:0;padding:0;text-align:left}
+html body .jof2:not(.editing) .more-body .dims td:nth-child(1){grid-column:1;grid-row:1;font-size:12px}
+html body .jof2:not(.editing) .more-body .dims td:nth-child(3){grid-column:2;grid-row:1;text-align:right}
+html body .jof2:not(.editing) .more-body .dims td:nth-child(2){grid-column:1/-1;grid-row:2;font-size:11.5px;letter-spacing:-.01em;white-space:normal;overflow-wrap:break-word}
+html body .jof2 .zones>.fright{grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0}
+html body .jof2 .fright>.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+html body .jof2 .fright>.g-cal{margin:0}
+@container board (max-width:419px){
+  html body .jof2 .zones>.fright{grid-column:auto}
+  html body .jof2 .fright>.frow{grid-template-columns:minmax(0,1fr)}
+}
+/* «Informação técnica» à vista em todos os cartões, também fechada e sem valores. */
+html body .jof2 .more.empty>summary>span:not([aria-hidden]):not(.more-preview){position:static;width:auto;height:auto;overflow:visible;clip:auto}
+/* A referência e o lote do cabeçalho vêm inteiros («5447T173», «LOTE»): sem corte nem quebra (integração 26/10/2026). */
+html body .jof2 .tool-head{gap:6px}
+html body .jof2 .tool-head>.hv{min-width:min-content}
+html body .jof2 .tool-head .hv small{white-space:nowrap}
+html body .jof2 .tool-head [data-jof-tool-ref],html body .jof2 .tool-head [data-jof-tool-lote]{white-space:nowrap;overflow:visible;text-overflow:clip;font-size:17px}
+html body .jof2 .tool-head .hv+.hv{margin-left:0;padding-left:8px}
+/* As notas vazias ocupam menos, para a folha caber a 1366×768 com a Informação técnica fechada. */
+html body .jof2 .note-box.is-empty{min-height:34px}
+html body .jof2 .note-box.is-empty>p,html body .jof2 .note-box.is-empty>textarea.dmo-valor{min-height:18px}

@@ -107,24 +107,6 @@ html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
       <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
         <form id="riHistFiltros" method="get" asp-page="/ReparacaoInterna/Index" class="dmo-filter-bar" role="search">
           <input type="hidden" name="historico" value="1" />
-          <div class="dmo-field ri-w-maquina">
-            <label for="riHistLinha">Linha</label>
-            <select id="riHistLinha" name="maquina" data-dmo-autosubmit>
-              <option value="" selected="@(Model.Maquina is null)">Todas</option>
-              @foreach (var m in Model.Maquinas.OrderBy(m => IndexModel.Fila(m.Code)).ThenBy(m => m.Code, StringComparer.OrdinalIgnoreCase))
-              {
-                <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
-              }
-            </select>
-          </div>
-          <div class="dmo-field ri-w-data">
-            <label for="riHistDe">Dia de</label>
-            <input id="riHistDe" name="de" type="date" value="@(Model.De is { } de ? IndexModel.Data(de) : null)" data-dmo-autosubmit />
-          </div>
-          <div class="dmo-field ri-w-data">
-            <label for="riHistAte">Até</label>
-            <input id="riHistAte" name="ate" type="date" value="@(Model.Ate is { } ate ? IndexModel.Data(ate) : null)" data-dmo-autosubmit />
-          </div>
           <div class="dmo-field ri-w-referencia">
             <label for="riHistReferencia">Referência<partial name="_DmoHelp" model="@("Escreva o início da referência e carregue Enter (ou escolha a sugestão). Depois pode escolher uma das últimas 5 produções.")" /></label>
             <input id="riHistReferencia" name="referencia" value="@Model.ReferenciaFiltro" placeholder="Ex.: 5538" autocomplete="off"
@@ -154,6 +136,33 @@ html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
                 }
               </select>
             }
+          </div>
+          <div class="dmo-field ri-w-tipo">
+            <label for="riHistTrabalho">Tipo de trabalho</label>
+            <select id="riHistTrabalho" name="tipo_trabalho" data-dmo-autosubmit>
+              <option value="" selected="@(Model.TrabalhoFiltro is null)">Todos</option>
+              <option value="reparacao" selected="@(Model.TrabalhoFiltro == ReparacaoTrabalho.Reparacao)">Reparação</option>
+              <option value="soldar" selected="@(Model.TrabalhoFiltro == ReparacaoTrabalho.Soldar)">Soldar</option>
+              <option value="polir" selected="@(Model.TrabalhoFiltro == ReparacaoTrabalho.Polir)">Polir</option>
+            </select>
+          </div>
+          <div class="dmo-field ri-w-maquina">
+            <label for="riHistLinha">Linha</label>
+            <select id="riHistLinha" name="maquina" data-dmo-autosubmit>
+              <option value="" selected="@(Model.Maquina is null)">Todas</option>
+              @foreach (var m in Model.Maquinas.OrderBy(m => IndexModel.Fila(m.Code)).ThenBy(m => m.Code, StringComparer.OrdinalIgnoreCase))
+              {
+                <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field ri-w-data">
+            <label for="riHistDe">Dia de</label>
+            <input id="riHistDe" name="de" type="date" value="@(Model.De is { } de ? IndexModel.Data(de) : null)" data-dmo-autosubmit />
+          </div>
+          <div class="dmo-field ri-w-data">
+            <label for="riHistAte">Até</label>
+            <input id="riHistAte" name="ate" type="date" value="@(Model.Ate is { } ate ? IndexModel.Data(ate) : null)" data-dmo-autosubmit />
           </div>
         </form>
       </div>
