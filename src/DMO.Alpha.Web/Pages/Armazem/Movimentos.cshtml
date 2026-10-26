@@ -227,6 +227,10 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         }
       </div>
 
+      @if (s.Posicoes.Count > 1)
+      {
+        <p class="dmo-aviso warn" id="armVariasPosicoes">Esta ferramenta está em mais de uma posição (@string.Join(", ", s.Posicoes)). Se uma for engano, use «Corrigir localização» para a apagar.</p>
+      }
       @* UMA LINHA (Diogo, 22/10/2026): Entrada | Saída · Posição (só na
          Entrada) · as opções da escolhida · «Registar»; «Corrigir» no canto. O botão
          escolhido fica com o aspeto invertido (o do hover). A origem, a data
