@@ -156,32 +156,10 @@ public static class JobOnFolhaRegras
     /// gravada, as oito designações por omissão, com a marca de por omissão e o
     /// resto vazio.
     /// </summary>
-    /// <para>
-    /// Com linhas gravadas, as designações por omissão que não foram escritas
-    /// voltam por escrever, no lugar delas (ronda de 26/10/2026, J6: escrever
-    /// só a primeira fazia desaparecer as outras sete); as gravadas com outra
-    /// designação ficam no fim, pela ordem.
-    /// </para>
-    public static IReadOnlyList<LinhaCalEnvio> CalParaAbrir(IReadOnlyList<JobOnFolhaCalLida> gravadas)
-    {
-        var porUsar = gravadas.ToList();
-        var linhas = new List<LinhaCalEnvio>();
-        foreach (var designacao in JobOnFolhaCampos.CalPorOmissao)
-        {
-            var gravada = porUsar.FirstOrDefault(l => string.Equals(l.Designacao, designacao, StringComparison.OrdinalIgnoreCase));
-            if (gravada is null)
-            {
-                linhas.Add(new LinhaCalEnvio(designacao, null, null, designacao));
-                continue;
-            }
-
-            porUsar.Remove(gravada);
-            linhas.Add(new LinhaCalEnvio(gravada.Designacao, gravada.Valor, gravada.QtdMaq));
-        }
-
-        linhas.AddRange(porUsar.Select(l => new LinhaCalEnvio(l.Designacao, l.Valor, l.QtdMaq)));
-        return linhas;
-    }
+    public static IReadOnlyList<LinhaCalEnvio> CalParaAbrir(IReadOnlyList<JobOnFolhaCalLida> gravadas) =>
+        gravadas.Count > 0
+            ? gravadas.Select(l => new LinhaCalEnvio(l.Designacao, l.Valor, l.QtdMaq)).ToList()
+            : JobOnFolhaCampos.CalPorOmissao.Select(d => new LinhaCalEnvio(d, null, null, d)).ToList();
 
     /// <summary>
     /// A folha enviada tem alguma coisa escrita: um campo com texto ou uma linha

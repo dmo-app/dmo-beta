@@ -569,6 +569,11 @@ app.Use(async (context, next) =>
 
 app.UseStaticFiles();
 
+// O navegador pede /favicon.ico sozinho; serve o logótipo em vez de dar 404.
+app.MapGet("/favicon.ico", (IWebHostEnvironment env) =>
+    Results.File(env.WebRootFileProvider.GetFileInfo("0_ASSET_LOGO.png").CreateReadStream(), "image/png"))
+    .AllowAnonymous();
+
 // PERF-01: mede o pedido completo (Server-Timing e uma linha no log); os
 // ficheiros estáticos, servidos acima, ficam de fora. Ver docs/medicao-pedidos.md.
 app.UseMedicaoPedidos();
