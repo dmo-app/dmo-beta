@@ -812,8 +812,5 @@ html body .jof2-gaveta :is(.rail-item:hover,.rail-item.selected) .mch,html body 
 html body .dmo-shell-header .dmo-shell-conta{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px}
 html body .jof2 .side>.notes{min-height:0}
 html body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 0;min-height:0}
-/* Logótipo um pouco maior e mais claro no escuro (Diogo, 26/10/2026). */
-html body .dmo-shell-header{grid-template-columns:46px minmax(0,1fr) auto auto}
-html body .dmo-shell-header .dmo-shell-logo{width:46px;height:46px}
+/* Logótipo do tamanho original; mais claro no escuro (Diogo, 26/10/2026). */
 :root[data-theme="dark"] body .dmo-shell-header .dmo-shell-logo{filter:brightness(1.45) saturate(.55)}
-@media (min-width:801px){html body .dmo-shell-header .dmo-shell-logo{flex:0 0 46px}}
