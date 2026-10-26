@@ -3123,3 +3123,14 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
 
 Selo depois: `a3a46538a4781592`
+
+## A-0171 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha DMO-434: a verificação do browser e o teste da primeira fila passam à grelha em 4 colunas.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/visual/jobon_folha_browser.py`
+
+Selo depois: `e98bc8f3a267f285`

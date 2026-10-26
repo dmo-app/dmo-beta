@@ -1,5 +1,5 @@
 {
-  "selo": "a3a46538a4781592",
+  "selo": "e98bc8f3a267f285",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2330,7 +2330,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_DatasQueNaoSeCruzam_SemAvisoDeUsoParalelo": "33ae979484039be7",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_FatosEAvisos_DoBackend": "5f631ce1dec18c61",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_SemAvisoDeSobreposicaoEntreProducoesDaLinha_ENuncaBloqueiaAGravacao": "80118ebfaaa4ecdb",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)": "a3b9921bbdbd81e0",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)": "d1273e460761d4bf",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Dias_AoCentro_FimMenosInicioMaisUm": "d34a7e0259bb0f0b",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Editar_ModoEditarNoLugarDaProcura_EOProcessoNnpbPs_ComODaCmSugerido": "c5554a8392e17404",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll": "12e20a3d0d83773a",
@@ -2986,7 +2986,7 @@
     "tests/visual/ficha_botoes_browser.py": "1005ac3e76ade43a",
     "tests/visual/gravacoes_zonas_browser.py": "ab540e418fe53d49",
     "tests/visual/historicos_parcial_browser.py": "64ce36444badbae3",
-    "tests/visual/jobon_folha_browser.py": "5c2d91f5c79cf228",
+    "tests/visual/jobon_folha_browser.py": "423a8feb8914e0f3",
     "tests/visual/nok_agente_browser.py": "5a99dbfda60ac927",
     "tests/visual/paginacao_parcial_browser.py": "571e64a6f5ea69fc",
     "tests/visual/painel_cores_linhas_browser.py": "314294fe9aeb453c",
