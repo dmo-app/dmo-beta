@@ -368,7 +368,9 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.DoesNotContain($">T{toolId[1..]}<", html);
 
         // SEM campo Estado; a lista é o registo canónico, não um workflow.
-        Assert.DoesNotContain("Estado", html);
+        // A coluna «Estado» só mostra onde está a ferramenta (Diogo,
+        // 26/10/2026: «deve apresentar percentagem e o estado»).
+        Assert.DoesNotContain("name=\"estado\"", html, StringComparison.OrdinalIgnoreCase);
 
         // A criação contextual e os formatos-canónicos HINT estão na
         // folha (nunca recusa).

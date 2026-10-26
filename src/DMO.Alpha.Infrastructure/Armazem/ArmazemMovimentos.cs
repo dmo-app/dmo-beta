@@ -98,6 +98,33 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         }).ToList();
     }
 
+    public async Task<IReadOnlyDictionary<string, ArmazemOndeEsta>> OndeEstaoAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default)
+    {
+        var ids = toolIds.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct(StringComparer.Ordinal).ToList();
+        if (ids.Count == 0)
+        {
+            return new Dictionary<string, ArmazemOndeEsta>();
+        }
+
+        var posicoes = await PosicoesAtuaisAsync(ids, cancellationToken);
+        var localizacoes = await db.FerramentaLocalizacoes.AsNoTracking()
+            .Where(l => ids.Contains(l.ToolId))
+            .ToDictionaryAsync(l => l.ToolId, cancellationToken);
+        var onde = new Dictionary<string, ArmazemOndeEsta>(StringComparer.Ordinal);
+        foreach (var id in ids)
+        {
+            if (posicoes.TryGetValue(id, out var posicao))
+            {
+                onde[id] = new ArmazemOndeEsta(posicao.Codigo, null, null);
+            }
+            else if (localizacoes.TryGetValue(id, out var l))
+            {
+                onde[id] = new ArmazemOndeEsta(null, l.Localizacao, l.ReparadorNome);
+            }
+        }
+        return onde;
+    }
+
     public async Task<IReadOnlyDictionary<string, ArmazemLinhasEUso>> LinhasEUsoAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default)
     {
         var ids = toolIds.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct(StringComparer.Ordinal).ToList();
