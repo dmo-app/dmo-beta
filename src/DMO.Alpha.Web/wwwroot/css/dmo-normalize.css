@@ -60,7 +60,7 @@ html body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var
 :root{--dmo-invertido:#fff}
 /* Sem itálico (regra do Diogo; 26/10/2026: «estes botões seguem a regra padrão?»): os <em> e <i> e as dicas dos campos ficam direitos em toda a app. */
 html body :is(em,i,cite,dfn,var,address),html body ::placeholder{font-style:normal}
-html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--button-color,var(--dmo-brand-600));border-color:#fff;color:#fff}
+html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-invertido)}
 /* Todos os botões iguais (Diogo, 19/10/2026): azul com letra branca; o rato
    por cima inverte; ao carregar fica um azul mais claro da paleta. */
 html body :is(.dmo-button,.button,.btn):focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
@@ -439,3 +439,20 @@ html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input+span{b
 html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-card);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600)}
 /* Hover e selecionado: o fundo do botão iguala o fundo (claro: fundo branco e letra azul; escuro: fundo azul, letra e contorno brancos) (Diogo, 26/10/2026). */
 html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-brand-600);border-color:#fff;color:#fff}
+/* Mesma regra nos alternadores feitos de ligações (Armazém: Entrada/Saída) e nas listas laterais sem cor de linha (Armazém: CM/MF/BQ), com o selecionado igual ao hover (Diogo, 26/10/2026). */
+html body .arm-modo .dmo-button{background:var(--dmo-card);border:1px solid var(--dmo-border,#b9d0e6);color:var(--dmo-text)}
+html body .arm-modo .dmo-button:is(:hover,:focus-visible,.arm-modo-ativo),html body .beta-production-lines button.selected:not([data-dmo-linha-cor]){background:var(--dmo-card);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600);outline:0}
+html[data-theme="dark"] body .arm-modo .dmo-button:is(:hover,:focus-visible,.arm-modo-ativo),html[data-theme="dark"] body .beta-production-lines button.selected:not([data-dmo-linha-cor]){background:var(--dmo-brand-600);border-color:#fff;color:#fff;outline:0}
+html[data-theme="dark"] body .beta-production-lines button.selected:not([data-dmo-linha-cor]) span{color:#fff}
+/* Listas laterais de linhas (B1, C2…; Diogo, 26/10/2026): o cartão normal é discreto (fundo do cartão) e só a faixa da esquerda leva a cor da linha; hover e selecionado seguem a regra dos botões (claro: letra azul; escuro: fundo azul, letra e contorno brancos). */
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){background:var(--dmo-card);color:var(--dmo-text);outline:0}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) :is(strong,span),html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:inherit}
+html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(:hover,.selected,.active){background:var(--dmo-card);color:var(--dmo-brand-600);outline:1px solid var(--dmo-brand-600);outline-offset:-1px}
+html[data-theme="dark"] body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(:hover,.selected,.active){background:var(--dmo-brand-600);color:#fff;outline:1px solid #fff}
+/* Lista da Folha do Job On (gaveta): a mesma regra das outras listas de linhas (Diogo, 26/10/2026). */
+html body .jof2-gaveta .rail-item{background:var(--dmo-card);color:var(--dmo-text);border:1px solid var(--dmo-border,#b9d0e6);outline:0}
+html body .jof2-gaveta .rail-item.dmo-linha-cor{border-left:4px solid var(--dmo-machine-color)}
+html body .jof2-gaveta .rail-item:is(:hover,.selected):not(:disabled){background:var(--dmo-card);color:var(--dmo-brand-600);border-color:var(--dmo-brand-600);outline:0}
+html body .jof2-gaveta .rail-item.dmo-linha-cor:is(:hover,.selected):not(:disabled){border-left-color:var(--dmo-machine-color)}
+html[data-theme="dark"] body .jof2-gaveta .rail-item:is(:hover,.selected):not(:disabled){background:var(--dmo-brand-600);color:#fff;border-color:#fff}
+html[data-theme="dark"] body .jof2-gaveta .rail-item.dmo-linha-cor:is(:hover,.selected):not(:disabled){border-left-color:var(--dmo-machine-color)}
