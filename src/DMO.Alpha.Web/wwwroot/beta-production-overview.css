@@ -73,8 +73,8 @@ a.beta-light-next{text-decoration:none}a.beta-light-next:hover,a.beta-light-next
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) strong{color:var(--dmo-text-on-color);font-size:15px}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span{white-space:normal;overflow:visible;margin-top:2px;color:var(--dmo-text-on-color)}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:var(--dmo-text-on-color);opacity:.85;font-size:11.5px}
-.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 62%,#000)}
-@media screen{:root[data-theme="dark"] .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color) 42%,#000)}}
+.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:color-mix(in srgb,var(--dmo-machine-color) 72%,#fff);background:color-mix(in srgb,var(--dmo-machine-color) 72%,#fff)}
+@media screen{:root[data-theme="dark"] .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){border-color:color-mix(in srgb,var(--dmo-machine-color) 45%,#000);background:color-mix(in srgb,var(--dmo-machine-color) 45%,#000)}}
 /* O mesmo cartão com a cor da linha em todos os painéis laterais (Diogo, 26/10/2026: Planeamento,
    Boquilhas, Reparação Interna…): o hover fica num tom da cor da própria linha e a barra da
    esquerda é dessa cor, nunca o azul. A linha aberta continua marcada com o contorno. */
@@ -84,4 +84,4 @@ a.beta-light-next{text-decoration:none}a.beta-light-next:hover,a.beta-light-next
 
 /* Cartões com a cor forte da linha e letra branca, como os botões (Diogo, 26/10/2026 05:32).
    No escuro as cores das linhas são mais claras, por isso escurecem mais. */
-@media screen{:root[data-theme="dark"] .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(:hover){background:color-mix(in srgb,var(--dmo-machine-color) 58%,#000)}}
+@media screen{:root[data-theme="dark"] .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(:hover){background:color-mix(in srgb,var(--dmo-machine-color) 78%,#000)}}

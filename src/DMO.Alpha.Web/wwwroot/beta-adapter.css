@@ -113,8 +113,10 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
 /* Produções do dia com a cor forte da linha e letra branca, como os botões (Diogo, 26/10/2026 05:32). */
 .beta-light-machine-row{background:color-mix(in srgb,var(--dmo-machine-color) 82%,#000)}
 .beta-light-machine-row .beta-light-production,.beta-light-machine-row .beta-light-production *,.beta-light-machine-row .beta-light-production strong{color:var(--dmo-text-on-color)}
-.beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 62%,#000)}
+.beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 72%,#fff)}
 .beta-light-machine-row:has(input:checked){background:color-mix(in srgb,var(--dmo-machine-color) 62%,#000);outline:2px solid var(--dmo-machine-color);outline-offset:1px}
-@media screen{:root[data-theme="dark"] .beta-light-machine-row{background:color-mix(in srgb,var(--dmo-machine-color) 58%,#000)}
-:root[data-theme="dark"] .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover),:root[data-theme="dark"] .beta-light-machine-row:has(input:checked){background:color-mix(in srgb,var(--dmo-machine-color) 42%,#000)}}
+@media screen{:root[data-theme="dark"] .beta-light-machine-row{background:color-mix(in srgb,var(--dmo-machine-color) 78%,#000)}
+:root[data-theme="dark"] .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover),:root[data-theme="dark"] .beta-light-machine-row:has(input:checked){background:color-mix(in srgb,var(--dmo-machine-color) 45%,#000)}}
 html body .beta-light-machine-row :is(.beta-light-production,.beta-light-machine-empty,.beta-light-machine-empty-linha) :is(strong,span),html body .beta-light-machine-row .beta-light-machine-empty{color:var(--dmo-text-on-color)}
+/* No hover a barra da esquerda fica da cor do cartão (Diogo, 26/10/2026 05:45). */
+.beta-light-machine-row .beta-light-production[data-dmo-row]:hover{box-shadow:none}
