@@ -2650,3 +2650,16 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua`
 
 Selo depois: `99b5882a21ea6965`
+
+## A-0113 · 2026-10-26 · ok-do-diogo
+
+Porquê: Os números da folha do Job On passam a sair com ponto e duas casas quando têm casas, também dentro do texto («2,50» → «2.50», «70/69,4» → «70/69.40»), a pedido do Diogo (26/10/2026). Há um teste novo do formato; dois testes antigos que esperavam «2,5» passam a esperar «2.50», e o do Peso muda de nome.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy2EadhQLcRARQPVdSprtcV6; cmsg_01A27e9ozcpoh4jdPRsuJbFyQoVKQfBetn2koRQ7rjiSdj; ok à captura cmsg_01A27e9ozcpoh4jdPRsuJbFyUTBYDuFtNXF5hUqF1v4BRr; autorização de testes cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 2 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/DmoNumberFormatTests.cs :: DmoNumberFormatTests.FolhaTexto_PontoEDuasCasas_TambemDentroDoTexto`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_ComPonto`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_ACalMostraAsLinhasGravadas_ComAQtdMaq_NaFolhaNova`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_SemZerosNoFim`
+
+Selo depois: `d56824e14c3ac255`

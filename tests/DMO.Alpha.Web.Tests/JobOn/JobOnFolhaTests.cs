@@ -435,7 +435,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             .Select(m => (m.Groups["d"].Value.Trim(), m.Groups["v"].Value.Trim(), m.Groups["q"].Value.Trim()))
             .ToList();
         // As três linhas gravadas, pela ordem; as medidas por omissão por escrever não aparecem.
-        Assert.Equal([("Bucha Marcada", "8151", "3"), ("CS P Interna", "2,5", "—"), ("Tampão novo", "—", "1")], linhas);
+        Assert.Equal([("Bucha Marcada", "8151", "3"), ("CS P Interna", "2.50", "—"), ("Tampão novo", "—", "1")], linhas);
     }
 
     [Fact]
