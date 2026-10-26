@@ -46,6 +46,10 @@
       <input id="bq-tool-search" name="q" value="@Model.CatalogSearch" placeholder="Referência, lote ou linha" />
     </div>
     <div class="field dmo-field">
+      <label for="bq-tool-lot">Lote</label>
+      <input id="bq-tool-lot" name="lote" value="@Model.CatalogLot" placeholder="3" />
+    </div>
+    <div class="field dmo-field">
       <label for="bq-tool-machine">Máquina compatível</label>
       <select id="bq-tool-machine" name="machine_id" data-dmo-autosubmit>
         <option value="">Todas</option>
@@ -97,6 +101,7 @@
     <form method="get" asp-page="/Boquilhas/Index" class="dmo-por-pagina" data-dmo-fica data-dmo-parcial>
       <input type="hidden" name="ficheiros" value="1" />
       @if (!string.IsNullOrEmpty(Model.CatalogSearch)) {<input type="hidden" name="q" value="@Model.CatalogSearch" />}
+      @if (!string.IsNullOrEmpty(Model.CatalogLot)) {<input type="hidden" name="lote" value="@Model.CatalogLot" />}
       @if (Model.CatalogMachineId is { } maquinaFiltro) {<input type="hidden" name="machine_id" value="@maquinaFiltro" />}
       <label for="bq-tool-size">Por página</label>
       <select id="bq-tool-size" name="por_pagina" data-dmo-autosubmit>
