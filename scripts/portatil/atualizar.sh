@@ -82,9 +82,11 @@ fi
 docker run -d --name "$nome" --restart unless-stopped --network "$rede" \
   -p 8080:8080 --env-file "$env_app" "dmo-local:$rev" >/dev/null
 
+echo "à espera que a app responda (até 60 s)…"
 ok=""
 for _ in $(seq 1 30); do
-  if curl -fsS -o /dev/null http://127.0.0.1:8080/login; then ok=1; break; fi
+  # Enquanto a app arranca, o curl falha sem dizer nada; só conta o «200».
+  if curl -fs -o /dev/null http://127.0.0.1:8080/login 2>/dev/null; then ok=1; break; fi
   sleep 2
 done
 
