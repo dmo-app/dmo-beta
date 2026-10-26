@@ -39,7 +39,9 @@
             <tr>
               <th style="width:0"></th>
               <th>Ferramenta</th>
-              <th>Máquinas</th>
+              <th>Uso</th>
+              <th>Estado</th>
+              <th>Linhas</th>
             </tr>
           </thead>
           <tbody>
@@ -50,6 +52,8 @@
                   aria-label="Ferramenta @humanFacts(candidate) — @(Model.ReturnTemplate is null ? "um clique abre a ficha" : "um clique seleciona, duplo clique abre a ficha")">
                 <td><input type="radio" name="ferr_tool" value="@candidate.ToolId" aria-label="Ferramenta @humanFacts(candidate)" /></td>
                 <td><strong class="@DMO.Alpha.Web.Presentation.UsoCheio.ClasseDe(Model.UsoDe(candidate.ToolId))">@humanFacts(candidate)</strong></td>
+                <td>@(Model.UsoDe(candidate.ToolId) is { } uso ? uso.ToString(uso % 1 == 0 ? "0" : "0.00", System.Globalization.CultureInfo.InvariantCulture) + " %" : "—")</td>
+                <td>@Model.EstadoDe(candidate.ToolId)</td>
                 <td>@(candidate.MachineCodes ?? "—")</td>
               </tr>
             }

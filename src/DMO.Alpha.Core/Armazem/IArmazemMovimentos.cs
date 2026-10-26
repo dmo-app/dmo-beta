@@ -177,8 +177,14 @@ public sealed record ArmazemPosicaoOcupacao(int PosicaoId, IReadOnlyList<Armazem
 /// <summary>As Linhas da ferramenta e o % de uso da última leitura (para distinguir os lotes nas listas).</summary>
 public sealed record ArmazemLinhasEUso(IReadOnlyList<string> Linhas, decimal? Uso);
 
+/// <summary>Onde está a ferramenta, para as listas: a posição do armazém, ou onde anda fora dele.</summary>
+public sealed record ArmazemOndeEsta(string? Posicao, FerramentaLocalizacaoTipo? Localizacao, string? Reparador);
+
 public interface IArmazemMovimentos
 {
+    /// <summary>Onde está cada ferramenta (as que nunca se moveram nem estão numa posição não vêm).</summary>
+    Task<IReadOnlyDictionary<string, ArmazemOndeEsta>> OndeEstaoAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default);
+
     /// <summary>As Linhas e o % de uso de cada ferramenta (as que não existem não vêm).</summary>
     Task<IReadOnlyDictionary<string, ArmazemLinhasEUso>> LinhasEUsoAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken = default);
 

@@ -59,6 +59,28 @@ public sealed class IndexModel : PageModel
 
     public decimal? UsoDe(string toolId) => Usos.TryGetValue(toolId, out var uso) ? uso : null;
 
+    private readonly DMO.Alpha.Core.Armazem.IArmazemMovimentos _armazem;
+
+    /// <summary>Onde está cada ferramenta da página (Armazém).</summary>
+    public IReadOnlyDictionary<string, DMO.Alpha.Core.Armazem.ArmazemOndeEsta> Onde { get; private set; } =
+        new Dictionary<string, DMO.Alpha.Core.Armazem.ArmazemOndeEsta>();
+
+    /// <summary>
+    /// O estado na lista (Diogo, 26/10/2026: «a reparar, reparador em frente,
+    /// a produzir, sucatado, ou armazém posição»); nunca moveu: «—».
+    /// </summary>
+    public string EstadoDe(string toolId) => Onde.TryGetValue(toolId, out var onde)
+        ? onde switch
+        {
+            { Posicao: { } posicao } => $"Armazém · {posicao}",
+            { Localizacao: DMO.Alpha.Core.Armazem.FerramentaLocalizacaoTipo.AReparar } => string.IsNullOrWhiteSpace(onde.Reparador) ? "A reparar" : $"A reparar · {onde.Reparador}",
+            { Localizacao: DMO.Alpha.Core.Armazem.FerramentaLocalizacaoTipo.Sucata } => "Sucatado",
+            { Localizacao: DMO.Alpha.Core.Armazem.FerramentaLocalizacaoTipo.Emprestado } => "Emprestado",
+            { Localizacao: DMO.Alpha.Core.Armazem.FerramentaLocalizacaoTipo.Fabrico } => "A produzir",
+            _ => "—"
+        }
+        : "—";
+
     /// <summary>O % uso escrito, de volta numa recusa.</summary>
     [BindProperty(SupportsGet = true, Name = "uso_percentagem")]
     public string? RequestedUsoPercentagem { get; set; }
@@ -78,8 +100,10 @@ public sealed class IndexModel : PageModel
         IToolLotQuantitySettings lotQuantities,
         IEditToolTechnicalValuesHandler editTechnical,
         DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos,
-        IFerramentasUsoSap usoSap)
+        IFerramentasUsoSap usoSap,
+        DMO.Alpha.Core.Armazem.IArmazemMovimentos armazem)
     {
+        _armazem = armazem;
         _usoSap = usoSap;
         _lotesNovos = lotesNovos;
         _editTechnical = editTechnical;
@@ -293,6 +317,7 @@ public sealed class IndexModel : PageModel
             var page = await _candidateQuery.FindPageAsync(filter, pageNumber ?? 1, pageSize ?? 10, HttpContext.RequestAborted);
             Candidates = page.Items;
             Usos = await _usoSap.UltimasPercentagensAsync(page.Items.Select(c => c.ToolId).ToList(), HttpContext.RequestAborted);
+            Onde = await _armazem.OndeEstaoAsync(page.Items.Select(c => c.ToolId).ToList(), HttpContext.RequestAborted);
             TotalCandidates = page.TotalCount;
             PageNumber = page.PageNumber;
             PageSize = page.PageSize;

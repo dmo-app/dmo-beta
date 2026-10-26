@@ -1,5 +1,5 @@
 {
-  "selo": "ff6a83926a2f1ac1",
+  "selo": "386e948a02aa58ee",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2127,6 +2127,8 @@
     "tests/DMO.Alpha.Web.Tests/ErrorPageTests.cs :: ErrorPageTests.ErrorPage_IsAnonymous_Uncached_AndIndependentOfDatabase": "ec87a082ae5208f7",
     "tests/DMO.Alpha.Web.Tests/ErrorPageTests.cs :: ErrorPageTests.UnhandledLoginException_RendersSafeErrorPage_InsteadOfMissingEndpoint": "508b6bd418ba02c7",
     "tests/DMO.Alpha.Web.Tests/ExportarParaOBrowser.cs :: (resto do ficheiro)": "392c024962fa7c10",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)": "85cce2ec8c40c1eb",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta": "bccbc35207659e39",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: (resto do ficheiro)": "7a435b47bdc67bf9",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs :: ReparacaoProgramadaEnvioUnicoTests.CriarLista_OMesmoEnvioCriaUmaSo_OutraChaveCriaOutraLista": "6a66c2e7fcb18f15",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: (resto do ficheiro)": "e650a4894dab8a31",
@@ -2186,7 +2188,7 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Create_LowercaseReferences_AreSavedInUppercase": "bbc0ef542810381f",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Criar_APartirDoCartaoDoJobOn_OTipoFicaFixo": "ce18860a4b3a853d",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_FiltersOnlyReduceCandidates_ExcludingDummy": "0eb39d88e973c588",
-    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField": "492f7068664b8db3",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField": "f8296be6dda6a363",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Pagination_PreservesFilters_AndExportsBothPagesForBrowserChecks": "db3e5eb793ccd259",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.PostCreate_UserWithoutTemplate_IsRefusedAndNothingIsWritten": "71f1c8ad80462781",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.Results_ReturnOnlyCandidates_WithoutLoadingMachines_AndPreserveContext": "ca0c76a752ea0971",
