@@ -1198,3 +1198,24 @@ html body .jfi-folha .jfi-calval td{font-size:12pt}
 .jfb-reflote{display:flex;align-items:baseline;gap:2.5mm;margin:.3mm 0 .8mm}
 .jfb-reflote strong{font-size:13pt;font-weight:700}
 .jfb-reflote span{font-size:8.8pt;color:#3c454f}.jfb-reflote span i{font-style:normal;font-weight:700;font-size:10pt;color:#15191e}
+/* Lote sem caixa/botão (Diogo 22:07) */
+.jfi-equipa .jfc-lote-d{border:0;border-radius:0;height:auto;min-width:0;padding:0;width:auto;display:inline-flex}
+.jfi-equipa .jfc-lote,.jfi-equipa .jfc-lote-d{font-size:10pt;font-weight:400}
+.jfi-equipa .jfc-lote b,.jfi-equipa .jfc-lote-d b{font-size:15pt;font-weight:700}
+/* Fonte maior para ocupar o espaço (Diogo 22:07) */
+.jfi-equipa .jfc-nome{font-size:12pt}
+.jfi-equipa .jfc-ref{font-size:25pt;gap:7mm}
+.jfi-equipa .jfc-lote,.jfi-equipa .jfc-lote-d{font-size:12pt}
+.jfi-equipa .jfc-lote b,.jfi-equipa .jfc-lote-d b{font-size:22pt}
+.jfi-equipa .jfc-obs{font-size:13pt}
+html body .jfi-folha .jfi-calval td{font-size:15pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-dados td{font-size:12.5pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-dados th{font-size:10pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-reflote strong{font-size:15pt}
+.jfi-moldes[data-jof-folha="moldes"] .jfb-lado{font-size:10pt}
+.jfi-equipa .jfc{padding-top:1.4mm}
+.jfi-equipa .jfc-ref{font-size:21pt}
+.jfi-equipa .jfc-obs{font-size:11.5pt}
+.jfi-equipa .jfc-lote b,.jfi-equipa .jfc-lote-d b{font-size:19pt}
+html body .jfi-folha .jfi-calval td{font-size:12.5pt;white-space:nowrap}
+.jfb-dados td{white-space:nowrap}
