@@ -804,3 +804,23 @@ html body .jof2.editing .folgas>span:first-child{margin-right:1px;font-size:12px
 html body .jof2.editing .folgas input.f{padding-inline:2px;font-size:12px;text-overflow:clip}
 html body .jof2.editing .folgas input.f:nth-of-type(1){flex-grow:.85}
 html body .jof2.editing .folgas input.f:nth-of-type(2){flex-grow:1.35}
+/* A CS sem o nome «Referência», para a cabeça ficar da altura da do TP e da do CAL; a caixa da
+   referência (PU, ARR, AN, CS) da altura do código ao lado (Diogo, 26/10/2026). */
+html body .jof2 [data-jof-familia="CS"] .sec-head .hv>small{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+html body .jof2 [data-jof-familia="CS"] .sec-head{align-items:center;min-height:30px}
+html body .jof2.editing .sec-head .hv input.f{height:30px;min-height:30px;box-sizing:border-box;font-size:14px;font-weight:700}
+html body .jof2.editing .sec-head:has(.hv input)>.code{margin-bottom:0}
+/* Tabela das medidas: um pouco mais de margem dos lados. */
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) td:first-child,html body .jof2.editing table.dims:not(.calv) th:first-child{padding-left:7px}
+  html body .jof2.editing table.dims:not(.calv) td:last-child,html body .jof2.editing table.dims:not(.calv) th:last-child{padding-right:6px}
+}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:45%}
+  html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:31%}
+}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:44%}
+  html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:35%}
+  html body .jof2.editing table.dims:not(.calv) td:nth-child(2) input.f{padding-inline:3px}
+}
