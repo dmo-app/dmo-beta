@@ -296,7 +296,6 @@ builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoCmDeParteHandle
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoesPdfGenerator>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PuncoesLinhaDefinicoes>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnLotNoteHandler>();
-builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnArtigoImagemHandler>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnChangeQuery>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.RemoveJobOnChangeHandler>();
 builder.Services.AddScoped<DMO.Alpha.Core.Planeamento.ISumarioQuery, DMO.Alpha.Infrastructure.Planeamento.SumarioQuery>();

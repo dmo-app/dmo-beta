@@ -207,33 +207,90 @@
     imagem.src = src;
   }
 
-  // A imagem do artigo vive no servidor, por referência completa
-  // (/JobOn/ArtigoImagem): igual em todos os Job On dessa referência. Quem
-  // pode editar clica, escolhe e fica guardada; o × retira. A que ficou
-  // antes neste browser (localStorage) passa para o servidor uma vez.
+  // A imagem do artigo vive na pasta geral das imagens, como os PDFs do
+  // Controlo (Diogo, 26/10/2026): cada computador associa uma vez a pasta
+  // (guardada só neste navegador, File System Access API, Chrome e Edge) e a
+  // app cria lá a pasta da referência e grava «artigo.<ext>». Trocar guarda a
+  // anterior como «artigo-anterior-<data>»; retirar também (nada se perde).
+  // Sem pasta associada (ou sem a API) a imagem fica só neste navegador.
+  const ARTIGOS_DB = 'dmo-pasta-pdf';
+  const ARTIGOS_STORE = 'pastas';
+  const ARTIGOS_KEY = 'artigos';
+  const API_PASTA = typeof window.showDirectoryPicker === 'function' && 'indexedDB' in window;
+
+  function pastaDb(modo, acao) {
+    return new Promise((resolve, reject) => {
+      const abrir = indexedDB.open(ARTIGOS_DB, 1);
+      abrir.onupgradeneeded = () => abrir.result.createObjectStore(ARTIGOS_STORE);
+      abrir.onerror = () => reject(abrir.error);
+      abrir.onsuccess = () => {
+        const db = abrir.result;
+        const tx = db.transaction(ARTIGOS_STORE, modo);
+        const pedido = acao(tx.objectStore(ARTIGOS_STORE));
+        tx.oncomplete = () => { db.close(); resolve(pedido && pedido.result); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+      };
+    });
+  }
+  function pastaLer() {
+    if (!API_PASTA) return Promise.resolve(null);
+    return pastaDb('readonly', (s) => s.get(ARTIGOS_KEY)).catch(() => null);
+  }
+  function pastaPermissao(handle, pedir) {
+    const opcoes = { mode: 'readwrite' };
+    return handle.queryPermission(opcoes).then((estado) => {
+      if (estado === 'granted') return true;
+      return pedir ? handle.requestPermission(opcoes).then((r) => r === 'granted') : false;
+    }).catch(() => false);
+  }
+  function nomePasta(referencia) { return referencia.replace(/[\\/:*?"<>|]/g, '_').trim(); }
+  async function ficheiroDoArtigo(raiz, referencia) {
+    try {
+      const dir = await raiz.getDirectoryHandle(nomePasta(referencia));
+      for await (const entrada of dir.values()) {
+        if (entrada.kind === 'file' && /^artigo\.[a-z0-9]+$/i.test(entrada.name)) return { dir, entrada };
+      }
+    } catch (e) { /* sem pasta da referência */ }
+    return null;
+  }
+  async function escreverFicheiro(dir, nome, blob) {
+    const f = await dir.getFileHandle(nome, { create: true });
+    const w = await f.createWritable();
+    await w.write(blob);
+    await w.close();
+  }
+  async function arquivarAtual(dir, entrada) {
+    const ficheiro = await entrada.getFile();
+    const ponto = entrada.name.lastIndexOf('.');
+    const carimbo = new Date().toISOString().replace(/[:.]/g, '-');
+    await escreverFicheiro(dir, 'artigo-anterior-' + carimbo + entrada.name.slice(ponto), ficheiro);
+    await dir.removeEntry(entrada.name);
+  }
+
   function artigo(folha) {
     const figura = folha.querySelector('[data-jof-artigo]');
     if (!figura) return;
     const referencia = figura.getAttribute('data-jof-artigo') || '';
+    const pode = figura.getAttribute('data-jof-artigo-pode') === '1';
     const img = figura.querySelector('[data-jof-artigo-img]');
     const vazio = figura.querySelector('[data-jof-artigo-vazio]');
     const ficheiro = figura.querySelector('[data-jof-artigo-ficheiro]');
     const retirar = folha.querySelector('[data-jof-artigo-retirar]');
+    const caixaAviso = folha.querySelector('[data-jof-artigo-aviso]');
     const chave = IMAGEM + referencia;
-    const url = '/JobOn/ArtigoImagem';
-    function token() {
-      const campo = figura.querySelector('input[name=__RequestVerificationToken]');
-      return campo ? campo.value : '';
-    }
-    function enviar(acao, blob) {
-      const corpo = new FormData();
-      corpo.append('__RequestVerificationToken', token());
-      corpo.append('ref', referencia);
-      if (blob) corpo.append('imagem', blob, 'artigo');
-      return fetch(url + (acao ? '?handler=' + acao : ''), { method: 'POST', body: corpo, credentials: 'same-origin' });
+    let raiz = null;
+    let permitido = false;
+    let url = null;
+
+    function aviso(texto) {
+      if (!caixaAviso) return;
+      caixaAviso.textContent = texto;
+      caixaAviso.hidden = false;
+      window.setTimeout(() => { caixaAviso.hidden = true; }, 7000);
     }
     function mostrar(src) {
       if (!img) return;
+      if (url && src !== url) { URL.revokeObjectURL(url); url = null; }
       if (src) {
         img.src = src;
         img.hidden = false;
@@ -245,52 +302,85 @@
       }
       if (retirar) retirar.hidden = !src;
     }
-    const caixaAviso = folha.querySelector('[data-jof-artigo-aviso]');
-    function aviso(texto) {
-      if (!caixaAviso) return;
-      caixaAviso.textContent = texto;
-      caixaAviso.hidden = false;
-      window.setTimeout(() => { caixaAviso.hidden = true; }, 6000);
+    async function carregar() {
+      if (!referencia) return;
+      permitido = !!raiz && await pastaPermissao(raiz, false);
+      if (permitido) {
+        const achado = await ficheiroDoArtigo(raiz, referencia);
+        if (achado) {
+          url = URL.createObjectURL(await achado.entrada.getFile());
+          mostrar(url);
+          return;
+        }
+      }
+      mostrar(ler(chave));
     }
-    if (referencia) {
-      fetch(url + '?ref=' + encodeURIComponent(referencia), { credentials: 'same-origin', cache: 'no-cache' })
-        .then((r) => (r.ok ? r.blob() : null))
-        .then((blob) => {
-          if (blob) { mostrar(URL.createObjectURL(blob)); return; }
-          const antiga = ler(chave);
-          if (!antiga) return;
-          mostrar(antiga);
-          if (!ficheiro) return;
-          fetch(antiga).then((r) => r.blob()).then((b) => enviar('', b)).then((r) => {
-            if (r.ok) { try { window.localStorage.removeItem(chave); } catch (e) { /* sem efeito */ } }
-          }).catch(() => {});
-        })
-        .catch(() => {});
-    }
-    if (!ficheiro) return;
-    ficheiro.addEventListener('change', () => {
-      const escolhido = ficheiro.files && ficheiro.files[0];
-      ficheiro.value = '';
-      if (!escolhido || !/^image\/(png|jpeg|webp|gif)$/.test(escolhido.type)) {
-        aviso('Escolha uma imagem PNG, JPG, WEBP ou GIF.');
+
+    pastaLer().then((h) => { raiz = h; return carregar(); }).catch(() => {});
+
+    // O primeiro clique do computador associa a pasta geral; em cada sessão o
+    // navegador pede licença uma vez (tem de ser logo no clique).
+    figura.addEventListener('click', (e) => {
+      if (!API_PASTA) {
+        if (pode && ficheiro) return;
+        e.preventDefault();
         return;
       }
-      const leitor = new FileReader();
-      leitor.onload = () => ajustar(String(leitor.result), (src) => {
-        fetch(src).then((r) => r.blob()).then((blob) => enviar('', blob).then((r) => {
-          if (r.ok) mostrar(URL.createObjectURL(blob));
-          else aviso('A imagem não ficou guardada. Tente outra, até 5 MB.');
-        })).catch(() => aviso('A imagem não ficou guardada. Tente outra vez.'));
-      });
-      leitor.readAsDataURL(escolhido);
-    });
-    if (retirar) {
-      retirar.addEventListener('click', (e) => {
+      if (!raiz) {
+        // A pasta geral associa-se em Definições → Job On (com o PIN).
         e.preventDefault();
-        enviar('Retirar').then((r) => {
-          if (r.ok) mostrar(null);
-          else aviso('Não foi possível retirar a imagem.');
-        }).catch(() => aviso('Não foi possível retirar a imagem.'));
+        aviso('Associe primeiro a pasta das imagens em Definições, Job On.');
+        return;
+      }
+      // O estado da licença é lido antes (permitido): o clique decide já.
+      if (!permitido) {
+        e.preventDefault();
+        pastaPermissao(raiz, true).then((dada) => {
+          permitido = dada;
+          if (dada) { aviso(pode ? 'Pasta autorizada. Clique outra vez para escolher a imagem.' : 'Pasta autorizada.'); return carregar(); }
+        });
+      }
+    });
+
+    if (ficheiro) {
+      ficheiro.addEventListener('change', () => {
+        const escolhido = ficheiro.files && ficheiro.files[0];
+        ficheiro.value = '';
+        if (!escolhido || !/^image\//.test(escolhido.type)) return;
+        const leitor = new FileReader();
+        leitor.onload = () => ajustar(String(leitor.result), async (src) => {
+          const blob = await (await fetch(src)).blob();
+          try {
+            if (raiz && permitido) {
+              const dir = await raiz.getDirectoryHandle(nomePasta(referencia), { create: true });
+              const atual = await ficheiroDoArtigo(raiz, referencia);
+              if (atual) await arquivarAtual(dir, atual.entrada);
+              await escreverFicheiro(dir, 'artigo.png', blob);
+              url = URL.createObjectURL(blob);
+              mostrar(url);
+              return;
+            }
+          } catch (err) {
+            aviso('Não foi possível gravar na pasta; a imagem fica só neste navegador.');
+          }
+          mostrar(src);
+          escrever(chave, src);
+        });
+        leitor.readAsDataURL(escolhido);
+      });
+    }
+    if (retirar) {
+      retirar.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          if (raiz && (permitido || (permitido = await pastaPermissao(raiz, true)))) {
+            const atual = await ficheiroDoArtigo(raiz, referencia);
+            if (atual) await arquivarAtual(atual.dir, atual.entrada);
+          }
+        } catch (err) { aviso('Não foi possível retirar a imagem da pasta.'); return; }
+        try { window.localStorage.removeItem(chave); } catch (err) { /* sem efeito */ }
+        mostrar(null);
       });
     }
   }
