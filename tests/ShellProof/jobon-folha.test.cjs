@@ -163,3 +163,71 @@ test('Produções: lista fechada; abrir cai por cima; escolher outra muda a <sel
   assert.equal(lista.hidden, true);
   dom.window.close();
 });
+
+test('Editar: no cartão vazio, escolher a CM mostra a referência e o lote e tira a CM do aviso', async () => {
+  // Verificação antes da apresentação (25/10/2026): no Job On novo o cartão vazio só
+  // tinha «Sem contra molde»; escolher a CM deixava o cartão e o aviso como estavam.
+  const dom = new JSDOM(`<!doctype html><body><div class="jobon-aviso warn" data-jof-falta>Falta CM, BQ: o Job On precisa de CM, MF e BQ. Clique no cartão para escolher.</div>
+    <form data-jof-folha="editar"><input type="hidden" id="lightReference" value="5447T173" />
+    <div class="jof-tool-slot" data-jof-tool-slot="CM">
+      <button type="button" class="tool-head tool-empty" data-jof-tool="CM"><span class="code">CM</span><span class="muted">Sem contra molde</span></button>
+      <div class="jof-tool-procura" data-jof-tool-procura hidden><select name="cm_tool_id" data-facts-type="CM" data-dmo-filter>
+        <option value="">Escreva</option><option value="T4">5447T173 · Lote 04</option></select></div>
+    </div>
+    <div class="jof-tool-slot" data-jof-tool-slot="BQ"><button type="button" class="tool-head tool-empty" data-jof-tool="BQ"><span class="code">BQ</span><span class="muted">Sem boquilha</span></button></div>
+    </form></body>`, { url: 'http://dmo.test/JobOn/Folha?novo=1', runScripts: 'outside-only' });
+  const { window } = dom;
+  window.eval(fs.readFileSync(path.join(assets, 'js/jobon-folha.js'), 'utf8'));
+  if (window.document.readyState === 'loading') await new Promise(r => window.addEventListener('DOMContentLoaded', r));
+  const doc = window.document;
+  const select = doc.querySelector('select[name="cm_tool_id"]');
+  select.value = 'T4';
+  select.dispatchEvent(new window.Event('change', { bubbles: true }));
+  const botao = doc.querySelector('[data-jof-tool="CM"]');
+  assert.equal(botao.querySelector('[data-jof-tool-ref]').textContent, '5447T173');
+  assert.equal(botao.querySelector('[data-jof-tool-lote]').textContent, '4');
+  assert.equal(botao.querySelector('.muted'), null);
+  assert.equal(botao.classList.contains('tool-empty'), false);
+  assert.match(doc.querySelector('[data-jof-falta]').textContent, /^Falta BQ: o Job On precisa de CM, MF e BQ\./);
+  window.close();
+});
+
+test('Editar: a procura da BQ leva a CM e a MF escolhidas, e a lista mostra a linha e o filtro', async () => {
+  // O Diogo (26/10/2026): «um CM já inserido deveria filtrar com base no que faz
+  // parte relacionando máquina e referência total».
+  const dom = new JSDOM(`<!doctype html><body>
+    <form data-jof-folha="editar"><input type="hidden" id="lightReference" value="5447T173" />
+    <select id="lightMachine"><option value="1" selected>B1</option></select>
+    <div class="jof-tool-slot" data-jof-tool-slot="CM"><button type="button" class="tool-head" data-jof-tool="CM"><span class="code">CM</span></button>
+      <div class="jof-tool-procura" data-jof-tool-procura hidden><select name="cm_tool_id" data-facts-type="CM" data-dmo-filter><option value="">Escreva</option><option value="TCM" selected>5447 · Lote 12</option></select></div></div>
+    <div class="jof-tool-slot" data-jof-tool-slot="MF"><button type="button" class="tool-head tool-empty" data-jof-tool="MF"><span class="code">MF</span><span class="muted">Sem molde</span></button>
+      <div class="jof-tool-procura" data-jof-tool-procura hidden><select name="mf_tool_id" data-facts-type="MF" data-dmo-filter><option value="" selected>Escreva</option></select></div></div>
+    <div class="jof-tool-slot" data-jof-tool-slot="BQ"><button type="button" class="tool-head tool-empty" data-jof-tool="BQ"><span class="code">BQ</span><span class="muted">Sem boquilha</span></button>
+      <div class="jof-tool-procura" data-jof-tool-procura hidden><select name="bq_tool_id" data-facts-type="BQ" data-dmo-filter><option value="" selected>Escreva</option></select></div></div>
+    </form></body>`, { url: 'http://dmo.test/JobOn/Folha?novo=1', runScripts: 'outside-only' });
+  const { window } = dom;
+  const pedidos = [];
+  window.fetch = async url => {
+    pedidos.push(new URL(url, 'http://dmo.test'));
+    return { ok: true, json: async () => ({ items: [{ toolId: 'TBQ', reference: 'T173', lot: '033', machineCodes: 'B1 · C2' }], total: 1, filtro: 'Filtrado por máquina e referência · só as relacionadas; escreva para ver mais 6' }) };
+  };
+  window.eval(fs.readFileSync(path.join(assets, 'js/jobon-folha.js'), 'utf8'));
+  if (window.document.readyState === 'loading') await new Promise(r => window.addEventListener('DOMContentLoaded', r));
+  const doc = window.document;
+  const bq = doc.querySelector('select[name="bq_tool_id"]');
+  const resposta = await bq.dmoSource('');
+  const pedido = pedidos[0];
+  assert.equal(pedido.searchParams.get('type'), 'BQ');
+  assert.equal(pedido.searchParams.get('cm_tool_id'), 'TCM', 'a CM escolhida vai na procura');
+  assert.equal(pedido.searchParams.has('mf_tool_id'), false, 'sem MF escolhida, não vai');
+  assert.equal(pedido.searchParams.has('bq_tool_id'), false, 'a própria BQ nunca vai');
+  assert.equal(pedido.searchParams.get('machine_id'), '1');
+  assert.equal(pedido.searchParams.get('reference'), '5447T173');
+  assert.equal(JSON.stringify(resposta.items), JSON.stringify([{ value: 'TBQ', label: 'T173 · Lote 33 · B1 · C2' }]));
+  assert.equal(resposta.note, 'Escreva para ver mais 6.');
+
+  // Com um filtro normal, a nota não repete o filtro.
+  window.fetch = async () => ({ ok: true, json: async () => ({ items: [], total: 0, filtro: 'Filtrado por máquina e referência' }) });
+  assert.equal((await bq.dmoSource('T1')).note, '');
+  window.close();
+});

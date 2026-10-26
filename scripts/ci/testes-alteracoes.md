@@ -2280,9 +2280,143 @@ Novos: 11 · mudaram: 0 · saíram: 0
 
 Selo depois: `77e42f1b702b86d7`
 
-## A-0100 · 2026-10-26 · contagem-lista
+## A-0096 · 2026-10-25 · teste-novo
 
-Porquê: Login próprio da app (modo Local, sem Supabase): testes do fornecedor Local (palavras-passe do Supabase, limite de tentativas); a tabela LocalCredentials entra nas listas de tabelas e de migrações
+Porquê: Reshape do Job On, J2: o quadro do dia de JobOn/Index.cshtml.cs passa para JobOnQuadroDoDiaQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAmgz6Smt5sJ1FZ7Riri2Hy
+Novos: 12 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.QuadroDoDia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.QuadroDoDia.cs :: PostgresMigrationIntegrationTests.JobOnQuadroDoDia_CadaPedidoFazSoAsConsultasDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.DuasProducoesDaMesmaLinhaQueSeCruzam_NaoMarcamSobreposicao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.NotasDeLoteDoDiaEResumoDasAlteracoes_ficamNaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.OPedido_NaoGravaNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProducaoAteAviso_CobreOsDiasDepoisDoInicio_MasNaoOsAntes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProducaoCobreOPrimeiroEOUltimoDia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProximaMudanca_ASeguinteMaisCedoQueATroca_GanhaAProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProximaMudanca_EscolheAMaisCedoEntreAProducaoSeguinteEATrocaDeComponente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.SemDiaEscolhido_NaoHaProximaMudanca_MasHaProducoesDoDiaInicial`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAsProducoesDoDiaPorReferencia`
+
+Selo depois: `dccfc5697c021f5a`
+
+## A-0098 · 2026-10-26 · contagem-lista
+
+Porquê: Verificação antes da apresentação (25/10/2026): dois testes novos. No Job On novo, o cartão vazio passa a mostrar a ferramenta escolhida e o aviso de falta acompanha a escolha. A lista de ferramentas da linha passa a juntar as que não têm linha nenhuma. No jobon-folha.test.cjs, o «resto do ficheiro» só muda pelo «;» do teste acrescentado no fim; nenhum teste existente foi alterado.
+Referência: relatório /mnt/project-files/analises/filtros-apresentacao-2026-10-26/relatorio.md
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.MachineFilter_IncluirSemLinha_JuntaAsSemLinha_NuncaAsDeOutraLinha`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: no cartão vazio, escolher a CM mostra a referência e o lote e tira a CM do aviso`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `11ee7a625f27ba46`
+
+## A-0099 · 2026-10-26 · ok-do-diogo
+
+Porquê: O teste do Sumário «criado hoje, começa depois» punha o início a +5 dias, que no fim do mês cai dentro do mês que o «começam» mostra (falhava desde 26/10). Passa a +40 dias, sempre fora; o que o teste verifica fica igual.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW (autorização de testes do Diogo, anexada pelo coordenador a 26/10)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart`
+
+Selo depois: `d26cb179d634ae6e`
+
+## A-0097 · 2026-10-26 · teste-novo
+
+Porquê: Reshape de Controlo/Pegamentos (B1): os 2 acessos diretos à base de Pegamentos.cshtml.cs passam para PegamentosEscolhasQuery; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.CodigosDeMaquinas_VemPorOrdemDoCodigo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.LotesDaReferencia_ReferenciaEmBranco_NaoDevolveNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.LotesDaReferencia_VemComOLoteMaisAltoPrimeiroSemMisturarTiposNemReferencias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.OsDoisPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosEscolhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosEscolhas.cs :: PostgresMigrationIntegrationTests.PegamentosEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
+
+Selo depois: `8c61c6519de55957`
+
+## A-0100 · 2026-10-26 · teste-novo
+
+Porquê: Ramo integracao: junta os testes novos dos PRs em curso (Job On J3/J4, PERF, Pegamentos, Boquilhas B2) numa só entrada; só vale neste ramo
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
+Novos: 50 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.BqSemJobOn_SoAsBqSemATombstone_PorReferenciaELote_ComMaquinasEUltimaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.BqsDaReferencia_SoBqDaReferenciaSemDistinguirMaiusculasEMisturarTipos`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.Ferramenta_DevolveAReferenciaEOLoteESemFerramentaDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.OsQuatroPedidos_NaoGravamNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.ProducaoDoFiltro_DevolveNumeroReferenciaELinhaESemProducaoDevolveNulo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemMapaEstados.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ArmazemMapaEstados.cs :: PostgresMigrationIntegrationTests.ArmazemMapa_UltimoEstadoNaBase_IgualAoDeMemoria_ELinhasLidasNaoDependemDaHistoria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: PostgresMigrationIntegrationTests.BoquilhasEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnFicha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnFicha.cs :: PostgresMigrationIntegrationTests.JobOnFicha_CadaPedidoFazSoAsConsultasDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnHistorico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnHistorico.cs :: PostgresMigrationIntegrationTests.JobOnHistorico_CadaPedidoFazSoAsConsultasDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProducoesDoDia.cs :: PostgresMigrationIntegrationTests.ReparacaoInterna_ProducoesDoDia_NumaSoLeituraComOMesmoResultadoQueUmaPorUma`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_NotasAlteracoesPreviewFactosFolha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.Duplicar_NaoLePreviewNemFactos_MasLeAFolhaQueCopia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.FolhaGravada_Presente_OuAusenteLeSeComoVazia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.JobOnAberto_DevolveNotasAlteracoesPreviewFactosEFolha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.OPedido_NaoGravaNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.OPreviewUsaODiaPedido`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SemFerramentas_NaoLeFactos_MasLePreview`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SemNotasNemAlteracoes_ListasVazias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SoUmaFerramenta_LeFactosSoDessa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.DataIlegivel_AvisaEIgnora`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.DesdeDepoisDeAte_TrocaAsDatasEAvisa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.MaquinaDesconhecida_NaoFiltra`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.OPedido_NaoGravaNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.OsTresFormatosDeData_SaoAceites`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.Paginacao_UmaPaginaDeCadaVezMaisRecentePrimeiro`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.ProducaoComNumeroEReferencia_EscolheEssaReferencia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.ProducaoDeOutraReferencia_NaoFiltra`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.ProducaoMaisAntigaPedidaPorLink_EntraNoDropdownEFiltra`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.ProducaoSoComNumero_EscolheAMaisRecenteComEsseNumero`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.ReferenciaEMaquina_FiltraDropdownEResultados`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.SemFiltro_NaoProcuraENaoLePagina`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.SoReferencia_ListaAsProducoesEPesquisaPelaReferencia`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.AAutorizacaoEADaPagina_ComECemOCabecalho`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.DepoisDeGravar_RegistoEAvisos_SaoOsMesmosPartialsDaPaginaInteira`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OHistorico_ZonaDosResultados_ESoAsMinhasReparacoes_SaoOsMesmosPartials`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OPainelDasLinhas_PedidoSozinho_ELinhaSemEscolher_SaoOsMesmosPartials`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OsPedidosComZonas_LeemMenosDaBaseQueAPaginaInteira_NoPostgres`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.SemOCabecalho_AResposta_EAPaginaInteiraDeSempre`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.ZonaDesconhecidaOuDeOutraVista_RespondeComAPaginaInteira`
+
+Selo depois: `a7fa69408f89e159`
+
+## A-0101 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR #108 (A-0107, filtros das ferramentas no Job On novo) no ramo integracao: são as entradas do registo desse PR; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR #108
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FerramentasRelacionadas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FerramentasRelacionadas.cs :: PostgresMigrationIntegrationTests.FerramentasRelacionadas_OrdemEFiltro_NoPostgres`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Referencias_ComLinha_SoAsQueCorreramNela_SemNenhumaTodas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.JobOn_Companheiras_OrdenamPrimeiroAsUsadasComElas_ESoRelacionadasTiraAsOutras`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ToolCandidates_ComCmEscolhida_ABqMostraAsRelacionadas_EEscreverMostraTodas`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a procura da BQ leva a CM e a MF escolhidas, e a lista mostra a linha e o filtro`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `3ddcbca5574dc5a6`
+
+## A-0102 · 2026-10-26 · contagem-lista
+
+Porquê: Login próprio da app (modo Local, sem Supabase): testes do fornecedor Local (palavras-passe do Supabase, limite de tentativas); a tabela LocalCredentials entra nas listas de tabelas e de migrações. Registado de novo ao juntar o integracao no PR #109 (a entrada A-0100 do PR #101).
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy7oqPGxoe5kii8iFPC2Mgwk
 Novos: 12 · mudaram: 5 · saíram: 0
 
@@ -2304,4 +2438,20 @@ Novos: 12 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
-Selo depois: `cc17643d37438709`
+Selo depois: `00868af3a4491d2b`
+
+## A-0103 · 2026-10-26 · ok-do-diogo
+
+Porquê: PR #109 (A-0108), passo 3 da app no portátil: sem Dmo__AuthenticationProvider, fora de Development, o login passa a ser o da app (Local); um valor desconhecido continua no Supabase, com aviso. Sai o atalho do pooler do Supabase (DevPoolerHost) e o seu teste. As mensagens do Admin deixam de dizer «Supabase». Os casos Production/Staging vazios passam do teste antigo para o novo (Local); os restantes ficam iguais.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRYz9rVfSPGua8CqeapJTKF (Diogo «sim» ao plano https://claude.ai/artifact/RBi5qndtR3xsjwyTPgpLV9)
+Novos: 3 · mudaram: 2 · saíram: 2
+
+- novo: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_SemFornecedorOuLocal_UsaOLoginProprio`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_ComFornecedorDesconhecido_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemFornecedorDeclarado_UsaOLoginProprio_SemAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.DeleteUser_TwoStepConfirmation_RemovesTheRow_AdminNever`
+- mudou: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_AlwaysRegistersRealAuthenticationAndProvisioning`
+- saiu: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.Beta_DevPoolerOverride_ReusesStoredTechnicalCredential`
+- saiu: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemOFornecedorDeclarado_Avisa`
+
+Selo depois: `9f649e5c8f3101d2`

@@ -126,29 +126,127 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .Select(u => (Dia: DateOnly.FromDateTime(DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem))
             .ToList();
 
-        decimal? Antes(DateOnly? inicio) => UsoAntes(leituras, inicio);
-        decimal? Depois(DateOnly? inicio, DateOnly? fim) => UsoDepois(leituras, inicio, fim);
-
-        var itens = jobOns.Select(j =>
-        {
-            var linhas = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm)).ToList();
-            return new FerramentaProducao(
-                j.Id,
-                j.Reference,
-                j.ProductionNumber,
-                j.Maquina,
-                j.InicioEm,
-                j.FimEm,
-                linhas.Any(s => s.ProducaoBruta.HasValue) ? linhas.Sum(s => s.ProducaoBruta ?? 0) : null,
-                linhas.Any(s => s.ProducaoLiquida.HasValue) ? linhas.Sum(s => s.ProducaoLiquida ?? 0) : null,
-                linhas.Count,
-                Antes(j.InicioEm),
-                Depois(j.InicioEm, j.FimEm));
-        }).ToList();
+        var itens = jobOns.Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, leituras)).ToList();
         return new FerramentaProducoes(
             PagedList<FerramentaProducao>.FromLoaded(itens, pagina, porPagina),
             itens.Any(p => p.ProducaoBruta.HasValue) ? itens.Sum(p => p.ProducaoBruta ?? 0) : null,
             itens.Any(p => p.ProducaoLiquida.HasValue) ? itens.Sum(p => p.ProducaoLiquida ?? 0) : null);
+    }
+
+    /// <summary>
+    /// As produções de várias ferramentas de uma vez (o Histórico): as mesmas
+    /// de <see cref="ProducoesAsync"/> para cada uma, na mesma ordem, mas com um
+    /// número fixo de leituras e só os Job On que cabem na linha e nos dias do
+    /// filtro (filtrados na base). A ferramenta sem produções fica de fora.
+    /// </summary>
+    public async Task<IReadOnlyDictionary<string, IReadOnlyList<FerramentaProducao>>> ProducoesDeFerramentasAsync(
+        IReadOnlyCollection<string> toolIds, HistoricoFiltro? filtro, CancellationToken cancellationToken = default)
+    {
+        var resultado = new Dictionary<string, IReadOnlyList<FerramentaProducao>>(StringComparer.Ordinal);
+        if (toolIds.Count == 0)
+        {
+            return resultado;
+        }
+
+        var relacoes = (await db.CmContexts.Where(c => toolIds.Contains(c.ToolId)).Select(c => new { c.ToolId, JobOnId = c.JobOnId ?? c.ReplacedJobOnId }).ToListAsync(cancellationToken))
+            .Concat(await db.MfContexts.Where(c => toolIds.Contains(c.ToolId)).Select(c => new { c.ToolId, JobOnId = c.JobOnId ?? c.ReplacedJobOnId }).ToListAsync(cancellationToken))
+            .Concat(await db.BqContexts.Where(c => toolIds.Contains(c.ToolId)).Select(c => new { c.ToolId, JobOnId = c.JobOnId ?? c.ReplacedJobOnId }).ToListAsync(cancellationToken))
+            .Where(c => c.JobOnId.HasValue)
+            .Select(c => (c.ToolId, JobOnId: c.JobOnId!.Value))
+            .Distinct()
+            .ToList();
+        if (relacoes.Count == 0)
+        {
+            return resultado;
+        }
+
+        var ids = relacoes.Select(r => r.JobOnId).Distinct().ToList();
+        var filtrados = db.JobOns.AsNoTracking().Where(j => ids.Contains(j.Id));
+        if (filtro is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(filtro.Linha))
+            {
+                var linha = filtro.Linha.Trim().ToUpperInvariant();
+                filtrados = filtrados.Where(j => j.Machine.Code.ToUpper() == linha);
+            }
+
+            if (filtro.De is { } de)
+            {
+                filtrados = filtrados.Where(j => j.FimEm == null || j.FimEm >= de);
+            }
+
+            if (filtro.Ate is { } ate)
+            {
+                filtrados = filtrados.Where(j => j.InicioEm != null && j.InicioEm <= ate);
+            }
+        }
+
+        var jobOns = (await filtrados
+                .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+                .ToListAsync(cancellationToken))
+            .OrderByDescending(j => j.InicioEm.HasValue)
+            .ThenByDescending(j => j.InicioEm)
+            .ThenByDescending(j => j.Id)
+            .ToList();
+        if (jobOns.Count == 0)
+        {
+            return resultado;
+        }
+
+        var sap = new List<SapFabrico>();
+        var comDatas = jobOns.Where(j => j.InicioEm.HasValue).ToList();
+        if (comDatas.Count > 0)
+        {
+            var maquinas = comDatas.Select(j => j.Maquina.ToUpperInvariant()).Distinct().ToList();
+            var de = comDatas.Min(j => j.InicioEm!.Value);
+            var ate = comDatas.Max(j => j.FimEm is { } f ? (f >= j.InicioEm!.Value ? f : j.InicioEm!.Value) : DateOnly.MaxValue);
+            sap = await db.SapFabricos.AsNoTracking()
+                .Where(s => maquinas.Contains(s.Linha) && s.InicioEm <= ate && s.FimEm >= de)
+                .ToListAsync(cancellationToken);
+        }
+
+        var comProducao = relacoes.Select(r => r.ToolId).Distinct().ToList();
+        var leituras = (await db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => comProducao.Contains(u.ToolId))
+                .OrderBy(u => u.RegistadaEmUtc).ThenBy(u => u.Id)
+                .Select(u => new { u.ToolId, u.RegistadaEmUtc, u.Percentagem })
+                .ToListAsync(cancellationToken))
+            .GroupBy(u => u.ToolId)
+            .ToDictionary(g => g.Key, g => g.Select(u => (Dia: DateOnly.FromDateTime(DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem)).ToList(), StringComparer.Ordinal);
+
+        var porFerramenta = relacoes.ToLookup(r => r.ToolId, r => r.JobOnId);
+        foreach (var toolId in comProducao)
+        {
+            var seus = porFerramenta[toolId].ToHashSet();
+            var l = leituras.TryGetValue(toolId, out var dela) ? dela : [];
+            var itens = jobOns.Where(j => seus.Contains(j.Id))
+                .Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, l))
+                .ToList();
+            if (itens.Count > 0)
+            {
+                resultado[toolId] = itens;
+            }
+        }
+
+        return resultado;
+    }
+
+    private static FerramentaProducao Montar(int id, string reference, string producao, string maquina, DateOnly? inicio, DateOnly? fim,
+        IReadOnlyList<SapFabrico> sap, IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras)
+    {
+        var linhas = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, reference, maquina, inicio, fim)).ToList();
+        return new FerramentaProducao(
+            id,
+            reference,
+            producao,
+            maquina,
+            inicio,
+            fim,
+            linhas.Any(s => s.ProducaoBruta.HasValue) ? linhas.Sum(s => s.ProducaoBruta ?? 0) : null,
+            linhas.Any(s => s.ProducaoLiquida.HasValue) ? linhas.Sum(s => s.ProducaoLiquida ?? 0) : null,
+            linhas.Count,
+            UsoAntes(leituras, inicio),
+            UsoDepois(leituras, inicio, fim));
     }
 
     // Antes: a última leitura até ao dia do início (a desse dia é o ponto de

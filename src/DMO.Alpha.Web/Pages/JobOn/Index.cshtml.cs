@@ -53,11 +53,11 @@ public sealed class IndexModel : PageModel
     private readonly IJobOnToolFactsQuery _toolFacts;
     private readonly IProductionPickerQuery _productionPicker;
     private readonly IJobOnPaginaQuery _pagina;
+    private readonly IJobOnQuadroDoDiaQuery _quadroDoDia;
+    private readonly IJobOnHistoricoQuery _historico;
     private readonly ShellStateFactory _shellState;
     private readonly CurrentUserCapabilities _capabilities;
-    private readonly JobOnLotNoteHandler _lotNotes;
-    private readonly JobOnChangeQuery _changes;
-    private readonly IDeleteJobOnHandler _deleteJobOn;
+    private readonly IJobOnFichaQuery _ficha;
     private readonly IJobOnFolhaQuery _folha;
 
     public IndexModel(
@@ -70,11 +70,11 @@ public sealed class IndexModel : PageModel
         IJobOnToolFactsQuery toolFacts,
         IProductionPickerQuery productionPicker,
         IJobOnPaginaQuery pagina,
+        IJobOnQuadroDoDiaQuery quadroDoDia,
+        IJobOnHistoricoQuery historico,
         ShellStateFactory shellState,
         CurrentUserCapabilities capabilities,
-        JobOnLotNoteHandler lotNotes,
-        JobOnChangeQuery changes,
-        IDeleteJobOnHandler deleteJobOn,
+        IJobOnFichaQuery ficha,
         IJobOnFolhaQuery folha,
         Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
@@ -88,11 +88,11 @@ public sealed class IndexModel : PageModel
         _toolFacts = toolFacts;
         _productionPicker = productionPicker;
         _pagina = pagina;
+        _quadroDoDia = quadroDoDia;
+        _historico = historico;
         _shellState = shellState;
         _capabilities = capabilities;
-        _lotNotes = lotNotes;
-        _changes = changes;
-        _deleteJobOn = deleteJobOn;
+        _ficha = ficha;
         _folha = folha;
     }
 
@@ -249,7 +249,7 @@ public sealed class IndexModel : PageModel
     /// Entre o nº e a referência no valor de uma opção do dropdown, quando o
     /// dropdown tem produções de mais do que uma referência («2026001|5447T173»).
     /// </summary>
-    public const char HistoryProductionSeparator = '|';
+    public const char HistoryProductionSeparator = JobOnHistorico.Separador;
 
     /// <summary>True quando o dropdown das produções junta mais do que uma referência (o texto é o início de várias).</summary>
     public bool HistoryProductionsSpanReferences =>
@@ -336,7 +336,7 @@ public sealed class IndexModel : PageModel
     public const int ReferenceProductionsPageSize = 10;
 
     /// <summary>O QUADRO COMPLETO DAS LINHAS do dia (o shared element por Razor — o Owner: «quadro do dia pode ir»): as máquinas B1..C3 sempre visíveis, as com produção mostram-na, as livres ficam vazias.</summary>
-    public IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> DayRows { get; private set; } = Array.Empty<DMO.Alpha.Web.Presentation.DayMachineRow>();
+    public IReadOnlyList<DayMachineRow> DayRows { get; private set; } = Array.Empty<DayMachineRow>();
     public IReadOnlyList<ProductionContextReadModel> JobOns { get; private set; } = Array.Empty<ProductionContextReadModel>();
 
     /// <summary>
@@ -555,111 +555,24 @@ public sealed class IndexModel : PageModel
             hasForDay: data => jobOns.Any(j => j.InicioEm == data || j.FimEm?.AddDays(1) == data)) with { LegendLabel = "Mudanças numa linha" };
     }
 
-    private static IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> ComporDayRows(IReadOnlyList<MachineOption> machines, IReadOnlyList<ProductionContextReadModel> jobOns, int ano, int mes, int? diaSelecionado)
-    {
-        // A procura não filtra o dia (Diogo, 17/10/2026: não é um filtro
-        // global); as linhas das máquinas mostram sempre o dia escolhido.
-        var cobre = new System.Collections.Generic.List<ProductionContextReadModel>();
-        // O DIA CONSULTADO (o painel do dia do dmo-html): o dia clicado no
-        // calendário — na omissão, o dia inicial da página (o hoje no mês
-        // corrente). A produção «até aviso» (o FimEm null) COBRE o dia a
-        // partir do início (a regra do corte B: as datas do Job On mandam).
-        var data = new DateOnly(ano, mes, Math.Clamp(diaSelecionado ?? 1, 1, DateTime.DaysInMonth(ano, mes)));
-        cobre.AddRange(jobOns.Where(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)));
-        var rows = new System.Collections.Generic.List<DMO.Alpha.Web.Presentation.DayMachineRow>();
-        foreach (var machine in machines)
-        {
-            var doDia = cobre.Where(j => j.Machine == machine.Code).OrderBy(j => j.Reference).ToList();
-            // Sem sobreposição entre produções da linha: só as BQ a têm
-            // (Diogo, 25/10/2026).
-            const bool cruzam = false;
-            rows.Add(new(machine.Code, doDia.Select(x => new DMO.Alpha.Web.Presentation.DayProduction(x.JobOnId, x.Reference, x.ProductionNumber)).ToList())
-            {
-                HasOverlap = cruzam
-            });
-        }
-        return rows;
-    }
-
     /// <summary>
-    /// O HISTÓRICO abre em branco (decisão do proprietário, 16/10/2026): só
-    /// lê produções depois de uma procura pela referência, máquina ou data.
-    /// A procura de uma produção faz-se em dois passos: a referência (e a
-    /// máquina, se quiser) e depois o dropdown só com as produções dela,
-    /// lido só para ela. Uma data ilegível é ignorada com um aviso amarelo,
-    /// não recusada.
+    /// Compõe o histórico (as regras estão em <see cref="IJobOnHistoricoQuery"/>)
+    /// e guarda o resultado nas propriedades que a vista lê.
     /// </summary>
     private async Task ComposeHistoryAsync(string? referencia, int? maquina, string? producao, string? desde, string? ate)
     {
-        var cancellationToken = HttpContext.RequestAborted;
-        var warnings = new List<string>();
-        HistoryReference = Sanitize(referencia);
-        // Uma máquina que não existe não filtra.
-        HistoryMachineId = maquina is int id && Machines.Any(m => m.MachineId == id) ? id : null;
-        HistoryDesde = ParseHistoryDate(desde, "Desde", warnings);
-        HistoryAte = ParseHistoryDate(ate, "Até", warnings);
-        if (HistoryDesde is { } d && HistoryAte is { } a && d > a)
-        {
-            (HistoryDesde, HistoryAte) = (a, d);
-            warnings.Add("«Desde» era depois de «Até»: as datas foram trocadas.");
-        }
-        HistoryDateWarnings = warnings;
-
-        if (HistoryReference is { } reference)
-        {
-            HistoryProductions = await _jobOnList.ListProductionsOfReferenceAsync(reference, HistoryMachineId, cancellationToken);
-            // A produção pedida: o nº e, quando o dropdown junta várias
-            // referências, a referência dela. Um link antigo só com o nº
-            // escolhe a mais recente com esse nº, nunca as duas juntas. Uma
-            // produção que já não é desta referência (a referência mudou) não filtra.
-            var (wanted, wantedReference) = ParseHistoryProduction(Sanitize(producao));
-            var escolhida = wanted is null
-                ? null
-                : HistoryProductions.FirstOrDefault(p => p.ProductionNumber == wanted
-                    && (wantedReference is null || p.Reference == wantedReference));
-            // O dropdown só tem as últimas produções; uma mais antiga pedida
-            // por link continua a filtrar e entra no dropdown.
-            if (wanted is not null && escolhida is null)
-            {
-                escolhida = await _pagina.ProducaoDoHistoricoAsync(
-                    reference, wanted, wantedReference, HistoryMachineId, cancellationToken);
-                if (escolhida is not null)
-                {
-                    HistoryProductions = [.. HistoryProductions, escolhida];
-                }
-            }
-            HistoryProduction = escolhida?.ProductionNumber;
-            HistoryProductionReference = escolhida?.Reference;
-        }
-
-        var filter = new JobOnHistoryFilter(
-            HistoryReference, HistoryMachineId, HistoryProduction, HistoryDesde, HistoryAte, HistoryProductionReference);
-        HistorySearchApplied = !filter.IsEmpty;
-        if (HistorySearchApplied)
-        {
-            HistoryPage = await _jobOnList.SearchHistoryPageAsync(
-                filter, HistoryPageNumber, cancellationToken: cancellationToken);
-        }
-    }
-
-    /// <summary>
-    /// O valor pedido do dropdown das produções: «nº» (os links antigos e o
-    /// dropdown de uma só referência) ou «nº|referência».
-    /// </summary>
-    private static (string? Number, string? Reference) ParseHistoryProduction(string? value)
-    {
-        if (value is null)
-        {
-            return (null, null);
-        }
-        var separator = value.IndexOf(HistoryProductionSeparator);
-        if (separator < 0)
-        {
-            return (value, null);
-        }
-        var number = value[..separator].Trim();
-        var reference = value[(separator + 1)..].Trim().ToUpperInvariant();
-        return (number.Length == 0 ? null : number, reference.Length == 0 ? null : reference);
+        var historico = await _historico.HistoricoAsync(
+            referencia, maquina, producao, desde, ate, HistoryPageNumber, Machines, HttpContext.RequestAborted);
+        HistoryReference = historico.Reference;
+        HistoryMachineId = historico.MachineId;
+        HistoryDesde = historico.Desde;
+        HistoryAte = historico.Ate;
+        HistoryDateWarnings = historico.DateWarnings;
+        HistoryProductions = historico.Productions;
+        HistoryProduction = historico.Production;
+        HistoryProductionReference = historico.ProductionReference;
+        HistorySearchApplied = historico.SearchApplied;
+        HistoryPage = historico.Page;
     }
 
     /// <summary>Uma página do histórico, sem compor calendário, dia ou rail.</summary>
@@ -680,22 +593,6 @@ public sealed class IndexModel : PageModel
                 new ToolCandidateFilter(ToolIds: shownToolIds), HttpContext.RequestAborted);
         Response.Headers["X-Dmo-Region"] = "jobonHistoricoResultados";
         return Partial("_JobOnHistoricoResultados", this);
-    }
-
-    private static DateOnly? ParseHistoryDate(string? value, string label, List<string> warnings)
-    {
-        var text = value?.Trim();
-        if (string.IsNullOrEmpty(text))
-        {
-            return null;
-        }
-        if (DateOnly.TryParseExact(text, new[] { "yyyy-MM-dd", "dd/MM/yyyy", "dd-MM-yyyy" },
-                System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var date))
-        {
-            return date;
-        }
-        warnings.Add($"«{label}» ignorada: «{text}» não é uma data válida.");
-        return null;
     }
 
     public async Task<IActionResult> OnGetAsync(
@@ -873,13 +770,22 @@ public sealed class IndexModel : PageModel
         // MESMA query que o endpoint do vivo usa. O MODO DUPLICAR
         // (?jobon_id=N&duplicar=1) compõe o draft da produção nova (o html:
         // o nº e as datas por preencher, as tools e a calote copiadas).
-        if (OpenJobOn is { } loteJobOn)
+        //
+        // As leituras da ficha (notas de lote, alterações, o que se perde ao
+        // eliminar, os factos das ferramentas e a folha gravada) fazem-se de
+        // uma vez no serviço; as capabilities do utilizador não voltam à base
+        // (resolvem-se uma vez por pedido), por isso a ordem entre umas e outras
+        // não muda o que se lê.
+        var ficha = OpenJobOn is { } fichaAberta
+            ? await _ficha.FichaAsync(fichaAberta, today, duplicar == "1", HttpContext.RequestAborted)
+            : null;
+        if (OpenJobOn is { } loteJobOn && ficha is not null)
         {
-            FichaLotNotes = await _lotNotes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted);
+            FichaLotNotes = ficha.LotNotes;
             var resumo = JobOnSummaryEntry.Compose(
                 loteJobOn.JobOnId,
                 loteJobOn.InicioEm,
-                await _changes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted),
+                ficha.Changes,
                 FichaLotNotes);
             var permitidas = new HashSet<string>();
             foreach (var capability in resumo.Select(e => e.ActionCapability).Distinct())
@@ -890,11 +796,11 @@ public sealed class IndexModel : PageModel
             VistaAlteracoes = vista == "alteracoes";
         }
 
-        if (OpenJobOn is { } eliminarJobOn && duplicar != "1")
+        if (OpenJobOn is not null && duplicar != "1")
         {
             VeControlo = await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted)
                 || await _capabilities.HasAsync(DmoCapabilities.ControloApprove, HttpContext.RequestAborted);
-            if (await _deleteJobOn.PreviewAsync(eliminarJobOn.JobOnId, today, HttpContext.RequestAborted) is { } preview)
+            if (ficha?.DeletePreview is { } preview)
             {
                 FichaEliminar = JobOnEliminarAviso.From(preview, VeControlo);
             }
@@ -949,18 +855,11 @@ public sealed class IndexModel : PageModel
                 }
             }
 
-            if (DuplicarDe is null)
+            // Os factos das ferramentas lêem-se para a ficha e para o Editar,
+            // nunca no Duplicar (o serviço devolve-os vazios).
+            if (ficha is not null)
             {
-                var fichaToolIds = new[] { fichaJobOn.CmToolId, fichaJobOn.MfToolId, fichaJobOn.BqToolId }
-                    .Where(id => id is not null)
-                    .Select(id => id!)
-                    .ToList();
-                if (fichaToolIds.Count > 0)
-                {
-                    FichaFacts = await _toolFacts.FindAsync(
-                        fichaToolIds, fichaJobOn.Machine, fichaJobOn.JobOnId,
-                        fichaJobOn.InicioEm, fichaJobOn.FimEm, HttpContext.RequestAborted);
-                }
+                FichaFacts = ficha.ToolFacts;
             }
         }
 
@@ -985,9 +884,7 @@ public sealed class IndexModel : PageModel
         // A FOLHA DA FÁBRICA gravada, lida uma vez para a ficha em leitura, para
         // o Editar e para o Duplicar (a ficha aparece sempre que há Job On
         // aberto, menos no Duplicar).
-        var folhaGravada = OpenJobOn is { } folhaJobOn
-            ? await _folha.ForJobOnAsync(folhaJobOn.JobOnId, HttpContext.RequestAborted)
-            : null;
+        var folhaGravada = ficha?.Folha;
         FichaFolha = folhaGravada is null || DuplicarDe is not null ? null : FichaDaFolhaVista.DaLida(folhaGravada);
 
         // No formulário: o que se escreveu (depois de uma recusa que volta a
@@ -1021,63 +918,8 @@ public sealed class IndexModel : PageModel
                 new ToolCandidateFilter(ToolIds: shownToolIds), HttpContext.RequestAborted);
         }
 
-        DayRows = ComporDayRows(Machines, JobOns, Year, Month, SelectedDay);
-
-        // As mudanças de lote do dia entram na linha da máquina, no espaço
-        // entre a referência e o número (o proprietário, 16/10/2026).
-        var doDia = DayRows.SelectMany(r => r.Productions).Select(p => p.JobOnId).ToList();
-        var notasDoDia = await _lotNotes.ForDayAsync(new DateOnly(Year, Month, SelectedDay), doDia, HttpContext.RequestAborted);
-        // E as alterações de cada produção: a linha mostra qual foi (o Diogo,
-        // 17/10/2026), e a ficha tem o detalhe em «O que mudou».
-        var alteracoes = await _changes.AfterStartAsync(doDia, HttpContext.RequestAborted);
-        if (notasDoDia.Count > 0 || alteracoes.Count > 0)
-        {
-            DayRows = DayRows
-                .Select(r => r with
-                {
-                    Productions = r.Productions
-                        .Select(p => p with
-                        {
-                            LotNotes = notasDoDia.Where(n => n.JobOnId == p.JobOnId).Select(n => n.Text).ToList(),
-                            ChangeCount = alteracoes.TryGetValue(p.JobOnId, out var mudou) ? mudou.Count : 0,
-                            ChangeSummary = mudou is { Count: > 0 } ? JobOnChangeFields.Summarize(mudou) : null,
-                            ChangeDetails = mudou?.Select(c => c.Text).ToList() ?? []
-                        })
-                        .ToList()
-                })
-                .ToList();
-        }
-
-        // A próxima mudança em cada máquina, depois do dia escolhido (o
-        // proprietário, 17/10/2026): a produção que entra a seguir ou a troca
-        // de um componente da produção atual, a que vier primeiro; no mesmo
-        // dia, a produção nova. Vai para a frente da linha.
-        if (!NoDaySelected)
-        {
-            var dia = new DateOnly(Year, Month, SelectedDay);
-            var proximas = await _jobOnList.ListNextPerMachineAsync(dia, HttpContext.RequestAborted);
-            var trocas = await _lotNotes.NextAfterAsync(dia, doDia, HttpContext.RequestAborted);
-            if (proximas.Count > 0 || trocas.Count > 0)
-            {
-                DayRows = DayRows
-                    .Select(r =>
-                    {
-                        var entra = proximas.FirstOrDefault(p => p.Machine == r.MachineCode) is { InicioEm: { } inicio } p
-                            ? new DMO.Alpha.Web.Presentation.NextChange(inicio, $"{p.Reference} {p.ProductionNumber}", true, JobOnId: p.JobOnId)
-                            : null;
-                        var troca = trocas
-                            .Where(t => r.Productions.Any(x => x.JobOnId == t.JobOnId))
-                            .OrderBy(t => t.Dia)
-                            .Select(t => new DMO.Alpha.Web.Presentation.NextChange(t.Dia, t.Texto, false, ToolId: t.NewToolId))
-                            .FirstOrDefault();
-                        var next = entra is null ? troca
-                            : troca is null || entra.Dia <= troca.Dia ? entra
-                            : troca;
-                        return next is null ? r : r with { Next = next };
-                    })
-                    .ToList();
-            }
-        }
+        DayRows = await _quadroDoDia.QuadroAsync(
+            Machines, JobOns, Year, Month, SelectedDay, !NoDaySelected, HttpContext.RequestAborted);
 
         // O SIDEPANEL (o Owner: «o sidepanel mostra o que vai entrar»): a
         // fila das próximas entradas da SEMANA CORRENTE (o renderRail em mode
@@ -1178,6 +1020,10 @@ public sealed class IndexModel : PageModel
     /// produção). Na MF, com uma CM escolhida, só as MF que trabalham com
     /// essa CM: a referência MF associada da CM ou, sem ela, a referência
     /// da CM; com máquina, também só as dessa máquina (o Diogo, 17/10/2026).
+    /// As ferramentas já escolhidas nos outros cartões (CM, MF, BQ) e a
+    /// referência total ordenam a lista: primeiro as usadas com elas, depois
+    /// as usadas nesta referência, depois as da linha. Sem nada escrito, só
+    /// essas relacionadas; escrever mostra as outras (Diogo, 26/10/2026).
     /// Com «Mostrar todas», procura no catálogo inteiro. Nunca muda a
     /// ferramenta já escolhida.
     /// </summary>
@@ -1188,6 +1034,7 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "reference")] string? reference,
         [FromQuery(Name = "mf_tool_id")] string? mfToolId,
         [FromQuery(Name = "cm_tool_id")] string? cmToolId,
+        [FromQuery(Name = "bq_tool_id")] string? bqToolId = null,
         [FromQuery(Name = "all")] bool showAll = false)
     {
         ToolType? toolType = Sanitize(type)?.ToUpperInvariant() switch
@@ -1205,6 +1052,7 @@ public sealed class IndexModel : PageModel
         var term = Sanitize(search);
         ToolCandidatePage? page = null;
         string filtro;
+        var maisPorEscrever = 0;
         if (showAll)
         {
             filtro = "Catálogo completo";
@@ -1215,13 +1063,36 @@ public sealed class IndexModel : PageModel
         {
             filtro = machineId is null ? "Filtrado pela referência" : "Filtrado por máquina e referência";
             ToolCandidateFilter? usado = null;
+            // As ferramentas já escolhidas nos outros cartões puxam para cima as que
+            // foram usadas com elas; sem nada escrito, só as relacionadas (Diogo,
+            // 26/10/2026: «um CM já inserido deveria filtrar»).
+            var companheiras = new[] { (ToolType.Cm, cmToolId), (ToolType.Mf, mfToolId), (ToolType.Bq, bqToolId) }
+                .Where(par => par.Item1 != slot && Sanitize(par.Item2) is not null)
+                .Select(par => Sanitize(par.Item2)!)
+                .ToArray();
+            var soRelacionadas = term is null;
+            async Task<ToolCandidatePage> Procurar(ToolCandidateFilter filter)
+            {
+                var todas = filter with { CompanheiraToolIds = companheiras, ReferenciaTotal = Sanitize(reference) };
+                if (soRelacionadas)
+                {
+                    var relacionadas = await _toolCandidates.FindPageAsync(todas with { SoRelacionadas = true }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    if (relacionadas.TotalCount > 0)
+                    {
+                        var total = (await _toolCandidates.FindPageAsync(todas, 1, 1, HttpContext.RequestAborted)).TotalCount;
+                        maisPorEscrever = total - relacionadas.TotalCount;
+                        return relacionadas;
+                    }
+                }
+                return await _toolCandidates.FindPageAsync(todas, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+            }
             if (slot == ToolType.Cm && Sanitize(mfToolId) is { } mfId)
             {
                 var mfReference = await _pagina.ReferenciaDaMfAsync(mfId, HttpContext.RequestAborted);
                 if (mfReference is not null)
                 {
-                    var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term);
-                    var byMf = await _toolCandidates.FindPageAsync(porMf, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term, IncluirSemLinha: true);
+                    var byMf = await Procurar(porMf);
                     if (byMf.TotalCount > 0)
                     {
                         page = byMf;
@@ -1237,31 +1108,43 @@ public sealed class IndexModel : PageModel
                 var cmMfReference = await _pagina.ReferenciaMfDaCmAsync(cmId, HttpContext.RequestAborted);
                 if (cmMfReference is not null)
                 {
-                    usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term);
-                    page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term, IncluirSemLinha: true);
+                    page = await Procurar(usado);
                     filtro = (machineId is null ? "Filtrado pela CM " : "Filtrado por máquina e pela CM ") + cmMfReference;
                 }
             }
             if (page is null)
             {
-                usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term);
-                page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term, IncluirSemLinha: true);
+                page = await Procurar(usado);
             }
 
             // Nunca esconder por falta de compatibilidade (Diogo, 23/10/2026: «nas
             // ferramentas estão lá mas o Job On não filtra»): as ferramentas
             // importadas sem linhas ligadas aparecem; sem nada pela referência,
             // o catálogo do tipo.
+            // As sem linha nenhuma entram sempre ao lado das da linha; se só
+            // há dessas, o filtro diz que nenhuma está ligada a esta linha.
+            if (page.TotalCount > 0 && machineId is not null && usado is not null
+                && (await _toolCandidates.FindPageAsync(usado with { IncluirSemLinha = false }, 1, 1, HttpContext.RequestAborted)).TotalCount == 0)
+            {
+                filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
+            }
             if (page.TotalCount == 0 && machineId is not null)
             {
-                page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null, CompanheiraToolIds = companheiras, ReferenciaTotal = Sanitize(reference) }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                 filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
             }
             if (page.TotalCount == 0)
             {
                 page = await _toolCandidates.FindPageAsync(
-                    new ToolCandidateFilter(Type: slot, Search: term), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    new ToolCandidateFilter(Type: slot, Search: term, CompanheiraToolIds: companheiras, ReferenciaTotal: Sanitize(reference)), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                 filtro = "Catálogo completo (nenhuma corresponde)";
+                maisPorEscrever = 0;
+            }
+            if (maisPorEscrever > 0)
+            {
+                filtro += $" · só as relacionadas; escreva para ver mais {maisPorEscrever}";
             }
         }
 

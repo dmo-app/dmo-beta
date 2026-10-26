@@ -151,6 +151,7 @@ builder.Services.AddScoped<IResetBqDiscrepancyHandler, ResetBqDiscrepancyHandler
 builder.Services.AddScoped<IDeleteBqMovementHandler, DeleteBqMovementHandler>();
 // Boquilhas read path: read model consumer-specific do surface Registo.
 builder.Services.AddScoped<IBoquilhasRegistoQuery, BoquilhasRegistoQuery>();
+builder.Services.AddScoped<IBoquilhasEscolhasQuery, BoquilhasEscolhasQuery>();
 // Boquilhas write path: criar um trace ancorado a um tool_id e associá-lo
 // mais tarde ao seu bq_id de produção.
 builder.Services.AddScoped<ICreateBqRepairTraceHandler, CreateBqRepairTraceHandler>();
@@ -193,6 +194,7 @@ builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentasFabricoSap, DMO.Alph
 builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentaHistorico, DMO.Alpha.Infrastructure.Tools.FerramentaHistoricoQuery>();
 // Tools read path: resolução canónica e só de leitura de uma Tool pelo seu tool_id exato.
 builder.Services.AddScoped<IToolLookupQuery, ToolLookupQuery>();
+builder.Services.AddScoped<IPegamentosEscolhasQuery, PegamentosEscolhasQuery>();
 // Tools read path: descoberta de candidatos para seleção humana explícita
 // (filtros explícitos aplicados no servidor; apenas reduzem candidatos).
 builder.Services.AddScoped<IToolCandidateQuery, ToolCandidateQuery>();
@@ -323,6 +325,9 @@ builder.Services.AddScoped<IDeleteJobOnHandler, DeleteJobOnHandler>();
 builder.Services.AddScoped<IProductionContextQuery, ProductionContextQuery>();
 builder.Services.AddScoped<IJobOnListQuery, JobOnListQuery>();
 builder.Services.AddScoped<IJobOnPaginaQuery, JobOnPaginaQuery>();
+builder.Services.AddScoped<IJobOnQuadroDoDiaQuery, JobOnQuadroDoDiaQuery>();
+builder.Services.AddScoped<IJobOnHistoricoQuery, JobOnHistoricoQuery>();
+builder.Services.AddScoped<IJobOnFichaQuery, JobOnFichaQuery>();
 builder.Services.AddScoped<IProductionPickerQuery, ProductionPickerQuery>();
 // As sugestões ao escrever dos campos de procura (DMO-044): uma consulta
 // curta por pedido, servida por GET /Sugestoes e usada por js/dmo-suggest.js.
@@ -651,7 +656,7 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
     ["referencias_registo"] = [DmoCapabilities.Ferramentas],
 };
 app.MapGet("/Sugestoes", async (
-    string? fonte, string? q, string? tipo,
+    string? fonte, string? q, string? tipo, int? linha,
     DMO.Alpha.Core.Search.ISuggestionQuery suggestions, CurrentUserCapabilities capabilities, HttpContext context) =>
 {
     var fonteKey = fonte?.Trim().ToLowerInvariant() ?? string.Empty;
@@ -680,7 +685,7 @@ app.MapGet("/Sugestoes", async (
         "bq" => ToolType.Bq,
         _ => (ToolType?)null
     };
-    var items = await suggestions.SuggestAsync(source.Value, q, toolType, context.RequestAborted);
+    var items = await suggestions.SuggestAsync(source.Value, q, toolType, linha, context.RequestAborted);
     return Results.Json(items.Select(item => new { value = item.Value, label = item.Label }));
 }).RequireAuthorization();
 
