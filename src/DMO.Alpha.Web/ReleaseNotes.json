@@ -352,7 +352,8 @@
     { "id": "DMO-359", "module": "Controlo", "description": "0.3.0-beta.45: o Peso mantém o mesmo aspeto e comportamento; as leituras do ecrã da Comparação (produções da referência, base e contra-moldes) passam para um serviço próprio, sem mudança visível." },
     { "id": "DMO-360", "module": "Job On", "description": "0.3.0-beta.46: o Job On mantém o mesmo aspeto e comportamento; as consultas de apoio da página (histórico antigo, sobreposição, referências da MF, produção igual, calote e máquina) passam para um serviço próprio, sem mudança visível." },
     { "id": "DMO-361", "module": "Job On", "description": "0.3.0-beta.47: na Folha do Job On, ao passar o rato numa ferramenta (CM, MF, BQ) aparece a mão e um fundo azul claro, e a referência fica azul: duplo clique abre a ficha. O realce não encosta ao aviso por baixo; igual no modo escuro." },
-    { "id": "DMO-362", "module": "Armazém", "description": "0.3.0-beta.48: os filtros do Armazém começam sempre pela Referência, o Lote e o Tipo; só depois vêm as datas, a linha e o reparador. No Registo, a Referência vem antes da Posição." }
+    { "id": "DMO-362", "module": "Armazém", "description": "0.3.0-beta.48: os filtros do Armazém começam sempre pela Referência, o Lote e o Tipo; só depois vêm as datas, a linha e o reparador. No Registo, a Referência vem antes da Posição." },
+    { "id": "DMO-363", "module": "Job On", "description": "0.3.0-beta.49: o Job On mantém o mesmo aspeto e comportamento; o quadro do dia (as produções de cada linha, as mudanças de lote, as alterações e a próxima mudança) passa para um serviço próprio, sem mudança visível." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
