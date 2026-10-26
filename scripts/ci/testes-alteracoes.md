@@ -2992,3 +2992,12 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao`
 
 Selo depois: `b79a42dd5c530327`
+
+## A-0154 · 2026-10-26 · teste-novo
+
+Porquê: Teste novo: meter a discrepância a zero limpa o Saldo das linhas anteriores (PR #157)
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements`
+
+Selo depois: `dc6a82a28326fe61`

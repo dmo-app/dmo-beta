@@ -1,5 +1,5 @@
 {
-  "selo": "b79a42dd5c530327",
+  "selo": "dc6a82a28326fe61",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -379,6 +379,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: (resto do ficheiro)": "a9245ee8b389b44d",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.AccumulatedDiscrepancy_CountsAMovementSavedAfterTheReset_InTheSameMinute": "5a139cda679dbefa",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.AccumulatedDiscrepancy_CountsOnlyTheMovementsAfterTheReset": "5a28a563811fe15a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements": "c8bd417c5863206c",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_SavesWhoAndWhen_AndKeepsTheMovements": "1741508558da9c02",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_UnknownTrace_IsRefused": "25053fac0af672bd",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/AprovacaoNosPdfsTests.cs :: (resto do ficheiro)": "9540c55790ff49a9",
