@@ -63,7 +63,7 @@ html body :is(.dmo-button,.button,.btn):is(.danger,.success){--button-press:colo
    de filtragem (--dmo-control-height, --dmo-fs-base) em toda a app. As setas
    (paginação, mês do calendário) são quadradas com a mesma altura. */
 html body :is(.dmo-button,.button,.btn).dmo-arrow,
-html body .dmo-calendar .icon-btn{box-sizing:border-box;width:var(--dmo-control-height);min-width:var(--dmo-control-height);height:var(--dmo-control-height);padding:0;font-size:var(--dmo-fs-base);line-height:1}
+html body .dmo-calendar .icon-btn{box-sizing:border-box;width:var(--dmo-control-height);min-width:var(--dmo-control-height);height:var(--dmo-control-height);padding:0;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);line-height:1}
 /* «Sair»: só a palavra, sem caixa (Diogo, 17/10/2026: o botão era intrusivo no
    cabeçalho). Azul como os links; o hover sublinha. */
 html body .dmo-shell-header .dmo-shell-logout{min-height:0;margin-left:18px;padding:4px 2px;border:0;border-radius:4px;background:none;color:var(--dmo-brand-700);font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold);line-height:1.2;text-decoration:none}
