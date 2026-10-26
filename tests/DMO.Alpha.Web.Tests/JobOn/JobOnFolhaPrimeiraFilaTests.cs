@@ -89,7 +89,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         {
             Reference = "5810T188", ProductionNumber = "202602", Machine = b2,
             InicioEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(-2),
-            FimEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(5)
+            FimEm = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(5), CaloteMm = 3.5m
         };
         db.JobOns.Add(jobOn);
         db.CmContexts.Add(new CmContext { JobOn = jobOn, ToolId = "CM-PF" });
@@ -109,7 +109,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
                 ChangedByNameFrozen = "Diogo", ChangedAtUtc = agora.AddMinutes(-2)
             });
         await db.SaveChangesAsync();
-        db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOn.Id, CmNotas = "CX rodar justa 1/4 de volta." });
+        db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOn.Id, CmNotas = "CX rodar justa 1/4 de volta.", MfCorpo = "54.02/52.02/54.02/44.10/45.20", MfCorpoTol = "0.05", MfGargalo = "21.5" });
         await db.SaveChangesAsync();
         return jobOn.Id;
     }
@@ -130,7 +130,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
     }
 
     [Fact]
-    public async Task Folha_PrimeiraFila_CmMfBq_SemNotasNosCartoes_RotulosSemFichaDeMoldes()
+    public async Task Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes()
     {
         var jobOnId = await SeedAsync();
         using var client = await LoginAsync("7301", DmoCapabilities.JobOnCreate);
@@ -147,12 +147,14 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         var bq = fila.IndexOf("data-jof-familia=\"BQ\"", StringComparison.Ordinal);
         Assert.True(cm >= 0 && cm < mf && mf < bq, $"A primeira fila não é CM, MF, BQ ({cm}, {mf}, {bq}).");
 
-        // Sem comentários na folha (Diogo, 26/10/2026): nem caixas de notas nos cartões nem Notas gerais.
-        Assert.DoesNotContain("data-jof-nota", html);
-        Assert.DoesNotContain("note-box", html);
-        Assert.DoesNotContain("CX rodar justa 1/4 de volta.", html);
-        Assert.DoesNotContain("id=\"notesTitle\"", html);
-        Assert.DoesNotContain("QTD máq.", html);
+        // As notas em cada cartão, mesmo vazias (o MF não tem nota escrita).
+        Assert.Contains("CX rodar justa 1/4 de volta.", Cartao(html, "CM"));
+        Assert.Contains("class=\"note-box note-view\" data-jof-campo=\"cm_notas\" data-jof-nota", html);
+        foreach (var familia in new[] { "CM", "MF", "BQ", "TP", "CS" })
+        {
+            Assert.Contains("data-jof-nota", Cartao(html, familia));
+        }
+        Assert.Contains("class=\"note-box note-view is-empty\" data-jof-campo=\"mf_notas\" data-jof-nota", html);
 
         // «O que mudou» no fim da folha, depois do último cartão (Diogo, 23/10/2026).
         var resumo = html.IndexOf("id=\"fichaMudancas\"", StringComparison.Ordinal);
@@ -161,14 +163,18 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.True(resumo > ultimoCartao, $"O resumo ({resumo}) não vem depois do último cartão ({ultimoCartao}).");
 
         // A ordem dos cartões (Diogo, 23/10/2026): TP e CS logo a seguir aos
-        // moldes, depois os Calibres; o PI na coluna da direita, por baixo do Artigo.
+        // moldes, depois os Calibres; o PI na coluna da direita, depois das Notas gerais.
         var tp = html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal);
         var cs = html.IndexOf("data-jof-familia=\"CS\"", StringComparison.Ordinal);
         var pu = html.IndexOf("data-jof-familia=\"PU\"", StringComparison.Ordinal);
         var cal = html.IndexOf("cal-card", StringComparison.Ordinal);
+        var notasGerais = html.IndexOf("id=\"notesTitle\"", StringComparison.Ordinal);
         var piCartao = html.IndexOf("data-jof-familia=\"PI\"", StringComparison.Ordinal);
-        Assert.True(new[] { bq, tp, cs, pu, cal, piCartao }.All(i => i >= 0), "Falta um dos cartões.");
-        Assert.True(moldes + bq < tp && tp < cs && cs < cal, $"A ordem não é moldes, TP, CS, Calibres ({bq}, {tp}, {cs}, {cal}).");
+        Assert.True(new[] { bq, tp, cs, pu, cal, notasGerais, piCartao }.All(i => i >= 0), "Falta um dos cartões.");
+        var mfHtml = html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal);
+        var bqHtml = html.IndexOf("data-jof-familia=\"BQ\"", StringComparison.Ordinal);
+        Assert.True(tp < mfHtml && mfHtml < cs && cs < bqHtml && bqHtml < pu && pu < cal, $"A ordem não é CM+TP, MF+CS, BQ+AN, PU+ARR, Calibres ({tp}, {mfHtml}, {cs}, {bqHtml}, {pu}, {cal}).");
+        Assert.True(notasGerais < piCartao, $"O PI não vem depois das Notas gerais ({notasGerais}, {piCartao}).");
         var lado = html.IndexOf("<aside class=\"side\">", StringComparison.Ordinal);
         Assert.True(lado >= 0 && lado < piCartao && piCartao < html.IndexOf("</aside>", lado, StringComparison.Ordinal), "O PI não está na coluna da direita.");
 
@@ -187,12 +193,26 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
     public async Task Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll()
     {
         // Um cartão (PU, ARR…) ficou uma faixa estreita com uma letra por linha (Diogo, 26/10/2026):
-        // cada cartão tem largura mínima, a grelha tem 4 colunas iguais e as medidas partem em linhas.
+        // cada cartão tem largura mínima, a grelha tem 4 colunas iguais e as medidas não têm scroll.
         var css = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
             "src", "DMO.Alpha.Web", "wwwroot", "css", "dmo-jobon-folha.css"));
         Assert.Contains(".board>.card.sec{min-width:150px", css);
+        Assert.Contains(".zones>.fcol{display:flex;flex-direction:column", css);
         Assert.Contains("grid-template-columns:repeat(4,minmax(0,1fr))", css);
         Assert.Contains(".more-body .table-wrap{overflow-x:visible}", css);
+    }
+
+    [Fact]
+    public async Task Folha_TpMostraACaloteGravada_NuncaAPalavraBacia()
+    {
+        var jobOnId = await SeedAsync();
+        using var client = await LoginAsync("7303", DmoCapabilities.JobOnCreate);
+
+        var html = await PageAsync(client, $"/JobOn/Folha?jobon_id={jobOnId}");
+
+        var tp = Cartao(html, "TP");
+        Assert.Contains("3.50", tp);
+        Assert.DoesNotContain("bacia", tp, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

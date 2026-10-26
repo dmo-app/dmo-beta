@@ -52,7 +52,7 @@ public partial class JobOnPageTests
         Assert.Contains("<a class=\"btn\" href=\"/JobOn\">Cancelar</a>", html, StringComparison.Ordinal);
 
         var (acao, campos) = EnvioDoFormulario.Preencher(html,
-            ("lightReference", "5810t188"), ("lightProduction", "202650"), ("jobon-cm-reparador", "Nova CM polida."));
+            ("lightReference", "5810t188"), ("lightProduction", "202650"), ("jobon-cm-notas", "Nova CM polida."));
         Assert.Equal("/JobOn?handler=Create", acao);
         var envio = ComValores(campos, ("cm_tool_id", "F-CM"), ("mf_tool_id", "F-MF"), ("bq_tool_id", "F-BQ"));
         var guardar = await client.PostAsync(acao, EnvioDoFormulario.Corpo(envio));
@@ -87,7 +87,7 @@ public partial class JobOnPageTests
         using var client = await LoginClientAsync(operador, "Folha1234!");
         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&etapa=criar&machine_id={await MachineIdAsync("B2")}");
         var (acao, campos) = EnvioDoFormulario.Preencher(html,
-            ("lightReference", "5810T188"), ("lightProduction", "202651"), ("jobon-cm-reparador", "Escrito antes da recusa."));
+            ("lightReference", "5810T188"), ("lightProduction", "202651"), ("jobon-cm-notas", "Escrito antes da recusa."));
         var envio = ComValores(campos, ("cm_tool_id", cm), ("mf_tool_id", mf), ("bq_tool_id", bq));
 
         var post = await client.PostAsync(acao, EnvioDoFormulario.Corpo(envio));
@@ -145,7 +145,7 @@ public partial class JobOnPageTests
         using var client = await LoginClientAsync("4422", "Folha1234!");
         // A folha da origem com uma nota, para se ver que vem copiada.
         var editar = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={origem}&editar=1");
-        var (acaoNota, camposNota) = EnvioDoFormulario.Mudar(editar, "jobon-mf-reparador", "Nota da origem.");
+        var (acaoNota, camposNota) = EnvioDoFormulario.Mudar(editar, "jobon-mf-notas", "Nota da origem.");
         Assert.Equal(HttpStatusCode.Redirect, (await client.PostAsync(acaoNota, EnvioDoFormulario.Corpo(camposNota))).StatusCode);
 
         // Escolhida no Planeamento num dia, o Duplicar da folha leva esse dia.
@@ -185,7 +185,7 @@ public partial class JobOnPageTests
         Assert.Equal("5810T188", nova.Reference);
         Assert.Equal(new DateOnly(2026, 11, 5), nova.InicioEm);
         Assert.Null(nova.FimEm);
-        Assert.Equal("Nota da origem.", (await db.JobOnFolhas.AsNoTracking().SingleAsync(f => f.JobOnId == nova.Id)).MfReparador);
+        Assert.Equal("Nota da origem.", (await db.JobOnFolhas.AsNoTracking().SingleAsync(f => f.JobOnId == nova.Id)).MfNotas);
         // A origem fica como estava.
         var antiga = await db.JobOns.AsNoTracking().SingleAsync(j => j.Id == origem);
         Assert.Equal("202602", antiga.ProductionNumber);

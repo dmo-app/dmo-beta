@@ -308,10 +308,10 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         using var client = await EntrarAsync("4704");
         var editar = await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}&editar=1");
         var fimAntes = await LerAsync(db => db.JobOns.Where(j => j.Id == jobOnId).Select(j => j.FimEm).SingleAsync());
-        var textoLongo = new string('x', JobOnFolhaCampos.MaximoCurto + 1);
+        var notaLonga = new string('x', JobOnFolhaCampos.MaximoNota + 1);
 
         var (acao, campos) = EnvioDoFormulario.Preencher(editar,
-            ("jobon-cm-reparador", textoLongo),
+            ("jobon-cm-notas", notaLonga),
             ("jobon-cm-qtd-stock", "7"),
             ("jobon-cal-1-qtd-maq", "5"),
             ("lightEnd", "2030-01-31"));
@@ -320,12 +320,12 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         // Volta à página (não ao endereço): a recusa e tudo o que se escreveu.
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         var html = await resposta.Content.ReadAsStringAsync();
-        Assert.Contains("«CM · Reparador» tem mais de 60 caracteres. Encurte o texto e volte a guardar. Nenhuma alteração foi guardada.", AvisoDeRecusa(html));
+        Assert.Contains("«CM · Notas» tem mais de 1000 caracteres. Encurte o texto e volte a guardar. Nenhuma alteração foi guardada.", AvisoDeRecusa(html));
         Assert.Equal("7", ValorDoCampo(html, "jobon-cm-qtd-stock"));
         Assert.Equal("5", ValorDoCampo(html, "jobon-cal-1-qtd-maq"));
         Assert.Equal("2030-01-31", ValorDoCampo(html, "lightEnd"));
-        Assert.Equal(textoLongo, ValorDoCampo(html, "jobon-cm-reparador"));
-        Assert.True(Invalido(html, "jobon-cm-reparador"));
+        Assert.Equal(notaLonga, TextoDaArea(html, "jobon-cm-notas"));
+        Assert.True(Invalido(html, "jobon-cm-notas"));
         Assert.False(Invalido(html, "jobon-cm-qtd-stock"));
         Assert.Contains("name=\"jobon_edit_id\"", html);
 
@@ -336,10 +336,10 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Equal(fimAntes, await LerAsync(db => db.JobOns.Where(j => j.Id == jobOnId).Select(j => j.FimEm).SingleAsync()));
 
         // Encurtado no limite, o mesmo formulário grava.
-        var (acao2, campos2) = EnvioDoFormulario.Mudar(html, "jobon-cm-reparador", textoLongo[..JobOnFolhaCampos.MaximoCurto]);
+        var (acao2, campos2) = EnvioDoFormulario.Mudar(html, "jobon-cm-notas", notaLonga[..JobOnFolhaCampos.MaximoNota]);
         Assert.Equal(HttpStatusCode.Redirect, (await client.PostAsync(acao2, EnvioDoFormulario.Corpo(campos2))).StatusCode);
         var gravada = await LerAsync(db => db.JobOnFolhas.AsNoTracking().SingleAsync(f => f.JobOnId == jobOnId));
-        Assert.Equal(("7", JobOnFolhaCampos.MaximoCurto), (gravada.CmQtdStock, gravada.CmReparador!.Length));
+        Assert.Equal(("7", JobOnFolhaCampos.MaximoNota), (gravada.CmQtdStock, gravada.CmNotas!.Length));
     }
 
     [Fact]
@@ -392,7 +392,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             ("jobon-cab-seccoes", "11"),
             ("jobon-cm-qtd-stock", "12"),
             ("jobon-cm-qtd-maq", "4"),
-            ("jobon-cm-reparador", "Polir a pata"),
+            ("jobon-cm-notas", "Polir a pata\r\nVer folga"),
             ("jobon-cm-pata-tol", "0.05"),
             ("jobon-tp-qtd-maq", "2"),
             ("jobon-notas-gerais", "Emparelhar MF+FF"));
@@ -406,12 +406,12 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         cm = cm[..cm.IndexOf("</article>", StringComparison.Ordinal)];
         Assert.Contains("Polir a pata", cm);
         Assert.Contains("<dt>Stock</dt><dd>12</dd>", cm);
-        Assert.DoesNotContain("QTD máq.", cm);
+        Assert.Contains("<dt>QTD máq.</dt><dd>4</dd>", cm);
         Assert.Contains("0.05", cm);
         var tp = html[html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal)..];
         tp = tp[..tp.IndexOf("</article>", StringComparison.Ordinal)];
-        Assert.DoesNotContain("QTD máq.", tp);
-        Assert.DoesNotContain("Emparelhar MF+FF", html);
+        Assert.Contains("<dt>QTD máq.</dt><dd>2</dd>", tp);
+        Assert.Contains("<li class=\"view\">Emparelhar MF+FF</li>", html);
         // Bloqueada: nada se escreve.
         Assert.DoesNotContain("name=\"Folha.", html);
     }
@@ -449,7 +449,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.DoesNotContain("id=\"fichaFolha\"", html);
         Assert.DoesNotContain(FichaDaFolhaVista.SemNadaEscrito, html);
         Assert.Contains("Sem calibres escritos.", html);
-        Assert.DoesNotContain("Sem notas.", html);
+        Assert.Contains("<li class=\"view empty-text\">Sem notas.</li>", html);
         Assert.Contains($"href=\"/JobOn/Folha?jobon_id={jobOnId}&amp;editar=1\" data-jof-editar>Editar</a>", html);
     }
 
