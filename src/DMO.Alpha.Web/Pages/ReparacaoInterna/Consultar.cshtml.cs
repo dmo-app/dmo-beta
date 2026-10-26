@@ -55,6 +55,12 @@ public sealed class ConsultarModel(
     [BindProperty(SupportsGet = true, Name = "tipo")]
     public string? TipoTexto { get; set; }
 
+    [BindProperty(SupportsGet = true, Name = "trabalho")]
+    public string? TrabalhoTexto { get; set; }
+
+    /// <summary>«Tipo de trabalho»: vazio = todos.</summary>
+    public ReparacaoTrabalho? Trabalho => string.IsNullOrWhiteSpace(TrabalhoTexto) ? null : RiTextos.TrabalhoDe(TrabalhoTexto);
+
     [BindProperty(SupportsGet = true, Name = "referencia")]
     public string? ReferenciaTexto { get; set; }
 
@@ -159,7 +165,7 @@ public sealed class ConsultarModel(
 
         // A produção só conta escolhida no dropdown da referência escrita.
         var producao = Producoes.Any(p => p.JobOnId == ProducaoId) ? ProducaoId : null;
-        var filtro = new RiConsultaFiltro(Maquina?.MachineId, De, Ate, pessoa, Tipo, Referencia, producao, PorAssociar);
+        var filtro = new RiConsultaFiltro(Maquina?.MachineId, De, Ate, pessoa, Tipo, Referencia, producao, PorAssociar, Trabalho);
         ComFiltro = filtro.ComFiltro;
         if (!ComFiltro)
         {
@@ -214,6 +220,7 @@ public sealed class ConsultarModel(
         ["ate"] = Ate is null ? null : Data(Ate),
         ["pessoa"] = PessoaId?.ToString(),
         ["tipo"] = TipoTexto,
+        ["trabalho"] = TrabalhoTexto,
         ["referencia"] = ReferenciaTexto,
         ["producao"] = ProducaoId?.ToString(CultureInfo.InvariantCulture),
         ["por_associar"] = PorAssociar ? "true" : null,

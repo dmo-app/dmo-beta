@@ -54,6 +54,12 @@ public sealed class IndexModel(
     [BindProperty(SupportsGet = true, Name = "tipo")]
     public string? TipoTexto { get; set; }
 
+    /// <summary>O filtro «Tipo de trabalho» do Histórico (vazio = todos).</summary>
+    [BindProperty(SupportsGet = true, Name = "tipo_trabalho")]
+    public string? TrabalhoFiltroTexto { get; set; }
+
+    public ReparacaoTrabalho? TrabalhoFiltro => string.IsNullOrWhiteSpace(TrabalhoFiltroTexto) ? null : RiTextos.TrabalhoDe(TrabalhoFiltroTexto);
+
     /// <summary>Reparação, Soldar ou Polir (Reparação por omissão).</summary>
     [BindProperty(SupportsGet = true, Name = "trabalho")]
     public string? TrabalhoTexto { get; set; }
@@ -601,13 +607,13 @@ public sealed class IndexModel(
         }
 
         var producao = Producoes.Any(p => p.JobOnId == ProducaoPedida) ? ProducaoPedida : null;
-        ComFiltro = Maquina is not null || De is not null || Ate is not null || ReferenciaFiltro is not null || producao is not null;
+        ComFiltro = Maquina is not null || De is not null || Ate is not null || ReferenciaFiltro is not null || producao is not null || TrabalhoFiltro is not null;
         if (!ComFiltro || eu is not { } pessoa)
         {
             return;
         }
 
-        Historia = await consulta.ConsultarAsync(new RiConsultaFiltro(Maquina?.MachineId, De, Ate, pessoa, null, ReferenciaFiltro, producao), pagina, cancelar);
+        Historia = await consulta.ConsultarAsync(new RiConsultaFiltro(Maquina?.MachineId, De, Ate, pessoa, null, ReferenciaFiltro, producao, false, TrabalhoFiltro), pagina, cancelar);
         HistoriaPager = ListPager.For(Historia);
     }
 

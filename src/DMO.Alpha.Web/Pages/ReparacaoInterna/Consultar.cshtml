@@ -31,7 +31,7 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
 /* Links escuros (padrão da beta): a produção abre a ficha do Job On. */
 .ri-card .dmo-table td a{color:var(--dmo-brand-900);font-weight:600}
 .ri-vazia{margin:0;color:var(--dmo-muted)}
-/* «Só por associar»: a caixa alinhada pelo fundo dos campos. */
+/* «Sem Job On»: a caixa alinhada pelo fundo dos campos. */
 html body .ri-filtros-card .dmo-filter-bar>.ri-so-por-associar{display:inline-flex;gap:6px;align-items:center;min-height:38px;margin:0;font-size:13.5px;color:var(--dmo-text);cursor:pointer;white-space:nowrap}
 .ri-so-por-associar input{margin:0}
 /* A marca «Por associar»: texto escuro numa pílula clara, não um botão; abre a janela de associar. */
@@ -107,6 +107,15 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
             </select>
           }
         </div>
+        <div class="dmo-field ri-w-tipo">
+          <label for="riConsultaTrabalho">Tipo de trabalho</label>
+          <select id="riConsultaTrabalho" name="trabalho" data-dmo-autosubmit>
+            <option value="" selected="@(Model.Trabalho is null)">Todos</option>
+            <option value="reparacao" selected="@(Model.Trabalho == ReparacaoTrabalho.Reparacao)">Reparação</option>
+            <option value="soldar" selected="@(Model.Trabalho == ReparacaoTrabalho.Soldar)">Soldar</option>
+            <option value="polir" selected="@(Model.Trabalho == ReparacaoTrabalho.Polir)">Polir</option>
+          </select>
+        </div>
         <div class="dmo-field ri-w-maquina">
           <label for="riConsultaMaquina">Linha</label>
           <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit>
@@ -138,7 +147,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
           </select>
         </div>
         @* As reparações com a ferramenta escrita que ainda ninguém associou (peça 4). *@
-        <label class="ri-so-por-associar" for="riConsultaPorAssociar"><input type="checkbox" id="riConsultaPorAssociar" name="por_associar" value="true" checked="@Model.PorAssociar" data-dmo-autosubmit />Só por associar<partial name="_DmoHelp" model="@("Reparações em que a ferramenta foi escrita à mão e ainda não foi ligada a uma ferramenta da lista. Quem tem Criar pode associá-las aqui.")" /></label>
+        <label class="ri-so-por-associar" for="riConsultaPorAssociar"><input type="checkbox" id="riConsultaPorAssociar" name="por_associar" value="true" checked="@Model.PorAssociar" data-dmo-autosubmit />Sem Job On<partial name="_DmoHelp" model="@("Reparações sem Job On, com a ferramenta escrita à mão e ainda não ligada a uma ferramenta da lista. Quem tem Criar pode associá-las aqui.")" /></label>
         <div class="dmo-field ri-w-data">
           <label for="riConsultaDe">Dia de</label>
           <input id="riConsultaDe" name="de" type="date" value="@ConsultarModel.Data(Model.De)" data-dmo-autosubmit />

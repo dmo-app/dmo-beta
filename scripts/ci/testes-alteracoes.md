@@ -3080,3 +3080,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
 
 Selo depois: `bca6c7d6576d340c`
+
+## A-0165 · 2026-10-26 · ok-do-diogo
+
+Porquê: Reparação Interna, Consulta: a caixa «Só por associar» passa a «Sem Job On» (Diogo 26/10 20:24); o teste Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas espera o texto novo.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyVghyhABryEjx37ZczZBUwu
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas`
+
+Selo depois: `0c2d1d933f0fcb50`

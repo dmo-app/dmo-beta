@@ -151,6 +151,11 @@ public sealed class ReparacoesInternasConsulta(DmoDbContext db) : IReparacoesInt
             query = query.Where(r => r.Tipo == tipo);
         }
 
+        if (filtro.Trabalho is { } trabalho)
+        {
+            query = query.Where(r => r.Trabalho == trabalho);
+        }
+
         // Só as por associar: pelo índice filtrado delas.
         if (filtro.PorAssociar)
         {

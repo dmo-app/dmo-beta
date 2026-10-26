@@ -19,11 +19,12 @@ public sealed record RiConsultaFiltro(
     ReparacaoTipo? Tipo = null,
     string? Referencia = null,
     int? JobOnId = null,
-    bool PorAssociar = false)
+    bool PorAssociar = false,
+    ReparacaoTrabalho? Trabalho = null)
 {
     /// <summary>Há pelo menos um filtro: sem nenhum a Consulta não lê nada (abre vazia).</summary>
     public bool ComFiltro => MachineId is not null || De is not null || Ate is not null || PessoaId is not null
-        || Tipo is not null || !string.IsNullOrWhiteSpace(Referencia) || JobOnId is not null || PorAssociar;
+        || Tipo is not null || !string.IsNullOrWhiteSpace(Referencia) || JobOnId is not null || PorAssociar || Trabalho is not null;
 }
 
 /// <summary>Uma ferramenta registada que serve para associar: o <c>tool_id</c>, a referência e o lote.</summary>

@@ -137,6 +137,15 @@ html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
               </select>
             }
           </div>
+          <div class="dmo-field ri-w-tipo">
+            <label for="riHistTrabalho">Tipo de trabalho</label>
+            <select id="riHistTrabalho" name="tipo_trabalho" data-dmo-autosubmit>
+              <option value="" selected="@(Model.TrabalhoFiltro is null)">Todos</option>
+              <option value="reparacao" selected="@(Model.TrabalhoFiltro == ReparacaoTrabalho.Reparacao)">Reparação</option>
+              <option value="soldar" selected="@(Model.TrabalhoFiltro == ReparacaoTrabalho.Soldar)">Soldar</option>
+              <option value="polir" selected="@(Model.TrabalhoFiltro == ReparacaoTrabalho.Polir)">Polir</option>
+            </select>
+          </div>
           <div class="dmo-field ri-w-maquina">
             <label for="riHistLinha">Linha</label>
             <select id="riHistLinha" name="maquina" data-dmo-autosubmit>
