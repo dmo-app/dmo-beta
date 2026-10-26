@@ -265,11 +265,11 @@
                 <dd>
                   @if (editar)
                   {
-                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="ferramenta" value="@Model.JobOn?.CaloteMm?.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Calote (mm)" />
+                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="ferramenta" value="@(Model.JobOn?.CaloteMm is { } caloteValor ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteValor) : null)" aria-label="Calote (mm)" />
                   }
                   else if (Model.JobOn?.CaloteMm is { } valorCalote)
                   {
-                    @valorCalote.ToString("0.##", culture)
+                    @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(valorCalote)
                   }
                   else
                   {
