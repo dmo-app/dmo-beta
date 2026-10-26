@@ -332,6 +332,7 @@ builder.Services.AddScoped<IJobOnListQuery, JobOnListQuery>();
 builder.Services.AddScoped<IJobOnPaginaQuery, JobOnPaginaQuery>();
 builder.Services.AddScoped<IJobOnQuadroDoDiaQuery, JobOnQuadroDoDiaQuery>();
 builder.Services.AddScoped<IJobOnHistoricoQuery, JobOnHistoricoQuery>();
+builder.Services.AddScoped<IJobOnFichaQuery, JobOnFichaQuery>();
 builder.Services.AddScoped<IProductionPickerQuery, ProductionPickerQuery>();
 // As sugestões ao escrever dos campos de procura (DMO-044): uma consulta
 // curta por pedido, servida por GET /Sugestoes e usada por js/dmo-suggest.js.
