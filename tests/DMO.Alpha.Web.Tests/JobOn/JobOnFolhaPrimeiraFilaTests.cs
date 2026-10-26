@@ -130,7 +130,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
     }
 
     [Fact]
-    public async Task Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes()
+    public async Task Folha_PrimeiraFila_CmMfBq_SemNotasNosCartoes_RotulosSemFichaDeMoldes()
     {
         var jobOnId = await SeedAsync();
         using var client = await LoginAsync("7301", DmoCapabilities.JobOnCreate);
@@ -147,14 +147,12 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         var bq = fila.IndexOf("data-jof-familia=\"BQ\"", StringComparison.Ordinal);
         Assert.True(cm >= 0 && cm < mf && mf < bq, $"A primeira fila não é CM, MF, BQ ({cm}, {mf}, {bq}).");
 
-        // As notas em cada cartão, mesmo vazias (o MF não tem nota escrita).
-        Assert.Contains("CX rodar justa 1/4 de volta.", Cartao(html, "CM"));
-        Assert.Contains("class=\"note-box note-view\" data-jof-campo=\"cm_notas\" data-jof-nota", html);
-        foreach (var familia in new[] { "CM", "MF", "BQ", "TP", "CS" })
-        {
-            Assert.Contains("data-jof-nota", Cartao(html, familia));
-        }
-        Assert.Contains("class=\"note-box note-view is-empty\" data-jof-campo=\"mf_notas\" data-jof-nota", html);
+        // Sem comentários na folha (Diogo, 26/10/2026): nem caixas de notas nos cartões nem Notas gerais.
+        Assert.DoesNotContain("data-jof-nota", html);
+        Assert.DoesNotContain("note-box", html);
+        Assert.DoesNotContain("CX rodar justa 1/4 de volta.", html);
+        Assert.DoesNotContain("id=\"notesTitle\"", html);
+        Assert.DoesNotContain("QTD máq.", html);
 
         // «O que mudou» no fim da folha, depois do último cartão (Diogo, 23/10/2026).
         var resumo = html.IndexOf("id=\"fichaMudancas\"", StringComparison.Ordinal);
@@ -163,16 +161,14 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.True(resumo > ultimoCartao, $"O resumo ({resumo}) não vem depois do último cartão ({ultimoCartao}).");
 
         // A ordem dos cartões (Diogo, 23/10/2026): TP e CS logo a seguir aos
-        // moldes, depois os Calibres; o PI na coluna da direita, depois das Notas gerais.
+        // moldes, depois os Calibres; o PI na coluna da direita, por baixo do Artigo.
         var tp = html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal);
         var cs = html.IndexOf("data-jof-familia=\"CS\"", StringComparison.Ordinal);
         var pu = html.IndexOf("data-jof-familia=\"PU\"", StringComparison.Ordinal);
         var cal = html.IndexOf("cal-card", StringComparison.Ordinal);
-        var notasGerais = html.IndexOf("id=\"notesTitle\"", StringComparison.Ordinal);
         var piCartao = html.IndexOf("data-jof-familia=\"PI\"", StringComparison.Ordinal);
-        Assert.True(new[] { bq, tp, cs, pu, cal, notasGerais, piCartao }.All(i => i >= 0), "Falta um dos cartões.");
+        Assert.True(new[] { bq, tp, cs, pu, cal, piCartao }.All(i => i >= 0), "Falta um dos cartões.");
         Assert.True(moldes + bq < tp && tp < cs && cs < cal, $"A ordem não é moldes, TP, CS, Calibres ({bq}, {tp}, {cs}, {cal}).");
-        Assert.True(notasGerais < piCartao, $"O PI não vem depois das Notas gerais ({notasGerais}, {piCartao}).");
         var lado = html.IndexOf("<aside class=\"side\">", StringComparison.Ordinal);
         Assert.True(lado >= 0 && lado < piCartao && piCartao < html.IndexOf("</aside>", lado, StringComparison.Ordinal), "O PI não está na coluna da direita.");
 
@@ -185,6 +181,18 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.DoesNotContain("Ficha de moldes", html);
         Assert.DoesNotContain("data-jof-modo-editar", html);
         Assert.Contains($"href=\"/JobOn/Folha?jobon_id={jobOnId}&amp;editar=1\" data-jof-editar>Editar</a>", html);
+    }
+
+    [Fact]
+    public async Task Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll()
+    {
+        // Um cartão (PU, ARR…) ficou uma faixa estreita com uma letra por linha (Diogo, 26/10/2026):
+        // cada cartão tem largura mínima, a grelha tem 4 colunas iguais e as medidas partem em linhas.
+        var css = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
+            "src", "DMO.Alpha.Web", "wwwroot", "css", "dmo-jobon-folha.css"));
+        Assert.Contains(".board>.card.sec{min-width:150px", css);
+        Assert.Contains("grid-template-columns:repeat(4,minmax(0,1fr))", css);
+        Assert.Contains(".more-body .table-wrap{overflow-x:visible}", css);
     }
 
     [Fact]
