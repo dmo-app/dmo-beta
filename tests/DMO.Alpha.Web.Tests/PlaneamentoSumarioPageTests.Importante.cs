@@ -109,6 +109,25 @@ public sealed partial class PlaneamentoSumarioPageTests
         Assert.Equal("/Controlo/Resumo?jobon_id=7", SumarioModel.Href(porAprovar, [DmoCapabilities.ControloCreate]));
     }
 
+    // «Não tem os links para a página onde se pode corrigir» (Diogo,
+    // 26/10/2026): a linha inteira abre a página que resolve, sem botões;
+    // o link do título estica-se pela linha e a linha mostra que se clica.
+    [Fact]
+    public async Task UmImportante_ALinhaInteiraAbreAPaginaQueResolve()
+    {
+        var jobOnId = await JobOnAsync("S9L001", Hoje, DateTime.UtcNow);
+        using var client = await LoginAsync("5902", DmoCapabilities.JobOnCreate, DmoCapabilities.ControloCreate);
+
+        var grupo = GrupoImportante(await GetAsync(client));
+        Assert.Matches($"<li class=\"sumario-item mch-B1\" data-sumario-tipo=\"por-ver\">[\\s\\S]*?<a class=\"sumario-titulo\" href=\"/Controlo/Resumo\\?jobon_id={jobOnId}\">", grupo);
+        Assert.DoesNotContain("<button", grupo);
+        var css = await client.GetStringAsync("/css/dmo-sumario.css");
+        Assert.Contains(".sumario-item{position:relative}", css);
+        Assert.Contains(".sumario-item > a.sumario-titulo::after{content:\"\";position:absolute;inset:0;border-radius:8px}", css);
+        Assert.Contains(".sumario-item:has(> a.sumario-titulo){cursor:pointer}", css);
+        Assert.DoesNotContain("text-decoration:underline", css);
+    }
+
     /// <summary>O grupo «Importante» do topo da lista.</summary>
     private static string GrupoImportante(string html) =>
         Regex.Match(html, "<div class=\"sumario-grupo sumario-importante sumario-topo\" data-sumario-tipo=\"importante\">[\\s\\S]*?</ul>").Value;
