@@ -81,3 +81,24 @@ a.beta-light-next{text-decoration:none}a.beta-light-next:hover,a.beta-light-next
 .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover{box-shadow:none}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 40%,var(--dmo-deep-800));color:var(--dmo-text-on-color);outline-color:var(--dmo-machine-color)}
 [data-dmo-linha-cor="B1"]{--dmo-machine-color:var(--dmo-machine-b1)}[data-dmo-linha-cor="B2"]{--dmo-machine-color:var(--dmo-machine-b2)}[data-dmo-linha-cor="B3"]{--dmo-machine-color:var(--dmo-machine-b3)}[data-dmo-linha-cor="C1"]{--dmo-machine-color:var(--dmo-machine-c1)}[data-dmo-linha-cor="C2"]{--dmo-machine-color:var(--dmo-machine-c2)}[data-dmo-linha-cor="C3"]{--dmo-machine-color:var(--dmo-machine-c3)}
+/* Cartões com a cor da linha (Diogo, 26/10/2026 06:14): começam como estavam e, no hover e ao
+   clicar, enchem-se com a cor da barra da esquerda, com letra branca. */
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]:not([data-dmo-linha-cor=""])):is(:hover,.selected,.active),
+html body .beta-light-machine-row:is(:has(.beta-light-production:hover),:has(input:checked)){background:var(--dmo-machine-color)!important;border-left-color:var(--dmo-machine-color)!important;box-shadow:none!important}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]:not([data-dmo-linha-cor=""])):is(:hover,.selected,.active) :is(strong,span),
+html body .beta-light-machine-row:is(:has(.beta-light-production:hover),:has(input:checked)) :is(strong,span){color:var(--dmo-text-on-color)!important;opacity:1}
+html body .beta-light-machine-row .beta-light-production[data-dmo-row]:hover{box-shadow:none}
+/* As Produções do dia ao lado do calendário levam a mesma barra da esquerda na cor da linha. */
+html body .beta-light-machine-row{border-left:4px solid var(--dmo-machine-color)}
+/* Os títulos dos painéis laterais com a mesma letra do «Planeamento» (Diogo, 26/10/2026 06:18). */
+html body .beta-production-rail-head strong{font-size:16px;font-weight:800;text-transform:none;letter-spacing:0;color:var(--dmo-text-on-color)}
+html body .beta-production-rail-head span{font-size:11.5px}
+/* A escolha nos painéis sem cor de linha (ex. Tipo de ferramenta do Armazém) fica preenchida com a
+   cor dos botões e letra branca, como as outras seleções (Diogo, 26/10/2026 06:19). */
+html body .beta-production-lines :is(button,.dmo-rail-link):not(.dmo-linha-cor):not([data-dmo-linha-cor]:not([data-dmo-linha-cor=""])):is(.selected,.active){background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);outline:0;color:var(--dmo-text-on-color)}
+html body .beta-production-lines :is(button,.dmo-rail-link):not(.dmo-linha-cor):not([data-dmo-linha-cor]:not([data-dmo-linha-cor=""])):is(.selected,.active) :is(strong,span){color:var(--dmo-text-on-color)}
+/* A letra dos cartões dos painéis com hierarquia (Diogo, 26/10/2026 06:54): a linha grande e forte,
+   a produção normal e a linha de baixo (BQ, «Em curso desde…») mais pequena e mais leve. */
+html body .beta-production-lines :is(button,.dmo-rail-link) strong{font-size:17px;font-weight:800;letter-spacing:.01em}
+html body .beta-production-lines :is(button,.dmo-rail-link) strong+span{font-size:13px;font-weight:600}
+html body .beta-production-lines :is(button,.dmo-rail-link) span+span{font-size:11.5px;font-weight:500;opacity:.85}

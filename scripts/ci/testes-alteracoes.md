@@ -2713,3 +2713,14 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions`
 
 Selo depois: `79f54fc617b75cbe`
+
+## A-0128 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha Job-ON Moldes (2 cópias) no Imprimir do Job On (teste novo) e o painel das Boquilhas com o lote da BQ (o teste do histórico em branco verifica só fora do painel)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy8me1oxs8XTwYCxyNJo7cVh
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched`
+
+Selo depois: `5d221bf596172b76`
