@@ -109,7 +109,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
                 ChangedByNameFrozen = "Diogo", ChangedAtUtc = agora.AddMinutes(-2)
             });
         await db.SaveChangesAsync();
-        db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOn.Id, CmNotas = "CX rodar justa 1/4 de volta.", MfCorpo = "54.02/52.02/54.02/44.10/45.20", MfCorpoTol = "0.05", MfGargalo = "21.5" });
+        db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOn.Id, CmNotas = "CX rodar justa 1/4 de volta.", MfCorpo = "54.02/52.02/54.02/44.10/45.20", MfCorpoTol = "0.05", MfGargalo = "21.5", PuNotas = "CONFIRMAR LIGAÇÃO AN-PU", ArrNotas = "VER FOLGA DO ARR COM O PU ANTES DE ARRANCAR A PRODUÇÃO" });
         await db.SaveChangesAsync();
         return jobOn.Id;
     }
