@@ -724,3 +724,116 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
   html body .jof2 .g-cal{grid-column:20/49}
   html body .jof2:not(.editing) table.calv td:nth-child(n){white-space:normal;font-size:10.5px}
 }
+/* Cabeçalho numa só barra (Diogo, 26/10/2026: «quero melhor design do header»):
+   a linha, os dados da produção e a referência com as ações dentro do mesmo
+   cartão, separados por traços finos, iguais no Ver, no Editar e no Job On novo. */
+@media (min-width:901px){
+  html body .jof2 .page-head{display:flex;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:0;margin:0 0 16px;padding:12px 16px;border:1px solid var(--dmo-border);border-radius:14px;background:var(--dmo-card);box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  html body .jof2.editing .page-head{margin-top:0;padding-top:12px;padding-bottom:12px;border-bottom:1px solid var(--dmo-border);background:var(--dmo-card)}
+  html body .jof2 .page-head .facts{display:flex;align-items:center;flex:1 1 auto;min-width:0;gap:0}
+  html body .jof2 .page-head .fact-col.mach{padding:0 18px 0 0;border:0;align-self:stretch;display:flex;align-items:center}
+  html body .jof2 .page-head .facts-dados{flex:1 1 auto;justify-content:center;margin:0;padding:0;border:0;border-left:1px solid var(--dmo-border);border-radius:0;background:none;box-shadow:none;align-self:stretch;align-items:center}
+  html body .jof2 .page-head .facts-dados .fact-col:first-child{padding-left:22px}
+  html body .jof2 .page-head .head-right{flex:none;margin:0;padding:0 0 0 18px;border-left:1px solid var(--dmo-border);align-self:stretch;align-items:center;flex-wrap:nowrap;gap:8px}
+  html body .jof2 .page-head .fact-col.mach .mch{min-width:64px;height:60px;font-size:26px;border-radius:12px}
+  html body .jof2.editing .page-head .fact-col.mach select.f{min-width:76px;height:52px;font-size:20px;font-weight:800;padding:0 28px 0 12px;border-radius:12px;text-align:center}
+}
+@media (min-width:901px){
+  html body .jof2 .page-head .facts-dados{justify-content:space-evenly}
+  html body .jof2 .page-head .facts-dados .fact-col:first-child{padding-left:0}
+  html body .jof2 .page-head .facts-dados input.f,html body .jof2 .page-head .facts-dados select.f{width:84px;min-width:0}
+  html body .jof2 .page-head .facts-dados input.f[type=date]{width:150px}
+  html body .jof2 .page-head .pick-block{justify-content:center}
+  html body .jof2 .page-head .pick-block>.eyebrow{position:static;margin:0 0 2px}
+  html body .jof2 .page-head .pick-block.is-novo{flex-direction:row;align-items:flex-end}
+}
+/* No Criar, «Novo Job On» é uma etiqueta na fila dos nomes, por cima do Cancelar e do Guardar,
+   e os botões ficam alinhados com as caixas da Referência e da Produção. */
+@media (min-width:901px){
+  html body .jof2 .page-head{position:relative}
+  html body .jof2 .page-head .pick-block:has(>.eyebrow){position:static}
+  html body .jof2 .page-head .pick-block>.eyebrow{position:absolute;top:12px;right:16px;left:auto;bottom:auto;margin:0;padding:1px 10px;border:1px solid color-mix(in srgb,var(--dmo-warning) 45%,transparent);border-radius:999px;background:var(--dmo-warning-soft);font-size:10.5px;line-height:13px;white-space:nowrap}
+  html body .jof2.editing .page-head .head-right{align-items:flex-end}
+  html body .jof2.editing .page-head .head-right>.pick-block,html body .jof2.editing .page-head .head-right>.head-tools{align-self:flex-end}
+  html body .jof2.editing .page-head .head-right:not(:has(.eyebrow)){align-items:center}
+  html body .jof2.editing .page-head .head-right:not(:has(.eyebrow))>*{align-self:center}
+}
+@media (min-width:901px){
+  html body .jof2 .page-head .facts-dados{padding-left:18px;padding-right:18px}
+}
+@media (min-width:901px){
+  html body .jof2 .page-head .facts-dados input.f{width:68px}
+  html body .jof2 .page-head .facts-dados input.f[type=date]{width:140px}
+  html body .jof2 .page-head .pick-row .ref-search,html body .jof2 .page-head .pick-row input.prod-select,html body .jof2 .page-head .pick-row .prod-trigger,html body .jof2 .page-head .pick-row select.prod-select{height:40px;min-height:40px;box-sizing:border-box}
+}
+/* Sem a etiqueta «Novo Job On» na barra (Diogo, 26/10/2026: «não é necessário»); fica só para leitores de ecrã. */
+@media (min-width:901px){
+  html body .jof2 .page-head .pick-block>.eyebrow{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;white-space:nowrap}
+}
+/* Processo, Peso, Secções e Gota: caixas do mesmo tamanho (Diogo, 26/10/2026). */
+@media (min-width:901px){
+  html body .jof2 .page-head .facts-dados input.f:not([type=date]),html body .jof2 .page-head .facts-dados select.f{width:76px;min-width:0;height:34px;min-height:34px;box-sizing:border-box}
+  html body .jof2 .page-head .facts-dados select.f{padding:0 22px 0 10px;background-position:right 6px center}
+  html body .jof2 .page-head .facts-dados input.f[type=date]{height:34px;min-height:34px;box-sizing:border-box}
+}
+@media (min-width:901px){
+  html body .jof2 .page-head .pick-row .ref-search input{height:40px;min-height:40px;box-sizing:border-box}
+}
+/* No Editar, todas as caixas dos cartões com a mesma altura e a mesma letra; a largura continua a do conteúdo (Diogo, 26/10/2026). */
+html body .jof2.editing .card input.f:not(.sr-only),html body .jof2.editing .card select.f{height:28px;min-height:28px;box-sizing:border-box;font-size:13.5px}
+/* No Editar, o código (PU, ARR, AN, CS...) fica ao centro da caixa da referência, não do nome com a caixa. */
+html body .jof2.editing .sec-head:has(.hv input){align-items:flex-end}
+html body .jof2.editing .sec-head:has(.hv input)>.code{margin-bottom:-1px}
+/* Tabela das medidas e Folgas nos cartões estreitos: nomes numa só linha, o valor inteiro à vista
+   e as Folgas numa só linha (Diogo, 26/10/2026: «melhorar as caixas», «folgas em linha»). */
+html body .jof2.editing .more-body>*{min-width:0}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:42%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
+  html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:33%}
+  html body .jof2.editing table.dims:not(.calv) input.f{height:28px;min-height:28px;font-size:13px;padding-inline:4px}
+}
+html body .jof2.editing .folgas{flex-wrap:nowrap;gap:4px;min-width:0}
+html body .jof2.editing .folgas>span:first-child{flex:none;margin-right:2px;font-size:12.5px}
+html body .jof2.editing .folgas input.f{flex:1 1 0;width:auto;min-width:0;height:28px;min-height:28px;padding-inline:3px;font-size:12.5px;box-sizing:border-box}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child{overflow:visible;letter-spacing:0;font-size:10px}
+}
+html body .jof2.editing .folgas{gap:3px}
+html body .jof2.editing .folgas>span:first-child{margin-right:1px;font-size:12px}
+html body .jof2.editing .folgas input.f{padding-inline:2px;font-size:12px;text-overflow:clip}
+html body .jof2.editing .folgas input.f:nth-of-type(1){flex-grow:.85}
+html body .jof2.editing .folgas input.f:nth-of-type(2){flex-grow:1.35}
+/* A CS sem o nome «Referência», para a cabeça ficar da altura da do TP e da do CAL; a caixa da
+   referência (PU, ARR, AN, CS) da altura do código ao lado (Diogo, 26/10/2026). */
+html body .jof2 [data-jof-familia="CS"] .sec-head .hv>small{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+html body .jof2 [data-jof-familia="CS"] .sec-head{align-items:center;min-height:30px}
+html body .jof2.editing .sec-head .hv input.f{height:30px;min-height:30px;box-sizing:border-box;font-size:14px;font-weight:700}
+html body .jof2.editing .sec-head:has(.hv input)>.code{margin-bottom:0}
+/* Tabela das medidas: um pouco mais de margem dos lados. */
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) td:first-child,html body .jof2.editing table.dims:not(.calv) th:first-child{padding-left:7px}
+  html body .jof2.editing table.dims:not(.calv) td:last-child,html body .jof2.editing table.dims:not(.calv) th:last-child{padding-right:6px}
+}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:45%}
+  html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:31%}
+}
+@container (max-width:300px){
+  html body .jof2.editing table.dims:not(.calv) th:first-child,html body .jof2.editing table.dims:not(.calv) td:first-child{width:44%}
+  html body .jof2.editing table.dims:not(.calv) th:nth-child(2),html body .jof2.editing table.dims:not(.calv) td:nth-child(2){width:35%}
+  html body .jof2.editing table.dims:not(.calv) td:nth-child(2) input.f{padding-inline:3px}
+}
+/* Referência longa (ex. 1075C142): o Lote fica na mesma linha e o cartão não cresce. */
+html body .jof2 .tool-head{flex-wrap:nowrap}
+html body .jof2 .tool-head>.hv{min-width:0}
+html body .jof2 .tool-head>.hv:has([data-jof-tool-ref]){flex:0 1 auto}
+html body .jof2 .tool-head [data-jof-tool-ref]{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@container (max-width:300px){
+  html body .jof2 .tool-head [data-jof-tool-ref]{font-size:19px}
+}
+@container (max-width:300px){
+  html body .jof2.editing .tool-head{gap:6px}
+  html body .jof2.editing .tool-head [data-jof-tool-ref]{font-size:17px}
+}
+/* No Editar, o Lote ao lado da caixa da referência (AN) com a mesma altura dela, para os nomes ficarem na mesma linha. */
+html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:flex;align-items:center;height:30px}
