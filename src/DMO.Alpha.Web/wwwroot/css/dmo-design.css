@@ -687,6 +687,33 @@ html body .jof2 .notes :is(ul,.notes-vazio,p){min-height:72px;border:1px dashed 
    an inner section; it takes no extra padding, so every family starts on the same line. */
 html body .jof2 .card.pair .sec{padding:0}
 
+/* Job On sheet as the mockup (Owner, 26/10/2026: «divergiste da versão que queria»): CM, MF, BQ and PU
+   as one band on top, AN under BQ and ARR under PU; TP, CS and the Calibres in the row below. The app's
+   column wrappers stay in the markup and step aside (display:contents); narrow screens keep the app grid. */
+@container board (min-width:640px){
+  html body .jof2 .zones{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-areas:"cm mf bq pu" "cm mf an arr" "tp cs cal cal";align-items:stretch}
+  html body .jof2 .zones :is(.fcol,.fright,.frow){display:contents}
+  html body .jof2 .zones [data-jof-familia="CM"]{grid-area:cm}
+  html body .jof2 .zones [data-jof-familia="MF"]{grid-area:mf}
+  html body .jof2 .zones .card.pair:has([data-jof-familia="BQ"]){grid-area:bq}
+  html body .jof2 .zones [data-jof-familia="AN"]{grid-area:an}
+  html body .jof2 .zones [data-jof-familia="PU"]{grid-area:pu}
+  html body .jof2 .zones [data-jof-familia="ARR"]{grid-area:arr}
+  html body .jof2 .zones [data-jof-familia="TP"]{grid-area:tp}
+  html body .jof2 .zones [data-jof-familia="CS"]{grid-area:cs}
+  html body .jof2 .zones .g-cal{grid-area:cal;margin:0}
+  /* The top band is one panel, no gaps: hairline dividers between the columns, AN and ARR under a
+     hairline in the BQ and PU columns. TP, CS and CAL stay separate cards below. */
+  html body .jof2 .zones{gap:0}
+  html body .jof2 .zones :is([data-jof-familia="CM"],[data-jof-familia="MF"],.card.pair:has([data-jof-familia="BQ"]),[data-jof-familia="AN"],[data-jof-familia="PU"],[data-jof-familia="ARR"]){border:0;border-left:1px solid var(--dmo-border);border-radius:0;box-shadow:none;background:var(--dmo-card);margin:0}
+  html body .jof2 .zones [data-jof-familia="CM"]{border-left:0;border-radius:8px 0 0 8px}
+  html body .jof2 .zones [data-jof-familia="PU"]{border-top-right-radius:8px}
+  html body .jof2 .zones [data-jof-familia="ARR"]{border-bottom-right-radius:8px}
+  html body .jof2 .zones :is([data-jof-familia="AN"],[data-jof-familia="ARR"]){border-top:1px solid var(--dmo-border)}
+  html body .jof2 .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){margin-top:14px}
+  html body .jof2 .zones :is([data-jof-familia="CS"],.g-cal){margin-left:14px}
+}
+
 /* 1366×768 (blueprint FRONTEND § Ecrã): less empty space between blocks on short screens. Only the
    gaps change; the composition, sizes and controls stay as the design (Owner, 26/10/2026). */
 @media (min-width:1100px) and (max-height:900px){
