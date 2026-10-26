@@ -2912,7 +2912,19 @@ Novos: 14 · mudaram: 2 · saíram: 0
 
 Selo depois: `efca3bbb72e1c0c8`
 
-## A-0142 · 2026-10-26 · ok-do-diogo
+## A-0143 · 2026-10-26 · contagem-lista
+
+Porquê: a lista das migrações e as colunas do Job On ganham a Experiencia (migração JobOnExperiencia); teste novo: a experiência usa o nº AAAA00, entra e sai no mesmo dia e convive com a produção da linha
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: CreateJobOnExperienciaTests.Experiencia_UsaAnoZeroZero_EntraESaiNoMesmoDia_ENaoBloqueiaAProducaoDaLinha`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `de6e4f299d90520b`
+
+## A-0144 · 2026-10-26 · ok-do-diogo
 
 Porquê: o registo da leitura do Peso deixa de ser fixo à direita e fica no fluxo da página (pedido do Diogo, #145)
 Referência: Diogo, 26/10/2026: «o inserir os valores não fica fora» (PR #145)
@@ -2920,4 +2932,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/visual/ecra_pequeno_browser.py`
 
-Selo depois: `e72b8304b7cc05cc`
+Selo depois: `fb64851554ffdfc4`

@@ -373,6 +373,10 @@ else
     @if (Model.Criar)
     {
       <input type="hidden" name="voltar" value="folha" />
+      @if (Model.Experiencia)
+      {
+        <input type="hidden" name="tipo" value="experiencia" />
+      }
       @if (Model.DuplicarDe is { } origemDuplicar)
       {
         <input type="hidden" name="duplicar_de" value="@origemDuplicar" />
@@ -474,6 +478,12 @@ else
               </div></div>
               <div class="pick-campo"><label class="pick-rotulo" for="jofNovoProducao">Produção</label>
               <input class="prod-select" id="jofNovoProducao" form="jofNovo" name="producao" type="text" aria-label="Número da produção" placeholder="N.º" autocomplete="off" /></div>
+              @* Produção ou Experiência (Diogo, 26/10/2026): a experiência usa o nº AAAA00 e entra e sai no mesmo dia. *@
+              <div class="pick-campo"><span class="pick-rotulo" id="jofTipoRotulo">Tipo</span>
+              <div class="jof-tipo" role="radiogroup" aria-labelledby="jofTipoRotulo">
+                <label><input type="radio" form="jofNovo" name="tipo" value="producao" checked /><span>Produção</span></label>
+                <label><input type="radio" form="jofNovo" name="tipo" value="experiencia" /><span>Experiência</span></label>
+              </div></div>
             }
             else if (Model.Criar)
             {
@@ -481,7 +491,8 @@ else
               <div class="pick-campo"><label class="pick-rotulo" for="lightReference">Referência</label>
               <div class="ref-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg><input id="lightReference" name="reference" type="text" value="@jobOn.Reference" aria-label="Referência da produção" placeholder="Referência" autocomplete="off" autocapitalize="characters" spellcheck="false" data-dmo-maiusculas data-dmo-suggest="referencias" data-dmo-suggest-linha="#lightMachine" /></div></div>
               <div class="pick-campo"><label class="pick-rotulo" for="lightProduction">Produção</label>
-              <input class="prod-select" id="lightProduction" name="production_number" type="text" value="@(Model.NumeroEscrito ?? string.Empty)" aria-label="Número da produção" placeholder="N.º" autocomplete="off" /></div>
+              <input class="prod-select" id="lightProduction" name="production_number" type="text" value="@(Model.NumeroEscrito ?? string.Empty)" aria-label="Número da produção" placeholder="N.º" autocomplete="off" readonly="@(Model.Experiencia ? "readonly" : null)" />
+              @if (Model.Experiencia) { <span class="jof-experiencia" role="status">Experiência</span> }</div>
             }
             else if (editar)
             {

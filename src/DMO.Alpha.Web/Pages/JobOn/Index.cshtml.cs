@@ -1101,7 +1101,8 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "inicio_em")] string? inicioEm,
         [FromForm(Name = "fim_em")] string? fimEm,
         [FromForm(Name = "calote_mm")] string? caloteMm,
-        [FromForm(Name = "voltar")] string? voltar = null)
+        [FromForm(Name = "voltar")] string? voltar = null,
+        [FromForm(Name = "tipo")] string? tipo = null)
     {
         // A folha nova (/JobOn/Folha) guarda pelo mesmo Create (Diogo,
         // 23/10/2026): gravado, volta à folha da produção nova; recusado, o
@@ -1168,7 +1169,8 @@ public sealed class IndexModel : PageModel
                 parsedCalote,
                 envio.Folha,
                 envio.Cal,
-                TampaoDaFolha(envio).Diametro),
+                TampaoDaFolha(envio).Diametro,
+                Experiencia: tipo == "experiencia"),
             HttpContext.RequestAborted);
 
         if (outcome.Result == CreateJobOnResult.Success && folhaNova)

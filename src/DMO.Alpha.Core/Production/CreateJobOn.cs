@@ -36,4 +36,6 @@ public sealed record CreateJobOn(
     IReadOnlyList<LinhaCalEnvio>? Cal = null,
     // O diâmetro D (mm) do tampão desta produção (Diogo, 23/10/2026); zero ou
     // negativo é recusa tipada (InvalidTampao); null = ainda não registado.
-    decimal? TampaoDiametroMm = null);
+    decimal? TampaoDiametroMm = null,
+    // Experiência em vez de produção (Diogo, 26/10/2026): número AAAA00 e entra e sai no mesmo dia.
+    bool Experiencia = false);

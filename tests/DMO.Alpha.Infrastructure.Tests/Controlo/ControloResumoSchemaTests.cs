@@ -192,7 +192,7 @@ public sealed class ControloResumoSchemaTests
         // versão da linha (o xmin do PostgreSQL, para as edições ao mesmo tempo)
         // + quando o Job On foi gravado (CriadoEmUtc, para o Sumário do Planeamento).
         Assert.Equal(
-            new HashSet<string> { "Id", "Reference", "ProductionNumber", "MachineId", "InicioEm", "FimEm", "CaloteMm", "TampaoDiametroMm", "CriadoEmUtc", DmoDbContext.RowVersion },
+            new HashSet<string> { "Id", "Reference", "ProductionNumber", "MachineId", "InicioEm", "FimEm", "Experiencia", "CaloteMm", "TampaoDiametroMm", "CriadoEmUtc", DmoDbContext.RowVersion },
             jobOn.GetProperties().Select(p => p.Name).ToHashSet());
     }
 

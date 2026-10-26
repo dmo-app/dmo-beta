@@ -1,5 +1,5 @@
 {
-  "selo": "e72b8304b7cc05cc",
+  "selo": "fb64851554ffdfc4",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -456,7 +456,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistorySearchQueryTests.cs :: ControloHistorySearchQueryTests.SearchPageAsync_ComDatas_AsPaginasSaoAListaCompletaPelaOrdemDasDatas": "5a35224b685f9713",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: (resto do ficheiro)": "a174f704671cb828",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_ExactlyIdentityAndRelation_NoFactColumns": "721227cac5f10d8b",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn": "1610b10c887600cc",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_JobOnDoesNotGainControloNavigationOrColumn": "a2748708b5889794",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.ControloEntity_UniqueJobOnIdIndex_RestrictForeignKey": "6c4616d2fea28aa6",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos": "f43f7d21fdbb6d35",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloTresEstadosTests.cs :: (resto do ficheiro)": "a508b8b43fc1efba",
@@ -824,7 +824,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_GeneratesValidPostgreSql": "3ec4c3399af184d1",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_SeedsTheRemovedTool": "258c965fc3f28c69",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.CurrentModel_HasExactlyTheCanonicalTables": "20bd7dffb43a4e78",
-    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "08b283cfd5aeb8b9",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "a045e922373f7c07",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.PesoPerToolCombination_OnePesoPerControloForEachCmAndBq": "947b1fc638c05771",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Snapshot_MatchesCurrentModelExactly": "415260325a6f9c86",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AoMesmoTempo.cs :: (resto do ficheiro)": "78c9042c39dc7d44",
@@ -1069,6 +1069,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_NumLoteJaTrocado_NaoMudaNada": "8567a510e1d50908",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_OutraReferenciaOutroTipoOuOMesmo_NaoServe_ENadaMuda": "8b6ab3ad552b0079",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Lotes_SoAsOutrasBqDaMesmaReferencia_PorOrdemDoLote": "2f425d75178b0c18",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: (resto do ficheiro)": "476408ba0909fd7b",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnExperienciaTests.cs :: CreateJobOnExperienciaTests.Experiencia_UsaAnoZeroZero_EntraESaiNoMesmoDia_ENaoBloqueiaAProducaoDaLinha": "c67c56b3575b7b2a",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnHandlerTests.cs :: (resto do ficheiro)": "9dbe230bcb1be2f2",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnHandlerTests.cs :: CreateJobOnHandlerTests.Create_AllToolsSelected_EstablishesProductionContext": "856ff6cf7645163f",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnHandlerTests.cs :: CreateJobOnHandlerTests.Create_DuplicateProductionNumber_RefusedWithoutPartialWrite": "593c7dcb1e636f17",

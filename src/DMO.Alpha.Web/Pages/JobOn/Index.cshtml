@@ -161,7 +161,7 @@
                               aria-label="Produção @production.ProductionNumber na @row.MachineCode — um clique abre a folha">
                         <input type="radio" name="jobon_id" value="@production.JobOnId" class="dmo-visually-hidden" aria-label="Produção @production.ProductionNumber" checked="@aberta" />
                         <strong>@row.MachineCode</strong>
-                        <span>@production.Reference @production.ProductionNumber</span>
+                        <span>@(production.Experiencia ? "Experiência " : "")@production.Reference @production.ProductionNumber</span>
                         @{ var notaLote = string.Join(" · ", production.LotNotes); }
                         @* Sem o aviso amarelo das alterações na lista do dia: vivem no
                            resumo do fim da folha do Job On (Diogo, 23/10/2026). *@
