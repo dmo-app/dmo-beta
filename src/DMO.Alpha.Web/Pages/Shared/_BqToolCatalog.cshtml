@@ -66,7 +66,7 @@
 <div class="card" id="bq-tool-results" hidden="@(!Model.CatalogSearched)" data-dmo-regiao>
   @if (Model.CatalogSearched)
   {
-  <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da boquilha.")" /></h3><span>@Model.CatalogCount encontrada(s)</span></div>
+  <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da ferramenta desta boquilha.")" /></h3><span>@Model.CatalogCount encontrada(s)</span></div>
   @if (Model.CatalogTools.Count == 0)
   {
     <p class="muted">Nenhuma boquilha encontrada com os filtros atuais.</p>
@@ -79,7 +79,7 @@
         <tbody>
           @foreach (var tool in Model.CatalogTools)
           {
-            <tr data-dmo-row data-id="@tool.ToolId" data-dmo-open="@(Model.CatalogLink(Model.CatalogPageNumber, tool.ToolId) + "#bq-tool-sheet")">
+            <tr data-dmo-row data-id="@tool.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = tool.ToolId })">
               <td><input type="radio" name="bq_tool" value="@tool.ToolId" aria-label="BQ @tool.Reference · lote @tool.Lot" /></td>
               <td><strong>@tool.Reference</strong></td><td>@tool.Lot</td>
               <td>@(tool.AccountedQuantity?.ToString() ?? "—")</td><td>@(string.IsNullOrWhiteSpace(tool.MachineCodes) ? "—" : tool.MachineCodes)</td><td>@(string.IsNullOrWhiteSpace(tool.AssociatedMfReference) ? "—" : tool.AssociatedMfReference)</td>

@@ -326,3 +326,10 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 .bq-escolha-lista li:hover, .bq-escolha-lista li[aria-selected="true"] { background:var(--dmo-brand-50,#eaf2fa); }
 @media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:1fr; } }
 .bq-sem-jobon-janela { overflow:visible; }
+
+/* Ficha da boquilha: dados em mini-cartões compactos e estados vazios discretos numa só linha. */
+.beta-bq-layout #bq-tool-sheet .bq-sheet-dados{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+.beta-bq-layout #bq-tool-sheet .bq-sheet-dados>div{padding:8px 12px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:10px;background:var(--dmo-subtle,#f1f6fa)}
+.beta-bq-layout #bq-tool-sheet .bq-sheet-dados strong{font-size:18px}
+.beta-bq-layout #bq-tool-sheet .bq-sheet-vazio{margin:6px 0 0;font-size:12px}
+@media (max-width:700px){.beta-bq-layout #bq-tool-sheet .bq-sheet-dados{grid-template-columns:repeat(2,minmax(0,1fr))}}
