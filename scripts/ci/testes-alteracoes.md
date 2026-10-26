@@ -2949,7 +2949,7 @@ Novos: 7 · mudaram: 0 · saíram: 0
 
 Selo depois: `ab9e2d6aa5e7ad1b`
 
-## A-0146 · 2026-10-26 · ok-do-diogo
+## A-0151 · 2026-10-26 · ok-do-diogo
 
 Porquê: O Resumo deixa de ter «Associar link do mcaliper» e a janela; só abre o link (quem muda o link é quem tem Criar, na ficha). O teste do link do mcaliper passa a verificar isso.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFySu9kGPCHGA7bwP7E8ViUxQ
