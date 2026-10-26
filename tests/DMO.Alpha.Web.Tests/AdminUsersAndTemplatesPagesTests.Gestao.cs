@@ -23,4 +23,21 @@ public sealed partial class AdminUsersAndTemplatesPagesTests
         Assert.Contains($"value=\"{DmoCapabilities.ArmazemGestao}\"", gestao);
         Assert.Contains("Armazém · gestão", gestao);
     }
+
+    // «Deixar em branco ou mais leve o que não está selecionado e mais escuro
+    // com font branco o que está e remover as boxes» (Diogo, 26/10/2026): a
+    // caixa continua no formulário, escondida; o cartão é a etiqueta.
+    [Fact]
+    public async Task AdminTemplates_SemCaixas_EscolhidoEscuroComLetraBranca()
+    {
+        SeedConfiguredAdmin("tpl-caixas@example.test", "tpl-caixas-provider", "TplCaixas123!");
+        using var admin = await LoginAdminAsync(_factory, "tpl-caixas@example.test", "TplCaixas123!");
+        var html = await (await admin.GetAsync("/Admin/Templates")).Content.ReadAsStringAsync();
+        Assert.Matches($"<input type=\"checkbox\" id=\"dmt-new-{Regex.Escape(DmoCapabilities.JobOnCreate)}\" name=\"capabilities\" value=\"{Regex.Escape(DmoCapabilities.JobOnCreate)}\"", html);
+        Assert.Contains($"<label for=\"dmt-new-{DmoCapabilities.JobOnCreate}\">", html);
+        Assert.Contains(".dmt-check input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}", html);
+        Assert.Contains(".dmt-check:has(input:checked){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate)}", html);
+        Assert.Contains(".dmt-check:has(input:checked) label,.dmt-check:has(input:checked) label span{color:#fff}", html);
+        Assert.Contains("[data-theme=\"dark\"] .dmt-check:has(input:checked){background:var(--dmo-palette-ocean)", html);
+    }
 }

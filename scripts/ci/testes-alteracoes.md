@@ -2698,3 +2698,13 @@ Novos: 1 · mudaram: 0 · saíram: 3
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Authentication/RelogioDeTeste.cs :: (resto do ficheiro)`
 
 Selo depois: `61a375c660e678ad`
+
+## A-0126 · 2026-10-26 · teste-novo
+
+Porquê: Templates do Admin sem caixas: escolhidas escuras com letra branca, as outras leves (PR #126).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6QVqRVdiThbepM8QkqjAGZ
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_SemCaixas_EscolhidoEscuroComLetraBranca`
+
+Selo depois: `0e8a4453463f44d1`
