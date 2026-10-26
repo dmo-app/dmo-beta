@@ -176,4 +176,44 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
         Assert.Contains("47.50 %", total, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso()
+    {
+        // Diogo (26/10/2026 19:58): foco nas garrafas e no delta entre
+        // produções; um clique no peso médio abre a moda e o Δ peso.
+        var (toolId, referencia, maquina) = SeedJobOnComCm();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var cm = db.CmContexts.First(c => c.ToolId == toolId);
+            var seguinte = new JobOn
+            {
+                Reference = referencia, ProductionNumber = "202502", Machine = db.Machines.First(m => m.Code == maquina),
+                InicioEm = new DateOnly(2025, 3, 1), FimEm = new DateOnly(2025, 3, 10)
+            };
+            db.JobOns.Add(seguinte);
+            db.CmContexts.Add(new CmContext { JobOn = seguinte, ToolId = toolId });
+            db.SapFabricos.AddRange(
+                new SapFabrico
+                {
+                    Material = referencia + "BRA", Linha = maquina, InicioEm = new DateOnly(2025, 1, 21), FimEm = new DateOnly(2025, 2, 4),
+                    ProducaoBruta = 1_000_000, PesoMedioGramas = 80m, LidoEmUtc = DateTime.UtcNow
+                },
+                new SapFabrico
+                {
+                    Material = referencia + "BRA", Linha = maquina, InicioEm = new DateOnly(2025, 3, 1), FimEm = new DateOnly(2025, 3, 10),
+                    ProducaoBruta = 1_250_000, PesoMedioGramas = 81.5m, LidoEmUtc = DateTime.UtcNow
+                });
+            db.SaveChanges();
+        }
+
+        var client = await LoginOperatorAsync("7110", DmoCapabilities.Ferramentas);
+        var historico = WebUtility.HtmlDecode(ZonaUsoSap(await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync(), "ferrHistoricoProducoes"));
+
+        Assert.Contains("+" + 250_000.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), historico, StringComparison.Ordinal);
+        Assert.Matches("<button[^>]*data-dmo-dialog=\"ferrPeso\\d+\">81.50 g</button>", historico);
+        Assert.Contains("+1.50 g", historico, StringComparison.Ordinal);
+        Assert.Contains("Moda <strong>81.50 g</strong>", historico, StringComparison.Ordinal);
+    }
 }

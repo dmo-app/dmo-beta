@@ -3060,3 +3060,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn`
 
 Selo depois: `a1189c0ece6af100`
+
+## A-0161 · 2026-10-26 · teste-novo
+
+Porquê: Histórico de produções: Δ garrafas contra a produção anterior e janela do peso médio com moda e Δ peso (Diogo 26/10 19:58).
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
+
+Selo depois: `d09ad439a3150e98`
