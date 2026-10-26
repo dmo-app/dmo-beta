@@ -134,37 +134,33 @@
       <div><span>Peso</span><b>@Peso()</b></div>
       <div><span>Cadência</span><b></b></div>
     </div>
+    @* Cada componente na sua linha (Diogo, 26/10/2026): CM, TP, PU, ARR, MF, BQ, AN, CS e PI. *@
     <div class="jfi-col">
-      <div class="jfi-barra"><span>CONTRA-MOLDE</span></div>
+      <div class="jfi-barra"><span>COMPONENTES</span></div>
       <table class="dmo-table jfi-t jfi-lista">
-        <tr><th>Peça</th><th>Ref.</th><th>Lote</th><th>Observações</th></tr>
-        <tr><td>Contra-molde</td><td>@cm?.Reference</td><td>@(cm is null ? "" : FolhaModel.Lote(cm.Lot))</td><td></td></tr>
-        <tr><td>Tampão</td><td>@F("tp_referencia")</td><td></td><td>@(string.Join(" × ", new[] { F("tp_diametro_ps"), Calote() }.Where(s => s.Length > 0)))</td></tr>
-        <tr><td>Punção + arrefecedor</td><td>@(string.Join(" / ", new[] { F("pu_referencia"), F("arr_referencia") }.Where(s => s.Length > 0)))</td><td></td><td>@(F("pu_versao") is { Length: > 0 } v1 ? "Versão " + v1 : "")</td></tr>
-      </table>
-    </div>
-    <div class="jfi-col">
-      <div class="jfi-barra"><span>MOLDE FINAL</span></div>
-      <table class="dmo-table jfi-t jfi-lista">
-        <tr><th>Peça</th><th>Ref.</th><th>Lote</th><th>Observações</th></tr>
-        <tr><td>Molde final</td><td>@mf?.Reference</td><td>@(mf is null ? "" : FolhaModel.Lote(mf.Lot))</td><td></td></tr>
-        <tr><td>Fundo final</td><td>@F("mf_fundo_final")</td><td></td><td></td></tr>
-        <tr><td>Boquilha</td><td>@bq?.Reference</td><td>@(bq is null ? "" : FolhaModel.Lote(bq.Lot))</td><td></td></tr>
-        <tr><td>Cab. de sopro</td><td>@F("cs_referencia")</td><td></td><td>@(string.Join(" · ", new[] { F("cs_furos") is { Length: > 0 } fu ? "Furos " + fu : "", F("cs_tubo") is { Length: > 0 } tu ? "Tubo " + tu : "" }.Where(s => s.Length > 0)))</td></tr>
-        <tr><td>Pinça</td><td>@(F("pi_diametro") is { Length: > 0 } d1 ? "Ø " + d1 : "")</td><td></td><td>@F("pi_pincas")</td></tr>
+        <tr><th>Componente</th><th>Ref.</th><th>Lote</th><th>Observações</th></tr>
+        <tr><td>CM · Contra-molde</td><td>@cm?.Reference</td><td>@(cm is null ? "" : FolhaModel.Lote(cm.Lot))</td><td></td></tr>
+        <tr><td>TP · Tampão</td><td>@F("tp_referencia")</td><td></td><td>@(string.Join(" × ", new[] { F("tp_diametro_ps"), Calote() }.Where(s => s.Length > 0)))</td></tr>
+        <tr><td>PU · Punção</td><td>@F("pu_referencia")</td><td></td><td>@(F("pu_versao") is { Length: > 0 } v1 ? "Versão " + v1 : "")</td></tr>
+        <tr><td>ARR · Arrefecedor</td><td>@F("arr_referencia")</td><td></td><td>@(F("arr_versao") is { Length: > 0 } v2 ? "Versão " + v2 : "")</td></tr>
+        <tr><td>MF · Molde final</td><td>@mf?.Reference</td><td>@(mf is null ? "" : FolhaModel.Lote(mf.Lot))</td><td>@(F("mf_fundo_final") is { Length: > 0 } ff2 ? "Fundo final " + ff2 : "")</td></tr>
+        <tr><td>BQ · Boquilha</td><td>@bq?.Reference</td><td>@(bq is null ? "" : FolhaModel.Lote(bq.Lot))</td><td></td></tr>
+        <tr><td>AN · Anel</td><td>@F("an_referencia")</td><td>@F("an_lote")</td><td></td></tr>
+        <tr><td>CS · Cab. de sopro</td><td>@F("cs_referencia")</td><td></td><td>@(string.Join(" · ", new[] { F("cs_furos") is { Length: > 0 } fu ? "Furos " + fu : "", F("cs_tubo") is { Length: > 0 } tu ? "Tubo " + tu : "" }.Where(s => s.Length > 0)))</td></tr>
+        <tr><td>PI · Pinça</td><td>@(F("pi_diametro") is { Length: > 0 } d1 ? "Ø " + d1 : "")</td><td></td><td>@F("pi_pincas")</td></tr>
       </table>
     </div>
     <div class="jfi-col">
       <div class="jfi-barra"><span>CALIBRES</span></div>
       <table class="dmo-table jfi-t jfi-lista">
-        <tr><th>Medida</th><th>Componentes</th><th>QTD máq.</th><th>Qtd.</th></tr>
+        <tr><th>Medida</th><th>Componentes</th><th>Qtd.</th></tr>
         @foreach (var l in calibres)
         {
-          <tr><td>@l.Nome</td><td>@N(l.Valor)</td><td>@V(l.QtdMaq)</td><td></td></tr>
+          <tr><td>@l.Nome</td><td>@N(l.Valor)</td><td></td></tr>
         }
         @if (calibres.Count == 0)
         {
-          <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td></tr>
         }
       </table>
     </div>
