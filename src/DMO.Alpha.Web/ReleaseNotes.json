@@ -395,7 +395,8 @@
     { "id": "DMO-402", "module": "Controlo → Peso", "description": "0.3.0-beta.88: na Comparação do Peso, a produção anterior tem o botão «Abrir o Peso desta produção»: abre a folha de Peso completa dessa produção (cada CM, tampão, calote, temperatura), gravada nesse Job On, para depois comparar com ela." },
     { "id": "DMO-403", "module": "Ferramentas", "description": "0.3.0-beta.89: Duplicar para lote novo: a cópia leva também o link do mcaliper, além das linhas, dos dados técnicos e da fábrica de origem; o lote novo começa sem utilização." },
     { "id": "DMO-404", "module": "Boquilhas", "description": "0.3.0-beta.90: Ficha da boquilha com mini-cartões de dados e botões no topo; clicar numa boquilha abre a Ficha da ferramenta; filtro de Lote em Procurar boquilha e em Ferramentas logo a seguir à Referência." },
-    { "id": "DMO-415", "module": "Reparação Interna", "description": "0.3.0-beta.101: o registo tem a lista Trabalho (Reparação, Soldar ou Polir) e a Consulta mostra o Resumo por pessoa (reparações, dias e média por dia), só para a chefia." }
+    { "id": "DMO-415", "module": "Reparação Interna", "description": "0.3.0-beta.101: o registo tem a lista Trabalho (Reparação, Soldar ou Polir) e a Consulta mostra o Resumo por pessoa (reparações, dias e média por dia), só para a chefia." },
+    { "id": "DMO-417", "module": "Job On", "description": "0.3.0-beta.103: Folha: o AN tem o seu cartão com lote próprio; Imprimir é um só clique e imprime as duas folhas; na impressão o TP tem só a Calote, sem Comentários, com os calibres em duas colunas e cada componente na sua linha no Trabalho de Equipa; as notas já não partem letra a letra." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
