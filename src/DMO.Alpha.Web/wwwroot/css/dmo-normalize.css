@@ -439,3 +439,8 @@ html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input+span{b
 html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-card);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600)}
 /* Hover e selecionado: o fundo do botão iguala o fundo (claro: fundo branco e letra azul; escuro: fundo azul, letra e contorno brancos) (Diogo, 26/10/2026). */
 html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label:hover>input+span,html[data-theme="dark"] body :is(.bq-movement-types,.ferr-check,.dmo-alternador) label>input:checked+span{background:var(--dmo-brand-600);border-color:#fff;color:#fff}
+/* Mesma regra nos alternadores feitos de ligações (Armazém: Entrada/Saída) e nas listas laterais sem cor de linha (Armazém: CM/MF/BQ), com o selecionado igual ao hover (Diogo, 26/10/2026). */
+html body .arm-modo .dmo-button{background:var(--dmo-card);border:1px solid var(--dmo-border,#b9d0e6);color:var(--dmo-text)}
+html body .arm-modo .dmo-button:is(:hover,:focus-visible,.arm-modo-ativo),html body .beta-production-lines button.selected:not([data-dmo-linha-cor]){background:var(--dmo-card);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600);outline:0}
+html[data-theme="dark"] body .arm-modo .dmo-button:is(:hover,:focus-visible,.arm-modo-ativo),html[data-theme="dark"] body .beta-production-lines button.selected:not([data-dmo-linha-cor]){background:var(--dmo-brand-600);border-color:#fff;color:#fff;outline:0}
+html[data-theme="dark"] body .beta-production-lines button.selected:not([data-dmo-linha-cor]) span{color:#fff}
