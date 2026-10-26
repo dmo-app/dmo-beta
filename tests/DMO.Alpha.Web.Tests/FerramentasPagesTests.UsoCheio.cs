@@ -35,15 +35,14 @@ public partial class FerramentasPagesTests
 
         if (cheio)
         {
-            Assert.Contains("<strong class=\"dmo-uso-cheio\">5447</strong>", fichaHtml, StringComparison.Ordinal);
-            Assert.Contains("<strong class=\"dmo-uso-cheio\">3</strong>", fichaHtml, StringComparison.Ordinal);
+            Assert.Contains("<span class=\"dmo-uso-cheio\">CM · 5447 · lote 3</span>", fichaHtml, StringComparison.Ordinal);
             Assert.Contains("<strong class=\"dmo-uso-cheio\">CM · 5447 · lote 3</strong>", pesquisar, StringComparison.Ordinal);
         }
         else
         {
             Assert.DoesNotContain("dmo-uso-cheio", fichaHtml, StringComparison.Ordinal);
             Assert.DoesNotContain("dmo-uso-cheio", pesquisar, StringComparison.Ordinal);
-            Assert.Contains("<strong>5447</strong>", fichaHtml, StringComparison.Ordinal);
+            Assert.Contains("Geral — CM · 5447 · lote 3</h3>", fichaHtml, StringComparison.Ordinal);
         }
         Assert.DoesNotContain("id=\"ferrUsoAviso\"", fichaHtml, StringComparison.Ordinal);
         Assert.DoesNotContain("acima de 100", fichaHtml, StringComparison.Ordinal);

@@ -2723,3 +2723,16 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 
 Selo depois: `4e66001173df6d35`
+
+## A-0129 · 2026-10-26 · ok-do-diogo
+
+Porquê: A-0129 no integracao (PR #129): título da ficha sem repetir Tipo/Ref/Lote; dia escolhido do calendário com letra branca; testes novos do triângulo único, invertido branco, tipos de movimento das BQ e sem itálico.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyWEXEuqNDbtKB7hrcdSAPWz
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.SemItalico_EmTodaAApp`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
+
+Selo depois: `fddca170dc40b491`
