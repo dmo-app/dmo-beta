@@ -2960,3 +2960,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/visual/boquilhas_catalog_browser.py`
 
 Selo depois: `1f5b3db999a31bde`
+
+## A-0148 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR 150 no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 150
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+
+Selo depois: `6db60bb76d73efbb`

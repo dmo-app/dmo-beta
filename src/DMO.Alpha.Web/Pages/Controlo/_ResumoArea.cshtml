@@ -8,7 +8,7 @@
 }
 <div id="resumo-area-@Model.Estado.Area" class="dmo-zona" data-dmo-regiao>
 <div class="resumo-area @stateClass">
-  <span>@Model.Estado.Area</span>
+  <span>@Model.Estado.Area@if (Model.Pagina.AreaDetalhe(Model.Estado.Area) is { } areaDetalhe) {<small class="resumo-area-ferramenta"> @areaDetalhe</small>}</span>
   <strong>@(Model.Estado.Status ?? "não registado")</strong>
   @if (Model.Pagina.SelectedProduction is { } areaProduction)
   {
@@ -37,28 +37,15 @@
         </div>
       </form>
     </dialog>
-    @if (DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(Model.Estado.Area))
+    @if (DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(Model.Estado.Area)
+         && Model.Pagina.McaliperLinks.GetValueOrDefault(Model.Estado.Area) is { } link)
     {
-      var linkDialogId = $"resumo-mcaliper-dialog-{Model.Estado.Area}";
-      var link = Model.Pagina.McaliperLinks.GetValueOrDefault(Model.Estado.Area);
-      @* O LINK DO MCALIPER (Diogo, 17/10/2026): fica na ficha técnica
-         da ferramenta; aqui só se associa, o link não fica à vista. *@
-      <button type="button" class="resumo-area-link@(link is null ? null : " set")" data-dmo-dialog="@linkDialogId">
+      @* O LINK DO MCALIPER (Diogo, 26/10/2026): aqui só se abre; quem muda o
+         link é quem tem Criar, na ficha da ferramenta. *@
+      <a class="resumo-area-link set" href="@link" target="_blank" rel="noopener noreferrer" data-resumo-mcaliper-abrir="@Model.Estado.Area">
         <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
-        @(link is null ? "Associar link do mcaliper" : "Link do mcaliper associado")
-      </button>
-      <dialog id="@linkDialogId" class="dmo-dialog" aria-labelledby="@(linkDialogId)-title">
-        <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper">
-          <h3 id="@(linkDialogId)-title">Link do mcaliper · @Model.Estado.Area</h3>
-          <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
-          <input type="hidden" name="area" value="@Model.Estado.Area" />
-          <input type="url" name="url" value="@link" maxlength="@DMO.Alpha.Core.Tools.ToolTechnicalContext.McaliperUrlMaxLength" placeholder="https://… (vazio retira o link)" aria-label="Link do mcaliper @Model.Estado.Area" autofocus />
-          <div class="dmo-dialog-actions">
-            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-            <button type="submit" class="dmo-button">Guardar</button>
-          </div>
-        </form>
-      </dialog>
+        Link do mcaliper associado
+      </a>
     }
   }
   else if (!string.IsNullOrWhiteSpace(Model.Estado.Comment))
