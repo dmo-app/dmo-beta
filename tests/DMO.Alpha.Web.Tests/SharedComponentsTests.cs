@@ -126,7 +126,7 @@ public sealed class SharedComponentsTests
     {
         var css = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-normalize.css"));
         Assert.Contains("html body summary.dmo-card-topo>:first-child::before{content:none}", css, StringComparison.Ordinal);
-        Assert.Contains("html[data-theme=\"dark\"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--dmo-invertido)}", css, StringComparison.Ordinal);
+        Assert.Contains("html[data-theme=\"dark\"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--button-color,var(--dmo-brand-600));border-color:#fff;color:#fff}", css, StringComparison.Ordinal);
 
         var bq = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-boquilhas-prototype.css"));
         foreach (var raiz in new[] { ".beta-bq-layout", ".bq-sem-jobon-janela" })
