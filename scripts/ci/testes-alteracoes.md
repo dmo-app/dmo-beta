@@ -2641,6 +2641,16 @@ Novos: 9 · mudaram: 0 · saíram: 0
 
 Selo depois: `bfb24a5eaf62cccf`
 
+## A-0121 · 2026-10-26 · ok-do-diogo
+
+Porquê: O teste das alterações no mesmo minuto falhava quando corria aos :00 segundos: criava «agora» e «agora − 1 s», que caíam em minutos diferentes e davam duas linhas. A segunda hora fica até 1 s antes sem sair do minuto de «agora»; as asserções ficam iguais. Muda a preparação de um teste existente: autorização de testes do Diogo.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua`
+
+Selo depois: `99b5882a21ea6965`
+
 ## A-0113 · 2026-10-26 · ok-do-diogo
 
 Porquê: Os números da folha do Job On passam a sair com ponto e duas casas quando têm casas, também dentro do texto («2,50» → «2.50», «70/69,4» → «70/69.40»), a pedido do Diogo (26/10/2026). Há um teste novo do formato; dois testes antigos que esperavam «2,5» passam a esperar «2.50», e o do Peso muda de nome.
@@ -2652,4 +2662,4 @@ Novos: 2 · mudaram: 1 · saíram: 1
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_ACalMostraAsLinhasGravadas_ComAQtdMaq_NaFolhaNova`
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_SemZerosNoFim`
 
-Selo depois: `1bd06c3e058f4f2b`
+Selo depois: `d56824e14c3ac255`
