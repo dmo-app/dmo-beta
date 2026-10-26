@@ -1,5 +1,5 @@
 {
-  "selo": "ab9e2d6aa5e7ad1b",
+  "selo": "ac4d9533e5c5a97c",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2042,7 +2042,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.AreaState_OperacionalSavesOkNokAndComment_ChefeIsRefusedTyped": "59c4d42a5c877388",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.ChefeApproveOnly_CreateRefusedTyped_ApproveSucceeds": "600aa6970c6ba1b9",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.ChefeApproveOnly_UsesDistinctReviewPages_WithoutOperationalForms": "53c15138aaab6dc4",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt": "cda357c3811ec32f",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt": "8647e9ea78bd3b69",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.PesoAssociation_PrePesoWithJobOnCm_IsOfferedAndAssociatedOnlyByExplicitCreatePost": "8825c8a6d5f8697a",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.PesoCreation_ReadableNominal_NoWarning": "40a5614369aaeb51",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.PesoCreation_UnreadableOrNonPositiveOptionalNominal_CreatesWithoutNominalAndWarns": "c9732c304b309bc1",
