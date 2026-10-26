@@ -2388,3 +2388,26 @@ Novos: 16 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnHistoricoQueryTests.cs :: JobOnHistoricoQueryTests.SoReferencia_ListaAsProducoesEPesquisaPelaReferencia`
 
 Selo depois: `1d85ff80026183a9`
+
+## A-0103 · 2026-10-26 · ok-do-diogo
+
+Porquê: Definições: o Diogo pediu que o ADMIN só veja as definições do Admin («no admin só deve ter definições importantes»; «as definições da app abrangem os módulos e só mostram os módulos que um user tem») e que quem só tem «Boquilhas · ver» não tenha horas de viragem. O Canal Jobon sai do Admin: a hora das Boquilhas vai para as Definições das Boquilhas e a da Reparação para uma entrada «Reparação», ambas com «Boquilhas · criar». Saem os testes que esperavam o ADMIN a ver os módulos e o Canal Jobon; entram os que provam o contrário. Tira acesso ao ADMIN: ok do Diogo.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyYRyWGv6Y5CabLhDFr1DLwa, cmsg_01A27e9ozcpoh4jdPRsuJbFyQ8WiYwTVK78uuk1DvMwT8X, cmsg_01A27e9ozcpoh4jdPRsuJbFyCVtCLc1FuK1Ug3hF8cdhTG, cmsg_01A27e9ozcpoh4jdPRsuJbFyUJwYKkR1Jw5deUYwen5U5c
+Novos: 4 · mudaram: 6 · saíram: 4
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Admin_TemDefinicoesProprias_SoAApp`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.HoraDeViragem_CadaUmaNoSeuModulo_ComOsSeusHandlers`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_SetupEReparacao_CartaoNumaZona_MensagemNoCanto`
+- mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.EditRepairer_InPlace_AnswersJson_AndTheTableHasNoSaveButton`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_PessoalEOsModulosAtivos_CadaEntradaMostraSoASuaSeccao`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.AdminTemplatesECanal_AChaveEAHoraDaReparacaoInterna`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTexts_LiveInTheTip_NotWrittenOnTheScreen`
+- mudou: `tests/visual/definicoes_parcial_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_VeTodosOsModulos_EEdita`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Admin_TemDefinicoesProprias_CanalJobonEApp`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.CanalJobon_SavesTheDayChangeHour_ForTheAdminOnly`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_SetupECanalJobon_CartaoNumaZona_MensagemNoCanto`
+
+Selo depois: `83c4e45388bf7675`
