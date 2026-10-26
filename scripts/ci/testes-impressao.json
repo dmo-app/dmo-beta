@@ -1,5 +1,5 @@
 {
-  "selo": "3b25a8fc9f9336fe",
+  "selo": "70ee9098ff107dcc",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1847,6 +1847,8 @@
     "tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.MachineRoute_EmptyValue_ClearsTheRoute": "c980165840a6c5d3",
     "tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.MachineRoute_Post_SavesTheModuleSettingKey_AndSelectsIt": "5303fd124f589dea",
     "tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.cs :: BqRepairerSettingsPageTests.MachineRoute_Posting_WithoutAdminSession_IsRedirectedToLogin": "aa5ff7ba8c8b47b1",
+    "tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: (resto do ficheiro)": "1ca31ad5e19b8f8c",
+    "tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: CabecalhosDeSegurancaTests.Resposta_LevaOsCabecalhosDeSeguranca": "9c70ec8f9054c6cd",
     "tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: (resto do ficheiro)": "b2daad458dca5ca5",
     "tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Email_OMesmoEnvioDevolveOMesmoFicheiroERegistaUmaVez_OutraChavePreparaOutro": "4492edbb9ad69a41",
     "tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.Repeticao.cs :: EnvioEmailPesoPageTests.Email_SemEspacoParaNovosFicheiros_NaoPreparaOutro_MasPermiteRepetirOPrimeiro": "d4f2fce5f9af3f3d",

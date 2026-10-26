@@ -2731,3 +2731,14 @@ Novos: 2 · mudaram: 6 · saíram: 1
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelLivroTests.cs :: BqExcelLivroTests.UmMesSemSeparador_ESemMovimentos_NaoCriaNada`
 
 Selo depois: `3b25a8fc9f9336fe`
+
+## A-0134 · 2026-10-26 · teste-novo
+
+Porquê: Cabeçalhos de segurança em todas as respostas (auditoria externa 01 do login): teste novo do login e de um ficheiro estático
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyG4XwbZ4jCMtjGAQF61FbxP
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: CabecalhosDeSegurancaTests.Resposta_LevaOsCabecalhosDeSeguranca`
+
+Selo depois: `70ee9098ff107dcc`
