@@ -2,7 +2,19 @@
 @model DMO.Alpha.Web.Pages.JobOn.FolhaModel
 @using DMO.Alpha.Core.Production
 @using DMO.Alpha.Web.Pages.JobOn
-@* Presentation adapted from the approved DMO Design mockup. Domain handlers and field identities remain in the base app. *@
+@*
+  A FOLHA DO JOB ON pelo mockup do Diogo (Job_On_v2.html): a mesma
+  estrutura, ordem e aspeto (o cabeçalho com os factos, a referência e o
+  dropdown das produções, as Opções; Moldes, Gargalo, Sopro e Calibres; o
+  Artigo e as Notas gerais ao lado; o painel das linhas como gaveta), com
+  só o que o Diogo pediu mudado: abre bloqueada e «Editar» vem nas Opções;
+  TP ao lado do CS; CAL na horizontal por baixo; o lote do AN é o da BQ; a
+  informação técnica recolhe no triângulo (à esquerda do texto); os
+  detalhes curtos (referência, lote, %, notas); um clique na ferramenta,
+  no Editar, muda-a e o duplo clique leva à ficha; Opções = Editar,
+  Controlo e Reparação; clicar no artigo escolhe a imagem; a cor da linha
+  é a do Planeamento; «Lote 1» sem o zero.
+*@
 @{
     Layout = "_DmoShellLayout";
     ViewData["BetaPage"] = "jobon";
@@ -89,8 +101,10 @@
         {
             <label class="note-box note-edit@(Vazio(valor) is null ? " is-empty" : null)" data-jof-nota><span>Notas</span><textarea class="dmo-valor" id="@campo.Id" name="@campo.NomeNoFormulario" rows="2" maxlength="@campo.Maximo" placeholder="+ Adicionar nota" aria-label="@campo.RotuloAlteracao">@valor</textarea></label>
         }
-        else if (Vazio(valor) is not null)
+        else
         {
+            @* As notas, mesmo vazias, enchem o cartão até à altura dos vizinhos;
+               um clique amplia-as (Diogo, 23/10/2026). *@
             <div class="note-box note-view@(Vazio(valor) is null ? " is-empty" : null)" data-jof-campo="@chave" data-jof-nota tabindex="0"><span>Notas</span><p>@Vazio(valor)</p></div>
         }
     }
@@ -124,15 +138,6 @@
         </div>
     }
 
-    void Stock(string familia)
-    {
-        var p = familia.ToLowerInvariant();
-        <div class="design-stock" aria-label="Quantidades de @familia">
-          <div><span>Stock</span><strong>@{ Valor(p + "_qtd_stock"); }</strong></div>
-          <div><span>QTD máq.</span><strong>@{ Valor(p + "_qtd_maq"); }</strong></div>
-        </div>
-    }
-
     // A informação técnica: recolhe e expande pelo triângulo, à esquerda do texto.
     void TecnicaAbre(string familia, IEnumerable<string> chaves)
     {
@@ -162,7 +167,6 @@
                   title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
                   aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
             <span class="design-tool-heading"><span class="code">@tipo</span><span class="design-tool-name">@nome</span></span>
-            <span class="design-tool-meta">
             @if (f is null)
             {
               <span class="muted">Sem @nome.ToLowerInvariant()</span>
@@ -173,7 +177,6 @@
               <span class="hv"><small>Referência</small><b data-jof-tool-ref class="@Model.UsoCheioDe(toolId)">@f.Reference</b></span>
               <span class="hv"><small>Lote</small><b data-jof-tool-lote class="@Model.UsoCheioDe(toolId)">@FolhaModel.Lote(f.Lot)</b></span>
             }
-            </span>
             @if (editar)
             {
               <span class="tool-hint"><span class="dmo-caret" aria-hidden="true"></span> <span class="hint-txt">Trocar</span></span>
@@ -193,7 +196,7 @@
           }
           @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
           {
-            <details class="design-warning" data-dmo-aviso-armazem><summary><span class="dmo-caret" aria-hidden="true"></span>Sem registo no Armazém</summary><p>@avisoArmazem@{ var link = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Registar na ferramenta"); }@if (link.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@link.Href">@link.Texto</a>}</p></details>
+            <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem@{ var link = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Registar na ferramenta"); }@if (link.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@link.Href">@link.Texto</a>}</div>
           }
           @if (editar)
           {
@@ -224,8 +227,9 @@
         var folgas = new[] { p + "_folga1", p + "_folga2", p + "_folga3" };
         <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
           @{ CabecaFerramenta(tipo, toolId, nome); }
-          @{ Uso(p + "_utilizacao", f); Stock(tipo); }
-          <div class="design-dimensions">
+          @{ Uso(p + "_utilizacao", f); }
+          @{ Notas(p + "_notas"); }
+          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
           <div class="table-wrap"><table class="dmo-table dims"><thead><tr><th>Medida (mm)</th><th>Valor</th><th>Tol.</th></tr></thead><tbody>
             @foreach (var (rotulo, valor, tol) in medidas)
             {
@@ -238,10 +242,8 @@
               if (editar) { Valor(folga); } else { <span class="folga">@{ Valor(folga); }</span> }
             }
           </div>
-          </div>
-          @{ var detalhes = resto.Where(r => !r.Item2.EndsWith("_qtd_stock") && !r.Item2.EndsWith("_qtd_maq")).ToArray(); }
-          @{ TecnicaAbre(tipo, detalhes.Select(r => r.Item2)); Kv(detalhes); }
-          @{ TecnicaFecha(); Notas(p + "_notas"); }
+          @{ Kv(resto); }
+          @{ TecnicaFecha(); }
         </article>
     }
 
@@ -249,7 +251,7 @@
     void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? lote = null)
     {
         var notas = JobOnFolhaCampos.DaFamilia(codigo).FirstOrDefault(c => c.Tipo == JobOnFolhaTipoCampo.Nota)?.Chave;
-        var nome = codigo switch { "PU" => "Punção", "TP" => "Tampão", "CS" => "Cabeça de sopro", "PI" => "Pinças", _ => "" };
+        var nome = codigo switch { "PU" => "Punção", "TP" => "Tampão", "CS" => "Cabeça de sopro", "PI" => "Pinças", "AN" => "Anel", _ => "" };
         <div class="sec-head"><span class="design-tool-heading"><span class="code">@codigo</span><span class="design-tool-name">@nome</span></span>
           @if (chaveRef is not null)
           {
@@ -290,11 +292,6 @@
         if (notas is not null)
         {
             Notas(notas);
-        }
-        if (tecnica.Any(t => t.Item2.EndsWith("_qtd_stock")))
-        {
-            Stock(codigo);
-            tecnica = tecnica.Where(t => !t.Item2.EndsWith("_qtd_stock") && !t.Item2.EndsWith("_qtd_maq")).ToArray();
         }
         if (tecnica.Length > 0)
         {
@@ -631,9 +628,9 @@ else
             <article class="card pair"><div class="pair-in">
               <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
                 @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
-                @{ Uso("bq_utilizacao", bqFact); Stock("BQ"); }
+                @{ Uso("bq_utilizacao", bqFact); }
                 @{ Notas("bq_notas"); }
-                
+                @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
               </div>
               <div class="sec" data-jof-familia="AN" aria-label="Anel">
                 @{ Simples("AN", "an_referencia", [], [], lote: bqFact is null ? "—" : FolhaModel.Lote(bqFact.Lot)); }
@@ -835,4 +832,3 @@ else
 <script src="~/js/jobon-rascunho.js" asp-append-version="true" defer></script>
 }
 }
-

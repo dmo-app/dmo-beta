@@ -4,6 +4,10 @@ Começar pelo [handoff para Astra](docs/design/HANDOFF-ASTRA.md) e pelo [guia de
 
 Este repositório contém a base Razor Pages proveniente do dmo-beta (`3e3b175`, `0.3.0-beta.100`) com a camada de design aplicada no working tree. A primeira tentativa, rejeitada, continua guardada em [rascunho-rejeitado.patch](docs/design/rascunho-rejeitado.patch) e **não** deve ser aplicada.
 
+## Regra (Owner, 26/10/2026)
+
+O design muda só a aparência. O comportamento e a informação vêm da app (dmo-beta) e do blueprint: nada se esconde, nada muda de sítio no fluxo, nenhum teste da app se enfraquece para o design passar. Antes de mexer num ecrã, confirmar na app e no blueprint como ele funciona.
+
 ## Implementado (26/10/2026)
 
 - Navegação de módulo e funções em **tabs no topo**, no cabeçalho, com o logo BA e a conta autenticada reais (`css/dmo-design.css`, `_DmoShellLayout`, `_DmoNavigation`).
@@ -28,6 +32,7 @@ Este repositório contém a base Razor Pages proveniente do dmo-beta (`3e3b175`,
   - Armazém: o título do registo com «Corrigir» e «Registar» na mesma linha, à direita (o «Corrigir» passou para o formulário, type="button"); campos em duas colunas.
   - Nenhuma informação da app fica escondida por esta camada: subtítulos das páginas e dos painéis de linhas, notas do Pegamentos/PU NNPB no Resumo e o título da procura do Armazém voltam, pequenos e em `muted`.
   - Restantes páginas revistas: detalhe da Revisão (títulos sem barras, factos com divisórias), secções das Definições («Geral» em caixa normal), Consulta da Reparação, ficha do utilizador, Setup, Ajuda SAP, mudar palavra-passe, instalar e erro. Telemóvel (375 px) sem transbordo horizontal em todas as páginas exportadas.
+  - Folha do Job On de volta à marcação da app: notas sempre visíveis (mesmo vazias, Diogo 23/10/2026), informação técnica recolhida com as dimensões, folgas e Stock/QTD dentro, aviso do Armazém visível; os testes da app voltam ao original. Coluna do Artigo com a largura da app, artigo maior, área nas Notas gerais; famílias, cabeçalho e factos alinhados.
   - Tudo em `css/dmo-design.css` (só ecrã), sem mudar handlers nem permissões; na marcação só saíram os glifos das Boquilhas.
   - Design system de referência: https://claude.ai/artifact/CaxJKWoDpibvJSCheUbuRp (página App para explorar).
 

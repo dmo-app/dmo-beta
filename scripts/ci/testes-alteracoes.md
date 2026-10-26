@@ -3040,3 +3040,14 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 
 Selo depois: `ee66f3a555642a55`
+
+## A-0158 · 2026-10-26 · ok-do-diogo
+
+Porquê: Os dois testes voltam exatamente ao que eram na app (b90c43c): notas em todos os cartões, mesmo vazias, e Stock/QTD máq. dentro da informação técnica. A camada de design anterior tinha-os enfraquecido para esconder as notas vazias; a folha volta à marcação da app
+Referência: Sessão Claude Code 26/10/2026: o proprietário pediu as notas sempre visíveis e a informação técnica recolhida, como na app (decisão de 23/10/2026: «as notas, mesmo vazias, enchem o cartão»)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada`
+
+Selo depois: `6ca10dded9f549f6`

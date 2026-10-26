@@ -149,13 +149,11 @@ html body .jof2 .use-top {font-size:12px}
 html body .jof2 .use-top b {color:var(--dmo-brand-700);font-size:15px}
 html body .jof2 .bar {height:6px;background:var(--dmo-brand-100);border-radius:4px}
 html body .jof2 .bar i {background:var(--design-medium)}
-html body .jof2 .note-view.is-empty {display:none}
 html body .jof2 .note-view:not(.is-empty):not(.is-ampliada) {min-height:0;flex:0 0 auto;background:var(--dmo-subtle);padding:5px 8px;border-radius:5px}
 html body .jof2 .note-view:not(.is-empty):not(.is-ampliada) p {min-height:0;font-size:12px;padding:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 html body .jof2 .note-view:not(.is-ampliada)>span {font-size:10px;font-weight:500;text-transform:none;letter-spacing:0}
 html body .jof2 .more {margin-top:0;padding-top:4px;border:0}
 html body .jof2 .more summary {font-size:12px;color:var(--dmo-brand-700)}
-html body .jof2 .more-preview {display:none}
 html body .jof2 .more.empty>summary>span:not([aria-hidden]):not(.more-preview) {position:static;width:auto;height:auto;overflow:visible;clip:auto}
 html body .jof2 .more>summary {min-height:24px;font-weight:500}
 html body .jof2 .note-box.is-ampliada>p {min-height:200px;max-height:60vh;overflow:auto}
@@ -687,3 +685,41 @@ html body section.revisao-detail h3.revisao-section,html body .revisao-detail.re
   html body .lot-data>div:nth-child(odd){border-left:0!important;padding-left:0!important}
 }
 html body .beta-production-rail-head :is(strong,.beta-production-rail-title){text-transform:none;letter-spacing:0}
+
+/* Job On sheet on the app's own markup (Owner, 26/10/2026: notes always visible, technical
+   information folded, nothing moved). Only the look is set here. */
+@media (min-width:1100px){
+  /* Every family starts on the same line: the paired cards (BQ/AN, PU/ARR) lose their extra top padding. */
+  html body .jof2 #gMoldes>.card.pair{padding:0}
+  /* Facts read left to right with even gaps, not spread across the width. */
+  html body .jof2 .page-head .facts-dados{justify-content:flex-start;gap:28px}
+}
+/* Tool head: code and name, then «Referência 5809 · Lote 1» on one line; no grey box. */
+html body .jof2 .tool-head.tool-head{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 12px;width:100%;margin:0;padding:2px 0;border:0;border-radius:4px;background:none;text-align:left}
+html body .jof2 .tool-head.tool-head:hover{background:var(--dmo-brand-050)}
+html body .jof2 .tool-head .design-tool-heading{flex:1 0 100%}
+html body .jof2 .tool-head .hv{display:inline-flex;align-items:baseline;gap:4px;margin:0;padding:0;border:0}
+html body .jof2 .tool-head .hv small{font-size:12px;font-weight:400;color:var(--dmo-muted)}
+html body .jof2 .tool-head .hv b{font-size:14px;font-weight:650}
+/* Header: «Linhas», Referência and Produção share one height and bottom line. */
+html body .jof2 .pick-row{align-items:flex-end}
+html body .jof2 .pick-row :is(input,select,.prod-trigger,.btn){height:var(--dmo-control-height);min-height:var(--dmo-control-height);box-sizing:border-box}
+@media (min-width:1100px){
+  html body .jof2 .zones .card.pair{padding-top:0}
+}
+html body .jof2 .page-head .pick-row :is(.ref-search input,.dmo-suggest input,input#jofReferencia,select.prod-select,.prod-trigger){height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
+html body .jof2 .page-head .pick-row .ref-search input{display:block}
+html body .jof2 .tool-head.tool-head{padding:0}
+html body .jof2 .page-head .pick-row .ref-search{height:var(--dmo-control-height);min-height:0}
+
+/* Job On sheet, side column as in the app (Owner, 26/10/2026: «artigo muito pequeno, sem espaço
+   para notas»): the app's width, a larger article picture and a real area for the general notes. */
+@media (min-width:1100px){
+  html body .jof2 .sheet,html body .jof2.editing .sheet{grid-template-columns:minmax(0,1fr) clamp(280px,24%,420px)}
+  /* Facts spread evenly across the strip, not pushed to one side. */
+  html body .jof2 .page-head .facts-dados{justify-content:space-evenly;gap:16px}
+}
+html body .jof2 .jof-artigo{height:220px}
+html body .jof2 .jof-artigo :is(svg,img){height:210px;max-height:210px}
+html body .jof2 .notes{min-height:140px}
+html body .jof2 .notes :is(ul,.notes-vazio,p){min-height:72px;border:1px dashed var(--dmo-border);border-radius:6px;padding:6px 9px}
