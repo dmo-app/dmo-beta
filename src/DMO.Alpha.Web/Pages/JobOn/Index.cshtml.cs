@@ -1142,7 +1142,7 @@ public sealed class IndexModel : PageModel
                 var mfReference = await _pagina.ReferenciaDaMfAsync(mfId, HttpContext.RequestAborted);
                 if (mfReference is not null)
                 {
-                    var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term);
+                    var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term, IncluirSemLinha: true);
                     var byMf = await _toolCandidates.FindPageAsync(porMf, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                     if (byMf.TotalCount > 0)
                     {
@@ -1159,14 +1159,14 @@ public sealed class IndexModel : PageModel
                 var cmMfReference = await _pagina.ReferenciaMfDaCmAsync(cmId, HttpContext.RequestAborted);
                 if (cmMfReference is not null)
                 {
-                    usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term);
+                    usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term, IncluirSemLinha: true);
                     page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                     filtro = (machineId is null ? "Filtrado pela CM " : "Filtrado por máquina e pela CM ") + cmMfReference;
                 }
             }
             if (page is null)
             {
-                usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term);
+                usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term, IncluirSemLinha: true);
                 page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
             }
 
@@ -1174,6 +1174,13 @@ public sealed class IndexModel : PageModel
             // ferramentas estão lá mas o Job On não filtra»): as ferramentas
             // importadas sem linhas ligadas aparecem; sem nada pela referência,
             // o catálogo do tipo.
+            // As sem linha nenhuma entram sempre ao lado das da linha; se só
+            // há dessas, o filtro diz que nenhuma está ligada a esta linha.
+            if (page.TotalCount > 0 && machineId is not null && usado is not null
+                && (await _toolCandidates.FindPageAsync(usado with { IncluirSemLinha = false }, 1, 1, HttpContext.RequestAborted)).TotalCount == 0)
+            {
+                filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
+            }
             if (page.TotalCount == 0 && machineId is not null)
             {
                 page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
