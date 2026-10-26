@@ -260,7 +260,7 @@
                 <dd>
                   @if (editar)
                   {
-                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="ferramenta" value="@(Model.JobOn?.CaloteMm is { } caloteValor ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteValor) : null)" aria-label="Calote (mm)" />
+                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="bacia" value="@(Model.JobOn?.CaloteMm is { } caloteValor ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteValor) : null)" aria-label="Calote (mm)" />
                   }
                   else if (Model.JobOn?.CaloteMm is { } valorCalote)
                   {
@@ -268,7 +268,7 @@
                   }
                   else
                   {
-                    <span class="v-empty" title="Usa a calote registada na ferramenta">ferramenta</span>
+                    <span class="v-empty" title="Usa a calote registada na bacia">bacia</span>
                   }
                 </dd>
               }

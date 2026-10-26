@@ -927,3 +927,25 @@ html body .jfi-folha .dmo-table tbody tr{background:transparent}
 html body .jfi-folha .jfi-lista td{height:6.4mm}
 html body .jfi-folha .dmo-table tr:first-child th{background:#eef1f4;color:#15191e}
 html body .jfi-folha .jfi-kv th{background:transparent!important;color:#3c454f}
+/* No Criar e no Duplicar a Referência e a Produção ficam por cima do Cancelar
+   e do Guardar, para caberem ao lado dos dados sem os tapar (Diogo, 26/10/2026:
+   a 1366×768 o cabeçalho do Duplicar ficava por cima das Secções e da Gota). */
+@media (min-width:901px){
+  html body .jof2.editing .page-head .head-right:has(#lightReference){flex-direction:column;justify-content:center;align-items:flex-end;gap:8px;min-width:0}
+  html body .jof2.editing .page-head .head-right:has(#lightReference)>*{align-self:flex-end}
+  html body .jof2.editing .page-head .head-right:has(#lightReference) .ref-search{flex:none;width:140px}
+  html body .jof2.editing .page-head .head-right:has(#lightReference) .ref-search input{width:100%}
+  html body .jof2.editing .page-head .head-right:has(#lightReference) .prod-select{width:120px}
+  html body .jof2.editing .page-head .head-right:has(#lightReference) .pick-row{gap:8px}
+  html body .jof2.editing .page-head .head-right:has(#lightReference) .pick-row>.pick-campo{flex:none}
+  html body .jof2.editing .page-head .facts{min-width:0}
+}
+/* No Editar a cabeça da PU, do ARR, do AN e dos outros cartões sem ferramenta
+   fica como a da CM, do MF e da BQ: o selo, a Referência e o Lote na mesma
+   fila e à mesma altura (Diogo, 26/10/2026: «PU não fica alinhado com resto»). */
+html body .jof2.editing .sec-head:has(.hv input){flex-wrap:nowrap;align-items:center;gap:10px;min-height:38px}
+html body .jof2.editing .sec-head:has(.hv input)>.code{margin-bottom:0}
+html body .jof2.editing .sec-head:has(.hv input) .hv{gap:1px}
+html body .jof2.editing .sec-head:has(.hv input) .hv input.f{height:26px;min-height:26px;width:96px;padding-block:0}
+html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){height:26px;font-size:20px}
+html body .jof2.editing .sec-head:has(.hv input) .hv+.hv{margin-left:0;padding-left:10px}
