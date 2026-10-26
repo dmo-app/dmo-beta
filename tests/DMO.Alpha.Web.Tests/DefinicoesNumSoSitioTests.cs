@@ -130,7 +130,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var html = await GetOkAsync(client, "/Definicoes");
         var menu = Menu(html);
         var entradas = Regex.Matches(menu, "data-dmo-def-entrada=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray();
-        Assert.Equal(new[] { "pessoal", "boquilhas" }, entradas);
+        Assert.Equal(new[] { "pessoal", "boquilhas", "reparacao" }, entradas);
         Assert.Contains("href=\"/Definicoes?secao=boquilhas\"", menu);
         // O Controlo é um grupo no menu, fechado enquanto não está aberto.
         Assert.Contains("data-dmo-def-grupo=\"controlo\"", menu);
@@ -239,15 +239,17 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     }
 
     [Fact]
-    public async Task OAdmin_VeTodosOsModulos_EEdita()
+    public async Task OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos()
     {
         using var client = await LoginAdminAsync();
         var html = await GetOkAsync(client, "/Definicoes");
         Assert.DoesNotContain("data-dmo-cadeado", html);
-        foreach (var id in new[] { "id=\"controlo\"", "id=\"boquilhas\"", "id=\"ferramentas\"", "id=\"armazem\"" })
+        // Diogo, 25/10/2026: «no admin só deve ter definições importantes»; cada módulo só a quem o tem.
+        foreach (var id in new[] { "id=\"controlo\"", "id=\"boquilhas\"", "id=\"ferramentas\"", "id=\"armazem\"", "id=\"reparacao\"" })
         {
-            Assert.Contains(id, html);
+            Assert.DoesNotContain(id, html);
         }
+        Assert.Contains("data-dmo-def-entrada=\"admin\"", html);
 
         Assert.Matches("<a href=\"/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
