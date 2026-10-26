@@ -199,6 +199,13 @@ public interface IReparacoesInternas
     /// <summary>As produções da máquina cujas datas cobrem este dia (a data escolhida na página; as datas são livres).</summary>
     Task<RiProducaoDoDia> ProducaoDoDiaAsync(int machineId, DateOnly dia, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// A produção do dia de várias máquinas numa só leitura (o painel), com a
+    /// mesma regra de <see cref="ProducaoDoDiaAsync(int, DateOnly, CancellationToken)"/>.
+    /// Todas as máquinas pedidas vêm no resultado; sem produção, vazia.
+    /// </summary>
+    Task<IReadOnlyDictionary<int, RiProducaoDoDia>> ProducoesDoDiaAsync(IReadOnlyCollection<int> machineIds, DateOnly dia, CancellationToken cancellationToken = default);
+
     Task<ReparacaoSaida> RegistarAsync(PedidoDeReparacao pedido, CancellationToken cancellationToken = default);
 
     /// <summary>Corrige o número (as mesmas regras do registo), com rasto. Quem tem o módulo pode corrigir (RI-04).</summary>

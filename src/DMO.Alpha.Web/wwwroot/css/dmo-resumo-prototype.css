@@ -398,7 +398,6 @@
 /* UM SÓ BOTÃO PEQUENO «REGISTAR» (Diogo, 21/10/2026: «criar um botao mais
    pequeno que diga apenas registar»), igual nos três cartões e na mesma
    posição; o do Peso deixa de ter outra cor. */
-.resumo-card-actions .dmo-button { min-height: 0; padding: 5px 12px; font-size: 12px; line-height: 1.3; }
 /* Dois botões num cartão estreito (o Peso sem registo a 1400 px, com o
    cartão PU NNPB ao lado; teste do agente de 19/10/2026, T20123bb): o
    estado sai da linha do título para os botões caberem nela; o cartão já

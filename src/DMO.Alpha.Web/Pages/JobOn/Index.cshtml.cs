@@ -57,9 +57,7 @@ public sealed class IndexModel : PageModel
     private readonly IJobOnHistoricoQuery _historico;
     private readonly ShellStateFactory _shellState;
     private readonly CurrentUserCapabilities _capabilities;
-    private readonly JobOnLotNoteHandler _lotNotes;
-    private readonly JobOnChangeQuery _changes;
-    private readonly IDeleteJobOnHandler _deleteJobOn;
+    private readonly IJobOnFichaQuery _ficha;
     private readonly IJobOnFolhaQuery _folha;
 
     public IndexModel(
@@ -76,9 +74,7 @@ public sealed class IndexModel : PageModel
         IJobOnHistoricoQuery historico,
         ShellStateFactory shellState,
         CurrentUserCapabilities capabilities,
-        JobOnLotNoteHandler lotNotes,
-        JobOnChangeQuery changes,
-        IDeleteJobOnHandler deleteJobOn,
+        IJobOnFichaQuery ficha,
         IJobOnFolhaQuery folha,
         Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
@@ -96,9 +92,7 @@ public sealed class IndexModel : PageModel
         _historico = historico;
         _shellState = shellState;
         _capabilities = capabilities;
-        _lotNotes = lotNotes;
-        _changes = changes;
-        _deleteJobOn = deleteJobOn;
+        _ficha = ficha;
         _folha = folha;
     }
 
@@ -776,13 +770,22 @@ public sealed class IndexModel : PageModel
         // MESMA query que o endpoint do vivo usa. O MODO DUPLICAR
         // (?jobon_id=N&duplicar=1) compõe o draft da produção nova (o html:
         // o nº e as datas por preencher, as tools e a calote copiadas).
-        if (OpenJobOn is { } loteJobOn)
+        //
+        // As leituras da ficha (notas de lote, alterações, o que se perde ao
+        // eliminar, os factos das ferramentas e a folha gravada) fazem-se de
+        // uma vez no serviço; as capabilities do utilizador não voltam à base
+        // (resolvem-se uma vez por pedido), por isso a ordem entre umas e outras
+        // não muda o que se lê.
+        var ficha = OpenJobOn is { } fichaAberta
+            ? await _ficha.FichaAsync(fichaAberta, today, duplicar == "1", HttpContext.RequestAborted)
+            : null;
+        if (OpenJobOn is { } loteJobOn && ficha is not null)
         {
-            FichaLotNotes = await _lotNotes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted);
+            FichaLotNotes = ficha.LotNotes;
             var resumo = JobOnSummaryEntry.Compose(
                 loteJobOn.JobOnId,
                 loteJobOn.InicioEm,
-                await _changes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted),
+                ficha.Changes,
                 FichaLotNotes);
             var permitidas = new HashSet<string>();
             foreach (var capability in resumo.Select(e => e.ActionCapability).Distinct())
@@ -793,11 +796,11 @@ public sealed class IndexModel : PageModel
             VistaAlteracoes = vista == "alteracoes";
         }
 
-        if (OpenJobOn is { } eliminarJobOn && duplicar != "1")
+        if (OpenJobOn is not null && duplicar != "1")
         {
             VeControlo = await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted)
                 || await _capabilities.HasAsync(DmoCapabilities.ControloApprove, HttpContext.RequestAborted);
-            if (await _deleteJobOn.PreviewAsync(eliminarJobOn.JobOnId, today, HttpContext.RequestAborted) is { } preview)
+            if (ficha?.DeletePreview is { } preview)
             {
                 FichaEliminar = JobOnEliminarAviso.From(preview, VeControlo);
             }
@@ -852,18 +855,11 @@ public sealed class IndexModel : PageModel
                 }
             }
 
-            if (DuplicarDe is null)
+            // Os factos das ferramentas lêem-se para a ficha e para o Editar,
+            // nunca no Duplicar (o serviço devolve-os vazios).
+            if (ficha is not null)
             {
-                var fichaToolIds = new[] { fichaJobOn.CmToolId, fichaJobOn.MfToolId, fichaJobOn.BqToolId }
-                    .Where(id => id is not null)
-                    .Select(id => id!)
-                    .ToList();
-                if (fichaToolIds.Count > 0)
-                {
-                    FichaFacts = await _toolFacts.FindAsync(
-                        fichaToolIds, fichaJobOn.Machine, fichaJobOn.JobOnId,
-                        fichaJobOn.InicioEm, fichaJobOn.FimEm, HttpContext.RequestAborted);
-                }
+                FichaFacts = ficha.ToolFacts;
             }
         }
 
@@ -888,9 +884,7 @@ public sealed class IndexModel : PageModel
         // A FOLHA DA FÁBRICA gravada, lida uma vez para a ficha em leitura, para
         // o Editar e para o Duplicar (a ficha aparece sempre que há Job On
         // aberto, menos no Duplicar).
-        var folhaGravada = OpenJobOn is { } folhaJobOn
-            ? await _folha.ForJobOnAsync(folhaJobOn.JobOnId, HttpContext.RequestAborted)
-            : null;
+        var folhaGravada = ficha?.Folha;
         FichaFolha = folhaGravada is null || DuplicarDe is not null ? null : FichaDaFolhaVista.DaLida(folhaGravada);
 
         // No formulário: o que se escreveu (depois de uma recusa que volta a
@@ -1026,6 +1020,10 @@ public sealed class IndexModel : PageModel
     /// produção). Na MF, com uma CM escolhida, só as MF que trabalham com
     /// essa CM: a referência MF associada da CM ou, sem ela, a referência
     /// da CM; com máquina, também só as dessa máquina (o Diogo, 17/10/2026).
+    /// As ferramentas já escolhidas nos outros cartões (CM, MF, BQ) e a
+    /// referência total ordenam a lista: primeiro as usadas com elas, depois
+    /// as usadas nesta referência, depois as da linha. Sem nada escrito, só
+    /// essas relacionadas; escrever mostra as outras (Diogo, 26/10/2026).
     /// Com «Mostrar todas», procura no catálogo inteiro. Nunca muda a
     /// ferramenta já escolhida.
     /// </summary>
@@ -1036,6 +1034,7 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "reference")] string? reference,
         [FromQuery(Name = "mf_tool_id")] string? mfToolId,
         [FromQuery(Name = "cm_tool_id")] string? cmToolId,
+        [FromQuery(Name = "bq_tool_id")] string? bqToolId = null,
         [FromQuery(Name = "all")] bool showAll = false)
     {
         ToolType? toolType = Sanitize(type)?.ToUpperInvariant() switch
@@ -1053,6 +1052,7 @@ public sealed class IndexModel : PageModel
         var term = Sanitize(search);
         ToolCandidatePage? page = null;
         string filtro;
+        var maisPorEscrever = 0;
         if (showAll)
         {
             filtro = "Catálogo completo";
@@ -1063,13 +1063,36 @@ public sealed class IndexModel : PageModel
         {
             filtro = machineId is null ? "Filtrado pela referência" : "Filtrado por máquina e referência";
             ToolCandidateFilter? usado = null;
+            // As ferramentas já escolhidas nos outros cartões puxam para cima as que
+            // foram usadas com elas; sem nada escrito, só as relacionadas (Diogo,
+            // 26/10/2026: «um CM já inserido deveria filtrar»).
+            var companheiras = new[] { (ToolType.Cm, cmToolId), (ToolType.Mf, mfToolId), (ToolType.Bq, bqToolId) }
+                .Where(par => par.Item1 != slot && Sanitize(par.Item2) is not null)
+                .Select(par => Sanitize(par.Item2)!)
+                .ToArray();
+            var soRelacionadas = term is null;
+            async Task<ToolCandidatePage> Procurar(ToolCandidateFilter filter)
+            {
+                var todas = filter with { CompanheiraToolIds = companheiras, ReferenciaTotal = Sanitize(reference) };
+                if (soRelacionadas)
+                {
+                    var relacionadas = await _toolCandidates.FindPageAsync(todas with { SoRelacionadas = true }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    if (relacionadas.TotalCount > 0)
+                    {
+                        var total = (await _toolCandidates.FindPageAsync(todas, 1, 1, HttpContext.RequestAborted)).TotalCount;
+                        maisPorEscrever = total - relacionadas.TotalCount;
+                        return relacionadas;
+                    }
+                }
+                return await _toolCandidates.FindPageAsync(todas, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+            }
             if (slot == ToolType.Cm && Sanitize(mfToolId) is { } mfId)
             {
                 var mfReference = await _pagina.ReferenciaDaMfAsync(mfId, HttpContext.RequestAborted);
                 if (mfReference is not null)
                 {
                     var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term, IncluirSemLinha: true);
-                    var byMf = await _toolCandidates.FindPageAsync(porMf, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    var byMf = await Procurar(porMf);
                     if (byMf.TotalCount > 0)
                     {
                         page = byMf;
@@ -1086,14 +1109,14 @@ public sealed class IndexModel : PageModel
                 if (cmMfReference is not null)
                 {
                     usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term, IncluirSemLinha: true);
-                    page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    page = await Procurar(usado);
                     filtro = (machineId is null ? "Filtrado pela CM " : "Filtrado por máquina e pela CM ") + cmMfReference;
                 }
             }
             if (page is null)
             {
                 usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term, IncluirSemLinha: true);
-                page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                page = await Procurar(usado);
             }
 
             // Nunca esconder por falta de compatibilidade (Diogo, 23/10/2026: «nas
@@ -1109,14 +1132,19 @@ public sealed class IndexModel : PageModel
             }
             if (page.TotalCount == 0 && machineId is not null)
             {
-                page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null, CompanheiraToolIds = companheiras, ReferenciaTotal = Sanitize(reference) }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                 filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
             }
             if (page.TotalCount == 0)
             {
                 page = await _toolCandidates.FindPageAsync(
-                    new ToolCandidateFilter(Type: slot, Search: term), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                    new ToolCandidateFilter(Type: slot, Search: term, CompanheiraToolIds: companheiras, ReferenciaTotal: Sanitize(reference)), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                 filtro = "Catálogo completo (nenhuma corresponde)";
+                maisPorEscrever = 0;
+            }
+            if (maisPorEscrever > 0)
+            {
+                filtro += $" · só as relacionadas; escreva para ver mais {maisPorEscrever}";
             }
         }
 
