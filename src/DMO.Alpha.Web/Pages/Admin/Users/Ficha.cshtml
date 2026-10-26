@@ -15,12 +15,19 @@
 .dfu-page .page-head h2{margin:0;font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
 .dfu-card{padding:16px 18px;display:grid;gap:12px}
 .dfu-card h3{margin:0;font-size:18px;font-weight:650;color:var(--dmo-text)}
-.dfu-card .dfu-factos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.dfu-card .dfu-factos{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1.3fr) minmax(0,1fr)}
 .dfu-card .dfu-factos .dmo-fact strong{font-size:14px}
 /* No hover muda só a cor da letra, sem retângulo de fundo (Diogo, 26/10/2026,
    cmsg_01K75FTs9bQnbhhH7qttpgraBq23Bc1M3GxhQ5PYmXcJXi). */
 html body .dfu-card a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible){background:none}
 html body .dfu-card a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>:is(strong,em){color:var(--dmo-brand-700)}
+/* «Editar template» na linha dos rótulos, à direita de «Template atual»: os
+   valores ficam todos na mesma linha (Diogo, 26/10/2026,
+   cmsg_01K75FTs9bQnbhhH7qttpgra5rAfZJ2qigTHBqYaEz8XNf). */
+html body .dfu-card a.dmo-fact.dmo-fact-link{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-content:start}
+html body .dfu-card a.dmo-fact.dmo-fact-link>span{grid-column:1;grid-row:1;white-space:nowrap}
+html body .dfu-card a.dmo-fact.dmo-fact-link>em{grid-column:2;grid-row:1;margin:0;align-self:baseline;font-size:11px;line-height:inherit;white-space:nowrap}
+html body .dfu-card a.dmo-fact.dmo-fact-link>strong{grid-column:1/-1;grid-row:2}
 .dfu-baixo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding-top:12px;border-top:1px solid var(--dmo-border)}
 .dfu-parte{display:grid;gap:8px;align-content:start;padding:0 20px;border-left:1px solid var(--dmo-border)}
 .dfu-parte:first-child{padding-left:0;border-left:0}
