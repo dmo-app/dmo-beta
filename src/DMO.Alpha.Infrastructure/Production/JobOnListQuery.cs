@@ -61,7 +61,7 @@ public sealed class JobOnListQuery : IJobOnListQuery
         // O início mais cedo depois do dia, por máquina; a base devolve só
         // essas produções (os empates resolvem-se aqui).
         var primeiros = _db.JobOns
-            .Where(j => j.InicioEm != null && j.InicioEm > dia)
+            .Where(j => j.InicioEm != null && j.InicioEm > dia && !j.Experiencia)
             .GroupBy(j => j.MachineId)
             .Select(g => new { MachineId = g.Key, InicioEm = g.Min(j => j.InicioEm) });
         var rows = await Project(_db.JobOns.AsNoTracking()
@@ -187,5 +187,9 @@ public sealed class JobOnListQuery : IJobOnListQuery
             bq != null ? bq.Id : (int?)null,
             bq != null ? bq.ToolId : null,
             j.InicioEm,
-            j.FimEm);
+            j.FimEm,
+            null,
+            0u,
+            null,
+            j.Experiencia);
 }

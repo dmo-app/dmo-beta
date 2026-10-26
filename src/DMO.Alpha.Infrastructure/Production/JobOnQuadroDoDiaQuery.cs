@@ -100,7 +100,7 @@ public sealed class JobOnQuadroDoDiaQuery(
             // Sem sobreposição entre produções da linha: só as BQ a têm
             // (Diogo, 25/10/2026).
             const bool cruzam = false;
-            rows.Add(new(machine.Code, doDia.Select(x => new DayProduction(x.JobOnId, x.Reference, x.ProductionNumber)).ToList())
+            rows.Add(new(machine.Code, doDia.Select(x => new DayProduction(x.JobOnId, x.Reference, x.ProductionNumber, x.Experiencia)).ToList())
             {
                 HasOverlap = cruzam
             });

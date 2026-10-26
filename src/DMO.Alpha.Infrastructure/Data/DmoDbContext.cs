@@ -290,6 +290,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property<uint>(RowVersion).IsRowVersion();
             entity.Property(j => j.Reference).HasMaxLength(100).IsRequired();
             entity.Property(j => j.ProductionNumber).HasMaxLength(50).IsRequired();
+            entity.Property(j => j.Experiencia).HasDefaultValue(false);
             // Uma produção é a referência + o nº: o mesmo nº repete-se
             // noutras referências.
             entity.HasIndex(j => new { j.Reference, j.ProductionNumber }).IsUnique();

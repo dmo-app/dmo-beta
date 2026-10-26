@@ -1754,6 +1754,11 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<DateTime?>("CriadoEmUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("Experiencia")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<DateOnly?>("FimEm")
                         .HasColumnType("date");
 

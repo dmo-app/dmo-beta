@@ -24,6 +24,13 @@ public sealed class JobOn
     public DateOnly? InicioEm { get; set; }
 
     /// <summary>
+    /// É uma EXPERIÊNCIA e não uma produção (Diogo, 26/10/2026): usa o número
+    /// AAAA00 (ex.: 202600), entra e sai no mesmo dia e pode estar na mesma
+    /// linha que a produção em curso; não conta como «a produção da linha».
+    /// </summary>
+    public bool Experiencia { get; set; }
+
+    /// <summary>
     /// O DIA EM QUE A PRODUÇÃO SAI DE MÁQUINA (a troca da referência).
     /// Null = até aviso (a produção corrente até próxima indicação).
     /// </summary>
