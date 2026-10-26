@@ -3001,3 +3001,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements`
 
 Selo depois: `dc6a82a28326fe61`
+
+## A-0159 · 2026-10-26 · teste-novo
+
+Porquê: A referência toda (1075C142) encontra a CM/MF e a BQ registadas só com uma parte
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AWholeReferenceAlsoFindsTheToolsRegisteredWithOnlyOnePart`
+
+Selo depois: `5e8f9ed6557428bf`
