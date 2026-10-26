@@ -594,3 +594,48 @@ html body .peso-fact strong{font-size:18px}
   html body main .beta-production-rail{margin:0}
   html body main .dmo-zona:has(>.beta-production-rail){margin:0}
 }
+
+/* Armazém › Registo as mockup 06: one card in three columns. Left: «Tipo de ferramenta» (CM · MF · BQ
+   as text choices) with the search below; centre: the register; right: the selected tool. The regions
+   keep their ids: #armRegisto only stops drawing a box of its own (display:contents). */
+@media (min-width:1100px){
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:0;align-items:stretch}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>*{grid-column:1/-1}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>.page-head{grid-row:1;margin-bottom:12px}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armMovAvisos{grid-row:2}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{grid-column:1;grid-row:3}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armRegisto{display:contents}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura{grid-column:1;grid-row:4}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta{grid-column:2;grid-row:3/span 2}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armLog{grid-column:1/-1;grid-row:5;margin-top:12px}
+  /* The three columns read as one card: shared edges, the left column divided by a hairline. */
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{background:var(--dmo-card);border:1px solid var(--dmo-border);border-right:0;border-bottom:0;border-radius:8px 0 0 0;padding:16px 20px 4px}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura{border-top:0;border-right:0;border-radius:0 0 0 8px;padding:8px 20px 16px;margin:0}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura>.dmo-card-topo{display:none}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta{border-radius:0 8px 8px 0;margin:0}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{padding-left:20px;border-left:1px solid var(--dmo-border)}
+}
+/* «Tipo de ferramenta»: the rail drawn as three text choices, the chosen one filled. */
+html body #armTiposRail{display:block;margin:0;padding:0;border:0;background:none}
+html body #armTiposRail .beta-production-rail-head{display:block;padding:0 0 10px;border:0}
+html body #armTiposRail .beta-production-rail-head strong{font-size:15px;font-weight:650;color:var(--dmo-text)}
+html body #armTiposRail .beta-production-lines{display:flex;gap:8px;overflow:visible}
+html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link){flex:1 1 0;max-width:none;display:flex;align-items:center;justify-content:center;min-height:var(--dmo-control-height);padding:0 12px;border:1px solid var(--dmo-border);border-radius:6px;background:var(--dmo-card);color:var(--dmo-text)}
+html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link) span{display:none}
+html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link) strong{font-size:14px;font-weight:600;color:inherit}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active){background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) strong{color:var(--dmo-text-on-color)}
+@media (min-width:1100px){
+  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{flex-wrap:wrap;align-items:flex-start}
+  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo::before{content:"Ferramenta selecionada";flex:1 0 100%;margin-bottom:8px;font-size:15px;font-weight:650;color:var(--dmo-text)}
+}
+@media (min-width:1100px){
+  /* Stronger than the earlier #armRegisto grid rules (same ids plus the page). */
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto:has(>#armMovFerramenta)>#armMovProcura{grid-column:1;grid-row:4}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto>#armMovFerramenta{grid-column:2;grid-row:3/span 2}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto>#armLog{grid-column:1/-1;grid-row:5}
+}
+@media (min-width:1100px){
+  /* Zones are display:contents by default; this one draws the left column's top box. */
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{display:block}
+}
