@@ -2503,3 +2503,13 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasFicha.cs :: PostgresMigrationIntegrationTests.BoquilhasFicha_CadaPedidoFazUmaSoConsultaDeLeitura`
 
 Selo depois: `8f7cf08cf9932c69`
+
+## A-0112 · 2026-10-26 · teste-novo
+
+Porquê: Sumário: o Diogo não via os links dos avisos do «Importante» («não tem os links para a página onde se pode corrigir»). A linha inteira passa a abrir a página que resolve; o teste novo prova o link na linha, sem botões, e as regras do CSS que esticam o link pela linha.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyDm7rAVnv8boHSLPT52F7YR
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve`
+
+Selo depois: `32b9bdbc372e671e`
