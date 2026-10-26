@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DMO.Alpha.Web.Presentation;
+namespace DMO.Alpha.Core.Production;
 
 /// <summary>Uma linha do QUADRO COMPLETO DAS LINHAS do dia (o shared element
 /// por Razor — o Owner: «quadro do dia pode ir»): a máquina sempre visível,
