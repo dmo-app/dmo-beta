@@ -1,5 +1,5 @@
 {
-  "selo": "f870f0a656abcc8b",
+  "selo": "8f7cf08cf9932c69",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -201,6 +201,11 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.Ferramenta_DevolveAReferenciaEOLoteESemFerramentaDevolveNulo": "ebd64f78e0497247",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.OsQuatroPedidos_NaoGravamNada": "6fe1533d6eafe554",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasEscolhasQueryTests.cs :: BoquilhasEscolhasQueryTests.ProducaoDoFiltro_DevolveNumeroReferenciaELinhaESemProducaoDevolveNulo": "dedc6763216e5c8f",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: (resto do ficheiro)": "b2b55ed65de7cb58",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.Ferramenta_DevolveReferenciaLoteEQuantidadeESemFerramentaDevolveNulo": "f13a84f624bbc96d",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.MaquinasDaFerramenta_VemPorOrdemDoIdDaMaquina_SoDessaFerramenta": "1d8835a552666ad8",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.MovimentosSemJobOn_SoDestaBqSemJobOn_MaisRecentesPrimeiro_ComLimite": "6f0955453267b879",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasFichaQueryTests.cs :: BoquilhasFichaQueryTests.OsTresPedidos_NaoGravamNada": "4890da8e41bf32e7",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: (resto do ficheiro)": "289017888ebeb18d",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.AccumulatedDiscrepancy_SumsTheAnnotatedExcesses": "7cb16718c078cee8",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.AssociatedTrace_WithClearedAnchor_ResolvesToolViaBqContextChain": "2251aac160149baa",
@@ -845,6 +850,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasCorrente.cs :: ConsultaDasCandidatas.BoquilhasCorrente_NoPostgres_EscolheAsMesmasProducoes": "c6fdf73095e8c496",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: (resto do ficheiro)": "8ea0a342469c3ea9",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasEscolhas.cs :: PostgresMigrationIntegrationTests.BoquilhasEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura": "398d7ef270e3415f",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasFicha.cs :: (resto do ficheiro)": "8ea0a342469c3ea9",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BoquilhasFicha.cs :: PostgresMigrationIntegrationTests.BoquilhasFicha_CadaPedidoFazUmaSoConsultaDeLeitura": "eb63024daff44963",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqConcurrency.cs :: (resto do ficheiro)": "3cc9f1d85dd5ce9d",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqConcurrency.cs :: PostgresMigrationIntegrationTests.BqMovements_EntradasSimultaneas_RecalculamADiscrepancia": "13920812ef0ad798",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqConcurrency.cs :: PostgresMigrationIntegrationTests.BqMovements_PrimeirosMovimentosDeDuasProducoesAoMesmoTempo_CadaUmaFicaComOSeuRegisto": "2573d8da3ded6b4b",
