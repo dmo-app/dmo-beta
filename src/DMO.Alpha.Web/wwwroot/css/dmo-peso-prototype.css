@@ -252,3 +252,24 @@
 /* O registo da leitura fica dentro da página (Diogo, 26/10/2026: «o inserir os
    valores não fica fora»): o cartão tracejado é o último da grelha das leituras,
    alinhado com os outros cartões, sem coluna reservada nem posição fixa. */
+
+/* Comparação: as leituras em grelha, como no Peso, sem espaço vazio à direita; «×» na linha. */
+.peso-page .peso-cmp-leituras{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:10px}
+.peso-page .peso-cmp-leituras .peso-leitura-row{position:relative;padding:8px 22px 8px 8px;border:1px dashed var(--dmo-brand-300,#9fb7d3);border-radius:8px}
+.peso-page .peso-cmp-x{position:absolute;top:2px;right:6px;cursor:pointer;font-size:16px;line-height:1;color:var(--dmo-muted,#5b6b7c)}
+.peso-page .peso-cmp-x:hover,.peso-page .peso-cmp-x:focus-visible{color:var(--dmo-danger,#9a625d)}
+.peso-page .peso-cmp-mais{height:auto;flex:0 0 auto;min-width:36px;min-height:36px}
+
+/* Comparação com outro controlo: produção, peso, botão, caixa da pasta e valores numa só linha (Diogo, 26/10/2026). */
+.peso-page .peso-anterior-linha{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 12px;margin-top:6px}
+.peso-page .peso-anterior-linha>.dmo-zona{display:contents}
+.peso-page .peso-anterior-linha .peso-inline-form{margin-top:0;flex-wrap:nowrap}
+.peso-page .peso-anterior-linha .peso-inline-form .dmo-field{min-width:120px;flex:0 1 190px}
+.peso-page .peso-anterior-linha .peso-inline-form .dmo-field:nth-of-type(2){flex-basis:100px;min-width:80px}
+.peso-page .peso-anterior-linha .peso-sap-caixa{margin:0;padding:6px 10px;max-width:none}
+.peso-page .peso-anterior-linha .peso-hint{margin:0 !important;align-self:center}
+.peso-page .peso-anterior-linha .peso-resumo{display:flex;gap:8px;margin:0}
+.peso-page .peso-anterior-linha .peso-resumo .peso-fact{padding:5px 10px;min-width:0}
+/* Os três valores à mesma altura, qualquer que seja o tamanho da etiqueta. */
+.peso-page .peso-anterior-linha .peso-resumo{align-items:stretch}
+.peso-page .peso-anterior-linha .peso-resumo .peso-fact{display:flex;flex-direction:column;justify-content:space-between;gap:4px}
