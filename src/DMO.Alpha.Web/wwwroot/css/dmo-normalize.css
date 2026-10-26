@@ -16,6 +16,8 @@
   --dmo-fs-xs:12px;   /* cabeçalhos de tabela, etiquetas */
   --dmo-fs-sm:13px;   /* notas, texto secundário */
   --dmo-fs-base:14px; /* texto, campos, botões, navegação */
+  /* Botões e campos um pouco mais baixos (Diogo, 26/10/2026: «o padrão dos botões está muito grande, reduzir tudo ligeiramente; não esquecer os campos ao lado»): uma só altura para os dois. */
+  --dmo-control-height:36px;
   --dmo-fs-md:16px;   /* títulos de cartão */
   --dmo-fs-lg:22px;   /* título da página */
   --dmo-fw-regular:400;
@@ -209,9 +211,9 @@ html body input.dmo-suggest-input:focus{border-color:var(--dmo-brand-600);outlin
    campos e dos selects 1 px acima do centro (os botões já o centram com o
    text-box). Um píxel a mais em cima e a menos em baixo, com a mesma altura,
    em todos os campos partilhados. */
-html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input){padding-top:10px;padding-bottom:8px}
-/* Com a lista da app (base-select) o texto do select fica mais acima: mais um píxel em cima e menos em baixo (medido no browser). */
-@supports (appearance:base-select){html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input):is(select){padding-top:11px;padding-bottom:7px}}
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input){padding-top:9px;padding-bottom:7px}
+/* As datas e horas têm a caixa interna do browser mais alta: a mesma altura fixa dos outros campos e dos botões. */
+html body input:is([type=date],[type=datetime-local],[type=time],[type=month]){height:var(--dmo-control-height)}
 html body input.dmo-suggest-input:disabled{background-color:var(--dmo-subtle);color:var(--dmo-muted);cursor:not-allowed}
 html body .dmo-suggest-list{position:fixed;z-index:200;min-width:220px;max-height:min(320px,50vh);overflow-y:auto;margin:0;padding:4px;list-style:none;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow-menu)}
 html body .dmo-suggest-list li{padding:8px 10px;border-radius:6px;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);color:var(--dmo-text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
