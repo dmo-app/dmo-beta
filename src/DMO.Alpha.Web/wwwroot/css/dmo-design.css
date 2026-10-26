@@ -750,7 +750,9 @@ html body .dmo-shell-header .dmo-primary-nav>a{min-height:52px;height:52px}
 html body .dmo-shell-header .dmo-secondary-nav :is(a,button){min-height:36px}
 html body .jof2 .page-head .facts{min-height:32px;padding-block:2px}
 html body .jof2 .zones{row-gap:0}
-html body .jof2 .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.cal-card,.g-cal){margin-top:8px}
+html body .jof2 .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){margin-top:8px}
+html body .jof2 .zones :is([data-jof-familia="CS"],.g-cal){margin-left:8px}
+html body .jof2 .zones .g-cal>.board,html body .jof2 .zones .cal-card{margin:0;height:100%}
 html body .jof2 .jobon-mudancas{margin-top:4px}
 html body .jof2 .jobon-mudancas>summary{min-height:22px;padding-block:2px}
 /* Utilização numa só linha: rótulo, barra, valor (e o «antes»). */
@@ -764,3 +766,33 @@ html body .jof2.editing .use>.use-top>input{width:64px}
 html body .jof2 .page-head{row-gap:4px;margin-bottom:6px}
 html body .jof2 .zones .card.sec{padding-bottom:6px}
 html body .jof2{padding-bottom:4px}
+/* ESPAÇOS E ALINHAMENTOS (Diogo, 26/10/2026): um só espaço de 8 px entre blocos,
+   a banda de baixo com a mesma altura, a coluna da direita a acabar com a folha,
+   os factos em grupos regulares separados por linhas finas. */
+html body .jof2 .sheet{align-items:stretch;gap:8px}
+html body .jof2 .side{display:flex;flex-direction:column;gap:8px}
+html body .jof2 .side>.notes{flex:1 1 auto;display:flex;flex-direction:column}
+html body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 auto}
+html body .jof2 .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){align-self:stretch}
+html body .jof2 .page-head .facts-dados{justify-content:flex-start;gap:0}
+html body .jof2 .page-head .facts-dados>.fact-col{padding:0 22px;border-left:1px solid var(--dmo-border)}
+html body .jof2 .page-head .facts-dados>.fact-col:first-child{border-left:0}
+html body .jof2 .page-head .facts .fact-col.mach{padding-right:16px}
+html body .jof2:not(.editing) [data-jof-familia="CS"]>.sec-head{display:flex;flex-wrap:nowrap;align-items:baseline;gap:10px}
+html body .jof2 .side .jof-artigo{height:150px}
+html body .jof2 .side .jof-artigo svg{max-height:140px}
+html body .jof2 .side [data-jof-familia="PI"]{padding-bottom:6px}
+html body .jof2 .side>.article{flex:0 0 auto}
+/* Ordem do cabeçalho do Job On: Job On · Referência · Produção · Linhas (Diogo, 26/10/2026). */
+html body .jof2 .pick-row>.rail-toggle{order:10}
+html body .jof2 .page-head .pick-row{align-items:center}
+/* Sem cores fortes em repouso (Diogo, 26/10/2026: «cor forte serve para o hover e
+   selecionar»): a cor da linha fica num tom claro por cima da cor da máquina,
+   com a letra escura; a cor cheia volta no hover e na linha selecionada. */
+html body :is(.jof2,.jof2-gaveta) .mch{background-image:linear-gradient(rgba(255,255,255,.78),rgba(255,255,255,.78)) !important;color:var(--dmo-text) !important;box-shadow:inset 0 0 0 1px rgba(11,19,32,.08)}
+:root[data-theme="dark"] body :is(.jof2,.jof2-gaveta) .mch{background-image:linear-gradient(rgba(12,18,29,.72),rgba(12,18,29,.72)) !important;color:var(--dmo-text) !important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+html body .jof2-gaveta :is(.rail-item:hover,.rail-item.selected) .mch,html body .jof2 .mch:hover,:root[data-theme="dark"] body .jof2-gaveta :is(.rail-item:hover,.rail-item.selected) .mch{background-image:none !important;color:#fff !important}
+/* A conta: «Nome · Título» numa linha e o Sair por baixo, sem a hora da sessão. */
+html body .dmo-shell-header .dmo-shell-conta{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px}
+html body .jof2 .side>.notes{min-height:0}
+html body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 0;min-height:0}

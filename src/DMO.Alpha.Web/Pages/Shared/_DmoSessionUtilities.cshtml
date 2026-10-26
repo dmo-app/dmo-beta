@@ -1,20 +1,10 @@
 @model SessionPresentation
-@using Microsoft.AspNetCore.Authentication
-@{
-    // Quando esta sessão termina (Diogo, 26/10/2026: quem partilha computador
-    // vê o tempo que falta e sai a tempo).
-    var fim = Model.ShowLogout ? (await Context.AuthenticateAsync()).Properties?.ExpiresUtc : null;
-}
 <partial name="_DmoVersionBadge" />
 @* Um bloco à direita em duas linhas: o utilizador; por baixo só o «Sair» (Diogo,
    23/10/2026: «remover o link admin, deixar o sair»; o /Admin abre-se pelo menu
-   e pelas Definições → Admin). O modo claro/escuro vive em Definições → Pessoal. *@
+   e pelas Definições → Admin). O modo claro/escuro vive em Definições → Pessoal.
+   Sem a hora da sessão: só «Nome · Título» e o Sair por baixo (Diogo, 26/10/2026). *@
 <div class="dmo-shell-conta">
-    @if (fim is { } terminaEm)
-    {
-        <span class="dmo-shell-sessao" data-dmo-sessao-fim="@terminaEm.UtcDateTime.ToString("O", System.Globalization.CultureInfo.InvariantCulture)"
-              title="Hora a que a sessão termina por inatividade"></span>
-    }
     <div class="dmo-shell-user admin-user">
         <strong data-user-profile-name>@Model.Name</strong>
         <span data-user-profile-title>@Model.Title</span>
