@@ -36,12 +36,15 @@ public sealed class FichaModel : PageModel
     private readonly IUserAdminService _userAdminService;
     private readonly ITemplateAdminService _templateAdminService;
     private readonly ShellStateFactory _shellStateFactory;
+    private readonly IPostoRi _postoRi;
 
     public FichaModel(
         IUserAdminService userAdminService,
         ITemplateAdminService templateAdminService,
-        ShellStateFactory shellStateFactory)
+        ShellStateFactory shellStateFactory,
+        IPostoRi postoRi)
     {
+        _postoRi = postoRi;
         _userAdminService = userAdminService;
         _templateAdminService = templateAdminService;
         _shellStateFactory = shellStateFactory;
@@ -70,6 +73,32 @@ public sealed class FichaModel : PageModel
     public string? ResetOperatorId { get; private set; }
     public string? ResetTemporaryPassword { get; private set; }
 
+    /// <summary>O utilizador da ficha já tem PIN do posto de Reparação.</summary>
+    public bool TemPinPosto { get; private set; }
+
+    /// <summary>O resultado de guardar o PIN do posto (TempData, uma vez).</summary>
+    public string? PinMensagem { get; private set; }
+
+    /// <summary>Guarda o PIN do posto de Reparação de um utilizador (só o ADMIN).</summary>
+    public async Task<IActionResult> OnPostPinPostoAsync(
+        [FromForm(Name = "operator_id")] string? operatorId,
+        [FromForm(Name = "pin")] string? pin)
+    {
+        var id = IndexModel.Sanitize(operatorId);
+        var user = id is null ? null : (await _userAdminService.ListUsersAsync(HttpContext.RequestAborted))
+            .FirstOrDefault(u => string.Equals(u.OperatorId, id, StringComparison.Ordinal));
+        if (user is null || user.IsAdmin)
+        {
+            return RedirectToPage(new { operator_id = id });
+        }
+
+        var resultado = await _postoRi.DefinirPinAsync(user.Id, pin, HttpContext.RequestAborted);
+        TempData["AdminUserPinPosto"] = resultado == PinGravacao.Gravado
+            ? "PIN do posto guardado."
+            : "O PIN tem de ter de 4 a 12 algarismos.";
+        return RedirectToPage(new { operator_id = user.OperatorId });
+    }
+
     public async Task<IActionResult> OnGetAsync(
         [FromQuery(Name = "operator_id")] string? operatorId,
         [FromQuery(Name = "confirm_delete")] string? confirmDelete,
@@ -86,6 +115,7 @@ public sealed class FichaModel : PageModel
             ResetRefusalMessage = NullIfEmpty(IndexModel.ResetRefusalText(reset));
         ResetOperatorId = TempData["AdminUserResetOperatorId"] as string;
         ResetTemporaryPassword = TempData["AdminUserResetPassword"] as string;
+        PinMensagem = TempData["AdminUserPinPosto"] as string;
         ViewData["Title"] = "Ficha de utilizador";
         var shell = (await _shellStateFactory.ForDestinationAsync("admin", new ModulePresentation("admin", "Administração")));
         ViewData["Shell"] = shell with
@@ -110,6 +140,7 @@ public sealed class FichaModel : PageModel
         }
 
         Templates = await _templateAdminService.ListTemplatesAsync(HttpContext.RequestAborted);
+        TemPinPosto = SelectedUser is { } selecionado && await _postoRi.TemPinAsync(selecionado.Id, HttpContext.RequestAborted);
 
         return Page();
     }
