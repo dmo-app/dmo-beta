@@ -15,6 +15,16 @@
   function ler(chave) { try { return window.localStorage.getItem(chave); } catch (e) { return null; } }
   function escrever(chave, valor) { try { window.localStorage.setItem(chave, valor); return true; } catch (e) { return false; } }
 
+  // A nota curta da lista: só quando explica o que não se vê (a lista é estreita).
+  function nota(filtro) {
+    const texto = String(filtro || '');
+    const mais = /escreva para ver mais (\d+)/.exec(texto);
+    if (mais) return 'Escreva para ver mais ' + mais[1] + '.';
+    if (/^Catálogo completo \(/.test(texto)) return 'Nenhuma da referência: todas.';
+    if (/nenhuma ligada a esta linha/.test(texto)) return 'Nenhuma ligada a esta linha.';
+    return '';
+  }
+
   function ferramentas(folha, editar) {
     const reference = document.getElementById('lightReference');
     const machine = document.getElementById('lightMachine');
@@ -22,8 +32,8 @@
       const botao = slot.querySelector('[data-jof-tool]');
       const procura = slot.querySelector('[data-jof-tool-procura]');
       const select = procura && procura.querySelector('select');
-      const ref = botao && botao.querySelector('[data-jof-tool-ref]');
-      const lt = botao && botao.querySelector('[data-jof-tool-lote]');
+      let ref = botao && botao.querySelector('[data-jof-tool-ref]');
+      let lt = botao && botao.querySelector('[data-jof-tool-lote]');
       if (!botao) return;
       const tipo = botao.getAttribute('data-jof-tool');
       let espera = null;
@@ -55,12 +65,18 @@
       select.dmoSource = async term => {
         const query = new URLSearchParams({ handler: 'ToolCandidates', type: tipo, q: term, reference: reference ? reference.value.trim() : '', all: 'false' });
         if (machine && machine.value) query.set('machine_id', machine.value);
+        // As ferramentas já escolhidas nos outros cartões filtram esta lista (Diogo, 26/10/2026).
+        folha.querySelectorAll('[data-jof-tool-procura] select').forEach(outro => {
+          if (outro !== select && outro.value && /^(cm|mf|bq)_tool_id$/.test(outro.name)) query.set(outro.name, outro.value);
+        });
         const response = await fetch('/JobOn?' + query, { credentials: 'same-origin' });
         if (!response.ok) throw new Error('Sem sugestões');
         const page = await response.json();
+        const contagem = page.total > page.items.length ? page.items.length + ' de ' + page.total + '. Escreva para afinar.' : '';
         return {
-          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · Lote ' + lote(item.lot) })),
-          note: page.total > page.items.length ? page.items.length + ' de ' + page.total + '. Escreva para afinar.' : '',
+          // A linha ao lado do lote: o contexto que distingue os lotes.
+          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · Lote ' + lote(item.lot) + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
+          note: nota(page.filtro) || contagem,
           empty: term ? 'Sem resultados para «' + term + '».' : 'Escreva a referência da ' + tipo + '.'
         };
       };
@@ -69,6 +85,25 @@
         if (select.value && option) {
           // «5447 · Lote 3» → a referência e o lote na cabeça do cartão.
           const partes = option.text.trim().split(' · ');
+          // O cartão vazio só tem «Sem …»: cria a referência e o lote no lugar dele.
+          if (!ref || !lt) {
+            const vazio = botao.querySelector('.muted');
+            const campo = (rotulo, atributo) => {
+              const hv = document.createElement('span');
+              hv.className = 'hv';
+              const small = document.createElement('small');
+              small.textContent = rotulo;
+              const b = document.createElement('b');
+              b.setAttribute(atributo, '');
+              hv.append(small, b);
+              return [hv, b];
+            };
+            const [hvRef, bRef] = campo('Referência', 'data-jof-tool-ref');
+            const [hvLote, bLote] = campo('Lote', 'data-jof-tool-lote');
+            if (vazio) vazio.replaceWith(hvRef, hvLote);
+            else botao.querySelector('.code').after(hvRef, hvLote);
+            ref = bRef; lt = bLote;
+          }
           if (ref) ref.textContent = partes[0] || '';
           if (lt) lt.textContent = lote((partes[1] || '').replace(/^Lote\s*/, ''));
           botao.classList.remove('tool-empty');
@@ -76,11 +111,26 @@
         }
         procura.hidden = true;
         slot.classList.remove('is-mudar');
+        faltam(folha);
       });
       procura.addEventListener('keydown', event => {
         if (event.key === 'Escape') { procura.hidden = true; slot.classList.remove('is-mudar'); botao.focus(); }
       });
     });
+  }
+
+  // O aviso «Falta CM, MF, BQ» acompanha o que já se escolheu, sem esperar pelo Guardar.
+  function faltam(folha) {
+    const aviso = document.querySelector('[data-jof-falta]');
+    if (!aviso) return;
+    const falta = [];
+    folha.querySelectorAll('[data-jof-tool-slot]').forEach(slot => {
+      const botao = slot.querySelector('[data-jof-tool]');
+      if (botao && botao.classList.contains('tool-empty')) falta.push(botao.getAttribute('data-jof-tool'));
+    });
+    if (!falta.length) { aviso.hidden = true; aviso.style.display = 'none'; return; }
+    aviso.hidden = false; aviso.style.display = '';
+    aviso.textContent = aviso.textContent.replace(/^Falta [^:]*:/, 'Falta ' + falta.join(', ') + ':');
   }
 
   // A imagem do artigo encaixa sozinha: corta as margens vazias (brancas ou

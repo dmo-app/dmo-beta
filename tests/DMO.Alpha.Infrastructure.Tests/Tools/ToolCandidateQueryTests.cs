@@ -226,6 +226,77 @@ public sealed class ToolCandidateQueryTests : IDisposable
         Assert.Empty(await Find("075"));                            // nunca a meio da 1075
     }
 
+    // Verificação antes da apresentação (25/10/2026): na B1, com o lote 3 ligado,
+    // o lote 4 sem linhas nunca aparecia. Com IncluirSemLinha aparecem as da linha
+    // e as sem linha nenhuma; a de outra linha continua de fora, e sem a opção
+    // o filtro de linha fica como era.
+    [Fact]
+    public async Task MachineFilter_IncluirSemLinha_JuntaAsSemLinha_NuncaAsDeOutraLinha()
+    {
+        var b1 = new Machine { Code = "B1" };
+        var b2 = new Machine { Code = "B2" };
+        _db.Machines.AddRange(b1, b2);
+        _db.Tools.AddRange(
+            new Tool { ToolId = "CM-L3", Type = ToolType.Cm, Reference = "5447T173", Lot = "3" },
+            new Tool { ToolId = "CM-L4", Type = ToolType.Cm, Reference = "5447T173", Lot = "4" },
+            new Tool { ToolId = "CM-L5", Type = ToolType.Cm, Reference = "5447T173", Lot = "5" });
+        await _db.SaveChangesAsync();
+        _db.ToolMachineLinks.AddRange(
+            new ToolMachineLink { ToolId = "CM-L3", MachineId = b1.Id },
+            new ToolMachineLink { ToolId = "CM-L5", MachineId = b2.Id });
+        await _db.SaveChangesAsync();
+
+        async Task<string[]> Find(bool semLinha) => (await _query.FindCandidatesAsync(
+                new ToolCandidateFilter(Type: ToolType.Cm, MachineId: b1.Id, Search: "5447", IncluirSemLinha: semLinha)))
+            .Select(c => c.ToolId).OrderBy(id => id).ToArray();
+
+        Assert.Equal(new[] { "CM-L3", "CM-L4" }, await Find(true));
+        Assert.Equal(new[] { "CM-L3" }, await Find(false));
+    }
+
+    // O Diogo (26/10/2026): «um CM já inserido deveria filtrar com base no que faz
+    // parte relacionando máquina e referência total». Com a CM escolhida, a BQ usada
+    // com ela vem primeiro, depois a usada nesta referência, depois a da linha; sem
+    // nada escrito (SoRelacionadas), as outras ficam de fora até se escrever.
+    [Fact]
+    public async Task JobOn_Companheiras_OrdenamPrimeiroAsUsadasComElas_ESoRelacionadasTiraAsOutras()
+    {
+        var b1 = new Machine { Code = "B1" };
+        var b2 = new Machine { Code = "B2" };
+        _db.Machines.AddRange(b1, b2);
+        _db.Tools.AddRange(
+            new Tool { ToolId = "CM-12", Type = ToolType.Cm, Reference = "5447", Lot = "12" },
+            new Tool { ToolId = "BQ-01", Type = ToolType.Bq, Reference = "T173", Lot = "1" },   // só ligada à B1
+            new Tool { ToolId = "BQ-02", Type = ToolType.Bq, Reference = "T173", Lot = "2" },   // usada noutra 5447T173
+            new Tool { ToolId = "BQ-03", Type = ToolType.Bq, Reference = "T173", Lot = "3" },   // usada com a CM 12
+            new Tool { ToolId = "BQ-04", Type = ToolType.Bq, Reference = "T173", Lot = "4" },   // sem linha nem uso
+            new Tool { ToolId = "BQ-05", Type = ToolType.Bq, Reference = "T173", Lot = "5" });  // usada na 0132T173
+        await _db.SaveChangesAsync();
+        _db.ToolMachineLinks.AddRange(
+            new ToolMachineLink { ToolId = "BQ-01", MachineId = b1.Id },
+            new ToolMachineLink { ToolId = "BQ-05", MachineId = b2.Id });
+        var comCm = new JobOn { Reference = "5447T173", ProductionNumber = "202601", MachineId = b2.Id };
+        var outra = new JobOn { Reference = "5447T173", ProductionNumber = "202602", MachineId = b2.Id };
+        var outraReferencia = new JobOn { Reference = "0132T173", ProductionNumber = "202603", MachineId = b2.Id };
+        _db.JobOns.AddRange(comCm, outra, outraReferencia);
+        await _db.SaveChangesAsync();
+        _db.CmContexts.Add(new CmContext { JobOnId = comCm.Id, ToolId = "CM-12" });
+        _db.BqContexts.AddRange(
+            new BqContext { ReplacedJobOnId = comCm.Id, ToolId = "BQ-03" },
+            new BqContext { JobOnId = outra.Id, ToolId = "BQ-02" },
+            new BqContext { JobOnId = outraReferencia.Id, ToolId = "BQ-05" });
+        await _db.SaveChangesAsync();
+
+        async Task<string[]> Find(bool soRelacionadas) => (await _query.FindCandidatesAsync(new ToolCandidateFilter(
+                Type: ToolType.Bq, MachineId: b1.Id, ProductionReference: "5447T173", IncluirSemLinha: true,
+                CompanheiraToolIds: new[] { "CM-12" }, ReferenciaTotal: "5447T173", SoRelacionadas: soRelacionadas)))
+            .Select(c => c.ToolId).ToArray();
+
+        // A da B2 (BQ-05) fica de fora pela linha, como antes.
+        Assert.Equal(new[] { "BQ-03", "BQ-02", "BQ-01", "BQ-04" }, await Find(false));
+        Assert.Equal(new[] { "BQ-03", "BQ-02", "BQ-01" }, await Find(true));
+    }
+
     [Fact]
     public async Task FindCandidatesAsync_SingleRemainingCandidate_StaysAnUnselectedCandidate_NeverAutoSelects()
     {

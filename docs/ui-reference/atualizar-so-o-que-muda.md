@@ -153,6 +153,13 @@ O POST nunca se repete.
   (`pegCartaoXX`), as mensagens (`pegAvisos`) e o mapa (`pegMapa`); o contexto
   (`pegContexto`) só vai enquanto a folha não tem medições (a dica da folha em
   branco sai na primeira).
+- Reparação Interna (PERF-09): registar um número → o registo da linha
+  (`riRegisto`) e a mensagem (`riAvisos`). Gravar não muda o painel das linhas
+  (`riLinhas`, que vem do Job On), por isso fica fora. O servidor também
+  responde só a `riLinhas`, `riAvisos` e `riRegisto` (vista Registar) e a
+  `riAvisos` e `riHistResultados` (Histórico); uma zona da outra vista, ou
+  desconhecida, devolve a página inteira. Corrigir e anular (a janela está fora
+  das zonas) continuam a trazer a página inteira.
 
 Limite: o que está fora das zonas pedidas e foi mudado por outra pessoa (a
 aprovação da produção, o aviso de alterações do Job On, os controlos ligados)

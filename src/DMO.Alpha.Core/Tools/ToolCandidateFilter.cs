@@ -39,4 +39,17 @@ public sealed record ToolCandidateFilter(
     IReadOnlyCollection<string>? ToolIds = null,
     // Ferramentas page: start of the tool reference, of its BQ part or of the associated
     // MF reference («Y2» finds Y232 and 6018Y232; «0» finds 0132T173, not 1075), case-insensitive.
-    string? ReferenceContains = null);
+    string? ReferenceContains = null,
+    // Job On picker: with MachineId, also the tools with no line linked at all (imported
+    // without links), so a lot never hides behind the line filter (Diogo, 23/10/2026).
+    bool IncluirSemLinha = false,
+    // Job On picker: the tools already chosen in the other slots (CM, MF, BQ). The tools used
+    // with them in the same Job On come first (Diogo, 26/10/2026: «um CM já inserido deveria
+    // filtrar»); never an identity rule.
+    IReadOnlyCollection<string>? CompanheiraToolIds = null,
+    // Job On picker: the production reference (total reference) of the Job On being filled; the
+    // tools used in a Job On of this reference come next. Orders and relates, never filters alone.
+    string? ReferenciaTotal = null,
+    // Job On picker, nothing typed: only the related tools (used with the chosen ones, used in
+    // this total reference, or linked to this line). Typing shows all again.
+    bool SoRelacionadas = false);

@@ -30,7 +30,7 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
 
     public Task<IReadOnlyList<ToolCandidate>> FindCandidatesAsync(
         ToolCandidateFilter? filter, CancellationToken cancellationToken = default) =>
-        ReadCandidatesAsync(OrderCandidates(ApplyFilters(filter)), cancellationToken);
+        ReadCandidatesAsync(OrderCandidates(ApplyFilters(filter), filter), cancellationToken);
 
     public async Task<ToolCandidatePage> FindPageAsync(
         ToolCandidateFilter? filter, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
@@ -40,13 +40,55 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
         var total = await query.CountAsync(cancellationToken);
         var pages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
         pageNumber = Math.Clamp(pageNumber, 1, pages);
-        var candidates = await ReadCandidatesAsync(OrderCandidates(query)
+        var candidates = await ReadCandidatesAsync(OrderCandidates(query, filter)
             .Skip((pageNumber - 1) * pageSize).Take(pageSize), cancellationToken);
         return new ToolCandidatePage(candidates, total, pageNumber, pageSize);
     }
 
-    private static IOrderedQueryable<Tool> OrderCandidates(IQueryable<Tool> query) => query
-        .OrderBy(tool => tool.Type).ThenBy(tool => tool.Reference).ThenBy(tool => tool.Lot).ThenBy(tool => tool.ToolId);
+    private IOrderedQueryable<Tool> OrderCandidates(IQueryable<Tool> query, ToolCandidateFilter? filter)
+    {
+        // No Job On, as mais próximas primeiro (Diogo, 26/10/2026): as já usadas
+        // com as ferramentas escolhidas, depois as usadas nesta referência, depois
+        // as ligadas a esta linha; o resto no fim.
+        if (filter is { } f && (f.CompanheiraToolIds is { Count: > 0 } || !string.IsNullOrWhiteSpace(f.ReferenciaTotal)))
+        {
+            var com = UsadasCom(f.CompanheiraToolIds);
+            var naReferencia = UsadasNaReferencia(f.ReferenciaTotal);
+            var machineId = f.MachineId ?? 0;
+            query = query.OrderBy(tool => com.Contains(tool.ToolId) ? 0
+                : naReferencia.Contains(tool.ToolId) ? 1
+                : _db.ToolMachineLinks.Any(link => link.ToolId == tool.ToolId && link.MachineId == machineId) ? 2
+                : 3);
+            return ((IOrderedQueryable<Tool>)query)
+                .ThenBy(tool => tool.Type).ThenBy(tool => tool.Reference).ThenBy(tool => tool.Lot).ThenBy(tool => tool.ToolId);
+        }
+        return query
+            .OrderBy(tool => tool.Type).ThenBy(tool => tool.Reference).ThenBy(tool => tool.Lot).ThenBy(tool => tool.ToolId);
+    }
+
+    /// <summary>
+    /// As ferramentas que estiveram num Job On com alguma destas (em uso ou já
+    /// trocadas); vazio sem ferramentas escolhidas.
+    /// </summary>
+    private IQueryable<string> UsadasCom(IReadOnlyCollection<string>? toolIds)
+    {
+        var ids = toolIds ?? Array.Empty<string>();
+        var jobs = _db.CmContexts.Where(c => ids.Contains(c.ToolId)).Select(c => c.JobOnId ?? c.ReplacedJobOnId)
+            .Concat(_db.MfContexts.Where(c => ids.Contains(c.ToolId)).Select(c => c.JobOnId ?? c.ReplacedJobOnId))
+            .Concat(_db.BqContexts.Where(c => ids.Contains(c.ToolId)).Select(c => c.JobOnId ?? c.ReplacedJobOnId));
+        return _db.CmContexts.Where(c => jobs.Contains(c.JobOnId ?? c.ReplacedJobOnId)).Select(c => c.ToolId)
+            .Concat(_db.MfContexts.Where(c => jobs.Contains(c.JobOnId ?? c.ReplacedJobOnId)).Select(c => c.ToolId))
+            .Concat(_db.BqContexts.Where(c => jobs.Contains(c.JobOnId ?? c.ReplacedJobOnId)).Select(c => c.ToolId));
+    }
+
+    /// <summary>As ferramentas usadas num Job On desta referência total; vazio sem referência.</summary>
+    private IQueryable<string> UsadasNaReferencia(string? referenciaTotal)
+    {
+        var reference = referenciaTotal?.Trim().ToUpperInvariant() ?? string.Empty;
+        return _db.CmContexts.Where(c => reference != string.Empty && (c.JobOn != null ? c.JobOn.Reference : c.ReplacedJobOn!.Reference).ToUpper() == reference).Select(c => c.ToolId)
+            .Concat(_db.MfContexts.Where(c => reference != string.Empty && (c.JobOn != null ? c.JobOn.Reference : c.ReplacedJobOn!.Reference).ToUpper() == reference).Select(c => c.ToolId))
+            .Concat(_db.BqContexts.Where(c => reference != string.Empty && (c.JobOn != null ? c.JobOn.Reference : c.ReplacedJobOn!.Reference).ToUpper() == reference).Select(c => c.ToolId));
+    }
 
     private IQueryable<Tool> ApplyFilters(ToolCandidateFilter? filter)
     {
@@ -89,9 +131,14 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
             {
                 // Compatibilidade de máquina (via ligações persistidas):
                 // reduz candidatos, nunca determina identidade.
-                query = query.Where(tool =>
-                    _db.ToolMachineLinks.Any(link =>
-                        link.ToolId == tool.ToolId && link.MachineId == machineId));
+                query = filter.IncluirSemLinha
+                    ? query.Where(tool =>
+                        _db.ToolMachineLinks.Any(link =>
+                            link.ToolId == tool.ToolId && link.MachineId == machineId)
+                        || !_db.ToolMachineLinks.Any(link => link.ToolId == tool.ToolId))
+                    : query.Where(tool =>
+                        _db.ToolMachineLinks.Any(link =>
+                            link.ToolId == tool.ToolId && link.MachineId == machineId));
             }
 
             if (!string.IsNullOrWhiteSpace(filter.MfReference))
@@ -112,6 +159,20 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
                     || (mfModel != null && tool.Type != ToolType.Bq && (tool.Reference.ToUpper() == mfModel
                         || (tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper() == mfModel))));
             }
+        }
+
+        if (filter is { SoRelacionadas: true } relacionadas
+            && (relacionadas.CompanheiraToolIds is { Count: > 0 } || !string.IsNullOrWhiteSpace(relacionadas.ReferenciaTotal) || relacionadas.MachineId is not null))
+        {
+            // Sem nada escrito, só as relacionadas: usadas com as escolhidas, usadas
+            // nesta referência ou ligadas a esta linha (Diogo, 26/10/2026: «ainda
+            // apareciam muitas»). Escrever volta a mostrar todas.
+            var com = UsadasCom(relacionadas.CompanheiraToolIds);
+            var naReferencia = UsadasNaReferencia(relacionadas.ReferenciaTotal);
+            var linha = relacionadas.MachineId ?? 0;
+            query = query.Where(tool => com.Contains(tool.ToolId)
+                || naReferencia.Contains(tool.ToolId)
+                || _db.ToolMachineLinks.Any(link => link.ToolId == tool.ToolId && link.MachineId == linha));
         }
 
         if (ReferenceMatch.Normalize(filter?.ReferenceContains) is { } part)

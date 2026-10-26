@@ -940,7 +940,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.DoesNotContain("Raio (mm)", html);
         Assert.Contains("4.5", html);
         Assert.Contains("Volume do tampão (cm³)", html);
-        Assert.Contains("1.478", html);
+        Assert.Contains("<strong>1.48</strong>", html);
         Assert.DoesNotContain("14.225", html);
         Assert.DoesNotContain("28.84061800082953", html);
         Assert.DoesNotContain("1438.3860504277206", html);
@@ -1818,5 +1818,29 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Equal($"/Ferramentas/Ficha?tool_id={toolId}&guardado=geral", deVolta.Headers.Location!.ToString());
         // O link do aviso, aberto outra vez já com o tipo anterior, não avisa.
         Assert.DoesNotContain("Esta ferramenta já foi usada", await GetPageHtmlAsync(client, location));
+    }
+
+    [Fact]
+    public async Task Ficha_CamposTecnicos_NoMaximoDuasCasas_SemZerosNoFim()
+    {
+        // Diogo, 25/10/2026: o Peso nominal aparecia «140.000» no campo da ficha.
+        SeedUser("4476", "Ferramentas Owner", "provider-ferr-dec", "FerrPassDec1!");
+        using var client = await LoginClientAsync("4476", "FerrPassDec1!");
+        var toolId = await SeedRealToolAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var tecnica = db.ToolTechnicalContexts.Single(t => t.ToolId == toolId);
+            tecnica.NominalWeightGrams = 140.000m;
+            tecnica.DiametroGargaloMm = 36.850m;
+            await db.SaveChangesAsync();
+        }
+
+        var html = await GetPageHtmlAsync(client, $"{FichaPath}?tool_id={toolId}&tecnica=1");
+
+        Assert.Contains("name=\"nominal_weight\" type=\"text\" inputmode=\"decimal\" value=\"140\"", html);
+        Assert.Contains("name=\"diametro_gargalo\" type=\"text\" inputmode=\"decimal\" value=\"36.85\"", html);
+        Assert.Contains("name=\"tp_diametro\" type=\"text\" inputmode=\"decimal\" value=\"28.45\"", html);
+        Assert.DoesNotContain("140.000", html);
     }
 }

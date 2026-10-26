@@ -7,7 +7,8 @@
  * Um só componente, dois modos:
  *
  *   <input data-dmo-suggest="producoes|referencias|numeros|ferramentas|reparadores|referencias_bq"
- *          [data-dmo-suggest-tipo="cm|mf|bq"] [data-dmo-suggest-submit]>
+ *          [data-dmo-suggest-tipo="cm|mf|bq"] [data-dmo-suggest-linha="3|#lightMachine"]
+ *          [data-dmo-suggest-submit]>
  *     A partir de 1 carácter (2 nos reparadores), 250 ms depois da última
  *     tecla, pede ao servidor (GET /Sugestoes) no máximo 10 sugestões. As
  *     referências encontram-se pelo início (Diogo, 18/10/2026: «0» sugere a
@@ -236,6 +237,13 @@
       var query = new URLSearchParams({ fonte: fonte, q: term });
       var tipo = input.getAttribute("data-dmo-suggest-tipo");
       if (tipo) query.set("tipo", tipo);
+      // A linha: um número, ou «#id» de um campo da página (o select da linha).
+      var linha = input.getAttribute("data-dmo-suggest-linha");
+      if (linha && linha.charAt(0) === "#") {
+        var campoLinha = document.querySelector(linha);
+        linha = campoLinha ? campoLinha.value : "";
+      }
+      if (linha && /^\d+$/.test(linha)) query.set("linha", linha);
       var options = { credentials: "same-origin", headers: { Accept: "application/json" } };
       if (typeof AbortController === "function") {
         controller = new AbortController();
