@@ -2889,9 +2889,9 @@ Selo depois: `df200d8b62e76eb5`
 
 ## A-0141 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main 66314d0: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 19 · mudaram: 3 · saíram: 0
+Porquê: Alterar lote da BQ: o Movimentos passa para dentro das Opções do Registo (pedido do Diogo) e as consultas do Registo contam mais uma (os lotes para alterar).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyNRWRx1TS25hZbnTzbzQN7o
+Novos: 14 · mudaram: 2 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/AlterarLoteBqTests.cs :: AlterarLoteBqTests.Alterar_AUtilizacaoDaFolhaPassaParaADoLoteNovo_0SeENovo`
@@ -2903,17 +2903,26 @@ Novos: 19 · mudaram: 3 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaNova_Utilizacao0_ESemJobOnNenhum`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaUsada_AUltimaPercentagemDela_EAsNotasDoUltimoJobOn`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_AlterarLote_ABqPassaParaOLoteEscolhido_EORegistoAbreNoLoteNovo`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Editar_AFerramentaNovaTrazOsDadosDela_UsoA0`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes`
 - mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas`
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoOpcoesTests.cs :: BoquilhasRegistoPageTests.Registo_LinkHistorico_AbreOHistoricoFiltradoPorEstaBqELote_ComCadaReferenciaTotal`
+
+Selo depois: `efca3bbb72e1c0c8`
+
+## A-0142 · 2026-10-26 · ok-do-diogo
+
+Porquê: Registo do integracao acertado pela main 69d9511: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 5 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
 Selo depois: `eeae6112a6c4d093`
