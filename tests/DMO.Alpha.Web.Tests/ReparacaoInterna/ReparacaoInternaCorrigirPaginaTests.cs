@@ -16,8 +16,9 @@ namespace DMO.Alpha.Web.Tests.ReparacaoInterna;
 /// <summary>
 /// Corrigir e anular na página da Reparação Interna (peça 2): na tabela não
 /// há botões; o número abre a janela de corrigir e o «×» a de anular, uma de
-/// cada, fora das zonas, que o ri-corrigir.js enche com a linha. Quem tem a
-/// chave ri e não registou também corrige e anula, e o rasto diz quem. O
+/// cada, fora das zonas, que o ri-corrigir.js enche com a linha. Só quem
+/// registou e a chefia (a Consulta, ri.view) corrigem e anulam (DS-PERM-01,
+/// Diogo 26/10/2026); o rasto diz quem. O
 /// mesmo envio duas vezes aplica-se uma; depois de anular, a linha sai. A
 /// base em memória é partilhada entre classes: cada teste usa as suas
 /// máquinas, e o construtor limpa só as desta classe.
@@ -214,14 +215,14 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
     }
 
     [Fact]
-    public async Task OutraPessoaComOModulo_CorrigeONumero_ComRasto_EOMesmoEnvioAplicaUmaVez()
+    public async Task AChefia_CorrigeONumeroDeOutraPessoa_ComRasto_EOMesmoEnvioAplicaUmaVez()
     {
         var (codigo, jobOn) = Maquina("B");
         using var autor = await LoginOperatorAsync("6702", DmoCapabilities.ReparacaoInterna);
         var ids = await RegistarAsync(autor, codigo, jobOn, "457", "88");
-        using var outra = await LoginOperatorAsync("6703", DmoCapabilities.ReparacaoInterna);
+        using var outra = await LoginOperatorAsync("6703", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
         // O registo de cada um é dele: a reparação vem da página do autor,
-        // e outra pessoa com o módulo corrige-a (RI-04).
+        // e a chefia (a Consulta) corrige-a (DS-PERM-01).
         var html = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
         var envio = Guid.NewGuid();
         var (acao, doAutor) = Janela(html, ids[0], "riCorrigir", envio, ("riCorrigirNumero", " 475 "), ("riCorrigirMotivo", "trocou os algarismos"));
@@ -250,12 +251,12 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
     }
 
     [Fact]
-    public async Task OutraPessoaComOModulo_Anula_ALinhaSai_EFicaNaBase()
+    public async Task AChefia_AnulaADeOutraPessoa_ALinhaSai_EFicaNaBase()
     {
         var (codigo, jobOn) = Maquina("C");
         using var autor = await LoginOperatorAsync("6704", DmoCapabilities.ReparacaoInterna);
         var ids = await RegistarAsync(autor, codigo, jobOn, "1", "2", "3");
-        using var outra = await LoginOperatorAsync("6705", DmoCapabilities.ReparacaoInterna);
+        using var outra = await LoginOperatorAsync("6705", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
         var html = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
         var (acao, doAutor) = Janela(html, ids[1], "riAnular", Guid.NewGuid(), ("riAnularMotivo", "máquina errada"));
         var campos = ComTokenDe(doAutor, await outra.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm"));
@@ -274,6 +275,33 @@ public sealed class ReparacaoInternaCorrigirPaginaTests : IClassFixture<CustomWe
         var rasto = Assert.Single(NaBase(db => db.ReparacoesInternasRasto.AsNoTracking().Where(r => ids.Contains(r.ReparacaoId)).ToList()));
         Assert.Equal((ids[1], ReparacaoAcao.Anulado, "2", (string?)null, (Guid?)Utilizador("6705"), "máquina errada"),
             (rasto.ReparacaoId, rasto.Acao, rasto.NumeroAntes, rasto.NumeroDepois, rasto.PorUserId, rasto.Motivo));
+    }
+
+    [Fact]
+    public async Task OutroOperadorSemAChefia_NaoCorrigeNemAnula_ENadaMuda()
+    {
+        var (codigo, jobOn) = Maquina("Q");
+        using var autor = await LoginOperatorAsync("6713", DmoCapabilities.ReparacaoInterna);
+        var ids = await RegistarAsync(autor, codigo, jobOn, "31");
+        using var outro = await LoginOperatorAsync("6714", DmoCapabilities.ReparacaoInterna);
+        var html = await autor.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        var paginaDoOutro = await outro.GetStringAsync($"/ReparacaoInterna?maquina={codigo}&tipo=cm");
+        // Na página do outro a reparação nem aparece: só vê as suas.
+        Assert.DoesNotContain($"data-dmo-reparacao=\"{ids[0]}\"", paginaDoOutro);
+        var (corrigirAcao, corrigirCampos) = Janela(html, ids[0], "riCorrigir", Guid.NewGuid(), ("riCorrigirNumero", "13"));
+        var (anularAcao, anularCampos) = Janela(html, ids[0], "riAnular", Guid.NewGuid());
+
+        using var corrigir = await outro.PostAsync(corrigirAcao, EnvioDoFormulario.Corpo(ComTokenDe(corrigirCampos, paginaDoOutro)));
+        using var anular = await outro.PostAsync(anularAcao, EnvioDoFormulario.Corpo(ComTokenDe(anularCampos, paginaDoOutro)));
+
+        Assert.Equal(HttpStatusCode.Redirect, corrigir.StatusCode);
+        Assert.Contains("A reparação do nº 31 é de outra pessoa: só quem a registou e a chefia a corrigem ou anulam. Nada mudou.",
+            Elemento(await outro.GetStringAsync(corrigir.Headers.Location!.OriginalString), "id=\"riAvisos\""));
+        Assert.Equal(HttpStatusCode.Redirect, anular.StatusCode);
+        var reparacao = NaBase(db => db.ReparacoesInternas.AsNoTracking().Single(r => r.Id == ids[0]));
+        Assert.Equal("31", reparacao.Numero);
+        Assert.Null(reparacao.AnuladaEmUtc);
+        Assert.Empty(NaBase(db => db.ReparacoesInternasRasto.AsNoTracking().Where(r => r.ReparacaoId == ids[0]).ToList()));
     }
 
     [Fact]
