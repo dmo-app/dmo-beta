@@ -182,14 +182,14 @@ public partial class JobOnPageTests
         Assert.Contains("data-jobon-rascunho=\"editar:" + id + "\"", editar, StringComparison.Ordinal);
         Assert.Contains("data-jof-artigo-ficheiro", editar, StringComparison.Ordinal);
 
-        var (acao, campos) = EnvioDoFormulario.Mudar(editar, "jobon-cm-notas", "Rodar 1/4 de volta.");
+        var (acao, campos) = EnvioDoFormulario.Mudar(editar, "jobon-cm-reparador", "Rodar 1/4 de volta.");
         var guardar = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
         Assert.Equal(HttpStatusCode.Redirect, guardar.StatusCode);
         Assert.StartsWith($"/JobOn/Folha?jobon_id={id}&gravado=1", guardar.Headers.Location!.ToString(), StringComparison.Ordinal);
 
-        // Segunda edição noutro campo: a nota do CM fica (o envio leva a folha toda).
+        // Segunda edição noutro campo: o reparador do CM fica (o envio leva a folha toda).
         var editar2 = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}&editar=1");
-        var (acao2, campos2) = EnvioDoFormulario.Mudar(editar2, "jobon-mf-notas", "Tratar gravações.");
+        var (acao2, campos2) = EnvioDoFormulario.Mudar(editar2, "jobon-mf-reparador", "Tratar gravações.");
         var guardar2 = await client.PostAsync(acao2, EnvioDoFormulario.Corpo(campos2));
         Assert.Equal(HttpStatusCode.Redirect, guardar2.StatusCode);
 
@@ -253,7 +253,7 @@ public partial class JobOnPageTests
         SeedUser("4413", "Chefe folha 13", "provider-folha-13", "Folha1234!");
         using var chefe = await LoginClientAsync("4413", "Folha1234!");
         var editar = await GetPageHtmlAsync(chefe, $"{FolhaPath}?jobon_id={id}&editar=1");
-        var (acao, campos) = EnvioDoFormulario.Mudar(editar, "jobon-cm-notas", "Forjado por quem só vê.");
+        var (acao, campos) = EnvioDoFormulario.Mudar(editar, "jobon-cm-reparador", "Forjado por quem só vê.");
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
         var forjados = campos.Select(c => c.Nome == "__RequestVerificationToken" ? (c.Nome, token) : c).ToList();
         var antes = await LerJobOnAsync(id);

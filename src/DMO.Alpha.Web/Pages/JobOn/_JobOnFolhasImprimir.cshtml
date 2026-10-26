@@ -35,9 +35,6 @@
 
     // O lote do AN é o da BQ, a não ser que tenha sido escrito à mão.
     private string AnLote() => F("an_lote") is { Length: > 0 } l ? l : N(Model.AnLoteDaBq);
-
-    private IEnumerable<string> Notas(string chave) =>
-        (V(Model.Folha.Valor(chave)) ?? "").Split('\n').Select(l => N(l)).Where(l => l.Length > 0);
 }
 <div class="jof-impressao" data-jof-impressao hidden>
   @* ── FICHA DE ARTIGO ─────────────────────────────────────────── *@
@@ -78,7 +75,6 @@
             <tr><th>Diâm. gargalo</th><td>@Tol($"{tipo}_gargalo", $"{tipo}_gargalo_tol")</td></tr>
             <tr><th>Folgas</th><td>@Folgas(tipo)</td></tr>
           </table>
-          <div class="jfi-caixa"><b>Tratar:</b> @(string.Join("; ", Notas($"{tipo}_notas")))</div>
         </div>
       }
       <div class="jfi-col">
@@ -118,7 +114,6 @@
       </div>
     </div>
     <div class="jfi-fundo">
-      <div class="jfi-bloco jfi-notas"><div class="jfi-barra"><span>NOTAS DO JOB ON</span></div><ul>@foreach (var n in Notas("notas_gerais")) {<li>@n</li>}</ul></div>
       <div class="jfi-bloco jfi-artigo"><div class="jfi-sub"><span>ARTIGO</span></div><div class="jfi-artigo-img" data-jof-folha-artigo><span>Sem imagem do artigo</span></div></div>
     </div>
     <footer class="jfi-rodape"><span>FOR 05 MOL 001 (pt)</span><span>Impresso pela DMO</span></footer>
