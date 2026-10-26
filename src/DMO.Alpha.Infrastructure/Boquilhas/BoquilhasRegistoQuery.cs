@@ -279,7 +279,12 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 movement.Id,
                 BqMovementTypeTokens.ToStorage(movement.Type),
                 movement.Quantity,
-                movement.Discrepancy,
+                // Meter a zero limpa o Saldo das linhas anteriores ao zero
+                // (Diogo, 26/10/2026); os movimentos e o valor gravado ficam.
+                header.DiscrepancyResetAtUtc is DateTime shownResetAt
+                    && !BqDiscrepancyFold.CountsAfterReset(movement.OccurredAtUtc, movement.CreatedAtUtc, shownResetAt)
+                    ? null
+                    : movement.Discrepancy,
                 movement.OccurredAtUtc,
                 movement.BqRepairerNameFrozen,
                 movement.MachineCodeFrozen,
