@@ -61,17 +61,17 @@
         <form method="get" asp-page="/Controlo/Pegamentos" class="dmo-filter-bar">
           <div class="dmo-field">
             <label for="pegCmRef">CM — referência</label>
-            <input id="pegCmRef" name="cm_ref" value="@Model.RequestedCmReference" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-submit />
+            <input id="pegCmRef" name="cm_ref" value="@Model.RequestedCmReference" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-com="#pegMfRef,#pegBqRef" data-dmo-suggest-submit />
           </div>
           <partial name="_PegamentosLote" model="@(("pegCmRef", "cm_tool", "CM — lote", Model.CmLotes, Model.CmTool?.ToolId, Model.RequestedCmReference))" />
           <div class="dmo-field">
             <label for="pegBqRef">Boquilha (BQ) — referência</label>
-            <input id="pegBqRef" name="bq_ref" value="@Model.RequestedBqReference" placeholder="Ex.: T194" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
+            <input id="pegBqRef" name="bq_ref" value="@Model.RequestedBqReference" placeholder="Ex.: T194" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-com="#pegMfRef,#pegCmRef" data-dmo-suggest-submit />
           </div>
           <partial name="_PegamentosLote" model="@(("pegBqRef", "bq_tool", "Boquilha (BQ) — lote", Model.BqLotes, Model.BqTool?.ToolId, Model.RequestedBqReference))" />
           <div class="dmo-field">
             <label for="pegMfRef">Molde final (MF) — referência</label>
-            <input id="pegMfRef" name="mf_ref" value="@Model.RequestedMfReference" placeholder="Ex.: 5810" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" data-dmo-suggest-submit />
+            <input id="pegMfRef" name="mf_ref" value="@Model.RequestedMfReference" placeholder="Ex.: 5810" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" data-dmo-suggest-com="#pegCmRef,#pegBqRef" data-dmo-suggest-submit />
           </div>
           <partial name="_PegamentosLote" model="@(("pegMfRef", "mf_tool", "Molde final (MF) — lote", Model.MfLotes, Model.MfTool?.ToolId, Model.RequestedMfReference))" />
           @* Escolher a sugestão mostra logo a referência e o lote, sem botão
