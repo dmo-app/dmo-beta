@@ -400,7 +400,8 @@
     { "id": "DMO-407", "module": "Controlo → Peso", "description": "0.3.0-beta.93: na Comparação do Peso, a comparação começa com uma linha e os botões «+» e «−» acrescentam ou tiram leituras; o cartão da produção anterior fica compacto, numa só linha." },
     { "id": "DMO-408", "module": "Peso e Reparação Interna", "description": "0.3.0-beta.94: o campo do nº de produção nos filtros (Histórico do Peso e Reparação Interna) mostra só «Produção», numa linha." },
     { "id": "DMO-409", "module": "Job On", "description": "0.3.0-beta.95: na Folha, a coluna do PU e do ARR tem largura mínima e aguenta o zoom (100% e 125%) e janelas estreitas, sem partir «N.º de desenho»; com a informação técnica aberta mostra o título e a versão." },
-    { "id": "DMO-410", "module": "Job On", "description": "0.3.0-beta.96: imagem do artigo na Folha: a pasta das imagens escolhe-se em Definições → Job On (como a pasta dos PDFs do Controlo) e a Folha mostra a imagem da referência completa; sem imagem, mantém o desenho." }
+    { "id": "DMO-410", "module": "Job On", "description": "0.3.0-beta.96: imagem do artigo na Folha: a pasta das imagens escolhe-se em Definições → Job On (como a pasta dos PDFs do Controlo) e a Folha mostra a imagem da referência completa; sem imagem, mantém o desenho." },
+    { "id": "DMO-411", "module": "Job On", "description": "0.3.0-beta.97: em Opções, «Reparação» abre a Reparação Interna (ver) já filtrada pela referência, produção e linha do Job On; a página antiga de Reparação sai." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

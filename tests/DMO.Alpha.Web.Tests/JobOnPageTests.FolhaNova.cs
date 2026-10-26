@@ -163,7 +163,7 @@ public partial class JobOnPageTests
         // O Duplicar abre a folha nova em Editar com os dados copiados (Diogo, 23/10/2026).
         Assert.Contains($"href=\"/JobOn/Folha?duplicar={id}\" data-jof-duplicar>Duplicar</a>", acoes, StringComparison.Ordinal);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "data-jof-editar"));
-        Assert.Contains($"href=\"/JobOn/Reparacao?jobon_id={id}\">Reparação</a>", opcoes, StringComparison.Ordinal);
+        Assert.Contains($"href=\"/ReparacaoInterna/Consultar?maquina=B2&amp;referencia=5810T188&amp;producao={id}\">Reparação</a>", opcoes, StringComparison.Ordinal);
         Assert.DoesNotContain(">Controlo</a>", opcoes, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-bqs", html, StringComparison.Ordinal); // sem a chave das Boquilhas
         Assert.DoesNotContain("Nova produção", html, StringComparison.Ordinal);
@@ -234,7 +234,7 @@ public partial class JobOnPageTests
         Assert.DoesNotContain("data-jof-editar", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-duplicar", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data-jof-imprimir", html, StringComparison.Ordinal);
-        Assert.DoesNotContain("/JobOn/Reparacao", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("/ReparacaoInterna/Consultar", html, StringComparison.Ordinal);
         // Quem só vê não tem Opções (Diogo, 23/10/2026: «não vê controlo, boquilhas e reparação»).
         Assert.DoesNotContain("data-jof-opcoes", html, StringComparison.Ordinal);
 
@@ -297,7 +297,7 @@ public partial class JobOnPageTests
         var opcoes = Zona(html, "data-jof-opcoes");
         opcoes = opcoes[..opcoes.IndexOf("</details>", StringComparison.Ordinal)];
         var controlo = opcoes.IndexOf($"href=\"/Controlo/Resumo?jobon_id={id}\">Controlo</a>", StringComparison.Ordinal);
-        var reparacao = opcoes.IndexOf($"href=\"/JobOn/Reparacao?jobon_id={id}\">Reparação</a>", StringComparison.Ordinal);
+        var reparacao = opcoes.IndexOf($"href=\"/ReparacaoInterna/Consultar?maquina=B2&amp;referencia=5810T188&amp;producao={id}\">Reparação</a>", StringComparison.Ordinal);
         Assert.True(controlo >= 0, "As Opções não têm o Controlo.");
         Assert.True(reparacao > controlo, "O Controlo vem antes da Reparação.");
     }

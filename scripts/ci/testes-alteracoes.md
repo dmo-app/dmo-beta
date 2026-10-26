@@ -2980,3 +2980,15 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
 
 Selo depois: `862512d39e8a2f1a`
+
+## A-0153 · 2026-10-26 · ok-do-diogo
+
+Porquê: Job On > Opções > Reparação abre a RI ver filtrada; a página antiga /JobOn/Reparacao sai e 3 asserções de JobOnPageTests.FolhaNova passam a apontar à RI (PR #155, lote aprovado pelo Diogo)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAcHKLAVvVgvoPwNUk8FP7t
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_OpcoesControlo_ComControlo_AparecemControloAntesDaReparacao`
+
+Selo depois: `b79a42dd5c530327`

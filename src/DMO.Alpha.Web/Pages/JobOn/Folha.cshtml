@@ -555,7 +555,7 @@ else
                       {
                         <a href="/Controlo/Resumo?jobon_id=@jobOn.JobOnId">Controlo</a>
                       }
-                      <a href="/JobOn/Reparacao?jobon_id=@jobOn.JobOnId">Reparação</a>
+                      <a href="/ReparacaoInterna/Consultar?maquina=@Uri.EscapeDataString(jobOn.Machine)&amp;referencia=@Uri.EscapeDataString(jobOn.Reference)&amp;producao=@jobOn.JobOnId">Reparação</a>
                       @if (Model.Eliminar is not null)
                       {
                         <a href="#jobon-delete-dialog" role="button" data-dmo-dialog="jobon-delete-dialog">Eliminar Job On</a>
