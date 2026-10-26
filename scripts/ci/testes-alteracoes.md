@@ -3090,3 +3090,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas`
 
 Selo depois: `0c2d1d933f0fcb50`
+
+## A-0166 · 2026-10-26 · teste-novo
+
+Porquê: Teste novo JobOnCabecalhoCssTests: a regra do cabeçalho do Job On (Referência e Produção sem sobreposição) não pode desaparecer (PR #174)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: JobOnCabecalhoCssTests.CabecalhoDoJobOn_ReferenciaEProducaoNaoSeTocam`
+
+Selo depois: `973b7e99f4ebd5d6`
