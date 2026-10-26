@@ -106,6 +106,8 @@
           }
           if (ref) ref.textContent = partes[0] || '';
           if (lt) lt.textContent = lote((partes[1] || '').replace(/^Lote\s*/, ''));
+          // BQ e AN são um componente: o lote do AN é o da BQ (Diogo, 26/10/2026).
+          if (tipo === 'BQ' && lt) folha.querySelectorAll('[data-jof-an-lote]').forEach(an => { an.textContent = lt.textContent; });
           botao.classList.remove('tool-empty');
           botao.setAttribute('data-jof-ficha', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value) + '&voltar=' + encodeURIComponent(location.pathname + location.search));
           // A cor do uso cheio era da ferramenta antiga.
@@ -469,6 +471,13 @@
     if (!folha) return;
     const editar = folha.getAttribute('data-jof-folha') === 'editar';
     ferramentas(folha, editar);
+    // A procura da Referência: um clique seleciona-a toda, para o Backspace a apagar logo (Diogo, 26/10/2026).
+    const procuraRef = document.getElementById('jofReferencia');
+    if (procuraRef) {
+      let selecionar = false;
+      procuraRef.addEventListener('focus', () => { procuraRef.select(); selecionar = true; });
+      procuraRef.addEventListener('mouseup', event => { if (selecionar) { event.preventDefault(); procuraRef.select(); selecionar = false; } });
+    }
     artigo(folha);
     notas(folha);
   }
