@@ -8,14 +8,14 @@ namespace DMO.Alpha.Infrastructure.Tests.Data;
 public sealed partial class PostgresMigrationIntegrationTests
 {
     // The sheet reads moved out of JobOn/Index.cshtml.cs cost what they cost when
-    // the page made them one by one: lot notes (1), changes (1), delete preview
-    // (8, not for a duplicate), tool facts (6, only with tools and not for a
-    // duplicate) and the saved factory sheet (2). They never write.
+    // the page made them one by one: tool facts (only with tools and not for a
+    // duplicate) and the saved factory sheet (2). The lot notes, the changes and
+    // the delete preview are no longer read. They never write.
     [SkippableTheory]
-    [InlineData("aberto", false, true, 16)]
-    [InlineData("editar", false, true, 16)]
-    [InlineData("duplicar", true, true, 4)]
-    [InlineData("sem ferramentas", false, false, 8)]
+    [InlineData("aberto", false, true, 10)]
+    [InlineData("editar", false, true, 10)]
+    [InlineData("duplicar", true, true, 2)]
+    [InlineData("sem ferramentas", false, false, 2)]
     public async Task JobOnFicha_CadaPedidoFazSoAsConsultasDeLeitura(string caso, bool duplicar, bool comFerramentas, int consultas)
     {
         SkipWithoutConnection();
@@ -43,14 +43,12 @@ public sealed partial class PostgresMigrationIntegrationTests
         db.ChangeTracker.Clear();
 
         var query = new JobOnFichaQuery(
-            new JobOnLotNoteHandler(db), new JobOnChangeQuery(db), new DeleteJobOnHandler(db),
             new JobOnToolFactsQuery(db), new JobOnFolhaQuery(db));
         commands.Reading = true;
-        var ficha = await query.FichaAsync(producao, new DateOnly(2026, 10, 25), duplicar);
+        var ficha = await query.FichaAsync(producao, duplicar);
         commands.Reading = false;
 
         Assert.True(consultas == commands.Reads, $"{caso}: {commands.Reads} consultas em vez de {consultas}");
-        Assert.Equal(!duplicar, ficha.DeletePreview is not null);
         Assert.Equal(!duplicar && comFerramentas, ficha.ToolFacts.Count > 0);
         Assert.Empty(db.ChangeTracker.Entries());
         // Disposing the transaction rolls back this test's fixture only.
