@@ -63,18 +63,13 @@ with sync_playwright() as playwright:
                 for tabela in tabelas:
                     assert tabela['dentro'] and tabela['desliza'] in ('auto', 'scroll'), f'{onde}: tabela {tabela}'
                 if nome == 'peso-folha.html':
-                    # O registo da leitura fica fixo à direita e à vista ao descer (Diogo, 23/10/2026);
-                    # abaixo de 600 px volta ao fluxo normal.
+                    # O registo da leitura fica dentro da página, no fluxo, sem coluna reservada
+                    # (Diogo, 26/10/2026: «o inserir os valores não fica fora»).
                     registo = '.peso-leitura-nova'
                     posicao = page.eval_on_selector(registo, 'e => getComputedStyle(e).position')
-                    if largura <= 600:
-                        assert posicao == 'static', f'{onde}: o registo devia estar no fluxo ({posicao})'
-                    else:
-                        assert posicao == 'fixed', f'{onde}: o registo devia estar fixo ({posicao})'
-                        for descer in (0, 600, 100000):
-                            page.evaluate(f'window.scrollTo(0, {descer})')
-                            caixa = page.eval_on_selector(registo, 'e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom, r.right]; }')
-                            assert 0 <= caixa[0] and caixa[1] <= 900 + 0.5 and caixa[2] <= largura + 0.5, f'{onde}: registo fora do ecrã ao descer {descer}: {caixa}'
+                    assert posicao == 'static', f'{onde}: o registo devia estar no fluxo ({posicao})'
+                    caixa = page.eval_on_selector(registo, 'e => { const r = e.getBoundingClientRect(); return [r.left, r.right]; }')
+                    assert 0 <= caixa[0] and caixa[1] <= largura + 0.5, f'{onde}: registo fora do ecrã: {caixa}'
                 assert not erros, erros
                 context.close()
     browser.close()
