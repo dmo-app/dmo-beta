@@ -8,7 +8,8 @@ namespace DMO.Alpha.Infrastructure.Tests.Production;
 
 /// <summary>
 /// The reads of the open Job On sheet that used to be made inside the page:
-/// the same data, the duplicate reads less, and nothing is written.
+/// the tool facts and the saved sheet, the duplicate reads less, and nothing
+/// is written (the lot notes, changes and delete preview are no longer read).
 /// </summary>
 public sealed class JobOnFichaQueryTests : IDisposable
 {
@@ -21,9 +22,6 @@ public sealed class JobOnFichaQueryTests : IDisposable
 
     public JobOnFichaQueryTests() =>
         _query = new JobOnFichaQuery(
-            new JobOnLotNoteHandler(_db),
-            new JobOnChangeQuery(_db),
-            new ContaPreviews(new DeleteJobOnHandler(_db), _leituras),
             new ContaFactos(new JobOnToolFactsQuery(_db), _leituras),
             new ContaFolhas(new JobOnFolhaQuery(_db), _leituras));
 
@@ -52,81 +50,45 @@ public sealed class JobOnFichaQueryTests : IDisposable
         return (await new ProductionContextQuery(_db).GetAsync(jobOn.Id))!;
     }
 
-    private void Nota(int jobOnId, string slot, string lote, DateOnly dia) =>
-        _db.JobOnLotNotes.Add(new JobOnLotNote
-        {
-            JobOnId = jobOnId, Dia = dia, Slot = slot, NewToolId = "x", ToolReferenceFrozen = "r",
-            NewLotFrozen = lote, CreatedAtUtc = new DateTime(2026, 10, 22, 8, 0, 0, DateTimeKind.Utc)
-        });
-
-    private void Alteracao(int jobOnId, string campo, string de, string para, DateTime quando) =>
-        _db.JobOnChanges.Add(new JobOnChange
-        {
-            JobOnId = jobOnId, Field = campo, OldValueFrozen = de, NewValueFrozen = para,
-            ChangedByNameFrozen = "Rui", ChangedAtUtc = quando
-        });
-
     [Fact]
-    public async Task JobOnAberto_DevolveNotasAlteracoesPreviewFactosEFolha()
+    public async Task JobOnAberto_DevolveFactosEFolha()
     {
         var producao = await ProducaoAsync();
-        Nota(producao.JobOnId, "BQ", "2", new DateOnly(2026, 10, 22));
-        Nota(producao.JobOnId, "CM", "3", new DateOnly(2026, 10, 24));
-        Alteracao(producao.JobOnId, JobOnChangeFields.Machine, "B1", "B2", new DateTime(2026, 10, 23, 9, 0, 0, DateTimeKind.Utc));
-        Alteracao(producao.JobOnId, JobOnChangeFields.Calote, "37", "38", new DateTime(2026, 10, 24, 9, 0, 0, DateTimeKind.Utc));
-        var outra = await ProducaoAsync(comFerramentas: false, numero: "2");
-        Nota(outra.JobOnId, "MF", "9", new DateOnly(2026, 10, 22));
-        Alteracao(outra.JobOnId, JobOnChangeFields.Start, "a", "b", new DateTime(2026, 10, 23, 9, 0, 0, DateTimeKind.Utc));
         _db.JobOnFolhas.Add(new JobOnFolha { JobOnId = producao.JobOnId, CmNotas = "Nota da CM." });
         await _db.SaveChangesAsync();
 
-        var ficha = await _query.FichaAsync(producao, Hoje, duplicar: false);
+        var ficha = await _query.FichaAsync(producao, duplicar: false);
 
-        Assert.Equal(["BQ", "CM"], ficha.LotNotes.Select(n => n.Slot));
-        Assert.All(ficha.LotNotes, n => Assert.Equal(producao.JobOnId, n.JobOnId));
-        // Todas as alterações de uma produção, da mais recente para a mais antiga.
-        Assert.Equal([JobOnChangeFields.Calote, JobOnChangeFields.Machine], ficha.Changes.Select(c => c.Field));
-        Assert.All(ficha.Changes, c => Assert.Equal(producao.JobOnId, c.JobOnId));
-        Assert.NotNull(ficha.DeletePreview);
-        Assert.Equal(producao.JobOnId, ficha.DeletePreview!.JobOnId);
-        Assert.True(ficha.DeletePreview.StartReached);
         Assert.Equal(["bq-1", "cm-1", "mf-1"], ficha.ToolFacts.Select(f => f.ToolId).Order());
         Assert.Equal("Nota da CM.", ficha.Folha.Valor("cm_notas"));
-        Assert.Equal(1, _leituras.Previews);
         Assert.Equal(1, _leituras.Factos);
         Assert.Equal(1, _leituras.Folhas);
     }
 
     [Fact]
-    public async Task Duplicar_NaoLePreviewNemFactos_MasLeAFolhaQueCopia()
+    public async Task Duplicar_NaoLeFactos_MasLeAFolhaQueCopia()
     {
         var producao = await ProducaoAsync();
-        Nota(producao.JobOnId, "BQ", "2", new DateOnly(2026, 10, 22));
         _db.JobOnFolhas.Add(new JobOnFolha { JobOnId = producao.JobOnId, CmNotas = "Copiar." });
         await _db.SaveChangesAsync();
 
-        var ficha = await _query.FichaAsync(producao, Hoje, duplicar: true);
+        var ficha = await _query.FichaAsync(producao, duplicar: true);
 
-        Assert.Null(ficha.DeletePreview);
         Assert.Empty(ficha.ToolFacts);
-        Assert.Single(ficha.LotNotes);
         Assert.Equal("Copiar.", ficha.Folha.Valor("cm_notas"));
-        Assert.Equal(0, _leituras.Previews);
         Assert.Equal(0, _leituras.Factos);
         Assert.Equal(1, _leituras.Folhas);
     }
 
     [Fact]
-    public async Task SemFerramentas_NaoLeFactos_MasLePreview()
+    public async Task SemFerramentas_NaoLeFactos()
     {
         var producao = await ProducaoAsync(comFerramentas: false);
 
-        var ficha = await _query.FichaAsync(producao, Hoje, duplicar: false);
+        var ficha = await _query.FichaAsync(producao, duplicar: false);
 
         Assert.Empty(ficha.ToolFacts);
-        Assert.NotNull(ficha.DeletePreview);
         Assert.Equal(0, _leituras.Factos);
-        Assert.Equal(1, _leituras.Previews);
     }
 
     [Fact]
@@ -138,7 +100,7 @@ public sealed class JobOnFichaQueryTests : IDisposable
         await _db.SaveChangesAsync();
         producao = (await new ProductionContextQuery(_db).GetAsync(producao.JobOnId))!;
 
-        var ficha = await _query.FichaAsync(producao, Hoje, duplicar: false);
+        var ficha = await _query.FichaAsync(producao, duplicar: false);
 
         Assert.Equal(["so-mf"], ficha.ToolFacts.Select(f => f.ToolId));
         Assert.Equal(1, _leituras.Factos);
@@ -152,8 +114,8 @@ public sealed class JobOnFichaQueryTests : IDisposable
         _db.JobOnFolhas.Add(new JobOnFolha { JobOnId = com.JobOnId, CabPeso = "512" });
         await _db.SaveChangesAsync();
 
-        var fichaCom = await _query.FichaAsync(com, Hoje, duplicar: false);
-        var fichaSem = await _query.FichaAsync(sem, Hoje, duplicar: false);
+        var fichaCom = await _query.FichaAsync(com, duplicar: false);
+        var fichaSem = await _query.FichaAsync(sem, duplicar: false);
 
         Assert.False(fichaCom.Folha.Vazia);
         Assert.Equal("512", fichaCom.Folha.Valor("cab_peso"));
@@ -162,75 +124,66 @@ public sealed class JobOnFichaQueryTests : IDisposable
     }
 
     [Fact]
-    public async Task SemNotasNemAlteracoes_ListasVazias()
+    public async Task AsLeiturasSaoPelaOrdemDaPagina_FactosEFolha()
     {
         var producao = await ProducaoAsync();
 
-        var ficha = await _query.FichaAsync(producao, Hoje, duplicar: false);
+        await _query.FichaAsync(producao, duplicar: false);
 
-        Assert.Empty(ficha.LotNotes);
-        Assert.Empty(ficha.Changes);
-    }
-
-    [Fact]
-    public async Task OPreviewUsaODiaPedido()
-    {
-        var producao = await ProducaoAsync();
-
-        var antes = await _query.FichaAsync(producao, new DateOnly(2026, 10, 19), duplicar: false);
-        var depois = await _query.FichaAsync(producao, new DateOnly(2026, 10, 20), duplicar: false);
-
-        Assert.False(antes.DeletePreview!.StartReached);
-        Assert.True(depois.DeletePreview!.StartReached);
-    }
-
-    [Fact]
-    public async Task AsLeiturasSaoPelaOrdemDaPagina_NotasAlteracoesPreviewFactosFolha()
-    {
-        var producao = await ProducaoAsync();
-
-        await _query.FichaAsync(producao, Hoje, duplicar: false);
-
-        Assert.Equal(["preview", "factos", "folha"], _leituras.Ordem);
+        Assert.Equal(["factos", "folha"], _leituras.Ordem);
     }
 
     [Fact]
     public async Task OPedido_NaoGravaNada()
     {
         var producao = await ProducaoAsync();
-        Nota(producao.JobOnId, "BQ", "2", new DateOnly(2026, 10, 22));
         await _db.SaveChangesAsync();
         _db.ChangeTracker.Clear();
-        var notas = await _db.JobOnLotNotes.CountAsync();
         var folhas = await _db.JobOnFolhas.CountAsync();
 
-        await _query.FichaAsync(producao, Hoje, duplicar: false);
-        await _query.FichaAsync(producao, Hoje, duplicar: true);
+        await _query.FichaAsync(producao, duplicar: false);
+        await _query.FichaAsync(producao, duplicar: true);
 
         Assert.Empty(_db.ChangeTracker.Entries());
-        Assert.Equal(notas, await _db.JobOnLotNotes.CountAsync());
         Assert.Equal(folhas, await _db.JobOnFolhas.CountAsync());
+    }
+
+    [Fact]
+    public async Task NaoLeNotasDeLoteNemAlteracoesNemOQueSePerdeAoEliminar()
+    {
+        // The page no longer shows them, so the service must not read them, even when
+        // the Job On has some: the result and the dependencies are the tool facts and the sheet only.
+        var producao = await ProducaoAsync();
+        _db.JobOnLotNotes.Add(new JobOnLotNote
+        {
+            JobOnId = producao.JobOnId, Dia = Hoje, Slot = "BQ", NewToolId = "x", ToolReferenceFrozen = "r",
+            NewLotFrozen = "2", CreatedAtUtc = new DateTime(2026, 10, 22, 8, 0, 0, DateTimeKind.Utc)
+        });
+        _db.JobOnChanges.Add(new JobOnChange
+        {
+            JobOnId = producao.JobOnId, Field = JobOnChangeFields.Machine, OldValueFrozen = "B1", NewValueFrozen = "B2",
+            ChangedAtUtc = new DateTime(2026, 10, 23, 9, 0, 0, DateTimeKind.Utc)
+        });
+        await _db.SaveChangesAsync();
+        _db.ChangeTracker.Clear();
+
+        var ficha = await _query.FichaAsync(producao, duplicar: false);
+
+        // The result carries only the tool facts and the saved sheet.
+        Assert.Equal(["ToolFacts", "Folha"], typeof(JobOnFichaResult).GetProperties().Select(p => p.Name));
+        Assert.Equal(3, ficha.ToolFacts.Count);
+        Assert.Equal(["factos", "folha"], _leituras.Ordem);
+        // The only constructor dependencies are the tool facts and the sheet queries.
+        Assert.Equal(
+            [typeof(IJobOnToolFactsQuery), typeof(IJobOnFolhaQuery)],
+            typeof(JobOnFichaQuery).GetConstructors().Single().GetParameters().Select(p => p.ParameterType));
     }
 
     private sealed class Leituras
     {
-        public int Previews;
         public int Factos;
         public int Folhas;
         public List<string> Ordem { get; } = [];
-    }
-
-    private sealed class ContaPreviews(IDeleteJobOnHandler inner, Leituras leituras) : IDeleteJobOnHandler
-    {
-        public Task<JobOnDeletionPreview?> PreviewAsync(int jobOnId, DateOnly today, CancellationToken cancellationToken = default)
-        {
-            leituras.Previews++;
-            leituras.Ordem.Add("preview");
-            return inner.PreviewAsync(jobOnId, today, cancellationToken);
-        }
-
-        public Task<DeleteJobOnResult> HandleAsync(DeleteJobOn command, CancellationToken cancellationToken = default) =>
-            throw new InvalidOperationException("The sheet never deletes.");
     }
 
     private sealed class ContaFactos(IJobOnToolFactsQuery inner, Leituras leituras) : IJobOnToolFactsQuery
