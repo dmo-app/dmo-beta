@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "selo": "01ffb38f4beac635",
-=======
-  "selo": "11e205f5bd501994",
->>>>>>> origin/main
+  "selo": "291bede439cd4981",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
