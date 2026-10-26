@@ -570,6 +570,26 @@ public sealed class ToolCandidateQueryTests : IDisposable
         Assert.Equal(["cm-st100"], cm.Select(t => t.ToolId));
     }
 
+    [Fact]
+    public async Task ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla()
+    {
+        // Diogo, 26/10/2026: nas Ferramentas, procurar 1075C142 «não aparece
+        // nada, deveria aparecer CM ST100, MF 1075 e BQ C142».
+        _db.Tools.AddRange(
+            new Tool { ToolId = "cm-st100", Type = ToolType.Cm, Reference = "ST100", AssociatedMfReference = "1075", Lot = "8" },
+            new Tool { ToolId = "mf-1075", Type = ToolType.Mf, Reference = "1075", Lot = "1" },
+            new Tool { ToolId = "bq-c142", Type = ToolType.Bq, Reference = "C142", Lot = "3" },
+            new Tool { ToolId = "bq-c194", Type = ToolType.Bq, Reference = "C194", Lot = "1" },
+            new Tool { ToolId = "mf-5447", Type = ToolType.Mf, Reference = "5447", Lot = "1" });
+        await _db.SaveChangesAsync();
+
+        var found = await _query.FindCandidatesAsync(new ToolCandidateFilter(ReferenceContains: "1075c142"));
+        Assert.Equal(new[] { "bq-c142", "cm-st100", "mf-1075" }, found.Select(c => c.ToolId).OrderBy(id => id));
+        // O tipo continua a reduzir.
+        var bq = await _query.FindCandidatesAsync(new ToolCandidateFilter(Type: ToolType.Bq, ReferenceContains: "1075C142"));
+        Assert.Equal("bq-c142", Assert.Single(bq).ToolId);
+    }
+
     [Theory]
     [InlineData("1075C142", "1075", "C142")]
     [InlineData("ST100", null, null)]

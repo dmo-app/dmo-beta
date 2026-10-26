@@ -69,5 +69,8 @@ public interface ISuggestionQuery
         // As referências do Job On novo: com a linha, só as que já correram nela
         // (todas, se nenhuma correu). Diogo, 26/10/2026.
         int? machineId = null,
+        // As ferramentas que trabalham com a já escolhida (a BQ e o MF da CM
+        // ST100 pela referência total 1075C142). Diogo, 26/10/2026.
+        string? companion = null,
         CancellationToken cancellationToken = default);
 }

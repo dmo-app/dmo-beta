@@ -1063,11 +1063,11 @@
       }
       <div class="dmo-field">
         <label for="cmToolId">CM — referência</label>
-        <input id="cmToolId" name="cm_tool_id" value="@Model.RequestedCmToolId" placeholder="Ex.: ST100" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-submit />
+        <input id="cmToolId" name="cm_tool_id" value="@Model.RequestedCmToolId" placeholder="Ex.: ST100" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-com="#bqToolId" data-dmo-suggest-submit />
       </div>
       <div class="dmo-field">
         <label for="bqToolId">Boquilha (BQ) — referência</label>
-        <input id="bqToolId" name="bq_tool_id" value="@Model.RequestedBqToolId" placeholder="Ex.: C142" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
+        <input id="bqToolId" name="bq_tool_id" value="@Model.RequestedBqToolId" placeholder="Ex.: C142" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-com="#cmToolId" data-dmo-suggest-submit />
       </div>
       @* Escolher a sugestão ou o Enter mostram a ferramenta (como nos
          Pegamentos); o botão fica só sem script. *@

@@ -2713,3 +2713,14 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions`
 
 Selo depois: `79f54fc617b75cbe`
+
+## A-0131 · 2026-10-26 · teste-novo
+
+Porquê: Ferramentas: a procura pela referência toda (1075C142) mostra a CM, o MF e a BQ dela; as sugestões da BQ/MF/CM no Peso e nos Pegamentos sem Job On mostram só as que trabalham com a ferramenta já escolhida (CM ST100 → MF 1075 → BQ C142): 2 testes novos
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy2aoQ7LaFwycZgjHWEprDZe
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
+
+Selo depois: `ff6a83926a2f1ac1`

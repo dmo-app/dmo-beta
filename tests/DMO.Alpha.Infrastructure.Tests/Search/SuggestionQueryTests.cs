@@ -299,4 +299,33 @@ public sealed class SuggestionQueryTests : IDisposable
         // Os nomes procuram-se a meio, por isso continuam a pedir 2 caracteres.
         Assert.Empty(await _query.SuggestAsync(SuggestionSource.Reparadores, "v"));
     }
+
+    [Fact]
+    public async Task Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal()
+    {
+        // Diogo, 26/10/2026: «ST100 não trabalha com estas BQ todas, deve
+        // filtrar pelas que usa»; «ST100 faz parte do 1075, 1075 usa C142».
+        var machine = new Machine { Code = "B1" };
+        _db.Machines.Add(machine);
+        await _db.SaveChangesAsync();
+        _db.JobOns.Add(new JobOn { Reference = "1075C142", ProductionNumber = "202603", MachineId = machine.Id });
+        _db.Tools.AddRange(
+            new Tool { ToolId = "cm-st100", Type = ToolType.Cm, Reference = "ST100", Lot = "8", AssociatedMfReference = "1075" },
+            new Tool { ToolId = "mf-1075", Type = ToolType.Mf, Reference = "1075", Lot = "1" },
+            new Tool { ToolId = "mf-5447", Type = ToolType.Mf, Reference = "5447", Lot = "1" },
+            new Tool { ToolId = "bq-c002", Type = ToolType.Bq, Reference = "C002", Lot = "1" },
+            new Tool { ToolId = "bq-c142", Type = ToolType.Bq, Reference = "C142", Lot = "3" },
+            new Tool { ToolId = "bq-c194", Type = ToolType.Bq, Reference = "C194", Lot = "1" });
+        await _db.SaveChangesAsync();
+
+        async Task<string[]> Find(string term, ToolType tipo, string? com) =>
+            (await _query.SuggestAsync(SuggestionSource.Ferramentas, term, tipo, companion: com)).Select(s => s.Value).ToArray();
+
+        Assert.Equal(new[] { "C142" }, await Find("C", ToolType.Bq, "ST100"));
+        Assert.Equal(new[] { "1075" }, await Find("1", ToolType.Mf, "st100"));
+        Assert.Equal(new[] { "ST100" }, await Find("S", ToolType.Cm, "C142"));
+        // Sem nada escolhido, ou nada que a ligue, todas (só avisos, nunca esconder).
+        Assert.Equal(new[] { "C002", "C142", "C194" }, await Find("C", ToolType.Bq, null));
+        Assert.Equal(new[] { "C002", "C142", "C194" }, await Find("C", ToolType.Bq, "X999"));
+    }
 }

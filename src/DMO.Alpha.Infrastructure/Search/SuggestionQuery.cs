@@ -31,6 +31,7 @@ public sealed class SuggestionQuery : ISuggestionQuery
         string? term,
         ToolType? toolType = null,
         int? machineId = null,
+        string? companion = null,
         CancellationToken cancellationToken = default)
     {
         var minimum = source == SuggestionSource.Reparadores
@@ -46,7 +47,7 @@ public sealed class SuggestionQuery : ISuggestionQuery
             SuggestionSource.Producoes => await ProducoesAsync(wanted, byReference: true, cancellationToken),
             SuggestionSource.NumerosProducao => await ProducoesAsync(wanted, byReference: false, cancellationToken),
             SuggestionSource.Referencias => await ReferenciasAsync(wanted, machineId, cancellationToken),
-            SuggestionSource.Ferramentas => await FerramentasAsync(wanted, toolType, cancellationToken),
+            SuggestionSource.Ferramentas => await FerramentasAsync(wanted, toolType, companion, cancellationToken),
             SuggestionSource.Reparadores => await ReparadoresAsync(wanted, cancellationToken),
             SuggestionSource.ReferenciasEBq => await ReferenciasEBqAsync(wanted, cancellationToken),
             SuggestionSource.ReferenciasRegisto => await ReferenciasRegistoAsync(wanted, toolType, cancellationToken),
@@ -119,9 +120,22 @@ public sealed class SuggestionQuery : ISuggestionQuery
     }
 
     private async Task<IReadOnlyList<Suggestion>> FerramentasAsync(
-        string wanted, ToolType? toolType, CancellationToken cancellationToken)
+        string wanted, ToolType? toolType, string? companion, CancellationToken cancellationToken)
     {
-        var rows = await ToolsMatching(wanted, toolType)
+        var query = ToolsMatching(wanted, toolType);
+        // Com uma ferramenta já escolhida, só as que trabalham com ela pela
+        // referência total (Diogo, 26/10/2026: «ST100 não trabalha com estas
+        // BQ todas, deve filtrar pelas que usa»). Nada a liga: todas.
+        if (ReferenceMatch.Normalize(companion) is { } com)
+        {
+            var totais = await DMO.Alpha.Infrastructure.Tools.ReferenciaTotal.DaFerramentaAsync(_db, com, cancellationToken);
+            if (totais.Count > 0)
+            {
+                query = query.Where(DMO.Alpha.Infrastructure.Tools.ReferenciaTotal.PertenceAlguma(totais));
+            }
+        }
+
+        var rows = await query
             .Select(tool => new { tool.Type, tool.Reference })
             .Distinct()
             .OrderBy(row => row.Reference).ThenBy(row => row.Type)
