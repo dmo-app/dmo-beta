@@ -1689,8 +1689,11 @@ public sealed class PesoModel : PageModel
     /// vêm do contexto do Job On. Nenhum Peso é criado aqui.
     /// </summary>
     public async Task<IActionResult> OnPostAbrirJobOnAsync(
-        [FromForm(Name = "jobon_id")] int? jobOnId)
+        [FromForm(Name = "jobon_id")] int? jobOnId,
+        [FromForm(Name = "anterior")] int? producaoAnterior = null)
     {
+        // Na Comparação, o «Abrir o Peso desta produção» leva a produção anterior escolhida.
+        jobOnId ??= producaoAnterior;
         if (jobOnId is not int escolhido)
         {
             return RedirectToPage("/Controlo/Peso", new { modo = ModoJobOnValor, jobon_refusal = "sem-escolha" });

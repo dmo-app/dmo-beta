@@ -1753,6 +1753,9 @@
             @* Sem rótulo à vista (o Owner 2026-10-17: «remove»); o nome fica no aria-label. *@
             <input id="producaoAnteriorPeso" name="anterior_peso" type="text" inputmode="decimal" autocomplete="off" placeholder="Peso usado (g)" aria-label="Peso usado na produção (g)" value="@pesoEcho" />
           </div>
+          @* O Peso completo da produção anterior (Diogo, 26/10/2026: «caso não exista, criar, que abre uma página onde criamos, podendo assim associar a um Job On»):
+             abre a folha de Peso dessa produção (CM, tampão, calote e temperatura), gravada no Job On escolhido. *@
+          <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "AbrirJobOn")" formtarget="_self" formnovalidate data-peso-anterior-abrir>Abrir o Peso desta produção</button>
         </form>
         <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
         @* O PESO DO SAP (Diogo, 21/10/2026): pelas datas da produção escolhida
