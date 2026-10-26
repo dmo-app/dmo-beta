@@ -1070,10 +1070,12 @@
         <label for="cmToolId">CM — referência</label>
         <input id="cmToolId" name="cm_tool_id" value="@Model.RequestedCmToolId" placeholder="Ex.: ST100" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-submit />
       </div>
+      <partial name="_PegamentosLote" model="@(("cmToolId", "cm_lote", "CM — lote", Model.CmLotes, Model.CmTool?.ToolId, Model.RequestedCmToolId))" />
       <div class="dmo-field">
         <label for="bqToolId">Boquilha (BQ) — referência</label>
         <input id="bqToolId" name="bq_tool_id" value="@Model.RequestedBqToolId" placeholder="Ex.: C142" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
       </div>
+      <partial name="_PegamentosLote" model="@(("bqToolId", "bq_lote", "BQ — lote", Model.BqLotes, Model.BqTool?.ToolId, Model.RequestedBqToolId))" />
       @* Escolher a sugestão ou o Enter mostram a ferramenta (como nos
          Pegamentos); o botão fica só sem script. *@
       <noscript><button type="submit" class="dmo-button">Ferramentas</button></noscript>
