@@ -43,10 +43,25 @@
       var link = Model.Pagina.McaliperLinks.GetValueOrDefault(Model.Estado.Area);
       @* O LINK DO MCALIPER (Diogo, 17/10/2026): fica na ficha técnica
          da ferramenta; aqui só se associa, o link não fica à vista. *@
-      <button type="button" class="resumo-area-link@(link is null ? null : " set")" data-dmo-dialog="@linkDialogId">
-        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
-        @(link is null ? "Associar link do mcaliper" : "Link do mcaliper associado")
-      </button>
+      @if (link is null)
+      {
+        <button type="button" class="resumo-area-link" data-dmo-dialog="@linkDialogId">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
+          Associar link do mcaliper
+        </button>
+      }
+      else
+      {
+        @* Com o link associado, o botão abre o mcaliper (Diogo, 26/10/2026);
+           o lápis abre a janela para mudar ou retirar o link. *@
+        <span class="resumo-area-link-grupo">
+          <a class="resumo-area-link set" href="@link" target="_blank" rel="noopener noreferrer" data-resumo-mcaliper-abrir="@Model.Estado.Area">
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
+            Link do mcaliper associado
+          </a>
+          <button type="button" class="resumo-area-link resumo-area-link-editar" data-dmo-dialog="@linkDialogId" title="Mudar ou retirar o link do mcaliper" aria-label="Mudar o link do mcaliper @Model.Estado.Area">✎</button>
+        </span>
+      }
       <dialog id="@linkDialogId" class="dmo-dialog" aria-labelledby="@(linkDialogId)-title">
         <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper">
           <h3 id="@(linkDialogId)-title">Link do mcaliper · @Model.Estado.Area</h3>
