@@ -3001,3 +3001,21 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ResetBqDiscrepancyTests.cs :: FixedClock.Reset_ClearsTheSaldoOfTheEarlierLines_ButKeepsTheMovements`
 
 Selo depois: `dc6a82a28326fe61`
+
+## A-0155 · 2026-10-26 · ok-do-diogo
+
+Porquê: Design dos mockups: paleta do Owner de 26/10/2026 (#4f6f9c, #779ecb, #b7c9e2) nos testes de paleta, PDFs e modo escuro (--dmo-page #e5eaf1); botões leem --dmo-action (slate) antes de --dmo-brand-600; folha do Job On redesenhada (notas vazias não ocupam a leitura, Stock/QTD máq. em span/strong, título «Job On» visível); novo tests/visual/design-review.cjs revê os HTML exportados a 1366x768
+Referência: Sessão Claude Code 26/10/2026, branch claude/design-mockups: ok do proprietário («já tens permissões») sobre o design do dmo-mockup-handoff
+Novos: 1 · mudaram: 8 · saíram: 0
+
+- novo: `tests/visual/design-review.cjs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Buttons_HaveOneLook_BlueWithWhiteText_HoverInverts`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Palette_IsDefinedOnce_AndDrivesButtonsRowsAndHover`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.PdfGenerators_UseThePalette_NotTheOldBlues`
+
+Selo depois: `e0110985db52409c`
