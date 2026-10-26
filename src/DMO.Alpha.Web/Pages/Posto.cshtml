@@ -21,8 +21,10 @@
         <label for="posto-pin">PIN</label>
         <input id="posto-pin" name="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="12" />
     </div>
-    <button type="submit" class="dmo-button submit">Entrar</button>
-    <a class="dmo-button" href="/login" id="posto-voltar">Voltar</a>
+    <div class="posto-botoes">
+        <button type="submit" class="dmo-button submit">Entrar</button>
+        <a class="dmo-button" href="/login" id="posto-voltar">Voltar</a>
+    </div>
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {

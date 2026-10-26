@@ -227,3 +227,14 @@
         font-size: 26px;
     }
 }
+
+.dmo-account-page .login-form .posto-botoes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dmo-account-page .login-form .posto-botoes .dmo-button {
+    min-height: 36px;
+    height: 36px;
+}
