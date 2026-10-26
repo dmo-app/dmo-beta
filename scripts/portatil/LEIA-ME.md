@@ -14,7 +14,8 @@ vazio ou `Local`).
 
 `papeis.sql` cria `dmo_app` (a app: só lê e grava dados) e `dmo_backup` (o backup:
 só lê). As migrações continuam com o dono (`postgres`). As palavras-passe vão na
-linha de comando e nunca ficam no ficheiro:
+linha de comando e nunca ficam no ficheiro, e têm de ter pelo menos 12 caracteres
+(o script pára com erro se faltar uma ou se for curta):
 
 ```sh
 docker exec -i dmo-pg psql -U postgres -d dmo -v ON_ERROR_STOP=1 \
@@ -34,7 +35,14 @@ bash ~/dmo-beta/scripts/portatil/atualizar.sh            # ramo integracao
 bash ~/dmo-beta/scripts/portatil/atualizar.sh main       # outro ramo
 ```
 
-Vai buscar o ramo, constrói a imagem `dmo-local:<commit>`, tira uma cópia da base
-para `~/dmo-antes-de-atualizar` (as 10 últimas), aplica as migrações com
-`migrate.sh`, troca o contentor e espera pelo `/login`. Se a versão nova não
-responder, volta a pôr a anterior a correr.
+Antes de mexer, confirma que a app não liga com um utilizador que manda na base
+(tem de ser `dmo_app`). Depois vai buscar o ramo e constrói a imagem
+`dmo-local:<commit>` (marcada «modificada» se a pasta tiver ficheiros mudados).
+Tira uma cópia da base para `~/dmo-antes-de-atualizar` (as 10 últimas) e confirma
+que tem todas as tabelas.
+
+As migrações correm primeiro numa base à parte (`dmo_ensaio_atualizar`, reposta
+da cópia). Se alguma tabela perder linhas, pára sem tocar na base da app. Só
+depois aplica as migrações a sério com `migrate.sh`, troca o contentor e espera
+pelo `/login`. Se a versão nova não arrancar ou não responder, volta a pôr a
+anterior a correr.

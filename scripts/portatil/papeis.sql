@@ -11,15 +11,24 @@
 -- Idempotente: pode correr outra vez (atualiza as palavras-passe e os direitos).
 -- Não apaga dados nem tira nada a ninguém além do PUBLIC no esquema public.
 
+-- O \quit do psql sai sempre com 0; os erros param o ficheiro por aqui.
+\set ON_ERROR_STOP on
+
 \if :{?app_pw}
 \else
-  \echo 'Falta -v app_pw=...'
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'Falta -v app_pw=...'; END $$;
 \endif
 \if :{?backup_pw}
 \else
-  \echo 'Falta -v backup_pw=...'
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'Falta -v backup_pw=...'; END $$;
+\endif
+-- Uma palavra-passe vazia ou curta deixava o papel aberto: recusa-se.
+SELECT length(:'app_pw') < 12 AS app_pw_fraca, length(:'backup_pw') < 12 AS backup_pw_fraca \gset
+\if :app_pw_fraca
+  DO $$ BEGIN RAISE EXCEPTION 'A app_pw tem de ter pelo menos 12 caracteres.'; END $$;
+\endif
+\if :backup_pw_fraca
+  DO $$ BEGIN RAISE EXCEPTION 'A backup_pw tem de ter pelo menos 12 caracteres.'; END $$;
 \endif
 
 SELECT format('CREATE ROLE dmo_app LOGIN')
