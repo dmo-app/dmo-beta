@@ -53,6 +53,7 @@ public sealed class IndexModel : PageModel
     private readonly IJobOnToolFactsQuery _toolFacts;
     private readonly IProductionPickerQuery _productionPicker;
     private readonly IJobOnPaginaQuery _pagina;
+    private readonly IJobOnQuadroDoDiaQuery _quadroDoDia;
     private readonly ShellStateFactory _shellState;
     private readonly CurrentUserCapabilities _capabilities;
     private readonly JobOnLotNoteHandler _lotNotes;
@@ -70,6 +71,7 @@ public sealed class IndexModel : PageModel
         IJobOnToolFactsQuery toolFacts,
         IProductionPickerQuery productionPicker,
         IJobOnPaginaQuery pagina,
+        IJobOnQuadroDoDiaQuery quadroDoDia,
         ShellStateFactory shellState,
         CurrentUserCapabilities capabilities,
         JobOnLotNoteHandler lotNotes,
@@ -88,6 +90,7 @@ public sealed class IndexModel : PageModel
         _toolFacts = toolFacts;
         _productionPicker = productionPicker;
         _pagina = pagina;
+        _quadroDoDia = quadroDoDia;
         _shellState = shellState;
         _capabilities = capabilities;
         _lotNotes = lotNotes;
@@ -336,7 +339,7 @@ public sealed class IndexModel : PageModel
     public const int ReferenceProductionsPageSize = 10;
 
     /// <summary>O QUADRO COMPLETO DAS LINHAS do dia (o shared element por Razor — o Owner: «quadro do dia pode ir»): as máquinas B1..C3 sempre visíveis, as com produção mostram-na, as livres ficam vazias.</summary>
-    public IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> DayRows { get; private set; } = Array.Empty<DMO.Alpha.Web.Presentation.DayMachineRow>();
+    public IReadOnlyList<DayMachineRow> DayRows { get; private set; } = Array.Empty<DayMachineRow>();
     public IReadOnlyList<ProductionContextReadModel> JobOns { get; private set; } = Array.Empty<ProductionContextReadModel>();
 
     /// <summary>
@@ -553,32 +556,6 @@ public sealed class IndexModel : PageModel
             diaSelecionado is { } dia && dia >= 1 && dia <= DateTime.DaysInMonth(year, month) ? new DateOnly(year, month, dia) : null,
             "/JobOn/Index",
             hasForDay: data => jobOns.Any(j => j.InicioEm == data || j.FimEm?.AddDays(1) == data)) with { LegendLabel = "Mudanças numa linha" };
-    }
-
-    private static IReadOnlyList<DMO.Alpha.Web.Presentation.DayMachineRow> ComporDayRows(IReadOnlyList<MachineOption> machines, IReadOnlyList<ProductionContextReadModel> jobOns, int ano, int mes, int? diaSelecionado)
-    {
-        // A procura não filtra o dia (Diogo, 17/10/2026: não é um filtro
-        // global); as linhas das máquinas mostram sempre o dia escolhido.
-        var cobre = new System.Collections.Generic.List<ProductionContextReadModel>();
-        // O DIA CONSULTADO (o painel do dia do dmo-html): o dia clicado no
-        // calendário — na omissão, o dia inicial da página (o hoje no mês
-        // corrente). A produção «até aviso» (o FimEm null) COBRE o dia a
-        // partir do início (a regra do corte B: as datas do Job On mandam).
-        var data = new DateOnly(ano, mes, Math.Clamp(diaSelecionado ?? 1, 1, DateTime.DaysInMonth(ano, mes)));
-        cobre.AddRange(jobOns.Where(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)));
-        var rows = new System.Collections.Generic.List<DMO.Alpha.Web.Presentation.DayMachineRow>();
-        foreach (var machine in machines)
-        {
-            var doDia = cobre.Where(j => j.Machine == machine.Code).OrderBy(j => j.Reference).ToList();
-            // Sem sobreposição entre produções da linha: só as BQ a têm
-            // (Diogo, 25/10/2026).
-            const bool cruzam = false;
-            rows.Add(new(machine.Code, doDia.Select(x => new DMO.Alpha.Web.Presentation.DayProduction(x.JobOnId, x.Reference, x.ProductionNumber)).ToList())
-            {
-                HasOverlap = cruzam
-            });
-        }
-        return rows;
     }
 
     /// <summary>
@@ -1021,63 +998,8 @@ public sealed class IndexModel : PageModel
                 new ToolCandidateFilter(ToolIds: shownToolIds), HttpContext.RequestAborted);
         }
 
-        DayRows = ComporDayRows(Machines, JobOns, Year, Month, SelectedDay);
-
-        // As mudanças de lote do dia entram na linha da máquina, no espaço
-        // entre a referência e o número (o proprietário, 16/10/2026).
-        var doDia = DayRows.SelectMany(r => r.Productions).Select(p => p.JobOnId).ToList();
-        var notasDoDia = await _lotNotes.ForDayAsync(new DateOnly(Year, Month, SelectedDay), doDia, HttpContext.RequestAborted);
-        // E as alterações de cada produção: a linha mostra qual foi (o Diogo,
-        // 17/10/2026), e a ficha tem o detalhe em «O que mudou».
-        var alteracoes = await _changes.AfterStartAsync(doDia, HttpContext.RequestAborted);
-        if (notasDoDia.Count > 0 || alteracoes.Count > 0)
-        {
-            DayRows = DayRows
-                .Select(r => r with
-                {
-                    Productions = r.Productions
-                        .Select(p => p with
-                        {
-                            LotNotes = notasDoDia.Where(n => n.JobOnId == p.JobOnId).Select(n => n.Text).ToList(),
-                            ChangeCount = alteracoes.TryGetValue(p.JobOnId, out var mudou) ? mudou.Count : 0,
-                            ChangeSummary = mudou is { Count: > 0 } ? JobOnChangeFields.Summarize(mudou) : null,
-                            ChangeDetails = mudou?.Select(c => c.Text).ToList() ?? []
-                        })
-                        .ToList()
-                })
-                .ToList();
-        }
-
-        // A próxima mudança em cada máquina, depois do dia escolhido (o
-        // proprietário, 17/10/2026): a produção que entra a seguir ou a troca
-        // de um componente da produção atual, a que vier primeiro; no mesmo
-        // dia, a produção nova. Vai para a frente da linha.
-        if (!NoDaySelected)
-        {
-            var dia = new DateOnly(Year, Month, SelectedDay);
-            var proximas = await _jobOnList.ListNextPerMachineAsync(dia, HttpContext.RequestAborted);
-            var trocas = await _lotNotes.NextAfterAsync(dia, doDia, HttpContext.RequestAborted);
-            if (proximas.Count > 0 || trocas.Count > 0)
-            {
-                DayRows = DayRows
-                    .Select(r =>
-                    {
-                        var entra = proximas.FirstOrDefault(p => p.Machine == r.MachineCode) is { InicioEm: { } inicio } p
-                            ? new DMO.Alpha.Web.Presentation.NextChange(inicio, $"{p.Reference} {p.ProductionNumber}", true, JobOnId: p.JobOnId)
-                            : null;
-                        var troca = trocas
-                            .Where(t => r.Productions.Any(x => x.JobOnId == t.JobOnId))
-                            .OrderBy(t => t.Dia)
-                            .Select(t => new DMO.Alpha.Web.Presentation.NextChange(t.Dia, t.Texto, false, ToolId: t.NewToolId))
-                            .FirstOrDefault();
-                        var next = entra is null ? troca
-                            : troca is null || entra.Dia <= troca.Dia ? entra
-                            : troca;
-                        return next is null ? r : r with { Next = next };
-                    })
-                    .ToList();
-            }
-        }
+        DayRows = await _quadroDoDia.QuadroAsync(
+            Machines, JobOns, Year, Month, SelectedDay, !NoDaySelected, HttpContext.RequestAborted);
 
         // O SIDEPANEL (o Owner: «o sidepanel mostra o que vai entrar»): a
         // fila das próximas entradas da SEMANA CORRENTE (o renderRail em mode
@@ -1220,7 +1142,7 @@ public sealed class IndexModel : PageModel
                 var mfReference = await _pagina.ReferenciaDaMfAsync(mfId, HttpContext.RequestAborted);
                 if (mfReference is not null)
                 {
-                    var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term);
+                    var porMf = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: mfReference, Search: term, IncluirSemLinha: true);
                     var byMf = await _toolCandidates.FindPageAsync(porMf, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                     if (byMf.TotalCount > 0)
                     {
@@ -1237,14 +1159,14 @@ public sealed class IndexModel : PageModel
                 var cmMfReference = await _pagina.ReferenciaMfDaCmAsync(cmId, HttpContext.RequestAborted);
                 if (cmMfReference is not null)
                 {
-                    usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term);
+                    usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, MfReference: cmMfReference, Search: term, IncluirSemLinha: true);
                     page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                     filtro = (machineId is null ? "Filtrado pela CM " : "Filtrado por máquina e pela CM ") + cmMfReference;
                 }
             }
             if (page is null)
             {
-                usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term);
+                usado = new ToolCandidateFilter(Type: slot, MachineId: machineId, ProductionReference: Sanitize(reference), Search: term, IncluirSemLinha: true);
                 page = await _toolCandidates.FindPageAsync(usado, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
             }
 
@@ -1252,6 +1174,13 @@ public sealed class IndexModel : PageModel
             // ferramentas estão lá mas o Job On não filtra»): as ferramentas
             // importadas sem linhas ligadas aparecem; sem nada pela referência,
             // o catálogo do tipo.
+            // As sem linha nenhuma entram sempre ao lado das da linha; se só
+            // há dessas, o filtro diz que nenhuma está ligada a esta linha.
+            if (page.TotalCount > 0 && machineId is not null && usado is not null
+                && (await _toolCandidates.FindPageAsync(usado with { IncluirSemLinha = false }, 1, 1, HttpContext.RequestAborted)).TotalCount == 0)
+            {
+                filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
+            }
             if (page.TotalCount == 0 && machineId is not null)
             {
                 page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);

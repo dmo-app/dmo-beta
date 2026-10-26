@@ -239,14 +239,15 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
     [Fact]
     public async Task AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart()
     {
-        // Criado hoje para começar daqui a cinco dias.
-        var jobOnId = await JobOnAsync("S8A001", Hoje.AddDays(5), DateTime.UtcNow);
+        // Criado hoje para começar daqui a 40 dias: fora do mês que o «começam»
+        // mostra, seja qual for o dia em que o teste corre (com +5 falhava no fim do mês).
+        var jobOnId = await JobOnAsync("S8A001", Hoje.AddDays(40), DateTime.UtcNow);
         using var client = await LoginAsync("5801", DmoCapabilities.JobOnCreate);
 
         var hoje = await GetAsync(client, "?tipo=criados");
         Assert.Contains("<h3>Job Ons criados</h3>", hoje);
         Assert.Contains($"<a class=\"sumario-titulo\" href=\"/JobOn?jobon_id={jobOnId}\">S8A001 7</a>", hoje);
-        Assert.Contains($"Começa a {Hoje.AddDays(5):dd/MM/yyyy}", hoje);
+        Assert.Contains($"Começa a {Hoje.AddDays(40):dd/MM/yyyy}", hoje);
         Assert.DoesNotContain("S8A001", await GetAsync(client, "?tipo=comecam"));
     }
 
