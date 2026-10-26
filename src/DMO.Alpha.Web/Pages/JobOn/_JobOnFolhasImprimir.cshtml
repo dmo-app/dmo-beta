@@ -95,7 +95,8 @@
     <div class="jfi-tres">
       <div class="jfi-bloco"><div class="jfi-sub"><span>TAMPÕES</span></div><div class="jfi-corpo">Diâmetro @(F("tp_diametro_ps") is { Length: > 0 } tpd ? tpd : "____") · Calote @(Calote() is { Length: > 0 } cal ? cal : (F("tp_bacia_ps") is { Length: > 0 } tpb ? tpb : "____"))</div></div>
       @* Punção e arrefecedor são um só componente (Diogo 26/10). *@
-      <div class="jfi-bloco"><div class="jfi-sub"><span>PUNÇÃO + ARREFECEDOR</span></div><div class="jfi-corpo">PU @(F("pu_referencia") is { Length: > 0 } pur ? pur : "____")@(F("pu_versao") is { Length: > 0 } puv ? " · v. " + puv : "")<br>ARR @(F("arr_referencia") is { Length: > 0 } arr ? arr : "____")@(F("arr_versao") is { Length: > 0 } arv ? " · v. " + arv : "")</div></div>
+      <div class="jfi-bloco"><div class="jfi-sub"><span>PUNÇÃO (PU)</span></div><div class="jfi-corpo">@(F("pu_referencia") is { Length: > 0 } pur ? pur : "____")@(F("pu_versao") is { Length: > 0 } puv ? " · v. " + puv : "")</div></div>
+      <div class="jfi-bloco"><div class="jfi-sub"><span>ARREFECEDOR (ARR)</span></div><div class="jfi-corpo">@(F("arr_referencia") is { Length: > 0 } arr ? arr : "____")@(F("arr_versao") is { Length: > 0 } arv ? " · v. " + arv : "")</div></div>
       <div class="jfi-bloco"><div class="jfi-sub"><span>CAB. DE SOPRO</span></div><div class="jfi-corpo">Ref. @(F("cs_referencia") is { Length: > 0 } csr ? csr : "____")<br>Furos @(F("cs_furos") is { Length: > 0 } csf ? csf : "____") · Tubo @(F("cs_tubo") is { Length: > 0 } cst ? cst : "____")</div></div>
       <div class="jfi-bloco"><div class="jfi-sub"><span>PINÇAS</span></div><div class="jfi-corpo">Ø @(F("pi_diametro") is { Length: > 0 } pid ? pid : "____") · @(F("pi_pincas") is { Length: > 0 } pip ? pip : "____")</div></div>
     </div>
