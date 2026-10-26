@@ -43,11 +43,13 @@
         var campo = JobOnFolhaCampos.Encontrar(chave)!;
         desenhados.Add(chave);
         var valor = Model.Folha.Valor(chave);
+        // O lote do AN é, por omissão, o da BQ; só muda se alguém o escrever à mão (Diogo, 26/10/2026).
+        string? herdado = chave == "an_lote" && string.IsNullOrWhiteSpace(valor) ? Model.AnLoteDaBq : null;
         if (editar)
         {
-            <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(valor)" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
+            <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(valor)" placeholder="@herdado" aria-label="@(rotulo ?? campo.RotuloAlteracao)" />
         }
-        else if (Mostra(valor) is { } escrito)
+        else if (Mostra(valor ?? herdado) is { } escrito)
         {
             @escrito
         }
