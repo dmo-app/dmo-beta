@@ -20,12 +20,14 @@
   <div class="page-head">
     <div>
       <h1 id="resumo-title">Resumo do Controlo</h1>
-      <p>Procure por referência e abra a produção.</p>
     </div>
   </div>
 
   @* ------------------------------------------------------------------ *@
   @* 1. Browser «Procurar resumo»: início da referência + recentes.     *@
+  @*    Com uma produção aberta fica numa linha só (Diogo, 26/10/2026:   *@
+  @*    «quando existir controlo selecionado minimizar»): o CSS usa o    *@
+  @*    :has(.resumo-sheet), porque o cartão fica (data-dmo-fica).       *@
   @* ------------------------------------------------------------------ *@
   <section class="dmo-card resumo-card resumo-browser" aria-labelledby="resumo-browser-title" data-dmo-fica>
     <h3 id="resumo-browser-title">Procurar resumo</h3>
