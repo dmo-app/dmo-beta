@@ -29,7 +29,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.True(topo > inicio && acoes > topo && botaoEm > acoes && form > botaoEm,
             $"o botão «{botao}» não está no cabeçalho do cartão, antes do formulário {formulario}");
         Assert.Contains($"form=\"{formulario}\"", botao);
-        Assert.Equal(1, Regex.Matches(html, Regex.Escape(botao)).Count);
+        Assert.Single(Regex.Matches(html, Regex.Escape(botao)));
     }
 
     [Fact]
