@@ -82,9 +82,53 @@
                 @* «Histórico» fora do menu (Diogo, 22/10/2026): um link à vista
                    que abre o Histórico filtrado por esta BQ e lote (só a BQ,
                    não o MF: a mesma BQ serve várias referências totais). *@
+                @* «OPÇÕES» (Diogo, 26/10/2026: «onde tem movimentos meter opções,
+                   uma passa a ser os movimentos e outra Alterar lote»). Alterar
+                   lote só no bq_id que ainda é o da produção. *@
                 @if (trace.ToolId is { } historyToolId)
                 {
-                  <a class="bq-register-history-link" href="/Boquilhas?historico=1&amp;bq_ferramenta=@Uri.EscapeDataString(historyToolId)" title="Movimentos desta BQ e lote">Movimentos</a>
+                  <details class="dmo-options" id="bqRegistoOpcoes">
+                    <summary class="dmo-button" aria-label="Opções desta BQ e lote"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
+                    <div class="dmo-options-list">
+                      <a class="dmo-options-item bq-register-history-link" href="/Boquilhas?historico=1&amp;bq_ferramenta=@Uri.EscapeDataString(historyToolId)" title="Movimentos desta BQ e lote">Movimentos</a>
+                      @if (Model.LotesParaAlterar is not null)
+                      {
+                        <button type="button" class="dmo-options-item" id="bqAlterarLoteAbrir" data-dmo-dialog="bq-alterar-lote">Alterar lote</button>
+                      }
+                    </div>
+                  </details>
+                  @if (Model.LotesParaAlterar is { } lotes)
+                  {
+                    <dialog id="bq-alterar-lote" class="dmo-dialog" aria-labelledby="bq-alterar-lote-titulo">
+                      <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="AlterarLote">
+                        <h3 id="bq-alterar-lote-titulo">Alterar lote<partial name="_DmoHelp" model="@("A BQ desta produção passa para o lote escolhido. Os movimentos já registados ficam no lote antigo e o Job On guarda os dois lotes.")" /></h3>
+                        <input type="hidden" name="alterar_bq_id" value="@trace.BqContextId" />
+                        @if (lotes.Outros.Count == 0)
+                        {
+                          <p class="muted" role="status">Não há outro lote da BQ @lotes.Reference em Ferramentas. <a class="dmo-aviso-link" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = historyToolId })">Abrir a ferramenta para criar o lote</a></p>
+                          <div class="dmo-dialog-actions">
+                            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
+                          </div>
+                        }
+                        else
+                        {
+                          <div class="dmo-field">
+                            <label for="bqAlterarLoteNovo">BQ @lotes.Reference · lote @DMO.Alpha.Core.Tools.LoteExibido.Mostrar(lotes.Lot) passa para</label>
+                            <select id="bqAlterarLoteNovo" name="tool_id" required>
+                              @foreach (var outro in lotes.Outros)
+                              {
+                                <option value="@outro.ToolId">Lote @DMO.Alpha.Core.Tools.LoteExibido.Mostrar(outro.Lot)</option>
+                              }
+                            </select>
+                          </div>
+                          <div class="dmo-dialog-actions">
+                            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                            <button type="submit" class="dmo-button" id="bqAlterarLoteGuardar">Guardar</button>
+                          </div>
+                        }
+                      </form>
+                    </dialog>
+                  }
                 }
               </div>
             </div>
@@ -211,6 +255,14 @@
         @if (trace is not null)
         {
           <div class="card bq-movement-card">
+            @if (Model.LoteAlterado is { } loteAlterado)
+            {
+              <div data-dmo-toast="ok" role="status" id="bqLoteAlterado">A BQ passou para o lote @DMO.Alpha.Core.Tools.LoteExibido.Mostrar(loteAlterado). Os movimentos já registados ficam no lote antigo.</div>
+            }
+            @if (Model.LoteRecusaMessage is { } loteRecusa)
+            {
+              <div data-dmo-toast="erro" class="result" role="alert">@loteRecusa</div>
+            }
             @if (Model.MovementRefusal is not null)
             {
               <div data-dmo-toast="erro" class="result" role="alert">@Model.MovementRefusalMessage</div>

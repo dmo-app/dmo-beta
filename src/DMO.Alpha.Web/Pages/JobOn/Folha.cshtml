@@ -177,6 +177,12 @@
           </button>
           @* Onde está pelo Armazém e o estado; sem registo, só um aviso com o link
              (Diogo 21/10, FER-E-03; veio da ficha antiga, nada se perde). *@
+          @* Todos os lotes usados (Diogo, 26/10/2026): o «Alterar lote» das
+             Boquilhas ou o Editar trocam o lote; os de antes ficam à vista. *@
+          @if (tipo == "BQ" && f is not null && Model.LotesBqAntes.Count > 0)
+          {
+            <p class="jof-onde" data-jof-lotes-antes>Antes nesta produção: lote @string.Join(", ", Model.LotesBqAntes.Select(FolhaModel.Lote))</p>
+          }
           @if (f?.OndeEsta is { } ondeEsta)
           {
             <p class="jof-onde" data-dmo-onde-esta>@ondeEsta@(f.Estado is { } estado ? " · " + DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado) : null)</p>

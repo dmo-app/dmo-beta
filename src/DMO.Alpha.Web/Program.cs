@@ -320,6 +320,7 @@ builder.Services.AddScoped<ICreateJobOnHandler, CreateJobOnHandler>();
 // o jobon_id é o mesmo, a identidade imutável e o BqContext o MESMO contexto
 // com o ToolId novo (os factos históricos ancorados ficam).
 builder.Services.AddScoped<IUpdateJobOnHandler, UpdateJobOnHandler>();
+builder.Services.AddScoped<IAlterarLoteBq, AlterarLoteBq>();
 builder.Services.AddScoped<IDeleteJobOnHandler, DeleteJobOnHandler>();
 // Production read path: a query canónica do contexto de produção por
 // jobon_id (a mesma que os módulos seguintes consomem) e a consulta incluída

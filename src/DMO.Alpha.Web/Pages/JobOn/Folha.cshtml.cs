@@ -45,8 +45,15 @@ public sealed class FolhaModel(
     IDeleteJobOnHandler deleteJobOn,
     IJobOnPaginaQuery jobOnPagina,
     IConfiguration configuration,
-    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap) : PageModel
+    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
+    IAlterarLoteBq alterarLote) : PageModel
 {
+    /// <summary>Os lotes da BQ usados nesta produção, do primeiro ao atual (vazio sem BQ).</summary>
+    public IReadOnlyList<string> LotesBqUsados { get; private set; } = [];
+
+    /// <summary>Os lotes que a BQ teve antes do atual, para a cabeça da BQ («antes 165»).</summary>
+    public IReadOnlyList<string> LotesBqAntes => LotesBqUsados.Count > 1 ? LotesBqUsados.Take(LotesBqUsados.Count - 1).Where(l => l != LotesBqUsados[^1]).Distinct().ToList() : [];
+
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
     public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, false);
 
@@ -418,6 +425,7 @@ public sealed class FolhaModel(
                 Facts = await toolFacts.FindAsync(ids, aberto.Machine, aberto.JobOnId, aberto.InicioEm, aberto.FimEm, ct);
                 Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
             }
+            LotesBqUsados = await alterarLote.LotesUsadosAsync(aberto.JobOnId, ct);
             if (Editar)
             {
                 Machines = await machineList.ListAsync(ct);
