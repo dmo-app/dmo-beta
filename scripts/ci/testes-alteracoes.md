@@ -3110,3 +3110,16 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Ler`
 
 Selo depois: `903451198ac59828`
+
+## A-0170 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha sem comentários (DMO-434): o teste das notas nos cartões passa a verificar o Reparador; testes novos da largura mínima e da calote.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyBwdNnf7f4cEjbZrpHH5rRM
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_TpMostraACaloteGravada_NuncaAPalavraBacia`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+
+Selo depois: `a3a46538a4781592`

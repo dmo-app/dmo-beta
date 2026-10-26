@@ -1,5 +1,5 @@
 {
-  "selo": "903451198ac59828",
+  "selo": "a3a46538a4781592",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2330,10 +2330,12 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_DatasQueNaoSeCruzam_SemAvisoDeUsoParalelo": "33ae979484039be7",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ToolFactsEndpoint_FatosEAvisos_DoBackend": "5f631ce1dec18c61",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Update_SemAvisoDeSobreposicaoEntreProducoesDaLinha_ENuncaBloqueiaAGravacao": "80118ebfaaa4ecdb",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)": "a224ecaf17fae59b",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)": "a3b9921bbdbd81e0",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Dias_AoCentro_FimMenosInicioMaisUm": "d34a7e0259bb0f0b",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Editar_ModoEditarNoLugarDaProcura_EOProcessoNnpbPs_ComODaCmSugerido": "c5554a8392e17404",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes": "ead751d419e4affb",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll": "12e20a3d0d83773a",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes": "3146d623b4bcee69",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_TpMostraACaloteGravada_NuncaAPalavraBacia": "6ab4356c59143b69",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_ComPonto": "0c76df4a1fb965fd",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.SoVer_NaoTemEditar_NemModoEditar_MesmoPedindoOEditar": "bd90ceb163ead087",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)": "847484a07a5c0d5f",
