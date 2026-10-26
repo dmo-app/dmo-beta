@@ -92,21 +92,10 @@
         </dl>
     }
 
+    // Sem comentários na folha (Diogo, 26/10/2026): as notas já gravadas não se mostram
+    // e vão como estão (campos escondidos no fim do formulário).
     void Notas(string chave)
     {
-        var campo = JobOnFolhaCampos.Encontrar(chave)!;
-        desenhados.Add(chave);
-        var valor = Model.Folha.Valor(chave);
-        if (editar)
-        {
-            <label class="note-box note-edit@(Vazio(valor) is null ? " is-empty" : null)" data-jof-nota><span>Notas</span><textarea class="dmo-valor" id="@campo.Id" name="@campo.NomeNoFormulario" rows="2" maxlength="@campo.Maximo" placeholder="+ Adicionar nota" aria-label="@campo.RotuloAlteracao">@valor</textarea></label>
-        }
-        else
-        {
-            @* As notas, mesmo vazias, enchem o cartão até à altura dos vizinhos;
-               um clique amplia-as (Diogo, 23/10/2026). *@
-            <div class="note-box note-view@(Vazio(valor) is null ? " is-empty" : null)" data-jof-campo="@chave" data-jof-nota tabindex="0"><span>Notas</span><p>@Vazio(valor)</p></div>
-        }
     }
 
     // A utilização: o valor da folha, a barra e a marca do valor anterior (a última leitura).
@@ -222,8 +211,8 @@
             ? new[] { ("Diâm. pata", "cm_pata", "cm_pata_tol"), ("Diâm. gargalo", "cm_gargalo", "cm_gargalo_tol"), ("Diâm. exterior", "cm_exterior", "cm_exterior_tol") }
             : new[] { ("Diâm. corpo", "mf_corpo", "mf_corpo_tol"), ("Diâm. gargalo", "mf_gargalo", "mf_gargalo_tol"), ("Diâm. exterior", "mf_exterior", "mf_exterior_tol") };
         var resto = tipo == "CM"
-            ? new[] { ("Tipo", "cm_tipo"), ("Reparador", "cm_reparador"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3"), ("Stock", "cm_qtd_stock"), ("QTD máq.", "cm_qtd_maq") }
-            : new[] { ("Tipo", "mf_tipo"), ("Reparador", "mf_reparador"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso"), ("Fundo final", "mf_fundo_final"), ("Lote FF", "mf_lote_ff"), ("Stock", "mf_qtd_stock"), ("QTD máq.", "mf_qtd_maq") };
+            ? new[] { ("Tipo", "cm_tipo"), ("Reparador", "cm_reparador"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3"), ("Stock", "cm_qtd_stock") }
+            : new[] { ("Tipo", "mf_tipo"), ("Reparador", "mf_reparador"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso"), ("Fundo final", "mf_fundo_final"), ("Lote FF", "mf_lote_ff"), ("Stock", "mf_qtd_stock") };
         var folgas = new[] { p + "_folga1", p + "_folga2", p + "_folga3" };
         <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
           @{ CabecaFerramenta(tipo, toolId, nome); }
@@ -274,15 +263,19 @@
                 <dd>
                   @if (editar)
                   {
-                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="bacia" value="@(Model.JobOn?.CaloteMm is { } caloteValor ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteValor) : null)" aria-label="Calote (mm)" />
+                    <input class="f" id="lightCalote" name="calote_mm" type="number" lang="en" min="0" step="any" placeholder="—" value="@(Model.JobOn?.CaloteMm is { } caloteValor ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteValor) : null)" aria-label="Calote (mm)" />
                   }
                   else if (Model.JobOn?.CaloteMm is { } valorCalote)
                   {
                     @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(valorCalote)
                   }
+                  else if (Vazio(Model.Folha.Valor("tp_bacia_ps")) is { } caloteBacia)
+                  {
+                    @caloteBacia
+                  }
                   else
                   {
-                    <span class="v-empty" title="Usa a calote registada na bacia">bacia</span>
+                    <span class="v-empty">—</span>
                   }
                 </dd>
               }
@@ -623,7 +616,7 @@ else
                 @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
                 @{ Uso("bq_utilizacao", bqFact); }
                 @{ Notas("bq_notas"); }
-                @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
+                @{ TecnicaAbre("BQ", ["bq_qtd_stock"]); Kv([("Stock", "bq_qtd_stock")]); TecnicaFecha(); }
               </div>
             </div></article>
             @* O AN no seu cartão, com o lote dele (Diogo, 26/10/2026). *@
@@ -635,15 +628,15 @@ else
           <section class="group g-gargalo" aria-label="Gargalo">
             <div class="board" id="gGargalo">
               @* PU e ARR: o mesmo componente, mas cada um no seu cartão, um por baixo do outro (Diogo, 26/10/2026). *@
-              <article class="card sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</article>
+              <article class="card sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock")]); }</article>
               <article class="card sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</article>
             </div>
           </section>
         </div>
         <section class="group g-sopro" aria-label="Sopro">
           <div class="board" id="gSopro">
-            <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
-            <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock"), ("QTD máq.", "cs_qtd_maq")]); }</article>
+            <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [("Stock", "tp_qtd_stock")], calote: true); }</article>
+            <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock")]); }</article>
           </div>
         </section>
         <section class="group g-cal" aria-label="Calibres">
@@ -660,7 +653,7 @@ else
                 <div class="table-wrap">
                   <table class="dmo-table dims calv" data-jof-cal>
                     <thead>
-                      <tr><th scope="col">Medida</th><th scope="col">Componentes</th><th scope="col">QTD máq.</th></tr>
+                      <tr><th scope="col">Medida</th><th scope="col">Componentes</th><th scope="col">Qtd.</th></tr>
                     </thead>
                     <tbody>
                       @foreach (var l in linhas)
@@ -681,7 +674,7 @@ else
                             }
                           </th>
                           <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@Mostra(l.Valor)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Mostra(l.Valor) ?? "—")}</td>
-                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@Mostra(l.QtdMaq)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Mostra(l.QtdMaq) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@Mostra(l.QtdMaq)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Qtd. de @l.Nome" />} else {@(Mostra(l.QtdMaq) ?? "—")}</td>
                         </tr>
                       }
                     </tbody>
@@ -706,35 +699,7 @@ else
           </label>
           <p class="jof-artigo-aviso" data-jof-artigo-aviso role="status" hidden></p>
         </section>
-        <section class="card notes" aria-labelledby="notesTitle">
-          @* As ajudas no triângulo, não escritas no ecrã (ronda de 26/10/2026, J8). *@
-          <h2 id="notesTitle">Notas gerais @if (editar) {<partial name="_DmoHelp" model="@("Uma nota por linha. Grava com Guardar.")" />} else if (Model.PodeEditar) {<partial name="_DmoHelp" model="@("Para mudar as notas, use Editar.")" />}</h2>
-          @{
-              desenhados.Add("notas_gerais");
-              var gerais = Model.Folha.Valor("notas_gerais");
-          }
-          @if (editar)
-          {
-            <textarea class="dmo-valor jof-notas-gerais" id="jobon-notas-gerais" name="Folha.NotasGerais" rows="8" maxlength="@JobOnFolhaCampos.MaximoNotasGerais" aria-label="Notas gerais" placeholder="+ Adicionar nota">@gerais</textarea>
-          }
-          else
-          {
-            <ul>
-              @if (Vazio(gerais) is null)
-              {
-                <li class="view empty-text">Sem notas.</li>
-              }
-              else
-              {
-                foreach (var linha in gerais!.Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0))
-                {
-                  <li class="view">@linha</li>
-                }
-              }
-            </ul>
-          }
-        </section>
-        @* O PI na coluna da direita, por baixo das Notas gerais (Diogo, 23/10/2026). *@
+        @* O PI na coluna da direita, por baixo do Artigo (Diogo, 23/10/2026). *@
         <section class="group g-pinfo" aria-label="Pinças">
           <div class="board" id="gPinfo">
             <article class="card sec" data-jof-familia="PI">@{ Simples("PI", null, [("Pinças", "pi_pincas"), ("Diâmetro", "pi_diametro")], []); }</article>
