@@ -75,13 +75,22 @@ public sealed class StartupConfigurationCheckTests
     }
 
     [Fact]
-    public void Producao_SemOFornecedorDeclarado_Avisa()
+    public void Producao_ComFornecedorDesconhecido_Avisa()
     {
         var problem = Assert.Single(StartupConfigurationCheck.Problems(
-            ProducaoCompleta(("Dmo:AuthenticationProvider", null)), isDevelopment: false, useSupabase: true));
+            ProducaoCompleta(("Dmo:AuthenticationProvider", "Supabse")), isDevelopment: false, useSupabase: true));
 
         Assert.Equal(LogLevel.Warning, problem.Level);
-        Assert.Contains("Dmo__AuthenticationProvider=Supabase", problem.Message);
+        Assert.Contains("Dmo__AuthenticationProvider=Local or Supabase", problem.Message);
+    }
+
+    [Fact]
+    public void Producao_SemFornecedorDeclarado_UsaOLoginProprio_SemAviso()
+    {
+        // Vazio fora de Development = Local (o servidor do portátil): nada a dizer
+        // além da ligação à base, que aqui está definida.
+        Assert.Empty(StartupConfigurationCheck.Problems(
+            ProducaoCompleta(("Dmo:AuthenticationProvider", null)), isDevelopment: false, useSupabase: false));
     }
 
     [Fact]

@@ -33,12 +33,15 @@ public static class StartupConfigurationCheck
         else
         {
             var provider = configuration["Dmo:AuthenticationProvider"];
-            if (!string.Equals(provider, "Supabase", StringComparison.OrdinalIgnoreCase)
+            // Vazio = o login próprio (Local), o de omissão do servidor do portátil.
+            // Um valor que não é nenhum dos dois continua a usar o Supabase, com aviso.
+            if (!string.IsNullOrWhiteSpace(provider)
+                && !string.Equals(provider, "Supabase", StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase))
             {
                 problems.Add(new(LogLevel.Warning,
-                    "Authentication and user provisioning use Supabase outside Development. " +
-                    "Set Dmo__AuthenticationProvider=Supabase (or Local) explicitly; InMemory is only available in Development."));
+                    "Dmo__AuthenticationProvider has an unknown value, so Supabase is used. " +
+                    "Set Dmo__AuthenticationProvider=Local or Supabase; InMemory is only available in Development."));
             }
 
             if (string.IsNullOrWhiteSpace(configuration.GetConnectionString("DmoDatabase")))

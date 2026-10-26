@@ -24,7 +24,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +35,13 @@ var authProviderName = builder.Configuration.GetValue<string>("Dmo:Authenticatio
 // Resolve the effective provider before registering either authentication or
 // provisioning. InMemory is a local Development seam, never a deployment fallback.
 // Local: o login da própria app, com as palavras-passe cifradas na base
-// (LocalCredentials), para correr sem Supabase. Só com escolha explícita.
-var useLocalAuth = string.Equals(authProviderName, "Local", StringComparison.OrdinalIgnoreCase);
+// (LocalCredentials), para correr sem Supabase. É o login do servidor do
+// portátil e o de omissão fora de Development quando nada está escolhido
+// (Diogo, 26/10/2026: a app passa a correr no portátil). O Supabase só com
+// Dmo__AuthenticationProvider=Supabase (ou outro valor não vazio, como antes,
+// para um valor mal escrito no Railway não trocar o login sem aviso).
+var useLocalAuth = string.Equals(authProviderName, "Local", StringComparison.OrdinalIgnoreCase)
+    || (!builder.Environment.IsDevelopment() && string.IsNullOrWhiteSpace(authProviderName));
 var useSupabase = !useLocalAuth && (!builder.Environment.IsDevelopment()
     || string.Equals(authProviderName, "Supabase", StringComparison.OrdinalIgnoreCase));
 
@@ -113,27 +117,6 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
     options.AddInterceptors(serviceProvider.GetRequiredService<DMO.Alpha.Web.Services.MedicaoPedidoInterceptor>());
     var config = serviceProvider.GetRequiredService<IConfiguration>();
     var databaseConnection = config.GetConnectionString("DmoDatabase");
-    var devPoolerHost = config["Dmo:DevPoolerHost"];
-    if (!string.IsNullOrWhiteSpace(databaseConnection) &&
-        !string.IsNullOrWhiteSpace(devPoolerHost))
-    {
-        // Only DMO-DEV can use this override. Reuse the dedicated DEV
-        // runtime role/password already held in the Railway secret.
-        if (!string.Equals(devPoolerHost, "aws-0-eu-west-1.pooler.supabase.com", StringComparison.Ordinal) ||
-            !string.Equals(new NpgsqlConnectionStringBuilder(databaseConnection).Host,
-                "db.gkblhzonflzwxvbbullv.supabase.co", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("DEV pooler override is restricted to DMO-DEV.");
-
-        var cs = new NpgsqlConnectionStringBuilder(databaseConnection)
-        {
-            Host = devPoolerHost,
-            Port = 5432
-        };
-        var username = cs.Username ?? string.Empty;
-        if (!username.EndsWith(".gkblhzonflzwxvbbullv", StringComparison.Ordinal))
-            cs.Username = username + ".gkblhzonflzwxvbbullv";
-        databaseConnection = cs.ConnectionString;
-    }
     if (!string.IsNullOrWhiteSpace(databaseConnection))
         options.UseNpgsql(databaseConnection, npgsql =>
             npgsql.MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName));
@@ -429,7 +412,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(AdminAuthorizationPolicies.RequireAdmin, policy =>
         policy.Requirements.Add(new AdminAreaRequirement()));
 });
-builder.Services.AddAntiforgery();
+// O cookie do antiforgery sai com Secure quando o pedido chega por HTTPS
+// (o omisso do ASP.NET nunca o marca). Atrás do Railway e do Tailscale Funnel
+// o HTTPS chega pelo X-Forwarded-Proto; pelo http da rede local continua a servir.
+builder.Services.AddAntiforgery(options =>
+    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest);
 
 // Razor writes pt-PT text (à, ç, ·, —) literally instead of numeric entities:
 // the default HtmlEncoder entity-encodes every non-Basic-Latin character.
@@ -496,7 +483,7 @@ else if (OperatingSystem.IsWindows())
     dataProtection.ProtectKeysWithDpapi();
 }
 
-// O Railway termina o HTTPS à frente da app e passa o pedido em HTTP com
+// O Railway (e o Tailscale Funnel no portátil) termina o HTTPS à frente da app e passa o pedido em HTTP com
 // X-Forwarded-Proto/For. Sem ler esses cabeçalhos a app julga-se em HTTP:
 // os cookies da sessão saíam sem Secure e o HSTS nunca era enviado. A rede
 // do proxy não é fixa, por isso aceita-se o cabeçalho de qualquer origem

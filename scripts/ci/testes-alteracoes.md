@@ -2301,3 +2301,19 @@ Novos: 8 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `ba8c6ed8a40203be`
+
+## A-0108 · 2026-10-26 · ok-do-diogo
+
+Porquê: Passo 3 da app no portátil: sem Dmo__AuthenticationProvider, fora de Development, o login passa a ser o da app (Local); um valor desconhecido continua no Supabase, com aviso. Sai o atalho do pooler do Supabase (DevPoolerHost) e o seu teste. As mensagens do Admin deixam de dizer «Supabase». Os casos Production/Staging vazios passam do teste antigo para o novo (Local); os restantes ficam iguais.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRYz9rVfSPGua8CqeapJTKF (Diogo «sim» ao plano https://claude.ai/artifact/RBi5qndtR3xsjwyTPgpLV9)
+Novos: 3 · mudaram: 2 · saíram: 2
+
+- novo: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_SemFornecedorOuLocal_UsaOLoginProprio`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_ComFornecedorDesconhecido_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemFornecedorDeclarado_UsaOLoginProprio_SemAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.DeleteUser_TwoStepConfirmation_RemovesTheRow_AdminNever`
+- mudou: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.NonDevelopment_AlwaysRegistersRealAuthenticationAndProvisioning`
+- saiu: `tests/DMO.Alpha.Web.Tests/PersistencePolicyTests.cs :: PersistencePolicyTests.Beta_DevPoolerOverride_ReusesStoredTechnicalCredential`
+- saiu: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemOFornecedorDeclarado_Avisa`
+
+Selo depois: `90d450bd080a0cb0`
