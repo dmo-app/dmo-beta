@@ -254,11 +254,11 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
         // O corpo do apoio: as métricas da calote efetiva vs a referência
         // (o sinal «+» renderiza como a entidade &#x2B; — o precedente da
         // casa nos PegamentosPageTests).
-        Assert.Contains("Origem do h efetivo: Job On", html);
+        Assert.Contains("Origem do h: Job On", html);
         Assert.DoesNotContain("&#x2B;12.140 mm", html); // sem diferença ao desenho: o raio deixou de ser pedido
         Assert.DoesNotContain("R do desenho", html);
-        Assert.Contains("39.22 mm", html);            // R calculado (h = 9)
-        Assert.Contains("&#x2B;2.97 mm", html);       // ΔR = actual.R − reference.R
+        Assert.Contains("Volume nominal</span><strong>10.34 cm³", html); // h nominal 10 (Diogo, 26/10/2026: volume nominal, do Job On e o Δ)
+        Assert.DoesNotContain("R calculado", html);
         Assert.Contains("-1.12 cm³", html);           // ΔV = actual.V − reference.V (sinal preservado)
 
         // O facto humano é a referência da CM; o tool_id nunca é facto da folha.
@@ -277,12 +277,12 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
 
         var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
 
-        Assert.Contains("Origem do h efetivo: Tool CM", html);
+        Assert.Contains("Origem do h: Tool CM", html);
         Assert.Contains("D 50 · h 10 · Tool CM", html);
         Assert.Contains("10.34 cm³", html);
         // O sinal «+» renderiza como a entidade &#x2B; (precedente da casa).
-        Assert.Contains("&#x2B;0 mm", html);
-        Assert.Contains("&#x2B;0 cm³", html);
+        // Sem Job On não há h nem volume do Job On: só o nominal.
+        Assert.Contains("<strong>—</strong>", html);
     }
 
     [Fact]
@@ -323,9 +323,10 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
 
         Assert.Contains("<details class=\"tp-support\"", html);
         Assert.Contains("open=\"open\"", html);
-        Assert.Contains("Origem do h efetivo: Simulação", html);
-        Assert.Contains("h efetivo</span><strong>8 mm", html);
-        Assert.Contains("43.06", html);                // R calculado (625+64)/16 = 43,0625
+        Assert.Contains("Origem do h: Simulação", html);
+        Assert.Contains("h simulado", html);
+        Assert.Contains("<strong>8 mm</strong>", html);
+        Assert.Contains("-2.22 cm³", html);            // Δ volume: 8.12 − 10.34
         Assert.Contains("value=\"8\"", html);          // o campo veste o valor simulado
 
         // O facto do Job On NUNCA é alterado pela simulação.
@@ -347,8 +348,8 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
         var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&cap_h=abc");
 
         Assert.Contains("não é utilizável", html);
-        Assert.Contains("Origem do h efetivo: Job On", html);
-        Assert.Contains("39.22 mm", html);
+        Assert.Contains("Origem do h: Job On", html);
+        Assert.Contains("-1.12 cm³", html);
     }
 
     [Fact]
@@ -438,7 +439,7 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
         var html = await GetPageHtmlAsync(client, $"{PagePath}?cm_tool_id=5447&bq_tool_id=T194");
 
         Assert.Contains("TP / calote · Apoio separado", html);
-        Assert.Contains("Origem do h efetivo: Tool CM", html);
+        Assert.Contains("Origem do h: Tool CM", html);
         Assert.Contains("D 50 · h 10 · Tool CM", html);
         Assert.Contains("Volume Marisa / BQ (cm³)", html);
         Assert.Contains("Volume Punção / CM (cm³)", html);

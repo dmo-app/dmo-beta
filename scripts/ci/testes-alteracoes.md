@@ -2845,3 +2845,22 @@ Novos: 4 · mudaram: 13 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostDuplicate_NewLotRequired_OpensNewToolFicha_SourceIntact`
 
 Selo depois: `48228fa0baa61d4d`
+
+## A-0139 · 2026-10-26 · ok-do-diogo
+
+Porquê: Apoio TP do Peso: h nominal e h Job On, por baixo só volume nominal, volume do Job On e o Δ (cmsg_01A27e9ozcpoh4jdPRsuJbFyJeXejBKtyrUeFgGaVPybCd); mensagem sem tampão aponta à Folha do Job On
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyGfg3KWEXc5o6gr5g6qLJzG
+Novos: 0 · mudaram: 10 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoDoJobOnTests.cs :: PesoTampaoDoJobOnTests.SemTampaoEmLado_Nenhum_ReferenciaPorCompletarSemBloquear`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemCaloteNoJobOn_UsaAReferenciaDaTool`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoIlegivel_AvisoHonestoSemBloqueio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.SimulacaoPorGet_RecalculaPeloBackendEAbreOApoio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ToolScopedMode_ApoioSemProducao_UsaAReferenciaDaTool`
+- mudou: `tests/ShellProof/peso-calote.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/peso-calote.test.cjs :: a resposta de uma calote anterior que chega depois da atual não substitui os valores da atual`
+- mudou: `tests/ShellProof/peso-calote.test.cjs :: escrever outra vez durante a espera invalida logo o pedido que já saiu`
+- mudou: `tests/ShellProof/peso-calote.test.cjs :: sem resposta, com erro do servidor ou sem apoio, os valores da calote anterior saem («—»)`
+
+Selo depois: `66bcd095dca37831`
