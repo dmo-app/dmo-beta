@@ -2559,7 +2559,7 @@ Novos: 5 · mudaram: 5 · saíram: 6
 
 Selo depois: `2a6fb53ba94863bb`
 
-## A-0116 · 2026-10-26 · ok-do-diogo
+## A-0123 · 2026-10-26 · ok-do-diogo
 
 Porquê: Login: da 5.ª palavra-passe errada seguida em diante o ecrã manda consultar o ADMIN; a conta nunca fica bloqueada e a certa entra sempre
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3mFwYjgASf4KLxaoXW6mfD
