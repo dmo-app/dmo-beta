@@ -2488,3 +2488,21 @@ Novos: 3 · mudaram: 2 · saíram: 2
 - saiu: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemOFornecedorDeclarado_Avisa`
 
 Selo depois: `117ae893f467f520`
+
+## A-0110 · 2026-10-26 · teste-novo
+
+Porquê: PR #109 (A-0108): primeira instalação (/instalar), que cria o ADMIN numa base sem ADMIN nem palavras-passe, só com o login próprio e com o código de instalação (Diogo, 26/10/2026).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyWbdS4e71SJst8xdH6RU2EW
+Novos: 9 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.BaseVazia_ComOCodigo_CriaOAdmin_QueEntraComAPalavraPasse`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoErrado_NaoCriaNada`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoSorteado_MudaAoFimDeCincoEnganos`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComAdminJaGravado_NaoHaInstalacao`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComPalavrasPasseNaBase_NaoHaInstalacao`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DadosQueNaoServem_NaoCriamNada`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DepoisDeFeita_OCodigoNaoVoltaAServir`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.SemLoginProprio_NaoHaInstalacao`
+
+Selo depois: `2d21b23a370585bd`

@@ -501,6 +501,11 @@ builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>
     options.KnownProxies.Clear();
 });
 
+// A primeira instalação (/instalar): só faz alguma coisa com o login próprio.
+builder.Services.AddSingleton(new DMO.Alpha.Web.Services.LoginProprio(useLocalAuth));
+builder.Services.AddSingleton<DMO.Alpha.Web.Services.CodigoDeInstalacao>();
+builder.Services.AddScoped<DMO.Alpha.Web.Services.InstalacaoInicial>();
+
 var app = builder.Build();
 
 app.UseForwardedHeaders();

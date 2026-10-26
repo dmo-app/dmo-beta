@@ -1,5 +1,5 @@
 {
-  "selo": "117ae893f467f520",
+  "selo": "2d21b23a370585bd",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2204,6 +2204,15 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasServicesRegistrationTests.cs :: FerramentasServicesRegistrationTests.FerramentasServices_ResolveAsScopedImplementations": "205591dc58563768",
     "tests/DMO.Alpha.Web.Tests/FornecedorDeAutenticacaoQueFalha.cs :: (resto do ficheiro)": "660066da10954937",
     "tests/DMO.Alpha.Web.Tests/HtmlFormHelpers.cs :: (resto do ficheiro)": "59c88aaf2ca796f2",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: (resto do ficheiro)": "c864f98e3c331490",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.BaseVazia_ComOCodigo_CriaOAdmin_QueEntraComAPalavraPasse": "e9cd6de6313a39b2",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoErrado_NaoCriaNada": "f786a95f3dd53677",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.CodigoSorteado_MudaAoFimDeCincoEnganos": "090d888104846afa",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComAdminJaGravado_NaoHaInstalacao": "75cc85e27982a9ff",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.ComPalavrasPasseNaBase_NaoHaInstalacao": "689700827c74eb82",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DadosQueNaoServem_NaoCriamNada": "1e96835e58de188e",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.DepoisDeFeita_OCodigoNaoVoltaAServir": "25d2bbe13fb5eaa4",
+    "tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.cs :: InstalacaoInicialTests.SemLoginProprio_NaoHaInstalacao": "92b9892710ce4c70",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: (resto do ficheiro)": "2c6949579f13c3f3",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.ComOInterruptor_OAvisoDoArmazemVolta": "54d1954406b14a97",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes": "a9f8841864461d46",
