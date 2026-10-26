@@ -43,6 +43,9 @@ Este repositório contém a base Razor Pages proveniente do dmo-beta (`3e3b175`,
 
 Corrigido durante esta passagem: foco devolvido ao fechar o painel (antes caía no `<body>`), campos da Ficha que estouravam em superfícies estreitas, o cabeçalho e a fila de seletores do rail em 390 px, e a tabela «Contas por módulo» das Definições que estava fora de `dmo-table-wrap` (defeito pré-existente do dmo-beta: com a regra de base `min-width:760px` abaixo de 720 px fazia a página inteira rolar no telemóvel; agora rola dentro do invólucro, como pede `componentes-partilhados.md`).
 
+- **26/10/2026, branch claude/design-mockups:** com um PostgreSQL 17 descartável, Web 1177/1177 e Infrastructure 1830/1836 (6 ignorados: Supabase real; 1 falha só em Windows — `PdfRecoveryTests.MapaMostraOs…` escreve em `/dev/null`, passa com `DMO_MAPA_SVG`). Guarda dos testes OK. Nesta máquina o `dotnet test` não arranca (testhost: «Acesso negado» ao processo pai); corre-se com o runner de consola do xUnit (`xunit.runner.console` 2.9.3, `dotnet exec … xunit.console.dll`).
+- Todas as páginas exportadas sem transbordo horizontal a 375 px e a 1366 px.
+
 ## Ainda não verificado aqui
 
 - Suite xUnit completa: o testhost não arranca neste sandbox (acesso negado ao handle do processo pai). Os testes de estilo foram validados por script equivalente; os restantes correm no CI/portátil.
