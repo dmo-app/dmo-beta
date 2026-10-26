@@ -2504,10 +2504,10 @@ Novos: 7 · mudaram: 0 · saíram: 0
 
 Selo depois: `8f7cf08cf9932c69`
 
-## A-0112 · 2026-10-26 · ok-do-diogo
+## A-0112 · 2026-10-26 · teste-novo
 
-Porquê: Registo do integracao acertado pelo da main 94fc450 (.61): fica o da main, e esta entrada cobre os testes dos PRs em curso juntos no integracao (#113, #114 e outros); cada PR traz o seu registo para a main.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Porquê: Reshape de Boquilhas (B3b): os registos de uma BQ, a associação a um Job On e o registo pendente passam para BoquilhasAssociacaoQuery; a página Boquilhas já não lê a base; testes do serviço e orçamento de consultas no Postgres
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy6LLAHPU5WAmH4YiKwfVeei
 Novos: 10 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: (resto do ficheiro)`
@@ -2525,20 +2525,9 @@ Selo depois: `57ab224e182ba5d2`
 
 ## A-0113 · 2026-10-26 · ok-do-diogo
 
-Porquê: Junção do PR #116 (painel lateral Planeamento) no ramo integracao; o registo do próprio PR (A-0115) entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR #116
-Novos: 0 · mudaram: 2 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext`
-- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
-
-Selo depois: `63d6530418f8c955`
-
-## A-0114 · 2026-10-26 · ok-do-diogo
-
-Porquê: PR #117 junto ao integracao: o Editar antigo do Job On deixa de ler notas de lote, alterações e eliminar (A-0114 na main)
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy3dUaW7rit23pc6wmyyXQ44
-Novos: 5 · mudaram: 5 · saíram: 6
+Porquê: Registo do integracao acertado pela main 331136f (.62): fica o da main + esta entrada para os PRs em curso (#113, #116 e outros).
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 5 · mudaram: 7 · saíram: 6
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_FactosEFolha`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.Duplicar_NaoLeFactos_MasLeAFolhaQueCopia`
@@ -2550,6 +2539,8 @@ Novos: 5 · mudaram: 5 · saíram: 6
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.FolhaGravada_Presente_OuAusenteLeSeComoVazia`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.OPedido_NaoGravaNada`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SoUmaFerramenta_LeFactosSoDessa`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_NotasAlteracoesPreviewFactosFolha`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.Duplicar_NaoLePreviewNemFactos_MasLeAFolhaQueCopia`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.JobOnAberto_DevolveNotasAlteracoesPreviewFactosEFolha`
