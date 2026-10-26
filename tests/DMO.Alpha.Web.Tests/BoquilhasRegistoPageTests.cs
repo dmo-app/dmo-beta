@@ -1315,10 +1315,10 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
 
         // A gramática da casa nas linhas: o duplo clique/Enter abre a
         // ficha (o tool_id só no URL — escapado).
+        // Diogo, 26/10/2026: o clique na boquilha abre a Ficha da ferramenta.
         Assert.Contains(
-            "data-dmo-open=\"/Boquilhas?ficheiros=1",
+            "data-dmo-open=\"/Ferramentas/Ficha?tool_id=BQ-A3-CARD\"",
             html, StringComparison.Ordinal);
-        Assert.Contains("ferramenta=BQ-A3-CARD", html);
         Assert.Contains("Cada ferramenta BQ/lote tem uma ficha única, reutilizável em vários Job Ons", html);
     }
 
