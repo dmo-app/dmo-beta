@@ -1626,7 +1626,7 @@ public sealed record SemJobOnTool(
 {
     public string Label => string.Join(" · ", new[]
     {
-        Reference, $"Lote {Lot}",
+        $"BQ {Reference}", $"Lote {LotShown}",
         Quantity is int q ? $"Qtd {q}" : null,
         Machines is { Length: > 0 } m ? $"Máq. {m}" : null,
         MfReference is { Length: > 0 } mf ? $"MF {mf}" : null,
@@ -1634,7 +1634,10 @@ public sealed record SemJobOnTool(
     }.Where(p => p is not null));
 
     /// <summary>O texto da procura: tudo o que se vê, sem distinguir maiúsculas.</summary>
-    public string SearchText => Label.ToLowerInvariant();
+    public string SearchText => $"{Label} {Lot}".ToLowerInvariant();
+
+    /// <summary>O lote sem zeros à esquerda (só na apresentação).</summary>
+    private string LotShown => Lot.TrimStart('0') is { Length: > 0 } l ? l : Lot;
 }
 
 /// <summary>Um movimento sem Job On, na ficha da BQ da página Boquilhas.</summary>
