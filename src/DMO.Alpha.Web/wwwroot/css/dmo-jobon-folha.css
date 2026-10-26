@@ -928,26 +928,11 @@ html body .jfi-folha .jfi-lista td{height:6.4mm}
 html body .jfi-folha .dmo-table tr:first-child th{background:#eef1f4;color:#15191e}
 html body .jfi-folha .jfi-kv th{background:transparent!important;color:#3c454f}
 /* Preparador - DMO e Job-ON Moldes (Diogo, 26/10/2026, pelo Excel de 21/10). */
-.jfp-factos{grid-template-columns:repeat(7,1fr)}
-.jfp-notas{min-height:0;font-size:7.8pt}
-.jfp-bloco{display:grid;grid-template-columns:8mm 1fr 52mm;border:1px solid #9aa3ad;break-inside:avoid}
-.jfp-lado{display:flex;align-items:center;justify-content:center;background:#eef1f4;border-right:1px solid #9aa3ad;font-weight:700;font-size:10pt;writing-mode:vertical-rl;transform:rotate(180deg)}
-.jfp-meio{border-right:1px solid #9aa3ad;min-width:0}
-.jfp-topo{display:flex;gap:4mm;flex-wrap:wrap;padding:.8mm 2mm;background:#eef1f4;border-bottom:1px solid #9aa3ad;font-size:7.8pt}
-.jfp-topo b{font-weight:700;color:#3c454f}
-html body .jfi-folha .jfp-verif{margin:0}
-html body .jfi-folha .jfp-verif td{padding:.35mm 1.6mm;font-size:7.4pt;border-left:0;border-top:0}
-html body .jfi-folha .jfp-verif td.ck{width:9mm;color:#5b6570;font-size:6.5pt}
-html body .jfi-folha .jfp-verif td.obs{width:34%;color:#5b6570;font-size:6.5pt;border-right:0}
-html body .jfi-folha .jfp-verif tr:last-child td{border-bottom:0}
-.jfp-dir{font-size:7.6pt;min-width:0}
-.jfp-kv{display:flex;justify-content:space-between;padding:.3mm 2mm}
-.jfp-kv span{color:#5b6570}
-.jfp-tratar{padding:.8mm 2mm;font-size:7pt;font-weight:700;text-transform:uppercase}
 html body .jfi-folha .jfm-t td,html body .jfi-folha .jfm-t th{padding:.6mm 1.8mm;font-size:7.8pt;vertical-align:top}
 html body .jfi-folha .jfm-t tr:first-child th{text-align:center}
 html body .jfi-folha .jfm-t .jfm-ferr{width:30%;background:transparent!important;font-weight:400}
 html body .jfi-folha .jfm-t .jfm-dados{width:36%}
+.jfm-factos{grid-template-columns:repeat(7,1fr)}
 .jfm-nome{font-weight:700;font-size:9pt;margin-bottom:.4mm}
 .jfm-kv{display:flex;justify-content:space-between;gap:2mm}
 .jfm-kv span{color:#5b6570}

@@ -2,8 +2,8 @@ namespace DMO.Alpha.Web.Tests;
 
 /// <summary>
 /// AS FOLHAS DO IMPRIMIR (Diogo, 26/10/2026): o «Imprimir» do Job On é um menu
-/// que escolhe a folha (Ficha de Artigo, Trabalho de Equipa, Preparador, Job-ON Moldes em duas
-/// cópias, ou o ecrã). As
+/// que escolhe a folha (Ficha de Artigo, Trabalho de Equipa, Job-ON Moldes em duas cópias,
+/// ou o ecrã). As
 /// folhas vêm escondidas na página com os dados do Job On, e o browser
 /// imprime-as (nunca PDF no servidor). Quem só tem «Job On ver» não as recebe.
 /// </summary>
@@ -30,20 +30,18 @@ public partial class JobOnPageTests
     }
 
     [Fact]
-    public async Task Folha_Imprimir_TemOPreparadorEOJobOnMoldesEmDuasCopias()
+    public async Task Folha_Imprimir_TemOJobOnMoldesEmDuasCopias()
     {
         SeedUser("4583", "Chefe imprimir 3", "provider-folha-imprimir-3", "Folha1234!");
         var jobOnId = await SeedJobOnCompletoAsync();
         using var client = await LoginClientAsync("4583", "Folha1234!");
 
         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={jobOnId}");
-        Assert.Contains("data-jof-imprimir-folha=\"preparador\">Preparador - DMO</button>", html, StringComparison.Ordinal);
         Assert.Contains("data-jof-imprimir-folha=\"moldes\">Job-ON Moldes (2 cópias)</button>", html, StringComparison.Ordinal);
-        Assert.Contains("data-jof-folha=\"preparador\"", html, StringComparison.Ordinal);
-        Assert.Contains("FOR 05 MOL 006 (pt)", html, StringComparison.Ordinal);
         Assert.Equal(2, html.Split("data-jof-folha=\"moldes\"").Length - 1);
         Assert.Contains("CÓPIA 1 DE 2", html, StringComparison.Ordinal);
         Assert.Contains("CÓPIA 2 DE 2", html, StringComparison.Ordinal);
+        Assert.True(html.IndexOf("data-jof-folha=\"moldes\"", StringComparison.Ordinal) < html.IndexOf("data-jof-folha=\"ficha\"", StringComparison.Ordinal));
     }
 
     [Fact]

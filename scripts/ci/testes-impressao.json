@@ -1,5 +1,5 @@
 {
-  "selo": "9329a184b5b91681",
+  "selo": "63dc3b05f4b2aa09",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2324,8 +2324,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_SemReferenciaMfMaisBq_SoAvisa": "cb38e13db9c3e901",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: (resto do ficheiro)": "69b5c204a0772cd2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas": "af1a39a2c6d7c0d2",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias": "a03e5fdcadb367ce",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "b1e09244d6808d3e",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOPreparadorEOJobOnMoldesEmDuasCopias": "415dd30fb40c66e8",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: (resto do ficheiro)": "b7c082c0cb268916",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: JobOnPageTests.FolhaNova_PainelLateral_CadaCartaoLevaACorDaSuaLinha": "fc1116bfdf0baef4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)": "4caac937ec2d97cf",
