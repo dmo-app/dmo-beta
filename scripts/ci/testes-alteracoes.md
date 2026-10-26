@@ -2955,3 +2955,13 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor`
 
 Selo depois: `051430a6f2918d77`
+
+## A-0145 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR 145b no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 145b
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/ecra_pequeno_browser.py`
+
+Selo depois: `4068ebba6a5a757a`
