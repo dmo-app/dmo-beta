@@ -103,12 +103,6 @@ public sealed class IndexModel : PageModel
     /// </summary>
     public FolhaDoJobOnVista Folha { get; private set; } = FolhaDoJobOnVista.Vazia();
 
-    /// <summary>
-    /// A folha da fábrica na ficha do Job On, em leitura, só com o que está
-    /// escrito; null sem ficha (sem Job On aberto ou no Duplicar).
-    /// </summary>
-    public FichaDaFolhaVista? FichaFolha { get; private set; }
-
     // Uma recusa com a folha escrita volta à página a partir do envio (a folha
     // não cabe no endereço): o envio, a chave do texto longo demais e a versão
     // com que a folha de edição tinha aberto.
@@ -116,35 +110,11 @@ public sealed class IndexModel : PageModel
     private string? _chaveRecusada;
     private uint? _versaoDoEnvio;
 
-    /// <summary>
-    /// O link dos avisos dos módulos (?jobon_id=N&amp;vista=alteracoes): a ficha
-    /// abre com o resumo «O que mudou» já aberto; sem ele, o resumo vem fechado
-    /// (o proprietário, 17/10/2026).
-    /// </summary>
-    public bool VistaAlteracoes { get; private set; }
-
-    /// <summary>O resumo «O que mudou» da produção aberta, do mais recente para o mais antigo.</summary>
-    public IReadOnlyList<JobOnSummaryEntry> FichaResumo { get; private set; } = Array.Empty<JobOnSummaryEntry>();
-
-    /// <summary>As mudanças de lote já registadas na produção aberta.</summary>
-    public IReadOnlyList<LotNoteView> FichaLotNotes { get; private set; } = Array.Empty<LotNoteView>();
-
     /// <summary>Contexto de produção estabelecido do Job On aberto (?jobon_id); null fora desse contexto.</summary>
     public ProductionContextReadModel? OpenJobOn { get; private set; }
 
-    /// <summary>A confirmação do «Eliminar Job On» da ficha (Diogo, 19/10/2026, D2).</summary>
-    public JobOnEliminarAviso? FichaEliminar { get; private set; }
-
     /// <summary>O Job On acabou de ser eliminado (?eliminado=1).</summary>
     public bool Eliminado { get; private set; }
-
-    /// <summary>
-    /// Só quem tem um módulo do Controlo (Controlo ou Controlo Aprovar) vê a
-    /// informação do Controlo no Job On (Diogo, 19/10/2026): a opção «Controlo»
-    /// da ficha e o que o Eliminar conta. Quem só aprova entra no Controlo dele
-    /// (ModuleEntry leva-o à Revisão da mesma produção).
-    /// </summary>
-    public bool VeControlo { get; private set; }
 
     /// <summary>
     /// A FICHA DA PRODUÇÃO (o job-sheet do dmo-html): os fatos técnicos das
@@ -771,40 +741,11 @@ public sealed class IndexModel : PageModel
         // (?jobon_id=N&duplicar=1) compõe o draft da produção nova (o html:
         // o nº e as datas por preencher, as tools e a calote copiadas).
         //
-        // As leituras da ficha (notas de lote, alterações, o que se perde ao
-        // eliminar, os factos das ferramentas e a folha gravada) fazem-se de
-        // uma vez no serviço; as capabilities do utilizador não voltam à base
-        // (resolvem-se uma vez por pedido), por isso a ordem entre umas e outras
-        // não muda o que se lê.
+        // As leituras da ficha (os factos das ferramentas e a folha gravada)
+        // fazem-se de uma vez no serviço.
         var ficha = OpenJobOn is { } fichaAberta
-            ? await _ficha.FichaAsync(fichaAberta, today, duplicar == "1", HttpContext.RequestAborted)
+            ? await _ficha.FichaAsync(fichaAberta, duplicar == "1", HttpContext.RequestAborted)
             : null;
-        if (OpenJobOn is { } loteJobOn && ficha is not null)
-        {
-            FichaLotNotes = ficha.LotNotes;
-            var resumo = JobOnSummaryEntry.Compose(
-                loteJobOn.JobOnId,
-                loteJobOn.InicioEm,
-                ficha.Changes,
-                FichaLotNotes);
-            var permitidas = new HashSet<string>();
-            foreach (var capability in resumo.Select(e => e.ActionCapability).Distinct())
-            {
-                if (await _capabilities.HasAsync(capability, HttpContext.RequestAborted)) permitidas.Add(capability);
-            }
-            FichaResumo = JobOnSummaryEntry.ForCapabilities(resumo, permitidas.Contains);
-            VistaAlteracoes = vista == "alteracoes";
-        }
-
-        if (OpenJobOn is not null && duplicar != "1")
-        {
-            VeControlo = await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted)
-                || await _capabilities.HasAsync(DmoCapabilities.ControloApprove, HttpContext.RequestAborted);
-            if (ficha?.DeletePreview is { } preview)
-            {
-                FichaEliminar = JobOnEliminarAviso.From(preview, VeControlo);
-            }
-        }
 
         if (OpenJobOn is { } fichaJobOn)
         {
@@ -885,7 +826,6 @@ public sealed class IndexModel : PageModel
         // o Editar e para o Duplicar (a ficha aparece sempre que há Job On
         // aberto, menos no Duplicar).
         var folhaGravada = ficha?.Folha;
-        FichaFolha = folhaGravada is null || DuplicarDe is not null ? null : FichaDaFolhaVista.DaLida(folhaGravada);
 
         // No formulário: o que se escreveu (depois de uma recusa que volta a
         // partir do envio), a gravada no Editar, a da origem no Duplicar (o
