@@ -2,8 +2,8 @@
 @using DMO.Alpha.Web.Pages.JobOn
 @using DMO.Alpha.Core.Production
 @*
-  AS 4 FOLHAS DO IMPRIMIR (Diogo, 26/10/2026, pelo mapa das folhas): Ficha de
-  Artigo, Trabalho de Equipa, Preparador - DMO e Pinças - DMO. Levam o que o
+  AS FOLHAS DO IMPRIMIR (Diogo, 26/10/2026, pelo mapa das folhas): Ficha de
+  Artigo e Trabalho de Equipa (o Preparador vem depois). Levam o que o
   Job On tem; o que o Job On não tem fica em branco para escrever à mão
   («____» ou a caixa vazia). Ficam escondidas no ecrã: o botão Imprimir
   escolhe as folhas e o browser imprime-as (nunca PDF no servidor).
@@ -176,112 +176,4 @@
     <footer class="jfi-rodape"><span>FOR 05 MOL 004 (pt)</span><span>Impresso pela DMO</span></footer>
   </section>
 
-  @* ── PREPARADOR - DMO ────────────────────────────────────────── *@
-  <section class="jfi-folha jfi-densa" data-jof-folha="preparador" aria-label="Preparador - DMO">
-    <header class="jfi-topo">
-      <div><div class="jfi-eyebrow">DMO-MG · PREPARADOR</div><div class="jfi-ref">@referencia</div></div>
-      <div class="jfi-topo-dir"><div><span>LINHA</span><b class="jfi-linha">@jobOn.Machine</b></div><div><span>PRODUÇÃO</span><b>@jobOn.ProductionNumber</b></div></div>
-    </header>
-    <div class="jfi-factos">
-      <div><span>Data</span><b>@Dia(inicio)</b></div>
-      <div><span>Secções</span><b>@F("cab_seccoes")</b></div>
-      <div><span>Gotas</span><b>@F("cab_gota")</b></div>
-      <div><span>Peso</span><b>@Peso()</b></div>
-      <div><span>Cadência</span><b></b></div>
-      <div><span>Horas</span><b></b></div>
-    </div>
-    <div class="jfi-caixa"><b>Notas do Job On:</b> @(string.Join(" · ", Notas("notas_gerais")))</div>
-    @{
-        void Verif(string titulo, string direita, string linha, string[] itens)
-        {
-            <div class="jfi-bloco">
-              <div class="jfi-sub"><span>@titulo</span><span>@direita</span></div>
-              <div class="jfi-corpo jfi-linha-sep">@Html.Raw(linha)</div>
-              <table class="jfi-t jfi-verif">
-                <tr><th>Verificação</th><th class="ck">OK</th><th class="ck">NOK</th><th class="obs">Obs.</th></tr>
-                @foreach (var i in itens)
-                {
-                  <tr><td>@i</td><td class="ck">☐</td><td class="ck">☐</td><td></td></tr>
-                }
-              </table>
-            </div>
-        }
-        string E(string s) => System.Net.WebUtility.HtmlEncode(s);
-        string Ou(string s) => s.Length > 0 ? E(s) : "____";
-        string Tratar(string chave) => Notas(chave).Any() ? "<br><b>Tratar:</b> " + E(string.Join("; ", Notas(chave))) : "";
-    }
-    <div class="jfi-duas jfi-topo-alinhar">
-      <div class="jfi-pilha">
-        @{ Verif("CONTRA-MOLDE (CM)", Lote(cm), $"Ref. {Ou(cm?.Reference ?? "")} · Loc. ____ · Qtd. ____<br>Inversão {Ou(F("cm_inversao"))} · Parafuso {Ou(F("cm_parafuso"))} · 3.ª almofada {Ou(F("cm_almofada3"))}{Tratar("cm_notas")}", ["3.ª almofada / carcaça / parafuso", "Calibre", "Caixa", "Confirmação da montagem"]); }
-        @{ Verif("PUNÇÃO + ARREFECEDOR (PU+ARR)", F("pu_versao") is { Length: > 0 } pv ? "Versão " + pv : "", $"PU {Ou(F("pu_referencia"))} · ARR {Ou(F("arr_referencia"))} · Loc. ____ · Qtd. ____", ["Inspeção visual", "Furos de rompimento", "Estado e folga do arrefecedor (PS)"]); }
-        @{ Verif("TAMPÃO (TP)", string.Join(" × ", new[] { F("tp_diametro_ps") is { Length: > 0 } td ? "Ø " + td : "", Calote() }.Where(s => s.Length > 0)), $"Ref. {Ou(F("tp_referencia"))} · Loc. ____ · Qtd. ____ · Folga ____<br>Bacia {Ou(F("tp_bacia_ps"))} · Calote {Ou(Calote())}", ["Estado e folga"]); }
-        @{ Verif("FUNIL (FU)", "", "Ref./Ø int. ____ · Ø ext. ____ · Redutor ____ · Loc. ____ · Qtd. ____", ["Facetados", "Redutor"]); }
-      </div>
-      <div class="jfi-pilha">
-        @{ Verif("MOLDE FINAL (MF)", Lote(mf), $"Ref. {Ou(mf?.Reference ?? "")} · Loc. ____ · Qtd. ____<br>Inversão {Ou(F("mf_inversao"))} · Parafuso {Ou(F("mf_parafuso"))} · Fundo final {Ou(F("mf_fundo_final"))}{Tratar("mf_notas")}", ["Rebaixe, raio e chanfros", "Ano, gravações e LNM", "Aspeto da zona moldante", "Homogeneidade recartilha FF", "Furos roscados para alicate", "Ajuste e folga com o FF", "Calibre", "Furos de vácuo", "VertiFlow"]); }
-        @{ Verif("BOQUILHA (BQ)", Lote(bq), $"Ref. {Ou(bq?.Reference ?? "")} · Utilização {Ou(F("bq_utilizacao") is { Length: > 0 } ub2 ? ub2.TrimEnd('%') + "%" : "")} · Loc. ____ · Qtd. ____", ["Furo do anel e ensaio forro/PU", "Folga anel/boquilha", "Diâmetro do pegamento", "Diâmetro do núcleo e filete"]); }
-        @{ Verif("CAB. DE SOPRO (CS)", "", $"Ref. {Ou(F("cs_referencia"))} · Furos {Ou(F("cs_furos"))} · Tubo {Ou(F("cs_tubo"))} · Loc. ____ · Qtd. ____", ["Inspeção visual", "Furos de escape", "Tubo de enchimento"]); }
-        @{ Verif("PINÇAS (PI)", "", $"Ø {Ou(F("pi_diametro"))} · {Ou(F("pi_pincas"))} · Qtd. ____", ["Estado geral"]); }
-      </div>
-    </div>
-    <div class="jfi-col">
-      <div class="jfi-barra"><span>CALIBRES</span></div>
-      <div class="jfi-cal">
-        @foreach (var l in calibres)
-        {
-          <div><span>@l.Nome</span><b>@N(l.Valor)</b></div>
-        }
-        @if (calibres.Count == 0)
-        {
-          <div><span>Calibres</span><b>____</b></div>
-        }
-      </div>
-      <div class="jfi-nota-pe">BPB nivelamento: ____</div>
-    </div>
-    <div class="jfi-crescer"></div>
-    <div class="jfi-assinar"><div><span>Preparador · Rub.</span></div><div><span>Data/Hora</span></div><div><span>OK supervisor</span></div></div>
-    <footer class="jfi-rodape"><span>FOR 05 MOL 006 (pt)</span><span>Impresso pela DMO</span></footer>
-  </section>
-
-  @* ── PINÇAS - DMO ────────────────────────────────────────────── *@
-  <section class="jfi-folha" data-jof-folha="pincas" aria-label="Pinças - DMO">
-    <header class="jfi-topo">
-      <div><div class="jfi-eyebrow">DMO-MG · PINÇAS · MUDANÇA DE FABRICO</div><div class="jfi-ref">@referencia</div></div>
-      <div class="jfi-topo-dir"><div><span>LINHA</span><b class="jfi-linha">@jobOn.Machine</b></div><div><span>PRODUÇÃO</span><b>@jobOn.ProductionNumber</b></div></div>
-    </header>
-    <div class="jfi-factos">
-      <div><span>Entrada</span><b>@inicio?.ToString("dd/MM/yyyy")</b></div>
-      <div><span>Secções</span><b>@F("cab_seccoes")</b></div>
-      <div><span>Gotas</span><b>@F("cab_gota")</b></div>
-      <div><span>Peso</span><b>@Peso()</b></div>
-      <div><span>Cadência</span><b></b></div>
-      <div><span>Dia da semana</span><b>@(inicio is { } di ? cultura.TextInfo.ToTitleCase(di.ToString("dddd", cultura)) : "")</b></div>
-    </div>
-    @{ var tipoPinca = F("pi_pincas"); var latao = tipoPinca.Contains("lat", StringComparison.OrdinalIgnoreCase); var grafite = tipoPinca.Contains("graf", StringComparison.OrdinalIgnoreCase); }
-    <div class="jfi-col">
-      <div class="jfi-barra"><span>PINÇAS</span><span>@(string.Join(" · ", new[] { F("pi_diametro") is { Length: > 0 } pd ? "Ø " + pd : "", tipoPinca }.Where(s => s.Length > 0)))</span></div>
-      <table class="jfi-t jfi-lista">
-        <tr><th>Ø</th><th>Latão</th><th>Grafite</th><th>Qtd.</th></tr>
-        <tr><td>@F("pi_diametro")</td><td class="ck">@(latao ? "☒" : "☐")</td><td class="ck">@(grafite ? "☒" : "☐")</td><td></td></tr>
-        <tr><td colspan="4" class="jfi-obs"><span>Observações:</span></td></tr>
-      </table>
-    </div>
-    <div class="jfi-bloco">
-      <div class="jfi-barra"><span>COMENTÁRIOS DO JOB ON</span></div>
-      <div class="jfi-corpo jfi-comentarios">@(string.Join(" · ", Notas("pi_notas")))</div>
-    </div>
-    <div class="jfi-col">
-      <div class="jfi-barra"><span>VERIFICAÇÃO POR PINÇA (OK / NOK)</span></div>
-      <table class="jfi-t jfi-lista jfi-pincas">
-        <tr><th>Pinça</th><th>Contactos sem rebarbas</th><th>Diâmetro a 90º (−0.0 +0.3 mm)</th><th>Diâmetro na junta (−0.0 +0.3 mm)</th></tr>
-        @for (var i = 1; i <= 20; i++)
-        {
-          <tr><td>@i</td><td></td><td></td><td></td></tr>
-        }
-      </table>
-    </div>
-    <div class="jfi-crescer"></div>
-    <div class="jfi-assinar jfi-assinar-pincas"><div><span>Preencher pelo Responsável de Pinças</span></div><div><span>Rub.</span></div><div><span>Data</span></div></div>
-    <footer class="jfi-rodape"><span>Pinças - DMO (pt)</span><span>Impresso pela DMO</span></footer>
-  </section>
 </div>
