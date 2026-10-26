@@ -3063,20 +3063,13 @@ Selo depois: `a1189c0ece6af100`
 
 ## A-0170 · 2026-10-26 · ok-do-diogo
 
-Porquê: Folha do Job On sem comentarios (sem Notas nos cartoes nem Notas gerais) e sem QTD maq. na informacao tecnica: os testes que escreviam ou liam as notas passam a usar o Reparador; o de primeira fila prova que as notas ja nao aparecem; novo teste contra cartoes de largura colapsada.
-Referência: Diogo 26/10 16:02-16:05 (Folha sem comentarios) e capturas da Folha 26/10 20:31 (cmsg_01A27e9ozcpoh4jdPRsuJbFy1oho61coXRmycTwVNJ2Jau)
-Novos: 2 · mudaram: 8 · saíram: 1
+Porquê: Folha do Job On: grelha em 4 colunas independentes; o teste de primeira fila acompanha a nova ordem dos cartoes; dois testes novos (colunas sem colapsar, calote com valor).
+Referência: Diogo 26/10 capturas da Folha (cmsg_01A27e9ozcpoh4jdPRsuJbFy1oho61coXRmycTwVNJ2Jau)
+Novos: 2 · mudaram: 2 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_CartoesNaoColapsam_ComLarguraMinimaEMedidasSemScroll`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_SemNotasNosCartoes_RotulosSemFichaDeMoldes`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_SemNadaEscrito_MostraOsVaziosEOEditar_SemAFichaAntiga`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.TextoLongoDemais_NoEditar_ERecusado_EAFolhaVoltaComOQueSeEscreveu`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_AbreVaziaEmEditar_EGuardaPeloCreateEVoltaAFolha`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Criar_SemCmBqOuMf_ERecusado_AFolhaVoltaComOQueSeEscreveu_ENadaEGravado`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_Duplicar_CopiaOsDados_SemDatas_ComAProducaoSeguinte_ComODiaDoCalendario_EGravaUmaProducaoNova`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_Editar_DesbloqueiaEGuardarVoltaAFolha_SemApagarOQueNaoMudou`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
-- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_TpMostraACaloteGravada_NuncaAPalavraBacia`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Folha_PrimeiraFila_CmMfBq_NotasEmTodosOsCartoes_RotulosSemFichaDeMoldes`
 
-Selo depois: `7d90677e6e7e33fa`
+Selo depois: `6a833f750d8d5696`
