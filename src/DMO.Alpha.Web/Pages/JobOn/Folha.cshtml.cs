@@ -44,7 +44,8 @@ public sealed class FolhaModel(
     JobOnChangeQuery changes,
     IDeleteJobOnHandler deleteJobOn,
     IJobOnPaginaQuery jobOnPagina,
-    IConfiguration configuration) : PageModel
+    IConfiguration configuration,
+    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap) : PageModel
 {
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
     public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, false);
@@ -166,6 +167,13 @@ public sealed class FolhaModel(
 
     /// <summary>O lote sem zeros à esquerda («Lote 1»).</summary>
     public static string Lote(string? lote) => DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(lote);
+
+    /// <summary>O % de uso da última leitura de cada ferramenta da folha.</summary>
+    public IReadOnlyDictionary<string, decimal> Usos { get; private set; } = new Dictionary<string, decimal>();
+
+    /// <summary>A classe da ferramenta com o uso cheio (só cor ligeira), ou null.</summary>
+    public string? UsoCheioDe(string? toolId) =>
+        toolId is not null && Usos.TryGetValue(toolId, out var uso) ? UsoCheio.ClasseDe(uso) : null;
 
     public JobOnToolFacts? Fact(string? toolId) => toolId is null ? null : Facts.FirstOrDefault(f => f.ToolId == toolId);
 
@@ -364,6 +372,7 @@ public sealed class FolhaModel(
         if (ids.Count > 0)
         {
             Facts = await toolFacts.FindAsync(ids, novo.Machine.Length == 0 ? null : novo.Machine, null, novo.InicioEm, novo.FimEm, HttpContext.RequestAborted);
+            Usos = await usoSap.UltimasPercentagensAsync(ids, HttpContext.RequestAborted);
         }
     }
 
@@ -407,6 +416,7 @@ public sealed class FolhaModel(
             if (ids.Count > 0)
             {
                 Facts = await toolFacts.FindAsync(ids, aberto.Machine, aberto.JobOnId, aberto.InicioEm, aberto.FimEm, ct);
+                Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
             }
             if (Editar)
             {
