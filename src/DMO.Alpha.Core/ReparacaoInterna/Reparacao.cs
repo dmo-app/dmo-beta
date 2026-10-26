@@ -8,6 +8,17 @@ public enum ReparacaoTipo
 }
 
 /// <summary>
+/// O que se fez à peça (Diogo, 26/10/2026): Reparação (por omissão), Soldar ou
+/// Polir. Vem da coluna «Soldar / Torno-Polir» das listas dos serralheiros.
+/// </summary>
+public enum ReparacaoTrabalho
+{
+    Reparacao = 1,
+    Soldar = 2,
+    Polir = 3
+}
+
+/// <summary>
 /// Uma reparação interna (blueprint reparacao-interna/OVERVIEW §3): o número
 /// individual de uma CM ou de um MF reparado na máquina, ligado à produção do
 /// dia e a quem reparou. É o módulo com mais registos (Diogo, 17/10/2026), por
@@ -46,6 +57,9 @@ public sealed class Reparacao
     public int MachineId { get; set; }
 
     public ReparacaoTipo Tipo { get; set; }
+
+    /// <summary>O que se fez: Reparação, Soldar ou Polir (Reparação nas de antes).</summary>
+    public ReparacaoTrabalho Trabalho { get; set; } = ReparacaoTrabalho.Reparacao;
 
     /// <summary>O <c>cm_id</c> da produção no momento (só numa reparação de CM).</summary>
     public int? CmContextId { get; set; }

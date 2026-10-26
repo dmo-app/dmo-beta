@@ -712,7 +712,8 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         var vazio = await GetPageHtmlAsync(client, $"{PagePath}?historico=1");
         Assert.Contains("Histórico do Controlo", vazio);
         Assert.Contains("Pesquise por referência (e depois a produção), ferramenta, tipo ou data.", vazio);
-        Assert.Contains("Escreva primeiro a referência", vazio);
+        Assert.DoesNotContain("Escreva primeiro a referência", vazio);
+        Assert.Contains("<option value=\"\">Produção</option>", vazio);
         Assert.DoesNotContain(">Peso</td>", vazio);
         Assert.DoesNotContain(">Pegamentos</td>", vazio);
         Assert.DoesNotContain(">Comparação</td>", vazio);

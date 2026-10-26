@@ -482,7 +482,7 @@ else
               <input class="prod-select" id="jofNovoProducao" form="jofNovo" name="producao" type="text" aria-label="Número da produção" placeholder="N.º" autocomplete="off" /></div>
               @* Produção ou Experiência (Diogo, 26/10/2026): a experiência usa o nº AAAA00 e entra e sai no mesmo dia. *@
               <div class="pick-campo"><span class="pick-rotulo" id="jofTipoRotulo">Tipo</span>
-              <div class="jof-tipo" role="radiogroup" aria-labelledby="jofTipoRotulo">
+              <div class="jof-tipo dmo-alternador" role="radiogroup" aria-labelledby="jofTipoRotulo">
                 <label><input type="radio" form="jofNovo" name="tipo" value="producao" checked /><span>Produção</span></label>
                 <label><input type="radio" form="jofNovo" name="tipo" value="experiencia" /><span>Experiência</span></label>
               </div></div>
@@ -547,7 +547,7 @@ else
                       {
                         <a href="/Controlo/Resumo?jobon_id=@jobOn.JobOnId">Controlo</a>
                       }
-                      <a href="/JobOn/Reparacao?jobon_id=@jobOn.JobOnId">Reparação</a>
+                      <a href="/ReparacaoInterna/Consultar?maquina=@Uri.EscapeDataString(jobOn.Machine)&amp;referencia=@Uri.EscapeDataString(jobOn.Reference)&amp;producao=@jobOn.JobOnId">Reparação</a>
                       @if (Model.Eliminar is not null)
                       {
                         <a href="#jobon-delete-dialog" role="button" data-dmo-dialog="jobon-delete-dialog">Eliminar Job On</a>
@@ -691,16 +691,18 @@ else
         </section>
       </div></div>
       <aside class="side">
+        @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong>Artigo @if (editar) {<partial name="_DmoHelp" model="@("Clique na imagem para escolher a do artigo.")" />}</strong><span>@Model.ReferenciaTotal</span></div>
-          <label class="jof-artigo@(editar ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" title="@(editar ? "Clique para escolher a imagem do artigo" : null)">
-            @if (editar)
+          <div class="article-head"><strong>Artigo @if (podeImagem) {<partial name="_DmoHelp" model="@("Clique na imagem para a associar ou trocar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge).")" />}</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
+          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
+            @if (podeImagem)
             {
               <input type="file" accept="image/*" class="sr-only" data-jof-artigo-ficheiro aria-label="Escolher a imagem do artigo" />
             }
             <img data-jof-artigo-img alt="Imagem do artigo @Model.ReferenciaTotal" hidden />
             <svg data-jof-artigo-vazio viewBox="0 0 120 230" role="img" aria-label="Silhueta do artigo"><g fill="var(--bottle-fill)" stroke="var(--bottle-stroke)" stroke-width="2" stroke-linejoin="round"><path d="M54 10h12v6c0 6 2 10 4 18 5 18 18 26 18 46v120c0 8-6 12-14 12H46c-8 0-14-4-14-12V80c0-20 13-28 18-46 2-8 4-12 4-18z" /><path d="M52 16h16" /><path d="M36 150h48" opacity=".5" /></g></svg>
           </label>
+          <p class="jof-artigo-aviso" data-jof-artigo-aviso role="status" hidden></p>
         </section>
         <section class="card notes" aria-labelledby="notesTitle">
           @* As ajudas no triângulo, não escritas no ecrã (ronda de 26/10/2026, J8). *@

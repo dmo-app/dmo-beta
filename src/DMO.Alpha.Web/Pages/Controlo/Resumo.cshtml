@@ -223,10 +223,24 @@
                 <small>Ainda sem média calculada.</small>
               }
               <small>@linkedPesoValue.Measurements.Count leitura(s) · água a @linkedPesoValue.WaterTemperatureC °C</small>
-              @if (linkedPesoValue.NominalWeightGrams is { } nominal)
-              {
-                <small>Nominal @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(nominal) g@(deviation.Grams is { } dg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg)} g" : "")@(deviation.Percent is { } dp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp)} %)" : "")</small>
-              }
+              @* O atual, o do controlo anterior e o da produção anterior, cada um
+                 com o delta, e o nominal com o delta (Diogo, 26/10/2026). *@
+              <div class="resumo-peso-deltas">
+                @if (linkedPesoValue.NominalWeightGrams is { } nominal)
+                {
+                  <small>Nominal @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(nominal) g@(deviation.Grams is { } dg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg)} g" : "")@(deviation.Percent is { } dp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp)} %)" : "")</small>
+                }
+                @if (Model.ControloAnterior is { AverageGlassWeightGrams: { } caPeso } controloAnterior)
+                {
+                  var caDelta = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, caPeso);
+                  <small>Controlo anterior (@controloAnterior.ProductionNumber) @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(caPeso) g@(caDelta.Grams is { } cg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(cg)} g" : "")@(caDelta.Percent is { } cp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(cp)} %)" : "")</small>
+                }
+                @if (Model.ProducaoAnterior is { PesoGramas: { } paPeso } producaoAnterior)
+                {
+                  var paDelta = producaoAnterior.Delta(average);
+                  <small>Produção anterior@(producaoAnterior.ProductionNumber is { } paNumero ? $" ({paNumero})" : "") @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(paPeso) g@(paDelta.Grams is { } pg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(pg)} g" : "")@(paDelta.Percent is { } pp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(pp)} %)" : "")</small>
+                }
+              </div>
               @if (!Model.HasCurrentPeso)
               {
                 <small>A CM ou a BQ mudou nesta produção: falta o Peso das ferramentas atuais.</small>

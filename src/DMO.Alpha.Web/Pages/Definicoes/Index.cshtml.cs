@@ -98,6 +98,9 @@ public sealed class IndexModel(
 
     public Ferramentas.DefinicoesModel? Ferramentas { get; private set; }
 
+    /// <summary>As definições do Job On (a pasta das imagens dos artigos, deste computador); só para quem vê o Job On.</summary>
+    public bool TemJobOn { get; private set; }
+
     public Armazem.DefinicoesModel? Armazem { get; private set; }
 
     public ReparacaoInterna.DefinicoesModel? Reparacao { get; private set; }
@@ -214,6 +217,8 @@ public sealed class IndexModel(
             await Boquilhas.CarregarAsync(Q("save"));
         }
 
+        TemJobOn = !EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.JobOnView, DmoCapabilities.JobOnCreate);
+
         if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.Ferramentas))
         {
             Ferramentas = Ligar(ferramentas);
@@ -234,6 +239,7 @@ public sealed class IndexModel(
         }
 
         var entradas = new List<(string, string)> { ("pessoal", "Pessoal") };
+        if (TemJobOn) entradas.Add(("jobon", "Job On"));
         if (Controlo is not null) entradas.Add(("controlo", "Controlo"));
         if (Boquilhas is not null) entradas.Add(("boquilhas", "Boquilhas"));
         if (Ferramentas is not null) entradas.Add(("ferramentas", "Ferramentas"));
