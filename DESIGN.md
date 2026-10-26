@@ -27,6 +27,7 @@ Este repositório contém a base Razor Pages proveniente do dmo-beta (`3e3b175`,
   - Resto da app: Peso, PU NNPB e Revisão com valores numa faixa; Definições com as secções em separadores no topo (sem menu lateral nem cadeado); Admin com títulos como as outras páginas e grupos em caixa normal; Login e Versão sem gradiente; sem pictogramas (⚠ dos avisos, ↗ ↙ das Boquilhas — este na marcação).
   - Armazém: o título do registo com «Corrigir» e «Registar» na mesma linha, à direita (o «Corrigir» passou para o formulário, type="button"); campos em duas colunas.
   - Nenhuma informação da app fica escondida por esta camada: subtítulos das páginas e dos painéis de linhas, notas do Pegamentos/PU NNPB no Resumo e o título da procura do Armazém voltam, pequenos e em `muted`.
+  - Restantes páginas revistas: detalhe da Revisão (títulos sem barras, factos com divisórias), secções das Definições («Geral» em caixa normal), Consulta da Reparação, ficha do utilizador, Setup, Ajuda SAP, mudar palavra-passe, instalar e erro. Telemóvel (375 px) sem transbordo horizontal em todas as páginas exportadas.
   - Tudo em `css/dmo-design.css` (só ecrã), sem mudar handlers nem permissões; na marcação só saíram os glifos das Boquilhas.
   - Design system de referência: https://claude.ai/artifact/CaxJKWoDpibvJSCheUbuRp (página App para explorar).
 

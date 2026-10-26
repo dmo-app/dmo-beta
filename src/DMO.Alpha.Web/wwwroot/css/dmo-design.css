@@ -664,3 +664,27 @@ html body :is(.page-head,.beta-light-heading)>div>p{margin:2px 0 0;font-size:12p
 @media (min-width:1100px){
   html body #armMovFerramenta[data-dmo-ferramenta] :is(#armCorrigirBotao,.arm-entrada-linha>button.dmo-button){align-self:center;margin:0}
 }
+
+/* Controlo › Revisão: section heads are plain titles over a hairline, not tinted or slate bars
+   with a coloured edge; the facts strip keeps its dividers. */
+html body .revisao-detail .revisao-parte-topo,
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal{background:none;border-left:0;border-radius:0;border-bottom:1px solid var(--dmo-border);padding:4px 0;color:var(--dmo-text)}
+html body .revisao-detail .revisao-parte-topo :is(h3,a,span){color:inherit}
+html body .revisao-detail .revisao-parte-topo h3.revisao-section{font-size:16px;font-weight:650}
+html body .revisao-detail .revisao-parte-topo .revisao-consultas a{color:var(--dmo-brand-700)}
+html body .revisao-resumo .revisao-facts>div,html body .revisao-facts>div{background:none!important;border-color:transparent!important}
+html body .revisao-facts>div+div{border-left:1px solid var(--dmo-border)!important}
+html body .revisao-resumo .revisao-facts span{color:var(--dmo-muted)}
+/* Definições: section group labels («Geral») in sentence case, like every other label. */
+html body .def-parte>h3.def-parte-titulo{font-size:13px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--dmo-muted)}
+/* Login, Versão, Erro: the «BA Glass» kicker in sentence case too. */
+html body.dmo-account-page .identity :is(.kicker,.brand-kicker,.eyebrow){text-transform:none;letter-spacing:0}
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal :is(h3.revisao-section,span){color:var(--dmo-text)}
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal a{color:var(--dmo-brand-700)}
+html body section.revisao-detail h3.revisao-section,html body .revisao-detail.revisao-resumo h3.revisao-section{background:none;border-left:0;border-radius:0;padding:6px 0;border-bottom:1px solid var(--dmo-border);color:var(--dmo-text)}
+/* Phone widths: value strips wrap to two columns; rail titles in sentence case at every width. */
+@media (max-width:800px){
+  html body .lot-data{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));row-gap:10px}
+  html body .lot-data>div:nth-child(odd){border-left:0!important;padding-left:0!important}
+}
+html body .beta-production-rail-head :is(strong,.beta-production-rail-title){text-transform:none;letter-spacing:0}
