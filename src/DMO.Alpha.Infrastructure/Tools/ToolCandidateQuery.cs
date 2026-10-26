@@ -181,8 +181,14 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
             // encontra a Y232 e a 6018Y232; «0» encontra a 0132T173, nunca a
             // 1075 só por ter um 0 no meio), ou o início da referência MF
             // associada. A regra da referência está em ReferenceMatch.
-            query = query.Where(ReferenceMatch.Predicate<Tool>(tool => tool.Reference, part)
-                .Or(tool => tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper().StartsWith(part)));
+            // A referência toda (1075C142) também mostra as ferramentas que
+            // pertencem a ela: a CM ST100 (MF associada 1075), o MF 1075 e a
+            // BQ C142 (Diogo, 26/10/2026: «não aparece nada»).
+            var byReference = ReferenceMatch.Predicate<Tool>(tool => tool.Reference, part)
+                .Or(tool => tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper().StartsWith(part));
+            query = query.Where(SplitReference(part) is (not null, not null)
+                ? byReference.Or(ReferenciaTotal.Pertence(part))
+                : byReference);
         }
 
         if (ReferenceMatch.Normalize(filter?.Search) is { } search)
@@ -204,16 +210,11 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
             var knownTools = _db.Tools.Where(known => usedToolIds.Contains(known.ToolId) && known.ToolId != ToolRegistryConstants.RemovedToolId);
             // As ferramentas registadas antes da referência toda (Diogo,
             // 19/10/2026: «deveria ser sempre referência toda») têm só uma
-            // parte: a BQ da 1075C142 é a C142 e o MF/CM é o 1075.
-            var (model, bqPart) = SplitReference(productionReference);
-            query = query.Where(tool =>
-                tool.Reference.ToUpper() == productionReference
-                || (tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper() == productionReference)
-                || (bqPart != null && tool.Type == ToolType.Bq && tool.Reference.ToUpper() == bqPart)
-                || (model != null && tool.Type != ToolType.Bq && (tool.Reference.ToUpper() == model
-                    || (tool.AssociatedMfReference != null && tool.AssociatedMfReference.ToUpper() == model)))
+            // parte: a BQ da 1075C142 é a C142 e o MF/CM é o 1075. A regra
+            // está em ReferenciaTotal.
+            query = query.Where(ReferenciaTotal.Pertence(productionReference)
                 // Replacement lots of the same recorded design remain discoverable.
-                || knownTools.Any(known => known.Type == tool.Type && known.Reference.ToUpper() == tool.Reference.ToUpper()));
+                .Or(tool => knownTools.Any(known => known.Type == tool.Type && known.Reference.ToUpper() == tool.Reference.ToUpper())));
         }
 
         return query;

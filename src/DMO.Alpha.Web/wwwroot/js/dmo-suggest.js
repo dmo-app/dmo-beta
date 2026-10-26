@@ -8,6 +8,7 @@
  *
  *   <input data-dmo-suggest="producoes|referencias|numeros|ferramentas|reparadores|referencias_bq"
  *          [data-dmo-suggest-tipo="cm|mf|bq"] [data-dmo-suggest-linha="3|#lightMachine"]
+ *          [data-dmo-suggest-com="#campoCm,#campoMf"]
  *          [data-dmo-suggest-submit]>
  *     A partir de 1 carácter (2 nos reparadores), 250 ms depois da última
  *     tecla, pede ao servidor (GET /Sugestoes) no máximo 10 sugestões. As
@@ -244,6 +245,16 @@
         linha = campoLinha ? campoLinha.value : "";
       }
       if (linha && /^\d+$/.test(linha)) query.set("linha", linha);
+      // A ferramenta já escolhida: «#id» de um ou mais campos da página (o
+      // primeiro com valor); a lista mostra só as que trabalham com ela.
+      var com = input.getAttribute("data-dmo-suggest-com");
+      if (com) {
+        var escolhida = com.split(",").map(function (seletor) {
+          var campo = document.querySelector(seletor.trim());
+          return campo ? campo.value.trim() : "";
+        }).filter(Boolean)[0];
+        if (escolhida) query.set("com", escolhida);
+      }
       var options = { credentials: "same-origin", headers: { Accept: "application/json" } };
       if (typeof AbortController === "function") {
         controller = new AbortController();
