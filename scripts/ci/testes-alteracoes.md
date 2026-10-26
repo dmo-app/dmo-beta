@@ -2523,11 +2523,22 @@ Novos: 10 · mudaram: 0 · saíram: 0
 
 Selo depois: `57ab224e182ba5d2`
 
-## A-0113 · 2026-10-26 · ok-do-diogo
+## A-0115 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main 331136f (.62): fica o da main + esta entrada para os PRs em curso (#113, #116 e outros).
+Porquê: O painel lateral do Planeamento passa a ter o título «Planeamento» como link para /JobOn e a mostrar a referência e a produção numa linha e o estado noutra, a pedido do Diogo (26/10/2026). Os testes seguem o texto novo; o que verificam (o painel, os links, a ordem) não muda.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyNF2jrGSXBjoNJpEQKJVTrc; cmsg_01A27e9ozcpoh4jdPRsuJbFyLZ7gLSKXpt1YiJZRMTdjh1; autorização de testes cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+
+Selo depois: `63d6530418f8c955`
+
+## A-0116 · 2026-10-26 · ok-do-diogo
+
+Porquê: Registo do integracao acertado pela main 3ecf06d: fica o da main + esta entrada para os PRs em curso.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 5 · mudaram: 7 · saíram: 6
+Novos: 5 · mudaram: 5 · saíram: 6
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_FactosEFolha`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.Duplicar_NaoLeFactos_MasLeAFolhaQueCopia`
@@ -2539,8 +2550,6 @@ Novos: 5 · mudaram: 7 · saíram: 6
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.FolhaGravada_Presente_OuAusenteLeSeComoVazia`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.OPedido_NaoGravaNada`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.SoUmaFerramenta_LeFactosSoDessa`
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.CreateFlow_ExplicitSelections_EstablishesQueryableContext`
-- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_NotasAlteracoesPreviewFactosFolha`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.Duplicar_NaoLePreviewNemFactos_MasLeAFolhaQueCopia`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.JobOnAberto_DevolveNotasAlteracoesPreviewFactosEFolha`
