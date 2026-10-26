@@ -1,5 +1,5 @@
 {
-  "selo": "789f49b8dfc0de3f",
+  "selo": "6f2668a55ab42923",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1938,7 +1938,7 @@
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica": "32a2b07dcf5b1da5",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: (resto do ficheiro)": "69e37fd375b1e99f",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CamposDecimais_SaoTextoComTecladoDecimal_ParaAceitarVirgula": "e3a036c7eef9a749",
-    "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_ATerraPreselecionadoPelaFolha": "6402f08f218ec0bf",
+    "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_ATerraPreselecionadoPelaFolha": "6fd5d5f6ce7e5aa5",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_EscolherAReferenciaEAProducao_TrocaSoAsZonas": "dccbefb3e607bc2f",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_MostraBaseEEfeitoNaMedia": "7152346019547822",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CompararPesos_CalculaAoVivoSemGravar": "022e2ec060d07355",
