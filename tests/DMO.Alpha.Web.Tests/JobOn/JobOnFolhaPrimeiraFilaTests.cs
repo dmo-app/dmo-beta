@@ -250,16 +250,16 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.Equal(esperado, dias.Groups["v"].Value);
     }
 
-    // Os números da folha com duas casas decimais no máximo e sem zeros no fim
-    // (Diogo, 23/10/2026: «só duas casas decimais e quando não tem fica sem os 00»).
+    // Os números da folha com duas casas decimais no máximo e, quando têm casas, com ponto e
+    // duas casas (Diogo, 23/10/2026: «quando não tem fica sem os 00»; 26/10: «2.5 fica 2.50»).
     [Theory]
     [InlineData("365.000", "365")]
     [InlineData("36.850", "36.85")]
-    [InlineData("2,50", "2,5")]
+    [InlineData("2,50", "2.50")]
     [InlineData("12.345", "12.35")]
     [InlineData("12", "12")]
     [InlineData("1/2 volta", "1/2 volta")]
-    public async Task Peso_DuasCasasDecimaisNoMaximo_SemZerosNoFim(string gravado, string esperado)
+    public async Task Peso_DuasCasasDecimaisNoMaximo_ComPonto(string gravado, string esperado)
     {
         var jobOnId = await SeedAsync();
         using (var scope = _factory.Services.CreateScope())
