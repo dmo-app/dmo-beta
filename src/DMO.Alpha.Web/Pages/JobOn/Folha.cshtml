@@ -701,16 +701,19 @@ else
         </section>
       </div></div>
       <aside class="side">
+        @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong>Artigo @if (editar) {<partial name="_DmoHelp" model="@("Clique na imagem para escolher a do artigo.")" />}</strong><span>@Model.ReferenciaTotal</span></div>
-          <label class="jof-artigo@(editar ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" title="@(editar ? "Clique para escolher a imagem do artigo" : null)">
-            @if (editar)
+          <div class="article-head"><strong>Artigo @if (podeImagem) {<partial name="_DmoHelp" model="@("Clique na imagem para associar ou trocar a imagem deste artigo. Fica guardada para a referência e aparece em todos os Job On dela.")" />}</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
+          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
+            @if (podeImagem)
             {
-              <input type="file" accept="image/*" class="sr-only" data-jof-artigo-ficheiro aria-label="Escolher a imagem do artigo" />
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only" data-jof-artigo-ficheiro aria-label="Escolher a imagem do artigo" />
+              @Html.AntiForgeryToken()
             }
             <img data-jof-artigo-img alt="Imagem do artigo @Model.ReferenciaTotal" hidden />
             <svg data-jof-artigo-vazio viewBox="0 0 120 230" role="img" aria-label="Silhueta do artigo"><g fill="var(--bottle-fill)" stroke="var(--bottle-stroke)" stroke-width="2" stroke-linejoin="round"><path d="M54 10h12v6c0 6 2 10 4 18 5 18 18 26 18 46v120c0 8-6 12-14 12H46c-8 0-14-4-14-12V80c0-20 13-28 18-46 2-8 4-12 4-18z" /><path d="M52 16h16" /><path d="M36 150h48" opacity=".5" /></g></svg>
           </label>
+          <p class="jof-artigo-aviso" data-jof-artigo-aviso role="status" hidden></p>
         </section>
         <section class="card notes" aria-labelledby="notesTitle">
           @* As ajudas no triângulo, não escritas no ecrã (ronda de 26/10/2026, J8). *@

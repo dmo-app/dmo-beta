@@ -393,6 +393,9 @@
 .jof2 .jof-artigo img{width:100%;height:auto;max-height:340px;object-fit:contain}
 .jof2 .jof-artigo-escolher{cursor:pointer;outline:1px dashed var(--dmo-border)}
 .jof2 .jof-artigo-escolher:hover,.jof2 .jof-artigo-escolher:focus-within{outline-color:var(--dmo-brand-600)}
+.jof2 .jof-artigo-retirar{border:0;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer;padding:0 6px;margin-right:4px}
+.jof2 .jof-artigo-retirar:hover{color:var(--dmo-brand-600)}
+.jof2 .jof-artigo-aviso{margin:6px 0 0;font-size:12.5px;color:var(--dmo-warning)}
 /* O painel: o regresso ao Planeamento e o vazio. */
 .jof2-gaveta .rail-voltar{display:inline-block;margin-right:auto;font-size:14px;color:var(--rail-muted);font-size:13px;font-weight:700;text-decoration:none}
 .jof2-gaveta .rail-voltar:hover{color:var(--rail-text);text-decoration:underline}

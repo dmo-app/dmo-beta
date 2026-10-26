@@ -51,6 +51,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
     /// <summary>As mudanças de lote registadas durante as produções (notas do «Duplicar → Lote»).</summary>
     public DbSet<JobOnLotNote> JobOnLotNotes => Set<JobOnLotNote>();
 
+    /// <summary>A imagem do artigo, uma por referência completa.</summary>
+    public DbSet<JobOnArtigoImagem> JobOnArtigoImagens => Set<JobOnArtigoImagem>();
+
     public DbSet<JobOnChange> JobOnChanges => Set<JobOnChange>();
 
     /// <summary>A folha da fábrica de cada Job On: os campos escritos (uma linha por Job On).</summary>
@@ -1454,6 +1457,16 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
                 .WithMany(p => p.Inspecoes)
                 .HasForeignKey(i => i.PuncoesId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // A imagem do artigo: uma por referência completa, na base.
+        modelBuilder.Entity<JobOnArtigoImagem>(entity =>
+        {
+            entity.HasKey(i => i.ReferenciaTotal);
+            entity.Property(i => i.ReferenciaTotal).HasMaxLength(JobOnArtigoImagem.ReferenciaMaxLength);
+            entity.Property(i => i.ContentType).HasMaxLength(100).IsRequired();
+            entity.Property(i => i.Dados).IsRequired();
+            entity.Property(i => i.AtualizadoPor).HasMaxLength(254);
         });
 
         // As mudanças de lote durante a produção (o «Duplicar → Lote»): só
