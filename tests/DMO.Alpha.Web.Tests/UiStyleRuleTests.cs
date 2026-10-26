@@ -167,7 +167,7 @@ public sealed class UiStyleRuleTests
     public void PdfGenerators_UseThePalette_NotTheOldBlues()
     {
         var infra = Path.Combine(Path.GetDirectoryName(WebRoot())!, "DMO.Alpha.Infrastructure");
-        Assert.Contains("public const string Slate = \"#4b6387\";", File.ReadAllText(Path.Combine(infra, "Pdf", "DmoPdfPalette.cs")), StringComparison.Ordinal);
+        Assert.Contains("public const string Slate = \"#44647c\";", File.ReadAllText(Path.Combine(infra, "Pdf", "DmoPdfPalette.cs")), StringComparison.Ordinal);
         string[] oldBlues = ["#3c73a8", "#087bc1", "#0066a0", "#0089d7", "#174a80", "#16365c", "#193046", "#d9e6f2", "#d0e0f1"];
         foreach (var file in Directory.EnumerateFiles(infra, "*PdfGenerator.cs", SearchOption.AllDirectories))
         {
