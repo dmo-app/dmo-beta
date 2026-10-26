@@ -199,6 +199,7 @@ builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentasFabricoSap, DMO.Alph
 builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentaHistorico, DMO.Alpha.Infrastructure.Tools.FerramentaHistoricoQuery>();
 // Tools read path: resolução canónica e só de leitura de uma Tool pelo seu tool_id exato.
 builder.Services.AddScoped<IToolLookupQuery, ToolLookupQuery>();
+builder.Services.AddScoped<IPegamentosEscolhasQuery, PegamentosEscolhasQuery>();
 // Tools read path: descoberta de candidatos para seleção humana explícita
 // (filtros explícitos aplicados no servidor; apenas reduzem candidatos).
 builder.Services.AddScoped<IToolCandidateQuery, ToolCandidateQuery>();

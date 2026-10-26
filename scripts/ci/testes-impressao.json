@@ -1,5 +1,5 @@
 {
-  "selo": "dccfc5697c021f5a",
+  "selo": "9def9efb765f9e4e",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -521,6 +521,11 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosCalculationTests.cs :: PegamentosCalculationTests.Media_SingleAxis_EqualsCostura": "470e43e026ce97fd",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosCalculationTests.cs :: PegamentosCalculationTests.Ovalizacao_CosturaMinusContraCostura_SignPreserved": "f987157a6c20e76f",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosCalculationTests.cs :: PegamentosCalculationTests.Ovalizacao_SingleAxis_Undefined": "66bd3cf648cbbc2a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: (resto do ficheiro)": "d2c2c96aedbc7643",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.CodigosDeMaquinas_VemPorOrdemDoCodigo": "f5e380641c469d14",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.LotesDaReferencia_ReferenciaEmBranco_NaoDevolveNada": "9e8056f86f615508",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.LotesDaReferencia_VemComOLoteMaisAltoPrimeiroSemMisturarTiposNemReferencias": "c82c9162bdcc9b47",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosEscolhasQueryTests.cs :: PegamentosEscolhasQueryTests.OsDoisPedidos_NaoGravamNada": "f25157c041920f96",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: (resto do ficheiro)": "bd3f33ae5118fed1",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.AfterTheChange_BeforeTheFirstReading_TheSheetIsReadyWithTheNewTools_AndTheOldOneOpensOnRequest": "c9a52c85007f756b",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.Association_ProductionWithOnlyAnEarlierCombinationSheet_TakesTheSheetOfTheCurrentTools": "0de9bf74a5192524",
@@ -920,6 +925,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.Overlap.cs :: PostgresMigrationIntegrationTests.Overlap_NoDiaDaTroca_ENoDiaAntes_NuncaAvisam": "3fba1658cf4befcc",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrigir.cs :: (resto do ficheiro)": "425b83a9e4c30eaa",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosCorrigir.cs :: PostgresMigrationIntegrationTests.Pegamentos_DuasCorrecoesAoMesmoTempo_OHistoricoFicaEmCadeia": "3cc550d0edf2d26a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosEscolhas.cs :: (resto do ficheiro)": "acdc20f1234b1762",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosEscolhas.cs :: PostgresMigrationIntegrationTests.PegamentosEscolhas_CadaPedidoFazUmaSoConsultaDeLeitura": "6af97314a494e9ff",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosFolhas.cs :: (resto do ficheiro)": "c8733da744471d8b",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosFolhas.cs :: PostgresMigrationIntegrationTests.Pegamentos_AssociarComSoAFolhaDeAntesDaTroca_FicaAFolhaDasFerramentasAtuais": "9afd7931306c58c5",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PegamentosFolhas.cs :: PostgresMigrationIntegrationTests.Pegamentos_DepoisDeTrocarABq_DuasPrimeirasLeiturasAoMesmoTempo_FicamNumaSoFolhaNova": "546109579e7ef947",
