@@ -1,5 +1,5 @@
 {
-  "selo": "008c5cfe0a157f97",
+  "selo": "d0c1ab9dcc86a382",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2556,6 +2556,8 @@
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow": "8e049f49fdeb6f0f",
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.UnauthenticatedRequests_ReceiveNoPageAndNoMutation": "feccdfea80dc9c64",
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.VolumeMarisaZero_ERecusado_OOperadorLeARecusaNoNovoPeso_NadaFicaGravado": "9265c8a0311d15ac",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Armazem.cs :: (resto do ficheiro)": "e55d9ad165aea31d",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Armazem.cs :: PlaneamentoSumarioPageTests.ArmazemMovimentos_ParaQuemTemJobOnVer_JobOnCriar_OuArmazem": "d756b3758ba726c9",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: (resto do ficheiro)": "1256bd95f1efc231",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.BqApagados_FicamNoTopoSeteDias": "a44583c76b5e86c5",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.CadaLinha_TemLink_ParaUmaPaginaQueAContaAbre": "797289cc37e80360",

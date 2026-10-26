@@ -204,6 +204,7 @@ public sealed class SumarioModel(
         var temControlo = modulos.Contains(DmoCapabilities.ControloCreate, StringComparer.Ordinal);
         var aprova = modulos.Contains(DmoCapabilities.ControloApprove, StringComparer.Ordinal);
         var temFerramentas = modulos.Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
+        var temArmazem = modulos.Contains(DmoCapabilities.ArmazemGestao, StringComparer.Ordinal);
         if (item.Link is { } link)
         {
             return link;
@@ -225,6 +226,17 @@ public sealed class SumarioModel(
                 $"/Controlo/Resumo?jobon_id={id}",
             SumarioTipo.UsoAtualizado when item.ToolId is { } toolId =>
                 DmoAvisoLink.FichaFerramenta(toolId, item.Titulo).Href,
+            // Os movimentos do Armazém abrem os Movimentos a quem tem o
+            // Armazém, a ficha a quem tem as Ferramentas e, senão, o Job On
+            // do movimento (a folha em leitura a quem só tem o Job On ver).
+            SumarioTipo.ArmazemMovimento when item.ToolId is { } toolId && temArmazem =>
+                DmoAvisoLink.MovimentosDoArmazem(toolId, item.Titulo).Href,
+            SumarioTipo.ArmazemMovimento when item.ToolId is { } toolId && temFerramentas =>
+                DmoAvisoLink.FichaFerramenta(toolId, item.Titulo).Href,
+            SumarioTipo.ArmazemMovimento when item.JobOnId is { } id && modulos.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal) =>
+                $"/JobOn?jobon_id={id}",
+            SumarioTipo.ArmazemMovimento when item.JobOnId is { } id =>
+                $"/JobOn/Folha?jobon_id={id}",
             _ => null
         };
     }
