@@ -2663,3 +2663,15 @@ Novos: 2 · mudaram: 1 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_SemZerosNoFim`
 
 Selo depois: `d56824e14c3ac255`
+
+## A-0123 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR 123 no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 123
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: AuthenticationTests.Login_CincoPalavrasPasseErradas_MandaConsultarOAdmin`
+- mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_RepeatedFailures_NeverLockTheUser`
+
+Selo depois: `e4f3ba263bddfa5c`

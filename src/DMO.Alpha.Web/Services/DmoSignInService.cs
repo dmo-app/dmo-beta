@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using DMO.Alpha.Core.Authentication;
 using DMO.Alpha.Core.Admin;
@@ -6,6 +7,7 @@ using DMO.Alpha.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DMO.Alpha.Web.Services;
 
@@ -16,6 +18,14 @@ public sealed class DmoSignInService
     private readonly IAdminEmailSettings _adminEmailSettings;
     private readonly DmoDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IMemoryCache _cache;
+
+    // Diogo, 26/10/2026: depois de 5 palavras-passe erradas seguidas, o ecrã
+    // manda falar com o ADMIN. A conta NUNCA fica bloqueada nem à espera
+    // (Diogo, 18/10 e 26/10): outra pessoa podia trancá-la de propósito, por
+    // isso a palavra-passe certa entra sempre.
+    public const int TentativasAntesDoAviso = 5;
+    private const string ConsulteAdmin = "Demasiadas tentativas erradas. Consulte o ADMIN para rever a palavra-passe.";
 
     // As recusas antes de a palavra-passe ser verificada dizem todas o mesmo:
     // o ecrã de entrada não revela que números de operador existem.
@@ -30,8 +40,10 @@ public sealed class DmoSignInService
         IAdminAuthorizationService authorization,
         IAdminEmailSettings adminEmailSettings,
         DmoDbContext dbContext,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IMemoryCache cache)
     {
+        _cache = cache;
         _provider = provider;
         _authorization = authorization;
         _adminEmailSettings = adminEmailSettings;
@@ -81,7 +93,26 @@ public sealed class DmoSignInService
                 ? operatorUser.Email.Trim()
                 : MapOperatorIdToProviderIdentifier(identifier);
 
+        // A contagem é pela identidade da conta, guardada só em memória.
+        var chaveFalhas = "dmo-login-falhas:" + providerIdentifier.ToLowerInvariant();
         var authResult = await _provider.AuthenticateAsync(providerIdentifier, password);
+
+        if (authResult.Success)
+        {
+            _cache.Remove(chaveFalhas);
+        }
+        else if (!authResult.ProviderUnavailable)
+        {
+            var falhas = _cache.GetOrCreate(chaveFalhas, entrada =>
+            {
+                entrada.SlidingExpiration = TimeSpan.FromHours(1);
+                return new StrongBox<int>();
+            })!;
+            if (Interlocked.Increment(ref falhas.Value) >= TentativasAntesDoAviso)
+            {
+                return SignInOutcome.Failed(ConsulteAdmin);
+            }
+        }
 
         if (!authResult.Success)
         {
