@@ -183,7 +183,7 @@ html body .def-menu-sub[hidden]{display:none}
           {
             <p data-dmo-toast="ok" role="status">Palavra-passe alterada.</p>
           }
-          <form id="defPalavraPasseForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="PalavraPasse" class="def-palavra" autocomplete="off">
+          <form id="defPalavraPasseForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="PalavraPasse" class="def-palavra" autocomplete="off" novalidate>
             <div class="dmo-field"><label for="defPalavraAtual">Atual</label><input id="defPalavraAtual" name="atual" type="password" autocomplete="current-password" required /></div>
             <div class="dmo-field"><label for="defPalavraNova">Nova</label><input id="defPalavraNova" name="nova" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
             <div class="dmo-field"><label for="defPalavraConfirmar">Confirmar a nova</label><input id="defPalavraConfirmar" name="confirmar" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>

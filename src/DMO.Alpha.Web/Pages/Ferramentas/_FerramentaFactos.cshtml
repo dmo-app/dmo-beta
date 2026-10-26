@@ -73,7 +73,8 @@
      grava como a primeira leitura da ferramenta. *@
     <div class="dmo-field ferr-w-uso">
       <label for="@(p)-uso">% uso<partial name="_DmoHelp" model="@(Model.UsoData is { } dataUso ? $"Última leitura: {dataUso}. Um valor novo fica como leitura de hoje." : "Ainda sem leitura. Um valor escrito fica como leitura de hoje.")" /></label>
-      <input id="@(p)-uso" name="uso_percentagem" type="text" inputmode="numeric" maxlength="4" value="@Model.UsoPercentagem" placeholder="@(Model.Criar ? null : "sem registo")" class="@(!Model.Criar && string.IsNullOrEmpty(Model.UsoPercentagem) ? "ferr-sem-registo-campo" : null)" />
+      @* maxlength 8: o aviso mostra o que se escreveu, sem cortar (ronda de 26/10/2026, J11). *@
+      <input id="@(p)-uso" name="uso_percentagem" type="text" inputmode="numeric" maxlength="8" value="@Model.UsoPercentagem" placeholder="@(Model.Criar ? null : "sem registo")" class="@(!Model.Criar && string.IsNullOrEmpty(Model.UsoPercentagem) ? "ferr-sem-registo-campo" : null)" />
     </div>
 </div>
 <span class="ferr-tech-sep ferr-editar-sep" aria-hidden="true"></span>
