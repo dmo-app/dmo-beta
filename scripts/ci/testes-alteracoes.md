@@ -2761,3 +2761,16 @@ Novos: 7 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
 Selo depois: `c697cb965d38984f`
+
+## A-0135 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR 136 no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 136
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: PostgresMigrationIntegrationTests.JobOnMaquina_FazUmaSoConsultaDeLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: JobOnMaquinaDoJobOnTests.MaquinaDoJobOn_DevolveALinhaDaProducao_OuZeroQuandoNaoExiste`
+
+Selo depois: `2a77037c4adaf9a6`

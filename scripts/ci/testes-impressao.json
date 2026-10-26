@@ -1,5 +1,5 @@
 {
-  "selo": "c697cb965d38984f",
+  "selo": "2a77037c4adaf9a6",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -935,6 +935,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnFolha.cs :: PostgresMigrationIntegrationTests.JobOnFolha_UmaFolhaPorJobOn_ABaseRecusaASegunda": "b250d0486112b756",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnHistorico.cs :: (resto do ficheiro)": "84828c9f0d979d52",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnHistorico.cs :: PostgresMigrationIntegrationTests.JobOnHistorico_CadaPedidoFazSoAsConsultasDeLeitura": "7f165168f421e9a4",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: (resto do ficheiro)": "84828c9f0d979d52",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnMaquina.cs :: PostgresMigrationIntegrationTests.JobOnMaquina_FazUmaSoConsultaDeLeitura": "7f650d5ce1fc3e2f",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnPagina.cs :: (resto do ficheiro)": "aa6beb9dd60e7c4c",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnPagina.cs :: PostgresMigrationIntegrationTests.JobOnPagina_CadaPedidoFazUmaSoConsultaDeLeitura": "3574bed71d168d2b",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.JobOnUmaConsulta.cs :: (resto do ficheiro)": "0d2bd68a7ff369a4",
@@ -1172,6 +1174,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnLotNoteHandlerTests.cs :: JobOnLotNoteHandlerTests.ForDay_SoAsNotasDoDiaDasProducoesIndicadas_ComOTextoDaMudanca": "b854eb5e22609709",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnLotNoteHandlerTests.cs :: JobOnLotNoteHandlerTests.ForJobOn_TodasAsNotasDaProducao_PorDia": "31894967f147c65f",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnLotNoteHandlerTests.cs :: JobOnLotNoteHandlerTests.NextAfter_APrimeiraTrocaDepoisDoDia": "ea7800709df0a734",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: (resto do ficheiro)": "6cf038575818749d",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnMaquinaDoJobOnTests.cs :: JobOnMaquinaDoJobOnTests.MaquinaDoJobOn_DevolveALinhaDaProducao_OuZeroQuandoNaoExiste": "e709ba19ded7859f",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapQueryTests.cs :: (resto do ficheiro)": "4c5cd6271dbfefb3",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapQueryTests.cs :: JobOnOverlapQueryTests.EveryWindow_NeverWarnsBetweenProductionsOfTheSameLine_InMemory": "f7e3106f80c5bce7",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnOverlapWarningTests.cs :: (resto do ficheiro)": "bd3fc6d3d6375a06",
