@@ -725,3 +725,26 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
   html body .jof2 .g-cal{grid-column:20/49}
   html body .jof2:not(.editing) table.calv td:nth-child(n){white-space:normal;font-size:10.5px}
 }
+/* Cabeçalho numa só barra (Diogo, 26/10/2026: «quero melhor design do header»):
+   a linha, os dados da produção e a referência com as ações dentro do mesmo
+   cartão, separados por traços finos, iguais no Ver, no Editar e no Job On novo. */
+@media (min-width:901px){
+  html body .jof2 .page-head{display:flex;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:0;margin:0 0 16px;padding:12px 16px;border:1px solid var(--dmo-border);border-radius:14px;background:var(--dmo-card);box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  html body .jof2.editing .page-head{margin-top:0;padding-top:12px;padding-bottom:12px;border-bottom:1px solid var(--dmo-border);background:var(--dmo-card)}
+  html body .jof2 .page-head .facts{display:flex;align-items:center;flex:1 1 auto;min-width:0;gap:0}
+  html body .jof2 .page-head .fact-col.mach{padding:0 18px 0 0;border:0;align-self:stretch;display:flex;align-items:center}
+  html body .jof2 .page-head .facts-dados{flex:1 1 auto;justify-content:center;margin:0;padding:0;border:0;border-left:1px solid var(--dmo-border);border-radius:0;background:none;box-shadow:none;align-self:stretch;align-items:center}
+  html body .jof2 .page-head .facts-dados .fact-col:first-child{padding-left:22px}
+  html body .jof2 .page-head .head-right{flex:none;margin:0;padding:0 0 0 18px;border-left:1px solid var(--dmo-border);align-self:stretch;align-items:center;flex-wrap:nowrap;gap:8px}
+  html body .jof2 .page-head .fact-col.mach .mch{min-width:64px;height:60px;font-size:26px;border-radius:12px}
+  html body .jof2.editing .page-head .fact-col.mach select.f{min-width:76px;height:52px;font-size:20px;font-weight:800;padding:0 28px 0 12px;border-radius:12px;text-align:center}
+}
+@media (min-width:901px){
+  html body .jof2 .page-head .facts-dados{justify-content:space-evenly}
+  html body .jof2 .page-head .facts-dados .fact-col:first-child{padding-left:0}
+  html body .jof2 .page-head .facts-dados input.f,html body .jof2 .page-head .facts-dados select.f{width:84px;min-width:0}
+  html body .jof2 .page-head .facts-dados input.f[type=date]{width:150px}
+  html body .jof2 .page-head .pick-block{justify-content:center}
+  html body .jof2 .page-head .pick-block>.eyebrow{position:static;margin:0 0 2px}
+  html body .jof2 .page-head .pick-block.is-novo{flex-direction:row;align-items:flex-end}
+}
