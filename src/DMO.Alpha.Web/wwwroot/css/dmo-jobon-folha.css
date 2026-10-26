@@ -780,3 +780,5 @@ html body .jof2 .facts-dados .fact-dias{align-content:center;align-items:center;
 @media (min-width:901px){
   html body .jof2 .page-head .pick-row .ref-search input{height:40px;min-height:40px;box-sizing:border-box}
 }
+/* No Editar, todas as caixas dos cartões com a mesma altura e a mesma letra; a largura continua a do conteúdo (Diogo, 26/10/2026). */
+html body .jof2.editing .card input.f:not(.sr-only),html body .jof2.editing .card select.f{height:28px;min-height:28px;box-sizing:border-box;font-size:13.5px}
