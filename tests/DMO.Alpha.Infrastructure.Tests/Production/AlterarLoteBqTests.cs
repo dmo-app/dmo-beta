@@ -75,7 +75,7 @@ public sealed class AlterarLoteBqTests : IDisposable
         Assert.Equal(("BQ-167", (int?)jobOn.Id), (novo.ToolId, novo.JobOnId));
         var antigo = await _db.BqContexts.AsNoTracking().SingleAsync(c => c.Id == bq.Id);
         Assert.Equal(("BQ-165", (int?)null, (int?)jobOn.Id), (antigo.ToolId, antigo.JobOnId, antigo.ReplacedJobOnId));
-        var mudou = await _db.JobOnChanges.AsNoTracking().SingleAsync(c => c.JobOnId == jobOn.Id);
+        var mudou = await _db.JobOnChanges.AsNoTracking().SingleAsync(c => c.JobOnId == jobOn.Id && c.Field == JobOnChangeFields.Bq);
         Assert.Equal((JobOnChangeFields.Bq, "T288 · lote 165", "t288 · lote 167", "Diogo"),
             (mudou.Field, mudou.OldValueFrozen, mudou.NewValueFrozen, mudou.ChangedByNameFrozen));
 
@@ -118,9 +118,28 @@ public sealed class AlterarLoteBqTests : IDisposable
         var (_, bq) = await SeedAsync();
         await _alterar.AlterarAsync(new AlterarLote(bq.Id, "BQ-167", null));
 
+        var mudancas = _db.JobOnChanges.Count();
+
         var outcome = await _alterar.AlterarAsync(new AlterarLote(bq.Id, "BQ-20", null));
 
         Assert.Equal(AlterarLoteResultado.JaNaoEDaProducao, outcome.Resultado);
-        Assert.Single(_db.JobOnChanges);
+        Assert.Equal(mudancas, _db.JobOnChanges.Count());
+    }
+
+    [Fact]
+    public async Task Alterar_AUtilizacaoDaFolhaPassaParaADoLoteNovo_0SeENovo()
+    {
+        var (jobOn, bq) = await SeedAsync();
+        _db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOn.Id, BqUtilizacao = "62", BqNotas = "Tratar" });
+        _db.FerramentaUtilizacoes.Add(new FerramentaUtilizacao { ToolId = "BQ-20", Percentagem = 12.5m, RegistadaEmUtc = DateTime.UtcNow });
+        await _db.SaveChangesAsync();
+
+        var primeiro = await _alterar.AlterarAsync(new AlterarLote(bq.Id, "BQ-167", null));
+        var folha = await _db.JobOnFolhas.AsNoTracking().SingleAsync(f => f.JobOnId == jobOn.Id);
+        Assert.Equal(("0", "Tratar"), (folha.BqUtilizacao, folha.BqNotas));
+        Assert.Contains(_db.JobOnChanges, c => c.Field == JobOnChangeFields.Folha && c.NewValueFrozen == "BQ · Utilização (%)");
+
+        await _alterar.AlterarAsync(new AlterarLote(primeiro.BqContextId!.Value, "BQ-20", null));
+        Assert.Equal("12.5", (await _db.JobOnFolhas.AsNoTracking().SingleAsync(f => f.JobOnId == jobOn.Id)).BqUtilizacao);
     }
 }

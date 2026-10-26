@@ -93,6 +93,34 @@ public sealed class AlterarLoteBq : IAlterarLoteBq
                 ChangedAtUtc = DateTime.UtcNow
             });
 
+            // A % de uso da folha passa a ser a do lote novo (Diogo, 26/10/2026:
+            // «% uso deveria ter passado para 0%»): a última leitura dele, 0 se é
+            // novo. As notas ficam: são desta produção.
+            var uso = await _db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => u.ToolId == nova.ToolId)
+                .OrderByDescending(u => u.Id)
+                .Select(u => (decimal?)u.Percentagem)
+                .FirstOrDefaultAsync(cancellationToken) ?? 0m;
+            var usoTexto = uso.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            var folha = await _db.JobOnFolhas.FirstOrDefaultAsync(f => f.JobOnId == jobOn.Id, cancellationToken);
+            if (folha is null)
+            {
+                folha = new JobOnFolha { JobOnId = jobOn.Id };
+                _db.JobOnFolhas.Add(folha);
+            }
+            if (folha.BqUtilizacao != usoTexto)
+            {
+                folha.BqUtilizacao = usoTexto;
+                _db.JobOnChanges.Add(new JobOnChange
+                {
+                    JobOnId = jobOn.Id,
+                    Field = JobOnChangeFields.Folha,
+                    NewValueFrozen = JobOnFolhaCampos.Encontrar("bq_utilizacao")!.RotuloAlteracao,
+                    ChangedByNameFrozen = Truncate(command.ChangedBy?.Trim(), 254),
+                    ChangedAtUtc = DateTime.UtcNow
+                });
+            }
+
             // A ficha do Job On aberta por outra pessoa fica desatualizada.
             _db.Entry(jobOn).Property(j => j.MachineId).IsModified = true;
             await _db.SaveChangesAsync(cancellationToken);

@@ -38,4 +38,25 @@ public partial class JobOnPageTests
         Assert.Contains("<b data-jof-tool-lote>167</b>", html, StringComparison.Ordinal);
         Assert.Contains("<p class=\"jof-onde\" data-jof-lotes-antes>Antes nesta produção: lote 21</p>", html, StringComparison.Ordinal);
     }
+
+    // Diogo, 26/10/2026: «quando altero para ferramenta nova não atualiza em
+    // tempo real», «% uso deveria ter passado para 0%».
+    [Fact]
+    public async Task Editar_AFerramentaNovaTrazOsDadosDela_UsoA0()
+    {
+        SeedUser("4423", "Chefe dados", "provider-folha-dados", "Folha1234!");
+        var id = await SeedJobOnCompletoAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.Tools.Add(new Tool { ToolId = "F-CM-17", Type = ToolType.Cm, Reference = "5809", Lot = "17" });
+            await db.SaveChangesAsync();
+        }
+        using var client = await LoginClientAsync("4423", "Folha1234!");
+
+        var json = await GetPageHtmlAsync(client, $"{FolhaPath}?handler=DadosDaFerramenta&tipo=CM&tool_id=F-CM-17&jobon_id={id}");
+
+        Assert.Contains("\"utilizacao\":{\"id\":\"jobon-cm-utilizacao\",\"valor\":\"0\"}", json, StringComparison.Ordinal);
+        Assert.Contains("\"doJobOn\":null", json, StringComparison.Ordinal);
+    }
 }
