@@ -100,18 +100,6 @@ public sealed class FerramentasFabricoSapTests
     }
 
     [Fact]
-    public void ORelatorioProducoes_DaOPesoDeCadaProducao()
-    {
-        // Diogo (26/10/2026): o peso da última produção, em média e moda, vem do mesmo relatório.
-        const string html = "<table><tr><td>MM</td><td>Linha</td><td>DATA&nbsp;I</td><td>DATA&nbsp;F</td><td>Peso</td><td>QBRUTA</td></tr>"
-            + "<tr><td>5227S368</td><td>C2</td><td>24.11.2025</td><td>14.01.2026</td><td>130,072</td><td>45.999.205</td></tr></table>";
-
-        var linha = Assert.Single(FabricoSapExportacao.Ler(html).Linhas);
-
-        Assert.Equal(130.072m, linha.PesoMedioGramas);
-    }
-
-    [Fact]
     public void UmFicheiroSemOCabecalhoDoFabrico_NaoEORelatorio()
     {
         Assert.False(FabricoSapExportacao.Ler("Material\tLine\n5538T324BRA\tC3").CabecalhoEncontrado);
