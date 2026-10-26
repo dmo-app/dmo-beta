@@ -474,3 +474,28 @@
 .resumo-pu-ligacoes { margin-top: auto; display: flex; flex-wrap: wrap; gap: 14px; justify-content: flex-end; }
 .resumo-pu-ligacoes .resumo-card-link { margin-top: 0; }
 .resumo-linked-card .resumo-pu-ligacoes .resumo-card-link::after { content: none; }
+
+/* Cartões compactos (Diogo, 26/10/2026: «cards mais pequenos»): como os
+ * mini-cartões do Registo das Boquilhas, o rótulo pequeno e o valor na
+ * mesma linha, para caber tudo a 1366×768 com pouco scroll. */
+.resumo-page .resumo-sheet { gap: 10px; padding-bottom: 14px; }
+.resumo-sheet-intro { padding: 10px 20px; }
+.resumo-sheet-identity { font-size: 18px !important; }
+.resumo-section-title { margin: 0 0 6px !important; font-size: 14px !important; }
+.resumo-window-grid, .resumo-page .resumo-tools-grid { gap: 6px; }
+.resumo-mini-card {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 0;
+  padding: 6px 10px;
+  border-radius: 7px;
+}
+.resumo-mini-card > strong { font-size: 15px; line-height: 1.3; }
+.resumo-mini-card > small { font-size: 11px; }
+.resumo-page .resumo-mini-card.resumo-approval { flex-direction: row; flex-wrap: wrap; align-items: baseline; }
+.resumo-page .resumo-mini-card.resumo-approval > strong { font-size: 15px; }
+.resumo-mini-card.resumo-approval form { margin: 0; }
+.resumo-linked-card { min-height: 0; padding: 10px 12px; gap: 4px; }
+.resumo-linked-card .resumo-big-number { font-size: 28px; }
