@@ -83,6 +83,7 @@ public sealed partial class IndexModel : PageModel
     private readonly IToolCandidateQuery _toolCandidates;
     private readonly DmoDbContext _db;
     private readonly IBoquilhasEscolhasQuery _escolhas;
+    private readonly IBoquilhasFichaQuery _ficha;
     private readonly DMO.Alpha.Core.Production.IMachineListQuery _machineList;
     private readonly DMO.Alpha.Infrastructure.Production.JobOnChangeQuery _changes;
     private readonly DMO.Alpha.Core.Production.IProductionPickerQuery _productionPicker;
@@ -99,6 +100,7 @@ public sealed partial class IndexModel : PageModel
         IToolCandidateQuery toolCandidates,
         DmoDbContext db,
         IBoquilhasEscolhasQuery escolhas,
+        IBoquilhasFichaQuery ficha,
         DMO.Alpha.Core.Production.IMachineListQuery machineList,
         DMO.Alpha.Infrastructure.Production.JobOnChangeQuery changes,
         DMO.Alpha.Core.Production.IProductionPickerQuery productionPicker,
@@ -116,6 +118,7 @@ public sealed partial class IndexModel : PageModel
         _toolCandidates = toolCandidates;
         _db = db;
         _escolhas = escolhas;
+        _ficha = ficha;
         _machineList = machineList;
         _changes = changes;
         _productionPicker = productionPicker;
@@ -1087,20 +1090,13 @@ public sealed partial class IndexModel : PageModel
         if (RegistoTrace?.ToolId is { } registerToolId)
         {
             RegisterLotQuantity = RegistoTrace.ToolAccountedQuantity;
-            linkedMachines = await _db.ToolMachineLinks
-                .AsNoTracking()
-                .Where(link => link.ToolId == registerToolId)
-                .OrderBy(link => link.MachineId)
-                .Select(link => new DMO.Alpha.Core.Production.MachineOption(link.MachineId, link.Machine.Code))
-                .ToListAsync(cancellationToken);
+            linkedMachines = (await _ficha.MaquinasDaFerramentaAsync(registerToolId, cancellationToken)).ToList();
             RegisterMachineCodes = linkedMachines.Select(m => m.Code).ToList();
         }
         // As máquinas do formulário: as do painel lateral, já lidas.
         var allMachines = Currents.Count > 0
             ? Currents.DistinctBy(m => m.MachineId).Select(m => new DMO.Alpha.Core.Production.MachineOption(m.MachineId, m.MachineCode)).ToList()
-            : await _db.Machines.AsNoTracking().OrderBy(m => m.Code)
-                .Select(m => new DMO.Alpha.Core.Production.MachineOption(m.Id, m.Code))
-                .ToListAsync(cancellationToken);
+            : (await _machineList.ListAsync(cancellationToken)).ToList();
         // SÓ AS MÁQUINAS DA FERRAMENTA (Diogo, 18/10/2026: «se ela só
         // trabalha na C2 como está na ficha da ferramenta não deveria
         // conseguir escolher B2»): com máquinas na ficha, a lista mostra só
@@ -1128,43 +1124,31 @@ public sealed partial class IndexModel : PageModel
     /// </summary>
     private async Task ComposeToolSheetAsync(string toolId, CancellationToken cancellationToken)
     {
-        var tool = await _db.Tools
-            .AsNoTracking()
-            .Where(t => t.ToolId == toolId)
-            .Select(t => new { t.Reference, t.Lot, t.BqAccountedQuantity })
-            .FirstOrDefaultAsync(cancellationToken);
+        var tool = await _ficha.FerramentaAsync(toolId, cancellationToken);
         if (tool is null)
         {
             ToolSheetNotFound = true;
             return;
         }
 
-        var machines = await _db.ToolMachineLinks
-            .AsNoTracking()
-            .Where(link => link.ToolId == toolId)
-            .OrderBy(link => link.MachineId)
-            .Select(link => link.Machine.Code)
-            .ToListAsync(cancellationToken);
+        var machines = (await _ficha.MaquinasDaFerramentaAsync(toolId, cancellationToken))
+            .Select(m => m.Code)
+            .ToList();
 
         ToolSheet = new BqToolSheet(
             toolId,
             tool.Reference,
             tool.Lot,
-            tool.BqAccountedQuantity,
+            tool.AccountedQuantity,
             machines,
             await ListRegisterCandidatesAsync(toolId, RegistersPage, cancellationToken));
 
         // Os movimentos sem Job On desta BQ, aqui na página Boquilhas: o
         // Registo é só para os registos de um Job On (Diogo, 22/10/2026).
-        var semJobOn = await _db.BqMovements.AsNoTracking()
-            .Where(m => m.Trace.ToolId == toolId && m.Trace.BqContextId == null)
-            .OrderByDescending(m => m.OccurredAtUtc).ThenByDescending(m => m.Id)
-            .Take(SemJobOnMovementLimit)
-            .Select(m => new { m.Type, m.Quantity, m.MachineCodeFrozen, m.OccurredAtUtc })
-            .ToListAsync(cancellationToken);
+        var semJobOn = await _ficha.MovimentosSemJobOnAsync(toolId, SemJobOnMovementLimit, cancellationToken);
         SemJobOnMovements = semJobOn
             .Select(m => new SemJobOnMovement(
-                DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(m.OccurredAtUtc), m.Type, m.Quantity, m.MachineCodeFrozen))
+                DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(m.OccurredAtUtc), m.Type, m.Quantity, m.MachineCode))
             .ToList();
     }
 

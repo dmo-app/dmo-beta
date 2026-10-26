@@ -194,7 +194,7 @@ public sealed class SharedComponentsTests
     [InlineData("Admin/Users", "Index.cshtml")]
     [InlineData("Admin/Users", "Ficha.cshtml")]
     [InlineData("Admin/Definicoes", "_DefinicoesApp.cshtml")]
-    [InlineData("Admin/CanalJobon", "Index.cshtml")]
+    [InlineData("ReparacaoInterna", "_DefinicoesGeral.cshtml")]
     [InlineData("Boquilhas", "Definicoes.cshtml")]
     [InlineData("Ferramentas", "Definicoes.cshtml")]
     [InlineData("Ferramentas", "Index.cshtml")]
