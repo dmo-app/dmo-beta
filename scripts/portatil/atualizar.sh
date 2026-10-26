@@ -23,6 +23,14 @@
 #   DMO_COPIAS    cópias antes de migrar    (~/dmo-antes-de-atualizar, 10 últimas)
 set -euo pipefail
 
+# O passo 1 muda o próprio ficheiro (git checkout); o bash lê o script aos
+# poucos, por isso corre-se uma cópia fora do repositório.
+if [ -z "${DMO_ATUALIZAR_COPIA:-}" ]; then
+  copia_script="$(mktemp)"
+  cp "$0" "$copia_script"
+  DMO_ATUALIZAR_COPIA=1 exec bash "$copia_script" "$@"
+fi
+
 ramo="${1:-integracao}"
 repo="${DMO_REPO:-$HOME/dmo-beta}"
 env_app="${DMO_ENV:-$HOME/dmo-local.env}"
