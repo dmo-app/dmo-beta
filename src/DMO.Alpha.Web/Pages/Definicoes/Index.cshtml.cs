@@ -46,6 +46,7 @@ public sealed class IndexModel(
 
     /// <summary>O modo guardado para este utilizador: «light», «dark» ou null (o do navegador).</summary>
     public string? Tema { get; private set; }
+    public int SessaoHoras { get; private set; } = SessaoDuracao.PorOmissao;
 
     public string? Aviso { get; private set; }
 
@@ -191,6 +192,7 @@ public sealed class IndexModel(
         if (account.Current.ActorId is { } userId)
         {
             Tema = await pessoais.LerAsync(userId, UserSettingKeys.Tema, HttpContext.RequestAborted);
+            SessaoHoras = SessaoDuracao.Ler(await pessoais.LerAsync(userId, UserSettingKeys.SessaoHoras, HttpContext.RequestAborted));
         }
 
         if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ControloCreate))
@@ -267,6 +269,21 @@ public sealed class IndexModel(
         await pessoais.GravarAsync(userId, UserSettingKeys.Tema, tema, HttpContext.RequestAborted);
         TemaPessoal.Escrever(HttpContext, tema);
         return json ? new JsonResult(new { ok = true, tema }) : RedirectToPage("/Definicoes/Index", new { tema = "ok" });
+    }
+
+    /// <summary>
+    /// POST: a duração da sessão, só deste utilizador (Pessoal); vale a partir
+    /// da próxima entrada.
+    /// </summary>
+    public async Task<IActionResult> OnPostSessaoAsync([FromForm(Name = "horas")] int horas)
+    {
+        if (!SessaoDuracao.Opcoes.Contains(horas) || account.Current.ActorId is not { } userId)
+        {
+            return RedirectToPage("/Definicoes/Index", new { geral = "sem-permissao" });
+        }
+
+        await pessoais.GravarAsync(userId, UserSettingKeys.SessaoHoras, horas.ToString(System.Globalization.CultureInfo.InvariantCulture), HttpContext.RequestAborted);
+        return RedirectToPage("/Definicoes/Index");
     }
 
     /// <summary>
