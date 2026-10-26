@@ -2732,41 +2732,32 @@ Novos: 2 · mudaram: 6 · saíram: 1
 
 Selo depois: `3b25a8fc9f9336fe`
 
-## A-0134 · 2026-10-26 · ok-do-diogo
+## A-0129 · 2026-10-26 · ok-do-diogo
 
-Porquê: Registo do integracao acertado pela main 2d4bb89: fica o da main + esta entrada para os PRs em curso.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
-Novos: 5 · mudaram: 2 · saíram: 0
+Porquê: Diogo pediu: um só triângulo nos cartões dobráveis, botão invertido branco no escuro, sem itálico, toggles nas caixas da ferramenta, hover do calendário
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy5hWpevZxdmL29DgykSdZi6
+Novos: 2 · mudaram: 2 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
 - novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
 - novo: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.SemItalico_EmTodaAApp`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.UsoCheio.cs :: FerramentasPagesTests.UsoCheio_SoMudaACor_NaFichaENoPesquisar_NuncaAvisaNemBloqueia`
 - mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Calendar_SelectedDayHover_KeepsSlateBackground`
 
-Selo depois: `1b4cffce6b107993`
+Selo depois: `b1fbf8371e3118cd`
 
-## A-0135 · 2026-10-26 · ok-do-diogo
+## A-0134 · 2026-10-26 · ok-do-diogo
 
-Porquê: Junção do PR 131b no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 131b
-Novos: 2 · mudaram: 1 · saíram: 0
+Porquê: Registo do integracao acertado pela main e2871b1: fica o da main + esta entrada para os PRs em curso.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PRs no integracao
+Novos: 7 · mudaram: 1 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
-- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
-
-Selo depois: `5b2f02014faf58c9`
-
-## A-0136 · 2026-10-26 · ok-do-diogo
-
-Porquê: Junção do PR 134 no ramo integracao; o registo do próprio PR entra na main com ele.
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR 134
-Novos: 2 · mudaram: 0 · saíram: 0
-
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Search/SuggestionQueryTests.cs :: SuggestionQueryTests.Ferramentas_ComUmaJaEscolhida_SoAsQueTrabalhamComElaPelaReferenciaTotal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.ReferenceContains_AReferenciaToda_MostraAsFerramentasQuePertencemAEla`
 - novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/CabecalhosDeSegurancaTests.cs :: CabecalhosDeSegurancaTests.Resposta_LevaOsCabecalhosDeSeguranca`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/FerramentasListaEstadoTests.cs :: FerramentasListaEstadoTests.Lista_MostraOUsoEOndeEstaCadaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
 
 Selo depois: `c697cb965d38984f`
