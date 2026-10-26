@@ -2603,3 +2603,13 @@ Novos: 27 · mudaram: 7 · saíram: 2
 - saiu: `tests/DMO.Alpha.Web.Tests/StartupConfigurationCheckTests.cs :: StartupConfigurationCheckTests.Producao_SemOFornecedorDeclarado_Avisa`
 
 Selo depois: `b0631f8a7fd8c229`
+
+## A-0117 · 2026-10-26 · ok-do-diogo
+
+Porquê: Junção do PR #118 corrigido (daed98e) no ramo integracao; o registo do próprio PR entra na main com ele.
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyRTc4GbKqSyKguBgVdi92LW; PR #118
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `2114046428f6af0d`

@@ -16,9 +16,10 @@ public partial class JobOnPageTests
         using var client = await LoginClientAsync("4581", "Folha1234!");
 
         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={jobOnId}");
-        Assert.Contains("data-jof-imprimir-menu", html, StringComparison.Ordinal);
-        Assert.Contains("data-jof-imprimir=\"ficha\">Ficha de Artigo</button>", html, StringComparison.Ordinal);
-        Assert.Contains("data-jof-imprimir=\"equipa\">Trabalho de Equipa</button>", html, StringComparison.Ordinal);
+        Assert.Contains("data-jof-imprimir>Imprimir</button>", html, StringComparison.Ordinal);
+        Assert.Contains("<div class=\"menu-list\" data-jof-imprimir-lista hidden>", html, StringComparison.Ordinal);
+        Assert.Contains("data-jof-imprimir-folha=\"ficha\">Ficha de Artigo</button>", html, StringComparison.Ordinal);
+        Assert.Contains("data-jof-imprimir-folha=\"equipa\">Trabalho de Equipa</button>", html, StringComparison.Ordinal);
         Assert.Contains("<div class=\"jof-impressao\" data-jof-impressao hidden>", html, StringComparison.Ordinal);
         Assert.Contains("data-jof-folha=\"ficha\"", html, StringComparison.Ordinal);
         Assert.Contains("data-jof-folha=\"equipa\"", html, StringComparison.Ordinal);
