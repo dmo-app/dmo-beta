@@ -817,18 +817,20 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
         var html = await ficha.Content.ReadAsStringAsync();
 
         // OS FATOS HUMANOS: o nome, o nº, a template atual PELO NOME, o
-        // estado, a senha por mudar, o CreatedAt E O EMAIL ASSOCIADO (o
-        // Owner 2026-10-13: «o email tem de ficar associado ao user» — o
-        // rótulo visível do mockup 13_ADMIN; a SENHA é que nunca existe aqui).
+        // estado, a senha por mudar e o CreatedAt. SEM EMAIL: a conta entra
+        // pelo nº e não precisa de email, só o ADMIN (Diogo, 26/10/2026,
+        // cmsg_01K75FTs9bQnbhhH7qttpgraEMxzGkVktKoK7yyAw6RnoU: «podemos
+        // remover o block do email»). A SENHA nunca existe aqui.
         Assert.Contains("Chefe Da Ficha — nº 4747", html, StringComparison.Ordinal);
         Assert.Contains("Chefe de Turno", html, StringComparison.Ordinal);
         Assert.Contains("Ativo", html, StringComparison.Ordinal);
         Assert.Contains("Obrigatória — PIN temporário", html, StringComparison.Ordinal);
         Assert.Contains("Criado em", html, StringComparison.Ordinal);
-        Assert.Contains("ficha@empresa.pt", html, StringComparison.Ordinal);
-        // Os cartões curtos empilhados por coluna, e o cartão da template
+        Assert.DoesNotContain("ficha@empresa.pt", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("<span>Email</span>", html, StringComparison.Ordinal);
+        // Design novo: os factos numa só faixa, e o cartão da template
         // abre-a para editar (Diogo, 17/10/2026).
-        Assert.Contains("class=\"dmo-fact-stack\"", html, StringComparison.Ordinal);
+        Assert.Contains("class=\"dmo-facts dfu-factos\"", html, StringComparison.Ordinal);
         Assert.Contains($"class=\"dmo-fact dmo-fact-link\" href=\"/Admin/Templates?template={templateKey}\"", html, StringComparison.Ordinal);
         Assert.Contains("Editar template", html, StringComparison.Ordinal);
 
