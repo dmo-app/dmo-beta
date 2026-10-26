@@ -1,6 +1,5 @@
 {
   "fixes": [
-    { "id": "DMO-431", "module": "Job On", "description": "Cabeçalho do Job On: a Referência e a Produção já não se sobrepõem e a referência vê-se inteira; os botões Linhas e Imprimir ficam dentro do ecrã a 1366×768." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },
     { "id": "DMO-003", "module": "Job On", "description": "Decimais de calote guardados corretamente ao criar e editar produções." },
@@ -419,6 +418,7 @@
     { "id": "DMO-428", "module": "Reparação Interna", "description": "0.3.0-beta.114: nos filtros da Consulta e do Histórico a ordem passa a ser Referência, Produção, Tipo de trabalho (Reparação, Soldar, Polir), Linha, Quem, CM/MF e as datas por último; a caixa «Só por associar» passa a «Sem Job On», com dica." },
     { "id": "DMO-429", "module": "Reparação Interna", "description": "0.3.0-beta.115: no login há o botão «Posto de Reparação»: quem tem a Reparação Interna (ver ou criar) escolhe o seu nome e entra com o PIN, sem palavra-passe. O ADMIN define o PIN de cada pessoa na ficha do utilizador." },
     { "id": "DMO-430", "module": "Job On", "description": "0.3.0-beta.116: na Folha do Job On o lote do AN é, por omissão, o da BQ do mesmo Job On (ecrã, impressão e Job On antigos sem lote de AN); se alguém escrever o lote do AN à mão, esse mantém-se." },
+    { "id": "DMO-431", "module": "Job On", "description": "Cabeçalho do Job On: a Referência e a Produção já não se sobrepõem e a referência vê-se inteira; os botões Linhas e Imprimir ficam dentro do ecrã a 1366×768." },
     { "id": "DMO-432", "module": "Job On", "description": "0.3.0-beta.118: na Folha, o furos da CS no formato antigo (4X4, 4X2) volta a aparecer como Abertos e Fechados: o maior número são os furos e o menor os abertos (4X4 = 4 abertos; 4X2 = 2 abertos e 2 fechados)." },
     { "id": "DMO-434", "module": "Job On", "description": "0.3.0-beta.120: na Folha, os cartões ficam em quatro colunas iguais, cada um com a altura do seu conteúdo (PU e ARR já não ficam uma faixa estreita), as medidas mostram o valor inteiro por baixo do nome (sem scroll) e o campo «Calote» mostra o valor em vez da palavra «bacia»." }
   ],
