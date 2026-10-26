@@ -283,8 +283,8 @@ builder.Services.AddTransient<DMO.Alpha.Web.Pages.Controlo.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Armazem.DefinicoesModel>();
+builder.Services.AddTransient<DMO.Alpha.Web.Pages.ReparacaoInterna.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel>();
-builder.Services.AddTransient<DMO.Alpha.Web.Pages.Admin.CanalJobon.IndexModel>();
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.EnviarPesoPorEmailHandler>();
 // O APPROVE-MÍNIMO (a decisão GATE 4): o registo de visão da folha do
 // controlo — quem abriu e quando; nunca é gate.
@@ -334,6 +334,7 @@ builder.Services.AddScoped<IJobOnListQuery, JobOnListQuery>();
 builder.Services.AddScoped<IJobOnPaginaQuery, JobOnPaginaQuery>();
 builder.Services.AddScoped<IJobOnQuadroDoDiaQuery, JobOnQuadroDoDiaQuery>();
 builder.Services.AddScoped<IJobOnHistoricoQuery, JobOnHistoricoQuery>();
+builder.Services.AddScoped<IJobOnFichaQuery, JobOnFichaQuery>();
 builder.Services.AddScoped<IProductionPickerQuery, ProductionPickerQuery>();
 // As sugestões ao escrever dos campos de procura (DMO-044): uma consulta
 // curta por pedido, servida por GET /Sugestoes e usada por js/dmo-suggest.js.
@@ -658,7 +659,7 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
     ["referencias_registo"] = [DmoCapabilities.Ferramentas],
 };
 app.MapGet("/Sugestoes", async (
-    string? fonte, string? q, string? tipo,
+    string? fonte, string? q, string? tipo, int? linha,
     DMO.Alpha.Core.Search.ISuggestionQuery suggestions, CurrentUserCapabilities capabilities, HttpContext context) =>
 {
     var fonteKey = fonte?.Trim().ToLowerInvariant() ?? string.Empty;
@@ -687,7 +688,7 @@ app.MapGet("/Sugestoes", async (
         "bq" => ToolType.Bq,
         _ => (ToolType?)null
     };
-    var items = await suggestions.SuggestAsync(source.Value, q, toolType, context.RequestAborted);
+    var items = await suggestions.SuggestAsync(source.Value, q, toolType, linha, context.RequestAborted);
     return Results.Json(items.Select(item => new { value = item.Value, label = item.Label }));
 }).RequireAuthorization();
 

@@ -66,5 +66,8 @@ public interface ISuggestionQuery
         SuggestionSource source,
         string? term,
         DMO.Alpha.Core.Tools.ToolType? toolType = null,
+        // As referências do Job On novo: com a linha, só as que já correram nela
+        // (todas, se nenhuma correu). Diogo, 26/10/2026.
+        int? machineId = null,
         CancellationToken cancellationToken = default);
 }

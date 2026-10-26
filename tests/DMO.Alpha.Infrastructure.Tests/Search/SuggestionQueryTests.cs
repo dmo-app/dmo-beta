@@ -54,6 +54,27 @@ public sealed class SuggestionQueryTests : IDisposable
         Assert.Empty(await _query.SuggestAsync(SuggestionSource.Referencias, term));
     }
 
+    // O Job On novo (Diogo, 26/10/2026: «ao procurar uma referência ainda apareciam
+    // muitas»): com a linha, só as referências que já correram nela; se nenhuma
+    // correu, todas.
+    [Fact]
+    public async Task Referencias_ComLinha_SoAsQueCorreramNela_SemNenhumaTodas()
+    {
+        await SeedProductionsAsync();
+        var outra = new Machine { Code = "B1" };
+        _db.Machines.Add(outra);
+        await _db.SaveChangesAsync();
+        _db.JobOns.Add(new JobOn { Reference = "5447T173", ProductionNumber = "202602", MachineId = outra.Id });
+        await _db.SaveChangesAsync();
+
+        async Task<string[]> Find(string term, int? linha) =>
+            (await _query.SuggestAsync(SuggestionSource.Referencias, term, machineId: linha)).Select(s => s.Value).ToArray();
+
+        Assert.Equal(new[] { "5447T173", "5932T173" }, await Find("5", null));
+        Assert.Equal(new[] { "5447T173" }, await Find("5", outra.Id));
+        Assert.Equal(new[] { "6018Y232" }, await Find("6", outra.Id));
+    }
+
     [Fact]
     public async Task OneCharacter_IsEnough_ForReferences()
     {

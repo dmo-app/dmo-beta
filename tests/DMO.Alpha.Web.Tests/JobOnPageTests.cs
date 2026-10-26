@@ -1339,6 +1339,39 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.Redirect, (await anonymous.GetAsync("/JobOn?handler=ToolCandidates&type=CM")).StatusCode);
     }
 
+    // O Diogo (26/10/2026): «um CM já inserido deveria filtrar com base no que faz
+    // parte relacionando máquina e referência total». Com a CM escolhida e nada
+    // escrito, a BQ mostra só as relacionadas (a usada com a CM primeiro) e o filtro
+    // diz quantas ficam por escrever; escrever mostra todas.
+    [Fact]
+    public async Task ToolCandidates_ComCmEscolhida_ABqMostraAsRelacionadas_EEscreverMostraTodas()
+    {
+        SeedUser("4833", "Picker Related", "picker-related", "PickerPass3!");
+        var (b1, _) = await SeedRegistryAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.Tools.Add(new Tool { ToolId = "T-BQ2", Type = ToolType.Bq, Reference = "T194", Lot = "4" });
+            db.Tools.Add(new Tool { ToolId = "T-BQ3", Type = ToolType.Bq, Reference = "T194", Lot = "5" });
+            var antiga = new JobOn { Reference = "5447T194", ProductionNumber = "202501", MachineId = b1 };
+            db.JobOns.Add(antiga);
+            await db.SaveChangesAsync();
+            db.ToolMachineLinks.Add(new ToolMachineLink { ToolId = "T-BQ1", MachineId = b1 });
+            db.CmContexts.Add(new CmContext { JobOnId = antiga.Id, ToolId = "T2" });
+            db.BqContexts.Add(new BqContext { JobOnId = antiga.Id, ToolId = "T-BQ3" });
+            await db.SaveChangesAsync();
+        }
+        using var client = await LoginClientAsync("4833", "PickerPass3!");
+
+        using var relacionadas = await GetJsonAsync(client, $"/JobOn?handler=ToolCandidates&type=BQ&machine_id={b1}&reference=5447T194&cm_tool_id=T2");
+        Assert.Equal(new[] { "T-BQ3", "T-BQ1" }, relacionadas.RootElement.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("toolId").GetString()).ToArray());
+        Assert.EndsWith("só as relacionadas; escreva para ver mais 1", relacionadas.RootElement.GetProperty("filtro").GetString());
+
+        using var escrito = await GetJsonAsync(client, $"/JobOn?handler=ToolCandidates&type=BQ&machine_id={b1}&reference=5447T194&cm_tool_id=T2&q=T194");
+        Assert.Equal(new[] { "T-BQ3", "T-BQ1", "T-BQ2" }, escrito.RootElement.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("toolId").GetString()).ToArray());
+        Assert.Equal("Filtrado por máquina e referência", escrito.RootElement.GetProperty("filtro").GetString());
+    }
+
     [Fact]
     public async Task ToolCandidates_SearchAsYouType_FindsByPartialReferenceOrLot()
     {
