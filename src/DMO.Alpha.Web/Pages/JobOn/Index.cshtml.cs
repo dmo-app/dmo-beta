@@ -57,9 +57,7 @@ public sealed class IndexModel : PageModel
     private readonly IJobOnHistoricoQuery _historico;
     private readonly ShellStateFactory _shellState;
     private readonly CurrentUserCapabilities _capabilities;
-    private readonly JobOnLotNoteHandler _lotNotes;
-    private readonly JobOnChangeQuery _changes;
-    private readonly IDeleteJobOnHandler _deleteJobOn;
+    private readonly IJobOnFichaQuery _ficha;
     private readonly IJobOnFolhaQuery _folha;
 
     public IndexModel(
@@ -76,9 +74,7 @@ public sealed class IndexModel : PageModel
         IJobOnHistoricoQuery historico,
         ShellStateFactory shellState,
         CurrentUserCapabilities capabilities,
-        JobOnLotNoteHandler lotNotes,
-        JobOnChangeQuery changes,
-        IDeleteJobOnHandler deleteJobOn,
+        IJobOnFichaQuery ficha,
         IJobOnFolhaQuery folha,
         Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
@@ -96,9 +92,7 @@ public sealed class IndexModel : PageModel
         _historico = historico;
         _shellState = shellState;
         _capabilities = capabilities;
-        _lotNotes = lotNotes;
-        _changes = changes;
-        _deleteJobOn = deleteJobOn;
+        _ficha = ficha;
         _folha = folha;
     }
 
@@ -776,13 +770,22 @@ public sealed class IndexModel : PageModel
         // MESMA query que o endpoint do vivo usa. O MODO DUPLICAR
         // (?jobon_id=N&duplicar=1) compõe o draft da produção nova (o html:
         // o nº e as datas por preencher, as tools e a calote copiadas).
-        if (OpenJobOn is { } loteJobOn)
+        //
+        // As leituras da ficha (notas de lote, alterações, o que se perde ao
+        // eliminar, os factos das ferramentas e a folha gravada) fazem-se de
+        // uma vez no serviço; as capabilities do utilizador não voltam à base
+        // (resolvem-se uma vez por pedido), por isso a ordem entre umas e outras
+        // não muda o que se lê.
+        var ficha = OpenJobOn is { } fichaAberta
+            ? await _ficha.FichaAsync(fichaAberta, today, duplicar == "1", HttpContext.RequestAborted)
+            : null;
+        if (OpenJobOn is { } loteJobOn && ficha is not null)
         {
-            FichaLotNotes = await _lotNotes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted);
+            FichaLotNotes = ficha.LotNotes;
             var resumo = JobOnSummaryEntry.Compose(
                 loteJobOn.JobOnId,
                 loteJobOn.InicioEm,
-                await _changes.ForJobOnAsync(loteJobOn.JobOnId, HttpContext.RequestAborted),
+                ficha.Changes,
                 FichaLotNotes);
             var permitidas = new HashSet<string>();
             foreach (var capability in resumo.Select(e => e.ActionCapability).Distinct())
@@ -793,11 +796,11 @@ public sealed class IndexModel : PageModel
             VistaAlteracoes = vista == "alteracoes";
         }
 
-        if (OpenJobOn is { } eliminarJobOn && duplicar != "1")
+        if (OpenJobOn is not null && duplicar != "1")
         {
             VeControlo = await _capabilities.HasAsync(DmoCapabilities.ControloCreate, HttpContext.RequestAborted)
                 || await _capabilities.HasAsync(DmoCapabilities.ControloApprove, HttpContext.RequestAborted);
-            if (await _deleteJobOn.PreviewAsync(eliminarJobOn.JobOnId, today, HttpContext.RequestAborted) is { } preview)
+            if (ficha?.DeletePreview is { } preview)
             {
                 FichaEliminar = JobOnEliminarAviso.From(preview, VeControlo);
             }
@@ -852,18 +855,11 @@ public sealed class IndexModel : PageModel
                 }
             }
 
-            if (DuplicarDe is null)
+            // Os factos das ferramentas lêem-se para a ficha e para o Editar,
+            // nunca no Duplicar (o serviço devolve-os vazios).
+            if (ficha is not null)
             {
-                var fichaToolIds = new[] { fichaJobOn.CmToolId, fichaJobOn.MfToolId, fichaJobOn.BqToolId }
-                    .Where(id => id is not null)
-                    .Select(id => id!)
-                    .ToList();
-                if (fichaToolIds.Count > 0)
-                {
-                    FichaFacts = await _toolFacts.FindAsync(
-                        fichaToolIds, fichaJobOn.Machine, fichaJobOn.JobOnId,
-                        fichaJobOn.InicioEm, fichaJobOn.FimEm, HttpContext.RequestAborted);
-                }
+                FichaFacts = ficha.ToolFacts;
             }
         }
 
@@ -888,9 +884,7 @@ public sealed class IndexModel : PageModel
         // A FOLHA DA FÁBRICA gravada, lida uma vez para a ficha em leitura, para
         // o Editar e para o Duplicar (a ficha aparece sempre que há Job On
         // aberto, menos no Duplicar).
-        var folhaGravada = OpenJobOn is { } folhaJobOn
-            ? await _folha.ForJobOnAsync(folhaJobOn.JobOnId, HttpContext.RequestAborted)
-            : null;
+        var folhaGravada = ficha?.Folha;
         FichaFolha = folhaGravada is null || DuplicarDe is not null ? null : FichaDaFolhaVista.DaLida(folhaGravada);
 
         // No formulário: o que se escreveu (depois de uma recusa que volta a
