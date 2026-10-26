@@ -953,3 +953,18 @@ html body .jof2.editing .sec-head:has(.hv input) .hv+.hv{margin-left:0;padding-l
 html body .jof2 .jof-furos-ver{display:inline-flex;white-space:nowrap;flex-direction:column;align-items:flex-end;gap:2px;font-weight:800;font-variant-numeric:tabular-nums}
 /* A referência inteira cabe na procura do cabeçalho (Diogo, 26/10/2026: «2032C00…» ficava cortada). */
 html body .jof2 .pick-row .ref-search input#jofReferencia{min-width:calc(11ch + 36px)}
+/* A 1366 (Diogo, 26/10/2026): a PU e o ARR acabam à mesma altura da BQ e do AN
+   (as notas da PU crescem), e a CAL ganha largura e cabe toda, sem nada cortado. */
+@container board (min-width:640px){
+  html body .jof2:not(.editing) .col3{align-content:stretch;align-self:stretch}
+  html body .jof2:not(.editing) .col3>.g-gargalo,html body .jof2:not(.editing) #gGargalo{flex:1;display:flex;flex-direction:column}
+  html body .jof2:not(.editing) #gGargalo>.card{flex:1;display:flex;flex-direction:column}
+  html body .jof2:not(.editing) #gGargalo .sec[data-jof-familia="PU"]{display:flex;flex-direction:column}
+  html body .jof2:not(.editing) #gGargalo .sec[data-jof-familia="PU"]>.note-box{flex:1;display:flex;flex-direction:column}
+  html body .jof2:not(.editing) #gGargalo .sec[data-jof-familia="PU"]>.note-box>p{flex:1}
+  html body .jof2:not(.editing) table.calv th:nth-child(n),html body .jof2:not(.editing) table.calv td:nth-child(n){padding:4px 2px;white-space:normal;overflow:visible;text-overflow:clip}
+  html body .jof2:not(.editing) table.calv thead th:nth-child(n){font-size:9.5px;letter-spacing:0}
+  html body .jof2:not(.editing) table.calv tbody th:nth-child(n){font-size:9px;letter-spacing:0}
+  html body .jof2:not(.editing) table.calv td:nth-child(n){font-size:10px}
+  html body .jof2:not(.editing) table.calv{grid-template-columns:80px}
+}

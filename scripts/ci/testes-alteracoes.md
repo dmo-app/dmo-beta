@@ -2769,7 +2769,7 @@ Novos: 4 · mudaram: 0 · saíram: 0
 
 Selo depois: `11e205f5bd501994`
 
-## A-0136 · 2026-10-26 · ok-do-diogo
+## A-0138 · 2026-10-26 · ok-do-diogo
 
 Porquê: Folha do Job On, pedidos do Diogo a 26/10/2026: os furos do CS no ver sem a «/» (um por baixo do outro); o Duplicar sugere a produção seguinte à última da referência (o teste do Duplicar passa a esperar 202603 em vez do campo vazio, e muda de nome); testes novos: a produção sugerida e as produções da referência da mais recente para a mais antiga.
 Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyELUj7Rp8tMrtt8xnuiRtQz, cmsg_01A27e9ozcpoh4jdPRsuJbFyVApVgtiy5mqC98Db9xbXo8
