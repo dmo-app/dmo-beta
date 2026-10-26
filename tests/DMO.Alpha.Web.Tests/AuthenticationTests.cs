@@ -618,7 +618,7 @@ public partial class AuthenticationTests : IClassFixture<CustomWebApplicationFac
 
         var token = await GetVerificationTokenAsync(owner, "/change-password");
         var changed = await owner.PostAsync("/change-password", HtmlFormHelpers.BuildFormPost(
-            ("newPassword", "AdminNew456!"), ("confirmPassword", "AdminNew456!"),
+            ("currentPassword", "AdminOld123!"), ("newPassword", "AdminNew456!"), ("confirmPassword", "AdminNew456!"),
             ("__RequestVerificationToken", token)));
         Assert.Equal("/Admin/Users", changed.Headers.Location?.OriginalString);
 

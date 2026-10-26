@@ -377,7 +377,7 @@
     { "id": "DMO-384", "module": "Aplicação", "description": "0.3.0-beta.70: no login, a partir da 5.ª palavra-passe errada seguida aparece «Consulte o ADMIN para rever a palavra-passe». A conta nunca fica bloqueada: a palavra-passe certa entra sempre." },
     { "id": "DMO-385", "module": "Aplicação", "description": "0.3.0-beta.71: no login próprio da app, a espera depois de 5 palavras-passe erradas sai: a palavra-passe certa entra sempre, mesmo logo a seguir aos erros, e fica só o aviso «Consulte o ADMIN»." },
     { "id": "DMO-386", "module": "Administração", "description": "0.3.0-beta.72: nos Templates, as permissões deixam de ter caixas: clica-se no cartão para ligar e desligar; as escolhidas ficam escuras com letra branca e as outras brancas, também no modo escuro." },
-    { "id": "DMO-388", "module": "Job On", "title": "Imprimir e cores", "description": "0.3.0-beta.74: no Imprimir do Job On há a folha Job-ON Moldes, que sai em duas cópias e vem primeiro em «Todas as folhas». Os cartões dos painéis laterais e das Produções do dia passam a ter a cor forte da linha, com letra branca." }
+    { "id": "DMO-387", "module": "Aplicação", "description": "0.3.0-beta.73: para mudar a palavra-passe é preciso escrever a atual, para quem encontra uma sessão aberta não a poder trocar. A palavra-passe temporária continua a não pedir a atual." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

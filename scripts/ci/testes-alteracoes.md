@@ -2701,22 +2701,26 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `1bc8bd89cbd3cd46`
 
-## A-0128 · 2026-10-26 · teste-novo
+## A-0127 · 2026-10-26 · ok-do-diogo
 
-Porquê: Folha Job-ON Moldes (2 cópias) no Imprimir do Job On, como no Excel do Diogo de 21/10; em «Todas as folhas» sai primeiro
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyAsYZXbcvxhHQUvZYDu8EcV
-Novos: 1 · mudaram: 0 · saíram: 0
+Porquê: Mudar a palavra-passe passa a pedir a atual, exceto quando é temporária (auditoria externa DS-LOG-03): os 2 testes do ADMIN que mudam a palavra-passe enviam a atual; teste novo prova que sem ela nada muda
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFyUctKbk5MGZ3NjoGuDF1Jdp
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.PalavraPasseAtual.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.PalavraPasseAtual.cs :: AuthenticationTests.ChangePassword_WithoutTemporaryPassword_AsksForTheCurrentOne`
+- mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.PedidoCortado.cs :: AuthenticationTests.AdminPasswordChange_ClientLeavesAfterTheProviderChange_TheOtherAdminSessionsStillEnd`
+- mudou: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions`
+
+Selo depois: `79f54fc617b75cbe`
+
+## A-0128 · 2026-10-26 · ok-do-diogo
+
+Porquê: Folha Job-ON Moldes (2 cópias) no Imprimir do Job On (teste novo) e o painel das Boquilhas com o lote da BQ (o teste do histórico em branco verifica só fora do painel)
+Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy8me1oxs8XTwYCxyNJo7cVh
+Novos: 1 · mudaram: 1 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOJobOnMoldesEmDuasCopias`
-
-Selo depois: `7765399926e97d94`
-
-## A-0129 · 2026-10-26 · ok-do-diogo
-
-Porquê: O painel lateral das Boquilhas passa a mostrar a BQ em máquina com o lote; o teste do histórico em branco verifica agora só fora do painel
-Referência: cmsg_01A27e9ozcpoh4jdPRsuJbFy8me1oxs8XTwYCxyNJo7cVh
-Novos: 0 · mudaram: 1 · saíram: 0
-
 - mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched`
 
-Selo depois: `031ab3173d544d27`
+Selo depois: `5d221bf596172b76`

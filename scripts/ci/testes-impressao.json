@@ -1,5 +1,5 @@
 {
-  "selo": "031ab3173d544d27",
+  "selo": "5d221bf596172b76",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1624,8 +1624,10 @@
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_Todas_DoMaisRecente_BqIncluida_PosicaoSoNaEntrada": "b3ea863c95676464",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.LoginLocal.cs :: (resto do ficheiro)": "98e14b92a2a14edc",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.LoginLocal.cs :: AuthenticationTests.LoginLocal_RepeatedFailures_WarnButNeverLockTheUser": "cc0ae233db95b02a",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.PalavraPasseAtual.cs :: (resto do ficheiro)": "cc74567243ffcdf2",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.PalavraPasseAtual.cs :: AuthenticationTests.ChangePassword_WithoutTemporaryPassword_AsksForTheCurrentOne": "0153b2f67038e51c",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.PedidoCortado.cs :: (resto do ficheiro)": "0dfcaad7a30baa63",
-    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.PedidoCortado.cs :: AuthenticationTests.AdminPasswordChange_ClientLeavesAfterTheProviderChange_TheOtherAdminSessionsStillEnd": "b00aac5c2b9324a7",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.PedidoCortado.cs :: AuthenticationTests.AdminPasswordChange_ClientLeavesAfterTheProviderChange_TheOtherAdminSessionsStillEnd": "ca12d35a47f44158",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.ServicoIndisponivel.cs :: (resto do ficheiro)": "fc7cfcc93632942f",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.ServicoIndisponivel.cs :: AuthenticationTests.Login_EmSupabase_OPedidoEsperaNoMaximo15Segundos": "64a7c22b527c69d1",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.ServicoIndisponivel.cs :: AuthenticationTests.Login_ServicoDeAutenticacaoSemResposta_DizQueOServicoNaoRespondeu": "66c35e4775ee31f9",
@@ -1642,7 +1644,7 @@
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminLogin_NeedsOnlyTheEmailSetting": "25f8f2508353fdd1",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminLogin_OnlyTheDefinicoesEmailBecomesAdmin": "3b4860dd08b32548",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminLogin_Success_RedirectsToAdminArea": "ed29dcf05eda4fdd",
-    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions": "c4c1a86f563e36cd",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminPasswordChange_EndsTheOtherAdminSessions": "30afd93aedbda229",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AfterSair_TheBrowserDoesNotKeepThePages_SoBackShowsNothing": "50a24ec769d654f1",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AuthenticatedActorContext_ExposesProfileAndAdminFlag": "5311a4b625ac0140",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.ForcedPasswordChange_FourDigitPin_IsAccepted": "b1d99f952721df0d",
