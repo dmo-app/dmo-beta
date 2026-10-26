@@ -1,0 +1,45 @@
+@model DMO.Alpha.Web.Pages.ReparacaoInterna.IndexModel
+@using DMO.Alpha.Core.ReparacaoInterna
+@using DMO.Alpha.Web.Pages.ReparacaoInterna
+<section id="riHistResultados" class="dmo-card ri-card" aria-labelledby="ri-hist-title" data-dmo-regiao data-dmo-parcial>
+  <div class="dmo-card-topo">
+    <h3 id="ri-hist-title">As minhas reparações<partial name="_DmoHelp" model="@("As reparações que registou e que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional. Duplo clique numa linha (ou escolha-a e carregue Editar) para corrigir o número ou anular.")" /></h3>
+    @if (Model.Historia.Items.Count > 0)
+    {
+      <div class="dmo-card-topo-acoes" data-dmo-for="riHistLista">
+        <a class="dmo-button" id="riHistEditar" href="#riCorrigirJanela" role="button" data-ri-editar="riHistLista">Editar</a>
+      </div>
+    }
+  </div>
+  @if (!Model.ComFiltro)
+  {
+    <p class="ri-vazia" id="riHistConvite">Escolha a linha, os dias, ou procure a produção pela referência.</p>
+  }
+  else if (Model.Historia.Items.Count == 0)
+  {
+    <p class="ri-vazia" id="riHistVazia">Nenhuma reparação com estes filtros.</p>
+  }
+  else
+  {
+    <div class="dmo-table-wrap">
+      <table class="dmo-table" id="riHistLista" data-dmo-list="As minhas reparações" data-ri-volta="@Model.Volta">
+        <thead><tr><th>Dia</th><th>Hora</th><th>Linha</th><th>Produção</th><th>CM/MF</th><th>Ferramenta</th><th>Número</th></tr></thead>
+        <tbody>
+        @foreach (var r in Model.Historia.Items)
+        {
+          <tr data-dmo-row data-id="@r.Id" data-dmo-reparacao="@r.Id" data-ri-reparacao="@r.Id" data-ri-numero="@r.Numero" data-ri-hora="@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)" title="Duplo clique para corrigir ou anular">
+            <td>@ConsultarModel.Dia(r.Dia)</td>
+            <td>@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)</td>
+            <td>@r.Maquina</td>
+            <td>@(r.JobOnId is null ? "Sem Job On" : $"{r.Referencia} · {r.Producao}")</td>
+            <td>@RiTextos.Tipo(r.Tipo)</td>
+            <td>@ConsultarModel.Ferramenta(r)</td>
+            <td><strong>@r.Numero</strong></td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+    <partial name="_ListPager" model="Model.HistoriaPager" />
+  }
+</section>

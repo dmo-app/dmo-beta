@@ -24,12 +24,22 @@ public sealed class ArmazemMapa(DmoDbContext db) : IArmazemMapa
                 select new { o.PosicaoId, o.ToolId, t.Type, t.Reference, t.Lot, o.DesdeUtc })
             .ToListAsync(cancellationToken);
         var ids = ocupacoes.Select(o => o.ToolId).Distinct().ToList();
-        var estados = (await db.FerramentaEstados.AsNoTracking()
-                .Where(e => ids.Contains(e.ToolId))
-                .Select(e => new { e.ToolId, e.Id, e.Estado })
+        // O último estado (maior Id) de cada ferramenta, escolhido na base: uma
+        // pesquisa pelo índice (ToolId, Id) por ferramenta, sem ler a história.
+        var estados = (await db.Tools.AsNoTracking()
+                .Where(t => ids.Contains(t.ToolId))
+                .Select(t => new
+                {
+                    t.ToolId,
+                    Ultimo = db.FerramentaEstados
+                        .Where(e => e.ToolId == t.ToolId)
+                        .OrderByDescending(e => e.Id)
+                        .Select(e => (FerramentaEstadoTipo?)e.Estado)
+                        .FirstOrDefault()
+                })
                 .ToListAsync(cancellationToken))
-            .GroupBy(e => e.ToolId)
-            .ToDictionary(g => g.Key, g => g.MaxBy(e => e.Id)!.Estado);
+            .Where(x => x.Ultimo != null)
+            .ToDictionary(x => x.ToolId, x => x.Ultimo!.Value);
 
         var porPosicao = ocupacoes
             .GroupBy(o => o.PosicaoId)

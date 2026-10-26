@@ -54,6 +54,7 @@ public sealed class IndexModel : PageModel
     private readonly IProductionPickerQuery _productionPicker;
     private readonly IJobOnPaginaQuery _pagina;
     private readonly IJobOnQuadroDoDiaQuery _quadroDoDia;
+    private readonly IJobOnHistoricoQuery _historico;
     private readonly ShellStateFactory _shellState;
     private readonly CurrentUserCapabilities _capabilities;
     private readonly JobOnLotNoteHandler _lotNotes;
@@ -72,6 +73,7 @@ public sealed class IndexModel : PageModel
         IProductionPickerQuery productionPicker,
         IJobOnPaginaQuery pagina,
         IJobOnQuadroDoDiaQuery quadroDoDia,
+        IJobOnHistoricoQuery historico,
         ShellStateFactory shellState,
         CurrentUserCapabilities capabilities,
         JobOnLotNoteHandler lotNotes,
@@ -91,6 +93,7 @@ public sealed class IndexModel : PageModel
         _productionPicker = productionPicker;
         _pagina = pagina;
         _quadroDoDia = quadroDoDia;
+        _historico = historico;
         _shellState = shellState;
         _capabilities = capabilities;
         _lotNotes = lotNotes;
@@ -204,7 +207,7 @@ public sealed class IndexModel : PageModel
     /// <summary>A mensagem da calote ignorada, a mesma no Planeamento e na folha nova.</summary>
     public static string MensagemCaloteIgnorada(string valor, decimal? mantidaGravada) =>
         mantidaGravada is { } mantida
-            ? $"Job On guardado: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior ({mantida.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)} mm)."
+            ? $"Job On guardado: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado; mantém-se a calote anterior ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(mantida)} mm)."
             : $"Job On guardado sem calote: «{valor}» não é um número em mm igual ou superior a 0 e foi ignorado. Vale a calote de referência da ferramenta; para a indicar, use Editar.";
 
     /// <summary>
@@ -252,7 +255,7 @@ public sealed class IndexModel : PageModel
     /// Entre o nº e a referência no valor de uma opção do dropdown, quando o
     /// dropdown tem produções de mais do que uma referência («2026001|5447T173»).
     /// </summary>
-    public const char HistoryProductionSeparator = '|';
+    public const char HistoryProductionSeparator = JobOnHistorico.Separador;
 
     /// <summary>True quando o dropdown das produções junta mais do que uma referência (o texto é o início de várias).</summary>
     public bool HistoryProductionsSpanReferences =>
@@ -559,84 +562,23 @@ public sealed class IndexModel : PageModel
     }
 
     /// <summary>
-    /// O HISTÓRICO abre em branco (decisão do proprietário, 16/10/2026): só
-    /// lê produções depois de uma procura pela referência, máquina ou data.
-    /// A procura de uma produção faz-se em dois passos: a referência (e a
-    /// máquina, se quiser) e depois o dropdown só com as produções dela,
-    /// lido só para ela. Uma data ilegível é ignorada com um aviso amarelo,
-    /// não recusada.
+    /// Compõe o histórico (as regras estão em <see cref="IJobOnHistoricoQuery"/>)
+    /// e guarda o resultado nas propriedades que a vista lê.
     /// </summary>
     private async Task ComposeHistoryAsync(string? referencia, int? maquina, string? producao, string? desde, string? ate)
     {
-        var cancellationToken = HttpContext.RequestAborted;
-        var warnings = new List<string>();
-        HistoryReference = Sanitize(referencia);
-        // Uma máquina que não existe não filtra.
-        HistoryMachineId = maquina is int id && Machines.Any(m => m.MachineId == id) ? id : null;
-        HistoryDesde = ParseHistoryDate(desde, "Desde", warnings);
-        HistoryAte = ParseHistoryDate(ate, "Até", warnings);
-        if (HistoryDesde is { } d && HistoryAte is { } a && d > a)
-        {
-            (HistoryDesde, HistoryAte) = (a, d);
-            warnings.Add("«Desde» era depois de «Até»: as datas foram trocadas.");
-        }
-        HistoryDateWarnings = warnings;
-
-        if (HistoryReference is { } reference)
-        {
-            HistoryProductions = await _jobOnList.ListProductionsOfReferenceAsync(reference, HistoryMachineId, cancellationToken);
-            // A produção pedida: o nº e, quando o dropdown junta várias
-            // referências, a referência dela. Um link antigo só com o nº
-            // escolhe a mais recente com esse nº, nunca as duas juntas. Uma
-            // produção que já não é desta referência (a referência mudou) não filtra.
-            var (wanted, wantedReference) = ParseHistoryProduction(Sanitize(producao));
-            var escolhida = wanted is null
-                ? null
-                : HistoryProductions.FirstOrDefault(p => p.ProductionNumber == wanted
-                    && (wantedReference is null || p.Reference == wantedReference));
-            // O dropdown só tem as últimas produções; uma mais antiga pedida
-            // por link continua a filtrar e entra no dropdown.
-            if (wanted is not null && escolhida is null)
-            {
-                escolhida = await _pagina.ProducaoDoHistoricoAsync(
-                    reference, wanted, wantedReference, HistoryMachineId, cancellationToken);
-                if (escolhida is not null)
-                {
-                    HistoryProductions = [.. HistoryProductions, escolhida];
-                }
-            }
-            HistoryProduction = escolhida?.ProductionNumber;
-            HistoryProductionReference = escolhida?.Reference;
-        }
-
-        var filter = new JobOnHistoryFilter(
-            HistoryReference, HistoryMachineId, HistoryProduction, HistoryDesde, HistoryAte, HistoryProductionReference);
-        HistorySearchApplied = !filter.IsEmpty;
-        if (HistorySearchApplied)
-        {
-            HistoryPage = await _jobOnList.SearchHistoryPageAsync(
-                filter, HistoryPageNumber, cancellationToken: cancellationToken);
-        }
-    }
-
-    /// <summary>
-    /// O valor pedido do dropdown das produções: «nº» (os links antigos e o
-    /// dropdown de uma só referência) ou «nº|referência».
-    /// </summary>
-    private static (string? Number, string? Reference) ParseHistoryProduction(string? value)
-    {
-        if (value is null)
-        {
-            return (null, null);
-        }
-        var separator = value.IndexOf(HistoryProductionSeparator);
-        if (separator < 0)
-        {
-            return (value, null);
-        }
-        var number = value[..separator].Trim();
-        var reference = value[(separator + 1)..].Trim().ToUpperInvariant();
-        return (number.Length == 0 ? null : number, reference.Length == 0 ? null : reference);
+        var historico = await _historico.HistoricoAsync(
+            referencia, maquina, producao, desde, ate, HistoryPageNumber, Machines, HttpContext.RequestAborted);
+        HistoryReference = historico.Reference;
+        HistoryMachineId = historico.MachineId;
+        HistoryDesde = historico.Desde;
+        HistoryAte = historico.Ate;
+        HistoryDateWarnings = historico.DateWarnings;
+        HistoryProductions = historico.Productions;
+        HistoryProduction = historico.Production;
+        HistoryProductionReference = historico.ProductionReference;
+        HistorySearchApplied = historico.SearchApplied;
+        HistoryPage = historico.Page;
     }
 
     /// <summary>Uma página do histórico, sem compor calendário, dia ou rail.</summary>
@@ -657,22 +599,6 @@ public sealed class IndexModel : PageModel
                 new ToolCandidateFilter(ToolIds: shownToolIds), HttpContext.RequestAborted);
         Response.Headers["X-Dmo-Region"] = "jobonHistoricoResultados";
         return Partial("_JobOnHistoricoResultados", this);
-    }
-
-    private static DateOnly? ParseHistoryDate(string? value, string label, List<string> warnings)
-    {
-        var text = value?.Trim();
-        if (string.IsNullOrEmpty(text))
-        {
-            return null;
-        }
-        if (DateOnly.TryParseExact(text, new[] { "yyyy-MM-dd", "dd/MM/yyyy", "dd-MM-yyyy" },
-                System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var date))
-        {
-            return date;
-        }
-        warnings.Add($"«{label}» ignorada: «{text}» não é uma data válida.");
-        return null;
     }
 
     public async Task<IActionResult> OnGetAsync(
@@ -879,7 +805,7 @@ public sealed class IndexModel : PageModel
 
         if (OpenJobOn is { } fichaJobOn)
         {
-            FichaCaloteEcho = fichaJobOn.CaloteMm?.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            FichaCaloteEcho = (fichaJobOn.CaloteMm is { } caloteFicha ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(caloteFicha) : null);
             if (duplicar == "1")
             {
                 DuplicarDe = fichaJobOn.JobOnId;
