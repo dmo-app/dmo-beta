@@ -1326,20 +1326,44 @@
         ir(url, form, true);
         return;
       }
+      // Sem a lista na resposta (a sessão terminou, um erro do servidor) ou
+      // sem resposta, o canto diz o que fazer, como na procura das listas;
+      // antes os resultados ficavam parados sem aviso (vistoria ao frontend
+      // F2, 27/10/2026). Sem rede, a mesma procura repete-se quando a
+      // ligação volta.
+      const destino = new URL(url, window.location.href);
+      let recusou = null;
       fetch(url, { credentials: "same-origin", headers: { "X-Requested-With": "fetch" } })
-        .then((response) => (response.ok ? response.text() : null))
+        .then((response) => {
+          const final = new URL(response.url || destino.href, window.location.href);
+          const tipo = tipoDeResposta(response, final);
+          if (tipo !== "ok" || final.origin !== destino.origin || final.pathname !== destino.pathname) {
+            recusou = tipo === "sessao" ? "sessao" : "erro";
+            throw new Error("Não foi possível carregar os resultados");
+          }
+          return response.text();
+        })
         .then((html) => {
-          if (!html || request !== latest || !form.isConnected) return;
+          if (request !== latest || !form.isConnected) return;
           const fresh = new DOMParser().parseFromString(html, "text/html").getElementById(id);
           const current = document.getElementById(id);
-          if (!fresh || !current) return;
+          if (!current) return;
+          if (!fresh) {
+            recusou = "erro";
+            throw new Error("A resposta não traz os resultados");
+          }
           const node = document.importNode(fresh, true);
           current.replaceWith(node);
           if (node.matches("[data-dmo-list]")) bindList(node);
           node.querySelectorAll("[data-dmo-list]").forEach(bindList);
           window.history.replaceState(null, "", url);
         })
-        .catch(() => {});
+        .catch(() => {
+          if (request !== latest || !form.isConnected) return;
+          if (recusou === "sessao") avisarFixo(SESSAO_NA_PROCURA, entrar(false));
+          else if (recusou) avisarFixo(PROCURA_FALHOU);
+          else window.addEventListener("online", () => { if (request === latest) procurar(); }, { once: true });
+        });
     }
     form.addEventListener("input", (event) => {
       if (!event.target.matches("input:not([type=date]):not([type=radio]):not([type=checkbox]):not([type=hidden])")) return;

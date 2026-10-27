@@ -11,6 +11,12 @@
 (() => {
   const PREFIXO = 'dmo-jobon-rascunho:';
   const ENVIADO = 'dmo-jobon-enviado:';
+  // O rascunho é de quem o escreveu e dura um dia (vistoria ao frontend F3,
+  // 27/10/2026): num computador partilhado, outro operador que abre a mesma
+  // folha não recebe o que ficou por gravar de outra pessoa, nem um rascunho
+  // de há dias por cima do que está gravado. O dono vem do servidor em
+  // data-jobon-rascunho-dono (o id da conta).
+  const VALIDADE_MS = 24 * 60 * 60 * 1000;
   const CAMPOS = 'input[name]:not([type=hidden]):not([type=submit]):not([type=button]):not([type=reset]):not([type=image]):not([type=file]), textarea[name], select[name]';
 
   function ler(area, chave) {
@@ -43,6 +49,18 @@
     });
     if (!form || !folha) return;
     const chave = PREFIXO + folha;
+    const dono = form.getAttribute('data-jobon-rascunho-dono') || null;
+    // Os rascunhos de outra pessoa ou com mais de um dia saem (todas as
+    // folhas, não só esta), para não ficarem neste browser.
+    function caducado(valor) {
+      if (!valor) return false;
+      if (dono && valor.dono && valor.dono !== dono) return true;
+      const quando = Date.parse(valor.guardado || '');
+      return Number.isFinite(quando) && Date.now() - quando > VALIDADE_MS;
+    }
+    chavesDe('localStorage', PREFIXO).forEach(outra => {
+      if (caducado(ler('localStorage', outra))) apagar('localStorage', outra);
+    });
 
     function campos() { return Array.from(form.querySelectorAll(CAMPOS)); }
     function valor(campo) {
@@ -138,7 +156,7 @@
       if (enviado) return;
       const agora = fotografia();
       if (igual(agora, inicial)) { apagar('localStorage', chave); return; }
-      escrever('localStorage', chave, { guardado: new Date().toISOString(), campos: agora });
+      escrever('localStorage', chave, { guardado: new Date().toISOString(), dono, campos: agora });
     }
     form.addEventListener('input', guardar);
     form.addEventListener('change', guardar);
@@ -147,7 +165,7 @@
       // O envio leva os dados; se o servidor recusar, voltam (ver pendente).
       const agora = fotografia();
       enviado = true;
-      escrever('sessionStorage', ENVIADO + folha, { guardado: new Date().toISOString(), campos: agora });
+      escrever('sessionStorage', ENVIADO + folha, { guardado: new Date().toISOString(), dono, campos: agora });
       apagar('localStorage', chave);
       tirarNota();
     });

@@ -272,7 +272,7 @@
         {
           <div data-dmo-toast="erro" class="jobon-aviso" role="alert">@(Model.CreateRefusal is not null ? Model.CreateRefusalMessage : Model.UpdateRefusalMessage)</div>
         }
-        <form id="lightForm" data-dmo-script data-jobon-rascunho="@(Model.FolhaEdicao ? $"editar:{Model.OpenJobOn!.JobOnId}" : Model.DuplicarDe is { } duplicada ? $"duplicar:{duplicada}" : "novo")" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
+        <form id="lightForm" data-dmo-script data-jobon-rascunho="@(Model.FolhaEdicao ? $"editar:{Model.OpenJobOn!.JobOnId}" : Model.DuplicarDe is { } duplicada ? $"duplicar:{duplicada}" : "novo")" data-jobon-rascunho-dono="@(User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.ActorId)?.Value)" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
           @* O MODO EDIÇÃO: o jobon_edit_id vai no POST (a produção
              re-planeada — o jobon_id é o MESMO; a identidade read-only). *@
           @if (Model.FolhaEdicao)
