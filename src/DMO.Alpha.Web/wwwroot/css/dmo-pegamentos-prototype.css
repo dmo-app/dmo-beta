@@ -202,7 +202,8 @@
 .peg-page .peg-dica{color:var(--dmo-muted,#577389);font-size:12px}
 .peg-page .peg-ficha-link{color:inherit;text-decoration:none;border-bottom:1px dotted var(--dmo-palette-mist,#92b4cc)}
 .peg-page .peg-ficha-link:hover{border-bottom-color:var(--dmo-palette-ocean,#4c7c9c)}
-.peg-page .peg-aviso-nominal a{color:var(--dmo-palette-slate,#44647c);font-weight:600}
+/* O «Abrir a ficha da ferramenta» é um botão de ação (dmo-botoes.css): sem a cor de link, que lhe apagava o texto. */
+.peg-page .peg-aviso-nominal a:not(.dmo-aviso-link){color:var(--dmo-palette-slate,#44647c);font-weight:600}
 .peg-page .peg-mais-linha{margin-top:8px;border:1px dashed var(--dmo-palette-mist,#92b4cc);background:transparent;color:var(--dmo-palette-slate,#44647c);border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer}
 .peg-page .peg-mais-linha:hover{border-style:solid;background:var(--dmo-brand-050,#ebf4fc)}
 /* Gravar sem recarregar: quando um cartão é trocado, o browser não mexe no scroll sozinho (scroll anchoring); o que está acima fica onde estava e a tabela cresce para baixo. Por cima dos cartões nada muda de altura: o contexto não encolhe enquanto a página está aberta (a dica da folha em branco sai na primeira medição e o espaço fica, ver pegamentos-registo.js) e os avisos e recusas vão para a pilha fixa do canto. */
