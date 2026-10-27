@@ -141,7 +141,7 @@ public sealed class MigrationFoundationTests
                 "20261026082355_JobOnFolhaLoteFf",
                 "20261026101136_JobOnExperiencia", "20261026154757_ReparacaoInternaTrabalho", "20261026164500_JobOnFolhaAnLote",
                 "20261027030704_OperacoesRegistadasImpressao",
-                "20261027050241_ToolsReferenciaMaiusculas", "20261027111956_PesoMeasurementHistorico" },
+                "20261027050241_ToolsReferenciaMaiusculas", "20261027111956_PesoMeasurementHistorico", "20261027121559_SapFabricoColunasZfmd" },
             keys);
     }
 

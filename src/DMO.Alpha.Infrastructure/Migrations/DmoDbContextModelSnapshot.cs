@@ -2708,6 +2708,17 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<int?>("Cadencia")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Centro")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<decimal?>("DeltaPesoGramas")
+                        .HasPrecision(8, 3)
+                        .HasColumnType("numeric(8,3)");
+
                     b.Property<int?>("DiasProducao")
                         .HasColumnType("integer");
 
@@ -2721,8 +2732,19 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<DateOnly>("FimEm")
                         .HasColumnType("date");
 
+                    b.Property<int?>("Gob")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("HotEnd")
+                        .HasPrecision(6, 3)
+                        .HasColumnType("numeric(6,3)");
+
                     b.Property<DateOnly>("InicioEm")
                         .HasColumnType("date");
+
+                    b.Property<decimal?>("Kcr")
+                        .HasPrecision(9, 3)
+                        .HasColumnType("numeric(9,3)");
 
                     b.Property<DateTime>("LidoEmUtc")
                         .HasColumnType("timestamp with time zone");
@@ -2744,6 +2766,17 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<long?>("NetQuant")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("PackToPull")
+                        .HasPrecision(6, 3)
+                        .HasColumnType("numeric(6,3)");
+
+                    b.Property<decimal?>("Paletes")
+                        .HasPrecision(11, 3)
+                        .HasColumnType("numeric(11,3)");
+
                     b.Property<decimal?>("PesoMedioGramas")
                         .HasPrecision(9, 3)
                         .HasColumnType("numeric(9,3)");
@@ -2753,6 +2786,17 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<long?>("ProducaoLiquida")
                         .HasColumnType("bigint");
+
+                    b.Property<decimal?>("RejeicaoMil")
+                        .HasPrecision(9, 3)
+                        .HasColumnType("numeric(9,3)");
+
+                    b.Property<decimal?>("RejeicaoTotal")
+                        .HasPrecision(6, 3)
+                        .HasColumnType("numeric(6,3)");
+
+                    b.Property<int?>("Sectores")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
