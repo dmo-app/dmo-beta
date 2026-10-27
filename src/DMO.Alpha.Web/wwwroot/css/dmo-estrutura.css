@@ -112,8 +112,8 @@ html body .jof2-gaveta .rail-vazio{color:var(--dmo-muted)}
    Controlo das Opções…): o painel abre com a largura quase toda (data-largura
    «total», js/dmo-support.js) e a folha fica igual à da página, com o Artigo, as
    Notas gerais e o PI na coluna da direita. O título «Job On» já está no topo do
-   painel: sai da folha, e o «← Voltar» também. As regras da folha
-   (dmo-jobon-folha-1366.css) carregam depois desta folha: daí os .jof2 repetidos. */
+   painel: sai da folha, e o «← Voltar» também. As folhas do Job On carregam
+   depois desta e repetem o .jof2 para ganhar: daí os .jof2 repetidos aqui. */
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2.jof2.jof2 .page-head h1.design-jobon-title{display:none}
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-campo:first-of-type{padding-left:0;border-left:0}
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2.jof2.jof2 #jofVoltar{display:none}
