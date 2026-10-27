@@ -42,7 +42,8 @@ public sealed class DefinicoesModel(
 
     public string SeccoesResultMessage => SeccoesResult switch
     {
-        nameof(PuncoesSeccoesGravacao.Gravado) => "Secções guardadas. A grelha das punções desta linha já as usa.",
+        nameof(PuncoesSeccoesGravacao.Gravado) => "Secções e gotas guardadas. A grelha das punções desta linha já as usa.",
+        nameof(PuncoesSeccoesGravacao.GotasInvalidas) => $"Indique a gota com um número inteiro de {PuncoesPosicoes.GotasMinimo} a {PuncoesPosicoes.GotasMaximo}. Não foi guardada.",
         nameof(PuncoesSeccoesGravacao.Invalido) => $"Indique as secções com um número inteiro de {PuncoesPosicoes.SeccoesMinimo} a {PuncoesPosicoes.SeccoesMaximo}. Não foram guardadas.",
         nameof(PuncoesSeccoesGravacao.LinhaNaoExiste) => "Essa linha já não existe. Nada foi guardado.",
         _ => string.Empty
@@ -387,16 +388,19 @@ public sealed class DefinicoesModel(
     public static readonly IReadOnlyList<string> LinhasNnpb = ["B1", "C3"];
 
     /// <summary>
-    /// POST: as secções de todas as linhas do cartão de uma vez (um só
-    /// «Guardar»). Só as linhas NNPB; o primeiro erro é o que se mostra.
+    /// POST: as secções e as gotas de todas as linhas do cartão de uma vez
+    /// (um só «Guardar»). Só as linhas NNPB; o primeiro erro é o que se
+    /// mostra. Sem «gotas» no pedido, as gotas ficam como estão.
     /// </summary>
     [DefinicaoGeral]
     public async Task<IActionResult> OnPostSavePuncoesSeccoesTodasAsync(
         [FromForm(Name = "maquina")] List<string>? maquinas,
-        [FromForm(Name = "seccoes")] List<string>? seccoes)
+        [FromForm(Name = "seccoes")] List<string>? seccoes,
+        [FromForm(Name = "gotas")] List<string>? gotas)
     {
         maquinas ??= [];
         seccoes ??= [];
+        gotas ??= [];
         var resultado = PuncoesSeccoesGravacao.Gravado;
         for (var i = 0; i < Math.Min(maquinas.Count, seccoes.Count); i++)
         {
@@ -409,6 +413,15 @@ public sealed class DefinicoesModel(
             if (r != PuncoesSeccoesGravacao.Gravado && resultado == PuncoesSeccoesGravacao.Gravado)
             {
                 resultado = r;
+            }
+
+            if (i < gotas.Count)
+            {
+                var g = await puncoesLinhas.GuardarGotasAsync(maquinas[i], gotas[i], HttpContext.RequestAborted);
+                if (g != PuncoesSeccoesGravacao.Gravado && resultado == PuncoesSeccoesGravacao.Gravado)
+                {
+                    resultado = g;
+                }
             }
         }
 
