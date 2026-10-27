@@ -4055,3 +4055,14 @@ Novos: 0 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
 
 Selo depois: `dba4e2efbb45ed56`
+
+## A-0253 · 2026-10-27 · teste-novo
+
+Porquê: DMO-518: testes novos do uso por produção (a leitura de hoje só conta para a última produção)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALeituraDeHoje_SoEOUsoDepoisDaUltimaProducao_NaoDasAnteriores`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoPorProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoPorProducao.cs :: DefinicoesPorModuloPageTests.ALeituraDeHoje_NaoEOUsoNoFimDasProducoesAnteriores`
+
+Selo depois: `b6c25aaf1daad3c1`
