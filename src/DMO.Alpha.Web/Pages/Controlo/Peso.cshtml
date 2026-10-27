@@ -740,8 +740,8 @@
       @{
         var pesoDeAntes = Model.PesoAnterior ? Model.Peso : null;
       }
+      @* O nº de produção já está no título do cartão (Diogo, 27/10/2026: não repetir). *@
       <div class="peso-facts peso-context-grid">
-        <div class="peso-fact"><span>Nº de produção</span><strong>@productionCtx.ProductionNumber</strong></div>
         <div class="peso-fact"><span>Referência</span><strong>@productionCtx.Reference</strong></div>
         <div class="peso-fact"><span>Máquina</span><strong>@productionCtx.Machine</strong></div>
         <div class="peso-fact"><span>CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolReference ?? "—" : Model.CmTool?.Reference ?? "—")</strong></div>
@@ -1541,7 +1541,12 @@
           <div class="peso-resumo" data-peso-summary>
             <div class="peso-fact"><span>Peso nominal</span><strong>@(peso.NominalWeightGrams is { } nominalSumario ? $"{fmt(nominalSumario)} g" : "—")</strong></div>
             <div class="peso-fact"><span>Diferença nominal</span><strong>@(diferencaNominal is { } diferenca ? signed(diferenca) + " g" : "—")</strong></div>
-            <div class="peso-fact" data-peso-comparison><span>Comparação anterior</span><strong>@(Model.Comparison is { } comparacaoStrip && !string.IsNullOrEmpty(comparacaoStrip.HistoricalProductionNumber) ? comparacaoStrip.HistoricalProductionNumber : "Por criar")</strong></div>
+            @* Um Peso só para comparação não tem produção: mostra-se o peso dele, não o nome «Peso para comparação» (Diogo, 27/10/2026). *@
+            <div class="peso-fact" data-peso-comparison><span>Comparação anterior</span><strong>@(Model.Comparison is { } comparacaoStrip && !string.IsNullOrEmpty(comparacaoStrip.HistoricalProductionNumber)
+                ? (comparacaoStrip.HistoricalProductionNumber == DMO.Alpha.Infrastructure.Controlo.PesoComparisonQuery.RotuloParaComparacao && comparacaoStrip.HistoricalAverages is { } comparacaoMedias
+                    ? $"{fmt(comparacaoMedias.AverageGlassWeightGrams)} g"
+                    : comparacaoStrip.HistoricalProductionNumber)
+                : "Por criar")</strong></div>
           </div>
           </div>
           @* Sem barra «Há leituras com massa de água não utilizável» por cima
@@ -1852,7 +1857,6 @@
             <button type="button" class="peso-sap-abrir" data-dmo-dialog="pesoSapModa" aria-label="Peso da produção: moda e diferença">
               <span class="peso-sap-titulo">Peso da produção <span class="peso-hint">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></span>
               <span class="peso-sap-opcao">Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></span>
-              <partial name="_DmoHelp" model="@("Carrega para ver a moda (o peso com mais dias) e a diferença do peso de hoje para ela.")" />
             </button>
             <dialog id="pesoSapModa" class="dmo-dialog" aria-labelledby="pesoSapModa-title">
               <h3 id="pesoSapModa-title">Peso da produção</h3>

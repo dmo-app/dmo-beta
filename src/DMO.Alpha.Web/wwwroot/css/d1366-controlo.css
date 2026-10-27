@@ -177,6 +177,79 @@
   html body main.peso-page .peso-live-region>.peso-leitura-form{flex:0 0 auto;margin-top:0}
   html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact{flex:1 1 auto;padding:2px 12px}
   html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact>span{white-space:nowrap}
+  /* «Produção anterior» só uma vez: o campo já tem o nome; o título fica para os leitores de ecrã (Diogo, 27/10/2026, poupar espaço). */
+  html body main.peso-page .peso-compare .peso-section-heading:has(>div>#peso-producao-anterior-title){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0!important}
+  html body main.peso-page .peso-compare #pesoComparacao+*{margin-top:8px}
+  /* «Ainda sem leituras» na linha do título «Leituras por CM» (poupar espaço). */
+  html body main.peso-page .peso-section-heading:has(+.peso-vazia){display:inline-flex;vertical-align:baseline;margin:0 12px 6px 0!important}
+  html body main.peso-page .peso-section-heading+.peso-vazia{display:inline-block;vertical-align:baseline;margin:0!important;padding:0!important}
+
+  /* A página não desliza (Diogo, 27/10/2026: «as páginas deslizam, estraga o
+     ui»): o Peso aberto fica com o resto do ecrã e só as tabelas deslizam. */
+  html body main.peso-page:has(>section[data-peso-live]){height:calc(100vh - 96px);box-sizing:border-box;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);align-content:stretch}
+  html body main.peso-page:has(>section[data-peso-live])>*,
+  html body main.peso-page:has(>section[data-peso-live])>.dmo-zona>*{grid-column:1/-1}
+  html body main.peso-page:has(>section[data-peso-live])>section[data-peso-live]{grid-row:2;align-self:start;max-height:100%;box-sizing:border-box;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto;gap:8px}
+  html body main.peso-page>section[data-peso-live]>*{grid-column:1/-1;min-width:0}
+  html body main.peso-page>section[data-peso-live]>.peso-card-heading{grid-row:1;margin:0}
+  html body main.peso-page>section[data-peso-live] .visually-hidden-peso{position:absolute}
+  html body main.peso-page>section[data-peso-live]>#pesoLeituras{grid-row:2;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);align-content:start;align-items:baseline;column-gap:12px;min-height:0}
+  html body main.peso-page>section[data-peso-live]>#pesoLeituras>*{grid-column:1/-1;min-width:0}
+  html body main.peso-page>section[data-peso-live]>#pesoLeituras>.peso-section-heading:has(+.peso-vazia){grid-column:1;margin:0!important}
+  html body main.peso-page>section[data-peso-live]>#pesoLeituras>.peso-section-heading+.peso-vazia{grid-column:2}
+  html body main.peso-page>section[data-peso-live]>#pesoLeituras>.dmo-table-wrap{align-self:start;max-height:100%;overflow:auto;margin:0!important}
+  html body main.peso-page>section[data-peso-live] .dmo-table-wrap thead th{position:sticky;top:0;z-index:1}
+  html body main.peso-page>section[data-peso-live]>.peso-live-region{display:contents}
+  html body main.peso-page>section[data-peso-live]>.peso-live-region>.peso-live-area{grid-row:3;grid-column:1}
+  html body main.peso-page>section[data-peso-live]>.peso-live-region>.peso-leitura-form{grid-row:3;grid-column:2;align-self:stretch}
+
+  /* Com a comparação: o cartão da produção numa só linha de factos, e as
+     leituras (à esquerda) e a comparação (à direita) lado a lado. */
+  html body main.peso-page:has(>section.peso-compare){grid-template-rows:auto auto minmax(0,1fr);grid-template-columns:minmax(0,5fr) minmax(0,6fr)}
+  html body main.peso-page:has(>section.peso-compare)>section[aria-labelledby="peso-production-title"]{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:0 8px;align-items:stretch}
+  html body main.peso-page:has(>section.peso-compare)>section[aria-labelledby="peso-production-title"]>*{grid-column:1/-1}
+  html body main.peso-page:has(>section.peso-compare)>section[aria-labelledby="peso-production-title"]>.peso-facts{grid-column:auto;margin:0!important;padding:4px 0}
+  html body main.peso-page:has(>section.peso-compare)>section[aria-labelledby="peso-production-title"]>.peso-facts>*{padding:2px 12px!important}
+  html body main.peso-page:has(>section.peso-compare)>section[aria-labelledby="peso-production-title"]>.peso-facts{flex-wrap:nowrap}
+  html body main.peso-page:has(>section.peso-compare)>section[aria-labelledby="peso-production-title"]>.peso-facts>*{flex:1 1 auto}
+  html body main.peso-page:has(>section.peso-compare) :is(table[data-peso-leituras],table[data-peso-comparacao-tabela]) th{white-space:normal;vertical-align:bottom}
+  html body main.peso-page:has(>section.peso-compare) table[data-peso-leituras] :is(th,td){padding-left:10px;padding-right:10px}
+  /* As leituras à esquerda com a tabela a toda a altura; à direita a
+     leitura nova e, por baixo, os números numa lista curta. */
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live]{grid-area:3/1/4/2;align-self:stretch;grid-template-rows:auto minmax(0,1fr)}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live]>#pesoLeituras{grid-row:1/3;grid-column:1}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live]>.peso-live-region>.peso-leitura-form{grid-row:1;grid-column:2;align-self:start}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live]>.peso-live-region>.peso-live-area{grid-row:2;grid-column:2;align-self:start;min-height:0}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live] #pesoLeituraResumo{display:flex;flex-direction:column;align-items:stretch;padding:2px 0}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live] #pesoLeituraResumo .peso-fact{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:5px 12px!important;border-left:0!important;border-top:1px solid var(--dmo-border)!important}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live] #pesoLeituraResumo>.peso-live-strip>.peso-fact:first-child{border-top:0!important}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live] #pesoLeituraResumo .peso-fact>span{white-space:nowrap}
+  html body main.peso-page:has(>section.peso-compare)>section[data-peso-live] #pesoLeituraResumo .peso-fact strong{font-size:15px;margin:0;white-space:nowrap}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare{grid-area:3/2/4/3;min-height:0;display:flex;flex-direction:column;gap:8px}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare>*{flex:0 0 auto;margin-top:0!important;margin-bottom:0!important}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare>.peso-card-heading{margin:0;padding-bottom:8px}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare>#pesoComparacao>.dmo-table-wrap{flex:0 1 auto;min-height:0;overflow:auto;margin:0!important}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare .dmo-table-wrap thead th{position:sticky;top:0;z-index:1}
+  /* O volume e o peso atuais já estão na tabela das leituras, ao lado. */
+  html body main.peso-page:has(>section.peso-compare) table[data-peso-comparacao-tabela] :is(th,td):is(:nth-child(2),:nth-child(3)){display:none}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare .peso-anterior-linha{flex-wrap:wrap;gap:8px 12px;align-items:center}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare .peso-anterior-linha>#pesoAnterior>.peso-hint{margin:0!important}
+  /* O rótulo da produção a comparar à esquerda do campo (poupar uma linha). */
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare :is(.peso-procura-larga,#pesoAnteriorForm)>.dmo-field:has(>label){display:flex;align-items:center;gap:12px;margin:0}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare :is(.peso-procura-larga,#pesoAnteriorForm)>.dmo-field>label{margin:0;white-space:nowrap}
+  /* A diferença para a anterior numa linha curta; o peso usado e a produção já estão nos campos por cima. */
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare [data-producao-anterior-delta]{display:inline-flex;flex-wrap:nowrap;padding:0;align-items:center;min-height:var(--dmo-control-height)}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare [data-producao-anterior-delta]>.peso-fact:first-child{display:none}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare [data-producao-anterior-delta]>.peso-fact{display:flex;flex-direction:row;align-items:baseline;gap:8px;flex:0 0 auto;padding:0 12px!important}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare [data-producao-anterior-delta]>.peso-fact:nth-child(2){border-left:0!important}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare [data-producao-anterior-delta]>.peso-fact strong{margin:0}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare .peso-sap-caixa{padding-top:0;padding-bottom:0;min-height:var(--dmo-control-height);display:flex;align-items:center}
+  html body main.peso-page:has(>section.peso-compare)>section[aria-labelledby="peso-production-title"]>.peso-facts>.peso-fact>span{white-space:nowrap;font-size:12px}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare #pesoAnteriorForm{flex-wrap:nowrap}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare #pesoAnteriorForm>.dmo-field{flex:0 0 auto}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare #pesoAnteriorForm>.dmo-field>select{width:150px;flex:0 0 150px}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare #pesoAnteriorForm>.dmo-field>input{width:130px}
+  html body main.peso-page:has(>section.peso-compare)>section.peso-compare .peso-procura-larga>.dmo-field>:not(label){flex:1 1 auto;min-width:0}
 }
 
 /* ===== Controlo › Pegamentos ===============================================
