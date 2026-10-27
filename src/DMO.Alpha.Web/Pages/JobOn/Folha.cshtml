@@ -552,6 +552,10 @@ else
             }
           </div>
         }
+        @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»). *@
+        <div class="fact-col">
+          <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
+        </div>
         </div>
       </div>
       <div class="head-right">
