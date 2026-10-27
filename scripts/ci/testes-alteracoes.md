@@ -3564,3 +3564,17 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros`
 
 Selo depois: `c22447c6290ce98f`
+
+## A-0204 · 2026-10-27 · teste-novo
+
+Porquê: Peso, Comparação: a leitura do formulário (linhas em branco, sem massa, massa ilegível, recusas, leituras de fora do backend, aviso pelo PRG, escolha do Peso inicial) passou para PesoComparacaoFormulario e é testada sem a página (DMO-466, 0.3.0-beta.175)
+Novos: 6 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.AsLinhasEmBrancoIgnoramSe_ASemMassaEAIlegivelFicamDeFora_AsOutrasComparamSe`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.AsQueOBackendDeixaDeFora_ApontamALinhaDoFormulario`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.OAvisoAtravessaOPrgDoGuardar`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.OPesoInicial_OPedidoSeEDaProducao_SenaoODasFerramentasAtuais_SenaoOMaisRecente`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.SemNadaAComparar_ERecusadoComOMotivo`
+
+Selo depois: `7ddc2654ed87c092`
