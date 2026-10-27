@@ -1,5 +1,5 @@
 {
-  "selo": "d2926dafd0680cf6",
+  "selo": "b99a911bf14e248a",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2517,6 +2517,9 @@
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.OnlyTheTemplateModules_OpenAndAppearInTheMenu": "ddc1eb74c7d4e7e7",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.Suggestions_AnswerOnlyForTheModulesThatUseThem": "aa7e0a24fddee36e",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.TemplateChange_AppliesOnTheNextRequest": "ded95ba23ec5f8c7",
+    "tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: (resto do ficheiro)": "b7b4e8d1f1448617",
+    "tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.PorOmissao_TodasAsPaginasPedemSessao": "e6d193dc60b1d018",
+    "tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas": "e3e41b7f1eabbce3",
     "tests/DMO.Alpha.Web.Tests/PegamentosGraficoTests.cs :: (resto do ficheiro)": "a72f2332a20fd1cc",
     "tests/DMO.Alpha.Web.Tests/PegamentosGraficoTests.cs :: PegamentosGraficoTests.CadaComponenteMedido_NaSuaLinha_PelaOrdemDaFolha": "d58f904120c47b64",
     "tests/DMO.Alpha.Web.Tests/PegamentosGraficoTests.cs :: PegamentosGraficoTests.Escala_DasMedicoesEDosLimites_ComMargem_SemLinhasVazias": "e04a41a4e0cb0496",
@@ -2643,6 +2646,10 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: (resto do ficheiro)": "eb7797ac6343a080",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: PlaneamentoSumarioPostgresTests.TodosOsTipos_NoPostgres": "c010c12fabe9ce06",
     "tests/DMO.Alpha.Web.Tests/PosicaoNoHtml.cs :: (resto do ficheiro)": "4dc7b7e9532ec166",
+    "tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)": "d0b1ebf1f8d63c7e",
+    "tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Espera_SoDepoisDaQuintaFalha_ECrescendoAteTrintaSegundos": "0d62333ab09a4a1a",
+    "tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.MesmaOrigem_UmPinDeCadaVez_OutraOrigemNaoEspera": "0ae290d09cfadf26",
+    "tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_EsperamCadaVezMais_EOPinCertoEntraNaMesma": "9c48d33848d70ef5",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.EnvioUnico.cs :: (resto do ficheiro)": "75c95ebc906d0e62",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.EnvioUnico.cs :: PuncoesPageTests.Add_SameEnvioAfterTheRepeatWindow_SavesOnceWithoutAFalseAlteracao": "f69282158b575337",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: (resto do ficheiro)": "ba416ddcd8e28742",

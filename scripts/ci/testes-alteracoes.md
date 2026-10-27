@@ -3407,6 +3407,21 @@ Novos: 18 · mudaram: 0 · saíram: 0
 
 Selo depois: `f211690090c32975`
 
+## A-0189 · 2026-10-27 · teste-novo
+
+Porquê: Posto da RI com travão por origem (um PIN de cada vez, espera crescente da 5.ª falha em diante, a conta nunca bloqueia) e sessão obrigatória por omissão, só as páginas públicas abrem sem sessão (DMO-451, 0.3.0-beta.148)
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.PorOmissao_TodasAsPaginasPedemSessao`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Espera_SoDepoisDaQuintaFalha_ECrescendoAteTrintaSegundos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.MesmaOrigem_UmPinDeCadaVez_OutraOrigemNaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_EsperamCadaVezMais_EOPinCertoEntraNaMesma`
+
+Selo depois: `d16d7799e427d7ce`
+
 ## A-0199 · 2026-10-27 · ok-do-diogo
 
 Porquê: Planeamento também para o Job On ver (DMO-461): o «Job On» de quem só vê passa a levar ao Planeamento em leitura, sem Histórico; teste novo do Planeamento só leitura.
@@ -3417,4 +3432,4 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PlaneamentoSoVer.cs :: JobOnPageTests.Planeamento_JobOnVer_VeOCalendarioEAsLinhas_SemCriarNemHistorico`
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen`
 
-Selo depois: `d2926dafd0680cf6`
+Selo depois: `b99a911bf14e248a`
