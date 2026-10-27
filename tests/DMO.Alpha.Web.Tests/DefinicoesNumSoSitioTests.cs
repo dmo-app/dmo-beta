@@ -300,8 +300,8 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         // A aparência passa a cartão, ao lado da sessão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         Assert.Equal(new[] { "defConta", "defTema", "defPalavraPasse" }, cartoes);
         Assert.Matches("<section id=\"defTema\"[\\s\\S]*?id=\"defTemaBotao\"", pessoal);
-        // O «Mudar» logo a seguir aos campos, dentro do formulário (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVkLgJZAUhiDzt1VRyy87PR).
-        Assert.Matches("id=\"defPalavraConfirmar\"[^>]*/></div>\\s*<button type=\"submit\" class=\"dmo-button\" id=\"defPalavraGuardar\">Mudar</button>", pessoal);
+        // O «Mudar» no canto superior direito do cartão, como os outros botões (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraQVvJwFV5LYqaod3CuetwJ6).
+        Assert.Matches("<div class=\"dmo-card-topo-acoes\"><button type=\"submit\" class=\"dmo-button\" id=\"defPalavraGuardar\" form=\"defPalavraPasseForm\">", pessoal);
 
         var conta = WebUtility.HtmlDecode(Regex.Match(pessoal, "<section id=\"defConta\"[\\s\\S]*?</section>").Value);
         Assert.Contains("<dd data-dmo-conta-nome>Operador 7313</dd>", conta);

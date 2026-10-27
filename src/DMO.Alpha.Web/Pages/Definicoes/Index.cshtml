@@ -45,7 +45,8 @@ html body .def-secao[hidden]{display:none}
 .def-linha .dmo-card-topo,.def-linha > h3{margin-bottom:8px}
 .def-conta{display:flex;flex-wrap:wrap;gap:8px 56px;margin:10px 0 0;font-size:15px}
 .def-conta dt{color:var(--dmo-muted);font-weight:600;font-size:12.5px}
-.def-conta dd{margin:2px 0 0}
+/* Os dados da pessoa em destaque (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraEMoiSsdtN5LyniSpY8rnL8). */
+.def-conta dd{margin:4px 0 0;font-size:19px;font-weight:650;color:var(--dmo-text);letter-spacing:-.01em}
 .def-conta + .dmo-table-wrap{width:100%;margin-top:14px}
 .def-conta-modulos{width:100%;table-layout:fixed}
 .def-conta-modulos :is(th,td){text-align:center;padding:8px 10px}
@@ -61,6 +62,8 @@ html body .ctl-def-grade[hidden]{display:none}
 .def-pastas > .dmo-card{display:block;break-inside:avoid;margin:0 0 14px;width:100%;max-width:none;padding:16px 18px;box-sizing:border-box}
 /* Um cartão só com dois ou três campos fica do tamanho deles, não de meia página (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraMkSqhn27TMM33AJPvkadUE). */
 :is(#ctlDefDensidade,#ctlDefTolerancia,#riDefViragem){justify-self:start;width:fit-content;min-width:320px;max-width:100%}
+/* Fechado, o «Opções» do Excel fica como os outros botões fechados (Diogo, 27/10/2026: «só um toque para igualar»). */
+.def-layout[data-dmo-geral="leitura"] [data-bq-excel-opcoes] > summary.dmo-button{background:var(--dmo-disabled);border-color:var(--dmo-disabled);color:var(--dmo-text-on-color);cursor:not-allowed;pointer-events:none}
 .adm-app-cartoes{align-items:stretch}
 .adm-card{padding:16px 18px;min-width:0;margin:0}
 .adm-card h3{margin:0 0 12px;font-size:16px}
@@ -188,7 +191,10 @@ html body .ctl-def-grade[hidden]{display:none}
             </form>
           </section>
           <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
-            <h3 id="def-palavra-title">Mudar a palavra-passe</h3>
+            <div class="dmo-card-topo">
+              <h3 id="def-palavra-title">Mudar a palavra-passe</h3>
+              <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="defPalavraGuardar" form="defPalavraPasseForm">Mudar</button></div>
+            </div>
             @if (Model.PalavraPasseErro is { } erroPalavra)
             {
               <p data-dmo-toast="aviso" role="alert" data-dmo-palavra-passe-aviso>@erroPalavra</p>
@@ -201,8 +207,6 @@ html body .ctl-def-grade[hidden]{display:none}
               <div class="dmo-field"><label for="defPalavraAtual">Atual</label><input id="defPalavraAtual" name="atual" type="password" autocomplete="current-password" required /></div>
               <div class="dmo-field"><label for="defPalavraNova">Nova</label><input id="defPalavraNova" name="nova" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
               <div class="dmo-field"><label for="defPalavraConfirmar">Confirmar a nova</label><input id="defPalavraConfirmar" name="confirmar" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
-              @* O botão logo a seguir aos campos, não na outra ponta do cartão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVkLgJZAUhiDzt1VRyy87PR). *@
-              <button type="submit" class="dmo-button" id="defPalavraGuardar">Mudar</button>
             </form>
           </section>
         </div>
