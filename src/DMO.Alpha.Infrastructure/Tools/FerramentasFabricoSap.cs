@@ -15,8 +15,12 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// </summary>
 public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account) : IFerramentasFabricoSap
 {
-    public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken = default)
+    public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
+        IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default)
     {
+        var detalheDe = (detalhes ?? [])
+            .GroupBy(d => (d.Material, d.Linha, d.InicioEm, d.FimEm))
+            .ToDictionary(g => g.Key, g => g.Last());
         var agora = DateTime.UtcNow;
         var actor = account.Current;
         var autor = actor.IsAuthenticated ? (string.IsNullOrWhiteSpace(actor.DisplayName) ? actor.OperatorId : actor.DisplayName) : null;
@@ -44,6 +48,22 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             existente.ProducaoLiquida = linha.ProducaoLiquida;
             existente.PesoMedioGramas = linha.PesoMedioGramas;
             existente.DiasProducao = linha.DiasProducao;
+            if (detalheDe.TryGetValue((linha.Material, linha.Linha, linha.InicioEm, linha.FimEm), out var detalhe))
+            {
+                existente.Centro = detalhe.Centro;
+                existente.Cadencia = detalhe.Cadencia;
+                existente.Gob = detalhe.Gob;
+                existente.Sectores = detalhe.Sectores;
+                existente.Kcr = detalhe.Kcr;
+                existente.DeltaPesoGramas = detalhe.DeltaPesoGramas;
+                existente.PackToPull = detalhe.PackToPull;
+                existente.NetQuant = detalhe.NetQuant;
+                existente.Paletes = detalhe.Paletes;
+                existente.RejeicaoTotal = detalhe.RejeicaoTotal;
+                existente.RejeicaoMil = detalhe.RejeicaoMil;
+                existente.HotEnd = detalhe.HotEnd;
+            }
+
             existente.LidoEmUtc = agora;
             existente.LidoPor = autor;
             existente.Ficheiro = nome;
