@@ -1,5 +1,5 @@
 {
-  "selo": "94d774337ddad608",
+  "selo": "dba4e2efbb45ed56",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -782,7 +782,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.InvalidInput_IsRefused_AndNothingIsWritten": "c8baa8965c3d4998",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.NnpbProduction_RegistersPunches_SeenByDefault_WithLotAndAlteracao": "a0bca76dd284d2e9",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.NumeroRepetido_ComOLoteDessaPuncao_RegistaComEsseLote_EOLoteDeCimaFica": "04ff17f5b0f4ee21",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes": "eabd38572aadda8a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes": "2ff4f59cf79936d4",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_StandaloneRegister_SaysSemJobOn": "d60bc4c14c385f5c",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.PsOrUnknownProcess_IsNotNnpb_AndCannotStartARegisto": "5827d5d54d5ee73f",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.RepeatedClicks_StartTheRegisterAndRegisterThePunchOnlyOnce": "fd15e3f10f2c1bcd",
@@ -2761,8 +2761,8 @@
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.LoteNoBrowser.cs :: PuncoesPageTests.Identificacao_OCampoDoLoteVaiParaOBrowser": "1ffcd663cbe60e9c",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: (resto do ficheiro)": "75ee902a47b100c9",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.FolhaDasPuncoes_LigadaDoResumoEDoRegisto_SoComRegisto_EOPdfDoControloTrazODasPuncoes": "9403a74d766ebd3b",
-    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_A1aD12_Reserva_RepetidosComLote_ETotais_NaZonaDaFolha": "e2ef0b50404f5060",
-    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes": "9fb2679181382d3a",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_A1aD12_Reserva_RepetidosComLote_ETotais_NaZonaDaFolha": "04d9ec3d4e8554ee",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes": "3148eeec647cd39e",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Repetida.cs :: (resto do ficheiro)": "75c95ebc906d0e62",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Repetida.cs :: PuncoesPageTests.MesmoNumeroEMesmoLote_ERecusada_ComAMensagem_EOutroLoteGrava": "494dc1ee0fc90a92",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)": "beb9224286e0cafb",

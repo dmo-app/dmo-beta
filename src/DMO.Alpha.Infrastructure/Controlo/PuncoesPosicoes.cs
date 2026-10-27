@@ -84,8 +84,19 @@ public sealed record PuncoesNaLinha(
 
     public int Total => Linha.Count + Reserva.Count;
 
-    /// <summary>Todas as punções repetidas (o mesmo número mais de uma vez), pela ordem de registo.</summary>
-    public IReadOnlyList<PuncaoNaPosicao> Repetidos => Linha.Concat(Reserva).Where(p => p.Repetido).ToArray();
+    /// <summary>
+    /// As repetições, pela ordem de registo: cada número que volta a ser
+    /// registado, sem a primeira vez (Diogo, 27/10/2026: «a tabela só mostra
+    /// os repetidos, não os punções todos de novo»).
+    /// </summary>
+    public IReadOnlyList<PuncaoNaPosicao> Repetidos
+    {
+        get
+        {
+            var vistos = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            return Linha.Concat(Reserva).Where(p => !vistos.Add(p.Number.Trim())).ToArray();
+        }
+    }
 
     /// <summary>A punção na secção (1…) e posição (0 = A … gotas − 1); null quando vazia.</summary>
     public PuncaoNaPosicao? Em(int seccao, int posicao)

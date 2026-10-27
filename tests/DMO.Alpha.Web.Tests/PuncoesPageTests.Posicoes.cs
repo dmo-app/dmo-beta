@@ -90,7 +90,7 @@ public partial class PuncoesPageTests
 
         Assert.Equal("Reserva " + string.Join(" ", lista.Skip(48).Select(p => p.Numero)), Texto(Bloco(zona, "data-pu-reserva", "table")));
         Assert.Equal("Punções verificados 51 Linha C2 48 Reserva 3", Texto(Bloco(zona, "data-pu-totais", "dl")));
-        Assert.Equal("Punções repetidos Posição Punção Lote B2 44 12 C7 44 13", Texto(Bloco(zona, "data-pu-repetidos", "table")));
+        Assert.Equal("Punções repetidos Posição Punção Lote C7 44 13", Texto(Bloco(zona, "data-pu-repetidos", "table")));
         // O «PDF» do cartão envia o formulário do PDF (em memória).
         Assert.Contains("form=\"pu-pdf-form\" id=\"pu-pdf\">PDF</button>", zona);
     }
@@ -127,7 +127,7 @@ public partial class PuncoesPageTests
             Assert.Equal(lista[7].Numero, Celula(html, "D2"));
             Assert.DoesNotContain("data-pu-posicao=\"A3\"", html);
             Assert.Equal("Punções verificados 51 Linha C2 8 Reserva 43", Texto(Bloco(html, "data-pu-totais", "dl")));
-            Assert.Equal("Punções repetidos Posição Punção Lote B2 44 12 Reserva 44 13", Texto(Bloco(html, "data-pu-repetidos", "table")));
+            Assert.Equal("Punções repetidos Posição Punção Lote Reserva 44 13", Texto(Bloco(html, "data-pu-repetidos", "table")));
         }
         finally
         {

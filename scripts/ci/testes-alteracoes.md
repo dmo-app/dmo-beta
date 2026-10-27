@@ -4031,7 +4031,19 @@ Novos: 2 · mudaram: 0 · saíram: 0
 
 Selo depois: `fc687ab32acec121`
 
-## A-0248 · 2026-10-27 · ok-do-diogo
+## A-0249 · 2026-10-27 · ok-do-diogo
+
+Porquê: PU NNPB: a tabela dos repetidos mostra só as repetições (sem a primeira vez); os testes da página e do PDF deixam de esperar a primeira ocorrência
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGVXj3RGvFEFRDjoK8AKgVb
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_A1aD12_Reserva_RepetidosComLote_ETotais_NaZonaDaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes`
+
+Selo depois: `1344320029127839`
+
+## A-0250 · 2026-10-27 · ok-do-diogo
 
 Porquê: PDFs para imprimir (DMO-515): sem setas «Ver detalhe →», «Ver →», «Abrir PDF das punções →» e «← Voltar ao Resumo»; a ligação das punções fica no título PU NNPB; o texto do peso médio lê-se noutra ordem porque as etiquetas dos números ficaram alinhadas.
 Referência: Diogo nesta thread: «assim esta vem melbor» cmsg_01K75FTs9bQnbhhH7qttpgraTi8pNMkxbb42HPorBHVSDZ e «faz updat» cmsg_01K75FTs9bQnbhhH7qttpgra1JbRoNSJpnxi8CKE6qCTCb
@@ -4042,4 +4054,4 @@ Novos: 0 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
 
-Selo depois: `94d774337ddad608`
+Selo depois: `dba4e2efbb45ed56`
