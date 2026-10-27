@@ -1,4 +1,5 @@
 using DMO.Alpha.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,6 +9,7 @@ namespace DMO.Alpha.Web.Pages;
 /// A primeira instalação (<see cref="InstalacaoInicial"/>): só com o login
 /// próprio e só enquanto a base não tem ADMIN. Feita, manda para o login.
 /// </summary>
+[AllowAnonymous]
 public class InstalarModel(InstalacaoInicial instalacao) : PageModel
 {
     public string? Email { get; set; }

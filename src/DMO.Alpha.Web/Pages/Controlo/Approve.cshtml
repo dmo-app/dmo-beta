@@ -148,7 +148,7 @@
         var pesos = Model.Pesos.Count > 0 ? Model.Pesos : peso is null ? Array.Empty<PesoReadModel>() : new[] { peso };
         var variosPesos = pesos.Count > 1;
         string CabecalhoDoPeso(PesoReadModel p, int numero) =>
-            $"Peso {numero} de {pesos.Count} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(p)} · {p.Measurements.Count} leitura(s) · {(p.IsCurrent ? "ferramentas atuais" : "ferramentas anteriores")}";
+            $"Peso {numero} de {pesos.Count} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(p)} · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(p.Measurements.Count, "leitura", "leituras")} · {(p.IsCurrent ? "ferramentas atuais" : "ferramentas anteriores")}";
         @* Sem cabeçalho (Diogo, 19/10/2026: «informação repetida»): a
            referência, a produção e a máquina estão na Identificação, e os
            botões no primeiro cartão. *@
@@ -251,13 +251,13 @@
             var folhas = pegamentos.Sheets;
             var medicoes = folhas.Sum(f => f.Measurements.Count);
             var alertas = folhas.Sum(f => f.ComponentAverages.Sum(a => a.AlertCount));
-            <p class="revisao-line">@medicoes medição(ões) · <span class="@(alertas > 0 ? "revisao-alerta" : "")">@alertas alerta(s) dimensionais</span>@(folhas.Count > 1 ? $" · {folhas.Count} folhas" : null)</p>
+            <p class="revisao-line">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(medicoes, "medição", "medições") · <span class="@(alertas > 0 ? "revisao-alerta" : "")">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(alertas, "alerta dimensional", "alertas dimensionais")</span>@(folhas.Count > 1 ? $" · {folhas.Count} folhas" : null)</p>
             @if (folhas.Count > 1)
             {
               @foreach (var (folha, numero) in folhas.Select((f, i) => (f, i + 1)))
               {
                 var folhaAlertas = folha.ComponentAverages.Sum(a => a.AlertCount);
-                <p class="revisao-line">Folha @numero · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha) · @folha.Measurements.Count medição(ões) · <span class="@(folhaAlertas > 0 ? "revisao-alerta" : "")">@folhaAlertas alerta(s)</span></p>
+                <p class="revisao-line">Folha @numero · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha) · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(folha.Measurements.Count, "medição", "medições") · <span class="@(folhaAlertas > 0 ? "revisao-alerta" : "")">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(folhaAlertas, "alerta", "alertas")</span></p>
               }
             }
             @* As leituras das três ferramentas (Diogo, 19/10/2026: «pegamentos

@@ -203,10 +203,9 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
 
         var html = await admin.GetStringAsync("/Definicoes?secao=admin&sub=app");
         var menu = System.Text.RegularExpressions.Regex.Match(html, "<nav class=\"def-menu\"[\\s\\S]*?</nav>").Value;
-        Assert.Contains("data-dmo-def-entrada=\"admin\" class=\"active\"", menu);
-        Assert.DoesNotContain("data-dmo-def-grupo=\"admin\"", menu);
-        // O grupo fechado não leva data-aberto (o Razor não tira um data-* nulo).
-        Assert.DoesNotContain("data-dmo-def-grupo=\"controlo\" data-aberto", menu);
+        // Separadores (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP): o ADMIN só tem A minha conta e Admin.
+        Assert.Contains("data-dmo-def-separador=\"admin\" data-dmo-def-abre=\"admin\" class=\"active\"", menu);
+        Assert.Equal(new[] { "pessoal", "admin" }, System.Text.RegularExpressions.Regex.Matches(menu, "data-dmo-def-separador=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray());
         Assert.DoesNotContain("data-dmo-ctl-tab=\"canal\"", menu);
         Assert.Equal(HttpStatusCode.NotFound, (await admin.GetAsync("/Admin/CanalJobon")).StatusCode);
         var app = html[html.IndexOf("id=\"sec-admin\"", StringComparison.Ordinal)..];
@@ -228,7 +227,7 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
         // Quem não é ADMIN não vê o grupo.
         using var op = await LoginOperatorAsync("5104", DmoCapabilities.Boquilhas);
         var opHtml = await op.GetStringAsync("/Definicoes?secao=admin&sub=app");
-        Assert.DoesNotContain("data-dmo-def-grupo=\"admin\"", opHtml);
+        Assert.DoesNotContain("data-dmo-def-separador=\"admin\"", opHtml);
         Assert.DoesNotContain("id=\"sec-admin\"", opHtml);
         Assert.DoesNotContain("admEmail", opHtml);
     }

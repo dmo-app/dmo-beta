@@ -528,7 +528,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
         var selectedHtml = await (await adminClient.GetAsync($"/Admin/Templates?template={templateKey}")).Content.ReadAsStringAsync();
         Assert.Contains("id=\"dmt-users\"", selectedHtml, StringComparison.Ordinal);
         Assert.Contains("Chefe Com Template", selectedHtml, StringComparison.Ordinal);
-        Assert.Contains("data-dmo-open=\"/Admin/Users/Ficha?operator_id=4545\"", selectedHtml, StringComparison.Ordinal);
+        Assert.Contains("href=\"/Admin/Users/Ficha?operator_id=4545\"", selectedHtml, StringComparison.Ordinal);
 
         var list = await adminClient.GetAsync("/Admin/Users");
         list.EnsureSuccessStatusCode();
@@ -576,6 +576,79 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
 
         var emptyTemplatesHtml = await (await adminClient.GetAsync("/Admin/Templates")).Content.ReadAsStringAsync();
         Assert.Contains(">0 utilizadores</a>", emptyTemplatesHtml, StringComparison.Ordinal);
+    }
+
+    // ------------------------------------------------------------------
+    // Os utilizadores na template, como os módulos (Diogo, 26/10/2026): os
+    // que têm a template vêm marcados, os sem template por baixo; quem tem
+    // outra template não aparece. O «Guardar template» associa e remove.
+    // ------------------------------------------------------------------
+
+    [Fact]
+    public async Task AdminTemplates_UsersLikeModules_AssociateWithoutTemplate_RemoveExisting_LeaveOthers()
+    {
+        SeedConfiguredAdmin("tpl-users-admin@example.test", "tpl-users-admin-provider", "TplUsers123!");
+        using var adminClient = await LoginAdminAsync(
+            _factory, "tpl-users-admin@example.test", "TplUsers123!");
+
+        var serralheiro = LocationQueryValue(await PostAsync(
+            adminClient, "/Admin/Templates?handler=Create",
+            ("name", "Serralheiro Teste"),
+            ("capabilities", DmoCapabilities.JobOnView)), "template")!;
+        var outra = LocationQueryValue(await PostAsync(
+            adminClient, "/Admin/Templates?handler=Create",
+            ("name", "Outra Teste"),
+            ("capabilities", DmoCapabilities.JobOnView)), "template")!;
+
+        await CreateUserViaAppAsync(adminClient, name: "Sem Template Um", operatorId: "5101", email: "sem1@empresa.pt");
+        await CreateUserViaAppAsync(adminClient, name: "Sem Template Dois", operatorId: "5102", email: "sem2@empresa.pt");
+        await CreateUserViaAppAsync(adminClient, name: "Ja Serralheiro", operatorId: "5103", email: "ja@empresa.pt");
+        await CreateUserViaAppAsync(adminClient, name: "Tem Outra", operatorId: "5104", email: "outra@empresa.pt");
+        await PostAsync(adminClient, "/Admin/Users?handler=Template", ("operator_id", "5103"), ("template_key", serralheiro));
+        await PostAsync(adminClient, "/Admin/Users?handler=Template", ("operator_id", "5104"), ("template_key", outra));
+
+        var html = await (await adminClient.GetAsync($"/Admin/Templates?template={serralheiro}")).Content.ReadAsStringAsync();
+        Assert.Contains("Com esta template (1)", html, StringComparison.Ordinal);
+        Assert.Matches("id=\"dmt-user-5103\"[^>]*checked", html);
+        Assert.Contains("id=\"dmt-user-5101\"", html, StringComparison.Ordinal);
+        Assert.DoesNotMatch("id=\"dmt-user-5101\"[^>]*checked", html);
+        Assert.DoesNotContain("id=\"dmt-user-5104\"", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("id=\"dmt-user-tpl-users-admin", html, StringComparison.Ordinal);
+
+        // Junta o 5101, tira o 5103; o 5104 (outra template) vem marcado por
+        // engano e fica com a dele.
+        var save = await PostAsync(
+            adminClient, "/Admin/Templates?handler=Edit",
+            ("template_key", serralheiro),
+            ("name", "Serralheiro Teste"),
+            ("capabilities", DmoCapabilities.JobOnView),
+            ("utilizadores", "1"),
+            ("operator_ids", "5101"),
+            ("operator_ids", "5104"));
+        Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
+        Assert.Equal("1", LocationQueryValue(save, "saved"));
+        Assert.Null(LocationQueryValue(save, "users_not_saved"));
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            string? KeyOf(string op) => db.Users.Include(u => u.CurrentTemplateAssignment!).ThenInclude(a => a.Template)
+                .Single(u => u.OperatorId == op).CurrentTemplateAssignment?.Template?.TemplateKey;
+            Assert.Equal(serralheiro, KeyOf("5101"));
+            Assert.Null(KeyOf("5102"));
+            Assert.Null(KeyOf("5103"));
+            Assert.Equal(outra, KeyOf("5104"));
+        }
+
+        // Sem a lista no formulário (utilizadores ausente), guardar a
+        // template não mexe em ninguém.
+        await PostAsync(
+            adminClient, "/Admin/Templates?handler=Edit",
+            ("template_key", serralheiro),
+            ("name", "Serralheiro Teste"),
+            ("capabilities", DmoCapabilities.JobOnView));
+        var after = await (await adminClient.GetAsync("/Admin/Templates")).Content.ReadAsStringAsync();
+        Assert.Matches($"id=\"dmt-contagem-{serralheiro}\"[^>]*>1 utilizador</a>", after);
     }
 
     [Fact]
@@ -662,12 +735,12 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
         }
 
         var firstPage = await (await adminClient.GetAsync("/Admin/Users")).Content.ReadAsStringAsync();
-        Assert.Contains("30 utilizador(es)", firstPage, StringComparison.Ordinal);
-        Assert.DoesNotContain("25 utilizador(es)", firstPage, StringComparison.Ordinal);
+        Assert.Contains("30 utilizadores", firstPage, StringComparison.Ordinal);
+        Assert.DoesNotContain("25 utilizadores", firstPage, StringComparison.Ordinal);
         Assert.Equal(25, Regex.Matches(firstPage, "name=\"user_id\"").Count);
 
         var secondPage = await (await adminClient.GetAsync("/Admin/Users?pagina=2")).Content.ReadAsStringAsync();
-        Assert.Contains("30 utilizador(es)", secondPage, StringComparison.Ordinal);
+        Assert.Contains("30 utilizadores", secondPage, StringComparison.Ordinal);
         Assert.Equal(5, Regex.Matches(secondPage, "name=\"user_id\"").Count);
     }
 

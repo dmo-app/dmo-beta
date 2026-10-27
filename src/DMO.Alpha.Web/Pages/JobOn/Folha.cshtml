@@ -400,7 +400,7 @@ else
      mesmas recusas tipadas) e voltam a esta folha (Diogo, 23/10/2026). *@
   var rascunho = !editar ? null : Model.Criar ? (Model.DuplicarDe is { } origemRascunho ? $"duplicar:{origemRascunho}" : "novo") : $"editar:{jobOn.JobOnId}";
   <form class="jof2-form" id="@(editar ? "lightForm" : "jofLeitura")" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.Criar ? "Create" : "Update")"
-        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jof-criar="@(Model.Criar ? "true" : null)" data-jobon-rascunho="@rascunho" aria-label="@(Model.Criar ? "Folha do Job On novo" : $"Folha do Job On {jobOn.ProductionNumber}")">
+        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jof-criar="@(Model.Criar ? "true" : null)" data-jobon-rascunho="@rascunho" data-jobon-rascunho-dono="@(rascunho is null ? null : User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.ActorId)?.Value)" aria-label="@(Model.Criar ? "Folha do Job On novo" : $"Folha do Job On {jobOn.ProductionNumber}")">
     @if (Model.Criar)
     {
       <input type="hidden" name="voltar" value="folha" />
@@ -716,7 +716,7 @@ else
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong>Artigo @if (podeImagem) {<partial name="_DmoHelp" model="@("Clique na imagem para a associar ou trocar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge).")" />}</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
+          <div class="article-head"><strong>Artigo @if (podeImagem) {<partial name="_DmoHelp" model="@("Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge).")" />}</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
           <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
             @if (podeImagem)
             {
@@ -840,6 +840,11 @@ else
 }
 @section Scripts {
 <script src="~/js/jobon-folha.js" asp-append-version="true" defer></script>
+@if (Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal))
+{
+<link rel="stylesheet" href="~/css/dmo-artigo-recorte.css" asp-append-version="true" media="screen" />
+<script src="~/js/dmo-artigo-recorte.js" asp-append-version="true" defer></script>
+}
 @if (editar)
 {
 <script src="~/js/jobon-rascunho.js" asp-append-version="true" defer></script>

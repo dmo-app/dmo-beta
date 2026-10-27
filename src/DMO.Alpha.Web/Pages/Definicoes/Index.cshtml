@@ -3,49 +3,72 @@
 @{
     Layout = "_DmoShellLayout";
     var cadeado = !Model.PodeEditarGeral;
-    const string CadeadoSvg = "<svg viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M5 7V5a3 3 0 0 1 6 0v2h1a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2z\"/></svg>";
 }
 @section Head {
 <style>
 .def-page{display:flex;flex-direction:column;gap:14px}
-.def-layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:22px;align-items:start}
-.def-menu{display:flex;flex-direction:column;gap:2px;padding:8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-card,12px);background:var(--dmo-card);position:sticky;top:12px}
-.def-menu a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border-radius:8px;color:var(--dmo-text);text-decoration:none;font-size:14px;font-weight:600}
-.def-menu a:hover{background:var(--dmo-brand-050)}
-.def-menu a.active{background:var(--dmo-brand-050);color:var(--dmo-text);box-shadow:inset 3px 0 0 var(--dmo-brand-600)}
-.def-menu-cadeado{display:inline-flex;color:var(--dmo-muted)}
-.def-menu-cadeado svg,.def-cadeado svg{width:13px;height:13px}
+.def-layout{display:flex;flex-direction:column;gap:14px;min-width:0}
+/* Desenhadas para 1366×768 (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVkLgJZAUhiDzt1VRyy87PR): num ecrã maior não esticam. */
+.def-page > :is(.page-head,.def-layout){width:100%;max-width:1318px}
+.def-menu,.def-modulos{display:flex;flex-wrap:wrap;gap:4px 26px;border-bottom:1px solid var(--dmo-border)}
+.def-modulos{gap:4px 22px}
+html body :is(.def-modulos,.def-geral-aviso)[hidden]{display:none}
+.def-menu a,.def-modulos a{padding:8px 2px;border-bottom:3px solid transparent;margin-bottom:-1px;color:var(--dmo-muted);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap}
+.def-modulos a{font-size:13px}
+.def-menu a:hover,.def-modulos a:hover{color:var(--dmo-text)}
+.def-menu a.active,.def-modulos a.active{color:var(--dmo-brand-700);font-weight:650;border-bottom-color:var(--dmo-brand-600)}
+.def-geral-aviso{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-card,8px);background:var(--dmo-subtle);color:var(--dmo-muted);font-size:14px}
+.def-geral-aviso p{margin:0}
+.def-geral-aviso strong{color:var(--dmo-text)}
+.def-geral-aviso .dmo-button{margin-left:auto;flex:none}
+.def-funcoes{display:inline-flex;flex-wrap:wrap;align-self:flex-start;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,6px);overflow:hidden;background:var(--dmo-card)}
+.def-funcoes a{padding:6px 14px;font-size:13px;color:var(--dmo-muted);text-decoration:none;border-right:1px solid var(--dmo-border)}
+.def-funcoes a:last-child{border-right:0}
+.def-funcoes a:hover{color:var(--dmo-text)}
+.def-funcoes a.active{background:var(--dmo-brand-050);color:var(--dmo-text);font-weight:650}
 .def-secao{display:flex;flex-direction:column;gap:14px;min-width:0}
 html body .def-secao[hidden]{display:none}
-.def-secao > h2{display:flex;align-items:center;gap:0;margin:0;font-size:19px}
 .def-parte{display:flex;flex-direction:column;gap:10px;min-width:0}
-.def-parte > h3.def-parte-titulo{display:flex;align-items:center;gap:8px;margin:4px 0 0;font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--dmo-muted)}
 .def-cartoes{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
 .def-cartoes > *{flex:0 1 auto}
 .def-geral-campos{border:0;margin:0;padding:0;min-width:0}
-button.def-cadeado{border:0;cursor:pointer;font-family:inherit}
-button.def-cadeado:hover{filter:brightness(.95)}
 .def-pin{display:flex;gap:10px;align-items:flex-end}
 .def-pin .dmo-field{margin:0}
-.def-cadeado{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:var(--dmo-warning-soft);color:var(--dmo-text);font-size:12px;font-weight:700;text-transform:none;letter-spacing:0}
 .def-geral-campos:disabled .dmo-button,.def-geral-campos:disabled input,.def-geral-campos:disabled select,.def-geral-campos:disabled textarea{cursor:not-allowed;opacity:.7}
-.def-tema{padding:18px;width:fit-content;min-width:min(320px,100%)}
-.def-tema h3{margin:0 0 10px;font-size:16px}
-.def-pessoal-topo{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.def-pessoal-topo h2{display:flex;align-items:center;gap:0;margin:0;font-size:19px}
-.def-linha{padding:12px 16px}
+/* A conta a toda a largura; por baixo, sessão, aparência e palavra-passe na mesma linha (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraQschNh1Uxn4R5bnQEQzd2D: «devia usar mais espaço»). */
+.def-pessoal-grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2.4fr);gap:14px;align-items:stretch}
+.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr) minmax(0,2.4fr)}
+.def-pessoal-grade > .dmo-card{min-width:0;margin:0}
+.def-pessoal-grade > #defConta{grid-column:1/-1;padding:16px 20px}
+.def-linha{padding:16px 20px}
 .def-linha h3{margin:0;font-size:15px}
 .def-linha .dmo-card-topo,.def-linha > h3{margin-bottom:8px}
-.def-conta{display:flex;flex-wrap:wrap;gap:6px 28px;margin:0;font-size:14px}
-.def-conta dt{color:var(--dmo-muted);font-weight:700;font-size:11.5px}
-.def-conta dd{margin:2px 0 0}
-.def-conta-modulos{width:auto;margin-top:12px}
-.def-conta-modulos :is(th,td){text-align:center;padding:6px 14px}
+/* Mais espaço entre o título e o que está por baixo (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraF5eVZdhJCHZqkN7ZswBvBD: «dar espaço»). */
+html body .def-pessoal-grade > .def-linha > h3 + form{margin-top:14px}
+.def-conta{display:flex;flex-wrap:wrap;gap:8px 56px;margin:10px 0 0;font-size:15px}
+.def-conta dt{color:var(--dmo-muted);font-weight:600;font-size:12.5px}
+/* Os dados da pessoa em destaque (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraEMoiSsdtN5LyniSpY8rnL8). */
+.def-conta dd{margin:4px 0 0;font-size:19px;font-weight:650;color:var(--dmo-text);letter-spacing:-.01em}
+.def-conta + .dmo-table-wrap{width:100%;margin-top:14px}
+.def-conta-modulos{width:100%;table-layout:fixed}
+.def-conta-modulos :is(th,td){text-align:center;padding:8px 10px}
+.def-conta-modulos th{font-size:12.5px}
+.def-conta-modulos td{font-size:15px}
 .def-conta-sem-modulos{margin:10px 0 0;color:var(--dmo-muted)}
 .def-palavra{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
-.def-palavra .dmo-field{margin:0;flex:1 1 160px;max-width:240px}
+.def-palavra .dmo-field{margin:0;flex:1 1 120px;max-width:240px}
 .ctl-def-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;width:100%}
 html body .ctl-def-grade[hidden]{display:none}
+/* Duas colunas que se enchem de cima para baixo: sem buracos entre cartões de alturas diferentes (Diogo, 26/10/2026: «evitar deixar espaços vazios»). */
+.def-pastas{column-count:2;column-gap:14px}
+.def-pastas > .dmo-card{display:block;break-inside:avoid;margin:0 0 14px;width:100%;max-width:none;padding:16px 18px;box-sizing:border-box}
+/* Um cartão só com dois ou três campos fica do tamanho deles, não de meia página (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraMkSqhn27TMM33AJPvkadUE). */
+:is(#ctlDefDensidade,#ctlDefTolerancia,#riDefViragem){justify-self:start;width:fit-content;min-width:320px;max-width:100%}
+/* Fechado, o «Opções» do Excel fica como os outros botões fechados (Diogo, 27/10/2026: «só um toque para igualar»). */
+.def-layout[data-dmo-geral="leitura"] [data-bq-excel-opcoes] > summary.dmo-button{background:var(--dmo-disabled);border-color:var(--dmo-disabled);color:var(--dmo-text-on-color);cursor:not-allowed;pointer-events:none}
+/* Nas «Opções», o que está escondido não aparece e o que está fechado pelo PIN fica apagado. */
+html body .def-layout .dmo-options-item[hidden]{display:none}
+html body .def-layout .dmo-options-item:disabled{color:var(--dmo-muted);cursor:not-allowed}
 .adm-app-cartoes{align-items:stretch}
 .adm-card{padding:16px 18px;min-width:0;margin:0}
 .adm-card h3{margin:0 0 12px;font-size:16px}
@@ -53,31 +76,25 @@ html body .ctl-def-grade[hidden]{display:none}
 .adm-card .dmo-card-topo h3{margin:0}
 .adm-email-form{display:grid;gap:12px;width:100%}
 #bqDefViragem .dmo-field,#riDefViragem .dmo-field{max-width:220px}
-.def-menu-grupo{display:flex;flex-direction:column;gap:2px}
-.def-menu a.def-menu-titulo{justify-content:flex-start}
-.def-menu-titulo .def-menu-cadeado{margin-left:auto}
-.def-menu-sub{display:flex;flex-direction:column;gap:2px;padding-left:14px}
-html body .def-menu-sub[hidden]{display:none}
-.def-menu .def-menu-sub a{font-weight:500;padding:7px 12px}
 .ctl-def-computador{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:12px 0 0;font-size:14px}
 .ctl-def-link{border:0;background:none;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--dmo-brand-700);text-decoration:underline;cursor:pointer}
 @@media(max-width:760px){
-  .def-layout{grid-template-columns:minmax(0,1fr);gap:14px}
-  .def-menu{flex-direction:row;overflow-x:auto;position:static;padding:4px}
-  .def-menu a{white-space:nowrap;padding:8px 12px}
-  .def-menu-grupo,.def-menu-sub{flex-direction:row}
-  .def-menu-sub{padding-left:0}
-  .def-menu a.active{box-shadow:inset 0 -3px 0 var(--dmo-brand-600)}
+  .def-menu,.def-modulos{flex-wrap:nowrap;overflow-x:auto}
+  .def-pessoal-grade,.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr)}
+  .ctl-def-grade{grid-template-columns:minmax(0,1fr)}
+  .def-pastas{column-count:1}
+  .def-geral-aviso{flex-wrap:wrap}
 }
 </style>
 }
 
-@* As Definições num só sítio (Diogo, 22/10/2026), com o menu à esquerda
-   (cmsg_01A27e9ozcpoh4jdPRsuJbFyBy9Jx5eK6a4k4EugkMUoyr): «Pessoal» e um por
-   módulo ativo; cada entrada mostra só a sua secção. Sem JavaScript são links
-   (?secao=…); com ele a troca é feita aqui, sem recarregar. Num módulo: as
-   definições pessoais desse módulo e as gerais (com cadeado para quem não as
-   pode mudar). Gravar troca só o cartão que mudou (data-dmo-regiao). *@
+@* As Definições num só sítio (Diogo, 22/10/2026), em separadores por cima
+   (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP):
+   A minha conta, Este computador (as pastas) e Gerais da fábrica (um por
+   módulo ativo). Sem JavaScript são links (?secao=…); com ele a troca é
+   feita aqui, sem recarregar. As pastas e as gerais ficam só de leitura até
+   se abrir o cadeado, que é um só, por cima delas. Gravar troca só o cartão
+   que mudou (data-dmo-regiao). *@
 <main class="def-page dmo-workspace" aria-labelledby="def-title" data-dmo-troca>
   <div class="page-head">
     <div>
@@ -97,134 +114,158 @@ html body .def-menu-sub[hidden]{display:none}
   </div>
 
   <div class="def-layout" data-dmo-geral="@(cadeado ? "leitura" : "edicao")">
-    <nav class="def-menu" aria-label="Secções das Definições" data-dmo-def-menu>
-      @foreach (var (chave, nome) in Model.Entradas)
+    @* Três separadores (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP):
+       A minha conta, Este computador e Gerais da fábrica; o Admin só para o ADMIN. *@
+    <nav class="def-menu" aria-label="Separadores das Definições" data-dmo-def-menu>
+      @foreach (var (chave, nome, abre) in Model.Separadores)
       {
-        var ativa = chave == Model.Secao;
-        var cadeadoMenu = cadeado && chave is not ("pessoal" or "armazem" or "admin") ? Html.Raw($"<span class=\"def-menu-cadeado\" data-dmo-menu-cadeado title=\"Geral só de leitura\">{CadeadoSvg}<span class=\"dmo-visually-hidden\">(geral só de leitura)</span></span>") : null;
-        if (Model.FuncoesDe(chave) is { } funcoes)
-        {
-          @* Um grupo (Diogo, 22/10/2026: «usa apenas sidepanel, Controlo expande, fica como título, por baixo as funções»); o grupo Admin só para o ADMIN. *@
-          var subAberto = Model.SubDe(chave);
-          @* O Razor não tira um data-* nulo (fica data-aberto=""): o atributo só se escreve no grupo ativo. *@
-          <div class="def-menu-grupo" data-dmo-def-grupo="@chave" @(ativa ? Html.Raw("data-aberto") : null)>
-            <a href="/Definicoes?secao=@chave&amp;sub=@funcoes[0].Chave" class="def-menu-titulo" data-dmo-def-grupo-titulo aria-expanded="@(ativa ? "true" : "false")" aria-controls="defMenu-@chave"><span class="dmo-caret" aria-hidden="true"></span><span>@nome</span>@(chave == "admin" ? null : cadeadoMenu)</a>
-            <div class="def-menu-sub" id="defMenu-@chave" hidden="@(!ativa)">
-              @foreach (var (sub, subNome) in funcoes)
-              {
-                var subAtivo = ativa && sub == subAberto;
-                <a href="/Definicoes?secao=@chave&amp;sub=@sub" data-dmo-ctl-tab="@sub" data-dmo-grupo="@chave" class="@(subAtivo ? "active" : null)" aria-current="@(subAtivo ? "page" : null)">@subNome</a>
-              }
-            </div>
-          </div>
-          continue;
-        }
-        <a href="/Definicoes?secao=@chave" data-dmo-def-entrada="@chave" class="@(ativa ? "active" : null)" aria-current="@(ativa ? "page" : null)"><span>@nome</span>@cadeadoMenu</a>
+        var ativo = chave == Model.Separador;
+        <a href="/Definicoes?secao=@abre" data-dmo-def-separador="@chave" data-dmo-def-abre="@abre" class="@(ativo ? "active" : null)" aria-current="@(ativo ? "page" : null)">@nome</a>
       }
     </nav>
 
+    @* Um só cadeado para as pastas e as gerais (em vez de um por secção): fica à vista nesses dois separadores. *@
+    @if (cadeado && Model.Separadores.Any(s => s.Chave is "computador" or "gerais"))
+    {
+      <div class="def-geral-aviso" data-dmo-def-aviso-geral hidden="@(!Model.SecaoComCadeado)">
+        <p><strong>Só leitura.</strong> Valem para todos. Para mudar, abra com o PIN das Definições; fica aberto até sair.</p>
+        <button type="button" class="dmo-button" data-dmo-cadeado data-dmo-dialog="defPinJanela">Abrir com PIN</button>
+      </div>
+    }
+
+    @if (Model.Modulos.Count > 0)
+    {
+      <nav class="def-modulos" aria-label="Módulos" data-dmo-def-modulos hidden="@(Model.Separador != "gerais")">
+        @foreach (var (chave, nome) in Model.Modulos)
+        {
+          var ativa = chave == Model.Secao;
+          <a href="/Definicoes?secao=@chave" data-dmo-def-entrada="@chave" class="@(ativa ? "active" : null)" aria-current="@(ativa ? "page" : null)">@nome</a>
+        }
+      </nav>
+    }
+
     <div class="def-conteudo">
       <section id="sec-pessoal" class="def-secao" data-dmo-def-secao="pessoal" aria-labelledby="def-pessoal-title" hidden="@(Model.Secao != "pessoal")">
-        <div class="def-pessoal-topo">
-          <h2 id="def-pessoal-title">Pessoal<partial name="_DmoHelp" model="@("Só para si: a sua conta, a palavra-passe e o modo claro ou escuro, que fica guardado na conta e vale em qualquer computador.")" /></h2>
-          @* A aparência é um botão no canto (Diogo, 22/10/2026): troca o modo e grava-o na conta. *@
-          <div id="defTema" data-dmo-regiao>
+        <h2 id="def-pessoal-title" class="dmo-visually-hidden">A minha conta</h2>
+        <div class="def-pessoal-grade@(Model.EAdmin ? " def-sem-sessao" : null)">
+          <section id="defConta" class="dmo-card def-linha" aria-labelledby="def-conta-title" data-dmo-conta>
+            <h3 id="def-conta-title">A minha conta</h3>
+            <dl class="def-conta">
+              <div><dt>Nome</dt><dd data-dmo-conta-nome>@Model.Nome</dd></div>
+              <div><dt>Email</dt><dd data-dmo-conta-email>@(Model.Email ?? "—")</dd></div>
+              <div><dt>Número</dt><dd data-dmo-conta-numero>@(Model.NumeroOperador ?? "—")</dd></div>
+            </dl>
+            @* Os módulos numa pequena tabela, cada um com o acesso (Diogo, 26/10/2026:
+               «os módulos em seguida com vírgulas fica mal, preferível uma tabela»). *@
+            @if (Model.ModulosAcesso.Count == 0)
+            {
+              <p class="def-conta-sem-modulos" data-dmo-conta-modulos>Módulos: nenhum</p>
+            }
+            else
+            {
+              @* A tabela vive sempre em `dmo-table-wrap` (componentes-partilhados.md):
+                 é o invólucro que a faz rolar no telemóvel em vez de alargar a página. *@
+              <div class="dmo-table-wrap">
+                <table class="dmo-table def-conta-modulos" data-dmo-conta-modulos aria-label="Módulos">
+                  <thead><tr>@foreach (var (modulo, _) in Model.ModulosAcesso) {<th scope="col">@modulo</th>}</tr></thead>
+                  <tbody><tr>@foreach (var (_, acesso) in Model.ModulosAcesso) {<td>@acesso</td>}</tr></tbody>
+                </table>
+              </div>
+            }
+          </section>
+          @if (!Model.EAdmin)
+          {
+            <section class="dmo-card def-linha" aria-labelledby="def-sessao-title">
+              <h3 id="def-sessao-title">Sessão</h3>
+              <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Sessao">
+                <select name="horas" aria-label="Duração da sessão" data-dmo-autosubmit>
+                  @foreach (var h in DMO.Alpha.Core.Admin.SessaoDuracao.Opcoes)
+                  {
+                    <option value="@h" selected="@(h == Model.SessaoHoras)">@h @(h == 1 ? "hora" : "horas")</option>
+                  }
+                </select>
+              </form>
+            </section>
+          }
+          @* O modo claro ou escuro (Diogo, 22/10/2026): troca o modo e grava-o na conta. *@
+          <section id="defTema" class="dmo-card def-linha" aria-labelledby="def-tema-title" data-dmo-regiao>
+            <h3 id="def-tema-title">Aparência</h3>
             <form id="defTemaForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="Tema">
               <input type="hidden" name="tema" value="@(Model.Tema == "dark" ? "light" : "dark")" />
               <button type="submit" class="dmo-button" id="defTemaBotao" data-dmo-tema-pessoal="@(Model.Tema == "dark" ? "dark" : "light")" aria-pressed="@(Model.Tema == "dark" ? "true" : "false")">@(Model.Tema == "dark" ? "Modo claro" : "Modo escuro")</button>
             </form>
-          </div>
-        </div>
-        @if (!Model.EAdmin)
-        {
-          <section class="dmo-card def-linha" aria-labelledby="def-sessao-title">
-            <h3 id="def-sessao-title">Sessão<partial name="_DmoHelp" model="@("Quanto tempo a sessão fica aberta sem atividade. Vale a partir da próxima vez que entrar.")" /></h3>
-            <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Sessao">
-              <select name="horas" aria-label="Duração da sessão" data-dmo-autosubmit>
-                @foreach (var h in DMO.Alpha.Core.Admin.SessaoDuracao.Opcoes)
-                {
-                  <option value="@h" selected="@(h == Model.SessaoHoras)">@h @(h == 1 ? "hora" : "horas")</option>
-                }
-              </select>
+          </section>
+          <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
+            <div class="dmo-card-topo">
+              <h3 id="def-palavra-title">Mudar a palavra-passe</h3>
+              <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="defPalavraGuardar" form="defPalavraPasseForm">Mudar</button></div>
+            </div>
+            @if (Model.PalavraPasseErro is { } erroPalavra)
+            {
+              <p data-dmo-toast="aviso" role="alert" data-dmo-palavra-passe-aviso>@erroPalavra</p>
+            }
+            @if (Model.PalavraPasseMudou)
+            {
+              <p data-dmo-toast="ok" role="status">Palavra-passe alterada.</p>
+            }
+            <form id="defPalavraPasseForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="PalavraPasse" class="def-palavra" autocomplete="off" novalidate>
+              <div class="dmo-field"><label for="defPalavraAtual">Atual</label><input id="defPalavraAtual" name="atual" type="password" autocomplete="current-password" required /></div>
+              <div class="dmo-field"><label for="defPalavraNova">Nova</label><input id="defPalavraNova" name="nova" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
+              <div class="dmo-field"><label for="defPalavraConfirmar">Confirmar a nova</label><input id="defPalavraConfirmar" name="confirmar" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
             </form>
           </section>
-        }
-        <section id="defConta" class="dmo-card def-linha" aria-labelledby="def-conta-title" data-dmo-conta>
-          <h3 id="def-conta-title">A minha conta</h3>
-          <dl class="def-conta">
-            <div><dt>Nome</dt><dd data-dmo-conta-nome>@Model.Nome</dd></div>
-            <div><dt>Email</dt><dd data-dmo-conta-email>@(Model.Email ?? "—")</dd></div>
-            <div><dt>Número</dt><dd data-dmo-conta-numero>@(Model.NumeroOperador ?? "—")</dd></div>
-          </dl>
-          @* Os módulos numa pequena tabela, cada um com o acesso (Diogo, 26/10/2026:
-             «os módulos em seguida com vírgulas fica mal, preferível uma tabela»). *@
-          @if (Model.ModulosAcesso.Count == 0)
-          {
-            <p class="def-conta-sem-modulos" data-dmo-conta-modulos>Módulos: nenhum</p>
-          }
-          else
-          {
-            @* A tabela vive sempre em `dmo-table-wrap` (componentes-partilhados.md):
-               é o invólucro que a faz rolar no telemóvel em vez de alargar a página. *@
-            <div class="dmo-table-wrap">
-              <table class="dmo-table def-conta-modulos" data-dmo-conta-modulos aria-label="Módulos">
-                <thead><tr>@foreach (var (modulo, _) in Model.ModulosAcesso) {<th scope="col">@modulo</th>}</tr></thead>
-                <tbody><tr>@foreach (var (_, acesso) in Model.ModulosAcesso) {<td>@acesso</td>}</tr></tbody>
-              </table>
-            </div>
-          }
-        </section>
-        <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
-          <div class="dmo-card-topo">
-            <h3 id="def-palavra-title">Mudar a palavra-passe<partial name="_DmoHelp" model="@($"Pelo menos {DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength} caracteres (um PIN de 4 números serve). As outras sessões abertas desta conta terminam.")" /></h3>
-            <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="defPalavraGuardar" form="defPalavraPasseForm">Mudar</button></div>
-          </div>
-          @if (Model.PalavraPasseErro is { } erroPalavra)
-          {
-            <p data-dmo-toast="aviso" role="alert" data-dmo-palavra-passe-aviso>@erroPalavra</p>
-          }
-          @if (Model.PalavraPasseMudou)
-          {
-            <p data-dmo-toast="ok" role="status">Palavra-passe alterada.</p>
-          }
-          <form id="defPalavraPasseForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="PalavraPasse" class="def-palavra" autocomplete="off" novalidate>
-            <div class="dmo-field"><label for="defPalavraAtual">Atual</label><input id="defPalavraAtual" name="atual" type="password" autocomplete="current-password" required /></div>
-            <div class="dmo-field"><label for="defPalavraNova">Nova</label><input id="defPalavraNova" name="nova" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
-            <div class="dmo-field"><label for="defPalavraConfirmar">Confirmar a nova</label><input id="defPalavraConfirmar" name="confirmar" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
-          </form>
-        </section>
+        </div>
       </section>
+
+      @if (Model.TemComputador)
+      {
+        @* As pastas, cada uma escolhida neste navegador (Chrome ou Edge), juntas num só sítio. *@
+        <section id="sec-computador" class="def-secao" data-dmo-def-secao="computador" aria-labelledby="def-computador-title" hidden="@(Model.Secao != "computador")">
+          <h2 id="def-computador-title" class="dmo-visually-hidden">Este computador</h2>
+          <div class="def-pastas">
+            @if (Model.Controlo is { } controloPasta)
+            {
+              <partial name="/Pages/Controlo/_DefinicoesPasta.cshtml" model="controloPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
+            }
+            @if (Model.Boquilhas is { } boquilhasPasta)
+            {
+              <partial name="/Pages/Boquilhas/_DefinicoesPasta.cshtml" model="boquilhasPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
+            }
+            @if (Model.TemJobOn)
+            {
+              <partial name="/Pages/JobOn/_DefinicoesImagens.cshtml" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
+            }
+            @if (Model.Ferramentas is { } ferramentasPasta)
+            {
+              <partial name="/Pages/Ferramentas/_DefinicoesPasta.cshtml" model="ferramentasPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
+            }
+          </div>
+        </section>
+      }
 
       @if (Model.Controlo is { } controlo)
       {
         <section id="sec-controlo" class="def-secao" data-dmo-def-secao="controlo" aria-labelledby="def-controlo-title" hidden="@(Model.Secao != "controlo")">
-          <h2 id="def-controlo-title">Controlo</h2>
+          <h2 id="def-controlo-title" class="dmo-visually-hidden">Controlo</h2>
+          <nav class="def-funcoes" aria-label="Partes do Controlo">
+            @foreach (var (sub, subNome) in DMO.Alpha.Web.Pages.Definicoes.IndexModel.ControloSeparadores)
+            {
+              var subAtivo = sub == Model.ControloSub;
+              <a href="/Definicoes?secao=controlo&amp;sub=@sub" data-dmo-ctl-tab="@sub" data-dmo-grupo="controlo" class="@(subAtivo ? "active" : null)" aria-current="@(subAtivo ? "page" : null)">@subNome</a>
+            }
+          </nav>
           <div class="def-parte" id="controlo">
-            <h3 class="def-parte-titulo">Geral<partial name="_DefinicoesCadeado" model="cadeado" /></h3>
-            <div class="ctl-def-grade" data-dmo-ctl-sub="pdfs" data-dmo-grupo="controlo" hidden="@(Model.ControloSub != "pdfs")"><partial name="/Pages/Controlo/_DefinicoesPasta.cshtml" model="controlo" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" /></div>
             <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais do Controlo</legend>
               <partial name="/Pages/Controlo/_DefinicoesGeral.cshtml" model="controlo" view-data="@(new ViewDataDictionary(ViewData) { ["CtlSub"] = Model.ControloSub })" />
             </fieldset>
           </div>
         </section>
       }
-      @if (Model.TemJobOn)
-      {
-        <section id="sec-jobon" class="def-secao" data-dmo-def-secao="jobon" aria-labelledby="def-jobon-title" hidden="@(Model.Secao != "jobon")">
-          <h2 id="def-jobon-title">Job On</h2>
-          <div class="def-parte" id="jobon">
-            <h3 class="def-parte-titulo">Geral<partial name="_DefinicoesCadeado" model="cadeado" /></h3>
-            <div class="def-cartoes"><partial name="/Pages/JobOn/_DefinicoesImagens.cshtml" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" /></div>
-          </div>
-        </section>
-      }
       @if (Model.Boquilhas is { } boquilhas)
       {
         <section id="sec-boquilhas" class="def-secao" data-dmo-def-secao="boquilhas" aria-labelledby="def-boquilhas-title" hidden="@(Model.Secao != "boquilhas")">
-          <h2 id="def-boquilhas-title">Boquilhas</h2>
+          <h2 id="def-boquilhas-title" class="dmo-visually-hidden">Boquilhas</h2>
           <div class="def-parte" id="boquilhas">
-            <h3 class="def-parte-titulo">Geral<partial name="_DefinicoesCadeado" model="cadeado" /></h3>
-            <div class="def-cartoes"><partial name="/Pages/Boquilhas/_DefinicoesPasta.cshtml" model="boquilhas" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" /></div>
             <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais das Boquilhas</legend>
               <div class="def-cartoes"><partial name="/Pages/Boquilhas/_DefinicoesGeral.cshtml" model="boquilhas" /></div>
             </fieldset>
@@ -234,10 +275,8 @@ html body .def-menu-sub[hidden]{display:none}
       @if (Model.Ferramentas is { } ferramentas)
       {
         <section id="sec-ferramentas" class="def-secao" data-dmo-def-secao="ferramentas" aria-labelledby="def-ferramentas-title" hidden="@(Model.Secao != "ferramentas")">
-          <h2 id="def-ferramentas-title">Ferramentas</h2>
+          <h2 id="def-ferramentas-title" class="dmo-visually-hidden">Ferramentas</h2>
           <div class="def-parte" id="ferramentas">
-            <h3 class="def-parte-titulo">Geral<partial name="_DefinicoesCadeado" model="cadeado" /></h3>
-            <div class="def-cartoes"><partial name="/Pages/Ferramentas/_DefinicoesPasta.cshtml" model="ferramentas" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" /></div>
             <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais das Ferramentas</legend>
               <div class="def-cartoes"><partial name="/Pages/Ferramentas/_DefinicoesGeral.cshtml" model="ferramentas" /></div>
             </fieldset>
@@ -246,22 +285,24 @@ html body .def-menu-sub[hidden]{display:none}
       }
       @if (Model.Armazem is { } armazem)
       {
+        @* Atrás do mesmo cadeado que as outras gerais: gravar já pedia o PIN ([DefinicaoGeral]). *@
         <section id="sec-armazem" class="def-secao" data-dmo-def-secao="armazem" aria-labelledby="def-armazem-title" hidden="@(Model.Secao != "armazem")">
-          <h2 id="def-armazem-title">Armazém</h2>
+          <h2 id="def-armazem-title" class="dmo-visually-hidden">Armazém</h2>
           <div class="def-parte" id="armazem">
-            @* Sem cadeado: os reparadores editam-se sem PIN, como nas Boquilhas (Diogo, 24/10/2026). *@
-            <h3 class="def-parte-titulo">Geral</h3>
-            <div class="def-cartoes"><partial name="/Pages/Armazem/_DefinicoesGeral.cshtml" model="armazem" /></div>
+            <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais do Armazém</legend>
+              <div class="def-cartoes"><partial name="/Pages/Armazem/_DefinicoesGeral.cshtml" model="armazem" /></div>
+            </fieldset>
           </div>
         </section>
       }
       @if (Model.Reparacao is { } reparacao)
       {
         <section id="sec-reparacao" class="def-secao" data-dmo-def-secao="reparacao" aria-labelledby="def-reparacao-title" hidden="@(Model.Secao != "reparacao")">
-          <h2 id="def-reparacao-title">Reparação</h2>
+          <h2 id="def-reparacao-title" class="dmo-visually-hidden">Reparação</h2>
           <div class="def-parte" id="reparacao">
-            <h3 class="def-parte-titulo">Geral</h3>
-            <div class="def-cartoes"><partial name="/Pages/ReparacaoInterna/_DefinicoesGeral.cshtml" model="reparacao" /></div>
+            <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais da Reparação</legend>
+              <div class="def-cartoes"><partial name="/Pages/ReparacaoInterna/_DefinicoesGeral.cshtml" model="reparacao" /></div>
+            </fieldset>
           </div>
         </section>
       }
@@ -269,7 +310,7 @@ html body .def-menu-sub[hidden]{display:none}
       {
         @* As Definições do ADMIN (Diogo, 22/10/2026): só a App (Email do ADMIN e PIN). As horas de viragem foram cada uma para o seu módulo (Diogo, 25/10/2026). Só o ADMIN as vê; gravam pelas páginas de /Admin, só do ADMIN. *@
         <section id="sec-admin" class="def-secao" data-dmo-def-secao="admin" aria-labelledby="def-admin-title" hidden="@(Model.Secao != "admin")">
-          <h2 id="def-admin-title">Admin</h2>
+          <h2 id="def-admin-title" class="dmo-visually-hidden">Admin</h2>
           <div class="def-parte" id="admin">
             <div class="ctl-def-grade adm-app-cartoes" data-dmo-ctl-sub="app" data-dmo-grupo="admin" hidden="@(Model.AdminSub != "app")">
               <partial name="/Pages/Admin/Definicoes/_DefinicoesApp.cshtml" model="app" />
@@ -320,63 +361,59 @@ html body .def-menu-sub[hidden]{display:none}
     document.documentElement.setAttribute("data-theme", novo);
     try { localStorage.setItem("dmo-tema", novo); } catch (x) { }
   }, true);
-  // O menu: mostra só a secção escolhida, sem recarregar; o endereço guarda-a.
+  // Os separadores: mostra só a secção escolhida, sem recarregar; o endereço guarda-a.
+  function separadorDe(chave) { return chave === "pessoal" || chave === "computador" || chave === "admin" ? chave : "gerais"; }
+  function marcar(a, ativo) {
+    a.classList.toggle("active", ativo);
+    if (ativo) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  }
   function mostrar(chave, empurrar) {
     var secao = document.querySelector('[data-dmo-def-secao="' + chave + '"]');
     if (!secao) return false;
+    var separador = separadorDe(chave);
     document.querySelectorAll("[data-dmo-def-secao]").forEach(function (s) { s.hidden = s !== secao; });
-    document.querySelectorAll("[data-dmo-def-entrada]").forEach(function (a) {
-      var ativa = a.getAttribute("data-dmo-def-entrada") === chave;
-      a.classList.toggle("active", ativa);
-      if (ativa) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    document.querySelectorAll("[data-dmo-def-separador]").forEach(function (a) {
+      var ativo = a.getAttribute("data-dmo-def-separador") === separador;
+      marcar(a, ativo);
+      // «Gerais da fábrica» volta ao último módulo aberto.
+      if (ativo && separador === "gerais") { a.setAttribute("data-dmo-def-abre", chave); a.setAttribute("href", "/Definicoes?secao=" + chave); }
     });
-    document.querySelectorAll("[data-dmo-ctl-tab]").forEach(function (t) {
-      if (t.getAttribute("data-dmo-grupo") !== chave) { t.classList.remove("active"); t.removeAttribute("aria-current"); }
-    });
+    document.querySelectorAll("[data-dmo-def-entrada]").forEach(function (a) { marcar(a, a.getAttribute("data-dmo-def-entrada") === chave); });
+    var modulos = document.querySelector("[data-dmo-def-modulos]");
+    if (modulos) modulos.hidden = separador !== "gerais";
+    var barra = document.querySelector("[data-dmo-def-aviso-geral]");
+    if (barra) barra.hidden = separador !== "computador" && separador !== "gerais";
     var pinSecao = document.getElementById("defPinSecao");
     if (pinSecao) pinSecao.value = chave;
     if (empurrar) {
       var url = new URL(window.location.href);
       url.searchParams.set("secao", chave);
+      url.searchParams.delete("sub");
       url.hash = "";
       window.history.pushState({ dmoDefSecao: chave }, "", url.href);
     }
     return true;
   }
+  function clique(e) { return e.target && e.target.closest && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey; }
   document.addEventListener("click", function (e) {
-    var a = e.target && e.target.closest ? e.target.closest("[data-dmo-def-entrada]") : null;
-    if (!a || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
-    if (mostrar(a.getAttribute("data-dmo-def-entrada"), true)) { e.preventDefault(); e.stopPropagation(); }
+    if (!clique(e)) return;
+    var separador = e.target.closest("[data-dmo-def-separador]");
+    var entrada = e.target.closest("[data-dmo-def-entrada]");
+    var chave = separador ? separador.getAttribute("data-dmo-def-abre") : entrada ? entrada.getAttribute("data-dmo-def-entrada") : null;
+    if (chave && mostrar(chave, true)) { e.preventDefault(); e.stopPropagation(); }
   }, true);
-  // O grupo Controlo no menu: as funções por baixo; cada uma mostra só os seus cartões (?sub=…).
-  function abrirSub(grupoChave, chave) {
-    mostrar(grupoChave, false);
-    document.querySelectorAll('[data-dmo-ctl-sub][data-dmo-grupo="' + grupoChave + '"]').forEach(function (g) { g.hidden = g.getAttribute("data-dmo-ctl-sub") !== chave; });
-    document.querySelectorAll("[data-dmo-ctl-tab]").forEach(function (t) {
-      var ativo = t.getAttribute("data-dmo-grupo") === grupoChave && t.getAttribute("data-dmo-ctl-tab") === chave; t.classList.toggle("active", ativo);
-      if (ativo) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current");
-    });
-    var url = new URL(window.location.href); url.searchParams.set("secao", grupoChave); url.searchParams.set("sub", chave); url.hash = "";
-    window.history.pushState(null, "", url.href);
-  }
-  function grupo(g, aberto) {
-    if (!g) return;
-    if (aberto) g.setAttribute("data-aberto", ""); else g.removeAttribute("data-aberto");
-    g.querySelector(".def-menu-sub").hidden = !aberto;
-    g.querySelector("[data-dmo-def-grupo-titulo]").setAttribute("aria-expanded", aberto ? "true" : "false");
-  }
+  // As partes do Controlo (Peso, Pegamentos, PU NNPB, Email): cada uma mostra só os seus cartões (?sub=…).
   document.addEventListener("click", function (e) {
-    if (!e.target || !e.target.closest || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (!clique(e)) return;
     var sub = e.target.closest("[data-dmo-ctl-tab]");
-    if (sub) { grupo(sub.closest("[data-dmo-def-grupo]"), true); abrirSub(sub.getAttribute("data-dmo-grupo"), sub.getAttribute("data-dmo-ctl-tab")); e.preventDefault(); return; }
-    var titulo = e.target.closest("[data-dmo-def-grupo-titulo]");
-    if (!titulo) return;
+    if (!sub) return;
     e.preventDefault();
-    var g = titulo.closest("[data-dmo-def-grupo]");
-    if (g.hasAttribute("data-aberto")) { grupo(g, false); return; }
-    grupo(g, true);
-    var primeiro = g.querySelector("[data-dmo-ctl-tab]");
-    if (primeiro) abrirSub(primeiro.getAttribute("data-dmo-grupo"), primeiro.getAttribute("data-dmo-ctl-tab"));
+    var grupo = sub.getAttribute("data-dmo-grupo"), chave = sub.getAttribute("data-dmo-ctl-tab");
+    mostrar(grupo, false);
+    document.querySelectorAll('[data-dmo-ctl-sub][data-dmo-grupo="' + grupo + '"]').forEach(function (g) { g.hidden = g.getAttribute("data-dmo-ctl-sub") !== chave; });
+    document.querySelectorAll('[data-dmo-ctl-tab][data-dmo-grupo="' + grupo + '"]').forEach(function (t) { marcar(t, t === sub); });
+    var url = new URL(window.location.href); url.searchParams.set("secao", grupo); url.searchParams.set("sub", chave); url.hash = "";
+    window.history.pushState(null, "", url.href);
   }, true);
   window.addEventListener("popstate", function () {
     mostrar(new URL(window.location.href).searchParams.get("secao") || "pessoal", false);

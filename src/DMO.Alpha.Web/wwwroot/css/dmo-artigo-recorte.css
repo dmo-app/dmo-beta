@@ -1,0 +1,17 @@
+/* A janela do recorte da imagem do artigo (Job On, Diogo 27/10/2026). Cabe em
+   1366×768; a imagem ajusta-se à área sem deformar. O fora do recorte fica
+   escurecido; o recorte tem só um traço branco e quatro cantos. */
+html body .dmo-dialog.dmo-recorte{width:min(760px,calc(100vw - 32px))}
+.dmo-recorte .dmo-recorte-sub{margin:-6px 0 12px;color:var(--dmo-muted);font-size:13px}
+.dmo-recorte-area{position:relative;display:grid;place-items:center;height:min(420px,calc(100vh - 260px));border-radius:var(--dmo-r-control,8px);background:var(--dmo-subtle);overflow:hidden}
+.dmo-recorte-palco{position:relative;overflow:hidden;touch-action:none;cursor:crosshair;user-select:none}
+.dmo-recorte-palco img{display:block;width:100%;height:100%;pointer-events:none}
+.dmo-recorte-sel{position:absolute;box-sizing:border-box;outline:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.45);cursor:move}
+.dmo-recorte-sel i{position:absolute;width:10px;height:10px;box-sizing:border-box;background:var(--dmo-text-on-color,#fff);border:1px solid var(--dmo-brand-600)}
+.dmo-recorte-sel i[data-canto="nw"]{left:-6px;top:-6px;cursor:nwse-resize}
+.dmo-recorte-sel i[data-canto="ne"]{right:-6px;top:-6px;cursor:nesw-resize}
+.dmo-recorte-sel i[data-canto="sw"]{left:-6px;bottom:-6px;cursor:nesw-resize}
+.dmo-recorte-sel i[data-canto="se"]{right:-6px;bottom:-6px;cursor:nwse-resize}
+.dmo-recorte-medida{position:absolute;right:8px;bottom:8px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;pointer-events:none}
+.dmo-recorte-rodape{display:flex;align-items:center;gap:10px;margin-top:14px}
+.dmo-recorte-info{flex:1;min-width:0;color:var(--dmo-muted);font-size:12.5px;overflow-wrap:anywhere}
