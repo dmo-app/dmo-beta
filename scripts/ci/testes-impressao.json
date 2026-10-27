@@ -1,5 +1,5 @@
 {
-  "selo": "160090fc451a5f5e",
+  "selo": "f97eb4a285c3ab15",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2769,6 +2769,9 @@
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OsPedidosComZonas_LeemMenosDaBaseQueAPaginaInteira_NoPostgres": "3b9101ef6dba3d5c",
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.SemOCabecalho_AResposta_EAPaginaInteiraDeSempre": "63ebe67559a643d7",
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.ZonaDesconhecidaOuDeOutraVista_RespondeComAPaginaInteira": "fb45713dc9fe7014",
+    "tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)": "fba9c266d00c8477",
+    "tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)": "c763cea9fe9b49f6",
+    "tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros": "44a8fbe58f05c8de",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: (resto do ficheiro)": "289f7a55e9569fac",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.AdminUsersToasts_StayClearOfTheCreateButton": "5987abdee347b3af",
     "tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Buttons_HaveOnlyTheirThinBorder_NoOutlineAround": "9f4a75a9e10dd4f1",

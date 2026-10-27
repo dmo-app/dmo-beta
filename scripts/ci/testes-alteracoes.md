@@ -3554,14 +3554,25 @@ Novos: 9 · mudaram: 0 · saíram: 0
 
 Selo depois: `74292cfeef1490d1`
 
+## A-0216 · 2026-10-27 · teste-novo
+
+Porquê: Testes de páginas que falhavam ao acaso com erro 500: as aplicações de teste deixam de gastar vigias de ficheiros do Linux (inotify, 128 por utilizador); o teste prova que uma aplicação de teste arranca e abre o login sem gastar nenhuma (DMO-474, 0.3.0-beta.175)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros`
+
+Selo depois: `c22447c6290ce98f`
+
 ## A-0219 · 2026-10-27 · ok-do-diogo
 
 Porquê: A Pasta partilhada dos PDFs fica só com Associar/Remover: sai o campo do nome da pasta, o Guardar e o aviso de nome diferente (Diogo, 27/10/2026: «remover este erro e o campo para escolher nome», «a app só tem de seguir o dir»). Dois testes passam a verificar que o campo e o Guardar não existem; o que gravava o nome sai.
-Referência: «sim» do Diogo, cmsg_01K75FTs9bQnbhhH7qttpgraGh1feCmYhsHNv26gMB6hYz (DMO-477, 0.3.0-beta.174)
+Referência: «sim» do Diogo, cmsg_01K75FTs9bQnbhhH7qttpgraGh1feCmYhsHNv26gMB6hYz (DMO-477, 0.3.0-beta.176)
 Novos: 0 · mudaram: 2 · saíram: 1
 
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APastaDosPdfs_GravaSeParaTodos_ComAPermissao`
 
-Selo depois: `160090fc451a5f5e`
+Selo depois: `f97eb4a285c3ab15`
