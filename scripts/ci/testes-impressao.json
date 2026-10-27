@@ -1,5 +1,5 @@
 {
-  "selo": "9a4eeaa62eadde2a",
+  "selo": "4c6656d1bd4956fb",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -49,9 +49,10 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_EmailIsTheAdmins_NoIdentityCreatedInTheProvider": "4184c32a47717579",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_EmailIsTheAdmins_RefusedBeforeProvisioning_PersistsNothing": "651d17e8db2d4191",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_EmailOfAnotherUser_RefusedBeforeProvisioningWithOwner": "9d13b0444afaf839",
-    "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_InvariantViolations_AreTypedRefusalsBeforeAnyWrite": "1d62a6e5f4342caa",
+    "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_InvariantViolations_AreTypedRefusalsBeforeAnyWrite": "7d1577a7c0def5a8",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_PersistenceFailureAfterProvisioning_PersistsNothing": "0a769f8496dc077a",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_ProviderFailure_PersistsNothing": "fee02b191446bf24",
+    "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_SemEmail_CriaAContaQueEntraPeloNumero": "edb2b28a9f00f395",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_UnknownTemplateKey_IsRefusedBeforeProvisioning": "e98e2d2af798a3ea",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_ValidCommand_ProvisionsPersistsAtomicallyAndReturnsTheBootstrapToken": "6d7865932d25ae6a",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_WithoutTemplate_PersistsUserWithoutAssignment": "a2bc8dac104a4947",
@@ -1596,7 +1597,7 @@
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_CreatedOperator_LoginByNumberWithLeadingZeros_ChangesPassword_AndRelogsByBothIdentifiers": "f284a29dd9286f0e",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaActions_SaveAndStayOnTheFicha_ChangingOnlyTheirZones": "b9225c379f8487d3",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaOfUnknownOperator_ShowsTheCleanWarning_NoSheetInvented": "23a410f21019e515",
-    "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaShowsHumanFacts_AndTheActionsMovedFromTheTablePostToTheSameIndexHandlers": "0c17b13e279db031",
+    "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaShowsHumanFacts_AndTheActionsMovedFromTheTablePostToTheSameIndexHandlers": "ca1f0e4b3ab92840",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListCount_ShowsTheTotal_NotJustTheCurrentPage": "ae42dda28ef9bcee",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListShowsApplicationFacts_StandByAndTemplateEditing_ThroughTheSingleRelation": "0bf578c8cc3c38ac",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ResetAccess_OldCredentialFails_NewTemporaryForcesChangeThenNormal": "b3ef5fb4c23fe7f6",
