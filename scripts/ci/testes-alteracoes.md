@@ -3870,7 +3870,7 @@ Novos: 0 · mudaram: 5 · saíram: 0
 
 Selo depois: `37a5c3540b1e3b39`
 
-## A-0234 · 2026-10-27 · contagem-lista
+## A-0237 · 2026-10-27 · contagem-lista
 
 Porquê: Um painel deslizante de cada vez (DMO-498): testes novos do dmo-painel.js e do dmo-support.js para cliques repetidos e troca de página no mesmo painel; o package.json do ShellProof só ganha o ficheiro novo na lista
 Referência: pedido do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraQnjX8BdkkguuiCZDMe1j6e
