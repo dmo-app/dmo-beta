@@ -877,3 +877,7 @@ html body .dmo-tab-menu-list a[aria-current="page"]{background:none !important;c
    da ferramenta. O aspeto de botão está no dmo-botoes.css; aqui só o lugar. */
 html body :is(a.dmo-aviso-link,a.ferr-cancel){margin:4px 0 4px 8px}
 html body #dmoSupportFull{margin-left:auto}
+/* A imagem do artigo encaixa sempre no espaço do cartão, sem cortar nem deformar (Diogo,
+   27/10/2026, …QZ5YJs7W): a altura do cartão muda com o ecrã e o modo, a imagem segue-a. */
+html body .jof2 .jof-artigo{overflow:hidden}
+html body .jof2 .jof-artigo>img[data-jof-artigo-img]{position:absolute;inset:5px;width:calc(100% - 10px);height:calc(100% - 10px);max-width:none;max-height:none;object-fit:contain}
