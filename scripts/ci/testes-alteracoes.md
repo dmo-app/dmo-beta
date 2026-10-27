@@ -3582,3 +3582,13 @@ Novos: 3 · mudaram: 6 · saíram: 0
 - mudou: `tests/ShellProof/peso-comparacao.test.cjs :: «Comparar pesos» e «Guardar comparação» trocam só as zonas, sem recarregar; as linhas adicionam-se no formulário novo`
 
 Selo depois: `95e012cdaed29670`
+
+## A-0210 · 2026-10-27 · teste-novo
+
+Porquê: DMO-471 SAP: teste novo das consultas por ferramenta (B3 vistoria backend)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarComAsMesmasConsultasPara5Ou100Ferramentas_NoPostgreSql`
+
+Selo depois: `eb42111e0485ab74`
