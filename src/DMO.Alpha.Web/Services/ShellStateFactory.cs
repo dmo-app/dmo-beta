@@ -199,13 +199,14 @@ public sealed class ShellStateFactory
     /// dmo-calendar DENTRO do Job On. SUMÁRIO ao lado do Job On (Diogo,
     /// 19/10/2026): o que há para fazer e o que mudou, pelos módulos da conta.
     /// </summary>
-    /// <param name="soVer">Só com o Job On ver: o «Job On» abre a Folha (a página
-    /// dele) e não há «Histórico», que pede o Job On criar (auditoria de 27/10/2026).</param>
+    /// <param name="soVer">Só com o Job On ver: não há «Histórico», que pede o Job On
+    /// criar (auditoria de 27/10/2026). O «Job On» abre o Planeamento em leitura
+    /// (Diogo, 27/10/2026: «jobon view esta sem planeamento»).</param>
     public static IReadOnlyList<FunctionPresentation> PlanningFunctions(string activeKey, bool sumarioNovo = false, bool soVer = false) =>
         soVer
         ? new[]
         {
-            new FunctionPresentation("jobon", "Job On", "/JobOn/Folha", null, activeKey == "jobon", true, true),
+            new FunctionPresentation("jobon", "Job On", "/JobOn", null, activeKey == "jobon", true, true),
             new FunctionPresentation("sumario", "Sumário", "/Planeamento/Sumario", null, activeKey == "sumario", true, true,
                 sumarioNovo ? "dmo-tab-novo" : "")
         }

@@ -67,8 +67,12 @@ public sealed class ProductionPickerQuery : IProductionPickerQuery
         // apenas referências completas, segundo aparece dropdown das produções
         // 202601 202602»): o início da referência é para as sugestões por
         // baixo do campo; o dropdown só se enche com uma referência inteira.
+        // A referência grava-se sempre em maiúsculas (CreateJobOnHandler), por
+        // isso compara-se a coluna tal como está e o índice dela serve
+        // (vistoria BD-04, 27/10/2026: 0 de 176 Job On da base oficial com
+        // minúsculas).
         var found = await (
-                from j in _db.JobOns.AsNoTracking().Where(j => j.Reference != null && j.Reference.ToUpper() == wanted)
+                from j in _db.JobOns.AsNoTracking().Where(j => j.Reference == wanted)
                 join m in _db.Machines.AsNoTracking() on j.MachineId equals m.Id
                 // A mais recente primeiro (Diogo, 26/10/2026): pelo início, depois pelo
                 // nº da produção; sem início vão para o fim.

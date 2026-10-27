@@ -146,11 +146,6 @@ html body .jof2 .hv+.hv {padding-left:10px;margin-left:0}
 html body .jof2 .tool-head {display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:0;margin:0;width:100%;text-align:left}
 html body .jof2 .design-tool-heading {display:flex;align-items:baseline;gap:12px;width:100%}
 html body .jof2 .design-tool-name {font-size:12px;letter-spacing:0;font-weight:400;color:var(--dmo-text)}
-html body .jof2 .design-tool-meta {display:flex;align-items:baseline;gap:6px}
-html body .jof2 .design-tool-meta .hv {display:inline-flex;align-items:baseline;gap:4px}
-html body .jof2 .design-tool-meta .hv small {font-size:12px}
-html body .jof2 .design-tool-meta .hv b {font-size:14px;font-weight:600}
-html body .jof2 .design-tool-meta .hv+.hv {border:0;padding-left:4px}
 html body .jof2 .tool-hint {font-size:11px}
 html body .jof2 .use-top {font-size:12px}
 html body .jof2 .use-top b {color:var(--dmo-brand-700);font-size:15px}
@@ -178,26 +173,9 @@ html body .jof2 .notes li {font-size:13px}
 html body .jof2 .ref-search>svg,html body .jof2 .rail-toggle>svg {display:none}
 html body .jof2 .rail-toggle-txt {position:static;width:auto;height:auto;overflow:visible;clip:auto}
 html body .jof2 .ref-search input {padding-left:10px}
-html body .jof2 .design-stock {display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 0;border-block:1px solid var(--dmo-border)}
-html body .jof2 .design-stock>div+div {border-left:1px solid var(--dmo-border);padding-left:12px}
-html body .jof2 .design-stock span {display:block;font-size:11px;color:var(--dmo-muted)}
-html body .jof2 .design-stock strong {font-size:19px;font-weight:650}
-html body .jof2 .design-stock input {width:100%;min-width:0}
 html body .jof2 [data-jof-familia="AN"],html body .jof2 [data-jof-familia="ARR"] {flex:0 0 auto;min-height:0}
 html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .code {font-size:17px}
 html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .hv b {font-size:14px}
-html body .jof2 .design-dimensions {margin-top:0}
-html body .jof2 .design-dimensions .dims {font-size:12px}
-html body .jof2 .design-dimensions .dims :is(th,td) {padding:4px 6px;min-height:0;font-size:11px}
-html body .jof2 .design-dimensions .table-wrap {border:0;border-radius:0}
-html body .jof2 .design-dimensions .dims tr :is(th,td) {height:auto;line-height:1.25;padding:3px 0;border:0;background:none;text-transform:none;letter-spacing:0;font-weight:400}
-html body .jof2 .design-dimensions .dims td:nth-child(2) {font-weight:600;color:var(--dmo-text)}
-html body .jof2 .design-dimensions .dims th {padding-bottom:6px;font-weight:500}
-html body .jof2 .design-dimensions .folgas {padding:4px 0;gap:8px}
-html body .jof2 .design-dimensions .folgas .folga {padding:0;border:0;background:none;min-width:0;font-size:12px}
-html body .jof2 .design-warning {margin:6px 0 0;padding:5px 8px;font-size:11px;border-left:2px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:4px}
-html body .jof2 .design-warning summary {cursor:pointer;font-weight:500}
-html body .jof2 .design-warning p {margin:6px 0 0}
 @media(min-width:1100px) {
   html body .jof2 .page-head,html body .jof2.editing .page-head {display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:0;margin:0;background:none;border:0;box-shadow:none}
   html body .jof2 .page-head .head-right,html body .jof2.editing .page-head .head-right:has(#lightReference) {order:-1;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0;border:0;margin:0;width:100%;gap:12px}
@@ -299,8 +277,6 @@ html body .beta-bq-layout .bq-metrics-card .lot-data strong{font-size:20px}
 /* Job On sheet: keeps the new/edit screen inside 1366x768 without hiding data. */
 html body .jof2{padding:10px 24px 8px}
 html body .jof2 .jobon-aviso{margin:6px 0 0;padding:4px 10px;font-size:11px}
-html body .jof2 .design-stock{padding:2px 0}
-html body .jof2 .design-dimensions .dims tr :is(th,td){padding:2px 0}
 html body .jof2 .sec{padding:8px 12px;gap:5px}
 html body .jof2 .card{padding:8px 12px}
 html body .jof2 .use-top{margin-bottom:2px}
@@ -308,7 +284,7 @@ html body .jof2 .more>summary{min-height:20px}
 /* Narrow surfaces (the support panel): the machine list must wrap, never push
    the page sideways. The Ficha page does not load dmo-ferramenta-form.css. */
 html body .ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px}
-html body .ferr-checks .dmo-check,html body .ferr-checks label{min-width:0}
+html body .ferr-checks label{min-width:0}
 /* Narrow surfaces (the support panel is 620 px, a phone is narrower): the tool
    fields must give up their content width and wrap instead of pushing sideways. */
 @media(max-width:760px){
@@ -389,7 +365,6 @@ html body :is(.resumo-eyebrow,.resumo-area span,.resumo-linked-card-head>span:fi
 html body :is(.sumario-grupo h3) {font-size:14px;font-weight:650;color:var(--dmo-text);border-bottom-width:1px;border-bottom-color:var(--dmo-border)}
 html body .sumario-etiqueta {color:var(--dmo-warning);font-weight:600}
 html body .dmo-table th {text-transform:none;letter-spacing:0}
-html body .peg-corredor {border-left:1px solid var(--dmo-border)}
 /* Rail selector of a line with no known colour (data-dmo-linha-cor=""): fall back to slate, and win
    over the normalize rule that paints the selected rail card white. */
 html body [data-dmo-linha-cor=""] {--dmo-machine-color:var(--dmo-brand-600)}
@@ -574,8 +549,6 @@ html body .jof2 .tool-head .hv b{font-size:14px;font-weight:650}
 /* Header: «Linhas», Referência and Produção share one height and bottom line. */
 html body .jof2 .pick-row{align-items:flex-end}
 html body .jof2 .pick-row :is(input,select,.prod-trigger,.btn){height:var(--dmo-control-height);min-height:var(--dmo-control-height);box-sizing:border-box}
-@media (min-width:1100px){
-}
 html body .jof2 .page-head .pick-row :is(.ref-search input,.dmo-suggest input,input#jofReferencia,select.prod-select,.prod-trigger){height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
 html body .jof2 .page-head .pick-row .ref-search input{display:block}
 html body .jof2 .tool-head.tool-head{padding:0}
@@ -751,8 +724,6 @@ html body .jof2.editing .sec-head .hv input.f{width:72px !important}
 html body .jof2.editing .sec-head>.design-tool-heading{flex:0 0 auto;min-width:max-content}
 html body .jof2.editing .page-head .fv select{line-height:calc(var(--dmo-control-height) - 2px) !important}
 /* Painel de apoio: o «Editar» ao lado do «Abrir página»; bloqueado, os campos ficam só de leitura. */
-html body .dmo-support-head [data-support-unlock]{flex:0 0 auto;min-height:30px;padding:0 12px;font-size:12px}
-html body .dmo-support-head [data-support-unlock][hidden]{display:none}
 html.dmo-bloqueado body form[method="post"] :is(input,select,textarea):disabled{opacity:1;cursor:default;background:transparent;border-color:transparent;color:var(--dmo-text);-webkit-text-fill-color:var(--dmo-text)}
 html.dmo-bloqueado body form[method="post"] button:not([type=button]):disabled,
 html.dmo-bloqueado body button[form]:disabled{display:none}

@@ -467,8 +467,8 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
         Assert.Contains("<button type=\"submit\" class=\"dmo-options-item\">PDF completo</button>", folhaHtml);
         Assert.True(folhaHtml.IndexOf(">PDF completo<", StringComparison.Ordinal)
             < folhaHtml.IndexOf(">PDF do Resumo<", StringComparison.Ordinal));
-        // «PDF Pegamentos» (Diogo, 27/10/2026), a mesma folha em branco.
-        Assert.Contains(">PDF Pegamentos</button>", folhaHtml);
+        // «PDF Pegamentos» só com medições (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraB4cWtFy2LfgzGWkBMpzRuk).
+        Assert.DoesNotContain(">PDF Pegamentos</button>", folhaHtml);
         Assert.DoesNotContain("Folha de Pegamentos em branco", folhaHtml);
         Assert.DoesNotContain(">PDF do Peso</button>", folhaHtml);
         Assert.DoesNotContain("para comparar", folhaHtml);

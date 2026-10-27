@@ -32,11 +32,7 @@ public sealed record ArmazemProximoJobOn(
     string Referencia,
     string Producao,
     IReadOnlyList<ArmazemProximaFerramenta> Ferramentas)
-{
-    public int PorTirar => Ferramentas.Count(f => f.Acao == ArmazemProximoAcao.Tirar);
-
-    public int Indisponiveis => Ferramentas.Count(f => f.Acao == ArmazemProximoAcao.Indisponivel);
-}
+;
 
 /// <summary>
 /// Os próximos Job On, vistos do Armazém: as produções que começam entre hoje
