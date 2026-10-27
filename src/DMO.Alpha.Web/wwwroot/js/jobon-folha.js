@@ -732,8 +732,9 @@
       const enchimento = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
       const bordas = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
       const linhas = Math.max(1, Math.floor((el.clientHeight - enchimento) / NOTA_LINHA));
-      el.style.flex = '0 0 auto';
-      el.style.height = (linhas * NOTA_LINHA + enchimento + bordas) + 'px';
+      // «important»: as folhas de estilo da folha também fixam o flex da nota com !important.
+      el.style.setProperty('flex', '0 0 auto', 'important');
+      el.style.setProperty('height', (linhas * NOTA_LINHA + enchimento + bordas) + 'px', 'important');
     });
   }
   function notasLinhasInicio() {
@@ -745,7 +746,27 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape') setTimeout(notasLinhas, 0); });
   }
 
+  // Calibres (ver): cada valor «P 59.20 / M 58.60» quebra, se for preciso, só na « / » e nunca a meio de um número.
+  function calibresValores() {
+    document.querySelectorAll('.jof2:not(.editing) table[data-jof-cal] tbody td').forEach(td => {
+      if (td.children.length) return;
+      const partes = td.textContent.trim().split(' / ');
+      if (partes.length < 2) return;
+      const envolucro = document.createElement('span');
+      partes.forEach((parte, i) => {
+        const seg = document.createElement('span');
+        seg.className = 'calv-seg';
+        seg.textContent = i < partes.length - 1 ? parte + ' /' : parte;
+        if (i) envolucro.append(' ');
+        envolucro.append(seg);
+      });
+      td.textContent = '';
+      td.append(envolucro);
+    });
+  }
+
   function init() {
+    calibresValores();
     painel();
     escolherAlteracoes();
     alteracoes();
