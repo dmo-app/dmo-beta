@@ -496,8 +496,8 @@ public class PesoPorCombinacaoPageTests : IClassFixture<CustomWebApplicationFact
         }
 
         var approve = await GetPageHtmlAsync(client, $"/Controlo/Approve?jobon_id={producao.JobOnId}");
-        Assert.Contains("Peso 1 de 2 · CM 5447 · Lote 8 · BQ T173 · Lote 4 · 1 leitura(s) · ferramentas anteriores", approve);
-        Assert.Contains("Peso 2 de 2 · CM 5448 · Lote 9 · BQ T173 · Lote 4 · 1 leitura(s) · ferramentas atuais", approve);
+        Assert.Contains("Peso 1 de 2 · CM 5447 · Lote 8 · BQ T173 · Lote 4 · 1 leitura · ferramentas anteriores", approve);
+        Assert.Contains("Peso 2 de 2 · CM 5448 · Lote 9 · BQ T173 · Lote 4 · 1 leitura · ferramentas atuais", approve);
         Assert.Equal(2, Regex.Matches(approve, "<span>Peso médio atual</span>").Count);
 
         var resultados = await GetPageHtmlAsync(client, $"/Controlo/Approve?handler=Resultados&jobon_id={producao.JobOnId}");
@@ -506,8 +506,8 @@ public class PesoPorCombinacaoPageTests : IClassFixture<CustomWebApplicationFact
         Assert.Contains("<span> · 2 Pesos</span>", resultados);
 
         var detalhe = await GetPageHtmlAsync(client, $"/Controlo/Approve/Detalhe?controlo_id={producao.ControloId}&tipo=peso");
-        Assert.Contains("<h3 class=\"revisao-section\">Peso 1 de 2 · CM 5447 · Lote 8 · BQ T173 · Lote 4 · 1 leitura(s) · ferramentas anteriores</h3>", detalhe);
-        Assert.Contains("<h3 class=\"revisao-section\">Peso 2 de 2 · CM 5448 · Lote 9 · BQ T173 · Lote 4 · 1 leitura(s)</h3>", detalhe);
+        Assert.Contains("<h3 class=\"revisao-section\">Peso 1 de 2 · CM 5447 · Lote 8 · BQ T173 · Lote 4 · 1 leitura · ferramentas anteriores</h3>", detalhe);
+        Assert.Contains("<h3 class=\"revisao-section\">Peso 2 de 2 · CM 5448 · Lote 9 · BQ T173 · Lote 4 · 1 leitura</h3>", detalhe);
         Assert.Contains("<div><span>CM</span><strong>5447</strong><small>Lote 8</small></div>", detalhe);
         Assert.Contains("<div><span>CM</span><strong>5448</strong><small>Lote 9</small></div>", detalhe);
     }

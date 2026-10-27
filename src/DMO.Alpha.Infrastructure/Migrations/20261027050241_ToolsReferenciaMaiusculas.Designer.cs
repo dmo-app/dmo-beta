@@ -2520,6 +2520,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<Guid?>("AutorUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Impressao")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<DateTimeOffset>("MomentoUtc")
                         .HasColumnType("timestamp with time zone");
 

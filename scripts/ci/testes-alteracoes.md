@@ -3303,23 +3303,119 @@ Novos: 1 · mudaram: 2 · saíram: 0
 
 Selo depois: `4c6656d1bd4956fb`
 
-## A-0190 · 2026-10-27 · teste-novo
+## A-0185 · 2026-10-27 · ok-do-diogo
 
-Porquê: Remover um reparador das Boquilhas que já recebeu uma BQ pelo Armazém deixa de dar erro: o movimento do Armazém larga a ligação e fica com o nome (vistoria BD-02, DMO-452, 0.3.0-beta.149)
-Novos: 2 · mudaram: 0 · saíram: 0
+Porquê: Definições em três separadores (DMO-440): os testes acompanham os pedidos do Diogo (estrutura, um só cadeado, contagens no singular/plural, sem círculos de ajuda, pastas só com o estado, «Ler pasta» com Opções; o link «Ler a pasta da produção» do Peso abre Este computador)
+Referência: estrutura cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP; PIN cmsg_01K75FTs9bQnbhhH7qttpgra1QwpiaNcti2W7y9EaFGtbE; plural cmsg_01K75FTs9bQnbhhH7qttpgra5kxKKSuy4sbRBmUpdgdxfR; botões no canto cmsg_01K75FTs9bQnbhhH7qttpgraQVvJwFV5LYqaod3CuetwJ6; sem comentários cmsg_01K75FTs9bQnbhhH7qttpgraJTppk4FtwLL69Lux9wbqXg e cmsg_01K75FTs9bQnbhhH7qttpgraSzhzka8hBipHGMtEsRNy7C; Opções cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy; «sim» para a main cmsg_01K75FTs9bQnbhhH7qttpgraFhzyFUMh7gh2JDP4czaFou
+Novos: 4 · mudaram: 20 · saíram: 4
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Armazem_AtrasDoMesmoCadeado_ESemTextoComAListaVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OsSeparadores_AMinhaContaEsteComputadorEGerais_CadaEntradaMostraSoASuaSeccao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.UmSoCadeado_PorCimaDasPastasEDasGerais_QuandoSaoSoDeLeitura`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListCount_ShowsTheTotal_NotJustTheCurrentPage`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_SearchAndPaginationPreserveSelectionContext_AndExcludeOtherToolTypes`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_SoAMaquinaNaoMostraALista_OTextoMostra_EAMaquinaSoReduz`
+- mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_OCartao_AVersaoMudaComUmMovimento_EOFicheiroVoltaEscrito`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CompararPesos_CalculaAoVivoSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CompararPesos_LeiturasMasFicamDeForaComAviso_AsOutrasComparam`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoPorCombinacaoPageTests.cs :: Producao.ComDoisPesos_OResumoARevisaoEODetalheMostramOsDois`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Detalhe.cs :: ControloCapabilitiesCutHPageTests.RevisaoDetalhe_OsPegamentosUsamOFormatoDaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_SeparadorComProcura_MostraOControloInteiro`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Admin_TemDefinicoesProprias_SoAApp`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.ReviewerScreens_ShowBothSheets_TheAlertOfTheSecondIsNotHidden`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_UmaRegraParaTudo_AEsquerdaDoTexto`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
+- mudou: `tests/visual/definicoes_parcial_browser.py`
+- mudou: `tests/visual/excel_bq_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Armazem_SemCadeado_ESemTextoComAListaVazia`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_FuncoesNoMenuLateral_UmBotaoPorCartao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_PessoalEOsModulosAtivos_CadaEntradaMostraSoASuaSeccao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_TemOCadeadoNosModulos_QuandoOGeralESoDeLeitura`
+
+Selo depois: `f07dea73a879bfe6`
+
+## A-0186 · 2026-10-27 · ok-do-diogo
+
+Porquê: Templates DMO-441: os utilizadores escolhem-se como os módulos; a ligação à página do utilizador passa de data-dmo-open (linha da tabela) para href (botão «Página») e entra o teste de associar e remover.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraMmJ1Ugn2nxTvbMq94b7Qpq
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_UsersLikeModules_AssociateWithoutTemplate_RemoveExisting_LeaveOthers`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListShowsApplicationFacts_StandByAndTemplateEditing_ThroughTheSingleRelation`
+
+Selo depois: `0e4d37baa6e06955`
+
+## A-0187 · 2026-10-27 · ok-do-diogo
+
+Porquê: Imprimir do Job On a preto e branco (PDF do Diogo, 27/10/2026): no Trabalho de equipa os nomes passam a sigla + nome («CM Contra-Molde»), o FF fica à parte e o AN sai dessa folha (continua nas outras duas). Teste novo: CS Abertos/Fechados, Tampão «34.95 x 6.5mm», cabeçalho e páginas.
+Referência: «sim» do Diogo, cmsg_01K75FTs9bQnbhhH7qttpgraRywqAAMmePUCTDoN6WPF1F (DMO-447, 0.3.0-beta.145)
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: JobOnPageTests.Folha_ImprimirPretoBranco_CsAbertosFechados_TampaoDiametroXCalote_EPaginas`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `7df95d24814fbd98`
+
+## A-0188 · 2026-10-27 · contagem-lista
+
+Porquê: Peso: o mesmo envio de leituras grava uma só vez, também depois de um reinício ou de uma resposta perdida; leituras iguais de envios diferentes gravam; o mesmo identificador de outra pessoa, operação ou com outras leituras é recusado; dois envios iguais ao mesmo tempo dão uma leitura; uma falha a meio não deixa nem leitura nem operação (DMO-450, 0.3.0-beta.146). A lista das migrações ganha 20261027030704_OperacoesRegistadasImpressao.
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_DuasLeiturasIguaisDeEnviosDiferentes_GravamAsDuas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_FalhaAMeioDaGravacao_NaoFicaNemALeituraNemAOperacao_EORepetirGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioDuasVezesAoMesmoTempo_FicaUmaSoLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioOutraVez_DepoisDeUmReinicio_NaoGravaDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoIdentificadorNoutraCoisa_ERecusadoENadaFica`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: PesoToolScopedPageTests.RegisterMeasurement_OMesmoEnvioDepoisDeUmReinicio_NaoGravaOutraVez_EUmEnvioNovoIgualGrava`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `e184a131a41a6920`
+
+## A-0181 · 2026-10-27 · teste-novo
+
+Porquê: Comparar peso (Diogo, 27/10/2026): Pesos compatíveis (mesma referência da CM e máquina), escolha pela linha, tabela igual à do Peso, só a calote muda pela Calote Tampo; nada é gravado
+Novos: 18 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoHistorico_PeloInicioDaReferencia_SemJobOnValemAsMaquinasDaFicha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoHistorico_SemMaquina_FicaADoPesoMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoPesoAntigo_FicaOPedidoNaCmDele`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoPeso_SoAMesmaReferenciaEMaquina_OMaisRecenteDeCadaCm`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.OutraMaquinaEscolhida_TrocaAsCm`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.SemTampaoNoPeso_ValeODoJobOn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.VariasReferencias_PedeParaEscolher`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: PesoTampaoSimuladoTests.SoACaloteMuda_OPesoMudaPelaCaloteTampo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: PesoTampaoSimuladoTests.Texto_DiametroXCalote_SemZerosAMais`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.CaloteQueNaoSeLe_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.CaloteSimulada_MudaSoEsseLadoPelaCaloteTampo_ENaoGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.DoHistorico_PelaReferenciaDaCm_EOutraMaquina`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.DoPeso_ListaOsCompativeis_EComparaComOSeguinte`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.OPesoEOHistorico_TemOBotao_EOPainelLateralAbreAPagina`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.OutraMaquina_ESemOutroPeso_DizQueNaoHaComQueComparar`
+
+Selo depois: `f211690090c32975`
+
+## A-0190 · 2026-10-27 · contagem-lista
+
+Porquê: Juntar o #199 à integracao (DMO-452, DMO-457, 0.3.0-beta.149): teste novo de remover um reparador das Boquilhas usado no Armazém (vistoria BD-02), teste novo do índice da referência das ferramentas em maiúsculas (BD-04, migração 20261027050241_ToolsReferenciaMaiusculas, Diogo 27/10/2026 05:00, cartão cmsg_01K75FTs9bQnbhhH7qttpgraQWakNx4bC4V2mjtidjJLzt); a migração nova entra na lista das migrações (só a lista muda)
+Novos: 4 · mudaram: 1 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: PostgresMigrationIntegrationTests.RemoverReparadorUsadoNoArmazem_OMovimentoFicaComONome`
-
-Selo depois: `92e2d040aecc927f`
-
-## A-0195 · 2026-10-27 · contagem-lista
-
-Porquê: Índice da referência das ferramentas em maiúsculas (migração 20261027050241_ToolsReferenciaMaiusculas, vistoria BD-04, Diogo 27/10/2026 05:00, cartão cmsg_01K75FTs9bQnbhhH7qttpgraQWakNx4bC4V2mjtidjJLzt): teste novo contra PostgreSQL de que as procuras sem olhar a maiúsculas usam o índice; a migração nova entra na lista das migrações (só a lista muda)
-Novos: 2 · mudaram: 1 · saíram: 0
-
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas_AsProcurasSemOlharAMaiusculasUsamOIndice`
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
-Selo depois: `8313c1942af1914a`
+Selo depois: `f7c3b3ccef984dc9`

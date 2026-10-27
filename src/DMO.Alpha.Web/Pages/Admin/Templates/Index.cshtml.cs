@@ -49,6 +49,18 @@ public sealed class IndexModel : PageModel
     /// <summary>Os utilizadores da template escolhida (o pill da contagem leva a esta lista).</summary>
     public IReadOnlyList<UserAdminSummary> SelectedTemplateUsers { get; private set; } = [];
 
+    /// <summary>
+    /// Os utilizadores SEM template (o ADMIN fica de fora: nunca tem template).
+    /// Aparecem por baixo dos da template, como os módulos, para os associar
+    /// (Diogo, 26/10/2026: «abrir uma lista dos que não têm template para
+    /// poder associar, e remover se já estão inseridos»). Quem já tem OUTRA
+    /// template não aparece: muda-se na ficha dele.
+    /// </summary>
+    public IReadOnlyList<UserAdminSummary> UsersWithoutTemplate { get; private set; } = [];
+
+    /// <summary>Nota PRG: quantos utilizadores não foi possível mudar (0 = todos guardados).</summary>
+    public int UsersNotSaved { get; private set; }
+
     /// <summary>Factos submetidos da criação, preservados pela volta PRG das recusas.</summary>
     public string? RequestedName { get; private set; }
     public IReadOnlyList<string> RequestedCapabilities { get; private set; } = [];
@@ -165,7 +177,8 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "created")] string? created,
         [FromQuery(Name = "saved")] string? saved,
         [FromQuery(Name = "deleted")] string? deleted,
-        [FromQuery(Name = "delete_refusal")] string? deleteRefusal)
+        [FromQuery(Name = "delete_refusal")] string? deleteRefusal,
+        [FromQuery(Name = "users_not_saved")] int? usersNotSaved = null)
     {
         ViewData["Title"] = "Templates de acesso";
         var shell = (await _shellStateFactory.ForDestinationAsync("admin", new ModulePresentation("admin", "Administração")));
@@ -204,6 +217,7 @@ public sealed class IndexModel : PageModel
         CreatedNote = created == "1";
         SavedNote = saved == "1";
         DeletedNote = deleted == "1";
+        UsersNotSaved = Math.Max(0, usersNotSaved ?? 0);
 
         RequestedName = Sanitize(name);
         RequestedCapabilities = capabilities?
@@ -229,6 +243,12 @@ public sealed class IndexModel : PageModel
             ? []
             : users
                 .Where(user => user.CurrentTemplateKey == SelectedTemplate.TemplateKey)
+                .OrderBy(user => user.Name, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+        UsersWithoutTemplate = SelectedTemplate is null
+            ? []
+            : users
+                .Where(user => user.CurrentTemplateKey is null && !user.IsAdmin)
                 .OrderBy(user => user.Name, StringComparer.CurrentCultureIgnoreCase)
                 .ToList();
 
@@ -266,12 +286,17 @@ public sealed class IndexModel : PageModel
     /// <summary>
     /// POST: guardar a edição de uma template (resolvida pela key estável
     /// — o rótulo pode ter sido renomeado, a key nunca muda). Sucesso →
-    /// PRG de volta ao detalhe com a nota de guardado.
+    /// PRG de volta ao detalhe com a nota de guardado. Com a lista dos
+    /// utilizadores no formulário (utilizadores=1), o mesmo «Guardar
+    /// template» grava também quem fica com ela: os marcados sem template
+    /// passam a tê-la e os desmarcados que a tinham ficam «Sem template».
     /// </summary>
     public async Task<IActionResult> OnPostEditAsync(
         [FromForm(Name = "template_key")] string? templateKey,
         [FromForm(Name = "name")] string? name,
-        [FromForm(Name = "capabilities")] List<string>? capabilities)
+        [FromForm(Name = "capabilities")] List<string>? capabilities,
+        [FromForm(Name = "utilizadores")] string? usersInForm = null,
+        [FromForm(Name = "operator_ids")] List<string>? operatorIds = null)
     {
         var outcome = await _templateAdminService.EditTemplateAsync(
             new EditTemplate(
@@ -282,7 +307,15 @@ public sealed class IndexModel : PageModel
 
         if (outcome.Result == EditTemplateResult.Success && outcome.Template is { } saved)
         {
-            return RedirectToPage("/Admin/Templates/Index", new { template = saved.TemplateKey, saved = "1" });
+            var notSaved = usersInForm == "1"
+                ? await SaveTemplateUsersAsync(saved.TemplateKey, operatorIds ?? [])
+                : 0;
+            return RedirectToPage("/Admin/Templates/Index", new
+            {
+                template = saved.TemplateKey,
+                saved = "1",
+                users_not_saved = notSaved == 0 ? null : (int?)notSaved
+            });
         }
 
         return RedirectToPage("/Admin/Templates/Index", new
@@ -316,6 +349,49 @@ public sealed class IndexModel : PageModel
             template = Sanitize(templateKey),
             delete_refusal = outcome.Result.ToString()
         });
+    }
+
+    /// <summary>
+    /// Grava quem fica com a template, pela MESMA relação da ficha do
+    /// utilizador (SetCurrentUserTemplateAsync). Só mexe em quem não tem
+    /// template (associar) e em quem tem esta (remover): um marcado que entretanto
+    /// ganhou outra template fica com a dele. Devolve quantos foram recusados.
+    /// </summary>
+    private async Task<int> SaveTemplateUsersAsync(string templateKey, IReadOnlyList<string> operatorIds)
+    {
+        var wanted = operatorIds
+            .Select(Sanitize)
+            .Where(id => id is not null)
+            .Select(id => id!)
+            .ToHashSet(StringComparer.Ordinal);
+        var users = await _userAdminService.ListUsersAsync(HttpContext.RequestAborted);
+        var notSaved = 0;
+        foreach (var user in users)
+        {
+            string? newKey;
+            if (user.CurrentTemplateKey == templateKey && !wanted.Contains(user.OperatorId))
+            {
+                newKey = null;
+            }
+            else if (user.CurrentTemplateKey is null && !user.IsAdmin && wanted.Contains(user.OperatorId))
+            {
+                newKey = templateKey;
+            }
+            else
+            {
+                continue;
+            }
+
+            var result = await _userAdminService.SetCurrentUserTemplateAsync(
+                new SetCurrentUserTemplate(user.OperatorId, newKey),
+                HttpContext.RequestAborted);
+            if (result.Result != SetCurrentUserTemplateResult.Success)
+            {
+                notSaved++;
+            }
+        }
+
+        return notSaved;
     }
 
     internal static string? Sanitize(string? value)
