@@ -351,5 +351,7 @@ html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-da
 /* terem mais espaço (Diogo, 27/10/2026: «reduzir largura para Artigo e  */
 /* Notas gerais terem mais espaço»). Coluna da direita 200 → 270 px.     */
 @media screen and (min-width:1181px){
-  html:root body .jof2.jof2 .sheet,html:root body .jof2.jof2.editing .sheet{grid-template-columns:minmax(0,1fr) 270px!important}
+  /* Num ecrã mais largo (06:56 «já disse para reduzir largura»): os quatro cartões param em ~300 px  */
+  /* e todo o espaço que sobra vai para o Artigo, as Notas gerais e o PI.                              */
+  html:root body .jof2.jof2 .sheet,html:root body .jof2.jof2.editing .sheet{grid-template-columns:minmax(0,1fr) max(270px,calc(100% - 1240px))!important}
 }
