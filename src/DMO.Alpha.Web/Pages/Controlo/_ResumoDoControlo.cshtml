@@ -6,10 +6,6 @@
    resumo por componente e o gráfico, o PU NNPB em números e as áreas em
    cartões. As tabelas ficam nas consultas, abertas pelos links do topo. *@
 @{
-    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
-    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
-    string Cm3(decimal? value) => value is { } v ? v.ToString("N2", culture) + " cm³" : "—";
-    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
     string Quando(DateTime utc) => DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(utc).ToString("dd/MM/yyyy HH:mm");
     var production = Model.Production!;
 }
@@ -39,12 +35,12 @@ else
   var anterior = comparacao?.Media;
   var desvioNominal = PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
   <div class="revisao-facts three">
-    <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong><small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(peso.Measurements.Count, "leitura", "leituras")@(Model.Pesos.Count > 1 ? $" · {Model.Pesos.Count} Pesos" : null)</small></div>
-    <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
-    <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
-    <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong><small>@Cm3(atual?.AverageCapacityCm3) agora</small></div>
-    <div><span>Peso da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
-    <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
+    <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(atual?.AverageGlassWeightGrams)</strong><small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(peso.Measurements.Count, "leitura", "leituras")@(Model.Pesos.Count > 1 ? $" · {Model.Pesos.Count} Pesos" : null)</small></div>
+    <div><span>Média do controlo anterior</span><strong>@ControloNumeros.Gramas(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
+    <div><span>Diferença ao controlo anterior</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
+    <div><span>Diferença de capacidade</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong><small>@ControloNumeros.Cm3(atual?.AverageCapacityCm3) agora</small></div>
+    <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong></div>
+    <div><span>Peso nominal do desenho</span><strong>@ControloNumeros.Gramas(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{ControloNumeros.ComSinal(dg, " g")} ({ControloNumeros.ComSinal(desvioNominal.Percent, " %")})" : "")</small></div>
   </div>
 }
 else
