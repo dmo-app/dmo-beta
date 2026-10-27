@@ -35,22 +35,25 @@ html body .def-secao[hidden]{display:none}
 .def-pin{display:flex;gap:10px;align-items:flex-end}
 .def-pin .dmo-field{margin:0}
 .def-geral-campos:disabled .dmo-button,.def-geral-campos:disabled input,.def-geral-campos:disabled select,.def-geral-campos:disabled textarea{cursor:not-allowed;opacity:.7}
-/* A conta com a largura da sua tabela; a sessão e a aparência repartem o resto da linha (sem espaços vazios). */
-.def-pessoal-grade{display:flex;gap:14px;align-items:stretch}
-.def-pessoal-grade > .dmo-card{flex:1 1 0;min-width:0;margin:0}
-.def-pessoal-grade > #defConta{flex:0 0 auto;max-width:100%}
+/* A conta a toda a largura; por baixo, sessão, aparência e palavra-passe na mesma linha (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraQschNh1Uxn4R5bnQEQzd2D: «devia usar mais espaço»). */
+.def-pessoal-grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2.4fr);gap:14px;align-items:stretch}
+.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr) minmax(0,2.4fr)}
+.def-pessoal-grade > .dmo-card{min-width:0;margin:0}
+.def-pessoal-grade > #defConta{grid-column:1/-1;padding:16px 20px}
 .def-linha{padding:12px 16px}
 .def-linha h3{margin:0;font-size:15px}
 .def-linha .dmo-card-topo,.def-linha > h3{margin-bottom:8px}
-.def-conta{display:flex;flex-wrap:wrap;gap:6px 28px;margin:0;font-size:14px}
-.def-conta dt{color:var(--dmo-muted);font-weight:700;font-size:11.5px}
+.def-conta{display:flex;flex-wrap:wrap;gap:8px 56px;margin:10px 0 0;font-size:15px}
+.def-conta dt{color:var(--dmo-muted);font-weight:600;font-size:12.5px}
 .def-conta dd{margin:2px 0 0}
-.def-conta + .dmo-table-wrap{width:fit-content;max-width:100%;margin-top:12px}
-.def-conta-modulos{width:auto}
-.def-conta-modulos :is(th,td){text-align:center;padding:6px 14px}
+.def-conta + .dmo-table-wrap{width:100%;margin-top:14px}
+.def-conta-modulos{width:100%;table-layout:fixed}
+.def-conta-modulos :is(th,td){text-align:center;padding:8px 10px}
+.def-conta-modulos th{font-size:12.5px}
+.def-conta-modulos td{font-size:15px}
 .def-conta-sem-modulos{margin:10px 0 0;color:var(--dmo-muted)}
 .def-palavra{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
-.def-palavra .dmo-field{margin:0;flex:1 1 160px;max-width:240px}
+.def-palavra .dmo-field{margin:0;flex:1 1 120px;max-width:240px}
 .ctl-def-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;width:100%}
 html body .ctl-def-grade[hidden]{display:none}
 /* Duas colunas que se enchem de cima para baixo: sem buracos entre cartões de alturas diferentes (Diogo, 26/10/2026: «evitar deixar espaços vazios»). */
@@ -69,7 +72,7 @@ html body .ctl-def-grade[hidden]{display:none}
 .ctl-def-link{border:0;background:none;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--dmo-brand-700);text-decoration:underline;cursor:pointer}
 @@media(max-width:760px){
   .def-menu,.def-modulos{flex-wrap:nowrap;overflow-x:auto}
-  .def-pessoal-grade{flex-direction:column}
+  .def-pessoal-grade,.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr)}
   .ctl-def-grade{grid-template-columns:minmax(0,1fr)}
   .def-pastas{column-count:1}
   .def-geral-aviso{flex-wrap:wrap}
@@ -136,7 +139,7 @@ html body .ctl-def-grade[hidden]{display:none}
     <div class="def-conteudo">
       <section id="sec-pessoal" class="def-secao" data-dmo-def-secao="pessoal" aria-labelledby="def-pessoal-title" hidden="@(Model.Secao != "pessoal")">
         <h2 id="def-pessoal-title" class="dmo-visually-hidden">A minha conta</h2>
-        <div class="def-pessoal-grade">
+        <div class="def-pessoal-grade@(Model.EAdmin ? " def-sem-sessao" : null)">
           <section id="defConta" class="dmo-card def-linha" aria-labelledby="def-conta-title" data-dmo-conta>
             <h3 id="def-conta-title">A minha conta</h3>
             <dl class="def-conta">
@@ -184,25 +187,25 @@ html body .ctl-def-grade[hidden]{display:none}
               <button type="submit" class="dmo-button" id="defTemaBotao" data-dmo-tema-pessoal="@(Model.Tema == "dark" ? "dark" : "light")" aria-pressed="@(Model.Tema == "dark" ? "true" : "false")">@(Model.Tema == "dark" ? "Modo claro" : "Modo escuro")</button>
             </form>
           </section>
+          <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
+            <h3 id="def-palavra-title">Mudar a palavra-passe<partial name="_DmoHelp" model="@($"Pelo menos {DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength} caracteres (um PIN de 4 números serve). As outras sessões abertas desta conta terminam.")" /></h3>
+            @if (Model.PalavraPasseErro is { } erroPalavra)
+            {
+              <p data-dmo-toast="aviso" role="alert" data-dmo-palavra-passe-aviso>@erroPalavra</p>
+            }
+            @if (Model.PalavraPasseMudou)
+            {
+              <p data-dmo-toast="ok" role="status">Palavra-passe alterada.</p>
+            }
+            <form id="defPalavraPasseForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="PalavraPasse" class="def-palavra" autocomplete="off" novalidate>
+              <div class="dmo-field"><label for="defPalavraAtual">Atual</label><input id="defPalavraAtual" name="atual" type="password" autocomplete="current-password" required /></div>
+              <div class="dmo-field"><label for="defPalavraNova">Nova</label><input id="defPalavraNova" name="nova" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
+              <div class="dmo-field"><label for="defPalavraConfirmar">Confirmar a nova</label><input id="defPalavraConfirmar" name="confirmar" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
+              @* O botão logo a seguir aos campos, não na outra ponta do cartão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVkLgJZAUhiDzt1VRyy87PR). *@
+              <button type="submit" class="dmo-button" id="defPalavraGuardar">Mudar</button>
+            </form>
+          </section>
         </div>
-        <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
-          <h3 id="def-palavra-title">Mudar a palavra-passe<partial name="_DmoHelp" model="@($"Pelo menos {DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength} caracteres (um PIN de 4 números serve). As outras sessões abertas desta conta terminam.")" /></h3>
-          @if (Model.PalavraPasseErro is { } erroPalavra)
-          {
-            <p data-dmo-toast="aviso" role="alert" data-dmo-palavra-passe-aviso>@erroPalavra</p>
-          }
-          @if (Model.PalavraPasseMudou)
-          {
-            <p data-dmo-toast="ok" role="status">Palavra-passe alterada.</p>
-          }
-          <form id="defPalavraPasseForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="PalavraPasse" class="def-palavra" autocomplete="off" novalidate>
-            <div class="dmo-field"><label for="defPalavraAtual">Atual</label><input id="defPalavraAtual" name="atual" type="password" autocomplete="current-password" required /></div>
-            <div class="dmo-field"><label for="defPalavraNova">Nova</label><input id="defPalavraNova" name="nova" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
-            <div class="dmo-field"><label for="defPalavraConfirmar">Confirmar a nova</label><input id="defPalavraConfirmar" name="confirmar" type="password" autocomplete="new-password" minlength="@DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength" required /></div>
-            @* O botão logo a seguir aos campos, não na outra ponta do cartão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVkLgJZAUhiDzt1VRyy87PR). *@
-            <button type="submit" class="dmo-button" id="defPalavraGuardar">Mudar</button>
-          </form>
-        </section>
       </section>
 
       @if (Model.TemComputador)
