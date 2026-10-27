@@ -1000,7 +1000,8 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         }
         else
         {
-            Assert.Contains("sem associação a produção", WebUtility.HtmlDecode(html));
+            // A nota «sem associação a produção» saiu do Peso (Diogo, 27/10/2026, «remover»).
+            Assert.DoesNotContain("sem associação a produção", WebUtility.HtmlDecode(html));
         }
         using var finalScope = _factory.Services.CreateScope();
         var finalDb = finalScope.ServiceProvider.GetRequiredService<DmoDbContext>();

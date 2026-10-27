@@ -22,11 +22,12 @@ public partial class PesoComparacaoPageTests
             resumo);
 
         // A comparação abre com a produção e o Peso dela escolhidos; a
-        // referência continua editável para comparar com outra produção.
+        // produção fica fixa: as CM tiradas comparam-se sempre com a produção
+        // de onde saíram (Diogo, 27/10/2026).
         var comparacao = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&comparacao=1");
-        Assert.Contains($"<option value=\"{jobOnId}\" selected=\"selected\">", PesoZonas.Zona(comparacao, "pesoComparacaoProducaoZona"));
-        Assert.Contains($"<option value=\"{pesoInicialId}\" selected=\"selected\">", PesoZonas.Zona(comparacao, "pesoComparacaoInicialZona"));
-        Assert.Contains("id=\"cmpReferencia\"", comparacao);
+        Assert.Contains($"<input type=\"hidden\" name=\"jobon_id\" value=\"{jobOnId}\" />", comparacao);
+        Assert.Contains($"<input type=\"hidden\" name=\"peso_inicial\" value=\"{pesoInicialId}\" />", comparacao);
+        Assert.DoesNotContain("id=\"cmpReferencia\"", comparacao);
 
         // Sem separador «Comparação» na barra: o Resumo da produção fica ativo.
         var nav = System.Text.RegularExpressions.Regex.Match(comparacao,
