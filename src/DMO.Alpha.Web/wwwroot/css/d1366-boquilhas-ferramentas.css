@@ -483,6 +483,12 @@ html body .beta-bq-layout button.bq-sem-jobon-link:focus-visible{outline:0;box-s
    e as colunas dos últimos movimentos tinham a largura do texto: mudavam com
    cada BQ e com cada movimento novo. Ficam com larguras fixas. */
 html body .beta-bq-layout #bqRegisterFacts>.dmo-fact{flex:1 1 0;min-width:0}
+/* Com produção (5 factos: Referência, BQ · lote, Produção, Início, Fim), cada facto
+   leva o espaço do seu texto mais comprido («RGT935 · Lote 1», «Sem data no Job On»),
+   para nada ficar cortado. As larguras continuam fixas, não mudam com o texto. */
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(2):nth-last-child(4){flex-grow:1.25}
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(3):nth-last-child(3){flex-grow:.8}
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(4):nth-last-child(2){flex-grow:1.4}
 html body .beta-bq-layout #bqRegisterFacts>.dmo-fact>:is(span,strong){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 html body .beta-bq-layout #bqTraceMovements{table-layout:fixed;width:100%}
 html body .beta-bq-layout #bqTraceMovements :is(th,td){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

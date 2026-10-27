@@ -4069,6 +4069,17 @@ Novos: 0 · mudaram: 4 · saíram: 0
 
 Selo depois: `f4fe603cf0e02cbf`
 
+## A-0253 · 2026-10-27 · teste-novo
+
+Porquê: DMO-519: testes novos do uso por produção (a leitura de hoje só conta para a última produção)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALeituraDeHoje_SoEOUsoDepoisDaUltimaProducao_NaoDasAnteriores`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoPorProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoPorProducao.cs :: DefinicoesPorModuloPageTests.ALeituraDeHoje_NaoEOUsoNoFimDasProducoesAnteriores`
+
+Selo depois: `c9758d36d9d180df`
+
 ## A-0251 · 2026-10-27 · ok-do-diogo
 
 Porquê: DMO-521: a folha do Job On aberta no painel deslizante passa a um resumo para consulta rápida, com «Abrir folha» (Diogo: «vai servir apenas de consulta rápida e ter uma opção para abrir a janela»). O painel deixa de abrir a folha com a largura toda (largas só com /JobOn) e abre-a com a largura média (resumos); o teste da estrutura dos painéis passa a exigir estas linhas.
@@ -4077,4 +4088,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
-Selo depois: `f50acfa4c6aac506`
+Selo depois: `c34813d1a05f519d`
