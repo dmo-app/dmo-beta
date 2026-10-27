@@ -21,7 +21,8 @@ namespace DMO.Alpha.Web.Services;
 /// </summary>
 public sealed class CurrentUserCapabilities(
     IAdminAuthorizationService authorization,
-    ICurrentAccountContext account)
+    ICurrentAccountContext account,
+    IHttpContextAccessor httpContextAccessor)
 {
     private IReadOnlyList<string>? _template;
     private IReadOnlyList<string>? _resolved;
@@ -50,8 +51,11 @@ public sealed class CurrentUserCapabilities(
             await ResolveTemplateAsync(userId, cancellationToken);
         }
 
-        // Só o template decide (Diogo, 22/10/2026): sem interruptores.
-        _resolved = _template!;
+        // Só o template decide (Diogo, 22/10/2026): sem interruptores. Uma
+        // sessão aberta pelo posto fica só com a Reparação Interna dele.
+        _resolved = httpContextAccessor.HttpContext?.User.HasClaim(DmoClaimTypes.Posto, bool.TrueString) == true
+            ? PostoRiRegras.SoDoPosto(_template!)
+            : _template!;
         return _resolved;
     }
 

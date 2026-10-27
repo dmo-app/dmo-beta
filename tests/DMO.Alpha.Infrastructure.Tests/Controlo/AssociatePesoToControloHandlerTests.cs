@@ -36,7 +36,8 @@ public sealed class AssociatePesoToControloHandlerTests : IDisposable
             new Tool { ToolId = "cm-a", Type = ToolType.Cm, Reference = "6018", Lot = "66" },
             new Tool { ToolId = "cm-b", Type = ToolType.Cm, Reference = "6018", Lot = "83" },
             new Tool { ToolId = "bq-a", Type = ToolType.Bq, Reference = "Y232", Lot = "165" },
-            new Tool { ToolId = "bq-b", Type = ToolType.Bq, Reference = "Y232", Lot = "171" });
+            new Tool { ToolId = "bq-b", Type = ToolType.Bq, Reference = "Y232", Lot = "171" },
+            new Tool { ToolId = "bq-c", Type = ToolType.Bq, Reference = "Y300", Lot = "12" });
         _db.SaveChanges();
     }
 
@@ -250,7 +251,7 @@ public sealed class AssociatePesoToControloHandlerTests : IDisposable
     public async Task Associate_PesoOfAnotherBq_IsRefusedAsBqMismatch()
     {
         var (_, controloId) = await SeedProductionAsync("202616", "cm-a");
-        var pesoId = await SeedPesoAsync("cm-a", bqToolId: "bq-b");
+        var pesoId = await SeedPesoAsync("cm-a", bqToolId: "bq-c");
 
         var outcome = await _handler.HandleAsync(new AssociatePesoToControlo(controloId, pesoId));
 
@@ -278,7 +279,7 @@ public sealed class AssociatePesoToControloHandlerTests : IDisposable
         await SwapCmAsync(jobOnId, "cm-b");
         var novo = await SeedPesoAsync("cm-b");
         await SeedPesoAsync("cm-a");                    // a combinação já tem Peso
-        await SeedPesoAsync("cm-b", bqToolId: "bq-b");  // outra BQ
+        await SeedPesoAsync("cm-b", bqToolId: "bq-c");  // outra BQ
 
         var candidate = Assert.Single(await _query.FindCandidatesForControloAsync(controloId));
         Assert.Equal(novo, candidate.PesoId);
@@ -295,12 +296,33 @@ public sealed class AssociatePesoToControloHandlerTests : IDisposable
         var (trocada, controloId) = await SeedProductionAsync("202616", "cm-a");
         await SeedPesoAsync("cm-b", controloId);
         await SwapCmAsync(trocada, "cm-b");
-        var (outraBq, _) = await SeedProductionAsync("202617", "cm-a", bqToolId: "bq-b");
+        var (outraBq, _) = await SeedProductionAsync("202617", "cm-a", bqToolId: "bq-c");
         var loose = await SeedPesoAsync("cm-a");
 
         var productions = await _query.FindProductionsForPesoAsync(loose);
 
         Assert.Equal(new[] { trocada }, productions.Select(p => p.JobOnId).ToArray());
         Assert.DoesNotContain(outraBq, productions.Select(p => p.JobOnId));
+    }
+
+    // A BQ conta pela referência, qualquer lote (o Diogo, 27/10/2026: «o vol
+    // da BQ é sempre igual, independentemente se é lote 6 ou 59»): o Peso de
+    // outro lote da mesma BQ associa-se e fica com o lote da produção.
+    [Fact]
+    public async Task Associate_PesoOfAnotherLotOfTheSameBq_IsAcceptedAndTakesTheProductionLot()
+    {
+        var (jobOnId, controloId) = await SeedProductionAsync("202616", "cm-a");
+        var pesoId = await SeedPesoAsync("cm-a", bqToolId: "bq-b");
+
+        Assert.Equal(new[] { jobOnId }, (await _query.FindProductionsForPesoAsync(pesoId)).Select(p => p.JobOnId).ToArray());
+        Assert.Equal(pesoId, Assert.Single(await _query.FindCandidatesForControloAsync(controloId)).PesoId);
+
+        var outcome = await _handler.HandleAsync(new AssociatePesoToControlo(controloId, pesoId));
+
+        Assert.Equal(AssociatePesoToControloResult.Success, outcome.Result);
+        var stored = await _db.Pesos.AsNoTracking().SingleAsync();
+        Assert.Equal(controloId, stored.ControloId);
+        Assert.Equal("bq-a", stored.BqToolId);
+        Assert.Equal("165", stored.BqToolLotFrozen);
     }
 }

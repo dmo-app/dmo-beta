@@ -2,7 +2,7 @@
   "name": "dmo-alpha-shell-proof-tests",
   "private": true,
   "scripts": {
-    "test:js": "node --test peso-live.test.cjs peso-calote.test.cjs peso-comparacao.test.cjs troca-parcial.test.cjs bq-registo.test.cjs pegamentos-registo.test.cjs dmo-suggest.test.cjs dmo-suggest-abort.test.cjs troca-escolhas.test.cjs puncoes-numero.test.cjs cliques-repetidos.test.cjs jobon-tool-picker.test.cjs jobon-tool-open.test.cjs jobon-dados-ferramentas.test.cjs dmo-live-toast.test.cjs escrito-perdido.test.cjs escolha-jobon.test.cjs ferramentas-live.test.cjs pegamentos-previsao.test.cjs erros-do-servidor.test.cjs janela-pequena.test.cjs calendario-filtros.test.cjs jobon-rascunho.test.cjs programada-enter.test.cjs historico-menu.test.cjs jobon-folha.test.cjs voltar.test.cjs vistoria-frontend.test.cjs"
+    "test:js": "node --test peso-live.test.cjs peso-calote.test.cjs peso-comparacao.test.cjs troca-parcial.test.cjs bq-registo.test.cjs pegamentos-registo.test.cjs dmo-suggest.test.cjs dmo-suggest-abort.test.cjs troca-escolhas.test.cjs puncoes-numero.test.cjs cliques-repetidos.test.cjs jobon-tool-picker.test.cjs jobon-tool-open.test.cjs jobon-dados-ferramentas.test.cjs dmo-live-toast.test.cjs escrito-perdido.test.cjs escolha-jobon.test.cjs ferramentas-live.test.cjs pegamentos-previsao.test.cjs erros-do-servidor.test.cjs janela-pequena.test.cjs calendario-filtros.test.cjs jobon-rascunho.test.cjs programada-enter.test.cjs historico-menu.test.cjs jobon-folha.test.cjs voltar.test.cjs vistoria-frontend.test.cjs posto-sair.test.cjs"
   },
   "devDependencies": {
     "jsdom": "30.1.1"

@@ -10,6 +10,7 @@
 .peso-fact small{display:block;color:var(--dmo-muted);font-size:10.5px;margin-top:2px}
 .peso-form-grid{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px;align-items:end}
 .peso-form-grid .wide{grid-column:1/-1}
+.peso-actions{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
 .peso-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft,#f3e9e7);border-radius:8px;margin-top:12px}
 .peso-aviso::before{content:"⚠ ";}
 /* Aviso (o trabalho gravou; o texto diz o que ficou de fora) — o mesmo tom de .peg-aviso.warn e .jobon-aviso.warn. */
@@ -27,7 +28,12 @@
 .peso-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
 .peso-leitura-form{display:grid;grid-template-columns:130px 170px auto;gap:12px;align-items:end;margin-top:14px}
 .peso-live-region{margin-top:14px}
-@media(max-width:900px){.peso-form-grid{grid-template-columns:1fr}.peso-leitura-form{grid-template-columns:1fr}}
+.peso-pending{margin-top:14px}
+.peso-pending-rows{display:grid;gap:6px;margin-top:8px}
+.peso-pending-row{display:grid;grid-template-columns:minmax(110px,auto) 70px 1fr minmax(230px,1.5fr) auto;gap:10px;align-items:center;padding:8px 10px;background:var(--dmo-subtle,#f1f6fa);border-radius:8px;font-size:13px}
+.peso-pending-row.is-refused{border-left:3px solid var(--dmo-danger,#9a625d)}
+.peso-pending-recusa{color:var(--dmo-danger,#9a625d);font-weight:750}
+@media(max-width:900px){.peso-form-grid{grid-template-columns:1fr}.peso-leitura-form{grid-template-columns:1fr}.peso-pending-row{grid-template-columns:1fr 1fr;row-gap:4px}.peso-pending-recusa{grid-column:1/-1}}
 .peso-page .page-head { margin:0 0 2px; }
 .peso-page .page-head h1 {
   margin:0;
@@ -147,6 +153,7 @@
 .peso-page .dmo-table-wrap {
   margin-top:10px;
 }
+.peso-page .peso-actions { margin:14px 0 0; }
 .peso-page .peso-vazia { margin-top:12px; }
 .peso-page .peso-hint {
   font-size:12px;
@@ -192,10 +199,18 @@
     .peso-page .tp-sim-form{display:grid;grid-template-columns:minmax(170px,240px) auto;gap:12px;align-items:end;margin-top:12px;max-width:520px}
     .peso-page .tp-sim-form .dmo-field{min-width:0}
     @media (max-width:900px){.peso-page .tp-sim-form{grid-template-columns:1fr}}
-.peso-linha-destaque td{background:var(--dmo-warn-050,#fff4e0);font-weight:600}
+/* A linha marcada (a CM que mais puxa ou mais mexe): cinzento claro e letra
+   azul-escura, nos dois modos (Diogo, 27/10/2026: «meter cinza claro e font
+   azul escuro»). */
+:root{--dmo-linha-destaque-fundo:#e4e7eb;--dmo-linha-destaque-letra:var(--design-navy)}
+html body .dmo-table tbody tr.peso-linha-destaque:not(:hover)>td{background:var(--dmo-linha-destaque-fundo);color:var(--dmo-linha-destaque-letra);font-weight:600}
 
 /* «Comparar Pesos guardados»: a lista da procura ao escrever abre logo
    por baixo do campo (Diogo, 17/10/2026). */
+.peso-procura-lista:not(:empty){margin-top:6px;max-height:360px;overflow:auto}
+.peso-procura-lista .muted{margin:6px 2px}
+.peso-procura-lista [data-dmo-row]{cursor:pointer}
+.dmo-filter-bar.peso-comparar-procura{align-items:flex-start}
 
 /* Leituras em linhas (o Owner 2026-10-17): «+» e «−» acrescentam e tiram
    linhas; cada linha mostra o volume e o peso por baixo. */
@@ -246,9 +261,8 @@
 
 /* Comparação: as leituras em grelha, como no Peso, sem espaço vazio à direita; «×» na linha. */
 .peso-page .peso-cmp-leituras{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:10px}
-.peso-page .peso-cmp-leituras .peso-leitura-row{position:relative;padding:8px 22px 8px 8px;border:1px dashed var(--dmo-brand-300,#9fb7d3);border-radius:8px}
-.peso-page .peso-cmp-x{position:absolute;top:2px;right:6px;cursor:pointer;font-size:16px;line-height:1;color:var(--dmo-muted,#5b6b7c)}
-.peso-page .peso-cmp-x:hover,.peso-page .peso-cmp-x:focus-visible{color:var(--dmo-danger,#9a625d)}
+.peso-page .peso-cmp-leituras .peso-leitura-row{position:relative;padding:8px;border:1px dashed var(--dmo-brand-300,#9fb7d3);border-radius:8px}
+.peso-page .peso-cmp-mais{height:auto;flex:0 0 auto;min-width:36px;min-height:36px}
 
 /* Comparação com outro controlo: produção, peso, botão, caixa da pasta e valores numa só linha (Diogo, 26/10/2026). */
 .peso-page .peso-anterior-linha{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 12px;margin-top:6px}
@@ -265,3 +279,18 @@
 /* Os três valores à mesma altura, qualquer que seja o tamanho da etiqueta. */
 .peso-page .peso-anterior-linha .peso-resumo{align-items:stretch}
 .peso-page .peso-anterior-linha .peso-resumo .peso-fact{display:flex;flex-direction:column;justify-content:space-between;gap:4px}
+
+/* Corrigir ou apagar uma leitura (27/10/2026): a linha da tabela escolhe-se
+   com um clique em qualquer sítio dela (fica de uma só cor) e a correção abre
+   no lugar da leitura nova. O passar por cima só muda a cor da letra. */
+.peso-page .peso-linha-corrigir{position:relative;cursor:pointer}
+.peso-page .peso-linha-link{position:absolute;inset:0;z-index:1}
+.peso-page .peso-linha-corrigir:not([aria-selected="true"]):hover>td,
+.peso-page .peso-linha-corrigir:not([aria-selected="true"]):hover>td strong{color:var(--dmo-action,var(--dmo-brand-600))}
+.peso-page #pesoCorrecao:not(:has(form)){display:contents}
+.peso-page .peso-live-region:has(#pesoCorrecao [data-peso-correcao])>.peso-leitura-form:not(.peso-correcao){display:none}
+.peso-page .peso-correcao{margin:0;padding:8px;border:1px dashed var(--dmo-border);border-radius:8px}
+.peso-page .peso-correcao .peso-leitura-row{display:grid;grid-template-columns:72px 120px;gap:4px 8px}
+.peso-page .peso-correcao .peso-leitura-actions{display:flex;gap:8px;margin-top:8px}
+.peso-page .peso-correcao .peso-leitura-actions>*{flex:1 1 0;justify-content:center}
+.peso-page .peso-correcao-pergunta{margin:0;max-width:200px;font-weight:600}

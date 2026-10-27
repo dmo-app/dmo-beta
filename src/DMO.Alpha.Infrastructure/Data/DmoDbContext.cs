@@ -140,6 +140,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     // O rasto das leituras corrigidas ou apagadas (4.6): só se acrescenta.
     public DbSet<PegamentosMeasurementHistorico> PegamentosMeasurementHistorico => Set<PegamentosMeasurementHistorico>();
+    public DbSet<PesoMeasurementHistorico> PesoMeasurementHistorico => Set<PesoMeasurementHistorico>();
 
     public DbSet<PegamentosTolerance> PegamentosTolerances => Set<PegamentosTolerance>();
 
@@ -1329,6 +1330,22 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasOne<Pegamentos>()
                 .WithMany()
                 .HasForeignKey(h => h.PegamentosId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // O rasto de uma leitura do Peso corrigida ou apagada (Decisão 001,
+        // 27/10/2026): como o dos Pegamentos, sem chave para a leitura (pode
+        // já não existir); sai com o Peso.
+        modelBuilder.Entity<PesoMeasurementHistorico>(entity =>
+        {
+            entity.HasKey(h => h.Id);
+            entity.HasIndex(h => new { h.PesoId, h.EmUtc });
+            entity.Property(h => h.CmSubjectAntes).IsRequired();
+            entity.Property(h => h.Por).HasMaxLength(254);
+
+            entity.HasOne<Peso>()
+                .WithMany()
+                .HasForeignKey(h => h.PesoId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

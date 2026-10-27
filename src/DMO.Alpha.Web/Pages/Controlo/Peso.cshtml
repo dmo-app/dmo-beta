@@ -388,6 +388,32 @@
       <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
       <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar" id="cmpEscolha">
         <input type="hidden" name="comparacao" value="1" />
+        @if (Model.ProducaoFixa)
+        {
+          @* A PRODUÇÃO FIXA (Diogo, 27/10/2026: «é sempre comparado à mesma
+             produção que saiu»): pelo Resumo não se escolhem a referência
+             nem a produção; o Peso inicial só com mais de um. *@
+          <input type="hidden" name="producao_fixa" value="1" />
+          <input type="hidden" name="jobon_id" value="@Model.ProducaoSelecionadaJobOnId" />
+          <div class="dmo-field peso-cmp-producao-fixa" data-peso-producao-fixa>
+            <span class="dmo-label">Produção / Job On</span>
+            <strong>@Model.ProducaoFixaRotulo</strong>
+          </div>
+          @if (Model.Iniciais.Count > 1)
+          {
+            <div id="pesoComparacaoInicialZona" class="dmo-field" data-dmo-regiao>
+              <label for="cmpInicial">Peso inicial desta produção</label>
+              <select id="cmpInicial" name="peso_inicial" data-dmo-autosubmit>
+                @foreach (var inicial in Model.Iniciais)
+                {
+                  <option value="@inicial.PesoId" selected="@(Model.PesoInicialSelecionado == inicial.PesoId ? "selected" : null)">@rotuloPesoOpcao(inicial)</option>
+                }
+              </select>
+            </div>
+          }
+        }
+        else
+        {
         <div class="dmo-field">
           <label for="cmpReferencia">Referência</label>
           <input id="cmpReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.ReferenciaComparacao" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
@@ -423,6 +449,7 @@
           <span class="dmo-label" aria-hidden="true">&nbsp;</span>
           <button type="submit" class="dmo-button">Mostrar</button>
         </div>
+        }
       </form>
       </div>
 
@@ -444,7 +471,7 @@
       }
       else
       {
-        <p class="peso-hint" style="margin-top:10px">Escolha uma produção com um Peso guardado.</p>
+        <p class="peso-hint" style="margin-top:10px">@(Model.ProducaoFixa ? "Esta produção ainda não tem Peso guardado." : "Escolha uma produção com um Peso guardado.")</p>
       }
 
       @* A BASE CM a CM (o Diogo, 16/10: «peso e volume dos CM que foram
@@ -460,7 +487,7 @@
               @foreach (var (leituraBase, influencia) in baseCmp.Measurements.OrderBy(m => m.RowPosition).Zip(Model.InfluenciaDaBase))
               {
                 <tr class="@(influencia.MaiorEfeito ? "peso-linha-destaque" : null)">
-                  <td>@(string.IsNullOrEmpty(leituraBase.CmSubject) ? "—" : leituraBase.CmSubject)@(influencia.MaiorEfeito ? " · a que mais puxa" : null)</td>
+                  <td>@(string.IsNullOrEmpty(leituraBase.CmSubject) ? "—" : leituraBase.CmSubject)</td>
                   <td>@fmt(leituraBase.WaterWeightGrams)</td>
                   <td>@fmt(leituraBase.CapacityCm3)</td>
                   <td>@fmt(leituraBase.GlassWeightGrams)</td>
@@ -492,16 +519,18 @@
            botao.form). O handler de gravação no backend é a fonte única do
            cálculo. *@
         <div class="dmo-card-topo-acoes">
-          <button type="button" class="dmo-button" form="cmpForm" data-cmp-add-row>Adicionar leitura</button>
-          <button type="button" class="dmo-button" form="cmpForm" data-cmp-remove-row>Remover leitura</button>
           <button type="submit" class="dmo-button" form="cmpForm">Comparar pesos</button>
-          <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button" form="cmpForm">Guardar comparação</button>
+          <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button" form="cmpForm">Guardar</button>
         </div>
       </div>
 
       <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Comparar" class="peso-form-grid" id="cmpForm">
         <input type="hidden" name="jobon_id" value="@Model.ProducaoSelecionadaJobOnId" />
         <input type="hidden" name="peso_inicial" value="@Model.PesoInicialSelecionado" />
+        @if (Model.ProducaoFixa)
+        {
+          <input type="hidden" name="producao_fixa" value="1" />
+        }
         @* A comparação acabada de guardar: um clique repetido em «Guardar
            comparação» que chega a esta página, sem leituras escritas, volta
            a ela sem mensagem (B-peso-2). *@
@@ -538,9 +567,14 @@
               </div>
               <div class="dmo-field">
                 <label for="cmpWater-@i">Massa de água (g)</label>
-                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 199,64 ou 199.64" />
+                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 199,64" />
               </div>
-              <span class="peso-cmp-x" role="button" tabindex="0" data-cmp-del-row aria-label="Remover esta leitura" title="Remover esta leitura">×</span>
+              @* O + e o − ao lado da massa de água, um em cima do outro, como
+                 no Peso (Diogo, 27/10/2026); o − tira esta leitura. *@
+              <div class="peso-row-buttons">
+                <button type="button" class="dmo-button peso-row-button" data-cmp-add-row aria-label="Adicionar leitura" title="Adicionar leitura">+</button>
+                <button type="button" class="dmo-button peso-row-button" data-cmp-del-row aria-label="Remover esta leitura" title="Remover esta leitura">−</button>
+              </div>
             </div>
           }
         </div>
@@ -604,7 +638,7 @@
                 @foreach (var novaInf in Model.InfluenciaDasNovas)
                 {
                   <tr class="@(novaInf.MaiorEfeito ? "peso-linha-destaque" : null)">
-                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)@(novaInf.MaiorEfeito ? " · a que mais mexe" : null)</td>
+                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)</td>
                     <td>@fmt(novaInf.PesoVidroGrams)</td>
                     <td>@signed(novaInf.DiferencaParaMediaGrams)</td>
                     <td>@fmt(novaInf.MediaComEstaCmGrams)</td>
@@ -673,7 +707,7 @@
                 @foreach (var novaInf in Model.InfluenciaDasNovas)
                 {
                   <tr class="@(novaInf.MaiorEfeito ? "peso-linha-destaque" : null)">
-                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)@(novaInf.MaiorEfeito ? " · a que mais mexe" : null)</td>
+                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)</td>
                     <td>@fmt(novaInf.PesoVidroGrams)</td>
                     <td>@signed(novaInf.DiferencaParaMediaGrams)</td>
                     <td>@fmt(novaInf.MediaComEstaCmGrams)</td>
@@ -1084,6 +1118,10 @@
   @* 1. Ferramentas da pesagem: escolha pela REFERÊNCIA humana (P2-5 —  *@
   @*    o operador escreve o que vê nas folhas: ST100, C142).            *@
   @* ------------------------------------------------------------------ *@
+  @* Com o Peso iniciado, as referências já não se escrevem: o cartão sai
+     (Diogo, 27/10/2026: «depois de iniciar o peso não devia aparecer isto»). *@
+  @if (Model.Peso is null)
+  {
   <section class="dmo-card peso-card" aria-labelledby="peso-tools-title">
     <div class="dmo-modo-head">
       <h3 id="peso-tools-title">Ferramentas</h3>
@@ -1110,39 +1148,53 @@
         <label for="bqToolId">Boquilha (BQ) — referência</label>
         <input id="bqToolId" name="bq_tool_id" value="@Model.RequestedBqToolId" placeholder="Ex.: C142" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
       </div>
+      @* O lote da BQ só quando os lotes têm marisas diferentes (Diogo, 27/10/2026). *@
       <partial name="_PegamentosLote" model="@(("bqToolId", "bq_lote", "BQ — lote", Model.BqLotes, Model.BqTool?.ToolId, Model.RequestedBqToolId))" />
       @* Escolher a sugestão ou o Enter mostram a ferramenta (como nos
          Pegamentos); o botão fica só sem script. *@
       <noscript><button type="submit" class="dmo-button">Ferramentas</button></noscript>
     </form>
 
-    @if (Model.CmTool is { } cmTool)
+    @* AS FERRAMENTAS NUMA FAIXA (Diogo, 27/10/2026: o cartão estava
+       desarrumado): a CM e a BQ escolhidas numa só linha, como a
+       «Combinação» do estudo do Controlo, sem o tipo repetido por baixo da
+       referência. Com as duas, os volumes ficam só na faixa de baixo; com
+       uma só, ficam aqui (Diogo, 27/10/2026, cartão de decisão). P2-4: o facto da ferramenta é a REFERÊNCIA humana
+       (o que as folhas mostram); o id opaco vive no registo e no POST. *@
+    @{ var ambasFerramentas = Model.CmTool is not null && Model.BqTool is not null; }
+    @if (Model.CmTool is not null || Model.BqTool is not null)
     {
-      @* P2-4: o facto da ferramenta é a REFERÊNCIA humana (o que as
-         folhas mostram); o id opaco do backend vive no registo e no
-         POST, nunca como facto da folha. *@
-      <div class="peso-facts">
-        <div class="peso-fact"><span>CM</span><strong>@cmTool.Reference</strong><small>@cmTool.Type.ToString().ToUpperInvariant()</small></div>
-        <div class="peso-fact"><span>Lote</span><strong>@cmTool.Lot</strong></div>
-        <div class="peso-fact"><span>Processo</span><strong>@cmProcessLabel(Model.CmTechnical?.Process)</strong></div>
-        <div class="peso-fact"><span>Volume punção (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } vp ? fmt(vp) : "—")</strong></div>
-        <div class="peso-fact"><span>Peso nominal (g)</span><strong>@(Model.CmTechnical?.NominalWeightGrams is { } nw ? fmt(nw) : "—")</strong></div>
+      <div class="peso-facts" data-peso-ferramentas>
+        @if (Model.CmTool is { } cmTool)
+        {
+          <div class="peso-fact"><span>CM</span><strong>@cmTool.Reference</strong></div>
+          <div class="peso-fact"><span>Lote</span><strong>@cmTool.Lot</strong></div>
+          <div class="peso-fact"><span>Processo</span><strong>@cmProcessLabel(Model.CmTechnical?.Process)</strong></div>
+          @if (!ambasFerramentas)
+          {
+            <div class="peso-fact"><span>Volume punção (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } vp ? fmt(vp) : "—")</strong></div>
+          }
+          <div class="peso-fact"><span>Peso nominal (g)</span><strong>@(Model.CmTechnical?.NominalWeightGrams is { } nw ? fmt(nw) : "—")</strong></div>
+        }
+        @if (Model.BqTool is { } bqTool)
+        {
+          <div class="peso-fact peso-fact-grupo"><span>Boquilha (BQ)</span><strong>@bqTool.Reference</strong></div>
+          @if (!ambasFerramentas)
+          {
+            <div class="peso-fact"><span>Volume marisa (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } vm ? fmt(vm) : "—")</strong></div>
+          }
+        }
       </div>
     }
-    else if (Model.CmToolRequestedNotFound)
+    @if (Model.CmToolRequestedNotFound)
     {
       <div class="peso-aviso-simples" role="alert">A referência da CM indicada não está registada no Ferramentas. Nenhum Peso pode ser criado para ela.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.RegistarFerramenta("CM", Model.RequestedCmToolId, "Registar a CM em Ferramentas")" /></div>
     }
-
-    @if (Model.BqTool is { } bqTool)
+    @if (Model.BqMarisasDiferentes)
     {
-      <div class="peso-facts">
-        <div class="peso-fact"><span>Boquilha (BQ)</span><strong>@bqTool.Reference</strong><small>@bqTool.Type.ToString().ToUpperInvariant()</small></div>
-        <div class="peso-fact"><span>Lote</span><strong>@bqTool.Lot</strong></div>
-        <div class="peso-fact"><span>Volume marisa (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } vm ? fmt(vm) : "—")</strong></div>
-      </div>
+      <div class="peso-aviso-simples" role="status" data-peso-bq-marisas>Os lotes desta boquilha (BQ) têm volumes de marisa diferentes: escolha o lote.</div>
     }
-    else if (Model.BqToolRequestedNotFound)
+    @if (Model.BqToolRequestedNotFound)
     {
       <div class="peso-aviso-simples" role="alert">A referência da boquilha (BQ) indicada não está registada no Ferramentas.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.RegistarFerramenta("BQ", Model.RequestedBqToolId, "Registar a BQ em Ferramentas")" /></div>
     }
@@ -1151,9 +1203,9 @@
        resolvidas): os volumes consolidados com a densidade do vidro e o
        processo da CM, e o apoio TP/calote — sem Job On, a calote efetiva
        é a h_ref da Tool (o html: «Tool CM»). O apoio nunca bloqueia. *@
-    @if (Model.CmTool is not null && Model.BqTool is not null)
+    @if (ambasFerramentas)
     {
-      <div class="peso-facts" style="margin-top:10px">
+      <div class="peso-facts">
         <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } painelMarisaTool ? fmt(painelMarisaTool) : "—")</strong></div>
         <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } painelPuncaoTool ? fmt(painelPuncaoTool) : "—")</strong></div>
         <div class="peso-fact">
@@ -1224,14 +1276,16 @@
     }
   </section>
 
+  }
+
   @* ------------------------------------------------------------------ *@
   @* 2. Novo Peso tool-scoped (ambas as ferramentas resolvidas).        *@
   @* ------------------------------------------------------------------ *@
   @if (Model.CmTool is not null && Model.BqTool is not null)
   {
     <section class="dmo-card peso-card" aria-labelledby="peso-create-title">
-      <div class="peso-card-heading"><h3 id="peso-create-title">Novo Peso</h3><div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" form="pesoCreate">Criar Peso</button></div></div>
-      <p class="card-note">@(Model.ComparacaoDePesoId is null ? "Sem produção associada." : "Só para comparação: sem produção e sem Job On.")</p>
+      @* A nota fica por baixo do título, como nos outros cartões. *@
+      <div class="peso-card-heading"><div><h3 id="peso-create-title">Novo Peso</h3><p class="card-note">@(Model.ComparacaoDePesoId is null ? "Sem produção associada." : "Só para comparação: sem produção e sem Job On.")</p></div><div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" form="pesoCreate">Criar Peso</button></div></div>
 
       @if (Model.CreateRefusal is not null)
       {
@@ -1331,10 +1385,15 @@
         else
         {
         <h3 id="peso-open-title">Peso — CM @(peso.CmToolReference ?? "—")</h3>
+        @* Sem produção, a nota «sem associação a produção — CM · Lote» saiu
+           (Diogo, 27/10/2026, «remover»): a CM já está no título. *@
+        @if ((Model.ProductionContext ?? Model.OpenedPesoProduction) is { } pc)
+        {
         <p class="card-note">
-          @((Model.ProductionContext ?? Model.OpenedPesoProduction) is { } pc ? $"Produção {pc.ProductionNumber} · {pc.Reference} · {pc.Machine}" : "sem associação a produção")
+          Produção @pc.ProductionNumber · @pc.Reference · @pc.Machine
           — CM @(peso.CmToolReference ?? "—")@(peso.CmToolReference is null ? "" : $" · Lote {peso.CmToolLot}")@(Model.ShowPesos ? $" · BQ {peso.BqToolReference ?? "—"}" + (peso.BqToolReference is null ? "" : $" · Lote {peso.BqToolLot}") : null)
         </p>
+        }
         }
         @* Um Peso de antes de uma troca da CM ou da BQ fica como estava: as
            leituras gravadas ainda se corrigem, mas as novas vão para o Peso
@@ -1390,17 +1449,39 @@
          continua disponível na ferramenta. *@
       @if (Model.ProductionCandidates.Count > 0)
       {
-        <div class="peso-aviso-simples" role="status" style="margin-bottom:12px">
-          <strong>@(Model.ProductionCandidates.Count == 1 ? "Existe um Job On" : $"Existem {Model.ProductionCandidates.Count} Job Ons") com esta CM e ainda sem Peso. Quer associar este Peso?</strong>
-          @foreach (var production in Model.ProductionCandidates)
-          {
-            <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate" style="display:flex;gap:10px;align-items:center;margin-top:8px">
-              <input type="hidden" name="peso_id" value="@peso.PesoId" />
-              <input type="hidden" name="jobon_id" value="@production.JobOnId" />
-              <span>Produção @production.ProductionNumber · @production.Reference · @production.Machine</span>
-              <button type="submit" class="dmo-button">Associar</button>
-            </form>
-          }
+        @* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026: «não quero botões em rows
+           por todo o lado»): como os «Pesos sem produção» da folha da
+           produção, um clique escolhe a produção e um só «Associar» no canto
+           envia a escolhida (R16). *@
+        var umaProducao = Model.ProductionCandidates.Count == 1;
+        <div class="peso-card peso-associar-producao" data-peso-associar>
+          <div class="peso-card-heading"><div>
+            <h4>@(umaProducao ? "Existe um Job On" : $"Existem {Model.ProductionCandidates.Count} Job Ons") com esta CM e ainda sem Peso. Quer associar este Peso?</h4>
+          </div>
+            <div class="dmo-card-topo-acoes" data-dmo-for="pesoAssociarProducao"><button type="submit" class="dmo-button" form="pesoAssociarProducaoForm">Associar</button></div>
+          </div>
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate" id="pesoAssociarProducaoForm">
+            <input type="hidden" name="peso_id" value="@peso.PesoId" />
+            <div class="dmo-table-wrap">
+              <table class="dmo-table" id="pesoAssociarProducao" data-dmo-list="Job Ons sem Peso">
+                <thead>
+                  <tr><th></th><th>Produção</th><th>Referência</th><th>Máquina</th></tr>
+                </thead>
+                <tbody>
+                  @foreach (var production in Model.ProductionCandidates)
+                  {
+                    <tr data-dmo-row data-id="@production.JobOnId" class="@(umaProducao ? "selected" : null)" aria-selected="@(umaProducao ? "true" : "false")"
+                        aria-label="Produção @production.ProductionNumber · @production.Reference · @production.Machine — um clique escolhe">
+                      <td><input type="radio" name="jobon_id" value="@production.JobOnId" required checked="@umaProducao" aria-label="Produção @production.ProductionNumber" /></td>
+                      <td>@production.ProductionNumber</td>
+                      <td>@production.Reference</td>
+                      <td>@production.Machine</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </form>
         </div>
       }
 
@@ -1432,7 +1513,6 @@
         <span hidden data-peso-registo-recusado></span>
       }
 
-      <p class="peso-hint" style="margin:0 0 6px">Temperatura da água @peso.WaterTemperatureC °C · densidade @fmtDensity(peso.WaterDensityGramsPerCm3) g/cm³ · Peso = (capacidade + Marisa − Punção) × densidade do vidro</p>
       <div class="peso-section-heading"><div>
         <h4>Leituras por CM</h4>
       </div></div>
@@ -1458,13 +1538,20 @@
               </tr>
             </thead>
             <tbody>
+              @* Corrigir ou apagar (Diogo, 27/10/2026): a linha escolhe-se com um
+                 clique (fica de uma só cor) e a correção abre na caixa da
+                 leitura nova; um clique na linha escolhida larga-a. O link da
+                 primeira célula cobre a linha toda (CSS). *@
               @foreach (var measurement in peso.Measurements)
               {
                 decimal? rowDelta = peso.Averages is { } rowAverages
                     ? measurement.GlassWeightGrams - rowAverages.AverageGlassWeightGrams
                     : null;
-                <tr>
-                  <td>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
+                var escolhida = Model.CorrigirLeituraId == measurement.MeasurementId;
+                var linhaHref = Model.UrlCorrigirLeitura(escolhida ? null : measurement.MeasurementId);
+                var linhaRotulo = escolhida ? "Largar a leitura" : $"Corrigir ou apagar a leitura da CM {(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)}";
+                <tr class="peso-linha-corrigir@(escolhida ? " is-selected" : null)" data-peso-leitura-id="@measurement.MeasurementId" aria-selected="@(escolhida ? "true" : "false")">
+                  <td><a class="peso-linha-link" href="@linhaHref" aria-label="@linhaRotulo"></a>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
                   <td>@fmtCap(measurement.CapacityCm3)</td>
                   <td><strong>@fmt(measurement.GlassWeightGrams)</strong></td>
                   <td>@(rowDelta is { } rd ? signed(rd) : "—")</td>
@@ -1533,20 +1620,15 @@
           }
           </div>
           <div class="peso-leitura-grade" data-peso-leitura-cartoes>
+            @* As leituras gravadas já estão na tabela «Leituras por CM»: por baixo
+               não se repetem (Diogo, 27/10/2026, «remover o duplicado»). A zona
+               fica, com uma marca escondida por leitura, para a gravação sem
+               recarregar saber que a leitura ficou gravada (peso-live.js); só
+               mostra a leitura enviada enquanto grava («A gravar…»). *@
             <div id="pesoLeiturasGravadas" class="dmo-zona" data-dmo-regiao>
-            @foreach (var (gravada, gravadaIndex) in peso.Measurements.Select((m, i) => (m, i)))
+            @foreach (var gravada in peso.Measurements)
             {
-              <div class="peso-leitura-row is-saved" data-peso-leitura-gravada>
-                <div class="dmo-field">
-                  <label for="pesoGravadaCm-@gravadaIndex">N.º CM</label>
-                  <input id="pesoGravadaCm-@gravadaIndex" value="@(string.IsNullOrEmpty(gravada.CmSubject) ? "—" : gravada.CmSubject)" readonly tabindex="-1" aria-label="N.º CM gravado" />
-                </div>
-                <div class="dmo-field">
-                  <label for="pesoGravadaAgua-@gravadaIndex">Massa de água (g)</label>
-                  <input id="pesoGravadaAgua-@gravadaIndex" value="@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)" readonly tabindex="-1" aria-label="Massa de água gravada" />
-                </div>
-                <output class="peso-leitura-chip">@fmtCap(gravada.CapacityCm3) cm³ · @fmt(gravada.GlassWeightGrams) g</output>
-              </div>
+              <span hidden data-peso-leitura-gravada>@gravada.CmSubject=@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)</span>
             }
             </div>
             <div class="peso-leitura-nova" data-dmo-fica>
@@ -1576,6 +1658,66 @@
           </div>
         </form>
         }
+
+        @* A CORREÇÃO DA LEITURA ESCOLHIDA (27/10/2026): no lugar da leitura
+           nova, o N.º CM e a massa de água dela para corrigir, «Guardar» e
+           «Apagar»; apagar pergunta antes. Fica o rasto de cada correção. Um
+           Peso de antes de uma troca também se corrige (R16-3). *@
+        <div id="pesoCorrecao" class="dmo-zona" data-dmo-regiao>
+        @if (Model.CorrecaoRefusalMessage is { } correcaoRecusa)
+        {
+          <div data-dmo-toast="erro" class="peso-aviso" role="alert">@correcaoRecusa</div>
+        }
+        @if (Model.CorrigirLeituraId is { } corrigirId && peso.Measurements.FirstOrDefault(m => m.MeasurementId == corrigirId) is { } aCorrigir)
+        {
+          var corrigirCm = string.IsNullOrEmpty(aCorrigir.CmSubject) ? "—" : aCorrigir.CmSubject;
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="EditMeasurement" class="peso-leitura-form peso-correcao" data-peso-correcao>
+            <input type="hidden" name="peso_id" value="@peso.PesoId" />
+            <input type="hidden" name="measurement_id" value="@aCorrigir.MeasurementId" />
+            @if (Model.ProductionContext is not null && Model.ControloIdFromQuery is { } correcaoControloId)
+            {
+              <input type="hidden" name="controlo_id" value="@correcaoControloId" />
+            }
+            @if (Model.PesoIdNoEndereco is not null)
+            {
+              <input type="hidden" name="peso_anterior" value="1" />
+            }
+            @if (Model.Comparison is { } correcaoComparison)
+            {
+              <input type="hidden" name="comparar" value="@correcaoComparison.HistoricalPesoId" />
+            }
+            @if (Model.SuporCaloteParaLevar is { } correcaoSupor)
+            {
+              <input type="hidden" name="supor_calote" value="@correcaoSupor" />
+            }
+            @if (Model.ApagarLeituraPergunta)
+            {
+              <p class="peso-correcao-pergunta" role="status">Apagar a leitura da CM @corrigirCm (@aCorrigir.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture) g)?</p>
+              <div class="peso-leitura-actions">
+                <a class="dmo-button dmo-dialog-cancel" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId)">Cancelar</a>
+                <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "DeleteMeasurement")" data-peso-apagar-confirmar>Apagar</button>
+              </div>
+            }
+            else
+            {
+              <div class="peso-leitura-row">
+                <div class="dmo-field">
+                  <label for="corrigirCm">N.º CM</label>
+                  <input id="corrigirCm" name="cm_subject" value="@(Model.EchoCorrecaoSubject ?? aCorrigir.CmSubject)" autocomplete="off" />
+                </div>
+                <div class="dmo-field">
+                  <label for="corrigirAgua">Massa de água (g)</label>
+                  <input id="corrigirAgua" name="water_weight" type="text" inputmode="decimal" autocomplete="off" required value="@(Model.EchoCorrecaoWater ?? aCorrigir.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                </div>
+              </div>
+              <div class="peso-leitura-actions">
+                <button type="submit" class="dmo-button" data-peso-correcao-guardar>Guardar</button>
+                <a class="dmo-button" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId, apagar: true)" data-peso-apagar>Apagar</a>
+              </div>
+            }
+          </form>
+        }
+        </div>
       </div>
     </section>
   }
