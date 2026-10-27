@@ -563,7 +563,7 @@ public sealed class PesoModel : PageModel
     public string UrlCorrigirLeitura(int? measurementId, bool apagar = false)
     {
         var query = new List<KeyValuePair<string, string?>>();
-        foreach (var chave in new[] { "controlo_id", "peso_id", "comparar", "supor_calote", "anterior" })
+        foreach (var chave in new[] { "controlo_id", "peso_id", "comparar", "supor_calote", "anterior", "jobon_id", "cm_tool_id", "bq_tool_id", "cap_h", "painel" })
         {
             if (Request.Query.TryGetValue(chave, out var valor) && !string.IsNullOrEmpty(valor))
             {

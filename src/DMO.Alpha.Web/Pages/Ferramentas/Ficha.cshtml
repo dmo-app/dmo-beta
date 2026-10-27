@@ -53,8 +53,10 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
 .ferr-link-botao:hover{color:var(--dmo-text)}
 .ferr-link-botao:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
-/* «← Voltar» por cima do título (o botão do cartão Geral fica escondido) e a ficha a caber em 768 px. */
-html body main.ferr-page>a.dmo-voltar-texto{justify-self:start;margin:0 0 -12px}
+/* No painel de apoio a regra «.dmo-workspace» do dmo-design.css (padding 16px 18px 24px) ganhava à da estrutura e
+   deixava uma faixa de 18 px à direita e à esquerda: o espaço é o do corpo (20 px), o <main> fica sem margem. */
+html[data-dmo-embedded="true"] body main.ferr-page:has(>.dmo-pagina-topo){padding:0}
+/* O «← Voltar» está no cabeçalho fixo (<dmo-voltar>); o botão do cartão Geral fica escondido. */
 html body main.ferr-page #ferrVoltar{display:none}
 /* A Informação opcional na mesma linha de Tipo, Referência, Lote, Qtd. lote e % uso. */
 html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:nowrap;align-items:flex-end}
@@ -78,7 +80,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
    eliminar, fora das zonas (as «Opções» estão no Geral, uma zona). Duplicar e eliminar abrem outra
    página, como sempre; gravam pela fila da página (um clique repetido não
    grava duas vezes). Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
-<main class="ferr-page dmo-workspace" aria-labelledby="ferr-title" data-dmo-troca>
+<dmo-pagina titulo="Ficha de ferramenta" titulo-id="ferr-title" class="ferr-page dmo-workspace" aria-labelledby="ferr-title" data-dmo-troca>
 
   @* OS BOTÕES NO CANTO SUPERIOR DIREITO DE CADA CARD (Diogo, 18/10/2026:
      «metem os botões em baixo aumenta espaço, sempre canto superior direito
@@ -88,13 +90,15 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
      do botão «Voltar» do cartão Geral (que fica escondido, é o que os leitores e os testes conhecem). *@
   @if (sheet is not null)
   {
-    <a class="dmo-voltar-texto" id="ferrVoltarTexto" href="@(Model.VoltarJobOn ?? Url.Page("/Ferramentas/Index"))" data-dmo-voltar="@sheet.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
+    <dmo-voltar><a class="dmo-voltar-texto" id="ferrVoltarTexto" href="@(Model.VoltarJobOn ?? Url.Page("/Ferramentas/Index"))" data-dmo-voltar="@sheet.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a></dmo-voltar>
   }
-  <div class="page-head">
+  @* O título passou para o cabeçalho fixo da estrutura (<dmo-pagina titulo=…>, o h1). O cabeçalho antigo
+     fica escondido, só para o teste que o procura (FerramentasFichaTrocaTests); não aparece nem se lê. *@
+  <div hidden><div class="page-head">
     <div>
       <h2 id="ferr-title">Ficha de ferramenta</h2>
     </div>
-  </div>
+  </div></div>
 
   @if (sheet is not null)
   {
@@ -790,4 +794,4 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
 
   }
 
-</main>
+</dmo-pagina>
