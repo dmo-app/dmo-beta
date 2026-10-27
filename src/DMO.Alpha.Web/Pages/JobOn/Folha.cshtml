@@ -257,10 +257,12 @@
             }
           </div>
           @{ Notas(p + "_notas"); }
+          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
           @if (!editar)
           {
-            @* NA FOLHA DE VER (a maqueta do dono, 28/10/2026): as dimensões e as folgas ficam à vista no
-               cartão, «Pata 12.40 ± 0.05»; na Informação técnica só ficam o Tipo, o Adaptador, etc. *@
+            @* NA FOLHA DE VER: as dimensões e as folgas, «Pata 12.40 ± 0.05», ficam minimizadas dentro da
+               Informação técnica, como de manhã (Diogo, 27/10/2026: «tudo a partir de dimensões pode ser
+               minimizado», «as coisas estavam minimizadas e controladas»). *@
             <div class="jof-dims" data-jof-dims="@tipo">
               <span class="jof-dims-titulo">Dimensões · mm</span>
               <dl class="jof-dims-lista">
@@ -288,7 +290,6 @@
               }
             </div>
           }
-          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
           @if (editar)
           {
             @* No ver, o valor e a tolerância numa só coluna («54.02 ± 0.05»): com duas
@@ -602,10 +603,14 @@ else
             }
           </div>
         }
-        @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»). *@
-        <div class="fact-col">
-          <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
-        </div>
+        @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»); no Editar
+           não aparece, para a faixa dos campos caber numa linha no ecrã do trabalho (~1290 px). *@
+        @if (!editar)
+        {
+          <div class="fact-col">
+            <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
+          </div>
+        }
         </div>
       </div>
       <div class="head-right">

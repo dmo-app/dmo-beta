@@ -397,9 +397,15 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html:root body main.jof2.jof2.jof2 .sheet-main>.zones{flex:1 1 0;min-height:0}
 }
 /* Ecrã mais baixo do que 720 (o Chrome do Diogo no trabalho fica com ~1290×646): a folha não cabe sem esmagar
-   os cartões, por isso a página desliza como de manhã (.187) e as notas mostram-se inteiras, sem barra por dentro
+   os cartões. A página não desliza (Diogo, 27/10/2026, 10:07): o cabeçalho fica fixo e só a zona dos cartões
+   desliza por dentro, com os cartões inteiros e as notas sem barra própria
    (Diogo, 27/10/2026: «o jobon está um horror», «estava bem melhor hoje de manhã»). */
 @media screen and (min-width:1181px) and (max-height:719.98px){
+  html:root body main.jof2.jof2.jof2{box-sizing:border-box;display:flex;flex-direction:column;height:calc(100vh - 95px);min-height:0}
+  html[data-dmo-embedded="true"]:root body main.jof2.jof2.jof2{height:100vh}
+  html:root body main.jof2.jof2.jof2>.wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;width:100%;box-sizing:border-box;padding-bottom:4px}
+  html:root body main.jof2.jof2.jof2>.wrap>*{flex:none}
+  html:root body main.jof2.jof2.jof2>.wrap>.sheet{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
   html:root body .jof2.jof2.jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto !important;overflow:visible}
   html:root body .jof2.jof2.jof2 .side>.notes>ul{flex:1 1 auto;min-height:72px}
 }
