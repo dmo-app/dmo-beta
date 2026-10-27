@@ -661,7 +661,8 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         // para o topo do ecrã, por baixo da barra fixa).
         Assert.Contains($"editar_medicao={ids[1]}&amp;campo=contra\"", html);
         Assert.DoesNotContain("#peg-linha-", html);
-        Assert.Contains($"value=\"{ids[1]}\" class=\"peg-x\"", html);
+        // Sem botões nas linhas (Diogo, 27/10/2026): o × saiu; apaga-se no canto do cartão com a leitura aberta.
+        Assert.DoesNotContain("class=\"peg-x\"", html);
         var tbody = System.Text.RegularExpressions.Regex.Match(html,
             "data-peg-component=\"CM\"[\\s\\S]*?<tbody>([\\s\\S]*?)</tbody>").Groups[1].Value;
         Assert.DoesNotContain("dmo-button", tbody);
@@ -671,6 +672,7 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         var editing = await GetPageHtmlAsync(client, editUrl);
         Assert.Matches($"<input id=\"editar-contra-{ids[1]}\"[^>]*autofocus", editing);
         Assert.Contains("Enter guarda · Esc cancela", editing);
+        Assert.Contains($"value=\"{ids[1]}\" class=\"dmo-button\" aria-label=\"Apagar a leitura 2\" data-peg-apagar>Apagar leitura</button>", editing);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(editing)!;
         using var edited = await client.PostAsync($"{PagePath}?handler=EditMeasurement", HtmlFormHelpers.BuildFormPost(
             ("controlo_id", controloId.ToString()), ("measurement_id", ids[1].ToString()),

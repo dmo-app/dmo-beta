@@ -382,6 +382,8 @@
             {
               <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="puncao" id="pu-visto-puncao" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Punção visto</button>
               <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="arrefecedor" id="pu-visto-arrefecedor" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Arrefecedor visto</button>
+              @* Remover também no canto (Diogo, 27/10/2026: «nunca botões nas linhas»): abre a janela da linha escolhida. *@
+              <button type="button" class="dmo-button" id="pu-remover" data-dmo-dialog-modelo="pu-remover-{id}" data-dmo-dialog="@(escolhidaPu is { } escolhidaRemover ? $"pu-remover-{escolhidaRemover}" : null)" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Remover</button>
             }
             <details class="dmo-options" data-dmo-tab-menu>
               <summary class="dmo-button" aria-label="Opções do registo das punções"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
@@ -417,7 +419,7 @@
         <div class="dmo-table-wrap">
           @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
           <table class="dmo-table pu-table pu-table-fixa" id="puLista" data-dmo-list="Lista de punções">
-            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
+            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /></colgroup>
             <thead>
               <tr>
                 <th></th>
@@ -425,13 +427,12 @@
                 <th>Lote</th>
                 <th>Punção visto</th>
                 <th>Arrefecedor visto</th>
-                <th class="pu-right"><span class="pu-oculto">Remover</span></th>
               </tr>
             </thead>
             <tbody>
               @if (registo is null || registo.Rows.Count == 0)
               {
-                <tr><td colspan="6" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
+                <tr><td colspan="5" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
               }
               else
               {
@@ -446,30 +447,30 @@
                     <td class="pu-lot">@row.Lot</td>
                     <td class="pu-estado @(row.PunchSeen ? "on" : null)" data-pu-estado="puncao">@(row.PunchSeen ? "Visto" : "Por verificar")</td>
                     <td class="pu-estado @(row.CoolerSeen ? "on" : null)" data-pu-estado="arrefecedor">@(row.CoolerSeen ? "Visto" : "Por verificar")</td>
-                    <td class="pu-right">
-                      @* A confirmação é a janela da casa, com o texto escrito pelo
-                         Razor como HTML (nunca dentro de um onclick: um número
-                         com aspas correria como JavaScript). *@
-                      <button type="button" class="pu-remove" data-dmo-dialog="pu-remover-@row.Id" aria-label="Remover a punção @row.Number" title="Remover">×</button>
-                      <dialog id="pu-remover-@row.Id" class="dmo-dialog" aria-labelledby="pu-remover-titulo-@row.Id">
-                        <h3 id="pu-remover-titulo-@row.Id">Remover punção</h3>
-                        <p class="dmo-aviso-discreto">Remover a punção @row.Number · lote @row.Lot deste registo?</p>
-                        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Remove">
-                          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-                          <input type="hidden" name="inspecao_id" value="@row.Id" />
-                          <div class="dmo-dialog-actions">
-                            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-                            <button type="submit" class="dmo-button">Remover</button>
-                          </div>
-                        </form>
-                      </dialog>
-                    </td>
                   </tr>
                 }
               }
             </tbody>
           </table>
         </div>
+        @* As janelas do «Remover» do canto, uma por punção. A confirmação é a
+           janela da casa, com o texto escrito pelo Razor como HTML (nunca
+           dentro de um onclick: um número com aspas correria como JavaScript). *@
+        @foreach (var row in registo?.Rows ?? [])
+        {
+          <dialog id="pu-remover-@row.Id" class="dmo-dialog" aria-labelledby="pu-remover-titulo-@row.Id">
+            <h3 id="pu-remover-titulo-@row.Id">Remover punção</h3>
+            <p class="dmo-aviso-discreto">Remover a punção @row.Number · lote @row.Lot deste registo?</p>
+            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Remove">
+              <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+              <input type="hidden" name="inspecao_id" value="@row.Id" />
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                <button type="submit" class="dmo-button">Remover</button>
+              </div>
+            </form>
+          </dialog>
+        }
       </section>
 
       @* Sem o cartão «Posições na linha» aqui (Diogo, 24/10/2026): a folha das posições está nas Opções. *@

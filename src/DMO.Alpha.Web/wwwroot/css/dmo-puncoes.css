@@ -36,8 +36,6 @@
    os botões do canto trocam o da punção escolhida. */
 .pu-estado{color:var(--dmo-danger);font-weight:650}
 .pu-estado.on{color:var(--dmo-success)}
-.pu-remove{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
-.pu-remove:hover{color:var(--dmo-danger)}
 .pu-pdf{display:grid;place-items:center;width:42px;height:46px;border:1px solid var(--dmo-brand-200);border-radius:7px;background:var(--dmo-card);color:var(--dmo-brand-700);font-size:11px;font-weight:900}
 @media(max-width:600px){.pu-stats{grid-template-columns:repeat(2,1fr);gap:6px}.pu-stat{padding:10px}.pu-stat strong{font-size:22px}.pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:1 1 100%}}
 /* A associação à mão de um registo sem Job On. */
@@ -79,7 +77,6 @@ html body table.dmo-table.pu-grelha tbody th{font-size:14px}
 .pu-table-fixa .pu-col-numero{width:26%}
 .pu-table-fixa .pu-col-lote{width:14%}
 .pu-table-fixa .pu-col-estado{width:24%}
-.pu-table-fixa .pu-col-acoes{width:12%}
 .pu-table-fixa td,.pu-table-fixa th{overflow-wrap:anywhere}
 
 /* O número e o «+ Adicionar punção» no canto do cartão (Diogo, 27/10/2026): o campo e o botão na mesma linha;
