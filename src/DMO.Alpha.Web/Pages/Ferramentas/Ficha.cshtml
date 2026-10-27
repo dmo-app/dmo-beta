@@ -48,6 +48,9 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
 .ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
 .ferr-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
+.ferr-link-botao{all:unset;cursor:pointer;margin-right:auto;text-decoration:underline;text-underline-offset:3px}
+.ferr-link-botao:hover{color:var(--dmo-text)}
+.ferr-link-botao:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
 </style>
 }
@@ -493,11 +496,32 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
           }
         }
         <div class="dmo-dialog-actions">
+          <button type="button" class="ferr-cancel ferr-link-botao" id="ferrProducoesHistorico" aria-controls="ferrHistoricoProducoes">Ver o Histórico de produções</button>
           <button type="button" class="dmo-button" data-dmo-dialog-close id="ferrProducoesFechar">Fechar</button>
         </div>
       </dialog>
       @* A janela abre com o foco no «Fechar», não na ajuda (que abriria o balão). *@
+      @* O % da Utilização leva também ao Histórico de produções (Diogo,
+         27/10/2026): abre-o e desce até ele por trás da janela; ao fechar a
+         janela fica-se lá. O «Ver o Histórico de produções» fecha a janela. *@
       <script>
+        (function () {
+          function abrirHistorico() {
+            var historico = document.getElementById('ferrHistoricoProducoes');
+            if (!historico) { return; }
+            var dobra = historico.querySelector('details');
+            if (dobra) { dobra.open = true; }
+            historico.scrollIntoView({ block: 'start' });
+          }
+          document.addEventListener('click', function (event) {
+            if (event.target.closest && event.target.closest('#ferr-utilizacao-detalhes, #ferrProducoesHistorico')) { abrirHistorico(); }
+            if (event.target.closest && event.target.closest('#ferrProducoesHistorico')) {
+              var janela = document.getElementById('ferrProducoes');
+              if (janela && janela.open) { janela.close(); }
+              abrirHistorico();
+            }
+          });
+        })();
         (function () {
           var janela = document.getElementById('ferrProducoes');
           if (!janela || !window.MutationObserver) { return; }

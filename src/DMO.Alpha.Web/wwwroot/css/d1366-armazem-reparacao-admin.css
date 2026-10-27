@@ -46,9 +46,9 @@
    ====================================================================== */
 /* «← Voltar» ao lado do filtro da ferramenta: discreto, só muda a cor do texto. */
 html body main:has(#armMovimentos) .arm-filtro-ferramenta{display:flex;align-items:baseline;gap:16px;margin:0 0 12px;font-size:13px;color:var(--dmo-text)}
-html body main:has(#armMovimentos) a.arm-voltar{color:var(--dmo-muted);font-weight:600;text-decoration:none;background:none}
-html body main:has(#armMovimentos) a.arm-voltar:hover{color:var(--dmo-text);background:none;text-decoration:none}
-html body main:has(#armMovimentos) a.arm-voltar:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px;border-radius:2px}
+html body main:is(:has(#armMovimentos),:has(#armRegVoltar)) a.arm-voltar{color:var(--dmo-muted);font-weight:600;text-decoration:none;background:none}
+html body main:is(:has(#armMovimentos),:has(#armRegVoltar)) a.arm-voltar:hover{color:var(--dmo-text);background:none;text-decoration:none}
+html body main:is(:has(#armMovimentos),:has(#armRegVoltar)) a.arm-voltar:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px;border-radius:2px}
 html body main:has(#armMovimentos) .arm-mov{gap:16px}
 html body main:has(#armMovimentos) .arm-card{padding:16px 20px}
 html body main:has(#armMovimentos) .arm-card-head{min-height:var(--dmo-control-height)}

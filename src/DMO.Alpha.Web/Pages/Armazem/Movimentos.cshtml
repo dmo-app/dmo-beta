@@ -192,6 +192,24 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     <section id="armMovFerramenta" class="dmo-card arm-card" aria-labelledby="arm-mov-ferr-title" data-dmo-regiao data-dmo-parcial data-dmo-ferramenta="@s.ToolId">
       <div class="dmo-card-topo">
         <h3 id="arm-mov-ferr-title">@MovimentosModel.Nome(s.Tipo, s.Referencia, s.Lote)</h3>
+        @* «← Voltar» à página de onde se veio (Diogo, 27/10/2026: da Localização
+           da ficha da ferramenta abre-se aqui, e volta-se à ficha). Com ?voltar=
+           (um caminho desta aplicação) vai para lá; sem ele, o dmo-live.js põe a
+           página anterior (data-dmo-voltar) e, sem origem, fica o Registar. *@
+        @{
+          var voltarPedidoMov = Model.Request.Query["voltar"].ToString();
+          var voltarSeguroMov = DMO.Alpha.Web.Services.LocalUrl.IsSafe(voltarPedidoMov) ? voltarPedidoMov : null;
+        }
+        <div class="dmo-card-topo-acoes">
+          @if (voltarSeguroMov is not null)
+          {
+            <a class="arm-voltar" id="armRegVoltar" href="@voltarSeguroMov">← Voltar</a>
+          }
+          else
+          {
+            <a class="arm-voltar" id="armRegVoltar" href="@Url.Page("/Armazem/Movimentos")" data-dmo-voltar="@s.ToolId" data-dmo-voltar-ignorar="/Armazem/Movimentos">← Voltar</a>
+          }
+        </div>
       </div>
 
       @foreach (var aviso in Model.Avisos)
