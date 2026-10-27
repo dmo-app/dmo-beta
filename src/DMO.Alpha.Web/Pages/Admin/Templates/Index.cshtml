@@ -68,7 +68,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
 .dmt-users-grid .dmt-module-head{margin:6px 0 0 !important}
 .dmt-users-grid .dmt-module-head,.dmt-users-grid .dmt-users-vazio{grid-column:1/-1}
 .dmt-users-vazio{margin:0}
-.dmt-check .dmt-ficha{align-self:center;margin-right:10px;font-size:11px;color:var(--dmo-muted);text-decoration:underline}
+.dmt-check .dmt-ficha{align-self:center;margin-right:10px;font-size:11px;color:var(--dmo-muted);text-decoration:none}
 .dmt-check .dmt-ficha:hover,.dmt-check .dmt-ficha:focus-visible{color:var(--dmo-brand-600,#3c73a8)}
 .dmt-check:has(input:checked) .dmt-ficha{color:#fff}
 .dmt-module-head{font-size:10.5px;font-weight:800;color:var(--dmo-brand-600,#3c73a8);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--dmo-border,#d9e6f2);padding-bottom:4px}
@@ -274,7 +274,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
                       <b class="dmt-user-num">@user.OperatorId</b>
                       <span class="dmt-user-nome">@user.Name@(user.IsStandBy ? " · Arquivado" : "")</span>
                     </label>
-                    <a class="dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a ficha de @user.Name">Ficha</a>
+                    <a class="dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a página de @user.Name">Página</a>
                   </div>
                 }
               }
