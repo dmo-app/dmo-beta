@@ -59,10 +59,16 @@
 .dmt-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .dmt-caps-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 html body .dmt-detail .dmo-options-list{left:auto;right:0}
-.dmt-users-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:8px}
+/* Utilizadores compactos, o nº em destaque (Diogo, 27/10/2026: «não precisa
+   desse espaço todo e o número pode ficar mais saliente»). */
+.dmt-users-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.dmt-users-grid .dmt-check label{display:flex;align-items:baseline;gap:8px;padding:6px 10px;min-width:0}
+.dmt-users-grid .dmt-user-num{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.dmt-users-grid .dmt-check label .dmt-user-nome{font-size:12.5px;font-weight:600;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmt-users-grid .dmt-module-head{margin:6px 0 0 !important}
 .dmt-users-grid .dmt-module-head,.dmt-users-grid .dmt-users-vazio{grid-column:1/-1}
 .dmt-users-vazio{margin:0}
-.dmt-check .dmt-ficha{align-self:center;margin-right:10px;font-size:11.5px;color:var(--dmo-muted);text-decoration:underline}
+.dmt-check .dmt-ficha{align-self:center;margin-right:10px;font-size:11px;color:var(--dmo-muted);text-decoration:underline}
 .dmt-check .dmt-ficha:hover,.dmt-check .dmt-ficha:focus-visible{color:var(--dmo-brand-600,#3c73a8)}
 .dmt-check:has(input:checked) .dmt-ficha{color:#fff}
 .dmt-module-head{font-size:10.5px;font-weight:800;color:var(--dmo-brand-600,#3c73a8);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--dmo-border,#d9e6f2);padding-bottom:4px}
@@ -265,8 +271,8 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
                     <input type="checkbox" id="dmt-user-@user.OperatorId" name="operator_ids" value="@user.OperatorId" form="dmtEditarForm"
                            checked="@marcado" />
                     <label for="dmt-user-@user.OperatorId">
-                      @user.Name
-                      <span>nº @user.OperatorId@(user.IsStandBy ? " · Arquivado" : "")</span>
+                      <b class="dmt-user-num">@user.OperatorId</b>
+                      <span class="dmt-user-nome">@user.Name@(user.IsStandBy ? " · Arquivado" : "")</span>
                     </label>
                     <a class="dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a ficha de @user.Name">Ficha</a>
                   </div>
