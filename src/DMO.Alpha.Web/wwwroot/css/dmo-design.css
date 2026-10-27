@@ -885,7 +885,7 @@ html body .dmo-tab-menu-list a.active,
 html body .dmo-tab-menu-list a[aria-current="page"]{background:none !important;color:var(--dmo-brand-700);font-weight:800}
 :root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]){color:var(--dmo-muted)}
 :root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]):is(:hover,:focus-visible){color:#fff}
-:root[data-theme="dark"] body .dmo-tab-menu-list :is(a.active,a[aria-current="page"]){color:#A5C5F1}
+:root[data-theme="dark"] body .dmo-tab-menu-list :is(a.active,a[aria-current="page"]){color:var(--design-200)}
 
 /* Links de ação passam a botões (Diogo, 27/10/2026: «trocar links para
    botões»): o «Abrir página» do painel, os links dos avisos e os da ficha

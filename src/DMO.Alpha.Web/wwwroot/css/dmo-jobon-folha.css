@@ -5,8 +5,8 @@
  * o mockup tinha e a app não tem estão aqui. No fim, só o que o Diogo pediu
  * mudado (22/10/2026).
  */
-.jof2,.jof2-gaveta{--r-control:8px;--r-card:12px;--fast:150ms ease;--rail-bg:var(--dmo-brand-900);--rail-item:var(--dmo-brand-800);--rail-line:var(--dmo-brand-700);--rail-text:#fff;--rail-muted:#b9cddd;--bottle-fill:#e9f1f8;--bottle-stroke:var(--dmo-brand-600);--dmo-shadow-menu:0 10px 24px rgba(27,40,50,.22);--dmo-backdrop:rgba(27,40,50,.68)}
-@media screen{:root[data-theme="dark"] :is(.jof2,.jof2-gaveta){--rail-bg:#0f171d;--rail-item:#1d2b36;--rail-line:#2e4150;--bottle-fill:#22323e;--bottle-stroke:#6582aa;--dmo-shadow-menu:0 10px 24px rgba(0,0,0,.45);--dmo-backdrop:rgba(0,0,0,.6)}}
+.jof2,.jof2-gaveta{--r-control:8px;--r-card:12px;--fast:150ms ease;--rail-bg:var(--dmo-brand-900);--rail-item:var(--dmo-brand-800);--rail-line:var(--dmo-brand-700);--rail-text:#fff;--rail-muted:var(--dmo-brand-200);--bottle-fill:#e9f1f8;--bottle-stroke:var(--dmo-brand-600);--dmo-shadow-menu:0 10px 24px rgba(27,40,50,.22);--dmo-backdrop:rgba(27,40,50,.68)}
+@media screen{:root[data-theme="dark"] :is(.jof2,.jof2-gaveta){--rail-muted:var(--design-pale);--rail-bg:var(--dmo-page);--rail-item:var(--dmo-subtle);--rail-line:var(--dmo-border);--bottle-fill:var(--dmo-brand-100);--bottle-stroke:var(--dmo-brand-500);--dmo-shadow-menu:0 10px 24px rgba(0,0,0,.45);--dmo-backdrop:rgba(0,0,0,.6)}}
 .jof2-form{display:contents}
 .jof2 [hidden],.jof2-gaveta [hidden]{display:none!important}
 .jof2 button,.jof2 input,.jof2 select,.jof2 textarea{font:inherit;color:inherit}
