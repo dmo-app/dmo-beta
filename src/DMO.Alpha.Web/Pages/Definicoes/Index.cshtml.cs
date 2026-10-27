@@ -55,26 +55,10 @@ public sealed class IndexModel(
 
     public Controlo.DefinicoesModel? Controlo { get; private set; }
 
-    /// <summary>
-    /// Os separadores do Controlo (Diogo, 22/10/2026: «o que é usado no Peso
-    /// um separador com Peso, Pegamentos separador com Pegamentos», «email um
-    /// separador com email»): cada um só com o que essa área lê.
-    /// </summary>
-    public static readonly IReadOnlyList<(string Chave, string Nome)> ControloSeparadores =
-    [
-        ("peso", "Peso"),
-        ("pegamentos", "Pegamentos"),
-        ("puncoes", "PU NNPB"),
-        ("email", "Email")
-    ];
-
     public Admin.Definicoes.IndexModel? App { get; private set; }
 
     /// <summary>A função aberta do grupo Admin (?sub=…).</summary>
     public string AdminSub { get; private set; } = "app";
-
-    /// <summary>O separador do Controlo aberto (?sub=…).</summary>
-    public string ControloSub { get; private set; } = "peso";
 
     public Ferramentas.DefinicoesModel? Ferramentas { get; private set; }
 
@@ -197,12 +181,6 @@ public sealed class IndexModel(
         if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ControloCreate))
         {
             Controlo = Ligar(controlo);
-            ControloSub = Q("sub") is { } pedidoSub && ControloSeparadores.Any(t => t.Chave == pedidoSub) ? pedidoSub
-                : Q("densidade") is not null ? "peso"
-                : Q("save") is not null ? "pegamentos"
-                : Q("envio") is not null ? "email"
-                : Q("seccoes") is not null ? "puncoes"
-                : "peso";
             await Controlo.CarregarAsync(Q("save"), Q("envio"), Q("fora"), Q("densidade"), Q("seccoes"));
         }
 

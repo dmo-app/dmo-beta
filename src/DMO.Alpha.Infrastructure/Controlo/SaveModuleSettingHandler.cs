@@ -77,6 +77,16 @@ public sealed class SaveModuleSettingHandler : ISaveModuleSettingHandler
 
                 break;
 
+            case ModuleSettingKeys.ReparacaoInternaPostoMinutos:
+                // Só uma das opções do select (3, 5, 10, 15 ou 30 minutos).
+                if (!int.TryParse(command.SettingValue.Trim(), out var minutos)
+                    || !DMO.Alpha.Core.Admin.PostoRiRegras.MinutosOpcoes.Contains(minutos))
+                {
+                    return new SaveModuleSettingOutcome(SaveModuleSettingResult.PostoMinutosInvalidos);
+                }
+
+                break;
+
             case ModuleSettingKeys.ControloPastaPdf:
                 if (command.SettingValue.Trim().Length > ModuleSettingKeys.ControloPastaPdfMax)
                 {

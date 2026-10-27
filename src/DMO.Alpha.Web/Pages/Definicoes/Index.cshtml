@@ -23,11 +23,6 @@ html body :is(.def-modulos,.def-geral-aviso)[hidden]{display:none}
 .def-geral-aviso p{margin:0}
 .def-geral-aviso strong{color:var(--dmo-text)}
 .def-geral-aviso .dmo-button{margin-left:auto;flex:none}
-.def-funcoes{display:inline-flex;flex-wrap:wrap;align-self:flex-start;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,6px);overflow:hidden;background:var(--dmo-card)}
-.def-funcoes a{padding:6px 14px;font-size:13px;color:var(--dmo-muted);text-decoration:none;border-right:1px solid var(--dmo-border)}
-.def-funcoes a:last-child{border-right:0}
-.def-funcoes a:hover{color:var(--dmo-text)}
-.def-funcoes a.active{background:var(--dmo-brand-050);color:var(--dmo-text);font-weight:650}
 .def-secao{display:flex;flex-direction:column;gap:14px;min-width:0}
 html body .def-secao[hidden]{display:none}
 .def-parte{display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -80,6 +75,11 @@ html body .ctl-def-grade[hidden]{display:none}
 /* Nas «Opções», o que está escondido não aparece e o que está fechado pelo PIN fica apagado. */
 html body .def-layout .dmo-options-item[hidden]{display:none}
 html body .def-layout .dmo-options-item:disabled{color:var(--dmo-muted);cursor:not-allowed}
+/* O Controlo numa só vista, em duas colunas que se enchem de cima para baixo (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraPdgDP4VBjupRjBgYAbyMQp: «inserir tudo na opção do Controlo e voltar a reduzir»). */
+.ctl-def-tudo{column-count:2;column-gap:14px}
+.ctl-def-tudo .ctl-def-grupo{display:contents}
+.ctl-def-tudo .dmo-card{display:block;break-inside:avoid;margin:0 0 14px;width:100%;max-width:none;box-sizing:border-box}
+.ctl-def-tudo :is(#ctlDefDensidade,#ctlDefTolerancia){width:100%;min-width:0}
 .adm-app-cartoes{align-items:stretch}
 .adm-card{padding:16px 18px;min-width:0;margin:0}
 .adm-card h3{margin:0 0 12px;font-size:16px}
@@ -97,7 +97,7 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
   .def-menu,.def-modulos{flex-wrap:nowrap;overflow-x:auto}
   .def-pessoal-grade,.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr)}
   .ctl-def-grade{grid-template-columns:minmax(0,1fr)}
-  .def-pastas{column-count:1}
+  .def-pastas,.ctl-def-tudo{column-count:1}
   .def-geral-aviso{flex-wrap:wrap}
 }
 </style>
@@ -270,16 +270,9 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
       {
         <section id="sec-controlo" class="def-secao" data-dmo-def-secao="controlo" aria-labelledby="def-controlo-title" hidden="@(Model.Secao != "controlo")">
           <h2 id="def-controlo-title" class="dmo-visually-hidden">Controlo</h2>
-          <nav class="def-funcoes" aria-label="Partes do Controlo">
-            @foreach (var (sub, subNome) in DMO.Alpha.Web.Pages.Definicoes.IndexModel.ControloSeparadores)
-            {
-              var subAtivo = sub == Model.ControloSub;
-              <a href="/Definicoes?secao=controlo&amp;sub=@sub" data-dmo-ctl-tab="@sub" data-dmo-grupo="controlo" class="@(subAtivo ? "active" : null)" aria-current="@(subAtivo ? "page" : null)">@subNome</a>
-            }
-          </nav>
           <div class="def-parte" id="controlo">
             <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais do Controlo</legend>
-              <partial name="/Pages/Controlo/_DefinicoesGeral.cshtml" model="controlo" view-data="@(new ViewDataDictionary(ViewData) { ["CtlSub"] = Model.ControloSub })" />
+              <div class="ctl-def-tudo"><partial name="/Pages/Controlo/_DefinicoesGeral.cshtml" model="controlo" /></div>
             </fieldset>
           </div>
         </section>
@@ -424,19 +417,6 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
     var entrada = e.target.closest("[data-dmo-def-entrada]");
     var chave = separador ? separador.getAttribute("data-dmo-def-abre") : entrada ? entrada.getAttribute("data-dmo-def-entrada") : null;
     if (chave && mostrar(chave, true)) { e.preventDefault(); e.stopPropagation(); }
-  }, true);
-  // As partes do Controlo (Peso, Pegamentos, PU NNPB, Email): cada uma mostra só os seus cartões (?sub=…).
-  document.addEventListener("click", function (e) {
-    if (!clique(e)) return;
-    var sub = e.target.closest("[data-dmo-ctl-tab]");
-    if (!sub) return;
-    e.preventDefault();
-    var grupo = sub.getAttribute("data-dmo-grupo"), chave = sub.getAttribute("data-dmo-ctl-tab");
-    mostrar(grupo, false);
-    document.querySelectorAll('[data-dmo-ctl-sub][data-dmo-grupo="' + grupo + '"]').forEach(function (g) { g.hidden = g.getAttribute("data-dmo-ctl-sub") !== chave; });
-    document.querySelectorAll('[data-dmo-ctl-tab][data-dmo-grupo="' + grupo + '"]').forEach(function (t) { marcar(t, t === sub); });
-    var url = new URL(window.location.href); url.searchParams.set("secao", grupo); url.searchParams.set("sub", chave); url.hash = "";
-    window.history.pushState(null, "", url.href);
   }, true);
   window.addEventListener("popstate", function () {
     mostrar(new URL(window.location.href).searchParams.get("secao") || "pessoal", false);
