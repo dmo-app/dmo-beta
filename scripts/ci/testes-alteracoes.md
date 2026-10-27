@@ -3669,3 +3669,29 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Linhas_TemADataAFrente_AMaquinaComACor_ESemContagens`
 
 Selo depois: `6500f7b9a7dbe746`
+
+## A-0211 · 2026-10-27 · contagem-lista
+
+Porquê: DMO-472 Posto da RI: testes novos (só a Reparação Interna; a sessão do posto fecha ao fim de 3 min sem uso; minutos nas Definições); o package.json só ganha o ficheiro posto-sair.test.cjs na lista
+Novos: 17 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.ForaDasOpcoes_ERecusado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.OsMinutosLidos_SemValorValidoSao3`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.UmaDasOpcoes_Grava`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ComOTempoDasDefinicoes_ASessaoDuraEsseTempo`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_SemUsoDurante3Minutos_ASessaoFecha`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_SoAReparacaoInterna_PeloLoginTodosOsModulos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.SairDoPosto_VoltaAoPosto_PeloLoginNaoHaTempo`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: com mais tempo nas Definições, espera esse tempo`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: em uso, avisa o servidor no máximo uma vez por minuto`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: escrever num campo conta como uso`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: fora do posto (login normal) não faz nada`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: quem está a usar a página não é posto fora`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: sem uso durante os minutos do posto, sai e volta ao posto`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `456e1ef94b10f58a`

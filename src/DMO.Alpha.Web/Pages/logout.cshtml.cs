@@ -15,11 +15,13 @@ namespace DMO.Alpha.Web.Pages;
 [AllowAnonymous]
 public class LogoutModel : PageModel
 {
-    public async Task<IActionResult> OnGetAsync()
+    /// <param name="posto">«1» quando a sessão do posto fechou por falta de uso
+    /// (dmo-posto.js): volta ao posto para a pessoa seguinte, não ao login.</param>
+    public async Task<IActionResult> OnGetAsync(string? posto)
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         DMO.Alpha.Web.Services.DesbloqueioDasDefinicoes.Fechar(HttpContext);
-        return Redirect("/login");
+        return Redirect(posto == "1" ? "/Posto" : "/login");
     }
 
     public async Task<IActionResult> OnPostAsync()

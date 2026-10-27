@@ -66,6 +66,13 @@ public static class ModuleSettingKeys
     public const string ReparacaoInternaDayChangeHour = "ReparacaoInterna:DayChangeHour";
 
     /// <summary>
+    /// Reparação Interna — os minutos sem uso ao fim dos quais a sessão
+    /// aberta pelo posto fecha sozinha (Diogo, 27/10/2026: «3min auto e
+    /// opções nas definições para aumentar»). Ver PostoRiRegras.MinutosOpcoes.
+    /// </summary>
+    public const string ReparacaoInternaPostoMinutos = "ReparacaoInterna:PostoMinutos";
+
+    /// <summary>
     /// Administração — o email do ADMIN (o ADMIN é apenas um email,
     /// guardado nas Definições).
     /// O login por email compara-se a este valor; um User com este email
