@@ -297,3 +297,41 @@ html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):
   /* O artigo um pouco mais baixo: a imagem continua inteira (encaixa no espaço). */
   html:root body .jof2:not(.editing) .side .jof-artigo{height:170px!important}
 }
+
+/* ------------------------------------------------------------------ */
+/* Faixa do Planeamento (Job On, Sumário): o subtítulo por baixo do    */
+/* título, pequeno, e o título mais à frente (Diogo, 27/10/2026:       */
+/* «meter por baixo de Planeamento, poupar espaço, chegar Planeamento  */
+/* mais à frente»). Os cartões das produções ficam com mais espaço.    */
+/* Só a faixa com subtítulo (a das Boquilhas não tem).                 */
+/* ------------------------------------------------------------------ */
+@media (min-width:801px){
+  html body .beta-production-rail:has(>.beta-production-rail-head>span){padding-left:8px;gap:10px}
+  html body .beta-production-rail-head:has(>span){display:flex;flex-direction:column;align-items:flex-start;gap:2px;max-width:178px;padding-right:12px}
+  html body .beta-production-rail-head:has(>span)>span{display:block;font-size:11px;line-height:14px;white-space:normal}
+}
+
+/* «Produções de <dia>»: no hover a linha toma a sua própria cor, como o */
+/* cartão escolhido na faixa do Planeamento (Diogo, 27/10/2026: «hover   */
+/* não funciona como devido»). Sem o azul genérico das listas e sem a    */
+/* barra verde à esquerda; o texto passa à cor sobre a cor da linha.     */
+html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover{background:var(--dmo-machine-color);box-shadow:none;color:var(--dmo-text-on-color)}
+html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover :is(strong,span,a){color:var(--dmo-text-on-color)}
+html:root body .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:transparent}
+
+/* ------------------------------------------------------------------ */
+/* Calendários (Planeamento, Revisão, Boquilhas › Movimentos — todos o */
+/* mesmo _DmoCalendar): os dias sem caixa de fundo nem contorno; no    */
+/* hover muda só a cor do número (Diogo, 27/10/2026: «não quero ver    */
+/* estes boxes de background, muda a cor dos hovers para branco»).     */
+/* Escuro: branco. Claro: o azul de hover da app (--dmo-brand-600);    */
+/* os dias com mudanças, que já têm esse azul, passam ao azul escuro   */
+/* (--dmo-brand-800). O dia escolhido continua cheio e o de hoje a     */
+/* negrito; o foco pelo teclado mantém o seu contorno.                 */
+/* ------------------------------------------------------------------ */
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected){border:0;border-radius:6px;background:none;box-shadow:none}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){border:0;background:none;box-shadow:none;color:var(--dmo-brand-600)}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day).has:not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){color:var(--dmo-brand-800)}
+html:root[data-theme="dark"] body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){color:#fff}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty){border:0;box-shadow:none}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty):is(:hover,:focus-visible){background:var(--dmo-brand-600);border:0;box-shadow:none;color:var(--dmo-text-on-color)}
