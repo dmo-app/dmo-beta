@@ -10,7 +10,7 @@
 
     <form method="post" asp-page="/ReparacaoInterna/Definicoes" asp-page-handler="SaveDayChangeHour">
         <div class="dmo-field">
-            <label for="riDayChangeHour">Hora de viragem</label>
+            <label for="riDayChangeHour" class="dmo-visually-hidden">Hora de viragem</label>
             <select id="riDayChangeHour" name="dayChangeHour" data-dmo-autosubmit>
                 @for (var h = 0; h <= 23; h++)
                 {

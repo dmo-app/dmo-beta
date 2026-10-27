@@ -44,17 +44,18 @@
   --dmo-shadow: none;
   --dmo-sidebar-width: 244px;
 }
+/* Escuro um tom mais claro (Diogo, 27/10/2026, …3NTas4a1z43TSpjUNg81sv): fundos, cartões, campos e linhas. */
 :root[data-theme="dark"] {
-  --dmo-page: var(--design-ink); --dmo-card: #1c212b;
-  --dmo-bar: #1c212b; --dmo-field: #161a22;
-  --dmo-subtle: #252b37; --dmo-border: #343b49;
+  --dmo-page: #1a1e27; --dmo-card: #242a35;
+  --dmo-bar: #242a35; --dmo-field: #1e232c;
+  --dmo-subtle: #2d3441; --dmo-border: #3c4453;
   --dmo-text: #eceef1; --dmo-muted: var(--design-pale);
   --dmo-brand-950: #eceef1; --dmo-brand-900: #eceef1;
   --dmo-brand-800: var(--design-200); --dmo-brand-700: var(--design-200);
   --dmo-brand-600: var(--design-medium); --dmo-palette-slate: var(--design-medium);
   --dmo-action: #515f7a;
-  --dmo-brand-200: #343b49; --dmo-brand-100: #2b313d;
-  --dmo-brand-050: #252b37; --dmo-row-hover: #2b313d;
+  --dmo-brand-200: #3c4453; --dmo-brand-100: #333a47;
+  --dmo-brand-050: #2d3441; --dmo-row-hover: #333a47;
 }
 /* The logo, module tabs and real signed-in account share the first row. */
 html body .dmo-shell-header {
@@ -470,7 +471,9 @@ html body.dmo-account-page .identity{background:var(--dmo-subtle)}
 html body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-200) 0%,var(--design-100) 50%,var(--dmo-subtle) 100%)}
 html:not([data-theme="dark"]) body.dmo-account-page .login-side{background:#f9fafb}
 html body.dmo-account-page .identity-foot,html body.dmo-account-page .identity-foot strong{color:var(--design-navy)}
-html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-medium) 0%,var(--design-blue) 35%,var(--design-navy) 70%,var(--dmo-page) 100%)}
+/* Escuro mais claro (Diogo, 27/10/2026, …GKcythBx2yaXPFFQcuzeg2: «está demasiado escuro»): o degradê acaba no
+   #343D4F em vez do fundo da página. */
+html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-medium) 0%,var(--design-blue) 55%,var(--design-navy) 100%)}
 html[data-theme="dark"] body.dmo-account-page .identity-foot,html[data-theme="dark"] body.dmo-account-page .identity-foot strong{color:#fff}
 html[data-theme="dark"] body.dmo-account-page .identity .eyebrow{color:var(--design-100)}
 html body.dmo-account-page .identity .brand-logo.brand-logo{width:112px;height:112px;background:none}

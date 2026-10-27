@@ -3810,6 +3810,33 @@ Novos: 0 · mudaram: 5 · saíram: 0
 
 Selo depois: `1330384d86b35971`
 
+## A-0233 · 2026-10-27 · ok-do-diogo
+
+Porquê: O Diogo pediu para distinguir o Controlo anterior (a tabela) da Produção anterior (média e moda da produção), juntar os números da produção anterior numa só faixa e tirar o «Hoje». Os testes passam a pedir os nomes novos, o cabeçalho agrupado, o «Guardar» no cartão da Produção anterior, três zonas parciais em vez de duas e a média e a moda à vista sem janela nem «Hoje».
+Referência: Diogo 27/10 11:30–11:31: cmsg_01K75FTs9bQnbhhH7qttpgraSGxUefy18MyznA8nv1rULs, cmsg_01K75FTs9bQnbhhH7qttpgraChGeZYDRdpWXkZFJYD88JY, cmsg_01K75FTs9bQnbhhH7qttpgra64wN7wJBwgW1MPgAeTBaS9 (DMO-491)
+Novos: 0 · mudaram: 8 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Folha_ComComparacao_PrevisualizarNaoAlteraPesosGuardadosNemPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_GravaSemRecarregar_ZonasTrocadasELeituraNovaQueFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+
+Selo depois: `a5e334c99005e344`
+
+## A-0229 · 2026-10-27 · ok-do-diogo
+
+Porquê: Reparação Interna: sem linha escolhida, o texto diz «Escolha a linha acima para registar.» (as linhas estão em cima, não num painel lateral)
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra7NFQu7Q6NgYSLAEsRrjpLy
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
+
+Selo depois: `1816215d3d43701f`
+
 ## A-0227 · 2026-10-27 · contagem-lista
 
 Porquê: Estrutura fixa dos painéis deslizantes e das páginas (DMO-485): testes novos do painel de apoio na estrutura, da marcação da página (<dmo-pagina>), da folha dmo-estrutura.css, do dmo-painel.js e do Job On dentro do painel (título, largura, folha sem título repetido); o package.json do ShellProof só ganha o ficheiro novo na lista
@@ -3827,4 +3854,4 @@ Novos: 9 · mudaram: 1 · saíram: 0
 - novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel: o botão abre, o «Fechar» fecha e o foco volta ao botão`
 - mudou: `tests/ShellProof/package.json`
 
-Selo depois: `3fcc781cdb3b7224`
+Selo depois: `a66892ce2862276f`

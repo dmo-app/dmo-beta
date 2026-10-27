@@ -19,7 +19,8 @@
 <link rel="stylesheet" href="~/css/dmo-ferramenta-form.css" asp-append-version="true" />
 <style>
 /* O % da Utilização abre a janela das produções (Diogo, 21/10/2026). */
-.ferr-utilizacao-abrir{all:unset;cursor:pointer;font-weight:800;color:var(--dmo-link,var(--dmo-brand-600));text-decoration:underline;text-underline-offset:3px}
+.ferr-utilizacao-abrir{all:unset;cursor:pointer;font-weight:800;color:var(--dmo-link,var(--dmo-brand-600));text-decoration:none}
+.ferr-utilizacao-abrir:hover{color:var(--dmo-text)}
 html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.ferr-producao-maquina){color:#fff}
 .ferr-utilizacao-abrir:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
 .ferr-producoes-janela .ferr-producoes-lista{max-height:min(60vh,420px);overflow:auto}
@@ -48,10 +49,22 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
 .ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
 .ferr-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
-.ferr-link-botao{all:unset;cursor:pointer;margin-right:auto;text-decoration:underline;text-underline-offset:3px}
+.ferr-link-botao{all:unset;cursor:pointer;margin-right:auto}
 .ferr-link-botao:hover{color:var(--dmo-text)}
 .ferr-link-botao:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
+/* «← Voltar» por cima do título (o botão do cartão Geral fica escondido) e a ficha a caber em 768 px. */
+html body main.ferr-page>a.dmo-voltar-texto{justify-self:start;margin:0 0 -12px}
+html body main.ferr-page #ferrVoltar{display:none}
+/* A Informação opcional na mesma linha de Tipo, Referência, Lote, Qtd. lote e % uso. */
+html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:nowrap;align-items:flex-end}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-editar-principal{flex:0 0 auto}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional{flex:0 1 auto;margin:0;padding:0 0 0 24px;border-top:0;border-left:1px solid var(--dmo-border)}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:nowrap}
+/* O título «Informação opcional» sobe para o espaço livre à direita das linhas, por cima dos campos. */
+html body main.ferr-page #ferrEditar .ferr-opcional{position:relative}
+html body main.ferr-page #ferrEditar .ferr-opcional>legend{position:absolute;top:-24px;left:24px;margin:0}
+html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
 </style>
 }
 
@@ -71,6 +84,12 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
      «metem os botões em baixo aumenta espaço, sempre canto superior direito
      dentro dos cards»): o «Opções» e o «Voltar à lista» saíram daqui para o
      primeiro card da ficha; os «Guardar» estão na linha do título do card. *@
+  @* «← Voltar» discreto por cima do título, como nas outras páginas (Diogo, 27/10/2026). O destino é o
+     do botão «Voltar» do cartão Geral (que fica escondido, é o que os leitores e os testes conhecem). *@
+  @if (sheet is not null)
+  {
+    <a class="dmo-voltar-texto" id="ferrVoltarTexto" href="@(Model.VoltarJobOn ?? Url.Page("/Ferramentas/Index"))" data-dmo-voltar="@sheet.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
+  }
   <div class="page-head">
     <div>
       <h2 id="ferr-title">Ficha de ferramenta</h2>
@@ -393,7 +412,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
          todas para a ferramenta repetida; o link leva ao Editar. *@
       @if (tool.Machines.Count == 0)
       {
-        <div class="ferr-aviso warn ferr-sem-maquinas" role="status" style="margin-top:12px">Sem máquinas: conta como estando em todas, por isso outra com o mesmo tipo, referência e lote é recusada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-maquinas-editar">Acrescentar as máquinas</a></div>
+        <div class="ferr-aviso warn ferr-sem-maquinas" role="status">Sem máquinas: conta como estando em todas, por isso outra com o mesmo tipo, referência e lote é recusada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-maquinas-editar">Acrescentar as máquinas</a></div>
       }
 
       @* SEM QUANTIDADE (Diogo, 20/10/2026: «nao pode ser optional pq da erro se
@@ -401,7 +420,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
          fica por calcular; o link leva ao Editar. *@
       @if (tool.Type == ToolType.Bq && tool.BqAccountedQuantity is null)
       {
-        <div class="ferr-aviso warn ferr-sem-quantidade" role="status" style="margin-top:12px">Sem quantidade do lote: nas Boquilhas, a Fabricação desta BQ não é calculada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-quantidade-editar">Acrescentar a quantidade</a></div>
+        <div class="ferr-aviso warn ferr-sem-quantidade" role="status">Sem quantidade do lote: nas Boquilhas, a Fabricação desta BQ não é calculada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-quantidade-editar">Acrescentar a quantidade</a></div>
       }
 
       @* À ESPERA DA UTILIZAÇÃO (o lembrete): aberto pela Entrada vinda da
@@ -409,7 +428,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
          seguinte. O link leva às Definições, onde se lê a pasta do SAP. *@
       @if (Model.Utilizacao?.LembreteDesdeUtc is { } lembreteDesde)
       {
-        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura da produção. <a class="ferr-cancel" href="/Definicoes?secao=computador" id="ferr-utilizacao-ler">Ler a pasta da produção</a></div>
+        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura da produção. <a class="ferr-cancel" href="/Definicoes?secao=computador" id="ferr-utilizacao-ler">Ler a pasta da produção</a></div>
       }
 
       @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico
@@ -419,9 +438,9 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
       @if (tool.TechnicalName is { } technicalName)
       {
         var decoded = TechnicalNameParser.Decode(technicalName);
-        <div style="margin-top:12px;padding:11px 13px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px">
-          <strong style="overflow-wrap:anywhere">Nome técnico: @technicalName</strong>
-          <div style="margin-top:6px;color:var(--dmo-muted);font-size:12.5px">
+        <div class="ferr-nome-tecnico">
+          <strong>Nome técnico: @technicalName</strong>
+          <div class="ferr-nome-tecnico-decode">
             @(decoded.Family == "desconhecido" ? null : decoded.Family)@(decoded.InferredType is { } inferred ? $" · tipo inferido {tokenOf(inferred)}" : null)@(decoded.InferredReference is { } inferredRef ? $" · referência {inferredRef}" : null)@(decoded.Dimension is { } dimension ? $" · {dimension}" : null)@(decoded.Process is { } process ? $" · {process}" : null)@(decoded.Ventilation is { } ventilation ? $" · ventilação {ventilation}" : null)
           </div>
         </div>
