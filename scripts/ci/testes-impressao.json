@@ -1,5 +1,5 @@
 {
-  "selo": "055d69c0c2199556",
+  "selo": "4193f9e4dfc6d19f",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3100,8 +3100,8 @@
     "tests/ShellProof/voltar.test.cjs :: sem origem do mesmo site, fica o link do servidor": "6edabad40cafbf7a",
     "tests/ShellProof/voltar.test.cjs :: vindo de outra página, o Voltar volta lá com os filtros": "538ba708ae2c1c98",
     "tests/visual/README.md": "e945d763593851fe",
-    "tests/visual/ajuda_junto_browser.py": "a854e14551cdb9c6",
-    "tests/visual/boquilhas_catalog_browser.py": "d804b1f1e10291bb",
+    "tests/visual/ajuda_junto_browser.py": "c7efa17e70a52222",
+    "tests/visual/boquilhas_catalog_browser.py": "c9534c908a21179c",
     "tests/visual/calendario_parcial_browser.py": "e8db227590a44c8f",
     "tests/visual/definicoes_parcial_browser.py": "415309e3edd73d36",
     "tests/visual/design-review.cjs :: (resto do ficheiro)": "ce3f707087ab604a",
@@ -3114,7 +3114,7 @@
     "tests/visual/gravacoes_zonas_browser.py": "ab540e418fe53d49",
     "tests/visual/historicos_parcial_browser.py": "64ce36444badbae3",
     "tests/visual/jobon_folha_browser.py": "423a8feb8914e0f3",
-    "tests/visual/nok_agente_browser.py": "5a99dbfda60ac927",
+    "tests/visual/nok_agente_browser.py": "38157f0e523cc2cb",
     "tests/visual/paginacao_parcial_browser.py": "571e64a6f5ea69fc",
     "tests/visual/painel_cores_linhas_browser.py": "314294fe9aeb453c",
     "tests/visual/painel_lateral_browser.py": "85c135a8f92bce44",
