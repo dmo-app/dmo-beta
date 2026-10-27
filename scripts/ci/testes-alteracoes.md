@@ -3554,9 +3554,20 @@ Novos: 9 · mudaram: 0 · saíram: 0
 
 Selo depois: `74292cfeef1490d1`
 
+## A-0216 · 2026-10-27 · teste-novo
+
+Porquê: Testes de páginas que falhavam ao acaso com erro 500: as aplicações de teste deixam de gastar vigias de ficheiros do Linux (inotify, 128 por utilizador); o teste prova que uma aplicação de teste arranca e abre o login sem gastar nenhuma (DMO-474, 0.3.0-beta.175)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros`
+
+Selo depois: `c22447c6290ce98f`
+
 ## A-0217 · 2026-10-27 · teste-novo
 
-Porquê: Filtro «Informação» do Sumário com as opções Importante, Job On (criados, mudanças, alterações e experiências), Armazém e Controlo (DMO-475, 0.3.0-beta.174): testes novos das opções, do Job On, do Controlo no topo e das opções por módulo
+Porquê: Filtro «Informação» do Sumário com as opções Importante, Job On (criados, mudanças, alterações e experiências), Armazém e Controlo (DMO-475, 0.3.0-beta.176): testes novos das opções, do Job On, do Controlo no topo e das opções por módulo
 Novos: 5 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: (resto do ficheiro)`
@@ -3565,7 +3576,7 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_SoMostraAsOpcoesDosModulosDaConta`
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_TemImportante_JobOn_Armazem_EControlo`
 
-Selo depois: `d1712c0b4bd9c7b1`
+Selo depois: `1ed9aee25a90a3a2`
 
 ## A-0218 · 2026-10-27 · ok-do-diogo
 
@@ -3575,4 +3586,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Linhas_TemADataAFrente_AMaquinaComACor_ESemContagens`
 
-Selo depois: `fbff2180d0f87ebd`
+Selo depois: `c79d64e9222c4f78`
