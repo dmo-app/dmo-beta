@@ -87,7 +87,7 @@ html body main.ferr-page .dmo-card-dobravel details[open]>summary.dmo-card-topo{
 html.dmo-bloqueado body main.ferr-page form[method="post"] :is(input,select,textarea):disabled{border:1px solid color-mix(in srgb,var(--dmo-border) 70%,transparent);background:transparent;padding-inline:10px}
 html.dmo-bloqueado body main.ferr-page form[method="post"] select:disabled{background-image:none;appearance:none;-webkit-appearance:none}
 html.dmo-bloqueado body main.ferr-page form[method="post"] :is(input,textarea):disabled:not(.ferr-sem-registo-campo)::placeholder{color:transparent;-webkit-text-fill-color:transparent}
-html.dmo-bloqueado body main.ferr-page form[method="post"] input.ferr-sem-registo-campo:disabled::placeholder{-webkit-text-fill-color:var(--dmo-warning)}
+html.dmo-bloqueado body main.ferr-page form[method="post"] input.ferr-sem-registo-campo:disabled::placeholder{-webkit-text-fill-color:var(--dmo-muted)}
 html.dmo-bloqueado body main.ferr-page .ferr-check input:disabled+span{cursor:default}
 html.dmo-bloqueado body main.ferr-page #ferr-tech-guardar{display:none}
 

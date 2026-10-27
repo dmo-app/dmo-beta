@@ -47,8 +47,8 @@ html body .ferr-tech-campos .dmo-field input[aria-invalid=true]{border-color:var
 .ferr-editar-linha > .ferr-editar-sep{align-self:stretch}
 @media (max-width:900px){.ferr-editar-sep{display:none}.ferr-editar-linha > .ferr-opcional{flex-basis:100%;padding-top:12px;border-top:1px solid var(--dmo-border)}}
 .ferr-w-uso{width:112px}
-input.ferr-sem-registo-campo{background:var(--dmo-warning-soft)}
-input.ferr-sem-registo-campo::placeholder{color:var(--dmo-warning)}
+/* «sem registo»: o campo é igual aos outros e o texto tem a cor secundária (sem laranja; Diogo, 27/10/2026). */
+input.ferr-sem-registo-campo::placeholder{color:var(--dmo-muted);opacity:1}
 .ferr-editar-linha .dmo-field > label{min-height:20px}
 /* A Informação opcional numa só linha e a Fábrica de origem estreita: leva
    duas letras, como MG (Diogo, 26/10/2026). */
