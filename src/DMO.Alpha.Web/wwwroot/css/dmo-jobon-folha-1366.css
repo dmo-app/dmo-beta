@@ -368,3 +368,8 @@ html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.jof-dims{margin-top:auto
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>details.more:not(.jof-dims~details.more){margin-top:auto}
 
 html:root body .jof2.jof2.jof2.jof2:not(.editing){padding-bottom:0}
+
+/* Hover (regra do Diogo, 27/10/2026): nos seletores (Tipo Produção / Experiência) a opção não escolhida
+   só muda a cor da letra, sem mudar o fundo nem o contorno; na área do Artigo o contorno não muda. */
+html:root body .jof2.jof2 .jof-tipo.dmo-alternador label:hover>input:not(:checked)+span{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:color-mix(in srgb,var(--dmo-opcao-letra) 85%,var(--dmo-opcao-fundo))}
+html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-border)}

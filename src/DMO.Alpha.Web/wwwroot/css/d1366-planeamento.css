@@ -382,7 +382,6 @@ html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:
 /* os «—» vêm daqui). Só aspeto: o HTML e o clique são os de sempre.      */
 /* ------------------------------------------------------------------ */
 @media screen and (min-width:701px){
-  html body .beta-light-view .beta-light-grid{grid-template-columns:440px minmax(0,1fr)}
 
   /* Referência, Produção e «Criar Job On» em baixo no cartão, por baixo da
      tabela e separados por uma linha fina, como na maqueta (Diogo,
@@ -401,18 +400,6 @@ html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:
   html body .beta-light-productions .jobon-procura-bloco #lightProcuraProducoes{grid-area:2/2;width:100%;min-width:0}
   html body .beta-light-productions .jobon-procura-bloco #jobonCriar{grid-area:2/3}
   html body .beta-light-productions{--plan-cols:64px minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.6fr)}
-
-  /* O calendário */
-  html body .dmo-calendar.dmo-calendar-acoes.card{width:100%}
-  html body .dmo-calendar-acoes .dmo-calendar-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px}
-  html body .dmo-calendar-acoes .dmo-calendar-topo>strong{min-width:0;margin:0;text-transform:capitalize;color:var(--dmo-brand-900);font-size:18px;font-weight:800;line-height:1.3;white-space:nowrap}
-  html body .dmo-calendar-acoes .dmo-card-topo-acoes{flex-wrap:nowrap;gap:8px;margin-left:auto}
-  html body .dmo-calendar-acoes .dmo-calendar-nav-form{display:block;margin:0}
-  html body .dmo-calendar-acoes .dmo-calendar-week{gap:0;margin:0;padding:0 0 6px;border-bottom:1px solid var(--dmo-border);font-size:12px;font-weight:500;text-transform:lowercase}
-  html body .dmo-calendar-acoes .dmo-calendar-week>span::first-letter{text-transform:uppercase}
-  html body .dmo-calendar-acoes .dmo-calendar-days{gap:0;grid-auto-rows:40px;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 39px,var(--dmo-border) 39px,var(--dmo-border) 40px)}
-  html:root body .dmo-calendar-acoes .dmo-calendar-days>.dmo-calendar-day:not(.empty){align-self:center;aspect-ratio:auto;height:32px;min-height:0;width:calc(100% - 8px);margin-inline:auto}
-  html body .dmo-calendar-acoes .dmo-calendar-legend{margin-top:12px}
 
   /* A tabela: cabeçalho e linhas com as mesmas colunas */
   html body .beta-light-productions .beta-light-list{gap:4px;margin-top:8px}
@@ -500,3 +487,10 @@ html[data-theme="dark"] body .beta-production-rail[aria-label="Planeamento"] .be
   html body .beta-light-view #jobonFolhas .beta-light-sheet{max-height:calc(100vh - 290px);overflow:auto;padding-top:0;margin:0}
   html body .beta-light-view #jobonFolhas .beta-light-sheet>.beta-light-sheet-head{position:sticky;top:0;z-index:3;margin:0 0 8px;padding:16px 0 8px;background:var(--dmo-card)}
 }
+
+/* «Sumário» com novidades: sem o ponto laranja; é a própria palavra que fica mais clara
+   (no claro na cor de destaque, no escuro mais clara), a 600 (Diogo, 27/10/2026). O ponto
+   continua no HTML (classe dmo-tab-novo) mas não se vê. O rato por cima muda a letra como nos outros. */
+html body .dmo-tab-novo::after{display:none}
+html body a.dmo-tab-novo:not(:hover):not(.active){color:var(--dmo-brand-600);font-weight:600}
+html[data-theme="dark"] body a.dmo-tab-novo:not(:hover):not(.active){color:#fff;font-weight:600}
