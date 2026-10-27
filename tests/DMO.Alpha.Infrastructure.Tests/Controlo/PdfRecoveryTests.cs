@@ -200,7 +200,8 @@ public sealed class PdfRecoveryTests
         var resumoText=PdfText.Of(resumoPdf);
         Assert.Contains("Resumo do Controlo 5447T173 · 202604 · B1",resumoText);
         Assert.Contains("Existem medições fora das tolerâncias",resumoText);
-        Assert.Contains("143.10 g Peso médio do vidro",resumoText);
+        Assert.Contains("143.10 g",resumoText);
+        Assert.Contains("Peso médio do vidro",resumoText);
         Assert.Contains("Nominal 138.00 g · +5.10 g (+3.70 %)",resumoText);
         Assert.Contains("não registado não registado OK NOK OK",resumoText);
         Assert.Contains("Boquilha com marca na zona do gargalo; trocada no turno seguinte.",resumoText);

@@ -4030,3 +4030,16 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/painel-propria-pagina.test.cjs :: Painel de apoio: um link para a própria página (corrigir uma leitura nos Pegamentos) fica na página, sem painel`
 
 Selo depois: `fc687ab32acec121`
+
+## A-0248 · 2026-10-27 · ok-do-diogo
+
+Porquê: PDFs para imprimir (DMO-515): sem setas «Ver detalhe →», «Ver →», «Abrir PDF das punções →» e «← Voltar ao Resumo»; a ligação das punções fica no título PU NNPB; o texto do peso médio lê-se noutra ordem porque as etiquetas dos números ficaram alinhadas.
+Referência: Diogo nesta thread: «assim esta vem melbor» cmsg_01K75FTs9bQnbhhH7qttpgraTi8pNMkxbb42HPorBHVSDZ e «faz updat» cmsg_01K75FTs9bQnbhhH7qttpgra1JbRoNSJpnxi8CKE6qCTCb
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PdfRecoveryTests.cs :: with.GenerateCompleteVisualEvidence`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+
+Selo depois: `94d774337ddad608`

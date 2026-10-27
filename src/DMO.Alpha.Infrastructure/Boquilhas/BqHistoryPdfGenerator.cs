@@ -126,7 +126,7 @@ public sealed class BqHistoryPdfGenerator
                             {
                                 if (cellEntries.Count == 0)
                                 {
-                                    column.Item().Text("—").FontColor(DmoPdfPalette.Mist);
+                                    column.Item().Text("—").FontColor(DmoPdfPalette.Muted);
                                     return;
                                 }
 

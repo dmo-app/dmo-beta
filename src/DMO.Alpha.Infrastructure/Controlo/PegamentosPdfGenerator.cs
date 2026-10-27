@@ -105,14 +105,13 @@ public sealed class PegamentosPdfGenerator
                 page.Content().PaddingVertical(8).Column(content =>
                 {
                     content.Item().Section(input.SectionName);
-                    if (combined) content.Item().SectionLink("resumo").Text("← Voltar ao Resumo").FontColor(DmoPdfPalette.Accent);
                     content.Item().PaddingTop(4).Row(row =>
                     {
                         row.Spacing(5);
                         foreach (var card in input.Components)
                         {
                             var table = input.Tables.FirstOrDefault(t => t.Component.Equals(card.Component, StringComparison.OrdinalIgnoreCase));
-                            row.RelativeItem().Border(0.5f).BorderColor(DmoPdfPalette.Sky).BorderLeft(2).Padding(6).Column(c =>
+                            row.RelativeItem().Border(0.5f).BorderColor(DmoPdfPalette.Line).BorderLeft(2).Padding(6).Column(c =>
                             {
                                 c.Item().Text(Label(card.Component) + " — média medida").FontColor(DmoPdfPalette.Muted);
                                 c.Item().Text(table?.AverageMediaMm is { } avg ? Fmt(avg) + " mm" : "Sem medições").FontSize(13).SemiBold();
@@ -127,7 +126,7 @@ public sealed class PegamentosPdfGenerator
                     content.Item().PaddingTop(7).Border(0.6f).BorderColor(statusColor).Padding(7)
                         .Text(status).FontSize(10).SemiBold().FontColor(statusColor);
                     content.Item().PaddingTop(9).Text("Mapa de limites").FontSize(10).SemiBold().FontColor(DmoPdfPalette.Accent);
-                    content.Item().PaddingTop(4).Border(0.5f).BorderColor(DmoPdfPalette.Sky).Padding(5).Column(map =>
+                    content.Item().PaddingTop(4).Border(0.5f).BorderColor(DmoPdfPalette.Line).Padding(5).Column(map =>
                     {
                         map.Item().Height(126).Svg(PegamentosLimitMap.Render(input));
                         map.Item().Text("Linhas = nominais · Tracejado = limites de fora · Círculos = médias de medições · Losango = média global · Vermelho = alerta").FontSize(6.5f);
@@ -137,7 +136,7 @@ public sealed class PegamentosPdfGenerator
                     // AS TABELAS POR COMPONENTE.
                     foreach (var table in input.Tables)
                     {
-                        content.Item().PaddingTop(8).Border(0.5f).BorderColor(DmoPdfPalette.Sky).BorderLeft(2).Padding(4).Text(TableTitle(input, table)).FontSize(8).SemiBold().FontColor(DmoPdfPalette.Accent);
+                        content.Item().PaddingTop(8).Border(0.5f).BorderColor(DmoPdfPalette.Line).BorderLeft(2).Padding(4).Text(TableTitle(input, table)).FontSize(8).SemiBold().FontColor(DmoPdfPalette.Accent);
 
                         content.Item().PaddingTop(3).Table(t =>
                         {
