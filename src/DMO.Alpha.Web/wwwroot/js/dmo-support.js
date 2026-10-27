@@ -82,6 +82,14 @@
   }
   function tryOpen(href, source) {
     if (source?.closest('.dmo-shell-header,nav') || panel.open) return false;
+    // Fora do painel: um contentor [data-dmo-sem-painel="<seletor>"] deixa os
+    // links que casam com o seletor (vazio: todos) navegar como sempre. O
+    // «Registar» do Resumo, para quem tem o Criar, abre a página de registo
+    // (Diogo, 27/10/2026); quem só tem o Ver continua no painel.
+    const semPainel = source?.closest?.('[data-dmo-sem-painel]');
+    if (semPainel) {
+      try { if (source.matches(semPainel.dataset.dmoSemPainel || '*')) return false; } catch { return false; }
+    }
     let url;
     try { url = new URL(href, location.href); } catch { return false; }
     if (url.origin !== location.origin || !destinations.has(url.pathname)) return false;
