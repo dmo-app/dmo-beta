@@ -1,17 +1,17 @@
 /* DMO Design — screen-only presentation. See docs/design/CONTINUAR.md.
    Domain state colours and print layouts remain owned by the application. */
 /* PALETA (Diogo, 27/10/2026, …MDH22Sm9uheCmJcmqHWZmb: «quero mudar para esta palette»):
-   #194569 #5F84A2 #91AEC4 #B7D0E1 #CADEED #DBECF4. Os fundos escuros e a letra derivam do
-   #194569 (mesmo tom, mais escuros). Só no ecrã: a impressão e os PDFs não mudam. */
+   #515F7A #747F95 #979EAE #B8BFC9 #DCDFE4 (2.ª proposta). Os fundos escuros derivam do
+   #515F7A (mesmo tom, mais escuros). Só no ecrã: a impressão e os PDFs não mudam. */
 :root {
-  --design-blue: #194569;
-  --design-medium: #5f84a2;
-  --design-pale: #91aec4;
-  --design-200: #b7d0e1;
-  --design-100: #cadeed;
-  --design-050: #dbecf4;
-  --design-navy: #0f2c45;
-  --design-ink: #0a1824;
+  --design-blue: #515f7a;
+  --design-medium: #747f95;
+  --design-pale: #979eae;
+  --design-200: #b8bfc9;
+  --design-100: #dcdfe4;
+  --design-050: #eceef1;
+  --design-navy: #343d4f;
+  --design-ink: #12151c;
   --dmo-palette-slate: var(--design-blue);
   --dmo-palette-ocean: var(--design-blue);
   --dmo-palette-steel: var(--design-medium);
@@ -29,14 +29,14 @@
   --dmo-brand-200: var(--design-200);
   --dmo-brand-100: var(--design-100);
   --dmo-brand-050: var(--design-050);
-  --dmo-page: #f4f8fb;
+  --dmo-page: #f5f6f8;
   --dmo-card: #fff;
   --dmo-bar: #fff;
   --dmo-field: #fff;
-  --dmo-subtle: #eef4f9;
-  --dmo-border: #d9e5ee;
+  --dmo-subtle: #f0f1f4;
+  --dmo-border: #dcdfe4;
   --dmo-text: var(--design-ink);
-  --dmo-muted: #4f6578;
+  --dmo-muted: #5a6273;
   --dmo-row-hover: var(--dmo-brand-050);
   --dmo-focus-ring: color-mix(in srgb, var(--design-medium) 30%, transparent);
   --dmo-r-card: 8px;
@@ -45,16 +45,16 @@
   --dmo-sidebar-width: 244px;
 }
 :root[data-theme="dark"] {
-  --dmo-page: var(--design-ink); --dmo-card: #10263a;
-  --dmo-bar: #10263a; --dmo-field: #0c1f30;
-  --dmo-subtle: #16324b; --dmo-border: #24435e;
-  --dmo-text: #edf3f8; --dmo-muted: var(--design-pale);
-  --dmo-brand-950: #edf3f8; --dmo-brand-900: #edf3f8;
+  --dmo-page: var(--design-ink); --dmo-card: #1c212b;
+  --dmo-bar: #1c212b; --dmo-field: #161a22;
+  --dmo-subtle: #252b37; --dmo-border: #343b49;
+  --dmo-text: #eceef1; --dmo-muted: var(--design-pale);
+  --dmo-brand-950: #eceef1; --dmo-brand-900: #eceef1;
   --dmo-brand-800: var(--design-200); --dmo-brand-700: var(--design-200);
   --dmo-brand-600: var(--design-medium); --dmo-palette-slate: var(--design-medium);
-  --dmo-action: #2f5d82;
-  --dmo-brand-200: #24435e; --dmo-brand-100: #1c3a55;
-  --dmo-brand-050: #16324b; --dmo-row-hover: #1c3a55;
+  --dmo-action: #515f7a;
+  --dmo-brand-200: #343b49; --dmo-brand-100: #2b313d;
+  --dmo-brand-050: #252b37; --dmo-row-hover: #2b313d;
 }
 /* The logo, module tabs and real signed-in account share the first row. */
 html body .dmo-shell-header {
