@@ -30,7 +30,7 @@
              uma BQ (um tool_id), com a referência, o lote e o resto que a
              distingue. Com JavaScript, escreve-se para procurar. *@
           <div class="dmo-field bq-sem-jobon-bq">
-            <label for="bqSemJobOnBq">BQ · lote<partial name="_DmoHelp" model="@("Escreva a referência ou o lote da boquilha; a lista só aparece depois de escrever.")" /></label>
+            <label for="bqSemJobOnBq" title="Escreva a referência ou o lote da boquilha; a lista só aparece depois de escrever.">BQ · lote</label>
             <select id="bqSemJobOnBq" name="tool_id" data-bq-escolha required>
               <option value="">Escolher</option>
               @foreach (var tool in Model.SemJobOnTools)
