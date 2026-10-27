@@ -15,6 +15,3 @@ html body .dmo-shell-navigation [aria-disabled="true"]{opacity:.5;cursor:default
 
 /* Account actions in the header share the Sair treatment (A-7: alvos ≥24px;
    H-16: a mesma afordância para as três ações de conta). */
-html body .dmo-shell-header .dmo-shell-settings{display:inline-flex;align-items:center;justify-content:center;flex:none;min-height:36px;margin-left:8px;padding:0 14px;border:1px solid var(--dmo-brand-300,#98b9da);border-radius:7px;background:var(--dmo-brand-050,#e8eff7);color:var(--dmo-brand-700,#315d88);font-size:12px;font-weight:750;text-decoration:none}
-html body .dmo-shell-header .dmo-shell-settings:hover,html body .dmo-shell-header .dmo-shell-settings:focus-visible{background:var(--dmo-brand-100,#d9e6f2);outline:0}
-html body .dmo-shell-header .dmo-shell-settings:focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring)}
