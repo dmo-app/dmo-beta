@@ -1126,7 +1126,7 @@ html body .jfn-folha .jfb>:nth-child(3){background:#f5f5f5}
 html body .jfn-folha .jfb-nome b{display:block;font-size:8.5pt}
 html body .jfn-folha .jfb-reflote{display:flex;align-items:baseline;gap:2mm;margin-top:.5mm}
 html body .jfn-folha .jfb-reflote strong{font-size:14pt;font-weight:800;line-height:1.15}
-html body .jfn-folha .jfb-reflote span{font-size:7pt}
+html body .jfn-folha .jfb-reflote span{font-size:11pt;font-weight:600}
 html body .jfn-folha .jfb-reflote i{font-style:normal}
 html body .jfn-folha .jfb-lado{display:grid;grid-template-columns:16mm 1fr;font-size:7pt;margin-top:.6mm}
 html body .jfn-folha .jfb-lado span{color:#555}
@@ -1171,7 +1171,7 @@ html body .jfn-folha .jfc-nome{font-size:8pt}
 html body .jfn-folha .jfc-nome span{display:inline-block;min-width:9mm;font-size:6.5pt;font-weight:700}
 html body .jfn-folha .jfc-ref{display:flex;align-items:baseline;gap:3mm;margin-top:1mm}
 html body .jfn-folha .jfc-ref>b{font-size:19pt;font-weight:800;line-height:1.15}
-html body .jfn-folha .jfc-lote{font-size:8pt}
+html body .jfn-folha .jfc-lote{font-size:13pt;font-weight:600}
 html body .jfn-folha .jfc-lote b{font-weight:400}
 html body .jfn-folha .jfc-obs{font-size:7.5pt;margin-top:.5mm}
 html body .jfn-folha .jfn-rodape{border-top:1px solid #bbb;color:#333;font-size:6.5pt;white-space:pre}
