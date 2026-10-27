@@ -266,3 +266,34 @@ html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:focus-visible
    repouso é branco e aí o nome fica na cor da linha, para se ler (no hover volta a branco). */
 html body .jof2-gaveta .rail-item .mch.mch{min-width:0;height:auto;padding:0;border:0;border-radius:0;background:none!important;background-image:none!important;box-shadow:none!important;color:#fff!important;font-size:13px;font-weight:800;letter-spacing:.02em}
 html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):not(:focus-visible) .mch.mch{color:var(--dmo-machine-color,var(--dmo-text))!important}
+
+/* ------------------------------------------------------------------ */
+/* Job On › Folha (ver) cabe toda em 1366×768, sem scroll (Diogo,     */
+/* 27/10/2026): as Notas gerais e o «O que mudou» ficavam por baixo do */
+/* ecrã (845 px). Nada sai: só menos espaço entre as peças, as caixas  */
+/* das notas com duas linhas (o resto lê-se a deslizar ou ampliada,    */
+/* com um clique) e o nome da conta em duas linhas sem alargar o topo. */
+/* ------------------------------------------------------------------ */
+@media (min-width:1100px){
+  /* O nome e o título do template em duas linhas cabem na altura da barra. */
+  html body .dmo-shell-header .dmo-shell-conta{gap:1px;margin-block:2px}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{line-height:1.15}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{line-height:1.15}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-logout{line-height:1.15}
+  /* As notas dos cartões: duas linhas à vista. */
+  html:root body .jof2.jof2:not(.editing) .note-box.note-view:not(.is-ampliada)>p{min-height:42px!important;max-height:42px!important}
+  html body .jof2:not(.editing) .note-box.note-view>span{margin-bottom:0}
+  /* Menos espaço entre a faixa de cima, os cartões e o «O que mudou». */
+  html body .jof2:not(.editing){padding-top:6px;padding-bottom:4px}
+  html body .jof2:not(.editing) .page-head{margin-bottom:4px;row-gap:4px}
+  html body .jof2:not(.editing) .page-head .facts{min-height:30px;padding-block:2px}
+  html body .jof2:not(.editing) .sheet{margin-top:4px}
+  html body .jof2:not(.editing) .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){margin-top:6px}
+  html body .jof2:not(.editing) .side{gap:6px}
+  html body .jof2:not(.editing) .zones :is(.card.sec,.pair-in>.sec){padding-top:6px;padding-bottom:6px}
+  html body .jof2:not(.editing) .jobon-mudancas>.jobon-resumo{margin-top:4px}
+  html body .jof2:not(.editing) .jobon-mudancas>.jobon-resumo>li{padding-block:4px}
+  html body .jof2:not(.editing) .jobon-mudancas{margin-top:2px;margin-bottom:0}
+  /* O artigo um pouco mais baixo: a imagem continua inteira (encaixa no espaço). */
+  html:root body .jof2:not(.editing) .side .jof-artigo{height:170px!important}
+}
