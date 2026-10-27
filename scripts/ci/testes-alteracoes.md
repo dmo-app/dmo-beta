@@ -3456,3 +3456,33 @@ Novos: 13 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `10f6a12c79e57112`
+
+## A-0196 · 2026-10-27 · ok-do-diogo
+
+Porquê: Limpeza do código que só os testes usavam (DMO-458, 0.3.0-beta.154): saem HasCapability, ArmazemArmarios.Prateleira, ArmazemMapaPosicao.Misturada, ArmazemProximoJobOn.PorTirar/Indisponiveis, ControloDocumentPaths.GetProductionFolder, HistoricoLinha.OutrosTipos, PesoCmDeParteHandler.ContarPorAprovarAsync e CmDecisaoLinha.PorAprovar, ReparacaoProgramadaMovimentos.AoMovimentoAsync, DeleteJobOnPreview.HasRecords, a parcial _JobOnFichaFolha e a escolha data-dmo-procura-valor. Os testes verificam o mesmo pelo que fica (Capabilities, as ferramentas, a contagem na base, AoMovimentosAsync, o nome do ficheiro); saem só as asserções e os 2 testes da função que saiu.
+Referência: Diogo, thread «Limpar o código da app», 27/10/2026 05:22 (cmsg_01K75FTs9bQnbhhH7qttpgraXWcTtH6xwwn13Snc37nLi1), «sim» à lista dos 9 testes
+Novos: 0 · mudaram: 19 · saíram: 2
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_AdminEmailUser_IsAlwaysResolvedWithoutTemplate`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_NoCurrentTemplate_HasNoTemplateDerivedCapabilities`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_RenamedTemplate_EffectiveAccessIsUnchanged`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_StandBy_DisablesCurrentAccessButPreservesAssignmentFacts`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_TemplateWithBothControlos_GrantsBoth`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_WithCurrentTemplate_ResolvesTheTemplateCapabilities`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.APosicao_CorredorEstanteEPrateleira`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.OParDaMesmaReferenciaELote_NaoEMisturado`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.CadaFerramenta_OndeEstaEOQueFalta`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.ForaDoArmazemEDoFabrico_NaoDisponivel`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.Segments_WithPathSeparators_NeverBecomeStructure`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoDecisoesDoDiogoTests.cs :: PesoDecisoesDoDiogoTests.ColocarDeParte_FicaPorAprovar_EAAprovacaoEPorCm`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoDecisoesDoDiogoTests.cs :: PesoDecisoesDoDiogoTests.MudarAEscolha_TiraAAprovacao_EManterNaoVaiParaAprovacao`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/DeleteJobOnHandlerTests.cs :: DeleteJobOnHandlerTests.Confirmacao_ContaOQueSePerde`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasTests.cs :: ReparacoesInternasTests.EliminarOJobOn_ContaELevaAsReparacoes`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NaBq_OsMfDeCadaJobOnPeloBqContext`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_SemNadaEscrito_MostraOsVaziosEOEditar_SemAFichaAntiga`
+- mudou: `tests/ShellProof/escrito-perdido.test.cjs :: numa procura com linhas, as linhas do texto anterior não escolhem enquanto o novo não responde`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionFolder_Is_Dir_Reference_Production`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionFolder_TrimsTrailingSeparatorsOfBaseDir`
+
+Selo depois: `98d72642ab0f5365`
