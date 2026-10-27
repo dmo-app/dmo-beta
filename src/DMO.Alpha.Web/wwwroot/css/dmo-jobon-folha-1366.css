@@ -390,7 +390,7 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html:root body main.jof2.jof2.jof2 .sheet-main>.zones{flex:1 1 0;min-height:0}
 }
 @container board (min-width:640px){
-  /* 40 colunas: 10 + 10 + 10 + 10 em cima; 7 + 9 + 24 por baixo: TP e CS estreitos e os Calibres com mais de metade, como a maqueta 01 (Diogo, 27/10/2026, A-0239). */
+  /* 40 colunas: 10 + 10 + 10 + 10 em cima; 7 + 9 + 24 por baixo: TP e CS estreitos e os Calibres com mais de metade, como a maqueta 01 (Diogo, 27/10/2026, A-0241). */
   html:root body .jof2.jof2.jof2 .zones{grid-template-columns:repeat(40,minmax(0,1fr));grid-template-areas:none;grid-template-rows:minmax(0,1fr) minmax(0,1fr) fit-content(172px);align-content:stretch}
   html:root body .jof2.jof2.jof2 .zones [data-jof-familia="CM"]{grid-area:1/1/3/span 10}
   html:root body .jof2.jof2.jof2 .zones [data-jof-familia="MF"]{grid-area:1/11/3/span 10}

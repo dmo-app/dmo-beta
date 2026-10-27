@@ -174,9 +174,9 @@ public partial class FerramentasPagesTests
         Assert.Contains($"href=\"/Controlo/Resumo?jobon_id={jobOnId}\">Controlo</a>", html);
         Assert.Contains($"href=\"/ReparacaoInterna/Consultar?referencia=5447T173&producao={jobOnId}\">Reparação</a>", html);
         Assert.Contains($"href=\"/JobOn?jobon_id={jobOnId}\">Folha do Job On</a>", html);
-        // A % de uso das três ferramentas, cada uma na sua célula.
-        Assert.Contains("CM 5447 · Lote 3<span class=\"hist-uso\"> · 8 %</span>", html);
-        Assert.Contains("MF 5447 · Lote 7<span class=\"hist-uso\"> · 5.5 %</span>", html);
+        // A % de uso das três ferramentas, cada uma na sua célula; um clique na % abre o histórico do uso (Diogo, 27/10/2026).
+        Assert.Matches("CM 5447 · Lote 3<span class=\"hist-uso\"> · <a class=\"dmo-uso-link\" href=\"/Ferramentas/Utilizacao\\?tool_id=[^\"]+\"[^>]*>8 %</a></span>", html);
+        Assert.Matches("MF 5447 · Lote 7<span class=\"hist-uso\"> · <a class=\"dmo-uso-link\" href=\"/Ferramentas/Utilizacao\\?tool_id=[^\"]+\"[^>]*>5.5 %</a></span>", html);
         Assert.Contains("BQ T173 · Lote 2<span class=\"hist-uso\"> · —</span>", html);
     }
 

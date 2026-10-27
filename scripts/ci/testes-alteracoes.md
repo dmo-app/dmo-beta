@@ -3911,3 +3911,28 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel`
 
 Selo depois: `a50485f0c4e988d2`
+
+## A-0240 · 2026-10-27 · ok-do-diogo
+
+Porquê: O «% uso» de uma ferramenta passa a ser uma ligação ao histórico do uso (painel): na Procura do Armazém o teste lê o texto da célula sem as etiquetas e verifica a ligação; no Histórico das Ferramentas aceita a ligação dentro do hist-uso
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra3oGkfZkfnuNZ4jftsvNw7B
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OHistoricoDoUso_DeUmaFerramentaQueNaoExiste_DaNaoEncontrada`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OHistoricoDoUso_MostraAsProducoesEOUsoQueFoiAcumulando`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OUsoNaFichaDoArmazem_AbreOHistoricoDoUso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
+
+Selo depois: `155ae28a8e306475`
+
+## A-0241 · 2026-10-27 · ok-do-diogo
+
+Porquê: A grelha da folha do Job On passa a ser a da maqueta 01: em cima CM, MF, BQ+AN e PU+ARR com a mesma largura; por baixo TP e CS mais estreitos e os Calibres com mais de metade da largura, até ao fim de PU+ARR, para os 8 calibres caberem à vista. O teste deixa de exigir TP e CS com a largura dos cartões de cima e passa a exigir os Calibres largos.
+Referência: Diogo 27/10/2026 13:13, cartão cmsg_01K75FTs9bQnbhhH7qttpgraRLtcQMRYqY7oQkMoqYfJnc «Sim, como a maqueta 01»
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/jobon_folha_browser.py`
+
+Selo depois: `1146924046f4fbb9`
