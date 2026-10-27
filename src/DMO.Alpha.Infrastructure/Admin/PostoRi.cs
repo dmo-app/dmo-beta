@@ -12,27 +12,22 @@ public sealed class PostoRi(DmoDbContext db, IAdminAuthorizationService autoriza
 
     public async Task<IReadOnlyList<PostoReparador>> ListarAsync(CancellationToken cancellationToken = default)
     {
-        var comPin = await db.UserSettings.AsNoTracking()
-            .Where(s => s.Key == PostoRiRegras.Chave)
-            .Select(s => s.UserId)
-            .ToListAsync(cancellationToken);
+        // Duas consultas, seja qual for o número de reparadores: os
+        // candidatos (ativos, com PIN, por nome) e o acesso de todos de uma
+        // vez, pelas mesmas regras da autorização.
         var candidatos = await db.Users.AsNoTracking()
-            .Where(u => !u.IsStandBy && comPin.Contains(u.Id))
+            .Where(u => !u.IsStandBy
+                && db.UserSettings.Any(s => s.UserId == u.Id && s.Key == PostoRiRegras.Chave))
             .OrderBy(u => u.Name)
             .Select(u => new PostoReparador(u.Id, u.Name))
             .ToListAsync(cancellationToken);
+        var acessos = await autorizacao.ResolveEffectiveAccessAsync(
+            candidatos.Select(c => c.Id).ToList(), cancellationToken);
 
-        var lista = new List<PostoReparador>();
-        foreach (var candidato in candidatos)
-        {
-            var acesso = await autorizacao.ResolveEffectiveAccessAsync(candidato.Id, cancellationToken);
-            if (acesso is { IsAdmin: false, IsStandBy: false } && PostoRiRegras.TemRi(acesso.Capabilities))
-            {
-                lista.Add(candidato);
-            }
-        }
-
-        return lista;
+        return candidatos
+            .Where(c => acessos.GetValueOrDefault(c.Id) is { IsAdmin: false, IsStandBy: false } acesso
+                && PostoRiRegras.TemRi(acesso.Capabilities))
+            .ToList();
     }
 
     public Task<bool> TemPinAsync(Guid userId, CancellationToken cancellationToken = default) =>

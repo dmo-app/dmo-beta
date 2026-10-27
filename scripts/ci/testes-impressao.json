@@ -1,5 +1,5 @@
 {
-  "selo": "aded66bcf5324e3a",
+  "selo": "9a4eeaa62eadde2a",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1003,6 +1003,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoProducoes.cs :: PostgresMigrationIntegrationTests.PesoProducoes_AnteriorEAComparar_NoPostgres": "218eaff0f72322dd",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesosGuardadosPeloInicio.cs :: (resto do ficheiro)": "588b11ba8a3d7b1a",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesosGuardadosPeloInicio.cs :: PostgresMigrationIntegrationTests.PesosGuardados_AReferenciaPeloInicio_NoPostgres": "a58a4edff72b8963",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: (resto do ficheiro)": "71caebca967f6a90",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: PostgresMigrationIntegrationTests.PostoRi_ListaSoQuemTemRiEPinPorNome_ComAsMesmasConsultasPara5Ou100Reparadores": "b875ed2384a2beef",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProcuraParteBq.cs :: (resto do ficheiro)": "f72f1d38d67ad1b9",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProcuraParteBq.cs :: PostgresMigrationIntegrationTests.ProcuraPelaParteBq_ComecaNaPrimeiraLetra_NoPostgres": "800ad7e4ea2bb593",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProcuraPeloInicio.cs :: (resto do ficheiro)": "64200a8be026da0e",

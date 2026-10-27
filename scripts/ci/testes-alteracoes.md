@@ -3271,3 +3271,22 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
 
 Selo depois: `aded66bcf5324e3a`
+## A-0182 · 2026-10-27 · teste-novo
+
+Porquê: Posto da RI: a lista dos reparadores (conta ativa, PIN do posto, RI ver ou criar, nunca o ADMIN) sai pela mesma ordem e com o mesmo número de consultas para 5 ou 100 pessoas (DMO-449, 0.3.0-beta.139)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: PostgresMigrationIntegrationTests.PostoRi_ListaSoQuemTemRiEPinPorNome_ComAsMesmasConsultasPara5Ou100Reparadores`
+
+Selo depois: `4167dbe27ca52e85`
+
+## A-0183 · 2026-10-27 · teste-novo
+
+Porquê: Juntar a integracao (com o #195, DMO-449, 0.3.0-beta.139) ao design novo #180: os 2 testes novos do Posto da RI (A-0182) passam à impressão do ramo
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: PostgresMigrationIntegrationTests.PostoRi_ListaSoQuemTemRiEPinPorNome_ComAsMesmasConsultasPara5Ou100Reparadores`
+
+Selo depois: `9a4eeaa62eadde2a`
