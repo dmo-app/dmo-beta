@@ -473,9 +473,29 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.resumo-page[aria-labelledby="resumo-title"]>.resumo-browser:not(:has(>.resumo-procura *))>.resumo-form-grid{flex:0 0 320px;width:320px;margin:0}
   html body main.resumo-page[aria-labelledby="resumo-title"]>.resumo-browser:not(:has(>.resumo-procura *))>.resumo-form-grid :is(.dmo-field,input){width:100%;min-width:0}
 
-  /* Resumo · Estado do documento: o «Sem link do mcaliper» numa coluna própria, na mesma linha. */
-  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 120px 96px minmax(0,1fr) 280px}
-  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-link{grid-column:5;grid-row:1;justify-self:start;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Resumo · Estado do documento: o link do mcaliper ao lado da ferramenta (referência e lote), na mesma
+     linha, como na maqueta 04 (DMO-517); depois o estado, o OK/NOK e o comentário. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 200px 120px 96px minmax(0,1fr)}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>span:first-child{grid-column:1;grid-row:1}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-link{grid-column:2;grid-row:1;justify-self:start;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>strong{grid-column:3;grid-row:1}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-form{grid-column:4;grid-row:1}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-note{grid-column:5;grid-row:1}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-by{grid-row:2;grid-column:3/span 2}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-historico{grid-row:2;grid-column:5}
+
+  /* Revisão · Resumo do controlo: o mesmo, o link do mcaliper (copiar e associar/mudar) ao lado da referência
+     e do lote, antes das notas (DMO-517, maqueta 04). */
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area{grid-template-columns:200px 160px 140px 210px minmax(0,1fr)}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>span:first-child{grid-column:1;grid-row:1}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>:is(.resumo-area-form,strong){grid-column:2;grid-row:1}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>:is(.resumo-area-ferramenta,.resumo-area-identificacao){grid-column:3;grid-row:1}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area:has(>.resumo-area-identificacao)>.resumo-area-identificacao{grid-column:3/span 2}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-link{grid-column:4;grid-row:1;justify-self:start;margin:0;white-space:nowrap}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area:has(>.resumo-area-link.set)>.resumo-area-link:not(.set){grid-row:2}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-note{grid-column:5;grid-row:1}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>small.resumo-area-by{grid-column:2/span 2;grid-row:2}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-historico{grid-column:5;grid-row:2;justify-self:start}
 
   /* Pegamentos · Ferramentas (sem Job On): o mesmo aspeto da escolha do PU NNPB (Diogo, 27/10/2026): título e botão
      na mesma linha, o rótulo por cima de cada campo, os campos da mesma largura e altura, as referências numa linha. */
