@@ -592,6 +592,18 @@ public sealed class PesoModel : PageModel
     public bool ComparacaoTab { get; private set; }
 
     /// <summary>
+    /// A PRODUÇÃO FIXA (Diogo, 27/10/2026: «é sempre comparado à mesma
+    /// produção que saiu»): aberta pelo Resumo (?controlo_id=N&amp;comparacao=1),
+    /// a comparação fica na produção desse controlo, sem os campos da
+    /// referência e da produção; só se escolhe o Peso inicial, quando há
+    /// mais de um. Segue no formulário e no PRG como producao_fixa=1.
+    /// </summary>
+    public bool ProducaoFixa { get; private set; }
+
+    /// <summary>O nome da produção fixa («1075C142 · 202601 · B1»).</summary>
+    public string? ProducaoFixaRotulo => Producoes.FirstOrDefault(p => p.JobOnId == ProducaoSelecionadaJobOnId)?.Label;
+
+    /// <summary>
     /// O 1.º passo da comparação: a referência escrita. Só com ela se lê o
     /// select «Produção / Job On» (16/10/2026: nunca todas as produções).
     /// </summary>
@@ -858,6 +870,7 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "comparacao")] string? comparacao,
         [FromQuery(Name = "jobon_id")] int? jobOnId,
         [FromQuery(Name = "peso_inicial")] int? pesoInicialId,
+        [FromQuery(Name = "producao_fixa")] string? producaoFixa,
         [FromQuery(Name = "comparacao_id")] int? comparacaoId,
         [FromQuery(Name = "comparacao_refusal")] string? comparacaoRefusal,
         [FromQuery(Name = "ferramenta")] string? ferramenta,
@@ -1068,11 +1081,15 @@ public sealed class PesoModel : PageModel
                 producaoPedida = await _escolhas.ProducaoDoControloAsync(controloDaComparacao, HttpContext.RequestAborted);
             }
 
+            // Pelo Resumo a produção fica fixa: a referência escrita não conta.
+            ProducaoFixa = producaoPedida is not null && (controloId is not null || producaoFixa == "1");
+
             // Dois passos (16/10/2026): a referência primeiro; o select só
             // traz as produções dela. Sem referência escrita, vale a da
             // produção pedida; sem nenhuma das duas, o select fica vazio.
             await CarregarProducoesDaReferenciaAsync(
-                Sanitize(referencia), producaoPedida, HttpContext.RequestAborted);
+                ProducaoFixa ? null : Sanitize(referencia), producaoPedida, HttpContext.RequestAborted);
+            ProducaoFixa &= ProducaoSelecionadaJobOnId is not null;
 
             if (ProducaoSelecionadaJobOnId is int producaoEscolhida)
             {
@@ -2195,7 +2212,8 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "water_temperature")] string? waterTemperature,
         [FromForm(Name = "cm_subject")] string[]? cmSubjects,
         [FromForm(Name = "water_weight")] string[]? waterWeights,
-        [FromForm(Name = "comparacao_note")] string? comparacaoNote = null)
+        [FromForm(Name = "comparacao_note")] string? comparacaoNote = null,
+        [FromForm(Name = "producao_fixa")] string? producaoFixa = null)
     {
         ComparacaoTab = true;
 
@@ -2207,6 +2225,7 @@ public sealed class PesoModel : PageModel
         var (refusal, leituras, temperatura) = await PrepararComparacaoAsync(
             jobOnId, pesoInicialId, cmToolId, waterTemperature, comparacaoNote, cmSubjects, waterWeights,
             HttpContext.RequestAborted);
+        ProducaoFixa = producaoFixa == "1" && ProducaoSelecionadaJobOnId is not null;
         if (leituras is null)
         {
             ComparacaoRefusal = refusal;
@@ -2252,9 +2271,11 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "water_weight")] string[]? waterWeights,
         [FromForm(Name = "comparacao_note")] string? comparacaoNote,
         [FromForm(Name = "comparacao_guardada")] int? comparacaoGuardadaId = null,
-        [FromForm(Name = "ignoradas")] string? ignoradasGuardadas = null)
+        [FromForm(Name = "ignoradas")] string? ignoradasGuardadas = null,
+        [FromForm(Name = "producao_fixa")] string? producaoFixa = null)
     {
         ComparacaoTab = true;
+        var fixa = producaoFixa == "1" ? "1" : null;
 
         // Um clique repetido em «Guardar comparação» que chega já à página da
         // comparação acabada de guardar: o formulário dela vem sem leituras.
@@ -2272,6 +2293,7 @@ public sealed class PesoModel : PageModel
                 comparacao = "1",
                 jobon_id = jobOnId,
                 peso_inicial = inicialGuardado,
+                producao_fixa = fixa,
                 comparacao_id = guardadaId,
                 ignoradas = Sanitize(ignoradasGuardadas)
             });
@@ -2282,6 +2304,7 @@ public sealed class PesoModel : PageModel
         var (refusal, leituras, temperatura) = await PrepararComparacaoAsync(
             jobOnId, pesoInicialId, cmToolId, waterTemperature, comparacaoNote, cmSubjects, waterWeights,
             HttpContext.RequestAborted);
+        ProducaoFixa = producaoFixa == "1" && ProducaoSelecionadaJobOnId is not null;
         if (leituras is null)
         {
             ComparacaoRefusal = refusal;
@@ -2316,6 +2339,7 @@ public sealed class PesoModel : PageModel
             comparacao = "1",
             jobon_id = jobOnId,
             peso_inicial = pesoInicialId.Value,
+            producao_fixa = fixa,
             comparacao_id = outcome.Comparacao.ComparacaoId,
             ignoradas = EncodeLeiturasFora(ComparacaoLeiturasFora)
         });
