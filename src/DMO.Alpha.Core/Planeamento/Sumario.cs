@@ -30,7 +30,15 @@ public enum SumarioTipo
     /// 23/10/2026: «o chefe dá approve e passa para as ferramentas»). Não
     /// dependem do dia: mostram-se sempre, nos avisos do topo.
     /// </summary>
-    LoteNovoPorCriar = 10
+    LoteNovoPorCriar = 10,
+
+    /// <summary>
+    /// As ferramentas que entraram, saíram ou mudaram de posição no Armazém
+    /// (blueprint, Sumário §3, Diogo 19/10/2026: «quem tem Armazém recebe na
+    /// página as ferramentas que saíram ou entraram»; 26/10/2026: quem tem o
+    /// Job On ver «vê alertas de mudanças do armazém de lotes que mudam»).
+    /// </summary>
+    ArmazemMovimento = 11
 }
 
 /// <summary>
@@ -103,6 +111,7 @@ public static class SumarioTipos
         SumarioTipo.FerramentaDadosEmFalta => "Ferramentas com dados técnicos em falta",
         SumarioTipo.UsoAtualizado => "% de uso atualizada",
         SumarioTipo.LoteNovoPorCriar => "Lotes novos por criar",
+        SumarioTipo.ArmazemMovimento => "Movimentos do Armazém",
         _ => tipo.ToString()
     };
 
@@ -115,7 +124,7 @@ public static class SumarioTipos
     /// </summary>
     public static bool Importante(SumarioTipo tipo) => tipo switch
     {
-        SumarioTipo.JobOnCriado or SumarioTipo.ProducaoComeca or SumarioTipo.JobOnAlterado => false,
+        SumarioTipo.JobOnCriado or SumarioTipo.ProducaoComeca or SumarioTipo.JobOnAlterado or SumarioTipo.ArmazemMovimento => false,
         _ => true
     };
 
@@ -138,6 +147,7 @@ public static class SumarioTipos
         SumarioTipo.FerramentaDadosEmFalta => "dados-em-falta",
         SumarioTipo.UsoAtualizado => "uso-atualizado",
         SumarioTipo.LoteNovoPorCriar => "lotes-novos",
+        SumarioTipo.ArmazemMovimento => "armazem",
         _ => tipo.ToString()
     };
 
@@ -157,6 +167,8 @@ public static class SumarioTipos
             // Pegamentos, por isso são de quem tem o Controlo Criar.
             SumarioTipo.FerramentaDadosEmFalta => Tem(DmoCapabilities.ControloCreate),
             SumarioTipo.UsoAtualizado or SumarioTipo.LoteNovoPorCriar => Tem(DmoCapabilities.Ferramentas),
+            SumarioTipo.ArmazemMovimento =>
+                Tem(DmoCapabilities.JobOnView) || Tem(DmoCapabilities.JobOnCreate) || Tem(DmoCapabilities.ArmazemGestao),
             _ => false
         };
     }

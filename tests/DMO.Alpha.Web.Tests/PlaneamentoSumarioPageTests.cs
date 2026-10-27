@@ -372,6 +372,32 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         Assert.Contains("Utilização por atualizar (entrou no Armazém)", linha);
     }
 
+    // Diogo, 26/10/2026 (cmsg_01K75FTs9bQnbhhH7qttpgraWEaSsUNtRHvwj5NTeZSM7f):
+    // «sumario é para quem tem jobon ver tambem». Os avisos continuam pelos
+    // módulos da conta.
+    [Fact]
+    public async Task WithJobOnView_ThePageOpensWithOnlyTheAccountModules()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.BqMovementDeletions.Add(new BqMovementDeletion
+            {
+                BqMovementId = 98, BqRepairTraceId = 9998, Type = BqMovementType.Saida, Quantity = 2,
+                OccurredAtUtc = DateTime.UtcNow, MachineCodeFrozen = "C3", DeletedByNameFrozen = "Operador Sumário 5602", DeletedAtUtc = DateTime.UtcNow
+            });
+            await db.SaveChangesAsync();
+        }
+
+        using (var soVer = await LoginAsync("5602", DmoCapabilities.JobOnView))
+        {
+            Assert.DoesNotContain("Movimentos de boquilhas apagados", await GetAsync(soVer));
+        }
+
+        using var comBoquilhas = await LoginAsync("5603", DmoCapabilities.JobOnView, DmoCapabilities.Boquilhas);
+        Assert.Contains("<span class=\"sumario-etiqueta\">Movimentos de boquilhas apagados</span>", await GetAsync(comBoquilhas));
+    }
+
     [Fact]
     public async Task WithoutPlaneamento_ThePageIsRefused()
     {
