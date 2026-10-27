@@ -85,8 +85,9 @@
 @* INFORMAÇÃO OPCIONAL (Diogo, 22/10/2026): a Ref. MF, o nome técnico e a
    fábrica de origem num bloco à parte, ao lado, com o traço vertical das colunas da Informação técnica (Diogo, 22/10/2026). *@
 <fieldset class="ferr-tech-bloco ferr-opcional" id="@(p)-opcional">
-  <legend class="ferr-tech-titulo">Informação opcional</legend>
-  <div class="ferr-tech-campos">
+  @* O triângulo abre e fecha o bloco (Diogo, 27/10/2026: «adiciona o triângulo de minimizar»). *@
+  <legend class="ferr-tech-titulo ferr-opcional-titulo" role="button" tabindex="0" aria-expanded="true" aria-controls="@(p)-opcional-campos"><span class="dmo-caret" aria-hidden="true"></span>Informação opcional</legend>
+  <div class="ferr-tech-campos" id="@(p)-opcional-campos">
     <div class="dmo-field ferr-w-ref" id="@(p)-mf-field" hidden="@(Model.Tipo != "CM")">
       <label for="@(p)-mf">Ref. MF associada</label>
       <input id="@(p)-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RefMf" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
@@ -110,6 +111,23 @@
   </div>
 </fieldset>
 </div>
+<script>
+  // Um só ouvinte para os blocos «Informação opcional» da página (Criar e Editar).
+  if (!window.ferrOpcionalLigado) {
+    window.ferrOpcionalLigado = true;
+    const alternar = titulo => {
+      const aberto = titulo.getAttribute('aria-expanded') !== 'true';
+      titulo.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+      const campos = document.getElementById(titulo.getAttribute('aria-controls'));
+      if (campos) campos.hidden = !aberto;
+    };
+    document.addEventListener('click', e => { const t = e.target.closest('.ferr-opcional-titulo'); if (t) alternar(t); });
+    document.addEventListener('keydown', e => {
+      const t = e.target.closest?.('.ferr-opcional-titulo');
+      if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); alternar(t); }
+    });
+  }
+</script>
 @if (Model.Criar)
 {
   <p class="ferr-hint" id="ferr-technical-notice" role="status" aria-live="polite"></p>
