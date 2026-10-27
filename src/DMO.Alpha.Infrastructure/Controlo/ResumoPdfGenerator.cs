@@ -176,7 +176,6 @@ public sealed class ResumoPdfGenerator
     private const string Muted = DmoPdfPalette.Muted;
     private const string Line = DmoPdfPalette.Line;
     private const string Blue = DmoPdfPalette.Accent;
-    private const string Navy = DmoPdfPalette.Deep;
     private const string Soft = DmoPdfPalette.Soft;
     // O vermelho do NOK, para o «Não aprovado».
     private const string NotApproved = DmoPdfPalette.Nok;
@@ -264,7 +263,7 @@ public sealed class ResumoPdfGenerator
                         {
                             "OK" => ("OK", DmoPdfPalette.Ok, DmoPdfPalette.OkBackground, DmoPdfPalette.OkBorder),
                             "NOK" => ("NOK", DmoPdfPalette.Nok, DmoPdfPalette.NokBackground, DmoPdfPalette.NokBorder),
-                            _ => ("não registado", Muted, Soft, Line),
+                            _ => ("não registado", Muted, DmoPdfPalette.White, Line),
                         };
                         row.RelativeItem().Element(c => Box(c, background, border)).Padding(8).Column(c =>
                         {
@@ -404,13 +403,12 @@ public sealed class ResumoPdfGenerator
         var average = input.Peso?.AverageGlassWeightGrams;
         var nominal = input.Peso?.NominalWeightGrams
             ?? input.PesoDocument?.NominalWeightGrams ?? input.PesoDetalhe?.NominalWeightGrams;
-        container.Element(c => Box(c, Navy, Navy)).Padding(12).MinHeight(128)
-            .DefaultTextStyle(x => x.FontColor(DmoPdfPalette.White)).Column(c =>
+        container.Element(c => Box(c)).Padding(12).MinHeight(128)
+            .DefaultTextStyle(x => x.FontColor(Ink)).Column(c =>
             {
                 c.Item().Row(r =>
                 {
-                    r.RelativeItem().Text("Peso").FontSize(10).SemiBold();
-                    if (linked && (input.Peso is null ? "peso" : input.Peso.Section) is { } pesoSection) r.AutoItem().SectionLink(pesoSection).Text("Ver detalhe →").FontSize(8).FontColor(DmoPdfPalette.OnDeep).Underline();
+                    Linked(r.RelativeItem(), linked ? (input.Peso is null ? "peso" : input.Peso.Section) : null).Text("Peso").FontSize(10).SemiBold();
                 });
                 c.Item().PaddingTop(8).Text(t =>
                 {
@@ -424,15 +422,15 @@ public sealed class ResumoPdfGenerator
                         t.Span("Sem leituras registadas").FontSize(15).SemiBold();
                     }
                 });
-                c.Item().Text("Peso médio do vidro").FontSize(8).FontColor(DmoPdfPalette.OnDeep);
+                c.Item().Text("Peso médio do vidro").FontSize(8).FontColor(Muted);
                 if (input.Peso is { } peso)
                     c.Item().PaddingTop(8).Text($"{peso.ReadingCount} leitura(s) · água a {Fmt(peso.WaterTemperatureC, "0.#")} °C")
-                        .FontSize(8).FontColor(DmoPdfPalette.OnDeep);
+                        .FontSize(8).FontColor(Muted);
                 var deviation = PesoCalculation.NominalDeviation(average, nominal);
                 if (nominal is { } n)
                     c.Item().PaddingTop(2).Text("Nominal " + Fmt(n) + " g" + (deviation.Grams is { } g
                         ? " · " + Signed(g) + " g" + (deviation.Percent is { } p ? " (" + Signed(p) + " %)" : "") : ""))
-                        .FontSize(8).FontColor(DmoPdfPalette.OnDeep);
+                        .FontSize(8).FontColor(Muted);
                 // Mais do que um Peso (a CM ou a BQ mudou a meio): uma linha
                 // por Peso, com as ferramentas e a média dele, para nenhum
                 // ficar escondido.
@@ -440,14 +438,13 @@ public sealed class ResumoPdfGenerator
                 {
                     c.Item().PaddingTop(5).Row(r =>
                     {
-                        r.RelativeItem().Text(linha.Label).FontSize(7.5f).SemiBold();
-                        if (linked && linha.Section is { } linhaSection) r.AutoItem().PaddingLeft(4).SectionLink(linhaSection).Text("Ver →").FontSize(7.5f).FontColor(DmoPdfPalette.OnDeep).Underline();
+                        Linked(r.RelativeItem(), linked ? linha.Section : null).Text(linha.Label).FontSize(7.5f).SemiBold();
                     });
                     var linhaDesvio = PesoCalculation.NominalDeviation(linha.AverageGlassWeightGrams, linha.NominalWeightGrams);
                     c.Item().Text($"{linha.ReadingCount} leitura(s)"
                             + (linha.AverageGlassWeightGrams is { } media ? " · média " + Fmt(media) + " g" : "")
                             + (linhaDesvio.Grams is { } dg ? " · " + Signed(dg) + " g do nominal" : ""))
-                        .FontSize(7.5f).FontColor(DmoPdfPalette.OnDeep);
+                        .FontSize(7.5f).FontColor(Muted);
                 }
             });
     }
@@ -459,12 +456,11 @@ public sealed class ResumoPdfGenerator
             : summary.AlertCount > 0 ? ("Existem medições fora das tolerâncias", DmoPdfPalette.Nok, DmoPdfPalette.NokBackground)
             : summary.NotEvaluableCount > 0 ? ("Existem medições não avaliáveis", DmoPdfPalette.NotEvaluable, DmoPdfPalette.NotEvaluableBackground)
             : ("Todas as medições dentro das tolerâncias", DmoPdfPalette.Ok, DmoPdfPalette.OkBackground);
-        container.Element(c => Box(c, background, color)).Padding(12).MinHeight(128).Column(c =>
+        container.Element(c => Box(c, background)).Padding(12).MinHeight(128).Column(c =>
         {
             c.Item().Row(r =>
             {
-                r.RelativeItem().Text("Pegamentos").FontSize(10).SemiBold();
-                if (linked && (summary is null ? "pegamentos" : summary.Section) is { } pegSection) r.AutoItem().SectionLink(pegSection).Text("Ver detalhe →").FontSize(8).FontColor(Blue).Underline();
+                Linked(r.RelativeItem(), linked ? (summary is null ? "pegamentos" : summary.Section) : null).Text("Pegamentos").FontSize(10).SemiBold();
             });
             c.Item().PaddingTop(8).Text(status).FontSize(13).SemiBold().FontColor(color);
             if (summary is { MeasurementCount: > 0 })
@@ -484,8 +480,7 @@ public sealed class ResumoPdfGenerator
                 {
                     c.Item().PaddingTop(5).Row(r =>
                     {
-                        r.RelativeItem().Text(folha.Label).FontSize(7.5f).SemiBold();
-                        if (linked && folha.Section is { } folhaSection) r.AutoItem().PaddingLeft(4).SectionLink(folhaSection).Text("Ver →").FontSize(7.5f).FontColor(Blue).Underline();
+                        Linked(r.RelativeItem(), linked ? folha.Section : null).Text(folha.Label).FontSize(7.5f).SemiBold();
                     });
                     c.Item().Text(t =>
                     {
@@ -507,13 +502,12 @@ public sealed class ResumoPdfGenerator
             ? ("Sem punções registadas", Muted, Soft)
             : pending > 0 ? ("Existem punções por verificar", DmoPdfPalette.ToCheck, DmoPdfPalette.ToCheckBackground)
             : ("Punções e arrefecedores vistos", DmoPdfPalette.Ok, DmoPdfPalette.OkBackground);
-        container.Element(c => Box(c, background, color)).Padding(12).MinHeight(128).Column(c =>
+        container.Element(c => Box(c, background)).Padding(12).MinHeight(128).Column(c =>
         {
             c.Item().Row(r =>
             {
-                r.RelativeItem().Text("PU NNPB").FontSize(10).SemiBold();
-                // O PDF das punções é outro ficheiro, na mesma pasta: a ligação abre-o pelo nome.
-                if (ficheiro is not null) r.AutoItem().Hyperlink(Uri.EscapeDataString(ficheiro)).Text("Abrir PDF das punções →").FontSize(8).FontColor(Blue).Underline();
+                // O PDF das punções é outro ficheiro, na mesma pasta: o título abre-o pelo nome.
+                (ficheiro is null ? r.RelativeItem() : r.RelativeItem().Hyperlink(Uri.EscapeDataString(ficheiro))).Text("PU NNPB").FontSize(10).SemiBold();
             });
             c.Item().PaddingTop(8).Text(status).FontSize(13).SemiBold().FontColor(color);
             if (summary.Total > 0)
@@ -528,9 +522,16 @@ public sealed class ResumoPdfGenerator
         });
     }
 
+    // As ligações do PDF completo (Diogo, 19/10/2026) ficam no próprio título,
+    // sem setas nem sublinhado: o PDF é para imprimir (DMO-515).
+    private static IContainer Linked(IContainer container, string? section) =>
+        section is null ? container : container.SectionLink(section);
+
+    // A etiqueta tem sempre a altura de duas linhas, para os números de uma
+    // linha ficarem alinhados («NÃO AVALIÁVEIS» parte em duas).
     private static void Stat(IContainer container, string label, string value, string color) => container.Column(c =>
     {
-        c.Item().Text(label).FontSize(6.5f).FontColor(Muted);
+        c.Item().Height(16).AlignBottom().Text(label).FontSize(6.5f).FontColor(Muted);
         c.Item().PaddingTop(2).Text(value).FontSize(16).SemiBold().FontColor(color);
     });
 
@@ -538,13 +539,13 @@ public sealed class ResumoPdfGenerator
     {
         // Os três estados (sweep de 19/10/2026, C-3): aprovado, não aprovado
         // (com quem, quando e a nota) e por aprovar.
-        var (estado, fundo, borda, cor) = approval switch
+        var (estado, fundo, _, cor) = approval switch
         {
             { ApprovedByOperatorId: not null } => ("Aprovado", DmoPdfPalette.OkBackground, DmoPdfPalette.Approved, DmoPdfPalette.Approved),
             { NaoAprovado: true } => ("Não aprovado", DmoPdfPalette.NokBackground, DmoPdfPalette.NokBorder, NotApproved),
             _ => ("Sem registo", DmoPdfPalette.ToApproveBackground, DmoPdfPalette.ToApproveBorder, DmoPdfPalette.ToApprove)
         };
-        container.Element(c => Box(c, fundo, borda)).Padding(9).Column(c =>
+        container.Element(c => Box(c, fundo)).Padding(9).Column(c =>
         {
             c.Item().Text("APROVAÇÃO").FontSize(7).FontColor(Muted);
             c.Item().PaddingTop(5).Text(estado).FontSize(15).SemiBold().FontColor(cor);
@@ -561,7 +562,7 @@ public sealed class ResumoPdfGenerator
     };
 
     private static IContainer Box(IContainer c, string background = DmoPdfPalette.White, string border = Line) =>
-        c.Background(background).Border(.7f).BorderColor(border).CornerRadius(7);
+        c.Background(background).BorderTop(.7f).BorderColor(Line);
 
     private static void SmallCard(IContainer container, string label, string value, string caption) =>
         container.Element(c => Box(c)).Padding(9).Column(c =>
