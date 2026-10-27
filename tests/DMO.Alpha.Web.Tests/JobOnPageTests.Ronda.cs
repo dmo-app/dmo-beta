@@ -21,9 +21,13 @@ public partial class JobOnPageTests
 
         var nova = await client.GetAsync($"{FolhaPath}?novo=1&etapa=criar&machine_id={b2}&inicio_em=2026-11-02&referencia=5810t188&producao=880001");
         Assert.Equal(HttpStatusCode.Redirect, nova.StatusCode);
-        Assert.Equal($"/JobOn/Folha?duplicar={id}&producao=880001&machine_id={b2}&inicio_em=2026-11-02", nova.Headers.Location!.ToString());
+        // A última abre-se para ver; só o «Duplicar» passa a duplicar, com a produção
+        // e a linha (Diogo, 27/10/2026: «analisa-se e depois duplica-se»).
+        Assert.Equal($"/JobOn/Folha?jobon_id={id}&producao=880001&machine_id={b2}&inicio_em=2026-11-02", nova.Headers.Location!.ToString());
+        var ver = await GetPageHtmlAsync(client, nova.Headers.Location!.ToString());
+        Assert.Contains($"/JobOn/Folha?duplicar={id}&amp;producao=880001&amp;machine_id={b2}&amp;inicio_em=2026-11-02", ver, StringComparison.Ordinal);
 
-        var html = await GetPageHtmlAsync(client, nova.Headers.Location!.ToString());
+        var html = await GetPageHtmlAsync(client, $"/JobOn/Folha?duplicar={id}&producao=880001&machine_id={b2}&inicio_em=2026-11-02");
         Assert.Contains("id=\"lightProduction\" name=\"production_number\" type=\"text\" value=\"880001\"", html, StringComparison.Ordinal);
 
         var existente = await client.GetAsync($"{FolhaPath}?novo=1&etapa=criar&machine_id={b2}&referencia=5810T188&producao=202602");

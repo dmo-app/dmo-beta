@@ -42,7 +42,8 @@
     var posLote = ViewData["LoteNovoPosicao"] as string;
     <form id="armLoteNovo" class="arm-lote-novo" method="post" asp-page="/Armazem/Movimentos" asp-page-handler="LoteNovo" asp-route-tipo="@tipoLoteTexto" aria-labelledby="arm-lote-novo-title">
       <div class="dmo-card-topo">
-        <h4 id="arm-lote-novo-title">Criar novo · @tipoLoteTexto<partial name="_DmoHelp" model="@($"Chegou {(tipoLote == DMO.Alpha.Core.Tools.ToolType.Mf ? "um" : "uma")} {tipoLoteTexto} que ainda não está nas Ferramentas? Escreva a referência, o lote e a posição onde fica. O registo fica «Por criar» e quem tem o módulo Ferramentas recebe um aviso para criar a ferramenta; nessa altura a entrada fica registada nesta posição.")" /></h4>
+        @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+        <h4 id="arm-lote-novo-title" title="@($"Chegou {(tipoLote == DMO.Alpha.Core.Tools.ToolType.Mf ? "um" : "uma")} {tipoLoteTexto} que ainda não está nas Ferramentas? Escreva a referência, o lote e a posição onde fica. O registo fica «Por criar» e quem tem o módulo Ferramentas recebe um aviso para criar a ferramenta; nessa altura a entrada fica registada nesta posição.")">Criar novo · @tipoLoteTexto</h4>
         <div class="dmo-card-topo-acoes">
           <button type="submit" class="dmo-button" id="armLoteNovoRegistar">Criar novo</button>
         </div>

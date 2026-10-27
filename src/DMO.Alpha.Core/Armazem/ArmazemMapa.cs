@@ -22,8 +22,7 @@ public sealed record ArmazemMapaFerramenta(
 
 /// <summary>
 /// Uma posição do mapa. <see cref="Par"/> diz que lá estão só a CM e o MF da
-/// mesma referência e lote (guardam-se juntos); <see cref="Misturada"/> diz
-/// que há ferramentas de referências ou lotes diferentes.
+/// mesma referência e lote (guardam-se juntos).
 /// </summary>
 public sealed record ArmazemMapaPosicao(int Id, string Codigo, bool Ativa, IReadOnlyList<ArmazemMapaFerramenta> Ferramentas)
 {
@@ -34,8 +33,6 @@ public sealed record ArmazemMapaPosicao(int Id, string Codigo, bool Ativa, IRead
         && Ferramentas.All(f => f.Tipo is ToolType.Cm or ToolType.Mf)
         && Ferramentas[0].Referencia == Ferramentas[1].Referencia
         && Ferramentas[0].Lote == Ferramentas[1].Lote;
-
-    public bool Misturada => Ferramentas.Count > 1 && !Par;
 
     public bool PorReparar => Ferramentas.Any(f => f.Estado == FerramentaEstadoTipo.PorReparar);
 }
@@ -92,10 +89,6 @@ public static class ArmazemArmarios
     /// <summary>O corredor de uma estante ou de uma posição (103 → 1).</summary>
     public static string Corredor(string chave) =>
         string.IsNullOrEmpty(chave) ? string.Empty : chave[..1];
-
-    /// <summary>A prateleira de uma posição (1033 → 3); null fora da regra.</summary>
-    public static string? Prateleira(string codigo) =>
-        codigo is { Length: 4 } ? codigo[3..] : null;
 
     /// <summary>O nome: «Corredor 1» para um corredor, «Corredor 1 · Estante 03» para uma estante.</summary>
     public static string Nome(string chave) => chave switch

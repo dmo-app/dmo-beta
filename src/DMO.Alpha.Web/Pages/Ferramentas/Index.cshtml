@@ -14,7 +14,9 @@
 
   <div class="page-head">
     <div>
-      <h2 id="ferr-title">Ferramentas<partial name="_DmoHelp" model="@("Registo das ferramentas CM, BQ e MF.")" /></h2>
+      @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título
+       (no Registar ferramenta, ao title da referência e do Registar). *@
+      <h2 id="ferr-title" title="Registo das ferramentas CM, BQ e MF.">Ferramentas</h2>
     </div>
   </div>
 
@@ -44,7 +46,7 @@
   {
   <section class="dmo-card ferr-card" aria-labelledby="ferr-filter-title">
     <div class="dmo-card-topo">
-      <h3 id="ferr-filter-title">Filtrar ferramentas registadas<partial name="_DmoHelp" model="@("Os resultados mudam enquanto escreve; os dropdowns aplicam logo.")" /></h3>
+      <h3 id="ferr-filter-title" title="Os resultados mudam enquanto escreve; os dropdowns aplicam logo.">Filtrar ferramentas registadas</h3>
     </div>
     @* TUDO NUMA LINHA (Diogo, 19/10/2026: «aqui no ver ferramentas podemos
        meter tudo numa fila incluindo os botões», «reduzindo por página e
@@ -139,9 +141,9 @@
        fica no canto superior direito do card (18/10). *@
     @{ var tipoFixo = Model.ReturnTemplate is not null ? Model.RequestedTypeToken : null; }
     <div class="dmo-card-topo">
-      <h3 id="ferr-create-title">Registar ferramenta<partial name="_DmoHelp" model="@(Model.ReturnTemplate is null ? "A referência toda, como no desenho: 1075C142, 5447T173 ou ST100." : "A referência toda, como no desenho: 1075C142, 5447T173 ou ST100. Ao registar, regressa ao fluxo que abriu o Ferramentas com a ferramenta escolhida.")" /></h3>
+      <h3 id="ferr-create-title">Registar ferramenta</h3>
       <div class="dmo-card-topo-acoes">
-        <button type="submit" form="ferr-create-form" class="dmo-button">Registar</button>
+        <button type="submit" form="ferr-create-form" class="dmo-button" title="@(Model.ReturnTemplate is null ? null : "Ao registar, regressa ao fluxo que abriu o Ferramentas com a ferramenta escolhida.")">Registar</button>
       </div>
     </div>
 

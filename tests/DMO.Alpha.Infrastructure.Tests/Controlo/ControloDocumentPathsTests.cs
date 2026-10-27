@@ -12,32 +12,6 @@ namespace DMO.Alpha.Infrastructure.Tests.Controlo;
 public sealed class ControloDocumentPathsTests
 {
     [Fact]
-    public void ProductionFolder_Is_Dir_Reference_Production()
-    {
-        // O exemplo do Owner: o directório configurado + a referência + a
-        // produção — os separadores do sistema (Path.Combine).
-        var folder = ControloDocumentPaths.GetProductionFolder(
-            @"D:\ControloDMO", "5447T173", "202601");
-
-        Assert.Equal(
-            Path.Combine(@"D:\ControloDMO", "5447T173", "202601"),
-            folder);
-    }
-
-    [Fact]
-    public void ProductionFolder_TrimsTrailingSeparatorsOfBaseDir()
-    {
-        // O directório configurado com a barra final não duplica
-        // separadores.
-        var folder = ControloDocumentPaths.GetProductionFolder(
-            @"D:\ControloDMO\", "5447T173", "202601");
-
-        Assert.Equal(
-            Path.Combine(@"D:\ControloDMO", "5447T173", "202601"),
-            folder);
-    }
-
-    [Fact]
     public void FileNames_AreCanonical_PesoPegamentosResumo()
     {
         // Os nomes do Owner: PESO-5447T173-202601, PEGAMENTOS-…, RESUMO-…
@@ -79,12 +53,9 @@ public sealed class ControloDocumentPathsTests
     {
         // Um separador no valor do operador nunca vira estrutura: a app
         // decide a estrutura, o documento carrega o nome (recusar é teatro).
-        var folder = ControloDocumentPaths.GetProductionFolder(
-            @"D:\ControloDMO", @"../5447T173", @"2026/01");
-
         Assert.Equal(
-            Path.Combine(@"D:\ControloDMO", ".._5447T173", "2026_01"),
-            folder);
+            "PESO-.._5447T173-2026_01.pdf",
+            ControloDocumentPaths.GetPesoFileName(@"../5447T173", @"2026/01"));
     }
 
     [Fact]

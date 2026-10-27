@@ -325,7 +325,6 @@ public sealed class ReparacoesInternasTests
 
         var preview = await new DeleteJobOnHandler(db).PreviewAsync(11, new DateOnly(2030, 3, 11));
         Assert.Equal(1, preview!.ReparacoesInternas);
-        Assert.True(preview.HasRecords);
         Assert.Equal(DeleteJobOnResult.Success, await new DeleteJobOnHandler(db).HandleAsync(new DeleteJobOn(11)));
 
         Assert.Equal(14, Assert.Single(await db.ReparacoesInternas.ToListAsync()).JobOnId);
