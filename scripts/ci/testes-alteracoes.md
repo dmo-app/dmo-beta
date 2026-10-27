@@ -3973,7 +3973,7 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `8814c455ecaa1b86`
 
-## A-0244 · 2026-10-27 · teste-novo
+## A-0245 · 2026-10-27 · teste-novo
 
 Porquê: PU NNPB: o PDF gera-se sempre com a reserva cheia e os números da reserva inteiros (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraGGAMBs5g7FD3HuhbAZe3hc «não consigo extrair PU»)
 Referência: DMO-511
