@@ -1,4 +1,6 @@
 // Contextual pages slide in beside the workspace. Main navigation never enters here.
+// A marcação é a estrutura fixa dos painéis (<dmo-painel>, _DmoSupportPanel); o
+// abrir/fechar é este, próprio (data-dmo-painel-proprio), por causa do iframe.
 (() => {
   'use strict';
   const panel = document.getElementById('dmoSupport');
@@ -6,7 +8,7 @@
   const frame = panel.querySelector('iframe');
   const title = panel.querySelector('h2');
   const full = panel.querySelector('#dmoSupportFull');
-  const confirm = panel.querySelector('.dmo-support-confirm');
+  const confirm = panel.querySelector('.dmo-painel-aviso');
   const loading = panel.querySelector('.dmo-support-loading');
   const refresh = document.querySelector('.dmo-support-refresh');
   // «Abrir página» abre sempre o mesmo separador para a mesma página: um
@@ -49,9 +51,11 @@
     bloquear(doc, false);
     doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
   }
-  let opener, dirty = false, operation = false;
+  let opener, dirty = false, operation = false, aberta = null;
   const destinations = new Map([
     ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
+    // O título vem do h1 da página (diz qual é a ferramenta).
+    ['/Ferramentas/Utilizacao', ''],
     ['/Controlo/Peso', 'Peso'],
     ['/Controlo/PesoComparar', 'Comparar peso'],
     ['/Controlo/Pegamentos', 'Pegamentos'],
@@ -59,9 +63,20 @@
     ['/Controlo/Approve', 'Revisão do controlo'],
     ['/ReparacaoInterna/Consultar', 'Consulta de reparação']
   ]);
+  // Uma página que se abre a partir de outra dentro do painel (o Job On do aviso
+  // do Peso, a ficha do duplo clique) dá o título ao painel: o painel dizia
+  // «Peso» com o Job On à vista (Diogo, 27/10/2026). O Job On abre com a largura
+  // quase toda, para a folha ficar com a coluna do Artigo e das Notas.
+  const outrasPaginas = new Map([['/JobOn', 'Job On'], ['/JobOn/Folha', 'Job On']]);
+  const largas = new Set(['/JobOn', '/JobOn/Folha']);
+  function acertarPainel(caminho, doc) {
+    title.textContent = destinations.get(caminho) || outrasPaginas.get(caminho)
+      || doc?.querySelector('main h1')?.textContent.trim() || title.textContent;
+    panel.dataset.largura = largas.has(caminho) ? 'total' : 'larga';
+  }
   function close() {
-    panel.close(); frame.removeAttribute('src'); dirty = false;
-    document.documentElement.classList.remove('dmo-support-open');
+    panel.close(); frame.removeAttribute('src'); dirty = false; aberta = null;
+    document.documentElement.classList.remove('dmo-support-open', 'dmo-painel-aberto');
     confirm.hidden = true;
     if (operation) refresh.hidden = false;
     devolverFoco();
@@ -80,8 +95,13 @@
     confirm.hidden = false;
     confirm.querySelector('button').focus();
   }
+  // Um painel de cada vez (Diogo, 27/10/2026: «consigo spammar sliding
+  // windows»). Com o painel aberto, a mesma página não volta a abrir e outra
+  // página troca a que lá está, no mesmo painel; com alterações por guardar, o
+  // aviso aparece em vez da troca.
+  const semPainel_ = href => { try { const u = new URL(href, location.href); u.searchParams.delete('painel'); return u.pathname + u.search; } catch { return href; } };
   function tryOpen(href, source) {
-    if (source?.closest('.dmo-shell-header,nav') || panel.open) return false;
+    if (source?.closest('.dmo-shell-header,nav')) return false;
     // Fora do painel: um contentor [data-dmo-sem-painel="<seletor>"] deixa os
     // links que casam com o seletor (vazio: todos) navegar como sempre. O
     // «Registar» do Resumo, para quem tem o Criar, abre a página de registo
@@ -93,17 +113,27 @@
     let url;
     try { url = new URL(href, location.href); } catch { return false; }
     if (url.origin !== location.origin || !destinations.has(url.pathname)) return false;
+    // Um link para a própria página (corrigir uma leitura nos Pegamentos) fica
+    // nela: no painel, apagar lá deixava a linha na página por trás (Diogo,
+    // 27/10/2026: «o x apaga a leitura mas não apaga a linha»).
+    if (url.pathname === location.pathname) return false;
+    if (panel.open) {
+      if (semPainel_(url.href) === aberta) return true;
+      if (dirty) { requestClose(); return true; }
+    }
+    aberta = semPainel_(url.href);
+    window.DmoPainel?.fecharTodos?.();
     opener = source || document.activeElement;
     dirty = false; operation = false; confirm.hidden = true;
-    title.textContent = destinations.get(url.pathname);
+    acertarPainel(url.pathname);
     apontar(url.href);
     url.searchParams.set('painel', '1');
     loading.hidden = false;
     frame.src = url.href;
-    panel.showModal();
+    if (!panel.open) panel.showModal();
     // O foco não fica no «Abrir página» (parecia um botão apagado).
     frame.focus({ preventScroll: true });
-    document.documentElement.classList.add('dmo-support-open');
+    document.documentElement.classList.add('dmo-support-open', 'dmo-painel-aberto');
     return true;
   }
   frame.addEventListener('load', () => {
@@ -113,6 +143,7 @@
     try { doc = frame.contentDocument; } catch { return; }
     if (!doc) return;
     doc.documentElement.dataset.dmoEmbedded = 'true';
+    acertarPainel(frame.contentWindow.location.pathname, doc);
     const bloquear_ = bloqueadas.has(frame.contentWindow.location.pathname);
     if (bloquear_) bloquear(doc, true);
     dirty = false;
@@ -132,14 +163,26 @@
     const r = panel.getBoundingClientRect();
     if (event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom) return;
     if (dirty) return requestClose();
-    close();
+    // Para saber o que está por baixo, o painel fecha-se um instante (com ele
+    // aberto, a página não responde ao ponto). Se por baixo está o que abriu
+    // esta mesma página (cliques repetidos no mesmo sítio), o painel volta logo,
+    // sem recarregar nem deslizar outra vez.
+    panel.close();
     const alvo = document.elementFromPoint(event.clientX, event.clientY);
+    const destino = alvo?.closest?.('a[href]')?.href;
+    if (destino && semPainel_(destino) === aberta) {
+      panel.dataset.semEntrada = '';
+      panel.showModal();
+      requestAnimationFrame(() => requestAnimationFrame(() => delete panel.dataset.semEntrada));
+      return;
+    }
+    close();
     if (alvo && alvo !== document.body && alvo !== document.documentElement) alvo.click();
   });
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
-  panel.querySelector('[data-support-close]').addEventListener('click', requestClose);
-  panel.querySelector('[data-support-keep]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
-  panel.querySelector('[data-support-discard]').addEventListener('click', close);
+  panel.querySelector('[data-dmo-painel-fechar]').addEventListener('click', requestClose);
+  panel.querySelector('[data-dmo-painel-continuar]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
+  panel.querySelector('[data-dmo-painel-descartar]').addEventListener('click', close);
   refresh.querySelector('[data-support-refresh]').addEventListener('click', () => location.reload());
   refresh.querySelector('[data-support-dismiss]').addEventListener('click', () => {refresh.hidden=true;});
   document.addEventListener('click', event => {

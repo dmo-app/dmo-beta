@@ -275,9 +275,10 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         var paginaBq = await client.GetStringAsync("/Armazem/Movimentos?tipo=BQ&q=t173");
 
         Assert.Contains("<th>Estado</th><th>Linha</th><th>% uso</th>", Elemento(pagina, "id=\"armProcuraResultados\""));
-        // A última célula de cada linha é o % de uso.
-        string Uso(string linha) => System.Text.RegularExpressions.Regex.Matches(linha, "<td>([^<]*)</td>").Last().Groups[1].Value;
+        // A última célula de cada linha é o % de uso; com valor, um clique abre o histórico do uso (Diogo, 27/10/2026).
+        string Uso(string linha) => System.Text.RegularExpressions.Regex.Replace(System.Text.RegularExpressions.Regex.Matches(linha, "<td>(.*?)</td>").Last().Groups[1].Value, "<[^>]+>", "");
         Assert.Equal("47.5 %", Uso(Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\"")));
+        Assert.Contains($"href=\"/Ferramentas/Utilizacao?tool_id={Cm}\"", Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\""));
         Assert.Equal("—", Uso(Elemento(paginaBq, $"data-dmo-ferramenta=\"{Bq}\"")));
     }
 

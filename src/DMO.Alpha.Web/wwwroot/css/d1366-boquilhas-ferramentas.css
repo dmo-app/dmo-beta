@@ -79,6 +79,15 @@ html body main.ferr-page #ferrGeral .dmo-facts{padding:4px 0}
 html body main.ferr-page #ferrGeral .dmo-fact{padding:2px 16px;min-height:0}
 html body main.ferr-page #ferrGeral :is(.dmo-aviso,.ferr-aviso,.ferr-nota){margin-top:8px}
 html body main.ferr-page #ferrEditar .ferr-create-row-machines{margin-top:0}
+/* A «Guardar» da Informação técnica só aparece com a secção aberta. */
+html body main.ferr-page .dmo-card-dobravel:has(>details:not([open])) #ferr-tech-guardar{display:none}
+/* Os avisos da ficha (Sem máquinas, Utilização por atualizar, Nome técnico): uma linha cada,
+   letra normal, o botão do aviso à direita na mesma linha, pouco espaço entre eles. */
+html body main.ferr-page #ferrGeral :is(.ferr-aviso,.ferr-nome-tecnico){display:flex;align-items:center;gap:12px;box-sizing:border-box;min-height:0;margin:6px 0 0;padding:3px 12px;font-size:inherit;line-height:1.4}
+html body main.ferr-page #ferrGeral .ferr-aviso>a.ferr-cancel{margin:0 0 0 auto;flex:0 0 auto}
+html body main.ferr-page #ferrGeral .ferr-nome-tecnico{padding-block:6px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px}
+html body main.ferr-page #ferrGeral .ferr-nome-tecnico>strong{overflow-wrap:anywhere}
+html body main.ferr-page #ferrGeral .ferr-nome-tecnico-decode{color:var(--dmo-muted);font-size:12.5px}
 html body main.ferr-page .dmo-card-dobravel details[open]>summary.dmo-card-topo{margin-bottom:8px}
 
 /* Bloqueada (painel lateral, antes de «Editar»): o mesmo tamanho de caixa e
@@ -87,7 +96,7 @@ html body main.ferr-page .dmo-card-dobravel details[open]>summary.dmo-card-topo{
 html.dmo-bloqueado body main.ferr-page form[method="post"] :is(input,select,textarea):disabled{border:1px solid color-mix(in srgb,var(--dmo-border) 70%,transparent);background:transparent;padding-inline:10px}
 html.dmo-bloqueado body main.ferr-page form[method="post"] select:disabled{background-image:none;appearance:none;-webkit-appearance:none}
 html.dmo-bloqueado body main.ferr-page form[method="post"] :is(input,textarea):disabled:not(.ferr-sem-registo-campo)::placeholder{color:transparent;-webkit-text-fill-color:transparent}
-html.dmo-bloqueado body main.ferr-page form[method="post"] input.ferr-sem-registo-campo:disabled::placeholder{-webkit-text-fill-color:var(--dmo-warning)}
+html.dmo-bloqueado body main.ferr-page form[method="post"] input.ferr-sem-registo-campo:disabled::placeholder{-webkit-text-fill-color:var(--dmo-muted)}
 html.dmo-bloqueado body main.ferr-page .ferr-check input:disabled+span{cursor:default}
 html.dmo-bloqueado body main.ferr-page #ferr-tech-guardar{display:none}
 

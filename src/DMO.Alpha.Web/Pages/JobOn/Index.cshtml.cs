@@ -895,7 +895,7 @@ public sealed class IndexModel : PageModel
         // O SIDEPANEL (o Owner: «o sidepanel mostra o que vai entrar»): a
         // fila das próximas entradas da SEMANA CORRENTE (o renderRail em mode
         // current-week), pela ordem em que entram.
-        ProximasEntradas = ProximasEntradasDaSemana(JobOns, hoje);
+        ProximasEntradas = EntradasDaSemana(JobOns, hoje);
         Calendar = ComporJobOnCalendar(Year, Month, JobOns, NoDaySelected ? null : SelectedDay);
         return Page();
     }
@@ -928,6 +928,22 @@ public sealed class IndexModel : PageModel
         var entradas = ProducaoEmCurso.EntradasPorDia(jobOns
             .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= limite));
         return emCurso.Concat(entradas).ToList();
+    }
+
+    /// <summary>
+    /// A faixa «Planeamento» em cima do calendário (Job On e Sumário): só o que
+    /// entra, de hoje até uma semana em avanço. O que já entrou sai da faixa
+    /// (Diogo, 27/10/2026: «deveria remover o que já entrou»; uma referência do
+    /// dia 10 que «já entrou e saiu» continuava lá). A gaveta «Linhas» da folha
+    /// continua com as em curso (<see cref="ProximasEntradasDaSemana"/>).
+    /// </summary>
+    public static IReadOnlyList<ProductionContextReadModel> EntradasDaSemana(
+        IEnumerable<ProductionContextReadModel> jobOns,
+        DateOnly dia)
+    {
+        var limite = AteUmaSemana(dia);
+        return ProducaoEmCurso.EntradasPorDia(jobOns
+            .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= limite));
     }
 
     /// <summary>O último dia do painel lateral: uma semana depois de hoje.</summary>

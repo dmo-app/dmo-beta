@@ -7,6 +7,8 @@
 @section Head {
 <style>
 .def-page{display:flex;flex-direction:column;gap:14px}
+/* Entre o título e os separadores o espaço normal das outras páginas (~18 px), não o dobro. */
+html body .def-page > .page-head{margin-bottom:0}
 .def-layout{display:flex;flex-direction:column;gap:14px;min-width:0}
 /* Desenhadas para 1366×768 (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVkLgJZAUhiDzt1VRyy87PR): num ecrã maior não esticam. */
 .def-page > :is(.page-head,.def-layout){width:100%;max-width:1318px}
@@ -31,9 +33,13 @@ html body .def-secao[hidden]{display:none}
 .def-pin .dmo-field{margin:0}
 .def-geral-campos:disabled .dmo-button,.def-geral-campos:disabled input,.def-geral-campos:disabled select,.def-geral-campos:disabled textarea{cursor:not-allowed;opacity:.7}
 /* A conta a toda a largura; por baixo, sessão, aparência e palavra-passe na mesma linha (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraQschNh1Uxn4R5bnQEQzd2D: «devia usar mais espaço»). */
-.def-pessoal-grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2.4fr);gap:14px;align-items:stretch}
-.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr) minmax(0,2.4fr)}
-.def-pessoal-grade > .dmo-card{min-width:0;margin:0}
+.def-pessoal-grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:14px;align-items:stretch}
+/* Sem Sessão (ADMIN): a Aparência sozinha ocupa a altura da palavra-passe, com o conteúdo ao meio, sem uma caixa mais baixa ao lado. */
+html body .def-pessoal-grade.def-sem-sessao .def-pessoal-lado > .def-linha:not(#defConta):not(#defPalavraPasse){align-content:center;align-items:center}
+.def-pessoal-grade > .dmo-card,.def-pessoal-lado > .dmo-card{min-width:0;margin:0}
+/* Sessão e Aparência uma por cima da outra, juntas ao lado da palavra-passe: sem caixas esticadas e meio vazias. */
+.def-pessoal-lado{display:flex;flex-direction:column;gap:14px;min-width:0}
+.def-pessoal-lado > .dmo-card{width:100%;flex:1 1 auto}
 .def-pessoal-grade > #defConta{grid-column:1/-1;padding:16px 20px}
 .def-linha{padding:16px 20px}
 .def-linha h3{margin:0;font-size:15px}
@@ -42,9 +48,9 @@ html body .def-secao[hidden]{display:none}
 html body .def-pessoal-grade > .def-linha > h3 + form{margin-top:14px}
 /* Sessão e Aparência: a lista e o botão na linha do título, à direita, à mesma altura do «Mudar» da
    palavra-passe (Diogo, 27/10/2026: «1 hora», «Modo claro» e «Mudar» não estavam à mesma altura). */
-html body .def-pessoal-grade > .def-linha:not(#defConta):not(#defPalavraPasse){display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;justify-content:space-between;gap:8px 12px}
-html body .def-pessoal-grade > .def-linha:not(#defConta):not(#defPalavraPasse) > h3{display:flex;align-items:center;min-height:var(--dmo-control-height);margin:0}
-html body .def-pessoal-grade > .def-linha:not(#defConta):not(#defPalavraPasse) > h3 + form{margin:0}
+html body .def-pessoal-grade .def-linha:not(#defConta):not(#defPalavraPasse){display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;justify-content:space-between;gap:8px 12px}
+html body .def-pessoal-grade .def-linha:not(#defConta):not(#defPalavraPasse) > h3{display:flex;align-items:center;min-height:var(--dmo-control-height);margin:0}
+html body .def-pessoal-grade .def-linha:not(#defConta):not(#defPalavraPasse) > h3 + form{margin:0}
 .def-conta{display:flex;flex-wrap:wrap;gap:8px 56px;margin:10px 0 0;font-size:15px}
 .def-conta dt{color:var(--dmo-muted);font-weight:600;font-size:12.5px}
 /* Os dados da pessoa em destaque (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraEMoiSsdtN5LyniSpY8rnL8). */
@@ -59,9 +65,11 @@ html body .def-pessoal-grade > .def-linha:not(#defConta):not(#defPalavraPasse) >
 .def-palavra .dmo-field{margin:0;flex:1 1 120px;max-width:240px}
 .ctl-def-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;width:100%}
 html body .ctl-def-grade[hidden]{display:none}
-/* Duas colunas que se enchem de cima para baixo: sem buracos entre cartões de alturas diferentes (Diogo, 26/10/2026: «evitar deixar espaços vazios»). */
-.def-pastas{column-count:2;column-gap:14px}
-.def-pastas > .dmo-card{display:block;break-inside:avoid;margin:0 0 14px;width:100%;max-width:none;padding:16px 18px;box-sizing:border-box}
+/* Duas colunas que se enchem de cima para baixo: sem buracos entre cartões de alturas diferentes (Diogo, 26/10/2026: «evitar deixar espaços vazios»).
+   Cada cartão fica na sua coluna: mudar a altura de um não troca os outros de sítio. */
+.def-pastas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.def-pastas-coluna{display:flex;flex-direction:column;gap:14px;min-width:0}
+.def-pastas-coluna > .dmo-card{display:block;margin:0;width:100%;max-width:none;padding:16px 18px;box-sizing:border-box}
 /* Um cartão só com dois ou três campos fica do tamanho deles, não de meia página (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraMkSqhn27TMM33AJPvkadUE). */
 :is(#ctlDefDensidade,#ctlDefTolerancia,#riDefViragem){justify-self:start;width:fit-content;min-width:320px;max-width:100%}
 /* Fechado, o «Opções» do Excel fica como os outros botões fechados (Diogo, 27/10/2026: «só um toque para igualar»). */
@@ -81,13 +89,18 @@ html body .def-layout .dmo-options-item:disabled{color:var(--dmo-muted);cursor:n
 .adm-card .dmo-card-topo h3{margin:0}
 .adm-email-form{display:grid;gap:12px;width:100%}
 #bqDefViragem .dmo-field,#riDefViragem .dmo-field{max-width:220px}
+/* A hora de viragem: sem a etiqueta repetida, o título fica a um respiro normal do campo. */
+html body :is(#bqDefViragem,#riDefViragem) > h3{margin:0 0 12px}
+/* Ferramentas (Gerais): o cartão alinha com a margem das outras páginas (a coluna vazia da grelha empurrava-o 16 px). */
+html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{grid-column:1;grid-row:auto}
 .ctl-def-computador{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:12px 0 0;font-size:14px}
 .ctl-def-link{border:0;background:none;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--dmo-brand-700);text-decoration:underline;cursor:pointer}
 @@media(max-width:760px){
   .def-menu,.def-modulos{flex-wrap:nowrap;overflow-x:auto}
   .def-pessoal-grade,.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr)}
   .ctl-def-grade{grid-template-columns:minmax(0,1fr)}
-  .def-pastas,.ctl-def-tudo{column-count:1}
+  .def-pastas{grid-template-columns:minmax(0,1fr)}
+  .ctl-def-tudo{column-count:1}
   .def-geral-aviso{flex-wrap:wrap}
 }
 </style>
@@ -155,10 +168,16 @@ html body .def-layout .dmo-options-item:disabled{color:var(--dmo-muted);cursor:n
         <div class="def-pessoal-grade@(Model.EAdmin ? " def-sem-sessao" : null)">
           <section id="defConta" class="dmo-card def-linha" aria-labelledby="def-conta-title" data-dmo-conta>
             <h3 id="def-conta-title">A minha conta</h3>
+            @* Só o que diz alguma coisa: o email inventado do login por número (@@dmo.local) e um número que não existe ficam escondidos, e um nome igual ao email não se repete. *@
+            @{
+              var emailReal = !string.IsNullOrWhiteSpace(Model.Email) && !Model.Email.EndsWith("@dmo.local", StringComparison.OrdinalIgnoreCase);
+              var nomeIgualAoEmail = emailReal && string.Equals(Model.Nome?.Trim(), Model.Email!.Trim(), StringComparison.OrdinalIgnoreCase);
+              var temNumero = !string.IsNullOrWhiteSpace(Model.NumeroOperador);
+            }
             <dl class="def-conta">
-              <div><dt>Nome</dt><dd data-dmo-conta-nome>@Model.Nome</dd></div>
-              <div><dt>Email</dt><dd data-dmo-conta-email>@(Model.Email ?? "—")</dd></div>
-              <div><dt>Número</dt><dd data-dmo-conta-numero>@(Model.NumeroOperador ?? "—")</dd></div>
+              <div hidden="@nomeIgualAoEmail"><dt>Nome</dt><dd data-dmo-conta-nome>@Model.Nome</dd></div>
+              <div hidden="@(!emailReal)"><dt>Email</dt><dd data-dmo-conta-email>@(Model.Email ?? "—")</dd></div>
+              <div hidden="@(!temNumero)"><dt>Número</dt><dd data-dmo-conta-numero>@(Model.NumeroOperador ?? "—")</dd></div>
             </dl>
             @* Os módulos numa pequena tabela, cada um com o acesso (Diogo, 26/10/2026:
                «os módulos em seguida com vírgulas fica mal, preferível uma tabela»). *@
@@ -178,28 +197,30 @@ html body .def-layout .dmo-options-item:disabled{color:var(--dmo-muted);cursor:n
               </div>
             }
           </section>
-          @if (!Model.EAdmin)
-          {
-            <section class="dmo-card def-linha" aria-labelledby="def-sessao-title">
-              <h3 id="def-sessao-title">Sessão</h3>
-              <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Sessao">
-                <select name="horas" aria-label="Duração da sessão" data-dmo-autosubmit>
-                  @foreach (var h in DMO.Alpha.Core.Admin.SessaoDuracao.Opcoes)
-                  {
-                    <option value="@h" selected="@(h == Model.SessaoHoras)">@h @(h == 1 ? "hora" : "horas")</option>
-                  }
-                </select>
+          <div class="def-pessoal-lado">
+            @if (!Model.EAdmin)
+            {
+              <section class="dmo-card def-linha" aria-labelledby="def-sessao-title">
+                <h3 id="def-sessao-title">Sessão</h3>
+                <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Sessao">
+                  <select name="horas" aria-label="Duração da sessão" data-dmo-autosubmit>
+                    @foreach (var h in DMO.Alpha.Core.Admin.SessaoDuracao.Opcoes)
+                    {
+                      <option value="@h" selected="@(h == Model.SessaoHoras)">@h @(h == 1 ? "hora" : "horas")</option>
+                    }
+                  </select>
+                </form>
+              </section>
+            }
+            @* O modo claro ou escuro (Diogo, 22/10/2026): troca o modo e grava-o na conta. *@
+            <section id="defTema" class="dmo-card def-linha" aria-labelledby="def-tema-title" data-dmo-regiao>
+              <h3 id="def-tema-title">Aparência</h3>
+              <form id="defTemaForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="Tema">
+                <input type="hidden" name="tema" value="@(Model.Tema == "dark" ? "light" : "dark")" />
+                <button type="submit" class="dmo-button" id="defTemaBotao" data-dmo-tema-pessoal="@(Model.Tema == "dark" ? "dark" : "light")" aria-pressed="@(Model.Tema == "dark" ? "true" : "false")">@(Model.Tema == "dark" ? "Modo claro" : "Modo escuro")</button>
               </form>
             </section>
-          }
-          @* O modo claro ou escuro (Diogo, 22/10/2026): troca o modo e grava-o na conta. *@
-          <section id="defTema" class="dmo-card def-linha" aria-labelledby="def-tema-title" data-dmo-regiao>
-            <h3 id="def-tema-title">Aparência</h3>
-            <form id="defTemaForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="Tema">
-              <input type="hidden" name="tema" value="@(Model.Tema == "dark" ? "light" : "dark")" />
-              <button type="submit" class="dmo-button" id="defTemaBotao" data-dmo-tema-pessoal="@(Model.Tema == "dark" ? "dark" : "light")" aria-pressed="@(Model.Tema == "dark" ? "true" : "false")">@(Model.Tema == "dark" ? "Modo claro" : "Modo escuro")</button>
-            </form>
-          </section>
+          </div>
           <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
             <div class="dmo-card-topo">
               <h3 id="def-palavra-title">Mudar a palavra-passe</h3>
@@ -227,22 +248,24 @@ html body .def-layout .dmo-options-item:disabled{color:var(--dmo-muted);cursor:n
         @* As pastas, cada uma escolhida neste navegador (Chrome ou Edge), juntas num só sítio. *@
         <section id="sec-computador" class="def-secao" data-dmo-def-secao="computador" aria-labelledby="def-computador-title" hidden="@(Model.Secao != "computador")">
           <h2 id="def-computador-title" class="dmo-visually-hidden">Este computador</h2>
+          @{
+              // Duas colunas fixas, a primeira com metade (arredondada para cima) dos
+              // cartões: com o column-count, um cartão que mudava de altura (ligar a
+              // pasta do SAP) fazia saltar os outros de coluna (Diogo, 27/10/2026:
+              // «ao associar pasta nas Definições e ligar, o UI teve um break momentâneo»).
+              var pastas = new List<Microsoft.AspNetCore.Html.IHtmlContent>();
+              var dadosPasta = new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado };
+              if (Model.Controlo is { } controloPasta) pastas.Add(await Html.PartialAsync("/Pages/Controlo/_DefinicoesPasta.cshtml", controloPasta, dadosPasta));
+              if (Model.Boquilhas is { } boquilhasPasta) pastas.Add(await Html.PartialAsync("/Pages/Boquilhas/_DefinicoesPasta.cshtml", boquilhasPasta, dadosPasta));
+              if (Model.TemJobOn) pastas.Add(await Html.PartialAsync("/Pages/JobOn/_DefinicoesImagens.cshtml", null, dadosPasta));
+              if (Model.Ferramentas is { } ferramentasPasta) pastas.Add(await Html.PartialAsync("/Pages/Ferramentas/_DefinicoesPasta.cshtml", ferramentasPasta, dadosPasta));
+              var naPrimeira = (pastas.Count + 1) / 2;
+          }
           <div class="def-pastas">
-            @if (Model.Controlo is { } controloPasta)
+            <div class="def-pastas-coluna">@foreach (var pasta in pastas.Take(naPrimeira)) {@pasta}</div>
+            @if (pastas.Count > naPrimeira)
             {
-              <partial name="/Pages/Controlo/_DefinicoesPasta.cshtml" model="controloPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
-            }
-            @if (Model.Boquilhas is { } boquilhasPasta)
-            {
-              <partial name="/Pages/Boquilhas/_DefinicoesPasta.cshtml" model="boquilhasPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
-            }
-            @if (Model.TemJobOn)
-            {
-              <partial name="/Pages/JobOn/_DefinicoesImagens.cshtml" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
-            }
-            @if (Model.Ferramentas is { } ferramentasPasta)
-            {
-              <partial name="/Pages/Ferramentas/_DefinicoesPasta.cshtml" model="ferramentasPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
+              <div class="def-pastas-coluna">@foreach (var pasta in pastas.Skip(naPrimeira)) {@pasta}</div>
             }
           </div>
         </section>

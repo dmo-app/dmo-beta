@@ -1538,13 +1538,20 @@
               </tr>
             </thead>
             <tbody>
+              @* Corrigir ou apagar (Diogo, 27/10/2026): a linha escolhe-se com um
+                 clique (fica de uma só cor) e a correção abre na caixa da
+                 leitura nova; um clique na linha escolhida larga-a. O link da
+                 primeira célula cobre a linha toda (CSS). *@
               @foreach (var measurement in peso.Measurements)
               {
                 decimal? rowDelta = peso.Averages is { } rowAverages
                     ? measurement.GlassWeightGrams - rowAverages.AverageGlassWeightGrams
                     : null;
-                <tr>
-                  <td>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
+                var escolhida = Model.CorrigirLeituraId == measurement.MeasurementId;
+                var linhaHref = Model.UrlCorrigirLeitura(escolhida ? null : measurement.MeasurementId);
+                var linhaRotulo = escolhida ? "Largar a leitura" : $"Corrigir ou apagar a leitura da CM {(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)}";
+                <tr class="peso-linha-corrigir@(escolhida ? " is-selected" : null)" data-peso-leitura-id="@measurement.MeasurementId" aria-selected="@(escolhida ? "true" : "false")">
+                  <td><a class="peso-linha-link" href="@linhaHref" aria-label="@linhaRotulo"></a>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
                   <td>@fmtCap(measurement.CapacityCm3)</td>
                   <td><strong>@fmt(measurement.GlassWeightGrams)</strong></td>
                   <td>@(rowDelta is { } rd ? signed(rd) : "—")</td>
@@ -1575,7 +1582,7 @@
           <div class="peso-resumo" data-peso-summary>
             <div class="peso-fact"><span>Peso nominal</span><strong>@(peso.NominalWeightGrams is { } nominalSumario ? $"{fmt(nominalSumario)} g" : "—")</strong></div>
             <div class="peso-fact"><span>Diferença nominal</span><strong>@(diferencaNominal is { } diferenca ? signed(diferenca) + " g" : "—")</strong></div>
-            <div class="peso-fact" data-peso-comparison><span>Comparação anterior</span><strong>@(Model.Comparison is { } comparacaoStrip && !string.IsNullOrEmpty(comparacaoStrip.HistoricalProductionNumber) ? comparacaoStrip.HistoricalProductionNumber : "Por criar")</strong></div>
+            <div class="peso-fact" data-peso-comparison><span>Controlo anterior</span><strong>@(Model.Comparison is { } comparacaoStrip && !string.IsNullOrEmpty(comparacaoStrip.HistoricalProductionNumber) ? comparacaoStrip.HistoricalProductionNumber : "Por criar")</strong></div>
           </div>
           </div>
           @* Sem barra «Há leituras com massa de água não utilizável» por cima
@@ -1651,6 +1658,68 @@
           </div>
         </form>
         }
+
+        @* A CORREÇÃO DA LEITURA ESCOLHIDA (27/10/2026): no lugar da leitura
+           nova, o N.º CM e a massa de água dela para corrigir, «Guardar» e
+           «Apagar»; apagar pergunta antes. Fica o rasto de cada correção. Um
+           Peso de antes de uma troca também se corrige (R16-3). *@
+        <div id="pesoCorrecao" class="dmo-zona" data-dmo-regiao>
+        @if (Model.CorrecaoRefusalMessage is { } correcaoRecusa)
+        {
+          <div data-dmo-toast="erro" class="peso-aviso" role="alert">@correcaoRecusa</div>
+        }
+        @if (Model.CorrigirLeituraId is { } corrigirId && peso.Measurements.FirstOrDefault(m => m.MeasurementId == corrigirId) is { } aCorrigir)
+        {
+          var corrigirCm = string.IsNullOrEmpty(aCorrigir.CmSubject) ? "—" : aCorrigir.CmSubject;
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="EditMeasurement" class="peso-leitura-form peso-correcao" data-peso-correcao>
+            <input type="hidden" name="peso_id" value="@peso.PesoId" />
+            <input type="hidden" name="measurement_id" value="@aCorrigir.MeasurementId" />
+            @if (Model.ProductionContext is not null && Model.ControloIdFromQuery is { } correcaoControloId)
+            {
+              <input type="hidden" name="controlo_id" value="@correcaoControloId" />
+            }
+            @if (Model.PesoIdNoEndereco is not null)
+            {
+              <input type="hidden" name="peso_anterior" value="1" />
+            }
+            @if (Model.Comparison is { } correcaoComparison)
+            {
+              <input type="hidden" name="comparar" value="@correcaoComparison.HistoricalPesoId" />
+            }
+            @if (Model.SuporCaloteParaLevar is { } correcaoSupor)
+            {
+              <input type="hidden" name="supor_calote" value="@correcaoSupor" />
+            }
+            @if (Model.ApagarLeituraPergunta)
+            {
+              <p class="peso-correcao-pergunta" role="status">Apagar a leitura da CM @corrigirCm (@aCorrigir.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture) g)?</p>
+              <div class="peso-leitura-actions">
+                <a class="dmo-button dmo-dialog-cancel" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId)" data-peso-correcao-sair>Cancelar</a>
+                <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "DeleteMeasurement")" data-peso-apagar-confirmar>Apagar</button>
+              </div>
+            }
+            else
+            {
+              <div class="peso-leitura-row">
+                <div class="dmo-field">
+                  <label for="corrigirCm">N.º CM</label>
+                  <input id="corrigirCm" name="cm_subject" value="@(Model.EchoCorrecaoSubject ?? aCorrigir.CmSubject)" autocomplete="off" />
+                </div>
+                <div class="dmo-field">
+                  <label for="corrigirAgua">Massa de água (g)</label>
+                  <input id="corrigirAgua" name="water_weight" type="text" inputmode="decimal" autocomplete="off" required value="@(Model.EchoCorrecaoWater ?? aCorrigir.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                </div>
+              </div>
+              <div class="peso-leitura-actions">
+                <button type="submit" class="dmo-button" data-peso-correcao-guardar>Guardar</button>
+                <a class="dmo-button" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId, apagar: true)" data-peso-apagar>Apagar</a>
+                @* Sair da correção fica na folha (Diogo, 27/10/2026); o Esc faz o mesmo. *@
+                <a class="dmo-button" href="@Model.UrlCorrigirLeitura(null)" data-peso-correcao-sair>Cancelar</a>
+              </div>
+            }
+          </form>
+        }
+        </div>
       </div>
     </section>
   }
@@ -1670,14 +1739,12 @@
     var semProducaoAnteriorTopo = Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null;
     <section class="dmo-card peso-card peso-compare" aria-labelledby="peso-comparacao-title" data-dmo-parcial>
       @* Os botões do cartão no canto superior direito, um de cada (Diogo, 23/10/2026). *@
-      <div class="peso-card-heading dmo-card-topo"><h3 id="peso-comparacao-title">Comparação com outro controlo</h3>
+      @* «Controlo anterior» e «Produção anterior» em cartões separados
+         (Diogo, 27/10/2026): o controlo anterior é o Peso feito antes, na
+         tabela CM a CM; a produção anterior é o peso que vem do SAP. *@
+      <div class="peso-card-heading dmo-card-topo"><h3 id="peso-comparacao-title">Controlo anterior</h3>
         <div class="dmo-card-topo-acoes">
           <a class="dmo-button" href="/Controlo/Peso?comparacao_de=@currentPesoForComparison.PesoId" data-peso-comparacao-criar>Criar</a>
-          @if (!semProducaoAnteriorTopo)
-          {
-            @* O id deixa o foco no «Guardar» depois de gravar sem recarregar. *@
-            <button type="submit" form="pesoAnteriorForm" class="dmo-button" id="producaoAnteriorGuardar">Guardar</button>
-          }
         </div>
       </div>
       <div id="pesoComparacao" class="dmo-zona" data-dmo-regiao>
@@ -1710,7 +1777,7 @@
             <input type="hidden" name="supor_calote" value="@suporEcho" />
           }
           <div class="dmo-field">
-            <label for="compararDropdown">Produção a comparar (@producaoAtual.Reference)</label>
+            <label for="compararDropdown">Controlo anterior (@producaoAtual.Reference)</label>
             <select id="compararDropdown" name="comparar" data-auto-submit data-dmo-filter>
               <option value="" selected="@(Model.Comparison is null ? "selected" : null)">Procurar produção…</option>
               @foreach (var candidate in Model.ComparisonCandidates)
@@ -1731,7 +1798,9 @@
 
       @if (Model.Comparison is { } comparison && currentPesoForComparison.Averages is not null)
       {
-        var historicoRotulo = comparison.HistoricalProductionNumber;
+        var historicoRotulo = comparison.HistoricalProductionNumber == DMO.Alpha.Infrastructure.Controlo.PesoComparisonQuery.RotuloParaComparacao
+            ? "Controlo anterior"
+            : $"Controlo anterior · {comparison.HistoricalProductionNumber}";
         @* A produção escolhida é só a procura; a tabela compara CM com CM
            pela ordem das leituras, sem exigir o mesmo número de CM (o Owner
            2026-10-17: «comparando cm com cm, não precisa de ser par»), com o
@@ -1741,13 +1810,18 @@
         <div class="dmo-table-wrap" style="margin-top:8px">
           <table class="dmo-table" data-peso-comparacao-tabela>
             <thead>
+              <tr class="peso-cmp-grupos">
+                <th colspan="3" scope="colgroup">Este controlo</th>
+                <th colspan="3" scope="colgroup">@historicoRotulo</th>
+                <th colspan="2" scope="colgroup">Diferença</th>
+              </tr>
               <tr>
-                <th>CM atual</th>
-                <th>Volume atual (cm³)</th>
-                <th>Peso atual (g)</th>
-                <th>CM anterior · @historicoRotulo</th>
-                <th>Volume anterior (cm³)</th>
-                <th>Peso anterior (g)</th>
+                <th>CM</th>
+                <th>Volume (cm³)</th>
+                <th>Peso (g)</th>
+                <th>CM</th>
+                <th>Volume (cm³)</th>
+                <th>Peso (g)</th>
                 <th>Δ volume (cm³)</th>
                 <th>Δ peso (g)</th>
               </tr>
@@ -1789,9 +1863,17 @@
          anterior (número, máquina, início e fim) e o peso que essa produção
          usou é escrito à mão a partir do SAP. O delta é contra o peso médio
          atual, e o registo vai para o PDF. *@
-      <div class="peso-section-heading" style="margin-top:16px"><div>
-        <h4 id="peso-producao-anterior-title">Produção anterior</h4>
-      </div></div>
+    </section>
+    <section class="dmo-card peso-card peso-compare peso-producao-anterior" aria-labelledby="peso-producao-anterior-title" data-dmo-parcial>
+      <div class="peso-card-heading dmo-card-topo"><h3 id="peso-producao-anterior-title">Produção anterior</h3>
+        @if (!semProducaoAnteriorTopo)
+        {
+          <div class="dmo-card-topo-acoes">
+            @* O id deixa o foco no «Guardar» depois de gravar sem recarregar. *@
+            <button type="submit" form="pesoAnteriorForm" class="dmo-button" id="producaoAnteriorGuardar">Guardar</button>
+          </div>
+        }
+      </div>
       @{
         var semProducaoAnterior = Model.ProducaoAnteriorOpcoes.Count == 0 && Model.ProducaoAnteriorEscolhida is null;
         var escolhida = Model.ProducaoAnteriorEscolhida;
@@ -1827,10 +1909,10 @@
         var pesoGuardadoDaEscolhida = escolhida is not null && guardada?.JobOnId == escolhida.JobOnId ? guardada.PesoGramas : null;
         // O peso do SAP da escolhida (média pelos dias e moda); sem peso
         // guardado, o campo vem com a média, para guardar ou mudar.
-        var sapDaEscolhida = escolhida is not null && Model.ProducaoAnteriorSap.TryGetValue(escolhida.JobOnId, out var sapEsc) ? sapEsc : null;
+        var sapDoCampo = escolhida is not null && Model.ProducaoAnteriorSap.TryGetValue(escolhida.JobOnId, out var sapCampo) ? sapCampo : null;
         var pesoEcho = Model.ProducaoAnteriorEcho
             ?? (pesoGuardadoDaEscolhida is { } pg ? pg.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) : null)
-            ?? (sapDaEscolhida is not null ? fmt(sapDaEscolhida.MediaGramas) : null);
+            ?? (sapDoCampo is not null ? fmt(sapDoCampo.MediaGramas) : null);
         <form id="pesoAnteriorForm" method="post" asp-page="/Controlo/Peso" asp-page-handler="GuardarProducaoAnterior" class="peso-inline-form" data-producao-anterior>
           <div id="pesoAnteriorContexto" class="dmo-zona" data-dmo-regiao>
             <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
@@ -1850,8 +1932,8 @@
             }
           </div>
           <div class="dmo-field">
-            <label for="producaoAnterior">Produção anterior</label>
-            <select id="producaoAnterior" name="anterior" data-producao-anterior-select>
+            @* «Produção anterior» só no título do cartão (Diogo, 27/10/2026: «basta uma produção anterior»). *@
+            <select id="producaoAnterior" name="anterior" aria-label="Produção anterior" data-producao-anterior-select>
               @foreach (var opcao in Model.ProducaoAnteriorOpcoes)
               {
                 <option value="@opcao.JobOnId"
@@ -1867,47 +1949,48 @@
           </div>
           @* O Peso completo da produção anterior (Diogo, 26/10/2026: «caso não exista, criar, que abre uma página onde criamos, podendo assim associar a um Job On»):
              abre a folha de Peso dessa produção (CM, tampão, calote e temperatura), gravada no Job On escolhido. *@
-          <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "AbrirJobOn")" formtarget="_self" formnovalidate data-peso-anterior-abrir>Abrir o Peso desta produção</button>
+          <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "AbrirJobOn")" formtarget="_self" formnovalidate data-peso-anterior-abrir aria-label="Abrir o Peso desta produção">Abrir</button>
         </form>
-        <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
-        @* O PESO DA PRODUÇÃO (Diogo, 21/10/2026; 26/10/2026): pelas datas da
-           produção escolhida e a referência, a média pelos dias de cada ordem
-           e a moda (o peso com mais dias). A caixa mostra só a média com a
-           diferença do peso de hoje; ao carregar abre uma janela pequena com a
-           moda e a sua diferença, como no Histórico de produções da ferramenta. *@
+      }
+      </div>
+      </div>
+      @* A média e a moda da produção, o peso usado, a diferença e a variação
+         numa só faixa (Diogo, 27/10/2026). A média e a moda trocam no browser
+         com a produção escolhida; o resto é a zona do que está guardado. *@
+      <div class="peso-anterior-faixa">
+      @if (!semProducaoAnterior)
+      {
+        @* O PESO DA PRODUÇÃO NO SAP (Diogo, 21/10/2026; 26/10/2026; 27/10/2026):
+           pelas datas da produção escolhida e a referência, a média pelos dias
+           de cada ordem e a moda (o peso com mais dias), cada uma com a
+           diferença do peso médio deste controlo para ela. Ficam na mesma
+           faixa que o peso usado, a diferença e a variação, sem «Hoje». *@
+        var sapDaEscolhida = escolhida is not null && Model.ProducaoAnteriorSap.TryGetValue(escolhida.JobOnId, out var sapEsc) ? sapEsc : null;
         var pesoAtualSap = currentPesoForComparison.Averages?.AverageGlassWeightGrams;
         string deltaSapTexto(decimal pesoSapRef)
         {
             var (dg, dp) = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(pesoAtualSap, pesoSapRef);
-            return dg is { } g ? $"Hoje {signed(g)} g" + (dp is { } pc ? $" ({signed(pc)} %)" : null) : "";
+            return dg is { } g ? $"{signed(g)} g" + (dp is { } pc ? $" ({signed(pc)} %)" : null) : "";
         }
-        <div class="peso-sap-caixa" id="pesoAnteriorSap" data-producao-anterior-sap data-peso-atual="@(pesoAtualSap is { } pa ? fmt(pa) : null)">
-          <div data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">
-            <button type="button" class="peso-sap-abrir" data-dmo-dialog="pesoSapModa" aria-label="Peso da produção: moda e diferença">
-              <span class="peso-sap-titulo">Peso da produção <span class="peso-hint">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></span>
+        <div class="peso-anterior-sap" id="pesoAnteriorSap" data-producao-anterior-sap data-peso-atual="@(pesoAtualSap is { } pa ? fmt(pa) : null)">
+          @* Sem a palavra «SAP» à vista (Diogo, 21/10/2026: «sempre que for referência a produção usar produção e não SAP»). *@
+          <div class="peso-fact peso-sap-fact">
+            <span class="peso-sap-titulo">Peso da produção <span class="peso-hint" data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></span>
+            @* O início e o fim da produção escolhida no cartão do peso dela (Diogo, 27/10/2026). *@
+            <span class="peso-hint peso-sap-periodo" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span>
+            <span class="peso-sap-opcoes" data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">
               <span class="peso-sap-opcao">Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></span>
-              <partial name="_DmoHelp" model="@("Carrega para ver a moda (o peso com mais dias) e a diferença do peso de hoje para ela.")" />
-            </button>
-            <dialog id="pesoSapModa" class="dmo-dialog" aria-labelledby="pesoSapModa-title">
-              <h3 id="pesoSapModa-title">Peso da produção</h3>
-              <div class="peso-sap-opcoes">
-                <span class="peso-sap-opcao">Média <strong data-sap-media-dialog>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media-dialog">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></span>
-                <span class="peso-sap-opcao">Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></span>
-              </div>
-              <div class="dmo-dialog-actions">
-                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Fechar</button>
-              </div>
-            </dialog>
+              <span class="peso-sap-opcao">Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></span>
+            </span>
+            <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></span>
           </div>
-          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></span>
-          @* O peso da produção de cada produção do select, para trocar sem pedir ao servidor. *@
+          @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {
             <span hidden data-sap-opcao="@sapJobOnId" data-sap-media="@fmt(sapOpcao.MediaGramas)" data-sap-moda="@fmt(sapOpcao.ModaGramas)" data-sap-dias="@sapOpcao.Dias"></span>
           }
         </div>
       }
-      </div>
       <div id="pesoAnteriorDelta" class="dmo-zona" data-dmo-regiao>
       @if (!semProducaoAnterior && guardada is { PesoGramas: { } pesoSap })
       {
@@ -2162,22 +2245,21 @@
     if (!sap) { return; }
     var dados = sap.querySelector('[data-sap-opcao="' + option.value + '"]');
     var media = dados && dados.getAttribute('data-sap-media');
-    sap.querySelector('[data-sap-com]').hidden = !media;
+    Array.prototype.forEach.call(sap.querySelectorAll('[data-sap-com]'), function (fact) { fact.hidden = !media; });
     sap.querySelector('[data-sap-sem]').hidden = !!media;
     if (media) {
       sap.querySelector('strong[data-sap-media]').textContent = media;
-      sap.querySelector('strong[data-sap-media-dialog]').textContent = media;
       sap.querySelector('strong[data-sap-moda]').textContent = dados.getAttribute('data-sap-moda') || '';
       sap.querySelector('span[data-sap-dias]').textContent = dados.getAttribute('data-sap-dias') || '';
       deltasSap(sap);
     }
   });
 
-  // A caixa do peso da produção: a média na caixa e, na janela, a moda,
-  // cada uma com a diferença do peso de hoje para ela.
+  // A média e a moda do SAP, cada uma com a diferença do peso médio deste
+  // controlo para ela.
   function deltasSap(sap) {
     var atual = parseFloat(sap.getAttribute('data-peso-atual'));
-    [['media', 'media'], ['media-dialog', 'media'], ['moda', 'moda']].forEach(function (par) {
+    [['media', 'media'], ['moda', 'moda']].forEach(function (par) {
       var delta = sap.querySelector('[data-sap-delta="' + par[0] + '"]');
       var valor = sap.querySelector('strong[data-sap-' + par[0] + ']');
       if (!delta || !valor) { return; }
@@ -2185,7 +2267,7 @@
       if (isNaN(atual) || isNaN(ref)) { delta.textContent = ''; return; }
       var g = atual - ref;
       var sinal = function (v) { var r = Math.round(v * 100) / 100; return (r >= 0 ? '+' : '\u2212') + Math.abs(r).toFixed(2); };
-      delta.textContent = 'Hoje ' + sinal(g) + ' g' + (ref ? ' (' + sinal(g / ref * 100) + ' %)' : '');
+      delta.textContent = sinal(g) + ' g' + (ref ? ' (' + sinal(g / ref * 100) + ' %)' : '');
     });
   }
   (function () {

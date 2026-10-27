@@ -52,7 +52,8 @@ public sealed class JobOnImpressao
         Campo("seccoes", "Cabeçalho", "Secções", "cab_seccoes");
         Campo("gota", "Cabeçalho", "Gota", "cab_gota");
         Por("peso", "Cabeçalho", "Peso", "Folha · Peso (g) (cab_peso)", Model("cab_peso") is { Length: > 0 } p ? p + " g" : "");
-        Por("cadencia", "Cabeçalho", "Cadência", "O Job On não tem: escreve-se à mão", "");
+        Por("cadencia", "Cabeçalho", "Cadência", "SAP · Cadência da produção (a das ordens com mais dias); sem ela, escreve-se à mão",
+            model.CadenciaSap?.ToString(CultureInfo.InvariantCulture) ?? "");
         Por("processo", "Rodapé", "Processo", "Folha · Processo (cab_processo); sem ele, o processo da CM",
             Model("cab_processo") is { Length: > 0 } pr ? pr : (cm?.Processo ?? ""));
 

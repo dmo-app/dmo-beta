@@ -273,7 +273,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         @if (Model.LinhasEUso.TryGetValue(s.ToolId, out var usoDaFerramenta) && usoDaFerramenta.Uso is { } usoPct)
         {
           var barra = Math.Clamp(usoPct, 0m, 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-          <div class="arm-uso" id="armUso"><span>Utilização</span><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, s.ToolId)</strong><span class="arm-uso-barra" aria-hidden="true"><span style="width:@(barra)%"></span></span></div>
+          <div class="arm-uso" id="armUso"><span>Utilização</span><strong>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(s.ToolId, DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, s.ToolId))</strong><span class="arm-uso-barra" aria-hidden="true"><span style="width:@(barra)%"></span></span></div>
         }
       </div>
 
@@ -589,7 +589,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>@MovimentosModel.DataHora(m.OcorridoEmUtc)</td>
               <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(m.Tipo ?? Model.Tipo, m.Referencia, m.Lote)</strong></td>
               <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, m.ToolId)</td>
-              <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId)</td>
+              <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(m.ToolId, DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId))</td>
               <td>@MovimentosModel.Movimento(m)</td>
               <td>@(m.Estado is { } estMov ? ArmazemTextos.Estado(estMov) : "—")</td>
               <td>@(m.Reparador ?? "—")</td>

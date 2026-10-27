@@ -44,17 +44,18 @@
   --dmo-shadow: none;
   --dmo-sidebar-width: 244px;
 }
+/* Escuro um tom mais claro (Diogo, 27/10/2026, …3NTas4a1z43TSpjUNg81sv; e mais um pouco, …NHFVvwdUdNVWkNpf9UQvvH): fundos, cartões, campos e linhas. */
 :root[data-theme="dark"] {
-  --dmo-page: var(--design-ink); --dmo-card: #1c212b;
-  --dmo-bar: #1c212b; --dmo-field: #161a22;
-  --dmo-subtle: #252b37; --dmo-border: #343b49;
+  --dmo-page: #20252f; --dmo-card: #2a303c;
+  --dmo-bar: #2a303c; --dmo-field: #242934;
+  --dmo-subtle: #333a48; --dmo-border: #434b5b;
   --dmo-text: #eceef1; --dmo-muted: var(--design-pale);
   --dmo-brand-950: #eceef1; --dmo-brand-900: #eceef1;
   --dmo-brand-800: var(--design-200); --dmo-brand-700: var(--design-200);
   --dmo-brand-600: var(--design-medium); --dmo-palette-slate: var(--design-medium);
   --dmo-action: #515f7a;
-  --dmo-brand-200: #343b49; --dmo-brand-100: #2b313d;
-  --dmo-brand-050: #252b37; --dmo-row-hover: #2b313d;
+  --dmo-brand-200: #434b5b; --dmo-brand-100: #39404e;
+  --dmo-brand-050: #333a48; --dmo-row-hover: #39404e;
 }
 /* The logo, module tabs and real signed-in account share the first row. */
 html body .dmo-shell-header {
@@ -234,33 +235,11 @@ html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .hv b {fon
 /* Contextual support surface (docs/design/HANDOFF-ASTRA.md): a page slides in
    beside the workspace; module navigation never enters it. The partial is
    _DmoSupportPanel + wwwroot/js/dmo-support.js. */
-html.dmo-support-open body{overflow:hidden}
-html body dialog.dmo-support{
-  position:fixed;inset:0 0 0 auto;margin:0;padding:0;
-  width:min(1040px,calc(100vw - 120px));max-width:none;height:100dvh;max-height:none;
-  border:0;border-left:1px solid var(--dmo-border);border-radius:0;
-  background:var(--dmo-card);color:var(--dmo-text);box-shadow:none;
-  display:flex;flex-direction:column;
-  transform:translateX(100%);visibility:hidden;
-  transition:transform .22s ease,visibility .22s;
-}
-html body dialog.dmo-support:not([open]){display:none;transform:translateX(100%);visibility:hidden}
-html body dialog.dmo-support[open]{transform:none;visibility:visible}
-@starting-style{html body dialog.dmo-support[open]{transform:translateX(100%)}}
-html body dialog.dmo-support::backdrop{background:rgba(11,19,32,.24)}
-html body .dmo-support-head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--dmo-border);flex:0 0 auto}
-html body .dmo-support-eyebrow{display:block;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
-html body .dmo-support-head h2{margin:2px 0 0;font-size:17px;font-weight:650;letter-spacing:-.01em}
-html body #dmoSupportFull{margin-left:auto;font-size:12px;color:var(--dmo-brand-700);text-decoration:none;white-space:nowrap}
-html body #dmoSupportFull:hover{text-decoration:underline}
-html body #dmoSupportFull:focus-visible{outline:2px solid var(--design-medium);outline-offset:3px;text-decoration:none}
-html body .dmo-support-head [data-support-close]{flex:0 0 auto;min-height:30px;padding:0 10px;font-size:12px}
-html body .dmo-support-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--dmo-border);background:var(--dmo-warning-soft);font-size:12px}
-html body .dmo-support-confirm[hidden]{display:none}
-html body .dmo-support-confirm p{flex:1 1 100%;margin:0;color:var(--dmo-text)}
-html body .dmo-support-loading{position:absolute;inset:60px 0 auto 0;margin:0;padding:22px 20px;color:var(--dmo-muted);font-size:12px}
+/* O painel em si (topo, corpo, deslizar) é a estrutura fixa dos painéis:
+   css/dmo-estrutura.css. Aqui fica só o que é do iframe. */
+html body .dmo-support-loading{position:absolute;inset:0 0 auto 0;margin:0;padding:22px 20px;color:var(--dmo-muted);font-size:12px}
 html body .dmo-support-loading[hidden]{display:none}
-html body .dmo-support-frame{flex:1 1 auto;width:100%;min-height:0;border:0;background:var(--dmo-card)}
+html body .dmo-support-frame{background:var(--dmo-card)}
 html body .dmo-support-refresh{position:fixed;right:20px;bottom:20px;z-index:120;display:flex;flex-wrap:wrap;align-items:center;gap:10px;max-width:calc(100vw - 40px);padding:10px 14px;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card);font-size:12px;box-shadow:none}
 html body .dmo-support-refresh[hidden]{display:none}
 /* Inside the support panel only the page is drawn: the shell stays outside. */
@@ -270,7 +249,6 @@ html[data-dmo-embedded="true"] .dmo-shell-header,
    A marca fica no HTML, onde o teste da faixa a procura, até ele mudar com o ok do Diogo. */
 html body .dmo-faixa-dev{display:none!important}
 html[data-dmo-embedded="true"] :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main,.jof2){padding:16px 18px 24px}
-@media(max-width:700px){html body dialog.dmo-support{width:100vw}}
 
 /* Long matrices keep the page inside 1366x768: the list scrolls locally. */
 html body .dmo-table-wrap:has(>.dmo-matrix){max-height:calc(100vh - 610px);overflow:auto}
@@ -493,8 +471,13 @@ html body.dmo-account-page .identity{background:var(--dmo-subtle)}
 html body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-200) 0%,var(--design-100) 50%,var(--dmo-subtle) 100%)}
 html:not([data-theme="dark"]) body.dmo-account-page .login-side{background:#f9fafb}
 html body.dmo-account-page .identity-foot,html body.dmo-account-page .identity-foot strong{color:var(--design-navy)}
-html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-medium) 0%,var(--design-blue) 35%,var(--design-navy) 70%,var(--dmo-page) 100%)}
+/* Escuro mais claro (Diogo, 27/10/2026, …GKcythBx2yaXPFFQcuzeg2: «está demasiado escuro»): o degradê acaba no
+   #343D4F em vez do fundo da página. */
+html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-medium) 0%,var(--design-blue) 55%,var(--design-navy) 100%)}
 html[data-theme="dark"] body.dmo-account-page .identity-foot,html[data-theme="dark"] body.dmo-account-page .identity-foot strong{color:#fff}
+/* Login: a mensagem de erro (palavra-passe errada) mais discreta (Diogo, 27/10/2026, …NHFVvwdUdNVWkNpf9UQvvH «muito rústica»):
+   sem caixa cheia, só um traço fino à esquerda e a letra num vermelho apagado. */
+html body.dmo-account-page .login-form .form-message.alert-danger{margin-top:14px;padding:2px 0 2px 10px;border:0;border-left:2px solid color-mix(in srgb,var(--dmo-danger) 70%,var(--dmo-card));border-radius:0;background:none;color:color-mix(in srgb,var(--dmo-danger) 85%,var(--dmo-text));font-size:12.5px;line-height:1.45}
 html[data-theme="dark"] body.dmo-account-page .identity .eyebrow{color:var(--design-100)}
 html body.dmo-account-page .identity .brand-logo.brand-logo{width:112px;height:112px;background:none}
 /* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
@@ -726,10 +709,10 @@ html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.acti
 html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover{background:none}
 /* Regra geral (Diogo, 26/10/2026): no hover muda só a cor da letra, nunca um retângulo de fundo.
    Ficam de fora os botões, as linhas das tabelas, as escolhas (chips), o calendário e a gaveta de máquinas. */
-html body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.jof2 .del,.pu-remove,.peg-page .peg-x,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible){background:none !important;box-shadow:none !important;color:var(--dmo-brand-700)}
+html body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.jof2 .del,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible){background:none !important;box-shadow:none !important;color:var(--dmo-brand-700)}
 html body :is(a.dmo-fact.dmo-fact-link):is(:hover,:focus-visible) :is(span,strong,em){color:var(--dmo-brand-700)}
-html body :is(.jof2 .del,.pu-remove,.peg-page .peg-x):is(:hover,:focus-visible){color:var(--dmo-danger)}
-:root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
+html body :is(.jof2 .del):is(:hover,:focus-visible){color:var(--dmo-danger)}
+:root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
 :root[data-theme="dark"] body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible) :is(span,strong,em){color:#fff}
 /* Linhas das tabelas: o hover usa o mesmo azul da barra da esquerda, com letra branca (Diogo, 26/10/2026). */
 html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:var(--dmo-brand-600);color:#fff}

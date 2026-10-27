@@ -15,8 +15,12 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// </summary>
 public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account) : IFerramentasFabricoSap
 {
-    public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken = default)
+    public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
+        IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default)
     {
+        var detalheDe = (detalhes ?? [])
+            .GroupBy(d => (d.Material, d.Linha, d.InicioEm, d.FimEm))
+            .ToDictionary(g => g.Key, g => g.Last());
         var agora = DateTime.UtcNow;
         var actor = account.Current;
         var autor = actor.IsAuthenticated ? (string.IsNullOrWhiteSpace(actor.DisplayName) ? actor.OperatorId : actor.DisplayName) : null;
@@ -44,6 +48,11 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             existente.ProducaoLiquida = linha.ProducaoLiquida;
             existente.PesoMedioGramas = linha.PesoMedioGramas;
             existente.DiasProducao = linha.DiasProducao;
+            if (detalheDe.TryGetValue((linha.Material, linha.Linha, linha.InicioEm, linha.FimEm), out var detalhe))
+            {
+                existente.Cadencia = detalhe.Cadencia;
+            }
+
             existente.LidoEmUtc = agora;
             existente.LidoPor = autor;
             existente.Ficheiro = nome;
@@ -56,6 +65,28 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
 
     public Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default) =>
         db.SapFabricos.AsNoTracking().MaxAsync(s => s.FicheiroModificadoEmUtc, cancellationToken);
+
+    public async Task<int?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default)
+    {
+        var j = await db.JobOns.AsNoTracking()
+            .Where(j => j.Id == jobOnId && j.InicioEm != null)
+            .Select(j => new { j.Reference, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (j is null)
+        {
+            return null;
+        }
+
+        var maquina = j.Maquina.ToUpperInvariant();
+        var de = j.InicioEm!.Value;
+        var sap = await db.SapFabricos.AsNoTracking()
+            .Where(s => s.Linha == maquina && s.FimEm >= de && s.Cadencia != null)
+            .ToListAsync(cancellationToken);
+        return FabricoSapCadencia.DoJobOn(
+            sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm)),
+            de,
+            j.FimEm);
+    }
 
     public async Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default)
     {

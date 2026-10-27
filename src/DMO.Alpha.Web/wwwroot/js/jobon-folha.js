@@ -583,11 +583,16 @@
       const ref = valor('Referência'), lote = valor('Lote');
       return [sec.getAttribute('data-jof-familia') + (ref ? ' ' + ref : ''), lote ? 'Lote ' + lote : '', 'Notas'].filter(Boolean).join(' · ');
     };
+    // A nota ampliada abre por cima e o lugar dela fica guardado no cartão, para o resto não
+    // subir nem ser empurrado (Diogo, 27/10/2026: «maximiza por cima em vez de empurrar»).
+    let lugar = null;
     const fechar = () => {
       if (!aberta) return;
       const rotulo = aberta.querySelector(':scope > span');
       if (rotulo) rotulo.textContent = 'Notas';
       aberta.classList.remove('is-ampliada');
+      lugar?.remove();
+      lugar = null;
       aberta = null;
     };
     folha.addEventListener('click', (e) => {
@@ -597,6 +602,11 @@
       if (!caixa) return;
       const rotulo = caixa.querySelector(':scope > span');
       if (rotulo) rotulo.textContent = titulo(caixa);
+      lugar = document.createElement('div');
+      lugar.className = 'jof-nota-lugar';
+      lugar.setAttribute('aria-hidden', 'true');
+      lugar.style.height = caixa.getBoundingClientRect().height + 'px';
+      caixa.before(lugar);
       caixa.classList.add('is-ampliada');
       aberta = caixa;
     });
@@ -605,9 +615,8 @@
       else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
     });
     document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
-    // Em vista, a «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026):
-    // um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
-    if (folha.getAttribute('data-jof-folha') === 'editar') return;
+    // A «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026), em vista e no Editar
+    // (28/10/2026: a folha não desliza): um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
     const tecnicas = () => folha.querySelectorAll('.sec > details.more[open]');
     folha.addEventListener('toggle', (e) => {
       if (!e.target.matches?.('.sec > details.more') || !e.target.open) return;
@@ -698,7 +707,76 @@
     });
   }
 
+  // As Notas gerais (ver) deslizam por dentro quando não cabem; a altura da lista acaba sempre no fim de uma linha inteira,
+  // para nunca ficar uma nota cortada a meio (Diogo, 28/10/2026).
+  function notasGerais() {
+    const lista = document.querySelector('.jof2 .side > .notes > ul');
+    if (!lista) return;
+    const ajustar = () => {
+      lista.style.flex = '';
+      lista.style.height = '';
+      if (lista.scrollHeight <= lista.clientHeight + 1) return;
+      const limite = lista.clientHeight;
+      let fim = 0;
+      for (const item of lista.children) {
+        const base = item.offsetTop + item.offsetHeight;
+        if (base <= limite) fim = base; else break;
+      }
+      if (fim > 0) { lista.style.flex = '0 0 auto'; lista.style.height = fim + 'px'; }
+    };
+    ajustar();
+    window.addEventListener('resize', ajustar);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
+  }
+
+  // As caixas de notas crescem até ocupar o espaço livre do cartão; quando o texto não cabe, deslizam por dentro e a altura
+  // visível acaba sempre numa linha inteira (18px), nunca a meio de uma linha (Diogo, 28/10/2026).
+  const NOTA_LINHA = 18;
+  function notasLinhas() {
+    const caixas = document.querySelectorAll('.jof2 .sec .note-box > p, .jof2 .sec .note-box > textarea, .jof2 .side > .notes > textarea');
+    caixas.forEach(el => { el.style.flex = ''; el.style.height = ''; });
+    caixas.forEach(el => {
+      if (el.closest('.is-ampliada') || el.offsetParent === null) return;
+      if (el.scrollHeight <= el.clientHeight + 1) return;
+      const cs = window.getComputedStyle(el);
+      const enchimento = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const bordas = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+      const linhas = Math.max(1, Math.floor((el.clientHeight - enchimento) / NOTA_LINHA));
+      // «important»: as folhas de estilo da folha também fixam o flex da nota com !important.
+      el.style.setProperty('flex', '0 0 auto', 'important');
+      el.style.setProperty('height', (linhas * NOTA_LINHA + enchimento + bordas) + 'px', 'important');
+    });
+  }
+  function notasLinhasInicio() {
+    notasLinhas();
+    window.addEventListener('resize', notasLinhas);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(notasLinhas);
+    document.addEventListener('input', e => { if (e.target.matches && e.target.matches('.note-box > textarea, .side > .notes > textarea')) notasLinhas(); });
+    document.addEventListener('click', () => setTimeout(notasLinhas, 0));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setTimeout(notasLinhas, 0); });
+  }
+
+  // Calibres (ver): cada valor «P 59.20 / M 58.60» quebra, se for preciso, só na « / » e nunca a meio de um número.
+  function calibresValores() {
+    document.querySelectorAll('.jof2:not(.editing) table[data-jof-cal] tbody td').forEach(td => {
+      if (td.children.length) return;
+      const partes = td.textContent.trim().split(' / ');
+      if (partes.length < 2) return;
+      const envolucro = document.createElement('span');
+      partes.forEach((parte, i) => {
+        const seg = document.createElement('span');
+        seg.className = 'calv-seg';
+        seg.textContent = i < partes.length - 1 ? parte + ' /' : parte;
+        if (i) envolucro.append(' ');
+        envolucro.append(seg);
+      });
+      td.textContent = '';
+      td.append(envolucro);
+    });
+  }
+
   function init() {
+    calibresValores();
     painel();
     escolherAlteracoes();
     alteracoes();
@@ -718,6 +796,8 @@
     }
     artigo(folha);
     notas(folha);
+    notasGerais();
+    notasLinhasInicio();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

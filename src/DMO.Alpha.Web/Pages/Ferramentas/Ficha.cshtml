@@ -19,10 +19,24 @@
 <link rel="stylesheet" href="~/css/dmo-ferramenta-form.css" asp-append-version="true" />
 <style>
 /* O % da Utilização abre a janela das produções (Diogo, 21/10/2026). */
-.ferr-utilizacao-abrir{all:unset;cursor:pointer;font-weight:800;color:var(--dmo-link,var(--dmo-brand-600));text-decoration:underline;text-underline-offset:3px}
+.ferr-utilizacao-abrir{all:unset;cursor:pointer;font-weight:800;color:var(--dmo-link,var(--dmo-brand-600));text-decoration:none}
+.ferr-utilizacao-abrir:hover{color:var(--dmo-text)}
 html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.ferr-producao-maquina){color:#fff}
 .ferr-utilizacao-abrir:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
-.ferr-producoes-janela .ferr-producoes-lista{max-height:min(60vh,420px);overflow:auto}
+/* As janelas da Utilização e do Peso abrem como painel deslizante pela direita (Diogo,
+   27/10/2026: «abre um slide»), com o aspeto da estrutura dos painéis (dmo-estrutura.css):
+   título em cima, «Fechar» no canto superior direito, só a lista desliza. */
+html body dialog.dmo-dialog.ferr-producoes-janela{position:fixed;inset:0 0 0 auto;margin:0;box-sizing:border-box;width:min(640px,calc(100vw - 48px));max-width:none;height:100dvh;max-height:none;padding:0;border:0;border-left:1px solid var(--dmo-border);border-radius:0;box-shadow:none;background:var(--dmo-card);color:var(--dmo-text);overflow:hidden;transition:transform .22s ease}
+html body dialog.dmo-dialog.ferr-producoes-janela[open]{display:flex;flex-direction:column;gap:12px}
+@@starting-style{html body dialog.dmo-dialog.ferr-producoes-janela[open]{transform:translateX(100%)}}
+html body dialog.dmo-dialog.ferr-producoes-janela::backdrop{background:var(--dmo-painel-fundo,rgba(11,19,32,.24))}
+html body dialog.ferr-producoes-janela>h3{flex:0 0 auto;margin:0;padding:12px 20px;min-height:calc(var(--dmo-control-height,34px) + 24px);box-sizing:border-box;display:flex;align-items:center;padding-right:300px;border-bottom:1px solid var(--dmo-border);font-size:17px;font-weight:650;line-height:1.25}
+html body dialog.ferr-producoes-janela>.dmo-dialog-actions{position:absolute;top:12px;right:20px;margin:0;display:flex;align-items:center;gap:12px}
+html body dialog.ferr-producoes-janela>:not(h3,.dmo-dialog-actions){margin-left:20px;margin-right:20px}
+html body dialog.ferr-producoes-janela .ferr-nota{margin-top:0;margin-bottom:0}
+html body dialog.ferr-producoes-janela [data-ferr-peso-lugar]{min-height:0;overflow:auto}
+html body dialog.ferr-producoes-janela .ferr-producoes-lista{flex:0 1 auto;min-height:0;max-height:none;overflow:auto}
+@@media (prefers-reduced-motion:reduce){html body dialog.dmo-dialog.ferr-producoes-janela{transition:none}}
 .ferr-producoes-janela .dmo-table{min-width:0}
 .ferr-producao-maquina{color:var(--dmo-muted);font-size:12px}
 .ferr-armazem-link{color:var(--dmo-brand-900);font-weight:600}
@@ -48,10 +62,24 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
 .ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
 .ferr-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
-.ferr-link-botao{all:unset;cursor:pointer;margin-right:auto;text-decoration:underline;text-underline-offset:3px}
+.ferr-link-botao{all:unset;cursor:pointer;margin-right:auto}
 .ferr-link-botao:hover{color:var(--dmo-text)}
 .ferr-link-botao:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
+/* No painel de apoio a regra «.dmo-workspace» do dmo-design.css (padding 16px 18px 24px) ganhava à da estrutura e
+   deixava uma faixa de 18 px à direita e à esquerda: o espaço é o do corpo (20 px), o <main> fica sem margem. */
+html[data-dmo-embedded="true"] body main.ferr-page:has(>.dmo-pagina-topo){padding:0}
+/* O «← Voltar» está no cabeçalho fixo (<dmo-voltar>); o botão do cartão Geral fica escondido. */
+html body main.ferr-page #ferrVoltar{display:none}
+/* A Informação opcional na mesma linha de Tipo, Referência, Lote, Qtd. lote e % uso. */
+html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:nowrap;align-items:flex-end}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-editar-principal{flex:0 0 auto}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional{flex:0 1 auto;margin:0;padding:0 0 0 24px;border-top:0;border-left:1px solid var(--dmo-border)}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:nowrap}
+/* O título «Informação opcional» sobe para o espaço livre à direita das linhas, por cima dos campos. */
+html body main.ferr-page #ferrEditar .ferr-opcional{position:relative}
+html body main.ferr-page #ferrEditar .ferr-opcional>legend{position:absolute;top:-24px;left:24px;margin:0}
+html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
 </style>
 }
 
@@ -65,17 +93,25 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
    eliminar, fora das zonas (as «Opções» estão no Geral, uma zona). Duplicar e eliminar abrem outra
    página, como sempre; gravam pela fila da página (um clique repetido não
    grava duas vezes). Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
-<main class="ferr-page dmo-workspace" aria-labelledby="ferr-title" data-dmo-troca>
+<dmo-pagina titulo="Ficha de ferramenta" titulo-id="ferr-title" class="ferr-page dmo-workspace" aria-labelledby="ferr-title" data-dmo-troca>
 
   @* OS BOTÕES NO CANTO SUPERIOR DIREITO DE CADA CARD (Diogo, 18/10/2026:
      «metem os botões em baixo aumenta espaço, sempre canto superior direito
      dentro dos cards»): o «Opções» e o «Voltar à lista» saíram daqui para o
      primeiro card da ficha; os «Guardar» estão na linha do título do card. *@
-  <div class="page-head">
+  @* «← Voltar» discreto por cima do título, como nas outras páginas (Diogo, 27/10/2026). O destino é o
+     do botão «Voltar» do cartão Geral (que fica escondido, é o que os leitores e os testes conhecem). *@
+  @if (sheet is not null)
+  {
+    <dmo-voltar><a class="dmo-voltar-texto" id="ferrVoltarTexto" href="@(Model.VoltarJobOn ?? Url.Page("/Ferramentas/Index"))" data-dmo-voltar="@sheet.ToolId" data-dmo-voltar-ignorar="/Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a></dmo-voltar>
+  }
+  @* O título passou para o cabeçalho fixo da estrutura (<dmo-pagina titulo=…>, o h1). O cabeçalho antigo
+     fica escondido, só para o teste que o procura (FerramentasFichaTrocaTests); não aparece nem se lê. *@
+  <div hidden><div class="page-head">
     <div>
       <h2 id="ferr-title">Ficha de ferramenta</h2>
     </div>
-  </div>
+  </div></div>
 
   @if (sheet is not null)
   {
@@ -257,7 +293,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
 
     @if (Model.ContinueUrl is { } continueUrl)
     {
-      <p class="ferr-hint" style="margin:0"><a class="ferr-cancel" href="@continueUrl">Continuar no fluxo que abriu o Ferramentas →</a></p>
+      <p class="ferr-hint" style="margin:0"><a class="ferr-cancel" href="@continueUrl">Continuar no fluxo que abriu o Ferramentas</a></p>
     }
 
     @if (Model.FactsRefusal is not null)
@@ -393,7 +429,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
          todas para a ferramenta repetida; o link leva ao Editar. *@
       @if (tool.Machines.Count == 0)
       {
-        <div class="ferr-aviso warn ferr-sem-maquinas" role="status" style="margin-top:12px">Sem máquinas: conta como estando em todas, por isso outra com o mesmo tipo, referência e lote é recusada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-maquinas-editar">Acrescentar as máquinas</a></div>
+        <div class="ferr-aviso warn ferr-sem-maquinas" role="status">Sem máquinas: conta como estando em todas, por isso outra com o mesmo tipo, referência e lote é recusada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-maquinas-editar">Acrescentar as máquinas</a></div>
       }
 
       @* SEM QUANTIDADE (Diogo, 20/10/2026: «nao pode ser optional pq da erro se
@@ -401,7 +437,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
          fica por calcular; o link leva ao Editar. *@
       @if (tool.Type == ToolType.Bq && tool.BqAccountedQuantity is null)
       {
-        <div class="ferr-aviso warn ferr-sem-quantidade" role="status" style="margin-top:12px">Sem quantidade do lote: nas Boquilhas, a Fabricação desta BQ não é calculada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-quantidade-editar">Acrescentar a quantidade</a></div>
+        <div class="ferr-aviso warn ferr-sem-quantidade" role="status">Sem quantidade do lote: nas Boquilhas, a Fabricação desta BQ não é calculada. <a class="ferr-cancel" href="#ferrEditar" id="ferr-sem-quantidade-editar">Acrescentar a quantidade</a></div>
       }
 
       @* À ESPERA DA UTILIZAÇÃO (o lembrete): aberto pela Entrada vinda da
@@ -409,7 +445,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
          seguinte. O link leva às Definições, onde se lê a pasta do SAP. *@
       @if (Model.Utilizacao?.LembreteDesdeUtc is { } lembreteDesde)
       {
-        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura da produção. <a class="ferr-cancel" href="/Definicoes?secao=computador" id="ferr-utilizacao-ler">Ler a pasta da produção</a></div>
+        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura da produção. <a class="ferr-cancel" href="/Definicoes?secao=computador" id="ferr-utilizacao-ler">Ler a pasta da produção</a></div>
       }
 
       @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico
@@ -419,9 +455,9 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
       @if (tool.TechnicalName is { } technicalName)
       {
         var decoded = TechnicalNameParser.Decode(technicalName);
-        <div style="margin-top:12px;padding:11px 13px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px">
-          <strong style="overflow-wrap:anywhere">Nome técnico: @technicalName</strong>
-          <div style="margin-top:6px;color:var(--dmo-muted);font-size:12.5px">
+        <div class="ferr-nome-tecnico">
+          <strong>Nome técnico: @technicalName</strong>
+          <div class="ferr-nome-tecnico-decode">
             @(decoded.Family == "desconhecido" ? null : decoded.Family)@(decoded.InferredType is { } inferred ? $" · tipo inferido {tokenOf(inferred)}" : null)@(decoded.InferredReference is { } inferredRef ? $" · referência {inferredRef}" : null)@(decoded.Dimension is { } dimension ? $" · {dimension}" : null)@(decoded.Process is { } process ? $" · {process}" : null)@(decoded.Ventilation is { } ventilation ? $" · ventilação {ventilation}" : null)
           </div>
         </div>
@@ -439,63 +475,10 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
        nessa produção; o total soma todas as produções. *@
     @if (Model.Producoes is { } producoesTudo)
     {
-      var producoesFerr = producoesTudo.Pagina;
-      var pecasProd = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       var leituraJanela = Model.Utilizacao?.Ultima;
       <dialog id="ferrProducoes" class="dmo-dialog ferr-producoes-janela" aria-labelledby="ferr-producoes-title" data-dmo-dialog-aberta="@(Model.ProducoesAbertas ? "1" : null)">
         <h3 id="ferr-producoes-title" title="Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O produzido é a produção bruta (o total, com que se calcula o uso) do relatório de fabrico da produção (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção. Um clique na produção abre a ficha do Job On.">Utilização por produção</h3>
-        @if (leituraJanela is not null)
-        {
-          <p class="ferr-nota" id="ferrProducoesHoje">Hoje <strong>@leituraJanela.Percentagem.ToString("0.##", pt) %</strong>@(leituraJanela is { Consumo: { } feitas, VidaPrevista: { } vida } ? $" · {feitas.ToString("#,0", pecasProd)} de {vida.ToString("#,0", pecasProd)} peças" : null) · @(leituraJanela.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "produção" : leituraJanela.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraJanela.RegistadaEmUtc).ToString("dd/MM/yyyy", pt)</p>
-        }
-        @if (producoesFerr.TotalCount == 0)
-        {
-          <p class="ferr-nota" id="ferrProducoesVazio">Esta ferramenta ainda não esteve em nenhum Job On.</p>
-        }
-        else
-        {
-          <div class="dmo-table-wrap ferr-producoes-lista">
-            <table class="dmo-table" data-dmo-list="Produções da ferramenta">
-              <thead>
-                <tr>
-                  <th>Produção</th>
-                  <th>Produzido</th>
-                  <th>Delta</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach (var prod in producoesFerr.Items)
-                {
-                  <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"
-                      title="@prod.Maquina · @(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")"
-                      aria-label="Produção @prod.Producao — um clique abre a ficha do Job On">
-                    <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> <small class="ferr-producao-maquina">@prod.Maquina</small></td>
-                    <td>@(prod.ProducaoBruta?.ToString("#,0", pecasProd) ?? "—")</td>
-                    @* Sem as leituras antes e depois (só o % de hoje), o delta
-                       estima-se pelo produzido: a parte do % atual que cabe
-                       a esta produção (marcada com «≈»). *@
-                    <td>@(prod.DeltaUtilizacao is { } delta ? (delta >= 0 ? "+" : "") + delta.ToString("0.##", pt) + " %" : producoesTudo.DeltaPeloProduzido(prod, leituraJanela?.Percentagem) is { } estimado ? "≈ +" + estimado.ToString("0.##", pt) + " %" : "—")</td>
-                  </tr>
-                }
-              </tbody>
-              <tfoot id="ferrProducoesTotal">
-                <tr>
-                  <th scope="row">Total · @producoesFerr.TotalCount @(producoesFerr.TotalCount == 1 ? "produção" : "produções")</th>
-                  <td><strong>@(producoesTudo.TotalBruta?.ToString("#,0", pecasProd) ?? "—")</strong></td>
-                  <td><strong>@(leituraJanela is { } atual ? atual.Percentagem.ToString("0.##", pt) + " %" : "—")</strong></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-          @if (producoesFerr.Items.Any(p => p.DeltaUtilizacao is null && producoesTudo.DeltaPeloProduzido(p, leituraJanela?.Percentagem) is not null))
-          {
-            <p class="ferr-nota" id="ferrProducoesEstimado" style="margin-top:8px">«≈» no delta: sem leituras antes e depois da produção, é a parte do % de hoje pelo que ela produziu.</p>
-          }
-          @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))
-          {
-            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="/Definicoes?secao=computador">Ler a pasta da produção</a></p>
-          }
-        }
+        <partial name="_UtilizacaoProducoes" model="new DMO.Alpha.Web.Presentation.UtilizacaoProducoesView(producoesTudo, leituraJanela)" />
         <div class="dmo-dialog-actions">
           <button type="button" class="ferr-cancel ferr-link-botao" id="ferrProducoesHistorico" aria-controls="ferrHistoricoProducoes">Ver o Histórico de produções</button>
           <button type="button" class="dmo-button" data-dmo-dialog-close id="ferrProducoesFechar">Fechar</button>
@@ -660,7 +643,9 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
                     <td>@(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")</td>
                     <td><strong>@(prod.ProducaoBruta?.ToString("#,0", pecasHist) ?? "—")</strong></td>
                     <td><strong>@(deltaGarrafas is { } dg ? (dg >= 0 ? "+" : "−") + Math.Abs(dg).ToString("#,0", pecasHist) : "—")</strong></td>
-                    <td><strong>@(prod.DeltaUtilizacao is { } delta ? (delta >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(delta) + " %" : "—")</strong></td>
+                    @* Um clique no % uso abre a Utilização por produção (Diogo, 27/10/2026:
+                       «qualquer % uso de uma ferramenta abre um slide com esse historial»). *@
+                    <td>@if (prod.DeltaUtilizacao is { } delta) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@((delta >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(delta) + " %")</strong></button>} else {<strong>—</strong>}</td>
                     <td>
                       @if (peso is null)
                       {
@@ -683,7 +668,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
                   <th scope="row" colspan="2">Total · @historico.Pagina.TotalCount @(historico.Pagina.TotalCount == 1 ? "produção" : "produções")</th>
                   <td><strong>@(historico.TotalBruta?.ToString("#,0", pecasHist) ?? "—")</strong></td>
                   <td></td>
-                  <td><strong>@(Model.Utilizacao?.Ultima is { } atualHist ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(atualHist.Percentagem) + " %" : "—")</strong></td>
+                  <td>@if (Model.Utilizacao?.Ultima is { } atualHist) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(atualHist.Percentagem) + " %")</strong></button>} else {<strong>—</strong>}</td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -771,4 +756,4 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
 
   }
 
-</main>
+</dmo-pagina>

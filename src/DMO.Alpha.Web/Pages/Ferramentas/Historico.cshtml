@@ -54,7 +54,12 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
 <main class="hist-page dmo-workspace" aria-labelledby="hist-title">
   <div class="page-head">
     <div>
-      <h1 id="hist-title">@(procura ? "Histórico das Ferramentas" : "Histórico")</h1>
+      @* «← Voltar» discreto por cima do título, como nas outras páginas (Diogo, 27/10/2026); o título bate com o separador. *@
+      @if (ferramenta is not null)
+      {
+        <a class="dmo-voltar-texto" id="histFicha" href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(ferramenta.ToolId)"><span aria-hidden="true">←</span> Voltar</a>
+      }
+      <h1 id="hist-title">Histórico das Ferramentas</h1>
     </div>
   </div>
 
@@ -108,12 +113,6 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
   <section id="histResultados" class="dmo-card hist-card" aria-labelledby="hist-lista-title">
     <div class="dmo-card-topo">
       <h3 id="hist-lista-title">@(ferramenta is null ? "Produções" : $"Produções — {HistoricoModel.Nome(ferramenta)}")</h3>
-      @if (ferramenta is not null)
-      {
-        <div class="dmo-card-topo-acoes">
-          <a class="dmo-button" id="histFicha" href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(ferramenta.ToolId)">← Voltar</a>
-        </div>
-      }
     </div>
     @* O aviso do limite também quando as primeiras ferramentas lidas não têm Job On (as seguintes podem ter). *@
     @if (Model.Cortada)
@@ -178,7 +177,7 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
                 var deste = l.DoTipo(t);
                 <td class="@(destaqueLinha == t ? "hist-destaque" : null)">
                   @if (deste.Count == 0) { @("—") }
-                  @for (var i = 0; i < deste.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(deste[i])<span class="hist-uso"> · @HistoricoModel.Uso(l.UsoDe(deste[i].ToolId))</span></span> }
+                  @for (var i = 0; i < deste.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(deste[i])<span class="hist-uso"> · @DMO.Alpha.Web.Presentation.UsoFerramenta.Link(deste[i].ToolId, HistoricoModel.Uso(l.UsoDe(deste[i].ToolId)))</span></span> }
                 </td>
               }
             </tr>

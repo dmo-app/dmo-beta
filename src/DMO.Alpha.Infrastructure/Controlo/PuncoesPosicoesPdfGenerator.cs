@@ -10,7 +10,7 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// <summary>
 /// O PDF das punções por posição da linha (a tabela aprovada pelo Diogo a
 /// 22/10/2026): A4 deitado, o título «Registo de punções PU · NNPB», a
-/// grelha das secções com as posições A a D, a reserva, os totais e os
+/// grelha das secções com uma posição por gota (A, B, C…), a reserva, os totais e os
 /// punções repetidos com o lote. Gerado em memória e descarregado pelo
 /// browser; nunca grava no servidor.
 /// </summary>
@@ -20,8 +20,12 @@ public sealed class PuncoesPosicoesPdfGenerator
 
     private static readonly CultureInfo Pt = DmoNumberFormat.Culture;
 
-    /// <summary>Quantos punções da reserva cabem numa linha da tabela da reserva.</summary>
-    private const int ReservaPorLinha = 12;
+    /// <summary>
+    /// Quantos punções da reserva cabem numa linha da tabela da reserva: 8,
+    /// para a reserva, os totais e os repetidos caberem lado a lado na folha
+    /// (com 12 e a reserva cheia passava da largura e o PDF não se gerava).
+    /// </summary>
+    private const int ReservaPorLinha = 8;
 
     public sealed record Input(
         string Reference,
@@ -71,7 +75,7 @@ public sealed class PuncoesPosicoesPdfGenerator
                 header.Item().PaddingTop(2).Text(Subtitulo(input)).FontSize(9.5f).FontColor(DmoPdfPalette.Muted);
             });
 
-            page.Content().PaddingTop(12).Column(content =>
+            page.Content().PaddingTop(12).ScaleToFit().Column(content =>
             {
                 content.Item().Table(t =>
                 {
@@ -92,7 +96,7 @@ public sealed class PuncoesPosicoesPdfGenerator
                     });
 
                     var altura = grelha.Seccoes > 16 ? 34 : 46;
-                    for (var p = 0; p < PuncoesPosicoes.PosicoesPorSeccao; p++)
+                    for (var p = 0; p < grelha.Gotas; p++)
                     {
                         t.Cell().Element(c => Celula(c, DmoPdfPalette.Tint, altura)).Text(PuncoesPosicoes.Letra(p)).SemiBold();
                         for (var s = 1; s <= grelha.Seccoes; s++)
@@ -128,24 +132,24 @@ public sealed class PuncoesPosicoesPdfGenerator
         c.Border(0.6f).BorderColor(DmoPdfPalette.Line).Background(fundo).MinHeight(altura)
             .Padding(3).AlignCenter().AlignMiddle();
 
+    private static IContainer Compacta(IContainer c) =>
+        c.Border(0.6f).BorderColor(DmoPdfPalette.Line).Background(DmoPdfPalette.White)
+            .PaddingVertical(2).PaddingHorizontal(6).AlignCenter().AlignMiddle();
+
     private static IContainer Simples(IContainer c, string fundo = DmoPdfPalette.White) =>
         c.Border(0.6f).BorderColor(DmoPdfPalette.Line).Background(fundo)
             .PaddingVertical(5).PaddingHorizontal(10).AlignCenter().AlignMiddle();
 
+    /// <summary>
+    /// O número e, por baixo, a linha do lote: sempre as duas linhas, com o
+    /// mesmo tamanho e o mesmo peso em todas as células, para os números
+    /// ficarem alinhados (Diogo, 27/10/2026: «tudo desalinhado, tamanhos
+    /// diferentes»). O lote só se escreve nas punções repetidas.
+    /// </summary>
     private static void Numero(ColumnDescriptor c, PuncaoNaPosicao? puncao, float tamanho)
     {
-        if (puncao is null)
-        {
-            c.Item().AlignCenter().Text(string.Empty);
-            return;
-        }
-
-        var numero = c.Item().AlignCenter().Text(puncao.Number).FontSize(tamanho);
-        if (puncao.Repetido)
-        {
-            numero.Bold();
-            c.Item().AlignCenter().Text($"Lote {puncao.Lot}").FontSize(7).SemiBold().FontColor(DmoPdfPalette.Muted);
-        }
+        c.Item().AlignCenter().Text(puncao?.Number ?? " ").FontSize(tamanho);
+        c.Item().AlignCenter().Text(puncao is { Repetido: true } ? $"Lote {puncao.Lot}" : " ").FontSize(7).FontColor(DmoPdfPalette.Muted);
     }
 
     private static void Reserva(IContainer container, PuncoesNaLinha grelha)
@@ -155,7 +159,7 @@ public sealed class PuncoesPosicoesPdfGenerator
         {
             t.ColumnsDefinition(columns =>
             {
-                for (var i = 0; i < colunas; i++) columns.ConstantColumn(38);
+                for (var i = 0; i < colunas; i++) columns.ConstantColumn(46);
             });
             t.Header(h => h.Cell().ColumnSpan((uint)colunas).Element(c => Simples(c, DmoPdfPalette.WarningBackground)).Text("Reserva").SemiBold());
             if (grelha.Reserva.Count == 0)
@@ -166,12 +170,12 @@ public sealed class PuncoesPosicoesPdfGenerator
 
             foreach (var puncao in grelha.Reserva)
             {
-                t.Cell().Element(c => Simples(c)).Column(c => Numero(c, puncao, 12));
+                t.Cell().Element(c => Celula(c, DmoPdfPalette.White, 22)).Column(c => Numero(c, puncao, 11));
             }
 
             for (var resto = grelha.Reserva.Count % colunas; resto != 0 && resto < colunas; resto++)
             {
-                t.Cell().Element(c => Simples(c)).Text(string.Empty);
+                t.Cell().Element(c => Celula(c, DmoPdfPalette.White, 22)).Column(c => Numero(c, null, 11));
             }
         });
     }
@@ -224,9 +228,9 @@ public sealed class PuncoesPosicoesPdfGenerator
 
             foreach (var puncao in grelha.Repetidos)
             {
-                t.Cell().Element(c => Simples(c)).Text(puncao.Etiqueta);
-                t.Cell().Element(c => Simples(c)).Text(puncao.Number).Bold();
-                t.Cell().Element(c => Simples(c)).Text(puncao.Lot);
+                t.Cell().Element(Compacta).Text(puncao.Etiqueta);
+                t.Cell().Element(Compacta).Text(puncao.Number);
+                t.Cell().Element(Compacta).Text(puncao.Lot);
             }
         });
     }

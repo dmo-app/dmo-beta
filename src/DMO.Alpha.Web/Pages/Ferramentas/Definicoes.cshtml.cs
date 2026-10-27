@@ -47,6 +47,16 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
         });
     }
 
+    // Um ficheiro mais antigo do que o último lido do mesmo tipo não volta a
+    // gravar: o «Ler pasta» envia todos os ficheiros da pasta e uma lista
+    // velha punha uma % antiga por cima da de hoje.
+    private static bool MaisAntigo(DateTime? ficheiro, DateTime? ultimoLido) =>
+        ficheiro is { } f && ultimoLido is { } u && f < u;
+
+    /// <summary>O ficheiro mais antigo do que o último lido do mesmo tipo.</summary>
+    public static string MensagemMaisAntigo(string? ficheiro) =>
+        $"O ficheiro «{ficheiro}» é mais antigo do que o último lido do mesmo tipo: nada foi gravado.";
+
     /// <summary>
     /// POST (o ficheiro ferramentas-sap.js): a lista exportada pelo SAP, lida
     /// da pasta ligada. O servidor lê-a (a regra fica num só sítio, em
@@ -59,11 +69,22 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
         DateTime? modificadoEm = modificado is > 0 and < 253402300799999
             ? DateTimeOffset.FromUnixTimeMilliseconds(modificado.Value).UtcDateTime
             : null;
+        if (UsoSapExportacao.Ler(conteudo).CabecalhoEncontrado
+            && MaisAntigo(modificadoEm, (await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted))?.FicheiroModificadoEmUtc))
+        {
+            return new JsonResult(new { gravado = false, mensagem = MensagemMaisAntigo(ficheiro) });
+        }
+
         var outcome = await usoSap.ImportarAsync(conteudo, ficheiro, modificadoEm, HttpContext.RequestAborted);
         if (outcome.Resultado == ImportarUsoSapResultado.NaoELista
             && FabricoSapExportacao.Ler(conteudo) is { CabecalhoEncontrado: true } relatorio)
         {
-            var fabrico = await fabricoSap.ImportarAsync(relatorio.Linhas, ficheiro, modificadoEm, HttpContext.RequestAborted);
+            if (MaisAntigo(modificadoEm, await fabricoSap.UltimoFicheiroAsync(HttpContext.RequestAborted)))
+            {
+                return new JsonResult(new { gravado = false, mensagem = MensagemMaisAntigo(ficheiro) });
+            }
+
+            var fabrico = await fabricoSap.ImportarAsync(relatorio.Linhas, ficheiro, modificadoEm, relatorio.Detalhes, HttpContext.RequestAborted);
             return new JsonResult(new { gravado = true, mensagem = MensagemFabricoSap(fabrico) });
         }
 

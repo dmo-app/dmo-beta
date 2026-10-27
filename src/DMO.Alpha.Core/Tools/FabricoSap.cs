@@ -40,6 +40,14 @@ public sealed class SapFabrico
     /// <summary>Os dias de produção da ordem (Prod. Days).</summary>
     public int? DiasProducao { get; set; }
 
+    /// <summary>
+    /// A cadência da ordem (Cadência), em garrafas por minuto: das outras
+    /// colunas da ZFMD, a única que se guarda (Diogo, 27/10/2026: «podemos
+    /// guardar cadência mas acho que o resto não vale a pena»); vazia quando
+    /// o relatório não a traz.
+    /// </summary>
+    public int? Cadencia { get; set; }
+
     public DateTime LidoEmUtc { get; set; }
 
     public string? LidoPor { get; set; }
@@ -56,6 +64,15 @@ public sealed record FabricoSapLinha(string Material, string Linha, DateOnly Ini
     decimal? PesoMedioGramas = null, int? DiasProducao = null);
 
 /// <summary>
+/// A cadência de uma linha do relatório da ZFMD, da linha com o mesmo
+/// material, linha e datas. Sem a coluna, ou sem número, fica vazia.
+/// </summary>
+public sealed record FabricoSapDetalhe(string Material, string Linha, DateOnly InicioEm, DateOnly FimEm)
+{
+    public int? Cadencia { get; init; }
+}
+
+/// <summary>
 /// A leitura do relatório de fabrico do SAP, em texto separado por
 /// tabulações (como o SAP o grava) ou em HTML: o cabeçalho com «Material»,
 /// «Line», «Begin Date» e «End Date» e pelo menos uma das produções («Gross
@@ -68,7 +85,11 @@ public static class FabricoSapExportacao
 {
     private static readonly string[] FormatosData = ["dd.MM.yyyy", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy-MM-dd"];
 
-    public sealed record Leitura(bool CabecalhoEncontrado, IReadOnlyList<FabricoSapLinha> Linhas);
+    /// <summary>As linhas lidas e, de cada uma, a cadência (<see cref="Detalhes"/>, na mesma ordem).</summary>
+    public sealed record Leitura(bool CabecalhoEncontrado, IReadOnlyList<FabricoSapLinha> Linhas)
+    {
+        public IReadOnlyList<FabricoSapDetalhe> Detalhes { get; init; } = [];
+    }
 
     public static Leitura Ler(string? conteudo)
     {
@@ -89,12 +110,14 @@ public static class FabricoSapExportacao
             var liquida = UsoSapExportacao.Coluna(cabecalho, c => c.StartsWith("net prod", StringComparison.Ordinal) || c is "qutil");
             var peso = UsoSapExportacao.Coluna(cabecalho, c => c is "avg weight" or "peso médio" or "peso medio");
             var dias = UsoSapExportacao.Coluna(cabecalho, c => c is "prod. days" or "prod days" or "dias" or "n_dias");
+            var cadencia = UsoSapExportacao.Coluna(cabecalho, c => c is "cadência" or "cadencia" or "cadence");
             if (material < 0 || linha < 0 || inicio < 0 || fim < 0 || (bruta < 0 && liquida < 0))
             {
                 continue;
             }
 
             var linhas = new List<FabricoSapLinha>();
+            var detalhes = new List<FabricoSapDetalhe>();
             foreach (var celulas in tabela.Skip(i + 1))
             {
                 var mat = UsoSapExportacao.Celula_(celulas, material).Replace(" ", "", StringComparison.Ordinal).ToUpperInvariant();
@@ -115,9 +138,13 @@ public static class FabricoSapExportacao
                     UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, liquida), out var l) ? (long)Math.Round(l) : null,
                     UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, peso), out var p) && p > 0 && p < 100_000 ? Math.Round(p, 3) : null,
                     UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, dias), out var d) && d < 10_000 ? (int)Math.Round(d) : null));
+                detalhes.Add(new FabricoSapDetalhe(mat, lin, de, ate < de ? de : ate)
+                {
+                    Cadencia = UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, cadencia), out var c) && c < 1_000_000 ? (int)Math.Round(c) : null
+                });
             }
 
-            return new Leitura(true, linhas);
+            return new Leitura(true, linhas) { Detalhes = detalhes };
         }
 
         return new Leitura(false, []);
@@ -197,6 +224,27 @@ public static class FabricoSapPeso
     }
 }
 
+/// <summary>
+/// A cadência do SAP de um Job On (Diogo, 27/10/2026: «cadência para meter
+/// no Job On»): a das ordens com mais dias dentro do Job On, contados como no
+/// <see cref="FabricoSapPeso.Resumo"/>; empatadas, a mais recente. Nenhuma sem
+/// ordens com cadência.
+/// </summary>
+public static class FabricoSapCadencia
+{
+    public static int? DoJobOn(IEnumerable<SapFabrico> ordens, DateOnly inicio, DateOnly? fim)
+    {
+        var ate = fim is { } f && f >= inicio ? f : DateOnly.MaxValue;
+        return ordens
+            .Where(o => o.Cadencia is > 0)
+            .GroupBy(o => o.Cadencia!.Value)
+            .OrderByDescending(g => g.Sum(o => Math.Max(1, (o.FimEm < ate ? o.FimEm : ate).DayNumber - (o.InicioEm > inicio ? o.InicioEm : inicio).DayNumber)))
+            .ThenByDescending(g => g.Max(o => o.InicioEm))
+            .Select(g => (int?)g.Key)
+            .FirstOrDefault();
+    }
+}
+
 /// <summary>O que se leu do relatório de fabrico: as linhas e quantas eram novas.</summary>
 public sealed record ImportarFabricoSapOutcome(int Linhas, int Novas);
 
@@ -253,13 +301,21 @@ public sealed record FerramentaProducoes(
 /// </summary>
 public interface IFerramentasFabricoSap
 {
-    Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Grava as linhas do relatório; com <paramref name="detalhes"/>, também
+    /// a cadência da linha com o mesmo material, linha e datas.
+    /// </summary>
+    Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
+        IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default);
 
     /// <summary>A data do último relatório lido, quando o browser a deu.</summary>
     Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default);
 
     /// <summary>O peso do SAP de cada Job On (a referência, a máquina e as datas); fica de fora o Job On sem ordens com peso.</summary>
     Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default);
+
+    /// <summary>A cadência do SAP do Job On (<see cref="FabricoSapCadencia.DoJobOn"/>); nenhuma sem ordens com cadência.</summary>
+    Task<int?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
 
     /// <summary>Os Job On em que a ferramenta foi a CM, o MF ou a BQ, do mais recente para o mais antigo.</summary>
     Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default);

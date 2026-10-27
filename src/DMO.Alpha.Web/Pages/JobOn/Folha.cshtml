@@ -130,7 +130,16 @@
             {
               @* Com ponto e duas casas, como no resto da folha; acima de 100% com a
                  cor ligeira do uso cheio (ronda de 26/10/2026, J5). *@
-              <b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@(valor is null ? "—" : Mostra(valor.TrimEnd('%').Trim()) + "%")</b>
+              var usoTexto = valor is null ? "—" : Mostra(valor.TrimEnd('%').Trim()) + "%";
+              @* Um clique no % abre o histórico do uso da ferramenta (Diogo, 27/10/2026). *@
+              if (f?.ToolId is { } usoTool && valor is not null)
+              {
+                <a class="dmo-uso-link" href="@DMO.Alpha.Web.Presentation.UsoFerramenta.Href(usoTool)" title="O histórico do uso desta ferramenta"><b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@usoTexto</b></a>
+              }
+              else
+              {
+                <b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@usoTexto</b>
+              }
               @if (antes is { } a)
               {
                 <em class="was" title="A última leitura do uso">antes @a.ToString("0.##", culture)%</em>
@@ -149,7 +158,10 @@
             .Where(x => x.Valor is not null)
             .Select(x => $"{(x.Campo.Grupo is null ? x.Campo.Rotulo : "Folgas")} {x.Valor}"));
         var classe = resumo.Length == 0 && !editar ? "more empty" : "more";
-        @Html.Raw($"<details class=\"{classe}\" data-jof-tecnica=\"{familia}\"{(editar ? " open" : "")}>")
+        // Fechada por omissão também no Editar e no Duplicar (Diogo, 28/10/2026: a folha tem de caber em
+        // 1366×768); abre sozinha só se um dos campos dela foi recusado, para o erro se ver.
+        var recusada = editar && chaves.Any(c => Model.Folha.Invalido(JobOnFolhaCampos.Encontrar(c)!.Id));
+        @Html.Raw($"<details class=\"{classe}\" data-jof-tecnica=\"{familia}\"{(recusada ? " open" : "")}>")
         <summary><span class="dmo-caret" aria-hidden="true"></span><span>Informação técnica</span><span class="more-preview">@resumo</span></summary>
         @Html.Raw("<div class=\"more-body\">")
     }
@@ -245,30 +257,64 @@
             }
           </div>
           @{ Notas(p + "_notas"); }
-          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
-          @* No ver, o valor e a tolerância numa só coluna («54.02 ± 0.05»): com duas
-             colunas o cartão estreito partia a linha e o «—» aparecia duas vezes
-             (Diogo, 27/10/2026). No Editar ficam as duas caixas. *@
-          <div class="table-wrap"><table class="dmo-table dims"><thead><tr><th>Medida (mm)</th><th>Valor</th>@if (editar) {<th>Tol.</th>}</tr></thead><tbody>
-            @foreach (var (rotulo, valor, tol) in medidas)
-            {
-              if (editar)
+          @if (!editar)
+          {
+            @* NA FOLHA DE VER (a maqueta do dono, 28/10/2026): as dimensões e as folgas ficam à vista no
+               cartão, «Pata 12.40 ± 0.05»; na Informação técnica só ficam o Tipo, o Adaptador, etc. *@
+            <div class="jof-dims" data-jof-dims="@tipo">
+              <span class="jof-dims-titulo">Dimensões · mm</span>
+              <dl class="jof-dims-lista">
+                @foreach (var (rotulo, valor, tol) in medidas)
+                {
+                  var curto = rotulo.Replace("Diâm. ", "", StringComparison.Ordinal);
+                  curto = char.ToUpperInvariant(curto[0]) + curto[1..];
+                  desenhados.Add(tol);
+                  @* Um valor com vários números («54.02/52.02/…») ocupa a linha de baixo, inteiro. *@
+                  <div class="jof-dim@(Mostra(Model.Folha.Valor(valor))?.Length > 14 ? " longo" : null)"><dt>@curto</dt><dd><span class="jof-dim-valor">@{ Valor(valor, $"{tipo} {rotulo}"); }</span>@if (Mostra(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> ± @tolerancia</span>}</dd></div>
+                }
+              </dl>
+            </div>
+            <div class="folgas"><span>Folgas</span>
+              @if (folgas.All(fo => Vazio(Model.Folha.Valor(fo)) is null))
               {
-                <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }</td><td>@{ Valor(tol, $"{tipo} {rotulo} tolerância"); }</td></tr>
+                <span class="folga"><span class="v-empty">—</span></span>
               }
               else
               {
-                desenhados.Add(tol);
-                <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }@if (Mostra(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> ± @tolerancia</span>}</td></tr>
+                @foreach (var folga in folgas)
+                {
+                  <span class="folga">@{ Valor(folga); }</span>
+                }
               }
-            }
-          </tbody></table></div>
-          <div class="folgas"><span>Folgas</span>
-            @foreach (var folga in folgas)
-            {
-              if (editar) { Valor(folga); } else { <span class="folga">@{ Valor(folga); }</span> }
-            }
-          </div>
+            </div>
+          }
+          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
+          @if (editar)
+          {
+            @* No ver, o valor e a tolerância numa só coluna («54.02 ± 0.05»): com duas
+               colunas o cartão estreito partia a linha e o «—» aparecia duas vezes
+               (Diogo, 27/10/2026). No Editar ficam as duas caixas. *@
+            <div class="table-wrap"><table class="dmo-table dims"><thead><tr><th>Medida (mm)</th><th>Valor</th>@if (editar) {<th>Tol.</th>}</tr></thead><tbody>
+              @foreach (var (rotulo, valor, tol) in medidas)
+              {
+                if (editar)
+                {
+                  <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }</td><td>@{ Valor(tol, $"{tipo} {rotulo} tolerância"); }</td></tr>
+                }
+                else
+                {
+                  desenhados.Add(tol);
+                  <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }@if (Mostra(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> ± @tolerancia</span>}</td></tr>
+                }
+              }
+            </tbody></table></div>
+            <div class="folgas"><span>Folgas</span>
+              @foreach (var folga in folgas)
+              {
+                if (editar) { Valor(folga); } else { <span class="folga">@{ Valor(folga); }</span> }
+              }
+            </div>
+          }
           @{ Kv(resto); }
           @{ TecnicaFecha(); }
         </article>
@@ -396,9 +442,10 @@ else
     <div class="jof2-gaveta">
       <div class="rail-backdrop" data-jof-rail-fundo hidden></div>
       @* O cabeçalho do painel é só «Planeamento», um link para o Planeamento
-         (Diogo, 23/10/2026); o × continua a fechar a gaveta. *@
+         (Diogo, 23/10/2026); o «Fechar» no canto fecha a gaveta, como em todos os
+         painéis (a estrutura fixa, docs/design/estrutura.md). *@
       <aside class="rail" id="jofRail" aria-label="Planeamento" aria-hidden="true" inert data-jof-rail>
-        <div class="rail-head"><a class="rail-voltar" href="@FolhaModel.PlaneamentoHref">Planeamento</a><button class="rail-close" type="button" data-jof-rail-fechar aria-label="Esconder o painel">×</button></div>
+        <div class="rail-head"><a class="rail-voltar" href="@FolhaModel.PlaneamentoHref">Planeamento</a><button class="rail-close dmo-button" type="button" data-jof-rail-fechar>Fechar</button></div>
         <div class="rail-list">
           @if (Model.ProximasEntradas.Count == 0)
           {
@@ -465,12 +512,14 @@ else
         <div class="facts-dados">
         <div class="fact-col">
           <span class="fl">Início</span><span class="fv">@if (editar) {<input class="f" id="lightStart" name="inicio_em" type="date" value="@jobOn.InicioEm?.ToString("yyyy-MM-dd")" aria-label="Início" />} else {<strong>@(jobOn.InicioEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
+        </div>
+        <div class="fact-col">
           <span class="fl">Fim</span><span class="fv">@if (editar) {<input class="f" id="lightEnd" name="fim_em" type="date" value="@jobOn.FimEm?.ToString("yyyy-MM-dd")" aria-label="Fim" />} else {<strong>@(jobOn.FimEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
         </div>
         <div class="fact-col fact-dias">
           <span class="fl">Dias</span><span class="fv"><strong title="Fim − início + 1">@(Model.Dias?.ToString() ?? "—")</strong></span>
         </div>
-        @foreach (var par in new[] { new[] { ("Processo", "cab_processo", ""), ("Peso", "cab_peso", "g") }, new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", "") } })
+        @foreach (var par in new[] { new[] { ("Secções", "cab_seccoes", "") }, new[] { ("Gota", "cab_gota", "") }, new[] { ("Processo", "cab_processo", "") }, new[] { ("Peso", "cab_peso", "g") } })
         {
           <div class="fact-col">
             @foreach (var (rotulo, chave, unidade) in par)
@@ -497,12 +546,16 @@ else
                 }
                 else
                 {
-                  <strong>@(Mostra(Cab(chave)) ?? "—")</strong>@if (unidade.Length > 0 && Cab(chave) is not null) {<span class="unit">@unidade</span>}
+                  <strong>@(Mostra(Cab(chave)) ?? "—")</strong>@if (unidade.Length > 0 && Cab(chave) is { } valorCab && !valorCab.TrimEnd().EndsWith(unidade, StringComparison.OrdinalIgnoreCase)) {<span class="unit">@unidade</span>}
                 }
               </span>
             }
           </div>
         }
+        @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»). *@
+        <div class="fact-col">
+          <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
+        </div>
         </div>
       </div>
       <div class="head-right">
@@ -734,8 +787,10 @@ else
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">Artigo</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
-          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
+          @* Só a foto, mais alta do que larga, ao lado das Pinças: a referência já está no topo
+             (Diogo, 27/10/2026: «nao escrever referência no artigo», «os comentários são mais importantes»). *@
+          @if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}
+          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">
             @if (podeImagem)
             {
               <input type="file" accept="image/*" class="sr-only" data-jof-artigo-ficheiro aria-label="Escolher a imagem do artigo" />
@@ -866,6 +921,9 @@ else
   }
 }
 @section Scripts {
+@* A arrumação da folha a 1366×768, carregada depois de todas as folhas da app (as regras do Planeamento
+   também desenham a folha): ver dmo-jobon-folha-1366.css. *@
+<link rel="stylesheet" href="~/css/dmo-jobon-folha-1366.css" asp-append-version="true" media="screen">
 <script src="~/js/jobon-folha.js" asp-append-version="true" defer></script>
 @if (Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal))
 {

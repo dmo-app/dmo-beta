@@ -551,6 +551,48 @@ public sealed class PesoModel : PageModel
             ? "Com esta massa de água o peso do vidro dá 0 ou menos, o que é impossível. Confirme a massa (por exemplo 199,64 ou 199.64). Nenhuma leitura foi registada; o form preserva o que escreveu."
             : "A massa de água tem de ser maior que 0 (por exemplo 199,64 ou 199.64). Nenhuma leitura foi registada; o form preserva o que escreveu.";
 
+    /// <summary>A leitura escolhida na tabela para corrigir ou apagar (?corrigir_leitura).</summary>
+    public int? CorrigirLeituraId { get; private set; }
+
+    /// <summary>
+    /// O endereço desta folha com a leitura escolhida (ou nenhuma) para
+    /// corrigir: só o que identifica a folha (controlo_id, peso_id, a
+    /// comparação, o «Supomos», a produção anterior escolhida); as mensagens
+    /// de antes não voltam.
+    /// </summary>
+    public string UrlCorrigirLeitura(int? measurementId, bool apagar = false)
+    {
+        var query = new List<KeyValuePair<string, string?>>();
+        foreach (var chave in new[] { "controlo_id", "peso_id", "comparar", "supor_calote", "anterior", "jobon_id", "cm_tool_id", "bq_tool_id", "cap_h", "painel" })
+        {
+            if (Request.Query.TryGetValue(chave, out var valor) && !string.IsNullOrEmpty(valor))
+            {
+                query.Add(new(chave, valor.ToString()));
+            }
+        }
+        if (measurementId is int id)
+        {
+            query.Add(new("corrigir_leitura", id.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            if (apagar)
+            {
+                query.Add(new("apagar_leitura", "1"));
+            }
+        }
+        return Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Controlo/Peso", query);
+    }
+
+    /// <summary>True quando se carregou em «Apagar»: a caixa pergunta antes de apagar.</summary>
+    public bool ApagarLeituraPergunta { get; private set; }
+
+    /// <summary>A recusa da correção (massa ilegível, ≤ 0, vidro ≤ 0 ou leitura que já não existe).</summary>
+    public string? CorrecaoRefusalMessage { get; private set; }
+
+    /// <summary>O N.º CM escrito na correção recusada.</summary>
+    public string? EchoCorrecaoSubject { get; private set; }
+
+    /// <summary>A massa de água escrita na correção recusada.</summary>
+    public string? EchoCorrecaoWater { get; private set; }
+
     /// <summary>O echo do nº de CM submetido na recusa da leitura.</summary>
     public string? EchoLeituraSubject { get; private set; }
 
@@ -697,39 +739,10 @@ public sealed class PesoModel : PageModel
     /// ilegível, nº de CM sem massa, massa ≤ 0 ou peso calculado ≤ 0). As
     /// outras comparam-se (e gravam-se); o aviso diz quais ficaram de fora.
     /// </summary>
-    public IReadOnlyList<ComparacaoLeituraForaAviso> ComparacaoLeiturasFora { get; private set; } = Array.Empty<ComparacaoLeituraForaAviso>();
+    public IReadOnlyList<PesoComparacaoLeituraFora> ComparacaoLeiturasFora { get; private set; } = Array.Empty<PesoComparacaoLeituraFora>();
 
     /// <summary>True quando o aviso vem de uma comparação GUARDADA (as leituras de fora não foram gravadas).</summary>
     public bool ComparacaoLeiturasForaGuardada { get; private set; }
-
-    /// <summary>Uma leitura deixada de fora da comparação: a linha do form, o nº de CM, o valor escrito e o motivo.</summary>
-    public sealed record ComparacaoLeituraForaAviso(
-        int Linha,
-        string? CmSubject,
-        string? Valor,
-        PesoComparacaoMotivoIgnorada Motivo)
-    {
-        public string Message
-        {
-            get
-            {
-                var quem = string.IsNullOrWhiteSpace(CmSubject)
-                    ? $"Leitura {Linha} (sem nº de CM)"
-                    : $"Leitura {Linha} (CM {CmSubject})";
-                return Motivo switch
-                {
-                    PesoComparacaoMotivoIgnorada.MassaIlegivel =>
-                        $"{quem}: a massa de água «{Valor}» é ilegível (escreva por exemplo 199,64 ou 199.64).",
-                    PesoComparacaoMotivoIgnorada.SemMassa =>
-                        $"{quem}: falta a massa de água.",
-                    PesoComparacaoMotivoIgnorada.MassaNaoPositiva =>
-                        $"{quem}: a massa de água {Valor} g não é maior que 0.",
-                    _ =>
-                        $"{quem}: o peso calculado com a massa {Valor} g não é positivo."
-                };
-            }
-        }
-    }
 
     // ---------------------------------------------------------------
     // O HISTÓRICO DO CONTROLO (a secção history do dmo-html): a procura
@@ -907,9 +920,32 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "anterior_recusa")] string? anteriorRecusa = null,
         [FromQuery(Name = "anterior_peso")] string? anteriorPeso = null,
         [FromQuery(Name = "anterior_ok")] string? anteriorOk = null,
-        [FromQuery(Name = "comparacao_de")] int? comparacaoDe = null)
+        [FromQuery(Name = "comparacao_de")] int? comparacaoDe = null,
+        [FromQuery(Name = "corrigir_leitura")] int? corrigirLeitura = null,
+        [FromQuery(Name = "apagar_leitura")] string? apagarLeitura = null,
+        [FromQuery(Name = "correcao")] string? correcao = null,
+        [FromQuery(Name = "correcao_cm")] string? correcaoCm = null,
+        [FromQuery(Name = "correcao_agua")] string? correcaoAgua = null)
     {
         ViewData["Title"] = "Peso — Controlo";
+
+        // Corrigir ou apagar uma leitura (27/10/2026): a linha escolhida na
+        // tabela, a pergunta antes de apagar e a recusa com o que se escreveu.
+        CorrigirLeituraId = corrigirLeitura;
+        ApagarLeituraPergunta = corrigirLeitura is not null && apagarLeitura == "1";
+        CorrecaoRefusalMessage = correcao switch
+        {
+            "ilegivel" => "A massa de água escrita é ilegível: escreva um número, por exemplo 199,64 ou 199.64. A leitura ficou como estava.",
+            "massa" => "A massa de água tem de ser maior que 0. A leitura ficou como estava.",
+            "vidro" => "Com esta massa de água o peso do vidro dá 0 ou menos, o que é impossível. A leitura ficou como estava.",
+            "nao-encontrada" => "Esta leitura já não existe neste Peso (foi apagada entretanto). Nada foi alterado.",
+            _ => null
+        };
+        if (CorrecaoRefusalMessage is not null && correcao != "nao-encontrada")
+        {
+            EchoCorrecaoSubject = Sanitize(correcaoCm);
+            EchoCorrecaoWater = Sanitize(correcaoAgua);
+        }
 
         // Só o jobon_id (o «Verificar o Peso» de «O que mudou» no Job On,
         // 18/10/2026): a folha da produção abre pelo controlo_id dela, como
@@ -1109,9 +1145,7 @@ public sealed class PesoModel : PageModel
                 // peso inicial é o mais antigo da produção). Com vários Pesos
                 // (a CM ou a BQ mudou a meio; 18/10/2026), o das ferramentas
                 // atuais, senão o mais recente.
-                PesoInicialSelecionado = pesoInicialId is int pedido && Iniciais.Any(i => i.PesoId == pedido)
-                    ? pedido
-                    : (Iniciais.FirstOrDefault(i => i.IsCurrent) ?? Iniciais.LastOrDefault())?.PesoId;
+                PesoInicialSelecionado = PesoComparacaoFormulario.EscolherPesoInicial(Iniciais, pesoInicialId);
             }
 
             // O contra-molde: o selecionado ou o CM do peso inicial (o
@@ -1153,7 +1187,7 @@ public sealed class PesoModel : PageModel
             // (PRG do Guardar) — o aviso diz quais; não foram gravadas.
             if (ComparacaoGuardada is not null)
             {
-                ComparacaoLeiturasFora = DecodeLeiturasFora(ignoradas);
+                ComparacaoLeiturasFora = PesoComparacaoFormulario.Descodificar(ignoradas);
                 ComparacaoLeiturasForaGuardada = ComparacaoLeiturasFora.Count > 0;
             }
 
@@ -2084,6 +2118,100 @@ public sealed class PesoModel : PageModel
     }
 
     /// <summary>
+    /// Corrige o N.º CM e a massa de água de uma leitura deste Peso (Diogo,
+    /// 27/10/2026: «não consigo editar ou apagar»). Fica o rasto (antes,
+    /// depois, quem, quando). Volta à folha com a linha ainda escolhida só
+    /// quando é recusada, com o que se escreveu.
+    /// </summary>
+    public async Task<IActionResult> OnPostEditMeasurementAsync(
+        [FromServices] ICorrectPesoMeasurementHandler handler,
+        [FromForm(Name = "peso_id")] int pesoId,
+        [FromForm(Name = "measurement_id")] int measurementId,
+        [FromForm(Name = "cm_subject")] string? cmSubject,
+        [FromForm(Name = "water_weight")] string? waterWeight,
+        [FromForm(Name = "controlo_id")] int? controloId = null,
+        [FromForm(Name = "comparar")] int? compararPesoId = null,
+        [FromForm(Name = "supor_calote")] string? suporCalote = null)
+    {
+        var back = CorrectionBack(pesoId, controloId, compararPesoId, suporCalote);
+        IActionResult Recusa(string motivo)
+        {
+            back["corrigir_leitura"] = measurementId;
+            back["correcao"] = motivo;
+            back["correcao_cm"] = Sanitize(cmSubject);
+            back["correcao_agua"] = Sanitize(waterWeight);
+            return RedirectToPage("/Controlo/Peso", back);
+        }
+
+        var water = ParseOptionalDecimal(Sanitize(waterWeight));
+        if (water is null)
+        {
+            return Recusa("ilegivel");
+        }
+
+        if (water <= 0m)
+        {
+            return Recusa("massa");
+        }
+
+        var result = await handler.EditAsync(
+            new EditPesoMeasurement(new PesoMeasurementAnchor(measurementId, pesoId), Sanitize(cmSubject), water.Value),
+            CancellationToken.None);
+        return result switch
+        {
+            CorrectPesoMeasurementResult.ResultNonPositive => Recusa("vidro"),
+            CorrectPesoMeasurementResult.MeasurementNotFound => RedirectToPage("/Controlo/Peso", WithCorrecao(back, "nao-encontrada")),
+            _ => RedirectToPage("/Controlo/Peso", back)
+        };
+    }
+
+    /// <summary>Apaga uma leitura deste Peso; as restantes são renumeradas. Fica o rasto.</summary>
+    public async Task<IActionResult> OnPostDeleteMeasurementAsync(
+        [FromServices] ICorrectPesoMeasurementHandler handler,
+        [FromForm(Name = "peso_id")] int pesoId,
+        [FromForm(Name = "measurement_id")] int measurementId,
+        [FromForm(Name = "controlo_id")] int? controloId = null,
+        [FromForm(Name = "comparar")] int? compararPesoId = null,
+        [FromForm(Name = "supor_calote")] string? suporCalote = null)
+    {
+        var back = CorrectionBack(pesoId, controloId, compararPesoId, suporCalote);
+        var result = await handler.DeleteAsync(new PesoMeasurementAnchor(measurementId, pesoId), CancellationToken.None);
+        return RedirectToPage("/Controlo/Peso",
+            result == CorrectPesoMeasurementResult.Success ? back : WithCorrecao(back, "nao-encontrada"));
+    }
+
+    // Volta à folha de onde veio, como o registo: a da produção (controlo_id,
+    // com o peso_id quando é um Peso de antes de uma troca) ou o Peso aberto
+    // pelo peso_id, com a comparação e o «Supomos».
+    private RouteValueDictionary CorrectionBack(int pesoId, int? controloId, int? compararPesoId, string? suporCalote)
+    {
+        var values = new RouteValueDictionary();
+        if (controloId is int c)
+        {
+            values["controlo_id"] = c;
+            if (PesoIdNoEnderecoDoPedido())
+            {
+                values["peso_id"] = pesoId;
+            }
+        }
+        else
+        {
+            values["peso_id"] = pesoId;
+        }
+        if (compararPesoId is int cmp) values["comparar"] = cmp;
+        if (Sanitize(suporCalote) is { } supor) values["supor_calote"] = supor;
+        return values;
+    }
+
+    private bool PesoIdNoEnderecoDoPedido() => Request.HasFormContentType && Request.Form["peso_anterior"] == "1";
+
+    private static RouteValueDictionary WithCorrecao(RouteValueDictionary values, string motivo)
+    {
+        values["correcao"] = motivo;
+        return values;
+    }
+
+    /// <summary>
     /// Endpoint READ-ONLY do design pass F1 (§2.4): preview em tempo real.
     /// Recebe o peso_id aberto e as linhas em preparação (texto) e resolve o
     /// contexto PERSISTIDO do peso_id pela MESMA query canónica do surface
@@ -2366,7 +2494,7 @@ public sealed class PesoModel : PageModel
             peso_inicial = pesoInicialId.Value,
             producao_fixa = fixa,
             comparacao_id = outcome.Comparacao.ComparacaoId,
-            ignoradas = EncodeLeiturasFora(ComparacaoLeiturasFora)
+            ignoradas = PesoComparacaoFormulario.Codificar(ComparacaoLeiturasFora)
         });
     }
 
@@ -2450,15 +2578,10 @@ public sealed class PesoModel : PageModel
     }
 
     /// <summary>
-    /// O parse das inputs da comparação (o form preserva o que foi
-    /// submetido): as linhas em branco ignoram-se; o nº de CM sem massa de
-    /// água e a massa presente mas ilegível ficam DE FORA com aviso (A3,
-    /// beta.65 — antes anulavam a comparação toda); a massa não positiva
-    /// segue para o backend, que também a deixa de fora com aviso. Só sem
-    /// nenhuma leitura utilizável a comparação é recusada (nada a comparar).
-    /// A temperatura é flexível (ponto OU vírgula).
+    /// O estado do tab para o re-render e o formulário lido (o form preserva
+    /// o que foi submetido; as regras vivem em <see cref="PesoComparacaoFormulario"/>).
     /// </summary>
-    private async Task<(PesoComparacaoResultado? Refusal, List<PesoComparacaoLeituraInput>? Leituras, decimal Temperatura)> PrepararComparacaoAsync(
+    private async Task<(PesoComparacaoResultado? Refusal, IReadOnlyList<PesoComparacaoLeituraInput>? Leituras, decimal Temperatura)> PrepararComparacaoAsync(
         int jobOnId,
         int? pesoInicialId,
         string? cmToolId,
@@ -2470,66 +2593,10 @@ public sealed class PesoModel : PageModel
     {
         await CarregarEstadoComparacaoAsync(jobOnId, pesoInicialId, cmToolId, waterTemperature, comparacaoNote, cancellationToken);
 
-        // O echo das linhas submetidas (o re-render do form com os valores).
-        var subjects = cmSubjects ?? Array.Empty<string>();
-        var waters = waterWeights ?? Array.Empty<string>();
-        var count = Math.Max(subjects.Length, waters.Length);
-        var echo = new List<(string?, string?)>();
-        var leituras = new List<PesoComparacaoLeituraInput>();
-        var fora = new List<ComparacaoLeituraForaAviso>();
-        _linhasDasLeituras.Clear();
-        for (var i = 0; i < count; i++)
-        {
-            var subject = i < subjects.Length ? subjects[i]?.Trim() : null;
-            var waterRaw = i < waters.Length ? waters[i]?.Trim() : null;
-            var subjectTem = !string.IsNullOrEmpty(subject);
-            var waterTem = !string.IsNullOrEmpty(waterRaw);
-            if (!subjectTem && !waterTem)
-            {
-                continue; // linha em branco: nada a comparar
-            }
-
-            echo.Add((subject, waterRaw));
-            if (waterTem && ParseOptionalDecimal(waterRaw) is { } water)
-            {
-                leituras.Add(new PesoComparacaoLeituraInput(subject ?? string.Empty, water));
-                _linhasDasLeituras.Add((echo.Count, subject, waterRaw));
-            }
-            else
-            {
-                // Nº de CM sem massa de água, ou massa presente mas ilegível:
-                // a linha fica de fora (nenhum facto é inventado) e o aviso
-                // diz qual — as outras leituras comparam-se.
-                fora.Add(new ComparacaoLeituraForaAviso(
-                    echo.Count,
-                    subject,
-                    waterRaw,
-                    waterTem ? PesoComparacaoMotivoIgnorada.MassaIlegivel : PesoComparacaoMotivoIgnorada.SemMassa));
-            }
-        }
-
-        ComparacaoLinhas = echo.Count > 0 ? echo : ComparacaoLinhas;
-        ComparacaoLeiturasFora = fora;
-
-        if (pesoInicialId is not { } inicialId || inicialId <= 0)
-        {
-            return (PesoComparacaoResultado.PesoInicialNaoSelecionado, null, 0m);
-        }
-
-        if (ParseOptionalDecimal(waterTemperature) is not { } temperatura)
-        {
-            // Vazia ou ilegível diz «ilegível»; fora de 5–35 °C é do backend.
-            return (PesoComparacaoResultado.TemperaturaIlegivel, null, 0m);
-        }
-
-        if (leituras.Count == 0)
-        {
-            // Nenhuma leitura utilizável: nada a comparar. Com linhas
-            // escritas mas ilegíveis o motivo é esse (o aviso diz quais).
-            return (fora.Count > 0 ? PesoComparacaoResultado.MassaAguaIlegivel : PesoComparacaoResultado.SemLeituras, null, 0m);
-        }
-
-        return (null, leituras, temperatura);
+        _formulario = PesoComparacaoFormulario.Ler(pesoInicialId, waterTemperature, cmSubjects, waterWeights);
+        ComparacaoLinhas = _formulario.Linhas.Count > 0 ? _formulario.Linhas : ComparacaoLinhas;
+        ComparacaoLeiturasFora = _formulario.Fora;
+        return (_formulario.Recusa, _formulario.Leituras, _formulario.Temperatura);
     }
 
     /// <summary>O valor do parâmetro «aviso» quando o Peso foi criado sem o nominal ilegível.</summary>
@@ -2558,77 +2625,16 @@ public sealed class PesoModel : PageModel
         };
     }
 
-    /// <summary>
-    /// A linha do form (1-based, a ordem das linhas reapresentadas), o nº
-    /// de CM e o texto escrito de cada leitura enviada ao backend, pela
-    /// ordem do pedido — para o aviso apontar a linha certa quando o
-    /// backend deixa uma de fora.
-    /// </summary>
-    private readonly List<(int Linha, string? CmSubject, string? Valor)> _linhasDasLeituras = new();
+    /// <summary>O formulário da comparação deste pedido (para o aviso juntar as que o backend deixou de fora).</summary>
+    private PesoComparacaoFormulario? _formulario;
 
     /// <summary>Junta ao aviso as leituras que o backend deixou de fora (massa ≤ 0 ou resultado ≤ 0).</summary>
     private void JuntarLeiturasForaDoBackend(IReadOnlyList<PesoComparacaoLeituraIgnorada>? ignoradas)
     {
-        if (ignoradas is not { Count: > 0 })
+        if (_formulario is not null)
         {
-            return;
+            ComparacaoLeiturasFora = _formulario.ComAsDoBackend(ignoradas);
         }
-
-        var todas = ComparacaoLeiturasFora.ToList();
-        foreach (var ignorada in ignoradas)
-        {
-            var origem = ignorada.Indice >= 1 && ignorada.Indice <= _linhasDasLeituras.Count
-                ? _linhasDasLeituras[ignorada.Indice - 1]
-                : (Linha: ignorada.Indice, CmSubject: ignorada.CmSubject, Valor: ignorada.WaterWeightGrams?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            todas.Add(new ComparacaoLeituraForaAviso(origem.Linha, origem.CmSubject, origem.Valor, ignorada.Motivo));
-        }
-
-        ComparacaoLeiturasFora = todas.OrderBy(a => a.Linha).ToList();
-    }
-
-    /// <summary>
-    /// O aviso das leituras de fora atravessa o PRG do Guardar num só
-    /// parâmetro: uma linha por leitura, «linha|motivo|valor|cm» (o motivo
-    /// é do vocabulário fechado; o valor e o nº de CM são o que o operador
-    /// escreveu, limitados e sem os separadores).
-    /// </summary>
-    private static string? EncodeLeiturasFora(IReadOnlyList<ComparacaoLeituraForaAviso> fora)
-    {
-        if (fora.Count == 0)
-        {
-            return null;
-        }
-
-        static string Limpo(string? valor)
-        {
-            var texto = (valor ?? string.Empty).Replace('|', '/').Replace('\n', ' ').Replace('\r', ' ').Trim();
-            return texto.Length > 40 ? texto[..40] : texto;
-        }
-
-        return string.Join('\n', fora.Take(50).Select(a => $"{a.Linha}|{a.Motivo}|{Limpo(a.Valor)}|{Limpo(a.CmSubject)}"));
-    }
-
-    private static IReadOnlyList<ComparacaoLeituraForaAviso> DecodeLeiturasFora(string? encoded)
-    {
-        if (string.IsNullOrWhiteSpace(encoded))
-        {
-            return Array.Empty<ComparacaoLeituraForaAviso>();
-        }
-
-        var avisos = new List<ComparacaoLeituraForaAviso>();
-        foreach (var linha in encoded.Split('\n', StringSplitOptions.RemoveEmptyEntries).Take(50))
-        {
-            var partes = linha.Split('|', 4);
-            if (partes.Length == 4
-                && int.TryParse(partes[0], out var numero)
-                && Enum.TryParse(partes[1], out PesoComparacaoMotivoIgnorada motivo)
-                && Enum.IsDefined(motivo))
-            {
-                avisos.Add(new ComparacaoLeituraForaAviso(numero, Sanitize(partes[3]), Sanitize(partes[2]), motivo));
-            }
-        }
-
-        return avisos;
     }
 
     /// <summary>O alvo do «Abrir registo selecionado»: o tipo, o id e o controlo da produção (o roteamento é do backend).</summary>
