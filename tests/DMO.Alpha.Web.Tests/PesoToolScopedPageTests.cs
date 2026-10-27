@@ -230,7 +230,8 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("5447", byReference);
         Assert.Contains("<span>Lote</span><strong>3</strong>", byReference);
         Assert.Contains("T194", byReference);
-        Assert.Contains("<span>Lote</span><strong>12</strong>", byReference);
+        // A BQ sem lote (Diogo, 27/10/2026: «nao tem lote»).
+        Assert.DoesNotContain("<span>Lote</span><strong>12</strong>", byReference);
         // Os volumes uma só vez, na faixa dos volumes (Diogo, 27/10/2026).
         Assert.Contains("Volume Punção / CM (cm³)", byReference);
         Assert.Contains("Volume Marisa / BQ (cm³)", byReference);

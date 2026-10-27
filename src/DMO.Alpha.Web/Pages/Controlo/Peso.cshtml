@@ -1113,6 +1113,7 @@
         <label for="bqToolId">Boquilha (BQ) — referência</label>
         <input id="bqToolId" name="bq_tool_id" value="@Model.RequestedBqToolId" placeholder="Ex.: C142" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
       </div>
+      @* O lote da BQ só quando os lotes têm marisas diferentes (Diogo, 27/10/2026). *@
       <partial name="_PegamentosLote" model="@(("bqToolId", "bq_lote", "BQ — lote", Model.BqLotes, Model.BqTool?.ToolId, Model.RequestedBqToolId))" />
       @* Escolher a sugestão ou o Enter mostram a ferramenta (como nos
          Pegamentos); o botão fica só sem script. *@
@@ -1143,7 +1144,6 @@
         @if (Model.BqTool is { } bqTool)
         {
           <div class="peso-fact peso-fact-grupo"><span>Boquilha (BQ)</span><strong>@bqTool.Reference</strong></div>
-          <div class="peso-fact"><span>Lote</span><strong>@bqTool.Lot</strong></div>
           @if (!ambasFerramentas)
           {
             <div class="peso-fact"><span>Volume marisa (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } vm ? fmt(vm) : "—")</strong></div>
@@ -1154,6 +1154,10 @@
     @if (Model.CmToolRequestedNotFound)
     {
       <div class="peso-aviso-simples" role="alert">A referência da CM indicada não está registada no Ferramentas. Nenhum Peso pode ser criado para ela.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.RegistarFerramenta("CM", Model.RequestedCmToolId, "Registar a CM em Ferramentas")" /></div>
+    }
+    @if (Model.BqMarisasDiferentes)
+    {
+      <div class="peso-aviso-simples" role="status" data-peso-bq-marisas>Os lotes desta boquilha (BQ) têm volumes de marisa diferentes: escolha o lote.</div>
     }
     @if (Model.BqToolRequestedNotFound)
     {
@@ -1582,7 +1586,7 @@
                   <label for="pesoGravadaAgua-@gravadaIndex">Massa de água (g)</label>
                   <input id="pesoGravadaAgua-@gravadaIndex" value="@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)" readonly tabindex="-1" aria-label="Massa de água gravada" />
                 </div>
-                <output class="peso-leitura-chip">@fmtCap(gravada.CapacityCm3) cm³ · @fmt(gravada.GlassWeightGrams) g</output>
+                @* Volume e peso já estão na tabela por cima: não se repetem aqui (Diogo, 27/10/2026). *@
               </div>
             }
             </div>

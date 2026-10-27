@@ -220,8 +220,16 @@ public sealed class PesoModel : PageModel
     /// <summary>Os lotes da CM escrita quando são vários: o operador escolhe o lote (como nos Pegamentos).</summary>
     public IReadOnlyList<ToolLookupResult> CmLotes { get; private set; } = Array.Empty<ToolLookupResult>();
 
-    /// <summary>Os lotes da BQ escrita quando são vários.</summary>
+    /// <summary>
+    /// Os lotes da BQ escrita, só quando é preciso escolher: a marisa é a
+    /// mesma em todos os lotes da BQ (Diogo, 27/10/2026: «o vol da BQ é sempre
+    /// igual, independentemente se é lote 6 ou 59»), por isso o «BQ — lote»
+    /// só aparece quando os lotes têm marisas diferentes.
+    /// </summary>
     public IReadOnlyList<ToolLookupResult> BqLotes { get; private set; } = Array.Empty<ToolLookupResult>();
+
+    /// <summary>True quando os lotes da BQ escrita têm marisas diferentes e o lote tem de ser escolhido.</summary>
+    public bool BqMarisasDiferentes { get; private set; }
 
     /// <summary>O lote escolhido da CM (cm_lote); null sem escolha.</summary>
     public string? ChosenCmLote { get; private set; }
@@ -1445,6 +1453,23 @@ public sealed class PesoModel : PageModel
             ChosenBqLote = Sanitize(Request.Query["bq_lote"].ToString());
             (BqTool, BqLotes) = await ResolveSlotAsync(bqToolId, ToolType.Bq, ChosenBqLote, HttpContext.RequestAborted);
             BqToolRequestedNotFound = BqTool is null && BqLotes.Count <= 1;
+            if (BqTool is null && BqLotes.Count > 1)
+            {
+                // Sem lote escolhido: com a mesma marisa em todos os lotes,
+                // vale o primeiro que a tem (ou o primeiro) e o campo sai.
+                var marisas = new List<(ToolLookupResult Lote, decimal? Marisa)>();
+                foreach (var bqLote in BqLotes)
+                {
+                    var tecnico = await _toolTechnical.FindByToolIdAsync(bqLote.ToolId, HttpContext.RequestAborted);
+                    marisas.Add((bqLote, tecnico?.VolumeMarisaCm3));
+                }
+                BqMarisasDiferentes = marisas.Where(m => m.Marisa is not null).Select(m => m.Marisa).Distinct().Count() > 1;
+                if (!BqMarisasDiferentes)
+                {
+                    BqTool = marisas.FirstOrDefault(m => m.Marisa is not null).Lote ?? BqLotes[0];
+                    BqLotes = Array.Empty<ToolLookupResult>();
+                }
+            }
             if (BqTool is not null)
             {
                 BqTechnical = await _toolTechnical.FindByToolIdAsync(BqTool.ToolId, HttpContext.RequestAborted);

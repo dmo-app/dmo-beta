@@ -153,7 +153,7 @@
      massa em cima e, por baixo, o «Registar leitura» da largura dos campos e
      o + e o − pequenos, um em cima do outro, na altura dele. */
   html body main.peso-page .peso-leitura-form{margin-top:8px}
-  html body main.peso-page .peso-leitura-grade{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;padding:8px;border-radius:8px}
+  html body main.peso-page .peso-leitura-grade{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;padding:8px;border-radius:8px}
   html body main.peso-page .peso-leitura-grade>#pesoLeiturasGravadas{display:contents}
   html body main.peso-page .peso-leitura-row{grid-template-columns:72px 120px;gap:4px 8px}
   html body main.peso-page .peso-leitura-row.is-saved{padding:8px;border:1px solid var(--dmo-border);border-radius:8px}

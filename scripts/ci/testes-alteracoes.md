@@ -3434,3 +3434,20 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
 
 Selo depois: `172e1a536bce7902`
+
+## A-0214 · 2026-10-27 · ok-do-diogo
+
+Porquê: A BQ do Peso sem Job On deixa de ter lote e a associação ao Job On conta a referência da BQ (qualquer lote). Os 3 testes da associação usavam um outro lote da mesma BQ (bq-b, Y232) como «outra BQ»: passam a usar uma BQ de outra referência (bq-c, Y300), a mesma recusa. O teste da folha por referência deixa de esperar o lote da BQ (12) no cartão. Testes novos: o Peso de outro lote da mesma BQ associa-se e fica com o lote da produção; o campo «BQ — lote» não aparece com a marisa igual.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra1F8zuYkECXUkomt4uk6jE4 («sim», 27/10/2026 07:01) e cmsg_01K75FTs9bQnbhhH7qttpgraVKRTRjGjK7GvF2BEsEHkoc («nao tem lote»); cartão cmsg_01K75FTs9bQnbhhH7qttpgraU48Jy5Uk3vfwYNztsu9MAk «Tirar e associar pela referência»
+Novos: 2 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherLotOfTheSameBq_IsAcceptedAndTakesTheProductionLot`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: ControloCapabilitiesCutHPageTests.PesoSemJobOn_BqSemCampoDoLote_QuandoAMarisaEIgual`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherBq_IsRefusedAsBqMismatch`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Candidates_AfterSwapWithoutCurrentPeso_AreLoosePesosOfTheToolsTheProductionHadOrHas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Productions_ForPeso_IncludeJobOnsThatHadTheCmBeforeASwap`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
+
+Selo depois: `c035d3e91948a3dc`
