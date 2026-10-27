@@ -296,6 +296,8 @@ public sealed class PesoModel : PageModel
         RecordPesoMeasurementResult.PesoNotCurrent =>
             "Este Peso é de uma CM ou de uma boquilha (BQ) que já não está na produção. A leitura não foi gravada. " +
             "As leituras novas vão para o Peso das ferramentas atuais.",
+        RecordPesoMeasurementResult.OperationConflict =>
+            "Este envio não corresponde ao que foi gravado antes com a mesma identificação. Nenhuma leitura foi registada; escreva a leitura outra vez.",
         _ => string.Empty
     };
 
@@ -721,6 +723,9 @@ public sealed class PesoModel : PageModel
     /// <summary>O filtro da ferramenta (a referência da CM, pelo início dela ou da parte BQ).</summary>
     public string? HistoryTool { get; private set; }
 
+    /// <summary>O lote escrito no Histórico (Diogo, 27/10/2026: «falta lote»): com a referência, por exemplo ST100 lote 8.</summary>
+    public string? HistoryLote { get; private set; }
+
     /// <summary>O filtro do tipo (Peso/Pegamentos/Comparação; null = todos).</summary>
     public ControloHistoryKind? HistoryTipo { get; private set; }
 
@@ -771,6 +776,7 @@ public sealed class PesoModel : PageModel
         || HistoryReference is not null
         || HistoryProduction is not null
         || HistoryTool is not null
+        || HistoryLote is not null
         || HistoryTipo is not null
         || HistoryData is not null;
 
@@ -862,6 +868,7 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "comparacao_id")] int? comparacaoId,
         [FromQuery(Name = "comparacao_refusal")] string? comparacaoRefusal,
         [FromQuery(Name = "ferramenta")] string? ferramenta,
+        [FromQuery(Name = "lote")] string? lote,
         [FromQuery(Name = "tipo")] string? tipo,
         [FromQuery(Name = "data")] string? data,
         [FromQuery(Name = "pagina")] int? pagina,
@@ -984,6 +991,7 @@ public sealed class PesoModel : PageModel
             HistoryReference = Sanitize(referencia);
             HistoryProduction = Sanitize(producao);
             HistoryTool = Sanitize(ferramenta);
+            HistoryLote = Sanitize(lote);
             HistoryTipo = ParseTipo(tipo);
             HistoryData = ParseData(data);
             HistorySemJobOn = semJobOnFiltro == "1";
@@ -1032,7 +1040,7 @@ public sealed class PesoModel : PageModel
                 var historyPage = await HistoricoControloQuery.SearchPageAsync(
                     HistoryReference, HistoryProduction, HistoryTool, HistoryTipo, HistoryData,
                     pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn,
-                    productionReference: HistoryProductionReference);
+                    productionReference: HistoryProductionReference, lote: HistoryLote);
                 // A Referência também aceita a referência da CM (Diogo,
                 // 27/10/2026): sem resultados pela referência do produto,
                 // procura-a como ferramenta.
@@ -1040,7 +1048,7 @@ public sealed class PesoModel : PageModel
                 {
                     var comoFerramenta = await HistoricoControloQuery.SearchPageAsync(
                         null, null, referenciaCm, HistoryTipo, HistoryData,
-                        pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn);
+                        pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn, lote: HistoryLote);
                     if (comoFerramenta.TotalCount > 0)
                     {
                         historyPage = comoFerramenta;
@@ -2059,7 +2067,8 @@ public sealed class PesoModel : PageModel
                 pesoId,
                 rows[0].CmSubject,
                 rows[0].Water,
-                rows.Skip(1).Select(r => new PesoMeasurementRow(r.CmSubject, r.Water)).ToList()),
+                rows.Skip(1).Select(r => new PesoMeasurementRow(r.CmSubject, r.Water)).ToList(),
+                EnvioUnicoFilter.OperacaoDoEnvio(Request)),
             CancellationToken.None);
 
         // Peso do vidro 0 ou menos: a recusa volta com o que se escreveu
@@ -2074,7 +2083,9 @@ public sealed class PesoModel : PageModel
             }));
         }
 
-        if (outcome.Result != RecordPesoMeasurementResult.Success)
+        // O mesmo envio já gravado (a ligação caiu, a app reiniciou): volta
+        // como se tivesse gravado agora, sem gravar outra vez.
+        if (outcome.Result is not (RecordPesoMeasurementResult.Success or RecordPesoMeasurementResult.AlreadyRecorded))
         {
             return RedirectToPage("/Controlo/Peso", Back(new
             {

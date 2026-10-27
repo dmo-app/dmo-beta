@@ -62,9 +62,10 @@ html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar{background:va
 html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:hover:not(:has(>input:checked)){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
 html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:has(>input:checked){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
 
-/* Setas da paginação sem página para onde ir («1 de 1»): claramente desligadas, sem fundo de botão
-   e sem cursor de mão (Diogo, 27/10/2026, …Cdi68amPSGYKsy5k2Cxp9o: «botões não têm funcionamento»). */
-html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="true"]):is(:disabled,[aria-disabled="true"]){background:transparent;border-color:var(--dmo-border);color:var(--dmo-muted);opacity:.45;cursor:default;pointer-events:none;box-shadow:none}
+/* Setas da paginação sem página para onde ir («1 de 1»): sem cursor de mão nem clique (Diogo,
+   27/10/2026, …Cdi68amPSGYKsy5k2Cxp9o) e com o aspeto de qualquer botão desligado da app, não quase
+   brancas (…9qEaCTuerx6fanQf11vYWg: «botões iguais ao resto da app»). */
+html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="true"]):is(:disabled,[aria-disabled="true"]){background:var(--dmo-disabled);border-color:var(--dmo-disabled);color:var(--dmo-text-on-color);opacity:1;cursor:default;pointer-events:none;box-shadow:none}
 
 /* Botões e campos com a mesma altura (Diogo, 27/10/2026, …BCbfSb74Cm52qdM1TDtqzA: «mesmo tamanho nos
    botões e campos de texto»): os campos de uma linha e as listas ficam com a altura dos botões. As
@@ -113,3 +114,9 @@ html body .dmo-modo-head{flex-wrap:nowrap;align-items:center;gap:24px}
    …UMR3BY4nT8v6krNRVvixPs): o rótulo maior e na mesma linha de base do «Ex.: ST100». */
 html body :is(main.peso-page,main.peg-page) form.dmo-filter-bar>.dmo-field>label{font-size:13px}
 html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar>.dmo-field:is(.dmo-field){align-items:baseline}
+
+/* Boquilhas › Registar, «Data e hora reais»: largura para a hora inteira (Diogo, 27/10/2026,
+   …UUDTTfMdactdxcFXd1Ddbr: «dá mais espaço para aparecer a hora»); no Windows a data e a hora
+   ocupam mais do que no Linux, por isso fica folga. */
+html body .beta-bq-layout .bq-movement-line .bq-line-date.bq-line-date{flex:0 0 212px}
+html body .beta-bq-layout .bq-movement-line .bq-line-date>input{width:100%}

@@ -341,13 +341,21 @@
       }
     });
 
-    if (ficheiro) {
-      ficheiro.addEventListener('change', () => {
-        const escolhido = ficheiro.files && ficheiro.files[0];
-        ficheiro.value = '';
-        if (!escolhido || !/^image\//.test(escolhido.type)) return;
-        const leitor = new FileReader();
-        leitor.onload = () => ajustar(String(leitor.result), async (src) => {
+    // Gravar: a imagem escolhida ou colada passa pela janela do recorte
+    // (dmo-artigo-recorte.js) e o «Guardar recorte» grava logo na pasta da
+    // referência. O clique no Guardar ainda vale para o navegador pedir a
+    // licença da pasta, quando falta (Diogo, 27/10/2026).
+    function gravar(escolhido) {
+      if (!escolhido || !/^image\//.test(escolhido.type)) return;
+      const leitor = new FileReader();
+      leitor.onload = async () => {
+        let original = String(leitor.result);
+        if (typeof window.dmoRecortarArtigo === 'function') {
+          original = await window.dmoRecortarArtigo(original, referencia);
+          if (!original) return;
+          if (raiz && !permitido) permitido = await pastaPermissao(raiz, true);
+        }
+        ajustar(original, async (src) => {
           const blob = await (await fetch(src)).blob();
           try {
             if (raiz && permitido) {
@@ -365,7 +373,27 @@
           mostrar(src);
           escrever(chave, src);
         });
-        leitor.readAsDataURL(escolhido);
+      };
+      leitor.readAsDataURL(escolhido);
+    }
+    if (ficheiro) {
+      ficheiro.addEventListener('change', () => {
+        const escolhido = ficheiro.files && ficheiro.files[0];
+        ficheiro.value = '';
+        gravar(escolhido);
+      });
+      // Colar (Ctrl+V) uma imagem na folha também a associa, fora dos campos
+      // de escrita (aí o colar é do campo).
+      document.addEventListener('paste', (e) => {
+        const alvo = e.target;
+        if (alvo && alvo.closest && alvo.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]')) return;
+        if (document.querySelector('dialog[open]')) return;
+        const itens = (e.clipboardData && e.clipboardData.items) || [];
+        const item = [...itens].find((i) => i.kind === 'file' && /^image\//.test(i.type));
+        if (!item) return;
+        e.preventDefault();
+        if (API_PASTA && !raiz) { aviso('Associe primeiro a pasta das imagens em Definições, Job On.'); return; }
+        gravar(item.getAsFile());
       });
     }
     if (retirar) {

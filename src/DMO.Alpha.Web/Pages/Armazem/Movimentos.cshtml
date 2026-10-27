@@ -587,11 +587,12 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           </tbody>
         </table>
       </div>
-      @* A paginação da casa («1 de 5»), com os links do próprio tipo: depois de uma recusa, o pedido é um POST. *@
+      @* A paginação da casa («1 de 5»), com os links do próprio tipo: depois de uma recusa, o pedido é um POST.
+         A procura (q, pos) e o modo vão com a página: sem eles, a página 2 perdia o log (auditoria de 27/10/2026). *@
       <nav data-dmo-parcial class="dmo-list-pager" aria-label="Paginação" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:12px">
         @if (Model.Log.PageNumber > 1)
         {
-          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">←</a>
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">←</a>
         }
         else
         {
@@ -600,7 +601,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <span role="status" aria-label="Página @Model.Log.PageNumber de @Model.Log.TotalPages">@Model.Log.PageNumber de @Model.Log.TotalPages</span>
         @if (Model.Log.PageNumber < Model.Log.TotalPages)
         {
-          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">→</a>
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">→</a>
         }
         else
         {

@@ -29,7 +29,7 @@
         <dt>Sistema</dt><dd>BAS (SAP Logon 750), mandante 100</dd>
         <dt>Transação</dt><dd>ZPPG «Moldes Existentes» (% de uso de cada ferramenta)</dd>
         <dt>Script</dt><dd><code>DMO_USO_SAP.vbs</code>, com o atalho <code>Moldes Existentes.SAP</code></dd>
-        <dt>Pasta</dt><dd>A pasta ligada em Ferramentas › Definições › Utilização pelo SAP</dd>
+        <dt>Pasta</dt><dd>A pasta ligada em Definições › Este computador › Utilização pela produção</dd>
         <dt>Ficheiros</dt><dd><code>dmo-codigos.txt</code> (o DMO escreve), <code>dmo-uso-sap.csv</code> (o script escreve), relatório de fabrico da produção</dd>
         </dl>
 
@@ -45,23 +45,23 @@
         <ol>
             <li>Criar uma pasta no computador, por exemplo <code>C:\temp\DMO-SAP</code>.</li>
             <li>Pôr lá o <code>DMO_USO_SAP.vbs</code> e o <code>Moldes Existentes.SAP</code> (o atalho do SAP que abre a ZPPG).</li>
-            <li>No DMO: Ferramentas › Definições › Utilização pelo SAP › «Ligar pasta» e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
+            <li>No DMO: Definições › Este computador › Utilização pela produção › «Opções» › «Ligar pasta» e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
             <li>O DMO escreve logo na pasta o <code>dmo-codigos.txt</code>.</li>
         </ol>
 
         <h4>3. O que pede o DMO ao SAP</h4>
-        <p>O <code>dmo-codigos.txt</code> tem um código por linha: o <b>nome técnico + lote</b> da ferramenta, que é o Equipment Code do SAP (por exemplo <code>M544744MPPSX11</code> = <code>M544744MPPSX</code> + lote <code>11</code>). Só vão as ferramentas à espera da utilização: as que entraram no Armazém vindas da Produção e as pedidas na página da ferramenta. O botão «Copiar códigos» copia a mesma lista.</p>
+        <p>O <code>dmo-codigos.txt</code> tem um código por linha: o <b>nome técnico + lote</b> da ferramenta, que é o Equipment Code do SAP (por exemplo <code>M544744MPPSX11</code> = <code>M544744MPPSX</code> + lote <code>11</code>). Só vão as ferramentas à espera da utilização: as que entraram no Armazém vindas da Produção e as pedidas na página da ferramenta. «Copiar códigos» (em «Opções») copia a mesma lista.</p>
 
         <h4>4. Atualizar a % de uso</h4>
         <ol>
             <li>Duplo clique no <code>DMO_USO_SAP.vbs</code>.</li>
             <li>O script lê os códigos, abre o SAP na ZPPG (espera até 90 segundos), procura cada código e lê o PERC da lista.</li>
             <li>Grava tudo no <code>dmo-uso-sap.csv</code>, na mesma pasta. Primeiro grava num ficheiro à parte e só no fim lhe dá o nome final, para o DMO nunca ler uma lista a meio.</li>
-            <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Também se pode carregar em «Ler agora».</li>
+            <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Também se pode carregar em «Ler pasta».</li>
         </ol>
         <p>Sem script: no SAP, no campo Equipment Code, seleção múltipla › «Carregar da área de transferência» (depois de «Copiar códigos»), F8 e exportar a lista para a pasta. O DMO lê-a da mesma forma.</p>
         <p><b>Sozinho ao fim do dia:</b> duplo clique uma vez no <code>AGENDAR_18H.cmd</code>, na mesma pasta. O Windows corre o script todos os dias às 18:00, com o SAP minimizado e sem mensagem no fim. Para tirar: Agendador de Tarefas › «DMO uso SAP» › Eliminar.</p>
-        <p><b>Limpar a pasta:</b> «Apagar lidos» apaga da pasta os ficheiros que o DMO já leu. O <code>dmo-codigos.txt</code>, o script e o atalho ficam.</p>
+        <p><b>Limpar a pasta:</b> «Apagar lidos» (em «Opções») apaga da pasta os ficheiros que o DMO já leu. O <code>dmo-codigos.txt</code>, o script e o atalho ficam.</p>
 
         <h4>5. O fabrico das produções</h4>
         <p>O relatório de fabrico do SAP grava-se na mesma pasta. O DMO envia todos os ficheiros mais novos do que o último lido, do mais antigo para o mais novo, e reconhece cada um sozinho. Cada linha (material, linha, início e fim) fica uma vez; lida outra vez, atualiza-se.</p>
