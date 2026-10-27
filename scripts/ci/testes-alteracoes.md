@@ -3554,9 +3554,20 @@ Novos: 9 · mudaram: 0 · saíram: 0
 
 Selo depois: `74292cfeef1490d1`
 
+## A-0216 · 2026-10-27 · teste-novo
+
+Porquê: Testes de páginas que falhavam ao acaso com erro 500: as aplicações de teste deixam de gastar vigias de ficheiros do Linux (inotify, 128 por utilizador); o teste prova que uma aplicação de teste arranca e abre o login sem gastar nenhuma (DMO-474, 0.3.0-beta.175)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros`
+
+Selo depois: `c22447c6290ce98f`
+
 ## A-0208 · 2026-10-27 · ok-do-diogo
 
-Porquê: Comparar peso no Resumo: produção fixa, sem «a que mais puxa/mexe», + e − ao lado da massa, só «Comparar pesos» e «Guardar», exemplo «Ex.: 199,64» (DMO-469, .174).
+Porquê: Comparar peso no Resumo: produção fixa, sem «a que mais puxa/mexe», + e − ao lado da massa, só «Comparar pesos» e «Guardar», exemplo «Ex.: 199,64» (DMO-469, .175).
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJ6x5Umit13ZS5WQioYVTR2 (27/10 07:08, pedido em cmsg_01K75FTs9bQnbhhH7qttpgraMjVxpFF2jJp6oRNmt8uTaH)
 Novos: 3 · mudaram: 6 · saíram: 0
 
@@ -3570,4 +3581,4 @@ Novos: 3 · mudaram: 6 · saíram: 0
 - mudou: `tests/ShellProof/peso-comparacao.test.cjs :: (resto do ficheiro)`
 - mudou: `tests/ShellProof/peso-comparacao.test.cjs :: «Comparar pesos» e «Guardar comparação» trocam só as zonas, sem recarregar; as linhas adicionam-se no formulário novo`
 
-Selo depois: `8b4583e4b75ba53a`
+Selo depois: `95e012cdaed29670`
