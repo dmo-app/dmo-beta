@@ -1258,30 +1258,6 @@
       carregar(endpoint.href, href.href);
     });
 
-    // data-dmo-procura-valor="id": um clique numa linha ESCOLHE (Diogo,
-    // 17/10/2026): o campo escondido recebe o data-id, o campo mostra o
-    // data-dmo-rotulo e a lista fecha. Escrever de novo desfaz a escolha.
-    // Num form data-dmo-procura-submete, quando todos os campos escondidos
-    // das procuras estão escolhidos, o form submete sozinho.
-    const valueField = document.getElementById(field.dataset.dmoProcuraValor || "");
-    if (valueField) {
-      field.addEventListener("input", () => { valueField.value = ""; });
-      target.addEventListener("dmo:list-select", (event) => {
-        const row = event.detail && event.detail.row;
-        if (!row) return;
-        valueField.value = row.dataset.id || "";
-        field.value = row.dataset.dmoRotulo || row.textContent.trim();
-        latest++;
-        target.replaceChildren();
-        valueField.dispatchEvent(new Event("change", { bubbles: true }));
-        const form = field.form;
-        if (form && form.hasAttribute("data-dmo-procura-submete")) {
-          const chosen = Array.from(form.querySelectorAll("[data-dmo-procura-valor]"))
-            .map((input) => document.getElementById(input.dataset.dmoProcuraValor));
-          if (chosen.every((input) => input && input.value)) form.requestSubmit();
-        }
-      });
-    }
     // Seta para baixo passa do campo para a primeira linha encontrada.
     field.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowDown") return;
@@ -1326,20 +1302,44 @@
         ir(url, form, true);
         return;
       }
+      // Sem a lista na resposta (a sessão terminou, um erro do servidor) ou
+      // sem resposta, o canto diz o que fazer, como na procura das listas;
+      // antes os resultados ficavam parados sem aviso (vistoria ao frontend
+      // F2, 27/10/2026). Sem rede, a mesma procura repete-se quando a
+      // ligação volta.
+      const destino = new URL(url, window.location.href);
+      let recusou = null;
       fetch(url, { credentials: "same-origin", headers: { "X-Requested-With": "fetch" } })
-        .then((response) => (response.ok ? response.text() : null))
+        .then((response) => {
+          const final = new URL(response.url || destino.href, window.location.href);
+          const tipo = tipoDeResposta(response, final);
+          if (tipo !== "ok" || final.origin !== destino.origin || final.pathname !== destino.pathname) {
+            recusou = tipo === "sessao" ? "sessao" : "erro";
+            throw new Error("Não foi possível carregar os resultados");
+          }
+          return response.text();
+        })
         .then((html) => {
-          if (!html || request !== latest || !form.isConnected) return;
+          if (request !== latest || !form.isConnected) return;
           const fresh = new DOMParser().parseFromString(html, "text/html").getElementById(id);
           const current = document.getElementById(id);
-          if (!fresh || !current) return;
+          if (!current) return;
+          if (!fresh) {
+            recusou = "erro";
+            throw new Error("A resposta não traz os resultados");
+          }
           const node = document.importNode(fresh, true);
           current.replaceWith(node);
           if (node.matches("[data-dmo-list]")) bindList(node);
           node.querySelectorAll("[data-dmo-list]").forEach(bindList);
           window.history.replaceState(null, "", url);
         })
-        .catch(() => {});
+        .catch(() => {
+          if (request !== latest || !form.isConnected) return;
+          if (recusou === "sessao") avisarFixo(SESSAO_NA_PROCURA, entrar(false));
+          else if (recusou) avisarFixo(PROCURA_FALHOU);
+          else window.addEventListener("online", () => { if (request === latest) procurar(); }, { once: true });
+        });
     }
     form.addEventListener("input", (event) => {
       if (!event.target.matches("input:not([type=date]):not([type=radio]):not([type=checkbox]):not([type=hidden])")) return;
@@ -1535,7 +1535,6 @@
       if (!body.has(hidden.name)) body.append(hidden.name, hidden.value);
     });
     body.append(input.name, valor);
-    const resumo = form.querySelector("[data-dmo-valor-resumo]");
     try {
       const response = await fetch(form.action, {
         method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" }
@@ -1575,7 +1574,6 @@
           window.DMOLive.mostrarMensagens(caixa);
         }
       }
-      if (resumo && data.resumo) resumo.textContent = data.resumo;
     } catch {
       form.requestSubmit();
     }

@@ -45,10 +45,6 @@ public sealed record HistoricoLinha(
 
     /// <summary>Os dias até hoje pela data de Portugal (o dia do negócio).</summary>
     public int? Dias() => Dias(InicioEm, FimEm, DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now));
-
-    /// <summary>Os dois tipos que não são o da ferramenta, pela ordem CM, MF, BQ.</summary>
-    public static IReadOnlyList<ToolType> OutrosTipos(ToolType tipo) =>
-        new[] { ToolType.Cm, ToolType.Mf, ToolType.Bq }.Where(t => t != tipo).ToList();
 }
 
 /// <summary>O Lote filtra pelo lote da ferramenta (Diogo, 27/10/2026: «inserir lote»).</summary>

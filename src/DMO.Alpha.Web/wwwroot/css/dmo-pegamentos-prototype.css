@@ -8,12 +8,6 @@
 .peg-aviso.warn{border-left-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
 .peg-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
 .peg-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
-.peg-comp-head{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:end;margin-top:6px}
-.peg-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;align-items:end;margin-top:12px}
-.peg-corredor{padding:10px 12px;border-left:3px solid var(--dmo-ok);background:var(--dmo-ok-soft);border-radius:8px}
-.peg-corredor.no-nominal{border-left-color:var(--dmo-neutral);background:var(--dmo-neutral-soft)}
-.peg-corredor span{display:block;color:var(--dmo-muted);font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em}
-.peg-corredor strong{display:block;font-size:14px;margin-top:3px}
 .peg-cell-bad{color:var(--dmo-nok);font-weight:800}
 .peg-state-bad{color:var(--dmo-nok);font-weight:750}
 .peg-state-na{color:var(--dmo-neutral);font-weight:750}
@@ -36,8 +30,6 @@
 .peg-map-status{margin-top:10px;padding:10px 12px;border-radius:7px;font-size:12px;border:1px solid var(--dmo-border);background:var(--dmo-subtle)}
 .peg-map-status.alert{border-color:var(--dmo-nok-line);background:var(--dmo-nok-soft);color:var(--dmo-nok)}
 .peg-map-status.ok{border-color:var(--dmo-ok-line);background:var(--dmo-ok-soft);color:var(--dmo-ok)}
-@media(max-width:900px){.peg-comp-head,.peg-form-grid{grid-template-columns:1fr}}
-
 /*
  * Pegamentos visual alignment.
  * Scope: presentation only; no prototype fixture data or workflow JS.
@@ -98,23 +90,19 @@
 .peg-page .peg-context-grid .dmo-fact {
   min-width:0;
 }
-.peg-page .dmo-fact span,
-.peg-page .peg-corredor span {
+.peg-page .dmo-fact span {
   font-size:10.5px;
   font-weight:750;
   text-transform:uppercase;
   letter-spacing:.03em;
 }
-.peg-page .dmo-fact strong,
-.peg-page .peg-corredor strong {
+.peg-page .dmo-fact strong {
   display:block;
   font-size:14px;
   line-height:1.4;
 }
-.peg-page .dmo-fact,
-.peg-page .peg-corredor { min-width:0; }
-.peg-page .dmo-fact small,
-.peg-page .peg-corredor small {
+.peg-page .dmo-fact { min-width:0; }
+.peg-page .dmo-fact small {
   display:block;
   margin-top:4px;
   color:var(--dmo-muted,#64778a);
@@ -128,56 +116,7 @@
   margin-top:12px;
 }
 .peg-page .peg-context-notes .peg-hint { margin:0; }
-.peg-page .peg-document-actions {
-  display:flex;
-  align-items:center;
-  justify-content:flex-end;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:14px;
-  padding-top:12px;
-  border-top:1px solid var(--dmo-border,#d9e6f2);
-}
-.peg-page .peg-document-actions form { margin:0; }
 .peg-card .peg-section-head .dmo-card-topo-acoes form { margin:0; }
-.peg-page .peg-comp-head {
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:10px;
-  align-items:stretch;
-  margin:0 0 16px;
-}
-.peg-page .peg-comp-head .dmo-fact,
-.peg-page .peg-comp-head .peg-corredor {
-  padding:12px 14px;
-  border-radius:9px;
-  border:1px solid var(--dmo-border,#d9e6f2);
-  border-left:3px solid var(--dmo-brand-600,#3c73a8);
-  background:var(--dmo-subtle,#f1f6fa);
-}
-.peg-page .peg-comp-head .peg-corredor {
-  border-left-color:var(--dmo-ok);
-  background:var(--dmo-ok-soft);
-}
-.peg-page .peg-comp-head .peg-corredor.no-nominal {
-  border-left-color:var(--dmo-neutral);
-  background:var(--dmo-neutral-soft);
-}
-.peg-page .peg-form-grid {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) auto;
-  align-items:end;
-  gap:12px;
-  padding:14px 16px;
-  margin:14px 0 0;
-  border:1px solid var(--dmo-border,#d9e6f2);
-  border-radius:9px;
-  background:var(--dmo-subtle,#f1f6fa);
-}
-.peg-form-grid .dmo-field { min-width:0; }
-.peg-form-grid .dmo-field input {
-  width:100%;
-}
 .peg-page .peg-readings-title {
   margin:14px 0 8px;
   color:var(--dmo-text,#172d42);
@@ -231,17 +170,12 @@
 }
 @media(max-width:1120px) {
   .peg-page .peg-context-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
-  .peg-page .peg-comp-head { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .peg-page .peg-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media(max-width:700px) {
   .peg-page .peg-context-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .peg-page .peg-comp-head,
-  .peg-page .peg-form-grid { grid-template-columns:1fr; }
   .peg-card .peg-section-head { flex-wrap:wrap; }
 }
 /* A explicação do gargalo em falta ocupa a linha toda, por baixo dos campos. */
-.peg-form-grid .peg-form-help{grid-column:1/-1;margin-top:-4px;color:var(--dmo-muted,#577389);font-size:12px}
 
 /* Registo na tabela (Diogo, 17/10/2026): os factos da ferramenta numa só
    linha neutra (contexto, sem verde) e a medição nova na última linha. */
@@ -251,7 +185,6 @@
 .peg-page .peg-ferramenta-linha dd{margin:0;font-weight:700;font-size:14px}
 .peg-page .peg-ferramenta-linha input{width:90px;padding:3px 6px;font-size:14px}
 .peg-page .dmo-card.peg-card-sem-nominal{border-left:4px solid var(--dmo-warning,#a97943)}
-.peg-page .peg-card-sem-nominal .peg-nominal-falta input{border-color:var(--dmo-warning,#a97943);background:var(--dmo-warning-soft,#f7f0e7)}
 .peg-page .peg-linha-nova td{background:var(--dmo-brand-050,#ebf4fc);vertical-align:middle}
 .peg-page .peg-linha-nova input{width:100%;max-width:140px;padding:4px 6px}
 /* O número da CM/BQ/MF lido: curto, não tira largura às medidas. */
