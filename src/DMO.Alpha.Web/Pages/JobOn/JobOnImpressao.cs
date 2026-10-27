@@ -112,7 +112,9 @@ public sealed class JobOnImpressao
 
         // PI
         Campo("pi.diametro", "Pinças", "Diâmetro", "pi_diametro");
-        Por("pi.tipo", "Pinças", "Tipo", "Folha · PI · Pinças (pi_pincas): Latão ou Grafite", TipoPinca());
+        // As Pinças como estão no cartão PI do Job On, inteiras (Diogo, 27/10/2026: «imprimir jobon não usa a
+        // informação das pinças que está no jobon»; antes só saía «Latão»/«Grafite»).
+        Campo("pi.pincas", "Pinças", "Pinças", "pi_pincas");
         Campo("pi.notas", "Pinças", "Notas", "pi_notas");
 
         Campo("notas", "Notas gerais · Job-On", "Notas gerais", "notas_gerais");
@@ -196,13 +198,5 @@ public sealed class JobOnImpressao
         if (diametro is null) return Model("tp_referencia");
         var d = Math.Round(diametro.Value, 2).ToString("0.00", CultureInfo.InvariantCulture);
         return CaloteMm() is { } c ? $"{d} x {Calote(c)}mm" : $"{d}mm";
-    }
-
-    private string TipoPinca()
-    {
-        var material = Model("pi_pincas");
-        if (material.Contains("latão", StringComparison.OrdinalIgnoreCase)) return "Latão";
-        if (material.Contains("grafite", StringComparison.OrdinalIgnoreCase)) return "Grafite";
-        return material;
     }
 }
