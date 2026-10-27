@@ -36,7 +36,9 @@ html body main.ferr-page .ferr-editar-linha>.ferr-editar-sep{display:none}
 html[data-dmo-embedded="true"] body main.ferr-page .ferr-editar-linha{column-gap:16px}
 html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:96px !important}
 html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:156px !important}
-html body main.ferr-page .ferr-editar-linha>.ferr-opcional{flex:0 1 auto}
+/* A Informação opcional numa linha própria, por baixo, com um traço por cima
+   (Diogo, 27/10/2026: «meter um separador uma linha»). */
+html body main.ferr-page .ferr-editar-linha>.ferr-opcional{flex:1 0 100%;margin-top:4px;padding-top:12px;border-top:1px solid var(--dmo-border)}
 html body main.ferr-page .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:wrap}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos){gap:16px}
 html body main.ferr-page .ferr-tech-titulo{height:16px;margin:0 0 8px;font-size:11px;line-height:16px}
@@ -255,3 +257,15 @@ html body main.ferr-page .ferr-filter-actions{gap:8px}
 html body main.ferr-page #ferrResultados .card-note{margin:-4px 0 8px;font-size:12px;line-height:16px}
 html body main.ferr-page #ferrResultados .dmo-table :is(th,td){padding-block:6px;height:32px}
 html body main.ferr-page #ferrResultados .ferr-pagination{margin-top:8px;gap:8px}
+
+/* O título da Informação opcional abre e fecha o bloco: só a letra muda no hover. */
+html body .ferr-opcional-titulo{cursor:pointer;user-select:none}
+html body .ferr-opcional-titulo:is(:hover,:focus-visible){color:var(--dmo-brand-700);outline:0}
+:root[data-theme="dark"] body .ferr-opcional-titulo:is(:hover,:focus-visible){color:#fff}
+html body .ferr-opcional>.ferr-tech-campos[hidden]{display:none !important}
+/* «sem registo» ao centro da caixa do % uso (Diogo, 27/10/2026: «centrar»). */
+html body main.ferr-page input.ferr-sem-registo-campo,
+html body main.ferr-page input.ferr-sem-registo-campo::placeholder{text-align:center}
+/* Bloqueada, a caixa escondida das Linhas compatíveis não pode aparecer
+   (o ponto branco que o Diogo viu, 27/10/2026). */
+html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,.ri-tipos,.dmo-alternador) label>input:is([type=checkbox],[type=radio]):disabled{opacity:0 !important;border:0 !important}
