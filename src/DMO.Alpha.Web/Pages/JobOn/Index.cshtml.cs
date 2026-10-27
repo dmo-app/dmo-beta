@@ -25,12 +25,25 @@ namespace DMO.Alpha.Web.Pages.JobOn;
 /// pelo servidor. Criar e editar validam no backend com recusas tipadas por
 /// query (PRG); o MF é obrigatório; a sobreposição e a calote ilegível
 /// avisam, não bloqueiam.
+/// O PLANEAMENTO TAMBÉM PARA O JOB ON VER (Diogo, 27/10/2026: «jobon view esta
+/// sem planeamento»; o criar é o ver com a opção de editar, duplicar, etc.):
+/// quem só tem jobon.view vê o calendário, as linhas do dia e o painel, sem
+/// Criar Job On, sem Histórico e sem Guardar; cada produção abre a folha em leitura.
 /// </summary>
 [Authorize]
-[ModuleEntry(DmoCapabilities.JobOnCreate)]
+[ModuleEntry(DmoCapabilities.JobOnCreate, DmoCapabilities.JobOnView)]
 public sealed class IndexModel : PageModel
 {
     private const string PagePath = "/JobOn";
+
+    /// <summary>Quem vê pode criar e editar (jobon.create); sem ela, o Planeamento é só leitura.</summary>
+    public bool PodeEditar { get; private set; } = true;
+
+    private async Task<bool> SoVerAsync()
+    {
+        PodeEditar = await _capabilities.HasAsync(DmoCapabilities.JobOnCreate, HttpContext.RequestAborted);
+        return !PodeEditar;
+    }
 
     /// <summary>
     /// EM ESPERA (Diogo, 22/10/2026): os avisos «… não está registada no
@@ -553,6 +566,10 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "desde")] string? desde,
         [FromQuery(Name = "ate")] string? ate)
     {
+        if (await SoVerAsync())
+        {
+            return Redirect(PagePath);
+        }
         Machines = await _machineList.ListAsync(HttpContext.RequestAborted);
         await ComposeHistoryAsync(referencia, maquina, producao, desde, ate);
         var shownToolIds = HistoryPage.Items
@@ -602,6 +619,12 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "eliminado")] string? eliminado = null)
     {
         ViewData["Title"] = "Job On";
+        // Só com o Job On ver: o Planeamento em leitura. O Histórico, o Criar,
+        // o Duplicar, o Editar e as recusas do Guardar pedem o Job On criar.
+        if (await SoVerAsync())
+        {
+            historico = editar = novo = duplicar = retoma = createRefusal = updateRefusal = null;
+        }
         // O JOB ON É UMA FUNÇÃO DO PLANEAMENTO (o Owner: «o jobon fica no
         // tab do planeamento, aparece no segundo tab») — a barra principal
         // seleciona o PLANEAMENTO; as funções: Job On · Histórico (o
@@ -610,7 +633,7 @@ public sealed class IndexModel : PageModel
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = ShowHistory ? "historico" : "jobon",
-            Functions = await _shellState.PlanningFunctionsAsync(ShowHistory ? "historico" : "jobon")
+            Functions = await _shellState.PlanningFunctionsAsync(ShowHistory ? "historico" : "jobon", HttpContext.RequestAborted, soVer: !PodeEditar)
         };
 
         // Recusa tipada do POST anterior, transportada por query (PRG) com o
@@ -1108,6 +1131,10 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "voltar")] string? voltar = null,
         [FromForm(Name = "tipo")] string? tipo = null)
     {
+        if (await SoVerAsync())
+        {
+            return Redirect(PagePath);
+        }
         // A folha nova (/JobOn/Folha) guarda pelo mesmo Create (Diogo,
         // 23/10/2026): gravado, volta à folha da produção nova; recusado, o
         // mesmo envio volta à folha (307) com tudo o que se escreveu.
@@ -1317,6 +1344,10 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "versao")] string? versao,
         [FromForm(Name = "voltar")] string? voltar = null)
     {
+        if (await SoVerAsync())
+        {
+            return Redirect(PagePath);
+        }
         var sanitizedCmToolId = Sanitize(cmToolId);
         var sanitizedMfToolId = Sanitize(mfToolId);
         var sanitizedBqToolId = Sanitize(bqToolId);

@@ -188,11 +188,19 @@
                        clique abre a folha em branco, sem Editar, para
                        duplicar um antigo ou criar; a linha e o dia vão junto (Diogo, 23/10/2026). *@
                     var maquinaVazia = Model.Machines.FirstOrDefault(m => m.Code == row.MachineCode);
-                    var criarAqui = maquinaVazia is null ? null
+                    @* Quem só tem o Job On ver não cria: a linha vazia fica só texto. *@
+                    var criarAqui = maquinaVazia is null || !Model.PodeEditar ? null
                       : $"/JobOn/Folha?novo=1&machine_id={maquinaVazia.MachineId}&inicio_em={new DateOnly(Model.Year, Model.Month, Model.SelectedDay):yyyy-MM-dd}";
                     @* A mudança é um link à parte, fora do link de criar. *@
                     <div class="beta-light-machine-empty-linha">
-                      <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —</a>
+                      @if (criarAqui is not null)
+                      {
+                        <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —</a>
+                      }
+                      else
+                      {
+                        <span class="beta-light-machine-empty" aria-label="@row.MachineCode sem produção neste dia"><strong>@row.MachineCode</strong> · —</span>
+                      }
                       @if (proxima is { Href: { } vaziaHref })
                       {
                         <a class="beta-light-next" href="@vaziaHref" title="@proxima.Titulo">@proxima.Texto</a>
@@ -234,8 +242,11 @@
                  linha da procura, depois da referência e da produção; abre a folha nova já com o dia escolhido
                  como início (sem dia escolhido, abre sem data). *@
               @* O «Criar Job On» abre a folha nova vazia, em Editar (Diogo, 23/10/2026). *@
+              @if (Model.PodeEditar)
+              {
               <a id="jobonCriar" class="dmo-button" asp-page="/JobOn/Folha" asp-route-novo="1"
                  asp-route-inicio_em="@(Model.NoDaySelected ? null : new DateOnly(Model.Year, Model.Month, Model.SelectedDay).ToString("yyyy-MM-dd"))">Criar Job On</a>
+              }
             </form>
           </div>
         </section>
