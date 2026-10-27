@@ -4056,6 +4056,19 @@ Novos: 0 · mudaram: 4 · saíram: 0
 
 Selo depois: `dba4e2efbb45ed56`
 
+## A-0248 · 2026-10-27 · ok-do-diogo
+
+Porquê: Peso (DMO-513): o Controlo anterior vem escolhido com o Peso mais recente das anteriores (ou o criado para comparar) e a tabela aparece logo; antes (17/10) só depois de escolher.
+Referência: Diogo nesta thread: «peso não assume o anterior» cmsg_01K75FTs9bQnbhhH7qttpgraUvPVzqVHduTo5zrh9CF9qr e «sim» cmsg_01K75FTs9bQnbhhH7qttpgra8wtfGJ17f4EnDCXtGohQRZ
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TrocaParcial_ForaDasZonasNadaMuda_EOsFormulariosLevamAComparacao`
+
+Selo depois: `f4fe603cf0e02cbf`
+
 ## A-0252 · 2026-10-27 · ok-do-diogo
 
 Porquê: DMO-517: o link do mcaliper não funcionava porque, no Resumo, só quem tinha o Aprovar e o Criar o podia pôr (na Revisão). Quem tem o Controlo Criar passa a ver «Associar link do mcaliper» na linha CM/BQ/MF sem link e grava-o ali. Os dois testes deixam de exigir que o Resumo esconda o associar e passam a exigir o botão e a janela; com o link associado, o Resumo só o abre.
@@ -4065,4 +4078,4 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
 
-Selo depois: `7c215904b71a39bc`
+Selo depois: `4382e0718ca2a97b`
