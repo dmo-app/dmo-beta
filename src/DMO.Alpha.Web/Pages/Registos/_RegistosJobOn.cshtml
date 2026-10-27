@@ -1,0 +1,42 @@
+@model DMO.Alpha.Web.Pages.Registos.RegistosJobOnPainel
+@using DMO.Alpha.Core.Tools
+@using DMO.Alpha.Web.Pages.Registos
+@using DMO.Alpha.Web.Presentation
+@{
+    var p = Model.Producao;
+    var temOpcoes = Model.AbreJobOn || Model.AbreControlo || (Model.AbreBoquilhas && p.BqContextId is not null) || Model.AbreReparacao;
+}
+@* O painel do Job On (Diogo, 27/10/2026): os detalhes, as ferramentas com a % e as «Opções» para abrir o Job On, o Controlo, as Boquilhas e as Reparações. *@
+<div data-reg-titulo="@p.Referencia · @p.Producao">
+  @if (temOpcoes)
+  {
+    <template data-reg-acoes-html>
+      <details class="dmo-options" data-dmo-tab-menu>
+        <summary class="dmo-button" id="regOpcoes" aria-label="Opções do Job On"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
+        <div class="dmo-options-list" role="menu">
+          @if (Model.AbreJobOn) { <a class="dmo-options-item" role="menuitem" href="/JobOn?jobon_id=@p.JobOnId">Abrir Job On</a> }
+          @if (Model.AbreControlo) { <a class="dmo-options-item" role="menuitem" href="/Controlo/Resumo?jobon_id=@p.JobOnId">Controlo</a> }
+          @if (Model.AbreBoquilhas && p.BqContextId is { } bq) { <a class="dmo-options-item" role="menuitem" href="/Boquilhas?bq_id=@bq">Boquilhas</a> }
+          @if (Model.AbreReparacao) { <a class="dmo-options-item" role="menuitem" href="/ReparacaoInterna/Consultar?referencia=@Uri.EscapeDataString(p.Referencia)&producao=@p.JobOnId">Reparações</a> }
+        </div>
+      </details>
+    </template>
+  }
+  <dl>
+    <dt>Linha</dt><dd>@p.Maquina</dd>
+    <dt>Início</dt><dd>@IndexModel.Dia(p.InicioEm)</dd>
+    <dt>Fim</dt><dd>@(p.InicioEm is not null && p.FimEm is null ? "em curso" : IndexModel.Dia(p.FimEm))</dd>
+    @foreach (var t in new[] { ToolType.Cm, ToolType.Mf, ToolType.Bq })
+    {
+      <dt>@IndexModel.Token(t)</dt>
+      <dd>
+        @if (p.DoTipo(t).Count == 0) { @("—") }
+        @foreach (var f in p.DoTipo(t))
+        {
+          <span class="reg-ferr@(f.Trocada ? " reg-trocada" : "")" data-reg-ferramenta="@f.ToolId" tabindex="0" role="link"><span class="reg-ferr-nome">@IndexModel.Curto(f)</span>@if (f.Uso is not null) { <span class="reg-uso">@UsoFerramenta.Link(f.ToolId, IndexModel.Uso(f.Uso))</span> }@(f.Trocada ? " · trocada" : "")</span>
+        }
+      </dd>
+    }
+  </dl>
+  <partial name="_RegistosUltimos" model="Model.Ultimos" />
+</div>

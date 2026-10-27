@@ -147,7 +147,8 @@ public sealed class IndexModel : PageModel
             {
                 DmoCapabilities.ReparacaoInterna,
                 DmoCapabilities.ReparacaoInternaView
-            })
+            }),
+            ("Registos", new[] { DmoCapabilities.Registos })
         ];
 
     /// <summary>Rótulo pt-PT da capability (o token canónico é a autoridade; o rótulo é display).</summary>
@@ -165,6 +166,7 @@ public sealed class IndexModel : PageModel
         DmoCapabilities.ArmazemGestao => "Armazém · gestão",
         DmoCapabilities.ReparacaoInterna => "Reparação Interna · registar",
         DmoCapabilities.ReparacaoInternaView => "Reparação Interna · ver",
+        DmoCapabilities.Registos => "Registos · ver",
         _ => capability
     };
 

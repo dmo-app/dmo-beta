@@ -1,0 +1,20 @@
+@model IReadOnlyList<DMO.Alpha.Core.Admin.RegistoDetalhado>
+@using DMO.Alpha.Web.Pages.Registos
+<h3>Últimos registos</h3>
+@if (Model.Count == 0)
+{
+  <p class="reg-vazia">Ainda sem registos.</p>
+}
+else
+{
+  <div class="reg-ultimos">
+    @foreach (var r in Model)
+    {
+      <div>
+        <time>@IndexModel.Quando(r.EmUtc)</time>
+        <span>@r.Acao@(r.Antes is not null || r.Depois is not null ? $" · {r.Antes ?? "—"} → {r.Depois ?? "—"}" : "")</span>
+        <small>@IndexModel.Modulo(r.Modulo) · @(r.Utilizador ?? "—")</small>
+      </div>
+    }
+  </div>
+}

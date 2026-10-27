@@ -24,8 +24,9 @@ internal static class AdminAreaNavigation
         [
             new FunctionPresentation(UsersFunctionKey, "Utilizadores", usersHref, null, activeKey == UsersFunctionKey, true, true),
             new FunctionPresentation(TemplatesFunctionKey, "Templates de acesso", templatesHref, null, activeKey == TemplatesFunctionKey, true, true),
-            // Os registos por utilizador, com filtro (Diogo, 2026-10).
-            new FunctionPresentation(RegistosFunctionKey, "Registos", registosHref ?? "/Admin/Registos", null, activeKey == RegistosFunctionKey, true, true)
+            // Os Registos: a procura livre (Diogo, 27/10/2026); a lista antiga por
+            // utilizador continua em /Admin/Registos.
+            new FunctionPresentation(RegistosFunctionKey, "Registos", "/Registos", null, activeKey == RegistosFunctionKey, true, true)
         ];
     }
 }

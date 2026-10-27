@@ -63,6 +63,13 @@ public static class DmoCapabilities
     public const string ReparacaoInternaView = "ri.view";
 
     /// <summary>
+    /// Registos: a procura livre por referência, produção, ferramenta, lote,
+    /// operador ou reparador, só leitura (Diogo, 27/10/2026). O ADMIN entra
+    /// sempre; os outros pelo template.
+    /// </summary>
+    public const string Registos = "registos";
+
+    /// <summary>
     /// A lista única dos módulos, pela ordem da barra principal. O menu, a
     /// página inicial depois do login e a gestão de templates saem daqui.
     /// </summary>
@@ -77,7 +84,8 @@ public static class DmoCapabilities
         new(Ferramentas, "Ferramentas", "/Ferramentas"),
         new(ArmazemGestao, "Armazém", "/Armazem/Movimentos", EmDesenvolvimento: true),
         new(ReparacaoInterna, "Reparação Interna", "/ReparacaoInterna", EmDesenvolvimento: true),
-        new(ReparacaoInternaView, "Reparação Interna", "/ReparacaoInterna/Consultar", EmDesenvolvimento: true)
+        new(ReparacaoInternaView, "Reparação Interna", "/ReparacaoInterna/Consultar", EmDesenvolvimento: true),
+        new(Registos, "Registos", "/Registos")
     ];
 
     /// <summary>A entrada de quem só vê as Boquilhas: o Histórico, um movimento por linha.</summary>
