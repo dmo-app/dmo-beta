@@ -286,10 +286,19 @@ html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6p
 html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar:has(>.dmo-help){align-items:center!important}
 html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar>.dmo-help{align-self:center}
 
-/* REPARAÇÃO sem nada escolhido: o convite é um espaço à espera (contorno tracejado, letra
-   suave, ao centro), não um cartão largo com uma frase só. */
-html body main.ri-page #riEscolha{background:transparent;border:1px dashed var(--dmo-border);box-shadow:none;color:var(--dmo-muted)}
-html body main.ri-page #riEscolha{text-align:center}
+/* REPARAÇÃO sem nada escolhido: o convite é só uma linha de texto secundário, à esquerda, por
+   baixo das linhas; sem cartão nem contorno tracejado. */
+html body main.ri-page #riEscolha{background:transparent;border:0;box-shadow:none;padding:2px 0 0;color:var(--dmo-muted);text-align:left}
+html body main.ri-page #riEscolha .ri-vazia{font-size:13px}
+
+/* REPARAÇÃO: links sem sublinhado (parados nem no hover), só cor; o hover só muda a cor da letra.
+   Registar: a CM e o MF da produção; Consultar: a produção e a ferramenta nas linhas da tabela
+   (e a marca «Por associar»). São navegação, por isso continuam links. */
+html body main.ri-page :is(.ri-ficha,.dmo-table td a),
+html body main.ri-page :is(.ri-ficha,.dmo-table td a):is(:hover,:focus-visible){text-decoration:none}
+html body main.ri-page :is(.ri-ficha,.dmo-table td a:not(.ri-por-associar)){color:var(--dmo-brand-900);transition:color var(--dmo-fast)}
+html body main.ri-page :is(.ri-ficha,.dmo-table td a:not(.ri-por-associar)):is(:hover,:focus-visible){color:var(--dmo-brand-700)}
+html body main.ri-page .dmo-table td a.ri-por-associar:is(:hover,:focus-visible){color:var(--dmo-brand-700)}
 
 /* LOGIN e MUDAR PALAVRA-PASSE (modo escuro): as letras «BA» do logótipo são transparentes
    no PNG e mostravam o fundo escuro sobre o azul. Um disco claro por trás do círculo azul
