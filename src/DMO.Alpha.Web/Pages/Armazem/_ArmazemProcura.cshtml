@@ -82,7 +82,7 @@ else
             <td><strong>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.NomeCurto(item.Tipo, item.Referencia, item.Lote)</strong></td>
             <td>@(item.Estado is { } estado ? ArmazemTextos.Estado(estado) : "—")</td>
             <td>@(item.Maquinas is { Count: > 0 } maquinas ? string.Join(" ", maquinas) : "Todas")</td>
-            <td>@(item.Utilizacao is { } uso ? uso.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " %" : "—")</td>
+            <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(item.ToolId, item.Utilizacao is { } uso ? uso.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " %" : "—")</td>
           </tr>
         }
       </tbody>

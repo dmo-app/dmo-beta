@@ -130,7 +130,16 @@
             {
               @* Com ponto e duas casas, como no resto da folha; acima de 100% com a
                  cor ligeira do uso cheio (ronda de 26/10/2026, J5). *@
-              <b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@(valor is null ? "—" : Mostra(valor.TrimEnd('%').Trim()) + "%")</b>
+              var usoTexto = valor is null ? "—" : Mostra(valor.TrimEnd('%').Trim()) + "%";
+              @* Um clique no % abre o histórico do uso da ferramenta (Diogo, 27/10/2026). *@
+              if (f?.ToolId is { } usoTool && valor is not null)
+              {
+                <a class="dmo-uso-link" href="@DMO.Alpha.Web.Presentation.UsoFerramenta.Href(usoTool)" title="O histórico do uso desta ferramenta"><b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@usoTexto</b></a>
+              }
+              else
+              {
+                <b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@usoTexto</b>
+              }
               @if (antes is { } a)
               {
                 <em class="was" title="A última leitura do uso">antes @a.ToString("0.##", culture)%</em>
