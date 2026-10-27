@@ -213,12 +213,13 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         Assert.Contains("<strong>177.78</strong>", leituras);
         Assert.DoesNotContain("202604", leituras);
 
-        // Sem escolha, a procura mostra as médias de cada produção e a tabela
-        // ainda não aparece (o Owner 2026-10-17: «ao escolher aí sim a tabela
-        // com detalhes»).
+        // A procura mostra as médias de cada produção; sem escolha, a folha
+        // assume a anterior e a tabela aparece logo (o Diogo, 27/10/2026,
+        // cmsg_01K75FTs9bQnbhhH7qttpgraUvPVzqVHduTo5zrh9CF9qr: «peso não assume
+        // o anterior»; antes, o Owner 2026-10-17, só depois de escolher).
         Assert.Contains("Procurar produção…", html);
         Assert.Contains("202604 · Lote 8 · B1 · Peso 176.75 g (&#x394; &#x2B;0.56) · Volume 70.46 cm³ (&#x394; &#x2B;0.23)", html);
-        Assert.DoesNotContain("data-peso-comparacao-tabela", html);
+        Assert.Contains("data-peso-comparacao-tabela", html);
         var escolhida = System.Text.RegularExpressions.Regex.Match(html, "<option value=\"(\\d+)\"[^>]*>\\s*202604 ").Groups[1].Value;
         html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&comparar={escolhida}");
 
@@ -369,7 +370,8 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         Assert.Contains(contexto, anterior);
         Assert.Contains($"<input type=\"hidden\" name=\"comparar\" value=\"{escolhida}\" />", contexto);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(anterior, "name=\"comparar\""));
-        Assert.DoesNotContain("name=\"comparar\"", PesoZonas.Zona(aberta, "pesoAnterior"));
+        // Sem escolha, leva o controlo anterior assumido (o Diogo, 27/10/2026).
+        Assert.Contains($"<input type=\"hidden\" name=\"comparar\" value=\"{escolhida}\" />", PesoZonas.Zona(aberta, "pesoAnteriorContexto"));
         // E o «Supomos» também, no SAP e nas leituras (E4-04).
         Assert.Contains("<input type=\"hidden\" name=\"supor_calote\" value=\"5,2\" />", PesoZonas.Zona(suposta, "pesoAnteriorContexto"));
         Assert.Contains("<input type=\"hidden\" name=\"supor_calote\" value=\"5,2\" />", PesoZonas.Zona(suposta, "pesoLeituraContexto"));

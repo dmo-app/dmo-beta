@@ -4055,3 +4055,16 @@ Novos: 0 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
 
 Selo depois: `dba4e2efbb45ed56`
+
+## A-0248 · 2026-10-27 · ok-do-diogo
+
+Porquê: Peso (DMO-513): o Controlo anterior vem escolhido com o Peso mais recente das anteriores (ou o criado para comparar) e a tabela aparece logo; antes (17/10) só depois de escolher.
+Referência: Diogo nesta thread: «peso não assume o anterior» cmsg_01K75FTs9bQnbhhH7qttpgraUvPVzqVHduTo5zrh9CF9qr e «sim» cmsg_01K75FTs9bQnbhhH7qttpgra8wtfGJ17f4EnDCXtGohQRZ
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TrocaParcial_ForaDasZonasNadaMuda_EOsFormulariosLevamAComparacao`
+
+Selo depois: `f4fe603cf0e02cbf`
