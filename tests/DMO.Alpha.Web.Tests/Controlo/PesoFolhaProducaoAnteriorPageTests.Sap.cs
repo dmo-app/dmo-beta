@@ -54,11 +54,14 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         Assert.DoesNotContain("SAP", visivel, StringComparison.Ordinal);
         Assert.Contains("Média 181.67 g", texto, StringComparison.Ordinal);
         Assert.Contains("Moda 181 g", texto, StringComparison.Ordinal);
-        // A caixa mostra só a média, com a diferença do peso de hoje; a moda e a sua diferença abrem numa janela pequena.
+        // A média e a moda ficam as duas à vista, cada uma com a diferença do
+        // peso deste controlo, sem janela e sem «Hoje» (Diogo, 27/10/2026,
+        // cmsg_01K75FTs9bQnbhhH7qttpgra64wN7wJBwgW1MPgAeTBaS9).
         Assert.DoesNotContain("data-sap-ver", sap, StringComparison.Ordinal);
-        Assert.Contains("data-dmo-dialog=\"pesoSapModa\"", sap, StringComparison.Ordinal);
-        Assert.Matches("data-sap-delta=\"media\">Hoje [+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
-        Assert.Matches("data-sap-delta=\"moda\">Hoje [+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
+        Assert.DoesNotContain("pesoSapModa", sap, StringComparison.Ordinal);
+        Assert.DoesNotContain("Hoje", sap, StringComparison.Ordinal);
+        Assert.Matches("data-sap-delta=\"media\">[+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
+        Assert.Matches("data-sap-delta=\"moda\">[+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
         Assert.DoesNotContain("data-sap-usar", sap, StringComparison.Ordinal);
         Assert.Contains("id=\"producaoAnteriorPeso\" name=\"anterior_peso\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"Peso usado (g)\" aria-label=\"Peso usado na produção (g)\" value=\"181.67\"", WebUtility.HtmlDecode(html), StringComparison.Ordinal);
         // Cada produção do select leva o seu peso; a mais antiga não tem ordens do SAP.
@@ -80,6 +83,6 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         // A pasta da produção está em Definições › Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         Assert.Contains("<a class=\"dmo-button\" href=\"/Definicoes?secao=computador\">Ler a pasta da produção</a>", sap, StringComparison.Ordinal);
         Assert.DoesNotContain("Ler a pasta do SAP", sap, StringComparison.Ordinal);
-        Assert.Contains("<div data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"peso-sap-opcoes\" data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
     }
 }
