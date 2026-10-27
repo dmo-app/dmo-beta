@@ -3775,6 +3775,40 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/visual/nok_agente_browser.py`
 
 Selo depois: `edb3c3048a671e2a`
+## A-0231 · 2026-10-27 · teste-novo
+
+Porquê: Peso: corrigir ou apagar uma leitura com rasto (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraPrzkZJc9zsVJxQnPY8frwm «conseguir editar a qq momento»)
+Referência: A-0231 (DMO-490)
+Novos: 12 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.Apagar_TiraALeitura_DeixaRasto_ERenumeraAsPosicoes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.CorrigirParaPesoDoVidroZeroOuMenos_ERecusado_ALeituraFicaIgual`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.Corrigir_MudaALeitura_EDeixaRastoComOAntesEODepois`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.GuardarOsMesmosValores_NaoDeixaRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.LeituraDeOutroPeso_OuQueNaoExiste_NaoEncontrada_NadaMuda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoCorrigir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoCorrigir.cs :: PostgresMigrationIntegrationTests.PesoLeitura_CorrigirEApagarADoMeio_RenumeraEDeixaRasto`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_ALinhaEscolheSeComUmClique_EACorrecaoAbreNoLugarDaLeituraNova`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_CorrecaoComMassaIlegivel_ERecusada_EOValorEscritoFica`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_CorrigirEApagar_PelaFolha_FicaGravadoComRasto`
+
+Selo depois: `18d27644ced11859`
+
+## A-0231 · 2026-10-27 · contagem-lista
+
+Porquê: A tabela nova PesoMeasurementHistorico e a migração 20261027111956_PesoMeasurementHistorico entram nas listas de tabelas e de migrações; o que os testes verificam fica igual.
+Referência: A-0231 (DMO-490)
+Novos: 0 · mudaram: 5 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `1330384d86b35971`
 
 ## A-0229 · 2026-10-27 · ok-do-diogo
 
@@ -3784,4 +3818,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
 
-Selo depois: `845995d3ffc03aed`
+Selo depois: `64259c04f516dc71`
