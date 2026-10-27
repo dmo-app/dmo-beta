@@ -75,6 +75,10 @@ html body input:is(:not([type]),[type=text],[type=number],[type=search],[type=pa
    baixo no Windows; com a linha da altura da caixa e sem espaço em cima e em baixo, a letra fica
    centrada pelas medidas do próprio tipo de letra, igual em todos os sistemas. */
 html body select:not([multiple]):not([size]):not(#_){padding-top:0;padding-bottom:0;line-height:calc(var(--dmo-control-height) - 2px)}
+/* Com a altura fixa, o Chromium já põe o texto ao centro: o píxel a mais em cima do
+   dmo-normalize.css (9/7, para a altura automática) passava a pô-lo 1,25 px abaixo
+   (Diogo, 20/10/2026: «verificar centramento de todos»). O mesmo seletor, 8/8. */
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input){padding-top:8px;padding-bottom:8px}
 
 /* Boquilhas › Registar Entrada ou Saída: o «Registar» (ação) separado dos tipos (escolha) por um traço fino. */
 html body .beta-bq-layout .bq-movement-line>.bq-movement-types{padding-left:14px;border-left:1px solid var(--dmo-border)}

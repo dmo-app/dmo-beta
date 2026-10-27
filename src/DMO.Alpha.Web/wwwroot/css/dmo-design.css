@@ -321,6 +321,12 @@ html body .ferr-checks .dmo-check,html body .ferr-checks label{min-width:0}
   html body .beta-production-lines > :is(button,.dmo-rail-link){flex:1 1 120px}
 }
 
+/* Páginas cujas linhas já estão por baixo do título (Reparação, Armazém, Sumário): sem rail
+   à esquerda, o main ocupa a largura toda também entre 701 e 800 px (a 768 px ficava na
+   coluna estreita do rail, e a «Hora» caía por baixo do «Dia»). */
+@media (max-width:800px){
+  html body :is(.beta-light-layout,.beta-bq-layout):has(>main:first-child){grid-template-columns:minmax(0,1fr)}
+}
 /* Mockup composition (Owner, 26/10/2026: «como os mockups»). The machine rail is no longer a
    sidebar: it becomes one strip of line selectors above the page (Boquilhas, Planeamento,
    Reparação). Same markup, same links and selection classes; only the layout changes. */
@@ -869,3 +875,8 @@ html[data-dmo-embedded="true"] body a.dmo-voltar-texto{display:none}
    27/10/2026, …QZ5YJs7W): a altura do cartão muda com o ecrã e o modo, a imagem segue-a. Absoluta, porque numa grelha a altura 100% não pega. */
 html body .jof2 .jof-artigo{overflow:hidden}
 html body .jof2 .jof-artigo>img[data-jof-artigo-img]{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+
+/* A dica aberta não apanha o rato: só texto, não tapa o círculo de ajuda seguinte
+   (nas Boquilhas a dica da procura ficava por cima do próximo círculo) e fecha
+   quando o rato sai do seu círculo. */
+html body .dmo-help .dmo-help-tip{pointer-events:none}
