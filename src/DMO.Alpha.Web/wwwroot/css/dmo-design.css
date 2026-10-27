@@ -532,10 +532,16 @@ html body.dmo-account-page .identity{background:var(--dmo-subtle)}
    o painel da marca num degradê dos tons da paleta e o logo maior. */
 /* Diogo, 27/10/2026 (…Tw8finSevN1SARfr9bppA4, …PGN31N8gsYpzBBBirtuzit): o escuro vai até um tom mais claro,
    o claro até um tom mais escuro. O rodapé do painel ganha contraste sobre o fim do degradê. */
-html body.dmo-account-page .identity{background:linear-gradient(165deg,var(--dmo-subtle) 0%,var(--design-100) 45%,var(--design-200) 100%)}
+/* Diogo, 27/10/2026 (…NaqsDjmqbm5Xby1Sibc9di, …JZ1e4MCBhvi2yNU48pgvVr): no claro, escuro no canto superior
+   esquerdo e claro junto ao login; no escuro (…6U8G1WkPbkyLbakWwWeZA5), claro no canto superior
+   esquerdo e escuro junto ao login. O lado do login no claro fica muito ligeiramente
+   mais escuro que o branco. */
+html body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-200) 0%,var(--design-100) 50%,var(--dmo-subtle) 100%)}
+html:not([data-theme="dark"]) body.dmo-account-page .login-side{background:#f9fafb}
 html body.dmo-account-page .identity-foot,html body.dmo-account-page .identity-foot strong{color:var(--design-navy)}
-html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(165deg,var(--dmo-page) 0%,var(--design-navy) 40%,var(--design-blue) 70%,var(--design-medium) 100%)}
+html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-medium) 0%,var(--design-blue) 35%,var(--design-navy) 70%,var(--dmo-page) 100%)}
 html[data-theme="dark"] body.dmo-account-page .identity-foot,html[data-theme="dark"] body.dmo-account-page .identity-foot strong{color:#fff}
+html[data-theme="dark"] body.dmo-account-page .identity .eyebrow{color:var(--design-100)}
 html body.dmo-account-page .identity .brand-logo.brand-logo{width:112px;height:112px;background:none}
 /* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
 html body :is(.peg-aviso,.peso-aviso)::before{content:none}
