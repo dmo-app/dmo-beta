@@ -81,6 +81,8 @@
     loading.hidden = false;
     frame.src = url.href;
     panel.showModal();
+    // O foco não fica no «Abrir página» (parecia um botão apagado).
+    frame.focus({ preventScroll: true });
     document.documentElement.classList.add('dmo-support-open');
     return true;
   }

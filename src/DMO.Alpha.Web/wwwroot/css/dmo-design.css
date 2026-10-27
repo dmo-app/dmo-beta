@@ -877,3 +877,11 @@ html body .dmo-tab-menu-list a[aria-current="page"]{background:none !important;c
 :root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]){color:var(--dmo-muted)}
 :root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]):is(:hover,:focus-visible){color:#fff}
 :root[data-theme="dark"] body .dmo-tab-menu-list :is(a.active,a[aria-current="page"]){color:#A5C5F1}
+
+/* Links de ação passam a botões (Diogo, 27/10/2026: «trocar links para
+   botões»): o «Abrir página» do painel, os links dos avisos e os da ficha
+   da ferramenta ficam com o aspeto e a altura dos botões. */
+html body :is(#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;white-space:nowrap;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold);line-height:1;text-decoration:none;border-radius:var(--dmo-radius-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);border:1px solid var(--dmo-action,var(--dmo-brand-600));cursor:pointer;vertical-align:middle}
+html body :is(#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--dmo-action,var(--dmo-brand-600));text-decoration:none;outline:0}
+html body :is(a.dmo-aviso-link,a.ferr-cancel){margin:4px 0 4px 8px}
+html body #dmoSupportFull{margin-left:auto}
