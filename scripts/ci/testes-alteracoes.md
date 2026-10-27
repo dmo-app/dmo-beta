@@ -3936,3 +3936,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/visual/jobon_folha_browser.py`
 
 Selo depois: `1146924046f4fbb9`
+
+## A-0241 · 2026-10-27 · teste-novo
+
+Porquê: Definições (DMO-507): teste novo das pastas de «Este computador» em duas colunas fixas
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: DefinicoesPorModuloPageTests.AsPastasDesteComputador_FicamCadaUmaNaSuaColuna`
+
+Selo depois: `ff3a2a0dc2f7a0a5`
