@@ -1,5 +1,5 @@
 {
-  "selo": "8814c455ecaa1b86",
+  "selo": "f875edf05732704d",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -792,6 +792,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.StandaloneRegister_IsAssociatedByHand_ToAnNnpbProductionWithoutRegister": "3480edfb2a9ce149",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.StandaloneRegister_IsNotAssociated_ToAPsProduction": "dce396fc029f7655",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.WithoutJobOn_RegisterStandsAlone_ListedByReference": "315e4cf44844298d",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: (resto do ficheiro)": "ac968f05305e30ab",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: PuncoesPdfReservaTests.Pdf_ComAReservaCheia_GeraSe_ComOsNumerosInteiros": "715c1a03d8d80eda",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/RecordPegamentosMeasurementHandlerTests.cs :: (resto do ficheiro)": "aed176e8d2dcdca4",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/RecordPegamentosMeasurementHandlerTests.cs :: RecordPegamentosMeasurementHandlerTests.Completion_NeverOverwritesExistingToolValue": "f20a464b3551a729",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/RecordPegamentosMeasurementHandlerTests.cs :: RecordPegamentosMeasurementHandlerTests.ComponentNotInProduction_MFRefusesTyped_ToolNeverInvented": "03b8ec23adea1696",

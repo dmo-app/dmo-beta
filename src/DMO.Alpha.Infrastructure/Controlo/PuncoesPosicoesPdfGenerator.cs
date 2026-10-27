@@ -159,7 +159,7 @@ public sealed class PuncoesPosicoesPdfGenerator
         {
             t.ColumnsDefinition(columns =>
             {
-                for (var i = 0; i < colunas; i++) columns.ConstantColumn(38);
+                for (var i = 0; i < colunas; i++) columns.ConstantColumn(46);
             });
             t.Header(h => h.Cell().ColumnSpan((uint)colunas).Element(c => Simples(c, DmoPdfPalette.WarningBackground)).Text("Reserva").SemiBold());
             if (grelha.Reserva.Count == 0)
@@ -170,7 +170,7 @@ public sealed class PuncoesPosicoesPdfGenerator
 
             foreach (var puncao in grelha.Reserva)
             {
-                t.Cell().Element(c => Simples(c)).Column(c => Numero(c, puncao, 12));
+                t.Cell().Element(c => Celula(c, DmoPdfPalette.White, 22)).Column(c => Numero(c, puncao, 11));
             }
 
             for (var resto = grelha.Reserva.Count % colunas; resto != 0 && resto < colunas; resto++)

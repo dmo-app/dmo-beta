@@ -3972,3 +3972,14 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_NasDefinicoes_B1Com4EC3Com3PorOmissao_GravamSeERecusamForaDe1a4`
 
 Selo depois: `8814c455ecaa1b86`
+
+## A-0245 · 2026-10-27 · teste-novo
+
+Porquê: PU NNPB: o PDF gera-se sempre com a reserva cheia e os números da reserva inteiros (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraGGAMBs5g7FD3HuhbAZe3hc «não consigo extrair PU»)
+Referência: DMO-511
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: PuncoesPdfReservaTests.Pdf_ComAReservaCheia_GeraSe_ComOsNumerosInteiros`
+
+Selo depois: `f875edf05732704d`
