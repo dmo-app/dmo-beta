@@ -179,6 +179,10 @@ html body .jof2 .jobon-mudancas>.jobon-resumo>li>div{display:flex;flex-wrap:wrap
    quando não cabem (a Folha do Job On ficava mais larga do que o ecrã). */
 html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{white-space:normal;text-align:right;overflow-wrap:break-word}
 html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{white-space:nowrap}
+/* O «Sair» ao centro, por baixo do nome e do título (Diogo, 27/10/2026); o bloco continua à direita. */
+html body .dmo-shell-header .dmo-shell-conta{align-items:center}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{text-align:center}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-acoes{justify-content:center}
 
 /* Folha · Editar: a nota cresce com o texto (a do ARR cortava a última linha). */
 html:root body .jof2.editing.editing .note-box.note-edit>textarea.dmo-valor.dmo-valor{height:auto;min-height:56px;max-height:240px;field-sizing:content;overflow:auto}
@@ -255,3 +259,10 @@ html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.ico
 html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;outline:0}
 html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-600);border-color:#fff;color:#fff}
 html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45));outline:0}
+
+/* O selo da linha nos cartões do painel do Planeamento (Folha do Job On): sem a caixa, só o nome
+   da linha em letra branca (Diogo, 27/10/2026: «retirar isto, deixar apenas a linha com font
+   branco»). O painel é escuro (--rail-bg) nos dois modos; no claro, o cartão escolhido em
+   repouso é branco e aí o nome fica na cor da linha, para se ler (no hover volta a branco). */
+html body .jof2-gaveta .rail-item .mch.mch{min-width:0;height:auto;padding:0;border:0;border-radius:0;background:none!important;background-image:none!important;box-shadow:none!important;color:#fff!important;font-size:13px;font-weight:800;letter-spacing:.02em}
+html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):not(:focus-visible) .mch.mch{color:var(--dmo-machine-color,var(--dmo-text))!important}

@@ -121,6 +121,12 @@ html body main.dmt-page .dmt-checks{grid-template-columns:150px repeat(3,minmax(
 html body main.dmt-page .dmt-checks>.dmt-module-head{grid-column:1;align-self:center;margin:0 !important;padding:0;border:0;line-height:1.3}
 html body main.dmt-page .dmt-check label{padding:8px 12px}
 html body main.dmt-page .dmt-check label span{overflow-wrap:anywhere}
+/* Utilizadores desta template: linhas compactas (34px, como as tabelas compactas), sem o botão
+   «Página» (Diogo, 27/10/2026: «e reduzir tamanho»). */
+html body main.dmt-page .dmt-users-grid{gap:6px}
+html body main.dmt-page .dmt-users-grid .dmt-check{min-height:34px;align-items:center}
+html body main.dmt-page .dmt-users-grid .dmt-check label{align-items:center;min-height:32px;padding:0 10px}
+html body main.dmt-page .dmt-users-grid .dmt-check label span{overflow-wrap:normal}
 @media (max-width:1100px){
   html body main.dmt-page .dmt-checks{grid-template-columns:repeat(2,minmax(0,1fr))}
   html body main.dmt-page .dmt-checks>.dmt-module-head{grid-column:1/-1;margin-top:8px !important}
@@ -254,3 +260,10 @@ html[data-theme="dark"] body.dmo-account-page .brand-logo{background:radial-grad
    a grelha antiga (faixa | página) metia a página na coluna estreita da faixa (244 px) e a
    «Hora» caía por baixo do «Dia». Sem faixa, a página ocupa a largura toda. */
 html body .beta-light-layout.ri-layout>main.ri-page:only-child{grid-column:1/-1}
+
+/* REPARAÇÃO › REGISTAR: a linha escolhida (B1, B2…) cheia com a cor da linha e a letra branca,
+   como o cartão escolhido do Planeamento (Diogo, 27/10/2026); sem o azul e o contorno branco do
+   escuro. A cor vem da mesma variável do Planeamento (--dmo-machine-color, por data-dmo-linha-cor). */
+html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active),
+html[data-theme="dark"] body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){background:var(--dmo-machine-color,var(--dmo-brand-600));border-color:var(--dmo-machine-color,var(--dmo-brand-600));color:#fff;outline:0}
+html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active) :is(strong,span){color:#fff}
