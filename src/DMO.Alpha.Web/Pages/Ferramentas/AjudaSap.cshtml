@@ -53,7 +53,7 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <p>Da pasta vêm duas coisas:</p>
         <ul>
             <li>a <b>% de uso</b> de cada ferramenta (vida já gasta: consumo ÷ vida esperada), que aparece na página da ferramenta, na procura do Armazém e no Job On;</li>
-            <li>o <b>fabrico de cada produção</b> (produzido, peso médio, dias), que dá o «Produzido» e o «Delta» da janela da % uso e o peso da produção na folha do Peso.</li>
+            <li>o <b>fabrico de cada produção</b> (produzido, peso médio, dias), que dá o «Produzido» e o «Delta» da janela da % uso e o peso da produção na folha do Peso. As outras colunas do relatório (cadência, gota, sectores, KCR, Δ peso, Pack to pull, Net Quant, paletes, rejeições e HotEnd) também ficam guardadas.</li>
         </ul>
         </section>
         <section class="ajuda-secao">
@@ -83,7 +83,7 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         </section>
         <section class="ajuda-secao">
         <h4>5. O fabrico das produções</h4>
-        <p>O relatório de fabrico do SAP grava-se na mesma pasta. O DMO envia todos os ficheiros mais novos do que o último lido, do mais antigo para o mais novo, e reconhece cada um sozinho. Cada linha (material, linha, início e fim) fica uma vez; lida outra vez, atualiza-se.</p>
+        <p>O relatório de fabrico do SAP grava-se na mesma pasta. O DMO envia todos os ficheiros mais novos do que o último lido, do mais antigo para o mais novo, e reconhece cada um sozinho. O «Ler pasta» envia todos os da pasta; um ficheiro mais antigo do que o último lido do mesmo tipo não grava por cima. Cada linha (material, linha, início e fim) fica uma vez; lida outra vez, atualiza-se.</p>
         <p>Uma produção de uma ferramenta é cada Job On em que ela foi a CM, o MF ou a BQ (também quando foi trocada). O produzido é a soma das linhas do relatório da mesma referência, linha e datas do Job On. Conta o <b>total produzido (bruto)</b>, não só as peças boas: uma peça má também gastou o molde.</p>
         </section>
         <section class="ajuda-secao">
