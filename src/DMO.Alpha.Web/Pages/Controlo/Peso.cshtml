@@ -146,9 +146,18 @@
            então devemos conseguir procurar a partir da referência»): a
            referência da CM escreve-se na Referência. O ?ferramenta= dos links
            continua a filtrar. *@
+        @* Um ?ferramenta= vindo de um link filtra à vista: diz qual e tira-se
+           com o «×» (auditoria de 27/10/2026: o filtro ficava invisível). *@
         @if (Model.HistoryTool is not null)
         {
+          var semFerramenta = string.Join("&", Request.Query
+              .Where(q => q.Key is not ("ferramenta" or "pagina"))
+              .SelectMany(q => q.Value.Select(v => $"{Uri.EscapeDataString(q.Key)}={Uri.EscapeDataString(v ?? "")}")));
           <input type="hidden" name="ferramenta" value="@Model.HistoryTool" />
+          <div class="dmo-field peso-hist-ferramenta">
+            <span class="dmo-field-label">Ferramenta</span>
+            <a class="peso-hist-chip" href="/Controlo/Peso?@semFerramenta" aria-label="Tirar o filtro da ferramenta @Model.HistoryTool">@Model.HistoryTool <span aria-hidden="true">×</span></a>
+          </div>
         }
         <div class="dmo-field">
           <label for="historicoTipo">Tipo</label>
@@ -175,7 +184,7 @@
           <input id="historicoData" name="data" type="date" value="@(Model.HistoryData is { } dataFiltro ? dataFiltro.ToString("yyyy-MM-dd") : null)" data-dmo-autosubmit />
         </div>
         @* Sem «Procurar» (Diogo, 17/10/2026): os dropdowns e a data aplicam
-           logo; a referência e a ferramenta procuram ao escrever, ao escolher
+           logo; a referência e o lote procuram ao escrever, ao escolher
            a sugestão ou com o Enter (deep sweep 2, 18/10/2026, F-10). *@
       }
     }
