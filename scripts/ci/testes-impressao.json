@@ -1,5 +1,5 @@
 {
-  "selo": "44f2994fa56fa845",
+  "selo": "225e0d22f04fdb94",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2045,8 +2045,6 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoNoBrowser.cs :: ControloCapabilitiesCutHPageTests.Resumo_SemPesoComUmPesoParaAssociar_ParaOBrowser": "88518eebb57a696a",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPdf.cs :: (resto do ficheiro)": "8b5162daea7ee919",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPdf.cs :: ControloCapabilitiesCutHPageTests.PdfDoResumo_NaRevisaoENoResumo_MesmoFicheiroEMesmaPasta": "428d382e552304b5",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPropostas.cs :: (resto do ficheiro)": "941610dadcae95ee",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPropostas.cs :: ControloCapabilitiesCutHPageTests.Resumo_Propostas_MarcamOMain_EMostramOsResultados": "c91aeedfac83ad76",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: (resto do ficheiro)": "0fddf57c253fbf03",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_CartoesDasAreas_GravamEVoltamAoResumo": "978c0f189c19860f",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_PuECs_EscrevemAReferenciaECmNao": "fa4b7885c487e317",
