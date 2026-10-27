@@ -51,6 +51,12 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
             ferramentas = ferramentas.Where(t => t.Type == tipo);
         }
 
+        if (!string.IsNullOrWhiteSpace(filtro.Lote))
+        {
+            var lote = filtro.Lote.Trim().ToUpperInvariant();
+            ferramentas = ferramentas.Where(t => t.Lot.ToUpper() == lote);
+        }
+
         if (!string.IsNullOrWhiteSpace(filtro.Referencia))
         {
             var referencia = filtro.Referencia.Trim().ToUpperInvariant();

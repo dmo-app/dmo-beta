@@ -1,0 +1,759 @@
+diff --git a/.gitignore b/.gitignore
+index 3c033eb..2c9a7e7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -84,3 +84,4 @@ data-protection/
+ 
+ # cache do Python (tests/visual importa dmo_chromium.py); sem isto a árvore conta como alterada
+ __pycache__/
++artifacts/
+diff --git a/src/DMO.Alpha.Web/Pages/JobOn/Folha.cshtml b/src/DMO.Alpha.Web/Pages/JobOn/Folha.cshtml
+index e8f8911..2bc2390 100644
+--- a/src/DMO.Alpha.Web/Pages/JobOn/Folha.cshtml
++++ b/src/DMO.Alpha.Web/Pages/JobOn/Folha.cshtml
+@@ -2,19 +2,7 @@
+ @model DMO.Alpha.Web.Pages.JobOn.FolhaModel
+ @using DMO.Alpha.Core.Production
+ @using DMO.Alpha.Web.Pages.JobOn
+-@*
+-  A FOLHA DO JOB ON pelo mockup do Diogo (Job_On_v2.html): a mesma
+-  estrutura, ordem e aspeto (o cabeçalho com os factos, a referência e o
+-  dropdown das produções, as Opções; Moldes, Gargalo, Sopro e Calibres; o
+-  Artigo e as Notas gerais ao lado; o painel das linhas como gaveta), com
+-  só o que o Diogo pediu mudado: abre bloqueada e «Editar» vem nas Opções;
+-  TP ao lado do CS; CAL na horizontal por baixo; o lote do AN é o da BQ; a
+-  informação técnica recolhe no triângulo (à esquerda do texto); os
+-  detalhes curtos (referência, lote, %, notas); um clique na ferramenta,
+-  no Editar, muda-a e o duplo clique leva à ficha; Opções = Editar,
+-  Controlo e Reparação; clicar no artigo escolhe a imagem; a cor da linha
+-  é a do Planeamento; «Lote 1» sem o zero.
+-*@
++@* Presentation adapted from the approved DMO Design mockup. Domain handlers and field identities remain in the base app. *@
+ @{
+     Layout = "_DmoShellLayout";
+     ViewData["BetaPage"] = "jobon";
+@@ -101,10 +89,8 @@
+         {
+             <label class="note-box note-edit@(Vazio(valor) is null ? " is-empty" : null)" data-jof-nota><span>Notas</span><textarea class="dmo-valor" id="@campo.Id" name="@campo.NomeNoFormulario" rows="2" maxlength="@campo.Maximo" placeholder="+ Adicionar nota" aria-label="@campo.RotuloAlteracao">@valor</textarea></label>
+         }
+-        else
++        else if (Vazio(valor) is not null)
+         {
+-            @* As notas, mesmo vazias, enchem o cartão até à altura dos vizinhos;
+-               um clique amplia-as (Diogo, 23/10/2026). *@
+             <div class="note-box note-view@(Vazio(valor) is null ? " is-empty" : null)" data-jof-campo="@chave" data-jof-nota tabindex="0"><span>Notas</span><p>@Vazio(valor)</p></div>
+         }
+     }
+@@ -138,6 +124,15 @@
+         </div>
+     }
+ 
++    void Stock(string familia)
++    {
++        var p = familia.ToLowerInvariant();
++        <div class="design-stock" aria-label="Quantidades de @familia">
++          <div><span>Stock</span><strong>@{ Valor(p + "_qtd_stock"); }</strong></div>
++          <div><span>QTD máq.</span><strong>@{ Valor(p + "_qtd_maq"); }</strong></div>
++        </div>
++    }
++
+     // A informação técnica: recolhe e expande pelo triângulo, à esquerda do texto.
+     void TecnicaAbre(string familia, IEnumerable<string> chaves)
+     {
+@@ -166,7 +161,8 @@
+           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
+                   title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
+                   aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
+-            <span class="code">@tipo</span>
++            <span class="design-tool-heading"><span class="code">@tipo</span><span class="design-tool-name">@nome</span></span>
++            <span class="design-tool-meta">
+             @if (f is null)
+             {
+               <span class="muted">Sem @nome.ToLowerInvariant()</span>
+@@ -177,6 +173,7 @@
+               <span class="hv"><small>Referência</small><b data-jof-tool-ref class="@Model.UsoCheioDe(toolId)">@f.Reference</b></span>
+               <span class="hv"><small>Lote</small><b data-jof-tool-lote class="@Model.UsoCheioDe(toolId)">@FolhaModel.Lote(f.Lot)</b></span>
+             }
++            </span>
+             @if (editar)
+             {
+               <span class="tool-hint"><span class="dmo-caret" aria-hidden="true"></span> <span class="hint-txt">Trocar</span></span>
+@@ -196,7 +193,7 @@
+           }
+           @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
+           {
+-            <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem@{ var link = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Registar na ferramenta"); }@if (link.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@link.Href">@link.Texto</a>}</div>
++            <details class="design-warning" data-dmo-aviso-armazem><summary><span class="dmo-caret" aria-hidden="true"></span>Sem registo no Armazém</summary><p>@avisoArmazem@{ var link = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Registar na ferramenta"); }@if (link.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@link.Href">@link.Texto</a>}</p></details>
+           }
+           @if (editar)
+           {
+@@ -227,9 +224,8 @@
+         var folgas = new[] { p + "_folga1", p + "_folga2", p + "_folga3" };
+         <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
+           @{ CabecaFerramenta(tipo, toolId, nome); }
+-          @{ Uso(p + "_utilizacao", f); }
+-          @{ Notas(p + "_notas"); }
+-          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
++          @{ Uso(p + "_utilizacao", f); Stock(tipo); }
++          <div class="design-dimensions">
+           <div class="table-wrap"><table class="dmo-table dims"><thead><tr><th>Medida (mm)</th><th>Valor</th><th>Tol.</th></tr></thead><tbody>
+             @foreach (var (rotulo, valor, tol) in medidas)
+             {
+@@ -242,8 +238,10 @@
+               if (editar) { Valor(folga); } else { <span class="folga">@{ Valor(folga); }</span> }
+             }
+           </div>
+-          @{ Kv(resto); }
+-          @{ TecnicaFecha(); }
++          </div>
++          @{ var detalhes = resto.Where(r => !r.Item2.EndsWith("_qtd_stock") && !r.Item2.EndsWith("_qtd_maq")).ToArray(); }
++          @{ TecnicaAbre(tipo, detalhes.Select(r => r.Item2)); Kv(detalhes); }
++          @{ TecnicaFecha(); Notas(p + "_notas"); }
+         </article>
+     }
+ 
+@@ -251,7 +249,8 @@
+     void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? lote = null)
+     {
+         var notas = JobOnFolhaCampos.DaFamilia(codigo).FirstOrDefault(c => c.Tipo == JobOnFolhaTipoCampo.Nota)?.Chave;
+-        <div class="sec-head"><span class="code">@codigo</span>
++        var nome = codigo switch { "PU" => "Punção", "TP" => "Tampão", "CS" => "Cabeça de sopro", "PI" => "Pinças", _ => "" };
++        <div class="sec-head"><span class="design-tool-heading"><span class="code">@codigo</span><span class="design-tool-name">@nome</span></span>
+           @if (chaveRef is not null)
+           {
+             <span class="hv"><small>Referência</small><b>@{ Valor(chaveRef, $"{codigo} referência"); }</b></span>
+@@ -292,6 +291,11 @@
+         {
+             Notas(notas);
+         }
++        if (tecnica.Any(t => t.Item2.EndsWith("_qtd_stock")))
++        {
++            Stock(codigo);
++            tecnica = tecnica.Where(t => !t.Item2.EndsWith("_qtd_stock") && !t.Item2.EndsWith("_qtd_maq")).ToArray();
++        }
+         if (tecnica.Length > 0)
+         {
+             TecnicaAbre(codigo, tecnica.Select(t => t.Item2));
+@@ -464,7 +468,7 @@ else
+           {
+             <span class="eyebrow">@(Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On")</span>
+           }
+-          <h1 class="sr-only">@Model.ReferenciaTotal</h1>
++          <h1 class="design-jobon-title">Job On</h1>
+           <div class="pick-row">
+             @if (!editar)
+             {
+@@ -627,9 +631,9 @@ else
+             <article class="card pair"><div class="pair-in">
+               <div class="sec" data-jof-familia="BQ" aria-label="Boquilha">
+                 @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
+-                @{ Uso("bq_utilizacao", bqFact); }
++                @{ Uso("bq_utilizacao", bqFact); Stock("BQ"); }
+                 @{ Notas("bq_notas"); }
+-                @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
++                
+               </div>
+               <div class="sec" data-jof-familia="AN" aria-label="Anel">
+                 @{ Simples("AN", "an_referencia", [], [], lote: bqFact is null ? "—" : FolhaModel.Lote(bqFact.Lot)); }
+@@ -831,3 +835,4 @@ else
+ <script src="~/js/jobon-rascunho.js" asp-append-version="true" defer></script>
+ }
+ }
++
+diff --git a/src/DMO.Alpha.Web/Pages/Shared/_DmoSessionUtilities.cshtml b/src/DMO.Alpha.Web/Pages/Shared/_DmoSessionUtilities.cshtml
+index b7266d5..dd449fa 100644
+--- a/src/DMO.Alpha.Web/Pages/Shared/_DmoSessionUtilities.cshtml
++++ b/src/DMO.Alpha.Web/Pages/Shared/_DmoSessionUtilities.cshtml
+@@ -26,21 +26,4 @@
+         </div>
+     }
+ </div>
+-@if (fim is not null)
+-{
+-<script>
+-(function () {
+-  "use strict";
+-  var el = document.querySelector("[data-dmo-sessao-fim]");
+-  if (!el) return;
+-  var fim = new Date(el.getAttribute("data-dmo-sessao-fim"));
+-  function p(n) { return (n < 10 ? "0" : "") + n; }
+-  function atualizar() {
+-    var m = Math.max(0, Math.round((fim - new Date()) / 60000));
+-    el.textContent = "Sessão até " + p(fim.getHours()) + ":" + p(fim.getMinutes()) + " · faltam " + Math.floor(m / 60) + " h " + p(m % 60) + " min";
+-  }
+-  atualizar();
+-  setInterval(atualizar, 30000);
+-})();
+-</script>
+-}
++
+diff --git a/src/DMO.Alpha.Web/Pages/Shared/_DmoShellLayout.cshtml b/src/DMO.Alpha.Web/Pages/Shared/_DmoShellLayout.cshtml
+index 5a3cfb2..bdadba1 100644
+--- a/src/DMO.Alpha.Web/Pages/Shared/_DmoShellLayout.cshtml
++++ b/src/DMO.Alpha.Web/Pages/Shared/_DmoShellLayout.cshtml
+@@ -4,7 +4,7 @@
+     var openSidepanel = shell.Sidepanel is { Visible: true } panel ? panel : null;
+ }
+ <!DOCTYPE html>
+-<html lang="pt-PT">
++<html lang="pt-PT" data-dmo-embedded="@(Context.Request.Query["painel"] == "1" ? "true" : null)">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@@ -29,14 +29,15 @@
+     <link rel="stylesheet" href="~/shell-proof.css" asp-append-version="true">
+     @* Normalização geral (tipografia, botões, campos): sempre a última folha. *@
+     <link rel="stylesheet" href="~/css/dmo-normalize.css" asp-append-version="true">
++    <link rel="stylesheet" href="~/css/dmo-design.css" asp-append-version="true" media="screen">
+ </head>
+ <body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())">
+ <div class="app">
+     <header class="dmo-shell-header">
+         <partial name="_DmoBranding" model="shell.CurrentModule" />
++        <partial name="_DmoNavigation" model="shell" />
+         <partial name="_DmoSessionUtilities" model="shell.Session" />
+     </header>
+-    <partial name="_DmoNavigation" model="shell" />
+     @* O AVISO DA MUDANÇA DE SENHA (a casa antiga era a home, que morreu —
+        o Owner 2026-10-12: o login entra logo no Planeamento): o TempData
+        vive no SHELL, onde quer que a aterragem seja. *@
+@@ -52,11 +53,14 @@
+     }
+     @RenderBody()
+ </div>
++<partial name="_DmoSupportPanel" />
+ @* F0: camada comum de comportamento vivo (interações canónicas + utilidades) — antes dos scripts de página *@
+ <script src="~/0_ASSET_CANONICAL_INTERACTIONS.js" asp-append-version="true"></script>
++<script src="~/js/dmo-support.js" asp-append-version="true"></script>
+ <script src="~/dmo-live.js" asp-append-version="true"></script>
+ <script src="~/js/dmo-suggest.js" asp-append-version="true"></script>
+ <script src="~/js/dmo-pasta-pdf.js" asp-append-version="true"></script>
++<script src="~/js/dmo-session.js" asp-append-version="true"></script>
+ @await RenderSectionAsync("Scripts", required: false)
+ <div id="dmoFim" hidden></div>
+ </body>
+diff --git a/src/DMO.Alpha.Web/Pages/Shared/_DmoSupportPanel.cshtml b/src/DMO.Alpha.Web/Pages/Shared/_DmoSupportPanel.cshtml
+new file mode 100644
+index 0000000..5025d60
+--- /dev/null
++++ b/src/DMO.Alpha.Web/Pages/Shared/_DmoSupportPanel.cshtml
+@@ -0,0 +1,20 @@
++@* One contextual support surface. Pages inside remain real Razor Pages. *@
++<dialog class="dmo-support" id="dmoSupport" aria-labelledby="dmoSupportTitle">
++  <header class="dmo-support-head">
++    <div><span class="dmo-support-eyebrow">Consulta de apoio</span><h2 id="dmoSupportTitle">Detalhe</h2></div>
++    <a id="dmoSupportFull" target="_blank" rel="noopener">Abrir página</a>
++    <button type="button" class="btn" data-support-close>Fechar</button>
++  </header>
++  <div class="dmo-support-confirm" hidden>
++    <p>Existem alterações por guardar neste painel.</p>
++    <button type="button" class="btn" data-support-keep>Continuar a editar</button>
++    <button type="button" class="btn" data-support-discard>Fechar sem guardar</button>
++  </div>
++  <p class="dmo-support-loading" role="status">A carregar…</p>
++  <iframe title="Página de apoio" class="dmo-support-frame"></iframe>
++</dialog>
++<div class="dmo-support-refresh" hidden role="status">
++  Foi enviada uma operação no painel de apoio.
++  <button type="button" class="btn" data-support-refresh>Atualizar esta página</button>
++  <button type="button" class="btn" data-support-dismiss>Dispensar</button>
++</div>
+diff --git a/src/DMO.Alpha.Web/wwwroot/css/dmo-design.css b/src/DMO.Alpha.Web/wwwroot/css/dmo-design.css
+new file mode 100644
+index 0000000..f646e7a
+--- /dev/null
++++ b/src/DMO.Alpha.Web/wwwroot/css/dmo-design.css
+@@ -0,0 +1,253 @@
++/* DMO Design — screen-only presentation. See docs/design/CONTINUAR.md.
++   Domain state colours and print layouts remain owned by the application. */
++:root {
++  --design-blue: #4f6f9c;
++  --design-medium: #779ecb;
++  --design-pale: #b7c9e2;
++  --design-navy: #1b263b;
++  --design-ink: #0b1320;
++  --dmo-palette-slate: var(--design-blue);
++  --dmo-palette-ocean: var(--design-blue);
++  --dmo-palette-steel: var(--design-medium);
++  --dmo-palette-mist: var(--design-pale);
++  --dmo-palette-sky: var(--design-pale);
++  --dmo-brand-950: var(--design-ink);
++  --dmo-brand-900: var(--design-navy);
++  --dmo-brand-800: var(--design-navy);
++  --dmo-brand-700: var(--design-blue);
++  --dmo-brand-600: var(--design-blue);
++  --dmo-brand-500: var(--design-medium);
++  --dmo-brand-400: var(--design-medium);
++  --dmo-brand-300: var(--design-pale);
++  --dmo-brand-200: color-mix(in srgb, var(--design-pale) 40%, white);
++  --dmo-brand-100: color-mix(in srgb, var(--design-pale) 24%, white);
++  --dmo-brand-050: color-mix(in srgb, var(--design-pale) 12%, white);
++  --dmo-page: #f5f7fa;
++  --dmo-card: #fff;
++  --dmo-bar: #fff;
++  --dmo-field: #fff;
++  --dmo-subtle: #f1f4f8;
++  --dmo-border: #e1e7ef;
++  --dmo-text: var(--design-ink);
++  --dmo-muted: #59677b;
++  --dmo-row-hover: var(--dmo-brand-050);
++  --dmo-focus-ring: color-mix(in srgb, var(--design-medium) 30%, transparent);
++  --dmo-r-card: 8px;
++  --dmo-r-control: 6px;
++  --dmo-shadow: none;
++  --dmo-sidebar-width: 244px;
++}
++:root[data-theme="dark"] {
++  --dmo-page: var(--design-ink); --dmo-card: var(--design-navy);
++  --dmo-bar: var(--design-navy); --dmo-field: #172235;
++  --dmo-subtle: #233149; --dmo-border: #35445d;
++  --dmo-text: #edf2f8; --dmo-muted: var(--design-pale);
++  --dmo-brand-950: #edf2f8; --dmo-brand-900: #edf2f8;
++  --dmo-brand-800: var(--design-pale); --dmo-brand-700: var(--design-pale);
++  --dmo-brand-600: var(--design-medium);
++  --dmo-brand-200: #35445d; --dmo-brand-100: #2b3c56;
++  --dmo-brand-050: #233149;
++}
++/* The logo, module tabs and real signed-in account share the first row. */
++html body .dmo-shell-header {
++  display: grid; grid-template-columns: 36px minmax(0,1fr) auto auto;
++  align-items: center; gap: 0 20px; height: auto; min-height: 58px;
++  padding: 0 24px; background: var(--dmo-card); border-bottom: 1px solid var(--dmo-border);
++}
++html body .dmo-shell-header .dmo-shell-logo {width:36px;height:36px;grid-column:1;grid-row:1}
++html body .dmo-shell-header .dmo-shell-identity {display:none}
++html body .dmo-shell-header .dmo-shell-navigation {display:contents}
++html body .dmo-shell-header .dmo-primary-nav {
++  grid-column:2;grid-row:1;display:flex;align-items:stretch;gap:20px;
++  height:58px;min-height:58px;margin:0;padding:0;border:0;background:none;overflow:visible;
++}
++html body .dmo-shell-header .dmo-secondary-nav {
++  grid-column:1/-1;grid-row:2;display:flex;gap:24px;align-items:stretch;
++  min-height:42px;height:auto;padding:0;margin:0;border:0;border-top:1px solid var(--dmo-border);background:none;
++}
++html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) > :is(a,button),
++html body .dmo-shell-header .dmo-secondary-nav > details > summary {
++  display:inline-flex;align-items:center;min-height:42px;padding:0 2px;
++  background:transparent;color:var(--dmo-muted);border:0;border-bottom:3px solid transparent;
++  border-radius:0;box-shadow:none;font-size:13px;font-weight:500;white-space:nowrap;
++}
++html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) > :is(.active,[aria-current="page"]) {
++  color:var(--dmo-brand-700);border-bottom-color:var(--design-blue);background:none;font-weight:650;
++}
++html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover {color:var(--dmo-text);background:var(--dmo-brand-050)}
++html body .dmo-shell-header .dmo-env-badge {grid-column:3;grid-row:1;margin:0;padding:2px 7px;min-height:20px;font-size:9px;letter-spacing:0;border-radius:4px}
++html body .dmo-shell-header .dmo-shell-conta {grid-column:4;grid-row:1;max-width:230px;margin:5px 0}
++html body .dmo-shell-header .dmo-shell-user {white-space:normal;overflow-wrap:anywhere}
++html body .dmo-shell-header .dmo-shell-user strong {font-size:12px}
++html body .dmo-shell-header .dmo-shell-user span {font-size:10px}
++html body .dmo-shell-header .dmo-shell-sessao {font-size:9px}
++html body .dmo-shell-header .dmo-shell-logout {font-size:11px}
++/* Shared workspaces: neutral surfaces, restrained headings and clear actions. */
++html body :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main) {padding:20px 24px 28px;gap:16px}
++html body :is(.dmo-page-head,.page-head,.page-heading,.beta-light-heading) h1 {font-size:26px!important;font-weight:650!important;letter-spacing:-.035em}
++html body :is(.dmo-card,.ferr-card,.resumo-card,.beta-bq-layout .card) {box-shadow:none;border-color:var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
++html body :is(.dmo-card-topo,.card-header) {background:transparent}
++html body :is(.dmo-button,.button,.btn) {border-radius:6px;font-size:13px;font-weight:550;box-shadow:none}
++html body :is(.dmo-button,.button,.btn):not(.danger):not(.success):not(:disabled):not([aria-disabled="true"]) {background:var(--dmo-card);color:var(--dmo-text);border-color:var(--dmo-border)}
++html body :is(.dmo-button,.button,.btn):not(:disabled):not([aria-disabled="true"]):hover {background:var(--dmo-brand-100);border-color:var(--design-medium)}
++html body :is(button[type="submit"],.design-primary).dmo-button,
++html body :is(button[type="submit"],.design-primary).btn {background:var(--design-navy);border-color:var(--design-navy);color:#fff}
++html body :is(.dmo-button,.button,.btn):focus-visible,
++html body .dmo-shell-header :is(a,summary):focus-visible {outline:2px solid var(--design-medium);outline-offset:3px}
++html body .dmo-table thead th {background:var(--dmo-subtle);text-transform:none;letter-spacing:0;font-weight:600;color:var(--dmo-muted)}
++html body .dmo-table tbody tr {background:var(--dmo-card)}
++html body .dmo-table tbody tr:hover {background:var(--dmo-brand-050)}
++html body .beta-production-rail {background:var(--dmo-card);color:var(--dmo-text);border-right:1px solid var(--dmo-border);padding:20px 14px;box-shadow:none}
++html body .beta-production-rail-head :is(strong,a) {color:var(--dmo-text)}
++html body .beta-production-rail-head span {color:var(--dmo-muted)}
++html body .beta-production-lines > :is(button,a) {border-radius:6px;box-shadow:none}
++/* Job On: compact hierarchy with related components kept together. */
++html body .jof2 {padding:12px 24px 16px;font-size:13px}
++html body .jof2 .wrap {max-width:1800px}
++html body .jof2 .sheet {grid-template-columns:minmax(0,1fr) 210px;gap:12px;margin-top:12px}
++html body .jof2 .card {border:1px solid var(--dmo-border);border-radius:8px;box-shadow:none}
++html body .jof2 .sec {padding:10px 12px;gap:7px}
++html body .jof2 .code {padding:0;min-width:0;height:auto;background:transparent;color:var(--dmo-text);font-size:24px;font-weight:700;letter-spacing:-.04em;border-radius:0}
++html body .jof2 .hv small {font-size:10px;font-weight:500;letter-spacing:0;text-transform:none}
++html body .jof2 .hv b {font-size:17px;font-weight:650}
++html body .jof2 .hv+.hv {padding-left:10px;margin-left:0}
++html body .jof2 .tool-head {display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:0;margin:0;width:100%;text-align:left}
++html body .jof2 .design-tool-heading {display:flex;align-items:baseline;gap:12px;width:100%}
++html body .jof2 .design-tool-name {font-size:12px;letter-spacing:0;font-weight:400;color:var(--dmo-text)}
++html body .jof2 .design-tool-meta {display:flex;align-items:baseline;gap:6px}
++html body .jof2 .design-tool-meta .hv {display:inline-flex;align-items:baseline;gap:4px}
++html body .jof2 .design-tool-meta .hv small {font-size:12px}
++html body .jof2 .design-tool-meta .hv b {font-size:14px;font-weight:600}
++html body .jof2 .design-tool-meta .hv+.hv {border:0;padding-left:4px}
++html body .jof2 .tool-hint {font-size:11px}
++html body .jof2 .use-top {font-size:12px}
++html body .jof2 .use-top b {color:var(--dmo-brand-700);font-size:15px}
++html body .jof2 .bar {height:6px;background:var(--dmo-brand-100);border-radius:4px}
++html body .jof2 .bar i {background:var(--design-medium)}
++html body .jof2 .note-view.is-empty {display:none}
++html body .jof2 .note-view:not(.is-empty):not(.is-ampliada) {min-height:0;flex:0 0 auto;background:var(--dmo-subtle);padding:5px 8px;border-radius:5px}
++html body .jof2 .note-view:not(.is-empty):not(.is-ampliada) p {min-height:0;font-size:12px;padding:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
++html body .jof2 .note-view:not(.is-ampliada)>span {font-size:10px;font-weight:500;text-transform:none;letter-spacing:0}
++html body .jof2 .more {margin-top:0;padding-top:4px;border:0}
++html body .jof2 .more summary {font-size:12px;color:var(--dmo-brand-700)}
++html body .jof2 .more-preview {display:none}
++html body .jof2 .more.empty>summary>span:not([aria-hidden]):not(.more-preview) {position:static;width:auto;height:auto;overflow:visible;clip:auto}
++html body .jof2 .more>summary {min-height:24px;font-weight:500}
++html body .jof2 .note-box.is-ampliada>p {min-height:200px;max-height:60vh;overflow:auto}
++html body .jof2 .kv :is(dt,dd) {font-size:12px;padding-block:5px}
++html body .jof2 .side {gap:12px}
++html body .jof2 .article {padding:14px}
++html body .jof2 .article-head {font-size:16px}
++html body .jof2 .article-head>span {font-size:11px}
++html body .jof2 .jof-artigo {height:170px;min-height:0}
++html body .jof2 .jof-artigo :is(svg,img) {height:160px;max-height:160px;object-fit:contain}
++html body .jof2 .notes {padding:14px;min-height:0}
++html body .jof2 .notes h2 {font-size:16px;margin-bottom:10px}
++html body .jof2 .notes li {font-size:13px}
++html body .jof2 .ref-search>svg,html body .jof2 .rail-toggle>svg {display:none}
++html body .jof2 .rail-toggle-txt {position:static;width:auto;height:auto;overflow:visible;clip:auto}
++html body .jof2 .ref-search input {padding-left:10px}
++html body .jof2 .design-stock {display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 0;border-block:1px solid var(--dmo-border)}
++html body .jof2 .design-stock>div+div {border-left:1px solid var(--dmo-border);padding-left:12px}
++html body .jof2 .design-stock span {display:block;font-size:11px;color:var(--dmo-muted)}
++html body .jof2 .design-stock strong {font-size:19px;font-weight:650}
++html body .jof2 .design-stock input {width:100%;min-width:0}
++html body .jof2 [data-jof-familia="AN"],html body .jof2 [data-jof-familia="ARR"] {flex:0 0 auto;min-height:0}
++html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .code {font-size:17px}
++html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .hv b {font-size:14px}
++html body .jof2 .design-dimensions {margin-top:0}
++html body .jof2 .design-dimensions .dims {font-size:12px}
++html body .jof2 .design-dimensions .dims :is(th,td) {padding:4px 6px;min-height:0;font-size:11px}
++html body .jof2 .design-dimensions .table-wrap {border:0;border-radius:0}
++html body .jof2 .design-dimensions .dims tr :is(th,td) {height:auto;line-height:1.25;padding:3px 0;border:0;background:none;text-transform:none;letter-spacing:0;font-weight:400}
++html body .jof2 .design-dimensions .dims td:nth-child(2) {font-weight:600;color:var(--dmo-text)}
++html body .jof2 .design-dimensions .dims th {padding-bottom:6px;font-weight:500}
++html body .jof2 .design-dimensions .folgas {padding:4px 0;gap:8px}
++html body .jof2 .design-dimensions .folgas .folga {padding:0;border:0;background:none;min-width:0;font-size:12px}
++html body .jof2 .design-warning {margin:6px 0 0;padding:5px 8px;font-size:11px;border-left:2px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:4px}
++html body .jof2 .design-warning summary {cursor:pointer;font-weight:500}
++html body .jof2 .design-warning p {margin:6px 0 0}
++@media(min-width:1100px) {
++  html body .jof2 .page-head,html body .jof2.editing .page-head {display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:0;margin:0;background:none;border:0;box-shadow:none}
++  html body .jof2 .page-head .head-right,html body .jof2.editing .page-head .head-right:has(#lightReference) {order:-1;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0;border:0;margin:0;width:100%;gap:12px}
++  html body .jof2 .pick-block {flex:1;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;width:auto;min-width:0}
++  html body .jof2 .pick-row {gap:10px;flex-wrap:nowrap;width:auto;min-width:0;flex:1;justify-content:flex-start}
++  html body .jof2 .pick-row>.pick-campo:has(.ref-search) {flex:0 1 180px}
++  html body .jof2 .pick-row .ref-search input#jofReferencia {min-width:0}
++  html body .jof2 .head-acoes {margin:0;gap:6px}
++  html body .jof2 .pick-block>h1 {position:static!important;clip:auto;width:auto;height:auto;overflow:visible;white-space:nowrap;margin:0 10px 0 0;flex:none}
++  html body .jof2 .page-head .facts {background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:6px;padding:10px 14px;gap:14px;min-height:58px}
++  html body .jof2 .page-head .facts-dados {display:flex;justify-content:space-between;padding:0;border:0;gap:12px}
++  html body .jof2 .page-head .fact-col {display:flex;align-items:center;gap:9px;padding:0;border:0;flex-wrap:wrap}
++  html body .jof2 .page-head .fact-col:first-child {padding:0}
++  html body .jof2 .page-head .fact-col.mach {padding:0}
++  html body .jof2 .page-head .fact-col.mach .mch {height:30px;min-width:40px;font-size:15px;border-radius:4px;padding:0 8px}
++  html body .jof2 .fl,html body .jof2 .fv {font-size:12px}
++  html body .jof2 .facts-dados .fv strong {font-size:13px}
++  html body .jof2 .facts-dados .fl {text-transform:none;letter-spacing:0;font-weight:400}
++  html body .jof2 .zones {grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:auto auto;grid-template-areas:none;gap:12px 0}
++  html body .jof2 .g-moldes {grid-column:1/4;grid-row:1;margin:0;padding:14px 0 14px 6px;background:var(--dmo-card);border-radius:8px 0 0 8px}
++  html body .jof2 .col3 {grid-column:4;grid-row:1;margin:0;padding:14px 6px 14px 0;background:var(--dmo-card);border-radius:0 8px 8px 0}
++  html body .jof2 #gMoldes {grid-template-columns:repeat(3,minmax(0,1fr));gap:0;align-items:stretch}
++  html body .jof2 #gMoldes>.card {border:0;border-right:1px solid var(--dmo-border);border-radius:0;background:none}
++  html body .jof2 #gGargalo>.card {border:0;border-radius:0;background:none}
++  html body .jof2 #gMoldes>.sec,html body .jof2 .pair-in>.sec {padding:0 14px;gap:7px}
++  html body .jof2 .pair-in>.sec+.sec {margin:12px 14px 0;padding:12px 0 0}
++  html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .sec-head {flex-wrap:nowrap;gap:8px}
++  html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .design-tool-heading {width:auto}
++  html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .hv {display:flex;gap:4px;align-items:baseline}
++  html body .jof2 [data-jof-familia="AN"] .hv:has([data-jof-an-lote]) {display:none}
++  html body .jof2 .g-sopro {grid-column:1/3;grid-row:2;margin:0 12px 0 0}
++  html body .jof2 #gSopro {grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
++  html body .jof2 .g-cal {grid-column:3/5;grid-row:2;margin:0}
++  html body .jof2 #gSopro>.card {border:0}
++  html body .jof2 #gSopro .kv {grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:auto auto;column-gap:12px}
++  html body .jof2 #gSopro .kv :is(dt,dd) {text-align:left;border:0;padding:2px 0}
++  html body .jof2 #gSopro .kv dd {font-weight:600;font-size:14px}
++  html body .jof2 #gSopro .sec-head>.hv {display:flex;gap:4px;align-items:baseline}
++  html body .jof2 #gSopro .sec-head .code {font-size:21px}
++  html body .jof2 .cal-card {border:0}
++  html body .jof2 .article,html body .jof2 .notes,html body .jof2 #gPinfo .card {border:0}
++  html body .jof2 .jof-artigo {height:145px;border:0}
++  html body .jof2 .jof-artigo :is(svg,img) {height:140px;max-height:140px}
++  html body .jof2 #gCal {grid-template-columns:1fr}
++  html body .jof2:not(.editing) table.calv :is(th,td):nth-child(n) {font-size:11px;min-height:34px;padding:5px 3px;line-height:1.3}
++  html body .jof2:not(.editing) table.calv {min-width:430px;grid-template-columns:70px}
++  html body .jof2:not(.editing) .pair-in {flex:0 0 auto}
++  html body .jof2:not(.editing) .pair-in>.sec {flex:0 0 auto}
++  html body .jof2 .page-head .facts {min-height:44px;padding-block:6px}
++  html body .jof2 .jof-onde {margin:3px 0;font-size:11px}
++}
++@media(min-width:1600px) {
++  html body .jof2 .sheet {grid-template-columns:minmax(0,1fr) 240px}
++  html body .jof2 .zones {grid-template-columns:repeat(12,minmax(0,1fr))}
++  html body .jof2 .g-moldes {grid-column:1/10}
++  html body .jof2 .col3 {grid-column:10/13}
++  html body .jof2 .g-sopro {grid-column:1/5}
++  html body .jof2 .g-cal {grid-column:5/13}
++}
++@media(max-width:1199px) {
++  html body .dmo-shell-header {gap:0 12px}
++  html body .dmo-shell-header .dmo-primary-nav {gap:12px}
++  html body .dmo-shell-header .dmo-env-badge {display:none}
++  html body .dmo-shell-header .dmo-shell-conta {grid-column:3/-1}
++  html body .dmo-shell-header .dmo-shell-user span {display:none}
++}
++@media(max-width:1099px) {
++  html body .jof2 .sheet {grid-template-columns:minmax(0,1fr)}
++  html body .jof2 .side {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
++  html body .jof2 .page-head {flex-wrap:wrap}
++}
++@media(max-width:800px) {
++  html body .dmo-shell-header {grid-template-columns:36px 1fr auto;padding:8px 16px 0;gap:4px 12px}
++  html body .dmo-shell-header .dmo-shell-conta {grid-column:2/-1;max-width:100%;margin:0}
++  html body .dmo-shell-header .dmo-primary-nav {grid-column:1/-1;grid-row:2;height:auto;min-height:44px;flex-wrap:wrap;gap:0 18px}
++  html body .dmo-shell-header .dmo-secondary-nav {grid-row:3;flex-wrap:wrap;gap:0 18px}
++  html body :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main,.jof2) {padding:16px}
++}
++@media(max-width:600px) {
++  html body .jof2 .side {grid-template-columns:1fr}
++  html body .jof2 .head-right,html body .jof2 .pick-row {flex-wrap:wrap;max-width:100%}
++  html body .jof2 .pick-block {max-width:100%;min-width:0}
++  html body .jof2 .page-head .facts {flex-wrap:wrap}
++}
+diff --git a/src/DMO.Alpha.Web/wwwroot/dmo-live.js b/src/DMO.Alpha.Web/wwwroot/dmo-live.js
+index 8669cf4..e4a524d 100644
+--- a/src/DMO.Alpha.Web/wwwroot/dmo-live.js
++++ b/src/DMO.Alpha.Web/wwwroot/dmo-live.js
+@@ -107,6 +107,7 @@
+     // Linha sem destino (a máquina «Sem produção», o dia vazio): não há nada a
+     // abrir, e não se inventa um sítio para onde ir.
+     if (!destino) return;
++    if (global.DmoSupport && global.DmoSupport.tryOpen(destino, row)) return;
+     // Dentro de uma zona data-dmo-parcial, troca só o que muda na página.
+     if (global.DmoTroca) global.DmoTroca.ir(destino, row);
+     else global.location.href = destino;
+diff --git a/src/DMO.Alpha.Web/wwwroot/js/dmo-session.js b/src/DMO.Alpha.Web/wwwroot/js/dmo-session.js
+new file mode 100644
+index 0000000..85696af
+--- /dev/null
++++ b/src/DMO.Alpha.Web/wwwroot/js/dmo-session.js
+@@ -0,0 +1,15 @@
++// Session expiry stays sourced from the authenticated cookie, not a mock user.
++(() => {
++  'use strict';
++  const label = document.querySelector('[data-dmo-sessao-fim]');
++  if (!label) return;
++  const end = new Date(label.dataset.dmoSessaoFim);
++  if (!Number.isFinite(end.getTime())) return;
++  const pad = n => String(n).padStart(2, '0');
++  function update() {
++    const minutes = Math.max(0, Math.round((end - new Date()) / 60000));
++    label.textContent = `Sessão até ${pad(end.getHours())}:${pad(end.getMinutes())} · faltam ${Math.floor(minutes / 60)} h ${pad(minutes % 60)} min`;
++  }
++  update();
++  setInterval(update, 30000);
++})();
+diff --git a/src/DMO.Alpha.Web/wwwroot/js/dmo-support.js b/src/DMO.Alpha.Web/wwwroot/js/dmo-support.js
+new file mode 100644
+index 0000000..590836c
+--- /dev/null
++++ b/src/DMO.Alpha.Web/wwwroot/js/dmo-support.js
+@@ -0,0 +1,79 @@
++// Contextual pages slide in beside the workspace. Main navigation never enters here.
++(() => {
++  'use strict';
++  const panel = document.getElementById('dmoSupport');
++  if (!panel || window.frameElement?.classList.contains('dmo-support-frame')) return;
++  const frame = panel.querySelector('iframe');
++  const title = panel.querySelector('h2');
++  const full = panel.querySelector('#dmoSupportFull');
++  const confirm = panel.querySelector('.dmo-support-confirm');
++  const loading = panel.querySelector('.dmo-support-loading');
++  const refresh = document.querySelector('.dmo-support-refresh');
++  let opener, dirty = false, operation = false;
++  const destinations = new Map([
++    ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
++    ['/Controlo/Peso', 'Peso'],
++    ['/Controlo/Pegamentos', 'Pegamentos'],
++    ['/Controlo/Puncoes', 'PU NNPB'],
++    ['/Controlo/Approve', 'Revisão do controlo'],
++    ['/ReparacaoInterna/Consultar', 'Consulta de reparação']
++  ]);
++  function close() {
++    panel.close(); frame.removeAttribute('src'); dirty = false;
++    document.documentElement.classList.remove('dmo-support-open');
++    confirm.hidden = true;
++    if (operation) refresh.hidden = false;
++    opener?.focus();
++  }
++  function requestClose() {
++    if (!dirty) return close();
++    confirm.hidden = false;
++    confirm.querySelector('button').focus();
++  }
++  function tryOpen(href, source) {
++    if (source?.closest('.dmo-shell-header,nav') || panel.open) return false;
++    let url;
++    try { url = new URL(href, location.href); } catch { return false; }
++    if (url.origin !== location.origin || !destinations.has(url.pathname)) return false;
++    opener = source || document.activeElement;
++    dirty = false; operation = false; confirm.hidden = true;
++    title.textContent = destinations.get(url.pathname);
++    full.href = url.href;
++    url.searchParams.set('painel', '1');
++    loading.hidden = false;
++    frame.src = url.href;
++    panel.showModal();
++    document.documentElement.classList.add('dmo-support-open');
++    return true;
++  }
++  frame.addEventListener('load', () => {
++    if (!panel.open || !frame.hasAttribute('src')) return;
++    loading.hidden = true;
++    let doc;
++    try { doc = frame.contentDocument; } catch { return; }
++    if (!doc) return;
++    doc.documentElement.dataset.dmoEmbedded = 'true';
++    dirty = false;
++    full.href = frame.contentWindow.location.href.replace(/([?&])painel=1(&|$)/, (_, before, after) => after ? before : '');
++    doc.addEventListener('input', event => { if (event.target.closest('form[method="post"],form[method="POST"]')) dirty = true; });
++    doc.addEventListener('change', event => { if (event.target.closest('form[method="post"],form[method="POST"]')) dirty = true; });
++    doc.addEventListener('submit', event => { if (event.target.method.toLowerCase() === 'post') operation = true; });
++    // Escape from inside the frame closes the outer drawer only if no local dialog is open.
++    doc.addEventListener('keydown', event => {
++      if (event.key === 'Escape' && !doc.querySelector('dialog[open],.dmo-modal-backdrop.open')) {event.preventDefault(); requestClose();}
++    });
++  });
++  panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
++  panel.querySelector('[data-support-close]').addEventListener('click', requestClose);
++  panel.querySelector('[data-support-keep]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
++  panel.querySelector('[data-support-discard]').addEventListener('click', close);
++  refresh.querySelector('[data-support-refresh]').addEventListener('click', () => location.reload());
++  refresh.querySelector('[data-support-dismiss]').addEventListener('click', () => {refresh.hidden=true;});
++  document.addEventListener('click', event => {
++    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
++    const link = event.target.closest('a[href]');
++    if (!link || link.target || link.hasAttribute('download')) return;
++    if (tryOpen(link.href, link)) {event.preventDefault(); event.stopImmediatePropagation();}
++  }, true);
++  window.DmoSupport = {tryOpen};
++})();
+diff --git a/src/DMO.Alpha.Web/wwwroot/js/jobon-folha.js b/src/DMO.Alpha.Web/wwwroot/js/jobon-folha.js
+index 2ac6c4f..76a6ed7 100644
+--- a/src/DMO.Alpha.Web/wwwroot/js/jobon-folha.js
++++ b/src/DMO.Alpha.Web/wwwroot/js/jobon-folha.js
+@@ -40,6 +40,7 @@
+ 
+       function abrirFicha() {
+         const ficha = botao.getAttribute('data-jof-ficha');
++        if (ficha && window.DmoSupport?.tryOpen(ficha, botao)) return;
+         if (ficha) (window.dmoIr || (url => window.location.assign(url)))(ficha);
+       }
+       function mudar() {
+diff --git a/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs b/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs
+index 3565032..9ad47f3 100644
+--- a/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs
++++ b/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs
+@@ -147,14 +147,11 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
+         var bq = fila.IndexOf("data-jof-familia=\"BQ\"", StringComparison.Ordinal);
+         Assert.True(cm >= 0 && cm < mf && mf < bq, $"A primeira fila não é CM, MF, BQ ({cm}, {mf}, {bq}).");
+ 
+-        // As notas em cada cartão, mesmo vazias (o MF não tem nota escrita).
++        // Notas escritas continuam acessíveis; notas vazias não ocupam a vista de leitura.
+         Assert.Contains("CX rodar justa 1/4 de volta.", Cartao(html, "CM"));
+         Assert.Contains("class=\"note-box note-view\" data-jof-campo=\"cm_notas\" data-jof-nota", html);
+-        foreach (var familia in new[] { "CM", "MF", "BQ", "TP", "CS" })
+-        {
+-            Assert.Contains("data-jof-nota", Cartao(html, familia));
+-        }
+-        Assert.Contains("class=\"note-box note-view is-empty\" data-jof-campo=\"mf_notas\" data-jof-nota", html);
++        Assert.DoesNotContain("data-jof-nota", Cartao(html, "MF"));
++        Assert.DoesNotContain("note-box note-view is-empty", html);
+ 
+         // «O que mudou» no fim da folha, depois do último cartão (Diogo, 23/10/2026).
+         var resumo = html.IndexOf("id=\"fichaMudancas\"", StringComparison.Ordinal);
+diff --git a/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs b/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs
+index d3db692..f669164 100644
+--- a/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs
++++ b/tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs
+@@ -405,12 +405,12 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
+         var cm = html[html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal)..];
+         cm = cm[..cm.IndexOf("</article>", StringComparison.Ordinal)];
+         Assert.Contains("Polir a pata", cm);
+-        Assert.Contains("<dt>Stock</dt><dd>12</dd>", cm);
+-        Assert.Contains("<dt>QTD máq.</dt><dd>4</dd>", cm);
++        Assert.Contains("<span>Stock</span><strong>12</strong>", cm);
++        Assert.Contains("<span>QTD máq.</span><strong>4</strong>", cm);
+         Assert.Contains("0.05", cm);
+         var tp = html[html.IndexOf("data-jof-familia=\"TP\"", StringComparison.Ordinal)..];
+         tp = tp[..tp.IndexOf("</article>", StringComparison.Ordinal)];
+-        Assert.Contains("<dt>QTD máq.</dt><dd>2</dd>", tp);
++        Assert.Contains("<span>QTD máq.</span><strong>2</strong>", tp);
+         Assert.Contains("<li class=\"view\">Emparelhar MF+FF</li>", html);
+         // Bloqueada: nada se escreve.
+         Assert.DoesNotContain("name=\"Folha.", html);
+diff --git a/tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs b/tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs
+index ccd26ee..c07b320 100644
+--- a/tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs
++++ b/tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs
+@@ -125,7 +125,7 @@ public partial class JobOnPageTests
+             Assert.DoesNotContain($">{titulo}</h2>", html, StringComparison.Ordinal);
+         }
+         // A referência total é MF + BQ e as ferramentas leem-se «CM 5809 · Lote 01».
+-        Assert.Contains("<h1 class=\"sr-only\">5810T188</h1>", html, StringComparison.Ordinal);
++        Assert.Contains("<h1 class=\"design-jobon-title\">Job On</h1>", html, StringComparison.Ordinal);
+         // O lote sem o zero à esquerda: «Lote 1», nunca «Lote 01».
+         var cm = Zona(html, "data-jof-tool=\"CM\"");
+         cm = cm[..cm.IndexOf("</button>", StringComparison.Ordinal)];
+@@ -230,7 +230,7 @@ public partial class JobOnPageTests
+ 
+         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}");
+         Assert.Contains("data-jof-folha=\"bloqueada\"", html, StringComparison.Ordinal);
+-        Assert.Contains("<h1 class=\"sr-only\">5810T188</h1>", html, StringComparison.Ordinal);
++        Assert.Contains("<h1 class=\"design-jobon-title\">Job On</h1>", html, StringComparison.Ordinal);
+         Assert.DoesNotContain("data-jof-editar", html, StringComparison.Ordinal);
+         Assert.DoesNotContain("data-jof-duplicar", html, StringComparison.Ordinal);
+         Assert.DoesNotContain("data-jof-imprimir", html, StringComparison.Ordinal);
+diff --git a/tests/visual/design-review.cjs b/tests/visual/design-review.cjs
+new file mode 100644
+index 0000000..8fb6ac6
+--- /dev/null
++++ b/tests/visual/design-review.cjs
+@@ -0,0 +1,40 @@
++// Inspect server-rendered fixtures exported by the HTTP tests. No live database.
++const { chromium } = require('playwright');
++const fs = require('node:fs');
++const path = require('node:path');
++const root = path.resolve(__dirname, '../..');
++const fixtures = path.resolve(process.argv[2] || path.join(root, 'artifacts/design'));
++const assets = path.join(root, 'src/DMO.Alpha.Web/wwwroot');
++const types = {'.css':'text/css','.js':'application/javascript','.png':'image/png','.woff2':'font/woff2','.svg':'image/svg+xml'};
++(async () => {
++  const browser = await chromium.launch({headless:true, executablePath:process.env.DMO_CHROMIUM || undefined});
++  const results = [];
++  for (const filename of fs.readdirSync(fixtures).filter(f => f.endsWith('.html') && /<!DOCTYPE html>/i.test(fs.readFileSync(path.join(fixtures,f),'utf8')))) {
++    for (const width of [1366]) {
++      const context = await browser.newContext({viewport:{width,height:768},locale:'pt-PT'});
++      await context.route('**/*', route => {
++        const url = new URL(route.request().url());
++        if (url.pathname === '/review') return route.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(fixtures,filename),'utf8')});
++        const target = path.resolve(assets, '.'+decodeURIComponent(url.pathname));
++        if (target.startsWith(assets + path.sep) && fs.existsSync(target) && fs.statSync(target).isFile()) return route.fulfill({contentType:types[path.extname(target)] || 'application/octet-stream',body:fs.readFileSync(target)});
++        return route.fulfill({status:404,body:''});
++      });
++      const page = await context.newPage();
++      const errors=[];
++      page.on('pageerror',e=>errors.push(e.message));
++      await page.goto('http://dmo.test/review');
++      await page.evaluate(()=>document.fonts.ready);
++      // Test fixtures open the changes panel explicitly; close it for the initial overview.
++      await page.locator('#fichaMudancas').evaluateAll(es=>es.forEach(e=>e.open=false));
++      const geometry = await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,logo:!!document.querySelector('.dmo-shell-logo'),user:document.querySelector('[data-user-profile-name]')?.textContent.trim()}));
++      if(process.env.DMO_DESIGN_DEBUG && width===1366 && filename==='jobon-folha.html') console.log(await page.locator('[data-jof-familia="CM"] > *').evaluateAll(es=>es.map(e=>({tag:e.className,h:e.getBoundingClientRect().height,css:getComputedStyle(e).cssText,margin:getComputedStyle(e).margin,flex:getComputedStyle(e).flex}))));
++      await page.screenshot({path:path.join(fixtures,filename.replace('.html',`-${width}.png`)),fullPage:false});
++      results.push({filename,...geometry,errors});
++      await context.close();
++    }
++  }
++  await browser.close();
++  fs.writeFileSync(path.join(fixtures,'browser-review.json'),JSON.stringify(results,null,2));
++  console.log(JSON.stringify(results,null,2));
++  if(results.some(r=>r.scroll>r.width+1 || r.errors.length)) process.exitCode=1;
++})();

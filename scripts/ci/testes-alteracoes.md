@@ -3194,6 +3194,83 @@ Novos: 4 · mudaram: 6 · saíram: 4
 
 Selo depois: `d409b622f6c26765`
 
+## A-0177 · 2026-10-27 · ok-do-diogo
+
+Porquê: Design novo (DMO-436): o Diogo aprovou juntar o design à integracao com os testes mudados (Armazém sem lista antes da procura, Job On bloqueado com Editar, Boquilhas, Sumário, paleta e botões únicos)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWtEDyiH367uf4aFwbYd3b5 (27/10 01:42, «Sim: testes e integracao»); botões: cmsg_01K75FTs9bQnbhhH7qttpgraPc5CZ7o8GxVCiuBHj4uft6
+Novos: 1 · mudaram: 12 · saíram: 0
+
+- novo: `tests/visual/design-review.cjs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: ArmazemLoteNovoPaginaTests.Sumario_AvisaSoQuemTemFerramentas_ECriarResolveEDaAEntrada`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OLog_MostraSoOTipo_DeTodos_EALinhaAbreAFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OPainel_TemCmMfBq_ESemTipoPedeParaEscolher`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Buttons_HaveOneLook_BlueWithWhiteText_HoverInverts`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Palette_IsDefinedOnce_AndDrivesButtonsRowsAndHover`
+
+Selo depois: `71aa1f5e6f59d13a`
+
+## A-0178 · 2026-10-27 · ok-do-diogo
+
+Porquê: Erros do design de 27/10/2026: Stock e QTD máq. fora dos cartões do Job On; «PDF Pegamentos»; Estado e Onde está na lista de Ferramentas; PU NNPB sem Linha; mapa dos Pegamentos em HTML legível no ecrã (PDF igual); BQ e lote nas linhas das Boquilhas (o teste procura só na lista). Testes novos dos mesmos erros.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraTeE5d1TKjz1h4KjrhScySV (pedidos: cmsg_01K75FTs9bQnbhhH7qttpgraNDGxpDQAbKb3urj4PR1RjM, cmsg_01K75FTs9bQnbhhH7qttpgraQXKR3abFzYB1QMLs63bXHa, cmsg_01K75FTs9bQnbhhH7qttpgra4gixkrU4QiiXPCqSrZqvpF)
+Novos: 20 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ErrosDiogo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ErrosDiogo.cs :: BoquilhasRegistoPageTests.JobOnMudou_FicaNumaLinhaNoCabecalhoDoRegisto_SemBlocoPorBaixoDosCartoes`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ErrosDiogo.cs :: BoquilhasRegistoPageTests.PainelDasLinhas_MostraABqEmMaquinaComOLote_EAProducaoNumaLinhaDiscreta`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.DeltaPeloProduzido.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.DeltaPeloProduzido.cs :: DefinicoesPorModuloPageTests.ComAsLeiturasAVoltaDaProducao_ODeltaNaoEEstimado`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.DeltaPeloProduzido.cs :: DefinicoesPorModuloPageTests.SemLeiturasAVoltaDaProducao_ODeltaEstimaSePeloProduzido`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_LevaAoHistoricoDeProducoes`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: DefinicoesPorModuloPageTests.ORegistarDoArmazem_ComUmaFerramenta_TemOVoltar`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_AbreAJanelaComTodasAsProducoes_MediaModaEDeltaEmGEPercentagem`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosGraficoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosGraficoTests.cs :: PegamentosGraficoTests.CadaComponenteMedido_NaSuaLinha_PelaOrdemDaFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosGraficoTests.cs :: PegamentosGraficoTests.Escala_DasMedicoesEDosLimites_ComMargem_SemLinhasVazias`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosGraficoTests.cs :: PegamentosGraficoTests.SemMedicoes_NenhumaLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: PuncoesPageTests.Folha_TodasAsCelulasComONumeroEALinhaDoLote`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: PuncoesPageTests.Identificacao_SemLinhaNemProcesso_ETotais_ComReserva`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_MostraOsCamposGravados_NaFolhaNovaBloqueada`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Legenda.cs :: PegamentosPageTests.MapaDeLimites_ALegendaMostraAsCoresDoDesenho`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NnpbProduction_RegistersPunches_ShowsAlteracao_TotalsResumoAndPdf`
+
+Selo depois: `3531fa616f3f82db`
+
+## A-0179 · 2026-10-27 · teste-novo
+
+Porquê: Auditoria de funções de 27/10/2026 (F1): abas do Planeamento só com o Job On ver.
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen`
+
+Selo depois: `833606a8293db3b6`
+
+## A-0180 · 2026-10-27 · ok-do-diogo
+
+Porquê: Histórico do Controlo sem texto de ajuda e sem a coluna Resumo (Diogo, 27/10/2026).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra8ZfpVoajgn5AkYsPBX7fMg (pedido cmsg_01K75FTs9bQnbhhH7qttpgra1vX5iME1pheahiGpCrhsqU; erros cmsg_01K75FTs9bQnbhhH7qttpgraCq647u2zepuXXqqCxiWAKr)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.GuardarComparacao_CriaORegistoDoHistorico`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
+
+Selo depois: `aded66bcf5324e3a`
 ## A-0182 · 2026-10-27 · teste-novo
 
 Porquê: Posto da RI: a lista dos reparadores (conta ativa, PIN do posto, RI ver ou criar, nunca o ADMIN) sai pela mesma ordem e com o mesmo número de consultas para 5 ou 100 pessoas (DMO-449, 0.3.0-beta.139)
@@ -3203,3 +3280,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: PostgresMigrationIntegrationTests.PostoRi_ListaSoQuemTemRiEPinPorNome_ComAsMesmasConsultasPara5Ou100Reparadores`
 
 Selo depois: `4167dbe27ca52e85`
+
+## A-0183 · 2026-10-27 · teste-novo
+
+Porquê: Juntar a integracao (com o #195, DMO-449, 0.3.0-beta.139) ao design novo #180: os 2 testes novos do Posto da RI (A-0182) passam à impressão do ramo
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: PostgresMigrationIntegrationTests.PostoRi_ListaSoQuemTemRiEPinPorNome_ComAsMesmasConsultasPara5Ou100Reparadores`
+
+Selo depois: `9a4eeaa62eadde2a`

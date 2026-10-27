@@ -31,9 +31,14 @@ html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-
 /* Links escuros (padrão da beta): a produção abre a ficha do Job On. */
 .ri-card .dmo-table td a{color:var(--dmo-brand-900);font-weight:600}
 .ri-vazia{margin:0;color:var(--dmo-muted)}
-/* «Sem Job On»: a caixa alinhada pelo fundo dos campos. */
-html body .ri-filtros-card .dmo-filter-bar>.ri-so-por-associar{display:inline-flex;gap:6px;align-items:center;min-height:38px;margin:0;font-size:13.5px;color:var(--dmo-text);cursor:pointer;white-space:nowrap}
-.ri-so-por-associar input{margin:0}
+/* «Sem Job On»: um botão que fica escolhido (cor cheia) quando o filtro está ligado. */
+html body .ri-filtros-acoes>.ri-so-por-associar{position:relative;display:inline-flex;gap:6px;align-items:center;height:var(--dmo-control-height);margin:0;padding:0 14px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,8px);background:var(--dmo-card);color:var(--dmo-text);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+html body .ri-filtros-acoes>.ri-so-por-associar>input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+html body .ri-filtros-acoes>.ri-so-por-associar:has(>input:checked){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff}
+html body .ri-filtros-acoes>.ri-so-por-associar:has(>input:focus-visible){outline:2px solid var(--dmo-palette-ocean);outline-offset:1px}
+/* O nome em «Quem» numa só linha (Diogo, 27/10/2026). */
+html body .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa{width:auto;min-width:150px}
+html body .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa>select{width:auto;min-width:150px;white-space:nowrap}
 /* A marca «Por associar»: texto escuro numa pílula clara, não um botão; abre a janela de associar. */
 .ri-card .dmo-table td a.ri-por-associar{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--dmo-warning-soft);color:var(--dmo-brand-900);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
 .ri-card .dmo-table td a.ri-por-associar:hover{text-decoration:underline}
@@ -146,8 +151,6 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
             <option value="mf" selected="@(Model.Tipo == ReparacaoTipo.Mf)">MF</option>
           </select>
         </div>
-        @* As reparações com a ferramenta escrita que ainda ninguém associou (peça 4). *@
-        <label class="ri-so-por-associar" for="riConsultaPorAssociar"><input type="checkbox" id="riConsultaPorAssociar" name="por_associar" value="true" checked="@Model.PorAssociar" data-dmo-autosubmit />Sem Job On<partial name="_DmoHelp" model="@("Reparações sem Job On, com a ferramenta escrita à mão e ainda não ligada a uma ferramenta da lista. Quem tem Criar pode associá-las aqui.")" /></label>
         <div class="dmo-field ri-w-data">
           <label for="riConsultaDe">Dia de</label>
           <input id="riConsultaDe" name="de" type="date" value="@ConsultarModel.Data(Model.De)" data-dmo-autosubmit />
@@ -159,6 +162,10 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
       </form>
     </div>
     <div class="ri-filtros-acoes">
+      @* «Sem Job On» como um botão ao lado do «Limpar filtros» (Diogo, 27/10/2026): a caixa
+         fica escondida e continua a ir no formulário dos filtros (form=). As reparações com a
+         ferramenta escrita que ainda ninguém associou (peça 4). *@
+      <label class="ri-so-por-associar" for="riConsultaPorAssociar"><input type="checkbox" id="riConsultaPorAssociar" name="por_associar" value="true" form="riConsultaFiltros" checked="@Model.PorAssociar" data-dmo-autosubmit />Sem Job On<partial name="_DmoHelp" model="@("Reparações sem Job On, com a ferramenta escrita à mão e ainda não ligada a uma ferramenta da lista. Quem tem Criar pode associá-las aqui.")" /></label>
       <a class="dmo-button" id="riConsultaLimpar" href="@Url.Page("/ReparacaoInterna/Consultar")">Limpar filtros</a>
     </div>
   </section>
@@ -171,11 +178,11 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
   </div>
 
   <section id="riConsultaResultados" class="dmo-card ri-card" aria-labelledby="ri-consulta-title" data-dmo-regiao data-dmo-parcial>
-    <h3 id="ri-consulta-title">Reparações<partial name="_DmoHelp" model="@("As reparações que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional, que vira à hora do Canal Jobon.")" /></h3>
+    <h3 id="ri-consulta-title">Reparações</h3>
     @if (Model.Resumo.Count > 0)
     {
       <div id="riConsultaResumo" class="ri-resumo">
-        <h4 id="ri-resumo-title">Resumo por pessoa<partial name="_DmoHelp" model="@("Reparações que contam com estes filtros, os dias diferentes em que cada pessoa registou e a média de reparações por dia.")" /></h4>
+        <h4 id="ri-resumo-title">Resumo por pessoa</h4>
         <div class="dmo-table-wrap">
           <table class="dmo-table" id="riConsultaResumoLista" data-dmo-list="Resumo por pessoa">
             <thead><tr><th>Pessoa</th><th>Reparações</th><th>Dias</th><th>Média por dia</th></tr></thead>

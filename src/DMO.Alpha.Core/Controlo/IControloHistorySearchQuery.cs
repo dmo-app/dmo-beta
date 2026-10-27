@@ -34,7 +34,14 @@ public sealed record ControloHistorySearchItem(
     string Machine,
     string? ToolLabel,
     DateTime? DataUtc,
-    string? Resumo);
+    string? Resumo)
+{
+    /// <summary>O tool_id da CM do registo (null quando não há ou foi eliminada).</summary>
+    public string? CmToolId { get; init; }
+
+    /// <summary>A posição do armazém onde a CM está agora (null se não está no armazém).</summary>
+    public string? CmPosicao { get; init; }
+}
 
 /// <summary>
 /// A procura do HISTÓRICO DO CONTROLO ao uso do dmo-html: os registos
@@ -66,7 +73,8 @@ public interface IControloHistorySearchQuery
         int pageSize = DMO.Alpha.Core.Paging.ListPaging.DefaultPageSize,
         CancellationToken cancellationToken = default,
         bool semJobOn = false,
-        string? productionReference = null);
+        string? productionReference = null,
+        string? lote = null);
 
     /// <summary>
     /// A produção pedida (por exemplo por um link) que já não está entre as

@@ -187,6 +187,21 @@ public sealed class ResumoModel : PageModel
     public bool CanApprove { get; private set; }
 
     /// <summary>
+    /// O utilizador tem o Controlo Criar: o «Registar» do Peso, dos Pegamentos
+    /// e das PU NNPB abre a página de registo, como na .121, e não o painel
+    /// lateral; quem só tem o Ver continua a abrir o painel, só de consulta
+    /// (Diogo, 27/10/2026).
+    /// </summary>
+    public bool CanCreate { get; private set; }
+
+    /// <summary>
+    /// Quem tem o Controlo Aprovar e o Criar associa o link do mcaliper na
+    /// Revisão (Resumo do controlo): sem link, a área leva-o lá (Diogo,
+    /// 27/10/2026: «falta o link mcaliper»).
+    /// </summary>
+    public bool PodeAssociarMcaliper => CanApprove && CanCreate;
+
+    /// <summary>
     /// O link do mcaliper por área com ferramenta (CM, MF, BQ), lido da ficha
     /// técnica da Tool da produção. Só as áreas com link.
     /// </summary>
@@ -387,8 +402,7 @@ public sealed class ResumoModel : PageModel
 
                     await LoadLinkedControlsAsync(viewedControloId, SelectedProduction);
 
-                    CanApprove = (await _capabilities.GetAsync(HttpContext.RequestAborted))
-                        .Contains(DmoCapabilities.ControloApprove);
+                    await LoadCapabilitiesAsync();
                 }
             }
         }
@@ -404,6 +418,14 @@ public sealed class ResumoModel : PageModel
         }
 
         return Page();
+    }
+
+    /// <summary>O Aprovar e o Criar do utilizador (o cartão Aprovação, os «Registar» e o mcaliper).</summary>
+    private async Task LoadCapabilitiesAsync()
+    {
+        var capabilities = await _capabilities.GetAsync(HttpContext.RequestAborted);
+        CanApprove = capabilities.Contains(DmoCapabilities.ControloApprove);
+        CanCreate = capabilities.Contains(DmoCapabilities.ControloCreate);
     }
 
     /// <summary>
@@ -446,6 +468,7 @@ public sealed class ResumoModel : PageModel
         if (zonas.Any(zona => zona is not ZonaAvisos and not ZonaVistoPor))
         {
             await LoadMcaliperLinksAsync(SelectedProduction);
+            await LoadCapabilitiesAsync();
             var etiquetas = await _etiquetas.GetAsync(
                 new[] { SelectedProduction.CmToolId, SelectedProduction.MfToolId, SelectedProduction.BqToolId }, ct);
             AreaEtiquetas = new Dictionary<string, string>();

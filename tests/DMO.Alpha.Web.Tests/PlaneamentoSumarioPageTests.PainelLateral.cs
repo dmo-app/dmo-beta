@@ -35,7 +35,7 @@ public sealed partial class PlaneamentoSumarioPageTests
         Assert.Contains($"<span>Em curso desde {Hoje.AddDays(-1):dd/MM}</span>", painel);
         Assert.True(painel.IndexOf($"jobon_id={entrouOntem}\"", StringComparison.Ordinal)
             < painel.IndexOf($"jobon_id={entraHoje}\"", StringComparison.Ordinal));
-        // O painel fica ao lado do Sumário, no mesmo layout do Job On.
-        Assert.Matches("<div class=\"beta-light-layout\">\\s*<aside class=\"beta-light-rail beta-production-rail\"", html);
+        // O painel fica por baixo do título do Sumário, dentro da página, como no Job On (mockups, 26/10/2026).
+        Assert.Matches("<main [^>]*sumario-page[\\s\\S]*?id=\"sumario-title\"[\\s\\S]*?<aside class=\"beta-light-rail beta-production-rail\"", html);
     }
 }

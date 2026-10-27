@@ -11,6 +11,11 @@
     <button type="button" class="bq-sem-jobon-link" data-dmo-dialog="bqSemJobOnDialog">Registar sem Job On</button>
   }
 </div>
+@* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas.
+   Dentro da troca (data-dmo-troca) as linhas são uma zona própria: se mudarem
+   entre dois pedidos (uma produção que entrou), trocam sozinhas e a procura
+   continua sem recarregar a página. *@
+<div id="bqCatalogoLinhas" class="dmo-zona" data-dmo-regiao data-dmo-parcial><partial name="_DmoSidepanelBoquilhas" model="Model.Currents" /></div>
 <div id="bqCatalogoAvisos" class="dmo-zona" data-dmo-regiao>
 @* Registada no Ferramentas, a boquilha volta aqui com a ficha aberta. *@
 @if (Model.CatalogSaved == "created")
@@ -67,7 +72,10 @@
     </div>
   </form>
 </div>
-<div class="card" id="bq-tool-results" hidden="@(!Model.CatalogSearched)" data-dmo-regiao>
+@* Um clique ou Enter numa boquilha abre a página da Ficha da ferramenta
+   (Diogo, 26/10/2026: «carregar aqui na boquilha deverias abrir a folha da
+   ferramenta dela»), não o painel lateral (data-dmo-sem-painel). *@
+<div class="card" id="bq-tool-results" hidden="@(!Model.CatalogSearched)" data-dmo-regiao data-dmo-sem-painel>
   @if (Model.CatalogSearched)
   {
   <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da ferramenta desta boquilha.")" /></h3><span>@Model.CatalogCount encontrada(s)</span></div>

@@ -49,4 +49,7 @@ public sealed record MachineCurrentBq(
     // A linha tem produções que se SOBREPÕEM de verdade no dia operacional
     // (JobOnOverlap.Crosses — o dia da troca não conta). Só informa: o
     // painel mostra todas e um aviso; nada bloqueia.
-    bool Overlap = false);
+    bool Overlap = false,
+    // O LOTE da boquilha em máquina (Diogo, 27/10/2026: o cartão da linha
+    // mostra a BQ e o lote, «BQ T288 · Lote 41»), o da Tool do BqContext.
+    string? BqLot = null);

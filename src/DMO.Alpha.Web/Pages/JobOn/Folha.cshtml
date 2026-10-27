@@ -169,7 +169,7 @@
           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
                   title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
                   aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
-            <span class="code">@tipo</span>
+            <span class="design-tool-heading"><span class="code">@tipo</span><span class="design-tool-name">@nome</span></span>
             @if (f is null)
             {
               <span class="muted">Sem @nome.ToLowerInvariant()</span>
@@ -225,18 +225,29 @@
             ? new[] { ("Diâm. pata", "cm_pata", "cm_pata_tol"), ("Diâm. gargalo", "cm_gargalo", "cm_gargalo_tol"), ("Diâm. exterior", "cm_exterior", "cm_exterior_tol") }
             : new[] { ("Diâm. corpo", "mf_corpo", "mf_corpo_tol"), ("Diâm. gargalo", "mf_gargalo", "mf_gargalo_tol"), ("Diâm. exterior", "mf_exterior", "mf_exterior_tol") };
         var resto = tipo == "CM"
-            ? new[] { ("Tipo", "cm_tipo"), ("Reparador", "cm_reparador"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3"), ("Stock", "cm_qtd_stock"), ("QTD máq.", "cm_qtd_maq") }
-            : new[] { ("Tipo", "mf_tipo"), ("Reparador", "mf_reparador"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso"), ("Fundo final", "mf_fundo_final"), ("Lote FF", "mf_lote_ff"), ("Stock", "mf_qtd_stock"), ("QTD máq.", "mf_qtd_maq") };
+            ? new[] { ("Tipo", "cm_tipo"), ("Reparador", "cm_reparador"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3") }
+            : new[] { ("Tipo", "mf_tipo"), ("Reparador", "mf_reparador"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso"), ("Fundo final", "mf_fundo_final"), ("Lote FF", "mf_lote_ff") };
         var folgas = new[] { p + "_folga1", p + "_folga2", p + "_folga3" };
         <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
           @{ CabecaFerramenta(tipo, toolId, nome); }
           @{ Uso(p + "_utilizacao", f); }
           @{ Notas(p + "_notas"); }
           @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
-          <div class="table-wrap"><table class="dmo-table dims"><thead><tr><th>Medida (mm)</th><th>Valor</th><th>Tol.</th></tr></thead><tbody>
+          @* No ver, o valor e a tolerância numa só coluna («54.02 ± 0.05»): com duas
+             colunas o cartão estreito partia a linha e o «—» aparecia duas vezes
+             (Diogo, 27/10/2026). No Editar ficam as duas caixas. *@
+          <div class="table-wrap"><table class="dmo-table dims"><thead><tr><th>Medida (mm)</th><th>Valor</th>@if (editar) {<th>Tol.</th>}</tr></thead><tbody>
             @foreach (var (rotulo, valor, tol) in medidas)
             {
-              <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }</td><td>@{ Valor(tol, $"{tipo} {rotulo} tolerância"); }</td></tr>
+              if (editar)
+              {
+                <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }</td><td>@{ Valor(tol, $"{tipo} {rotulo} tolerância"); }</td></tr>
+              }
+              else
+              {
+                desenhados.Add(tol);
+                <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }@if (Mostra(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> ± @tolerancia</span>}</td></tr>
+              }
             }
           </tbody></table></div>
           <div class="folgas"><span>Folgas</span>
@@ -254,7 +265,8 @@
     void Simples(string codigo, string? chaveRef, (string, string)[] linhas, (string, string)[] tecnica, bool calote = false, string? chaveLote = null)
     {
         var notas = JobOnFolhaCampos.DaFamilia(codigo).FirstOrDefault(c => c.Tipo == JobOnFolhaTipoCampo.Nota)?.Chave;
-        <div class="sec-head"><span class="code">@codigo</span>
+        var nome = codigo switch { "PU" => "Punção", "TP" => "Tampão", "CS" => "Cabeça de sopro", "PI" => "Pinças", "AN" => "Anel", "ARR" => "Tubo de refrigeração", _ => "" };
+        <div class="sec-head"><span class="design-tool-heading"><span class="code">@codigo</span><span class="design-tool-name">@nome</span></span>
           @if (chaveRef is not null)
           {
             <span class="hv"><small>Referência</small><b>@{ Valor(chaveRef, $"{codigo} referência"); }</b></span>
@@ -269,6 +281,16 @@
             <dl class="kv">
               @foreach (var (rotulo, chave) in linhas)
               {
+                if (chave == "cs_furos" && !editar && Vazio(Model.Folha.Valor(chave)) is null)
+                {
+                  @* Como no DMO-APP, mesmo vazio: «Aberto» e «Fechado» representam o 4x4,
+                     4x2…, nunca um «Furos» solto (Diogo, 27/10/2026). Escrito, fica o
+                     «Abertos 4 / Fechados 0» de sempre. *@
+                  desenhados.Add(chave);
+                  <dt>Aberto</dt><dd><span class="v-empty">—</span></dd>
+                  <dt>Fechado</dt><dd><span class="v-empty">—</span></dd>
+                  continue;
+                }
                 <dt>@rotulo</dt><dd>@if (chave == "cs_furos") { Furos(chave); } else { Valor(chave, $"{codigo} {rotulo}"); }</dd>
               }
               @if (calote)
@@ -471,7 +493,7 @@ else
           {
             <span class="eyebrow">@(Model.DuplicarDeNumero is { } numeroOrigem ? $"Novo Job On · duplicado de {numeroOrigem}" : "Novo Job On")</span>
           }
-          <h1 class="sr-only">@Model.ReferenciaTotal</h1>
+          <h1 class="design-jobon-title">Job On</h1>
           <div class="pick-row">
             @if (!editar)
             {
@@ -620,11 +642,11 @@ else
            CM e TP; MF e CS; BQ e AN; PU e ARR. Os Calibres, por baixo de BQ+AN e PU+ARR. *@
         <div class="fcol board" id="gMoldes">
           @{ Molde("CM", jobOn.CmToolId, "Contra molde"); }
-          <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [("Stock", "tp_qtd_stock"), ("QTD máq.", "tp_qtd_maq")], calote: true); }</article>
+          <article class="card sec" data-jof-familia="TP">@{ Simples("TP", null, [("Diâmetro", "tp_diametro_ps")], [], calote: true); }</article>
         </div>
         <div class="fcol board">
           @{ Molde("MF", jobOn.MfToolId, "Molde final"); }
-          <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], [("Stock", "cs_qtd_stock"), ("QTD máq.", "cs_qtd_maq")]); }</article>
+          <article class="card sec" data-jof-familia="CS">@{ Simples("CS", "cs_referencia", [("Furos", "cs_furos"), ("Tubo", "cs_tubo")], []); }</article>
         </div>
         <div class="fright"><div class="frow">
         <div class="fcol board col-bq">
@@ -634,14 +656,13 @@ else
               @{ CabecaFerramenta("BQ", jobOn.BqToolId, "Boquilha"); }
               @{ Uso("bq_utilizacao", bqFact); }
               @{ Notas("bq_notas"); }
-              @{ TecnicaAbre("BQ", ["bq_qtd_stock", "bq_qtd_maq"]); Kv([("Stock", "bq_qtd_stock"), ("QTD máq.", "bq_qtd_maq")]); TecnicaFecha(); }
             </div>
           </div></article>
           <article class="card sec" data-jof-familia="AN" aria-label="Anel">@{ Simples("AN", "an_referencia", [], [], chaveLote: "an_lote"); }</article>
         </div>
         <div class="fcol board">
           @* PU e ARR: o mesmo componente, mas cada um no seu cartão, um por baixo do outro (Diogo, 26/10/2026). *@
-          <article class="card sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], [("Versão", "pu_versao"), ("N.º de desenho", "pu_desenho"), ("Stock", "pu_qtd_stock"), ("QTD máq.", "pu_qtd_maq")]); }</article>
+          <article class="card sec" data-jof-familia="PU">@{ Simples("PU", "pu_referencia", [], []); }</article>
           <article class="card sec" data-jof-familia="ARR">@{ Simples("ARR", "arr_referencia", [], [("Versão", "arr_versao"), ("N.º de desenho", "arr_desenho")]); }</article>
         </div>
         </div>
@@ -649,7 +670,7 @@ else
           <div class="board" id="gCal">
             @{ var linhas = Model.Folha.Cal.Where(l => editar || (!l.Extra && (Vazio(l.Valor) is not null || Vazio(l.QtdMaq) is not null))).ToList(); }
             <article class="card sec span-all cal-card">
-              <div class="sec-head"><span class="code">CAL</span></div>
+              <div class="sec-head"><span class="design-tool-heading"><span class="code">CAL</span><span class="design-tool-name">Calibres</span></span></div>
               @if (linhas.Count == 0)
               {
                 <p class="empty-text">Sem calibres escritos.</p>

@@ -21,6 +21,7 @@
 html body .hist-filtros-card .dmo-filter-bar>.dmo-field{flex:0 0 auto;margin:0}
 html body .hist-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:100%}
 .hist-w-referencia{width:160px}
+.hist-w-lote{width:72px}
 .hist-w-tipo{width:96px}
 .hist-w-linha{width:96px}
 .hist-w-data{width:140px}
@@ -65,6 +66,10 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
         <div class="dmo-field hist-w-referencia">
           <label for="histReferencia">Referência</label>
           <input id="histReferencia" name="referencia" value="@Model.Referencia" placeholder="Ex.: 5447" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+        <div class="dmo-field hist-w-lote">
+          <label for="histLote">Lote</label>
+          <input id="histLote" name="lote" value="@Model.Lote" placeholder="Ex.: 3" maxlength="6" inputmode="numeric" autocomplete="off" data-dmo-autosubmit />
         </div>
         <div class="dmo-field hist-w-tipo">
           <label for="histTipo">Tipo</label>

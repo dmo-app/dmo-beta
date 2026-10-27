@@ -83,7 +83,8 @@ public sealed class BoquilhasCurrentQuery : IBoquilhasCurrentQuery
                 j.FimEm,
                 BqContextId = c != null ? c.Id : (int?)null,
                 BqToolId = c != null ? c.ToolId : null,
-                BqReference = t != null ? t.Reference : null
+                BqReference = t != null ? t.Reference : null,
+                BqLot = t != null ? t.Lot : null
             })
             .ToListAsync(cancellationToken);
 
@@ -138,7 +139,8 @@ public sealed class BoquilhasCurrentQuery : IBoquilhasCurrentQuery
                     current.BqReference,
                     current.BqToolId,
                     current.BqContextId,
-                    overlap));
+                    overlap,
+                    current.BqLot));
             }
         }
 

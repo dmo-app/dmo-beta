@@ -1,0 +1,917 @@
+/* DMO Design — screen-only presentation. See docs/design/CONTINUAR.md.
+   Domain state colours and print layouts remain owned by the application. */
+:root {
+  --design-blue: #4b6387;
+  --design-medium: #6582aa;
+  --design-pale: #a5c5f1;
+  --design-navy: #1e2b40;
+  --design-ink: #0c121d;
+  --dmo-palette-slate: var(--design-blue);
+  --dmo-palette-ocean: var(--design-blue);
+  --dmo-palette-steel: var(--design-medium);
+  --dmo-palette-mist: var(--design-pale);
+  --dmo-palette-sky: var(--design-pale);
+  --dmo-brand-950: var(--design-ink);
+  --dmo-brand-900: var(--design-navy);
+  --dmo-brand-800: var(--design-navy);
+  --dmo-brand-700: var(--design-blue);
+  --dmo-brand-600: var(--design-blue);
+  --dmo-brand-500: var(--design-medium);
+  --dmo-brand-400: var(--design-medium);
+  --dmo-brand-300: var(--design-pale);
+  --dmo-brand-200: color-mix(in srgb, var(--design-pale) 40%, white);
+  --dmo-brand-100: color-mix(in srgb, var(--design-pale) 24%, white);
+  --dmo-brand-050: color-mix(in srgb, var(--design-pale) 12%, white);
+  --dmo-page: #f5f7fa;
+  --dmo-card: #fff;
+  --dmo-bar: #fff;
+  --dmo-field: #fff;
+  --dmo-subtle: #f1f4f8;
+  --dmo-border: #e1e7ef;
+  --dmo-text: var(--design-ink);
+  --dmo-muted: #59677b;
+  --dmo-row-hover: var(--dmo-brand-050);
+  --dmo-focus-ring: color-mix(in srgb, var(--design-medium) 30%, transparent);
+  --dmo-r-card: 8px;
+  --dmo-r-control: 6px;
+  --dmo-shadow: none;
+  --dmo-sidebar-width: 244px;
+}
+:root[data-theme="dark"] {
+  --dmo-page: var(--design-ink); --dmo-card: var(--design-navy);
+  --dmo-bar: var(--design-navy); --dmo-field: #172235;
+  --dmo-subtle: #233149; --dmo-border: #35445d;
+  --dmo-text: #edf2f8; --dmo-muted: var(--design-pale);
+  --dmo-brand-950: #edf2f8; --dmo-brand-900: #edf2f8;
+  --dmo-brand-800: var(--design-pale); --dmo-brand-700: var(--design-pale);
+  --dmo-brand-600: var(--design-medium);
+  --dmo-brand-200: #35445d; --dmo-brand-100: #2b3c56;
+  --dmo-brand-050: #233149;
+}
+/* The logo, module tabs and real signed-in account share the first row. */
+html body .dmo-shell-header {
+  display: grid; grid-template-columns: 40px minmax(0,1fr) auto auto;
+  align-items: center; gap: 0 28px; height: auto; min-height: 64px;
+  padding: 0 24px; background: var(--dmo-card); border-bottom: 1px solid var(--dmo-border);
+}
+html body .dmo-shell-header .dmo-shell-logo {width:40px;height:40px;grid-column:1;grid-row:1}
+html body .dmo-shell-header .dmo-shell-identity {display:none}
+html body .dmo-shell-header .dmo-shell-navigation {display:contents}
+html body .dmo-shell-header .dmo-primary-nav {
+  grid-column:2;grid-row:1;display:flex;align-items:stretch;gap:20px;
+  height:64px;min-height:64px;margin:0;padding:0;border:0;background:none;overflow:visible;
+}
+html body .dmo-shell-header .dmo-secondary-nav {
+  grid-column:1/-1;grid-row:2;display:flex;gap:24px;align-items:stretch;
+  min-height:42px;height:auto;padding:0;margin:0;border:0;border-top:1px solid var(--dmo-border);background:none;
+}
+html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) > :is(a,button),
+html body .dmo-shell-header .dmo-secondary-nav > details > summary {
+  display:inline-flex;align-items:center;min-height:42px;padding:0 2px;
+  background:transparent;color:var(--dmo-muted);border:0;border-bottom:3px solid transparent;
+  border-radius:0;box-shadow:none;font-size:13px;font-weight:500;white-space:nowrap;
+}
+html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) > :is(.active,[aria-current="page"]) {
+  color:var(--dmo-brand-700);border-bottom-color:var(--design-blue);background:none;font-weight:650;
+}
+html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover {color:var(--dmo-text);background:var(--dmo-brand-050)}
+html body .dmo-shell-header .dmo-env-badge {grid-column:3;grid-row:1;margin:0;padding:2px 7px;min-height:20px;font-size:9px;letter-spacing:0;border-radius:4px}
+/* Account on the right: user name, the current Template's name beneath it, and «Sair»
+   (blueprint FRONTEND § O shell), set apart from the tabs by a hairline. */
+html body .dmo-shell-header .dmo-shell-conta {grid-column:4;grid-row:1;max-width:280px;margin:8px 0;padding-left:20px;border-left:1px solid var(--dmo-border)}
+html body .dmo-shell-header .dmo-shell-user {white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+html body .dmo-shell-header .dmo-shell-user strong {font-size:13px;font-weight:650}
+html body .dmo-shell-header .dmo-shell-user span {font-size:11px;color:var(--dmo-muted)}
+html body .dmo-shell-header .dmo-shell-sessao {font-size:10px}
+html body .dmo-shell-header .dmo-shell-logout {font-size:12px;font-weight:600;color:var(--dmo-brand-700)}
+/* Shared workspaces: neutral surfaces, restrained headings and clear actions. */
+html body :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main) {padding:16px 24px 14px;gap:16px}
+html body :is(.dmo-page-head,.page-head,.page-heading,.beta-light-heading) h1 {font-size:26px!important;font-weight:650!important;letter-spacing:-.035em}
+html body :is(.dmo-card,.ferr-card,.resumo-card,.beta-bq-layout .card) {box-shadow:none;border-color:var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
+html body :is(.dmo-card-topo,.card-header) {background:transparent}
+/* Buttons: no override here. The single button standard (Diogo, 26/10/2026) lives in
+   dmo-normalize.css: every button solid slate, inverted on hover, steel when pressed,
+   no navy and no outline variant. */
+html body .dmo-shell-header :is(a,summary):focus-visible {outline:2px solid var(--design-medium);outline-offset:3px}
+/* Fact cards: one flat strip divided by hairlines, not one tinted box with a coloured edge per value.
+   The missing-value state (dmo-fact-falta) keeps its warning colour on the value. */
+html body .dmo-facts {gap:0;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px;padding:8px 0}
+html body .dmo-fact {background:none;border:0;border-left:1px solid var(--dmo-border);border-radius:0;padding:2px 14px}
+html body .dmo-fact:first-child {border-left:0}
+html body .dmo-fact>span {font-size:11px;font-weight:500;text-transform:none;letter-spacing:0}
+html body .dmo-fact.dmo-fact-falta {background:none;border-left-color:var(--dmo-border)}
+html body .dmo-fact.dmo-fact-falta:first-child {border-left:0}
+html body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible) {background:var(--dmo-brand-050);color:inherit}
+html body .dmo-facts a.dmo-fact.dmo-fact-link:not(.dmo-button):not(.btn):is(:hover,:focus-visible) {color:inherit}
+html body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>em {color:var(--dmo-brand-700)}
+/* Controlo › Resumo: the Peso card is a white surface like its neighbours, not a dark block. */
+html body .resumo-linked-card.resumo-linked-peso {background:var(--dmo-card);border-color:var(--dmo-border);color:var(--dmo-text)}
+html body .resumo-linked-peso strong {color:var(--dmo-text)}
+html body :is(.resumo-linked-peso .resumo-linked-card-head>span:first-child,.resumo-linked-peso small,.resumo-linked-peso .resumo-card-link) {color:var(--dmo-muted)}
+html body .resumo-linked-peso .resumo-status {background:var(--dmo-neutral-soft);color:var(--dmo-muted)}
+/* Coloured left edges on titles and fact boxes read as decoration: titles and facts stay plain,
+   grouped by hairlines (Controlo › Resumo, Peso, PU NNPB, Revisão). */
+html body .resumo-section-title {border-left:0;padding-left:0}
+html body .resumo-section-title::before {content:none}
+html body .resumo-viewings {border-left:1px solid var(--dmo-border)}
+html body :is(.peso-page .peso-context-grid .peso-fact,.peso-page .peso-compare .peso-fact,.pu-fact) {border-left:1px solid var(--dmo-border);background:var(--dmo-card)}
+html body .peso-live-strip {border-left-width:1px;border-left-color:var(--dmo-border)}
+html body :is(.revisao-detail h3.revisao-section,.resumo-linked h4.revisao-folha) {border-left:0;background:none;padding-left:0}
+html body .dmo-table thead th {background:var(--dmo-subtle);text-transform:none;letter-spacing:0;font-weight:600;color:var(--dmo-muted)}
+html body .dmo-table tbody tr {background:var(--dmo-card)}
+html body .dmo-table tbody tr:hover {background:var(--dmo-brand-050)}
+html body .beta-production-rail {background:var(--dmo-card);color:var(--dmo-text);border-right:1px solid var(--dmo-border);padding:20px 14px;box-shadow:none}
+html body .beta-production-rail-head :is(strong,a) {color:var(--dmo-text)}
+html body .beta-production-rail-head span {color:var(--dmo-muted)}
+html body .beta-production-lines > :is(button,a) {border-radius:6px;box-shadow:none}
+/* The rail is a light surface now: an empty line's hover no longer turns dark. */
+html body .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover {background:var(--dmo-brand-050);border-color:var(--dmo-border)}
+/* Job On: compact hierarchy with related components kept together. */
+html body .jof2 {padding:12px 24px 16px;font-size:13px}
+html body .jof2 .wrap {max-width:1800px}
+html body .jof2 .sheet {grid-template-columns:minmax(0,1fr) 210px;gap:12px;margin-top:12px}
+html body .jof2 .card {border:1px solid var(--dmo-border);border-radius:8px;box-shadow:none}
+html body .jof2 .sec {padding:10px 12px;gap:7px}
+html body .jof2 .code {padding:0;min-width:0;height:auto;background:transparent;color:var(--dmo-text);font-size:24px;font-weight:700;letter-spacing:-.04em;border-radius:0}
+html body .jof2 .hv small {font-size:10px;font-weight:500;letter-spacing:0;text-transform:none}
+html body .jof2 .hv b {font-size:17px;font-weight:650}
+html body .jof2 .hv+.hv {padding-left:10px;margin-left:0}
+html body .jof2 .tool-head {display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:0;margin:0;width:100%;text-align:left}
+html body .jof2 .design-tool-heading {display:flex;align-items:baseline;gap:12px;width:100%}
+html body .jof2 .design-tool-name {font-size:12px;letter-spacing:0;font-weight:400;color:var(--dmo-text)}
+html body .jof2 .design-tool-meta {display:flex;align-items:baseline;gap:6px}
+html body .jof2 .design-tool-meta .hv {display:inline-flex;align-items:baseline;gap:4px}
+html body .jof2 .design-tool-meta .hv small {font-size:12px}
+html body .jof2 .design-tool-meta .hv b {font-size:14px;font-weight:600}
+html body .jof2 .design-tool-meta .hv+.hv {border:0;padding-left:4px}
+html body .jof2 .tool-hint {font-size:11px}
+html body .jof2 .use-top {font-size:12px}
+html body .jof2 .use-top b {color:var(--dmo-brand-700);font-size:15px}
+html body .jof2 .bar {height:6px;background:var(--dmo-brand-100);border-radius:4px}
+html body .jof2 .bar i {background:var(--design-medium)}
+/* Notes are never cut and fill the card down to its neighbours' height (Diogo, 23/10/2026). */
+html body .jof2 .note-view:not(.is-empty):not(.is-ampliada) {background:var(--dmo-subtle);padding:5px 8px;border-radius:5px}
+html body .jof2 .note-view:not(.is-empty):not(.is-ampliada) p {font-size:12px;padding:0}
+html body .jof2 .note-view:not(.is-ampliada)>span {font-size:10px;font-weight:500;text-transform:none;letter-spacing:0}
+html body .jof2 .more {margin-top:0;padding-top:4px;border:0}
+html body .jof2 .more summary {font-size:12px;color:var(--dmo-brand-700)}
+html body .jof2 .more.empty>summary>span:not([aria-hidden]):not(.more-preview) {position:static;width:auto;height:auto;overflow:visible;clip:auto}
+html body .jof2 .more>summary {min-height:24px;font-weight:500}
+html body .jof2 .note-box.is-ampliada>p {min-height:200px;max-height:60vh;overflow:auto}
+html body .jof2 .kv :is(dt,dd) {font-size:12px;padding-block:5px}
+html body .jof2 .side {gap:12px}
+html body .jof2 .article {padding:14px}
+html body .jof2 .article-head {font-size:16px}
+html body .jof2 .article-head>span {font-size:11px}
+html body .jof2 .jof-artigo {height:170px;min-height:0}
+html body .jof2 .jof-artigo :is(svg,img) {height:160px;max-height:160px;object-fit:contain}
+html body .jof2 .notes {padding:14px;min-height:0}
+html body .jof2 .notes h2 {font-size:16px;margin-bottom:10px}
+html body .jof2 .notes li {font-size:13px}
+html body .jof2 .ref-search>svg,html body .jof2 .rail-toggle>svg {display:none}
+html body .jof2 .rail-toggle-txt {position:static;width:auto;height:auto;overflow:visible;clip:auto}
+html body .jof2 .ref-search input {padding-left:10px}
+html body .jof2 .design-stock {display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 0;border-block:1px solid var(--dmo-border)}
+html body .jof2 .design-stock>div+div {border-left:1px solid var(--dmo-border);padding-left:12px}
+html body .jof2 .design-stock span {display:block;font-size:11px;color:var(--dmo-muted)}
+html body .jof2 .design-stock strong {font-size:19px;font-weight:650}
+html body .jof2 .design-stock input {width:100%;min-width:0}
+html body .jof2 [data-jof-familia="AN"],html body .jof2 [data-jof-familia="ARR"] {flex:0 0 auto;min-height:0}
+html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .code {font-size:17px}
+html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .hv b {font-size:14px}
+html body .jof2 .design-dimensions {margin-top:0}
+html body .jof2 .design-dimensions .dims {font-size:12px}
+html body .jof2 .design-dimensions .dims :is(th,td) {padding:4px 6px;min-height:0;font-size:11px}
+html body .jof2 .design-dimensions .table-wrap {border:0;border-radius:0}
+html body .jof2 .design-dimensions .dims tr :is(th,td) {height:auto;line-height:1.25;padding:3px 0;border:0;background:none;text-transform:none;letter-spacing:0;font-weight:400}
+html body .jof2 .design-dimensions .dims td:nth-child(2) {font-weight:600;color:var(--dmo-text)}
+html body .jof2 .design-dimensions .dims th {padding-bottom:6px;font-weight:500}
+html body .jof2 .design-dimensions .folgas {padding:4px 0;gap:8px}
+html body .jof2 .design-dimensions .folgas .folga {padding:0;border:0;background:none;min-width:0;font-size:12px}
+html body .jof2 .design-warning {margin:6px 0 0;padding:5px 8px;font-size:11px;border-left:2px solid var(--dmo-warning);background:var(--dmo-warning-soft);border-radius:4px}
+html body .jof2 .design-warning summary {cursor:pointer;font-weight:500}
+html body .jof2 .design-warning p {margin:6px 0 0}
+@media(min-width:1100px) {
+  html body .jof2 .page-head,html body .jof2.editing .page-head {display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:0;margin:0;background:none;border:0;box-shadow:none}
+  html body .jof2 .page-head .head-right,html body .jof2.editing .page-head .head-right:has(#lightReference) {order:-1;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0;border:0;margin:0;width:100%;gap:12px}
+  html body .jof2 .pick-block {flex:1;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;width:auto;min-width:0}
+  html body .jof2 .pick-row {gap:10px;flex-wrap:nowrap;width:auto;min-width:0;flex:1;justify-content:flex-start}
+  html body .jof2 .pick-row>.pick-campo:has(.ref-search) {flex:0 1 180px}
+  html body .jof2 .pick-row .ref-search input#jofReferencia {min-width:0}
+  html body .jof2 .head-acoes {margin:0;gap:6px}
+  html body .jof2 .pick-block>h1 {position:static!important;clip:auto;width:auto;height:auto;overflow:visible;white-space:nowrap;margin:0 10px 0 0;flex:none}
+  html body .jof2 .page-head .facts {background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:6px;padding:10px 14px;gap:14px;min-height:58px}
+  html body .jof2 .page-head .facts-dados {display:flex;justify-content:space-between;padding:0;border:0;gap:12px}
+  html body .jof2 .page-head .fact-col {display:flex;align-items:center;gap:9px;padding:0;border:0;flex-wrap:wrap}
+  html body .jof2 .page-head .fact-col:first-child {padding:0}
+  html body .jof2 .page-head .fact-col.mach {padding:0}
+  html body .jof2 .page-head .fact-col.mach .mch {height:30px;min-width:40px;font-size:15px;border-radius:4px;padding:0 8px}
+  html body .jof2 .fl,html body .jof2 .fv {font-size:12px}
+  html body .jof2 .facts-dados .fv strong {font-size:13px}
+  html body .jof2 .facts-dados .fl {text-transform:none;letter-spacing:0;font-weight:400}
+  html body .jof2 .page-head .facts {min-height:44px;padding-block:6px}
+  html body .jof2 .jof-onde {margin:3px 0;font-size:11px}
+}
+@media(max-width:1199px) {
+  html body .dmo-shell-header {gap:0 12px}
+  html body .dmo-shell-header .dmo-primary-nav {gap:12px}
+  html body .dmo-shell-header .dmo-env-badge {display:none}
+  html body .dmo-shell-header .dmo-shell-conta {grid-column:3/-1}
+  html body .dmo-shell-header .dmo-shell-user span {display:none}
+}
+@media(max-width:1099px) {
+  html body .jof2 .sheet {grid-template-columns:minmax(0,1fr)}
+  html body .jof2 .side {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  html body .jof2 .page-head {flex-wrap:wrap}
+}
+@media(max-width:800px) {
+  html body .dmo-shell-header {grid-template-columns:36px 1fr auto;padding:8px 16px 0;gap:4px 12px}
+  html body .dmo-shell-header .dmo-shell-conta {grid-column:2/-1;max-width:100%;margin:0}
+  html body .dmo-shell-header .dmo-primary-nav {grid-column:1/-1;grid-row:2;height:auto;min-height:44px;flex-wrap:wrap;gap:0 18px}
+  html body .dmo-shell-header .dmo-secondary-nav {grid-row:3;flex-wrap:wrap;gap:0 18px}
+  html body :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main,.jof2) {padding:16px}
+}
+@media(max-width:600px) {
+  html body .jof2 .side {grid-template-columns:1fr}
+  html body .jof2 .head-right,html body .jof2 .pick-row {flex-wrap:wrap;max-width:100%}
+  html body .jof2 .pick-block {max-width:100%;min-width:0}
+  html body .jof2 .page-head .facts {flex-wrap:wrap}
+}
+
+/* Contextual support surface (docs/design/HANDOFF-ASTRA.md): a page slides in
+   beside the workspace; module navigation never enters it. The partial is
+   _DmoSupportPanel + wwwroot/js/dmo-support.js. */
+html.dmo-support-open body{overflow:hidden}
+html body dialog.dmo-support{
+  position:fixed;inset:0 0 0 auto;margin:0;padding:0;
+  width:min(1040px,calc(100vw - 120px));max-width:none;height:100dvh;max-height:none;
+  border:0;border-left:1px solid var(--dmo-border);border-radius:0;
+  background:var(--dmo-card);color:var(--dmo-text);box-shadow:none;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);visibility:hidden;
+  transition:transform .22s ease,visibility .22s;
+}
+html body dialog.dmo-support:not([open]){display:none;transform:translateX(100%);visibility:hidden}
+html body dialog.dmo-support[open]{transform:none;visibility:visible}
+@starting-style{html body dialog.dmo-support[open]{transform:translateX(100%)}}
+html body dialog.dmo-support::backdrop{background:rgba(11,19,32,.24)}
+html body .dmo-support-head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--dmo-border);flex:0 0 auto}
+html body .dmo-support-eyebrow{display:block;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
+html body .dmo-support-head h2{margin:2px 0 0;font-size:17px;font-weight:650;letter-spacing:-.01em}
+html body #dmoSupportFull{margin-left:auto;font-size:12px;color:var(--dmo-brand-700);text-decoration:none;white-space:nowrap}
+html body #dmoSupportFull:hover{text-decoration:underline}
+html body #dmoSupportFull:focus-visible{outline:2px solid var(--design-medium);outline-offset:3px;text-decoration:none}
+html body .dmo-support-head [data-support-close]{flex:0 0 auto;min-height:30px;padding:0 10px;font-size:12px}
+html body .dmo-support-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--dmo-border);background:var(--dmo-warning-soft);font-size:12px}
+html body .dmo-support-confirm[hidden]{display:none}
+html body .dmo-support-confirm p{flex:1 1 100%;margin:0;color:var(--dmo-text)}
+html body .dmo-support-loading{position:absolute;inset:60px 0 auto 0;margin:0;padding:22px 20px;color:var(--dmo-muted);font-size:12px}
+html body .dmo-support-loading[hidden]{display:none}
+html body .dmo-support-frame{flex:1 1 auto;width:100%;min-height:0;border:0;background:var(--dmo-card)}
+html body .dmo-support-refresh{position:fixed;right:20px;bottom:20px;z-index:120;display:flex;flex-wrap:wrap;align-items:center;gap:10px;max-width:calc(100vw - 40px);padding:10px 14px;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card);font-size:12px;box-shadow:none}
+html body .dmo-support-refresh[hidden]{display:none}
+/* Inside the support panel only the page is drawn: the shell stays outside. */
+html[data-dmo-embedded="true"] body{overflow:auto}
+html[data-dmo-embedded="true"] .dmo-shell-header,
+/* A faixa «Em desenvolvimento» sai do ecrã (Diogo, 27/10/2026, cartão …QAAtETotvm9D6bqP3q6yXM).
+   A marca fica no HTML, onde o teste da faixa a procura, até ele mudar com o ok do Diogo. */
+html body .dmo-faixa-dev{display:none!important}
+html[data-dmo-embedded="true"] :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main,.jof2){padding:16px 18px 24px}
+@media(max-width:700px){html body dialog.dmo-support{width:100vw}}
+
+/* Long matrices keep the page inside 1366x768: the list scrolls locally. */
+html body .dmo-table-wrap:has(>.dmo-matrix){max-height:calc(100vh - 610px);overflow:auto}
+/* Boquilhas history: compact filter/metrics so the daily matrix stays at 1366x768. */
+html body .beta-bq-layout .bq-history-filters{padding:12px 16px}
+html body .beta-bq-layout .bq-history-filters-head{margin-bottom:8px;min-height:0}
+html body .beta-bq-layout .bq-history-filter-grid{gap:8px 10px}
+html body .beta-bq-layout .bq-history-filter-grid :is(input,select){min-height:34px}
+html body .beta-bq-layout .bq-metrics-card{padding:10px 14px}
+html body .beta-bq-layout .bq-metrics-card .lot-data > div{padding:8px 10px;border-radius:6px}
+html body .beta-bq-layout .bq-metrics-card .lot-data strong{font-size:20px}
+/* Job On sheet: keeps the new/edit screen inside 1366x768 without hiding data. */
+html body .jof2{padding:10px 24px 8px}
+html body .jof2 .jobon-aviso{margin:6px 0 0;padding:4px 10px;font-size:11px}
+html body .jof2 .design-stock{padding:2px 0}
+html body .jof2 .design-dimensions .dims tr :is(th,td){padding:2px 0}
+html body .jof2 .sec{padding:8px 12px;gap:5px}
+html body .jof2 .card{padding:8px 12px}
+html body .jof2 .use-top{margin-bottom:2px}
+html body .jof2 .more>summary{min-height:20px}
+/* Narrow surfaces (the support panel): the machine list must wrap, never push
+   the page sideways. The Ficha page does not load dmo-ferramenta-form.css. */
+html body .ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px}
+html body .ferr-checks .dmo-check,html body .ferr-checks label{min-width:0}
+/* Narrow surfaces (the support panel is 620 px, a phone is narrower): the tool
+   fields must give up their content width and wrap instead of pushing sideways. */
+@media(max-width:760px){
+  html body :is(.ferr-create-row,.ferr-editar-linha) > .dmo-field{flex:1 1 100%;min-width:0}
+  html body .ferr-checks{flex:1 1 100%}
+}
+/* Phone: the header grid must accept a narrow account block instead of
+   pushing the template label past the edge. */
+@media(max-width:800px){
+  html body .dmo-shell-header{grid-template-columns:36px minmax(0,1fr) auto}
+  html body .dmo-shell-header .dmo-shell-conta{min-width:0;justify-self:end;text-align:right}
+  html body .dmo-shell-header .dmo-shell-user{min-width:0;white-space:normal}
+  html body .dmo-shell-header .dmo-shell-user :is(strong,span){white-space:normal;overflow-wrap:anywhere}
+  html body .dmo-shell-header .dmo-shell-sessao{display:block;white-space:normal}
+}
+/* Phone: the rail's selector row wraps instead of running past the edge. */
+@media(max-width:760px){
+  html body .beta-production-lines{flex-wrap:wrap}
+  html body .beta-production-lines > :is(button,.dmo-rail-link){flex:1 1 120px}
+}
+
+/* Páginas cujas linhas já estão por baixo do título (Reparação, Armazém, Sumário): sem rail
+   à esquerda, o main ocupa a largura toda também entre 701 e 800 px (a 768 px ficava na
+   coluna estreita do rail, e a «Hora» caía por baixo do «Dia»). */
+@media (max-width:800px){
+  html body :is(.beta-light-layout,.beta-bq-layout):has(>main:first-child){grid-template-columns:minmax(0,1fr)}
+}
+/* Mockup composition (Owner, 26/10/2026: «como os mockups»). The machine rail is no longer a
+   sidebar: it becomes one strip of line selectors above the page (Boquilhas, Planeamento,
+   Reparação). Same markup, same links and selection classes; only the layout changes. */
+@media (min-width:801px){
+  html body :is(.beta-light-layout,.beta-bq-layout){display:block;min-height:0}
+  html body :is(.beta-light-layout,.beta-bq-layout)>.dmo-zona:has(>.beta-production-rail){display:block}
+  html body .beta-production-rail{display:flex;align-items:center;gap:16px;margin:14px 24px 0;padding:8px 12px;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
+  html body .beta-production-rail-head{display:flex;align-items:baseline;gap:8px;flex:0 0 auto;padding:0 12px 0 0;border-right:1px solid var(--dmo-border)}
+  html body .beta-production-rail-head :is(strong,.beta-production-rail-title){font-size:13px;font-weight:650;text-transform:none;letter-spacing:0;color:var(--dmo-text)}
+  html body .beta-production-lines{display:flex;flex-wrap:nowrap;gap:6px;min-width:0;overflow-x:auto}
+  html body .beta-production-lines :is(button,.dmo-rail-link){flex:0 1 210px;width:auto;height:auto;min-height:0;padding:6px 12px;border:1px solid var(--dmo-border);border-radius:6px;background:var(--dmo-card);color:var(--dmo-text);outline:0}
+  html body .beta-production-lines strong{font-size:14px;line-height:18px}
+  html body .beta-production-lines span{margin-top:1px;font-size:11.5px;line-height:15px;color:var(--dmo-muted)}
+  html body .beta-production-rail-empty{font-size:12px;color:var(--dmo-muted)}
+}
+/* Line identity as in the app: each selector tinted with its line colour; the open line solid. */
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){border:0;border-left:0;background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 12%,var(--dmo-card));color:var(--dmo-text)}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) :is(strong,span){color:var(--dmo-text)}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:var(--dmo-muted)}
+html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 22%,var(--dmo-card))}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active){background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color);outline:0}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){background:var(--dmo-machine-color,var(--dmo-brand-600));border-left:0}
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) :is(strong,span),
+html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active) :is(strong,span){color:var(--dmo-text-on-color)}
+html body .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty{opacity:1}
+html body .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty :is(strong,span){color:var(--dmo-muted)}
+
+/* Labels as in the mockups: sentence case, 12px, muted — never tiny uppercase kickers. */
+html body :is(.dmo-label,.dmo-field>label,.field>label,.ri-onde dt,.resumo-kicker,.dmo-eyebrow,.lot-data span,.lot-data small,.dmo-kicker) {font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--dmo-muted)}
+/* Value tiles (Boquilhas lot values and similar): one flat strip with dividers, big numbers. */
+html body .lot-data {display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0}
+html body .lot-data>div {background:none!important;border:0!important;border-left:1px solid var(--dmo-border)!important;border-radius:0!important;padding:2px 16px!important}
+html body .lot-data>div:first-child {border-left:0!important;padding-left:0!important}
+html body .lot-data strong {font-size:22px!important;font-weight:650}
+/* Line selectors keep their text on one line. */
+html body .beta-production-lines :is(button,.dmo-rail-link){flex:0 0 auto;max-width:280px}
+html body .beta-production-lines :is(strong,span){white-space:nowrap}
+/* Calendar as in the mockup: plain day numbers on hairline rows, the chosen day solid. */
+html body .dmo-calendar .dmo-calendar-week{font:500 12px/1.4 var(--dmo-font,Inter,sans-serif);color:var(--dmo-muted);padding-bottom:6px;border-bottom:1px solid var(--dmo-border)}
+html body .dmo-calendar .dmo-calendar-days{gap:0}
+html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty){aspect-ratio:auto;min-height:38px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none;font-size:14px;font-weight:450}
+html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):is(:hover,:focus-visible){background:var(--dmo-brand-050)}
+html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected){border-radius:6px;border-bottom-color:transparent;background:var(--dmo-brand-600);color:var(--dmo-text-on-color);font-weight:650}
+/* No tiny uppercase kickers anywhere (mockups): labels in sentence case, 11–12px, muted.
+   Table headings were already sentence case above. */
+html body :is(.resumo-eyebrow,.resumo-area span,.resumo-linked-card-head>span:first-child,.resumo-mini-card>span,.resumo-stats span,
+  .peg-corredor span,.peg-page .dmo-fact span,.peso-fact span,.pu-fact span,.revisao-facts span,.revisao-peg-componentes span,
+  .ferr-tech-titulo,.sumario-grupo h3,.sumario-etiqueta,.jof2 .eyebrow,.jof2 .hv small,.jof2 .pick-rotulo,.jof2 .facts-dados .fl,
+  .jof2 .note-view>span,.jof2 .note-edit>span,.jof2 .dims th,.page-head .eyebrow,.page-heading .eyebrow,.dmo-page-head .eyebrow) {
+  text-transform:none;letter-spacing:0;font-size:12px;font-weight:500;color:var(--dmo-muted)}
+html body :is(.sumario-grupo h3) {font-size:14px;font-weight:650;color:var(--dmo-text);border-bottom-width:1px;border-bottom-color:var(--dmo-border)}
+html body .sumario-etiqueta {color:var(--dmo-warning);font-weight:600}
+html body .dmo-table th {text-transform:none;letter-spacing:0}
+html body .peg-corredor {border-left:1px solid var(--dmo-border)}
+/* Rail selector of a line with no known colour (data-dmo-linha-cor=""): fall back to slate, and win
+   over the normalize rule that paints the selected rail card white. */
+html body [data-dmo-linha-cor=""] {--dmo-machine-color:var(--dmo-brand-600)}
+html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) {background:var(--dmo-machine-color,var(--dmo-brand-600));color:var(--dmo-text-on-color);outline:0}
+html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) :is(strong,span) {color:var(--dmo-text-on-color)}
+html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):not(.selected):not(.active):is(.dmo-linha-cor,[data-dmo-linha-cor]) {background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 12%,var(--dmo-card));color:var(--dmo-text);outline:0}
+
+/* Header order (Owner, 26/10/2026): modules … version · Definições · user (name + Template) · Sair.
+   Same markup: the header becomes one wrapping flex row and the items are ordered. */
+@media (min-width:801px){
+  html body .dmo-shell-header {display:flex;flex-wrap:wrap;align-items:center;column-gap:20px;row-gap:0}
+  html body .dmo-shell-header .dmo-primary-nav {display:contents}
+  html body .dmo-shell-header .dmo-shell-logo {order:0;flex:0 0 40px;margin-right:12px}
+  html body .dmo-shell-header .dmo-primary-nav>a {order:1;min-height:64px}
+  html body .dmo-shell-header .dmo-env-badge {order:2;margin-left:auto}
+  html body .dmo-shell-header .dmo-primary-nav>a[data-dmo-nav-definicoes] {order:3;margin-inline-start:0!important}
+  html body .dmo-shell-header .dmo-shell-conta {order:4;display:grid;grid-template-columns:auto auto;align-items:center;column-gap:18px;margin:8px 0}
+  html body .dmo-shell-header .dmo-shell-sessao {grid-column:1/-1;justify-self:end}
+  html body .dmo-shell-header .dmo-shell-acoes {margin:0}
+  html body .dmo-shell-header .dmo-shell-logout {margin-left:0}
+  html body .dmo-shell-header .dmo-secondary-nav {order:5;flex:1 0 100%;margin:0 -24px;padding:0 24px}
+}
+/* Same specificity as normalize's :is(:hover,.selected,.active) rule for coloured line cards, loaded later. */
+html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active) {background:var(--dmo-machine-color,var(--dmo-brand-600));color:var(--dmo-text-on-color);outline:0}
+html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(.selected):not(.active):hover {background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 22%,var(--dmo-card));color:var(--dmo-text);outline:0}
+/* Smaller controls (Owner, 26/10/2026: «botões demasiado grandes»): buttons and fields share one
+   lower height, so the normalize rule «buttons = field height» still holds. */
+:root {--dmo-control-height:34px;--dmo-control-height-compact:30px}
+html body :is(.dmo-button,.button,.btn) {font-size:13px;padding:0 14px}
+/* Job On sheet: its header controls follow the same smaller height. */
+html body .jof2 .btn {height:var(--dmo-control-height);min-height:var(--dmo-control-height);font-size:13px}
+html body :is(.jof2 .pick-row .btn,.jof2 .head-acoes .btn,.jof2 .head-acoes summary.btn,.jof2 select.prod-select,.jof2 .ref-search input,.jof2 .prod-trigger) {height:var(--dmo-control-height);min-height:var(--dmo-control-height);font-size:13px;font-weight:600}
+
+/* Armazém › Registo (Owner, 26/10/2026, on mockup 06): three columns — tool type and search on the
+   left, the register form in the centre, the selected tool on the right; the log full width below.
+   The selected-tool card holds both the form and the tool's facts, so it is split with a grid. */
+@media (min-width:1100px){
+  html body #armRegisto{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:12px;align-items:start}
+  html body #armRegisto>*{grid-column:1/-1}
+  html body #armRegisto>#armMovProcura{grid-column:1}
+  html body #armRegisto:has(>#armMovFerramenta)>#armMovProcura{grid-row:1}
+  html body #armRegisto>#armMovFerramenta{grid-column:2;grid-row:1}
+  html body #armRegisto:not(:has(>#armMovFerramenta))>#armMovProcura{grid-column:1/-1}
+  html body #armMovProcura .arm-linha{flex-wrap:wrap}
+  html body #armMovProcura .arm-modo-direita{order:0;margin-left:0;flex:1 0 100%}
+  html body #armMovProcura .arm-procura{width:100%}
+  html body #armMovFerramenta[data-dmo-ferramenta]{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);column-gap:24px;align-items:start}
+  html body #armMovFerramenta[data-dmo-ferramenta]>*{grid-column:1/-1}
+  /* Right: the selected tool — its name (with «Corrigir») and where it is. */
+  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{grid-column:2;grid-row:1;padding-left:24px;border-left:1px solid var(--dmo-border);margin:0;padding-bottom:12px}
+  html body #armMovFerramenta[data-dmo-ferramenta]>.arm-onde{grid-column:2;grid-row:2;padding-left:24px;border-left:1px solid var(--dmo-border);margin:0;flex-direction:column;gap:10px}
+  html body #armMovFerramenta[data-dmo-ferramenta]>.arm-onde div{flex-direction:row;align-items:baseline;gap:12px}
+  html body #armMovFerramenta[data-dmo-ferramenta]>.arm-onde span{min-width:110px}
+  /* Centre: the register form, spanning the height of the tool facts. */
+  html body #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:1;grid-row:1/span 2}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha .dmo-field :is(input,select){width:100%}
+}
+@media (min-width:1100px){
+  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo h3{font-size:20px;font-weight:700;letter-spacing:-.02em}
+}
+
+/* Controlo › Resumo as mockup 04: search on one line; dates and approval as one strip; the
+   combination as one row; Peso a wide pane on the left with Pegamentos and PU NNPB stacked on the
+   right; the document state as table rows; «Visto por» and «Aprovado por» side by side. */
+@media (min-width:1100px){
+  html body .resumo-browser{display:flex;align-items:center;gap:20px;padding:10px 16px}
+  html body .resumo-browser>h3{margin:0;font-size:15px;white-space:nowrap}
+  html body .resumo-browser .resumo-form-grid{display:flex;gap:10px;margin:0;flex:0 1 360px}
+  html body .resumo-browser .resumo-form-grid .dmo-field{flex:1;margin:0}
+  html body .resumo-browser .resumo-form-grid .dmo-field>label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  html body .resumo-browser .resumo-procura{flex:1;min-width:0}
+  html body .resumo-sheet{display:flex;flex-direction:column;gap:14px}
+  html body .resumo-sheet-intro h3{font-size:24px;font-weight:700;letter-spacing:-.02em}
+  /* Strips: no box per value, hairline dividers. */
+  html body :is(.resumo-context-grid,.resumo-tools-grid){display:flex;gap:0;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px;padding:8px 0}
+  html body :is(.resumo-context-grid,.resumo-tools-grid)>.resumo-mini-card{flex:1;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;padding:2px 16px;border:0;border-left:1px solid var(--dmo-border);border-radius:0;background:none;min-width:0}
+  html body :is(.resumo-context-grid,.resumo-tools-grid)>.resumo-mini-card:first-child{border-left:0}
+  html body :is(.resumo-context-grid,.resumo-tools-grid)>.resumo-mini-card>strong{font-size:15px}
+  html body :is(.resumo-context-grid,.resumo-tools-grid)>.resumo-mini-card>small{font-size:12px;color:var(--dmo-muted)}
+  html body .resumo-sheet-tools{display:flex;align-items:center;gap:16px}
+  html body .resumo-sheet-tools>.resumo-section-title{flex:0 0 auto;margin:0!important;font-size:15px!important}
+  html body .resumo-sheet-tools>.resumo-tools-grid{flex:1}
+  /* Linked controls. */
+  html body .resumo-linked-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
+  html body .resumo-linked-card{background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+  html body .resumo-linked-card.resumo-linked-peso{grid-row:1/span 2}
+  html body .resumo-linked-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  html body .resumo-linked-card-head>span:first-child{font-size:16px!important;font-weight:650!important;color:var(--dmo-text)!important}
+  html body .resumo-linked-card>strong{font-size:15px}
+  html body .resumo-linked-card>small{color:var(--dmo-muted)}
+  /* Document state as rows. */
+  html body .resumo-areas{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--dmo-border)}
+  html body .resumo-areas .resumo-area{display:grid;grid-template-columns:200px 160px 140px minmax(0,1fr);align-items:center;gap:16px;padding:6px 4px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none;min-height:0}
+  html body .resumo-areas .resumo-area>span{font-weight:700;color:var(--dmo-text)}
+  html body .resumo-areas .resumo-area>span small{font-weight:400;color:var(--dmo-muted);margin-left:6px}
+  html body .resumo-areas .resumo-area>strong{font-size:13px;font-weight:600}
+  html body .resumo-areas .resumo-area-form{margin:0}
+  html body .resumo-areas .resumo-area-form select{width:100%}
+  html body .resumo-areas .resumo-area-note{min-height:var(--dmo-control-height);margin:0;text-align:left}
+  html body .resumo-people{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  html body .resumo-people .resumo-viewings{border:0;padding:0;background:none}
+}
+@media (min-width:1100px){
+  /* Stronger than dmo-resumo-prototype.css (.resumo-page …, :has(.resumo-linked-pu)). */
+  html body .resumo-page .resumo-linked-grid,html body .resumo-page .resumo-linked-grid:has(.resumo-linked-pu){display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
+  html body .resumo-page .resumo-linked-grid>.resumo-linked-peso{grid-column:1;grid-row:1/span 2}
+  html body .resumo-page .resumo-linked-grid>:is(.resumo-linked-peg,.resumo-linked-pu){grid-column:2}
+  html body .resumo-page .resumo-areas{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--dmo-border)}
+  html body .resumo-page .resumo-areas .resumo-area{display:grid;grid-template-columns:220px 140px 160px minmax(0,1fr);align-items:center;gap:16px;padding:6px 4px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none}
+  html body .resumo-page .resumo-window-grid{padding:8px 0;margin:0 20px}
+}
+@media (min-width:1100px){
+  html body .resumo-page .resumo-areas .resumo-area .resumo-area-note{display:flex;align-items:center;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+}
+@media (min-width:1100px){
+  html body .resumo-page .resumo-areas .resumo-area .resumo-area-note-text{display:block;height:auto;min-height:0;max-height:none;margin:0;padding:0;line-height:1.3;-webkit-line-clamp:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html body .resumo-page .resumo-areas .resumo-area>span{font-weight:700;color:var(--dmo-text)}
+}
+
+/* Reparação as mockup 07: «Linha C3» as the card title; production, CM and MF as one strip with
+   dividers; the register fields on one line with «OK» last; the recent list as a plain table. */
+html body .ri-page .ri-card>.dmo-card-topo h3{font-size:22px;font-weight:700;letter-spacing:-.02em}
+html body .ri-page .ri-onde{display:flex;gap:0;padding:10px 0;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
+html body .ri-page .ri-onde>div{flex:1;padding:0 20px;background:none;border-radius:0;border-left:1px solid var(--dmo-border)}
+html body .ri-page .ri-onde>div:first-child{border-left:0}
+html body .ri-page .ri-onde dt{font-size:12px;font-weight:500;text-transform:none;letter-spacing:0}
+html body .ri-page .ri-onde dd{font-size:18px;font-weight:700}
+html body .ri-page .ri-registo-linha{gap:12px;padding-bottom:12px;border-bottom:1px solid var(--dmo-border)}
+html body .ri-page .ri-lista h4{font-size:16px;font-weight:650;margin:12px 0 8px}
+
+/* Admin: page titles like every other page (26px, text colour); group labels in sentence case. */
+html body :is(#dmu-title,#dmt-title,#dmr-title){font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
+html body .dmt-module-head{font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--dmo-muted)}
+html body .dmu-entrega .dmu-token span{text-transform:none;letter-spacing:0;font-size:12px}
+
+/* Definições: no side menu (mockups: navigation on top). The sections become a row of text tabs
+   above the content, the open one underlined like the module tabs; a locked section keeps its
+   meaning in a muted label, without the padlock glyph. */
+@media (min-width:801px){
+  html body .def-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+  html body .def-menu{position:static;flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:4px 22px;padding:0 4px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none}
+  html body .def-menu-grupo{flex-direction:row;align-items:stretch;gap:0 22px}
+  html body .def-menu-sub{flex-direction:row;padding-left:0;gap:0 18px}
+  html body .def-menu a{padding:8px 2px;border-radius:0;border-bottom:3px solid transparent;font-size:13px;font-weight:500;color:var(--dmo-muted);background:none;box-shadow:none}
+  html body .def-menu a:hover{color:var(--dmo-text);background:var(--dmo-brand-050)}
+  html body .def-menu a.active{color:var(--dmo-brand-700);font-weight:650;border-bottom-color:var(--design-blue);background:none;box-shadow:none}
+  html body .def-menu .def-menu-sub a{padding:8px 2px;font-weight:500}
+}
+html body :is(.def-menu-cadeado,.def-cadeado) svg{display:none}
+html body .def-menu a:has(.def-menu-cadeado){color:var(--dmo-muted);opacity:.75}
+
+/* Login and Versão: the identity side is a flat light surface, no gradient. */
+html body.dmo-account-page .identity{background:var(--dmo-subtle)}
+/* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
+html body :is(.peg-aviso,.peso-aviso)::before{content:none}
+
+/* Value strips everywhere (Peso, PU NNPB, Revisão): one surface with hairline dividers instead of
+   one tinted or edged box per value — as the metrics strip of mockups 04 and 05. */
+html body :is(.peso-facts,.peso-live-strip,.pu-stats,.revisao-facts){display:flex;flex-wrap:wrap;gap:0;padding:10px 0;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
+html body :is(.peso-facts,.peso-live-strip,.pu-stats,.revisao-facts)>*{flex:1 1 140px;margin:0;padding:2px 16px!important;border:0!important;border-left:1px solid var(--dmo-border)!important;border-radius:0!important;background:none!important;min-width:0}
+html body :is(.peso-facts,.peso-live-strip,.pu-stats,.revisao-facts)>*:first-child{border-left:0!important}
+html body .pu-stat::before{content:none}
+html body .pu-stat strong{font-size:22px}
+html body .peso-fact strong{font-size:18px}
+/* The line selectors now sit inside the page, under its title: no outer margin of their own. */
+@media (min-width:801px){
+  html body main .beta-production-rail{margin:0}
+  html body main .dmo-zona:has(>.beta-production-rail){margin:0}
+}
+
+/* Armazém › Registo as mockup 06: one card in three columns. Left: «Tipo de ferramenta» (CM · MF · BQ
+   as text choices) with the search below; centre: the register; right: the selected tool. The regions
+   keep their ids: #armRegisto only stops drawing a box of its own (display:contents). */
+@media (min-width:1100px){
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:0;align-items:stretch}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>*{grid-column:1/-1}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>.page-head{grid-row:1;margin-bottom:12px}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armMovAvisos{grid-row:2}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{grid-column:1;grid-row:3}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armRegisto{display:contents}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura{grid-column:1;grid-row:4}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta{grid-column:2;grid-row:3/span 2}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armLog{grid-column:1/-1;grid-row:5;margin-top:12px}
+  /* The three columns read as one card: shared edges, the left column divided by a hairline. */
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{background:var(--dmo-card);border:1px solid var(--dmo-border);border-right:0;border-bottom:0;border-radius:8px 0 0 0;padding:16px 20px 4px}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura{border-top:0;border-right:0;border-radius:0 0 0 8px;padding:8px 20px 16px;margin:0}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta{border-radius:0 8px 8px 0;margin:0}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{padding-left:20px;border-left:1px solid var(--dmo-border)}
+}
+/* «Tipo de ferramenta»: the rail drawn as three text choices, the chosen one filled. */
+html body #armTiposRail{display:block;margin:0;padding:0;border:0;background:none}
+html body #armTiposRail .beta-production-rail-head{display:block;padding:0 0 10px;border:0}
+html body #armTiposRail .beta-production-rail-head strong{font-size:15px;font-weight:650;color:var(--dmo-text)}
+html body #armTiposRail .beta-production-lines{display:flex;gap:8px;overflow:visible}
+html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link){flex:1 1 0;max-width:none;display:flex;align-items:center;justify-content:center;min-height:var(--dmo-control-height);padding:0 12px;border:1px solid var(--dmo-border);border-radius:6px;background:var(--dmo-card);color:var(--dmo-text)}
+html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link) span{display:none}
+html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link) strong{font-size:14px;font-weight:600;color:inherit}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active){background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) strong{color:var(--dmo-text-on-color)}
+@media (min-width:1100px){
+  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{flex-wrap:wrap;align-items:flex-start}
+  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo::before{content:"Ferramenta selecionada";flex:1 0 100%;margin-bottom:8px;font-size:15px;font-weight:650;color:var(--dmo-text)}
+}
+@media (min-width:1100px){
+  /* Stronger than the earlier #armRegisto grid rules (same ids plus the page). */
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto:has(>#armMovFerramenta)>#armMovProcura{grid-column:1;grid-row:4}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto>#armMovFerramenta{grid-column:2;grid-row:3/span 2}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto>#armLog{grid-column:1/-1;grid-row:5}
+}
+@media (min-width:1100px){
+  /* Zones are display:contents by default; this one draws the left column's top box. */
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{display:block}
+}
+
+/* Owner, 26/10/2026: «ver se tem a informação toda que está na app». Nothing the app shows is hidden
+   by this layer: page subtitles, rail subtitles, the linked-control notes and the Armazém search title
+   stay, set small and muted. */
+html body :is(.page-head,.beta-light-heading)>div>p{margin:2px 0 0;font-size:12px;color:var(--dmo-muted)}
+@media (min-width:801px){
+  html body .beta-production-rail-head span{display:inline;font-size:11px;color:var(--dmo-muted)}
+}
+@media (min-width:1100px){
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura>.dmo-card-topo{margin:0 0 8px}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura>.dmo-card-topo h3{font-size:13px;font-weight:600;color:var(--dmo-muted)}
+}
+
+/* Armazém register as mockup 06: «Registar entrada» on the left, «Corrigir» and «Registar» on the right
+   of the same row; Entrada | Saída below; the fields in two columns. The entry line only stops
+   drawing a box (display:contents), so its fields and the submit button sit in the form's grid. */
+@media (min-width:1100px){
+  html body #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto;gap:10px 8px;align-content:start}
+  html body #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]>*{grid-column:1/-1}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-registar-topo{display:contents}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-registar-titulo{grid-column:1/3;grid-row:1;align-self:center;margin:0;font-size:16px;font-weight:650}
+  html body #armMovFerramenta[data-dmo-ferramenta] #armCorrigirBotao{grid-column:3;grid-row:1}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{display:contents}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>:is(button,.dmo-button){grid-column:4;grid-row:1}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.arm-modo{grid-column:1/-1;grid-row:2}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>div.dmo-field:nth-of-type(even){grid-column:1}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>div.dmo-field:nth-of-type(odd){grid-column:2/-1}
+  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>div.dmo-field :is(input,select){width:100%}
+}
+@media (max-width:1099px){
+  html body .arm-registar-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
+  html body .arm-registar-titulo{margin:0;font-size:16px}
+}
+@media (min-width:1100px){
+  html body #armMovFerramenta[data-dmo-ferramenta] :is(#armCorrigirBotao,.arm-entrada-linha>button.dmo-button){align-self:center;margin:0}
+}
+
+/* Controlo › Revisão: section heads are plain titles over a hairline, not tinted or slate bars
+   with a coloured edge; the facts strip keeps its dividers. */
+html body .revisao-detail .revisao-parte-topo,
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal{background:none;border-left:0;border-radius:0;border-bottom:1px solid var(--dmo-border);padding:4px 0;color:var(--dmo-text)}
+html body .revisao-detail .revisao-parte-topo :is(h3,a,span){color:inherit}
+html body .revisao-detail .revisao-parte-topo h3.revisao-section{font-size:16px;font-weight:650}
+html body .revisao-detail .revisao-parte-topo .revisao-consultas a{color:var(--dmo-brand-700)}
+html body .revisao-resumo .revisao-facts>div,html body .revisao-facts>div{background:none!important;border-color:transparent!important}
+html body .revisao-facts>div+div{border-left:1px solid var(--dmo-border)!important}
+html body .revisao-resumo .revisao-facts span{color:var(--dmo-muted)}
+/* Definições: section group labels («Geral») in sentence case, like every other label. */
+html body .def-parte>h3.def-parte-titulo{font-size:13px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--dmo-muted)}
+/* Login, Versão, Erro: the «BA Glass» kicker in sentence case too. */
+html body.dmo-account-page .identity :is(.kicker,.brand-kicker,.eyebrow){text-transform:none;letter-spacing:0}
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal :is(h3.revisao-section,span){color:var(--dmo-text)}
+html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal a{color:var(--dmo-brand-700)}
+html body section.revisao-detail h3.revisao-section,html body .revisao-detail.revisao-resumo h3.revisao-section{background:none;border-left:0;border-radius:0;padding:6px 0;border-bottom:1px solid var(--dmo-border);color:var(--dmo-text)}
+/* Phone widths: value strips wrap to two columns; rail titles in sentence case at every width. */
+@media (max-width:800px){
+  html body .lot-data{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));row-gap:10px}
+  html body .lot-data>div:nth-child(odd){border-left:0!important;padding-left:0!important}
+}
+html body .beta-production-rail-head :is(strong,.beta-production-rail-title){text-transform:none;letter-spacing:0}
+
+/* Job On sheet on the app's own markup (Owner, 26/10/2026: notes always visible, technical
+   information folded, nothing moved). Only the look is set here. */
+@media (min-width:1100px){
+  /* Every family starts on the same line: the paired cards (BQ/AN, PU/ARR) lose their extra top padding. */
+  /* Facts read left to right with even gaps, not spread across the width. */
+  html body .jof2 .page-head .facts-dados{justify-content:flex-start;gap:28px}
+}
+/* Tool head: code and name, then «Referência 5809 · Lote 1» on one line; no grey box. */
+html body .jof2 .tool-head.tool-head{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 12px;width:100%;margin:0;padding:2px 0;border:0;border-radius:4px;background:none;text-align:left}
+html body .jof2 .tool-head.tool-head:hover{background:var(--dmo-brand-050)}
+html body .jof2 .tool-head .design-tool-heading{flex:1 0 100%}
+html body .jof2 .tool-head .hv{display:inline-flex;align-items:baseline;gap:4px;margin:0;padding:0;border:0}
+html body .jof2 .tool-head .hv small{font-size:12px;font-weight:400;color:var(--dmo-muted)}
+html body .jof2 .tool-head .hv b{font-size:14px;font-weight:650}
+/* Header: «Linhas», Referência and Produção share one height and bottom line. */
+html body .jof2 .pick-row{align-items:flex-end}
+html body .jof2 .pick-row :is(input,select,.prod-trigger,.btn){height:var(--dmo-control-height);min-height:var(--dmo-control-height);box-sizing:border-box}
+@media (min-width:1100px){
+}
+html body .jof2 .page-head .pick-row :is(.ref-search input,.dmo-suggest input,input#jofReferencia,select.prod-select,.prod-trigger){height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
+html body .jof2 .page-head .pick-row .ref-search input{display:block}
+html body .jof2 .tool-head.tool-head{padding:0}
+html body .jof2 .page-head .pick-row .ref-search{height:var(--dmo-control-height);min-height:0}
+
+/* Job On sheet, side column as in the app (Owner, 26/10/2026: «artigo muito pequeno, sem espaço
+   para notas»): the app's width, a larger article picture and a real area for the general notes. */
+@media (min-width:1100px){
+  html body .jof2 .sheet,html body .jof2.editing .sheet{grid-template-columns:minmax(0,1fr) clamp(280px,24%,420px)}
+  /* Facts spread evenly across the strip, not pushed to one side. */
+  html body .jof2 .page-head .facts-dados{justify-content:space-evenly;gap:16px}
+}
+html body .jof2 .jof-artigo{height:220px}
+html body .jof2 .jof-artigo :is(svg,img){height:210px;max-height:210px}
+html body .jof2 .notes{min-height:140px}
+html body .jof2 .notes :is(ul,.notes-vazio,p){min-height:72px;border:1px dashed var(--dmo-border);border-radius:6px;padding:6px 9px}
+/* Job On sheet on the dmo-beta composition (columns CM+TP, MF+CS, BQ+AN, PU+ARR): the BQ card holds
+   an inner section; it takes no extra padding, so every family starts on the same line. */
+html body .jof2 .card.pair .sec{padding:0}
+
+/* Job On sheet as the mockup (Owner, 26/10/2026: «divergiste da versão que queria»): CM, MF, BQ and PU
+   as one band on top, AN under BQ and ARR under PU; TP, CS and the Calibres in the row below. The app's
+   column wrappers stay in the markup and step aside (display:contents); narrow screens keep the app grid. */
+@container board (min-width:640px){
+  html body .jof2 .zones{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-areas:"cm mf bq pu" "cm mf an arr" "tp cs cal cal";align-items:stretch}
+  html body .jof2 .zones :is(.fcol,.fright,.frow){display:contents}
+  html body .jof2 .zones [data-jof-familia="CM"]{grid-area:cm}
+  html body .jof2 .zones [data-jof-familia="MF"]{grid-area:mf}
+  html body .jof2 .zones .card.pair:has([data-jof-familia="BQ"]){grid-area:bq}
+  html body .jof2 .zones [data-jof-familia="AN"]{grid-area:an}
+  html body .jof2 .zones [data-jof-familia="PU"]{grid-area:pu}
+  html body .jof2 .zones [data-jof-familia="ARR"]{grid-area:arr}
+  html body .jof2 .zones [data-jof-familia="TP"]{grid-area:tp}
+  html body .jof2 .zones [data-jof-familia="CS"]{grid-area:cs}
+  html body .jof2 .zones .g-cal{grid-area:cal;margin:0}
+  /* The top band is one panel, no gaps: hairline dividers between the columns, AN and ARR under a
+     hairline in the BQ and PU columns. TP, CS and CAL stay separate cards below. */
+  html body .jof2 .zones{gap:0}
+  html body .jof2 .zones :is([data-jof-familia="CM"],[data-jof-familia="MF"],.card.pair:has([data-jof-familia="BQ"]),[data-jof-familia="AN"],[data-jof-familia="PU"],[data-jof-familia="ARR"]){border:0;border-left:1px solid var(--dmo-border);border-radius:0;box-shadow:none;background:var(--dmo-card);margin:0}
+  html body .jof2 .zones [data-jof-familia="CM"]{border-left:0;border-radius:8px 0 0 8px}
+  html body .jof2 .zones [data-jof-familia="PU"]{border-top-right-radius:8px}
+  html body .jof2 .zones [data-jof-familia="ARR"]{border-bottom-right-radius:8px}
+  html body .jof2 .zones :is([data-jof-familia="AN"],[data-jof-familia="ARR"]){border-top:1px solid var(--dmo-border)}
+  html body .jof2 .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){margin-top:14px}
+  html body .jof2 .zones :is([data-jof-familia="CS"],.g-cal){margin-left:14px}
+  html body .jof2 .zones .card.pair:has([data-jof-familia="BQ"]){display:flex;flex-direction:column}
+  html body .jof2 .zones .card.pair>.pair-in{flex:1;display:flex;flex-direction:column}
+}
+
+/* 1366×768 (blueprint FRONTEND § Ecrã): less empty space between blocks on short screens. Only the
+   gaps change; the composition, sizes and controls stay as the design (Owner, 26/10/2026). */
+@media (min-width:1100px) and (max-height:900px){
+  html body .jof2{padding-top:8px;padding-bottom:4px}
+  html body .jof2 .page-head,html body .jof2.editing .page-head{gap:8px}
+  html body .jof2 .sheet,html body .jof2.editing .sheet{margin-top:8px}
+  html body .jof2 .jobon-mudancas{margin-top:6px}
+  html body main.resumo-page.dmo-workspace{padding-top:8px}
+  html body .resumo-page .resumo-sheet{gap:10px}
+  html body .resumo-page:has(.resumo-sheet) .resumo-browser.resumo-card{padding:6px 18px}
+  html body .resumo-page .resumo-sheet-intro{padding-top:6px;padding-bottom:6px}
+}
+
+/* 1366 × 768 SEM SCROLL NO JOB ON (Diogo, 26/10/2026: «o design é sempre com foco em 1366×768»).
+   Menos espaço morto, as mesmas peças: cabeçalho mais baixo, cabeças das
+   ferramentas numa linha, notas vazias baixas (as escritas continuam a encher),
+   TP e CS com os valores lado a lado. */
+html body .dmo-shell-header .dmo-primary-nav>a{min-height:56px}
+/* A barra de cima com a mesma altura dos links (52 px) em todas as páginas: com 56,
+   onde não há separadores (Definições) o logo e os links desciam 2 px (Diogo, 27/10/2026). */
+html body .dmo-shell-header{min-height:52px}
+html body .dmo-shell-header .dmo-secondary-nav :is(a,button){min-height:38px}
+html body .jof2{padding-top:8px;padding-bottom:8px}
+html body .jof2:not(.editing) .page-head{gap:6px 16px;margin-bottom:8px}
+html body .jof2:not(.editing) .page-head .facts{min-height:36px;padding-block:4px}
+html body .jof2:not(.editing) .zones .card.sec,html body .jof2:not(.editing) .zones .pair-in>.sec{padding:8px 10px}
+html body .jof2:not(.editing) .jobon-aviso{margin:2px 0 4px;padding:3px 7px;font-size:11px;line-height:1.3}
+html body .jof2:not(.editing) .use{margin:2px 0 4px}
+html body .jof2:not(.editing) .note-box.note-view.is-empty{min-height:24px}
+html body .jof2:not(.editing) .note-box>span{font-size:10.5px}
+html body .jof2:not(.editing) .more>summary{min-height:18px;font-size:12px}
+html body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"])>.kv{display:grid;grid-template-columns:auto 1fr auto 1fr;column-gap:10px}
+html body .jof2:not(.editing) :is([data-jof-familia="AN"],[data-jof-familia="ARR"])>.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px}
+html body .jof2:not(.editing) :is([data-jof-familia="AN"],[data-jof-familia="ARR"])>.sec-head .hv{display:inline-flex;align-items:baseline;gap:4px}
+
+html body .jof2:not(.editing) .jobon-mudancas{margin-top:6px}
+html body .jof2:not(.editing) .zones .card.pair{padding:0}
+html body .jof2:not(.editing) .zones .card.pair>.pair-in{padding:0}
+html body .jof2:not(.editing) :is([data-jof-familia="PU"],[data-jof-familia="ARR"],[data-jof-familia="AN"],[data-jof-familia="CS"])>.sec-head .hv{display:inline-flex;flex-direction:row;align-items:baseline;gap:4px}
+html body .jof2:not(.editing) .page-head .pick-campo{display:flex;flex-direction:row;align-items:center;gap:8px}
+html body .jof2:not(.editing) .page-head .pick-rotulo{margin:0}
+html body .jof2:not(.editing) :is(.tool-head,.sec-head) .code{font-size:20px;line-height:1.15}
+html body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box{flex:0 0 auto}
+html body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.is-empty{min-height:22px;height:22px}
+html body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"])>.kv :is(dt,dd){padding-block:1px;border:0}
+html body .jof2:not(.editing) .side .jof-artigo{height:170px;min-height:0}
+html body .jof2:not(.editing) .side .jof-artigo svg{height:100%;width:auto;max-height:160px}
+html body .dmo-shell-header .dmo-primary-nav>a{min-height:52px;height:52px}
+html body .dmo-shell-header .dmo-secondary-nav :is(a,button){min-height:36px}
+html body .jof2:not(.editing) .page-head .facts{min-height:32px;padding-block:2px}
+html body .jof2:not(.editing) .zones{row-gap:0}
+html body .jof2:not(.editing) .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){margin-top:8px}
+html body .jof2:not(.editing) .zones :is([data-jof-familia="CS"],.g-cal){margin-left:8px}
+html body .jof2:not(.editing) .zones .g-cal>.board,html body .jof2:not(.editing) .zones .cal-card{margin:0;height:100%}
+html body .jof2:not(.editing) .jobon-mudancas{margin-top:4px}
+html body .jof2:not(.editing) .jobon-mudancas>summary{min-height:22px;padding-block:2px}
+/* Utilização numa só linha: rótulo, barra, valor (e o «antes»). */
+html body .jof2:not(.editing) .use{display:grid;grid-template-columns:auto minmax(40px,1fr) auto auto;align-items:center;column-gap:8px}
+html body .jof2:not(.editing) .use>.use-top{display:contents}
+html body .jof2:not(.editing) .use>.use-top>span{grid-column:1;grid-row:1}
+html body .jof2:not(.editing) .use>.bar{grid-column:2;grid-row:1;margin:0}
+html body .jof2:not(.editing) .use>.use-top>:is(b,input){grid-column:3;grid-row:1}
+html body .jof2:not(.editing) .use>.use-top>.was{grid-column:4;grid-row:1}
+html body .jof2.editing .use>.use-top>input{width:64px}
+html body .jof2:not(.editing) .page-head{row-gap:4px;margin-bottom:6px}
+html body .jof2:not(.editing) .zones .card.sec{padding-bottom:6px}
+html body .jof2{padding-bottom:4px}
+/* ESPAÇOS E ALINHAMENTOS (Diogo, 26/10/2026): um só espaço de 8 px entre blocos,
+   a banda de baixo com a mesma altura, a coluna da direita a acabar com a folha,
+   os factos em grupos regulares separados por linhas finas. */
+html body .jof2:not(.editing) .sheet{align-items:stretch;gap:8px}
+html body .jof2:not(.editing) .side{display:flex;flex-direction:column;gap:8px}
+html body .jof2:not(.editing) .side>.notes{flex:1 1 auto;display:flex;flex-direction:column}
+html body .jof2:not(.editing) .side>.notes>:is(ul,textarea,.note-box){flex:1 1 auto}
+html body .jof2:not(.editing) .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){align-self:stretch}
+html body .jof2:not(.editing) .page-head .facts-dados{justify-content:flex-start;gap:0}
+html body .jof2:not(.editing) .page-head .facts-dados>.fact-col{padding:0 22px;border-left:1px solid var(--dmo-border)}
+html body .jof2:not(.editing) .page-head .facts-dados>.fact-col:first-child{border-left:0}
+html body .jof2:not(.editing) .page-head .facts .fact-col.mach{padding-right:16px}
+html body .jof2:not(.editing) [data-jof-familia="CS"]>.sec-head{display:flex;flex-wrap:nowrap;align-items:baseline;gap:10px}
+html body .jof2:not(.editing) .side .jof-artigo{height:150px}
+html body .jof2:not(.editing) .side .jof-artigo svg{max-height:140px}
+html body .jof2:not(.editing) .side [data-jof-familia="PI"]{padding-bottom:6px}
+html body .jof2:not(.editing) .side>.article{flex:0 0 auto}
+/* Ordem do cabeçalho do Job On: Job On · Referência · Produção · Linhas (Diogo, 26/10/2026). */
+html body .jof2 .pick-row>.rail-toggle{order:10}
+html body .jof2:not(.editing) .page-head .pick-row{align-items:center}
+/* Sem cores fortes em repouso (Diogo, 26/10/2026: «cor forte serve para o hover e
+   selecionar»): a cor da linha fica num tom claro por cima da cor da máquina,
+   com a letra escura; a cor cheia volta no hover e na linha selecionada. */
+html body :is(.jof2,.jof2-gaveta) .mch{background-image:linear-gradient(rgba(255,255,255,.78),rgba(255,255,255,.78)) !important;color:var(--dmo-text) !important;box-shadow:inset 0 0 0 1px rgba(11,19,32,.08)}
+:root[data-theme="dark"] body :is(.jof2,.jof2-gaveta) .mch{background-image:linear-gradient(rgba(12,18,29,.72),rgba(12,18,29,.72)) !important;color:var(--dmo-text) !important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+html body .jof2-gaveta :is(.rail-item:hover,.rail-item.selected) .mch,html body .jof2 .mch:hover,:root[data-theme="dark"] body .jof2-gaveta :is(.rail-item:hover,.rail-item.selected) .mch{background-image:none !important;color:#fff !important}
+/* A conta: «Nome · Título» numa linha e o Sair por baixo, sem a hora da sessão. */
+html body .dmo-shell-header .dmo-shell-conta{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px}
+html body .jof2 .side>.notes{min-height:0}
+html body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 0;min-height:0}
+/* Logótipo do tamanho original; mais claro no escuro (Diogo, 26/10/2026). */
+:root[data-theme="dark"] body .dmo-shell-header .dmo-shell-logo{filter:brightness(1.45) saturate(.55)}
+/* Separadores: no hover só muda a cor do texto (branco no escuro); o traço fica só no separador selecionado (Diogo, 26/10/2026). */
+html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.active):not([aria-current="page"]):hover{background:none;border-bottom-color:transparent}
+:root[data-theme="dark"] body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.active):not([aria-current="page"]):hover{color:#fff}
+html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover{background:none}
+/* Regra geral (Diogo, 26/10/2026): no hover muda só a cor da letra, nunca um retângulo de fundo.
+   Ficam de fora os botões, as linhas das tabelas, as escolhas (chips), o calendário e a gaveta de máquinas. */
+html body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.pu-check,.jof2 .del,.pu-remove,.peg-page .peg-x,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible){background:none !important;box-shadow:none !important;color:var(--dmo-brand-700)}
+html body :is(a.dmo-fact.dmo-fact-link):is(:hover,:focus-visible) :is(span,strong,em){color:var(--dmo-brand-700)}
+html body :is(.jof2 .del,.pu-remove,.peg-page .peg-x):is(:hover,:focus-visible){color:var(--dmo-danger)}
+:root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.pu-check,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
+:root[data-theme="dark"] body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible) :is(span,strong,em){color:#fff}
+/* Linhas das tabelas: o hover usa o mesmo azul da barra da esquerda, com letra branca (Diogo, 26/10/2026). */
+html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:var(--dmo-brand-600);color:#fff}
+html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:#fff}
+html body [data-dmo-list] [data-dmo-row]:hover{background:var(--dmo-brand-600);color:#fff}
+/* Modo Editar (Diogo, 27/10/2026): todos os campos e seletores com a mesma altura,
+   o texto centrado na vertical e afastado da borda; nada sai do cartão. */
+html body .jof2.editing .page-head .fv :is(select,input){box-sizing:border-box !important;height:var(--dmo-control-height) !important;min-height:0 !important;margin:0 !important;padding:0 10px !important;line-height:normal !important}
+html body .jof2.editing .page-head .fv select{padding-right:28px !important;background-position:right 8px center !important}
+html body .jof2.editing .page-head .fv select[name="machine_id"]{font-size:16px !important;font-weight:700;width:auto !important;min-width:72px}
+html body .jof2.editing .sec-head{min-width:0;flex-wrap:wrap !important}
+html body .jof2.editing .sec-head .hv{flex:0 0 auto;min-width:max-content}
+html body .jof2.editing .sec-head :is(input,select){box-sizing:border-box !important;height:28px !important;margin:0 !important;padding:0 8px !important;line-height:normal !important;max-width:100% !important}
+html body .jof2.editing .sec-head .hv input.f{width:72px !important}
+html body .jof2.editing .sec-head>.design-tool-heading{flex:0 0 auto;min-width:max-content}
+html body .jof2.editing .page-head .fv select{line-height:calc(var(--dmo-control-height) - 2px) !important}
+/* Painel de apoio: o «Editar» ao lado do «Abrir página»; bloqueado, os campos ficam só de leitura. */
+html body .dmo-support-head [data-support-unlock]{flex:0 0 auto;min-height:30px;padding:0 12px;font-size:12px}
+html body .dmo-support-head [data-support-unlock][hidden]{display:none}
+html.dmo-bloqueado body form[method="post"] :is(input,select,textarea):disabled{opacity:1;cursor:default;background:transparent;border-color:transparent;color:var(--dmo-text);-webkit-text-fill-color:var(--dmo-text)}
+html.dmo-bloqueado body form[method="post"] button:not([type=button]):disabled,
+html.dmo-bloqueado body button[form]:disabled{display:none}
+/* No painel a ficha não repete o título (o painel já o tem) nem o «Voltar» (o painel tem «Fechar»). */
+html[data-dmo-embedded="true"] body :is(#ferr-title,#ferrVoltar){display:none}
+/* Ficha e Criar da ferramenta (Diogo, 27/10/2026): cada campo com a largura do que leva —
+   Referência 4 dígitos, Lote, Quantidade e % uso 3 dígitos — e nunca esticado à largura toda. */
+html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-ref,.ferr-w-lot,.ferr-w-qty,.ferr-w-uso){flex:0 0 auto !important;width:auto !important;max-width:none}
+html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref>input{width:calc(4ch + 26px) !important;min-width:0}
+html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-lot,.ferr-w-qty,.ferr-w-uso)>input{width:calc(3ch + 26px) !important;min-width:0}
+html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-ref,.ferr-w-lot,.ferr-w-qty,.ferr-w-uso)>label{white-space:nowrap}
+/* Armazém › Registo como a maqueta 06 (Diogo, 27/10/2026): Tipo de ferramenta | Ferramenta selecionada | Registar. */
+@media (min-width:1100px){
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>:is(.dmo-card-topo,.arm-onde){grid-column:1;padding-left:20px;border-left:0}
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:2;grid-row:1/span 2;padding-left:24px;border-left:1px solid var(--dmo-border)}
+}
+/* Linhas compatíveis: seletor como os outros (opção 4 do Diogo, 27/10/2026: escolhida invertida), no dmo-botoes.css. */
+
+/* Menus suspensos (Funções, Opções): no hover só a letra muda; o selecionado
+   (a página onde se está) fica com a letra de destaque, sem fundo (Diogo, 27/10/2026:
+   «nao tem hover fica sempre selecionado»). No escuro a letra normal é mais
+   apagada, para o hover a branco se ver. */
+html body .dmo-tab-menu-list a.active,
+html body .dmo-tab-menu-list a[aria-current="page"]{background:none !important;color:var(--dmo-brand-700);font-weight:800}
+:root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]){color:var(--dmo-muted)}
+:root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]):is(:hover,:focus-visible){color:#fff}
+:root[data-theme="dark"] body .dmo-tab-menu-list :is(a.active,a[aria-current="page"]){color:#A5C5F1}
+
+/* Links de ação passam a botões (Diogo, 27/10/2026: «trocar links para
+   botões»): o «Abrir página» do painel, os links dos avisos e os da ficha
+   da ferramenta. O aspeto de botão está no dmo-botoes.css; aqui só o lugar. */
+html body :is(a.dmo-aviso-link,a.ferr-cancel){margin:4px 0 4px 8px}
+html body #dmoSupportFull{margin-left:auto}
+/* O «← Voltar» discreto das folhas do controlo (Peso, Pegamentos, PU NNPB) para
+   o Resumo (Diogo, 27/10/2026): só texto; no hover muda só a cor. No painel
+   lateral não aparece. */
+html body a.dmo-voltar-texto{display:inline-flex;align-items:center;gap:4px;margin:0 0 4px;color:var(--dmo-muted);font-size:13px;font-weight:500;text-decoration:none;background:none}
+html body a.dmo-voltar-texto:is(:hover,:focus-visible){color:var(--dmo-text);background:none;text-decoration:none}
+html[data-dmo-embedded="true"] body a.dmo-voltar-texto{display:none}
+
+/* A dica aberta não apanha o rato: só texto, não tapa o círculo de ajuda seguinte
+   (nas Boquilhas a dica da procura ficava por cima do próximo círculo) e fecha
+   quando o rato sai do seu círculo. */
+html body .dmo-help .dmo-help-tip{pointer-events:none}
+/* Peso e Pegamentos, barra «Ferramentas»: os rótulos ao lado da caixa liam-se
+   miúdos (Diogo, 27/10/2026: «aumentar o font»). */
+html body :is(main.peso-page,main.peg-page) form.dmo-filter-bar:not(#pesoHistoricoFiltros)>.dmo-field>label{font-size:14px;font-weight:600;color:var(--dmo-text)}
+/* O Lote do Histórico do Controlo: três dígitos. */
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote{flex:0 0 72px}
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote>input{width:72px;min-width:0}
+/* Histórico do Controlo menos branco (Diogo, 27/10/2026: «fica demasiado
+   branco», «usa um pouco de shade da palete»): no claro, o cabeçalho da
+   tabela no tom pálido da marca e as linhas alternadas no tom subtil. */
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] thead th{background:color-mix(in srgb,var(--dmo-brand-500) 16%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] tbody tr:nth-child(even)>td{background:color-mix(in srgb,var(--dmo-brand-500) 7%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page #pesoHistoricoFiltros{background:color-mix(in srgb,var(--dmo-brand-500) 9%,var(--dmo-card));border-radius:var(--dmo-radius-control,8px);padding:10px 12px}
+/* O filtro «Ferramenta» de um link, à vista e com «×» para o tirar. */
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-ferramenta{flex:0 0 auto}
+html body main.peso-page .peso-hist-chip{display:inline-flex;align-items:center;gap:6px;height:var(--dmo-control-height);padding:0 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-radius-control,8px);background:var(--dmo-card);color:var(--dmo-text);text-decoration:none;font-weight:600}
+html body main.peso-page .peso-hist-chip:is(:hover,:focus-visible){color:var(--dmo-action,var(--dmo-brand-600))}
+html body main.peso-page .peso-hist-ferramenta>.dmo-field-label{display:block;margin:0 0 4px;font-size:12px;font-weight:500;color:var(--dmo-muted)}

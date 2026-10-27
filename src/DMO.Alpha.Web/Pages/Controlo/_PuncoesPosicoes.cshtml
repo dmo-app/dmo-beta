@@ -5,7 +5,10 @@
 }
 @* AS PUNÇÕES POR POSIÇÃO DA LINHA (Diogo, 22/10/2026): pela ordem de
    registo, A1, B1, C1, D1, A2 … ; as que passam da linha são «Reserva». O
-   «PDF» é o mesmo formulário do «Extrair PDF» (gerado em memória). *@
+   «PDF» é o mesmo formulário do «Extrair PDF» (gerado em memória).
+   O MESMO NÚMERO EM TODAS AS CÉLULAS (Diogo, 27/10/2026: «font deve ser
+   igual», «alinhado»): todas levam o número e a linha do lote por baixo,
+   vazia quando a punção não é repetida, para o número ficar no mesmo sítio. *@
 <section class="dmo-card pu-card" id="puncoes-posicoes" aria-labelledby="pu-pos-title">
   <div class="pu-section-head">
     <div>
@@ -35,7 +38,7 @@
             @for (var s = 1; s <= grelha.Seccoes; s++)
             {
               var puncao = grelha.Em(s, p);
-              <td data-pu-posicao="@PuncoesPosicoes.Letra(p)@s" class="@(puncao?.Repetido == true ? "pu-repetido" : null)">@if (puncao is not null){<span class="pu-grelha-numero">@puncao.Number</span>@if (puncao.Repetido){<small>Lote @puncao.Lot</small>}}</td>
+              <td data-pu-posicao="@PuncoesPosicoes.Letra(p)@s" class="@(puncao?.Repetido == true ? "pu-repetido" : null)">@if (puncao is not null){<span class="pu-grelha-numero">@puncao.Number</span><small class="pu-grelha-lote">@(puncao.Repetido ? $"Lote {puncao.Lot}" : null)</small>}</td>
             }
           </tr>
         }
@@ -54,7 +57,7 @@
           }
           @foreach (var puncao in grelha.Reserva)
           {
-            <td class="@(puncao.Repetido ? "pu-repetido" : null)"><span class="pu-grelha-numero">@puncao.Number</span>@if (puncao.Repetido){<small>Lote @puncao.Lot</small>}</td>
+            <td class="@(puncao.Repetido ? "pu-repetido" : null)"><span class="pu-grelha-numero">@puncao.Number</span><small class="pu-grelha-lote">@(puncao.Repetido ? $"Lote {puncao.Lot}" : null)</small></td>
           }
         </tr>
       </tbody>

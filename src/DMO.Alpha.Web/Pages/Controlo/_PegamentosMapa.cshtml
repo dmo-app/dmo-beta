@@ -14,27 +14,9 @@
       <h3 id="peg-map-title">Mapa de limites</h3>
       <span class="peg-step">3 · Mapa</span>
     </div>
-    <p class="peg-map-help">Cada faixa horizontal é o corredor de um componente (nominal da sua ferramenta ± tolerância); as linhas verticais são os nominais; os círculos são as médias das medições; o losango é a média global do componente. Vermelho = medição fora (atingiu ou ultrapassou um limite).</p>
-    <div class="peg-map-wrap">
-      @* Mais largo e centrado (Diogo, 23/10/2026): o desenho estica na horizontal e a altura fica. *@
-      @Html.Raw(PegamentosLimitMap.Render(input, PegamentosLimitMap.LarguraNaPagina))
-    </div>
-    @* A legenda mostra as cores que o desenho usa (deep sweep de 18/10/2026,
-       regra 98): a de cada componente (corredor, nominal, círculos e
-       losango), o vermelho de «fora» e o cinzento de «não avaliável». As
-       formas vão a traço, sem cor própria. *@
-    <div class="peg-map-legend">
-      @foreach (var componente in input.Components.Select(c => c.Component.ToUpperInvariant()).Distinct())
-      {
-        <span><i class="peg-dot" style="background:@PegamentosLimitMap.ComponentColor(componente)"></i> @componente</span>
-      }
-      <span><i class="peg-line"></i> Linhas verticais = nominais das ferramentas</span>
-      <span><i class="peg-line peg-tracejado"></i> Tracejado = limites de fora (CM − tolerância e MF + tolerância)</span>
-      <span><i class="peg-dot peg-forma"></i> Círculos = média de cada medição</span>
-      <span><i class="peg-diamond"></i> Losango = média global do componente</span>
-      <span><i class="peg-dot" style="background:@PegamentosLimitMap.AlertColor"></i> Vermelho = fora (atingiu ou ultrapassou um limite)</span>
-      <span><i class="peg-dot" style="background:@PegamentosLimitMap.NotEvaluableColor"></i> Cinzento = não avaliável</span>
-    </div>
+    @* Texto curto (Diogo, 27/10/2026): a legenda diz o resto. *@
+    <p class="peg-map-help">Uma linha por componente: a faixa é o corredor permitido (nominal ± tolerância) e os pontos são as medições.</p>
+    <partial name="_PegamentosGrafico" model="@PegamentosGrafico.From(input)" />
     <div class="peg-map-status @(map.HasAlerts ? "alert" : (sheet.Pegamentos?.Measurements.Any(m => m.Evaluation.IsNotEvaluable) == true ? null : map.MeasurementCount > 0 ? "ok" : null))"><strong>@map.SummaryText</strong></div>
   </section>
 }

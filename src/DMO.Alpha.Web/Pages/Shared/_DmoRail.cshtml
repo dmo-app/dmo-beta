@@ -39,7 +39,10 @@
     {
       <strong>@Model.Title</strong>
     }
-    <span>@Model.Subtitle</span>
+    @if (!string.IsNullOrEmpty(Model.Subtitle))
+    {
+      <span>@Model.Subtitle</span>
+    }
   </div>
   @* Um clique ou o Enter abrem a linha (Diogo, 17/10/2026). Sem destino, a
      linha não abre nada. *@

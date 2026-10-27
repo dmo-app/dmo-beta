@@ -33,6 +33,11 @@ public sealed class HistoricoModel(
     [BindProperty(SupportsGet = true, Name = "referencia")]
     public string? ReferenciaTexto { get; set; }
 
+    [BindProperty(SupportsGet = true, Name = "lote")]
+    public string? LoteEscrito { get; set; }
+
+    public string? Lote => string.IsNullOrWhiteSpace(LoteEscrito) ? null : LoteEscrito.Trim();
+
     [BindProperty(SupportsGet = true, Name = "tipo")]
     public string? TipoTexto { get; set; }
 
@@ -145,7 +150,7 @@ public sealed class HistoricoModel(
             Functions = ShellStateFactory.FerramentasFunctions("historico")
         };
         Maquinas = await maquinas.ListAsync(cancelar);
-        var filtro = new HistoricoFiltro(Referencia, Tipo, string.IsNullOrWhiteSpace(Linha) ? null : Linha.Trim(), De, Ate);
+        var filtro = new HistoricoFiltro(Referencia, Tipo, string.IsNullOrWhiteSpace(Linha) ? null : Linha.Trim(), De, Ate, Lote);
         ComFiltro = filtro.ComFiltro;
         if (ComFiltro)
         {

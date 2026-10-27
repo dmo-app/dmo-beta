@@ -148,7 +148,8 @@ public sealed class ArmazemHistorico(DmoDbContext db) : IArmazemHistorico
                 m.RegistadoPor)
             {
                 Destino = m.Destino,
-                Reparador = m.ReparadorNome ?? reparadorDoRegresso.GetValueOrDefault(m.Id),
+                Reparador = m.ReparadorNome ?? m.EntradaReparadorNome ?? reparadorDoRegresso.GetValueOrDefault(m.Id),
+                Estado = m.Estado,
                 Posicao = m.PosicaoId is { } p ? codigos.GetValueOrDefault(p) : null
             };
         }).ToList();

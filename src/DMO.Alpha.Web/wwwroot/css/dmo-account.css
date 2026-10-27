@@ -238,3 +238,11 @@
     min-height: 36px;
     height: 36px;
 }
+
+/* O «Reparação» do login no canto inferior direito do quadro (Diogo, 26/10/2026). */
+html body .login-side{position:relative}
+html body .login-form #login-posto{position:absolute;right:28px;bottom:24px;display:flex;width:max-content;margin:0}
+/* «Mostrar» discreto e centrado dentro do campo (Diogo, 26/10/2026: «não está centrado»). */
+html body.dmo-account-page .password-wrap .password-toggle{top:50%;right:6px;bottom:auto;transform:translateY(-50%);height:26px;min-height:26px;min-width:0;padding:0 8px;border:0;border-radius:5px;background:transparent;color:var(--dmo-brand-600);font-size:13px;font-weight:600;box-shadow:none}
+html body.dmo-account-page .password-wrap .password-toggle:is(:hover,:focus-visible){background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
+html body.dmo-account-page .password-wrap input{padding-right:84px}

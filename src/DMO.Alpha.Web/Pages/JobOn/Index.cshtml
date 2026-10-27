@@ -33,7 +33,6 @@
      página, zero handlers locais. A seleção é só apresentação: abrir é navegar,
      e é o servidor que recompõe a ficha do Job On (a referência HTML guardava
      isso em estado de browser; aqui não se porta essa parte). *@
-  <partial name="_DmoRailProximasEntradas" model="Model.ProximasEntradas" />
 
   <main class="beta-light-main" id="lightMain" tabindex="-1">
 
@@ -49,6 +48,8 @@
           <h1>Job On<partial name="_DmoHelp" model="@("Selecione uma produção para consultar ou preparar as ferramentas.")" /></h1>
         </div>
       </div>
+      @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
+      <partial name="_DmoRailProximasEntradas" model="Model.ProximasEntradas" />
 
       <div id="jobonAvisos" data-dmo-regiao>
       @if (Model.Eliminado)
@@ -458,6 +459,8 @@
           <h1>Histórico de Job On<partial name="_DmoHelp" model="@("Produções anteriores e respetivas associações de ferramentas. A referência aplica-se ao escrever; a máquina, a produção e as datas aplicam-se logo. O período mostra as produções cuja janela toca as datas. Um clique numa produção abre a folha.")" /></h1>
         </div>
       </div>
+      @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
+      <partial name="_DmoRailProximasEntradas" model="Model.ProximasEntradas" />
       @* Os filtros trocam só o que muda (deep sweep, 18/10/2026): cada escolha
          pede a página com fetch (DmoTroca) e troca os resultados e o
          dropdown das produções, que muda com a referência e a máquina. Os
