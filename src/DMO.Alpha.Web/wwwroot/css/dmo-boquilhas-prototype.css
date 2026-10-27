@@ -374,3 +374,25 @@ html body .beta-bq-layout #bqRegisterFacts .dmo-fact>strong { margin-top:3px; fo
 :root[data-theme="dark"] .beta-bq-layout .bq-jobon-mudou a { color:var(--dmo-brand-300, #9cc3ea); }
 :root[data-theme="dark"] .beta-bq-layout .bq-jobon-mudou :is(a,summary):is(:hover,:focus-visible) { color:#fff; }
 
+/* Movimentos: os filtros do tamanho do que levam, todos numa linha a
+   1366×768 (Lote com 3 dígitos, Referência com 4 a 8 letras); o «Até» já
+   não cai sozinho para a linha de baixo. Em ecrãs estreitos, partem. */
+html body .beta-bq-layout .bq-history-filter-grid { display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 10px; }
+.beta-bq-layout .bq-history-filter-grid > .field { flex:0 0 auto; min-width:0; margin:0; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#vista) { width:236px; }
+.beta-bq-layout .bq-history-filter-grid > .field select { white-space:nowrap; text-overflow:ellipsis; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#pesquisa) { width:118px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#lote) { width:76px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#maquina) { width:96px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#tipo) { width:150px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#reparador) { width:170px; }
+.beta-bq-layout .bq-history-filter-grid > .field:is(#bqHistDesdeZona,#bqHistAteZona) { width:148px; }
+.beta-bq-layout .bq-history-filter-grid > .field :is(input,select) { width:100%; }
+@media (max-width:600px) { .beta-bq-layout .bq-history-filter-grid > .field { flex:1 1 100%; width:auto !important; } }
+
+/* Os totais do filtro (Saídas, Entradas, Entradas sem reparação) juntos à
+   esquerda, cada um do tamanho do número, em vez de espalhados pela largura. */
+html body .beta-bq-layout #bqHistTotais { padding-top:10px; padding-bottom:10px; }
+html body .beta-bq-layout #bqHistTotais .lot-data { display:flex; flex-wrap:wrap; gap:0; margin-top:0; }
+html body .beta-bq-layout #bqHistTotais .lot-data > div { flex:0 0 auto; min-width:96px; padding:2px 28px !important; }
+html body .beta-bq-layout #bqHistTotais .lot-data > div:first-child { padding-left:0 !important; }
