@@ -209,6 +209,26 @@ public sealed class FerramentasFabricoSapTests
     }
 
     [Fact]
+    public async Task ALeituraDeHoje_SoEOUsoDepoisDaUltimaProducao_NaoDasAnteriores()
+    {
+        using var db = CreateContext();
+        await Servico(db).ImportarAsync(FabricoSapExportacao.Ler(RelatorioDoSap).Linhas, "fabrico.txt", DateTime.UtcNow);
+        // Só uma leitura manual, depois de todas (Diogo, 27/10/2026: «sempre 16% uso?»).
+        db.FerramentaUtilizacoes.Add(Leitura(1, new DateOnly(2025, 10, 10), 16m));
+        await db.SaveChangesAsync();
+
+        var producoes = await Servico(db).ProducoesAsync("cm", null, 10);
+        var depois = producoes.Pagina.Items.ToDictionary(p => p.Producao, p => p.UtilizacaoDepois);
+        var historico = (await Servico(db).ProducoesDeFerramentasAsync(["cm"], null))["cm"].ToDictionary(p => p.Producao, p => p.UtilizacaoDepois);
+
+        // A 202503 acabou antes da leitura; as outras deram lugar à seguinte antes dela.
+        Assert.Equal(16m, depois["202503"]);
+        Assert.Null(depois["202502"]);
+        Assert.Null(depois["202501"]);
+        Assert.Equal(depois.OrderBy(k => k.Key), historico.OrderBy(k => k.Key));
+    }
+
+    [Fact]
     public async Task OTotal_ContaTodasAsProducoes_NaoSoAPagina()
     {
         using var db = CreateContext();

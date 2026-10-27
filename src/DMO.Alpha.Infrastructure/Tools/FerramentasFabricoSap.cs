@@ -157,7 +157,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .Select(u => (Dia: DateOnly.FromDateTime(DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem))
             .ToList();
 
-        var itens = jobOns.Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, leituras)).ToList();
+        var inicios = jobOns.Select(j => j.InicioEm).ToList();
+        var itens = jobOns.Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, leituras, ProximoInicio(inicios, j.InicioEm))).ToList();
         return new FerramentaProducoes(
             PagedList<FerramentaProducao>.FromLoaded(itens, pagina, porPagina),
             itens.Any(p => p.ProducaoBruta.HasValue) ? itens.Sum(p => p.ProducaoBruta ?? 0) : null,
@@ -168,7 +169,7 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
     /// As produções de várias ferramentas de uma vez (o Histórico): as mesmas
     /// de <see cref="ProducoesAsync"/> para cada uma, na mesma ordem, mas com um
     /// número fixo de leituras e só os Job On que cabem na linha e nos dias do
-    /// filtro (filtrados na base). A ferramenta sem produções fica de fora.
+    /// filtro. A ferramenta sem produções fica de fora.
     /// </summary>
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<FerramentaProducao>>> ProducoesDeFerramentasAsync(
         IReadOnlyCollection<string> toolIds, HistoricoFiltro? filtro, CancellationToken cancellationToken = default)
@@ -192,32 +193,22 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         }
 
         var ids = relacoes.Select(r => r.JobOnId).Distinct().ToList();
-        var filtrados = db.JobOns.AsNoTracking().Where(j => ids.Contains(j.Id));
-        if (filtro is not null)
-        {
-            if (!string.IsNullOrWhiteSpace(filtro.Linha))
-            {
-                var linha = filtro.Linha.Trim().ToUpperInvariant();
-                filtrados = filtrados.Where(j => j.Machine.Code.ToUpper() == linha);
-            }
-
-            if (filtro.De is { } de)
-            {
-                filtrados = filtrados.Where(j => j.FimEm == null || j.FimEm >= de);
-            }
-
-            if (filtro.Ate is { } ate)
-            {
-                filtrados = filtrados.Where(j => j.InicioEm != null && j.InicioEm <= ate);
-            }
-        }
-
-        var jobOns = (await filtrados
+        // Todos os Job On das ferramentas (o filtro aplica-se a seguir): a
+        // leitura «depois» de uma produção precisa de saber quando começou a
+        // seguinte, mesmo que essa fique fora do filtro.
+        var todosJobOns = (await db.JobOns.AsNoTracking()
+                .Where(j => ids.Contains(j.Id))
                 .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
                 .ToListAsync(cancellationToken))
             .OrderByDescending(j => j.InicioEm.HasValue)
             .ThenByDescending(j => j.InicioEm)
             .ThenByDescending(j => j.Id)
+            .ToList();
+        var linhaFiltro = filtro?.Linha is { } linha && !string.IsNullOrWhiteSpace(linha) ? linha.Trim() : null;
+        var jobOns = todosJobOns
+            .Where(j => (linhaFiltro is null || string.Equals(j.Maquina, linhaFiltro, StringComparison.OrdinalIgnoreCase))
+                && (filtro?.De is not { } de || j.FimEm is null || j.FimEm >= de)
+                && (filtro?.Ate is not { } ate || (j.InicioEm is { } inicio && inicio <= ate)))
             .ToList();
         if (jobOns.Count == 0)
         {
@@ -250,8 +241,9 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         {
             var seus = porFerramenta[toolId].ToHashSet();
             var l = leituras.TryGetValue(toolId, out var dela) ? dela : [];
+            var inicios = todosJobOns.Where(j => seus.Contains(j.Id)).Select(j => j.InicioEm).ToList();
             var itens = jobOns.Where(j => seus.Contains(j.Id))
-                .Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, l))
+                .Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, l, ProximoInicio(inicios, j.InicioEm)))
                 .ToList();
             if (itens.Count > 0)
             {
@@ -262,8 +254,15 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         return resultado;
     }
 
+    // A leitura «depois» de uma produção tem de ser de antes de a ferramenta
+    // entrar na produção seguinte: uma leitura de hoje não é o uso no fim de
+    // uma produção de há meses (Diogo, 27/10/2026: «sempre 16% uso?»).
+    private static DateOnly? ProximoInicio(IEnumerable<DateOnly?> inicios, DateOnly? inicio) => inicio is { } de
+        ? inicios.Where(i => i > de).Min()
+        : null;
+
     private static FerramentaProducao Montar(int id, string reference, string producao, string maquina, DateOnly? inicio, DateOnly? fim,
-        IReadOnlyList<SapFabrico> sap, IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras)
+        IReadOnlyList<SapFabrico> sap, IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? proximoInicio)
     {
         var linhas = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, reference, maquina, inicio, fim)).ToList();
         return new FerramentaProducao(
@@ -277,20 +276,21 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             linhas.Any(s => s.ProducaoLiquida.HasValue) ? linhas.Sum(s => s.ProducaoLiquida ?? 0) : null,
             linhas.Count,
             UsoAntes(leituras, inicio),
-            UsoDepois(leituras, inicio, fim));
+            UsoDepois(leituras, inicio, fim, proximoInicio));
     }
 
     // Antes: a última leitura até ao dia do início (a desse dia é o ponto de
     // partida). Depois: a primeira a partir do dia do fim; sem fim (ainda na
-    // máquina), a última desde o início. As leituras pela ordem, com o dia em Portugal.
+    // máquina), a última desde o início. Com a produção seguinte, só até ao dia
+    // em que ela começa. As leituras pela ordem, com o dia em Portugal.
     public static decimal? UsoAntes(IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? inicio) => inicio is { } de
         ? leituras.Where(u => u.Dia <= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
         : null;
 
-    public static decimal? UsoDepois(IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? inicio, DateOnly? fim) => (inicio, fim) switch
+    public static decimal? UsoDepois(IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? inicio, DateOnly? fim, DateOnly? proximoInicio = null) => (inicio, fim) switch
     {
         (null, _) => null,
-        (_, { } ate) => leituras.Where(u => u.Dia >= ate).Select(u => (decimal?)u.Percentagem).FirstOrDefault(),
+        (_, { } ate) => leituras.Where(u => u.Dia >= ate && (proximoInicio is not { } seguinte || u.Dia <= seguinte)).Select(u => (decimal?)u.Percentagem).FirstOrDefault(),
         ({ } de, null) => leituras.Where(u => u.Dia >= de).Select(u => (decimal?)u.Percentagem).LastOrDefault()
     };
 
