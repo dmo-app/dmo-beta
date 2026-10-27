@@ -94,7 +94,7 @@ public partial class BoquilhasRegistoPageTests
         var url = $"/Boquilhas?ficheiros=1&q=t17&machine_id={machine.Id}&pagina=2";
         var html = await client.GetStringAsync(url);
         Assert.Equal(10, Regex.Matches(html, "name=\"bq_tool\"").Count);
-        Assert.Contains("25 encontrada(s)", html);
+        Assert.Contains("25 encontradas", html);
         Assert.Contains("data-dmo-troca", html);
         Assert.Contains("id=\"bq-tool-results\"", html);
         Assert.Contains("data-dmo-regiao", html);
@@ -203,7 +203,7 @@ public partial class BoquilhasRegistoPageTests
         Assert.Empty(filtros);
         Assert.Contains("id=\"bq-tool-results\" hidden", soMaquina);
         Assert.DoesNotContain("name=\"bq_tool\"", soMaquina);
-        Assert.DoesNotContain("encontrada(s)", soMaquina);
+        Assert.DoesNotMatch(@"\d+ encontradas?<", soMaquina);
         Assert.Contains($"<option value=\"{b1.Id}\" selected=\"selected\">B1</option>", soMaquina);
         Assert.Contains($"/Ferramentas?criar=1&type=BQ&machine_ids={b1.Id}&return=", soMaquina);
         // A ajuda diz quando aparece a lista.
@@ -222,7 +222,7 @@ public partial class BoquilhasRegistoPageTests
         Assert.Equal(2, Regex.Matches(soTexto, "name=\"bq_tool\"").Count);
         Assert.Contains("value=\"BQ-MAQ-B1\"", soTexto);
         Assert.Contains("value=\"BQ-MAQ-C3\"", soTexto);
-        Assert.Contains("2 encontrada(s)", soTexto);
+        Assert.Contains("2 encontradas", soTexto);
 
         // O texto e a máquina: a lista reduzida às boquilhas dessa máquina.
         var comMaquina = await client.GetStringAsync($"/Boquilhas?ficheiros=1&q=t17&machine_id={b1.Id}");
@@ -232,7 +232,7 @@ public partial class BoquilhasRegistoPageTests
         Assert.Contains("value=\"BQ-MAQ-B1\"", comMaquina);
         // (A janela «Registar sem Job On» lista todas as BQ; a lista é que reduz.)
         Assert.DoesNotContain("value=\"BQ-MAQ-C3\" aria-label", comMaquina);
-        Assert.Contains("1 encontrada(s)", comMaquina);
+        Assert.Contains("1 encontrada<", comMaquina);
 
         // O lote também mostra a lista, e a máquina continua só a reduzir.
         var porLote = await client.GetStringAsync("/Boquilhas?ficheiros=1&q=24%2F02");
@@ -240,7 +240,7 @@ public partial class BoquilhasRegistoPageTests
         Assert.DoesNotContain("value=\"BQ-MAQ-B1\" aria-label", porLote);
         var loteNoutraMaquina = await client.GetStringAsync($"/Boquilhas?ficheiros=1&q=24%2F02&machine_id={b1.Id}");
         Assert.DoesNotContain("name=\"bq_tool\"", loteNoutraMaquina);
-        Assert.Contains("0 encontrada(s)", loteNoutraMaquina);
+        Assert.Contains("0 encontradas", loteNoutraMaquina);
         Assert.Contains("Nenhuma boquilha encontrada com os filtros atuais.", loteNoutraMaquina);
         Assert.Equal(4, filtros.Count);
     }

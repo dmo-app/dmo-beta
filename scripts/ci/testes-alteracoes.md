@@ -3302,3 +3302,40 @@ Novos: 1 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaShowsHumanFacts_AndTheActionsMovedFromTheTablePostToTheSameIndexHandlers`
 
 Selo depois: `4c6656d1bd4956fb`
+
+## A-0185 · 2026-10-27 · ok-do-diogo
+
+Porquê: Definições em três separadores (DMO-440): os testes acompanham os pedidos do Diogo (estrutura, um só cadeado, contagens no singular/plural, sem círculos de ajuda, pastas só com o estado, «Ler pasta» com Opções; o link «Ler a pasta da produção» do Peso abre Este computador)
+Referência: estrutura cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP; PIN cmsg_01K75FTs9bQnbhhH7qttpgra1QwpiaNcti2W7y9EaFGtbE; plural cmsg_01K75FTs9bQnbhhH7qttpgra5kxKKSuy4sbRBmUpdgdxfR; botões no canto cmsg_01K75FTs9bQnbhhH7qttpgraQVvJwFV5LYqaod3CuetwJ6; sem comentários cmsg_01K75FTs9bQnbhhH7qttpgraJTppk4FtwLL69Lux9wbqXg e cmsg_01K75FTs9bQnbhhH7qttpgraSzhzka8hBipHGMtEsRNy7C; Opções cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy; «sim» para a main cmsg_01K75FTs9bQnbhhH7qttpgraFhzyFUMh7gh2JDP4czaFou
+Novos: 4 · mudaram: 20 · saíram: 4
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Armazem_AtrasDoMesmoCadeado_ESemTextoComAListaVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OsSeparadores_AMinhaContaEsteComputadorEGerais_CadaEntradaMostraSoASuaSeccao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.UmSoCadeado_PorCimaDasPastasEDasGerais_QuandoSaoSoDeLeitura`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListCount_ShowsTheTotal_NotJustTheCurrentPage`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_SearchAndPaginationPreserveSelectionContext_AndExcludeOtherToolTypes`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.cs :: BoquilhasRegistoPageTests.ToolCatalog_SoAMaquinaNaoMostraALista_OTextoMostra_EAMaquinaSoReduz`
+- mudou: `tests/DMO.Alpha.Web.Tests/BqRepairerSettingsPageTests.Excel.cs :: BqRepairerSettingsPageTests.ExcelDasBoquilhas_OCartao_AVersaoMudaComUmMovimento_EOFicheiroVoltaEscrito`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CompararPesos_CalculaAoVivoSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CompararPesos_LeiturasMasFicamDeForaComAviso_AsOutrasComparam`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoPorCombinacaoPageTests.cs :: Producao.ComDoisPesos_OResumoARevisaoEODetalheMostramOsDois`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Detalhe.cs :: ControloCapabilitiesCutHPageTests.RevisaoDetalhe_OsPegamentosUsamOFormatoDaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_SeparadorComProcura_MostraOControloInteiro`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Admin_TemDefinicoesProprias_SoAApp`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.ReviewerScreens_ShowBothSheets_TheAlertOfTheSecondIsNotHidden`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.Caret_UmaRegraParaTudo_AEsquerdaDoTexto`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.HelpTip_IsTheSharedCircle_AndLivesOnlyInThePartial`
+- mudou: `tests/visual/definicoes_parcial_browser.py`
+- mudou: `tests/visual/excel_bq_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Armazem_SemCadeado_ESemTextoComAListaVazia`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_FuncoesNoMenuLateral_UmBotaoPorCartao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_PessoalEOsModulosAtivos_CadaEntradaMostraSoASuaSeccao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_TemOCadeadoNosModulos_QuandoOGeralESoDeLeitura`
+
+Selo depois: `f07dea73a879bfe6`

@@ -198,7 +198,7 @@
       escolher.textContent = tem ? "Escolher outra pasta" : "Escolher a pasta";
       estado.textContent = tem
         ? "«" + ligado.handle.name + "» · escreve os movimentos a partir de " + dataPt(ligado.desde) + "."
-        : "Nenhum Excel escolhido neste computador.";
+        : "Nenhum Excel";
     });
   }
 
