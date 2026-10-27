@@ -400,7 +400,7 @@ else
      mesmas recusas tipadas) e voltam a esta folha (Diogo, 23/10/2026). *@
   var rascunho = !editar ? null : Model.Criar ? (Model.DuplicarDe is { } origemRascunho ? $"duplicar:{origemRascunho}" : "novo") : $"editar:{jobOn.JobOnId}";
   <form class="jof2-form" id="@(editar ? "lightForm" : "jofLeitura")" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.Criar ? "Create" : "Update")"
-        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jof-criar="@(Model.Criar ? "true" : null)" data-jobon-rascunho="@rascunho" aria-label="@(Model.Criar ? "Folha do Job On novo" : $"Folha do Job On {jobOn.ProductionNumber}")">
+        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jof-criar="@(Model.Criar ? "true" : null)" data-jobon-rascunho="@rascunho" data-jobon-rascunho-dono="@(rascunho is null ? null : User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.ActorId)?.Value)" aria-label="@(Model.Criar ? "Folha do Job On novo" : $"Folha do Job On {jobOn.ProductionNumber}")">
     @if (Model.Criar)
     {
       <input type="hidden" name="voltar" value="folha" />

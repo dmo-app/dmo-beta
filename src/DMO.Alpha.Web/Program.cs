@@ -569,7 +569,20 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseStaticFiles();
+// Os ficheiros com a marca de versão (asp-append-version, ?v=…) guardam-se
+// um ano: a marca muda quando o ficheiro muda, por isso uma versão nova da app
+// pede logo o ficheiro novo. Os outros (o logótipo, a letra) perguntam sempre
+// ao servidor se mudaram, para nunca ficar um antigo depois de uma atualização
+// (vistoria ao frontend F1, 27/10/2026).
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ficheiro =>
+    {
+        ficheiro.Context.Response.Headers.CacheControl = ficheiro.Context.Request.Query.ContainsKey("v")
+            ? "public, max-age=31536000, immutable"
+            : "no-cache";
+    },
+});
 
 // O navegador pede /favicon.ico sozinho; serve o logótipo em vez de dar 404.
 app.MapGet("/favicon.ico", (IWebHostEnvironment env) =>
