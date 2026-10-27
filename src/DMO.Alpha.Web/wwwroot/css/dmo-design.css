@@ -528,6 +528,11 @@ html body .dmu-entrega .dmu-token span{text-transform:none;letter-spacing:0;font
 
 /* Login and Versão: the identity side is a flat light surface, no gradient. */
 html body.dmo-account-page .identity{background:var(--dmo-subtle)}
+/* Login (Diogo, 27/10/2026, …5WAm8UDgDbpWoq3rRLV3SJ: «degradê aqui, aumenta o logo no login»):
+   o painel da marca num degradê dos tons da paleta e o logo maior. */
+html body.dmo-account-page .identity{background:linear-gradient(165deg,var(--design-100) 0%,var(--dmo-subtle) 55%,var(--dmo-card) 100%)}
+html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(165deg,var(--design-navy) 0%,var(--dmo-card) 60%,var(--dmo-page) 100%)}
+html body.dmo-account-page .identity .brand-logo.brand-logo{width:112px;height:112px;background:none}
 /* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
 html body :is(.peg-aviso,.peso-aviso)::before{content:none}
 
