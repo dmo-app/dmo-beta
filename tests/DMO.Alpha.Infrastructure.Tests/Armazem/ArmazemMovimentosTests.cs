@@ -294,7 +294,6 @@ public sealed class ArmazemMovimentosTests
     }
 
     [Theory]
-    [InlineData(2)]
     [InlineData(3)]
     [InlineData(999)]
     public async Task Saida_ReparadorDeOutraFamiliaArquivadoOuQueNaoExiste_Recusa(int reparador)
@@ -413,7 +412,8 @@ public sealed class ArmazemMovimentosTests
         Assert.Equal((FerramentaLocalizacaoTipo.Fabrico, (string?)null, (ArmazemOrigem?)null, (FerramentaEstadoTipo?)null),
             (situacao.Localizacao, situacao.Posicao, situacao.OrigemProposta, situacao.EstadoProposto));
         Assert.Empty(situacao.UltimosMovimentos);
-        Assert.Equal(["Moldes Lda"], situacao.Reparadores.Select(r => r.Nome));
+        // Todos os reparadores de CM e MF recebem tudo (Diogo, 27/10/2026).
+        Assert.Equal(["Moldes Lda", "Só MF"], situacao.Reparadores.Select(r => r.Nome));
         Assert.Null(await Servico(db).SituacaoAsync(ToolRegistryConstants.RemovedToolId));
         Assert.Null(await Servico(db).SituacaoAsync("nao-existe"));
     }

@@ -20,7 +20,7 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Contains("<strong>Por aprovar</strong>", resumo);
         Assert.DoesNotContain("nada bloqueia", resumo);
         Assert.True(resumo.IndexOf("<span>Aprovação</span>", StringComparison.Ordinal)
-            < resumo.IndexOf("A combinação da produção", StringComparison.Ordinal));
+            < resumo.IndexOf("Controlos associados", StringComparison.Ordinal));
         // Sem medições, sem o «PDF Pegamentos» (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraB4cWtFy2LfgzGWkBMpzRuk).
         Assert.DoesNotContain(">PDF Pegamentos</button>", resumo);
 

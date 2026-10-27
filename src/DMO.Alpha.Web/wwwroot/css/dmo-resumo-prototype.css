@@ -699,3 +699,154 @@ html body main.resumo-page span.resumo-area-link.vazio:hover { color: var(--dmo-
 /* Na combinação, o lote ao lado da referência (como «9262 Lote 17»). */
 html body main.resumo-page .resumo-cabecalho .resumo-tools-grid > .resumo-mini-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "rotulo rotulo" "valor nota"; }
 html body main.resumo-page .resumo-cabecalho .resumo-tools-grid > .resumo-mini-card > small { white-space: nowrap; }
+
+/* ==================================================================
+ * HIERARQUIA DO RESUMO (Diogo, 27/10/2026: «ficou demasiado igual»).
+ * Bloco à parte, só CSS, no fim do ficheiro (fácil de juntar com outros
+ * PRs que mexem no Resumo). Mais forte do que o dmo-design.css e o
+ * d1366-controlo.css pelo .dmo-workspace + [aria-labelledby].
+ *  1. A produção e o estado da aprovação são o título da folha.
+ *  2. Controlos associados numa faixa própria; sem registo = lugar vazio
+ *     (tracejado, discreto); registado = cartão cheio com o estado a cor.
+ *  3. Estado do documento em lista: nome forte, OK/NOK como palavra de
+ *     cor e um traço à esquerda; «não registado» discreto.
+ *  4. Títulos de secção com mais peso e espaço; separadores entre secções.
+ * Só tokens (claro e escuro), pensado para 1366×768; o hover só muda a
+ * cor do texto; os botões e os campos com --dmo-control-height.
+ * Funciona com ou sem a combinação da produção.
+ * ================================================================== */
+
+/* 1. O título: referência · nº de produção · linha. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-sheet-intro { padding: 10px 20px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-sheet-intro .resumo-eyebrow { color: var(--dmo-muted); font-size: 12px; font-weight: 500; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-sheet-identity {
+  gap: 10px;
+  color: var(--dmo-brand-900);
+  font-size: 22px !important;
+  font-weight: 750;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-sheet-identity i { color: var(--dmo-muted); font-weight: 400; }
+
+/* 1b. A Aprovação primeiro, maior, com a palavra a cor e um traço à
+   esquerda; Início e Fim ficam secundários. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-context-grid > .resumo-approval {
+  order: -1;
+  border-left: 0;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-context-grid > .resumo-mini-card:first-child { border-left: 1px solid var(--dmo-border); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-context-grid > .resumo-mini-card:not(.resumo-approval) > strong { color: var(--dmo-text); font-size: 14px; font-weight: 600; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-approval > strong { font-size: 18px; font-weight: 750; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-approval.pending > strong { color: var(--dmo-muted); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-approval.approved { box-shadow: inset 3px 0 0 var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-approval.approved > strong { color: var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-approval.not-approved { box-shadow: inset 3px 0 0 var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-approval.not-approved > strong { color: var(--dmo-danger); }
+
+/* 4. Os títulos de secção: mais peso, mais espaço (a combinação, dentro
+   do cabeçalho, fica como está). */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] :is(.resumo-linked, .resumo-sheet-areas, .resumo-people) .resumo-section-title {
+  margin: 0 0 8px !important;
+  padding: 0;
+  border: 0;
+  color: var(--dmo-brand-900);
+  font-size: 15px !important;
+  font-weight: 750;
+  line-height: 20px;
+}
+
+/* 2. Controlos associados: uma faixa com o fundo suave, à largura da folha. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked {
+  margin-top: 4px;
+  padding: 10px 20px 12px;
+  border-top: 1px solid var(--dmo-border);
+  border-bottom: 1px solid var(--dmo-border);
+  background: var(--dmo-subtle);
+}
+/* Registado (tem «Ver detalhe»): cartão cheio. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card {
+  border: 1px solid var(--dmo-border);
+  border-radius: 8px;
+  background: var(--dmo-card);
+  box-shadow: none;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card-head > span:first-child { color: var(--dmo-text) !important; font-size: 15px !important; font-weight: 700 !important; }
+/* O estado como palavra de cor, com um ponto: cheio = registado. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card .resumo-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dmo-success);
+  font-size: 12px;
+  font-weight: 650;
+  background: none;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card .resumo-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+/* Sem registo (sem «Ver detalhe»): um lugar vazio, tracejado e discreto. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card:not(:has(.resumo-card-link)) {
+  border-style: dashed;
+  background: transparent;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card:not(:has(.resumo-card-link)) .resumo-linked-card-head > span:first-child { color: var(--dmo-muted) !important; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card:not(:has(.resumo-card-link)) .resumo-status { color: var(--dmo-muted); font-weight: 500; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card:not(:has(.resumo-card-link)) .resumo-status::before { background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card:not(:has(.resumo-card-link)) > strong { color: var(--dmo-muted); font-size: 13px; font-weight: 500; }
+/* O tom dos registados (Pegamentos, PU NNPB): o traço à esquerda e a
+   frase a cor, com as cores suaves dos tokens; o fundo fica o do cartão. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card:is(.ok, .nok, .na, .warn) { background: var(--dmo-card); border-color: var(--dmo-border); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.ok { box-shadow: inset 3px 0 0 var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.ok > strong { color: var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.nok { box-shadow: inset 3px 0 0 var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.nok > strong { color: var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.warn { box-shadow: inset 3px 0 0 var(--dmo-warning); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.warn > strong { color: var(--dmo-warning); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.na { box-shadow: inset 3px 0 0 var(--dmo-neutral); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card.na > strong { color: var(--dmo-neutral); }
+
+/* 3. Estado do documento: uma lista, separada da faixa de cima. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-sheet-areas { padding-top: 4px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area {
+  align-items: center;
+  padding: 4px 8px 4px 12px;
+  border-left: 3px solid transparent;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area.ok { border-left-color: var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area.nok { border-left-color: var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area > span:first-child { color: var(--dmo-text); font-size: 14px; font-weight: 750; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area > span:first-child small { color: var(--dmo-muted); font-size: 12px; font-weight: 400; opacity: 1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area > strong { color: var(--dmo-muted); font-size: 13px; font-weight: 500; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area.ok > strong { color: var(--dmo-success); font-size: 14px; font-weight: 750; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area.nok > strong { color: var(--dmo-danger); font-size: 14px; font-weight: 750; }
+/* Os campos da linha com a altura dos botões. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area :is(select, .resumo-area-note) { height: var(--dmo-control-height); min-height: var(--dmo-control-height); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area .resumo-area-note { display: flex; align-items: center; padding-top: 0; padding-bottom: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area .resumo-area-note-text { height: auto; -webkit-line-clamp: 1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area > .resumo-area-by { margin: 0 0 2px; line-height: 14px; }
+/* O link do mcaliper: discreto quando não há. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area .resumo-area-link { font-size: 12px; text-transform: none; letter-spacing: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area .resumo-area-link.vazio { color: var(--dmo-muted); font-weight: 400; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area .resumo-area-link.set { color: var(--dmo-brand-700); font-weight: 600; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area .resumo-area-link:is(:hover, :focus-visible) { color: var(--dmo-text); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-areas .resumo-area span.resumo-area-link.vazio:hover { color: var(--dmo-muted); }
+
+/* 4b. Visto por · Aprovado por: separados por uma linha da lista de cima. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-people {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--dmo-border);
+}
+/* ===== fim da HIERARQUIA DO RESUMO ===== */
+
+/* Peso sem registo com «Associar Peso existente» e «Registar»: os dois
+   botões ficam na linha do título (o «Sem registo» já se lê em «Ainda não
+   registado», por baixo, por isso sai do canto quando há dois botões). */
+html body main.resumo-page .resumo-linked-peso .resumo-linked-card-head:not(#_) { flex-wrap: nowrap; }
+html body main.resumo-page .resumo-linked-peso .resumo-card-actions:has(> .dmo-button + .dmo-button) > .resumo-status:not(#_) { display: none; }
+html body main.resumo-page .resumo-linked-peso .resumo-card-actions:not(#_) { flex-wrap: nowrap; }

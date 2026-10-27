@@ -624,6 +624,42 @@
   // REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa linha de «O que
   // mudou» (fora do botão da ação) abre a janela com essa alteração;
   // «Remover por engano» mostra a confirmação.
+  // SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026): um clique (ou Espaço/Enter)
+  // numa alteração escolhe-a e o botão do canto passa a ser a ação dela;
+  // sem ação, o botão fica desativado.
+  function escolherAlteracoes() {
+    const acao = document.querySelector('[data-jof-resumo-acao] > a');
+    const linhas = document.querySelectorAll('.jobon-resumo > li');
+    function escolher(linha) {
+      linhas.forEach(l => {
+        l.classList.toggle('selected', l === linha);
+        if (l === linha) l.setAttribute('aria-current', 'true'); else l.removeAttribute('aria-current');
+      });
+      if (!acao) return;
+      const href = linha.getAttribute('data-jof-acao-href');
+      const rotulo = linha.getAttribute('data-jof-acao-rotulo');
+      if (href) {
+        acao.setAttribute('href', href);
+        acao.textContent = rotulo || acao.textContent;
+        acao.removeAttribute('aria-disabled');
+      } else {
+        acao.removeAttribute('href');
+        acao.setAttribute('aria-disabled', 'true');
+      }
+    }
+    linhas.forEach(linha => {
+      linha.addEventListener('click', event => {
+        if (event.target.closest('a, button')) return;
+        escolher(linha);
+      });
+      linha.addEventListener('keydown', event => {
+        if (event.target !== linha) return;
+        if (event.key === ' ') { event.preventDefault(); escolher(linha); }
+        else if (event.key === 'Enter') escolher(linha);
+      });
+    });
+  }
+
   function alteracoes() {
     const janela = document.querySelector('[data-jof-remover]');
     if (!janela || typeof janela.showModal !== 'function') return;
@@ -664,6 +700,7 @@
 
   function init() {
     painel();
+    escolherAlteracoes();
     alteracoes();
     imprimir();
     producoes();

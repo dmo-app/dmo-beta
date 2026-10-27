@@ -409,7 +409,11 @@ public sealed partial class EnvioEmailPesoPageTests : IClassFixture<CustomWebApp
         Assert.False(scope.ServiceProvider.GetRequiredService<DmoDbContext>().EmailModelos.Any(m => m.Nome == "Outro"));
 
         var html = await GetAsync(client, "/Definicoes");
-        Assert.Contains("data-dmo-dialog=\"ctl-modelo-" + modelo.Id + "\">Qualidade</button>", html);
+        // Sem botões nas linhas (Diogo, 27/10/2026): a linha do modelo abre a
+        // janela dele (Enter, dois cliques ou o «Abrir» do canto).
+        Assert.Matches("<tr data-dmo-modelo-email=\"" + modelo.Id + "\" data-dmo-row data-id=\"" + modelo.Id
+            + "\" data-dmo-abre-janela=\"ctl-modelo-" + modelo.Id + "\"[^>]*>\\s*<td><input type=\"radio\"[^>]*></td>\\s*<td>Qualidade</td>", html);
+        Assert.Contains("<dialog id=\"ctl-modelo-" + modelo.Id + "\" class=\"dmo-dialog\"", html);
     }
 
     // AS LISTAS COM NOMES (Diogo, 23/10/2026): colar a lista do Outlook guarda

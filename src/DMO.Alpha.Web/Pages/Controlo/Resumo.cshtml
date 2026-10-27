@@ -159,21 +159,7 @@
           </div>
         </div>
 
-        @* A COMBINAÇÃO da produção: as REFERÊNCIAS e os lotes herdados do
-           Job On (nunca os tool_id da BD). *@
-        <div class="resumo-sheet-tools">
-          <h4 class="resumo-section-title">A combinação da produção</h4>
-          <div class="resumo-tools-grid">
-            @foreach (var (slotLabel, tool) in new[] { ("CM · Contra-molde", Model.CmTool), ("MF · Molde final", Model.MfTool), ("BQ · Boquilha", Model.BqTool) })
-            {
-              <div class="resumo-mini-card">
-                <span>@slotLabel</span>
-                <strong>@(tool?.Reference ?? "—")</strong>
-                <small>@(tool is null ? "Sem ferramenta" : $"Lote {tool.Lot}")</small>
-              </div>
-            }
-          </div>
-        </div>
+        @* Sem «A combinação da produção»: já está no Estado do documento (Diogo, 27/10/2026). *@
       </div>
 
       @* O «NÃO APROVADO» DEIXA UM AVISO (Diogo, 19/10/2026, F5: «requer que
