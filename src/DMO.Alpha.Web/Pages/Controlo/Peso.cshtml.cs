@@ -721,6 +721,9 @@ public sealed class PesoModel : PageModel
     /// <summary>O filtro da ferramenta (a referência da CM, pelo início dela ou da parte BQ).</summary>
     public string? HistoryTool { get; private set; }
 
+    /// <summary>O lote escrito no Histórico (Diogo, 27/10/2026: «falta lote»): com a referência, por exemplo ST100 lote 8.</summary>
+    public string? HistoryLote { get; private set; }
+
     /// <summary>O filtro do tipo (Peso/Pegamentos/Comparação; null = todos).</summary>
     public ControloHistoryKind? HistoryTipo { get; private set; }
 
@@ -771,6 +774,7 @@ public sealed class PesoModel : PageModel
         || HistoryReference is not null
         || HistoryProduction is not null
         || HistoryTool is not null
+        || HistoryLote is not null
         || HistoryTipo is not null
         || HistoryData is not null;
 
@@ -862,6 +866,7 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "comparacao_id")] int? comparacaoId,
         [FromQuery(Name = "comparacao_refusal")] string? comparacaoRefusal,
         [FromQuery(Name = "ferramenta")] string? ferramenta,
+        [FromQuery(Name = "lote")] string? lote,
         [FromQuery(Name = "tipo")] string? tipo,
         [FromQuery(Name = "data")] string? data,
         [FromQuery(Name = "pagina")] int? pagina,
@@ -984,6 +989,7 @@ public sealed class PesoModel : PageModel
             HistoryReference = Sanitize(referencia);
             HistoryProduction = Sanitize(producao);
             HistoryTool = Sanitize(ferramenta);
+            HistoryLote = Sanitize(lote);
             HistoryTipo = ParseTipo(tipo);
             HistoryData = ParseData(data);
             HistorySemJobOn = semJobOnFiltro == "1";
@@ -1032,7 +1038,7 @@ public sealed class PesoModel : PageModel
                 var historyPage = await HistoricoControloQuery.SearchPageAsync(
                     HistoryReference, HistoryProduction, HistoryTool, HistoryTipo, HistoryData,
                     pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn,
-                    productionReference: HistoryProductionReference);
+                    productionReference: HistoryProductionReference, lote: HistoryLote);
                 // A Referência também aceita a referência da CM (Diogo,
                 // 27/10/2026): sem resultados pela referência do produto,
                 // procura-a como ferramenta.
@@ -1040,7 +1046,7 @@ public sealed class PesoModel : PageModel
                 {
                     var comoFerramenta = await HistoricoControloQuery.SearchPageAsync(
                         null, null, referenciaCm, HistoryTipo, HistoryData,
-                        pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn);
+                        pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn, lote: HistoryLote);
                     if (comoFerramenta.TotalCount > 0)
                     {
                         historyPage = comoFerramenta;

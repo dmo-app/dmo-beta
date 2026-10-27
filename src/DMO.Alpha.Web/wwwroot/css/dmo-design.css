@@ -743,7 +743,9 @@ html body .jof2 .card.pair .sec{padding:0}
    ferramentas numa linha, notas vazias baixas (as escritas continuam a encher),
    TP e CS com os valores lado a lado. */
 html body .dmo-shell-header .dmo-primary-nav>a{min-height:56px}
-html body .dmo-shell-header{min-height:56px}
+/* A barra de cima com a mesma altura dos links (52 px) em todas as páginas: com 56,
+   onde não há separadores (Definições) o logo e os links desciam 2 px (Diogo, 27/10/2026). */
+html body .dmo-shell-header{min-height:52px}
 html body .dmo-shell-header .dmo-secondary-nav :is(a,button){min-height:38px}
 html body .jof2{padding-top:8px;padding-bottom:8px}
 html body .jof2:not(.editing) .page-head{gap:6px 16px;margin-bottom:8px}
@@ -896,3 +898,20 @@ html[data-dmo-embedded="true"] body a.dmo-voltar-texto{display:none}
    (nas Boquilhas a dica da procura ficava por cima do próximo círculo) e fecha
    quando o rato sai do seu círculo. */
 html body .dmo-help .dmo-help-tip{pointer-events:none}
+/* Peso e Pegamentos, barra «Ferramentas»: os rótulos ao lado da caixa liam-se
+   miúdos (Diogo, 27/10/2026: «aumentar o font»). */
+html body :is(main.peso-page,main.peg-page) form.dmo-filter-bar:not(#pesoHistoricoFiltros)>.dmo-field>label{font-size:14px;font-weight:600;color:var(--dmo-text)}
+/* O Lote do Histórico do Controlo: três dígitos. */
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote{flex:0 0 72px}
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote>input{width:72px;min-width:0}
+/* Histórico do Controlo menos branco (Diogo, 27/10/2026: «fica demasiado
+   branco», «usa um pouco de shade da palete»): no claro, o cabeçalho da
+   tabela no tom pálido da marca e as linhas alternadas no tom subtil. */
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] thead th{background:color-mix(in srgb,var(--dmo-brand-500) 16%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] tbody tr:nth-child(even)>td{background:color-mix(in srgb,var(--dmo-brand-500) 7%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page #pesoHistoricoFiltros{background:color-mix(in srgb,var(--dmo-brand-500) 9%,var(--dmo-card));border-radius:var(--dmo-radius-control,8px);padding:10px 12px}
+/* O filtro «Ferramenta» de um link, à vista e com «×» para o tirar. */
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-ferramenta{flex:0 0 auto}
+html body main.peso-page .peso-hist-chip{display:inline-flex;align-items:center;gap:6px;height:var(--dmo-control-height);padding:0 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-radius-control,8px);background:var(--dmo-card);color:var(--dmo-text);text-decoration:none;font-weight:600}
+html body main.peso-page .peso-hist-chip:is(:hover,:focus-visible){color:var(--dmo-action,var(--dmo-brand-600))}
+html body main.peso-page .peso-hist-ferramenta>.dmo-field-label{display:block;margin:0 0 4px;font-size:12px;font-weight:500;color:var(--dmo-muted)}

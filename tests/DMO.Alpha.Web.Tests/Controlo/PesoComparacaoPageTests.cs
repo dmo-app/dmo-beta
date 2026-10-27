@@ -563,7 +563,8 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         // O registo aparece no histórico com o tipo Comparação.
         var historico = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&tipo=Comparacao");
         Assert.Contains("Comparação", historico);
-        Assert.Contains("1 contra-moldes", historico);
+        // Sem a coluna Resumo (Diogo, 27/10/2026): o resumo da comparação já não está na lista.
+        Assert.DoesNotContain("1 contra-moldes", historico);
     }
 
     [Fact]
@@ -711,7 +712,8 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         // filtros não lista nada; a procura pela referência traz os três tipos.
         var vazio = await GetPageHtmlAsync(client, $"{PagePath}?historico=1");
         Assert.Contains("Histórico do Controlo", vazio);
-        Assert.Contains("Pesquise por referência (e depois a produção), ferramenta, tipo ou data.", vazio);
+        // Sem texto de ajuda (Diogo, 27/10/2026).
+        Assert.DoesNotContain("Pesquise por referência", vazio);
         Assert.DoesNotContain("Escreva primeiro a referência", vazio);
         Assert.Contains("<option value=\"\">Produção</option>", vazio);
         Assert.DoesNotContain(">Peso</td>", vazio);
