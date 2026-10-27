@@ -18,13 +18,7 @@
         ControloRevisaoEstado.NaoAprovado => "nao-aprovado",
         _ => "pendente"
     };
-    string? estadoParam = Model.Estado switch
-    {
-        ControloRevisaoEstado.Pendente => "pendente",
-        ControloRevisaoEstado.Aprovado => "aprovado",
-        ControloRevisaoEstado.NaoAprovado => "nao-aprovado",
-        _ => null
-    };
+    var estadoParam = Model.EstadoParam;
 }
 @section Head {
   <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
