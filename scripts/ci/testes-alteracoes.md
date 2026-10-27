@@ -3410,3 +3410,14 @@ Novos: 6 · mudaram: 4 · saíram: 0
 - mudou: `tests/visual/puncoes_tabela_browser.py`
 
 Selo depois: `5072dad16aff188a`
+
+## A-0191 · 2026-10-27 · ok-do-diogo
+
+Porquê: Resumo do Controlo sem «A combinação da produção» (já está no Estado do documento)
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraSa1TjHXyqneQ4wBzRv4r2F
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
+
+Selo depois: `225e0d22f04fdb94`
