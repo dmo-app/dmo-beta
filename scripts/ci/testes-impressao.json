@@ -1,5 +1,5 @@
 {
-  "selo": "155ae28a8e306475",
+  "selo": "1146924046f4fbb9",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3174,7 +3174,7 @@
     "tests/visual/ficha_botoes_browser.py": "1005ac3e76ade43a",
     "tests/visual/gravacoes_zonas_browser.py": "ab540e418fe53d49",
     "tests/visual/historicos_parcial_browser.py": "64ce36444badbae3",
-    "tests/visual/jobon_folha_browser.py": "423a8feb8914e0f3",
+    "tests/visual/jobon_folha_browser.py": "020b9460fc6c3126",
     "tests/visual/nok_agente_browser.py": "38157f0e523cc2cb",
     "tests/visual/paginacao_parcial_browser.py": "571e64a6f5ea69fc",
     "tests/visual/painel_cores_linhas_browser.py": "314294fe9aeb453c",

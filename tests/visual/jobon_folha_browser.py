@@ -7,7 +7,7 @@ HTML exportado pelos testes HTTP reais (DMO_UI_EVIDENCE_DIR):
 Só ficheiros locais; nada vai ao DEV.
 
 A 1440, 1366 (o ecrã base do Diogo), 1280 (o mesmo com zoom ou barra lateral) e 390 px:
-- a grelha em quatro colunas iguais (CM+TP, MF+CS, BQ+AN, PU+ARR), os Calibres por baixo de BQ+AN e PU+ARR e a referência e o lote do cabeçalho inteiros;
+- a grelha em quatro colunas iguais em cima (CM, MF, BQ+AN, PU+ARR); por baixo TP e CS mais estreitos e os Calibres com mais de metade da largura, como a maqueta 01; a referência e o lote do cabeçalho inteiros;
 - um clique nas notas amplia-as com «CM 5809 · Lote 1 · Notas» no título; Esc e um clique fora fecham;
 - clicar numa alteração de «O que mudou» abre «Remover por engano»; a removida não aparece;
 - «Modo Editar» aparece no Editar e não na folha.
@@ -63,8 +63,10 @@ with sync_playwright() as playwright:
         page.goto('http://dmo.test/JobOn/Folha?jobon_id=1&vista=alteracoes')
         page.wait_for_load_state('load')
 
-        # A grelha (Diogo, 26/10/2026): quatro colunas iguais e independentes — CM+TP, MF+CS, BQ+AN,
-        # PU+ARR —, os Calibres por baixo de BQ+AN e PU+ARR, o PI à direita por baixo das Notas gerais.
+        # A grelha (Diogo, 26/10/2026): quatro colunas iguais e independentes em cima — CM, MF, BQ+AN,
+        # PU+ARR —, o PI à direita por baixo das Notas gerais. Por baixo, como a maqueta 01 (Diogo,
+        # 27/10/2026, A-0228): TP e CS mais estreitos e os Calibres com mais de metade da largura, até
+        # ao fim de PU+ARR, para os oito calibres caberem à vista.
         # Nenhum cartão fica estreito, nem com a referência cortada nem o «Lote» partido.
         if largura in (1440, 1366, 1280):
             pos = page.evaluate("""() => Object.fromEntries(['CM', 'TP', 'MF', 'CS', 'BQ', 'AN', 'PU', 'ARR', 'PI'].map(f => {
@@ -73,15 +75,18 @@ with sync_playwright() as playwright:
               }).concat([['CAL', (() => { const r = document.querySelector('.cal-card').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top), w: Math.round(r.width) }; })()],
                          ['NOTAS', (() => { const r = document.querySelector('#notesTitle').getBoundingClientRect(); return { left: Math.round(r.left), top: Math.round(r.top), w: Math.round(r.width) }; })()]]))""")
             print(f'{nome} grelha: {pos}')
-            larguras = [pos[f]['w'] for f in ('CM', 'TP', 'MF', 'CS', 'BQ', 'AN', 'PU', 'ARR')]
+            larguras = [pos[f]['w'] for f in ('CM', 'MF', 'BQ', 'AN', 'PU', 'ARR')]
             if max(larguras) - min(larguras) > 6 or min(larguras) < 190:
                 falhas.append(f'{nome}: os cartões não têm a mesma largura ({larguras})')
-            if not (abs(pos['CM']['left'] - pos['TP']['left']) <= 3 and abs(pos['MF']['left'] - pos['CS']['left']) <= 3 and abs(pos['BQ']['left'] - pos['AN']['left']) <= 3 and abs(pos['PU']['left'] - pos['ARR']['left']) <= 3):
+            if min(pos['TP']['w'], pos['CS']['w']) < 130:
+                falhas.append(f'{nome}: TP ou CS demasiado estreitos ({pos})')
+            if not (abs(pos['CM']['left'] - pos['TP']['left']) <= 3 and pos['TP']['left'] < pos['CS']['left'] < pos['CAL']['left'] and abs(pos['BQ']['left'] - pos['AN']['left']) <= 3 and abs(pos['PU']['left'] - pos['ARR']['left']) <= 3):
                 falhas.append(f'{nome}: as colunas não estão alinhadas ({pos})')
             if not (pos['CM']['left'] < pos['MF']['left'] < pos['BQ']['left'] < pos['PU']['left'] < pos['PI']['left']):
                 falhas.append(f'{nome}: a ordem das colunas não é CM, MF, BQ, PU, PI ({pos})')
-            if not (abs(pos['CAL']['left'] - pos['AN']['left']) <= 3 and pos['CAL']['top'] > pos['AN']['top'] and pos['CAL']['top'] > pos['ARR']['top']):
-                falhas.append(f'{nome}: os Calibres não estão por baixo de BQ+AN e PU+ARR ({pos})')
+            fim_pu = pos['PU']['left'] + pos['PU']['w']
+            if not (abs(pos['CAL']['left'] + pos['CAL']['w'] - fim_pu) <= 3 and pos['CAL']['w'] > (fim_pu - pos['CM']['left']) / 2 and pos['CAL']['top'] > pos['AN']['top'] and pos['CAL']['top'] > pos['ARR']['top']):
+                falhas.append(f'{nome}: os Calibres não vão até ao fim de PU+ARR com mais de metade da largura ({pos})')
             if not (pos['PI']['top'] > pos['NOTAS']['top']):
                 falhas.append(f'{nome}: o PI não está por baixo das Notas gerais ({pos})')
             cortados = page.evaluate("""() => [...document.querySelectorAll('.tool-head [data-jof-tool-ref], .tool-head [data-jof-tool-lote]')]
