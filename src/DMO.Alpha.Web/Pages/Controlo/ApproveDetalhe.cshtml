@@ -6,9 +6,6 @@
     // Os números como na Revisão (Approve.cshtml): duas casas e «Leitura N»
     // (deep sweep de 18/10/2026, regra 66).
     var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
-    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
-    string Cm3(decimal? value) => value is { } v ? v.ToString("N2", culture) + " cm³" : "—";
-    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
 }
 @section Head {
   <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
@@ -165,14 +162,14 @@
                 <h3 class="revisao-section">Comparação global de peso</h3>
               }
               <div class="revisao-facts four">
-                <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong></div>
-                <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
-                <div><span>Peso da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
-                <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
-                <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
-                <div><span>Capacidade atual</span><strong>@Cm3(atual?.AverageCapacityCm3)</strong></div>
-                <div><span>Capacidade anterior</span><strong>@Cm3(anterior?.AverageCapacityCm3)</strong></div>
-                <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong></div>
+                <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(atual?.AverageGlassWeightGrams)</strong></div>
+                <div><span>Média do controlo anterior</span><strong>@ControloNumeros.Gramas(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
+                <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong></div>
+                <div><span>Peso nominal do desenho</span><strong>@ControloNumeros.Gramas(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{ControloNumeros.ComSinal(dg, " g")} ({ControloNumeros.ComSinal(desvioNominal.Percent, " %")})" : "")</small></div>
+                <div><span>Diferença ao controlo anterior</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
+                <div><span>Capacidade atual</span><strong>@ControloNumeros.Cm3(atual?.AverageCapacityCm3)</strong></div>
+                <div><span>Capacidade anterior</span><strong>@ControloNumeros.Cm3(anterior?.AverageCapacityCm3)</strong></div>
+                <div><span>Diferença de capacidade</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong></div>
               </div>
               @* As leituras e a comparação CM a CM numa só tabela (Diogo,
                  20/10/2026: «as tabelas do peso deveriam ser as duas juntas»). *@

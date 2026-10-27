@@ -47,8 +47,18 @@ public sealed class SumarioModel(
     /// <summary>Quantos dias a lista mostra, até ao dia escolhido (incluído).</summary>
     public int Dias { get; private set; } = 1;
 
-    /// <summary>O tipo escolhido no filtro; null = todos os que a conta vê.</summary>
-    public SumarioTipo? Tipo { get; private set; }
+    /// <summary>
+    /// A chave escolhida no filtro, já validada: «importante», uma opção de
+    /// <see cref="SumarioTipos.Filtros"/> ou um tipo só (os links antigos);
+    /// null = toda a informação que a conta vê.
+    /// </summary>
+    public string? Escolha { get; private set; }
+
+    /// <summary>Os tipos da escolha que a conta vê; null = todos.</summary>
+    public IReadOnlyList<SumarioTipo>? Escolhidos { get; private set; }
+
+    /// <summary>As opções do filtro a seguir a «Importante» que a conta vê (Job On, Armazém, Controlo).</summary>
+    public IReadOnlyList<SumarioFiltro> FiltrosVisiveis { get; private set; } = [];
 
     /// <summary>Os tipos que os módulos da conta deixam ver (as opções do filtro).</summary>
     public IReadOnlyList<SumarioTipo> TiposVisiveis { get; private set; } = [];
@@ -109,14 +119,30 @@ public sealed class SumarioModel(
         TiposVisiveis = visiveis.Where(SumarioTipos.DoPeriodo).ToArray();
         TiposInformacao = TiposVisiveis.Where(t => !SumarioTipos.Importante(t)).ToArray();
         VeImportantes = visiveis.Any(SumarioTipos.Importante);
-        // Um tipo importante no endereço (os links antigos) abre o grupo do
-        // topo só com esse tipo.
-        Tipo = SumarioTipos.DaChave(tipo) is { } escolhido && visiveis.Contains(escolhido) ? escolhido : null;
-        SoImportante = VeImportantes && (tipo == ChaveImportante || Tipo is { } ti && SumarioTipos.Importante(ti));
-        if (VeImportantes && (Tipo is null || SoImportante))
+        FiltrosVisiveis = SumarioTipos.Filtros.Where(f => f.Tipos.Any(t => visiveis.Contains(t))).ToArray();
+        // Uma opção do filtro junta vários tipos; um tipo só no endereço (os
+        // links antigos) continua a abrir só esse tipo. Os importantes da
+        // escolha (o Controlo) ficam no grupo do topo.
+        if (tipo == ChaveImportante && VeImportantes)
+        {
+            Escolha = tipo;
+        }
+        else if (SumarioTipos.FiltroDaChave(tipo) is { } filtro && FiltrosVisiveis.Contains(filtro))
+        {
+            Escolha = filtro.Chave;
+            Escolhidos = filtro.Tipos.Where(t => visiveis.Contains(t)).ToArray();
+        }
+        else if (SumarioTipos.DaChave(tipo) is { } escolhido && visiveis.Contains(escolhido))
+        {
+            Escolha = tipo;
+            Escolhidos = [escolhido];
+        }
+
+        SoImportante = VeImportantes && (Escolha == ChaveImportante || Escolhidos is { } e && e.All(SumarioTipos.Importante));
+        if (VeImportantes && (Escolhidos is null || Escolhidos.Any(SumarioTipos.Importante)))
         {
             var importantes = await novidades.ImportantesAsync(_modulos, HttpContext.RequestAborted);
-            Importantes = Tipo is { } so ? importantes.Where(i => i.Tipo == so).ToList() : importantes;
+            Importantes = Escolhidos is { } so ? importantes.Where(i => so.Contains(i.Tipo)).ToList() : importantes;
         }
 
         Dias = dias is { } d && PeriodosDias.Contains(d) ? d : 1;
@@ -139,7 +165,7 @@ public sealed class SumarioModel(
         var inicioMes = new DateOnly(Year, Month, 1);
         var fimMes = inicioMes.AddMonths(1);
         var de = Day is { } escolhidoDia && escolhidoDia.AddDays(1 - Dias) < inicioMes ? escolhidoDia.AddDays(1 - Dias) : inicioMes;
-        IReadOnlyList<SumarioTipo> tipos = SoImportante ? [] : Tipo is { } t ? [t] : TiposInformacao;
+        IReadOnlyList<SumarioTipo> tipos = SoImportante ? [] : Escolhidos is { } t ? t.Where(SumarioTipos.DoPeriodo).Where(x => !SumarioTipos.Importante(x)).ToArray() : TiposInformacao;
         IReadOnlyList<SumarioItem> items = tipos.Count == 0
             ? []
             : await sumario.PeriodAsync(de, fimMes, tipos, HttpContext.RequestAborted);
@@ -168,17 +194,22 @@ public sealed class SumarioModel(
         return Page();
     }
 
+    /// <summary>
+    /// A opção do filtro que aparece escolhida: a da escolha; um tipo só (link
+    /// antigo) mostra a opção que o junta ou, sem ela, «Importante».
+    /// </summary>
+    public string? OpcaoEscolhida =>
+        Escolhidos is { Count: 1 } um && SumarioTipos.Chave(um[0]) == Escolha
+            ? FiltrosVisiveis.FirstOrDefault(f => f.Tipos.Contains(um[0]))?.Chave ?? (SoImportante ? ChaveImportante : null)
+            : Escolha;
+
     /// <summary>Os filtros que o calendário e os links levam (o tipo e os dias).</summary>
     public IReadOnlyDictionary<string, string> FiltrosQuery()
     {
         var query = new Dictionary<string, string>();
-        if (SoImportante && Tipo is null)
+        if (Escolha is { } escolha)
         {
-            query["tipo"] = ChaveImportante;
-        }
-        else if (Tipo is { } t)
-        {
-            query["tipo"] = SumarioTipos.Chave(t);
+            query["tipo"] = escolha;
         }
 
         if (Dias != 1)

@@ -100,15 +100,16 @@ with sync_playwright() as playwright:
 
     for largura in (1400, 390):
         context, page, erros = abrir(browser, 'boquilha-zero.html', '/Boquilhas', largura)
+        # Sem círculos de dica (Diogo, 27/10/2026): o texto «Metida a zero»
+        # passa ao title do dono, ao passar o rato.
         dica = page.locator('#bqMetrics .lot-data .dmo-help').first
-        texto = dica.locator('.dmo-help-tip')
-        assert not texto.is_visible(), f'{largura}px: a dica «Metida a zero» está aberta sem o rato'
+        assert not dica.is_visible(), f'{largura}px: o círculo da dica «Metida a zero» está à vista'
         assert page.evaluate(SCROLL_LATERAL) <= 0, f'{largura}px: a página tem scroll lateral ({page.evaluate(SCROLL_LATERAL)} px)'
-        dica.hover()
-        assert texto.is_visible(), f'{largura}px: a dica não abre com o rato'
-        caixa = texto.bounding_box()
-        assert caixa['x'] >= 0 and caixa['x'] + caixa['width'] <= largura, f'{largura}px: a dica sai do ecrã {caixa}'
-        assert page.evaluate(SCROLL_LATERAL) <= 0, f'{largura}px: a dica aberta cria scroll lateral'
+        texto = dica.locator('.dmo-help-tip').evaluate('t => t.textContent.trim()')
+        dono = dica.locator('xpath=..')
+        dono.hover()
+        assert dono.get_attribute('title') == texto, f'{largura}px: o texto da dica não passa ao title ({dono.get_attribute("title")!r})'
+        assert page.evaluate(SCROLL_LATERAL) <= 0, f'{largura}px: o rato cria scroll lateral'
         assert not erros, erros
         context.close()
 
