@@ -1,5 +1,5 @@
 {
-  "selo": "98e0cd9693719733",
+  "selo": "456e1ef94b10f58a",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2647,6 +2647,11 @@
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.VolumeMarisaZero_ERecusado_OOperadorLeARecusaNoNovoPeso_NadaFicaGravado": "9265c8a0311d15ac",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Armazem.cs :: (resto do ficheiro)": "e55d9ad165aea31d",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Armazem.cs :: PlaneamentoSumarioPageTests.ArmazemMovimentos_ParaQuemTemJobOnVer_JobOnCriar_OuArmazem": "d756b3758ba726c9",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: (resto do ficheiro)": "a957ab8c626a5223",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_Controlo_MostraSoOsDoControloNoTopo": "a06bf1fabba269f6",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_JobOn_JuntaCriados_Mudancas_EExperiencias_SemOsImportantes": "d7806d6aad053d85",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_SoMostraAsOpcoesDosModulosDaConta": "49000673f1ca2a52",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_TemImportante_JobOn_Armazem_EControlo": "f049eeac551e9898",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: (resto do ficheiro)": "1256bd95f1efc231",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.BqApagados_FicamNoTopoSeteDias": "a44583c76b5e86c5",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.CadaLinha_TemLink_ParaUmaPaginaQueAContaAbre": "797289cc37e80360",
@@ -2672,7 +2677,7 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Changes_AreListed_AlsoBeforeTheStart_AndTheDaysFilterReachesBack": "4b29d5b809c9afa0",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.ControloInformation_IsForEitherControloModule": "190ce63720d60897",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.DeletedBqMovements_AreOnlyForBoquilhas": "ce5229760b998fa1",
-    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Linhas_TemADataAFrente_AMaquinaComACor_ESemContagens": "a3012b270faf41af",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Linhas_TemADataAFrente_AMaquinaComACor_ESemContagens": "fa670f820f0d94af",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Planeamento_SeesTheProductionsStartingToday_AndTheTabSitsNextToJobOn": "1d7a84f3dfa55ecf",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.TheCalendarOpensTheChosenDay": "2264372d47110a13",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.ToolsWithMissingTechnicalData_AreForControloCreate_NotForFerramentas": "7188e04b398a69b2",
