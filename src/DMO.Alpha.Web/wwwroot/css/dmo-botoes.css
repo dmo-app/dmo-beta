@@ -38,6 +38,10 @@ html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-c
 html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#dde3eb}
 /* Paleta nova (27/10/2026, …MDH22Sm9uheCmJcmqHWZmb): no escuro as opções usam o azul de ação da paleta. */
 html[data-theme="dark"] body:not(#_){--dmo-opcao-fundo:var(--dmo-action);--dmo-opcao-contorno:var(--dmo-action)}
+/* Botões de ação no escuro (Diogo, 27/10/2026, …UxKmGGNHqpv4ARunLDWW1q «não», …8SJDfdhiuoRJLtvkSPUgru «inverte»):
+   o rato por cima e o clique escurecem o fundo um tom, como no claro (antes clareava), com letra e
+   contorno brancos. Vale para todos, também o «Entrar» do login. */
+html[data-theme="dark"] body:not(#_) :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--design-navy);border-color:#fff;color:#fff}
 
 /* Os rádios e as caixas escondidos: o rótulo é o botão. */
 html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label{position:relative;cursor:pointer}
