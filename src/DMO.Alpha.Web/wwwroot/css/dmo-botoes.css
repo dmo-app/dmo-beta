@@ -57,6 +57,15 @@ html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):i
 html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo):is(:hover,:focus-visible){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
 html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
 
+/* Armazém › Registo, «Tipo de ferramenta» (CM / MF / BQ; Diogo, 27/10/2026: «botões todos filled,
+   selecionado muda para branco»): o painel lateral desenhado como três opções; estava ao contrário
+   (as outras brancas, a escolhida cheia). Passa a ser como os outros seletores. */
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra);outline:0;box-shadow:none}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link):hover:not(.selected):not(.active){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link):is(.selected,.active){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link) strong{color:inherit}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
+
 /* «Sem Job On» da Reparação › Consultar (caixa com o rótulo como botão): rato por cima só a letra; ligado = escolhido. */
 html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra)}
 html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:hover:not(:has(>input:checked)){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
