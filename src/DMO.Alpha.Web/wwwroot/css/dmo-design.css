@@ -886,4 +886,7 @@ html[data-dmo-embedded="true"] body a.dmo-voltar-texto{display:none}
 
 /* Peso e Pegamentos, barra «Ferramentas»: os rótulos ao lado da caixa liam-se
    miúdos (Diogo, 27/10/2026: «aumentar o font»). */
-html body :is(main.peso-page,main.peg-page) form.dmo-filter-bar>.dmo-field>label{font-size:14px;font-weight:600;color:var(--dmo-text)}
+html body :is(main.peso-page,main.peg-page) form.dmo-filter-bar:not(#pesoHistoricoFiltros)>.dmo-field>label{font-size:14px;font-weight:600;color:var(--dmo-text)}
+/* O Lote do Histórico do Controlo: três dígitos. */
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote{flex:0 0 72px}
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote>input{width:72px;min-width:0}

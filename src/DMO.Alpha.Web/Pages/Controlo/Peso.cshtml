@@ -89,7 +89,7 @@
   {
   <section class="dmo-card peso-card" aria-labelledby="peso-historico-title">
     <div class="peso-card-heading"><div>
-      <h3 id="peso-historico-title">Histórico do Controlo</h3>
+      <h3 id="peso-historico-title">Histórico do Controlo<partial name="_DmoHelp" model="@("Pesquise por referência e lote (e depois a produção), tipo ou data. «Sem Job On associado» mostra os Pesos e Pegamentos que ainda falta associar.")" /></h3>
     </div></div>
     @* Os filtros trocam só o que muda (deep sweep, 18/10/2026): cada escolha
        pede a página com fetch (DmoTroca, pelo ouvinte do Peso abaixo) e troca
@@ -109,6 +109,11 @@
         <div class="dmo-field">
           <label for="historicoReferencia">Referência</label>
           <input id="historicoReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.HistoryReference" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
+        </div>
+        @* O lote, com a referência (Diogo, 27/10/2026: «falta lote»): ST100 lote 8. *@
+        <div class="dmo-field peso-hist-lote">
+          <label for="historicoLote">Lote</label>
+          <input id="historicoLote" name="lote" value="@Model.HistoryLote" maxlength="3" inputmode="numeric" autocomplete="off" placeholder="Ex.: 8" data-dmo-maiusculas />
         </div>
         @* A procura em dois passos: primeiro a referência; depois o nº de
            produção num dropdown só com as produções dessa referência, pela
@@ -183,7 +188,7 @@
     <div id="pesoHistoricoResultados" data-dmo-regiao>
     @if (!Model.HistoricoComProcura)
     {
-      <div class="peso-vazia" style="margin-top:12px">Pesquise por referência (e depois a produção), ferramenta, tipo ou data. «Sem Job On associado» mostra os Pesos e Pegamentos que ainda falta associar.</div>
+      @* A explicação está no «?» do título (Diogo, 27/10/2026). *@
     }
     else if (Model.HistoryResults is { } results)
     {
@@ -192,7 +197,7 @@
         @* Sem Job On, a referência (nas ferramentas do registo), a ferramenta,
            o tipo e a data também filtram: o aviso diz se a lista ficou vazia
            por eles. *@
-        var semJobOnFiltrado = Model.HistoryReference is not null || Model.HistoryTool is not null
+        var semJobOnFiltrado = Model.HistoryReference is not null || Model.HistoryTool is not null || Model.HistoryLote is not null
             || Model.HistoryTipo is not null || Model.HistoryData is not null;
         <div class="peso-vazia" style="margin-top:12px">@(!Model.HistorySemJobOn ? "Sem registos para esta procura." : semJobOnFiltrado ? "Não há Pesos nem Pegamentos por associar a um Job On com estes filtros." : "Não há Pesos nem Pegamentos por associar a um Job On.")</div>
       }
