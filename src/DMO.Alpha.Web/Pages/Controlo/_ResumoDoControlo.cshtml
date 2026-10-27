@@ -14,7 +14,8 @@
     var production = Model.Production!;
 }
 
-<h3 class="revisao-section">Peso<partial name="_DmoHelp" model="@("A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.")" /></h3>
+@* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+<h3 class="revisao-section" title="A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.">Peso</h3>
 @if (Model.Peso is { } peso)
 {
   var atual = peso.Averages;
@@ -42,7 +43,7 @@ else
   {
     var input = PegamentosPdfGenerator.FromSheet(sheet);
     @* Sem contadores no título (Diogo, 20/10/2026). *@
-    <h3 class="revisao-section">Pegamentos<partial name="_DmoHelp" model="@($"A média medida de cada componente e o mapa de limites, tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Todas as medições estão na consulta dos Pegamentos.")" /></h3>
+    <h3 class="revisao-section" title="@($"A média medida de cada componente e o mapa de limites, tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Todas as medições estão na consulta dos Pegamentos.")">Pegamentos</h3>
     @* Um cartão por componente, como no cimo do relatório original: a média
        medida, o nominal e o corredor. *@
     <div class="revisao-peg-componentes">
@@ -88,7 +89,7 @@ else
 @* As áreas em cartões (Diogo, 20/10/2026): o estado, a ferramenta, o link
    do mcaliper e as notas, que abrem numa janela para ler ou escrever.
    Gravar é do Controlo Criar (a página do Resumo); quem só aprova vê. *@
-<h3 class="revisao-section" id="resumoControloAreas">Ferramentas e OK / NOK<partial name="_DmoHelp" model="@(Model.TemControloCriar ? "Escolher OK ou NOK grava logo. Clique nas notas para as abrir ou escrever. O link do mcaliper copia-se com um clique." : "Clique nas notas para as abrir. O link do mcaliper copia-se com um clique.")" /></h3>
+<h3 class="revisao-section" id="resumoControloAreas" title="@(Model.TemControloCriar ? "Escolher OK ou NOK grava logo. Clique nas notas para as abrir ou escrever. O link do mcaliper copia-se com um clique." : "Clique nas notas para as abrir. O link do mcaliper copia-se com um clique.")">Ferramentas e OK / NOK</h3>
 @if (Model.McaliperRefused)
 {
   <div data-dmo-toast="erro" class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>

@@ -50,7 +50,7 @@
     @* A referência sempre toda (Diogo, 19/10/2026): as ferramentas do
        tipo (a CM também pela Ref. MF associada, com o nome original) e as produções.
        O ferramentas-live.js muda o tipo da procura com o Tipo. *@
-    <input id="@(p)-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.Referencia" required placeholder="5447 · T194" data-dmo-suggest="referencias_registo" data-dmo-suggest-tipo="@Model.Tipo.ToLowerInvariant()" />
+    <input id="@(p)-reference" data-dmo-maiusculas autocapitalize="characters" name="reference" value="@Model.Referencia" required placeholder="5447 · T194" data-dmo-suggest="referencias_registo" data-dmo-suggest-tipo="@Model.Tipo.ToLowerInvariant()" title="@(Model.Criar ? "A referência toda, como no desenho: 1075C142, 5447T173 ou ST100." : null)" />
   </div>
   <div class="dmo-field ferr-w-lot">
     <label for="@(p)-lot">Lote</label>

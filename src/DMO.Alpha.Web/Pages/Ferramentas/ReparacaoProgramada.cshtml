@@ -59,7 +59,8 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
 
   <div class="page-head">
     <div>
-      <h1 id="rp-title">Registar Reparação<partial name="_DmoHelp" model="@("Procure as CM e os MF a enviar ao reparador, marque-os e adicione-os a uma lista. Imprima a lista para quem vai retirar do armazém: cada Saída no Armazém atualiza a lista, e cada Entrada pinta a linha de cinza. A lista fecha quando a última ferramenta dá entrada.")" /></h1>
+      @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+      <h1 id="rp-title" title="Procure as CM e os MF a enviar ao reparador, marque-os e adicione-os a uma lista. Imprima a lista para quem vai retirar do armazém: cada Saída no Armazém atualiza a lista, e cada Entrada pinta a linha de cinza. A lista fecha quando a última ferramenta dá entrada.">Registar Reparação</h1>
     </div>
   </div>
 
@@ -245,7 +246,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
     @if (!Model.VerFechadas)
     {
     <div class="dmo-card-topo rp-procura-topo">
-      <h4 id="rp-procura-title">Procurar ferramentas<partial name="_DmoHelp" model="@("Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote com Enter. Marque as ferramentas e «Adicionar» junta-as à lista escolhida em cima.")" /></h4>
+      <h4 id="rp-procura-title" title="Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote com Enter. Marque as ferramentas e «Adicionar» junta-as à lista escolhida em cima.">Procurar ferramentas</h4>
     </div>
 
     <form id="rpFiltros" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros" role="search">

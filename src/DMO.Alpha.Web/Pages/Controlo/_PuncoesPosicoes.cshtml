@@ -12,7 +12,8 @@
 <section class="dmo-card pu-card" id="puncoes-posicoes" aria-labelledby="pu-pos-title">
   <div class="pu-section-head">
     <div>
-      <h3 id="pu-pos-title">Posições na linha @Model.Linha<partial name="_DmoHelp" model="@($"As punções entram pela ordem de registo nas posições da linha: {grelha.Seccoes} secções com as posições A a D (A1, B1, C1, D1, A2…). As que passam da linha ficam na reserva. O número das secções de cada linha muda-se nas Definições do Controlo.")" /></h3>
+      @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+      <h3 id="pu-pos-title" title="@($"As punções entram pela ordem de registo nas posições da linha: {grelha.Seccoes} secções com as posições A a D (A1, B1, C1, D1, A2…). As que passam da linha ficam na reserva. O número das secções de cada linha muda-se nas Definições do Controlo.")">Posições na linha @Model.Linha</h3>
     </div>
     <div class="dmo-card-topo-acoes">
       <button type="submit" class="dmo-button" form="pu-pdf-form" id="pu-pdf">PDF</button>

@@ -417,7 +417,7 @@ html body .jof2 .pick-row .menu{position:relative}
 /* Imprimir (provisório): a folha no browser em A4, sem painel, menus nem botões. */
 @media print{
   @page{size:A4;margin:10mm}
-  header,nav,.dmo-shell-header,.dmo-shell-nav,.jof2-gaveta,.jof-rail-fundo,.head-acoes,.head-tools,.rail-toggle,[data-jof-opcoes],.btn,.dmo-env-badge{display:none!important}
+  header,nav,.dmo-shell-header,.dmo-shell-nav,.jof2-gaveta,.jof-rail-fundo,.head-acoes,.head-tools,.rail-toggle,[data-jof-opcoes],.btn,.dmo-env-badge,.dmo-voltar-texto{display:none!important}
   html body{background:var(--dmo-card)!important}
   html body .jof2 .wrap{max-width:none;padding:0}
   html body .jof2 .card,html body .jof2 .zone{break-inside:avoid}
