@@ -3553,6 +3553,18 @@ Novos: 9 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.UmaProducaoQueJaNaoEDaReferencia_NaoFiltra`
 
 Selo depois: `74292cfeef1490d1`
+
+## A-0216 · 2026-10-27 · teste-novo
+
+Porquê: Testes de páginas que falhavam ao acaso com erro 500: as aplicações de teste deixam de gastar vigias de ficheiros do Linux (inotify, 128 por utilizador); o teste prova que uma aplicação de teste arranca e abre o login sem gastar nenhuma (DMO-474, 0.3.0-beta.175)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros`
+
+Selo depois: `c22447c6290ce98f`
+
 ## A-0213 · 2026-10-27 · ok-do-diogo
 
 Porquê: Peso sem Job On: com a CM e a BQ escolhidas, os volumes da punção e da marisa aparecem uma só vez, na faixa dos volumes (Volume Punção / CM, Volume Marisa / BQ); os 2 testes procuram esses nomes. Teste novo: o Peso aberto sem produção já não mostra o cartão Ferramentas e os Job Ons para associar são linhas que se escolhem, com um só «Associar» (DMO-473, 0.3.0-beta.169)
@@ -3593,4 +3605,4 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.SavedPeso_KeepsRecordedIdentificationAfterCatalogEdit_AndDownloadsPdf`
 - mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
 
-Selo depois: `393f5508bd791fe7`
+Selo depois: `f6761bd9d23af32e`
