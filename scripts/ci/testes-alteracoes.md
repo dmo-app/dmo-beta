@@ -3302,3 +3302,18 @@ Novos: 1 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaShowsHumanFacts_AndTheActionsMovedFromTheTablePostToTheSameIndexHandlers`
 
 Selo depois: `4c6656d1bd4956fb`
+
+## A-0189 · 2026-10-27 · teste-novo
+
+Porquê: Posto da RI com travão por origem (um PIN de cada vez, espera crescente da 5.ª falha em diante, a conta nunca bloqueia) e sessão obrigatória por omissão, só as páginas públicas abrem sem sessão (DMO-451, 0.3.0-beta.148)
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.PorOmissao_TodasAsPaginasPedemSessao`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Espera_SoDepoisDaQuintaFalha_ECrescendoAteTrintaSegundos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.MesmaOrigem_UmPinDeCadaVez_OutraOrigemNaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_EsperamCadaVezMais_EOPinCertoEntraNaMesma`
+
+Selo depois: `a076ebcd53db0c03`
