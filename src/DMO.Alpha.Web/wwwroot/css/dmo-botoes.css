@@ -12,7 +12,7 @@
       do Armazém, Listas / Histórico. Só o escolhido fica destacado. */
 
 /* 1) Botões de ação ------------------------------------------------------------------------ */
-html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;vertical-align:middle;text-box:normal}
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;vertical-align:middle;text-box:trim-both cap alphabetic}
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn)[hidden]{display:none}
 /* Rato por cima e clique (Diogo, 27/10/2026, …W16svSXbbqraVvZPKYnqCS: «o hover click fica com cor
    background e font e linha branco»): o botão fica com cor de fundo, letra branca e contorno branco.
@@ -77,3 +77,15 @@ html body .beta-bq-layout .bq-movement-line>.bq-movement-types{padding-left:14px
 html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpar,html body #rpFiltros>#rpAssociarBotao{margin-left:auto}
 /* O título do cartão ao meio da altura dos botões da mesma linha. */
 html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{display:flex;align-items:center;height:var(--dmo-control-height);margin:0}
+
+/* «Sem Job On» / «Associar Job On» do Controlo no lado direito do cartão (Diogo, 27/10/2026,
+   …YSB6y6cuRetqJae1NkTkyh). No Peso o cartão é uma só linha (título, campos): a escolha passa para o fim. */
+html body main.peso-page .peso-card:has(>.dmo-modo-head):has(>form.dmo-filter-bar)>.dmo-modo-head{display:contents}
+html body main.peso-page .peso-card:has(>.dmo-modo-head):has(>form.dmo-filter-bar)>.dmo-modo-head>.dmo-modo{order:99;margin-left:auto}
+
+/* Texto ao centro na vertical em todos os botões (Diogo, 27/10/2026, …486E13AfasuF5HiYBe1i4y): a caixa do
+   texto corta-se à altura das maiúsculas e à linha de base, por isso o flex centra as letras e não o
+   espaço vazio que a letra Inter deixa por cima. Vale para os botões, os links-botão e os seletores. */
+html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel),
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input+span,
+html body .ri-filtros-acoes>.ri-so-por-associar{text-box:trim-both cap alphabetic}
