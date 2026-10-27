@@ -18,6 +18,10 @@
     doc.querySelectorAll('form[method="post"] :is(input:not([type=hidden]),select,textarea,button), button[form]').forEach(campo => {
       if (sim) { if (!campo.disabled) { campo.disabled = true; campo.dataset.dmoBloqueado = ''; } }
       else if ('dmoBloqueado' in campo.dataset) { campo.disabled = false; delete campo.dataset.dmoBloqueado; }
+      // Bloqueado, o campo perde a caixa: vazio, não se via nada (o Gargalo
+      // da BQ, Diogo 27/10/2026). Fica com «—» até ao «Editar».
+      if (sim && campo.matches('input') && !campo.value && !campo.placeholder) { campo.placeholder = '—'; campo.dataset.dmoBloqueadoVazio = ''; }
+      else if (!sim && 'dmoBloqueadoVazio' in campo.dataset) { campo.removeAttribute('placeholder'); delete campo.dataset.dmoBloqueadoVazio; }
     });
     // O «Editar» também dentro da ficha, no cartão «Editar», onde fica o
     // «Guardar»: o do topo do painel sai do ecrã quando se desce.
