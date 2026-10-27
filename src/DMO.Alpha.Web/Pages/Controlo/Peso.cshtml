@@ -1522,7 +1522,10 @@
       }
       else
       {
-        <div class="dmo-table-wrap">
+        @* Escolher a leitura fica nesta folha, não abre o Peso no painel de apoio
+           por cima (Diogo, 27/10/2026: «o apagar não faz nada» — apagava no
+           painel e a folha por trás ficava igual). *@
+        <div class="dmo-table-wrap" data-dmo-sem-painel>
           <table class="dmo-table" data-peso-leituras>
             @* A primeira tabela é a dos moldes controlados (o Owner
                2026-10-17): o peso e o VOLUME de cada CM ficam à vista,
@@ -1663,7 +1666,7 @@
            nova, o N.º CM e a massa de água dela para corrigir, «Guardar» e
            «Apagar»; apagar pergunta antes. Fica o rasto de cada correção. Um
            Peso de antes de uma troca também se corrige (R16-3). *@
-        <div id="pesoCorrecao" class="dmo-zona" data-dmo-regiao>
+        <div id="pesoCorrecao" class="dmo-zona" data-dmo-regiao data-dmo-sem-painel>
         @if (Model.CorrecaoRefusalMessage is { } correcaoRecusa)
         {
           <div data-dmo-toast="erro" class="peso-aviso" role="alert">@correcaoRecusa</div>

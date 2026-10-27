@@ -119,6 +119,22 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Contains($"peso_id={pesoId}&painel=1&corrigir_leitura={leituras[1]}", html);
     }
 
+    [Fact]
+    public async Task PesoLeitura_EscolherEApagar_FicaNaFolha_NaoAbreOPainelDeApoio()
+    {
+        // DMO-513 (Diogo, 27/10/2026: «o apagar não faz nada»): a linha e a
+        // correção ligam para a própria folha do Peso; sem a marca, o painel
+        // de apoio abria outra cópia do Peso por cima e o apagar ficava lá.
+        var (pesoId, leituras) = await SeedPesoComLeiturasAsync();
+        SeedOperacional("4793", "provider-peso-corrigir-5", "PesoCorrigir5!");
+        using var client = await LoginClientAsync("4793", "PesoCorrigir5!");
+
+        var html = await GetPageHtmlAsync(client, $"/Controlo/Peso?peso_id={pesoId}&corrigir_leitura={leituras[0]}");
+
+        Assert.Contains("<div class=\"dmo-table-wrap\" data-dmo-sem-painel>", html);
+        Assert.Contains("<div id=\"pesoCorrecao\" class=\"dmo-zona\" data-dmo-regiao data-dmo-sem-painel>", html);
+    }
+
     private async Task<string> SeguirAsync(HttpClient client, HttpResponseMessage resposta) =>
         resposta.Headers.Location is { } destino
             ? await GetPageHtmlAsync(client, destino.ToString())

@@ -4009,3 +4009,13 @@ Novos: 9 · mudaram: 1 · saíram: 7
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.UmRelatorioSemAsColunasNovas_DeixaAsVazias`
 
 Selo depois: `6a2e977f45a5ec02`
+
+## A-0247 · 2026-10-27 · teste-novo
+
+Porquê: Peso: escolher e apagar uma leitura fica na folha, não abre o painel de apoio (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraNt83qkSGsvQvjH6Nh5Fx5t)
+Referência: DMO-513
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_EscolherEApagar_FicaNaFolha_NaoAbreOPainelDeApoio`
+
+Selo depois: `61c8f9b683b40964`
