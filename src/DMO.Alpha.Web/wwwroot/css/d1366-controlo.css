@@ -65,7 +65,7 @@
    Blocos a 8 px; «Ferramentas» numa linha com cada referência do tamanho
    do que leva; as duas faixas de valores lado a lado; a leitura nova na
    mesma linha das gravadas; os campos do «Novo Peso» com largura de número. */
-@media (min-width:1100px){
+@media (min-width:900px){
   html body main.peso-page.dmo-workspace{padding:8px 24px 8px;gap:8px}
   html body main.peso-page>.page-head{margin:0}
   html body main.peso-page .peso-card{padding:12px 20px}
@@ -166,7 +166,7 @@
   /* O resultado ao vivo só ocupa lugar quando há o que mostrar. */
   html body main.peso-page .peso-leitura-nova .peso-leitura-chip:empty{min-height:0;padding:0}
 }
-@media (min-width:1100px){
+@media (min-width:900px){
   html body main.peso-page .peso-card>.dmo-modo-head~form.dmo-filter-bar>.dmo-field>.dmo-suggest{width:160px;flex:0 0 160px}
   html body main.peso-page .peso-leitura-form{padding:8px;margin-top:8px}
   html body main.peso-page .peso-leitura-form>.peso-leitura-grade{padding:0}
@@ -177,6 +177,17 @@
   html body main.peso-page .peso-live-region>.peso-leitura-form{flex:0 0 auto;margin-top:0}
   html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact{flex:1 1 auto;padding:2px 12px}
   html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact>span{white-space:nowrap}
+}
+
+/* No painel do Resumo (cerca de 1000 px) o Peso fica como na página: os
+   números à esquerda da leitura nova, numa só faixa (Diogo, 27/10/2026:
+   «voltaste a meter a informação em cima»). Os rótulos podem partir. */
+@media (min-width:900px) and (max-width:1099px){
+  html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact{padding:2px 8px!important}
+  html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact>span{white-space:normal}
+  html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact strong{font-size:16px;white-space:nowrap}
+  /* O controlo anterior é texto («Peso para comparação»): parte em duas linhas. */
+  html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact:last-child strong{white-space:normal}
 }
 
 /* ===== Controlo › Pegamentos ===============================================
@@ -415,7 +426,7 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.peg-page .peg-registo-tabela .peg-linha-nova input{box-sizing:border-box;padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit}
   html body main.peg-page .peg-registo-tabela .peg-linha-nova input:focus-visible{outline:2px solid var(--design-medium);outline-offset:1px}
 }
-@media (min-width:1100px){
+@media (min-width:900px){
   /* Comparação de Peso: a referência curta, a produção e o Peso inicial com o
      tamanho das opções, o «Mostrar» logo a seguir. */
   html body main.peso-page #cmpEscolha{flex-wrap:nowrap;gap:8px 16px}

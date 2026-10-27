@@ -3902,12 +3902,166 @@ Novos: 9 · mudaram: 1 · saíram: 0
 
 Selo depois: `49685c9a47bd1a6d`
 
+## A-0238 · 2026-10-27 · teste-novo
+
+Porquê: Peso: sair da correção fica na folha, também no painel (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra9BpjJuJkq98wTX76Vv5QYA).
+Referência: DMO-499
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel`
+
+Selo depois: `a50485f0c4e988d2`
+
+## A-0240 · 2026-10-27 · ok-do-diogo
+
+Porquê: O «% uso» de uma ferramenta passa a ser uma ligação ao histórico do uso (painel): na Procura do Armazém o teste lê o texto da célula sem as etiquetas e verifica a ligação; no Histórico das Ferramentas aceita a ligação dentro do hist-uso
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra3oGkfZkfnuNZ4jftsvNw7B
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OHistoricoDoUso_DeUmaFerramentaQueNaoExiste_DaNaoEncontrada`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OHistoricoDoUso_MostraAsProducoesEOUsoQueFoiAcumulando`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OUsoNaFichaDoArmazem_AbreOHistoricoDoUso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
+
+Selo depois: `155ae28a8e306475`
+
+## A-0228 · 2026-10-27 · ok-do-diogo
+
+Porquê: A grelha da folha do Job On passa a ser a da maqueta 01: em cima CM, MF, BQ+AN e PU+ARR com a mesma largura; por baixo TP e CS mais estreitos e os Calibres com mais de metade da largura, até ao fim de PU+ARR, para os 8 calibres caberem à vista. O teste deixa de exigir TP e CS com a largura dos cartões de cima e passa a exigir os Calibres largos.
+Referência: Diogo 27/10/2026 13:13, cartão cmsg_01K75FTs9bQnbhhH7qttpgraRLtcQMRYqY7oQkMoqYfJnc «Sim, como a maqueta 01»
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/jobon_folha_browser.py`
+
+Selo depois: `1146924046f4fbb9`
+
+## A-0241 · 2026-10-27 · teste-novo
+
+Porquê: Peso, Comparação: a leitura do formulário (linhas em branco, sem massa, massa ilegível, recusas, leituras de fora do backend, aviso pelo PRG, escolha do Peso inicial) passou para PesoComparacaoFormulario e é testada sem a página (DMO-466, 0.3.0-beta.202)
+Novos: 6 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.AsLinhasEmBrancoIgnoramSe_ASemMassaEAIlegivelFicamDeFora_AsOutrasComparamSe`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.AsQueOBackendDeixaDeFora_ApontamALinhaDoFormulario`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.OAvisoAtravessaOPrgDoGuardar`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.OPesoInicial_OPedidoSeEDaProducao_SenaoODasFerramentasAtuais_SenaoOMaisRecente`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.SemNadaAComparar_ERecusadoComOMotivo`
+
+Selo depois: `28f6e6e2d7095e53`
+
+## A-0242 · 2026-10-27 · teste-novo
+
+Porquê: Definições (DMO-507): teste novo das pastas de «Este computador» em duas colunas fixas
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: DefinicoesPorModuloPageTests.AsPastasDesteComputador_FicamCadaUmaNaSuaColuna`
+
+Selo depois: `a7ed5198b60deb02`
+
+## A-0243 · 2026-10-27 · teste-novo
+
+Porquê: PU NNPB: a gota de cada linha nas Definições (B1 4, C3 3 por omissão, 1 a 4) dita as posições de cada secção na folha e no PDF; punções da linha = secções × gota (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra3p4eE4qrDuNcqxPhGnS86V)
+Referência: DMO-508
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_DaLinha_DitamAsPosicoesDeCadaSeccao_NaFolhaENoPdf`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_NasDefinicoes_B1Com4EC3Com3PorOmissao_GravamSeERecusamForaDe1a4`
+
+Selo depois: `8814c455ecaa1b86`
+
+## A-0245 · 2026-10-27 · teste-novo
+
+Porquê: PU NNPB: o PDF gera-se sempre com a reserva cheia e os números da reserva inteiros (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraGGAMBs5g7FD3HuhbAZe3hc «não consigo extrair PU»)
+Referência: DMO-511
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: PuncoesPdfReservaTests.Pdf_ComAReservaCheia_GeraSe_ComOsNumerosInteiros`
+
+Selo depois: `f875edf05732704d`
+
+## A-0244 · 2026-10-27 · ok-do-diogo
+
+Porquê: SAP (DMO-501): das colunas da ZFMD fica só a cadência. Os testes do A-0235 que verificavam as 11 colunas que saem dão lugar aos da cadência (ler, gravar, PostgreSQL sem as 11 colunas, a cadência do Job On e no cabeçalho e na folha impressa); a lista das migrações acrescenta 20261027125325_SapFabricoSoCadencia
+Referência: Diogo, thread do SAP, 27/10/2026 14:40: «sim» (cmsg_01K75FTs9bQnbhhH7qttpgra6b5dPSjxGNtQ6TaAXYknn1) ao cartão «Posso trocar os testes das 11 colunas pelos testes da cadência?» (cmsg_01K75FTs9bQnbhhH7qttpgra5BAHBfeNZhYE1nurbBUbQr); decisão de só guardar a cadência: cmsg_01K75FTs9bQnbhhH7qttpgra1Vxhh5skRzdUBVqckufAu9
+Novos: 9 · mudaram: 1 · saíram: 7
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: PostgresMigrationIntegrationTests.SapFabricoCadencia_GravaSoACadencia_NoPostgreSql`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.ACadenciaDoJobOn_EADaOrdemComMaisDias_EmpatadaAMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.ARelatorioDaZfmd_DaACadenciaDeCadaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.Importar_GravaACadencia_ESemElaNaoApagaAJaGravada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.UmRelatorioSemCadencia_DeixaAVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoColunasZfmd.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoColunasZfmd.cs :: PostgresMigrationIntegrationTests.SapFabricoColunasZfmd_GravaTodasAsColunasDoRelatorio_NoPostgreSql`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.ARelatorioDaZfmd_DaTodasAsColunasDeCadaProducao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.Importar_GravaAsColunasNovas_ESemElasNaoApagaAsJaGravadas`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.ODeltaDoPeso_LeSeComOSinal`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.UmRelatorioSemAsColunasNovas_DeixaAsVazias`
+
+Selo depois: `6a2e977f45a5ec02`
+
+## A-0246 · 2026-10-27 · ok-do-diogo
+
+Porquê: DMO-506: a faixa «Planeamento» em cima do calendário (Job On e Sumário) só mostra o que entra, de hoje até uma semana; as produções em curso saem dela (Diogo: «deveria remover o que já entrou»). O teste do painel lateral do Sumário deixa de exigir «Em curso desde» e passa a exigir que a de ontem fique de fora. A gaveta «Linhas» da folha não muda.
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra2AkV12PB3yw9WgGicGBS4G («Sim, só o que entra»)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+
+Selo depois: `68b7521fc048a7b6`
+
+## A-0247 · 2026-10-27 · teste-novo
+
+Porquê: DMO-512: um link para a própria página (corrigir uma leitura nos Pegamentos) fica na página, sem abrir o painel de apoio
+Referência: DMO-512
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/painel-propria-pagina.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-propria-pagina.test.cjs :: Painel de apoio: um link para a própria página (corrigir uma leitura nos Pegamentos) fica na página, sem painel`
+
+Selo depois: `fc687ab32acec121`
+
+## A-0249 · 2026-10-27 · ok-do-diogo
+
+Porquê: PU NNPB: a tabela dos repetidos mostra só as repetições (sem a primeira vez); os testes da página e do PDF deixam de esperar a primeira ocorrência
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGVXj3RGvFEFRDjoK8AKgVb
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_A1aD12_Reserva_RepetidosComLote_ETotais_NaZonaDaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes`
+
+Selo depois: `1344320029127839`
+
+## A-0250 · 2026-10-27 · ok-do-diogo
+
+Porquê: PDFs para imprimir (DMO-515): sem setas «Ver detalhe →», «Ver →», «Abrir PDF das punções →» e «← Voltar ao Resumo»; a ligação das punções fica no título PU NNPB; o texto do peso médio lê-se noutra ordem porque as etiquetas dos números ficaram alinhadas.
+Referência: Diogo nesta thread: «assim esta vem melbor» cmsg_01K75FTs9bQnbhhH7qttpgraTi8pNMkxbb42HPorBHVSDZ e «faz updat» cmsg_01K75FTs9bQnbhhH7qttpgra1JbRoNSJpnxi8CKE6qCTCb
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PdfRecoveryTests.cs :: with.GenerateCompleteVisualEvidence`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+
+Selo depois: `dba4e2efbb45ed56`
+
 ## A-0239 · 2026-10-27 · teste-novo
 
-Porquê: Painel «É outra CM/MF» da Reparação Interna com o esqueleto dos painéis deslizantes (DMO-500): teste novo da marcação e do fundo
-Referência: pedido do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXQ2rXx1BrfWwyZwQTG7mM6
+Porquê: Painel «É outra CM/MF» da Reparação Interna com o esqueleto dos painéis deslizantes (DMO-500)
+Referência: PR #237
 Novos: 1 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelOutraCmMf_TemOEsqueletoDosPaineis`
 
-Selo depois: `9e9d23ff43517559`
+Selo depois: `f1ae0f9c0bba0eb5`

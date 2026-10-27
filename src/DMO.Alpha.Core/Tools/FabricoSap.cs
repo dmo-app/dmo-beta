@@ -18,8 +18,6 @@ public sealed class SapFabrico
 
     public const int LinhaMaxLength = 32;
 
-    public const int CentroMaxLength = 8;
-
     public long Id { get; set; }
 
     public string Material { get; set; } = null!;
@@ -42,45 +40,13 @@ public sealed class SapFabrico
     /// <summary>Os dias de produção da ordem (Prod. Days).</summary>
     public int? DiasProducao { get; set; }
 
-    // As outras colunas da ZFMD (Diogo, 27/10/2026: «está a faltar muita
-    // informação que não foi aplicada»), como o SAP as dá; vazias quando o
-    // relatório não as traz.
-
-    /// <summary>O centro (Plant), MG.</summary>
-    public string? Centro { get; set; }
-
-    /// <summary>A cadência (Cadência), em garrafas por minuto.</summary>
+    /// <summary>
+    /// A cadência da ordem (Cadência), em garrafas por minuto: das outras
+    /// colunas da ZFMD, a única que se guarda (Diogo, 27/10/2026: «podemos
+    /// guardar cadência mas acho que o resto não vale a pena»); vazia quando
+    /// o relatório não a traz.
+    /// </summary>
     public int? Cadencia { get; set; }
-
-    /// <summary>As gotas (Gob).</summary>
-    public int? Gob { get; set; }
-
-    /// <summary>Os sectores da máquina (Sectores).</summary>
-    public int? Sectores { get; set; }
-
-    /// <summary>O KCR.</summary>
-    public decimal? Kcr { get; set; }
-
-    /// <summary>A diferença do peso (Δ weight), em gramas; pode ser negativa.</summary>
-    public decimal? DeltaPesoGramas { get; set; }
-
-    /// <summary>O Pack to pull, em %.</summary>
-    public decimal? PackToPull { get; set; }
-
-    /// <summary>O Net Quant.</summary>
-    public long? NetQuant { get; set; }
-
-    /// <summary>As paletes (Pallet).</summary>
-    public decimal? Paletes { get; set; }
-
-    /// <summary>A rejeição total (Total Rej.), em %.</summary>
-    public decimal? RejeicaoTotal { get; set; }
-
-    /// <summary>A rejeição por mil (Rej.MIL).</summary>
-    public decimal? RejeicaoMil { get; set; }
-
-    /// <summary>O HotEnd, em %.</summary>
-    public decimal? HotEnd { get; set; }
 
     public DateTime LidoEmUtc { get; set; }
 
@@ -98,36 +64,12 @@ public sealed record FabricoSapLinha(string Material, string Linha, DateOnly Ini
     decimal? PesoMedioGramas = null, int? DiasProducao = null);
 
 /// <summary>
-/// As outras colunas de uma linha do relatório da ZFMD (o centro, a cadência,
-/// as gotas, os sectores, o KCR, o Δ do peso, o Pack to pull, o Net Quant, as
-/// paletes, as rejeições e o HotEnd), da linha com o mesmo material, linha e
-/// datas. Uma coluna que falta ou não se lê fica vazia.
+/// A cadência de uma linha do relatório da ZFMD, da linha com o mesmo
+/// material, linha e datas. Sem a coluna, ou sem número, fica vazia.
 /// </summary>
 public sealed record FabricoSapDetalhe(string Material, string Linha, DateOnly InicioEm, DateOnly FimEm)
 {
-    public string? Centro { get; init; }
-
     public int? Cadencia { get; init; }
-
-    public int? Gob { get; init; }
-
-    public int? Sectores { get; init; }
-
-    public decimal? Kcr { get; init; }
-
-    public decimal? DeltaPesoGramas { get; init; }
-
-    public decimal? PackToPull { get; init; }
-
-    public long? NetQuant { get; init; }
-
-    public decimal? Paletes { get; init; }
-
-    public decimal? RejeicaoTotal { get; init; }
-
-    public decimal? RejeicaoMil { get; init; }
-
-    public decimal? HotEnd { get; init; }
 }
 
 /// <summary>
@@ -143,7 +85,7 @@ public static class FabricoSapExportacao
 {
     private static readonly string[] FormatosData = ["dd.MM.yyyy", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy-MM-dd"];
 
-    /// <summary>As linhas lidas e, de cada uma, as outras colunas (<see cref="Detalhes"/>, na mesma ordem).</summary>
+    /// <summary>As linhas lidas e, de cada uma, a cadência (<see cref="Detalhes"/>, na mesma ordem).</summary>
     public sealed record Leitura(bool CabecalhoEncontrado, IReadOnlyList<FabricoSapLinha> Linhas)
     {
         public IReadOnlyList<FabricoSapDetalhe> Detalhes { get; init; } = [];
@@ -168,19 +110,7 @@ public static class FabricoSapExportacao
             var liquida = UsoSapExportacao.Coluna(cabecalho, c => c.StartsWith("net prod", StringComparison.Ordinal) || c is "qutil");
             var peso = UsoSapExportacao.Coluna(cabecalho, c => c is "avg weight" or "peso médio" or "peso medio");
             var dias = UsoSapExportacao.Coluna(cabecalho, c => c is "prod. days" or "prod days" or "dias" or "n_dias");
-            var centro = UsoSapExportacao.Coluna(cabecalho, c => c is "plant" or "centro");
             var cadencia = UsoSapExportacao.Coluna(cabecalho, c => c is "cadência" or "cadencia" or "cadence");
-            var gob = UsoSapExportacao.Coluna(cabecalho, c => c is "gob");
-            var sectores = UsoSapExportacao.Coluna(cabecalho, c => c is "sectores" or "setores" or "sections");
-            var kcr = UsoSapExportacao.Coluna(cabecalho, c => c is "kcr");
-            // O SAP escreve «Δ weight»; uma exportação antiga trazia «# weight».
-            var deltaPeso = UsoSapExportacao.Coluna(cabecalho, c => c.EndsWith(" weight", StringComparison.Ordinal) && c is not "avg weight");
-            var packToPull = UsoSapExportacao.Coluna(cabecalho, c => c is "pack to pull");
-            var netQuant = UsoSapExportacao.Coluna(cabecalho, c => c is "net quant" or "net quant.");
-            var paletes = UsoSapExportacao.Coluna(cabecalho, c => c is "pallet" or "pallets" or "paletes");
-            var rejTotal = UsoSapExportacao.Coluna(cabecalho, c => c is "total rej." or "total rej");
-            var rejMil = UsoSapExportacao.Coluna(cabecalho, c => c is "rej.mil" or "rej. mil");
-            var hotEnd = UsoSapExportacao.Coluna(cabecalho, c => c is "hotend%" or "hotend %" or "hot end%" or "hot end %");
             if (material < 0 || linha < 0 || inicio < 0 || fim < 0 || (bruta < 0 && liquida < 0))
             {
                 continue;
@@ -208,21 +138,9 @@ public static class FabricoSapExportacao
                     UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, liquida), out var l) ? (long)Math.Round(l) : null,
                     UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, peso), out var p) && p > 0 && p < 100_000 ? Math.Round(p, 3) : null,
                     UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, dias), out var d) && d < 10_000 ? (int)Math.Round(d) : null));
-                var plant = UsoSapExportacao.Celula_(celulas, centro).Trim().ToUpperInvariant();
                 detalhes.Add(new FabricoSapDetalhe(mat, lin, de, ate < de ? de : ate)
                 {
-                    Centro = plant.Length is 0 or > SapFabrico.CentroMaxLength ? null : plant,
-                    Cadencia = Inteiro(UsoSapExportacao.Celula_(celulas, cadencia)),
-                    Gob = Inteiro(UsoSapExportacao.Celula_(celulas, gob)),
-                    Sectores = Inteiro(UsoSapExportacao.Celula_(celulas, sectores)),
-                    Kcr = Decimal(UsoSapExportacao.Celula_(celulas, kcr), 1_000_000m),
-                    DeltaPesoGramas = ComSinal(UsoSapExportacao.Celula_(celulas, deltaPeso)),
-                    PackToPull = Decimal(UsoSapExportacao.Celula_(celulas, packToPull), 1_000m),
-                    NetQuant = UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, netQuant), out var q) ? (long)Math.Round(q) : null,
-                    Paletes = Decimal(UsoSapExportacao.Celula_(celulas, paletes), 100_000_000m),
-                    RejeicaoTotal = Decimal(UsoSapExportacao.Celula_(celulas, rejTotal), 1_000m),
-                    RejeicaoMil = Decimal(UsoSapExportacao.Celula_(celulas, rejMil), 1_000_000m),
-                    HotEnd = Decimal(UsoSapExportacao.Celula_(celulas, hotEnd), 1_000m)
+                    Cadencia = UsoSapExportacao.Numero(UsoSapExportacao.Celula_(celulas, cadencia), out var c) && c < 1_000_000 ? (int)Math.Round(c) : null
                 });
             }
 
@@ -235,20 +153,6 @@ public static class FabricoSapExportacao
     // O relatório «produções» (Diogo, 26/10/2026) traz «DATA I» com um espaço
     // inseparável; aqui vale como espaço.
     private static string Sem(string cabecalho) => cabecalho.Replace('\u00a0', ' ');
-
-    private static int? Inteiro(string texto) =>
-        UsoSapExportacao.Numero(texto, out var n) && n < 1_000_000 ? (int)Math.Round(n) : null;
-
-    private static decimal? Decimal(string texto, decimal limite) =>
-        UsoSapExportacao.Numero(texto, out var n) && n < limite ? Math.Round(n, 3) : null;
-
-    // O Δ do peso pode ser negativo: «-3» ou, à maneira do SAP, «3-».
-    private static decimal? ComSinal(string texto)
-    {
-        var t = texto.Trim();
-        var negativo = t.StartsWith('-') || t.EndsWith('-');
-        return Decimal(t.Trim('-'), 100_000m) is { } n ? (negativo ? -n : n) : null;
-    }
 
     private static bool Data(string texto, out DateOnly data) =>
         DateOnly.TryParseExact(texto.Trim(), FormatosData, CultureInfo.InvariantCulture, DateTimeStyles.None, out data);
@@ -320,6 +224,27 @@ public static class FabricoSapPeso
     }
 }
 
+/// <summary>
+/// A cadência do SAP de um Job On (Diogo, 27/10/2026: «cadência para meter
+/// no Job On»): a das ordens com mais dias dentro do Job On, contados como no
+/// <see cref="FabricoSapPeso.Resumo"/>; empatadas, a mais recente. Nenhuma sem
+/// ordens com cadência.
+/// </summary>
+public static class FabricoSapCadencia
+{
+    public static int? DoJobOn(IEnumerable<SapFabrico> ordens, DateOnly inicio, DateOnly? fim)
+    {
+        var ate = fim is { } f && f >= inicio ? f : DateOnly.MaxValue;
+        return ordens
+            .Where(o => o.Cadencia is > 0)
+            .GroupBy(o => o.Cadencia!.Value)
+            .OrderByDescending(g => g.Sum(o => Math.Max(1, (o.FimEm < ate ? o.FimEm : ate).DayNumber - (o.InicioEm > inicio ? o.InicioEm : inicio).DayNumber)))
+            .ThenByDescending(g => g.Max(o => o.InicioEm))
+            .Select(g => (int?)g.Key)
+            .FirstOrDefault();
+    }
+}
+
 /// <summary>O que se leu do relatório de fabrico: as linhas e quantas eram novas.</summary>
 public sealed record ImportarFabricoSapOutcome(int Linhas, int Novas);
 
@@ -378,7 +303,7 @@ public interface IFerramentasFabricoSap
 {
     /// <summary>
     /// Grava as linhas do relatório; com <paramref name="detalhes"/>, também
-    /// as outras colunas da linha com o mesmo material, linha e datas.
+    /// a cadência da linha com o mesmo material, linha e datas.
     /// </summary>
     Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
         IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default);
@@ -388,6 +313,9 @@ public interface IFerramentasFabricoSap
 
     /// <summary>O peso do SAP de cada Job On (a referência, a máquina e as datas); fica de fora o Job On sem ordens com peso.</summary>
     Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default);
+
+    /// <summary>A cadência do SAP do Job On (<see cref="FabricoSapCadencia.DoJobOn"/>); nenhuma sem ordens com cadência.</summary>
+    Task<int?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
 
     /// <summary>Os Job On em que a ferramenta foi a CM, o MF ou a BQ, do mais recente para o mais antigo.</summary>
     Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default);

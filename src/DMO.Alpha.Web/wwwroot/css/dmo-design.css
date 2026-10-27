@@ -44,18 +44,18 @@
   --dmo-shadow: none;
   --dmo-sidebar-width: 244px;
 }
-/* Escuro um tom mais claro (Diogo, 27/10/2026, …3NTas4a1z43TSpjUNg81sv): fundos, cartões, campos e linhas. */
+/* Escuro um tom mais claro (Diogo, 27/10/2026, …3NTas4a1z43TSpjUNg81sv; e mais um pouco, …NHFVvwdUdNVWkNpf9UQvvH): fundos, cartões, campos e linhas. */
 :root[data-theme="dark"] {
-  --dmo-page: #1a1e27; --dmo-card: #242a35;
-  --dmo-bar: #242a35; --dmo-field: #1e232c;
-  --dmo-subtle: #2d3441; --dmo-border: #3c4453;
+  --dmo-page: #20252f; --dmo-card: #2a303c;
+  --dmo-bar: #2a303c; --dmo-field: #242934;
+  --dmo-subtle: #333a48; --dmo-border: #434b5b;
   --dmo-text: #eceef1; --dmo-muted: var(--design-pale);
   --dmo-brand-950: #eceef1; --dmo-brand-900: #eceef1;
   --dmo-brand-800: var(--design-200); --dmo-brand-700: var(--design-200);
   --dmo-brand-600: var(--design-medium); --dmo-palette-slate: var(--design-medium);
   --dmo-action: #515f7a;
-  --dmo-brand-200: #3c4453; --dmo-brand-100: #333a47;
-  --dmo-brand-050: #2d3441; --dmo-row-hover: #333a47;
+  --dmo-brand-200: #434b5b; --dmo-brand-100: #39404e;
+  --dmo-brand-050: #333a48; --dmo-row-hover: #39404e;
 }
 /* The logo, module tabs and real signed-in account share the first row. */
 html body .dmo-shell-header {
@@ -475,6 +475,9 @@ html body.dmo-account-page .identity-foot,html body.dmo-account-page .identity-f
    #343D4F em vez do fundo da página. */
 html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-medium) 0%,var(--design-blue) 55%,var(--design-navy) 100%)}
 html[data-theme="dark"] body.dmo-account-page .identity-foot,html[data-theme="dark"] body.dmo-account-page .identity-foot strong{color:#fff}
+/* Login: a mensagem de erro (palavra-passe errada) mais discreta (Diogo, 27/10/2026, …NHFVvwdUdNVWkNpf9UQvvH «muito rústica»):
+   sem caixa cheia, só um traço fino à esquerda e a letra num vermelho apagado. */
+html body.dmo-account-page .login-form .form-message.alert-danger{margin-top:14px;padding:2px 0 2px 10px;border:0;border-left:2px solid color-mix(in srgb,var(--dmo-danger) 70%,var(--dmo-card));border-radius:0;background:none;color:color-mix(in srgb,var(--dmo-danger) 85%,var(--dmo-text));font-size:12.5px;line-height:1.45}
 html[data-theme="dark"] body.dmo-account-page .identity .eyebrow{color:var(--design-100)}
 html body.dmo-account-page .identity .brand-logo.brand-logo{width:112px;height:112px;background:none}
 /* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */

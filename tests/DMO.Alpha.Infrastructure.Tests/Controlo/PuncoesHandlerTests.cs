@@ -240,7 +240,7 @@ public sealed class PuncoesHandlerTests : IDisposable
         Assert.Contains("41 A Lote 1 41 B Lote 2", sheetText);
         Assert.Contains("Punções verificados 2", sheetText);
         Assert.Contains("Linha C2 2", sheetText);
-        Assert.Contains("A1 41 1", sheetText);
+        Assert.DoesNotContain("A1 41 1", sheetText);
         Assert.Contains("B1 41 2", sheetText);
         Assert.DoesNotContain("APROVADO", sheetText);
         Assert.DoesNotContain("Aprovação", sheetText);
@@ -256,7 +256,8 @@ public sealed class PuncoesHandlerTests : IDisposable
         });
         var withText = PdfText.Of(with);
         Assert.Contains("TOTAL PU VISTAS ARREF. VISTOS 2 2 2", withText);
-        Assert.Contains("Abrir PDF das punções →", withText);
+        // O PDF é para imprimir (DMO-515): sem setas; o título «PU NNPB» abre o ficheiro.
+        Assert.DoesNotContain("Abrir PDF das punções", withText);
         Assert.DoesNotContain("Registo de punções", withText);
         Assert.Contains("1 / 1", withText);
         using var document = UglyToad.PdfPig.PdfDocument.Open(with);

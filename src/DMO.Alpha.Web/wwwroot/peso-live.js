@@ -44,6 +44,23 @@
     return '<div class="peso-fact"><span>' + L.escapeHtml(label) + "</span><strong" + strongClass + ">" + L.escapeHtml(value) + "</strong></div>";
   }
 
+  // Os números da faixa como o servidor os escreve (DmoNumberFormat): um
+  // inteiro sem casas e decimais sempre com duas; as diferenças com sinal,
+  // «−» e duas casas. Ao gravar, o valor não muda de largura nem de forma
+  // (Diogo, 27/10/2026: «cria um valor ao lado do registar que empurra tudo»).
+  function arred2(value) {
+    var n = Number(value);
+    return (n < 0 ? -1 : 1) * Math.round(Math.abs(n) * 100 + 1e-9) / 100;
+  }
+  function dec2(value) {
+    var r = arred2(value);
+    return r === Math.trunc(r) ? String(r) : r.toFixed(2);
+  }
+  function comSinal2(value) {
+    var r = arred2(value);
+    return (r >= 0 ? "+" : "\u2212") + Math.abs(r).toFixed(2);
+  }
+
   function signed(value, unit, decimals) {
     if (value === null || value === undefined) return "—";
     var n = Number(value);
@@ -198,14 +215,14 @@
 
     f.strip.innerHTML = [
       factHtml("Leituras válidas", totals.sampleCount === undefined || totals.sampleCount === null ? "—" : String(totals.sampleCount)),
-      factHtml("Média em água", totals.averageWaterWeightGrams === null || totals.averageWaterWeightGrams === undefined ? "—" : L.formatNumber(totals.averageWaterWeightGrams, 2) + " g"),
-      factHtml("Peso estimado em vidro", totals.averageGlassWeightGrams === null || totals.averageGlassWeightGrams === undefined ? "—" : L.formatNumber(totals.averageGlassWeightGrams, 2) + " g"),
-      factHtml("Capacidade média", totals.averageCapacityCm3 === null || totals.averageCapacityCm3 === undefined ? "—" : L.formatNumber(totals.averageCapacityCm3, 3) + " cm³")
+      factHtml("Média em água", totals.averageWaterWeightGrams === null || totals.averageWaterWeightGrams === undefined ? "—" : dec2(totals.averageWaterWeightGrams) + " g"),
+      factHtml("Peso estimado em vidro", totals.averageGlassWeightGrams === null || totals.averageGlassWeightGrams === undefined ? "—" : dec2(totals.averageGlassWeightGrams) + " g"),
+      factHtml("Capacidade média", totals.averageCapacityCm3 === null || totals.averageCapacityCm3 === undefined ? "—" : dec2(totals.averageCapacityCm3) + " cm³")
     ].join("");
 
     f.summary.innerHTML = [
-      factHtml("Peso nominal", context.nominalWeightGrams === null || context.nominalWeightGrams === undefined ? "—" : L.formatNumber(context.nominalWeightGrams, 2) + " g"),
-      factHtml("Diferença nominal", totals.desvioNominalG === null || totals.desvioNominalG === undefined ? "—" : signed(totals.desvioNominalG, "g", 2), Number(totals.desvioNominalG) < 0 ? "peso-valor-negativo" : undefined)
+      factHtml("Peso nominal", context.nominalWeightGrams === null || context.nominalWeightGrams === undefined ? "—" : dec2(context.nominalWeightGrams) + " g"),
+      factHtml("Diferença nominal", totals.desvioNominalG === null || totals.desvioNominalG === undefined ? "—" : comSinal2(totals.desvioNominalG) + " g", Number(totals.desvioNominalG) < 0 ? "peso-valor-negativo" : undefined)
     ].join("");
     if (comparisonFact) f.summary.appendChild(comparisonFact);
 
@@ -352,7 +369,10 @@
     request();
   }, true);
 
-  // «+» acrescenta uma linha vazia; «−» tira a última (fica sempre uma).
+  // «+» acrescenta uma linha vazia; «−» tira a última. Com uma só linha, o
+  // «−» é a opção para apagar a última leitura gravada: abre a pergunta
+  // «Apagar a leitura da CM …?» da correção, nada se apaga sem confirmar
+  // (Diogo, 27/10/2026).
   document.addEventListener("click", function (event) {
     var button = event.target.closest && event.target.closest("[data-peso-add-row], [data-peso-remove-row]");
     var f = button && folha();
@@ -360,12 +380,38 @@
     var all = rows(f);
     if (button.hasAttribute("data-peso-add-row")) {
       cmOf(acrescentarLinha(f)).focus();
-    } else {
-      if (all.length <= 1) return;
+    } else if (all.length > 1) {
       all[all.length - 1].remove();
       request();
+    } else {
+      apagarUltimaGravada(button);
     }
   });
+
+  function apagarUltimaGravada(origem) {
+    var linhas = document.querySelectorAll("[data-peso-leituras] tbody tr[data-peso-leitura-id]");
+    var ultima = linhas[linhas.length - 1];
+    if (!ultima) return;
+    var url = new URL(window.location.href);
+    ["corrigir_leitura", "apagar_leitura", "correcao", "correcao_cm", "correcao_agua", "handler"].forEach(function (chave) { url.searchParams.delete(chave); });
+    url.searchParams.set("corrigir_leitura", ultima.getAttribute("data-peso-leitura-id"));
+    url.searchParams.set("apagar_leitura", "1");
+    url.hash = "";
+    if (window.DmoTroca && typeof window.DmoTroca.ir === "function") window.DmoTroca.ir(url.href, origem);
+    else window.location.href = url.href;
+  }
+
+  // O Esc dentro da correção sai da correção e fica na folha (no painel, o
+  // Esc fechava o painel todo).
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+    var caixa = event.target.closest && event.target.closest("[data-peso-correcao]");
+    var sair = caixa && caixa.querySelector("[data-peso-correcao-sair]");
+    if (!sair) return;
+    event.preventDefault();
+    event.stopPropagation();
+    sair.click();
+  }, true);
 
   // GRAVAR SEM RECARREGAR (Diogo, 17/10/2026): «Registar leitura» vai por
   // fetch (DmoTroca) e só as zonas trocam. O envio entra na fila (dmo:fila,

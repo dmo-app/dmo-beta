@@ -47,7 +47,8 @@ public sealed class FolhaModel(
     IConfiguration configuration,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     IAlterarLoteBq alterarLote,
-    IFolhaDaFerramenta folhaDaFerramenta) : PageModel
+    IFolhaDaFerramenta folhaDaFerramenta,
+    DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap) : PageModel
 {
     /// <summary>
     /// No Editar, a ferramenta escolhida traz os dados dela para o cartão
@@ -177,6 +178,12 @@ public sealed class FolhaModel(
 
     /// <summary>A folha da fábrica gravada.</summary>
     public FolhaDoJobOnVista Folha { get; private set; } = FolhaDoJobOnVista.Vazia();
+
+    /// <summary>
+    /// A cadência do SAP desta produção (Diogo, 27/10/2026: «cadência para
+    /// meter no Job On»), pelo relatório da ZFMD; vazia sem ordens com cadência.
+    /// </summary>
+    public int? CadenciaSap { get; private set; }
 
     /// <summary>Os factos das ferramentas da produção (referência, lote, % de uso).</summary>
     public IReadOnlyList<JobOnToolFacts> Facts { get; private set; } = [];
@@ -506,6 +513,7 @@ public sealed class FolhaModel(
                 Folha = Folha.ComLoteFfDoMf(Fact(aberto.MfToolId)?.Lot);
             }
             LotesBqUsados = await alterarLote.LotesUsadosAsync(aberto.JobOnId, ct);
+            CadenciaSap = await fabricoSap.CadenciaDoJobOnAsync(aberto.JobOnId, ct);
             if (Editar)
             {
                 Machines = await machineList.ListAsync(ct);

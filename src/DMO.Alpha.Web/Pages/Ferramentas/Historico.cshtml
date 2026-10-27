@@ -177,7 +177,7 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
                 var deste = l.DoTipo(t);
                 <td class="@(destaqueLinha == t ? "hist-destaque" : null)">
                   @if (deste.Count == 0) { @("—") }
-                  @for (var i = 0; i < deste.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(deste[i])<span class="hist-uso"> · @HistoricoModel.Uso(l.UsoDe(deste[i].ToolId))</span></span> }
+                  @for (var i = 0; i < deste.Count; i++) { <span class="hist-ferr@(i > 0 ? " hist-trocada" : "")">@HistoricoModel.Nome(deste[i])<span class="hist-uso"> · @DMO.Alpha.Web.Presentation.UsoFerramenta.Link(deste[i].ToolId, HistoricoModel.Uso(l.UsoDe(deste[i].ToolId)))</span></span> }
                 </td>
               }
             </tr>

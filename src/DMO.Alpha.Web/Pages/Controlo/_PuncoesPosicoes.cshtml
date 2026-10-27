@@ -13,7 +13,7 @@
   <div class="pu-section-head">
     <div>
       @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
-      <h3 id="pu-pos-title" title="@($"As punções entram pela ordem de registo nas posições da linha: {grelha.Seccoes} secções com as posições A a D (A1, B1, C1, D1, A2…). As que passam da linha ficam na reserva. O número das secções de cada linha muda-se nas Definições do Controlo.")">Posições na linha @Model.Linha</h3>
+      <h3 id="pu-pos-title" title="@($"As punções entram pela ordem de registo nas posições da linha: {grelha.Seccoes} secções com {grelha.Gotas} gotas, posições A a {PuncoesPosicoes.Letra(grelha.Gotas - 1)} ({grelha.Capacidade} punções). As que passam da linha ficam na reserva. As secções e a gota de cada linha mudam-se nas Definições do Controlo.")">Posições na linha @Model.Linha</h3>
     </div>
     <div class="dmo-card-topo-acoes">
       <button type="submit" class="dmo-button" form="pu-pdf-form" id="pu-pdf">PDF</button>
@@ -32,7 +32,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (var p = 0; p < PuncoesPosicoes.PosicoesPorSeccao; p++)
+        @for (var p = 0; p < grelha.Gotas; p++)
         {
           <tr>
             <th scope="row">@PuncoesPosicoes.Letra(p)</th>

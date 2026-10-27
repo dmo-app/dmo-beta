@@ -131,7 +131,7 @@ public sealed class PesoPdfGenerator
                 content.Item().Row(row =>
                 {
                     row.Spacing(8);
-                    row.RelativeItem(1.3f).Element(c => Box(c, DmoPdfPalette.Deep, DmoPdfPalette.Deep)).Padding(12).MinHeight(102).DefaultTextStyle(x => x.FontColor(DmoPdfPalette.White)).Column(c =>
+                    row.RelativeItem(1.3f).Element(c => Box(c)).Padding(12).MinHeight(102).DefaultTextStyle(x => x.FontColor(DmoPdfPalette.Ink)).Column(c =>
                     {
                         c.Item().Text("Peso atual").FontSize(10).SemiBold();
                         c.Item().PaddingTop(12).Text(t =>
@@ -139,7 +139,7 @@ public sealed class PesoPdfGenerator
                             t.Span(Avg(input.Averages?.AverageGlassWeightGrams)).FontSize(40).SemiBold();
                             t.Span(" g").FontSize(20).SemiBold();
                         });
-                        c.Item().PaddingTop(7).Text("Resultado das leituras deste controlo").FontSize(8).FontColor(DmoPdfPalette.OnDeep);
+                        c.Item().PaddingTop(7).Text("Resultado das leituras deste controlo").FontSize(8).FontColor(DmoPdfPalette.Muted);
                     });
                     row.RelativeItem().Column(c =>
                     {
@@ -150,13 +150,13 @@ public sealed class PesoPdfGenerator
                             card.Item().PaddingTop(4).Text(input.Comparison?.HistoricalAverages is { } previous
                                 ? Fmt(previous.AverageGlassWeightGrams) + " g" : "Sem comparação").FontSize(input.Comparison is null ? 10 : 19).SemiBold();
                         });
-                        c.Item().Element(x => Box(x, DmoPdfPalette.Tint, DmoPdfPalette.Sky)).Padding(9).MinHeight(42).Column(card =>
+                        c.Item().Element(x => Box(x, DmoPdfPalette.Tint, DmoPdfPalette.Line)).Padding(9).MinHeight(42).Column(card =>
                         {
                             card.Item().Text("Diferença face ao controlo anterior").FontSize(8).FontColor(Ink);
                             card.Item().PaddingTop(5).Text(t =>
                             {
                                 t.Span(input.Comparison?.Deltas.GlassWeightDifferenceGrams is { } d
-                                    ? Signed(d) + " g" : "Diferença indisponível").FontSize(input.Comparison is null ? 10 : 19).SemiBold().FontColor(DmoPdfPalette.Ocean);
+                                    ? Signed(d) + " g" : "Diferença indisponível").FontSize(input.Comparison is null ? 10 : 19).SemiBold().FontColor(DmoPdfPalette.Ink);
                                 if (input.Comparison?.Deltas.GlassWeightVariationPercent is { } variation)
                                     t.Span(" · " + Signed(variation) + " %").FontSize(11).FontColor(Muted);
                             });
@@ -200,7 +200,6 @@ public sealed class PesoPdfGenerator
             page.Footer().PaddingTop(8).BorderTop(.6f).BorderColor(Line).PaddingTop(6).Row(row =>
             {
                 row.RelativeItem().Text(input.GeneratedBy is { } by ? "Gerado por " + by : "Gerado por: sem identificação").FontSize(7).FontColor(Muted);
-                if (combined) row.ConstantItem(80).AlignCenter().SectionLink("resumo").Text("← Voltar ao Resumo").FontSize(7).FontColor(Blue);
                 row.RelativeItem().AlignRight().DefaultTextStyle(x => x.FontSize(7).FontColor(Muted)).Text(t =>
                 {
                     t.Span(DmoBusinessTime.Now.ToString("g", Pt) + " · ");
@@ -213,7 +212,7 @@ public sealed class PesoPdfGenerator
     }
 
     private static IContainer Box(IContainer c, string background = DmoPdfPalette.White, string border = Line) =>
-        c.Background(background).Border(.7f).BorderColor(border).CornerRadius(7);
+        c.Background(background).BorderTop(.7f).BorderColor(Line);
 
     private static void SmallCard(IContainer container, string label, string value, string caption) =>
         container.Element(c => Box(c)).Padding(9).Column(c =>
@@ -239,7 +238,7 @@ public sealed class PesoPdfGenerator
                     value.Item().Text("Diferença").FontSize(8).FontColor(Muted);
                     value.Item().PaddingTop(3).Text(t =>
                     {
-                        t.Span(difference).FontSize(16).SemiBold().FontColor(DmoPdfPalette.Ocean);
+                        t.Span(difference).FontSize(16).SemiBold().FontColor(DmoPdfPalette.Ink);
                         t.Span(" · " + percent).FontSize(10).FontColor(Muted);
                     });
                 });

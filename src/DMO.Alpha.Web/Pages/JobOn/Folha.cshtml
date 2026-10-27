@@ -130,7 +130,16 @@
             {
               @* Com ponto e duas casas, como no resto da folha; acima de 100% com a
                  cor ligeira do uso cheio (ronda de 26/10/2026, J5). *@
-              <b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@(valor is null ? "—" : Mostra(valor.TrimEnd('%').Trim()) + "%")</b>
+              var usoTexto = valor is null ? "—" : Mostra(valor.TrimEnd('%').Trim()) + "%";
+              @* Um clique no % abre o histórico do uso da ferramenta (Diogo, 27/10/2026). *@
+              if (f?.ToolId is { } usoTool && valor is not null)
+              {
+                <a class="dmo-uso-link" href="@DMO.Alpha.Web.Presentation.UsoFerramenta.Href(usoTool)" title="O histórico do uso desta ferramenta"><b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@usoTexto</b></a>
+              }
+              else
+              {
+                <b class="@(agora > 100 ? "dmo-uso-cheio" : null)" title="@(agora > 100 ? "Acima de 100%" : null)">@usoTexto</b>
+              }
               @if (antes is { } a)
               {
                 <em class="was" title="A última leitura do uso">antes @a.ToString("0.##", culture)%</em>
@@ -543,6 +552,10 @@ else
             }
           </div>
         }
+        @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»). *@
+        <div class="fact-col">
+          <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
+        </div>
         </div>
       </div>
       <div class="head-right">
@@ -774,8 +787,10 @@ else
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">Artigo</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
-          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
+          @* Só a foto, mais alta do que larga, ao lado das Pinças: a referência já está no topo
+             (Diogo, 27/10/2026: «nao escrever referência no artigo», «os comentários são mais importantes»). *@
+          @if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}
+          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">
             @if (podeImagem)
             {
               <input type="file" accept="image/*" class="sr-only" data-jof-artigo-ficheiro aria-label="Escolher a imagem do artigo" />

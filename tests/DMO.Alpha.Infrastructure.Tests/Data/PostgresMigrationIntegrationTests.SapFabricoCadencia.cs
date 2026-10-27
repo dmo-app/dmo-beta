@@ -5,14 +5,15 @@ using Microsoft.EntityFrameworkCore;
 namespace DMO.Alpha.Infrastructure.Tests.Data;
 
 /// <summary>
-/// As outras colunas da ZFMD no PostgreSQL (Diogo, 27/10/2026): a migração
-/// acrescenta-as vazias e a leitura do relatório grava-as com as casas que o
-/// SAP dá, também o Δ do peso negativo.
+/// Das outras colunas da ZFMD no PostgreSQL fica só a cadência (Diogo,
+/// 27/10/2026: «podemos guardar cadência mas acho que o resto não vale a
+/// pena»): a leitura do relatório grava-a e as outras 11 colunas já não
+/// existem.
 /// </summary>
 public sealed partial class PostgresMigrationIntegrationTests
 {
     [SkippableFact]
-    public async Task SapFabricoColunasZfmd_GravaTodasAsColunasDoRelatorio_NoPostgreSql()
+    public async Task SapFabricoCadencia_GravaSoACadencia_NoPostgreSql()
     {
         SkipWithoutConnection();
         var material = "ZZ" + Guid.NewGuid().ToString("N")[..8].ToUpperInvariant() + "BRZ";
@@ -28,10 +29,14 @@ public sealed partial class PostgresMigrationIntegrationTests
 
             await using var depois = CreateContext();
             var gravada = await depois.SapFabricos.AsNoTracking().SingleAsync(s => s.Material == material);
-            Assert.Equal(("MG", 489, 3, 12, 170.195m, -3m, 90.97m),
-                (gravada.Centro, gravada.Cadencia!.Value, gravada.Gob!.Value, gravada.Sectores!.Value, gravada.Kcr!.Value, gravada.DeltaPesoGramas!.Value, gravada.PackToPull!.Value));
-            Assert.Equal((3_802_656L, 1_418m, 1.55m, 4.33m, 95.56m),
-                (gravada.NetQuant!.Value, gravada.Paletes!.Value, gravada.RejeicaoTotal!.Value, gravada.RejeicaoMil!.Value, gravada.HotEnd!.Value));
+            Assert.Equal((489, 656_341L, 597_103L, 157m, 6), (gravada.Cadencia!.Value, gravada.ProducaoBruta!.Value, gravada.ProducaoLiquida!.Value, gravada.PesoMedioGramas!.Value, gravada.DiasProducao!.Value));
+            var colunas = await depois.Database.SqlQuery<string>($"""
+                SELECT column_name AS "Value" FROM information_schema.columns
+                WHERE table_name = 'SapFabricos'
+                """).ToListAsync();
+            Assert.Contains("Cadencia", colunas);
+            Assert.DoesNotContain(colunas, c => c is "Centro" or "Gob" or "Sectores" or "Kcr" or "DeltaPesoGramas" or "PackToPull"
+                or "NetQuant" or "Paletes" or "RejeicaoTotal" or "RejeicaoMil" or "HotEnd");
         }
         finally
         {

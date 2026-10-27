@@ -54,6 +54,8 @@
   let opener, dirty = false, operation = false, aberta = null;
   const destinations = new Map([
     ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
+    // O título vem do h1 da página (diz qual é a ferramenta).
+    ['/Ferramentas/Utilizacao', ''],
     ['/Controlo/Peso', 'Peso'],
     ['/Controlo/PesoComparar', 'Comparar peso'],
     ['/Controlo/Pegamentos', 'Pegamentos'],
@@ -111,6 +113,10 @@
     let url;
     try { url = new URL(href, location.href); } catch { return false; }
     if (url.origin !== location.origin || !destinations.has(url.pathname)) return false;
+    // Um link para a própria página (corrigir uma leitura nos Pegamentos) fica
+    // nela: no painel, apagar lá deixava a linha na página por trás (Diogo,
+    // 27/10/2026: «o x apaga a leitura mas não apaga a linha»).
+    if (url.pathname === location.pathname) return false;
     if (panel.open) {
       if (semPainel_(url.href) === aberta) return true;
       if (dirty) { requestClose(); return true; }

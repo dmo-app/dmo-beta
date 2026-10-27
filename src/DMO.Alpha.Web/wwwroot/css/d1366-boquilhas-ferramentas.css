@@ -234,8 +234,6 @@ html body .beta-bq-layout .bq-history-filter-grid>.dmo-field>label{margin:0;heig
 html body .beta-bq-layout .bq-history-filter-grid :is(input,select){width:100%;box-sizing:border-box}
 html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#vista){width:232px}
 html body .beta-bq-layout .bq-history-filter-grid select{white-space:nowrap;text-overflow:ellipsis}
-/* O resumo diário enche a altura que sobra do ecrã (a tabela rola por dentro). */
-html body .beta-bq-layout .dmo-table-wrap:has(>.dmo-matrix){max-height:max(160px,calc(100vh - 584px))}
 html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#pesquisa){width:112px}
 html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#lote){width:80px}
 html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#maquina){width:88px}
@@ -290,14 +288,6 @@ html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,
 /* Auditoria 1366×768 (27/10/2026, todo/1366-falhas.md §3)             */
 /* ================================================================== */
 @media (min-width:1100px){
-  /* Movimentos › Resumo diário: a grelha do mês usa a página, sem a caixa
-     de 184 px com scroll próprio (o dmo-design.css limita a 100vh - 610px). */
-  html body .beta-bq-layout .dmo-table-wrap:has(>.dmo-matrix){max-height:none}
-
-  /* Movimentos › Registo do dia: sem dia escolhido o quadro só tem a frase
-     e fica com a altura dela, em vez de esticar até ao fundo do calendário. */
-  html body .beta-bq-layout .bq-history-day-grid>.bq-day-summary:not(:has(.beta-light-list)){align-self:start}
-
   /* Movimentos › Por linha / Job On: as tabelas de todas as máquinas com
      as mesmas colunas, alinhadas umas com as outras. */
   html body .beta-bq-layout .bq-machine-group .dmo-table{table-layout:fixed;width:100%}
@@ -309,10 +299,6 @@ html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,
   html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(6){width:7%}
   html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(7){width:16%}
   html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(8){width:8%}
-
-  /* Movimentos › totais do filtro: o cartão do tamanho dos três números
-     (continuam juntos à esquerda), sem a faixa vazia até à direita. */
-  html body .beta-bq-layout #bqHistTotais{width:max-content;max-width:100%;padding-right:48px}
 
   /* Registo e Corrigir movimentos: a data e a hora inteiras na caixa. */
   html body .beta-bq-layout .bq-movement-line .bq-line-date{flex:0 0 192px}
@@ -327,8 +313,183 @@ html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,
      das Ferramentas (eram 34 px). */
   html body main.rp-page>.page-head{margin-bottom:0}
 
-  /* Definições › Boquilhas: os três cartões com a mesma altura, a encher a
-     largura (cada um cresce a partir da largura do que leva). */
-  html body #sec-boquilhas .bq-def-lado{flex:1 1 100%;min-width:0;align-items:stretch;gap:16px}
-  html body #sec-boquilhas .bq-def-lado>.bq-def-card{flex:1 1 auto;width:auto}
 }
+
+/* ================================================================== */
+/* Boquilhas 1366×768: a PÁGINA não desliza (Diogo, 27/10/2026)         */
+/* A área abaixo do menu (95 px) tem a altura do ecrã; o que não couber */
+/* desliza só dentro de uma tabela/lista, num cartão que vai até ao     */
+/* fundo, com o cabeçalho da tabela fixo.                               */
+/* ================================================================== */
+html body .beta-bq-layout{--bq-topo:95px}
+@media (min-width:1100px){
+  html body .beta-bq-layout{min-height:0}
+  html body .beta-bq-layout>.main{box-sizing:border-box;height:calc(100vh - var(--bq-topo));min-height:560px}
+  html body .beta-bq-layout>.main>section.view{height:100%;min-height:0}
+
+  /* Cartões de lista: cabeçalho e paginação fixos, a tabela desliza. */
+  html body .beta-bq-layout :is(.movement-card,.bq-latest-card,#bq-tool-results:not([hidden])){display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  html body .beta-bq-layout :is(.movement-card,.bq-latest-card,#bq-tool-results)>*{flex:none;min-width:0}
+  html body .beta-bq-layout :is(.movement-card,.bq-latest-card,#bq-tool-results)>.dmo-table-wrap,
+  html body .beta-bq-layout .movement-card>.bq-lista-rolante{flex:1 1 auto;min-height:0;overflow:auto}
+  html body .beta-bq-layout :is(.movement-card,.bq-latest-card,#bq-tool-results)>.dmo-table-wrap{padding-top:0}
+  html body .beta-bq-layout .bq-lista-rolante .dmo-table-wrap{overflow:visible;max-height:none}
+  html body .beta-bq-layout :is(.movement-card,.bq-latest-card,#bq-tool-results)>.dmo-table-wrap thead th,
+  html body .beta-bq-layout .bq-lista-rolante thead th{position:sticky;top:0;z-index:2}
+  html body .beta-bq-layout .dmo-table-wrap:has(>.dmo-matrix){max-height:none}
+  /* O total do mês fica à vista no fundo da grelha. */
+  html body .beta-bq-layout .dmo-matrix tfoot td{position:sticky;bottom:0;z-index:2;background:var(--dmo-card);box-shadow:inset 0 1px 0 var(--dmo-border)}
+  html body .beta-bq-layout .bq-matrix-legend{margin:8px 0 0}
+  /* O dia e o dia da semana na mesma linha: mais dias à vista. */
+  html body .beta-bq-layout .dmo-matrix :is(th,td):first-child{width:132px;white-space:nowrap}
+  html body .beta-bq-layout .dmo-matrix tbody td:first-child .dmo-matrix-weekday{display:inline;margin-left:6px}
+
+  /* Registo: o movimento e os últimos movimentos por baixo; só a tabela desliza. */
+  html body .beta-bq-layout section#registo:has(.register-open){grid-template-rows:auto auto auto auto minmax(0,1fr)}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoMovimento>.bq-movement-card{grid-row:4}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoMovimentos>.bq-latest-card{grid-row:5}
+
+  /* Boquilhas: a lista e a ficha repartem a altura que sobra. */
+  html body .beta-bq-layout section#boquilhas>#bq-tool-results:not([hidden]){flex:0 1 auto;min-height:132px}
+  html body .beta-bq-layout section#boquilhas>#bq-catalog-sheet{flex:1 1 0;min-height:168px;display:flex;flex-direction:column}
+  html body .beta-bq-layout section#boquilhas>#bq-catalog-sheet:not(:has(#bq-tool-sheet)){display:none}
+  html body .beta-bq-layout #bq-tool-sheet{flex:1 1 0;min-height:0;margin:0;display:flex;flex-direction:column;overflow:auto}
+  html body .beta-bq-layout #bq-tool-sheet>*{flex:none;min-width:0}
+  html body .beta-bq-layout #bq-tool-sheet>.dmo-table-wrap{flex:1 1 auto;min-height:88px;overflow:auto;padding-top:0}
+  html body .beta-bq-layout #bq-tool-sheet>.dmo-table-wrap thead th{position:sticky;top:0;z-index:2}
+  html body .beta-bq-layout #bq-tool-sheet .bq-sem-jobon-movimentos .dmo-table-wrap{max-height:104px;overflow:auto;padding-top:0}
+  html body .beta-bq-layout #bq-tool-sheet .bq-sem-jobon-movimentos .dmo-table-wrap thead th{position:sticky;top:0;z-index:2}
+
+  /* Movimentos: o título com os totais à direita; os filtros; por baixo, o
+     registo do dia e a lista à esquerda e o calendário à direita até ao fundo. */
+  html body .beta-bq-layout section#historico{display:grid;grid-template-columns:minmax(0,1fr) 336px;grid-template-rows:auto auto auto auto minmax(0,1fr);gap:16px;align-content:start}
+  html body .beta-bq-layout section#historico>*,
+  html body .beta-bq-layout section#historico>.dmo-zona>*{grid-column:1/-1;min-width:0}
+  html body .beta-bq-layout section#historico>.page-head{grid-column:1;grid-row:1;align-self:center}
+  html body .beta-bq-layout section#historico>#bqHistTotais{grid-column:1/-1;grid-row:1;justify-self:end;align-self:center;width:max-content;max-width:100%;padding:6px 8px}
+  html body .beta-bq-layout section#historico>.dmo-zona>.bq-history-day{display:contents}
+  html body .beta-bq-layout section#historico .bq-history-day-grid{display:contents}
+  html body .beta-bq-layout section#historico #bqHistDia{grid-column:1;grid-row:4;max-height:152px;overflow:auto;padding:8px 16px;background:var(--dmo-card)}
+  html body .beta-bq-layout section#historico #bqHistDia h3{font-size:16px;line-height:24px;margin:0}
+  html body .beta-bq-layout section#historico #bqHistDia p{margin:4px 0 0}
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-list{margin-top:8px}
+  html body .beta-bq-layout section#historico .bq-history-calendar{grid-column:2;grid-row:4/6;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden;padding:12px 16px}
+  html body .beta-bq-layout section#historico .bq-history-calendar>*{margin:0;min-width:0}
+  html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar.card{width:100%;margin:0;padding:0;border:0;background:none;box-shadow:none}
+  html body .beta-bq-layout section#historico #bqHistLista>.movement-card{grid-column:1/-1;grid-row:4/6}
+  html body .beta-bq-layout section#historico:has(.bq-history-calendar) #bqHistLista>.movement-card{grid-column:1;grid-row:5}
+
+  /* O calendário estica até ao fundo do cartão (sem faixa vazia por baixo). */
+  html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+  html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar .dmo-calendar-days{flex:1 1 auto;grid-auto-rows:minmax(30px,1fr)}
+  html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day){height:auto;min-height:30px}
+
+  /* Totais do filtro: os três números do mesmo tamanho, juntos num cartão baixo. */
+  html body .beta-bq-layout #bqHistTotais .lot-data{margin:0}
+  html body .beta-bq-layout #bqHistTotais .lot-data>div{padding:0 20px !important}
+  html body .beta-bq-layout #bqHistTotais .lot-data>div:first-child{padding-left:12px !important}
+  html body .beta-bq-layout #bqHistTotais .lot-data>div:last-child{padding-right:12px !important}
+  html body .beta-bq-layout #bqHistTotais .lot-data>div>span{margin:0;white-space:nowrap}
+}
+
+/* Filtros, botões e datas: todos com a altura dos campos. */
+html body .beta-bq-layout :is(.bq-history-filter-grid,.bq-tool-search) :is(input,select){box-sizing:border-box;height:var(--dmo-control-height,34px);min-height:var(--dmo-control-height,34px)}
+html body .beta-bq-layout .bq-history-filters-head :is(.btn,a.btn){box-sizing:border-box;height:var(--dmo-control-height,34px);min-height:var(--dmo-control-height,34px);display:inline-flex;align-items:center;justify-content:center}
+
+/* Definições › Boquilhas: os três cartões da mesma largura e altura. */
+@media (min-width:900px){
+  html body #sec-boquilhas .bq-def-lado{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch;flex:1 1 100%;width:100%;min-width:0}
+  html body #sec-boquilhas .bq-def-lado>.bq-def-card{box-sizing:border-box;width:auto;min-width:0;max-width:none}
+  html body #sec-boquilhas .bq-def-card .dmo-table-wrap{max-width:none}
+  html body #sec-boquilhas .bq-def-rotas{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* A opção «— sem reparador —» não parte em duas linhas dentro da caixa. */
+html body #sec-boquilhas .bq-def-rotas select{width:100%;white-space:nowrap;text-overflow:ellipsis}
+
+/* O tipo escolhido (Saída/Entrada) no escuro: contorno e letra claros, não o azul do botão. */
+html[data-theme="dark"] body .beta-bq-layout{--dmo-escolhida-contorno:var(--dmo-brand-300,#9cc3ea);--dmo-escolhida-letra:var(--dmo-brand-300,#9cc3ea)}
+
+/* ================================================================== */
+/* Boquilhas, 2.ª passagem do aspeto (Diogo, 27/10/2026)                */
+/* ================================================================== */
+/* Cabeçalhos das tabelas legíveis (eram 10 px) e etiquetas dos valores do mesmo tamanho dos outros factos. */
+html body .beta-bq-layout table th{font-size:12px;line-height:16px}
+html body .beta-bq-layout .lot-data>div>span{font-size:12.5px;font-weight:500;line-height:1.35;margin-bottom:2px}
+/* O valor fica sempre na mesma linha, quer a etiqueta ocupe uma ou duas linhas. */
+html body .beta-bq-layout .bq-metrics-card .lot-data>div{display:flex;flex-direction:column;justify-content:space-between}
+
+/* «Registar sem Job On»: um botão de ação (a mesma aparência de .dmo-button; o teste fixa a classe do <button>). */
+html body .beta-bq-layout button.bq-sem-jobon-link{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);margin-left:auto;padding:0 14px;border:1px solid var(--dmo-action,var(--dmo-brand-600));border-radius:var(--dmo-r-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;white-space:nowrap;cursor:pointer}
+html body .beta-bq-layout button.bq-sem-jobon-link:is(:hover,:active){background:var(--dmo-botao-inv-fundo);border-color:var(--dmo-botao-inv-contorno);color:var(--dmo-botao-inv-letra);text-decoration:none}
+html body .beta-bq-layout button.bq-sem-jobon-link:focus-visible{outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45))}
+
+@media (min-width:1100px){
+  /* Registo sem Job On: o registo, a BQ/lote e o «Associar Job On» ficam num cartão baixo (a lista fica com altura). */
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) .register-open{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) .register-open>.card-head{grid-column:1/-1}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) .register-open>.dmo-facts{grid-column:1;grid-row:2}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) .register-open>.filter-bar{grid-column:2;grid-row:2;margin:0 !important;padding:0;border:0;background:none;box-shadow:none}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) .register-open>.filter-bar>.card-head{min-height:24px;margin:0 0 4px !important}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) .register-open>.filter-bar>.card-head h3{font-size:14px;line-height:24px}
+  /* Os valores em linha (4 colunas), como no registo com Job On. */
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) #bqRegistoNumeros>.bq-metrics-card .lot-data{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:minmax(0,1fr);row-gap:0}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) #bqRegistoNumeros>.bq-metrics-card .lot-data>div:nth-child(odd){border-left:1px solid var(--dmo-border) !important;padding-left:12px !important}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) #bqRegistoNumeros>.bq-metrics-card .lot-data>div:first-child{border-left:0 !important;padding-left:0 !important}
+  /* O aviso da quantidade em falta numa só linha baixa. */
+  html body .beta-bq-layout .bq-movement-card .jobon-aviso{display:flex;align-items:center;gap:12px;margin:0 0 8px;padding:4px 12px}
+
+  /* Últimos movimentos: a paginação sobe para a linha do título (entre o título e «Corrigir movimentos»), a tabela fica com a altura toda. */
+  html body .beta-bq-layout section#registo .bq-latest-card{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto minmax(0,1fr);column-gap:12px;row-gap:8px;align-content:start}
+  html body .beta-bq-layout section#registo .bq-latest-card>.bq-latest-head{display:contents}
+  html body .beta-bq-layout section#registo .bq-latest-card>.bq-latest-head>div:first-child{grid-column:1;grid-row:1;align-self:center}
+  html body .beta-bq-layout section#registo .bq-latest-card>.bq-latest-head>.btn{grid-column:3;grid-row:1}
+  html body .beta-bq-layout section#registo .bq-latest-card>.dmo-list-pager{grid-column:2;grid-row:1;margin:0 !important;flex-wrap:nowrap}
+  html body .beta-bq-layout section#registo .bq-latest-card>.dmo-table-wrap{grid-column:1/-1;grid-row:2;min-height:0}
+
+  /* Movimentos › Registo do dia: vazio, é uma só linha; com dia, as linhas são baixas e a caixa desliza por dentro. */
+  html body .beta-bq-layout section#historico #bqHistDia:not(:has(.beta-light-list)){display:flex;align-items:baseline;gap:4px 16px;flex-wrap:wrap;max-height:none;padding:8px 16px}
+  html body .beta-bq-layout section#historico #bqHistDia:not(:has(.beta-light-list)) p{margin:0}
+  html body .beta-bq-layout section#historico #bqHistDia:has(.beta-light-list){max-height:148px}
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-list{gap:4px;margin-top:4px}
+  html body .beta-bq-layout section#historico #bqHistDia :is(.beta-light-machine-row,.beta-light-production){height:32px;min-height:32px}
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-production{padding-block:0}
+
+  /* Movimentos (por linha / agrupados): a paginação sobe para a linha do título e a lista fica com a altura toda. */
+  html body .beta-bq-layout section#historico .movement-card:has(>.dmo-list-pager){display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto minmax(0,1fr);column-gap:12px;row-gap:8px;align-content:start}
+  html body .beta-bq-layout section#historico .movement-card:has(>.dmo-list-pager)>.bq-history-card-head{display:contents}
+  html body .beta-bq-layout section#historico .movement-card:has(>.dmo-list-pager)>.bq-history-card-head>h3{grid-column:1;grid-row:1;align-self:center}
+  html body .beta-bq-layout section#historico .movement-card:has(>.dmo-list-pager)>.bq-history-card-head>.date-chip{grid-column:3;grid-row:1;align-self:center}
+  html body .beta-bq-layout section#historico .movement-card:has(>.dmo-list-pager)>.dmo-list-pager{grid-column:2;grid-row:1;margin:0 !important;flex-wrap:nowrap}
+  html body .beta-bq-layout section#historico .movement-card:has(>.dmo-list-pager)>:is(.dmo-table-wrap,.bq-lista-rolante,p){grid-column:1/-1;grid-row:2;min-height:0}
+  /* Agrupados: menos espaço entre o título da máquina, o contexto e a tabela. */
+  html body .beta-bq-layout .bq-machine-group{margin-top:8px}
+  html body .beta-bq-layout .bq-machine-group:first-child{margin-top:0}
+  html body .beta-bq-layout .bq-machine-group>h3{font-size:14px;line-height:20px}
+  html body .beta-bq-layout .bq-group-context{margin-top:4px;padding:6px 12px}
+
+  /* Ficha da boquilha: menos espaço entre blocos; «Sem movimentos sem Job On» na linha do título. */
+  html body .beta-bq-layout #bq-tool-sheet>.card-head[style]{margin:8px 0 4px !important}
+  html body .beta-bq-layout #bq-tool-sheet .bq-sem-jobon-movimentos:has(>.bq-sheet-vazio){display:flex;align-items:baseline;gap:4px 16px;flex-wrap:wrap}
+  html body .beta-bq-layout #bq-tool-sheet .bq-sem-jobon-movimentos>.bq-sheet-vazio{margin:0}
+  html body .beta-bq-layout #bq-tool-sheet>.bq-sheet-vazio{margin:0}
+
+  /* Movimentos: o aviso e o título dos cartões das listas ocupam menos altura (mais linhas à vista). */
+  html body .beta-bq-layout section#historico .movement-card>.bq-history-card-head{margin:0 0 8px}
+  html body .beta-bq-layout section#historico .movement-card>.jobon-aviso{display:flex;align-items:center;gap:12px;margin:0 0 8px !important;padding:4px 12px}
+}
+
+/* Registo: nada salta ao trocar de linha nem ao registar (Diogo, 27/10/2026:
+   «mexe tudo ao carregar em elementos ao inserir dados»). Os factos do registo
+   e as colunas dos últimos movimentos tinham a largura do texto: mudavam com
+   cada BQ e com cada movimento novo. Ficam com larguras fixas. */
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact{flex:1 1 0;min-width:0}
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact>:is(span,strong){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .beta-bq-layout #bqTraceMovements{table-layout:fixed;width:100%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(1){width:16%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(2){width:18%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(3){width:15%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(4){width:8%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(5){width:11%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(6){width:20%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(7){width:12%}
