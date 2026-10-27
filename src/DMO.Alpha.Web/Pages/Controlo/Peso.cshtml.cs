@@ -218,8 +218,16 @@ public sealed class PesoModel : PageModel
     /// <summary>Os lotes da CM escrita quando são vários: o operador escolhe o lote (como nos Pegamentos).</summary>
     public IReadOnlyList<ToolLookupResult> CmLotes { get; private set; } = Array.Empty<ToolLookupResult>();
 
-    /// <summary>Os lotes da BQ escrita quando são vários.</summary>
+    /// <summary>
+    /// Os lotes da BQ escrita, só quando é preciso escolher: a marisa é a
+    /// mesma em todos os lotes da BQ (Diogo, 27/10/2026: «o vol da BQ é sempre
+    /// igual, independentemente se é lote 6 ou 59»), por isso o «BQ — lote»
+    /// só aparece quando os lotes têm marisas diferentes.
+    /// </summary>
     public IReadOnlyList<ToolLookupResult> BqLotes { get; private set; } = Array.Empty<ToolLookupResult>();
+
+    /// <summary>True quando os lotes da BQ escrita têm marisas diferentes e o lote tem de ser escolhido.</summary>
+    public bool BqMarisasDiferentes { get; private set; }
 
     /// <summary>O lote escolhido da CM (cm_lote); null sem escolha.</summary>
     public string? ChosenCmLote { get; private set; }
@@ -592,6 +600,18 @@ public sealed class PesoModel : PageModel
     public bool ComparacaoTab { get; private set; }
 
     /// <summary>
+    /// A PRODUÇÃO FIXA (Diogo, 27/10/2026: «é sempre comparado à mesma
+    /// produção que saiu»): aberta pelo Resumo (?controlo_id=N&amp;comparacao=1),
+    /// a comparação fica na produção desse controlo, sem os campos da
+    /// referência e da produção; só se escolhe o Peso inicial, quando há
+    /// mais de um. Segue no formulário e no PRG como producao_fixa=1.
+    /// </summary>
+    public bool ProducaoFixa { get; private set; }
+
+    /// <summary>O nome da produção fixa («1075C142 · 202601 · B1»).</summary>
+    public string? ProducaoFixaRotulo => Producoes.FirstOrDefault(p => p.JobOnId == ProducaoSelecionadaJobOnId)?.Label;
+
+    /// <summary>
     /// O 1.º passo da comparação: a referência escrita. Só com ela se lê o
     /// select «Produção / Job On» (16/10/2026: nunca todas as produções).
     /// </summary>
@@ -858,6 +878,7 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "comparacao")] string? comparacao,
         [FromQuery(Name = "jobon_id")] int? jobOnId,
         [FromQuery(Name = "peso_inicial")] int? pesoInicialId,
+        [FromQuery(Name = "producao_fixa")] string? producaoFixa,
         [FromQuery(Name = "comparacao_id")] int? comparacaoId,
         [FromQuery(Name = "comparacao_refusal")] string? comparacaoRefusal,
         [FromQuery(Name = "ferramenta")] string? ferramenta,
@@ -1068,11 +1089,15 @@ public sealed class PesoModel : PageModel
                 producaoPedida = await _escolhas.ProducaoDoControloAsync(controloDaComparacao, HttpContext.RequestAborted);
             }
 
+            // Pelo Resumo a produção fica fixa: a referência escrita não conta.
+            ProducaoFixa = producaoPedida is not null && (controloId is not null || producaoFixa == "1");
+
             // Dois passos (16/10/2026): a referência primeiro; o select só
             // traz as produções dela. Sem referência escrita, vale a da
             // produção pedida; sem nenhuma das duas, o select fica vazio.
             await CarregarProducoesDaReferenciaAsync(
-                Sanitize(referencia), producaoPedida, HttpContext.RequestAborted);
+                ProducaoFixa ? null : Sanitize(referencia), producaoPedida, HttpContext.RequestAborted);
+            ProducaoFixa &= ProducaoSelecionadaJobOnId is not null;
 
             if (ProducaoSelecionadaJobOnId is int producaoEscolhida)
             {
@@ -1390,6 +1415,23 @@ public sealed class PesoModel : PageModel
             ChosenBqLote = Sanitize(Request.Query["bq_lote"].ToString());
             (BqTool, BqLotes) = await ResolveSlotAsync(bqToolId, ToolType.Bq, ChosenBqLote, HttpContext.RequestAborted);
             BqToolRequestedNotFound = BqTool is null && BqLotes.Count <= 1;
+            if (BqTool is null && BqLotes.Count > 1)
+            {
+                // Sem lote escolhido: com a mesma marisa em todos os lotes,
+                // vale o primeiro que a tem (ou o primeiro) e o campo sai.
+                var marisas = new List<(ToolLookupResult Lote, decimal? Marisa)>();
+                foreach (var bqLote in BqLotes)
+                {
+                    var tecnico = await _toolTechnical.FindByToolIdAsync(bqLote.ToolId, HttpContext.RequestAborted);
+                    marisas.Add((bqLote, tecnico?.VolumeMarisaCm3));
+                }
+                BqMarisasDiferentes = marisas.Where(m => m.Marisa is not null).Select(m => m.Marisa).Distinct().Count() > 1;
+                if (!BqMarisasDiferentes)
+                {
+                    BqTool = marisas.FirstOrDefault(m => m.Marisa is not null).Lote ?? BqLotes[0];
+                    BqLotes = Array.Empty<ToolLookupResult>();
+                }
+            }
             if (BqTool is not null)
             {
                 BqTechnical = await _toolTechnical.FindByToolIdAsync(BqTool.ToolId, HttpContext.RequestAborted);
@@ -2195,7 +2237,8 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "water_temperature")] string? waterTemperature,
         [FromForm(Name = "cm_subject")] string[]? cmSubjects,
         [FromForm(Name = "water_weight")] string[]? waterWeights,
-        [FromForm(Name = "comparacao_note")] string? comparacaoNote = null)
+        [FromForm(Name = "comparacao_note")] string? comparacaoNote = null,
+        [FromForm(Name = "producao_fixa")] string? producaoFixa = null)
     {
         ComparacaoTab = true;
 
@@ -2207,6 +2250,7 @@ public sealed class PesoModel : PageModel
         var (refusal, leituras, temperatura) = await PrepararComparacaoAsync(
             jobOnId, pesoInicialId, cmToolId, waterTemperature, comparacaoNote, cmSubjects, waterWeights,
             HttpContext.RequestAborted);
+        ProducaoFixa = producaoFixa == "1" && ProducaoSelecionadaJobOnId is not null;
         if (leituras is null)
         {
             ComparacaoRefusal = refusal;
@@ -2252,9 +2296,11 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "water_weight")] string[]? waterWeights,
         [FromForm(Name = "comparacao_note")] string? comparacaoNote,
         [FromForm(Name = "comparacao_guardada")] int? comparacaoGuardadaId = null,
-        [FromForm(Name = "ignoradas")] string? ignoradasGuardadas = null)
+        [FromForm(Name = "ignoradas")] string? ignoradasGuardadas = null,
+        [FromForm(Name = "producao_fixa")] string? producaoFixa = null)
     {
         ComparacaoTab = true;
+        var fixa = producaoFixa == "1" ? "1" : null;
 
         // Um clique repetido em «Guardar comparação» que chega já à página da
         // comparação acabada de guardar: o formulário dela vem sem leituras.
@@ -2272,6 +2318,7 @@ public sealed class PesoModel : PageModel
                 comparacao = "1",
                 jobon_id = jobOnId,
                 peso_inicial = inicialGuardado,
+                producao_fixa = fixa,
                 comparacao_id = guardadaId,
                 ignoradas = Sanitize(ignoradasGuardadas)
             });
@@ -2282,6 +2329,7 @@ public sealed class PesoModel : PageModel
         var (refusal, leituras, temperatura) = await PrepararComparacaoAsync(
             jobOnId, pesoInicialId, cmToolId, waterTemperature, comparacaoNote, cmSubjects, waterWeights,
             HttpContext.RequestAborted);
+        ProducaoFixa = producaoFixa == "1" && ProducaoSelecionadaJobOnId is not null;
         if (leituras is null)
         {
             ComparacaoRefusal = refusal;
@@ -2316,6 +2364,7 @@ public sealed class PesoModel : PageModel
             comparacao = "1",
             jobon_id = jobOnId,
             peso_inicial = pesoInicialId.Value,
+            producao_fixa = fixa,
             comparacao_id = outcome.Comparacao.ComparacaoId,
             ignoradas = EncodeLeiturasFora(ComparacaoLeiturasFora)
         });

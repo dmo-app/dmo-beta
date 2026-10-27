@@ -3554,6 +3554,99 @@ Novos: 9 · mudaram: 0 · saíram: 0
 
 Selo depois: `74292cfeef1490d1`
 
+## A-0216 · 2026-10-27 · teste-novo
+
+Porquê: Testes de páginas que falhavam ao acaso com erro 500: as aplicações de teste deixam de gastar vigias de ficheiros do Linux (inotify, 128 por utilizador); o teste prova que uma aplicação de teste arranca e abre o login sem gastar nenhuma (DMO-474, 0.3.0-beta.175)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros`
+
+Selo depois: `c22447c6290ce98f`
+
+## A-0208 · 2026-10-27 · ok-do-diogo
+
+Porquê: Comparar peso no Resumo: produção fixa, sem «a que mais puxa/mexe», + e − ao lado da massa, só «Comparar pesos» e «Guardar», exemplo «Ex.: 199,64» (DMO-469, .175).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJ6x5Umit13ZS5WQioYVTR2 (27/10 07:08, pedido em cmsg_01K75FTs9bQnbhhH7qttpgraMjVxpFF2jJp6oRNmt8uTaH)
+Novos: 3 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: PesoComparacaoPageTests.PeloResumo_AProducaoFicaFixa_SemReferenciaNemProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: PesoComparacaoPageTests.ProducaoFixa_SegueNoCompararENoGuardar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.NoResumo.cs :: PesoComparacaoPageTests.Comparacao_AbreNoResumoDaProducao_SemSeparadorProprio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CamposDecimais_SaoTextoComTecladoDecimal_ParaAceitarVirgula`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_ATerraPreselecionadoPelaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_MostraBaseEEfeitoNaMedia`
+- mudou: `tests/ShellProof/peso-comparacao.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/peso-comparacao.test.cjs :: «Comparar pesos» e «Guardar comparação» trocam só as zonas, sem recarregar; as linhas adicionam-se no formulário novo`
+
+Selo depois: `95e012cdaed29670`
+
+## A-0210 · 2026-10-27 · teste-novo
+
+Porquê: DMO-471 SAP: teste novo das consultas por ferramenta (B3 vistoria backend)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarComAsMesmasConsultasPara5Ou100Ferramentas_NoPostgreSql`
+
+Selo depois: `eb42111e0485ab74`
+
+## A-0219 · 2026-10-27 · ok-do-diogo
+
+Porquê: A Pasta partilhada dos PDFs fica só com Associar/Remover: sai o campo do nome da pasta, o Guardar e o aviso de nome diferente (Diogo, 27/10/2026: «remover este erro e o campo para escolher nome», «a app só tem de seguir o dir»). Dois testes passam a verificar que o campo e o Guardar não existem; o que gravava o nome sai.
+Referência: «sim» do Diogo, cmsg_01K75FTs9bQnbhhH7qttpgraGh1feCmYhsHNv26gMB6hYz (DMO-477, 0.3.0-beta.178)
+Novos: 0 · mudaram: 2 · saíram: 1
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APastaDosPdfs_GravaSeParaTodos_ComAPermissao`
+
+Selo depois: `138f201af6d7df8a`
+
+## A-0213 · 2026-10-27 · ok-do-diogo
+
+Porquê: Peso sem Job On: com a CM e a BQ escolhidas, os volumes da punção e da marisa aparecem uma só vez, na faixa dos volumes (Volume Punção / CM, Volume Marisa / BQ); os 2 testes procuram esses nomes. Teste novo: o Peso aberto sem produção já não mostra o cartão Ferramentas e os Job Ons para associar são linhas que se escolhem, com um só «Associar» (DMO-473, 0.3.0-beta.169)
+Referência: cartão de decisão do Diogo na thread «Arrumar a página do Peso», 27/10/2026 06:42 (cmsg_01K75FTs9bQnbhhH7qttpgra1g1D25NUvmLaCqFq1H1mpx)
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: ControloCapabilitiesCutHPageTests.PesoAberto_SemFerramentas_EAssociarNumaTabelaComUmSoBotao`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
+
+Selo depois: `172e1a536bce7902`
+
+## A-0214 · 2026-10-27 · ok-do-diogo
+
+Porquê: A BQ do Peso sem Job On deixa de ter lote e a associação ao Job On conta a referência da BQ (qualquer lote). Os 3 testes da associação usavam um outro lote da mesma BQ (bq-b, Y232) como «outra BQ»: passam a usar uma BQ de outra referência (bq-c, Y300), a mesma recusa. O teste da folha por referência deixa de esperar o lote da BQ (12) no cartão. Testes novos: o Peso de outro lote da mesma BQ associa-se e fica com o lote da produção; o campo «BQ — lote» não aparece com a marisa igual.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra1F8zuYkECXUkomt4uk6jE4 («sim», 27/10/2026 07:01) e cmsg_01K75FTs9bQnbhhH7qttpgraVKRTRjGjK7GvF2BEsEHkoc («nao tem lote»); cartão cmsg_01K75FTs9bQnbhhH7qttpgraU48Jy5Uk3vfwYNztsu9MAk «Tirar e associar pela referência»
+Novos: 2 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherLotOfTheSameBq_IsAcceptedAndTakesTheProductionLot`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: ControloCapabilitiesCutHPageTests.PesoSemJobOn_BqSemCampoDoLote_QuandoAMarisaEIgual`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherBq_IsRefusedAsBqMismatch`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Candidates_AfterSwapWithoutCurrentPeso_AreLoosePesosOfTheToolsTheProductionHadOrHas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Productions_ForPeso_IncludeJobOnsThatHadTheCmBeforeASwap`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
+
+Selo depois: `350f94e337b7d721`
+
+## A-0215 · 2026-10-27 · ok-do-diogo
+
+Porquê: O Peso sem produção deixa de mostrar a nota «sem associação a produção — CM · Lote» (a CM já está no título). O teste da folha deixa de a esperar; o da identificação gravada passa a provar que o lote editado no catálogo (33) não aparece; o dos Pegamentos deixa de esperar a nota no Peso.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraNyjVEgBfESart96h9XoX9j («remover», 27/10/2026 07:08, a nota «sem associação a produção — CM ST100 · Lote 8»)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.SavedPesoNavigation_UsesItsOwnProduction_AndDoesNotAssociateToolScopedPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.SavedPeso_KeepsRecordedIdentificationAfterCatalogEdit_AndDownloadsPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
+
+Selo depois: `be84027a25ad05f6`
+
 ## A-0222 · 2026-10-27 · ok-do-diogo
 
 Porquê: Reparadores do Armazém sem «Recebe»: todos recebem CM e MF, os das BQ são outra lista
@@ -3564,7 +3657,7 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Situacao_SemMovimentos_EstaNoFabricoSemPropostas`
 - mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Definicoes_CriarEMudarReparadores`
 
-Selo depois: `7c696476fedc72e9`
+Selo depois: `776a919f0be9a8d3`
 
 ## A-0223 · 2026-10-27 · teste-novo
 
@@ -3577,7 +3670,7 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_SemOModuloDaAcao_NaoHaBotaoNoCanto`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_UmSoBotaoNoCanto_ParaAAlteracaoEscolhida_NenhumNasLinhas`
 
-Selo depois: `bc6cbdba21898e22`
+Selo depois: `464e9b1d9ef8d439`
 
 ## A-0224 · 2026-10-27 · ok-do-diogo
 
@@ -3598,7 +3691,7 @@ Novos: 9 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.TabelaNoBrowser.cs :: PuncoesPageTests.Tabela_TemLargurasFixas_EVaiParaOBrowser`
 - mudou: `tests/visual/puncoes_tabela_browser.py`
 
-Selo depois: `8b33c567b00915a3`
+Selo depois: `b1d816156b789195`
 
 ## A-0225 · 2026-10-27 · ok-do-diogo
 
@@ -3609,4 +3702,4 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
 
-Selo depois: `7c87eac6e53e486a`
+Selo depois: `055d69c0c2199556`

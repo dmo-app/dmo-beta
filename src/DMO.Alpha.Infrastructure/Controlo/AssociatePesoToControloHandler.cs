@@ -1,4 +1,5 @@
 using DMO.Alpha.Core.Controlo;
+using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +16,8 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// <c>IX_Pesos_ControloId_CmToolId_BqToolId</c>). A CM e a BQ do Peso têm de
 /// ser cada uma a da produção agora ou uma que ela teve antes de uma troca;
 /// o Peso passa a ser o dessa combinação (resposta R16-6 do especialista,
-/// 18/10/2026).
+/// 18/10/2026). A BQ conta pela referência, qualquer lote (o Diogo,
+/// 27/10/2026), e o Peso fica com o lote da produção.
 /// </summary>
 public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHandler
 {
@@ -62,6 +64,10 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
                     .Where(ctx => ctx.JobOnId == c.JobOnId || ctx.ReplacedJobOnId == c.JobOnId)
                     .Select(ctx => ctx.ToolId)
                     .ToList(),
+                BqToolId = _db.BqContexts
+                    .Where(ctx => ctx.JobOnId == c.JobOnId)
+                    .Select(ctx => (string?)ctx.ToolId)
+                    .FirstOrDefault(),
                 BqToolIds = _db.BqContexts
                     .Where(ctx => ctx.JobOnId == c.JobOnId || ctx.ReplacedJobOnId == c.JobOnId)
                     .Select(ctx => ctx.ToolId)
@@ -109,16 +115,26 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
             return Result(AssociatePesoToControloResult.ContextMissingBq);
         }
 
-        if (!production.BqToolIds.Contains(peso.BqToolId, StringComparer.Ordinal))
+        // A BQ conta pela referência, não pelo lote (o Diogo, 27/10/2026: «o
+        // vol da BQ é sempre igual, independentemente se é lote 6 ou 59»): o
+        // Peso fica com o lote da produção, a atual primeiro.
+        var bqDaProducao = await BqDaProducaoAsync(peso, production.BqToolId, production.BqToolIds, cancellationToken);
+        if (bqDaProducao is null)
         {
             return Result(AssociatePesoToControloResult.BqMismatch);
         }
 
         if (await _db.Pesos.AnyAsync(p => p.ControloId == command.ControloId
                 && p.CmToolId == peso.CmToolId
-                && p.BqToolId == peso.BqToolId, cancellationToken))
+                && p.BqToolId == bqDaProducao.ToolId, cancellationToken))
         {
             return Result(AssociatePesoToControloResult.ControloAlreadyHasPeso);
+        }
+
+        if (peso.BqToolId != bqDaProducao.ToolId)
+        {
+            peso.BqToolId = bqDaProducao.ToolId;
+            peso.BqToolLotFrozen = bqDaProducao.Lot;
         }
 
         peso.ControloId = command.ControloId;
@@ -136,6 +152,30 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
         }
 
         return Result(AssociatePesoToControloResult.Success);
+    }
+
+    private async Task<Tool?> BqDaProducaoAsync(
+        Peso peso,
+        string? bqAtual,
+        IReadOnlyCollection<string> bqToolIds,
+        CancellationToken cancellationToken)
+    {
+        var bqs = await _db.Tools
+            .AsNoTracking()
+            .Where(t => bqToolIds.Contains(t.ToolId))
+            .ToListAsync(cancellationToken);
+        if (bqs.FirstOrDefault(t => t.ToolId == peso.BqToolId) is { } mesma)
+        {
+            return mesma;
+        }
+
+        var referencia = peso.BqToolReferenceFrozen
+            ?? await _db.Tools.Where(t => t.ToolId == peso.BqToolId).Select(t => t.Reference).FirstOrDefaultAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(referencia)
+            ? null
+            : bqs.Where(t => string.Equals(t.Reference, referencia, StringComparison.Ordinal))
+                .OrderByDescending(t => t.ToolId == bqAtual)
+                .FirstOrDefault();
     }
 
     private static AssociatePesoToControloOutcome Result(AssociatePesoToControloResult result) => new(result);
@@ -186,11 +226,18 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
             return Array.Empty<UnassociatedPesoCandidate>();
         }
 
+        // A BQ conta pela referência, não pelo lote (o Diogo, 27/10/2026).
         var (cmToolIds, bqToolIds) = (production.CmToolIds, production.BqToolIds);
+        // As referências entram na mesma consulta (sem mais uma ida à base).
+        var bqReferencias = _db.Tools
+            .Where(t => bqToolIds.Contains(t.ToolId))
+            .Select(t => t.Reference);
         var candidates = await _db.Pesos
             .AsNoTracking()
-            .Where(p => p.ControloId == null && p.ComparacaoDoPesoId == null && cmToolIds.Contains(p.CmToolId) && bqToolIds.Contains(p.BqToolId))
-            .Where(p => !_db.Pesos.Any(o => o.ControloId == controloId && o.CmToolId == p.CmToolId && o.BqToolId == p.BqToolId))
+            .Where(p => p.ControloId == null && p.ComparacaoDoPesoId == null && cmToolIds.Contains(p.CmToolId)
+                && (bqToolIds.Contains(p.BqToolId) || bqReferencias.Contains(p.BqToolReferenceFrozen ?? p.BqTool.Reference)))
+            .Where(p => !_db.Pesos.Any(o => o.ControloId == controloId && o.CmToolId == p.CmToolId
+                && (o.BqToolId == p.BqToolId || (o.BqToolReferenceFrozen ?? o.BqTool.Reference) == (p.BqToolReferenceFrozen ?? p.BqTool.Reference))))
             .OrderByDescending(p => p.Id)
             .Select(p => new UnassociatedPesoCandidate(
                 p.Id,
@@ -228,7 +275,7 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
         var peso = await _db.Pesos
             .AsNoTracking()
             .Where(p => p.Id == pesoId)
-            .Select(p => new { p.CmToolId, p.BqToolId, p.ControloId, p.ComparacaoDoPesoId })
+            .Select(p => new { p.CmToolId, p.BqToolId, BqReferencia = p.BqToolReferenceFrozen ?? p.BqTool.Reference, p.ControloId, p.ComparacaoDoPesoId })
             .FirstOrDefaultAsync(cancellationToken);
         // Um Peso só para comparação nunca pede um Job On (o Diogo, 22/10/2026).
         if (peso is null || peso.ControloId is not null || peso.ComparacaoDoPesoId is not null)
@@ -240,14 +287,17 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
         // controlo é assegurado no POST, antes de associar. A CM e a BQ do
         // Peso são cada uma a do Job On agora ou uma que ele teve antes de uma
         // troca, e a produção ainda não tem Peso desta CM+BQ (R16-6).
-        var (cmToolId, bqToolId) = (peso.CmToolId, peso.BqToolId);
+        // A BQ conta pela referência, não pelo lote (o Diogo, 27/10/2026).
+        var (cmToolId, bqToolId, bqReferencia) = (peso.CmToolId, peso.BqToolId, peso.BqReferencia);
         return await (
                 from j in _db.JobOns.AsNoTracking()
                 where _db.CmContexts.Any(cm => cm.ToolId == cmToolId && (cm.JobOnId == j.Id || cm.ReplacedJobOnId == j.Id))
-                    && _db.BqContexts.Any(bq => bq.ToolId == bqToolId && (bq.JobOnId == j.Id || bq.ReplacedJobOnId == j.Id))
+                    && _db.BqContexts.Any(bq => (bq.JobOnId == j.Id || bq.ReplacedJobOnId == j.Id)
+                        && (bq.ToolId == bqToolId || _db.Tools.Any(t => t.ToolId == bq.ToolId && t.Reference == bqReferencia)))
                 join m in _db.Machines on j.MachineId equals m.Id
                 where !_db.Controlos.Any(c => c.JobOnId == j.Id
-                    && _db.Pesos.Any(p => p.ControloId == c.Id && p.CmToolId == cmToolId && p.BqToolId == bqToolId))
+                    && _db.Pesos.Any(p => p.ControloId == c.Id && p.CmToolId == cmToolId
+                        && (p.BqToolId == bqToolId || (p.BqToolReferenceFrozen ?? p.BqTool.Reference) == bqReferencia)))
                 orderby j.Id descending
                 select new PesoProductionCandidate(j.Id, j.ProductionNumber, j.Reference, m.Code))
             .ToListAsync(cancellationToken);

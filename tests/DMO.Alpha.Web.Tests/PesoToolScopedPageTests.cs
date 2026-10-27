@@ -230,9 +230,11 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("5447", byReference);
         Assert.Contains("<span>Lote</span><strong>3</strong>", byReference);
         Assert.Contains("T194", byReference);
-        Assert.Contains("<span>Lote</span><strong>12</strong>", byReference);
-        Assert.Contains("Volume punção (cm³)", byReference);   // em falta → input de completion
-        Assert.Contains("Volume marisa (cm³)", byReference);  // em falta → input de completion
+        // A BQ sem lote (Diogo, 27/10/2026: «nao tem lote»).
+        Assert.DoesNotContain("<span>Lote</span><strong>12</strong>", byReference);
+        // Os volumes uma só vez, na faixa dos volumes (Diogo, 27/10/2026).
+        Assert.Contains("Volume Punção / CM (cm³)", byReference);
+        Assert.Contains("Volume Marisa / BQ (cm³)", byReference);
         Assert.Contains("NNPB", byReference);
 
         // Os ids opacos NUNCA como factos da folha (P2-4): o hex vive no
@@ -260,8 +262,9 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         var toolsHtml = await GetPageHtmlAsync(client, toolsUrl);
         Assert.Contains("T3", toolsHtml);
         Assert.Contains("5447", toolsHtml);
-        Assert.Contains("Volume punção (cm³)", toolsHtml);   // em falta → input de completion
-        Assert.Contains("Volume marisa (cm³)", toolsHtml);    // em falta → input de completion
+        // Os volumes uma só vez, na faixa dos volumes (Diogo, 27/10/2026).
+        Assert.Contains("Volume Punção / CM (cm³)", toolsHtml);
+        Assert.Contains("Volume Marisa / BQ (cm³)", toolsHtml);
         Assert.Contains("NNPB", toolsHtml);
 
         // Criar o Peso (P30 do exemplo): temperatura medida 20.4 e os valores
@@ -299,8 +302,9 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("peso-section-heading", pesoHtml);
         Assert.Contains("Leituras por CM", pesoHtml);
         Assert.DoesNotContain("Peso — CM T3", pesoHtml);
-        Assert.Contains("Lote 3", pesoHtml);
-        Assert.Contains("sem associação a produção", pesoHtml);
+        // Sem produção, a nota «sem associação a produção — CM · Lote» saiu
+        // (Diogo, 27/10/2026, «remover»): a CM já está no título.
+        Assert.DoesNotContain("sem associação a produção", pesoHtml);
         Assert.Contains("Ainda sem leituras", pesoHtml);
 
         var previewToken = await GetVerificationTokenAsync(client, pesoUrl);
@@ -423,7 +427,9 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         using var reading = await PostMeasurementAsync(client, url, pesoId, "61", "100.00");
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, url));
         Assert.Contains("Peso — CM 5447", html);
-        Assert.Contains("CM 5447 · Lote 3", html);
+        // A nota «CM · Lote» do Peso sem produção saiu (Diogo, 27/10/2026, «remover»);
+        // o lote editado no catálogo continua a não aparecer.
+        Assert.DoesNotContain("Lote 33", html);
         Assert.DoesNotContain("CM-EDITADA", html);
         var token = await GetVerificationTokenAsync(client, url);
         using var pdf = await client.PostAsync(PagePath + "?handler=GeneratePdf", HtmlFormHelpers.BuildFormPost(
