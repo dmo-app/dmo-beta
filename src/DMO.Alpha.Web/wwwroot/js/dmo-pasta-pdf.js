@@ -240,25 +240,10 @@
     var choose = card.querySelector("[data-dmo-pasta-pdf-escolher]");
     var forget = card.querySelector("[data-dmo-pasta-pdf-esquecer]");
     var unsupported = card.querySelector("[data-dmo-pasta-pdf-sem-suporte]");
-    // A pasta esperada (Definições → Controlo → Geral): a escolhida neste
-    // computador com outro nome dá aviso, mas fica (nunca bloqueia).
-    var different = card.querySelector("[data-dmo-pasta-pdf-diferente]");
-
-    // Lida de cada vez: gravar o nome troca a zona sem recarregar.
-    function expectedName() {
-      var holder = card.querySelector("[data-dmo-pasta-pdf-esperada]");
-      return holder ? (holder.getAttribute("data-dmo-pasta-pdf-esperada") || "").trim() : "";
-    }
-
-    function differs(current) {
-      var expected = expectedName();
-      return !!(current && expected && current.name.trim().toLowerCase() !== expected.toLowerCase());
-    }
 
     function show(current) {
       if (name) name.textContent = current ? current.name : "Nenhuma (Transferências)";
       if (forget) forget.hidden = !current;
-      if (different) different.hidden = !differs(current);
     }
 
     if (!supported) {
@@ -270,8 +255,6 @@
     }
 
     show(folder);
-    // Depois de gravar o nome da pasta, o aviso acompanha o nome novo.
-    document.addEventListener("dmo:troca", function () { show(folder); });
     if (choose) {
       choose.hidden = false;
       choose.addEventListener("click", function () {
@@ -279,8 +262,7 @@
           return saveFolder(handle).then(function () {
             folder = handle;
             show(handle);
-            if (differs(handle)) toast("A pasta escolhida («" + handle.name + "») não tem o nome da pasta definida («" + expectedName() + "»). Os PDFs gravam-se na escolhida.", "aviso");
-            else toast("Pasta dos PDFs associada: " + handle.name + ".", "success");
+            toast("Pasta dos PDFs associada: " + handle.name + ".", "success");
           });
         }).catch(function (error) {
           if (error && error.name === "AbortError") return;
