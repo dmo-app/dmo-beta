@@ -196,7 +196,7 @@
   html body main.peg-page .peg-context-grid>.dmo-fact{padding:2px 16px}
   html body main.peg-page .peg-context-notes:not(:has(*)){display:none}
 
-  /* Componente: título · nominal e permitido · passo, numa linha. */
+  /* Componente: título · nominal e permitido · ações, numa linha. */
   html body main.peg-page section.peg-card[data-peg-component]{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:center}
   html body main.peg-page section.peg-card[data-peg-component]>*{grid-column:1/-1}
   html body main.peg-page section.peg-card[data-peg-component]>.peg-section-head{grid-column:1/-1;grid-row:1}
@@ -209,7 +209,6 @@
   html body main.peg-page .peg-card .dmo-table-wrap{margin-top:0!important}
   html body main.peg-page .peg-registo-tabela :is(th,td){padding-top:4px;padding-bottom:4px;line-height:20px}
   html body main.peg-page .peg-registo-tabela input{height:var(--dmo-control-height-compact);min-height:0;padding-top:0;padding-bottom:0}
-  html body main.peg-page .peg-mais-linha{margin-top:8px}
 
   /* Mapa de limites. */
   html body main.peg-page .peg-map-card{padding:8px 20px 12px}
@@ -220,16 +219,56 @@
   html body main.peg-page .peg-map-status{margin-top:8px;padding:6px 12px}
 }
 @media (min-width:1100px){
-  html body main.peg-page section.peg-card[data-peg-component]>.peg-mais-linha{justify-self:start}
   html body main.peg-page .peg-context-grid:has(>.dmo-fact:nth-child(6):last-child){grid-template-columns:.7fr .7fr 1fr 1fr 1fr 1.8fr}
+}
+/* As colunas das leituras e do mapa não alargam a página (num ecrã estreito as tabelas deslizam dentro do cartão). */
+html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
+/* A página não desliza (Diogo, 27/10/2026: «as páginas que deslizam estragam
+   o UI»): ocupa o ecrã; as leituras deslizam dentro da coluna da esquerda e o
+   mapa fica à vista na da direita. */
+@media (min-width:1100px) and (min-height:640px){
+  html body .app:has(>main.peg-page .peg-folha){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main.peg-page .peg-folha)>*{flex:0 0 auto}
+  html body .app>main.peg-page:has(.peg-folha){flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  html body main.peg-page:has(.peg-folha)>*{flex:0 0 auto}
+  html body main.peg-page>.peg-folha{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:8px;align-items:stretch}
+  html body main.peg-page .peg-folha-leituras{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px;scrollbar-gutter:stable}
+  html body main.peg-page .peg-folha>#pegMapa{min-height:0;overflow:auto}
+  html body main.peg-page .peg-folha>#pegMapa:not(:has(*)){display:none}
+  html body main.peg-page .peg-folha:has(>#pegMapa:empty){grid-template-columns:minmax(0,1fr)}
+  /* Na coluna: o nominal e o permitido por baixo do título (as ações ficam no canto). */
+  html body main.peg-page .peg-folha section.peg-card[data-peg-component]>.peg-ferramenta-linha{grid-column:1/-1;grid-row:2;padding-left:0;margin:0 0 6px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(1){width:48px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(2){width:84px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(3),
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(4){width:21%}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(5){width:96px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(6){width:76px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela input{width:100%;box-sizing:border-box}
+  html body main.peg-page .peg-folha .peg-registo-tabela .peg-dica{white-space:normal;line-height:14px;font-size:11px}
+  /* O mapa na coluna da direita: o nome do componente mais estreito, sem largura mínima. */
+  html body main.peg-page .peg-folha .peg-map-wrap{overflow:visible}
+  html body main.peg-page .peg-folha .peg-map-wrap .peg-gr{grid-template-columns:64px minmax(0,1fr);column-gap:10px;min-width:0;padding:8px 24px 6px 8px}
 }
 
 /* ===== Controlo › PU NNPB ==================================================
    Os factos numa faixa com linhas finas; «Editar a punção» numa linha com
    os campos do tamanho da referência e do lote; o número da punção curto;
-   a lista com linhas baixas. */
+   a lista com linhas baixas. A página não desliza (Diogo, 27/10/2026): o ecrã
+   é a altura da janela e só a tabela das punções desliza, por dentro. */
 @media (min-width:1100px){
-  html body main.pu-page.dmo-workspace{padding:8px 24px 12px;gap:8px}
+  html body .app:has(>main.pu-page){display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+  html body .app:has(>main.pu-page)>.dmo-shell-header{flex:0 0 auto}
+  html body main.pu-page.dmo-workspace{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:8px 24px 12px;gap:8px}
+  html body main.pu-page>*{flex:0 0 auto}
+  html body main.pu-page>#puFolha{flex:1 1 auto;min-height:0}
+  html body main.pu-page #puFolha>*{flex:0 0 auto}
+  html body main.pu-page #puFolha>#puncoes-lista{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  html body main.pu-page #puncoes-lista>*{flex:0 0 auto}
+  html body main.pu-page #puncoes-lista>.dmo-table-wrap{flex:1 1 auto;min-height:0;overflow:auto;margin:0}
+  html body main.pu-page #puncoes-lista .pu-table thead th{position:sticky;top:0;z-index:1}
+  html body main.pu-page #puncoes-sem-jobon .dmo-table-wrap{max-height:132px;overflow:auto}
+  html body main.pu-page #puncoes-posicoes{overflow:auto;min-height:0}
   html body main.pu-page>.page-head{margin:0}
   html body main.pu-page #puFolha{display:flex;flex-direction:column;gap:8px}
   html body main.pu-page .pu-card{padding:10px 20px 12px}
@@ -239,6 +278,7 @@
   html body main.pu-page .pu-facts>.pu-fact{flex:1 1 0;min-width:0;padding:2px 16px;border:0;border-left:1px solid var(--dmo-border);border-radius:0;background:none}
   html body main.pu-page .pu-facts>.pu-fact:first-child{border-left:0}
   html body main.pu-page .pu-facts>.pu-fact strong{font-size:15px}
+  html body main.pu-page .pu-facts+.pu-id-form{margin-top:12px}
   html body main.pu-page .pu-id-editar{margin-top:8px}
   html body main.pu-page .pu-id-editar[open]{display:flex;align-items:flex-end;gap:24px}
   html body main.pu-page .pu-id-editar[open]>summary{margin:0;padding-bottom:8px;white-space:nowrap}
@@ -246,8 +286,9 @@
   html body main.pu-page :is(.pu-id-form,.pu-add-form) .dmo-field{flex:0 0 auto}
   html body main.pu-page .pu-id-form #pu-referencia{width:140px}
   html body main.pu-page :is(#pu-lote,#pu-lote-puncao){width:96px}
-  html body main.pu-page #pu-numero{width:120px}
-  html body main.pu-page .pu-add-form{margin:0 0 8px;gap:8px}
+  html body main.pu-page #pu-numero{width:200px}
+  html body main.pu-page #pu-lote-puncao{width:160px}
+  html body main.pu-page .pu-add-form{margin:0;gap:8px}
   html body main.pu-page .pu-stats{padding:6px 0}
   html body main.pu-page .pu-stats .pu-stat strong{font-size:20px;line-height:1.2}
   html body main.pu-page .pu-table :is(th,td){padding-top:6px;padding-bottom:6px;line-height:22px}
@@ -297,6 +338,78 @@
   html body main.resumo-page .revisao-decision>.dmo-field{margin:0}
   html body main.resumo-page .revisao-decision textarea{min-height:64px}
 }
+/* ===== Controlo › Revisão: a página não desliza (Diogo, 27/10/2026) =========
+   O cabeçalho e os filtros ficam fixos; à esquerda o calendário fica fixo e só a lista dos
+   controlos desliza; à direita só o painel do controlo escolhido desliza (o título com as
+   consultas fica sempre à vista). A Consulta dos Pegamentos: as tabelas deslizam numa coluna e
+   o mapa fica ao lado. */
+@media (min-width:1100px){
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page)){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page))>:not(main){flex:none}
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page))>main{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:hidden}
+
+  /* Título à esquerda e filtros à direita, na mesma linha. */
+  html body main.revisao-page.dmo-workspace{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;align-items:center;column-gap:24px;row-gap:8px}
+  html body main.revisao-page>.page-head{grid-column:1;grid-row:1}
+  html body main.revisao-page>.revisao-filtros-card{grid-column:2;grid-row:1;justify-self:end;width:fit-content;max-width:100%}
+  html body main.revisao-page>.resumo-aviso{grid-column:1/-1;grid-row:3;margin:0}
+  html body main.revisao-page>.revisao-grid{grid-column:1/-1;grid-row:2;align-self:stretch;min-height:0;height:100%;align-items:stretch}
+  html body main.revisao-page .revisao-filters{flex-wrap:nowrap;gap:8px 12px}
+  html body main.revisao-page .revisao-filters .revisao-w-estado{flex:0 0 130px}
+  html body main.revisao-page .revisao-filters .revisao-w-data{flex:0 0 140px}
+  /* Os rótulos têm 20,3 px de linha: com 8 px por cima, as caixas ficavam a
+     ,39 de píxel e o texto do «Estado» descaía 0,75 px (tests/visual/nok_agente_browser.py).
+     Com 8,25 / 7,75 a altura do cartão é a mesma e o texto fica ao centro. */
+  html body main.revisao-page .revisao-filtros-card{gap:8px 12px;padding-top:8.25px;padding-bottom:7.75px}
+  html body main.revisao-page .revisao-filters .revisao-w-procura{flex:0 0 250px;width:250px}
+  html body main.revisao-page .revisao-filter-actions{flex-wrap:nowrap;margin-left:auto}
+
+  /* Esquerda: calendário fixo, a lista desliza. */
+  html body main.revisao-page .revisao-side{display:flex;flex-direction:column;gap:8px;min-height:0}
+  html body main.revisao-page .revisao-side>.dmo-calendar{flex:none;margin:0;padding:8px 12px}
+  html body main.revisao-page .revisao-side .dmo-calendar-nav{margin-bottom:4px}
+  html body main.revisao-page .revisao-side .dmo-calendar-week{margin:0;padding:0}
+  html body main.revisao-page .revisao-side .dmo-calendar-days{gap:0}
+  html body main.revisao-page .revisao-side .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day){min-height:32px;height:32px}
+  html body main.revisao-page .revisao-side .dmo-calendar-legend{margin-top:4px}
+  html body main.revisao-page .revisao-undated-link{flex:none}
+  html body main.revisao-page .revisao-day{flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:12px 16px}
+  html body main.revisao-page .revisao-day #revisaoResultados{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
+  html body main.revisao-page .revisao-day h2{flex:none;font-size:16px}
+  html body main.revisao-page .revisao-day .revisao-list{flex:1 1 0;min-height:0;margin-top:8px;overflow:auto;align-content:start}
+  html body main.revisao-page .revisao-day .resumo-hint{margin:8px 0 0}
+
+  /* Direita: só o painel desliza; o título com as consultas fica à vista. */
+  html body main.revisao-page .revisao-detail{min-height:0;height:100%;box-sizing:border-box;overflow:auto;padding-top:0}
+  html body main.revisao-page .revisao-detail>.revisao-parte-topo:first-child{position:sticky;top:0;z-index:2;margin:0 0 8px;padding:12px 0 8px;min-height:0;background:var(--dmo-card);border-bottom:1px solid var(--dmo-border)}
+  html body main.revisao-page .revisao-detail .peg-map-wrap svg{min-width:0}
+  html body main.revisao-page .revisao-detail .peg-map-wrap{overflow-x:auto}
+
+  /* As consultas do controlo: botões no canto superior direito do cartão. */
+  html body main.revisao-page .revisao-detail .revisao-parte-topo .revisao-consultas{flex:0 0 auto;flex-wrap:nowrap;gap:8px;margin-left:auto}
+  html body main.revisao-page .revisao-detail .revisao-parte-topo .revisao-consultas a.btn.btn{padding:0 14px;color:var(--dmo-text-on-color);text-decoration:none}
+
+  html[data-theme="dark"] body main.revisao-page .revisao-facts .destaque strong{color:var(--dmo-text)}
+
+  /* Consulta dos Pegamentos. */
+  html body main.revisao-peg-consulta-page.dmo-workspace{display:flex;flex-direction:column;gap:8px;padding:8px 24px 12px}
+  html body main.revisao-peg-consulta-page>.page-head{flex:none;margin:0}
+  html body main.revisao-peg-consulta-page>.revisao-detail{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin:0;padding:12px 20px 16px;overflow:hidden}
+  html body main.revisao-peg-consulta-page>.revisao-detail>:is(.revisao-parte-topo,.revisao-facts){flex:none}
+  html body main.revisao-peg-consulta-page>.revisao-detail>.revisao-parte-topo{margin:0 0 8px}
+  html body main.revisao-peg-consulta-page .revisao-peg-consulta{flex:1 1 0;min-height:0;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;margin-top:8px}
+  html body main.revisao-peg-consulta-page .revisao-peg-leituras{min-height:0;overflow:auto;padding-right:6px}
+  html body main.revisao-peg-consulta-page .revisao-peg-mapa{min-height:0;overflow:auto}
+  html body main.revisao-peg-consulta-page .revisao-peg-mapa>h3.revisao-section{margin-top:0}
+  html body main.revisao-peg-consulta-page .peg-map-wrap svg{min-width:0}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente{gap:4px;margin:0 0 12px}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three{display:flex;flex-wrap:wrap;gap:4px 24px;padding:0}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three>div{display:flex;align-items:baseline;gap:6px;padding:0;border:0!important}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three>div>small{font-size:13px}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three>div :is(span,strong,small){white-space:nowrap}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .dmo-table :is(th,td){padding-top:4px;padding-bottom:4px}
+  html body main.revisao-peg-consulta-page .revisao-peg-leituras h3.revisao-section{margin:0 0 8px}
+}
 @media (min-width:1100px){
   /* Os campos da linha nova como todos os campos (no escuro ficavam cinzentos do navegador). */
   html body main.peg-page .peg-registo-tabela .peg-linha-nova input{box-sizing:border-box;padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit}
@@ -320,7 +433,6 @@
 @media (min-width:1100px){
   /* PU NNPB: 51 punções numa tabela compacta (linha de 43 px para 29 px). */
   html body main.pu-page .pu-table :is(th,td){padding-top:2px;padding-bottom:2px;line-height:20px}
-  html body main.pu-page .pu-table .pu-remove{min-height:0;padding:0 6px;line-height:20px}
 
   /* Revisão (lista e produção): o calendário (320 px) e os «Controlos do dia» com a mesma largura. */
   html body main.revisao-page .revisao-grid{grid-template-columns:320px minmax(0,1fr)}
@@ -354,13 +466,15 @@
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 120px 96px minmax(0,1fr) 280px}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-link{grid-column:5;grid-row:1;justify-self:start;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  /* Pegamentos · Ferramentas (sem Job On): título, modo e botão centrados; as referências numa linha, como no Peso. */
-  html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef){align-items:center;margin-bottom:8px}
+  /* Pegamentos · Ferramentas (sem Job On): o mesmo aspeto da escolha do PU NNPB (Diogo, 27/10/2026): título e botão
+     na mesma linha, o rótulo por cima de cada campo, os campos da mesma largura e altura, as referências numa linha. */
+  html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef){align-items:center;margin-bottom:12px}
   html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef) h3{margin:0;line-height:var(--dmo-control-height)}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:24px;margin:0}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:8px;margin:0}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>label{margin:0;white-space:nowrap}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>:is(input,.dmo-suggest){width:160px;flex:0 0 160px}
+  html body main.peg-page .peg-card:has(>.dmo-modo-head+form.dmo-filter-bar #pegCmRef){padding-top:10px}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){flex-wrap:nowrap;justify-content:flex-start;align-items:flex-end;gap:8px 16px;margin:0}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field{flex:0 0 auto;display:block;margin:0}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>label{display:block;margin:0 0 6px;font-size:12px;font-weight:500;color:var(--dmo-muted);white-space:nowrap}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>:is(input,.dmo-suggest){width:234px;flex:0 0 234px}
   html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)~.peg-context-grid{margin-top:8px!important}
 
   /* Pegamentos · registo: as três tabelas com as mesmas colunas. */
@@ -371,7 +485,6 @@
   html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(4){width:22%}
   html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(5){width:150px}
   html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(6){width:120px}
-  html body main.peg-page table.peg-registo-tabela>thead>tr>th.peg-col-x{width:40px}
 
   /* Peso · Comparação: os campos das novas leituras numa linha; a massa de água com lugar para o exemplo. */
   html body main.peso-page form#cmpForm{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 16px}

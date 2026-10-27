@@ -3809,3 +3809,77 @@ Novos: 0 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `1330384d86b35971`
+
+## A-0233 · 2026-10-27 · ok-do-diogo
+
+Porquê: O Diogo pediu para distinguir o Controlo anterior (a tabela) da Produção anterior (média e moda da produção), juntar os números da produção anterior numa só faixa e tirar o «Hoje». Os testes passam a pedir os nomes novos, o cabeçalho agrupado, o «Guardar» no cartão da Produção anterior, três zonas parciais em vez de duas e a média e a moda à vista sem janela nem «Hoje».
+Referência: Diogo 27/10 11:30–11:31: cmsg_01K75FTs9bQnbhhH7qttpgraSGxUefy18MyznA8nv1rULs, cmsg_01K75FTs9bQnbhhH7qttpgraChGeZYDRdpWXkZFJYD88JY, cmsg_01K75FTs9bQnbhhH7qttpgra64wN7wJBwgW1MPgAeTBaS9 (DMO-491)
+Novos: 0 · mudaram: 8 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Folha_ComComparacao_PrevisualizarNaoAlteraPesosGuardadosNemPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_GravaSemRecarregar_ZonasTrocadasELeituraNovaQueFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+
+Selo depois: `a5e334c99005e344`
+
+## A-0229 · 2026-10-27 · ok-do-diogo
+
+Porquê: Reparação Interna: sem linha escolhida, o texto diz «Escolha a linha acima para registar.» (as linhas estão em cima, não num painel lateral)
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra7NFQu7Q6NgYSLAEsRrjpLy
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
+
+Selo depois: `1816215d3d43701f`
+
+## A-0227 · 2026-10-27 · contagem-lista
+
+Porquê: Estrutura fixa dos painéis deslizantes e das páginas (DMO-485): testes novos do painel de apoio na estrutura, da marcação da página (<dmo-pagina>), da folha dmo-estrutura.css, do dmo-painel.js e do Job On dentro do painel (título, largura, folha sem título repetido); o package.json do ShellProof só ganha o ficheiro novo na lista
+Referência: pedidos do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXQ2rXx1BrfWwyZwQTG7mM6 e cmsg_01K75FTs9bQnbhhH7qttpgraPV7XbiRJ1Gyqk2HTcdouiD
+Novos: 9 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Pagina_TopoComTituloEAcoesECorpo`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelDeApoio_TemOEsqueletoFixo`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel com confirmar: com o formulário mudado pede antes de fechar`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel: Escape fecha (o «cancel» do <dialog>) e DmoPainel abre por código`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel: o botão abre, o «Fechar» fecha e o foco volta ao botão`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `a66892ce2862276f`
+
+## A-0226 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem botões nas linhas: o × sai dos Pegamentos («Apagar leitura» no canto com a leitura aberta) e das Punções («Remover» no canto, a linha escolhe)
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraRuMahsuiuussnrEx189C1j («perfeito» ao pedido cmsg_01K75FTs9bQnbhhH7qttpgra6Q9srV4paLFsRUhndLXmSD)
+Novos: 0 · mudaram: 5 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.Readings_EditByClickingTheValue_DeleteWithTheX_Renumbers`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `37a5c3540b1e3b39`
+
+## A-0237 · 2026-10-27 · contagem-lista
+
+Porquê: Um painel deslizante de cada vez (DMO-498): testes novos do dmo-painel.js e do dmo-support.js para cliques repetidos e troca de página no mesmo painel; o package.json do ShellProof só ganha o ficheiro novo na lista
+Referência: pedido do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraQnjX8BdkkguuiCZDMe1j6e
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: abrir fecha um <dmo-painel> que esteja aberto`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: cliques repetidos na mesma página não a voltam a carregar e outra página troca a que lá está`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Um painel de cada vez: o mesmo botão não abre outro por cima e outro painel fecha o que está aberto`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `4286ec752addb091`

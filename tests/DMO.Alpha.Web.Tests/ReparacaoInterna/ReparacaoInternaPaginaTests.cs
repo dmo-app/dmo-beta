@@ -194,7 +194,7 @@ public sealed class ReparacaoInternaPaginaTests : IClassFixture<CustomWebApplica
         Assert.Contains("55A1T324 · A01", painel);
         Assert.Contains("CM lote 2 · MF lote 2", painel);
         Assert.DoesNotContain("Máquina", painel);
-        Assert.Contains("Escolha a linha no painel lateral para registar.", Elemento(html, "id=\"riRegisto\""));
+        Assert.Contains("Escolha a linha acima para registar.", Elemento(html, "id=\"riRegisto\""));
         Assert.DoesNotContain($"id=\"riCard-{codigo}\"", html);
         // Atualizar só o que muda: a raiz, as zonas e os cliques parciais.
         Assert.Contains("data-dmo-troca", html);

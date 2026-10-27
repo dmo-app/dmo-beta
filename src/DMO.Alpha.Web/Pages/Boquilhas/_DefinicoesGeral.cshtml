@@ -145,7 +145,7 @@ html body #bqDefExcel [hidden]{display:none}
     <h3 id="boquilhas-viragem-title" title="A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On). O padrão é 8:00, a manhã da fábrica.">Hora de viragem do dia</h3>
     <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="SaveDayChangeHour">
       <div class="dmo-field">
-        <label for="dayChangeHour">Hora de viragem</label>
+        <label for="dayChangeHour" class="dmo-visually-hidden">Hora de viragem</label>
         <select id="dayChangeHour" name="dayChangeHour" data-dmo-autosubmit>
           @for (var h = 0; h <= 23; h++)
           {

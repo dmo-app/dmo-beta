@@ -11,11 +11,10 @@
    uma linha, as ações de acesso e o PIN do posto lado a lado. Cabe em
    1366×768, claro e escuro (só tokens da casa). */
 .dfu-page{max-width:1040px;margin:0 auto;padding:16px 24px 24px;display:grid;gap:12px}
-.dfu-page .page-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.dfu-page .page-head h2{margin:0;font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
+.dfu-page .page-head{margin:0}
 .dfu-card{padding:16px 18px;display:grid;gap:12px}
 .dfu-card h3{margin:0;font-size:18px;font-weight:650;color:var(--dmo-text)}
-.dfu-card .dfu-factos{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1.3fr) minmax(0,1fr)}
+.dfu-card .dfu-factos{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1.3fr) minmax(0,1fr)}
 .dfu-card .dfu-factos .dmo-fact strong{font-size:14px}
 /* No hover muda só a cor da letra, sem retângulo de fundo (Diogo, 26/10/2026,
    cmsg_01K75FTs9bQnbhhH7qttpgraBq23Bc1M3GxhQ5PYmXcJXi). */
@@ -51,8 +50,6 @@ html body .dfu-parte:has(.dfu-actions)>h4:not(#_){grid-column:1;grid-row:1;margi
 html body .dfu-parte .dfu-actions>:is(.dmo-button,.dmo-options){grid-column:2;grid-row:1;justify-self:end;margin:0}
 .dfu-parte .dfu-actions .dmo-options-list{left:auto;right:0}
 .dfu-nota{padding:10px 12px;border:1px solid var(--dmo-border);background:var(--dmo-subtle);border-radius:8px;color:var(--dmo-muted)}
-.dfu-cancel{font-size:13px;color:var(--dmo-muted);font-weight:600;text-decoration:none}
-.dfu-cancel:hover{color:var(--dmo-brand-700)}
 .dfu-select{min-width:200px}
 .dfu-danger{background:var(--dmo-danger,#9a625d)}
 .dfu-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
@@ -84,9 +81,10 @@ html body .dfu-parte .dfu-actions>:is(.dmo-button,.dmo-options){grid-column:2;gr
 
   <div class="page-head">
     <div>
-      <h2 id="dfu-title">Ficha de utilizador</h2>
+      @* «← Voltar» discreto por cima do título, à esquerda: volta à página de onde se veio; sem origem, à lista dos Utilizadores. *@
+      <a class="dmo-voltar-texto" id="dfuVoltar" href="@Url.Page("/Admin/Users/Index")" data-dmo-voltar="ficha-utilizador" data-dmo-voltar-ignorar="/Admin/Users/Ficha /Admin/Templates"><span aria-hidden="true">←</span> Voltar</a>
+      <h1 id="dfu-title">Ficha de utilizador</h1>
     </div>
-    <a class="dfu-cancel" href="@Url.Page("/Admin/Users/Index")">← Voltar</a>
   </div>
 
   @* ------------------------------------------------------------------ *@
@@ -141,7 +139,7 @@ html body .dfu-parte .dfu-actions>:is(.dmo-button,.dmo-options){grid-column:2;gr
       @* ------------------------------------------------------------------ *@
       <div id="dfuFactos" class="dmo-zona" data-dmo-regiao>
       <div class="dmo-facts dfu-factos">
-        <div class="dmo-fact"><span>Nº de operador</span><strong>@user.OperatorId</strong></div>
+        @* O nº de operador já está no título do cartão: não se repete. *@
         @* O cartão da template abre-a para editar (Diogo, 17/10/2026). *@
         @if (!user.IsAdmin && user.CurrentTemplateKey is { } templateKey)
         {

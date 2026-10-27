@@ -51,13 +51,14 @@ with sync_playwright() as playwright:
         page.goto('http://dmo.test/Controlo/Puncoes')
         page.wait_for_load_state('load')
         assert page.locator('#puncoes-lista .pu-estado').count() >= 4, 'Sem punções na tabela'
-        assert page.locator('#puncoes-lista tbody td > :is(button,form):not(.pu-remove)').count() == 0, 'Há botões nas linhas'
+        assert page.locator('#puncoes-lista tbody td > :is(button,form)').count() == 0, 'Há botões nas linhas'
+        # O «Remover» do canto abre a janela da punção escolhida (Diogo, 27/10/2026: sem botões nas linhas).
         # Com duas punções, nenhuma vem escolhida: os botões do canto esperam.
-        if page.evaluate(BOTOES) != [True, True]:
+        if page.evaluate(BOTOES) != [True, True, True]:
             falhas.append(f'{largura}px: os botões do canto não começam desativados: {page.evaluate(BOTOES)}')
         antes = page.evaluate(LARGURAS)
         page.locator('#puncoes-lista tbody tr').nth(1).locator('td.pu-lot').click()
-        if page.evaluate(BOTOES) != [False, False]:
+        if page.evaluate(BOTOES) != [False, False, False]:
             falhas.append(f'{largura}px: escolher a linha não ativou os botões do canto: {page.evaluate(BOTOES)}')
         if not page.locator('#puncoes-lista tbody tr').nth(1).locator('input[type=radio][name=inspecao_id]').is_checked():
             falhas.append(f'{largura}px: o clique na linha não a escolheu')

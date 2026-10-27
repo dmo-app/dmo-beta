@@ -285,7 +285,7 @@ public partial class PuncoesPageTests : IClassFixture<CustomWebApplicationFactor
         // abre a janela da casa, com o número escrito como texto.
         Assert.DoesNotContain("onclick=", raw);
         Assert.Contains("data-dmo-dialog=\"pu-remover-", raw);
-        Assert.Contains("class=\"pu-remove\"", raw);
+        Assert.Contains("id=\"pu-remover\"", raw);
         Assert.Contains("Remover a punção " + hostil + " · lote 1 deste registo?", WebUtility.HtmlDecode(raw));
     }
 

@@ -7,7 +7,11 @@
 <div class="dmo-shell-conta">
     <div class="dmo-shell-user admin-user">
         <strong data-user-profile-name>@Model.Name</strong>
-        <span data-user-profile-title>@Model.Title</span>
+        @* Sem título (o ADMIN não tem template), sem o «·» a mais. *@
+        @if (!string.IsNullOrWhiteSpace(Model.Title))
+        {
+            <span data-user-profile-title>@Model.Title</span>
+        }
     </div>
     @if (Model.ShowLogout)
     {
