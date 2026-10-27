@@ -3704,7 +3704,7 @@ Novos: 0 · mudaram: 2 · saíram: 0
 
 Selo depois: `055d69c0c2199556`
 
-## A-0227 · 2026-10-27 · ok-do-diogo
+## A-0232 · 2026-10-27 · ok-do-diogo
 
 Porquê: Sem círculos de dica em lado nenhum: os testes de browser verificam que não há círculos à vista e que o texto da dica passa ao title ao passar o rato
 Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra3LMmVgq4VTe6FMmd197hQs
