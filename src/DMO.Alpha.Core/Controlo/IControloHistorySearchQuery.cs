@@ -73,7 +73,8 @@ public interface IControloHistorySearchQuery
         int pageSize = DMO.Alpha.Core.Paging.ListPaging.DefaultPageSize,
         CancellationToken cancellationToken = default,
         bool semJobOn = false,
-        string? productionReference = null);
+        string? productionReference = null,
+        string? lote = null);
 
     /// <summary>
     /// A produção pedida (por exemplo por um link) que já não está entre as
