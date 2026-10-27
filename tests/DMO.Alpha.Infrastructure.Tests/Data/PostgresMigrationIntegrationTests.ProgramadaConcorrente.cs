@@ -123,7 +123,7 @@ public sealed partial class PostgresMigrationIntegrationTests
     {
         // A chamada real vem dentro da transação do movimento do Armazém.
         await using var transacao = await db.Database.BeginTransactionAsync(cancellationToken);
-        await ReparacaoProgramadaMovimentos.AoMovimentoAsync(db, entrada, cancellationToken);
+        await ReparacaoProgramadaMovimentos.AoMovimentosAsync(db, [entrada], cancellationToken);
         await transacao.CommitAsync(cancellationToken);
     }
 
