@@ -3193,3 +3193,13 @@ Novos: 4 · mudaram: 6 · saíram: 4
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_domingo`
 
 Selo depois: `d409b622f6c26765`
+
+## A-0182 · 2026-10-27 · teste-novo
+
+Porquê: Posto da RI: a lista dos reparadores (conta ativa, PIN do posto, RI ver ou criar, nunca o ADMIN) sai pela mesma ordem e com o mesmo número de consultas para 5 ou 100 pessoas (DMO-449, 0.3.0-beta.139)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: PostgresMigrationIntegrationTests.PostoRi_ListaSoQuemTemRiEPinPorNome_ComAsMesmasConsultasPara5Ou100Reparadores`
+
+Selo depois: `4167dbe27ca52e85`
