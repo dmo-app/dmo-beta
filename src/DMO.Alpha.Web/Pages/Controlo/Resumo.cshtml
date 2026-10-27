@@ -434,7 +434,8 @@
       </div>
 
        <div class="resumo-sheet-areas" id="estado-documento">
-         <h4 class="resumo-section-title">Estado do documento<partial name="_DmoHelp" model="@("Escolher OK ou NOK grava logo. Clique no comentário para o escrever. Sem registo, a área fica «não registado». O estado e os comentários aparecem no PDF do Resumo.")" /></h4>
+         @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+         <h4 class="resumo-section-title" title="Escolher OK ou NOK grava logo. Clique no comentário para o escrever. Sem registo, a área fica «não registado». O estado e os comentários aparecem no PDF do Resumo.">Estado do documento</h4>
          <partial name="_ResumoEstadoAvisos" model="Model" />
          @* Cada área é uma zona (.dmo-zona: a grelha não muda; a cor do
             cartão vem dentro dela). Gravar o OK/NOK, o comentário ou o link

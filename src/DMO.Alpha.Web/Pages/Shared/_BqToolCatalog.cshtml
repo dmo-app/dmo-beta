@@ -2,7 +2,8 @@
 @inject DMO.Alpha.Web.Services.CurrentUserCapabilities UserCapabilities
 <div class="page-head">
   <div>
-    <h2>Ferramentas · Boquilhas<partial name="_DmoHelp" model="@("Cada ferramenta BQ/lote tem uma ficha única, reutilizável em vários Job Ons.")" /></h2>
+    @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+    <h2 title="Cada ferramenta BQ/lote tem uma ficha única, reutilizável em vários Job Ons.">Ferramentas · Boquilhas</h2>
   </div>
   @* «Registar sem Job On» (Diogo, 22/10/2026): uma janela pequena, aqui na
      página Boquilhas; o Registo é só para os registos de um Job On. *@
@@ -40,6 +41,7 @@
     @* A lista aparece quando se escreve a referência ou o lote; a máquina
        só reduz (deep sweep 2, 18/10/2026, F-16: a regra das Ferramentas,
        Diogo, 17/10 e 18/10: «não deve existir lista até procurar»). *@
+    @* Esta dica fica: o teste do browser do catálogo (tests/visual/boquilhas_catalog_browser.py) pede uma dica visível. *@
     <h3>Procurar boquilha<partial name="_DmoHelp" model="@("A lista aparece quando escreve a referência ou o lote e muda enquanto escreve. A máquina só reduz a lista.")" /></h3>
     <div id="bqCriarBoquilha" class="dmo-card-topo-acoes" data-dmo-regiao>@if (podeRegistar)
     {<a class="btn primary" href="@Model.CreateToolLink()">Criar boquilha</a>}</div>
@@ -78,7 +80,7 @@
 <div class="card" id="bq-tool-results" hidden="@(!Model.CatalogSearched)" data-dmo-regiao data-dmo-sem-painel>
   @if (Model.CatalogSearched)
   {
-  <div class="card-head"><h3>Boquilhas registadas<partial name="_DmoHelp" model="@("Um clique ou Enter abre a ficha da ferramenta desta boquilha.")" /></h3><span>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.CatalogCount, "encontrada", "encontradas")</span></div>
+  <div class="card-head"><h3 title="Um clique ou Enter abre a ficha da ferramenta desta boquilha.">Boquilhas registadas</h3><span>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.CatalogCount, "encontrada", "encontradas")</span></div>
   @if (Model.CatalogTools.Count == 0)
   {
     <p class="muted">Nenhuma boquilha encontrada com os filtros atuais.</p>

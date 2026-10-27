@@ -22,7 +22,8 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
 
   <section id="armDefReparadores" class="dmo-card arm-card" aria-labelledby="arm-def-rep-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-    <h3 id="arm-def-rep-title">Reparadores de CM e MF<partial name="_DmoHelp" model="@("Para onde vão as CM e os MF na Saída para Reparação. São outros que os reparadores das Boquilhas, que ficam nas Definições das Boquilhas. Clique num nome para o mudar; mudar o nome não altera os movimentos passados. Um reparador arquivado sai das escolhas novas.")" /></h3>
+    @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+    <h3 id="arm-def-rep-title" title="Para onde vão as CM e os MF na Saída para Reparação. São outros que os reparadores das Boquilhas, que ficam nas Definições das Boquilhas. Clique num nome para o mudar; mudar o nome não altera os movimentos passados. Um reparador arquivado sai das escolhas novas.">Reparadores de CM e MF</h3>
       <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="armRepCriar" form="armRepCriarForm">Criar reparador</button></div>
     </div>
 

@@ -71,6 +71,9 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
 
   <div class="page-head">
     <div>
+      @* Haver sempre «← Voltar» (Diogo, 27/10/2026): volta à página de onde se veio
+         (data-dmo-voltar); sem origem, ao início. A folha do Job On aberta daqui não conta. *@
+      <a class="dmo-voltar-texto" id="riConsultaVoltar" href="/" data-dmo-voltar="consultar" data-dmo-voltar-ignorar="/JobOn/Folha"><span aria-hidden="true">←</span> Voltar</a>
       <h1 id="ri-title">Reparação</h1>
     </div>
   </div>

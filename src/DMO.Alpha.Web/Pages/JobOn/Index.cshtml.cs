@@ -887,12 +887,15 @@ public sealed class IndexModel : PageModel
         // aparecem (Diogo, 22/10/2026: «se criar um jobon passado não aparece
         // na lista ao lado do calendário»). Uma por linha: a que entrou depois
         // acaba a anterior (Diogo, 27/10/2026).
-        var emCurso = ProducaoEmCurso.UmaPorMaquina(jobOns, dia)
+        var emCurso = ProducaoEmCurso.UmaPorMaquina(jobOns.Where(j => !ProducaoEmCurso.ExperienciaDeUmDia(j)), dia)
             .Where(j => j.InicioEm < dia)
             .OrderBy(j => j.InicioEm);
-        var entradas = jobOns
-            .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= limite)
-            .OrderBy(j => j.InicioEm);
+        // Uma entrada por linha e por dia (Diogo, 27/10/2026: duas referências
+        // na mesma linha só com uma experiência que sai no mesmo dia): a mesma
+        // produção que o quadro do dia mostra, e não todas as que foram
+        // lançadas para esse dia nessa linha.
+        var entradas = ProducaoEmCurso.EntradasPorDia(jobOns
+            .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= limite));
         return emCurso.Concat(entradas).ToList();
     }
 

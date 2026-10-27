@@ -158,7 +158,8 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
            template» é o botão do formulário (form="dmtEditarForm"). *@
         <div class="dmo-card-topo">
           <div>
-            <h3>@selected.Name<partial name="_DmoHelp" model="@("Editar uma template altera o acesso de quem já a tem atribuída.")" /></h3>
+            @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+            <h3 title="Editar uma template altera o acesso de quem já a tem atribuída.">@selected.Name</h3>
             @* 2026-10-13, Owner: «Identificador estável: tpl-… isto é para
                que?» — o código interno NÃO fica na folha (a regra dos ids:
                backend só); o nome é o que o ADMIN vê e edita. *@
@@ -242,7 +243,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
            com o «Guardar template» (as caixas vão no dmtEditarForm). Quem já
            tem OUTRA template não aparece: muda-se na ficha dele. *@
         <section id="dmt-users" class="dmt-users" aria-labelledby="dmt-users-title">
-          <h4 id="dmt-users-title">Utilizadores desta template<partial name="_DmoHelp" model="@("Clique num utilizador para o juntar ou tirar e depois em «Guardar template». Quem já tem outra template muda-se na ficha dele.")" /></h4>
+          <h4 id="dmt-users-title" title="Clique num utilizador para o juntar ou tirar e depois em «Guardar template». Quem já tem outra template muda-se na ficha dele.">Utilizadores desta template</h4>
           @if (Model.UsersNotSaved > 0)
           {
             <div class="dmo-aviso warn" role="status" style="margin-top:8px">@(Model.UsersNotSaved == 1 ? "1 utilizador não foi mudado" : $"{Model.UsersNotSaved} utilizadores não foram mudados") (entretanto apagado ou é o ADMIN). Os restantes ficaram guardados.</div>

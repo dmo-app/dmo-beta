@@ -16,7 +16,7 @@ html body .bq-def-card .dmo-table-wrap{max-width:420px;max-height:calc(5 * 34px 
 .bq-def-ficha .dmo-field{margin:0 0 4px}
 .bq-def-ficha .dmo-dialog-actions{justify-content:space-between}
 .bq-def-remover{background:var(--dmo-danger)}
-.bq-def-excel-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.bq-def-excel-topo{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .bq-def-excel-topo h3{margin:0}
 #bqDefExcel .card-note{margin:10px 0 0}
 html body #bqDefExcel [hidden]{display:none}
@@ -34,7 +34,8 @@ html body #bqDefExcel [hidden]{display:none}
   <div class="bq-def-lado">
   <section id="bqDefReparadores" class="dmo-card bq-def-card" aria-labelledby="boquilhas-repairers-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-    <h3 id="boquilhas-repairers-title">Reparadores<partial name="_DmoHelp" model="@("As entidades para onde se enviam as boquilhas; a saída de cada linha usa o reparador configurado para ela. Escreva um nome para procurar; se não existir, «Criar reparador» cria-o. Clicar num reparador abre a ficha dele: mudar o nome ou remover. Mudar o nome não altera os movimentos passados.")" /></h3>
+    @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+    <h3 id="boquilhas-repairers-title" title="As entidades para onde se enviam as boquilhas; a saída de cada linha usa o reparador configurado para ela. Escreva um nome para procurar; se não existir, «Criar reparador» cria-o. Clicar num reparador abre a ficha dele: mudar o nome ou remover. Mudar o nome não altera os movimentos passados.">Reparadores</h3>
       <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="bqDefCriar" form="bqDefCriarForm">Criar reparador</button></div>
     </div>
 
@@ -107,7 +108,7 @@ html body #bqDefExcel [hidden]{display:none}
   </section>
 
   <section id="bqDefRotas" class="dmo-card bq-def-card" aria-labelledby="boquilhas-routing-title" data-dmo-regiao data-dmo-parcial>
-    <h3 id="boquilhas-routing-title">Linhas<partial name="_DmoHelp" model="@("O reparador usado pela saída de cada linha (B1 a C3); sem reparador configurado, a saída regista-se na mesma. «— sem reparador —» limpa a rota.")" /></h3>
+    <h3 id="boquilhas-routing-title" title="O reparador usado pela saída de cada linha (B1 a C3); sem reparador configurado, a saída regista-se na mesma. «— sem reparador —» limpa a rota.">Linhas</h3>
 
     @if (Model.Repairers.Count == 0)
     {
@@ -141,7 +142,7 @@ html body #bqDefExcel [hidden]{display:none}
   </section>
 
   <section id="bqDefViragem" class="dmo-card bq-def-card" aria-labelledby="boquilhas-viragem-title" data-dmo-regiao data-dmo-parcial>
-    <h3 id="boquilhas-viragem-title">Hora de viragem do dia<partial name="_DmoHelp" model="@("A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On). O padrão é 8:00, a manhã da fábrica.")" /></h3>
+    <h3 id="boquilhas-viragem-title" title="A partir desta hora, as Boquilhas mostram a nova produção de cada máquina (nunca à meia-noite nem ao criar o Job On). O padrão é 8:00, a manhã da fábrica.">Hora de viragem do dia</h3>
     <form method="post" asp-page="/Boquilhas/Definicoes" asp-page-handler="SaveDayChangeHour">
       <div class="dmo-field">
         <label for="dayChangeHour">Hora de viragem</label>
