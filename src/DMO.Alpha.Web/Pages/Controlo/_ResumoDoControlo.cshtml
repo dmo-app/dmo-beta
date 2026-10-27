@@ -153,8 +153,10 @@ else
             <input type="hidden" name="jobon_id" value="@production.JobOnId" />
             <input type="hidden" name="area" value="@area.Area" />
             <input type="hidden" name="voltar" value="@DMO.Alpha.Web.Pages.Controlo.ResumoModel.ResumoDoControlo" />
-            <input name="identificacao" value="@area.Identificacao" maxlength="@ControloAreaState.IdentificacaoMaxLength" placeholder="Referência · lote" aria-label="Referência e lote @area.Area" autocomplete="off" />
-            <button type="submit" class="dmo-button">Guardar</button>
+            @* Sem «Guardar» na linha (Diogo, 27/10/2026: «não quero botões em
+               rows por todo o lado»): a referência grava ao sair do campo
+               (data-dmo-valor), Enter grava, Esc desfaz. *@
+            <input class="dmo-valor" data-dmo-valor name="identificacao" value="@area.Identificacao" maxlength="@ControloAreaState.IdentificacaoMaxLength" placeholder="Referência · lote" aria-label="Referência e lote @area.Area" autocomplete="off" />
           </form>
         }
         else

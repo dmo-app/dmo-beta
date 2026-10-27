@@ -282,22 +282,48 @@
         </details>
       }
 
-      @if (sheet.Registo is null && Model.RegistosSemJobOn.Count > 0)
-      {
-        <div class="pu-associar-lista">
-          <p class="pu-hint">Há registos sem Job On da referência @sheet.Reference. Associe à mão o desta produção:</p>
-          @foreach (var aberto in Model.RegistosSemJobOn)
-          {
-            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" class="pu-check-form">
-              <input type="hidden" name="puncoes_id" value="@aberto.PuncoesId" />
-              <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
-              <input type="hidden" name="origem" value="controlo" />
-              <button type="submit" class="dmo-button">Associar · punção @aberto.PunchReference · lote @aberto.Lot · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(aberto.Total, "punção", "punções")</button>
-            </form>
-          }
-        </div>
-      }
     </section>
+
+    @* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026: «não quero botões em rows
+       por todo o lado»): os registos sem Job On numa lista; um clique escolhe
+       a linha (o Enter ou dois cliques abrem o registo) e o «Associar» do canto
+       associa a escolhida. Com um só registo, já vem escolhido; com vários,
+       sem escolha o browser pede que se escolha uma linha (required). *@
+    @if (sheet.Registo is null && Model.RegistosSemJobOn.Count > 0)
+    {
+      var umSoRegisto = Model.RegistosSemJobOn.Count == 1;
+      <section class="dmo-card pu-card" id="puncoes-sem-jobon" aria-labelledby="pu-sem-jobon-title" data-dmo-parcial>
+        <div class="pu-section-head">
+          <div>
+            <h3 id="pu-sem-jobon-title" title="Um clique escolhe o registo; o «Associar» do canto associa-o a esta produção.">Registos sem Job On</h3>
+            <p class="pu-hint">Há registos sem Job On da referência @sheet.Reference. Associe à mão o desta produção:</p>
+          </div>
+          <div class="dmo-card-topo-acoes" data-dmo-for="puSemJobOnLista"><button type="submit" class="dmo-button" form="puAssociarForm" id="pu-associar-escolhido">Associar</button></div>
+        </div>
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" id="puAssociarForm">
+          <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
+          <input type="hidden" name="origem" value="controlo" />
+          <div class="dmo-table-wrap">
+            <table class="dmo-table" id="puSemJobOnLista" data-dmo-list="Registos sem Job On">
+              <thead><tr><th></th><th>Punção</th><th>Lote</th><th>Punções</th></tr></thead>
+              <tbody>
+                @foreach (var aberto in Model.RegistosSemJobOn)
+                {
+                  <tr data-dmo-row data-id="@aberto.PuncoesId" data-dmo-open="@Url.Page("/Controlo/Puncoes", new { puncoes_id = aberto.PuncoesId })"
+                      class="@(umSoRegisto ? "selected" : null)" aria-selected="@(umSoRegisto ? "true" : "false")"
+                      aria-label="Associar · punção @aberto.PunchReference · lote @aberto.Lot · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(aberto.Total, "punção", "punções")">
+                    <td><input type="radio" name="puncoes_id" value="@aberto.PuncoesId" required checked="@umSoRegisto" aria-label="Registo da punção @aberto.PunchReference · lote @aberto.Lot" /></td>
+                    <td>@aberto.PunchReference</td>
+                    <td>@aberto.Lot</td>
+                    <td>@aberto.Total</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </section>
+    }
   }
 
   @if (Model.CanRegister && Model.TargetField is { } alvo)
