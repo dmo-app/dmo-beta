@@ -4090,3 +4090,13 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
 
 Selo depois: `b1362fb0a7f9a859`
+
+## A-0251 · 2026-10-27 · ok-do-diogo
+
+Porquê: DMO-521: a folha do Job On aberta no painel deslizante passa a um resumo para consulta rápida, com «Abrir folha» (Diogo: «vai servir apenas de consulta rápida e ter uma opção para abrir a janela»). O painel deixa de abrir a folha com a largura toda (largas só com /JobOn) e abre-a com a largura média (resumos); o teste da estrutura dos painéis passa a exigir estas linhas.
+Referência: «sim» do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraW1FNJggGa8qKeQKRyhzxvC
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+
+Selo depois: `1ecbaa53f6ccc384`

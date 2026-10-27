@@ -257,10 +257,12 @@
             }
           </div>
           @{ Notas(p + "_notas"); }
+          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
           @if (!editar)
           {
-            @* NA FOLHA DE VER (a maqueta do dono, 28/10/2026): as dimensões e as folgas ficam à vista no
-               cartão, «Pata 12.40 ± 0.05»; na Informação técnica só ficam o Tipo, o Adaptador, etc. *@
+            @* NA FOLHA DE VER: as dimensões e as folgas, «Pata 12.40 ± 0.05», ficam minimizadas dentro da
+               Informação técnica, como de manhã (Diogo, 27/10/2026: «tudo a partir de dimensões pode ser
+               minimizado», «as coisas estavam minimizadas e controladas»). *@
             <div class="jof-dims" data-jof-dims="@tipo">
               <span class="jof-dims-titulo">Dimensões · mm</span>
               <dl class="jof-dims-lista">
@@ -288,7 +290,6 @@
               }
             </div>
           }
-          @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
           @if (editar)
           {
             @* No ver, o valor e a tolerância numa só coluna («54.02 ± 0.05»): com duas
@@ -388,7 +389,57 @@
         }
     }
 }
-@if (Model.JobOn is not { } jobOn)
+@if (Model.JobOn is { } jobOnPainel && !editar && Model.Request.Query["painel"] == "1")
+{
+  @* NO PAINEL DESLIZANTE (Diogo, 27/10/2026: «vai servir apenas de consulta rápida e ter uma
+     opção para abrir a janela»): não se copia a folha; um resumo da produção e «Abrir folha»,
+     que abre a folha inteira, como está, fora do painel. *@
+  var linhaPainel = $"mch dmo-linha-cor mch-{jobOnPainel.Machine}";
+  string UsoPainel(string chave) => Vazio(Model.Folha.Valor(chave)) is { } u ? (Mostra(u.TrimEnd('%').Trim()) + "%") : "—";
+  decimal BarraPainel(string chave) => Math.Clamp(Numero(Model.Folha.Valor(chave)) ?? 0, 0, 100);
+  <main class="jof-painel" id="main" aria-label="Job On @Model.ReferenciaTotal">
+    <div class="jof-painel-topo">
+      <div class="jof-painel-id"><b>@Model.ReferenciaTotal</b><span>@jobOnPainel.ProductionNumber</span><span class="@linhaPainel">@jobOnPainel.Machine</span></div>
+      <a class="dmo-button" href="/JobOn/Folha?jobon_id=@jobOnPainel.JobOnId" target="_top" data-jof-abrir-folha>Abrir folha</a>
+    </div>
+    <p class="jof-painel-datas">@(jobOnPainel.InicioEm?.ToString("dd/MM/yyyy") ?? "—") → @(jobOnPainel.FimEm?.ToString("dd/MM/yyyy") ?? "—")@(Model.Dias is { } diasPainel ? $" · {diasPainel} dias" : null)</p>
+    <dl class="jof-painel-faixa">
+      @foreach (var (rotulo, chave, unidade) in new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", ""), ("Processo", "cab_processo", ""), ("Peso", "cab_peso", " g") })
+      {
+        var valorFaixa = Mostra(Vazio(Model.Folha.Valor(chave)));
+        <div><dt>@rotulo</dt><dd>@(valorFaixa is null ? "—" : unidade.Length > 0 && !valorFaixa.TrimEnd().EndsWith(unidade.Trim(), StringComparison.OrdinalIgnoreCase) ? valorFaixa + unidade : valorFaixa)</dd></div>
+      }
+    </dl>
+    <table class="dmo-table jof-painel-pecas">
+      <thead><tr><th scope="col"><span class="sr-only">Peça</span></th><th scope="col">Referência</th><th scope="col">Lote</th><th scope="col">Utilização</th></tr></thead>
+      <tbody>
+        @foreach (var (codigo, toolId, chaveUso) in new[] { ("CM", jobOnPainel.CmToolId, "cm_utilizacao"), ("MF", jobOnPainel.MfToolId, "mf_utilizacao"), ("BQ", jobOnPainel.BqToolId, "bq_utilizacao") })
+        {
+          var fPainel = Model.Fact(toolId);
+          <tr>
+            <th scope="row">@codigo</th>
+            <td><b>@(fPainel?.Reference ?? "—")</b></td>
+            <td>@(fPainel is null ? "—" : FolhaModel.Lote(fPainel.Lot))</td>
+            <td><span class="jof-painel-uso">@UsoPainel(chaveUso)</span><span class="jof-painel-barra" aria-hidden="true"><i style="width:@BarraPainel(chaveUso).ToString(System.Globalization.CultureInfo.InvariantCulture)%"></i></span></td>
+          </tr>
+        }
+        <tr><th scope="row">PU</th><td><b>@(Mostra(Vazio(Model.Folha.Valor("pu_referencia"))) ?? "—")</b></td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <section class="jof-painel-notas" aria-label="Notas gerais">
+      <h2>Notas gerais</h2>
+      @if (Vazio(Model.Folha.Valor("notas_gerais")) is { } notasPainel)
+      {
+        <p>@notasPainel</p>
+      }
+      else
+      {
+        <p class="empty-text">Sem notas gerais.</p>
+      }
+    </section>
+  </main>
+}
+else if (Model.JobOn is not { } jobOn)
 {
   <main class="jof2" id="main">
     <div class="wrap">
@@ -552,10 +603,14 @@ else
             }
           </div>
         }
-        @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»). *@
-        <div class="fact-col">
-          <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
-        </div>
+        @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»); no Editar
+           não aparece, para a faixa dos campos caber numa linha no ecrã do trabalho (~1290 px). *@
+        @if (!editar)
+        {
+          <div class="fact-col">
+            <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
+          </div>
+        }
         </div>
       </div>
       <div class="head-right">

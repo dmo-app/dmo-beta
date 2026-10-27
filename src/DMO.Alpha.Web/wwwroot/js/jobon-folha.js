@@ -775,8 +775,29 @@
     });
   }
 
+  // Dimensões compridas («54.02/52.02/54.02/44.10/45.20»): quebram só depois de cada «/», nunca a meio
+  // de um número, para não saírem do cartão (Diogo, 27/10/2026: o Corpo do MF saía para a BQ).
+  function dimensoesLongas() {
+    document.querySelectorAll('.jof2:not(.editing) .jof-dim.longo .jof-dim-valor').forEach(valor => {
+      const textos = [];
+      const andar = document.createTreeWalker(valor, NodeFilter.SHOW_TEXT);
+      while (andar.nextNode()) textos.push(andar.currentNode);
+      textos.forEach(texto => {
+        const partes = texto.nodeValue.split('/');
+        if (partes.length < 2) return;
+        const pedaco = document.createDocumentFragment();
+        partes.forEach((parte, i) => {
+          if (i) { pedaco.append('/'); pedaco.append(document.createElement('wbr')); }
+          pedaco.append(parte);
+        });
+        texto.replaceWith(pedaco);
+      });
+    });
+  }
+
   function init() {
     calibresValores();
+    dimensoesLongas();
     painel();
     escolherAlteracoes();
     alteracoes();
