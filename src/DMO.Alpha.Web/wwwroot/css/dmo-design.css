@@ -377,7 +377,7 @@ html body .beta-production-lines :is(strong,span){white-space:nowrap}
 html body .dmo-calendar .dmo-calendar-week{font:500 12px/1.4 var(--dmo-font,Inter,sans-serif);color:var(--dmo-muted);padding-bottom:6px;border-bottom:1px solid var(--dmo-border)}
 html body .dmo-calendar .dmo-calendar-days{gap:0}
 html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty){aspect-ratio:auto;min-height:38px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none;font-size:14px;font-weight:450}
-html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):is(:hover,:focus-visible){background:var(--dmo-brand-050)}
+html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){background:transparent}
 html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected){border-radius:6px;border-bottom-color:transparent;background:var(--dmo-brand-600);color:var(--dmo-text-on-color);font-weight:650}
 /* No tiny uppercase kickers anywhere (mockups): labels in sentence case, 11–12px, muted.
    Table headings were already sentence case above. */

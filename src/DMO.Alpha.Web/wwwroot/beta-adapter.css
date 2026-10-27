@@ -103,10 +103,12 @@ html body .dmo-secondary-nav :is(a,button)[aria-current="page"]{color:var(--dmo-
 
 /* A cor da linha no painel lateral (Diogo, 22/10/2026): a mesma da lista do dia. */
 .beta-production-lines .dmo-linha-cor{border-left:4px solid var(--dmo-machine-color)}
-/* Hover do quadro do dia: em vez do azul, a cor da própria linha fica mais clara no modo claro
-   e mais escura no modo escuro (Diogo, 26/10/2026). */
-.beta-light-machine-row .beta-light-production:hover{background:transparent;border-color:transparent}
-.beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 6%,var(--dmo-card))}
-@media screen{:root[data-theme="dark"] .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:color-mix(in srgb,var(--dmo-machine-color) 22%,#070b0e)}}
-/* A barra da esquerda no hover leva a cor da linha, nunca o azul (Diogo, 26/10/2026). */
-.beta-light-machine-row .beta-light-production[data-dmo-row]:hover{box-shadow:inset 3px 0 0 var(--dmo-machine-color)}
+/* Hover do quadro do dia = a cor da linha (Diogo, 27/10/2026: «hover produção = cor da linha»):
+   o mesmo aspeto da escolhida, uma cor cheia (a da linha) com a letra branca, sem barra ao lado
+   e sem o azul. A pintura fica na produção (d1366-planeamento.css); a linha não se tinge por baixo. */
+.beta-light-machine-row .beta-light-production:hover{border-color:transparent;box-shadow:none}
+.beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:transparent}
+.beta-light-machine-row .beta-light-production[data-dmo-row]:hover{background:var(--dmo-machine-color);color:var(--dmo-text-on-color);box-shadow:none}
+.beta-light-machine-row .beta-light-production[data-dmo-row]:hover :is(strong,span,a){color:var(--dmo-text-on-color)}
+/* A escolhida: UMA cor cheia, a da linha, letra branca; sem barra, sem contorno, sem o azul antigo. */
+.beta-light-machine-row .beta-light-production.selected,.beta-light-machine-row:has(input:checked) .beta-light-production{border-color:transparent;box-shadow:none}
