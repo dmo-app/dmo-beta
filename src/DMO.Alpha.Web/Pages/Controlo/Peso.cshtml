@@ -1083,6 +1083,10 @@
   @* 1. Ferramentas da pesagem: escolha pela REFERÊNCIA humana (P2-5 —  *@
   @*    o operador escreve o que vê nas folhas: ST100, C142).            *@
   @* ------------------------------------------------------------------ *@
+  @* Com o Peso iniciado, as referências já não se escrevem: o cartão sai
+     (Diogo, 27/10/2026: «depois de iniciar o peso não devia aparecer isto»). *@
+  @if (Model.Peso is null)
+  {
   <section class="dmo-card peso-card" aria-labelledby="peso-tools-title">
     <div class="dmo-modo-head">
       <h3 id="peso-tools-title">Ferramentas</h3>
@@ -1115,33 +1119,43 @@
       <noscript><button type="submit" class="dmo-button">Ferramentas</button></noscript>
     </form>
 
-    @if (Model.CmTool is { } cmTool)
+    @* AS FERRAMENTAS NUMA FAIXA (Diogo, 27/10/2026: o cartão estava
+       desarrumado): a CM e a BQ escolhidas numa só linha, como a
+       «Combinação» do estudo do Controlo, sem o tipo repetido por baixo da
+       referência. Com as duas, os volumes ficam só na faixa de baixo; com
+       uma só, ficam aqui (Diogo, 27/10/2026, cartão de decisão). P2-4: o facto da ferramenta é a REFERÊNCIA humana
+       (o que as folhas mostram); o id opaco vive no registo e no POST. *@
+    @{ var ambasFerramentas = Model.CmTool is not null && Model.BqTool is not null; }
+    @if (Model.CmTool is not null || Model.BqTool is not null)
     {
-      @* P2-4: o facto da ferramenta é a REFERÊNCIA humana (o que as
-         folhas mostram); o id opaco do backend vive no registo e no
-         POST, nunca como facto da folha. *@
-      <div class="peso-facts">
-        <div class="peso-fact"><span>CM</span><strong>@cmTool.Reference</strong><small>@cmTool.Type.ToString().ToUpperInvariant()</small></div>
-        <div class="peso-fact"><span>Lote</span><strong>@cmTool.Lot</strong></div>
-        <div class="peso-fact"><span>Processo</span><strong>@cmProcessLabel(Model.CmTechnical?.Process)</strong></div>
-        <div class="peso-fact"><span>Volume punção (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } vp ? fmt(vp) : "—")</strong></div>
-        <div class="peso-fact"><span>Peso nominal (g)</span><strong>@(Model.CmTechnical?.NominalWeightGrams is { } nw ? fmt(nw) : "—")</strong></div>
+      <div class="peso-facts" data-peso-ferramentas>
+        @if (Model.CmTool is { } cmTool)
+        {
+          <div class="peso-fact"><span>CM</span><strong>@cmTool.Reference</strong></div>
+          <div class="peso-fact"><span>Lote</span><strong>@cmTool.Lot</strong></div>
+          <div class="peso-fact"><span>Processo</span><strong>@cmProcessLabel(Model.CmTechnical?.Process)</strong></div>
+          @if (!ambasFerramentas)
+          {
+            <div class="peso-fact"><span>Volume punção (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } vp ? fmt(vp) : "—")</strong></div>
+          }
+          <div class="peso-fact"><span>Peso nominal (g)</span><strong>@(Model.CmTechnical?.NominalWeightGrams is { } nw ? fmt(nw) : "—")</strong></div>
+        }
+        @if (Model.BqTool is { } bqTool)
+        {
+          <div class="peso-fact peso-fact-grupo"><span>Boquilha (BQ)</span><strong>@bqTool.Reference</strong></div>
+          <div class="peso-fact"><span>Lote</span><strong>@bqTool.Lot</strong></div>
+          @if (!ambasFerramentas)
+          {
+            <div class="peso-fact"><span>Volume marisa (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } vm ? fmt(vm) : "—")</strong></div>
+          }
+        }
       </div>
     }
-    else if (Model.CmToolRequestedNotFound)
+    @if (Model.CmToolRequestedNotFound)
     {
       <div class="peso-aviso-simples" role="alert">A referência da CM indicada não está registada no Ferramentas. Nenhum Peso pode ser criado para ela.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.RegistarFerramenta("CM", Model.RequestedCmToolId, "Registar a CM em Ferramentas")" /></div>
     }
-
-    @if (Model.BqTool is { } bqTool)
-    {
-      <div class="peso-facts">
-        <div class="peso-fact"><span>Boquilha (BQ)</span><strong>@bqTool.Reference</strong><small>@bqTool.Type.ToString().ToUpperInvariant()</small></div>
-        <div class="peso-fact"><span>Lote</span><strong>@bqTool.Lot</strong></div>
-        <div class="peso-fact"><span>Volume marisa (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } vm ? fmt(vm) : "—")</strong></div>
-      </div>
-    }
-    else if (Model.BqToolRequestedNotFound)
+    @if (Model.BqToolRequestedNotFound)
     {
       <div class="peso-aviso-simples" role="alert">A referência da boquilha (BQ) indicada não está registada no Ferramentas.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.RegistarFerramenta("BQ", Model.RequestedBqToolId, "Registar a BQ em Ferramentas")" /></div>
     }
@@ -1150,9 +1164,9 @@
        resolvidas): os volumes consolidados com a densidade do vidro e o
        processo da CM, e o apoio TP/calote — sem Job On, a calote efetiva
        é a h_ref da Tool (o html: «Tool CM»). O apoio nunca bloqueia. *@
-    @if (Model.CmTool is not null && Model.BqTool is not null)
+    @if (ambasFerramentas)
     {
-      <div class="peso-facts" style="margin-top:10px">
+      <div class="peso-facts">
         <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } painelMarisaTool ? fmt(painelMarisaTool) : "—")</strong></div>
         <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } painelPuncaoTool ? fmt(painelPuncaoTool) : "—")</strong></div>
         <div class="peso-fact">
@@ -1223,14 +1237,16 @@
     }
   </section>
 
+  }
+
   @* ------------------------------------------------------------------ *@
   @* 2. Novo Peso tool-scoped (ambas as ferramentas resolvidas).        *@
   @* ------------------------------------------------------------------ *@
   @if (Model.CmTool is not null && Model.BqTool is not null)
   {
     <section class="dmo-card peso-card" aria-labelledby="peso-create-title">
-      <div class="peso-card-heading"><h3 id="peso-create-title">Novo Peso</h3><div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" form="pesoCreate">Criar Peso</button></div></div>
-      <p class="card-note">@(Model.ComparacaoDePesoId is null ? "Sem produção associada." : "Só para comparação: sem produção e sem Job On.")</p>
+      @* A nota fica por baixo do título, como nos outros cartões. *@
+      <div class="peso-card-heading"><div><h3 id="peso-create-title">Novo Peso</h3><p class="card-note">@(Model.ComparacaoDePesoId is null ? "Sem produção associada." : "Só para comparação: sem produção e sem Job On.")</p></div><div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" form="pesoCreate">Criar Peso</button></div></div>
 
       @if (Model.CreateRefusal is not null)
       {
@@ -1389,17 +1405,39 @@
          continua disponível na ferramenta. *@
       @if (Model.ProductionCandidates.Count > 0)
       {
-        <div class="peso-aviso-simples" role="status" style="margin-bottom:12px">
-          <strong>@(Model.ProductionCandidates.Count == 1 ? "Existe um Job On" : $"Existem {Model.ProductionCandidates.Count} Job Ons") com esta CM e ainda sem Peso. Quer associar este Peso?</strong>
-          @foreach (var production in Model.ProductionCandidates)
-          {
-            <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate" style="display:flex;gap:10px;align-items:center;margin-top:8px">
-              <input type="hidden" name="peso_id" value="@peso.PesoId" />
-              <input type="hidden" name="jobon_id" value="@production.JobOnId" />
-              <span>Produção @production.ProductionNumber · @production.Reference · @production.Machine</span>
-              <button type="submit" class="dmo-button">Associar</button>
-            </form>
-          }
+        @* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026: «não quero botões em rows
+           por todo o lado»): como os «Pesos sem produção» da folha da
+           produção, um clique escolhe a produção e um só «Associar» no canto
+           envia a escolhida (R16). *@
+        var umaProducao = Model.ProductionCandidates.Count == 1;
+        <div class="peso-card peso-associar-producao" data-peso-associar>
+          <div class="peso-card-heading"><div>
+            <h4>@(umaProducao ? "Existe um Job On" : $"Existem {Model.ProductionCandidates.Count} Job Ons") com esta CM e ainda sem Peso. Quer associar este Peso?</h4>
+          </div>
+            <div class="dmo-card-topo-acoes" data-dmo-for="pesoAssociarProducao"><button type="submit" class="dmo-button" form="pesoAssociarProducaoForm">Associar</button></div>
+          </div>
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Associate" id="pesoAssociarProducaoForm">
+            <input type="hidden" name="peso_id" value="@peso.PesoId" />
+            <div class="dmo-table-wrap">
+              <table class="dmo-table" id="pesoAssociarProducao" data-dmo-list="Job Ons sem Peso">
+                <thead>
+                  <tr><th></th><th>Produção</th><th>Referência</th><th>Máquina</th></tr>
+                </thead>
+                <tbody>
+                  @foreach (var production in Model.ProductionCandidates)
+                  {
+                    <tr data-dmo-row data-id="@production.JobOnId" class="@(umaProducao ? "selected" : null)" aria-selected="@(umaProducao ? "true" : "false")"
+                        aria-label="Produção @production.ProductionNumber · @production.Reference · @production.Machine — um clique escolhe">
+                      <td><input type="radio" name="jobon_id" value="@production.JobOnId" required checked="@umaProducao" aria-label="Produção @production.ProductionNumber" /></td>
+                      <td>@production.ProductionNumber</td>
+                      <td>@production.Reference</td>
+                      <td>@production.Machine</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </form>
         </div>
       }
 
