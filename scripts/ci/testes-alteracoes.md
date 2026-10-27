@@ -4019,3 +4019,14 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 
 Selo depois: `68b7521fc048a7b6`
+
+## A-0247 · 2026-10-27 · teste-novo
+
+Porquê: DMO-512: um link para a própria página (corrigir uma leitura nos Pegamentos) fica na página, sem abrir o painel de apoio
+Referência: DMO-512
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/painel-propria-pagina.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-propria-pagina.test.cjs :: Painel de apoio: um link para a própria página (corrigir uma leitura nos Pegamentos) fica na página, sem painel`
+
+Selo depois: `fc687ab32acec121`

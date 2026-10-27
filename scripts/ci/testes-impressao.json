@@ -1,5 +1,5 @@
 {
-  "selo": "68b7521fc048a7b6",
+  "selo": "fc687ab32acec121",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3009,6 +3009,8 @@
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel com confirmar: com o formulário mudado pede antes de fechar": "26cb1a6df8546b40",
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel: Escape fecha (o «cancel» do <dialog>) e DmoPainel abre por código": "ee6286395287853c",
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel: o botão abre, o «Fechar» fecha e o foco volta ao botão": "b900a0250ec1d22b",
+    "tests/ShellProof/painel-propria-pagina.test.cjs :: (resto do ficheiro)": "db836356989cefa9",
+    "tests/ShellProof/painel-propria-pagina.test.cjs :: Painel de apoio: um link para a própria página (corrigir uma leitura nos Pegamentos) fica na página, sem painel": "774654adcd339ee3",
     "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: (resto do ficheiro)": "391eec0ff7b94a78",
     "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: abrir fecha um <dmo-painel> que esteja aberto": "eb7953a291a0cf91",
     "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: cliques repetidos na mesma página não a voltam a carregar e outra página troca a que lá está": "e93b768aa621915f",
