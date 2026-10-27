@@ -27,6 +27,13 @@ public class LoginModel : PageModel
 
     public string? ErrorMessage { get; set; }
 
+    /// <summary>
+    /// Quem já entrou e foi mandado para aqui por não ter acesso à página
+    /// pedida (o «forbid» do cookie vai para /login com o ReturnUrl): mostra
+    /// «Sem acesso» em vez do formulário de entrada (teste do ensaio, 27/10/2026).
+    /// </summary>
+    public bool SemAcesso { get; private set; }
+
     /// <summary>Acabou de se fazer a primeira instalação (/instalar).</summary>
     public bool Instalado { get; set; }
 
@@ -40,6 +47,7 @@ public class LoginModel : PageModel
         }
 
         Instalado = instalado;
+        SemAcesso = User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(ReturnUrl);
         // O LOGIN ENTRA LOGO NO PLANEAMENTO (o Owner 2026-10-12: «a pagina
         // que aparece depois do login pode desaparecer e entrar logo com o
         // user no planeamento» — a home com o [Continuar] roubava um clique

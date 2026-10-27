@@ -1332,3 +1332,15 @@ html:root body .jof2.jof2 .zones .g-cal{margin-left:2px}
 }
 /* A linha na cor da máquina, só na letra, sem caixa à volta. */
 html:root body .jof2 .fv .mch[data-jof-linha]{background:none!important;color:var(--dmo-machine-color,var(--dmo-text))!important;padding:0 4px;min-width:0;font-size:18px;font-weight:800;border:0;box-shadow:none}
+
+/* Erros do teste do ensaio (27/10/2026). As Notas de altura fixa cortavam a
+   meio da linha: ficam 2 linhas inteiras (com «…» quando há mais); o clique abre a
+   nota inteira, a ver e a editar (as regras de altura fixa apanhavam também
+   a nota aberta e deixavam-na com 2 linhas). */
+html:root body .jof2 .note-box.note-view:not(.is-empty):not(.is-ampliada)>p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.4;padding-top:calc((56px - 2.8em) / 2);padding-bottom:calc((56px - 2.8em) / 2);overflow:clip!important;overflow-clip-margin:content-box}
+html:root body .jof2 .note-box.is-ampliada>p,html:root body .jof2.editing .note-box.is-ampliada>textarea.dmo-valor,html:root body .jof2 .note-box.is-ampliada>textarea.dmo-valor{display:block;min-height:240px!important;height:auto!important;max-height:60vh!important;overflow:auto!important;flex:0 0 auto!important}
+/* PI: «Pinças» e «Diâmetro» cada um na sua linha; lado a lado não cabiam e o
+   «Grafite» ficava colado ao «Diâmetro». */
+html:root body .jof2:not(.editing) [data-jof-familia="PI"]>.kv{grid-template-columns:max-content minmax(0,1fr)!important}
+html:root body .jof2 .side>.notes{min-height:108px}
+html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){min-height:58px}
