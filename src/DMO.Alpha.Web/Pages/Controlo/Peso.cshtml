@@ -1694,7 +1694,7 @@
             {
               <p class="peso-correcao-pergunta" role="status">Apagar a leitura da CM @corrigirCm (@aCorrigir.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture) g)?</p>
               <div class="peso-leitura-actions">
-                <a class="dmo-button dmo-dialog-cancel" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId)">Cancelar</a>
+                <a class="dmo-button dmo-dialog-cancel" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId)" data-peso-correcao-sair>Cancelar</a>
                 <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "DeleteMeasurement")" data-peso-apagar-confirmar>Apagar</button>
               </div>
             }
@@ -1713,6 +1713,8 @@
               <div class="peso-leitura-actions">
                 <button type="submit" class="dmo-button" data-peso-correcao-guardar>Guardar</button>
                 <a class="dmo-button" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId, apagar: true)" data-peso-apagar>Apagar</a>
+                @* Sair da correção fica na folha (Diogo, 27/10/2026); o Esc faz o mesmo. *@
+                <a class="dmo-button" href="@Model.UrlCorrigirLeitura(null)" data-peso-correcao-sair>Cancelar</a>
               </div>
             }
           </form>

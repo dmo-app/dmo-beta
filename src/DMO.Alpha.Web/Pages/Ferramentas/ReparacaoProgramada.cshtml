@@ -221,7 +221,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
             {
             <tr data-dmo-row class="@classe" data-dmo-item="@i.Id" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = toolId })">
               <td>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Nome(i.Tipo, i.Referencia, i.Lote)</td>
-              <td>@ReparacaoProgramadaModel.Uso(i.Utilizacao)</td>
+              <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(toolId, ReparacaoProgramadaModel.Uso(i.Utilizacao))</td>
               <td>@(i.Linhas ?? "—")</td>
               <td>@i.OndeEsta</td>
               <td>@(i.Estado is { } est ? ArmazemTextos.Estado(est) : "—")</td>
@@ -325,7 +325,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
             <tr data-dmo-row data-dmo-candidata="@c.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = c.ToolId })">
               <td class="rp-marca"><input type="checkbox" name="ferramenta" value="@c.ToolId" form="rpAssociar" data-rp-marca aria-label="Marcar @ReparacaoProgramadaModel.Ferramenta(c.Tipo, c.Referencia, c.Lote)" /></td>
               <td>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Nome(c.Tipo, c.Referencia, c.Lote)</td>
-              <td>@ReparacaoProgramadaModel.Uso(c.Utilizacao)</td>
+              <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(c.ToolId, ReparacaoProgramadaModel.Uso(c.Utilizacao))</td>
               <td>@(c.Linhas ?? "—")</td>
               <td>@if (c.Posicao is not null) {<span class="rp-pos">@c.Posicao</span>} else {@c.OndeEsta}</td>
               <td>@(c.Estado is { } est ? ArmazemTextos.Estado(est) : "—")</td>
