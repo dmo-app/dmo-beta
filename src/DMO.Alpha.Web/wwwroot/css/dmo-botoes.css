@@ -69,3 +69,8 @@ html body input:is(:not([type]),[type=text],[type=number],[type=search],[type=pa
 
 /* Boquilhas › Registar Entrada ou Saída: o «Registar» (ação) separado dos tipos (escolha) por um traço fino. */
 html body .beta-bq-layout .bq-movement-line>.bq-movement-types{padding-left:14px;border-left:1px solid var(--dmo-border)}
+
+/* Ações dos cartões no canto superior direito (Diogo, 27/10/2026, …QVvJwFV5LYqaod3CuetwJ6: «Guardar,
+   Limpar filtros, etc., sempre no canto superior direito do cartão»). Nos cartões de filtros de uma só
+   linha os botões encostam à direita da linha; os cartões com título já os têm no .dmo-card-topo-acoes. */
+html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpar,html body #rpFiltros>#rpAssociarBotao{margin-left:auto}
