@@ -1273,3 +1273,36 @@ html body .jfi-folha[data-jof-folha="moldes"] .jfb-dados.dmo-table th{font-size:
 html body .jfi-folha[data-jof-folha="moldes"] .jfb-dados.dmo-table td{font-size:12.5pt}
 .jfi-moldes .jfb-dados col.c1{width:26mm}.jfi-moldes .jfb-dados col.c2{width:18mm}.jfi-moldes .jfb-dados col.c3{width:20mm}.jfi-moldes .jfb-dados col.c4{width:20mm}
 html body .jfi-folha .jfb-dados.dmo-table :is(th,td){vertical-align:baseline}
+
+/* ===== Cartões dos componentes (Diogo, 27/10/2026) ===================== */
+/* As siglas todas iguais, sem fundo: a CM, o MF e a BQ sem ferramenta
+   ficavam com um realce que o PU não tinha («efeito de CM MF não está bem»). */
+html:root body .jof2 .tool-empty .code{background:transparent;color:var(--dmo-text)}
+/* O valor junto ao rótulo, não encostado à direita do cartão. */
+html:root body .jof2:not(.editing) .kv{grid-template-columns:max-content minmax(0,1fr);column-gap:10px}
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"])>.kv{grid-template-columns:max-content minmax(0,1fr) max-content minmax(0,1fr);column-gap:10px}
+html:root body .jof2:not(.editing) .kv dd{text-align:left}
+html:root body .jof2:not(.editing) .dims :is(th,td):not(:first-child){text-align:left}
+html:root body .jof2 .jof-tol{font-weight:500;color:var(--dmo-muted)}
+/* A referência na cabeça do cartão numa só linha (o «C142» partia-se). */
+html:root body .jof2 .sec-head .hv,html:root body .jof2 .sec-head .hv b{white-space:nowrap}
+/* As Notas com o mesmo espaço em todos os cartões (2 a 3 linhas), vazias
+   ou escritas; nunca por cima da «Informação técnica» («dar algum espaço
+   para escrever nas notas»). */
+html:root body .jof2 .note-box.note-view,html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view{flex:0 0 auto;height:auto;min-height:0}
+html:root body .jof2 .note-box.note-view>p{flex:0 0 auto;box-sizing:border-box;min-height:56px;max-height:56px;margin:0;overflow:hidden}
+html:root body .jof2 .note-box.note-view:not(.is-empty)>p{overflow:auto}
+html:root body .jof2 .note-box.note-edit>textarea.dmo-valor,html:root body .jof2 .note-edit.is-empty textarea.dmo-valor:not(:focus){min-height:56px;height:56px}
+/* As três Folgas com espaço igual entre elas. */
+html:root body .jof2:not(.editing) .folgas{gap:10px}
+html:root body .jof2:not(.editing) .folga{min-width:48px;text-align:center}
+html:root body .jof2.editing .folgas{gap:8px}
+/* A imagem do artigo encaixa no espaço sem cortar nem deformar, alta ou larga. */
+html:root body .jof2 .jof-artigo{overflow:hidden}
+html:root body .jof2 .jof-artigo img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
+/* A CS como o PU: a referência com o rótulo, por baixo do nome, dentro do cartão. */
+html:root body .jof2 [data-jof-familia="CS"]>.sec-head{flex-wrap:wrap}
+html:root body .jof2 [data-jof-familia="CS"] .sec-head .hv>small{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}
+/* No Editar também: as Notas com a mesma altura em todos os cartões. */
+html:root body .jof2.editing .note-box.note-edit{flex:0 0 auto;min-height:0}
+html:root body .jof2.editing .note-box.note-edit>textarea.dmo-valor{flex:0 0 auto;box-sizing:border-box;min-height:56px;height:56px}
