@@ -87,6 +87,10 @@ html body .def-layout .dmo-options-item:disabled{color:var(--dmo-muted);cursor:n
 .adm-card .dmo-card-topo h3{margin:0}
 .adm-email-form{display:grid;gap:12px;width:100%}
 #bqDefViragem .dmo-field,#riDefViragem .dmo-field{max-width:220px}
+/* A hora de viragem: sem a etiqueta repetida, o título fica a um respiro normal do campo. */
+html body :is(#bqDefViragem,#riDefViragem) > h3{margin:0 0 12px}
+/* Ferramentas (Gerais): o cartão alinha com a margem das outras páginas (a coluna vazia da grelha empurrava-o 16 px). */
+html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{grid-column:1;grid-row:auto}
 .ctl-def-computador{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:12px 0 0;font-size:14px}
 .ctl-def-link{border:0;background:none;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--dmo-brand-700);text-decoration:underline;cursor:pointer}
 @@media(max-width:760px){
