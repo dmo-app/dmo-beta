@@ -61,16 +61,16 @@
 html body .dmt-detail .dmo-options-list{left:auto;right:0}
 /* Utilizadores compactos, o nº em destaque (Diogo, 27/10/2026: «não precisa
    desse espaço todo e o número pode ficar mais saliente»). */
-.dmt-users-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.dmt-users-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px}
 .dmt-users-grid .dmt-check label{display:flex;align-items:baseline;gap:8px;padding:6px 10px;min-width:0}
 .dmt-users-grid .dmt-user-num{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .dmt-users-grid .dmt-check label .dmt-user-nome{font-size:12.5px;font-weight:600;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dmt-users-grid .dmt-module-head{margin:6px 0 0 !important}
 .dmt-users-grid .dmt-module-head,.dmt-users-grid .dmt-users-vazio{grid-column:1/-1}
 .dmt-users-vazio{margin:0}
-.dmt-check .dmt-ficha{align-self:center;margin-right:10px;font-size:11px;color:var(--dmo-muted);text-decoration:none}
-.dmt-check .dmt-ficha:hover,.dmt-check .dmt-ficha:focus-visible{color:var(--dmo-brand-600,#3c73a8)}
-.dmt-check:has(input:checked) .dmt-ficha{color:#fff}
+/* «Página» é um botão como os da app (regra do Diogo: link de ação = botão). */
+.dmt-check .dmt-ficha{align-self:center;margin:3px 6px 3px 0;flex:none}
+.dmt-check:has(input:checked) .dmt-ficha{border-color:#fff}
 .dmt-module-head{font-size:10.5px;font-weight:800;color:var(--dmo-brand-600,#3c73a8);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--dmo-border,#d9e6f2);padding-bottom:4px}
 @@media(max-width:900px){.dmt-grid,.dmt-users-grid{grid-template-columns:1fr}}
 </style>
@@ -274,7 +274,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
                       <b class="dmt-user-num">@user.OperatorId</b>
                       <span class="dmt-user-nome">@user.Name@(user.IsStandBy ? " · Arquivado" : "")</span>
                     </label>
-                    <a class="dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a página de @user.Name">Página</a>
+                    <a class="dmo-button dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a página de @user.Name">Página</a>
                   </div>
                 }
               }
