@@ -3388,7 +3388,7 @@ Novos: 2 · mudaram: 2 · saíram: 0
 
 Selo depois: `b562585df3581e63`
 
-## A-0207 · 2026-10-27 · ok-do-diogo
+## A-0212 · 2026-10-27 · ok-do-diogo
 
 Porquê: Job On novo: com referência existente abre a última para ver e só o «Duplicar» duplica (Diogo, 27/10/2026); o teste J3 deixa de esperar o duplicar automático (DMO-460)
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraGfcQKkCC3T6ysms3JfYV83
