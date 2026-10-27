@@ -1299,7 +1299,7 @@ html:root body .jof2:not(.editing) .folga{min-width:48px;text-align:center}
 html:root body .jof2.editing .folgas{gap:8px}
 /* A imagem do artigo encaixa no espaço sem cortar nem deformar, alta ou larga. */
 html:root body .jof2 .jof-artigo{overflow:hidden}
-html:root body .jof2 .jof-artigo img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
+html:root body .jof2 .jof-artigo img{width:100% !important;height:100% !important;max-width:100% !important;max-height:100% !important;object-fit:contain}
 /* A CS como o PU: a referência com o rótulo, por baixo do nome, dentro do cartão. */
 html:root body .jof2 [data-jof-familia="CS"]>.sec-head{flex-wrap:wrap}
 html:root body .jof2 [data-jof-familia="CS"] .sec-head .hv>small{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}
