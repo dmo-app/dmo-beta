@@ -1,17 +1,17 @@
 @model DMO.Alpha.Web.Pages.Armazem.DefinicoesModel
 <style>
 .arm-page{display:flex;flex-direction:column;gap:14px}
-.arm-card{padding:18px;width:fit-content;min-width:min(560px,100%);max-width:100%}
+.arm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
 .arm-card h3{margin:0 0 12px;font-size:16px}
 .arm-card .dmo-card-topo{margin-bottom:10px}
 .arm-card .dmo-card-topo h3{margin:0}
 .arm-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
 .arm-linha .dmo-field{margin:0}
-.arm-linha[hidden]{display:none}
 html body .arm-linha .dmo-field input{width:min(260px,100%)}
 .arm-card .dmo-table{width:auto;min-width:100%}
-.arm-card .dmo-table td{padding:8px;vertical-align:middle}
-html body .arm-card .dmo-table tr.arm-arquivado:not(.selected)>td{color:var(--dmo-muted)}
+.arm-card .dmo-table td{padding:4px 8px;vertical-align:middle}
+.arm-card .dmo-valor{min-width:16ch}
+.arm-arquivado .dmo-valor{color:var(--dmo-muted)}
 </style>
   <div id="armDefAvisos" class="dmo-zona" data-dmo-regiao>
     @if (Model.Mensagem.Length > 0)
@@ -23,16 +23,8 @@ html body .arm-card .dmo-table tr.arm-arquivado:not(.selected)>td{color:var(--dm
   <section id="armDefReparadores" class="dmo-card arm-card" aria-labelledby="arm-def-rep-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
     @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
-    <h3 id="arm-def-rep-title" title="Para onde vão as CM e os MF na Saída para Reparação. São outros que os reparadores das Boquilhas, que ficam nas Definições das Boquilhas. Escolha uma linha para a arquivar, reativar ou mudar o nome; mudar o nome não altera os movimentos passados. Um reparador arquivado sai das escolhas novas.">Reparadores de CM e MF</h3>
-      @* Nada dentro das linhas: escolhe-se o reparador na tabela e os botões do canto agem sobre ele. Os formulários de cada reparador ficam escondidos, por baixo da tabela. *@
-      <div class="dmo-card-topo-acoes">
-        @if (Model.Reparadores.Count > 0)
-        {
-          <button type="button" class="dmo-button" id="armRepMudarNome" data-arm-rep-nome disabled>Mudar nome</button>
-          <button type="button" class="dmo-button" id="armRepEstadoBotao" data-arm-rep-estado disabled>Arquivar</button>
-        }
-        <button type="submit" class="dmo-button" id="armRepCriar" form="armRepCriarForm">Criar reparador</button>
-      </div>
+    <h3 id="arm-def-rep-title" title="Para onde vão as CM e os MF na Saída para Reparação. São outros que os reparadores das Boquilhas, que ficam nas Definições das Boquilhas. Clique num nome para o mudar; mudar o nome não altera os movimentos passados. Um reparador arquivado sai das escolhas novas.">Reparadores de CM e MF</h3>
+      <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="armRepCriar" form="armRepCriarForm">Criar reparador</button></div>
     </div>
 
     <form id="armRepCriarForm" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Criar" class="arm-linha">
@@ -46,121 +38,32 @@ html body .arm-card .dmo-table tr.arm-arquivado:not(.selected)>td{color:var(--dm
 
     @if (Model.Reparadores.Count > 0)
     {
-      @* O nome novo do reparador escolhido: aparece fora das linhas, por cima da tabela. *@
-      <div class="arm-linha" data-arm-rep-nome-campo hidden>
-        <div class="dmo-field">
-          <label for="armRepNomeNovo">Novo nome de <span data-arm-rep-nome-atual></span></label>
-          <input id="armRepNomeNovo" maxlength="100" autocomplete="off" />
-        </div>
-      </div>
       <div class="dmo-table-wrap">
-        <table class="dmo-table" data-dmo-list="Reparadores de CM e MF" data-dmo-seleciona>
+        <table class="dmo-table" data-dmo-list="Reparadores de CM e MF">
           <thead><tr><th>Reparador</th><th>Estado</th></tr></thead>
           <tbody>
           @foreach (var r in Model.Reparadores)
           {
-            <tr class="@(r.Ativo ? null : "arm-arquivado")" data-dmo-row data-dmo-reparador="@r.Id" data-arm-rep-nome-valor="@r.Nome" data-arm-rep-ativo="@(r.Ativo ? "sim" : "nao")">
-              <td>@r.Nome</td>
-              <td>@(r.Ativo ? "Ativo" : "Arquivado")</td>
+            <tr class="@(r.Ativo ? null : "arm-arquivado")" data-dmo-reparador="@r.Id">
+              <td>
+                <form id="armRepNome-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
+                  <input type="hidden" name="reparador_id" value="@r.Id" />
+                  <input id="armRepNomeValor-@r.Id" class="dmo-valor" data-dmo-valor name="nome" value="@r.Nome" maxlength="100" autocomplete="off" aria-label="Nome do reparador @r.Nome" required />
+                </form>
+              </td>
+              <td>
+                <form id="armRepAtivo-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
+                  <input type="hidden" name="reparador_id" value="@r.Id" />
+                  <select id="armRepEstado-@r.Id" name="ativo" data-dmo-autosubmit aria-label="Estado do reparador @r.Nome">
+                    <option value="sim" selected="@r.Ativo">Ativo</option>
+                    <option value="nao" selected="@(!r.Ativo)">Arquivado</option>
+                  </select>
+                </form>
+              </td>
             </tr>
           }
           </tbody>
         </table>
       </div>
-      <div hidden>
-        @foreach (var r in Model.Reparadores)
-        {
-          <form id="armRepNome-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
-            <input type="hidden" name="reparador_id" value="@r.Id" />
-            <input id="armRepNomeValor-@r.Id" name="nome" value="@r.Nome" maxlength="100" autocomplete="off" aria-label="Nome do reparador @r.Nome" required />
-          </form>
-          <form id="armRepAtivo-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
-            <input type="hidden" name="reparador_id" value="@r.Id" />
-            <select id="armRepEstado-@r.Id" name="ativo" aria-label="Estado do reparador @r.Nome">
-              <option value="sim" selected="@r.Ativo">Ativo</option>
-              <option value="nao" selected="@(!r.Ativo)">Arquivado</option>
-            </select>
-          </form>
-        }
-      </div>
     }
   </section>
-<script>
-(function () {
-  "use strict";
-  // Escolher a linha e agir sobre ela pelos botões do canto; os formulários escondidos são os mesmos de sempre.
-  if (window.__armReparadores) return;
-  window.__armReparadores = true;
-  function cartao(el) { return el && el.closest ? el.closest("#armDefReparadores") : null; }
-  function escolhida(c) { return c.querySelector("tr[data-dmo-reparador].selected"); }
-  function campoNome(c) { return c.querySelector("[data-arm-rep-nome-campo]"); }
-  function fecharNome(c) {
-    var campo = campoNome(c), botao = c.querySelector("[data-arm-rep-nome]");
-    if (campo) campo.hidden = true;
-    if (botao) botao.textContent = "Mudar nome";
-  }
-  function atualizar(c) {
-    var linha = escolhida(c);
-    var nome = c.querySelector("[data-arm-rep-nome]"), estado = c.querySelector("[data-arm-rep-estado]");
-    if (nome) nome.disabled = !linha;
-    if (estado) {
-      estado.disabled = !linha;
-      estado.textContent = linha && linha.getAttribute("data-arm-rep-ativo") === "nao" ? "Reativar" : "Arquivar";
-    }
-    if (!linha) fecharNome(c);
-  }
-  // A escolha da linha é a de sempre das listas (selected); aqui só se ajustam os botões do canto.
-  document.addEventListener("dmo:list-select", function (e) {
-    var c = cartao(e.target);
-    if (!c) return;
-    fecharNome(c);
-    atualizar(c);
-  });
-  function guardarNome(c) {
-    var linha = escolhida(c), campo = c.querySelector("#armRepNomeNovo");
-    if (!linha || !campo) return;
-    var nome = campo.value.trim();
-    if (!nome) { campo.focus(); return; }
-    var id = linha.getAttribute("data-dmo-reparador");
-    var valor = document.getElementById("armRepNomeValor-" + id), form = document.getElementById("armRepNome-" + id);
-    if (!valor || !form) return;
-    valor.value = nome;
-    form.requestSubmit();
-  }
-  document.addEventListener("click", function (e) {
-    var botaoNome = e.target.closest && e.target.closest("[data-arm-rep-nome]");
-    if (botaoNome && cartao(botaoNome)) {
-      var c = cartao(botaoNome), l = escolhida(c), campo = campoNome(c);
-      if (!l || !campo) return;
-      if (campo.hidden) {
-        c.querySelector("[data-arm-rep-nome-atual]").textContent = l.getAttribute("data-arm-rep-nome-valor");
-        var entrada = c.querySelector("#armRepNomeNovo");
-        entrada.value = l.getAttribute("data-arm-rep-nome-valor");
-        campo.hidden = false;
-        botaoNome.textContent = "Guardar nome";
-        entrada.focus(); entrada.select();
-      } else {
-        guardarNome(c);
-      }
-      return;
-    }
-    var botaoEstado = e.target.closest && e.target.closest("[data-arm-rep-estado]");
-    if (botaoEstado && cartao(botaoEstado)) {
-      var cc = cartao(botaoEstado), ll = escolhida(cc);
-      if (!ll) return;
-      var id = ll.getAttribute("data-dmo-reparador");
-      var select = document.getElementById("armRepEstado-" + id), form = document.getElementById("armRepAtivo-" + id);
-      if (!select || !form) return;
-      select.value = ll.getAttribute("data-arm-rep-ativo") === "nao" ? "sim" : "nao";
-      form.requestSubmit();
-    }
-  });
-  document.addEventListener("keydown", function (e) {
-    var campo = e.target && e.target.id === "armRepNomeNovo" ? e.target : null;
-    if (!campo) return;
-    var c = cartao(campo);
-    if (e.key === "Enter") { e.preventDefault(); guardarNome(c); }
-    if (e.key === "Escape") { e.preventDefault(); fecharNome(c); }
-  });
-})();
-</script>
