@@ -150,12 +150,16 @@ html body .beta-bq-layout .card h3{font-size:16px;line-height:24px;margin:0}
 
 /* Registo aberto: o registo e os valores lado a lado; o formulário do
    movimento numa faixa; os últimos movimentos por baixo (cabe em 768 px). */
-html body .beta-bq-layout section#registo:has(.register-open){display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
-/* As zonas (.dmo-zona) são display:contents: os cartões delas é que são as células. */
-html body .beta-bq-layout section#registo:has(.register-open)>*,
-html body .beta-bq-layout section#registo:has(.register-open)>.dmo-zona>*{grid-column:1/-1}
-html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoAberto>.register-open{grid-column:1;grid-row:3}
-html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoNumeros>.bq-metrics-card{grid-column:2;grid-row:3}
+/* Só a partir de 1100 px (no telemóvel os dois cartões e o formulário ficam
+   um por baixo do outro; a 390 px a faixa saía 72 px do ecrã). */
+@media (min-width:1100px){
+  html body .beta-bq-layout section#registo:has(.register-open){display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
+  /* As zonas (.dmo-zona) são display:contents: os cartões delas é que são as células. */
+  html body .beta-bq-layout section#registo:has(.register-open)>*,
+  html body .beta-bq-layout section#registo:has(.register-open)>.dmo-zona>*{grid-column:1/-1}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoAberto>.register-open{grid-column:1;grid-row:3}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoNumeros>.bq-metrics-card{grid-column:2;grid-row:3}
+}
 html body .beta-bq-layout section#registo>.dmo-zona>.card{margin:0}
 html body .beta-bq-layout .register-open .dmo-facts{display:flex;padding:4px 0}
 html body .beta-bq-layout .register-open .dmo-facts>.dmo-fact{flex:1 1 auto;min-width:0}
@@ -163,12 +167,14 @@ html body .beta-bq-layout .register-open .dmo-fact>strong{white-space:nowrap}
 html body .beta-bq-layout .register-open .dmo-fact{padding:2px 12px}
 html body .beta-bq-layout .bq-movement-card .jobon-aviso{margin:0 0 8px;padding:8px 12px}
 /* O título, o tipo, a quantidade, a data e o «Registar» numa só linha. */
-html body .beta-bq-layout form.bq-movement-form{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:end}
-html body .beta-bq-layout form.bq-movement-form>*{grid-column:1/-1}
-html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo{display:contents}
-html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{grid-column:1;grid-row:1;align-self:end;margin:0 0 8px;white-space:nowrap}
-html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>.dmo-card-topo-acoes{grid-column:3;grid-row:1;align-self:end}
-html body .beta-bq-layout form.bq-movement-form>.bq-movement-line{grid-column:2;grid-row:1}
+@media (min-width:1100px){
+  html body .beta-bq-layout form.bq-movement-form{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:end}
+  html body .beta-bq-layout form.bq-movement-form>*{grid-column:1/-1}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo{display:contents}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{grid-column:1;grid-row:1;align-self:end;margin:0 0 8px;white-space:nowrap}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>.dmo-card-topo-acoes{grid-column:3;grid-row:1;align-self:end}
+  html body .beta-bq-layout form.bq-movement-form>.bq-movement-line{grid-column:2;grid-row:1}
+}
 html body .beta-bq-layout .bq-movement-line{gap:8px 16px;align-items:flex-end;flex-wrap:wrap;margin:0}
 html body .beta-bq-layout .bq-movement-types{gap:8px}
 html body .beta-bq-layout .bq-line-quantity input{width:88px}
@@ -188,13 +194,14 @@ html body .beta-bq-layout .register-open>.filter-bar .dmo-field{display:flex;fle
 html body .beta-bq-layout .register-open>.filter-bar #jobRef{width:152px}
 html body .beta-bq-layout .register-open>.filter-bar #jobNumber{width:auto;min-width:200px}
 
-/* Boquilhas (catálogo): o título, os campos e os botões numa só linha;
-   cada campo com a largura do que leva; a lista com linhas baixas. */
-html body .beta-bq-layout section#boquilhas>.card:has(>.bq-tool-search){display:flex;align-items:flex-end;gap:16px 24px;flex-wrap:wrap}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo{display:contents}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>h3{order:0;flex:0 0 auto;align-self:flex-end;margin:0 0 6px;white-space:nowrap}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>.dmo-card-topo-acoes{order:2;margin-left:auto}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search{order:1;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end}
+/* Boquilhas (catálogo): o título com o «Criar boquilha» no canto superior
+   direito do cartão (Diogo, 18/10/2026) e, por baixo, os campos numa só linha,
+   cada um com a largura do que leva; a lista com linhas baixas. */
+html body .beta-bq-layout section#boquilhas>.card:has(>.bq-tool-search){display:flex;align-items:flex-end;gap:8px 24px;flex-wrap:wrap}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:8px 16px;margin:0}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>h3{flex:0 1 auto;margin:0;white-space:nowrap}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>.dmo-card-topo-acoes{margin-left:auto}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end}
 html body .beta-bq-layout .bq-tool-search>.dmo-field{display:flex;flex-direction:column;gap:4px;margin:0}
 html body .beta-bq-layout .bq-tool-search>.dmo-field>label{margin:0;line-height:16px;white-space:nowrap}
 html body .beta-bq-layout .bq-tool-search #bq-tool-search{width:224px}
