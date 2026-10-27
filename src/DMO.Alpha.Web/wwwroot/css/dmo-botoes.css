@@ -1,0 +1,56 @@
+/* BOTÕES E SELETORES (Diogo, 27/10/2026, …VhpNpJNmWffCnSnudseTKt): só há dois tipos de botão
+   na app, e cada um tem um só aspeto em todas as páginas. Esta folha carrega depois de todas as
+   outras, por isso manda sobre as regras antigas de cada página.
+
+   1) Botões de ação (Registar, Guardar, Criar, Limpar filtros, Imprimir…): .dmo-button, .button,
+      .btn. A mesma altura dos campos, a mesma letra e o texto sempre ao centro (também nos <a>,
+      que sem isto ficavam com o texto encostado em cima: «botões mal centrados», …UvufrYa). O
+      hover é o que já estava aprovado (normalize: claro inverte, escuro contorno branco).
+
+   2) Seletores (escolhe-se uma ou várias opções, não fazem nada sozinhos): Saída / Entrada /
+      Entrada sem reparação, CM / MF, Produção / Experiência, Linhas compatíveis, Entrada / Saída
+      do Armazém, Listas / Histórico. Só o escolhido fica destacado. */
+
+/* 1) Botões de ação ------------------------------------------------------------------------ */
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;vertical-align:middle;text-box:normal}
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn)[hidden]{display:none}
+/* Os links de ação que passaram a botões (Abrir página do painel, avisos, ficha da ferramenta):
+   o mesmo botão, também no hover do escuro. Regras à parte porque o #id pesaria sobre tudo. */
+html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-action,var(--dmo-brand-600));border-radius:var(--dmo-r-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;text-decoration:none;vertical-align:middle;cursor:pointer}
+html body #dmoSupportFull:is(:hover,:focus-visible),html body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--dmo-action,var(--dmo-brand-600));text-decoration:none;outline:0}
+html[data-theme="dark"] body #dmoSupportFull:is(:hover,:focus-visible),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible){background:var(--dmo-brand-600);border-color:#fff;color:#fff}
+
+/* 2) Seletores -------------------------------------------------------------------------------
+   Opção: fundo do cartão, contorno fino e letra normal. Rato por cima: só a letra muda.
+   Escolhida: cor cheia da paleta com letra branca, como os módulos dos Templates. */
+html body{--dmo-opcao-fundo:var(--dmo-card);--dmo-opcao-contorno:var(--dmo-border);--dmo-opcao-letra:var(--dmo-text);--dmo-opcao-hover:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-palette-slate);--dmo-escolhida-contorno:var(--dmo-palette-slate);--dmo-escolhida-letra:#fff}
+html[data-theme="dark"] body{--dmo-opcao-letra:var(--dmo-muted);--dmo-opcao-hover:#fff;--dmo-escolhida-fundo:#4b6387;--dmo-escolhida-contorno:#4b6387}
+
+/* Os rádios e as caixas escondidos: o rótulo é o botão. */
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label{position:relative;cursor:pointer}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:is([type=radio],[type=checkbox]){position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input+span{display:flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-opcao-contorno);border-radius:var(--dmo-r-control,8px);background:var(--dmo-opcao-fundo);color:var(--dmo-opcao-letra);font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;outline:0;box-shadow:none;transition:color var(--dmo-fast,.12s)}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label:hover>input:not(:checked)+span{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-hover)}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:checked+span,
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label:hover>input:checked+span{background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:focus-visible+span{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:disabled+span{opacity:.55;cursor:not-allowed}
+/* Produção / Experiência estava colado num interruptor só: passa a dois botões separados, como CM / MF. */
+html body .jof2 .jof-tipo.dmo-alternador{display:inline-flex;gap:8px;height:auto;border:0;border-radius:0;overflow:visible}
+
+/* Seletores feitos de ligações (Armazém: Entrada / Saída; Reparação programada: Listas / Histórico):
+   o mesmo aspeto, com a classe -ativo no lugar do :checked. */
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra);box-shadow:none;outline:0}
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(:hover,:focus-visible):not(.arm-modo-ativo):not(.rp-modo-ativo){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-hover)}
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo),
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo):is(:hover,:focus-visible){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
+
+/* «Sem Job On» da Reparação › Consultar (caixa com o rótulo como botão): rato por cima só a letra; ligado = escolhido. */
+html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra)}
+html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:hover:not(:has(>input:checked)){color:var(--dmo-opcao-hover)}
+html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:has(>input:checked){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+
+/* Setas da paginação sem página para onde ir («1 de 1»): claramente desligadas, sem fundo de botão
+   e sem cursor de mão (Diogo, 27/10/2026, …Cdi68amPSGYKsy5k2Cxp9o: «botões não têm funcionamento»). */
+html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="true"]):is(:disabled,[aria-disabled="true"]){background:transparent;border-color:var(--dmo-border);color:var(--dmo-muted);opacity:.45;cursor:default;pointer-events:none;box-shadow:none}

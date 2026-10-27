@@ -330,7 +330,6 @@
               }
               <div class="dmo-card-topo">
                 <h3>Registar Entrada ou Saída<partial name="_DmoHelp" model="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")" /></h3>
-                <div class="dmo-card-topo-acoes"><button type="submit" class="btn primary bq-line-save" aria-label="Registar o movimento">Registar</button></div>
               </div>
               @* SEM FOCO AUTOMÁTICO no tipo (Diogo, 22/10/2026): ao voltar do
                  Histórico pelo painel lateral, a «Saída» aparecia com o anel
@@ -342,9 +341,10 @@
                     ?? Model.MovementMachines.FirstOrDefault(m => m.Code == Model.ProductionContext?.MachineCode)?.MachineId;
               }
               <input type="hidden" id="movementMachine" name="movement_machine_id" value="@maquinaDaLinha" />
-              @* «Registar» no canto do cartão, na linha do título (Diogo, 26/10/2026);
-                 aqui o tipo, a quantidade e a data. *@
+              @* «Registar» à esquerda, antes da «Saída» (Diogo, 27/10/2026, …VhpNpJNmWffCnSnudseTKt);
+                 depois o tipo, a quantidade e a data. *@
               <div class="bq-movement-line">
+                <button type="submit" class="btn primary bq-line-save" aria-label="Registar o movimento">Registar</button>
                 <fieldset class="bq-movement-types">
                   <legend class="visually-hidden">Movimento</legend>
                   <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" required /><span>Saída</span></label>
