@@ -449,11 +449,12 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
         // a combinação e o «Visto por» — sobre os dados reais do Job On.
         Assert.Contains("css/dmo-resumo-prototype.css", folhaHtml);
         Assert.Contains("resumo-context-grid", folhaHtml);
-        Assert.Contains("resumo-tools-grid", folhaHtml);
+        // Sem «A combinação da produção» (Diogo, 27/10/2026): já está no Estado do documento.
+        Assert.DoesNotContain("resumo-tools-grid", folhaHtml);
         Assert.Contains("resumo-areas", folhaHtml);
         Assert.Contains("resumo-linked-grid", folhaHtml);
         Assert.Contains("Controlos associados", folhaHtml);
-        Assert.Contains("A combinação da produção", folhaHtml);
+        Assert.DoesNotContain("A combinação da produção", folhaHtml);
         Assert.Contains("<span>Início</span>", folhaHtml);
         Assert.DoesNotContain("Início em máquina", folhaHtml);
         // Menos clutter (Diogo, 17/10/2026): sem botões das folhas nem
@@ -473,7 +474,7 @@ public class ControloResumoPageTests : IClassFixture<CustomWebApplicationFactory
         Assert.DoesNotContain("para comparar", folhaHtml);
         Assert.DoesNotContain("PDF único", folhaHtml);
         Assert.DoesNotContain("resumo-quick-links", folhaHtml);
-        Assert.True(folhaHtml.IndexOf("A combinação da produção", StringComparison.Ordinal)
+        Assert.True(folhaHtml.IndexOf("<span>Início</span>", StringComparison.Ordinal)
             < folhaHtml.IndexOf("Controlos associados", StringComparison.Ordinal));
         // O estado do documento: OK/NOK grava ao escolher; o comentário abre
         // numa janela; a nota explicativa vive no triângulo.

@@ -1518,6 +1518,58 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.ToTable("PesoMeasurements");
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoMeasurementHistorico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Apagada")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("CmSubjectAntes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CmSubjectDepois")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EmUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MeasurementId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PesoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Por")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<Guid?>("PorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("WaterWeightAntesGrams")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("WaterWeightDepoisGrams")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PorUserId");
+
+                    b.HasIndex("PesoId", "EmUtc");
+
+                    b.ToTable("PesoMeasurementHistorico");
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.PuncaoInspecao", b =>
                 {
                     b.Property<int>("Id")
@@ -3382,6 +3434,20 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Peso");
+                });
+
+            modelBuilder.Entity("DMO.Alpha.Core.Controlo.PesoMeasurementHistorico", b =>
+                {
+                    b.HasOne("DMO.Alpha.Core.Controlo.Peso", null)
+                        .WithMany()
+                        .HasForeignKey("PesoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DMO.Alpha.Core.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("PorUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DMO.Alpha.Core.Controlo.PuncaoInspecao", b =>

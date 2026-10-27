@@ -605,9 +605,8 @@
       else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
     });
     document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
-    // Em vista, a «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026):
-    // um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
-    if (folha.getAttribute('data-jof-folha') === 'editar') return;
+    // A «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026), em vista e no Editar
+    // (28/10/2026: a folha não desliza): um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
     const tecnicas = () => folha.querySelectorAll('.sec > details.more[open]');
     folha.addEventListener('toggle', (e) => {
       if (!e.target.matches?.('.sec > details.more') || !e.target.open) return;
@@ -624,6 +623,42 @@
   // REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa linha de «O que
   // mudou» (fora do botão da ação) abre a janela com essa alteração;
   // «Remover por engano» mostra a confirmação.
+  // SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026): um clique (ou Espaço/Enter)
+  // numa alteração escolhe-a e o botão do canto passa a ser a ação dela;
+  // sem ação, o botão fica desativado.
+  function escolherAlteracoes() {
+    const acao = document.querySelector('[data-jof-resumo-acao] > a');
+    const linhas = document.querySelectorAll('.jobon-resumo > li');
+    function escolher(linha) {
+      linhas.forEach(l => {
+        l.classList.toggle('selected', l === linha);
+        if (l === linha) l.setAttribute('aria-current', 'true'); else l.removeAttribute('aria-current');
+      });
+      if (!acao) return;
+      const href = linha.getAttribute('data-jof-acao-href');
+      const rotulo = linha.getAttribute('data-jof-acao-rotulo');
+      if (href) {
+        acao.setAttribute('href', href);
+        acao.textContent = rotulo || acao.textContent;
+        acao.removeAttribute('aria-disabled');
+      } else {
+        acao.removeAttribute('href');
+        acao.setAttribute('aria-disabled', 'true');
+      }
+    }
+    linhas.forEach(linha => {
+      linha.addEventListener('click', event => {
+        if (event.target.closest('a, button')) return;
+        escolher(linha);
+      });
+      linha.addEventListener('keydown', event => {
+        if (event.target !== linha) return;
+        if (event.key === ' ') { event.preventDefault(); escolher(linha); }
+        else if (event.key === 'Enter') escolher(linha);
+      });
+    });
+  }
+
   function alteracoes() {
     const janela = document.querySelector('[data-jof-remover]');
     if (!janela || typeof janela.showModal !== 'function') return;
@@ -662,8 +697,57 @@
     });
   }
 
+  // As Notas gerais (ver) deslizam por dentro quando não cabem; a altura da lista acaba sempre no fim de uma linha inteira,
+  // para nunca ficar uma nota cortada a meio (Diogo, 28/10/2026).
+  function notasGerais() {
+    const lista = document.querySelector('.jof2 .side > .notes > ul');
+    if (!lista) return;
+    const ajustar = () => {
+      lista.style.flex = '';
+      lista.style.height = '';
+      if (lista.scrollHeight <= lista.clientHeight + 1) return;
+      const limite = lista.clientHeight;
+      let fim = 0;
+      for (const item of lista.children) {
+        const base = item.offsetTop + item.offsetHeight;
+        if (base <= limite) fim = base; else break;
+      }
+      if (fim > 0) { lista.style.flex = '0 0 auto'; lista.style.height = fim + 'px'; }
+    };
+    ajustar();
+    window.addEventListener('resize', ajustar);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
+  }
+
+  // As caixas de notas crescem até ocupar o espaço livre do cartão; quando o texto não cabe, deslizam por dentro e a altura
+  // visível acaba sempre numa linha inteira (18px), nunca a meio de uma linha (Diogo, 28/10/2026).
+  const NOTA_LINHA = 18;
+  function notasLinhas() {
+    const caixas = document.querySelectorAll('.jof2 .sec .note-box > p, .jof2 .sec .note-box > textarea, .jof2 .side > .notes > textarea');
+    caixas.forEach(el => { el.style.flex = ''; el.style.height = ''; });
+    caixas.forEach(el => {
+      if (el.closest('.is-ampliada') || el.offsetParent === null) return;
+      if (el.scrollHeight <= el.clientHeight + 1) return;
+      const cs = window.getComputedStyle(el);
+      const enchimento = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const bordas = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+      const linhas = Math.max(1, Math.floor((el.clientHeight - enchimento) / NOTA_LINHA));
+      el.style.flex = '0 0 auto';
+      el.style.height = (linhas * NOTA_LINHA + enchimento + bordas) + 'px';
+    });
+  }
+  function notasLinhasInicio() {
+    notasLinhas();
+    window.addEventListener('resize', notasLinhas);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(notasLinhas);
+    document.addEventListener('input', e => { if (e.target.matches && e.target.matches('.note-box > textarea, .side > .notes > textarea')) notasLinhas(); });
+    document.addEventListener('click', () => setTimeout(notasLinhas, 0));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setTimeout(notasLinhas, 0); });
+  }
+
   function init() {
     painel();
+    escolherAlteracoes();
     alteracoes();
     imprimir();
     producoes();
@@ -681,6 +765,8 @@
     }
     artigo(folha);
     notas(folha);
+    notasGerais();
+    notasLinhasInicio();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

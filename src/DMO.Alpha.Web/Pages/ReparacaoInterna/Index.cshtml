@@ -30,10 +30,25 @@ html body .ri-linha .dmo-field input.ri-hora{width:auto}
 .ri-tipos{display:flex;gap:8px;margin:0;padding:0;border:0}
 .ri-tipos label{position:relative;cursor:pointer}
 .ri-tipos input{position:absolute;opacity:0;width:1px;height:1px}
-/* «É outra CM/MF»: a referência e o lote só com ela marcada (sem produção ficam sempre). */
-.ri-outra-marca{display:inline-flex;gap:6px;align-items:center;margin:0 0 10px;font-size:13.5px;color:var(--dmo-text);cursor:pointer}
-.ri-outra-marca input{margin:0}
-.ri-registar:has(.ri-outra-check:not(:checked)) .ri-outra-campos{display:none}
+/* «É outra CM/MF» (Diogo, 27/10/2026: um botão no canto do cartão, sem caixas de marcar): o
+   botão é o rótulo da caixa escondida, que continua a levar outra=1; ligado, fica escuro como
+   o CM/MF escolhido e desliza o painel da referência e do lote por cima da página. Sem
+   produção não há botão: a referência e o lote ficam na linha, obrigatórios. */
+.ri-registar .ri-outra-check{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.ri-outra-botao{cursor:pointer;user-select:none}
+html body .ri-card:has(.ri-outra-check:checked) .ri-outra-botao{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff}
+html[data-theme="dark"] body .ri-card:has(.ri-outra-check:checked) .ri-outra-botao{background:var(--dmo-palette-ocean);border-color:var(--dmo-palette-ocean);color:#fff}
+.ri-card:has(.ri-outra-check:focus-visible) .ri-outra-botao{outline:2px solid var(--dmo-palette-ocean);outline-offset:2px}
+.ri-registar:has(.ri-outra-check) .ri-outra-campos{position:fixed;top:0;right:0;bottom:0;z-index:950;width:min(360px,100vw);box-sizing:border-box;margin:0;padding:18px 20px;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:12px;background:var(--dmo-card);border-left:1px solid var(--dmo-border);box-shadow:-12px 0 28px rgba(11,19,32,.22);overflow:auto;transform:translateX(100%);visibility:hidden;transition:transform .22s ease,visibility 0s linear .22s}
+.ri-registar:has(.ri-outra-check:checked) .ri-outra-campos{transform:none;visibility:visible;transition:transform .22s ease,visibility 0s}
+@@media (prefers-reduced-motion:reduce){.ri-registar:has(.ri-outra-check) .ri-outra-campos{transition:none}}
+html body .ri-registar:has(.ri-outra-check) .ri-outra-campos .dmo-field input:is(.ri-referencia,.ri-lote){width:100%}
+.ri-outra-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ri-card .ri-outra-topo h4{margin:0;font-size:16px}
+.ri-outra-fechar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:6px;font-size:22px;line-height:1;color:var(--dmo-muted);cursor:pointer}
+.ri-outra-fechar:hover{background:var(--dmo-subtle,#f1f6fa);color:var(--dmo-text)}
+.ri-outra-dica{margin:0;font-size:13px;color:var(--dmo-muted)}
+html body .ri-outra-campos .ri-outra-ok{align-self:flex-start}
 .ri-ficha{color:var(--dmo-brand-900);font-weight:600}
 .ri-escrita{display:inline-block;margin-left:6px;font-size:12.5px;color:var(--dmo-muted)}
 /* A produção, a CM e o MF em três cartões pequenos, como os do resumo do Peso
@@ -43,12 +58,18 @@ html body .ri-linha .dmo-field input.ri-hora{width:auto}
 .ri-onde dt{font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em;color:var(--dmo-muted)}
 .ri-onde dd{margin:0;font-size:16px;font-weight:750;overflow-wrap:anywhere}
 @@media(max-width:600px){.ri-onde{grid-template-columns:1fr}}
-/* O dia, CM e MF, o número e OK numa só linha (Diogo, 23/10/2026); «É outra CM/MF» e
-   os campos dela ficam por baixo. Os dois formulários continuam separados. */
+/* Numa só linha (Diogo, 23/10/2026), por esta ordem (Diogo, 27/10/2026: «primeiro escolher
+   CM MF, trabalho e número; dia e hora vem depois»): CM/MF, Trabalho, Número, Dia e Hora, OK.
+   Os dois formulários continuam separados; o do dia fica inteiro (o Dia e a Hora juntos). */
 .ri-registo-linha{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:0 0 10px}
-.ri-registo-linha>form{display:contents}
+.ri-registo-linha>.ri-registar,.ri-registo-linha>.ri-registar>.ri-linha:not(.ri-outra-campos){display:contents}
 .ri-registo-linha .ri-linha{margin:0}
-.ri-registo-linha>form>:is(.ri-outra-marca,.ri-outra-campos){flex-basis:100%}
+.ri-registo-linha .ri-tipos{order:1}
+.ri-registo-linha .ri-campo-trabalho{order:2}
+.ri-registo-linha .ri-campo-numero{order:3}
+.ri-registo-linha>.ri-dia-form{order:4}
+.ri-registo-linha .ri-ok{order:5}
+.ri-registo-linha>.ri-registar>.ri-outra-campos{order:6;flex-basis:100%}
 .ri-card .dmo-aviso{margin:0 0 12px}
 .ri-card .dmo-table td{padding:5px 8px;vertical-align:middle}
 .ri-card .dmo-table td:not(:last-child){white-space:nowrap}
