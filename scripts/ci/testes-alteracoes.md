@@ -3926,3 +3926,13 @@ Novos: 4 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
 
 Selo depois: `155ae28a8e306475`
+
+## A-0228 · 2026-10-27 · ok-do-diogo
+
+Porquê: A grelha da folha do Job On passa a ser a da maqueta 01: em cima CM, MF, BQ+AN e PU+ARR com a mesma largura; por baixo TP e CS mais estreitos e os Calibres com mais de metade da largura, até ao fim de PU+ARR, para os 8 calibres caberem à vista. O teste deixa de exigir TP e CS com a largura dos cartões de cima e passa a exigir os Calibres largos.
+Referência: Diogo 27/10/2026 13:13, cartão cmsg_01K75FTs9bQnbhhH7qttpgraRLtcQMRYqY7oQkMoqYfJnc «Sim, como a maqueta 01»
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/jobon_folha_browser.py`
+
+Selo depois: `1146924046f4fbb9`
