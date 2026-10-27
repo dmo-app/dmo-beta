@@ -893,6 +893,6 @@ html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote>input{w
 /* Histórico do Controlo menos branco (Diogo, 27/10/2026: «fica demasiado
    branco», «usa um pouco de shade da palete»): no claro, o cabeçalho da
    tabela no tom pálido da marca e as linhas alternadas no tom subtil. */
-:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] thead th{background:var(--dmo-brand-100)}
-:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] tbody tr:nth-child(even)>td{background:var(--dmo-subtle)}
-:root:not([data-theme="dark"]) body main.peso-page #pesoHistoricoFiltros{background:var(--dmo-subtle);border-radius:var(--dmo-radius-control,8px);padding:10px 12px}
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] thead th{background:color-mix(in srgb,var(--dmo-brand-500) 16%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] tbody tr:nth-child(even)>td{background:color-mix(in srgb,var(--dmo-brand-500) 7%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page #pesoHistoricoFiltros{background:color-mix(in srgb,var(--dmo-brand-500) 9%,var(--dmo-card));border-radius:var(--dmo-radius-control,8px);padding:10px 12px}
