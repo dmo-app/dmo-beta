@@ -843,3 +843,10 @@ html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo
   border-top: 1px solid var(--dmo-border);
 }
 /* ===== fim da HIERARQUIA DO RESUMO ===== */
+
+/* Peso sem registo com «Associar Peso existente» e «Registar»: os dois
+   botões ficam na linha do título (o «Sem registo» já se lê em «Ainda não
+   registado», por baixo, por isso sai do canto quando há dois botões). */
+html body main.resumo-page .resumo-linked-peso .resumo-linked-card-head:not(#_) { flex-wrap: nowrap; }
+html body main.resumo-page .resumo-linked-peso .resumo-card-actions:has(> .dmo-button + .dmo-button) > .resumo-status:not(#_) { display: none; }
+html body main.resumo-page .resumo-linked-peso .resumo-card-actions:not(#_) { flex-wrap: nowrap; }

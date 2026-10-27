@@ -34,7 +34,10 @@ public enum SaveModuleSettingResult
     /// dropdown da Admin oferece apenas os existentes; o valor vazio é
     /// LIMPAR a rota da máquina, nunca esta recusa).
     /// </summary>
-    BoquilhasInvalidRepairerId
+    BoquilhasInvalidRepairerId,
+
+    /// <summary>Reparação Interna: os minutos do posto não são uma das opções.</summary>
+    PostoMinutosInvalidos
 }
 
 public sealed record SaveModuleSettingOutcome(SaveModuleSettingResult Result);
