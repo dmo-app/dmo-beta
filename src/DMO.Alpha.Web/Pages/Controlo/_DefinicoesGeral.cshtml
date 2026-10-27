@@ -104,11 +104,12 @@ html body .ctl-def-grade[hidden]{display:none}
   </section>
   </div>
   <div class="ctl-def-grupo" data-dmo-ctl-parte="puncoes">
-  @* AS SECÇÕES DE CADA LINHA (Diogo, 22/10/2026): a grelha das punções PU
-     NNPB enche as secções da linha, 4 posições cada (A a D). *@
+  @* AS SECÇÕES E A GOTA DE CADA LINHA (Diogo, 22/10 e 27/10/2026): a grelha
+     das punções PU NNPB enche as secções da linha, uma posição por gota
+     (A, B, C…); secções × gota são os punções que a linha leva. *@
   <section id="ctlDefPuncoesSeccoes" class="dmo-card ctl-def-card" aria-labelledby="puncoes-seccoes-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-      <h3 id="puncoes-seccoes-title" title="@($"Só as linhas com NNPB (B1 e, por vezes, C3). As punções registadas entram pela ordem de registo nas posições da linha: A1, B1, C1, D1, A2… Cada secção tem 4 posições (A a D); as punções que passam da linha ficam na reserva. Enquanto não se guardar outro número, a linha tem {DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.SeccoesPorOmissao} secções.")">PU NNPB — secções por linha</h3>
+      <h3 id="puncoes-seccoes-title" title="@($"Só as linhas com NNPB (B1 e, por vezes, C3). Secções × gota são os punções que a linha leva (a B1 tem 4 gotas, a C3 tem 3). As punções registadas entram pela ordem de registo nas posições da linha: A1, B1, C1, D1, A2… Cada secção tem uma posição por gota; as punções que passam da linha ficam na reserva. Enquanto não se guardar outro número, a linha tem {DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.SeccoesPorOmissao} secções.")">PU NNPB — secções e gota por linha</h3>
       @if (linhasNnpb.Count > 0)
       {
         <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefSeccoesGuardar" form="ctlDefSeccoesForm">Guardar</button></div>
@@ -127,7 +128,7 @@ html body .ctl-def-grade[hidden]{display:none}
       <form id="ctlDefSeccoesForm" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePuncoesSeccoesTodas">
       <div class="dmo-table-wrap">
         <table class="dmo-table" data-dmo-puncoes-seccoes>
-          <thead><tr><th>Linha</th><th>Secções</th><th>Posições</th></tr></thead>
+          <thead><tr><th>Linha</th><th>Secções</th><th>Gota</th><th>Punções</th></tr></thead>
           <tbody>
           @foreach (var linha in linhasNnpb)
           {
@@ -137,7 +138,8 @@ html body .ctl-def-grade[hidden]{display:none}
                 <input type="hidden" name="maquina" value="@linha.Maquina" />
                 <input name="seccoes" inputmode="numeric" size="4" value="@linha.Seccoes" aria-label="Secções da linha @linha.Maquina" required />
               </td>
-              <td>@(linha.Seccoes * DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.PosicoesPorSeccao)@(linha.PorOmissao ? " (por omissão)" : null)</td>
+              <td><input name="gotas" inputmode="numeric" size="4" value="@linha.Gotas" aria-label="Gota da linha @linha.Maquina" required /></td>
+              <td data-dmo-puncoes-total>@linha.Puncoes@(linha.PorOmissao || linha.GotasPorOmissao ? " (por omissão)" : null)</td>
             </tr>
           }
           </tbody>
