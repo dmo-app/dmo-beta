@@ -199,33 +199,8 @@ public sealed class DefinicoesModel(
     public IActionResult OnGet() => Redirect(DefinicoesAcesso.Nova(Request, "controlo"));
 
     /// <summary>Carrega o que a secção deste módulo nas Definições mostra.</summary>
-    /// <summary>O nome da pasta partilhada dos PDFs (Geral); null sem nome definido.</summary>
-    public string? PastaPdf { get; private set; }
-
-    public string? PastaResult { get; private set; }
-
-    public bool PastaSucceeded => PastaResult == "ok";
-
-    public string PastaResultMessage => PastaResult switch
+    public async Task CarregarAsync(string? save, string? envio, string? fora, string? densidade = null, string? seccoes = null)
     {
-        "ok" => "Pasta dos PDFs guardada.",
-        "invalida" => $"Indique o nome da pasta (no máximo {ModuleSettingKeys.ControloPastaPdfMax} caracteres).",
-        _ => string.Empty
-    };
-
-    /// <summary>POST: o nome da pasta partilhada dos PDFs, para todos (Geral).</summary>
-    [DefinicaoGeral]
-    public async Task<IActionResult> OnPostSavePastaPdfAsync([FromForm(Name = "pasta")] string? pasta)
-    {
-        var outcome = await saveModuleSetting.HandleAsync(
-            new SaveModuleSetting(ModuleSettingKeys.ControloPastaPdf, pasta ?? string.Empty), HttpContext.RequestAborted);
-        return RedirectToPage("/Definicoes/Index", new { pasta = outcome.Result == SaveModuleSettingResult.Success ? "ok" : "invalida" });
-    }
-
-    public async Task CarregarAsync(string? save, string? envio, string? fora, string? densidade = null, string? seccoes = null, string? pasta = null)
-    {
-        PastaResult = pasta;
-        PastaPdf = await moduleSettings.FindValueAsync(ModuleSettingKeys.ControloPastaPdf, HttpContext.RequestAborted);
         SeccoesResult = seccoes;
         PuncoesLinhas = await puncoesLinhas.ListarAsync(HttpContext.RequestAborted);
 

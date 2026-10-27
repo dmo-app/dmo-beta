@@ -3592,3 +3592,57 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarComAsMesmasConsultasPara5Ou100Ferramentas_NoPostgreSql`
 
 Selo depois: `eb42111e0485ab74`
+
+## A-0219 · 2026-10-27 · ok-do-diogo
+
+Porquê: A Pasta partilhada dos PDFs fica só com Associar/Remover: sai o campo do nome da pasta, o Guardar e o aviso de nome diferente (Diogo, 27/10/2026: «remover este erro e o campo para escolher nome», «a app só tem de seguir o dir»). Dois testes passam a verificar que o campo e o Guardar não existem; o que gravava o nome sai.
+Referência: «sim» do Diogo, cmsg_01K75FTs9bQnbhhH7qttpgraGh1feCmYhsHNv26gMB6hYz (DMO-477, 0.3.0-beta.178)
+Novos: 0 · mudaram: 2 · saíram: 1
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APastaDosPdfs_GravaSeParaTodos_ComAPermissao`
+
+Selo depois: `138f201af6d7df8a`
+
+## A-0213 · 2026-10-27 · ok-do-diogo
+
+Porquê: Peso sem Job On: com a CM e a BQ escolhidas, os volumes da punção e da marisa aparecem uma só vez, na faixa dos volumes (Volume Punção / CM, Volume Marisa / BQ); os 2 testes procuram esses nomes. Teste novo: o Peso aberto sem produção já não mostra o cartão Ferramentas e os Job Ons para associar são linhas que se escolhem, com um só «Associar» (DMO-473, 0.3.0-beta.169)
+Referência: cartão de decisão do Diogo na thread «Arrumar a página do Peso», 27/10/2026 06:42 (cmsg_01K75FTs9bQnbhhH7qttpgra1g1D25NUvmLaCqFq1H1mpx)
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: ControloCapabilitiesCutHPageTests.PesoAberto_SemFerramentas_EAssociarNumaTabelaComUmSoBotao`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
+
+Selo depois: `172e1a536bce7902`
+
+## A-0214 · 2026-10-27 · ok-do-diogo
+
+Porquê: A BQ do Peso sem Job On deixa de ter lote e a associação ao Job On conta a referência da BQ (qualquer lote). Os 3 testes da associação usavam um outro lote da mesma BQ (bq-b, Y232) como «outra BQ»: passam a usar uma BQ de outra referência (bq-c, Y300), a mesma recusa. O teste da folha por referência deixa de esperar o lote da BQ (12) no cartão. Testes novos: o Peso de outro lote da mesma BQ associa-se e fica com o lote da produção; o campo «BQ — lote» não aparece com a marisa igual.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra1F8zuYkECXUkomt4uk6jE4 («sim», 27/10/2026 07:01) e cmsg_01K75FTs9bQnbhhH7qttpgraVKRTRjGjK7GvF2BEsEHkoc («nao tem lote»); cartão cmsg_01K75FTs9bQnbhhH7qttpgraU48Jy5Uk3vfwYNztsu9MAk «Tirar e associar pela referência»
+Novos: 2 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherLotOfTheSameBq_IsAcceptedAndTakesTheProductionLot`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: ControloCapabilitiesCutHPageTests.PesoSemJobOn_BqSemCampoDoLote_QuandoAMarisaEIgual`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherBq_IsRefusedAsBqMismatch`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Candidates_AfterSwapWithoutCurrentPeso_AreLoosePesosOfTheToolsTheProductionHadOrHas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Productions_ForPeso_IncludeJobOnsThatHadTheCmBeforeASwap`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
+
+Selo depois: `350f94e337b7d721`
+
+## A-0215 · 2026-10-27 · ok-do-diogo
+
+Porquê: O Peso sem produção deixa de mostrar a nota «sem associação a produção — CM · Lote» (a CM já está no título). O teste da folha deixa de a esperar; o da identificação gravada passa a provar que o lote editado no catálogo (33) não aparece; o dos Pegamentos deixa de esperar a nota no Peso.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraNyjVEgBfESart96h9XoX9j («remover», 27/10/2026 07:08, a nota «sem associação a produção — CM ST100 · Lote 8»)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.SavedPesoNavigation_UsesItsOwnProduction_AndDoesNotAssociateToolScopedPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.SavedPeso_KeepsRecordedIdentificationAfterCatalogEdit_AndDownloadsPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
+
+Selo depois: `be84027a25ad05f6`
