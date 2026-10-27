@@ -44,6 +44,23 @@
     return '<div class="peso-fact"><span>' + L.escapeHtml(label) + "</span><strong" + strongClass + ">" + L.escapeHtml(value) + "</strong></div>";
   }
 
+  // Os números da faixa como o servidor os escreve (DmoNumberFormat): um
+  // inteiro sem casas e decimais sempre com duas; as diferenças com sinal,
+  // «−» e duas casas. Ao gravar, o valor não muda de largura nem de forma
+  // (Diogo, 27/10/2026: «cria um valor ao lado do registar que empurra tudo»).
+  function arred2(value) {
+    var n = Number(value);
+    return (n < 0 ? -1 : 1) * Math.round(Math.abs(n) * 100 + 1e-9) / 100;
+  }
+  function dec2(value) {
+    var r = arred2(value);
+    return r === Math.trunc(r) ? String(r) : r.toFixed(2);
+  }
+  function comSinal2(value) {
+    var r = arred2(value);
+    return (r >= 0 ? "+" : "\u2212") + Math.abs(r).toFixed(2);
+  }
+
   function signed(value, unit, decimals) {
     if (value === null || value === undefined) return "—";
     var n = Number(value);
@@ -198,14 +215,14 @@
 
     f.strip.innerHTML = [
       factHtml("Leituras válidas", totals.sampleCount === undefined || totals.sampleCount === null ? "—" : String(totals.sampleCount)),
-      factHtml("Média em água", totals.averageWaterWeightGrams === null || totals.averageWaterWeightGrams === undefined ? "—" : L.formatNumber(totals.averageWaterWeightGrams, 2) + " g"),
-      factHtml("Peso estimado em vidro", totals.averageGlassWeightGrams === null || totals.averageGlassWeightGrams === undefined ? "—" : L.formatNumber(totals.averageGlassWeightGrams, 2) + " g"),
-      factHtml("Capacidade média", totals.averageCapacityCm3 === null || totals.averageCapacityCm3 === undefined ? "—" : L.formatNumber(totals.averageCapacityCm3, 3) + " cm³")
+      factHtml("Média em água", totals.averageWaterWeightGrams === null || totals.averageWaterWeightGrams === undefined ? "—" : dec2(totals.averageWaterWeightGrams) + " g"),
+      factHtml("Peso estimado em vidro", totals.averageGlassWeightGrams === null || totals.averageGlassWeightGrams === undefined ? "—" : dec2(totals.averageGlassWeightGrams) + " g"),
+      factHtml("Capacidade média", totals.averageCapacityCm3 === null || totals.averageCapacityCm3 === undefined ? "—" : dec2(totals.averageCapacityCm3) + " cm³")
     ].join("");
 
     f.summary.innerHTML = [
-      factHtml("Peso nominal", context.nominalWeightGrams === null || context.nominalWeightGrams === undefined ? "—" : L.formatNumber(context.nominalWeightGrams, 2) + " g"),
-      factHtml("Diferença nominal", totals.desvioNominalG === null || totals.desvioNominalG === undefined ? "—" : signed(totals.desvioNominalG, "g", 2), Number(totals.desvioNominalG) < 0 ? "peso-valor-negativo" : undefined)
+      factHtml("Peso nominal", context.nominalWeightGrams === null || context.nominalWeightGrams === undefined ? "—" : dec2(context.nominalWeightGrams) + " g"),
+      factHtml("Diferença nominal", totals.desvioNominalG === null || totals.desvioNominalG === undefined ? "—" : comSinal2(totals.desvioNominalG) + " g", Number(totals.desvioNominalG) < 0 ? "peso-valor-negativo" : undefined)
     ].join("");
     if (comparisonFact) f.summary.appendChild(comparisonFact);
 
