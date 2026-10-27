@@ -3260,3 +3260,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen`
 
 Selo depois: `833606a8293db3b6`
+
+## A-0180 · 2026-10-27 · ok-do-diogo
+
+Porquê: Histórico do Controlo sem texto de ajuda e sem a coluna Resumo (Diogo, 27/10/2026).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra8ZfpVoajgn5AkYsPBX7fMg (pedido cmsg_01K75FTs9bQnbhhH7qttpgra1vX5iME1pheahiGpCrhsqU; erros cmsg_01K75FTs9bQnbhhH7qttpgraCq647u2zepuXXqqCxiWAKr)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.GuardarComparacao_CriaORegistoDoHistorico`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Historico_ProcuraUnificadaPelosQuatroTipos`
+
+Selo depois: `aded66bcf5324e3a`
