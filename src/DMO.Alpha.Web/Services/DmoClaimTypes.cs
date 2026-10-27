@@ -15,4 +15,7 @@ public static class DmoClaimTypes
 
     /// <summary>A sessão entrou pelo posto da RI: só a Reparação Interna.</summary>
     public const string Posto = "dmo:posto";
+
+    /// <summary>Os minutos sem uso ao fim dos quais a sessão do posto fecha sozinha.</summary>
+    public const string PostoMinutos = "dmo:posto_minutos";
 }

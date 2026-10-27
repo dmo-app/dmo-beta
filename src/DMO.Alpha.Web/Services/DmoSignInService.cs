@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using DMO.Alpha.Core.Authentication;
+using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Identity;
 using DMO.Alpha.Infrastructure.Data;
@@ -357,18 +359,22 @@ public sealed class DmoSignInService
             SessionVersionClaim(user),
             new Claim(DmoClaimTypes.Posto, bool.TrueString)
         ];
+        // O mesmo computador para várias pessoas (Diogo, 27/10/2026: «3min
+        // auto e opções nas definições para aumentar»): a sessão do posto
+        // fecha ao fim de N minutos sem uso, não das horas da conta.
+        var minutos = PostoRiRegras.Minutos(await _dbContext.ModuleSettings.AsNoTracking()
+            .Where(s => s.SettingKey == ModuleSettingKeys.ReparacaoInternaPostoMinutos)
+            .Select(s => s.SettingValue)
+            .FirstOrDefaultAsync());
+        claims.Add(new Claim(DmoClaimTypes.PostoMinutos, minutos.ToString(CultureInfo.InvariantCulture)));
         if (!string.IsNullOrWhiteSpace(user.TemplateName))
         {
             claims.Add(new Claim(DmoClaimTypes.ProfileLabel, user.TemplateName));
         }
 
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-        var horas = SessaoDuracao.Ler(await _dbContext.UserSettings.AsNoTracking()
-            .Where(s => s.UserId == user.Id && s.Key == UserSettingKeys.SessaoHoras)
-            .Select(s => s.Value)
-            .FirstOrDefaultAsync());
         await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-            new AuthenticationProperties { ExpiresUtc = DateTimeOffset.UtcNow.AddHours(horas) });
+            new AuthenticationProperties { ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(minutos) });
         DesbloqueioDasDefinicoes.Fechar(httpContext);
 
         var tema = await _dbContext.UserSettings.AsNoTracking()
