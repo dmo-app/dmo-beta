@@ -88,9 +88,15 @@
   @if (Model.HistoricoTab)
   {
   <section class="dmo-card peso-card" aria-labelledby="peso-historico-title">
-    <div class="peso-card-heading"><div>
+    @* O «Comparar peso» do Histórico (Diogo, 27/10/2026: «comparar peso através
+       do histórico»): leva a referência escrita (data-peso-comparar-cm), posta
+       pelo script ao clicar; o cabeçalho fica igual entre filtros. *@
+    <div class="peso-card-heading dmo-card-topo">
       <h3 id="peso-historico-title">Histórico do Controlo</h3>
-    </div></div>
+      <div class="dmo-card-topo-acoes">
+        <a class="dmo-button" href="/Controlo/PesoComparar" data-peso-comparar-cm="historicoReferencia">Comparar peso</a>
+      </div>
+    </div>
     @* Os filtros trocam só o que muda (deep sweep, 18/10/2026): cada escolha
        pede a página com fetch (DmoTroca, pelo ouvinte do Peso abaixo) e troca
        os resultados e o dropdown das produções, que muda com a referência.
@@ -615,7 +621,7 @@
         {
           <p class="peso-hint">Sem pares para deltas — os números de CM não coincidem com os do Peso inicial. A comparação continua válida; os pesos ficam lado a lado.</p>
         }
-        <p class="peso-hint">@resultado.Leituras.Count CM medido(s). Pré-visualização não guardada: usa «Guardar comparação» para registar.</p>
+        <p class="peso-hint">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(resultado.Leituras.Count, "CM medido", "CM medidos"). Pré-visualização não guardada: usa «Guardar comparação» para registar.</p>
       </section>
     }
     </div>
@@ -708,6 +714,12 @@
             <a class="dmo-button" href="/Controlo/Peso?controlo_id=@pesoDoTopo.ControloId">Abrir o Peso atual</a>
           }
           <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloIdFromQuery&comparacao=1@(Model.PesoIdNoEndereco is { } comparacaoPesoInicial ? $"&peso_inicial={comparacaoPesoInicial}" : null)">Comparação de Peso</a>
+          @* O «Comparar peso» (Diogo, 27/10/2026): abre ao lado as CM compatíveis
+             e o tampão simulado (PesoComparar). *@
+          @if (Model.Peso is { } pesoComparar)
+          {
+            <a class="dmo-button" href="/Controlo/PesoComparar?peso_id=@pesoComparar.PesoId">Comparar peso</a>
+          }
           @if (Model.Peso is not null)
           {
             <button type="submit" class="dmo-button" form="pesoPdfForm">Exportar PDF</button>
@@ -879,7 +891,8 @@
         var depoisDaTroca = Model.Pesos.Count > 0;
         <section class="dmo-card peso-card" aria-labelledby="peso-associate-title" style="margin-top:14px">
           <div class="peso-card-heading"><div>
-            <h3 id="peso-associate-title">@(depoisDaTroca ? "Pesos sem produção destas ferramentas" : "Pesos sem produção desta CM")<partial name="_DmoHelp" model="@("Um clique escolhe o Peso; duplo clique abre-o.")" /></h3>
+            @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+            <h3 id="peso-associate-title" title="Um clique escolhe o Peso; duplo clique abre-o.">@(depoisDaTroca ? "Pesos sem produção destas ferramentas" : "Pesos sem produção desta CM")</h3>
             <p class="card-note">@(Model.AssociationCandidates.Count == 1 ? "Existe um Peso" : $"Existem {Model.AssociationCandidates.Count} Pesos") registado@(Model.AssociationCandidates.Count == 1 ? "" : "s") com @(depoisDaTroca ? "a CM e a BQ que esta produção tem ou teve antes da troca" : "a CM deste Job On") e ainda sem produção. Quer associar a esta produção?</p>
           </div>
             <div class="dmo-card-topo-acoes" data-dmo-for="pesoAssociateList"><button type="submit" class="dmo-button" form="pesoAssociateForm">Associar a esta produção</button></div>
@@ -1001,7 +1014,7 @@
   {
   <section class="dmo-card peso-card" aria-labelledby="peso-jobon-title">
     <div class="dmo-modo-head">
-      <h3 id="peso-jobon-title">Job On<partial name="_DmoHelp" model="@("CM, boquilha (BQ) e calote vêm do Job On escolhido.")" /></h3>
+      <h3 title="CM, boquilha (BQ) e calote vêm do Job On escolhido." id="peso-jobon-title">Job On</h3>
       @if (Model.Peso is null)
       {
         <partial name="_ControloModoRegisto" model="@(("/Controlo/Peso", true))" />
@@ -1342,6 +1355,7 @@
           {
             <a class="dmo-button" href="/Controlo/Peso?controlo_id=@peso.ControloId">Abrir o Peso atual</a>
           }
+          <a class="dmo-button" href="/Controlo/PesoComparar?peso_id=@peso.PesoId">Comparar peso</a>
           <button type="submit" class="dmo-button" form="pesoPdfForm">Exportar PDF</button>
         </div>
         }
@@ -1810,7 +1824,7 @@
               </div>
             </dialog>
           </div>
-          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=ferramentas">Ler a pasta da produção</a></span>
+          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></span>
           @* O peso da produção de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {
@@ -1949,8 +1963,20 @@
      histórico vive SÓ na tab (?historico=1 — a procura pelo total). *@
 
 @section Scripts {
-<script src="@Url.Content("~/peso-live.js")"></script>
+<script src="~/peso-live.js" asp-append-version="true"></script>
 <script>
+// O «Comparar peso» do Histórico leva a referência que está escrita agora.
+(() => {
+  const atualizar = () => document.querySelectorAll('a[data-peso-comparar-cm]').forEach(link => {
+    const campo = document.getElementById(link.dataset.pesoCompararCm);
+    const url = new URL(link.getAttribute('href'), location.href);
+    if (campo && campo.value.trim()) url.searchParams.set('cm', campo.value.trim()); else url.searchParams.delete('cm');
+    link.setAttribute('href', url.pathname + url.search);
+  });
+  document.addEventListener('input', event => { if (event.target.id === 'historicoReferencia') atualizar(); });
+  document.addEventListener('pointerdown', event => { if (event.target.closest('a[data-peso-comparar-cm]')) atualizar(); }, true);
+  document.addEventListener('focusin', event => { if (event.target.closest('a[data-peso-comparar-cm]')) atualizar(); });
+})();
 // A COMPARAÇÃO DE PESO (progressive enhancement, o padrão do html):
 // as leituras adicionam/removem ao vivo e os selects de contexto
 // auto-submetem o GET do cascade. Sem JS tudo funciona pelo form nativo

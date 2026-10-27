@@ -41,7 +41,20 @@ public sealed class DeleteBqRepairerHandler : IDeleteBqRepairerHandler
             movement.BqRepairerId = null;
         }
 
-        var routeKeys = BqRepairerRouting.MachineCodes.Select(BqRepairerRouting.SettingKeyFor).ToList();
+        // As saídas de BQ do Armazém também apontam para ele (chave estrangeira
+        // RESTRICT): largam a ligação e ficam com o nome, que já guardam desde
+        // a saída. Sem isto a base recusava e a página dava erro (vistoria
+        // BD-02, 27/10/2026).
+        var armazem = await _db.ArmazemMovimentos
+            .Where(m => m.BqReparadorId == repairer.Id)
+            .ToListAsync(cancellationToken);
+        foreach (var movimento in armazem)
+        {
+            movimento.ReparadorNome ??= repairer.Name;
+            movimento.BqReparadorId = null;
+        }
+
+        var routeKeys =BqRepairerRouting.MachineCodes.Select(BqRepairerRouting.SettingKeyFor).ToList();
         var idText = repairer.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
         var routes = await _db.ModuleSettings
             .Where(s => routeKeys.Contains(s.SettingKey) && s.SettingValue == idText)

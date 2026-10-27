@@ -42,7 +42,8 @@ html body .ctl-def-grade[hidden]{display:none}
   <div class="ctl-def-grade" data-dmo-ctl-sub="pegamentos" data-dmo-grupo="controlo" hidden="@(sub != "pegamentos")">
   <section id="ctlDefTolerancia" class="dmo-card ctl-def-card" aria-labelledby="pegamentos-settings-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-    <h3 id="pegamentos-settings-title">Pegamentos — tolerância<partial name="_DmoHelp" model="@("A tolerância (± mm) à volta do gargalo do CM, BQ e MF. A norma é 0,20 mm. Cada registo de Pegamentos guarda a tolerância com que foi criado: mudar este valor não altera registos já feitos.")" /></h3>
+    @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+    <h3 id="pegamentos-settings-title" title="A tolerância (± mm) à volta do gargalo do CM, BQ e MF. A norma é 0,20 mm. Cada registo de Pegamentos guarda a tolerância com que foi criado: mudar este valor não altera registos já feitos.">Pegamentos — tolerância</h3>
       <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefGuardar" form="ctlDefToleranciaForm">Guardar</button></div>
     </div>
     @if (Model.SaveResultMessage.Length > 0)
@@ -74,7 +75,7 @@ html body .ctl-def-grade[hidden]{display:none}
   <div class="ctl-def-grade" data-dmo-ctl-sub="email" data-dmo-grupo="controlo" hidden="@(sub != "email")">
   <section id="ctlDefListas" class="dmo-card ctl-def-card" aria-labelledby="envio-listas-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-    <h3 id="envio-listas-title">Envio por email — listas<partial name="_DmoHelp" model="@("Quem recebe o PDF do Peso. Escreva o nome da lista, o nome e o email da pessoa e carregue em Adicionar: uma lista nova cria-se, a uma que já existe junta-se a pessoa. Pode colar uma lista do Outlook («\"Leal, Sergio\" <sleal@fabrica.pt>; …»): cada pessoa entra com o seu nome. O que não for um email fica de fora, com aviso. Abra uma lista pelo triângulo; clique no nome ou no email de uma pessoa para os mudar (grava ao sair do campo).")" /></h3>
+    <h3 id="envio-listas-title" title="@("Quem recebe o PDF do Peso. Escreva o nome da lista, o nome e o email da pessoa e carregue em Adicionar: uma lista nova cria-se, a uma que já existe junta-se a pessoa. Pode colar uma lista do Outlook («\"Leal, Sergio\" <sleal@fabrica.pt>; …»): cada pessoa entra com o seu nome. O que não for um email fica de fora, com aviso. Abra uma lista pelo triângulo; clique no nome ou no email de uma pessoa para os mudar (grava ao sair do campo).")">Envio por email — listas</h3>
       <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefCriarLista" form="ctlDefCriarListaForm">Adicionar</button></div>
     </div>
     <form id="ctlDefCriarListaForm" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="CriarLista" class="ctl-def-acoes">
@@ -142,7 +143,7 @@ html body .ctl-def-grade[hidden]{display:none}
 
   <section id="ctlDefModelos" class="dmo-card ctl-def-card" aria-labelledby="envio-modelos-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-      <h3 id="envio-modelos-title">Envio por email — modelos<partial name="_DmoHelp" model="@("O assunto e o corpo do email, reutilizáveis, e o email que envia. {referencia}, {producao}, {maquina} e {peso} trocam-se pelos dados da produção ({peso} é o peso médio do vidro, por exemplo 245,30 g). A lista do modelo é a proposta ao enviar; no envio pode escolher outra. Clique no nome de um modelo para o mudar.")" /></h3>
+      <h3 id="envio-modelos-title" title="@("O assunto e o corpo do email, reutilizáveis, e o email que envia. {referencia}, {producao}, {maquina} e {peso} trocam-se pelos dados da produção ({peso} é o peso médio do vidro, por exemplo 245,30 g). A lista do modelo é a proposta ao enviar; no envio pode escolher outra. Clique no nome de um modelo para o mudar.")">Envio por email — modelos</h3>
       <div class="dmo-card-topo-acoes">
         <button type="button" class="dmo-button" data-dmo-dialog="ctl-modelo-novo">Novo modelo</button>
       </div>
@@ -197,7 +198,7 @@ html body .ctl-def-grade[hidden]{display:none}
   <section id="ctlDefDensidade" class="dmo-card ctl-def-card" aria-labelledby="densidade-vidro-title" data-dmo-regiao data-dmo-parcial>
     <form method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SaveGlassDensity">
       <div class="dmo-card-topo">
-        <h3 id="densidade-vidro-title">Densidade do vidro<partial name="_DmoHelp" model="@("A densidade do vidro (g/cm³) de cada processo da CM, usada no peso do vidro do Peso. Cada Peso guarda a densidade com que foi criado: mudar estes valores só vale para os Pesos novos e para as comparações feitas a seguir.")" /></h3>
+        <h3 id="densidade-vidro-title" title="A densidade do vidro (g/cm³) de cada processo da CM, usada no peso do vidro do Peso. Cada Peso guarda a densidade com que foi criado: mudar estes valores só vale para os Pesos novos e para as comparações feitas a seguir.">Densidade do vidro</h3>
         <div class="dmo-card-topo-acoes">
           <button type="submit" class="dmo-button" id="ctlDefDensidadeGuardar">Guardar</button>
         </div>
@@ -226,7 +227,7 @@ html body .ctl-def-grade[hidden]{display:none}
      NNPB enche as secções da linha, 4 posições cada (A a D). *@
   <section id="ctlDefPuncoesSeccoes" class="dmo-card ctl-def-card" aria-labelledby="puncoes-seccoes-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-      <h3 id="puncoes-seccoes-title">PU NNPB — secções por linha<partial name="_DmoHelp" model="@($"Só as linhas com NNPB (B1 e, por vezes, C3). As punções registadas entram pela ordem de registo nas posições da linha: A1, B1, C1, D1, A2… Cada secção tem 4 posições (A a D); as punções que passam da linha ficam na reserva. Enquanto não se guardar outro número, a linha tem {DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.SeccoesPorOmissao} secções.")" /></h3>
+      <h3 id="puncoes-seccoes-title" title="@($"Só as linhas com NNPB (B1 e, por vezes, C3). As punções registadas entram pela ordem de registo nas posições da linha: A1, B1, C1, D1, A2… Cada secção tem 4 posições (A a D); as punções que passam da linha ficam na reserva. Enquanto não se guardar outro número, a linha tem {DMO.Alpha.Infrastructure.Controlo.PuncoesPosicoes.SeccoesPorOmissao} secções.")">PU NNPB — secções por linha</h3>
       @if (linhasNnpb.Count > 0)
       {
         <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefSeccoesGuardar" form="ctlDefSeccoesForm">Guardar</button></div>

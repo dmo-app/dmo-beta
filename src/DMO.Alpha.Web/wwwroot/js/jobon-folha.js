@@ -341,13 +341,21 @@
       }
     });
 
-    if (ficheiro) {
-      ficheiro.addEventListener('change', () => {
-        const escolhido = ficheiro.files && ficheiro.files[0];
-        ficheiro.value = '';
-        if (!escolhido || !/^image\//.test(escolhido.type)) return;
-        const leitor = new FileReader();
-        leitor.onload = () => ajustar(String(leitor.result), async (src) => {
+    // Gravar: a imagem escolhida ou colada passa pela janela do recorte
+    // (dmo-artigo-recorte.js) e o «Guardar recorte» grava logo na pasta da
+    // referência. O clique no Guardar ainda vale para o navegador pedir a
+    // licença da pasta, quando falta (Diogo, 27/10/2026).
+    function gravar(escolhido) {
+      if (!escolhido || !/^image\//.test(escolhido.type)) return;
+      const leitor = new FileReader();
+      leitor.onload = async () => {
+        let original = String(leitor.result);
+        if (typeof window.dmoRecortarArtigo === 'function') {
+          original = await window.dmoRecortarArtigo(original, referencia);
+          if (!original) return;
+          if (raiz && !permitido) permitido = await pastaPermissao(raiz, true);
+        }
+        ajustar(original, async (src) => {
           const blob = await (await fetch(src)).blob();
           try {
             if (raiz && permitido) {
@@ -365,7 +373,27 @@
           mostrar(src);
           escrever(chave, src);
         });
-        leitor.readAsDataURL(escolhido);
+      };
+      leitor.readAsDataURL(escolhido);
+    }
+    if (ficheiro) {
+      ficheiro.addEventListener('change', () => {
+        const escolhido = ficheiro.files && ficheiro.files[0];
+        ficheiro.value = '';
+        gravar(escolhido);
+      });
+      // Colar (Ctrl+V) uma imagem na folha também a associa, fora dos campos
+      // de escrita (aí o colar é do campo).
+      document.addEventListener('paste', (e) => {
+        const alvo = e.target;
+        if (alvo && alvo.closest && alvo.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]')) return;
+        if (document.querySelector('dialog[open]')) return;
+        const itens = (e.clipboardData && e.clipboardData.items) || [];
+        const item = [...itens].find((i) => i.kind === 'file' && /^image\//.test(i.type));
+        if (!item) return;
+        e.preventDefault();
+        if (API_PASTA && !raiz) { aviso('Associe primeiro a pasta das imagens em Definições, Job On.'); return; }
+        gravar(item.getAsFile());
       });
     }
     if (retirar) {
@@ -413,6 +441,25 @@
       });
     }
     document.body.appendChild(caixa);
+    // A letra é grande (Diogo, 27/10/2026); se uma folha tiver texto a mais para
+    // o A4, a letra dessa folha encolhe só o preciso, para nada ficar cortado. A caixa
+    // só aparece na impressão; mede-se fora do ecrã.
+    caixa.style.cssText = 'display:block;position:absolute;left:-10000px;top:0';
+    caixa.querySelectorAll('.jfi-folha').forEach(function (f) {
+      var a4 = f.getBoundingClientRect().height;
+      var todos = [f].concat(Array.prototype.slice.call(f.querySelectorAll('*')));
+      for (var vez = 0; vez < 6; vez++) {
+        f.style.height = 'auto';
+        var precisa = f.getBoundingClientRect().height;
+        f.style.height = '';
+        if (!(precisa > a4 + 1)) break;
+        // Só a letra encolhe (as margens ficam): por isso pode precisar de mais de uma volta.
+        var k = a4 / precisa;
+        var tamanhos = todos.map(function (e) { return parseFloat(getComputedStyle(e).fontSize); });
+        todos.forEach(function (e, i) { e.style.fontSize = (tamanhos[i] * k) + 'px'; });
+      }
+    });
+    caixa.style.cssText = '';
     document.documentElement.setAttribute('data-jof-imprimir-folhas', '');
     var limpar = function () {
       document.documentElement.removeAttribute('data-jof-imprimir-folhas');
@@ -558,6 +605,20 @@
       else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
     });
     document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
+    // Em vista, a «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026):
+    // um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
+    if (folha.getAttribute('data-jof-folha') === 'editar') return;
+    const tecnicas = () => folha.querySelectorAll('.sec > details.more[open]');
+    folha.addEventListener('toggle', (e) => {
+      if (!e.target.matches?.('.sec > details.more') || !e.target.open) return;
+      tecnicas().forEach(d => { if (d !== e.target) d.open = false; });
+    }, true);
+    document.addEventListener('click', (e) => {
+      tecnicas().forEach(d => { if (!d.contains(e.target)) d.open = false; });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') tecnicas().forEach(d => { d.open = false; });
+    });
   }
 
   // REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa linha de «O que

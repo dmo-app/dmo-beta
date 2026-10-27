@@ -10,7 +10,24 @@
     var production = Model.Production!;
 }
 
-<h3 class="revisao-section">Peso<partial name="_DmoHelp" model="@("A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.")" /></h3>
+@* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+@{
+    // «Escolher no Peso» no canto superior direito da secção do Peso (Diogo, 27/10/2026, linha 71
+    // do design-erros.md); na caixa da média fica só o texto.
+    var comparacaoPeso = Model.Peso is { } pesoTopo ? Model.Anteriores.GetValueOrDefault(pesoTopo.PesoId) : null;
+    var escolherNoPeso = Model.Peso is not null && comparacaoPeso?.Escolhida is null ? Model.ControloId : null;
+}
+@if (escolherNoPeso is int controloEscolher)
+{
+<div class="revisao-parte-topo">
+<h3 class="revisao-section" title="A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.">Peso</h3>
+<div class="dmo-card-topo-acoes"><partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.ProducaoAnteriorNoPeso(controloEscolher)" /></div>
+</div>
+}
+else
+{
+<h3 class="revisao-section" title="A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.">Peso</h3>
+}
 @if (Model.Peso is { } peso)
 {
   var atual = peso.Averages;
@@ -18,8 +35,8 @@
   var anterior = comparacao?.Media;
   var desvioNominal = PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
   <div class="revisao-facts three">
-    <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(atual?.AverageGlassWeightGrams)</strong><small>@peso.Measurements.Count leitura(s)@(Model.Pesos.Count > 1 ? $" · {Model.Pesos.Count} Pesos" : null)</small></div>
-    <div><span>Média do controlo anterior</span><strong>@ControloNumeros.Gramas(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
+    <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(atual?.AverageGlassWeightGrams)</strong><small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(peso.Measurements.Count, "leitura", "leituras")@(Model.Pesos.Count > 1 ? $" · {Model.Pesos.Count} Pesos" : null)</small></div>
+    <div><span>Média do controlo anterior</span><strong>@ControloNumeros.Gramas(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
     <div><span>Diferença ao controlo anterior</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
     <div><span>Diferença de capacidade</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong><small>@ControloNumeros.Cm3(atual?.AverageCapacityCm3) agora</small></div>
     <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong></div>
@@ -38,7 +55,7 @@ else
   {
     var input = PegamentosPdfGenerator.FromSheet(sheet);
     @* Sem contadores no título (Diogo, 20/10/2026). *@
-    <h3 class="revisao-section">Pegamentos<partial name="_DmoHelp" model="@($"A média medida de cada componente e o mapa de limites, tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Todas as medições estão na consulta dos Pegamentos.")" /></h3>
+    <h3 class="revisao-section" title="@($"A média medida de cada componente e o mapa de limites, tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Todas as medições estão na consulta dos Pegamentos.")">Pegamentos</h3>
     @* Um cartão por componente, como no cimo do relatório original: a média
        medida, o nominal e o corredor. *@
     <div class="revisao-peg-componentes">
@@ -50,7 +67,7 @@ else
           <span>@chave · média medida</span>
           <strong>@(tabela?.AverageMediaMm is { } media ? PegamentosVista.Fmt(media) + " mm" : "—")</strong>
           <small>@(card.NominalGargaloMm is { } nominal ? $"Nominal {PegamentosVista.Fmt(nominal)} mm · Corredor {PegamentosVista.Fmt(nominal - folha.ToleranceMm)}–{PegamentosVista.Fmt(nominal + folha.ToleranceMm)} mm" : "Sem nominal")</small>
-          <small>@(tabela?.SampleCount ?? 0) leitura(s)@(tabela is { AlertCount: > 0 } ? $" · {tabela.AlertCount} alerta(s)" : null)</small>
+          <small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(tabela?.SampleCount ?? 0, "leitura", "leituras")@(tabela is { AlertCount: > 0 } ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(tabela.AlertCount, "alerta", "alertas")}" : null)</small>
         </div>
       }
     </div>
@@ -84,7 +101,7 @@ else
 @* As áreas em cartões (Diogo, 20/10/2026): o estado, a ferramenta, o link
    do mcaliper e as notas, que abrem numa janela para ler ou escrever.
    Gravar é do Controlo Criar (a página do Resumo); quem só aprova vê. *@
-<h3 class="revisao-section" id="resumoControloAreas">Ferramentas e OK / NOK<partial name="_DmoHelp" model="@(Model.TemControloCriar ? "Escolher OK ou NOK grava logo. Clique nas notas para as abrir ou escrever. O link do mcaliper copia-se com um clique." : "Clique nas notas para as abrir. O link do mcaliper copia-se com um clique.")" /></h3>
+<h3 class="revisao-section" id="resumoControloAreas" title="@(Model.TemControloCriar ? "Escolher OK ou NOK grava logo. Clique nas notas para as abrir ou escrever. O link do mcaliper copia-se com um clique." : "Clique nas notas para as abrir. O link do mcaliper copia-se com um clique.")">Ferramentas e OK / NOK</h3>
 @if (Model.McaliperRefused)
 {
   <div data-dmo-toast="erro" class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>

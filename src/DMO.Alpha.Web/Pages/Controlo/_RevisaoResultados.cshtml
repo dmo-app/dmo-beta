@@ -18,7 +18,8 @@
           @* O título vai com a lista: os filtros trocam só esta zona e o
              título diz o dia ou o período que a lista mostra. *@
           <div id="revisaoResultados" data-dmo-regiao data-dmo-parcial>
-          <h2 id="revisao-day-title">@(Model.Periodo ? $"Controlos de {Model.PeriodoDe:dd/MM/yyyy} a {Model.PeriodoAte:dd/MM/yyyy}" : Model.Day is { } dia ? $"Controlos de {dia:dd/MM/yyyy}" : Model.Undated ? "Registos sem data" : "Controlos do dia")@if (Model.Undated) {<partial name="_DmoHelp" model="@("Pesos e Pegamentos gravados antes de a app guardar a data do registo.")" />}</h2>
+          @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+          <h2 id="revisao-day-title" title="@(Model.Undated ? "Pesos e Pegamentos gravados antes de a app guardar a data do registo." : null)">@(Model.Periodo ? $"Controlos de {Model.PeriodoDe:dd/MM/yyyy} a {Model.PeriodoAte:dd/MM/yyyy}" : Model.Day is { } dia ? $"Controlos de {dia:dd/MM/yyyy}" : Model.Undated ? "Registos sem data" : "Controlos do dia")</h2>
           @if (!Model.Periodo && Model.Day is null && !Model.Undated)
           {
             <p class="resumo-hint">Escolha um dia no calendário, ou use os filtros para consultar um período.</p>
