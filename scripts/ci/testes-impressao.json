@@ -1,5 +1,5 @@
 {
-  "selo": "e184a131a41a6920",
+  "selo": "d659924b0f0c9c74",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -436,6 +436,15 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionFolder_TrimsTrailingSeparatorsOfBaseDir": "66981d12f0607216",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionRelativeFolder_IsReferenceThenProduction_SafeForWindowsShares": "b9a7f698fad84b4c",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.Segments_WithPathSeparators_NeverBecomeStructure": "4d55c4b7dd82a78c",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: (resto do ficheiro)": "2760c0d9566c9cfd",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.OTipoEADataSaoLidosDoPedido": "59e08836b85bf1f1",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.OValorDoDropdown_EscolheONumeroDaquelaReferencia": "c4496ea19ef94df8",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.SemJobOn_NaoHaDropdownDasProducoes": "e5fddc764483dd12",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.SemNenhumFiltro_NaoProcura": "a22b72e8592ed6ba",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.SemResultadosPelaReferencia_ProcuraAReferenciaComoFerramenta": "990ba0dfd1e128b5",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.UmLinkAntigoSoComONumero_EscolheAMaisRecenteComEsseNumero": "7a42fbb8503b6244",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.UmaProducaoForaDoDropdown_FiltraEEntraNoDropdown": "31c31f7983da5544",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.UmaProducaoQueJaNaoEDaReferencia_NaoFiltra": "e9df7f441c0ee47e",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistorySearchQueryTests.cs :: (resto do ficheiro)": "34a979fd01ae884a",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistorySearchQueryTests.cs :: ControloHistorySearchQueryTests.Pegamentos_DuasFolhasNaMesmaProducao_CadaLinhaDizAsFerramentasDaSua": "660d180ec779f305",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistorySearchQueryTests.cs :: ControloHistorySearchQueryTests.Pegamentos_DuasFolhasQueSoDiferemNoLoteDaBq_CadaLinhaDizOLoteDaSua": "1f7f4393bf25c9c5",

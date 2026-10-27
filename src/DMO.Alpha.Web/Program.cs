@@ -250,6 +250,7 @@ builder.Services.AddScoped<ICreatePesoComparacaoHandler, CreatePesoComparacaoHan
 // As ferramentas herdadas da produção (o Peso) e a procura do histórico do Controlo.
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoToolFactsQuery>();
 builder.Services.AddScoped<IControloHistorySearchQuery, DMO.Alpha.Infrastructure.Controlo.ControloHistorySearchQuery>();
+builder.Services.AddScoped<IControloHistoricoProcura, DMO.Alpha.Infrastructure.Controlo.ControloHistoricoProcura>();
 // Controlo configuration read path: densidade do vidro configurada por processo
 // (a edição pertence à superfície de administração; o Peso consome e preserva).
 builder.Services.AddScoped<IGlassDensityConfiguration, GlassDensityConfiguration>();
