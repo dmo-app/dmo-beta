@@ -3363,3 +3363,15 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
 Selo depois: `7df95d24814fbd98`
+
+## A-0199 · 2026-10-27 · ok-do-diogo
+
+Porquê: Planeamento também para o Job On ver (DMO-461): o «Job On» de quem só vê passa a levar ao Planeamento em leitura, sem Histórico; teste novo do Planeamento só leitura.
+Referência: «sim» do Diogo no cartão cmsg_01K75FTs9bQnbhhH7qttpgra4tZH7cFTTV4YNG2gutByrM (DMO-461, 0.3.0-beta.157)
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PlaneamentoSoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PlaneamentoSoVer.cs :: JobOnPageTests.Planeamento_JobOnVer_VeOCalendarioEAsLinhas_SemCriarNemHistorico`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen`
+
+Selo depois: `437d6ee660c176c1`

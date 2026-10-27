@@ -1,5 +1,5 @@
 {
-  "selo": "7df95d24814fbd98",
+  "selo": "437d6ee660c176c1",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2409,6 +2409,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes": "df2df99deeed9a90",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: (resto do ficheiro)": "b7c082c0cb268916",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCores.cs :: JobOnPageTests.FolhaNova_PainelLateral_CadaCartaoLevaACorDaSuaLinha": "fc1116bfdf0baef4",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PlaneamentoSoVer.cs :: (resto do ficheiro)": "a6ff9b4f270fd908",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.PlaneamentoSoVer.cs :: JobOnPageTests.Planeamento_JobOnVer_VeOCalendarioEAsLinhas_SemCriarNemHistorico": "107e2a86d237a900",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: (resto do ficheiro)": "124178416bdd3dda",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha": "aa5a09be96c7e04c",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor": "5940df2bf965d63e",
@@ -2598,7 +2600,7 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: (resto do ficheiro)": "e64b63a54b76b0e5",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "e2c6f2a60aa4bdbe",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: (resto do ficheiro)": "540601df0fd3126c",
-    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen": "b601a90802633ead",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen": "d89324fa4c900af2",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: (resto do ficheiro)": "c42859679c3f53c5",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AJobOn_IsAnnouncedOnTheDayItWasCreated_NotOnlyOnItsStart": "ee52c6b7ca1d9366",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.AMesmaAlteracao_NoMesmoMinuto_FicaNumaSoLinha_EOutraContinua": "376e81eb9b606242",
