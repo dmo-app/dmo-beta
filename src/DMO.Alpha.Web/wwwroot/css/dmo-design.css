@@ -857,3 +857,10 @@ html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-ref,.ferr-w-lot,.f
   html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>:is(.dmo-card-topo,.arm-onde){grid-column:1;padding-left:20px;border-left:0}
   html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:2;grid-row:1/span 2;padding-left:24px;border-left:1px solid var(--dmo-border)}
 }
+/* Linhas compatíveis escolhidas como os módulos nos Templates (Diogo, 27/10/2026):
+   escolhida = cor cheia da paleta com letra branca, sem contorno branco; claro e escuro. */
+html body .ferr-checks.ferr-checks label>input:checked+span,
+html[data-theme="dark"] body .ferr-checks.ferr-checks label>input:checked+span,
+:root[data-theme="dark"] body .ferr-checks.ferr-checks label>input:checked+span{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff;outline:0;box-shadow:none}
+html body .ferr-checks.ferr-checks label:hover>input:not(:checked)+span,
+html[data-theme="dark"] body .ferr-checks.ferr-checks label:hover>input:not(:checked)+span{background:var(--dmo-brand-050);border-color:var(--dmo-border);color:var(--dmo-text);outline:0}
