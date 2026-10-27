@@ -29,7 +29,7 @@ html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:
    e letra de destaque). Aprovado a 27/10 (…Pc5CZ7o8GxVCiuBHj4uft6), com a letra num cinza
    muito ligeiro no escuro e o azul um pouco mais claro no claro. */
 html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-escolhida-letra:var(--dmo-action,var(--dmo-brand-600))}
-html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#dde3eb}
+html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:var(--dmo-opcao-fundo);--dmo-escolhida-letra:var(--dmo-opcao-fundo)}
 
 /* Os rádios e as caixas escondidos: o rótulo é o botão. */
 html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label{position:relative;cursor:pointer}
