@@ -103,6 +103,22 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Equal(199.64m, (await db.PesoMeasurements.AsNoTracking().SingleAsync(m => m.Id == leituras[0])).WaterWeightGrams);
     }
 
+    [Fact]
+    public async Task PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel()
+    {
+        // DMO-499 (Diogo, 27/10/2026: «ao editar para sair sai da folha do peso»).
+        var (pesoId, leituras) = await SeedPesoComLeiturasAsync();
+        SeedOperacional("4794", "provider-peso-corrigir-4", "PesoCorrigir4!");
+        using var client = await LoginClientAsync("4794", "PesoCorrigir4!");
+
+        var html = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"/Controlo/Peso?peso_id={pesoId}&painel=1&corrigir_leitura={leituras[0]}"));
+
+        var sair = System.Text.RegularExpressions.Regex.Match(html, "<a class=\"dmo-button\" href=\"([^\"]+)\" data-peso-correcao-sair>Cancelar</a>");
+        Assert.True(sair.Success);
+        Assert.Equal($"/Controlo/Peso?peso_id={pesoId}&painel=1", sair.Groups[1].Value);
+        Assert.Contains($"peso_id={pesoId}&painel=1&corrigir_leitura={leituras[1]}", html);
+    }
+
     private async Task<string> SeguirAsync(HttpClient client, HttpResponseMessage resposta) =>
         resposta.Headers.Location is { } destino
             ? await GetPageHtmlAsync(client, destino.ToString())

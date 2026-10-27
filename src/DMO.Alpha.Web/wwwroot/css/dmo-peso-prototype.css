@@ -329,3 +329,31 @@ html body main.peso-page .peso-anterior-faixa .peso-resumo[data-producao-anterio
 html body main.peso-page .peso-anterior-faixa .peso-fact{flex:0 0 auto;margin:0;padding:2px 16px!important;border:0!important;background:none}
 html body main.peso-page .peso-anterior-faixa .peso-fact~.peso-fact,
 html body main.peso-page .peso-anterior-faixa .peso-anterior-sap~.dmo-zona .peso-fact{border-left:1px solid var(--dmo-border)!important}
+
+/* A leitura nova, igual em qualquer largura (também no painel, que é mais
+   estreito do que 1100 px) e sem nada a mexer ao registar (Diogo, 27/10/2026):
+   o N.º CM e a massa de água lado a lado, estreitos, à medida dos números; o
+   + e o − ao lado dos dois; «Registar leitura» por baixo, com a largura dos
+   dois campos. A leitura enviada não aparece num cartão à parte enquanto
+   grava (empurrava a caixa para o lado e depois saía): fica na tabela quando
+   a gravação acaba. O resultado ao vivo tem sempre o seu lugar reservado. */
+html body main.peso-page .peso-live-region>.peso-leitura-form{width:fit-content;max-width:100%}
+html body main.peso-page .peso-leitura-form .peso-leitura-grade{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;padding:0}
+html body main.peso-page .peso-leitura-form .peso-leitura-grade>#pesoLeiturasGravadas{display:contents}
+html body main.peso-page .peso-leitura-form [data-peso-leitura-pendente]{display:none}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova{display:grid;grid-template-columns:auto 28px;column-gap:6px;row-gap:6px;align-items:end;padding:8px}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova>.peso-leitura-rows{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:6px}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova .peso-leitura-row,
+html body main.peso-page .peso-correcao .peso-leitura-row{display:grid;grid-template-columns:60px 84px;gap:2px 6px;align-items:end}
+html body main.peso-page :is(.peso-leitura-nova,.peso-correcao) .peso-leitura-row .dmo-field{min-width:0}
+html body main.peso-page :is(.peso-leitura-nova,.peso-correcao) .peso-leitura-row label{white-space:nowrap;overflow:visible}
+html body main.peso-page :is(.peso-leitura-nova,.peso-correcao) .peso-leitura-row input{width:100%;min-width:0;padding-left:6px;padding-right:6px}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova .peso-leitura-chip,
+html body main.peso-page .peso-leitura-form .peso-leitura-nova .peso-leitura-chip:empty{grid-column:1/-1;min-height:18px;height:18px;margin:0;padding:0 2px;background:none;font-size:11px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova>.peso-leitura-actions{display:contents}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova .peso-registar{grid-column:1;grid-row:2;width:100%;min-height:0;height:var(--dmo-control-height);margin:0;padding:0 10px;justify-content:center}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova .peso-row-buttons{grid-column:2;grid-row:1;align-self:end;display:flex;flex-direction:column;gap:2px;width:28px;height:var(--dmo-control-height);margin-bottom:20px}
+html body main.peso-page .peso-leitura-form .peso-leitura-nova .peso-row-button{flex:0 0 auto;width:28px;height:calc((var(--dmo-control-height) - 2px) / 2)!important;min-height:0!important;min-width:0!important;padding:0!important;font-size:13px;line-height:1}
+/* Os botões da correção pequenos (Diogo, 27/10/2026: «muito grandes»). */
+html body main.peso-page .peso-correcao .peso-leitura-actions{display:flex;flex-wrap:nowrap;gap:4px;margin-top:6px}
+html body main.peso-page .peso-correcao .peso-leitura-actions>*{flex:0 0 auto;height:var(--dmo-control-height);min-height:0;min-width:0;padding:0 8px;font-size:12px}

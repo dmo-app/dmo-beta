@@ -3902,6 +3902,16 @@ Novos: 9 · mudaram: 1 · saíram: 0
 
 Selo depois: `49685c9a47bd1a6d`
 
+## A-0238 · 2026-10-27 · teste-novo
+
+Porquê: Peso: sair da correção fica na folha, também no painel (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra9BpjJuJkq98wTX76Vv5QYA).
+Referência: DMO-499
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel`
+
+Selo depois: `a50485f0c4e988d2`
+
 ## A-0240 · 2026-10-27 · ok-do-diogo
 
 Porquê: O «% uso» de uma ferramenta passa a ser uma ligação ao histórico do uso (painel): na Procura do Armazém o teste lê o texto da célula sem as etiquetas e verifica a ligação; no Histórico das Ferramentas aceita a ligação dentro do hist-uso
@@ -3915,4 +3925,4 @@ Novos: 4 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco`
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
 
-Selo depois: `b0c07caa2f846334`
+Selo depois: `155ae28a8e306475`
