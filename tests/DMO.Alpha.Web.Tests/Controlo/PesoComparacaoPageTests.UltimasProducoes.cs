@@ -84,10 +84,13 @@ public partial class PesoComparacaoPageTests
         foreach (var semEscolhaUrl in new[] { $"{PagePath}?controlo_id={controloId}", $"{PagePath}?peso_id={pesoId}" })
         {
             var semEscolha = Select(await GetPageHtmlAsync(client, semEscolhaUrl), "compararDropdown");
-            foreach (var numero in new[] { "202603", "202604", "202605", "202606", "202607" })
+            foreach (var numero in new[] { "202603", "202604", "202605", "202606" })
             {
                 Assert.Contains($"<option value=\"{pesosPorProducao[numero]}\">", semEscolha);
             }
+            // Sem escolha, assume a mais recente das anteriores (o Diogo, 27/10/2026,
+            // cmsg_01K75FTs9bQnbhhH7qttpgraUvPVzqVHduTo5zrh9CF9qr).
+            Assert.Contains($"<option value=\"{pesosPorProducao["202607"]}\" selected=\"selected\">", semEscolha);
             foreach (var fora in new[] { "202602", "202609", "202610" })
             {
                 Assert.DoesNotContain($"<option value=\"{pesosPorProducao[fora]}\"", semEscolha);
