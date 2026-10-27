@@ -14,22 +14,13 @@
 /* 1) Botões de ação ------------------------------------------------------------------------ */
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;vertical-align:middle;text-box:trim-both cap alphabetic}
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn)[hidden]{display:none}
-/* Rato por cima e clique (Diogo, 27/10/2026, …W16svSXbbqraVvZPKYnqCS: «o hover click fica com cor
-   background e font e linha branco»): o botão fica com cor de fundo, letra branca e contorno branco.
-   No claro o fundo escurece um tom, para se ver a mudança no cartão branco. */
+/* Rato por cima e clique: ver a regra «o botão inverte» no fim deste ficheiro. */
 /* Foco (teclado ou depois de um clique com aviso de erro): só um anel, sem encher o botão. */
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):focus-visible:not(:hover):not(:active){background:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));border-color:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));color:var(--dmo-text-on-color)}
 html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel):focus-visible{outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45))}
-html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-800));border-color:#fff;color:#fff;outline:0}
-/* No escuro também escurece um tom (#334663, o do «Entrar»), nunca clareia: com o azul mais claro e o contorno
-   branco, o «Modo claro» das Definições, que fica debaixo do rato depois do clique, parecia outro botão ao lado
-   do «Mudar» (Diogo, 27/10/2026: «apesar de termos tido alguém para rever os botões continua»). */
-html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,#334663)}
 /* Os links de ação que passaram a botões (Abrir página do painel, avisos, ficha da ferramenta):
    o mesmo botão, também no hover do escuro. Regras à parte porque o #id pesaria sobre tudo. */
 html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-action,var(--dmo-brand-600));border-radius:var(--dmo-r-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;text-decoration:none;vertical-align:middle;cursor:pointer}
-html body #dmoSupportFull:is(:hover,:active),html body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;text-decoration:none;outline:0}
-html[data-theme="dark"] body #dmoSupportFull:is(:hover,:active),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:#334663}
 
 /* 2) Seletores -------------------------------------------------------------------------------
    Opção 4 escolhida pelo Diogo (27/10/2026, …XwHyWe8QJjkeaipvH2MLV8; já pedido a 26/10: «iguais aos
@@ -161,9 +152,6 @@ html[data-theme="dark"] body.dmo-account-page .password-wrap .password-toggle.pa
    o azul suave da paleta atual (--dmo-brand-200) com a letra normal, nos dois modos. */
 html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_)>td{background:var(--dmo-brand-200);color:var(--dmo-text)}
 html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_) :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:var(--dmo-text)}
-/* Login, «Entrar» (Diogo, 27/10/2026: «não gosto do efeito de ficar preto e mais pequeno, meter o
-   normal dos botões»): no hover só escurece um tom, sem o contorno branco que o fazia parecer menor. */
-html body.dmo-account-page .login-form .submit.submit:is(:hover,:active):not(:disabled){background:#334663;border-color:#334663;color:#fff}
 
 /* Barras de deslocar finas e discretas em toda a app (Diogo, 27/10/2026: «scroll mais subtil, barra
    fina»): a cor da borda, sem fundo; um pouco mais visível com o rato por cima. */
@@ -174,9 +162,21 @@ html ::-webkit-scrollbar-track{background:transparent}
 html ::-webkit-scrollbar-thumb{background:var(--dmo-border);border-radius:3px}
 html ::-webkit-scrollbar-thumb:hover{background:var(--dmo-muted)}
 /* Setas do calendário (Job On, Controlo › Aprovar): botões de ação, por isso com a altura e o canto dos outros
-   (eram 36 px de altura e canto de 8 px) e o mesmo rato por cima; no escuro escurecem, como os outros. O calendário
+   (eram 36 px de altura e canto de 8 px) e o mesmo rato por cima (inverte, como os outros). O calendário
    pequeno do histórico das Boquilhas (28 px) continua a mandar. */
 html body .dmo-calendar .dmo-calendar-nav :where(button.icon-btn){height:var(--dmo-control-height);min-height:var(--dmo-control-height);border-radius:var(--dmo-r-control,6px)}
-html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:#334663;border-color:#fff;color:#fff}
 /* Job On › Folha: os botões (Editar, Duplicar, Imprimir, Guardar, Cancelar, Linhas) com o canto dos outros (8 → 6 px). */
 html body .jof2 .btn.btn{border-radius:var(--dmo-r-control,6px)}
+
+/* ================================================================== */
+/* Botões de ação: no rato por cima e no clique o botão INVERTE.        */
+/* Regra definitiva do Diogo (27/10/2026, «inverte» …8SJDfdhiuoRJLtvkSPUgru; */
+/* «estou farto de explicar como os botões funcionam» …4t7DsHA48KVaQMjhmtty8f): */
+/* o fundo fica da cor do cartão, a letra e o contorno ficam na cor do  */
+/* botão, o mesmo aspeto da opção escolhida nos seletores. Vale para    */
+/* todos os botões de ação, nos dois modos, incluindo o «Entrar» do     */
+/* login, sem casos à parte. Os seletores (opções) têm a regra deles.   */
+/* ================================================================== */
+html body{--dmo-botao-inv-fundo:var(--dmo-escolhida-fundo,var(--dmo-card));--dmo-botao-inv-letra:var(--dmo-escolhida-letra);--dmo-botao-inv-contorno:var(--dmo-escolhida-contorno)}
+html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel,.dmo-calendar-nav button.icon-btn,.login-form .submit):not(:is(.arm-modo,.rp-modo) *):not(:disabled):not([aria-disabled="true"]):not(#_):is(:hover,:active){background:var(--dmo-botao-inv-fundo);border-color:var(--button-color,var(--dmo-botao-inv-contorno));color:var(--button-color,var(--dmo-botao-inv-letra));text-decoration:none;outline:0;box-shadow:none}
+html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel,.dmo-calendar-nav button.icon-btn,.login-form .submit):not(:is(.arm-modo,.rp-modo) *):not(:disabled):not([aria-disabled="true"]):not(#_):is(:hover,:active) :is(svg,i,span){color:inherit}
