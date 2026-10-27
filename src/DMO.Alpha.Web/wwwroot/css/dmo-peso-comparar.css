@@ -1,0 +1,18 @@
+/* «Comparar peso» (Diogo, 27/10/2026): os Pesos compatíveis, a tabela igual à
+   do Peso e a calote simulada, no painel lateral. Só os tokens da casa; cabe
+   nos 1040 px do painel. */
+.peso-comparar-pagina{max-width:1180px}
+/* O mesmo espaço interior dos cartões do Peso (Diogo, 27/10: «card muito apertado»). */
+html body .dmo-card.peso-comparar{padding:16px 20px 18px}
+.peso-comparar-filtros{gap:12px 16px}
+.peso-comparar h3{margin:0;font-size:16px}
+.peso-comparar-nota{color:var(--dmo-muted);font-size:13px;font-weight:400}
+.peso-comparar h3 .peso-comparar-nota{margin-left:8px}
+.peso-comparar-filtros{margin:14px 0 6px}
+.peso-comparar-tabela{font-size:13px}
+.peso-comparar-tabela :is(th,td).num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.peso-comparar-tabela[data-dmo-list] :is(td,th):first-child{width:0;padding:0}
+.peso-comparar-erro{display:block;margin-top:2px;color:var(--dmo-muted);font-size:12px}
+.peso-comparar-sub{margin:22px 0 8px;font-size:14px}
+.peso-comparar .card-note{margin-top:10px}
+.peso-comparar-filtros select{white-space:nowrap;text-overflow:ellipsis}

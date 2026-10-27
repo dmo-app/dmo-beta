@@ -1,5 +1,6 @@
 using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,6 +9,7 @@ namespace DMO.Alpha.Web.Pages;
 // O token do formulário verifica-se no OnPost (deep sweep B-admin-4): com
 // dois separadores no login, entrar no primeiro deixava o token do segundo
 // sem valor e o envio dava «HTTP ERROR 400», que o F5 repetia.
+[AllowAnonymous]
 [IgnoreAntiforgeryToken]
 public class LoginModel : PageModel
 {

@@ -53,6 +53,7 @@
   const destinations = new Map([
     ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
     ['/Controlo/Peso', 'Peso'],
+    ['/Controlo/PesoComparar', 'Comparar peso'],
     ['/Controlo/Pegamentos', 'Pegamentos'],
     ['/Controlo/Puncoes', 'PU NNPB'],
     ['/Controlo/Approve', 'Revisão do controlo'],

@@ -7,6 +7,13 @@ public static class DmoNumberFormat
 {
     public static CultureInfo Culture { get; } = CreateCulture();
 
+    /// <summary>
+    /// Um número com a palavra no singular ou no plural (Diogo, 27/10/2026:
+    /// «1 utilizador», «2 utilizadores», nunca «utilizador(es)»).
+    /// </summary>
+    public static string Contagem(int quantos, string um, string varios) =>
+        $"{quantos} {(quantos == 1 ? um : varios)}";
+
     /// <summary>Two decimals with an explicit sign; values that round to zero show «+0.00».</summary>
     public static string Signed(decimal value)
     {
