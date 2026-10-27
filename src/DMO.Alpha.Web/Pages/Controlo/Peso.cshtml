@@ -1932,8 +1932,8 @@
             }
           </div>
           <div class="dmo-field">
-            <label for="producaoAnterior">Produção anterior</label>
-            <select id="producaoAnterior" name="anterior" data-producao-anterior-select>
+            @* «Produção anterior» só no título do cartão (Diogo, 27/10/2026: «basta uma produção anterior»). *@
+            <select id="producaoAnterior" name="anterior" aria-label="Produção anterior" data-producao-anterior-select>
               @foreach (var opcao in Model.ProducaoAnteriorOpcoes)
               {
                 <option value="@opcao.JobOnId"
@@ -1949,9 +1949,8 @@
           </div>
           @* O Peso completo da produção anterior (Diogo, 26/10/2026: «caso não exista, criar, que abre uma página onde criamos, podendo assim associar a um Job On»):
              abre a folha de Peso dessa produção (CM, tampão, calote e temperatura), gravada no Job On escolhido. *@
-          <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "AbrirJobOn")" formtarget="_self" formnovalidate data-peso-anterior-abrir>Abrir o Peso desta produção</button>
+          <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "AbrirJobOn")" formtarget="_self" formnovalidate data-peso-anterior-abrir aria-label="Abrir o Peso desta produção">Abrir</button>
         </form>
-        <p class="peso-hint" style="margin:6px 0 0" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></p>
       }
       </div>
       </div>
@@ -1977,6 +1976,8 @@
           @* Sem a palavra «SAP» à vista (Diogo, 21/10/2026: «sempre que for referência a produção usar produção e não SAP»). *@
           <div class="peso-fact peso-sap-fact">
             <span class="peso-sap-titulo">Peso da produção <span class="peso-hint" data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></span>
+            @* O início e o fim da produção escolhida no cartão do peso dela (Diogo, 27/10/2026). *@
+            <span class="peso-hint peso-sap-periodo" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span>
             <span class="peso-sap-opcoes" data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">
               <span class="peso-sap-opcao">Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></span>
               <span class="peso-sap-opcao">Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></span>
