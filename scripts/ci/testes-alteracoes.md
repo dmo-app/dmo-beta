@@ -3173,6 +3173,51 @@ Selo depois: `f27c31b9a7ed1685`
 
 ## A-0176 · 2026-10-27 · ok-do-diogo
 
+Porquê: Painel «Planeamento» até uma semana em avanço e uma produção em curso por linha (DMO-444, 0.3.0-beta.130): os testes antigos seguiam «até domingo» e duas produções na mesma linha.
+Referência: Diogo, 27/10/2026 00:25, «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraTm1FJcWmeJJMnTEtB2R4VE), PR #187
+Novos: 4 · mudaram: 6 · saíram: 4
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.DuasProducoesDaMesmaLinhaQueSeCruzam_FicaAQueEntrouPorUltimo_SemSobreposicao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAProducaoQueEntrouPorUltimo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_uma_semana`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Uma_linha_so_tem_uma_producao_em_curso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.NotasDeLoteDoDiaEResumoDasAlteracoes_ficamNaProducao`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProducaoAteAviso_CobreOsDiasDepoisDoInicio_MasNaoOsAntes`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Em_curso_primeiro_e_as_que_ja_acabaram_ficam_de_fora`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.DuasProducoesDaMesmaLinhaQueSeCruzam_NaoMarcamSobreposicao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAsProducoesDoDiaPorReferencia`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Ao_domingo_mostra_so_esse_dia`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_domingo`
+
+Selo depois: `d409b622f6c26765`
+
+## A-0177 · 2026-10-27 · ok-do-diogo
+
+Porquê: Design novo (DMO-436): o Diogo aprovou juntar o design à integracao com os testes mudados (Armazém sem lista antes da procura, Job On bloqueado com Editar, Boquilhas, Sumário, paleta e botões únicos)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWtEDyiH367uf4aFwbYd3b5 (27/10 01:42, «Sim: testes e integracao»); botões: cmsg_01K75FTs9bQnbhhH7qttpgraPc5CZ7o8GxVCiuBHj4uft6
+Novos: 1 · mudaram: 12 · saíram: 0
+
+- novo: `tests/visual/design-review.cjs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: ArmazemLoteNovoPaginaTests.Sumario_AvisaSoQuemTemFerramentas_ECriarResolveEDaAEntrada`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OLog_MostraSoOTipo_DeTodos_EALinhaAbreAFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OPainel_TemCmMfBq_ESemTipoPedeParaEscolher`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Buttons_HaveOneLook_BlueWithWhiteText_HoverInverts`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Palette_IsDefinedOnce_AndDrivesButtonsRowsAndHover`
+
+Selo depois: `71aa1f5e6f59d13a`
+
+## A-0178 · 2026-10-27 · ok-do-diogo
+
 Porquê: Erros do design de 27/10/2026: Stock e QTD máq. fora dos cartões do Job On; «PDF Pegamentos»; Estado e Onde está na lista de Ferramentas; PU NNPB sem Linha; mapa dos Pegamentos em HTML legível no ecrã (PDF igual); BQ e lote nas linhas das Boquilhas (o teste procura só na lista). Testes novos dos mesmos erros.
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraTeE5d1TKjz1h4KjrhScySV (pedidos: cmsg_01K75FTs9bQnbhhH7qttpgraNDGxpDQAbKb3urj4PR1RjM, cmsg_01K75FTs9bQnbhhH7qttpgraQXKR3abFzYB1QMLs63bXHa, cmsg_01K75FTs9bQnbhhH7qttpgra4gixkrU4QiiXPCqSrZqvpF)
 Novos: 20 · mudaram: 6 · saíram: 0
@@ -3204,4 +3249,4 @@ Novos: 20 · mudaram: 6 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Legenda.cs :: PegamentosPageTests.MapaDeLimites_ALegendaMostraAsCoresDoDesenho`
 - mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NnpbProduction_RegistersPunches_ShowsAlteracao_TotalsResumoAndPdf`
 
-Selo depois: `46c263856ddc0cf9`
+Selo depois: `3531fa616f3f82db`

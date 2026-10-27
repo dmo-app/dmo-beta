@@ -60,14 +60,14 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         return client;
     }
 
-    private async Task<int> JobOnAsync(string reference, DateOnly? inicio, DateTime? criadoEmUtc = null)
+    private async Task<int> JobOnAsync(string reference, DateOnly? inicio, DateTime? criadoEmUtc = null, string maquina = "B1")
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-        var machine = await db.Machines.FirstOrDefaultAsync(m => m.Code == "B1");
+        var machine = await db.Machines.FirstOrDefaultAsync(m => m.Code == maquina);
         if (machine is null)
         {
-            machine = new Machine { Code = "B1" };
+            machine = new Machine { Code = maquina };
             db.Machines.Add(machine);
         }
 

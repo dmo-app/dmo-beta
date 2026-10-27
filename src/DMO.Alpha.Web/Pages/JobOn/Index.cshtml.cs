@@ -719,10 +719,10 @@ public sealed class IndexModel : PageModel
         // mostram; o histórico pagina na base e só é lido na sua tab.
         var primeiroDia = new DateOnly(Year, Month, 1);
         var ultimoDia = primeiroDia.AddMonths(1).AddDays(-1);
-        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
+        var limite = AteUmaSemana(hoje);
         JobOns = await _jobOnList.ListWindowAsync(
             primeiroDia < hoje ? primeiroDia : hoje,
-            ultimoDia > domingo ? ultimoDia : domingo,
+            ultimoDia > limite ? ultimoDia : limite,
             HttpContext.RequestAborted);
 
         // Máquinas persistidas (o select da linha). As ferramentas não se
@@ -873,27 +873,31 @@ public sealed class IndexModel : PageModel
 
     /// <summary>
     /// O sidepanel: primeiro as produções em curso (início antes de hoje, sem
-    /// fim ou com fim de hoje em diante), depois as que entram de hoje até ao
-    /// domingo da semana corrente (Seg..Dom, como o calendário). O que entra
-    /// depois de domingo fica para a semana seguinte.
+    /// fim ou com fim de hoje em diante), uma por máquina, depois as que entram
+    /// de hoje até uma semana em avanço (Diogo, 27/10/2026: «limite uma semana
+    /// em avanço»).
     /// </summary>
     public static IReadOnlyList<ProductionContextReadModel> ProximasEntradasDaSemana(
         IEnumerable<ProductionContextReadModel> jobOns,
         DateOnly dia)
     {
-        var domingo = dia.AddDays((7 - (int)dia.DayOfWeek) % 7);
+        var limite = AteUmaSemana(dia);
         // As produções em curso (começaram antes de hoje e ainda não acabaram)
         // vêm primeiro: as que já corriam quando se lançaram na app também
         // aparecem (Diogo, 22/10/2026: «se criar um jobon passado não aparece
-        // na lista ao lado do calendário»).
-        var emCurso = jobOns
-            .Where(j => j.InicioEm is { } inicio && inicio < dia && (j.FimEm is not { } fim || fim >= dia))
+        // na lista ao lado do calendário»). Uma por linha: a que entrou depois
+        // acaba a anterior (Diogo, 27/10/2026).
+        var emCurso = ProducaoEmCurso.UmaPorMaquina(jobOns, dia)
+            .Where(j => j.InicioEm < dia)
             .OrderBy(j => j.InicioEm);
         var entradas = jobOns
-            .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= domingo)
+            .Where(j => j.InicioEm is { } inicioEntrada && inicioEntrada >= dia && inicioEntrada <= limite)
             .OrderBy(j => j.InicioEm);
         return emCurso.Concat(entradas).ToList();
     }
+
+    /// <summary>O último dia do painel lateral: uma semana depois de hoje.</summary>
+    public static DateOnly AteUmaSemana(DateOnly dia) => dia.AddDays(7);
 
     /// <summary>
     /// POST nativo: criar um Job On. O browser submete os factos da

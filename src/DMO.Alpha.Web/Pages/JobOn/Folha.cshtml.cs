@@ -473,8 +473,8 @@ public sealed class FolhaModel(
         Capacidades = await capabilities.GetAsync();
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
-        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
-        ProximasEntradas = IndexModel.ProximasEntradasDaSemana(await jobOnList.ListWindowAsync(hoje, domingo, ct), hoje);
+        ProximasEntradas = IndexModel.ProximasEntradasDaSemana(
+            await jobOnList.ListWindowAsync(hoje, IndexModel.AteUmaSemana(hoje), ct), hoje);
     }
 
     private async Task<IActionResult> AbrirAsync(int? jobOnId, string? editar, string? gravado, string? overlap, string? caloteIgnorada, string? fimAntesInicio)

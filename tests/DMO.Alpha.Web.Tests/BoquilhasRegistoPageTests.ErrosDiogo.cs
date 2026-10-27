@@ -60,7 +60,7 @@ public partial class BoquilhasRegistoPageTests
         var cartoes = html.IndexOf("id=\"bqRegisterFacts\"", StringComparison.Ordinal);
         Assert.True(cabecalho >= 0 && aviso > cabecalho && cartoes > aviso, "O aviso não está no cabeçalho do registo.");
         Assert.DoesNotContain("class=\"jobon-change-notice\"", html);
-        Assert.Contains("<summary title=\"O Job On mudou depois deste registo.\">Job On mudou</summary>", html);
+        Assert.Contains("<summary title=\"O Job On mudou depois deste registo.\"><span class=\"dmo-caret\" aria-hidden=\"true\"></span>Job On mudou</summary>", html);
         Assert.Contains("Mudou o fim", html);
         Assert.Contains($"href=\"/JobOn?jobon_id={bq.JobOnId}&vista=alteracoes#fichaMudancas\">Ver o que mudou</a>", html);
     }
