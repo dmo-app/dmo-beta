@@ -192,13 +192,20 @@ html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .
 html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .hv+.hv{order:3;flex:0 0 64px}
 html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .hv+.hv input.f{width:100% !important}
 
-/* ---- a coluna da direita (ver e Editar): Artigo, Notas gerais e PI cabem sempre na altura das peças.
-   A coluna não manda na altura da folha (contain:size); as Notas gerais ficam com o que sobra e deslizam por dentro com barra fina; o PI nunca sai do ecrã. ---- */
+/* ---- a coluna da direita (ver e Editar): Notas gerais em cima com a altura que sobra; por baixo, as Pinças e a foto do Artigo lado a lado.
+   A foto é só uma referência visual: mais alta do que larga (3:4), sem a referência escrita, que já está no topo (Diogo, 27/10/2026:
+   «os comentários são mais importantes»). A coluna não manda na altura da folha (contain:size); as Notas gerais deslizam por dentro. ---- */
 @media (min-width:1181px){
-  html:root body .jof2.jof2.jof2 .sheet>.side{display:flex;flex-direction:column;gap:8px;align-self:stretch;contain:size;overflow:hidden;position:static;max-height:none}
-  html:root body .jof2.jof2.jof2 .side>.article{flex:0 0 auto;padding:8px 12px}
-  html:root body .jof2.jof2.jof2 .side .jof-artigo{height:132px !important;min-height:0}
+  html:root body .jof2.jof2.jof2 .sheet>.side{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"notas notas" "pi artigo";gap:8px;align-self:stretch;contain:size;overflow:hidden;position:static;max-height:none}
+  html:root body .jof2.jof2.jof2 .side>.article{grid-area:artigo;position:relative;display:flex;align-items:center;justify-content:center;padding:8px}
+  html:root body .jof2.jof2.jof2 .side.side .jof-artigo{width:auto !important;height:156px !important;min-height:0;aspect-ratio:3/4;border-radius:6px;background:var(--dmo-subtle)}
   html:root body .jof2.jof2.jof2 .side .jof-artigo :is(svg,img){height:100% !important;max-height:100% !important;width:auto}
+  html:root body .jof2.jof2.jof2 .side .jof-artigo>img[data-jof-artigo-img]{width:100%}
+  html:root body .jof2.jof2.jof2 .side .jof-artigo-retirar{position:absolute;top:4px;right:2px;z-index:1;margin:0}
+  html:root body .jof2.jof2.jof2 .side>.notes{grid-area:notas;min-height:0}
+  html:root body .jof2.jof2.jof2 .side>.g-pinfo{grid-area:pi;min-width:0}
+  html:root body .jof2.jof2.jof2 .side>.g-pinfo>.board{height:100%}
+  html:root body .jof2.jof2.jof2 .side>.g-pinfo article.card.sec{height:100%;box-sizing:border-box}
   html:root body .jof2.jof2.jof2 .side>.notes{display:flex;flex-direction:column;flex:1 1 0;min-height:72px;padding:8px 12px;overflow:hidden;background:var(--dmo-card)}
   html:root body .jof2.jof2.jof2 .side>.notes>h2{flex:none;margin:0 0 4px;font-size:16px}
   html:root body .jof2.jof2.jof2 .side>.notes>ul{position:relative;flex:1 1 0;min-height:0;display:block;overflow-y:auto;scrollbar-width:thin;margin:0;padding:0}
