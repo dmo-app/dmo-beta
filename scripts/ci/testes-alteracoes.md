@@ -3883,7 +3883,7 @@ Novos: 4 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `4286ec752addb091`
-## A-0234 · 2026-10-27 · teste-novo
+## A-0238 · 2026-10-27 · teste-novo
 
 Porquê: Peso: sair da correção fica na folha, também no painel (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra9BpjJuJkq98wTX76Vv5QYA).
 Referência: DMO-499
