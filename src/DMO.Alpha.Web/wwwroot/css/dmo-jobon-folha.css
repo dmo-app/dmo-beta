@@ -1248,11 +1248,17 @@ html body .jfn-folha[data-jof-folha="moldes"] .jfn-tabela>.jfb{flex:1 1 auto}
 html body .jfn-folha[data-jof-folha="moldes"]>.jfi-crescer{flex:0 0 1mm}
 html body .jfn-folha[data-jof-folha="ficha"] .jfn-tabela>.jfb{min-height:11mm}
 
-/* Erros do teste do ensaio (27/10/2026). As Notas de altura fixa cortavam a
-   meio da linha: ficam 2 linhas inteiras (com «…» quando há mais); o clique abre a
-   nota inteira, a ver e a editar (as regras de altura fixa apanhavam também
-   a nota aberta e deixavam-na com 2 linhas). */
-html:root body .jof2 .note-box.note-view:not(.is-empty):not(.is-ampliada)>p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.4;padding-top:calc((56px - 2.8em) / 2);padding-bottom:calc((56px - 2.8em) / 2);overflow:clip!important;overflow-clip-margin:content-box}
+/* Notas com o espaço que sobra no cartão (Diogo, 27/10/2026: «dar mais espaço
+   as notas o maximizar nao empurra abre por cima»). Em vista, a caixa das Notas
+   ocupa o vazio do cartão e a «Informação técnica» fica no fundo; aberta, mostra-se
+   por cima das Notas, como uma janela, sem empurrar o resto da folha. O clique na
+   nota abre-a inteira, a ver e a editar (as regras de altura fixa apanhavam
+   também a nota aberta e deixavam-na com 2 linhas). */
+html:root body .jof2:not(.editing) .sec{position:relative}
+html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada),html:root body .jof2:not(.editing) .board:has(details.more[open]) .sec>.note-box.note-view:not(.is-ampliada){flex:1 1 auto!important;min-height:0!important;display:flex;flex-direction:column}
+html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto!important;min-height:56px!important;max-height:none!important;overflow:auto;scrollbar-width:thin}
+html:root body .jof2:not(.editing) .sec>details.more{position:relative;margin-top:auto}
+html:root body .jof2:not(.editing) .sec>details.more[open]>.more-body{position:absolute;z-index:30;left:-6px;right:-6px;bottom:calc(100% - 4px);margin:0;max-height:min(440px,calc(100vh - 140px));overflow:auto;padding:10px 12px;border:1px solid var(--dmo-border);border-radius:var(--r-card);background:var(--dmo-card);box-shadow:0 14px 36px rgba(0,0,0,.25)}
 html:root body .jof2 .note-box.is-ampliada>p,html:root body .jof2.editing .note-box.is-ampliada>textarea.dmo-valor,html:root body .jof2 .note-box.is-ampliada>textarea.dmo-valor{display:block;min-height:240px!important;height:auto!important;max-height:60vh!important;overflow:auto!important;flex:0 0 auto!important}
 /* PI: «Pinças» e «Diâmetro» cada um na sua linha; lado a lado não cabiam e o
    «Grafite» ficava colado ao «Diâmetro». */

@@ -599,6 +599,20 @@
       else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
     });
     document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
+    // Em vista, a «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026):
+    // um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
+    if (folha.getAttribute('data-jof-folha') === 'editar') return;
+    const tecnicas = () => folha.querySelectorAll('.sec > details.more[open]');
+    folha.addEventListener('toggle', (e) => {
+      if (!e.target.matches?.('.sec > details.more') || !e.target.open) return;
+      tecnicas().forEach(d => { if (d !== e.target) d.open = false; });
+    }, true);
+    document.addEventListener('click', (e) => {
+      tecnicas().forEach(d => { if (!d.contains(e.target)) d.open = false; });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') tecnicas().forEach(d => { d.open = false; });
+    });
   }
 
   // REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa linha de «O que
