@@ -1,7 +1,7 @@
 @model DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel
 @* A utilização pela produção é uma definição GERAL (Diogo, 22/10/2026): ligar
    a pasta e copiar os códigos só com a permissão de Definições gerais
-   (cadeado), e também apagar os lidos; «Ler agora» fica para quem tem as Ferramentas. *@
+   (cadeado), e também apagar os lidos; «Ler pasta» fica para quem tem as Ferramentas. *@
 @{ var cadeado = ViewData["DefCadeado"] is true; }
 @* USO NO SAP (Diogo, 20–21/10/2026): a pasta onde o SAP grava a lista do
      relatório «Gestão de Moldes» (ZPPF) fica ligada neste browser. Ao abrir
@@ -14,11 +14,18 @@
     <div class="dmo-card-topo">
       <h3 id="ferr-sap-title">Utilização pela produção</h3>
       <div class="dmo-card-topo-acoes">
-        <button type="button" class="dmo-button" id="ferrSapPasta" data-ferr-sap-pasta disabled="@cadeado">Ligar pasta</button>
-        <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler agora</button>
-        <button type="button" class="dmo-button" id="ferrSapCodigos" data-ferr-sap-codigos disabled="@cadeado">Copiar códigos</button>
-        <button type="button" class="dmo-button" id="ferrSapApagar" data-ferr-sap-apagar disabled="@cadeado">Apagar lidos</button>
-        <a class="dmo-button" id="ferrSapAjuda" href="/Ferramentas/AjudaSap">Como funciona</a>
+        @* Só «Ler pasta» à vista; o resto dentro de «Opções», como no Excel das Boquilhas (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy). *@
+        <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler pasta</button>
+        <details class="dmo-options" data-dmo-tab-menu data-ferr-sap-opcoes>
+          <summary class="dmo-button" aria-label="Opções da utilização pela produção"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
+          <div class="dmo-options-list">
+            <button type="button" class="dmo-options-item" id="ferrSapPasta" data-ferr-sap-pasta disabled="@cadeado">Ligar pasta</button>
+            <button type="button" class="dmo-options-item" id="ferrSapCodigos" data-ferr-sap-codigos disabled="@cadeado">Copiar códigos</button>
+            <button type="button" class="dmo-options-item" id="ferrSapApagar" data-ferr-sap-apagar disabled="@cadeado">Apagar lidos</button>
+            <button type="button" class="dmo-options-item" id="ferrSapRemover" data-ferr-sap-remover disabled="@cadeado" hidden>Remover</button>
+            <a class="dmo-options-item" id="ferrSapAjuda" href="/Ferramentas/AjudaSap">Como funciona</a>
+          </div>
+        </details>
       </div>
     </div>
     @Html.AntiForgeryToken()

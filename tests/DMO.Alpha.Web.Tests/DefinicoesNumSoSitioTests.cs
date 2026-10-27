@@ -319,13 +319,14 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var (client, _) = await LoginOperatorAsync("7314", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
         var html = WebUtility.HtmlDecode(await GetOkAsync(client, "/Definicoes"));
 
-        // Ferramentas: «Utilização pela produção» no Geral; só «Ler agora» fica ativo.
+        // Ferramentas: «Utilização pela produção» no Geral; só «Ler pasta» fica ativo.
         var producao = Regex.Match(html, "<section id=\"ferrDefSap\"[\\s\\S]*?</section>").Value;
         Assert.Contains("Utilização pela produção", producao);
         Assert.DoesNotContain("SAP<", producao);
         Assert.Contains("data-ferr-sap-pasta disabled=\"disabled\"", producao);
         Assert.Contains("data-ferr-sap-codigos disabled=\"disabled\"", producao);
-        Assert.Matches("data-ferr-sap-ler>Ler agora", producao);
+        // «Ler agora» passa a «Ler pasta», o resto dentro de «Opções» (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy).
+        Assert.Matches("data-ferr-sap-ler>Ler pasta", producao);
         // As pastas juntas em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         var computador = Regex.Match(html, "<section id=\"sec-computador\"[\\s\\S]*?(?=<section id=\"sec-controlo\")").Value;
         Assert.Contains("id=\"ferrDefSap\"", computador);
