@@ -5,6 +5,17 @@
     ViewData["Title"] = "Entrar";
 }
 
+@if (Model.SemAcesso)
+{
+    @* Já com sessão, numa página que a conta não pode abrir (teste do ensaio, 27/10/2026). *@
+    <section class="login-form" aria-labelledby="login-title" id="login-sem-acesso">
+        <h2 id="login-title">Sem acesso</h2>
+        <p class="lead">A sua conta não tem acesso a esta página. Se precisar dela, peça ao ADMIN.</p>
+        <a class="dmo-button submit" href="/JobOn">← Voltar</a>
+    </section>
+    return;
+}
+
 <form method="post" class="login-form" data-native-login aria-labelledby="login-title">
     <h2 id="login-title">Entrar</h2>
     <p class="lead">Introduza as suas credenciais para aceder ao Portal DMO.</p>
