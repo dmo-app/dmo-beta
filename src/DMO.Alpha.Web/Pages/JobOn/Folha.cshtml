@@ -224,13 +224,24 @@
         var medidas = tipo == "CM"
             ? new[] { ("Diâm. pata", "cm_pata", "cm_pata_tol"), ("Diâm. gargalo", "cm_gargalo", "cm_gargalo_tol"), ("Diâm. exterior", "cm_exterior", "cm_exterior_tol") }
             : new[] { ("Diâm. corpo", "mf_corpo", "mf_corpo_tol"), ("Diâm. gargalo", "mf_gargalo", "mf_gargalo_tol"), ("Diâm. exterior", "mf_exterior", "mf_exterior_tol") };
+        // O reparador fica à vista no cartão; no MF também o FF com o lote (Diogo, 27/10/2026:
+        // «mover o reparador para fora, no MF meter o FF fora com lote»).
+        var fora = tipo == "CM"
+            ? new[] { ("Reparador", "cm_reparador") }
+            : new[] { ("Reparador", "mf_reparador"), ("FF", "mf_fundo_final"), ("Lote FF", "mf_lote_ff") };
         var resto = tipo == "CM"
-            ? new[] { ("Tipo", "cm_tipo"), ("Reparador", "cm_reparador"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3") }
-            : new[] { ("Tipo", "mf_tipo"), ("Reparador", "mf_reparador"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso"), ("Fundo final", "mf_fundo_final"), ("Lote FF", "mf_lote_ff") };
+            ? new[] { ("Tipo", "cm_tipo"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3") }
+            : new[] { ("Tipo", "mf_tipo"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso") };
         var folgas = new[] { p + "_folga1", p + "_folga2", p + "_folga3" };
         <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
           @{ CabecaFerramenta(tipo, toolId, nome); }
           @{ Uso(p + "_utilizacao", f); }
+          <div class="jof-fora" data-jof-fora="@tipo">
+            @foreach (var (rotulo, chave) in fora)
+            {
+              <span class="hv"><small>@rotulo</small><b>@{ Valor(chave, $"{tipo} {rotulo}"); }</b></span>
+            }
+          </div>
           @{ Notas(p + "_notas"); }
           @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
           @* No ver, o valor e a tolerância numa só coluna («54.02 ± 0.05»): com duas

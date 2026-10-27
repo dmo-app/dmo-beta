@@ -164,6 +164,12 @@ html ::-webkit-scrollbar-thumb:hover{background:var(--dmo-muted)}
 /* Links sem sublinhado no rato por cima, em toda a app (Diogo, 27/10/2026: «não devia ter sublinhado»,
    na «Mudança …» do Job On): o hover só muda a cor da letra. */
 html body :is(a,.dmo-shell-logout):is(:hover,:focus-visible,:active):not(#_),html body a:is(:hover,:focus-visible,:active) :not(#_){text-decoration:none}
+/* Menus «Opções» mais pequenos, em toda a app (Diogo, 27/10/2026: «reduzir tamanho do dropdown»):
+   a largura das opções, menos espaço à volta; no hover só muda a cor da letra, sem caixa. */
+html body :is(.dmo-options-list,.jof2 .menu-list):not(#_){min-width:0;width:max-content;max-width:260px;padding:4px}
+html body :is(.dmo-options-item,.jof2 .menu-list :is(a,button)):not(#_){padding:6px 10px;font-size:13px;line-height:1.3}
+html body :is(.dmo-options-item,.jof2 .menu-list :is(a,button)):not(#_):is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);outline:0}
+html[data-theme="dark"] body :is(.dmo-options-item,.jof2 .menu-list :is(a,button)):not(#_):is(:hover,:focus-visible){color:#fff}
 /* Setas do calendário (Job On, Controlo › Aprovar): botões de ação, por isso com a altura e o canto dos outros
    (eram 36 px de altura e canto de 8 px) e o mesmo rato por cima (inverte, como os outros). O calendário
    pequeno do histórico das Boquilhas (28 px) continua a mandar. */
