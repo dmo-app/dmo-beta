@@ -53,6 +53,7 @@ public static class AutoriaMap
         Autoria.De<Peso>(p => p.RegistadoPor, p => p.RegistadoPorUserId),
         Autoria.De<Pegamentos>(p => p.RegistadoPor, p => p.RegistadoPorUserId),
         Autoria.De<PegamentosMeasurementHistorico>(h => h.Por, h => h.PorUserId),
+        Autoria.De<PesoMeasurementHistorico>(h => h.Por, h => h.PorUserId),
         Autoria.De<PuncaoInspecao>(i => i.RegisteredBy, i => i.RegisteredByUserId),
         Autoria.De<Puncoes>(p => p.UpdatedBy, p => p.UpdatedByUserId),
         Autoria.De<DMO.Alpha.Core.Controlo.Controlo>(c => c.ApprovedByOperatorId, c => c.ApprovedByUserId),
