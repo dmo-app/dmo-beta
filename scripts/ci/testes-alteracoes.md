@@ -3671,4 +3671,4 @@ Novos: 17 · mudaram: 1 · saíram: 0
 - novo: `tests/ShellProof/posto-sair.test.cjs :: sem uso durante os minutos do posto, sai e volta ao posto`
 - mudou: `tests/ShellProof/package.json`
 
-Selo depois: `a4087f21063b9107`
+Selo depois: `98e0cd9693719733`

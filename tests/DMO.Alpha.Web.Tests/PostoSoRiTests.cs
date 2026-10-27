@@ -155,7 +155,8 @@ public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
             ("__RequestVerificationToken", token)));
         var ri = await login.GetAsync("/ReparacaoInterna");
         Assert.Equal(HttpStatusCode.OK, ri.StatusCode);
-        Assert.DoesNotContain("data-dmo-posto-minutos", await ri.Content.ReadAsStringAsync());
+        // Pelo login o atributo fica vazio: o dmo-posto.js não faz nada.
+        Assert.DoesNotMatch("data-dmo-posto-minutos=\"[0-9]", await ri.Content.ReadAsStringAsync());
     }
 
     private (WebApplicationFactory<Program> Factory, RelogioDoTeste Relogio, Guid Id) Fabrica(string? minutos)
