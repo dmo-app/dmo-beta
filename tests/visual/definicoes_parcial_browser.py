@@ -164,12 +164,6 @@ with sync_playwright() as playwright:
     # ------------------------------------------------------------------ módulos
     page, pedidos, erros = entrar(browser, operador)
 
-    # A ajuda do «GERAL · Só de leitura» (sessão nova: as Definições Gerais estão fechadas)
-    # fica encostada e elevada como nos outros títulos (Diogo, 23/10/2026).
-    page.goto(base + '/Definicoes?secao=controlo&sub=pegamentos')
-    folga_cadeado = ajuda_no_sitio(page, '#sec-controlo h3.def-parte-titulo:has(.def-cadeado)')
-    resultados.append(f'Ajuda do cadeado: topo a {folga_cadeado["topo"]:.1f}px das maiúsculas, a {folga_cadeado["folga"]:.1f}px da etiqueta')
-
     # Controlo → Definições: a tolerância; duplo clique no «Guardar» = 1 POST, 1 mensagem.
     page.goto(base + '/Controlo/Definicoes')
     atual = page.input_value('#pegamentosTolerance')
@@ -274,27 +268,26 @@ with sync_playwright() as playwright:
     assert foco(page) == 'dayChangeHour', f'foco em {foco(page)}'
     assert sql('''select "SettingValue" from "ModuleSettings" where "SettingKey" = 'Boquilhas:DayChangeHour' ''') == hora
 
-    # Menu lateral: um clique em «Controlo» abre o grupo, outro fecha-o; o triângulo roda.
-    page.goto(base + '/Definicoes?secao=admin&sub=app')
-    titulo = '[data-dmo-def-grupo="controlo"] [data-dmo-def-grupo-titulo]'
-    sub = '#defMenu-controlo'
-    rodar = f'{titulo} .dmo-caret'
-    angulo = lambda: page.eval_on_selector(rodar, "e => getComputedStyle(e).transform")
-    assert page.get_attribute(titulo, 'aria-expanded') == 'false'
-    assert page.eval_on_selector(sub, 'e => e.hidden') is True
-    fechado = angulo()
-    page.click(titulo)
-    expect(page.locator(titulo)).to_have_attribute('aria-expanded', 'true')
-    assert page.eval_on_selector(sub, 'e => e.hidden') is False
-    page.wait_for_timeout(300)
-    aberto = angulo()
-    assert aberto != fechado and aberto not in ('none', ''), f'o triângulo não rodou ({fechado} -> {aberto})'
-    page.click(titulo)
-    expect(page.locator(titulo)).to_have_attribute('aria-expanded', 'false')
-    assert page.eval_on_selector(sub, 'e => e.hidden') is True
-    page.wait_for_timeout(300)
-    assert angulo() == fechado, 'o triângulo não voltou'
-    resultados.append('Menu lateral: «Controlo» abre e fecha com um clique; o triângulo roda')
+    # Separadores (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP): trocam sem
+    # recarregar; os módulos e o aviso do cadeado só aparecem em Gerais (o aviso também em Este computador).
+    page.goto(base + '/Definicoes')
+    marca = page.evaluate("() => (window.__dmoSemRecarregar = Math.random())")
+    modulos, aviso = '[data-dmo-def-modulos]', '[data-dmo-def-aviso-geral]'
+    assert page.eval_on_selector(modulos, 'e => e.hidden') is True
+    page.click('[data-dmo-def-separador="gerais"]')
+    expect(page.locator('[data-dmo-def-separador="gerais"]')).to_have_attribute('aria-current', 'page')
+    assert page.eval_on_selector(modulos, 'e => e.hidden') is False
+    if page.locator(aviso).count():
+        assert page.eval_on_selector(aviso, 'e => e.hidden') is False
+    page.click('[data-dmo-def-entrada="boquilhas"]')
+    assert page.eval_on_selector('#sec-boquilhas', 'e => e.hidden') is False
+    page.click('[data-dmo-def-separador="pessoal"]')
+    assert page.eval_on_selector(modulos, 'e => e.hidden') is True
+    assert page.eval_on_selector('#sec-pessoal', 'e => e.hidden') is False
+    page.click('[data-dmo-def-separador="gerais"]')
+    assert page.eval_on_selector('#sec-boquilhas', 'e => e.hidden') is False, 'Gerais não voltou ao último módulo'
+    assert page.evaluate("() => window.__dmoSemRecarregar") == marca, 'a página recarregou'
+    resultados.append('Separadores: trocam sem recarregar; Gerais volta ao último módulo')
 
     # Triângulo e ajuda medidos no Chromium: o triângulo acaba antes do texto (0 a 0,5em);
     # o topo do círculo da ajuda fica na altura das maiúsculas (±1,5 px).
@@ -310,13 +303,10 @@ with sync_playwright() as playwright:
     page.goto(base + '/Definicoes?secao=boquilhas')
     m = page.eval_on_selector('summary:has(> .dmo-caret)', medir_caret)
     assert 0 <= m['folga'] <= 0.5 * m['em'], f'triângulo do <summary> a {m["folga"]:.1f}px do texto (1em = {m["em"]}px)'
-    m2 = page.eval_on_selector(titulo, medir_caret)
-    assert 0 <= m2['folga'] <= 0.5 * m2['em'], f'triângulo do menu a {m2["folga"]:.1f}px do texto'
     page.goto(base + '/Definicoes?secao=admin&sub=app')
     ajuda = ajuda_no_sitio(page, '#admin-email-title')
     desvio = ajuda['topo']
-    assert abs(ajuda['folga'] - folga_cadeado['folga']) <= 0.6, f'ajuda do cadeado a {folga_cadeado["folga"]:.1f}px, nos títulos a {ajuda["folga"]:.1f}px'
-    resultados.append(f'Triângulo a {m["folga"]:.1f}px/{m2["folga"]:.1f}px do texto; topo da ajuda a {desvio:.1f}px da altura das maiúsculas')
+    resultados.append(f'Triângulo a {m["folga"]:.1f}px do texto; topo da ajuda a {desvio:.1f}px da altura das maiúsculas')
 
     # Utilizadores: criar; o PIN fica no canto; o formulário limpa; a lista mostra-o.
     page.goto(base + '/Admin/Users')

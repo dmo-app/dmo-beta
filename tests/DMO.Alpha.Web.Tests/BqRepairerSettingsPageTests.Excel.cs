@@ -31,7 +31,8 @@ public sealed partial class BqRepairerSettingsPageTests
         Assert.Contains("id=\"bqDefExcel\"", html);
         Assert.Contains("data-bq-excel-pasta>Escolher a pasta</button>", html);
         Assert.Contains("data-bq-excel-escolher>Escolher um Excel que já existe</button>", html);
-        Assert.Contains("Nenhum Excel escolhido neste computador.", html);
+        // Só o estado, numa linha (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraSzhzka8hBipHGMtEsRNy7C: «remover comentários»).
+        Assert.Contains("<span data-bq-excel-estado>Nenhum Excel</span>", html);
         Assert.Contains("/js/dmo-excel-bq.js", html);
 
         var antes = await VersaoAsync(client);

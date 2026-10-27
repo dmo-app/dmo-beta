@@ -70,6 +70,22 @@
     });
   }
 
+  async function esquecerPasta() {
+    const base = await abrirBase();
+    return new Promise((resolve, reject) => {
+      const transacao = base.transaction(LOJA, "readwrite");
+      transacao.objectStore(LOJA).delete("pasta");
+      transacao.oncomplete = () => resolve();
+      transacao.onerror = () => reject(transacao.error);
+    });
+  }
+
+  // «Remover» só aparece com uma pasta ligada neste computador.
+  function mostrarRemover(tem) {
+    const remover = cartao ? cartao.querySelector("[data-ferr-sap-remover]") : null;
+    if (remover) remover.hidden = !tem;
+  }
+
   function token() {
     const campo = document.querySelector("input[name='__RequestVerificationToken']");
     return campo ? campo.value : "";
@@ -117,7 +133,7 @@
   }
 
   // Ler a pasta: os códigos para o SAP e os ficheiros novos. «forcar» lê o
-  // mais recente mesmo que já tenha sido lido (o «Ler agora»).
+  // mais recente mesmo que já tenha sido lido (o «Ler pasta»).
   async function sincronizar(pasta, forcar) {
     if (aLer) return;
     aLer = true;
@@ -127,12 +143,12 @@
       const ficheiros = await ficheirosDoSap(pasta);
       const ficheiro = ficheiros.length ? ficheiros[ficheiros.length - 1] : null;
       if (!ficheiro) {
-        mostrarEstado("Pasta «" + pasta.name + "» ligada. Ainda não tem nenhuma lista do SAP.");
+        mostrarEstado("«" + pasta.name + "» · ainda sem listas do SAP");
         if (forcar) mensagem("aviso", "A pasta «" + pasta.name + "» ainda não tem nenhuma lista do SAP.");
         return;
       }
       if (!forcar && info.ficheiroModificadoEm && ficheiro.lastModified <= info.ficheiroModificadoEm) {
-        mostrarEstado("Pasta «" + pasta.name + "» ligada. A lista mais recente («" + ficheiro.name + "») já foi lida.");
+        mostrarEstado("«" + pasta.name + "» · a lista mais recente («" + ficheiro.name + "») já foi lida");
         return;
       }
       const novos = forcar || !info.ficheiroModificadoEm
@@ -142,7 +158,7 @@
         const resultado = await enviar(novo);
         mensagem(resultado.gravado ? "ok" : "aviso", resultado.mensagem);
       }
-      mostrarEstado("Pasta «" + pasta.name + "» ligada. Última lista lida: «" + ficheiro.name + "».");
+      mostrarEstado("«" + pasta.name + "» · última lista lida «" + ficheiro.name + "»");
     } finally {
       aLer = false;
     }
@@ -165,7 +181,7 @@
       return;
     }
     if (!(await permissao(pasta, true))) {
-      mostrarEstado("Pasta «" + pasta.name + "» ligada, mas o browser não deu acesso. Carregue em «Ler agora» e escolha «Permitir».");
+      mostrarEstado("«" + pasta.name + "» · sem acesso: carregue em «Ler pasta» e escolha «Permitir»");
       return;
     }
     await sincronizar(pasta, forcar);
@@ -174,6 +190,7 @@
   async function ligarPasta() {
     const pasta = await window.showDirectoryPicker({ id: "dmo-sap", mode: "readwrite" });
     await guardarPasta(pasta);
+    mostrarRemover(true);
     await sincronizar(pasta, true);
   }
 
@@ -216,10 +233,11 @@
   async function aoAbrir() {
     const pasta = await pastaGuardada();
     if (!pasta) return;
+    mostrarRemover(true);
     if (await permissao(pasta, false)) {
       await sincronizar(pasta, false);
     } else {
-      mostrarEstado("Pasta «" + pasta.name + "» ligada. Carregue em «Ler agora» para o browser dar acesso outra vez.");
+      mostrarEstado("«" + pasta.name + "» · carregue em «Ler pasta» para dar acesso outra vez");
     }
   }
 
@@ -228,12 +246,13 @@
     const ler = cartao.querySelector("[data-ferr-sap-ler]");
     const copiar = cartao.querySelector("[data-ferr-sap-codigos]");
     const apagar = cartao.querySelector("[data-ferr-sap-apagar]");
+    const remover = cartao.querySelector("[data-ferr-sap-remover]");
     copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
     if (!suportado) {
       ligar.disabled = true;
       ler.disabled = true;
       apagar.disabled = true;
-      mostrarEstado("Este browser não deixa ligar uma pasta. Use o Chrome ou o Edge; o «Copiar códigos» funciona na mesma.");
+      mostrarEstado("este browser não liga pastas (use o Chrome ou o Edge); o «Copiar códigos» funciona na mesma");
       return;
     }
     ligar.addEventListener("click", () => ligarPasta().catch((erro) => {
@@ -242,6 +261,10 @@
     }));
     ler.addEventListener("click", () => lerComPedido(true).catch(falhou));
     apagar.addEventListener("click", () => apagarLidos().catch(falhou));
+    remover.addEventListener("click", () => esquecerPasta().then(() => {
+      mostrarRemover(false);
+      mostrarEstado("Nenhuma pasta ligada");
+    }).catch(falhou));
   }
 
   if (suportado) aoAbrir().catch(falhou);
