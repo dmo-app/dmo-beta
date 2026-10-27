@@ -677,39 +677,10 @@ public sealed class PesoModel : PageModel
     /// ilegível, nº de CM sem massa, massa ≤ 0 ou peso calculado ≤ 0). As
     /// outras comparam-se (e gravam-se); o aviso diz quais ficaram de fora.
     /// </summary>
-    public IReadOnlyList<ComparacaoLeituraForaAviso> ComparacaoLeiturasFora { get; private set; } = Array.Empty<ComparacaoLeituraForaAviso>();
+    public IReadOnlyList<PesoComparacaoLeituraFora> ComparacaoLeiturasFora { get; private set; } = Array.Empty<PesoComparacaoLeituraFora>();
 
     /// <summary>True quando o aviso vem de uma comparação GUARDADA (as leituras de fora não foram gravadas).</summary>
     public bool ComparacaoLeiturasForaGuardada { get; private set; }
-
-    /// <summary>Uma leitura deixada de fora da comparação: a linha do form, o nº de CM, o valor escrito e o motivo.</summary>
-    public sealed record ComparacaoLeituraForaAviso(
-        int Linha,
-        string? CmSubject,
-        string? Valor,
-        PesoComparacaoMotivoIgnorada Motivo)
-    {
-        public string Message
-        {
-            get
-            {
-                var quem = string.IsNullOrWhiteSpace(CmSubject)
-                    ? $"Leitura {Linha} (sem nº de CM)"
-                    : $"Leitura {Linha} (CM {CmSubject})";
-                return Motivo switch
-                {
-                    PesoComparacaoMotivoIgnorada.MassaIlegivel =>
-                        $"{quem}: a massa de água «{Valor}» é ilegível (escreva por exemplo 199,64 ou 199.64).",
-                    PesoComparacaoMotivoIgnorada.SemMassa =>
-                        $"{quem}: falta a massa de água.",
-                    PesoComparacaoMotivoIgnorada.MassaNaoPositiva =>
-                        $"{quem}: a massa de água {Valor} g não é maior que 0.",
-                    _ =>
-                        $"{quem}: o peso calculado com a massa {Valor} g não é positivo."
-                };
-            }
-        }
-    }
 
     // ---------------------------------------------------------------
     // O HISTÓRICO DO CONTROLO (a secção history do dmo-html): a procura
@@ -1084,9 +1055,7 @@ public sealed class PesoModel : PageModel
                 // peso inicial é o mais antigo da produção). Com vários Pesos
                 // (a CM ou a BQ mudou a meio; 18/10/2026), o das ferramentas
                 // atuais, senão o mais recente.
-                PesoInicialSelecionado = pesoInicialId is int pedido && Iniciais.Any(i => i.PesoId == pedido)
-                    ? pedido
-                    : (Iniciais.FirstOrDefault(i => i.IsCurrent) ?? Iniciais.LastOrDefault())?.PesoId;
+                PesoInicialSelecionado = PesoComparacaoFormulario.EscolherPesoInicial(Iniciais, pesoInicialId);
             }
 
             // O contra-molde: o selecionado ou o CM do peso inicial (o
@@ -1128,7 +1097,7 @@ public sealed class PesoModel : PageModel
             // (PRG do Guardar) — o aviso diz quais; não foram gravadas.
             if (ComparacaoGuardada is not null)
             {
-                ComparacaoLeiturasFora = DecodeLeiturasFora(ignoradas);
+                ComparacaoLeiturasFora = PesoComparacaoFormulario.Descodificar(ignoradas);
                 ComparacaoLeiturasForaGuardada = ComparacaoLeiturasFora.Count > 0;
             }
 
@@ -2317,7 +2286,7 @@ public sealed class PesoModel : PageModel
             jobon_id = jobOnId,
             peso_inicial = pesoInicialId.Value,
             comparacao_id = outcome.Comparacao.ComparacaoId,
-            ignoradas = EncodeLeiturasFora(ComparacaoLeiturasFora)
+            ignoradas = PesoComparacaoFormulario.Codificar(ComparacaoLeiturasFora)
         });
     }
 
@@ -2401,15 +2370,10 @@ public sealed class PesoModel : PageModel
     }
 
     /// <summary>
-    /// O parse das inputs da comparação (o form preserva o que foi
-    /// submetido): as linhas em branco ignoram-se; o nº de CM sem massa de
-    /// água e a massa presente mas ilegível ficam DE FORA com aviso (A3,
-    /// beta.65 — antes anulavam a comparação toda); a massa não positiva
-    /// segue para o backend, que também a deixa de fora com aviso. Só sem
-    /// nenhuma leitura utilizável a comparação é recusada (nada a comparar).
-    /// A temperatura é flexível (ponto OU vírgula).
+    /// O estado do tab para o re-render e o formulário lido (o form preserva
+    /// o que foi submetido; as regras vivem em <see cref="PesoComparacaoFormulario"/>).
     /// </summary>
-    private async Task<(PesoComparacaoResultado? Refusal, List<PesoComparacaoLeituraInput>? Leituras, decimal Temperatura)> PrepararComparacaoAsync(
+    private async Task<(PesoComparacaoResultado? Refusal, IReadOnlyList<PesoComparacaoLeituraInput>? Leituras, decimal Temperatura)> PrepararComparacaoAsync(
         int jobOnId,
         int? pesoInicialId,
         string? cmToolId,
@@ -2421,66 +2385,10 @@ public sealed class PesoModel : PageModel
     {
         await CarregarEstadoComparacaoAsync(jobOnId, pesoInicialId, cmToolId, waterTemperature, comparacaoNote, cancellationToken);
 
-        // O echo das linhas submetidas (o re-render do form com os valores).
-        var subjects = cmSubjects ?? Array.Empty<string>();
-        var waters = waterWeights ?? Array.Empty<string>();
-        var count = Math.Max(subjects.Length, waters.Length);
-        var echo = new List<(string?, string?)>();
-        var leituras = new List<PesoComparacaoLeituraInput>();
-        var fora = new List<ComparacaoLeituraForaAviso>();
-        _linhasDasLeituras.Clear();
-        for (var i = 0; i < count; i++)
-        {
-            var subject = i < subjects.Length ? subjects[i]?.Trim() : null;
-            var waterRaw = i < waters.Length ? waters[i]?.Trim() : null;
-            var subjectTem = !string.IsNullOrEmpty(subject);
-            var waterTem = !string.IsNullOrEmpty(waterRaw);
-            if (!subjectTem && !waterTem)
-            {
-                continue; // linha em branco: nada a comparar
-            }
-
-            echo.Add((subject, waterRaw));
-            if (waterTem && ParseOptionalDecimal(waterRaw) is { } water)
-            {
-                leituras.Add(new PesoComparacaoLeituraInput(subject ?? string.Empty, water));
-                _linhasDasLeituras.Add((echo.Count, subject, waterRaw));
-            }
-            else
-            {
-                // Nº de CM sem massa de água, ou massa presente mas ilegível:
-                // a linha fica de fora (nenhum facto é inventado) e o aviso
-                // diz qual — as outras leituras comparam-se.
-                fora.Add(new ComparacaoLeituraForaAviso(
-                    echo.Count,
-                    subject,
-                    waterRaw,
-                    waterTem ? PesoComparacaoMotivoIgnorada.MassaIlegivel : PesoComparacaoMotivoIgnorada.SemMassa));
-            }
-        }
-
-        ComparacaoLinhas = echo.Count > 0 ? echo : ComparacaoLinhas;
-        ComparacaoLeiturasFora = fora;
-
-        if (pesoInicialId is not { } inicialId || inicialId <= 0)
-        {
-            return (PesoComparacaoResultado.PesoInicialNaoSelecionado, null, 0m);
-        }
-
-        if (ParseOptionalDecimal(waterTemperature) is not { } temperatura)
-        {
-            // Vazia ou ilegível diz «ilegível»; fora de 5–35 °C é do backend.
-            return (PesoComparacaoResultado.TemperaturaIlegivel, null, 0m);
-        }
-
-        if (leituras.Count == 0)
-        {
-            // Nenhuma leitura utilizável: nada a comparar. Com linhas
-            // escritas mas ilegíveis o motivo é esse (o aviso diz quais).
-            return (fora.Count > 0 ? PesoComparacaoResultado.MassaAguaIlegivel : PesoComparacaoResultado.SemLeituras, null, 0m);
-        }
-
-        return (null, leituras, temperatura);
+        _formulario = PesoComparacaoFormulario.Ler(pesoInicialId, waterTemperature, cmSubjects, waterWeights);
+        ComparacaoLinhas = _formulario.Linhas.Count > 0 ? _formulario.Linhas : ComparacaoLinhas;
+        ComparacaoLeiturasFora = _formulario.Fora;
+        return (_formulario.Recusa, _formulario.Leituras, _formulario.Temperatura);
     }
 
     /// <summary>O valor do parâmetro «aviso» quando o Peso foi criado sem o nominal ilegível.</summary>
@@ -2509,77 +2417,16 @@ public sealed class PesoModel : PageModel
         };
     }
 
-    /// <summary>
-    /// A linha do form (1-based, a ordem das linhas reapresentadas), o nº
-    /// de CM e o texto escrito de cada leitura enviada ao backend, pela
-    /// ordem do pedido — para o aviso apontar a linha certa quando o
-    /// backend deixa uma de fora.
-    /// </summary>
-    private readonly List<(int Linha, string? CmSubject, string? Valor)> _linhasDasLeituras = new();
+    /// <summary>O formulário da comparação deste pedido (para o aviso juntar as que o backend deixou de fora).</summary>
+    private PesoComparacaoFormulario? _formulario;
 
     /// <summary>Junta ao aviso as leituras que o backend deixou de fora (massa ≤ 0 ou resultado ≤ 0).</summary>
     private void JuntarLeiturasForaDoBackend(IReadOnlyList<PesoComparacaoLeituraIgnorada>? ignoradas)
     {
-        if (ignoradas is not { Count: > 0 })
+        if (_formulario is not null)
         {
-            return;
+            ComparacaoLeiturasFora = _formulario.ComAsDoBackend(ignoradas);
         }
-
-        var todas = ComparacaoLeiturasFora.ToList();
-        foreach (var ignorada in ignoradas)
-        {
-            var origem = ignorada.Indice >= 1 && ignorada.Indice <= _linhasDasLeituras.Count
-                ? _linhasDasLeituras[ignorada.Indice - 1]
-                : (Linha: ignorada.Indice, CmSubject: ignorada.CmSubject, Valor: ignorada.WaterWeightGrams?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            todas.Add(new ComparacaoLeituraForaAviso(origem.Linha, origem.CmSubject, origem.Valor, ignorada.Motivo));
-        }
-
-        ComparacaoLeiturasFora = todas.OrderBy(a => a.Linha).ToList();
-    }
-
-    /// <summary>
-    /// O aviso das leituras de fora atravessa o PRG do Guardar num só
-    /// parâmetro: uma linha por leitura, «linha|motivo|valor|cm» (o motivo
-    /// é do vocabulário fechado; o valor e o nº de CM são o que o operador
-    /// escreveu, limitados e sem os separadores).
-    /// </summary>
-    private static string? EncodeLeiturasFora(IReadOnlyList<ComparacaoLeituraForaAviso> fora)
-    {
-        if (fora.Count == 0)
-        {
-            return null;
-        }
-
-        static string Limpo(string? valor)
-        {
-            var texto = (valor ?? string.Empty).Replace('|', '/').Replace('\n', ' ').Replace('\r', ' ').Trim();
-            return texto.Length > 40 ? texto[..40] : texto;
-        }
-
-        return string.Join('\n', fora.Take(50).Select(a => $"{a.Linha}|{a.Motivo}|{Limpo(a.Valor)}|{Limpo(a.CmSubject)}"));
-    }
-
-    private static IReadOnlyList<ComparacaoLeituraForaAviso> DecodeLeiturasFora(string? encoded)
-    {
-        if (string.IsNullOrWhiteSpace(encoded))
-        {
-            return Array.Empty<ComparacaoLeituraForaAviso>();
-        }
-
-        var avisos = new List<ComparacaoLeituraForaAviso>();
-        foreach (var linha in encoded.Split('\n', StringSplitOptions.RemoveEmptyEntries).Take(50))
-        {
-            var partes = linha.Split('|', 4);
-            if (partes.Length == 4
-                && int.TryParse(partes[0], out var numero)
-                && Enum.TryParse(partes[1], out PesoComparacaoMotivoIgnorada motivo)
-                && Enum.IsDefined(motivo))
-            {
-                avisos.Add(new ComparacaoLeituraForaAviso(numero, Sanitize(partes[3]), Sanitize(partes[2]), motivo));
-            }
-        }
-
-        return avisos;
     }
 
     /// <summary>O alvo do «Abrir registo selecionado»: o tipo, o id e o controlo da produção (o roteamento é do backend).</summary>
