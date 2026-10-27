@@ -36,7 +36,9 @@ html body main.ferr-page .ferr-editar-linha>.ferr-editar-sep{display:none}
 html[data-dmo-embedded="true"] body main.ferr-page .ferr-editar-linha{column-gap:16px}
 html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:96px !important}
 html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:156px !important}
-html body main.ferr-page .ferr-editar-linha>.ferr-opcional{flex:0 1 auto}
+/* A Informação opcional numa linha própria, por baixo, com um traço por cima
+   (Diogo, 27/10/2026: «meter um separador uma linha»). */
+html body main.ferr-page .ferr-editar-linha>.ferr-opcional{flex:1 0 100%;margin-top:4px;padding-top:12px;border-top:1px solid var(--dmo-border)}
 html body main.ferr-page .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:wrap}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos){gap:16px}
 html body main.ferr-page .ferr-tech-titulo{height:16px;margin:0 0 8px;font-size:11px;line-height:16px}
