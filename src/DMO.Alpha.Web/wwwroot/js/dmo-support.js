@@ -15,10 +15,28 @@
   const bloqueadas = new Set(['/Ferramentas/Ficha']);
   function bloquear(doc, sim) {
     doc.documentElement.classList.toggle('dmo-bloqueado', sim);
-    doc.querySelectorAll('form[method="post"] :is(input:not([type=hidden]),select,textarea,button)').forEach(campo => {
+    doc.querySelectorAll('form[method="post"] :is(input:not([type=hidden]),select,textarea,button), button[form]').forEach(campo => {
       if (sim) { if (!campo.disabled) { campo.disabled = true; campo.dataset.dmoBloqueado = ''; } }
       else if ('dmoBloqueado' in campo.dataset) { campo.disabled = false; delete campo.dataset.dmoBloqueado; }
     });
+    // O «Editar» também dentro da ficha, no cartão «Editar», onde fica o
+    // «Guardar»: o do topo do painel sai do ecrã quando se desce.
+    let dentro = doc.getElementById('dmoDesbloquear');
+    if (sim && !dentro) {
+      const acoes = doc.querySelector('#ferrEditar .dmo-card-topo-acoes');
+      if (acoes) {
+        dentro = doc.createElement('button');
+        dentro.type = 'button'; dentro.id = 'dmoDesbloquear'; dentro.className = 'dmo-button'; dentro.textContent = 'Editar';
+        dentro.addEventListener('click', desbloquear);
+        acoes.prepend(dentro);
+      }
+    }
+    if (!sim) dentro?.remove();
+  }
+  function desbloquear() {
+    const doc = frame.contentDocument; if (!doc) return;
+    bloquear(doc, false); if (unlock) unlock.hidden = true;
+    doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
   }
   let opener, dirty = false, operation = false;
   const destinations = new Map([
@@ -99,11 +117,7 @@
   });
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
   panel.querySelector('[data-support-close]').addEventListener('click', requestClose);
-  unlock?.addEventListener('click', () => {
-    const doc = frame.contentDocument; if (!doc) return;
-    bloquear(doc, false); unlock.hidden = true;
-    doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
-  });
+  unlock?.addEventListener('click', desbloquear);
   panel.querySelector('[data-support-keep]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
   panel.querySelector('[data-support-discard]').addEventListener('click', close);
   refresh.querySelector('[data-support-refresh]').addEventListener('click', () => location.reload());
