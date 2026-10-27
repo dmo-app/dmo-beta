@@ -1,5 +1,5 @@
 {
-  "selo": "d16d7799e427d7ce",
+  "selo": "7b631b6a1eaa577a",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1067,6 +1067,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TudoOuNada.cs :: FalhaDepoisDaPrimeiraGravacao.TrocarABq_OsMovimentosEORegistoFicamNaBqEmQueForamRegistados": "10b61a93787662bb",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSap.cs :: (resto do ficheiro)": "aa0fc64e1a8c7380",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSap.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarFechaOLembreteEUmSoAberto_NoPostgreSql": "64b90201129572d1",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: (resto do ficheiro)": "beed7ca24f6d2fe9",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarComAsMesmasConsultasPara5Ou100Ferramentas_NoPostgreSql": "885dd28fe7bdbf3a",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.cs :: (resto do ficheiro)": "2bafd7d52d1c3b97",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.cs :: NoRouteSettings.BqMovementAudit_HandlersWriteWhoAndWhen": "a1d9d2e141dbc530",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.cs :: NoRouteSettings.ControloRevisaoQuery_DiaDoRegisto_ProducaoAnterior_E_SemData_NoPostgres": "2b8d99babf3b5898",

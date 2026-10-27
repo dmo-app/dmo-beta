@@ -3421,3 +3421,13 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_EsperamCadaVezMais_EOPinCertoEntraNaMesma`
 
 Selo depois: `d16d7799e427d7ce`
+
+## A-0210 · 2026-10-27 · teste-novo
+
+Porquê: Ferramentas: ler o ficheiro do SAP faz as mesmas leituras à base para 5 ou 100 ferramentas, com as mesmas regras (DMO-471, 0.3.0-beta.167)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarComAsMesmasConsultasPara5Ou100Ferramentas_NoPostgreSql`
+
+Selo depois: `7b631b6a1eaa577a`
