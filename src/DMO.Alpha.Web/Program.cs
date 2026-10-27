@@ -302,6 +302,7 @@ builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnChangeQuery>
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.RemoveJobOnChangeHandler>();
 builder.Services.AddScoped<DMO.Alpha.Core.Planeamento.ISumarioQuery, DMO.Alpha.Infrastructure.Planeamento.SumarioQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IPesoCapSupportQuery, DMO.Alpha.Infrastructure.Controlo.PesoCapSupportQuery>();
+builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IPesoCompararQuery, DMO.Alpha.Infrastructure.Controlo.PesoCompararQuery>();
 // O MODO CHEFE (o corte H-lite, o Owner 2026-10-12: «controlo.approve é o
 // que o chefe tem, nao tem opçao de criar peso nem pegamentos»): as
 // capabilities efetivas do user logado pelo serviço canónico do Admin —
