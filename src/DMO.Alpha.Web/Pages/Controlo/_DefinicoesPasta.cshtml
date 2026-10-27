@@ -1,32 +1,17 @@
 @model DMO.Alpha.Web.Pages.Controlo.DefinicoesModel
-@* A PASTA PARTILHADA DOS PDFs é uma definição GERAL (Diogo, 22/10/2026): o
-   nome da pasta grava-se para todos (cadeado sem a permissão). O acesso à
-   pasta dá-se em cada navegador (File System Access API: o navegador só
-   guarda a pasta que lá se escolheu); «Associar» fica para todos e avisa,
-   sem bloquear, quando a pasta escolhida tem outro nome. *@
-@{ var cadeado = ViewData["DefCadeado"] is true; }
+@* A PASTA PARTILHADA DOS PDFs: o acesso à pasta dá-se em cada navegador (File
+   System Access API: o navegador só guarda a pasta que lá se escolheu).
+   «Associar» fica para todos. Sem nome de pasta definido nem aviso de nome
+   diferente (Diogo, 27/10/2026: «remover este erro e o campo para escolher nome»;
+   a pasta já se escolhe no Associar). *@
 <section id="ctlDefPastaPdf" class="dmo-card ctl-def-card" aria-labelledby="pasta-pdf-title" data-dmo-pasta-pdf>
     <div class="dmo-card-topo">
       <h3 id="pasta-pdf-title">Pasta partilhada dos PDFs</h3>
       <div class="dmo-card-topo-acoes">
         <button type="button" class="dmo-button" data-dmo-pasta-pdf-escolher hidden>Associar</button>
         <button type="button" class="dmo-button" data-dmo-pasta-pdf-esquecer hidden>Remover</button>
-        <button type="submit" class="dmo-button" id="ctlDefPastaGuardar" form="ctlDefPastaForm" disabled="@cadeado">Guardar</button>
       </div>
     </div>
-    <div id="ctlDefPastaNome" data-dmo-regiao data-dmo-parcial data-dmo-pasta-pdf-esperada="@Model.PastaPdf">
-      @if (Model.PastaResultMessage.Length > 0)
-      {
-        <p data-dmo-toast="@(Model.PastaSucceeded ? "ok" : "erro")" role="@(Model.PastaSucceeded ? "status" : "alert")">@Model.PastaResultMessage</p>
-      }
-      <form id="ctlDefPastaForm" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePastaPdf" class="ctl-def-acoes">
-        <div class="dmo-field">
-          <label for="pastaPdfNome" class="dmo-visually-hidden">Pasta definida</label>
-          <input id="pastaPdfNome" name="pasta" value="@Model.PastaPdf" maxlength="@DMO.Alpha.Core.Controlo.ModuleSettingKeys.ControloPastaPdfMax" placeholder="Ex.: Controlo 2026" disabled="@cadeado" required />
-        </div>
-      </form>
-    </div>
     <p class="ctl-def-computador"><strong>Neste computador:</strong> <span data-dmo-pasta-pdf-nome>Nenhuma (Transferências)</span></p>
-    <p class="dmo-aviso-discreto" data-dmo-pasta-pdf-diferente hidden>A pasta associada neste computador tem outro nome que a pasta definida. Os PDFs gravam-se na associada.</p>
     <p data-dmo-pasta-pdf-sem-suporte hidden>Use o Chrome ou o Edge para associar a pasta.</p>
   </section>
