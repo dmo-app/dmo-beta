@@ -59,10 +59,8 @@ function desenhar(db, { eco = null, resultado = null, guardada = null } = {}) {
   ${Z.leituras}
     <section class="dmo-card peso-card">
       <div class="dmo-card-topo-acoes">
-        <button type="button" class="dmo-button" form="cmpForm" data-cmp-add-row>Adicionar leitura</button>
-        <button type="button" class="dmo-button" form="cmpForm" data-cmp-remove-row>Remover leitura</button>
         <button type="submit" class="dmo-button" form="cmpForm" id="comparar">Comparar pesos</button>
-        <button type="submit" formaction="/Controlo/Peso?handler=GuardarComparacao" class="dmo-button" form="cmpForm" id="guardar">Guardar comparação</button>
+        <button type="submit" formaction="/Controlo/Peso?handler=GuardarComparacao" class="dmo-button" form="cmpForm" id="guardar">Guardar</button>
       </div>
       <form method="post" action="/Controlo/Peso?handler=Comparar" class="peso-form-grid" id="cmpForm">
         <input type="hidden" name="jobon_id" value="993" />
@@ -70,7 +68,7 @@ function desenhar(db, { eco = null, resultado = null, guardada = null } = {}) {
         ${guardada ? `<input type="hidden" name="comparacao_guardada" value="${guardada}" />` : ''}
         <select id="cmpTool" name="cm_tool_id"><option value="">Selecionar ferramenta CM</option>${opcao('T1')}${opcao('T2')}</select>
         <input id="cmpTemperature" name="water_temperature" value="${f.temp}" />
-        <div data-cmp-readings>${f.linhas.map((l, i) => `<div data-cmp-row><input id="cmpSubject-${i}" name="cm_subject" value="${l.cm}" /><input id="cmpWater-${i}" name="water_weight" value="${l.agua}" /></div>`).join('')}</div>
+        <div data-cmp-readings>${f.linhas.map((l, i) => `<div data-cmp-row><input id="cmpSubject-${i}" name="cm_subject" value="${l.cm}" /><input id="cmpWater-${i}" name="water_weight" value="${l.agua}" /><div class="peso-row-buttons"><button type="button" class="dmo-button peso-row-button" data-cmp-add-row>+</button><button type="button" class="dmo-button peso-row-button" data-cmp-del-row>−</button></div></div>`).join('')}</div>
         <input id="cmpNota" name="comparacao_note" value="${f.nota}" />
         ${token}
       </form>
@@ -202,16 +200,18 @@ test('«Comparar pesos» e «Guardar comparação» trocam só as zonas, sem rec
     assert.equal(db.comparacoes.length, 1);
     assert.deepEqual(noCanto(document), []);
 
-    // Os botões das linhas, no formulário novo (delegados no document). Estão
-    // no canto do cartão, fora do <form>, e são dele pelo form= (regra 74 do
-    // deep sweep de 18/10/2026).
-    assert.match(cshtml, /<div class="dmo-card-topo-acoes">\s*<button type="button" class="dmo-button" form="cmpForm" data-cmp-add-row>Adicionar leitura<\/button>\s*<button type="button" class="dmo-button" form="cmpForm" data-cmp-remove-row>Remover leitura<\/button>/);
-    assert.equal(document.querySelector('[data-cmp-add-row]').closest('form'), null);
+    // Os botões das linhas, no formulário novo (delegados no document): o +
+    // e o − ao lado da massa de água de cada leitura, como no Peso (Diogo,
+    // 27/10/2026); o − tira essa leitura.
+    assert.match(cshtml, /data-cmp-add-row aria-label="Adicionar leitura" title="Adicionar leitura">\+<\/button>\s*<button type="button" class="dmo-button peso-row-button" data-cmp-del-row/);
+    assert.doesNotMatch(cshtml, /Adicionar leitura<\/button>|Remover leitura<\/button>/);
+    assert.notEqual(document.querySelector('[data-cmp-add-row]').closest('[data-cmp-row]'), null);
     const linhas = () => document.querySelectorAll('[data-cmp-row]').length;
     document.querySelector('[data-cmp-add-row]').click();
     assert.equal(linhas(), 5);
-    document.querySelector('[data-cmp-remove-row]').click();
-    document.querySelector('[data-cmp-remove-row]').click();
+    const tirarUltima = () => [...document.querySelectorAll('[data-cmp-row]')].pop().querySelector('[data-cmp-del-row]').click();
+    tirarUltima();
+    tirarUltima();
     assert.equal(linhas(), 3);
     assert.equal(window.__marca, 'a mesma página');
     assert.deepEqual(pedidos.map((p) => `${p.metodo} ${p.handler || ''}`.trim()), ['POST Comparar', 'POST GuardarComparacao', 'POST GuardarComparacao']);
