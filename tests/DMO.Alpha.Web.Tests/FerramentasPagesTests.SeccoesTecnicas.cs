@@ -27,11 +27,11 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("placeholder", quantidade, StringComparison.Ordinal);
         Assert.DoesNotContain("Tampão D (mm)", html, StringComparison.Ordinal);
         Assert.DoesNotContain("Gargalo (mm)", html, StringComparison.Ordinal);
-        // O Tampão e a Punção saíram da CM (Diogo, 26/10/2026): o tampão
-        // escreve-se na Folha do Job On e a punção no Peso.
+        // O Tampão saiu da CM (Diogo, 26/10/2026): escreve-se na Folha do Job
+        // On. A Punção voltou (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraT5faqGrCPjdkUkYmc6GCBM).
         Assert.DoesNotContain(">Tampão<", html);
         Assert.DoesNotContain("name=\"tp_diametro\"", html);
-        Assert.DoesNotContain("name=\"volume_puncao\"", html);
+        Assert.Contains("name=\"volume_puncao\"", html);
         foreach (var dica in new[] { AjudaTecnica.Peso, AjudaTecnica.Gargalo })
             Assert.Contains($"<span class=\"dmo-help-tip\" role=\"tooltip\">{dica}</span>", html, StringComparison.Ordinal);
         Assert.Contains("class=\"dmo-field ferr-w-processo\"", html, StringComparison.Ordinal);
