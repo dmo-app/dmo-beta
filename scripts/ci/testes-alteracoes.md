@@ -3883,3 +3883,12 @@ Novos: 4 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `4286ec752addb091`
+## A-0234 · 2026-10-27 · teste-novo
+
+Porquê: Peso: sair da correção fica na folha, também no painel (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra9BpjJuJkq98wTX76Vv5QYA).
+Referência: DMO-499
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel`
+
+Selo depois: `8df11b23fe5cc07d`

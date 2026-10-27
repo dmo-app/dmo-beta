@@ -1,5 +1,5 @@
 {
-  "selo": "4286ec752addb091",
+  "selo": "8df11b23fe5cc07d",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2106,6 +2106,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_ALinhaEscolheSeComUmClique_EACorrecaoAbreNoLugarDaLeituraNova": "b26ec684128729cc",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_CorrecaoComMassaIlegivel_ERecusada_EOValorEscritoFica": "1130fcd07c88aa70",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_CorrigirEApagar_PelaFolha_FicaGravadoComRasto": "f6663e5793dde076",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel": "8c39081f407bf143",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ProcessoDoPeso.cs :: (resto do ficheiro)": "d1cba99a5d6ab5cb",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ProcessoDoPeso.cs :: ControloCapabilitiesCutHPageTests.PesoDaProducaoSemPeso_MostraOProcessoComoNasFolhas": "ccd15e9eb80a25d1",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoNoBrowser.cs :: (resto do ficheiro)": "326062a015b0638a",
