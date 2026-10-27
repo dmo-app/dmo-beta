@@ -44,11 +44,19 @@
             // com «— · —». Foi o bug que este adaptador apanhou no primeiro
             // correr: o rail antigo tinha a palavra, e perdê-la transformava um
             // estado normal do trabalho numa incógnita para o operador.
+            var producao = $"{current.Reference ?? "—"} · {current.ProductionNumber ?? "—"}";
+            // A BQ EM MÁQUINA À FRENTE (Diogo, 27/10/2026): com BQ, o cartão
+            // diz a boquilha e o lote do Job On em curso, «BQ T288 · Lote 41»;
+            // a referência e a produção ficam por baixo, numa linha discreta.
+            // Sem BQ ou sem produção, fica como estava.
+            var bqEmMaquina = temBq && abre is not null
+                ? $"BQ {current.BqReference}{(string.IsNullOrWhiteSpace(current.BqLot) ? null : $" · Lote {DMO.Alpha.Core.Tools.LoteExibido.Mostrar(current.BqLot)}")}"
+                : null;
             var detalhe = abre is null
                 ? "Sem produção"
                 : semBq
-                    ? $"{current.Reference ?? "—"} · {current.ProductionNumber ?? "—"} · sem BQ"
-                    : $"{current.Reference ?? "—"} · {current.ProductionNumber ?? "—"}";
+                    ? $"{producao} · sem BQ"
+                    : bqEmMaquina ?? producao;
             return new DMO.Alpha.Web.Presentation.DmoRailItem(
                 Code: current.MachineCode,
                 Detail: detalhe,
@@ -61,6 +69,7 @@
                         ? $"Produção {current.ProductionNumber ?? "—"} na {current.MachineCode} sem BQ: abrir o Job On"
                         : $"Boquilha {current.BqReference} da produção {current.ProductionNumber ?? "—"} na {current.MachineCode}",
                 Key: current.BqContextId?.ToString(),
+                Extra: bqEmMaquina is null ? null : producao,
                 Warning: current.Overlap && ultimaDaLinha[current.MachineId] == indice
                     ? $"Sobreposição na linha {current.MachineCode}: corrija as datas no Job On"
                     : null,
@@ -72,7 +81,7 @@
 
     var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
         Title: "Linhas de produção",
-        Subtitle: "Estado atual em máquina",
+        Subtitle: "", // sem subtítulo (Diogo, 27/10/2026)
         AriaLabel: "Linhas de produção",
         Items: linhas,
         EmptyLabel: "Sem linhas registadas.",

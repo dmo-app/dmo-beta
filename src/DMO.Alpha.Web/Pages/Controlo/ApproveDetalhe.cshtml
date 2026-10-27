@@ -127,7 +127,7 @@
           var pesos = Model.Pesos.Count > 0 ? Model.Pesos : new[] { Model.Peso };
           @foreach (var (peso, numero) in pesos.Select((p, i) => (p, i + 1)))
           {
-            <h3 class="revisao-section">@(pesos.Count > 1 ? $"Peso {numero} de {pesos.Count} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(peso)} · {peso.Measurements.Count} leitura(s){(peso.IsCurrent ? null : " · ferramentas anteriores")}" : "Dados do Peso")</h3>
+            <h3 class="revisao-section">@(pesos.Count > 1 ? $"Peso {numero} de {pesos.Count} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(peso)} · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(peso.Measurements.Count, "leitura", "leituras")}{(peso.IsCurrent ? null : " · ferramentas anteriores")}" : "Dados do Peso")</h3>
             <div class="revisao-facts">
               <div><span>CM</span><strong>@(peso.CmToolReference ?? "—")</strong><small>@(peso.CmToolLot is { } loteCm ? $"Lote {loteCm}" : "")</small></div>
               <div><span>Boquilha</span><strong>@(peso.BqToolReference ?? "—")</strong><small>@(peso.BqToolLot is { } loteBq ? $"Lote {loteBq}" : "")</small></div>

@@ -7,21 +7,8 @@
 {
   var input = DMO.Alpha.Infrastructure.Controlo.PegamentosPdfGenerator.FromSheet(Model);
   var mapa = DMO.Alpha.Web.Pages.Controlo.PegamentosMapSummary.From(Model);
-  <h3 class="revisao-section">Mapa de limites<partial name="_DmoHelp" model="@("Cada faixa é o corredor de um componente (nominal ± tolerância); as linhas verticais são os nominais, os círculos as médias das medições e o losango a média global. Vermelho = fora.")" /></h3>
-  <div class="peg-map-wrap">
-    @Html.Raw(DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.Render(input))
-  </div>
-  <div class="peg-map-legend">
-    @foreach (var componente in input.Components.Select(c => c.Component.ToUpperInvariant()).Distinct())
-    {
-      <span><i class="peg-dot" style="background:@DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.ComponentColor(componente)"></i> @componente</span>
-    }
-    @* As formas, como na legenda do relatório original (Diogo, 20/10/2026). *@
-    <span><i class="peg-line"></i> Linhas verticais = nominais</span>
-    <span><i class="peg-dot peg-forma"></i> Círculos = médias de cada medição</span>
-    <span><i class="peg-diamond"></i> Losango = média global</span>
-    <span><i class="peg-dot" style="background:@DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.AlertColor"></i> Fora</span>
-    <span><i class="peg-dot" style="background:@DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.NotEvaluableColor"></i> Não avaliável</span>
-  </div>
+  <h3 class="revisao-section">Mapa de limites<partial name="_DmoHelp" model="@("Uma linha por componente: a faixa é o corredor permitido (nominal ± tolerância) e os pontos são as medições.")" /></h3>
+  @* O mesmo gráfico da página dos Pegamentos (Diogo, 27/10/2026: «arranjar o gráfico»). *@
+  <partial name="_PegamentosGrafico" model="@(DMO.Alpha.Web.Pages.Controlo.PegamentosGrafico.From(input) with { MostrarNotaSemMedicoes = false })" />
   <div class="peg-map-status @(mapa.HasAlerts ? "alert" : Model.Pegamentos.Measurements.Any(m => m.Evaluation.IsNotEvaluable) ? null : "ok")"><strong>@mapa.SummaryText</strong></div>
 }

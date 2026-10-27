@@ -25,7 +25,7 @@
         </div>
       }
     </div>
-    <p class="card-note">@Model.TotalCandidates encontrada(s) · @Model.Candidates.Count nesta página</p>
+    <p class="card-note">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.TotalCandidates, "encontrada", "encontradas") · @Model.Candidates.Count nesta página</p>
 
     @if (Model.Candidates.Count == 0)
     {
@@ -40,6 +40,8 @@
               <th style="width:0"></th>
               <th>Ferramenta</th>
               <th>Máquinas</th>
+              <th>Onde está</th>
+              <th>Estado</th>
             </tr>
           </thead>
           <tbody>
@@ -51,6 +53,9 @@
                 <td><input type="radio" name="ferr_tool" value="@candidate.ToolId" aria-label="Ferramenta @humanFacts(candidate)" /></td>
                 <td><strong class="@DMO.Alpha.Web.Presentation.UsoCheio.ClasseDe(Model.UsoDe(candidate.ToolId))">@humanFacts(candidate)</strong></td>
                 <td>@(candidate.MachineCodes ?? "—")</td>
+                @{ var factos = Model.FactosDe(candidate.ToolId); }
+                <td>@(factos?.OndeEsta ?? "—")</td>
+                <td>@(factos?.Estado is { } estado ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado) : "—")</td>
               </tr>
             }
           </tbody>

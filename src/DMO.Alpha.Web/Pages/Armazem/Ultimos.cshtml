@@ -97,6 +97,10 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
         @if (!string.IsNullOrWhiteSpace(Model.ToolId))
         {
           <input type="hidden" name="ferramenta" value="@Model.ToolId" />
+          @if (DMO.Alpha.Web.Services.LocalUrl.IsSafe(Model.Request.Query["voltar"].ToString()))
+          {
+            <input type="hidden" name="voltar" value="@Model.Request.Query["voltar"]" />
+          }
         }
         <div class="dmo-field">
           <label for="armMovReferencia">Referência</label>
@@ -149,7 +153,23 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
 
       @if (!string.IsNullOrWhiteSpace(Model.ToolId))
       {
-        <p class="arm-filtro-ferramenta" id="armMovFerramenta">Só @(Model.FerramentaDoFiltro ?? "esta ferramenta").</p>
+        @* «Adicionar sempre opção de voltar à página anterior» (Diogo, 27/10/2026): aberta
+           filtrada a partir de outra página (a ficha da ferramenta), um «← Voltar» discreto
+           ao lado do filtro. Com ?voltar= (um caminho desta aplicação) vai para lá; sem ele,
+           o dmo-live.js põe a página de onde se veio (data-dmo-voltar) e, sem origem
+           conhecida, fica a lista sem filtro. *@
+        var voltarPedido = Model.Request.Query["voltar"].ToString();
+        var voltarSeguro = DMO.Alpha.Web.Services.LocalUrl.IsSafe(voltarPedido) ? voltarPedido : null;
+        <p class="arm-filtro-ferramenta" id="armMovFerramenta">Só @(Model.FerramentaDoFiltro ?? "esta ferramenta").
+          @if (voltarSeguro is not null)
+          {
+            <a class="arm-voltar" id="armMovVoltar" href="@voltarSeguro">← Voltar</a>
+          }
+          else
+          {
+            <a class="arm-voltar" id="armMovVoltar" href="@Url.Page("/Armazem/Ultimos")" data-dmo-voltar="@Model.ToolId" data-dmo-voltar-ignorar="/Armazem/Ultimos">← Voltar</a>
+          }
+        </p>
       }
 
       @if (Model.Lista.Items.Count == 0)

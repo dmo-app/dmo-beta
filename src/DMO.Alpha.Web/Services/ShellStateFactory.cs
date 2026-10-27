@@ -199,8 +199,17 @@ public sealed class ShellStateFactory
     /// dmo-calendar DENTRO do Job On. SUMÁRIO ao lado do Job On (Diogo,
     /// 19/10/2026): o que há para fazer e o que mudou, pelos módulos da conta.
     /// </summary>
-    public static IReadOnlyList<FunctionPresentation> PlanningFunctions(string activeKey, bool sumarioNovo = false) =>
-        new[]
+    /// <param name="soVer">Só com o Job On ver: o «Job On» abre a Folha (a página
+    /// dele) e não há «Histórico», que pede o Job On criar (auditoria de 27/10/2026).</param>
+    public static IReadOnlyList<FunctionPresentation> PlanningFunctions(string activeKey, bool sumarioNovo = false, bool soVer = false) =>
+        soVer
+        ? new[]
+        {
+            new FunctionPresentation("jobon", "Job On", "/JobOn/Folha", null, activeKey == "jobon", true, true),
+            new FunctionPresentation("sumario", "Sumário", "/Planeamento/Sumario", null, activeKey == "sumario", true, true,
+                sumarioNovo ? "dmo-tab-novo" : "")
+        }
+        : new[]
         {
             new FunctionPresentation("jobon", "Job On", "/JobOn", null, activeKey == "jobon", true, true),
             new FunctionPresentation("sumario", "Sumário", "/Planeamento/Sumario", null, activeKey == "sumario", true, true,
@@ -213,8 +222,8 @@ public sealed class ShellStateFactory
     /// um ponto sem número quando há importantes por ver): no próprio Sumário
     /// não aparece, porque abri-lo é vê-los.
     /// </summary>
-    public async Task<IReadOnlyList<FunctionPresentation>> PlanningFunctionsAsync(string activeKey, CancellationToken cancellationToken = default) =>
-        PlanningFunctions(activeKey, activeKey != "sumario" && await _sumario.TemNovoAsync(cancellationToken));
+    public async Task<IReadOnlyList<FunctionPresentation>> PlanningFunctionsAsync(string activeKey, CancellationToken cancellationToken = default, bool soVer = false) =>
+        PlanningFunctions(activeKey, activeKey != "sumario" && await _sumario.TemNovoAsync(cancellationToken), soVer);
 
     /// <summary>
     /// AS FUNÇÕES DO MÓDULO BOQUILHAS (o Owner 2026-10-13: «registo e

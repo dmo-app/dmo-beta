@@ -279,3 +279,34 @@
 .peg-map-wrap svg text{font-family:inherit}
 
 .peg-page .peg-map-legend { justify-content:center; }
+
+/* O MAPA DE LIMITES NO ECRÃ (Diogo, 27/10/2026: «arranjar o gráfico»): HTML com o texto ao tamanho
+   real (≥ 11 px), uma linha por componente com o nome à esquerda, a escala das medições e dos limites.
+   A cor de cada componente (--peg-cor, a do Owner) vem na própria linha; a faixa vai só a 15 %, e o
+   vermelho é só para «fora». O PDF continua com o desenho dele (PegamentosLimitMap). */
+.peg-map-wrap .peg-gr{display:grid;grid-template-columns:132px minmax(0,1fr);column-gap:14px;min-width:560px;padding:8px 28px 6px 12px;font-variant-numeric:tabular-nums}
+.peg-gr-nome{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right;min-width:0;padding-top:12px}
+.peg-gr-nome strong{font-size:14px;font-weight:700;color:var(--dmo-text);line-height:1.2}
+.peg-gr-nome small{font-size:11px;color:var(--dmo-muted);line-height:1.3;white-space:nowrap}
+.peg-gr-topo{position:relative;height:20px}
+.peg-gr-limite-texto{position:absolute;top:3px;padding-left:6px;font-size:11px;line-height:14px;color:var(--dmo-muted);white-space:nowrap}
+.peg-gr-limite-texto.esq{transform:translateX(-100%);padding:0 6px 0 0}
+.peg-gr-pista{position:relative;height:58px;background:var(--dmo-card);border-top:1px solid var(--dmo-border)}
+.peg-gr-pista>i{position:absolute;display:block}
+.peg-gr-grelha{top:0;bottom:0;border-left:1px solid var(--dmo-border)}
+.peg-gr-limite{top:0;bottom:0;border-left:1.5px dashed var(--dmo-muted);opacity:.75}
+.peg-gr-corredor{top:22px;height:26px;background:color-mix(in srgb,var(--peg-cor) 15%,transparent);border-radius:4px}
+.peg-gr-nominal{top:18px;height:34px;border-left:2px solid var(--peg-cor);transform:translateX(-1px)}
+.peg-gr-ponto{top:35px;width:9px;height:9px;border-radius:50%;background:var(--peg-cor);box-shadow:0 0 0 1.5px var(--dmo-card);transform:translate(-50%,calc(-50% + var(--peg-desvio,0) * 5px))}
+.peg-gr-ponto.fora{background:var(--dmo-nok)}
+.peg-gr-ponto.na{background:var(--dmo-neutral)}
+.peg-gr-media{top:35px;width:11px;height:11px;border:2px solid var(--peg-cor);background:var(--dmo-card);transform:translate(-50%,-50%) rotate(45deg)}
+.peg-gr-media-texto{position:absolute;top:2px;transform:translateX(-50%);font-size:12px;line-height:15px;font-weight:700;color:var(--dmo-text);white-space:nowrap}
+.peg-gr-unidade{justify-content:flex-start;padding-top:5px;font-size:11px;color:var(--dmo-muted)}
+.peg-gr-escala{position:relative;height:24px;border-top:1px solid var(--dmo-muted)}
+.peg-gr-escala span{position:absolute;top:5px;transform:translateX(-50%);font-size:11px;line-height:14px;color:var(--dmo-muted);white-space:nowrap}
+.peg-gr-nota{margin:8px 0 0;font-size:12px;color:var(--dmo-muted)}
+.peg-map-legend .peg-dot.peg-gr-fora{background:var(--dmo-nok)}
+.peg-map-legend .peg-dot.peg-gr-na{background:var(--dmo-neutral)}
+.peg-map-legend{font-size:12px}
+.peg-page .peg-map-legend{font-size:12px}

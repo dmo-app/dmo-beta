@@ -1,3 +1,4 @@
+using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Boquilhas;
 using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Planeamento;
@@ -78,6 +79,11 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
         if (tipos.Contains(SumarioTipo.UsoAtualizado))
         {
             items.AddRange(await UsoAtualizadoAsync(j => j.FimEm >= from && j.FimEm < toExclusive, cancellationToken));
+        }
+
+        if (tipos.Contains(SumarioTipo.ArmazemMovimento))
+        {
+            items.AddRange(await ArmazemAsync(fromUtc, toUtc, cancellationToken));
         }
 
         return items
@@ -478,6 +484,62 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
         }
 
         return items;
+    }
+
+    /// <summary>
+    /// Os movimentos do Armazém no período, pelo dia em que aconteceram: a
+    /// ferramenta (referência e lote), o que mudou (entrada na posição, saída
+    /// para onde, posição corrigida) e quem registou.
+    /// </summary>
+    private async Task<IEnumerable<SumarioItem>> ArmazemAsync(DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken)
+    {
+        var rows = await db.ArmazemMovimentos.AsNoTracking()
+            .Where(m => m.OcorridoEmUtc >= fromUtc && m.OcorridoEmUtc < toUtc)
+            .OrderByDescending(m => m.OcorridoEmUtc).ThenByDescending(m => m.Id)
+            .Take(MaxPorTipo)
+            .Select(m => new
+            {
+                m.Tipo,
+                m.ToolId,
+                m.ToolReferenceFrozen,
+                m.ToolLotFrozen,
+                m.Destino,
+                m.ReparadorNome,
+                m.OcorridoEmUtc,
+                m.RegistadoPor,
+                m.JobOnId,
+                Posicao = db.ArmazemPosicoes.Where(p => p.Id == m.PosicaoId).Select(p => p.Codigo).FirstOrDefault(),
+                Anterior = db.ArmazemPosicoes.Where(p => p.Id == m.PosicaoAnteriorId).Select(p => p.Codigo).FirstOrDefault(),
+                Maquina = db.Machines.Where(x => x.Id == m.MachineId).Select(x => x.Code).FirstOrDefault()
+            })
+            .ToListAsync(cancellationToken);
+
+        var toolIds = rows.Select(r => r.ToolId).Distinct().ToList();
+        var tools = await db.Tools.AsNoTracking()
+            .Where(t => toolIds.Contains(t.ToolId) && t.ToolId != ToolRegistryConstants.RemovedToolId)
+            .Select(t => new { t.ToolId, t.Type, t.Reference, t.Lot })
+            .ToDictionaryAsync(t => t.ToolId, cancellationToken);
+
+        return rows.Select(r =>
+        {
+            var tool = tools.GetValueOrDefault(r.ToolId);
+            var titulo = tool is null
+                ? $"{r.ToolReferenceFrozen ?? "Ferramenta"}{(string.IsNullOrEmpty(r.ToolLotFrozen) ? null : $" · Lote {Lote(r.ToolLotFrozen)}")}"
+                : $"{tool.Type.ToString().ToUpperInvariant()} {tool.Reference} · Lote {Lote(tool.Lot)}";
+            var detalhe = r.Tipo switch
+            {
+                ArmazemMovimentoTipo.Entrada => r.Posicao is { } pos ? $"Entrada na posição {pos}" : "Entrada",
+                ArmazemMovimentoTipo.Saida => $"Saída{(r.Anterior is { } de ? $" da posição {de}" : null)}{(r.Destino is { } para ? $" para {ArmazemTextos.Destino(para)}" : null)}{(string.IsNullOrEmpty(r.ReparadorNome) ? null : $" ({r.ReparadorNome})")}",
+                _ => $"Localização corrigida{(r.Anterior is { } de2 ? $" de {de2}" : null)}{(r.Posicao is { } para2 ? $" para {para2}" : null)}"
+            };
+            return new SumarioItem(
+                SumarioTipo.ArmazemMovimento,
+                Dia(r.OcorridoEmUtc),
+                r.OcorridoEmUtc,
+                titulo,
+                detalhe,
+                r.RegistadoPor) { ToolId = tool is null ? null : r.ToolId, JobOnId = r.JobOnId, Maquina = r.Maquina };
+        });
     }
 
     private static string Percentagem(decimal valor) =>

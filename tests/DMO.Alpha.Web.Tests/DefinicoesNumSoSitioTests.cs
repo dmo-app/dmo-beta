@@ -297,9 +297,10 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var html = await GetOkAsync(client, "/Definicoes");
         var pessoal = Regex.Match(html, "<section id=\"sec-pessoal\"[\\s\\S]*?(?=<section id=\"sec-computador\")").Value;
         var cartoes = Regex.Matches(pessoal, "<section id=\"(\\w+)\" class=\"dmo-card").Select(m => m.Groups[1].Value).ToArray();
-        // A aparência passa a cartão, ao lado da sessão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP); o «Mudar» está no título do cartão.
+        // A aparência passa a cartão, ao lado da sessão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         Assert.Equal(new[] { "defConta", "defTema", "defPalavraPasse" }, cartoes);
         Assert.Matches("<section id=\"defTema\"[\\s\\S]*?id=\"defTemaBotao\"", pessoal);
+        // O «Mudar» no canto superior direito do cartão, como os outros botões (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraQVvJwFV5LYqaod3CuetwJ6).
         Assert.Matches("<div class=\"dmo-card-topo-acoes\"><button type=\"submit\" class=\"dmo-button\" id=\"defPalavraGuardar\" form=\"defPalavraPasseForm\">", pessoal);
 
         var conta = WebUtility.HtmlDecode(Regex.Match(pessoal, "<section id=\"defConta\"[\\s\\S]*?</section>").Value);
@@ -318,13 +319,14 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var (client, _) = await LoginOperatorAsync("7314", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
         var html = WebUtility.HtmlDecode(await GetOkAsync(client, "/Definicoes"));
 
-        // Ferramentas: «Utilização pela produção» no Geral; só «Ler agora» fica ativo.
+        // Ferramentas: «Utilização pela produção» no Geral; só «Ler pasta» fica ativo.
         var producao = Regex.Match(html, "<section id=\"ferrDefSap\"[\\s\\S]*?</section>").Value;
         Assert.Contains("Utilização pela produção", producao);
         Assert.DoesNotContain("SAP<", producao);
         Assert.Contains("data-ferr-sap-pasta disabled=\"disabled\"", producao);
         Assert.Contains("data-ferr-sap-codigos disabled=\"disabled\"", producao);
-        Assert.Matches("data-ferr-sap-ler>Ler agora", producao);
+        // «Ler agora» passa a «Ler pasta», o resto dentro de «Opções» (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy).
+        Assert.Matches("data-ferr-sap-ler>Ler pasta", producao);
         // As pastas juntas em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         var computador = Regex.Match(html, "<section id=\"sec-computador\"[\\s\\S]*?(?=<section id=\"sec-controlo\")").Value;
         Assert.Contains("id=\"ferrDefSap\"", computador);

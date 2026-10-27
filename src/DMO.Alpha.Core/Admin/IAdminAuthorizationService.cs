@@ -49,6 +49,15 @@ public interface IAdminAuthorizationService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The same resolution as <see cref="ResolveEffectiveAccessAsync(Guid, CancellationToken)"/>
+    /// for several Users at once, in one query (never one per User).
+    /// Users that do not exist are left out of the result.
+    /// </summary>
+    Task<IReadOnlyDictionary<Guid, EffectiveAccess>> ResolveEffectiveAccessAsync(
+        IReadOnlyCollection<Guid> userIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Whether the canonical ADMIN boundary allows assigning a Template
     /// to this User. Template assignment REFUSES the ADMIN account (the
     /// User whose email is the ADMIN email of the Definições): ADMIN never

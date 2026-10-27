@@ -460,21 +460,21 @@ public sealed class FolhaModel(
     private async Task ComporPaginaAsync()
     {
         ViewData["Title"] = "Job On";
+        var ct = HttpContext.RequestAborted;
+        PodeEditar = await capabilities.HasAsync(DmoCapabilities.JobOnCreate, ct);
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = "jobon",
-            Functions = await shellState.PlanningFunctionsAsync("jobon")
+            Functions = await shellState.PlanningFunctionsAsync("jobon", ct, soVer: !PodeEditar)
         };
-        var ct = HttpContext.RequestAborted;
-        PodeEditar = await capabilities.HasAsync(DmoCapabilities.JobOnCreate, ct);
         VeControlo = await capabilities.HasAsync(DmoCapabilities.ControloCreate, ct)
             || await capabilities.HasAsync(DmoCapabilities.ControloApprove, ct);
         VeBoquilhas = await capabilities.HasAsync(DmoCapabilities.Boquilhas, ct);
         Capacidades = await capabilities.GetAsync();
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
-        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
-        ProximasEntradas = IndexModel.ProximasEntradasDaSemana(await jobOnList.ListWindowAsync(hoje, domingo, ct), hoje);
+        ProximasEntradas = IndexModel.ProximasEntradasDaSemana(
+            await jobOnList.ListWindowAsync(hoje, IndexModel.AteUmaSemana(hoje), ct), hoje);
     }
 
     private async Task<IActionResult> AbrirAsync(int? jobOnId, string? editar, string? gravado, string? overlap, string? caloteIgnorada, string? fimAntesInicio)

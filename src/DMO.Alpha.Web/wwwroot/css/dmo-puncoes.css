@@ -22,7 +22,7 @@
 /* O formulário do «+ Novo registo» já não tem o botão (está no canto do cartão): o lote fica com a largura dos outros campos. */
 @media(min-width:601px){.pu-id-form.pu-novo-form .dmo-field:last-child{flex:0 1 220px}}
 .pu-add-form{margin:0 0 14px}
-.pu-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pu-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .pu-stat{position:relative;padding:14px 16px;border:1px solid var(--dmo-border);border-radius:10px;background:var(--dmo-card);overflow:hidden}
 .pu-stat::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--dmo-brand-600)}
 .pu-stat span{display:block;color:var(--dmo-muted);font-size:11.5px;font-weight:650}
@@ -46,7 +46,7 @@
 .pu-export-text{flex:1;min-width:200px}
 .pu-export-text h3{margin:0 0 3px;font-size:14px}
 .pu-export-text p{margin:0;color:var(--dmo-muted);font-size:12px}
-@media(max-width:600px){.pu-stats{grid-template-columns:repeat(3,1fr);gap:6px}.pu-stat{padding:10px}.pu-stat strong{font-size:22px}.pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:1 1 100%}}
+@media(max-width:600px){.pu-stats{grid-template-columns:repeat(2,1fr);gap:6px}.pu-stat{padding:10px}.pu-stat strong{font-size:22px}.pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:1 1 100%}}
 /* A associação à mão de um registo sem Job On. */
 .pu-associar-lista{display:grid;gap:8px;margin-top:12px}
 /* As punções por posição da linha (Diogo, 22/10/2026): a mesma tabela do PDF. */
@@ -56,9 +56,10 @@
 .dmo-table.pu-grelha tbody th{background:var(--dmo-subtle);font-weight:800}
 table.dmo-table.pu-grelha[data-pu-grelha]{width:100%;table-layout:fixed;min-width:640px}
 table.dmo-table.pu-grelha[data-pu-grelha] tbody td{height:58px;position:relative}
-.pu-grelha-numero{font-size:20px}
-.pu-repetido .pu-grelha-numero{font-weight:800}
-.pu-repetido small{display:block;font-size:10.5px;line-height:1;color:var(--dmo-muted);font-weight:650}
+/* O número igual em todas as células, com ou sem lote (Diogo, 27/10/2026: «font deve ser igual», «alinhado»):
+   a mesma letra, tamanho e peso, centrado; o lote por baixo, mais pequeno, numa linha que existe sempre. */
+.dmo-table.pu-grelha .pu-grelha-numero{display:block;font-family:inherit;font-size:18px;font-weight:700;line-height:22px;font-variant-numeric:tabular-nums;color:var(--dmo-text);text-align:center}
+.dmo-table.pu-grelha .pu-grelha-lote{display:block;height:13px;margin-top:2px;font-family:inherit;font-size:10.5px;line-height:13px;font-weight:600;color:var(--dmo-muted);text-align:center;white-space:nowrap}
 .pu-grelha-baixo{display:flex;flex-wrap:wrap;gap:24px;margin-top:16px;align-items:flex-start}
 .dmo-table.pu-grelha.pu-grelha-reserva thead th{background:var(--dmo-warning-soft);color:var(--dmo-text)}
 .dmo-table.pu-grelha.pu-grelha-reserva td{min-width:44px}

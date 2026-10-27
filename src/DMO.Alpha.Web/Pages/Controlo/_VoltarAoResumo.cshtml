@@ -1,0 +1,10 @@
+@model int?
+@* O «← VOLTAR» DAS PÁGINAS DE REGISTO (Diogo, 27/10/2026): o «Registar» do
+   Resumo abre a página (como na .121) e esta volta ao Resumo da produção.
+   Discreto, só o texto; o dmo-live.js troca o endereço pela página de onde se
+   veio (data-dmo-voltar), sem contar as outras folhas do controlo. No painel
+   lateral não aparece: o painel tem o seu «Fechar». *@
+@if (Model is int jobOnId)
+{
+  <a class="dmo-voltar-texto" href="/Controlo/Resumo?jobon_id=@jobOnId" data-dmo-voltar="resumo" data-dmo-voltar-ignorar="/Controlo/Peso /Controlo/Pegamentos /Controlo/Puncoes" data-dmo-voltar-ao-resumo><span aria-hidden="true">←</span> Voltar</a>
+}

@@ -507,3 +507,210 @@
 .resumo-page .resumo-mini-card.resumo-approval.pending { border-color: var(--dmo-border); background: var(--dmo-card, #fff); }
 .resumo-page .resumo-mini-card.resumo-approval.pending > strong { color: var(--dmo-brand-900); }
 a.resumo-area-link { text-decoration: none; }
+
+/* ------------------------------------------------------------------
+ * Erros do Resumo (Diogo, 27/10/2026). Mais fortes do que o
+ * dmo-design.css (html body .resumo-page …), que vem depois: main.
+ * Pensado para 1366×768; claro e escuro só com os tokens.
+ * ------------------------------------------------------------------ */
+.resumo-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 3. O cabeçalho num só bloco: Início · Fim · Aprovação em cima e
+   CM · MF · BQ por baixo, nas mesmas três colunas; o rótulo pequeno por
+   cima do valor; a Aprovação sem caixa própria, só a cor do valor. */
+html body main.resumo-page .resumo-cabecalho {
+  display: grid;
+  margin: 0 20px;
+  border: 1px solid var(--dmo-border);
+  border-radius: 8px;
+  background: var(--dmo-card);
+}
+html body main.resumo-page .resumo-cabecalho :is(.resumo-context-grid, .resumo-tools-grid) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+html body main.resumo-page .resumo-cabecalho .resumo-sheet-tools {
+  display: block;
+  padding: 0;
+  border-top: 1px solid var(--dmo-border);
+}
+html body main.resumo-page .resumo-cabecalho .resumo-sheet-tools > .resumo-section-title {
+  margin: 0 !important;
+  padding: 8px 16px 0;
+  border: 0;
+  color: var(--dmo-muted);
+  font-size: 12px !important;
+  font-weight: 600;
+  line-height: 1.3;
+}
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
+  grid-template-areas: "rotulo acao" "valor acao" "nota nota";
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 1px;
+  min-width: 0;
+  padding: 8px 16px 9px;
+  border: 0;
+  border-left: 1px solid var(--dmo-border);
+  border-radius: 0;
+  background: none;
+  text-align: left;
+}
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card:first-child { border-left: 0; }
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card > span {
+  grid-area: rotulo;
+  color: var(--dmo-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card > strong {
+  grid-area: valor;
+  color: var(--dmo-text);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card > small {
+  grid-area: nota;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dmo-muted);
+  font-size: 12px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card > .resumo-card-link {
+  grid-area: acao;
+  margin: 0;
+  align-self: center;
+}
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card > .resumo-card-link:is(:hover, :focus-visible) { color: var(--dmo-text); background: none; }
+html body main.resumo-page .resumo-cabecalho .resumo-mini-card.resumo-approval:is(.pending, .approved, .not-approved) { border: 0; border-left: 1px solid var(--dmo-border); border-radius: 0; background: none; }
+html body main.resumo-page .resumo-cabecalho .resumo-approval.pending > strong { color: var(--dmo-muted); font-weight: 600; }
+html body main.resumo-page .resumo-cabecalho .resumo-approval.approved > strong { color: var(--dmo-ok); }
+html body main.resumo-page .resumo-cabecalho .resumo-approval.not-approved > strong { color: var(--dmo-danger); }
+html body main.resumo-page .resumo-cabecalho + .dmo-aviso { margin: 0 20px; }
+
+/* 2. Os controlos associados sem o PU NNPB: o Peso e os Pegamentos numa
+   só linha, com a mesma altura, sem buracos na grelha. Com o PU NNPB, o
+   Peso à esquerda e os outros dois empilhados à direita, como estava. */
+html body main.resumo-page .resumo-linked-grid { align-items: stretch; }
+html body main.resumo-page .resumo-linked-grid:not(:has(.resumo-linked-pu)) > :is(.resumo-linked-peso, .resumo-linked-peg) { grid-row: 1; }
+html body main.resumo-page .resumo-linked-card { height: 100%; }
+
+/* O estado ao lado dos botões, alinhado com eles: texto discreto, sem pastilha. */
+html body main.resumo-page .resumo-card-actions { align-items: center; gap: 12px; }
+html body main.resumo-page .resumo-linked-card .resumo-status {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--dmo-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: var(--dmo-control-height, 32px);
+}
+
+/* 1. O Peso estruturado: a média em destaque, a tabela pequena por baixo
+   (Valor · Diferença g · Diferença %, números alinhados à direita) e uma
+   linha discreta com as leituras e a água ao lado do «Ver detalhe». */
+html body main.resumo-page .resumo-peso-media { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+html body main.resumo-page .resumo-peso-media .resumo-big-number { font-size: 30px; font-weight: 650; line-height: 1.1; color: var(--dmo-text); }
+html body main.resumo-page .resumo-peso-media .resumo-big-number small { font-size: 16px; font-weight: 500; color: var(--dmo-muted); }
+html body main.resumo-page .resumo-peso-media > small { color: var(--dmo-muted); font-size: 12px; }
+html body main.resumo-page .resumo-peso-tabela {
+  width: 100%;
+  max-width: 520px;
+  margin: 6px 0 2px;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+html body main.resumo-page .resumo-peso-tabela :is(th, td) {
+  padding: 4px 10px 4px 0;
+  border: 0;
+  border-bottom: 1px solid var(--dmo-border);
+  background: none;
+  text-align: right;
+  white-space: nowrap;
+}
+html body main.resumo-page .resumo-peso-tabela :is(th, td):last-child { padding-right: 0; }
+html body main.resumo-page .resumo-peso-tabela thead th {
+  padding-top: 0;
+  color: var(--dmo-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+html body main.resumo-page .resumo-peso-tabela tbody tr:last-child :is(th, td) { border-bottom: 0; }
+html body main.resumo-page .resumo-peso-tabela :is(thead th:first-child, tbody th) { text-align: left; width: 42%; }
+html body main.resumo-page .resumo-peso-tabela tbody th { color: var(--dmo-text); font-size: 13px; font-weight: 500; text-transform: none; letter-spacing: 0; }
+html body main.resumo-page .resumo-peso-tabela td { font-size: 13px; }
+html body main.resumo-page .resumo-peso-tabela tbody th small { margin-left: 4px; color: var(--dmo-muted); font-size: 12px; }
+html body main.resumo-page .resumo-peso-tabela td { color: var(--dmo-text); }
+html body main.resumo-page .resumo-peso-tabela tbody tr:hover :is(th, td) { background: none; }
+html body main.resumo-page .resumo-peso-rodape {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+html body main.resumo-page .resumo-peso-rodape > small { color: var(--dmo-muted); font-size: 12px; }
+/* «Trocar links por botões» (Diogo, 27/10/2026): o «Ver detalhe →», o
+   «Aprovar →» e as ligações das PU NNPB parecem os botões discretos da app
+   (o «Abrir página» do painel): contorno fino, sem fundo; no hover muda só
+   a cor do texto. */
+html body main.resumo-page .resumo-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border: 1px solid var(--dmo-border);
+  border-radius: 6px;
+  background: none;
+  color: var(--dmo-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+}
+html body main.resumo-page .resumo-card-link:is(:hover, :focus-visible) { color: var(--dmo-text); background: none; text-decoration: none; }
+html body main.resumo-page .resumo-peso-rodape > .resumo-card-link { margin: 0; align-self: baseline; }
+/* O cartão inteiro abre o Peso; a sombra no hover sai (só a cor do texto muda). */
+html body main.resumo-page .resumo-linked-card:has(.resumo-card-link):hover { box-shadow: none; }
+html body main.resumo-page .resumo-linked-card:has(.resumo-card-link):hover :is(.resumo-card-link) { color: var(--dmo-text); }
+html body main.resumo-page .resumo-linked-card > .resumo-card-link { margin-top: auto; align-self: flex-end; }
+
+/* 4. O link do mcaliper na linha da área, na sua coluna, depois do
+   comentário; sem link, «Sem link do mcaliper» discreto. */
+@media (min-width: 1100px) {
+  html body main.resumo-page .resumo-areas .resumo-area { grid-template-columns: 200px 120px 150px minmax(0, 1fr) 250px; }
+  html body main.resumo-page .resumo-areas .resumo-area > .resumo-area-link { margin: 0; justify-self: start; }
+  html body main.resumo-page .resumo-areas .resumo-area { row-gap: 2px; }
+  html body main.resumo-page .resumo-areas .resumo-area > .resumo-area-by { grid-row: 2; grid-column: 2 / span 2; margin: 0 0 4px; }
+  html body main.resumo-page .resumo-areas .resumo-area > .resumo-area-historico { grid-column: 4; justify-self: start; }
+}
+html body main.resumo-page .resumo-area-link { color: var(--dmo-brand-700); text-decoration: none; }
+html body main.resumo-page .resumo-area-link.vazio { color: var(--dmo-muted); font-weight: 400; }
+html body main.resumo-page .resumo-area-link:is(:hover, :focus-visible) { color: var(--dmo-text); text-decoration: none; background: none; }
+html body main.resumo-page span.resumo-area-link.vazio:hover { color: var(--dmo-muted); }
+/* Na combinação, o lote ao lado da referência (como «9262 Lote 17»). */
+html body main.resumo-page .resumo-cabecalho .resumo-tools-grid > .resumo-mini-card { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "rotulo rotulo" "valor nota"; }
+html body main.resumo-page .resumo-cabecalho .resumo-tools-grid > .resumo-mini-card > small { white-space: nowrap; }

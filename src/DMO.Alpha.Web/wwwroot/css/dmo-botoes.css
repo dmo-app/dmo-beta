@@ -1,0 +1,122 @@
+/* BOTÕES E SELETORES (Diogo, 27/10/2026, …VhpNpJNmWffCnSnudseTKt): só há dois tipos de botão
+   na app, e cada um tem um só aspeto em todas as páginas. Esta folha carrega depois de todas as
+   outras, por isso manda sobre as regras antigas de cada página.
+
+   1) Botões de ação (Registar, Guardar, Criar, Limpar filtros, Imprimir…): .dmo-button, .button,
+      .btn. A mesma altura dos campos, a mesma letra e o texto sempre ao centro (também nos <a>,
+      que sem isto ficavam com o texto encostado em cima: «botões mal centrados»). No rato por
+      cima e no clique: cor de fundo, letra e contorno brancos.
+
+   2) Seletores (escolhe-se uma ou várias opções, não fazem nada sozinhos): Saída / Entrada /
+      Entrada sem reparação, CM / MF, Produção / Experiência, Linhas compatíveis, Entrada / Saída
+      do Armazém, Listas / Histórico. Só o escolhido fica destacado. */
+
+/* 1) Botões de ação ------------------------------------------------------------------------ */
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;vertical-align:middle;text-box:trim-both cap alphabetic}
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn)[hidden]{display:none}
+/* Rato por cima e clique (Diogo, 27/10/2026, …W16svSXbbqraVvZPKYnqCS: «o hover click fica com cor
+   background e font e linha branco»): o botão fica com cor de fundo, letra branca e contorno branco.
+   No claro o fundo escurece um tom, para se ver a mudança no cartão branco. */
+/* Foco (teclado ou depois de um clique com aviso de erro): só um anel, sem encher o botão. */
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):focus-visible:not(:hover):not(:active){background:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));border-color:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));color:var(--dmo-text-on-color)}
+html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel):focus-visible{outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45))}
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-800));border-color:#fff;color:#fff;outline:0}
+html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-600))}
+/* Os links de ação que passaram a botões (Abrir página do painel, avisos, ficha da ferramenta):
+   o mesmo botão, também no hover do escuro. Regras à parte porque o #id pesaria sobre tudo. */
+html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-action,var(--dmo-brand-600));border-radius:var(--dmo-r-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;text-decoration:none;vertical-align:middle;cursor:pointer}
+html body #dmoSupportFull:is(:hover,:active),html body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;text-decoration:none;outline:0}
+html[data-theme="dark"] body #dmoSupportFull:is(:hover,:active),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:var(--dmo-brand-600)}
+
+/* 2) Seletores -------------------------------------------------------------------------------
+   Opção 4 escolhida pelo Diogo (27/10/2026, …XwHyWe8QJjkeaipvH2MLV8; já pedido a 26/10: «iguais aos
+   botões, o escolhido invertido»): as opções são iguais aos botões de ação, também no rato por cima
+   (fundo mais escuro, letra e contorno brancos); a escolhida fica invertida (fundo do cartão, contorno
+   e letra de destaque). Aprovado a 27/10 (…Pc5CZ7o8GxVCiuBHj4uft6), com a letra num cinza
+   muito ligeiro no escuro e o azul um pouco mais claro no claro. */
+html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff);--dmo-escolhida-letra:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff)}
+html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#dde3eb}
+
+/* Os rádios e as caixas escondidos: o rótulo é o botão. */
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label{position:relative;cursor:pointer}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:is([type=radio],[type=checkbox]){position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input+span{display:flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-opcao-contorno);border-radius:var(--dmo-r-control,8px);background:var(--dmo-opcao-fundo);color:var(--dmo-opcao-letra);font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;outline:0;box-shadow:none;transition:color var(--dmo-fast,.12s)}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label:hover>input:not(:checked)+span{background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:checked+span,
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label:hover>input:checked+span{background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:focus-visible+span{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input:disabled+span{opacity:.55;cursor:not-allowed}
+/* Produção / Experiência estava colado num interruptor só: passa a dois botões separados, como CM / MF. */
+html body .jof2 .jof-tipo.dmo-alternador{display:inline-flex;gap:8px;height:auto;border:0;border-radius:0;overflow:visible}
+
+/* Seletores feitos de ligações (Armazém: Entrada / Saída; Reparação programada: Listas / Histórico):
+   o mesmo aspeto, com a classe -ativo no lugar do :checked. */
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra);box-shadow:none;outline:0}
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):hover:not(.arm-modo-ativo):not(.rp-modo-ativo){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo),
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo):is(:hover,:focus-visible){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
+
+/* «Sem Job On» da Reparação › Consultar (caixa com o rótulo como botão): rato por cima só a letra; ligado = escolhido. */
+html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra)}
+html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:hover:not(:has(>input:checked)){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
+html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:has(>input:checked){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+
+/* Setas da paginação sem página para onde ir («1 de 1»): sem cursor de mão nem clique (Diogo,
+   27/10/2026, …Cdi68amPSGYKsy5k2Cxp9o) e com o aspeto de qualquer botão desligado da app, não quase
+   brancas (…9qEaCTuerx6fanQf11vYWg: «botões iguais ao resto da app»). */
+html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="true"]):is(:disabled,[aria-disabled="true"]){background:var(--dmo-disabled);border-color:var(--dmo-disabled);color:var(--dmo-text-on-color);opacity:1;cursor:default;pointer-events:none;box-shadow:none}
+
+/* Botões e campos com a mesma altura (Diogo, 27/10/2026, …BCbfSb74Cm52qdM1TDtqzA: «mesmo tamanho nos
+   botões e campos de texto»): os campos de uma linha e as listas ficam com a altura dos botões. As
+   regras mais específicas de uma página (tabelas compactas) continuam a mandar. */
+html body input:is(:not([type]),[type=text],[type=number],[type=search],[type=password],[type=email],[type=tel],[type=date],[type=datetime-local],[type=time],[type=month]),html body select:not([multiple]):not([size]){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
+/* As listas (Processo «— sem processo», filtros…): o texto ao meio da caixa (Diogo, 27/10/2026,
+   «sem processo desalinhado»). O ajuste de 9/7 px dos campos de texto deixava o texto da lista
+   baixo no Windows; com a linha da altura da caixa e sem espaço em cima e em baixo, a letra fica
+   centrada pelas medidas do próprio tipo de letra, igual em todos os sistemas. */
+html body select:not([multiple]):not([size]):not(#_){padding-top:0;padding-bottom:0;line-height:calc(var(--dmo-control-height) - 2px)}
+/* Com a altura fixa, o Chromium já põe o texto ao centro: o píxel a mais em cima do
+   dmo-normalize.css (9/7, para a altura automática) passava a pô-lo 1,25 px abaixo
+   (Diogo, 20/10/2026: «verificar centramento de todos»). O mesmo seletor, 8/8. */
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input){padding-top:8px;padding-bottom:8px}
+
+/* Boquilhas › Registar Entrada ou Saída: o «Registar» (ação) separado dos tipos (escolha) por um traço fino. */
+html body .beta-bq-layout .bq-movement-line>.bq-movement-types{padding-left:14px;border-left:1px solid var(--dmo-border)}
+
+/* Ações dos cartões no canto superior direito (Diogo, 27/10/2026, …QVvJwFV5LYqaod3CuetwJ6: «Guardar,
+   Limpar filtros, etc., sempre no canto superior direito do cartão»). Nos cartões de filtros de uma só
+   linha os botões encostam à direita da linha; os cartões com título já os têm no .dmo-card-topo-acoes. */
+html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpar,html body #rpFiltros>#rpAssociarBotao{margin-left:auto}
+/* O título do cartão ao meio da altura dos botões da mesma linha. */
+html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{display:flex;align-items:center;height:var(--dmo-control-height);margin:0}
+
+/* «Sem Job On» / «Associar Job On» do Controlo no lado direito do cartão (Diogo, 27/10/2026,
+   …YSB6y6cuRetqJae1NkTkyh). No Peso o cartão é uma só linha (título, campos): a escolha passa para o fim. */
+html body main.peso-page .peso-card:has(>.dmo-modo-head):has(>form.dmo-filter-bar)>.dmo-modo-head{display:contents}
+html body main.peso-page .peso-card:has(>.dmo-modo-head):has(>form.dmo-filter-bar)>.dmo-modo-head>.dmo-modo{order:99;margin-left:auto}
+
+/* Texto ao centro na vertical em todos os botões (Diogo, 27/10/2026, …486E13AfasuF5HiYBe1i4y): a caixa do
+   texto corta-se à altura das maiúsculas e à linha de base, por isso o flex centra as letras e não o
+   espaço vazio que a letra Inter deixa por cima. Vale para os botões, os links-botão e os seletores. */
+html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel),
+html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label>input+span,
+html body .ri-filtros-acoes>.ri-so-por-associar{text-box:trim-both cap alphabetic}
+/* «Sem Job On» / «Associar Job On» lado a lado; o título do cartão no canto, na mesma linha, com espaço
+   (Diogo, 27/10/2026, …YKSqY4e2Ym2aZ3MkwBkzpr: «meter Ferramentas no canto, alinhar Sem Job On, dar espaço»). */
+html body nav.dmo-modo{display:inline-flex;gap:8px;align-items:center;flex:0 0 auto}
+/* Sem Job On / Associar Job On (Diogo, 27/10/2026, …3bX57nbMLosFWfi4tovsoz: «não precisa dos
+   dois»): só o botão de ação que leva ao outro modo; o do modo atual fica escondido. */
+html body nav.dmo-modo>.dmo-modo-ativo{display:none}
+html body .dmo-modo-head{flex-wrap:nowrap;align-items:center;gap:24px}
+
+/* Peso e Pegamentos, «CM — referência» e «Boquilha (BQ) — referência» (Diogo, 27/10/2026,
+   …UMR3BY4nT8v6krNRVvixPs): o rótulo maior e na mesma linha de base do «Ex.: ST100». */
+html body :is(main.peso-page,main.peg-page) form.dmo-filter-bar>.dmo-field>label{font-size:13px}
+html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar>.dmo-field:is(.dmo-field){align-items:baseline}
+
+/* Boquilhas › Registar, «Data e hora reais»: largura para a hora inteira (Diogo, 27/10/2026,
+   …UUDTTfMdactdxcFXd1Ddbr: «dá mais espaço para aparecer a hora»); no Windows a data e a hora
+   ocupam mais do que no Linux, por isso fica folga. */
+html body .beta-bq-layout .bq-movement-line .bq-line-date.bq-line-date{flex:0 0 212px}
+html body .beta-bq-layout .bq-movement-line .bq-line-date>input{width:100%}

@@ -125,13 +125,25 @@ public sealed class SharedComponentsTests
         Assert.Contains("html body summary.dmo-card-topo>:first-child::before{content:none}", css, StringComparison.Ordinal);
         Assert.Contains("html[data-theme=\"dark\"] body :is(.dmo-button,.button,.btn):is(:hover,:focus-visible){background:var(--button-color,var(--dmo-brand-600));border-color:#fff;color:#fff}", css, StringComparison.Ordinal);
 
+        // Os tipos de movimento (e todos os seletores) num só ficheiro, dmo-botoes.css (opção 4 do
+        // Diogo, 27/10/2026): as opções iguais aos botões de ação, o escolhido invertido.
+        var botoes = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-botoes.css"));
+        Assert.Contains("html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));", botoes, StringComparison.Ordinal);
+        Assert.Contains("--dmo-opcao-letra:var(--dmo-text-on-color);", botoes, StringComparison.Ordinal);
+        Assert.Contains("--dmo-escolhida-fundo:var(--dmo-card);", botoes, StringComparison.Ordinal);
+        Assert.Contains("html[data-theme=\"dark\"] body{--dmo-opcao-fundo:#4b6387;", botoes, StringComparison.Ordinal);
+        Assert.Contains("label>input:checked+span,", botoes, StringComparison.Ordinal);
+        Assert.Contains("{background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}", botoes, StringComparison.Ordinal);
+        Assert.Contains(":is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks)", botoes, StringComparison.Ordinal);
+        Assert.Contains("label>input:focus-visible+span{outline:", botoes, StringComparison.Ordinal);
+
+        // A janela «Registar sem Job On» usa a mesma classe .bq-movement-types (aspeto do dmo-botoes.css).
         var bq = File.ReadAllText(Path.Combine(WebRoot(), "wwwroot", "css", "dmo-boquilhas-prototype.css"));
         foreach (var raiz in new[] { ".beta-bq-layout", ".bq-sem-jobon-janela" })
-        {
-            Assert.Contains(raiz + " .bq-movement-types span { background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color); }", bq, StringComparison.Ordinal);
-            Assert.Contains(raiz + " .bq-movement-types :is(label:hover input, input:checked) + span { background:var(--dmo-invertido);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600); }", bq, StringComparison.Ordinal);
-            Assert.Contains(raiz + " .bq-movement-types input:focus-visible + span { outline:0;", bq, StringComparison.Ordinal);
-        }
+            Assert.Contains(raiz + " .bq-movement-types input { position:absolute;opacity:0;width:1px;height:1px; }", bq, StringComparison.Ordinal);
+        // dmo-botoes.css carrega depois de todas as outras folhas no layout.
+        var layout = File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Shared", "_DmoShellLayout.cshtml"));
+        Assert.True(layout.IndexOf("css/dmo-botoes.css", StringComparison.Ordinal) > layout.IndexOf("css/d1366-armazem-reparacao-admin.css", StringComparison.Ordinal));
     }
 
     // SEM ITÁLICO (regra do Diogo; 26/10/2026: «estes botões seguem a regra padrão?»).

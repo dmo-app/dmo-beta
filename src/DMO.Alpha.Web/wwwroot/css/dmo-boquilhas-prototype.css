@@ -202,12 +202,7 @@ html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:aut
 .beta-bq-layout .bq-movement-types legend { position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%); }
 .beta-bq-layout .bq-movement-types label { flex:1 1 200px;position:relative;cursor:pointer; }
 .beta-bq-layout .bq-movement-types input { position:absolute;opacity:0;width:1px;height:1px; }
-.beta-bq-layout .bq-movement-types span { display:block;padding:14px;text-align:center;border:1px solid var(--dmo-border,#b9d0e6);border-radius:9px;background:var(--dmo-card);font-weight:750; }
-/* OS TIPOS SÃO BOTÕES (Diogo, 26/10/2026: «deveria ser igual aos botões, mas o que fica selecionado fica invertido»; «este rebordo está de volta»):
-   azuis com letra branca como o «Registar»; o escolhido e o rato por cima invertem (branco, letra azul), sem anel do foco por fora. */
-.beta-bq-layout .bq-movement-types span { background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color); }
-.beta-bq-layout .bq-movement-types :is(label:hover input, input:checked) + span { background:var(--dmo-invertido);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600); }
-.beta-bq-layout .bq-movement-types input:focus-visible + span { outline:0;border-color:var(--dmo-brand-600); }
+/* O aspeto dos tipos (seletor: só o escolhido destacado) está no dmo-botoes.css. */
 
 .beta-bq-layout .bq-movement-form .filter-grid { align-items:start; }
 
@@ -216,7 +211,6 @@ html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:aut
 .beta-bq-layout .bq-movement-line { display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 14px;margin-top:12px; }
 .beta-bq-layout .bq-movement-line .bq-movement-types { margin:0;flex:0 0 auto;flex-wrap:nowrap; }
 .beta-bq-layout .bq-movement-line .bq-movement-types label { flex:0 0 auto; }
-.beta-bq-layout .bq-movement-line .bq-movement-types span { padding:9px 14px;white-space:nowrap; }
 .beta-bq-layout .bq-movement-line .field { margin:0;min-width:0; }
 .beta-bq-layout .bq-movement-line .bq-line-machine { flex:0 0 130px; }
 .beta-bq-layout .bq-movement-line .bq-line-quantity { flex:0 0 84px; }
@@ -306,11 +300,6 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 .bq-sem-jobon-janela .bq-movement-types { display:flex;gap:8px;flex-wrap:wrap;padding:0;margin:0;border:0; }
 .bq-sem-jobon-janela .bq-movement-types label { flex:1 1 auto;position:relative;cursor:pointer; }
 .bq-sem-jobon-janela .bq-movement-types input { position:absolute;opacity:0;width:1px;height:1px; }
-.bq-sem-jobon-janela .bq-movement-types span { display:block;padding:9px 12px;text-align:center;border:1px solid var(--dmo-border,#b9d0e6);border-radius:9px;font-weight:750;white-space:nowrap; }
-.bq-sem-jobon-janela .bq-movement-types span { background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color); }
-.bq-sem-jobon-janela .bq-movement-types :is(label:hover input, input:checked) + span { background:var(--dmo-invertido);border-color:var(--dmo-brand-600);color:var(--dmo-brand-600); }
-.bq-sem-jobon-janela .bq-movement-types span { padding:6px 12px; }
-.bq-sem-jobon-janela .bq-movement-types input:focus-visible + span { outline:0;border-color:var(--dmo-brand-600); }
 @media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos { grid-template-columns:1fr; } }
 /* BQ, Lote e Linha numa só linha (Diogo, 22/10/2026). */
 .bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:repeat(3, minmax(0, 1fr)); }
@@ -345,3 +334,54 @@ html[data-theme="dark"] .bq-escolha-lista li:hover span, html[data-theme="dark"]
 .beta-bq-layout #bq-tool-sheet .bq-sheet-dados strong{font-size:18px}
 .beta-bq-layout #bq-tool-sheet .bq-sheet-vazio{margin:6px 0 0;font-size:12px}
 @media (max-width:700px){.beta-bq-layout #bq-tool-sheet .bq-sheet-dados{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ------------------------------------------------------------------
+   ERROS DO DIOGO NAS BOQUILHAS (Diogo, 27/10/2026). Um bloco só, no fim,
+   para não mexer nas regras dos tipos de movimento nem nos botões.
+   ------------------------------------------------------------------ */
+
+/* Registo: os cartões (Referência, BQ · lote, Produção, Início, Fim) com a
+   letra um pouco maior. */
+html body .beta-bq-layout #bqRegisterFacts .dmo-fact>span { font-size:12.5px; line-height:1.35; }
+html body .beta-bq-layout #bqRegisterFacts .dmo-fact>strong { margin-top:3px; font-size:16px; line-height:1.3; }
+
+/* «Job On mudou · Ver o que mudou» numa linha no cabeçalho do registo, ao
+   lado de «Opções»: o cabeçalho tem sempre a mesma altura e a página não
+   salta ao trocar de máquina. As alterações abrem por cima, sem empurrar. */
+.beta-bq-layout .register-open > .card-head .bq-jobon-mudou { position:relative; display:flex; align-items:center; gap:6px; margin-left:auto; font-size:13px; line-height:20px; white-space:nowrap; color:var(--dmo-muted); }
+.beta-bq-layout .bq-jobon-mudou details { position:static; }
+.beta-bq-layout .bq-jobon-mudou summary { display:inline; list-style:none; cursor:pointer; font-weight:650; color:var(--dmo-warning); }
+.beta-bq-layout .bq-jobon-mudou summary::-webkit-details-marker { display:none; }
+.beta-bq-layout .bq-jobon-mudou summary::before { content:""; display:inline-block; width:7px; height:7px; margin:0 6px 1px 0; border-radius:50%; background:var(--dmo-warning); }
+.beta-bq-layout .bq-jobon-mudou summary:is(:hover,:focus-visible) { color:var(--dmo-text); }
+.beta-bq-layout .bq-jobon-mudou a { color:var(--dmo-brand-600); text-decoration:none; font-weight:600; }
+.beta-bq-layout .bq-jobon-mudou a:is(:hover,:focus-visible) { color:var(--dmo-text); text-decoration:underline; }
+.beta-bq-layout .bq-jobon-mudou-lista { position:absolute; top:calc(100% + 8px); right:0; z-index:30; width:max-content; max-width:min(440px,80vw); padding:10px 14px; white-space:normal; color:var(--dmo-text); background:var(--dmo-card); border:1px solid var(--dmo-border); border-left:3px solid var(--dmo-warning); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.18); }
+.beta-bq-layout .bq-jobon-mudou-lista strong { display:block; margin-bottom:4px; font-size:13px; }
+.beta-bq-layout .bq-jobon-mudou-lista ul { margin:0; padding-left:18px; }
+.beta-bq-layout .bq-jobon-mudou-lista li span { color:var(--dmo-muted); }
+:root[data-theme="dark"] .beta-bq-layout .bq-jobon-mudou a { color:var(--dmo-brand-300, #9cc3ea); }
+:root[data-theme="dark"] .beta-bq-layout .bq-jobon-mudou :is(a,summary):is(:hover,:focus-visible) { color:#fff; }
+
+/* Movimentos: os filtros do tamanho do que levam, todos numa linha a
+   1366×768 (Lote com 3 dígitos, Referência com 4 a 8 letras); o «Até» já
+   não cai sozinho para a linha de baixo. Em ecrãs estreitos, partem. */
+html body .beta-bq-layout .bq-history-filter-grid { display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 10px; }
+.beta-bq-layout .bq-history-filter-grid > .field { flex:0 0 auto; min-width:0; margin:0; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#vista) { width:236px; }
+.beta-bq-layout .bq-history-filter-grid > .field select { white-space:nowrap; text-overflow:ellipsis; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#pesquisa) { width:118px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#lote) { width:76px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#maquina) { width:96px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#tipo) { width:150px; }
+.beta-bq-layout .bq-history-filter-grid > .field:has(#reparador) { width:170px; }
+.beta-bq-layout .bq-history-filter-grid > .field:is(#bqHistDesdeZona,#bqHistAteZona) { width:148px; }
+.beta-bq-layout .bq-history-filter-grid > .field :is(input,select) { width:100%; }
+@media (max-width:600px) { .beta-bq-layout .bq-history-filter-grid > .field { flex:1 1 100%; width:auto !important; } }
+
+/* Os totais do filtro (Saídas, Entradas, Entradas sem reparação) juntos à
+   esquerda, cada um do tamanho do número, em vez de espalhados pela largura. */
+html body .beta-bq-layout #bqHistTotais { padding-top:10px; padding-bottom:10px; }
+html body .beta-bq-layout #bqHistTotais .lot-data { display:flex; flex-wrap:wrap; gap:0; margin-top:0; }
+html body .beta-bq-layout #bqHistTotais .lot-data > div { flex:0 0 auto; min-width:96px; padding:2px 28px !important; }
+html body .beta-bq-layout #bqHistTotais .lot-data > div:first-child { padding-left:0 !important; }

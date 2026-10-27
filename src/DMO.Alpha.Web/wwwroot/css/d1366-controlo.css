@@ -1,0 +1,340 @@
+/* 1366×768: controlo (27/10/2026). Só as páginas deste grupo. */
+
+/* ===== Controlo › Resumo ===================================================
+   Cabe em 1366×768 com uma produção aberta (Diogo, 27/10/2026): o título e
+   a procura numa linha; os três controlos associados lado a lado, sem o
+   espaço vazio do Peso; o estado do documento em linhas baixas; o «Visto
+   por» e o «Aprovado por» compactos. Os mesmos campos, botões e ajudas. */
+@media (min-width:1100px){
+  html body main.resumo-page[aria-labelledby="resumo-title"].dmo-workspace{padding:8px 24px 4px;gap:8px}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet){display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:24px;row-gap:8px}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet)>*{grid-column:1/-1}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet)>.page-head{grid-column:1;margin:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet)>.resumo-browser{grid-column:2}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet)>.resumo-sheet{align-self:start}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-browser.resumo-card{padding:4px 16px;gap:16px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-browser>h3{font-size:14px}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet) .resumo-browser>.resumo-procura:not(:has(*)){display:none}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet) .resumo-browser .resumo-form-grid{flex:0 1 420px}
+
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet{gap:8px;padding-bottom:10px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet-intro{padding:6px 20px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet-identity{font-size:18px!important;line-height:1.2}
+  /* «Produção selecionada» à esquerda da produção, na mesma linha. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet-intro>div:first-child{display:flex;align-items:baseline;gap:12px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet-intro .resumo-eyebrow{margin:0}
+
+  /* Início · Fim · Aprovação: uma faixa de uma linha. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-window-grid.resumo-context-grid{margin:0 20px;padding:6px 0}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card{align-items:baseline;gap:2px 8px;padding:2px 16px;min-height:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card.resumo-approval{border:0;border-left:1px solid var(--dmo-border);background:none;margin:0;padding:2px 16px;flex-direction:row;flex-wrap:wrap}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card:not(.resumo-approval){flex:0 0 200px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card.resumo-approval{flex:1 1 auto;flex-wrap:nowrap}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card.resumo-approval>small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card.resumo-approval>.resumo-card-link{margin-left:auto;white-space:nowrap}
+
+  /* A combinação: a mesma margem e a mesma faixa. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet-tools{padding:0 20px;gap:16px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet-tools>.resumo-tools-grid{padding:6px 0}
+
+  /* Controlos associados: os três lado a lado, da mesma altura. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-linked{padding:0 20px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-section-title{margin:0 0 6px!important;font-size:14px!important;line-height:20px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-linked-grid,
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-linked-grid:has(.resumo-linked-pu){grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-linked-grid>:is(.resumo-linked-peso,.resumo-linked-peg,.resumo-linked-pu){grid-column:auto;grid-row:1}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-linked-card{padding:8px 16px;gap:4px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-linked-card-head{min-height:var(--dmo-control-height)}
+
+  /* Estado do documento: linhas da altura de um campo. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-sheet-areas{padding:0 20px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 120px 96px minmax(0,1fr);gap:16px;padding:2px 4px;min-height:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area :is(select,.resumo-area-note){height:var(--dmo-control-height-compact);min-height:var(--dmo-control-height-compact)}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area .resumo-area-note{width:100%}
+
+  /* Visto por · Aprovado por: cabeçalho e linha baixos. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-people{padding:0 20px;gap:16px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-people .dmo-table :is(th,td){padding-top:5px;padding-bottom:5px;line-height:20px}
+}
+@media (min-width:1100px){
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area select{padding-top:0;padding-bottom:0;line-height:28px}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet) .resumo-browser .resumo-form-grid{flex:0 1 320px}
+}
+
+/* ===== Controlo › Peso =====================================================
+   Blocos a 8 px; «Ferramentas» numa linha com cada referência do tamanho
+   do que leva; as duas faixas de valores lado a lado; a leitura nova na
+   mesma linha das gravadas; os campos do «Novo Peso» com largura de número. */
+@media (min-width:1100px){
+  html body main.peso-page.dmo-workspace{padding:8px 24px 8px;gap:8px}
+  html body main.peso-page>.page-head{margin:0}
+  html body main.peso-page .peso-card{padding:12px 20px}
+  html body main.peso-page .peso-card .peso-card{padding:10px 16px;margin-top:8px!important}
+  html body main.peso-page .peso-card-heading{padding:0 0 8px;margin:0 0 8px;min-height:0;align-items:center}
+  html body main.peso-page .peso-card-heading h3{margin:0;line-height:1.3}
+  html body main.peso-page .peso-card-heading p{margin:2px 0 0}
+
+  /* Ferramentas: título e as duas referências numa linha. */
+  html body main.peso-page .peso-card:has(>.dmo-modo-head):has(>form.dmo-filter-bar){display:flex;align-items:center;gap:24px;padding:8px 20px}
+  html body main.peso-page .peso-card>.dmo-modo-head{margin:0;padding:0;border:0}
+  html body main.peso-page .peso-card>.dmo-modo-head h3{margin:0;font-size:15px}
+  html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar{flex:0 1 auto;flex-wrap:nowrap;align-items:center;gap:24px;margin:0}
+  html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar>.dmo-field{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:8px;margin:0}
+  html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar>.dmo-field>label{margin:0;white-space:nowrap}
+  html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar>.dmo-field>input{width:160px}
+
+  /* Valores: faixas planas com linhas finas, sem fundo nem borda de cor. */
+  html body main.peso-page :is(.peso-facts,.peso-facts.peso-context-grid,.peso-live-strip,.peso-resumo){display:flex;flex-wrap:wrap;gap:0;padding:6px 0;margin:0;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
+  html body main.peso-page :is(.peso-facts,.peso-live-strip,.peso-resumo)>*{flex:1 1 120px;margin:0;padding:2px 16px!important;border:0!important;border-left:1px solid var(--dmo-border)!important;border-radius:0!important;background:none!important;min-width:0}
+  html body main.peso-page :is(.peso-facts,.peso-live-strip,.peso-resumo)>*:first-child{border-left:0!important}
+  html body main.peso-page .peso-facts+.peso-facts{margin-top:8px!important}
+  html body main.peso-page .peso-fact strong{font-size:15px;margin-top:2px}
+  html body main.peso-page .peso-facts>.dmo-zona>.tp-support{margin:0}
+  html body main.peso-page .peso-facts .tp-support>summary.tp-button{padding:0;border:0;background:none}
+  html body main.peso-page .peso-form-grid .peso-fact{border:0;border-left:1px solid var(--dmo-border);border-radius:0;background:none;padding:2px 16px}
+  html body main.peso-page .peso-form-grid.wide:has(>.peso-fact){display:flex!important;gap:0;margin-top:8px!important;padding:6px 0;border:1px solid var(--dmo-border);border-radius:8px}
+  html body main.peso-page .peso-form-grid.wide>.peso-fact{flex:1 1 0}
+  html body main.peso-page .peso-form-grid.wide>.peso-fact:first-child{border-left:0}
+
+  /* Novo Peso: os números com a largura de um número. */
+  html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo){display:flex;flex-wrap:wrap;gap:8px 24px;align-items:end}
+  html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo)>.dmo-field{flex:0 0 200px}
+  html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo)>.peso-form-grid.wide{flex:1 1 100%}
+
+  /* Leituras: a tabela baixa; as duas faixas numa linha. */
+  html body main.peso-page .peso-hint{margin:0 0 4px!important}
+  html body main.peso-page .peso-section-heading{margin:4px 0 6px;padding:0}
+  html body main.peso-page .peso-section-heading h4{margin:0}
+  html body main.peso-page .dmo-table :is(th,td){padding-top:6px;padding-bottom:6px;line-height:20px}
+  html body main.peso-page .peso-live-region{margin-top:8px}
+  html body main.peso-page #pesoLeituraResumo{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,3fr);gap:8px}
+  html body main.peso-page #pesoLeituraResumo>.peso-resumo{margin:0}
+
+  /* A leitura nova ao lado das gravadas, com os botões na mesma linha. */
+  html body main.peso-page .peso-leitura-form{margin-top:8px}
+  html body main.peso-page .peso-leitura-grade{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;padding:8px;border-radius:8px}
+  html body main.peso-page .peso-leitura-grade>#pesoLeiturasGravadas{display:contents}
+  html body main.peso-page .peso-leitura-row{grid-template-columns:72px 120px;gap:4px 8px}
+  html body main.peso-page .peso-leitura-row.is-saved{padding:8px;border:1px solid var(--dmo-border);border-radius:8px}
+  html body main.peso-page .peso-leitura-nova{display:flex;align-items:flex-start;gap:8px;padding:8px}
+  html body main.peso-page .peso-leitura-nova .peso-leitura-actions{margin:22px 0 0;align-items:stretch}
+  html body main.peso-page .peso-leitura-actions .peso-registar{min-height:var(--dmo-control-height);padding:0 14px}
+  html body main.peso-page .peso-row-button{height:auto}
+}
+@media (min-width:1100px){
+  html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar>.dmo-field>.dmo-suggest{width:160px;flex:0 0 160px}
+  html body main.peso-page .peso-leitura-form{padding:8px;margin-top:8px}
+  html body main.peso-page .peso-leitura-form>.peso-leitura-grade{padding:0}
+}
+
+/* ===== Controlo › Pegamentos ===============================================
+   A folha é longa (três componentes e o mapa) e pode descer, mas sem espaço
+   morto: cabeçalhos dos cartões baixos; o nominal e o permitido na linha do
+   título do componente; a tabela com linhas da altura de um campo. */
+@media (min-width:1100px){
+  html body main.peg-page.dmo-workspace{padding:8px 24px 12px;gap:8px}
+  html body main.peg-page>.page-head{margin:0}
+  html body main.peg-page>.dmo-zona:not(:has(*)){display:none}
+  html body main.peg-page .peg-card{padding:8px 20px 12px}
+  html body main.peg-page .peg-card .peg-section-head{margin:-8px -20px 8px;padding:8px 20px;align-items:center;min-height:calc(var(--dmo-control-height) + 16px);box-sizing:border-box}
+  html body main.peg-page .peg-card .peg-section-head h3{margin:0;line-height:1.3}
+  html body main.peg-page .peg-card .peg-section-head p{margin:2px 0 0}
+  html body main.peg-page .peg-card .peg-section-head .dmo-card-topo-acoes{align-items:center}
+  html body main.peg-page .peg-context-grid{padding:6px 0}
+  html body main.peg-page .peg-context-grid>.dmo-fact{padding:2px 16px}
+  html body main.peg-page .peg-context-notes:not(:has(*)){display:none}
+
+  /* Componente: título · nominal e permitido · passo, numa linha. */
+  html body main.peg-page section.peg-card[data-peg-component]{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:center}
+  html body main.peg-page section.peg-card[data-peg-component]>*{grid-column:1/-1}
+  html body main.peg-page section.peg-card[data-peg-component]>.peg-section-head{grid-column:1/-1;grid-row:1}
+  html body main.peg-page section.peg-card[data-peg-component]>.peg-ferramenta-linha{grid-column:2;grid-row:1;align-self:center;margin:-8px 0 0;padding:0;border:0;z-index:1;justify-content:flex-start}
+  html body main.peg-page section.peg-card[data-peg-component]>.peg-section-head>div:first-child{flex:0 0 auto}
+  html body main.peg-page section.peg-card[data-peg-component]>.peg-section-head>div:first-child h3{white-space:nowrap}
+  html body main.peg-page section.peg-card[data-peg-component]>.peg-ferramenta-linha{padding-left:var(--peg-titulo-w,200px)}
+  html body main.peg-page .peg-aviso-nominal{margin:0 0 8px;padding:6px 12px}
+  html body main.peg-page .peg-readings-title{margin:0 0 6px;font-size:14px}
+  html body main.peg-page .peg-card .dmo-table-wrap{margin-top:0!important}
+  html body main.peg-page .peg-registo-tabela :is(th,td){padding-top:4px;padding-bottom:4px;line-height:20px}
+  html body main.peg-page .peg-registo-tabela input{height:var(--dmo-control-height-compact);min-height:0;padding-top:0;padding-bottom:0}
+  html body main.peg-page .peg-mais-linha{margin-top:8px}
+
+  /* Mapa de limites. */
+  html body main.peg-page .peg-map-card{padding:8px 20px 12px}
+  html body main.peg-page .peg-map-heading{margin:0 0 4px}
+  html body main.peg-page .peg-map-heading h3{margin:0}
+  html body main.peg-page .peg-map-card .peg-map-help{margin:0 0 8px}
+  html body main.peg-page .peg-map-legend{margin-top:8px;row-gap:4px}
+  html body main.peg-page .peg-map-status{margin-top:8px;padding:6px 12px}
+}
+@media (min-width:1100px){
+  html body main.peg-page section.peg-card[data-peg-component]>.peg-mais-linha{justify-self:start}
+  html body main.peg-page .peg-context-grid:has(>.dmo-fact:nth-child(6):last-child){grid-template-columns:.7fr .7fr 1fr 1fr 1fr 1.8fr}
+}
+
+/* ===== Controlo › PU NNPB ==================================================
+   Os factos numa faixa com linhas finas; «Editar a punção» numa linha com
+   os campos do tamanho da referência e do lote; o número da punção curto;
+   a lista com linhas baixas. */
+@media (min-width:1100px){
+  html body main.pu-page.dmo-workspace{padding:8px 24px 12px;gap:8px}
+  html body main.pu-page>.page-head{margin:0}
+  html body main.pu-page #puFolha{display:flex;flex-direction:column;gap:8px}
+  html body main.pu-page .pu-card{padding:10px 20px 12px}
+  html body main.pu-page .pu-section-head{align-items:center;margin-bottom:8px}
+  html body main.pu-page .pu-section-head h3{margin:0}
+  html body main.pu-page .pu-facts{display:flex;gap:0;padding:6px 0;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
+  html body main.pu-page .pu-facts>.pu-fact{flex:1 1 0;min-width:0;padding:2px 16px;border:0;border-left:1px solid var(--dmo-border);border-radius:0;background:none}
+  html body main.pu-page .pu-facts>.pu-fact:first-child{border-left:0}
+  html body main.pu-page .pu-facts>.pu-fact strong{font-size:15px}
+  html body main.pu-page .pu-id-editar{margin-top:8px}
+  html body main.pu-page .pu-id-editar[open]{display:flex;align-items:flex-end;gap:24px}
+  html body main.pu-page .pu-id-editar[open]>summary{margin:0;padding-bottom:8px;white-space:nowrap}
+  html body main.pu-page .pu-id-form{margin:0;gap:8px 16px}
+  html body main.pu-page :is(.pu-id-form,.pu-add-form) .dmo-field{flex:0 0 auto}
+  html body main.pu-page .pu-id-form #pu-referencia{width:140px}
+  html body main.pu-page :is(#pu-lote,#pu-lote-puncao){width:96px}
+  html body main.pu-page #pu-numero{width:120px}
+  html body main.pu-page .pu-add-form{margin:0 0 8px;gap:8px}
+  html body main.pu-page .pu-stats{padding:6px 0}
+  html body main.pu-page .pu-stats .pu-stat strong{font-size:20px;line-height:1.2}
+  html body main.pu-page .pu-table :is(th,td){padding-top:6px;padding-bottom:6px;line-height:22px}
+}
+
+/* ===== Controlo › Revisão (Approve) e Detalhe ==============================
+   Filtros numa faixa baixa; as partes do controlo com 16 px entre si e o
+   título de cada uma sobre uma linha fina; a tabela do Peso cabe no cartão
+   sem barra de deslocar; as faixas de valores com uma linha de altura. */
+@media (min-width:1100px){
+  html body main.resumo-page:is(.revisao-page,[aria-labelledby="approve-detail-title"]).dmo-workspace{padding:8px 24px 12px;gap:8px}
+  html body main.resumo-page:is(.revisao-page,[aria-labelledby="approve-detail-title"])>.page-head{margin:0}
+  html body main.revisao-page .revisao-filtros-card{margin-top:0;padding:8px 16px;align-items:flex-end}
+  html body main.revisao-page .revisao-filters{gap:8px 16px}
+  html body main.revisao-page .revisao-filters .revisao-w-estado{flex:0 0 140px}
+  html body main.revisao-page .revisao-filters .revisao-w-maquina{flex:0 0 100px}
+  html body main.revisao-page .revisao-filters .revisao-w-data{flex:0 0 150px}
+  html body main.revisao-page .revisao-grid{margin-top:0;gap:16px}
+
+  html body main.resumo-page .revisao-detail{padding:12px 20px 16px;min-height:0}
+  html body main.resumo-page .revisao-detail .revisao-parte-topo{margin:16px 0 8px;min-height:var(--dmo-control-height);padding:2px 0}
+  html body main.resumo-page .revisao-detail>.revisao-parte-topo:first-child,
+  html body main.resumo-page .revisao-detail>.revisao-parte:first-child>.revisao-parte-topo:first-child{margin-top:0}
+  html body main.resumo-page .revisao-detail h3.revisao-section{margin:16px 0 8px;padding:2px 0 4px;border-bottom:1px solid var(--dmo-border)}
+  html body main.resumo-page .revisao-detail .revisao-parte-topo h3.revisao-section{margin:0;padding:0;border:0}
+  html body main.resumo-page .revisao-detail .revisao-facts{padding:6px 0}
+  html body main.resumo-page .revisao-detail .revisao-facts strong{font-size:16px}
+  html body main.resumo-page .revisao-detail .revisao-facts .destaque strong{font-size:20px}
+  html body main.resumo-page .revisao-detail .revisao-line{margin:0 0 8px}
+  html body main.resumo-page .revisao-detail .dmo-aviso{margin:0 0 8px}
+  html body main.resumo-page .revisao-detail .revisao-consulta-tabela{margin-top:8px}
+
+  /* A tabela de comparação do Peso: nove colunas dentro dos 920 px do cartão. */
+  html body main.resumo-page .revisao-detail table[data-revisao-peso-comparacao] :is(th,td){padding:6px 8px;line-height:20px}
+  html body main.resumo-page .revisao-detail table[data-revisao-peso-comparacao] thead th{white-space:normal;vertical-align:bottom}
+  html body main.resumo-page .revisao-detail table[data-revisao-peso-comparacao] td{white-space:nowrap}
+  html body main.resumo-page .revisao-detail .dmo-table :is(th,td){padding-top:6px;padding-bottom:6px}
+
+  /* Mapa de limites dentro da Revisão. */
+  html body main.resumo-page .revisao-detail .peg-map-legend{margin-top:8px;row-gap:4px}
+  html body main.resumo-page .revisao-detail .peg-map-status{margin-top:8px;padding:6px 12px}
+}
+@media (min-width:1100px){
+  /* Detalhe: o «Responsável» (um nome) ao lado da nota, não à largura toda. */
+  html body main.resumo-page .revisao-decision:has(>.dmo-field>#revisao-responsavel){display:grid;grid-template-columns:280px minmax(0,1fr);gap:8px 16px;align-items:start}
+  html body main.resumo-page .revisao-decision:has(>.dmo-field>#revisao-responsavel)>:not(.dmo-field){grid-column:1/-1}
+  html body main.resumo-page .revisao-decision>.dmo-field{margin:0}
+  html body main.resumo-page .revisao-decision textarea{min-height:64px}
+}
+@media (min-width:1100px){
+  /* Os campos da linha nova como todos os campos (no escuro ficavam cinzentos do navegador). */
+  html body main.peg-page .peg-registo-tabela .peg-linha-nova input{box-sizing:border-box;padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit}
+  html body main.peg-page .peg-registo-tabela .peg-linha-nova input:focus-visible{outline:2px solid var(--design-medium);outline-offset:1px}
+}
+@media (min-width:1100px){
+  /* Comparação de Peso: a referência curta, a produção e o Peso inicial com o
+     tamanho das opções, o «Mostrar» logo a seguir. */
+  html body main.peso-page #cmpEscolha{flex-wrap:nowrap;gap:8px 16px}
+  html body main.peso-page #cmpEscolha>.dmo-field{flex:0 0 auto}
+  html body main.peso-page #cmpEscolha>.dmo-field:first-of-type{flex-basis:180px}
+  html body main.peso-page #cmpEscolha>#pesoComparacaoProducaoZona{flex-basis:260px}
+  html body main.peso-page #cmpEscolha>#pesoComparacaoInicialZona{flex-basis:340px}
+  /* Histórico: referência, produção e ferramenta do tamanho do que levam. */
+  html body main.peso-page #pesoHistoricoFiltros>.dmo-field{flex:0 0 180px}
+}
+
+/* ===== Auditoria 1366×768 (27/10/2026) · Controlo =========================
+   As falhas do grupo «2. Controlo» em todo/1366-falhas.md. Só largura e
+   altura: os mesmos campos, botões e ajudas. */
+@media (min-width:1100px){
+  /* PU NNPB: 51 punções numa tabela compacta (linha de 43 px para 29 px). */
+  html body main.pu-page .pu-table :is(th,td){padding-top:2px;padding-bottom:2px;line-height:20px}
+  html body main.pu-page .pu-table .pu-check{height:24px;min-height:0;padding:0 6px;line-height:20px}
+  html body main.pu-page .pu-table .pu-remove{min-height:0;padding:0 6px;line-height:20px}
+
+  /* Revisão (lista e produção): o calendário (320 px) e os «Controlos do dia» com a mesma largura. */
+  html body main.revisao-page .revisao-grid{grid-template-columns:320px minmax(0,1fr)}
+
+  /* Resumo do controlo (detalhe): a procura ao lado do título, do tamanho dos dois campos. */
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]:has(>.revisao-filtros-card){display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:24px}
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]:has(>.revisao-filtros-card)>*{grid-column:1/-1}
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]:has(>.revisao-filtros-card)>.page-head{grid-column:1}
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]>.revisao-filtros-card{grid-column:2;justify-self:end;width:fit-content;max-width:100%;margin:0}
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]>.revisao-filtros-card>.dmo-filter-bar{flex:0 0 auto;flex-wrap:nowrap}
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]>.revisao-filtros-card .dmo-field{flex:0 0 auto}
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]>.revisao-filtros-card #resumoControloReferencia{width:160px}
+  html body main.resumo-page[aria-labelledby="approve-detail-title"]>.revisao-filtros-card #resumoControloProducao{width:240px}
+
+  /* Ferramentas e OK / NOK: a coluna da referência com lugar para «Referência · lote» e o Guardar;
+     a caixa como as outras (borda, cantos e altura). */
+  html body main.resumo-page[aria-labelledby="approve-detail-title"] .resumo-areas .resumo-area{grid-template-columns:200px 120px 290px minmax(0,1fr) 200px}
+  html body main.resumo-page .resumo-areas .resumo-area-identificacao{margin:0;align-items:center;gap:8px}
+  html body main.resumo-page .resumo-areas .resumo-area-identificacao input{box-sizing:border-box;flex:1 1 auto;min-width:0;height:var(--dmo-control-height);padding:0 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:14px}
+  html body main.resumo-page .resumo-areas .resumo-area-identificacao input:focus-visible{outline:2px solid var(--design-medium);outline-offset:1px}
+  html body main.resumo-page .resumo-areas .resumo-area-identificacao>.dmo-button{flex:0 0 auto}
+
+  /* Resumo: a procura do tamanho do que leva (sem a faixa vazia à direita), quando não há resultados abertos. */
+  html body main.resumo-page[aria-labelledby="resumo-title"]>.resumo-browser.resumo-card:not(:has(>.resumo-procura *)){display:flex;flex-direction:row;align-items:center;gap:16px;width:fit-content;max-width:100%}
+  html body main.resumo-page[aria-labelledby="resumo-title"]:has(.resumo-sheet)>.resumo-browser:not(:has(>.resumo-procura *)){justify-self:end}
+  html body main.resumo-page[aria-labelledby="resumo-title"]>.resumo-browser:not(:has(>.resumo-procura *))>.resumo-procura{display:none}
+  html body main.resumo-page[aria-labelledby="resumo-title"]>.resumo-browser:not(:has(>.resumo-procura *))>.resumo-form-grid{flex:0 0 320px;width:320px;margin:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"]>.resumo-browser:not(:has(>.resumo-procura *))>.resumo-form-grid :is(.dmo-field,input){width:100%;min-width:0}
+
+  /* Resumo · Estado do documento: o «Sem link do mcaliper» numa coluna própria, na mesma linha. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 120px 96px minmax(0,1fr) 280px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-link{grid-column:5;grid-row:1;justify-self:start;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* Pegamentos · Ferramentas (sem Job On): título, modo e botão centrados; as referências numa linha, como no Peso. */
+  html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef){align-items:center;margin-bottom:8px}
+  html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef) h3{margin:0;line-height:var(--dmo-control-height)}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:24px;margin:0}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:8px;margin:0}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>label{margin:0;white-space:nowrap}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>:is(input,.dmo-suggest){width:160px;flex:0 0 160px}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)~.peg-context-grid{margin-top:8px!important}
+
+  /* Pegamentos · registo: as três tabelas com as mesmas colunas. */
+  html body main.peg-page table.peg-registo-tabela{table-layout:fixed;width:100%}
+  html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(1){width:88px}
+  html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(2){width:148px}
+  html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(3),
+  html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(4){width:22%}
+  html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(5){width:150px}
+  html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(6){width:120px}
+  html body main.peg-page table.peg-registo-tabela>thead>tr>th.peg-col-x{width:40px}
+
+  /* Peso · Comparação: os campos das novas leituras numa linha; a massa de água com lugar para o exemplo. */
+  html body main.peso-page form#cmpForm{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 16px}
+  html body main.peso-page form#cmpForm>.dmo-field{flex:0 0 auto;margin:0!important}
+  html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpTool){flex-basis:240px}
+  html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpTemperature){flex-basis:180px}
+  html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpNota){flex:1 1 280px;max-width:520px}
+  html body main.peso-page form#cmpForm>.peso-cmp-leituras{display:flex;flex-wrap:wrap;gap:8px;flex:0 1 auto;margin:0}
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 184px}
+  /* O seletor nativo escondido (1 px) não estica o cartão mais baixo. */
+  html body main.peso-page form#cmpForm .dmo-suggest-native{overflow:hidden;top:0;bottom:auto}
+
+  /* Peso · registo: «Peso usado — …» e «Diferença para a anterior» numa linha. */
+  html body main.peso-page .peso-resumo[data-producao-anterior-delta]{width:fit-content;max-width:100%}
+  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact{flex:0 0 auto}
+  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact>span{white-space:nowrap}
+}

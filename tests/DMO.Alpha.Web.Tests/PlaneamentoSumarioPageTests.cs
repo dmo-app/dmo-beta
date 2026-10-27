@@ -60,14 +60,14 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         return client;
     }
 
-    private async Task<int> JobOnAsync(string reference, DateOnly? inicio, DateTime? criadoEmUtc = null)
+    private async Task<int> JobOnAsync(string reference, DateOnly? inicio, DateTime? criadoEmUtc = null, string maquina = "B1")
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-        var machine = await db.Machines.FirstOrDefaultAsync(m => m.Code == "B1");
+        var machine = await db.Machines.FirstOrDefaultAsync(m => m.Code == maquina);
         if (machine is null)
         {
-            machine = new Machine { Code = "B1" };
+            machine = new Machine { Code = maquina };
             db.Machines.Add(machine);
         }
 
@@ -370,6 +370,32 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
         Assert.Contains("<span class=\"sumario-etiqueta\">% de uso atualizada</span>", linha);
         Assert.Contains("href=\"/Ferramentas/Ficha?tool_id=CM-USO1\">CM 5447T173 · Lote 11</a>", linha);
         Assert.Contains("Utilização por atualizar (entrou no Armazém)", linha);
+    }
+
+    // Diogo, 26/10/2026 (cmsg_01K75FTs9bQnbhhH7qttpgraWEaSsUNtRHvwj5NTeZSM7f):
+    // «sumario é para quem tem jobon ver tambem». Os avisos continuam pelos
+    // módulos da conta.
+    [Fact]
+    public async Task WithJobOnView_ThePageOpensWithOnlyTheAccountModules()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.BqMovementDeletions.Add(new BqMovementDeletion
+            {
+                BqMovementId = 98, BqRepairTraceId = 9998, Type = BqMovementType.Saida, Quantity = 2,
+                OccurredAtUtc = DateTime.UtcNow, MachineCodeFrozen = "C3", DeletedByNameFrozen = "Operador Sumário 5602", DeletedAtUtc = DateTime.UtcNow
+            });
+            await db.SaveChangesAsync();
+        }
+
+        using (var soVer = await LoginAsync("5602", DmoCapabilities.JobOnView))
+        {
+            Assert.DoesNotContain("Movimentos de boquilhas apagados", await GetAsync(soVer));
+        }
+
+        using var comBoquilhas = await LoginAsync("5603", DmoCapabilities.JobOnView, DmoCapabilities.Boquilhas);
+        Assert.Contains("<span class=\"sumario-etiqueta\">Movimentos de boquilhas apagados</span>", await GetAsync(comBoquilhas));
     }
 
     [Fact]

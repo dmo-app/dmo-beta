@@ -1,0 +1,76 @@
+@model DMO.Alpha.Web.Pages.Controlo.PegamentosGrafico
+@using DMO.Alpha.Web.Pages.Controlo
+@using DMO.Alpha.Infrastructure.Controlo
+@* O MAPA DE LIMITES NO ECRÃ (Diogo, 27/10/2026: «arranjar o gráfico»): uma
+   linha por componente medido, com o nome à esquerda; a escala das medições e
+   dos limites, com margem; o texto ao tamanho real. Os componentes sem
+   medições ficam numa nota curta. O PDF continua com o desenho dele. As
+   cores dos componentes são as do Owner (PegamentosLimitMap.ComponentColor),
+   validadas para daltonismo nos dois temas; o vermelho e o cinzento seguem o tema. *@
+@if (Model.TemLinhas)
+{
+  <div class="peg-map-wrap">
+  <div class="peg-gr" role="img" aria-label="Mapa de limites dos Pegamentos: @string.Join("; ", Model.Linhas.Select(l => $"{l.Componente}{(l.Media is { } m ? $" média {m.Texto} mm" : null)}{(l.Nominal is { } n ? $", nominal {n} mm" : null)}"))">
+    <div class="peg-gr-nome" aria-hidden="true"></div>
+    <div class="peg-gr-topo" aria-hidden="true">
+      @foreach (var limite in Model.LimitesDeFora)
+      {
+        <span class="peg-gr-limite-texto @(limite.AEsquerda ? "esq" : null)" style="left:@PegamentosGrafico.Pct(limite.X)">@limite.Texto</span>
+      }
+    </div>
+    @foreach (var linha in Model.Linhas)
+    {
+      <div class="peg-gr-nome"><strong>@linha.Componente</strong>@if (linha.Nominal is { } nominal){<small>@nominal</small>}</div>
+      <div class="peg-gr-pista" data-peg-componente="@linha.Componente" style="--peg-cor:@PegamentosLimitMap.ComponentColor(linha.Componente)">
+        @foreach (var marca in Model.Escala)
+        {
+          <i class="peg-gr-grelha" style="left:@PegamentosGrafico.Pct(marca.X)" aria-hidden="true"></i>
+        }
+        @foreach (var limite in Model.LimitesDeFora)
+        {
+          <i class="peg-gr-limite" style="left:@PegamentosGrafico.Pct(limite.X)" aria-hidden="true"></i>
+        }
+        @foreach (var corredor in linha.Corredores)
+        {
+          <i class="peg-gr-corredor" style="left:@PegamentosGrafico.Pct(corredor.Inicio);width:@PegamentosGrafico.Pct(corredor.Largura)" title="@corredor.Titulo"></i>
+          <i class="peg-gr-nominal" style="left:@PegamentosGrafico.Pct(corredor.Nominal)" aria-hidden="true"></i>
+        }
+        @foreach (var ponto in linha.Pontos)
+        {
+          <i class="peg-gr-ponto @ponto.Estado" style="left:@PegamentosGrafico.Pct(ponto.X);--peg-desvio:@ponto.Desvio" title="@ponto.Titulo"></i>
+        }
+        @if (linha.Media is { } media)
+        {
+          <i class="peg-gr-media" style="left:@PegamentosGrafico.Pct(media.X)" title="@linha.Componente · média global @media.Texto mm"></i>
+          <span class="peg-gr-media-texto" style="left:@PegamentosGrafico.Pct(media.X)">@media.Texto</span>
+        }
+      </div>
+    }
+    <div class="peg-gr-nome peg-gr-unidade" aria-hidden="true">mm</div>
+    <div class="peg-gr-escala" aria-hidden="true">
+      @foreach (var marca in Model.Escala)
+      {
+        <span style="left:@PegamentosGrafico.Pct(marca.X)">@marca.Texto</span>
+      }
+    </div>
+  </div>
+  </div>
+}
+@if (Model.MostrarNotaSemMedicoes && Model.SemMedicoes.Count > 0)
+{
+  <p class="peg-gr-nota">Sem medições: @string.Join(", ", Model.SemMedicoes).</p>
+}
+@if (Model.TemLinhas)
+{
+  <div class="peg-map-legend">
+    @foreach (var linha in Model.Linhas)
+    {
+      <span><i class="peg-dot" style="background:@PegamentosLimitMap.ComponentColor(linha.Componente)"></i> @linha.Componente</span>
+    }
+    <span><i class="peg-line"></i> Nominal</span>
+    <span><i class="peg-line peg-tracejado"></i> Limite de fora</span>
+    <span><i class="peg-diamond"></i> Média global</span>
+    <span><i class="peg-dot peg-gr-fora"></i> Fora</span>
+    <span><i class="peg-dot peg-gr-na"></i> Não avaliável</span>
+  </div>
+}

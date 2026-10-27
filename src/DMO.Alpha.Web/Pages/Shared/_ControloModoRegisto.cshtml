@@ -3,14 +3,12 @@
    cartão do registo (Diogo, 17/10/2026: «podemos meter esses botoes dentro
    do card do registo»). NUM DROPDOWN (Diogo, 21/10/2026: «nestes casos usar
    sempre dropdowns evitar botoes por todo lado»): o botão diz o tipo
-   escolhido e abre a lista com os dois; o escolhido fica marcado. *@
-@{ var escolhido = Model.ModoJobOn ? "Associar Job On" : "Sem Job On"; }
+   escolhido e abre a lista com os dois; o escolhido fica marcado. DOIS BOTÕES (Diogo, 27/10/2026, …BBBB7quP3SPtU355r37Lpy: a lista
+   tinha o «comportamento errado»): como os outros seletores de duas opções, lado a
+   lado, o escolhido invertido (opção 4, dmo-botoes.css). UM SÓ BOTÃO (Diogo, 27/10/2026, …3bX57nbMLosFWfi4tovsoz: «associar ou sem
+   não precisa dos dois»): vê-se só o que leva ao outro modo; o do modo em que se está fica
+   escondido (dmo-botoes.css). *@
 <nav class="dmo-modo" aria-label="Tipo de registo" data-dmo-modo>
-  <details class="dmo-options" data-dmo-tab-menu>
-    <summary class="dmo-button" aria-label="Tipo de registo: @escolhido"><span class="dmo-caret" aria-hidden="true"></span>@escolhido</summary>
-    <div class="dmo-options-list">
-      <a class="dmo-options-item" href="@Model.Path" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
-      <a class="dmo-options-item" href="@(Model.Path)?modo=jobon" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar Job On</a>
-    </div>
-  </details>
+  <a class="dmo-button@(Model.ModoJobOn ? null : " dmo-modo-ativo")" href="@Model.Path" aria-current="@(Model.ModoJobOn ? null : "page")">Sem Job On</a>
+  <a class="dmo-button@(Model.ModoJobOn ? " dmo-modo-ativo" : null)" href="@(Model.Path)?modo=jobon" aria-current="@(Model.ModoJobOn ? "page" : null)">Associar Job On</a>
 </nav>

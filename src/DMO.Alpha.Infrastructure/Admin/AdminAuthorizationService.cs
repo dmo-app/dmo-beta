@@ -1,5 +1,6 @@
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Controlo;
+using DMO.Alpha.Core.Identity;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,26 +34,43 @@ public sealed class AdminAuthorizationService : IAdminAuthorizationService
     {
         // Uma só ida à base por pedido: o utilizador, o template corrente e
         // o email do ADMIN das Definições vêm na mesma consulta.
-        var row = await _dbContext.Users
-            .AsNoTracking()
-            .Where(u => u.Id == userId)
-            .Select(u => new
-            {
-                User = u,
-                Assignment = u.CurrentTemplateAssignment,
-                Template = u.CurrentTemplateAssignment != null ? u.CurrentTemplateAssignment.Template : null,
-                AdminEmail = _dbContext.ModuleSettings
-                    .Where(s => s.SettingKey == ModuleSettingKeys.AdminEmail)
-                    .Select(s => s.SettingValue)
-                    .FirstOrDefault()
-            })
+        var row = await AccessRows(_dbContext.Users.Where(u => u.Id == userId))
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (row is null)
+        return row is null ? null : Resolve(row);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyDictionary<Guid, EffectiveAccess>> ResolveEffectiveAccessAsync(
+        IReadOnlyCollection<Guid> userIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (userIds.Count == 0)
         {
-            return null;
+            return new Dictionary<Guid, EffectiveAccess>();
         }
 
+        // As mesmas regras, numa só consulta para todos (não uma por pessoa).
+        var rows = await AccessRows(_dbContext.Users.Where(u => userIds.Contains(u.Id)))
+            .ToListAsync(cancellationToken);
+
+        return rows.ToDictionary(r => r.User.Id, Resolve);
+    }
+
+    private IQueryable<AccessRow> AccessRows(IQueryable<User> users) =>
+        users
+            .AsNoTracking()
+            .Select(u => new AccessRow(
+                u,
+                u.CurrentTemplateAssignment,
+                u.CurrentTemplateAssignment != null ? u.CurrentTemplateAssignment.Template : null,
+                _dbContext.ModuleSettings
+                    .Where(s => s.SettingKey == ModuleSettingKeys.AdminEmail)
+                    .Select(s => s.SettingValue)
+                    .FirstOrDefault()));
+
+    private static EffectiveAccess Resolve(AccessRow row)
+    {
         var user = row.User;
 
         // Canonical ADMIN boundary (o ADMIN é o email guardado nas
@@ -139,4 +157,6 @@ public sealed class AdminAuthorizationService : IAdminAuthorizationService
 
     private static bool IsAdminEmail(string? email, string? adminEmail) =>
         AdminEmailRule.IsAdminEmail(email, adminEmail);
+
+    private sealed record AccessRow(User User, TemplateAssignment? Assignment, Template? Template, string? AdminEmail);
 }
