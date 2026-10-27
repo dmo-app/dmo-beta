@@ -864,4 +864,8 @@ html body #dmoSupportFull{margin-left:auto}
    lateral não aparece. */
 html body a.dmo-voltar-texto{display:inline-flex;align-items:center;gap:4px;margin:0 0 4px;color:var(--dmo-muted);font-size:13px;font-weight:500;text-decoration:none;background:none}
 html body a.dmo-voltar-texto:is(:hover,:focus-visible){color:var(--dmo-text);background:none;text-decoration:none}
-html[data-dmo-embedded="true"] body a.dmo-voltar-texto{display:none}
+html[data-dmo-embedded="true"] body a.dmo-voltar-texto{display:none},
+/* A imagem do artigo encaixa sempre no espaço do cartão, sem cortar nem deformar (Diogo,
+   27/10/2026, …QZ5YJs7W): a altura do cartão muda com o ecrã e o modo, a imagem segue-a. Absoluta, porque numa grelha a altura 100% não pega. */
+html body .jof2 .jof-artigo{overflow:hidden}
+html body .jof2 .jof-artigo>img[data-jof-artigo-img]{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
