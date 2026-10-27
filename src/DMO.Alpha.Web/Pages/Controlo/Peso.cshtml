@@ -89,7 +89,7 @@
   {
   <section class="dmo-card peso-card" aria-labelledby="peso-historico-title">
     <div class="peso-card-heading"><div>
-      <h3 id="peso-historico-title">Histórico do Controlo<partial name="_DmoHelp" model="@("Pesquise por referência e lote (e depois a produção), tipo ou data. «Sem Job On associado» mostra os Pesos e Pegamentos que ainda falta associar.")" /></h3>
+      <h3 id="peso-historico-title">Histórico do Controlo</h3>
     </div></div>
     @* Os filtros trocam só o que muda (deep sweep, 18/10/2026): cada escolha
        pede a página com fetch (DmoTroca, pelo ouvinte do Peso abaixo) e troca
@@ -188,7 +188,7 @@
     <div id="pesoHistoricoResultados" data-dmo-regiao>
     @if (!Model.HistoricoComProcura)
     {
-      @* A explicação está no «?» do título (Diogo, 27/10/2026). *@
+      @* Sem texto de ajuda (Diogo, 27/10/2026). *@
     }
     else if (Model.HistoryResults is { } results)
     {
