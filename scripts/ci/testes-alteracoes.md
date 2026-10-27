@@ -3973,6 +3973,17 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `8814c455ecaa1b86`
 
+## A-0245 · 2026-10-27 · teste-novo
+
+Porquê: PU NNPB: o PDF gera-se sempre com a reserva cheia e os números da reserva inteiros (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraGGAMBs5g7FD3HuhbAZe3hc «não consigo extrair PU»)
+Referência: DMO-511
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: PuncoesPdfReservaTests.Pdf_ComAReservaCheia_GeraSe_ComOsNumerosInteiros`
+
+Selo depois: `f875edf05732704d`
+
 ## A-0244 · 2026-10-27 · ok-do-diogo
 
 Porquê: SAP (DMO-501): das colunas da ZFMD fica só a cadência. Os testes do A-0235 que verificavam as 11 colunas que saem dão lugar aos da cadência (ler, gravar, PostgreSQL sem as 11 colunas, a cadência do Job On e no cabeçalho e na folha impressa); a lista das migrações acrescenta 20261027125325_SapFabricoSoCadencia
@@ -3997,4 +4008,4 @@ Novos: 9 · mudaram: 1 · saíram: 7
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.ODeltaDoPeso_LeSeComOSinal`
 - saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.UmRelatorioSemAsColunasNovas_DeixaAsVazias`
 
-Selo depois: `09cc17b5b9501beb`
+Selo depois: `6a2e977f45a5ec02`
