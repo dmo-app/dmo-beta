@@ -37,15 +37,31 @@
         </div>
       </form>
     </dialog>
-    @if (DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(Model.Estado.Area)
-         && Model.Pagina.McaliperLinks.GetValueOrDefault(Model.Estado.Area) is { } link)
+    @if (DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(Model.Estado.Area))
     {
-      @* O LINK DO MCALIPER (Diogo, 26/10/2026): aqui só se abre; quem muda o
-         link é quem tem Criar, na ficha da ferramenta. *@
-      <a class="resumo-area-link set" href="@link" target="_blank" rel="noopener noreferrer" data-resumo-mcaliper-abrir="@Model.Estado.Area">
-        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
-        Link do mcaliper associado
-      </a>
+      @if (Model.Pagina.McaliperLinks.GetValueOrDefault(Model.Estado.Area) is { } link)
+      {
+        @* O LINK DO MCALIPER (Diogo, 26/10/2026): aqui só se abre; quem muda o
+           link é quem tem Aprovar e Criar, na Revisão (Resumo do controlo). *@
+        <a class="resumo-area-link set" href="@link" target="_blank" rel="noopener noreferrer" data-resumo-mcaliper-abrir="@Model.Estado.Area">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
+          Link do mcaliper associado
+        </a>
+      }
+      else
+      {
+        @* SEM LINK, A ÁREA DIZ-O (Diogo, 27/10/2026: «falta o link mcaliper»):
+           antes a linha ficava sem nada e parecia que o link se tinha perdido.
+           Quem o pode associar vai à Revisão; os outros só leem. *@
+        @if (Model.Pagina.PodeAssociarMcaliper)
+        {
+          <a class="resumo-area-link vazio" href="/Controlo/Approve/Detalhe?tipo=controlo&amp;jobon_id=@areaProduction.JobOnId#resumoControloAreas" data-resumo-mcaliper-sem="@Model.Estado.Area">Sem link do mcaliper · associar na Revisão</a>
+        }
+        else
+        {
+          <span class="resumo-area-link vazio" data-resumo-mcaliper-sem="@Model.Estado.Area">Sem link do mcaliper</span>
+        }
+      }
     }
   }
   else if (!string.IsNullOrWhiteSpace(Model.Estado.Comment))

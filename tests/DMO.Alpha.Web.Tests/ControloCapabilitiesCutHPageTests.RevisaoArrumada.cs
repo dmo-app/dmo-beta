@@ -183,7 +183,7 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         // ficam nas consultas.
         Assert.DoesNotContain("<table", resumo);
         Assert.DoesNotContain("Dados do Peso", resumo);
-        Assert.DoesNotContain("medição(ões)", resumo);
+        Assert.DoesNotMatch("\\d+ medi(ção|ções) ·", resumo);
         Assert.Contains("<span>Média do controlo anterior</span>", resumo);
         Assert.Contains("data-peg-componente=\"CM\"", resumo);
         Assert.Contains("<strong>30.00 mm</strong>", resumo);

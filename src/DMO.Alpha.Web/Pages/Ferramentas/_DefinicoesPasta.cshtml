@@ -1,29 +1,35 @@
 @model DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel
 @* A utilização pela produção é uma definição GERAL (Diogo, 22/10/2026): ligar
    a pasta e copiar os códigos só com a permissão de Definições gerais
-   (cadeado), e também apagar os lidos; «Ler agora» fica para quem tem as Ferramentas. *@
+   (cadeado), e também apagar os lidos; «Ler pasta» fica para quem tem as Ferramentas. *@
 @{ var cadeado = ViewData["DefCadeado"] is true; }
 @* USO NO SAP (Diogo, 20–21/10/2026): a pasta onde o SAP grava a lista do
      relatório «Gestão de Moldes» (ZPPF) fica ligada neste browser. Ao abrir
      as Ferramentas, o DMO lê o ficheiro mais recente da pasta e grava o
      % de uso de cada ferramenta; deixa na pasta os códigos a pedir ao SAP
-     (dmo-codigos.txt). O ficheiro ferramentas-sap.js faz o resto. A ajuda
+     (dmo-codigos.txt). O ficheiro ferramentas-sap.js faz o resto. O botão «Como funciona»
      abre a página /Ferramentas/AjudaSap (Diogo, 22/10/2026 06:57: nada de
      textos gigantes nas opções). *@
   <section id="ferrDefSap" class="dmo-card ferr-def-card" aria-labelledby="ferr-sap-title" data-ferr-sap>
     <div class="dmo-card-topo">
-      <h3 id="ferr-sap-title">Utilização pela produção<partial name="_DmoHelp" model="@("como funciona a utilização pela produção")" view-data="@(new ViewDataDictionary(ViewData) { ["AjudaHref"] = "/Ferramentas/AjudaSap", ["AjudaId"] = "ferrSapAjuda" })" /></h3>
+      <h3 id="ferr-sap-title">Utilização pela produção</h3>
       <div class="dmo-card-topo-acoes">
-        <button type="button" class="dmo-button" id="ferrSapPasta" data-ferr-sap-pasta disabled="@cadeado">Ligar pasta</button>
-        <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler agora</button>
-        <button type="button" class="dmo-button" id="ferrSapCodigos" data-ferr-sap-codigos disabled="@cadeado">Copiar códigos</button>
-        <button type="button" class="dmo-button" id="ferrSapApagar" data-ferr-sap-apagar disabled="@cadeado">Apagar lidos</button>
+        @* Só «Ler pasta» à vista; o resto dentro de «Opções», como no Excel das Boquilhas (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy). *@
+        <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler pasta</button>
+        <details class="dmo-options" data-dmo-tab-menu data-ferr-sap-opcoes>
+          <summary class="dmo-button" aria-label="Opções da utilização pela produção"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
+          <div class="dmo-options-list">
+            <button type="button" class="dmo-options-item" id="ferrSapPasta" data-ferr-sap-pasta disabled="@cadeado">Ligar pasta</button>
+            <button type="button" class="dmo-options-item" id="ferrSapCodigos" data-ferr-sap-codigos disabled="@cadeado">Copiar códigos</button>
+            <button type="button" class="dmo-options-item" id="ferrSapApagar" data-ferr-sap-apagar disabled="@cadeado">Apagar lidos</button>
+            <button type="button" class="dmo-options-item" id="ferrSapRemover" data-ferr-sap-remover disabled="@cadeado" hidden>Remover</button>
+            <a class="dmo-options-item" id="ferrSapAjuda" href="/Ferramentas/AjudaSap">Como funciona</a>
+          </div>
+        </details>
       </div>
     </div>
     @Html.AntiForgeryToken()
-    <p class="ferr-def-falta" id="ferrSapUltima">@(Model.UltimaLeituraSap is { } ultima
-        ? $"Última leitura: {DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultima.LidoEmUtc):dd/MM/yyyy HH:mm}{(ultima.Ficheiro is { } nomeFicheiro ? $" (ficheiro {nomeFicheiro})" : "")}."
-        : "Ainda não foi lida nenhuma lista da produção.")</p>
-    <p class="ferr-def-falta" id="ferrSapPastaEstado" data-ferr-sap-estado role="status">Nenhuma pasta ligada neste computador.</p>
+    <p class="ctl-def-computador"><strong>Neste computador:</strong> <span id="ferrSapPastaEstado" data-ferr-sap-estado role="status">Nenhuma pasta ligada</span>@if (Model.UltimaLeituraSap is { } ultima)
+      {<span id="ferrSapUltima"> · última leitura @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultima.LidoEmUtc).ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)@(ultima.Ficheiro is { } nomeFicheiro ? $" (ficheiro {nomeFicheiro})" : "")</span>}</p>
   </section>
 <script src="~/js/ferramentas-sap.js" asp-append-version="true"></script>

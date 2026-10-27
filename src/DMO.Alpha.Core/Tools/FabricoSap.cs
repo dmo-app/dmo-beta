@@ -231,7 +231,21 @@ public sealed record FerramentaProducao(
 public sealed record FerramentaProducoes(
     DMO.Alpha.Core.Paging.PagedList<FerramentaProducao> Pagina,
     long? TotalBruta,
-    long? TotalLiquida);
+    long? TotalLiquida)
+{
+    /// <summary>
+    /// O delta estimado pelo produzido, quando não há as duas leituras à
+    /// volta da produção (uma leitura manual só dá o % de hoje): a parte
+    /// do % atual que cabe a esta produção pela produção bruta, já que o
+    /// uso se calcula pelo total produzido (Diogo, 27/10/2026: «ver porque
+    /// não mostra o delta do produzido»). Nenhum sem o produzido, sem o
+    /// total ou sem a leitura atual — nunca um zero inventado.
+    /// </summary>
+    public decimal? DeltaPeloProduzido(FerramentaProducao producao, decimal? percentagemAtual) =>
+        producao.ProducaoBruta is { } bruta && TotalBruta is > 0 && percentagemAtual is { } atual
+            ? Math.Round(atual * bruta / TotalBruta.Value, 2)
+            : null;
+}
 
 /// <summary>
 /// O fabrico pelo SAP: gravar o relatório lido da pasta do SAP e as

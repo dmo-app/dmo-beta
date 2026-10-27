@@ -51,9 +51,10 @@ public sealed record HistoricoLinha(
         new[] { ToolType.Cm, ToolType.Mf, ToolType.Bq }.Where(t => t != tipo).ToList();
 }
 
-public sealed record HistoricoFiltro(string? Referencia, ToolType? Tipo, string? Linha, DateOnly? De, DateOnly? Ate)
+/// <summary>O Lote filtra pelo lote da ferramenta (Diogo, 27/10/2026: «inserir lote»).</summary>
+public sealed record HistoricoFiltro(string? Referencia, ToolType? Tipo, string? Linha, DateOnly? De, DateOnly? Ate, string? Lote = null)
 {
-    public bool ComFiltro => !string.IsNullOrWhiteSpace(Referencia) || Tipo is not null || !string.IsNullOrWhiteSpace(Linha) || De is not null || Ate is not null;
+    public bool ComFiltro => !string.IsNullOrWhiteSpace(Referencia) || Tipo is not null || !string.IsNullOrWhiteSpace(Linha) || De is not null || Ate is not null || !string.IsNullOrWhiteSpace(Lote);
 }
 
 public sealed record HistoricoProcura(IReadOnlyList<HistoricoLinha> Linhas, bool Cortada);

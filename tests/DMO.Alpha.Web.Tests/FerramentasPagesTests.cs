@@ -367,8 +367,10 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains($"tool_id={toolId}", html);
         Assert.DoesNotContain($">T{toolId[1..]}<", html);
 
-        // SEM campo Estado; a lista é o registo canónico, não um workflow.
-        Assert.DoesNotContain("Estado", html);
+        // A lista mostra onde está e o estado no armazém (Diogo, 27/10/2026:
+        // «mostrar o estado posiçao no armaze, reparado por reparar»).
+        Assert.Contains(">Onde está<", html);
+        Assert.Contains(">Estado<", html);
 
         // A criação contextual e os formatos-canónicos HINT estão na
         // folha (nunca recusa).

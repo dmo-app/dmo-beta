@@ -104,7 +104,8 @@
               }
               <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
                 <input type="hidden" name="controlo_id" value="@Model.ControloId" />
-                <button type="submit" class="dmo-options-item">@(!Model.PegamentosSheets.Any(f => f.IsCurrent) ? "Folha de Pegamentos em branco" : "PDF dos Pegamentos")</button>
+                @* Sempre «PDF Pegamentos» (Diogo, 27/10/2026): sem registo, sai a folha em branco, como antes. *@
+                <button type="submit" class="dmo-options-item">PDF Pegamentos</button>
               </form>
               @if (Model.Puncoes?.Registo is not null)
               {
@@ -124,25 +125,50 @@
         }
       </div>
 
-      @* Por baixo da produção (Diogo, 17/10/2026): o início e o fim, só a
-         data; depois a combinação e só então os controlos associados. *@
-      <div class="resumo-window-grid resumo-context-grid">
-        <div class="resumo-mini-card">
-          <span>Início</span>
-          <strong>@(production.InicioEm?.ToString("d", fmt) ?? "—")</strong>
+      @* O CABEÇALHO DA PRODUÇÃO NUM SÓ BLOCO (Diogo, 27/10/2026: «estruturar
+         melhor»): uma grelha de três colunas, Início · Fim · Aprovação em cima
+         e CM · MF · BQ por baixo, nas mesmas colunas; o rótulo pequeno por
+         cima do valor e o título da combinação dentro do bloco. A Aprovação
+         já não tem caixa própria: só a cor do valor muda (17/10/2026: o
+         início e o fim, só a data; depois a combinação e os controlos). *@
+      <div class="resumo-cabecalho">
+        <div class="resumo-window-grid resumo-context-grid">
+          <div class="resumo-mini-card">
+            <span>Início</span>
+            <strong>@(production.InicioEm?.ToString("d", fmt) ?? "—")</strong>
+          </div>
+          <div class="resumo-mini-card">
+            <span>Fim</span>
+            <strong>@(production.FimEm?.ToString("d", fmt) ?? (production.InicioEm is null ? "—" : "Em aberto"))</strong>
+          </div>
+          <div class="resumo-mini-card resumo-approval @(approved ? "approved" : notApproved ? "not-approved" : "pending")">
+            <span>Aprovação</span>
+            <strong>@(approved ? "Aprovado" : notApproved ? "Não aprovado" : "Por aprovar")</strong>
+            @if (Model.Approval?.Detalhe(fmt) is { } aprovacaoDetalhe)
+            {
+              <small>@aprovacaoDetalhe</small>
+            }
+            @if (Model.CanApprove)
+            {
+              <a class="resumo-card-link" href="/Controlo/Approve?jobon_id=@production.JobOnId">@(approved || notApproved ? "Rever aprovação →" : "Aprovar →")</a>
+            }
+          </div>
         </div>
-        <div class="resumo-mini-card">
-          <span>Fim</span>
-          <strong>@(production.FimEm?.ToString("d", fmt) ?? (production.InicioEm is null ? "—" : "Em aberto"))</strong>
-        </div>
-        <div class="resumo-mini-card resumo-approval @(approved ? "approved" : notApproved ? "not-approved" : "pending")">
-          <span>Aprovação</span>
-          <strong>@(approved ? "Aprovado" : notApproved ? "Não aprovado" : "Sem registo")</strong>
-          <small>@(Model.Approval?.Detalhe(fmt) ?? "Por aprovar — nada bloqueia enquanto não existe.")</small>
-          @if (Model.CanApprove)
-          {
-            <a class="resumo-card-link" href="/Controlo/Approve?jobon_id=@production.JobOnId">@(approved || notApproved ? "Rever aprovação →" : "Aprovar →")</a>
-          }
+
+        @* A COMBINAÇÃO da produção: as REFERÊNCIAS e os lotes herdados do
+           Job On (nunca os tool_id da BD). *@
+        <div class="resumo-sheet-tools">
+          <h4 class="resumo-section-title">A combinação da produção</h4>
+          <div class="resumo-tools-grid">
+            @foreach (var (slotLabel, tool) in new[] { ("CM · Contra-molde", Model.CmTool), ("MF · Molde final", Model.MfTool), ("BQ · Boquilha", Model.BqTool) })
+            {
+              <div class="resumo-mini-card">
+                <span>@slotLabel</span>
+                <strong>@(tool?.Reference ?? "—")</strong>
+                <small>@(tool is null ? "Sem ferramenta" : $"Lote {tool.Lot}")</small>
+              </div>
+            }
+          </div>
         </div>
       </div>
 
@@ -154,22 +180,6 @@
         <div class="dmo-aviso warn" role="status" data-resumo-nao-aprovado>O controlo desta produção não foi aprovado: tem de ser revisto ou posto de parte.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.Revisao(production.JobOnId)" /></div>
       }
 
-      @* A COMBINAÇÃO da produção: as REFERÊNCIAS e os lotes herdados do
-         Job On (nunca os tool_id da BD). *@
-      <div class="resumo-sheet-tools">
-        <h4 class="resumo-section-title">A combinação da produção</h4>
-        <div class="resumo-tools-grid">
-          @foreach (var (slotLabel, tool) in new[] { ("CM · Contra-molde", Model.CmTool), ("MF · Molde final", Model.MfTool), ("BQ · Boquilha", Model.BqTool) })
-          {
-            <div class="resumo-mini-card">
-              <span>@slotLabel</span>
-              <strong>@(tool?.Reference ?? "—")</strong>
-              <small>@(tool is null ? "Sem ferramenta" : $"Lote {tool.Lot}")</small>
-            </div>
-          }
-        </div>
-      </div>
-
       @if (Model.JobOnNotice is { } jobOnNotice)
       {
         <partial name="_JobOnChangeNotice" model="jobOnNotice" />
@@ -179,7 +189,12 @@
          Resumo só compõe (Peso em destaque, como no PDF). *@
       <div class="resumo-linked">
         <h4 class="resumo-section-title">Controlos associados</h4>
-        <div class="resumo-linked-grid">
+        @* O «REGISTAR» ABRE A PÁGINA (Diogo, 27/10/2026: como na .121): com o
+           Controlo Criar, os botões de registo dos cartões (Registar e Associar
+           Peso existente) navegam para a página de registo e não abrem o
+           painel lateral; o «Comparar», o «Ver detalhe» e quem só tem o Ver
+           continuam no painel, só de consulta (dmo-support.js). *@
+        <div class="resumo-linked-grid" data-dmo-sem-painel="@(Model.CanCreate ? ".resumo-card-actions a.dmo-button:not([href*='comparacao=1'])" : null)">
           <article class="resumo-linked-card resumo-linked-peso">
             @* Os botões no canto superior direito do cartão, na linha do
                título, nunca no fundo (Diogo, 18/10/2026: «metem os botões em
@@ -212,35 +227,50 @@
             {
               var average = linkedPesoValue.Averages?.AverageGlassWeightGrams;
               var deviation = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, linkedPesoValue.NominalWeightGrams);
+              @* O PESO ESTRUTURADO (Diogo, 27/10/2026: «estruturar melhor a
+                 informação»): a média em destaque e, por baixo, uma tabela
+                 pequena com o nominal, o controlo anterior e a produção
+                 anterior (o valor e a diferença em g e em %, alinhados); as
+                 leituras e a água numa linha discreta, ao lado do «Ver
+                 detalhe». Sem um dos valores, a linha fica com «—»
+                 (26/10/2026: o atual, o do controlo anterior e o da produção
+                 anterior, cada um com o delta, e o nominal com o delta). *@
               @if (average is { } mean)
               {
-                <strong class="resumo-big-number">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(mean)<small> g</small></strong>
-                <small>Peso médio do vidro</small>
+                <div class="resumo-peso-media">
+                  <strong class="resumo-big-number">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(mean)<small> g</small></strong>
+                  <small>Peso médio do vidro</small>
+                </div>
               }
               else
               {
                 <strong>Sem leituras registadas</strong>
                 <small>Ainda sem média calculada.</small>
               }
-              <small>@linkedPesoValue.Measurements.Count leitura(s) · água a @linkedPesoValue.WaterTemperatureC °C</small>
-              @* O atual, o do controlo anterior e o da produção anterior, cada um
-                 com o delta, e o nominal com o delta (Diogo, 26/10/2026). *@
-              <div class="resumo-peso-deltas">
-                @if (linkedPesoValue.NominalWeightGrams is { } nominal)
-                {
-                  <small>Nominal @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(nominal) g@(deviation.Grams is { } dg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg)} g" : "")@(deviation.Percent is { } dp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp)} %)" : "")</small>
-                }
-                @if (Model.ControloAnterior is { AverageGlassWeightGrams: { } caPeso } controloAnterior)
-                {
-                  var caDelta = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, caPeso);
-                  <small>Controlo anterior (@controloAnterior.ProductionNumber) @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(caPeso) g@(caDelta.Grams is { } cg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(cg)} g" : "")@(caDelta.Percent is { } cp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(cp)} %)" : "")</small>
-                }
-                @if (Model.ProducaoAnterior is { PesoGramas: { } paPeso } producaoAnterior)
-                {
-                  var paDelta = producaoAnterior.Delta(average);
-                  <small>Produção anterior@(producaoAnterior.ProductionNumber is { } paNumero ? $" ({paNumero})" : "") @DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(paPeso) g@(paDelta.Grams is { } pg ? $" · {DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(pg)} g" : "")@(paDelta.Percent is { } pp ? $" ({DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(pp)} %)" : "")</small>
-                }
-              </div>
+              var caAnterior = Model.ControloAnterior is { AverageGlassWeightGrams: { } caValor } ca ? (Valor: (decimal?)caValor, Numero: ca.ProductionNumber) : (Valor: (decimal?)null, Numero: (string?)null);
+              var paAnterior = Model.ProducaoAnterior is { PesoGramas: { } paValor } pa ? (Valor: (decimal?)paValor, Numero: pa.ProductionNumber) : (Valor: (decimal?)null, Numero: (string?)null);
+              var linhasPeso = new (string Rotulo, string? Numero, decimal? Valor, (decimal? Grams, decimal? Percent) Delta)[]
+              {
+                  ("Nominal", null, linkedPesoValue.NominalWeightGrams, deviation),
+                  ("Controlo anterior", caAnterior.Numero, caAnterior.Valor, DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, caAnterior.Valor)),
+                  ("Produção anterior", paAnterior.Numero, paAnterior.Valor, Model.ProducaoAnterior is { } paDelta ? paDelta.Delta(average) : DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, null))
+              };
+              <table class="dmo-table resumo-peso-tabela" data-resumo-peso-tabela>
+                <thead>
+                  <tr><th scope="col"><span class="resumo-sr-only">Comparação</span></th><th scope="col">Valor</th><th scope="col">Diferença g</th><th scope="col">Diferença %</th></tr>
+                </thead>
+                <tbody>
+                  @foreach (var linha in linhasPeso)
+                  {
+                    <tr>
+                      <th scope="row">@linha.Rotulo@if (linha.Numero is { } numeroAnterior) {<small> @numeroAnterior</small>}</th>
+                      <td>@(linha.Valor is { } valor ? $"{valor.ToString("0.00", fmt)} g" : "—")</td>
+                      <td>@(linha.Valor is not null && linha.Delta.Grams is { } dg ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg) : "—")</td>
+                      <td>@(linha.Valor is not null && linha.Delta.Percent is { } dp ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp) : "—")</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
               @if (!Model.HasCurrentPeso)
               {
                 <small>A CM ou a BQ mudou nesta produção: falta o Peso das ferramentas atuais.</small>
@@ -257,12 +287,15 @@
                     <li>
                       <a href="@Model.PesoHref(pesoDaLista)">Peso @numero</a>
                       · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(pesoDaLista)
-                      · @pesoDaLista.Measurements.Count leitura(s)@(mediaDaLista is { } m ? $" · média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(m)} g" : "")@(pesoDaLista.IsCurrent ? "" : " · de antes da troca")
+                      · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(pesoDaLista.Measurements.Count, "leitura", "leituras")@(mediaDaLista is { } m ? $" · média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(m)} g" : "")@(pesoDaLista.IsCurrent ? "" : " · de antes da troca")
                     </li>
                   }
                 </ul>
               }
-              <a class="resumo-card-link" href="@Model.PesoHref(linkedPesoValue)">Ver detalhe →</a>
+              <div class="resumo-peso-rodape">
+                <small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(linkedPesoValue.Measurements.Count, "leitura", "leituras") · água a @linkedPesoValue.WaterTemperatureC °C</small>
+                <a class="resumo-card-link" href="@Model.PesoHref(linkedPesoValue)">Ver detalhe →</a>
+              </div>
             }
             else
             {
@@ -333,7 +366,7 @@
                     <li>
                       <a href="@(folha.IsCurrent ? $"/Controlo/Pegamentos?controlo_id={Model.ControloId}" : $"/Controlo/Pegamentos?controlo_id={Model.ControloId}&pegamentos_id={folha.PegamentosId}")">Folha @numero</a>
                       · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha)
-                      · @folha.Measurements.Count medição(ões)@if (folhaAlertas > 0) {<b class="nok"> · @folhaAlertas em alerta</b>}@if (folhaNaoAvaliaveis > 0) {<b class="na"> · @folhaNaoAvaliaveis não avaliável(eis)</b>}
+                      · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(folha.Measurements.Count, "medição", "medições")@if (folhaAlertas > 0) {<b class="nok"> · @folhaAlertas em alerta</b>}@if (folhaNaoAvaliaveis > 0) {<b class="na"> · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(folhaNaoAvaliaveis, "não avaliável", "não avaliáveis")</b>}
                       · ± @folha.ToleranceMm.ToString("0.00", fmt) mm
                     </li>
                   }
