@@ -154,7 +154,7 @@
             }
             @if (Model.CanApprove)
             {
-              <a class="resumo-card-link" href="/Controlo/Approve?jobon_id=@production.JobOnId">@(approved || notApproved ? "Rever aprovação →" : "Aprovar →")</a>
+              <a class="resumo-card-link" href="/Controlo/Approve?jobon_id=@production.JobOnId">@(approved || notApproved ? "Rever aprovação" : "Aprovar")</a>
             }
           </div>
         </div>
@@ -284,7 +284,7 @@
               }
               <div class="resumo-peso-rodape">
                 <small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(linkedPesoValue.Measurements.Count, "leitura", "leituras") · água a @linkedPesoValue.WaterTemperatureC °C</small>
-                <a class="resumo-card-link" href="@Model.PesoHref(linkedPesoValue)">Ver detalhe →</a>
+                <a class="resumo-card-link" href="@Model.PesoHref(linkedPesoValue)">Ver detalhe</a>
               </div>
             }
             else
@@ -362,7 +362,7 @@
                   }
                 </ul>
               }
-              <a class="resumo-card-link" href="/Controlo/Pegamentos?controlo_id=@Model.ControloId">Ver detalhe →</a>
+              <a class="resumo-card-link" href="/Controlo/Pegamentos?controlo_id=@Model.ControloId">Ver detalhe</a>
             }
             else if (!pegamentosAvailable)
             {
@@ -409,8 +409,8 @@
                 @* Duas ligações (Diogo, 22/10/2026): o registo (a verificação) e a
                    folha das punções por posição da linha (a tabela do PDF). *@
                 <nav class="resumo-pu-ligacoes" aria-label="PU NNPB" data-resumo-pu-ligacoes>
-                  <a class="resumo-card-link" href="/Controlo/Puncoes?controlo_id=@Model.ControloId">Registo das punções →</a>
-                  <a class="resumo-card-link" href="/Controlo/Puncoes?controlo_id=@Model.ControloId&amp;vista=folha">Folha das punções →</a>
+                  <a class="resumo-card-link" href="/Controlo/Puncoes?controlo_id=@Model.ControloId">Registo das punções</a>
+                  <a class="resumo-card-link" href="/Controlo/Puncoes?controlo_id=@Model.ControloId&amp;vista=folha">Folha das punções</a>
                 </nav>
               }
               else
