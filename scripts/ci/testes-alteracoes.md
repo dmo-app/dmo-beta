@@ -3703,3 +3703,15 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
 
 Selo depois: `055d69c0c2199556`
+
+## A-0227 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem círculos de dica em lado nenhum: os testes de browser verificam que não há círculos à vista e que o texto da dica passa ao title ao passar o rato
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra3LMmVgq4VTe6FMmd197hQs
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/visual/ajuda_junto_browser.py`
+- mudou: `tests/visual/boquilhas_catalog_browser.py`
+- mudou: `tests/visual/nok_agente_browser.py`
+
+Selo depois: `4193f9e4dfc6d19f`
