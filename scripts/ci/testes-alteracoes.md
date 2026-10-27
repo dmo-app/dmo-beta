@@ -4080,6 +4080,17 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `c9758d36d9d180df`
 
+## A-0252 · 2026-10-27 · ok-do-diogo
+
+Porquê: DMO-517: o link do mcaliper não funcionava porque, no Resumo, só quem tinha o Aprovar e o Criar o podia pôr (na Revisão). Quem tem o Controlo Criar passa a ver «Associar link do mcaliper» na linha CM/BQ/MF sem link e grava-o ali. Os dois testes deixam de exigir que o Resumo esconda o associar e passam a exigir o botão e a janela; com o link associado, o Resumo só o abre.
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraTxDSbtGzfCy3FcLtUkwGGf («Pôr o link no próprio Resumo»)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+
+Selo depois: `b1362fb0a7f9a859`
+
 ## A-0251 · 2026-10-27 · ok-do-diogo
 
 Porquê: DMO-521: a folha do Job On aberta no painel deslizante passa a um resumo para consulta rápida, com «Abrir folha» (Diogo: «vai servir apenas de consulta rápida e ter uma opção para abrir a janela»). O painel deixa de abrir a folha com a largura toda (largas só com /JobOn) e abre-a com a largura média (resumos); o teste da estrutura dos painéis passa a exigir estas linhas.
@@ -4088,4 +4099,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
-Selo depois: `c34813d1a05f519d`
+Selo depois: `1ecbaa53f6ccc384`

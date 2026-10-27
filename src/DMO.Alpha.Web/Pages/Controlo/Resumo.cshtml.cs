@@ -195,13 +195,6 @@ public sealed class ResumoModel : PageModel
     public bool CanCreate { get; private set; }
 
     /// <summary>
-    /// Quem tem o Controlo Aprovar e o Criar associa o link do mcaliper na
-    /// Revisão (Resumo do controlo): sem link, a área leva-o lá (Diogo,
-    /// 27/10/2026: «falta o link mcaliper»).
-    /// </summary>
-    public bool PodeAssociarMcaliper => CanApprove && CanCreate;
-
-    /// <summary>
     /// O link do mcaliper por área com ferramenta (CM, MF, BQ), lido da ficha
     /// técnica da Tool da produção. Só as áreas com link.
     /// </summary>

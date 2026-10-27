@@ -52,10 +52,25 @@
       {
         @* SEM LINK, A ÁREA DIZ-O (Diogo, 27/10/2026: «falta o link mcaliper»):
            antes a linha ficava sem nada e parecia que o link se tinha perdido.
-           Quem o pode associar vai à Revisão; os outros só leem. *@
-        @if (Model.Pagina.PodeAssociarMcaliper)
+           Quem tem o Criar associa-o; os outros só leem. *@
+        @* Diogo, 27/10/2026 («link do mcaliper não funciona»): quem tem o
+           Criar associa-o aqui mesmo, sem precisar do Aprovar (DMO-517). *@
+        @if (Model.Pagina.CanCreate)
         {
-          <a class="resumo-area-link vazio" href="/Controlo/Approve/Detalhe?tipo=controlo&amp;jobon_id=@areaProduction.JobOnId#resumoControloAreas" data-resumo-mcaliper-sem="@Model.Estado.Area">Sem link do mcaliper · associar na Revisão</a>
+          var mcaliperId = $"resumo-area-mcaliper-{Model.Estado.Area}";
+          <button type="button" class="resumo-area-link vazio" data-dmo-dialog="@mcaliperId" data-resumo-mcaliper-sem="@Model.Estado.Area">Associar link do mcaliper</button>
+          <dialog id="@mcaliperId" class="dmo-dialog" aria-labelledby="@(mcaliperId)-title">
+            <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper">
+              <h3 id="@(mcaliperId)-title">Link do mcaliper · @Model.Estado.Area</h3>
+              <input type="hidden" name="jobon_id" value="@areaProduction.JobOnId" />
+              <input type="hidden" name="area" value="@Model.Estado.Area" />
+              <input type="url" name="url" maxlength="@DMO.Alpha.Core.Tools.ToolTechnicalContext.McaliperUrlMaxLength" placeholder="https://…" aria-label="Link do mcaliper @Model.Estado.Area" autofocus />
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                <button type="submit" class="dmo-button">Guardar</button>
+              </div>
+            </form>
+          </dialog>
         }
         else
         {
