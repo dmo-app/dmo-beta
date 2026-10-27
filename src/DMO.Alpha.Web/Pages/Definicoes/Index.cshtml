@@ -65,9 +65,11 @@ html body .def-pessoal-grade .def-linha:not(#defConta):not(#defPalavraPasse) > h
 .def-palavra .dmo-field{margin:0;flex:1 1 120px;max-width:240px}
 .ctl-def-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;width:100%}
 html body .ctl-def-grade[hidden]{display:none}
-/* Duas colunas que se enchem de cima para baixo: sem buracos entre cartões de alturas diferentes (Diogo, 26/10/2026: «evitar deixar espaços vazios»). */
-.def-pastas{column-count:2;column-gap:14px}
-.def-pastas > .dmo-card{display:block;break-inside:avoid;margin:0 0 14px;width:100%;max-width:none;padding:16px 18px;box-sizing:border-box}
+/* Duas colunas que se enchem de cima para baixo: sem buracos entre cartões de alturas diferentes (Diogo, 26/10/2026: «evitar deixar espaços vazios»).
+   Cada cartão fica na sua coluna: mudar a altura de um não troca os outros de sítio. */
+.def-pastas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.def-pastas-coluna{display:flex;flex-direction:column;gap:14px;min-width:0}
+.def-pastas-coluna > .dmo-card{display:block;margin:0;width:100%;max-width:none;padding:16px 18px;box-sizing:border-box}
 /* Um cartão só com dois ou três campos fica do tamanho deles, não de meia página (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraMkSqhn27TMM33AJPvkadUE). */
 :is(#ctlDefDensidade,#ctlDefTolerancia,#riDefViragem){justify-self:start;width:fit-content;min-width:320px;max-width:100%}
 /* Fechado, o «Opções» do Excel fica como os outros botões fechados (Diogo, 27/10/2026: «só um toque para igualar»). */
@@ -97,7 +99,8 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
   .def-menu,.def-modulos{flex-wrap:nowrap;overflow-x:auto}
   .def-pessoal-grade,.def-pessoal-grade.def-sem-sessao{grid-template-columns:minmax(0,1fr)}
   .ctl-def-grade{grid-template-columns:minmax(0,1fr)}
-  .def-pastas,.ctl-def-tudo{column-count:1}
+  .def-pastas{grid-template-columns:minmax(0,1fr)}
+  .ctl-def-tudo{column-count:1}
   .def-geral-aviso{flex-wrap:wrap}
 }
 </style>
@@ -245,22 +248,24 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
         @* As pastas, cada uma escolhida neste navegador (Chrome ou Edge), juntas num só sítio. *@
         <section id="sec-computador" class="def-secao" data-dmo-def-secao="computador" aria-labelledby="def-computador-title" hidden="@(Model.Secao != "computador")">
           <h2 id="def-computador-title" class="dmo-visually-hidden">Este computador</h2>
+          @{
+              // Duas colunas fixas, a primeira com metade (arredondada para cima) dos
+              // cartões: com o column-count, um cartão que mudava de altura (ligar a
+              // pasta do SAP) fazia saltar os outros de coluna (Diogo, 27/10/2026:
+              // «ao associar pasta nas Definições e ligar, o UI teve um break momentâneo»).
+              var pastas = new List<Microsoft.AspNetCore.Html.IHtmlContent>();
+              var dadosPasta = new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado };
+              if (Model.Controlo is { } controloPasta) pastas.Add(await Html.PartialAsync("/Pages/Controlo/_DefinicoesPasta.cshtml", controloPasta, dadosPasta));
+              if (Model.Boquilhas is { } boquilhasPasta) pastas.Add(await Html.PartialAsync("/Pages/Boquilhas/_DefinicoesPasta.cshtml", boquilhasPasta, dadosPasta));
+              if (Model.TemJobOn) pastas.Add(await Html.PartialAsync("/Pages/JobOn/_DefinicoesImagens.cshtml", null, dadosPasta));
+              if (Model.Ferramentas is { } ferramentasPasta) pastas.Add(await Html.PartialAsync("/Pages/Ferramentas/_DefinicoesPasta.cshtml", ferramentasPasta, dadosPasta));
+              var naPrimeira = (pastas.Count + 1) / 2;
+          }
           <div class="def-pastas">
-            @if (Model.Controlo is { } controloPasta)
+            <div class="def-pastas-coluna">@foreach (var pasta in pastas.Take(naPrimeira)) {@pasta}</div>
+            @if (pastas.Count > naPrimeira)
             {
-              <partial name="/Pages/Controlo/_DefinicoesPasta.cshtml" model="controloPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
-            }
-            @if (Model.Boquilhas is { } boquilhasPasta)
-            {
-              <partial name="/Pages/Boquilhas/_DefinicoesPasta.cshtml" model="boquilhasPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
-            }
-            @if (Model.TemJobOn)
-            {
-              <partial name="/Pages/JobOn/_DefinicoesImagens.cshtml" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
-            }
-            @if (Model.Ferramentas is { } ferramentasPasta)
-            {
-              <partial name="/Pages/Ferramentas/_DefinicoesPasta.cshtml" model="ferramentasPasta" view-data="@(new ViewDataDictionary(ViewData) { ["DefCadeado"] = cadeado })" />
+              <div class="def-pastas-coluna">@foreach (var pasta in pastas.Skip(naPrimeira)) {@pasta}</div>
             }
           </div>
         </section>
