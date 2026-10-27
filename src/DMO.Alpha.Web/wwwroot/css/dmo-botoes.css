@@ -138,3 +138,12 @@ html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input
 /* Login, «Entrar» (Diogo, 27/10/2026: «não gosto do efeito de ficar preto e mais pequeno, meter o
    normal dos botões»): no hover só escurece um tom, sem o contorno branco que o fazia parecer menor. */
 html body.dmo-account-page .login-form .submit.submit:is(:hover,:active):not(:disabled){background:#334663;border-color:#334663;color:#fff}
+
+/* Barras de deslocar finas e discretas em toda a app (Diogo, 27/10/2026: «scroll mais subtil, barra
+   fina»): a cor da borda, sem fundo; um pouco mais visível com o rato por cima. */
+html{scrollbar-width:thin;scrollbar-color:var(--dmo-border) transparent}
+html *{scrollbar-width:thin;scrollbar-color:var(--dmo-border) transparent}
+html ::-webkit-scrollbar{width:6px;height:6px}
+html ::-webkit-scrollbar-track{background:transparent}
+html ::-webkit-scrollbar-thumb{background:var(--dmo-border);border-radius:3px}
+html ::-webkit-scrollbar-thumb:hover{background:var(--dmo-muted)}
