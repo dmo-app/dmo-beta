@@ -349,7 +349,7 @@ html body .beta-bq-layout #bqRegisterFacts .dmo-fact>strong { margin-top:3px; fo
 .beta-bq-layout .bq-jobon-mudou details { position:static; }
 .beta-bq-layout .bq-jobon-mudou summary { display:inline; list-style:none; cursor:pointer; font-weight:650; color:var(--dmo-warning); }
 .beta-bq-layout .bq-jobon-mudou summary::-webkit-details-marker { display:none; }
-.beta-bq-layout .bq-jobon-mudou summary::before { content:""; display:inline-block; width:7px; height:7px; margin:0 6px 1px 0; border-radius:50%; background:var(--dmo-warning); }
+/* Sem a bola amarela ao lado do triângulo (Diogo, 27/10/2026: «esta bola amarela não faz nada», «não metam uma bola ao pé de um triângulo»): fica só o triângulo, que abre as alterações. */
 .beta-bq-layout .bq-jobon-mudou summary:is(:hover,:focus-visible) { color:var(--dmo-text); }
 .beta-bq-layout .bq-jobon-mudou a { color:var(--dmo-brand-600); text-decoration:none; font-weight:600; }
 .beta-bq-layout .bq-jobon-mudou a:is(:hover,:focus-visible) { color:var(--dmo-text); text-decoration:underline; }

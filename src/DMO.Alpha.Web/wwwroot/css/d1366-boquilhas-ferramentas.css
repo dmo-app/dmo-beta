@@ -477,3 +477,19 @@ html body .beta-bq-layout button.bq-sem-jobon-link:focus-visible{outline:0;box-s
   html body .beta-bq-layout section#historico .movement-card>.bq-history-card-head{margin:0 0 8px}
   html body .beta-bq-layout section#historico .movement-card>.jobon-aviso{display:flex;align-items:center;gap:12px;margin:0 0 8px !important;padding:4px 12px}
 }
+
+/* Registo: nada salta ao trocar de linha nem ao registar (Diogo, 27/10/2026:
+   «mexe tudo ao carregar em elementos ao inserir dados»). Os factos do registo
+   e as colunas dos últimos movimentos tinham a largura do texto: mudavam com
+   cada BQ e com cada movimento novo. Ficam com larguras fixas. */
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact{flex:1 1 0;min-width:0}
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact>:is(span,strong){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .beta-bq-layout #bqTraceMovements{table-layout:fixed;width:100%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(1){width:16%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(2){width:18%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(3){width:15%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(4){width:8%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(5){width:11%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(6){width:20%}
+html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(7){width:12%}
