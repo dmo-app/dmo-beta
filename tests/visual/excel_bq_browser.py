@@ -30,7 +30,7 @@ PAGE = """<!DOCTYPE html><html lang="pt-PT"><head><meta charset="utf-8"><title>E
       <button type="button" data-bq-excel-atualizar data-bq-excel-ligado hidden>Atualizar o Excel agora</button>
       <button type="button" data-bq-excel-esquecer data-bq-excel-ligado hidden>Deixar de usar</button>
     </details>
-    <p data-bq-excel-estado>Nenhum Excel escolhido neste computador.</p>
+    <p><strong>Neste computador:</strong> <span data-bq-excel-estado>Nenhum Excel</span></p>
     <p data-bq-excel-sem-suporte hidden>Sem suporte</p>
   </section>
   <script src="/dmo-live.js"></script>
@@ -111,7 +111,7 @@ with sync_playwright() as playwright:
     #    Excel que já existe, e nada é enviado.
     page.goto(f"{ORIGIN}/cap")
     page.wait_for_timeout(400)
-    assert page.locator("[data-bq-excel-estado]").inner_text() == "Nenhum Excel escolhido neste computador."
+    assert page.locator("[data-bq-excel-estado]").inner_text() == "Nenhum Excel"
     assert page.locator("[data-bq-excel-pasta]").inner_text() == "Escolher a pasta"
     page.click("[data-bq-excel-opcoes] summary")
     assert page.locator("[data-bq-excel-escolher]").is_visible()
@@ -172,7 +172,7 @@ with sync_playwright() as playwright:
     page.click("[data-bq-excel-opcoes] summary")
     page.click("[data-bq-excel-esquecer]")
     page.wait_for_timeout(400)
-    assert page.locator("[data-bq-excel-estado]").inner_text() == "Nenhum Excel escolhido neste computador."
+    assert page.locator("[data-bq-excel-estado]").inner_text() == "Nenhum Excel"
     page.reload()
     page.wait_for_timeout(600)
     assert len(posts) == 3, posts

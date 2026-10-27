@@ -615,7 +615,7 @@
         {
           <p class="peso-hint">Sem pares para deltas — os números de CM não coincidem com os do Peso inicial. A comparação continua válida; os pesos ficam lado a lado.</p>
         }
-        <p class="peso-hint">@resultado.Leituras.Count CM medido(s). Pré-visualização não guardada: usa «Guardar comparação» para registar.</p>
+        <p class="peso-hint">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(resultado.Leituras.Count, "CM medido", "CM medidos"). Pré-visualização não guardada: usa «Guardar comparação» para registar.</p>
       </section>
     }
     </div>
@@ -1810,7 +1810,7 @@
               </div>
             </dialog>
           </div>
-          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=ferramentas">Ler a pasta da produção</a></span>
+          <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></span>
           @* O peso da produção de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {

@@ -77,7 +77,8 @@ public partial class PesoFolhaProducaoAnteriorPageTests
 
         Assert.Contains("<span data-sap-sem>Ainda não há o peso desta produção.", sap, StringComparison.Ordinal);
         // «Ler a pasta» é um botão e diz «produção», nunca «SAP» (Diogo, 23/10/2026).
-        Assert.Contains("<a class=\"dmo-button\" href=\"/Definicoes?secao=ferramentas\">Ler a pasta da produção</a>", sap, StringComparison.Ordinal);
+        // A pasta da produção está em Definições › Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
+        Assert.Contains("<a class=\"dmo-button\" href=\"/Definicoes?secao=computador\">Ler a pasta da produção</a>", sap, StringComparison.Ordinal);
         Assert.DoesNotContain("Ler a pasta do SAP", sap, StringComparison.Ordinal);
         Assert.Contains("<div data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
     }

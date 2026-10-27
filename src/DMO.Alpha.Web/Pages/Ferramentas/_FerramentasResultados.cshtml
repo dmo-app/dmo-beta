@@ -25,7 +25,7 @@
         </div>
       }
     </div>
-    <p class="card-note">@Model.TotalCandidates encontrada(s) · @Model.Candidates.Count nesta página</p>
+    <p class="card-note">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.TotalCandidates, "encontrada", "encontradas") · @Model.Candidates.Count nesta página</p>
 
     @if (Model.Candidates.Count == 0)
     {
