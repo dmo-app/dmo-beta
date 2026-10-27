@@ -166,7 +166,7 @@ html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{
   @* ------------------------------------------------------------------ *@
   <section class="dmo-card dmu-card" id="dmu-resultados" data-dmo-regiao aria-labelledby="dmu-list-title">
     <h3 id="dmu-list-title">Utilizadores internos<partial name="_DmoHelp" model="@("Um clique abre a ficha.")" /></h3>
-    <p class="card-note">@Model.UsersPager.TotalCount utilizador(es)</p>
+    <p class="card-note">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.UsersPager.TotalCount, "utilizador", "utilizadores")</p>
 
     @if (Model.Users.Count == 0)
     {

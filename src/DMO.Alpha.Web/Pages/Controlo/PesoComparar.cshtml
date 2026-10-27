@@ -1,0 +1,210 @@
+@page "/Controlo/PesoComparar"
+@model DMO.Alpha.Web.Pages.Controlo.PesoCompararModel
+@using DMO.Alpha.Core.Controlo
+@{
+    // Abre-se no painel lateral (dmo-support.js), sem o cabeçalho da app.
+    Layout = "_DmoShellLayout";
+    var fmt = new Func<decimal, string>(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2);
+    var signed = new Func<decimal, string>(DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed);
+    var cms = Model.Cms;
+    var atual = Model.Atual;
+    var anterior = Model.Anterior;
+    string Rotulo(PesoCompararLinha p) => $"CM {p.CmReferencia}{(string.IsNullOrEmpty(p.CmLote) ? null : $" · {p.CmLote}")}";
+    string Producao(PesoCompararLinha p) => $"{(p.Producao is null ? "Sem Job On" : p.Producao)}{(p.Maquina is { } m ? $" · {m}" : null)}";
+    var titulo = cms.CmReferencia is { } refTitulo
+        ? $"Comparar peso · CM {refTitulo}{(cms.Maquina is { } maqTitulo ? $" · {maqTitulo}" : null)}"
+        : "Comparar peso";
+}
+@section Head {
+  <link rel="stylesheet" href="~/css/dmo-peso-comparar.css" asp-append-version="true" />
+}
+<main class="dmo-workspace peso-comparar-pagina" aria-labelledby="pesoCompararTitulo">
+  @* No painel lateral o «← Voltar» não aparece: o painel tem o seu «Fechar». *@
+  <a class="dmo-voltar-texto" href="@Model.VoltarHref"><span aria-hidden="true">←</span> Voltar</a>
+<section class="dmo-card peso-comparar" aria-labelledby="pesoCompararTitulo">
+  <form method="get" action="/Controlo/PesoComparar" id="pesoCompararForm">
+    @if (cms.PesoBaseId is int pesoBase)
+    {
+      <input type="hidden" name="peso_id" value="@pesoBase" />
+    }
+    @if (anterior is not null)
+    {
+      <input type="hidden" name="com" value="@anterior.Peso.PesoId" />
+    }
+    @* O «Simular» no canto superior direito (Diogo, 23/10/2026); é também o
+       que o Enter numa calote carrega. *@
+    <div class="peso-card-heading dmo-card-topo">
+      <h3 id="pesoCompararTitulo">@titulo <small class="peso-comparar-nota">simulação, nada é gravado</small></h3>
+      @if (atual is not null)
+      {
+        <div class="dmo-card-topo-acoes">
+          <button type="submit" class="dmo-button">Simular</button>
+        </div>
+      }
+    </div>
+
+    <div class="dmo-filter-bar peso-comparar-filtros">
+      @if (cms.PesoBaseId is null)
+      {
+        @* No Histórico escolhe-se a referência da CM e o Peso; na página do Peso são os dele. *@
+        <div class="dmo-field">
+          <label for="pesoCompararCm">Referência da CM</label>
+          <input id="pesoCompararCm" name="cm" value="@(cms.CmReferencia ?? Model.CmEscrita)" placeholder="Ex.: ST100" data-dmo-maiusculas autocapitalize="characters" list="pesoCompararReferencias" />
+          <datalist id="pesoCompararReferencias">
+            @foreach (var referencia in cms.Referencias)
+            {
+              <option value="@referencia"></option>
+            }
+          </datalist>
+        </div>
+      }
+      else if (cms.CmReferencia is { } cmFixa)
+      {
+        <input type="hidden" name="cm" value="@cmFixa" />
+      }
+      @if (cms.CmReferencia is not null)
+      {
+        <div class="dmo-field">
+          <label for="pesoCompararMaquina">Máquina</label>
+          <select id="pesoCompararMaquina" name="maquina" data-dmo-autosubmit>
+            @foreach (var maquina in cms.Maquinas)
+            {
+              <option value="@maquina" selected="@(string.Equals(maquina, cms.Maquina, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@maquina</option>
+            }
+          </select>
+        </div>
+      }
+      @if (cms.PesoBaseId is null && atual is not null)
+      {
+        <div class="dmo-field">
+          <label for="pesoCompararAtual">Peso</label>
+          <select id="pesoCompararAtual" name="atual" data-dmo-autosubmit>
+            @foreach (var p in cms.Linhas)
+            {
+              <option value="@p.PesoId" selected="@(p.PesoId == atual.Peso.PesoId ? "selected" : null)">@(p.CmLote ?? p.CmToolId) · @(p.Producao ?? "Sem Job On")</option>
+            }
+          </select>
+        </div>
+      }
+      @if (atual is not null)
+      {
+        @* Só a calote muda; o diâmetro fica o do tampão com que se pesou. *@
+        <div class="dmo-field">
+          <label for="pesoCompararCaloteAtual">Calote · @Rotulo(atual.Peso) (mm)</label>
+          <input id="pesoCompararCaloteAtual" name="calote_atual" value="@atual.CaloteEscrita" placeholder="@(atual.Peso.Tampao is { } ta ? $"Agora {ta.CaloteMm:0.###}" : "Sem tampão")" inputmode="decimal" autocomplete="off" disabled="@(atual.Peso.Tampao is null ? "disabled" : null)" aria-invalid="@(atual.CaloteIlegivel ? "true" : null)" />
+        </div>
+      }
+      @if (anterior is not null)
+      {
+        <div class="dmo-field">
+          <label for="pesoCompararCaloteCom">Calote · @Rotulo(anterior.Peso) (mm)</label>
+          <input id="pesoCompararCaloteCom" name="calote_com" value="@anterior.CaloteEscrita" placeholder="@(anterior.Peso.Tampao is { } tc ? $"Agora {tc.CaloteMm:0.###}" : "Sem tampão")" inputmode="decimal" autocomplete="off" disabled="@(anterior.Peso.Tampao is null ? "disabled" : null)" aria-invalid="@(anterior.CaloteIlegivel ? "true" : null)" />
+        </div>
+      }
+    </div>
+    @if (atual?.CaloteIlegivel == true || anterior?.CaloteIlegivel == true)
+    {
+      <p class="peso-comparar-erro">Escreva a calote em mm, por exemplo 5.2.</p>
+    }
+  </form>
+
+  @if (cms.CmReferencia is null)
+  {
+    <div class="peso-vazia">@(cms.Referencias.Count > 1
+        ? "Há várias CM com esta referência: escolha uma na lista."
+        : Model.CmEscrita is null ? "Escreva a referência da CM, por exemplo ST100." : "Sem Pesos para esta referência de CM.")</div>
+  }
+  else if (atual is null)
+  {
+    <div class="peso-vazia">Sem Pesos desta CM nesta máquina.</div>
+  }
+  else if (anterior is null)
+  {
+    <div class="peso-vazia">Não há outro Peso desta CM nesta máquina para comparar.</div>
+  }
+  else
+  {
+    @* Escolher com que Peso comparar: um clique na linha, que fica escolhida
+       (Diogo, 27/10/2026: «usa sempre o selecionar, torna a row mais escura»). *@
+    <h4 class="peso-comparar-sub">Comparar com</h4>
+    <div class="dmo-table-wrap">
+      <table class="dmo-table peso-comparar-tabela" data-dmo-list="Pesos compatíveis">
+        <thead>
+          <tr><th></th><th>CM</th><th>Produção · máquina</th><th>Data do Peso</th><th>TP</th><th class="num">Peso médio</th></tr>
+        </thead>
+        <tbody>
+          @foreach (var p in cms.Linhas.Where(l => l.PesoId != atual.Peso.PesoId))
+          {
+            var escolhida = p.PesoId == anterior.Peso.PesoId;
+            <tr data-dmo-row data-id="@p.PesoId" data-dmo-open="@Model.HrefCom(p.PesoId)" class="@(escolhida ? "selected" : null)" aria-selected="@(escolhida ? "true" : "false")"
+                aria-label="Comparar com @Rotulo(p) — um clique escolhe">
+              <td><input type="radio" name="com_lista" value="@p.PesoId" checked="@escolhida" aria-label="@Rotulo(p)" /></td>
+              <td>@Rotulo(p)</td>
+              <td>@Producao(p)</td>
+              <td>@(p.RegistadoEmUtc is { } em ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(em).ToString("dd/MM/yyyy") : "—")</td>
+              <td>@(p.Tampao?.Texto ?? "—")</td>
+              <td class="num">@(p.PesoMedioGrams is { } medio ? $"{fmt(medio)} g" : "—")</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @* A TABELA DA COMPARAÇÃO, igual à do Peso (Diogo, 27/10/2026): CM com CM
+       pela posição da leitura, o volume, o peso e as diferenças, com as médias
+       no fim; com a calote simulada, cada CM desse lado muda ΔV e ΔV × ρ. *@
+    var pesoAtualMedio = atual.PesoMedioGrams;
+    var pesoAnteriorMedio = anterior.PesoMedioGrams;
+    <h4 class="peso-comparar-sub">@Rotulo(atual.Peso) · @Producao(atual.Peso) e @Rotulo(anterior.Peso) · @Producao(anterior.Peso)</h4>
+    <div class="dmo-table-wrap">
+      <table class="dmo-table peso-comparar-tabela" data-peso-comparar-tabela>
+        <thead>
+          <tr>
+            <th>CM atual</th>
+            <th class="num">Volume atual (cm³)</th>
+            <th class="num">Peso atual (g)</th>
+            <th>CM anterior · @(anterior.Peso.Producao ?? anterior.Peso.CmLote)</th>
+            <th class="num">Volume anterior (cm³)</th>
+            <th class="num">Peso anterior (g)</th>
+            <th class="num">Δ volume (cm³)</th>
+            <th class="num">Δ peso (g)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var linha in Model.Tabela)
+          {
+            <tr>
+              <td>@(linha.CmAtual ?? "—")</td>
+              <td class="num">@(linha.VolumeAtual is { } va ? fmt(va) : "—")</td>
+              <td class="num">@(linha.PesoAtual is { } pa ? fmt(pa) : "—")</td>
+              <td>@(linha.CmAnterior ?? "—")</td>
+              <td class="num">@(linha.VolumeAnterior is { } vn ? fmt(vn) : "—")</td>
+              <td class="num">@(linha.PesoAnterior is { } pn ? fmt(pn) : "—")</td>
+              <td class="num">@(linha.VolumeAtual is { } va2 && linha.VolumeAnterior is { } vn2 ? signed(va2 - vn2) : "—")</td>
+              <td class="num"><strong>@(linha.PesoAtual is { } pa2 && linha.PesoAnterior is { } pn2 ? signed(pa2 - pn2) : "—")</strong></td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Média</th>
+            <td class="num">@(atual.VolumeMedioCm3 is { } vma ? fmt(vma) : "—")</td>
+            <td class="num">@(pesoAtualMedio is { } pma ? fmt(pma) : "—")</td>
+            <td></td>
+            <td class="num">@(anterior.VolumeMedioCm3 is { } vmn ? fmt(vmn) : "—")</td>
+            <td class="num">@(pesoAnteriorMedio is { } pmn ? fmt(pmn) : "—")</td>
+            <td class="num">@(atual.VolumeMedioCm3 is { } vma2 && anterior.VolumeMedioCm3 is { } vmn2 ? signed(vma2 - vmn2) : "—")</td>
+            <td class="num"><strong>@(pesoAtualMedio is { } pma2 && pesoAnteriorMedio is { } pmn2 ? signed(pma2 - pmn2) + (pmn2 != 0 ? $" ({signed((pma2 - pmn2) / pmn2 * 100m)} %)" : null) : "—")</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    @foreach (var lado in new[] { atual, anterior }.Where(l => l.Simulada is not null))
+    {
+      var s = lado.Simulada!;
+      <p class="card-note" data-peso-comparar-simulada>@Rotulo(lado.Peso): calote @s.CaloteAtualMm.ToString("0.###") → @s.CaloteSupostaMm.ToString("0.###") mm, volume da calote @fmt(s.VolumeAtualCm3) → @fmt(s.VolumeSupostoCm3) cm³, peso médio @fmt(s.PesoMedioAtualGrams) → @fmt(s.PesoMedioSupostoGrams) g (@signed(s.DeltaPesoGrams) g).</p>
+    }
+    <p class="card-note">Com a calote simulada, cada CM desse Peso muda o volume da calote (ΔV) e o peso ΔV × densidade do vidro do Peso; o diâmetro do tampão fica o mesmo.</p>
+  }
+</section>
+</main>

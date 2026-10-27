@@ -230,8 +230,8 @@ public partial class PegamentosPageTests
         using var chefe = await LoginClientAsync("4805", "PegFolha5!");
         var approve = await GetPageHtmlAsync(chefe, $"/Controlo/Approve?jobon_id={jobOnId}");
         // As duas folhas têm um alerta cada: a 1.ª pela ovalização +0,20 (F8).
-        Assert.Contains("2 medição(ões) · <span class=\"revisao-alerta\">2 alerta(s) dimensionais</span> · 2 folhas", approve);
-        Assert.Contains("Folha 2 · CM 5447 · BQ T194 · MF 5810 · 1 medição(ões) · <span class=\"revisao-alerta\">1 alerta(s)</span>", approve);
+        Assert.Contains("2 medições · <span class=\"revisao-alerta\">2 alertas dimensionais</span> · 2 folhas", approve);
+        Assert.Contains("Folha 2 · CM 5447 · BQ T194 · MF 5810 · 1 medição · <span class=\"revisao-alerta\">1 alerta</span>", approve);
 
         var detalhe = await GetPageHtmlAsync(chefe, $"/Controlo/Approve/Detalhe?controlo_id={controloId}&tipo=pegamentos");
         Assert.Contains("Folha 1 · ", detalhe);

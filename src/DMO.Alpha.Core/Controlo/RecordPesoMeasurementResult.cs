@@ -23,5 +23,17 @@ public enum RecordPesoMeasurementResult
     /// (resposta R16-3 do especialista, 18/10/2026). Nenhuma leitura é
     /// gravada.
     /// </summary>
-    PesoNotCurrent
+    PesoNotCurrent,
+
+    /// <summary>
+    /// O mesmo envio já tinha sido gravado (a ligação caiu depois de gravar,
+    /// a app reiniciou pelo meio): nada é gravado outra vez.
+    /// </summary>
+    AlreadyRecorded,
+
+    /// <summary>
+    /// O identificador do envio já foi usado por outra pessoa, noutra
+    /// operação ou com outras leituras: recusado, nada é gravado.
+    /// </summary>
+    OperationConflict
 }
