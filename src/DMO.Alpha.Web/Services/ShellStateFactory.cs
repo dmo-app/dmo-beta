@@ -61,6 +61,7 @@ public sealed class ShellStateFactory
         DmoCapabilities.ArmazemGestao => moduleKey == "armazem",
         DmoCapabilities.ReparacaoInterna => moduleKey == "reparacao-interna",
         DmoCapabilities.ReparacaoInternaView => moduleKey == "reparacao-interna",
+        DmoCapabilities.Registos => moduleKey == "registos",
         _ => false
     };
 

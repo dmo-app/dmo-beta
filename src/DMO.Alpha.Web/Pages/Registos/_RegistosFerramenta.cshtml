@@ -1,0 +1,25 @@
+@model DMO.Alpha.Web.Pages.Registos.RegistosFerramentaPainel
+@using DMO.Alpha.Web.Pages.Registos
+@using DMO.Alpha.Web.Presentation
+@{
+    var f = Model.Ferramenta;
+    var nome = IndexModel.Nome(f.Tipo, f.Referencia, f.Lote);
+    var filtrar = "/Registos?tipo=Ferramenta&valor=" + Uri.EscapeDataString(f.ToolId) + "&q=" + Uri.EscapeDataString(nome)
+        + (Model.Voltar is { } v && v.StartsWith("/Registos", StringComparison.Ordinal) ? "&voltar=" + Uri.EscapeDataString(v) : "");
+}
+@* O painel da ferramenta (Diogo, 27/10/2026): o resumo, «Filtrar» (todos os Job On dela) e os últimos registos. *@
+<div data-reg-titulo="@nome">
+  <template data-reg-acoes-html><a class="dmo-button" id="regFiltrar" href="@filtrar">Filtrar</a></template>
+  <dl>
+    <dt>Tipo</dt><dd>@IndexModel.Token(f.Tipo)</dd>
+    <dt>Referência</dt><dd>@f.Referencia</dd>
+    <dt>Lote</dt><dd>@LoteTexto.Mostrar(f.Lote)</dd>
+    <dt>Produções</dt><dd>@f.Producoes</dd>
+    <dt>% de uso</dt><dd>@UsoFerramenta.Link(f.ToolId, IndexModel.Uso(f.UltimoUso))@(f.UltimoUsoEmUtc is { } em ? " (" + IndexModel.Quando(em) + ")" : "")</dd>
+    @if (Model.AbreFicha)
+    {
+      <dt>Ficha</dt><dd><a href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(f.ToolId)">Abrir a ficha</a></dd>
+    }
+  </dl>
+  <partial name="_RegistosUltimos" model="Model.Ultimos" />
+</div>

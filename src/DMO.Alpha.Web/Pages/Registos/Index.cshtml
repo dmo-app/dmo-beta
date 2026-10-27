@@ -1,0 +1,204 @@
+@page "/Registos"
+@model DMO.Alpha.Web.Pages.Registos.IndexModel
+@using DMO.Alpha.Core.Tools
+@using DMO.Alpha.Web.Pages.Registos
+@using DMO.Alpha.Web.Presentation
+@{
+    Layout = "_DmoShellLayout";
+    var colunas = new[] { ToolType.Cm, ToolType.Mf, ToolType.Bq };
+}
+@section Head {
+<style>
+main.reg-page>.dmo-pagina-corpo{grid-template-rows:auto minmax(0,1fr);gap:12px}
+.reg-filtros{padding:12px 16px}
+.reg-filtros form{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.reg-filtros .dmo-field{margin:0}
+.reg-w-procurar{position:relative;width:340px}
+.reg-w-data{width:150px}
+.reg-filtros .reg-limpar{margin-left:auto}
+.reg-escolha{align-self:center;color:var(--dmo-muted);font-size:13px}
+.reg-escolha strong{color:var(--dmo-text);font-weight:600}
+/* As sugestões por baixo do campo, por grupos (Job On, Referências, Ferramentas, Operadores, Reparadores). */
+.reg-sugestoes{position:absolute;top:100%;left:0;right:0;z-index:30;margin-top:2px;max-height:360px;overflow:auto;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,6px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.reg-sugestoes[hidden]{display:none}
+.reg-sug-grupo{padding:6px 12px 2px;color:var(--dmo-muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.reg-sug{display:flex;justify-content:space-between;gap:10px;padding:7px 12px;cursor:pointer;font-size:13.5px}
+.reg-sug span{color:var(--dmo-muted);font-size:12.5px}
+.reg-sug:is(:hover,.reg-sug-ativa){color:var(--dmo-brand-900)}
+.reg-sug.reg-sug-ativa{background:var(--dmo-row-hover)}
+.reg-lista{padding:14px 16px;display:flex;flex-direction:column;min-height:0}
+.reg-lista .dmo-card-topo{display:flex;align-items:center;gap:12px;margin:0 0 10px}
+.reg-lista .dmo-card-topo h3{margin:0;font-size:15px}
+.reg-modo{display:flex;gap:8px}
+.reg-lista .dmo-table-wrap{flex:1 1 auto;min-height:0;overflow:auto}
+html body .reg-lista .dmo-table :is(th,td){padding:7px 10px;text-align:left;white-space:nowrap;vertical-align:middle}
+.reg-lista .dmo-table thead th{position:sticky;top:0;z-index:1}
+.reg-lista .dmo-table tbody tr[data-reg-jobon],.reg-lista .dmo-table tbody tr[data-reg-tool]{cursor:pointer}
+.reg-lista .dmo-table tbody tr:hover td{background:var(--dmo-row-hover)}
+.reg-lista .dmo-table tbody tr.reg-escolhida td{background:var(--dmo-brand-100)}
+.reg-ferr{display:block;cursor:pointer}
+.reg-ferr:hover>.reg-ferr-nome{color:var(--dmo-brand-900);text-decoration:underline}
+.reg-ferr.reg-trocada{color:var(--dmo-muted)}
+.reg-uso{color:var(--dmo-muted);margin-left:6px}
+.reg-uso a{color:inherit;text-decoration:none}
+.reg-uso a:is(:hover,:focus-visible){color:var(--dmo-brand-900)}
+.reg-lista .dmo-card-topo{justify-content:flex-start}
+.reg-detalhe{max-width:340px;overflow:hidden;text-overflow:ellipsis}
+.reg-antes{color:var(--dmo-muted);text-decoration:line-through}
+.reg-vazia{margin:0;color:var(--dmo-muted)}
+/* Os painéis (ferramenta e Job On). */
+.reg-painel dl{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;margin:0 0 14px;font-size:13.5px}
+.reg-painel dt{color:var(--dmo-muted)}
+.reg-painel dd{margin:0}
+.reg-painel h3{margin:0 0 6px;font-size:12px;font-weight:600;color:var(--dmo-muted);text-transform:uppercase;letter-spacing:.04em}
+.reg-ultimos{border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,6px)}
+.reg-ultimos>div{display:grid;grid-template-columns:118px 1fr;gap:2px 10px;padding:7px 10px;border-top:1px solid var(--dmo-border);font-size:13px}
+.reg-ultimos>div:first-child{border-top:0}
+.reg-ultimos small{grid-column:2;color:var(--dmo-muted);font-size:12px}
+.reg-ultimos time{color:var(--dmo-muted)}
+.reg-painel-acoes .dmo-options-list{right:0;left:auto;min-width:200px}
+.reg-painel-acoes .dmo-options-item{text-decoration:none}
+@@media (max-width:720px){.reg-w-procurar{width:100%}}
+</style>
+}
+<dmo-pagina titulo="Registos" titulo-id="reg-title" class="reg-page dmo-workspace" aria-labelledby="reg-title">
+  @if (Model.VoltarSeguro is { } voltar)
+  {
+    <dmo-voltar><a class="dmo-voltar-texto" id="regVoltar" href="@voltar"><span aria-hidden="true">←</span> Voltar</a></dmo-voltar>
+  }
+  <section class="dmo-card reg-filtros" aria-label="Procurar nos registos">
+    @* Um só campo (Diogo, 27/10/2026: «o campo de inserir deve poder procurar Job On, referências, tools, users, reparadores e depois, dependendo do que seleciona, aplicar filtros»). *@
+    <form id="regProcura" method="get" action="/Registos" role="search">
+      <div class="dmo-field reg-w-procurar">
+        <label for="regTexto">Procurar</label>
+        <input id="regTexto" name="q" value="@Model.Texto" placeholder="Referência, produção, ferramenta, lote, operador…" autocomplete="off" aria-autocomplete="list" aria-controls="regSugestoes" />
+        <div id="regSugestoes" class="reg-sugestoes" role="listbox" hidden></div>
+      </div>
+      <input type="hidden" id="regTipo" name="tipo" value="@Model.TipoTexto" />
+      <input type="hidden" id="regValor" name="valor" value="@Model.Valor" />
+      @if (Model.VerRegistos) { <input type="hidden" name="vista" value="registos" /> }
+      @if (Model.VoltarSeguro is { } v) { <input type="hidden" name="voltar" value="@v" /> }
+      <div class="dmo-field reg-w-data">
+        <label for="regDe">De</label>
+        <input id="regDe" name="de" type="date" value="@Model.De?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
+      </div>
+      <div class="dmo-field reg-w-data">
+        <label for="regAte">Até</label>
+        <input id="regAte" name="ate" type="date" value="@Model.Ate?.ToString("yyyy-MM-dd")" data-dmo-autosubmit />
+      </div>
+      @if (Model.Tipo is { } tipo && !string.IsNullOrWhiteSpace(Model.Valor))
+      {
+        <p class="reg-escolha" id="regEscolha">@IndexModel.Escolhido(tipo): <strong>@Model.Texto</strong></p>
+      }
+      <a class="dmo-button reg-limpar" id="regLimpar" href="/Registos">Limpar</a>
+    </form>
+  </section>
+
+  <section class="dmo-card reg-lista" id="regResultados" aria-labelledby="reg-lista-title">
+    <div class="dmo-card-topo">
+      <nav class="reg-modo" aria-label="Ver">
+        <a class="dmo-button@(Model.VerRegistos ? "" : " reg-modo-ativo")" id="regVerProducoes" href="@Model.Endereco("producoes")" aria-current="@(Model.VerRegistos ? null : "page")">Produções</a>
+        <a class="dmo-button@(Model.VerRegistos ? " reg-modo-ativo" : "")" id="regVerRegistos" href="@Model.Endereco("registos")" aria-current="@(Model.VerRegistos ? "page" : null)">Registos</a>
+      </nav>
+      <h3 id="reg-lista-title">
+        @if (!Model.ComFiltro) { @("Escreva no Procurar") }
+        else if (Model.VerRegistos) { @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.Registos.TotalCount, "registo", "registos") }
+        else { @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.Producoes.Linhas.Count, "produção", "produções") }
+      </h3>
+    </div>
+    @if (!Model.ComFiltro)
+    {
+      <p class="reg-vazia" id="regConvite">Escreva uma referência, uma produção, uma ferramenta, um lote, um operador ou um reparador e escolha na lista.</p>
+    }
+    else if (Model.VerRegistos)
+    {
+      @if (Model.Registos.TotalCount == 0)
+      {
+        <p class="reg-vazia" id="regVazia">Nenhum registo com esta procura.</p>
+      }
+      else
+      {
+        <div class="dmo-table-wrap">
+          <table class="dmo-table" id="regRegistos" data-dmo-list="Registos">
+            <thead><tr><th>Quando</th><th>Utilizador</th><th>Módulo</th><th>Ação</th><th>Sobre</th><th>Antes → Depois</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model.Registos.Items)
+            {
+              <tr data-reg-jobon="@r.JobOnId" data-reg-tool="@(r.JobOnId is null && r.ToolIds.Count > 0 ? r.ToolIds[0] : null)">
+                <td>@IndexModel.Quando(r.EmUtc)</td>
+                <td>@(r.Utilizador ?? "—")</td>
+                <td>@IndexModel.Modulo(r.Modulo)</td>
+                <td>@r.Acao</td>
+                <td class="reg-detalhe" title="@r.Detalhe">@r.SobreOuDetalhe</td>
+                <td>
+                  @if (r.Antes is null && r.Depois is null) { @("—") }
+                  else
+                  {
+                    @if (r.Antes is not null) { <span class="reg-antes">@r.Antes</span> @(" → ") }
+                    @r.Depois
+                  }
+                </td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+        <partial name="_ListPager" model="Model.Pager" />
+      }
+    }
+    else
+    {
+      @if (Model.Producoes.Cortada)
+      {
+        <p class="dmo-aviso warn" id="regCortada" role="status">Há mais produções: escreva mais ou escolha as datas.</p>
+      }
+      @if (Model.Producoes.Linhas.Count == 0)
+      {
+        <p class="reg-vazia" id="regVazia">Nenhuma produção com esta procura.</p>
+      }
+      else
+      {
+        <div class="dmo-table-wrap">
+          <table class="dmo-table" id="regProducoes" data-dmo-list="Produções">
+            <thead><tr><th>Início</th><th>Fim</th><th>Referência</th><th>Produção</th><th>Linha</th>@foreach (var t in colunas) { <th>@IndexModel.Token(t)</th> }</tr></thead>
+            <tbody>
+            @foreach (var p in Model.Producoes.Linhas)
+            {
+              <tr data-reg-jobon="@p.JobOnId">
+                <td>@IndexModel.Dia(p.InicioEm)</td>
+                <td>@(p.InicioEm is not null && p.FimEm is null ? "em curso" : IndexModel.Dia(p.FimEm))</td>
+                <td>@p.Referencia</td>
+                <td>@p.Producao</td>
+                <td>@p.Maquina</td>
+                @foreach (var t in colunas)
+                {
+                  var deste = p.DoTipo(t);
+                  <td>
+                    @if (deste.Count == 0) { @("—") }
+                    @foreach (var f in deste)
+                    {
+                      @* Clicar na ferramenta abre o painel dela; o «%» abre o histórico do uso (UsoFerramenta). *@
+                      <span class="reg-ferr@(f.Trocada ? " reg-trocada" : "")" data-reg-ferramenta="@f.ToolId" tabindex="0" role="link" title="@IndexModel.Nome(f.Tipo, f.Referencia, f.Lote)"><span class="reg-ferr-nome">@IndexModel.Curto(f)</span>@if (f.Uso is not null) { <span class="reg-uso">@UsoFerramenta.Link(f.ToolId, IndexModel.Uso(f.Uso))</span> }</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </section>
+</dmo-pagina>
+
+<dmo-painel id="regPainelFerramenta" titulo="Ferramenta" largura="estreita" class="reg-painel">
+  <dmo-acoes><span class="reg-painel-acoes" data-reg-acoes></span></dmo-acoes>
+  <div data-reg-corpo></div>
+</dmo-painel>
+<dmo-painel id="regPainelJobOn" titulo="Job On" largura="estreita" class="reg-painel">
+  <dmo-acoes><span class="reg-painel-acoes" data-reg-acoes></span></dmo-acoes>
+  <div data-reg-corpo></div>
+</dmo-painel>
+
+<script src="~/js/dmo-registos.js" asp-append-version="true"></script>

@@ -45,13 +45,14 @@ html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-
 /* Produção / Experiência estava colado num interruptor só: passa a dois botões separados, como CM / MF. */
 html body .jof2 .jof-tipo.dmo-alternador{display:inline-flex;gap:8px;height:auto;border:0;border-radius:0;overflow:visible}
 
-/* Seletores feitos de ligações (Armazém: Entrada / Saída; Reparação programada: Listas / Histórico):
+/* Seletores feitos de ligações (Armazém: Entrada / Saída; Reparação programada: Listas / Histórico;
+   Registos: Produções / Registos):
    o mesmo aspeto, com a classe -ativo no lugar do :checked. */
-html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra);box-shadow:none;outline:0}
-html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):hover:not(.arm-modo-ativo):not(.rp-modo-ativo){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
-html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo),
-html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo):is(:hover,:focus-visible){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
-html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
+html body :is(.arm-modo,.rp-modo,.reg-modo):is(.arm-modo,.rp-modo,.reg-modo) :is(.dmo-button,.btn){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra);box-shadow:none;outline:0}
+html body :is(.arm-modo,.rp-modo,.reg-modo):is(.arm-modo,.rp-modo,.reg-modo) :is(.dmo-button,.btn):hover:not(.arm-modo-ativo):not(.rp-modo-ativo):not(.reg-modo-ativo){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
+html body :is(.arm-modo,.rp-modo,.reg-modo):is(.arm-modo,.rp-modo,.reg-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo,.reg-modo-ativo),
+html body :is(.arm-modo,.rp-modo,.reg-modo):is(.arm-modo,.rp-modo,.reg-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo,.reg-modo-ativo):is(:hover,:focus-visible){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body :is(.arm-modo,.rp-modo,.reg-modo):is(.arm-modo,.rp-modo,.reg-modo) :is(.dmo-button,.btn):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
 
 /* Armazém › Registo, «Tipo de ferramenta» (CM / MF / BQ; Diogo, 27/10/2026: «botões todos filled,
    selecionado muda para branco»): o painel lateral desenhado como três opções; estava ao contrário
