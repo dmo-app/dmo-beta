@@ -15,7 +15,23 @@
 }
 
 @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+@{
+    // «Escolher no Peso» no canto superior direito da secção do Peso (Diogo, 27/10/2026, linha 71
+    // do design-erros.md); na caixa da média fica só o texto.
+    var comparacaoPeso = Model.Peso is { } pesoTopo ? Model.Anteriores.GetValueOrDefault(pesoTopo.PesoId) : null;
+    var escolherNoPeso = Model.Peso is not null && comparacaoPeso?.Escolhida is null ? Model.ControloId : null;
+}
+@if (escolherNoPeso is int controloEscolher)
+{
+<div class="revisao-parte-topo">
 <h3 class="revisao-section" title="A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.">Peso</h3>
+<div class="dmo-card-topo-acoes"><partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.ProducaoAnteriorNoPeso(controloEscolher)" /></div>
+</div>
+}
+else
+{
+<h3 class="revisao-section" title="A comparação com o controlo anterior. As leituras e a comparação CM a CM estão na consulta do Peso.">Peso</h3>
+}
 @if (Model.Peso is { } peso)
 {
   var atual = peso.Averages;
@@ -24,7 +40,7 @@
   var desvioNominal = PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
   <div class="revisao-facts three">
     <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong><small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(peso.Measurements.Count, "leitura", "leituras")@(Model.Pesos.Count > 1 ? $" · {Model.Pesos.Count} Pesos" : null)</small></div>
-    <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
+    <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
     <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
     <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong><small>@Cm3(atual?.AverageCapacityCm3) agora</small></div>
     <div><span>Peso da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>

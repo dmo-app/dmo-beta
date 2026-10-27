@@ -144,10 +144,24 @@
               var comparacao = Model.Anteriores.GetValueOrDefault(peso.PesoId);
               var anterior = comparacao?.Media;
               var desvioNominal = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
-              <h3 class="revisao-section">Comparação global de peso</h3>
+              @* «Escolher no Peso» no canto superior direito da secção (Diogo, 27/10/2026, linha 71 do
+                 design-erros.md: ações no canto superior direito), como o «Voltar» do topo; na caixa
+                 da média fica só o texto. *@
+              var escolherNoPeso = comparacao?.Escolhida is null ? Model.ControloId : null;
+              if (escolherNoPeso is int controloEscolher)
+              {
+                <div class="revisao-parte-topo">
+                  <h3 class="revisao-section">Comparação global de peso</h3>
+                  <div class="dmo-card-topo-acoes"><partial name="_DmoAvisoLink" model="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.ProducaoAnteriorNoPeso(controloEscolher)" /></div>
+                </div>
+              }
+              else
+              {
+                <h3 class="revisao-section">Comparação global de peso</h3>
+              }
               <div class="revisao-facts four">
                 <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong></div>
-                <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
+                <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
                 <div><span>Peso da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
                 <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
                 <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>

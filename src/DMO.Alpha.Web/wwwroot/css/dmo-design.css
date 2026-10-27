@@ -87,6 +87,13 @@ html body .dmo-shell-header .dmo-shell-logout {font-size:12px;font-weight:600;co
 /* Shared workspaces: neutral surfaces, restrained headings and clear actions. */
 html body :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main) {padding:16px 24px 14px;gap:16px}
 html body :is(.dmo-page-head,.page-head,.page-heading,.beta-light-heading) h1 {font-size:26px!important;font-weight:650!important;letter-spacing:-.035em}
+/* UM SÓ TÍTULO DE PÁGINA (Diogo, 27/10/2026, R9 e linha 18 do design-erros.md: «títulos diferentes»;
+   a auditoria achou cinco: 26/650, 22/700 navy, 22/700 azul, 16/600 e 28-32/700): o título de cada
+   página, seja h1 ou h2 (Ferramentas, Boquilhas, Admin, Ficha de utilizador, Histórico, Início), fica
+   como o das outras: 26 px, 650, a cor do texto (navy escuro; claro no escuro). O :not(#_) manda sobre
+   as regras antigas de cada página, também as que vêm depois (d1366-*.css, <style> da página). */
+html body :is(.dmo-page-head,.page-head,.page-heading,.beta-light-heading) :is(h1,h2):not(#_),
+html body .dmo-shell-page>h1:not(#_){font-size:26px!important;font-weight:650!important;line-height:1.2!important;letter-spacing:-.035em!important;color:var(--dmo-text)!important;text-transform:none}
 html body :is(.dmo-card,.ferr-card,.resumo-card,.beta-bq-layout .card) {box-shadow:none;border-color:var(--dmo-border);border-radius:8px;background:var(--dmo-card)}
 html body :is(.dmo-card-topo,.card-header) {background:transparent}
 /* Buttons: no override here. The single button standard (Diogo, 26/10/2026) lives in

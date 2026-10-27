@@ -88,6 +88,20 @@ html body .beta-bq-layout .bq-movement-line>.bq-movement-types{padding-left:14px
    Limpar filtros, etc., sempre no canto superior direito do cartão»). Nos cartões de filtros de uma só
    linha os botões encostam à direita da linha; os cartões com título já os têm no .dmo-card-topo-acoes. */
 html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpar,html body #rpFiltros>#rpAssociarBotao{margin-left:auto}
+/* Linha 71 do design-erros.md (auditoria do Diogo, 27/10/2026: «ações fora do canto superior direito»).
+   Job On: a procura e o «Criar Job On» sobem para a linha do título «Produções de …», à direita;
+   a lista do dia fica por baixo. Num ecrã estreito tudo volta a empilhar. */
+@media (min-width:701px){
+  html body .beta-light-view .beta-light-productions:has(>.jobon-procura-bloco){display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;align-content:start}
+  html body .beta-light-view .beta-light-productions:has(>.jobon-procura-bloco)>*{grid-column:1/-1;min-width:0}
+  html body .beta-light-view .beta-light-productions:has(>.jobon-procura-bloco)>.beta-light-card-head{grid-column:1;grid-row:1;align-self:center;margin-bottom:0}
+  html body .beta-light-view .beta-light-productions>.jobon-procura-bloco:not(#_){grid-column:2;grid-row:1;align-self:center;margin:0;padding:0;border-top:0}
+  html body .beta-light-view .beta-light-productions:has(>.jobon-procura-bloco)>#jobonProducoes{margin-top:12px}
+}
+/* Registar Reparação: o «Criar» (lista nova) e o «Imprimir» (lista aberta) no canto superior direito
+   do cartão, antes de Listas / Histórico; os campos ficam à esquerda. */
+html body #rpListaLinha>#rpImprimir,html body #rpListaLinha .dmo-com-ajuda:has(>#rpCriarBotao){margin-left:auto;margin-right:8px;align-self:end}
+html body #rpListaLinha:has(#rpImprimir,#rpCriarBotao)>.rp-modo{margin-left:0}
 /* O título do cartão ao meio da altura dos botões da mesma linha. */
 html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{display:flex;align-items:center;height:var(--dmo-control-height);margin:0}
 
