@@ -39,9 +39,17 @@ public sealed class IndexModel : PageModel
     /// <summary>Quem vê pode criar e editar (jobon.create); sem ela, o Planeamento é só leitura.</summary>
     public bool PodeEditar { get; private set; } = true;
 
+    /// <summary>
+    /// A troca de ferramenta da lista do dia abre a ficha dela; quem só tem o Job On
+    /// ver sem as Ferramentas lê a troca sem link (Diogo, 27/10/2026: «so ve os
+    /// detalhes do plnaneamento e os jobons»).
+    /// </summary>
+    public bool VeFerramentas { get; private set; } = true;
+
     private async Task<bool> SoVerAsync()
     {
         PodeEditar = await _capabilities.HasAsync(DmoCapabilities.JobOnCreate, HttpContext.RequestAborted);
+        VeFerramentas = PodeEditar || await _capabilities.HasAsync(DmoCapabilities.Ferramentas, HttpContext.RequestAborted);
         return !PodeEditar;
     }
 

@@ -145,7 +145,7 @@
                           // da ferramenta que entra.
                           Href = nx.JobOnId is int entraId
                             ? IndexModel.FolhaHref(entraId, nx.Dia.Year, nx.Dia.Month, nx.Dia.Day)
-                            : nx.ToolId is { Length: > 0 } toolId ? $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}" : null
+                            : nx.ToolId is { Length: > 0 } toolId && Model.VeFerramentas ? $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}" : null
                         }
                       : null;
                     var ultima = row.Productions.LastOrDefault();
