@@ -70,18 +70,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 .ToListAsync(cancellationToken))
             .GroupBy(e => e.ToolId)
             .ToDictionary(g => g.Key, g => g.MaxBy(e => e.Id)!.Estado);
-        var maquinas = (await db.ToolMachineLinks.AsNoTracking()
-                .Where(m => ids.Contains(m.ToolId))
-                .Select(m => new { m.ToolId, m.Machine.Code })
-                .ToListAsync(cancellationToken))
-            .GroupBy(m => m.ToolId)
-            .ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(m => m.Code).Order(StringComparer.OrdinalIgnoreCase).ToList());
-        var usos = (await db.FerramentaUtilizacoes.AsNoTracking()
-                .Where(u => ids.Contains(u.ToolId))
-                .Select(u => new { u.Id, u.ToolId, u.Percentagem })
-                .ToListAsync(cancellationToken))
-            .GroupBy(u => u.ToolId)
-            .ToDictionary(g => g.Key, g => g.MaxBy(u => u.Id)!.Percentagem);
+        var linhasEUso = await LinhasEUsoAsync(ids, cancellationToken);
 
         return tools.Select(t =>
         {
@@ -93,8 +82,8 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                     : ArmazemTextos.Localizacao(FerramentaLocalizacaoTipo.Fabrico, null);
             return new ArmazemProcuraItem(t.ToolId, t.Type, t.Reference, t.Lot, ondeEsta, noArmazem,
                 estados.TryGetValue(t.ToolId, out var estado) ? estado : null,
-                maquinas.TryGetValue(t.ToolId, out var m) ? m : [],
-                usos.TryGetValue(t.ToolId, out var uso) ? uso : null);
+                linhasEUso[t.ToolId].Linhas,
+                linhasEUso[t.ToolId].Uso);
         }).ToList();
     }
 

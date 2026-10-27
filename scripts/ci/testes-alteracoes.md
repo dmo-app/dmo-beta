@@ -3649,7 +3649,7 @@ Selo depois: `be84027a25ad05f6`
 
 ## A-0220 · 2026-10-27 · teste-novo
 
-Porquê: Filtro «Informação» do Sumário com as opções Importante, Job On (criados, mudanças, alterações e experiências), Armazém e Controlo (DMO-475, 0.3.0-beta.180): testes novos das opções, do Job On, do Controlo no topo e das opções por módulo
+Porquê: Filtro «Informação» do Sumário com as opções Importante, Job On (criados, mudanças, alterações e experiências), Armazém e Controlo (DMO-475, 0.3.0-beta.181): testes novos das opções, do Job On, do Controlo no topo e das opções por módulo
 Novos: 5 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: (resto do ficheiro)`
