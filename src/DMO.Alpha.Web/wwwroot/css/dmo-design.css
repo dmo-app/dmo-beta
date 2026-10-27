@@ -1,16 +1,23 @@
 /* DMO Design — screen-only presentation. See docs/design/CONTINUAR.md.
    Domain state colours and print layouts remain owned by the application. */
+/* PALETA (Diogo, 27/10/2026, …MDH22Sm9uheCmJcmqHWZmb: «quero mudar para esta palette»):
+   #515F7A #747F95 #979EAE #B8BFC9 #DCDFE4 (2.ª proposta). Os fundos escuros derivam do
+   #515F7A (mesmo tom, mais escuros). Só no ecrã: a impressão e os PDFs não mudam. */
 :root {
-  --design-blue: #4b6387;
-  --design-medium: #6582aa;
-  --design-pale: #a5c5f1;
-  --design-navy: #1e2b40;
-  --design-ink: #0c121d;
+  --design-blue: #515f7a;
+  --design-medium: #747f95;
+  --design-pale: #979eae;
+  --design-200: #b8bfc9;
+  --design-100: #dcdfe4;
+  --design-050: #eceef1;
+  --design-navy: #343d4f;
+  --design-ink: #12151c;
   --dmo-palette-slate: var(--design-blue);
   --dmo-palette-ocean: var(--design-blue);
   --dmo-palette-steel: var(--design-medium);
   --dmo-palette-mist: var(--design-pale);
   --dmo-palette-sky: var(--design-pale);
+  --dmo-action: var(--design-blue);
   --dmo-brand-950: var(--design-ink);
   --dmo-brand-900: var(--design-navy);
   --dmo-brand-800: var(--design-navy);
@@ -19,17 +26,17 @@
   --dmo-brand-500: var(--design-medium);
   --dmo-brand-400: var(--design-medium);
   --dmo-brand-300: var(--design-pale);
-  --dmo-brand-200: color-mix(in srgb, var(--design-pale) 40%, white);
-  --dmo-brand-100: color-mix(in srgb, var(--design-pale) 24%, white);
-  --dmo-brand-050: color-mix(in srgb, var(--design-pale) 12%, white);
-  --dmo-page: #f5f7fa;
+  --dmo-brand-200: var(--design-200);
+  --dmo-brand-100: var(--design-100);
+  --dmo-brand-050: var(--design-050);
+  --dmo-page: #f5f6f8;
   --dmo-card: #fff;
   --dmo-bar: #fff;
   --dmo-field: #fff;
-  --dmo-subtle: #f1f4f8;
-  --dmo-border: #e1e7ef;
+  --dmo-subtle: #f0f1f4;
+  --dmo-border: #dcdfe4;
   --dmo-text: var(--design-ink);
-  --dmo-muted: #59677b;
+  --dmo-muted: #5a6273;
   --dmo-row-hover: var(--dmo-brand-050);
   --dmo-focus-ring: color-mix(in srgb, var(--design-medium) 30%, transparent);
   --dmo-r-card: 8px;
@@ -38,15 +45,16 @@
   --dmo-sidebar-width: 244px;
 }
 :root[data-theme="dark"] {
-  --dmo-page: var(--design-ink); --dmo-card: var(--design-navy);
-  --dmo-bar: var(--design-navy); --dmo-field: #172235;
-  --dmo-subtle: #233149; --dmo-border: #35445d;
-  --dmo-text: #edf2f8; --dmo-muted: var(--design-pale);
-  --dmo-brand-950: #edf2f8; --dmo-brand-900: #edf2f8;
-  --dmo-brand-800: var(--design-pale); --dmo-brand-700: var(--design-pale);
-  --dmo-brand-600: var(--design-medium);
-  --dmo-brand-200: #35445d; --dmo-brand-100: #2b3c56;
-  --dmo-brand-050: #233149;
+  --dmo-page: var(--design-ink); --dmo-card: #1c212b;
+  --dmo-bar: #1c212b; --dmo-field: #161a22;
+  --dmo-subtle: #252b37; --dmo-border: #343b49;
+  --dmo-text: #eceef1; --dmo-muted: var(--design-pale);
+  --dmo-brand-950: #eceef1; --dmo-brand-900: #eceef1;
+  --dmo-brand-800: var(--design-200); --dmo-brand-700: var(--design-200);
+  --dmo-brand-600: var(--design-medium); --dmo-palette-slate: var(--design-medium);
+  --dmo-action: #515f7a;
+  --dmo-brand-200: #343b49; --dmo-brand-100: #2b313d;
+  --dmo-brand-050: #252b37; --dmo-row-hover: #2b313d;
 }
 /* The logo, module tabs and real signed-in account share the first row. */
 html body .dmo-shell-header {
@@ -502,6 +510,21 @@ html body .dmu-entrega .dmu-token span{text-transform:none;letter-spacing:0;font
 
 /* Login and Versão: the identity side is a flat light surface, no gradient. */
 html body.dmo-account-page .identity{background:var(--dmo-subtle)}
+/* Login (Diogo, 27/10/2026, …5WAm8UDgDbpWoq3rRLV3SJ: «degradê aqui, aumenta o logo no login»):
+   o painel da marca num degradê dos tons da paleta e o logo maior. */
+/* Diogo, 27/10/2026 (…Tw8finSevN1SARfr9bppA4, …PGN31N8gsYpzBBBirtuzit): o escuro vai até um tom mais claro,
+   o claro até um tom mais escuro. O rodapé do painel ganha contraste sobre o fim do degradê. */
+/* Diogo, 27/10/2026 (…NaqsDjmqbm5Xby1Sibc9di, …JZ1e4MCBhvi2yNU48pgvVr): no claro, escuro no canto superior
+   esquerdo e claro junto ao login; no escuro (…6U8G1WkPbkyLbakWwWeZA5), claro no canto superior
+   esquerdo e escuro junto ao login. O lado do login no claro fica muito ligeiramente
+   mais escuro que o branco. */
+html body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-200) 0%,var(--design-100) 50%,var(--dmo-subtle) 100%)}
+html:not([data-theme="dark"]) body.dmo-account-page .login-side{background:#f9fafb}
+html body.dmo-account-page .identity-foot,html body.dmo-account-page .identity-foot strong{color:var(--design-navy)}
+html[data-theme="dark"] body.dmo-account-page .identity{background:linear-gradient(115deg,var(--design-medium) 0%,var(--design-blue) 35%,var(--design-navy) 70%,var(--dmo-page) 100%)}
+html[data-theme="dark"] body.dmo-account-page .identity-foot,html[data-theme="dark"] body.dmo-account-page .identity-foot strong{color:#fff}
+html[data-theme="dark"] body.dmo-account-page .identity .eyebrow{color:var(--design-100)}
+html body.dmo-account-page .identity .brand-logo.brand-logo{width:112px;height:112px;background:none}
 /* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
 html body :is(.peg-aviso,.peso-aviso)::before{content:none}
 
@@ -785,7 +808,7 @@ html body .dmo-shell-header .dmo-shell-conta{display:flex;flex-direction:column;
 html body .jof2 .side>.notes{min-height:0}
 html body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 0;min-height:0}
 /* Logótipo do tamanho original; mais claro no escuro (Diogo, 26/10/2026). */
-:root[data-theme="dark"] body .dmo-shell-header .dmo-shell-logo{filter:brightness(1.45) saturate(.55)}
+:root[data-theme="dark"] body .dmo-shell-header .dmo-shell-logo{filter:none}
 /* Separadores: no hover só muda a cor do texto (branco no escuro); o traço fica só no separador selecionado (Diogo, 26/10/2026). */
 html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.active):not([aria-current="page"]):hover{background:none;border-bottom-color:transparent}
 :root[data-theme="dark"] body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.active):not([aria-current="page"]):hover{color:#fff}
@@ -840,7 +863,7 @@ html body .dmo-tab-menu-list a.active,
 html body .dmo-tab-menu-list a[aria-current="page"]{background:none !important;color:var(--dmo-brand-700);font-weight:800}
 :root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]){color:var(--dmo-muted)}
 :root[data-theme="dark"] body :is(.dmo-tab-menu-list a,.dmo-options-item):not(.active):not([aria-current="page"]):is(:hover,:focus-visible){color:#fff}
-:root[data-theme="dark"] body .dmo-tab-menu-list :is(a.active,a[aria-current="page"]){color:#A5C5F1}
+:root[data-theme="dark"] body .dmo-tab-menu-list :is(a.active,a[aria-current="page"]){color:var(--design-200)}
 
 /* Links de ação passam a botões (Diogo, 27/10/2026: «trocar links para
    botões»): o «Abrir página» do painel, os links dos avisos e os da ficha
