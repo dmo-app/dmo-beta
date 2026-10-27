@@ -345,3 +345,32 @@ html[data-theme="dark"] .bq-escolha-lista li:hover span, html[data-theme="dark"]
 .beta-bq-layout #bq-tool-sheet .bq-sheet-dados strong{font-size:18px}
 .beta-bq-layout #bq-tool-sheet .bq-sheet-vazio{margin:6px 0 0;font-size:12px}
 @media (max-width:700px){.beta-bq-layout #bq-tool-sheet .bq-sheet-dados{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ------------------------------------------------------------------
+   ERROS DO DIOGO NAS BOQUILHAS (Diogo, 27/10/2026). Um bloco só, no fim,
+   para não mexer nas regras dos tipos de movimento nem nos botões.
+   ------------------------------------------------------------------ */
+
+/* Registo: os cartões (Referência, BQ · lote, Produção, Início, Fim) com a
+   letra um pouco maior. */
+html body .beta-bq-layout #bqRegisterFacts .dmo-fact>span { font-size:12.5px; line-height:1.35; }
+html body .beta-bq-layout #bqRegisterFacts .dmo-fact>strong { margin-top:3px; font-size:16px; line-height:1.3; }
+
+/* «Job On mudou · Ver o que mudou» numa linha no cabeçalho do registo, ao
+   lado de «Opções»: o cabeçalho tem sempre a mesma altura e a página não
+   salta ao trocar de máquina. As alterações abrem por cima, sem empurrar. */
+.beta-bq-layout .register-open > .card-head .bq-jobon-mudou { position:relative; display:flex; align-items:center; gap:6px; margin-left:auto; font-size:13px; line-height:20px; white-space:nowrap; color:var(--dmo-muted); }
+.beta-bq-layout .bq-jobon-mudou details { position:static; }
+.beta-bq-layout .bq-jobon-mudou summary { display:inline; list-style:none; cursor:pointer; font-weight:650; color:var(--dmo-warning); }
+.beta-bq-layout .bq-jobon-mudou summary::-webkit-details-marker { display:none; }
+.beta-bq-layout .bq-jobon-mudou summary::before { content:""; display:inline-block; width:7px; height:7px; margin:0 6px 1px 0; border-radius:50%; background:var(--dmo-warning); }
+.beta-bq-layout .bq-jobon-mudou summary:is(:hover,:focus-visible) { color:var(--dmo-text); }
+.beta-bq-layout .bq-jobon-mudou a { color:var(--dmo-brand-600); text-decoration:none; font-weight:600; }
+.beta-bq-layout .bq-jobon-mudou a:is(:hover,:focus-visible) { color:var(--dmo-text); text-decoration:underline; }
+.beta-bq-layout .bq-jobon-mudou-lista { position:absolute; top:calc(100% + 8px); right:0; z-index:30; width:max-content; max-width:min(440px,80vw); padding:10px 14px; white-space:normal; color:var(--dmo-text); background:var(--dmo-card); border:1px solid var(--dmo-border); border-left:3px solid var(--dmo-warning); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.18); }
+.beta-bq-layout .bq-jobon-mudou-lista strong { display:block; margin-bottom:4px; font-size:13px; }
+.beta-bq-layout .bq-jobon-mudou-lista ul { margin:0; padding-left:18px; }
+.beta-bq-layout .bq-jobon-mudou-lista li span { color:var(--dmo-muted); }
+:root[data-theme="dark"] .beta-bq-layout .bq-jobon-mudou a { color:var(--dmo-brand-300, #9cc3ea); }
+:root[data-theme="dark"] .beta-bq-layout .bq-jobon-mudou :is(a,summary):is(:hover,:focus-visible) { color:#fff; }
+
