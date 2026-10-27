@@ -51,7 +51,7 @@
     bloquear(doc, false);
     doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
   }
-  let opener, dirty = false, operation = false;
+  let opener, dirty = false, operation = false, aberta = null;
   const destinations = new Map([
     ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
     ['/Controlo/Peso', 'Peso'],
@@ -73,7 +73,7 @@
     panel.dataset.largura = largas.has(caminho) ? 'total' : 'larga';
   }
   function close() {
-    panel.close(); frame.removeAttribute('src'); dirty = false;
+    panel.close(); frame.removeAttribute('src'); dirty = false; aberta = null;
     document.documentElement.classList.remove('dmo-support-open', 'dmo-painel-aberto');
     confirm.hidden = true;
     if (operation) refresh.hidden = false;
@@ -93,8 +93,13 @@
     confirm.hidden = false;
     confirm.querySelector('button').focus();
   }
+  // Um painel de cada vez (Diogo, 27/10/2026: «consigo spammar sliding
+  // windows»). Com o painel aberto, a mesma página não volta a abrir e outra
+  // página troca a que lá está, no mesmo painel; com alterações por guardar, o
+  // aviso aparece em vez da troca.
+  const semPainel_ = href => { try { const u = new URL(href, location.href); u.searchParams.delete('painel'); return u.pathname + u.search; } catch { return href; } };
   function tryOpen(href, source) {
-    if (source?.closest('.dmo-shell-header,nav') || panel.open) return false;
+    if (source?.closest('.dmo-shell-header,nav')) return false;
     // Fora do painel: um contentor [data-dmo-sem-painel="<seletor>"] deixa os
     // links que casam com o seletor (vazio: todos) navegar como sempre. O
     // «Registar» do Resumo, para quem tem o Criar, abre a página de registo
@@ -106,6 +111,12 @@
     let url;
     try { url = new URL(href, location.href); } catch { return false; }
     if (url.origin !== location.origin || !destinations.has(url.pathname)) return false;
+    if (panel.open) {
+      if (semPainel_(url.href) === aberta) return true;
+      if (dirty) { requestClose(); return true; }
+    }
+    aberta = semPainel_(url.href);
+    window.DmoPainel?.fecharTodos?.();
     opener = source || document.activeElement;
     dirty = false; operation = false; confirm.hidden = true;
     acertarPainel(url.pathname);
@@ -113,7 +124,7 @@
     url.searchParams.set('painel', '1');
     loading.hidden = false;
     frame.src = url.href;
-    panel.showModal();
+    if (!panel.open) panel.showModal();
     // O foco não fica no «Abrir página» (parecia um botão apagado).
     frame.focus({ preventScroll: true });
     document.documentElement.classList.add('dmo-support-open', 'dmo-painel-aberto');
@@ -146,8 +157,20 @@
     const r = panel.getBoundingClientRect();
     if (event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom) return;
     if (dirty) return requestClose();
-    close();
+    // Para saber o que está por baixo, o painel fecha-se um instante (com ele
+    // aberto, a página não responde ao ponto). Se por baixo está o que abriu
+    // esta mesma página (cliques repetidos no mesmo sítio), o painel volta logo,
+    // sem recarregar nem deslizar outra vez.
+    panel.close();
     const alvo = document.elementFromPoint(event.clientX, event.clientY);
+    const destino = alvo?.closest?.('a[href]')?.href;
+    if (destino && semPainel_(destino) === aberta) {
+      panel.dataset.semEntrada = '';
+      panel.showModal();
+      requestAnimationFrame(() => requestAnimationFrame(() => delete panel.dataset.semEntrada));
+      return;
+    }
+    close();
     if (alvo && alvo !== document.body && alvo !== document.documentElement) alvo.click();
   });
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});

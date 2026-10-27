@@ -69,6 +69,8 @@ html body dialog.dmo-painel:not([open]){display:none}
 @starting-style{
   html body dialog.dmo-painel[open]{transform:translateX(100%)}
   html body dialog.dmo-painel[data-lado="esquerda"][open]{transform:translateX(-100%)}
+  /* Reaberto no mesmo sítio (cliques repetidos, js/dmo-support.js): sem deslizar outra vez. */
+  html body dialog.dmo-painel[data-sem-entrada][open]{transform:none}
 }
 html body dialog.dmo-painel::backdrop{background:var(--dmo-painel-fundo)}
 
