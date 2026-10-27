@@ -54,6 +54,8 @@
   let opener, dirty = false, operation = false, aberta = null;
   const destinations = new Map([
     ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
+    // O título vem do h1 da página (diz qual é a ferramenta).
+    ['/Ferramentas/Utilizacao', ''],
     ['/Controlo/Peso', 'Peso'],
     ['/Controlo/PesoComparar', 'Comparar peso'],
     ['/Controlo/Pegamentos', 'Pegamentos'],

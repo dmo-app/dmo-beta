@@ -1,0 +1,29 @@
+@page "/Ferramentas/Utilizacao"
+@model DMO.Alpha.Web.Pages.Ferramentas.UtilizacaoModel
+@{
+    Layout = "_DmoShellLayout";
+    var sheet = Model.Sheet!;
+    var nome = $"{FichaModel.TokenTypeFor(sheet.Type)} {sheet.Reference} · lote {sheet.Lot}";
+}
+@section Head {
+<style>
+main.ferr-uso-page .ferr-uso-cartao{display:grid;gap:10px;padding:16px 18px}
+main.ferr-uso-page .ferr-uso-cartao .ferr-nota{margin:0;color:var(--dmo-muted)}
+main.ferr-uso-page .ferr-uso-cartao .ferr-nota strong{color:var(--dmo-text)}
+main.ferr-uso-page .ferr-armazem-link{color:var(--dmo-brand-900);font-weight:600;text-decoration:none}
+main.ferr-uso-page .ferr-armazem-link:hover{color:var(--dmo-text)}
+main.ferr-uso-page .ferr-producoes-lista{margin:0}
+/* No painel de apoio, sem a margem a mais do dmo-design.css (como na ficha). */
+html[data-dmo-embedded="true"] body main.ferr-uso-page:has(>.dmo-pagina-topo){padding:0}
+main.ferr-uso-page .ferr-producoes-lista .dmo-table td:nth-child(n+3),main.ferr-uso-page .ferr-producoes-lista .dmo-table th:nth-child(n+3){text-align:right;white-space:nowrap}
+main.ferr-uso-page .ferr-producao-maquina{color:var(--dmo-muted)}
+</style>
+}
+@* O histórico do uso de uma ferramenta (Diogo, 27/10/2026): abre no painel a
+   partir de qualquer «% uso» (Shared/_UsoFerramenta). Só leitura. *@
+<dmo-pagina titulo="Utilização · @nome" titulo-id="ferr-uso-title" class="ferr-uso-page dmo-workspace" aria-labelledby="ferr-uso-title" data-tool-id="@sheet.ToolId">
+  <dmo-acoes><a class="dmo-button" href="@Url.Page("/Ferramentas/Ficha", new { tool_id = sheet.ToolId })" id="ferrUsoFicha">Ficha da ferramenta</a></dmo-acoes>
+  <section class="dmo-card ferr-uso-cartao" id="ferrProducoes" aria-label="Utilização por produção">
+    <partial name="_UtilizacaoProducoes" model="new DMO.Alpha.Web.Presentation.UtilizacaoProducoesView(Model.Producoes!, Model.Utilizacao?.Ultima)" />
+  </section>
+</dmo-pagina>
