@@ -3302,3 +3302,13 @@ Novos: 1 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaShowsHumanFacts_AndTheActionsMovedFromTheTablePostToTheSameIndexHandlers`
 
 Selo depois: `4c6656d1bd4956fb`
+
+## A-0190 · 2026-10-27 · teste-novo
+
+Porquê: Remover um reparador das Boquilhas que já recebeu uma BQ pelo Armazém deixa de dar erro: o movimento do Armazém larga a ligação e fica com o nome (vistoria BD-02, DMO-452, 0.3.0-beta.149)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: PostgresMigrationIntegrationTests.RemoverReparadorUsadoNoArmazem_OMovimentoFicaComONome`
+
+Selo depois: `92e2d040aecc927f`
