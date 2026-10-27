@@ -1538,13 +1538,20 @@
               </tr>
             </thead>
             <tbody>
+              @* Corrigir ou apagar (Diogo, 27/10/2026): a linha escolhe-se com um
+                 clique (fica de uma só cor) e a correção abre na caixa da
+                 leitura nova; um clique na linha escolhida larga-a. O link da
+                 primeira célula cobre a linha toda (CSS). *@
               @foreach (var measurement in peso.Measurements)
               {
                 decimal? rowDelta = peso.Averages is { } rowAverages
                     ? measurement.GlassWeightGrams - rowAverages.AverageGlassWeightGrams
                     : null;
-                <tr>
-                  <td>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
+                var escolhida = Model.CorrigirLeituraId == measurement.MeasurementId;
+                var linhaHref = Model.UrlCorrigirLeitura(escolhida ? null : measurement.MeasurementId);
+                var linhaRotulo = escolhida ? "Largar a leitura" : $"Corrigir ou apagar a leitura da CM {(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)}";
+                <tr class="peso-linha-corrigir@(escolhida ? " is-selected" : null)" data-peso-leitura-id="@measurement.MeasurementId" aria-selected="@(escolhida ? "true" : "false")">
+                  <td><a class="peso-linha-link" href="@linhaHref" aria-label="@linhaRotulo"></a>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
                   <td>@fmtCap(measurement.CapacityCm3)</td>
                   <td><strong>@fmt(measurement.GlassWeightGrams)</strong></td>
                   <td>@(rowDelta is { } rd ? signed(rd) : "—")</td>
@@ -1651,6 +1658,66 @@
           </div>
         </form>
         }
+
+        @* A CORREÇÃO DA LEITURA ESCOLHIDA (27/10/2026): no lugar da leitura
+           nova, o N.º CM e a massa de água dela para corrigir, «Guardar» e
+           «Apagar»; apagar pergunta antes. Fica o rasto de cada correção. Um
+           Peso de antes de uma troca também se corrige (R16-3). *@
+        <div id="pesoCorrecao" class="dmo-zona" data-dmo-regiao>
+        @if (Model.CorrecaoRefusalMessage is { } correcaoRecusa)
+        {
+          <div data-dmo-toast="erro" class="peso-aviso" role="alert">@correcaoRecusa</div>
+        }
+        @if (Model.CorrigirLeituraId is { } corrigirId && peso.Measurements.FirstOrDefault(m => m.MeasurementId == corrigirId) is { } aCorrigir)
+        {
+          var corrigirCm = string.IsNullOrEmpty(aCorrigir.CmSubject) ? "—" : aCorrigir.CmSubject;
+          <form method="post" asp-page="/Controlo/Peso" asp-page-handler="EditMeasurement" class="peso-leitura-form peso-correcao" data-peso-correcao>
+            <input type="hidden" name="peso_id" value="@peso.PesoId" />
+            <input type="hidden" name="measurement_id" value="@aCorrigir.MeasurementId" />
+            @if (Model.ProductionContext is not null && Model.ControloIdFromQuery is { } correcaoControloId)
+            {
+              <input type="hidden" name="controlo_id" value="@correcaoControloId" />
+            }
+            @if (Model.PesoIdNoEndereco is not null)
+            {
+              <input type="hidden" name="peso_anterior" value="1" />
+            }
+            @if (Model.Comparison is { } correcaoComparison)
+            {
+              <input type="hidden" name="comparar" value="@correcaoComparison.HistoricalPesoId" />
+            }
+            @if (Model.SuporCaloteParaLevar is { } correcaoSupor)
+            {
+              <input type="hidden" name="supor_calote" value="@correcaoSupor" />
+            }
+            @if (Model.ApagarLeituraPergunta)
+            {
+              <p class="peso-correcao-pergunta" role="status">Apagar a leitura da CM @corrigirCm (@aCorrigir.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture) g)?</p>
+              <div class="peso-leitura-actions">
+                <a class="dmo-button dmo-dialog-cancel" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId)">Cancelar</a>
+                <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "DeleteMeasurement")" data-peso-apagar-confirmar>Apagar</button>
+              </div>
+            }
+            else
+            {
+              <div class="peso-leitura-row">
+                <div class="dmo-field">
+                  <label for="corrigirCm">N.º CM</label>
+                  <input id="corrigirCm" name="cm_subject" value="@(Model.EchoCorrecaoSubject ?? aCorrigir.CmSubject)" autocomplete="off" />
+                </div>
+                <div class="dmo-field">
+                  <label for="corrigirAgua">Massa de água (g)</label>
+                  <input id="corrigirAgua" name="water_weight" type="text" inputmode="decimal" autocomplete="off" required value="@(Model.EchoCorrecaoWater ?? aCorrigir.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                </div>
+              </div>
+              <div class="peso-leitura-actions">
+                <button type="submit" class="dmo-button" data-peso-correcao-guardar>Guardar</button>
+                <a class="dmo-button" href="@Model.UrlCorrigirLeitura(aCorrigir.MeasurementId, apagar: true)" data-peso-apagar>Apagar</a>
+              </div>
+            }
+          </form>
+        }
+        </div>
       </div>
     </section>
   }

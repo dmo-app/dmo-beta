@@ -166,6 +166,8 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
                 await _db.PesoComparacoes.Where(c => c.ControloId == controloId).ToListAsync(cancellationToken));
             _db.PesoMeasurements.RemoveRange(
                 await _db.PesoMeasurements.Where(m => pesoIds.Contains(m.PesoId)).ToListAsync(cancellationToken));
+            _db.PesoMeasurementHistorico.RemoveRange(
+                await _db.PesoMeasurementHistorico.Where(h => pesoIds.Contains(h.PesoId)).ToListAsync(cancellationToken));
             _db.Pesos.RemoveRange(
                 await _db.Pesos.Where(p => pesoIds.Contains(p.Id)).ToListAsync(cancellationToken));
             _db.PegamentosMeasurements.RemoveRange(

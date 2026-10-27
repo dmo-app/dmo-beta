@@ -71,6 +71,7 @@ public sealed class MigrationFoundationTests
         "Pegamentos",
         "PegamentosMeasurements",
         "PegamentosMeasurementHistorico",
+        "PesoMeasurementHistorico",
         "PegamentosTolerances",
         "ToolMachineLinks",
         "BqMovementDeletions",
@@ -85,7 +86,7 @@ public sealed class MigrationFoundationTests
     ];
 
     // As tabelas criadas depois da Baseline, cada uma pela sua migração.
-    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto", "LocalCredentials"])];
+    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "PesoMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto", "LocalCredentials"])];
 
     private static DmoDbContext CreateNpgsqlContext()
     {
@@ -140,7 +141,7 @@ public sealed class MigrationFoundationTests
                 "20261026082355_JobOnFolhaLoteFf",
                 "20261026101136_JobOnExperiencia", "20261026154757_ReparacaoInternaTrabalho", "20261026164500_JobOnFolhaAnLote",
                 "20261027030704_OperacoesRegistadasImpressao",
-                "20261027050241_ToolsReferenciaMaiusculas" },
+                "20261027050241_ToolsReferenciaMaiusculas", "20261027111956_PesoMeasurementHistorico" },
             keys);
     }
 

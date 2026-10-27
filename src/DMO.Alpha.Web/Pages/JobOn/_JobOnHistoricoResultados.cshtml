@@ -42,9 +42,10 @@
             </table>
           </div>
         }
-      </div>
-      <div data-dmo-handler="HistoricoResultados" data-dmo-alvo="jobonHistoricoResultados">
-        <partial name="_ListPager" model="ListPager.For(Model.HistoryPage)" />
+        @* A paginação junto à tabela, dentro do cartão e à direita (Diogo, 27/10/2026: «solta no meio por baixo»). *@
+        <div data-dmo-handler="HistoricoResultados" data-dmo-alvo="jobonHistoricoResultados">
+          <partial name="_ListPager" model="ListPager.For(Model.HistoryPage)" />
+        </div>
       </div>
       </div>
 

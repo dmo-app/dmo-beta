@@ -279,3 +279,18 @@ html body .dmo-table tbody tr.peso-linha-destaque:not(:hover)>td{background:var(
 /* Os três valores à mesma altura, qualquer que seja o tamanho da etiqueta. */
 .peso-page .peso-anterior-linha .peso-resumo{align-items:stretch}
 .peso-page .peso-anterior-linha .peso-resumo .peso-fact{display:flex;flex-direction:column;justify-content:space-between;gap:4px}
+
+/* Corrigir ou apagar uma leitura (27/10/2026): a linha da tabela escolhe-se
+   com um clique em qualquer sítio dela (fica de uma só cor) e a correção abre
+   no lugar da leitura nova. O passar por cima só muda a cor da letra. */
+.peso-page .peso-linha-corrigir{position:relative;cursor:pointer}
+.peso-page .peso-linha-link{position:absolute;inset:0;z-index:1}
+.peso-page .peso-linha-corrigir:not([aria-selected="true"]):hover>td,
+.peso-page .peso-linha-corrigir:not([aria-selected="true"]):hover>td strong{color:var(--dmo-action,var(--dmo-brand-600))}
+.peso-page #pesoCorrecao:not(:has(form)){display:contents}
+.peso-page .peso-live-region:has(#pesoCorrecao [data-peso-correcao])>.peso-leitura-form:not(.peso-correcao){display:none}
+.peso-page .peso-correcao{margin:0;padding:8px;border:1px dashed var(--dmo-border);border-radius:8px}
+.peso-page .peso-correcao .peso-leitura-row{display:grid;grid-template-columns:72px 120px;gap:4px 8px}
+.peso-page .peso-correcao .peso-leitura-actions{display:flex;gap:8px;margin-top:8px}
+.peso-page .peso-correcao .peso-leitura-actions>*{flex:1 1 0;justify-content:center}
+.peso-page .peso-correcao-pergunta{margin:0;max-width:200px;font-weight:600}
