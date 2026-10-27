@@ -37,7 +37,10 @@
   html body main.arm-page #armMovProcura>.dmo-card-topo{margin:0 0 8px}
   html body main.arm-page #armMovProcura>.dmo-card-topo h3{margin:0;font-size:13px;font-weight:600;color:var(--dmo-muted)}
   html body main.arm-page #armProcuraForm{flex-wrap:wrap;gap:8px;margin:0}
-  html body main.arm-page #armProcuraForm>.arm-modo-direita{order:0;margin:0 0 4px;flex:1 0 100%}
+  html body main.arm-page #armProcuraForm>.arm-modo-linha{order:0;margin:0 0 4px;flex:1 0 100%;display:flex;align-items:center;gap:8px}
+  html body main.arm-page #armProcuraForm .arm-modo-linha>.arm-modo-direita{margin:0;order:0}
+  /* «Registar» antes do Entrada | Saída, com um traço a separar (como nas Boquilhas). */
+  html body main.arm-page #armProcuraForm .arm-modo-separador{align-self:stretch;width:1px;background:var(--dmo-border)}
   html body main.arm-page #armProcuraForm>.dmo-field:has(>#armProcura){flex:1 1 0;min-width:0}
   html body main.arm-page #armProcuraForm #armProcura{width:100%}
   html body main.arm-page #armMovProcura #armProcuraLista>*{margin-top:12px}
@@ -353,3 +356,4 @@ html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dm
 /* ARMAZÉM › REGISTO › «Corrigir»: o aviso não cola aos campos que vêm a seguir. */
 html body #arm-corrigir-dialog .dmo-aviso-discreto{margin:0 0 12px}
 html body #arm-corrigir-dialog .dmo-aviso.erro{margin:0 0 12px}
+html[data-theme="dark"] body main.arm-page{--dmo-escolhida-contorno:var(--dmo-brand-300,#9cc3ea);--dmo-escolhida-letra:var(--dmo-brand-300,#9cc3ea)}

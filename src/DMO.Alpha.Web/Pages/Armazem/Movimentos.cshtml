@@ -160,9 +160,31 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     <form method="get" asp-page="/Armazem/Movimentos" class="arm-linha" role="search" id="armProcuraForm">
       <input type="hidden" name="tipo" value="@tipoTexto" />
       <input type="hidden" name="modo" value="@Model.Modo" />
+      <div class="arm-modo-linha">
+        @* «Registar» junto ao Entrada | Saída, antes dele, como nas Boquilhas (Diogo,
+           27/10/2026: «registar do armazem fica perto de onde selecionamos entrada e
+           saida»). Envia o formulário do registo pelo atributo form. *@
+        @if (s is not null)
+        {
+          var formDoRegisto = formEntrada ? "armEntrada" : Model.Destino is null ? "armSaidaSemDestino" : "armSaida";
+          if (!formEntrada)
+          {
+            <button type="submit" class="dmo-button" id="armSaiRegistar" form="@formDoRegisto">Registar</button>
+          }
+          else if (recusaEntrada && criarPosicao)
+          {
+            <button type="submit" class="dmo-button" id="armEntCriar" form="@formDoRegisto" name="criar_posicao" value="1">Criar e registar</button>
+          }
+          else
+          {
+            <button type="submit" class="dmo-button" id="armEntRegistar" form="@formDoRegisto">Registar</button>
+          }
+          <span class="arm-modo-separador" aria-hidden="true"></span>
+        }
       <div class="arm-modo arm-modo-direita" role="group" aria-label="Entrada ou saída" id="armProcuraModo">
         <a class="dmo-button@(entradaEscolhida ? " arm-modo-ativo" : null)" id="armProcuraModoEntrada" aria-pressed="@(entradaEscolhida ? "true" : "false")" href="@(s is not null ? Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "entrada" }) : Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "entrada", q = Model.Procura, pos = Model.PosicaoPedidaValida }))">Entrada</a>
         <a class="dmo-button@(!entradaEscolhida ? " arm-modo-ativo" : null)" id="armProcuraModoSaida" aria-pressed="@(!entradaEscolhida ? "true" : "false")" href="@(s is not null ? Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "saida" }) : Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "saida", q = Model.Procura, pos = Model.PosicaoPedidaValida }))">Saída</a>
+      </div>
       </div>
       <div class="dmo-field">
         <label for="armProcura">Referência</label>
@@ -277,18 +299,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           <h3 class="arm-registar-titulo">@(mostrarEntrada ? "Registar entrada" : "Registar saída")</h3>
           <div class="arm-registar-acoes">
             <button type="button" class="dmo-button" id="armCorrigirBotao" data-dmo-dialog="arm-corrigir-dialog">Corrigir</button>
-            @if (!mostrarEntrada)
-            {
-              <button type="submit" class="dmo-button" id="armSaiRegistar">Registar</button>
-            }
-            else if (recusaEntrada && criarPosicao)
-            {
-              <button type="submit" class="dmo-button" id="armEntCriar" name="criar_posicao" value="1">Criar e registar</button>
-            }
-            else
-            {
-              <button type="submit" class="dmo-button" id="armEntRegistar">Registar</button>
-            }
           </div>
         </div>
         @if (!mostrarEntrada && Model.Destino is { } destinoEscolhido)
