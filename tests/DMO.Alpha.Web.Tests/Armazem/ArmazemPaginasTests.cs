@@ -168,16 +168,16 @@ public sealed class ArmazemPaginasTests : IClassFixture<CustomWebApplicationFact
         Assert.True(resposta.RootElement.GetProperty("ok").GetBoolean());
         Assert.Equal("Moldes do Norte", resposta.RootElement.GetProperty("valor").GetString());
 
-        var recebe = $"armRepRecebe-{r.Id}";
+        // Sem «Recebe» na tabela (Diogo, 27/10/2026: «os reparadores recebem tudo»).
         var estado = $"armRepEstado-{r.Id}";
         var html = await client.GetStringAsync("/Definicoes");
-        html = await client.GetStringAsync(await EnviarAsync(client, html, (recebe, EnvioDoFormulario.Opcao(html, recebe, "Só MF"))));
+        Assert.DoesNotContain($"armRepRecebe-{r.Id}", html, StringComparison.Ordinal);
         html = await client.GetStringAsync(await EnviarAsync(client, html, (estado, EnvioDoFormulario.Opcao(html, estado, "Arquivado"))));
         Assert.Contains("Definição gravada.", Elemento(html, "id=\"armDefAvisos\""));
         r = NaBase(db => db.Reparadores.AsNoTracking().Single());
-        Assert.Equal(("Moldes do Norte", false, true, false), (r.Nome, r.AplicaCm, r.AplicaMf, r.Ativo));
+        Assert.Equal(("Moldes do Norte", true, true, false), (r.Nome, r.AplicaCm, r.AplicaMf, r.Ativo));
         // Cada envio da linha leva só esse reparador e esse campo.
-        Assert.DoesNotContain(EnvioDoFormulario.Mudar(html, recebe, "cm").Campos, c => c.Nome is "nome" or "ativo");
+        Assert.DoesNotContain(EnvioDoFormulario.Mudar(html, estado, "sim").Campos, c => c.Nome is "nome" or "familias");
     }
 
     [Fact]

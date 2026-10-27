@@ -3363,3 +3363,15 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
 Selo depois: `7df95d24814fbd98`
+
+## A-0188 · 2026-10-27 · ok-do-diogo
+
+Porquê: Reparadores do Armazém sem «Recebe»: todos recebem CM e MF, os das BQ são outra lista
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra1ydbFiy9XkcYkSMVCbc6t3
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Saida_ReparadorDeOutraFamiliaArquivadoOuQueNaoExiste_Recusa`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Situacao_SemMovimentos_EstaNoFabricoSemPropostas`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Definicoes_CriarEMudarReparadores`
+
+Selo depois: `42be5e272ecfeecb`

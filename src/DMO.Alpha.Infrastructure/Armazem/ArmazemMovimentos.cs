@@ -802,13 +802,10 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 .OrderBy(r => r.Name)
                 .Select(r => new ArmazemReparadorOpcao(r.Id, r.Name))
                 .ToListAsync(cancellationToken),
-            ToolType.Cm => await db.Reparadores.AsNoTracking()
-                .Where(r => r.Ativo && r.AplicaCm)
-                .OrderBy(r => r.Nome)
-                .Select(r => new ArmazemReparadorOpcao(r.Id, r.Nome))
-                .ToListAsync(cancellationToken),
+            // Os reparadores de CM e MF recebem tudo; só os das BQ são outros
+            // (Diogo, 27/10/2026: «os reparadores recebem tudo, menos os das bqs»).
             _ => await db.Reparadores.AsNoTracking()
-                .Where(r => r.Ativo && r.AplicaMf)
+                .Where(r => r.Ativo)
                 .OrderBy(r => r.Nome)
                 .Select(r => new ArmazemReparadorOpcao(r.Id, r.Nome))
                 .ToListAsync(cancellationToken)
