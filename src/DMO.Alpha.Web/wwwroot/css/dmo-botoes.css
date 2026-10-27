@@ -158,6 +158,8 @@ html[data-theme="dark"] body.dmo-account-page .password-wrap .password-toggle.pa
    …172Da3NvgX58DsX6pceune: «deixa uma cor»; …8VGCjvpiPUQBuwLrfxJLnY: «usar o que já usamos»):
    o azul suave da paleta atual (--dmo-brand-200) com a letra normal, nos dois modos. */
 html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_)>td{background:var(--dmo-brand-200);color:var(--dmo-text)}
+/* A linha escolhida ou com o rato por cima fica numa só cor, sem a barra à esquerda (Diogo, 27/10/2026). */
+html body .dmo-table tbody tr:not(#_)>td{box-shadow:none}
 html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_) :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:var(--dmo-text)}
 
 /* Barras de deslocar finas e discretas em toda a app (Diogo, 27/10/2026: «scroll mais subtil, barra
