@@ -185,7 +185,8 @@
         <div>
           <h3 id="pu-id-title" title="Registo sem Job On. A referência da punção e o lote aplicam-se às próximas punções.">Identificação do registo</h3>
         </div>
-        <span class="pu-step">1</span>
+        @* O «Guardar identificação» no canto superior direito, como na identificação da produção. *@
+        <div class="dmo-card-topo-acoes"><button type="submit" form="pu-id-form" class="dmo-button" id="pu-id-guardar">Guardar identificação</button></div>
       </div>
       <div class="pu-facts">
         @* Só a produção (Diogo, 21/10/2026: «CM por associar nao deve existir so a producao»). *@
@@ -211,10 +212,6 @@
           <label for="pu-lote">Lote</label>
           <input id="pu-lote" name="lote" inputmode="numeric" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
         </div>
-        <div class="dmo-field">
-          <span class="dmo-label" aria-hidden="true">&nbsp;</span>
-          <button type="submit" class="dmo-button">Guardar identificação</button>
-        </div>
       </form>
     </section>
   }
@@ -232,7 +229,6 @@
           {
             <button type="submit" form="pu-id-form" class="dmo-button" id="pu-id-guardar">Guardar identificação</button>
           }
-          <span class="pu-step">1</span>
         </div>
       </div>
       <div class="pu-facts">
@@ -359,6 +355,28 @@
             var escolhidaPu = linhasPu.Count == 1 ? linhasPu[0].Id
                 : Model.EscolhidaInspecaoId is int pedida && linhasPu.Any(r => r.Id == pedida) ? pedida : (int?)null;
           }
+          <div class="pu-topo">
+          @* O NÚMERO E O «+ ADICIONAR PUNÇÃO» NO CANTO (Diogo, 27/10/2026: ação no
+             canto superior direito do cartão): o campo e o botão na mesma linha e
+             da mesma altura; o rótulo fica como texto do campo (placeholder) e para
+             quem lê o ecrã. O número junta-se à identificação do cartão de cima
+             (o mesmo POST). O LOTE DE UM NÚMERO REPETIDO (Diogo, 21/10/2026):
+             outra punção com o mesmo número tem outro lote; o campo aparece
+             quando o número já está na lista (puncoes-numero.js) e vale só para ela. *@
+          <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Add" class="pu-add-form" data-pu-numeros="@string.Join("|", registo?.Rows.Select(r => r.Number).Distinct() ?? [])">
+            <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+            <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
+            <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
+            <div class="dmo-field">
+              <label for="pu-numero" class="pu-oculto">Número da punção</label>
+              <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Número da punção, ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
+            </div>
+            <div class="dmo-field pu-lote-puncao" hidden>
+              <label for="pu-lote-puncao" class="pu-oculto">Lote desta punção</label>
+              <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Lote desta punção, ex.: 2" />
+            </div>
+            <button type="submit" class="dmo-button">+ Adicionar punção</button>
+          </form>
           <div class="dmo-card-topo-acoes" data-dmo-for="puLista">
             @if (linhasPu.Count > 0)
             {
@@ -380,6 +398,7 @@
               </div>
             </details>
           </div>
+          </div>
         </div>
         <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf" id="pu-pdf-form" data-dmo-nativo>
           <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
@@ -395,28 +414,6 @@
         {
           <div data-dmo-toast="erro" class="pu-aviso" role="alert" data-pu-repetida>@repetida</div>
         }
-        @* O número junta-se à identificação do cartão de cima (o mesmo POST). *@
-        @* O LOTE DE UM NÚMERO REPETIDO (Diogo, 21/10/2026): outra punção com
-           o mesmo número tem outro lote; o campo aparece quando o número já
-           está na lista (puncoes-numero.js) e vale só para ela. *@
-        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Add" class="pu-add-form" data-pu-numeros="@string.Join("|", registo?.Rows.Select(r => r.Number).Distinct() ?? [])">
-          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-          <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
-          <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
-          <div class="dmo-field">
-            <label for="pu-numero">Número da punção</label>
-            <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
-          </div>
-          <div class="dmo-field pu-lote-puncao" hidden>
-            <label for="pu-lote-puncao">Lote desta punção</label>
-            <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Ex.: 2" />
-          </div>
-          <div class="dmo-field">
-            <span class="dmo-label" aria-hidden="true">&nbsp;</span>
-            <button type="submit" class="dmo-button">+ Adicionar punção</button>
-          </div>
-        </form>
-
         <div class="dmo-table-wrap">
           @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
           <table class="dmo-table pu-table pu-table-fixa" id="puLista" data-dmo-list="Lista de punções">
@@ -428,7 +425,7 @@
                 <th>Lote</th>
                 <th>Punção visto</th>
                 <th>Arrefecedor visto</th>
-                <th class="pu-right">Ações</th>
+                <th class="pu-right"><span class="pu-oculto">Remover</span></th>
               </tr>
             </thead>
             <tbody>

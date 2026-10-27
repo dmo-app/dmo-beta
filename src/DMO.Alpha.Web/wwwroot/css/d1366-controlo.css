@@ -200,9 +200,21 @@
 /* ===== Controlo › PU NNPB ==================================================
    Os factos numa faixa com linhas finas; «Editar a punção» numa linha com
    os campos do tamanho da referência e do lote; o número da punção curto;
-   a lista com linhas baixas. */
+   a lista com linhas baixas. A página não desliza (Diogo, 27/10/2026): o ecrã
+   é a altura da janela e só a tabela das punções desliza, por dentro. */
 @media (min-width:1100px){
-  html body main.pu-page.dmo-workspace{padding:8px 24px 12px;gap:8px}
+  html body .app:has(>main.pu-page){display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+  html body .app:has(>main.pu-page)>.dmo-shell-header{flex:0 0 auto}
+  html body main.pu-page.dmo-workspace{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:8px 24px 12px;gap:8px}
+  html body main.pu-page>*{flex:0 0 auto}
+  html body main.pu-page>#puFolha{flex:1 1 auto;min-height:0}
+  html body main.pu-page #puFolha>*{flex:0 0 auto}
+  html body main.pu-page #puFolha>#puncoes-lista{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  html body main.pu-page #puncoes-lista>*{flex:0 0 auto}
+  html body main.pu-page #puncoes-lista>.dmo-table-wrap{flex:1 1 auto;min-height:0;overflow:auto;margin:0}
+  html body main.pu-page #puncoes-lista .pu-table thead th{position:sticky;top:0;z-index:1}
+  html body main.pu-page #puncoes-sem-jobon .dmo-table-wrap{max-height:132px;overflow:auto}
+  html body main.pu-page #puncoes-posicoes{overflow:auto;min-height:0}
   html body main.pu-page>.page-head{margin:0}
   html body main.pu-page #puFolha{display:flex;flex-direction:column;gap:8px}
   html body main.pu-page .pu-card{padding:10px 20px 12px}
@@ -212,6 +224,7 @@
   html body main.pu-page .pu-facts>.pu-fact{flex:1 1 0;min-width:0;padding:2px 16px;border:0;border-left:1px solid var(--dmo-border);border-radius:0;background:none}
   html body main.pu-page .pu-facts>.pu-fact:first-child{border-left:0}
   html body main.pu-page .pu-facts>.pu-fact strong{font-size:15px}
+  html body main.pu-page .pu-facts+.pu-id-form{margin-top:12px}
   html body main.pu-page .pu-id-editar{margin-top:8px}
   html body main.pu-page .pu-id-editar[open]{display:flex;align-items:flex-end;gap:24px}
   html body main.pu-page .pu-id-editar[open]>summary{margin:0;padding-bottom:8px;white-space:nowrap}
@@ -219,8 +232,9 @@
   html body main.pu-page :is(.pu-id-form,.pu-add-form) .dmo-field{flex:0 0 auto}
   html body main.pu-page .pu-id-form #pu-referencia{width:140px}
   html body main.pu-page :is(#pu-lote,#pu-lote-puncao){width:96px}
-  html body main.pu-page #pu-numero{width:120px}
-  html body main.pu-page .pu-add-form{margin:0 0 8px;gap:8px}
+  html body main.pu-page #pu-numero{width:200px}
+  html body main.pu-page #pu-lote-puncao{width:160px}
+  html body main.pu-page .pu-add-form{margin:0;gap:8px}
   html body main.pu-page .pu-stats{padding:6px 0}
   html body main.pu-page .pu-stats .pu-stat strong{font-size:20px;line-height:1.2}
   html body main.pu-page .pu-table :is(th,td){padding-top:6px;padding-bottom:6px;line-height:22px}
@@ -396,13 +410,15 @@
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 120px 96px minmax(0,1fr) 280px}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-link{grid-column:5;grid-row:1;justify-self:start;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  /* Pegamentos · Ferramentas (sem Job On): título, modo e botão centrados; as referências numa linha, como no Peso. */
-  html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef){align-items:center;margin-bottom:8px}
+  /* Pegamentos · Ferramentas (sem Job On): o mesmo aspeto da escolha do PU NNPB (Diogo, 27/10/2026): título e botão
+     na mesma linha, o rótulo por cima de cada campo, os campos da mesma largura e altura, as referências numa linha. */
+  html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef){align-items:center;margin-bottom:12px}
   html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef) h3{margin:0;line-height:var(--dmo-control-height)}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:24px;margin:0}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:8px;margin:0}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>label{margin:0;white-space:nowrap}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>:is(input,.dmo-suggest){width:160px;flex:0 0 160px}
+  html body main.peg-page .peg-card:has(>.dmo-modo-head+form.dmo-filter-bar #pegCmRef){padding-top:10px}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){flex-wrap:nowrap;justify-content:flex-start;align-items:flex-end;gap:8px 16px;margin:0}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field{flex:0 0 auto;display:block;margin:0}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>label{display:block;margin:0 0 6px;font-size:12px;font-weight:500;color:var(--dmo-muted);white-space:nowrap}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>:is(input,.dmo-suggest){width:234px;flex:0 0 234px}
   html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)~.peg-context-grid{margin-top:8px!important}
 
   /* Pegamentos · registo: as três tabelas com as mesmas colunas. */

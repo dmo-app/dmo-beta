@@ -6,7 +6,6 @@
 .pu-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
 .pu-section-head h3{margin:0 0 4px}
 .pu-section-head p{margin:0;color:var(--dmo-muted);font-size:12.5px}
-.pu-step{display:grid;place-items:center;min-width:33px;height:33px;border-radius:9px;background:var(--dmo-brand-050);color:var(--dmo-brand-700);font-size:12px;font-weight:800}
 .pu-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px}
 .pu-fact{padding:10px 12px;border-left:3px solid var(--dmo-brand-600);background:var(--dmo-subtle);border-radius:8px}
 .pu-fact span{display:block;color:var(--dmo-muted);font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em}
@@ -29,7 +28,7 @@
 .pu-stat strong{display:block;font-size:28px;line-height:1.2;color:var(--dmo-text)}
 .pu-table td{vertical-align:middle}
 .pu-number{font-weight:800}
-.pu-lot{color:var(--dmo-brand-700);font-weight:700}
+.pu-lot{font-weight:500}
 .pu-alteracao{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:12px;background:var(--dmo-amber-soft);color:var(--dmo-amber);border:1px solid var(--dmo-amber-line);font-size:10.5px;font-weight:800}
 .pu-right{text-align:right}
 .pu-empty{text-align:center;color:var(--dmo-muted);padding:22px !important}
@@ -38,7 +37,7 @@
 .pu-estado{color:var(--dmo-danger);font-weight:650}
 .pu-estado.on{color:var(--dmo-success)}
 .pu-remove{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
-.pu-remove:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
+.pu-remove:hover{color:var(--dmo-danger)}
 .pu-pdf{display:grid;place-items:center;width:42px;height:46px;border:1px solid var(--dmo-brand-200);border-radius:7px;background:var(--dmo-card);color:var(--dmo-brand-700);font-size:11px;font-weight:900}
 @media(max-width:600px){.pu-stats{grid-template-columns:repeat(2,1fr);gap:6px}.pu-stat{padding:10px}.pu-stat strong{font-size:22px}.pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:1 1 100%}}
 /* A associação à mão de um registo sem Job On. */
@@ -82,3 +81,11 @@ html body table.dmo-table.pu-grelha tbody th{font-size:14px}
 .pu-table-fixa .pu-col-estado{width:24%}
 .pu-table-fixa .pu-col-acoes{width:12%}
 .pu-table-fixa td,.pu-table-fixa th{overflow-wrap:anywhere}
+
+/* O número e o «+ Adicionar punção» no canto do cartão (Diogo, 27/10/2026): o campo e o botão na mesma linha;
+   o rótulo é o texto do campo e fica só para quem lê o ecrã. */
+.pu-topo{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px 16px;min-width:0}
+.pu-topo .pu-add-form{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;margin:0}
+.pu-topo .pu-add-form .dmo-field{flex:0 0 auto;margin:0}
+.pu-oculto{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+html body .pu-topo .pu-add-form>.dmo-button{margin:0}
