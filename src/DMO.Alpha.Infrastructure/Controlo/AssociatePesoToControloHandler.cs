@@ -228,11 +228,10 @@ public sealed class PesoAssociationQuery : IPesoAssociationQuery
 
         // A BQ conta pela referência, não pelo lote (o Diogo, 27/10/2026).
         var (cmToolIds, bqToolIds) = (production.CmToolIds, production.BqToolIds);
-        var bqReferencias = await _db.Tools
+        // As referências entram na mesma consulta (sem mais uma ida à base).
+        var bqReferencias = _db.Tools
             .Where(t => bqToolIds.Contains(t.ToolId))
-            .Select(t => t.Reference)
-            .Distinct()
-            .ToListAsync(cancellationToken);
+            .Select(t => t.Reference);
         var candidates = await _db.Pesos
             .AsNoTracking()
             .Where(p => p.ControloId == null && p.ComparacaoDoPesoId == null && cmToolIds.Contains(p.CmToolId)

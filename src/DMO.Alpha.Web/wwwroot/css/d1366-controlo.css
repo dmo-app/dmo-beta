@@ -170,6 +170,13 @@
   html body main.peso-page .peso-card>.dmo-modo-head~form.dmo-filter-bar>.dmo-field>.dmo-suggest{width:160px;flex:0 0 160px}
   html body main.peso-page .peso-leitura-form{padding:8px;margin-top:8px}
   html body main.peso-page .peso-leitura-form>.peso-leitura-grade{padding:0}
+  /* Os números ao lado da leitura nova, numa só linha, para poupar espaço (Diogo, 27/10/2026). */
+  html body main.peso-page .peso-live-region{display:flex;align-items:stretch;gap:8px}
+  html body main.peso-page .peso-live-region>.peso-live-area{flex:1 1 0;min-width:0;display:flex;flex-direction:column}
+  html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo{flex:1 1 auto;flex-wrap:nowrap;align-items:center}
+  html body main.peso-page .peso-live-region>.peso-leitura-form{flex:0 0 auto;margin-top:0}
+  html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact{flex:1 1 auto;padding:2px 12px}
+  html body main.peso-page .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact>span{white-space:nowrap}
 }
 
 /* ===== Controlo › Pegamentos ===============================================
