@@ -94,9 +94,10 @@ html body .dmo-painel-corpo > iframe{flex:1 1 auto;width:100%;min-height:0;borde
    A gaveta da folha do Job On (Pages/JobOn/Folha.cshtml, js/jobon-folha.js) fica
    com a sua marcação e o seu abrir/fechar (lembra-se aberta entre páginas), mas
    com o aspeto da estrutura: painel estreito pela esquerda, fundo do cartão,
-   cabeçalho «Planeamento» com «Fechar» no canto e a lista a deslizar por dentro. */
+   cabeçalho «Planeamento» com «Fechar» no canto e a lista a deslizar por dentro.
+   Largura de antes, 272 px (Diogo, 27/10/2026: «não sei porque aumentaram esta janela»). */
 html body .jof2-gaveta .rail{
-  width:min(420px,calc(100vw - 48px));padding:0;box-sizing:border-box;
+  width:min(272px,calc(100vw - 48px));padding:0;box-sizing:border-box;
   display:flex;flex-direction:column;overflow:hidden;
   background:var(--dmo-card);color:var(--dmo-text);
   border-right:1px solid var(--dmo-border);box-shadow:none;
