@@ -1311,5 +1311,15 @@ html:root body .jof2.editing .note-box.note-edit>textarea.dmo-valor{flex:0 0 aut
    cartões dos componentes ganham largura; a imagem fica alta e inteira. */
 @media (min-width:1181px){
 html:root body .jof2 .sheet,html:root body .jof2.editing .sheet{grid-template-columns:minmax(0,1fr) 200px!important;gap:10px}
-html:root body .jof2 .side .jof-artigo{height:260px!important}
+html:root body .jof2 .side .jof-artigo{height:200px!important}
 }
+
+/* Notas com espaço (Diogo, 27/10/2026: «continua sem espaço para notes»):
+   no TP, na CS e no PI a caixa vai por baixo do rótulo, com a mesma altura
+   dos outros cartões; as Notas gerais ocupam o resto da coluna. */
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view{flex-direction:column!important;align-items:stretch!important;gap:2px!important;height:auto!important;min-height:0!important}
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view>p{min-height:56px!important;max-height:56px;flex:0 0 auto!important}
+html:root body .jof2 .side>.notes{flex:1 1 auto;min-height:130px}
+html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 auto;min-height:76px}
+/* A linha na cor da máquina, só na letra, sem caixa à volta. */
+html:root body .jof2 .fv .mch[data-jof-linha]{background:none!important;color:var(--dmo-machine-color,var(--dmo-text))!important;padding:0 4px;min-width:0;font-size:18px;font-weight:800;border:0;box-shadow:none}

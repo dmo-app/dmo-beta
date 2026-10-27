@@ -157,10 +157,6 @@ html body .jof2-gaveta .rail-item.dmo-linha-cor:not(:disabled):is(:hover,:focus-
 /* As Pinças nunca encolhem abaixo do conteúdo (a caixa das notas saía do
    cartão); as Notas gerais é que cedem o espaço. */
 html body .jof2:not(.editing) .side>:is(.article,.g-pinfo){flex-shrink:0}
-/* TP, CS e Pinças sem notas: «Notas» e a caixa vazia na mesma linha, dentro da
-   altura que o cartão lhes dá (a caixa ficava por baixo e saía 7 px do cartão). */
-html body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.is-empty{flex-direction:row;align-items:center;gap:8px;height:auto;min-height:22px}
-html body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.is-empty>p{flex:1 1 auto;min-height:18px;margin:0}
 /* «O que mudou»: cada alteração numa linha (o quê · quando e quem). */
 html body .jof2 .jobon-mudancas>.jobon-resumo{margin:8px 0 0}
 html body .jof2 .jobon-mudancas>.jobon-resumo>li{padding:6px 12px}
