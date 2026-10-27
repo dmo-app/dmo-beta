@@ -3375,7 +3375,7 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `ef7739eb30616318`
 
-## A-0199 · 2026-10-27 · ok-do-diogo
+## A-0206 · 2026-10-27 · ok-do-diogo
 
 Porquê: «PDF Pegamentos» só aparece com medições (Diogo, 27/10/2026, cartão cmsg_01K75FTs9bQnbhhH7qttpgraB4cWtFy2LfgzGWkBMpzRuk); os 2 testes deixam de esperar o botão sem medições (DMO-460)
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraTqHfWEMTVqx3FqVyLJ8Xiw
