@@ -30,6 +30,11 @@
     @* Normalização geral (tipografia, botões, campos): sempre a última folha. *@
     <link rel="stylesheet" href="~/css/dmo-normalize.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/dmo-design.css" asp-append-version="true" media="screen">
+    @* 1366×768 por grupo de páginas (27/10/2026): cada ficheiro só mexe nas suas páginas. *@
+    <link rel="stylesheet" href="~/css/d1366-planeamento.css" asp-append-version="true" media="screen">
+    <link rel="stylesheet" href="~/css/d1366-controlo.css" asp-append-version="true" media="screen">
+    <link rel="stylesheet" href="~/css/d1366-boquilhas-ferramentas.css" asp-append-version="true" media="screen">
+    <link rel="stylesheet" href="~/css/d1366-armazem-reparacao-admin.css" asp-append-version="true" media="screen">
 </head>
 <body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())">
 <div class="app">
