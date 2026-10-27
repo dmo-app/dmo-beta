@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -11,6 +12,7 @@ namespace DMO.Alpha.Web.Pages;
 /// tento sair ou voltar leva me para uma pagina intermedia, que nao precisa
 /// de existir»). The POST handler remains for form-based callers.
 /// </summary>
+[AllowAnonymous]
 public class LogoutModel : PageModel
 {
     public async Task<IActionResult> OnGetAsync()

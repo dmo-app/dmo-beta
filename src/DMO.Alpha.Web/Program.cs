@@ -277,6 +277,7 @@ builder.Services.AddScoped<DMO.Alpha.Core.Admin.IPinDasDefinicoes, DMO.Alpha.Inf
 builder.Services.AddScoped<DMO.Alpha.Core.Admin.IPostoRi, DMO.Alpha.Infrastructure.Admin.PostoRi>();
 builder.Services.AddScoped<DMO.Alpha.Web.Services.DesbloqueioDasDefinicoes>();
 builder.Services.AddScoped<DMO.Alpha.Web.Services.SumarioNovidades>();
+builder.Services.AddSingleton(sp => new DMO.Alpha.Web.Services.TravaoDoPosto(sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>()));
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Controlo.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel>();
@@ -421,6 +422,11 @@ builder.Services
 builder.Services.AddScoped<IAuthorizationHandler, AdminAreaAuthorizationHandler>();
 builder.Services.AddAuthorization(options =>
 {
+    // Sem sessão, nenhuma página abre, salvo as marcadas [AllowAnonymous]
+    // (o login, o posto, a instalação, a saída, o erro e a versão). Uma
+    // página nova esquecida sem [Authorize] fica fechada, não aberta
+    // (vistoria ao backend, 27/10/2026).
+    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
     options.AddPolicy(AdminAuthorizationPolicies.RequireAdmin, policy =>
         policy.Requirements.Add(new AdminAreaRequirement()));
 });
