@@ -203,7 +203,7 @@ public sealed class IndexModel(
                 : Q("envio") is not null ? "email"
                 : Q("seccoes") is not null ? "puncoes"
                 : "peso";
-            await Controlo.CarregarAsync(Q("save"), Q("envio"), Q("fora"), Q("densidade"), Q("seccoes"), Q("pasta"));
+            await Controlo.CarregarAsync(Q("save"), Q("envio"), Q("fora"), Q("densidade"), Q("seccoes"));
         }
 
         if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.Boquilhas))
