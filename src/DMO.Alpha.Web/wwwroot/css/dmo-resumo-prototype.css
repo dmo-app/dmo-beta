@@ -858,3 +858,330 @@ html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo
   border-top: 1px solid var(--dmo-border);
 }
 /* ===== fim da HIERARQUIA DO RESUMO ===== */
+
+/* ==================================================================
+ * AS DUAS PROPOSTAS DE DESIGN DO RESUMO (Diogo, 27/10/2026: «quero
+ * melhorar esse design do resumo»; 09:36: «Salientar os resultados do
+ * peso comparando ao controlo anterior, produção anterior e nominal.
+ * Salientar resultados dos pegamentos e registo das Punções caso NNPB»).
+ * Escolhem-se com ?proposta=a ou ?proposta=b, que põe o
+ * data-resumo-proposta no <main>; sem ela, o aspeto de hoje (acima).
+ * O markup é o mesmo: só as colunas .resumo-coluna (display: contents
+ * fora da proposta A). Só tokens (claro e escuro), 1366×768 sem scroll
+ * numa produção típica; o hover só muda a cor do texto (os botões de
+ * ação invertem pelo dmo-botoes.css); botões e campos com 34px.
+ * O Peso não tem tolerância (o PesoCalculation: «never a tolerance
+ * decision»): as diferenças ficam neutras. Os Pegamentos e as PU NNPB
+ * têm o tom do resultado (alerta, por verificar), já suave.
+ * ================================================================== */
+.resumo-coluna { display: contents; }
+
+/* ------------------------------------------------------------------
+ * PROPOSTA A · «PAINEL» (?proposta=a): duas colunas.
+ *  À esquerda, a produção: a aprovação em grande com o início e o fim,
+ *  e os controlos associados numa lista vertical, cada um com o
+ *  resultado (o Peso com as três comparações; os totais dos Pegamentos
+ *  e das PU NNPB). À direita, o estado do documento numa tabela limpa
+ *  e, por baixo, o «Visto por» e o «Aprovado por».
+ * ------------------------------------------------------------------ */
+@media (min-width: 1100px) {
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-sheet {
+  display: grid;
+  grid-template-columns: 520px minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+  align-items: stretch;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-sheet > * { grid-column: 1 / -1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-sheet > .resumo-coluna-principal {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 16px 8px 20px;
+  border-right: 1px solid var(--dmo-border);
+  border-radius: 0 0 0 inherit;
+  background: var(--dmo-subtle);
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-sheet > .resumo-coluna-documento {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 12px 20px 14px;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-coluna > * { margin: 0 !important; padding-left: 0; padding-right: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-sheet-intro { padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--dmo-border); }
+
+/* A aprovação em grande, à esquerda; o início e o fim ao lado, mais pequenos. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho { border-radius: 8px; background: var(--dmo-card); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho .resumo-context-grid { grid-template-columns: minmax(0, 1fr) 104px 104px; margin: 0; padding: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho .resumo-context-grid > .resumo-mini-card { padding: 8px 12px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho .resumo-context-grid > .resumo-approval { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "rotulo acao" "valor valor" "nota nota"; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho .resumo-context-grid > .resumo-approval { padding-left: 14px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho .resumo-approval > strong { font-size: 22px; line-height: 26px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho .resumo-approval > small { -webkit-line-clamp: 1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-cabecalho .resumo-mini-card:not(.resumo-approval) > strong { font-size: 13px; }
+
+/* Os controlos associados: uma lista, um por linha, com o resultado. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked { padding: 0; border: 0; background: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-grid,
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-grid:has(.resumo-linked-pu) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* Cada controlo numa linha: o nome, o resultado e as ações em cima; por
+   baixo, os totais e as ligações. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  grid-template-areas: "nome res acoes" "stats stats links" "nota nota links";
+  align-items: center;
+  gap: 2px 12px;
+  height: auto;
+  min-height: 0;
+  padding: 4px 12px 8px;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > * { min-width: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > .resumo-linked-card-head { display: contents; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > .resumo-linked-card-head > span:first-child { grid-area: nome; min-width: 76px; line-height: var(--dmo-control-height); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > .resumo-linked-card-head > .resumo-card-actions { grid-area: acoes; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > strong { grid-area: res; font-size: 13px; line-height: 18px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > .resumo-stats { grid-area: stats; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > small { grid-area: nota; font-size: 12px; line-height: 16px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > :is(.resumo-card-link, .resumo-pu-ligacoes) { grid-area: links; margin: 0; align-self: end; justify-self: end; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card > .resumo-peg-folhas { grid-column: 1 / -1; }
+/* Os totais dos Pegamentos e das PU NNPB numa linha: o rótulo e o número. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card .resumo-stats { display: flex; flex-wrap: wrap; gap: 2px 16px; margin: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card .resumo-stats > div { display: flex; align-items: baseline; gap: 6px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card .resumo-stats span { font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card .resumo-stats b { display: inline; color: var(--dmo-text); font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peg.nok .resumo-stats div:nth-child(2) b { color: var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-pu.warn .resumo-stats div:nth-child(3) b { color: var(--dmo-warning); }
+/* Com resultado, o resultado diz o estado: sem a palavra «Registado» (o Peso fica com ela, ao lado do «Comparar»). */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card:not(.resumo-linked-peso):has(.resumo-card-link) .resumo-card-actions:not(:has(.dmo-button)) { display: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card:not(.resumo-linked-peso):has(.resumo-card-link) { grid-template-areas: "nome res res" "stats stats links" "nota nota links"; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card.resumo-linked-pu:has(.resumo-card-link) { grid-template-areas: "nome res res" "stats stats stats" "nota nota links"; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-pu .resumo-pu-ligacoes { flex-wrap: nowrap; gap: 6px; }
+/* Sem registo: só a linha do título, sem a explicação. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card:not(:has(.resumo-card-link)) { grid-template-areas: "nome res acoes"; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-card:not(:has(.resumo-card-link)) > small { display: none; }
+
+/* O Peso: o nome, a média e as ações na mesma linha; por baixo, a tabela
+   com o nominal, o controlo anterior e a produção anterior. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso:has(.resumo-card-link) { grid-template-areas: "nome media acoes" "tabela tabela tabela" "rodape rodape rodape"; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso > .resumo-peso-media { grid-area: media; display: grid; justify-items: start; gap: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso > .resumo-peso-media .resumo-big-number { font-size: 26px; line-height: 28px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso > .resumo-peso-media > small { font-size: 11px; line-height: 14px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso > .resumo-peso-tabela { grid-area: tabela; max-width: none; margin: 2px 0 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso > .resumo-peso-rodape { grid-area: rodape; padding-top: 2px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso:has(.resumo-card-link) > small,
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-linked-peso > .resumo-peg-folhas { grid-column: 1 / -1; grid-row: auto; }
+
+/* O resultado do Peso salientado: a diferença em g a cheio. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-peso-tabela :is(th, td) { padding-top: 3px; padding-bottom: 3px; line-height: 18px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-peso-tabela tbody td:nth-child(3) { font-weight: 700; }
+
+/* O estado do documento: uma tabela, uma área por linha. A palavra OK/NOK
+   é o próprio seletor (com a cor suave); «Por …» em baixo. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-sheet-areas { padding: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas { border-top: 1px solid var(--dmo-border); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area {
+  grid-template-columns: 130px 88px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 0;
+  padding: 6px 0;
+  border-left: 0 !important;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > span:first-child { grid-column: 1; grid-row: 1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > strong { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > .resumo-area-form { grid-column: 2; grid-row: 1; margin: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > .resumo-area-note { grid-column: 3; grid-row: 1; margin: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > .resumo-area-link { grid-column: 3; grid-row: 2; justify-self: end; margin-top: 2px !important; max-width: 100%; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > .resumo-area-by:not(.resumo-area-historico) { grid-column: 2 / 4; grid-row: 2; justify-self: start; margin: 2px 0 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > .resumo-area-historico { grid-column: 2 / 4; grid-row: 3; justify-self: start; margin: 2px 0 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area > :is(.resumo-area-by, .resumo-area-link) { font-size: 11px; line-height: 16px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area select:not(#_) { height: var(--dmo-control-height); min-height: var(--dmo-control-height); line-height: calc(var(--dmo-control-height) - 2px); font-weight: 650; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area.ok select:not(#_) { color: var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area.nok select:not(#_) { color: var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area:not(.ok, .nok) select:not(#_) { color: var(--dmo-muted); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-areas .resumo-area .resumo-area-note { height: var(--dmo-control-height); min-height: var(--dmo-control-height); }
+
+/* Visto por · Aprovado por, lado a lado, por baixo da tabela. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 12px 0 0; border-top: 1px solid var(--dmo-border); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="a"] .resumo-people .resumo-viewings { padding: 0; }
+}
+
+/* ------------------------------------------------------------------
+ * PROPOSTA B · «CARTÕES DE ESTADO» (?proposta=b): uma coluna, compacta.
+ *  Uma faixa forte com a produção, a aprovação, o início e o fim e as
+ *  ações; os controlos associados em cartões pequenos com o resultado
+ *  (o Peso com a média ao lado da tabela das três comparações); o
+ *  estado do documento numa linha por área, com o OK/NOK numa pastilha
+ *  e o comentário só quando existe (o clique abre a janela de sempre).
+ * ------------------------------------------------------------------ */
+@media (min-width: 1100px) {
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 0;
+  row-gap: 8px;
+  padding: 0 0 10px;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet > * { grid-column: 1 / -1; }
+/* A faixa: a produção, a aprovação com as datas e as ações numa só linha. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet > .resumo-sheet-intro { display: contents; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet-intro > div:first-child,
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet > .resumo-coluna-principal > .resumo-cabecalho,
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet-intro > .resumo-sheet-acoes {
+  grid-row: 1;
+  align-self: stretch;
+  margin: 0;
+  background: var(--dmo-brand-100);
+  border: 0;
+  border-bottom: 1px solid var(--dmo-border);
+  border-radius: 0;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet-intro > div:first-child {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 7px 28px 7px 20px;
+  border-radius: 8px 0 0 0;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet-intro .resumo-eyebrow { margin: 0; color: var(--dmo-brand-800); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet-identity { color: var(--dmo-brand-900); font-size: 24px !important; line-height: 30px; white-space: nowrap; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet > .resumo-coluna-principal > .resumo-cabecalho { grid-column: 2; display: flex; align-items: center; padding: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet-intro > .resumo-sheet-acoes { grid-column: 3; display: flex; align-items: flex-start; padding: 7px 20px 7px 12px; border-radius: 0 8px 0 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-context-grid { display: flex; align-items: center; width: 100%; gap: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-context-grid > .resumo-mini-card { flex: 0 0 auto; padding: 4px 24px; border-left: 1px solid var(--dmo-border); background: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-context-grid > .resumo-approval { flex: 0 1 auto; border-left: 1px solid var(--dmo-border); box-shadow: none !important; grid-template-columns: auto auto; grid-template-areas: "rotulo rotulo" "valor acao" "nota nota"; column-gap: 12px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-mini-card > span { color: var(--dmo-brand-800); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-mini-card:not(.resumo-approval) > strong { color: var(--dmo-brand-900); font-size: 15px; }
+/* A aprovação numa pastilha, com a cor suave do estado. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-approval > strong {
+  justify-self: start;
+  padding: 2px 12px;
+  border-radius: var(--dmo-radius-pill);
+  background: var(--dmo-card);
+  font-size: 15px;
+  line-height: 22px;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-approval.pending > strong { color: var(--dmo-muted); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-approval.approved > strong { background: var(--dmo-success-soft); color: var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-approval.not-approved > strong { background: var(--dmo-danger-soft); color: var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-approval > small { color: var(--dmo-brand-800); -webkit-line-clamp: 1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-cabecalho .resumo-approval > .resumo-card-link { align-self: center; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet > .resumo-coluna-principal > :not(.resumo-cabecalho),
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet > .resumo-coluna-documento > * { grid-column: 1 / -1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet .dmo-aviso { margin: 0 20px; }
+
+/* Os controlos associados: cartões pequenos, o resultado em destaque. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked { margin: 0; padding: 0 20px; border: 0; background: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-grid,
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-grid:has(.resumo-linked-pu) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-auto-flow: row;
+  gap: 10px;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-grid:not(:has(.resumo-linked-pu)) { grid-template-columns: minmax(0, 1.9fr) minmax(0, 2.1fr); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-grid > :is(.resumo-linked-peso, .resumo-linked-peg, .resumo-linked-pu) { grid-row: auto; grid-column: auto; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card { gap: 2px; padding: 6px 14px 8px; border-radius: 10px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card-head { min-height: var(--dmo-control-height); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card > strong { font-size: 14px; line-height: 20px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card .resumo-stats { margin: 2px 0 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card .resumo-stats span { font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card .resumo-stats b { color: var(--dmo-text); font-size: 22px; line-height: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peg.nok .resumo-stats div:nth-child(2) b { color: var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-pu.warn .resumo-stats div:nth-child(3) b { color: var(--dmo-warning); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card > small { font-size: 12px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-card:not(:has(.resumo-card-link)) > small { display: none; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-pu-ligacoes { gap: 8px; }
+/* O Peso: a média à esquerda, a tabela das três comparações à direita. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso:has(.resumo-peso-tabela) {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  grid-template-areas: "head head" "media tabela" "rodape tabela";
+  column-gap: 16px;
+  row-gap: 4px;
+  align-items: start;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso:has(.resumo-peso-tabela) > * { min-width: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso > .resumo-linked-card-head { grid-area: head; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso > .resumo-peso-media { grid-area: media; display: grid; gap: 2px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso > .resumo-peso-media .resumo-big-number { font-size: 32px; line-height: 36px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso > .resumo-peso-tabela { grid-area: tabela; max-width: none; margin: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso > .resumo-peso-rodape { grid-area: rodape; display: grid; justify-items: start; gap: 6px; align-self: end; padding: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso > small,
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-linked-peso > .resumo-peg-folhas { grid-column: 1 / -1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-peso-tabela :is(th, td) { padding-top: 2px; padding-bottom: 2px; line-height: 18px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-peso-tabela tbody td:nth-child(3) { font-weight: 700; }
+
+/* O estado do documento: uma linha por área. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-sheet-areas { padding: 0 20px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas { border-top: 1px solid var(--dmo-border); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area {
+  grid-template-columns: 140px 84px minmax(0, 1fr) 236px 250px;
+  column-gap: 14px;
+  row-gap: 0;
+  padding: 1px 0;
+  border-left: 0 !important;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area > span:first-child { grid-column: 1; grid-row: 1; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area > strong { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area > .resumo-area-form { grid-column: 2; grid-row: 1; margin: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area > .resumo-area-note { grid-column: 3; grid-row: 1; margin: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area > .resumo-area-by:not(.resumo-area-historico) { grid-column: 4; grid-row: 1; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area > .resumo-area-link { grid-column: 5; grid-row: 1; justify-self: start; max-width: 100%; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area > .resumo-area-historico { grid-column: 4; grid-row: 2; margin: 0 0 2px; }
+/* O OK/NOK numa pastilha: o seletor de sempre, sem caixa nem seta. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area select:not(#_) {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: var(--dmo-control-height);
+  min-height: var(--dmo-control-height);
+  padding: 0 12px !important;
+  border: 1px solid transparent;
+  background-image: none !important;
+  border-radius: var(--dmo-radius-pill);
+  background: var(--dmo-subtle);
+  color: var(--dmo-muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: calc(var(--dmo-control-height) - 2px);
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area.ok select:not(#_) { background: var(--dmo-success-soft); color: var(--dmo-success); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area.nok select:not(#_) { background: var(--dmo-danger-soft); color: var(--dmo-danger); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area select:not(#_):focus-visible { border-color: var(--dmo-brand-600); outline: 0; }
+/* O comentário na linha, só texto; sem comentário, um convite discreto. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area .resumo-area-note {
+  height: var(--dmo-control-height);
+  min-height: var(--dmo-control-height);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--dmo-text);
+}
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area .resumo-area-note .resumo-area-note-text { font-size: 13px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area .resumo-area-note.empty { color: var(--dmo-muted); }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area .resumo-area-note.empty .resumo-area-note-text { font-size: 12px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-areas .resumo-area .resumo-area-note:is(:hover, :focus-visible) { color: var(--dmo-brand-700); }
+
+/* Visto por · Aprovado por, lado a lado. */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-people { gap: 16px; padding: 0 20px; border: 0; margin: 0; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] :is(.resumo-linked, .resumo-sheet-areas, .resumo-people) .resumo-section-title { margin-bottom: 4px !important; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-people .dmo-table :is(th, td) { padding-top: 4px; padding-bottom: 4px; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"][data-resumo-proposta="b"] .resumo-people .resumo-viewings { padding: 0; }
+}
+/* ===== fim das PROPOSTAS A e B ===== */

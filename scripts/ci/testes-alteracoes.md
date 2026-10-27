@@ -3421,3 +3421,13 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
 
 Selo depois: `225e0d22f04fdb94`
+
+## A-0192 · 2026-10-27 · teste-novo
+
+Porquê: Resumo: as duas propostas de design (?proposta=a|b) marcam o <main> e mostram os resultados do Peso (nominal, controlo anterior, produção anterior), dos Pegamentos e das PU NNPB (Diogo, 27/10/2026).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPropostas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPropostas.cs :: ControloCapabilitiesCutHPageTests.Resumo_Propostas_MarcamOMain_EMostramOsResultados`
+
+Selo depois: `44f2994fa56fa845`

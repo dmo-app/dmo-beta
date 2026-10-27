@@ -4,6 +4,12 @@
 @using DMO.Alpha.Web.Pages.Shared
 @{
     Layout = "_DmoShellLayout";
+    // AS DUAS PROPOSTAS DE DESIGN (Diogo, 27/10/2026: «quero melhorar esse
+    // design do resumo»): ?proposta=a (Painel, duas colunas) ou ?proposta=b
+    // (Cartões de estado, uma coluna compacta). Sem ela, o aspeto de hoje.
+    // Só muda o CSS (dmo-resumo-prototype.css, no fim); o markup é o mesmo.
+    // Sem proposta, o atributo não sai (um data-* nulo sairia vazio).
+    var proposta = HttpContext.Request.Query["proposta"].ToString() switch { "a" => "a", "b" => "b", _ => null };
 }
 @section Head {
   <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
@@ -15,7 +21,7 @@
    recusa e o «Visto por» (a visita do operador muda a cada pedido); o resto
    da página não se mexe e a procura fica como o operador a deixou
    (data-dmo-fica). Ver docs/ui-reference/atualizar-so-o-que-muda.md. *@
-<main class="resumo-page dmo-workspace" aria-labelledby="resumo-title" data-dmo-troca>
+<main class="resumo-page dmo-workspace" aria-labelledby="resumo-title" data-dmo-troca@(proposta is null ? null : Html.Raw($" data-resumo-proposta=\"{proposta}\""))>
 
   <div class="page-head">
     <div>
@@ -131,6 +137,8 @@
          cima do valor e o título da combinação dentro do bloco. A Aprovação
          já não tem caixa própria: só a cor do valor muda (17/10/2026: o
          início e o fim, só a data; depois a combinação e os controlos). *@
+      @* As colunas da proposta A (Painel): sem a proposta, display: contents. *@
+      <div class="resumo-coluna resumo-coluna-principal">
       <div class="resumo-cabecalho">
         <div class="resumo-window-grid resumo-context-grid">
           <div class="resumo-mini-card">
@@ -419,6 +427,8 @@
         </div>
       </div>
 
+      </div>
+      <div class="resumo-coluna resumo-coluna-documento">
        <div class="resumo-sheet-areas" id="estado-documento">
          @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
          <h4 class="resumo-section-title" title="Escolher OK ou NOK grava logo. Clique no comentário para o escrever. Sem registo, a área fica «não registado». O estado e os comentários aparecem no PDF do Resumo.">Estado do documento</h4>
@@ -464,6 +474,7 @@
             </table>
           </div>
         </div>
+      </div>
       </div>
     </section>
   }
