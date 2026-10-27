@@ -33,12 +33,10 @@
 .pu-alteracao{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:12px;background:var(--dmo-amber-soft);color:var(--dmo-amber);border:1px solid var(--dmo-amber-line);font-size:10.5px;font-weight:800}
 .pu-right{text-align:right}
 .pu-empty{text-align:center;color:var(--dmo-muted);padding:22px !important}
-.pu-check-form{margin:0;display:inline}
-.pu-check{display:inline-flex;align-items:center;gap:8px;padding:4px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-danger);font-weight:650;cursor:pointer}
-.pu-check:hover{background:var(--dmo-subtle)}
-.pu-check.on{color:var(--dmo-success)}
-.pu-box{display:grid;place-items:center;width:18px;height:18px;border:1.5px solid currentColor;border-radius:4px;font-size:12px;line-height:1}
-.pu-check.on .pu-box{background:var(--dmo-success);border-color:var(--dmo-success);color:var(--dmo-text-on-color)}
+/* «Visto» / «Por verificar» em texto, sem caixa nem botão (Diogo, 27/10/2026: sem botões nas linhas);
+   os botões do canto trocam o da punção escolhida. */
+.pu-estado{color:var(--dmo-danger);font-weight:650}
+.pu-estado.on{color:var(--dmo-success)}
 .pu-remove{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
 .pu-remove:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
 .pu-pdf{display:grid;place-items:center;width:42px;height:46px;border:1px solid var(--dmo-brand-200);border-radius:7px;background:var(--dmo-card);color:var(--dmo-brand-700);font-size:11px;font-weight:900}
@@ -78,6 +76,7 @@ html body table.dmo-table.pu-grelha tbody th{font-size:14px}
 
 /* A tabela das punções com larguras fixas: o estado («Visto» / «Por verificar») não mexe as colunas (Diogo, 24/10/2026). */
 .pu-table-fixa{table-layout:fixed;width:100%;min-width:560px}
+.pu-table-fixa .pu-col-escolha{width:0}
 .pu-table-fixa .pu-col-numero{width:26%}
 .pu-table-fixa .pu-col-lote{width:14%}
 .pu-table-fixa .pu-col-estado{width:24%}

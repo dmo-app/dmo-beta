@@ -179,6 +179,10 @@ html body .jof2 .jobon-mudancas>.jobon-resumo>li>div{display:flex;flex-wrap:wrap
    quando não cabem (a Folha do Job On ficava mais larga do que o ecrã). */
 html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{white-space:normal;text-align:right;overflow-wrap:break-word}
 html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{white-space:nowrap}
+/* O «Sair» ao centro, por baixo do nome e do título (Diogo, 27/10/2026); o bloco continua à direita. */
+html body .dmo-shell-header .dmo-shell-conta{align-items:center}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{text-align:center}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-acoes{justify-content:center}
 
 /* Folha · Editar: a nota cresce com o texto (a do ARR cortava a última linha). */
 html:root body .jof2.editing.editing .note-box.note-edit>textarea.dmo-valor.dmo-valor{height:auto;min-height:56px;max-height:240px;field-sizing:content;overflow:auto}
@@ -255,3 +259,112 @@ html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.ico
 html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;outline:0}
 html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-600);border-color:#fff;color:#fff}
 html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45));outline:0}
+
+/* O selo da linha nos cartões do painel do Planeamento (Folha do Job On): sem a caixa, só o nome
+   da linha em letra branca (Diogo, 27/10/2026: «retirar isto, deixar apenas a linha com font
+   branco»). O painel é escuro (--rail-bg) nos dois modos; no claro, o cartão escolhido em
+   repouso é branco e aí o nome fica na cor da linha, para se ler (no hover volta a branco). */
+html body .jof2-gaveta .rail-item .mch.mch{min-width:0;height:auto;padding:0;border:0;border-radius:0;background:none!important;background-image:none!important;box-shadow:none!important;color:#fff!important;font-size:13px;font-weight:800;letter-spacing:.02em}
+html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):not(:focus-visible) .mch.mch{color:var(--dmo-machine-color,var(--dmo-text))!important}
+
+/* ------------------------------------------------------------------ */
+/* Job On › Folha (ver) cabe toda em 1366×768, sem scroll (Diogo,     */
+/* 27/10/2026): as Notas gerais e o «O que mudou» ficavam por baixo do */
+/* ecrã (845 px). Nada sai: só menos espaço entre as peças, as caixas  */
+/* das notas com duas linhas (o resto lê-se a deslizar ou ampliada,    */
+/* com um clique) e o nome da conta em duas linhas sem alargar o topo. */
+/* ------------------------------------------------------------------ */
+@media screen and (min-width:1100px){
+  /* O nome e o título do template em duas linhas cabem na altura da barra. */
+  html body .dmo-shell-header .dmo-shell-conta{gap:1px;margin-block:2px}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{line-height:1.15}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{line-height:1.15}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-logout{line-height:1.15}
+  /* As notas dos cartões: duas linhas à vista. */
+  html:root body .jof2.jof2:not(.editing) .note-box.note-view:not(.is-ampliada)>p{min-height:42px!important;max-height:42px!important}
+  html body .jof2:not(.editing) .note-box.note-view>span{margin-bottom:0}
+  /* Menos espaço entre a faixa de cima, os cartões e o «O que mudou». */
+  html body .jof2:not(.editing){padding-top:6px;padding-bottom:4px}
+  html body .jof2:not(.editing) .page-head{margin-bottom:4px;row-gap:4px}
+  html body .jof2:not(.editing) .page-head .facts{min-height:30px;padding-block:2px}
+  html body .jof2:not(.editing) .sheet{margin-top:4px}
+  html body .jof2:not(.editing) .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"],.g-cal){margin-top:6px}
+  html body .jof2:not(.editing) .side{gap:6px}
+  html body .jof2:not(.editing) .zones :is(.card.sec,.pair-in>.sec){padding-top:6px;padding-bottom:6px}
+  html body .jof2:not(.editing) .jobon-mudancas>.jobon-resumo{margin-top:4px}
+  html body .jof2:not(.editing) .jobon-mudancas>.jobon-resumo>li{padding-block:4px}
+  html body .jof2:not(.editing) .jobon-mudancas{margin-top:2px;margin-bottom:0}
+  /* O artigo um pouco mais baixo: a imagem continua inteira (encaixa no espaço). */
+  html:root body .jof2:not(.editing) .side .jof-artigo{height:170px!important}
+}
+
+/* ------------------------------------------------------------------ */
+/* Faixa do Planeamento (Job On, Sumário): o subtítulo por baixo do    */
+/* título, pequeno, e o título mais à frente (Diogo, 27/10/2026:       */
+/* «meter por baixo de Planeamento, poupar espaço, chegar Planeamento  */
+/* mais à frente»). Os cartões das produções ficam com mais espaço.    */
+/* Só a faixa com subtítulo (a das Boquilhas não tem).                 */
+/* ------------------------------------------------------------------ */
+@media screen and (min-width:801px){
+  html body .beta-production-rail:has(>.beta-production-rail-head>span){padding-left:8px;gap:10px}
+  html body .beta-production-rail-head:has(>span){display:flex;flex-direction:column;align-items:flex-start;gap:2px;max-width:178px;padding-right:12px}
+  html body .beta-production-rail-head:has(>span)>span{display:block;font-size:11px;line-height:14px;white-space:normal}
+}
+
+/* «Produções de <dia>»: no hover a linha toma a sua própria cor, como o */
+/* cartão escolhido na faixa do Planeamento (Diogo, 27/10/2026: «hover   */
+/* não funciona como devido»). Sem o azul genérico das listas e sem a    */
+/* barra verde à esquerda; o texto passa à cor sobre a cor da linha.     */
+@media screen{
+html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover{background:var(--dmo-machine-color);box-shadow:none;color:var(--dmo-text-on-color)}
+html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover :is(strong,span,a){color:var(--dmo-text-on-color)}
+html:root body .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:transparent}
+}
+
+/* ------------------------------------------------------------------ */
+/* Calendários (Planeamento, Revisão, Boquilhas › Movimentos — todos o */
+/* mesmo _DmoCalendar): os dias sem caixa de fundo nem contorno; no    */
+/* hover muda só a cor do número (Diogo, 27/10/2026: «não quero ver    */
+/* estes boxes de background, muda a cor dos hovers para branco»).     */
+/* Escuro: branco. Claro: o azul de hover da app (--dmo-brand-600);    */
+/* os dias com mudanças, que já têm esse azul, passam ao azul escuro   */
+/* (--dmo-brand-800). O dia escolhido continua cheio e o de hoje a     */
+/* negrito; o foco pelo teclado mantém o seu contorno.                 */
+/* ------------------------------------------------------------------ */
+@media screen{
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected){border:0;border-radius:6px;background:none;box-shadow:none}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){border:0;background:none;box-shadow:none;color:var(--dmo-brand-600)}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day).has:not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){color:var(--dmo-brand-800)}
+html:root[data-theme="dark"] body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){color:#fff}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty){border:0;box-shadow:none}
+html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty):is(:hover,:focus-visible){background:var(--dmo-brand-600);border:0;box-shadow:none;color:var(--dmo-text-on-color)}
+}
+
+/* Job On › Editar / Novo / Duplicar: o topo (título, Referência,        */
+/* Produção, Cancelar/Guardar e a faixa B1/Início/Fim…) já não fica      */
+/* preso ao deslizar; a página desliza toda junta (Diogo, 27/10/2026:    */
+/* «isto mexe no scrolldown, fica confuso, deixar fixo»).                */
+@media screen{html:root body .jof2.editing .page-head{position:static;top:auto;z-index:auto}}
+
+/* Job On › Folha (ver, Editar, Novo, Duplicar): os cartões dos          */
+/* componentes mais estreitos para o Artigo, as Notas gerais e o PI      */
+/* terem mais espaço (Diogo, 27/10/2026: «reduzir largura para Artigo e  */
+/* Notas gerais terem mais espaço»). Coluna da direita 200 → 270 px.     */
+@media screen and (min-width:1181px){
+  /* Num ecrã mais largo (06:56 «já disse para reduzir largura»): os quatro cartões param em ~300 px  */
+  /* e todo o espaço que sobra vai para o Artigo, as Notas gerais e o PI.                              */
+  html:root body .jof2.jof2 .sheet,html:root body .jof2.jof2.editing .sheet{grid-template-columns:minmax(0,1fr) max(300px,calc(100% - 1240px))!important}
+}
+
+/* Job On › Folha: o reparador (e no MF o FF com o lote) fora da «Informação técnica», numa linha,  */
+/* como a referência e o lote da cabeça (Diogo, 27/10/2026).                                       */
+html body .jof2 .jof-fora{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:2px 0 6px}
+html body .jof2 .jof-fora .hv{display:inline-flex;align-items:baseline;gap:6px;min-width:0}
+html body .jof2.editing .jof-fora .hv input{width:90px}
+
+html body .jof2 .jof-fora .hv b{font-size:14px;line-height:1.3}
+html body .jof2 .jof-fora{column-gap:10px}
+/* O reparador numa linha; no MF o FF e o lote juntos na linha de baixo. */
+html body .jof2 .jof-fora .hv:first-child{flex-basis:100%}
+html body .jof2 .jof-fora .hv:nth-child(2){margin-left:0;padding-left:0;border-left:0}
+html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:10px}

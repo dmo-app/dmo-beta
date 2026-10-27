@@ -511,13 +511,26 @@ public sealed class ResumoModel : PageModel
             // Cada formulário só envia o seu campo (o OK/NOK, o comentário ou,
             // no PU e no CS, a referência escrita); o que não vem fica como
             // está na base.
-            await _areaStateHandler.SetAsync(
+            var gravou = await _areaStateHandler.SetAsync(
                 controloId, area, status, comment, updatedBy,
                 setStatus: Request.Form.ContainsKey("estado"),
                 setComment: Request.Form.ContainsKey("comentario"),
                 cancellationToken: HttpContext.RequestAborted,
                 identificacao: identificacao,
                 setIdentificacao: Request.Form.ContainsKey("identificacao"));
+
+            // A referência do PU e do CS grava no próprio valor (data-dmo-valor,
+            // sem «Guardar» na linha): o pedido JSON recebe { ok, valor }.
+            if (Request.Form.ContainsKey("identificacao")
+                && Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
+            {
+                var valor = string.IsNullOrWhiteSpace(identificacao) ? string.Empty : identificacao.Trim();
+                if (valor.Length > ControloAreaState.IdentificacaoMaxLength)
+                {
+                    valor = valor[..ControloAreaState.IdentificacaoMaxLength];
+                }
+                return new JsonResult(new { ok = gravou, valor = gravou ? valor : null, aviso = gravou ? null : "A referência não foi gravada." });
+            }
         }
 
         return voltar == ResumoDoControlo

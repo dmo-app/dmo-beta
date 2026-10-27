@@ -3706,3 +3706,72 @@ Novos: 1 · mudaram: 0 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
 
 Selo depois: `0eecb24220a0e7a7`
+
+## A-0222 · 2026-10-27 · ok-do-diogo
+
+Porquê: Reparadores do Armazém sem «Recebe»: todos recebem CM e MF, os das BQ são outra lista
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra1ydbFiy9XkcYkSMVCbc6t3
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Saida_ReparadorDeOutraFamiliaArquivadoOuQueNaoExiste_Recusa`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Situacao_SemMovimentos_EstaNoFabricoSemPropostas`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Definicoes_CriarEMudarReparadores`
+
+Selo depois: `f455c5a50a2aae82`
+
+## A-0223 · 2026-10-27 · teste-novo
+
+Porquê: Sem botões nas linhas (Diogo, 27/10/2026): testes novos para a Revisão (referência do PU/CS no valor) e «O que mudou» da folha do Job On.
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.SemBotoesNasLinhas.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_ReferenciaDoPu_GravaNoValor_SemBotaoNaLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_SemOModuloDaAcao_NaoHaBotaoNoCanto`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_UmSoBotaoNoCanto_ParaAAlteracaoEscolhida_NenhumNasLinhas`
+
+Selo depois: `3296f158ca7ef80c`
+
+## A-0224 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem botões nas linhas: modelos de email do Controlo e Visto/Por verificar das Punções passam a clique na linha com botão no canto; testes novos das Punções
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraT2BKJWBp736qLPToVcxwwS
+Novos: 9 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Seen_SemValor_TrocaOEstadoQueLaEsta`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs :: EnvioEmailPesoPageTests.Modelos_UmSoModelo_VemEscolhido`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs :: EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.RegistosSemJobOn_UmaLinhaEscolhe_EUmSoBotaoNoCantoAssocia`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.UmSoRegistoSemJobOn_VemEscolhido`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_CriarEMudarUmModelo_ERemetenteQueNaoEEmailNaoGrava`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.TabelaNoBrowser.cs :: PuncoesPageTests.Tabela_TemLargurasFixas_EVaiParaOBrowser`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `9efa6a7b115c5c82`
+
+## A-0225 · 2026-10-27 · ok-do-diogo
+
+Porquê: Resumo do Controlo sem «A combinação da produção» (já está no Estado do documento)
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraSa1TjHXyqneQ4wBzRv4r2F
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
+
+Selo depois: `04bff18ccb39d12f`
+
+## A-0232 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem círculos de dica em lado nenhum: os testes de browser verificam que não há círculos à vista e que o texto da dica passa ao title ao passar o rato
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra3LMmVgq4VTe6FMmd197hQs
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/visual/ajuda_junto_browser.py`
+- mudou: `tests/visual/boquilhas_catalog_browser.py`
+- mudou: `tests/visual/nok_agente_browser.py`
+
+Selo depois: `edb3c3048a671e2a`

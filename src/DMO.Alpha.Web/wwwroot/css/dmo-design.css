@@ -361,7 +361,7 @@ html body .beta-production-lines :is(strong,span){white-space:nowrap}
 html body .dmo-calendar .dmo-calendar-week{font:500 12px/1.4 var(--dmo-font,Inter,sans-serif);color:var(--dmo-muted);padding-bottom:6px;border-bottom:1px solid var(--dmo-border)}
 html body .dmo-calendar .dmo-calendar-days{gap:0}
 html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty){aspect-ratio:auto;min-height:38px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none;font-size:14px;font-weight:450}
-html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):is(:hover,:focus-visible){background:var(--dmo-brand-050)}
+html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){background:transparent}
 html body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected){border-radius:6px;border-bottom-color:transparent;background:var(--dmo-brand-600);color:var(--dmo-text-on-color);font-weight:650}
 /* No tiny uppercase kickers anywhere (mockups): labels in sentence case, 11–12px, muted.
    Table headings were already sentence case above. */
@@ -405,34 +405,6 @@ html body :is(.dmo-button,.button,.btn) {font-size:13px;padding:0 14px}
 /* Job On sheet: its header controls follow the same smaller height. */
 html body .jof2 .btn {height:var(--dmo-control-height);min-height:var(--dmo-control-height);font-size:13px}
 html body :is(.jof2 .pick-row .btn,.jof2 .head-acoes .btn,.jof2 .head-acoes summary.btn,.jof2 select.prod-select,.jof2 .ref-search input,.jof2 .prod-trigger) {height:var(--dmo-control-height);min-height:var(--dmo-control-height);font-size:13px;font-weight:600}
-
-/* Armazém › Registo (Owner, 26/10/2026, on mockup 06): three columns — tool type and search on the
-   left, the register form in the centre, the selected tool on the right; the log full width below.
-   The selected-tool card holds both the form and the tool's facts, so it is split with a grid. */
-@media (min-width:1100px){
-  html body #armRegisto{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:12px;align-items:start}
-  html body #armRegisto>*{grid-column:1/-1}
-  html body #armRegisto>#armMovProcura{grid-column:1}
-  html body #armRegisto:has(>#armMovFerramenta)>#armMovProcura{grid-row:1}
-  html body #armRegisto>#armMovFerramenta{grid-column:2;grid-row:1}
-  html body #armRegisto:not(:has(>#armMovFerramenta))>#armMovProcura{grid-column:1/-1}
-  html body #armMovProcura .arm-linha{flex-wrap:wrap}
-  html body #armMovProcura .arm-modo-direita{order:0;margin-left:0;flex:1 0 100%}
-  html body #armMovProcura .arm-procura{width:100%}
-  html body #armMovFerramenta[data-dmo-ferramenta]{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);column-gap:24px;align-items:start}
-  html body #armMovFerramenta[data-dmo-ferramenta]>*{grid-column:1/-1}
-  /* Right: the selected tool — its name (with «Corrigir») and where it is. */
-  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{grid-column:2;grid-row:1;padding-left:24px;border-left:1px solid var(--dmo-border);margin:0;padding-bottom:12px}
-  html body #armMovFerramenta[data-dmo-ferramenta]>.arm-onde{grid-column:2;grid-row:2;padding-left:24px;border-left:1px solid var(--dmo-border);margin:0;flex-direction:column;gap:10px}
-  html body #armMovFerramenta[data-dmo-ferramenta]>.arm-onde div{flex-direction:row;align-items:baseline;gap:12px}
-  html body #armMovFerramenta[data-dmo-ferramenta]>.arm-onde span{min-width:110px}
-  /* Centre: the register form, spanning the height of the tool facts. */
-  html body #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:1;grid-row:1/span 2}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha .dmo-field :is(input,select){width:100%}
-}
-@media (min-width:1100px){
-  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo h3{font-size:20px;font-weight:700;letter-spacing:-.02em}
-}
 
 /* Controlo › Resumo as mockup 04: search on one line; dates and approval as one strip; the
    combination as one row; Peso a wide pane on the left with Pegamentos and PU NNPB stacked on the
@@ -542,25 +514,6 @@ html body .peso-fact strong{font-size:18px}
   html body main .dmo-zona:has(>.beta-production-rail){margin:0}
 }
 
-/* Armazém › Registo as mockup 06: one card in three columns. Left: «Tipo de ferramenta» (CM · MF · BQ
-   as text choices) with the search below; centre: the register; right: the selected tool. The regions
-   keep their ids: #armRegisto only stops drawing a box of its own (display:contents). */
-@media (min-width:1100px){
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:0;align-items:stretch}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>*{grid-column:1/-1}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>.page-head{grid-row:1;margin-bottom:12px}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armMovAvisos{grid-row:2}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{grid-column:1;grid-row:3}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armRegisto{display:contents}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura{grid-column:1;grid-row:4}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta{grid-column:2;grid-row:3/span 2}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armLog{grid-column:1/-1;grid-row:5;margin-top:12px}
-  /* The three columns read as one card: shared edges, the left column divided by a hairline. */
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{background:var(--dmo-card);border:1px solid var(--dmo-border);border-right:0;border-bottom:0;border-radius:8px 0 0 0;padding:16px 20px 4px}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura{border-top:0;border-right:0;border-radius:0 0 0 8px;padding:8px 20px 16px;margin:0}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta{border-radius:0 8px 8px 0;margin:0}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{padding-left:20px;border-left:1px solid var(--dmo-border)}
-}
 /* «Tipo de ferramenta»: the rail drawn as three text choices, the chosen one filled. */
 html body #armTiposRail{display:block;margin:0;padding:0;border:0;background:none}
 html body #armTiposRail .beta-production-rail-head{display:block;padding:0 0 10px;border:0}
@@ -571,20 +524,6 @@ html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link) span{d
 html body #armTiposRail .beta-production-lines :is(button,.dmo-rail-link) strong{font-size:14px;font-weight:600;color:inherit}
 html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active){background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color)}
 html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) strong{color:var(--dmo-text-on-color)}
-@media (min-width:1100px){
-  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{flex-wrap:wrap;align-items:flex-start}
-  html body #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo::before{content:"Ferramenta selecionada";flex:1 0 100%;margin-bottom:8px;font-size:15px;font-weight:650;color:var(--dmo-text)}
-}
-@media (min-width:1100px){
-  /* Stronger than the earlier #armRegisto grid rules (same ids plus the page). */
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto:has(>#armMovFerramenta)>#armMovProcura{grid-column:1;grid-row:4}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto>#armMovFerramenta{grid-column:2;grid-row:3/span 2}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armRegisto>#armLog{grid-column:1/-1;grid-row:5}
-}
-@media (min-width:1100px){
-  /* Zones are display:contents by default; this one draws the left column's top box. */
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta])>#armTipos{display:block}
-}
 
 /* Owner, 26/10/2026: «ver se tem a informação toda que está na app». Nothing the app shows is hidden
    by this layer: page subtitles, rail subtitles, the linked-control notes and the Armazém search title
@@ -592,34 +531,6 @@ html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.
 html body :is(.page-head,.beta-light-heading)>div>p{margin:2px 0 0;font-size:12px;color:var(--dmo-muted)}
 @media (min-width:801px){
   html body .beta-production-rail-head span{display:inline;font-size:11px;color:var(--dmo-muted)}
-}
-@media (min-width:1100px){
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura>.dmo-card-topo{margin:0 0 8px}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovProcura>.dmo-card-topo h3{font-size:13px;font-weight:600;color:var(--dmo-muted)}
-}
-
-/* Armazém register as mockup 06: «Registar entrada» on the left, «Corrigir» and «Registar» on the right
-   of the same row; Entrada | Saída below; the fields in two columns. The entry line only stops
-   drawing a box (display:contents), so its fields and the submit button sit in the form's grid. */
-@media (min-width:1100px){
-  html body #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto;gap:10px 8px;align-content:start}
-  html body #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]>*{grid-column:1/-1}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-registar-topo{display:contents}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-registar-titulo{grid-column:1/3;grid-row:1;align-self:center;margin:0;font-size:16px;font-weight:650}
-  html body #armMovFerramenta[data-dmo-ferramenta] #armCorrigirBotao{grid-column:3;grid-row:1}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{display:contents}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>:is(button,.dmo-button){grid-column:4;grid-row:1}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.arm-modo{grid-column:1/-1;grid-row:2}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>div.dmo-field:nth-of-type(even){grid-column:1}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>div.dmo-field:nth-of-type(odd){grid-column:2/-1}
-  html body #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>div.dmo-field :is(input,select){width:100%}
-}
-@media (max-width:1099px){
-  html body .arm-registar-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
-  html body .arm-registar-titulo{margin:0;font-size:16px}
-}
-@media (min-width:1100px){
-  html body #armMovFerramenta[data-dmo-ferramenta] :is(#armCorrigirBotao,.arm-entrada-linha>button.dmo-button){align-self:center;margin:0}
 }
 
 /* Controlo › Revisão: section heads are plain titles over a hairline, not tinted or slate bars
@@ -815,10 +726,10 @@ html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.acti
 html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover{background:none}
 /* Regra geral (Diogo, 26/10/2026): no hover muda só a cor da letra, nunca um retângulo de fundo.
    Ficam de fora os botões, as linhas das tabelas, as escolhas (chips), o calendário e a gaveta de máquinas. */
-html body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.pu-check,.jof2 .del,.pu-remove,.peg-page .peg-x,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible){background:none !important;box-shadow:none !important;color:var(--dmo-brand-700)}
+html body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.jof2 .del,.pu-remove,.peg-page .peg-x,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible){background:none !important;box-shadow:none !important;color:var(--dmo-brand-700)}
 html body :is(a.dmo-fact.dmo-fact-link):is(:hover,:focus-visible) :is(span,strong,em){color:var(--dmo-brand-700)}
 html body :is(.jof2 .del,.pu-remove,.peg-page .peg-x):is(:hover,:focus-visible){color:var(--dmo-danger)}
-:root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.pu-check,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
+:root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
 :root[data-theme="dark"] body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible) :is(span,strong,em){color:#fff}
 /* Linhas das tabelas: o hover usa o mesmo azul da barra da esquerda, com letra branca (Diogo, 26/10/2026). */
 html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:var(--dmo-brand-600);color:#fff}
@@ -847,12 +758,6 @@ html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-ref,.ferr-w-lot,.f
 html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref>input{width:calc(4ch + 26px) !important;min-width:0}
 html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-lot,.ferr-w-qty,.ferr-w-uso)>input{width:calc(3ch + 26px) !important;min-width:0}
 html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-ref,.ferr-w-lot,.ferr-w-qty,.ferr-w-uso)>label{white-space:nowrap}
-/* Armazém › Registo como a maqueta 06 (Diogo, 27/10/2026): Tipo de ferramenta | Ferramenta selecionada | Registar. */
-@media (min-width:1100px){
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>:is(.dmo-card-topo,.arm-onde){grid-column:1;padding-left:20px;border-left:0}
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:2;grid-row:1/span 2;padding-left:24px;border-left:1px solid var(--dmo-border)}
-}
 /* Linhas compatíveis: seletor como os outros (opção 4 do Diogo, 27/10/2026: escolhida invertida), no dmo-botoes.css. */
 
 /* Menus suspensos (Funções, Opções): no hover só a letra muda; o selecionado

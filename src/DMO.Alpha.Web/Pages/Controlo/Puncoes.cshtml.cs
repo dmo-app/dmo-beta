@@ -152,6 +152,13 @@ public sealed class PuncoesModel : PageModel
     /// <summary>O registo mostrado na lista: o da produção ou o registo sem Job On.</summary>
     public PuncoesReadModel? Registo => Sheet?.Registo ?? Standalone?.Registo;
 
+    /// <summary>
+    /// A punção escolhida na lista (?inspecao=): depois de trocar um visto, a
+    /// mesma linha continua escolhida para o outro botão do canto (sem botões
+    /// nas linhas, Diogo, 27/10/2026).
+    /// </summary>
+    public int? EscolhidaInspecaoId => int.TryParse(Request.Query["inspecao"], out var escolhida) ? escolhida : null;
+
     /// <summary>A folha aceita registos: produção NNPB, um registo da produção, ou um registo sem Job On.</summary>
     public bool CanRegister => Sheet is { IsNnpb: true } || Sheet?.Registo is not null || Standalone is not null;
 
@@ -382,12 +389,21 @@ public sealed class PuncoesModel : PageModel
         [FromForm(Name = "puncoes_id")] int? puncoesId,
         [FromForm(Name = "inspecao_id")] int inspecaoId,
         [FromForm(Name = "campo")] string? field,
-        [FromForm(Name = "visto")] bool seen)
+        [FromForm(Name = "visto")] bool? seen)
     {
         var target = Target(controloId, puncoesId);
         var parsedField = field == "arrefecedor" ? PuncaoSeenField.Arrefecedor : PuncaoSeenField.Puncao;
+        // Sem «visto» (os botões do canto sem script), o servidor troca o
+        // estado que a punção tem.
         var result = await _handler.SetSeenAsync(target, inspecaoId, parsedField, seen, Operator(), HttpContext.RequestAborted);
-        return result == PuncoesResult.Success ? Back(target, "puncoes-lista") : Refused(target, result);
+        if (result != PuncoesResult.Success)
+        {
+            return Refused(target, result);
+        }
+
+        var route = TargetRoute(target);
+        route["inspecao"] = inspecaoId;
+        return RedirectToPage("/Controlo/Puncoes", null, route, "puncoes-lista");
     }
 
     public async Task<IActionResult> OnPostRemoveAsync(

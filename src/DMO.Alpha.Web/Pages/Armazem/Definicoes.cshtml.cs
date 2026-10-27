@@ -49,8 +49,6 @@ public sealed class DefinicoesModel(IReparadores reparadores) : PageModel
         _ => "nao-existe"
     };
 
-    /// <summary>O valor da escolha das famílias: «ambos», «cm» ou «mf».</summary>
-    public static string Familias(ReparadorItem r) => r.AplicaCm && r.AplicaMf ? "ambos" : r.AplicaCm ? "cm" : "mf";
 
     private static (bool Cm, bool Mf)? LerFamilias(string? valor) => valor switch
     {

@@ -436,6 +436,16 @@ html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
 /* REMOVER POR ENGANO (Diogo, 23/10/2026): a alteração de «O que mudou» abre com um clique; a removida desaparece. */
 .jobon-resumo li.is-abrivel{cursor:pointer}
 .jobon-resumo li.is-abrivel:hover,.jobon-resumo li.is-abrivel:focus-visible{background:var(--dmo-hover,#e6eef5)}
+/* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026): a alteração escolhe-se com um
+   clique e fica com a cor da linha escolhida das tabelas (dmo-botoes.css); a ação dela é o
+   botão do canto, à direita do título «O que mudou». */
+.jobon-mudancas{position:relative}
+html body .jobon-mudancas[open]:has(>.jobon-resumo-topo)>summary:not(#_){min-height:var(--dmo-control-height,40px);padding-block:0;display:flex;align-items:center;padding-right:220px}
+.jobon-resumo-topo{position:absolute;top:0;right:0;margin:0}
+.jobon-resumo li{cursor:pointer}
+.jobon-resumo li:hover,.jobon-resumo li:focus-visible{background:var(--dmo-row-hover)}
+.jobon-resumo li.selected,.jobon-resumo li.selected:hover{background:var(--dmo-brand-200);color:var(--dmo-text)}
+.jobon-resumo li.selected :is(strong,span){color:var(--dmo-text)}
 /* A procura encolhe para o botão das linhas ficar alinhado por cima do Imprimir
    e as duas filas terem a mesma largura (Diogo, 23/10/2026). */
 .jof2 .pick-block{display:grid;width:max-content}

@@ -32,7 +32,7 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
         <label for="armRepNome">Novo reparador</label>
         <input id="armRepNome" name="nome" maxlength="100" autocomplete="off" placeholder="Ex.: Moldes Lda" required />
       </div>
-      @* O reparador novo recebe CM e MF; muda-se na tabela (Diogo, 23/10/2026: «aqui não precisa do recebe»). *@
+      @* Os reparadores recebem CM e MF (Diogo, 27/10/2026: «os reparadores recebem tudo»). *@
       <input type="hidden" name="familias" value="ambos" />
     </form>
 
@@ -40,26 +40,15 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" data-dmo-list="Reparadores de CM e MF">
-          <thead><tr><th>Reparador</th><th>Recebe</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Reparador</th><th>Estado</th></tr></thead>
           <tbody>
           @foreach (var r in Model.Reparadores)
           {
-            var familias = DMO.Alpha.Web.Pages.Armazem.DefinicoesModel.Familias(r);
             <tr class="@(r.Ativo ? null : "arm-arquivado")" data-dmo-reparador="@r.Id">
               <td>
                 <form id="armRepNome-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
                   <input type="hidden" name="reparador_id" value="@r.Id" />
                   <input id="armRepNomeValor-@r.Id" class="dmo-valor" data-dmo-valor name="nome" value="@r.Nome" maxlength="100" autocomplete="off" aria-label="Nome do reparador @r.Nome" required />
-                </form>
-              </td>
-              <td>
-                <form id="armRepFamilias-@r.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="Mudar">
-                  <input type="hidden" name="reparador_id" value="@r.Id" />
-                  <select id="armRepRecebe-@r.Id" name="familias" data-dmo-autosubmit aria-label="O que recebe o reparador @r.Nome">
-                    <option value="ambos" selected="@(familias == "ambos")">CM e MF</option>
-                    <option value="cm" selected="@(familias == "cm")">Só CM</option>
-                    <option value="mf" selected="@(familias == "mf")">Só MF</option>
-                  </select>
                 </form>
               </td>
               <td>

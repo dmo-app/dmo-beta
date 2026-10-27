@@ -6,10 +6,9 @@ HTML exportado pelos testes HTTP reais (DMO_UI_EVIDENCE_DIR):
   python tests/visual/ajuda_junto_browser.py <pasta>
 Só ficheiros locais; nada vai ao DEV.
 
-No Planeamento (caixa «Produção» e «Criar Job On») e no Registar Reparação
-(«Histórico» e «Criar»), a 1400 px em claro e em escuro: o
-círculo fica a <= 0,5em da caixa ou do botão a que pertence, bem mais longe
-do que do seguinte, e com o topo acima do meio dele (elevado).
+No Planeamento (caixa «Produção») e no Registar Reparação («Histórico» e
+«Criar»), a 1400 px em claro e em escuro: sem círculos de dica à vista
+(Diogo, 27/10/2026) e, ao passar o rato, o texto da ajuda é o title do dono.
 """
 import mimetypes
 import sys
@@ -28,32 +27,10 @@ CASOS = [
     ('rp-ajuda.html', '/Ferramentas/ReparacaoProgramada', '#rpModoHistorico', '#rpModoHistorico + .dmo-help', None),
     ('rp-ajuda.html', '/Ferramentas/ReparacaoProgramada', '#rpCriarBotao', '#rpCriarBotao + .dmo-help', None),
 ]
-MEDIR = '''([dono, ajuda, seguinte]) => {
-  const d = document.querySelector(dono), a = document.querySelector(ajuda);
-  if (!d || !a) return null;
-  const caixa = d.matches('label') ? (() => { const r = document.createRange(); r.selectNodeContents(d.firstChild); return r.getBoundingClientRect(); })() : d.getBoundingClientRect();
-  const circulo = a.querySelector('.dmo-help-mark').getBoundingClientRect();
-  const em = parseFloat(getComputedStyle(a).fontSize);
-  const s = seguinte ? document.querySelector(seguinte).getBoundingClientRect() : null;
-  return { gapEm: (circulo.left - caixa.right) / em, ateSeguinte: s ? (s.left - circulo.right) / em : null,
-           elevado: d.matches('label') ? circulo.top < caixa.top + caixa.height / 2 : circulo.top <= caixa.top + caixa.height * 0.25, visivel: circulo.width > 0 };
-}'''
-
-# Todas as ajudas ao lado de texto (títulos de página, de cartão, rótulos): o mesmo
-# círculo (8px), a mesma folga à palavra (3px) e o topo 4px acima das maiúsculas
-# da letra do dono (Diogo, 23/10/2026: «da mesma forma posição para tudo»).
-MEDIR_TODAS = '''() => [...document.querySelectorAll('.dmo-help')].filter(a => a.getClientRects().length).map(a => {
-  let antes = a.previousSibling;
-  while (antes && antes.nodeType === 3 && !antes.textContent.trim()) antes = antes.previousSibling;
-  if (!antes || antes.nodeType !== 3) return null;
-  const texto = antes.textContent.trimEnd(), r = document.createRange();
-  r.setStart(antes, texto.length - 1); r.setEnd(antes, texto.length);
-  const letra = [...r.getClientRects()].pop(), circulo = a.querySelector('.dmo-help-mark').getBoundingClientRect();
-  const ctx = document.createElement('canvas').getContext('2d'); ctx.font = getComputedStyle(antes.parentElement).font;
-  const base = a.getBoundingClientRect().bottom, topoMaiusculas = base - ctx.measureText('H').actualBoundingBoxAscent;
-  return { dono: antes.parentElement.tagName + ' «' + texto.trim().slice(-20) + '»', tamanho: circulo.width,
-           folga: circulo.left - letra.right, topo: circulo.top - topoMaiusculas };
-}).filter(Boolean)'''
+# Sem círculos de dica (Diogo, 27/10/2026: «em lado nenhum»): nenhuma ajuda
+# fica à vista, e o texto dela passa ao title do dono ao passar o rato.
+VISIVEIS = "() => [...document.querySelectorAll('.dmo-help')].filter(a => a.getClientRects().length).map(a => getComputedStyle(a).display + ' ' + a.outerHTML.slice(0, 200))"
+TEXTO = "a => (a.querySelector('.dmo-help-tip')?.textContent || a.getAttribute('aria-label') || '').replace(/^Ajuda:\\s*/, '').trim()"
 
 falhas = []
 with sync_playwright() as playwright:
@@ -81,21 +58,20 @@ with sync_playwright() as playwright:
             context.route('**/*', fazer(html, caminho))
             page.goto('http://dmo.test' + caminho)
             page.wait_for_load_state('load')
-            for t in page.evaluate(MEDIR_TODAS):
-                if abs(t['tamanho'] - 8) > 0.1 or abs(t['folga'] - 3) > 0.6 or abs(t['topo'] + 4) > 1.5:
-                    falhas.append(f'{caminho} {tema} {t["dono"]}: círculo {t["tamanho"]:.1f}px, a {t["folga"]:.1f}px, topo {t["topo"]:+.1f}px das maiúsculas (esperado 8px, 3px, -4px)')
+            visiveis = page.evaluate(VISIVEIS)
+            if visiveis:
+                falhas.append(f'{caminho} {tema}: {len(visiveis)} círculo(s) de dica à vista: {visiveis}')
             alvos = [d.strip() for d in dono.split(',')]
-            m = page.evaluate(MEDIR, [next((d for d in alvos if page.locator(d).count()), alvos[-1]), ajuda, seguinte])
-            print(f'{caminho} {dono} {tema}: {m}')
-            if m is None or not m['visivel']:
+            alvo = next((d for d in alvos if page.locator(d).count()), alvos[-1])
+            if not page.locator(ajuda).count():
                 falhas.append(f'{caminho} {dono} {tema}: sem a ajuda')
             else:
-                if not -0.05 <= m['gapEm'] <= 0.5:
-                    falhas.append(f'{caminho} {dono} {tema}: a ajuda a {m["gapEm"]:.2f}em (máx. 0,5em)')
-                if m['ateSeguinte'] is not None and m['ateSeguinte'] < 2 * m['gapEm'] + 0.4:
-                    falhas.append(f'{caminho} {dono} {tema}: a ajuda está pouco afastada do seguinte ({m["ateSeguinte"]:.2f}em)')
-                if not m['elevado']:
-                    falhas.append(f'{caminho} {dono} {tema}: a ajuda não está elevada')
+                texto = page.locator(ajuda).first.evaluate(TEXTO)
+                page.locator(alvo).first.hover()
+                titulo = page.locator(alvo).first.evaluate("e => e.closest('[title]')?.getAttribute('title') || ''")
+                print(f'{caminho} {dono} {tema}: title «{titulo[:40]}»')
+                if not texto or titulo != texto:
+                    falhas.append(f'{caminho} {dono} {tema}: o texto da ajuda não passa ao title ({titulo!r} != {texto!r})')
             context.close()
     browser.close()
 

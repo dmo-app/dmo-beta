@@ -405,7 +405,8 @@ public sealed class MovimentosModel(
             MostraLog = true;
             AbreFicha = (await capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
             Log = await historico.ListarAsync(new ArmazemHistoricoFiltro(TipoFerramenta: tipo), Pagina, HttpContext.RequestAborted);
-            LinhasEUso = await movimentos.LinhasEUsoAsync(Log.Items.Select(m => m.ToolId).OfType<string>().ToList(), HttpContext.RequestAborted);
+            // Também a ferramenta aberta: a sua utilização vai para a barra da «Ferramenta selecionada».
+            LinhasEUso = await movimentos.LinhasEUsoAsync(Log.Items.Select(m => m.ToolId).Append(Situacao?.ToolId).OfType<string>().ToList(), HttpContext.RequestAborted);
             if (Pagina == 1)
             {
                 PorCriar = await lotesNovos.PorCriarAsync(tipo, HttpContext.RequestAborted);
