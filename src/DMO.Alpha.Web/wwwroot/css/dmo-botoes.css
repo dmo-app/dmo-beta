@@ -36,6 +36,8 @@ html[data-theme="dark"] body #dmoSupportFull:is(:hover,:active),html[data-theme=
    muito ligeiro no escuro e o azul um pouco mais claro no claro. */
 html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff);--dmo-escolhida-letra:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff)}
 html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#dde3eb}
+/* Paleta nova (27/10/2026, …MDH22Sm9uheCmJcmqHWZmb): no escuro as opções usam o azul de ação da paleta. */
+html[data-theme="dark"] body:not(#_){--dmo-opcao-fundo:var(--dmo-action);--dmo-opcao-contorno:var(--dmo-action)}
 
 /* Os rádios e as caixas escondidos: o rótulo é o botão. */
 html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label{position:relative;cursor:pointer}
