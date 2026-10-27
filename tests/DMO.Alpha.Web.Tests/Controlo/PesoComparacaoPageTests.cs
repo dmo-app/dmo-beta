@@ -513,7 +513,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("Sem par", html);
         Assert.Contains(">450.52<", html);   // a linha do CM «12» na tabela dos pares
         Assert.Contains(">326.06<", html);   // o CM «31» novo, sem contraparte
-        Assert.Contains("3 CM medido(s)", html);
+        Assert.Contains("3 CM medidos", html);
         Assert.Contains("Pré-visualização não guardada", html);
 
         // ZERO escrita: a comparação ao vivo não cria registo nenhum.
@@ -563,7 +563,8 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         // O registo aparece no histórico com o tipo Comparação.
         var historico = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&tipo=Comparacao");
         Assert.Contains("Comparação", historico);
-        Assert.Contains("1 contra-moldes", historico);
+        // Sem a coluna Resumo (Diogo, 27/10/2026): o resumo da comparação já não está na lista.
+        Assert.DoesNotContain("1 contra-moldes", historico);
     }
 
     [Fact]
@@ -711,7 +712,8 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         // filtros não lista nada; a procura pela referência traz os três tipos.
         var vazio = await GetPageHtmlAsync(client, $"{PagePath}?historico=1");
         Assert.Contains("Histórico do Controlo", vazio);
-        Assert.Contains("Pesquise por referência (e depois a produção), ferramenta, tipo ou data.", vazio);
+        // Sem texto de ajuda (Diogo, 27/10/2026).
+        Assert.DoesNotContain("Pesquise por referência", vazio);
         Assert.DoesNotContain("Escreva primeiro a referência", vazio);
         Assert.Contains("<option value=\"\">Produção</option>", vazio);
         Assert.DoesNotContain(">Peso</td>", vazio);
@@ -955,7 +957,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
 
         // O resultado existe, só com a leitura utilizável.
         Assert.Contains("Peso do vidro · controlo inicial / novas leituras", html);
-        Assert.Contains("1 CM medido(s)", html);
+        Assert.Contains("1 CM medido.", html);
         Assert.Contains(">450.52<", html);
 
         // O aviso (estilo de aviso, não de recusa) diz quais ficaram de fora.

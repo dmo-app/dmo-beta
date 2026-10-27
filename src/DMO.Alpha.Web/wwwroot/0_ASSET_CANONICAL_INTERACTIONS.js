@@ -1616,7 +1616,10 @@
     const dialog = opener && document.getElementById(opener.dataset.dmoDialog);
     if (dialog && typeof dialog.showModal === "function") {
       // Aberta a partir das «Opções», o dropdown fecha por trás da janela.
-      opener.closest("details[open]")?.removeAttribute("open");
+      // Um cartão dobrável (o Histórico de produções da ficha) fica aberto:
+      // fechado, escondia a tabela e a janela que lá está.
+      const menu = opener.closest("details[open]");
+      if (menu && !menu.matches(".dmo-card-dobravel > details")) menu.removeAttribute("open");
       // Um <a href="#id"> que abre a janela não segue o link: a âncora nova
       // dispararia o popstate, que recarrega a página (Eliminar Job On).
       event.preventDefault();

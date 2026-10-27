@@ -57,6 +57,13 @@ public sealed class IndexModel : PageModel
     /// <summary>O % uso da última leitura das ferramentas desta página (para a cor do uso cheio).</summary>
     public IReadOnlyDictionary<string, decimal> Usos { get; private set; } = new Dictionary<string, decimal>();
 
+    // Onde está e o estado de cada ferramenta da página, da mesma fonte da
+    // ficha e do Job On (Diogo, 27/10/2026: «mostrar o estado, posição no
+    // armazém, reparado, por reparar»).
+    private readonly IJobOnToolFactsQuery _factos;
+    public IReadOnlyDictionary<string, JobOnToolFacts> Factos { get; private set; } = new Dictionary<string, JobOnToolFacts>();
+    public JobOnToolFacts? FactosDe(string toolId) => Factos.TryGetValue(toolId, out var f) ? f : null;
+
     public decimal? UsoDe(string toolId) => Usos.TryGetValue(toolId, out var uso) ? uso : null;
 
     /// <summary>O % uso escrito, de volta numa recusa.</summary>
@@ -78,8 +85,10 @@ public sealed class IndexModel : PageModel
         IToolLotQuantitySettings lotQuantities,
         IEditToolTechnicalValuesHandler editTechnical,
         DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos,
-        IFerramentasUsoSap usoSap)
+        IFerramentasUsoSap usoSap,
+        IJobOnToolFactsQuery factos)
     {
+        _factos = factos;
         _usoSap = usoSap;
         _lotesNovos = lotesNovos;
         _editTechnical = editTechnical;
@@ -293,6 +302,8 @@ public sealed class IndexModel : PageModel
             var page = await _candidateQuery.FindPageAsync(filter, pageNumber ?? 1, pageSize ?? 10, HttpContext.RequestAborted);
             Candidates = page.Items;
             Usos = await _usoSap.UltimasPercentagensAsync(page.Items.Select(c => c.ToolId).ToList(), HttpContext.RequestAborted);
+            Factos = (await _factos.FindAsync(page.Items.Select(c => c.ToolId).ToList(), null, null, null, null, HttpContext.RequestAborted))
+                .ToDictionary(f => f.ToolId, StringComparer.Ordinal);
             TotalCandidates = page.TotalCount;
             PageNumber = page.PageNumber;
             PageSize = page.PageSize;

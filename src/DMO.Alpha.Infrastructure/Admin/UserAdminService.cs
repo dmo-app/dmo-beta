@@ -148,33 +148,34 @@ public sealed class UserAdminService : IUserAdminService
             return Refused(CreateDmoUserResult.DuplicateOperator);
         }
 
-        // O email é a identidade a provisionar no Auth provider e fica
-        // guardado em User.Email como rótulo visível.
-        var email = command.Email?.Trim();
-        if (string.IsNullOrEmpty(email))
+        // O EMAIL É OPCIONAL (Diogo, 26/10/2026,
+        // cmsg_01K75FTs9bQnbhhH7qttpgraEMxzGkVktKoK7yyAw6RnoU: «uma conta
+        // não precisa de email para login a não ser o admin»): a conta entra
+        // pelo nº de operador. Sem email, a identidade no Auth provider nasce
+        // com o endereço técnico <nº>@dmo.local (o mesmo que o login por nº
+        // já usa nas contas sem email) e User.Email fica vazio.
+        var email = TrimToNull(command.Email);
+        if (email is not null)
         {
-            return Refused(CreateDmoUserResult.MissingEmail);
-        }
+            // O email do ADMIN (Definições) nunca nasce como User normal. A
+            // verificação corre ANTES do provisionamento: assim nenhuma
+            // identidade fica criada no provider sem User no DMO.
+            if (await IsAdminEmailAddressAsync(email, cancellationToken))
+            {
+                return Refused(CreateDmoUserResult.AdminUserRefused);
+            }
 
-        // O email do ADMIN (Definições) nunca nasce como User normal. A
-        // verificação corre ANTES do provisionamento: assim nenhuma
-        // identidade fica criada no provider sem User no DMO (a identidade
-        // seria a do futuro ADMIN, com uma password que ninguém conhece).
-        if (await IsAdminEmailAddressAsync(email, cancellationToken))
-        {
-            return Refused(CreateDmoUserResult.AdminUserRefused);
-        }
-
-        // O email já é de um User da app: recusa antes do provider, com o
-        // dono, para a mensagem dizer qual é (a lista pode estar paginada).
-        var normalizedEmail = email.ToLowerInvariant();
-        var owner = await _dbContext.Users.AsNoTracking()
-            .Where(u => u.Email != null && u.Email.ToLower() == normalizedEmail)
-            .Select(u => new ExistingEmailOwner(u.Name, u.OperatorId))
-            .FirstOrDefaultAsync(cancellationToken);
-        if (owner is not null)
-        {
-            return new CreateDmoUserOutcome(CreateDmoUserResult.EmailInUseByUser, EmailOwner: owner);
+            // O email já é de um User da app: recusa antes do provider, com o
+            // dono, para a mensagem dizer qual é (a lista pode estar paginada).
+            var normalizedEmail = email.ToLowerInvariant();
+            var owner = await _dbContext.Users.AsNoTracking()
+                .Where(u => u.Email != null && u.Email.ToLower() == normalizedEmail)
+                .Select(u => new ExistingEmailOwner(u.Name, u.OperatorId))
+                .FirstOrDefaultAsync(cancellationToken);
+            if (owner is not null)
+            {
+                return new CreateDmoUserOutcome(CreateDmoUserResult.EmailInUseByUser, EmailOwner: owner);
+            }
         }
 
         // Atribuição opcional: resolve SEMPRE pela identidade estável
@@ -205,7 +206,8 @@ public sealed class UserAdminService : IUserAdminService
         //    saia: cortado durante a ida ao provider, a identidade ficava
         //    criada sem User e repetir dava «email já existe» (deep sweep,
         //    18/10/2026).
-        var provisioning = await _provisioningProvider.CreateAsync(email, temporaryPassword, CancellationToken.None);
+        var provisioning = await _provisioningProvider.CreateAsync(
+            email ?? OperatorProviderEmail(operatorId), temporaryPassword, CancellationToken.None);
         if (provisioning.Status != UserProvisioningCreateStatus.Success
             || provisioning.ProviderUserId is not { } providerUserId)
         {
@@ -263,7 +265,7 @@ public sealed class UserAdminService : IUserAdminService
             new CreatedDmoUser(
                 name,
                 operatorId,
-                email,
+                email ?? string.Empty,
                 temporaryPassword,
                 template?.TemplateKey,
                 template?.Name));
@@ -310,7 +312,7 @@ public sealed class UserAdminService : IUserAdminService
         if (reset.Status == UserProvisioningResetStatus.IdentityNotFound)
         {
             // Recover the existing DMO user, not a second application account.
-            // A missing email must be completed on the user card first.
+            // Sem email não há como recriar a identidade aqui.
             var email = TrimToNull(user.Email);
             if (email is null)
                 return new ResetUserAccessOutcome(ResetUserAccessResult.IdentityNotFound);
@@ -537,6 +539,12 @@ public sealed class UserAdminService : IUserAdminService
             template.TemplateKey,
             template.Name);
     }
+
+    /// <summary>
+    /// O endereço técnico da identidade de uma conta sem email: o mesmo que
+    /// o login por nº de operador usa (DmoSignInService).
+    /// </summary>
+    private static string OperatorProviderEmail(string operatorId) => $"{operatorId}@dmo.local";
 
     /// <summary>
     /// Whether an email IS the ADMIN's email — the value kept in the

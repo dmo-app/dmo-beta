@@ -795,7 +795,9 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
             Assert.Contains("name=\"desde\" type=\"date\"", blank);
             Assert.Contains("name=\"ate\" type=\"date\"", blank);
             Assert.DoesNotContain("<td>Saída</td>", blank);
-            Assert.DoesNotContain("BQ T188 · Lote 8", blank);
+            // A BQ em máquina aparece nas linhas do topo (Diogo, 27/10/2026); a lista fica vazia.
+            var lista = blank[blank.IndexOf("id=\"bqHistLista\"", StringComparison.Ordinal)..];
+            Assert.DoesNotContain("BQ T188 · Lote 8", lista);
             Assert.Contains("<span>Saídas</span><strong>0</strong>", blank);
             // O calendário do mês continua lá.
             Assert.Contains("class=\"card dmo-calendar\"", blank);

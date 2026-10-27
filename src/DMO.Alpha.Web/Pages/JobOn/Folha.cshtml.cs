@@ -460,13 +460,13 @@ public sealed class FolhaModel(
     private async Task ComporPaginaAsync()
     {
         ViewData["Title"] = "Job On";
+        var ct = HttpContext.RequestAborted;
+        PodeEditar = await capabilities.HasAsync(DmoCapabilities.JobOnCreate, ct);
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = "jobon",
-            Functions = await shellState.PlanningFunctionsAsync("jobon")
+            Functions = await shellState.PlanningFunctionsAsync("jobon", ct, soVer: !PodeEditar)
         };
-        var ct = HttpContext.RequestAborted;
-        PodeEditar = await capabilities.HasAsync(DmoCapabilities.JobOnCreate, ct);
         VeControlo = await capabilities.HasAsync(DmoCapabilities.ControloCreate, ct)
             || await capabilities.HasAsync(DmoCapabilities.ControloApprove, ct);
         VeBoquilhas = await capabilities.HasAsync(DmoCapabilities.Boquilhas, ct);

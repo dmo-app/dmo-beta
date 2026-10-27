@@ -60,7 +60,7 @@
 .jof2 .ref-search input:focus,.jof2 .prod-select:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 .jof2 .ref-search input:disabled,.jof2 .prod-select:disabled{background:var(--dmo-subtle);color:var(--dmo-text);opacity:1;cursor:not-allowed}
 .jof2 .btn{box-sizing:border-box;height:40px;min-height:40px;padding:0 16px;border:1px solid var(--btn,var(--dmo-brand-600));border-radius:var(--r-control);background:var(--btn,var(--dmo-brand-600));color:#fff;font-size:14px;font-weight:600;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;transition:background var(--fast),color var(--fast)}
-.jof2 .btn:hover,.jof2 .btn:focus-visible{background:var(--dmo-card);color:var(--btn,var(--dmo-brand-600));outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+.jof2 .btn:hover{background:var(--dmo-card);color:var(--btn,var(--dmo-brand-600));outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 :root[data-theme="dark"] .jof2 .btn:not(.ghost):not(:hover):not(:focus-visible){background:#4b6387;border-color:#4b6387}
 .jof2 .btn.ghost{background:var(--dmo-card);color:var(--dmo-brand-600)}
 .jof2 .btn:disabled{--btn:#cbd5df;background:#cbd5df;color:#fff;cursor:not-allowed;box-shadow:none}
@@ -1091,6 +1091,64 @@ html body .jfi-folha .jfi-verif td{height:5.6mm}
 .jfi-assinar{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
 html body .jfi-folha .jfi-t th,html body .jfi-folha .jfi-t td{white-space:normal;overflow:hidden;text-overflow:clip;word-break:normal;overflow-wrap:break-word;hyphens:manual}
 html body .jfi-folha .jfi-kv th{font-size:7.8pt;padding-left:1.2mm;padding-right:1mm}
+/* ===== Cartões dos componentes (Diogo, 27/10/2026) ===================== */
+/* As siglas todas iguais, sem fundo: a CM, o MF e a BQ sem ferramenta
+   ficavam com um realce que o PU não tinha («efeito de CM MF não está bem»). */
+html:root body .jof2 .tool-empty .code{background:transparent;color:var(--dmo-text)}
+/* O valor junto ao rótulo, não encostado à direita do cartão. */
+html:root body .jof2:not(.editing) .kv{grid-template-columns:max-content minmax(0,1fr);column-gap:10px}
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"])>.kv{grid-template-columns:max-content minmax(0,1fr) max-content minmax(0,1fr);column-gap:10px}
+html:root body .jof2:not(.editing) .kv dd{text-align:left}
+html:root body .jof2:not(.editing) .dims :is(th,td):not(:first-child){text-align:left}
+html:root body .jof2 .jof-tol{font-weight:500;color:var(--dmo-muted)}
+/* A referência na cabeça do cartão numa só linha (o «C142» partia-se). */
+html:root body .jof2 .sec-head .hv,html:root body .jof2 .sec-head .hv b{white-space:nowrap}
+/* As Notas com o mesmo espaço em todos os cartões (2 a 3 linhas), vazias
+   ou escritas; nunca por cima da «Informação técnica» («dar algum espaço
+   para escrever nas notas»). */
+html:root body .jof2 .note-box.note-view,html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view{flex:0 0 auto;height:auto;min-height:0}
+html:root body .jof2 .note-box.note-view>p{flex:0 0 auto;box-sizing:border-box;min-height:56px;max-height:56px;margin:0;overflow:hidden}
+html:root body .jof2 .note-box.note-view:not(.is-empty)>p{overflow:auto}
+html:root body .jof2 .note-box.note-edit>textarea.dmo-valor,html:root body .jof2 .note-edit.is-empty textarea.dmo-valor:not(:focus){min-height:56px;height:56px}
+/* As três Folgas com espaço igual entre elas. */
+html:root body .jof2:not(.editing) .folgas{gap:10px}
+html:root body .jof2:not(.editing) .folga{min-width:48px;text-align:center}
+html:root body .jof2.editing .folgas{gap:8px}
+/* A imagem do artigo encaixa no espaço sem cortar nem deformar, alta ou larga. */
+html:root body .jof2 .jof-artigo{overflow:hidden}
+html:root body .jof2 .jof-artigo img{width:100% !important;height:100% !important;max-width:100% !important;max-height:100% !important;object-fit:contain}
+/* A CS como o PU: a referência com o rótulo, por baixo do nome, dentro do cartão. */
+html:root body .jof2 [data-jof-familia="CS"] .sec-head{flex-wrap:wrap!important;row-gap:2px}
+html:root body .jof2 [data-jof-familia="CS"] .sec-head .hv>small{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}
+/* No Editar também: as Notas com a mesma altura em todos os cartões. */
+html:root body .jof2.editing .note-box.note-edit{flex:0 0 auto;min-height:0}
+html:root body .jof2.editing .note-box.note-edit>textarea.dmo-valor{flex:0 0 auto;box-sizing:border-box;min-height:56px;height:56px}
+
+/* Artigo numa coluna estreita à direita (Diogo, 27/10/2026, opção B): os
+   cartões dos componentes ganham largura; a imagem fica alta e inteira. */
+@media (min-width:1181px){
+html:root body .jof2 .sheet,html:root body .jof2.editing .sheet{grid-template-columns:minmax(0,1fr) 200px!important;gap:10px}
+html:root body .jof2 .side .jof-artigo{height:200px!important}
+}
+
+/* Notas com espaço (Diogo, 27/10/2026: «continua sem espaço para notes»):
+   no TP, na CS e no PI a caixa vai por baixo do rótulo, com a mesma altura
+   dos outros cartões; as Notas gerais ocupam o resto da coluna. */
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view{flex-direction:column!important;align-items:stretch!important;gap:2px!important;height:auto!important;min-height:0!important}
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view>p{min-height:56px!important;max-height:56px;flex:0 0 auto!important}
+html:root body .jof2 .side>.notes{flex:1 1 auto;min-height:130px}
+html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 auto;min-height:76px}
+/* As quatro colunas alinhadas (Diogo, 26/10/2026): a CS começa onde começa a
+   MF e os Calibres onde começam BQ e AN, com a largura dos outros cartões.
+   O espaço entre TP, CS e Calibres reparte-se pelos dois lados (2 + 2 px)
+   em vez de empurrar a CS e os Calibres 8 px para a direita. */
+@media (min-width:640px){
+html:root body .jof2.jof2 .zones [data-jof-familia="TP"]{margin-right:2px}
+html:root body .jof2.jof2 .zones [data-jof-familia="CS"]{margin-left:2px;margin-right:2px}
+html:root body .jof2.jof2 .zones .g-cal{margin-left:2px}
+}
+/* A linha na cor da máquina, só na letra, sem caixa à volta. */
+html:root body .jof2 .fv .mch[data-jof-linha]{background:none!important;color:var(--dmo-machine-color,var(--dmo-text))!important;padding:0 4px;min-width:0;font-size:18px;font-weight:800;border:0;box-shadow:none}
 /* O IMPRIMIR A PRETO E BRANCO (Diogo, 27/10/2026, PDF «Job-On 9395T194 Redesign
    Preto Branco»): faixa preta nas barras e na Linha, cinzento claro nos factos e
    nas Notas gerais, linhas finas cinzentas; o que falta fica com traço para

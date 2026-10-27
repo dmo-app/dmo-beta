@@ -44,7 +44,8 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
         int pageSize = ListPaging.DefaultPageSize,
         CancellationToken cancellationToken = default,
         bool semJobOn = false,
-        string? productionReference = null)
+        string? productionReference = null,
+        string? lote = null)
     {
         // A PAGINAÇÃO NA QUERY sobre várias tabelas: cada tipo devolve a sua
         // contagem e, no máximo, as linhas até ao fim da página pedida (já
@@ -56,7 +57,8 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             Texto(productionNumber),
             Texto(productionReference)?.ToUpperInvariant(),
             ReferenceMatch.Normalize(tool),
-            data is { } dia ? DiaDeLisboa(dia) : null);
+            data is { } dia ? DiaDeLisboa(dia) : null,
+            Texto(lote)?.ToUpperInvariant());
         var requested = Math.Clamp(pageNumber ?? 1, 1, int.MaxValue / pageSize);
         var (items, total) = await SearchCoreAsync(filtro, tipo, semJobOn, requested * pageSize, cancellationToken);
         var page = ListPaging.ClampPage(pageNumber, total, pageSize);
@@ -120,7 +122,8 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
         string? Producao,
         string? ReferenciaDaProducao,
         string? Ferramenta,
-        (DateTime DesdeUtc, DateTime AteUtc)? Dia);
+        (DateTime DesdeUtc, DateTime AteUtc)? Dia,
+        string? Lote = null);
 
     /// <param name="limit">null = sem limite; N = no máximo N linhas de cada tipo (0 = só a contagem).</param>
     private async Task<(IReadOnlyList<ControloHistorySearchItem> Items, int Total)> SearchCoreAsync(
@@ -304,6 +307,11 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             filtro.Ferramenta,
             p => p.CmToolReferenceFrozen,
             p => p.CmTool.Reference);
+        // O lote da CM (Diogo, 27/10/2026: «falta lote»), congelado ou o corrente.
+        if (filtro.Lote is { } lotePeso)
+        {
+            pesos = pesos.Where(p => (p.CmToolLotFrozen ?? p.CmTool.Lot).ToUpper() == lotePeso);
+        }
         pesos = PesosDoDia(pesos, filtro);
 
         var (rows, total) = await ReadAsync(
@@ -405,6 +413,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             g => g.CmToolReferenceFrozen,
             g => g.BqToolReferenceFrozen,
             g => g.MfToolReferenceFrozen);
+        pegamentos = ComLote(pegamentos, filtro.Lote);
         pegamentos = PegamentosDoDia(pegamentos, filtro);
 
         var (rows, total) = await ReadAsync(
@@ -487,7 +496,11 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             _db.Tools.AsNoTracking().Where(x => x.ToolId != ToolRegistryConstants.RemovedToolId),
             filtro.Ferramenta,
             t => t.Reference);
-        var porFerramenta = filtro.Ferramenta is not null;
+        if (filtro.Lote is { } loteResumo)
+        {
+            ferramentas = ferramentas.Where(t => t.Lot.ToUpper() == loteResumo);
+        }
+        var porFerramenta = filtro.Ferramenta is not null || filtro.Lote is not null;
         // O estado de cada controlo pela regra única (ControloAprovacao).
         var controlos = ControloAprovacao.Estados(_db);
         if (filtro.Dia is { } dia)
@@ -543,6 +556,13 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             : "Por aprovar") { CmToolId = row.CmToolId }).ToList(), total);
     }
 
+    /// <summary>Os Pegamentos com uma das ferramentas (CM, BQ ou MF) desse lote.</summary>
+    private static IQueryable<Pegamentos> ComLote(IQueryable<Pegamentos> pegamentos, string? lote) =>
+        lote is null ? pegamentos : pegamentos.Where(g =>
+            (g.CmToolLotFrozen != null && g.CmToolLotFrozen.ToUpper() == lote)
+            || (g.BqToolLotFrozen != null && g.BqToolLotFrozen.ToUpper() == lote)
+            || (g.MfToolLotFrozen != null && g.MfToolLotFrozen.ToUpper() == lote));
+
     /// <summary>A nota do «Não aprovar» cabe na linha da lista; inteira, no Resumo.</summary>
     private static string NotaCurta(string? nota) =>
         nota is null ? "" : " · " + (nota.Length <= 80 ? nota : nota[..79].TrimEnd() + "…");
@@ -569,6 +589,10 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             p => p.BqToolReferenceFrozen,
             p => p.BqTool.Reference);
         pesos = ComReferencia(pesos, filtro.Ferramenta, p => p.CmToolReferenceFrozen, p => p.CmTool.Reference);
+        if (filtro.Lote is { } loteSemJobOn)
+        {
+            pesos = pesos.Where(p => (p.CmToolLotFrozen ?? p.CmTool.Lot).ToUpper() == loteSemJobOn);
+        }
         pesos = PesosDoDia(pesos, filtro);
 
         var (rows, total) = await ReadAsync(
@@ -619,6 +643,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 g => g.BqToolReferenceFrozen,
                 g => g.MfToolReferenceFrozen);
         }
+        pegamentos = ComLote(pegamentos, filtro.Lote);
         pegamentos = PegamentosDoDia(pegamentos, filtro);
 
         var (rows, total) = await ReadAsync(
@@ -671,6 +696,10 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             _db.PesoComparacoes.AsNoTracking(),
             filtro.Ferramenta,
             x => x.CmToolReferenceFrozen);
+        if (filtro.Lote is { } loteComparacao)
+        {
+            comparacoes = comparacoes.Where(x => x.CmToolLotFrozen != null && x.CmToolLotFrozen.ToUpper() == loteComparacao);
+        }
         if (filtro.Dia is { } dia)
         {
             var (desde, ate) = dia;

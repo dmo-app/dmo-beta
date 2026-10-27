@@ -6,26 +6,50 @@
 }
 @section Head {
 <style>
-.dfu-page{max-width:1000px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
-.dfu-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.dfu-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
-.dfu-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
-.dfu-card{padding:18px}
-.dfu-card h3{margin:0 0 4px;font-size:16px}
-.dfu-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
-.dfu-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+/* DESIGN NOVO (Diogo, 26/10/2026): um só cartão. Em cima, o nome e o nº;
+   por baixo, os factos numa faixa com linhas finas; no fundo, separados por
+   uma linha, as ações de acesso e o PIN do posto lado a lado. Cabe em
+   1366×768, claro e escuro (só tokens da casa). */
+.dfu-page{max-width:1040px;margin:0 auto;padding:16px 24px 24px;display:grid;gap:12px}
+.dfu-page .page-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.dfu-page .page-head h2{margin:0;font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
+.dfu-card{padding:16px 18px;display:grid;gap:12px}
+.dfu-card h3{margin:0;font-size:18px;font-weight:650;color:var(--dmo-text)}
+.dfu-card .dfu-factos{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1.3fr) minmax(0,1fr)}
+.dfu-card .dfu-factos .dmo-fact strong{font-size:14px}
+/* No hover muda só a cor da letra, sem retângulo de fundo (Diogo, 26/10/2026,
+   cmsg_01K75FTs9bQnbhhH7qttpgraBq23Bc1M3GxhQ5PYmXcJXi). */
+html body .dfu-card a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible){background:none}
+html body .dfu-card a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>:is(strong,em){color:var(--dmo-brand-700)}
+/* «Editar template» na linha dos rótulos, à direita de «Template atual»: os
+   valores ficam todos na mesma linha (Diogo, 26/10/2026,
+   cmsg_01K75FTs9bQnbhhH7qttpgra5rAfZJ2qigTHBqYaEz8XNf). */
+html body .dfu-card a.dmo-fact.dmo-fact-link{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-content:start}
+html body .dfu-card a.dmo-fact.dmo-fact-link>span{grid-column:1;grid-row:1;white-space:nowrap}
+html body .dfu-card a.dmo-fact.dmo-fact-link>em{grid-column:2;grid-row:1;margin:0;align-self:baseline;font-size:11px;line-height:inherit;white-space:nowrap}
+html body .dfu-card a.dmo-fact.dmo-fact-link>strong{grid-column:1/-1;grid-row:2}
+.dfu-baixo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding-top:12px;border-top:1px solid var(--dmo-border)}
+.dfu-parte{display:grid;gap:8px;align-content:start;padding:0 20px;border-left:1px solid var(--dmo-border)}
+.dfu-parte:first-child{padding-left:0;border-left:0}
+.dfu-parte .dmo-zona{margin:0}
+.dfu-parte h4{margin:0;font-size:14px;font-weight:650;color:var(--dmo-text)}
 .dfu-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
-.dfu-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+.dfu-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:8px}
 /* A GRAMÁTICA DAS FOLHAS: os botões no INÍCIO — as ações vestem a linha
    de cima da secção, o texto DIRETO (sem «Abrir»). */
-.dfu-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.dfu-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
 .dfu-actions form{display:flex;gap:8px;align-items:end;margin:0}
-.dfu-nota{padding:11px 13px;border-left:4px solid var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#e8eff7);border-radius:8px;margin-top:14px}
-.dfu-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
-.dfu-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
-.dfu-select{min-width:220px}
+.dfu-nota{padding:10px 12px;border:1px solid var(--dmo-border);background:var(--dmo-subtle);border-radius:8px;color:var(--dmo-muted)}
+.dfu-cancel{font-size:13px;color:var(--dmo-muted);font-weight:600;text-decoration:none}
+.dfu-cancel:hover{color:var(--dmo-brand-700)}
+.dfu-select{min-width:200px}
 .dfu-danger{background:var(--dmo-danger,#9a625d)}
 .dfu-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
+@@media (max-width:900px){
+  .dfu-card .dfu-factos{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:8px}
+  .dfu-baixo{grid-template-columns:minmax(0,1fr);row-gap:14px}
+  .dfu-parte{padding:0;border-left:0}
+}
 /* O PIN temporário de um repor, na pilha do canto (o mesmo da lista). */
 .dmu-entrega{display:grid;gap:8px}
 .dmu-entrega h3{margin:0;font-size:15px}
@@ -95,70 +119,33 @@
 
   @if (Model.SelectedUser is { } user)
   {
-    @* ------------------------------------------------------------------ *@
-    @* 1. OS FACTOS HUMANOS — o que o chão da fábrica reconhece.           *@
-    @* ------------------------------------------------------------------ *@
-    <div id="dfuFactos" class="dmo-zona" data-dmo-regiao>
     <section class="dmo-card dfu-card" aria-labelledby="dfu-facts-title">
+      @* 1. QUEM É. *@
       <h3 id="dfu-facts-title">@user.Name — nº @user.OperatorId</h3>
-      <div class="dmo-facts">
-        <div class="dmo-fact-stack">
-          <div class="dmo-fact"><span>Nome</span><strong>@user.Name</strong></div>
-          <div class="dmo-fact"><span>Nº de operador</span><strong>@user.OperatorId</strong></div>
-        </div>
-        <div class="dmo-fact-stack">
-          <div class="dmo-fact"><span>Email</span><strong>@(user.Email ?? "sem email associado")</strong></div>
-          <div class="dmo-fact"><span>Criado em</span><strong>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(user.CreatedAt).ToString("g", pt)</strong></div>
-        </div>
-        <div class="dmo-fact-stack">
-          @* O cartão da template abre-a para editar (Diogo, 17/10/2026). *@
-          @if (!user.IsAdmin && user.CurrentTemplateKey is { } templateKey)
-          {
-            <a class="dmo-fact dmo-fact-link" href="@Url.Page("/Admin/Templates/Index", new { template = templateKey })"
-               aria-label="Editar a template @user.CurrentTemplateName"><span>Template atual</span><strong>@(user.CurrentTemplateName ?? templateKey)</strong><em>Editar template</em></a>
-          }
-          else
-          {
-            <div class="dmo-fact"><span>Template atual</span><strong>@(user.IsAdmin ? "ADMIN" : "Sem template")</strong></div>
-          }
-        </div>
-        <div class="dmo-fact-stack">
-          <div class="dmo-fact"><span>Estado</span><strong>@(user.IsStandBy ? "Arquivado" : "Ativo")</strong></div>
-          <div class="dmo-fact"><span>Mudança de palavra-passe</span><strong>@(user.RequiresPasswordChange ? "Obrigatória — PIN temporário" : "Palavra-passe definida")</strong></div>
-        </div>
-      </div>
-    </section>
-    </div>
 
-    @if (!user.IsAdmin)
-    {
-      <section class="dmo-card dfu-card" aria-labelledby="dfu-pin-title">
-        <h3 id="dfu-pin-title">PIN do posto de Reparação<partial name="_DmoHelp" model="@("Com o PIN, quem tem a Reparação Interna (ver ou criar) entra pelo botão «Reparação» do login, sem palavra-passe. De 4 a 12 algarismos; guarda-se só o hash. Escolher um PIN novo substitui o anterior.")" /></h3>
-        <form method="post" asp-page="/Admin/Users/Ficha" asp-page-handler="PinPosto" class="dfu-actions">
-          <input type="hidden" name="operator_id" value="@user.OperatorId" />
-          <div class="dmo-field">
-            <label for="dfu-pin">@(Model.TemPinPosto ? "PIN novo (já tem PIN)" : "PIN (ainda não tem)")</label>
-            <input id="dfu-pin" name="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="12" />
-          </div>
-          <button type="submit" class="dmo-button" id="dfu-pin-guardar">Guardar</button>
-        </form>
-        @if (Model.PinMensagem is { } pinMensagem)
+      @* ------------------------------------------------------------------ *@
+      @* 2. OS FACTOS — numa faixa. Sem email: a conta entra pelo nº de       *@
+      @*    operador e não precisa de email, só o ADMIN (Diogo, 26/10/2026,  *@
+      @*    cmsg_01K75FTs9bQnbhhH7qttpgraEMxzGkVktKoK7yyAw6RnoU).             *@
+      @* ------------------------------------------------------------------ *@
+      <div id="dfuFactos" class="dmo-zona" data-dmo-regiao>
+      <div class="dmo-facts dfu-factos">
+        <div class="dmo-fact"><span>Nº de operador</span><strong>@user.OperatorId</strong></div>
+        @* O cartão da template abre-a para editar (Diogo, 17/10/2026). *@
+        @if (!user.IsAdmin && user.CurrentTemplateKey is { } templateKey)
         {
-          <div class="dfu-nota" role="status">@pinMensagem</div>
+          <a class="dmo-fact dmo-fact-link" href="@Url.Page("/Admin/Templates/Index", new { template = templateKey })"
+             aria-label="Editar a template @user.CurrentTemplateName"><span>Template atual</span><strong>@(user.CurrentTemplateName ?? templateKey)</strong><em>Editar template</em></a>
         }
-      </section>
-    }
-
-    @* ------------------------------------------------------------------ *@
-    @* 2. AS AÇÕES — os forms que viviam na tabela, o trabalho da folha.   *@
-    @*    A GRAMÁTICA GLOBAL: nas tabelas não existem botões — os botões  *@
-    @*    vivem FORA (aqui); os MESMOS handlers do Index, o PRG e as      *@
-    @*    recusas tipadas preservados (origem=ficha: o redirect volta à   *@
-    @*    ficha, a recusa vai para a pilha do canto).                     *@
-    @* ------------------------------------------------------------------ *@
-    <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
-    <section class="dmo-card dfu-card" aria-labelledby="dfu-actions-title">
-      <h3 id="dfu-actions-title">Ações de acesso<partial name="_DmoHelp" model="@("A template aplica-se ao escolhê-la. Em «Opções», repor a palavra-passe gera um PIN temporário novo, mostrado uma vez no canto.")" /></h3>
+        else
+        {
+          <div class="dmo-fact"><span>Template atual</span><strong>@(user.IsAdmin ? "ADMIN" : "Sem template")</strong></div>
+        }
+        <div class="dmo-fact"><span>Estado</span><strong>@(user.IsStandBy ? "Arquivado" : "Ativo")</strong></div>
+        <div class="dmo-fact"><span>Mudança de palavra-passe</span><strong>@(user.RequiresPasswordChange ? "Obrigatória — PIN temporário" : "Palavra-passe definida")</strong></div>
+        <div class="dmo-fact"><span>Criado em</span><strong>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(user.CreatedAt).ToString("g", pt)</strong></div>
+      </div>
+      </div>
 
       @if (user.IsAdmin)
       {
@@ -168,72 +155,88 @@
       }
       else
       {
-        <div class="dfu-actions">
-          <div id="dfuTemplate" class="dmo-zona" data-dmo-regiao>
-          <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Template">
-            <input type="hidden" name="operator_id" value="@user.OperatorId" />
-            <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
-            <div class="dmo-field">
-              <label for="dfu-template">Template de acesso</label>
-              <select id="dfu-template" class="dfu-select" name="template_key" data-dmo-autosubmit aria-label="Template de acesso de @user.Name">
-                <option value="">Sem template</option>
-                @foreach (var template in Model.Templates)
-                {
-                  <option value="@template.TemplateKey" selected="@(user.CurrentTemplateKey == template.TemplateKey)">@template.Name</option>
-                }
-              </select>
-            </div>
-          </form>
-          </div>
-          @* MENOS CLUTTER (Diogo, 17/10/2026): as ações raras ficam num só
-             botão «Opções» com dropdown. A template aplica-se ao escolhê-la no
-             dropdown, sem botão (Diogo, 17/10/2026). *@
-          <details class="dmo-options" data-dmo-tab-menu>
-            <summary class="dmo-button" aria-label="Opções do utilizador @user.Name"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
-            <div class="dmo-options-list">
-              <div id="dfuArquivar" class="dmo-zona" data-dmo-regiao>
-              <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="StandBy">
-                <input type="hidden" name="operator_id" value="@user.OperatorId" />
-                <input type="hidden" name="stand_by" value="@(user.IsStandBy ? "0" : "1")" />
-                <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
-                <button type="submit" class="dmo-options-item" id="dfu-arquivar">@(user.IsStandBy ? "Ativar" : "Arquivar")</button>
-              </form>
-              </div>
-              <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Reset">
-                <input type="hidden" name="operator_id" value="@user.OperatorId" />
-                <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
-                <button type="submit" class="dmo-options-item" id="dfu-repor">Repor palavra-passe</button>
-              </form>
-              @* O DELETE REAL (o Owner 2026-10-13), em dois passos: o primeiro
-                 clique só abre a janela da casa a perguntar; o segundo, nela,
-                 apaga. Antes, o primeiro clique recarregava a página com
-                 ?confirm_delete=1 (deep sweep de 18/10/2026, regra 118: as
-                 Templates já confirmam numa janela). *@
-              <button type="button" class="dmo-options-item" id="dfu-eliminar" data-dmo-dialog="dfu-delete-dialog">Eliminar utilizador</button>
-            </div>
-          </details>
-          @* Apagar sai da ficha (o utilizador deixa de existir) e volta à
-             lista, que abre inteira. Vai pela fila da página: cliques
-             repetidos fazem um só pedido e a lista diz «Utilizador
-             eliminado», não «já não existe» (deep sweep, 18/10/2026,
-             B-admin-3). Quem chega com ?confirm_delete=1 no endereço vê a
-             janela já aberta. *@
-          <dialog id="dfu-delete-dialog" class="dmo-dialog" aria-labelledby="dfu-delete-title" data-dmo-dialog-aberta="@(Model.ConfirmDelete ? "1" : null)">
-            <h3 id="dfu-delete-title">Eliminar o utilizador @user.Name (nº @user.OperatorId)?</h3>
-            <p class="dmo-aviso-discreto">O acesso dele acaba e esta ação não tem volta. Os registos passados mantêm o nº como texto.</p>
-            <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Delete">
+        @* 3. NO FUNDO, LADO A LADO (Diogo, 26/10/2026,
+           cmsg_01K75FTs9bQnbhhH7qttpgraYL98moGSrGHLpiUjQ5VDVk): as ações de
+           acesso e o PIN do posto de Reparação. *@
+        <div class="dfu-baixo">
+        <div class="dfu-parte" role="group" aria-labelledby="dfu-actions-title">
+          <h4 id="dfu-actions-title">Ações de acesso<partial name="_DmoHelp" model="@("A template aplica-se ao escolhê-la. Em «Opções», repor a palavra-passe gera um PIN temporário novo, mostrado uma vez no canto.")" /></h4>
+          <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
+          <div class="dfu-actions">
+            <div id="dfuTemplate" class="dmo-zona" data-dmo-regiao>
+            <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Template">
               <input type="hidden" name="operator_id" value="@user.OperatorId" />
-              <input type="hidden" name="confirm_delete" value="1" />
-              <div class="dmo-dialog-actions">
-                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-                <button type="submit" class="dmo-button dfu-danger" id="dfu-eliminar-mesmo">Eliminar mesmo</button>
+              <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
+              <div class="dmo-field">
+                <label for="dfu-template">Template de acesso</label>
+                <select id="dfu-template" class="dfu-select" name="template_key" data-dmo-autosubmit aria-label="Template de acesso de @user.Name">
+                  <option value="">Sem template</option>
+                  @foreach (var template in Model.Templates)
+                  {
+                    <option value="@template.TemplateKey" selected="@(user.CurrentTemplateKey == template.TemplateKey)">@template.Name</option>
+                  }
+                </select>
               </div>
             </form>
-          </dialog>
+            </div>
+            <details class="dmo-options" data-dmo-tab-menu>
+              <summary class="dmo-button" aria-label="Opções do utilizador @user.Name"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
+              <div class="dmo-options-list">
+                <div id="dfuArquivar" class="dmo-zona" data-dmo-regiao>
+                <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="StandBy">
+                  <input type="hidden" name="operator_id" value="@user.OperatorId" />
+                  <input type="hidden" name="stand_by" value="@(user.IsStandBy ? "0" : "1")" />
+                  <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
+                  <button type="submit" class="dmo-options-item" id="dfu-arquivar">@(user.IsStandBy ? "Ativar" : "Arquivar")</button>
+                </form>
+                </div>
+                <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Reset">
+                  <input type="hidden" name="operator_id" value="@user.OperatorId" />
+                  <input type="hidden" name="origem" value="@IndexModel.OrigemFicha" />
+                  <button type="submit" class="dmo-options-item" id="dfu-repor">Repor palavra-passe</button>
+                </form>
+                @* O DELETE REAL (o Owner 2026-10-13), em dois passos: o primeiro
+                   clique só abre a janela da casa a perguntar; o segundo, nela,
+                   apaga (deep sweep de 18/10/2026, regra 118). *@
+                <button type="button" class="dmo-options-item" id="dfu-eliminar" data-dmo-dialog="dfu-delete-dialog">Eliminar utilizador</button>
+              </div>
+            </details>
+            @* Apagar sai da ficha e volta à lista, que abre inteira, pela fila
+               da página: cliques repetidos fazem um só pedido (B-admin-3).
+               Quem chega com ?confirm_delete=1 vê a janela já aberta. *@
+            <dialog id="dfu-delete-dialog" class="dmo-dialog" aria-labelledby="dfu-delete-title" data-dmo-dialog-aberta="@(Model.ConfirmDelete ? "1" : null)">
+              <h3 id="dfu-delete-title">Eliminar o utilizador @user.Name (nº @user.OperatorId)?</h3>
+              <p class="dmo-aviso-discreto">O acesso dele acaba e esta ação não tem volta. Os registos passados mantêm o nº como texto.</p>
+              <form method="post" asp-page="/Admin/Users/Index" asp-page-handler="Delete">
+                <input type="hidden" name="operator_id" value="@user.OperatorId" />
+                <input type="hidden" name="confirm_delete" value="1" />
+                <div class="dmo-dialog-actions">
+                  <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                  <button type="submit" class="dmo-button dfu-danger" id="dfu-eliminar-mesmo">Eliminar mesmo</button>
+                </div>
+              </form>
+            </dialog>
+          </div>
+          </div>
+        </div>
+        <div class="dfu-parte" role="group" aria-labelledby="dfu-pin-title">
+          <h4 id="dfu-pin-title">PIN do posto de Reparação<partial name="_DmoHelp" model="@("Com o PIN, quem tem a Reparação Interna (ver ou criar) entra pelo botão «Reparação» do login (canto inferior direito), sem palavra-passe. De 4 a 12 algarismos; guarda-se só o hash. Escolher um PIN novo substitui o anterior.")" /></h4>
+          <form method="post" asp-page="/Admin/Users/Ficha" asp-page-handler="PinPosto" class="dfu-actions">
+            <input type="hidden" name="operator_id" value="@user.OperatorId" />
+            <div class="dmo-field">
+              <label for="dfu-pin">@(Model.TemPinPosto ? "PIN novo (já tem PIN)" : "PIN (ainda não tem)")</label>
+              <input id="dfu-pin" name="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="12" />
+            </div>
+            <button type="submit" class="dmo-button" id="dfu-pin-guardar">Guardar</button>
+          </form>
+          @if (Model.PinMensagem is { } pinMensagem)
+          {
+            <div class="dfu-nota" role="status">@pinMensagem</div>
+          }
+        </div>
         </div>
       }
     </section>
-    </div>
   }
 
 </main>
