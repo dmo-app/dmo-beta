@@ -388,6 +388,32 @@
       <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
       <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar" id="cmpEscolha">
         <input type="hidden" name="comparacao" value="1" />
+        @if (Model.ProducaoFixa)
+        {
+          @* A PRODUÇÃO FIXA (Diogo, 27/10/2026: «é sempre comparado à mesma
+             produção que saiu»): pelo Resumo não se escolhem a referência
+             nem a produção; o Peso inicial só com mais de um. *@
+          <input type="hidden" name="producao_fixa" value="1" />
+          <input type="hidden" name="jobon_id" value="@Model.ProducaoSelecionadaJobOnId" />
+          <div class="dmo-field peso-cmp-producao-fixa" data-peso-producao-fixa>
+            <span class="dmo-label">Produção / Job On</span>
+            <strong>@Model.ProducaoFixaRotulo</strong>
+          </div>
+          @if (Model.Iniciais.Count > 1)
+          {
+            <div id="pesoComparacaoInicialZona" class="dmo-field" data-dmo-regiao>
+              <label for="cmpInicial">Peso inicial desta produção</label>
+              <select id="cmpInicial" name="peso_inicial" data-dmo-autosubmit>
+                @foreach (var inicial in Model.Iniciais)
+                {
+                  <option value="@inicial.PesoId" selected="@(Model.PesoInicialSelecionado == inicial.PesoId ? "selected" : null)">@rotuloPesoOpcao(inicial)</option>
+                }
+              </select>
+            </div>
+          }
+        }
+        else
+        {
         <div class="dmo-field">
           <label for="cmpReferencia">Referência</label>
           <input id="cmpReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.ReferenciaComparacao" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
@@ -423,6 +449,7 @@
           <span class="dmo-label" aria-hidden="true">&nbsp;</span>
           <button type="submit" class="dmo-button">Mostrar</button>
         </div>
+        }
       </form>
       </div>
 
@@ -444,7 +471,7 @@
       }
       else
       {
-        <p class="peso-hint" style="margin-top:10px">Escolha uma produção com um Peso guardado.</p>
+        <p class="peso-hint" style="margin-top:10px">@(Model.ProducaoFixa ? "Esta produção ainda não tem Peso guardado." : "Escolha uma produção com um Peso guardado.")</p>
       }
 
       @* A BASE CM a CM (o Diogo, 16/10: «peso e volume dos CM que foram
@@ -460,7 +487,7 @@
               @foreach (var (leituraBase, influencia) in baseCmp.Measurements.OrderBy(m => m.RowPosition).Zip(Model.InfluenciaDaBase))
               {
                 <tr class="@(influencia.MaiorEfeito ? "peso-linha-destaque" : null)">
-                  <td>@(string.IsNullOrEmpty(leituraBase.CmSubject) ? "—" : leituraBase.CmSubject)@(influencia.MaiorEfeito ? " · a que mais puxa" : null)</td>
+                  <td>@(string.IsNullOrEmpty(leituraBase.CmSubject) ? "—" : leituraBase.CmSubject)</td>
                   <td>@fmt(leituraBase.WaterWeightGrams)</td>
                   <td>@fmt(leituraBase.CapacityCm3)</td>
                   <td>@fmt(leituraBase.GlassWeightGrams)</td>
@@ -492,16 +519,18 @@
            botao.form). O handler de gravação no backend é a fonte única do
            cálculo. *@
         <div class="dmo-card-topo-acoes">
-          <button type="button" class="dmo-button" form="cmpForm" data-cmp-add-row>Adicionar leitura</button>
-          <button type="button" class="dmo-button" form="cmpForm" data-cmp-remove-row>Remover leitura</button>
           <button type="submit" class="dmo-button" form="cmpForm">Comparar pesos</button>
-          <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button" form="cmpForm">Guardar comparação</button>
+          <button type="submit" asp-page-handler="GuardarComparacao" class="dmo-button" form="cmpForm">Guardar</button>
         </div>
       </div>
 
       <form method="post" asp-page="/Controlo/Peso" asp-page-handler="Comparar" class="peso-form-grid" id="cmpForm">
         <input type="hidden" name="jobon_id" value="@Model.ProducaoSelecionadaJobOnId" />
         <input type="hidden" name="peso_inicial" value="@Model.PesoInicialSelecionado" />
+        @if (Model.ProducaoFixa)
+        {
+          <input type="hidden" name="producao_fixa" value="1" />
+        }
         @* A comparação acabada de guardar: um clique repetido em «Guardar
            comparação» que chega a esta página, sem leituras escritas, volta
            a ela sem mensagem (B-peso-2). *@
@@ -538,9 +567,14 @@
               </div>
               <div class="dmo-field">
                 <label for="cmpWater-@i">Massa de água (g)</label>
-                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 199,64 ou 199.64" />
+                <input id="cmpWater-@i" name="water_weight" type="text" inputmode="decimal" autocomplete="off" value="@Model.ComparacaoLinhas[i].Water" placeholder="Ex.: 199,64" />
               </div>
-              <span class="peso-cmp-x" role="button" tabindex="0" data-cmp-del-row aria-label="Remover esta leitura" title="Remover esta leitura">×</span>
+              @* O + e o − ao lado da massa de água, um em cima do outro, como
+                 no Peso (Diogo, 27/10/2026); o − tira esta leitura. *@
+              <div class="peso-row-buttons">
+                <button type="button" class="dmo-button peso-row-button" data-cmp-add-row aria-label="Adicionar leitura" title="Adicionar leitura">+</button>
+                <button type="button" class="dmo-button peso-row-button" data-cmp-del-row aria-label="Remover esta leitura" title="Remover esta leitura">−</button>
+              </div>
             </div>
           }
         </div>
@@ -604,7 +638,7 @@
                 @foreach (var novaInf in Model.InfluenciaDasNovas)
                 {
                   <tr class="@(novaInf.MaiorEfeito ? "peso-linha-destaque" : null)">
-                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)@(novaInf.MaiorEfeito ? " · a que mais mexe" : null)</td>
+                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)</td>
                     <td>@fmt(novaInf.PesoVidroGrams)</td>
                     <td>@signed(novaInf.DiferencaParaMediaGrams)</td>
                     <td>@fmt(novaInf.MediaComEstaCmGrams)</td>
@@ -673,7 +707,7 @@
                 @foreach (var novaInf in Model.InfluenciaDasNovas)
                 {
                   <tr class="@(novaInf.MaiorEfeito ? "peso-linha-destaque" : null)">
-                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)@(novaInf.MaiorEfeito ? " · a que mais mexe" : null)</td>
+                    <td>@(string.IsNullOrEmpty(novaInf.CmSubject) ? "—" : novaInf.CmSubject)</td>
                     <td>@fmt(novaInf.PesoVidroGrams)</td>
                     <td>@signed(novaInf.DiferencaParaMediaGrams)</td>
                     <td>@fmt(novaInf.MediaComEstaCmGrams)</td>

@@ -451,10 +451,12 @@
   html body main.peso-page form#cmpForm{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 16px}
   html body main.peso-page form#cmpForm>.dmo-field{flex:0 0 auto;margin:0!important}
   html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpTool){flex-basis:240px}
-  html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpTemperature){flex-basis:180px}
+  html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpTemperature){flex-basis:auto}
+  html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpTemperature) label{white-space:nowrap}
+  html body main.peso-page form#cmpForm #cmpTemperature{width:72px}
   html body main.peso-page form#cmpForm>.dmo-field:has(>#cmpNota){flex:1 1 280px;max-width:520px}
   html body main.peso-page form#cmpForm>.peso-cmp-leituras{display:flex;flex-wrap:wrap;gap:8px;flex:0 1 auto;margin:0}
-  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 184px}
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px auto;align-items:end}
   /* O seletor nativo escondido (1 px) não estica o cartão mais baixo. */
   html body main.peso-page form#cmpForm .dmo-suggest-native{overflow:hidden;top:0;bottom:auto}
 
@@ -463,3 +465,13 @@
   html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact{flex:0 0 auto}
   html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact>span{white-space:nowrap}
 }
+
+/* Comparação aberta pelo Resumo: a produção fixa é texto, na altura dos
+   campos (Diogo, 27/10/2026: «é sempre comparado à mesma produção que saiu»). */
+html body .peso-cmp-producao-fixa strong{display:flex;align-items:center;min-height:var(--dmo-control-height);font-weight:600}
+
+/* O + e o − da Comparação ao lado da massa de água, pequenos e um em cima do
+   outro, na altura do campo (Diogo, 27/10/2026: «reduzir tamanho para meter
+   ao lado»). */
+html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-buttons{display:flex;flex-direction:column;gap:2px;height:var(--dmo-control-height);align-self:end}
+html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0 0 auto;height:calc((var(--dmo-control-height) - 2px) / 2)!important;min-height:0!important;width:26px;min-width:0!important;padding:0!important;font-size:13px;line-height:1}

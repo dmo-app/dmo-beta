@@ -3565,6 +3565,24 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `c22447c6290ce98f`
 
+## A-0208 · 2026-10-27 · ok-do-diogo
+
+Porquê: Comparar peso no Resumo: produção fixa, sem «a que mais puxa/mexe», + e − ao lado da massa, só «Comparar pesos» e «Guardar», exemplo «Ex.: 199,64» (DMO-469, .175).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJ6x5Umit13ZS5WQioYVTR2 (27/10 07:08, pedido em cmsg_01K75FTs9bQnbhhH7qttpgraMjVxpFF2jJp6oRNmt8uTaH)
+Novos: 3 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: PesoComparacaoPageTests.PeloResumo_AProducaoFicaFixa_SemReferenciaNemProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: PesoComparacaoPageTests.ProducaoFixa_SegueNoCompararENoGuardar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.NoResumo.cs :: PesoComparacaoPageTests.Comparacao_AbreNoResumoDaProducao_SemSeparadorProprio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CamposDecimais_SaoTextoComTecladoDecimal_ParaAceitarVirgula`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_ATerraPreselecionadoPelaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_MostraBaseEEfeitoNaMedia`
+- mudou: `tests/ShellProof/peso-comparacao.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/peso-comparacao.test.cjs :: «Comparar pesos» e «Guardar comparação» trocam só as zonas, sem recarregar; as linhas adicionam-se no formulário novo`
+
+Selo depois: `95e012cdaed29670`
+
 ## A-0213 · 2026-10-27 · ok-do-diogo
 
 Porquê: Peso sem Job On: com a CM e a BQ escolhidas, os volumes da punção e da marisa aparecem uma só vez, na faixa dos volumes (Volume Punção / CM, Volume Marisa / BQ); os 2 testes procuram esses nomes. Teste novo: o Peso aberto sem produção já não mostra o cartão Ferramentas e os Job Ons para associar são linhas que se escolhem, com um só «Associar» (DMO-473, 0.3.0-beta.169)
@@ -3605,4 +3623,4 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.SavedPeso_KeepsRecordedIdentificationAfterCatalogEdit_AndDownloadsPdf`
 - mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
 
-Selo depois: `f6761bd9d23af32e`
+Selo depois: `d5d1ee345b10575b`
