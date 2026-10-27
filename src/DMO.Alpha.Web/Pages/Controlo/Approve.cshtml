@@ -3,9 +3,6 @@
 @using DMO.Alpha.Core.Controlo
 @{
     Layout = "_DmoShellLayout";
-    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
-    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
-    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
     string EstadoTexto(ControloRevisaoEstado estado) => estado switch
     {
         ControloRevisaoEstado.Aprovado => "Aprovado",
@@ -224,9 +221,9 @@
                  controlo anterior e à produção anterior; os detalhes ficam na
                  Consulta do Peso. *@
               <div class="revisao-facts">
-                <div class="destaque"><span>Peso médio atual</span><strong>@Grams(media)</strong></div>
-                <div><span>Delta ao controlo anterior</span><strong>@Signed(media is not null && anterior is not null ? media - anterior.AverageGlassWeightGrams : null, " g")</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
-                <div><span>Delta à produção anterior</span><strong>@Signed(media is not null && sap is not null ? media - sap : null, " g")</strong><small>@(sap is { } g ? $"Produção {Grams(g)}" : "")</small></div>
+                <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(media)</strong></div>
+                <div><span>Delta ao controlo anterior</span><strong>@ControloNumeros.ComSinal(media is not null && anterior is not null ? media - anterior.AverageGlassWeightGrams : null, " g")</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
+                <div><span>Delta à produção anterior</span><strong>@ControloNumeros.ComSinal(media is not null && sap is not null ? media - sap : null, " g")</strong><small>@(sap is { } g ? $"Produção {ControloNumeros.Gramas(g)}" : "")</small></div>
               </div>
               @* A tabela CM a CM com o controlo anterior (Diogo, 19/10/2026),
                  a mesma da comparação na página do Peso. *@
