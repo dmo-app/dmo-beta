@@ -373,3 +373,67 @@ html:root body .jof2.jof2.jof2.jof2:not(.editing){padding-bottom:0}
    só muda a cor da letra, sem mudar o fundo nem o contorno; na área do Artigo o contorno não muda. */
 html:root body .jof2.jof2 .jof-tipo.dmo-alternador label:hover>input:not(:checked)+span{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:color-mix(in srgb,var(--dmo-opcao-letra) 85%,var(--dmo-opcao-fundo))}
 html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-border)}
+
+/* ===================================================================== */
+/* 8. A folha cabe em 1366×768 (Diogo, 27/10/2026): a altura da folha é a do ecrã menos o menu;
+/*    CM, MF, BQ+AN e PU+ARR ficam com a altura que sobra por cima, TP, CS e CAL por baixo
+/*    (TP ~20%, CS ~22%, CAL ~58% da largura, como na maqueta). Só deslizam as listas e as notas. ===================================================================== */
+@media screen and (min-width:1181px) and (min-height:720px){
+  /* O menu (95px) fica de fora; o resto é da folha. */
+  html:root body main.jof2.jof2.jof2{box-sizing:border-box;display:flex;flex-direction:column;height:calc(100vh - 95px);min-height:0}
+  html:root body main.jof2.jof2.jof2>.wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;width:100%;box-sizing:border-box;padding-bottom:4px}
+  html:root body main.jof2.jof2.jof2>.wrap>*{flex:none}
+  html:root body main.jof2.jof2.jof2>.wrap>.sheet{flex:1 1 0;min-height:0;grid-template-rows:minmax(0,1fr)}
+  html:root body main.jof2.jof2.jof2 .sheet>.sheet-main{min-height:0;align-self:stretch;display:flex;flex-direction:column}
+  html:root body main.jof2.jof2.jof2 .sheet-main>.zones{flex:1 1 0;min-height:0}
+}
+@container board (min-width:640px){
+  /* 40 colunas: 10 + 10 + 10 + 10 em cima; 8 (20%) + 9 (22%) + 23 (58%) por baixo. */
+  html:root body .jof2.jof2.jof2 .zones{grid-template-columns:repeat(40,minmax(0,1fr));grid-template-areas:none;grid-template-rows:minmax(0,1fr) minmax(0,1fr) fit-content(172px);align-content:stretch}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="CM"]{grid-area:1/1/3/span 10}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="MF"]{grid-area:1/11/3/span 10}
+  html:root body .jof2.jof2.jof2 .zones .card.pair:has([data-jof-familia="BQ"]){grid-area:1/21/2/span 10}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="AN"]{grid-area:2/21/3/span 10}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="PU"]{grid-area:1/31/2/span 10}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="ARR"]{grid-area:2/31/3/span 10}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="TP"]{grid-area:3/1/4/span 8}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="CS"]{grid-area:3/9/4/span 9}
+  html:root body .jof2.jof2.jof2 .zones .g-cal{grid-area:3/18/4/span 23;display:flex;flex-direction:column;min-width:0}
+  html:root body .jof2.jof2.jof2 .zones :is([data-jof-familia],.card.pair){min-height:0;min-width:0}
+  html:root body .jof2.jof2.jof2.editing .zones{column-gap:8px}
+  html:root body .jof2.jof2.jof2 .zones .g-cal>.board{display:flex;flex:1 1 auto;min-height:0;margin:0;height:auto}
+  html:root body .jof2.jof2.jof2 .zones .g-cal>.board>.cal-card{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;min-width:0;margin:0;height:auto;gap:4px}
+  html:root body .jof2.jof2.jof2 .zones .cal-card>.table-wrap{flex:1 1 0;min-height:0;width:100%;max-width:100%;overflow:auto;scrollbar-width:thin}
+}
+
+/* ---- CAL no ver: um calibre por coluna; a largura reparte-se pelo conteúdo; os cabeçalhos só quebram entre palavras
+   e os valores só quebram na « / » (o jobon-folha.js põe cada parte num <span class="calv-seg"> sem quebra) ---- */
+@container board (min-width:640px){
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv{grid-template-columns:max-content;grid-auto-columns:auto;width:100%}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv :is(th,td):nth-child(n){min-height:0;padding:3px 2px;line-height:1.2;white-space:normal;overflow-wrap:normal;word-break:normal;hyphens:none;min-width:auto}
+  /* thead = a primeira coluna (Medida / Componentes / QTD máq.); tbody th = o cabeçalho de cada calibre */
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv thead th:nth-child(n){font-size:12px;justify-content:flex-start;text-align:left;white-space:nowrap;padding-left:4px;padding-right:4px}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv tbody th:nth-child(n){font-size:11.5px;justify-content:center;text-align:center}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv td:nth-child(n){font-size:12.5px;line-height:1.2}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv .calv-seg{white-space:nowrap}
+}
+
+/* ---- CAL em Editar/Duplicar: a lista das medidas desliza dentro do cartão, com o cabeçalho sempre à vista ---- */
+html:root body .jof2.editing.editing.editing .cal-card>.table-wrap{border:0;border-radius:0}
+html:root body .jof2.editing.editing.editing table.calv thead th{position:sticky;top:0;z-index:2;background:var(--dmo-card);box-shadow:0 1px 0 var(--dmo-border)}
+
+/* ---- ver: TP com Diâmetro e Calote lado a lado (rótulo por cima), CS com os furos a quebrar se faltar largura,
+   e as notas com um mínimo de duas linhas (cima) ou de uma (baixo): só deslizam por dentro ---- */
+@container board (min-width:640px){
+  html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="TP"]>.kv{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 8px;align-items:end}
+  html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="TP"]>.kv>dt:nth-of-type(1){grid-column:1;grid-row:1}
+  html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="TP"]>.kv>dd:nth-of-type(1){grid-column:1;grid-row:2}
+  html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="TP"]>.kv>dt:nth-of-type(2){grid-column:2;grid-row:1}
+  html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="TP"]>.kv>dd:nth-of-type(2){grid-column:2;grid-row:2}
+  html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="TP"]>.kv>dd{margin:0;font-size:15px;font-weight:700}
+  html:root body .jof2.jof2.jof2:not(.editing) .jof-furos-ver{flex-wrap:wrap;gap:0 8px}
+  html:root body .jof2.jof2.jof2.jof2:not(.editing) [data-jof-familia="CS"]>.kv{column-gap:6px}
+  html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .sec>.note-box.note-view:not(.is-ampliada){min-height:auto !important}
+  html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .sec>.note-box.note-view:not(.is-ampliada)>p{min-height:36px !important}
+  html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"])>.note-box.note-view:not(.is-ampliada)>p{min-height:18px !important}
+}
