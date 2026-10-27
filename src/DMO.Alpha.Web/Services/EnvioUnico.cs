@@ -107,6 +107,20 @@ public sealed partial class EnvioUnicoFilter : IAsyncPageFilter, IOrderedFilter
         }
     }
 
+    /// <summary>
+    /// O identificador de operação do envio, para a operação registada na
+    /// base (<c>OperacoesRegistadas</c>): tirado da chave do envio, por isso é
+    /// o mesmo quando o envio se repete e outro em cada envio novo. Null sem
+    /// chave (o envio nativo do browser).
+    /// </summary>
+    public static Guid? OperacaoDoEnvio(HttpRequest request)
+    {
+        var chave = request.Headers[Cabecalho].ToString();
+        return ChaveValida().IsMatch(chave)
+            ? new Guid(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(chave)).AsSpan(0, 16))
+            : null;
+    }
+
     [GeneratedRegex("^[A-Za-z0-9_-]{16,64}$")]
     private static partial Regex ChaveValida();
 }

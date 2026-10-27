@@ -32,21 +32,29 @@ public sealed class OperacoesRegistadas : IOperacoesRegistadas
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == operacaoId, cancellationToken);
 
-    public OperacaoRegistada Registar(Guid operacaoId, string tipo, ResultadoDaOperacao resultado)
+    public OperacaoRegistada Registar(Guid operacaoId, string tipo, ResultadoDaOperacao resultado, string? impressao = null)
     {
-        var actor = _account?.Current;
         var operacao = new OperacaoRegistada
         {
             Id = operacaoId,
             Tipo = tipo,
-            AutorUserId = actor is { IsAuthenticated: true } ? actor.ActorId : null,
+            AutorUserId = Autor(),
             ResultadoTipo = resultado.Tipo,
             ResultadoId = resultado.Id,
-            MomentoUtc = DateTimeOffset.UtcNow
+            MomentoUtc = DateTimeOffset.UtcNow,
+            Impressao = impressao
         };
         _db.OperacoesRegistadas.Add(operacao);
         return operacao;
     }
+
+    public bool EOMesmoEnvio(OperacaoRegistada registada, string tipo, string? impressao) =>
+        registada.Tipo == tipo
+        && registada.AutorUserId == Autor()
+        && registada.Impressao == impressao;
+
+    private Guid? Autor() =>
+        _account?.Current is { IsAuthenticated: true } actor ? actor.ActorId : null;
 
     /// <summary>
     /// O 23505 na chave primária das operações: outro envio com o mesmo

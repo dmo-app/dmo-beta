@@ -26,7 +26,7 @@ public partial class JobOnPageTests
         Assert.Contains("<div class=\"jfi-ref\">5810T188</div>", html, StringComparison.Ordinal);
         // Referência e lote dentro da Ferramenta (Diogo, 26/10/2026 22:02), e no cartão da Equipa.
         Assert.Contains("<strong>T188</strong> <span>Lote <i>21</i></span>", html, StringComparison.Ordinal);
-        Assert.Contains("<div class=\"jfc-nome\">CM · Contra-molde</div>", html, StringComparison.Ordinal);
+        Assert.Contains("<div class=\"jfc-nome\"><span>CM</span> Contra-Molde</div>", html, StringComparison.Ordinal);
         Assert.Contains("<b>5809</b> <span class=\"jfc-lote jfc-lote-d\">Lote <b>1</b></span>", html, StringComparison.Ordinal);
     }
 
@@ -47,8 +47,9 @@ public partial class JobOnPageTests
         Assert.Contains("data-jof-familia=\"AN\"", html, StringComparison.Ordinal);
         Assert.Contains("<b>Anel</b>", html, StringComparison.Ordinal);
         // Cada componente na sua linha do Trabalho de Equipa.
-        foreach (var linha in new[] { "CM · Contra-molde", "TP · Tampão", "PU · Punção", "ARR · Arrefecedor", "MF · Molde final", "BQ · Boquilha", "AN · Anel", "CS · Cab. enchimento", "PI · Pinça" })
-            Assert.Contains("<div class=\"jfc-nome\">" + linha + "</div>", html, StringComparison.Ordinal);
+        // Como no PDF preto e branco (Diogo, 27/10/2026): sigla e nome, FF à parte, sem o AN.
+        foreach (var (sigla, nome) in new[] { ("CM", "Contra-Molde"), ("TP", "Tampão"), ("PU", "Punção"), ("TR", "Tub. Refrigeração"), ("MF", "Molde Final"), ("FF", "Fundo Final"), ("BQ", "Boquilha"), ("CS", "Cab. Enchimento"), ("PI", "Pinça") })
+            Assert.Contains("<div class=\"jfc-nome\"><span>" + sigla + "</span> " + nome + "</div>", html, StringComparison.Ordinal);
         // Calote e bacia do TP são a mesma coisa: só «Calote» na impressão; calibres só com «Qtd.».
         Assert.DoesNotContain("· Bacia ", html, StringComparison.Ordinal);
         Assert.DoesNotContain("<th>QTD máq.</th><th>Qtd.</th>", html, StringComparison.Ordinal);
