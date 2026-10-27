@@ -3350,3 +3350,16 @@ Novos: 1 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListShowsApplicationFacts_StandByAndTemplateEditing_ThroughTheSingleRelation`
 
 Selo depois: `0e4d37baa6e06955`
+
+## A-0187 · 2026-10-27 · ok-do-diogo
+
+Porquê: Imprimir do Job On a preto e branco (PDF do Diogo, 27/10/2026): no Trabalho de equipa os nomes passam a sigla + nome («CM Contra-Molde»), o FF fica à parte e o AN sai dessa folha (continua nas outras duas). Teste novo: CS Abertos/Fechados, Tampão «34.95 x 6.5mm», cabeçalho e páginas.
+Referência: «sim» do Diogo, cmsg_01K75FTs9bQnbhhH7qttpgraRywqAAMmePUCTDoN6WPF1F (DMO-447, 0.3.0-beta.145)
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: JobOnPageTests.Folha_ImprimirPretoBranco_CsAbertosFechados_TampaoDiametroXCalote_EPaginas`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_DecisoesDoDiogo_ComponentesSeparadosAnComLoteCaloteUnicaSemComentarios`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
+
+Selo depois: `7df95d24814fbd98`
