@@ -65,7 +65,7 @@ with sync_playwright() as playwright:
 
         # A grelha (Diogo, 26/10/2026): quatro colunas iguais e independentes em cima — CM, MF, BQ+AN,
         # PU+ARR —, o PI à direita por baixo das Notas gerais. Por baixo, como a maqueta 01 (Diogo,
-        # 27/10/2026, A-0241): TP e CS mais estreitos e os Calibres com mais de metade da largura, até
+        # 27/10/2026, A-0228): TP e CS mais estreitos e os Calibres com mais de metade da largura, até
         # ao fim de PU+ARR, para os oito calibres caberem à vista.
         # Nenhum cartão fica estreito, nem com a referência cortada nem o «Lote» partido.
         if largura in (1440, 1366, 1280):
