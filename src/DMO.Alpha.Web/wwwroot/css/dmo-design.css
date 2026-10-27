@@ -619,8 +619,6 @@ html body .revisao-detail .revisao-parte-topo .revisao-consultas a{color:var(--d
 html body .revisao-resumo .revisao-facts>div,html body .revisao-facts>div{background:none!important;border-color:transparent!important}
 html body .revisao-facts>div+div{border-left:1px solid var(--dmo-border)!important}
 html body .revisao-resumo .revisao-facts span{color:var(--dmo-muted)}
-/* Definições: section group labels («Geral») in sentence case, like every other label. */
-html body .def-parte>h3.def-parte-titulo{font-size:13px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--dmo-muted)}
 /* Login, Versão, Erro: the «BA Glass» kicker in sentence case too. */
 html body.dmo-account-page .identity :is(.kicker,.brand-kicker,.eyebrow){text-transform:none;letter-spacing:0}
 html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal :is(h3.revisao-section,span){color:var(--dmo-text)}
