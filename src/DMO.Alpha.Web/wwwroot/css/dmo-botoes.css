@@ -4,8 +4,8 @@
 
    1) Botões de ação (Registar, Guardar, Criar, Limpar filtros, Imprimir…): .dmo-button, .button,
       .btn. A mesma altura dos campos, a mesma letra e o texto sempre ao centro (também nos <a>,
-      que sem isto ficavam com o texto encostado em cima: «botões mal centrados», …UvufrYa). O
-      hover é o que já estava aprovado (normalize: claro inverte, escuro contorno branco).
+      que sem isto ficavam com o texto encostado em cima: «botões mal centrados»). No rato por
+      cima e no clique: cor de fundo, letra e contorno brancos.
 
    2) Seletores (escolhe-se uma ou várias opções, não fazem nada sozinhos): Saída / Entrada /
       Entrada sem reparação, CM / MF, Produção / Experiência, Linhas compatíveis, Entrada / Saída
@@ -14,17 +14,23 @@
 /* 1) Botões de ação ------------------------------------------------------------------------ */
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;vertical-align:middle;text-box:normal}
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn)[hidden]{display:none}
+/* Rato por cima e clique (Diogo, 27/10/2026, …W16svSXbbqraVvZPKYnqCS: «o hover click fica com cor
+   background e font e linha branco»): o botão fica com cor de fundo, letra branca e contorno branco.
+   No claro o fundo escurece um tom, para se ver a mudança no cartão branco. */
+html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:focus-visible,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-800));border-color:#fff;color:#fff;outline:0}
+html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:focus-visible,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-600))}
 /* Os links de ação que passaram a botões (Abrir página do painel, avisos, ficha da ferramenta):
    o mesmo botão, também no hover do escuro. Regras à parte porque o #id pesaria sobre tudo. */
 html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-action,var(--dmo-brand-600));border-radius:var(--dmo-r-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;text-decoration:none;vertical-align:middle;cursor:pointer}
-html body #dmoSupportFull:is(:hover,:focus-visible),html body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--dmo-action,var(--dmo-brand-600));text-decoration:none;outline:0}
-html[data-theme="dark"] body #dmoSupportFull:is(:hover,:focus-visible),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible){background:var(--dmo-brand-600);border-color:#fff;color:#fff}
+html body #dmoSupportFull:is(:hover,:focus-visible,:active),html body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;text-decoration:none;outline:0}
+html[data-theme="dark"] body #dmoSupportFull:is(:hover,:focus-visible,:active),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible,:active){background:var(--dmo-brand-600)}
 
 /* 2) Seletores -------------------------------------------------------------------------------
-   Opção: fundo do cartão, contorno fino e letra normal. Rato por cima: só a letra muda.
-   Escolhida: cor cheia da paleta com letra branca, como os módulos dos Templates. */
-html body{--dmo-opcao-fundo:var(--dmo-card);--dmo-opcao-contorno:var(--dmo-border);--dmo-opcao-letra:var(--dmo-text);--dmo-opcao-hover:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-palette-slate);--dmo-escolhida-contorno:var(--dmo-palette-slate);--dmo-escolhida-letra:#fff}
-html[data-theme="dark"] body{--dmo-opcao-letra:var(--dmo-muted);--dmo-opcao-hover:#fff;--dmo-escolhida-fundo:#4b6387;--dmo-escolhida-contorno:#4b6387}
+   Opção 4 escolhida pelo Diogo (27/10/2026, …XwHyWe8QJjkeaipvH2MLV8; já pedido a 26/10: «iguais aos
+   botões, o escolhido invertido»): as opções são iguais aos botões de ação; o rato por cima muda só
+   a letra; a escolhida fica invertida (fundo do cartão, contorno e letra de destaque). */
+html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#dfe8f5;--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:var(--dmo-brand-600);--dmo-escolhida-letra:var(--dmo-brand-600)}
+html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#A5C5F1;--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#fff}
 
 /* Os rádios e as caixas escondidos: o rótulo é o botão. */
 html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label{position:relative;cursor:pointer}
@@ -54,3 +60,8 @@ html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar:has(>input:ch
 /* Setas da paginação sem página para onde ir («1 de 1»): claramente desligadas, sem fundo de botão
    e sem cursor de mão (Diogo, 27/10/2026, …Cdi68amPSGYKsy5k2Cxp9o: «botões não têm funcionamento»). */
 html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="true"]):is(:disabled,[aria-disabled="true"]){background:transparent;border-color:var(--dmo-border);color:var(--dmo-muted);opacity:.45;cursor:default;pointer-events:none;box-shadow:none}
+
+/* Botões e campos com a mesma altura (Diogo, 27/10/2026, …BCbfSb74Cm52qdM1TDtqzA: «mesmo tamanho nos
+   botões e campos de texto»): os campos de uma linha e as listas ficam com a altura dos botões. As
+   regras mais específicas de uma página (tabelas compactas) continuam a mandar. */
+html body input:is(:not([type]),[type=text],[type=number],[type=search],[type=password],[type=email],[type=tel],[type=date],[type=datetime-local],[type=time],[type=month]),html body select:not([multiple]):not([size]){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height)}

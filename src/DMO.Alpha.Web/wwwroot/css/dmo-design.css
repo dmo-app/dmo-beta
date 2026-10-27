@@ -860,7 +860,7 @@ html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-ref,.ferr-w-lot,.f
   html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>:is(.dmo-card-topo,.arm-onde){grid-column:1;padding-left:20px;border-left:0}
   html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:2;grid-row:1/span 2;padding-left:24px;border-left:1px solid var(--dmo-border)}
 }
-/* Linhas compatíveis escolhidas como os módulos nos Templates (Diogo, 27/10/2026): no dmo-botoes.css, com os outros seletores. */
+/* Linhas compatíveis: seletor como os outros (opção 4 do Diogo, 27/10/2026: escolhida invertida), no dmo-botoes.css. */
 
 /* Menus suspensos (Funções, Opções): no hover só a letra muda; o selecionado
    (a página onde se está) fica com a letra de destaque, sem fundo (Diogo, 27/10/2026:
