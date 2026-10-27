@@ -169,6 +169,11 @@
        mais do que uma (18/10/2026); vazia com uma só. *@
     <partial name="_PegamentosFolhas" model="Model" />
 
+    @* Cabe em 1366×768 (Diogo, 27/10/2026: «as páginas que deslizam
+       estragam o UI»): as leituras à esquerda, a deslizar só elas, e o
+       mapa à direita. *@
+    <div class="peg-folha">
+    <div class="peg-folha-leituras">
     @* ---------------------------------------------------------------- *@
     @* 2. Um card por componente aplicável da combinação.                *@
     @* ---------------------------------------------------------------- *@
@@ -176,17 +181,19 @@
     {
       <partial name="_PegamentosCartao" model="new DMO.Alpha.Web.Pages.Controlo.PegamentosCartaoZona(Model, componentContext)" />
     }
+    </div>
 
     @* ---------------------------------------------------------------- *@
     @* 3. Mapa de limites — o «gráfico todo» do mockup, projetado no     *@
     @*    servidor (apresentação; a autoridade está nas regras).        *@
     @* ---------------------------------------------------------------- *@
     <partial name="_PegamentosMapa" model="Model" />
+    </div>
   }
 
 </main>
 
-@* A confirmação do × de cada leitura (pegamentos-registo.js): uma só janela
+@* A confirmação do «Apagar leitura» (pegamentos-registo.js): uma só janela
    da app, fora das zonas que trocam. *@
 <dialog id="peg-apagar-janela" class="dmo-dialog" aria-labelledby="peg-apagar-titulo">
   <h3 id="peg-apagar-titulo">Apagar leitura</h3>

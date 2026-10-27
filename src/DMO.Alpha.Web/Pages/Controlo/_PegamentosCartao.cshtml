@@ -57,7 +57,19 @@
           {@tituloRef}}@if (tituloLote is not null)
         {@($" · Lote {tituloLote}")}</h3>
     </div>
-    <span class="peg-step">2 · Medições</span>
+    @* Sem botões nas linhas (Diogo, 27/10/2026): carregar num valor abre a
+       leitura para a corrigir e o «Apagar leitura» fica no canto do cartão.
+       O «+ Linha» (mais linhas de uma vez; o Enter grava todas) também. *@
+    <div class="dmo-card-topo-acoes">
+      @if (!toolSemNominal && podeRegistar)
+      {
+        <button type="button" class="dmo-button" data-peg-mais-linha hidden>+ Linha</button>
+      }
+      @if (measurementsOfComponent.FirstOrDefault(m => m.MeasurementId == Model.Pagina.EditarMedicaoId) is { } aApagar)
+      {
+        <button type="submit" form="peg-apagar-@componentToken" name="measurement_id" value="@aApagar.MeasurementId" class="dmo-button" aria-label="Apagar a leitura @(measurementsOfComponent.IndexOf(aApagar) + 1)" data-peg-apagar>Apagar leitura</button>
+      }
+    </div>
   </div>
 
   @* O registo na própria tabela, como na folha original do Diogo
@@ -103,13 +115,11 @@
           <th>Ovalização mm</th>
           <th>Média mm</th>
           <th>Estado</th>
-          <th class="peg-col-x"><span class="dmo-visually-hidden">Apagar</span></th>
         </tr>
       </thead>
       <tbody>
-        @* Sem botões nas linhas (Diogo, 17/10/2026): carregar num valor
-           abre a linha para o corrigir (Enter guarda, Esc cancela) e o
-           pequeno × apaga a leitura. *@
+        @* Carregar num valor abre a linha para o corrigir (Enter guarda,
+           Esc cancela; Diogo, 17/10/2026). *@
         @foreach (var (measurement, numero) in measurementsOfComponent.Select((m, i) => (m, i + 1)))
         {
           if (Model.Pagina.EditarMedicaoId == measurement.MeasurementId)
@@ -123,7 +133,6 @@
               <td data-peg-oval>—</td>
               <td data-peg-media>—</td>
               <td class="peg-dica">Enter guarda · Esc cancela</td>
-              <td></td>
             </tr>
             continue;
           }
@@ -153,7 +162,6 @@
                 <span class="peg-state-ok">@PegamentosVista.StateLabel(measurement.Evaluation)</span>
               }
             </td>
-            <td class="peg-col-x"><button type="submit" form="peg-apagar-@componentToken" name="measurement_id" value="@measurement.MeasurementId" class="peg-x" aria-label="Apagar a leitura @numero" title="Apagar" data-peg-apagar>×</button></td>
           </tr>
         }
         @if (!toolSemNominal && podeRegistar)
@@ -166,7 +174,6 @@
           <td data-peg-oval>—</td>
           <td data-peg-media>—</td>
           <td class="peg-dica">Enter regista</td>
-          <td></td>
         </tr>
         }
       </tbody>
@@ -181,18 +188,11 @@
             <td>@PegamentosVista.FmtSigned(componentAverages.AverageOvalizacaoMm)</td>
             <td>@PegamentosVista.FmtOptional(componentAverages.AverageMediaMm)</td>
             <td>@componentAverages.SampleCount @(componentAverages.SampleCount == 1 ? "amostra" : "amostras")@(componentAverages.AlertCount > 0 ? $" · {componentAverages.AlertCount} fora" : "")</td>
-            <td></td>
           </tr>
         </tfoot>
       }
     </table>
   </div>
-  @if (!toolSemNominal && podeRegistar)
-  {
-    @* Mais linhas de medição de uma vez (Diogo, 17/10/2026): o Enter
-       grava todas as linhas preenchidas. *@
-    <button type="button" class="peg-mais-linha" data-peg-mais-linha hidden>+ Linha</button>
-  }
   @* Os formulários da tabela: os campos ligam-se pelo atributo form.
      O botão escondido é o envio do Enter. *@
   <form id="@formId" method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="RegisterMeasurement" class="peg-registo-form">
