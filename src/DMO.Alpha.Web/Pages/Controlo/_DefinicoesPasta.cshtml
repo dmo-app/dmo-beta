@@ -7,7 +7,7 @@
 @{ var cadeado = ViewData["DefCadeado"] is true; }
 <section id="ctlDefPastaPdf" class="dmo-card ctl-def-card" aria-labelledby="pasta-pdf-title" data-dmo-pasta-pdf>
     <div class="dmo-card-topo">
-      <h3 id="pasta-pdf-title">Pasta partilhada dos PDFs<partial name="_DmoHelp" model="@("A pasta partilhada do servidor da fábrica (por exemplo «Controlo 2026»). Os PDFs do Resumo, do Peso, dos Pegamentos e das PU NNPB gravam-se lá, em referência\\produção, e a app cria as pastas que faltarem. O nome da pasta vale para todos; em cada computador (Chrome ou Edge) associa-se uma vez essa pasta. Sem pasta associada, o PDF vai para as Transferências.")" /></h3>
+      <h3 id="pasta-pdf-title">Pasta partilhada dos PDFs</h3>
       <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefPastaGuardar" form="ctlDefPastaForm" disabled="@cadeado">Guardar</button></div>
     </div>
     <div id="ctlDefPastaNome" data-dmo-regiao data-dmo-parcial data-dmo-pasta-pdf-esperada="@Model.PastaPdf">

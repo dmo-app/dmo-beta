@@ -7,12 +7,12 @@
      relatório «Gestão de Moldes» (ZPPF) fica ligada neste browser. Ao abrir
      as Ferramentas, o DMO lê o ficheiro mais recente da pasta e grava o
      % de uso de cada ferramenta; deixa na pasta os códigos a pedir ao SAP
-     (dmo-codigos.txt). O ficheiro ferramentas-sap.js faz o resto. A ajuda
+     (dmo-codigos.txt). O ficheiro ferramentas-sap.js faz o resto. O link «Como funciona»
      abre a página /Ferramentas/AjudaSap (Diogo, 22/10/2026 06:57: nada de
      textos gigantes nas opções). *@
   <section id="ferrDefSap" class="dmo-card ferr-def-card" aria-labelledby="ferr-sap-title" data-ferr-sap>
     <div class="dmo-card-topo">
-      <h3 id="ferr-sap-title">Utilização pela produção<partial name="_DmoHelp" model="@("como funciona a utilização pela produção")" view-data="@(new ViewDataDictionary(ViewData) { ["AjudaHref"] = "/Ferramentas/AjudaSap", ["AjudaId"] = "ferrSapAjuda" })" /></h3>
+      <h3 id="ferr-sap-title">Utilização pela produção</h3>
       <div class="dmo-card-topo-acoes">
         <button type="button" class="dmo-button" id="ferrSapPasta" data-ferr-sap-pasta disabled="@cadeado">Ligar pasta</button>
         <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler agora</button>
@@ -25,5 +25,6 @@
         ? $"Última leitura: {DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultima.LidoEmUtc):dd/MM/yyyy HH:mm}{(ultima.Ficheiro is { } nomeFicheiro ? $" (ficheiro {nomeFicheiro})" : "")}."
         : "Ainda não foi lida nenhuma lista da produção.")</p>
     <p class="ferr-def-falta" id="ferrSapPastaEstado" data-ferr-sap-estado role="status">Nenhuma pasta ligada neste computador.</p>
+    <a class="ctl-def-link" id="ferrSapAjuda" href="/Ferramentas/AjudaSap">Como funciona</a>
   </section>
 <script src="~/js/ferramentas-sap.js" asp-append-version="true"></script>

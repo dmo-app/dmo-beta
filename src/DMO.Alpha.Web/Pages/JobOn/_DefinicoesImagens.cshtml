@@ -6,7 +6,7 @@
 @{ var cadeado = ViewData["DefCadeado"] is true; }
 <section id="jobonDefImagens" class="dmo-card" aria-labelledby="jobon-imagens-title" data-dmo-pasta-artigos>
   <div class="dmo-card-topo">
-    <h3 id="jobon-imagens-title">Pasta das imagens dos artigos<partial name="_DmoHelp" model="@("A pasta geral do servidor da fábrica onde ficam as imagens dos artigos. A app cria lá uma pasta por referência completa e grava a imagem. Associe-a em cada computador (Chrome ou Edge).")" /></h3>
+    <h3 id="jobon-imagens-title">Pasta das imagens dos artigos</h3>
     <div class="dmo-card-topo-acoes">
       <button type="button" class="dmo-button" data-dmo-pasta-artigos-escolher disabled="@cadeado" hidden>Associar</button>
     </div>
