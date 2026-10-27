@@ -72,6 +72,7 @@
 
   <div class="page-head">
     <div>
+      <partial name="_VoltarAoResumo" model="@(Model.ProductionContext?.JobOnId)" />
       <h1 id="peso-title">Peso</h1>
     </div>
   </div>
@@ -109,6 +110,11 @@
           <label for="historicoReferencia">Referência</label>
           <input id="historicoReferencia" data-dmo-maiusculas autocapitalize="characters" name="referencia" value="@Model.HistoryReference" placeholder="Ex.: 1075C142" data-dmo-suggest="referencias" data-dmo-suggest-submit />
         </div>
+        @* O lote, com a referência (Diogo, 27/10/2026: «falta lote»): ST100 lote 8. *@
+        <div class="dmo-field peso-hist-lote">
+          <label for="historicoLote">Lote</label>
+          <input id="historicoLote" name="lote" value="@Model.HistoryLote" maxlength="3" inputmode="numeric" autocomplete="off" placeholder="Ex.: 8" data-dmo-maiusculas />
+        </div>
         @* A procura em dois passos: primeiro a referência; depois o nº de
            produção num dropdown só com as produções dessa referência, pela
            mesma regra da tabela (o início da referência ou da parte BQ). Cada
@@ -140,9 +146,18 @@
            então devemos conseguir procurar a partir da referência»): a
            referência da CM escreve-se na Referência. O ?ferramenta= dos links
            continua a filtrar. *@
+        @* Um ?ferramenta= vindo de um link filtra à vista: diz qual e tira-se
+           com o «×» (auditoria de 27/10/2026: o filtro ficava invisível). *@
         @if (Model.HistoryTool is not null)
         {
+          var semFerramenta = string.Join("&", Request.Query
+              .Where(q => q.Key is not ("ferramenta" or "pagina"))
+              .SelectMany(q => q.Value.Select(v => $"{Uri.EscapeDataString(q.Key)}={Uri.EscapeDataString(v ?? "")}")));
           <input type="hidden" name="ferramenta" value="@Model.HistoryTool" />
+          <div class="dmo-field peso-hist-ferramenta">
+            <span class="dmo-field-label">Ferramenta</span>
+            <a class="peso-hist-chip" href="/Controlo/Peso?@semFerramenta" aria-label="Tirar o filtro da ferramenta @Model.HistoryTool">@Model.HistoryTool <span aria-hidden="true">×</span></a>
+          </div>
         }
         <div class="dmo-field">
           <label for="historicoTipo">Tipo</label>
@@ -169,7 +184,7 @@
           <input id="historicoData" name="data" type="date" value="@(Model.HistoryData is { } dataFiltro ? dataFiltro.ToString("yyyy-MM-dd") : null)" data-dmo-autosubmit />
         </div>
         @* Sem «Procurar» (Diogo, 17/10/2026): os dropdowns e a data aplicam
-           logo; a referência e a ferramenta procuram ao escrever, ao escolher
+           logo; a referência e o lote procuram ao escrever, ao escolher
            a sugestão ou com o Enter (deep sweep 2, 18/10/2026, F-10). *@
       }
     }
@@ -182,7 +197,7 @@
     <div id="pesoHistoricoResultados" data-dmo-regiao>
     @if (!Model.HistoricoComProcura)
     {
-      <div class="peso-vazia" style="margin-top:12px">Pesquise por referência (e depois a produção), ferramenta, tipo ou data. «Sem Job On associado» mostra os Pesos e Pegamentos que ainda falta associar.</div>
+      @* Sem texto de ajuda (Diogo, 27/10/2026). *@
     }
     else if (Model.HistoryResults is { } results)
     {
@@ -191,7 +206,7 @@
         @* Sem Job On, a referência (nas ferramentas do registo), a ferramenta,
            o tipo e a data também filtram: o aviso diz se a lista ficou vazia
            por eles. *@
-        var semJobOnFiltrado = Model.HistoryReference is not null || Model.HistoryTool is not null
+        var semJobOnFiltrado = Model.HistoryReference is not null || Model.HistoryTool is not null || Model.HistoryLote is not null
             || Model.HistoryTipo is not null || Model.HistoryData is not null;
         <div class="peso-vazia" style="margin-top:12px">@(!Model.HistorySemJobOn ? "Sem registos para esta procura." : semJobOnFiltrado ? "Não há Pesos nem Pegamentos por associar a um Job On com estes filtros." : "Não há Pesos nem Pegamentos por associar a um Job On.")</div>
       }
@@ -212,7 +227,6 @@
                   <th>Referência / produção</th>
                   <th>Data</th>
                   <th>Estado</th>
-                  <th>Resumo</th>
                 </tr>
               </thead>
               <tbody>
@@ -238,9 +252,10 @@
                     <td>@(item.Kind switch { ControloHistoryKind.Peso => "Peso", ControloHistoryKind.Pegamentos => "Pegamentos", ControloHistoryKind.Resumo => "Resumo", _ => "Comparação" })</td>
                     <td>@(item.ControloId is null ? $"Sem Job On · {item.Reference}" : $"{item.Reference} · {item.ProductionNumber} · {item.Machine}")</td>
                     <td>@(item.DataUtc is { } dataRegisto ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(dataRegisto).ToString("dd/MM/yyyy HH:mm") : "—")</td>
-                    @* Com a CM no armazém, o estado diz a posição (Diogo, 27/10/2026). *@
-                    <td>@(item.ControloId is null ? "Por associar" : "Guardado")@(item.CmPosicao is { } posicaoCm ? $" · posição {posicaoCm}" : null)</td>
-                    <td>@(item.Resumo ?? "—")</td>
+                    @* Sem a coluna Resumo; o estado é a posição no armazém, se a CM
+                       lá estiver (Diogo, 27/10/2026). Fora do armazém, o Resumo
+                       diz a aprovação e o que falta associar diz «Por associar». *@
+                    <td>@(item.CmPosicao is { } posicaoCm ? $"Armazém · {posicaoCm}" : item.ControloId is null ? "Por associar" : item.Kind == ControloHistoryKind.Resumo ? item.Resumo ?? "—" : "—")</td>
                   </tr>
                 }
               </tbody>

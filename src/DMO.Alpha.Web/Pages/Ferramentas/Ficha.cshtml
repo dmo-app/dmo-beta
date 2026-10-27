@@ -20,6 +20,7 @@
 <style>
 /* O % da Utilização abre a janela das produções (Diogo, 21/10/2026). */
 .ferr-utilizacao-abrir{all:unset;cursor:pointer;font-weight:800;color:var(--dmo-link,var(--dmo-brand-600));text-decoration:underline;text-underline-offset:3px}
+html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.ferr-producao-maquina){color:#fff}
 .ferr-utilizacao-abrir:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
 .ferr-producoes-janela .ferr-producoes-lista{max-height:min(60vh,420px);overflow:auto}
 .ferr-producoes-janela .dmo-table{min-width:0}
@@ -47,6 +48,9 @@
 .ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
 .ferr-danger{background:var(--dmo-danger,#9a625d)}
 .ferr-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
+.ferr-link-botao{all:unset;cursor:pointer;margin-right:auto;text-decoration:underline;text-underline-offset:3px}
+.ferr-link-botao:hover{color:var(--dmo-text)}
+.ferr-link-botao:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
 .ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
 </style>
 }
@@ -466,7 +470,10 @@
                       aria-label="Produção @prod.Producao — um clique abre a ficha do Job On">
                     <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> <small class="ferr-producao-maquina">@prod.Maquina</small></td>
                     <td>@(prod.ProducaoBruta?.ToString("#,0", pecasProd) ?? "—")</td>
-                    <td>@(prod.DeltaUtilizacao is { } delta ? (delta >= 0 ? "+" : "") + delta.ToString("0.##", pt) + " %" : "—")</td>
+                    @* Sem as leituras antes e depois (só o % de hoje), o delta
+                       estima-se pelo produzido: a parte do % atual que cabe
+                       a esta produção (marcada com «≈»). *@
+                    <td>@(prod.DeltaUtilizacao is { } delta ? (delta >= 0 ? "+" : "") + delta.ToString("0.##", pt) + " %" : producoesTudo.DeltaPeloProduzido(prod, leituraJanela?.Percentagem) is { } estimado ? "≈ +" + estimado.ToString("0.##", pt) + " %" : "—")</td>
                   </tr>
                 }
               </tbody>
@@ -479,17 +486,42 @@
               </tfoot>
             </table>
           </div>
+          @if (producoesFerr.Items.Any(p => p.DeltaUtilizacao is null && producoesTudo.DeltaPeloProduzido(p, leituraJanela?.Percentagem) is not null))
+          {
+            <p class="ferr-nota" id="ferrProducoesEstimado" style="margin-top:8px">«≈» no delta: sem leituras antes e depois da produção, é a parte do % de hoje pelo que ela produziu.</p>
+          }
           @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))
           {
             <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="/Definicoes?secao=computador">Ler a pasta da produção</a></p>
           }
         }
         <div class="dmo-dialog-actions">
+          <button type="button" class="ferr-cancel ferr-link-botao" id="ferrProducoesHistorico" aria-controls="ferrHistoricoProducoes">Ver o Histórico de produções</button>
           <button type="button" class="dmo-button" data-dmo-dialog-close id="ferrProducoesFechar">Fechar</button>
         </div>
       </dialog>
       @* A janela abre com o foco no «Fechar», não na ajuda (que abriria o balão). *@
+      @* O % da Utilização leva também ao Histórico de produções (Diogo,
+         27/10/2026): abre-o e desce até ele por trás da janela; ao fechar a
+         janela fica-se lá. O «Ver o Histórico de produções» fecha a janela. *@
       <script>
+        (function () {
+          function abrirHistorico() {
+            var historico = document.getElementById('ferrHistoricoProducoes');
+            if (!historico) { return; }
+            var dobra = historico.querySelector('details');
+            if (dobra) { dobra.open = true; }
+            historico.scrollIntoView({ block: 'start' });
+          }
+          document.addEventListener('click', function (event) {
+            if (event.target.closest && event.target.closest('#ferr-utilizacao-detalhes, #ferrProducoesHistorico')) { abrirHistorico(); }
+            if (event.target.closest && event.target.closest('#ferrProducoesHistorico')) {
+              var janela = document.getElementById('ferrProducoes');
+              if (janela && janela.open) { janela.close(); }
+              abrirHistorico();
+            }
+          });
+        })();
         (function () {
           var janela = document.getElementById('ferrProducoes');
           if (!janela || !window.MutationObserver) { return; }
@@ -603,7 +635,7 @@
       var pecasHist = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-historico-title" id="ferrHistoricoProducoes" data-dmo-fica>
         <details>
-        <summary class="dmo-card-topo"><h3 id="ferr-historico-title"><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@("Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Garrafas = produção bruta; Δ garrafas = contra a produção anterior; % = quanto o uso subiu nela. Um clique no peso médio mostra a moda e o Δ peso. O total soma as garrafas e mostra a % de hoje.")" /></h3></summary>
+        <summary class="dmo-card-topo"><h3 id="ferr-historico-title"><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@("Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Garrafas = produção bruta; Δ garrafas = contra a produção anterior; % = quanto o uso subiu nela. Um clique no peso médio abre o peso de todas as produções: a média, a moda e o Δ contra a anterior. O total soma as garrafas e mostra a % de hoje.")" /></h3></summary>
         @if (historico.Pagina.TotalCount == 0)
         {
           <p class="ferr-nota">Esta ferramenta ainda não esteve em nenhum Job On.</p>
@@ -620,8 +652,6 @@
                   var prod = itensHist[i];
                   var peso = Model.PesoProducoes.TryGetValue(prod.JobOnId, out var ps) ? ps : null;
                   // Contra a produção anterior (a seguinte na lista, mais antiga).
-                  var pesoAnterior = i + 1 < itensHist.Count && Model.PesoProducoes.TryGetValue(itensHist[i + 1].JobOnId, out var pa) ? pa : null;
-                  var deltaPeso = peso is not null && pesoAnterior is not null ? peso.MediaGramas - pesoAnterior.MediaGramas : (decimal?)null;
                   var brutaAnterior = i + 1 < itensHist.Count ? itensHist[i + 1].ProducaoBruta : null;
                   var deltaGarrafas = prod.ProducaoBruta is { } b && brutaAnterior is { } ba ? b - ba : (long?)null;
                   <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })">
@@ -637,14 +667,11 @@
                       }
                       else
                       {
-                        <button type="button" class="ferr-utilizacao-abrir" data-dmo-dialog="ferrPeso@(prod.JobOnId)">@(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas)) g</button>
-                        <dialog id="ferrPeso@(prod.JobOnId)" class="dmo-dialog" aria-label="Peso da produção @prod.Producao">
-                          <h3>Peso da produção @prod.Producao</h3>
-                          <p>Média <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas) g</strong></p>
-                          <p>Moda <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.ModaGramas) g</strong></p>
-                          <p>Δ peso contra a produção anterior <strong>@(deltaPeso is { } dp ? (dp >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(dp) + " g" : "—")</strong></p>
-                          <div class="dmo-dialog-actions"><button type="button" class="dmo-button" data-dmo-dialog-close>Fechar</button></div>
-                        </dialog>
+                        @* Um clique abre a janela do peso de todas as produções
+                           (Diogo, 27/10/2026: «abrir slide para ver Moda, Média
+                           e delta da produção anterior ... da mesma forma que
+                           fazemos com produzido»). *@
+                        <button type="button" class="ferr-utilizacao-abrir ferr-peso-abrir" aria-label="Peso por produção (@prod.Producao)" data-dmo-dialog="ferrPeso@(prod.JobOnId)">@(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas)) g</button>
                       }
                     </td>
                   </tr>
@@ -663,6 +690,80 @@
           </div>
         }
         </details>
+          @* A JANELA DO PESO (Diogo, 27/10/2026: «abrir slide para ver Moda,
+             Média e delta da produção anterior comparado com as outras
+             produções da mesma forma que fazemos com produzido»), como a
+             «Utilização por produção». Cada peso abre a sua janela: em cima,
+             o peso dessa produção (média, moda e Δ, como antes); por baixo, a
+             tabela de todas as produções — uma só, que muda para a janela
+             aberta. Média e moda do peso do SAP; o Δ é a média contra a da
+             produção anterior (a seguinte na lista, mais antiga), em g e em %.
+             Sem peso do SAP, «—». Fora do <details>: dentro, fechado, não se via. *@
+          @{
+          var itensHistJanela = historico.Pagina.Items.ToList();
+          string DeltaPeso(PesoSapResumo? atual, PesoSapResumo? anterior)
+          {
+              if (atual is null || anterior is null) { return "—"; }
+              var g = atual.MediaGramas - anterior.MediaGramas;
+              var texto = (g >= 0 ? "+" : "−") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(Math.Abs(g)) + " g";
+              if (anterior.MediaGramas > 0)
+              {
+                  var pct = Math.Round(g / anterior.MediaGramas * 100, 2);
+                  texto += " · " + (pct >= 0 ? "+" : "−") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(Math.Abs(pct)) + " %";
+              }
+              return texto;
+          }
+          PesoSapResumo? PesoDe(int i) => i < itensHistJanela.Count && Model.PesoProducoes.TryGetValue(itensHistJanela[i].JobOnId, out var r) ? r : null;
+          }
+          @if (itensHistJanela.Any(p => Model.PesoProducoes.ContainsKey(p.JobOnId)))
+          {
+            <div class="dmo-table-wrap ferr-producoes-lista" id="ferrPesoTabela" hidden>
+              <table class="dmo-table" data-dmo-list="Peso por produção">
+                <thead><tr><th>Produção</th><th>Média</th><th>Moda</th><th>Δ anterior</th></tr></thead>
+                <tbody>
+                  @for (var i = 0; i < itensHistJanela.Count; i++)
+                  {
+                    var prod = itensHistJanela[i];
+                    var peso = PesoDe(i);
+                    <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"
+                        aria-label="Produção @prod.Producao — um clique abre a ficha do Job On">
+                      <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> <small class="ferr-producao-maquina">@prod.Maquina</small></td>
+                      <td>@(peso is null ? "—" : DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas) + " g")</td>
+                      <td>@(peso is null ? "—" : DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.ModaGramas) + " g")</td>
+                      <td>@DeltaPeso(peso, PesoDe(i + 1))</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @for (var i = 0; i < itensHistJanela.Count; i++)
+            {
+              var prod = itensHistJanela[i];
+              if (PesoDe(i) is not { } peso) { continue; }
+              <dialog id="ferrPeso@(prod.JobOnId)" class="dmo-dialog ferr-producoes-janela ferr-peso-janela" aria-labelledby="ferrPesoTitulo@(prod.JobOnId)">
+                <h3 id="ferrPesoTitulo@(prod.JobOnId)">Peso por produção<partial name="_DmoHelp" model="@("O peso médio do relatório de produções do SAP em cada Job On: a média pesada pelos dias e a moda (o peso que se repete mais). O Δ é a média contra a da produção anterior, em gramas e em %. Um clique na produção abre a ficha do Job On.")" /></h3>
+                <p class="ferr-nota">Produção <strong>@prod.Producao</strong> · Média <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas) g</strong> · Moda <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.ModaGramas) g</strong> · Δ anterior <strong>@DeltaPeso(peso, PesoDe(i + 1))</strong></p>
+                <div data-ferr-peso-lugar></div>
+                <div class="dmo-dialog-actions">
+                  <button type="button" class="dmo-button" data-dmo-dialog-close data-ferr-peso-fechar>Fechar</button>
+                </div>
+              </dialog>
+            }
+            <script>
+              (function () {
+                var tabela = document.getElementById('ferrPesoTabela');
+                if (!tabela || !window.MutationObserver) { return; }
+                document.querySelectorAll('dialog.ferr-peso-janela').forEach(function (janela) {
+                  new MutationObserver(function () {
+                    if (!janela.open) { return; }
+                    janela.querySelector('[data-ferr-peso-lugar]').appendChild(tabela);
+                    tabela.hidden = false;
+                    janela.querySelector('[data-ferr-peso-fechar]').focus();
+                  }).observe(janela, { attributes: true, attributeFilter: ['open'] });
+                });
+              })();
+            </script>
+          }
       </section>
     }
 

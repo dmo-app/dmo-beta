@@ -17,6 +17,7 @@
 
   <div class="page-head">
     <div>
+      <partial name="_VoltarAoResumo" model="@(Model.Sheet?.JobOnId)" />
       <h1 id="pu-title">PU NNPB</h1>
     </div>
   </div>
@@ -236,14 +237,10 @@
       <div class="pu-facts">
         <div class="pu-fact"><span>Produção</span><strong>@sheet.ProductionNumber</strong></div>
         <div class="pu-fact"><span>Referência total</span><strong>@sheet.Reference</strong></div>
-        <div class="pu-fact"><span>Linha</span><strong>@sheet.Machine</strong></div>
+        @* Sem «Linha» nem «Processo da CM» na vista (Diogo, 27/10/2026): só a
+           produção, a referência total, a CM e a punção. Os dados ficam; a
+           linha continua na folha das posições e no PDF. *@
         <div class="pu-fact"><span>CM</span><strong>@(sheet.CmReference ?? "—")@(sheet.CmLot is { } cmLot ? $" · Lote {DMO.Alpha.Web.Presentation.LoteTexto.Mostrar(cmLot)}" : null)</strong></div>
-        <div class="pu-fact"><span>Processo da CM</span><strong>@(sheet.IsNnpb ? "NNPB" : sheet.CmProcess ?? "Por preencher")</strong>
-          @if (sheet.NnpbSource == PuncoesNnpbSource.NomeTecnico)
-          {
-            <small>pelo nome técnico da CM; a ficha não tem processo</small>
-          }
-        </div>
         @* A punção como os outros: um mini-cartão, já preenchido ao iniciar (Diogo, 23/10/2026). *@
         @if (Model.CanRegister && Model.ShownPunchReference is { Length: > 0 } puRef)
         {
@@ -310,6 +307,10 @@
         <div class="pu-stat"><span>Total de punções</span><strong>@(registo?.Total ?? 0)</strong></div>
         <div class="pu-stat"><span>Punções vistas</span><strong>@(registo?.PunchSeenCount ?? 0)</strong></div>
         <div class="pu-stat"><span>Arrefecedores vistos</span><strong>@(registo?.CoolerSeenCount ?? 0)</strong></div>
+        @* A RESERVA (Diogo, 27/10/2026: «falta reserva»): as punções que passam
+           da capacidade da linha (secções × 4 posições, pela ordem de
+           registo). É a mesma conta da folha das posições e do PDF. *@
+        <div class="pu-stat" data-pu-reserva-total><span>Reserva</span><strong>@(Model.Posicoes?.Reserva.Count ?? 0)</strong></div>
       </div>
 
       <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title" data-dmo-parcial>

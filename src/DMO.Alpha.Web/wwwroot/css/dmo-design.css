@@ -273,7 +273,9 @@ html body .dmo-support-refresh[hidden]{display:none}
 /* Inside the support panel only the page is drawn: the shell stays outside. */
 html[data-dmo-embedded="true"] body{overflow:auto}
 html[data-dmo-embedded="true"] .dmo-shell-header,
-html[data-dmo-embedded="true"] .dmo-faixa-dev{display:none!important}
+/* A faixa «Em desenvolvimento» sai do ecrã (Diogo, 27/10/2026, cartão …QAAtETotvm9D6bqP3q6yXM).
+   A marca fica no HTML, onde o teste da faixa a procura, até ele mudar com o ok do Diogo. */
+html body .dmo-faixa-dev{display:none!important}
 html[data-dmo-embedded="true"] :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main,.jof2){padding:16px 18px 24px}
 @media(max-width:700px){html body dialog.dmo-support{width:100vw}}
 
@@ -321,6 +323,12 @@ html body .ferr-checks .dmo-check,html body .ferr-checks label{min-width:0}
   html body .beta-production-lines > :is(button,.dmo-rail-link){flex:1 1 120px}
 }
 
+/* Páginas cujas linhas já estão por baixo do título (Reparação, Armazém, Sumário): sem rail
+   à esquerda, o main ocupa a largura toda também entre 701 e 800 px (a 768 px ficava na
+   coluna estreita do rail, e a «Hora» caía por baixo do «Dia»). */
+@media (max-width:800px){
+  html body :is(.beta-light-layout,.beta-bq-layout):has(>main:first-child){grid-template-columns:minmax(0,1fr)}
+}
 /* Mockup composition (Owner, 26/10/2026: «como os mockups»). The machine rail is no longer a
    sidebar: it becomes one strip of line selectors above the page (Boquilhas, Planeamento,
    Reparação). Same markup, same links and selection classes; only the layout changes. */
@@ -717,7 +725,9 @@ html body .jof2 .card.pair .sec{padding:0}
    ferramentas numa linha, notas vazias baixas (as escritas continuam a encher),
    TP e CS com os valores lado a lado. */
 html body .dmo-shell-header .dmo-primary-nav>a{min-height:56px}
-html body .dmo-shell-header{min-height:56px}
+/* A barra de cima com a mesma altura dos links (52 px) em todas as páginas: com 56,
+   onde não há separadores (Definições) o logo e os links desciam 2 px (Diogo, 27/10/2026). */
+html body .dmo-shell-header{min-height:52px}
 html body .dmo-shell-header .dmo-secondary-nav :is(a,button){min-height:38px}
 html body .jof2{padding-top:8px;padding-bottom:8px}
 html body .jof2:not(.editing) .page-head{gap:6px 16px;margin-bottom:8px}
@@ -859,3 +869,31 @@ html body .dmo-tab-menu-list a[aria-current="page"]{background:none !important;c
    da ferramenta. O aspeto de botão está no dmo-botoes.css; aqui só o lugar. */
 html body :is(a.dmo-aviso-link,a.ferr-cancel){margin:4px 0 4px 8px}
 html body #dmoSupportFull{margin-left:auto}
+/* O «← Voltar» discreto das folhas do controlo (Peso, Pegamentos, PU NNPB) para
+   o Resumo (Diogo, 27/10/2026): só texto; no hover muda só a cor. No painel
+   lateral não aparece. */
+html body a.dmo-voltar-texto{display:inline-flex;align-items:center;gap:4px;margin:0 0 4px;color:var(--dmo-muted);font-size:13px;font-weight:500;text-decoration:none;background:none}
+html body a.dmo-voltar-texto:is(:hover,:focus-visible){color:var(--dmo-text);background:none;text-decoration:none}
+html[data-dmo-embedded="true"] body a.dmo-voltar-texto{display:none}
+
+/* A dica aberta não apanha o rato: só texto, não tapa o círculo de ajuda seguinte
+   (nas Boquilhas a dica da procura ficava por cima do próximo círculo) e fecha
+   quando o rato sai do seu círculo. */
+html body .dmo-help .dmo-help-tip{pointer-events:none}
+/* Peso e Pegamentos, barra «Ferramentas»: os rótulos ao lado da caixa liam-se
+   miúdos (Diogo, 27/10/2026: «aumentar o font»). */
+html body :is(main.peso-page,main.peg-page) form.dmo-filter-bar:not(#pesoHistoricoFiltros)>.dmo-field>label{font-size:14px;font-weight:600;color:var(--dmo-text)}
+/* O Lote do Histórico do Controlo: três dígitos. */
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote{flex:0 0 72px}
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote>input{width:72px;min-width:0}
+/* Histórico do Controlo menos branco (Diogo, 27/10/2026: «fica demasiado
+   branco», «usa um pouco de shade da palete»): no claro, o cabeçalho da
+   tabela no tom pálido da marca e as linhas alternadas no tom subtil. */
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] thead th{background:color-mix(in srgb,var(--dmo-brand-500) 16%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] tbody tr:nth-child(even)>td{background:color-mix(in srgb,var(--dmo-brand-500) 7%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page #pesoHistoricoFiltros{background:color-mix(in srgb,var(--dmo-brand-500) 9%,var(--dmo-card));border-radius:var(--dmo-radius-control,8px);padding:10px 12px}
+/* O filtro «Ferramenta» de um link, à vista e com «×» para o tirar. */
+html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-ferramenta{flex:0 0 auto}
+html body main.peso-page .peso-hist-chip{display:inline-flex;align-items:center;gap:6px;height:var(--dmo-control-height);padding:0 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-radius-control,8px);background:var(--dmo-card);color:var(--dmo-text);text-decoration:none;font-weight:600}
+html body main.peso-page .peso-hist-chip:is(:hover,:focus-visible){color:var(--dmo-action,var(--dmo-brand-600))}
+html body main.peso-page .peso-hist-ferramenta>.dmo-field-label{display:block;margin:0 0 4px;font-size:12px;font-weight:500;color:var(--dmo-muted)}
