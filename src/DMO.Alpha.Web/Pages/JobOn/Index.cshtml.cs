@@ -543,7 +543,7 @@ public sealed class IndexModel : PageModel
             data => jobOns.Count(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)),
             diaSelecionado is { } dia && dia >= 1 && dia <= DateTime.DaysInMonth(year, month) ? new DateOnly(year, month, dia) : null,
             "/JobOn/Index",
-            hasForDay: data => jobOns.Any(j => j.InicioEm == data || j.FimEm?.AddDays(1) == data)) with { LegendLabel = "Mudanças numa linha" };
+            hasForDay: data => jobOns.Any(j => j.InicioEm == data || j.FimEm?.AddDays(1) == data)) with { LegendLabel = "Mudanças numa linha", AcoesNoTopo = true };
     }
 
     /// <summary>

@@ -50,6 +50,14 @@ public sealed record DmoCalendarPresentation(
     public string? Filtros { get; init; }
 
     /// <summary>
+    /// O mês à esquerda e, no canto superior direito do cartão, os botões
+    /// «Anterior», «Hoje» e «Seguinte» (o Planeamento; Diogo, 27/10/2026), em
+    /// vez das setas ‹ ›. As ligações são as mesmas (mês anterior, mês
+    /// seguinte e o dia de hoje) e os ids dos botões do mês não mudam.
+    /// </summary>
+    public bool AcoesNoTopo { get; init; }
+
+    /// <summary>
     /// Monta o mês completo (os dias 1..N, o hoje e o dia escolhido) para o
     /// partial _DmoCalendar. A página só diz quantos registos há em cada dia
     /// (<paramref name="countForDay"/>); o ponto acende quando há registos, ou

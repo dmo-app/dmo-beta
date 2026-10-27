@@ -46,7 +46,7 @@
       <div class="beta-light-heading">
         <div>
           @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
-          <h1 title="Selecione uma produção para consultar ou preparar as ferramentas.">Job On</h1>
+          <h1 title="Selecione uma produção para consultar ou preparar as ferramentas.">Planeamento</h1>
         </div>
       </div>
       @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
@@ -116,6 +116,8 @@
           {
           <div id="lightProductionList" class="beta-light-list" data-dmo-list="Produções do dia" data-dmo-parcial>
               @* O QUADRO COMPLETO DAS LINHAS — servido por RAZOR (o Owner: «quadro do dia pode ir» + a lei «tudo razor»): as máquinas B1..C3 sempre visíveis, as com produção mostram-na (o badge da linha + a referência + o número), as livres ficam vazias «—». Um clique seleciona (o radio escondido) e abre a folha, Enter também; outro clique tira. *@
+              @* O cabeçalho da tabela (Linha · Referência · Produção · Próxima mudança): só aspeto, as linhas por baixo são as mesmas. *@
+              <div class="beta-light-list-head" aria-hidden="true"><span>Linha</span><span>Referência</span><span>Produção</span><span>Próxima mudança</span></div>
               @foreach (var row in Model.DayRows)
               {
                 @* O QUADRO DO DIA (a CORREÇÃO FINAL do Owner 14/10: «deixar
@@ -163,7 +165,10 @@
                               aria-label="Produção @production.ProductionNumber na @row.MachineCode — um clique abre a folha">
                         <input type="radio" name="jobon_id" value="@production.JobOnId" class="dmo-visually-hidden" aria-label="Produção @production.ProductionNumber" checked="@aberta" />
                         <strong>@row.MachineCode</strong>
+                        @* O texto inteiro («referência produção») fica para os leitores de ecrã (escondido por CSS); a tabela mostra a referência e a produção em colunas, aria-hidden. *@
                         <span>@(production.Experiencia ? "Experiência " : "")@production.Reference @production.ProductionNumber</span>
+                        <span class="beta-light-ref" aria-hidden="true">@(production.Experiencia ? "Experiência " : "")@production.Reference</span>
+                        <span class="beta-light-prodnum" aria-hidden="true">@production.ProductionNumber</span>
                         @{ var notaLote = string.Join(" · ", production.LotNotes); }
                         @* Sem o aviso amarelo das alterações na lista do dia: vivem no
                            resumo do fim da folha do Job On (Diogo, 23/10/2026). *@
@@ -235,7 +240,9 @@
               <input type="hidden" name="ano" value="@Model.Year" />
               <input type="hidden" name="mes" value="@Model.Month" />
               <input type="hidden" name="dia" value="@(Model.NoDaySelected ? 0 : Model.SelectedDay)" />
-              <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Referência" data-dmo-suggest="referencias"
+              <label class="jobon-procura-rotulo" for="lightSearch">Referência</label>
+              <label class="jobon-procura-rotulo" for="lightProcuraProducoes">Produção</label>
+              <input id="lightSearch" data-dmo-maiusculas autocapitalize="characters" type="search" name="procura" value="@Model.SearchTerm" aria-label="Procurar produção" placeholder="Ex.: 5447" data-dmo-suggest="referencias"
                      data-dmo-procura="@Url.Page("/JobOn/Index", "ProcurarProducao", new { ano = Model.Year, mes = Model.Month, dia = Model.NoDaySelected ? 0 : Model.SelectedDay })" data-dmo-procura-alvo="lightProcura" data-dmo-procura-sempre />
               @* A ajuda encostada à caixa a que pertence (.dmo-com-ajuda, regra partilhada; Diogo, 24/10/2026). *@
               <span class="dmo-com-ajuda"><span id="lightProcura" class="jobon-procura" aria-live="polite"><partial name="_JobOnProcuraProducoes" model="Model.SearchResults ?? DMO.Alpha.Web.Pages.JobOn.JobOnProcura.Vazia" /></span><partial name="_DmoHelp" model="@("O primeiro campo procura a referência. O segundo é um dropdown com as produções dessa referência.")" /></span>

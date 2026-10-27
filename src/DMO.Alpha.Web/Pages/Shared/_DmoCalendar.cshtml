@@ -19,7 +19,46 @@
   var mesSeguinte = Model.Month == 12 ? 1 : Model.Month + 1;
   var anoSeguinte = Model.Month == 12 ? Model.Year + 1 : Model.Year;
 }
-<div class="card dmo-calendar" id="dmoCalendario" data-dmo-regiao data-dmo-parcial data-dmo-filtros="@Model.Filtros">
+<div class="card dmo-calendar@(Model.AcoesNoTopo ? " dmo-calendar-acoes" : "")" id="dmoCalendario" data-dmo-regiao data-dmo-parcial data-dmo-filtros="@Model.Filtros">
+  @if (Model.AcoesNoTopo)
+  {
+    @* O MÊS À ESQUERDA E OS TRÊS BOTÕES NO CANTO SUPERIOR DIREITO (Planeamento,
+       Diogo, 27/10/2026): as mesmas ligações das setas (o mês anterior e o
+       seguinte, um form GET cada) e o «Hoje», uma ligação ao dia de hoje. *@
+    var hojeData = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
+    var hojeRota = new Dictionary<string, string>(Model.PreservedQuery)
+    {
+      ["dia"] = hojeData.Day.ToString(System.Globalization.CultureInfo.InvariantCulture),
+      ["ano"] = hojeData.Year.ToString(System.Globalization.CultureInfo.InvariantCulture),
+      ["mes"] = hojeData.Month.ToString(System.Globalization.CultureInfo.InvariantCulture)
+    };
+    <div class="calendar-head dmo-calendar-topo">
+      <strong id="dmo-calendar-title">@Model.MonthTitle</strong>
+      <div class="dmo-card-topo-acoes">
+        <form method="get" asp-page="@Model.NavigationPage" class="dmo-calendar-nav-form">
+          @foreach (var pair in Model.PreservedQuery)
+          {
+            <input type="hidden" name="@pair.Key" value="@pair.Value" />
+          }
+          <input type="hidden" name="mes" value="@mesAnterior" />
+          <input type="hidden" name="ano" value="@anoAnterior" />
+          <button class="dmo-button" type="submit" id="dmoCalendarioAnterior" aria-label="Mês anterior">Anterior</button>
+        </form>
+        <a class="dmo-button" id="dmoCalendarioHoje" asp-page="@Model.NavigationPage" asp-all-route-data="hojeRota">Hoje</a>
+        <form method="get" asp-page="@Model.NavigationPage" class="dmo-calendar-nav-form">
+          @foreach (var pair in Model.PreservedQuery)
+          {
+            <input type="hidden" name="@pair.Key" value="@pair.Value" />
+          }
+          <input type="hidden" name="mes" value="@mesSeguinte" />
+          <input type="hidden" name="ano" value="@anoSeguinte" />
+          <button class="dmo-button" type="submit" id="dmoCalendarioSeguinte" aria-label="Mês seguinte">Seguinte</button>
+        </form>
+      </div>
+    </div>
+  }
+  else
+  {
   <div class="calendar-head dmo-calendar-nav">
     @* O MÊS ANTERIOR: um form GET próprio, um mês e um ano enviados — a
        viragem janeiro→dezembro volta ao ano anterior. *@
@@ -44,6 +83,7 @@
       <button class="icon-btn" type="submit" id="dmoCalendarioSeguinte" aria-label="Mês seguinte">›</button>
     </form>
   </div>
+  }
   <div class="week dmo-calendar-week">
     <span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span><span>DOM</span>
   </div>
@@ -96,6 +136,5 @@
   </div>
   <div class="dmo-calendar-legend">
     <span><i></i>@Model.LegendLabel</span>
-    <span>Selecione um dia</span>
   </div>
 </div>
