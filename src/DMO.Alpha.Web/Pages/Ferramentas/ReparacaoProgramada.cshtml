@@ -21,8 +21,12 @@ html body .rp-filtros .dmo-field input.rp-curto{width:10ch}
 html body .rp-filtros .dmo-field input.rp-lote{width:6ch}
 html body .rp-page .dmo-field select{width:auto;max-width:22ch}
 .rp-card .dmo-table td{padding:6px 8px;vertical-align:middle}
-.rp-marca{width:34px;text-align:center}
-.rp-marca input{width:18px;height:18px;cursor:pointer}
+html body #rpCandidatas .rp-marca{display:none}
+/* A linha marcada fica escura, como a escolhida nas outras tabelas (R16, Diogo 27/10/2026). */
+html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked)>td{background:var(--dmo-brand-600);color:var(--dmo-text-on-color);border-top-color:transparent}
+html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked) :is(td,strong,span){color:var(--dmo-text-on-color)}
+html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked)>td:nth-child(2){border-radius:7px 0 0 7px}
+html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked)>td:last-child{border-radius:0 7px 7px 0}
 .rp-pos{font-variant-numeric:tabular-nums;font-weight:700}
 .rp-contents{display:contents}
 .rp-oculto{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -349,18 +353,41 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       else campo.form.submit();
     });
   }
-  // A caixa de marcar só marca: não abre a ficha da linha.
+  // ESCOLHER CLICANDO NA LINHA (Diogo, 27/10/2026, …ArwQ5cxnpV7LsWUeA9PZap: «nunca caixa nem
+  // rádio»): a caixa de marcar fica escondida no markup (é o valor que o «Adicionar» envia). Um
+  // clique na linha marca ou desmarca e a linha fica mais escura; o duplo clique e o Enter abrem
+  // a ficha; o Espaço marca. Por delegação no document: a lista pode chegar numa zona trocada.
   if (!window.rpMarcaLigada) {
     window.rpMarcaLigada = true;
+    var rpLinha = function (alvo) {
+      return alvo && alvo.closest ? alvo.closest("#rpCandidatas tbody tr[data-dmo-candidata]") : null;
+    };
+    var rpMarcar = function (linha) {
+      var caixa = linha.querySelector("input[data-rp-marca]");
+      if (!caixa) return;
+      caixa.checked = !caixa.checked;
+      linha.setAttribute("aria-selected", caixa.checked ? "true" : "false");
+      caixa.dispatchEvent(new Event("change", { bubbles: true }));
+    };
     document.addEventListener("click", function (event) {
-      var alvo = event.target;
-      if (alvo && alvo.closest && alvo.closest("td.rp-marca")) {
-        event.stopPropagation();
-        if (alvo.matches && !alvo.matches("input")) {
-          var caixa = alvo.closest("td.rp-marca").querySelector("input");
-          if (caixa) caixa.checked = !caixa.checked;
-        }
-      }
+      var linha = rpLinha(event.target);
+      if (!linha || event.target.closest("a,button,select,textarea")) return;
+      event.stopPropagation();
+      if (event.detail > 1) return;
+      rpMarcar(linha);
     }, true);
+    document.addEventListener("dblclick", function (event) {
+      var linha = rpLinha(event.target);
+      if (!linha || !linha.dataset.dmoOpen) return;
+      event.stopPropagation();
+      rpMarcar(linha);
+      window.location.href = linha.dataset.dmoOpen;
+    }, true);
+    document.addEventListener("keydown", function (event) {
+      var linha = rpLinha(event.target);
+      if (!linha || event.target !== linha || event.key !== " ") return;
+      event.preventDefault();
+      rpMarcar(linha);
+    });
   }
 </script>

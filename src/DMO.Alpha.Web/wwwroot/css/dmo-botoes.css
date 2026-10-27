@@ -120,3 +120,21 @@ html body main.peso-page .peso-card>.dmo-modo-head+form.dmo-filter-bar>.dmo-fiel
    ocupam mais do que no Linux, por isso fica folga. */
 html body .beta-bq-layout .bq-movement-line .bq-line-date.bq-line-date{flex:0 0 212px}
 html body .beta-bq-layout .bq-movement-line .bq-line-date>input{width:100%}
+
+/* Login (Diogo, 27/10/2026, …PdynBdKmqfzjGTh7Jm43KX: «Entrar está muito separado e Mostrar muito
+   grande»): o «Entrar» 12 px abaixo da palavra-passe; o «Mostrar» pequeno, só texto dentro do
+   campo, sem o enchimento dos botões de ação. */
+html body.dmo-account-page .login-form .dmo-field:has(.password-wrap){margin-bottom:12px}
+html body.dmo-account-page .login-form .submit.submit{margin-top:0}
+html body.dmo-account-page .password-wrap .password-toggle.password-toggle:not(#_){height:24px;min-height:24px;padding:0 6px;font-size:12px;font-weight:500;color:var(--dmo-muted);background:transparent;border:0;box-shadow:none}
+html body.dmo-account-page .password-wrap .password-toggle.password-toggle:not(#_):is(:hover,:focus-visible,:active){background:transparent;border:0;color:var(--dmo-brand-700)}
+html[data-theme="dark"] body.dmo-account-page .password-wrap .password-toggle.password-toggle:not(#_):is(:hover,:focus-visible,:active){color:var(--dmo-text)}
+
+/* Linha escolhida nas tabelas (R16; Diogo, 27/10/2026, …NsYBMD1uM3urD3FoiCrFa1: «não tão forte»;
+   …172Da3NvgX58DsX6pceune: «deixa uma cor»; …8VGCjvpiPUQBuwLrfxJLnY: «usar o que já usamos»):
+   o azul suave da paleta atual (--dmo-brand-200) com a letra normal, nos dois modos. */
+html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_)>td{background:var(--dmo-brand-200);color:var(--dmo-text)}
+html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_) :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:var(--dmo-text)}
+/* Login, «Entrar» (Diogo, 27/10/2026: «não gosto do efeito de ficar preto e mais pequeno, meter o
+   normal dos botões»): no hover só escurece um tom, sem o contorno branco que o fazia parecer menor. */
+html body.dmo-account-page .login-form .submit.submit:is(:hover,:active):not(:disabled){background:#334663;border-color:#334663;color:#fff}

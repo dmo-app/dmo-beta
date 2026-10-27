@@ -312,8 +312,10 @@ public sealed class UserAdminService : IUserAdminService
         if (reset.Status == UserProvisioningResetStatus.IdentityNotFound)
         {
             // Recover the existing DMO user, not a second application account.
-            // Sem email, a identidade nasce com o endereço técnico do nº.
-            var email = TrimToNull(user.Email) ?? OperatorProviderEmail(user.OperatorId);
+            // Sem email não há como recriar a identidade aqui.
+            var email = TrimToNull(user.Email);
+            if (email is null)
+                return new ResetUserAccessOutcome(ResetUserAccessResult.IdentityNotFound);
 
             var created = await _provisioningProvider.CreateAsync(email, temporaryPassword, CancellationToken.None);
             if (created.Status != UserProvisioningCreateStatus.Success
