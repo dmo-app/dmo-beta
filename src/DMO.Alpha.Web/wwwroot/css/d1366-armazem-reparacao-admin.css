@@ -150,3 +150,107 @@ html body main.def-page .def-conta dt{font-size:12px;font-weight:500;color:var(-
 html body main.def-page .dmo-table-wrap:has(>.def-conta-modulos){width:max-content;max-width:100%;margin-top:12px}
 html body main.def-page .def-conta-modulos{width:auto;min-width:0;margin:0}
 html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6px 16px;white-space:nowrap}
+
+/* ======================================================================
+   1366×768, 2.ª volta (auditoria de 27/10/2026, grupos 4 e 5).
+   ====================================================================== */
+
+/* ADMIN › UTILIZADORES, TEMPLATES e FICHA: a mesma largura e as mesmas margens
+   do resto da app (24→1342 px a 1366), em vez de 85→1281 (máx. 1240) e 187→1179
+   (máx. 1000). As margens deixam de mudar ao trocar de separador. */
+@media (min-width:1100px){
+  html body main:is(.dmu-page,.dmt-page,.dfu-page){box-sizing:border-box;width:100%;max-width:none;margin:0;padding:16px 24px 14px}
+  /* O título como o da Ficha e o das outras páginas (26 px, cor do texto). */
+  html body main:is(.dmu-page,.dmt-page) .page-head h2{font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
+  /* Utilizadores: os campos de «Criar utilizador» do tamanho do que levam (antes 372 px). */
+  html body main.dmu-page .dmu-form-grid{grid-template-columns:240px 112px 300px 300px;justify-content:start}
+  /* A lista com linhas mais baixas (47→33 px): as mesmas 25 por página cabem em menos ecrã. */
+  html body main.dmu-page #dmu-resultados .dmo-table td{padding-top:6px;padding-bottom:6px}
+  html body main.dmu-page #dmu-resultados .dmo-table .dmo-pill{height:20px;min-height:20px;padding-top:2px;padding-bottom:2px}
+  /* Templates: o nome é um rótulo curto (antes 420 px). */
+  html body main.dmt-page :is(#dmt-new-name,#dmt-edit-name){width:100%;max-width:320px}
+  /* Ficha: com a largura toda, o PIN e as Ações de acesso lado a lado (antes cada um numa
+     linha inteira, a usar 26–36 %). */
+  html body main.dfu-page:has(>section.dfu-card){grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+  html body main.dfu-page:has(>section.dfu-card)>*,
+  html body main.dfu-page:has(>section.dfu-card)>.dmo-zona>*{grid-column:1/-1}
+  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card{grid-column:1}
+  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card~.dmo-zona>section.dfu-card{grid-column:2;grid-row:auto}
+  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card~.dmo-zona>section.dfu-card,
+  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card{margin:0}
+}
+
+/* DEFINIÇÕES › ADMIN › APP: o email (≈300 px) e o PIN (12 algarismos, ≈160 px) do tamanho
+   do que levam, lado a lado no cartão (antes 614 px cada, um por linha). */
+@media (min-width:1100px){
+  html body main.def-page form.adm-email-form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+  html body main.def-page form.adm-email-form>.dmo-field{flex:0 0 auto;margin:0;min-width:0}
+  html body main.def-page :is(#adminEmail,#adminEmailConfirm){width:296px;max-width:100%}
+  html body main.def-page :is(#admPinNovo,#admPinConfirmar){width:160px;max-width:100%}
+}
+
+/* DEFINIÇÕES › CONTROLO › EMAIL: Lista, Nome e Email numa só linha (o Email saltava para
+   baixo e metade do cartão ficava vazia). */
+@media (min-width:1100px){
+  html body main.def-page form#ctlDefCriarListaForm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr);gap:8px;align-items:end}
+  html body main.def-page form#ctlDefCriarListaForm>.dmo-field{min-width:0;width:auto;max-width:none}
+  html body main.def-page form#ctlDefCriarListaForm>.dmo-field>input{width:100%}
+}
+
+/* DEFINIÇÕES › PESSOAL: «A minha conta» à esquerda e, à direita, a Sessão e «Mudar a
+   palavra-passe» (a conta ocupava a largura toda com 25–35 % usado). */
+@media (min-width:1100px){
+  html body main.def-page #sec-pessoal:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
+  html body main.def-page #sec-pessoal>*{grid-column:1/-1;margin:0}
+  html body main.def-page #sec-pessoal>#defConta{grid-column:1;grid-row:2/span 2}
+  html body main.def-page #sec-pessoal>section.def-linha:not([id]){grid-column:2;grid-row:2}
+  html body main.def-page #sec-pessoal>#defPalavraPasse{grid-column:2;grid-row:2}
+  html body main.def-page #sec-pessoal:has(>section.def-linha:not([id]))>#defPalavraPasse{grid-row:3}
+  html body main.def-page #sec-pessoal:not(:has(>section.def-linha:not([id])))>#defConta{grid-row:2}
+}
+
+/* REPARAÇÃO (Registar, Histórico, Consultar) e ARMAZÉM › MOVIMENTOS: do título ao primeiro
+   cartão o mesmo espaço das outras páginas (≈35→16 px). */
+@media (min-width:1100px){
+  html body main.ri-page>.page-head,
+  html body main:has(#armMovimentos)>.page-head{margin-bottom:0}
+}
+
+/* REPARAÇÃO › CONSULTAR: o «Sem Job On» com o texto ao centro, como o «Limpar filtros».
+   É a dica (círculo) dentro do rótulo que o alinhava pela linha de base, em cima
+   (dmo-normalize.css: rótulos com .dmo-help → align-items:baseline!important). */
+html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar:has(>.dmo-help){align-items:center!important}
+html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar>.dmo-help{align-self:center}
+
+/* ARMAZÉM › REGISTO com a ferramenta aberta: o painel da esquerda sem o buraco de ≈100 px
+   entre CM/MF/BQ e «Registar CM». A altura que sobra (a ferramenta à direita é mais alta)
+   vai para o fim do cartão da procura, e não para a linha dos tipos. */
+@media (min-width:1100px){
+  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]){grid-template-rows:auto auto auto 1fr auto}
+}
+
+/* ARMAZÉM › REGISTO e REPARAÇÃO sem nada escolhido: o convite é um espaço à espera (contorno
+   tracejado, letra suave, ao centro), não um cartão largo com uma frase só. */
+html body main.arm-page #armEscolha,
+html body main.ri-page #riEscolha{background:transparent;border:1px dashed var(--dmo-border);box-shadow:none;color:var(--dmo-muted)}
+html body main.ri-page #riEscolha{text-align:center}
+@media (min-width:1100px){
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armEscolha{justify-content:center}
+}
+
+/* LOGIN e MUDAR PALAVRA-PASSE (modo escuro): as letras «BA» do logótipo são transparentes
+   no PNG e mostravam o fundo escuro sobre o azul. Um disco claro por trás do círculo azul
+   (sem passar da borda) devolve-lhes o branco do logótipo. */
+html[data-theme="dark"] body.dmo-account-page .brand-logo{background:radial-gradient(circle closest-side,var(--dmo-text-on-color) 0 90%,transparent 90%)}
+
+/* «MÓDULO INÍCIO» (sem módulos): o título com o tamanho, o peso e a margem dos títulos
+   das outras páginas (era 28 px / 700, a 26 px da borda; os outros 26 px / 650, a 24 px). */
+@media (min-width:1100px){
+  html body .dmo-shell-page:has(>.dmo-home-modules){padding-left:24px;padding-right:24px}
+  html body .dmo-shell-page:has(>.dmo-home-modules)>h1{margin:0 0 12px;font-size:26px;font-weight:650;letter-spacing:-.035em;line-height:1.2;color:var(--dmo-text)}
+}
+
+/* REPARAÇÃO › REGISTAR num posto de uma só linha (sem a faixa das linhas): entre 701 e 800 px
+   a grelha antiga (faixa | página) metia a página na coluna estreita da faixa (244 px) e a
+   «Hora» caía por baixo do «Dia». Sem faixa, a página ocupa a largura toda. */
+html body .beta-light-layout.ri-layout>main.ri-page:only-child{grid-column:1/-1}
