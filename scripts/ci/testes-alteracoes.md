@@ -3290,3 +3290,15 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PostoRi.cs :: PostgresMigrationIntegrationTests.PostoRi_ListaSoQuemTemRiEPinPorNome_ComAsMesmasConsultasPara5Ou100Reparadores`
 
 Selo depois: `9a4eeaa62eadde2a`
+
+## A-0184 · 2026-10-27 · ok-do-diogo
+
+Porquê: Ficha de utilizador sem email e email opcional ao criar (DMO-442): o teste da ficha deixa de esperar o email e o das recusas deixa de recusar quem não tem email; entra o teste da conta sem email.
+Referência: Diogo, 27/10/2026, cartão cmsg_01K75FTs9bQnbhhH7qttpgraX6am21dAvjuJ2KELwbTMvF («Sim, aprovo»); pedido cmsg_01K75FTs9bQnbhhH7qttpgraEMxzGkVktKoK7yyAw6RnoU
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_SemEmail_CriaAContaQueEntraPeloNumero`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/UserAdminServiceTests.cs :: ToggleSaveFailureInterceptor.CreateDmoUser_InvariantViolations_AreTypedRefusalsBeforeAnyWrite`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaShowsHumanFacts_AndTheActionsMovedFromTheTablePostToTheSameIndexHandlers`
+
+Selo depois: `4c6656d1bd4956fb`
