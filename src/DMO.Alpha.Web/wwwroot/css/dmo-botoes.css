@@ -132,7 +132,7 @@ html[data-theme="dark"] body.dmo-account-page .password-wrap .password-toggle.pa
 
 /* Linha escolhida nas tabelas (R16; Diogo, 27/10/2026, …NsYBMD1uM3urD3FoiCrFa1: «não tão forte»,
    …R6DSHH8D59ENoLvG4VA9vM: «usar cores mais light nos tons de azul», nos dois modos): os tons
-   claros da paleta nova (#CADEED no claro, #91AEC4 no escuro) com a letra escura. */
-html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_)>td{background:#cadeed;color:#0a1824}
+   claros da paleta nova com a letra escura; uma só cor nos dois modos (…172Da3NvgX58DsX6pceune:
+   «deixa uma cor»). */
+html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_)>td{background:#b7d0e1;color:#0a1824}
 html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_) :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:#0a1824}
-html[data-theme="dark"] body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_)>td{background:#91aec4}
