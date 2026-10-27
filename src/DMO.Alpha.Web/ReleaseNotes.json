@@ -494,6 +494,7 @@
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
     { "id": "DMO-P03", "module": "Pegamentos", "description": "Correção de leituras com histórico e criação explícita de controlos adicionais na mesma produção." },
     { "id": "DMO-508", "module": "Controlo", "description": "0.3.0-beta.206: nas Definições, a PU NNPB passa a ter a Gota de cada linha ao lado das Secções (B1 com 4 gotas e C3 com 3, por omissão) e mostra os Punções que a linha leva (secções × gota). A folha das punções e o PDF usam uma posição por gota (na C3: A, B e C). O PDF das punções já se gera com a reserva cheia." },
-    { "id": "DMO-511", "module": "Controlo", "description": "0.3.0-beta.208: o PDF da PU NNPB extrai-se sempre, também com muitas punções na reserva (antes falhava com mais de 10), e os números da reserva ficam inteiros numa linha. O PDF sai sempre em claro, com a app em claro ou em escuro." }
+    { "id": "DMO-511", "module": "Controlo", "description": "0.3.0-beta.208: o PDF da PU NNPB extrai-se sempre, também com muitas punções na reserva (antes falhava com mais de 10), e os números da reserva ficam inteiros numa linha. O PDF sai sempre em claro, com a app em claro ou em escuro." },
+    { "id": "DMO-512", "module": "Controlo", "description": "0.3.0-beta.211: nos Pegamentos, carregar num valor para o corrigir abre a leitura na própria página, como antes, e não na janela lateral; apagar a leitura tira logo a linha da tabela (dentro da janela lateral, a linha ficava na página por trás até recarregar)." }
   ]
 }
