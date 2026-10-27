@@ -513,7 +513,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("Sem par", html);
         Assert.Contains(">450.52<", html);   // a linha do CM «12» na tabela dos pares
         Assert.Contains(">326.06<", html);   // o CM «31» novo, sem contraparte
-        Assert.Contains("3 CM medido(s)", html);
+        Assert.Contains("3 CM medidos", html);
         Assert.Contains("Pré-visualização não guardada", html);
 
         // ZERO escrita: a comparação ao vivo não cria registo nenhum.
@@ -955,7 +955,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
 
         // O resultado existe, só com a leitura utilizável.
         Assert.Contains("Peso do vidro · controlo inicial / novas leituras", html);
-        Assert.Contains("1 CM medido(s)", html);
+        Assert.Contains("1 CM medido.", html);
         Assert.Contains(">450.52<", html);
 
         // O aviso (estilo de aviso, não de recusa) diz quais ficaram de fora.

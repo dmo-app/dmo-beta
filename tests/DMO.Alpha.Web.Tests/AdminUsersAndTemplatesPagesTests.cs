@@ -662,12 +662,12 @@ public sealed partial class AdminUsersAndTemplatesPagesTests : IClassFixture<Cus
         }
 
         var firstPage = await (await adminClient.GetAsync("/Admin/Users")).Content.ReadAsStringAsync();
-        Assert.Contains("30 utilizador(es)", firstPage, StringComparison.Ordinal);
-        Assert.DoesNotContain("25 utilizador(es)", firstPage, StringComparison.Ordinal);
+        Assert.Contains("30 utilizadores", firstPage, StringComparison.Ordinal);
+        Assert.DoesNotContain("25 utilizadores", firstPage, StringComparison.Ordinal);
         Assert.Equal(25, Regex.Matches(firstPage, "name=\"user_id\"").Count);
 
         var secondPage = await (await adminClient.GetAsync("/Admin/Users?pagina=2")).Content.ReadAsStringAsync();
-        Assert.Contains("30 utilizador(es)", secondPage, StringComparison.Ordinal);
+        Assert.Contains("30 utilizadores", secondPage, StringComparison.Ordinal);
         Assert.Equal(5, Regex.Matches(secondPage, "name=\"user_id\"").Count);
     }
 

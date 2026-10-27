@@ -941,7 +941,7 @@
             <div class="card movement-card">
               <div class="card-head bq-history-card-head">
                 <h3>Movimentos agrupados por máquina e Job On</h3>
-                <span class="date-chip">@Model.GroupedMovements.Count BQ / produção(ões)</span>
+                <span class="date-chip">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.GroupedMovements.Count, "BQ / produção", "BQ / produções")</span>
               </div>
               @* 25 grupos (registo × Job On) por página; os totais e o PDF
                  continuam a usar todos os movimentos do filtro. *@

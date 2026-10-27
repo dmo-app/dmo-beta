@@ -229,7 +229,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
           }
           else
           {
-            <p class="dmt-hint" style="margin:4px 0 8px">@Model.SelectedTemplateUsers.Count utilizador(es)</p>
+            <p class="dmt-hint" style="margin:4px 0 8px">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.SelectedTemplateUsers.Count, "utilizador", "utilizadores")</p>
             <div class="dmo-table-wrap">
               <table class="dmo-table" data-dmo-list="Utilizadores com esta template">
                 <thead><tr><th>Nome</th><th>Nº operador</th><th>Email</th><th>Estado</th></tr></thead>

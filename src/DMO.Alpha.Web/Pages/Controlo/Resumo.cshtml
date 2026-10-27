@@ -222,7 +222,7 @@
                 <strong>Sem leituras registadas</strong>
                 <small>Ainda sem média calculada.</small>
               }
-              <small>@linkedPesoValue.Measurements.Count leitura(s) · água a @linkedPesoValue.WaterTemperatureC °C</small>
+              <small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(linkedPesoValue.Measurements.Count, "leitura", "leituras") · água a @linkedPesoValue.WaterTemperatureC °C</small>
               @* O atual, o do controlo anterior e o da produção anterior, cada um
                  com o delta, e o nominal com o delta (Diogo, 26/10/2026). *@
               <div class="resumo-peso-deltas">
@@ -257,7 +257,7 @@
                     <li>
                       <a href="@Model.PesoHref(pesoDaLista)">Peso @numero</a>
                       · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(pesoDaLista)
-                      · @pesoDaLista.Measurements.Count leitura(s)@(mediaDaLista is { } m ? $" · média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(m)} g" : "")@(pesoDaLista.IsCurrent ? "" : " · de antes da troca")
+                      · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(pesoDaLista.Measurements.Count, "leitura", "leituras")@(mediaDaLista is { } m ? $" · média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(m)} g" : "")@(pesoDaLista.IsCurrent ? "" : " · de antes da troca")
                     </li>
                   }
                 </ul>
@@ -333,7 +333,7 @@
                     <li>
                       <a href="@(folha.IsCurrent ? $"/Controlo/Pegamentos?controlo_id={Model.ControloId}" : $"/Controlo/Pegamentos?controlo_id={Model.ControloId}&pegamentos_id={folha.PegamentosId}")">Folha @numero</a>
                       · @DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha)
-                      · @folha.Measurements.Count medição(ões)@if (folhaAlertas > 0) {<b class="nok"> · @folhaAlertas em alerta</b>}@if (folhaNaoAvaliaveis > 0) {<b class="na"> · @folhaNaoAvaliaveis não avaliável(eis)</b>}
+                      · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(folha.Measurements.Count, "medição", "medições")@if (folhaAlertas > 0) {<b class="nok"> · @folhaAlertas em alerta</b>}@if (folhaNaoAvaliaveis > 0) {<b class="na"> · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(folhaNaoAvaliaveis, "não avaliável", "não avaliáveis")</b>}
                       · ± @folha.ToleranceMm.ToString("0.00", fmt) mm
                     </li>
                   }
