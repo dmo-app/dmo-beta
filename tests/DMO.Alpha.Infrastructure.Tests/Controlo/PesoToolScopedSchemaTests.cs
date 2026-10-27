@@ -88,7 +88,7 @@ public sealed class PesoToolScopedSchemaTests
                 // ControloDecisoes: a decisão do Peso e dos Pegamentos na Revisão.
                 "ControloDecisoes",
                 "Pegamentos",
-                "PegamentosMeasurements", "PegamentosMeasurementHistorico",
+                "PegamentosMeasurements", "PegamentosMeasurementHistorico", "PesoMeasurementHistorico",
                 "PegamentosTolerances",
                 "ToolMachineLinks",
                 // #25 AddDataProtectionKeys: o keyring do DataProtection.

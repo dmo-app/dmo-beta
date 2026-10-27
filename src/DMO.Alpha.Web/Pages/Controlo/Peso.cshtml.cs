@@ -551,6 +551,48 @@ public sealed class PesoModel : PageModel
             ? "Com esta massa de água o peso do vidro dá 0 ou menos, o que é impossível. Confirme a massa (por exemplo 199,64 ou 199.64). Nenhuma leitura foi registada; o form preserva o que escreveu."
             : "A massa de água tem de ser maior que 0 (por exemplo 199,64 ou 199.64). Nenhuma leitura foi registada; o form preserva o que escreveu.";
 
+    /// <summary>A leitura escolhida na tabela para corrigir ou apagar (?corrigir_leitura).</summary>
+    public int? CorrigirLeituraId { get; private set; }
+
+    /// <summary>
+    /// O endereço desta folha com a leitura escolhida (ou nenhuma) para
+    /// corrigir: só o que identifica a folha (controlo_id, peso_id, a
+    /// comparação, o «Supomos», a produção anterior escolhida); as mensagens
+    /// de antes não voltam.
+    /// </summary>
+    public string UrlCorrigirLeitura(int? measurementId, bool apagar = false)
+    {
+        var query = new List<KeyValuePair<string, string?>>();
+        foreach (var chave in new[] { "controlo_id", "peso_id", "comparar", "supor_calote", "anterior" })
+        {
+            if (Request.Query.TryGetValue(chave, out var valor) && !string.IsNullOrEmpty(valor))
+            {
+                query.Add(new(chave, valor.ToString()));
+            }
+        }
+        if (measurementId is int id)
+        {
+            query.Add(new("corrigir_leitura", id.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            if (apagar)
+            {
+                query.Add(new("apagar_leitura", "1"));
+            }
+        }
+        return Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/Controlo/Peso", query);
+    }
+
+    /// <summary>True quando se carregou em «Apagar»: a caixa pergunta antes de apagar.</summary>
+    public bool ApagarLeituraPergunta { get; private set; }
+
+    /// <summary>A recusa da correção (massa ilegível, ≤ 0, vidro ≤ 0 ou leitura que já não existe).</summary>
+    public string? CorrecaoRefusalMessage { get; private set; }
+
+    /// <summary>O N.º CM escrito na correção recusada.</summary>
+    public string? EchoCorrecaoSubject { get; private set; }
+
+    /// <summary>A massa de água escrita na correção recusada.</summary>
+    public string? EchoCorrecaoWater { get; private set; }
+
     /// <summary>O echo do nº de CM submetido na recusa da leitura.</summary>
     public string? EchoLeituraSubject { get; private set; }
 
@@ -907,9 +949,32 @@ public sealed class PesoModel : PageModel
         [FromQuery(Name = "anterior_recusa")] string? anteriorRecusa = null,
         [FromQuery(Name = "anterior_peso")] string? anteriorPeso = null,
         [FromQuery(Name = "anterior_ok")] string? anteriorOk = null,
-        [FromQuery(Name = "comparacao_de")] int? comparacaoDe = null)
+        [FromQuery(Name = "comparacao_de")] int? comparacaoDe = null,
+        [FromQuery(Name = "corrigir_leitura")] int? corrigirLeitura = null,
+        [FromQuery(Name = "apagar_leitura")] string? apagarLeitura = null,
+        [FromQuery(Name = "correcao")] string? correcao = null,
+        [FromQuery(Name = "correcao_cm")] string? correcaoCm = null,
+        [FromQuery(Name = "correcao_agua")] string? correcaoAgua = null)
     {
         ViewData["Title"] = "Peso — Controlo";
+
+        // Corrigir ou apagar uma leitura (27/10/2026): a linha escolhida na
+        // tabela, a pergunta antes de apagar e a recusa com o que se escreveu.
+        CorrigirLeituraId = corrigirLeitura;
+        ApagarLeituraPergunta = corrigirLeitura is not null && apagarLeitura == "1";
+        CorrecaoRefusalMessage = correcao switch
+        {
+            "ilegivel" => "A massa de água escrita é ilegível: escreva um número, por exemplo 199,64 ou 199.64. A leitura ficou como estava.",
+            "massa" => "A massa de água tem de ser maior que 0. A leitura ficou como estava.",
+            "vidro" => "Com esta massa de água o peso do vidro dá 0 ou menos, o que é impossível. A leitura ficou como estava.",
+            "nao-encontrada" => "Esta leitura já não existe neste Peso (foi apagada entretanto). Nada foi alterado.",
+            _ => null
+        };
+        if (CorrecaoRefusalMessage is not null && correcao != "nao-encontrada")
+        {
+            EchoCorrecaoSubject = Sanitize(correcaoCm);
+            EchoCorrecaoWater = Sanitize(correcaoAgua);
+        }
 
         // Só o jobon_id (o «Verificar o Peso» de «O que mudou» no Job On,
         // 18/10/2026): a folha da produção abre pelo controlo_id dela, como
@@ -2081,6 +2146,100 @@ public sealed class PesoModel : PageModel
         }
 
         return RedirectToPage("/Controlo/Peso", Back());
+    }
+
+    /// <summary>
+    /// Corrige o N.º CM e a massa de água de uma leitura deste Peso (Diogo,
+    /// 27/10/2026: «não consigo editar ou apagar»). Fica o rasto (antes,
+    /// depois, quem, quando). Volta à folha com a linha ainda escolhida só
+    /// quando é recusada, com o que se escreveu.
+    /// </summary>
+    public async Task<IActionResult> OnPostEditMeasurementAsync(
+        [FromServices] ICorrectPesoMeasurementHandler handler,
+        [FromForm(Name = "peso_id")] int pesoId,
+        [FromForm(Name = "measurement_id")] int measurementId,
+        [FromForm(Name = "cm_subject")] string? cmSubject,
+        [FromForm(Name = "water_weight")] string? waterWeight,
+        [FromForm(Name = "controlo_id")] int? controloId = null,
+        [FromForm(Name = "comparar")] int? compararPesoId = null,
+        [FromForm(Name = "supor_calote")] string? suporCalote = null)
+    {
+        var back = CorrectionBack(pesoId, controloId, compararPesoId, suporCalote);
+        IActionResult Recusa(string motivo)
+        {
+            back["corrigir_leitura"] = measurementId;
+            back["correcao"] = motivo;
+            back["correcao_cm"] = Sanitize(cmSubject);
+            back["correcao_agua"] = Sanitize(waterWeight);
+            return RedirectToPage("/Controlo/Peso", back);
+        }
+
+        var water = ParseOptionalDecimal(Sanitize(waterWeight));
+        if (water is null)
+        {
+            return Recusa("ilegivel");
+        }
+
+        if (water <= 0m)
+        {
+            return Recusa("massa");
+        }
+
+        var result = await handler.EditAsync(
+            new EditPesoMeasurement(new PesoMeasurementAnchor(measurementId, pesoId), Sanitize(cmSubject), water.Value),
+            CancellationToken.None);
+        return result switch
+        {
+            CorrectPesoMeasurementResult.ResultNonPositive => Recusa("vidro"),
+            CorrectPesoMeasurementResult.MeasurementNotFound => RedirectToPage("/Controlo/Peso", WithCorrecao(back, "nao-encontrada")),
+            _ => RedirectToPage("/Controlo/Peso", back)
+        };
+    }
+
+    /// <summary>Apaga uma leitura deste Peso; as restantes são renumeradas. Fica o rasto.</summary>
+    public async Task<IActionResult> OnPostDeleteMeasurementAsync(
+        [FromServices] ICorrectPesoMeasurementHandler handler,
+        [FromForm(Name = "peso_id")] int pesoId,
+        [FromForm(Name = "measurement_id")] int measurementId,
+        [FromForm(Name = "controlo_id")] int? controloId = null,
+        [FromForm(Name = "comparar")] int? compararPesoId = null,
+        [FromForm(Name = "supor_calote")] string? suporCalote = null)
+    {
+        var back = CorrectionBack(pesoId, controloId, compararPesoId, suporCalote);
+        var result = await handler.DeleteAsync(new PesoMeasurementAnchor(measurementId, pesoId), CancellationToken.None);
+        return RedirectToPage("/Controlo/Peso",
+            result == CorrectPesoMeasurementResult.Success ? back : WithCorrecao(back, "nao-encontrada"));
+    }
+
+    // Volta à folha de onde veio, como o registo: a da produção (controlo_id,
+    // com o peso_id quando é um Peso de antes de uma troca) ou o Peso aberto
+    // pelo peso_id, com a comparação e o «Supomos».
+    private RouteValueDictionary CorrectionBack(int pesoId, int? controloId, int? compararPesoId, string? suporCalote)
+    {
+        var values = new RouteValueDictionary();
+        if (controloId is int c)
+        {
+            values["controlo_id"] = c;
+            if (PesoIdNoEnderecoDoPedido())
+            {
+                values["peso_id"] = pesoId;
+            }
+        }
+        else
+        {
+            values["peso_id"] = pesoId;
+        }
+        if (compararPesoId is int cmp) values["comparar"] = cmp;
+        if (Sanitize(suporCalote) is { } supor) values["supor_calote"] = supor;
+        return values;
+    }
+
+    private bool PesoIdNoEnderecoDoPedido() => Request.HasFormContentType && Request.Form["peso_anterior"] == "1";
+
+    private static RouteValueDictionary WithCorrecao(RouteValueDictionary values, string motivo)
+    {
+        values["correcao"] = motivo;
+        return values;
     }
 
     /// <summary>

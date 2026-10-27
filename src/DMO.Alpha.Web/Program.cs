@@ -372,6 +372,7 @@ builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator>
 // tool_id owner (regra Ferramentas).
 builder.Services.AddScoped<IRecordPegamentosMeasurementHandler, RecordPegamentosMeasurementHandler>();
 builder.Services.AddScoped<ICorrectPegamentosMeasurementHandler, CorrectPegamentosMeasurementHandler>();
+builder.Services.AddScoped<ICorrectPesoMeasurementHandler, CorrectPesoMeasurementHandler>();
 builder.Services.AddScoped<ICreateToolScopedPegamentosHandler, CreateToolScopedPegamentosHandler>();
 builder.Services.AddScoped<IAssociatePegamentosToControloHandler, AssociatePegamentosToControloHandler>();
 // Controlo/Pegamentos read path: a projeção purpose-specific da FOLHA por
