@@ -583,11 +583,16 @@
       const ref = valor('Referência'), lote = valor('Lote');
       return [sec.getAttribute('data-jof-familia') + (ref ? ' ' + ref : ''), lote ? 'Lote ' + lote : '', 'Notas'].filter(Boolean).join(' · ');
     };
+    // A nota ampliada abre por cima e o lugar dela fica guardado no cartão, para o resto não
+    // subir nem ser empurrado (Diogo, 27/10/2026: «maximiza por cima em vez de empurrar»).
+    let lugar = null;
     const fechar = () => {
       if (!aberta) return;
       const rotulo = aberta.querySelector(':scope > span');
       if (rotulo) rotulo.textContent = 'Notas';
       aberta.classList.remove('is-ampliada');
+      lugar?.remove();
+      lugar = null;
       aberta = null;
     };
     folha.addEventListener('click', (e) => {
@@ -597,6 +602,11 @@
       if (!caixa) return;
       const rotulo = caixa.querySelector(':scope > span');
       if (rotulo) rotulo.textContent = titulo(caixa);
+      lugar = document.createElement('div');
+      lugar.className = 'jof-nota-lugar';
+      lugar.setAttribute('aria-hidden', 'true');
+      lugar.style.height = caixa.getBoundingClientRect().height + 'px';
+      caixa.before(lugar);
       caixa.classList.add('is-ampliada');
       aberta = caixa;
     });

@@ -446,3 +446,6 @@ html:root body .jof2.editing.editing.editing table.calv thead th{position:sticky
   html:root body .jof2.jof2.jof2:not(.editing) .cal-card>.table-wrap{overflow-x:auto;overflow-y:hidden}
   html:root body .jof2.jof2.jof2:not(.editing) table.calv thead th:nth-child(n){position:sticky;left:0;z-index:1;background:var(--dmo-card)}
 }
+
+/* ---- Nota ampliada: abre por cima; o lugar dela fica no cartão (jobon-folha.js põe um .jof-nota-lugar com a mesma altura) ---- */
+html:root body .jof2 .jof-nota-lugar{flex:none;border-radius:5px;background:var(--dmo-subtle)}
