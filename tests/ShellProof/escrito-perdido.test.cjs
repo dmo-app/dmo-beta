@@ -170,25 +170,26 @@ test('enquanto a referência nova não responde, o dropdown da anterior não abr
 test('numa procura com linhas, as linhas do texto anterior não escolhem enquanto o novo não responde', async () => {
   let soltar = null;
   const linhas = (texto) => `<div data-dmo-list="Pesos" data-dmo-seleciona><div data-dmo-row data-id="${texto}" data-dmo-rotulo="${texto}">${texto}</div></div>`;
-  const html = `<div><input id="campo" data-dmo-procura="/Controlo/Peso?handler=ProcurarPesos" data-dmo-procura-alvo="alvo" data-dmo-procura-valor="valor">
-    <input type="hidden" id="valor"><div id="alvo"></div></div>`;
+  const html = `<div><input id="campo" data-dmo-procura="/Controlo/Peso?handler=ProcurarPesos" data-dmo-procura-alvo="alvo"><div id="alvo"></div></div>`;
   const { dom, window, document } = abrir(html, 'http://dmo.test/Controlo/Peso', async (_, url) => {
     if (url.endsWith('q=B')) await new Promise((resolve) => { soltar = resolve; });
     return { ok: true, url, text: async () => linhas(url.endsWith('q=B') ? 'B' : 'A') };
   });
+  const escolhidas = [];
+  document.getElementById('alvo').addEventListener('dmo:list-select', (event) => escolhidas.push(event.detail.row.dataset.id));
   try {
     escrever(window, 'A');
     await esperar(300);
     escrever(window, 'B');
     document.querySelector('#alvo [data-dmo-row]').click();
-    assert.equal(document.getElementById('valor').value, '', 'a linha do A não escolhe');
+    assert.deepEqual(escolhidas, [], 'a linha do A não escolhe');
     await esperar(300);
     document.querySelector('#alvo [data-dmo-row]').click();
-    assert.equal(document.getElementById('valor').value, '', 'nem durante o pedido');
+    assert.deepEqual(escolhidas, [], 'nem durante o pedido');
     soltar();
     await esperar();
     document.querySelector('#alvo [data-dmo-row]').click();
-    assert.equal(document.getElementById('valor').value, 'B');
+    assert.deepEqual(escolhidas, ['B']);
   } finally {
     dom.window.close();
   }

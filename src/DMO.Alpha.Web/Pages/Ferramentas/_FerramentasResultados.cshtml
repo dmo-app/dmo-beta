@@ -15,7 +15,8 @@
        18/10/2026: «metem os botões em baixo aumenta espaço, sempre canto
        superior direito dentro dos cards»). *@
     <div class="dmo-card-topo">
-      <h3 id="ferr-list-title">Ferramentas registadas<partial name="_DmoHelp" model="@(Model.ReturnTemplate is null ? "Um clique abre a ficha." : "Um clique seleciona; duplo clique abre a ficha.")" /></h3>
+      @* Sem o círculo da ajuda no título (Diogo, 27/10/2026). *@
+      <h3 id="ferr-list-title">Ferramentas registadas</h3>
       @if (Model.ReturnTemplate is { } template && Model.Candidates.Count > 0)
       {
         <div class="dmo-card-topo-acoes" data-dmo-for="ferrToolList">

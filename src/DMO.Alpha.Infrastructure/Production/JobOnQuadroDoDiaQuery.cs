@@ -93,7 +93,8 @@ public sealed class JobOnQuadroDoDiaQuery(
         // partir do início (a regra do corte B: as datas do Job On mandam).
         var data = new DateOnly(ano, mes, Math.Clamp(diaSelecionado ?? 1, 1, DateTime.DaysInMonth(ano, mes)));
         // Uma produção por linha: a que entrou por último (Diogo, 27/10/2026).
-        cobre.AddRange(ProducaoEmCurso.UmaPorMaquina(jobOns, data));
+        // A experiência que entra e sai no mesmo dia fica ao lado dela.
+        cobre.AddRange(ProducaoEmCurso.DoDia(jobOns, data));
         var rows = new List<DayMachineRow>();
         foreach (var machine in machines)
         {

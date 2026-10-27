@@ -364,9 +364,6 @@ public static class ReparacaoProgramadaMovimentos
                 select l.ReparadorNome)
             .FirstOrDefaultAsync(cancellationToken);
 
-    public static Task AoMovimentoAsync(DmoDbContext db, ArmazemMovimento movimento, CancellationToken cancellationToken) =>
-        AoMovimentosAsync(db, [movimento], cancellationToken);
-
     // O movimento pode levar a CM e o MF juntos. Todos os trincos das suas
     // listas são adquiridos por Id antes de atualizar qualquer uma delas.
     public static Task AoMovimentosAsync(DmoDbContext db, IReadOnlyCollection<ArmazemMovimento> movimentos, CancellationToken cancellationToken) =>

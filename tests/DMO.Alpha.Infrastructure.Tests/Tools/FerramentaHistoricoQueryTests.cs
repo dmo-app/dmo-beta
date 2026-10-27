@@ -87,7 +87,6 @@ public sealed class FerramentaHistoricoQueryTests
         var linhas = await Query(db).DaFerramentaAsync("bq");
 
         Assert.Equal(new[] { "mf2", "mf1" }, linhas.Select(l => Assert.Single(l.Mf).ToolId));
-        Assert.Equal(new[] { ToolType.Cm, ToolType.Mf }, HistoricoLinha.OutrosTipos(ToolType.Bq));
     }
 
     [Fact]

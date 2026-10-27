@@ -141,7 +141,6 @@ html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:aut
    de registo inexistente o espaço por baixo da procura. */
 .beta-bq-layout :is(#bqRegistoMovimento,#bqRegistoNumeros,#bqRegistoMovimentos) > .card { margin-top:14px; }
 .beta-bq-layout #bqRegistoAberto > .result { margin-top:16px; }
-.beta-bq-layout .movements-list { margin-top:14px; }
 .beta-bq-layout .filter-bar {
   min-width:0;
   padding:14px;
@@ -212,7 +211,6 @@ html body .beta-bq-layout .bq-register-head-actions .dmo-options-list { left:aut
 .beta-bq-layout .bq-movement-line .bq-movement-types { margin:0;flex:0 0 auto;flex-wrap:nowrap; }
 .beta-bq-layout .bq-movement-line .bq-movement-types label { flex:0 0 auto; }
 .beta-bq-layout .bq-movement-line .field { margin:0;min-width:0; }
-.beta-bq-layout .bq-movement-line .bq-line-machine { flex:0 0 130px; }
 .beta-bq-layout .bq-movement-line .bq-line-quantity { flex:0 0 84px; }
 .beta-bq-layout .bq-movement-line .bq-line-date { flex:0 0 170px; }
 @media (max-width:700px) {
@@ -242,7 +240,6 @@ html body .beta-bq-layout .bq-history-day .dmo-calendar.card { width:100%;box-sh
 @media(max-width:600px) { .beta-bq-layout .bq-history-filter-grid { grid-template-columns:1fr; } .beta-bq-layout .bq-history-filters-head { flex-wrap:wrap;justify-content:flex-start; } }
 
 /* beta.20 — toolsTab from unificada.zip, using the canonical Tool backend. */
-.beta-bq-layout .bq-historical-form > summary {cursor:pointer;font-weight:750;color:var(--dmo-brand-700,#193046)}
 /* «Criar boquilha» no canto do cartão da procura; o formulário curto saiu (Diogo, 18/10/2026). */
 .beta-bq-layout .bq-tool-search-topo {margin:0 0 14px}
 .beta-bq-layout .bq-tool-search {display:grid;grid-template-columns:minmax(0,2fr) minmax(0,.6fr) minmax(0,1fr) auto;gap:12px;align-items:end}

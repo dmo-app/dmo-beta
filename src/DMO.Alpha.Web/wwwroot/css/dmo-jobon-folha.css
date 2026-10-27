@@ -62,7 +62,6 @@
 .jof2 .btn{box-sizing:border-box;height:40px;min-height:40px;padding:0 16px;border:1px solid var(--btn,var(--dmo-brand-600));border-radius:var(--r-control);background:var(--btn,var(--dmo-brand-600));color:#fff;font-size:14px;font-weight:600;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;transition:background var(--fast),color var(--fast)}
 .jof2 .btn:hover{background:var(--dmo-card);color:var(--btn,var(--dmo-brand-600));outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 :root[data-theme="dark"] .jof2 .btn:not(.ghost):not(:hover):not(:focus-visible){background:#4b6387;border-color:#4b6387}
-.jof2 .btn.ghost{background:var(--dmo-card);color:var(--dmo-brand-600)}
 .jof2 .btn:disabled{--btn:#cbd5df;background:#cbd5df;color:#fff;cursor:not-allowed;box-shadow:none}
 .jof2 .menu{position:relative}
 .jof2 .menu>summary{list-style:none;cursor:pointer}
@@ -90,9 +89,6 @@
 .jof2 .sheet-main{min-width:0;container:board/inline-size}
 .jof2 .zones{display:grid;grid-template-columns:minmax(0,1fr);gap:18px 14px;align-items:start}
 .jof2 .col3{display:grid;gap:14px;align-content:start;min-width:0}
-.jof2 .group-head{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
-.jof2 .group-head h2{margin:0;font-size:13px;font-weight:800;color:var(--dmo-muted);text-transform:uppercase;letter-spacing:.06em}
-.jof2 .group-head span{font-size:12px;color:var(--dmo-muted)}
 .jof2 .board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 .jof2 .span-all{grid-column:1/-1}
 .jof2 .board>.card:not(.cal-card){container-type:inline-size}
@@ -115,7 +111,6 @@
 .jof2 .pair-in>.sec+.sec{border-top:1px solid var(--dmo-border)}
 .jof2 .sec{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
 .jof2 .sec-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:34px}
-.jof2 .sec-head input.iv.ref-in{flex:0 1 auto;min-width:3ch;max-width:calc(100% - 56px);text-overflow:ellipsis}
 .jof2 .code{display:inline-grid;place-items:center;min-width:42px;height:30px;padding:0 8px;border-radius:8px;background:var(--dmo-palette-slate);color:#fff;font-weight:800;font-size:13px;letter-spacing:.04em;flex:none}
 .jof2 .ref{font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
 .jof2 .ref small{color:var(--dmo-text);font-weight:600;font-size:17px;margin-left:4px}
@@ -125,29 +120,20 @@
 .jof2 .pill.ok{background:var(--dmo-success-soft);color:var(--dmo-success)}
 .jof2 .muted{color:var(--dmo-muted)}
 .jof2 .empty-text{margin:0;color:var(--dmo-muted);font-size:13px}
-.jof2 .tool-menu{position:relative}
 .jof2 .tool-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-6px -8px 0;padding:6px 8px;border-radius:var(--r-control);transition:background var(--fast)}
-.jof2 .tool-head:hover,.jof2 .tool-menu[open] .tool-head{background:var(--dmo-brand-050)}
+.jof2 .tool-head:hover{background:var(--dmo-brand-050)}
 .jof2 .tool-head:focus-visible{outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
-.jof2 .tool-head input.tipo-in{min-width:3ch;margin:0 0 0 auto;padding:3px 9px;border:1px solid transparent;font-size:11.5px;font-weight:800;color:var(--dmo-brand-700);background:var(--dmo-brand-050);text-align:center;border-radius:999px}
-.jof2 .tool-head input.tipo-in:hover{border-color:var(--dmo-border)}
-.jof2 .pill-edit input.f{width:80px;text-align:center}
-.jof2 .tool-head .pill-edit{margin-left:auto}
-.jof2 .tool-head .tipo-in~.tool-hint,.jof2 .tool-head .pill-edit~.tool-hint{margin-left:0}
 .jof2 .hv{display:inline-grid;gap:3px;line-height:1.1;min-width:0}
 .jof2 .hv small{color:var(--dmo-muted);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .jof2 .hv b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
 .jof2 .hv+.hv{margin-left:8px;padding-left:20px;border-left:1px solid var(--dmo-border)}
-.jof2 .sec-head .hv input.iv.ref-in{margin:-2px 0 -2px -6px;max-width:150px}
 .jof2 .sec-head .hv input.f{width:96px;font-size:15px}
 .jof2 .tool-hint{flex:none;margin-left:auto;display:inline-flex;align-items:center;gap:5px;color:var(--dmo-muted);font-size:12px;font-weight:700}
-.jof2 .tool-menu .menu-list{left:0;right:auto}
 .jof2 .tool-empty .code{background:var(--dmo-border);color:var(--dmo-muted)}
 .jof2 .kv{display:grid;grid-template-columns:minmax(min(78px,50%),1fr) minmax(0,auto);margin:0}
 .jof2 .kv dt,.jof2 .kv dd{padding:7px 0;border-top:1px solid var(--dmo-border);font-size:14px}
 .jof2 .kv dt{min-width:0;color:var(--dmo-muted);padding-right:10px}
 .jof2 .kv dd{min-width:0}
-.jof2 .kv dd input.iv{max-width:calc(100% + 7px);text-overflow:ellipsis}
 .jof2 .kv dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:normal}
 .jof2 .kv>:nth-child(1),.jof2 .kv>:nth-child(2){border-top:0}
 .jof2 .v-empty{color:var(--dmo-muted);font-weight:400}
@@ -175,8 +161,6 @@
 .jof2 .more>summary{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:30px;list-style:none;cursor:pointer;font-size:13px;color:var(--dmo-muted);font-weight:700;border-radius:6px}
 .jof2 .more>summary::-webkit-details-marker{display:none}
 .jof2 .more>summary:focus-visible{outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
-.jof2 .chip{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--dmo-subtle);border:1px solid var(--dmo-border);color:var(--dmo-text);font-size:11.5px;font-weight:600;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.jof2 .chip.warn{background:none;border-color:transparent;padding-inline:2px;color:var(--dmo-warning);font-weight:700}
 .jof2 .more-body{display:grid;gap:12px;margin-top:10px}
 .jof2 .note-edit{display:grid;gap:3px}
 .jof2 .note-view{display:grid;gap:3px}
@@ -196,47 +180,22 @@
 .jof2 .cal th,.jof2 .cal td{padding-inline:5px}
 .jof2 .cal td{font-size:12.5px}
 @container board (max-width:1040px){.jof2 .cal td{font-size:12px}}
-.jof2 .cal td input.iv{padding-inline:4px}
 .jof2 .cal td input.f{font-size:inherit;padding-inline:3px}
 .jof2 .cal th:nth-child(3){white-space:normal;line-height:1.15}
 .jof2 .cal th{white-space:nowrap}
 .jof2 .cal td{overflow:hidden}
-.jof2 .cal td input.iv,.jof2 .cal td input.f{width:100%;max-width:calc(100% + 7px);min-width:0;text-overflow:ellipsis}
+.jof2 .cal td input.f{width:100%;max-width:calc(100% + 7px);min-width:0;text-overflow:ellipsis}
 .jof2 .cal td input.f{max-width:none;padding-inline:3px}
 .jof2 .cal td:first-child{white-space:normal}
 .jof2 .cal td:first-child input.f{text-align:left}
-.jof2 .cal td.row-del{padding:0 2px;text-align:center}
-.jof2 .cal tr:hover .del,.jof2 .cal tr:focus-within .del{opacity:1}
-.jof2 .cal .del{margin:0;width:22px;height:22px}
-.jof2 .add-row{align-self:flex-start;min-height:30px;padding:4px 10px;border:1px dashed var(--dmo-border);border-radius:6px;background:transparent;color:var(--dmo-muted);font-size:13px;cursor:pointer}
-.jof2 .add-row:hover,.jof2 .add-row:focus-visible{border-color:var(--dmo-brand-600);color:var(--dmo-brand-600);outline:0}
-.jof2 .qtd{display:inline-block;min-width:44px;padding:2px 8px;border:1px dashed var(--dmo-border);border-radius:6px;color:var(--dmo-muted);text-align:center;font-size:12px}
-.jof2 .cal-wrap{display:grid;grid-template-columns:minmax(0,420px);gap:14px}
 .jof2 .cal-card{justify-self:start;max-width:100%}
-.jof2 .use-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
-.jof2 .mini{display:grid;gap:2px;text-align:right}
-.jof2 .mini span{font-size:12px;color:var(--dmo-muted)}
-.jof2 .mini b{font-size:14px;font-variant-numeric:tabular-nums}
 .jof2 .more-preview{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
 .jof2 .btn .count{font-size:12px;font-weight:600;color:inherit;opacity:.85}
 .jof2 .kv dt label{cursor:text}
 .jof2 #datePick{position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
 .jof2 input[data-date]{cursor:pointer}
-.jof2 input.iv{width:auto;min-width:44px;max-width:calc(100% + 14px);field-sizing:content;margin:-4px -7px -4px 0;padding:3px 6px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--dmo-text);font:inherit;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;transition:border-color var(--fast),background-color var(--fast)}
-.jof2 input.iv::placeholder{font-weight:400;color:var(--dmo-muted)}
-.jof2 input.iv:hover{border-color:var(--dmo-border)}
-.jof2 input.iv:focus{border-color:var(--dmo-brand-600);background:var(--dmo-card);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
-.jof2 input.iv.gravado{background:var(--dmo-success-soft)}
-.jof2 input.iv[aria-invalid="true"]{border-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
-.jof2 input.iv.calote-in::placeholder{font-size:12.5px}
-.jof2 .fv input.iv{margin:-3px -6px;padding:2px 5px;font-weight:700;text-align:left}
 .jof2 .fv .unit{font-weight:700}
 .jof2 .fv input:placeholder-shown+.unit{display:none}
-.jof2 .sec-head input.iv.ref-in{margin:-4px 0 -4px -6px;padding:2px 6px;font-size:22px;font-weight:800;text-align:left}
-.jof2 .sec-head input.iv.ref-in::placeholder{font-size:15px;font-weight:500}
-.jof2 .dims td input.iv{margin:-3px -7px -3px 0}
-.jof2 .dims td:first-child input.iv{margin:-3px 0 -3px -7px;font-weight:400;color:var(--dmo-muted);text-align:left}
-.jof2 .dims td:first-child input.iv:focus{color:var(--dmo-text)}
 .jof2 input.dmo-valor{width:100%;min-width:0;max-width:160px;padding:5px 8px;border:1px solid transparent;border-radius:6px;background:var(--dmo-card);color:var(--dmo-text);font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;transition:border-color var(--fast),background-color var(--fast)}
 .jof2 input.dmo-valor::placeholder{color:var(--dmo-muted);font-weight:500;font-size:13px}
 .jof2 input.dmo-valor:hover{border-color:var(--dmo-border)}
@@ -249,17 +208,15 @@
 .jof2 input.f[aria-invalid="true"]{border-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
 .jof2 input.f:focus,.jof2 select.f:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 .jof2 select.f{width:100%;padding:4px 6px;border:1px solid var(--dmo-border);border-radius:6px;background:var(--dmo-card);font-size:14px;font-weight:600}
-.jof2 .kv dd input.f,.jof2 .dims input.f,.jof2 .mini input.f{text-align:right}
+.jof2 .kv dd input.f,.jof2 .dims input.f{text-align:right}
 .jof2 .dims input.f{max-width:84px}
 .jof2 .dims td:first-child{white-space:nowrap}
 .jof2.editing .dims td{padding-inline:6px}
 .jof2.editing .dims td:first-child{white-space:normal}
 .jof2.editing .dims input.f{max-width:none;padding-inline:5px}
 .jof2.editing .cal td{padding-inline:3px}
-.jof2.editing .cal td.row-del{padding-inline:2px}
 .jof2 .kv dd input.f{width:96px;max-width:100%}
 .jof2 .folgas input.f{width:76px;text-align:center}
-.jof2 .mini input.f{width:110px}
 .jof2 .use-top input.f{width:64px;text-align:right}
 .jof2 .sec-head input.f{max-width:150px;font-size:14px}
 .jof2-gaveta .rail-item:disabled.selected{opacity:1}
@@ -280,27 +237,13 @@
 .jof2 .notes li.view.head{font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
 .jof2 .notes li textarea.dmo-valor:hover{background:var(--dmo-subtle)}
 .jof2 .notes li.head textarea{font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
-.jof2 .del{width:28px;height:28px;margin-top:3px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:17px;line-height:1;cursor:pointer;opacity:0;transition:opacity var(--fast),background var(--fast)}
-.jof2 .notes li:hover .del,.jof2 .notes li:focus-within .del,.jof2 .del:focus-visible{opacity:1}
-.jof2 .del:hover,.jof2 .del:focus-visible{background:var(--dmo-danger-soft);color:var(--dmo-danger);outline:0}
 .jof2 .notes li.add textarea.dmo-valor{border:1px dashed var(--dmo-border);background:transparent}
 .jof2 .notes-foot{margin:10px 0 0;font-size:12px;color:var(--dmo-muted)}
-.jof2 .demo{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--dmo-warning-soft);color:var(--dmo-warning);font-size:11px;font-weight:800;vertical-align:middle}
-.jof2 .backdrop{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--dmo-backdrop)}
-.jof2 .modal{width:min(520px,100%);max-height:calc(100vh - 48px);overflow:auto;background:var(--dmo-card);border-radius:16px;box-shadow:0 25px 70px rgba(27,40,50,.35)}
-.jof2 .modal-head{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--dmo-border)}
-.jof2 .modal-head h2{margin:0;font-size:18px}
-.jof2 .modal-head p{margin:2px 0 0;font-size:12.5px;color:var(--dmo-muted)}
 .jof2 .icon-btn{margin-left:auto;width:34px;height:34px;border:0;border-radius:8px;background:none;color:var(--dmo-muted);font-size:20px;cursor:pointer}
 .jof2 .icon-btn:hover,.jof2 .icon-btn:focus-visible{background:var(--dmo-subtle);outline:0}
-.jof2 .modal-body{display:grid;gap:8px;padding:16px 20px 20px}
 .jof2 .pick{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:1px solid var(--dmo-border);border-radius:var(--r-control);background:var(--dmo-card);text-align:left;cursor:pointer;transition:background var(--fast),box-shadow var(--fast)}
 .jof2 .pick:hover,.jof2 .pick:focus-visible{background:var(--dmo-brand-050);box-shadow:inset 3px 0 0 var(--dmo-brand-600);outline:0}
 .jof2 .pick.selected{background:var(--dmo-brand-100);border-color:var(--dmo-brand-600)}
-.jof2 .pick-main{display:grid;gap:2px;min-width:0;margin-right:auto}
-.jof2 .pick-main b{font-size:14.5px}
-.jof2 .pick-main small{color:var(--dmo-muted);font-size:12.5px}
-.jof2 .modal-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:8px}
 .jof2 .toast{position:fixed;z-index:100;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 44px);padding:11px 15px;border-radius:9px;background:var(--toast-bg);color:var(--toast-fg);box-shadow:var(--dmo-shadow);font-size:14px;opacity:0;transform:translateY(40px);transition:.2s;pointer-events:none}
 .jof2 .toast.show{opacity:1;transform:none}
 @media (min-width:1241px) and (max-width:1365px){.jof2 .fv{font-size:17px}
@@ -324,7 +267,7 @@
 .jof2 .tool-head,.jof2 .sec-head{gap:8px}
 .jof2 .hv+.hv{margin-left:4px;padding-left:12px}
 .jof2 .sec-head .hv input.f{width:84px}
-.jof2 .pill-edit input.f{width:56px;padding-inline:4px}}
+}
 @container (max-width:321px){.jof2.editing .tool-hint .hint-txt{display:none}}
 @media (max-width:1180px){.jof2 .sheet{grid-template-columns:minmax(0,1fr)}
 .jof2 .side{position:static;max-height:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}}
@@ -336,13 +279,13 @@
 .jof2 .facts{flex-wrap:wrap;gap:10px 0;margin-right:0}
 .jof2 .fact-col{padding:0 16px 0 0;border-left:0}
 .jof2{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.jof2 .shell-header,.jof2 .nav{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.jof2 .nav{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .jof2 .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
 .jof2 .user span{display:none}
 .jof2 .head-tools{width:100%}
 .jof2 .head-tools .field{flex:1 1 100%}
 .jof2 .head-tools .field select{width:100%}
-.jof2 .del{opacity:1}}
+}
 @media (prefers-reduced-motion:reduce){.jof2 *{transition:none!important}}
 
 /* ---- o que o Diogo pediu mudado ---- */
@@ -378,14 +321,6 @@
 .jof2 table.dmo-table.dims{min-width:0;white-space:normal}
 .jof2 table.dmo-table.dims th{padding:6px 10px;font-size:10.5px}
 .jof2 table.dmo-table.dims td{padding:5px 10px}
-.jof2 .calh{table-layout:auto;width:100%}
-.jof2 .calh th,.jof2 .calh td{padding-inline:4px!important;text-align:center;overflow-wrap:normal;word-break:normal;hyphens:none;line-height:1.2}
-.jof2 .calh thead th{font-size:10px;letter-spacing:0}
-.jof2 .calh td{white-space:nowrap}
-.jof2 .calh th[scope="row"]{width:1%;white-space:nowrap;text-align:left;overflow-wrap:normal}
-.jof2 .calh td{font-size:12.5px;font-weight:700}
-.jof2 .calh td:first-child{color:inherit}
-.jof2 .calh input.f{text-align:center;padding-inline:2px}
 /* O AN: o lote é o da BQ (um só campo). O campo de notas gerais é um só texto. */
 .jof2 textarea.jof-notas-gerais{min-height:180px;resize:vertical;overflow:auto}
 /* O artigo: no Editar, clicar escolhe a imagem. */
@@ -417,7 +352,7 @@ html body .jof2 .pick-row .menu{position:relative}
 /* Imprimir (provisório): a folha no browser em A4, sem painel, menus nem botões. */
 @media print{
   @page{size:A4;margin:10mm}
-  header,nav,.dmo-shell-header,.dmo-shell-nav,.jof2-gaveta,.jof-rail-fundo,.head-acoes,.head-tools,.rail-toggle,[data-jof-opcoes],.btn,.dmo-env-badge{display:none!important}
+  header,nav,.dmo-shell-header,.dmo-shell-nav,.jof2-gaveta,.jof-rail-fundo,.head-acoes,.head-tools,.rail-toggle,[data-jof-opcoes],.btn,.dmo-env-badge,.dmo-voltar-texto{display:none!important}
   html body{background:var(--dmo-card)!important}
   html body .jof2 .wrap{max-width:none;padding:0}
   html body .jof2 .card,html body .jof2 .zone{break-inside:avoid}
@@ -456,7 +391,7 @@ html body .jof2 .prod-list{position:absolute;z-index:60;top:calc(100% + 4px);lef
 html body .jof2 .prod-list[hidden]{display:none}
 html body .jof2 .prod-list li{padding:8px 10px;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap}
 html body .jof2 .prod-list li[aria-selected="true"]{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
-html body .jof2 .prod-list li:hover,html body .jof2 .prod-list li.is-activo{background:var(--dmo-subtle)}
+html body .jof2 .prod-list li:hover{background:var(--dmo-subtle)}
 @media (max-width:600px){html body .jof2 .pick-row{display:flex;flex-wrap:nowrap}html body .jof2 .ref-search{flex:1 1 auto}html body .jof2 .ref-search input{width:100%}html body .jof2 .head-acoes{flex-wrap:wrap}}
 html body .jof2 .rail-toggle .count{background:var(--dmo-card)!important;color:var(--dmo-brand-700)!important}
 html body .jof2 .ref-search svg{z-index:1}
@@ -589,7 +524,7 @@ html body .jof2 .jof-modo-editar{justify-content:center;align-self:center;box-si
 html body .jof2 .kv dt,html body .jof2 .kv dd{padding:4px 0}
 html body .jof2.editing .kv dt,html body .jof2.editing .kv dd{padding:2px 0;display:flex;align-items:center}
 html body .jof2.editing .kv dd{justify-content:flex-end}
-html body .jof2.editing .kv dd input.f,html body .jof2.editing .cal-card input.f,html body .jof2.editing .dims input.f,html body .jof2.editing .mini input.f{height:28px;min-height:28px;padding-top:2px;padding-bottom:2px;box-sizing:border-box}
+html body .jof2.editing .kv dd input.f,html body .jof2.editing .cal-card input.f,html body .jof2.editing .dims input.f{height:28px;min-height:28px;padding-top:2px;padding-bottom:2px;box-sizing:border-box}
 html body .jof2 .calv th,html body .jof2 .calv td{padding:3px 10px}
 html body .jof2.editing .calv td{padding:2px 6px}
 /* No Editar, a Informação técnica em dois pares por linha: metade da altura. */
@@ -898,17 +833,13 @@ html body .jof2.editing .sec-head:has(.hv input) .hv>b:not(:has(input)){display:
 .jfi-densa .jfi-t th,.jfi-densa .jfi-t td{padding:.55mm 1.6mm}
 .jfi-densa .jfi-corpo{font-size:7.8pt;padding:1mm 2mm}
 .jfi-pilha{display:flex;flex-direction:column;gap:2.2mm}
-.jfi-topo-alinhar{align-items:start}
-.jfi-linha-sep{border-bottom:1px solid #9aa3ad}
 .jfi-bloco .jfi-verif{margin:0}
 .jfi-bloco .jfi-verif tr>*:first-child{border-left:0}
 .jfi-bloco .jfi-verif tr>*:last-child{border-right:0}
 .jfi-bloco .jfi-verif tr:last-child>*{border-bottom:0}
-.jfi-nota-pe{font-size:8pt;padding-top:1.2mm}
 .jfi-assinar{display:grid;grid-template-columns:2fr 1fr 1fr;border:1px solid #9aa3ad}
 .jfi-assinar>div{padding:1.2mm 2mm;min-height:11mm;border-left:1px solid #9aa3ad}
 .jfi-assinar>div:first-child{border-left:0}
-.jfi-obs{height:10mm!important}
 .jfi-comentarios{min-height:16mm}
 .jfi-pincas td{height:5.6mm;padding-top:.5mm;padding-bottom:.5mm}
 .jfi-pincas td:first-child{width:12mm}
@@ -1247,3 +1178,93 @@ html body .jfn-folha[data-jof-folha="moldes"] .jfn-tabela{flex:1 1 auto}
 html body .jfn-folha[data-jof-folha="moldes"] .jfn-tabela>.jfb{flex:1 1 auto}
 html body .jfn-folha[data-jof-folha="moldes"]>.jfi-crescer{flex:0 0 1mm}
 html body .jfn-folha[data-jof-folha="ficha"] .jfn-tabela>.jfb{min-height:11mm}
+
+/* Notas com o espaço que sobra no cartão (Diogo, 27/10/2026: «dar mais espaço
+   as notas o maximizar nao empurra abre por cima»). Em vista, a caixa das Notas
+   ocupa o vazio do cartão e a «Informação técnica» fica no fundo; aberta, mostra-se
+   por cima das Notas, como uma janela, sem empurrar o resto da folha. O clique na
+   nota abre-a inteira, a ver e a editar (as regras de altura fixa apanhavam
+   também a nota aberta e deixavam-na com 2 linhas). */
+html:root body .jof2:not(.editing) .sec{position:relative}
+html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada),html:root body .jof2:not(.editing) .board:has(details.more[open]) .sec>.note-box.note-view:not(.is-ampliada){flex:1 1 auto!important;min-height:0!important;display:flex;flex-direction:column}
+html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto!important;min-height:56px!important;max-height:none!important;overflow:auto;scrollbar-width:thin}
+html:root body .jof2:not(.editing) .sec>details.more{position:relative;margin-top:auto}
+html:root body .jof2:not(.editing) .sec>details.more[open]>.more-body{position:absolute;z-index:30;left:-6px;right:-6px;bottom:calc(100% - 4px);margin:0;max-height:min(440px,calc(100vh - 140px));overflow:auto;padding:10px 12px;border:1px solid var(--dmo-border);border-radius:var(--r-card);background:var(--dmo-card);box-shadow:0 14px 36px rgba(0,0,0,.25)}
+html:root body .jof2 .note-box.is-ampliada>p,html:root body .jof2.editing .note-box.is-ampliada>textarea.dmo-valor,html:root body .jof2 .note-box.is-ampliada>textarea.dmo-valor{display:block;min-height:240px!important;height:auto!important;max-height:60vh!important;overflow:auto!important;flex:0 0 auto!important}
+/* PI: «Pinças» e «Diâmetro» cada um na sua linha; lado a lado não cabiam e o
+   «Grafite» ficava colado ao «Diâmetro». */
+html:root body .jof2:not(.editing) [data-jof-familia="PI"]>.kv{grid-template-columns:max-content minmax(0,1fr)!important}
+html:root body .jof2 .side>.notes{min-height:108px}
+html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){min-height:58px}
+
+/* Imprimir com letra maior (Diogo, 27/10/2026: «print esta a sair muito pequeno», «preciso de aumentar o font e bem»): a letra pequena das 4 folhas sobe cerca de 40% (nunca abaixo de 8,5pt) e os espaços entre linhas apertam para tudo caber no A4. */
+.jfi-folha{font-size:13.5pt}
+.jfi-eyebrow{font-size:10.5pt}
+.jfi-ref{font-size:20pt}
+.jfi-topo-dir span{font-size:9pt}
+.jfi-topo-dir b{font-size:13pt}
+.jfi-topo-dir b.jfi-linha{font-size:20pt}
+.jfi-factos span,.jfi-cal span,.jfi-assinar span{font-size:9pt}
+.jfi-factos b{font-size:12.5pt}
+.jfi-barra{font-size:12pt}
+.jfi-sub{font-size:11pt}
+.jfi-t{font-size:12pt}
+.jfi-corpo{font-size:12pt}
+.jfi-caixa{font-size:12pt}
+.jfi-cal small{font-size:9pt}
+.jfi-notas ul{font-size:12pt}
+.jfi-artigo-img{font-size:11pt}
+.jfi-lema{font-size:14pt}
+.jfi-rodape{font-size:10pt}
+.jfi-densa .jfi-t{font-size:11pt}
+.jfi-densa .jfi-corpo{font-size:11pt}
+html body .jfi-folha .jfi-kv th{font-size:11pt}
+html body .jfn-folha{font-size:12.5pt}
+html body .jfn-folha .jfn-marca{font-size:11pt}
+html body .jfn-folha .jfn-logo{font-size:9pt}
+html body .jfn-folha .jfn-caminho{font-size:9pt}
+html body .jfn-folha .jfi-eyebrow{font-size:10pt}
+html body .jfn-folha .jfi-ref{font-size:25pt}
+html body .jfn-folha .jfn-linha span,html body .jfn-folha .jfn-prod span{font-size:8.5pt}
+html body .jfn-folha .jfn-linha b{font-size:19pt}
+html body .jfn-folha .jfn-prod b{font-size:13pt}
+html body .jfn-folha .jfn-factos span{font-size:8.5pt}
+html body .jfn-folha .jfn-factos b{font-size:12pt}
+html body .jfn-folha .jfb-cab{font-size:9pt}
+html body .jfn-folha .jfb-nome b{font-size:12pt}
+html body .jfn-folha .jfb-reflote strong{font-size:14pt}
+html body .jfn-folha .jfb-reflote span{font-size:11pt}
+html body .jfn-folha .jfb-lado{font-size:10pt}
+html body .jfn-folha table.jfb-dados{font-size:10.5pt}
+html body .jfn-folha table.jfn-dim tr:first-child th{font-size:8.5pt}
+html body .jfn-folha .jfn-folgas,html body .jfn-folha .jfn-ff{font-size:10pt}
+html body .jfn-folha ul.jfb-notas{font-size:10.5pt}
+html body .jfn-folha .jfb-geral .jfi-sub{font-size:9pt}
+html body .jfn-folha ol.jfb-geral-texto{font-size:11pt}
+html body .jfn-folha ol.jfb-geral-texto li span{font-size:9pt}
+html body .jfn-folha .jfn-artigo-titulo{font-size:9pt}
+html body .jfn-folha .jfn-cal-titulo{font-size:9pt}
+html body .jfn-folha .jfb-cal span{font-size:8.5pt}
+html body .jfn-folha .jfb-cal i{font-size:11pt}
+html body .jfn-folha .jfi-equipa .jfi-barra{font-size:9pt}
+html body .jfn-folha .jfc-nome{font-size:11pt}
+html body .jfn-folha .jfc-nome span{font-size:9pt}
+html body .jfn-folha .jfc-ref>b{font-size:19pt}
+html body .jfn-folha .jfc-lote{font-size:13pt}
+html body .jfn-folha .jfc-obs{font-size:10.5pt}
+html body .jfn-folha .jfn-rodape{font-size:9pt}
+html body .jfn-folha table.jfb-dados.dmo-table :is(th,td){font-size:10.5pt}
+html body .jfn-folha table.jfn-dim.dmo-table tr:first-child th{font-size:8.5pt}
+html body .jfn-folha{line-height:1.2}
+html body .jfn-folha .jfb>*{padding:1mm 2.5mm}
+html body .jfn-folha table.jfb-dados.dmo-table :is(th,td){line-height:1.2;padding-bottom:.2mm}
+html body .jfn-folha[data-jof-folha="ficha"] .jfn-tabela>.jfb{min-height:9mm}
+html body .jfn-folha ul.jfb-notas{padding-top:1mm;padding-bottom:1mm}
+html body .jfn-folha ul.jfb-notas li{margin-bottom:.2mm}
+html body .jfn-folha ol.jfb-geral-texto li{margin-bottom:.4mm}
+html body .jfn-folha .jfi-artigo-img{min-height:26mm}
+html body .jfn-folha table.jfb-dados.dmo-table th{white-space:nowrap}
+html body .jfn-folha .jfb-lado{grid-template-columns:21mm 1fr}
+html body .jfn-folha .jfn-factos span{white-space:nowrap;letter-spacing:0}
+html body .jfn-folha table.jfn-dim.dmo-table td:first-child{white-space:nowrap;width:27mm}
+html body .jfn-folha table.jfn-dim.dmo-table td:last-child{width:14mm}
