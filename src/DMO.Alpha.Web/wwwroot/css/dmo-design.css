@@ -235,33 +235,11 @@ html body .jof2 :is([data-jof-familia="AN"],[data-jof-familia="ARR"]) .hv b {fon
 /* Contextual support surface (docs/design/HANDOFF-ASTRA.md): a page slides in
    beside the workspace; module navigation never enters it. The partial is
    _DmoSupportPanel + wwwroot/js/dmo-support.js. */
-html.dmo-support-open body{overflow:hidden}
-html body dialog.dmo-support{
-  position:fixed;inset:0 0 0 auto;margin:0;padding:0;
-  width:min(1040px,calc(100vw - 120px));max-width:none;height:100dvh;max-height:none;
-  border:0;border-left:1px solid var(--dmo-border);border-radius:0;
-  background:var(--dmo-card);color:var(--dmo-text);box-shadow:none;
-  display:flex;flex-direction:column;
-  transform:translateX(100%);visibility:hidden;
-  transition:transform .22s ease,visibility .22s;
-}
-html body dialog.dmo-support:not([open]){display:none;transform:translateX(100%);visibility:hidden}
-html body dialog.dmo-support[open]{transform:none;visibility:visible}
-@starting-style{html body dialog.dmo-support[open]{transform:translateX(100%)}}
-html body dialog.dmo-support::backdrop{background:rgba(11,19,32,.24)}
-html body .dmo-support-head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--dmo-border);flex:0 0 auto}
-html body .dmo-support-eyebrow{display:block;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dmo-muted)}
-html body .dmo-support-head h2{margin:2px 0 0;font-size:17px;font-weight:650;letter-spacing:-.01em}
-html body #dmoSupportFull{margin-left:auto;font-size:12px;color:var(--dmo-brand-700);text-decoration:none;white-space:nowrap}
-html body #dmoSupportFull:hover{text-decoration:underline}
-html body #dmoSupportFull:focus-visible{outline:2px solid var(--design-medium);outline-offset:3px;text-decoration:none}
-html body .dmo-support-head [data-support-close]{flex:0 0 auto;min-height:30px;padding:0 10px;font-size:12px}
-html body .dmo-support-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--dmo-border);background:var(--dmo-warning-soft);font-size:12px}
-html body .dmo-support-confirm[hidden]{display:none}
-html body .dmo-support-confirm p{flex:1 1 100%;margin:0;color:var(--dmo-text)}
-html body .dmo-support-loading{position:absolute;inset:60px 0 auto 0;margin:0;padding:22px 20px;color:var(--dmo-muted);font-size:12px}
+/* O painel em si (topo, corpo, deslizar) é a estrutura fixa dos painéis:
+   css/dmo-estrutura.css. Aqui fica só o que é do iframe. */
+html body .dmo-support-loading{position:absolute;inset:0 0 auto 0;margin:0;padding:22px 20px;color:var(--dmo-muted);font-size:12px}
 html body .dmo-support-loading[hidden]{display:none}
-html body .dmo-support-frame{flex:1 1 auto;width:100%;min-height:0;border:0;background:var(--dmo-card)}
+html body .dmo-support-frame{background:var(--dmo-card)}
 html body .dmo-support-refresh{position:fixed;right:20px;bottom:20px;z-index:120;display:flex;flex-wrap:wrap;align-items:center;gap:10px;max-width:calc(100vw - 40px);padding:10px 14px;border:1px solid var(--dmo-border);border-radius:8px;background:var(--dmo-card);font-size:12px;box-shadow:none}
 html body .dmo-support-refresh[hidden]{display:none}
 /* Inside the support panel only the page is drawn: the shell stays outside. */
@@ -271,7 +249,6 @@ html[data-dmo-embedded="true"] .dmo-shell-header,
    A marca fica no HTML, onde o teste da faixa a procura, até ele mudar com o ok do Diogo. */
 html body .dmo-faixa-dev{display:none!important}
 html[data-dmo-embedded="true"] :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main,.jof2){padding:16px 18px 24px}
-@media(max-width:700px){html body dialog.dmo-support{width:100vw}}
 
 /* Long matrices keep the page inside 1366x768: the list scrolls locally. */
 html body .dmo-table-wrap:has(>.dmo-matrix){max-height:calc(100vh - 610px);overflow:auto}

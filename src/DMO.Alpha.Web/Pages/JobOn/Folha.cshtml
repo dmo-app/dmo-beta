@@ -433,9 +433,10 @@ else
     <div class="jof2-gaveta">
       <div class="rail-backdrop" data-jof-rail-fundo hidden></div>
       @* O cabeçalho do painel é só «Planeamento», um link para o Planeamento
-         (Diogo, 23/10/2026); o × continua a fechar a gaveta. *@
+         (Diogo, 23/10/2026); o «Fechar» no canto fecha a gaveta, como em todos os
+         painéis (a estrutura fixa, docs/design/estrutura.md). *@
       <aside class="rail" id="jofRail" aria-label="Planeamento" aria-hidden="true" inert data-jof-rail>
-        <div class="rail-head"><a class="rail-voltar" href="@FolhaModel.PlaneamentoHref">Planeamento</a><button class="rail-close" type="button" data-jof-rail-fechar aria-label="Esconder o painel">×</button></div>
+        <div class="rail-head"><a class="rail-voltar" href="@FolhaModel.PlaneamentoHref">Planeamento</a><button class="rail-close dmo-button" type="button" data-jof-rail-fechar>Fechar</button></div>
         <div class="rail-list">
           @if (Model.ProximasEntradas.Count == 0)
           {
