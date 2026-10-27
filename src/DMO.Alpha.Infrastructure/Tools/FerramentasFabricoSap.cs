@@ -106,28 +106,6 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         return resumos;
     }
 
-    public async Task<IReadOnlyList<SapFabrico>> DoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default)
-    {
-        var jobOn = await db.JobOns.AsNoTracking()
-            .Where(j => j.Id == jobOnId && j.InicioEm != null)
-            .Select(j => new { j.Reference, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
-            .FirstOrDefaultAsync(cancellationToken);
-        if (jobOn is null)
-        {
-            return [];
-        }
-
-        var maquina = jobOn.Maquina.Trim().ToUpperInvariant();
-        var de = jobOn.InicioEm!.Value;
-        return (await db.SapFabricos.AsNoTracking()
-                .Where(s => s.Linha == maquina && s.FimEm >= de)
-                .ToListAsync(cancellationToken))
-            .Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, jobOn.Reference, jobOn.Maquina, jobOn.InicioEm, jobOn.FimEm))
-            .OrderBy(s => s.InicioEm)
-            .ThenBy(s => s.Id)
-            .ToList();
-    }
-
     public async Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default)
     {
         var cm = db.CmContexts.Where(c => c.ToolId == toolId).Select(c => c.JobOnId ?? c.ReplacedJobOnId);

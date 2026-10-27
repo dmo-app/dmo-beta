@@ -389,13 +389,6 @@ public interface IFerramentasFabricoSap
     /// <summary>O peso do SAP de cada Job On (a referência, a máquina e as datas); fica de fora o Job On sem ordens com peso.</summary>
     Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// As linhas do SAP de um Job On (a mesma referência, máquina e datas),
-    /// da mais antiga para a mais recente: a janela «Produção no SAP» da
-    /// folha. Nenhuma sem datas ou sem relatório lido.
-    /// </summary>
-    Task<IReadOnlyList<SapFabrico>> DoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
-
     /// <summary>Os Job On em que a ferramenta foi a CM, o MF ou a BQ, do mais recente para o mais antigo.</summary>
     Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default);
 
