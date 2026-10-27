@@ -3973,6 +3973,17 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `8814c455ecaa1b86`
 
+## A-0245 · 2026-10-27 · teste-novo
+
+Porquê: PU NNPB: o PDF gera-se sempre com a reserva cheia e os números da reserva inteiros (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraGGAMBs5g7FD3HuhbAZe3hc «não consigo extrair PU»)
+Referência: DMO-511
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPdfReservaTests.cs :: PuncoesPdfReservaTests.Pdf_ComAReservaCheia_GeraSe_ComOsNumerosInteiros`
+
+Selo depois: `f875edf05732704d`
+
 ## A-0246 · 2026-10-27 · ok-do-diogo
 
 Porquê: DMO-506: a faixa «Planeamento» em cima do calendário (Job On e Sumário) só mostra o que entra, de hoje até uma semana; as produções em curso saem dela (Diogo: «deveria remover o que já entrou»). O teste do painel lateral do Sumário deixa de exigir «Em curso desde» e passa a exigir que a de ontem fique de fora. A gaveta «Linhas» da folha não muda.
@@ -3981,4 +3992,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 
-Selo depois: `f23149608f3bd719`
+Selo depois: `e6e3be96a6b2ca5a`
