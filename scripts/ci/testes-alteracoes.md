@@ -4055,3 +4055,14 @@ Novos: 0 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
 
 Selo depois: `dba4e2efbb45ed56`
+
+## A-0252 · 2026-10-27 · ok-do-diogo
+
+Porquê: DMO-517: o link do mcaliper não funcionava porque, no Resumo, só quem tinha o Aprovar e o Criar o podia pôr (na Revisão). Quem tem o Controlo Criar passa a ver «Associar link do mcaliper» na linha CM/BQ/MF sem link e grava-o ali. Os dois testes deixam de exigir que o Resumo esconda o associar e passam a exigir o botão e a janela; com o link associado, o Resumo só o abre.
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraTxDSbtGzfCy3FcLtUkwGGf («Pôr o link no próprio Resumo»)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+
+Selo depois: `7c215904b71a39bc`
