@@ -16,9 +16,10 @@ public sealed partial class PlaneamentoSumarioPageTests
         // 21/10/2026): o mesmo «O que vai entrar» do Job On, com as produções
         // que entram desta semana. A que entrou ontem e não tem fim está em
         // curso e vem primeiro (Diogo, 22/10/2026: «fica tudo a depender da
-        // data de entrada e saída»).
+        // data de entrada e saída»). Noutra linha: na mesma, a que entra hoje
+        // acabava a de ontem (Diogo, 27/10/2026).
         var entraHoje = await JobOnAsync("S9P001", Hoje);
-        var entrouOntem = await JobOnAsync("S9P002", Hoje.AddDays(-1));
+        var entrouOntem = await JobOnAsync("S9P002", Hoje.AddDays(-1), maquina: "B2");
         using var client = await LoginAsync("5310", DmoCapabilities.JobOnCreate);
 
         var html = await GetAsync(client);

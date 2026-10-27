@@ -80,6 +80,32 @@
               <div>
                 <h3>Registo — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</h3>
               </div>
+              @* A PÁGINA NÃO MEXE (Diogo, 27/10/2026: «página mexe» ao trocar de
+                 máquina): o aviso «O Job On mudou depois deste registo» deixou
+                 de ser um bloco por baixo dos cartões, que empurrava o
+                 «Registar Entrada ou Saída» só nalgumas máquinas. Fica numa
+                 linha no cabeçalho do registo, que tem sempre a mesma altura:
+                 «Job On mudou» abre por cima (sem empurrar nada) as alterações,
+                 com a data e quem mudou, e «Ver o que mudou» leva à ficha. *@
+              @if (Model.JobOnNotice is { } jobOnNotice)
+              {
+                <div class="bq-jobon-mudou" id="bqJobOnMudou" role="status">
+                  <details>
+                    <summary title="@jobOnNotice.Intro"><span class="dmo-caret" aria-hidden="true"></span>Job On mudou</summary>
+                    <div class="bq-jobon-mudou-lista">
+                      <strong>@jobOnNotice.Intro</strong>
+                      <ul>
+                        @foreach (var change in jobOnNotice.Notice.Changes)
+                        {
+                          <li>@change.Text <span>· @JobOnChangeNoticeView.When(change.ChangedAtUtc)@(change.ChangedBy is null ? null : $" · {change.ChangedBy}")</span></li>
+                        }
+                      </ul>
+                    </div>
+                  </details>
+                  <span aria-hidden="true">·</span>
+                  <a href="@jobOnNotice.Href">Ver o que mudou</a>
+                </div>
+              }
               <div class="bq-register-head-actions">
                 @* «Histórico» fora do menu (Diogo, 22/10/2026): um link à vista
                    que abre o Histórico filtrado por esta BQ e lote (só a BQ,
@@ -179,10 +205,7 @@
                 <div class="dmo-fact"><span>Produção</span><strong>Por associar</strong></div>
               }
             </div>
-            @if (Model.JobOnNotice is { } jobOnNotice)
-            {
-              <partial name="_JobOnChangeNotice" model="jobOnNotice" />
-            }
+            @* O aviso «O Job On mudou» passou para o cabeçalho (ver em cima). *@
 
             @* O FORM «Associar Job On a este registo» (o fim do ciclo do
                backfill — o Owner 14/10, verbatim: «criar um jobon, e poder
@@ -330,7 +353,6 @@
               }
               <div class="dmo-card-topo">
                 <h3>Registar Entrada ou Saída<partial name="_DmoHelp" model="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")" /></h3>
-                <div class="dmo-card-topo-acoes"><button type="submit" class="btn primary bq-line-save" aria-label="Registar o movimento">Registar</button></div>
               </div>
               @* SEM FOCO AUTOMÁTICO no tipo (Diogo, 22/10/2026): ao voltar do
                  Histórico pelo painel lateral, a «Saída» aparecia com o anel
@@ -342,9 +364,10 @@
                     ?? Model.MovementMachines.FirstOrDefault(m => m.Code == Model.ProductionContext?.MachineCode)?.MachineId;
               }
               <input type="hidden" id="movementMachine" name="movement_machine_id" value="@maquinaDaLinha" />
-              @* «Registar» no canto do cartão, na linha do título (Diogo, 26/10/2026);
-                 aqui o tipo, a quantidade e a data. *@
+              @* «Registar» à esquerda, antes da «Saída» (Diogo, 27/10/2026, …VhpNpJNmWffCnSnudseTKt);
+                 depois o tipo, a quantidade e a data. *@
               <div class="bq-movement-line">
+                <button type="submit" class="btn primary bq-line-save" aria-label="Registar o movimento">Registar</button>
                 <fieldset class="bq-movement-types">
                   <legend class="visually-hidden">Movimento</legend>
                   <label><input type="radio" name="movement_type" value="saida" checked="@(Model.MovementFormType == "saida")" required /><span>Saída</span></label>

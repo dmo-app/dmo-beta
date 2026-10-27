@@ -1,1 +1,325 @@
 /* 1366×768: boquilhas-ferramentas (27/10/2026). Só as páginas deste grupo. */
+/* Ritmo de 8 px; campos com a largura do que levam; claro e escuro pelos tokens
+   do dmo-design.css. Os seletores começam em «html body» para passarem à frente
+   do dmo-design.css e dos <style> das próprias páginas. */
+
+/* ================================================================== */
+/* FERRAMENTAS — comum (lista, Criar, Ficha, Histórico)                */
+/* ================================================================== */
+html body main.ferr-page{max-width:none;margin:0;padding:16px 24px 8px;gap:16px}
+html body main.ferr-page>.page-head{min-height:0;margin:0}
+/* O título com a cor dos títulos dos outros módulos (estava a azul). */
+html body main.ferr-page>.page-head h2{font-size:22px;line-height:28px;color:var(--dmo-text)}
+html body main.ferr-page .ferr-card{padding:12px 16px}
+html body main.ferr-page .ferr-card .dmo-card-topo{min-height:32px;margin-bottom:8px}
+html body main.ferr-page .ferr-card details:not([open])>summary.dmo-card-topo{margin-bottom:0}
+html body main.ferr-page .ferr-card h3{font-size:16px;line-height:24px}
+html body main.ferr-page .dmo-zona:empty{display:none}
+
+/* Os campos: rótulo 4 px acima do campo, a mesma altura em todos. */
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos,.ferr-filters)>.dmo-field{display:flex;flex-direction:column;gap:4px}
+/* Os campos que o tipo esconde (hidden) continuam escondidos. */
+html body :is(main.ferr-page,.beta-bq-layout) :is(.dmo-field,.ferr-tech-bloco,.ferr-tech-sep)[hidden]{display:none !important}
+html body main.ferr-page #ferrGeral :is(.dmo-aviso,.ferr-aviso,.ferr-nota){padding:8px 12px}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos,.ferr-filters)>.dmo-field>label{min-height:16px;line-height:16px;margin:0;white-space:nowrap}
+
+/* ------------------------------------------------------------------ */
+/* Ficha e Criar: um só formulário (_FerramentaFactos/_FerramentaTecnica) */
+/* ------------------------------------------------------------------ */
+html body main.ferr-page .ferr-create-row-machines{margin:0;column-gap:24px}
+html body main.ferr-page .ferr-checks{gap:8px;margin-top:4px}
+html body main.ferr-page .ferr-check span{min-width:48px;min-height:32px}
+/* A linha dos campos e a Informação opcional: 24 px entre os dois blocos,
+   16 px entre campos; sem o traço vertical (Diogo, 27/10/2026). */
+html body main.ferr-page .ferr-editar-linha{gap:16px 24px;margin-top:8px;align-items:flex-end}
+html body main.ferr-page .ferr-editar-linha>.ferr-editar-sep{display:none}
+/* No painel (~1040 px) os dois blocos ainda cabem numa linha. */
+html[data-dmo-embedded="true"] body main.ferr-page .ferr-editar-linha{column-gap:16px}
+html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:96px !important}
+html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:156px !important}
+/* A Informação opcional numa linha própria, por baixo, com um traço por cima
+   (Diogo, 27/10/2026: «meter um separador uma linha»). */
+html body main.ferr-page .ferr-editar-linha>.ferr-opcional{flex:1 0 100%;margin-top:4px;padding-top:12px;border-top:1px solid var(--dmo-border)}
+html body main.ferr-page .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:wrap}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos){gap:16px}
+html body main.ferr-page .ferr-tech-titulo{height:16px;margin:0 0 8px;font-size:11px;line-height:16px}
+/* Larguras pelo conteúdo: referência de 8 (5447T173), 3 dígitos no lote e na
+   quantidade, «sem registo» no % uso, o nome técnico de 12 (M107544MFNNV). */
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.dmo-field{flex:0 0 auto !important;width:auto !important;max-width:none}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-type select{width:192px !important}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:104px !important;min-width:0;padding-inline:10px}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-lot,.ferr-w-qty) input{width:56px !important;min-width:0}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input{width:56px !important;min-width:0}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input.ferr-sem-registo-campo{width:92px !important;padding-inline:8px}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:164px !important;min-width:0;padding-inline:10px}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-fab input{width:56px !important;min-width:0}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-processo select{width:168px !important}
+html body main.ferr-page .ferr-tech-campos>.dmo-field:not(.ferr-w-processo,.ferr-w-ref,.ferr-w-sap,.ferr-w-fab) input{width:88px !important;min-width:0}
+html body main.ferr-page .ferr-tech-campos>.ferr-w-ref input{width:88px !important}
+/* O % uso sem leitura: o «sem registo» cabe, em letra mais pequena. */
+html body main.ferr-page input.ferr-sem-registo-campo::placeholder{font-size:12px}
+html body main.ferr-page .ferr-w-sap input::placeholder{font-size:13px}
+/* «Qtd. lote» no ecrã (Diogo, 27/10/2026): o rótulo do HTML continua
+   «Quantidade do lote» (leitores de ecrã e o contrato do formulário). */
+html body main.ferr-page .ferr-editar-principal>.ferr-w-qty>label{display:flex;align-items:flex-start;font-size:0 !important;line-height:0 !important}
+html body main.ferr-page .ferr-editar-principal>.ferr-w-qty>label::before{content:"Qtd. lote" / "";font-size:12px;line-height:16px}
+html body main.ferr-page .ferr-editar-principal>.ferr-w-qty>label>.dmo-help{font-size:12px;line-height:16px}
+/* Os exemplos (placeholder) mais claros, para não parecerem valores escritos. */
+html body main.ferr-page .ferr-card :is(input:not(.ferr-sem-registo-campo),textarea)::placeholder{color:color-mix(in srgb,var(--dmo-muted) 55%,transparent);opacity:1}
+/* A Informação técnica opcional do Criar. */
+html body main.ferr-page .ferr-create-tech{margin-top:16px;padding-top:8px}
+html body main.ferr-page .ferr-create-tech>.ferr-create-row{margin-top:8px}
+html body main.ferr-page #ferr-technical-notice:empty{min-height:0;margin:0}
+
+/* ------------------------------------------------------------------ */
+/* Ficha: Geral, Editar, Informação técnica, Histórico de produções    */
+/* ------------------------------------------------------------------ */
+html body main.ferr-page #ferrGeral #ferr-facts-title{font-size:20px;line-height:28px}
+html body main.ferr-page #ferrGeral .dmo-facts{padding:4px 0}
+html body main.ferr-page #ferrGeral .dmo-fact{padding:2px 16px;min-height:0}
+html body main.ferr-page #ferrGeral :is(.dmo-aviso,.ferr-aviso,.ferr-nota){margin-top:8px}
+html body main.ferr-page #ferrEditar .ferr-create-row-machines{margin-top:0}
+html body main.ferr-page .dmo-card-dobravel details[open]>summary.dmo-card-topo{margin-bottom:8px}
+
+/* Bloqueada (painel lateral, antes de «Editar»): o mesmo tamanho de caixa e
+   o mesmo espaço dos campos editáveis, com um contorno discreto — o valor fica
+   exatamente por baixo do rótulo. Os exemplos não aparecem (não são valores). */
+html.dmo-bloqueado body main.ferr-page form[method="post"] :is(input,select,textarea):disabled{border:1px solid color-mix(in srgb,var(--dmo-border) 70%,transparent);background:transparent;padding-inline:10px}
+html.dmo-bloqueado body main.ferr-page form[method="post"] select:disabled{background-image:none;appearance:none;-webkit-appearance:none}
+html.dmo-bloqueado body main.ferr-page form[method="post"] :is(input,textarea):disabled:not(.ferr-sem-registo-campo)::placeholder{color:transparent;-webkit-text-fill-color:transparent}
+html.dmo-bloqueado body main.ferr-page form[method="post"] input.ferr-sem-registo-campo:disabled::placeholder{-webkit-text-fill-color:var(--dmo-warning)}
+html.dmo-bloqueado body main.ferr-page .ferr-check input:disabled+span{cursor:default}
+html.dmo-bloqueado body main.ferr-page #ferr-tech-guardar{display:none}
+
+/* ------------------------------------------------------------------ */
+/* Histórico das Ferramentas: o mesmo título e o mesmo ritmo da lista   */
+/* ------------------------------------------------------------------ */
+html body main.hist-page{padding:16px 24px 8px;gap:16px}
+html body main.hist-page>.page-head{min-height:0;margin:0;padding:0}
+html body main.hist-page>.page-head h1{margin:0;font-size:22px !important;line-height:28px;font-weight:650 !important;letter-spacing:-.02em;color:var(--dmo-text)}
+html body main.hist-page .hist-card{padding:12px 16px}
+html body main.hist-page .hist-card .dmo-card-topo{min-height:32px;margin-bottom:8px}
+html body main.hist-page .hist-filtros-card{padding:12px 16px;gap:8px 16px}
+html body main.hist-page .hist-filtros-card .dmo-filter-bar{gap:8px 16px}
+html body main.hist-page .hist-filtros-card .dmo-filter-bar>.dmo-field{display:flex;flex-direction:column;gap:4px}
+html body main.hist-page .hist-filtros-card .dmo-filter-bar>.dmo-field>label{margin:0;line-height:16px}
+html body main.hist-page .hist-w-referencia{width:120px}
+html body main.hist-page .hist-w-data{width:148px}
+html body main.hist-page .hist-card .dmo-table :is(th,td){padding:6px 12px}
+
+/* ------------------------------------------------------------------ */
+/* Definições › Ferramentas: os dois cartões lado a lado, o total do    */
+/* lote mais baixo (cabe em 768 px sem scroll).                         */
+/* ------------------------------------------------------------------ */
+@media (min-width:1100px){
+  html body #sec-ferramentas>.def-parte{display:grid;grid-template-columns:max-content max-content;column-gap:16px;align-items:start;justify-content:start}
+  html body #sec-ferramentas>.def-parte>*{grid-column:1/-1}
+  html body #sec-ferramentas>.def-parte>.def-cartoes{grid-column:1;margin:0}
+  html body #sec-ferramentas>.def-parte>fieldset.def-geral-campos{grid-column:2;grid-row:2;margin:0;min-width:0}
+}
+html body #sec-ferramentas .ferr-def-card{padding:16px}
+html body #sec-ferramentas .ferr-def-card .dmo-card-topo{margin-bottom:4px}
+html body #sec-ferramentas .ferr-def-falta{margin:0 0 8px}
+html body #sec-ferramentas .ferr-totais{grid-template-columns:auto repeat(3,96px);gap:8px 16px}
+html body #sec-ferramentas .ferr-totais input{width:96px;height:32px;padding:4px 8px;font-size:14px}
+html body #sec-ferramentas .ferr-totais input::placeholder{font-size:12px}
+
+/* ================================================================== */
+/* BOQUILHAS — Registo, Boquilhas (catálogo), Movimentos (histórico)   */
+/* ================================================================== */
+html body .beta-bq-layout>.main{padding:16px 24px 8px}
+html body .beta-bq-layout>.main>section.view{display:flex;flex-direction:column;gap:16px}
+html body .beta-bq-layout>.main>section.view>*{margin-top:0;margin-bottom:0}
+html body .beta-bq-layout>.main>section.view>.dmo-zona:empty{display:none}
+/* O título e a frase de apoio numa linha. */
+html body .beta-bq-layout section.view>.page-head{min-height:0;margin:0;padding:0;align-items:center}
+html body .beta-bq-layout section.view>.page-head>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 16px}
+html body .beta-bq-layout section.view>.page-head h2{margin:0;font-size:22px;line-height:28px}
+html body .beta-bq-layout section.view>.page-head p{margin:0}
+/* As linhas de produção: uma faixa baixa por baixo do título. */
+html body .beta-bq-layout section.view .beta-production-rail{margin:0;padding:8px 16px}
+html body .beta-bq-layout section.view .beta-production-lines :is(button,.dmo-rail-link){padding:4px 12px}
+/* Passar o rato num cartão (as linhas, os factos com link) muda só a cor do texto. */
+html body .beta-bq-layout .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 12%,var(--dmo-card))}
+html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover{background:var(--dmo-card)}
+html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link):hover:not(.selected):not(.active) strong{color:var(--dmo-brand-600)}
+html body .beta-bq-layout a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible){background:none}
+html body .beta-bq-layout a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>strong{color:var(--dmo-brand-600)}
+html body .beta-bq-layout .card{padding:12px 16px}
+html body .beta-bq-layout .card :is(.card-head,.dmo-card-topo){min-height:32px;margin-bottom:8px}
+html body .beta-bq-layout .card h3{font-size:16px;line-height:24px;margin:0}
+
+/* Registo aberto: o registo e os valores lado a lado; o formulário do
+   movimento numa faixa; os últimos movimentos por baixo (cabe em 768 px). */
+/* Só a partir de 1100 px (no telemóvel os dois cartões e o formulário ficam
+   um por baixo do outro; a 390 px a faixa saía 72 px do ecrã). */
+@media (min-width:1100px){
+  html body .beta-bq-layout section#registo:has(.register-open){display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
+  /* As zonas (.dmo-zona) são display:contents: os cartões delas é que são as células. */
+  html body .beta-bq-layout section#registo:has(.register-open)>*,
+  html body .beta-bq-layout section#registo:has(.register-open)>.dmo-zona>*{grid-column:1/-1}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoAberto>.register-open{grid-column:1;grid-row:3}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoNumeros>.bq-metrics-card{grid-column:2;grid-row:3}
+}
+html body .beta-bq-layout section#registo>.dmo-zona>.card{margin:0}
+html body .beta-bq-layout .register-open .dmo-facts{display:flex;padding:4px 0}
+html body .beta-bq-layout .register-open .dmo-facts>.dmo-fact{flex:1 1 auto;min-width:0}
+html body .beta-bq-layout .register-open .dmo-fact>strong{white-space:nowrap}
+html body .beta-bq-layout .register-open .dmo-fact{padding:2px 12px}
+html body .beta-bq-layout .bq-movement-card .jobon-aviso{margin:0 0 8px;padding:8px 12px}
+/* O título, o tipo, a quantidade, a data e o «Registar» numa só linha. */
+@media (min-width:1100px){
+  html body .beta-bq-layout form.bq-movement-form{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:end}
+  html body .beta-bq-layout form.bq-movement-form>*{grid-column:1/-1}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo{display:contents}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{grid-column:1;grid-row:1;align-self:end;margin:0 0 8px;white-space:nowrap}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>.dmo-card-topo-acoes{grid-column:3;grid-row:1;align-self:end}
+  html body .beta-bq-layout form.bq-movement-form>.bq-movement-line{grid-column:2;grid-row:1}
+}
+html body .beta-bq-layout .bq-movement-line{gap:8px 16px;align-items:flex-end;flex-wrap:wrap;margin:0}
+html body .beta-bq-layout .bq-movement-types{gap:8px}
+html body .beta-bq-layout .bq-line-quantity input{width:88px}
+html body .beta-bq-layout .bq-line-date input{width:auto}
+html body .beta-bq-layout .bq-metrics-card h3{margin:0 0 8px}
+html body .beta-bq-layout .bq-metrics-card .lot-data{gap:0}
+html body .beta-bq-layout .bq-metrics-card .lot-data>div{padding:4px 12px}
+html body .beta-bq-layout .bq-latest-card .dmo-table :is(th,td){padding-block:6px;height:32px}
+html body .beta-bq-layout .bq-latest-card :is(.dmo-pagination,.pagination,nav){margin-top:8px}
+
+/* «Associar Job On» (registo sem produção): a referência e a produção lado a lado. */
+html body .beta-bq-layout .register-open>.filter-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 16px;margin:8px 0 0 !important;padding:12px 16px}
+html body .beta-bq-layout .register-open>.filter-bar>*{margin:0}
+html body .beta-bq-layout .register-open>.filter-bar>.card-head{flex:1 0 100%;margin:0 !important;min-height:32px}
+html body .beta-bq-layout .register-open>.filter-bar .filter-grid{display:flex;gap:16px}
+html body .beta-bq-layout .register-open>.filter-bar .dmo-field{display:flex;flex-direction:column;gap:4px;margin:0}
+html body .beta-bq-layout .register-open>.filter-bar #jobRef{width:152px}
+html body .beta-bq-layout .register-open>.filter-bar #jobNumber{width:auto;min-width:200px}
+
+/* Boquilhas (catálogo): o título com o «Criar boquilha» no canto superior
+   direito do cartão (Diogo, 18/10/2026) e, por baixo, os campos numa só linha,
+   cada um com a largura do que leva; a lista com linhas baixas. */
+html body .beta-bq-layout section#boquilhas>.card:has(>.bq-tool-search){display:flex;align-items:flex-end;gap:8px 24px;flex-wrap:wrap}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:8px 16px;margin:0}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>h3{flex:0 1 auto;margin:0;white-space:nowrap}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>.dmo-card-topo-acoes{margin-left:auto}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end}
+html body .beta-bq-layout .bq-tool-search>.dmo-field{display:flex;flex-direction:column;gap:4px;margin:0}
+html body .beta-bq-layout .bq-tool-search>.dmo-field>label{margin:0;line-height:16px;white-space:nowrap}
+html body .beta-bq-layout .bq-tool-search #bq-tool-search{width:224px}
+html body .beta-bq-layout .bq-tool-search #bq-tool-lot{width:64px}
+html body .beta-bq-layout .bq-tool-search #bq-tool-machine{width:144px}
+html body .beta-bq-layout #bq-tool-results .card-head{margin-bottom:8px}
+html body .beta-bq-layout #bq-tool-results .dmo-table :is(th,td){padding-block:6px;height:32px}
+html body .beta-bq-layout #bq-tool-results .bq-tool-pagination{margin-top:8px;gap:8px}
+html body .beta-bq-layout #bq-tool-sheet .lot-data>div{padding:4px 12px}
+html body .beta-bq-layout #bq-tool-sheet .bq-sem-jobon-movimentos>.card-head{margin:8px 0 4px !important}
+html body .beta-bq-layout #bq-tool-sheet .dmo-table :is(th,td){padding-block:6px}
+
+/* Movimentos (histórico): os oito filtros numa linha, cada um com a
+   largura do que leva; o dia e o calendário mais baixos. */
+html body .beta-bq-layout .bq-history-filters{padding:12px 16px}
+html body .beta-bq-layout .bq-history-filters-head{min-height:32px;margin:0 0 4px}
+html body .beta-bq-layout .bq-history-filter-grid{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field{flex:0 0 auto;display:flex;flex-direction:column;gap:4px;margin:0}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field>label{margin:0;height:16px;line-height:16px;white-space:nowrap}
+html body .beta-bq-layout .bq-history-filter-grid :is(input,select){width:100%;box-sizing:border-box}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#vista){width:232px}
+html body .beta-bq-layout .bq-history-filter-grid select{white-space:nowrap;text-overflow:ellipsis}
+/* O resumo diário enche a altura que sobra do ecrã (a tabela rola por dentro). */
+html body .beta-bq-layout .dmo-table-wrap:has(>.dmo-matrix){max-height:max(160px,calc(100vh - 584px))}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#pesquisa){width:112px}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#lote){width:80px}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#maquina){width:88px}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#tipo){width:144px}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#reparador){width:136px}
+html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:is(#bqHistDesdeZona,#bqHistAteZona){width:144px}
+html body .beta-bq-layout .bq-history-day{padding:12px 16px}
+html body .beta-bq-layout .bq-history-day-grid{grid-template-columns:minmax(0,1fr) 336px;gap:16px}
+html body .beta-bq-layout .bq-history-day .dmo-calendar{padding:8px 12px}
+html body .beta-bq-layout .bq-history-day .dmo-calendar-nav{margin-bottom:4px}
+html body .beta-bq-layout .bq-history-day .dmo-calendar-nav .icon-btn{width:28px;height:28px;min-height:28px}
+html body .beta-bq-layout .bq-history-day .dmo-calendar-week{margin:0;padding:0}
+html body .beta-bq-layout .bq-history-day .dmo-calendar-days{gap:0}
+html body .beta-bq-layout .bq-history-day .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day){min-height:30px;height:30px}
+html body .beta-bq-layout .bq-history-day .dmo-calendar-legend{margin-top:4px}
+html body .beta-bq-layout .bq-history-day .bq-calendar-actions{margin-bottom:8px}
+html body .beta-bq-layout #bqHistTotais{padding:8px 16px}
+html body .beta-bq-layout #bqHistTotais .lot-data>div{padding:2px 12px}
+html body .beta-bq-layout #bqHistTotais .lot-data strong{font-size:20px;line-height:24px}
+html body .beta-bq-layout .movement-card .dmo-table :is(th,td){padding-block:6px}
+
+/* ------------------------------------------------------------------ */
+/* Lista (Pesquisar): filtros com a largura do conteúdo, linhas baixas */
+/* ------------------------------------------------------------------ */
+/* O título do filtro na mesma linha dos campos (poupa uma linha a 768 px). */
+html body main.ferr-page .ferr-card:has(>#ferrFiltros){display:flex;align-items:flex-end;gap:24px}
+html body main.ferr-page .ferr-card:has(>#ferrFiltros)>.dmo-card-topo{flex:0 0 auto;align-items:center;min-height:var(--dmo-control-height,34px);margin:0}
+html body main.ferr-page .ferr-card>#ferrFiltros{flex:1 1 auto;min-width:0}
+html body main.ferr-page .ferr-filters{gap:16px;align-items:flex-end}
+html body main.ferr-page .ferr-filters>.dmo-field{width:auto}
+html body main.ferr-page .ferr-filters>.ferr-w-ref input{width:120px}
+html body main.ferr-page .ferr-filters>.ferr-w-lot input{width:56px}
+html body main.ferr-page .ferr-filters>.ferr-w-type select{width:192px}
+html body main.ferr-page .ferr-filters>.ferr-w-machine select{width:96px}
+html body main.ferr-page .ferr-filter-actions{gap:8px}
+html body main.ferr-page #ferrResultados .card-note{margin:-4px 0 8px;font-size:12px;line-height:16px}
+html body main.ferr-page #ferrResultados .dmo-table :is(th,td){padding-block:6px;height:32px}
+html body main.ferr-page #ferrResultados .ferr-pagination{margin-top:8px;gap:8px}
+
+/* O título da Informação opcional abre e fecha o bloco: só a letra muda no hover. */
+html body .ferr-opcional-titulo{cursor:pointer;user-select:none}
+html body .ferr-opcional-titulo:is(:hover,:focus-visible){color:var(--dmo-brand-700);outline:0}
+:root[data-theme="dark"] body .ferr-opcional-titulo:is(:hover,:focus-visible){color:#fff}
+html body .ferr-opcional>.ferr-tech-campos[hidden]{display:none !important}
+/* «sem registo» ao centro da caixa do % uso (Diogo, 27/10/2026: «centrar»). */
+html body main.ferr-page input.ferr-sem-registo-campo,
+html body main.ferr-page input.ferr-sem-registo-campo::placeholder{text-align:center}
+/* Bloqueada, a caixa escondida das Linhas compatíveis não pode aparecer
+   (o ponto branco que o Diogo viu, 27/10/2026). */
+html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,.ri-tipos,.dmo-alternador) label>input:is([type=checkbox],[type=radio]):disabled{opacity:0 !important;border:0 !important}
+/* ================================================================== */
+/* Auditoria 1366×768 (27/10/2026, todo/1366-falhas.md §3)             */
+/* ================================================================== */
+@media (min-width:1100px){
+  /* Movimentos › Resumo diário: a grelha do mês usa a página, sem a caixa
+     de 184 px com scroll próprio (o dmo-design.css limita a 100vh - 610px). */
+  html body .beta-bq-layout .dmo-table-wrap:has(>.dmo-matrix){max-height:none}
+
+  /* Movimentos › Registo do dia: sem dia escolhido o quadro só tem a frase
+     e fica com a altura dela, em vez de esticar até ao fundo do calendário. */
+  html body .beta-bq-layout .bq-history-day-grid>.bq-day-summary:not(:has(.beta-light-list)){align-self:start}
+
+  /* Movimentos › Por linha / Job On: as tabelas de todas as máquinas com
+     as mesmas colunas, alinhadas umas com as outras. */
+  html body .beta-bq-layout .bq-machine-group .dmo-table{table-layout:fixed;width:100%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(1){width:17%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(2){width:16%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(3){width:15%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(4){width:7%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(5){width:14%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(6){width:7%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(7){width:16%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(8){width:8%}
+
+  /* Movimentos › totais do filtro: o cartão do tamanho dos três números
+     (continuam juntos à esquerda), sem a faixa vazia até à direita. */
+  html body .beta-bq-layout #bqHistTotais{width:max-content;max-width:100%;padding-right:48px}
+
+  /* Registo e Corrigir movimentos: a data e a hora inteiras na caixa. */
+  html body .beta-bq-layout .bq-movement-line .bq-line-date{flex:0 0 192px}
+
+  /* Registo › Valores desta boquilha / lote, ao lado do «Associar Job On»
+     (o registo fica mais alto): dois a dois, para os rótulos caberem numa
+     linha e o cartão não ficar com a metade de baixo vazia. */
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) #bqRegistoNumeros>.bq-metrics-card .lot-data{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));row-gap:16px}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) #bqRegistoNumeros>.bq-metrics-card .lot-data>div:nth-child(odd){border-left:0 !important;padding-left:0 !important}
+
+  /* Registar Reparação: 16 px do título ao cartão, como nas outras páginas
+     das Ferramentas (eram 34 px). */
+  html body main.rp-page>.page-head{margin-bottom:0}
+
+  /* Definições › Boquilhas: os três cartões com a mesma altura, a encher a
+     largura (cada um cresce a partir da largura do que leva). */
+  html body #sec-boquilhas .bq-def-lado{flex:1 1 100%;min-width:0;align-items:stretch;gap:16px}
+  html body #sec-boquilhas .bq-def-lado>.bq-def-card{flex:1 1 auto;width:auto}
+}

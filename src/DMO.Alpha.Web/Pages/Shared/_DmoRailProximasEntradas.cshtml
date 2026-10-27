@@ -30,6 +30,7 @@
         AriaLabel: "Planeamento",
         Items: railLinhas,
         EmptyLabel: "Sem produções em curso nem entradas esta semana.",
-        TitleHref: "/JobOn");
+        // Só com o Job On ver, a página dele é a Folha (o Sumário diz qual).
+        TitleHref: ViewData["RailPlaneamentoHref"] as string ?? "/JobOn");
 }
 <partial name="_DmoRail" model="@rail" />

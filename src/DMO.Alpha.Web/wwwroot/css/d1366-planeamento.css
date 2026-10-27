@@ -1,1 +1,172 @@
-/* 1366×768: planeamento (27/10/2026). Só as páginas deste grupo. */
+/* 1366×768: planeamento (27/10/2026). Só as páginas deste grupo:
+   Job On (procura, Histórico, folha em ver e em Editar) e Planeamento › Sumário.
+   Ritmo de 8 px: 16 px entre blocos, 8 px dentro dos blocos. Só apresentação:
+   nenhum campo, botão, ajuda ou secção fica escondido. */
+
+/* ------------------------------------------------------------------ */
+/* Job On (procura) e Histórico: o mesmo espaço de 16 px entre o título,
+   as linhas, os filtros e os cartões.                                  */
+/* ------------------------------------------------------------------ */
+html body .beta-light-view>.beta-light-heading{margin:0 0 16px}
+html body .beta-light-view>.beta-production-rail{margin:0 0 16px}
+html body .beta-light-view>#jobonAvisos:not(:empty){margin:0 0 8px}
+/* O calendário e a lista do dia com a mesma altura: as caixas acabam na mesma linha. */
+html body .beta-light-view .beta-light-grid{gap:16px;align-items:stretch}
+html body .beta-light-view .beta-light-productions{display:flex;flex-direction:column}
+html body .beta-light-view .beta-light-productions>.beta-light-card-head{margin-bottom:8px}
+html body .beta-light-view .beta-light-productions .beta-light-list{gap:8px}
+html body .beta-light-view .jobon-procura-bloco{margin-top:16px;padding-top:16px}
+
+/* Histórico: cada filtro com a largura do que leva (a referência tem 4 a 8
+   caracteres, as datas 10), alinhados à esquerda; o resto fica para a tabela. */
+html body #jobonHistFiltros.dmo-filter-bar{flex-wrap:wrap;justify-content:flex-start;align-items:flex-end;gap:8px 16px;margin:0 0 16px}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field{flex:0 0 auto;margin:0}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field:nth-child(1 of .dmo-field){width:176px}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field:nth-child(2 of .dmo-field){width:144px}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field:nth-child(3 of .dmo-field){width:208px}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field:nth-child(n+4 of .dmo-field){width:168px}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field :is(input,select){box-sizing:border-box;width:100%;min-width:0;height:var(--dmo-control-height);min-height:0;padding-block:0;line-height:normal}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field .dmo-suggest{width:100%}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field select{line-height:calc(var(--dmo-control-height) - 2px);align-items:center}
+html body #jobonHistFiltros.dmo-filter-bar>.dmo-field>label{display:block;margin:0 0 4px;line-height:18px}
+html body #jobonHistoricoResultados .dmo-list-pager{margin-top:8px}
+
+/* ------------------------------------------------------------------ */
+/* Planeamento › Sumário: título e linhas em cima; à esquerda os filtros
+   por cima do calendário, à direita a lista. Tudo cabe em 1366×768.     */
+/* ------------------------------------------------------------------ */
+@media (min-width:901px){
+  html body main.sumario-page{display:grid;grid-template-columns:320px minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:16px;row-gap:16px;align-content:start;align-items:start}
+  html body main.sumario-page>:is(.page-head,.beta-production-rail){grid-column:1/-1;margin:0}
+  html body main.sumario-page>.sumario-grid{display:contents}
+  html body main.sumario-page #sumarioFiltros{grid-column:1;grid-row:3;margin:0}
+  html body main.sumario-page .sumario-grid>.dmo-calendar{grid-column:1;grid-row:4;margin:0}
+  html body main.sumario-page #sumarioLista{grid-column:2;grid-row:3/span 2;margin:0;align-self:stretch}
+  /* Os dois filtros um por baixo do outro, o rótulo à esquerda do campo. */
+  html body main.sumario-page .sumario-filtros-card{padding:12px 16px}
+  html body main.sumario-page .sumario-filters{display:grid;grid-template-columns:1fr;gap:8px}
+  html body main.sumario-page .sumario-filters>.dmo-field{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:center;column-gap:8px;width:auto}
+  html body main.sumario-page .sumario-filters>.dmo-field>label{margin:0}
+  html body main.sumario-page .sumario-filters>.dmo-field>select{width:100%}
+}
+html body main.sumario-page>.page-head{margin:0}
+html body main.sumario-page .sumario-lista{padding:16px}
+html body main.sumario-page .sumario-grupo{margin-top:16px;gap:8px}
+html body main.sumario-page .sumario-grupo.sumario-topo{margin:0 0 16px}
+html body main.sumario-page .sumario-grupo ul{gap:8px}
+html body main.sumario-page .sumario-item{min-height:40px;padding:8px 16px}
+/* As colunas das linhas alinhadas: a data com largura fixa, a máquina a seguir. */
+html body main.sumario-page .sumario-quando:not(:empty){min-width:136px}
+html body main.sumario-page .sumario-quando:empty{display:none}
+
+/* ------------------------------------------------------------------ */
+/* Job On › folha em Editar: todos os campos e seletores com 30 px, o texto
+   centrado na vertical; os valores de 3–4 caracteres em caixas pequenas;
+   nada sai do cartão (as notas crescem com o texto).                   */
+/* ------------------------------------------------------------------ */
+html:root body .jof2.editing.editing.editing :is(input:not([type=radio]):not([type=checkbox]):not([type=hidden]),select):not(.pick-row *){
+  box-sizing:border-box !important;height:30px !important;min-height:0 !important;margin:0 !important;
+  padding-block:0 !important;line-height:normal !important;font-size:13px !important;text-overflow:ellipsis}
+html:root body .jof2.editing.editing.editing input:not([type=radio]):not([type=checkbox]):not([type=hidden]):not(.pick-row *){padding-inline:8px !important}
+html:root body .jof2.editing.editing.editing select:not(.pick-row *){padding-left:8px !important;padding-right:26px !important;background-position:right 8px center !important;line-height:28px !important;align-items:center}
+html:root body .jof2.editing.editing.editing .page-head .fv select[name="machine_id"]{font-size:15px !important;font-weight:700}
+html:root body .jof2.editing.editing.editing input[type=date]{padding-inline:8px 6px !important;font-variant-numeric:tabular-nums}
+
+/* A faixa dos dados: Início/Fim · Dias · Processo/Peso · Secções/Gota, em
+   grupos com linhas finas, como em ver; sem buracos entre os grupos. */
+html body .jof2.editing .page-head .facts{min-height:0;padding:8px 16px;gap:16px;align-items:center}
+html body .jof2.editing .page-head .facts-dados{justify-content:flex-start;gap:0;flex-wrap:wrap;row-gap:8px}
+html body .jof2.editing .page-head .facts-dados>.fact-col{display:flex;align-items:center;gap:8px;padding:0 16px;border-left:1px solid var(--dmo-border);flex-wrap:nowrap}
+html body .jof2.editing .page-head .facts-dados>.fact-col:first-child{border-left:0;padding-left:0}
+html body .jof2.editing .page-head .facts-dados .fl{white-space:nowrap}
+html body .jof2.editing .page-head .facts-dados .fl+.fv+.fl,html body .jof2.editing .page-head .facts-dados .fv+.fl{margin-left:8px}
+html:root body .jof2.editing.editing.editing .page-head .fv input[type=date]{width:136px !important}
+html:root body .jof2.editing.editing.editing .page-head .fv select#jobon-cab-processo{width:auto !important;min-width:88px}
+html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-peso{width:80px !important}
+html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-seccoes{width:56px !important}
+html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-gota{width:72px !important}
+/* No telemóvel (390 px) a faixa não cabe numa linha: cada par rótulo e
+   campo numa linha («Início» e «Fim» um por baixo do outro), sem linhas finas,
+   e nada sai do ecrã (havia scroll lateral no Editar). */
+@media (max-width:600px){
+  html body .jof2.editing .page-head .facts{padding:8px;gap:8px;max-width:100%;box-sizing:border-box}
+  html body .jof2.editing .page-head .facts-dados{min-width:0;max-width:100%;gap:8px 16px}
+  html body .jof2.editing .page-head .facts-dados>.fact-col,html body .jof2.editing .page-head .facts-dados>.fact-col:first-child{display:grid;grid-template-columns:max-content max-content;align-items:center;gap:8px;padding:0;border-left:0;min-width:0;max-width:100%}
+  html body .jof2.editing .page-head .facts-dados .fl+.fv+.fl,html body .jof2.editing .page-head .facts-dados .fv+.fl{margin-left:0}
+}
+
+/* As cabeças com referência e lote (PU, AN, ARR, TP…): o campo com a largura de 4–8 caracteres. */
+html:root body .jof2.editing.editing.editing .sec-head .hv input.f{width:88px !important}
+
+/* Utilização: rótulo, campo de 3 dígitos e «%» na mesma linha. */
+html body .jof2.editing .use-top{display:flex;align-items:center;gap:8px}
+html body .jof2.editing .use-top>span{flex:1 1 auto}
+html:root body .jof2.editing.editing.editing .use-top>input{width:64px !important}
+
+/* Medidas: a coluna da medida com o nome inteiro; valor e tolerância à medida dos números. */
+html body .jof2.editing .dims{table-layout:fixed;width:100%}
+html body .jof2.editing .dims :is(th,td):nth-child(2){width:72px}
+html body .jof2.editing .dims :is(th,td):nth-child(3){width:52px}
+html body .jof2.editing .dims tbody td{padding:1px 0 1px 4px !important;vertical-align:middle}
+html body .jof2.editing .dims tbody td:first-child{padding-left:8px !important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .jof2.editing .dims td input{width:100% !important}
+html:root body .jof2.editing.editing.editing .dims td:nth-child(3) input{padding-inline:6px !important}
+/* Calibres: linhas de 32 px, como as outras listas. */
+html body .jof2.editing .g-cal tbody :is(td,th){padding:1px 4px !important;vertical-align:middle;height:auto !important}
+html body .jof2.editing :is(.g-cal,.dims) :is(td,th)>input:not([type=hidden]){display:block}
+/* Folgas: o rótulo e três campos iguais. */
+html body .jof2.editing .folgas{display:grid !important;grid-template-columns:auto repeat(3,minmax(0,1fr));align-items:center;gap:4px;padding:4px 0}
+html body .jof2.editing .folgas>span{margin-right:4px}
+html body .jof2.editing .folgas>input{width:100% !important;min-width:0}
+
+/* Listas de campos (Tipo, Reparador, Stock…): rótulo à esquerda, campo à direita, linhas de 32 px. */
+html body .jof2.editing .kv{grid-template-columns:minmax(0,1fr) 96px;align-items:stretch}
+html body .jof2.editing .kv :is(dt,dd){padding-block:1px !important;min-height:0;display:flex;align-items:center}
+html body .jof2.editing .kv dd>input.f{width:100% !important}
+/* CS › Furos: «Aberto [ ]  Fechado [ ]» numa só linha, à direita como os outros campos. */
+html body .jof2.editing [data-jof-familia="CS"]>.kv{grid-template-columns:auto minmax(0,1fr)}
+html body .jof2.editing [data-jof-familia="CS"]>.kv>dd{justify-content:flex-end}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dd>input.f{width:96px !important}
+html body .jof2.editing .jof-furos{display:flex;flex-wrap:nowrap;justify-content:flex-end;gap:8px}
+html body .jof2.editing .jof-furos-campo{display:inline-flex;align-items:center;gap:4px}
+html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:32px !important;text-align:center}
+
+/* Notas: a caixa cresce com o texto escrito (nunca corta a última linha). */
+html body .jof2.editing .note-edit>textarea{field-sizing:content;min-height:48px;max-height:240px;overflow:auto;line-height:1.45}
+
+/* ------------------------------------------------------------------ */
+/* Job On › barra de cima (ver, Novo, Criar, Duplicar): Referência,
+   Produção, Tipo, Linhas e os botões com a mesma altura (34 px), na mesma
+   linha, o rótulo à esquerda de cada caixa; Referência e Produção com a
+   mesma largura (Diogo, 27/10/2026: «tudo mesmo tamanho»).              */
+/* ------------------------------------------------------------------ */
+html body .jof2 .page-head .pick-block{align-items:center}
+html body .jof2 .page-head .pick-row{align-items:center !important;gap:16px}
+html body .jof2 .page-head .pick-row>.pick-campo{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 0 auto}
+html body .jof2 .page-head .pick-row .pick-rotulo{margin:0;white-space:nowrap}
+html:root body .jof2.jof2 .page-head .pick-row :is(.ref-search,.ref-search input,input.prod-select,select.prod-select,.prod-drop,.prod-trigger){box-sizing:border-box !important;height:var(--dmo-control-height) !important;min-height:0 !important;width:144px !important;min-width:0 !important;margin:0 !important;font-size:13px !important;font-weight:600}
+html:root body .jof2.jof2 .page-head .pick-row :is(.ref-search input,input.prod-select){padding:0 10px !important;line-height:normal !important}
+html:root body .jof2.jof2 .page-head .pick-row .prod-trigger{padding:0 10px !important}
+html body .jof2 .page-head .pick-row .jof-tipo{box-sizing:border-box;height:var(--dmo-control-height);align-items:stretch}
+html body .jof2 .page-head .pick-row .jof-tipo label{flex:1 1 0}
+html body .jof2 .page-head .pick-row .jof-tipo label>span{box-sizing:border-box;height:100%;min-width:104px;display:flex;align-items:center;justify-content:center;font-size:13px}
+html body .jof2 .page-head :is(.pick-row .btn,.head-acoes .btn,.head-acoes summary.btn,.head-tools .btn){box-sizing:border-box;height:var(--dmo-control-height);min-height:0;margin:0}
+html body .jof2 .page-head :is(.head-acoes,.head-tools){align-self:center;margin:0}
+
+/* Gaveta das produções (Linhas): no hover o cartão enche-se com a cor da
+   linha e a letra fica branca, como os cartões das linhas por baixo do
+   título (exceção pedida pelo Diogo, 27/10/2026, à regra do hover só na letra). */
+html body .jof2-gaveta .rail-item.dmo-linha-cor:not(:disabled):is(:hover,:focus-visible),
+html[data-theme="dark"] body .jof2-gaveta .rail-item.dmo-linha-cor:not(:disabled):is(:hover,:focus-visible){background:var(--dmo-machine-color,var(--dmo-brand-600));border-color:var(--dmo-machine-color,var(--dmo-brand-600));color:#fff}
+html body .jof2-gaveta .rail-item.dmo-linha-cor:not(:disabled):is(:hover,:focus-visible) :is(b,small,span){color:#fff}
+
+/* ------------------------------------------------------------------ */
+/* Job On › folha em ver: continua a caber em 1366×768.                 */
+/* ------------------------------------------------------------------ */
+/* As Pinças nunca encolhem abaixo do conteúdo (a caixa das notas saía do
+   cartão); as Notas gerais é que cedem o espaço. */
+html body .jof2:not(.editing) .side>:is(.article,.g-pinfo){flex-shrink:0}
+/* «O que mudou»: cada alteração numa linha (o quê · quando e quem). */
+html body .jof2 .jobon-mudancas>.jobon-resumo{margin:8px 0 0}
+html body .jof2 .jobon-mudancas>.jobon-resumo>li{padding:6px 12px}
+html body .jof2 .jobon-mudancas>.jobon-resumo>li>div{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:16px}

@@ -178,11 +178,11 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
   </div>
 
   <section id="riConsultaResultados" class="dmo-card ri-card" aria-labelledby="ri-consulta-title" data-dmo-regiao data-dmo-parcial>
-    <h3 id="ri-consulta-title">Reparações<partial name="_DmoHelp" model="@("As reparações que contam (sem as anuladas), da mais recente para a mais antiga. O dia é o dia operacional, que vira à hora do Canal Jobon.")" /></h3>
+    <h3 id="ri-consulta-title">Reparações</h3>
     @if (Model.Resumo.Count > 0)
     {
       <div id="riConsultaResumo" class="ri-resumo">
-        <h4 id="ri-resumo-title">Resumo por pessoa<partial name="_DmoHelp" model="@("Reparações que contam com estes filtros, os dias diferentes em que cada pessoa registou e a média de reparações por dia.")" /></h4>
+        <h4 id="ri-resumo-title">Resumo por pessoa</h4>
         <div class="dmo-table-wrap">
           <table class="dmo-table" id="riConsultaResumoLista" data-dmo-list="Resumo por pessoa">
             <thead><tr><th>Pessoa</th><th>Reparações</th><th>Dias</th><th>Média por dia</th></tr></thead>

@@ -92,11 +92,18 @@ public sealed class SumarioModel(
         [FromQuery(Name = "dias")] int? dias)
     {
         ViewData["Title"] = "Sumário";
+        // Só com o Job On ver, as abas e o título do painel levam às páginas
+        // dele: a Folha, nunca o calendário nem o Histórico (auditoria de 27/10/2026).
+        var soVer = !await capabilities.HasAsync(DmoCapabilities.JobOnCreate, HttpContext.RequestAborted);
         ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("planeamento", "Planeamento"))) with
         {
             ActiveFunctionKey = "sumario",
-            Functions = ShellStateFactory.PlanningFunctions("sumario")
+            Functions = ShellStateFactory.PlanningFunctions("sumario", soVer: soVer)
         };
+        if (soVer)
+        {
+            ViewData["RailPlaneamentoHref"] = "/JobOn/Folha";
+        }
 
         // Abrir o Sumário é ver os importantes: o ponto do separador apaga-se
         // (Diogo, 23/10/2026).
@@ -153,9 +160,8 @@ public sealed class SumarioModel(
                 .ToList();
         }
 
-        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
         ProximasEntradas = JobOn.IndexModel.ProximasEntradasDaSemana(
-            await jobOnList.ListWindowAsync(hoje, domingo, HttpContext.RequestAborted), hoje);
+            await jobOnList.ListWindowAsync(hoje, JobOn.IndexModel.AteUmaSemana(hoje), HttpContext.RequestAborted), hoje);
 
         var porDia = items.GroupBy(i => i.Dia).ToDictionary(g => g.Key, g => g.Count());
         Calendar = DmoCalendarPresentation.ForMonth(

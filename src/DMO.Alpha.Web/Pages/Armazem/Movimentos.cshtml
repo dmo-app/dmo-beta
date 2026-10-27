@@ -192,6 +192,24 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     <section id="armMovFerramenta" class="dmo-card arm-card" aria-labelledby="arm-mov-ferr-title" data-dmo-regiao data-dmo-parcial data-dmo-ferramenta="@s.ToolId">
       <div class="dmo-card-topo">
         <h3 id="arm-mov-ferr-title">@MovimentosModel.Nome(s.Tipo, s.Referencia, s.Lote)</h3>
+        @* «← Voltar» à página de onde se veio (Diogo, 27/10/2026: da Localização
+           da ficha da ferramenta abre-se aqui, e volta-se à ficha). Com ?voltar=
+           (um caminho desta aplicação) vai para lá; sem ele, o dmo-live.js põe a
+           página anterior (data-dmo-voltar) e, sem origem, fica o Registar. *@
+        @{
+          var voltarPedidoMov = Model.Request.Query["voltar"].ToString();
+          var voltarSeguroMov = DMO.Alpha.Web.Services.LocalUrl.IsSafe(voltarPedidoMov) ? voltarPedidoMov : null;
+        }
+        <div class="dmo-card-topo-acoes">
+          @if (voltarSeguroMov is not null)
+          {
+            <a class="arm-voltar" id="armRegVoltar" href="@voltarSeguroMov">← Voltar</a>
+          }
+          else
+          {
+            <a class="arm-voltar" id="armRegVoltar" href="@Url.Page("/Armazem/Movimentos")" data-dmo-voltar="@s.ToolId" data-dmo-voltar-ignorar="/Armazem/Movimentos">← Voltar</a>
+          }
+        </div>
       </div>
 
       @foreach (var aviso in Model.Avisos)
@@ -515,7 +533,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" id="armLogLista" data-dmo-list="Últimas entradas e saídas de @tipoTexto">
-          <thead><tr><th>Data</th><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Movimento</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
+          <thead><tr><th>Data</th><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Movimento</th><th>Estado</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
           <tbody>
           @* Os lotes novos por criar no topo: ainda não são ferramenta nem
              movimento; a entrada fica registada quando a ferramenta for
@@ -528,6 +546,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>—</td>
               <td>—</td>
               <td><span class="dmo-pill inactive">Por criar</span></td>
+              <td>—</td>
               <td>—</td>
               <td>@l.Posicao</td>
               <td>@(l.RegistadoPor ?? "—")</td>
@@ -544,6 +563,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, m.ToolId)</td>
               <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId)</td>
               <td>@MovimentosModel.Movimento(m)</td>
+              <td>@(m.Estado is { } estMov ? ArmazemTextos.Estado(estMov) : "—")</td>
               <td>@(m.Reparador ?? "—")</td>
               <td>@(m.Posicao ?? "—")</td>
               <td>@(m.RegistadoPor ?? "—")</td>
@@ -557,6 +577,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>—</td>
               <td>—</td>
               <td>@MovimentosModel.Movimento(m)</td>
+              <td>@(m.Estado is { } estMov ? ArmazemTextos.Estado(estMov) : "—")</td>
               <td>@(m.Reparador ?? "—")</td>
               <td>@(m.Posicao ?? "—")</td>
               <td>@(m.RegistadoPor ?? "—")</td>
@@ -566,11 +587,12 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           </tbody>
         </table>
       </div>
-      @* A paginação da casa («1 de 5»), com os links do próprio tipo: depois de uma recusa, o pedido é um POST. *@
+      @* A paginação da casa («1 de 5»), com os links do próprio tipo: depois de uma recusa, o pedido é um POST.
+         A procura (q, pos) e o modo vão com a página: sem eles, a página 2 perdia o log (auditoria de 27/10/2026). *@
       <nav data-dmo-parcial class="dmo-list-pager" aria-label="Paginação" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:12px">
         @if (Model.Log.PageNumber > 1)
         {
-          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">←</a>
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">←</a>
         }
         else
         {
@@ -579,7 +601,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <span role="status" aria-label="Página @Model.Log.PageNumber de @Model.Log.TotalPages">@Model.Log.PageNumber de @Model.Log.TotalPages</span>
         @if (Model.Log.PageNumber < Model.Log.TotalPages)
         {
-          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">→</a>
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">→</a>
         }
         else
         {
