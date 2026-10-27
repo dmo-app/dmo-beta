@@ -3827,6 +3827,16 @@ Novos: 0 · mudaram: 8 · saíram: 0
 
 Selo depois: `a5e334c99005e344`
 
+## A-0229 · 2026-10-27 · ok-do-diogo
+
+Porquê: Reparação Interna: sem linha escolhida, o texto diz «Escolha a linha acima para registar.» (as linhas estão em cima, não num painel lateral)
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra7NFQu7Q6NgYSLAEsRrjpLy
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
+
+Selo depois: `1816215d3d43701f`
+
 ## A-0226 · 2026-10-27 · ok-do-diogo
 
 Porquê: Sem botões nas linhas: o × sai dos Pegamentos («Apagar leitura» no canto com a leitura aberta) e das Punções («Remover» no canto, a linha escolhe)
@@ -3839,4 +3849,4 @@ Novos: 0 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
 - mudou: `tests/visual/puncoes_tabela_browser.py`
 
-Selo depois: `54870a511db81799`
+Selo depois: `6b59d82b93f161ce`

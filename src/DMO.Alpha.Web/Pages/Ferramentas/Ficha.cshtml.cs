@@ -427,11 +427,10 @@ public sealed class FichaModel : PageModel
         ViewData["Title"] = "Ficha de ferramenta — Ferramentas";
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
         {
-            ActiveFunctionKey = "registo",
-            Functions = new[]
-            {
-                new FunctionPresentation("registo", "Registo", Url.Page("/Ferramentas/Index"), null, false, true, true)
-            }
+            // Os mesmos separadores das outras páginas das Ferramentas; a ficha abre-se
+            // a partir da pesquisa, por isso fica o Pesquisar marcado.
+            ActiveFunctionKey = "ver",
+            Functions = ShellStateFactory.FerramentasFunctions("ver")
         };
 
         // Recusas tipadas do POST anterior, transportadas por query (PRG) com

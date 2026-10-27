@@ -203,3 +203,22 @@ html body .jof2 .btn.btn{border-radius:var(--dmo-r-control,6px)}
 html body{--dmo-botao-inv-fundo:var(--dmo-escolhida-fundo,var(--dmo-card));--dmo-botao-inv-letra:var(--dmo-escolhida-letra);--dmo-botao-inv-contorno:var(--dmo-escolhida-contorno)}
 html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel,.dmo-calendar-nav button.icon-btn,.login-form .submit):not(:is(.arm-modo,.rp-modo) *):not(:disabled):not([aria-disabled="true"]):not(#_):is(:hover,:active){background:var(--dmo-botao-inv-fundo);border-color:var(--button-color,var(--dmo-botao-inv-contorno));color:var(--button-color,var(--dmo-botao-inv-letra));text-decoration:none;outline:0;box-shadow:none}
 html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel,.dmo-calendar-nav button.icon-btn,.login-form .submit):not(:is(.arm-modo,.rp-modo) *):not(:disabled):not([aria-disabled="true"]):not(#_):is(:hover,:active) :is(svg,i,span){color:inherit}
+
+/* ================================================================== */
+/* Acertos de 27/10/2026 (Diogo): sublinhado e cabeçalho.               */
+/* ================================================================== */
+/* Botões com aspeto de link sem sublinhado no rato por cima (Diogo, 27/10/2026: «hover só muda a cor da
+   letra, sem sublinhado», cmsg_01K75FTs9bQnbhhH7qttpgraKWTkQpb2wZYA9GcrhZHgrH): ficha da ferramenta (% uso),
+   «Sem Job On» das Boquilhas, «Ver o Histórico de produções». O :not(#_) ganha às regras de cada página. */
+html body button:is(:hover,:focus-visible,:active):not(#_),html body button:is(:hover,:focus-visible,:active) :not(#_){text-decoration:none}
+html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body .ferr-cancel.ferr-link-botao:is(:hover,:focus-visible,:active):not(#_){text-decoration:none}
+/* Cabeçalho: «Nome · Título» numa só linha e o «Sair» ao centro por baixo (Diogo, 27/10/2026,
+   cmsg_01K75FTs9bQnbhhH7qttpgraRDBfzQfKkdCy2fqfj4vWVb). O título comprido corta com reticências;
+   o «· » vem do ::before do título (num item flex o espaço inicial perdia-se, por isso o espaço duro). */
+@media screen and (min-width:601px){
+  html body .dmo-shell-header .dmo-shell-conta:not(#_){max-width:360px}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user:not(#_){display:flex;align-items:baseline;justify-content:center;white-space:nowrap;max-width:340px;min-width:0}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong:not(#_){flex:0 0 auto}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_)::before{content:"\00a0·\00a0"}
+}
