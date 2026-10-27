@@ -501,6 +501,8 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     </dialog>
   }
 
+  @if (Model.MostraLog)
+  {
   <section id="armLog" class="dmo-card arm-card arm-log" aria-labelledby="arm-log-title" data-dmo-parcial>
     <div class="dmo-card-topo">
       <h3 id="arm-log-title">Últimas entradas e saídas de @tipoTexto<partial name="_DmoHelp" model="@($"As entradas e saídas de {tipoTexto} de todas as pessoas, da mais recente para a mais antiga. Um clique numa linha abre a ferramenta, onde pode corrigir a localização.")" /></h3>
@@ -586,6 +588,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       </nav>
     }
   </section>
+  }
   }
   </div>
 </main>

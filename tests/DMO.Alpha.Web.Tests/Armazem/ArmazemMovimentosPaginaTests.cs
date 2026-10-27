@@ -211,7 +211,8 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Contains("Registar CM", Elemento(comCm, "id=\"arm-mov-procura-title\""));
         Assert.Contains("value=\"CM\"", Elemento(comCm, "id=\"armMovProcura\""));
         Assert.Contains("aria-selected=\"true\"", Elemento(Elemento(comCm, "id=\"armTiposRail\""), "data-dmo-open=\"/Armazem/Movimentos?tipo=CM\""));
-        Assert.Contains("Ainda não há entradas nem saídas de CM.", Elemento(comCm, "id=\"armLogVazio\""));
+        // Sem procura, nenhuma lista de ferramentas (Diogo, 27/10/2026).
+        Assert.DoesNotContain("id=\"armLog\"", comCm);
     }
 
     [Fact]
@@ -253,7 +254,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Contains($"data-dmo-open=\"/Armazem/Movimentos?ferramenta={Bq}\"", log);
         Assert.DoesNotContain("<button", log);
         Assert.Contains("1 de 1", Elemento(depois, "id=\"armLog\""));
-        Assert.Contains("Ainda não há entradas nem saídas de CM.", await client.GetStringAsync("/Armazem/Movimentos?tipo=CM"));
+        Assert.DoesNotContain("id=\"armLog\"", await client.GetStringAsync("/Armazem/Movimentos?tipo=CM"));
     }
 
     [Fact]

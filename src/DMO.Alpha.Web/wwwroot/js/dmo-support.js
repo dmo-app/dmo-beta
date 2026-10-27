@@ -9,6 +9,17 @@
   const confirm = panel.querySelector('.dmo-support-confirm');
   const loading = panel.querySelector('.dmo-support-loading');
   const refresh = document.querySelector('.dmo-support-refresh');
+  const unlock = panel.querySelector('[data-support-unlock]');
+  // A ficha da ferramenta abre bloqueada, como o Job On: só depois de «Editar»
+  // os campos aceitam mudanças, para nada mudar por engano (Diogo, 27/10/2026).
+  const bloqueadas = new Set(['/Ferramentas/Ficha']);
+  function bloquear(doc, sim) {
+    doc.documentElement.classList.toggle('dmo-bloqueado', sim);
+    doc.querySelectorAll('form[method="post"] :is(input:not([type=hidden]),select,textarea,button)').forEach(campo => {
+      if (sim) { if (!campo.disabled) { campo.disabled = true; campo.dataset.dmoBloqueado = ''; } }
+      else if ('dmoBloqueado' in campo.dataset) { campo.disabled = false; delete campo.dataset.dmoBloqueado; }
+    });
+  }
   let opener, dirty = false, operation = false;
   const destinations = new Map([
     ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
@@ -62,6 +73,9 @@
     try { doc = frame.contentDocument; } catch { return; }
     if (!doc) return;
     doc.documentElement.dataset.dmoEmbedded = 'true';
+    const bloquear_ = bloqueadas.has(frame.contentWindow.location.pathname);
+    if (unlock) unlock.hidden = !bloquear_;
+    if (bloquear_) bloquear(doc, true);
     dirty = false;
     full.href = frame.contentWindow.location.href.replace(/([?&])painel=1(&|$)/, (_, before, after) => after ? before : '');
     doc.addEventListener('input', event => { if (event.target.closest('form[method="post"],form[method="POST"]')) dirty = true; });
@@ -72,8 +86,24 @@
       if (event.key === 'Escape' && !doc.querySelector('dialog[open],.dmo-modal-backdrop.open')) {event.preventDefault(); requestClose();}
     });
   });
+  // Clicar fora fecha o painel; se o clique foi noutra linha ou ferramenta,
+  // abre essa logo a seguir (Diogo, 27/10/2026).
+  panel.addEventListener('click', event => {
+    if (event.target !== panel) return;
+    const r = panel.getBoundingClientRect();
+    if (event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom) return;
+    if (dirty) return requestClose();
+    close();
+    const alvo = document.elementFromPoint(event.clientX, event.clientY);
+    if (alvo && alvo !== document.body && alvo !== document.documentElement) alvo.click();
+  });
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
   panel.querySelector('[data-support-close]').addEventListener('click', requestClose);
+  unlock?.addEventListener('click', () => {
+    const doc = frame.contentDocument; if (!doc) return;
+    bloquear(doc, false); unlock.hidden = true;
+    doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
+  });
   panel.querySelector('[data-support-keep]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
   panel.querySelector('[data-support-discard]').addEventListener('click', close);
   refresh.querySelector('[data-support-refresh]').addEventListener('click', () => location.reload());

@@ -205,6 +205,9 @@ public sealed class MovimentosModel(
 
     public int Pagina { get; private set; } = 1;
 
+    /// <summary>As últimas entradas e saídas só com uma ferramenta aberta ou procurada.</summary>
+    public bool MostraLog { get; private set; }
+
     public async Task<IActionResult> OnGetAsync(string? gravacao, string? posicao, string[]? aviso, int? pagina)
     {
         Pagina = pagina is > 0 ? pagina.Value : 1;
@@ -394,8 +397,12 @@ public sealed class MovimentosModel(
 
         ViewData["ArmModo"] = Modo;
 
-        if (Tipo is { } tipo)
+        // Nunca uma lista de ferramentas sem procura (Diogo, 27/10/2026: «está
+        // sempre em branco até começar a escrever a referência»): as últimas
+        // entradas e saídas só aparecem com uma ferramenta aberta ou procurada.
+        if (Tipo is { } tipo && (Situacao is not null || Gravou || !string.IsNullOrWhiteSpace(Procura)))
         {
+            MostraLog = true;
             AbreFicha = (await capabilities.GetAsync(HttpContext.RequestAborted)).Contains(DmoCapabilities.Ferramentas, StringComparer.Ordinal);
             Log = await historico.ListarAsync(new ArmazemHistoricoFiltro(TipoFerramenta: tipo), Pagina, HttpContext.RequestAborted);
             LinhasEUso = await movimentos.LinhasEUsoAsync(Log.Items.Select(m => m.ToolId).OfType<string>().ToList(), HttpContext.RequestAborted);
