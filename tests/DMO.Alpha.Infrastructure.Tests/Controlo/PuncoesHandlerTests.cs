@@ -240,7 +240,7 @@ public sealed class PuncoesHandlerTests : IDisposable
         Assert.Contains("41 A Lote 1 41 B Lote 2", sheetText);
         Assert.Contains("Punções verificados 2", sheetText);
         Assert.Contains("Linha C2 2", sheetText);
-        Assert.Contains("A1 41 1", sheetText);
+        Assert.DoesNotContain("A1 41 1", sheetText);
         Assert.Contains("B1 41 2", sheetText);
         Assert.DoesNotContain("APROVADO", sheetText);
         Assert.DoesNotContain("Aprovação", sheetText);

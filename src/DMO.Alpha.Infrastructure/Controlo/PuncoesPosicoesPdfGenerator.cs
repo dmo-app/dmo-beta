@@ -75,7 +75,7 @@ public sealed class PuncoesPosicoesPdfGenerator
                 header.Item().PaddingTop(2).Text(Subtitulo(input)).FontSize(9.5f).FontColor(DmoPdfPalette.Muted);
             });
 
-            page.Content().PaddingTop(12).Column(content =>
+            page.Content().PaddingTop(12).ScaleToFit().Column(content =>
             {
                 content.Item().Table(t =>
                 {
@@ -132,24 +132,24 @@ public sealed class PuncoesPosicoesPdfGenerator
         c.Border(0.6f).BorderColor(DmoPdfPalette.Line).Background(fundo).MinHeight(altura)
             .Padding(3).AlignCenter().AlignMiddle();
 
+    private static IContainer Compacta(IContainer c) =>
+        c.Border(0.6f).BorderColor(DmoPdfPalette.Line).Background(DmoPdfPalette.White)
+            .PaddingVertical(2).PaddingHorizontal(6).AlignCenter().AlignMiddle();
+
     private static IContainer Simples(IContainer c, string fundo = DmoPdfPalette.White) =>
         c.Border(0.6f).BorderColor(DmoPdfPalette.Line).Background(fundo)
             .PaddingVertical(5).PaddingHorizontal(10).AlignCenter().AlignMiddle();
 
+    /// <summary>
+    /// O número e, por baixo, a linha do lote: sempre as duas linhas, com o
+    /// mesmo tamanho e o mesmo peso em todas as células, para os números
+    /// ficarem alinhados (Diogo, 27/10/2026: «tudo desalinhado, tamanhos
+    /// diferentes»). O lote só se escreve nas punções repetidas.
+    /// </summary>
     private static void Numero(ColumnDescriptor c, PuncaoNaPosicao? puncao, float tamanho)
     {
-        if (puncao is null)
-        {
-            c.Item().AlignCenter().Text(string.Empty);
-            return;
-        }
-
-        var numero = c.Item().AlignCenter().Text(puncao.Number).FontSize(tamanho);
-        if (puncao.Repetido)
-        {
-            numero.Bold();
-            c.Item().AlignCenter().Text($"Lote {puncao.Lot}").FontSize(7).SemiBold().FontColor(DmoPdfPalette.Muted);
-        }
+        c.Item().AlignCenter().Text(puncao?.Number ?? " ").FontSize(tamanho);
+        c.Item().AlignCenter().Text(puncao is { Repetido: true } ? $"Lote {puncao.Lot}" : " ").FontSize(7).FontColor(DmoPdfPalette.Muted);
     }
 
     private static void Reserva(IContainer container, PuncoesNaLinha grelha)
@@ -175,7 +175,7 @@ public sealed class PuncoesPosicoesPdfGenerator
 
             for (var resto = grelha.Reserva.Count % colunas; resto != 0 && resto < colunas; resto++)
             {
-                t.Cell().Element(c => Simples(c)).Text(string.Empty);
+                t.Cell().Element(c => Celula(c, DmoPdfPalette.White, 22)).Column(c => Numero(c, null, 11));
             }
         });
     }
@@ -228,9 +228,9 @@ public sealed class PuncoesPosicoesPdfGenerator
 
             foreach (var puncao in grelha.Repetidos)
             {
-                t.Cell().Element(c => Simples(c)).Text(puncao.Etiqueta);
-                t.Cell().Element(c => Simples(c)).Text(puncao.Number).Bold();
-                t.Cell().Element(c => Simples(c)).Text(puncao.Lot);
+                t.Cell().Element(Compacta).Text(puncao.Etiqueta);
+                t.Cell().Element(Compacta).Text(puncao.Number);
+                t.Cell().Element(Compacta).Text(puncao.Lot);
             }
         });
     }
