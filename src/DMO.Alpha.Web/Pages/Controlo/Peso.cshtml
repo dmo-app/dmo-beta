@@ -136,10 +136,14 @@
             </select>
           }
         </div>
-        <div class="dmo-field">
-          <label for="historicoFerramenta">Ferramenta</label>
-          <input id="historicoFerramenta" data-dmo-maiusculas autocapitalize="characters" name="ferramenta" value="@Model.HistoryTool" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-submit />
-        </div>
+        @* Sem o campo «Ferramenta» (Diogo, 27/10/2026: «o peso é sempre CM,
+           então devemos conseguir procurar a partir da referência»): a
+           referência da CM escreve-se na Referência. O ?ferramenta= dos links
+           continua a filtrar. *@
+        @if (Model.HistoryTool is not null)
+        {
+          <input type="hidden" name="ferramenta" value="@Model.HistoryTool" />
+        }
         <div class="dmo-field">
           <label for="historicoTipo">Tipo</label>
           <select id="historicoTipo" name="tipo" data-dmo-autosubmit>
@@ -202,9 +206,10 @@
               <thead>
                 <tr>
                   <th></th>
+                  @* A ferramenta primeiro (Diogo, 27/10/2026: «começar com CM ST100»). *@
+                  <th>Ferramenta</th>
                   <th>Tipo</th>
                   <th>Referência / produção</th>
-                  <th>Ferramenta</th>
                   <th>Data</th>
                   <th>Estado</th>
                   <th>Resumo</th>
@@ -229,11 +234,12 @@
                   <tr data-dmo-row data-id="@alvoLinha" data-dmo-open="@hrefLinha"
                       aria-label="Registo de @rotuloLinha — um clique abre">
                     <td><input type="radio" name="abrir" value="@alvoLinha" required data-rotulo="@rotuloLinha" aria-label="Registo de @rotuloLinha" /></td>
+                    <td>@(item.ToolLabel ?? "—")</td>
                     <td>@(item.Kind switch { ControloHistoryKind.Peso => "Peso", ControloHistoryKind.Pegamentos => "Pegamentos", ControloHistoryKind.Resumo => "Resumo", _ => "Comparação" })</td>
                     <td>@(item.ControloId is null ? $"Sem Job On · {item.Reference}" : $"{item.Reference} · {item.ProductionNumber} · {item.Machine}")</td>
-                    <td>@(item.ToolLabel ?? "—")</td>
                     <td>@(item.DataUtc is { } dataRegisto ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(dataRegisto).ToString("dd/MM/yyyy HH:mm") : "—")</td>
-                    <td>@(item.ControloId is null ? "Por associar" : "Guardado")</td>
+                    @* Com a CM no armazém, o estado diz a posição (Diogo, 27/10/2026). *@
+                    <td>@(item.ControloId is null ? "Por associar" : "Guardado")@(item.CmPosicao is { } posicaoCm ? $" · posição {posicaoCm}" : null)</td>
                     <td>@(item.Resumo ?? "—")</td>
                   </tr>
                 }

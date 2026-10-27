@@ -46,7 +46,7 @@ public sealed class FichaModel : PageModel
     private static readonly IReadOnlyDictionary<string, string> TechnicalNumericLabels = new Dictionary<string, string>
     {
         ["nominal_weight"] = "Peso nominal (g)",
-        ["volume_puncao"] = "Punção (cm³)",
+        ["volume_puncao"] = "Volume punção (cm³)",
         ["volume_marisa"] = "Marisa (cm³)",
         ["diametro_gargalo"] = "Diâmetro do gargalo (mm)",
         ["tp_diametro"] = "Tampão — diâmetro (mm)",
@@ -705,8 +705,8 @@ public sealed class FichaModel : PageModel
             .Where(field => field.Key != "process_token"
                 && ParseOptionalDecimal(field.Value) is { } value && IsImpossible(field.Key, value))
             .ToDictionary(field => field.Key, field => field.Value!.Trim());
-        // Um campo que a ficha já não mostra (o Tampão e a Punção da CM,
-        // Diogo 26/10/2026) não vem no envio: fica o valor gravado.
+        // Um campo que a ficha já não mostra (o Tampão da CM, Diogo
+        // 26/10/2026) não vem no envio: fica o valor gravado.
         var ausentes = submitted.Keys
             .Where(name => name != "process_token" && Request.HasFormContentType && !Request.Form.ContainsKey(name))
             .ToHashSet(StringComparer.Ordinal);

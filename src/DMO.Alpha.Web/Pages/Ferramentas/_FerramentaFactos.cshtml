@@ -59,8 +59,11 @@
   @* Não diz «opcional» (Diogo, 20/10/2026): sem ela grava-se na mesma, mas a
      Fabricação das Boquilhas não é calculada e a ficha da BQ avisa. *@
   <div class="dmo-field ferr-w-qty">
-    <label for="@(p)-qty">Quantidade do lote<partial name="_DmoHelp" model="@(Model.Criar ? "Vem preenchida com o total do lote das máquinas escolhidas (Ferramentas → Definições) e pode ser mudada. Se faltar o total de uma máquina, aparece um aviso." : "Numa BQ, sem ela a Fabricação das Boquilhas não é calculada.")" /></label>
-    <input id="@(p)-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.Quantidade" />
+    @* Na ficha sem o círculo da ajuda (Diogo, 27/10/2026: o rótulo não fica
+       mais largo do que o campo de 3 dígitos); o texto passa ao title do campo.
+       No ecrã o rótulo mostra «Qtd. lote» (d1366-boquilhas-ferramentas.css). *@
+    <label for="@(p)-qty">Quantidade do lote@(Model.Criar ? await Html.PartialAsync("_DmoHelp", "Vem preenchida com o total do lote das máquinas escolhidas (Ferramentas → Definições) e pode ser mudada. Se faltar o total de uma máquina, aparece um aviso.") : null)</label>
+    <input id="@(p)-qty" name="bq_quantity" type="text" inputmode="numeric" value="@Model.Quantidade" title="@(Model.Criar ? null : "Quantidade do lote. Numa BQ, sem ela a Fabricação das Boquilhas não é calculada.")" />
     @if (Model.Criar)
     {
       <input id="ferr-quantity-manual" type="hidden" name="quantity_manual" value="@(Model.QuantidadeManual ?? "0")" />
@@ -72,9 +75,10 @@
   @* Também no Criar (Diogo, 23/10/2026: «não tem a percentagem de uso»):
      grava como a primeira leitura da ferramenta. *@
     <div class="dmo-field ferr-w-uso">
-      <label for="@(p)-uso">% uso<partial name="_DmoHelp" model="@(Model.UsoData is { } dataUso ? $"Última leitura: {dataUso}. Um valor novo fica como leitura de hoje." : "Ainda sem leitura. Um valor escrito fica como leitura de hoje.")" /></label>
+      @{ var usoAjuda = Model.UsoData is { } dataUso ? $"Última leitura: {dataUso}. Um valor novo fica como leitura de hoje." : "Ainda sem leitura. Um valor escrito fica como leitura de hoje."; }
+      <label for="@(p)-uso">% uso@(Model.Criar ? await Html.PartialAsync("_DmoHelp", usoAjuda) : null)</label>
       @* maxlength 8: o aviso mostra o que se escreveu, sem cortar (ronda de 26/10/2026, J11). *@
-      <input id="@(p)-uso" name="uso_percentagem" type="text" inputmode="numeric" maxlength="8" value="@Model.UsoPercentagem" placeholder="@(Model.Criar ? null : "sem registo")" class="@(!Model.Criar && string.IsNullOrEmpty(Model.UsoPercentagem) ? "ferr-sem-registo-campo" : null)" />
+      <input id="@(p)-uso" name="uso_percentagem" type="text" inputmode="numeric" maxlength="8" value="@Model.UsoPercentagem" placeholder="@(Model.Criar ? null : "sem registo")" class="@(!Model.Criar && string.IsNullOrEmpty(Model.UsoPercentagem) ? "ferr-sem-registo-campo" : null)" title="@(Model.Criar ? null : usoAjuda)" />
     </div>
 </div>
 <span class="ferr-tech-sep ferr-editar-sep" aria-hidden="true"></span>
@@ -98,8 +102,9 @@
     @if (!Model.Criar)
     {
       <div class="dmo-field ferr-w-fab">
-        <label for="@(p)-fabrica">Fábrica de origem<partial name="_DmoHelp" model="@("A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas.")" /></label>
-        <input id="@(p)-fabrica" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" />
+        @* Sem o círculo da ajuda (Diogo, 27/10/2026); o texto passa ao title do campo. *@
+        <label for="@(p)-fabrica">Fábrica de origem</label>
+        <input id="@(p)-fabrica" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" title="A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas." />
       </div>
     }
   </div>

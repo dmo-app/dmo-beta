@@ -168,8 +168,9 @@ public sealed class ArmazemLoteNovoPaginaTests : IClassFixture<CustomWebApplicat
         var registo = NaBase(db => db.ArmazemLotesNovos.Single());
         Assert.Equal((ArmazemLoteNovoEstado.Resolvido, tool.ToolId), (registo.Estado, registo.ResolvedToolId));
         Assert.DoesNotContain("Ferramenta nova registada no Armazém", await ferramentas.GetStringAsync("/Planeamento/Sumario"));
-        // O Registo mostra agora a entrada, na posição 1033, e já não o «Por criar».
-        var log = await armazem.GetStringAsync("/Armazem/Movimentos?tipo=CM");
+        // O Registo mostra agora a entrada, na posição 1033, e já não o «Por criar»
+        // (a lista só aparece com uma procura: Diogo, 27/10/2026).
+        var log = await armazem.GetStringAsync($"/Armazem/Movimentos?tipo=CM&q={Referencia}");
         Assert.DoesNotContain("data-dmo-lote-novo", log);
         Assert.Contains($"/Armazem/Movimentos?ferramenta={tool.ToolId}", log);
         Assert.Equal("1033", NaBase(db => db.ArmazemPosicoes.Single(p => p.Id == movimento.PosicaoId).Codigo));

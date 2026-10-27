@@ -92,7 +92,8 @@ public sealed class JobOnQuadroDoDiaQuery(
         // corrente). A produção «até aviso» (o FimEm null) COBRE o dia a
         // partir do início (a regra do corte B: as datas do Job On mandam).
         var data = new DateOnly(ano, mes, Math.Clamp(diaSelecionado ?? 1, 1, DateTime.DaysInMonth(ano, mes)));
-        cobre.AddRange(jobOns.Where(j => j.InicioEm <= data && (j.FimEm == null || data <= j.FimEm)));
+        // Uma produção por linha: a que entrou por último (Diogo, 27/10/2026).
+        cobre.AddRange(ProducaoEmCurso.UmaPorMaquina(jobOns, data));
         var rows = new List<DayMachineRow>();
         foreach (var machine in machines)
         {

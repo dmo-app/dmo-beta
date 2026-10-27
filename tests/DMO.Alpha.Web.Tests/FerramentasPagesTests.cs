@@ -932,12 +932,12 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains("B1", html);
         Assert.Contains("NNPB", html);
 
-        // O tampão e a punção saíram da ficha da CM (Diogo, 26/10/2026): o
-        // tampão escreve-se na Folha do Job On e a punção no Peso; os valores
-        // gravados ficam na base, sem aparecer.
+        // O tampão saiu da ficha da CM (Diogo, 26/10/2026): escreve-se na
+        // Folha do Job On; os valores gravados ficam na base, sem aparecer.
+        // A punção voltou à ficha (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraT5faqGrCPjdkUkYmc6GCBM).
         Assert.DoesNotContain("name=\"tp_diametro\"", html);
         Assert.DoesNotContain("name=\"tp_sagitta\"", html);
-        Assert.DoesNotContain("name=\"volume_puncao\"", html);
+        Assert.Contains("name=\"volume_puncao\"", html);
         Assert.DoesNotContain("name=\"tp_raio\"", html);
         Assert.DoesNotContain("Raio (mm)", html);
         Assert.DoesNotContain("Volume do tampão (cm³)", html);
@@ -955,7 +955,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         Assert.Contains(">Editar</h3>", html);
         Assert.Contains("Geral — CM · 5447 · lote 3", html);
         Assert.Contains("Informação técnica", html);
-        Assert.DoesNotContain("Punção (cm³)", html);
+        Assert.Contains("Volume punção (cm³)", html);
         Assert.Contains("<legend class=\"ferr-tech-titulo\">Gargalo<", html);
         Assert.Contains("Informação técnica", html);
         Assert.DoesNotContain("<legend class=\"ferr-tech-titulo\">Tampão<", html);

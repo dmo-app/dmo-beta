@@ -1033,6 +1033,20 @@ public sealed class PesoModel : PageModel
                     HistoryReference, HistoryProduction, HistoryTool, HistoryTipo, HistoryData,
                     pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn,
                     productionReference: HistoryProductionReference);
+                // A Referência também aceita a referência da CM (Diogo,
+                // 27/10/2026): sem resultados pela referência do produto,
+                // procura-a como ferramenta.
+                if (historyPage.TotalCount == 0 && HistoryTool is null && HistoryReference is { } referenciaCm)
+                {
+                    var comoFerramenta = await HistoricoControloQuery.SearchPageAsync(
+                        null, null, referenciaCm, HistoryTipo, HistoryData,
+                        pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn);
+                    if (comoFerramenta.TotalCount > 0)
+                    {
+                        historyPage = comoFerramenta;
+                    }
+                }
+
                 HistoryResults = historyPage.Items;
                 HistoryPager = ListPager.For(historyPage);
             }

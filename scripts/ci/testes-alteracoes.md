@@ -3146,3 +3146,72 @@ Novos: 1 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
 Selo depois: `bd963d170146d957`
+
+## A-0174 · 2026-10-26 · ok-do-diogo
+
+Porquê: A punção voltou à informação técnica da CM (Criar e ficha, um só formulário), visível e editável: os testes que recusavam o campo «Volume punção (cm³)» passam a esperá-lo; teste novo para ver e gravar o valor na ficha.
+Referência: Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraT5faqGrCPjdkUkYmc6GCBM («nao gosto do facto de nao conseguir ver o valor»)
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_Cm_MostraOVolumeDaPuncao_EGuardaOValorEditado`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+
+Selo depois: `6c67ffefb43aac18`
+
+## A-0175 · 2026-10-26 · teste-novo
+
+Porquê: Sumário para o Job On ver e informação nova «Movimentos do Armazém» (DMO-438): testes novos.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWEaSsUNtRHvwj5NTeZSM7f, cmsg_01K75FTs9bQnbhhH7qttpgra5RmpCY7HiWL1Fi338S3eFf
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Armazem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Armazem.cs :: PlaneamentoSumarioPageTests.ArmazemMovimentos_ParaQuemTemJobOnVer_JobOnCriar_OuArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.WithJobOnView_ThePageOpensWithOnlyTheAccountModules`
+
+Selo depois: `f27c31b9a7ed1685`
+
+## A-0176 · 2026-10-27 · ok-do-diogo
+
+Porquê: Painel «Planeamento» até uma semana em avanço e uma produção em curso por linha (DMO-444, 0.3.0-beta.130): os testes antigos seguiam «até domingo» e duas produções na mesma linha.
+Referência: Diogo, 27/10/2026 00:25, «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraTm1FJcWmeJJMnTEtB2R4VE), PR #187
+Novos: 4 · mudaram: 6 · saíram: 4
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.DuasProducoesDaMesmaLinhaQueSeCruzam_FicaAQueEntrouPorUltimo_SemSobreposicao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAProducaoQueEntrouPorUltimo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_uma_semana`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Uma_linha_so_tem_uma_producao_em_curso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.NotasDeLoteDoDiaEResumoDasAlteracoes_ficamNaProducao`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.ProducaoAteAviso_CobreOsDiasDepoisDoInicio_MasNaoOsAntes`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Em_curso_primeiro_e_as_que_ja_acabaram_ficam_de_fora`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.DuasProducoesDaMesmaLinhaQueSeCruzam_NaoMarcamSobreposicao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnQuadroDoDiaQueryTests.cs :: JobOnQuadroDoDiaQueryTests.UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAsProducoesDoDiaPorReferencia`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Ao_domingo_mostra_so_esse_dia`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_domingo`
+
+Selo depois: `d409b622f6c26765`
+
+## A-0177 · 2026-10-27 · ok-do-diogo
+
+Porquê: Design novo (DMO-436): o Diogo aprovou juntar o design à integracao com os testes mudados (Armazém sem lista antes da procura, Job On bloqueado com Editar, Boquilhas, Sumário, paleta e botões únicos)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWtEDyiH367uf4aFwbYd3b5 (27/10 01:42, «Sim: testes e integracao»); botões: cmsg_01K75FTs9bQnbhhH7qttpgraPc5CZ7o8GxVCiuBHj4uft6
+Novos: 1 · mudaram: 12 · saíram: 0
+
+- novo: `tests/visual/design-review.cjs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemLoteNovoPaginaTests.cs :: ArmazemLoteNovoPaginaTests.Sumario_AvisaSoQuemTemFerramentas_ECriarResolveEDaAEntrada`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OLog_MostraSoOTipo_DeTodos_EALinhaAbreAFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.OPainel_TemCmMfBq_ESemTipoPedeParaEscolher`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.SoVer.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachineInUse_ListsOnlyTheMachinesOfTheTool_AndQuantityComesFirst`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_AbreBloqueada_ComEditar_OpcoesControloEReparacao_SemNovaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhaNova.cs :: JobOnPageTests.FolhaNova_JobOnVer_VeBloqueadaSemEditar_EOPlaneamentoLevaAFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.CardDobravel_UmSoTriangulo_EBotaoInvertido_BrancoNoEscuro`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Buttons_HaveOneLook_BlueWithWhiteText_HoverInverts`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.DarkMode_RedefinesTheTokens_AndNoSheetPaintsLooseWhite`
+- mudou: `tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.Palette_IsDefinedOnce_AndDrivesButtonsRowsAndHover`
+
+Selo depois: `71aa1f5e6f59d13a`

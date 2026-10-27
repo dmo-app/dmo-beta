@@ -546,7 +546,7 @@
        muda com o tipo) e o formulário são zonas. *@
     <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-tech-title" data-dmo-fica data-dmo-parcial>
       <details open="@Model.ShowTechnical">
-      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM. O tampão escreve-se na Folha do Job On (bloco TP) e a punção no Peso." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
+      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM. O tampão escreve-se na Folha do Job On (bloco TP)." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
       @{
           // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
           // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.

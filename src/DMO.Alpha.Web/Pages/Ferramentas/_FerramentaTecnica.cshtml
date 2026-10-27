@@ -3,9 +3,11 @@
    do Criar e da ficha. Cada secção com o título e a dica de onde a app usa
    os dados («criamos tampao como titulo depois diametro raio e calote»; «um
    triângulo de informação em cada secção»): Peso (CM) ou Volume (BQ, Diogo 26/10/2026), Gargalo (todas)
-   com um traço entre secções (18/10/2026). O Tampão e a Punção saíram da
-   CM (Diogo, 26/10/2026): o tampão escreve-se na Folha do Job On (bloco TP)
-   e a punção pede-a o Peso quando falta.
+   com um traço entre secções (18/10/2026). O Tampão saiu da CM (Diogo,
+   26/10/2026): escreve-se na Folha do Job On (bloco TP). A Punção voltou à
+   ficha da CM, visível e editável (Diogo, 26/10/2026: «nao gosto do facto de
+   nao conseguir ver o valor»; blueprint PESO.md: o volume está na ficha da
+   CM), no Criar e na ficha (um só formulário); se faltar, o Peso pede-a.
    No Criar vêm os campos de todos os tipos e o ferramentas-live.js mostra só
    os do tipo escolhido (os escondidos não são enviados); na ficha, só os do
    tipo da ferramenta. *@
@@ -37,6 +39,10 @@
           <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="@TiposDoCriar("CM")" hidden="@Escondido("CM")">
             <label for="@(p)-nominal">Peso nominal (g)</label>
             <input id="@(p)-nominal" name="nominal_weight" type="text" inputmode="decimal" value="@Model.Valor("nominal_weight")" aria-invalid="@Model.Invalido("nominal_weight")" autofocus="@Foco("nominal_weight")" />
+          </div>
+          <div class="dmo-field ferr-w-ref" data-ferr-tech-tipo="@TiposDoCriar("CM")" hidden="@Escondido("CM")">
+            <label for="@(p)-puncao">Volume punção (cm³)</label>
+            <input id="@(p)-puncao" name="volume_puncao" type="text" inputmode="decimal" value="@Model.Valor("volume_puncao")" aria-invalid="@Model.Invalido("volume_puncao")" autofocus="@Foco("volume_puncao")" />
           </div>
         }
         @if (Existe("BQ"))
