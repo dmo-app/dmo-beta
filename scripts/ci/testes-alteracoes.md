@@ -4056,6 +4056,19 @@ Novos: 0 · mudaram: 4 · saíram: 0
 
 Selo depois: `dba4e2efbb45ed56`
 
+## A-0248 · 2026-10-27 · ok-do-diogo
+
+Porquê: Peso (DMO-513): o Controlo anterior vem escolhido com o Peso mais recente das anteriores (ou o criado para comparar) e a tabela aparece logo; antes (17/10) só depois de escolher.
+Referência: Diogo nesta thread: «peso não assume o anterior» cmsg_01K75FTs9bQnbhhH7qttpgraUvPVzqVHduTo5zrh9CF9qr e «sim» cmsg_01K75FTs9bQnbhhH7qttpgra8wtfGJ17f4EnDCXtGohQRZ
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TrocaParcial_ForaDasZonasNadaMuda_EOsFormulariosLevamAComparacao`
+
+Selo depois: `f4fe603cf0e02cbf`
+
 ## A-0253 · 2026-10-27 · teste-novo
 
 Porquê: DMO-519: testes novos do uso por produção (a leitura de hoje só conta para a última produção)
@@ -4065,4 +4078,4 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoPorProducao.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoPorProducao.cs :: DefinicoesPorModuloPageTests.ALeituraDeHoje_NaoEOUsoNoFimDasProducoesAnteriores`
 
-Selo depois: `b6c25aaf1daad3c1`
+Selo depois: `c9758d36d9d180df`
