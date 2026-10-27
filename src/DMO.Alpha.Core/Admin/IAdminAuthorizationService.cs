@@ -114,14 +114,6 @@ public sealed record EffectiveAccess
     /// ADMIN-associated.
     /// </summary>
     public IReadOnlyList<string> Capabilities { get; init; } = [];
-
-    /// <summary>
-    /// Whether the current effective access carries a capability (exact
-    /// ordinal match on the effective set — the server-side check every
-    /// protected operation performs).
-    /// </summary>
-    public bool HasCapability(string capability) =>
-        Capabilities.Contains(capability, StringComparer.Ordinal);
 }
 
 /// <summary>

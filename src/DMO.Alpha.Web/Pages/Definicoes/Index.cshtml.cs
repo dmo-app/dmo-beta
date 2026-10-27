@@ -125,8 +125,6 @@ public sealed class IndexModel(
 
     public bool PalavraPasseMudou { get; private set; }
 
-    public bool TemModulos => Boquilhas is not null || Controlo is not null || Ferramentas is not null || Armazem is not null || Reparacao is not null;
-
     public async Task<IActionResult> OnGetAsync()
     {
         EAdmin = DefinicoesAcesso.EAdmin(HttpContext);

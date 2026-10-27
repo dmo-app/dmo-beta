@@ -118,8 +118,12 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
     var config = serviceProvider.GetRequiredService<IConfiguration>();
     var databaseConnection = config.GetConnectionString("DmoDatabase");
     if (!string.IsNullOrWhiteSpace(databaseConnection))
-        options.UseNpgsql(databaseConnection, npgsql =>
-            npgsql.MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName));
+        // SingleQuery escrito (era já o que o EF fazia): sem isto, cada consulta
+        // com mais de uma lista incluída dava o aviso QuerySplittingBehavior
+        // no registo (teste do ensaio, 27/10/2026).
+        options.UseNpgsql(databaseConnection, npgsql => npgsql
+            .MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName)
+            .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
     else if (builder.Environment.IsDevelopment())
         // Preserve the existing local Development/test seam.
         options.UseInMemoryDatabase("DmoAlphaModule1");
@@ -127,8 +131,9 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
         // Register the real provider without inventing a connection. Login and
         // the error page remain available; database operations fail explicitly
         // until deployment configuration supplies the PostgreSQL connection.
-        options.UseNpgsql(npgsql =>
-            npgsql.MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName));
+        options.UseNpgsql(npgsql => npgsql
+            .MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName)
+            .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
 });
 
 // -------------------------------------------------------------------------
@@ -250,6 +255,7 @@ builder.Services.AddScoped<ICreatePesoComparacaoHandler, CreatePesoComparacaoHan
 // As ferramentas herdadas da produção (o Peso) e a procura do histórico do Controlo.
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoToolFactsQuery>();
 builder.Services.AddScoped<IControloHistorySearchQuery, DMO.Alpha.Infrastructure.Controlo.ControloHistorySearchQuery>();
+builder.Services.AddScoped<IControloHistoricoProcura, DMO.Alpha.Infrastructure.Controlo.ControloHistoricoProcura>();
 // Controlo configuration read path: densidade do vidro configurada por processo
 // (a edição pertence à superfície de administração; o Peso consome e preserva).
 builder.Services.AddScoped<IGlassDensityConfiguration, GlassDensityConfiguration>();
@@ -277,6 +283,7 @@ builder.Services.AddScoped<DMO.Alpha.Core.Admin.IPinDasDefinicoes, DMO.Alpha.Inf
 builder.Services.AddScoped<DMO.Alpha.Core.Admin.IPostoRi, DMO.Alpha.Infrastructure.Admin.PostoRi>();
 builder.Services.AddScoped<DMO.Alpha.Web.Services.DesbloqueioDasDefinicoes>();
 builder.Services.AddScoped<DMO.Alpha.Web.Services.SumarioNovidades>();
+builder.Services.AddSingleton(sp => new DMO.Alpha.Web.Services.TravaoDoPosto(sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>()));
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Controlo.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Boquilhas.DefinicoesModel>();
 builder.Services.AddTransient<DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel>();
@@ -302,6 +309,7 @@ builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.JobOnChangeQuery>
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Production.RemoveJobOnChangeHandler>();
 builder.Services.AddScoped<DMO.Alpha.Core.Planeamento.ISumarioQuery, DMO.Alpha.Infrastructure.Planeamento.SumarioQuery>();
 builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IPesoCapSupportQuery, DMO.Alpha.Infrastructure.Controlo.PesoCapSupportQuery>();
+builder.Services.AddScoped<DMO.Alpha.Core.Controlo.IPesoCompararQuery, DMO.Alpha.Infrastructure.Controlo.PesoCompararQuery>();
 // O MODO CHEFE (o corte H-lite, o Owner 2026-10-12: «controlo.approve é o
 // que o chefe tem, nao tem opçao de criar peso nem pegamentos»): as
 // capabilities efetivas do user logado pelo serviço canónico do Admin —
@@ -421,6 +429,11 @@ builder.Services
 builder.Services.AddScoped<IAuthorizationHandler, AdminAreaAuthorizationHandler>();
 builder.Services.AddAuthorization(options =>
 {
+    // Sem sessão, nenhuma página abre, salvo as marcadas [AllowAnonymous]
+    // (o login, o posto, a instalação, a saída, o erro e a versão). Uma
+    // página nova esquecida sem [Authorize] fica fechada, não aberta
+    // (vistoria ao backend, 27/10/2026).
+    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
     options.AddPolicy(AdminAuthorizationPolicies.RequireAdmin, policy =>
         policy.Requirements.Add(new AdminAreaRequirement()));
 });
@@ -569,7 +582,20 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseStaticFiles();
+// Os ficheiros com a marca de versão (asp-append-version, ?v=…) guardam-se
+// um ano: a marca muda quando o ficheiro muda, por isso uma versão nova da app
+// pede logo o ficheiro novo. Os outros (o logótipo, a letra) perguntam sempre
+// ao servidor se mudaram, para nunca ficar um antigo depois de uma atualização
+// (vistoria ao frontend F1, 27/10/2026).
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ficheiro =>
+    {
+        ficheiro.Context.Response.Headers.CacheControl = ficheiro.Context.Request.Query.ContainsKey("v")
+            ? "public, max-age=31536000, immutable"
+            : "no-cache";
+    },
+});
 
 // O navegador pede /favicon.ico sozinho; serve o logótipo em vez de dar 404.
 app.MapGet("/favicon.ico", (IWebHostEnvironment env) =>

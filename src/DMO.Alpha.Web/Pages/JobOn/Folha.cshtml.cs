@@ -142,7 +142,10 @@ public sealed class FolhaModel(
 
     /// <summary>O «Duplicar» da folha: a folha nova com os dados desta produção.</summary>
     public string DuplicarHref => JobOn is null ? "/JobOn/Folha?novo=1" + NovoDestino
-        : $"/JobOn/Folha?duplicar={JobOn.JobOnId}{NovoDestino}";
+        : $"/JobOn/Folha?duplicar={JobOn.JobOnId}{(NovoProducao is { } np ? "&producao=" + Uri.EscapeDataString(np) : "")}{NovoDestino}";
+
+    /// <summary>O nº da produção nova escrito no template, que o «Duplicar» leva.</summary>
+    public string? NovoProducao { get; private set; }
 
     /// <summary>
     /// A linha e o dia escolhidos no painel do Planeamento (uma linha vazia,
@@ -289,6 +292,7 @@ public sealed class FolhaModel(
         var ct = HttpContext.RequestAborted;
         DiaPlaneamento = DateOnly.TryParseExact(dia, "yyyy-MM-dd", out var diaValor) ? diaValor : null;
         NovoMachineId = machineId;
+        NovoProducao = novo != "1" && duplicar is null && producao?.Trim() is { Length: > 0 } producaoEscrita ? producaoEscrita : null;
         NovoInicio = DateOnly.TryParseExact(inicioEm, "yyyy-MM-dd", out var novoInicio) ? novoInicio : null;
         if (machineId is not null && novo != "1" && duplicar is null)
         {
@@ -333,12 +337,13 @@ public sealed class FolhaModel(
                     {
                         return Redirect($"/JobOn/Folha?jobon_id={escrita.JobOnId}{NovoDestino}");
                     }
+                    // A última abre-se só para ver: quem cria analisa-a e só duplica
+                    // com o «Duplicar», que leva a produção escrita (Diogo, 27/10/2026:
+                    // «abre com template escreve-se uma referência, analisa-se e depois
+                    // duplica-se»; a app nunca passa sozinha a duplicar).
                     var ultima = dela.OrderByDescending(p => p.ProductionNumber, StringComparer.Ordinal).First();
-                    if (numeroNovo is not null)
-                    {
-                        return Redirect($"/JobOn/Folha?duplicar={ultima.JobOnId}&producao={Uri.EscapeDataString(numeroNovo)}{NovoDestino}");
-                    }
-                    return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}{NovoDestino}");
+                    var comProducao = numeroNovo is not null ? $"&producao={Uri.EscapeDataString(numeroNovo)}" : "";
+                    return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}{comProducao}{NovoDestino}");
                 }
                 var maquinaNova = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code ?? string.Empty;
                 await AbrirCriarAsync(
