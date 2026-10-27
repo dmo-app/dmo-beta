@@ -377,7 +377,7 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
 /* ===================================================================== */
 /* 8. A folha cabe em 1366×768 (Diogo, 27/10/2026): a altura da folha é a do ecrã menos o menu;
 /*    CM, MF, BQ+AN e PU+ARR ficam com a altura que sobra por cima, TP, CS e CAL por baixo
-/*    (TP e CS estreitos e CAL com mais de metade da largura, como na maqueta). Só deslizam as listas e as notas. ===================================================================== */
+/*    (TP, CS e CAL nas colunas de cima). Só deslizam as listas e as notas. ===================================================================== */
 @media screen and (min-width:1181px) and (min-height:720px){
   /* O menu (95px) fica de fora; o resto é da folha. */
   html:root body main.jof2.jof2.jof2{box-sizing:border-box;display:flex;flex-direction:column;height:calc(100vh - 95px);min-height:0}
@@ -390,7 +390,7 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html:root body main.jof2.jof2.jof2 .sheet-main>.zones{flex:1 1 0;min-height:0}
 }
 @container board (min-width:640px){
-  /* 40 colunas: 10 + 10 + 10 + 10 em cima; 7 + 9 + 24 por baixo (os Calibres com mais de metade). */
+  /* 40 colunas: 10 + 10 + 10 + 10 em cima; TP por baixo do CM, CS por baixo do MF e CAL por baixo de BQ+AN e PU+ARR (tests/visual/jobon_folha_browser.py). */
   html:root body .jof2.jof2.jof2 .zones{grid-template-columns:repeat(40,minmax(0,1fr));grid-template-areas:none;grid-template-rows:minmax(0,1fr) minmax(0,1fr) fit-content(172px);align-content:stretch}
   html:root body .jof2.jof2.jof2 .zones [data-jof-familia="CM"]{grid-area:1/1/3/span 10}
   html:root body .jof2.jof2.jof2 .zones [data-jof-familia="MF"]{grid-area:1/11/3/span 10}
@@ -398,9 +398,9 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html:root body .jof2.jof2.jof2 .zones [data-jof-familia="AN"]{grid-area:2/21/3/span 10}
   html:root body .jof2.jof2.jof2 .zones [data-jof-familia="PU"]{grid-area:1/31/2/span 10}
   html:root body .jof2.jof2.jof2 .zones [data-jof-familia="ARR"]{grid-area:2/31/3/span 10}
-  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="TP"]{grid-area:3/1/4/span 7}
-  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="CS"]{grid-area:3/8/4/span 9}
-  html:root body .jof2.jof2.jof2 .zones .g-cal{grid-area:3/17/4/span 24;display:flex;flex-direction:column;min-width:0}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="TP"]{grid-area:3/1/4/span 10}
+  html:root body .jof2.jof2.jof2 .zones [data-jof-familia="CS"]{grid-area:3/11/4/span 10}
+  html:root body .jof2.jof2.jof2 .zones .g-cal{grid-area:3/21/4/span 20;display:flex;flex-direction:column;min-width:0}
   html:root body .jof2.jof2.jof2 .zones :is([data-jof-familia],.card.pair){min-height:0;min-width:0}
   html:root body .jof2.jof2.jof2.editing .zones{column-gap:8px}
   html:root body .jof2.jof2.jof2 .zones .g-cal>.board{display:flex;flex:1 1 auto;min-height:0;margin:0;height:auto}
@@ -438,4 +438,11 @@ html:root body .jof2.editing.editing.editing table.calv thead th{position:sticky
   html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .sec>.note-box.note-view:not(.is-ampliada){min-height:auto !important}
   html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .sec>.note-box.note-view:not(.is-ampliada)>p{min-height:36px !important}
   html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"])>.note-box.note-view:not(.is-ampliada)>p{min-height:18px !important}
+}
+
+/* ---- CAL no ver com muitos calibres: se não couberem todos, a tabela desliza para o lado dentro do cartão
+   e a coluna dos nomes (Medida / Componentes / QTD máq.) fica sempre à vista ---- */
+@container board (min-width:640px){
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card>.table-wrap{overflow-x:auto;overflow-y:hidden}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv thead th:nth-child(n){position:sticky;left:0;z-index:1;background:var(--dmo-card)}
 }
