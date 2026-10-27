@@ -610,7 +610,7 @@ html body main.resumo-page .resumo-linked-card .resumo-status {
 }
 
 /* 1. O Peso estruturado: a média em destaque, a tabela pequena por baixo
-   (Valor · Diferença g · Diferença %, números alinhados à direita) e uma
+   (Valor · g · %, números alinhados à direita) e uma
    linha discreta com as leituras e a água ao lado do «Ver detalhe». */
 html body main.resumo-page .resumo-peso-media { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
 html body main.resumo-page .resumo-peso-media .resumo-big-number { font-size: 30px; font-weight: 650; line-height: 1.1; color: var(--dmo-text); }
@@ -620,6 +620,7 @@ html body main.resumo-page .resumo-peso-tabela {
   width: 100%;
   max-width: 520px;
   margin: 6px 0 2px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
@@ -631,6 +632,8 @@ html body main.resumo-page .resumo-peso-tabela :is(th, td) {
   background: none;
   text-align: right;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 html body main.resumo-page .resumo-peso-tabela :is(th, td):last-child { padding-right: 0; }
 html body main.resumo-page .resumo-peso-tabela thead th {
@@ -642,7 +645,7 @@ html body main.resumo-page .resumo-peso-tabela thead th {
   letter-spacing: 0;
 }
 html body main.resumo-page .resumo-peso-tabela tbody tr:last-child :is(th, td) { border-bottom: 0; }
-html body main.resumo-page .resumo-peso-tabela :is(thead th:first-child, tbody th) { text-align: left; width: 42%; }
+html body main.resumo-page .resumo-peso-tabela :is(thead th:first-child, tbody th) { text-align: left; width: 46%; }
 html body main.resumo-page .resumo-peso-tabela tbody th { color: var(--dmo-text); font-size: 13px; font-weight: 500; text-transform: none; letter-spacing: 0; }
 html body main.resumo-page .resumo-peso-tabela td { font-size: 13px; }
 html body main.resumo-page .resumo-peso-tabela tbody th small { margin-left: 4px; color: var(--dmo-muted); font-size: 12px; }
