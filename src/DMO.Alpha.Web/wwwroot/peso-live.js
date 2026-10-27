@@ -352,7 +352,10 @@
     request();
   }, true);
 
-  // «+» acrescenta uma linha vazia; «−» tira a última (fica sempre uma).
+  // «+» acrescenta uma linha vazia; «−» tira a última. Com uma só linha, o
+  // «−» é a opção para apagar a última leitura gravada: abre a pergunta
+  // «Apagar a leitura da CM …?» da correção, nada se apaga sem confirmar
+  // (Diogo, 27/10/2026).
   document.addEventListener("click", function (event) {
     var button = event.target.closest && event.target.closest("[data-peso-add-row], [data-peso-remove-row]");
     var f = button && folha();
@@ -360,12 +363,38 @@
     var all = rows(f);
     if (button.hasAttribute("data-peso-add-row")) {
       cmOf(acrescentarLinha(f)).focus();
-    } else {
-      if (all.length <= 1) return;
+    } else if (all.length > 1) {
       all[all.length - 1].remove();
       request();
+    } else {
+      apagarUltimaGravada(button);
     }
   });
+
+  function apagarUltimaGravada(origem) {
+    var linhas = document.querySelectorAll("[data-peso-leituras] tbody tr[data-peso-leitura-id]");
+    var ultima = linhas[linhas.length - 1];
+    if (!ultima) return;
+    var url = new URL(window.location.href);
+    ["corrigir_leitura", "apagar_leitura", "correcao", "correcao_cm", "correcao_agua", "handler"].forEach(function (chave) { url.searchParams.delete(chave); });
+    url.searchParams.set("corrigir_leitura", ultima.getAttribute("data-peso-leitura-id"));
+    url.searchParams.set("apagar_leitura", "1");
+    url.hash = "";
+    if (window.DmoTroca && typeof window.DmoTroca.ir === "function") window.DmoTroca.ir(url.href, origem);
+    else window.location.href = url.href;
+  }
+
+  // O Esc dentro da correção sai da correção e fica na folha (no painel, o
+  // Esc fechava o painel todo).
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+    var caixa = event.target.closest && event.target.closest("[data-peso-correcao]");
+    var sair = caixa && caixa.querySelector("[data-peso-correcao-sair]");
+    if (!sair) return;
+    event.preventDefault();
+    event.stopPropagation();
+    sair.click();
+  }, true);
 
   // GRAVAR SEM RECARREGAR (Diogo, 17/10/2026): «Registar leitura» vai por
   // fetch (DmoTroca) e só as zonas trocam. O envio entra na fila (dmo:fila,

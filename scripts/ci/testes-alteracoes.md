@@ -3901,3 +3901,13 @@ Novos: 9 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `49685c9a47bd1a6d`
+
+## A-0238 · 2026-10-27 · teste-novo
+
+Porquê: Peso: sair da correção fica na folha, também no painel (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra9BpjJuJkq98wTX76Vv5QYA).
+Referência: DMO-499
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel`
+
+Selo depois: `a50485f0c4e988d2`
