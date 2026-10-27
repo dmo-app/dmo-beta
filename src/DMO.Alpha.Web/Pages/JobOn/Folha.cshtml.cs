@@ -47,8 +47,16 @@ public sealed class FolhaModel(
     IConfiguration configuration,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     IAlterarLoteBq alterarLote,
-    IFolhaDaFerramenta folhaDaFerramenta) : PageModel
+    IFolhaDaFerramenta folhaDaFerramenta,
+    DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap) : PageModel
 {
+    /// <summary>
+    /// O que o relatório da ZFMD diz desta produção (Diogo, 27/10/2026: «está
+    /// a faltar muita informação que não foi aplicada»): as linhas do SAP com
+    /// a mesma referência, máquina e datas. Vazia sem relatório lido.
+    /// </summary>
+    public IReadOnlyList<DMO.Alpha.Core.Tools.SapFabrico> ProducaoSap { get; private set; } = [];
+
     /// <summary>
     /// No Editar, a ferramenta escolhida traz os dados dela para o cartão
     /// (Diogo, 26/10/2026): a % de uso dela (0 se é nova) e as notas e a
@@ -525,6 +533,8 @@ public sealed class FolhaModel(
                 {
                     Eliminar = JobOnEliminarAviso.From(preview, VeControlo);
                 }
+
+                ProducaoSap = await fabricoSap.DoJobOnAsync(aberto.JobOnId, ct);
             }
 
             Gravado = gravado == "1";

@@ -634,6 +634,10 @@ else
                         <a href="/Controlo/Resumo?jobon_id=@jobOn.JobOnId">Controlo</a>
                       }
                       <a href="/ReparacaoInterna/Consultar?maquina=@Uri.EscapeDataString(jobOn.Machine)&amp;referencia=@Uri.EscapeDataString(jobOn.Reference)&amp;producao=@jobOn.JobOnId">Reparação</a>
+                      @if (Model.ProducaoSap.Count > 0)
+                      {
+                        <a href="#jobon-sap-dialog" role="button" data-dmo-dialog="jobon-sap-dialog">Produção no SAP</a>
+                      }
                       @if (Model.Eliminar is not null)
                       {
                         <a href="#jobon-delete-dialog" role="button" data-dmo-dialog="jobon-delete-dialog">Eliminar Job On</a>
@@ -897,6 +901,10 @@ else
     @if (Model.Eliminar is { } eliminar)
     {
       <partial name="_JobOnEliminar" model="eliminar" />
+    }
+    @if (Model.ProducaoSap.Count > 0)
+    {
+      <partial name="_JobOnProducaoSap" model="Model.ProducaoSap" />
     }
     @if (Model.PodeEditar && Model.JobOn is { } jobOnRemover && Model.Resumo.Any(e => e.ChangeId is not null && !e.IsRemoved))
     {

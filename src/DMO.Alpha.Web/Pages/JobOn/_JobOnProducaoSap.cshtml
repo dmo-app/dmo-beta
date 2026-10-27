@@ -1,0 +1,37 @@
+@model IReadOnlyList<DMO.Alpha.Core.Tools.SapFabrico>
+@* PRODUÇÃO NO SAP (Diogo, 27/10/2026: «está a faltar muita informação que
+   não foi aplicada»): o que o relatório da ZFMD diz desta produção, com
+   todas as colunas, numa janela das Opções. Uma ordem do SAP por bloco (a
+   mesma referência, máquina e datas); o que o SAP não deu fica «—». *@
+@{
+    var pecas = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
+    string Inteiro(long? n) => n?.ToString("#,0", pecas) ?? "—";
+    string Casas(decimal? n, string unidade = "") => n is { } v ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(v) + unidade : "—";
+}
+<dialog id="jobon-sap-dialog" class="dmo-dialog" aria-labelledby="jobon-sap-title" data-jof-sap>
+  <h3 id="jobon-sap-title" title="O relatório de produções do SAP (ZFMD) das ordens com a mesma referência, máquina e datas deste Job On.">Produção no SAP</h3>
+  @foreach (var ordem in Model)
+  {
+    <p class="card-note" style="margin:8px 0 0">@ordem.Material · @ordem.Linha@(ordem.Centro is { } centro ? $" · {centro}" : null) · @ordem.InicioEm.ToString("dd/MM/yyyy") a @ordem.FimEm.ToString("dd/MM/yyyy")</p>
+    <div class="dmo-facts" data-jof-sap-ordem>
+      <div class="dmo-fact"><span>Dias</span><strong>@(ordem.DiasProducao?.ToString(pecas) ?? "—")</strong></div>
+      <div class="dmo-fact"><span>Garrafas (bruto)</span><strong>@Inteiro(ordem.ProducaoBruta)</strong></div>
+      <div class="dmo-fact"><span>Garrafas (líquido)</span><strong>@Inteiro(ordem.ProducaoLiquida)</strong></div>
+      <div class="dmo-fact"><span>Peso médio</span><strong>@Casas(ordem.PesoMedioGramas, " g")</strong></div>
+      <div class="dmo-fact"><span>Δ peso</span><strong>@(ordem.DeltaPesoGramas is { } dp ? (dp > 0 ? "+" : dp < 0 ? "−" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(Math.Abs(dp)) + " g" : "—")</strong></div>
+      <div class="dmo-fact"><span>Cadência</span><strong>@Inteiro(ordem.Cadencia)</strong></div>
+      <div class="dmo-fact"><span>Gota</span><strong>@Inteiro(ordem.Gob)</strong></div>
+      <div class="dmo-fact"><span>Sectores</span><strong>@Inteiro(ordem.Sectores)</strong></div>
+      <div class="dmo-fact"><span>KCR</span><strong>@(ordem.Kcr is { } kcr ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2SemPerda(kcr) : "—")</strong></div>
+      <div class="dmo-fact"><span>Pack to pull</span><strong>@Casas(ordem.PackToPull, " %")</strong></div>
+      <div class="dmo-fact"><span>Net Quant</span><strong>@Inteiro(ordem.NetQuant)</strong></div>
+      <div class="dmo-fact"><span>Paletes</span><strong>@Casas(ordem.Paletes)</strong></div>
+      <div class="dmo-fact"><span>Rejeição total</span><strong>@Casas(ordem.RejeicaoTotal, " %")</strong></div>
+      <div class="dmo-fact"><span>Rej. MIL</span><strong>@Casas(ordem.RejeicaoMil)</strong></div>
+      <div class="dmo-fact"><span>HotEnd</span><strong>@Casas(ordem.HotEnd, " %")</strong></div>
+    </div>
+  }
+  <div class="dmo-dialog-actions">
+    <button type="button" class="dmo-button" data-dmo-dialog-close>Fechar</button>
+  </div>
+</dialog>
