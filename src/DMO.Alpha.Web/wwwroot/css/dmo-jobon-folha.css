@@ -1196,3 +1196,75 @@ html:root body .jof2 .note-box.is-ampliada>p,html:root body .jof2.editing .note-
 html:root body .jof2:not(.editing) [data-jof-familia="PI"]>.kv{grid-template-columns:max-content minmax(0,1fr)!important}
 html:root body .jof2 .side>.notes{min-height:108px}
 html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){min-height:58px}
+
+/* Imprimir com letra maior (Diogo, 27/10/2026: «print esta a sair muito pequeno», «preciso de aumentar o font e bem»): a letra pequena das 4 folhas sobe cerca de 40% (nunca abaixo de 8,5pt) e os espaços entre linhas apertam para tudo caber no A4. */
+.jfi-folha{font-size:13.5pt}
+.jfi-eyebrow{font-size:10.5pt}
+.jfi-ref{font-size:20pt}
+.jfi-topo-dir span{font-size:9pt}
+.jfi-topo-dir b{font-size:13pt}
+.jfi-topo-dir b.jfi-linha{font-size:20pt}
+.jfi-factos span,.jfi-cal span,.jfi-assinar span{font-size:9pt}
+.jfi-factos b{font-size:12.5pt}
+.jfi-barra{font-size:12pt}
+.jfi-sub{font-size:11pt}
+.jfi-t{font-size:12pt}
+.jfi-corpo{font-size:12pt}
+.jfi-caixa{font-size:12pt}
+.jfi-cal small{font-size:9pt}
+.jfi-notas ul{font-size:12pt}
+.jfi-artigo-img{font-size:11pt}
+.jfi-lema{font-size:14pt}
+.jfi-rodape{font-size:10pt}
+.jfi-densa .jfi-t{font-size:11pt}
+.jfi-densa .jfi-corpo{font-size:11pt}
+html body .jfi-folha .jfi-kv th{font-size:11pt}
+html body .jfn-folha{font-size:12.5pt}
+html body .jfn-folha .jfn-marca{font-size:11pt}
+html body .jfn-folha .jfn-logo{font-size:9pt}
+html body .jfn-folha .jfn-caminho{font-size:9pt}
+html body .jfn-folha .jfi-eyebrow{font-size:10pt}
+html body .jfn-folha .jfi-ref{font-size:25pt}
+html body .jfn-folha .jfn-linha span,html body .jfn-folha .jfn-prod span{font-size:8.5pt}
+html body .jfn-folha .jfn-linha b{font-size:19pt}
+html body .jfn-folha .jfn-prod b{font-size:13pt}
+html body .jfn-folha .jfn-factos span{font-size:8.5pt}
+html body .jfn-folha .jfn-factos b{font-size:12pt}
+html body .jfn-folha .jfb-cab{font-size:9pt}
+html body .jfn-folha .jfb-nome b{font-size:12pt}
+html body .jfn-folha .jfb-reflote strong{font-size:14pt}
+html body .jfn-folha .jfb-reflote span{font-size:11pt}
+html body .jfn-folha .jfb-lado{font-size:10pt}
+html body .jfn-folha table.jfb-dados{font-size:10.5pt}
+html body .jfn-folha table.jfn-dim tr:first-child th{font-size:8.5pt}
+html body .jfn-folha .jfn-folgas,html body .jfn-folha .jfn-ff{font-size:10pt}
+html body .jfn-folha ul.jfb-notas{font-size:10.5pt}
+html body .jfn-folha .jfb-geral .jfi-sub{font-size:9pt}
+html body .jfn-folha ol.jfb-geral-texto{font-size:11pt}
+html body .jfn-folha ol.jfb-geral-texto li span{font-size:9pt}
+html body .jfn-folha .jfn-artigo-titulo{font-size:9pt}
+html body .jfn-folha .jfn-cal-titulo{font-size:9pt}
+html body .jfn-folha .jfb-cal span{font-size:8.5pt}
+html body .jfn-folha .jfb-cal i{font-size:11pt}
+html body .jfn-folha .jfi-equipa .jfi-barra{font-size:9pt}
+html body .jfn-folha .jfc-nome{font-size:11pt}
+html body .jfn-folha .jfc-nome span{font-size:9pt}
+html body .jfn-folha .jfc-ref>b{font-size:19pt}
+html body .jfn-folha .jfc-lote{font-size:13pt}
+html body .jfn-folha .jfc-obs{font-size:10.5pt}
+html body .jfn-folha .jfn-rodape{font-size:9pt}
+html body .jfn-folha table.jfb-dados.dmo-table :is(th,td){font-size:10.5pt}
+html body .jfn-folha table.jfn-dim.dmo-table tr:first-child th{font-size:8.5pt}
+html body .jfn-folha{line-height:1.2}
+html body .jfn-folha .jfb>*{padding:1mm 2.5mm}
+html body .jfn-folha table.jfb-dados.dmo-table :is(th,td){line-height:1.2;padding-bottom:.2mm}
+html body .jfn-folha[data-jof-folha="ficha"] .jfn-tabela>.jfb{min-height:9mm}
+html body .jfn-folha ul.jfb-notas{padding-top:1mm;padding-bottom:1mm}
+html body .jfn-folha ul.jfb-notas li{margin-bottom:.2mm}
+html body .jfn-folha ol.jfb-geral-texto li{margin-bottom:.4mm}
+html body .jfn-folha .jfi-artigo-img{min-height:26mm}
+html body .jfn-folha table.jfb-dados.dmo-table th{white-space:nowrap}
+html body .jfn-folha .jfb-lado{grid-template-columns:21mm 1fr}
+html body .jfn-folha .jfn-factos span{white-space:nowrap;letter-spacing:0}
+html body .jfn-folha table.jfn-dim.dmo-table td:first-child{white-space:nowrap;width:27mm}
+html body .jfn-folha table.jfn-dim.dmo-table td:last-child{width:14mm}
