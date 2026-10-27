@@ -7,7 +7,7 @@ html body .dmo-dialog.dmo-recorte{width:min(760px,calc(100vw - 32px))}
 .dmo-recorte-palco{position:relative;overflow:hidden;touch-action:none;cursor:crosshair;user-select:none}
 .dmo-recorte-palco img{display:block;width:100%;height:100%;pointer-events:none}
 .dmo-recorte-sel{position:absolute;box-sizing:border-box;outline:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.45);cursor:move}
-.dmo-recorte-sel i{position:absolute;width:10px;height:10px;box-sizing:border-box;background:#fff;border:1px solid var(--dmo-brand-600)}
+.dmo-recorte-sel i{position:absolute;width:10px;height:10px;box-sizing:border-box;background:var(--dmo-text-on-color,#fff);border:1px solid var(--dmo-brand-600)}
 .dmo-recorte-sel i[data-canto="nw"]{left:-6px;top:-6px;cursor:nwse-resize}
 .dmo-recorte-sel i[data-canto="ne"]{right:-6px;top:-6px;cursor:nesw-resize}
 .dmo-recorte-sel i[data-canto="sw"]{left:-6px;bottom:-6px;cursor:nesw-resize}
