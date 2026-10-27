@@ -1742,6 +1742,22 @@
       if (help) placeHelpTip(help);
     });
   });
+  // Sem círculos de dica (Diogo, 27/10/2026: «em lado nenhum»): o círculo
+  // fica escondido e o texto passa ao title do que a dica explicava (o pai,
+  // ou o botão/campo logo antes), lido ao passar o rato. Feito ao passar o
+  // rato, para valer também nas zonas trocadas depois de gravar.
+  function ajudaNoTitle(el) {
+    if (!el || el.nodeType !== 1 || el.hasAttribute("title")) return;
+    const help = [...el.children].find((c) => c.matches(".dmo-help"))
+      ?? (el.nextElementSibling?.matches(".dmo-help") ? el.nextElementSibling : null);
+    if (!help) return;
+    const texto = help.querySelector(".dmo-help-tip")?.textContent.trim()
+      || (help.getAttribute("aria-label") || "").replace(/^Ajuda:\s*/, "");
+    if (texto) el.setAttribute("title", texto);
+  }
+  document.addEventListener("mouseover", (event) => {
+    for (let el = event.target; el && el !== document.body; el = el.parentElement) ajudaNoTitle(el);
+  });
   window.addEventListener("scroll", () => {
     document.querySelectorAll(".dmo-help").forEach(placeHelpTip);
   }, { capture: true, passive: true });
