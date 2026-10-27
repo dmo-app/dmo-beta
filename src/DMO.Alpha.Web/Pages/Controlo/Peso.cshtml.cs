@@ -1281,11 +1281,11 @@ public sealed class PesoModel : PageModel
                 // Sem escolha, o Peso criado só para comparar com este (o
                 // Diogo, 22/10/2026): foi feito para isso, e a comparação
                 // aparece logo.
-                var effectiveComparisonId = compararPesoId
-                    ?? ComparisonCandidates
-                        .Where(c => c.ProductionNumber == PesoComparisonQuery.RotuloParaComparacao)
-                        .Select(c => (int?)c.PesoId)
-                        .FirstOrDefault();
+                // Sem ele, a folha assume o controlo anterior (o Diogo,
+                // 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraUvPVzqVHduTo5zrh9CF9qr:
+                // «peso não assume o anterior»): o Peso mais recente das
+                // anteriores, já com leituras; o dropdown troca-o.
+                var effectiveComparisonId = compararPesoId ?? ControloAnteriorAssumido();
 
                 if (effectiveComparisonId is int historicalPesoId && historicalPesoId != Peso.PesoId)
                 {
@@ -1369,13 +1369,13 @@ public sealed class PesoModel : PageModel
                 // com outra produção da mesma referência — a lista já vem
                 // filtrada pela referência do Peso e só com as anteriores à
                 // dele (deep sweep 2, F-12: um Peso antigo aberto pelo
-                // histórico já não oferece as posteriores); o resultado só
-                // aparece quando uma produção é escolhida no dropdown.
+                // histórico já não oferece as posteriores); sem escolha,
+                // assume o controlo anterior, como a folha da produção.
                 if (Peso.ControloId is int controloDoPeso && Peso.Averages is not null)
                 {
                     ComparisonCandidates = await ComparacaoQuery.FindCandidatesAsync(
                         Peso, compararPesoId, HttpContext.RequestAborted);
-                    if (compararPesoId is int escolhido
+                    if ((compararPesoId ?? ControloAnteriorAssumido()) is int escolhido
                         && escolhido != Peso.PesoId
                         && ComparisonCandidates.Any(c => c.PesoId == escolhido))
                     {
@@ -1885,6 +1885,17 @@ public sealed class PesoModel : PageModel
         Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(documento.Folder);
         return File(documento.Bytes, "application/pdf", documento.FileName);
     }
+
+    /// <summary>
+    /// O controlo anterior assumido sem escolha: o Peso criado só para
+    /// comparar com este, senão o mais recente das anteriores com leituras.
+    /// </summary>
+    private int? ControloAnteriorAssumido() =>
+        ComparisonCandidates
+            .Where(c => c.ReadingCount > 0)
+            .OrderBy(c => c.ProductionNumber != PesoComparisonQuery.RotuloParaComparacao)
+            .Select(c => (int?)c.PesoId)
+            .FirstOrDefault();
 
     /// <summary>
     /// A produção anterior da folha: o registo guardado no Peso e as últimas

@@ -253,14 +253,15 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         SeedUser("4318", "Peso Operador", "provider-cmp-18", "PesoCmp18!");
         using var client = await LoginClientAsync("4318", "PesoCmp18!");
 
-        // Sem escolha, a folha mostra o dropdown com as anteriores da
-        // referência e não compara; a 202602 (posterior) não está lá.
+        // Sem escolha, a folha assume a anterior da referência e compara (o
+        // Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraUvPVzqVHduTo5zrh9CF9qr:
+        // «peso não assume o anterior»); a 202602 (posterior) não está lá.
         var semEscolha = await GetPageHtmlAsync(client, $"{PagePath}?peso_id={pesoId}");
         Assert.Contains("Controlo anterior (1075C142)", semEscolha);
         Assert.Contains("Procurar produção…", semEscolha);
-        Assert.Contains($"<option value=\"{anteriorId}\"", semEscolha);
+        Assert.Contains($"<option value=\"{anteriorId}\" selected=\"selected\">", semEscolha);
         Assert.DoesNotContain($"<option value=\"{outroId}\"", semEscolha);
-        Assert.DoesNotContain("data-peso-comparacao-tabela", semEscolha);
+        Assert.Contains("data-peso-comparacao-tabela", semEscolha);
         // A «Calote Tampo» (antes «Supomos») saiu deste cartão (Diogo, 23/10/2026); o cálculo
         // fica (PesoSuposicaoCalculationTests) até o Diogo dizer onde vai.
         Assert.DoesNotContain("<h4 style=\"margin:0 0 6px\">Supomos</h4>", semEscolha);
