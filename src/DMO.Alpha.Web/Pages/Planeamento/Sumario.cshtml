@@ -3,7 +3,7 @@
 @using DMO.Alpha.Core.Planeamento
 @{
     Layout = "_DmoShellLayout";
-    var tipoParam = Model.Tipo is { } tipoEscolhido ? SumarioTipos.Chave(tipoEscolhido) : null;
+    var tipoParam = Model.OpcaoEscolhida;
     // O DIA DA SEMANA JUNTO À DATA (Diogo, 19/10/2026: «meter Segunda Terça
     // Quarta… perto da data»): por extenso no título, curto nas linhas.
     var ptPt = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
@@ -56,14 +56,16 @@
       <div class="dmo-field sumario-w-tipo">
         <label for="sumario-tipo">Informação</label>
         <select id="sumario-tipo" name="tipo" data-dmo-autosubmit>
-          <option value="" selected="@(tipoParam is null && !Model.SoImportante ? "selected" : null)">Toda</option>
+          <option value="" selected="@(tipoParam is null ? "selected" : null)">Toda</option>
           @if (Model.VeImportantes)
           {
-            <option value="@DMO.Alpha.Web.Pages.Planeamento.SumarioModel.ChaveImportante" selected="@(Model.SoImportante ? "selected" : null)">Importante</option>
+            <option value="@DMO.Alpha.Web.Pages.Planeamento.SumarioModel.ChaveImportante" selected="@(tipoParam == DMO.Alpha.Web.Pages.Planeamento.SumarioModel.ChaveImportante ? "selected" : null)">Importante</option>
           }
-          @foreach (var tipo in Model.TiposInformacao)
+          @* Diogo, 27/10/2026: «Importante, Job on(inclui muda, alteraçoes,
+             experiencias) Armazem, Controlo». *@
+          @foreach (var filtro in Model.FiltrosVisiveis)
           {
-            <option value="@SumarioTipos.Chave(tipo)" selected="@(tipoParam == SumarioTipos.Chave(tipo) ? "selected" : null)">@SumarioTipos.Nome(tipo)</option>
+            <option value="@filtro.Chave" selected="@(tipoParam == filtro.Chave ? "selected" : null)">@filtro.Nome</option>
           }
         </select>
       </div>
