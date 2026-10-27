@@ -8,8 +8,7 @@
 @section Head {
 <style>
 .dmr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
-.dmr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700)}
-.dmr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.dmr-page .page-head{margin:0}
 .dmr-card{padding:18px}
 .dmr-card h3{margin:0 0 12px;font-size:16px}
 .dmr-filtros{display:grid;grid-template-columns:minmax(200px,1.6fr) minmax(160px,1fr) minmax(140px,.8fr) minmax(140px,.8fr);gap:10px;align-items:end}
@@ -21,8 +20,9 @@
 }
 <main class="dmr-page" aria-labelledby="dmr-title">
   <div class="page-head">
-    <h2 id="dmr-title">Registos</h2>
-    <p>O que cada utilizador registou, corrigiu ou anulou nos módulos.</p>
+    <div>
+      <h1 id="dmr-title">Registos</h1>
+    </div>
   </div>
 
   <section class="dmo-card dmr-card" aria-labelledby="dmr-filtros-title">

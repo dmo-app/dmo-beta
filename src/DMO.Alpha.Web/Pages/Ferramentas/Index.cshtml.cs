@@ -217,7 +217,7 @@ public sealed class IndexModel : PageModel
         // criar e outro para ver o que existe»): o ?criar=1 abre o registo,
         // o default é o VER (a procura + a lista — nunca tudo misturado).
         ShowCreate = criar == "1" || createRefusal is not null;
-        ViewData["Title"] = "Ferramentas";
+        ViewData["Title"] = ShowCreate ? "Criar ferramenta" : "Ferramentas";
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
         {
             ActiveFunctionKey = ShowCreate ? "criar" : "ver",

@@ -256,7 +256,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         // Sem escolha, a folha mostra o dropdown com as anteriores da
         // referência e não compara; a 202602 (posterior) não está lá.
         var semEscolha = await GetPageHtmlAsync(client, $"{PagePath}?peso_id={pesoId}");
-        Assert.Contains("Produção a comparar (1075C142)", semEscolha);
+        Assert.Contains("Controlo anterior (1075C142)", semEscolha);
         Assert.Contains("Procurar produção…", semEscolha);
         Assert.Contains($"<option value=\"{anteriorId}\"", semEscolha);
         Assert.DoesNotContain($"<option value=\"{outroId}\"", semEscolha);
@@ -364,7 +364,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         using var client = await LoginClientAsync("4308", "PesoCmp8!");
         var url = $"{PagePath}?controlo_id={controloId}&comparar={anteriorId}";
         var before = await GetPageHtmlAsync(client, url);
-        Assert.Contains("data-peso-comparison><span>Comparação anterior</span><strong>202512</strong>", before);
+        Assert.Contains("data-peso-comparison><span>Controlo anterior</span><strong>202512</strong>", before);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(before)!;
         using var preview = await client.PostAsync($"{PagePath}?handler=Preview", HtmlFormHelpers.BuildFormPost(
             ("peso_id", pesoId.ToString()),
@@ -372,7 +372,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
             ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.OK, preview.StatusCode);
         var after = await GetPageHtmlAsync(client, url);
-        Assert.Contains("data-peso-comparison><span>Comparação anterior</span><strong>202512</strong>", after);
+        Assert.Contains("data-peso-comparison><span>Controlo anterior</span><strong>202512</strong>", after);
         Assert.Contains("450.52", after);
         Assert.Contains("200.26", after);
 
