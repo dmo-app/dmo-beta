@@ -3554,6 +3554,17 @@ Novos: 9 · mudaram: 0 · saíram: 0
 
 Selo depois: `74292cfeef1490d1`
 
+## A-0216 · 2026-10-27 · teste-novo
+
+Porquê: Testes de páginas que falhavam ao acaso com erro 500: as aplicações de teste deixam de gastar vigias de ficheiros do Linux (inotify, 128 por utilizador); o teste prova que uma aplicação de teste arranca e abre o login sem gastar nenhuma (DMO-474, 0.3.0-beta.175)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros`
+
+Selo depois: `c22447c6290ce98f`
+
 ## A-0210 · 2026-10-27 · teste-novo
 
 Porquê: DMO-471 SAP: teste novo das consultas por ferramenta (B3 vistoria backend)
@@ -3562,4 +3573,4 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarComAsMesmasConsultasPara5Ou100Ferramentas_NoPostgreSql`
 
-Selo depois: `d627b9559e9e367c`
+Selo depois: `0494059ffe6a0946`
