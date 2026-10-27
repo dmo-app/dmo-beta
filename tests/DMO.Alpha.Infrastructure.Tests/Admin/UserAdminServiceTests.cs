@@ -334,8 +334,6 @@ public sealed class UserAdminServiceTests : IDisposable
     [InlineData("Nome", "12a4", "a@b.pt", CreateDmoUserResult.InvalidOperator)]
     [InlineData("Nome", "12 4", "a@b.pt", CreateDmoUserResult.InvalidOperator)]
     [InlineData("Nome", "12345", "a@b.pt", CreateDmoUserResult.OperatorTooLong)]
-    [InlineData("Nome", "1234", "", CreateDmoUserResult.MissingEmail)]
-    [InlineData("Nome", "1234", "   ", CreateDmoUserResult.MissingEmail)]
     public async Task CreateDmoUser_InvariantViolations_AreTypedRefusalsBeforeAnyWrite(
         string name, string operatorId, string email, CreateDmoUserResult expected)
     {
@@ -347,6 +345,21 @@ public sealed class UserAdminServiceTests : IDisposable
         Assert.Null(outcome.User);
         Assert.Empty(_db.Users.ToList());
         Assert.False(await _authProvider.IdentityExistsAsync("a@b.pt"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task CreateDmoUser_SemEmail_CriaAContaQueEntraPeloNumero(string email)
+    {
+        // O email é opcional (Diogo, 26/10/2026,
+        // cmsg_01K75FTs9bQnbhhH7qttpgraEMxzGkVktKoK7yyAw6RnoU): sem email, a
+        // identidade nasce com o endereço técnico do nº e o User fica sem email.
+        var outcome = await _service.CreateDmoUserAsync(new CreateDmoUser("Nome", "1234", email));
+
+        Assert.Equal(CreateDmoUserResult.Success, outcome.Result);
+        Assert.Null(_db.Users.Single(u => u.OperatorId == "1234").Email);
+        Assert.True(await _authProvider.IdentityExistsAsync("1234@dmo.local"));
     }
 
     [Fact]

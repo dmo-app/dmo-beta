@@ -1,255 +1,164 @@
 @model DMO.Alpha.Web.Pages.JobOn.FolhaModel
 @using DMO.Alpha.Web.Pages.JobOn
-@using DMO.Alpha.Core.Production
 @*
-  AS 4 PÁGINAS DO IMPRIMIR (Diogo, 26/10/2026, PDF 93951 da fábrica): Job-ON
-  Moldes, Job-ON Moldes (sai 2 vezes), Trabalho de Equipa e Ficha de Artigo.
-  Um clique imprime as quatro. Cada componente (CM, TP, PU, ARR, MF,
-  BQ, AN, CS, PI) tem o seu bloco, com as Notas (Diogo 26/10 21:12); decimais
-  com ponto, «mm» em minúsculas, «Gota». O que o Job On não tem fica em branco para escrever à
-  mão. Ficam escondidas no ecrã e o browser imprime-as (nunca PDF no servidor).
+  AS 4 PÁGINAS DO IMPRIMIR, a preto e branco (Diogo, 27/10/2026, PDF «Job-On
+  9395T194 Redesign Preto Branco»): Job-On Moldes (sai 2 vezes), Trabalho de
+  equipa e Ficha de artigo. Um clique imprime as quatro. Os valores vêm todos do
+  JobOnImpressao (o «gerador»: de onde vem cada linha e em que formato); aqui só
+  se desenha. O que o Job On não tem fica com um traço para escrever à mão.
+  Ficam escondidas no ecrã e o browser imprime-as (nunca PDF no servidor).
 *@
 @{
-    var jobOn = Model.JobOn!;
-    var cultura = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
-    var cm = Model.Fact(jobOn.CmToolId);
-    var mf = Model.Fact(jobOn.MfToolId);
-    var bq = Model.Fact(jobOn.BqToolId);
-    var referencia = Model.ReferenciaTotal;
-    var calibres = Model.Folha.Cal.Where(l => !l.Extra && V(l.Valor) is not null).ToList();
-    var inicio = jobOn.InicioEm;
-    var fim = jobOn.FimEm;
-    string Dia(DateOnly? d) => d is { } x ? cultura.TextInfo.ToTitleCase(x.ToString("ddd", cultura).TrimEnd('.')) + " " + x.ToString("dd/MM/yyyy") : "";
-    string Lote(JobOnToolFacts? f) => f is null ? "" : "Lote " + FolhaModel.Lote(f.Lot);
-    string Peso() => F("cab_peso") is { Length: > 0 } p ? p + " g" : "";
-    string Calote() => jobOn.CaloteMm is { } c ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(c) + " mm" : "";
-    string Folga(string tipo, int n) => F($"{tipo}_folga{n}");
-    string Un(string chave) => F(chave) is { Length: > 0 } x ? x.TrimEnd('%') + "%" : "";
-    string Com(string rotulo, string valor) => valor.Length > 0 ? rotulo + " " + valor : "";
-    string Junta(params string[] partes) => string.Join(" · ", partes.Where(s => !string.IsNullOrEmpty(s)));
-    // O TP: calote e bacia são a mesma coisa (Diogo, 26/10); um só campo, «Calote».
-    string CaloteTp() => Calote() is { Length: > 0 } c ? c : (F("tp_bacia_ps") is { Length: > 0 } b ? b + " mm" : "");
-    string LoteDe(JobOnToolFacts? f) => f is null ? "" : FolhaModel.Lote(f.Lot);
-    string? CalPor(params string[] nomes) => Model.Folha.Cal
-        .Where(l => !l.Extra && nomes.Contains(l.Nome, StringComparer.OrdinalIgnoreCase) && V(l.Valor) is not null)
-        .Select(l => N(l.Valor)).FirstOrDefault();
-    var pincasMaterial = F("pi_pincas");
-    var latao = pincasMaterial.Contains("latão", StringComparison.OrdinalIgnoreCase);
-    var grafite = pincasMaterial.Contains("grafite", StringComparison.OrdinalIgnoreCase);
-}
-@functions {
-    private static string? V(string? v) => string.IsNullOrWhiteSpace(v) ? null : v.Trim();
-
-    // Os números como na folha do Job On: ponto e duas casas quando têm casas («70/69.40»)
-    // e «mm» sempre em minúsculas («68.70 MM» → «68.70 mm»).
-    private static string N(string? v) => System.Text.RegularExpressions.Regex.Replace(
-        DMO.Alpha.Core.Runtime.DmoNumberFormat.FolhaTexto(v) ?? "", @"\bmm\b", "mm", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-    private string F(string chave) => string.IsNullOrEmpty(chave) ? "" : N(Model.Folha.Valor(chave));
-
-    private IEnumerable<string> Notas(string chave) =>
-        string.IsNullOrEmpty(chave) ? [] : (V(Model.Folha.Valor(chave)) ?? "").Split('\n').Select(l => N(l)).Where(l => l.Length > 0);
-
-    // O lote do AN é o da BQ, a não ser que tenha sido escrito à mão.
-    private string AnLote() => F("an_lote") is { Length: > 0 } l ? l : N(Model.AnLoteDaBq);
-
+    var I = new JobOnImpressao(Model);
+    var rodapeCentro = I["ref"] + " · " + I["producao"];
 }
 <div class="jof-impressao" data-jof-impressao hidden>
   @{
-      void Topo(string titulo, string eyebrow)
+      void Topo(string nome, string caminho)
       {
-          <header class="jfi-topo">
-            <div><div class="jfi-eyebrow">@eyebrow</div><div class="jfi-ref">@referencia</div></div>
-            <div class="jfi-topo-dir"><div><span>LINHA</span><b class="jfi-linha">@jobOn.Machine</b></div><div><span>PRODUÇÃO</span><b>@jobOn.ProductionNumber</b></div></div>
+          <div class="jfn-marca"><span class="jfn-logo">BA</span><b>DMO-MG</b><span class="jfn-caminho">MOLDES / @caminho</span></div>
+          <header class="jfi-topo jfn-topo">
+            <div><div class="jfi-eyebrow">@nome</div><div class="jfi-ref">@I["ref"]</div></div>
+            <div class="jfn-topo-dir"><div class="jfn-linha"><span>LINHA</span><b>@I["linha"]</b></div><div class="jfn-prod"><span>PRODUÇÃO</span><b>@I["producao"]</b></div></div>
           </header>
-      }
-      void Factos()
-      {
-          <div class="jfi-factos jfi-factos4">
-            <div><span>Data de entrada</span><b>@Dia(inicio)</b></div>
-            <div><span>Data de saída</span><b>@Dia(fim)</b></div>
-            <div><span>Secções</span><b>@F("cab_seccoes")</b></div>
-            <div><span>Gota</span><b>@F("cab_gota")</b></div>
-            <div><span>Peso</span><b>@Peso()</b></div>
-            <div><span>Cadência</span><b></b></div>
+          <div class="jfn-factos">
+            <div><span>Entrada@(I["entrada.dia"].Length > 0 ? " · " + I["entrada.dia"] : "")</span><b>@I["entrada"]</b></div>
+            <div><span>Saída</span><b>@I["saida"]</b></div>
+            <div><span>Secções</span><b>@I["seccoes"]</b></div>
+            <div><span>Gota</span><b>@I["gota"]</b></div>
+            <div><span>Peso</span><b>@I["peso"]</b></div>
+            <div><span>Cadência</span><b class="jfn-escrever">@I["cadencia"]</b></div>
           </div>
       }
-      // Um componente: o nome e os dados do lado, os Dados no meio, as Notas à direita (ficha da fábrica).
-      void Bloco(string nome, (string, string)[] lado, (string, string, string?, string?)[] dados, string chaveNotas)
+      void Rodape(string codigo, int pagina)
       {
-          // Referência e Lote vão para a coluna Ferramenta (Diogo 22:02)
-          string refTxt = "", loteTxt = "";
-          foreach (var d in dados)
-          {
-              if (d.Item1 == "Referência") { refTxt = d.Item2; if (d.Item3 == "Lote") loteTxt = d.Item4 ?? ""; }
-              else if (d.Item1 == "Lote") loteTxt = d.Item2;
-          }
-          // Sem Quantidade (Diogo 22:06: não se utiliza e ocupa espaço)
-          dados = dados.Where(d => !(d.Item1 == "Referência" || d.Item1 == "Lote" || d.Item1 == "Quantidade")).ToArray();
-          lado = lado.Where(l => l.Item1 != "Quantidade").ToArray();
-          <div class="jfb">
-            <div class="jfb-nome"><b>@nome</b>@if (refTxt.Length > 0 || loteTxt.Length > 0) { <div class="jfb-reflote"><strong>@refTxt</strong>@if (loteTxt.Length > 0) { <span>Lote <i>@loteTxt</i></span> }</div> }@foreach (var (r, v) in lado) { <div class="jfb-lado"><span>@r</span><i>@v</i></div> }</div>
-            <table class="dmo-table jfb-dados"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
-              @if (dados.All(x => x.Item3 is null))
-              {
-                foreach (var (x, y) in Pares(dados))
-                {
-                  if (y is null) { <tr><th>@x.Item1</th><td colspan="3">@x.Item2</td></tr> }
-                  else { <tr><th>@x.Item1</th><td>@x.Item2</td><th class="jfb-r2">@y.Value.Item1</th><td>@y.Value.Item2</td></tr> }
-                }
-              }
-              else foreach (var (r, v, r2, v2) in dados)
-              {
-                if (r2 is null) { <tr><th>@r</th><td colspan="3">@v</td></tr> }
-                else if (r == "Folgas") { <tr><th>@r</th><td>@v</td><td class="jfb-r2v">@r2</td><td>@v2</td></tr> }
-                else { <tr><th>@r</th><td>@v</td><th class="jfb-r2">@r2</th><td>@v2</td></tr> }
-              }
-            </table>
-            <div class="jfb-notas">@foreach (var n in Notas(chaveNotas)) { <div>@n</div> }</div>
-          </div>
+          <footer class="jfi-rodape jfn-rodape"><span>@codigo</span><span>@rodapeCentro</span><span>@pagina.ToString("00") / 04</span></footer>
       }
-      // Dados sem tolerância em 2 colunas; valores compridos ocupam a linha toda.
-      List<((string, string, string?, string?), (string, string, string?, string?)?)> Pares((string, string, string?, string?)[] ds)
+      // A coluna Ferramenta: o nome, a referência grande com o lote, e (na Ficha) Tipo e Utilização.
+      void Ferramenta(string nome, string? refChave, string? loteChave, params (string Rotulo, string Chave)[] lado)
       {
-          var l = new List<((string, string, string?, string?), (string, string, string?, string?)?)>();
-          for (var i = 0; i < ds.Length; i++)
-          {
-              if (ds[i].Item2.Length > 14 || i + 1 >= ds.Length || ds[i + 1].Item2.Length > 14) { l.Add((ds[i], null)); continue; }
-              l.Add((ds[i], ds[i + 1])); i++;
-          }
-          return l;
+          var r = refChave is null ? "" : I[refChave];
+          var l = loteChave is null ? "" : I[loteChave];
+          <div class="jfb-nome"><b>@nome</b>@if (r.Length > 0 || l.Length > 0) {<div class="jfb-reflote"><strong>@r</strong>@if (l.Length > 0) {<text> </text><span>Lote <i>@l</i></span>}</div>}@foreach (var (rot, ch) in lado) {<div class="jfb-lado"><span>@rot</span><i>@I[ch]</i></div>}</div>
       }
-      (string, string) Q(string chave) => ("Quantidade", F(chave));
-      (string, string, string?, string?) D(string r, string v) => (r, v, null, null);
-      (string, string, string?, string?) DT(string r, string v, string tol) => (r, v, "Tol.", tol);
-      // Furos «AxB»: o maior é o total, o menor são os abertos (4X4 = 4 abertos; 4X2 = 2/2; 3X4 = 3 abertos, 1 fechado).
-      string Furos()
+      // Os Dados técnicos: rótulo e valor, um por linha.
+      void Dados(params (string Rotulo, string Valor)[] dados)
       {
-          var m = System.Text.RegularExpressions.Regex.Match(F("cs_furos"), @"^\s*(\d+)\s*[xX]\s*(\d+)\s*$");
-          if (!m.Success) return F("cs_furos");
-          int a = int.Parse(m.Groups[1].Value), b = int.Parse(m.Groups[2].Value);
-          int total = Math.Max(a, b), abertos = Math.Min(a, b);
-          int fechados = total - abertos;
-          return $"{F("cs_furos")} · {abertos} {(abertos == 1 ? "aberto" : "abertos")}, {fechados} {(fechados == 1 ? "fechado" : "fechados")}";
+          <div><table class="dmo-table jfb-dados">@foreach (var (r, v) in dados) {<tr><th>@r</th><td>@v</td></tr>}</table></div>
       }
-      string TipoPinca() => latao ? "Latão" : (grafite ? "Grafite" : pincasMaterial);
+      void Notas(string chave)
+      {
+          <ul class="jfb-notas">@foreach (var n in I.Linhas(chave)) {<li>@n</li>}</ul>
+      }
+      // Diâmetros com tolerância (Ficha de artigo), e as Folgas por baixo.
+      void Dimensoes(string tipo, params (string Rotulo, string Campo)[] linhas)
+      {
+          <table class="dmo-table jfb-dados jfn-dim"><tr><th>Dimensão</th><th>Valor</th><th>Tol.</th></tr>@foreach (var (r, c) in linhas) {<tr><td>@r</td><td><b>@I[$"{tipo}.{c}"]</b></td><td><i class="jfn-escrever">@I[$"{tipo}.{c}_tol"]</i></td></tr>}</table>
+          <div class="jfn-folgas"><span>Folgas</span><b>@I[$"{tipo}.folgas"]</b></div>
+      }
+      void Geral()
+      {
+          <div class="jfb-geral"><div class="jfi-sub"><span>Notas gerais · Job-On</span></div><ol class="jfb-geral-texto">@{ var n = 0; }@foreach (var l in I.Linhas("notas")) { n++; <li><span>@n.ToString("00")</span>@l</li> }</ol></div>
+      }
+      void Calibres(string classe, params (string Rotulo, string Chave)[] cal)
+      {
+          <div class="jfn-cal-titulo">Calibres</div>
+          <div class="jfb-cal @classe">@foreach (var (r, ch) in cal) {<div><span>@r</span><i class="jfn-escrever">@I[ch]</i></div>}</div>
+      }
+      // A primeira linha fica sempre (com traço para escrever); as outras só com valor.
+      (string, string)[] SoComValor(params (string Rotulo, string Valor)[] linhas) => linhas.Where((l, i) => i == 0 || l.Valor.Length > 0).ToArray();
+      string Abertos() => string.Join(" · ", new[] { I["cs.abertos"].Length > 0 ? "Abertos " + I["cs.abertos"] : "", I["cs.fechados"].Length > 0 ? "Fechados " + I["cs.fechados"] : "" }.Where(s => s.Length > 0));
   }
 
   @* ── JOB-ON MOLDES (FOR 05 MOL 001), impresso 2 vezes (Diogo 26/10 21:10) ── *@
   @for (var copia = 0; copia < 2; copia++)
   {
-    <section class="jfi-folha jfi-moldes" data-jof-folha="moldes" aria-label="Job-ON Moldes">
-      @{ Topo("Job-ON Moldes", "DMO-MG · JOB-ON MOLDES"); Factos(); }
-      <div class="jfb-cab"><span>Ferramenta</span><span>Dados</span><span>Notas Job-On</span></div>
-      @{
-          Bloco("Contra-Moldes", [Q("cm_qtd_stock"), ("Reparador", F("cm_reparador")), ("Utilização", Un("cm_utilizacao"))],
-              [D("Referência", cm?.Reference ?? ""), D("Lote", LoteDe(cm)), D("Adaptador", F("cm_adaptador")), D("Inversão", F("cm_inversao")), D("Tipo", F("cm_tipo"))], "cm_notas");
-          Bloco("Tampões", [Q("tp_qtd_stock")],
-              [D("Referência", F("tp_referencia")), D("Diâmetro", F("tp_diametro_ps")), D("Calote", CaloteTp())], "tp_notas");
-          Bloco("Moldes Finais", [Q("mf_qtd_stock"), ("Reparador", F("mf_reparador")), ("Utilização", Un("mf_utilizacao"))],
-              [D("Referência", mf?.Reference ?? ""), D("Lote", LoteDe(mf)), D("Fundo Final", F("mf_fundo_final")), D("Adaptador", F("mf_adaptador")), D("Inversão", F("mf_inversao")), D("Tipo", F("mf_tipo"))], "mf_notas");
-          Bloco("Boquilhas", [("Utilização", Un("bq_utilizacao"))],
-              [D("Referência", bq?.Reference ?? ""), D("Lote", LoteDe(bq)), D("Quantidade", F("bq_qtd_stock"))], "bq_notas");
-          Bloco("Anel", [], [D("Referência", F("an_referencia")), D("Lote", AnLote())], "an_notas");
-          Bloco("Punções", [Q("pu_qtd_stock")], [D("Referência", F("pu_referencia")), D("Versão", F("pu_versao"))], "pu_notas");
-          Bloco("Arrefecedores", [], [D("Referência", F("arr_referencia"))], "arr_notas");
-          Bloco("C. de Sopro", [Q("cs_qtd_stock")], [D("Referência", F("cs_referencia")), D("Furos", Furos()), D("Tubo", F("cs_tubo"))], "cs_notas");
-          Bloco("Pinças", [Q("")], [D("Diâmetro", F("pi_diametro")), D("Tipo", TipoPinca())], "pi_notas");
-      }
-      <div class="jfb-geral"><div class="jfi-sub"><span>Job-On Notas</span></div><div class="jfb-geral-texto">@foreach (var n in Notas("notas_gerais")) { <div>@n</div> }</div></div>
-      <div class="jfb-cal">
-        <b>Calibres</b>
-        <div><span>BPB M.Começar</span><i>@CalPor("Inversão MP")</i></div>
-        <div><span>Fundo Começar</span><i>@CalPor("Tampão")</i></div>
-        <div><span>Pinça</span><i>@CalPor("Pinças", "Pinça")</i></div>
-        <div><span>BPB M.Acabar</span><i>@CalPor("Inversão MF")</i></div>
+    <section class="jfi-folha jfn-folha jfi-moldes" data-jof-folha="moldes" aria-label="Job-On Moldes">
+      @{ Topo("Job-On Moldes", "JOB-ON MOLDES"); }
+      <div class="jfn-tabela">
+        <div class="jfb-cab"><span>Ferramenta</span><span>Dados técnicos</span><span>Intervenções / Notas</span></div>
+        <div class="jfb">@{ Ferramenta("Contra-Moldes", "cm.ref", "cm.lote"); Dados(("Reparador", I["cm.reparador"]), ("Utilização", I["cm.utilizacao"]), ("Adaptador", I["cm.adaptador"]), ("Inversão / Tipo", I.Par("cm.inversao", "cm.tipo"))); Notas("cm.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Tampões", "tp.ref", null); Dados(("Diâmetro", I["tp.diametro"]), ("Calote", I["tp.calote"])); Notas("tp.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Moldes Finais", "mf.ref", "mf.lote"); Dados(("Fundo Final", I["mf.fundo"]), ("Reparador / Util.", I.Par("mf.reparador", "mf.utilizacao")), ("Adaptador", I["mf.adaptador"]), ("Inversão / Tipo", I.Par("mf.inversao", "mf.tipo"))); Notas("mf.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Boquilhas", "bq.ref", "bq.lote"); Dados(("Utilização", I["bq.utilizacao"])); Notas("bq.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Anel", null, null); Dados(SoComValor(("Referência", I["an.ref"]), ("Lote", I["an.lote"]))); Notas("an.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Punções", null, null); Dados(SoComValor(("Referência", I["pu.ref"]), ("Versão", I["pu.versao"]))); Notas("pu.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Arrefecedores", null, null); Dados(("Referência", I["arr.ref"])); Notas("arr.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("C. de Sopro", "cs.ref", null); Dados(("Abertos", I["cs.abertos"]), ("Fechados", I["cs.fechados"]), ("Tubo", I["cs.tubo"])); Notas("cs.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Pinças", null, null); Dados(("Diâmetro", I["pi.diametro"]), ("Tipo", I["pi.tipo"])); Notas("pi.notas"); }</div>
       </div>
-      <footer class="jfi-rodape"><span>FOR 05 MOL 001 (pt)</span><span>Impresso pela DMO</span></footer>
+      @{ Geral(); }
+      <div class="jfi-crescer"></div>
+      @{ Calibres("jfn-cal4", ("BPB M. Começar", "cal.inv_mp"), ("Fundo Começar", "cal.tampao"), ("Pinça", "cal.pinca"), ("BPB M. Acabar", "cal.inv_mf")); }
+      @{ Rodape(I["processo"].Length > 0 ? "FOR 05 MOL 001 (pt)   " + I["processo"] : "FOR 05 MOL 001 (pt)", copia + 1); }
     </section>
   }
 
   @* ── TRABALHO DE EQUIPA (FOR 05 MOL 004) ──────────────────────── *@
-  <section class="jfi-folha" data-jof-folha="equipa" aria-label="Trabalho de Equipa">
-    @{ Topo("Trabalho de Equipa", "DMO-MG · TRABALHO DE EQUIPA"); Factos(); }
+  <section class="jfi-folha jfn-folha" data-jof-folha="equipa" aria-label="Trabalho de equipa">
+    @{ Topo("Trabalho de equipa", "TRABALHO DE EQUIPA"); }
     @{
-        void Lado(string titulo, Action linhas)
-        {
-            <div class="jfi-col">
-              <div class="jfi-barra"><span>@titulo</span></div>
-              <div class="jfc-lista">@{ linhas(); }</div>
-            </div>
-        }
-        void C(string nome, string? ref2, string lote, string obs, bool destaque = false)
+        void C(string sigla, string nome, string valor, string lote = "", string sub = "")
         {
             <div class="jfc">
-              <div class="jfc-nome">@nome</div>
-              <div class="jfc-ref"><b>@(string.IsNullOrEmpty(ref2) ? "—" : ref2)</b>@if (lote.Length > 0) { <span class="@(destaque ? "jfc-lote jfc-lote-d" : "jfc-lote")">Lote <b>@lote</b></span> }</div>
-              <div class="jfc-obs">@obs</div>
+              <div class="jfc-nome"><span>@sigla</span> @nome</div>
+              <div class="jfc-ref"><b>@(valor.Length > 0 ? valor : "—")</b>@if (lote.Length > 0) {<text> </text><span class="jfc-lote jfc-lote-d">Lote <b>@lote</b></span>}</div>
+              @if (sub.Length > 0) {<div class="jfc-obs">@sub</div>}
             </div>
         }
     }
     <div class="jfi-duas jfi-equipa">
-    @{
-        Lado("LADO DO CONTRA-MOLDE", () =>
-        {
-            C("CM · Contra-molde", cm?.Reference, LoteDe(cm), "", true);
-            C("TP · Tampão", F("tp_referencia"), "", Junta(Com("Ø", F("tp_diametro_ps")), CaloteTp().Length > 0 ? "calote " + CaloteTp() : ""), true);
-            C("PU · Punção", F("pu_referencia"), "", Com("Versão", F("pu_versao")), true);
-            C("ARR · Arrefecedor", F("arr_referencia"), "", "", true);
-        });
-        Lado("LADO DO MOLDE FINAL", () =>
-        {
-            C("MF · Molde final", mf?.Reference, LoteDe(mf), "", true);
-            C("Fundo final", F("mf_fundo_final"), "", "");
-            C("BQ · Boquilha", bq?.Reference, LoteDe(bq), "", true);
-            C("AN · Anel", F("an_referencia"), AnLote(), "", true);
-            C("CS · Cab. enchimento", F("cs_referencia"), "", string.Join("\n", new[] { Com("Furos", Furos()), Com("Tubo", F("cs_tubo")) }.Where(x => x.Length > 0)));
-            C("PI · Pinça", F("pi_diametro") is { Length: > 0 } pd ? "Ø " + pd : "", "", TipoPinca());
-        });
-    }
+      <div class="jfi-col">
+        <div class="jfi-barra"><span>Lado do contra-molde</span></div>
+        <div class="jfc-lista">
+          @{
+              C("CM", "Contra-Molde", I["cm.ref"], I["cm.lote"]);
+              C("TP", "Tampão", I["tp.ref"]);
+              C("PU", "Punção", I["pu.ref"], sub: I["pu.versao"].Length > 0 ? "Versão " + I["pu.versao"] : "");
+              C("TR", "Tub. Refrigeração", I["arr.ref"]);
+          }
+        </div>
+      </div>
+      <div class="jfi-col">
+        <div class="jfi-barra"><span>Lado do molde final</span></div>
+        <div class="jfc-lista">
+          @{
+              C("MF", "Molde Final", I["mf.ref"], I["mf.lote"]);
+              C("FF", "Fundo Final", I["mf.fundo"], I["mf.lote_ff"]);
+              C("BQ", "Boquilha", I["bq.ref"], I["bq.lote"]);
+              C("CS", "Cab. Enchimento", I["cs.ref"], sub: string.Join(" · ", new[] { Abertos(), I["cs.tubo"].Length > 0 ? "Tubo " + I["cs.tubo"] : "" }.Where(s => s.Length > 0)));
+              C("PI", "Pinça", I["pi.diametro"].Length > 0 ? "Ø " + I["pi.diametro"] : "", sub: I["pi.tipo"]);
+          }
+        </div>
+      </div>
     </div>
-    <div class="jfi-col">
-      <div class="jfi-barra"><span>CALIBRES</span></div>
-      <table class="dmo-table jfi-t jfi-calequipa">
-        <tr><th>Nível</th><th>CM</th><th>MF</th><th>Tampão</th><th>CS</th><th>Pinças</th></tr>
-        <tr class="jfi-calval"><td>@CalPor("Nível")</td><td>@CalPor("Inversão MP")</td><td>@CalPor("Inversão MF")</td><td>@CalPor("Tampão")</td><td>@CalPor("Cab.Sopro", "Cab. Sopro")</td><td>@CalPor("Pinças", "Pinça")</td></tr>
-      </table>
-    </div>
+    @{ Calibres("jfn-cal6", ("Nível", "cal.nivel"), ("CM", "cal.inv_mp"), ("MF", "cal.inv_mf"), ("Tampão", "cal.tampao"), ("CS", "cal.cs"), ("Pinças", "cal.pinca")); }
     <div class="jfi-crescer"></div>
-    <div class="jfi-lema">TRABALHO DE EQUIPA!</div>
-    <footer class="jfi-rodape"><span>FOR 05 MOL 004 (pt)</span><span>Impresso pela DMO</span></footer>
+    @{ Rodape("FOR 05 MOL 004 (pt)", 3); }
   </section>
 
   @* ── FICHA DE ARTIGO (FOR 05 MOL 001) ─────────────────────────── *@
-  <section class="jfi-folha jfi-moldes" data-jof-folha="ficha" aria-label="Ficha de Artigo">
-    @{ Topo("Ficha de Artigo", "DMO-MG · FICHA DE ARTIGO"); Factos(); }
-    <div class="jfb-cab"><span>Ferramenta</span><span>Dados</span><span>Notas</span></div>
-    @{
-        Bloco("Contra-Moldes", [("Tipo", F("cm_tipo")), ("Utilização", Un("cm_utilizacao"))],
-            [("Referência", cm?.Reference ?? "", "Lote", LoteDe(cm)), DT("Diâm. Exterior", F("cm_exterior"), F("cm_exterior_tol")), DT("Diâm. Pata", F("cm_pata"), F("cm_pata_tol")), DT("Diâm. Gargalo", F("cm_gargalo"), F("cm_gargalo_tol")), ("Folgas", Folga("cm", 1), Folga("cm", 2), Folga("cm", 3))], "cm_notas");
-        Bloco("Moldes Finais", [("Tipo", F("mf_tipo")), ("Utilização", Un("mf_utilizacao"))],
-            [("Referência", mf?.Reference ?? "", "Lote", LoteDe(mf)), ("Fundo Final", F("mf_fundo_final"), "Lote", F("mf_lote_ff")), DT("Diâm. Exterior", F("mf_exterior"), F("mf_exterior_tol")), DT("Diâm. Corpo", F("mf_corpo"), F("mf_corpo_tol")), DT("Diâm. Gargalo", F("mf_gargalo"), F("mf_gargalo_tol")), ("Folgas", Folga("mf", 1), Folga("mf", 2), Folga("mf", 3))], "mf_notas");
-        Bloco("Tampões", [Q("tp_qtd_stock")], [D("Referência", F("tp_referencia")), D("Diâmetro", F("tp_diametro_ps")), D("Calote", CaloteTp())], "tp_notas");
-        Bloco("Boquilhas", [("Utilização", Un("bq_utilizacao"))], [D("Referência", bq?.Reference ?? ""), D("Lote", LoteDe(bq)), D("Quantidade", F("bq_qtd_stock"))], "bq_notas");
-        Bloco("Anilha", [], [D("Referência", F("an_referencia")), D("Lote", AnLote())], "an_notas");
-        Bloco("Punções", [], [D("Referência", F("pu_referencia")), D("Versão", F("pu_versao"))], "pu_notas");
-        Bloco("Tub. Refrig", [], [D("Referência", F("arr_referencia"))], "arr_notas");
-        Bloco("C. de Sopro", [], [D("Referência", F("cs_referencia")), D("Furos", Furos()), D("Tubo", F("cs_tubo"))], "cs_notas");
-        Bloco("Pinças", [], [D("Diâmetro", F("pi_diametro")), D("Tipo", TipoPinca())], "pi_notas");
-    }
+  <section class="jfi-folha jfn-folha jfi-moldes" data-jof-folha="ficha" aria-label="Ficha de artigo">
+    @{ Topo("Ficha de artigo", "FICHA DE ARTIGO"); }
+    <div class="jfn-tabela">
+      <div class="jfb-cab"><span>Ferramenta</span><span>Dados técnicos</span><span>Notas</span></div>
+      <div class="jfb">@{ Ferramenta("Contra-Moldes", "cm.ref", "cm.lote", ("Tipo", "cm.tipo"), ("Utilização", "cm.utilizacao")); }<div>@{ Dimensoes("cm", ("Diâm. Exterior", "exterior"), ("Diâm. Pata", "pata"), ("Diâm. Gargalo", "gargalo")); }</div>@{ Notas("cm.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Moldes Finais", "mf.ref", "mf.lote", ("Tipo", "mf.tipo"), ("Utilização", "mf.utilizacao")); }<div><div class="jfn-ff"><span>Fundo Final</span><b>@I["mf.fundo"]</b><span>Lote</span><i class="jfn-escrever">@I["mf.lote_ff"]</i></div>@{ Dimensoes("mf", ("Diâm. Exterior", "exterior"), ("Diâm. Corpo", "corpo"), ("Diâm. Gargalo", "gargalo")); }</div>@{ Notas("mf.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Tampões", "tp.ref", null); Dados(("Diâmetro", I["tp.diametro"]), ("Calote", I["tp.calote"])); Notas("tp.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Boquilhas", "bq.ref", "bq.lote"); Dados(("Utilização", I["bq.utilizacao"])); Notas("bq.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Anilha", null, null); Dados(SoComValor(("Referência", I["an.ref"]), ("Lote", I["an.lote"]))); Notas("an.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Punções", null, null); Dados(SoComValor(("Referência", I["pu.ref"]), ("Versão", I["pu.versao"]))); Notas("pu.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Tub. Refrig", null, null); Dados(("Referência", I["arr.ref"])); Notas("arr.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("C. de Sopro", "cs.ref", null); Dados(("Abertos", I["cs.abertos"]), ("Fechados", I["cs.fechados"]), ("Tubo", I["cs.tubo"])); Notas("cs.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Pinças", null, null); Dados(("Diâmetro", I["pi.diametro"]), ("Tipo", I["pi.tipo"])); Notas("pi.notas"); }</div>
+    </div>
     <div class="jfb-fim">
-      <div class="jfb-geral"><div class="jfi-sub"><span>NOTAS JOB-ON</span></div><div class="jfb-geral-texto">@foreach (var n in Notas("notas_gerais")) { <div>@n</div> }</div></div>
-      <div class="jfb-geral jfi-artigo"><div class="jfi-sub"><span>ARTIGO</span></div><div class="jfi-artigo-img" data-jof-folha-artigo><span>Sem imagem do artigo</span></div></div>
+      @{ Geral(); }
+      <div class="jfi-artigo"><div class="jfn-artigo-titulo">Artigo</div><div class="jfi-artigo-img" data-jof-folha-artigo><span>Sem imagem do artigo</span></div></div>
     </div>
-    <div class="jfb-cal jfb-cal5">
-      <b>Calibres</b>
-      <div><span>Tampão</span><i>@CalPor("Tampão")</i></div>
-      <div><span>Cab. enchimento</span><i>@CalPor("Cab.Sopro", "Cab. Sopro")</i></div>
-      <div><span>Pinça</span><i>@CalPor("Pinças", "Pinça")</i></div>
-      <div><span>Inver. molde</span><i>@CalPor("Inversão MF")</i></div>
-      <div><span>Inver. MP</span><i>@CalPor("Inversão MP")</i></div>
-    </div>
-    <footer class="jfi-rodape"><span>FOR 05 MOL 001 (pt)</span><span>Impresso pela DMO</span></footer>
+    <div class="jfi-crescer"></div>
+    @{ Calibres("jfn-cal5", ("Tampão", "cal.tampao"), ("Cab. enchimento", "cal.cs"), ("Pinça", "cal.pinca"), ("Inver. molde", "cal.inv_mf"), ("Inver. MP", "cal.inv_mp")); }
+    @{ Rodape("FOR 05 MOL 001 (pt)", 4); }
   </section>
 
 </div>
