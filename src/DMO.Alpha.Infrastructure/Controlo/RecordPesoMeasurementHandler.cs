@@ -1,4 +1,8 @@
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using DMO.Alpha.Core.Controlo;
+using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,18 +21,36 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// (capacity, peso do vidro) são calculados pelo backend a partir dos
 /// inputs consumidos persistidos no Peso — a densidade da água é resolvida
 /// pela tabela canónica para o grau inteiro congelado no Peso.
+/// <para>
+/// UM ENVIO GRAVA UMA VEZ, TAMBÉM DEPOIS DE UM REINÍCIO (Diogo, 27/10/2026):
+/// com o identificador do envio, as leituras e a operação registada
+/// (<see cref="IOperacoesRegistadas"/>) vão no mesmo <c>SaveChanges</c>, por
+/// isso ficam as duas ou nenhuma. O mesmo envio outra vez devolve «já
+/// registado» sem gravar; o mesmo identificador de outra pessoa, de outra
+/// operação ou com outras leituras é recusado. Dois envios iguais ao mesmo
+/// tempo colidem na chave primária das operações e o segundo, na repetição,
+/// encontra o primeiro.
+/// </para>
 /// </summary>
 public sealed class RecordPesoMeasurementHandler : IRecordPesoMeasurementHandler
 {
-    private readonly DmoDbContext _db;
+    /// <summary>O tipo da operação registada de uma leitura do Peso.</summary>
+    public const string OperacaoTipo = "peso.leitura";
 
-    public RecordPesoMeasurementHandler(DmoDbContext db)
+    private const string ResultadoTipo = "Peso";
+
+    private readonly DmoDbContext _db;
+    private readonly IOperacoesRegistadas _operacoes;
+
+    public RecordPesoMeasurementHandler(DmoDbContext db, IOperacoesRegistadas? operacoes = null)
     {
         _db = db;
+        _operacoes = operacoes ?? new OperacoesRegistadas(db);
     }
 
     // Duas leituras gravadas ao mesmo tempo colidem na posição: a segunda
-    // volta a correr com a posição seguinte.
+    // volta a correr com a posição seguinte. O mesmo envio duas vezes ao
+    // mesmo tempo colide na operação: a repetição encontra o primeiro.
     public Task<RecordPesoMeasurementOutcome> HandleAsync(
         RecordPesoMeasurement command,
         CancellationToken cancellationToken = default) =>
@@ -38,6 +60,17 @@ public sealed class RecordPesoMeasurementHandler : IRecordPesoMeasurementHandler
         RecordPesoMeasurement command,
         CancellationToken cancellationToken)
     {
+        // 0. O mesmo envio outra vez não grava; o identificador reutilizado
+        //    noutra coisa é recusado.
+        var impressao = command.OperacaoId is null ? null : Impressao(command);
+        if (command.OperacaoId is Guid operacaoId
+            && await _operacoes.ProcurarAsync(operacaoId, cancellationToken) is { } registada)
+        {
+            return Refused(_operacoes.EOMesmoEnvio(registada, OperacaoTipo, impressao)
+                ? RecordPesoMeasurementResult.AlreadyRecorded
+                : RecordPesoMeasurementResult.OperationConflict);
+        }
+
         // 1. O Peso tem de existir.
         var peso = await _db.Pesos
             .FirstOrDefaultAsync(p => p.Id == command.PesoId, cancellationToken);
@@ -127,6 +160,11 @@ public sealed class RecordPesoMeasurementHandler : IRecordPesoMeasurementHandler
             peso.VolumePuncaoCm3,
             peso.GlassDensityGramsPerCm3);
 
+        if (command.OperacaoId is Guid novaOperacao)
+        {
+            _operacoes.Registar(novaOperacao, OperacaoTipo, new ResultadoDaOperacao(ResultadoTipo, peso.Id), impressao);
+        }
+
         await _db.SaveChangesAsync(cancellationToken);
 
         return new RecordPesoMeasurementOutcome(
@@ -139,6 +177,23 @@ public sealed class RecordPesoMeasurementHandler : IRecordPesoMeasurementHandler
                 measurement.WaterWeightGrams,
                 capacity,
                 glassWeight));
+    }
+
+    /// <summary>
+    /// A impressão digital do envio: o Peso e cada linha (N.º CM e massa de
+    /// água), pela ordem em que vieram. Duas leituras iguais de envios
+    /// diferentes têm identificadores diferentes e gravam as duas.
+    /// </summary>
+    internal static string Impressao(RecordPesoMeasurement command)
+    {
+        var texto = new StringBuilder().Append(command.PesoId.ToString(CultureInfo.InvariantCulture));
+        foreach (var (cm, agua) in new[] { (command.CmSubject, command.WaterWeightGrams) }
+                     .Concat((command.AdditionalRows ?? []).Select(row => (row.CmSubject, row.WaterWeightGrams))))
+        {
+            texto.Append('\n').Append(cm ?? string.Empty).Append('\t').Append(agua.ToString(CultureInfo.InvariantCulture));
+        }
+
+        return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(texto.ToString())));
     }
 
     private static RecordPesoMeasurementOutcome Refused(RecordPesoMeasurementResult result) =>

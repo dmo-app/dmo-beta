@@ -333,6 +333,10 @@
 {
   <main class="jof2" id="main">
     <div class="wrap">
+      @* Haver sempre «← Voltar» (Diogo, 27/10/2026): como nas páginas de registo do
+         controlo, volta à página de onde se veio (data-dmo-voltar); sem origem, ao Job On.
+         As fichas das ferramentas abertas daqui não contam como origem. *@
+      <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
       <div class="page-head">
         <div><h1>Job On</h1></div>
       </div>
@@ -400,7 +404,7 @@ else
      mesmas recusas tipadas) e voltam a esta folha (Diogo, 23/10/2026). *@
   var rascunho = !editar ? null : Model.Criar ? (Model.DuplicarDe is { } origemRascunho ? $"duplicar:{origemRascunho}" : "novo") : $"editar:{jobOn.JobOnId}";
   <form class="jof2-form" id="@(editar ? "lightForm" : "jofLeitura")" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.Criar ? "Create" : "Update")"
-        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jof-criar="@(Model.Criar ? "true" : null)" data-jobon-rascunho="@rascunho" aria-label="@(Model.Criar ? "Folha do Job On novo" : $"Folha do Job On {jobOn.ProductionNumber}")">
+        data-jof-folha="@(editar ? "editar" : "bloqueada")" data-jof-criar="@(Model.Criar ? "true" : null)" data-jobon-rascunho="@rascunho" data-jobon-rascunho-dono="@(rascunho is null ? null : User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.ActorId)?.Value)" aria-label="@(Model.Criar ? "Folha do Job On novo" : $"Folha do Job On {jobOn.ProductionNumber}")">
     @if (Model.Criar)
     {
       <input type="hidden" name="voltar" value="folha" />
@@ -422,6 +426,7 @@ else
     }
   <main class="jof2@(editar ? " editing" : null)" id="main">
     <div class="wrap">
+    <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
     <div class="page-head">
       <div class="facts" role="group" aria-label="Dados da produção">
         <div class="fact-col mach" title="Linha"><span class="sr-only">Linha</span><span class="fv">
@@ -716,7 +721,7 @@ else
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong>Artigo @if (podeImagem) {<partial name="_DmoHelp" model="@("Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge).")" />}</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
+          <div class="article-head"><strong title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">Artigo</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
           <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
             @if (podeImagem)
             {
@@ -729,7 +734,7 @@ else
         </section>
         <section class="card notes" aria-labelledby="notesTitle">
           @* As ajudas no triângulo, não escritas no ecrã (ronda de 26/10/2026, J8). *@
-          <h2 id="notesTitle">Notas gerais @if (editar) {<partial name="_DmoHelp" model="@("Uma nota por linha. Grava com Guardar.")" />} else if (Model.PodeEditar) {<partial name="_DmoHelp" model="@("Para mudar as notas, use Editar.")" />}</h2>
+          <h2 id="notesTitle" title="@(editar ? "Uma nota por linha. Grava com Guardar." : Model.PodeEditar ? "Para mudar as notas, use Editar." : null)">Notas gerais</h2>
           @{
               desenhados.Add("notas_gerais");
               var gerais = Model.Folha.Valor("notas_gerais");

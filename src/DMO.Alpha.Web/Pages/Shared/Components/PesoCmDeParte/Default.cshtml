@@ -15,7 +15,8 @@
   }
   @if (Model.Linhas.Count > 0)
   {
-    <h4 style="margin:14px 0 6px">Manter ou colocar de parte<partial name="_DmoHelp" model="@("Escolha, para cada CM medida, se fica (Manter) ou se sai (Colocar de parte). A CM posta de parte fica por aprovar: quem tem o Controlo Aprovar decide aqui, uma de cada vez, na coluna Aprovação. Pôr de parte não muda o estado da CM nas Ferramentas.")" /></h4>
+    @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+    <h4 style="margin:14px 0 6px" title="Escolha, para cada CM medida, se fica (Manter) ou se sai (Colocar de parte). A CM posta de parte fica por aprovar: quem tem o Controlo Aprovar decide aqui, uma de cada vez, na coluna Aprovação. Pôr de parte não muda o estado da CM nas Ferramentas.">Manter ou colocar de parte</h4>
     <div class="dmo-table-wrap" data-peso-cm-de-parte>
       <table class="dmo-table">
         <thead><tr><th>N.º CM</th><th>Escolha</th><th>Aprovação</th></tr></thead>

@@ -49,12 +49,13 @@
 <section class="dmo-card peg-card@(toolSemNominal ? " peg-card-sem-nominal" : "")" aria-labelledby="peg-comp-@component-title" data-peg-component="@componentToken" data-dmo-parcial data-dmo-zonas="@PegamentosModel.ZonaAvisos @PegamentosModel.ZonaMapa@(sheet.Pegamentos is null ? " " + PegamentosModel.ZonaContexto : null)@(Model.Pagina.ShowSheets ? " " + PegamentosModel.ZonaFolhas : null)">
   <div class="peg-section-head">
     <div>
-      <h3 id="peg-comp-@component-title" data-peg-titulo>@PegamentosVista.ComponentLabel(component)@if (tituloRef is not null)
+      @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+      <h3 title="@($"Cada eixo é comparado com o nominal ± {PegamentosVista.Fmt(Model.Pagina.ShownTolerance)} mm; um alerta é só um aviso. A ovalização mantém o sinal e fica vazia com um só eixo. Na linha AVG, a contra costura e a ovalização contam só as leituras que as têm.")" id="peg-comp-@component-title" data-peg-titulo>@PegamentosVista.ComponentLabel(component)@if (tituloRef is not null)
         {@(" ")@if (podeAbrirFicha)
           {<a class="peg-ficha-link" href="@fichaHref" title="Abrir a ficha da ferramenta">@tituloRef</a>}
           else
           {@tituloRef}}@if (tituloLote is not null)
-        {@($" · Lote {tituloLote}")}<partial name="_DmoHelp" model="@($"Cada eixo é comparado com o nominal ± {PegamentosVista.Fmt(Model.Pagina.ShownTolerance)} mm; um alerta é só um aviso. A ovalização mantém o sinal e fica vazia com um só eixo. Na linha AVG, a contra costura e a ovalização contam só as leituras que as têm.")" /></h3>
+        {@($" · Lote {tituloLote}")}</h3>
     </div>
     <span class="peg-step">2 · Medições</span>
   </div>

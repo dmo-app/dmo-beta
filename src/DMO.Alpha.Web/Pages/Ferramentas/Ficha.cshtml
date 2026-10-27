@@ -93,7 +93,8 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
     <div id="ferrDuplicar" class="dmo-zona" data-dmo-regiao>
     <dialog id="ferr-duplicate-dialog" class="dmo-dialog" aria-labelledby="ferr-duplicate-title" data-dmo-dialog-aberta="@(Model.DuplicateRefusal is not null ? "1" : null)">
       <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="Duplicate" data-dmo-parcial>
-        <h3 id="ferr-duplicate-title">Duplicar para lote novo<partial name="_DmoHelp" model="@("Cria uma ferramenta nova com os mesmos dados e o lote indicado. Esta ferramenta fica como está.")" /></h3>
+        @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+        <h3 id="ferr-duplicate-title" title="Cria uma ferramenta nova com os mesmos dados e o lote indicado. Esta ferramenta fica como está.">Duplicar para lote novo</h3>
         @if (Model.DuplicateRefusal is not null)
         {
           <div class="ferr-aviso" role="alert">@Model.DuplicateRefusalMessage@if (Model.ExistingToolId is { } existenteLote)
@@ -146,7 +147,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
       <div class="dmo-card-topo">
         <h3 id="ferr-empty-title">Ficha de ferramenta</h3>
         <div class="dmo-card-topo-acoes">
-          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">← Voltar</a>
         </div>
       </div>
       <div class="ferr-vazia">Nenhuma ferramenta selecionada. Abra a lista do Ferramentas e escolha a ficha pelo nome — tipo, referência e lote.</div>
@@ -158,7 +159,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
       <div class="dmo-card-topo">
         <h3 id="ferr-missing-title">Ficha de ferramenta</h3>
         <div class="dmo-card-topo-acoes">
-          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">Voltar à lista</a>
+          <a class="dmo-button" href="@Url.Page("/Ferramentas/Index")">← Voltar</a>
         </div>
       </div>
       <div class="ferr-aviso" role="alert">A ferramenta indicada não existe no registo. Nenhuma ficha foi aberta e nenhuma ferramenta foi inventada.</div>
@@ -442,7 +443,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
       var pecasProd = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       var leituraJanela = Model.Utilizacao?.Ultima;
       <dialog id="ferrProducoes" class="dmo-dialog ferr-producoes-janela" aria-labelledby="ferr-producoes-title" data-dmo-dialog-aberta="@(Model.ProducoesAbertas ? "1" : null)">
-        <h3 id="ferr-producoes-title">Utilização por produção<partial name="_DmoHelp" model="@("Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O produzido é a produção bruta (o total, com que se calcula o uso) do relatório de fabrico da produção (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção. Um clique na produção abre a ficha do Job On.")" /></h3>
+        <h3 id="ferr-producoes-title" title="Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O produzido é a produção bruta (o total, com que se calcula o uso) do relatório de fabrico da produção (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção. Um clique na produção abre a ficha do Job On.">Utilização por produção</h3>
         @if (leituraJanela is not null)
         {
           <p class="ferr-nota" id="ferrProducoesHoje">Hoje <strong>@leituraJanela.Percentagem.ToString("0.##", pt) %</strong>@(leituraJanela is { Consumo: { } feitas, VidaPrevista: { } vida } ? $" · {feitas.ToString("#,0", pecasProd)} de {vida.ToString("#,0", pecasProd)} peças" : null) · @(leituraJanela.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "produção" : leituraJanela.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraJanela.RegistadaEmUtc).ToString("dd/MM/yyyy", pt)</p>
@@ -574,11 +575,11 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
     @*    (P2-9) — incl. o TAMPÃO (a geometria TP do desenho).            *@
     @* ---------------------------------------------------------------- *@
     @* Aberta ou fechada como o operador a deixou (data-dmo-fica): guardar o
-       Editar não a fecha nem mexe no que lá está escrito. O título (a dica
-       muda com o tipo) e o formulário são zonas. *@
+       Editar não a fecha nem mexe no que lá está escrito. O título e o
+       formulário são zonas. Sem o círculo da ajuda no título (Diogo, 27/10/2026). *@
     <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-tech-title" data-dmo-fica data-dmo-parcial>
       <details open="@Model.ShowTechnical">
-      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@((tool.Type == ToolType.Cm ? "Valores da CM. O tampão escreve-se na Folha do Job On (bloco TP)." : tool.Type == ToolType.Bq ? "Valores da boquilha. Os campos da CM não se aplicam a este tipo." : "Valores do molde final. Os campos da CM não se aplicam a este tipo.") + " Campo vazio limpa o valor.")" /></h3></summary>
+      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica</h3></summary>
       @{
           // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
           // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.
@@ -635,7 +636,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
       var pecasHist = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-historico-title" id="ferrHistoricoProducoes" data-dmo-fica>
         <details>
-        <summary class="dmo-card-topo"><h3 id="ferr-historico-title"><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções<partial name="_DmoHelp" view-data="@(new ViewDataDictionary(ViewData) { ["EmSumario"] = true })" model="@("Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Garrafas = produção bruta; Δ garrafas = contra a produção anterior; % = quanto o uso subiu nela. Um clique no peso médio abre o peso de todas as produções: a média, a moda e o Δ contra a anterior. O total soma as garrafas e mostra a % de hoje.")" /></h3></summary>
+        <summary class="dmo-card-topo"><h3 id="ferr-historico-title" title="Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Garrafas = produção bruta; Δ garrafas = contra a produção anterior; % = quanto o uso subiu nela. Um clique no peso médio abre o peso de todas as produções: a média, a moda e o Δ contra a anterior. O total soma as garrafas e mostra a % de hoje."><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções</h3></summary>
         @if (historico.Pagina.TotalCount == 0)
         {
           <p class="ferr-nota">Esta ferramenta ainda não esteve em nenhum Job On.</p>
@@ -741,7 +742,7 @@ html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.fe
               var prod = itensHistJanela[i];
               if (PesoDe(i) is not { } peso) { continue; }
               <dialog id="ferrPeso@(prod.JobOnId)" class="dmo-dialog ferr-producoes-janela ferr-peso-janela" aria-labelledby="ferrPesoTitulo@(prod.JobOnId)">
-                <h3 id="ferrPesoTitulo@(prod.JobOnId)">Peso por produção<partial name="_DmoHelp" model="@("O peso médio do relatório de produções do SAP em cada Job On: a média pesada pelos dias e a moda (o peso que se repete mais). O Δ é a média contra a da produção anterior, em gramas e em %. Um clique na produção abre a ficha do Job On.")" /></h3>
+                <h3 id="ferrPesoTitulo@(prod.JobOnId)" title="O peso médio do relatório de produções do SAP em cada Job On: a média pesada pelos dias e a moda (o peso que se repete mais). O Δ é a média contra a da produção anterior, em gramas e em %. Um clique na produção abre a ficha do Job On.">Peso por produção</h3>
                 <p class="ferr-nota">Produção <strong>@prod.Producao</strong> · Média <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas) g</strong> · Moda <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.ModaGramas) g</strong> · Δ anterior <strong>@DeltaPeso(peso, PesoDe(i + 1))</strong></p>
                 <div data-ferr-peso-lugar></div>
                 <div class="dmo-dialog-actions">

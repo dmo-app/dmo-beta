@@ -106,7 +106,8 @@ echo "imagem pronta"
 passo "3. Cópia da base antes de mexer"
 mkdir -p "$copias"
 copia="$copias/dmo-$(date +%Y%m%d-%H%M%S)-antes-de-$rev.dump"
-docker exec "$base_ct" pg_dump -U postgres -d dmo -Fc > "$copia"
+# A cópia leva os resumos das palavras-passe: só o dono a lê (como no instalar.sh).
+(umask 077; docker exec "$base_ct" pg_dump -U postgres -d dmo -Fc > "$copia")
 # A cópia só conta se se conseguir ler e tiver os dados de todas as tabelas.
 tabelas_copia="$(docker exec -i "$base_ct" pg_restore --list < "$copia" | grep -c ' TABLE DATA public ' || true)"
 tabelas_base="$(docker exec "$base_ct" psql -U postgres -d dmo -tAc \

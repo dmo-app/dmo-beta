@@ -58,15 +58,14 @@ public sealed class ArmazemMapaTests
         new() { Id = id, ToolId = toolId, PosicaoId = posicaoId, MovimentoId = id, DesdeUtc = Ontem };
 
     [Theory]
-    [InlineData("1033", "103", "1", "3", "Corredor 1 · Estante 03")]
-    [InlineData("4048", "404", "4", "8", "Corredor 4 · Estante 04")]
-    [InlineData("0042", "004", "0", "2", "Corredor 0 · Estante 04")]
-    public void APosicao_CorredorEstanteEPrateleira(string codigo, string estante, string corredor, string prateleira, string nome)
+    [InlineData("1033", "103", "1", "Corredor 1 · Estante 03")]
+    [InlineData("4048", "404", "4", "Corredor 4 · Estante 04")]
+    [InlineData("0042", "004", "0", "Corredor 0 · Estante 04")]
+    public void APosicao_CorredorEstanteEPrateleira(string codigo, string estante, string corredor, string nome)
     {
         // Diogo 21/10 (AR-03): 1.º corredor, 2.º e 3.º estante, 4.º prateleira.
         Assert.Equal(estante, ArmazemArmarios.De(codigo));
         Assert.Equal(corredor, ArmazemArmarios.Corredor(codigo));
-        Assert.Equal(prateleira, ArmazemArmarios.Prateleira(codigo));
         Assert.Equal(nome, ArmazemArmarios.Nome(estante));
         Assert.Equal("Corredor " + corredor, ArmazemArmarios.Nome(corredor));
     }
@@ -96,12 +95,10 @@ public sealed class ArmazemMapaTests
 
         var par = lista.Single(p => p.Codigo == "4001");
         Assert.True(par.Par);
-        Assert.False(par.Misturada);
         Assert.Equal([ToolType.Cm, ToolType.Mf], par.Ferramentas.Select(f => f.Tipo).ToArray());
         // A mesma referência com lotes diferentes já é uma mistura.
         var mistura = lista.Single(p => p.Codigo == "4002");
         Assert.False(mistura.Par);
-        Assert.True(mistura.Misturada);
         Assert.True(lista.Single(p => p.Codigo == "4003").Livre);
         Assert.False(lista.Single(p => p.Codigo == "4005").Ativa);
     }

@@ -24,8 +24,9 @@
                para os registos de um Job On. *@
             <div id="bqSemJobOnMovimentos" class="bq-sem-jobon-movimentos">
               <div class="card-head" style="margin:14px 0 4px">
-                <div>
-                  <h3>Movimentos sem Job On<partial name="_DmoHelp" model="@("Os movimentos desta BQ registados sem Job On, do mais recente para o mais antigo. Registam-se em «Registar sem Job On», no topo da página.")" /></h3>
+                @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+                <div title="Os movimentos desta BQ registados sem Job On, do mais recente para o mais antigo. Registam-se em «Registar sem Job On», no topo da página.">
+                  <h3>Movimentos sem Job On</h3>
                 </div>
               </div>
               @if (Model.SemJobOnMovements.Count > 0)
@@ -52,7 +53,7 @@
             {
               <div class="card-head" style="margin:14px 0 4px">
                 <div>
-                  <h3>Registos desta boquilha<partial name="_DmoHelp" model="@("Um clique ou Enter abre o registo.")" /></h3>
+                  <h3 title="Um clique ou Enter abre o registo.">Registos desta boquilha</h3>
                 </div>
               </div>
               <div class="dmo-table-wrap">

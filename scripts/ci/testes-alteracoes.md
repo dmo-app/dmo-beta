@@ -3364,6 +3364,129 @@ Novos: 2 · mudaram: 2 · saíram: 0
 
 Selo depois: `7df95d24814fbd98`
 
+## A-0188 · 2026-10-27 · contagem-lista
+
+Porquê: Peso: o mesmo envio de leituras grava uma só vez, também depois de um reinício ou de uma resposta perdida; leituras iguais de envios diferentes gravam; o mesmo identificador de outra pessoa, operação ou com outras leituras é recusado; dois envios iguais ao mesmo tempo dão uma leitura; uma falha a meio não deixa nem leitura nem operação (DMO-450, 0.3.0-beta.146). A lista das migrações ganha 20261027030704_OperacoesRegistadasImpressao.
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_DuasLeiturasIguaisDeEnviosDiferentes_GravamAsDuas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_FalhaAMeioDaGravacao_NaoFicaNemALeituraNemAOperacao_EORepetirGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioDuasVezesAoMesmoTempo_FicaUmaSoLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioOutraVez_DepoisDeUmReinicio_NaoGravaDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoIdentificadorNoutraCoisa_ERecusadoENadaFica`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: PesoToolScopedPageTests.RegisterMeasurement_OMesmoEnvioDepoisDeUmReinicio_NaoGravaOutraVez_EUmEnvioNovoIgualGrava`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `e184a131a41a6920`
+
+## A-0181 · 2026-10-27 · teste-novo
+
+Porquê: Comparar peso (Diogo, 27/10/2026): Pesos compatíveis (mesma referência da CM e máquina), escolha pela linha, tabela igual à do Peso, só a calote muda pela Calote Tampo; nada é gravado
+Novos: 18 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoHistorico_PeloInicioDaReferencia_SemJobOnValemAsMaquinasDaFicha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoHistorico_SemMaquina_FicaADoPesoMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoPesoAntigo_FicaOPedidoNaCmDele`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoPeso_SoAMesmaReferenciaEMaquina_OMaisRecenteDeCadaCm`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.OutraMaquinaEscolhida_TrocaAsCm`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.SemTampaoNoPeso_ValeODoJobOn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.VariasReferencias_PedeParaEscolher`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: PesoTampaoSimuladoTests.SoACaloteMuda_OPesoMudaPelaCaloteTampo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: PesoTampaoSimuladoTests.Texto_DiametroXCalote_SemZerosAMais`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.CaloteQueNaoSeLe_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.CaloteSimulada_MudaSoEsseLadoPelaCaloteTampo_ENaoGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.DoHistorico_PelaReferenciaDaCm_EOutraMaquina`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.DoPeso_ListaOsCompativeis_EComparaComOSeguinte`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.OPesoEOHistorico_TemOBotao_EOPainelLateralAbreAPagina`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.OutraMaquina_ESemOutroPeso_DizQueNaoHaComQueComparar`
+
+Selo depois: `f211690090c32975`
+
+## A-0189 · 2026-10-27 · teste-novo
+
+Porquê: Posto da RI com travão por origem (um PIN de cada vez, espera crescente da 5.ª falha em diante, a conta nunca bloqueia) e sessão obrigatória por omissão, só as páginas públicas abrem sem sessão (DMO-451, 0.3.0-beta.148)
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.PorOmissao_TodasAsPaginasPedemSessao`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Espera_SoDepoisDaQuintaFalha_ECrescendoAteTrintaSegundos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.MesmaOrigem_UmPinDeCadaVez_OutraOrigemNaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_EsperamCadaVezMais_EOPinCertoEntraNaMesma`
+
+Selo depois: `d16d7799e427d7ce`
+
+## A-0190 · 2026-10-27 · contagem-lista
+
+Porquê: Juntar o #199 à integracao (DMO-452, DMO-457, 0.3.0-beta.149): teste novo de remover um reparador das Boquilhas usado no Armazém (vistoria BD-02), teste novo do índice da referência das ferramentas em maiúsculas (BD-04, migração 20261027050241_ToolsReferenciaMaiusculas, Diogo 27/10/2026 05:00, cartão cmsg_01K75FTs9bQnbhhH7qttpgraQWakNx4bC4V2mjtidjJLzt); a migração nova entra na lista das migrações (só a lista muda)
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: PostgresMigrationIntegrationTests.RemoverReparadorUsadoNoArmazem_OMovimentoFicaComONome`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas_AsProcurasSemOlharAMaiusculasUsamOIndice`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `931c72c58f9a8361`
+
+## A-0191 · 2026-10-27 · contagem-lista
+
+Porquê: Vistoria ao frontend (DMO-453, 0.3.0-beta.150): testes novos das marcas de versão e da cache dos ficheiros (F1), do filtro ao escrever com a sessão terminada, um erro ou sem rede (F2) e do rascunho do Job On por pessoa e por um dia (F3); package.json só acrescenta vistoria-frontend.test.cjs à lista do test:js
+Novos: 13 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: FicheirosComVersaoTests.CadaFolhaEScriptDasPaginas_LevaAMarcaDeVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: FicheirosComVersaoTests.OLogin_PedeCadaFolhaComAMarcaDeVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: FicheirosComVersaoTests.UmFicheiroComMarca_GuardaSeUmAno_ESemMarca_PerguntaSempre`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: com a sessão terminada, o filtro avisa e dá o link «Entrar»`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: com um erro do servidor, o filtro avisa que não foi possível procurar`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: o filtro ao escrever troca os resultados quando a resposta traz a lista`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: sem rede, o filtro repete a mesma procura quando a ligação volta`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: o que se escreve fica guardado com o dono`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de outra pessoa não aparece e sai do browser`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de quem abre a folha volta`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: um rascunho com mais de um dia não volta; um de 23 h volta`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `10f6a12c79e57112`
+
+## A-0196 · 2026-10-27 · ok-do-diogo
+
+Porquê: Limpeza do código que só os testes usavam (DMO-458, 0.3.0-beta.154): saem HasCapability, ArmazemArmarios.Prateleira, ArmazemMapaPosicao.Misturada, ArmazemProximoJobOn.PorTirar/Indisponiveis, ControloDocumentPaths.GetProductionFolder, HistoricoLinha.OutrosTipos, PesoCmDeParteHandler.ContarPorAprovarAsync e CmDecisaoLinha.PorAprovar, ReparacaoProgramadaMovimentos.AoMovimentoAsync, DeleteJobOnPreview.HasRecords, a parcial _JobOnFichaFolha e a escolha data-dmo-procura-valor. Os testes verificam o mesmo pelo que fica (Capabilities, as ferramentas, a contagem na base, AoMovimentosAsync, o nome do ficheiro); saem só as asserções e os 2 testes da função que saiu.
+Referência: Diogo, thread «Limpar o código da app», 27/10/2026 05:22 (cmsg_01K75FTs9bQnbhhH7qttpgraXWcTtH6xwwn13Snc37nLi1), «sim» à lista dos 9 testes
+Novos: 0 · mudaram: 19 · saíram: 2
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_AdminEmailUser_IsAlwaysResolvedWithoutTemplate`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_NoCurrentTemplate_HasNoTemplateDerivedCapabilities`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_RenamedTemplate_EffectiveAccessIsUnchanged`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_StandBy_DisablesCurrentAccessButPreservesAssignmentFacts`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_TemplateWithBothControlos_GrantsBoth`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.Resolve_WithCurrentTemplate_ResolvesTheTemplateCapabilities`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.APosicao_CorredorEstanteEPrateleira`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.OParDaMesmaReferenciaELote_NaoEMisturado`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.CadaFerramenta_OndeEstaEOQueFalta`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.ForaDoArmazemEDoFabrico_NaoDisponivel`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.Segments_WithPathSeparators_NeverBecomeStructure`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoDecisoesDoDiogoTests.cs :: PesoDecisoesDoDiogoTests.ColocarDeParte_FicaPorAprovar_EAAprovacaoEPorCm`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoDecisoesDoDiogoTests.cs :: PesoDecisoesDoDiogoTests.MudarAEscolha_TiraAAprovacao_EManterNaoVaiParaAprovacao`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ProgramadaConcorrente.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/DeleteJobOnHandlerTests.cs :: DeleteJobOnHandlerTests.Confirmacao_ContaOQueSePerde`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasTests.cs :: ReparacoesInternasTests.EliminarOJobOn_ContaELevaAsReparacoes`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: FerramentaHistoricoQueryTests.NaBq_OsMfDeCadaJobOnPeloBqContext`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: JobOnFolhaTests.Folha_SemNadaEscrito_MostraOsVaziosEOEditar_SemAFichaAntiga`
+- mudou: `tests/ShellProof/escrito-perdido.test.cjs :: numa procura com linhas, as linhas do texto anterior não escolhem enquanto o novo não responde`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionFolder_Is_Dir_Reference_Production`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionFolder_TrimsTrailingSeparatorsOfBaseDir`
+
+Selo depois: `98d72642ab0f5365`
+
 ## A-0198 · 2026-10-27 · teste-novo
 
 Porquê: Teste do ensaio (27/10/2026): operador sem acesso vê «Sem acesso» no login (DMO-460)
@@ -3373,7 +3496,7 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: LoginSemAcessoTests.Operador_NoAdmin_VeSemAcesso_SemFormularioDeEntrada`
 - novo: `tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: LoginSemAcessoTests.SemSessao_OLoginMostraOFormulario`
 
-Selo depois: `ef7739eb30616318`
+Selo depois: `3a0eca909ecdff43`
 
 ## A-0206 · 2026-10-27 · ok-do-diogo
 
@@ -3386,7 +3509,7 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
 
-Selo depois: `b562585df3581e63`
+Selo depois: `17136d8bbe5adaa3`
 
 ## A-0212 · 2026-10-27 · ok-do-diogo
 
@@ -3396,4 +3519,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha`
 
-Selo depois: `8f1b2c529f976aad`
+Selo depois: `a9e4150c33bc34b7`
