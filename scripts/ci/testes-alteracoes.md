@@ -3950,3 +3950,25 @@ Novos: 6 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.SemNadaAComparar_ERecusadoComOMotivo`
 
 Selo depois: `28f6e6e2d7095e53`
+
+## A-0242 · 2026-10-27 · teste-novo
+
+Porquê: Definições (DMO-507): teste novo das pastas de «Este computador» em duas colunas fixas
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: DefinicoesPorModuloPageTests.AsPastasDesteComputador_FicamCadaUmaNaSuaColuna`
+
+Selo depois: `a7ed5198b60deb02`
+
+## A-0243 · 2026-10-27 · teste-novo
+
+Porquê: PU NNPB: a gota de cada linha nas Definições (B1 4, C3 3 por omissão, 1 a 4) dita as posições de cada secção na folha e no PDF; punções da linha = secções × gota (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra3p4eE4qrDuNcqxPhGnS86V)
+Referência: DMO-508
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_DaLinha_DitamAsPosicoesDeCadaSeccao_NaFolhaENoPdf`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_NasDefinicoes_B1Com4EC3Com3PorOmissao_GravamSeERecusamForaDe1a4`
+
+Selo depois: `8814c455ecaa1b86`

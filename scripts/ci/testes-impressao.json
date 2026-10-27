@@ -1,5 +1,5 @@
 {
-  "selo": "28f6e6e2d7095e53",
+  "selo": "8814c455ecaa1b86",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2230,6 +2230,8 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: (resto do ficheiro)": "ac921f9156cccc90",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_LevaAoHistoricoDeProducoes": "67ff9ef4251e2e23",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: DefinicoesPorModuloPageTests.ORegistarDoArmazem_ComUmaFerramenta_TemOVoltar": "45897a0914d8a282",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: (resto do ficheiro)": "f8affed5770ca19a",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: DefinicoesPorModuloPageTests.AsPastasDesteComputador_FicamCadaUmaNaSuaColuna": "3686f2334587f0da",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: (resto do ficheiro)": "15a550359070c5ac",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_AbreAJanelaComTodasAsProducoes_MediaModaEDeltaEmGEPercentagem": "d020936d66b8b1dc",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: (resto do ficheiro)": "6d6aca8933b8917d",
@@ -2748,6 +2750,9 @@
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: (resto do ficheiro)": "ba416ddcd8e28742",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: PuncoesPageTests.Folha_TodasAsCelulasComONumeroEALinhaDoLote": "91b027d0f8ea6fc2",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: PuncoesPageTests.Identificacao_SemLinhaNemProcesso_ETotais_ComReserva": "8a3a26537a6f0705",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: (resto do ficheiro)": "0ae083c9361a6a6c",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_DaLinha_DitamAsPosicoesDeCadaSeccao_NaFolhaENoPdf": "9e93e52130e690b8",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_NasDefinicoes_B1Com4EC3Com3PorOmissao_GravamSeERecusamForaDe1a4": "605ea5813142e34b",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.LoteNoBrowser.cs :: (resto do ficheiro)": "28f3ea116b77389c",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.LoteNoBrowser.cs :: PuncoesPageTests.Identificacao_OCampoDoLoteVaiParaOBrowser": "1ffcd663cbe60e9c",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: (resto do ficheiro)": "75ee902a47b100c9",
