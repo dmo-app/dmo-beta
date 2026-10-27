@@ -3836,3 +3836,36 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
 
 Selo depois: `1816215d3d43701f`
+
+## A-0227 · 2026-10-27 · contagem-lista
+
+Porquê: Estrutura fixa dos painéis deslizantes e das páginas (DMO-485): testes novos do painel de apoio na estrutura, da marcação da página (<dmo-pagina>), da folha dmo-estrutura.css, do dmo-painel.js e do Job On dentro do painel (título, largura, folha sem título repetido); o package.json do ShellProof só ganha o ficheiro novo na lista
+Referência: pedidos do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXQ2rXx1BrfWwyZwQTG7mM6 e cmsg_01K75FTs9bQnbhhH7qttpgraPV7XbiRJ1Gyqk2HTcdouiD
+Novos: 9 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Pagina_TopoComTituloEAcoesECorpo`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelDeApoio_TemOEsqueletoFixo`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel com confirmar: com o formulário mudado pede antes de fechar`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel: Escape fecha (o «cancel» do <dialog>) e DmoPainel abre por código`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel: o botão abre, o «Fechar» fecha e o foco volta ao botão`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `a66892ce2862276f`
+
+## A-0226 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem botões nas linhas: o × sai dos Pegamentos («Apagar leitura» no canto com a leitura aberta) e das Punções («Remover» no canto, a linha escolhe)
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraRuMahsuiuussnrEx189C1j («perfeito» ao pedido cmsg_01K75FTs9bQnbhhH7qttpgra6Q9srV4paLFsRUhndLXmSD)
+Novos: 0 · mudaram: 5 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.Readings_EditByClickingTheValue_DeleteWithTheX_Renumbers`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `37a5c3540b1e3b39`
