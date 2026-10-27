@@ -64,8 +64,30 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
         {
             (items, _) = await SearchCoreAsync(filtro, tipo, semJobOn, page * pageSize, cancellationToken);
         }
-        return new PagedList<ControloHistorySearchItem>(
-            items.Skip((page - 1) * pageSize).Take(pageSize).ToList(), total, page, pageSize);
+        var pagina = await ComPosicaoAsync(items.Skip((page - 1) * pageSize).Take(pageSize).ToList(), cancellationToken);
+        return new PagedList<ControloHistorySearchItem>(pagina, total, page, pageSize);
+    }
+
+    /// <summary>
+    /// A posição do armazém onde a CM de cada linha está agora (Diogo,
+    /// 27/10/2026: «o estado se for guardado mostra a posição»).
+    /// </summary>
+    private async Task<List<ControloHistorySearchItem>> ComPosicaoAsync(
+        List<ControloHistorySearchItem> items, CancellationToken cancellationToken)
+    {
+        var ids = items.Select(i => i.CmToolId).OfType<string>().Distinct().ToList();
+        if (ids.Count == 0)
+        {
+            return items;
+        }
+
+        var posicoes = await (
+            from o in _db.ArmazemOcupacoes.AsNoTracking()
+            join p in _db.ArmazemPosicoes.AsNoTracking() on o.PosicaoId equals p.Id
+            where o.LibertadaEmUtc == null && ids.Contains(o.ToolId)
+            select new { o.ToolId, p.Codigo }).ToListAsync(cancellationToken);
+        var porTool = posicoes.GroupBy(x => x.ToolId).ToDictionary(g => g.Key, g => g.First().Codigo);
+        return items.Select(i => i.CmToolId is { } id && porTool.TryGetValue(id, out var codigo) ? i with { CmPosicao = codigo } : i).ToList();
     }
 
     public async Task<JobOnProductionOption?> ProducaoDaReferenciaAsync(
@@ -303,6 +325,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 p.CmToolLotFrozen,
                 ToolReference = t.Reference,
                 ToolLot = t.Lot,
+                CmToolId = t.ToolId,
                 // Os Pesos da produção (18/10/2026): com mais do que um (a
                 // CM ou a BQ trocou a meio), a linha diz também a BQ do Peso.
                 Pesos = _db.Pesos.Count(x => x.ControloId == p.ControloId),
@@ -365,7 +388,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 row.Machine,
                 toolLabel,
                 Utc(row.RegistadoEmUtc),
-                resumo);
+                resumo) { CmToolId = row.CmToolId };
         }).ToList(), total);
     }
 
@@ -398,6 +421,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 j.Reference,
                 j.ProductionNumber,
                 Machine = m.Code,
+                g.CmToolId,
                 g.CmToolReferenceFrozen,
                 g.CmToolLotFrozen,
                 g.BqToolReferenceFrozen,
@@ -439,7 +463,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                     + (row.MfToolReferenceFrozen is { } mf ? $" · MF {mf}{ComLote(row.MfToolLotFrozen)}" : "")),
             Utc(row.RegistadoEmUtc),
             string.Create(DmoNumberFormat.Culture,
-                $"{(contagem.TryGetValue(row.RegistroId, out var n) ? n : 0)} medições · corredor ±{row.ToleranceMm:0.00} mm"))).ToList(), total);
+                $"{(contagem.TryGetValue(row.RegistroId, out var n) ? n : 0)} medições · corredor ±{row.ToleranceMm:0.00} mm")) { CmToolId = row.CmToolId }).ToList(), total);
     }
 
     private static string ComLote(string? lote) => lote is null ? "" : $" · Lote {lote}";
@@ -493,6 +517,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 Machine = m.Code,
                 ToolReference = t != null ? t.Reference : null,
                 ToolLot = t != null ? t.Lot : null,
+                CmToolId = t != null ? t.ToolId : null,
                 c.ApprovedAtUtc,
                 c.ApprovedByOperatorId,
                 c.NotApprovedAtUtc,
@@ -515,7 +540,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             row.ApprovedAtUtc ?? row.NotApprovedAtUtc,
             row.ApprovedAtUtc is not null ? $"Aprovado por {row.Nome ?? row.ApprovedByOperatorId ?? "—"}"
             : row.NotApprovedAtUtc is not null ? $"Não aprovado por {row.Nome ?? row.NotApprovedByOperatorId ?? "—"}{NotaCurta(row.ReviewNote)}"
-            : "Por aprovar")).ToList(), total);
+            : "Por aprovar") { CmToolId = row.CmToolId }).ToList(), total);
     }
 
     /// <summary>A nota do «Não aprovar» cabe na linha da lista; inteira, no Resumo.</summary>
@@ -557,6 +582,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 p.Id,
                 CmReference = p.CmToolReferenceFrozen ?? (t != null ? t.Reference : null),
                 CmLot = p.CmToolLotFrozen ?? (t != null ? t.Lot : null),
+                CmToolId = t != null ? t.ToolId : null,
                 Leituras = _db.PesoMeasurements.Count(x => x.PesoId == p.Id),
                 p.RegistadoEmUtc
             }, limit, cancellationToken);
@@ -570,7 +596,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             "—",
             $"CM {row.CmReference ?? "—"} · Lote {row.CmLot ?? "—"}",
             Utc(row.RegistadoEmUtc),
-            row.Leituras == 0 ? "sem leituras" : $"{row.Leituras} leituras")).ToList(), total);
+            row.Leituras == 0 ? "sem leituras" : $"{row.Leituras} leituras") { CmToolId = row.CmToolId }).ToList(), total);
     }
 
     /// <summary>
@@ -602,6 +628,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             select new
             {
                 g.Id,
+                g.CmToolId,
                 g.CmToolReferenceFrozen,
                 g.CmToolLotFrozen,
                 g.BqToolReferenceFrozen,
@@ -622,7 +649,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 ? $"CM {row.CmToolReferenceFrozen} · Lote {row.CmToolLotFrozen ?? "—"}"
                 : row.BqToolReferenceFrozen is not null ? $"BQ {row.BqToolReferenceFrozen}" : $"MF {row.MfToolReferenceFrozen ?? "—"}",
             Utc(row.RegistadoEmUtc),
-            string.Create(DmoNumberFormat.Culture, $"{row.Medicoes} medições · corredor ±{row.ToleranceMm:0.00} mm"))).ToList(), total);
+            string.Create(DmoNumberFormat.Culture, $"{row.Medicoes} medições · corredor ±{row.ToleranceMm:0.00} mm")) { CmToolId = row.CmToolId }).ToList(), total);
     }
 
     /// <summary>O texto do nº de produção dos registos sem Job On.</summary>
@@ -663,6 +690,7 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
                 j.Reference,
                 j.ProductionNumber,
                 Machine = m.Code,
+                x.CmToolId,
                 x.CmToolReferenceFrozen,
                 x.CmToolLotFrozen,
                 x.CreatedAtUtc
@@ -691,6 +719,6 @@ public sealed class ControloHistorySearchQuery : IControloHistorySearchQuery
             row.Machine,
             $"CM {row.CmToolReferenceFrozen ?? "—"} · Lote {row.CmToolLotFrozen ?? "—"}",
             row.CreatedAtUtc,
-            $"{(contagem.TryGetValue(row.RegistroId, out var n) ? n : 0)} contra-moldes")).ToList(), total);
+            $"{(contagem.TryGetValue(row.RegistroId, out var n) ? n : 0)} contra-moldes") { CmToolId = row.CmToolId }).ToList(), total);
     }
 }
