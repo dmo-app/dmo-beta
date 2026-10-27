@@ -274,7 +274,7 @@ html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):
 /* das notas com duas linhas (o resto lê-se a deslizar ou ampliada,    */
 /* com um clique) e o nome da conta em duas linhas sem alargar o topo. */
 /* ------------------------------------------------------------------ */
-@media (min-width:1100px){
+@media screen and (min-width:1100px){
   /* O nome e o título do template em duas linhas cabem na altura da barra. */
   html body .dmo-shell-header .dmo-shell-conta{gap:1px;margin-block:2px}
   html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{line-height:1.15}
@@ -305,7 +305,7 @@ html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):
 /* mais à frente»). Os cartões das produções ficam com mais espaço.    */
 /* Só a faixa com subtítulo (a das Boquilhas não tem).                 */
 /* ------------------------------------------------------------------ */
-@media (min-width:801px){
+@media screen and (min-width:801px){
   html body .beta-production-rail:has(>.beta-production-rail-head>span){padding-left:8px;gap:10px}
   html body .beta-production-rail-head:has(>span){display:flex;flex-direction:column;align-items:flex-start;gap:2px;max-width:178px;padding-right:12px}
   html body .beta-production-rail-head:has(>span)>span{display:block;font-size:11px;line-height:14px;white-space:normal}
@@ -315,9 +315,11 @@ html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):
 /* cartão escolhido na faixa do Planeamento (Diogo, 27/10/2026: «hover   */
 /* não funciona como devido»). Sem o azul genérico das listas e sem a    */
 /* barra verde à esquerda; o texto passa à cor sobre a cor da linha.     */
+@media screen{
 html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover{background:var(--dmo-machine-color);box-shadow:none;color:var(--dmo-text-on-color)}
 html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover :is(strong,span,a){color:var(--dmo-text-on-color)}
 html:root body .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:transparent}
+}
 
 /* ------------------------------------------------------------------ */
 /* Calendários (Planeamento, Revisão, Boquilhas › Movimentos — todos o */
@@ -329,9 +331,25 @@ html:root body .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-
 /* (--dmo-brand-800). O dia escolhido continua cheio e o de hoje a     */
 /* negrito; o foco pelo teclado mantém o seu contorno.                 */
 /* ------------------------------------------------------------------ */
+@media screen{
 html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected){border:0;border-radius:6px;background:none;box-shadow:none}
 html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){border:0;background:none;box-shadow:none;color:var(--dmo-brand-600)}
 html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day).has:not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){color:var(--dmo-brand-800)}
 html:root[data-theme="dark"] body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):not(.empty):not(.selected):not(.is-selected):is(:hover,:focus-visible){color:#fff}
 html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty){border:0;box-shadow:none}
 html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty):is(:hover,:focus-visible){background:var(--dmo-brand-600);border:0;box-shadow:none;color:var(--dmo-text-on-color)}
+}
+
+/* Job On › Editar / Novo / Duplicar: o topo (título, Referência,        */
+/* Produção, Cancelar/Guardar e a faixa B1/Início/Fim…) já não fica      */
+/* preso ao deslizar; a página desliza toda junta (Diogo, 27/10/2026:    */
+/* «isto mexe no scrolldown, fica confuso, deixar fixo»).                */
+@media screen{html:root body .jof2.editing .page-head{position:static;top:auto;z-index:auto}}
+
+/* Job On › Folha (ver, Editar, Novo, Duplicar): os cartões dos          */
+/* componentes mais estreitos para o Artigo, as Notas gerais e o PI      */
+/* terem mais espaço (Diogo, 27/10/2026: «reduzir largura para Artigo e  */
+/* Notas gerais terem mais espaço»). Coluna da direita 200 → 270 px.     */
+@media screen and (min-width:1181px){
+  html:root body .jof2.jof2 .sheet,html:root body .jof2.jof2.editing .sheet{grid-template-columns:minmax(0,1fr) 270px!important}
+}
