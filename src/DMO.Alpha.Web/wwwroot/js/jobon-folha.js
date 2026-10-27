@@ -441,6 +441,25 @@
       });
     }
     document.body.appendChild(caixa);
+    // A letra é grande (Diogo, 27/10/2026); se uma folha tiver texto a mais para
+    // o A4, a letra dessa folha encolhe só o preciso, para nada ficar cortado. A caixa
+    // só aparece na impressão; mede-se fora do ecrã.
+    caixa.style.cssText = 'display:block;position:absolute;left:-10000px;top:0';
+    caixa.querySelectorAll('.jfi-folha').forEach(function (f) {
+      var a4 = f.getBoundingClientRect().height;
+      var todos = [f].concat(Array.prototype.slice.call(f.querySelectorAll('*')));
+      for (var vez = 0; vez < 6; vez++) {
+        f.style.height = 'auto';
+        var precisa = f.getBoundingClientRect().height;
+        f.style.height = '';
+        if (!(precisa > a4 + 1)) break;
+        // Só a letra encolhe (as margens ficam): por isso pode precisar de mais de uma volta.
+        var k = a4 / precisa;
+        var tamanhos = todos.map(function (e) { return parseFloat(getComputedStyle(e).fontSize); });
+        todos.forEach(function (e, i) { e.style.fontSize = (tamanhos[i] * k) + 'px'; });
+      }
+    });
+    caixa.style.cssText = '';
     document.documentElement.setAttribute('data-jof-imprimir-folhas', '');
     var limpar = function () {
       document.documentElement.removeAttribute('data-jof-imprimir-folhas');
