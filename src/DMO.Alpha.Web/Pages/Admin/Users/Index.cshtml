@@ -38,13 +38,7 @@ html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{
    o foco fica no campo ou no botão onde estava. O email e o PIN temporário
    ficam na pilha do canto (data-dmo-toast="aviso", até se fechar), sem
    empurrar o formulário. A ficha de cada utilizador abre a página inteira. *@
-<main data-dmo-troca class="dmu-page" aria-labelledby="dmu-title">
-
-  <div class="page-head">
-    <div>
-      <h1 id="dmu-title">Utilizadores</h1>
-    </div>
-  </div>
+<dmo-pagina titulo="Utilizadores" titulo-id="dmu-title" data-dmo-troca class="dmu-page" aria-labelledby="dmu-title">
 
   @* ------------------------------------------------------------------ *@
   @* Resultado UMA-VEZ do criar: email + password temporária (TempData). *@
@@ -226,4 +220,4 @@ html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{
     }
   </section>
 
-</main>
+</dmo-pagina>
