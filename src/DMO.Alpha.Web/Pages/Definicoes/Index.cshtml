@@ -56,6 +56,8 @@ html body .ctl-def-grade[hidden]{display:none}
 /* Duas colunas que se enchem de cima para baixo: sem buracos entre cartões de alturas diferentes (Diogo, 26/10/2026: «evitar deixar espaços vazios»). */
 .def-pastas{column-count:2;column-gap:14px}
 .def-pastas > .dmo-card{display:block;break-inside:avoid;margin:0 0 14px;width:100%;max-width:none;padding:16px 18px;box-sizing:border-box}
+/* Um cartão só com dois ou três campos fica do tamanho deles, não de meia página (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraMkSqhn27TMM33AJPvkadUE). */
+:is(#ctlDefDensidade,#ctlDefTolerancia,#riDefViragem){justify-self:start;width:fit-content;min-width:320px;max-width:100%}
 .adm-app-cartoes{align-items:stretch}
 .adm-card{padding:16px 18px;min-width:0;margin:0}
 .adm-card h3{margin:0 0 12px;font-size:16px}
