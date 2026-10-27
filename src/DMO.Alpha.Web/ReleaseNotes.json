@@ -436,6 +436,7 @@
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
-    { "id": "DMO-P03", "module": "Pegamentos", "description": "Correção de leituras com histórico e criação explícita de controlos adicionais na mesma produção." }
+    { "id": "DMO-P03", "module": "Pegamentos", "description": "Correção de leituras com histórico e criação explícita de controlos adicionais na mesma produção." },
+    { "id": "DMO-467", "module": "Definições", "description": "0.3.0-beta.163: em Definições › Gerais da fábrica › Controlo, a densidade do vidro, a tolerância dos Pegamentos, as secções das PU NNPB e o envio por email ficam todos na mesma vista, em duas colunas, sem as partes Peso, Pegamentos, PU NNPB e Email e sem círculos de ajuda nos títulos." }
   ]
 }
