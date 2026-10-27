@@ -118,8 +118,12 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
     var config = serviceProvider.GetRequiredService<IConfiguration>();
     var databaseConnection = config.GetConnectionString("DmoDatabase");
     if (!string.IsNullOrWhiteSpace(databaseConnection))
-        options.UseNpgsql(databaseConnection, npgsql =>
-            npgsql.MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName));
+        // SingleQuery escrito (era já o que o EF fazia): sem isto, cada consulta
+        // com mais de uma lista incluída dava o aviso QuerySplittingBehavior
+        // no registo (teste do ensaio, 27/10/2026).
+        options.UseNpgsql(databaseConnection, npgsql => npgsql
+            .MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName)
+            .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
     else if (builder.Environment.IsDevelopment())
         // Preserve the existing local Development/test seam.
         options.UseInMemoryDatabase("DmoAlphaModule1");
@@ -127,8 +131,9 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
         // Register the real provider without inventing a connection. Login and
         // the error page remain available; database operations fail explicitly
         // until deployment configuration supplies the PostgreSQL connection.
-        options.UseNpgsql(npgsql =>
-            npgsql.MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName));
+        options.UseNpgsql(npgsql => npgsql
+            .MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName)
+            .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
 });
 
 // -------------------------------------------------------------------------
@@ -576,7 +581,20 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseStaticFiles();
+// Os ficheiros com a marca de versão (asp-append-version, ?v=…) guardam-se
+// um ano: a marca muda quando o ficheiro muda, por isso uma versão nova da app
+// pede logo o ficheiro novo. Os outros (o logótipo, a letra) perguntam sempre
+// ao servidor se mudaram, para nunca ficar um antigo depois de uma atualização
+// (vistoria ao frontend F1, 27/10/2026).
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ficheiro =>
+    {
+        ficheiro.Context.Response.Headers.CacheControl = ficheiro.Context.Request.Query.ContainsKey("v")
+            ? "public, max-age=31536000, immutable"
+            : "no-cache";
+    },
+});
 
 // O navegador pede /favicon.ico sozinho; serve o logótipo em vez de dar 404.
 app.MapGet("/favicon.ico", (IWebHostEnvironment env) =>

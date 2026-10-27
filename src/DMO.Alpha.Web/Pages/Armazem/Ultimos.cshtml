@@ -42,7 +42,8 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
   <div class="arm-mov">
     <section id="armRepFora" class="dmo-card arm-card" aria-labelledby="arm-rep-fora-title" data-dmo-regiao>
       <div class="arm-card-head">
-        <h3 id="arm-rep-fora-title">Fora, em reparação<partial name="_DmoHelp" model="@("As CM e os MF cujo último movimento no armazém é uma Saída para Reparação: o reparador e o dia em que saiu. As BQ seguem-se nas Boquilhas." + (Model.AbreFicha ? " Um clique na linha abre a ficha da ferramenta." : ""))" /></h3>
+        @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+        <h3 id="arm-rep-fora-title" title="@("As CM e os MF cujo último movimento no armazém é uma Saída para Reparação: o reparador e o dia em que saiu. As BQ seguem-se nas Boquilhas." + (Model.AbreFicha ? " Um clique na linha abre a ficha da ferramenta." : ""))">Fora, em reparação</h3>
       </div>
       @if (Model.Fora.Count == 0)
       {
@@ -86,7 +87,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
 
     <section id="armMovimentos" class="dmo-card arm-card" aria-labelledby="arm-mov-lista-title" data-dmo-regiao data-dmo-parcial>
       <div class="arm-card-head">
-        <h3 id="arm-mov-lista-title">Últimas entradas e saídas<partial name="_DmoHelp" model="@("Todas as entradas e saídas do armazém, do mais recente para o mais antigo. Na Entrada, a posição onde ficou; na Saída para Reparação e na Entrada que volta dela, o reparador. Os filtros aplicam ao escolher; a referência e o lote com Enter.")" /></h3>
+        <h3 id="arm-mov-lista-title" title="Todas as entradas e saídas do armazém, do mais recente para o mais antigo. Na Entrada, a posição onde ficou; na Saída para Reparação e na Entrada que volta dela, o reparador. Os filtros aplicam ao escolher; a referência e o lote com Enter.">Últimas entradas e saídas</h3>
         @if (Model.ComFiltro)
         {
           <a class="dmo-button" id="armMovLimpar" href="@Url.Page("/Armazem/Ultimos")">Limpar filtros</a>

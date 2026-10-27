@@ -5,6 +5,7 @@
            «sempre canto superior direito dentro dos cards»); é o botão do
            formulário (form="admEmailForm"). *@
         <div class="dmo-card-topo">
+            @* Esta dica fica: o teste do browser das Definições (tests/visual/definicoes_parcial_browser.py) mede-a. *@
             <h3 id="admin-email-title">Email do ADMIN<partial name="_DmoHelp" model="@("O ADMIN é este email: quem entra com ele por email fica ADMIN. Só se aceita o email atual ou o de um utilizador já criado em Admin → Utilizadores, para haver sempre alguém que consiga entrar. Num ambiente novo, o primeiro login por email com sucesso assume o campo. Mudar o valor termina a sessão do ADMIN anterior no pedido seguinte.")" /></h3>
             <div class="dmo-card-topo-acoes">
                 <button type="submit" class="dmo-button" id="admEmailGuardar" form="admEmailForm">Guardar</button>
@@ -27,7 +28,8 @@
     </section>
     <section id="admPin" class="dmo-card adm-card" aria-labelledby="admin-pin-title" data-dmo-regiao data-dmo-parcial>
         <div class="dmo-card-topo">
-            <h3 id="admin-pin-title">PIN das Definições<partial name="_DmoHelp" model="@($"Abre o cadeado da parte Geral das Definições para quem não é ADMIN: quem o escreve pode mudar as definições gerais até sair. De {DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Minimo} a {DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Maximo} algarismos. Guarda-se cifrado; mudar o PIN fecha os cadeados abertos.")" /></h3>
+            @* Sem o círculo da ajuda no título (Diogo, 27/10/2026); o texto passa ao title do título. *@
+            <h3 id="admin-pin-title" title="@($"Abre o cadeado da parte Geral das Definições para quem não é ADMIN: quem o escreve pode mudar as definições gerais até sair. De {DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Minimo} a {DMO.Alpha.Core.Admin.PinDasDefinicoesRegras.Maximo} algarismos. Guarda-se cifrado; mudar o PIN fecha os cadeados abertos.")">PIN das Definições</h3>
             <div class="dmo-card-topo-acoes">
                 <button type="submit" class="dmo-button" id="admPinGuardar" form="admPinForm">@(Model.TemPin ? "Mudar" : "Criar")</button>
             </div>

@@ -450,24 +450,11 @@
     window.addEventListener('afterprint', limpar);
     window.print();
   };
-  // O botão Imprimir abre a lista das folhas quando a página as tem; sem
-  // lista, imprime o ecrã como antes.
+  // O botão Imprimir imprime as folhas todas.
   function imprimir() {
     var id = function () { var m = /jobon_id=(\d+)/.exec(location.search); return m ? Number(m[1]) : null; };
     document.querySelectorAll('[data-jof-imprimir]').forEach(function (b) {
-      var lista = b.parentElement && b.parentElement.querySelector('[data-jof-imprimir-lista]');
-      var fechar = function () { lista.hidden = true; b.setAttribute('aria-expanded', 'false'); };
-      b.addEventListener('click', function () {
-        if (!lista) { window.dmoJobOnImprimir(id(), 'todas'); return; }
-        lista.hidden = !lista.hidden;
-        b.setAttribute('aria-expanded', String(!lista.hidden));
-      });
-      if (!lista) return;
-      lista.querySelectorAll('[data-jof-imprimir-folha]').forEach(function (f) {
-        f.addEventListener('click', function () { fechar(); window.dmoJobOnImprimir(id(), f.getAttribute('data-jof-imprimir-folha')); });
-      });
-      document.addEventListener('click', function (e) { if (!b.parentElement.contains(e.target)) fechar(); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fechar(); });
+      b.addEventListener('click', function () { window.dmoJobOnImprimir(id(), 'todas'); });
     });
   }
   // CS · Furos no Editar: dois dígitos (abertos, fechados) vão para o campo cs_furos
@@ -599,6 +586,20 @@
       else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
     });
     document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
+    // Em vista, a «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026):
+    // um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
+    if (folha.getAttribute('data-jof-folha') === 'editar') return;
+    const tecnicas = () => folha.querySelectorAll('.sec > details.more[open]');
+    folha.addEventListener('toggle', (e) => {
+      if (!e.target.matches?.('.sec > details.more') || !e.target.open) return;
+      tecnicas().forEach(d => { if (d !== e.target) d.open = false; });
+    }, true);
+    document.addEventListener('click', (e) => {
+      tecnicas().forEach(d => { if (!d.contains(e.target)) d.open = false; });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') tecnicas().forEach(d => { d.open = false; });
+    });
   }
 
   // REMOVER POR ENGANO (Diogo, 23/10/2026): clicar numa linha de «O que

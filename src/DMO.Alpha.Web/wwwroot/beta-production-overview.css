@@ -28,7 +28,7 @@
 .beta-light-productions .beta-light-machine-empty strong{font-size:14px}
 .beta-light-productions .beta-light-production>.beta-light-lot-note{font-size:12.5px;color:var(--dmo-muted,#66809a)}
 .beta-light-machine-row:has(input:checked) .beta-light-production>.beta-light-lot-note{color:var(--dmo-text-on-color)}
-.jobon-lote-form{display:grid;grid-template-columns:160px minmax(0,1fr) minmax(0,1.4fr);gap:12px;margin-top:12px}.jobon-lote-form label{font-size:13px;font-weight:750}.jobon-lote-form :is(input,select){display:block;width:100%;min-height:40px;margin-top:6px;padding:8px;border:1px solid var(--dmo-border);border-radius:8px;box-sizing:border-box}
+
 /* «O que mudou» (o proprietário, 17/10/2026): o resumo no topo da ficha, aberto, que se minimiza como o «Mais detalhes»; cada mudança com a sua ação; a marca na linha do dia. */
 .jobon-mudancas{margin:0 0 16px}.jobon-mudancas>summary{font-size:13px;cursor:pointer;color:var(--dmo-muted,#66809a)}
 .jobon-resumo{margin:10px 0 2px;padding:0;list-style:none;display:grid;gap:8px}.jobon-resumo li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:var(--dmo-subtle,#f1f6fa);border-left:4px solid var(--dmo-warning,#c98a14);border-radius:8px}.jobon-resumo li>div{display:grid;gap:3px;min-width:0}.jobon-resumo strong{font-size:14px}.jobon-resumo span{font-size:12.5px;color:var(--dmo-muted,#66809a)}
@@ -40,10 +40,7 @@
 .beta-light-machine-row:has(input:checked) .beta-light-next{color:var(--dmo-text-on-color)}
 @media(max-width:700px){.beta-light-productions .beta-light-production>.beta-light-next{white-space:normal}.beta-light-productions .beta-light-production>.beta-light-next:empty{display:none}.beta-light-machine-empty-linha>.beta-light-next{white-space:normal;padding-right:8px}}
 /* Só o texto amarelo, sem pill (o Diogo, 18/10/2026: «deixar apenas o texto amarelo, não usar constantemente pills»). */
-.beta-light-changes{margin-left:8px;font-size:12.5px;font-weight:700;color:var(--dmo-amber)}
-.beta-light-machine-row:has(input:checked) .beta-light-changes{color:#ffe08a}
 @media(max-width:700px){.jobon-resumo li{flex-direction:column;align-items:stretch}}
-@media(max-width:700px){.jobon-lote-form{grid-template-columns:1fr}}
 .beta-light-productions .beta-light-production>strong{color:var(--dmo-brand-900);font-size:14px}.beta-light-productions .beta-light-production>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:700px){.beta-light-productions .beta-light-production{grid-template-columns:38px minmax(0,1fr);gap:4px 10px}.beta-light-productions .beta-light-production>span{grid-column:2}.beta-light-productions .beta-light-production>.beta-light-lot-note:empty{display:none}}
 

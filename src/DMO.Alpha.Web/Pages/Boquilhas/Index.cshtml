@@ -129,7 +129,8 @@
                   {
                     <dialog id="bq-alterar-lote" class="dmo-dialog" aria-labelledby="bq-alterar-lote-titulo">
                       <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="AlterarLote">
-                        <h3 id="bq-alterar-lote-titulo">Alterar lote<partial name="_DmoHelp" model="@("A BQ desta produção passa para o lote escolhido. Os movimentos já registados ficam no lote antigo e o Job On guarda os dois lotes.")" /></h3>
+                        @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+                        <h3 id="bq-alterar-lote-titulo" title="A BQ desta produção passa para o lote escolhido. Os movimentos já registados ficam no lote antigo e o Job On guarda os dois lotes.">Alterar lote</h3>
                         <input type="hidden" name="alterar_bq_id" value="@trace.BqContextId" />
                         @if (lotes.Outros.Count == 0)
                         {
@@ -223,7 +224,7 @@
                    sweep). Assim uma escolha errada com o rato corrige-se antes. *@
                 <div class="card-head" style="margin-bottom:10px">
                   <div>
-                    <h3 style="margin:0">Associar Job On a este registo<partial name="_DmoHelp" model="@("Escreva a referência e escolha-a nas sugestões (ou carregue em Enter). Depois escolha a produção dela e carregue em «Associar». Os movimentos, as datas e o lote mantêm-se.")" /></h3>
+                    <h3 style="margin:0" title="Escreva a referência e escolha-a nas sugestões (ou carregue em Enter). Depois escolha a produção dela e carregue em «Associar». Os movimentos, as datas e o lote mantêm-se.">Associar Job On a este registo</h3>
                   </div>
                   @if (Model.AssociateProductions.Count > 0)
                   {
@@ -352,7 +353,7 @@
                 <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
               }
               <div class="dmo-card-topo">
-                <h3>Registar Entrada ou Saída<partial name="_DmoHelp" model="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")" /></h3>
+                <h3 title="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")">Registar Entrada ou Saída</h3>
               </div>
               @* SEM FOCO AUTOMÁTICO no tipo (Diogo, 22/10/2026): ao voltar do
                  Histórico pelo painel lateral, a «Saída» aparecia com o anel
@@ -398,7 +399,7 @@
         @if (trace is not null)
         {
           <div class="card bq-metrics-card" id="bqMetrics">
-            <h3>Valores desta boquilha / lote<partial name="_DmoHelp" model="@("Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.")" /></h3>
+            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Valores desta boquilha / lote</h3>
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
                dmo-html: «Quantidade do lote — Fabricação — Em reparação —
                Discrepância acumulada»): TODOS os valores vêm do backend (a
@@ -425,7 +426,7 @@
               <div class="dmo-modal-backdrop open" id="bqDiscrepancyReset" role="dialog" aria-modal="true" aria-labelledby="bqDiscrepancyResetTitle">
                 <div class="dmo-modal bq-reset-modal">
                   <div class="dmo-modal-head">
-                    <h2 id="bqDiscrepancyResetTitle">Meter a discrepância a zero?<partial name="_DmoHelp" model="@("A discrepância acumulada passa a 0 e conta só os movimentos com data e hora depois de agora. Os movimentos, o saldo de cada linha e o «Em reparação» ficam como estão.")" /></h2>
+                    <h2 id="bqDiscrepancyResetTitle" title="A discrepância acumulada passa a 0 e conta só os movimentos com data e hora depois de agora. Os movimentos, o saldo de cada linha e o «Em reparação» ficam como estão.">Meter a discrepância a zero?</h2>
                   </div>
                   <div class="dmo-modal-body">
                     <p>BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}") · discrepância acumulada @toReset</p>
@@ -459,7 +460,7 @@
                exibido como facto). *@
               <div class="card-head bq-latest-head" id="bqLatest">
                 <div>
-                  <h3>Últimos movimentos desta boquilha / produção<partial name="_DmoHelp" model="@("Mais recentes primeiro, pela data e hora reais (à mesma hora, a saída conta antes da entrada), seja qual for a ordem em que foram registados; as contas refazem-se a cada movimento. O Saldo só aparece numa Entrada excecional e é negativo quando regressa mais quantidade do que pode ser justificada pelas Saídas anteriores. Não é o stock.")" /></h3>
+                  <h3 title="Mais recentes primeiro, pela data e hora reais (à mesma hora, a saída conta antes da entrada), seja qual for a ordem em que foram registados; as contas refazem-se a cada movimento. O Saldo só aparece numa Entrada excecional e é negativo quando regressa mais quantidade do que pode ser justificada pelas Saídas anteriores. Não é o stock.">Últimos movimentos desta boquilha / produção</h3>
                 </div>
                 @if (trace.MovementCount > 0)
                 {
@@ -509,7 +510,7 @@
                 <div class="dmo-modal-backdrop open" id="bqCorrectMovements" role="dialog" aria-modal="true" aria-labelledby="bqCorrectTitle">
                   <div class="dmo-modal bq-correct-modal">
                     <div class="dmo-modal-head">
-                      <h2 id="bqCorrectTitle">Corrigir movimentos — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")<partial name="_DmoHelp" model="@($"Um clique abre o movimento para corrigir ou apagar. Ao apagar, a contagem e as discrepâncias do registo são recalculadas pela data real.")" /></h2>
+                      <h2 id="bqCorrectTitle" title="@($"Um clique abre o movimento para corrigir ou apagar. Ao apagar, a contagem e as discrepâncias do registo são recalculadas pela data real.")">Corrigir movimentos — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</h2>
                       @* O foco na janela: no tipo do movimento aberto, senão no «Fechar». *@
                       <a class="btn bq-correct-close" autofocus="@(Model.EditingMovement is null ? "autofocus" : null)" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: false))#bqLatest">Fechar</a>
                     </div>
@@ -694,8 +695,8 @@
           }
         }
         <div class="page-head">
-          <div>
-            <h2>Movimentos<partial name="_DmoHelp" model="@("Todos os movimentos, incluindo produções já retiradas do painel. A vista, a máquina, o tipo e as datas aplicam-se logo; a pesquisa e o reparador aplicam-se ao escrever. O mês muda-se no calendário.")" /></h2>
+          <div title="Todos os movimentos, incluindo produções já retiradas do painel. A vista, a máquina, o tipo e as datas aplicam-se logo; a pesquisa e o reparador aplicam-se ao escrever. O mês muda-se no calendário.">
+            <h2>Movimentos</h2>
           </div>
           <div class="bq-page-actions"></div>
         </div>
@@ -791,7 +792,7 @@
           <div class="card bq-history-day">
             <div class="bq-history-day-grid">
               <div id="bqHistDia" class="bq-day-summary" data-dmo-regiao>
-                <h3>@(Model.HistoryDay is { } titleDay ? $"Registo da {titleDay:dd/MM/yyyy}" : "Registo do dia")<partial name="_DmoHelp" model="@(Model.OnlyView ? "Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por linha. Clique outra vez no dia escolhido para tirar a seleção." : "Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por máquina. Clique outra vez no dia escolhido para tirar a seleção. Um clique ou Enter numa ficha abre-a com a produção, a máquina e todos os movimentos.")" /></h3>
+                <h3 title="@(Model.OnlyView ? "Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por linha. Clique outra vez no dia escolhido para tirar a seleção." : "Clique num dia do calendário para ver as fichas de BQ usadas nesse dia, por máquina. Clique outra vez no dia escolhido para tirar a seleção. Um clique ou Enter numa ficha abre-a com a produção, a máquina e todos os movimentos.")">@(Model.HistoryDay is { } titleDay ? $"Registo da {titleDay:dd/MM/yyyy}" : "Registo do dia")</h3>
                 @if (Model.HistoryDay is null)
                 {
                   <p class="muted">Escolha um dia no calendário.</p>

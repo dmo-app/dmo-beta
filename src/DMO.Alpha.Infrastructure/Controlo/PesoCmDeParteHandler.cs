@@ -112,10 +112,6 @@ public sealed class PesoCmDeParteHandler(DmoDbContext db)
             await db.SaveChangesAsync(cancellationToken);
             return CmDeParteResultado.Gravado;
         }, cancellationToken);
-
-    /// <summary>Quantas CM postas de parte esperam pela aprovação.</summary>
-    public Task<int> ContarPorAprovarAsync(CancellationToken cancellationToken) =>
-        db.PesoComparacaoCmDecisoes.CountAsync(d => d.DeParte && d.Aprovado == null, cancellationToken);
 }
 
 /// <summary>A escolha de uma CM medida numa comparação; DeParte null = ainda sem escolha.</summary>
@@ -128,11 +124,7 @@ public sealed record CmDecisaoLinha(
     DateTime? EscolhidoEmUtc,
     bool? Aprovado,
     string? AprovadoPor,
-    DateTime? AprovadoEmUtc)
-{
-    /// <summary>Posta de parte e ainda sem decisão de quem aprova.</summary>
-    public bool PorAprovar => DeParte == true && Aprovado is null;
-}
+    DateTime? AprovadoEmUtc);
 
 public enum CmDeParteResultado
 {

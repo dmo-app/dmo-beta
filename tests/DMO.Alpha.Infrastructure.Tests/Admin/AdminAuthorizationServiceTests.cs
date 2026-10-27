@@ -126,7 +126,7 @@ public sealed class AdminAuthorizationServiceTests : IDisposable
 
         Assert.NotNull(access);
         Assert.Empty(access!.Capabilities);
-        Assert.False(access.HasCapability(DmoCapabilities.JobOnCreate));
+        Assert.False(access.Capabilities.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal));
         Assert.Null(access.TemplateId);
         Assert.Null(access.TemplateKey);
         Assert.Null(access.TemplateName);
@@ -151,9 +151,9 @@ public sealed class AdminAuthorizationServiceTests : IDisposable
         Assert.Equal(template.Id, access!.TemplateId);
         Assert.Equal("tpl-responsavel-operacional", access.TemplateKey);
         Assert.Equal("Responsável Operacional", access.TemplateName);
-        Assert.True(access.HasCapability(DmoCapabilities.JobOnCreate));
-        Assert.True(access.HasCapability(DmoCapabilities.ControloApprove));
-        Assert.False(access.HasCapability(DmoCapabilities.ControloCreate));
+        Assert.True(access.Capabilities.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal));
+        Assert.True(access.Capabilities.Contains(DmoCapabilities.ControloApprove, StringComparer.Ordinal));
+        Assert.False(access.Capabilities.Contains(DmoCapabilities.ControloCreate, StringComparer.Ordinal));
         Assert.Equal(2, access.Capabilities.Count);
     }
 
@@ -166,9 +166,9 @@ public sealed class AdminAuthorizationServiceTests : IDisposable
         await SeedAssignmentAsync(user, template);
         var access = await _service.ResolveEffectiveAccessAsync(user.Id);
         Assert.NotNull(access);
-        Assert.True(access!.HasCapability(DmoCapabilities.JobOnCreate));
-        Assert.True(access.HasCapability(DmoCapabilities.ControloCreate));
-        Assert.True(access.HasCapability(DmoCapabilities.ControloApprove));
+        Assert.True(access!.Capabilities.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal));
+        Assert.True(access.Capabilities.Contains(DmoCapabilities.ControloCreate, StringComparer.Ordinal));
+        Assert.True(access.Capabilities.Contains(DmoCapabilities.ControloApprove, StringComparer.Ordinal));
     }
 
     // ------------------------------------------------------------------
@@ -194,8 +194,8 @@ public sealed class AdminAuthorizationServiceTests : IDisposable
         // atribuição ficam preservados (a resolução continua a reportar os
         // factos do Template; as capabilities é que ficam vazias).
         Assert.Empty(access.Capabilities);
-        Assert.False(access.HasCapability(DmoCapabilities.JobOnCreate));
-        Assert.False(access.HasCapability(DmoCapabilities.ControloCreate));
+        Assert.False(access.Capabilities.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal));
+        Assert.False(access.Capabilities.Contains(DmoCapabilities.ControloCreate, StringComparer.Ordinal));
         Assert.Equal(template.Id, access.TemplateId);
         Assert.Equal("tpl-operador-controlo", access.TemplateKey);
     }
@@ -217,7 +217,7 @@ public sealed class AdminAuthorizationServiceTests : IDisposable
 
         var before = await _service.ResolveEffectiveAccessAsync(user.Id);
         Assert.NotNull(before);
-        Assert.True(before!.HasCapability(DmoCapabilities.ControloApprove));
+        Assert.True(before!.Capabilities.Contains(DmoCapabilities.ControloApprove, StringComparer.Ordinal));
         Assert.Equal("tpl-responsavel-operacional", before.TemplateKey);
 
         // Renomear: o rótulo muda, a identidade estável NÃO.
@@ -233,8 +233,8 @@ public sealed class AdminAuthorizationServiceTests : IDisposable
         Assert.Equal(before.TemplateKey, after!.TemplateKey);
         Assert.Equal(before.TemplateId, after.TemplateId);
         Assert.Equal(before.Capabilities, after.Capabilities);
-        Assert.True(after.HasCapability(DmoCapabilities.JobOnCreate));
-        Assert.True(after.HasCapability(DmoCapabilities.ControloApprove));
+        Assert.True(after.Capabilities.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal));
+        Assert.True(after.Capabilities.Contains(DmoCapabilities.ControloApprove, StringComparer.Ordinal));
         // O facto de display reflecte o rótulo corrente (não autoriza nada).
         Assert.Equal("Responsável Operacional (renomeado)", after.TemplateName);
     }
@@ -266,7 +266,7 @@ public sealed class AdminAuthorizationServiceTests : IDisposable
         Assert.Null(access.TemplateKey);
         Assert.Null(access.TemplateName);
         Assert.Empty(access.Capabilities);
-        Assert.False(access.HasCapability(DmoCapabilities.JobOnCreate));
+        Assert.False(access.Capabilities.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal));
     }
 
     [Fact]
