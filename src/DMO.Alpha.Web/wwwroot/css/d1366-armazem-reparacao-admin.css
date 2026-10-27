@@ -1,45 +1,103 @@
 /* 1366×768: armazem-reparacao-admin (27/10/2026). Só as páginas deste grupo. */
 
 /* ======================================================================
-   ARMAZÉM › REGISTO sem ferramenta aberta (só o tipo, ou a procura):
-   as mesmas duas colunas de quando a ferramenta está aberta — à esquerda
-   «Tipo de ferramenta» e a procura num só cartão; à direita o que a
-   procura encontra (ou o convite). As zonas mantêm os ids: o #armRegisto
-   e o #armMovProcura só deixam de desenhar caixa (display:contents).
+   ARMAZÉM › REGISTO (Diogo, 27/10/2026: «quero armazém assim mas registar fica no meio e
+   ferramenta passa para lado direito»). UM cartão em três colunas, como o estudo 06:
+     esquerda — «Tipo de ferramenta» (CM · MF · BQ), Entrada | Saída e a procura;
+     meio     — «Registar entrada / saída» com os campos;
+     direita  — «Ferramenta selecionada»: o nome, onde está e a utilização;
+   «Corrigir» e «Registar» no canto superior direito do cartão. Por baixo, as últimas
+   entradas e saídas do tipo.
+   O cartão é UMA caixa desenhada por trás de tudo (o ::before da página, um item da grelha
+   que ocupa as linhas do cartão): as zonas (#armTipos, #armMovProcura, #armMovFerramenta,
+   com os mesmos ids e as mesmas trocas parciais) ficam sem caixa própria por cima dela.
+   Antes eram três caixas encostadas e, quando a coluna da direita era mais alta (a BQ com a
+   lista da procura), a grelha esticava as linhas e via-se o fundo da página entre elas
+   (as «tiras» com riscos escuros do erro da BQ).
+   Sem ferramenta e sem procura o cartão é só a coluna da esquerda: nada vazio à direita.
    ====================================================================== */
 @media (min-width:1100px){
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);column-gap:16px;row-gap:0;align-items:start}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>*{grid-column:1/-1}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>.page-head{grid-row:1;margin-bottom:16px}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armMovAvisos{grid-row:2}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armTipos{display:block;grid-column:1;grid-row:3;margin:0;padding:16px 20px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armRegisto{display:contents}
-  /* Só o convite: fica à direita do tipo, à mesma altura. */
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armEscolha{grid-column:2;grid-row:3;margin:0;padding:16px 20px;align-self:stretch;display:flex;align-items:center}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armEscolha>p{margin:0}
-  /* A procura: o tipo e a procura num só cartão (como com a ferramenta aberta). */
-  html body main.arm-page:has(#armMovProcura):not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armTipos{border-bottom:0;border-radius:8px 8px 0 0;padding-bottom:4px}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armMovProcura{display:contents}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>.dmo-card-topo{grid-column:1;grid-row:4;margin:0;padding:12px 20px 8px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-top:0;border-bottom:0}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>.dmo-card-topo h3{margin:0;font-size:13px;font-weight:600;color:var(--dmo-muted)}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>#armProcuraForm{grid-column:1;grid-row:5;margin:0;padding:0 20px 16px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-top:0;border-radius:0 0 8px 8px;flex-wrap:wrap;gap:8px}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraForm>.arm-modo-direita{order:0;margin:0 0 4px;flex:1 0 100%}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraForm>.dmo-field:has(>#armProcura){flex:1 1 0;min-width:0}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraForm #armProcura{width:100%}
-  /* O que a procura encontra: à direita, em cartão, da altura do cartão da esquerda. */
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>#armProcuraLista{grid-column:2;grid-row:3/span 3;align-self:stretch;min-width:0;padding:16px 20px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista>:first-child{margin-top:0}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista .arm-lote-novo{margin-top:16px;padding-top:16px}
-  /* Ainda sem procura: o cartão da direita diz o que fazer, em vez de ficar vazio. */
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista:not(:has(*)){display:flex;align-items:center;color:var(--dmo-muted);font-size:13px}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista:not(:has(*))::before{content:"Escreva a referência, o lote ou a posição à esquerda para abrir a ferramenta."}
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armLog{grid-column:1/-1;grid-row:6;margin:16px 0 0}
-}
-/* Com a ferramenta aberta, a referência também ocupa a largura da coluna (como sem ela). */
-@media (min-width:1100px){
+  html body main.arm-page{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.1fr);grid-template-rows:auto auto auto auto 1fr auto;align-items:start}
+  /* Sem o espaço entre as zonas da página (dmo-design.css: gap 16px, com (0,2,2) pelo :is): as colunas encostam e os espaços são das margens. */
+  html body main.beta-light-main.arm-page{gap:0}
+  html body main.arm-page>*{grid-column:1/-1;min-width:0}
+  html body main.arm-page>.page-head{grid-row:1;margin:0 0 16px}
+  html body main.arm-page>#armMovAvisos{grid-row:2}
+  /* A caixa do cartão: só a coluna da esquerda; com a ferramenta, a procura com resultados ou a ferramenta que já não existe, as três. */
+  html body main.arm-page::before{content:"";grid-column:1;grid-row:3/6;align-self:stretch;box-sizing:border-box;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px}
+  html body main.arm-page:has(#armMovFerramenta,#armProcuraLista>*)::before{grid-column:1/-1}
+  html body main.arm-page>#armRegisto{display:contents}
+  /* As zonas por cima da caixa, sem caixa própria. */
+  html body main.arm-page :is(#armTipos,#armEscolha,#armMovProcura,#armMovFerramenta){margin:0;background:none;border:0;border-radius:0;box-shadow:none}
+  /* Esquerda: o tipo em cima, a procura (ou o convite) por baixo; a altura que sobra fica no fim da coluna. */
+  html body main.arm-page>#armTipos{display:block;grid-column:1;grid-row:3;padding:16px 20px 12px}
+  html body main.arm-page #armEscolha{grid-column:1;grid-row:4/6;padding:0 20px 16px;color:var(--dmo-muted)}
+  html body main.arm-page #armEscolha>p{margin:0;font-size:13px}
+  html body main.arm-page #armMovProcura{grid-column:1;grid-row:4/6;padding:0 20px 16px}
+  html body main.arm-page #armMovProcura>.dmo-card-topo{margin:0 0 8px}
+  html body main.arm-page #armMovProcura>.dmo-card-topo h3{margin:0;font-size:13px;font-weight:600;color:var(--dmo-muted)}
+  html body main.arm-page #armProcuraForm{flex-wrap:wrap;gap:8px;margin:0}
+  html body main.arm-page #armProcuraForm>.arm-modo-direita{order:0;margin:0 0 4px;flex:1 0 100%}
   html body main.arm-page #armProcuraForm>.dmo-field:has(>#armProcura){flex:1 1 0;min-width:0}
   html body main.arm-page #armProcuraForm #armProcura{width:100%}
+  html body main.arm-page #armMovProcura #armProcuraLista>*{margin-top:12px}
+  /* Sem ferramenta: a procura sai da sua caixa; o que encontra fica no cartão, à direita (meio e direita). */
+  html body main.arm-page:not(:has(#armMovFerramenta)) #armMovProcura{display:contents}
+  html body main.arm-page:not(:has(#armMovFerramenta)) #armMovProcura>.dmo-card-topo{grid-column:1;grid-row:4;padding:0 20px}
+  html body main.arm-page:not(:has(#armMovFerramenta)) #armMovProcura>#armProcuraForm{grid-column:1;grid-row:5;padding:0 20px 16px}
+  html body main.arm-page:not(:has(#armMovFerramenta)) #armMovProcura>#armProcuraLista{grid-column:2/-1;grid-row:3/6;align-self:stretch;min-width:0;margin:16px 0;padding:0 20px;border-left:1px solid var(--dmo-border)}
+  html body main.arm-page:not(:has(#armMovFerramenta)) #armProcuraLista:not(:has(*)){display:none}
+  html body main.arm-page:not(:has(#armMovFerramenta)) #armProcuraLista>*{margin-top:0}
+  html body main.arm-page:not(:has(#armMovFerramenta)) #armProcuraLista>*+*{margin-top:12px}
+  /* A ferramenta que já não existe: o aviso no lugar do registo. */
+  html body main.arm-page #armMovFerramenta:not([data-dmo-ferramenta]){grid-column:2/-1;grid-row:3/6;align-self:stretch;margin:16px 0;padding:0 20px;border-left:1px solid var(--dmo-border)}
+  /* Meio e direita: a ferramenta aberta, nas mesmas colunas da página (subgrid). */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]{grid-column:2/-1;grid-row:3/6;align-self:stretch;display:grid;grid-template-columns:subgrid;grid-template-rows:auto auto 1fr;align-content:start;align-items:start;position:relative;padding:0}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>*{grid-column:1/-1;min-width:0}
+  /* Os traços entre as colunas, recolhidos do topo e do fundo como no estudo. */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]::before,
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]::after{content:"";grid-row:1/4;align-self:stretch;margin:16px 0;border-left:1px solid var(--dmo-border);pointer-events:none}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]::before{grid-column:1}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]::after{grid-column:2}
+  /* Meio: o registo. */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:1;grid-row:1/4;padding:16px 20px 12px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-topo{display:flex;align-items:center;min-height:var(--dmo-control-height);margin:0 0 12px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-titulo{margin:0;font-size:15px;font-weight:650;line-height:1.2;color:var(--dmo-text)}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:end;margin:0 0 8px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field{min-width:0}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field :is(input,select){width:100%;max-width:none}
+  /* «Corrigir» e «Registar»: no canto superior direito do cartão. */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-acoes{position:absolute;top:16px;right:20px;z-index:1}
+  /* Direita: a ferramenta selecionada. */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin:0;padding:16px 20px 0}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo::before{content:"Ferramenta selecionada";flex:1 0 100%;min-height:var(--dmo-control-height);display:flex;align-items:center;margin:0 0 4px;font-size:15px;font-weight:650;color:var(--dmo-text)}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo h3{margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde{grid-column:2;grid-row:2;flex-direction:column;flex-wrap:nowrap;gap:8px;margin:0;padding:12px 20px 12px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde>div{flex-direction:row;align-items:baseline;gap:12px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde>div>span:first-child{flex:0 0 120px;white-space:nowrap}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde>.arm-uso{align-items:center}
+  /* Por baixo das três colunas, ainda no cartão: os avisos e os últimos movimentos da ferramenta. */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>p.dmo-aviso{margin:0 20px 12px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-subtitulo{margin:0 20px;padding:12px 0 8px;border-top:1px solid var(--dmo-border)}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-table-wrap{margin:0 20px 16px}
+  /* As últimas entradas e saídas, fora do cartão. */
+  html body main.arm-page #armRegisto>#armLog{grid-column:1/-1;grid-row:6;margin:16px 0 0}
 }
+/* Um só Entrada | Saída: o da esquerda (com a ferramenta aberta troca o formulário dela). */
+html body main.arm-page #armMovFerramenta .arm-entrada-linha>.arm-modo{display:none}
+html body main.arm-page .arm-registar-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
+html body main.arm-page .arm-registar-titulo{margin:0;font-size:16px}
+html body main.arm-page .arm-registar-acoes{display:flex;gap:8px;align-items:center}
+/* A barra da utilização: discreta, a cor de destaque só no que já foi usado. */
+html body main.arm-page .arm-uso-barra{flex:1 1 auto;min-width:60px;height:6px;border-radius:3px;background:var(--dmo-border);overflow:hidden}
+html body main.arm-page .arm-uso-barra>span{display:block;height:100%;border-radius:3px;background:var(--dmo-brand-600)}
+/* CM · MF · BQ como os outros seletores (dmo-botoes.css): iguais aos botões, o escolhido invertido. */
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra);border-radius:var(--dmo-r-control,8px);box-shadow:none}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):hover:not(.selected):not(.active){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active),
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active):hover{background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link) strong,
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) strong{color:inherit}
 
 /* ======================================================================
    ARMAZÉM › MOVIMENTOS (Últimos)
@@ -228,21 +286,10 @@ html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6p
 html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar:has(>.dmo-help){align-items:center!important}
 html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar>.dmo-help{align-self:center}
 
-/* ARMAZÉM › REGISTO com a ferramenta aberta: o painel da esquerda sem o buraco de ≈100 px
-   entre CM/MF/BQ e «Registar CM». A altura que sobra (a ferramenta à direita é mais alta)
-   vai para o fim do cartão da procura, e não para a linha dos tipos. */
-@media (min-width:1100px){
-  html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]){grid-template-rows:auto auto auto 1fr auto}
-}
-
-/* ARMAZÉM › REGISTO e REPARAÇÃO sem nada escolhido: o convite é um espaço à espera (contorno
-   tracejado, letra suave, ao centro), não um cartão largo com uma frase só. */
-html body main.arm-page #armEscolha,
+/* REPARAÇÃO sem nada escolhido: o convite é um espaço à espera (contorno tracejado, letra
+   suave, ao centro), não um cartão largo com uma frase só. */
 html body main.ri-page #riEscolha{background:transparent;border:1px dashed var(--dmo-border);box-shadow:none;color:var(--dmo-muted)}
 html body main.ri-page #riEscolha{text-align:center}
-@media (min-width:1100px){
-  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armEscolha{justify-content:center}
-}
 
 /* LOGIN e MUDAR PALAVRA-PASSE (modo escuro): as letras «BA» do logótipo são transparentes
    no PNG e mostravam o fundo escuro sobre o azul. Um disco claro por trás do círculo azul
