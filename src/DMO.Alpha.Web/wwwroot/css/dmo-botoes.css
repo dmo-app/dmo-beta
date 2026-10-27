@@ -67,6 +67,10 @@ html body :is(.dmo-button,.button,.btn).dmo-arrow:is(:disabled,[aria-disabled="t
    botões e campos de texto»): os campos de uma linha e as listas ficam com a altura dos botões. As
    regras mais específicas de uma página (tabelas compactas) continuam a mandar. */
 html body input:is(:not([type]),[type=text],[type=number],[type=search],[type=password],[type=email],[type=tel],[type=date],[type=datetime-local],[type=time],[type=month]),html body select:not([multiple]):not([size]){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
+/* Com a altura fixa, o Chromium já põe o texto ao centro: o píxel a mais em cima do
+   dmo-normalize.css (9/7, para a altura automática) passava a pô-lo 1,25 px abaixo
+   (Diogo, 20/10/2026: «verificar centramento de todos»). O mesmo seletor, 8/8. */
+html body :is(.dmo-field input:not([type=radio]):not([type=checkbox]),.dmo-field select,.beta-light-fields input,.beta-light-fields select,.beta-light-tool-view input,.beta-light-tool-view select,.dmo-search-form input[type="search"],.dmo-search-form select,select:not([multiple]):not([size]),input.dmo-suggest-input){padding-top:8px;padding-bottom:8px}
 
 /* Boquilhas › Registar Entrada ou Saída: o «Registar» (ação) separado dos tipos (escolha) por um traço fino. */
 html body .beta-bq-layout .bq-movement-line>.bq-movement-types{padding-left:14px;border-left:1px solid var(--dmo-border)}

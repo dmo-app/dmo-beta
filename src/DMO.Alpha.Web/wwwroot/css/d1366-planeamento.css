@@ -85,6 +85,15 @@ html:root body .jof2.editing.editing.editing .page-head .fv select#jobon-cab-pro
 html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-peso{width:80px !important}
 html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-seccoes{width:56px !important}
 html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-gota{width:72px !important}
+/* No telemóvel (390 px) a faixa não cabe numa linha: cada par rótulo e
+   campo numa linha («Início» e «Fim» um por baixo do outro), sem linhas finas,
+   e nada sai do ecrã (havia scroll lateral no Editar). */
+@media (max-width:600px){
+  html body .jof2.editing .page-head .facts{padding:8px;gap:8px;max-width:100%;box-sizing:border-box}
+  html body .jof2.editing .page-head .facts-dados{min-width:0;max-width:100%;gap:8px 16px}
+  html body .jof2.editing .page-head .facts-dados>.fact-col,html body .jof2.editing .page-head .facts-dados>.fact-col:first-child{display:grid;grid-template-columns:max-content max-content;align-items:center;gap:8px;padding:0;border-left:0;min-width:0;max-width:100%}
+  html body .jof2.editing .page-head .facts-dados .fl+.fv+.fl,html body .jof2.editing .page-head .facts-dados .fv+.fl{margin-left:0}
+}
 
 /* As cabeças com referência e lote (PU, AN, ARR, TP…): o campo com a largura de 4–8 caracteres. */
 html:root body .jof2.editing.editing.editing .sec-head .hv input.f{width:88px !important}

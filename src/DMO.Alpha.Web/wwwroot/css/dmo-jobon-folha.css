@@ -1321,5 +1321,14 @@ html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia
 html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view>p{min-height:56px!important;max-height:56px;flex:0 0 auto!important}
 html:root body .jof2 .side>.notes{flex:1 1 auto;min-height:130px}
 html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 auto;min-height:76px}
+/* As quatro colunas alinhadas (Diogo, 26/10/2026): a CS começa onde começa a
+   MF e os Calibres onde começam BQ e AN, com a largura dos outros cartões.
+   O espaço entre TP, CS e Calibres reparte-se pelos dois lados (2 + 2 px)
+   em vez de empurrar a CS e os Calibres 8 px para a direita. */
+@media (min-width:640px){
+html:root body .jof2.jof2 .zones [data-jof-familia="TP"]{margin-right:2px}
+html:root body .jof2.jof2 .zones [data-jof-familia="CS"]{margin-left:2px;margin-right:2px}
+html:root body .jof2.jof2 .zones .g-cal{margin-left:2px}
+}
 /* A linha na cor da máquina, só na letra, sem caixa à volta. */
 html:root body .jof2 .fv .mch[data-jof-linha]{background:none!important;color:var(--dmo-machine-color,var(--dmo-text))!important;padding:0 4px;min-width:0;font-size:18px;font-weight:800;border:0;box-shadow:none}
