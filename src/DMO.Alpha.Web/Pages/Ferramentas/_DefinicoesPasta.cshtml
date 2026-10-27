@@ -22,9 +22,7 @@
       </div>
     </div>
     @Html.AntiForgeryToken()
-    <p class="ferr-def-falta" id="ferrSapUltima">@(Model.UltimaLeituraSap is { } ultima
-        ? $"Última leitura: {DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultima.LidoEmUtc):dd/MM/yyyy HH:mm}{(ultima.Ficheiro is { } nomeFicheiro ? $" (ficheiro {nomeFicheiro})" : "")}."
-        : "Ainda não foi lida nenhuma lista da produção.")</p>
-    <p class="ferr-def-falta" id="ferrSapPastaEstado" data-ferr-sap-estado role="status">Nenhuma pasta ligada neste computador.</p>
+    <p class="ctl-def-computador"><strong>Neste computador:</strong> <span id="ferrSapPastaEstado" data-ferr-sap-estado role="status">Nenhuma pasta ligada</span>@if (Model.UltimaLeituraSap is { } ultima)
+      {<span id="ferrSapUltima"> · última leitura @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultima.LidoEmUtc).ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)@(ultima.Ficheiro is { } nomeFicheiro ? $" (ficheiro {nomeFicheiro})" : "")</span>}</p>
   </section>
 <script src="~/js/ferramentas-sap.js" asp-append-version="true"></script>

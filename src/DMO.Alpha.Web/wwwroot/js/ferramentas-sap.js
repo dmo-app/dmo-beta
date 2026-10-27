@@ -127,12 +127,12 @@
       const ficheiros = await ficheirosDoSap(pasta);
       const ficheiro = ficheiros.length ? ficheiros[ficheiros.length - 1] : null;
       if (!ficheiro) {
-        mostrarEstado("Pasta «" + pasta.name + "» ligada. Ainda não tem nenhuma lista do SAP.");
+        mostrarEstado("«" + pasta.name + "» · ainda sem listas do SAP");
         if (forcar) mensagem("aviso", "A pasta «" + pasta.name + "» ainda não tem nenhuma lista do SAP.");
         return;
       }
       if (!forcar && info.ficheiroModificadoEm && ficheiro.lastModified <= info.ficheiroModificadoEm) {
-        mostrarEstado("Pasta «" + pasta.name + "» ligada. A lista mais recente («" + ficheiro.name + "») já foi lida.");
+        mostrarEstado("«" + pasta.name + "» · a lista mais recente («" + ficheiro.name + "») já foi lida");
         return;
       }
       const novos = forcar || !info.ficheiroModificadoEm
@@ -142,7 +142,7 @@
         const resultado = await enviar(novo);
         mensagem(resultado.gravado ? "ok" : "aviso", resultado.mensagem);
       }
-      mostrarEstado("Pasta «" + pasta.name + "» ligada. Última lista lida: «" + ficheiro.name + "».");
+      mostrarEstado("«" + pasta.name + "» · última lista lida «" + ficheiro.name + "»");
     } finally {
       aLer = false;
     }
@@ -165,7 +165,7 @@
       return;
     }
     if (!(await permissao(pasta, true))) {
-      mostrarEstado("Pasta «" + pasta.name + "» ligada, mas o browser não deu acesso. Carregue em «Ler agora» e escolha «Permitir».");
+      mostrarEstado("«" + pasta.name + "» · sem acesso: carregue em «Ler agora» e escolha «Permitir»");
       return;
     }
     await sincronizar(pasta, forcar);
@@ -219,7 +219,7 @@
     if (await permissao(pasta, false)) {
       await sincronizar(pasta, false);
     } else {
-      mostrarEstado("Pasta «" + pasta.name + "» ligada. Carregue em «Ler agora» para o browser dar acesso outra vez.");
+      mostrarEstado("«" + pasta.name + "» · carregue em «Ler agora» para dar acesso outra vez");
     }
   }
 
@@ -233,7 +233,7 @@
       ligar.disabled = true;
       ler.disabled = true;
       apagar.disabled = true;
-      mostrarEstado("Este browser não deixa ligar uma pasta. Use o Chrome ou o Edge; o «Copiar códigos» funciona na mesma.");
+      mostrarEstado("este browser não liga pastas (use o Chrome ou o Edge); o «Copiar códigos» funciona na mesma");
       return;
     }
     ligar.addEventListener("click", () => ligarPasta().catch((erro) => {
