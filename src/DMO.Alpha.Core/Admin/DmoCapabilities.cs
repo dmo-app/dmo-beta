@@ -69,7 +69,7 @@ public static class DmoCapabilities
     public static readonly IReadOnlyList<DmoModule> Modules =
     [
         new(JobOnCreate, "Planeamento", "/JobOn"),
-        new(JobOnView, "Planeamento", "/JobOn/Folha"),
+        new(JobOnView, "Planeamento", "/JobOn"),
         new(ControloCreate, "Controlo", "/Controlo/Resumo"),
         new(ControloApprove, "Controlo", "/Controlo/Approve"),
         new(Boquilhas, "Boquilhas", "/Boquilhas"),

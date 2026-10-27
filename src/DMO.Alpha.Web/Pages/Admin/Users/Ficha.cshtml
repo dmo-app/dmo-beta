@@ -39,6 +39,17 @@ html body .dfu-card a.dmo-fact.dmo-fact-link>strong{grid-column:1/-1;grid-row:2}
    de cima da secção, o texto DIRETO (sem «Abrir»). */
 .dfu-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
 .dfu-actions form{display:flex;gap:8px;align-items:end;margin:0}
+/* Os botões no canto superior direito de cada parte (Diogo, 27/10/2026, linha 71 do design-erros.md),
+   na linha do título, como nos outros cartões (.dmo-card-topo): as «Opções» das ações de acesso e o
+   «Guardar» do PIN. Só a arrumação muda (os formulários e as zonas ficam iguais): a linha das ações
+   não faz caixa (display:contents), os campos ficam por baixo do título. */
+.dfu-parte:has(.dfu-actions){grid-template-columns:minmax(0,1fr) auto;column-gap:14px;align-items:center}
+.dfu-parte:has(.dfu-actions)>*{grid-column:1/-1;min-width:0}
+html body .dfu-parte:has(.dfu-actions)>h4:not(#_){grid-column:1;grid-row:1;margin:0}
+.dfu-parte .dfu-actions{display:contents}
+.dfu-parte .dfu-actions>*,.dfu-parte .dfu-actions>.dmo-zona>*{grid-column:1/-1;justify-self:start}
+html body .dfu-parte .dfu-actions>:is(.dmo-button,.dmo-options){grid-column:2;grid-row:1;justify-self:end;margin:0}
+.dfu-parte .dfu-actions .dmo-options-list{left:auto;right:0}
 .dfu-nota{padding:10px 12px;border:1px solid var(--dmo-border);background:var(--dmo-subtle);border-radius:8px;color:var(--dmo-muted)}
 .dfu-cancel{font-size:13px;color:var(--dmo-muted);font-weight:600;text-decoration:none}
 .dfu-cancel:hover{color:var(--dmo-brand-700)}
@@ -75,7 +86,7 @@ html body .dfu-card a.dmo-fact.dmo-fact-link>strong{grid-column:1/-1;grid-row:2}
     <div>
       <h2 id="dfu-title">Ficha de utilizador</h2>
     </div>
-    <a class="dfu-cancel" href="@Url.Page("/Admin/Users/Index")">Voltar à lista</a>
+    <a class="dfu-cancel" href="@Url.Page("/Admin/Users/Index")">← Voltar</a>
   </div>
 
   @* ------------------------------------------------------------------ *@
@@ -160,7 +171,7 @@ html body .dfu-card a.dmo-fact.dmo-fact-link>strong{grid-column:1/-1;grid-row:2}
            acesso e o PIN do posto de Reparação. *@
         <div class="dfu-baixo">
         <div class="dfu-parte" role="group" aria-labelledby="dfu-actions-title">
-          <h4 id="dfu-actions-title">Ações de acesso<partial name="_DmoHelp" model="@("A template aplica-se ao escolhê-la. Em «Opções», repor a palavra-passe gera um PIN temporário novo, mostrado uma vez no canto.")" /></h4>
+          <h4 id="dfu-actions-title" title="A template aplica-se ao escolhê-la. Em «Opções», repor a palavra-passe gera um PIN temporário novo, mostrado uma vez no canto.">Ações de acesso</h4>
           <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
           <div class="dfu-actions">
             <div id="dfuTemplate" class="dmo-zona" data-dmo-regiao>
@@ -220,7 +231,7 @@ html body .dfu-card a.dmo-fact.dmo-fact-link>strong{grid-column:1/-1;grid-row:2}
           </div>
         </div>
         <div class="dfu-parte" role="group" aria-labelledby="dfu-pin-title">
-          <h4 id="dfu-pin-title">PIN do posto de Reparação<partial name="_DmoHelp" model="@("Com o PIN, quem tem a Reparação Interna (ver ou criar) entra pelo botão «Reparação» do login (canto inferior direito), sem palavra-passe. De 4 a 12 algarismos; guarda-se só o hash. Escolher um PIN novo substitui o anterior.")" /></h4>
+          <h4 id="dfu-pin-title" title="Com o PIN, quem tem a Reparação Interna (ver ou criar) entra pelo botão «Reparação» do login (canto inferior direito), sem palavra-passe. De 4 a 12 algarismos; guarda-se só o hash. Escolher um PIN novo substitui o anterior.">PIN do posto de Reparação</h4>
           <form method="post" asp-page="/Admin/Users/Ficha" asp-page-handler="PinPosto" class="dfu-actions">
             <input type="hidden" name="operator_id" value="@user.OperatorId" />
             <div class="dmo-field">

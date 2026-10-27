@@ -164,10 +164,12 @@
     void CabecaFerramenta(string tipo, string? toolId, string nome)
     {
         var f = Model.Fact(toolId);
-        var ficha = toolId is null ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&voltar={Uri.EscapeDataString($"{Model.Request.Path}{Model.Request.QueryString}")}";
+        @* Quem só tem o Job On ver, sem as Ferramentas, não abre a ficha (Diogo, 27/10/2026:
+           «so ve os detalhes do plnaneamento e os jobons»). *@
+        var ficha = toolId is null || (!Model.PodeEditar && !Model.Capacidades.Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas)) ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&voltar={Uri.EscapeDataString($"{Model.Request.Path}{Model.Request.QueryString}")}";
         <div class="jof-tool-slot" data-jof-tool-slot="@tipo">
           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
-                  title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : "Duplo clique: a ficha da ferramenta")"
+                  title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : ficha is null ? null : "Duplo clique: a ficha da ferramenta")"
                   aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
             <span class="design-tool-heading"><span class="code">@tipo</span><span class="design-tool-name">@nome</span></span>
             @if (f is null)
@@ -333,6 +335,10 @@
 {
   <main class="jof2" id="main">
     <div class="wrap">
+      @* Haver sempre «← Voltar» (Diogo, 27/10/2026): como nas páginas de registo do
+         controlo, volta à página de onde se veio (data-dmo-voltar); sem origem, ao Job On.
+         As fichas das ferramentas abertas daqui não contam como origem. *@
+      <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
       <div class="page-head">
         <div><h1>Job On</h1></div>
       </div>
@@ -422,6 +428,7 @@ else
     }
   <main class="jof2@(editar ? " editing" : null)" id="main">
     <div class="wrap">
+    <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
     <div class="page-head">
       <div class="facts" role="group" aria-label="Dados da produção">
         <div class="fact-col mach" title="Linha"><span class="sr-only">Linha</span><span class="fv">
@@ -716,7 +723,7 @@ else
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong>Artigo @if (podeImagem) {<partial name="_DmoHelp" model="@("Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge).")" />}</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
+          <div class="article-head"><strong title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">Artigo</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
           <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
             @if (podeImagem)
             {
@@ -729,7 +736,7 @@ else
         </section>
         <section class="card notes" aria-labelledby="notesTitle">
           @* As ajudas no triângulo, não escritas no ecrã (ronda de 26/10/2026, J8). *@
-          <h2 id="notesTitle">Notas gerais @if (editar) {<partial name="_DmoHelp" model="@("Uma nota por linha. Grava com Guardar.")" />} else if (Model.PodeEditar) {<partial name="_DmoHelp" model="@("Para mudar as notas, use Editar.")" />}</h2>
+          <h2 id="notesTitle" title="@(editar ? "Uma nota por linha. Grava com Guardar." : Model.PodeEditar ? "Para mudar as notas, use Editar." : null)">Notas gerais</h2>
           @{
               desenhados.Add("notas_gerais");
               var gerais = Model.Folha.Valor("notas_gerais");

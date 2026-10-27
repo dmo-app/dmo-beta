@@ -170,3 +170,88 @@ html body .jof2:not(.editing) .side>:is(.article,.g-pinfo){flex-shrink:0}
 html body .jof2 .jobon-mudancas>.jobon-resumo{margin:8px 0 0}
 html body .jof2 .jobon-mudancas>.jobon-resumo>li{padding:6px 12px}
 html body .jof2 .jobon-mudancas>.jobon-resumo>li>div{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:16px}
+
+/* ================================================================== */
+/* Auditoria 1366×768 (27/10/2026): as falhas do Planeamento / Job On. */
+/* ================================================================== */
+
+/* O nome e o título do template no cabeçalho partem em duas linhas
+   quando não cabem (a Folha do Job On ficava mais larga do que o ecrã). */
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user{white-space:normal;text-align:right;overflow-wrap:break-word}
+html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{white-space:nowrap}
+
+/* Folha · Editar: a nota cresce com o texto (a do ARR cortava a última linha). */
+html:root body .jof2.editing.editing .note-box.note-edit>textarea.dmo-valor.dmo-valor{height:auto;min-height:56px;max-height:240px;field-sizing:content;overflow:auto}
+/* Folha · Editar: uma medida com vários valores («54.02/52.02/…») fica
+   com a linha inteira para o valor, por baixo do nome e da tolerância. */
+html body .jof2.editing .more-body .dims:has(td:nth-child(2) input[value*="/"]){display:grid;grid-template-columns:minmax(0,1fr) 72px 52px;grid-auto-flow:row dense}
+html body .jof2.editing .more-body .dims:has(td:nth-child(2) input[value*="/"]) :is(thead,tbody,tr){display:contents}
+html body .jof2.editing .more-body .dims:has(td:nth-child(2) input[value*="/"]) :is(th,td){width:auto;min-width:0;align-self:center}
+html body .jof2.editing .more-body .dims tr:has(>td:nth-child(2) input[value*="/"])>td:first-child{grid-column:1/3}
+html body .jof2.editing .more-body .dims tr:has(>td:nth-child(2) input[value*="/"])>td:nth-child(2){grid-column:1/-1;padding-left:8px !important}
+html body .jof2.editing .more-body .dims tr:has(>td:nth-child(2) input[value*="/"])>td:nth-child(3){grid-column:3}
+/* Folha · Editar / Novo / Duplicar: sem buracos. A primeira linha (BQ e PU)
+   com a altura do que tem; o espaço que a CM e o MF pedem fica na linha do
+   AN e do ARR. As notas do PU, do AN, do TP e da CS ocupam o resto do
+   cartão (mais espaço para escrever, em vez de meio cartão vazio); à
+   direita as Notas gerais crescem até o PI acabar com os Calibres. */
+@container board (min-width:640px){
+  html body .jof2.editing .zones{grid-template-rows:auto 1fr auto}
+}
+html body .jof2.editing :is([data-jof-familia="PU"],[data-jof-familia="AN"],[data-jof-familia="TP"],[data-jof-familia="CS"])>.note-box.note-edit:last-child{flex:1 1 auto;display:flex;flex-direction:column;align-items:stretch}
+html:root body .jof2.editing.editing :is([data-jof-familia="PU"],[data-jof-familia="AN"],[data-jof-familia="TP"],[data-jof-familia="CS"])>.note-box.note-edit:last-child>textarea.dmo-valor.dmo-valor{flex:1 1 auto;max-height:none}
+@media (min-width:1181px){
+  html body .jof2.editing .sheet>.side{align-self:stretch;max-height:none}
+  html body .jof2.editing .side>.notes{display:flex;flex-direction:column;flex:1 1 auto}
+  html body .jof2.editing .side>.notes>textarea{flex:1 1 auto}
+}
+
+/* Job On · Editar a produção / Nova produção (o formulário por baixo do
+   calendário): os pares CM+TP, MF+CS, BQ+AN e PU+ARR alinhados em duas
+   linhas (o TP, a CS, o AN e o ARR começam à mesma altura e os cartões de
+   cada linha acabam juntos); o PI e os Calibres na quinta coluna, mais
+   larga, para a designação caber inteira («Bucha Marcada»). */
+@media (min-width:1100px){
+  html body #lightFolha.jobon-folha-pares{grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.25fr);grid-template-rows:auto auto;grid-auto-flow:column;align-items:stretch}
+  html body #lightFolha>.jobon-folha-par:not(:last-child){display:contents}
+  html body #lightFolha>.jobon-folha-par:last-child{grid-column:5;grid-row:1/span 2;display:flex;flex-direction:column;gap:12px}
+  html body #lightFolha .jobon-cal :is(.jobon-cal-cabeca,.jobon-cal-linha){grid-template-columns:minmax(0,1fr) 64px 48px}
+  html body #lightFolha .jobon-cal{gap:4px}
+  html body #lightFolha .jobon-cal-linha input{min-height:30px;padding-block:4px}
+  html body #lightForm .jobon-folha-pares+.jobon-familia textarea{height:72px;min-height:56px}
+}
+
+/* Sumário: linhas baixas; um grupo só com a máquina e a produção (as
+   «Mudanças») em colunas, em vez de uma linha inteira para cada uma. */
+html body main.sumario-page .sumario-item{min-height:32px;padding:4px 12px}
+html body main.sumario-page .sumario-grupo ul{gap:4px}
+html body main.sumario-page .sumario-grupo{margin-top:12px}
+html body main.sumario-page .sumario-grupo ul:not(:has(.sumario-quando,.sumario-detalhe,small)){grid-template-columns:repeat(auto-fill,minmax(176px,1fr))}
+
+/* Histórico do Job On: a tabela com linhas baixas (≈43 → 29 px). */
+@media (min-width:1100px){
+  html body #jobonHistLista :is(th,td){padding-top:2px;padding-bottom:2px;line-height:20px}
+}
+
+/* A faixa «Planeamento» (Job On, Histórico e Sumário): continua a deslizar
+   para o lado, mas a produção que não cabe esbate-se na borda em vez de
+   aparecer cortada a meio; ao deslizar, cada produção para encostada. */
+html body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines{scroll-snap-type:x proximity}
+html body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines>:is(button,.dmo-rail-link){scroll-snap-align:start}
+@keyframes dmoPlaneamentoFaixa{
+  0%,2%{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 72px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 72px),transparent)}
+  4%,96%{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 72px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 72px),transparent)}
+  98%,100%{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px);mask-image:linear-gradient(to right,transparent,#000 40px)}
+}
+@supports (animation-timeline:scroll()){
+  html body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines{animation:dmoPlaneamentoFaixa linear both;animation-timeline:scroll(self inline)}
+}
+
+/* Calendário (todas as páginas): as setas do mês como os botões «Hoje» e
+   «Todos os dias» ao lado, como na .121: a mesma cor, o mesmo rato por
+   cima e o mesmo clique (no escuro a seta era mais clara e invertia). */
+html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn{background:var(--dmo-action,var(--dmo-brand-600));border-color:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color,#fff)}
+html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn{background:#4b6387;border-color:#4b6387;color:#fff}
+html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;outline:0}
+html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-600);border-color:#fff;color:#fff}
+html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45));outline:0}

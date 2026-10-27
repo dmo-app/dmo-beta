@@ -59,6 +59,7 @@ public sealed class PesoModel : PageModel
     private readonly IPesoAssociationQuery _pesoAssociation;
     private readonly IEnsureControloForJobOnHandler _ensureControlo;
     private readonly IJobOnListQuery _jobOnList;
+    private readonly IControloHistoricoProcura _historicoProcura;
     private readonly IPegamentosEscolhasQuery _lotes;
 
     public PesoModel(
@@ -85,7 +86,7 @@ public sealed class PesoModel : PageModel
         PesoComparisonQuery comparacaoQuery,
         PesoProducaoAnteriorQuery producaoAnteriorQuery,
         ICreatePesoComparacaoHandler comparacaoHandler,
-        IControloHistorySearchQuery historicoControloQuery,
+        IControloHistoricoProcura historicoProcura,
         DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
         IPegamentosEscolhasQuery lotes)
     {
@@ -98,7 +99,7 @@ public sealed class PesoModel : PageModel
         ComparacaoQuery = comparacaoQuery;
         ProducaoAnteriorQuery = producaoAnteriorQuery;
         ComparacaoHandler = comparacaoHandler;
-        HistoricoControloQuery = historicoControloQuery;
+        _historicoProcura = historicoProcura;
         _associatePeso = associatePeso;
         _pesoAssociation = pesoAssociation;
         _ensureControlo = ensureControlo;
@@ -156,9 +157,6 @@ public sealed class PesoModel : PageModel
 
     /// <summary>O handler de criação do registo de comparação (o cálculo vem da fonte única acima).</summary>
     private ICreatePesoComparacaoHandler ComparacaoHandler { get; }
-
-    /// <summary>A procura unificada do histórico do Controlo (os três tipos).</summary>
-    private IControloHistorySearchQuery HistoricoControloQuery { get; }
 
     /// <summary>Pesos sem produção da CM do Job On (modo controlo_id, sem Peso ainda).</summary>
     public IReadOnlyList<UnassociatedPesoCandidate> AssociationCandidates { get; private set; } = Array.Empty<UnassociatedPesoCandidate>();
@@ -754,7 +752,7 @@ public sealed class PesoModel : PageModel
     /// Entre o nº e a referência no valor de uma opção do dropdown
     /// («2026001|5447T173»).
     /// </summary>
-    public const char HistoryProducaoSeparador = '|';
+    public const char HistoryProducaoSeparador = ControloHistoricoValores.ProducaoSeparador;
 
     /// <summary>True quando o dropdown das produções junta mais do que uma referência (o texto é o início de várias).</summary>
     public bool HistoryProducoesVariasReferencias =>
@@ -779,14 +777,9 @@ public sealed class PesoModel : PageModel
     public DateOnly? HistoryData { get; private set; }
 
     /// <summary>True quando há pelo menos um filtro do histórico; sem filtros a lista não é lida.</summary>
-    public bool HistoricoComProcura =>
-        HistorySemJobOn
-        || HistoryReference is not null
-        || HistoryProduction is not null
-        || HistoryTool is not null
-        || HistoryLote is not null
-        || HistoryTipo is not null
-        || HistoryData is not null;
+    public bool HistoricoComProcura => _historico?.ComProcura ?? false;
+
+    private ControloHistoricoResultado? _historico;
 
     /// <summary>Os resultados da procura unificada do histórico (null sem procura).</summary>
     public IReadOnlyList<ControloHistorySearchItem>? HistoryResults { get; private set; }
@@ -996,73 +989,25 @@ public sealed class PesoModel : PageModel
                 };
             }
 
-            HistoryReference = Sanitize(referencia);
-            HistoryProduction = Sanitize(producao);
-            HistoryTool = Sanitize(ferramenta);
-            HistoryLote = Sanitize(lote);
-            HistoryTipo = ParseTipo(tipo);
-            HistoryData = ParseData(data);
-            HistorySemJobOn = semJobOnFiltro == "1";
-
-            // A procura em dois passos: com a referência escrita, o nº de
-            // produção escolhe-se num dropdown só com as produções dela, pela
-            // mesma regra da tabela (o início da referência ou da parte BQ;
-            // deep sweep 2, F-6). Sem a referência, ou sem Job On, não há
-            // dropdown e a produção não filtra.
-            var producaoPedida = HistoryProduction;
-            HistoryProduction = null;
-            if (HistoryReference is { } referenciaHistorico && !HistorySemJobOn)
+            // A procura do histórico (os filtros, o dropdown das produções e
+            // a página de resultados) é da IControloHistoricoProcura.
+            var procura = await _historicoProcura.ProcurarAsync(
+                new ControloHistoricoPedido(
+                    Sanitize(referencia), Sanitize(producao), Sanitize(ferramenta), Sanitize(lote),
+                    tipo, data, semJobOnFiltro == "1", pagina),
+                HttpContext.RequestAborted);
+            _historico = procura;
+            HistoryReference = procura.Referencia;
+            HistoryProduction = procura.Producao;
+            HistoryProductionReference = procura.ProducaoReferencia;
+            HistoryTool = procura.Ferramenta;
+            HistoryLote = procura.Lote;
+            HistoryTipo = procura.Tipo;
+            HistoryData = procura.Data;
+            HistorySemJobOn = procura.SemJobOn;
+            HistoryProducoes = procura.Producoes;
+            if (procura.Pagina is { } historyPage)
             {
-                HistoryProducoes = await _jobOnList.ListProductionsOfReferenceAsync(
-                    referenciaHistorico, null, HttpContext.RequestAborted);
-
-                // A produção pedida: o nº e a referência dela (o valor das
-                // opções). Um link antigo só com o nº escolhe a mais recente
-                // com esse nº, nunca as duas juntas.
-                var (numeroPedido, referenciaPedida) = ParseHistoryProducao(producaoPedida);
-                var escolhida = numeroPedido is null
-                    ? null
-                    : HistoryProducoes.FirstOrDefault(p => p.ProductionNumber == numeroPedido
-                        && (referenciaPedida is null || p.Reference == referenciaPedida));
-                // O dropdown só tem as últimas produções; uma mais antiga
-                // pedida por link continua a filtrar e entra no dropdown
-                // (deep sweep 2, F-18). Uma produção que já não é destas
-                // referências (a referência mudou) não filtra.
-                if (numeroPedido is not null && escolhida is null)
-                {
-                    escolhida = await HistoricoControloQuery.ProducaoDaReferenciaAsync(
-                        referenciaHistorico, numeroPedido, referenciaPedida, HttpContext.RequestAborted);
-                    if (escolhida is not null)
-                    {
-                        HistoryProducoes = [.. HistoryProducoes, escolhida];
-                    }
-                }
-
-                HistoryProduction = escolhida?.ProductionNumber;
-                HistoryProductionReference = escolhida?.Reference;
-            }
-
-            // O histórico abre vazio: só procura com pelo menos um filtro.
-            if (HistoricoComProcura)
-            {
-                var historyPage = await HistoricoControloQuery.SearchPageAsync(
-                    HistoryReference, HistoryProduction, HistoryTool, HistoryTipo, HistoryData,
-                    pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn,
-                    productionReference: HistoryProductionReference, lote: HistoryLote);
-                // A Referência também aceita a referência da CM (Diogo,
-                // 27/10/2026): sem resultados pela referência do produto,
-                // procura-a como ferramenta.
-                if (historyPage.TotalCount == 0 && HistoryTool is null && HistoryReference is { } referenciaCm)
-                {
-                    var comoFerramenta = await HistoricoControloQuery.SearchPageAsync(
-                        null, null, referenciaCm, HistoryTipo, HistoryData,
-                        pagina, cancellationToken: HttpContext.RequestAborted, semJobOn: HistorySemJobOn, lote: HistoryLote);
-                    if (comoFerramenta.TotalCount > 0)
-                    {
-                        historyPage = comoFerramenta;
-                    }
-                }
-
                 HistoryResults = historyPage.Items;
                 HistoryPager = ListPager.For(historyPage);
             }
@@ -2661,39 +2606,6 @@ public sealed class PesoModel : PageModel
 
         return avisos;
     }
-
-    /// <summary>
-    /// O valor pedido do dropdown das produções do histórico: «nº|referência»
-    /// (o valor das opções) ou só «nº» (os links antigos).
-    /// </summary>
-    private static (string? Number, string? Reference) ParseHistoryProducao(string? value)
-    {
-        if (value is null)
-        {
-            return (null, null);
-        }
-        var separator = value.IndexOf(HistoryProducaoSeparador);
-        if (separator < 0)
-        {
-            return (value, null);
-        }
-        var number = value[..separator].Trim();
-        var reference = value[(separator + 1)..].Trim().ToUpperInvariant();
-        return (number.Length == 0 ? null : number, reference.Length == 0 ? null : reference);
-    }
-
-    /// <summary>O filtro do tipo (o vocabulário fechado do select do histórico).</summary>
-    private static ControloHistoryKind? ParseTipo(string? tipo) => tipo switch
-    {
-        "Peso" => ControloHistoryKind.Peso,
-        "Pegamentos" => ControloHistoryKind.Pegamentos,
-        "Comparacao" => ControloHistoryKind.Comparacao,
-        "Resumo" => ControloHistoryKind.Resumo,
-        _ => null
-    };
-
-    private static DateOnly? ParseData(string? data) =>
-        DateOnly.TryParse(data, out var parsed) ? parsed : null;
 
     /// <summary>O alvo do «Abrir registo selecionado»: o tipo, o id e o controlo da produção (o roteamento é do backend).</summary>
     private static (ControloHistoryKind Kind, int Id, int? ControloId)? ParseAbrir(string? abrir)

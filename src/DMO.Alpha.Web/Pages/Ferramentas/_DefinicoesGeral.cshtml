@@ -27,7 +27,8 @@
 </style>
   <section id="ferrDefTotais" class="dmo-card ferr-def-card" aria-labelledby="tool-quantities-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-      <h3 id="tool-quantities-title">Total do lote por máquina<partial name="_DmoHelp" model="@("O total habitual de cada lote de CM, MF e BQ em cada máquina (por exemplo, um lote de BQ da B1 tem 120). Ao criar uma ferramenta, a quantidade vem preenchida com este total e pode ser alterada. Se as máquinas escolhidas tiverem totais diferentes, quem cria a ferramenta escolhe. Campo vazio: sem total. Guardar não altera ferramentas já registadas.")" /></h3>
+      @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+      <h3 id="tool-quantities-title" title="O total habitual de cada lote de CM, MF e BQ em cada máquina (por exemplo, um lote de BQ da B1 tem 120). Ao criar uma ferramenta, a quantidade vem preenchida com este total e pode ser alterada. Se as máquinas escolhidas tiverem totais diferentes, quem cria a ferramenta escolhe. Campo vazio: sem total. Guardar não altera ferramentas já registadas.">Total do lote por máquina</h3>
       @if (Model.ToolQuantities.Count > 0)
       {
         <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ferrDefGuardar" form="ferrDefTotaisForm">Guardar</button></div>

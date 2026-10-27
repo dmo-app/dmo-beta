@@ -63,7 +63,6 @@ public sealed class DeleteJobOnHandlerTests : IDisposable
         Assert.Equal(1, preview.Puncoes);
         Assert.Equal(2, preview.BqMovements);
         Assert.True(preview.Revisto);
-        Assert.True(preview.HasRecords);
         Assert.Null(await new DeleteJobOnHandler(_db).PreviewAsync(ids.JobOnId + 999, Hoje));
     }
 

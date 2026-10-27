@@ -45,7 +45,8 @@
     <section class="beta-light-view active" data-light-panel="jobon">
       <div class="beta-light-heading">
         <div>
-          <h1>Job On<partial name="_DmoHelp" model="@("Selecione uma produção para consultar ou preparar as ferramentas.")" /></h1>
+          @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+          <h1 title="Selecione uma produção para consultar ou preparar as ferramentas.">Job On</h1>
         </div>
       </div>
       @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
@@ -145,7 +146,7 @@
                           // da ferramenta que entra.
                           Href = nx.JobOnId is int entraId
                             ? IndexModel.FolhaHref(entraId, nx.Dia.Year, nx.Dia.Month, nx.Dia.Day)
-                            : nx.ToolId is { Length: > 0 } toolId ? $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}" : null
+                            : nx.ToolId is { Length: > 0 } toolId && Model.VeFerramentas ? $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}" : null
                         }
                       : null;
                     var ultima = row.Productions.LastOrDefault();
@@ -188,11 +189,19 @@
                        clique abre a folha em branco, sem Editar, para
                        duplicar um antigo ou criar; a linha e o dia vão junto (Diogo, 23/10/2026). *@
                     var maquinaVazia = Model.Machines.FirstOrDefault(m => m.Code == row.MachineCode);
-                    var criarAqui = maquinaVazia is null ? null
+                    @* Quem só tem o Job On ver não cria: a linha vazia fica só texto. *@
+                    var criarAqui = maquinaVazia is null || !Model.PodeEditar ? null
                       : $"/JobOn/Folha?novo=1&machine_id={maquinaVazia.MachineId}&inicio_em={new DateOnly(Model.Year, Model.Month, Model.SelectedDay):yyyy-MM-dd}";
                     @* A mudança é um link à parte, fora do link de criar. *@
                     <div class="beta-light-machine-empty-linha">
-                      <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —</a>
+                      @if (criarAqui is not null)
+                      {
+                        <a class="beta-light-machine-empty" href="@criarAqui" aria-label="@row.MachineCode sem produção neste dia: criar Job On"><strong>@row.MachineCode</strong> · —</a>
+                      }
+                      else
+                      {
+                        <span class="beta-light-machine-empty" aria-label="@row.MachineCode sem produção neste dia"><strong>@row.MachineCode</strong> · —</span>
+                      }
                       @if (proxima is { Href: { } vaziaHref })
                       {
                         <a class="beta-light-next" href="@vaziaHref" title="@proxima.Titulo">@proxima.Texto</a>
@@ -234,8 +243,11 @@
                  linha da procura, depois da referência e da produção; abre a folha nova já com o dia escolhido
                  como início (sem dia escolhido, abre sem data). *@
               @* O «Criar Job On» abre a folha nova vazia, em Editar (Diogo, 23/10/2026). *@
+              @if (Model.PodeEditar)
+              {
               <a id="jobonCriar" class="dmo-button" asp-page="/JobOn/Folha" asp-route-novo="1"
                  asp-route-inicio_em="@(Model.NoDaySelected ? null : new DateOnly(Model.Year, Model.Month, Model.SelectedDay).ToString("yyyy-MM-dd"))">Criar Job On</a>
+              }
             </form>
           </div>
         </section>
@@ -456,7 +468,7 @@
     <section class="beta-light-view active" data-light-panel="history">
       <div class="beta-light-heading">
         <div>
-          <h1>Histórico de Job On<partial name="_DmoHelp" model="@("Produções anteriores e respetivas associações de ferramentas. A referência aplica-se ao escrever; a máquina, a produção e as datas aplicam-se logo. O período mostra as produções cuja janela toca as datas. Um clique numa produção abre a folha.")" /></h1>
+          <h1 title="Produções anteriores e respetivas associações de ferramentas. A referência aplica-se ao escrever; a máquina, a produção e as datas aplicam-se logo. O período mostra as produções cuja janela toca as datas. Um clique numa produção abre a folha.">Histórico de Job On</h1>
         </div>
       </div>
       @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@

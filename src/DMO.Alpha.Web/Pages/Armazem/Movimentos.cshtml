@@ -134,7 +134,8 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     var masc = tipoEscolhido == ToolType.Mf;
   <section id="armMovProcura" class="dmo-card arm-card" aria-labelledby="arm-mov-procura-title" data-dmo-regiao data-dmo-parcial data-arm-tipo="@tipoTexto">
     <div class="dmo-card-topo">
-      <h3 id="arm-mov-procura-title">Registar @tipoTexto<partial name="_DmoHelp" model="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Primeiro escolha Entrada ou Saída: a Entrada mostra só as que estão fora do armazém; a Saída, só as que estão numa posição. Um clique na ferramenta abre-a já com o formulário escolhido. Na Entrada, {(masc ? "um" : "uma")} {tipoTexto} que não existe regista-se como lote novo: fica «Por criar» até quem tem o módulo Ferramentas a criar.")" /></h3>
+      @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
+      <h3 id="arm-mov-procura-title" title="@($"Escreva a referência, o lote ou a posição de {(masc ? "um" : "uma")} {tipoTexto}. Primeiro escolha Entrada ou Saída: a Entrada mostra só as que estão fora do armazém; a Saída, só as que estão numa posição. Um clique na ferramenta abre-a já com o formulário escolhido. Na Entrada, {(masc ? "um" : "uma")} {tipoTexto} que não existe regista-se como lote novo: fica «Por criar» até quem tem o módulo Ferramentas a criar.")">Registar @tipoTexto</h3>
     </div>
     @* A procura fica sempre no topo (Diogo, 22/10/2026): filtra as
        ferramentas registadas do tipo enquanto se escreve; sem resultados,
@@ -523,7 +524,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
   {
   <section id="armLog" class="dmo-card arm-card arm-log" aria-labelledby="arm-log-title" data-dmo-parcial>
     <div class="dmo-card-topo">
-      <h3 id="arm-log-title">Últimas entradas e saídas de @tipoTexto<partial name="_DmoHelp" model="@($"As entradas e saídas de {tipoTexto} de todas as pessoas, da mais recente para a mais antiga. Um clique numa linha abre a ferramenta, onde pode corrigir a localização.")" /></h3>
+      <h3 id="arm-log-title" title="@($"As entradas e saídas de {tipoTexto} de todas as pessoas, da mais recente para a mais antiga. Um clique numa linha abre a ferramenta, onde pode corrigir a localização.")">Últimas entradas e saídas de @tipoTexto</h3>
     </div>
     @if (Model.Log.Items.Count == 0 && Model.PorCriar.Count == 0)
     {
