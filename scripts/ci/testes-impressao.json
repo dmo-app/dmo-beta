@@ -1,5 +1,5 @@
 {
-  "selo": "61c8f9b683b40964",
+  "selo": "238ee5091ab482db",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2719,7 +2719,7 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UmImportante_ALinhaInteiraAbreAPaginaQueResolve": "25f57c459621c346",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Importante.cs :: PlaneamentoSumarioPageTests.UsoAtualizado_FicaAteHaverALeituraDoFim_SoQuemTemFerramentas": "f72c14787f483a61",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: (resto do ficheiro)": "e64b63a54b76b0e5",
-    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "e2c6f2a60aa4bdbe",
+    "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas": "935e6bc4ee3d21c8",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: (resto do ficheiro)": "540601df0fd3126c",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen": "d89324fa4c900af2",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVerJobOn.cs :: (resto do ficheiro)": "36851eb2e1d8417a",

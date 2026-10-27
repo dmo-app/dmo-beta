@@ -2,7 +2,8 @@
 @* O RAIL DO PLANEAMENTO («o sidepanel mostra o que vai entrar», o Owner
    14/10): as próximas produções desta semana, cada uma abre a sua ficha.
    O mesmo no Job On e no Sumário (Diogo, 21/10/2026: «na página do sumário
-   não temos sidepanel do planeamento»). *@
+   não temos sidepanel do planeamento»). Só o que entra: o que já entrou sai
+   (Diogo, 27/10/2026, DMO-506). *@
 @{
     var railLinhas = Model
         .Select(entrada =>
@@ -26,10 +27,10 @@
     var rail = new DMO.Alpha.Web.Presentation.DmoRailPresentation(
         // «Planeamento», um link para o calendário do Job On (Diogo, 26/10/2026).
         Title: "Planeamento",
-        Subtitle: "As produções em curso e as que entram esta semana",
+        Subtitle: "As produções que entram esta semana",
         AriaLabel: "Planeamento",
         Items: railLinhas,
-        EmptyLabel: "Sem produções em curso nem entradas esta semana.",
+        EmptyLabel: "Sem entradas esta semana.",
         // Só com o Job On ver, a página dele é a Folha (o Sumário diz qual).
         TitleHref: ViewData["RailPlaneamentoHref"] as string ?? "/JobOn");
 }

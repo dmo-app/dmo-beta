@@ -787,8 +787,10 @@ else
       <aside class="side">
         @{ var podeImagem = Model.PodeEditar && !string.IsNullOrEmpty(Model.ReferenciaTotal); }
         <section class="card article" aria-label="Artigo">
-          <div class="article-head"><strong title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">Artigo</strong><span>@if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}@Model.ReferenciaTotal</span></div>
-          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique para escolher a imagem do artigo" : null)">
+          @* Só a foto, mais alta do que larga, ao lado das Pinças: a referência já está no topo
+             (Diogo, 27/10/2026: «nao escrever referência no artigo», «os comentários são mais importantes»). *@
+          @if (podeImagem) {<button type="button" class="jof-artigo-retirar" data-jof-artigo-retirar title="Retirar a imagem do artigo" aria-label="Retirar a imagem do artigo" hidden>&times;</button>}
+          <label class="jof-artigo@(podeImagem ? " jof-artigo-escolher" : null)" data-jof-artigo="@Model.ReferenciaTotal" data-jof-artigo-pode="@(podeImagem ? "1" : "0")" title="@(podeImagem ? "Clique na imagem para a associar ou trocar, ou cole uma imagem (Ctrl+V); depois escolha a área a guardar. Fica na pasta das imagens dos artigos, dentro da pasta da referência, e aparece em todos os Job On dela. Na primeira vez, associe a pasta geral neste computador (Chrome ou Edge)." : null)">
             @if (podeImagem)
             {
               <input type="file" accept="image/*" class="sr-only" data-jof-artigo-ficheiro aria-label="Escolher a imagem do artigo" />

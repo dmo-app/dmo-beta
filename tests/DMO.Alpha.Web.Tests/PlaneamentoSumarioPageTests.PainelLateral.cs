@@ -14,10 +14,10 @@ public sealed partial class PlaneamentoSumarioPageTests
     {
         // «Na página do sumário não temos sidepanel do planeamento» (Diogo,
         // 21/10/2026): o mesmo «O que vai entrar» do Job On, com as produções
-        // que entram desta semana. A que entrou ontem e não tem fim está em
-        // curso e vem primeiro (Diogo, 22/10/2026: «fica tudo a depender da
-        // data de entrada e saída»). Noutra linha: na mesma, a que entra hoje
-        // acabava a de ontem (Diogo, 27/10/2026).
+        // que entram desta semana. A que entrou ontem já não aparece: a faixa
+        // só mostra o que entra (Diogo, 27/10/2026, DMO-506: «deveria remover
+        // o que já entrou»). Noutra linha: na mesma, a que entra hoje acabava
+        // a de ontem (Diogo, 27/10/2026).
         var entraHoje = await JobOnAsync("S9P001", Hoje);
         var entrouOntem = await JobOnAsync("S9P002", Hoje.AddDays(-1), maquina: "B2");
         using var client = await LoginAsync("5310", DmoCapabilities.JobOnCreate);
@@ -29,12 +29,11 @@ public sealed partial class PlaneamentoSumarioPageTests
         // Cada produção abre a folha nova (Diogo, 23/10/2026: a ficha antiga deixou de existir).
         Assert.Contains($"data-dmo-open=\"/JobOn/Folha?jobon_id={entraHoje}\"", painel);
         Assert.Contains("S9P001", painel);
-        Assert.Contains($"data-dmo-open=\"/JobOn/Folha?jobon_id={entrouOntem}\"", painel);
+        Assert.DoesNotContain($"jobon_id={entrouOntem}\"", painel);
+        Assert.DoesNotContain("S9P002", painel);
+        Assert.DoesNotContain("Em curso desde", painel);
         // A referência e a produção numa linha, o estado noutra (Diogo, 26/10/2026).
-        Assert.Contains("<span>S9P002 · Produção 7</span>", painel);
-        Assert.Contains($"<span>Em curso desde {Hoje.AddDays(-1):dd/MM}</span>", painel);
-        Assert.True(painel.IndexOf($"jobon_id={entrouOntem}\"", StringComparison.Ordinal)
-            < painel.IndexOf($"jobon_id={entraHoje}\"", StringComparison.Ordinal));
+        Assert.Contains($"<span>Entra a {Hoje:dd/MM}</span>", painel);
         // O painel fica por baixo do título do Sumário, dentro da página, como no Job On (mockups, 26/10/2026).
         Assert.Matches("<main [^>]*sumario-page[\\s\\S]*?id=\"sumario-title\"[\\s\\S]*?<aside class=\"beta-light-rail beta-production-rail\"", html);
     }
