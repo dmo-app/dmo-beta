@@ -196,15 +196,10 @@
 .peg-page .peg-registo-tabela td{position:relative}
 .peg-page .peg-valor{position:absolute;inset:0;cursor:text;border-radius:4px}
 .peg-page .peg-valor:hover,.peg-page .peg-valor:focus-visible{box-shadow:inset 0 0 0 1px var(--dmo-palette-steel,#6494b4)}
-.peg-page .peg-col-x{width:28px;text-align:center;padding-left:0;padding-right:0}
-.peg-page .peg-x{border:0;background:none;color:var(--dmo-muted,#577389);font-size:16px;line-height:1;padding:2px 6px;cursor:pointer;border-radius:6px}
-.peg-page .peg-x:hover{color:var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft,#f3e9e7)}
 .peg-page .peg-dica{color:var(--dmo-muted,#577389);font-size:12px}
 .peg-page .peg-ficha-link{color:inherit;text-decoration:none;border-bottom:1px dotted var(--dmo-palette-mist,#92b4cc)}
 .peg-page .peg-ficha-link:hover{border-bottom-color:var(--dmo-palette-ocean,#4c7c9c)}
 .peg-page .peg-aviso-nominal a{color:var(--dmo-palette-slate,#44647c);font-weight:600}
-.peg-page .peg-mais-linha{margin-top:8px;border:1px dashed var(--dmo-palette-mist,#92b4cc);background:transparent;color:var(--dmo-palette-slate,#44647c);border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer}
-.peg-page .peg-mais-linha:hover{border-style:solid;background:var(--dmo-brand-050,#ebf4fc)}
 /* Gravar sem recarregar: quando um cartão é trocado, o browser não mexe no scroll sozinho (scroll anchoring); o que está acima fica onde estava e a tabela cresce para baixo. Por cima dos cartões nada muda de altura: o contexto não encolhe enquanto a página está aberta (a dica da folha em branco sai na primeira medição e o espaço fica, ver pegamentos-registo.js) e os avisos e recusas vão para a pilha fixa do canto. */
 .peg-page{overflow-anchor:none}
 /* A letra do mapa é a da página, como no relatório original (Diogo,

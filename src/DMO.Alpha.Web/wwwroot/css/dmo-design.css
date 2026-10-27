@@ -703,10 +703,10 @@ html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:not(.acti
 html body .dmo-shell-header :is(.dmo-primary-nav,.dmo-secondary-nav) a:hover{background:none}
 /* Regra geral (Diogo, 26/10/2026): no hover muda só a cor da letra, nunca um retângulo de fundo.
    Ficam de fora os botões, as linhas das tabelas, as escolhas (chips), o calendário e a gaveta de máquinas. */
-html body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.jof2 .del,.pu-remove,.peg-page .peg-x,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible){background:none !important;box-shadow:none !important;color:var(--dmo-brand-700)}
+html body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.jof2 .del,.pu-remove,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible){background:none !important;box-shadow:none !important;color:var(--dmo-brand-700)}
 html body :is(a.dmo-fact.dmo-fact-link):is(:hover,:focus-visible) :is(span,strong,em){color:var(--dmo-brand-700)}
-html body :is(.jof2 .del,.pu-remove,.peg-page .peg-x):is(:hover,:focus-visible){color:var(--dmo-danger)}
-:root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.peg-page .peg-mais-linha,.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
+html body :is(.jof2 .del,.pu-remove):is(:hover,:focus-visible){color:var(--dmo-danger)}
+:root[data-theme="dark"] body :is(a.dmo-fact.dmo-fact-link,.dmo-secondary-nav .dmo-tab-menu-list a,.dmo-options-item,.def-menu a,.jof2 .tool-head,.jof2 .pick,.jof2 .menu-list a,.jof2 .prod-list li,.jobon-resumo li.is-abrivel,.revisao-item,.sumario-item:has(>a.sumario-titulo),.dmo-toast-fechar,.password-wrap .password-toggle):is(:hover,:focus-visible),
 :root[data-theme="dark"] body a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible) :is(span,strong,em){color:#fff}
 /* Linhas das tabelas: o hover usa o mesmo azul da barra da esquerda, com letra branca (Diogo, 26/10/2026). */
 html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:var(--dmo-brand-600);color:#fff}

@@ -144,7 +144,7 @@
   html body main.peg-page .peg-context-grid>.dmo-fact{padding:2px 16px}
   html body main.peg-page .peg-context-notes:not(:has(*)){display:none}
 
-  /* Componente: título · nominal e permitido · passo, numa linha. */
+  /* Componente: título · nominal e permitido · ações, numa linha. */
   html body main.peg-page section.peg-card[data-peg-component]{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:center}
   html body main.peg-page section.peg-card[data-peg-component]>*{grid-column:1/-1}
   html body main.peg-page section.peg-card[data-peg-component]>.peg-section-head{grid-column:1/-1;grid-row:1}
@@ -157,7 +157,6 @@
   html body main.peg-page .peg-card .dmo-table-wrap{margin-top:0!important}
   html body main.peg-page .peg-registo-tabela :is(th,td){padding-top:4px;padding-bottom:4px;line-height:20px}
   html body main.peg-page .peg-registo-tabela input{height:var(--dmo-control-height-compact);min-height:0;padding-top:0;padding-bottom:0}
-  html body main.peg-page .peg-mais-linha{margin-top:8px}
 
   /* Mapa de limites. */
   html body main.peg-page .peg-map-card{padding:8px 20px 12px}
@@ -168,8 +167,34 @@
   html body main.peg-page .peg-map-status{margin-top:8px;padding:6px 12px}
 }
 @media (min-width:1100px){
-  html body main.peg-page section.peg-card[data-peg-component]>.peg-mais-linha{justify-self:start}
   html body main.peg-page .peg-context-grid:has(>.dmo-fact:nth-child(6):last-child){grid-template-columns:.7fr .7fr 1fr 1fr 1fr 1.8fr}
+}
+/* A página não desliza (Diogo, 27/10/2026: «as páginas que deslizam estragam
+   o UI»): ocupa o ecrã; as leituras deslizam dentro da coluna da esquerda e o
+   mapa fica à vista na da direita. */
+@media (min-width:1100px) and (min-height:640px){
+  html body .app:has(>main.peg-page .peg-folha){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main.peg-page .peg-folha)>*{flex:0 0 auto}
+  html body .app>main.peg-page:has(.peg-folha){flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  html body main.peg-page:has(.peg-folha)>*{flex:0 0 auto}
+  html body main.peg-page>.peg-folha{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:8px;align-items:stretch}
+  html body main.peg-page .peg-folha-leituras{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px;scrollbar-gutter:stable}
+  html body main.peg-page .peg-folha>#pegMapa{min-height:0;overflow:auto}
+  html body main.peg-page .peg-folha>#pegMapa:not(:has(*)){display:none}
+  html body main.peg-page .peg-folha:has(>#pegMapa:empty){grid-template-columns:minmax(0,1fr)}
+  /* Na coluna: o nominal e o permitido por baixo do título (as ações ficam no canto). */
+  html body main.peg-page .peg-folha section.peg-card[data-peg-component]>.peg-ferramenta-linha{grid-column:1/-1;grid-row:2;padding-left:0;margin:0 0 6px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(1){width:48px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(2){width:84px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(3),
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(4){width:21%}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(5){width:96px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(6){width:76px}
+  html body main.peg-page .peg-folha table.peg-registo-tabela input{width:100%;box-sizing:border-box}
+  html body main.peg-page .peg-folha .peg-registo-tabela .peg-dica{white-space:normal;line-height:14px;font-size:11px}
+  /* O mapa na coluna da direita: o nome do componente mais estreito, sem largura mínima. */
+  html body main.peg-page .peg-folha .peg-map-wrap{overflow:visible}
+  html body main.peg-page .peg-folha .peg-map-wrap .peg-gr{grid-template-columns:64px minmax(0,1fr);column-gap:10px;min-width:0;padding:8px 24px 6px 8px}
 }
 
 /* ===== Controlo › PU NNPB ==================================================
@@ -319,7 +344,6 @@
   html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(4){width:22%}
   html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(5){width:150px}
   html body main.peg-page table.peg-registo-tabela>thead>tr>th:nth-child(6){width:120px}
-  html body main.peg-page table.peg-registo-tabela>thead>tr>th.peg-col-x{width:40px}
 
   /* Peso · Comparação: os campos das novas leituras numa linha; a massa de água com lugar para o exemplo. */
   html body main.peso-page form#cmpForm{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 16px}
