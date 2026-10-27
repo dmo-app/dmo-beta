@@ -36,7 +36,9 @@ html body main.ferr-page .ferr-editar-linha>.ferr-editar-sep{display:none}
 html[data-dmo-embedded="true"] body main.ferr-page .ferr-editar-linha{column-gap:16px}
 html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:96px !important}
 html[data-dmo-embedded="true"] body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:156px !important}
-html body main.ferr-page .ferr-editar-linha>.ferr-opcional{flex:0 1 auto}
+/* A Informação opcional numa linha própria, por baixo, com um traço por cima
+   (Diogo, 27/10/2026: «meter um separador uma linha»). */
+html body main.ferr-page .ferr-editar-linha>.ferr-opcional{flex:1 0 100%;margin-top:4px;padding-top:12px;border-top:1px solid var(--dmo-border)}
 html body main.ferr-page .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:wrap}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos){gap:16px}
 html body main.ferr-page .ferr-tech-titulo{height:16px;margin:0 0 8px;font-size:11px;line-height:16px}
@@ -148,12 +150,16 @@ html body .beta-bq-layout .card h3{font-size:16px;line-height:24px;margin:0}
 
 /* Registo aberto: o registo e os valores lado a lado; o formulário do
    movimento numa faixa; os últimos movimentos por baixo (cabe em 768 px). */
-html body .beta-bq-layout section#registo:has(.register-open){display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
-/* As zonas (.dmo-zona) são display:contents: os cartões delas é que são as células. */
-html body .beta-bq-layout section#registo:has(.register-open)>*,
-html body .beta-bq-layout section#registo:has(.register-open)>.dmo-zona>*{grid-column:1/-1}
-html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoAberto>.register-open{grid-column:1;grid-row:3}
-html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoNumeros>.bq-metrics-card{grid-column:2;grid-row:3}
+/* Só a partir de 1100 px (no telemóvel os dois cartões e o formulário ficam
+   um por baixo do outro; a 390 px a faixa saía 72 px do ecrã). */
+@media (min-width:1100px){
+  html body .beta-bq-layout section#registo:has(.register-open){display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
+  /* As zonas (.dmo-zona) são display:contents: os cartões delas é que são as células. */
+  html body .beta-bq-layout section#registo:has(.register-open)>*,
+  html body .beta-bq-layout section#registo:has(.register-open)>.dmo-zona>*{grid-column:1/-1}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoAberto>.register-open{grid-column:1;grid-row:3}
+  html body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoNumeros>.bq-metrics-card{grid-column:2;grid-row:3}
+}
 html body .beta-bq-layout section#registo>.dmo-zona>.card{margin:0}
 html body .beta-bq-layout .register-open .dmo-facts{display:flex;padding:4px 0}
 html body .beta-bq-layout .register-open .dmo-facts>.dmo-fact{flex:1 1 auto;min-width:0}
@@ -161,12 +167,14 @@ html body .beta-bq-layout .register-open .dmo-fact>strong{white-space:nowrap}
 html body .beta-bq-layout .register-open .dmo-fact{padding:2px 12px}
 html body .beta-bq-layout .bq-movement-card .jobon-aviso{margin:0 0 8px;padding:8px 12px}
 /* O título, o tipo, a quantidade, a data e o «Registar» numa só linha. */
-html body .beta-bq-layout form.bq-movement-form{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:end}
-html body .beta-bq-layout form.bq-movement-form>*{grid-column:1/-1}
-html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo{display:contents}
-html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{grid-column:1;grid-row:1;align-self:end;margin:0 0 8px;white-space:nowrap}
-html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>.dmo-card-topo-acoes{grid-column:3;grid-row:1;align-self:end}
-html body .beta-bq-layout form.bq-movement-form>.bq-movement-line{grid-column:2;grid-row:1}
+@media (min-width:1100px){
+  html body .beta-bq-layout form.bq-movement-form{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;align-items:end}
+  html body .beta-bq-layout form.bq-movement-form>*{grid-column:1/-1}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo{display:contents}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{grid-column:1;grid-row:1;align-self:end;margin:0 0 8px;white-space:nowrap}
+  html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>.dmo-card-topo-acoes{grid-column:3;grid-row:1;align-self:end}
+  html body .beta-bq-layout form.bq-movement-form>.bq-movement-line{grid-column:2;grid-row:1}
+}
 html body .beta-bq-layout .bq-movement-line{gap:8px 16px;align-items:flex-end;flex-wrap:wrap;margin:0}
 html body .beta-bq-layout .bq-movement-types{gap:8px}
 html body .beta-bq-layout .bq-line-quantity input{width:88px}
@@ -186,13 +194,14 @@ html body .beta-bq-layout .register-open>.filter-bar .dmo-field{display:flex;fle
 html body .beta-bq-layout .register-open>.filter-bar #jobRef{width:152px}
 html body .beta-bq-layout .register-open>.filter-bar #jobNumber{width:auto;min-width:200px}
 
-/* Boquilhas (catálogo): o título, os campos e os botões numa só linha;
-   cada campo com a largura do que leva; a lista com linhas baixas. */
-html body .beta-bq-layout section#boquilhas>.card:has(>.bq-tool-search){display:flex;align-items:flex-end;gap:16px 24px;flex-wrap:wrap}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo{display:contents}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>h3{order:0;flex:0 0 auto;align-self:flex-end;margin:0 0 6px;white-space:nowrap}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>.dmo-card-topo-acoes{order:2;margin-left:auto}
-html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search{order:1;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end}
+/* Boquilhas (catálogo): o título com o «Criar boquilha» no canto superior
+   direito do cartão (Diogo, 18/10/2026) e, por baixo, os campos numa só linha,
+   cada um com a largura do que leva; a lista com linhas baixas. */
+html body .beta-bq-layout section#boquilhas>.card:has(>.bq-tool-search){display:flex;align-items:flex-end;gap:8px 24px;flex-wrap:wrap}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:8px 16px;margin:0}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>h3{flex:0 1 auto;margin:0;white-space:nowrap}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search-topo>.dmo-card-topo-acoes{margin-left:auto}
+html body .beta-bq-layout section#boquilhas>.card>.bq-tool-search{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end}
 html body .beta-bq-layout .bq-tool-search>.dmo-field{display:flex;flex-direction:column;gap:4px;margin:0}
 html body .beta-bq-layout .bq-tool-search>.dmo-field>label{margin:0;line-height:16px;white-space:nowrap}
 html body .beta-bq-layout .bq-tool-search #bq-tool-search{width:224px}
@@ -255,3 +264,15 @@ html body main.ferr-page .ferr-filter-actions{gap:8px}
 html body main.ferr-page #ferrResultados .card-note{margin:-4px 0 8px;font-size:12px;line-height:16px}
 html body main.ferr-page #ferrResultados .dmo-table :is(th,td){padding-block:6px;height:32px}
 html body main.ferr-page #ferrResultados .ferr-pagination{margin-top:8px;gap:8px}
+
+/* O título da Informação opcional abre e fecha o bloco: só a letra muda no hover. */
+html body .ferr-opcional-titulo{cursor:pointer;user-select:none}
+html body .ferr-opcional-titulo:is(:hover,:focus-visible){color:var(--dmo-brand-700);outline:0}
+:root[data-theme="dark"] body .ferr-opcional-titulo:is(:hover,:focus-visible){color:#fff}
+html body .ferr-opcional>.ferr-tech-campos[hidden]{display:none !important}
+/* «sem registo» ao centro da caixa do % uso (Diogo, 27/10/2026: «centrar»). */
+html body main.ferr-page input.ferr-sem-registo-campo,
+html body main.ferr-page input.ferr-sem-registo-campo::placeholder{text-align:center}
+/* Bloqueada, a caixa escondida das Linhas compatíveis não pode aparecer
+   (o ponto branco que o Diogo viu, 27/10/2026). */
+html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,.ri-tipos,.dmo-alternador) label>input:is([type=checkbox],[type=radio]):disabled{opacity:0 !important;border:0 !important}
