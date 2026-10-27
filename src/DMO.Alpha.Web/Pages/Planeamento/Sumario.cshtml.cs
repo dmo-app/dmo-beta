@@ -153,9 +153,8 @@ public sealed class SumarioModel(
                 .ToList();
         }
 
-        var domingo = hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
         ProximasEntradas = JobOn.IndexModel.ProximasEntradasDaSemana(
-            await jobOnList.ListWindowAsync(hoje, domingo, HttpContext.RequestAborted), hoje);
+            await jobOnList.ListWindowAsync(hoje, JobOn.IndexModel.AteUmaSemana(hoje), HttpContext.RequestAborted), hoje);
 
         var porDia = items.GroupBy(i => i.Dia).ToDictionary(g => g.Key, g => g.Count());
         Calendar = DmoCalendarPresentation.ForMonth(

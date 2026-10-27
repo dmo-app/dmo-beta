@@ -51,7 +51,7 @@ public sealed class JobOnQuadroDoDiaQueryTests : IDisposable
     }
 
     [Fact]
-    public async Task UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAsProducoesDoDiaPorReferencia()
+    public async Task UmaLinhaPorMaquina_NaOrdemDasMaquinas_ComAProducaoQueEntrouPorUltimo()
     {
         var (b1, b2) = await DuasMaquinasAsync();
         var b3 = new Machine { Code = "B3" };
@@ -66,7 +66,8 @@ public sealed class JobOnQuadroDoDiaQueryTests : IDisposable
         var linhas = await QuadroAsync();
 
         Assert.Equal(["B1", "B2", "B3"], linhas.Select(l => l.MachineCode));
-        Assert.Equal(["5447T173", "6018Y232"], linhas[0].Productions.Select(p => p.Reference));
+        // Uma produção por linha: a que entrou por último (Diogo, 27/10/2026).
+        Assert.Equal(["5447T173"], linhas[0].Productions.Select(p => p.Reference));
         Assert.False(linhas[1].HasProductions);
         Assert.False(linhas[2].HasProductions);
     }
@@ -74,16 +75,17 @@ public sealed class JobOnQuadroDoDiaQueryTests : IDisposable
     [Fact]
     public async Task ProducaoAteAviso_CobreOsDiasDepoisDoInicio_MasNaoOsAntes()
     {
-        var (b1, _) = await DuasMaquinasAsync();
+        var (b1, b2) = await DuasMaquinasAsync();
         _db.JobOns.AddRange(
-            Producao(b1, "5447T173", "1", new DateOnly(2026, 10, 10), null),
+            Producao(b2, "5447T173", "1", new DateOnly(2026, 10, 10), null),
             Producao(b1, "6018Y232", "2", new DateOnly(2026, 10, 20), null),
             Producao(b1, "7777N777", "3", new DateOnly(2026, 10, 21), null));
         await _db.SaveChangesAsync();
 
         var linhas = await QuadroAsync();
 
-        Assert.Equal(["5447T173", "6018Y232"], linhas[0].Productions.Select(p => p.Reference));
+        Assert.Equal(["6018Y232"], linhas[0].Productions.Select(p => p.Reference));
+        Assert.Equal(["5447T173"], linhas[1].Productions.Select(p => p.Reference));
     }
 
     [Fact]
@@ -102,7 +104,7 @@ public sealed class JobOnQuadroDoDiaQueryTests : IDisposable
     }
 
     [Fact]
-    public async Task DuasProducoesDaMesmaLinhaQueSeCruzam_NaoMarcamSobreposicao()
+    public async Task DuasProducoesDaMesmaLinhaQueSeCruzam_FicaAQueEntrouPorUltimo_SemSobreposicao()
     {
         var (b1, _) = await DuasMaquinasAsync();
         _db.JobOns.AddRange(
@@ -113,17 +115,18 @@ public sealed class JobOnQuadroDoDiaQueryTests : IDisposable
         var linhas = await QuadroAsync();
 
         // Diogo, 25/10/2026: «so se aplica as bqs»; as duas cobrem o dia e a
-        // linha não fica marcada.
-        Assert.Equal(2, linhas[0].Productions.Count);
+        // linha não fica marcada. Só aparece a que entrou por último (Diogo,
+        // 27/10/2026: uma linha só tem uma produção em curso).
+        Assert.Equal("6018Y232", Assert.Single(linhas[0].Productions).Reference);
         Assert.All(linhas, l => Assert.False(l.HasOverlap));
     }
 
     [Fact]
     public async Task NotasDeLoteDoDiaEResumoDasAlteracoes_ficamNaProducao()
     {
-        var (b1, _) = await DuasMaquinasAsync();
+        var (b1, b2) = await DuasMaquinasAsync();
         var com = Producao(b1, "5447T173", "1", new DateOnly(2026, 10, 10), null);
-        var sem = Producao(b1, "6018Y232", "2", new DateOnly(2026, 10, 12), null);
+        var sem = Producao(b2, "6018Y232", "2", new DateOnly(2026, 10, 12), null);
         _db.JobOns.AddRange(com, sem);
         _db.Tools.Add(new Tool { ToolId = "BQ-7", Type = ToolType.Bq, Reference = "T1", Lot = "7" });
         await _db.SaveChangesAsync();
@@ -139,7 +142,7 @@ public sealed class JobOnQuadroDoDiaQueryTests : IDisposable
         var linhas = await QuadroAsync();
 
         var daCom = linhas[0].Productions.Single(p => p.JobOnId == com.Id);
-        var daSem = linhas[0].Productions.Single(p => p.JobOnId == sem.Id);
+        var daSem = linhas[1].Productions.Single(p => p.JobOnId == sem.Id);
         Assert.Equal(["Muda BQ lote 6 para 7"], daCom.LotNotes);
         Assert.Equal(1, daCom.ChangeCount);
         Assert.False(string.IsNullOrWhiteSpace(daCom.ChangeSummary));
