@@ -22,7 +22,8 @@ public partial class PuncoesPageTests
         }
 
         var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
-        Assert.Contains("<table class=\"dmo-table pu-table pu-table-fixa\">", html);
+        // Sem botões nas linhas (Diogo, 27/10/2026): a tabela é uma lista que se escolhe.
+        Assert.Contains("<table class=\"dmo-table pu-table pu-table-fixa\" id=\"puLista\" data-dmo-list=\"Lista de punções\">", html);
         Assert.Contains("<colgroup>", html);
         ExportarParaOBrowser.Gravar("puncoes-tabela.html", html);
     }

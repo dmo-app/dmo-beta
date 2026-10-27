@@ -348,7 +348,23 @@
           @* UM SÓ BOTÃO «OPÇÕES» (Diogo, 21/10/2026: «um botao com opcoes e nao
              espalhado pela pagina»): o PDF e, no registo sem Job On, o
              associar a uma produção, numa janela pequena. *@
-          <div class="dmo-card-topo-acoes">
+          @* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026: «não quero botões em rows
+             por todo o lado»): um clique escolhe a punção e os dois botões do
+             canto trocam o «Visto» / «Por verificar» dela (o mesmo POST Seen).
+             Sem a punção escolhida ficam desativados; com uma só, já vem
+             escolhida. O visto é o contrário do estado da linha (data-pu-*,
+             puncoes-visto.js); sem script, o servidor troca o que lá está. *@
+          @{
+            var linhasPu = registo?.Rows ?? [];
+            var escolhidaPu = linhasPu.Count == 1 ? linhasPu[0].Id
+                : Model.EscolhidaInspecaoId is int pedida && linhasPu.Any(r => r.Id == pedida) ? pedida : (int?)null;
+          }
+          <div class="dmo-card-topo-acoes" data-dmo-for="puLista">
+            @if (linhasPu.Count > 0)
+            {
+              <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="puncao" id="pu-visto-puncao" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Punção visto</button>
+              <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="arrefecedor" id="pu-visto-arrefecedor" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Arrefecedor visto</button>
+            }
             <details class="dmo-options" data-dmo-tab-menu>
               <summary class="dmo-button" aria-label="Opções do registo das punções"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
               <div class="dmo-options-list">
@@ -366,6 +382,12 @@
           </div>
         </div>
         <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf" id="pu-pdf-form" data-dmo-nativo>
+          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+        </form>
+        @* O formulário dos dois botões do canto: a punção é o rádio escondido
+           da linha escolhida (form="puVistoForm"; as janelas de remover vivem
+           nas linhas e não podem ficar dentro de outro formulário). *@
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Seen" id="puVistoForm" data-pu-visto-form>
           <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
         </form>
 
@@ -397,10 +419,11 @@
 
         <div class="dmo-table-wrap">
           @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
-          <table class="dmo-table pu-table pu-table-fixa">
-            <colgroup><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
+          <table class="dmo-table pu-table pu-table-fixa" id="puLista" data-dmo-list="Lista de punções">
+            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
             <thead>
               <tr>
+                <th></th>
                 <th>N.º da punção</th>
                 <th>Lote</th>
                 <th>Punção visto</th>
@@ -411,30 +434,21 @@
             <tbody>
               @if (registo is null || registo.Rows.Count == 0)
               {
-                <tr><td colspan="5" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
+                <tr><td colspan="6" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
               }
               else
               {
                 @foreach (var row in registo.Rows)
                 {
-                  <tr>
+                  var estaPu = row.Id == escolhidaPu;
+                  <tr data-dmo-row data-id="@row.Id" data-pu-puncao="@(row.PunchSeen ? "true" : "false")" data-pu-arrefecedor="@(row.CoolerSeen ? "true" : "false")"
+                      class="@(estaPu ? "selected" : null)" aria-selected="@(estaPu ? "true" : "false")"
+                      aria-label="Punção @row.Number · lote @row.Lot · punção @(row.PunchSeen ? "vista" : "por verificar") · arrefecedor @(row.CoolerSeen ? "visto" : "por verificar")">
+                    <td><input type="radio" name="inspecao_id" value="@row.Id" form="puVistoForm" required checked="@estaPu" aria-label="Escolher a punção @row.Number · lote @row.Lot" /></td>
                     <td class="pu-number">@row.Number@if (row.IsAlteracao) {<span class="pu-alteracao">Alteração</span>}</td>
                     <td class="pu-lot">@row.Lot</td>
-                    @foreach (var (campo, visto) in new[] { ("puncao", row.PunchSeen), ("arrefecedor", row.CoolerSeen) })
-                    {
-                      <td>
-                        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Seen" class="pu-check-form">
-                          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-                          <input type="hidden" name="inspecao_id" value="@row.Id" />
-                          <input type="hidden" name="campo" value="@campo" />
-                          <input type="hidden" name="visto" value="@(visto ? "false" : "true")" />
-                          <button type="submit" class="pu-check @(visto ? "on" : null)" aria-pressed="@(visto ? "true" : "false")"
-                                  aria-label="@(campo == "puncao" ? "Punção" : "Arrefecedor da punção") @row.Number: @(visto ? "visto, carregar para desmarcar" : "por verificar, carregar para marcar")">
-                            <span class="pu-box" aria-hidden="true">@(visto ? "✓" : "")</span>@(visto ? "Visto" : "Por verificar")
-                          </button>
-                        </form>
-                      </td>
-                    }
+                    <td class="pu-estado @(row.PunchSeen ? "on" : null)" data-pu-estado="puncao">@(row.PunchSeen ? "Visto" : "Por verificar")</td>
+                    <td class="pu-estado @(row.CoolerSeen ? "on" : null)" data-pu-estado="arrefecedor">@(row.CoolerSeen ? "Visto" : "Por verificar")</td>
                     <td class="pu-right">
                       @* A confirmação é a janela da casa, com o texto escrito pelo
                          Razor como HTML (nunca dentro de um onclick: um número
@@ -537,3 +551,4 @@
 </script>
 @* O número seguinte, escrito enquanto o anterior grava, não se junta a ele nem se perde. *@
 <script src="~/js/puncoes-numero.js" asp-append-version="true"></script>
+<script src="~/js/puncoes-visto.js" asp-append-version="true"></script>

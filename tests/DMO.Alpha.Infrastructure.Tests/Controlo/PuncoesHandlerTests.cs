@@ -103,6 +103,30 @@ public sealed class PuncoesHandlerTests : IDisposable
         Assert.Equal(new[] { false, true, false }, registo.Rows.Select(r => r.IsAlteracao));
     }
 
+    // Sem botões nas linhas (Diogo, 27/10/2026): os botões do canto, sem
+    // script, não dizem o estado novo; sem valor, troca o que lá está.
+    [Fact]
+    public async Task Seen_SemValor_TrocaOEstadoQueLaEsta()
+    {
+        var controloId = await SeedProductionAsync(CmProcess.Nnpb);
+        var alvo = PuncoesTarget.ForControlo(controloId);
+        await _handler.AddAsync(alvo, "41", "1075", "1", "4301");
+        var id = (await _handler.GetSheetAsync(controloId))!.Registo!.Rows.Single().Id;
+
+        Assert.Equal(PuncoesResult.Success, await _handler.SetSeenAsync(alvo, id, PuncaoSeenField.Puncao, null, "4301"));
+        _db.ChangeTracker.Clear();
+        var linha = (await _handler.GetSheetAsync(controloId))!.Registo!.Rows.Single();
+        Assert.False(linha.PunchSeen);
+        Assert.True(linha.CoolerSeen);
+
+        Assert.Equal(PuncoesResult.Success, await _handler.SetSeenAsync(alvo, id, PuncaoSeenField.Puncao, null, "4301"));
+        Assert.Equal(PuncoesResult.Success, await _handler.SetSeenAsync(alvo, id, PuncaoSeenField.Arrefecedor, null, "4301"));
+        _db.ChangeTracker.Clear();
+        linha = (await _handler.GetSheetAsync(controloId))!.Registo!.Rows.Single();
+        Assert.True(linha.PunchSeen);
+        Assert.False(linha.CoolerSeen);
+    }
+
     [Fact]
     public async Task SeenMarks_AndRemove_UpdateTheTotals()
     {

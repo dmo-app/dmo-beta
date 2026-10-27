@@ -268,7 +268,6 @@
 @media (min-width:1100px){
   /* PU NNPB: 51 punções numa tabela compacta (linha de 43 px para 29 px). */
   html body main.pu-page .pu-table :is(th,td){padding-top:2px;padding-bottom:2px;line-height:20px}
-  html body main.pu-page .pu-table .pu-check{height:24px;min-height:0;padding:0 6px;line-height:20px}
   html body main.pu-page .pu-table .pu-remove{min-height:0;padding:0 6px;line-height:20px}
 
   /* Revisão (lista e produção): o calendário (320 px) e os «Controlos do dia» com a mesma largura. */

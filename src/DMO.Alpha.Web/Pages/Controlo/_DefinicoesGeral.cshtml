@@ -6,6 +6,8 @@
     // O separador aberto (?sub=…): cada separador tem só o que a sua área usa (Diogo, 22/10/2026).
     var sub = ViewData["CtlSub"] as string ?? "peso";
     // NNPB só existe na B1 e por vezes na C3 (Diogo, 22/10/2026): as outras linhas não se mostram (os valores guardados ficam).
+    // Os modelos do email: com um só, a linha já vem escolhida (sem botões nas linhas, 27/10/2026).
+    var umSoModelo = Model.Modelos.Count == 1;
     var linhasNnpb = Model.PuncoesLinhas.Where(l => DMO.Alpha.Web.Pages.Controlo.DefinicoesModel.LinhasNnpb.Contains(l.Maquina)).ToList();
 }
 <style>
@@ -34,7 +36,6 @@ html body .ctl-def-grade[hidden]{display:none}
 .ctl-def-lista-corpo{padding:0 12px 12px}
 .ctl-def-lista-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--dmo-space-3);margin-bottom:var(--dmo-space-3)}
 .ctl-def-lista-topo .dmo-field{margin:0}
-.ctl-def-valor{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted}
 .ctl-def-modelo{display:grid;gap:10px;min-width:min(480px,100%)}
 .ctl-def-modelo .dmo-field{margin:0}
 .ctl-def-modelo textarea{min-height:140px}
@@ -143,8 +144,20 @@ html body .ctl-def-grade[hidden]{display:none}
 
   <section id="ctlDefModelos" class="dmo-card ctl-def-card" aria-labelledby="envio-modelos-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-      <h3 id="envio-modelos-title" title="@("O assunto e o corpo do email, reutilizáveis, e o email que envia. {referencia}, {producao}, {maquina} e {peso} trocam-se pelos dados da produção ({peso} é o peso médio do vidro, por exemplo 245,30 g). A lista do modelo é a proposta ao enviar; no envio pode escolher outra. Clique no nome de um modelo para o mudar.")">Envio por email — modelos</h3>
-      <div class="dmo-card-topo-acoes">
+      <h3 id="envio-modelos-title" title="@("O assunto e o corpo do email, reutilizáveis, e o email que envia. {referencia}, {producao}, {maquina} e {peso} trocam-se pelos dados da produção ({peso} é o peso médio do vidro, por exemplo 245,30 g). A lista do modelo é a proposta ao enviar; no envio pode escolher outra. Um clique escolhe um modelo; «Abrir» (ou o Enter, ou dois cliques) abre-o para o mudar.")">Envio por email — modelos</h3>
+      @* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026: «não quero botões em rows
+         por todo o lado»): um clique escolhe o modelo, o Enter ou dois
+         cliques abrem-no, e o «Abrir» do canto abre o escolhido. Com um só
+         modelo, já vem escolhido; sem escolha, o «Abrir» fica desativado. *@
+      <div class="dmo-card-topo-acoes" data-dmo-for="ctlDefModelosLista">
+        @if (umSoModelo)
+        {
+          <button type="button" class="dmo-button" id="ctlDefModeloAbrir" data-dmo-precisa-escolha data-dmo-dialog-modelo="ctl-modelo-{id}" data-dmo-dialog="ctl-modelo-@Model.Modelos[0].Id">Abrir</button>
+        }
+        else if (Model.Modelos.Count > 1)
+        {
+          <button type="button" class="dmo-button" id="ctlDefModeloAbrir" data-dmo-precisa-escolha data-dmo-dialog-modelo="ctl-modelo-{id}" disabled>Abrir</button>
+        }
         <button type="button" class="dmo-button" data-dmo-dialog="ctl-modelo-novo">Novo modelo</button>
       </div>
     </div>
@@ -155,13 +168,15 @@ html body .ctl-def-grade[hidden]{display:none}
     else
     {
       <div class="dmo-table-wrap">
-        <table class="dmo-table" data-dmo-modelos-email>
-          <thead><tr><th>Modelo</th><th>Assunto</th><th>Lista</th><th><span class="dmo-visually-hidden">Apagar</span></th></tr></thead>
+        <table class="dmo-table" id="ctlDefModelosLista" data-dmo-list="Modelos de email" data-dmo-modelos-email>
+          <thead><tr><th></th><th>Modelo</th><th>Assunto</th><th>Lista</th><th><span class="dmo-visually-hidden">Apagar</span></th></tr></thead>
           <tbody>
           @foreach (var modelo in Model.Modelos)
           {
-            <tr data-dmo-modelo-email="@modelo.Id">
-              <td><button type="button" class="ctl-def-valor" data-dmo-dialog="ctl-modelo-@modelo.Id">@modelo.Nome</button></td>
+            <tr data-dmo-modelo-email="@modelo.Id" data-dmo-row data-id="@modelo.Id" data-dmo-abre-janela="ctl-modelo-@modelo.Id"
+                class="@(umSoModelo ? "selected" : null)" aria-selected="@(umSoModelo ? "true" : "false")" aria-label="Modelo @modelo.Nome">
+              <td><input type="radio" name="ctl_modelo_escolhido" value="@modelo.Id" checked="@umSoModelo" aria-label="Escolher o modelo @modelo.Nome" /></td>
+              <td>@modelo.Nome</td>
               <td>@modelo.Assunto</td>
               <td>@(listaOpcoes.FirstOrDefault(l => l.Id == modelo.ListaId)?.Nome ?? "—")</td>
               <td>
