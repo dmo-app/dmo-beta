@@ -3936,3 +3936,15 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/visual/jobon_folha_browser.py`
 
 Selo depois: `1146924046f4fbb9`
+
+## A-0243 · 2026-10-27 · teste-novo
+
+Porquê: PU NNPB: a gota de cada linha nas Definições (B1 4, C3 3 por omissão, 1 a 4) dita as posições de cada secção na folha e no PDF; punções da linha = secções × gota (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra3p4eE4qrDuNcqxPhGnS86V)
+Referência: DMO-508
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_DaLinha_DitamAsPosicoesDeCadaSeccao_NaFolhaENoPdf`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_NasDefinicoes_B1Com4EC3Com3PorOmissao_GravamSeERecusamForaDe1a4`
+
+Selo depois: `8402c422bf55bafa`

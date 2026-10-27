@@ -439,7 +439,7 @@ public sealed class PuncoesModel : PageModel
             var standaloneBytes = _pdfGenerator.GenerateBytes(new PuncoesPosicoesPdfGenerator.Input(
                 standalone.Reference, "—", "Sem Job On", null, null,
                 await _handler.RegistadoPorAsync(standalone.Registo, HttpContext.RequestAborted),
-                PuncoesPosicoes.Distribuir(standalone.Registo.Rows, await _linhas.SeccoesAsync(null, HttpContext.RequestAborted))));
+                await DistribuirAsync(standalone.Registo.Rows, null)));
             Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(standalone.Reference, semJobOn));
             return File(standaloneBytes, "application/pdf", ControloDocumentPaths.GetPuncoesFileName(standalone.Reference, semJobOn));
         }
@@ -453,7 +453,7 @@ public sealed class PuncoesModel : PageModel
         var bytes = _pdfGenerator.GenerateBytes(new PuncoesPosicoesPdfGenerator.Input(
             sheet.Reference, sheet.Machine, sheet.ProductionNumber, sheet.InicioEm, sheet.FimEm,
             await _handler.RegistadoPorAsync(registo, HttpContext.RequestAborted),
-            PuncoesPosicoes.Distribuir(registo.Rows, await _linhas.SeccoesAsync(sheet.Machine, HttpContext.RequestAborted))));
+            await DistribuirAsync(registo.Rows, sheet.Machine)));
         Response.Headers[ControloDocumentPaths.PdfFolderHeader] = Uri.EscapeDataString(ControloDocumentPaths.GetProductionRelativeFolder(sheet.Reference, sheet.ProductionNumber));
         return File(bytes, "application/pdf", ControloDocumentPaths.GetPuncoesFileName(sheet.Reference, sheet.ProductionNumber));
     }
@@ -462,8 +462,15 @@ public sealed class PuncoesModel : PageModel
     {
         if (Registo is { } registo)
         {
-            Posicoes = PuncoesPosicoes.Distribuir(registo.Rows, await _linhas.SeccoesAsync(Sheet?.Machine, HttpContext.RequestAborted));
+            Posicoes = await DistribuirAsync(registo.Rows, Sheet?.Machine);
         }
+    }
+
+    /// <summary>As punções na grelha da linha, com as secções e a gota das Definições.</summary>
+    private async Task<PuncoesNaLinha> DistribuirAsync(IReadOnlyList<PuncaoReadModel> rows, string? maquina)
+    {
+        var linha = await _linhas.LinhaAsync(maquina, HttpContext.RequestAborted);
+        return PuncoesPosicoes.Distribuir(rows, linha.Seccoes, linha.Gotas);
     }
 
     private static PuncoesTarget Target(int? controloId, int? puncoesId) =>

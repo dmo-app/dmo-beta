@@ -1,5 +1,5 @@
 {
-  "selo": "1146924046f4fbb9",
+  "selo": "8402c422bf55bafa",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2742,6 +2742,9 @@
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: (resto do ficheiro)": "ba416ddcd8e28742",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: PuncoesPageTests.Folha_TodasAsCelulasComONumeroEALinhaDoLote": "91b027d0f8ea6fc2",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.ErrosControlo.cs :: PuncoesPageTests.Identificacao_SemLinhaNemProcesso_ETotais_ComReserva": "8a3a26537a6f0705",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: (resto do ficheiro)": "0ae083c9361a6a6c",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_DaLinha_DitamAsPosicoesDeCadaSeccao_NaFolhaENoPdf": "9e93e52130e690b8",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_NasDefinicoes_B1Com4EC3Com3PorOmissao_GravamSeERecusamForaDe1a4": "605ea5813142e34b",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.LoteNoBrowser.cs :: (resto do ficheiro)": "28f3ea116b77389c",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.LoteNoBrowser.cs :: PuncoesPageTests.Identificacao_OCampoDoLoteVaiParaOBrowser": "1ffcd663cbe60e9c",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: (resto do ficheiro)": "75ee902a47b100c9",

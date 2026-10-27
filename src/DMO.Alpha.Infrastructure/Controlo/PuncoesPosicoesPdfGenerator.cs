@@ -10,7 +10,7 @@ namespace DMO.Alpha.Infrastructure.Controlo;
 /// <summary>
 /// O PDF das punções por posição da linha (a tabela aprovada pelo Diogo a
 /// 22/10/2026): A4 deitado, o título «Registo de punções PU · NNPB», a
-/// grelha das secções com as posições A a D, a reserva, os totais e os
+/// grelha das secções com uma posição por gota (A, B, C…), a reserva, os totais e os
 /// punções repetidos com o lote. Gerado em memória e descarregado pelo
 /// browser; nunca grava no servidor.
 /// </summary>
@@ -20,8 +20,12 @@ public sealed class PuncoesPosicoesPdfGenerator
 
     private static readonly CultureInfo Pt = DmoNumberFormat.Culture;
 
-    /// <summary>Quantos punções da reserva cabem numa linha da tabela da reserva.</summary>
-    private const int ReservaPorLinha = 12;
+    /// <summary>
+    /// Quantos punções da reserva cabem numa linha da tabela da reserva: 8,
+    /// para a reserva, os totais e os repetidos caberem lado a lado na folha
+    /// (com 12 e a reserva cheia passava da largura e o PDF não se gerava).
+    /// </summary>
+    private const int ReservaPorLinha = 8;
 
     public sealed record Input(
         string Reference,
@@ -92,7 +96,7 @@ public sealed class PuncoesPosicoesPdfGenerator
                     });
 
                     var altura = grelha.Seccoes > 16 ? 34 : 46;
-                    for (var p = 0; p < PuncoesPosicoes.PosicoesPorSeccao; p++)
+                    for (var p = 0; p < grelha.Gotas; p++)
                     {
                         t.Cell().Element(c => Celula(c, DmoPdfPalette.Tint, altura)).Text(PuncoesPosicoes.Letra(p)).SemiBold();
                         for (var s = 1; s <= grelha.Seccoes; s++)
