@@ -361,3 +361,10 @@ html body main.peso-page .peso-leitura-form .peso-leitura-nova .peso-row-button{
 /* Os botões da correção pequenos (Diogo, 27/10/2026: «muito grandes»). */
 html body main.peso-page .peso-correcao .peso-leitura-actions{display:flex;flex-wrap:nowrap;gap:4px;margin-top:6px}
 html body main.peso-page .peso-correcao .peso-leitura-actions>*{flex:0 0 auto;height:var(--dmo-control-height);min-height:0;min-width:0;padding:0 8px;font-size:12px}
+
+/* Os números e a leitura nova em cima; as tabelas por baixo, seguidas
+   (Diogo, 27/10/2026: «essa informação deveria ficar em cima e as tabelas
+   em baixo seguidas»). Só a ordem no ecrã muda. */
+html body main.peso-page section.peso-card[data-peso-live]{display:flex;flex-direction:column}
+html body main.peso-page section.peso-card[data-peso-live]>#pesoLeituras>*{order:1}
+html body main.peso-page section.peso-card[data-peso-live]>.peso-live-region{margin-top:0;margin-bottom:8px}
