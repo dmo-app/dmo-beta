@@ -8,7 +8,8 @@
 /* ================================================================== */
 html body main.ferr-page{max-width:none;margin:0;padding:16px 24px 8px;gap:16px}
 html body main.ferr-page>.page-head{min-height:0;margin:0}
-html body main.ferr-page>.page-head h2{font-size:22px;line-height:28px}
+/* O título com a cor dos títulos dos outros módulos (estava a azul). */
+html body main.ferr-page>.page-head h2{font-size:22px;line-height:28px;color:var(--dmo-text)}
 html body main.ferr-page .ferr-card{padding:12px 16px}
 html body main.ferr-page .ferr-card .dmo-card-topo{min-height:32px;margin-bottom:8px}
 html body main.ferr-page .ferr-card details:not([open])>summary.dmo-card-topo{margin-bottom:0}
@@ -95,7 +96,7 @@ html.dmo-bloqueado body main.ferr-page #ferr-tech-guardar{display:none}
 /* ------------------------------------------------------------------ */
 html body main.hist-page{padding:16px 24px 8px;gap:16px}
 html body main.hist-page>.page-head{min-height:0;margin:0;padding:0}
-html body main.hist-page>.page-head h1{margin:0;font-size:22px !important;line-height:28px;font-weight:650 !important;letter-spacing:-.02em;color:var(--dmo-brand-700)}
+html body main.hist-page>.page-head h1{margin:0;font-size:22px !important;line-height:28px;font-weight:650 !important;letter-spacing:-.02em;color:var(--dmo-text)}
 html body main.hist-page .hist-card{padding:12px 16px}
 html body main.hist-page .hist-card .dmo-card-topo{min-height:32px;margin-bottom:8px}
 html body main.hist-page .hist-filtros-card{padding:12px 16px;gap:8px 16px}
@@ -257,3 +258,50 @@ html body main.ferr-page .ferr-filter-actions{gap:8px}
 html body main.ferr-page #ferrResultados .card-note{margin:-4px 0 8px;font-size:12px;line-height:16px}
 html body main.ferr-page #ferrResultados .dmo-table :is(th,td){padding-block:6px;height:32px}
 html body main.ferr-page #ferrResultados .ferr-pagination{margin-top:8px;gap:8px}
+
+/* ================================================================== */
+/* Auditoria 1366×768 (27/10/2026, todo/1366-falhas.md §3)             */
+/* ================================================================== */
+@media (min-width:1100px){
+  /* Movimentos › Resumo diário: a grelha do mês usa a página, sem a caixa
+     de 184 px com scroll próprio (o dmo-design.css limita a 100vh - 610px). */
+  html body .beta-bq-layout .dmo-table-wrap:has(>.dmo-matrix){max-height:none}
+
+  /* Movimentos › Registo do dia: sem dia escolhido o quadro só tem a frase
+     e fica com a altura dela, em vez de esticar até ao fundo do calendário. */
+  html body .beta-bq-layout .bq-history-day-grid>.bq-day-summary:not(:has(.beta-light-list)){align-self:start}
+
+  /* Movimentos › Por linha / Job On: as tabelas de todas as máquinas com
+     as mesmas colunas, alinhadas umas com as outras. */
+  html body .beta-bq-layout .bq-machine-group .dmo-table{table-layout:fixed;width:100%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(1){width:17%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(2){width:16%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(3){width:15%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(4){width:7%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(5){width:14%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(6){width:7%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(7){width:16%}
+  html body .beta-bq-layout .bq-machine-group .dmo-table th:nth-child(8){width:8%}
+
+  /* Movimentos › totais do filtro: o cartão do tamanho dos três números
+     (continuam juntos à esquerda), sem a faixa vazia até à direita. */
+  html body .beta-bq-layout #bqHistTotais{width:max-content;max-width:100%;padding-right:48px}
+
+  /* Registo e Corrigir movimentos: a data e a hora inteiras na caixa. */
+  html body .beta-bq-layout .bq-movement-line .bq-line-date{flex:0 0 192px}
+
+  /* Registo › Valores desta boquilha / lote, ao lado do «Associar Job On»
+     (o registo fica mais alto): dois a dois, para os rótulos caberem numa
+     linha e o cartão não ficar com a metade de baixo vazia. */
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) #bqRegistoNumeros>.bq-metrics-card .lot-data{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));row-gap:16px}
+  html body .beta-bq-layout section#registo:has(.register-open>.filter-bar) #bqRegistoNumeros>.bq-metrics-card .lot-data>div:nth-child(odd){border-left:0 !important;padding-left:0 !important}
+
+  /* Registar Reparação: 16 px do título ao cartão, como nas outras páginas
+     das Ferramentas (eram 34 px). */
+  html body main.rp-page>.page-head{margin-bottom:0}
+
+  /* Definições › Boquilhas: os três cartões com a mesma altura, a encher a
+     largura (cada um cresce a partir da largura do que leva). */
+  html body #sec-boquilhas .bq-def-lado{flex:1 1 100%;min-width:0;align-items:stretch;gap:16px}
+  html body #sec-boquilhas .bq-def-lado>.bq-def-card{flex:1 1 auto;width:auto}
+}
