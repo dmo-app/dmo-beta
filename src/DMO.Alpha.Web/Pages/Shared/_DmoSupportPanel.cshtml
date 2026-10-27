@@ -1,18 +1,10 @@
-@* One contextual support surface. Pages inside remain real Razor Pages. *@
-<dialog class="dmo-support" id="dmoSupport" aria-labelledby="dmoSupportTitle">
-  <header class="dmo-support-head">
-    <div><span class="dmo-support-eyebrow">Consulta de apoio</span><h2 id="dmoSupportTitle">Detalhe</h2></div>
-    <a id="dmoSupportFull" target="_blank">Abrir página</a>
-    <button type="button" class="btn" data-support-close>Fechar</button>
-  </header>
-  <div class="dmo-support-confirm" hidden>
-    <p>Existem alterações por guardar neste painel.</p>
-    <button type="button" class="btn" data-support-keep>Continuar a editar</button>
-    <button type="button" class="btn" data-support-discard>Fechar sem guardar</button>
-  </div>
+@* One contextual support surface. Pages inside remain real Razor Pages.
+   Usa a estrutura fixa dos painéis deslizantes (<dmo-painel>, docs/design/estrutura.md). *@
+<dmo-painel id="dmoSupport" titulo="Detalhe" largura="larga" class="dmo-support" data-dmo-painel-proprio>
+  <dmo-acoes><a id="dmoSupportFull" class="dmo-button" target="_blank">Abrir página</a></dmo-acoes>
   <p class="dmo-support-loading" role="status">A carregar…</p>
   <iframe title="Página de apoio" class="dmo-support-frame"></iframe>
-</dialog>
+</dmo-painel>
 <div class="dmo-support-refresh" hidden role="status">
   Foi enviada uma operação no painel de apoio.
   <button type="button" class="btn" data-support-refresh>Atualizar esta página</button>

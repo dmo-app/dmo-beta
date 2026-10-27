@@ -1,0 +1,107 @@
+/* As duas estruturas fixas da app (Diogo, 27/10/2026): a página normal
+   (<dmo-pagina>) e o painel deslizante (<dmo-painel>). Marcação nos tag helpers
+   (TagHelpers/DmoEstruturaTagHelpers.cs), abrir/fechar em js/dmo-painel.js, como
+   usar em docs/design/estrutura.md. As folhas de cada página não mexem neste
+   esqueleto (topo, corpo, deslizar): só no que está dentro do corpo.
+   Cabeçalho com o título e as ações no canto superior direito; o corpo desliza
+   por dentro e a página inteira nunca desliza a 1366×768. Claro e escuro pelos
+   tokens da paleta. O <main> de uma página com a estrutura reconhece-se pelo
+   .dmo-pagina-topo (main:has(> .dmo-pagina-topo)), sem mudar a sua classe. */
+
+:root{--dmo-painel-fundo:rgba(11,19,32,.24)}
+:root[data-theme="dark"]{--dmo-painel-fundo:rgba(0,0,0,.55)}
+
+/* ---------------------------------------------------------------- página */
+html body .app:has(> main > .dmo-pagina-topo){display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}
+html body .app:has(> main > .dmo-pagina-topo) > *{flex:0 0 auto}
+html body .app > main:has(> .dmo-pagina-topo){flex:1 1 auto;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;width:100%;max-width:none;margin:0;padding:0;gap:0}
+html body .dmo-pagina-topo{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;min-width:0;padding:12px 24px 12px}
+html body .dmo-pagina-voltar{flex:1 0 100%;margin:0 0 -6px;font-size:13px;line-height:1.3}
+html body .dmo-pagina-titulo{flex:0 1 auto;min-width:0;margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:var(--dmo-control-height,34px);color:var(--dmo-text)}
+html body .dmo-pagina-extra{flex:0 1 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-width:0}
+html body .dmo-pagina-acoes{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;margin-left:auto}
+html body .dmo-pagina-corpo{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:16px;box-sizing:border-box;padding:0 24px 16px}
+
+/* Dentro do painel de apoio (?painel=1) o título já está no cabeçalho do painel:
+   da página fica só o que tem ações; sem ações, o topo sai. */
+html[data-dmo-embedded="true"] body :is(.dmo-pagina-titulo,.dmo-pagina-voltar){display:none}
+html[data-dmo-embedded="true"] body .dmo-pagina-topo{padding:12px 20px 8px}
+html[data-dmo-embedded="true"] body .dmo-pagina-topo:not(:has(> .dmo-pagina-extra,> .dmo-pagina-acoes)){display:none}
+html[data-dmo-embedded="true"] body .dmo-pagina-corpo{padding:0 20px 16px}
+html[data-dmo-embedded="true"] body .dmo-pagina-topo:not(:has(> .dmo-pagina-extra,> .dmo-pagina-acoes)) + .dmo-pagina-corpo{padding-top:16px}
+
+/* As páginas que abrem no painel e ainda têm o cabeçalho antigo (.page-head):
+   o mesmo de cima, sem lhes mexer na marcação. Sai o título repetido (Peso,
+   Pegamentos, PU NNPB, Controlo, Ficha…) e o «← Voltar»; o cabeçalho só fica
+   se tiver mais alguma coisa (botões, campos, os dados da folha do Job On). A
+   margem é a do corpo do painel, igual em todas. */
+html[data-dmo-embedded="true"] body .app > main:not(:has(> .dmo-pagina-topo)){padding:16px 20px 24px}
+html[data-dmo-embedded="true"] body .app > main > .page-head > div:first-child:has(> :is(h1,h2)) > :is(h1,h2,p,.dmo-voltar-texto){display:none}
+html[data-dmo-embedded="true"] body .app > main > .page-head:not(:has(:is(a,button,input,select,textarea,summary,.facts):not(.dmo-voltar-texto))){display:none}
+html[data-dmo-embedded="true"] body .app > main > a.dmo-voltar-texto{display:none}
+
+/* Ecrãs estreitos (telemóvel): a página volta a deslizar inteira. */
+@media (max-width:720px){
+  html body .app:has(> main > .dmo-pagina-topo){height:auto;overflow:visible}
+  html body .dmo-pagina-corpo{overflow:visible;padding:0 16px 16px}
+  html body .dmo-pagina-topo{padding:12px 16px}
+}
+
+/* ---------------------------------------------------------------- painel deslizante */
+/* Com o painel aberto nada desliza por trás (nem a barra do documento, que
+   deixava uma faixa à direita do painel). */
+html.dmo-painel-aberto,html.dmo-painel-aberto body{overflow:hidden}
+html.dmo-painel-aberto:root{scrollbar-gutter:auto}
+html body dialog.dmo-painel{
+  --dmo-painel-largura:640px;
+  position:fixed;inset:0 0 0 auto;margin:0;padding:0;box-sizing:border-box;
+  width:var(--dmo-painel-largura);max-width:calc(100vw - 48px);height:100dvh;max-height:none;
+  border:0;border-left:1px solid var(--dmo-border);border-radius:0;
+  background:var(--dmo-card);color:var(--dmo-text);box-shadow:none;
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:none;transition:transform .22s ease;
+}
+html body dialog.dmo-painel[data-largura="estreita"]{--dmo-painel-largura:420px}
+html body dialog.dmo-painel[data-largura="larga"]{--dmo-painel-largura:min(1040px,calc(100vw - 120px))}
+html body dialog.dmo-painel[data-lado="esquerda"]{inset:0 auto 0 0;border-left:0;border-right:1px solid var(--dmo-border)}
+html body dialog.dmo-painel:not([open]){display:none}
+@starting-style{
+  html body dialog.dmo-painel[open]{transform:translateX(100%)}
+  html body dialog.dmo-painel[data-lado="esquerda"][open]{transform:translateX(-100%)}
+}
+html body dialog.dmo-painel::backdrop{background:var(--dmo-painel-fundo)}
+
+html body .dmo-painel-topo{flex:0 0 auto;display:flex;align-items:center;gap:12px;box-sizing:border-box;min-height:calc(var(--dmo-control-height,34px) + 24px);padding:12px 20px;border-bottom:1px solid var(--dmo-border)}
+html body .dmo-painel-titulo{flex:1 1 auto;min-width:0;margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;line-height:1.25;color:var(--dmo-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .dmo-painel-acoes{flex:0 0 auto;display:flex;align-items:center;gap:8px;margin-left:auto}
+html body .dmo-painel-acoes a.dmo-button{text-decoration:none;white-space:nowrap}
+html body .dmo-painel-aviso{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:10px 20px;border-bottom:1px solid var(--dmo-border);background:var(--dmo-warning-soft);color:var(--dmo-text);font-size:13px}
+html body .dmo-painel-aviso[hidden]{display:none}
+html body .dmo-painel-aviso p{flex:1 1 100%;margin:0}
+html body .dmo-painel-corpo{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:16px;box-sizing:border-box;padding:16px 20px}
+html body .dmo-painel-corpo:focus{outline:0}
+/* Um painel que mostra outra página (o painel de apoio): a página ocupa o corpo todo. */
+html body .dmo-painel-corpo:has(> iframe){position:relative;display:flex;padding:0;overflow:hidden}
+html body .dmo-painel-corpo > iframe{flex:1 1 auto;width:100%;min-height:0;border:0}
+
+@media (max-width:700px){html body dialog.dmo-painel{width:100vw;max-width:100vw}}
+@media (prefers-reduced-motion:reduce){html body dialog.dmo-painel{transition:none}}
+
+/* ---------------------------------------------------------------- painel das linhas do Job On
+   A gaveta da folha do Job On (Pages/JobOn/Folha.cshtml, js/jobon-folha.js) fica
+   com a sua marcação e o seu abrir/fechar (lembra-se aberta entre páginas), mas
+   com o aspeto da estrutura: painel estreito pela esquerda, fundo do cartão,
+   cabeçalho «Planeamento» com «Fechar» no canto e a lista a deslizar por dentro. */
+html body .jof2-gaveta .rail{
+  width:min(420px,calc(100vw - 48px));padding:0;box-sizing:border-box;
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--dmo-card);color:var(--dmo-text);
+  border-right:1px solid var(--dmo-border);box-shadow:none;
+}
+html body .jof2-gaveta .rail-backdrop{background:var(--dmo-painel-fundo)}
+html body .jof2-gaveta .rail-head{flex:0 0 auto;display:flex;align-items:center;gap:12px;box-sizing:border-box;min-height:calc(var(--dmo-control-height,34px) + 24px);padding:12px 20px;border-bottom:1px solid var(--dmo-border)}
+html body .jof2-gaveta .rail-head .rail-voltar{flex:1 1 auto;min-width:0;margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;line-height:1.25;color:var(--dmo-text);text-decoration:none}
+html body .jof2-gaveta .rail-head .rail-voltar:is(:hover,:focus-visible){color:var(--dmo-action,var(--dmo-brand-600));text-decoration:none}
+html body .jof2-gaveta .rail-head .rail-close{flex:0 0 auto;margin:0}
+html body .jof2-gaveta .rail-list{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;align-content:start;margin:0;padding:16px 20px}
+html body .jof2-gaveta .rail-vazio{color:var(--dmo-muted)}

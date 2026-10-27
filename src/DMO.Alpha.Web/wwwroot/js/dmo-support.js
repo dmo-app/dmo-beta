@@ -1,4 +1,6 @@
 // Contextual pages slide in beside the workspace. Main navigation never enters here.
+// A marcação é a estrutura fixa dos painéis (<dmo-painel>, _DmoSupportPanel); o
+// abrir/fechar é este, próprio (data-dmo-painel-proprio), por causa do iframe.
 (() => {
   'use strict';
   const panel = document.getElementById('dmoSupport');
@@ -6,7 +8,7 @@
   const frame = panel.querySelector('iframe');
   const title = panel.querySelector('h2');
   const full = panel.querySelector('#dmoSupportFull');
-  const confirm = panel.querySelector('.dmo-support-confirm');
+  const confirm = panel.querySelector('.dmo-painel-aviso');
   const loading = panel.querySelector('.dmo-support-loading');
   const refresh = document.querySelector('.dmo-support-refresh');
   // «Abrir página» abre sempre o mesmo separador para a mesma página: um
@@ -61,7 +63,7 @@
   ]);
   function close() {
     panel.close(); frame.removeAttribute('src'); dirty = false;
-    document.documentElement.classList.remove('dmo-support-open');
+    document.documentElement.classList.remove('dmo-support-open', 'dmo-painel-aberto');
     confirm.hidden = true;
     if (operation) refresh.hidden = false;
     devolverFoco();
@@ -103,7 +105,7 @@
     panel.showModal();
     // O foco não fica no «Abrir página» (parecia um botão apagado).
     frame.focus({ preventScroll: true });
-    document.documentElement.classList.add('dmo-support-open');
+    document.documentElement.classList.add('dmo-support-open', 'dmo-painel-aberto');
     return true;
   }
   frame.addEventListener('load', () => {
@@ -137,9 +139,9 @@
     if (alvo && alvo !== document.body && alvo !== document.documentElement) alvo.click();
   });
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
-  panel.querySelector('[data-support-close]').addEventListener('click', requestClose);
-  panel.querySelector('[data-support-keep]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
-  panel.querySelector('[data-support-discard]').addEventListener('click', close);
+  panel.querySelector('[data-dmo-painel-fechar]').addEventListener('click', requestClose);
+  panel.querySelector('[data-dmo-painel-continuar]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
+  panel.querySelector('[data-dmo-painel-descartar]').addEventListener('click', close);
   refresh.querySelector('[data-support-refresh]').addEventListener('click', () => location.reload());
   refresh.querySelector('[data-support-dismiss]').addEventListener('click', () => {refresh.hidden=true;});
   document.addEventListener('click', event => {

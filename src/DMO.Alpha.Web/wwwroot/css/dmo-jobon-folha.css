@@ -18,8 +18,6 @@
 .jof2-gaveta .rail-backdrop{position:fixed;inset:0;z-index:65;background:var(--dmo-backdrop)}
 .jof2-gaveta .rail-head{display:flex;align-items:flex-start;gap:8px}
 .jof2-gaveta .rail-head>div{margin-right:auto}
-.jof2-gaveta .rail-close{width:32px;height:32px;margin:-6px -4px 0 0;border:0;border-radius:8px;background:none;color:var(--rail-muted);font-size:20px;line-height:1;cursor:pointer}
-.jof2-gaveta .rail-close:hover,.jof2-gaveta .rail-close:focus-visible{background:var(--rail-item);color:var(--rail-text);outline:0}
 .jof2-gaveta .rail-head strong{display:block;font-size:14px}
 .jof2-gaveta .rail-head span{display:block;color:var(--rail-muted);font-size:12px;margin-top:2px}
 .jof2-gaveta .rail-list{display:grid;gap:8px;margin-top:14px}
