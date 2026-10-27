@@ -3972,3 +3972,13 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Gotas.cs :: PuncoesPageTests.Gotas_NasDefinicoes_B1Com4EC3Com3PorOmissao_GravamSeERecusamForaDe1a4`
 
 Selo depois: `8814c455ecaa1b86`
+
+## A-0246 · 2026-10-27 · ok-do-diogo
+
+Porquê: DMO-506: a faixa «Planeamento» em cima do calendário (Job On e Sumário) só mostra o que entra, de hoje até uma semana; as produções em curso saem dela (Diogo: «deveria remover o que já entrou»). O teste do painel lateral do Sumário deixa de exigir «Em curso desde» e passa a exigir que a de ontem fique de fora. A gaveta «Linhas» da folha não muda.
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra2AkV12PB3yw9WgGicGBS4G («Sim, só o que entra»)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
+
+Selo depois: `f23149608f3bd719`
