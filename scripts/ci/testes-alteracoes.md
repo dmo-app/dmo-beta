@@ -3883,3 +3883,13 @@ Novos: 4 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `4286ec752addb091`
+
+## A-0239 · 2026-10-27 · teste-novo
+
+Porquê: Painel «É outra CM/MF» da Reparação Interna com o esqueleto dos painéis deslizantes (DMO-500): teste novo da marcação e do fundo
+Referência: pedido do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXQ2rXx1BrfWwyZwQTG7mM6
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelOutraCmMf_TemOEsqueletoDosPaineis`
+
+Selo depois: `94ab02ad36ac8e12`

@@ -138,13 +138,26 @@ else
       {
         <input type="checkbox" id="riOutra-@codigo" class="ri-outra-check" name="outra" value="1" checked="@Model.OutraMarcada" />
       }
+      @* Com produção, o painel da outra CM/MF tem o esqueleto dos painéis deslizantes
+         (docs/design/estrutura.md): o título e, no canto, «OK» e «Fechar»; o corpo com a
+         referência e o lote. Continua a ser a caixa escondida (outra=1) que o abre e
+         fecha, por isso o «Fechar» e o fundo são rótulos dela. Sem produção, a referência
+         e o lote ficam na linha, como antes. *@
+      @if (!c.SemProducao)
+      {
+        <label class="ri-outra-fundo" for="riOutra-@codigo" aria-hidden="true"></label>
+      }
       <div class="ri-linha ri-outra-campos" id="riOutraPainel-@codigo" role="@(c.SemProducao ? null : "group")" aria-labelledby="@(c.SemProducao ? null : $"riOutraTitulo-{codigo}")">
         @if (!c.SemProducao)
         {
-          <div class="ri-outra-topo">
-            <h4 id="riOutraTitulo-@codigo">Outra CM/MF</h4>
-            <label class="ri-outra-fechar" for="riOutra-@codigo" title="Fechar: regista com a CM/MF da produção" aria-label="Fechar o painel da outra CM/MF">×</label>
-          </div>
+          @:<header class="dmo-painel-topo">
+            <h4 class="dmo-painel-titulo" id="riOutraTitulo-@codigo">Outra CM/MF</h4>
+            @:<div class="dmo-painel-acoes">
+              <button type="submit" class="dmo-button ri-outra-ok" id="riOutraOk-@codigo">OK</button>
+              <label class="dmo-button ri-outra-fechar" for="riOutra-@codigo" title="Fechar: regista com a CM/MF da produção">Fechar</label>
+            @:</div>
+          @:</header>
+          @:<div class="dmo-painel-corpo">
           <p class="ri-outra-dica">A referência e o lote da CM ou do MF que está a reparar; o número fica na linha.</p>
         }
         <div class="dmo-field">
@@ -160,7 +173,7 @@ else
         </div>
         @if (!c.SemProducao)
         {
-          <button type="submit" class="dmo-button ri-outra-ok" id="riOutraOk-@codigo">OK</button>
+          @:</div>
         }
       </div>
     </form>
