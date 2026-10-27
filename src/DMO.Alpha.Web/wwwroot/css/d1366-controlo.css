@@ -357,9 +357,12 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.revisao-page .revisao-filters{flex-wrap:nowrap;gap:8px 12px}
   html body main.revisao-page .revisao-filters .revisao-w-estado{flex:0 0 130px}
   html body main.revisao-page .revisao-filters .revisao-w-data{flex:0 0 140px}
-  html body main.revisao-page .revisao-filtros-card{gap:8px 12px}
+  /* Os rótulos têm 20,3 px de linha: com 8 px por cima, as caixas ficavam a
+     ,39 de píxel e o texto do «Estado» descaía 0,75 px (tests/visual/nok_agente_browser.py).
+     Com 8,25 / 7,75 a altura do cartão é a mesma e o texto fica ao centro. */
+  html body main.revisao-page .revisao-filtros-card{gap:8px 12px;padding-top:8.25px;padding-bottom:7.75px}
   html body main.revisao-page .revisao-filters .revisao-w-procura{flex:0 0 250px;width:250px}
-  html body main.revisao-page .revisao-filter-actions{flex-wrap:nowrap;margin-left:0}
+  html body main.revisao-page .revisao-filter-actions{flex-wrap:nowrap;margin-left:auto}
 
   /* Esquerda: calendário fixo, a lista desliza. */
   html body main.revisao-page .revisao-side{display:flex;flex-direction:column;gap:8px;min-height:0}
