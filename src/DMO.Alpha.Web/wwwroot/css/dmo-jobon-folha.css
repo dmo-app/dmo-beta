@@ -1022,187 +1022,6 @@ html body .jfi-folha .jfi-verif td{height:5.6mm}
 .jfi-assinar{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
 html body .jfi-folha .jfi-t th,html body .jfi-folha .jfi-t td{white-space:normal;overflow:hidden;text-overflow:clip;word-break:normal;overflow-wrap:break-word;hyphens:manual}
 html body .jfi-folha .jfi-kv th{font-size:7.8pt;padding-left:1.2mm;padding-right:1mm}
-
-/* As páginas do Imprimir como as da fábrica (Job-ON Moldes, Equipa, Ficha), no aspeto da app. */
-.jfi-factos4{grid-template-columns:1.9fr 1.9fr 1fr 1fr 1fr 1.2fr}
-.jfi-factos4>div{min-height:8mm}
-.jfi-moldes{gap:0}
-.jfi-moldes>.jfi-topo{margin-bottom:2.2mm}
-.jfi-moldes>.jfi-factos{margin-bottom:2.2mm}
-.jfb-cab,.jfb{display:grid;grid-template-columns:30mm minmax(0,1fr) 52mm}
-.jfb-cab{background:#15191e;color:#fff;font-weight:700;font-size:8.5pt}
-.jfb-cab span{padding:1.1mm 2mm}
-.jfb{border:1px solid #9aa3ad;border-top:1px solid #9aa3ad;break-inside:avoid}
-.jfb-nome{background:#eef1f4;padding:1.2mm 1.6mm;border-right:1px solid #9aa3ad}
-.jfb-nome b{display:block;font-size:9.5pt;margin-bottom:.8mm}
-.jfb-lado{display:flex;justify-content:space-between;gap:1mm;font-size:7.4pt;color:#3c454f;padding-top:.4mm}
-.jfb-lado i{font-style:normal;font-weight:700;color:#15191e}
-.jfb-dados{width:100%;border-collapse:collapse;font-size:8pt;align-self:start}
-.jfb-dados th{font-weight:400;color:#3c454f;text-align:right;padding:.55mm 1.5mm;width:24mm;white-space:nowrap}
-.jfb-dados td{font-weight:700;padding:.55mm 1.5mm}
-.jfb-dados th.jfb-r2{width:9mm;text-align:right}
-.jfb-notas{border-left:1px solid #9aa3ad;padding:1.2mm 2mm;font-size:7.8pt;overflow-wrap:break-word}
-.jfb-geral{border:1px solid #9aa3ad;border-top:0;display:flex;flex-direction:column;min-width:0}
-.jfb-geral-texto{padding:1.2mm 2mm;font-size:7.8pt;min-height:16mm;overflow-wrap:break-word}
-.jfb-fim{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
-.jfb-fim .jfb-geral+.jfb-geral{border-left:0}
-.jfb-cal{display:grid;grid-template-columns:22mm repeat(4,minmax(0,1fr));border:1px solid #9aa3ad;border-top:0;margin-bottom:2mm}
-.jfb-cal5{grid-template-columns:20mm repeat(5,minmax(0,1fr))}
-.jfb-cal>*{padding:1mm 1.6mm;border-left:1px solid #9aa3ad}
-.jfb-cal>b:first-child{border-left:0;background:#eef1f4;font-size:8.5pt}
-.jfb-cal span{display:block;font-size:6.5pt;color:#5b6570}
-.jfb-cal i{font-style:normal;font-weight:700;font-size:8.5pt}
-
-.jfi-calequipa th{text-align:center}
-html body .jfi-folha .jfi-calval td{height:14mm;text-align:center;vertical-align:middle;font-weight:700}
-.jfb-dados td.jfb-r2v{text-align:right;padding-right:1.5mm}
-
-.jfi-equipa{align-items:start;gap:4mm}
-.jfi-equipa .jfi-col{display:flex;flex-direction:column;gap:1.6mm}
-.jfc-lista{display:flex;flex-direction:column;gap:1.6mm}
-.jfc{box-sizing:border-box;height:23mm;border:1px solid #15191e;border-radius:2mm;padding:1.4mm 3mm;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
-.jfc-nome{font-size:10pt;font-weight:700;color:#15191e;text-transform:uppercase}
-.jfc-ref{display:flex;align-items:center;justify-content:space-between;gap:3mm;font-size:15pt}
-.jfc-ref>b{font-weight:700}
-.jfc-lote{font-size:9pt;color:#15191e;font-weight:700;white-space:nowrap}.jfc-lote b{font-size:15pt}
-.jfc-lote-d{box-sizing:border-box;width:27mm;height:9mm;display:flex;align-items:center;justify-content:center;gap:1.5mm;border:1.5px solid #15191e;border-radius:1.5mm}.jfc-lote-d b{font-size:16pt}
-.jfc-obs{font-size:10pt;font-weight:700;line-height:1.15;min-height:4mm}
-.jfi-calequipa{table-layout:fixed}
-.jfi-calequipa th:first-child{width:14%}
-html body .jfi-folha .jfi-calval td{height:16mm;font-size:15pt}
-.jfi-moldes .jfb-cab{font-size:10pt}
-.jfi-moldes .jfb-nome b{font-size:12pt}
-.jfi-moldes .jfb-lado{font-size:8.6pt}
-.jfi-moldes .jfb-dados{font-size:9.8pt}
-.jfi-moldes .jfb-dados th,.jfi-moldes .jfb-dados td{padding:.9mm 1.5mm}
-.jfi-moldes .jfb-notas,.jfi-moldes .jfb-geral-texto{font-size:9.4pt}
-.jfi-moldes .jfb-cal i{font-size:11pt}.jfi-moldes .jfb-cal span{font-size:7.5pt}
-.jfc{height:26mm}
-html body .jfi-folha .jfi-calval td{font-size:12.5pt}
-.jfi-moldes .jfb-cab,.jfi-moldes .jfb{grid-template-columns:36mm minmax(0,1fr) 50mm}
-.jfi-moldes .jfb-nome b{font-size:11.5pt;white-space:nowrap}
-.jfi-moldes .jfb-dados{font-size:10.8pt}
-.jfi-moldes .jfb-dados th,.jfi-moldes .jfb-dados td{padding:1.5mm 1.5mm}
-.jfi-moldes .jfb-lado{font-size:9pt}
-.jfi-moldes .jfb-notas,.jfi-moldes .jfb-geral-texto{font-size:10pt}
-.jfi-moldes .jfb-cal i{font-size:10.5pt}
-.jfc{height:28mm}
-.jfi-calequipa th:first-child{width:11%}.jfi-calequipa th:last-child{width:23%}
-html body .jfi-folha .jfi-calval td{font-size:12pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-dados{font-size:11.5pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-dados th,.jfi-moldes[data-jof-folha="moldes"] .jfb-dados td{padding:2.1mm 1.5mm}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-notas,.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{font-size:10.5pt}
-.jfi-moldes[data-jof-folha="ficha"] .jfb-dados{font-size:9.6pt}
-.jfi-moldes[data-jof-folha="ficha"] .jfb-dados th,.jfi-moldes[data-jof-folha="ficha"] .jfb-dados td{padding:.9mm 1.5mm}
-.jfi-moldes[data-jof-folha="ficha"] .jfb-fim{min-height:42mm;flex:1 0 auto}
-.jfb-cal{flex:none}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-dados{font-size:12pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-dados th,.jfi-moldes[data-jof-folha="moldes"] .jfb-dados td{padding:2.7mm 1.5mm}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-nome b{font-size:12.5pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-lado{font-size:9.6pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{min-height:20mm}
-.jfi-equipa .jfc-lista{height:176mm}
-.jfi-equipa .jfc{height:auto;flex:1;min-height:0;justify-content:space-evenly}
-.jfc-obs{white-space:pre-line}
-.jfi-moldes .jfb-dados{table-layout:fixed}
-.jfi-moldes .jfb-dados th:nth-child(1){width:27mm}
-.jfi-moldes .jfb-dados tr>:nth-child(2){width:27mm}
-.jfi-moldes .jfb-dados th:nth-child(3),.jfi-moldes .jfb-dados th.jfb-r2{width:27mm}
-.jfi-moldes .jfb-dados td,.jfi-moldes .jfb-dados th{vertical-align:middle;line-height:1.2;overflow:hidden}
-.jfi-moldes .jfb-dados td{text-align:left}
-/* Grelha única das folhas Moldes e Ficha: componentes em cartões separados, colunas fixas iguais */
-.jfi-moldes{gap:2.2mm}
-.jfi-moldes .jfb-cab,.jfi-moldes .jfb{grid-template-columns:36mm minmax(0,1fr) 48mm}
-.jfi-moldes .jfb{border:1px solid #9aa3ad;border-radius:2mm;overflow:hidden;flex:1 1 auto;min-height:0}
-.jfi-moldes .jfb-cab{border-radius:2mm}
-.jfi-moldes .jfb-dados{align-self:center;table-layout:fixed;font-size:10.5pt}
-.jfi-moldes .jfb-dados col.c1,.jfi-moldes .jfb-dados col.c3{width:27mm}
-.jfi-moldes .jfb-dados col.c2{width:30mm}
-.jfi-moldes .jfb-dados th{font-size:9.5pt;text-align:right;padding:1.3mm 2mm 1.3mm 0}
-.jfi-moldes .jfb-dados td{font-size:11pt;text-align:left;padding:1.3mm 0}
-.jfi-moldes .jfb-nome b{font-size:12pt}
-.jfi-moldes .jfb-lado{font-size:9pt}
-.jfi-moldes .jfb-notas,.jfi-moldes .jfb-geral-texto{font-size:10pt}
-.jfi-moldes[data-jof-folha] .jfb-dados th,.jfi-moldes[data-jof-folha] .jfb-dados td{padding-top:1.3mm;padding-bottom:1.3mm}
-.jfi-moldes[data-jof-folha] .jfb-dados{font-size:11pt}
-.jfi-moldes[data-jof-folha] .jfb-notas,.jfi-moldes[data-jof-folha] .jfb-geral-texto{font-size:10pt}
-.jfi-moldes[data-jof-folha] .jfb-nome b{font-size:12pt}
-.jfi-moldes[data-jof-folha] .jfb-lado{font-size:9pt}
-.jfi-moldes .jfb-geral{border:1px solid #9aa3ad;border-radius:2mm}
-.jfi-moldes .jfb-dados tr>:nth-child(2){width:auto}
-.jfi-moldes[data-jof-folha="ficha"] .jfb{flex:none}
-.jfi-moldes[data-jof-folha="ficha"] .jfb-dados th,.jfi-moldes[data-jof-folha="ficha"] .jfb-dados td{padding-top:.45mm;padding-bottom:.45mm}
-.jfi-moldes[data-jof-folha="ficha"]{gap:1.6mm}
-.jfi-moldes[data-jof-folha="ficha"] .jfb-fim{flex:1 1 auto;min-height:30mm}
-.jfi-equipa .jfc{justify-content:flex-start;gap:1.6mm;padding-top:3mm}
-.jfi-equipa .jfc-ref{font-size:19pt}.jfi-equipa .jfc-nome{font-size:10.5pt}.jfi-equipa .jfc-obs{font-size:11pt}
-.jfi-equipa .jfc-lote b{font-size:19pt}.jfi-equipa .jfc-lote-d b{font-size:18pt}.jfi-equipa .jfc-lote{font-size:10pt}
-.jfi-equipa .jfc{padding-top:2mm;gap:.8mm}.jfi-equipa .jfc-ref{font-size:17pt}.jfi-equipa .jfc-lote b{font-size:17pt}
-/* Dados mais estreitos: mais espaço para Ferramenta e Notas (Diogo 21:48) */
-.jfi-moldes .jfb-cab,.jfi-moldes .jfb{grid-template-columns:46mm 84mm minmax(0,1fr)}
-.jfi-moldes .jfb-dados{width:84mm}
-.jfi-moldes .jfb-dados col.c1{width:24mm}.jfi-moldes .jfb-dados col.c2{width:19mm}.jfi-moldes .jfb-dados col.c3{width:22mm}.jfi-moldes .jfb-dados col.c4{width:19mm}
-.jfi-moldes[data-jof-folha] .jfb-nome b{font-size:13pt}
-.jfi-moldes[data-jof-folha] .jfb-lado{font-size:10pt}
-.jfi-moldes[data-jof-folha] .jfb-notas,.jfi-moldes[data-jof-folha] .jfb-geral-texto{font-size:11pt}
-.jfi-moldes .jfb-fim{gap:2.2mm}
-.jfi-moldes .jfb-fim .jfb-geral+.jfb-geral{border-left:1px solid #9aa3ad}
-.jfi-moldes .jfb-geral,.jfi-moldes .jfb-fim .jfb-geral{border-top:1px solid #9aa3ad;overflow:hidden}
-.jfi-moldes .jfb-cal{border:1px solid #9aa3ad;border-radius:2mm;overflow:hidden;margin:0}
-.jfi-moldes .jfb-geral .jfi-sub{border-bottom:1px solid #9aa3ad}
-.jfi-moldes .jfb-dados td,.jfi-moldes .jfb-dados th{vertical-align:baseline}
-.jfi-moldes .jfb-dados td.jfb-r2v{text-align:left}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{min-height:36mm}
-.jfi-equipa .jfc-ref{justify-content:flex-start;gap:5mm}
-.jfi-equipa .jfc-lote-d{width:auto;min-width:26mm;padding:0 2.5mm}
-.jfi-equipa .jfc-ref>b{min-width:30mm}
-.jfi-moldes .jfb-lado i{font-size:11pt}
-/* Referência e Lote dentro da Ferramenta: coluna compacta; notas com letra mais pequena (Diogo 22:03) */
-.jfi-moldes[data-jof-folha] .jfb-lado{font-size:8.8pt;line-height:1.15;padding-top:0}
-.jfi-moldes[data-jof-folha] .jfb-lado i{font-size:10pt}
-.jfi-moldes[data-jof-folha] .jfb-nome{padding:1mm 1.6mm}
-.jfi-moldes[data-jof-folha] .jfb-nome b{font-size:11.5pt;margin-bottom:.3mm}
-.jfi-moldes[data-jof-folha] .jfb-notas,.jfi-moldes[data-jof-folha] .jfb-geral-texto{font-size:8.6pt}
-.jfi-moldes[data-jof-folha] .jfb-dados th,.jfi-moldes[data-jof-folha] .jfb-dados td{padding-top:.5mm;padding-bottom:.5mm}
-.jfi-moldes{gap:1.6mm}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-geral-texto{min-height:30mm}
-.jfi-moldes[data-jof-folha="ficha"] .jfb-fim{min-height:26mm}
-.jfi-moldes .jfb{flex:1 0 auto}
-.jfb-reflote{display:flex;align-items:baseline;gap:2.5mm;margin:.3mm 0 .8mm}
-.jfb-reflote strong{font-size:13pt;font-weight:700}
-.jfb-reflote span{font-size:8.8pt;color:#3c454f}.jfb-reflote span i{font-style:normal;font-weight:700;font-size:10pt;color:#15191e}
-/* Lote sem caixa/botão (Diogo 22:07) */
-.jfi-equipa .jfc-lote-d{border:0;border-radius:0;height:auto;min-width:0;padding:0;width:auto;display:inline-flex}
-.jfi-equipa .jfc-lote,.jfi-equipa .jfc-lote-d{font-size:10pt;font-weight:400}
-.jfi-equipa .jfc-lote b,.jfi-equipa .jfc-lote-d b{font-size:15pt;font-weight:700}
-/* Fonte maior para ocupar o espaço (Diogo 22:07) */
-.jfi-equipa .jfc-nome{font-size:12pt}
-.jfi-equipa .jfc-ref{font-size:25pt;gap:7mm}
-.jfi-equipa .jfc-lote,.jfi-equipa .jfc-lote-d{font-size:12pt}
-.jfi-equipa .jfc-lote b,.jfi-equipa .jfc-lote-d b{font-size:22pt}
-.jfi-equipa .jfc-obs{font-size:13pt}
-html body .jfi-folha .jfi-calval td{font-size:15pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-dados td{font-size:12.5pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-dados th{font-size:10pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-reflote strong{font-size:15pt}
-.jfi-moldes[data-jof-folha="moldes"] .jfb-lado{font-size:10pt}
-.jfi-equipa .jfc{padding-top:1.4mm}
-.jfi-equipa .jfc-ref{font-size:21pt}
-.jfi-equipa .jfc-obs{font-size:11.5pt}
-.jfi-equipa .jfc-lote b,.jfi-equipa .jfc-lote-d b{font-size:19pt}
-html body .jfi-folha .jfi-calval td{font-size:12.5pt;white-space:nowrap}
-.jfb-dados td{white-space:nowrap}
-html body .jfi-folha .jfb-dados.dmo-table th,html body .jfi-folha .jfb-dados.dmo-table td{border:0;background:transparent;box-shadow:none;border-radius:0;height:auto}
-html body .jfi-folha .jfb-dados.dmo-table tbody tr{background:transparent}
-html body .jfi-folha .jfb-dados.dmo-table :is(th,td){background:transparent !important}
-.jfi-moldes .jfb-dados col.c1{width:26mm}.jfi-moldes .jfb-dados col.c3{width:20mm}.jfi-moldes .jfb-dados col.c2{width:20mm}.jfi-moldes .jfb-dados col.c4{width:18mm}
-html body .jfi-folha .jfb-dados.dmo-table th{font-size:9.5pt;font-weight:400;color:#3c454f;text-align:right;white-space:nowrap}
-html body .jfi-folha .jfb-dados.dmo-table td{font-size:11pt;font-weight:700;text-align:left}
-html body .jfi-folha[data-jof-folha="moldes"] .jfb-dados.dmo-table th{font-size:10pt}
-html body .jfi-folha[data-jof-folha="moldes"] .jfb-dados.dmo-table td{font-size:12.5pt}
-.jfi-moldes .jfb-dados col.c1{width:26mm}.jfi-moldes .jfb-dados col.c2{width:18mm}.jfi-moldes .jfb-dados col.c3{width:20mm}.jfi-moldes .jfb-dados col.c4{width:20mm}
-html body .jfi-folha .jfb-dados.dmo-table :is(th,td){vertical-align:baseline}
-
 /* ===== Cartões dos componentes (Diogo, 27/10/2026) ===================== */
 /* As siglas todas iguais, sem fundo: a CM, o MF e a BQ sem ferramenta
    ficavam com um realce que o PU não tinha («efeito de CM MF não está bem»). */
@@ -1261,3 +1080,101 @@ html:root body .jof2.jof2 .zones .g-cal{margin-left:2px}
 }
 /* A linha na cor da máquina, só na letra, sem caixa à volta. */
 html:root body .jof2 .fv .mch[data-jof-linha]{background:none!important;color:var(--dmo-machine-color,var(--dmo-text))!important;padding:0 4px;min-width:0;font-size:18px;font-weight:800;border:0;box-shadow:none}
+/* O IMPRIMIR A PRETO E BRANCO (Diogo, 27/10/2026, PDF «Job-On 9395T194 Redesign
+   Preto Branco»): faixa preta nas barras e na Linha, cinzento claro nos factos e
+   nas Notas gerais, linhas finas cinzentas; o que falta fica com traço para
+   escrever à mão. Os valores vêm do JobOnImpressao. */
+html body .jfn-folha{padding:9mm 11mm 7mm;gap:3mm;color:#111;font:9pt/1.3 "Noto Sans","Open Sans",Arial,Helvetica,sans-serif}
+html body .jfn-folha .jfn-marca{display:flex;align-items:center;gap:2.5mm;font-size:8pt}
+html body .jfn-folha .jfn-logo{display:inline-flex;align-items:center;justify-content:center;width:6.5mm;height:6.5mm;border-radius:50%;background:#111;color:#fff;font-weight:700;font-size:6.5pt}
+html body .jfn-folha .jfn-caminho{margin-left:auto;font-size:6.5pt;letter-spacing:.04em;color:#333}
+html body .jfn-folha .jfn-topo{border:0;padding:0;align-items:stretch}
+html body .jfn-folha .jfi-eyebrow{font-size:10pt;letter-spacing:0;color:#444}
+html body .jfn-folha .jfi-ref{font-size:25pt;font-weight:800;letter-spacing:-.01em}
+html body .jfn-folha .jfn-topo-dir{display:flex;align-items:stretch;gap:4mm}
+html body .jfn-folha .jfn-linha{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#111;color:#fff;min-width:18mm;padding:1.5mm 3mm}
+html body .jfn-folha .jfn-linha span,html body .jfn-folha .jfn-prod span{font-size:5.5pt;letter-spacing:.06em}
+html body .jfn-folha .jfn-linha b{font-size:19pt;line-height:1.1}
+html body .jfn-folha .jfn-prod{display:flex;flex-direction:column;justify-content:flex-start;padding-top:1mm;min-width:24mm}
+html body .jfn-folha .jfn-prod span{color:#444}
+html body .jfn-folha .jfn-prod b{font-size:13pt;margin-top:1.5mm}
+html body .jfn-folha .jfn-factos{display:grid;grid-template-columns:1.3fr 1.3fr .55fr .45fr .55fr 1.6fr;background:#efefef;padding:1.5mm 2mm}
+html body .jfn-folha .jfn-factos>div{padding:0 2mm;border-left:1px solid #bbb}
+html body .jfn-folha .jfn-factos>div:first-child{border-left:0;padding-left:1mm}
+html body .jfn-folha .jfn-factos span{display:block;font-size:5.5pt;text-transform:uppercase;letter-spacing:.04em;color:#444}
+html body .jfn-folha .jfn-factos b{font-size:8.5pt}
+html body .jfn-folha .jfn-escrever:empty{display:block;min-height:3.5mm;border-bottom:1px solid #888}
+html body .jfn-folha .jfn-tabela{display:flex;flex-direction:column}
+html body .jfn-folha .jfb-cab,html body .jfn-folha .jfb{display:grid;grid-template-columns:28% 34% 38%}
+html body .jfn-folha .jfb-cab{background:#111;color:#fff;font-weight:700;font-size:6.5pt;text-transform:uppercase;letter-spacing:.04em}
+html body .jfn-folha .jfb-cab>span{padding:1.8mm 2.5mm}
+html body .jfn-folha .jfb{border-bottom:1px solid #aaa;break-inside:avoid;min-height:9mm}
+html body .jfn-folha .jfb>*{padding:1.6mm 2.5mm}
+html body .jfn-folha .jfb>:nth-child(2){border-left:1px solid #aaa;border-right:1px solid #aaa}
+html body .jfn-folha .jfb>:nth-child(3){background:#f5f5f5}
+html body .jfn-folha .jfb-nome b{display:block;font-size:8.5pt}
+html body .jfn-folha .jfb-reflote{display:flex;align-items:baseline;gap:2mm;margin-top:.5mm}
+html body .jfn-folha .jfb-reflote strong{font-size:14pt;font-weight:800;line-height:1.15}
+html body .jfn-folha .jfb-reflote span{font-size:11pt;font-weight:600}
+html body .jfn-folha .jfb-reflote i{font-style:normal}
+html body .jfn-folha .jfb-lado{display:grid;grid-template-columns:16mm 1fr;font-size:7pt;margin-top:.6mm}
+html body .jfn-folha .jfb-lado span{color:#555}
+html body .jfn-folha .jfb-lado i{font-style:normal;font-weight:600}
+html body .jfn-folha table.jfb-dados{width:auto;border-collapse:collapse;font-size:7.5pt;background:transparent;border:0}
+html body .jfn-folha table.jfb-dados th,html body .jfn-folha table.jfb-dados td{border:0;padding:0 2mm .3mm 0;background:transparent;vertical-align:top}
+html body .jfn-folha table.jfb-dados th{font-weight:400;color:#555;min-width:20mm;text-align:left}
+html body .jfn-folha table.jfb-dados td{font-weight:600}
+html body .jfn-folha table.jfn-dim{width:100%}
+html body .jfn-folha table.jfn-dim tr:first-child th{font-size:5.5pt;text-transform:uppercase;letter-spacing:.04em;background:transparent!important;color:#555}
+html body .jfn-folha table.jfn-dim td:first-child{font-weight:400;color:#333}
+html body .jfn-folha table.jfn-dim td:last-child{width:14mm}
+html body .jfn-folha table.jfn-dim i{font-style:normal}
+html body .jfn-folha .jfn-folgas,html body .jfn-folha .jfn-ff{display:flex;gap:2.5mm;align-items:baseline;font-size:7pt;border-top:1px solid #aaa;margin-top:.8mm;padding-top:.6mm}
+html body .jfn-folha .jfn-ff{border-top:0;margin:0 0 .6mm;padding:0}
+html body .jfn-folha .jfn-ff i{flex:0 0 14mm;font-style:normal}
+html body .jfn-folha .jfn-folgas span,html body .jfn-folha .jfn-ff span{color:#555}
+html body .jfn-folha ul.jfb-notas{margin:0;padding:1.6mm 2.5mm 1.6mm 6mm;font-size:7.5pt;list-style:square}
+html body .jfn-folha ul.jfb-notas li{margin-bottom:.4mm}
+html body .jfn-folha .jfb-geral{background:#efefef;border-left:1.2mm solid #555;padding:2mm 3mm}
+html body .jfn-folha .jfb-geral .jfi-sub{background:transparent;border:0;padding:0 0 1.5mm;font-size:6.5pt;text-transform:uppercase;letter-spacing:.04em}
+html body .jfn-folha ol.jfb-geral-texto{margin:0;padding:0;list-style:none;font-size:8pt}
+html body .jfn-folha ol.jfb-geral-texto li{display:flex;gap:4mm;margin-bottom:.8mm}
+html body .jfn-folha ol.jfb-geral-texto li span{font-size:6.5pt;font-weight:700;color:#555;min-width:4mm}
+html body .jfn-folha .jfb-fim{display:grid;grid-template-columns:1fr 46mm;gap:4mm}
+html body .jfn-folha .jfn-artigo-titulo{font-size:6.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+html body .jfn-folha .jfi-artigo-img{min-height:32mm}
+html body .jfn-folha .jfn-cal-titulo{font-size:6.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1.5px solid #111;padding-bottom:1.2mm}
+html body .jfn-folha .jfb-cal{display:grid;border:0;margin-top:-1.5mm}
+html body .jfn-folha .jfb-cal.jfn-cal4{grid-template-columns:1fr 1fr 2.2fr 1fr}
+html body .jfn-folha .jfb-cal.jfn-cal5{grid-template-columns:1fr 1.3fr 2fr 1.1fr 1fr}
+html body .jfn-folha .jfb-cal.jfn-cal6{grid-template-columns:.8fr .8fr .8fr .8fr 1.6fr 1.6fr}
+html body .jfn-folha .jfb-cal>div{padding:1.2mm 2.5mm;border-left:1px solid #aaa}
+html body .jfn-folha .jfb-cal>div:first-child{border-left:0;padding-left:1mm}
+html body .jfn-folha .jfb-cal span{display:block;font-size:6pt;color:#444}
+html body .jfn-folha .jfb-cal i{font-style:normal;font-weight:800;font-size:11pt}
+html body .jfn-folha .jfb-cal i.jfn-escrever:empty{margin-top:3mm}
+html body .jfn-folha .jfi-equipa{gap:3mm;align-items:start}
+html body .jfn-folha .jfi-equipa .jfi-barra{background:#111;font-size:6.5pt;text-transform:uppercase;letter-spacing:.04em;padding:1.8mm 3mm}
+html body .jfn-folha .jfc{border-bottom:1px solid #aaa;padding:2.4mm 3mm 2.6mm}
+html body .jfn-folha .jfc-nome{font-size:8pt}
+html body .jfn-folha .jfc-nome span{display:inline-block;min-width:9mm;font-size:6.5pt;font-weight:700}
+html body .jfn-folha .jfc-ref{display:flex;align-items:baseline;gap:3mm;margin-top:1mm}
+html body .jfn-folha .jfc-ref>b{font-size:19pt;font-weight:800;line-height:1.15}
+html body .jfn-folha .jfc-lote{font-size:13pt;font-weight:600}
+html body .jfn-folha .jfc-lote b{font-weight:400}
+html body .jfn-folha .jfc-obs{font-size:7.5pt;margin-top:.5mm}
+html body .jfn-folha .jfn-rodape{border-top:1px solid #bbb;color:#333;font-size:6.5pt;white-space:pre}
+html body .jfn-folha table.jfb-dados.dmo-table{display:table;width:auto;min-width:0;height:auto;align-self:start;table-layout:auto;margin:0}
+html body .jfn-folha table.jfb-dados.dmo-table tr{height:auto;background:transparent}
+html body .jfn-folha table.jfb-dados.dmo-table :is(th,td){background:transparent!important;border:0;height:auto;padding:0 2mm .4mm 0;font-size:7.5pt;line-height:1.35;white-space:normal;vertical-align:top;color:#111}
+html body .jfn-folha table.jfb-dados.dmo-table th{width:24mm;font-weight:400;color:#555;text-align:left}
+html body .jfn-folha table.jfb-dados.dmo-table td{font-weight:600}
+html body .jfn-folha table.jfn-dim.dmo-table{width:100%}
+html body .jfn-folha table.jfn-dim.dmo-table tr:first-child th{font-size:5.5pt;text-transform:uppercase;letter-spacing:.04em;width:auto}
+html body .jfn-folha table.jfn-dim.dmo-table td:first-child{font-weight:400;width:24mm}
+html body .jfn-folha table.jfn-dim.dmo-table td:last-child{width:16mm}
+/* Na Job-On Moldes as linhas crescem até às Notas gerais, como no PDF. */
+html body .jfn-folha[data-jof-folha="moldes"] .jfn-tabela{flex:1 1 auto}
+html body .jfn-folha[data-jof-folha="moldes"] .jfn-tabela>.jfb{flex:1 1 auto}
+html body .jfn-folha[data-jof-folha="moldes"]>.jfi-crescer{flex:0 0 1mm}
+html body .jfn-folha[data-jof-folha="ficha"] .jfn-tabela>.jfb{min-height:11mm}

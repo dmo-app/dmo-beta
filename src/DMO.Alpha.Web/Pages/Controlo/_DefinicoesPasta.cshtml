@@ -7,8 +7,12 @@
 @{ var cadeado = ViewData["DefCadeado"] is true; }
 <section id="ctlDefPastaPdf" class="dmo-card ctl-def-card" aria-labelledby="pasta-pdf-title" data-dmo-pasta-pdf>
     <div class="dmo-card-topo">
-      <h3 id="pasta-pdf-title">Pasta partilhada dos PDFs<partial name="_DmoHelp" model="@("A pasta partilhada do servidor da fábrica (por exemplo «Controlo 2026»). Os PDFs do Resumo, do Peso, dos Pegamentos e das PU NNPB gravam-se lá, em referência\\produção, e a app cria as pastas que faltarem. O nome da pasta vale para todos; em cada computador (Chrome ou Edge) associa-se uma vez essa pasta. Sem pasta associada, o PDF vai para as Transferências.")" /></h3>
-      <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ctlDefPastaGuardar" form="ctlDefPastaForm" disabled="@cadeado">Guardar</button></div>
+      <h3 id="pasta-pdf-title">Pasta partilhada dos PDFs</h3>
+      <div class="dmo-card-topo-acoes">
+        <button type="button" class="dmo-button" data-dmo-pasta-pdf-escolher hidden>Associar</button>
+        <button type="button" class="dmo-button" data-dmo-pasta-pdf-esquecer hidden>Remover</button>
+        <button type="submit" class="dmo-button" id="ctlDefPastaGuardar" form="ctlDefPastaForm" disabled="@cadeado">Guardar</button>
+      </div>
     </div>
     <div id="ctlDefPastaNome" data-dmo-regiao data-dmo-parcial data-dmo-pasta-pdf-esperada="@Model.PastaPdf">
       @if (Model.PastaResultMessage.Length > 0)
@@ -17,16 +21,12 @@
       }
       <form id="ctlDefPastaForm" method="post" asp-page="/Controlo/Definicoes" asp-page-handler="SavePastaPdf" class="ctl-def-acoes">
         <div class="dmo-field">
-          <label for="pastaPdfNome">Pasta definida</label>
+          <label for="pastaPdfNome" class="dmo-visually-hidden">Pasta definida</label>
           <input id="pastaPdfNome" name="pasta" value="@Model.PastaPdf" maxlength="@DMO.Alpha.Core.Controlo.ModuleSettingKeys.ControloPastaPdfMax" placeholder="Ex.: Controlo 2026" disabled="@cadeado" required />
         </div>
       </form>
     </div>
-    @* Associar e Remover agem só neste computador: ações pequenas na linha, não botões do cartão. *@
-    <p class="ctl-def-computador"><strong>Neste computador:</strong> <span data-dmo-pasta-pdf-nome>Nenhuma (Transferências)</span>
-      <button type="button" class="ctl-def-link" data-dmo-pasta-pdf-escolher hidden>Associar</button>
-      <button type="button" class="ctl-def-link" data-dmo-pasta-pdf-esquecer hidden>Remover</button>
-    </p>
+    <p class="ctl-def-computador"><strong>Neste computador:</strong> <span data-dmo-pasta-pdf-nome>Nenhuma (Transferências)</span></p>
     <p class="dmo-aviso-discreto" data-dmo-pasta-pdf-diferente hidden>A pasta associada neste computador tem outro nome que a pasta definida. Os PDFs gravam-se na associada.</p>
     <p data-dmo-pasta-pdf-sem-suporte hidden>Use o Chrome ou o Edge para associar a pasta.</p>
   </section>
