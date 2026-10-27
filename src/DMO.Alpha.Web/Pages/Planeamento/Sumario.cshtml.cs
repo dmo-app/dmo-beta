@@ -181,7 +181,7 @@ public sealed class SumarioModel(
                 .ToList();
         }
 
-        ProximasEntradas = JobOn.IndexModel.ProximasEntradasDaSemana(
+        ProximasEntradas = JobOn.IndexModel.EntradasDaSemana(
             await jobOnList.ListWindowAsync(hoje, JobOn.IndexModel.AteUmaSemana(hoje), HttpContext.RequestAborted), hoje);
 
         var porDia = items.GroupBy(i => i.Dia).ToDictionary(g => g.Key, g => g.Count());
