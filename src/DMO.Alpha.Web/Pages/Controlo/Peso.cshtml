@@ -218,7 +218,6 @@
                   <th>Referência / produção</th>
                   <th>Data</th>
                   <th>Estado</th>
-                  <th>Resumo</th>
                 </tr>
               </thead>
               <tbody>
@@ -244,9 +243,10 @@
                     <td>@(item.Kind switch { ControloHistoryKind.Peso => "Peso", ControloHistoryKind.Pegamentos => "Pegamentos", ControloHistoryKind.Resumo => "Resumo", _ => "Comparação" })</td>
                     <td>@(item.ControloId is null ? $"Sem Job On · {item.Reference}" : $"{item.Reference} · {item.ProductionNumber} · {item.Machine}")</td>
                     <td>@(item.DataUtc is { } dataRegisto ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(dataRegisto).ToString("dd/MM/yyyy HH:mm") : "—")</td>
-                    @* Com a CM no armazém, o estado diz a posição (Diogo, 27/10/2026). *@
-                    <td>@(item.ControloId is null ? "Por associar" : "Guardado")@(item.CmPosicao is { } posicaoCm ? $" · posição {posicaoCm}" : null)</td>
-                    <td>@(item.Resumo ?? "—")</td>
+                    @* Sem a coluna Resumo; o estado é a posição no armazém, se a CM
+                       lá estiver (Diogo, 27/10/2026). Fora do armazém, o Resumo
+                       diz a aprovação e o que falta associar diz «Por associar». *@
+                    <td>@(item.CmPosicao is { } posicaoCm ? $"Armazém · {posicaoCm}" : item.ControloId is null ? "Por associar" : item.Kind == ControloHistoryKind.Resumo ? item.Resumo ?? "—" : "—")</td>
                   </tr>
                 }
               </tbody>
