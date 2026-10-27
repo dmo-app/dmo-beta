@@ -161,6 +161,9 @@ html ::-webkit-scrollbar{width:6px;height:6px}
 html ::-webkit-scrollbar-track{background:transparent}
 html ::-webkit-scrollbar-thumb{background:var(--dmo-border);border-radius:3px}
 html ::-webkit-scrollbar-thumb:hover{background:var(--dmo-muted)}
+/* Links sem sublinhado no rato por cima, em toda a app (Diogo, 27/10/2026: «não devia ter sublinhado»,
+   na «Mudança …» do Job On): o hover só muda a cor da letra. */
+html body :is(a,.dmo-shell-logout):is(:hover,:focus-visible,:active):not(#_),html body a:is(:hover,:focus-visible,:active) :not(#_){text-decoration:none}
 /* Setas do calendário (Job On, Controlo › Aprovar): botões de ação, por isso com a altura e o canto dos outros
    (eram 36 px de altura e canto de 8 px) e o mesmo rato por cima (inverte, como os outros). O calendário
    pequeno do histórico das Boquilhas (28 px) continua a mandar. */
