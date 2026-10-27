@@ -80,6 +80,38 @@ public static class PesoSuposicaoCalculation
             variacaoSuposta is { } vs ? Round(vs, 2) : null);
     }
 
+    /// <summary>
+    /// O «Comparar peso» (Diogo, 27/10/2026: «alterar o tampão usando o
+    /// cálculo do volume do tampão altera o peso»): o mesmo cálculo da calote,
+    /// mas o tampão simulado também pode ter outro diâmetro.
+    /// <code>
+    /// ΔV = cap(D_simulado, h_simulado).V − cap(D_atual, h_atual).V
+    /// peso simulado = peso médio + ΔV·ρv
+    /// </code>
+    /// </summary>
+    public static PesoTampaoSimulado Tampao(
+        PesoTampao atual,
+        PesoTampao simulado,
+        decimal glassDensityGramsPerCm3,
+        decimal pesoMedioGrams)
+    {
+        var volumeAtual = PesoCapCalculation.Cap(atual.DiametroMm, atual.CaloteMm).VolumeCm3;
+        var volumeSimulado = PesoCapCalculation.Cap(simulado.DiametroMm, simulado.CaloteMm).VolumeCm3;
+        var deltaVolume = volumeSimulado - volumeAtual;
+        var pesoSimulado = pesoMedioGrams + deltaVolume * glassDensityGramsPerCm3;
+        var diferenca = pesoSimulado - pesoMedioGrams;
+        return new PesoTampaoSimulado(
+            atual,
+            simulado,
+            Round(volumeAtual, 3),
+            Round(volumeSimulado, 3),
+            Round(deltaVolume, 3),
+            Round(pesoMedioGrams, 2),
+            Round(pesoSimulado, 2),
+            Round(diferenca, 2),
+            pesoMedioGrams != 0m ? Round(diferenca / pesoMedioGrams * 100m, 2) : null);
+    }
+
     private static decimal Round(decimal value, int decimals) =>
         Math.Round(value, decimals, MidpointRounding.AwayFromZero);
 }
