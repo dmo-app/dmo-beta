@@ -13,9 +13,15 @@
   const info = painel => { if (!estado.has(painel)) estado.set(painel, { opener: null, mudou: false }); return estado.get(painel); };
   const aviso = painel => painel.querySelector(':scope > .dmo-painel-aviso');
 
+  // Um painel de cada vez (Diogo, 27/10/2026: «consigo spammar sliding
+  // windows»): o mesmo não volta a abrir por cima de si próprio e outro fecha
+  // o que está aberto (com alterações por guardar, fica o aviso e nada abre).
+  // O painel de apoio, aberto, também fica: abre-se primeiro o que se fecha.
   function abrir(alvo, opener) {
     const painel = painelDe(alvo);
     if (!painel || painel.open) return false;
+    if (document.querySelector('dialog[data-dmo-estrutura="painel"][data-dmo-painel-proprio][open]')) return false;
+    if (!fecharTodos()) return false;
     const i = info(painel);
     i.opener = opener || document.activeElement; i.mudou = false;
     aviso(painel).hidden = true;
@@ -48,6 +54,13 @@
     return true;
   }
 
+  // Fecha os painéis abertos desta estrutura; false se algum ficou com o aviso
+  // das alterações por guardar.
+  function fecharTodos() {
+    return [...document.querySelectorAll('dialog[data-dmo-estrutura="painel"]:not([data-dmo-painel-proprio])[open]')]
+      .every(outro => fechar(outro));
+  }
+
   document.addEventListener('click', event => {
     const abre = event.target.closest('[data-dmo-painel-abrir]');
     if (abre) { event.preventDefault(); abrir(abre.dataset.dmoPainelAbrir, abre); return; }
@@ -73,5 +86,5 @@
   document.addEventListener('input', marcar);
   document.addEventListener('change', marcar);
 
-  window.DmoPainel = { abrir, fechar };
+  window.DmoPainel = { abrir, fechar, fecharTodos };
 })();

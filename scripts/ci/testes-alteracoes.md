@@ -3869,3 +3869,17 @@ Novos: 0 · mudaram: 5 · saíram: 0
 - mudou: `tests/visual/puncoes_tabela_browser.py`
 
 Selo depois: `37a5c3540b1e3b39`
+
+## A-0234 · 2026-10-27 · contagem-lista
+
+Porquê: Um painel deslizante de cada vez (DMO-498): testes novos do dmo-painel.js e do dmo-support.js para cliques repetidos e troca de página no mesmo painel; o package.json do ShellProof só ganha o ficheiro novo na lista
+Referência: pedido do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraQnjX8BdkkguuiCZDMe1j6e
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: abrir fecha um <dmo-painel> que esteja aberto`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: cliques repetidos na mesma página não a voltam a carregar e outra página troca a que lá está`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Um painel de cada vez: o mesmo botão não abre outro por cima e outro painel fecha o que está aberto`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `4286ec752addb091`
