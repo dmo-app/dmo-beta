@@ -1,1 +1,152 @@
 /* 1366×768: armazem-reparacao-admin (27/10/2026). Só as páginas deste grupo. */
+
+/* ======================================================================
+   ARMAZÉM › REGISTO sem ferramenta aberta (só o tipo, ou a procura):
+   as mesmas duas colunas de quando a ferramenta está aberta — à esquerda
+   «Tipo de ferramenta» e a procura num só cartão; à direita o que a
+   procura encontra (ou o convite). As zonas mantêm os ids: o #armRegisto
+   e o #armMovProcura só deixam de desenhar caixa (display:contents).
+   ====================================================================== */
+@media (min-width:1100px){
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);column-gap:16px;row-gap:0;align-items:start}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>*{grid-column:1/-1}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>.page-head{grid-row:1;margin-bottom:16px}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armMovAvisos{grid-row:2}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armTipos{display:block;grid-column:1;grid-row:3;margin:0;padding:16px 20px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armRegisto{display:contents}
+  /* Só o convite: fica à direita do tipo, à mesma altura. */
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armEscolha{grid-column:2;grid-row:3;margin:0;padding:16px 20px;align-self:stretch;display:flex;align-items:center}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armEscolha>p{margin:0}
+  /* A procura: o tipo e a procura num só cartão (como com a ferramenta aberta). */
+  html body main.arm-page:has(#armMovProcura):not(:has(#armMovFerramenta[data-dmo-ferramenta]))>#armTipos{border-bottom:0;border-radius:8px 8px 0 0;padding-bottom:4px}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armMovProcura{display:contents}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>.dmo-card-topo{grid-column:1;grid-row:4;margin:0;padding:12px 20px 8px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-top:0;border-bottom:0}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>.dmo-card-topo h3{margin:0;font-size:13px;font-weight:600;color:var(--dmo-muted)}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>#armProcuraForm{grid-column:1;grid-row:5;margin:0;padding:0 20px 16px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-top:0;border-radius:0 0 8px 8px;flex-wrap:wrap;gap:8px}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraForm>.arm-modo-direita{order:0;margin:0 0 4px;flex:1 0 100%}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraForm>.dmo-field:has(>#armProcura){flex:1 1 0;min-width:0}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraForm #armProcura{width:100%}
+  /* O que a procura encontra: à direita, em cartão, da altura do cartão da esquerda. */
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armMovProcura>#armProcuraLista{grid-column:2;grid-row:3/span 3;align-self:stretch;min-width:0;padding:16px 20px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:8px}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista>:first-child{margin-top:0}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista .arm-lote-novo{margin-top:16px;padding-top:16px}
+  /* Ainda sem procura: o cartão da direita diz o que fazer, em vez de ficar vazio. */
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista:not(:has(*)){display:flex;align-items:center;color:var(--dmo-muted);font-size:13px}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armProcuraLista:not(:has(*))::before{content:"Escreva a referência, o lote ou a posição à esquerda para abrir a ferramenta."}
+  html body main.arm-page:not(:has(#armMovFerramenta[data-dmo-ferramenta])) #armRegisto>#armLog{grid-column:1/-1;grid-row:6;margin:16px 0 0}
+}
+/* Com a ferramenta aberta, a referência também ocupa a largura da coluna (como sem ela). */
+@media (min-width:1100px){
+  html body main.arm-page #armProcuraForm>.dmo-field:has(>#armProcura){flex:1 1 0;min-width:0}
+  html body main.arm-page #armProcuraForm #armProcura{width:100%}
+}
+
+/* ======================================================================
+   ARMAZÉM › MOVIMENTOS (Últimos)
+   ====================================================================== */
+/* «← Voltar» ao lado do filtro da ferramenta: discreto, só muda a cor do texto. */
+html body main:has(#armMovimentos) .arm-filtro-ferramenta{display:flex;align-items:baseline;gap:16px;margin:0 0 12px;font-size:13px;color:var(--dmo-text)}
+html body main:has(#armMovimentos) a.arm-voltar{color:var(--dmo-muted);font-weight:600;text-decoration:none;background:none}
+html body main:has(#armMovimentos) a.arm-voltar:hover{color:var(--dmo-text);background:none;text-decoration:none}
+html body main:has(#armMovimentos) a.arm-voltar:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px;border-radius:2px}
+html body main:has(#armMovimentos) .arm-mov{gap:16px}
+html body main:has(#armMovimentos) .arm-card{padding:16px 20px}
+html body main:has(#armMovimentos) .arm-card-head{min-height:var(--dmo-control-height)}
+/* Os filtros numa linha (a 1366 cabem todos). */
+html body main:has(#armMovimentos) .arm-filtros{flex-wrap:nowrap}
+html body main:has(#armMovimentos) .arm-filtros .dmo-field input[type=date]{width:132px}
+@media (max-width:1300px){html body main:has(#armMovimentos) .arm-filtros{flex-wrap:wrap}}
+
+/* ======================================================================
+   REPARAÇÃO › CONSULTAR
+   ====================================================================== */
+/* Os filtros e os dois botões numa só linha a 1366. */
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card{flex-wrap:nowrap;gap:8px 12px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card>.dmo-zona>.dmo-filter-bar{column-gap:12px;flex-wrap:nowrap}
+html body main.ri-page:has(#riConsultaFiltros) .ri-w-referencia{width:112px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa,
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa>select{min-width:120px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card .dmo-filter-bar>.ri-w-producao{min-width:160px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-w-data{width:132px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-w-tipo{width:auto;min-width:max-content}
+html body main.ri-page:has(#riConsultaFiltros) .dmo-filter-bar>.dmo-field>label{white-space:nowrap}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-acoes{flex:0 0 auto}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-acoes>.ri-so-por-associar{padding:0 12px}
+@media (max-width:1300px){
+  html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card,
+  html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card>.dmo-zona>.dmo-filter-bar{flex-wrap:wrap}
+}
+html body main.ri-page:has(#riConsultaFiltros) .ri-card{padding:16px 20px}
+/* «Resumo por pessoa» (Diogo, 27/10/2026: «muda a posição»): já não fica colado por cima da
+   tabela das reparações, com as colunas espalhadas. Fica à direita, um quadro compacto do
+   tamanho do que leva, alinhado pelo título «Reparações»; a tabela das reparações à esquerda. */
+@media (min-width:1100px){
+  html body #riConsultaResultados:has(>#riConsultaResumo){display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:24px;align-items:start}
+  html body #riConsultaResultados:has(>#riConsultaResumo)>*{grid-column:1}
+  html body #riConsultaResultados:has(>#riConsultaResumo)>#riConsultaResumo{grid-column:2;grid-row:1/span 3;margin:0;padding-left:24px;border-left:1px solid var(--dmo-border);align-self:stretch}
+}
+html body #riConsultaResumo{margin:0 0 16px}
+html body #riConsultaResumo>h4{margin:0 0 12px;font-size:16px;font-weight:650;line-height:1.25}
+html body #riConsultaResumo .dmo-table-wrap{width:max-content;max-width:100%}
+html body #riConsultaResumo .dmo-table{width:auto;min-width:0}
+html body #riConsultaResumo .dmo-table :is(th,td){white-space:nowrap;padding-left:12px;padding-right:12px}
+html body #riConsultaResumo .dmo-table :is(th,td):not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+html body #riConsultaResultados>h3{margin:0 0 12px;line-height:1.25}
+html body #riConsultaResultados .dmo-list-pager{margin-top:12px}
+
+/* ======================================================================
+   REPARAÇÃO › REGISTAR e HISTÓRICO
+   ====================================================================== */
+html body main.ri-page .dmo-filter-bar>.dmo-field>label{white-space:nowrap}
+html body main.ri-page:not(:has(#riConsultaFiltros)) .dmo-filter-bar{column-gap:12px}
+
+/* ======================================================================
+   ADMIN › REGISTOS: filtros do tamanho do que levam, títulos com respiro,
+   a tabela alinhada à esquerda como as outras.
+   ====================================================================== */
+html body main.dmr-page .dmr-card>h3{margin:0 0 12px}
+html body main.dmr-page .dmr-card>h3+.card-note{margin-top:-8px}
+html body main.dmr-page .dmr-filtros{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end}
+html body main.dmr-page .dmr-filtros>.dmo-field{flex:0 0 auto;margin:0}
+html body main.dmr-page .dmr-filtros>.dmo-field>select{width:auto;min-width:160px}
+html body main.dmr-page .dmr-filtros>.dmo-field>select#dmr-utilizador{min-width:240px}
+html body main.dmr-page .dmr-filtros>.dmo-field>input[type=date]{width:140px}
+html body main.dmr-page .dmr-card .dmo-table :is(th,td){text-align:left}
+
+/* ======================================================================
+   ADMIN › TEMPLATES: as capabilities de cada módulo lado a lado (4 por
+   linha), em vez de uma por linha — a página cabe sem rolar.
+   ====================================================================== */
+html body main.dmt-page .dmt-checks{grid-template-columns:150px repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;align-items:stretch}
+html body main.dmt-page .dmt-checks>.dmt-module-head{grid-column:1;align-self:center;margin:0 !important;padding:0;border:0;line-height:1.3}
+html body main.dmt-page .dmt-check label{padding:8px 12px}
+html body main.dmt-page .dmt-check label span{overflow-wrap:anywhere}
+@media (max-width:1100px){
+  html body main.dmt-page .dmt-checks{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body main.dmt-page .dmt-checks>.dmt-module-head{grid-column:1/-1;margin-top:8px !important}
+}
+html body main.dmt-page .dmt-grid{align-items:start}
+html body main.dmt-page .dmt-detail .dmo-card-topo{margin:0 0 8px}
+html body main.dmt-page .dmt-detail .dmo-field{margin:0}
+html body main.dmt-page .dmt-detail .dmo-field>input[name="name"]{width:100%;max-width:420px}
+
+/* ======================================================================
+   ADMIN › FICHA: o título com a cor do texto, como os outros títulos.
+   ====================================================================== */
+/* Os factos em quatro colunas certas: a linha divisória entre colunas, não entre os dois
+   factos de cada coluna (antes a 2.ª linha tinha traços desencontrados). */
+html body main.dfu-page .dmo-fact-stack>.dmo-fact{border-left:0}
+html body main.dfu-page .dmo-fact-stack+.dmo-fact-stack{border-left:1px solid var(--dmo-border)}
+html body main.dfu-page #dfu-title{font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
+
+/* ======================================================================
+   DEFINIÇÕES: «A minha conta» com respiro por baixo do título e os rótulos
+   como os dos campos; a tabela dos módulos do tamanho do que leva, alinhada.
+   ====================================================================== */
+html body main.def-page .def-linha>h3{margin:0 0 12px}
+/* As Definições não têm funções: sem a barra branca vazia por baixo dos módulos. */
+html body:has(main.def-page) .dmo-shell-header .dmo-secondary-nav:not(:has(*)){display:none}
+html body main.def-page .def-conta dt{font-size:12px;font-weight:500;color:var(--dmo-muted)}
+html body main.def-page .dmo-table-wrap:has(>.def-conta-modulos){width:max-content;max-width:100%;margin-top:12px}
+html body main.def-page .def-conta-modulos{width:auto;min-width:0;margin:0}
+html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6px 16px;white-space:nowrap}
