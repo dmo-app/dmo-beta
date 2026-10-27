@@ -1,7 +1,9 @@
 using System.Net;
 using DMO.Alpha.Core.Admin;
+using DMO.Alpha.Core.Controlo;
 using DMO.Alpha.Core.Identity;
 using DMO.Alpha.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,9 @@ namespace DMO.Alpha.Web.Tests;
 /// Quem entra pelo posto da RI fica só com a Reparação Interna (Diogo,
 /// 27/10/2026: «Só a Reparação Interna»). A mesma conta, com o nº de operador
 /// e a palavra-passe, continua com todos os módulos do template.
+/// O mesmo computador para várias pessoas (Diogo, 27/10/2026: «3min auto e
+/// opções nas definições para aumentar»): a sessão do posto fecha ao fim de
+/// 3 minutos sem uso, ou do tempo escolhido nas Definições da Reparação.
 /// </summary>
 public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
 {
@@ -33,7 +38,7 @@ public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
         var id = Guid.NewGuid();
         using var factory = _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
             services.AddScoped<IPostoRi>(_ => new PostoComUm(new PostoReparador(id, "Reparador Só RI")))));
-        Semear(factory, id);
+        Semear(factory, id, minutos: null);
 
         using (var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true }))
         {
@@ -72,7 +77,102 @@ public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
             ("__RequestVerificationToken", token)));
     }
 
-    private void Semear(WebApplicationFactory<Program> factory, Guid id)
+    [Fact]
+    public async Task PeloPosto_SemUsoDurante3Minutos_ASessaoFecha()
+    {
+        var (factory, relogio, id) = Fabrica(minutos: null);
+        using var _ = factory;
+        using var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        await EntrarNoPostoAsync(posto, id);
+
+        var pagina = await posto.GetAsync("/ReparacaoInterna");
+        Assert.Equal(HttpStatusCode.OK, pagina.StatusCode);
+        Assert.Contains("data-dmo-posto-minutos=\"3\"", await pagina.Content.ReadAsStringAsync());
+
+        relogio.Avancar(TimeSpan.FromMinutes(3.5));
+        var depois = await posto.GetAsync("/ReparacaoInterna");
+        Assert.Equal(HttpStatusCode.Redirect, depois.StatusCode);
+        Assert.Contains("/login", depois.Headers.Location?.OriginalString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task PeloPosto_EmUso_ASessaoContinua()
+    {
+        var (factory, relogio, id) = Fabrica(minutos: null);
+        using var _ = factory;
+        using var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        await EntrarNoPostoAsync(posto, id);
+
+        // A página avisa que está a ser usada (dmo-posto.js) e a sessão renova-se.
+        for (var i = 0; i < 4; i++)
+        {
+            relogio.Avancar(TimeSpan.FromMinutes(2));
+            Assert.Equal(HttpStatusCode.NoContent, (await posto.GetAsync("/posto/ativo")).StatusCode);
+        }
+
+        Assert.Equal(HttpStatusCode.OK, (await posto.GetAsync("/ReparacaoInterna")).StatusCode);
+    }
+
+    [Fact]
+    public async Task PeloPosto_ComOTempoDasDefinicoes_ASessaoDuraEsseTempo()
+    {
+        var (factory, relogio, id) = Fabrica(minutos: "10");
+        using var _ = factory;
+        using var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        await EntrarNoPostoAsync(posto, id);
+
+        relogio.Avancar(TimeSpan.FromMinutes(4));
+        var pagina = await posto.GetAsync("/ReparacaoInterna");
+        Assert.Equal(HttpStatusCode.OK, pagina.StatusCode);
+        Assert.Contains("data-dmo-posto-minutos=\"10\"", await pagina.Content.ReadAsStringAsync());
+
+        relogio.Avancar(TimeSpan.FromMinutes(11));
+        Assert.Equal(HttpStatusCode.Redirect, (await posto.GetAsync("/ReparacaoInterna")).StatusCode);
+    }
+
+    [Fact]
+    public async Task SairDoPosto_VoltaAoPosto_PeloLoginNaoHaTempo()
+    {
+        var (factory, _, id) = Fabrica(minutos: null);
+        using var __ = factory;
+        using (var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true }))
+        {
+            await EntrarNoPostoAsync(posto, id);
+            var saida = await posto.GetAsync("/logout?posto=1");
+            Assert.Equal(HttpStatusCode.Redirect, saida.StatusCode);
+            Assert.Equal("/Posto", saida.Headers.Location?.OriginalString);
+            Assert.Equal(HttpStatusCode.Redirect, (await posto.GetAsync("/ReparacaoInterna")).StatusCode);
+        }
+
+        using var login = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var pagina = await login.GetAsync("/login");
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(await pagina.Content.ReadAsStringAsync())
+            ?? throw new InvalidOperationException("No antiforgery token found on page.");
+        await login.PostAsync("/login", HtmlFormHelpers.BuildFormPost(
+            ("identifier", Operador),
+            ("password", PalavraPasse),
+            ("returnUrl", "/"),
+            ("__RequestVerificationToken", token)));
+        var ri = await login.GetAsync("/ReparacaoInterna");
+        Assert.Equal(HttpStatusCode.OK, ri.StatusCode);
+        Assert.DoesNotContain("data-dmo-posto-minutos", await ri.Content.ReadAsStringAsync());
+    }
+
+    private (WebApplicationFactory<Program> Factory, RelogioDoTeste Relogio, Guid Id) Fabrica(string? minutos)
+    {
+        var id = Guid.NewGuid();
+        var relogio = new RelogioDoTeste(DateTimeOffset.UtcNow);
+        var factory = _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.AddScoped<IPostoRi>(_ => new PostoComUm(new PostoReparador(id, "Reparador Só RI")));
+            services.PostConfigure<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme,
+                o => o.TimeProvider = relogio);
+        }));
+        Semear(factory, id, minutos);
+        return (factory, relogio, id);
+    }
+
+    private void Semear(WebApplicationFactory<Program> factory, Guid id, string? minutos)
     {
         var email = $"{Operador}@dmo.local";
         _factory.AuthProvider.AddAccount(email, "provider-posto-so-ri", PalavraPasse, email);
@@ -89,7 +189,21 @@ public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
         db.Users.Add(new User { Id = id, OperatorId = Operador, Name = "Reparador Só RI", ProviderUserId = "provider-posto-so-ri" });
         db.SaveChanges();
         db.TemplateAssignments.Add(new TemplateAssignment { UserId = id, TemplateId = template.Id });
+        db.ModuleSettings.RemoveRange(db.ModuleSettings.Where(s => s.SettingKey == ModuleSettingKeys.ReparacaoInternaPostoMinutos));
+        if (minutos is not null)
+        {
+            db.ModuleSettings.Add(new ModuleSetting { SettingKey = ModuleSettingKeys.ReparacaoInternaPostoMinutos, SettingValue = minutos });
+        }
         db.SaveChanges();
+    }
+
+    private sealed class RelogioDoTeste(DateTimeOffset inicio) : TimeProvider
+    {
+        private DateTimeOffset _agora = inicio;
+
+        public void Avancar(TimeSpan quanto) => _agora += quanto;
+
+        public override DateTimeOffset GetUtcNow() => _agora;
     }
 
     private sealed class PostoComUm(PostoReparador reparador) : IPostoRi

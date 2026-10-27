@@ -29,6 +29,16 @@ public static class PostoRiRegras
     public static bool TemRi(IEnumerable<string> capabilities) =>
         capabilities.Any(c => c is DmoCapabilities.ReparacaoInterna or DmoCapabilities.ReparacaoInternaView);
 
+    /// <summary>Os minutos sem uso antes de a sessão do posto fechar, quando nada foi escolhido.</summary>
+    public const int MinutosPorOmissao = 3;
+
+    /// <summary>As opções das Definições da Reparação para os minutos do posto.</summary>
+    public static readonly IReadOnlyList<int> MinutosOpcoes = [3, 5, 10, 15, 30];
+
+    /// <summary>Os minutos gravados, ou os 3 por omissão quando o valor não é uma das opções.</summary>
+    public static int Minutos(string? valor) =>
+        int.TryParse(valor?.Trim(), out var minutos) && MinutosOpcoes.Contains(minutos) ? minutos : MinutosPorOmissao;
+
     /// <summary>
     /// O que uma sessão aberta pelo posto pode usar: só a Reparação Interna
     /// do template (Diogo, 27/10/2026: «Só a Reparação Interna»); os outros
