@@ -45,6 +45,11 @@ html body .def-secao[hidden]{display:none}
 .def-linha .dmo-card-topo,.def-linha > h3{margin-bottom:8px}
 /* Mais espaço entre o título e o que está por baixo (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraF5eVZdhJCHZqkN7ZswBvBD: «dar espaço»). */
 html body .def-pessoal-grade > .def-linha > h3 + form{margin-top:14px}
+/* Sessão e Aparência: a lista e o botão na linha do título, à direita, à mesma altura do «Mudar» da
+   palavra-passe (Diogo, 27/10/2026: «1 hora», «Modo claro» e «Mudar» não estavam à mesma altura). */
+html body .def-pessoal-grade > .def-linha:not(#defConta):not(#defPalavraPasse){display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;justify-content:space-between;gap:8px 12px}
+html body .def-pessoal-grade > .def-linha:not(#defConta):not(#defPalavraPasse) > h3{display:flex;align-items:center;min-height:var(--dmo-control-height);margin:0}
+html body .def-pessoal-grade > .def-linha:not(#defConta):not(#defPalavraPasse) > h3 + form{margin:0}
 .def-conta{display:flex;flex-wrap:wrap;gap:8px 56px;margin:10px 0 0;font-size:15px}
 .def-conta dt{color:var(--dmo-muted);font-weight:600;font-size:12.5px}
 /* Os dados da pessoa em destaque (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraEMoiSsdtN5LyniSpY8rnL8). */

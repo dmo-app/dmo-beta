@@ -21,12 +21,15 @@ html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn)[hidden]{dis
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):focus-visible:not(:hover):not(:active){background:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));border-color:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));color:var(--dmo-text-on-color)}
 html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel):focus-visible{outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45))}
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-800));border-color:#fff;color:#fff;outline:0}
-html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-600))}
+/* No escuro também escurece um tom (#334663, o do «Entrar»), nunca clareia: com o azul mais claro e o contorno
+   branco, o «Modo claro» das Definições, que fica debaixo do rato depois do clique, parecia outro botão ao lado
+   do «Mudar» (Diogo, 27/10/2026: «apesar de termos tido alguém para rever os botões continua»). */
+html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,#334663)}
 /* Os links de ação que passaram a botões (Abrir página do painel, avisos, ficha da ferramenta):
    o mesmo botão, também no hover do escuro. Regras à parte porque o #id pesaria sobre tudo. */
 html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-action,var(--dmo-brand-600));border-radius:var(--dmo-r-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;text-decoration:none;vertical-align:middle;cursor:pointer}
 html body #dmoSupportFull:is(:hover,:active),html body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;text-decoration:none;outline:0}
-html[data-theme="dark"] body #dmoSupportFull:is(:hover,:active),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:var(--dmo-brand-600)}
+html[data-theme="dark"] body #dmoSupportFull:is(:hover,:active),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:#334663}
 
 /* 2) Seletores -------------------------------------------------------------------------------
    Opção 4 escolhida pelo Diogo (27/10/2026, …XwHyWe8QJjkeaipvH2MLV8; já pedido a 26/10: «iguais aos
@@ -170,3 +173,10 @@ html ::-webkit-scrollbar{width:6px;height:6px}
 html ::-webkit-scrollbar-track{background:transparent}
 html ::-webkit-scrollbar-thumb{background:var(--dmo-border);border-radius:3px}
 html ::-webkit-scrollbar-thumb:hover{background:var(--dmo-muted)}
+/* Setas do calendário (Job On, Controlo › Aprovar): botões de ação, por isso com a altura e o canto dos outros
+   (eram 36 px de altura e canto de 8 px) e o mesmo rato por cima; no escuro escurecem, como os outros. O calendário
+   pequeno do histórico das Boquilhas (28 px) continua a mandar. */
+html body .dmo-calendar .dmo-calendar-nav :where(button.icon-btn){height:var(--dmo-control-height);min-height:var(--dmo-control-height);border-radius:var(--dmo-r-control,6px)}
+html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:#334663;border-color:#fff;color:#fff}
+/* Job On › Folha: os botões (Editar, Duplicar, Imprimir, Guardar, Cancelar, Linhas) com o canto dos outros (8 → 6 px). */
+html body .jof2 .btn.btn{border-radius:var(--dmo-r-control,6px)}
