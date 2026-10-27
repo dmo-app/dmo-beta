@@ -322,6 +322,10 @@ public sealed class DmoSignInService
             ? await _authorization.ResolveEffectiveAccessAsync(actorId)
             : null;
         var capabilities = effective?.Capabilities ?? Array.Empty<string>();
+        if (principal.HasClaim(DmoClaimTypes.Posto, bool.TrueString))
+        {
+            capabilities = PostoRiRegras.SoDoPosto(capabilities);
+        }
         var initialPage = DmoCapabilities.HomeFor(capabilities) ?? "/Modules/Home";
         // Só caminhos desta aplicação: nunca outro site depois do login.
         return !LocalUrl.IsSafe(returnUrl) || returnUrl is "/JobOn" or "/"
@@ -350,7 +354,8 @@ public sealed class DmoSignInService
             new Claim(DmoClaimTypes.IsAdmin, bool.FalseString),
             new Claim(DmoClaimTypes.OperatorId, user.OperatorId),
             new Claim(DmoClaimTypes.ProviderUserId, user.ProviderUserId),
-            SessionVersionClaim(user)
+            SessionVersionClaim(user),
+            new Claim(DmoClaimTypes.Posto, bool.TrueString)
         ];
         if (!string.IsNullOrWhiteSpace(user.TemplateName))
         {

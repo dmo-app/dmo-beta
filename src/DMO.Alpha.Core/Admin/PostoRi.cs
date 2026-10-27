@@ -28,4 +28,12 @@ public static class PostoRiRegras
 
     public static bool TemRi(IEnumerable<string> capabilities) =>
         capabilities.Any(c => c is DmoCapabilities.ReparacaoInterna or DmoCapabilities.ReparacaoInternaView);
+
+    /// <summary>
+    /// O que uma sessão aberta pelo posto pode usar: só a Reparação Interna
+    /// do template (Diogo, 27/10/2026: «Só a Reparação Interna»); os outros
+    /// módulos pedem o login com o nº de operador e a palavra-passe.
+    /// </summary>
+    public static IReadOnlyList<string> SoDoPosto(IEnumerable<string> capabilities) =>
+        capabilities.Where(c => c is DmoCapabilities.ReparacaoInterna or DmoCapabilities.ReparacaoInternaView).ToList();
 }
