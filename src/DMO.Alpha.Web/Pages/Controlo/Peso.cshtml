@@ -88,9 +88,15 @@
   @if (Model.HistoricoTab)
   {
   <section class="dmo-card peso-card" aria-labelledby="peso-historico-title">
-    <div class="peso-card-heading"><div>
+    @* O «Comparar peso» do Histórico (Diogo, 27/10/2026: «comparar peso através
+       do histórico»): leva a referência escrita (data-peso-comparar-cm), posta
+       pelo script ao clicar; o cabeçalho fica igual entre filtros. *@
+    <div class="peso-card-heading dmo-card-topo">
       <h3 id="peso-historico-title">Histórico do Controlo</h3>
-    </div></div>
+      <div class="dmo-card-topo-acoes">
+        <a class="dmo-button" href="/Controlo/PesoComparar" data-peso-comparar-cm="historicoReferencia">Comparar peso</a>
+      </div>
+    </div>
     @* Os filtros trocam só o que muda (deep sweep, 18/10/2026): cada escolha
        pede a página com fetch (DmoTroca, pelo ouvinte do Peso abaixo) e troca
        os resultados e o dropdown das produções, que muda com a referência.
@@ -708,6 +714,12 @@
             <a class="dmo-button" href="/Controlo/Peso?controlo_id=@pesoDoTopo.ControloId">Abrir o Peso atual</a>
           }
           <a class="dmo-button" href="/Controlo/Peso?controlo_id=@Model.ControloIdFromQuery&comparacao=1@(Model.PesoIdNoEndereco is { } comparacaoPesoInicial ? $"&peso_inicial={comparacaoPesoInicial}" : null)">Comparação de Peso</a>
+          @* O «Comparar peso» (Diogo, 27/10/2026): abre ao lado as CM compatíveis
+             e o tampão simulado (PesoComparar). *@
+          @if (Model.Peso is { } pesoComparar)
+          {
+            <a class="dmo-button" href="/Controlo/PesoComparar?peso_id=@pesoComparar.PesoId">Comparar peso</a>
+          }
           @if (Model.Peso is not null)
           {
             <button type="submit" class="dmo-button" form="pesoPdfForm">Exportar PDF</button>
@@ -1342,6 +1354,7 @@
           {
             <a class="dmo-button" href="/Controlo/Peso?controlo_id=@peso.ControloId">Abrir o Peso atual</a>
           }
+          <a class="dmo-button" href="/Controlo/PesoComparar?peso_id=@peso.PesoId">Comparar peso</a>
           <button type="submit" class="dmo-button" form="pesoPdfForm">Exportar PDF</button>
         </div>
         }
@@ -1951,6 +1964,18 @@
 @section Scripts {
 <script src="@Url.Content("~/peso-live.js")"></script>
 <script>
+// O «Comparar peso» do Histórico leva a referência que está escrita agora.
+(() => {
+  const atualizar = () => document.querySelectorAll('a[data-peso-comparar-cm]').forEach(link => {
+    const campo = document.getElementById(link.dataset.pesoCompararCm);
+    const url = new URL(link.getAttribute('href'), location.href);
+    if (campo && campo.value.trim()) url.searchParams.set('cm', campo.value.trim()); else url.searchParams.delete('cm');
+    link.setAttribute('href', url.pathname + url.search);
+  });
+  document.addEventListener('input', event => { if (event.target.id === 'historicoReferencia') atualizar(); });
+  document.addEventListener('pointerdown', event => { if (event.target.closest('a[data-peso-comparar-cm]')) atualizar(); }, true);
+  document.addEventListener('focusin', event => { if (event.target.closest('a[data-peso-comparar-cm]')) atualizar(); });
+})();
 // A COMPARAÇÃO DE PESO (progressive enhancement, o padrão do html):
 // as leituras adicionam/removem ao vivo e os selects de contexto
 // auto-submetem o GET do cascade. Sem JS tudo funciona pelo form nativo

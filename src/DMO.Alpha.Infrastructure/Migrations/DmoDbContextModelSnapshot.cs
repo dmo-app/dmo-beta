@@ -1861,10 +1861,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<int>("JobOnId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AnNotas")
+                    b.Property<string>("AnLote")
                         .HasColumnType("text");
 
-                    b.Property<string>("AnLote")
+                    b.Property<string>("AnNotas")
                         .HasColumnType("text");
 
                     b.Property<string>("AnReferencia")
@@ -2516,6 +2516,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<Guid?>("AutorUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Impressao")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<DateTimeOffset>("MomentoUtc")
                         .HasColumnType("timestamp with time zone");

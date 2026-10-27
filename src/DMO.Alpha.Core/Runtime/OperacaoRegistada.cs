@@ -37,6 +37,13 @@ public sealed class OperacaoRegistada
 
     /// <summary>Quando a operação foi registada (UTC).</summary>
     public DateTimeOffset MomentoUtc { get; init; }
+
+    /// <summary>
+    /// A impressão digital do que o envio pediu (SHA-256 em hexadecimal);
+    /// NULL nas operações que não a guardam. Um envio com o mesmo
+    /// identificador e outra impressão não é o mesmo envio.
+    /// </summary>
+    public string? Impressao { get; init; }
 }
 
 /// <summary>O resultado de uma operação: o tipo e o identificador, que o envio repetido recebe de volta.</summary>
@@ -57,5 +64,12 @@ public interface IOperacoesRegistadas
     /// facto. Um segundo envio com o mesmo identificador colide na chave
     /// primária e o facto dele não fica.
     /// </summary>
-    OperacaoRegistada Registar(Guid operacaoId, string tipo, ResultadoDaOperacao resultado);
+    OperacaoRegistada Registar(Guid operacaoId, string tipo, ResultadoDaOperacao resultado, string? impressao = null);
+
+    /// <summary>
+    /// Se a operação já registada é este mesmo envio: o mesmo tipo, a mesma
+    /// pessoa e a mesma impressão. Senão o identificador foi reutilizado e o
+    /// envio é recusado.
+    /// </summary>
+    bool EOMesmoEnvio(OperacaoRegistada registada, string tipo, string? impressao);
 }

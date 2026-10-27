@@ -3364,6 +3364,49 @@ Novos: 2 · mudaram: 2 · saíram: 0
 
 Selo depois: `7df95d24814fbd98`
 
+## A-0188 · 2026-10-27 · contagem-lista
+
+Porquê: Peso: o mesmo envio de leituras grava uma só vez, também depois de um reinício ou de uma resposta perdida; leituras iguais de envios diferentes gravam; o mesmo identificador de outra pessoa, operação ou com outras leituras é recusado; dois envios iguais ao mesmo tempo dão uma leitura; uma falha a meio não deixa nem leitura nem operação (DMO-450, 0.3.0-beta.146). A lista das migrações ganha 20261027030704_OperacoesRegistadasImpressao.
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_DuasLeiturasIguaisDeEnviosDiferentes_GravamAsDuas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_FalhaAMeioDaGravacao_NaoFicaNemALeituraNemAOperacao_EORepetirGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioDuasVezesAoMesmoTempo_FicaUmaSoLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioOutraVez_DepoisDeUmReinicio_NaoGravaDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoIdentificadorNoutraCoisa_ERecusadoENadaFica`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: PesoToolScopedPageTests.RegisterMeasurement_OMesmoEnvioDepoisDeUmReinicio_NaoGravaOutraVez_EUmEnvioNovoIgualGrava`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `e184a131a41a6920`
+
+## A-0181 · 2026-10-27 · teste-novo
+
+Porquê: Comparar peso (Diogo, 27/10/2026): Pesos compatíveis (mesma referência da CM e máquina), escolha pela linha, tabela igual à do Peso, só a calote muda pela Calote Tampo; nada é gravado
+Novos: 18 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoHistorico_PeloInicioDaReferencia_SemJobOnValemAsMaquinasDaFicha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoHistorico_SemMaquina_FicaADoPesoMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoPesoAntigo_FicaOPedidoNaCmDele`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.DoPeso_SoAMesmaReferenciaEMaquina_OMaisRecenteDeCadaCm`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.OutraMaquinaEscolhida_TrocaAsCm`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.SemTampaoNoPeso_ValeODoJobOn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararQueryTests.cs :: PesoCompararQueryTests.VariasReferencias_PedeParaEscolher`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: PesoTampaoSimuladoTests.SoACaloteMuda_OPesoMudaPelaCaloteTampo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoTampaoSimuladoTests.cs :: PesoTampaoSimuladoTests.Texto_DiametroXCalote_SemZerosAMais`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.CaloteQueNaoSeLe_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.CaloteSimulada_MudaSoEsseLadoPelaCaloteTampo_ENaoGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.DoHistorico_PelaReferenciaDaCm_EOutraMaquina`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.DoPeso_ListaOsCompativeis_EComparaComOSeguinte`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.OPesoEOHistorico_TemOBotao_EOPainelLateralAbreAPagina`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCompararPageTests.cs :: PesoCompararPageTests.OutraMaquina_ESemOutroPeso_DizQueNaoHaComQueComparar`
+
+Selo depois: `f211690090c32975`
+
 ## A-0199 · 2026-10-27 · ok-do-diogo
 
 Porquê: Planeamento também para o Job On ver (DMO-461): o «Job On» de quem só vê passa a levar ao Planeamento em leitura, sem Histórico; teste novo do Planeamento só leitura.
@@ -3374,4 +3417,4 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PlaneamentoSoVer.cs :: JobOnPageTests.Planeamento_JobOnVer_VeOCalendarioEAsLinhas_SemCriarNemHistorico`
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.SoVer.cs :: PlaneamentoSumarioPageTests.WithJobOnViewOnly_TheTabsLeadToPagesTheProfileCanOpen`
 
-Selo depois: `437d6ee660c176c1`
+Selo depois: `d2926dafd0680cf6`
