@@ -1350,10 +1350,15 @@
         else
         {
         <h3 id="peso-open-title">Peso — CM @(peso.CmToolReference ?? "—")</h3>
+        @* Sem produção, a nota «sem associação a produção — CM · Lote» saiu
+           (Diogo, 27/10/2026, «remover»): a CM já está no título. *@
+        @if ((Model.ProductionContext ?? Model.OpenedPesoProduction) is { } pc)
+        {
         <p class="card-note">
-          @((Model.ProductionContext ?? Model.OpenedPesoProduction) is { } pc ? $"Produção {pc.ProductionNumber} · {pc.Reference} · {pc.Machine}" : "sem associação a produção")
+          Produção @pc.ProductionNumber · @pc.Reference · @pc.Machine
           — CM @(peso.CmToolReference ?? "—")@(peso.CmToolReference is null ? "" : $" · Lote {peso.CmToolLot}")@(Model.ShowPesos ? $" · BQ {peso.BqToolReference ?? "—"}" + (peso.BqToolReference is null ? "" : $" · Lote {peso.BqToolLot}") : null)
         </p>
+        }
         }
         @* Um Peso de antes de uma troca da CM ou da BQ fica como estava: as
            leituras gravadas ainda se corrigem, mas as novas vão para o Peso
@@ -1473,7 +1478,6 @@
         <span hidden data-peso-registo-recusado></span>
       }
 
-      <p class="peso-hint" style="margin:0 0 6px">Temperatura da água @peso.WaterTemperatureC °C · densidade @fmtDensity(peso.WaterDensityGramsPerCm3) g/cm³ · Peso = (capacidade + Marisa − Punção) × densidade do vidro</p>
       <div class="peso-section-heading"><div>
         <h4>Leituras por CM</h4>
       </div></div>
@@ -1574,20 +1578,15 @@
           }
           </div>
           <div class="peso-leitura-grade" data-peso-leitura-cartoes>
+            @* As leituras gravadas já estão na tabela «Leituras por CM»: por baixo
+               não se repetem (Diogo, 27/10/2026, «remover o duplicado»). A zona
+               fica, com uma marca escondida por leitura, para a gravação sem
+               recarregar saber que a leitura ficou gravada (peso-live.js); só
+               mostra a leitura enviada enquanto grava («A gravar…»). *@
             <div id="pesoLeiturasGravadas" class="dmo-zona" data-dmo-regiao>
-            @foreach (var (gravada, gravadaIndex) in peso.Measurements.Select((m, i) => (m, i)))
+            @foreach (var gravada in peso.Measurements)
             {
-              <div class="peso-leitura-row is-saved" data-peso-leitura-gravada>
-                <div class="dmo-field">
-                  <label for="pesoGravadaCm-@gravadaIndex">N.º CM</label>
-                  <input id="pesoGravadaCm-@gravadaIndex" value="@(string.IsNullOrEmpty(gravada.CmSubject) ? "—" : gravada.CmSubject)" readonly tabindex="-1" aria-label="N.º CM gravado" />
-                </div>
-                <div class="dmo-field">
-                  <label for="pesoGravadaAgua-@gravadaIndex">Massa de água (g)</label>
-                  <input id="pesoGravadaAgua-@gravadaIndex" value="@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)" readonly tabindex="-1" aria-label="Massa de água gravada" />
-                </div>
-                @* Volume e peso já estão na tabela por cima: não se repetem aqui (Diogo, 27/10/2026). *@
-              </div>
+              <span hidden data-peso-leitura-gravada>@gravada.CmSubject=@gravada.WaterWeightGrams.ToString(System.Globalization.CultureInfo.InvariantCulture)</span>
             }
             </div>
             <div class="peso-leitura-nova" data-dmo-fica>

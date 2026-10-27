@@ -1,5 +1,5 @@
 {
-  "selo": "350f94e337b7d721",
+  "selo": "f96ff5c574701647",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2591,7 +2591,7 @@
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.RegistarEApagarNoutroCartao_MantemACorrecaoAberta": "c4c450f25a1ebd2d",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.RegistarLeitura_ZonasPedidas_DesenhaSoAsZonas_SemLerAsFerramentas": "a6a9456a8d5b9bc7",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.ResumoPage_LinksToPegamentosSheet_WithEnsuredControloId": "ffb5c674267ca7f4",
-    "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.SavedPesoNavigation_UsesItsOwnProduction_AndDoesNotAssociateToolScopedPeso": "a14c999dfe5522d4",
+    "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.SavedPesoNavigation_UsesItsOwnProduction_AndDoesNotAssociateToolScopedPeso": "41e73e21bc6247fa",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.UnreadableContraCostura_SavesCosturaOnly_WithWarning": "4fa3abcf884294bd",
     "tests/DMO.Alpha.Web.Tests/PegamentosPrevisaoCasosTests.cs :: (resto do ficheiro)": "4f6a8bed7e735e6a",
     "tests/DMO.Alpha.Web.Tests/PegamentosPrevisaoCasosTests.cs :: Ficheiro.OServidorDaOMesmoQueAPrevisualizacao": "2ab9d970822836b3",
@@ -2616,8 +2616,8 @@
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.CreateRefusal_TemperaturaForaDoIntervalo_ContinuaRecusa": "7894a3e3551dc042",
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.CreateRefusal_ValorEscritoMasIlegivel_DizIlegivel": "e44f33c5b8f0a40c",
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.RegisterMeasurement_MassaIlegivelDizIlegivel_MassaZeroContinuaRecusa": "6cd50010d3ff0073",
-    "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.SavedPeso_KeepsRecordedIdentificationAfterCatalogEdit_AndDownloadsPdf": "ed2f64b15980d7e8",
-    "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage": "70d82d5e8a1ab449",
+    "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.SavedPeso_KeepsRecordedIdentificationAfterCatalogEdit_AndDownloadsPdf": "ec919deb2a8820f2",
+    "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage": "5ea1b6af524b5351",
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow": "6d4bc480a09097ef",
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.UnauthenticatedRequests_ReceiveNoPageAndNoMutation": "feccdfea80dc9c64",
     "tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.VolumeMarisaZero_ERecusado_OOperadorLeARecusaNoNovoPeso_NadaFicaGravado": "9265c8a0311d15ac",

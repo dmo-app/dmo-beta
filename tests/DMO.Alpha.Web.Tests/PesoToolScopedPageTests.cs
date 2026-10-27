@@ -302,8 +302,9 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("peso-section-heading", pesoHtml);
         Assert.Contains("Leituras por CM", pesoHtml);
         Assert.DoesNotContain("Peso — CM T3", pesoHtml);
-        Assert.Contains("Lote 3", pesoHtml);
-        Assert.Contains("sem associação a produção", pesoHtml);
+        // Sem produção, a nota «sem associação a produção — CM · Lote» saiu
+        // (Diogo, 27/10/2026, «remover»): a CM já está no título.
+        Assert.DoesNotContain("sem associação a produção", pesoHtml);
         Assert.Contains("Ainda sem leituras", pesoHtml);
 
         var previewToken = await GetVerificationTokenAsync(client, pesoUrl);
@@ -426,7 +427,9 @@ public partial class PesoToolScopedPageTests : IClassFixture<CustomWebApplicatio
         using var reading = await PostMeasurementAsync(client, url, pesoId, "61", "100.00");
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, url));
         Assert.Contains("Peso — CM 5447", html);
-        Assert.Contains("CM 5447 · Lote 3", html);
+        // A nota «CM · Lote» do Peso sem produção saiu (Diogo, 27/10/2026, «remover»);
+        // o lote editado no catálogo continua a não aparecer.
+        Assert.DoesNotContain("Lote 33", html);
         Assert.DoesNotContain("CM-EDITADA", html);
         var token = await GetVerificationTokenAsync(client, url);
         using var pdf = await client.PostAsync(PagePath + "?handler=GeneratePdf", HtmlFormHelpers.BuildFormPost(
