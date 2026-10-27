@@ -3984,6 +3984,32 @@ Novos: 2 · mudaram: 0 · saíram: 0
 
 Selo depois: `f875edf05732704d`
 
+## A-0244 · 2026-10-27 · ok-do-diogo
+
+Porquê: SAP (DMO-501): das colunas da ZFMD fica só a cadência. Os testes do A-0235 que verificavam as 11 colunas que saem dão lugar aos da cadência (ler, gravar, PostgreSQL sem as 11 colunas, a cadência do Job On e no cabeçalho e na folha impressa); a lista das migrações acrescenta 20261027125325_SapFabricoSoCadencia
+Referência: Diogo, thread do SAP, 27/10/2026 14:40: «sim» (cmsg_01K75FTs9bQnbhhH7qttpgra6b5dPSjxGNtQ6TaAXYknn1) ao cartão «Posso trocar os testes das 11 colunas pelos testes da cadência?» (cmsg_01K75FTs9bQnbhhH7qttpgra5BAHBfeNZhYE1nurbBUbQr); decisão de só guardar a cadência: cmsg_01K75FTs9bQnbhhH7qttpgra1Vxhh5skRzdUBVqckufAu9
+Novos: 9 · mudaram: 1 · saíram: 7
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: PostgresMigrationIntegrationTests.SapFabricoCadencia_GravaSoACadencia_NoPostgreSql`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.ACadenciaDoJobOn_EADaOrdemComMaisDias_EmpatadaAMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.ARelatorioDaZfmd_DaACadenciaDeCadaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.Importar_GravaACadencia_ESemElaNaoApagaAJaGravada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.UmRelatorioSemCadencia_DeixaAVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoColunasZfmd.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoColunasZfmd.cs :: PostgresMigrationIntegrationTests.SapFabricoColunasZfmd_GravaTodasAsColunasDoRelatorio_NoPostgreSql`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.ARelatorioDaZfmd_DaTodasAsColunasDeCadaProducao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.Importar_GravaAsColunasNovas_ESemElasNaoApagaAsJaGravadas`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.ODeltaDoPeso_LeSeComOSinal`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.UmRelatorioSemAsColunasNovas_DeixaAsVazias`
+
+Selo depois: `6a2e977f45a5ec02`
+
 ## A-0246 · 2026-10-27 · ok-do-diogo
 
 Porquê: DMO-506: a faixa «Planeamento» em cima do calendário (Job On e Sumário) só mostra o que entra, de hoje até uma semana; as produções em curso saem dela (Diogo: «deveria remover o que já entrou»). O teste do painel lateral do Sumário deixa de exigir «Em curso desde» e passa a exigir que a de ontem fique de fora. A gaveta «Linhas» da folha não muda.
@@ -3992,4 +4018,4 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 
-Selo depois: `e6e3be96a6b2ca5a`
+Selo depois: `68b7521fc048a7b6`

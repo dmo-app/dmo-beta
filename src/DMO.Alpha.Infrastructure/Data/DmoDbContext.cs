@@ -794,14 +794,6 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(f => f.Linha).HasMaxLength(SapFabrico.LinhaMaxLength).IsRequired();
             entity.Property(f => f.LidoPor).HasMaxLength(254);
             entity.Property(f => f.PesoMedioGramas).HasPrecision(9, 3);
-            entity.Property(f => f.Centro).HasMaxLength(SapFabrico.CentroMaxLength);
-            entity.Property(f => f.Kcr).HasPrecision(9, 3);
-            entity.Property(f => f.DeltaPesoGramas).HasPrecision(8, 3);
-            entity.Property(f => f.PackToPull).HasPrecision(6, 3);
-            entity.Property(f => f.Paletes).HasPrecision(11, 3);
-            entity.Property(f => f.RejeicaoTotal).HasPrecision(6, 3);
-            entity.Property(f => f.RejeicaoMil).HasPrecision(9, 3);
-            entity.Property(f => f.HotEnd).HasPrecision(6, 3);
             entity.Property(f => f.Ficheiro).HasMaxLength(FerramentaUtilizacao.FicheiroMaxLength);
             entity.HasIndex(f => new { f.Material, f.Linha, f.InicioEm, f.FimEm }).IsUnique();
             entity.HasIndex(f => new { f.Linha, f.InicioEm });

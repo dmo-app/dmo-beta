@@ -50,18 +50,7 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             existente.DiasProducao = linha.DiasProducao;
             if (detalheDe.TryGetValue((linha.Material, linha.Linha, linha.InicioEm, linha.FimEm), out var detalhe))
             {
-                existente.Centro = detalhe.Centro;
                 existente.Cadencia = detalhe.Cadencia;
-                existente.Gob = detalhe.Gob;
-                existente.Sectores = detalhe.Sectores;
-                existente.Kcr = detalhe.Kcr;
-                existente.DeltaPesoGramas = detalhe.DeltaPesoGramas;
-                existente.PackToPull = detalhe.PackToPull;
-                existente.NetQuant = detalhe.NetQuant;
-                existente.Paletes = detalhe.Paletes;
-                existente.RejeicaoTotal = detalhe.RejeicaoTotal;
-                existente.RejeicaoMil = detalhe.RejeicaoMil;
-                existente.HotEnd = detalhe.HotEnd;
             }
 
             existente.LidoEmUtc = agora;
@@ -76,6 +65,28 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
 
     public Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default) =>
         db.SapFabricos.AsNoTracking().MaxAsync(s => s.FicheiroModificadoEmUtc, cancellationToken);
+
+    public async Task<int?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default)
+    {
+        var j = await db.JobOns.AsNoTracking()
+            .Where(j => j.Id == jobOnId && j.InicioEm != null)
+            .Select(j => new { j.Reference, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (j is null)
+        {
+            return null;
+        }
+
+        var maquina = j.Maquina.ToUpperInvariant();
+        var de = j.InicioEm!.Value;
+        var sap = await db.SapFabricos.AsNoTracking()
+            .Where(s => s.Linha == maquina && s.FimEm >= de && s.Cadencia != null)
+            .ToListAsync(cancellationToken);
+        return FabricoSapCadencia.DoJobOn(
+            sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm)),
+            de,
+            j.FimEm);
+    }
 
     public async Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default)
     {
