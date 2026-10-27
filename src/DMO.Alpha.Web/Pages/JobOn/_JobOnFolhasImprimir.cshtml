@@ -85,7 +85,7 @@
         <div class="jfb">@{ Ferramenta("Punções", null, null); Dados(SoComValor(("Referência", I["pu.ref"]), ("Versão", I["pu.versao"]))); Notas("pu.notas"); }</div>
         <div class="jfb">@{ Ferramenta("Arrefecedores", null, null); Dados(("Referência", I["arr.ref"])); Notas("arr.notas"); }</div>
         <div class="jfb">@{ Ferramenta("C. de Sopro", "cs.ref", null); Dados(("Abertos", I["cs.abertos"]), ("Fechados", I["cs.fechados"]), ("Tubo", I["cs.tubo"])); Notas("cs.notas"); }</div>
-        <div class="jfb">@{ Ferramenta("Pinças", null, null); Dados(("Diâmetro", I["pi.diametro"]), ("Tipo", I["pi.tipo"])); Notas("pi.notas"); }</div>
+        <div class="jfb">@{ Ferramenta("Pinças", null, null); Dados(("Pinças", I["pi.pincas"]), ("Diâmetro", I["pi.diametro"])); Notas("pi.notas"); }</div>
       </div>
       @{ Geral(); }
       <div class="jfi-crescer"></div>
@@ -127,7 +127,7 @@
               C("FF", "Fundo Final", I["mf.fundo"], I["mf.lote_ff"]);
               C("BQ", "Boquilha", I["bq.ref"], I["bq.lote"]);
               C("CS", "Cab. Enchimento", I["cs.ref"], sub: string.Join(" · ", new[] { Abertos(), I["cs.tubo"].Length > 0 ? "Tubo " + I["cs.tubo"] : "" }.Where(s => s.Length > 0)));
-              C("PI", "Pinça", I["pi.diametro"].Length > 0 ? "Ø " + I["pi.diametro"] : "", sub: I["pi.tipo"]);
+              C("PI", "Pinça", I["pi.diametro"].Length > 0 ? "Ø " + I["pi.diametro"] : "", sub: I["pi.pincas"]);
           }
         </div>
       </div>
@@ -150,7 +150,7 @@
       <div class="jfb">@{ Ferramenta("Punções", null, null); Dados(SoComValor(("Referência", I["pu.ref"]), ("Versão", I["pu.versao"]))); Notas("pu.notas"); }</div>
       <div class="jfb">@{ Ferramenta("Tub. Refrig", null, null); Dados(("Referência", I["arr.ref"])); Notas("arr.notas"); }</div>
       <div class="jfb">@{ Ferramenta("C. de Sopro", "cs.ref", null); Dados(("Abertos", I["cs.abertos"]), ("Fechados", I["cs.fechados"]), ("Tubo", I["cs.tubo"])); Notas("cs.notas"); }</div>
-      <div class="jfb">@{ Ferramenta("Pinças", null, null); Dados(("Diâmetro", I["pi.diametro"]), ("Tipo", I["pi.tipo"])); Notas("pi.notas"); }</div>
+      <div class="jfb">@{ Ferramenta("Pinças", null, null); Dados(("Pinças", I["pi.pincas"]), ("Diâmetro", I["pi.diametro"])); Notas("pi.notas"); }</div>
     </div>
     <div class="jfb-fim">
       @{ Geral(); }

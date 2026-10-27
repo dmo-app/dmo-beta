@@ -64,16 +64,10 @@ with sync_playwright() as playwright:
 
         context.route("**/*", serve)
         page.goto("http://dmo.test/Boquilhas?ficheiros=1")
-        # A dica de ajuda abre sempre dentro do ecrã (Diogo, 17/10/2026).
-        helps = page.locator(".dmo-help:visible")
-        assert helps.count() > 0
-        for help in helps.all():
-            help.hover()
-            tip = help.locator(".dmo-help-tip").bounding_box()
-            assert tip and tip["x"] >= 0 and tip["x"] + tip["width"] <= width, (width, tip)
-            assert tip["y"] >= 0 and tip["y"] + tip["height"] <= height, (width, tip)
-            assert help.locator(".dmo-help-tip").evaluate("t => getComputedStyle(t).color") == "rgb(255, 255, 255)"
-        page.mouse.move(0, 0)
+        # Sem círculos de dica em lado nenhum (Diogo, 27/10/2026): há dicas
+        # na página, mas nenhum círculo à vista (o texto vai para o title).
+        assert page.locator(".dmo-help").count() > 0
+        assert page.locator(".dmo-help:visible").count() == 0
 
         # Sem o formulário curto: «Criar boquilha» no canto superior direito
         # do cartão da procura, com a máquina do filtro.
