@@ -422,24 +422,11 @@
     window.addEventListener('afterprint', limpar);
     window.print();
   };
-  // O botão Imprimir abre a lista das folhas quando a página as tem; sem
-  // lista, imprime o ecrã como antes.
+  // O botão Imprimir imprime as folhas todas.
   function imprimir() {
     var id = function () { var m = /jobon_id=(\d+)/.exec(location.search); return m ? Number(m[1]) : null; };
     document.querySelectorAll('[data-jof-imprimir]').forEach(function (b) {
-      var lista = b.parentElement && b.parentElement.querySelector('[data-jof-imprimir-lista]');
-      var fechar = function () { lista.hidden = true; b.setAttribute('aria-expanded', 'false'); };
-      b.addEventListener('click', function () {
-        if (!lista) { window.dmoJobOnImprimir(id(), 'todas'); return; }
-        lista.hidden = !lista.hidden;
-        b.setAttribute('aria-expanded', String(!lista.hidden));
-      });
-      if (!lista) return;
-      lista.querySelectorAll('[data-jof-imprimir-folha]').forEach(function (f) {
-        f.addEventListener('click', function () { fechar(); window.dmoJobOnImprimir(id(), f.getAttribute('data-jof-imprimir-folha')); });
-      });
-      document.addEventListener('click', function (e) { if (!b.parentElement.contains(e.target)) fechar(); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fechar(); });
+      b.addEventListener('click', function () { window.dmoJobOnImprimir(id(), 'todas'); });
     });
   }
   // CS · Furos no Editar: dois dígitos (abertos, fechados) vão para o campo cs_furos

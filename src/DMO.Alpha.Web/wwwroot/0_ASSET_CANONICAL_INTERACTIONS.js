@@ -1535,7 +1535,6 @@
       if (!body.has(hidden.name)) body.append(hidden.name, hidden.value);
     });
     body.append(input.name, valor);
-    const resumo = form.querySelector("[data-dmo-valor-resumo]");
     try {
       const response = await fetch(form.action, {
         method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" }
@@ -1575,7 +1574,6 @@
           window.DMOLive.mostrarMensagens(caixa);
         }
       }
-      if (resumo && data.resumo) resumo.textContent = data.resumo;
     } catch {
       form.requestSubmit();
     }
