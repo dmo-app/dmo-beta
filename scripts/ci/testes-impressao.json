@@ -1,5 +1,5 @@
 {
-  "selo": "7df95d24814fbd98",
+  "selo": "ef7739eb30616318",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2475,6 +2475,9 @@
     "tests/DMO.Alpha.Web.Tests/LocalUrlTests.cs :: LocalUrlTests.CaminhosDaApp_Passam": "97653e2e920b03a5",
     "tests/DMO.Alpha.Web.Tests/LocalUrlTests.cs :: LocalUrlTests.OQueARegraAceita_OLocalRedirectTambemAceita": "3be247508a6ca640",
     "tests/DMO.Alpha.Web.Tests/LocalUrlTests.cs :: LocalUrlTests.OutrosSitiosOuCaracteresQueOBrowserTira_SaoRecusados": "db47250f5b693cb2",
+    "tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: (resto do ficheiro)": "33ef06447bf9fa86",
+    "tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: LoginSemAcessoTests.Operador_NoAdmin_VeSemAcesso_SemFormularioDeEntrada": "466e7c87ed734fb3",
+    "tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: LoginSemAcessoTests.SemSessao_OLoginMostraOFormulario": "a5e98257812f2ce5",
     "tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: (resto do ficheiro)": "7d50ba1dca0d893d",
     "tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.OLote_SemZerosAEsquerda": "2783fa84ebda4fd7",
     "tests/DMO.Alpha.Web.Tests/LoteTextoTests.cs :: LoteTextoTests.ONomeDoHistorico_UsaOLoteSemZero": "c7a9226d75b7760d",

@@ -3363,3 +3363,14 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn`
 
 Selo depois: `7df95d24814fbd98`
+
+## A-0198 · 2026-10-27 · teste-novo
+
+Porquê: Teste do ensaio (27/10/2026): operador sem acesso vê «Sem acesso» no login (DMO-460)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: LoginSemAcessoTests.Operador_NoAdmin_VeSemAcesso_SemFormularioDeEntrada`
+- novo: `tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: LoginSemAcessoTests.SemSessao_OLoginMostraOFormulario`
+
+Selo depois: `ef7739eb30616318`
