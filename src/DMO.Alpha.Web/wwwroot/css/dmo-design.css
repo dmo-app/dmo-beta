@@ -735,7 +735,9 @@ html body .jof2 .card.pair .sec{padding:0}
    ferramentas numa linha, notas vazias baixas (as escritas continuam a encher),
    TP e CS com os valores lado a lado. */
 html body .dmo-shell-header .dmo-primary-nav>a{min-height:56px}
-html body .dmo-shell-header{min-height:56px}
+/* A barra de cima com a mesma altura dos links (52 px) em todas as páginas: com 56,
+   onde não há separadores (Definições) o logo e os links desciam 2 px (Diogo, 27/10/2026). */
+html body .dmo-shell-header{min-height:52px}
 html body .dmo-shell-header .dmo-secondary-nav :is(a,button){min-height:38px}
 html body .jof2{padding-top:8px;padding-bottom:8px}
 html body .jof2:not(.editing) .page-head{gap:6px 16px;margin-bottom:8px}
