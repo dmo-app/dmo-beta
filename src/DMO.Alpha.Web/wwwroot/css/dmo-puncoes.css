@@ -41,11 +41,7 @@
 .pu-check.on .pu-box{background:var(--dmo-success);border-color:var(--dmo-success);color:var(--dmo-text-on-color)}
 .pu-remove{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
 .pu-remove:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
-.pu-export{display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:16px 18px;border:1px solid var(--dmo-border);border-radius:12px;background:var(--dmo-brand-050)}
 .pu-pdf{display:grid;place-items:center;width:42px;height:46px;border:1px solid var(--dmo-brand-200);border-radius:7px;background:var(--dmo-card);color:var(--dmo-brand-700);font-size:11px;font-weight:900}
-.pu-export-text{flex:1;min-width:200px}
-.pu-export-text h3{margin:0 0 3px;font-size:14px}
-.pu-export-text p{margin:0;color:var(--dmo-muted);font-size:12px}
 @media(max-width:600px){.pu-stats{grid-template-columns:repeat(2,1fr);gap:6px}.pu-stat{padding:10px}.pu-stat strong{font-size:22px}.pu-id-form .dmo-field,.pu-add-form .dmo-field{flex:1 1 100%}}
 /* A associação à mão de um registo sem Job On. */
 .pu-associar-lista{display:grid;gap:8px;margin-top:12px}
