@@ -102,11 +102,15 @@
                   <button type="submit" class="dmo-options-item">PDF do Peso</button>
                 </form>
               }
-              <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
-                <input type="hidden" name="controlo_id" value="@Model.ControloId" />
-                @* Sempre «PDF Pegamentos» (Diogo, 27/10/2026): sem registo, sai a folha em branco, como antes. *@
-                <button type="submit" class="dmo-options-item">PDF Pegamentos</button>
-              </form>
+              @* «PDF Pegamentos» só com medições (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraB4cWtFy2LfgzGWkBMpzRuk):
+                 sem folha das ferramentas atuais o servidor recusa o PDF (24/10), por isso o botão não aparece. *@
+              @if (Model.PegamentosSheets.Any(f => f.IsCurrent))
+              {
+                <form method="post" asp-page="/Controlo/Pegamentos" asp-page-handler="GeneratePdf">
+                  <input type="hidden" name="controlo_id" value="@Model.ControloId" />
+                  <button type="submit" class="dmo-options-item">PDF Pegamentos</button>
+                </form>
+              }
               @if (Model.Puncoes?.Registo is not null)
               {
                 <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf">

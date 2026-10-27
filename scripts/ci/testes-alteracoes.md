@@ -3374,3 +3374,16 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/LoginSemAcessoTests.cs :: LoginSemAcessoTests.SemSessao_OLoginMostraOFormulario`
 
 Selo depois: `ef7739eb30616318`
+
+## A-0199 · 2026-10-27 · ok-do-diogo
+
+Porquê: «PDF Pegamentos» só aparece com medições (Diogo, 27/10/2026, cartão cmsg_01K75FTs9bQnbhhH7qttpgraB4cWtFy2LfgzGWkBMpzRuk); os 2 testes deixam de esperar o botão sem medições (DMO-460)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraTqHfWEMTVqx3FqVyLJ8Xiw
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PdfPegamentos.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PdfPegamentos.cs :: ControloCapabilitiesCutHPageTests.Resumo_PdfPegamentos_ApareceComMedicoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
+
+Selo depois: `b562585df3581e63`
