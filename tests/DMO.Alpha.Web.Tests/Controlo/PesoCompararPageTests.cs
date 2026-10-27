@@ -13,9 +13,10 @@ namespace DMO.Alpha.Web.Tests.Controlo;
 
 /// <summary>
 /// O «Comparar peso» (Diogo, 27/10/2026): no Histórico e na página de cada
-/// Peso, um botão abre no painel lateral as CM compatíveis (a mesma
-/// referência e a mesma máquina) e deixa trocar o tampão para ver quanto muda
-/// o peso. Com dois Pesos marcados compara as leituras. Nada é gravado.
+/// Peso, um botão abre no painel lateral os Pesos compatíveis (a mesma
+/// referência da CM e a mesma máquina); um clique na linha escolhe com qual
+/// comparar e aparece a tabela igual à do Peso. Em cada lado pode-se mudar só
+/// a calote do tampão. Nada é gravado.
 /// </summary>
 public class PesoCompararPageTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
@@ -169,7 +170,7 @@ public class PesoCompararPageTests : IClassFixture<CustomWebApplicationFactory>,
     }
 
     [Fact]
-    public async Task DoPeso_MostraAsCmCompativeis_MesmaReferenciaEMaquina()
+    public async Task DoPeso_ListaOsCompativeis_EComparaComOSeguinte()
     {
         var ids = await SeedAsync();
         using var client = await LoginAsync();
@@ -177,74 +178,77 @@ public class PesoCompararPageTests : IClassFixture<CustomWebApplicationFactory>,
         var html = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}");
 
         Assert.Contains("Comparar peso · CM ST100 · M21", html);
-        Assert.Contains("CM ST100 · 5447</a> · este", html);
+        Assert.Contains("simulação, nada é gravado", html);
+        Assert.Contains("data-dmo-list=\"Pesos compatíveis\"", html);
         Assert.Contains("CM ST100 · 5448", html);
         Assert.DoesNotContain("5512", html.Replace("value=\"M23\"", ""));
         Assert.DoesNotContain("ST200", html);
         Assert.DoesNotContain("202601", html);
         Assert.Contains("24.95 x 4.5", html);
-        Assert.Contains("simulação, nada é gravado", html);
-        Assert.Contains($"name=\"tp_{ids["este"]}\"", html);
-        // Sem tampão simulado não há peso simulado.
-        Assert.DoesNotContain("Média com os TP simulados", html);
+        // Escolhe-se clicando na linha, que fica escolhida; nunca caixas de seleção.
+        Assert.DoesNotContain("type=\"checkbox\"", html);
+        Assert.Contains($"data-id=\"{ids["outraCm"]}\" data-dmo-open=\"/Controlo/PesoComparar?peso_id={ids["este"]}&amp;maquina=M21&amp;com={ids["outraCm"]}\" class=\"selected\" aria-selected=\"true\"", html);
+        // A tabela igual à do Peso, CM com CM.
+        Assert.Contains("data-peso-comparar-tabela", html);
+        Assert.Contains("CM anterior · 202605", html);
+        Assert.Equal(2, CountOf(html, "<td>1</td>"));
+        Assert.Contains("name=\"calote_atual\"", html);
+        Assert.Contains("name=\"calote_com\"", html);
+        Assert.DoesNotContain("data-peso-comparar-simulada", html);
     }
 
     [Fact]
-    public async Task TampaoParaTodas_MudaOPesoPeloVolumeDaCalote_ENaoGrava()
+    public async Task CaloteSimulada_MudaSoEsseLadoPelaCaloteTampo_ENaoGrava()
     {
         var ids = await SeedAsync();
         using var client = await LoginAsync();
         var antes = Contagem();
 
-        var html = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&tp={Uri.EscapeDataString("24.95 x 5.2")}");
+        var sem = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&com={ids["outraCm"]}");
+        var com = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&com={ids["outraCm"]}&calote_atual=5.2");
 
-        // ΔV = 1.345 − 1.148 = 0.197 cm³ × 2.5 g/cm³ = +0.49 g em cada CM e na média.
-        Assert.Equal(3, CountOf(html, "+0.49 g"));
-        Assert.Contains("Média com os TP simulados", html);
+        // ΔV = 1.345 − 1.148 = 0.197 cm³ × 2.5 g/cm³ = +0.49 g em cada CM do atual.
+        Assert.Contains("calote 4.5 → 5.2 mm", com);
+        Assert.Contains("(+0.49 g)", WebUtility.HtmlDecode(com));
+        Assert.Equal(1, CountOf(com, "data-peso-comparar-simulada"));
+        Assert.Contains("value=\"5.2\"", com);
+        var difSem = DiferencasPeso(sem);
+        var difCom = DiferencasPeso(com);
+        Assert.Equal(3, difSem.Count);
+        Assert.All(difSem.Zip(difCom), par => Assert.Equal(par.First + 0.49m, par.Second));
         Assert.Equal(antes, Contagem());
+
+        // No outro lado, o Δ desce.
+        var doOutro = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&com={ids["outraCm"]}&calote_com=5.2");
+        Assert.All(difSem.Zip(DiferencasPeso(doOutro)), par => Assert.Equal(par.First - 0.49m, par.Second));
     }
 
     [Fact]
-    public async Task TampaoDeUmaCm_SoMudaEssa_EUmSoNumeroMudaACalote()
+    public async Task CaloteQueNaoSeLe_Avisa()
     {
         var ids = await SeedAsync();
         using var client = await LoginAsync();
 
-        var html = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&escolha=1&p={ids["este"]}&p={ids["outraCm"]}&tp_{ids["outraCm"]}=5.2");
+        var html = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&calote_atual=abc");
 
-        Assert.Equal(1, CountOf(html, "+0.49 g"));
-        Assert.Contains("value=\"5.2\"", html);
-    }
-
-    [Fact]
-    public async Task TampaoQueNaoSeLe_Avisa()
-    {
-        var ids = await SeedAsync();
-        using var client = await LoginAsync();
-
-        var html = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&tp_{ids["este"]}=abc");
-
-        Assert.Contains("Escreva D x calote", html);
+        Assert.Contains("Escreva a calote em mm, por exemplo 5.2.", html);
         Assert.Contains("aria-invalid=\"true\"", html);
+        Assert.DoesNotContain("data-peso-comparar-simulada", html);
     }
 
     [Fact]
-    public async Task DoisMarcados_CompararLeituras_CmACm()
+    public async Task OutraMaquina_ESemOutroPeso_DizQueNaoHaComQueComparar()
     {
         var ids = await SeedAsync();
         using var client = await LoginAsync();
 
-        var aberta = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}");
-        Assert.Contains("name=\"leituras\" value=\"1\"", aberta);
+        var html = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&maquina=M23");
 
-        var html = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&escolha=1&p={ids["este"]}&p={ids["outraCm"]}&leituras=1");
-
-        Assert.Contains("data-dmo-list=\"Comparar leituras\"", html);
-        Assert.Contains("Diferença média dos pares", html);
-
-        var umSo = await HtmlAsync(client, $"{PagePath}?peso_id={ids["este"]}&escolha=1&p={ids["este"]}&leituras=1");
-        Assert.Contains("Marque dois Pesos para comparar as leituras.", umSo);
-        Assert.DoesNotContain("name=\"leituras\" value=\"1\"", umSo);
+        // O Peso de onde se parte fica sempre; compara-se com a CM da outra máquina.
+        Assert.Contains("CM ST100 · 5512", html);
+        Assert.Contains("CM anterior · 202610", html);
+        var so = await HtmlAsync(client, $"{PagePath}?peso_id={ids["outraReferencia"]}");
+        Assert.Contains("Não há outro Peso desta CM nesta máquina para comparar.", so);
     }
 
     [Fact]
@@ -253,14 +257,17 @@ public class PesoCompararPageTests : IClassFixture<CustomWebApplicationFactory>,
         var ids = await SeedAsync();
         using var client = await LoginAsync();
 
-        var html = await HtmlAsync(client, $"{PagePath}?cm=st1&maquina=M23");
+        var html = await HtmlAsync(client, $"{PagePath}?cm=st1&maquina=M21");
 
-        Assert.Contains("Comparar peso · CM ST100 · M23", html);
-        Assert.Contains("CM ST100 · 5512", html);
-        Assert.DoesNotContain("CM ST100 · 5447", html);
+        Assert.Contains("Comparar peso · CM ST100 · M21", html);
         Assert.Contains("id=\"pesoCompararCm\"", html);
+        Assert.Contains("id=\"pesoCompararAtual\"", html);
         Assert.Contains("/Controlo/Peso?historico=1&amp;referencia=st1", html);
-        Assert.DoesNotContain($"value=\"{ids["este"]}\" checked", html);
+        Assert.Contains("data-peso-comparar-tabela", html);
+
+        var m23 = await HtmlAsync(client, $"{PagePath}?cm=ST100&maquina=M23");
+        Assert.Contains("Comparar peso · CM ST100 · M23", m23);
+        Assert.Contains("Não há outro Peso desta CM nesta máquina para comparar.", m23);
     }
 
     [Fact]
@@ -277,6 +284,16 @@ public class PesoCompararPageTests : IClassFixture<CustomWebApplicationFactory>,
 
         var suporte = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot", "js", "dmo-support.js"));
         Assert.Contains("['/Controlo/PesoComparar', 'Comparar peso']", suporte);
+    }
+
+    /// <summary>O Δ peso de cada linha da tabela da comparação e da média, pela ordem.</summary>
+    private static List<decimal> DiferencasPeso(string html)
+    {
+        var inicio = html.IndexOf("data-peso-comparar-tabela", StringComparison.Ordinal);
+        var tabela = html[inicio..html.IndexOf("</table>", inicio, StringComparison.Ordinal)];
+        return System.Text.RegularExpressions.Regex.Matches(WebUtility.HtmlDecode(tabela), @"<td class=""num""><strong>([+−-]?[0-9.]+)")
+            .Select(m => decimal.Parse(m.Groups[1].Value.Replace("−", "-"), System.Globalization.CultureInfo.InvariantCulture))
+            .ToList();
     }
 
     private static int CountOf(string html, string value)
