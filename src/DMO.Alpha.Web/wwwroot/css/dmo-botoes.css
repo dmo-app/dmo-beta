@@ -74,3 +74,5 @@ html body .beta-bq-layout .bq-movement-line>.bq-movement-types{padding-left:14px
    Limpar filtros, etc., sempre no canto superior direito do cartão»). Nos cartões de filtros de uma só
    linha os botões encostam à direita da linha; os cartões com título já os têm no .dmo-card-topo-acoes. */
 html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpar,html body #rpFiltros>#rpAssociarBotao{margin-left:auto}
+/* O título do cartão ao meio da altura dos botões da mesma linha. */
+html body .beta-bq-layout form.bq-movement-form>.dmo-card-topo>h3{display:flex;align-items:center;height:var(--dmo-control-height);margin:0}
