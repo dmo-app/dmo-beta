@@ -94,7 +94,12 @@ seu script (fica aberto entre páginas, sem bloquear a folha), com o aspeto da
 estrutura: pela esquerda, estreito, «Planeamento» e «Fechar» no topo, a lista a
 deslizar por dentro.
 
-Por migrar: o painel «É outra CM/MF» da Reparação e as janelas `.dmo-dialog`.
+O painel «É outra CM/MF» da Reparação Interna (`_RiRegisto.cshtml`) usa as
+mesmas peças (`.dmo-painel-topo`, `-titulo`, `-acoes`, `-corpo`) sem o `<dialog>`:
+abre e fecha com a caixa escondida `outra`, que o formulário envia; o «Fechar» e
+o fundo escuro (`.ri-outra-fundo`) são rótulos dela.
+
+Por migrar: as janelas `.dmo-dialog`.
 
 ## Regras de design que a estrutura já cumpre
 

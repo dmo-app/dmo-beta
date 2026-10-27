@@ -1,5 +1,5 @@
 {
-  "selo": "49685c9a47bd1a6d",
+  "selo": "9e9d23ff43517559",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2100,6 +2100,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha": "8464a274077f42ae",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Pagina_TopoComTituloEAcoesECorpo": "5948a52c95a5a0cf",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelDeApoio_TemOEsqueletoFixo": "9a60a8e13ff8a5c3",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelOutraCmMf_TemOEsqueletoDosPaineis": "71af8a2e49211c26",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.FormularioDaPagina.cs :: (resto do ficheiro)": "a775cc22c70c6467",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.FormularioDaPagina.cs :: ControloCapabilitiesCutHPageTests.AprovarENaoAprovarComNota_PeloFormularioDaRevisao_GravamADecisaoEANotaDeCadaParte": "8104317d5b61ba60",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.OperadorNaoAprova.cs :: (resto do ficheiro)": "21e1ca45fecb4292",

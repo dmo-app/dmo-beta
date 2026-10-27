@@ -39,16 +39,18 @@ html body .ri-linha .dmo-field input.ri-hora{width:auto}
 html body .ri-card:has(.ri-outra-check:checked) .ri-outra-botao{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff}
 html[data-theme="dark"] body .ri-card:has(.ri-outra-check:checked) .ri-outra-botao{background:var(--dmo-palette-ocean);border-color:var(--dmo-palette-ocean);color:#fff}
 .ri-card:has(.ri-outra-check:focus-visible) .ri-outra-botao{outline:2px solid var(--dmo-palette-ocean);outline-offset:2px}
-.ri-registar:has(.ri-outra-check) .ri-outra-campos{position:fixed;top:0;right:0;bottom:0;z-index:950;width:min(360px,100vw);box-sizing:border-box;margin:0;padding:18px 20px;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:12px;background:var(--dmo-card);border-left:1px solid var(--dmo-border);box-shadow:-12px 0 28px rgba(11,19,32,.22);overflow:auto;transform:translateX(100%);visibility:hidden;transition:transform .22s ease,visibility 0s linear .22s}
+/* O painel tem o esqueleto e o aspeto dos painéis deslizantes (css/dmo-estrutura.css:
+   .dmo-painel-topo/-titulo/-acoes/-corpo): estreito (420 px) pela direita, a altura toda, o
+   fundo escuro por trás; o fundo e o «Fechar» desligam a caixa. */
+.ri-registar:has(.ri-outra-check) .ri-outra-campos{position:fixed;top:0;right:0;bottom:0;z-index:950;width:min(420px,calc(100vw - 48px));box-sizing:border-box;margin:0;padding:0;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:0;background:var(--dmo-card);color:var(--dmo-text);border-left:1px solid var(--dmo-border);box-shadow:none;overflow:hidden;transform:translateX(100%);visibility:hidden;transition:transform .22s ease,visibility 0s linear .22s}
 .ri-registar:has(.ri-outra-check:checked) .ri-outra-campos{transform:none;visibility:visible;transition:transform .22s ease,visibility 0s}
-@@media (prefers-reduced-motion:reduce){.ri-registar:has(.ri-outra-check) .ri-outra-campos{transition:none}}
+.ri-outra-fundo{position:fixed;inset:0;z-index:949;background:var(--dmo-painel-fundo,rgba(11,19,32,.24));opacity:0;visibility:hidden;transition:opacity .22s ease,visibility 0s linear .22s;cursor:default}
+.ri-registar:has(.ri-outra-check:checked) .ri-outra-fundo{opacity:1;visibility:visible;transition:opacity .22s ease,visibility 0s}
+@@media (prefers-reduced-motion:reduce){.ri-registar:has(.ri-outra-check) :is(.ri-outra-campos,.ri-outra-fundo){transition:none}}
 html body .ri-registar:has(.ri-outra-check) .ri-outra-campos .dmo-field input:is(.ri-referencia,.ri-lote){width:100%}
-.ri-outra-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.ri-card .ri-outra-topo h4{margin:0;font-size:16px}
-.ri-outra-fechar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:6px;font-size:22px;line-height:1;color:var(--dmo-muted);cursor:pointer}
-.ri-outra-fechar:hover{background:var(--dmo-subtle,#f1f6fa);color:var(--dmo-text)}
+html body .ri-card .ri-outra-campos .dmo-painel-titulo{font-size:17px}
+.ri-outra-fechar{cursor:pointer;user-select:none}
 .ri-outra-dica{margin:0;font-size:13px;color:var(--dmo-muted)}
-html body .ri-outra-campos .ri-outra-ok{align-self:flex-start}
 .ri-ficha{color:var(--dmo-brand-900);font-weight:600}
 .ri-escrita{display:inline-block;margin-left:6px;font-size:12.5px;color:var(--dmo-muted)}
 /* A produção, a CM e o MF em três cartões pequenos, como os do resumo do Peso

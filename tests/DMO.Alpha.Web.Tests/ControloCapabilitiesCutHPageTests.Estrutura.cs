@@ -98,4 +98,22 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Contains("html:root[data-dmo-embedded=\"true\"] body .jof2.jof2.jof2.jof2.jof2 .page-head h1.design-jobon-title{display:none}", css);
         Assert.Contains("html:root[data-dmo-embedded=\"true\"] body .jof2.jof2.jof2.jof2.jof2 #jofVoltar{display:none}", css);
     }
+
+    // O painel «É outra CM/MF» da Reparação Interna com o esqueleto dos painéis
+    // deslizantes: o título e, no canto, «OK» e «Fechar» (sem o «×»), o corpo
+    // com a referência e o lote, e o fundo escuro, que também fecha.
+    [Fact]
+    public void Estrutura_PainelOutraCmMf_TemOEsqueletoDosPaineis()
+    {
+        var raiz = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "Pages", "ReparacaoInterna");
+        var registo = File.ReadAllText(Path.Combine(raiz, "_RiRegisto.cshtml"));
+        Assert.Contains("<label class=\"ri-outra-fundo\" for=\"riOutra-@codigo\" aria-hidden=\"true\"></label>", registo);
+        Assert.Contains("@:<header class=\"dmo-painel-topo\">", registo);
+        Assert.Contains("<h4 class=\"dmo-painel-titulo\" id=\"riOutraTitulo-@codigo\">Outra CM/MF</h4>", registo);
+        Assert.Matches(new Regex("@:<div class=\"dmo-painel-acoes\">\\s*<button type=\"submit\" class=\"dmo-button ri-outra-ok\" id=\"riOutraOk-@codigo\">OK</button>\\s*<label class=\"dmo-button ri-outra-fechar\" for=\"riOutra-@codigo\""), registo);
+        Assert.Contains("@:<div class=\"dmo-painel-corpo\">", registo);
+        Assert.DoesNotContain(">×</label>", registo);
+        var pagina = File.ReadAllText(Path.Combine(raiz, "Index.cshtml"));
+        Assert.Contains(".ri-registar:has(.ri-outra-check:checked) .ri-outra-fundo{opacity:1;visibility:visible;", pagina);
+    }
 }

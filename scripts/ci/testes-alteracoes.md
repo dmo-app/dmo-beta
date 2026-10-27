@@ -3901,3 +3901,13 @@ Novos: 9 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `49685c9a47bd1a6d`
+
+## A-0239 · 2026-10-27 · teste-novo
+
+Porquê: Painel «É outra CM/MF» da Reparação Interna com o esqueleto dos painéis deslizantes (DMO-500): teste novo da marcação e do fundo
+Referência: pedido do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXQ2rXx1BrfWwyZwQTG7mM6
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelOutraCmMf_TemOEsqueletoDosPaineis`
+
+Selo depois: `9e9d23ff43517559`
