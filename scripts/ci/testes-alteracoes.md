@@ -3312,3 +3312,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: PostgresMigrationIntegrationTests.RemoverReparadorUsadoNoArmazem_OMovimentoFicaComONome`
 
 Selo depois: `92e2d040aecc927f`
+
+## A-0195 · 2026-10-27 · contagem-lista
+
+Porquê: Índice da referência das ferramentas em maiúsculas (migração 20261027050241_ToolsReferenciaMaiusculas, vistoria BD-04, Diogo 27/10/2026 05:00, cartão cmsg_01K75FTs9bQnbhhH7qttpgraQWakNx4bC4V2mjtidjJLzt): teste novo contra PostgreSQL de que as procuras sem olhar a maiúsculas usam o índice; a migração nova entra na lista das migrações (só a lista muda)
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas_AsProcurasSemOlharAMaiusculasUsamOIndice`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `8313c1942af1914a`
