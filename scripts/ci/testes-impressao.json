@@ -1,5 +1,5 @@
 {
-  "selo": "d16d7799e427d7ce",
+  "selo": "931c72c58f9a8361",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -837,7 +837,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_GeneratesValidPostgreSql": "3ec4c3399af184d1",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_SeedsTheRemovedTool": "258c965fc3f28c69",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.CurrentModel_HasExactlyTheCanonicalTables": "20bd7dffb43a4e78",
-    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "210cc788758f8962",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "390a79c657133206",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.PesoPerToolCombination_OnePesoPerControloForEachCmAndBq": "947b1fc638c05771",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Snapshot_MatchesCurrentModelExactly": "415260325a6f9c86",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AoMesmoTempo.cs :: (resto do ficheiro)": "78c9042c39dc7d44",
@@ -1036,6 +1036,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.QuadroDoDia.cs :: PostgresMigrationIntegrationTests.JobOnQuadroDoDia_CadaPedidoFazSoAsConsultasDeLeitura": "8990a44ea72a3628",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparador.cs :: (resto do ficheiro)": "dc2c269d14564a19",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparador.cs :: PostgresMigrationIntegrationTests.RemoverReparadorComSaidas_AsSaidasFicamComONome": "7af5843a297fdb86",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: (resto do ficheiro)": "56967e5ef6a2a4a3",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.RemoverReparadorArmazem.cs :: PostgresMigrationIntegrationTests.RemoverReparadorUsadoNoArmazem_OMovimentoFicaComONome": "b965014a460cfdf9",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInterna.cs :: (resto do ficheiro)": "15ce82387768d920",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInterna.cs :: PostgresMigrationIntegrationTests.ReparacaoInterna_ABaseRecusaContextoErradoENumeroComEspacos": "76d0921ef2c7fd54",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReparacaoInterna.cs :: PostgresMigrationIntegrationTests.ReparacaoInterna_EliminarOJobOn_LevaAsReparacoes": "c50da61daf4a4e7c",
@@ -1058,6 +1060,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolFks.cs :: PostgresMigrationIntegrationTests.ToolFks_DeleteCmUsedInAPesoComparison_MovesTheComparisonToRemoved": "6104c10d48f81158",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolFks.cs :: PostgresMigrationIntegrationTests.ToolFks_DeleteToolUsedInAProduction_MovesTheProductionToRemoved": "3738721288c6cb21",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolFks.cs :: PostgresMigrationIntegrationTests.ToolFks_RefuseAToolIdThatDoesNotExist": "f9183531362e800a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: (resto do ficheiro)": "055effb945dc8805",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas.cs :: PostgresMigrationIntegrationTests.ToolsReferenciaMaiusculas_AsProcurasSemOlharAMaiusculasUsamOIndice": "0bb8e7694abe83fa",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TresEstados.cs :: (resto do ficheiro)": "1b3ce6e55ce94a66",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TresEstados.cs :: PostgresMigrationIntegrationTests.TresEstados_ADecisaoDeCadaParte_EOHistorico_NoPostgres": "e6593aa6880910fe",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TudoOuNada.cs :: (resto do ficheiro)": "ad818c5cf7a53494",
