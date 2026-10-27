@@ -184,7 +184,7 @@ public sealed class IndexModel : PageModel
         ResetUserAccessResult.UserNotFound => "O utilizador indicado já não existe.",
         ResetUserAccessResult.AdminRefused => "Não é possível repor o acesso do ADMIN aqui.",
         ResetUserAccessResult.IdentityNotFound =>
-            "A identidade de autenticação está em falta. Preencha o email na ficha do utilizador e volte a repor o acesso.",
+            "A identidade de autenticação está em falta e o utilizador não tem email. Fale com o suporte.",
         ResetUserAccessResult.EmailAlreadyInUse =>
             "O email já pertence a uma identidade de autenticação. A associação do utilizador não foi alterada.",
         ResetUserAccessResult.ProviderFailure =>
