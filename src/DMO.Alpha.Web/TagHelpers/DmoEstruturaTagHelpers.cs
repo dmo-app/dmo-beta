@@ -88,7 +88,7 @@ public sealed class DmoPainelTagHelper : TagHelper
 
     /// <summary>«direita» (por omissão) ou «esquerda».</summary>
     public string Lado { get; set; } = "direita";
-
+    /// <summary>«estreita» (420 px), «media» (640 px, por omissão), «larga» (até 1040 px) ou «total» (o ecrã menos 64 px).</summary>
     /// <summary>«estreita» (420 px), «media» (640 px, por omissão) ou «larga» (até 1040 px).</summary>
     public string Largura { get; set; } = "media";
 
@@ -105,7 +105,7 @@ public sealed class DmoPainelTagHelper : TagHelper
         DmoPaginaTagHelper.PrimeiraClasse(output, "dmo-painel");
         output.Attributes.SetAttribute("data-dmo-estrutura", "painel");
         output.Attributes.SetAttribute("data-lado", Lado == "esquerda" ? "esquerda" : "direita");
-        output.Attributes.SetAttribute("data-largura", Largura is "estreita" or "larga" ? Largura : "media");
+        output.Attributes.SetAttribute("data-largura", Largura is "estreita" or "larga" or "total" ? Largura : "media");
         output.Attributes.SetAttribute("aria-labelledby", tituloId);
 
         var html = output.Content;

@@ -80,4 +80,22 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Contains("html[data-dmo-embedded=\"true\"] body :is(.dmo-pagina-titulo,.dmo-pagina-voltar){display:none}", css);
         Assert.Contains(":root[data-theme=\"dark\"]{--dmo-painel-fundo:", css);
     }
+
+    // O Job On aberto dentro do painel (Diogo, 27/10/2026: «jobon deslizante
+    // precisa de ser restruturado»): o painel diz «Job On» e não «Peso», abre com
+    // a largura quase toda para a folha ter a coluna do Artigo e das Notas, e a
+    // folha não repete o título nem o «← Voltar».
+    [Fact]
+    public void Estrutura_JobOnNoPainel_TituloLarguraEFolha()
+    {
+        var raiz = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot");
+        var js = File.ReadAllText(Path.Combine(raiz, "js", "dmo-support.js"));
+        Assert.Contains("const outrasPaginas = new Map([['/JobOn', 'Job On'], ['/JobOn/Folha', 'Job On']]);", js);
+        Assert.Contains("const largas = new Set(['/JobOn', '/JobOn/Folha']);", js);
+        Assert.Contains("acertarPainel(frame.contentWindow.location.pathname, doc);", js);
+        var css = File.ReadAllText(Path.Combine(raiz, "css", "dmo-estrutura.css"));
+        Assert.Contains("html body dialog.dmo-painel[data-largura=\"total\"]{--dmo-painel-largura:calc(100vw - 64px)}", css);
+        Assert.Contains("html:root[data-dmo-embedded=\"true\"] body .jof2.jof2.jof2.jof2.jof2 .page-head h1.design-jobon-title{display:none}", css);
+        Assert.Contains("html:root[data-dmo-embedded=\"true\"] body .jof2.jof2.jof2.jof2.jof2 #jofVoltar{display:none}", css);
+    }
 }

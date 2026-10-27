@@ -76,7 +76,7 @@ Dá um `<dialog class="dmo-painel" data-dmo-estrutura="painel">` com:
 - `.dmo-painel-corpo`: o conteúdo; **só isto desliza**.
 
 Atributos: `lado="direita"` (por omissão) ou `"esquerda"`; `largura="estreita"`
-(420 px), `"media"` (640 px, por omissão) ou `"larga"` (até 1040 px).
+(420 px), `"media"` (640 px, por omissão), `"larga"` (até 1040 px) ou `"total"` (o ecrã menos 64 px; o Job On no painel de apoio).
 
 Abre com um botão `data-dmo-painel-abrir="<id>"` ou `DmoPainel.abrir('<id>', botao)`.
 Fecha com «Fechar», Escape ou um clique fora; o foco volta ao botão que abriu.
