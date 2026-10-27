@@ -168,7 +168,7 @@ html body .ctl-def-grade[hidden]{display:none}
           @if (!Model.EAdmin)
           {
             <section class="dmo-card def-linha" aria-labelledby="def-sessao-title">
-              <h3 id="def-sessao-title">Sessão<partial name="_DmoHelp" model="@("Quanto tempo a sessão fica aberta sem atividade. Vale a partir da próxima vez que entrar.")" /></h3>
+              <h3 id="def-sessao-title">Sessão</h3>
               <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Sessao">
                 <select name="horas" aria-label="Duração da sessão" data-dmo-autosubmit>
                   @foreach (var h in DMO.Alpha.Core.Admin.SessaoDuracao.Opcoes)
@@ -181,14 +181,14 @@ html body .ctl-def-grade[hidden]{display:none}
           }
           @* O modo claro ou escuro (Diogo, 22/10/2026): troca o modo e grava-o na conta. *@
           <section id="defTema" class="dmo-card def-linha" aria-labelledby="def-tema-title" data-dmo-regiao>
-            <h3 id="def-tema-title">Aparência<partial name="_DmoHelp" model="@("O modo claro ou escuro fica guardado na sua conta e vale em qualquer computador.")" /></h3>
+            <h3 id="def-tema-title">Aparência</h3>
             <form id="defTemaForm" method="post" asp-page="/Definicoes/Index" asp-page-handler="Tema">
               <input type="hidden" name="tema" value="@(Model.Tema == "dark" ? "light" : "dark")" />
               <button type="submit" class="dmo-button" id="defTemaBotao" data-dmo-tema-pessoal="@(Model.Tema == "dark" ? "dark" : "light")" aria-pressed="@(Model.Tema == "dark" ? "true" : "false")">@(Model.Tema == "dark" ? "Modo claro" : "Modo escuro")</button>
             </form>
           </section>
           <section id="defPalavraPasse" class="dmo-card def-linha" aria-labelledby="def-palavra-title" data-dmo-regiao data-dmo-parcial>
-            <h3 id="def-palavra-title">Mudar a palavra-passe<partial name="_DmoHelp" model="@($"Pelo menos {DMO.Alpha.Web.Services.MudancaDePalavraPasse.MinimumLength} caracteres (um PIN de 4 números serve). As outras sessões abertas desta conta terminam.")" /></h3>
+            <h3 id="def-palavra-title">Mudar a palavra-passe</h3>
             @if (Model.PalavraPasseErro is { } erroPalavra)
             {
               <p data-dmo-toast="aviso" role="alert" data-dmo-palavra-passe-aviso>@erroPalavra</p>
