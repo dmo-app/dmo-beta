@@ -91,7 +91,10 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         var raiz = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot");
         var js = File.ReadAllText(Path.Combine(raiz, "js", "dmo-support.js"));
         Assert.Contains("const outrasPaginas = new Map([['/JobOn', 'Job On'], ['/JobOn/Folha', 'Job On']]);", js);
-        Assert.Contains("const largas = new Set(['/JobOn', '/JobOn/Folha']);", js);
+        Assert.Contains("const largas = new Set(['/JobOn']);", js);
+        // A folha do Job On abre no painel como um resumo, com a largura média (Diogo, 27/10/2026).
+        Assert.Contains("const resumos = new Set(['/JobOn/Folha']);", js);
+        Assert.Contains("panel.dataset.largura = largas.has(caminho) ? 'total' : resumos.has(caminho) ? 'media' : 'larga';", js);
         Assert.Contains("acertarPainel(frame.contentWindow.location.pathname, doc);", js);
         var css = File.ReadAllText(Path.Combine(raiz, "css", "dmo-estrutura.css"));
         Assert.Contains("html body dialog.dmo-painel[data-largura=\"total\"]{--dmo-painel-largura:calc(100vw - 64px)}", css);

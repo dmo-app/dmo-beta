@@ -65,14 +65,16 @@
   ]);
   // Uma página que se abre a partir de outra dentro do painel (o Job On do aviso
   // do Peso, a ficha do duplo clique) dá o título ao painel: o painel dizia
-  // «Peso» com o Job On à vista (Diogo, 27/10/2026). O Job On abre com a largura
-  // quase toda, para a folha ficar com a coluna do Artigo e das Notas.
+  // «Peso» com o Job On à vista (Diogo, 27/10/2026). O Planeamento abre com a
+  // largura quase toda.
   const outrasPaginas = new Map([['/JobOn', 'Job On'], ['/JobOn/Folha', 'Job On']]);
-  const largas = new Set(['/JobOn', '/JobOn/Folha']);
+  const largas = new Set(['/JobOn']);
+  // A folha do Job On no painel é só um resumo para consulta rápida, com «Abrir folha» (Diogo, 27/10/2026).
+  const resumos = new Set(['/JobOn/Folha']);
   function acertarPainel(caminho, doc) {
     title.textContent = destinations.get(caminho) || outrasPaginas.get(caminho)
       || doc?.querySelector('main h1')?.textContent.trim() || title.textContent;
-    panel.dataset.largura = largas.has(caminho) ? 'total' : 'larga';
+    panel.dataset.largura = largas.has(caminho) ? 'total' : resumos.has(caminho) ? 'media' : 'larga';
   }
   function close() {
     panel.close(); frame.removeAttribute('src'); dirty = false; aberta = null;
