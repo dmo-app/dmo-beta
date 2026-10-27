@@ -101,6 +101,11 @@ html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpa
   html body .beta-light-view .beta-light-productions>.jobon-procura-bloco:not(#_){grid-column:2;grid-row:1;align-self:center;margin:0;padding:0;border-top:0}
   html body .beta-light-view .beta-light-productions:has(>.jobon-procura-bloco)>#jobonProducoes{margin-top:12px}
 }
+/* Job On: sem círculos de ajuda (Diogo, 27/10/2026: nada de círculos ao lado do «Produção» nem em
+   lado nenhum da página); as caixas e o «Criar Job On» ficam todos com a mesma altura (34 px). */
+html body .beta-light-view .dmo-help:not(#_){display:none}
+html body .beta-light-view .jobon-procura-bloco :is(input[type="search"],select,.dmo-button):not(#_){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
+html body .beta-light-view .jobon-procura-bloco .dmo-search-form{align-items:center}
 /* Registar Reparação: o «Criar» (lista nova) e o «Imprimir» (lista aberta) no canto superior direito
    do cartão, antes de Listas / Histórico; os campos ficam à esquerda. */
 html body #rpListaLinha>#rpImprimir,html body #rpListaLinha .dmo-com-ajuda:has(>#rpCriarBotao){margin-left:auto;margin-right:8px;align-self:end}

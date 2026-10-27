@@ -50,7 +50,7 @@
 .beta-production-lines .dmo-rail-link{text-decoration:none}
 
 /* Sobreposição na máquina (o proprietário, 16/10/2026: grava com aviso e marca-se a vermelho no dia). */
-.beta-light-machine-row.overlap{background:var(--dmo-danger-soft);box-shadow:inset 4px 0 0 var(--dmo-danger,#9a625d)}
+.beta-light-machine-row.overlap{background:var(--dmo-danger-soft);box-shadow:none}
 .beta-light-overlap{display:block;padding:8px 12px 0 16px;font-size:12.5px;font-weight:700;color:var(--dmo-danger,#9a625d)}
 
 /* O aviso nos módulos quando o Job On mudou depois do registo (o proprietário, 17/10/2026): só informa. */
