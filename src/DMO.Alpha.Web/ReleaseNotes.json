@@ -488,6 +488,6 @@
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
     { "id": "DMO-P03", "module": "Pegamentos", "description": "Correção de leituras com histórico e criação explícita de controlos adicionais na mesma produção." },
-    { "id": "DMO-508", "module": "Controlo", "description": "0.3.0-beta.205: nas Definições, a PU NNPB passa a ter a Gota de cada linha ao lado das Secções (B1 com 4 gotas e C3 com 3, por omissão) e mostra os Punções que a linha leva (secções × gota). A folha das punções e o PDF usam uma posição por gota (na C3: A, B e C). O PDF das punções já se gera com a reserva cheia." }
+    { "id": "DMO-508", "module": "Controlo", "description": "0.3.0-beta.206: nas Definições, a PU NNPB passa a ter a Gota de cada linha ao lado das Secções (B1 com 4 gotas e C3 com 3, por omissão) e mostra os Punções que a linha leva (secções × gota). A folha das punções e o PDF usam uma posição por gota (na C3: A, B e C). O PDF das punções já se gera com a reserva cheia." }
   ]
 }
