@@ -20,39 +20,31 @@ public partial class PegamentosPageTests
         Assert.Equal(HttpStatusCode.Redirect, posted.StatusCode);
 
         var html = await GetPageHtmlAsync(client, url);
-        var svg = Regex.Match(html, "<svg[^>]*aria-label=\"Mapa de limites dos Pegamentos\"[\\s\\S]*?</svg>").Value;
-        // Mais largo e centrado na página (Diogo, 23/10/2026): o desenho estica na horizontal, a altura fica; o PDF continua com 1000.
-        Assert.Contains("width=\"1700\" height=\"245\" viewBox=\"0 0 1700 245\"", svg);
-        Assert.Contains("<path d='M115 44H1665V206H115Z'", svg);
+        // No ecrã o mapa passou a HTML, com texto legível (Diogo, 27/10/2026);
+        // o PDF continua com o desenho de PegamentosLimitMap.Render.
+        Assert.DoesNotContain("viewBox=\"0 0 1700 245\"", html);
+        Assert.Contains("aria-label=\"Mapa de limites dos Pegamentos", html);
         var legenda = Regex.Match(html, "<div class=\"peg-map-legend\">([\\s\\S]*?)</div>").Groups[1].Value;
-        Assert.NotEmpty(svg);
         Assert.NotEmpty(legenda);
         Assert.DoesNotContain("0183D7", html, StringComparison.OrdinalIgnoreCase);
 
         static string[] Cores(string texto) => Regex.Matches(texto, "#[0-9a-fA-F]{6}\\b").Select(m => m.Value.ToLowerInvariant()).Distinct().ToArray();
         var coresDaLegenda = Cores(legenda);
-        // Cada cor de círculo, de losango e de nominal desenhada está na legenda...
-        var desenhadas = Regex.Matches(svg, "<(?:circle|polygon|line)\\b[^>]*(?:fill|stroke)='(#[0-9a-fA-F]{6})'")
-            .Select(m => m.Groups[1].Value.ToLowerInvariant())
-            .Where(c => c is not "#dbe5ef" and not "#cbd5e1") // a grelha e as faixas de fundo
-            .Distinct().ToArray();
+        // Cada cor de componente desenhada está na legenda...
+        var desenhadas = Regex.Matches(html, "--peg-cor:(#[0-9a-fA-F]{6})")
+            .Select(m => m.Groups[1].Value.ToLowerInvariant()).Distinct().ToArray();
         Assert.NotEmpty(desenhadas);
         Assert.All(desenhadas, cor => Assert.Contains(cor, coresDaLegenda));
-        // ... e a legenda não tem cores que o desenho não use: as dos
-        // componentes, o vermelho de «fora» e o cinzento de «não avaliável».
-        var doDesenho = new[]
-        {
-            DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.ComponentColor("CM"),
-            DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.ComponentColor("BQ"),
-            DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.ComponentColor("MF"),
-            DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.AlertColor,
-            DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.NotEvaluableColor,
-        }.Select(c => c.ToLowerInvariant()).ToArray();
+        // ... e a legenda não tem cores que não sejam as dos componentes.
+        var doDesenho = new[] { "CM", "BQ", "MF" }
+            .Select(c => DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.ComponentColor(c).ToLowerInvariant()).ToArray();
         Assert.All(coresDaLegenda, cor => Assert.Contains(cor, doDesenho));
+        // «Fora» e «não avaliável» continuam na legenda, com as cores do tema.
         var texto = WebUtility.HtmlDecode(legenda);
-        Assert.Contains(DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.NotEvaluableColor.ToLowerInvariant(), coresDaLegenda);
         Assert.Contains("não avaliável", texto, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains(DMO.Alpha.Infrastructure.Controlo.PegamentosLimitMap.AlertColor.ToLowerInvariant(), coresDaLegenda);
+        Assert.Contains("Fora", texto, StringComparison.Ordinal);
+        Assert.Contains("peg-gr-fora", legenda, StringComparison.Ordinal);
+        Assert.Contains("peg-gr-na", legenda, StringComparison.Ordinal);
         Assert.DoesNotContain("var(--dmo-brand-600)", legenda, StringComparison.Ordinal);
     }
 }

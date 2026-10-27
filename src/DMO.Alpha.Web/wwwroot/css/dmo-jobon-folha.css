@@ -1301,8 +1301,15 @@ html:root body .jof2.editing .folgas{gap:8px}
 html:root body .jof2 .jof-artigo{overflow:hidden}
 html:root body .jof2 .jof-artigo img{width:100% !important;height:100% !important;max-width:100% !important;max-height:100% !important;object-fit:contain}
 /* A CS como o PU: a referência com o rótulo, por baixo do nome, dentro do cartão. */
-html:root body .jof2 [data-jof-familia="CS"]>.sec-head{flex-wrap:wrap}
+html:root body .jof2 [data-jof-familia="CS"] .sec-head{flex-wrap:wrap!important;row-gap:2px}
 html:root body .jof2 [data-jof-familia="CS"] .sec-head .hv>small{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}
 /* No Editar também: as Notas com a mesma altura em todos os cartões. */
 html:root body .jof2.editing .note-box.note-edit{flex:0 0 auto;min-height:0}
 html:root body .jof2.editing .note-box.note-edit>textarea.dmo-valor{flex:0 0 auto;box-sizing:border-box;min-height:56px;height:56px}
+
+/* Artigo numa coluna estreita à direita (Diogo, 27/10/2026, opção B): os
+   cartões dos componentes ganham largura; a imagem fica alta e inteira. */
+@media (min-width:1181px){
+html:root body .jof2 .sheet,html:root body .jof2.editing .sheet{grid-template-columns:minmax(0,1fr) 200px!important;gap:10px}
+html:root body .jof2 .side .jof-artigo{height:260px!important}
+}
