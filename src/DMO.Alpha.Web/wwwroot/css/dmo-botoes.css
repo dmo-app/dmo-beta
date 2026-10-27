@@ -28,7 +28,7 @@ html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:
    (fundo mais escuro, letra e contorno brancos); a escolhida fica invertida (fundo do cartão, contorno
    e letra de destaque). Aprovado a 27/10 (…Pc5CZ7o8GxVCiuBHj4uft6), com a letra num cinza
    muito ligeiro no escuro e o azul um pouco mais claro no claro. */
-html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff);--dmo-escolhida-letra:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff)}
+html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-escolhida-letra:var(--dmo-action,var(--dmo-brand-600))}
 html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#dde3eb}
 
 /* Os rádios e as caixas escondidos: o rótulo é o botão. */
@@ -175,8 +175,8 @@ html body .jof2 .btn.btn{border-radius:var(--dmo-r-control,6px)}
 /* Botões de ação: no rato por cima e no clique o botão INVERTE.        */
 /* Regra definitiva do Diogo (27/10/2026, «inverte» …8SJDfdhiuoRJLtvkSPUgru; */
 /* «estou farto de explicar como os botões funcionam» …4t7DsHA48KVaQMjhmtty8f): */
-/* o fundo fica da cor do cartão, a letra e o contorno ficam na cor do  */
-/* botão, o mesmo aspeto da opção escolhida nos seletores. Vale para    */
+/* o fundo fica da cor do cartão (mais claro), a letra e o contorno    */
+/* ficam na cor cheia do botão (mais forte; 06:45 «o full mais forte»), o mesmo aspeto da opção escolhida nos seletores. Vale para    */
 /* todos os botões de ação, nos dois modos, incluindo o «Entrar» do     */
 /* login, sem casos à parte. Os seletores (opções) têm a regra deles.   */
 /* ================================================================== */
