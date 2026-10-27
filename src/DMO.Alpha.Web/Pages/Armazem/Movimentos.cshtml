@@ -514,8 +514,8 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <input type="hidden" name="ferramenta" value="@s.ToolId" />
         <div class="arm-linha">
           <div class="dmo-field">
-            <label for="armCorPosicao">Posição certa<partial name="_DmoHelp" model="@("Deixe vazio se a ferramenta não está no armazém.")" /></label>
-            <input id="armCorPosicao" name="posicao" class="arm-curto" maxlength="4" inputmode="numeric" autocomplete="off" value="@(recusaCorrigir ? Model.Posicao : null)" placeholder="Não está" />
+            <label for="armCorPosicao" title="Deixe vazio se a ferramenta não está no armazém.">Posição certa</label>
+            <input id="armCorPosicao" name="posicao" class="arm-curto" maxlength="4" inputmode="numeric" autocomplete="off" value="@(recusaCorrigir ? Model.Posicao : null)" placeholder="Não está" title="Deixe vazio se a ferramenta não está no armazém." />
           </div>
           <div class="dmo-field">
             <label for="armCorObs">Observações</label>
