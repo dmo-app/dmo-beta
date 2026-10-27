@@ -3457,7 +3457,7 @@ Novos: 13 · mudaram: 1 · saíram: 0
 
 Selo depois: `10f6a12c79e57112`
 
-## A-0215 · 2026-10-27 · teste-novo
+## A-0217 · 2026-10-27 · teste-novo
 
 Porquê: Filtro «Informação» do Sumário com as opções Importante, Job On (criados, mudanças, alterações e experiências), Armazém e Controlo (DMO-475, 0.3.0-beta.171): testes novos das opções, do Job On, do Controlo no topo e das opções por módulo
 Novos: 5 · mudaram: 0 · saíram: 0
@@ -3470,7 +3470,7 @@ Novos: 5 · mudaram: 0 · saíram: 0
 
 Selo depois: `e4818de06766b03a`
 
-## A-0216 · 2026-10-27 · ok-do-diogo
+## A-0218 · 2026-10-27 · ok-do-diogo
 
 Porquê: A opção «Mudanças» do filtro do Sumário passa a estar dentro de «Job On» (DMO-475): o teste confirma a opção «Job On» escolhida com o link antigo ?tipo=comecam; o resto do teste fica igual
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgra6boArqNgm7gomFxoytyUEU
