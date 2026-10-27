@@ -104,6 +104,8 @@ html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpa
 /* Job On: sem círculos de ajuda (Diogo, 27/10/2026: nada de círculos ao lado do «Produção» nem em
    lado nenhum da página); as caixas e o «Criar Job On» ficam todos com a mesma altura (34 px). */
 html body .beta-light-view .dmo-help:not(#_){display:none}
+/* Sem círculos de dica em lado nenhum da app (regra do Diogo); a dica fica no title, ao passar o rato. */
+html body .dmo-help:not(#_){display:none}
 html body .beta-light-view .jobon-procura-bloco :is(input[type="search"],select,.dmo-button):not(#_){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
 html body .beta-light-view .jobon-procura-bloco .dmo-search-form{align-items:center}
 /* Registar Reparação: o «Criar» (lista nova) e o «Imprimir» (lista aberta) no canto superior direito
@@ -169,6 +171,9 @@ html ::-webkit-scrollbar-thumb:hover{background:var(--dmo-muted)}
 /* Links sem sublinhado no rato por cima, em toda a app (Diogo, 27/10/2026: «não devia ter sublinhado»,
    na «Mudança …» do Job On): o hover só muda a cor da letra. */
 html body :is(a,.dmo-shell-logout):is(:hover,:focus-visible,:active):not(#_),html body a:is(:hover,:focus-visible,:active) :not(#_){text-decoration:none}
+/* Campos de data e hora com a altura dos outros campos e dos botões (Diogo, 27/10/2026: «tamanho diferente»). */
+html body :is(input[type="date"],input[type="datetime-local"],input[type="time"],input[type="month"]):not(td *):not(.jof2 *):not(#_){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding-block:0;line-height:normal}
+html body :is(input[type="date"],input[type="datetime-local"],input[type="time"],input[type="month"])::-webkit-datetime-edit{padding-block:0}
 /* Menus «Opções» mais pequenos, em toda a app (Diogo, 27/10/2026: «reduzir tamanho do dropdown»):
    a largura das opções, menos espaço à volta; no hover só muda a cor da letra, sem caixa. */
 html body :is(.dmo-options-list,.jof2 .menu-list):not(#_){min-width:0;width:max-content;max-width:260px;padding:4px}
