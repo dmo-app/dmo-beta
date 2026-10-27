@@ -4019,3 +4019,15 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.PainelLateral.cs :: PlaneamentoSumarioPageTests.Sumario_TemOPainelLateralDoPlaneamento_ComAsProximasEntradas`
 
 Selo depois: `68b7521fc048a7b6`
+
+## A-0247 · 2026-10-27 · ok-do-diogo
+
+Porquê: PU NNPB: a tabela dos repetidos mostra só as repetições (sem a primeira vez); os testes da página e do PDF deixam de esperar a primeira ocorrência
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGVXj3RGvFEFRDjoK8AKgVb
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_A1aD12_Reserva_RepetidosComLote_ETotais_NaZonaDaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.Posicoes_SeguemAsSeccoesDaLinha_GuardadasNasDefinicoes`
+
+Selo depois: `acf9380c9a96bc11`
