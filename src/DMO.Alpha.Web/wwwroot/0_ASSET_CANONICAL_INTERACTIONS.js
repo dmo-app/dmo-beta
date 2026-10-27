@@ -98,6 +98,14 @@
       // operador qual linha vai abrir, e é o que deixa o ecrã honesto se ele
       // desistir a meio.
       row.addEventListener("keydown", (event) => {
+        // O ESPAÇO ESCOLHE (Diogo, 27/10/2026: sem botões nas linhas, a
+        // linha escolhe-se e a ação é o botão do canto): só seleciona, não abre.
+        if (event.key === " " && event.target === row && row.tagName !== "BUTTON") {
+          if (row.closest("[data-dmo-procura-espera]")) return;
+          event.preventDefault();
+          selectRow(list, row);
+          return;
+        }
         if (event.key !== "Enter") return;
         // Não interceptar Enter de um controlo nativo dentro da linha.
         if (event.target !== row && event.target.closest("input,button,select,textarea,a")) return;

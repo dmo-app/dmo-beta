@@ -3375,3 +3375,19 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Definicoes_CriarEMudarReparadores`
 
 Selo depois: `42be5e272ecfeecb`
+
+## A-0189 · 2026-10-27 · teste-novo
+
+Porquê: Sem botões nas linhas (Diogo, 27/10/2026): testes novos para as Punções (registos sem Job On), a Revisão (referência do PU/CS no valor) e «O que mudou» da folha do Job On.
+Novos: 8 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.SemBotoesNasLinhas.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_ReferenciaDoPu_GravaNoValor_SemBotaoNaLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_SemOModuloDaAcao_NaoHaBotaoNoCanto`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_UmSoBotaoNoCanto_ParaAAlteracaoEscolhida_NenhumNasLinhas`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.RegistosSemJobOn_UmaLinhaEscolhe_EUmSoBotaoNoCantoAssocia`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.UmSoRegistoSemJobOn_VemEscolhido`
+
+Selo depois: `c73b6526a4610cf1`
