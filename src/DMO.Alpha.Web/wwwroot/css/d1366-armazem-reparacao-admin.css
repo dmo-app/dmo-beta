@@ -201,7 +201,6 @@ html body main.dmt-page .dmt-detail .dmo-field>input[name="name"]{width:100%;max
    factos de cada coluna (antes a 2.ª linha tinha traços desencontrados). */
 html body main.dfu-page .dmo-fact-stack>.dmo-fact{border-left:0}
 html body main.dfu-page .dmo-fact-stack+.dmo-fact-stack{border-left:1px solid var(--dmo-border)}
-html body main.dfu-page #dfu-title{font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
 
 /* ======================================================================
    DEFINIÇÕES: «A minha conta» com respiro por baixo do título e os rótulos
@@ -223,9 +222,7 @@ html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6p
    do resto da app (24→1342 px a 1366), em vez de 85→1281 (máx. 1240) e 187→1179
    (máx. 1000). As margens deixam de mudar ao trocar de separador. */
 @media (min-width:1100px){
-  html body main:is(.dmu-page,.dmt-page,.dfu-page){box-sizing:border-box;width:100%;max-width:none;margin:0;padding:16px 24px 14px}
-  /* O título como o da Ficha e o das outras páginas (26 px, cor do texto). */
-  html body main:is(.dmu-page,.dmt-page) .page-head h2{font-size:26px;font-weight:650;letter-spacing:-.035em;color:var(--dmo-text)}
+  html body main:is(.dmu-page,.dmt-page,.dfu-page,.dmr-page){box-sizing:border-box;width:100%;max-width:none;margin:0;padding:16px 24px 14px}
   /* Utilizadores: os campos de «Criar utilizador» do tamanho do que levam (antes 372 px). */
   html body main.dmu-page .dmu-form-grid{grid-template-columns:240px 112px 300px 300px;justify-content:start}
   /* A lista com linhas mais baixas (47→33 px): as mesmas 25 por página cabem em menos ecrã. */
@@ -233,15 +230,6 @@ html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6p
   html body main.dmu-page #dmu-resultados .dmo-table .dmo-pill{height:20px;min-height:20px;padding-top:2px;padding-bottom:2px}
   /* Templates: o nome é um rótulo curto (antes 420 px). */
   html body main.dmt-page :is(#dmt-new-name,#dmt-edit-name){width:100%;max-width:320px}
-  /* Ficha: com a largura toda, o PIN e as Ações de acesso lado a lado (antes cada um numa
-     linha inteira, a usar 26–36 %). */
-  html body main.dfu-page:has(>section.dfu-card){grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
-  html body main.dfu-page:has(>section.dfu-card)>*,
-  html body main.dfu-page:has(>section.dfu-card)>.dmo-zona>*{grid-column:1/-1}
-  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card{grid-column:1}
-  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card~.dmo-zona>section.dfu-card{grid-column:2;grid-row:auto}
-  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card~.dmo-zona>section.dfu-card,
-  html body main.dfu-page:has(>section.dfu-card)>section.dfu-card{margin:0}
 }
 
 /* DEFINIÇÕES › ADMIN › APP: o email (≈300 px) e o PIN (12 algarismos, ≈160 px) do tamanho
@@ -286,10 +274,19 @@ html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6p
 html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar:has(>.dmo-help){align-items:center!important}
 html body main.ri-page .ri-filtros-acoes>label.ri-so-por-associar>.dmo-help{align-self:center}
 
-/* REPARAÇÃO sem nada escolhido: o convite é um espaço à espera (contorno tracejado, letra
-   suave, ao centro), não um cartão largo com uma frase só. */
-html body main.ri-page #riEscolha{background:transparent;border:1px dashed var(--dmo-border);box-shadow:none;color:var(--dmo-muted)}
-html body main.ri-page #riEscolha{text-align:center}
+/* REPARAÇÃO sem nada escolhido: o convite é só uma linha de texto secundário, à esquerda, por
+   baixo das linhas; sem cartão nem contorno tracejado. */
+html body main.ri-page #riEscolha{background:transparent;border:0;box-shadow:none;padding:2px 0 0;color:var(--dmo-muted);text-align:left}
+html body main.ri-page #riEscolha .ri-vazia{font-size:13px}
+
+/* REPARAÇÃO: links sem sublinhado (parados nem no hover), só cor; o hover só muda a cor da letra.
+   Registar: a CM e o MF da produção; Consultar: a produção e a ferramenta nas linhas da tabela
+   (e a marca «Por associar»). São navegação, por isso continuam links. */
+html body main.ri-page :is(.ri-ficha,.dmo-table td a),
+html body main.ri-page :is(.ri-ficha,.dmo-table td a):is(:hover,:focus-visible){text-decoration:none}
+html body main.ri-page :is(.ri-ficha,.dmo-table td a:not(.ri-por-associar)){color:var(--dmo-brand-900);transition:color var(--dmo-fast)}
+html body main.ri-page :is(.ri-ficha,.dmo-table td a:not(.ri-por-associar)):is(:hover,:focus-visible){color:var(--dmo-brand-700)}
+html body main.ri-page .dmo-table td a.ri-por-associar:is(:hover,:focus-visible){color:var(--dmo-brand-700)}
 
 /* LOGIN e MUDAR PALAVRA-PASSE (modo escuro): as letras «BA» do logótipo são transparentes
    no PNG e mostravam o fundo escuro sobre o azul. Um disco claro por trás do círculo azul
