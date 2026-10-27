@@ -3434,3 +3434,25 @@ Novos: 4 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `931c72c58f9a8361`
+
+## A-0191 · 2026-10-27 · contagem-lista
+
+Porquê: Vistoria ao frontend (DMO-453, 0.3.0-beta.150): testes novos das marcas de versão e da cache dos ficheiros (F1), do filtro ao escrever com a sessão terminada, um erro ou sem rede (F2) e do rascunho do Job On por pessoa e por um dia (F3); package.json só acrescenta vistoria-frontend.test.cjs à lista do test:js
+Novos: 13 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: FicheirosComVersaoTests.CadaFolhaEScriptDasPaginas_LevaAMarcaDeVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: FicheirosComVersaoTests.OLogin_PedeCadaFolhaComAMarcaDeVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/FicheirosComVersaoTests.cs :: FicheirosComVersaoTests.UmFicheiroComMarca_GuardaSeUmAno_ESemMarca_PerguntaSempre`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: com a sessão terminada, o filtro avisa e dá o link «Entrar»`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: com um erro do servidor, o filtro avisa que não foi possível procurar`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: o filtro ao escrever troca os resultados quando a resposta traz a lista`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F2: sem rede, o filtro repete a mesma procura quando a ligação volta`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: o que se escreve fica guardado com o dono`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de outra pessoa não aparece e sai do browser`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de quem abre a folha volta`
+- novo: `tests/ShellProof/vistoria-frontend.test.cjs :: F3: um rascunho com mais de um dia não volta; um de 23 h volta`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `10f6a12c79e57112`
