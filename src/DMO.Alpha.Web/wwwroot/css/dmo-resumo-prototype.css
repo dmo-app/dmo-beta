@@ -620,7 +620,7 @@ html body main.resumo-page .resumo-peso-tabela {
   width: 100%;
   max-width: 520px;
   margin: 6px 0 2px;
-  table-layout: fixed;
+  table-layout: auto;
   border-collapse: collapse;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
@@ -632,8 +632,6 @@ html body main.resumo-page .resumo-peso-tabela :is(th, td) {
   background: none;
   text-align: right;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 html body main.resumo-page .resumo-peso-tabela :is(th, td):last-child { padding-right: 0; }
 html body main.resumo-page .resumo-peso-tabela thead th {
@@ -645,7 +643,9 @@ html body main.resumo-page .resumo-peso-tabela thead th {
   letter-spacing: 0;
 }
 html body main.resumo-page .resumo-peso-tabela tbody tr:last-child :is(th, td) { border-bottom: 0; }
-html body main.resumo-page .resumo-peso-tabela :is(thead th:first-child, tbody th) { text-align: left; width: 46%; }
+html body main.resumo-page .resumo-peso-tabela :is(thead th:first-child, tbody th) { text-align: left; width: auto; white-space: normal; }
+html body main.resumo-page .resumo-peso-tabela td,
+html body main.resumo-page .resumo-peso-tabela thead th:not(:first-child) { width: 1%; }
 html body main.resumo-page .resumo-peso-tabela tbody th { color: var(--dmo-text); font-size: 13px; font-weight: 500; text-transform: none; letter-spacing: 0; }
 html body main.resumo-page .resumo-peso-tabela td { font-size: 13px; }
 html body main.resumo-page .resumo-peso-tabela tbody th small { margin-left: 4px; color: var(--dmo-muted); font-size: 12px; }
