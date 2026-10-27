@@ -273,7 +273,9 @@ html body .dmo-support-refresh[hidden]{display:none}
 /* Inside the support panel only the page is drawn: the shell stays outside. */
 html[data-dmo-embedded="true"] body{overflow:auto}
 html[data-dmo-embedded="true"] .dmo-shell-header,
-html[data-dmo-embedded="true"] .dmo-faixa-dev{display:none!important}
+/* A faixa «Em desenvolvimento» sai do ecrã (Diogo, 27/10/2026, cartão …QAAtETotvm9D6bqP3q6yXM).
+   A marca fica no HTML, onde o teste da faixa a procura, até ele mudar com o ok do Diogo. */
+html body .dmo-faixa-dev{display:none!important}
 html[data-dmo-embedded="true"] :is(.dmo-workspace,.beta-light-main,.beta-bq-layout>.main,.jof2){padding:16px 18px 24px}
 @media(max-width:700px){html body dialog.dmo-support{width:100vw}}
 
