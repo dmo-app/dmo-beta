@@ -29,9 +29,10 @@ html[data-theme="dark"] body #dmoSupportFull:is(:hover,:focus-visible,:active),h
    Opção 4 escolhida pelo Diogo (27/10/2026, …XwHyWe8QJjkeaipvH2MLV8; já pedido a 26/10: «iguais aos
    botões, o escolhido invertido»): as opções são iguais aos botões de ação, também no rato por cima
    (fundo mais escuro, letra e contorno brancos); a escolhida fica invertida (fundo do cartão, contorno
-   e letra de destaque). */
-html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:var(--dmo-brand-600);--dmo-escolhida-letra:var(--dmo-brand-600)}
-html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#fff}
+   e letra de destaque). Aprovado a 27/10 (…Pc5CZ7o8GxVCiuBHj4uft6), com a letra num cinza
+   muito ligeiro no escuro e o azul um pouco mais claro no claro. */
+html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff);--dmo-escolhida-letra:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff)}
+html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#dde3eb}
 
 /* Os rádios e as caixas escondidos: o rótulo é o botão. */
 html body :is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks):is(.bq-movement-types,.ri-tipos,.dmo-alternador,.ferr-checks) label{position:relative;cursor:pointer}
