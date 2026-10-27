@@ -173,10 +173,31 @@ public static class SumarioTipos
         };
     }
 
+    /// <summary>
+    /// As opções do filtro «Informação» a seguir a «Toda» e «Importante»
+    /// (Diogo, 27/10/2026: «Importante, Job on(inclui muda, alteraçoes,
+    /// experiencias) Armazem, Controlo»): o Job On junta os criados (as
+    /// experiências também), as mudanças e as alterações; o Controlo junta os
+    /// por ver, os por aprovar e os não aprovados, que são importantes e por
+    /// isso ficam no grupo do topo.
+    /// </summary>
+    public static IReadOnlyList<SumarioFiltro> Filtros { get; } =
+    [
+        new("jobon", "Job On", [SumarioTipo.JobOnCriado, SumarioTipo.ProducaoComeca, SumarioTipo.JobOnAlterado]),
+        new("armazem", "Armazém", [SumarioTipo.ArmazemMovimento]),
+        new("controlo", "Controlo", [SumarioTipo.JobOnPorVer, SumarioTipo.ControloPorAprovar, SumarioTipo.ControloNaoAprovado])
+    ];
+
+    public static SumarioFiltro? FiltroDaChave(string? chave) =>
+        Filtros.FirstOrDefault(f => f.Chave == chave);
+
     /// <summary>Os tipos que os módulos da conta deixam ver, pela ordem da lista.</summary>
     public static IReadOnlyList<SumarioTipo> Visiveis(IReadOnlyCollection<string> modulos) =>
         Todos.Where(t => PodeVer(t, modulos)).ToArray();
 }
+
+/// <summary>Uma opção do filtro «Informação»: a chave no endereço, o nome e os tipos que junta.</summary>
+public sealed record SumarioFiltro(string Chave, string Nome, IReadOnlyList<SumarioTipo> Tipos);
 
 /// <summary>A leitura do Sumário: só os tipos pedidos, num período de dias (hora de Lisboa).</summary>
 public interface ISumarioQuery
