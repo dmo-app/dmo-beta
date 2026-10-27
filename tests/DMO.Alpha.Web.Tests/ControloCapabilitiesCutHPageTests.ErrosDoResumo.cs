@@ -24,8 +24,8 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         // Sem medições, sem o «PDF Pegamentos» (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraB4cWtFy2LfgzGWkBMpzRuk).
         Assert.DoesNotContain(">PDF Pegamentos</button>", resumo);
 
-        // Sem link e sem o Aprovar: só o texto, sem a ida à Revisão.
-        Assert.Contains("<span class=\"resumo-area-link vazio\" data-resumo-mcaliper-sem=\"CM\">Sem link do mcaliper</span>", resumo);
+        // Sem link, quem tem o Criar associa-o ali, sem o Aprovar (DMO-517, A-0252).
+        Assert.Contains("<button type=\"button\" class=\"resumo-area-link vazio\" data-dmo-dialog=\"resumo-area-mcaliper-CM\" data-resumo-mcaliper-sem=\"CM\">Associar link do mcaliper</button>", resumo);
         Assert.DoesNotContain("data-resumo-mcaliper-sem=\"PU\"", resumo);
         Assert.DoesNotContain("associar na Revisão", resumo);
 
