@@ -64,7 +64,7 @@
   {
   <section class="dmo-card dmr-card" id="dmrResultados" aria-labelledby="dmr-lista-title">
     <h3 id="dmr-lista-title">Registos</h3>
-    <p class="card-note">@Model.Pagina.TotalCount registo(s)</p>
+    <p class="card-note">@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(Model.Pagina.TotalCount, "registo", "registos")</p>
     @if (Model.Pagina.Items.Count == 0)
     {
       <div class="dmr-vazia">Nenhum registo com estes filtros.</div>

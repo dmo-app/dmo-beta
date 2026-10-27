@@ -121,12 +121,12 @@ public sealed partial class ControloCapabilitiesCutHPageTests
 
         // A Revisão só resume (19/10/2026): as mesmas medições e os mesmos alertas.
         var revisao = await GetPageHtmlAsync(client, $"/Controlo/Approve?jobon_id={jobOnId}");
-        var naRevisao = Regex.Match(Texto(Zona(revisao, "revisaoPartePegamentos")), "(\\d+) medição\\(ões\\) · (\\d+) alerta\\(s\\)");
+        var naRevisao = Regex.Match(Texto(Zona(revisao, "revisaoPartePegamentos")), "(\\d+) medi(?:ção|ções) · (\\d+) alertas?");
         Assert.True(naRevisao.Success, "a Revisão não resume os Pegamentos");
         Assert.Equal(("2", "1"), (naRevisao.Groups[1].Value, naRevisao.Groups[2].Value));
         // O Detalhe sem contadores no título (20/10/2026); a tabela tem as
         // mesmas medições e o mesmo alerta.
-        Assert.DoesNotContain("medição(ões)", detalhe);
+        Assert.DoesNotMatch("\\d+ medi(ção|ções) ·", detalhe);
         Assert.Single(Regex.Matches(detalhe, "<span class=\"peg-state-bad\">fora</span>"));
     }
 }

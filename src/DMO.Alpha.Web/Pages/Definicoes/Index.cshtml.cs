@@ -11,12 +11,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace DMO.Alpha.Web.Pages.Definicoes;
 
 /// <summary>
-/// AS DEFINIÇÕES NUM SÓ SÍTIO (Diogo, 22/10/2026): uma página na barra de
-/// cima, com duas partes. «Pessoal» vale só para quem a muda (o modo escuro
-/// e as pastas deste computador). «Geral» vale para todos: lê-se sempre, mas
-/// só a muda o ADMIN ou quem abriu o cadeado com o PIN das Definições
-/// (criado pelo ADMIN em Definições → Admin → App; vale até sair). Em cada parte, uma secção por módulo, só dos módulos ativos para
-/// o utilizador. Os formulários de cada módulo continuam a gravar pelos
+/// AS DEFINIÇÕES NUM SÓ SÍTIO (Diogo, 22/10/2026), em três separadores
+/// (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP):
+/// «A minha conta» (só para quem a muda), «Este computador» (as pastas, que
+/// cada navegador guarda) e «Gerais da fábrica» (valem para todos, uma
+/// secção por módulo ativo). As pastas e as gerais leem-se sempre, mas só as
+/// muda o ADMIN ou quem abriu o cadeado com o PIN das Definições (criado
+/// pelo ADMIN em Definições → Admin → App; vale até sair). Os formulários de cada módulo continuam a gravar pelos
 /// handlers das páginas antigas (/Boquilhas/Definicoes…), que voltam aqui.
 /// </summary>
 [Authorize]
@@ -64,34 +65,13 @@ public sealed class IndexModel(
         ("peso", "Peso"),
         ("pegamentos", "Pegamentos"),
         ("puncoes", "PU NNPB"),
-        ("email", "Email"),
-        ("pdfs", "PDFs")
-    ];
-
-    /// <summary>
-    /// O grupo Admin, só do ADMIN (Diogo, 22/10/2026: «canal jobon e app
-    /// ficam dentro das definições do admin, admin tem definições diferentes
-    /// dos users»).
-    /// </summary>
-    public static readonly IReadOnlyList<(string Chave, string Nome)> AdminSeparadores =
-    [
-        ("app", "App")
+        ("email", "Email")
     ];
 
     public Admin.Definicoes.IndexModel? App { get; private set; }
 
     /// <summary>A função aberta do grupo Admin (?sub=…).</summary>
     public string AdminSub { get; private set; } = "app";
-
-    /// <summary>As funções de um grupo do menu (null para uma entrada simples).</summary>
-    public IReadOnlyList<(string Chave, string Nome)>? FuncoesDe(string chave) => chave switch
-    {
-        "controlo" => ControloSeparadores,
-        _ => null
-    };
-
-    /// <summary>A função aberta de um grupo.</summary>
-    public string SubDe(string chave) => ControloSub;
 
     /// <summary>O separador do Controlo aberto (?sub=…).</summary>
     public string ControloSub { get; private set; } = "peso";
@@ -106,11 +86,29 @@ public sealed class IndexModel(
     public ReparacaoInterna.DefinicoesModel? Reparacao { get; private set; }
 
 
-    /// <summary>A entrada do menu aberta: «pessoal» ou a de um módulo ativo (?secao=…).</summary>
+    /// <summary>A secção aberta (?secao=…): «pessoal», «computador», a de um módulo ativo ou «admin».</summary>
     public string Secao { get; private set; } = "pessoal";
 
-    /// <summary>As entradas do menu, pela ordem: Pessoal e os módulos ativos.</summary>
-    public IReadOnlyList<(string Chave, string Nome)> Entradas { get; private set; } = [];
+    /// <summary>
+    /// Os separadores, pela ordem: A minha conta, Este computador (quem tem
+    /// um módulo com pastas), Gerais da fábrica (quem tem um módulo com
+    /// definições gerais) e Admin (só o ADMIN). Cada um abre a sua primeira secção.
+    /// </summary>
+    public IReadOnlyList<(string Chave, string Nome, string Abre)> Separadores { get; private set; } = [];
+
+    /// <summary>As secções dos módulos ativos, dentro de «Gerais da fábrica».</summary>
+    public IReadOnlyList<(string Chave, string Nome)> Modulos { get; private set; } = [];
+
+    /// <summary>O separador da secção aberta.</summary>
+    public string Separador => SeparadorDe(Secao);
+
+    public static string SeparadorDe(string secao) => secao is "pessoal" or "computador" or "admin" ? secao : "gerais";
+
+    /// <summary>A secção aberta tem definições que só se mudam com o cadeado aberto (as pastas e as gerais).</summary>
+    public bool SecaoComCadeado => Separador is "computador" or "gerais";
+
+    /// <summary>«Este computador»: as pastas do Controlo, das Boquilhas, das Ferramentas e do Job On.</summary>
+    public bool TemComputador => Controlo is not null || Boquilhas is not null || Ferramentas is not null || TemJobOn;
 
     /// <summary>«A minha conta» (só de leitura): nome, email, número e módulos.</summary>
     public string Nome { get; private set; } = string.Empty;
@@ -206,7 +204,6 @@ public sealed class IndexModel(
                 : Q("save") is not null ? "pegamentos"
                 : Q("envio") is not null ? "email"
                 : Q("seccoes") is not null ? "puncoes"
-                : Q("pasta") is not null ? "pdfs"
                 : "peso";
             await Controlo.CarregarAsync(Q("save"), Q("envio"), Q("fora"), Q("densidade"), Q("seccoes"), Q("pasta"));
         }
@@ -238,23 +235,35 @@ public sealed class IndexModel(
             await Reparacao.CarregarAsync(Q("gravacao"));
         }
 
-        var entradas = new List<(string, string)> { ("pessoal", "Pessoal") };
-        if (TemJobOn) entradas.Add(("jobon", "Job On"));
-        if (Controlo is not null) entradas.Add(("controlo", "Controlo"));
-        if (Boquilhas is not null) entradas.Add(("boquilhas", "Boquilhas"));
-        if (Ferramentas is not null) entradas.Add(("ferramentas", "Ferramentas"));
-        if (Armazem is not null) entradas.Add(("armazem", "Armazém"));
-        if (Reparacao is not null) entradas.Add(("reparacao", "Reparação"));
+        var modulos = new List<(string, string)>();
+        if (Controlo is not null) modulos.Add(("controlo", "Controlo"));
+        if (Boquilhas is not null) modulos.Add(("boquilhas", "Boquilhas"));
+        if (Ferramentas is not null) modulos.Add(("ferramentas", "Ferramentas"));
+        if (Armazem is not null) modulos.Add(("armazem", "Armazém"));
+        if (Reparacao is not null) modulos.Add(("reparacao", "Reparação"));
+        Modulos = modulos;
+
+        var separadores = new List<(string, string, string)> { ("pessoal", "A minha conta", "pessoal") };
+        if (TemComputador) separadores.Add(("computador", "Este computador", "computador"));
+        if (modulos.Count > 0) separadores.Add(("gerais", "Gerais da fábrica", modulos[0].Item1));
         if (EAdmin)
         {
             App = Ligar(app);
             await App.CarregarAsync(Q("app"), Q("email"), Q("pinapp"));
             AdminSub = "app";
-            entradas.Add(("admin", "Admin"));
+            separadores.Add(("admin", "Admin", "admin"));
         }
-        Entradas = entradas;
-        var pedida = Q("secao");
-        Secao = entradas.Any(e => e.Item1 == pedida) ? pedida! : "pessoal";
+        Separadores = separadores;
+
+        // Os links antigos: o Job On só tinha a pasta das imagens; a pasta dos PDFs do Controlo grava e volta a «Este computador».
+        var pedida = Q("secao") switch
+        {
+            "jobon" => "computador",
+            "gerais" => modulos.Count > 0 ? modulos[0].Item1 : null,
+            "controlo" when Q("pasta") is not null => "computador",
+            var s => s
+        };
+        Secao = separadores.Any(t => t.Item3 == pedida) || modulos.Any(m => m.Item1 == pedida) ? pedida! : "pessoal";
         return Page();
     }
 
