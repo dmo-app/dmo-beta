@@ -1,0 +1,375 @@
+/*
+ * A folha do Job On a 1366×768 (Diogo, 28/10/2026: «a página não pode deslizar»).
+ *
+ * Este ficheiro é o último a ser carregado pela folha (a Folha.cshtml põe-no no fim,
+ * depois de todas as folhas da app: dmo-design, dmo-normalize, d1366-* e dmo-botoes),
+ * porque as regras do Planeamento e do design também desenham a folha e têm !important.
+ * Aqui só estão a arrumação e o aspeto; os botões de ação ficam como o dmo-botoes.css os faz.
+ *
+ * Regras do dono que isto cumpre:
+ *   - a página inteira cabe em 1366×768 (scrollHeight ≤ 768); se algo não couber, só desliza
+ *     uma lista ou uma área própria, nunca a página;
+ *   - claro e escuro pelos tokens (nada de cores vivas nem fundos brancos soltos);
+ *   - no hover só muda a cor da letra: sem caixa de fundo nem sublinhado;
+ *   - campos e botões com a mesma altura, --dmo-control-height, também os de data;
+ *   - rótulos todos do mesmo tamanho; títulos mais fortes do que os rótulos;
+ *   - nada de botões dentro das linhas; os botões de um cartão ficam no canto superior direito.
+ *
+ * Prefixos (a especificidade tem de ganhar às regras !important do d1366-planeamento.css):
+ *   E = html:root body .jof2.editing.editing.editing   (Editar, Duplicar, Criar)
+ *   V = html:root body .jof2.jof2.jof2:not(.editing)   (ver, folha nova, experiência)
+ *   B = html:root body .jof2.jof2.jof2                 (os dois)
+ */
+
+/* ===================================================================== */
+/* 1. Rótulos, valores e títulos: um só tamanho para cada coisa            */
+/* ===================================================================== */
+/* Rótulo: 12px, normal, cinzento, frase normal (sem maiúsculas). */
+html:root body .jof2.jof2.jof2 :is(.hv small,.kv dt,.use-top>span,.note-box>span,.dims th,.calv th,.folgas>span:first-child,.jof-furos-campo>span,.pick-rotulo,.facts-dados .fl,.jof-fora .hv small,.more>summary,.dims td:first-child){
+  font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--dmo-muted)}
+/* Título do cartão: a sigla forte e o nome por baixo da sigla em peso médio (mais forte do que os rótulos). */
+html:root body .jof2.jof2.jof2 .design-tool-name{font-size:13px;font-weight:600;color:var(--dmo-text)}
+
+/* ===================================================================== */
+/* 2. Hover: só a cor da letra (sem caixa de fundo nem sublinhado)         */
+/* ===================================================================== */
+html:root body .jof2.jof2.jof2 :is(.more>summary,.jobon-mudancas>summary){transition:color var(--fast)}
+html:root body .jof2.jof2.jof2 :is(.more>summary,.jobon-mudancas>summary):is(:hover,:focus-visible){background:none;box-shadow:none;text-decoration:none;color:var(--dmo-brand-700);outline:0}
+html:root[data-theme="dark"] body .jof2.jof2.jof2 :is(.more>summary,.jobon-mudancas>summary):is(:hover,:focus-visible){color:#fff}
+html:root body .jof2.jof2.jof2 .tool-head:is(:hover,:focus-visible){background:none;box-shadow:none;text-decoration:none}
+html:root body .jof2.jof2.jof2 .jobon-resumo li:not(.selected):is(:hover,:focus-visible){background:none;box-shadow:none;text-decoration:none;color:var(--dmo-brand-700);outline:0}
+html:root[data-theme="dark"] body .jof2.jof2.jof2 .jobon-resumo li:not(.selected):is(:hover,:focus-visible){color:#fff}
+html:root body .jof2.jof2.jof2 .jobon-resumo li:not(.selected):is(:hover,:focus-visible) :is(strong,span){color:inherit}
+html:root body .jof2.jof2.jof2 .jobon-resumo li.selected:is(:hover,:focus-visible){background:var(--dmo-brand-200)}
+
+/* ===================================================================== */
+/* 4. Calibres (CAL) na folha de ver: os cabeçalhos com a letra dos        */
+/*    outros rótulos (12px), os valores como os valores dos outros cartões */
+/* ===================================================================== */
+@container board (min-width:640px){
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv{grid-template-columns:108px;grid-auto-columns:minmax(0,1fr)}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv :is(th,td):nth-child(n){min-height:30px;padding:3px 6px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv :is(thead th,tbody th):nth-child(n){font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--dmo-muted);text-align:center;justify-content:center}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv thead th:nth-child(n){justify-content:flex-start;text-align:left}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv td:nth-child(n){font-size:13.5px;font-weight:700;color:var(--dmo-text);text-align:center;justify-content:center}
+}
+
+/* CS no ver: Furos (Abertos e Fechados lado a lado) e Tubo, um par por linha; o «Fechados 0» já não fica pendurado. */
+html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="CS"]>.kv{grid-template-columns:max-content minmax(0,1fr);gap:0 10px}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-furos-ver{flex-direction:row;align-items:baseline;gap:14px}
+
+/* ===================================================================== */
+/* 5. «O que mudou desde o início»: um cartão próprio, o título à esquerda  */
+/*    e o botão do módulo no canto superior direito do cartão. A lista     */
+/*    desliza por dentro; aberto, o cartão fica no fundo do ecrã, por cima  */
+/*    da folha (como a Informação técnica), e a página não cresce.         */
+/* ===================================================================== */
+html:root body .jof2.jof2.jof2 .wrap{position:relative}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas{position:relative;box-sizing:border-box;margin:8px 0 0;padding:0 12px;border:1px solid var(--dmo-border);border-radius:var(--r-card);background:var(--dmo-card);box-shadow:none}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>summary{display:flex;align-items:center;gap:6px;box-sizing:border-box;min-height:var(--dmo-control-height);padding:0;cursor:pointer;list-style:none;font-size:14px;font-weight:700;color:var(--dmo-text)}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>summary::-webkit-details-marker{display:none}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas[open]{position:fixed;inset:auto auto 10px 50%;transform:translateX(-50%);width:min(calc(100vw - 48px),1558px);z-index:35;margin:0;padding:6px 12px 10px;box-shadow:0 -6px 24px rgba(0,0,0,.2)}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas[open]>summary{min-height:var(--dmo-control-height);padding:0 232px 0 0}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>.jobon-resumo-topo{position:absolute;top:6px;right:12px;margin:0;display:flex;align-items:center}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>.jobon-resumo-topo .dmo-button{margin:0}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>.jobon-resumo{display:grid;gap:4px;margin:6px 0 0;padding:0;list-style:none;max-height:calc(3*40px + 2*4px);overflow-y:auto;scrollbar-width:thin}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>.jobon-resumo>li{box-sizing:border-box;min-height:36px;margin:0;padding:6px 12px;border:0;border-radius:8px;cursor:pointer;color:var(--dmo-text)}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>.jobon-resumo>li>div{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:16px}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>.jobon-resumo>li strong{font-size:13.5px;font-weight:700}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas>.jobon-resumo>li span{font-size:12px;font-weight:500;color:var(--dmo-muted)}
+
+/* ===================================================================== */
+/* 6. EDITAR, DUPLICAR e CRIAR: a folha cabe em 1366×768 sem deslizar      */
+/*    - quatro colunas independentes (CM+TP, MF+CS, BQ+AN, PU+ARR; os      */
+/*      Calibres por baixo de BQ+AN e PU+ARR), cada cartão com a altura   */
+/*      do que tem, sem esperar pelo vizinho da fila;                      */
+/*    - a «Informação técnica» fechada e, aberta, por cima dos vizinhos     */
+/*      (como no ver), sem empurrar nada;                                  */
+/*    - campos e botões com --dmo-control-height; valores à esquerda;       */
+/*    - notas mais baixas (duas linhas; se escreverem mais, desliza dentro). */
+/* ===================================================================== */
+html:root body .jof2.jof2.jof2.editing{padding-top:6px;padding-bottom:4px}
+/* Todos os campos e seletores com a altura dos botões, a letra e o alinhamento iguais. */
+html:root body .jof2.editing.editing.editing.editing :is(input:not([type=radio]):not([type=checkbox]):not([type=hidden]):not([type=file]),select):not(.pick-row *){
+  box-sizing:border-box !important;height:var(--dmo-control-height) !important;min-height:var(--dmo-control-height) !important;margin:0 !important;
+  padding-block:0 !important;padding-inline:8px !important;line-height:normal !important;font-size:13px !important;font-weight:600;text-align:left !important;text-overflow:ellipsis}
+html:root body .jof2.editing.editing.editing.editing select:not(.pick-row *){padding-right:26px !important}
+html:root body .jof2.editing.editing.editing input[type=date]{padding-inline:8px 6px !important}
+
+/* ---- o cabeçalho (título, aviso «Modo Editar», faixa dos dados) ---- */
+html:root body .jof2.editing.editing.editing .page-head{gap:6px;margin-bottom:6px}
+html:root body .jof2.editing.editing.editing .page-head .facts{padding:6px 16px}
+html:root body .jof2.editing.editing.editing .page-head .fact-col.mach select.f{min-width:76px;width:auto !important;font-size:15px !important;font-weight:700;border-radius:var(--r-control)}
+html:root body .jof2.editing.editing.editing .page-head .facts-dados .fv{gap:0}
+html:root body .jof2.editing.editing.editing .page-head .fv input[type=date]{width:140px !important}
+html:root body .jof2.editing.editing.editing .page-head .fv select#jobon-cab-processo{width:auto !important;min-width:96px}
+html:root body .jof2.editing.editing.editing .page-head .fv :is(input#jobon-cab-peso,input#jobon-cab-seccoes,input#jobon-cab-gota){width:72px !important}
+html:root body .jof2.editing.editing.editing .jof-modo-editar{height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-size:15px}
+html:root body .jof2.editing.editing.editing .sheet{margin-top:0;gap:8px}
+
+@container board (min-width:640px){
+  /* ---- a MESMA grelha do ver: CM, MF, BQ+AN, PU+ARR em cima; TP, CS e CAL por baixo (os cartões esticam, as bordas de baixo alinham) ---- */
+  html:root body .jof2.editing.editing.editing .zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:auto auto auto;grid-template-areas:"cm mf bq pu" "cm mf an arr" "tp cs cal cal";gap:8px;align-items:stretch}
+  html:root body .jof2.editing.editing.editing .zones :is(.fcol,.fright,.frow){display:contents}
+  html:root body .jof2.editing.editing.editing .zones [data-jof-familia="CM"]{grid-area:cm}
+  html:root body .jof2.editing.editing.editing .zones [data-jof-familia="MF"]{grid-area:mf}
+  html:root body .jof2.editing.editing.editing .zones .card.pair:has([data-jof-familia="BQ"]){grid-area:bq}
+  html:root body .jof2.editing.editing.editing .zones [data-jof-familia="AN"]{grid-area:an}
+  html:root body .jof2.editing.editing.editing .zones [data-jof-familia="PU"]{grid-area:pu}
+  html:root body .jof2.editing.editing.editing .zones [data-jof-familia="ARR"]{grid-area:arr}
+  html:root body .jof2.editing.editing.editing .zones [data-jof-familia="TP"]{grid-area:tp}
+  html:root body .jof2.editing.editing.editing .zones [data-jof-familia="CS"]{grid-area:cs}
+  html:root body .jof2.editing.editing.editing .zones .g-cal{grid-area:cal;display:flex;flex-direction:column;margin:0}
+  html:root body .jof2.editing.editing.editing .zones .g-cal>.board{display:flex;flex:1 1 auto}
+  html:root body .jof2.editing.editing.editing .zones .g-cal>.board>.card{flex:1 1 auto}
+  /* Cada família é um cartão. */
+  html:root body .jof2.editing.editing.editing .zones :is(article.card,.card.pair){margin:0;border:1px solid var(--dmo-border);border-radius:var(--r-card);background:var(--dmo-card);box-shadow:none}
+  html:root body .jof2.editing.editing.editing .zones .card.pair{padding:0;display:flex;flex-direction:column}
+  html:root body .jof2.editing.editing.editing .zones .card.pair>.pair-in{display:flex;flex-direction:column;flex:1 1 auto}
+  html:root body .jof2.editing.editing.editing .zones .card.pair .sec{padding:7px 10px 8px;border:0;flex:1 1 auto}
+  html:root body .jof2.editing.editing.editing .zones article.card.sec{padding:7px 10px 8px;gap:4px;min-width:0}
+}
+html:root body .jof2.editing.editing.editing .sec{position:relative;gap:4px}
+html:root body .jof2.editing.editing.editing .sec-head{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-height:0}
+html:root body .jof2.editing.editing.editing .design-tool-heading{display:flex;align-items:baseline;gap:8px;flex:1 0 100%;width:100%;min-width:0}
+html:root body .jof2.editing.editing.editing .code{font-size:20px;line-height:1.15}
+
+/* ---- a cabeça de CM, MF e BQ (o botão que muda a ferramenta) ---- */
+html:root body .jof2.editing.editing.editing .tool-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0;padding:0;width:100%}
+html:root body .jof2.editing.editing.editing .tool-head .tool-hint{margin-left:auto}
+/* ---- Referência / Lote dos cartões sem ferramenta: rótulo à esquerda do campo ---- */
+html:root body .jof2.editing.editing.editing .sec-head .hv{display:flex;align-items:center;gap:6px;flex:1 1 0;min-width:0;margin:0;padding:0;border:0;white-space:nowrap}
+html:root body .jof2.editing.editing.editing .sec-head .hv+.hv{flex:0 0 auto;margin:0;padding:0;border:0}
+html:root body .jof2.editing.editing.editing .sec-head .hv small{flex:none}
+html:root body .jof2.editing.editing.editing .sec-head .hv>b{display:block;flex:1 1 auto;min-width:0;height:auto}
+html:root body .jof2.editing.editing.editing .sec-head .hv input.f{width:100% !important;max-width:none}
+html:root body .jof2.editing.editing.editing .sec-head .hv+.hv input.f{width:56px !important}
+html:root body .jof2.editing.editing.editing .sec-head .hv>b:not(:has(input)){height:var(--dmo-control-height)}
+
+/* ---- Utilização: «Utilização [42] %» e a barra na mesma linha ---- */
+html:root body .jof2.editing.editing.editing .use{display:flex;align-items:center;gap:6px;margin:0}
+html:root body .jof2.editing.editing.editing .use-top{display:contents}
+html:root body .jof2.editing.editing.editing .use-top>span{flex:none}
+html:root body .jof2.editing.editing.editing .use-top>input{width:48px !important;flex:none}
+html:root body .jof2.editing.editing.editing .use>.bar{flex:1 1 24px;min-width:24px;margin:0}
+
+/* ---- Reparador (CM e MF) e FF / Lote FF (MF): rótulo à esquerda, campo à direita ---- */
+html:root body .jof2.editing.editing.editing .jof-fora{display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:4px 6px;align-items:center;margin:0}
+html:root body .jof2.editing.editing.editing .jof-fora .hv{display:contents}
+html:root body .jof2.editing.editing.editing .jof-fora .hv>b{display:block;min-width:0;font-size:inherit;line-height:normal}
+html:root body .jof2.editing.editing.editing .jof-fora .hv:first-child>b{grid-column:2/-1}
+html:root body .jof2.editing.editing.editing .jof-fora .hv input.f{width:100% !important}
+
+/* ---- listas rótulo / campo (TP, CS, PI, e dentro da Informação técnica) ---- */
+html:root body .jof2.editing.editing.editing .kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 10px;align-items:center;margin:0}
+html:root body .jof2.editing.editing.editing .kv :is(dt,dd){display:flex;align-items:center;margin:0;padding:0 !important;border:0;min-height:var(--dmo-control-height) !important}
+html:root body .jof2.editing.editing.editing .kv dd{justify-content:flex-start}
+html:root body .jof2.editing.editing.editing .kv dd>input.f{width:100% !important}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dd{justify-content:flex-start}
+html:root body .jof2.editing.editing.editing .jof-furos{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:6px;min-width:0}
+html:root body .jof2.editing.editing.editing .jof-furos-campo{display:inline-flex;align-items:center;gap:4px}
+html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:38px !important;padding-inline:8px 4px !important}
+
+/* ---- Notas (Editar): a caixa cresce até ocupar o espaço livre do cartão (no mínimo duas linhas com texto, uma vazia);
+   só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira (18px). ---- */
+html:root body .jof2.editing.editing.editing .note-box.note-edit{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-height:0;margin:0}
+html:root body .jof2.editing.editing.editing .note-box.note-edit>textarea.dmo-valor.dmo-valor{display:block;flex:1 1 0;box-sizing:border-box;width:100%;height:auto;min-height:42px;max-height:none;padding:4px 6px 0;font-size:12.5px;line-height:18px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dmo-muted) transparent;resize:none;field-sizing:fixed;overflow-wrap:normal;word-break:normal;hyphens:manual}
+html:root body .jof2.editing.editing.editing .note-box.note-edit.is-empty>textarea.dmo-valor.dmo-valor:not(:focus){flex:1 1 0;height:auto;min-height:var(--dmo-control-height);max-height:none;padding:6px 8px 0}
+html:root body .jof2.editing.editing.editing .note-box.note-edit.is-ampliada>textarea.dmo-valor.dmo-valor{height:auto;max-height:60vh;min-height:240px;field-sizing:content}
+
+/* ---- Informação técnica: fechada; aberta, uma janela por cima dos vizinhos ---- */
+html:root body .jof2.editing.editing.editing .sec>details.more{position:relative;margin:0;padding:0;border:0}
+html:root body .jof2.editing.editing.editing .sec>details.more>summary{min-height:24px}
+html:root body .jof2.editing.editing.editing .sec:has(>details.more[open]){z-index:40}
+html:root body .jof2.editing.editing.editing .sec>details.more[open]>.more-body{position:absolute;z-index:30;left:-6px;bottom:calc(100% - 4px);box-sizing:border-box;width:max(calc(100% + 12px),340px);max-height:calc(100vh - 340px);margin:0;overflow:auto;padding:10px 12px;border:1px solid var(--dmo-border);border-radius:var(--r-card);background:var(--dmo-card);box-shadow:0 14px 36px rgba(0,0,0,.25);display:grid;gap:8px}
+html:root body .jof2.editing.editing.editing .more-preview{display:none}
+
+/* ---- AN: título em cima; Referência e Lote lado a lado por baixo (rótulo por cima de cada campo), como no ver ---- */
+html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:2px 8px}
+html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .design-tool-heading{flex:1 0 100%;width:100%}
+html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .hv{order:2;display:flex;flex-direction:column;align-items:stretch;gap:1px;white-space:normal}
+html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .hv:not(.hv+.hv){flex:1 1 0;min-width:0}
+html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .hv+.hv{order:3;flex:0 0 64px}
+html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .hv+.hv input.f{width:100% !important}
+
+/* ---- a coluna da direita (ver e Editar): Artigo, Notas gerais e PI cabem sempre na altura das peças.
+   A coluna não manda na altura da folha (contain:size); as Notas gerais ficam com o que sobra e deslizam por dentro com barra fina; o PI nunca sai do ecrã. ---- */
+@media (min-width:1181px){
+  html:root body .jof2.jof2.jof2 .sheet>.side{display:flex;flex-direction:column;gap:8px;align-self:stretch;contain:size;overflow:hidden;position:static;max-height:none}
+  html:root body .jof2.jof2.jof2 .side>.article{flex:0 0 auto;padding:8px 12px}
+  html:root body .jof2.jof2.jof2 .side .jof-artigo{height:132px !important;min-height:0}
+  html:root body .jof2.jof2.jof2 .side .jof-artigo :is(svg,img){height:100% !important;max-height:100% !important;width:auto}
+  html:root body .jof2.jof2.jof2 .side>.notes{display:flex;flex-direction:column;flex:1 1 0;min-height:72px;padding:8px 12px;overflow:hidden;background:var(--dmo-card)}
+  html:root body .jof2.jof2.jof2 .side>.notes>h2{flex:none;margin:0 0 4px;font-size:16px}
+  html:root body .jof2.jof2.jof2 .side>.notes>ul{position:relative;flex:1 1 0;min-height:0;display:block;overflow-y:auto;scrollbar-width:thin;margin:0;padding:0}
+  html:root body .jof2.jof2.jof2 .side>.notes>ul>li.view{display:block;padding:2px 8px;font-size:13.5px;line-height:1.4;overflow-wrap:normal;word-break:normal}
+  html:root body .jof2.jof2.jof2 .side>.notes>textarea.dmo-valor{flex:1 1 0;min-height:48px !important;height:auto;max-height:none;resize:none;overflow-y:auto;scrollbar-width:thin;font-size:13px;line-height:18px;padding:5px 8px 0}
+  html:root body .jof2.jof2.jof2 .side>.g-pinfo{flex:0 0 auto}
+  html:root body .jof2.jof2.jof2 .side>.g-pinfo article.card.sec{gap:4px;padding:8px 12px}
+}
+
+/* ===================================================================== */
+/* 7. FOLHA DE VER (a maqueta do dono, 28/10/2026): o cabeçalho numa só    */
+/*    linha «Job On | 5810T188 | 202610 · B1 | B1» com os botões à direita  */
+/*    (Linhas, Imprimir, Duplicar, Opções, Editar, todos da mesma altura);   */
+/*    por baixo, a faixa com Início · Fim · Dias · Secções · Gota ·          */
+/*    Processo · Peso repartidos por toda a largura. A referência e a        */
+/*    produção são os mesmos campos de sempre, com aspeto de texto até ao    */
+/*    rato por cima ou ao foco.                                              */
+/*    A ordem é só visual (order): o HTML não muda.                          */
+/* ===================================================================== */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px 0;margin:0 0 6px;padding:0;border:0;background:none;box-shadow:none;min-height:0}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head :is(.head-right,.pick-block,.pick-row,.head-acoes,.facts){display:contents}
+/* título */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head h1.design-jobon-title{order:1;margin:0 18px 0 0;font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-.01em;white-space:nowrap}
+/* referência, produção e linha: separados por traços finos */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-campo{display:flex;align-items:center;gap:6px;flex:none;margin:0;padding:0 18px;border-left:1px solid var(--dmo-border);order:2;height:34px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-campo:nth-of-type(2){order:3}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-campo:nth-of-type(3){order:4}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .fact-col.mach{order:5;display:flex;align-items:center;margin:0;padding:0 0 0 18px;border:0;border-left:1px solid var(--dmo-border);height:34px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-rotulo{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .ref-search>svg{display:none}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.ref-search,.ref-search input#jofReferencia){box-sizing:border-box !important;height:34px !important;min-height:0 !important;width:calc(9ch + 22px) !important;min-width:calc(9ch + 22px) !important;padding:0 8px !important;border-color:transparent !important;background:transparent !important;box-shadow:none !important;font-size:22px !important;font-weight:800 !important;letter-spacing:0;color:var(--dmo-text);text-transform:uppercase}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .ref-search{border:0 !important;width:auto !important;min-width:0 !important}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .ref-search input#jofReferencia:focus{border-color:var(--dmo-border) !important;background:var(--dmo-card) !important}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.prod-drop,.prod-trigger){box-sizing:border-box !important;height:34px !important;min-height:0 !important;width:auto !important;min-width:0 !important;border-color:transparent !important;background:transparent !important;box-shadow:none !important;font-size:17px !important;font-weight:500 !important;color:var(--dmo-text)}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-drop{border:0 !important}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-trigger:is(:focus-visible,[aria-expanded="true"]){border-color:var(--dmo-border) !important;background:var(--dmo-card) !important}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .fact-col.mach .mch[data-jof-linha]{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:30px;min-width:44px;padding:0 12px;border-radius:var(--r-control);background:var(--dmo-machine-color,var(--dmo-brand-600)) !important;color:#fff !important;font-size:16px;font-weight:800;line-height:1}
+html:root[data-theme="dark"] body .jof2.jof2.jof2.jof2:not(.editing) .page-head .fact-col.mach .mch[data-jof-linha]{color:var(--dmo-page) !important}
+/* botões: todos da mesma altura e do mesmo estilo, à direita (Linhas, Imprimir, Duplicar, Opções, Editar) */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head :is(.rail-toggle,.head-acoes>.btn,.head-acoes>.menu){order:11;margin:0 0 0 8px;height:var(--dmo-control-height);flex:none}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head :is(.rail-toggle,.head-acoes>.btn.btn)[data-jof-rail-abrir]{order:10;margin-left:auto}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>[data-jof-imprimir]{order:11}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>[data-jof-duplicar]{order:12}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>.menu{order:13}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>[data-jof-editar]{order:14}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>.btn:not([data-jof-imprimir]):not([data-jof-duplicar]):not([data-jof-editar]){order:14}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>.menu>summary.btn{height:var(--dmo-control-height);margin:0}
+/* faixa */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados{order:20;flex:0 0 100%;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:0;width:100%;margin:0;padding:6px 0;border:1px solid var(--dmo-border);border-radius:12px;background:var(--dmo-card);overflow:visible}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados>.fact-col{flex:1 1 0;min-width:0;display:flex;align-items:baseline;justify-content:center;gap:8px;margin:0;padding:0 10px;border:0;border-left:1px solid var(--dmo-border);align-self:center}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados>.fact-col:first-child{border-left:0}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados .fv{display:inline-flex;align-items:baseline;gap:2px;white-space:nowrap}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados .fv strong{font-size:15px;font-weight:700}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados .unit{font-size:15px;font-weight:700;margin-left:2px}
+/* Editar: a mesma faixa, uma coluna por par, com traços finos */
+html:root body .jof2.editing.editing.editing .page-head .facts-dados>.fact-col{display:flex;align-items:center;gap:8px;padding:0 14px;border-left:1px solid var(--dmo-border)}
+html:root body .jof2.editing.editing.editing .page-head .facts-dados>.fact-col:first-child{border-left:0;padding-left:0}
+
+/* ---- a coluna da direita mais larga (pedido do dono): ~32% = 430px a 1366; as quatro colunas das peças repartem o resto ---- */
+@media (min-width:1181px){
+  html:root body .jof2.jof2.jof2 .sheet,html:root body .jof2.jof2.jof2.editing .sheet{grid-template-columns:minmax(0,1fr) clamp(380px,32%,440px) !important;gap:10px}
+}
+
+/* ---- Utilização no ver: «Utilização 42%» seguido da barra por baixo ---- */
+html:root body .jof2.jof2.jof2:not(.editing) .use{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;grid-template-columns:none;margin:0}
+html:root body .jof2.jof2.jof2:not(.editing) .use>.use-top{display:contents}
+html:root body .jof2.jof2.jof2:not(.editing) .use>.use-top>span{margin:0}
+html:root body .jof2.jof2.jof2:not(.editing) .use>.use-top>b{font-size:15px;font-weight:700;color:var(--dmo-brand-700)}
+html:root[data-theme="dark"] body .jof2.jof2.jof2:not(.editing) .use>.use-top>b{color:var(--dmo-text)}
+html:root body .jof2.jof2.jof2:not(.editing) .use>.bar{flex:1 0 100%;margin:0}
+
+/* ---- dimensões e folgas à vista no cartão (ver) ---- */
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dims{display:grid;gap:3px;margin:0;padding:6px 0 0;border-top:1px solid var(--dmo-border)}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dims-titulo{font-size:12px;font-weight:700;color:var(--dmo-text)}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dims-lista{display:grid;gap:1px;margin:0}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim{display:grid;grid-template-columns:62px minmax(0,1fr);column-gap:8px;align-items:baseline}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim dt{font-size:12px;font-weight:500;color:var(--dmo-muted)}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim dd{display:flex;align-items:baseline;gap:4px;margin:0;min-width:0;font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim .jof-tol{font-size:12px;font-weight:500;color:var(--dmo-muted)}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim.longo{grid-template-columns:minmax(0,1fr);row-gap:0}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim.longo dd{display:flex;align-items:baseline;gap:0 5px;flex-wrap:wrap}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim.longo .jof-dim-valor{font-size:12.5px;font-weight:700;white-space:nowrap;min-width:0}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim.longo .jof-tol{flex:none;font-size:12px;white-space:nowrap}
+html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:flex;flex-wrap:nowrap;align-items:baseline;gap:0;padding:6px 0 0;border-top:1px solid var(--dmo-border)}
+html:root body .jof2.jof2.jof2:not(.editing) .folgas>span:first-child{margin:0 12px 0 0}
+html:root body .jof2.jof2.jof2:not(.editing) .folga{min-width:0;padding:0;border:0;border-radius:0;background:none;font-size:13.5px;font-weight:700;text-align:left}
+html:root body .jof2.jof2.jof2:not(.editing) .folga+.folga::before{content:"·";margin:0 7px;font-weight:500;color:var(--dmo-muted)}
+
+/* ---- as Notas no ver: a caixa cresce até ocupar o espaço livre do cartão (mínimo três linhas inteiras de 18px com texto, uma vazia);
+   só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira. ---- */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada){flex:1 1 auto !important;min-height:0 !important;padding:4px 8px 5px;gap:1px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{box-sizing:border-box;flex:1 1 0 !important;min-height:54px !important;max-height:none !important;padding:0 !important;background:none !important;font-size:13px;line-height:18px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dmo-muted) transparent;overflow-wrap:normal;word-break:normal;hyphens:manual}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view.is-empty:not(.is-ampliada){min-height:0 !important;padding:0 !important;background:none !important;gap:1px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view.is-empty:not(.is-ampliada)>p{min-height:18px !important;padding:0 8px !important;background:none !important}
+html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="CS"] .sec-head .hv b,html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="PU"] .sec-head .hv b{font-size:15px}
+
+/* ---- «O que mudou» fechado: uma linha discreta em baixo à esquerda, sem cartão; aberto, o cartão por cima ---- */
+html:root body .jof2.jof2.jof2 details.jobon-mudancas:not([open]){margin:0;padding:0;border:0;border-radius:0;background:none}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas:not([open])>summary{min-height:18px;font-size:13px;font-weight:600;color:var(--dmo-muted)}
+
+/* ---- folha de ver: os espaços entre os blocos de cada cartão apertados para tudo caber em 768 ---- */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .zones article.card.sec{gap:3px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-dims{padding-top:2px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .folgas{padding-top:2px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>details.more>summary{min-height:20px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;margin:0}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora .hv{flex:0 0 auto;margin:0;padding:0;border:0}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora .hv:first-child{flex:0 0 100%}
+
+/* ---- Editar: o «▸ Trocar» no canto do cartão (não parte a linha da referência) e a CS com os furos por baixo do rótulo ---- */
+html:root body .jof2.editing.editing.editing .sec .tool-head .tool-hint{position:absolute;top:12px;right:10px;margin:0}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:first-child{grid-column:1/-1;min-height:14px !important;align-items:flex-end}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:first-child+dd{grid-column:1/-1}
+html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:36px !important}
+html:root body .jof2.jof2.jof2.editing{padding-bottom:0}
+html:root body .jof2.editing.editing.editing .page-head{margin-bottom:4px}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv{gap:2px 10px}
+
+/* Folha nova: sem linha ainda, sem distintivo vazio. */
+html:root body .jof2.jof2.jof2.jof2 .page-head .fact-col.mach:has(.mch:empty){display:none}
+
+/* ---- Editar › Informação técnica › Medidas: sempre uma tabela com as colunas Medida | Valor | Tol. alinhadas
+   (o valor comprido, «54.02/52.02/…», fica na coluna Valor, que encolhe com reticências; o valor inteiro
+   continua no campo). Anula a regra do Planeamento que o mandava para uma linha à parte. ---- */
+html:root body .jof2.editing.editing.editing .more-body table.dims{display:table !important;width:100%;table-layout:fixed}
+html:root body .jof2.editing.editing.editing .more-body table.dims thead{display:table-header-group !important}
+html:root body .jof2.editing.editing.editing .more-body table.dims tbody{display:table-row-group !important}
+html:root body .jof2.editing.editing.editing .more-body table.dims tr{display:table-row !important}
+html:root body .jof2.editing.editing.editing .more-body table.dims :is(th,td){display:table-cell !important;grid-column:auto !important;width:auto;vertical-align:middle;padding:2px 3px !important;white-space:nowrap}
+html:root body .jof2.editing.editing.editing .more-body table.dims :is(th,td):first-child{width:92px;padding-left:6px !important;overflow:hidden;text-overflow:ellipsis}
+html:root body .jof2.editing.editing.editing .more-body table.dims :is(th,td):nth-child(3){width:64px}
+html:root body .jof2.editing.editing.editing .more-body table.dims td input{width:100% !important;text-overflow:ellipsis}
+html:root body .jof2.editing.editing.editing .more-body table.dims th{font-size:12px;text-align:left}
+html:root body .jof2.editing.editing.editing .more-body .table-wrap{overflow:visible}
+html:root body .jof2.editing.editing.editing .more-body .folgas{display:grid !important;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:6px;align-items:center;padding:0}
+html:root body .jof2.editing.editing.editing .more-body .folgas>input{width:100% !important;min-width:0}
+
+/* Referência e produção no cabeçalho: no hover só muda a cor da letra; a caixa só aparece com o foco. */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.prod-trigger,input#jofReferencia):hover{color:var(--dmo-brand-700) !important}
+html:root[data-theme="dark"] body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.prod-trigger,input#jofReferencia):hover{color:#fff !important}
+html:root body .jof2.jof2.jof2 .jobon-resumo li.selected.is-abrivel:is(:hover,:focus-visible){background:var(--dmo-brand-200) !important}
+html:root body .jof2.jof2.jof2 details.jobon-mudancas:not([open])>summary:is(:hover,:focus-visible){color:var(--dmo-brand-700)}
+html:root[data-theme="dark"] body .jof2.jof2.jof2 details.jobon-mudancas:not([open])>summary:is(:hover,:focus-visible){color:#fff}
+
+/* ---- Editar › CS: Aberto, Fechado e Tubo na mesma linha (rótulo por cima de cada campo) ---- */
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv{grid-template-columns:44px 52px minmax(0,1fr);gap:1px 6px;align-items:end}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:first-child{position:absolute;width:1px;height:1px;min-height:0 !important;margin:-1px;overflow:hidden;clip:rect(0,0,0,0)}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:first-child+dd{display:contents}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"] .jof-furos{display:contents}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"] .jof-furos-campo{grid-row:1/3;display:flex;flex-direction:column;align-items:stretch;gap:1px}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"] .jof-furos-campo>input{width:100% !important}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:nth-of-type(2){grid-column:3;grid-row:1;min-height:0 !important;align-self:end}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:nth-of-type(2)+dd{grid-column:3;grid-row:2;margin:0}
+
+/* ---- Editar › TP: Diâmetro e Calote lado a lado (rótulo por cima de cada campo) ---- */
+html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1px 8px;align-items:end}
+html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dt{min-height:0 !important}
+html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dt:nth-of-type(1){grid-column:1;grid-row:1}
+html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dd:nth-of-type(1){grid-column:1;grid-row:2}
+html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dt:nth-of-type(2){grid-column:2;grid-row:1}
+html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dd:nth-of-type(2){grid-column:2;grid-row:2}
+/* Calibres: linhas da tabela sem folga a mais */
+html:root body .jof2.editing.editing.editing table.calv :is(td,th){padding-block:1px !important}
+
+/* ---- ver: as notas não esticam (cinzento só do tamanho do texto); dimensões/folgas e a técnica ficam encostadas ao fundo do cartão ---- */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.jof-dims{margin-top:auto}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>details.more:not(.jof-dims~details.more){margin-top:auto}
+
+html:root body .jof2.jof2.jof2.jof2:not(.editing){padding-bottom:0}
+
+/* Hover (regra do Diogo, 27/10/2026): nos seletores (Tipo Produção / Experiência) a opção não escolhida
+   só muda a cor da letra, sem mudar o fundo nem o contorno; na área do Artigo o contorno não muda. */
+html:root body .jof2.jof2 .jof-tipo.dmo-alternador label:hover>input:not(:checked)+span{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:color-mix(in srgb,var(--dmo-opcao-letra) 85%,var(--dmo-opcao-fundo))}
+html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-border)}
