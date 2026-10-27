@@ -518,22 +518,6 @@ html body :is(#dmu-title,#dmt-title,#dmr-title){font-size:26px;font-weight:650;l
 html body .dmt-module-head{font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--dmo-muted)}
 html body .dmu-entrega .dmu-token span{text-transform:none;letter-spacing:0;font-size:12px}
 
-/* Definições: no side menu (mockups: navigation on top). The sections become a row of text tabs
-   above the content, the open one underlined like the module tabs; a locked section keeps its
-   meaning in a muted label, without the padlock glyph. */
-@media (min-width:801px){
-  html body .def-layout{grid-template-columns:minmax(0,1fr);gap:14px}
-  html body .def-menu{position:static;flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:4px 22px;padding:0 4px;border:0;border-bottom:1px solid var(--dmo-border);border-radius:0;background:none}
-  html body .def-menu-grupo{flex-direction:row;align-items:stretch;gap:0 22px}
-  html body .def-menu-sub{flex-direction:row;padding-left:0;gap:0 18px}
-  html body .def-menu a{padding:8px 2px;border-radius:0;border-bottom:3px solid transparent;font-size:13px;font-weight:500;color:var(--dmo-muted);background:none;box-shadow:none}
-  html body .def-menu a:hover{color:var(--dmo-text);background:var(--dmo-brand-050)}
-  html body .def-menu a.active{color:var(--dmo-brand-700);font-weight:650;border-bottom-color:var(--design-blue);background:none;box-shadow:none}
-  html body .def-menu .def-menu-sub a{padding:8px 2px;font-weight:500}
-}
-html body :is(.def-menu-cadeado,.def-cadeado) svg{display:none}
-html body .def-menu a:has(.def-menu-cadeado){color:var(--dmo-muted);opacity:.75}
-
 /* Login and Versão: the identity side is a flat light surface, no gradient. */
 html body.dmo-account-page .identity{background:var(--dmo-subtle)}
 /* No pictograms: Peso and Pegamentos warnings keep their warning colour and words, not the ⚠ glyph. */
@@ -643,8 +627,6 @@ html body .revisao-detail .revisao-parte-topo .revisao-consultas a{color:var(--d
 html body .revisao-resumo .revisao-facts>div,html body .revisao-facts>div{background:none!important;border-color:transparent!important}
 html body .revisao-facts>div+div{border-left:1px solid var(--dmo-border)!important}
 html body .revisao-resumo .revisao-facts span{color:var(--dmo-muted)}
-/* Definições: section group labels («Geral») in sentence case, like every other label. */
-html body .def-parte>h3.def-parte-titulo{font-size:13px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--dmo-muted)}
 /* Login, Versão, Erro: the «BA Glass» kicker in sentence case too. */
 html body.dmo-account-page .identity :is(.kicker,.brand-kicker,.eyebrow){text-transform:none;letter-spacing:0}
 html body .revisao-detail.revisao-resumo .revisao-parte-topo.revisao-topo-principal :is(h3.revisao-section,span){color:var(--dmo-text)}
@@ -915,3 +897,7 @@ html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-ferramenta{f
 html body main.peso-page .peso-hist-chip{display:inline-flex;align-items:center;gap:6px;height:var(--dmo-control-height);padding:0 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-radius-control,8px);background:var(--dmo-card);color:var(--dmo-text);text-decoration:none;font-weight:600}
 html body main.peso-page .peso-hist-chip:is(:hover,:focus-visible){color:var(--dmo-action,var(--dmo-brand-600))}
 html body main.peso-page .peso-hist-ferramenta>.dmo-field-label{display:block;margin:0 0 4px;font-size:12px;font-weight:500;color:var(--dmo-muted)}
+/* A imagem do artigo encaixa sempre no espaço do cartão, sem cortar nem deformar (Diogo,
+   27/10/2026, …QZ5YJs7W): a altura do cartão muda com o ecrã e o modo, a imagem segue-a. Absoluta, porque numa grelha a altura 100% não pega. */
+html body .jof2 .jof-artigo{overflow:hidden}
+html body .jof2 .jof-artigo>img[data-jof-artigo-img]{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}

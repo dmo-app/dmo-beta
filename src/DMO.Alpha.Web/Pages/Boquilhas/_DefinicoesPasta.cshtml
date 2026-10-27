@@ -6,7 +6,7 @@
 @{ var cadeado = ViewData["DefCadeado"] is true; }
 <section id="bqDefExcel" class="dmo-card bq-def-card" aria-labelledby="boquilhas-excel-title" data-bq-excel data-bq-excel-url="@Url.Page("/Boquilhas/Definicoes")">
     <div class="bq-def-excel-topo">
-      <h3 id="boquilhas-excel-title">Excel das Boquilhas<partial name="_DmoHelp" model="@("Escolha a pasta deste computador onde fica o Excel das saídas e entradas: se lá não houver o «Saida Entrada BQ» do ano, a app cria-o. Em «Opções» pode escolher um Excel que já existe. Cada movimento registado na app escreve-se lá: a Ref (BQ/lote), Sai, Ent e N.Fat na máquina e no dia do movimento, a partir do dia em que o ficheiro foi escolhido. «Atualizar» compara o Excel com a app a partir de ontem, um dia de cada vez para trás, e reescreve os dias diferentes até encontrar um dia igual. O resto do ficheiro fica como está. Feche o Excel para a app conseguir gravar.")" /></h3>
+      <h3 id="boquilhas-excel-title">Excel das Boquilhas</h3>
       <div class="dmo-card-topo-acoes">
         <button type="button" class="dmo-button" data-bq-excel-atualizar data-bq-excel-ligado hidden>Atualizar</button>
         <button type="button" class="dmo-button" data-bq-excel-pasta disabled="@cadeado">Escolher a pasta</button>
@@ -19,7 +19,7 @@
         </details>
       </div>
     </div>
-    <p class="card-note" data-bq-excel-estado>Nenhum Excel escolhido neste computador.</p>
+    <p class="ctl-def-computador"><strong>Neste computador:</strong> <span data-bq-excel-estado>Nenhum Excel</span></p>
     <p class="card-note" data-bq-excel-sem-suporte hidden>Este navegador não deixa gravar em ficheiros do computador. Use o Chrome ou o Edge.</p>
   </section>
 <script src="~/js/dmo-excel-bq.js" asp-append-version="true" data-bq-excel-url="@Url.Page("/Boquilhas/Definicoes")"></script>
