@@ -296,6 +296,8 @@ public sealed class PesoModel : PageModel
         RecordPesoMeasurementResult.PesoNotCurrent =>
             "Este Peso é de uma CM ou de uma boquilha (BQ) que já não está na produção. A leitura não foi gravada. " +
             "As leituras novas vão para o Peso das ferramentas atuais.",
+        RecordPesoMeasurementResult.OperationConflict =>
+            "Este envio não corresponde ao que foi gravado antes com a mesma identificação. Nenhuma leitura foi registada; escreva a leitura outra vez.",
         _ => string.Empty
     };
 
@@ -2065,7 +2067,8 @@ public sealed class PesoModel : PageModel
                 pesoId,
                 rows[0].CmSubject,
                 rows[0].Water,
-                rows.Skip(1).Select(r => new PesoMeasurementRow(r.CmSubject, r.Water)).ToList()),
+                rows.Skip(1).Select(r => new PesoMeasurementRow(r.CmSubject, r.Water)).ToList(),
+                EnvioUnicoFilter.OperacaoDoEnvio(Request)),
             CancellationToken.None);
 
         // Peso do vidro 0 ou menos: a recusa volta com o que se escreveu
@@ -2080,7 +2083,9 @@ public sealed class PesoModel : PageModel
             }));
         }
 
-        if (outcome.Result != RecordPesoMeasurementResult.Success)
+        // O mesmo envio já gravado (a ligação caiu, a app reiniciou): volta
+        // como se tivesse gravado agora, sem gravar outra vez.
+        if (outcome.Result is not (RecordPesoMeasurementResult.Success or RecordPesoMeasurementResult.AlreadyRecorded))
         {
             return RedirectToPage("/Controlo/Peso", Back(new
             {

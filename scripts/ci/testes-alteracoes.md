@@ -3339,3 +3339,20 @@ Novos: 4 · mudaram: 20 · saíram: 4
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_TemOCadeadoNosModulos_QuandoOGeralESoDeLeitura`
 
 Selo depois: `f07dea73a879bfe6`
+
+## A-0188 · 2026-10-27 · contagem-lista
+
+Porquê: Peso: o mesmo envio de leituras grava uma só vez, também depois de um reinício ou de uma resposta perdida; leituras iguais de envios diferentes gravam; o mesmo identificador de outra pessoa, operação ou com outras leituras é recusado; dois envios iguais ao mesmo tempo dão uma leitura; uma falha a meio não deixa nem leitura nem operação (DMO-450, 0.3.0-beta.146). A lista das migrações ganha 20261027030704_OperacoesRegistadasImpressao.
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_DuasLeiturasIguaisDeEnviosDiferentes_GravamAsDuas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_FalhaAMeioDaGravacao_NaoFicaNemALeituraNemAOperacao_EORepetirGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioDuasVezesAoMesmoTempo_FicaUmaSoLeitura`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoEnvioOutraVez_DepoisDeUmReinicio_NaoGravaDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoUmEnvio.cs :: PostgresMigrationIntegrationTests.PesoLeitura_OMesmoIdentificadorNoutraCoisa_ERecusadoENadaFica`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.UmEnvio.cs :: PesoToolScopedPageTests.RegisterMeasurement_OMesmoEnvioDepoisDeUmReinicio_NaoGravaOutraVez_EUmEnvioNovoIgualGrava`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `ef09bff8184ce019`
