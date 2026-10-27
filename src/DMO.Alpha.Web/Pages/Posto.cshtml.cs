@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,10 +14,12 @@ namespace DMO.Alpha.Web.Pages;
 /// Como no login, a conta nunca fica bloqueada: depois de 5 PINs errados
 /// o ecrã manda falar com o ADMIN, mas o PIN certo entra sempre.
 /// </summary>
+[AllowAnonymous]
 public sealed class PostoModel(
     IPostoRi posto,
     DmoSignInService signIn,
-    IMemoryCache cache) : PageModel
+    IMemoryCache cache,
+    TravaoDoPosto travao) : PageModel
 {
     public const int TentativasAntesDoAviso = 5;
     private const string Recusa = "Nome ou PIN errado.";
@@ -40,8 +43,13 @@ public sealed class PostoModel(
 
         Escolhido = id;
         var chave = "dmo-posto-falhas:" + id;
+        // A origem confere um PIN de cada vez e espera mais a cada falha
+        // (TravaoDoPosto); a conta em si nunca fica bloqueada.
+        using var vez = await travao.EsperarVezAsync(
+            HttpContext.Connection.RemoteIpAddress?.ToString() ?? "sem-origem", HttpContext.RequestAborted);
         if (!await posto.ConfereAsync(id, pin, HttpContext.RequestAborted))
         {
+            vez.Falhou();
             var falhas = cache.GetOrCreate(chave, entrada =>
             {
                 entrada.SlidingExpiration = TimeSpan.FromHours(1);

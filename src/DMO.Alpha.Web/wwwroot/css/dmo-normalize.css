@@ -330,11 +330,6 @@ html body .dmo-search-form select{box-sizing:border-box;flex:0 1 210px;min-width
 html body .beta-light-actions .dmo-options-list{left:auto;right:0}
 /* Opções no canto superior direito de um cartão: o menu abre para a esquerda e não sai do ecrã (21/10/2026). */
 html body .dmo-card-topo-acoes .dmo-options-list{left:auto;right:0}
-html body .jobon-ref-productions{margin-top:18px}
-html body .jobon-ref-productions h3{margin:0;font-size:15px}
-html body .jobon-ref-productions .dmo-table-wrap{margin-top:10px}
-html body .jobon-ref-productions tr[data-dmo-row]{cursor:pointer}
-html body .jobon-ref-productions tr.jobon-ref-current td{background:var(--dmo-brand-050)}
 /* As Opções da ficha estão no topo, ao lado do Fechar (beta.156): a lista abre para baixo e, no telemóvel, os dois botões ficam na mesma linha. */
 html body #lightFicha>.beta-light-sheet-head>.beta-light-actions{flex-direction:row;flex-shrink:0}
 html body a.dmo-options-item{text-decoration:none}

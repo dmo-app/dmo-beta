@@ -40,10 +40,6 @@ public sealed record JobOnDeletionPreview(
 {
     /// <summary>As reparações da Reparação Interna ligadas a esta produção.</summary>
     public int ReparacoesInternas { get; init; }
-
-    /// <summary>A produção já tem registos que se perdem.</summary>
-    public bool HasRecords =>
-        Pesos + Comparacoes + Pegamentos + Puncoes + BqMovements + ReparacoesInternas > 0 || Revisto;
 }
 
 /// <summary>

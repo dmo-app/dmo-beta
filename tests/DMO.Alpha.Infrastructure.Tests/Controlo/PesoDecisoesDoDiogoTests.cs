@@ -249,16 +249,16 @@ public sealed class PesoDecisoesDoDiogoTests : IDisposable
 
         Assert.Equal(CmDeParteResultado.Gravado, await handler.EscolherAsync(linhas[0].MeasurementId, true, "Ana", default));
         Assert.Equal(CmDeParteResultado.Gravado, await handler.EscolherAsync(linhas[1].MeasurementId, true, "Ana", default));
-        Assert.Equal(2, await handler.ContarPorAprovarAsync(default));
+        Assert.Equal(2, await _db.PesoComparacaoCmDecisoes.CountAsync(d => d.DeParte && d.Aprovado == null));
 
         // Aprovar uma não decide a outra.
         var escolha = await _db.PesoComparacaoCmDecisoes.AsNoTracking().SingleAsync(d => d.MeasurementId == linhas[0].MeasurementId);
         Assert.Equal(CmDeParteResultado.Gravado,
             await handler.DecidirAsync(linhas[0].MeasurementId, true, escolha.EscolhidoEmUtc, "Chefe", default));
-        Assert.Equal(1, await handler.ContarPorAprovarAsync(default));
+        Assert.Equal(1, await _db.PesoComparacaoCmDecisoes.CountAsync(d => d.DeParte && d.Aprovado == null));
         var depois = await handler.DaComparacaoAsync(guardada.ComparacaoId, default);
         Assert.Equal(("12", true, "Chefe"), (depois[0].CmSubject, depois[0].Aprovado, depois[0].AprovadoPor));
-        Assert.Equal(("21", true), (depois[1].CmSubject, depois[1].PorAprovar));
+        Assert.Equal(("21", true, (bool?)null), (depois[1].CmSubject, depois[1].DeParte, depois[1].Aprovado));
     }
 
     [Fact]
@@ -276,7 +276,7 @@ public sealed class PesoDecisoesDoDiogoTests : IDisposable
 
         var linha = (await handler.DaComparacaoAsync(guardada.ComparacaoId, default))[0];
         Assert.Equal((false, (bool?)null, (string?)null), (linha.DeParte!.Value, linha.Aprovado, linha.AprovadoPor));
-        Assert.Equal(0, await handler.ContarPorAprovarAsync(default));
+        Assert.Equal(0, await _db.PesoComparacaoCmDecisoes.CountAsync(d => d.DeParte && d.Aprovado == null));
         // A mesma escolha outra vez não muda nada.
         Assert.Equal(CmDeParteResultado.SemAlteracao, await handler.EscolherAsync(cm, false, "Ana", default));
     }
