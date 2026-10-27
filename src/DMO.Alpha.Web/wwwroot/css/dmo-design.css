@@ -834,14 +834,12 @@ html body [data-dmo-list] [data-dmo-row]:hover{background:var(--dmo-brand-600);c
 html body .jof2.editing .page-head .fv :is(select,input){box-sizing:border-box !important;height:var(--dmo-control-height) !important;min-height:0 !important;margin:0 !important;padding:0 10px !important;line-height:normal !important}
 html body .jof2.editing .page-head .fv select{padding-right:28px !important;background-position:right 8px center !important}
 html body .jof2.editing .page-head .fv select[name="machine_id"]{font-size:16px !important;font-weight:700;width:auto !important;min-width:72px}
-html body .jof2.editing .sec-head{min-width:0}
-html body .jof2.editing .sec-head .hv{min-width:0}
+html body .jof2.editing .sec-head{min-width:0;flex-wrap:wrap !important}
+html body .jof2.editing .sec-head .hv{flex:0 0 auto;min-width:max-content}
 html body .jof2.editing .sec-head :is(input,select){box-sizing:border-box !important;height:28px !important;margin:0 !important;padding:0 8px !important;line-height:normal !important;max-width:100% !important}
-html body .jof2.editing .sec-head .hv input.f{width:88px !important}
+html body .jof2.editing .sec-head .hv input.f{width:72px !important}
+html body .jof2.editing .sec-head>.design-tool-heading{flex:0 0 auto;min-width:max-content}
 html body .jof2.editing .page-head .fv select{line-height:calc(var(--dmo-control-height) - 2px) !important}
-html body .jof2.editing :is([data-jof-familia="AN"],[data-jof-familia="PU"],[data-jof-familia="ARR"],[data-jof-familia="CS"])>.sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 10px}
-html body .jof2.editing :is([data-jof-familia="AN"],[data-jof-familia="PU"],[data-jof-familia="ARR"],[data-jof-familia="CS"])>.sec-head>.design-tool-heading{flex:1 0 100%}
-html body .jof2.editing :is([data-jof-familia="AN"],[data-jof-familia="PU"],[data-jof-familia="ARR"],[data-jof-familia="CS"])>.sec-head>.hv{display:flex;flex-direction:column;align-items:flex-start;gap:2px;position:static;margin:0}
 /* Painel de apoio: o «Editar» ao lado do «Abrir página»; bloqueado, os campos ficam só de leitura. */
 html body .dmo-support-head [data-support-unlock]{flex:0 0 auto;min-height:30px;padding:0 12px;font-size:12px}
 html body .dmo-support-head [data-support-unlock][hidden]{display:none}

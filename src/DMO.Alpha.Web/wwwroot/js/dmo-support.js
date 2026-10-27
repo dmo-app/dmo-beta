@@ -74,7 +74,7 @@
     if (!doc) return;
     doc.documentElement.dataset.dmoEmbedded = 'true';
     const bloquear_ = bloqueadas.has(frame.contentWindow.location.pathname);
-    unlock.hidden = !bloquear_;
+    if (unlock) unlock.hidden = !bloquear_;
     if (bloquear_) bloquear(doc, true);
     dirty = false;
     full.href = frame.contentWindow.location.href.replace(/([?&])painel=1(&|$)/, (_, before, after) => after ? before : '');
@@ -99,7 +99,7 @@
   });
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
   panel.querySelector('[data-support-close]').addEventListener('click', requestClose);
-  unlock.addEventListener('click', () => {
+  unlock?.addEventListener('click', () => {
     const doc = frame.contentDocument; if (!doc) return;
     bloquear(doc, false); unlock.hidden = true;
     doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
