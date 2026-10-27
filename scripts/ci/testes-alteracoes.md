@@ -3695,3 +3695,14 @@ Novos: 17 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `456e1ef94b10f58a`
+
+## A-0205 · 2026-10-27 · ok-do-diogo
+
+Porquê: Controlo das Definições numa só vista (DMO-467): o teste das partes do Controlo dá lugar ao da vista única
+Referência: pedido «inserir tudo na opção do controlo e voltar a reduzir» e «sim» cmsg_01K75FTs9bQnbhhH7qttpgraPdgDP4VBjupRjBgYAbyMQp
+Novos: 1 · mudaram: 0 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_TudoNumaSoVista_UmBotaoPorCartao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
+
+Selo depois: `0eecb24220a0e7a7`

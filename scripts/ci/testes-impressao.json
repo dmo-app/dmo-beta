@@ -1,5 +1,5 @@
 {
-  "selo": "456e1ef94b10f58a",
+  "selo": "0eecb24220a0e7a7",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2162,7 +2162,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPaginasAntigas_AbremAEntradaDoModulo": "62322f5387be914b",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos": "7ad52cdbc900e86b",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.ComOPin_OGeralEditaSe_SemCadeado_EVoltaAEntrada": "03f84d4688c02ee8",
-    "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao": "fe5afeb6c7f8cf16",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_TudoNumaSoVista_UmBotaoPorCartao": "d7e4ef381854ad99",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_CriaOPinNasDefinicoesApp_SoOHashFicaGuardado": "6dad019a41db3d2e",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_SoVeAsDefinicoesDoAdmin_ENaoDosModulos": "7d9aa127c39b25cc",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_AbreComOPin_AteSair": "2db80840a7b69288",
