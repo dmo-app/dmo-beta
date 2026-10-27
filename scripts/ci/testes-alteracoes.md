@@ -3647,6 +3647,55 @@ Novos: 0 · mudaram: 3 · saíram: 0
 
 Selo depois: `be84027a25ad05f6`
 
+## A-0220 · 2026-10-27 · teste-novo
+
+Porquê: Filtro «Informação» do Sumário com as opções Importante, Job On (criados, mudanças, alterações e experiências), Armazém e Controlo (DMO-475, 0.3.0-beta.181): testes novos das opções, do Job On, do Controlo no topo e das opções por módulo
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_Controlo_MostraSoOsDoControloNoTopo`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_JobOn_JuntaCriados_Mudancas_EExperiencias_SemOsImportantes`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_SoMostraAsOpcoesDosModulosDaConta`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_TemImportante_JobOn_Armazem_EControlo`
+
+Selo depois: `7dc647986f4267b8`
+
+## A-0221 · 2026-10-27 · ok-do-diogo
+
+Porquê: A opção «Mudanças» do filtro do Sumário passa a estar dentro de «Job On» (DMO-475): o teste confirma a opção «Job On» escolhida com o link antigo ?tipo=comecam; o resto do teste fica igual
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra6boArqNgm7gomFxoytyUEU
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Linhas_TemADataAFrente_AMaquinaComACor_ESemContagens`
+
+Selo depois: `6500f7b9a7dbe746`
+
+## A-0211 · 2026-10-27 · contagem-lista
+
+Porquê: DMO-472 Posto da RI: testes novos (só a Reparação Interna; a sessão do posto fecha ao fim de 3 min sem uso; minutos nas Definições); o package.json só ganha o ficheiro posto-sair.test.cjs na lista
+Novos: 17 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.ForaDasOpcoes_ERecusado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.OsMinutosLidos_SemValorValidoSao3`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.UmaDasOpcoes_Grava`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ComOTempoDasDefinicoes_ASessaoDuraEsseTempo`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_SemUsoDurante3Minutos_ASessaoFecha`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_SoAReparacaoInterna_PeloLoginTodosOsModulos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.SairDoPosto_VoltaAoPosto_PeloLoginNaoHaTempo`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: com mais tempo nas Definições, espera esse tempo`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: em uso, avisa o servidor no máximo uma vez por minuto`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: escrever num campo conta como uso`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: fora do posto (login normal) não faz nada`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: quem está a usar a página não é posto fora`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: sem uso durante os minutos do posto, sai e volta ao posto`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `456e1ef94b10f58a`
+
 ## A-0205 · 2026-10-27 · ok-do-diogo
 
 Porquê: Controlo das Definições numa só vista (DMO-467): o teste das partes do Controlo dá lugar ao da vista única
@@ -3656,4 +3705,4 @@ Novos: 1 · mudaram: 0 · saíram: 1
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_TudoNumaSoVista_UmBotaoPorCartao`
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
 
-Selo depois: `6f1f678dd8e7b95a`
+Selo depois: `0eecb24220a0e7a7`

@@ -118,7 +118,7 @@ public sealed partial class PlaneamentoSumarioPageTests : IClassFixture<CustomWe
             $"<li class=\"sumario-item mch-B1\">\\s*<time class=\"sumario-quando\">{Semana(Hoje.AddDays(-1)).Split('-')[0]} {Hoje.AddDays(-1):dd/MM}</time>\\s*<strong class=\"sumario-maquina\">B1</strong>\\s*<a class=\"sumario-titulo\" href=\"/JobOn\\?jobon_id={ontem}\">S9A001 7</a>",
             html);
         Assert.DoesNotMatch("<h3>[^<]*\\(\\d+\\)</h3>", html);
-        Assert.Contains("<option value=\"comecam\" selected=\"selected\">Mudanças</option>", html);
+        Assert.Contains("<option value=\"jobon\" selected=\"selected\">Job On</option>", html);
         // O dia da semana por extenso junto às datas do título (Diogo, 19/10/2026).
         Assert.Contains($">{Semana(Hoje.AddDays(-6))}, {Hoje.AddDays(-6):dd/MM/yyyy} a {Semana(Hoje)}, {Hoje:dd/MM/yyyy}</h2>", html);
         // A primeira linha não se cola à barra do título: o espaço vem do gap

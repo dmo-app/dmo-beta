@@ -711,6 +711,9 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
     ["referencias_bq"] = [DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView],
     ["referencias_registo"] = [DmoCapabilities.Ferramentas],
 };
+// O posto da RI: a página está a ser usada (dmo-posto.js). Só renova a
+// sessão (a renovação deslizante do cookie); quem está parado não chama.
+app.MapGet("/posto/ativo", () => Results.NoContent());
 app.MapGet("/Sugestoes", async (
     string? fonte, string? q, string? tipo, int? linha,
     DMO.Alpha.Core.Search.ISuggestionQuery suggestions, CurrentUserCapabilities capabilities, HttpContext context) =>
