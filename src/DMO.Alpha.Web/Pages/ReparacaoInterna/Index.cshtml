@@ -25,15 +25,11 @@ html body .ri-linha .dmo-field input.ri-lote{width:7ch}
 html body .ri-linha .dmo-field input.ri-dia{width:auto}
 html body .ri-linha .dmo-field input.ri-hora{width:auto}
 /* O botão CM/MF: o mesmo mecanismo do tipo de movimento das Boquilhas
-   (rádios com o rótulo como botão); o ativo em azul claro. */
+   (rádios com o rótulo como botão); o aspeto está no dmo-botoes.css. */
 /* CM e MF: dois botões separados (Diogo, 23/10/2026), não um interruptor colado. */
 .ri-tipos{display:flex;gap:8px;margin:0;padding:0;border:0}
 .ri-tipos label{position:relative;cursor:pointer}
 .ri-tipos input{position:absolute;opacity:0;width:1px;height:1px}
-.ri-tipos span{display:block;min-width:52px;padding:9px 12px;text-align:center;border:1px solid var(--dmo-border);background:var(--dmo-card);font-weight:750}
-.ri-tipos span{border-radius:9px}
-.ri-tipos input:checked+span{background:var(--dmo-brand-100,#d9e6f2);color:var(--dmo-brand-900);border-color:var(--dmo-brand-600,#3c73a8)}
-.ri-tipos input:focus-visible+span{outline:3px solid var(--dmo-brand-600,#3c73a8);outline-offset:2px}
 /* «É outra CM/MF»: a referência e o lote só com ela marcada (sem produção ficam sempre). */
 .ri-outra-marca{display:inline-flex;gap:6px;align-items:center;margin:0 0 10px;font-size:13.5px;color:var(--dmo-text);cursor:pointer}
 .ri-outra-marca input{margin:0}

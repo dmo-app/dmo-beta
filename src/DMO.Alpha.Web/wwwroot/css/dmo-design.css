@@ -860,13 +860,7 @@ html body :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-ref,.ferr-w-lot,.f
   html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>:is(.dmo-card-topo,.arm-onde){grid-column:1;padding-left:20px;border-left:0}
   html body main.arm-page:has(#armMovFerramenta[data-dmo-ferramenta]) #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:2;grid-row:1/span 2;padding-left:24px;border-left:1px solid var(--dmo-border)}
 }
-/* Linhas compatíveis escolhidas como os módulos nos Templates (Diogo, 27/10/2026):
-   escolhida = cor cheia da paleta com letra branca, sem contorno branco; claro e escuro. */
-html body .ferr-checks.ferr-checks label>input:checked+span,
-html[data-theme="dark"] body .ferr-checks.ferr-checks label>input:checked+span,
-:root[data-theme="dark"] body .ferr-checks.ferr-checks label>input:checked+span{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff;outline:0;box-shadow:none}
-html body .ferr-checks.ferr-checks label:hover>input:not(:checked)+span,
-html[data-theme="dark"] body .ferr-checks.ferr-checks label:hover>input:not(:checked)+span{background:var(--dmo-brand-050);border-color:var(--dmo-border);color:var(--dmo-text);outline:0}
+/* Linhas compatíveis: seletor como os outros (opção 4 do Diogo, 27/10/2026: escolhida invertida), no dmo-botoes.css. */
 
 /* Menus suspensos (Funções, Opções): no hover só a letra muda; o selecionado
    (a página onde se está) fica com a letra de destaque, sem fundo (Diogo, 27/10/2026:
@@ -880,8 +874,6 @@ html body .dmo-tab-menu-list a[aria-current="page"]{background:none !important;c
 
 /* Links de ação passam a botões (Diogo, 27/10/2026: «trocar links para
    botões»): o «Abrir página» do painel, os links dos avisos e os da ficha
-   da ferramenta ficam com o aspeto e a altura dos botões. */
-html body :is(#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;white-space:nowrap;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold);line-height:1;text-decoration:none;border-radius:var(--dmo-radius-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);border:1px solid var(--dmo-action,var(--dmo-brand-600));cursor:pointer;vertical-align:middle}
-html body :is(#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel):is(:hover,:focus-visible){background:var(--dmo-card);color:var(--dmo-action,var(--dmo-brand-600));text-decoration:none;outline:0}
+   da ferramenta. O aspeto de botão está no dmo-botoes.css; aqui só o lugar. */
 html body :is(a.dmo-aviso-link,a.ferr-cancel){margin:4px 0 4px 8px}
 html body #dmoSupportFull{margin-left:auto}
