@@ -3339,3 +3339,14 @@ Novos: 4 · mudaram: 20 · saíram: 4
 - saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OMenu_TemOCadeadoNosModulos_QuandoOGeralESoDeLeitura`
 
 Selo depois: `f07dea73a879bfe6`
+
+## A-0186 · 2026-10-27 · ok-do-diogo
+
+Porquê: Templates DMO-441: os utilizadores escolhem-se como os módulos; a ligação à página do utilizador passa de data-dmo-open (linha da tabela) para href (botão «Página») e entra o teste de associar e remover.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraMmJ1Ugn2nxTvbMq94b7Qpq
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_UsersLikeModules_AssociateWithoutTemplate_RemoveExisting_LeaveOthers`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListShowsApplicationFacts_StandByAndTemplateEditing_ThroughTheSingleRelation`
+
+Selo depois: `0e4d37baa6e06955`

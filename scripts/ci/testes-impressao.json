@@ -1,5 +1,5 @@
 {
-  "selo": "f07dea73a879bfe6",
+  "selo": "0e4d37baa6e06955",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1588,6 +1588,7 @@
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: (resto do ficheiro)": "768d26b1b5aa5b22",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_CreateAndEdit_KeyMintedDetailAnchorLabelMutable": "5a8efcd51cad3450",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_Delete_OnlyWhenNoUserHasIt_FromTheOptionsDialog": "a1f53a34b8783ba4",
+    "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_UsersLikeModules_AssociateWithoutTemplate_RemoveExisting_LeaveOthers": "5e8951571f8bae0a",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_ZeroCapabilitiesAllowed_NonBetaVocabularyRefused": "e2efd7ebe07f6cb9",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsersAndTemplatesPages_AreGatedByTheRequireAdminFolderPolicy": "6ecd72f8260916e6",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_AdminAssociatedRow_HiddenFromList_BoundaryStillRendersInFicha": "5cb6acc1b70ee4ad",
@@ -1599,7 +1600,7 @@
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaOfUnknownOperator_ShowsTheCleanWarning_NoSheetInvented": "23a410f21019e515",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_FichaShowsHumanFacts_AndTheActionsMovedFromTheTablePostToTheSameIndexHandlers": "ca1f0e4b3ab92840",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListCount_ShowsTheTotal_NotJustTheCurrentPage": "efd0a84b75c3063a",
-    "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListShowsApplicationFacts_StandByAndTemplateEditing_ThroughTheSingleRelation": "0bf578c8cc3c38ac",
+    "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ListShowsApplicationFacts_StandByAndTemplateEditing_ThroughTheSingleRelation": "ba66e4ad17dd2858",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ResetAccess_OldCredentialFails_NewTemporaryForcesChangeThenNormal": "b3ef5fb4c23fe7f6",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_ResetMissingIdentity_RecoversSameUserAndOpensOperationalPages": "bdf9c4b3f9f7b768",
     "tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.cs :: AdminUsersAndTemplatesPagesTests.AdminUsers_TableHasZeroButtons_RowSelectsInvertedAndDoubleClickOpensTheFicha": "a2f2ba94b5731e92",
