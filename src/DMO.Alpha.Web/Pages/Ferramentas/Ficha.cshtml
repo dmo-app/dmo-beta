@@ -404,7 +404,7 @@
          seguinte. O link leva às Definições, onde se lê a pasta do SAP. *@
       @if (Model.Utilizacao?.LembreteDesdeUtc is { } lembreteDesde)
       {
-        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura da produção. <a class="ferr-cancel" href="/Definicoes?secao=ferramentas" id="ferr-utilizacao-ler">Ler a pasta da produção</a></div>
+        <div class="ferr-aviso warn ferr-utilizacao-lembrete" role="status" id="ferrUtilizacaoLembrete" style="margin-top:12px">Utilização por atualizar desde @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(lembreteDesde).ToString("dd/MM/yyyy", pt): vem na próxima leitura da produção. <a class="ferr-cancel" href="/Definicoes?secao=computador" id="ferr-utilizacao-ler">Ler a pasta da produção</a></div>
       }
 
       @* O NOME TÉCNICO (o código do desenho do SAP) e o DECODE canónico
@@ -481,7 +481,7 @@
           </div>
           @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))
           {
-            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="/Definicoes?secao=ferramentas">Ler a pasta da produção</a></p>
+            <p class="ferr-nota" id="ferrProducoesSemSap" style="margin-top:8px">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="/Definicoes?secao=computador">Ler a pasta da produção</a></p>
           }
         }
         <div class="dmo-dialog-actions">
