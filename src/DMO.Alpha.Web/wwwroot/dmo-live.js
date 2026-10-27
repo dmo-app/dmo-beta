@@ -103,6 +103,19 @@
   document.addEventListener("dmo:list-open", function (event) {
     var row = event.detail && event.detail.row;
     if (!row) return;
+    // A linha que abre uma janela da casa (data-dmo-abre-janela="id"; Diogo,
+    // 27/10/2026, sem botões nas linhas): o Enter ou dois cliques abrem-na,
+    // como o botão do canto.
+    var janelaId = row.getAttribute("data-dmo-abre-janela");
+    if (janelaId) {
+      var janela = document.getElementById(janelaId);
+      if (janela && typeof janela.showModal === "function" && !janela.open) {
+        janela.showModal();
+        var campo = janela.querySelector("textarea, input:not([type=hidden]), select");
+        if (campo) campo.focus();
+      }
+      return;
+    }
     var destino = row.getAttribute("data-dmo-open");
     // Linha sem destino (a máquina «Sem produção», o dia vazio): não há nada a
     // abrir, e não se inventa um sítio para onde ir.
@@ -134,6 +147,17 @@
   function aplicarSeleccaoAsAccoes(lista, id) {
     if (!lista || !lista.id) return;
     document.querySelectorAll('[data-dmo-for="' + lista.id + '"]').forEach(function (bloco) {
+      // SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026): o botão do canto que
+      // precisa de uma linha escolhida (data-dmo-precisa-escolha) fica
+      // desativado até haver uma; o que abre a janela da escolhida
+      // (data-dmo-dialog-modelo="…{id}…") passa a abrir a dela.
+      bloco.querySelectorAll("button[data-dmo-precisa-escolha]").forEach(function (botao) {
+        botao.disabled = !id;
+      });
+      bloco.querySelectorAll("[data-dmo-dialog-modelo]").forEach(function (botao) {
+        if (id) botao.setAttribute("data-dmo-dialog", botao.getAttribute("data-dmo-dialog-modelo").replace("{id}", id));
+        else botao.removeAttribute("data-dmo-dialog");
+      });
       bloco.querySelectorAll("[data-dmo-action]").forEach(function (acao) {
         var modelo = acao.getAttribute("data-href-template");
         if (!modelo) return;

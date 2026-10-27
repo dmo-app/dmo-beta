@@ -140,6 +140,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     // O rasto das leituras corrigidas ou apagadas (4.6): só se acrescenta.
     public DbSet<PegamentosMeasurementHistorico> PegamentosMeasurementHistorico => Set<PegamentosMeasurementHistorico>();
+    public DbSet<PesoMeasurementHistorico> PesoMeasurementHistorico => Set<PesoMeasurementHistorico>();
 
     public DbSet<PegamentosTolerance> PegamentosTolerances => Set<PegamentosTolerance>();
 
@@ -793,6 +794,14 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(f => f.Linha).HasMaxLength(SapFabrico.LinhaMaxLength).IsRequired();
             entity.Property(f => f.LidoPor).HasMaxLength(254);
             entity.Property(f => f.PesoMedioGramas).HasPrecision(9, 3);
+            entity.Property(f => f.Centro).HasMaxLength(SapFabrico.CentroMaxLength);
+            entity.Property(f => f.Kcr).HasPrecision(9, 3);
+            entity.Property(f => f.DeltaPesoGramas).HasPrecision(8, 3);
+            entity.Property(f => f.PackToPull).HasPrecision(6, 3);
+            entity.Property(f => f.Paletes).HasPrecision(11, 3);
+            entity.Property(f => f.RejeicaoTotal).HasPrecision(6, 3);
+            entity.Property(f => f.RejeicaoMil).HasPrecision(9, 3);
+            entity.Property(f => f.HotEnd).HasPrecision(6, 3);
             entity.Property(f => f.Ficheiro).HasMaxLength(FerramentaUtilizacao.FicheiroMaxLength);
             entity.HasIndex(f => new { f.Material, f.Linha, f.InicioEm, f.FimEm }).IsUnique();
             entity.HasIndex(f => new { f.Linha, f.InicioEm });
@@ -1329,6 +1338,22 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.HasOne<Pegamentos>()
                 .WithMany()
                 .HasForeignKey(h => h.PegamentosId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // O rasto de uma leitura do Peso corrigida ou apagada (Decisão 001,
+        // 27/10/2026): como o dos Pegamentos, sem chave para a leitura (pode
+        // já não existir); sai com o Peso.
+        modelBuilder.Entity<PesoMeasurementHistorico>(entity =>
+        {
+            entity.HasKey(h => h.Id);
+            entity.HasIndex(h => new { h.PesoId, h.EmUtc });
+            entity.Property(h => h.CmSubjectAntes).IsRequired();
+            entity.Property(h => h.Por).HasMaxLength(254);
+
+            entity.HasOne<Peso>()
+                .WithMany()
+                .HasForeignKey(h => h.PesoId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

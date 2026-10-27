@@ -216,12 +216,16 @@ public sealed class PuncoesHandler
         });
     }
 
-    /// <summary>Marca ou desmarca «punção visto» ou «arrefecedor visto» de uma punção do registo.</summary>
+    /// <summary>
+    /// Marca ou desmarca «punção visto» ou «arrefecedor visto» de uma punção do
+    /// registo. <paramref name="seen"/> null troca o estado que lá está (os
+    /// botões do canto das Punções sem script).
+    /// </summary>
     public async Task<PuncoesResult> SetSeenAsync(
         PuncoesTarget target,
         int inspecaoId,
         PuncaoSeenField field,
-        bool seen,
+        bool? seen,
         string? updatedBy,
         CancellationToken cancellationToken = default)
     {
@@ -233,11 +237,11 @@ public sealed class PuncoesHandler
 
         if (field == PuncaoSeenField.Puncao)
         {
-            inspecao.PunchSeen = seen;
+            inspecao.PunchSeen = seen ?? !inspecao.PunchSeen;
         }
         else
         {
-            inspecao.CoolerSeen = seen;
+            inspecao.CoolerSeen = seen ?? !inspecao.CoolerSeen;
         }
 
         Touch(inspecao.Puncoes!, updatedBy);

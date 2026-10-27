@@ -337,40 +337,12 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("data-bq-excel-escolher disabled=\"disabled\"", excel);
         Assert.DoesNotMatch("data-bq-excel-atualizar[^>]*disabled", excel);
 
-        // Controlo: o nome da pasta é Geral; «Associar» (neste computador) fica.
+        // Controlo: só «Associar» (neste computador); sem campo do nome da pasta (Diogo, 27/10/2026, «sim» cmsg_01K75FTs9bQnbhhH7qttpgraGh1feCmYhsHNv26gMB6hYz).
         var pasta = Regex.Match(html, "<section id=\"ctlDefPastaPdf\"[\\s\\S]*?</section>").Value;
-        Assert.Matches("<input id=\"pastaPdfNome\"[^>]*disabled=\"disabled\"", pasta);
+        Assert.DoesNotContain("pastaPdfNome", pasta);
         Assert.DoesNotMatch("data-dmo-pasta-pdf-escolher[^>]*disabled", pasta);
         Assert.Contains("id=\"ctlDefPastaPdf\"", computador);
         Assert.Contains("id=\"bqDefExcel\"", computador);
-    }
-
-    [Fact]
-    public async Task APastaDosPdfs_GravaSeParaTodos_ComAPermissao()
-    {
-        var (client, _) = await LoginOperatorAsync("7315", DmoCapabilities.ControloCreate);
-        await DefinicoesPin.DesbloquearAsync(_factory.Services, client);
-        var html = await GetOkAsync(client, "/Definicoes?secao=controlo");
-        Assert.DoesNotMatch("<input id=\"pastaPdfNome\"[^>]*disabled", html);
-        var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
-        var post = await client.PostAsync("/Controlo/Definicoes?handler=SavePastaPdf",
-            HtmlFormHelpers.BuildFormPost(("pasta", " Controlo 2026 "), ("__RequestVerificationToken", token)));
-        Assert.Equal("/Definicoes?pasta=ok&secao=controlo", post.Headers.Location!.OriginalString);
-        var depois = await GetOkAsync(client, post.Headers.Location!.OriginalString);
-        Assert.Contains("data-dmo-pasta-pdf-esperada=\"Controlo 2026\"", depois);
-        Assert.Contains("Pasta dos PDFs guardada.", depois);
-
-        var (outro, _) = await LoginOperatorAsync("7316", DmoCapabilities.ControloCreate);
-        var outroHtml = await GetOkAsync(outro, "/Definicoes?secao=controlo");
-        Assert.Contains("data-dmo-pasta-pdf-esperada=\"Controlo 2026\"", outroHtml);
-        var recusa = await outro.PostAsync("/Controlo/Definicoes?handler=SavePastaPdf",
-            HtmlFormHelpers.BuildFormPost(("pasta", "Outra"), ("__RequestVerificationToken", HtmlFormHelpers.ExtractRequestVerificationToken(outroHtml)!)));
-        Assert.Equal("/Definicoes?geral=sem-permissao&secao=controlo", recusa.Headers.Location!.OriginalString);
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-        Assert.Equal("Controlo 2026", (await db.ModuleSettings.AsNoTracking().SingleAsync(s => s.SettingKey == ModuleSettingKeys.ControloPastaPdf)).SettingValue);
-        db.ModuleSettings.RemoveRange(db.ModuleSettings.Where(s => s.SettingKey == ModuleSettingKeys.ControloPastaPdf));
-        await db.SaveChangesAsync();
     }
 
     private static async Task<HttpResponseMessage> AbrirCadeadoAsync(HttpClient client, string pin)
@@ -568,33 +540,33 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     }
 
     [Fact]
-    public async Task Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao()
+    public async Task Controlo_TudoNumaSoVista_UmBotaoPorCartao()
     {
-        // Diogo, 22/10/2026: uma parte para o Peso, os Pegamentos, as PU NNPB e o Email; a pasta dos PDFs
-        // passou para Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
+        // Diogo, 27/10/2026 (cmsg_01K75FTs9bQnbhhH7qttpgraPdgDP4VBjupRjBgYAbyMQp: «inserir tudo na opção do Controlo»):
+        // o Peso, os Pegamentos, as PU NNPB e o Email na mesma vista, sem partes; a pasta dos PDFs
+        // está em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         var (client, _) = await LoginOperatorAsync("7325", DmoCapabilities.ControloCreate);
-        var html = await GetOkAsync(client, "/Definicoes?secao=controlo&sub=pegamentos");
-        var partes = Regex.Match(html, "<nav class=\"def-funcoes\"[\\s\\S]*?</nav>").Value;
-        Assert.Equal(new[] { "peso", "pegamentos", "puncoes", "email" }, Regex.Matches(partes, "data-dmo-ctl-tab=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToArray());
-        foreach (var sub in new[] { "peso", "pegamentos", "puncoes", "email" })
+        var html = await GetOkAsync(client, "/Definicoes?secao=controlo");
+        Assert.DoesNotContain("def-funcoes", html);
+        Assert.DoesNotContain("data-dmo-ctl-tab", html);
+        var controlo = Regex.Match(html, "<section id=\"sec-controlo\"[\\s\\S]*?(?=<section id=\"sec-boquilhas\"|$)").Value;
+        foreach (var cartao in new[] { "ctlDefDensidade", "ctlDefTolerancia", "ctlDefPuncoesSeccoes", "ctlDefListas", "ctlDefModelos" })
         {
-            Assert.Contains($"href=\"/Definicoes?secao=controlo&amp;sub={sub}\" data-dmo-ctl-tab=\"{sub}\"", partes);
+            Assert.Contains($"id=\"{cartao}\"", controlo);
         }
 
-        Assert.Contains("data-dmo-ctl-tab=\"pegamentos\" data-dmo-grupo=\"controlo\" class=\"active\"", html);
-        Assert.Contains("data-dmo-ctl-sub=\"pegamentos\" data-dmo-grupo=\"controlo\">", html);
-        Assert.Contains("data-dmo-ctl-sub=\"peso\" data-dmo-grupo=\"controlo\" hidden=\"hidden\"", html);
-        Assert.DoesNotContain("data-dmo-ctl-sub=\"pdfs\"", html);
-        // Cada área no seu separador.
-        Assert.True(html.IndexOf("data-dmo-ctl-sub=\"peso\"", StringComparison.Ordinal) < html.IndexOf("id=\"ctlDefDensidade\"", StringComparison.Ordinal));
+        Assert.DoesNotContain("data-dmo-ctl-sub=", controlo);
+        // Sem círculos de ajuda nos títulos dos cartões.
+        Assert.DoesNotMatch("<h3[^>]*>[^<]*<span class=\"dmo-help\"", controlo);
         Assert.True(html.IndexOf("id=\"sec-computador\"", StringComparison.Ordinal) < html.IndexOf("id=\"ctlDefPastaPdf\"", StringComparison.Ordinal));
         Assert.True(html.IndexOf("id=\"ctlDefPastaPdf\"", StringComparison.Ordinal) < html.IndexOf("id=\"sec-controlo\"", StringComparison.Ordinal));
         // Sem «Guardar» ao lado dos campos nem por linha.
-        Assert.Contains("form=\"ctlDefPastaForm\"", html);
+        // A pasta dos PDFs já não tem nome nem «Guardar» (Diogo, 27/10/2026, «sim» cmsg_01K75FTs9bQnbhhH7qttpgraGh1feCmYhsHNv26gMB6hYz).
+        Assert.DoesNotContain("form=\"ctlDefPastaForm\"", html);
         Assert.Contains("form=\"ctlDefCriarListaForm\"", html);
         Assert.DoesNotContain("form=\"ctlDefSeccoes-", html);
-        // Sem sub, um resultado abre o separador da sua área.
-        Assert.Contains("data-dmo-ctl-tab=\"peso\" data-dmo-grupo=\"controlo\" class=\"active\"", await GetOkAsync(client, "/Definicoes?secao=controlo&densidade=ok"));
+        // Os links antigos com ?sub= abrem a mesma vista.
+        Assert.Contains("id=\"ctlDefListas\"", await GetOkAsync(client, "/Definicoes?secao=controlo&sub=email"));
     }
 
     [Fact]

@@ -100,6 +100,10 @@ public sealed class RegistoCarimboInterceptor : SaveChangesInterceptor
                 case PegamentosMeasurementHistorico rasto:
                     rasto.Por ??= quem;
                     break;
+                // E de uma leitura do Peso (27/10/2026).
+                case PesoMeasurementHistorico rastoPeso:
+                    rastoPeso.Por ??= quem;
+                    break;
             }
 
             CarimbarUtilizador(entry);

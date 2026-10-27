@@ -185,7 +185,8 @@
         <div>
           <h3 id="pu-id-title" title="Registo sem Job On. A referência da punção e o lote aplicam-se às próximas punções.">Identificação do registo</h3>
         </div>
-        <span class="pu-step">1</span>
+        @* O «Guardar identificação» no canto superior direito, como na identificação da produção. *@
+        <div class="dmo-card-topo-acoes"><button type="submit" form="pu-id-form" class="dmo-button" id="pu-id-guardar">Guardar identificação</button></div>
       </div>
       <div class="pu-facts">
         @* Só a produção (Diogo, 21/10/2026: «CM por associar nao deve existir so a producao»). *@
@@ -211,10 +212,6 @@
           <label for="pu-lote">Lote</label>
           <input id="pu-lote" name="lote" inputmode="numeric" maxlength="12" required value="@Model.ShownLot" placeholder="Ex.: 1" />
         </div>
-        <div class="dmo-field">
-          <span class="dmo-label" aria-hidden="true">&nbsp;</span>
-          <button type="submit" class="dmo-button">Guardar identificação</button>
-        </div>
       </form>
     </section>
   }
@@ -232,7 +229,6 @@
           {
             <button type="submit" form="pu-id-form" class="dmo-button" id="pu-id-guardar">Guardar identificação</button>
           }
-          <span class="pu-step">1</span>
         </div>
       </div>
       <div class="pu-facts">
@@ -282,22 +278,48 @@
         </details>
       }
 
-      @if (sheet.Registo is null && Model.RegistosSemJobOn.Count > 0)
-      {
-        <div class="pu-associar-lista">
-          <p class="pu-hint">Há registos sem Job On da referência @sheet.Reference. Associe à mão o desta produção:</p>
-          @foreach (var aberto in Model.RegistosSemJobOn)
-          {
-            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" class="pu-check-form">
-              <input type="hidden" name="puncoes_id" value="@aberto.PuncoesId" />
-              <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
-              <input type="hidden" name="origem" value="controlo" />
-              <button type="submit" class="dmo-button">Associar · punção @aberto.PunchReference · lote @aberto.Lot · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(aberto.Total, "punção", "punções")</button>
-            </form>
-          }
-        </div>
-      }
     </section>
+
+    @* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026: «não quero botões em rows
+       por todo o lado»): os registos sem Job On numa lista; um clique escolhe
+       a linha (o Enter ou dois cliques abrem o registo) e o «Associar» do canto
+       associa a escolhida. Com um só registo, já vem escolhido; com vários,
+       sem escolha o browser pede que se escolha uma linha (required). *@
+    @if (sheet.Registo is null && Model.RegistosSemJobOn.Count > 0)
+    {
+      var umSoRegisto = Model.RegistosSemJobOn.Count == 1;
+      <section class="dmo-card pu-card" id="puncoes-sem-jobon" aria-labelledby="pu-sem-jobon-title" data-dmo-parcial>
+        <div class="pu-section-head">
+          <div>
+            <h3 id="pu-sem-jobon-title" title="Um clique escolhe o registo; o «Associar» do canto associa-o a esta produção.">Registos sem Job On</h3>
+            <p class="pu-hint">Há registos sem Job On da referência @sheet.Reference. Associe à mão o desta produção:</p>
+          </div>
+          <div class="dmo-card-topo-acoes" data-dmo-for="puSemJobOnLista"><button type="submit" class="dmo-button" form="puAssociarForm" id="pu-associar-escolhido">Associar</button></div>
+        </div>
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Associate" id="puAssociarForm">
+          <input type="hidden" name="controlo_id" value="@sheet.ControloId" />
+          <input type="hidden" name="origem" value="controlo" />
+          <div class="dmo-table-wrap">
+            <table class="dmo-table" id="puSemJobOnLista" data-dmo-list="Registos sem Job On">
+              <thead><tr><th></th><th>Punção</th><th>Lote</th><th>Punções</th></tr></thead>
+              <tbody>
+                @foreach (var aberto in Model.RegistosSemJobOn)
+                {
+                  <tr data-dmo-row data-id="@aberto.PuncoesId" data-dmo-open="@Url.Page("/Controlo/Puncoes", new { puncoes_id = aberto.PuncoesId })"
+                      class="@(umSoRegisto ? "selected" : null)" aria-selected="@(umSoRegisto ? "true" : "false")"
+                      aria-label="Associar · punção @aberto.PunchReference · lote @aberto.Lot · @DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(aberto.Total, "punção", "punções")">
+                    <td><input type="radio" name="puncoes_id" value="@aberto.PuncoesId" required checked="@umSoRegisto" aria-label="Registo da punção @aberto.PunchReference · lote @aberto.Lot" /></td>
+                    <td>@aberto.PunchReference</td>
+                    <td>@aberto.Lot</td>
+                    <td>@aberto.Total</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </section>
+    }
   }
 
   @if (Model.CanRegister && Model.TargetField is { } alvo)
@@ -322,7 +344,47 @@
           @* UM SÓ BOTÃO «OPÇÕES» (Diogo, 21/10/2026: «um botao com opcoes e nao
              espalhado pela pagina»): o PDF e, no registo sem Job On, o
              associar a uma produção, numa janela pequena. *@
-          <div class="dmo-card-topo-acoes">
+          @* SEM BOTÕES NAS LINHAS (Diogo, 27/10/2026: «não quero botões em rows
+             por todo o lado»): um clique escolhe a punção e os dois botões do
+             canto trocam o «Visto» / «Por verificar» dela (o mesmo POST Seen).
+             Sem a punção escolhida ficam desativados; com uma só, já vem
+             escolhida. O visto é o contrário do estado da linha (data-pu-*,
+             puncoes-visto.js); sem script, o servidor troca o que lá está. *@
+          @{
+            var linhasPu = registo?.Rows ?? [];
+            var escolhidaPu = linhasPu.Count == 1 ? linhasPu[0].Id
+                : Model.EscolhidaInspecaoId is int pedida && linhasPu.Any(r => r.Id == pedida) ? pedida : (int?)null;
+          }
+          <div class="pu-topo">
+          @* O NÚMERO E O «+ ADICIONAR PUNÇÃO» NO CANTO (Diogo, 27/10/2026: ação no
+             canto superior direito do cartão): o campo e o botão na mesma linha e
+             da mesma altura; o rótulo fica como texto do campo (placeholder) e para
+             quem lê o ecrã. O número junta-se à identificação do cartão de cima
+             (o mesmo POST). O LOTE DE UM NÚMERO REPETIDO (Diogo, 21/10/2026):
+             outra punção com o mesmo número tem outro lote; o campo aparece
+             quando o número já está na lista (puncoes-numero.js) e vale só para ela. *@
+          <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Add" class="pu-add-form" data-pu-numeros="@string.Join("|", registo?.Rows.Select(r => r.Number).Distinct() ?? [])">
+            <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+            <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
+            <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
+            <div class="dmo-field">
+              <label for="pu-numero" class="pu-oculto">Número da punção</label>
+              <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Número da punção, ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
+            </div>
+            <div class="dmo-field pu-lote-puncao" hidden>
+              <label for="pu-lote-puncao" class="pu-oculto">Lote desta punção</label>
+              <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Lote desta punção, ex.: 2" />
+            </div>
+            <button type="submit" class="dmo-button">+ Adicionar punção</button>
+          </form>
+          <div class="dmo-card-topo-acoes" data-dmo-for="puLista">
+            @if (linhasPu.Count > 0)
+            {
+              <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="puncao" id="pu-visto-puncao" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Punção visto</button>
+              <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="arrefecedor" id="pu-visto-arrefecedor" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Arrefecedor visto</button>
+              @* Remover também no canto (Diogo, 27/10/2026: «nunca botões nas linhas»): abre a janela da linha escolhida. *@
+              <button type="button" class="dmo-button" id="pu-remover" data-dmo-dialog-modelo="pu-remover-{id}" data-dmo-dialog="@(escolhidaPu is { } escolhidaRemover ? $"pu-remover-{escolhidaRemover}" : null)" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Remover</button>
+            }
             <details class="dmo-options" data-dmo-tab-menu>
               <summary class="dmo-button" aria-label="Opções do registo das punções"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
               <div class="dmo-options-list">
@@ -338,8 +400,15 @@
               </div>
             </details>
           </div>
+          </div>
         </div>
         <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf" id="pu-pdf-form" data-dmo-nativo>
+          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+        </form>
+        @* O formulário dos dois botões do canto: a punção é o rádio escondido
+           da linha escolhida (form="puVistoForm"; as janelas de remover vivem
+           nas linhas e não podem ficar dentro de outro formulário). *@
+        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Seen" id="puVistoForm" data-pu-visto-form>
           <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
         </form>
 
@@ -347,39 +416,17 @@
         {
           <div data-dmo-toast="erro" class="pu-aviso" role="alert" data-pu-repetida>@repetida</div>
         }
-        @* O número junta-se à identificação do cartão de cima (o mesmo POST). *@
-        @* O LOTE DE UM NÚMERO REPETIDO (Diogo, 21/10/2026): outra punção com
-           o mesmo número tem outro lote; o campo aparece quando o número já
-           está na lista (puncoes-numero.js) e vale só para ela. *@
-        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Add" class="pu-add-form" data-pu-numeros="@string.Join("|", registo?.Rows.Select(r => r.Number).Distinct() ?? [])">
-          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-          <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
-          <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
-          <div class="dmo-field">
-            <label for="pu-numero">Número da punção</label>
-            <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
-          </div>
-          <div class="dmo-field pu-lote-puncao" hidden>
-            <label for="pu-lote-puncao">Lote desta punção</label>
-            <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Ex.: 2" />
-          </div>
-          <div class="dmo-field">
-            <span class="dmo-label" aria-hidden="true">&nbsp;</span>
-            <button type="submit" class="dmo-button">+ Adicionar punção</button>
-          </div>
-        </form>
-
         <div class="dmo-table-wrap">
           @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
-          <table class="dmo-table pu-table pu-table-fixa">
-            <colgroup><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
+          <table class="dmo-table pu-table pu-table-fixa" id="puLista" data-dmo-list="Lista de punções">
+            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /></colgroup>
             <thead>
               <tr>
+                <th></th>
                 <th>N.º da punção</th>
                 <th>Lote</th>
                 <th>Punção visto</th>
                 <th>Arrefecedor visto</th>
-                <th class="pu-right">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -391,48 +438,39 @@
               {
                 @foreach (var row in registo.Rows)
                 {
-                  <tr>
+                  var estaPu = row.Id == escolhidaPu;
+                  <tr data-dmo-row data-id="@row.Id" data-pu-puncao="@(row.PunchSeen ? "true" : "false")" data-pu-arrefecedor="@(row.CoolerSeen ? "true" : "false")"
+                      class="@(estaPu ? "selected" : null)" aria-selected="@(estaPu ? "true" : "false")"
+                      aria-label="Punção @row.Number · lote @row.Lot · punção @(row.PunchSeen ? "vista" : "por verificar") · arrefecedor @(row.CoolerSeen ? "visto" : "por verificar")">
+                    <td><input type="radio" name="inspecao_id" value="@row.Id" form="puVistoForm" required checked="@estaPu" aria-label="Escolher a punção @row.Number · lote @row.Lot" /></td>
                     <td class="pu-number">@row.Number@if (row.IsAlteracao) {<span class="pu-alteracao">Alteração</span>}</td>
                     <td class="pu-lot">@row.Lot</td>
-                    @foreach (var (campo, visto) in new[] { ("puncao", row.PunchSeen), ("arrefecedor", row.CoolerSeen) })
-                    {
-                      <td>
-                        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Seen" class="pu-check-form">
-                          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-                          <input type="hidden" name="inspecao_id" value="@row.Id" />
-                          <input type="hidden" name="campo" value="@campo" />
-                          <input type="hidden" name="visto" value="@(visto ? "false" : "true")" />
-                          <button type="submit" class="pu-check @(visto ? "on" : null)" aria-pressed="@(visto ? "true" : "false")"
-                                  aria-label="@(campo == "puncao" ? "Punção" : "Arrefecedor da punção") @row.Number: @(visto ? "visto, carregar para desmarcar" : "por verificar, carregar para marcar")">
-                            <span class="pu-box" aria-hidden="true">@(visto ? "✓" : "")</span>@(visto ? "Visto" : "Por verificar")
-                          </button>
-                        </form>
-                      </td>
-                    }
-                    <td class="pu-right">
-                      @* A confirmação é a janela da casa, com o texto escrito pelo
-                         Razor como HTML (nunca dentro de um onclick: um número
-                         com aspas correria como JavaScript). *@
-                      <button type="button" class="pu-remove" data-dmo-dialog="pu-remover-@row.Id" aria-label="Remover a punção @row.Number" title="Remover">×</button>
-                      <dialog id="pu-remover-@row.Id" class="dmo-dialog" aria-labelledby="pu-remover-titulo-@row.Id">
-                        <h3 id="pu-remover-titulo-@row.Id">Remover punção</h3>
-                        <p class="dmo-aviso-discreto">Remover a punção @row.Number · lote @row.Lot deste registo?</p>
-                        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Remove">
-                          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
-                          <input type="hidden" name="inspecao_id" value="@row.Id" />
-                          <div class="dmo-dialog-actions">
-                            <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-                            <button type="submit" class="dmo-button">Remover</button>
-                          </div>
-                        </form>
-                      </dialog>
-                    </td>
+                    <td class="pu-estado @(row.PunchSeen ? "on" : null)" data-pu-estado="puncao">@(row.PunchSeen ? "Visto" : "Por verificar")</td>
+                    <td class="pu-estado @(row.CoolerSeen ? "on" : null)" data-pu-estado="arrefecedor">@(row.CoolerSeen ? "Visto" : "Por verificar")</td>
                   </tr>
                 }
               }
             </tbody>
           </table>
         </div>
+        @* As janelas do «Remover» do canto, uma por punção. A confirmação é a
+           janela da casa, com o texto escrito pelo Razor como HTML (nunca
+           dentro de um onclick: um número com aspas correria como JavaScript). *@
+        @foreach (var row in registo?.Rows ?? [])
+        {
+          <dialog id="pu-remover-@row.Id" class="dmo-dialog" aria-labelledby="pu-remover-titulo-@row.Id">
+            <h3 id="pu-remover-titulo-@row.Id">Remover punção</h3>
+            <p class="dmo-aviso-discreto">Remover a punção @row.Number · lote @row.Lot deste registo?</p>
+            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Remove">
+              <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+              <input type="hidden" name="inspecao_id" value="@row.Id" />
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                <button type="submit" class="dmo-button">Remover</button>
+              </div>
+            </form>
+          </dialog>
+        }
       </section>
 
       @* Sem o cartão «Posições na linha» aqui (Diogo, 24/10/2026): a folha das posições está nas Opções. *@
@@ -511,3 +549,4 @@
 </script>
 @* O número seguinte, escrito enquanto o anterior grava, não se junta a ele nem se perde. *@
 <script src="~/js/puncoes-numero.js" asp-append-version="true"></script>
+<script src="~/js/puncoes-visto.js" asp-append-version="true"></script>

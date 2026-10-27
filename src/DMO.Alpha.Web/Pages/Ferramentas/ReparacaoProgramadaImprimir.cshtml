@@ -16,6 +16,8 @@
 <title>Reparação Programada — @l.Reparador</title>
 <partial name="_DmoTemaInicial" />
 <link rel="stylesheet" href="~/0_ASSET_CANONICAL_DESIGN_SYSTEM.css" asp-append-version="true" />
+@* O «Imprimir» igual aos botões da app (altura, letra, canto e rato por cima). *@
+<link rel="stylesheet" href="~/css/dmo-botoes.css" asp-append-version="true" />
 <style>
 .dmo-ferr-ref{font-size:12px;font-weight:500;color:var(--dmo-muted);margin-left:4px}
 body{margin:0;padding:24px;background:var(--dmo-page);color:var(--dmo-text);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -24,6 +26,9 @@ body{margin:0;padding:24px;background:var(--dmo-page);color:var(--dmo-text);font
 h1{font-size:20px;margin:0 0 4px}
 .rp-imp-meta{color:var(--dmo-muted);font-size:13px}
 .rp-imp-wrap{overflow-x:auto}
+/* A altura, o canto e o tom do rato por cima dos botões da app (o design system sozinho dava 40 px). */
+body{--dmo-control-height:34px;--dmo-r-control:6px}
+html body #rpImpImprimir{--dmo-brand-800:#1e2b40}
 html body .rp-imp-folha .dmo-table{width:100%;min-width:0}
 html body .rp-imp-folha .dmo-table td{padding:6px 8px;vertical-align:top}
 td.rp-imp-visto{width:70px}

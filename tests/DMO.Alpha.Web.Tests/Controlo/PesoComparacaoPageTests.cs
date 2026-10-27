@@ -256,7 +256,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         // Sem escolha, a folha mostra o dropdown com as anteriores da
         // referência e não compara; a 202602 (posterior) não está lá.
         var semEscolha = await GetPageHtmlAsync(client, $"{PagePath}?peso_id={pesoId}");
-        Assert.Contains("Produção a comparar (1075C142)", semEscolha);
+        Assert.Contains("Controlo anterior (1075C142)", semEscolha);
         Assert.Contains("Procurar produção…", semEscolha);
         Assert.Contains($"<option value=\"{anteriorId}\"", semEscolha);
         Assert.DoesNotContain($"<option value=\"{outroId}\"", semEscolha);
@@ -364,7 +364,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         using var client = await LoginClientAsync("4308", "PesoCmp8!");
         var url = $"{PagePath}?controlo_id={controloId}&comparar={anteriorId}";
         var before = await GetPageHtmlAsync(client, url);
-        Assert.Contains("data-peso-comparison><span>Comparação anterior</span><strong>202512</strong>", before);
+        Assert.Contains("data-peso-comparison><span>Controlo anterior</span><strong>202512</strong>", before);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(before)!;
         using var preview = await client.PostAsync($"{PagePath}?handler=Preview", HtmlFormHelpers.BuildFormPost(
             ("peso_id", pesoId.ToString()),
@@ -372,7 +372,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
             ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.OK, preview.StatusCode);
         var after = await GetPageHtmlAsync(client, url);
-        Assert.Contains("data-peso-comparison><span>Comparação anterior</span><strong>202512</strong>", after);
+        Assert.Contains("data-peso-comparison><span>Controlo anterior</span><strong>202512</strong>", after);
         Assert.Contains("450.52", after);
         Assert.Contains("200.26", after);
 
@@ -414,26 +414,28 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("Comparação de Peso", html);
         Assert.DoesNotContain("Pese os contra-moldes necessários e veja a diferença face ao peso inicial da produção", html);
         Assert.Contains("Produção / Job On", html);
-        Assert.Contains("Peso inicial desta produção", html);
-        Assert.Contains("selected=\"selected\">1075C142 · 202601 · B1</option>", html);
-        Assert.Contains("1075C142 · 202601 · B1 · Lote 3 · 2 CM</option>", html);
+        // Pelo Resumo a produção fica fixa e, com um só Peso, sem escolha do
+        // Peso inicial (Diogo, 27/10/2026: «é sempre comparado à mesma
+        // produção que saiu»).
+        Assert.Contains("<strong>1075C142 · 202601 · B1</strong>", html);
+        Assert.Contains($"<input type=\"hidden\" name=\"peso_inicial\" value=\"{pesoInicialId}\" />", html);
         Assert.Contains("Contra-molde a pesar", html);
         Assert.Contains("selected=\"selected\">CM 5447 · Lote 3</option>", html);
         Assert.Contains("Temperatura da água (°C)", html);
         Assert.Contains("N.º CM", html);
         Assert.Contains("Massa de água (g)", html);
-        // «Adicionar leitura» e «Remover leitura» no canto do cartão, com
-        // «Comparar pesos» e «Guardar comparação», e não por baixo das
-        // leituras (regra 74 do deep sweep de 18/10/2026).
+        // «Comparar pesos» e «Guardar» no canto do cartão (regra 74 do deep
+        // sweep de 18/10/2026); o + e o − ao lado da massa de água de cada
+        // leitura, como no Peso (Diogo, 27/10/2026).
         Assert.Matches("<div class=\"dmo-card-topo-acoes\">\\s*"
-            + "<button type=\"button\" class=\"dmo-button\" form=\"cmpForm\" data-cmp-add-row>Adicionar leitura</button>\\s*"
-            + "<button type=\"button\" class=\"dmo-button\" form=\"cmpForm\" data-cmp-remove-row>Remover leitura</button>\\s*"
-            + "<button type=\"submit\" class=\"dmo-button\" form=\"cmpForm\">Comparar pesos</button>", html);
+            + "<button type=\"submit\" class=\"dmo-button\" form=\"cmpForm\">Comparar pesos</button>\\s*"
+            + "<button type=\"submit\" class=\"dmo-button\" form=\"cmpForm\" formaction=\"[^\"]*handler=GuardarComparacao\">Guardar</button>", html);
         var cmpForm = System.Text.RegularExpressions.Regex.Match(html, "<form [^>]*id=\"cmpForm\"[^>]*>[\\s\\S]*?</form>").Value;
         Assert.NotEmpty(cmpForm);
-        Assert.DoesNotContain("<button", cmpForm);
-        Assert.Contains("Comparar pesos", html);
-        Assert.Contains("Guardar comparação", html);
+        Assert.Contains("data-cmp-add-row aria-label=\"Adicionar leitura\" title=\"Adicionar leitura\">+</button>", cmpForm);
+        Assert.Contains("data-cmp-del-row aria-label=\"Remover esta leitura\" title=\"Remover esta leitura\">−</button>", cmpForm);
+        Assert.DoesNotContain("Adicionar leitura</button>", html);
+        Assert.DoesNotContain("Guardar comparação</button>", html);
 
         // A folha do Peso fica de fora (o padrão do tab do histórico).
         Assert.DoesNotContain("Leituras por CM", html);
@@ -458,7 +460,9 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("data-cmp-base", comBase);
         Assert.Contains("Base · média 325.39 g", comBase);
         Assert.Contains(">&#x2B;125.13<", comBase);
-        Assert.Contains("a que mais puxa", comBase);
+        // A que mais puxa fica marcada só pela cor da linha, sem o texto (Diogo, 27/10/2026: «remover»).
+        Assert.Contains("class=\"peso-linha-destaque\"", comBase);
+        Assert.DoesNotContain("a que mais puxa", comBase);
 
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(comBase)!;
         var response = await client.PostAsync($"{PagePath}?handler=Comparar", HtmlFormHelpers.BuildFormPost(
@@ -473,7 +477,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         var html = await response.Content.ReadAsStringAsync();
         Assert.Contains("data-cmp-influencia", html);
         Assert.Contains("Efeito na média da base (325.39 g)", html);
-        Assert.Contains("31 · a que mais mexe", html);
+        Assert.DoesNotContain("a que mais mexe", html);
         Assert.Contains(">325.61<", html);
         Assert.Contains(">&#x2B;0.23<", html);
 
@@ -1159,7 +1163,7 @@ public partial class PesoComparacaoPageTests : IClassFixture<CustomWebApplicatio
         Assert.Contains("id=\"cmpTemperature\" name=\"water_temperature\" type=\"text\" inputmode=\"decimal\"", comparacao);
         Assert.Contains("placeholder=\"Ex.: 20,4 ou 20.4\"", comparacao);
         Assert.Contains("name=\"water_weight\" type=\"text\" inputmode=\"decimal\"", comparacao);
-        Assert.Contains("placeholder=\"Ex.: 199,64 ou 199.64\"", comparacao);
+        Assert.Contains("placeholder=\"Ex.: 199,64\"", comparacao);
 
         // O Peso da produção apagado: o formulário «Novo Peso da produção»
         // pede a temperatura e os técnicos em falta.

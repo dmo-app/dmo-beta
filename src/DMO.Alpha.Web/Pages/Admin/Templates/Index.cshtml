@@ -9,9 +9,7 @@
 @section Head {
 <style>
 .dmt-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
-.dmt-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
-.dmt-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
-.dmt-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.dmt-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:0}
 .dmt-card{padding:18px}
 .dmt-card h3{margin:0 0 4px;font-size:16px}
 .dmt-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
@@ -68,9 +66,11 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
 .dmt-users-grid .dmt-module-head{margin:6px 0 0 !important}
 .dmt-users-grid .dmt-module-head,.dmt-users-grid .dmt-users-vazio{grid-column:1/-1}
 .dmt-users-vazio{margin:0}
-/* «Página» é um botão como os da app (regra do Diogo: link de ação = botão). */
-.dmt-check .dmt-ficha{align-self:center;margin:3px 6px 3px 0;flex:none}
-.dmt-check:has(input:checked) .dmt-ficha{border-color:#fff}
+/* «Página» é só a palavra com o link, não um botão (Diogo, 27/10/2026: exceção à regra
+   «link de ação = botão»): branca no escuro e no utilizador escolhido, cor do texto no claro. */
+.dmt-check .dmt-ficha{align-self:center;margin:0 12px 0 0;flex:none;font-size:13px;font-weight:600;color:var(--dmo-text);text-decoration:none}
+.dmt-check .dmt-ficha:is(:hover,:focus-visible){color:var(--dmo-brand-600)}
+.dmt-check:has(input:checked) .dmt-ficha,[data-theme="dark"] .dmt-check .dmt-ficha{color:#fff}
 .dmt-module-head{font-size:10.5px;font-weight:800;color:var(--dmo-brand-600,#3c73a8);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--dmo-border,#d9e6f2);padding-bottom:4px}
 @@media(max-width:900px){.dmt-grid,.dmt-users-grid{grid-template-columns:1fr}}
 </style>
@@ -87,8 +87,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
 
   <div class="page-head">
     <div>
-      <h2 id="dmt-title">Templates de acesso</h2>
-      <p>Acessos atribuídos aos utilizadores.</p>
+      <h1 id="dmt-title">Templates de acesso</h1>
     </div>
   </div>
 
@@ -275,7 +274,7 @@ html body .dmt-detail .dmo-options-list{left:auto;right:0}
                       <b class="dmt-user-num">@user.OperatorId</b>
                       <span class="dmt-user-nome">@user.Name@(user.IsStandBy ? " · Arquivado" : "")</span>
                     </label>
-                    <a class="dmo-button dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a página de @user.Name">Página</a>
+                    <a class="dmt-ficha" href="/Admin/Users/Ficha?operator_id=@user.OperatorId" aria-label="Abrir a página de @user.Name">Página</a>
                   </div>
                 }
               }

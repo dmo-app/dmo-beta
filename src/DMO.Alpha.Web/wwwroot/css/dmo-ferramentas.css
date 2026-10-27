@@ -35,5 +35,4 @@
 .ferr-quantity-suggestion .ferr-hint{margin:0}
 /* A linha do título com os botões do card (.dmo-card-topo, canto superior direito). */
 .ferr-card .dmo-card-topo{margin-bottom:12px}
-/* Os cartões não encolhem quando os resultados fazem aparecer a barra de scroll (Diogo, 23/10/2026). */
-html:has(.ferr-card){scrollbar-gutter:stable}
+/* Sem faixa reservada à direita para a barra de deslizar (Diogo, 27/10/2026): o cabeçalho e os cartões ocupam a largura toda, como nas outras páginas. */

@@ -21,10 +21,12 @@ from dmo_chromium import launch_chromium, sem_selo_local
 fixtures = Path(sys.argv[1]).resolve()
 assets = Path(__file__).resolve().parents[2] / 'src/DMO.Alpha.Web/wwwroot'
 LARGURAS = "() => [...document.querySelectorAll('#puncoes-lista .pu-table thead th')].map(th => Math.round(th.getBoundingClientRect().width * 10) / 10)"
-# O que o servidor devolve ao carregar: o botão troca de classe e de texto.
-TROCAR = '''(visto) => document.querySelectorAll('#puncoes-lista .pu-check').forEach(b => {
-    b.classList.toggle('on', visto);
-    b.innerHTML = '<span class="pu-box" aria-hidden="true">' + (visto ? '✓' : '') + '</span>' + (visto ? 'Visto' : 'Por verificar'); })'''
+# O que o servidor devolve depois de um dos botões do canto: a célula troca
+# de classe e de texto (sem botões nas linhas, Diogo, 27/10/2026).
+TROCAR = '''(visto) => document.querySelectorAll('#puncoes-lista .pu-estado').forEach(c => {
+    c.classList.toggle('on', visto);
+    c.textContent = visto ? 'Visto' : 'Por verificar'; })'''
+BOTOES = "() => [...document.querySelectorAll('#puncoes-lista [data-dmo-precisa-escolha]')].map(b => b.disabled)"
 
 falhas = []
 with sync_playwright() as playwright:
@@ -48,8 +50,21 @@ with sync_playwright() as playwright:
         context.route('**/*', servir)
         page.goto('http://dmo.test/Controlo/Puncoes')
         page.wait_for_load_state('load')
-        assert page.locator('#puncoes-lista .pu-check').count() >= 2, 'Sem punções na tabela'
+        assert page.locator('#puncoes-lista .pu-estado').count() >= 4, 'Sem punções na tabela'
+        assert page.locator('#puncoes-lista tbody td > :is(button,form)').count() == 0, 'Há botões nas linhas'
+        # O «Remover» do canto abre a janela da punção escolhida (Diogo, 27/10/2026: sem botões nas linhas).
+        # Com duas punções, nenhuma vem escolhida: os botões do canto esperam.
+        if page.evaluate(BOTOES) != [True, True, True]:
+            falhas.append(f'{largura}px: os botões do canto não começam desativados: {page.evaluate(BOTOES)}')
         antes = page.evaluate(LARGURAS)
+        page.locator('#puncoes-lista tbody tr').nth(1).locator('td.pu-lot').click()
+        if page.evaluate(BOTOES) != [False, False, False]:
+            falhas.append(f'{largura}px: escolher a linha não ativou os botões do canto: {page.evaluate(BOTOES)}')
+        if not page.locator('#puncoes-lista tbody tr').nth(1).locator('input[type=radio][name=inspecao_id]').is_checked():
+            falhas.append(f'{largura}px: o clique na linha não a escolheu')
+        escolhida = page.evaluate(LARGURAS)
+        if any(abs(a - b) > 0.5 for a, b in zip(antes, escolhida)):
+            falhas.append(f'{largura}px: as colunas mudaram ao escolher a linha: {antes} -> {escolhida}')
         page.evaluate(TROCAR, False)
         depois = page.evaluate(LARGURAS)
         page.evaluate(TROCAR, True)

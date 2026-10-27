@@ -399,7 +399,8 @@
         @if (trace is not null)
         {
           <div class="card bq-metrics-card" id="bqMetrics">
-            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Valores desta boquilha / lote</h3>
+            @* O título é a ferramenta escolhida, sem «valores» nem dica (Diogo, 27/10/2026: «Registo T188 - Lote 22»). *@
+            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Registo @trace.ToolReference@(trace.ToolLot is null ? null : $" - Lote {trace.ToolLot}")</h3>
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
                dmo-html: «Quantidade do lote — Fabricação — Em reparação —
                Discrepância acumulada»): TODOS os valores vêm do backend (a

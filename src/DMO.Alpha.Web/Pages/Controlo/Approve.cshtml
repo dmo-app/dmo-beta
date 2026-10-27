@@ -3,9 +3,6 @@
 @using DMO.Alpha.Core.Controlo
 @{
     Layout = "_DmoShellLayout";
-    var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
-    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
-    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
     string EstadoTexto(ControloRevisaoEstado estado) => estado switch
     {
         ControloRevisaoEstado.Aprovado => "Aprovado",
@@ -29,7 +26,7 @@
   <div class="page-head">
     <div>
       @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
-      <h1 id="approve-title" title="Escolha um dia no calendário. Os dias com um traço por baixo do número têm controlos por aprovar.">Controlo</h1>
+      <h1 id="approve-title" title="Escolha um dia no calendário. Os dias com um traço por baixo do número têm controlos por aprovar.">Revisão</h1>
     </div>
   </div>
 
@@ -163,12 +160,12 @@
         <div class="revisao-parte-topo">
           <h3 class="revisao-section">Resumo do Controlo</h3>
           <nav class="revisao-consultas" id="revisaoConsultas" aria-label="Consultar">
-            <a href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=controlo">Resumo do controlo</a>
-            <a href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=peso">Peso</a>
-            <a href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=pegamentos">Pegamentos</a>
+            <a class="btn" href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=controlo">Resumo do controlo</a>
+            <a class="btn" href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=peso">Peso</a>
+            <a class="btn" href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=pegamentos">Pegamentos</a>
             @if (Model.ShowPuncoes)
             {
-              <a href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=puncoes">PU NNPB</a>
+              <a class="btn" href="/Controlo/Approve/Detalhe?controlo_id=@Model.ControloId&tipo=puncoes">PU NNPB</a>
             }
           </nav>
         </div>
@@ -185,10 +182,10 @@
           @* O LINK DO MCALIPER (Diogo, 17/10/2026): associado no Controlo
              Criar; aqui um clique no ícone copia-o para colar no browser. *@
           <div class="revisao-mcaliper">
-            <span>Medições no mcaliper<partial name="_DmoHelp" model="@("Um clique copia o link; cole-o no browser.")" /></span>
+            <span title="Um clique copia o link; cole-o no browser.">Medições no mcaliper</span>
             @foreach (var (area, url) in Model.McaliperLinks)
             {
-              <button type="button" class="revisao-mcaliper-copy" data-dmo-copiar="@url" aria-label="Copiar o link do mcaliper da @area">
+              <button type="button" class="revisao-mcaliper-copy dmo-button" data-dmo-copiar="@url" aria-label="Copiar o link do mcaliper da @area">
                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 3.5v-.5A1.5 1.5 0 009 1.5H4A1.5 1.5 0 002.5 3v5A1.5 1.5 0 004 9.5h.5" /></svg>
                 <span data-dmo-copiar-label>@area</span>
               </button>
@@ -225,9 +222,9 @@
                  controlo anterior e à produção anterior; os detalhes ficam na
                  Consulta do Peso. *@
               <div class="revisao-facts">
-                <div class="destaque"><span>Peso médio atual</span><strong>@Grams(media)</strong></div>
-                <div><span>Delta ao controlo anterior</span><strong>@Signed(media is not null && anterior is not null ? media - anterior.AverageGlassWeightGrams : null, " g")</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
-                <div><span>Delta à produção anterior</span><strong>@Signed(media is not null && sap is not null ? media - sap : null, " g")</strong><small>@(sap is { } g ? $"Produção {Grams(g)}" : "")</small></div>
+                <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(media)</strong></div>
+                <div><span>Delta ao controlo anterior</span><strong>@ControloNumeros.ComSinal(media is not null && anterior is not null ? media - anterior.AverageGlassWeightGrams : null, " g")</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, Model.ControloId))" /></div>
+                <div><span>Delta à produção anterior</span><strong>@ControloNumeros.ComSinal(media is not null && sap is not null ? media - sap : null, " g")</strong><small>@(sap is { } g ? $"Produção {ControloNumeros.Gramas(g)}" : "")</small></div>
               </div>
               @* A tabela CM a CM com o controlo anterior (Diogo, 19/10/2026),
                  a mesma da comparação na página do Peso. *@

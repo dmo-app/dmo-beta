@@ -14,19 +14,13 @@
 /* 1) Botões de ação ------------------------------------------------------------------------ */
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;text-align:center;text-decoration:none;vertical-align:middle;text-box:trim-both cap alphabetic}
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn)[hidden]{display:none}
-/* Rato por cima e clique (Diogo, 27/10/2026, …W16svSXbbqraVvZPKYnqCS: «o hover click fica com cor
-   background e font e linha branco»): o botão fica com cor de fundo, letra branca e contorno branco.
-   No claro o fundo escurece um tom, para se ver a mudança no cartão branco. */
+/* Rato por cima e clique: ver a regra «o botão inverte» no fim deste ficheiro. */
 /* Foco (teclado ou depois de um clique com aviso de erro): só um anel, sem encher o botão. */
 html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):focus-visible:not(:hover):not(:active){background:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));border-color:var(--button-color,var(--dmo-action,var(--dmo-brand-600)));color:var(--dmo-text-on-color)}
 html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel):focus-visible{outline:0;box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45))}
-html body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-800));border-color:#fff;color:#fff;outline:0}
-html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(.dmo-button,.button,.btn):is(:hover,:active):not(:disabled):not([aria-disabled="true"]){background:var(--button-color,var(--dmo-brand-600))}
 /* Os links de ação que passaram a botões (Abrir página do painel, avisos, ficha da ferramenta):
    o mesmo botão, também no hover do escuro. Regras à parte porque o #id pesaria sobre tudo. */
 html body #dmoSupportFull,html body :is(a.dmo-aviso-link,a.ferr-cancel){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;border:1px solid var(--dmo-action,var(--dmo-brand-600));border-radius:var(--dmo-r-control,8px);background:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color);font-family:inherit;font-size:13px;font-weight:var(--dmo-fw-semibold,600);line-height:1;white-space:nowrap;text-decoration:none;vertical-align:middle;cursor:pointer}
-html body #dmoSupportFull:is(:hover,:active),html body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;text-decoration:none;outline:0}
-html[data-theme="dark"] body #dmoSupportFull:is(:hover,:active),html[data-theme="dark"] body :is(a.dmo-aviso-link,a.ferr-cancel):is(:hover,:active){background:var(--dmo-brand-600)}
 
 /* 2) Seletores -------------------------------------------------------------------------------
    Opção 4 escolhida pelo Diogo (27/10/2026, …XwHyWe8QJjkeaipvH2MLV8; já pedido a 26/10: «iguais aos
@@ -34,8 +28,8 @@ html[data-theme="dark"] body #dmoSupportFull:is(:hover,:active),html[data-theme=
    (fundo mais escuro, letra e contorno brancos); a escolhida fica invertida (fundo do cartão, contorno
    e letra de destaque). Aprovado a 27/10 (…Pc5CZ7o8GxVCiuBHj4uft6), com a letra num cinza
    muito ligeiro no escuro e o azul um pouco mais claro no claro. */
-html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff);--dmo-escolhida-letra:color-mix(in srgb,var(--dmo-brand-600) 82%,#fff)}
-html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:#fff;--dmo-escolhida-letra:#dde3eb}
+html body{--dmo-opcao-fundo:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-opcao-letra:var(--dmo-text-on-color);--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-800);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:var(--dmo-action,var(--dmo-brand-600));--dmo-escolhida-letra:var(--dmo-action,var(--dmo-brand-600))}
+html[data-theme="dark"] body{--dmo-opcao-fundo:#4b6387;--dmo-opcao-contorno:#4b6387;--dmo-opcao-letra:#fff;--dmo-opcao-hover:#fff;--dmo-opcao-hover-fundo:var(--dmo-brand-600);--dmo-escolhida-fundo:var(--dmo-card);--dmo-escolhida-contorno:var(--dmo-opcao-fundo);--dmo-escolhida-letra:var(--dmo-opcao-fundo)}
 /* Paleta nova (27/10/2026, …MDH22Sm9uheCmJcmqHWZmb): no escuro as opções usam o azul de ação da paleta. */
 html[data-theme="dark"] body:not(#_){--dmo-opcao-fundo:var(--dmo-action);--dmo-opcao-contorno:var(--dmo-action)}
 
@@ -58,6 +52,15 @@ html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):h
 html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo),
 html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):is(.arm-modo-ativo,.rp-modo-ativo):is(:hover,:focus-visible){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
 html body :is(.arm-modo,.rp-modo):is(.arm-modo,.rp-modo) :is(.dmo-button,.btn):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
+
+/* Armazém › Registo, «Tipo de ferramenta» (CM / MF / BQ; Diogo, 27/10/2026: «botões todos filled,
+   selecionado muda para branco»): o painel lateral desenhado como três opções; estava ao contrário
+   (as outras brancas, a escolhida cheia). Passa a ser como os outros seletores. */
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link){background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra);outline:0;box-shadow:none}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link):hover:not(.selected):not(.active){background:var(--dmo-opcao-hover-fundo);border-color:#fff;color:var(--dmo-opcao-hover)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link):is(.selected,.active){background:var(--dmo-escolhida-fundo);border-color:var(--dmo-escolhida-contorno);color:var(--dmo-escolhida-letra)}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link) strong{color:inherit}
+html body .beta-production-rail#armTiposRail .beta-production-lines :is(button,.dmo-rail-link):is(button,.dmo-rail-link):focus-visible{outline:2px solid var(--dmo-palette-steel,#6582aa);outline-offset:1px}
 
 /* «Sem Job On» da Reparação › Consultar (caixa com o rótulo como botão): rato por cima só a letra; ligado = escolhido. */
 html body .ri-filtros-acoes>.ri-so-por-associar.ri-so-por-associar{background:var(--dmo-opcao-fundo);border-color:var(--dmo-opcao-contorno);color:var(--dmo-opcao-letra)}
@@ -100,6 +103,13 @@ html body .hist-filtros-card .hist-acoes,html body #rpEscolherLista>#rpHistLimpa
   html body .beta-light-view .beta-light-productions>.jobon-procura-bloco:not(#_){grid-column:2;grid-row:1;align-self:center;margin:0;padding:0;border-top:0}
   html body .beta-light-view .beta-light-productions:has(>.jobon-procura-bloco)>#jobonProducoes{margin-top:12px}
 }
+/* Job On: sem círculos de ajuda (Diogo, 27/10/2026: nada de círculos ao lado do «Produção» nem em
+   lado nenhum da página); as caixas e o «Criar Job On» ficam todos com a mesma altura (34 px). */
+html body .beta-light-view .dmo-help:not(#_){display:none}
+/* Sem círculos de dica em lado nenhum da app (regra do Diogo); a dica fica no title, ao passar o rato. */
+html body .dmo-help:not(#_){display:none}
+html body .beta-light-view .jobon-procura-bloco :is(input[type="search"],select,.dmo-button):not(#_){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height)}
+html body .beta-light-view .jobon-procura-bloco .dmo-search-form{align-items:center}
 /* Registar Reparação: o «Criar» (lista nova) e o «Imprimir» (lista aberta) no canto superior direito
    do cartão, antes de Listas / Histórico; os campos ficam à esquerda. */
 html body #rpListaLinha>#rpImprimir,html body #rpListaLinha .dmo-com-ajuda:has(>#rpCriarBotao){margin-left:auto;margin-right:8px;align-self:end}
@@ -150,10 +160,9 @@ html[data-theme="dark"] body.dmo-account-page .password-wrap .password-toggle.pa
    …172Da3NvgX58DsX6pceune: «deixa uma cor»; …8VGCjvpiPUQBuwLrfxJLnY: «usar o que já usamos»):
    o azul suave da paleta atual (--dmo-brand-200) com a letra normal, nos dois modos. */
 html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_)>td{background:var(--dmo-brand-200);color:var(--dmo-text)}
+/* A linha escolhida ou com o rato por cima fica numa só cor, sem a barra à esquerda (Diogo, 27/10/2026). */
+html body .dmo-table tbody tr:not(#_)>td{box-shadow:none}
 html body .dmo-table tbody tr:is(.selected,[aria-selected="true"],:has(>td>input[type=radio]:checked),:has(>td>input[data-rp-marca]:checked)):not(#_) :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:var(--dmo-text)}
-/* Login, «Entrar» (Diogo, 27/10/2026: «não gosto do efeito de ficar preto e mais pequeno, meter o
-   normal dos botões»): no hover só escurece um tom, sem o contorno branco que o fazia parecer menor. */
-html body.dmo-account-page .login-form .submit.submit:is(:hover,:active):not(:disabled){background:#334663;border-color:#334663;color:#fff}
 
 /* Barras de deslocar finas e discretas em toda a app (Diogo, 27/10/2026: «scroll mais subtil, barra
    fina»): a cor da borda, sem fundo; um pouco mais visível com o rato por cima. */
@@ -163,3 +172,53 @@ html ::-webkit-scrollbar{width:6px;height:6px}
 html ::-webkit-scrollbar-track{background:transparent}
 html ::-webkit-scrollbar-thumb{background:var(--dmo-border);border-radius:3px}
 html ::-webkit-scrollbar-thumb:hover{background:var(--dmo-muted)}
+/* Links sem sublinhado no rato por cima, em toda a app (Diogo, 27/10/2026: «não devia ter sublinhado»,
+   na «Mudança …» do Job On): o hover só muda a cor da letra. */
+html body :is(a,.dmo-shell-logout):is(:hover,:focus-visible,:active):not(#_),html body a:is(:hover,:focus-visible,:active) :not(#_){text-decoration:none}
+/* Campos de data e hora com a altura dos outros campos e dos botões (Diogo, 27/10/2026: «tamanho diferente»). */
+html body :is(input[type="date"],input[type="datetime-local"],input[type="time"],input[type="month"]):not(td *):not(.jof2 *):not(#_){box-sizing:border-box;height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding-block:0;line-height:normal}
+html body :is(input[type="date"],input[type="datetime-local"],input[type="time"],input[type="month"])::-webkit-datetime-edit{padding-block:0}
+/* Menus «Opções» mais pequenos, em toda a app (Diogo, 27/10/2026: «reduzir tamanho do dropdown»):
+   a largura das opções, menos espaço à volta; no hover só muda a cor da letra, sem caixa. */
+html body :is(.dmo-options-list,.jof2 .menu-list):not(#_){min-width:0;width:max-content;max-width:260px;padding:4px}
+html body :is(.dmo-options-item,.jof2 .menu-list :is(a,button)):not(#_){padding:6px 10px;font-size:13px;line-height:1.3}
+html body :is(.dmo-options-item,.jof2 .menu-list :is(a,button)):not(#_):is(:hover,:focus-visible){background:none;color:var(--dmo-brand-600);outline:0}
+html[data-theme="dark"] body :is(.dmo-options-item,.jof2 .menu-list :is(a,button)):not(#_):is(:hover,:focus-visible){color:#fff}
+/* Setas do calendário (Job On, Controlo › Aprovar): botões de ação, por isso com a altura e o canto dos outros
+   (eram 36 px de altura e canto de 8 px) e o mesmo rato por cima (inverte, como os outros). O calendário
+   pequeno do histórico das Boquilhas (28 px) continua a mandar. */
+html body .dmo-calendar .dmo-calendar-nav :where(button.icon-btn){height:var(--dmo-control-height);min-height:var(--dmo-control-height);border-radius:var(--dmo-r-control,6px)}
+/* Job On › Folha: os botões (Editar, Duplicar, Imprimir, Guardar, Cancelar, Linhas) com o canto dos outros (8 → 6 px). */
+html body .jof2 .btn.btn{border-radius:var(--dmo-r-control,6px)}
+
+/* ================================================================== */
+/* Botões de ação: no rato por cima e no clique o botão INVERTE.        */
+/* Regra definitiva do Diogo (27/10/2026, «inverte» …8SJDfdhiuoRJLtvkSPUgru; */
+/* «estou farto de explicar como os botões funcionam» …4t7DsHA48KVaQMjhmtty8f): */
+/* o fundo fica da cor do cartão (mais claro), a letra e o contorno    */
+/* ficam na cor cheia do botão (mais forte; 06:45 «o full mais forte»), o mesmo aspeto da opção escolhida nos seletores. Vale para    */
+/* todos os botões de ação, nos dois modos, incluindo o «Entrar» do     */
+/* login, sem casos à parte. Os seletores (opções) têm a regra deles.   */
+/* ================================================================== */
+html body{--dmo-botao-inv-fundo:var(--dmo-escolhida-fundo,var(--dmo-card));--dmo-botao-inv-letra:var(--dmo-escolhida-letra);--dmo-botao-inv-contorno:var(--dmo-escolhida-contorno)}
+html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel,.dmo-calendar-nav button.icon-btn,.login-form .submit):not(:is(.arm-modo,.rp-modo) *):not(:disabled):not([aria-disabled="true"]):not(#_):is(:hover,:active){background:var(--dmo-botao-inv-fundo);border-color:var(--button-color,var(--dmo-botao-inv-contorno));color:var(--button-color,var(--dmo-botao-inv-letra));text-decoration:none;outline:0;box-shadow:none}
+html body :is(.dmo-button,.button,.btn,#dmoSupportFull,a.dmo-aviso-link,a.ferr-cancel,.dmo-calendar-nav button.icon-btn,.login-form .submit):not(:is(.arm-modo,.rp-modo) *):not(:disabled):not([aria-disabled="true"]):not(#_):is(:hover,:active) :is(svg,i,span){color:inherit}
+
+/* ================================================================== */
+/* Acertos de 27/10/2026 (Diogo): sublinhado e cabeçalho.               */
+/* ================================================================== */
+/* Botões com aspeto de link sem sublinhado no rato por cima (Diogo, 27/10/2026: «hover só muda a cor da
+   letra, sem sublinhado», cmsg_01K75FTs9bQnbhhH7qttpgraKWTkQpb2wZYA9GcrhZHgrH): ficha da ferramenta (% uso),
+   «Sem Job On» das Boquilhas, «Ver o Histórico de produções». O :not(#_) ganha às regras de cada página. */
+html body button:is(:hover,:focus-visible,:active):not(#_),html body button:is(:hover,:focus-visible,:active) :not(#_){text-decoration:none}
+html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body .ferr-cancel.ferr-link-botao:is(:hover,:focus-visible,:active):not(#_){text-decoration:none}
+/* Cabeçalho: «Nome · Título» numa só linha e o «Sair» ao centro por baixo (Diogo, 27/10/2026,
+   cmsg_01K75FTs9bQnbhhH7qttpgraRDBfzQfKkdCy2fqfj4vWVb). O título comprido corta com reticências;
+   o «· » vem do ::before do título (num item flex o espaço inicial perdia-se, por isso o espaço duro). */
+@media screen and (min-width:601px){
+  html body .dmo-shell-header .dmo-shell-conta:not(#_){max-width:360px}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user:not(#_){display:flex;align-items:baseline;justify-content:center;white-space:nowrap;max-width:340px;min-width:0}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong:not(#_){flex:0 0 auto}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_)::before{content:"\00a0·\00a0"}
+}

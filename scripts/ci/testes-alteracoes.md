@@ -3565,9 +3565,371 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `c22447c6290ce98f`
 
-## A-0204 · 2026-10-27 · teste-novo
+## A-0208 · 2026-10-27 · ok-do-diogo
 
-Porquê: Peso, Comparação: a leitura do formulário (linhas em branco, sem massa, massa ilegível, recusas, leituras de fora do backend, aviso pelo PRG, escolha do Peso inicial) passou para PesoComparacaoFormulario e é testada sem a página (DMO-466, 0.3.0-beta.175)
+Porquê: Comparar peso no Resumo: produção fixa, sem «a que mais puxa/mexe», + e − ao lado da massa, só «Comparar pesos» e «Guardar», exemplo «Ex.: 199,64» (DMO-469, .175).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJ6x5Umit13ZS5WQioYVTR2 (27/10 07:08, pedido em cmsg_01K75FTs9bQnbhhH7qttpgraMjVxpFF2jJp6oRNmt8uTaH)
+Novos: 3 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: PesoComparacaoPageTests.PeloResumo_AProducaoFicaFixa_SemReferenciaNemProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.ProducaoFixa.cs :: PesoComparacaoPageTests.ProducaoFixa_SegueNoCompararENoGuardar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.NoResumo.cs :: PesoComparacaoPageTests.Comparacao_AbreNoResumoDaProducao_SemSeparadorProprio`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.CamposDecimais_SaoTextoComTecladoDecimal_ParaAceitarVirgula`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_ATerraPreselecionadoPelaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.ComparacaoTab_MostraBaseEEfeitoNaMedia`
+- mudou: `tests/ShellProof/peso-comparacao.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/peso-comparacao.test.cjs :: «Comparar pesos» e «Guardar comparação» trocam só as zonas, sem recarregar; as linhas adicionam-se no formulário novo`
+
+Selo depois: `95e012cdaed29670`
+
+## A-0210 · 2026-10-27 · teste-novo
+
+Porquê: DMO-471 SAP: teste novo das consultas por ferramenta (B3 vistoria backend)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.UsoSapConsultas.cs :: PostgresMigrationIntegrationTests.UsoSap_ImportarComAsMesmasConsultasPara5Ou100Ferramentas_NoPostgreSql`
+
+Selo depois: `eb42111e0485ab74`
+
+## A-0219 · 2026-10-27 · ok-do-diogo
+
+Porquê: A Pasta partilhada dos PDFs fica só com Associar/Remover: sai o campo do nome da pasta, o Guardar e o aviso de nome diferente (Diogo, 27/10/2026: «remover este erro e o campo para escolher nome», «a app só tem de seguir o dir»). Dois testes passam a verificar que o campo e o Guardar não existem; o que gravava o nome sai.
+Referência: «sim» do Diogo, cmsg_01K75FTs9bQnbhhH7qttpgraGh1feCmYhsHNv26gMB6hYz (DMO-477, 0.3.0-beta.178)
+Novos: 0 · mudaram: 2 · saíram: 1
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.APastaDosPdfs_GravaSeParaTodos_ComAPermissao`
+
+Selo depois: `138f201af6d7df8a`
+
+## A-0213 · 2026-10-27 · ok-do-diogo
+
+Porquê: Peso sem Job On: com a CM e a BQ escolhidas, os volumes da punção e da marisa aparecem uma só vez, na faixa dos volumes (Volume Punção / CM, Volume Marisa / BQ); os 2 testes procuram esses nomes. Teste novo: o Peso aberto sem produção já não mostra o cartão Ferramentas e os Job Ons para associar são linhas que se escolhem, com um só «Associar» (DMO-473, 0.3.0-beta.169)
+Referência: cartão de decisão do Diogo na thread «Arrumar a página do Peso», 27/10/2026 06:42 (cmsg_01K75FTs9bQnbhhH7qttpgra1g1D25NUvmLaCqFq1H1mpx)
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: ControloCapabilitiesCutHPageTests.PesoAberto_SemFerramentas_EAssociarNumaTabelaComUmSoBotao`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
+
+Selo depois: `172e1a536bce7902`
+
+## A-0214 · 2026-10-27 · ok-do-diogo
+
+Porquê: A BQ do Peso sem Job On deixa de ter lote e a associação ao Job On conta a referência da BQ (qualquer lote). Os 3 testes da associação usavam um outro lote da mesma BQ (bq-b, Y232) como «outra BQ»: passam a usar uma BQ de outra referência (bq-c, Y300), a mesma recusa. O teste da folha por referência deixa de esperar o lote da BQ (12) no cartão. Testes novos: o Peso de outro lote da mesma BQ associa-se e fica com o lote da produção; o campo «BQ — lote» não aparece com a marisa igual.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra1F8zuYkECXUkomt4uk6jE4 («sim», 27/10/2026 07:01) e cmsg_01K75FTs9bQnbhhH7qttpgraVKRTRjGjK7GvF2BEsEHkoc («nao tem lote»); cartão cmsg_01K75FTs9bQnbhhH7qttpgraU48Jy5Uk3vfwYNztsu9MAk «Tirar e associar pela referência»
+Novos: 2 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherLotOfTheSameBq_IsAcceptedAndTakesTheProductionLot`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: ControloCapabilitiesCutHPageTests.PesoSemJobOn_BqSemCampoDoLote_QuandoAMarisaEIgual`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_PesoOfAnotherBq_IsRefusedAsBqMismatch`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Candidates_AfterSwapWithoutCurrentPeso_AreLoosePesosOfTheToolsTheProductionHadOrHas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Productions_ForPeso_IncludeJobOnsThatHadTheCmBeforeASwap`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoAbertoArrumado.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_ResolvesByTheHumanReference_WhatTheSheetsShow`
+
+Selo depois: `350f94e337b7d721`
+
+## A-0215 · 2026-10-27 · ok-do-diogo
+
+Porquê: O Peso sem produção deixa de mostrar a nota «sem associação a produção — CM · Lote» (a CM já está no título). O teste da folha deixa de a esperar; o da identificação gravada passa a provar que o lote editado no catálogo (33) não aparece; o dos Pegamentos deixa de esperar a nota no Peso.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraNyjVEgBfESart96h9XoX9j («remover», 27/10/2026 07:08, a nota «sem associação a produção — CM ST100 · Lote 8»)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.SavedPesoNavigation_UsesItsOwnProduction_AndDoesNotAssociateToolScopedPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.SavedPeso_KeepsRecordedIdentificationAfterCatalogEdit_AndDownloadsPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/PesoToolScopedPageTests.cs :: PesoToolScopedPageTests.ToolScopedFlow_CreateRecordConsult_ThroughThePage`
+
+Selo depois: `be84027a25ad05f6`
+
+## A-0220 · 2026-10-27 · teste-novo
+
+Porquê: Filtro «Informação» do Sumário com as opções Importante, Job On (criados, mudanças, alterações e experiências), Armazém e Controlo (DMO-475, 0.3.0-beta.181): testes novos das opções, do Job On, do Controlo no topo e das opções por módulo
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_Controlo_MostraSoOsDoControloNoTopo`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_JobOn_JuntaCriados_Mudancas_EExperiencias_SemOsImportantes`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_SoMostraAsOpcoesDosModulosDaConta`
+- novo: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.Filtros.cs :: PlaneamentoSumarioPageTests.Filtro_TemImportante_JobOn_Armazem_EControlo`
+
+Selo depois: `7dc647986f4267b8`
+
+## A-0221 · 2026-10-27 · ok-do-diogo
+
+Porquê: A opção «Mudanças» do filtro do Sumário passa a estar dentro de «Job On» (DMO-475): o teste confirma a opção «Job On» escolhida com o link antigo ?tipo=comecam; o resto do teste fica igual
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra6boArqNgm7gomFxoytyUEU
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPageTests.cs :: PlaneamentoSumarioPageTests.Linhas_TemADataAFrente_AMaquinaComACor_ESemContagens`
+
+Selo depois: `6500f7b9a7dbe746`
+
+## A-0211 · 2026-10-27 · contagem-lista
+
+Porquê: DMO-472 Posto da RI: testes novos (só a Reparação Interna; a sessão do posto fecha ao fim de 3 min sem uso; minutos nas Definições); o package.json só ganha o ficheiro posto-sair.test.cjs na lista
+Novos: 17 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.ForaDasOpcoes_ERecusado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.OsMinutosLidos_SemValorValidoSao3`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PostoMinutosSettingTests.cs :: PostoMinutosSettingTests.UmaDasOpcoes_Grava`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ComOTempoDasDefinicoes_ASessaoDuraEsseTempo`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_SemUsoDurante3Minutos_ASessaoFecha`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_SoAReparacaoInterna_PeloLoginTodosOsModulos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.SairDoPosto_VoltaAoPosto_PeloLoginNaoHaTempo`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: com mais tempo nas Definições, espera esse tempo`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: em uso, avisa o servidor no máximo uma vez por minuto`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: escrever num campo conta como uso`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: fora do posto (login normal) não faz nada`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: quem está a usar a página não é posto fora`
+- novo: `tests/ShellProof/posto-sair.test.cjs :: sem uso durante os minutos do posto, sai e volta ao posto`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `456e1ef94b10f58a`
+
+## A-0205 · 2026-10-27 · ok-do-diogo
+
+Porquê: Controlo das Definições numa só vista (DMO-467): o teste das partes do Controlo dá lugar ao da vista única
+Referência: pedido «inserir tudo na opção do controlo e voltar a reduzir» e «sim» cmsg_01K75FTs9bQnbhhH7qttpgraPdgDP4VBjupRjBgYAbyMQp
+Novos: 1 · mudaram: 0 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_TudoNumaSoVista_UmBotaoPorCartao`
+- saiu: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Controlo_PartesPorCimaDosCartoes_UmBotaoPorCartao`
+
+Selo depois: `0eecb24220a0e7a7`
+
+## A-0222 · 2026-10-27 · ok-do-diogo
+
+Porquê: Reparadores do Armazém sem «Recebe»: todos recebem CM e MF, os das BQ são outra lista
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra1ydbFiy9XkcYkSMVCbc6t3
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Saida_ReparadorDeOutraFamiliaArquivadoOuQueNaoExiste_Recusa`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Situacao_SemMovimentos_EstaNoFabricoSemPropostas`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs :: ArmazemPaginasTests.Definicoes_CriarEMudarReparadores`
+
+Selo depois: `f455c5a50a2aae82`
+
+## A-0223 · 2026-10-27 · teste-novo
+
+Porquê: Sem botões nas linhas (Diogo, 27/10/2026): testes novos para a Revisão (referência do PU/CS no valor) e «O que mudou» da folha do Job On.
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.SemBotoesNasLinhas.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_ReferenciaDoPu_GravaNoValor_SemBotaoNaLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_SemOModuloDaAcao_NaoHaBotaoNoCanto`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaSemBotoesNasLinhasTests.cs :: JobOnFolhaSemBotoesNasLinhasTests.OQueMudou_UmSoBotaoNoCanto_ParaAAlteracaoEscolhida_NenhumNasLinhas`
+
+Selo depois: `3296f158ca7ef80c`
+
+## A-0224 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem botões nas linhas: modelos de email do Controlo e Visto/Por verificar das Punções passam a clique na linha com botão no canto; testes novos das Punções
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraT2BKJWBp736qLPToVcxwwS
+Novos: 9 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Seen_SemValor_TrocaOEstadoQueLaEsta`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs :: EnvioEmailPesoPageTests.Modelos_UmSoModelo_VemEscolhido`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs :: EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.RegistosSemJobOn_UmaLinhaEscolhe_EUmSoBotaoNoCantoAssocia`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.UmSoRegistoSemJobOn_VemEscolhido`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- novo: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_CriarEMudarUmModelo_ERemetenteQueNaoEEmailNaoGrava`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.TabelaNoBrowser.cs :: PuncoesPageTests.Tabela_TemLargurasFixas_EVaiParaOBrowser`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `9efa6a7b115c5c82`
+
+## A-0225 · 2026-10-27 · ok-do-diogo
+
+Porquê: Resumo do Controlo sem «A combinação da produção» (já está no Estado do documento)
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraSa1TjHXyqneQ4wBzRv4r2F
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloResumoPageTests.cs :: ControloResumoPageTests.OpenPreCutJobOn_FolhaShowsCanonicalContext_BackfillsControloIdOnce`
+
+Selo depois: `04bff18ccb39d12f`
+
+## A-0232 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem círculos de dica em lado nenhum: os testes de browser verificam que não há círculos à vista e que o texto da dica passa ao title ao passar o rato
+Referência: cartão do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra3LMmVgq4VTe6FMmd197hQs
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/visual/ajuda_junto_browser.py`
+- mudou: `tests/visual/boquilhas_catalog_browser.py`
+- mudou: `tests/visual/nok_agente_browser.py`
+
+Selo depois: `edb3c3048a671e2a`
+## A-0231 · 2026-10-27 · teste-novo
+
+Porquê: Peso: corrigir ou apagar uma leitura com rasto (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgraPrzkZJc9zsVJxQnPY8frwm «conseguir editar a qq momento»)
+Referência: A-0231 (DMO-490)
+Novos: 12 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.Apagar_TiraALeitura_DeixaRasto_ERenumeraAsPosicoes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.CorrigirParaPesoDoVidroZeroOuMenos_ERecusado_ALeituraFicaIgual`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.Corrigir_MudaALeitura_EDeixaRastoComOAntesEODepois`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.GuardarOsMesmosValores_NaoDeixaRasto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/CorrectPesoMeasurementHandlerTests.cs :: CorrectPesoMeasurementHandlerTests.LeituraDeOutroPeso_OuQueNaoExiste_NaoEncontrada_NadaMuda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoCorrigir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.PesoCorrigir.cs :: PostgresMigrationIntegrationTests.PesoLeitura_CorrigirEApagarADoMeio_RenumeraEDeixaRasto`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_ALinhaEscolheSeComUmClique_EACorrecaoAbreNoLugarDaLeituraNova`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_CorrecaoComMassaIlegivel_ERecusada_EOValorEscritoFica`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_CorrigirEApagar_PelaFolha_FicaGravadoComRasto`
+
+Selo depois: `18d27644ced11859`
+
+## A-0231 · 2026-10-27 · contagem-lista
+
+Porquê: A tabela nova PesoMeasurementHistorico e a migração 20261027111956_PesoMeasurementHistorico entram nas listas de tabelas e de migrações; o que os testes verificam fica igual.
+Referência: A-0231 (DMO-490)
+Novos: 0 · mudaram: 5 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `1330384d86b35971`
+
+## A-0233 · 2026-10-27 · ok-do-diogo
+
+Porquê: O Diogo pediu para distinguir o Controlo anterior (a tabela) da Produção anterior (média e moda da produção), juntar os números da produção anterior numa só faixa e tirar o «Hoje». Os testes passam a pedir os nomes novos, o cabeçalho agrupado, o «Guardar» no cartão da Produção anterior, três zonas parciais em vez de duas e a média e a moda à vista sem janela nem «Hoje».
+Referência: Diogo 27/10 11:30–11:31: cmsg_01K75FTs9bQnbhhH7qttpgraSGxUefy18MyznA8nv1rULs, cmsg_01K75FTs9bQnbhhH7qttpgraChGeZYDRdpWXkZFJYD88JY, cmsg_01K75FTs9bQnbhhH7qttpgra64wN7wJBwgW1MPgAeTBaS9 (DMO-491)
+Novos: 0 · mudaram: 8 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.Folha_ComComparacao_PrevisualizarNaoAlteraPesosGuardadosNemPdf`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.cs :: PesoComparacaoPageTests.PesoAbertoPeloHistorico_ComparaNaFolhaESupoeCaloteSemGravar`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_GravaSemRecarregar_ZonasTrocadasELeituraNovaQueFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+
+Selo depois: `a5e334c99005e344`
+
+## A-0229 · 2026-10-27 · ok-do-diogo
+
+Porquê: Reparação Interna: sem linha escolhida, o texto diz «Escolha a linha acima para registar.» (as linhas estão em cima, não num painel lateral)
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra7NFQu7Q6NgYSLAEsRrjpLy
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaPaginaTests.cs :: ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas`
+
+Selo depois: `1816215d3d43701f`
+
+## A-0227 · 2026-10-27 · contagem-lista
+
+Porquê: Estrutura fixa dos painéis deslizantes e das páginas (DMO-485): testes novos do painel de apoio na estrutura, da marcação da página (<dmo-pagina>), da folha dmo-estrutura.css, do dmo-painel.js e do Job On dentro do painel (título, largura, folha sem título repetido); o package.json do ShellProof só ganha o ficheiro novo na lista
+Referência: pedidos do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXQ2rXx1BrfWwyZwQTG7mM6 e cmsg_01K75FTs9bQnbhhH7qttpgraPV7XbiRJ1Gyqk2HTcdouiD
+Novos: 9 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Pagina_TopoComTituloEAcoesECorpo`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelDeApoio_TemOEsqueletoFixo`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel com confirmar: com o formulário mudado pede antes de fechar`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel: Escape fecha (o «cancel» do <dialog>) e DmoPainel abre por código`
+- novo: `tests/ShellProof/painel-estrutura.test.cjs :: Painel: o botão abre, o «Fechar» fecha e o foco volta ao botão`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `a66892ce2862276f`
+
+## A-0226 · 2026-10-27 · ok-do-diogo
+
+Porquê: Sem botões nas linhas: o × sai dos Pegamentos («Apagar leitura» no canto com a leitura aberta) e das Punções («Remover» no canto, a linha escolhe)
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraRuMahsuiuussnrEx189C1j («perfeito» ao pedido cmsg_01K75FTs9bQnbhhH7qttpgra6Q9srV4paLFsRUhndLXmSD)
+Novos: 0 · mudaram: 5 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.Readings_EditByClickingTheValue_DeleteWithTheX_Renumbers`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `37a5c3540b1e3b39`
+
+## A-0237 · 2026-10-27 · contagem-lista
+
+Porquê: Um painel deslizante de cada vez (DMO-498): testes novos do dmo-painel.js e do dmo-support.js para cliques repetidos e troca de página no mesmo painel; o package.json do ShellProof só ganha o ficheiro novo na lista
+Referência: pedido do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraQnjX8BdkkguuiCZDMe1j6e
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: abrir fecha um <dmo-painel> que esteja aberto`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: cliques repetidos na mesma página não a voltam a carregar e outra página troca a que lá está`
+- novo: `tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Um painel de cada vez: o mesmo botão não abre outro por cima e outro painel fecha o que está aberto`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `4286ec752addb091`
+
+## A-0235 · 2026-10-27 · contagem-lista
+
+Porquê: SAP (DMO-492): testes novos das 12 colunas da ZFMD (ler, gravar, PostgreSQL) e do ficheiro mais antigo que não grava; a lista das migrações acrescenta 20261027121559_SapFabricoColunasZfmd
+Novos: 9 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoColunasZfmd.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoColunasZfmd.cs :: PostgresMigrationIntegrationTests.SapFabricoColunasZfmd_GravaTodasAsColunasDoRelatorio_NoPostgreSql`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.ARelatorioDaZfmd_DaTodasAsColunasDeCadaProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.Importar_GravaAsColunasNovas_ESemElasNaoApagaAsJaGravadas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.ODeltaDoPeso_LeSeComOSinal`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapColunasZfmdTests.cs :: FabricoSapColunasZfmdTests.UmRelatorioSemAsColunasNovas_DeixaAsVazias`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: DefinicoesPorModuloPageTests.UmFicheiroDoSapMaisAntigoDoQueOUltimoLido_NaoGrava`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `49685c9a47bd1a6d`
+
+## A-0238 · 2026-10-27 · teste-novo
+
+Porquê: Peso: sair da correção fica na folha, também no painel (Diogo 27/10, cmsg_01K75FTs9bQnbhhH7qttpgra9BpjJuJkq98wTX76Vv5QYA).
+Referência: DMO-499
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoCorrigir.cs :: ControloCapabilitiesCutHPageTests.PesoLeitura_SairDaCorrecao_FicaNaFolha_TambemNoPainel`
+
+Selo depois: `a50485f0c4e988d2`
+
+## A-0240 · 2026-10-27 · ok-do-diogo
+
+Porquê: O «% uso» de uma ferramenta passa a ser uma ligação ao histórico do uso (painel): na Procura do Armazém o teste lê o texto da célula sem as etiquetas e verifica a ligação; no Histórico das Ferramentas aceita a ligação dentro do hist-uso
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgra3oGkfZkfnuNZ4jftsvNw7B
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OHistoricoDoUso_DeUmaFerramentaQueNaoExiste_DaNaoEncontrada`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OHistoricoDoUso_MostraAsProducoesEOUsoQueFoiAcumulando`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OUsoNaFichaDoArmazem_AbreOHistoricoDoUso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
+
+Selo depois: `155ae28a8e306475`
+
+## A-0241 · 2026-10-27 · teste-novo
+
+Porquê: Peso, Comparação: a leitura do formulário (linhas em branco, sem massa, massa ilegível, recusas, leituras de fora do backend, aviso pelo PRG, escolha do Peso inicial) passou para PesoComparacaoFormulario e é testada sem a página (DMO-466, 0.3.0-beta.201)
 Novos: 6 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: (resto do ficheiro)`
@@ -3577,4 +3939,4 @@ Novos: 6 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.OPesoInicial_OPedidoSeEDaProducao_SenaoODasFerramentasAtuais_SenaoOMaisRecente`
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoFormularioTests.cs :: PesoComparacaoFormularioTests.SemNadaAComparar_ERecusadoComOMotivo`
 
-Selo depois: `7ddc2654ed87c092`
+Selo depois: `d97da0d048f8ec72`

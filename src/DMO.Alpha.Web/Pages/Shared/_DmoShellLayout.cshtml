@@ -2,6 +2,8 @@
     var shell = (ShellPresentation)ViewData["Shell"]!;
     // Side panels are shell components with a shell-owned open/closed state.
     var openSidepanel = shell.Sidepanel is { Visible: true } panel ? panel : null;
+    // Sessão aberta pelo posto da RI: fecha sozinha ao fim destes minutos sem uso (dmo-posto.js).
+    var postoMinutos = User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.PostoMinutos)?.Value;
 }
 <!DOCTYPE html>
 <html lang="pt-PT" data-dmo-embedded="@(Context.Request.Query["painel"] == "1" ? "true" : null)">
@@ -35,10 +37,12 @@
     <link rel="stylesheet" href="~/css/d1366-controlo.css" asp-append-version="true" media="screen">
     <link rel="stylesheet" href="~/css/d1366-boquilhas-ferramentas.css" asp-append-version="true" media="screen">
     <link rel="stylesheet" href="~/css/d1366-armazem-reparacao-admin.css" asp-append-version="true" media="screen">
+    @* As duas estruturas fixas (página e painel deslizante): depois das folhas das páginas, para ninguém lhes mexer no esqueleto. *@
+    <link rel="stylesheet" href="~/css/dmo-estrutura.css" asp-append-version="true" media="screen">
     @* Botões de ação e seletores com um só aspeto em toda a app: sempre a última folha. *@
     <link rel="stylesheet" href="~/css/dmo-botoes.css" asp-append-version="true" media="screen">
 </head>
-<body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())">
+<body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())" data-dmo-posto-minutos="@postoMinutos">
 <div class="app">
     <header class="dmo-shell-header">
         <partial name="_DmoBranding" model="shell.CurrentModule" />
@@ -63,10 +67,12 @@
 <partial name="_DmoSupportPanel" />
 @* F0: camada comum de comportamento vivo (interações canónicas + utilidades) — antes dos scripts de página *@
 <script src="~/0_ASSET_CANONICAL_INTERACTIONS.js" asp-append-version="true"></script>
+<script src="~/js/dmo-painel.js" asp-append-version="true"></script>
 <script src="~/js/dmo-support.js" asp-append-version="true"></script>
 <script src="~/dmo-live.js" asp-append-version="true"></script>
 <script src="~/js/dmo-suggest.js" asp-append-version="true"></script>
 <script src="~/js/dmo-pasta-pdf.js" asp-append-version="true"></script>
+<script src="~/js/dmo-posto.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 <div id="dmoFim" hidden></div>
 </body>

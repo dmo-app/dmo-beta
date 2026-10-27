@@ -7,7 +7,11 @@
 // técnico + lote das ferramentas à espera da utilização), que o script usa.
 // O relatório de fabrico do SAP (o que cada produção fez) vem pela mesma
 // pasta: vão para o servidor todos os ficheiros mais novos do que o último
-// lido, do mais antigo para o mais novo, e o servidor reconhece cada um.
+// lido, do mais antigo para o mais novo, e o servidor reconhece cada um. O
+// «Ler pasta» e a primeira leitura enviam todos (Diogo, 27/10/2026: só o
+// mais recente deixava o das produções por ler quando o da % de uso era mais
+// novo); o servidor não grava um ficheiro mais antigo do que o último lido
+// do mesmo tipo.
 (function () {
   "use strict";
 
@@ -132,8 +136,8 @@
     await escrita.close();
   }
 
-  // Ler a pasta: os códigos para o SAP e os ficheiros novos. «forcar» lê o
-  // mais recente mesmo que já tenha sido lido (o «Ler pasta»).
+  // Ler a pasta: os códigos para o SAP e os ficheiros novos. «forcar» lê
+  // todos, mesmo os já lidos (o «Ler pasta»).
   async function sincronizar(pasta, forcar) {
     if (aLer) return;
     aLer = true;
@@ -151,9 +155,9 @@
         mostrarEstado("«" + pasta.name + "» · a lista mais recente («" + ficheiro.name + "») já foi lida");
         return;
       }
-      const novos = forcar || !info.ficheiroModificadoEm
-        ? [ficheiro]
-        : ficheiros.filter((f) => f.lastModified > info.ficheiroModificadoEm).slice(-MAXIMO);
+      const novos = (forcar || !info.ficheiroModificadoEm
+        ? ficheiros
+        : ficheiros.filter((f) => f.lastModified > info.ficheiroModificadoEm)).slice(-MAXIMO);
       for (const novo of novos) {
         const resultado = await enviar(novo);
         mensagem(resultado.gravado ? "ok" : "aviso", resultado.mensagem);

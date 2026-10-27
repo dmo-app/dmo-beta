@@ -124,7 +124,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       {
         <p class="dmo-aviso warn" id="armNaoExiste">Esta ferramenta já não existe. Uma ferramenta nova regista-se nas Ferramentas.<partial name="_DmoAvisoLink" model="@(new DMO.Alpha.Web.Pages.Shared.DmoAvisoLink("Abrir as Ferramentas", "/Ferramentas", DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas))" /></p>
       }
-      <p class="muted">Escolha CM, MF ou BQ no painel lateral para registar.</p>
+      <p class="muted">Escolha CM, MF ou BQ para registar.</p>
     </section>
   }
   else
@@ -132,6 +132,9 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     var tipoTexto = ArmazemTextos.Tipo(tipoEscolhido);
     // O MF é masculino; a CM e a BQ, femininas.
     var masc = tipoEscolhido == ToolType.Mf;
+    // Com a ferramenta aberta, a Entrada ou a Saída que o formulário do registo mostra.
+    var formEntrada = s is not null && (recusaEntrada || (!recusaSaida && (Model.Acao switch { "entrada" => true, "saida" => false, _ => !s.NoArmazem })));
+    var entradaEscolhida = s is null ? !Model.ModoSaida : formEntrada;
   <section id="armMovProcura" class="dmo-card arm-card" aria-labelledby="arm-mov-procura-title" data-dmo-regiao data-dmo-parcial data-arm-tipo="@tipoTexto">
     <div class="dmo-card-topo">
       @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
@@ -151,13 +154,15 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
        armazém (e o lote novo); a Saída, só as que estão numa posição, e a
        Posição procura o que lá está. O modo vai no endereço (?modo=) e
        segue na procura; sem script, os dois são links. Na mesma linha, à
-       direita (primeiro no código, que é o que se escolhe primeiro); o escolhido com o aspeto invertido (o do hover). *@
+       direita (primeiro no código, que é o que se escolhe primeiro); o escolhido com o aspeto invertido (o do hover).
+       Com a ferramenta aberta (Diogo, 27/10/2026: um só Entrada | Saída, à esquerda) os mesmos dois
+       trocam o formulário do registo dessa ferramenta, como os do formulário (que ficam escondidos). *@
     <form method="get" asp-page="/Armazem/Movimentos" class="arm-linha" role="search" id="armProcuraForm">
       <input type="hidden" name="tipo" value="@tipoTexto" />
       <input type="hidden" name="modo" value="@Model.Modo" />
       <div class="arm-modo arm-modo-direita" role="group" aria-label="Entrada ou saída" id="armProcuraModo">
-        <a class="dmo-button@(!Model.ModoSaida ? " arm-modo-ativo" : null)" id="armProcuraModoEntrada" aria-pressed="@(!Model.ModoSaida ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "entrada", q = Model.Procura, pos = Model.PosicaoPedidaValida })">Entrada</a>
-        <a class="dmo-button@(Model.ModoSaida ? " arm-modo-ativo" : null)" id="armProcuraModoSaida" aria-pressed="@(Model.ModoSaida ? "true" : "false")" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "saida", q = Model.Procura, pos = Model.PosicaoPedidaValida })">Saída</a>
+        <a class="dmo-button@(entradaEscolhida ? " arm-modo-ativo" : null)" id="armProcuraModoEntrada" aria-pressed="@(entradaEscolhida ? "true" : "false")" href="@(s is not null ? Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "entrada" }) : Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "entrada", q = Model.Procura, pos = Model.PosicaoPedidaValida }))">Entrada</a>
+        <a class="dmo-button@(!entradaEscolhida ? " arm-modo-ativo" : null)" id="armProcuraModoSaida" aria-pressed="@(!entradaEscolhida ? "true" : "false")" href="@(s is not null ? Url.Page("/Armazem/Movimentos", new { ferramenta = s.ToolId, acao = "saida" }) : Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, modo = "saida", q = Model.Procura, pos = Model.PosicaoPedidaValida }))">Saída</a>
       </div>
       <div class="dmo-field">
         <label for="armProcura">Referência</label>
@@ -219,7 +224,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       }
 
       @{
-          var mostrarEntrada = recusaEntrada || (!recusaSaida && (Model.Acao switch { "entrada" => true, "saida" => false, _ => !s.NoArmazem }));
+          var mostrarEntrada = formEntrada;
           var deOnde = s.UltimaSaida switch
           {
               ArmazemDestino.Reparacao => s.UltimaSaidaReparador is { Length: > 0 } rep ? $"Reparação · {rep}" : "Reparação",
@@ -242,6 +247,12 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         {
           <div><span>Última saída</span><strong id="armEntDeOnde">@deOnde</strong></div>
         }
+        @* A utilização da última leitura, com a barra (mockup 06). *@
+        @if (Model.LinhasEUso.TryGetValue(s.ToolId, out var usoDaFerramenta) && usoDaFerramenta.Uso is { } usoPct)
+        {
+          var barra = Math.Clamp(usoPct, 0m, 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+          <div class="arm-uso" id="armUso"><span>Utilização</span><strong>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(s.ToolId, DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, s.ToolId))</strong><span class="arm-uso-barra" aria-hidden="true"><span style="width:@(barra)%"></span></span></div>
+        }
       </div>
 
       @* UMA LINHA (Diogo, 22/10/2026): Entrada | Saída · Posição (só na
@@ -259,11 +270,26 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       <form id="@(mostrarEntrada ? "armEntrada" : Model.Destino is null ? "armSaidaSemDestino" : "armSaida")" method="post" asp-page="/Armazem/Movimentos" asp-page-handler="@(mostrarEntrada ? "Entrada" : "Saida")">
         <input type="hidden" name="operacao_id" value="@Model.OperacaoId" />
         <input type="hidden" name="ferramenta" value="@s.ToolId" />
-        @* O título do registo com «Corrigir» e «Registar» na mesma linha, à direita (mockup 06,
-           Owner 26/10/2026). «Corrigir» só abre a janela: type="button", não envia o formulário. *@
+        @* O título do registo; «Corrigir» e «Registar» no canto superior direito do cartão (mockup 06,
+           Owner 26/10/2026; Diogo, 27/10/2026). «Corrigir» só abre a janela: type="button", não envia
+           o formulário; o primeiro botão de envio continua a ser o «Registar» (Enter). *@
         <div class="arm-registar-topo">
           <h3 class="arm-registar-titulo">@(mostrarEntrada ? "Registar entrada" : "Registar saída")</h3>
-          <button type="button" class="dmo-button" id="armCorrigirBotao" data-dmo-dialog="arm-corrigir-dialog">Corrigir</button>
+          <div class="arm-registar-acoes">
+            <button type="button" class="dmo-button" id="armCorrigirBotao" data-dmo-dialog="arm-corrigir-dialog">Corrigir</button>
+            @if (!mostrarEntrada)
+            {
+              <button type="submit" class="dmo-button" id="armSaiRegistar">Registar</button>
+            }
+            else if (recusaEntrada && criarPosicao)
+            {
+              <button type="submit" class="dmo-button" id="armEntCriar" name="criar_posicao" value="1">Criar e registar</button>
+            }
+            else
+            {
+              <button type="submit" class="dmo-button" id="armEntRegistar">Registar</button>
+            }
+          </div>
         </div>
         @if (!mostrarEntrada && Model.Destino is { } destinoEscolhido)
         {
@@ -319,14 +345,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
                   }
                 </datalist>
               </div>
-            }
-            @if (recusaEntrada && criarPosicao)
-            {
-              <button type="submit" class="dmo-button" id="armEntCriar" name="criar_posicao" value="1">Criar e registar</button>
-            }
-            else
-            {
-              <button type="submit" class="dmo-button" id="armEntRegistar">Registar</button>
             }
           }
           else
@@ -385,7 +403,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
                 </select>
               </div>
             }
-            <button type="submit" class="dmo-button" id="armSaiRegistar">Registar</button>
           }
         </div>
         @if (mostrarEntrada && s.ListaProgramada is { } reparadorDaLista)
@@ -562,7 +579,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>@MovimentosModel.DataHora(m.OcorridoEmUtc)</td>
               <td><strong>@DMO.Alpha.Web.Presentation.FerramentaNome.Curto(m.Tipo ?? Model.Tipo, m.Referencia, m.Lote)</strong></td>
               <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, m.ToolId)</td>
-              <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId)</td>
+              <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(m.ToolId, DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId))</td>
               <td>@MovimentosModel.Movimento(m)</td>
               <td>@(m.Estado is { } estMov ? ArmazemTextos.Estado(estMov) : "—")</td>
               <td>@(m.Reparador ?? "—")</td>

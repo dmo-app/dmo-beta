@@ -5,7 +5,7 @@
 @if (Model.Cartao is not { } c)
 {
   <section class="dmo-card ri-card" id="riEscolha">
-    <p class="ri-vazia">Escolha a linha no painel lateral para registar.</p>
+    <p class="ri-vazia">Escolha a linha acima para registar.</p>
   </section>
 }
 else
@@ -18,11 +18,20 @@ else
   <section id="riCard-@codigo" class="dmo-card ri-card ri-maquina" aria-labelledby="ri-titulo-@codigo" data-dmo-parcial data-ri-cartao="@codigo">
     <div class="dmo-card-topo">
       <h3 id="ri-titulo-@codigo">Linha @codigo</h3>
-      @if (Model.Log.Items.Count > 0)
+      @if (Model.Log.Items.Count > 0 || !c.SemProducao)
       {
-        @* As ações fora da lista (data-dmo-for): um clique escolhe a linha; com dois, a reparação abre. *@
-        <div class="dmo-card-topo-acoes" data-dmo-for="riLog-@codigo">
-          <a class="dmo-button" id="riEditar-@codigo" href="#riCorrigirJanela" role="button" data-ri-editar="riLog-@codigo">Editar</a>
+        @* As ações fora da lista (data-dmo-for): um clique escolhe a linha; com dois, a reparação abre.
+           «É outra CM/MF» é um botão no canto (Diogo, 27/10/2026: sem caixas de marcar): o rótulo da
+           caixa escondida do formulário, que continua a levar outra=1; abre o painel da referência e do lote. *@
+        <div class="dmo-card-topo-acoes" data-dmo-for="@(Model.Log.Items.Count > 0 ? $"riLog-{codigo}" : null)">
+          @if (!c.SemProducao)
+          {
+            <label class="dmo-button ri-outra-botao" for="riOutra-@codigo">É outra CM/MF</label>
+          }
+          @if (Model.Log.Items.Count > 0)
+          {
+            <a class="dmo-button" id="riEditar-@codigo" href="#riCorrigirJanela" role="button" data-ri-editar="riLog-@codigo">Editar</a>
+          }
         </div>
       }
     </div>
@@ -45,24 +54,26 @@ else
     }
 
     @* O dia e a produção: aplicam ao escolher. As datas são livres;
-       outro dia que não o de hoje só avisa. *@
+       outro dia que não o de hoje só avisa. Na linha ficam primeiro CM/MF,
+       o trabalho e o número; o dia e a hora vêm depois, antes do OK
+       (Diogo, 27/10/2026): a ordem é do CSS (order), os formulários são os mesmos. *@
     <div class="ri-registo-linha">
-    <form id="riDiaForm-@codigo" method="get" asp-page="/ReparacaoInterna/Index" class="ri-linha">
+    <form id="riDiaForm-@codigo" method="get" asp-page="/ReparacaoInterna/Index" class="ri-linha ri-dia-form">
       <input type="hidden" name="maquina" value="@codigo" />
       <input type="hidden" name="tipo" value="@RiTextos.Valor(c.Tipo)" />
-      <div class="dmo-field">
+      <div class="dmo-field ri-campo-dia">
         <label for="riDia-@codigo">Dia</label>
         <input id="riDia-@codigo" name="dia" type="date" class="ri-dia" value="@IndexModel.Data(Model.DiaDoRegisto)" data-dmo-autosubmit />
       </div>
       @* A hora da reparação, ao lado do dia: vai com o registo (form=), vem com a de agora. *@
-      <div class="dmo-field">
+      <div class="dmo-field ri-campo-hora">
         <label for="riHora-@codigo">Hora</label>
         <input id="riHora-@codigo" name="hora" type="time" class="ri-hora" form="riRegistar-@codigo" value="@Model.HoraDoCampo"
                pattern="[0-2][0-9]:[0-5][0-9]" title="Hora (HH:mm)" aria-invalid="@(Model.HoraInvalida ? "true" : null)" required />
       </div>
       @if (c.DoDia.VariasProducoes)
       {
-        <div class="dmo-field">
+        <div class="dmo-field ri-campo-producao">
           <label for="riProducao-@codigo">Produção (há @c.DoDia.Candidatas.Count)</label>
           <select id="riProducao-@codigo" name="producao" class="ri-producao" data-dmo-autosubmit>
             @foreach (var o in c.DoDia.Candidatas)
@@ -75,8 +86,9 @@ else
     </form>
 
     @* O botão CM/MF (como o tipo de movimento das Boquilhas: o ativo
-       em azul claro), o número e OK. «É outra CM/MF» mostra a
-       referência e o lote; sem produção ficam sempre, obrigatórios. *@
+       em azul claro), o número e OK. «É outra CM/MF» (o botão no canto)
+       desliza o painel com a referência e o lote; sem produção ficam
+       sempre na linha, obrigatórios. *@
     <form id="riRegistar-@codigo" method="post" asp-page="/ReparacaoInterna/Index" asp-page-handler="Registar" class="ri-registar">
       <input type="hidden" name="operacao_id" value="@Model.OperacaoId" />
       <input type="hidden" name="maquina" value="@codigo" />
@@ -106,7 +118,7 @@ else
           <label><input type="radio" id="riTipoCm-@codigo" name="tipo" value="cm" checked="@(c.Tipo == ReparacaoTipo.Cm)" /><span>CM</span></label>
           <label><input type="radio" id="riTipoMf-@codigo" name="tipo" value="mf" checked="@(c.Tipo == ReparacaoTipo.Mf)" /><span>MF</span></label>
         </fieldset>
-        <div class="dmo-field">
+        <div class="dmo-field ri-campo-trabalho">
           <label for="riTrabalho-@codigo">Trabalho</label>
           <select id="riTrabalho-@codigo" name="trabalho" class="ri-trabalho">
             @foreach (var t in new[] { ReparacaoTrabalho.Reparacao, ReparacaoTrabalho.Soldar, ReparacaoTrabalho.Polir })
@@ -115,18 +127,26 @@ else
             }
           </select>
         </div>
-        <div class="dmo-field">
+        <div class="dmo-field ri-campo-numero">
           <label for="riNumero-@codigo">Número</label>
           <input id="riNumero-@codigo" name="numero" class="ri-numero" inputmode="numeric" maxlength="@IndexModel.NumeroAlgarismos" pattern="[0-9]{1,@IndexModel.NumeroAlgarismos}" title="Só algarismos, até @IndexModel.NumeroAlgarismos" aria-invalid="@(Model.NumeroInvalido ? "true" : null)" autocomplete="off" required autofocus
                  value="@Model.NumeroEscrito" />
         </div>
-        <button type="submit" class="dmo-button" id="riOk-@codigo">OK</button>
+        <button type="submit" class="dmo-button ri-ok" id="riOk-@codigo">OK</button>
       </div>
       @if (!c.SemProducao)
       {
-        <label class="ri-outra-marca" for="riOutra-@codigo"><input type="checkbox" id="riOutra-@codigo" class="ri-outra-check" name="outra" value="1" checked="@Model.OutraMarcada" />É outra CM/MF</label>
+        <input type="checkbox" id="riOutra-@codigo" class="ri-outra-check" name="outra" value="1" checked="@Model.OutraMarcada" />
       }
-      <div class="ri-linha ri-outra-campos">
+      <div class="ri-linha ri-outra-campos" id="riOutraPainel-@codigo" role="@(c.SemProducao ? null : "group")" aria-labelledby="@(c.SemProducao ? null : $"riOutraTitulo-{codigo}")">
+        @if (!c.SemProducao)
+        {
+          <div class="ri-outra-topo">
+            <h4 id="riOutraTitulo-@codigo">Outra CM/MF</h4>
+            <label class="ri-outra-fechar" for="riOutra-@codigo" title="Fechar: regista com a CM/MF da produção" aria-label="Fechar o painel da outra CM/MF">×</label>
+          </div>
+          <p class="ri-outra-dica">A referência e o lote da CM ou do MF que está a reparar; o número fica na linha.</p>
+        }
         <div class="dmo-field">
           <label for="riReferencia-@codigo">Referência</label>
           <input id="riReferencia-@codigo" name="referencia" class="ri-referencia" maxlength="@Reparacao.ReferenciaMaxLength" autocomplete="off"
@@ -138,6 +158,10 @@ else
           <input id="riLote-@codigo" name="lote" class="ri-lote" maxlength="@Reparacao.LoteMaxLength" autocomplete="off" placeholder="4"
                  required="@c.SemProducao" aria-invalid="@(Model.ErroLote ? "true" : null)" value="@Model.LoteEscrito" />
         </div>
+        @if (!c.SemProducao)
+        {
+          <button type="submit" class="dmo-button ri-outra-ok" id="riOutraOk-@codigo">OK</button>
+        }
       </div>
     </form>
     </div>

@@ -32,6 +32,7 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         var semFerramenta = new List<string>();
         var novas = new List<(FerramentaUtilizacao Leitura, List<FerramentaLembreteUtilizacao> Lembretes)>();
         var vistas = new HashSet<string>(StringComparer.Ordinal);
+        var aLer = new List<(UsoSapLinha Linha, string ToolId)>();
         foreach (var linha in leitura.Linhas)
         {
             var daLinha = ferramentas.Where(t => UsoSapCodigo.Corresponde(linha.CodigoEquipamento, t.TechnicalName, t.Lot)).ToList();
@@ -41,37 +42,48 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
                 continue;
             }
 
-            foreach (var ferramenta in daLinha.Where(t => vistas.Add(t.ToolId)))
-            {
-                var lembretes = await db.FerramentaLembretesUtilizacao
-                    .Where(l => l.ToolId == ferramenta.ToolId && l.FechadoEmUtc == null)
-                    .ToListAsync(cancellationToken);
-                var ultima = await db.FerramentaUtilizacoes.AsNoTracking()
-                    .Where(u => u.ToolId == ferramenta.ToolId)
-                    .OrderByDescending(u => u.Id)
-                    .Select(u => (decimal?)u.Percentagem)
-                    .FirstOrDefaultAsync(cancellationToken);
-                if (lembretes.Count == 0 && ultima == linha.PercentagemUso)
-                {
-                    continue;
-                }
+            aLer.AddRange(daLinha.Where(t => vistas.Add(t.ToolId)).Select(t => (linha, t.ToolId)));
+        }
 
-                var nova = new FerramentaUtilizacao
-                {
-                    ToolId = ferramenta.ToolId,
-                    Percentagem = linha.PercentagemUso,
-                    Origem = FerramentaUtilizacao.OrigemSap,
-                    RegistadaEmUtc = agora,
-                    RegistadoPor = autor,
-                    CodigoEquipamento = linha.CodigoEquipamento,
-                    Consumo = linha.Consumo,
-                    VidaPrevista = linha.VidaPrevista,
-                    Ficheiro = nome,
-                    FicheiroModificadoEmUtc = ficheiroModificadoEmUtc
-                };
-                db.FerramentaUtilizacoes.Add(nova);
-                novas.Add((nova, lembretes));
+        // Os lembretes abertos e a última percentagem de todas as ferramentas
+        // do ficheiro em duas consultas, seja qual for o número de linhas
+        // (antes eram duas por ferramenta; vistoria ao backend, 27/10/2026).
+        var ids = aLer.Select(a => a.ToolId).ToList();
+        List<FerramentaLembreteUtilizacao> abertos = ids.Count == 0
+            ? []
+            : await db.FerramentaLembretesUtilizacao
+                .Where(l => ids.Contains(l.ToolId) && l.FechadoEmUtc == null)
+                .ToListAsync(cancellationToken);
+        var ultimas = ids.Count == 0
+            ? new Dictionary<string, decimal>()
+            : await db.FerramentaUtilizacoes.AsNoTracking()
+                .Where(u => ids.Contains(u.ToolId)
+                    && u.Id == db.FerramentaUtilizacoes.Where(o => o.ToolId == u.ToolId).Max(o => o.Id))
+                .ToDictionaryAsync(u => u.ToolId, u => u.Percentagem, StringComparer.Ordinal, cancellationToken);
+        foreach (var (linha, toolId) in aLer)
+        {
+            var lembretes = abertos.Where(l => l.ToolId == toolId).ToList();
+            decimal? ultima = ultimas.TryGetValue(toolId, out var percentagem) ? percentagem : null;
+            if (lembretes.Count == 0 && ultima == linha.PercentagemUso)
+            {
+                continue;
             }
+
+            var nova = new FerramentaUtilizacao
+            {
+                ToolId = toolId,
+                Percentagem = linha.PercentagemUso,
+                Origem = FerramentaUtilizacao.OrigemSap,
+                RegistadaEmUtc = agora,
+                RegistadoPor = autor,
+                CodigoEquipamento = linha.CodigoEquipamento,
+                Consumo = linha.Consumo,
+                VidaPrevista = linha.VidaPrevista,
+                Ficheiro = nome,
+                FicheiroModificadoEmUtc = ficheiroModificadoEmUtc
+            };
+            db.FerramentaUtilizacoes.Add(nova);
+            novas.Add((nova, lembretes));
         }
 
         await using var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;

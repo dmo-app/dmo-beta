@@ -6,18 +6,20 @@
     // Os números como na Revisão (Approve.cshtml): duas casas e «Leitura N»
     // (deep sweep de 18/10/2026, regra 66).
     var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
-    string Grams(decimal? value) => value is { } v ? v.ToString("N2", culture) + " g" : "—";
-    string Cm3(decimal? value) => value is { } v ? v.ToString("N2", culture) + " cm³" : "—";
-    string Signed(decimal? value, string unit) => value is { } v ? (v > 0 ? "+" : "") + v.ToString("N2", culture) + unit : "—";
 }
 @section Head {
   <link rel="stylesheet" href="~/css/dmo-resumo-prototype.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/dmo-revisao.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/dmo-pegamentos-prototype.css" asp-append-version="true" />
 }
-<main data-dmo-troca class="resumo-page dmo-workspace" aria-labelledby="approve-detail-title">
+<main data-dmo-troca class="resumo-page dmo-workspace@(Model.Tipo == "pegamentos" && Model.Production is not null ? " revisao-peg-consulta-page" : null)" aria-labelledby="approve-detail-title">
   <div class="page-head">
     <div>
+      @if (Model.Tipo == "pegamentos" && Model.Production is { } producaoVoltar)
+      {
+        @* «← Voltar» por cima do título, como nas outras páginas (Diogo, 27/10/2026): volta à página de onde se veio, com os filtros. *@
+        <a class="dmo-voltar-texto" id="approveVoltar" href="/Controlo/Approve?jobon_id=@producaoVoltar.JobOnId" data-dmo-voltar="@producaoVoltar.JobOnId" data-dmo-voltar-texto="← Voltar"><span aria-hidden="true">←</span> Voltar</a>
+      }
       <h1 id="approve-detail-title">@(Model.Tipo switch { "peso" => "Consulta do Peso", "pegamentos" => "Consulta dos Pegamentos", "puncoes" => "Consulta do PU NNPB", "controlo" => "Resumo do controlo", _ => "Consulta do Resumo das ferramentas" })</h1>
     </div>
   </div>
@@ -96,7 +98,7 @@
             <a href="/Controlo/Approve?jobon_id=@production.JobOnId">Revisão</a>
           </nav>
         }
-        else
+        else if (Model.Tipo != "pegamentos")
         {
           <div class="dmo-card-topo-acoes">
             @* Volta à página de onde se veio, com os filtros (Diogo, 26/10/2026); sem origem, à revisão. *@
@@ -160,14 +162,14 @@
                 <h3 class="revisao-section">Comparação global de peso</h3>
               }
               <div class="revisao-facts four">
-                <div class="destaque"><span>Peso médio atual</span><strong>@Grams(atual?.AverageGlassWeightGrams)</strong></div>
-                <div><span>Média do controlo anterior</span><strong>@Grams(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
-                <div><span>Peso da produção anterior</span><strong>@Grams(comparacao?.SapGramas)</strong></div>
-                <div><span>Peso nominal do desenho</span><strong>@Grams(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{Signed(dg, " g")} ({Signed(desvioNominal.Percent, " %")})" : "")</small></div>
-                <div><span>Diferença ao controlo anterior</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
-                <div><span>Capacidade atual</span><strong>@Cm3(atual?.AverageCapacityCm3)</strong></div>
-                <div><span>Capacidade anterior</span><strong>@Cm3(anterior?.AverageCapacityCm3)</strong></div>
-                <div><span>Diferença de capacidade</span><strong>@Signed(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong></div>
+                <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(atual?.AverageGlassWeightGrams)</strong></div>
+                <div><span>Média do controlo anterior</span><strong>@ControloNumeros.Gramas(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
+                <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong></div>
+                <div><span>Peso nominal do desenho</span><strong>@ControloNumeros.Gramas(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{ControloNumeros.ComSinal(dg, " g")} ({ControloNumeros.ComSinal(desvioNominal.Percent, " %")})" : "")</small></div>
+                <div><span>Diferença ao controlo anterior</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
+                <div><span>Capacidade atual</span><strong>@ControloNumeros.Cm3(atual?.AverageCapacityCm3)</strong></div>
+                <div><span>Capacidade anterior</span><strong>@ControloNumeros.Cm3(anterior?.AverageCapacityCm3)</strong></div>
+                <div><span>Diferença de capacidade</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong></div>
               </div>
               @* As leituras e a comparação CM a CM numa só tabela (Diogo,
                  20/10/2026: «as tabelas do peso deveriam ser as duas juntas»). *@
@@ -195,16 +197,16 @@
            a leitura seguinte começa uma folha nova; nenhuma fica de fora da
            revisão. Com uma só, como sempre. *@
         var folhas = sheet.Sheets;
-        void ComponentCard(PegamentosComponentContextReadModel component, PegamentosReadModel? folha)
+        void ComponentCard(PegamentosComponentContextReadModel component, PegamentosReadModel? folha, string? dicaTolerancia = null)
         {
           var leituras = folha?.Measurements.Where(m => m.Component == component.Component).ToList()
               ?? new List<PegamentosMeasurementReadModel>();
           <div class="revisao-consulta-componente">
-            <div class="revisao-facts four">
+            @* Sem o quadro «Leituras» (Diogo, 27/10/2026): a contagem são as linhas da tabela. *@
+            <div class="revisao-facts three">
               <div><span>Componente</span><strong>@component.Component.ToString().ToUpperInvariant()</strong></div>
               <div><span>Ferramenta</span><strong>@(folha?.ToolReferenceOf(component.Component) ?? component.ToolReference ?? "—")</strong><small>@((folha?.ToolLotOf(component.Component) ?? component.ToolLot) is { } lote ? $"Lote {lote}" : "")</small></div>
-              <div><span>Gargalo</span><strong>@(component.DiametroGargaloMm is { } gargalo ? PegamentosVista.Fmt(gargalo) + " mm" : "—")</strong></div>
-              <div><span>Leituras</span><strong>@leituras.Count</strong></div>
+              <div title="@dicaTolerancia"><span>Gargalo</span><strong>@(component.DiametroGargaloMm is { } gargalo ? PegamentosVista.Fmt(gargalo) + " mm" : "—")</strong></div>
             </div>
             @if (leituras.Count == 0)
             {
@@ -235,10 +237,10 @@
             }
           </div>
         }
-        <div>
+        <div class="revisao-peg-consulta">
+        <div class="revisao-peg-leituras">
           @if (folhas.Count == 0)
           {
-            <h3 class="revisao-section">Pegamentos</h3>
             <p class="resumo-hint">Esta produção ainda não tem medições de Pegamentos.</p>
             @foreach (var component in sheet.Components)
             {
@@ -249,13 +251,17 @@
           {
             @* Sem contadores no título (Diogo, 20/10/2026): o mapa diz se há alertas. *@
             @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
-            <h3 class="revisao-section" title="@($"Tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Os alertas são informativos.")">@(folhas.Count > 1 ? $"Folha {numero} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha)}" : "Pegamentos")@(folha.IsCurrent ? null : " · ferramentas anteriores")</h3>
+            var dicaTolerancia = $"Tolerância ± {PegamentosVista.Fmt(folha.ToleranceMm)} mm. Os alertas são informativos.";
+            @* Com uma só folha atual o título da secção repetiria o do cartão: só há título quando há mais do que uma folha ou ferramentas anteriores. *@
+            @if (folhas.Count > 1 || !folha.IsCurrent)
+            {
+              <h3 class="revisao-section" title="@dicaTolerancia">@(folhas.Count > 1 ? $"Folha {numero} · {DMO.Alpha.Infrastructure.Controlo.ResumoPdfGenerator.ToolsOf(folha)}" : "Pegamentos")@(folha.IsCurrent ? null : " · ferramentas anteriores")</h3>
+            }
             @foreach (var component in folha.Components)
             {
-              ComponentCard(component, folha);
+              ComponentCard(component, folha, folhas.Count > 1 || !folha.IsCurrent ? null : dicaTolerancia);
             }
           }
-        </div>
         @* O rasto das leituras corrigidas ou apagadas (sweep de 19/10/2026,
            4.6): o valor antigo, o novo, quem e quando. Corrigir depois da
            aprovação mantém a aprovação; o aviso da Revisão traz aqui. *@
@@ -283,7 +289,9 @@
             </table>
           </div>
         }
-        <partial name="_RevisaoPegamentosMapa" model="sheet" />
+        </div>
+        <div class="revisao-peg-mapa"><partial name="_RevisaoPegamentosMapa" model="sheet" /></div>
+        </div>
       }
       @if (Model.Tipo == "puncoes")
       {
