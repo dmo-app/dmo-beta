@@ -29,7 +29,6 @@ html body #jobonHistFiltros.dmo-filter-bar>.dmo-field :is(input,select){box-sizi
 html body #jobonHistFiltros.dmo-filter-bar>.dmo-field .dmo-suggest{width:100%}
 html body #jobonHistFiltros.dmo-filter-bar>.dmo-field select{line-height:calc(var(--dmo-control-height) - 2px);align-items:center}
 html body #jobonHistFiltros.dmo-filter-bar>.dmo-field>label{display:block;margin:0 0 4px;line-height:18px}
-html body #jobonHistoricoResultados .dmo-list-pager{margin-top:8px}
 
 /* ------------------------------------------------------------------ */
 /* Planeamento › Sumário: título e linhas em cima; à esquerda os filtros
@@ -252,12 +251,11 @@ html body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines
 }
 
 /* Calendário (todas as páginas): as setas do mês como os botões «Hoje» e
-   «Todos os dias» ao lado, como na .121: a mesma cor, o mesmo rato por
-   cima e o mesmo clique (no escuro a seta era mais clara e invertia). */
+   «Todos os dias» ao lado: a mesma cor em repouso. O rato por cima e o
+   clique (inverte: fundo do cartão, letra e contorno na cor cheia) vêm do
+   bloco final do dmo-botoes.css, igual a todos os botões de ação. */
 html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn{background:var(--dmo-action,var(--dmo-brand-600));border-color:var(--dmo-action,var(--dmo-brand-600));color:var(--dmo-text-on-color,#fff)}
 html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn{background:#4b6387;border-color:#4b6387;color:#fff}
-html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-800);border-color:#fff;color:#fff;outline:0}
-html[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:is(:hover,:active){background:var(--dmo-brand-600);border-color:#fff;color:#fff}
 html body .dmo-calendar .dmo-calendar-nav button.icon-btn.icon-btn:focus-visible{box-shadow:0 0 0 3px var(--dmo-focus-ring,rgba(101,130,170,.45));outline:0}
 
 /* O selo da linha nos cartões do painel do Planeamento (Folha do Job On): sem a caixa, só o nome
@@ -316,7 +314,7 @@ html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):
 /* não funciona como devido»). Sem o azul genérico das listas e sem a    */
 /* barra verde à esquerda; o texto passa à cor sobre a cor da linha.     */
 @media screen{
-html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover{background:var(--dmo-machine-color);box-shadow:none;color:var(--dmo-text-on-color)}
+html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover{background:var(--dmo-linha-cheia,var(--dmo-machine-color));box-shadow:none;color:var(--dmo-text-on-color)}
 html body [data-dmo-list] .beta-light-machine-row .beta-light-production[data-dmo-row]:hover :is(strong,span,a){color:var(--dmo-text-on-color)}
 html:root body .beta-light-machine-row:not(:has(input:checked)):has(.beta-light-production:hover){background:transparent}
 }
@@ -368,3 +366,131 @@ html body .jof2 .jof-fora{column-gap:10px}
 html body .jof2 .jof-fora .hv:first-child{flex-basis:100%}
 html body .jof2 .jof-fora .hv:nth-child(2){margin-left:0;padding-left:0;border-left:0}
 html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:10px}
+
+/* ================================================================== */
+/* Job On (Planeamento e Histórico), 1366×768, 27/10/2026: arrumação   */
+/* das listas, dos hovers e da paginação. Só estas páginas.            */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* Planeamento como a maqueta aprovada (Diogo, 27/10/2026): à esquerda o */
+/* calendário (mês à esquerda e Anterior · Hoje · Seguinte no canto       */
+/* superior direito, linhas finas entre semanas); à direita «Produções    */
+/* de <dia>» em tabela: Linha · Referência · Produção · Próxima mudança,  */
+/* uma linha por máquina com o fundo suave da cor da linha. As linhas      */
+/* livres mostram «—» em cada coluna (o «—» do HTML antigo fica escondido; */
+/* os «—» vêm daqui). Só aspeto: o HTML e o clique são os de sempre.      */
+/* ------------------------------------------------------------------ */
+@media screen and (min-width:701px){
+
+  /* Referência, Produção e «Criar Job On» em baixo no cartão, por baixo da
+     tabela e separados por uma linha fina, como na maqueta (Diogo,
+     27/10/2026; antes subiam para o título). */
+  html:root body .beta-light-view .beta-light-productions.beta-light-productions:has(>.jobon-procura-bloco){display:flex;flex-direction:column;align-items:stretch}
+  html:root body .beta-light-view .beta-light-productions.beta-light-productions:has(>.jobon-procura-bloco)>.beta-light-card-head{align-self:stretch;margin-bottom:0}
+  html:root body .beta-light-view .beta-light-productions.beta-light-productions:has(>.jobon-procura-bloco)>#jobonProducoes{margin-top:0}
+  html body .beta-light-view .beta-light-productions.beta-light-productions>.jobon-procura-bloco:not(#_):not(#__){align-self:stretch;margin:auto 0 0;padding:16px 0 0;border-top:1px solid var(--dmo-border)}
+  html body .beta-light-view .beta-light-productions #jobonProducoes{margin-bottom:16px}
+  html body .beta-light-productions .jobon-procura-bloco .dmo-search-form{display:grid;grid-template-columns:176px 208px auto;grid-template-rows:auto auto;column-gap:16px;row-gap:4px;align-items:end;justify-content:start}
+  html body .beta-light-productions .jobon-procura-bloco .dmo-com-ajuda{display:contents}
+  html body .beta-light-productions .jobon-procura-bloco .jobon-procura-rotulo{margin:0;color:var(--dmo-muted);font-size:12px;font-weight:500;line-height:18px}
+  html body .beta-light-productions .jobon-procura-bloco label[for="lightSearch"]{grid-area:1/1}
+  html body .beta-light-productions .jobon-procura-bloco label[for="lightProcuraProducoes"]{grid-area:1/2}
+  html body .beta-light-productions .jobon-procura-bloco :is(#lightSearch,.dmo-suggest){grid-area:2/1;width:100%;min-width:0}
+  html body .beta-light-productions .jobon-procura-bloco #lightProcuraProducoes{grid-area:2/2;width:100%;min-width:0}
+  html body .beta-light-productions .jobon-procura-bloco #jobonCriar{grid-area:2/3}
+  html body .beta-light-productions{--plan-cols:64px minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.6fr)}
+
+  /* A tabela: cabeçalho e linhas com as mesmas colunas */
+  html body .beta-light-productions .beta-light-list{gap:4px;margin-top:8px}
+  html body .beta-light-productions .beta-light-list-head{display:grid;grid-template-columns:var(--plan-cols);column-gap:12px;align-items:center;height:32px;padding:0 12px;border-radius:8px;background:var(--dmo-subtle);color:var(--dmo-muted);font-size:12px;font-weight:500;line-height:1}
+  html body .beta-light-productions .beta-light-machine-row{gap:0}
+  html body .beta-light-productions .beta-light-production{display:grid;grid-template-columns:var(--plan-cols);grid-template-rows:minmax(40px,auto) auto;column-gap:12px;row-gap:0;align-items:center;height:auto;min-height:40px;padding:0 12px}
+  html body .beta-light-productions .beta-light-production>strong{grid-column:1;grid-row:1;font-size:15px;font-weight:800}
+  html body .beta-light-productions .beta-light-production>span:not([class]){position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  html body .beta-light-productions .beta-light-production>.beta-light-ref{grid-column:2;grid-row:1;font-size:14px}
+  html body .beta-light-productions .beta-light-production>.beta-light-prodnum{grid-column:3;grid-row:1;font-size:14px}
+  html body .beta-light-productions .beta-light-production>.beta-light-next{grid-column:4;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+  html body .beta-light-productions .beta-light-production>.beta-light-next:empty::before{content:"—";font-weight:400}
+  html body .beta-light-productions .beta-light-production>.beta-light-lot-note{grid-column:2/4;grid-row:2;min-width:0;padding-bottom:6px}
+  html body .beta-light-productions .beta-light-production>.beta-light-lot-note:empty{display:none}
+
+  /* A linha livre: Linha, «—», «—», «—» */
+  html body .beta-light-productions .beta-light-machine-empty-linha{display:grid;grid-template-columns:var(--plan-cols);column-gap:12px;align-items:center;min-height:40px;padding:0 12px}
+  html body .beta-light-productions .beta-light-machine-empty-linha>.beta-light-next{grid-column:4;grid-row:1;min-width:0;margin:0;padding:0;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+  html body .beta-light-productions .beta-light-machine-empty-linha:not(:has(>.beta-light-next))::after{content:"—";grid-column:4;grid-row:1;color:var(--dmo-muted)}
+  html body .beta-light-productions .beta-light-machine-empty{grid-column:1/4;grid-row:1;display:grid;grid-template-columns:subgrid;grid-template-rows:minmax(0,1fr) 0;column-gap:12px;row-gap:0;align-items:center;height:40px;padding:0;font-size:0;color:var(--dmo-muted)}
+  html body .beta-light-productions .beta-light-machine-empty>strong{grid-column:1;grid-row:1;font-size:15px;font-weight:800;color:var(--dmo-brand-900)}
+  html body .beta-light-productions .beta-light-machine-empty::before{content:"—";grid-column:2;grid-row:1;font-size:14px;color:inherit}
+  html body .beta-light-productions .beta-light-machine-empty::after{content:"—";grid-column:3;grid-row:1;margin:0;font-size:14px;color:inherit}
+}
+/* No hover as linhas livres (que criam um Job On) enchem-se com a cor da
+   linha, como as linhas com produção; a «Mudança» é só uma ligação: muda a
+   cor da letra, sem sublinhado. */
+@media screen{
+  html body .beta-light-productions .beta-light-machine-row:has(a.beta-light-machine-empty:hover){background:var(--dmo-linha-cheia,var(--dmo-machine-color))}
+  html body .beta-light-productions a.beta-light-machine-empty:is(:hover,:focus-visible){background:transparent;color:var(--dmo-text-on-color)}
+  html body .beta-light-productions .beta-light-machine-row:has(a.beta-light-machine-empty:hover) :is(strong,.beta-light-next){color:var(--dmo-text-on-color)}
+  html body .beta-light-productions .beta-light-machine-row:has(a.beta-light-machine-empty:hover) .beta-light-machine-empty-linha::after{color:var(--dmo-text-on-color)}
+  html body .beta-light-view a.beta-light-next:is(:hover,:focus-visible){text-decoration:none;color:var(--dmo-brand-600)}
+  html[data-theme="dark"] body .beta-light-view a.beta-light-next:is(:hover,:focus-visible){color:#fff}
+  html body .beta-light-productions .beta-light-machine-row:is(:has(a.beta-light-machine-empty:hover),:has(.beta-light-production:hover)) a.beta-light-next:is(:hover,:focus-visible){color:var(--dmo-text-on-color)}
+}
+
+/* Calendário: a legenda com o tamanho dos rótulos (12 px). */
+html body .beta-light-view .dmo-calendar .dmo-calendar-legend{font-size:12px}
+
+/* Faixa «Planeamento»: no hover o cartão enche-se com a cor da linha e a
+   letra passa a branca, como as linhas de «Produções de <dia>» (Diogo,
+   27/10/2026). O cartão escolhido mantém o seu aspeto. */
+@media screen{
+  html:root body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor:not(.selected):not(.active):is(:hover,:focus-visible){background:var(--dmo-linha-cheia,var(--dmo-brand-600));border-color:var(--dmo-linha-cheia,var(--dmo-brand-600));color:var(--dmo-text-on-color);outline:0;box-shadow:none}
+  html:root body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor:not(.selected):not(.active):is(:hover,:focus-visible) *{color:var(--dmo-text-on-color)}
+}
+
+/* Histórico: cabeçalhos da tabela com o tamanho e a cor dos rótulos dos
+   filtros (12 px); a linha só muda a cor da letra no hover (sem caixa,
+   sem barra); a paginação dentro do cartão, à direita, junto à tabela; só a
+   tabela desliza se houver mais linhas do que cabem (a página não). */
+html body #jobonHistLista thead th{font-size:12px;font-weight:500;line-height:20px;letter-spacing:normal;text-transform:none;color:var(--dmo-muted)}
+@media screen{
+  html:root body #jobonHistLista tbody tr[data-dmo-row]:is(:hover,:focus-visible),
+  html:root body #jobonHistLista tbody tr[data-dmo-row]:is(:hover,:focus-visible)>td{background:transparent;box-shadow:none}
+  html:root body #jobonHistLista tbody tr[data-dmo-row]:is(:hover,:focus-visible)>td{color:var(--dmo-brand-600)}
+  html:root[data-theme="dark"] body #jobonHistLista tbody tr[data-dmo-row]:is(:hover,:focus-visible)>td{color:#fff}
+}
+html body #jobonHistoricoResultados .dmo-table-wrap{max-height:calc(100vh - 420px);overflow:auto}
+html body #jobonHistoricoResultados .dmo-table-wrap thead th{position:sticky;top:0;z-index:1}
+html body #jobonHistoricoResultados .beta-light-history>[data-dmo-handler]{display:block;margin:0;padding:0}
+html body #jobonHistoricoResultados .dmo-list-pager{justify-content:flex-end!important;gap:8px!important;margin-top:8px!important;padding-inline:4px}
+
+@media (max-width:700px){html body .beta-light-productions .jobon-procura-rotulo{display:none}}
+
+/* A cor cheia da linha (hover e linha escolhida de «Produções de <dia>», hover dos
+   cartões da faixa): a cor da linha, mas assente e escura (misturada com o fundo
+   escuro da faixa), nos dois modos, sem azul vivo (Diogo, 27/10/2026: «linha escolhida em
+   azul vivo no escuro»). O texto por cima é sempre branco. */
+html body .beta-light-productions .beta-light-machine-row,
+html body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines .dmo-linha-cor{--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 62%,var(--dmo-deep-900))}
+html[data-theme="dark"] body .beta-light-productions .beta-light-machine-row,
+html[data-theme="dark"] body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines .dmo-linha-cor{--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 48%,var(--dmo-deep-900))}
+@media screen{
+  html:root body .beta-light-productions .beta-light-machine-row:has(input:checked){background:var(--dmo-linha-cheia)}
+  html:root body .beta-light-productions .beta-light-machine-row:has(input:checked) :is(strong,span,a){color:var(--dmo-text-on-color)}
+}
+
+/* Job On › Editar / Novo / Duplicar em /JobOn: o formulário ocupa o lugar do
+   calendário e das produções (nunca por baixo da página toda) e desliza por dentro,
+   com o título e o Fechar / Guardar sempre à vista (a página cabe em 768). */
+@media screen and (min-width:701px){
+  html body .beta-light-view:has(#jobonFolhas .beta-light-sheet) .beta-light-grid{display:none}
+  html body .beta-light-view #jobonFolhas .beta-light-sheet{max-height:calc(100vh - 290px);overflow:auto;padding-top:0;margin:0}
+  html body .beta-light-view #jobonFolhas .beta-light-sheet>.beta-light-sheet-head{position:sticky;top:0;z-index:3;margin:0 0 8px;padding:16px 0 8px;background:var(--dmo-card)}
+}
+
+/* «Sumário» com novidades: sem o ponto laranja; é a própria palavra que fica mais clara
+   (no claro na cor de destaque, no escuro mais clara), a 600 (Diogo, 27/10/2026). O ponto
+   continua no HTML (classe dmo-tab-novo) mas não se vê. O rato por cima muda a letra como nos outros. */
+html body .dmo-tab-novo::after{display:none}
+html body a.dmo-tab-novo:not(:hover):not(.active){color:var(--dmo-brand-600);font-weight:600}
+html[data-theme="dark"] body a.dmo-tab-novo:not(:hover):not(.active){color:#fff;font-weight:600}
