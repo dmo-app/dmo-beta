@@ -70,10 +70,7 @@ html body .revisao-detail h3.revisao-section{margin:20px 0 10px;padding:9px 12px
 /* O link do mcaliper (Diogo, 17/10/2026): um clique no ícone copia. */
 .revisao-mcaliper { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
 .revisao-mcaliper > span { color: var(--dmo-muted); font-size: 12px; font-weight: 600; }
-.revisao-mcaliper-copy { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--dmo-border); border-radius: 999px; background: var(--dmo-card); color: var(--dmo-brand-700); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .revisao-mcaliper-copy svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
-.revisao-mcaliper-copy:is(:hover, :focus-visible) { border-color: var(--dmo-brand-600); background: var(--dmo-brand-050); outline: 0; }
-.revisao-mcaliper-copy.copied { border-color: var(--dmo-ok); color: var(--dmo-ok); }
 /* As consultas do Peso e dos Pegamentos (19/10/2026): o mesmo cartão da Revisão, cada componente em caixas e as leituras em tabela. */
 .revisao-consulta{min-height:0;margin-top:14px}
 .revisao-consulta-componente{display:grid;gap:10px;margin:0 0 16px}
@@ -88,8 +85,8 @@ html body .revisao-detail .revisao-parte-topo h3.revisao-section{flex:1 1 240px;
 /* As consultas no Resumo do Controlo: texto com link, como o «Sair» (Diogo, 19/10/2026). */
 .revisao-consultas{display:flex;flex-wrap:wrap;gap:4px 18px}
 /* Escuros e sublinhados, para se perceber que são links (Diogo, 19/10/2026). */
-.revisao-consultas a{padding:4px 2px;color:var(--dmo-brand-900);font-size:var(--dmo-fs-base);font-weight:700;line-height:1.2;text-decoration:underline;text-decoration-color:var(--dmo-palette-steel);text-decoration-thickness:2px;text-underline-offset:4px}
-.revisao-consultas a:is(:hover,:focus-visible){color:var(--dmo-palette-slate);text-decoration-color:currentColor}
+.revisao-consultas a:not(.btn){padding:4px 2px;color:var(--dmo-brand-900);font-size:var(--dmo-fs-base);font-weight:700;line-height:1.2;text-decoration:underline;text-decoration-color:var(--dmo-palette-steel);text-decoration-thickness:2px;text-underline-offset:4px}
+.revisao-consultas a:not(.btn):is(:hover,:focus-visible){color:var(--dmo-palette-slate);text-decoration-color:currentColor}
 /* O Resumo do controlo com um toque da paleta (Diogo, 19/10/2026: «página
    muito branca»): os títulos das partes em azul-claro com a barra escura, o
    título do resumo no azul dos botões e os quadros com a orla da paleta. */

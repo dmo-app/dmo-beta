@@ -270,6 +270,75 @@
   html body main.resumo-page .revisao-decision>.dmo-field{margin:0}
   html body main.resumo-page .revisao-decision textarea{min-height:64px}
 }
+/* ===== Controlo › Revisão: a página não desliza (Diogo, 27/10/2026) =========
+   O cabeçalho e os filtros ficam fixos; à esquerda o calendário fica fixo e só a lista dos
+   controlos desliza; à direita só o painel do controlo escolhido desliza (o título com as
+   consultas fica sempre à vista). A Consulta dos Pegamentos: as tabelas deslizam numa coluna e
+   o mapa fica ao lado. */
+@media (min-width:1100px){
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page)){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page))>:not(main){flex:none}
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page))>main{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:hidden}
+
+  /* Título à esquerda e filtros à direita, na mesma linha. */
+  html body main.revisao-page.dmo-workspace{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;align-items:center;column-gap:24px;row-gap:8px}
+  html body main.revisao-page>.page-head{grid-column:1;grid-row:1}
+  html body main.revisao-page>.revisao-filtros-card{grid-column:2;grid-row:1;justify-self:end;width:fit-content;max-width:100%}
+  html body main.revisao-page>.resumo-aviso{grid-column:1/-1;grid-row:3;margin:0}
+  html body main.revisao-page>.revisao-grid{grid-column:1/-1;grid-row:2;align-self:stretch;min-height:0;height:100%;align-items:stretch}
+  html body main.revisao-page .revisao-filters{flex-wrap:nowrap;gap:8px 12px}
+  html body main.revisao-page .revisao-filters .revisao-w-estado{flex:0 0 130px}
+  html body main.revisao-page .revisao-filters .revisao-w-data{flex:0 0 140px}
+  html body main.revisao-page .revisao-filtros-card{gap:8px 12px}
+  html body main.revisao-page .revisao-filters .revisao-w-procura{flex:0 0 250px;width:250px}
+  html body main.revisao-page .revisao-filter-actions{flex-wrap:nowrap;margin-left:0}
+
+  /* Esquerda: calendário fixo, a lista desliza. */
+  html body main.revisao-page .revisao-side{display:flex;flex-direction:column;gap:8px;min-height:0}
+  html body main.revisao-page .revisao-side>.dmo-calendar{flex:none;margin:0;padding:8px 12px}
+  html body main.revisao-page .revisao-side .dmo-calendar-nav{margin-bottom:4px}
+  html body main.revisao-page .revisao-side .dmo-calendar-week{margin:0;padding:0}
+  html body main.revisao-page .revisao-side .dmo-calendar-days{gap:0}
+  html body main.revisao-page .revisao-side .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day){min-height:32px;height:32px}
+  html body main.revisao-page .revisao-side .dmo-calendar-legend{margin-top:4px}
+  html body main.revisao-page .revisao-undated-link{flex:none}
+  html body main.revisao-page .revisao-day{flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:12px 16px}
+  html body main.revisao-page .revisao-day #revisaoResultados{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
+  html body main.revisao-page .revisao-day h2{flex:none;font-size:16px}
+  html body main.revisao-page .revisao-day .revisao-list{flex:1 1 0;min-height:0;margin-top:8px;overflow:auto;align-content:start}
+  html body main.revisao-page .revisao-day .resumo-hint{margin:8px 0 0}
+
+  /* Direita: só o painel desliza; o título com as consultas fica à vista. */
+  html body main.revisao-page .revisao-detail{min-height:0;height:100%;box-sizing:border-box;overflow:auto;padding-top:0}
+  html body main.revisao-page .revisao-detail>.revisao-parte-topo:first-child{position:sticky;top:0;z-index:2;margin:0 0 8px;padding:12px 0 8px;min-height:0;background:var(--dmo-card);border-bottom:1px solid var(--dmo-border)}
+  html body main.revisao-page .revisao-detail .peg-map-wrap svg{min-width:0}
+  html body main.revisao-page .revisao-detail .peg-map-wrap{overflow-x:auto}
+
+  /* As consultas do controlo: botões no canto superior direito do cartão. */
+  html body main.revisao-page .revisao-detail .revisao-parte-topo .revisao-consultas{flex:0 0 auto;flex-wrap:nowrap;gap:8px;margin-left:auto}
+  html body main.revisao-page .revisao-detail .revisao-parte-topo .revisao-consultas a.btn.btn{padding:0 14px;color:var(--dmo-text-on-color);text-decoration:none}
+
+  html[data-theme="dark"] body main.revisao-page .revisao-facts .destaque strong{color:var(--dmo-text)}
+
+  /* Consulta dos Pegamentos. */
+  html body main.revisao-peg-consulta-page.dmo-workspace{display:flex;flex-direction:column;gap:8px;padding:8px 24px 12px}
+  html body main.revisao-peg-consulta-page>.page-head{flex:none;margin:0}
+  html body main.revisao-peg-consulta-page>.revisao-detail{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin:0;padding:12px 20px 16px;overflow:hidden}
+  html body main.revisao-peg-consulta-page>.revisao-detail>:is(.revisao-parte-topo,.revisao-facts){flex:none}
+  html body main.revisao-peg-consulta-page>.revisao-detail>.revisao-parte-topo{margin:0 0 8px}
+  html body main.revisao-peg-consulta-page .revisao-peg-consulta{flex:1 1 0;min-height:0;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;margin-top:8px}
+  html body main.revisao-peg-consulta-page .revisao-peg-leituras{min-height:0;overflow:auto;padding-right:6px}
+  html body main.revisao-peg-consulta-page .revisao-peg-mapa{min-height:0;overflow:auto}
+  html body main.revisao-peg-consulta-page .revisao-peg-mapa>h3.revisao-section{margin-top:0}
+  html body main.revisao-peg-consulta-page .peg-map-wrap svg{min-width:0}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente{gap:4px;margin:0 0 12px}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three{display:flex;flex-wrap:wrap;gap:4px 24px;padding:0}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three>div{display:flex;align-items:baseline;gap:6px;padding:0;border:0!important}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three>div>small{font-size:13px}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .revisao-facts.three>div :is(span,strong,small){white-space:nowrap}
+  html body main.revisao-peg-consulta-page .revisao-consulta-componente .dmo-table :is(th,td){padding-top:4px;padding-bottom:4px}
+  html body main.revisao-peg-consulta-page .revisao-peg-leituras h3.revisao-section{margin:0 0 8px}
+}
 @media (min-width:1100px){
   /* Os campos da linha nova como todos os campos (no escuro ficavam cinzentos do navegador). */
   html body main.peg-page .peg-registo-tabela .peg-linha-nova input{box-sizing:border-box;padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit}
