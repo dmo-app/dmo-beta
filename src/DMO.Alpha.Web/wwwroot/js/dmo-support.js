@@ -9,7 +9,6 @@
   const confirm = panel.querySelector('.dmo-support-confirm');
   const loading = panel.querySelector('.dmo-support-loading');
   const refresh = document.querySelector('.dmo-support-refresh');
-  const unlock = panel.querySelector('[data-support-unlock]');
   // «Abrir página» abre sempre o mesmo separador para a mesma página: um
   // segundo clique volta a esse separador em vez de abrir outro, sem fim
   // (Diogo, 27/10/2026: «posso spammar abrir a mesma pagina sem fim»).
@@ -47,7 +46,7 @@
   }
   function desbloquear() {
     const doc = frame.contentDocument; if (!doc) return;
-    bloquear(doc, false); if (unlock) unlock.hidden = true;
+    bloquear(doc, false);
     doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
   }
   let opener, dirty = false, operation = false;
@@ -115,7 +114,6 @@
     if (!doc) return;
     doc.documentElement.dataset.dmoEmbedded = 'true';
     const bloquear_ = bloqueadas.has(frame.contentWindow.location.pathname);
-    if (unlock) unlock.hidden = !bloquear_;
     if (bloquear_) bloquear(doc, true);
     dirty = false;
     apontar(frame.contentWindow.location.href.replace(/([?&])painel=1(&|$)/, (_, before, after) => after ? before : ''));
@@ -140,7 +138,6 @@
   });
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
   panel.querySelector('[data-support-close]').addEventListener('click', requestClose);
-  unlock?.addEventListener('click', desbloquear);
   panel.querySelector('[data-support-keep]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});
   panel.querySelector('[data-support-discard]').addEventListener('click', close);
   refresh.querySelector('[data-support-refresh]').addEventListener('click', () => location.reload());

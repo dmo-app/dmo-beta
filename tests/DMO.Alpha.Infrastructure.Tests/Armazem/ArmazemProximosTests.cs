@@ -84,7 +84,6 @@ public sealed class ArmazemProximosTests
                 ("bq", "Fabrico", ArmazemProximoAcao.Pronta)
             ],
             producao.Ferramentas.Select(f => (f.ToolId, f.OndeEsta, f.Acao)).ToArray());
-        Assert.Equal((1, 1), (producao.PorTirar, producao.Indisponiveis));
     }
 
     [Theory]
@@ -104,7 +103,7 @@ public sealed class ArmazemProximosTests
 
         var doMf = producao.Ferramentas.Single(f => f.ToolId == "mf");
         Assert.Equal((ondeEsta, ArmazemProximoAcao.Indisponivel), (doMf.OndeEsta, doMf.Acao));
-        Assert.Equal(1, producao.Indisponiveis);
+        Assert.Single(producao.Ferramentas, f => f.Acao == ArmazemProximoAcao.Indisponivel);
     }
 
     [Fact]

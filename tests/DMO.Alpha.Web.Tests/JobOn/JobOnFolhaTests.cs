@@ -448,7 +448,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         var html = await HtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}");
 
         Assert.DoesNotContain("id=\"fichaFolha\"", html);
-        Assert.DoesNotContain(FichaDaFolhaVista.SemNadaEscrito, html);
+        Assert.DoesNotContain("Sem nada escrito na folha.", html);
         Assert.Contains("Sem calibres escritos.", html);
         Assert.Contains("<li class=\"view empty-text\">Sem notas.</li>", html);
         Assert.Contains($"href=\"/JobOn/Folha?jobon_id={jobOnId}&amp;editar=1\" data-jof-editar>Editar</a>", html);

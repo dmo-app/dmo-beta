@@ -169,9 +169,6 @@ public sealed class IndexModel(
 
     public bool ErroLote => Recusa is ReparacaoResultado.SemLote or ReparacaoResultado.LoteLongo;
 
-    /// <summary>Corrigir para o mesmo número: nada mudou, só avisa.</summary>
-    public bool Avisou => Correcao is "igual";
-
     public string Mensagem => Gravacao switch
     {
         "ok" when Escrita is not null && SemJobOn => $"Reparação gravada sem Job On, com a {RiTextos.Tipo(Tipo ?? ReparacaoTipo.Cm)} {Escrita}. Falta associar.",

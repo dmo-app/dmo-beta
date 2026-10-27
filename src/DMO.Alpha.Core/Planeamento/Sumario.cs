@@ -159,7 +159,10 @@ public static class SumarioTipos
         bool Tem(string modulo) => modulos.Contains(modulo, StringComparer.Ordinal);
         return tipo switch
         {
-            SumarioTipo.JobOnCriado or SumarioTipo.ProducaoComeca or SumarioTipo.JobOnAlterado => Tem(DmoCapabilities.JobOnCreate),
+            // Também a quem só tem o Job On ver (blueprint, Sumário §2: «toda a gente»;
+            // Diogo, 27/10/2026: «so ve os detalhes do plnaneamento e os jobons»).
+            SumarioTipo.JobOnCriado or SumarioTipo.ProducaoComeca or SumarioTipo.JobOnAlterado =>
+                Tem(DmoCapabilities.JobOnCreate) || Tem(DmoCapabilities.JobOnView),
             SumarioTipo.JobOnPorVer or SumarioTipo.ControloPorAprovar or SumarioTipo.ControloNaoAprovado =>
                 Tem(DmoCapabilities.ControloCreate) || Tem(DmoCapabilities.ControloApprove),
             SumarioTipo.BqMovimentoApagado => Tem(DmoCapabilities.Boquilhas),

@@ -170,9 +170,6 @@ public sealed record ArmazemPar(string ToolId, ToolType Tipo, string? Posicao)
     public bool NoArmazem => Posicao is not null;
 }
 
-/// <summary>Uma posição com as ferramentas que lá estão (a lista das Posições).</summary>
-public sealed record ArmazemPosicaoOcupacao(int PosicaoId, IReadOnlyList<ArmazemOcupante> Ferramentas);
-
 /// <summary>Os movimentos do Armazém: procurar, ver onde está, Entrada, Saída e Corrigir localização.</summary>
 /// <summary>As Linhas da ferramenta e o % de uso da última leitura (para distinguir os lotes nas listas).</summary>
 public sealed record ArmazemLinhasEUso(IReadOnlyList<string> Linhas, decimal? Uso);

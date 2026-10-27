@@ -14,26 +14,13 @@ namespace DMO.Alpha.Core.Controlo;
 /// Exemplo (o do Owner):
 ///   D:\ControloDMO\5447T173\202601\PESO-5447T173-202601.pdf
 ///
-/// Puro e determinístico: recebe o dir configurado, a referência e o nº de
-/// produção; devolve o caminho da pasta da produção e os nomes canónicos
-/// dos ficheiros. O caminho usa o separador do sistema; a referência e
-/// o nº de produção são LIMPOS de caracteres inválidos de path (a app
-/// nunca recusa por causa do separador no nome).
+/// Puro e determinístico: recebe a referência e o nº de produção; devolve a
+/// pasta relativa da produção e os nomes canónicos dos ficheiros. A
+/// referência e o nº de produção são LIMPOS de caracteres inválidos de path
+/// (a app nunca recusa por causa do separador no nome).
 /// </summary>
 public static class ControloDocumentPaths
 {
-    public static string GetProductionFolder(string outputDirectory, string reference, string productionNumber)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(outputDirectory);
-        ArgumentException.ThrowIfNullOrEmpty(reference);
-        ArgumentException.ThrowIfNullOrEmpty(productionNumber);
-
-        return Path.Combine(
-            outputDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar, '\\'),
-            SanitizeSegment(reference),
-            SanitizeSegment(productionNumber));
-    }
-
     public static string GetPesoFileName(string reference, string productionNumber) =>
         $"PESO-{SanitizeSegment(reference)}-{SanitizeSegment(productionNumber)}.pdf";
 

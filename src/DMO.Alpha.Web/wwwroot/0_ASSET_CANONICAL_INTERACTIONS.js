@@ -1258,30 +1258,6 @@
       carregar(endpoint.href, href.href);
     });
 
-    // data-dmo-procura-valor="id": um clique numa linha ESCOLHE (Diogo,
-    // 17/10/2026): o campo escondido recebe o data-id, o campo mostra o
-    // data-dmo-rotulo e a lista fecha. Escrever de novo desfaz a escolha.
-    // Num form data-dmo-procura-submete, quando todos os campos escondidos
-    // das procuras estão escolhidos, o form submete sozinho.
-    const valueField = document.getElementById(field.dataset.dmoProcuraValor || "");
-    if (valueField) {
-      field.addEventListener("input", () => { valueField.value = ""; });
-      target.addEventListener("dmo:list-select", (event) => {
-        const row = event.detail && event.detail.row;
-        if (!row) return;
-        valueField.value = row.dataset.id || "";
-        field.value = row.dataset.dmoRotulo || row.textContent.trim();
-        latest++;
-        target.replaceChildren();
-        valueField.dispatchEvent(new Event("change", { bubbles: true }));
-        const form = field.form;
-        if (form && form.hasAttribute("data-dmo-procura-submete")) {
-          const chosen = Array.from(form.querySelectorAll("[data-dmo-procura-valor]"))
-            .map((input) => document.getElementById(input.dataset.dmoProcuraValor));
-          if (chosen.every((input) => input && input.value)) form.requestSubmit();
-        }
-      });
-    }
     // Seta para baixo passa do campo para a primeira linha encontrada.
     field.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowDown") return;
@@ -1559,7 +1535,6 @@
       if (!body.has(hidden.name)) body.append(hidden.name, hidden.value);
     });
     body.append(input.name, valor);
-    const resumo = form.querySelector("[data-dmo-valor-resumo]");
     try {
       const response = await fetch(form.action, {
         method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" }
@@ -1599,7 +1574,6 @@
           window.DMOLive.mostrarMensagens(caixa);
         }
       }
-      if (resumo && data.resumo) resumo.textContent = data.resumo;
     } catch {
       form.requestSubmit();
     }

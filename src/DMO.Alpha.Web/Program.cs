@@ -118,8 +118,12 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
     var config = serviceProvider.GetRequiredService<IConfiguration>();
     var databaseConnection = config.GetConnectionString("DmoDatabase");
     if (!string.IsNullOrWhiteSpace(databaseConnection))
-        options.UseNpgsql(databaseConnection, npgsql =>
-            npgsql.MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName));
+        // SingleQuery escrito (era já o que o EF fazia): sem isto, cada consulta
+        // com mais de uma lista incluída dava o aviso QuerySplittingBehavior
+        // no registo (teste do ensaio, 27/10/2026).
+        options.UseNpgsql(databaseConnection, npgsql => npgsql
+            .MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName)
+            .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
     else if (builder.Environment.IsDevelopment())
         // Preserve the existing local Development/test seam.
         options.UseInMemoryDatabase("DmoAlphaModule1");
@@ -127,8 +131,9 @@ builder.Services.AddDbContext<DmoDbContext>((serviceProvider, options) =>
         // Register the real provider without inventing a connection. Login and
         // the error page remain available; database operations fail explicitly
         // until deployment configuration supplies the PostgreSQL connection.
-        options.UseNpgsql(npgsql =>
-            npgsql.MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName));
+        options.UseNpgsql(npgsql => npgsql
+            .MigrationsAssembly(typeof(DmoDbContext).Assembly.FullName)
+            .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
 });
 
 // -------------------------------------------------------------------------
@@ -250,6 +255,7 @@ builder.Services.AddScoped<ICreatePesoComparacaoHandler, CreatePesoComparacaoHan
 // As ferramentas herdadas da produção (o Peso) e a procura do histórico do Controlo.
 builder.Services.AddScoped<DMO.Alpha.Infrastructure.Controlo.PesoToolFactsQuery>();
 builder.Services.AddScoped<IControloHistorySearchQuery, DMO.Alpha.Infrastructure.Controlo.ControloHistorySearchQuery>();
+builder.Services.AddScoped<IControloHistoricoProcura, DMO.Alpha.Infrastructure.Controlo.ControloHistoricoProcura>();
 // Controlo configuration read path: densidade do vidro configurada por processo
 // (a edição pertence à superfície de administração; o Peso consome e preserva).
 builder.Services.AddScoped<IGlassDensityConfiguration, GlassDensityConfiguration>();

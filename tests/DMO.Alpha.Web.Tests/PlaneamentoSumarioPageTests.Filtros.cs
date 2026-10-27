@@ -84,8 +84,9 @@ public sealed partial class PlaneamentoSumarioPageTests
 
         var html = await GetAsync(client);
 
+        // Quem só tem o Job On ver recebe os Job On e o Armazém, sem o Controlo.
+        Assert.Contains("<option value=\"jobon\">Job On</option>", html);
         Assert.Contains("<option value=\"armazem\">Armazém</option>", html);
-        Assert.DoesNotContain("<option value=\"jobon\"", html);
         Assert.DoesNotContain("<option value=\"controlo\"", html);
         Assert.DoesNotContain("<option value=\"importante\"", html);
     }
