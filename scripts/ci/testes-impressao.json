@@ -1,5 +1,5 @@
 {
-  "selo": "0f79a310d5ab02ef",
+  "selo": "49685c9a47bd1a6d",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2984,11 +2984,15 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "62ec5a302f2d478f",
+    "tests/ShellProof/package.json": "76c86cea5982635b",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel com confirmar: com o formulário mudado pede antes de fechar": "26cb1a6df8546b40",
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel: Escape fecha (o «cancel» do <dialog>) e DmoPainel abre por código": "ee6286395287853c",
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel: o botão abre, o «Fechar» fecha e o foco volta ao botão": "b900a0250ec1d22b",
+    "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: (resto do ficheiro)": "391eec0ff7b94a78",
+    "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: abrir fecha um <dmo-painel> que esteja aberto": "eb7953a291a0cf91",
+    "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Painel de apoio: cliques repetidos na mesma página não a voltam a carregar e outra página troca a que lá está": "e93b768aa621915f",
+    "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: Um painel de cada vez: o mesmo botão não abre outro por cima e outro painel fecha o que está aberto": "fa1db8ca79e1e40a",
     "tests/ShellProof/pegamentos-previsao.casos.json": "2b25d4ad3dc0e568",
     "tests/ShellProof/pegamentos-previsao.test.cjs :: (resto do ficheiro)": "d35d80827ba2eec6",
     "tests/ShellProof/pegamentos-previsao.test.cjs :: 3.12: a pré-visualização é a do servidor: ${caso.nome}": "cafe33bf79815d20",
