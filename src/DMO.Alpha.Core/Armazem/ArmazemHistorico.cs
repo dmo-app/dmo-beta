@@ -44,6 +44,9 @@ public sealed record ArmazemHistoricoLinha(
     /// <summary>O reparador: o da Saída para Reparação, ou, na Entrada que volta da Reparação, o da Saída antes dela.</summary>
     public string? Reparador { get; init; }
 
+    /// <summary>O estado escolhido no movimento (na Entrada, ou na Saída para Sucata); null nos outros.</summary>
+    public FerramentaEstadoTipo? Estado { get; init; }
+
     /// <summary>A posição onde ficou (só na Entrada e no Corrigir para uma posição).</summary>
     public string? Posicao { get; init; }
 

@@ -515,7 +515,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" id="armLogLista" data-dmo-list="Últimas entradas e saídas de @tipoTexto">
-          <thead><tr><th>Data</th><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Movimento</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
+          <thead><tr><th>Data</th><th>Ferramenta</th><th>Linha</th><th>% uso</th><th>Movimento</th><th>Estado</th><th>Reparador</th><th>Posição</th><th>Registado por</th></tr></thead>
           <tbody>
           @* Os lotes novos por criar no topo: ainda não são ferramenta nem
              movimento; a entrada fica registada quando a ferramenta for
@@ -528,6 +528,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>—</td>
               <td>—</td>
               <td><span class="dmo-pill inactive">Por criar</span></td>
+              <td>—</td>
               <td>—</td>
               <td>@l.Posicao</td>
               <td>@(l.RegistadoPor ?? "—")</td>
@@ -544,6 +545,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Linhas(Model.LinhasEUso, m.ToolId)</td>
               <td>@DMO.Alpha.Web.Presentation.FerramentaNome.Uso(Model.LinhasEUso, m.ToolId)</td>
               <td>@MovimentosModel.Movimento(m)</td>
+              <td>@(m.Estado is { } estMov ? ArmazemTextos.Estado(estMov) : "—")</td>
               <td>@(m.Reparador ?? "—")</td>
               <td>@(m.Posicao ?? "—")</td>
               <td>@(m.RegistadoPor ?? "—")</td>
@@ -557,6 +559,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
               <td>—</td>
               <td>—</td>
               <td>@MovimentosModel.Movimento(m)</td>
+              <td>@(m.Estado is { } estMov ? ArmazemTextos.Estado(estMov) : "—")</td>
               <td>@(m.Reparador ?? "—")</td>
               <td>@(m.Posicao ?? "—")</td>
               <td>@(m.RegistadoPor ?? "—")</td>
