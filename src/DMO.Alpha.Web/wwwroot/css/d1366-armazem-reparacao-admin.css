@@ -30,14 +30,17 @@
   /* As zonas por cima da caixa, sem caixa própria. */
   html body main.arm-page :is(#armTipos,#armEscolha,#armMovProcura,#armMovFerramenta){margin:0;background:none;border:0;border-radius:0;box-shadow:none}
   /* Esquerda: o tipo em cima, a procura (ou o convite) por baixo; a altura que sobra fica no fim da coluna. */
-  html body main.arm-page>#armTipos{display:block;grid-column:1;grid-row:3;padding:16px 20px 12px}
+  html body main.arm-page>#armTipos{display:block;grid-column:1;grid-row:3;padding:14px 20px 10px}
   html body main.arm-page #armEscolha{grid-column:1;grid-row:4/6;padding:0 20px 16px;color:var(--dmo-muted)}
   html body main.arm-page #armEscolha>p{margin:0;font-size:13px}
   html body main.arm-page #armMovProcura{grid-column:1;grid-row:4/6;padding:0 20px 16px}
   html body main.arm-page #armMovProcura>.dmo-card-topo{margin:0 0 8px}
   html body main.arm-page #armMovProcura>.dmo-card-topo h3{margin:0;font-size:13px;font-weight:600;color:var(--dmo-muted)}
   html body main.arm-page #armProcuraForm{flex-wrap:wrap;gap:8px;margin:0}
-  html body main.arm-page #armProcuraForm>.arm-modo-direita{order:0;margin:0 0 4px;flex:1 0 100%}
+  html body main.arm-page #armProcuraForm>.arm-modo-linha{order:0;margin:0 0 4px;flex:1 0 100%;display:flex;align-items:center;gap:8px}
+  html body main.arm-page #armProcuraForm .arm-modo-linha>.arm-modo-direita{margin:0;order:0}
+  /* «Registar» antes do Entrada | Saída, com um traço a separar (como nas Boquilhas). */
+  html body main.arm-page #armProcuraForm .arm-modo-separador{align-self:stretch;width:1px;background:var(--dmo-border)}
   html body main.arm-page #armProcuraForm>.dmo-field:has(>#armProcura){flex:1 1 0;min-width:0}
   html body main.arm-page #armProcuraForm #armProcura{width:100%}
   html body main.arm-page #armMovProcura #armProcuraLista>*{margin-top:12px}
@@ -60,26 +63,26 @@
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]::before{grid-column:1}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]::after{grid-column:2}
   /* Meio: o registo. */
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:1;grid-row:1/4;padding:16px 20px 12px}
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-topo{display:flex;align-items:center;min-height:var(--dmo-control-height);margin:0 0 12px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>form[method="post"]{grid-column:1;grid-row:1/4;padding:14px 20px 8px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-topo{display:flex;align-items:center;min-height:var(--dmo-control-height);margin:0 0 6px}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-titulo{margin:0;font-size:15px;font-weight:650;line-height:1.2;color:var(--dmo-text)}
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:end;margin:0 0 8px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 12px;align-items:end;margin:0 0 6px}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field{min-width:0}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field :is(input,select){width:100%;max-width:none}
   /* «Corrigir» e «Registar»: no canto superior direito do cartão. */
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-acoes{position:absolute;top:16px;right:20px;z-index:1}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-acoes{position:absolute;top:14px;right:20px;z-index:1}
   /* Direita: a ferramenta selecionada. */
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin:0;padding:16px 20px 0}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin:0;padding:14px 20px 0}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo::before{content:"Ferramenta selecionada";flex:1 0 100%;min-height:var(--dmo-control-height);display:flex;align-items:center;margin:0 0 4px;font-size:15px;font-weight:650;color:var(--dmo-text)}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-card-topo h3{margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde{grid-column:2;grid-row:2;flex-direction:column;flex-wrap:nowrap;gap:8px;margin:0;padding:12px 20px 12px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde{grid-column:2;grid-row:2;flex-direction:column;flex-wrap:nowrap;gap:6px;margin:0;padding:8px 20px 8px}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde>div{flex-direction:row;align-items:baseline;gap:12px}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde>div>span:first-child{flex:0 0 120px;white-space:nowrap}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-onde>.arm-uso{align-items:center}
   /* Por baixo das três colunas, ainda no cartão: os avisos e os últimos movimentos da ferramenta. */
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>p.dmo-aviso{margin:0 20px 12px}
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-subtitulo{margin:0 20px;padding:12px 0 8px;border-top:1px solid var(--dmo-border)}
-  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-table-wrap{margin:0 20px 16px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.arm-subtitulo{margin:0 20px;padding:8px 0 6px;border-top:1px solid var(--dmo-border)}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-table-wrap{margin:0 20px 12px}
   /* As últimas entradas e saídas, fora do cartão. */
   html body main.arm-page #armRegisto>#armLog{grid-column:1/-1;grid-row:6;margin:16px 0 0}
 }
@@ -311,3 +314,57 @@ html body .beta-light-layout.ri-layout>main.ri-page:only-child{grid-column:1/-1}
 html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active),
 html[data-theme="dark"] body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){background:var(--dmo-machine-color,var(--dmo-brand-600));border-color:var(--dmo-machine-color,var(--dmo-brand-600));color:#fff;outline:0}
 html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active) :is(strong,span){color:#fff}
+
+/* ======================================================================
+   ARMAZÉM, 3.ª volta (27/10/2026): a PÁGINA NÃO DESLIZA a 1366×768.
+   O que não couber desliza só dentro da tabela do seu cartão (o cartão chega ao fundo do
+   ecrã, o corpo da tabela com overflow:auto e o cabeçalho fixo). 95 px = as duas barras do
+   topo (navegação e separadores do módulo).
+   ====================================================================== */
+@media (min-width:1100px){
+  /* A tabela que desliza: cabeçalho fixo (a caixa tem 4 px de margem interior, dmo-normalize.css). */
+  html body main:is(.arm-page,:has(#armMovimentos)) .dmo-table-wrap{overflow:auto}
+  html body main:is(.arm-page,:has(#armMovimentos)) .dmo-table-wrap>.dmo-table thead th{position:sticky;top:-4px;z-index:2}
+
+  /* REGISTO: a página tem a altura do ecrã; as últimas entradas e saídas ficam com o que sobra. */
+  html body main.beta-light-main.arm-page{box-sizing:border-box;height:calc(100vh - 95px);grid-template-rows:auto auto 104px auto auto minmax(0,1fr)}
+  html body main.arm-page #armRegisto>#armLog{align-self:start;display:flex;flex-direction:column;min-height:0;max-height:calc(100% - 12px);margin:12px 0 0;padding:12px 20px}
+  html body main.arm-page #armLog>.dmo-card-topo{flex:none;min-height:0;margin:0 0 8px}
+  html body main.arm-page #armLog>.dmo-table-wrap{flex:0 1 auto;min-height:0}
+  html body main.arm-page #armLog>.dmo-list-pager{flex:none;margin-top:8px!important}
+  html body main.arm-page #armLog>p{margin:0}
+  /* A procura sem ferramenta aberta: a lista do que se encontrou desliza (não empurra o cartão). */
+  html body main.arm-page #armProcuraLista .dmo-table-wrap{max-height:max(150px,calc(100vh - 560px))}
+
+  /* MOVIMENTOS: os dois cartões chegam ao fundo do ecrã; as tabelas deslizam dentro deles. */
+  html body main.dmo-workspace:has(#armMovimentos){box-sizing:border-box;height:calc(100vh - 95px);display:flex;flex-direction:column}
+  html body main.dmo-workspace:has(#armMovimentos)>.page-head{flex:none}
+  html body main:has(#armMovimentos) .arm-mov{flex:1 1 auto;min-height:0;align-items:start;grid-template-rows:minmax(0,1fr)}
+  /* O cartão tem a altura do que leva; só chega ao fundo (e a tabela desliza) quando não cabe. */
+  html body main:has(#armMovimentos) .arm-card{display:flex;flex-direction:column;min-height:0;max-height:100%;overflow:hidden}
+  html body main:has(#armMovimentos) .arm-card>.arm-card-head,
+  html body main:has(#armMovimentos) .arm-card>.arm-filtros,
+  html body main:has(#armMovimentos) .arm-card>.arm-filtro-ferramenta,
+  html body main:has(#armMovimentos) .arm-card>.dmo-list-pager{flex:none}
+  html body main:has(#armMovimentos) .arm-card>.dmo-table-wrap{flex:0 1 auto;min-height:0}
+  html body main:has(#armMovimentos) .arm-card>.dmo-list-pager{margin-top:8px!important}
+}
+
+/* ARMAZÉM › REGISTO › «Corrigir»: o aviso não cola aos campos que vêm a seguir. */
+html body #arm-corrigir-dialog .dmo-aviso-discreto{margin:0 0 12px}
+html body #arm-corrigir-dialog .dmo-aviso.erro{margin:0 0 12px}
+html[data-theme="dark"] body main.arm-page{--dmo-escolhida-contorno:var(--dmo-brand-300,#9cc3ea);--dmo-escolhida-letra:var(--dmo-brand-300,#9cc3ea)}
+
+/* ======================================================================
+   ARMAZÉM, 2.ª passagem do aspeto (Diogo, 27/10/2026)
+   ====================================================================== */
+/* Cabeçalhos das tabelas legíveis (eram 10 px), no Registo e nos Movimentos. */
+html body main:is(.arm-page,:has(#armMovimentos)) table th{font-size:12px;line-height:16px}
+@media (min-width:1100px){
+  /* Movimentos: os dois cartões com as bordas alinhadas até ao fundo; a tabela de cada um enche o cartão e desliza por dentro. */
+  html body main:has(#armMovimentos) .arm-mov{align-items:stretch}
+  html body main:has(#armMovimentos) .arm-card{max-height:none}
+  html body main:has(#armMovimentos) .arm-card>.dmo-table-wrap{flex:1 1 auto}
+  /* O cartão «Fora, em reparação» chega ao fundo, mas a sua tabela só tem a altura das linhas. */
+  html body main:has(#armMovimentos) #armRepFora>.dmo-table-wrap{flex:0 1 auto}
+}

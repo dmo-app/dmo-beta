@@ -41,8 +41,10 @@
     @* A lista aparece quando se escreve a referência ou o lote; a máquina
        só reduz (deep sweep 2, 18/10/2026, F-16: a regra das Ferramentas,
        Diogo, 17/10 e 18/10: «não deve existir lista até procurar»). *@
-    @* Esta dica fica: o teste do browser do catálogo (tests/visual/boquilhas_catalog_browser.py) pede uma dica visível. *@
-    <h3>Procurar boquilha<partial name="_DmoHelp" model="@("A lista aparece quando escreve a referência ou o lote e muda enquanto escreve. A máquina só reduz a lista.")" /></h3>
+    @* Sem círculo à vista (regra do Diogo): o texto fica no title do título; a dica
+       continua no HTML, escondida, porque o teste do browser do catálogo
+       (tests/visual/boquilhas_catalog_browser.py, A-0227) pede uma dica escondida. *@
+    <h3 title="A lista aparece quando escreve a referência ou o lote e muda enquanto escreve. A máquina só reduz a lista.">Procurar boquilha<partial name="_DmoHelp" model="@("A lista aparece quando escreve a referência ou o lote e muda enquanto escreve. A máquina só reduz a lista.")" /></h3>
     <div id="bqCriarBoquilha" class="dmo-card-topo-acoes" data-dmo-regiao>@if (podeRegistar)
     {<a class="btn primary" href="@Model.CreateToolLink()">Criar boquilha</a>}</div>
   </div>

@@ -420,7 +420,7 @@
                 var resetNote = Model.DiscrepancyResetNote;
                 var resettable = trace.AccumulatedDiscrepancy is int nonZero && nonZero != 0 && trace.BqRepairTraceId > 0;
               }
-              <div><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para meter a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}</strong></div>
+              <div title="@(resetNote.Length > 0 ? resetNote : null)"><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para meter a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}</strong></div>
             </div>
             @if (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && trace.AccumulatedDiscrepancy is int toReset && toReset != 0)
             {
@@ -745,7 +745,7 @@
                 @if (Model.ListLimitWarning is { } limitWarning)
                 {
                   @* Só filtros, sem período: os mais recentes, com a explicação na dica. *@
-                  <span class="muted bq-history-count" role="status">Os @Model.HistoryMovementCount mais recentes<partial name="_DmoHelp" model="@limitWarning" /></span>
+                  <span class="muted bq-history-count" role="status" title="@limitWarning">Os @Model.HistoryMovementCount mais recentes</span>
                 }
                 else
                 {
@@ -759,7 +759,7 @@
               </div>
             </div>
             <div class="bq-history-filter-grid">
-              <div class="field dmo-field"><label for="vista">Vista<span id="bqHistVistaAjuda" data-dmo-regiao><partial name="_DmoHelp" model="@viewHelp" /></span></label><select id="vista" name="vista" data-dmo-autosubmit>
+              <div class="field dmo-field"><label for="vista"><span id="bqHistVistaAjuda" data-dmo-regiao title="@viewHelp">Vista</span></label><select id="vista" name="vista" data-dmo-autosubmit>
                 <option value="grupos" selected="@Model.ShowGrouped">Por linha / Job On</option>
                 <option value="matriz" selected="@Model.ShowMatrix">Resumo diário · 6 máquinas</option>
                 <option value="movimentos" selected="@Model.ShowMovements">Movimentos detalhados</option>
@@ -830,7 +830,7 @@
                   </div>
                 }
               </div>
-              <div>
+              <div class="card bq-history-calendar">
                 @* «Hoje» e «Todos os dias» no canto superior direito do cartão,
                    na linha do título, por cima do calendário e não por baixo
                    (Diogo, 18/10/2026: «metem os botões em baixo aumenta
@@ -842,13 +842,12 @@
           </div>
         }
         </div>
-        <div id="bqHistTotais" class="card bq-metrics-card" data-dmo-regiao>
+        <div id="bqHistTotais" class="card bq-metrics-card" data-dmo-regiao title="Totais de movimentos do filtro, não saldos de stock.">
           <div class="lot-data">
             <div><span>Saídas</span><strong>@Model.FilteredSaidas</strong></div>
             <div><span>Entradas</span><strong>@Model.FilteredEntradas</strong></div>
             <div><span>Entradas sem reparação</span><strong>@Model.FilteredSemReparacao</strong></div>
           </div>
-          <div class="dmo-help-corner"><partial name="_DmoHelp" model="@("Totais de movimentos do filtro, não saldos de stock.")" /></div>
         </div>
 
         <div id="bqHistLista" class="dmo-zona" data-dmo-regiao>
@@ -974,6 +973,7 @@
                 var groupedPage = DMO.Alpha.Core.Paging.PagedList<DMO.Alpha.Core.Boquilhas.BqHistoryMovementGroup>
                     .FromLoaded(Model.GroupedMovements, Model.HistoryListPage);
               }
+              <div class="bq-lista-rolante">
               @foreach (var machineGroup in groupedPage.Items.GroupBy(g => g.MachineCode))
               {
                 <section class="bq-machine-group">
@@ -987,6 +987,7 @@
               }
               @if (Model.GroupedMovements.Count == 0)
               { <p class="muted">@(Model.HistorySearchApplied ? "Nenhum movimento encontrado com os filtros selecionados." : IndexModel.HistoryEmptyStateMessage)</p> }
+              </div>
               <partial name="_ListPager" model='ListPager.For(groupedPage, "hist_pagina")' />
             </div>
           }
