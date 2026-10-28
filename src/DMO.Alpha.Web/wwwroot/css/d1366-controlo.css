@@ -704,3 +704,8 @@ html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeam
 html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeamento"]) .beta-production-lines>:is(button,.dmo-rail-link){flex:1 1 0;min-width:112px;max-width:none;width:auto}
 html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeamento"]) .beta-production-lines{flex:1 1 0;min-width:0}
 html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeamento"]) .beta-production-lines>:is(button,.dmo-rail-link){white-space:nowrap}
+
+/* Boquilhas (Diogo, 28/10/2026): sem o título «Linhas de produção» na faixa, para
+   caber o cartão a mais que aparece quando uma linha muda de produção. O nome
+   fica para o leitor de ecrã (aria-label da faixa). */
+html:root body #bqCurrentLines>.beta-production-rail-head{display:none}
