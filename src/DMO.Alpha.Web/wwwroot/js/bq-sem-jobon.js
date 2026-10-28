@@ -39,7 +39,7 @@
       const forte = document.createElement('strong');
       forte.textContent = curto(option.text);
       li.append(forte);
-      // O resto que identifica a BQ (sem as máquinas: a linha não fica presa à ficha).
+      // O resto que identifica a BQ (sem as máquinas: já estão na Linha).
       const resto = option.text.split(' · ').slice(2).filter(p => !p.startsWith('Máq.'));
       if (resto.length) {
         const extra = document.createElement('span');
@@ -92,6 +92,28 @@
     if (label) label.htmlFor = input.id;
     if (select.value) input.value = curto(select.selectedOptions[0].text);
     select.addEventListener('invalid', () => input.focus());
+
+    // A Linha só com as da ficha da BQ escolhida, já com uma escolhida (a
+    // última onde teve movimentos, se for da ficha; senão a primeira) (Diogo,
+    // 28/10/2026). Sem linhas na ficha, ficam todas.
+    const linha = document.querySelector(`[data-bq-linhas-da="${select.id}"]`);
+    if (linha) {
+      const acertar = trocou => {
+        const daFicha = (select.selectedOptions[0]?.dataset.linhas || '').toUpperCase().split(' ').filter(Boolean);
+        const opcoesLinha = [...linha.options].filter(o => o.value);
+        for (const o of opcoesLinha) {
+          const fora = daFicha.length > 0 && !daFicha.includes(o.text.trim().toUpperCase());
+          o.hidden = fora;
+          o.disabled = fora;
+        }
+        if (trocou || !linha.value || linha.selectedOptions[0]?.disabled) {
+          const primeira = daFicha.map(c => opcoesLinha.find(o => o.text.trim().toUpperCase() === c)).find(Boolean);
+          linha.value = primeira ? primeira.value : '';
+        }
+      };
+      select.addEventListener('change', () => acertar(true));
+      if (select.value) acertar(false);
+    }
   };
   ligar();
   document.addEventListener('dmo:troca', ligar);

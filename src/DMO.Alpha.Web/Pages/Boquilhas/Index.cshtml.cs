@@ -172,6 +172,12 @@ public sealed partial class IndexModel : PageModel
     [BindProperty(SupportsGet = true, Name = "hist_pagina")] public int? HistoryListPage { get; set; }
 
     /// <summary>As BQ da janela «Registar sem Job On» (referência e lote).</summary>
+    /// <summary>As linhas da ficha com a última onde a BQ teve movimentos à frente (a proposta da Linha).</summary>
+    public static IReadOnlyList<string> LinhasPelaUltima(IReadOnlyList<string> linhas, string? ultima) =>
+        ultima is { Length: > 0 } && linhas.Contains(ultima, StringComparer.OrdinalIgnoreCase)
+            ? [.. linhas.Where(l => string.Equals(l, ultima, StringComparison.OrdinalIgnoreCase)), .. linhas.Where(l => !string.Equals(l, ultima, StringComparison.OrdinalIgnoreCase))]
+            : linhas;
+
     public IReadOnlyList<SemJobOnTool> SemJobOnTools { get; private set; } = Array.Empty<SemJobOnTool>();
 
     /// <summary>As linhas da janela «Registar sem Job On».</summary>
@@ -661,7 +667,8 @@ public sealed partial class IndexModel : PageModel
             // para a janela da página Boquilhas.
             SemJobOnTools = (await _escolhas.BqSemJobOnAsync(HttpContext.RequestAborted))
                 .Select(t => new SemJobOnTool(t.ToolId, t.Reference, t.Lot, t.Quantity,
-                    t.Machines.Count > 0 ? string.Join(" · ", t.Machines) : null, t.MfReference, t.LastLine))
+                    t.Machines.Count > 0 ? string.Join(" · ", t.Machines) : null, t.MfReference, t.LastLine)
+                    { MachineCodes = LinhasPelaUltima(t.Machines, t.LastLine) })
                 .ToList();
             SemJobOnResult = Request.Query["sem_jobon"].FirstOrDefault();
             // A linha do movimento (Diogo, 22/10/2026: ajuda a distinguir a BQ).
@@ -1711,6 +1718,9 @@ public sealed record SemJobOnTool(
 
     /// <summary>O texto da procura: tudo o que se vê, sem distinguir maiúsculas.</summary>
     public string SearchText => Label.ToLowerInvariant();
+
+    /// <summary>As linhas da ficha (os códigos), pela ordem da ficha: a Linha do movimento só deixa estas.</summary>
+    public IReadOnlyList<string> MachineCodes { get; init; } = [];
 }
 
 /// <summary>Um movimento sem Job On, na ficha da BQ da página Boquilhas.</summary>

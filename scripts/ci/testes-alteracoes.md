@@ -4161,3 +4161,13 @@ Novos: 12 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
 
 Selo depois: `0a65058f2652b403`
+
+## A-0308 · 2026-10-28 · teste-novo
+
+Porquê: Linha do «Registar sem Job On» só com as linhas da ficha da BQ (DMO-572).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaPropostaEAUltimaOndeTeveMovimentos_SeForDaFicha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida`
+
+Selo depois: `9d50b5039c93e9e9`

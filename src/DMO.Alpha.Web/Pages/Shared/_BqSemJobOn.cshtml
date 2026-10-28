@@ -9,6 +9,13 @@
 {
   var recusa = Model.SemJobOnResult is { Length: > 0 } r && r != "ok";
   var escolhida = Model.ToolSheet?.ToolId;
+  @* A Linha só com as da ficha da BQ (Diogo, 28/10/2026: «escolhi uma para C1
+     mete logo C1; se for C1 B2, aparecer C1 e depois apenas poder filtrar pela
+     C1 ou B2»). Vem já a última onde a BQ teve movimentos, se for da ficha;
+     senão a primeira. Sem linhas na ficha, mostra todas. *@
+  var linhasDaEscolhida = Model.SemJobOnTools.FirstOrDefault(t => t.ToolId == escolhida)?.MachineCodes ?? [];
+  var linhaProposta = linhasDaEscolhida.Count == 0 ? null
+      : Model.SemJobOnLines.FirstOrDefault(l => string.Equals(l.Code, linhasDaEscolhida[0], StringComparison.OrdinalIgnoreCase))?.MachineId;
     @if (Model.SemJobOnResult == "ok")
     {
       <p data-dmo-toast="ok" class="result" role="status">@Model.SemJobOnMessage</p>
@@ -34,17 +41,19 @@
               <option value="">Escolher</option>
               @foreach (var tool in Model.SemJobOnTools)
               {
-                <option value="@tool.ToolId" data-procura="@tool.SearchText" selected="@(tool.ToolId == escolhida)">@tool.Label</option>
+                @* Sem o tag helper (o «!»): o data-linhas só aparece com linhas. *@
+                <!option value="@tool.ToolId" data-procura="@tool.SearchText"@(tool.MachineCodes.Count > 0 ? Html.Raw($" data-linhas=\"{System.Net.WebUtility.HtmlEncode(string.Join(' ', tool.MachineCodes))}\"") : null) selected="@(tool.ToolId == escolhida)">@tool.Label</!option>
               }
             </select>
           </div>
           <div class="dmo-field bq-sem-jobon-curto">
             <label for="bqSemJobOnLinha">Linha</label>
-            <select id="bqSemJobOnLinha" name="movement_machine_id" required>
+            <select id="bqSemJobOnLinha" name="movement_machine_id" required data-bq-linhas-da="bqSemJobOnBq">
               <option value="">—</option>
               @foreach (var linha in Model.SemJobOnLines)
               {
-                <option value="@linha.MachineId">@linha.Code</option>
+                var daFicha = linhasDaEscolhida.Count == 0 || linhasDaEscolhida.Contains(linha.Code, StringComparer.OrdinalIgnoreCase);
+                <option value="@linha.MachineId" selected="@(linha.MachineId == linhaProposta)" hidden="@(!daFicha)" disabled="@(!daFicha)">@linha.Code</option>
               }
             </select>
           </div>
