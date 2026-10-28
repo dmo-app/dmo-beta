@@ -49,6 +49,8 @@ html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.dmo-field{flex
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-type select{width:192px !important}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:104px !important;min-width:0;padding-inline:10px}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-lot,.ferr-w-qty) input{width:56px !important;min-width:0}
+html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2{flex:0 0 auto !important;width:auto !important}
+html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2 select{width:128px !important;min-width:0}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input{width:56px !important;min-width:0}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input.ferr-sem-registo-campo{width:92px !important;padding-inline:8px}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:164px !important;min-width:0;padding-inline:10px}

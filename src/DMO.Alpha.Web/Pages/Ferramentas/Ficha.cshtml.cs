@@ -584,7 +584,8 @@ public sealed class FichaModel : PageModel
         [FromForm(Name = "technical_name")] string? technicalName = null,
         [FromForm(Name = "fabrica_origem")] string? fabricaOrigem = null,
         [FromForm(Name = "uso_percentagem")] string? usoPercentagem = null,
-        [FromForm(Name = "an_quantity")] string? anQuantity = null)
+        [FromForm(Name = "an_quantity")] string? anQuantity = null,
+        [FromForm(Name = "b2_modo")] string? b2Modo = null)
     {
         var canonicalToolId = IndexModel.Sanitize(toolId) ?? string.Empty;
         // Aberta a partir de um fluxo: o regresso fica na ficha depois de
@@ -630,7 +631,9 @@ public sealed class FichaModel : PageModel
                 IndexModel.ActorName(User),
                 technicalName?.ToUpperInvariant(),
                 fabricaOrigem,
-                parsedAn),
+                parsedAn,
+                // Sem o campo (não há B2 registada) mantém; vazio tira o modo.
+                Request.HasFormContentType && Request.Form.ContainsKey("b2_modo") ? b2Modo ?? string.Empty : null),
             HttpContext.RequestAborted);
 
         if (outcome.Result == EditToolFactsResult.Success)

@@ -211,6 +211,7 @@ builder.Services.AddScoped<IPegamentosEscolhasQuery, PegamentosEscolhasQuery>();
 // (filtros explícitos aplicados no servidor; apenas reduzem candidatos).
 builder.Services.AddScoped<IToolCandidateQuery, ToolCandidateQuery>();
 builder.Services.AddScoped<IToolLotQuantitySettings, ToolLotQuantitySettings>();
+builder.Services.AddScoped<ICodificacaoFerramentas, CodificacaoFerramentas>();
 // Tools read path: contexto técnico Tool-owned (valores consumidos pelo Peso,
 // completáveis no fluxo e gravados no tool_id owner — regra Ferramentas).
 builder.Services.AddScoped<IToolTechnicalQuery, ToolTechnicalQuery>();

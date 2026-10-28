@@ -68,6 +68,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 t.Lot,
                 t.BqAccountedQuantity,
                 t.TechnicalName,
+                t.B2Modo,
                 Process = tc != null ? tc.Process : null,
                 VolumePuncaoCm3 = tc != null ? tc.VolumePuncaoCm3 : null,
                 VolumeMarisaCm3 = tc != null ? tc.VolumeMarisaCm3 : null,
@@ -226,7 +227,10 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 NomeTecnico = tool.TechnicalName,
                 Estado = temEstado ? estado : null,
                 Utilizacao = utilizacoes.TryGetValue(tool.ToolId, out var utilizacao) ? utilizacao : null,
-                AvisoArmazem = avisoArmazem
+                AvisoArmazem = avisoArmazem,
+                AvisoB2 = tool.B2Modo is null && maquinasRegistradas.Contains("B2", StringComparer.Ordinal)
+                    ? DMO.Alpha.Core.Tools.Codificacao.AvisoSemModo(nome)
+                    : null
             });
         }
 

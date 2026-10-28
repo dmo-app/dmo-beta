@@ -1790,6 +1790,14 @@ public sealed class IndexModel : PageModel
                 .ToList()));
         }
 
+        if (fact.AvisoB2 is { } b2)
+        {
+            avisos.Add(new JobOnToolAviso(b2,
+            [
+                Shared.DmoAvisoLink.FichaFerramenta(fact.ToolId, "Escolher na ferramenta") with { NovoSeparador = true }
+            ]));
+        }
+
         if (comAvisoArmazem && fact.AvisoArmazem is { } armazem)
         {
             avisos.Add(new JobOnToolAviso(armazem,

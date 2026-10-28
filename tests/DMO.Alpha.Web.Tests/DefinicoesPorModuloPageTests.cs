@@ -129,17 +129,19 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
             // Um separador do módulo Ferramentas; máquinas e componentes
             // legíveis; um único «Guardar» (Diogo, 17/10/2026).
             Assert.Matches("<a href=\"/Definicoes\"[^>]*aria-current=\"page\">Definições</a>", html);
-            Assert.Contains("Total do lote por máquina", html);
+            // A codificação por linha (Diogo, 28/10/2026) no lugar do «Total do lote por máquina».
+            Assert.Contains("Codificação por linha", html);
             Assert.Contains("<span class=\"ferr-totais-maquina mch-B1\">B1</span>", html);
             Assert.Contains("<strong>BQ</strong><small>Boquilha</small>", html);
             Assert.Contains($"name=\"quantities[{b1}]\"", html);
-            // O quadro dos totais (#ferrDefTotais) tem um só botão, o «Guardar».
+            // O quadro (#ferrDefTotais) tem o «Atualizar» (com quantas ferramentas mudam) e o «Guardar».
             var inicio = html.IndexOf("id=\"ferrDefTotais\"", StringComparison.Ordinal);
             Assert.True(inicio >= 0, "O quadro dos totais não aparece.");
             var quadro = html[inicio..html.IndexOf("</section>", inicio, StringComparison.Ordinal)];
             Assert.Contains($"name=\"quantities[{c3}]\"", quadro);
-            var botao = Assert.Single(System.Text.RegularExpressions.Regex.Matches(quadro, "<button\\b[^>]*>([\\s\\S]*?)</button>"));
-            Assert.Equal("Guardar", botao.Groups[1].Value.Trim());
+            var botoes = System.Text.RegularExpressions.Regex.Matches(quadro, "<button\\b[^>]*>([\\s\\S]*?)</button>")
+                .Select(m => m.Groups[1].Value.Trim()).ToList();
+            Assert.Equal(new[] { "Atualizar (0)", "Guardar" }, botoes);
 
             async Task<HttpResponseMessage> Save(params (string Name, string Value)[] fields)
             {
@@ -153,7 +155,7 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
             Assert.Equal("120", Stored(b1));
             Assert.Equal("90", Stored(c3));
             var after = await client.GetStringAsync(saved.Headers.Location!.ToString());
-            Assert.Contains("Totais guardados.", after);
+            Assert.Contains("Tabela guardada.", after);
             Assert.Contains("value=\"120\"", after);
 
             // A quantidade má fica de fora com aviso; a válida grava
@@ -172,6 +174,40 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
         finally
         {
             await RemoveAsync(added, b1, c3);
+        }
+    }
+
+    /// <summary>
+    /// Garante: a codificação por linha (Diogo, 28/10/2026) mostra os nomes
+    /// técnicos editáveis, a B2 Dupla e a B2 Tripla com o seletor (Dupla por
+    /// omissão) e escolher a Tripla fica escolhido.
+    /// </summary>
+    [Fact]
+    public async Task FerramentasDefinicoes_Codificacao_SeletorDaB2()
+    {
+        var added = await SeedMachinesAsync("B2");
+        var chaves = new[] { Codificacao.ModoB2Chave }
+            .Concat(Codificacao.Tipos.Select(t => ToolLotQuantityKeys.Prefix + t + ":B2")).ToArray();
+        try
+        {
+            using var client = await LoginOperatorAsync("5103", DmoCapabilities.Ferramentas);
+            var html = WebUtility.HtmlDecode(await client.GetStringAsync("/Definicoes"));
+            Assert.Contains($"name=\"quantities[{Codificacao.ChavePadrao("BQ", Codificacao.B1)}]\" value=\"ABxxxxNX34\"", html);
+            Assert.Matches("<input type=\"radio\" name=\"modo\" value=\"Dupla\" form=\"ferrDefModoB2Form\" data-dmo-autosubmit checked=\"checked\" />B2 Dupla", html);
+            Assert.Contains("id=\"ferrDefAtualizar\"", html);
+
+            var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
+            var escolher = await client.PostAsync($"{FerramentasPath}?handler=ModoB2",
+                HtmlFormHelpers.BuildFormPost(("modo", "Tripla"), ("__RequestVerificationToken", token)));
+            Assert.Equal(HttpStatusCode.Redirect, escolher.StatusCode);
+            Assert.Equal("Tripla", Stored(Codificacao.ModoB2Chave));
+            Assert.Equal("72", Stored(ToolLotQuantityKeys.For(ToolType.Cm, "B2")));
+            var depois = WebUtility.HtmlDecode(await client.GetStringAsync("/Definicoes"));
+            Assert.Matches("value=\"Tripla\" form=\"ferrDefModoB2Form\" data-dmo-autosubmit checked=\"checked\" />B2 Tripla", depois);
+        }
+        finally
+        {
+            await RemoveAsync(added, chaves);
         }
     }
 

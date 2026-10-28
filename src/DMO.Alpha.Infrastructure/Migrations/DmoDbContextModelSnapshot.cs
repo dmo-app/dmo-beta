@@ -2812,6 +2812,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("AssociatedMfReference")
                         .HasColumnType("text");
 
+                    b.Property<int?>("B2Modo")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("BqAccountedQuantity")
                         .HasColumnType("integer");
 
