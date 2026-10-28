@@ -618,3 +618,31 @@ html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-cabecalho>.resumo-window-grid.resumo-context-grid:not(#_){margin-left:0;margin-right:0}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card:not(.resumo-approval)>strong:not(#_){font-size:18px}
 }
+
+/* =========================================================================
+   Peso (Diogo, 28/10/2026): «sliding windows + e − ficou mal», «e a data»,
+   «hover na tabela mexe os elementos» e «alinhar densidade de vidro».
+   ========================================================================= */
+
+/* O + e o − da Comparação ao lado dos campos, a qualquer largura útil (antes só
+   a partir de 1100 px, e no painel caíam para baixo e ficavam minúsculos). */
+@media (min-width:761px){
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px 26px;align-items:end}
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-buttons{display:flex;flex-direction:column;gap:2px;height:var(--dmo-control-height);width:26px;align-self:end;margin:0}
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0 0 auto;height:calc((var(--dmo-control-height) - 2px) / 2)!important;min-height:0!important;width:26px;min-width:0!important;padding:0!important;font-size:13px;line-height:1}
+}
+
+/* «Produção / Job On» da Comparação: o valor, com a data, numa só linha. */
+html body main.peso-page .peso-cmp-producao-fixa{flex:0 0 auto;width:auto;max-width:100%}
+html body main.peso-page .peso-cmp-producao-fixa strong{white-space:nowrap}
+
+/* O hover das linhas das tabelas só muda o fundo: o peso da letra da linha
+   destacada mantém-se (antes passava de 600 a normal e tudo se mexia). */
+html body .dmo-table tbody tr.peso-linha-destaque:hover>td{font-weight:600}
+
+/* Densidade do vidro: o processo (NNPB…) fica ao lado do valor, pequeno, sem
+   acrescentar uma linha e sem deslocar o rótulo dos vizinhos. */
+html body main.peso-page .peso-facts>.peso-fact{justify-content:flex-start}
+html body main.peso-page .peso-facts>.peso-fact:has(>small){display:grid;grid-template-columns:auto 1fr;align-content:start;column-gap:6px}
+html body main.peso-page .peso-facts>.peso-fact:has(>small)>span{grid-column:1 / -1}
+html body main.peso-page .peso-facts>.peso-fact:has(>small)>small{margin:0;align-self:end;font-size:11px;line-height:20px;white-space:nowrap}
