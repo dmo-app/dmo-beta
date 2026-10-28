@@ -1,5 +1,6 @@
 {
   "fixes": [
+    { "id": "DMO-587", "module": "Job On", "description": "0.3.0-beta.233: no cartão do Job On a localização fica sempre a negrito e, para quem gere o Armazém, abre a Entrada/Saída da ferramenta (também com «Sem registo»); as Dimensões e as Folgas ficam alinhadas em colunas; os diâmetros (Corpo, Pata, Gargalo, Exterior) só aceitam um valor, a tolerância vai no campo ao lado; nos Calibres as colunas ficam iguais e a última já não fica cortada." },
     { "id": "DMO-583", "module": "Job On", "description": "0.3.0-beta.232: no Planeamento, num ecrã mais alto a Referência, a Produção e o «Criar Job On» ficam logo a seguir à lista das produções do dia; o espaço que sobra fica por baixo, não entre a lista e a procura." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },

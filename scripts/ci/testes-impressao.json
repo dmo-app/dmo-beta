@@ -1,5 +1,5 @@
 {
-  "selo": "5c318483048cbfe4",
+  "selo": "e126d5608f571aeb",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1186,6 +1186,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnCommandChecksTests.cs :: JobOnCommandChecksTests.Criar_VerificaAsFerramentasPelaOrdemDeAntes": "5c956181cd7c8afb",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnCommandChecksTests.cs :: JobOnCommandChecksTests.Editar_VerificaAsFerramentasComoOCriar": "d423f8aa040bb945",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnCommandChecksTests.cs :: JobOnCommandChecksTests.SemMaquina_AMaquinaVemAntesDoMfEmFalta_NoCriarENoEditar": "6d5d9ecad98730cf",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: (resto do ficheiro)": "dca61815bf50d839",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: JobOnDiametrosRecusaTests.DoisNumerosNumDiametro_ERecusado": "ad5d297344347cca",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: (resto do ficheiro)": "5eaf6d8fb7760539",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_FactosEFolha": "d37a69c2b4f0b5e9",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.Duplicar_NaoLeFactos_MasLeAFolhaQueCopia": "f37d7511c0991082",
@@ -2586,6 +2588,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita": "002439fbe19259fd",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: (resto do ficheiro)": "1cc489d30eff51b2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: JobOnPageTests.Folha_ImprimirPretoBranco_CsAbertosFechados_TampaoDiametroXCalote_EPaginas": "9467e8ba9cc998e9",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LocalizacaoArmazem.cs :: (resto do ficheiro)": "82bf1fb52141173c",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LocalizacaoArmazem.cs :: JobOnPageTests.Folha_LocalizacaoANegrito_AbreAEntradaSaidaDoArmazem": "5974331af6b43184",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: (resto do ficheiro)": "c27b7b56c41f0aa4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: JobOnPageTests.FolhaNova_LoteFf_AbreComOLoteDoMf_EGravaOutro": "5495b0d8ac4fffbd",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: (resto do ficheiro)": "23f69a0c9d6034c4",
@@ -2599,7 +2603,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_AbreOJobOnNovoNaLinhaDeOndeVeio": "d285eb94b8a6ed87",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso": "39cf1da7e7ce7528",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: (resto do ficheiro)": "6e68b12bf364b9ec",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte": "c52320795fc58780",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte": "4fae90bd874c8fae",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: (resto do ficheiro)": "124178416bdd3dda",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha": "4c5cf2aee4b442ac",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor": "5940df2bf965d63e",

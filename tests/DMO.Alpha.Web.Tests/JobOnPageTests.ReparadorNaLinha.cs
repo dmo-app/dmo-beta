@@ -64,7 +64,7 @@ public partial class JobOnPageTests
         Assert.DoesNotContain("data-jof-fora=\"CM\"", cartaoCm, StringComparison.Ordinal);
         // MF sem registo no Armazém: «Sem registo · MOLDIN»; ficam o FF e o Lote FF.
         var cartaoMf = html[mf..];
-        Assert.Contains("<p class=\"jof-onde\" data-dmo-onde-esta title=\"Sem registo\">Sem registo<span class=\"jof-onde-reparador\" title=\"Reparador\"> · <b>MOLDIN</b></span></p>", cartaoMf, StringComparison.Ordinal);
+        Assert.Contains("<p class=\"jof-onde\" data-dmo-onde-esta title=\"Sem registo\"><b>Sem registo</b><span class=\"jof-onde-reparador\" title=\"Reparador\"> · <b>MOLDIN</b></span></p>", cartaoMf, StringComparison.Ordinal);
         Assert.Contains("<small>Lote FF</small>", cartaoMf, StringComparison.Ordinal);
         Assert.DoesNotContain("<small>Reparador</small>", cartaoMf, StringComparison.Ordinal);
 
