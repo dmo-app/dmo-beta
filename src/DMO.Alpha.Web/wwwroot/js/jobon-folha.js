@@ -795,7 +795,19 @@
     });
   }
 
+  // No painel deslizante (?painel=1) o «Cancelar» do Editar volta ao resumo da
+  // folha dentro do painel, não à folha inteira (Diogo, 28/10/2026).
+  function cancelarNoPainel() {
+    if (document.documentElement.dataset.dmoEmbedded !== 'true') return;
+    document.querySelectorAll('.head-tools a.btn[href^="/JobOn/Folha"]').forEach(a => {
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('painel', '1');
+      a.setAttribute('href', u.pathname + u.search);
+    });
+  }
+
   function init() {
+    cancelarNoPainel();
     calibresValores();
     dimensoesLongas();
     painel();

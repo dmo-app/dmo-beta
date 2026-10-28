@@ -652,3 +652,23 @@ html body main.peso-page .peso-facts>.peso-fact:has(>small)>small{margin:0;align
    branco sobre o botão escuro, claro e escuro (Diogo, 28/10/2026). */
 html body main.peso-page :is(.peso-fact,.peso-facts) a.dmo-aviso-link:not(#_),
 html body main.peso-page :is(.peso-fact,.peso-facts) a.dmo-aviso-link:not(#_):is(:hover,:focus-visible){color:var(--dmo-text-on-color);text-decoration:none}
+
+/* =========================================================================
+   Job On (Diogo, 28/10/2026): Opções com «Eliminar Job On» sempre no fim;
+   «Utilização» da folha na cor da paleta; o Editar no painel sem caixa com
+   barra de deslocação própria (é o painel que desliza).
+   ========================================================================= */
+html body .jof2 .menu-list{display:flex;flex-direction:column}
+html body .jof2 .menu-list>a:not([data-dmo-dialog="jobon-delete-dialog"]){order:0}
+html body .jof2 .menu-list>a[data-dmo-dialog="jobon-delete-dialog"]{order:99}
+
+/* A % de utilização abre o histórico da ferramenta: cor do link da paleta, sem
+   sublinhado; no hover só muda a cor da letra. */
+html body .jof2 a.dmo-uso-link,html body .jof2 a.dmo-uso-link b{color:var(--dmo-brand-700);text-decoration:none;cursor:pointer}
+html body .jof2 a.dmo-uso-link:is(:hover,:focus-visible),html body .jof2 a.dmo-uso-link:is(:hover,:focus-visible) b{color:var(--dmo-brand-600);text-decoration:none}
+html[data-theme="dark"] body .jof2 a.dmo-uso-link,html[data-theme="dark"] body .jof2 a.dmo-uso-link b{color:var(--dmo-text)}
+html[data-theme="dark"] body .jof2 a.dmo-uso-link:is(:hover,:focus-visible),html[data-theme="dark"] body .jof2 a.dmo-uso-link:is(:hover,:focus-visible) b{color:var(--dmo-brand-300,#9fb7d3)}
+
+/* No painel, os Calibres do Editar não têm altura própria com barra interna. */
+html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .cal-card>.table-wrap{flex:0 0 auto;overflow:visible;max-height:none}
+html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .g-cal>.board,html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .g-cal>.board>.cal-card{flex:0 0 auto}
