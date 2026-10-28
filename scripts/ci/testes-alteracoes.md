@@ -4484,3 +4484,15 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
 
 Selo depois: `65a93dc61611553b`
+
+## A-0257 · 2026-10-28 · ok-do-diogo
+
+Porquê: Pasta dos PDFs (DMO-527, #281): a subpasta da produção passa a «<produção> <referência>»; os testes da pasta pedem o formato novo.
+Referência: Diogo 28/10: cmsg_01K75FTs9bQnbhhH7qttpgraMP6JULLoLAQaT7A1nRgtsh e formato «202601 1075C142» cmsg_01K75FTs9bQnbhhH7qttpgraHgZ7AWc5LyZZPeje9cH7jP
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionRelativeFolder_IsReferenceThenProduction_SafeForWindowsShares`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PdfDownloads_UsePersistedModels_AllComponents_AndDoNotWriteDatabaseOrServerFiles`
+- mudou: `tests/visual/pasta_pdf_browser.py`
+
+Selo depois: `32dc4f2d6565160f`
