@@ -50,7 +50,7 @@ public sealed class JobOnImpressao
         Por("entrada.dia", "Cabeçalho", "Dia da entrada", "Job On · Data de entrada (dia da semana)", DiaDaSemana(jobOn.InicioEm));
         Por("saida", "Cabeçalho", "Saída", "Job On · Data de saída", Data(jobOn.FimEm));
         Campo("seccoes", "Cabeçalho", "Secções", "cab_seccoes");
-        Campo("gota", "Cabeçalho", "Gota", "cab_gota");
+        Por("gota", "Cabeçalho", "Gota", "Nome técnico da CM (senão do MF): 55 = 2, 44/4T/50/5T = 3, 95 = 4; sem ele, Folha · Gota (cab_gota)", model.Gota ?? "");
         Por("peso", "Cabeçalho", "Peso", "Folha · Peso (g) (cab_peso)", Model("cab_peso") is { Length: > 0 } p ? p + " g" : "");
         Por("cadencia", "Cabeçalho", "Cadência", "SAP · Cadência da produção (a das ordens com mais dias); sem ela, escreve-se à mão",
             model.CadenciaSap?.ToString(CultureInfo.InvariantCulture) ?? "");

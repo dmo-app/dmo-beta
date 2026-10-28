@@ -4204,6 +4204,21 @@ Novos: 0 · mudaram: 4 · saíram: 0
 
 Selo depois: `931a9ce77f2c77bd`
 
+## A-0296 · 2026-10-28 · teste-novo
+
+Porquê: DMO-535: a Gota do Job On vem do nome técnico da CM (senão do MF): 55 = 2, 44/4T/50/5T = 3, 95 = 4 (Diogo, 28/10/2026: «ver se o jobon já tem em consideração nome técnico para mudar gota e meter número correto»). Testes novos do parser e da folha.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraKF2m3xMYuf6tyaurxyUd5F
+Novos: 6 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.Molde_DizAsGotasPelaDimensao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.SemNomeAcessorioOuOutraDimensao_NaoDiz`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_GotaVemDoNomeTecnicoDaCm_PorCimaDaEscrita`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita`
+
+Selo depois: `3f4d1d2b421330dd`
+
 ## A-0258 · 2026-10-28 · teste-novo
 
 Porquê: O Novo Peso mostra a temperatura escrita e a densidade da água dela.
@@ -4213,7 +4228,7 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: ControloCapabilitiesCutHPageTests.NovoPeso_MostraATemperaturaEADensidadeDaAgua`
 
-Selo depois: `5ce5118429769616`
+Selo depois: `6834de598083409f`
 
 ## A-0300 · 2026-10-28 · teste-novo
 
@@ -4223,7 +4238,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha`
 
-Selo depois: `b63ea9a29747005d`
+Selo depois: `96ca104a4b7933dd`
 
 ## A-0301 · 2026-10-28 · teste-novo
 
@@ -4234,7 +4249,7 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: PesoFolhaProducaoAnteriorPageTests.CriarControloAnterior_SemJobOnOuNumJobOnAnterior`
 
-Selo depois: `6428e913d1cfede6`
+Selo depois: `f564acfd068845b9`
 
 ## A-0266 · 2026-10-28 · ok-do-diogo
 
@@ -4254,4 +4269,4 @@ Novos: 1 · mudaram: 10 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PesoIlegivel_RecusaComEcho_ENaoGuarda`
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
 
-Selo depois: `bf5ce13f3eb09894`
+Selo depois: `bf0b7286a961e2e1`
