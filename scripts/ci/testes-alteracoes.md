@@ -4115,3 +4115,15 @@ Novos: 6 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita`
 
 Selo depois: `694119edc0b504f9`
+
+## A-0269 · 2026-10-28 · teste-novo
+
+Porquê: DMO-536: no campo da referência de um Job On, uma referência sem Job On abre o Job On novo dela na linha de onde se veio (Diogo, 28/10/2026: «estava no jobon da C3, queria iniciar um jobon para essa linha, meti a referência que vai entrar e disse que não existia»); quem só vê fica com o aviso.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJYyPVubZSRbrkzj7YjNsVK
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_AbreOJobOnNovoNaLinhaDeOndeVeio`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso`
+
+Selo depois: `1f1e7627f8515fe9`
