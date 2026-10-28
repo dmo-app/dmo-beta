@@ -696,3 +696,11 @@ html:root body .beta-bq-layout .beta-production-rail .beta-production-lines :is(
    Opções do cartão da produção («Corrigir»); o botão do cabeçalho dos últimos
    movimentos fica no HTML mas escondido. */
 html body .beta-bq-layout .bq-latest-head>a.btn[href*="editar_mov=1"]{display:none}
+
+/* «Linhas de produção» (Diogo, 28/10/2026: «alinhar os cards»): os cartões da faixa
+   têm todos a mesma largura e repartem-se pela faixa toda (Boquilhas, Reparação,
+   Planeamento). Se não couberem com a largura mínima, a faixa desliza. */
+html:root body .beta-production-rail:not(#armTiposRail) .beta-production-lines{display:flex;flex-wrap:nowrap;overflow-x:auto}
+html:root body .beta-production-rail:not(#armTiposRail) .beta-production-lines>:is(button,.dmo-rail-link){flex:1 1 0;min-width:112px;max-width:none;width:auto}
+html:root body .beta-production-rail:not(#armTiposRail) .beta-production-lines{flex:1 1 0;min-width:0}
+html:root body .beta-production-rail:not(#armTiposRail) .beta-production-lines>:is(button,.dmo-rail-link){white-space:nowrap}
