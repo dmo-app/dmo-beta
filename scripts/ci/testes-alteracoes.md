@@ -4139,3 +4139,17 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso`
 
 Selo depois: `f36070a927fa88b7`
+
+## A-0270 · 2026-10-28 · contagem-lista
+
+Porquê: DMO-537: relatório de frontend do Improvements; FE10 (o painel de apoio respeita as alterações por guardar de um <dmo-painel>) e FE15 (um só pagehide nas sugestões). O package.json só ganha os dois ficheiros novos na lista do test:js
+Novos: 5 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: sair da página cancela o pedido em voo`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: trocar a zona do campo 25 vezes deixa um só «pagehide» e sair da página ainda cancela o pedido`
+- novo: `tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `a13bc4408d870782`

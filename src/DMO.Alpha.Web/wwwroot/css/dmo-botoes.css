@@ -260,3 +260,13 @@ html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body
    o cursor de escrever só nos campos. */
 html body{caret-color:transparent}
 html body :is(input,textarea,select,[contenteditable]:not([contenteditable="false"])){caret-color:auto}
+
+/* Escuro legível (relatório de frontend do Improvements, 28/10/2026, FE04): a inversão fica igual,
+   só o tom muda no escuro. A opção escolhida e o botão com o rato por cima tinham a letra e o
+   contorno #515f7a sobre o cartão #2a303c (2,06:1: o escolhido parecia desligado); passam ao azul
+   claro que as Boquilhas e o Armazém já usam no escuro (--dmo-brand-300), agora em toda a app.
+   Aprovar e Não aprovar da Revisão tinham letra branca sobre o verde e o vermelho claros do escuro
+   (1,92 e 2,20:1): o fundo fica num tom mais fechado da mesma cor; no rato por cima inverte como
+   os outros, com a letra na cor clara. */
+html[data-theme="dark"] body{--dmo-escolhida-letra:var(--dmo-brand-300,#9cc3ea);--dmo-escolhida-contorno:var(--dmo-brand-300,#9cc3ea)}
+html[data-theme="dark"] body :is(.dmo-button,.button,.btn):is(.danger,.success):not(:hover):not(:active){background:color-mix(in srgb,var(--button-color) 55%,#000);border-color:color-mix(in srgb,var(--button-color) 55%,#000)}
