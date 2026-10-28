@@ -4148,3 +4148,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
 
 Selo depois: `e1b6ee495b0e05a8`
+
+## A-0294 · 2026-10-28 · ok-do-diogo
+
+Porquê: Opções da ficha: «Pedir a utilização à produção» passa a «Atualizar informação do SAP» (o Diogo pediu)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraC14Gyr7T1SFGCs2xxHx2dz
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OsCodigosAPedirAoSap_SaoOsPedidosNaFicha`
+
+Selo depois: `2c0bf7bfce3085e7`

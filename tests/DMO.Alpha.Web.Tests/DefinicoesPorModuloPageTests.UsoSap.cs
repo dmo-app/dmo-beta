@@ -83,9 +83,9 @@ public sealed partial class DefinicoesPorModuloPageTests
         var client = await LoginOperatorAsync("7103", DmoCapabilities.Ferramentas);
         var fichaPath = $"/Ferramentas/Ficha?tool_id={toolId}";
 
-        // O «Pedir a utilização à produção» do Opções (nunca «SAP» no ecrã) da ficha, pelo formulário que a página mostra.
+        // O «Atualizar informação do SAP» do Opções da ficha (Diogo, 28/10/2026), pelo formulário que a página mostra.
         var ficha = await (await client.GetAsync(fichaPath)).Content.ReadAsStringAsync();
-        Assert.Contains("Pedir a utilização à produção", ZonaUsoSap(ficha, "ferrOpcoes"), StringComparison.Ordinal);
+        Assert.Contains("Atualizar informação do SAP", ZonaUsoSap(ficha, "ferrOpcoes"), StringComparison.Ordinal);
         var (acao, campos) = EnvioDoFormulario.Enviar(ficha, [], idDoBotao: "ferr-pedir-utilizacao-botao");
         var pedir = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
 
@@ -97,7 +97,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("vem na próxima leitura da produção.", lembrete, StringComparison.Ordinal);
         Assert.Contains(">Ler a pasta da produção</a>", lembrete, StringComparison.Ordinal);
         Assert.DoesNotContain("SAP<", lembrete, StringComparison.Ordinal);
-        Assert.DoesNotContain("Pedir a utilização à produção", ZonaUsoSap(depois, "ferrOpcoes"), StringComparison.Ordinal);
+        Assert.DoesNotContain("Atualizar informação do SAP", ZonaUsoSap(depois, "ferrOpcoes"), StringComparison.Ordinal);
         using var json = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=UsoSap")).Content.ReadAsStringAsync());
         var codigos = json.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()).ToList();
         Assert.Contains(nome + "03", codigos);
