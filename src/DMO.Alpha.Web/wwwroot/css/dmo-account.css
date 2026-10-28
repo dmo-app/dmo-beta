@@ -242,3 +242,29 @@ html body.dmo-account-page .password-wrap input{padding-right:84px}
     html body.dmo-account-page .login-shell { min-height: min(650px, calc(100vh - 24px)); max-height: calc(100vh - 24px); }
     html body.dmo-account-page .login-shell > * { min-height: 0; overflow: auto; }
 }
+
+/* Versão e correções: a página não desliza (Diogo, 28/10/2026); a caixa cabe no ecrã e só o
+   conteúdo da direita (versão, correções, pendentes) desliza dentro dela. */
+@media (min-width: 761px) {
+    html body.dmo-account-page:has(.login-side section[aria-labelledby="version-title"]) {
+        height: 100dvh;
+        min-height: 0;
+        box-sizing: border-box;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        overflow: hidden;
+    }
+
+    html body.dmo-account-page:has(.login-side section[aria-labelledby="version-title"]) .login-shell {
+        height: 100%;
+        min-height: 0;
+    }
+
+    html body.dmo-account-page .login-side:has(section[aria-labelledby="version-title"]) {
+        min-height: 0;
+        overflow: auto;
+        align-items: flex-start;
+        padding-top: 44px;
+        padding-bottom: 28px;
+    }
+}

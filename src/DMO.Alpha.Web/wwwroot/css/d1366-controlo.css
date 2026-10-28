@@ -400,6 +400,19 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.revisao-page .revisao-detail .revisao-parte-topo .revisao-consultas{flex:0 0 auto;flex-wrap:nowrap;gap:8px;margin-left:auto}
   html body main.revisao-page .revisao-detail .revisao-parte-topo .revisao-consultas a.btn.btn{padding:0 14px;color:var(--dmo-text-on-color);text-decoration:none}
 
+
+  /* Resumo do Controlo e Resumo do controlo (Revisão › detalhe): a página não desliza (Diogo,
+     28/10/2026); o título e a procura ficam à vista e só o cartão do resumo desliza, com a linha
+     do título (produção, Exportar/Enviar, ou as consultas) sempre visível. */
+  html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta)){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta))>:not(main){flex:none}
+  html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta))>main{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:hidden;grid-template-rows:auto minmax(0,1fr)}
+  html body main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta){align-self:stretch;min-height:0;height:100%;box-sizing:border-box;overflow:auto;margin:0}
+  html body main.resumo-page:not(.revisao-peg-consulta-page)>.revisao-consulta{padding-top:0}
+  html body main.resumo-page:not(.revisao-peg-consulta-page)>.revisao-consulta>.revisao-parte-topo:first-child{position:sticky;top:0;z-index:2;margin:0 0 8px;padding:12px 0 8px;min-height:0;background:var(--dmo-card);border-bottom:1px solid var(--dmo-border)}
+  html body main.resumo-page:not(.revisao-peg-consulta-page)>.resumo-sheet>.resumo-sheet-intro{position:sticky;top:0;z-index:2;background:var(--dmo-card)}
+  html body main.resumo-page:not(.revisao-peg-consulta-page)>.revisao-consulta .peg-map-wrap{overflow-x:auto}
+
   html[data-theme="dark"] body main.revisao-page .revisao-facts .destaque strong{color:var(--dmo-text)}
 
   /* Consulta dos Pegamentos. */
