@@ -13,7 +13,7 @@
               </div>
             </div>
             <div class="lot-data bq-sheet-dados">
-              <div><span>Quantidade do lote</span><strong>@(sheet.AccountedQuantity is int sheetLotQty ? sheetLotQty.ToString() : "—")</strong></div>
+              <div><span>Quantidade do lote</span><strong>@(sheet.AccountedQuantity is int sheetLotQty ? sheetLotQty.ToString() : "—")@(sheet.AnQuantity is int sheetAn ? $" BQ · {sheetAn} AN" : null)</strong></div>
               <div><span>Registos</span><strong>@sheet.Registers.TotalCount</strong></div>
               <div><span>Movimentos sem Job On</span><strong>@Model.SemJobOnMovements.Count</strong></div>
               <div><span>Linhas compatíveis</span><strong>@sheet.Machines.Count</strong></div>
@@ -31,13 +31,15 @@
               </div>
               @if (Model.SemJobOnMovements.Count > 0)
               {
+                @* A coluna dos AN só aparece quando algum movimento tem AN (Diogo, 28/10/2026). *@
+                var comAn = Model.SemJobOnMovements.Any(m => m.AnQuantity is not null);
                 <div class="dmo-table-wrap">
                   <table class="dmo-table" id="bqSemJobOnTabela">
-                    <thead><tr><th>Data/hora</th><th>Movimento</th><th>Qtd.</th><th>Linha</th></tr></thead>
+                    <thead><tr><th>Data/hora</th><th>Movimento</th><th>Qtd.</th>@if (comAn) {<th>Qtd. AN</th>}<th>Linha</th></tr></thead>
                     <tbody>
                       @foreach (var m in Model.SemJobOnMovements)
                       {
-                        <tr><td>@m.OccurredAtLocal.ToString("dd/MM/yyyy HH:mm")</td><td>@DMO.Alpha.Core.Boquilhas.BqMovementLabels.Of(m.Type.ToString())</td><td>@m.Quantity</td><td>@(m.MachineCode ?? "—")</td></tr>
+                        <tr><td>@m.OccurredAtLocal.ToString("dd/MM/yyyy HH:mm")</td><td>@DMO.Alpha.Core.Boquilhas.BqMovementLabels.Of(m.Type.ToString())</td><td>@(m.Quantity == 0 && m.AnQuantity is not null ? "—" : m.Quantity.ToString())</td>@if (comAn) {<td>@(m.AnQuantity is int mAn ? mAn.ToString() : "—")</td>}<td>@(m.MachineCode ?? "—")</td></tr>
                       }
                     </tbody>
                   </table>

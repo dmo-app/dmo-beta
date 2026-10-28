@@ -53,6 +53,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 tool != null ? tool.Reference : null,
                 tool != null ? tool.Lot : null,
                 tool != null ? tool.BqAccountedQuantity : null,
+                tool != null ? tool.AnQuantity : null,
                 jobOn != null ? jobOn.Reference : null,
                 jobOn != null ? jobOn.ProductionNumber : null,
                 machine != null ? machine.Code : null,
@@ -84,7 +85,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             movement.BqRepairerNameFrozen,
             movement.MachineCodeFrozen,
             movement.CorrectedByNameFrozen,
-            movement.CorrectedAtUtc);
+            movement.CorrectedAtUtc,
+            movement.AnQuantity);
     }
 
     public async Task<BoquilhasRegistoContext?> FindByContextAsync(
@@ -115,6 +117,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 ToolReference = tool != null ? tool.Reference : null,
                 ToolLot = tool != null ? tool.Lot : null,
                 ToolAccountedQuantity = tool != null ? tool.BqAccountedQuantity : null,
+                ToolAnQuantity = tool != null ? tool.AnQuantity : null,
                 jobOn.Reference,
                 jobOn.ProductionNumber,
                 MachineCode = machine.Code,
@@ -139,6 +142,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                     row.ToolReference,
                     row.ToolLot,
                     row.ToolAccountedQuantity,
+                    row.ToolAnQuantity,
                     row.Reference,
                     row.ProductionNumber,
                     row.MachineCode,
@@ -165,7 +169,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             new BoquilhasRegistoProductionContext(row.Reference, row.ProductionNumber, row.MachineCode, row.InicioEm, row.FimEm, row.JobOnId),
             contextTool,
             contextTool is null ? null : row.ToolAccountedQuantity,
-            associated);
+            associated,
+            contextTool is null ? null : row.ToolAnQuantity);
     }
 
     /// <summary>A linha do trace com a Tool efetiva e a produção do bq_id.</summary>
@@ -176,6 +181,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         string? ToolReference,
         string? ToolLot,
         int? ToolAccountedQuantity,
+        int? ToolAnQuantity,
         string? ProductionReference,
         string? ProductionNumber,
         string? MachineCode,
@@ -210,6 +216,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 movement.Id,
                 movement.Type,
                 movement.Quantity,
+                movement.AnQuantity,
                 movement.Discrepancy,
                 movement.OccurredAtUtc,
                 movement.CreatedAtUtc
@@ -228,31 +235,57 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             .ThenBy(movement => BqDiscrepancyFold.SaidaFirst(movement.Type))
             .ThenBy(movement => movement.Id)
             .ToList();
-        var quantityLegitimatelyOut = 0;
-        var accumulatedDiscrepancy = 0;
-        var hasDiscrepancy = false;
-        foreach (var movement in chronological)
+        // A conta das BQ e a dos AN (só com os movimentos que levam AN) é da
+        // BQ em todas as produções (Diogo, 28/10/2026: «só deve criar saldo
+        // quando entra mais do que saiu»): uma BQ que saiu num Job On e volta
+        // registada noutro não fica a mais. Faz-se aqui, e não com o valor
+        // gravado em cada movimento, que pode ser de antes da regra.
+        var outros = header.ToolId is not { } bqToolId
+            ? []
+            : await _db.BqMovements.AsNoTracking()
+                .Where(m => m.BqRepairTraceId != traceId && BqDiscrepancyFold.RegistosDaBq(_db, bqToolId).Contains(m.BqRepairTraceId))
+                .Select(m => new { m.Id, m.Type, m.Quantity, m.AnQuantity, m.OccurredAtUtc })
+                .ToListAsync(cancellationToken);
+        var daBq = chronological.Select(m => (m.Id, m.Type, m.Quantity, m.AnQuantity, m.OccurredAtUtc))
+            .Concat(outros.Select(m => (m.Id, m.Type, m.Quantity, m.AnQuantity, m.OccurredAtUtc)))
+            .OrderBy(m => m.OccurredAtUtc)
+            .ThenBy(m => BqDiscrepancyFold.SaidaFirst(m.Type))
+            .ThenBy(m => m.Id)
+            .ToList();
+        var (bqFold, quantityLegitimatelyOut) = BqDiscrepancyFold.Fold(
+            daBq.Select(m => (m.Type == BqMovementType.Saida, m.Quantity)).ToList());
+        var discrepancies = new Dictionary<int, int>();
+        for (var i = 0; i < daBq.Count; i++)
         {
-            if (movement.Type == BqMovementType.Saida)
+            if (bqFold[i] is int d)
             {
-                quantityLegitimatelyOut += movement.Quantity;
-            }
-            else
-            {
-                var matched = Math.Min(movement.Quantity, quantityLegitimatelyOut);
-                quantityLegitimatelyOut -= matched;
-            }
-
-            // Depois de posta a zero, a discrepância acumulada só conta os
-            // movimentos com data real posterior (Diogo, 17/10/2026).
-            if (movement.Discrepancy is int discrepancy
-                && (header.DiscrepancyResetAtUtc is not DateTime resetAt
-                    || BqDiscrepancyFold.CountsAfterReset(movement.OccurredAtUtc, movement.CreatedAtUtc, resetAt)))
-            {
-                accumulatedDiscrepancy += discrepancy;
-                hasDiscrepancy = true;
+                discrepancies[daBq[i].Id] = d;
             }
         }
+
+        var comAn = daBq.Where(m => m.AnQuantity is not null).ToList();
+        var hasAn = comAn.Count > 0;
+        var (anFold, anOut) = BqDiscrepancyFold.Fold(
+            comAn.Select(m => (m.Type == BqMovementType.Saida, m.AnQuantity!.Value)).ToList());
+        var anDiscrepancies = new Dictionary<int, int>();
+        for (var i = 0; i < comAn.Count; i++)
+        {
+            if (anFold[i] is int d)
+            {
+                anDiscrepancies[comAn[i].Id] = d;
+            }
+        }
+
+        // Depois de posta a zero, a discrepância acumulada só conta os
+        // movimentos com data real posterior (Diogo, 17/10/2026).
+        bool ContaDepoisDoZero(DateTime occurredAtUtc, DateTime createdAtUtc) =>
+            header.DiscrepancyResetAtUtc is not DateTime resetAt
+            || BqDiscrepancyFold.CountsAfterReset(occurredAtUtc, createdAtUtc, resetAt);
+        var contam = chronological.Where(m => ContaDepoisDoZero(m.OccurredAtUtc, m.CreatedAtUtc)).Select(m => m.Id).ToHashSet();
+        var hasDiscrepancy = discrepancies.Keys.Any(contam.Contains);
+        var accumulatedDiscrepancy = discrepancies.Where(d => contam.Contains(d.Key)).Sum(d => d.Value);
+        var hasAnDiscrepancy = anDiscrepancies.Keys.Any(contam.Contains);
+        var anAccumulated = anDiscrepancies.Where(d => contam.Contains(d.Key)).Sum(d => d.Value);
 
         chronological.Reverse();
 
@@ -267,6 +300,16 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 .AsNoTracking()
                 .Where(movement => pageIds.Contains(movement.Id))
                 .ToDictionaryAsync(movement => movement.Id, cancellationToken);
+        var userIds = pageRows.Values.Select(m => m.RegisteredByUserId).OfType<Guid>().Distinct().ToList();
+        var userNames = userIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _db.Users.AsNoTracking()
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.Name, cancellationToken);
+        string? QuemRegistou(BqMovement movement) =>
+            movement.RegisteredByUserId is Guid userId && userNames.TryGetValue(userId, out var nome) && !string.IsNullOrWhiteSpace(nome)
+                ? nome
+                : movement.RegisteredByOperatorId;
 
         return new BoquilhasRegistoTrace(
             traceId,
@@ -284,18 +327,27 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 header.DiscrepancyResetAtUtc is DateTime shownResetAt
                     && !BqDiscrepancyFold.CountsAfterReset(movement.OccurredAtUtc, movement.CreatedAtUtc, shownResetAt)
                     ? null
-                    : movement.Discrepancy,
+                    : discrepancies.TryGetValue(movement.Id, out var bqDisc) ? bqDisc : null,
                 movement.OccurredAtUtc,
                 movement.BqRepairerNameFrozen,
                 movement.MachineCodeFrozen,
                 movement.CorrectedByNameFrozen,
-                movement.CorrectedAtUtc)).ToList(),
+                movement.CorrectedAtUtc,
+                movement.AnQuantity,
+                header.DiscrepancyResetAtUtc is DateTime anShownResetAt
+                    && !BqDiscrepancyFold.CountsAfterReset(movement.OccurredAtUtc, movement.CreatedAtUtc, anShownResetAt)
+                    ? null
+                    : anDiscrepancies.TryGetValue(movement.Id, out var anDisc) ? anDisc : null,
+                QuemRegistou(movement))).ToList(),
             quantityLegitimatelyOut,
             hasDiscrepancy || header.DiscrepancyResetAtUtc is not null ? accumulatedDiscrepancy : null,
             header.ToolAccountedQuantity,
             header.DiscrepancyResetAtUtc,
             header.DiscrepancyResetBy,
             chronological.Count,
-            page);
+            page,
+            header.ToolAnQuantity,
+            hasAn ? anOut : null,
+            hasAnDiscrepancy || (hasAn && header.DiscrepancyResetAtUtc is not null) ? anAccumulated : null);
     }
 }

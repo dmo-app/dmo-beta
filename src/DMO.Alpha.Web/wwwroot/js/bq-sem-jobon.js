@@ -39,7 +39,7 @@
       const forte = document.createElement('strong');
       forte.textContent = curto(option.text);
       li.append(forte);
-      // O resto que identifica a BQ (sem as máquinas: a linha não fica presa à ficha).
+      // O resto que identifica a BQ (sem as máquinas: já estão na Linha).
       const resto = option.text.split(' · ').slice(2).filter(p => !p.startsWith('Máq.'));
       if (resto.length) {
         const extra = document.createElement('span');
@@ -92,6 +92,68 @@
     if (label) label.htmlFor = input.id;
     if (select.value) input.value = curto(select.selectedOptions[0].text);
     select.addEventListener('invalid', () => input.focus());
+
+    // A Linha só com as da ficha da BQ escolhida, já com uma escolhida (a
+    // última onde teve movimentos, se for da ficha; senão a primeira) (Diogo,
+    // 28/10/2026). Sem linhas na ficha, ficam todas.
+    const linha = document.querySelector(`[data-bq-linhas-da="${select.id}"]`);
+    if (linha) {
+      const acertar = trocou => {
+        const daFicha = (select.selectedOptions[0]?.dataset.linhas || '').toUpperCase().split(' ').filter(Boolean);
+        const opcoesLinha = [...linha.options].filter(o => o.value);
+        for (const o of opcoesLinha) {
+          const fora = daFicha.length > 0 && !daFicha.includes(o.text.trim().toUpperCase());
+          o.hidden = fora;
+          o.disabled = fora;
+        }
+        if (trocou || !linha.value || linha.selectedOptions[0]?.disabled) {
+          const primeira = daFicha.map(c => opcoesLinha.find(o => o.text.trim().toUpperCase() === c)).find(Boolean);
+          linha.value = primeira ? primeira.value : '';
+        }
+      };
+      select.addEventListener('change', () => acertar(true));
+      if (select.value) acertar(false);
+    }
+
+    // Um Job On anterior (Diogo, 28/10/2026): com a BQ, as referências em
+    // que trabalhou; com a referência, as produções dela; a produção põe a
+    // linha do Job On. «Sem Job On» deixa a produção vazia e fechada.
+    const zona = document.querySelector(`[data-bq-jobon-da="${select.id}"]`);
+    const referencia = zona?.querySelector('[data-bq-referencias]');
+    const producao = zona?.querySelector('[data-bq-producoes]');
+    if (referencia && producao) {
+      const mostrar = (opcoes, ver) => {
+        for (const o of opcoes) { o.hidden = !ver(o); o.disabled = !ver(o); }
+      };
+      const acertarProducao = () => {
+        const opcoes = [...producao.options].filter(o => o.value);
+        const daBq = o => o.dataset.bq === select.value && o.dataset.referencia === referencia.value;
+        mostrar(opcoes, daBq);
+        const primeira = referencia.value ? opcoes.find(daBq) : null;
+        producao.value = primeira ? primeira.value : '';
+        producao.disabled = !primeira;
+        producao.required = !!primeira;
+        producao.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      const acertarReferencia = () => {
+        const opcoes = [...referencia.options].filter(o => o.value);
+        mostrar(opcoes, o => o.dataset.bq === select.value);
+        referencia.value = '';
+        referencia.disabled = !opcoes.some(o => o.dataset.bq === select.value);
+        acertarProducao();
+      };
+      // A linha do Job On escolhido, mesmo que não esteja na ficha da BQ (foi lá que trabalhou).
+      producao.addEventListener('change', () => {
+        const escolhida = producao.selectedOptions[0];
+        const linhaDoJobOn = escolhida?.value && linha ? [...linha.options].find(o => o.value === escolhida.dataset.linha) : null;
+        if (!linhaDoJobOn) return;
+        linhaDoJobOn.hidden = false;
+        linhaDoJobOn.disabled = false;
+        linha.value = linhaDoJobOn.value;
+      });
+      referencia.addEventListener('change', acertarProducao);
+      select.addEventListener('change', acertarReferencia);
+    }
   };
   ligar();
   document.addEventListener('dmo:troca', ligar);

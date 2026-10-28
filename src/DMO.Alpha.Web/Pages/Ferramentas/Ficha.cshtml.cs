@@ -296,10 +296,10 @@ public sealed class FichaModel : PageModel
     public FactsDraftValues? FactsDraft { get; private set; }
 
     public sealed record FactsDraftValues(string Type, string Reference, string Lot, string Mf, string Quantity,
-        IReadOnlySet<int> MachineIds, string TechnicalName = "", string FabricaOrigem = "", string UsoPercentagem = "");
+        IReadOnlySet<int> MachineIds, string TechnicalName = "", string FabricaOrigem = "", string UsoPercentagem = "", string AnQuantity = "");
 
     /// <summary>Os nomes dos campos do Editar (os mesmos no POST e no rascunho da recusa).</summary>
-    private static readonly string[] FactsFieldNames = ["type_token", "reference", "lot", "mf_reference", "bq_quantity", "technical_name", "fabrica_origem", "uso_percentagem"];
+    private static readonly string[] FactsFieldNames = ["type_token", "reference", "lot", "mf_reference", "bq_quantity", "technical_name", "fabrica_origem", "uso_percentagem", "an_quantity"];
 
     public string FactsType(ToolType stored) => FactsDraft?.Type ?? TokenTypeFor(stored);
 
@@ -311,6 +311,11 @@ public sealed class FichaModel : PageModel
 
     public string? FactsQuantity(int? stored) => FactsDraft is { } draft
         ? draft.Quantity
+        : stored?.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026).</summary>
+    public string? FactsAnQuantity(int? stored) => FactsDraft is { } draft
+        ? draft.AnQuantity
         : stored?.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     public string? FactsTechnicalName(string? stored) => FactsDraft is { } draft ? draft.TechnicalName : stored;
@@ -455,7 +460,8 @@ public sealed class FichaModel : PageModel
                         .ToHashSet(),
                     Request.Query["technical_name"].ToString(),
                     Request.Query["fabrica_origem"].ToString(),
-                    Request.Query["uso_percentagem"].ToString());
+                    Request.Query["uso_percentagem"].ToString(),
+                    Request.Query["an_quantity"].ToString());
             }
         }
 
@@ -570,7 +576,8 @@ public sealed class FichaModel : PageModel
         [FromForm(Name = "versao")] string? versao = null,
         [FromForm(Name = "technical_name")] string? technicalName = null,
         [FromForm(Name = "fabrica_origem")] string? fabricaOrigem = null,
-        [FromForm(Name = "uso_percentagem")] string? usoPercentagem = null)
+        [FromForm(Name = "uso_percentagem")] string? usoPercentagem = null,
+        [FromForm(Name = "an_quantity")] string? anQuantity = null)
     {
         var canonicalToolId = IndexModel.Sanitize(toolId) ?? string.Empty;
         // Aberta a partir de um fluxo: o regresso fica na ficha depois de
@@ -586,6 +593,16 @@ public sealed class FichaModel : PageModel
         if (unreadableQuantity && !string.IsNullOrEmpty(canonicalToolId))
         {
             parsedQuantity = (await _sheetQuery.FindByToolIdAsync(canonicalToolId, HttpContext.RequestAborted))?.BqAccountedQuantity;
+        }
+
+        // Os AN do lote (Diogo, 28/10/2026), como a quantidade: ilegível
+        // mantém o gravado e a ficha avisa; negativa recusa (pelo handler).
+        var typedAn = IndexModel.Sanitize(anQuantity);
+        var parsedAn = IndexModel.ParseOptionalInt(anQuantity);
+        var unreadableAn = typedAn is not null && parsedAn is null;
+        if (unreadableAn && !string.IsNullOrEmpty(canonicalToolId))
+        {
+            parsedAn = (await _sheetQuery.FindByToolIdAsync(canonicalToolId, HttpContext.RequestAborted))?.AnQuantity;
         }
 
         var outcome = await _editFacts.HandleAsync(
@@ -605,7 +622,8 @@ public sealed class FichaModel : PageModel
                 ParseVersion(versao),
                 IndexModel.ActorName(User),
                 technicalName?.ToUpperInvariant(),
-                fabricaOrigem),
+                fabricaOrigem,
+                parsedAn),
             HttpContext.RequestAborted);
 
         if (outcome.Result == EditToolFactsResult.Success)
@@ -633,7 +651,7 @@ public sealed class FichaModel : PageModel
             {
                 tool_id = canonicalToolId,
                 sem_lote = outcome.Tool?.LotDefaulted == true ? "1" : null,
-                quantidade_ilegivel = unreadableQuantity ? typedQuantity : null,
+                quantidade_ilegivel = unreadableQuantity ? typedQuantity : unreadableAn ? typedAn : null,
                 tipo_anterior = tipoMudou is null ? null : TokenTypeFor(tipoMudou.PreviousType!.Value),
                 producoes = tipoMudou?.PreviousTypeProductions,
                 continuar = regresso,
@@ -654,7 +672,7 @@ public sealed class FichaModel : PageModel
         };
         if (outcome.Result is not (EditToolFactsResult.ChangedByAnotherUser or EditToolFactsResult.ToolNotFound))
         {
-            string?[] typed = [typeToken, reference, lot, mfReference, bqQuantity, technicalName, fabricaOrigem, usoPercentagem];
+            string?[] typed = [typeToken, reference, lot, mfReference, bqQuantity, technicalName, fabricaOrigem, usoPercentagem, anQuantity];
             for (var i = 0; i < FactsFieldNames.Length; i++)
                 refusedValues[FactsFieldNames[i]] = typed[i] ?? string.Empty;
             refusedValues["machine_ids"] = (machineIds ?? []).Select(id => id ?? string.Empty).ToArray();

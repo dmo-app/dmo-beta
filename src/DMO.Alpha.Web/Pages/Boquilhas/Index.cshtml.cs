@@ -172,10 +172,19 @@ public sealed partial class IndexModel : PageModel
     [BindProperty(SupportsGet = true, Name = "hist_pagina")] public int? HistoryListPage { get; set; }
 
     /// <summary>As BQ da janela «Registar sem Job On» (referência e lote).</summary>
+    /// <summary>As linhas da ficha com a última onde a BQ teve movimentos à frente (a proposta da Linha).</summary>
+    public static IReadOnlyList<string> LinhasPelaUltima(IReadOnlyList<string> linhas, string? ultima) =>
+        ultima is { Length: > 0 } && linhas.Contains(ultima, StringComparer.OrdinalIgnoreCase)
+            ? [.. linhas.Where(l => string.Equals(l, ultima, StringComparison.OrdinalIgnoreCase)), .. linhas.Where(l => !string.Equals(l, ultima, StringComparison.OrdinalIgnoreCase))]
+            : linhas;
+
     public IReadOnlyList<SemJobOnTool> SemJobOnTools { get; private set; } = Array.Empty<SemJobOnTool>();
 
     /// <summary>As linhas da janela «Registar sem Job On».</summary>
     public IReadOnlyList<DMO.Alpha.Core.Production.MachineOption> SemJobOnLines { get; private set; } = Array.Empty<DMO.Alpha.Core.Production.MachineOption>();
+
+    /// <summary>Os Job On em que cada BQ trabalhou, para associar o registo a um Job On anterior (Diogo, 28/10/2026).</summary>
+    public IReadOnlyList<BqJobOnAnterior> SemJobOnJobOns { get; private set; } = Array.Empty<BqJobOnAnterior>();
 
     /// <summary>O resultado do último «Registar sem Job On» (ok ou o nome da recusa).</summary>
     public string? SemJobOnResult { get; private set; }
@@ -211,6 +220,7 @@ public sealed partial class IndexModel : PageModel
             "Tipo de movimento desconhecido. Use saída, entrada ou entrada sem reparação. Nenhum movimento foi registado.",
         RegisterBqMovementResult.InvalidQuantity =>
             "Indique a quantidade como um número inteiro igual ou superior a 1. Nenhum movimento foi registado.",
+        RegisterBqMovementResult.InvalidAnQuantity => AnQuantityRefusal,
         RegisterBqMovementResult.InvalidOccurrenceTime =>
             "A hora indicada não existe em Portugal continental devido à mudança de hora. " +
             "Confirme a data e hora reais do movimento. Nenhum movimento foi registado.",
@@ -357,6 +367,36 @@ public sealed partial class IndexModel : PageModel
     public string MovementFormQuantity => MovementRefusal is not null
         ? Request.Query["quantity"].ToString() : string.Empty;
 
+    /// <summary>A quantidade de AN escrita, que volta ao formulário depois de uma recusa.</summary>
+    public string MovementFormAnQuantity => MovementRefusal is not null
+        ? Request.Query["quantity_an"].ToString() : string.Empty;
+
+    /// <summary>
+    /// A QUANTIDADE DE AN do movimento (Diogo, 28/10/2026: «vamos passar a
+    /// registar AN»): opcional; em branco é sem AN. Um número inteiro igual
+    /// ou superior a 0; o resto é recusa, nunca um zero silencioso.
+    /// </summary>
+    internal static bool TryReadAnQuantity(string? typed, out int? anQuantity)
+    {
+        anQuantity = null;
+        var text = typed?.Trim();
+        if (string.IsNullOrEmpty(text))
+        {
+            return true;
+        }
+
+        if (int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var value))
+        {
+            anQuantity = value;
+            return true;
+        }
+
+        return false;
+    }
+
+    private const string AnQuantityRefusal =
+        "Indique a quantidade de AN como um número inteiro, ou deixe em branco. Nenhum movimento foi registado.";
+
     /// <summary>
     /// A FICHA DA FERRAMENTA (o toolsTab do dmo-html — a ficha única por
     /// BQ/lote, reutilizável em vários Job Ons; ?ferramenta=&lt;tool_id&gt;
@@ -424,6 +464,15 @@ public sealed partial class IndexModel : PageModel
     public string? FilterOperator { get; private set; }
     public string? FilterMachine { get; private set; }
     public string? FilterType { get; private set; }
+
+    /// <summary>
+    /// A PEÇA (Diogo, 28/10/2026: «onde param os AN de cada lote»): «an» mostra
+    /// só os movimentos com AN; vazio, todos.
+    /// </summary>
+    [BindProperty(SupportsGet = true, Name = "peca")]
+    public string? FilterPeca { get; set; }
+
+    public bool FilterOnlyAn => string.Equals(FilterPeca?.Trim(), "an", StringComparison.OrdinalIgnoreCase);
     public DateOnly? FilterDesde { get; private set; }
     public DateOnly? FilterAte { get; private set; }
     public string? FilterText { get; private set; }
@@ -621,11 +670,13 @@ public sealed partial class IndexModel : PageModel
             // para a janela da página Boquilhas.
             SemJobOnTools = (await _escolhas.BqSemJobOnAsync(HttpContext.RequestAborted))
                 .Select(t => new SemJobOnTool(t.ToolId, t.Reference, t.Lot, t.Quantity,
-                    t.Machines.Count > 0 ? string.Join(" · ", t.Machines) : null, t.MfReference, t.LastLine))
+                    t.Machines.Count > 0 ? string.Join(" · ", t.Machines) : null, t.MfReference, t.LastLine)
+                    { MachineCodes = LinhasPelaUltima(t.Machines, t.LastLine) })
                 .ToList();
             SemJobOnResult = Request.Query["sem_jobon"].FirstOrDefault();
             // A linha do movimento (Diogo, 22/10/2026: ajuda a distinguir a BQ).
             SemJobOnLines = await _machineList.ListAsync(HttpContext.RequestAborted);
+            SemJobOnJobOns = await _escolhas.BqJobOnsAnterioresAsync(HttpContext.RequestAborted);
         }
         ViewData["Shell"] = (await _shellState.ForDestinationAsync("ModuleFunctions", new("boquilhas", "Boquilhas"))) with
         {
@@ -904,7 +955,7 @@ public sealed partial class IndexModel : PageModel
         // A lista abre em branco: só carrega depois de uma pesquisa, um período,
         // outro filtro ou um dia do calendário. A grelha e o PDF mantêm-se.
         HistorySearchApplied = listStart is not null || listEnd is not null
-            || !string.IsNullOrEmpty(FilterMachine) || !string.IsNullOrEmpty(FilterType)
+            || !string.IsNullOrEmpty(FilterMachine) || !string.IsNullOrEmpty(FilterType) || FilterOnlyAn
             || !string.IsNullOrEmpty(FilterOperator) || !string.IsNullOrEmpty(FilterText)
             || FilterToolId is not null || FilterJobOnId is not null;
 
@@ -929,7 +980,8 @@ public sealed partial class IndexModel : PageModel
                 HttpContext.RequestAborted,
                 semPeriodo ? MaxListMovements + 1 : null,
                 FilterToolId,
-                FilterJobOnId)
+                FilterJobOnId,
+                FilterOnlyAn)
             : [];
         if (semPeriodo && Movements.Count > MaxListMovements)
         {
@@ -947,6 +999,7 @@ public sealed partial class IndexModel : PageModel
             ["ano"] = HistoryYear.ToString(CultureInfo.InvariantCulture),
             ["mes"] = HistoryMonth.ToString(CultureInfo.InvariantCulture),
             ["maquina"] = FilterMachine, ["tipo"] = FilterType,
+            ["peca"] = FilterOnlyAn ? "an" : null,
             ["reparador"] = FilterOperator, ["pesquisa"] = FilterText,
             ["lote"] = FilterLote,
             ["jobon_id"] = FilterJobOnId?.ToString(CultureInfo.InvariantCulture),
@@ -1073,6 +1126,7 @@ public sealed partial class IndexModel : PageModel
                     + $" · {HistoryPeriodLabel}"
                     + (FilterMachine is { Length: > 0 } ? $" · Máquina {FilterMachine}" : "")
                     + (FilterType is { Length: > 0 } ? $" · {BqMovementLabels.Of(FilterType)}" : "")
+                    + (FilterOnlyAn ? " · Só AN" : "")
                     + (FilterOperator is { Length: > 0 } ? $" · Reparador {FilterOperator}" : "")
                     + (FilterToolLabel is { Length: > 0 } ? $" · {FilterToolLabel}" : FilterText is { Length: > 0 } ? $" · Referência {FilterText}" : "")
                     + (FilterJobOnLabel is { Length: > 0 } ? $" · {FilterJobOnLabel}" : ""),
@@ -1148,14 +1202,15 @@ public sealed partial class IndexModel : PageModel
             tool.Lot,
             tool.AccountedQuantity,
             machines,
-            await ListRegisterCandidatesAsync(toolId, RegistersPage, cancellationToken));
+            await ListRegisterCandidatesAsync(toolId, RegistersPage, cancellationToken),
+            tool.AnQuantity);
 
         // Os movimentos sem Job On desta BQ, aqui na página Boquilhas: o
         // Registo é só para os registos de um Job On (Diogo, 22/10/2026).
         var semJobOn = await _ficha.MovimentosSemJobOnAsync(toolId, SemJobOnMovementLimit, cancellationToken);
         SemJobOnMovements = semJobOn
             .Select(m => new SemJobOnMovement(
-                DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(m.OccurredAtUtc), m.Type, m.Quantity, m.MachineCode))
+                DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(m.OccurredAtUtc), m.Type, m.Quantity, m.MachineCode, m.AnQuantity))
             .ToList();
     }
 
@@ -1175,7 +1230,10 @@ public sealed partial class IndexModel : PageModel
         [FromForm(Name = "movement_type")] string? movementType,
         [FromForm(Name = "quantity")] int? quantity,
         [FromForm(Name = "occurred_at")] string? occurredAt,
-        [FromForm(Name = "movement_machine_id")] int? lineId)
+        [FromForm(Name = "movement_machine_id")] int? lineId,
+        [FromForm(Name = "quantity_an")] string? quantityAn = null,
+        [FromForm(Name = "peca")] string? peca = null,
+        [FromForm(Name = "bq_id")] int? bqId = null)
     {
         if (User?.Identity?.IsAuthenticated != true)
         {
@@ -1194,10 +1252,17 @@ public sealed partial class IndexModel : PageModel
             return RedirectToPage("/Boquilhas/Index", Volta(nameof(RegisterBqMovementResult.InvalidQuantity)));
         }
 
-        var trace = await _createTrace.HandleAsync(new CreateBqRepairTrace(id), HttpContext.RequestAborted);
-        if (trace.Trace is null)
+        if (!TryReadAnQuantity(quantityAn, out var anQuantity))
         {
-            return RedirectToPage("/Boquilhas/Index", new { ficheiros = "1", sem_jobon = "SemBq" });
+            return RedirectToPage("/Boquilhas/Index", Volta(nameof(RegisterBqMovementResult.InvalidAnQuantity)));
+        }
+
+        // A peça AN (Diogo, 28/10/2026): a quantidade é dos AN e o movimento não leva BQ.
+        var bqQuantity = quantity.Value;
+        if (string.Equals(peca?.Trim(), "an", StringComparison.OrdinalIgnoreCase))
+        {
+            anQuantity = bqQuantity;
+            bqQuantity = 0;
         }
 
         DateTime? occurredAtUtc = null;
@@ -1208,29 +1273,72 @@ public sealed partial class IndexModel : PageModel
                 DMO.Alpha.Core.Runtime.DmoBusinessTime.NextValidLocal(occurredLocal, out _));
         }
 
+        // UM JOB ON ANTERIOR (Diogo, 28/10/2026: «boquilhas que chegaram
+        // atrasadas e não consigo registar num Job On já feito»): com a
+        // produção escolhida, o movimento vai para o registo desse Job On
+        // (o bq_id), como no Registo. O bq_id tem de ser desta BQ.
+        if (bqId is int jobOnBqId)
+        {
+            var anterior = (await _escolhas.BqJobOnsAnterioresAsync(HttpContext.RequestAborted))
+                .FirstOrDefault(j => j.BqId == jobOnBqId && j.ToolId == id);
+            if (anterior is null)
+            {
+                return RedirectToPage("/Boquilhas/Index", Volta(SemJobOnJobOnErrado));
+            }
+
+            var noJobOn = await _movementHandler.HandleForContextAsync(
+                new RegisterBqMovementForContext(
+                    jobOnBqId,
+                    movementType ?? string.Empty,
+                    bqQuantity,
+                    User.FindFirst(DmoClaimTypes.OperatorId)?.Value,
+                    occurredAtUtc,
+                    lineId,
+                    anQuantity),
+                HttpContext.RequestAborted);
+            return RedirectToPage("/Boquilhas/Index", noJobOn.Result == RegisterBqMovementResult.Success
+                ? new { ficheiros = "1", ferramenta = id, sem_jobon = SemJobOnNoJobOn, producao = anterior.ProductionNumber }
+                : Volta(noJobOn.Result.ToString()));
+        }
+
+        var trace = await _createTrace.HandleAsync(new CreateBqRepairTrace(id), HttpContext.RequestAborted);
+        if (trace.Trace is null)
+        {
+            return RedirectToPage("/Boquilhas/Index", new { ficheiros = "1", sem_jobon = "SemBq" });
+        }
+
         var outcome = await _movementHandler.HandleAsync(
             new RegisterBqMovement(
                 trace.Trace.BqRepairTraceId,
                 movementType ?? string.Empty,
-                quantity.Value,
+                bqQuantity,
                 User.FindFirst(DmoClaimTypes.OperatorId)?.Value,
                 occurredAtUtc,
-                lineId),
+                lineId,
+                anQuantity),
             HttpContext.RequestAborted);
         return RedirectToPage("/Boquilhas/Index", Volta(
             outcome.Result == RegisterBqMovementResult.Success ? "ok" : outcome.Result.ToString()));
     }
+
+    private const string SemJobOnNoJobOn = "ok_jobon";
+    private const string SemJobOnJobOnErrado = "JobOnErrado";
 
     /// <summary>A frase do resultado do «Registar sem Job On».</summary>
     public string? SemJobOnMessage => SemJobOnResult switch
     {
         null or "" => null,
         "ok" => "Movimento registado sem Job On.",
+        SemJobOnNoJobOn => Request.Query["producao"].FirstOrDefault() is { Length: > 0 } producao
+            ? $"Movimento registado no Job On da produção {producao}."
+            : "Movimento registado no Job On escolhido.",
+        SemJobOnJobOnErrado => "Esta BQ não trabalhou nesse Job On. Nenhum movimento foi registado.",
         "SemBq" => "Escolha a BQ e o lote. Nenhum movimento foi registado.",
         _ when Enum.TryParse(SemJobOnResult, out RegisterBqMovementResult r) =>
             r switch
             {
                 RegisterBqMovementResult.InvalidQuantity => "Indique a quantidade como um número inteiro igual ou superior a 1. Nenhum movimento foi registado.",
+                RegisterBqMovementResult.InvalidAnQuantity => AnQuantityRefusal,
                 RegisterBqMovementResult.MachineNotFound => "A linha indicada não existe. Nenhum movimento foi registado.",
                 RegisterBqMovementResult.UnknownMovementType => "Escolha Saída, Entrada ou Entrada sem reparação. Nenhum movimento foi registado.",
                 _ => "O movimento não foi registado."
@@ -1306,7 +1414,8 @@ public sealed partial class IndexModel : PageModel
         [FromForm(Name = "quantity")] int? quantity,
         [FromForm(Name = "occurred_at")] string? occurredAt,
         [FromForm(Name = "movement_machine_id")] int? movementMachineId,
-        [FromForm(Name = "bq_id")] int? bqContextId = null)
+        [FromForm(Name = "bq_id")] int? bqContextId = null,
+        [FromForm(Name = "quantity_an")] string? quantityAn = null)
     {
         if (User?.Identity?.IsAuthenticated != true)
         {
@@ -1326,6 +1435,16 @@ public sealed partial class IndexModel : PageModel
         {
             return RedirectToPage("/Boquilhas/Index", RegisterRoute(traceId, pendingBqId,
                 ("movement_refusal", "InvalidQuantity")));
+        }
+
+        if (!TryReadAnQuantity(quantityAn, out var anQuantity))
+        {
+            return RedirectToPage("/Boquilhas/Index", RegisterRoute(traceId, pendingBqId,
+                ("movement_refusal", nameof(RegisterBqMovementResult.InvalidAnQuantity)),
+                ("movement_machine_id", movementMachineId),
+                ("movement_type", movementType),
+                ("quantity", quantity),
+                ("quantity_an", quantityAn)));
         }
 
         // A DATA/HORA REAL do movimento: o valor do datetime-local chega em
@@ -1360,7 +1479,8 @@ public sealed partial class IndexModel : PageModel
                     quantity ?? 0,
                     operatorId,
                     occurredAtUtc,
-                    movementMachineId),
+                    movementMachineId,
+                    anQuantity),
                 HttpContext.RequestAborted)
             : await _movementHandler.HandleAsync(
                 new RegisterBqMovement(
@@ -1369,7 +1489,8 @@ public sealed partial class IndexModel : PageModel
                     quantity ?? 0,
                     operatorId,
                     occurredAtUtc,
-                    movementMachineId),
+                    movementMachineId,
+                    anQuantity),
                 HttpContext.RequestAborted);
 
         if (outcome.Result == RegisterBqMovementResult.Success)
@@ -1390,6 +1511,7 @@ public sealed partial class IndexModel : PageModel
             ("movement_machine_id", movementMachineId),
             ("movement_type", movementType),
             ("quantity", quantity),
+            ("quantity_an", anQuantity),
             ("data_antiga", occurredValidLocal is DateTime escrita ? LocalFieldValue(escrita) : null)));
     }
 
@@ -1610,7 +1732,8 @@ public sealed record BqToolSheet(
     string? Lot,
     int? AccountedQuantity,
     IReadOnlyList<string> Machines,
-    PagedList<BqRegisterCandidate> Registers);}
+    PagedList<BqRegisterCandidate> Registers,
+    int? AnQuantity = null);}
 
 /// <summary>Uma BQ na janela «Registar sem Job On».</summary>
 /// <summary>
@@ -1635,7 +1758,10 @@ public sealed record SemJobOnTool(
 
     /// <summary>O texto da procura: tudo o que se vê, sem distinguir maiúsculas.</summary>
     public string SearchText => Label.ToLowerInvariant();
+
+    /// <summary>As linhas da ficha (os códigos), pela ordem da ficha: a Linha do movimento só deixa estas.</summary>
+    public IReadOnlyList<string> MachineCodes { get; init; } = [];
 }
 
 /// <summary>Um movimento sem Job On, na ficha da BQ da página Boquilhas.</summary>
-public sealed record SemJobOnMovement(DateTime OccurredAtLocal, BqMovementType Type, int Quantity, string? MachineCode);
+public sealed record SemJobOnMovement(DateTime OccurredAtLocal, BqMovementType Type, int Quantity, string? MachineCode, int? AnQuantity = null);

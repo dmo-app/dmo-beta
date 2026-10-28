@@ -379,8 +379,13 @@
                   <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" /><span>Entrada sem reparação</span></label>
                 </fieldset>
                 <div class="field dmo-field bq-line-quantity">
-                  <label for="quantity">Quantidade</label>
+                  <label for="quantity">Qtd. BQ</label>
                   <input id="quantity" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" value="@Model.MovementFormQuantity" />
+                </div>
+                @* Os AN do lote (Diogo, 28/10/2026: «vamos passar a registar AN»): em branco é sem AN. *@
+                <div class="field dmo-field bq-line-quantity">
+                  <label for="quantityAn">Qtd. AN</label>
+                  <input id="quantityAn" name="quantity_an" type="number" lang="en" min="0" placeholder="Ex.: 1" value="@Model.MovementFormAnQuantity" title="Quantidade de AN (anéis) neste movimento. Em branco, sem AN." />
                 </div>
                 @* A DATA/HORA REAL do movimento (o equivalente ao «Data e
                    hora reais *» do boquilhas.html): pre-preenchida com o
@@ -422,20 +427,28 @@
                casa é a subtração feita no servidor (Razor), nunca no
                cliente; «—» quando o lote ainda não tem quantidade
                contabilística (truthful, nunca zero inventado). *@
-            <div class="lot-data">
-              <div><span>Quantidade do lote</span><strong>@(Model.RegisterLotQuantity is int lotQty ? lotQty.ToString() : "—")</strong></div>
-              <div><span>Fabricação</span><strong>@(Model.RegisterLotQuantity is int lote && lote >= trace.QuantityLegitimatelyOut ? (lote - trace.QuantityLegitimatelyOut).ToString() : "—")</strong></div>
-              <div><span>Em reparação</span><strong>@trace.QuantityLegitimatelyOut</strong></div>
+            @* OS AN (Diogo, 28/10/2026): com AN no lote ou nos movimentos, cada
+               valor mostra as BQ e, por baixo, os AN, com a mesma conta. *@
+            @{
+              var temAn = trace.ToolAnQuantity is not null || trace.AnQuantityOut is not null;
+              var anFora = trace.AnQuantityOut ?? 0;
+            }
+            <div class="lot-data@(temAn ? " bq-com-an" : null)">
+              <div><span>Quantidade do lote</span><strong>@(Model.RegisterLotQuantity is int lotQty ? lotQty.ToString() : "—")@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@(trace.ToolAnQuantity is int anLote ? anLote.ToString() : "—")<small class="bq-peca">AN</small></span>}</strong></div>
+              <div><span>Fabricação</span><strong>@(Model.RegisterLotQuantity is int lote && lote >= trace.QuantityLegitimatelyOut ? (lote - trace.QuantityLegitimatelyOut).ToString() : "—")@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@(trace.ToolAnQuantity is int anTotal && anTotal >= anFora ? (anTotal - anFora).ToString() : "—")<small class="bq-peca">AN</small></span>}</strong></div>
+              <div><span>Em reparação</span><strong>@trace.QuantityLegitimatelyOut@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@anFora<small class="bq-peca">AN</small></span>}</strong></div>
               @* POSTA A ZERO (Diogo, 17/10/2026: «ao carregar nela poder fazer
                  reset»): um clique no valor abre a janela; depois conta só os
                  movimentos com data real posterior. *@
               @{
                 var resetNote = Model.DiscrepancyResetNote;
                 var resettable = trace.AccumulatedDiscrepancy is int nonZero && nonZero != 0 && trace.BqRepairTraceId > 0;
+                @* Meter a zero vale para as BQ e os AN juntos (a mesma data). *@
+                var anResettable = trace.AnAccumulatedDiscrepancy is int anNonZero && anNonZero != 0 && trace.BqRepairTraceId > 0;
               }
-              <div title="@(resetNote.Length > 0 ? resetNote : null)"><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para meter a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}</strong></div>
+              <div title="@(resetNote.Length > 0 ? resetNote : null)"><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para meter a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@if (anResettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada dos AN @trace.AnAccumulatedDiscrepancy — um clique para meter a zero">@trace.AnAccumulatedDiscrepancy</a>} else {@(trace.AnAccumulatedDiscrepancy is int anDisc ? anDisc.ToString() : "—")}<small class="bq-peca">AN</small></span>}</strong></div>
             </div>
-            @if (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && trace.AccumulatedDiscrepancy is int toReset && toReset != 0)
+            @if (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && ((trace.AccumulatedDiscrepancy ?? 0) != 0 || (trace.AnAccumulatedDiscrepancy ?? 0) != 0))
             {
               <div class="dmo-modal-backdrop open" id="bqDiscrepancyReset" role="dialog" aria-modal="true" aria-labelledby="bqDiscrepancyResetTitle">
                 <div class="dmo-modal bq-reset-modal">
@@ -443,7 +456,7 @@
                     <h2 id="bqDiscrepancyResetTitle" title="A discrepância acumulada passa a 0 e conta só os movimentos com data e hora depois de agora. Os movimentos, o saldo de cada linha e o «Em reparação» ficam como estão.">Meter a discrepância a zero?</h2>
                   </div>
                   <div class="dmo-modal-body">
-                    <p>BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}") · discrepância acumulada @toReset</p>
+                    <p>BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}") · discrepância acumulada @(trace.AccumulatedDiscrepancy ?? 0)@(trace.AnAccumulatedDiscrepancy is int anToReset && anToReset != 0 ? $" BQ · {anToReset} AN" : null)</p>
                     <div class="dmo-list-actions bq-correct-actions">
                       <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="ResetDiscrepancy">
                         <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
@@ -493,12 +506,14 @@
                 <td>@fmtDate(movement.OccurredAtUtc)</td>
                 <td>@trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</td>
                 <td>@movementLabel(movement.MovementType)</td>
-                <td>@movement.Quantity</td>
+                <td>@(movement.Quantity == 0 && movement.AnQuantity is not null ? "—" : movement.Quantity.ToString())</td>
+                <td>@(movement.AnQuantity is int an ? an.ToString() : "—")</td>
                 <td>@(movement.MachineCodeFrozen ?? "—")</td>
-                <td>@(movement.BqRepairerNameFrozen ?? "—")</td>
-                <td>@(movement.Discrepancy is int disc ? disc.ToString() : "—")</td>
+                @* Numa entrada, quem a registou (Diogo, 28/10/2026). *@
+                <td>@(movement.BqRepairerNameFrozen ?? (movement.MovementType == "saida" ? null : movement.RegisteredByName) ?? "—")</td>
+                <td>@(movement.AnDiscrepancy is int anDisc ? (movement.Discrepancy is int discBq ? $"{discBq} BQ · {anDisc} AN" : $"{anDisc} AN") : movement.Discrepancy is int disc ? disc.ToString() : "—")</td>
               }
-              const string movementsHead = "<tr><th>Data/hora</th><th>BQ · lote</th><th>Movimento</th><th>Qtd.</th><th>Máquina</th><th>Reparador</th><th>Saldo</th></tr>";
+              const string movementsHead = "<tr><th>Data/hora</th><th>BQ · lote</th><th>Movimento</th><th>Qtd. BQ</th><th>Qtd. AN</th><th>Máquina</th><th>Reparador</th><th>Saldo</th></tr>";
               <div class="dmo-table-wrap">
                 <table class="dmo-table" id="bqTraceMovements">
                   <thead>@Html.Raw(movementsHead)</thead>
@@ -587,8 +602,12 @@
                     <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(editing.MovementType == "entrada_sem_reparacao")" autofocus="@(editing.MovementType == "entrada_sem_reparacao" ? "autofocus" : null)" /><span>Entrada sem reparação</span></label>
                   </fieldset>
                     <div class="field dmo-field bq-line-quantity">
-                      <label for="editQuantity">Quantidade</label>
-                      <input id="editQuantity" name="quantity" type="number" lang="en" min="1" required value="@editing.Quantity" />
+                      <label for="editQuantity">Qtd. BQ</label>
+                      <input id="editQuantity" name="quantity" type="number" lang="en" min="@(editing.AnQuantity is > 0 ? 0 : 1)" required value="@editing.Quantity" />
+                    </div>
+                    <div class="field dmo-field bq-line-quantity">
+                      <label for="editQuantityAn">Qtd. AN</label>
+                      <input id="editQuantityAn" name="quantity_an" type="number" lang="en" min="0" value="@editing.AnQuantity" title="Quantidade de AN (anéis) neste movimento. Em branco, sem AN." />
                     </div>
                     @* A data e a hora em dois campos: muitas vezes só se muda a hora (Diogo, 28/10/2026).
                        O campo junto (occurred_at) continua a ser o que vai ao servidor; o bq-registo.js junta os dois. *@
@@ -796,6 +815,10 @@
               </select></div>
               <div class="field dmo-field"><label for="tipo">Tipo</label><select id="tipo" name="tipo" data-dmo-autosubmit>
                 <option value="">Todos</option><option value="saida" selected="@(Model.FilterType == "saida")">Saída</option><option value="entrada" selected="@(Model.FilterType == "entrada")">Entrada</option><option value="entrada_sem_reparacao" selected="@(Model.FilterType == "entrada_sem_reparacao")">Sem reparação</option>
+              </select></div>
+              @* Onde param os AN de cada lote (Diogo, 28/10/2026): «AN» mostra só os movimentos com AN. *@
+              <div class="field dmo-field"><label for="peca">Peça</label><select id="peca" name="peca" data-dmo-autosubmit>
+                <option value="">Todas</option><option value="an" selected="@Model.FilterOnlyAn">AN</option>
               </select></div>
               <div class="field dmo-field"><label for="reparador">Reparador</label><input id="reparador" name="reparador" value="@Model.FilterOperator" data-dmo-suggest="reparadores" data-dmo-suggest-submit /></div>
               <div id="bqHistDesdeZona" class="field dmo-field" data-dmo-regiao><label for="desde">Desde</label><input id="desde" name="desde" type="date" value="@(Model.FilterDesde?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit /></div>
@@ -1040,7 +1063,8 @@
   </main>
 </div>
 
-@if (activeTab == "registo")
+@* Também na aba Boquilhas: a janela «Registar sem Job On» tem a data e a hora em dois campos. *@
+@if (activeTab is "registo" or "boquilhas")
 {
   <script src="~/js/bq-registo.js" asp-append-version="true"></script>
 }

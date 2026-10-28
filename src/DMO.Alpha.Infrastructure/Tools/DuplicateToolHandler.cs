@@ -115,6 +115,7 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
             Lot = newLot,
             AssociatedMfReference = source.AssociatedMfReference,
             BqAccountedQuantity = source.BqAccountedQuantity,
+            AnQuantity = source.AnQuantity,
             TechnicalName = source.TechnicalName,
             FabricaOrigem = source.FabricaOrigem,
             RegisteredAtUtc = DateTime.UtcNow

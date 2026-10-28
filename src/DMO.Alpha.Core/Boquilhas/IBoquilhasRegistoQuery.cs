@@ -36,4 +36,6 @@ public sealed record BoquilhasRegistoContext(
     BoquilhasRegistoProductionContext Production,
     DMO.Alpha.Core.Tools.ToolLookupResult? Tool,
     int? ToolAccountedQuantity,
-    BoquilhasRegistoTrace? Trace);
+    BoquilhasRegistoTrace? Trace,
+    /// <summary>A quantidade de AN do lote (Tool.AnQuantity); null sem AN.</summary>
+    int? ToolAnQuantity = null);

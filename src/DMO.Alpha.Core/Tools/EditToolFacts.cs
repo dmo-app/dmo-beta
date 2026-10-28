@@ -22,4 +22,6 @@ public sealed record EditToolFacts(
     // um só formulário de ferramenta). null = fica como está; vazio = limpa.
     string? TechnicalName = null,
     // A fábrica de origem (ex.: MG). null = fica como está; vazio = limpa.
-    string? FabricaOrigem = null);
+    string? FabricaOrigem = null,
+    // A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026). null = vazia.
+    int? AnQuantity = null);

@@ -10,6 +10,14 @@ public interface IBoquilhasEscolhasQuery
     /// <summary>As BQ registadas (sem a tombstone), por referência e lote, com as máquinas compatíveis e a última linha com movimentos.</summary>
     Task<IReadOnlyList<BqSemJobOnLida>> BqSemJobOnAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Os Job On em que cada BQ trabalhou (o bq_id em uso ou o de antes de uma
+    /// troca), para associar um registo a um Job On anterior (Diogo,
+    /// 28/10/2026: BQ que chegaram atrasadas a um Job On já feito). Do mais
+    /// recente para o mais antigo.
+    /// </summary>
+    Task<IReadOnlyList<BqJobOnAnterior>> BqJobOnsAnterioresAsync(CancellationToken cancellationToken = default);
+
     /// <summary>A identidade (referência e lote) de uma ferramenta pelo seu tool_id; null se não existe.</summary>
     Task<BqIdentificada?> FerramentaAsync(string toolId, CancellationToken cancellationToken = default);
 
@@ -24,6 +32,11 @@ public interface IBoquilhasEscolhasQuery
 public sealed record BqSemJobOnLida(
     string ToolId, string Reference, string Lot, int? Quantity,
     IReadOnlyList<string> Machines, string? MfReference, string? LastLine);
+
+/// <summary>Um Job On onde a BQ trabalhou: o bq_id (o contexto), a referência, a produção, a data de início e a linha.</summary>
+public sealed record BqJobOnAnterior(
+    int BqId, string ToolId, int JobOnId, string Reference, string ProductionNumber,
+    DateOnly? InicioEm, int MachineId, string MachineCode);
 
 /// <summary>A identidade humana de uma ferramenta: a referência e o lote.</summary>
 public sealed record BqIdentificada(string ToolId, string Reference, string Lot);

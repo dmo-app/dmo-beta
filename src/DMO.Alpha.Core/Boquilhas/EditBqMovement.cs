@@ -7,6 +7,8 @@ namespace DMO.Alpha.Core.Boquilhas;
 /// <see cref="BqMovementOccurrence.FutureToleranceMinutes"/> minutos) grava e a
 /// página avisa.
 /// <c>CorrectedBy</c> é o nome de quem corrige; sem identidade grava na mesma.
+/// Os AN (Diogo, 28/10/2026) só mudam com <c>ChangesAn</c>: então
+/// <c>AnQuantity</c> é a nova quantidade (null ou 0 = sem AN).
 /// </summary>
 public sealed record EditBqMovement(
     int BqRepairTraceId,
@@ -14,4 +16,6 @@ public sealed record EditBqMovement(
     string MovementType,
     int Quantity,
     DateTime? OccurredAtLocal = null,
-    string? CorrectedBy = null);
+    string? CorrectedBy = null,
+    int? AnQuantity = null,
+    bool ChangesAn = false);

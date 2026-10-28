@@ -324,6 +324,25 @@ html[data-theme="dark"] .bq-escolha-lista li:hover span, html[data-theme="dark"]
 .bq-sem-jobon-janela .bq-sem-jobon-campos { margin:0; gap:8px 12px; }
 @media (max-width:520px) { .bq-sem-jobon-janela .bq-sem-jobon-campos.bq-sem-jobon-tres { grid-template-columns:1fr; } }
 .bq-sem-jobon-janela { overflow:visible; }
+/* A BQ com a Linha e a Peça em cima; Quantidade, Data e Hora por baixo; cada campo do tamanho do
+   que leva (Diogo, 28/10/2026: «AN BQ são duas letras», «Linha a mesma coisa»). */
+.bq-sem-jobon-janela .bq-sem-jobon-bq-linha { grid-template-columns:minmax(0, 1fr) auto auto; }
+.bq-sem-jobon-janela .bq-sem-jobon-linha { display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-end; }
+.bq-sem-jobon-janela .bq-sem-jobon-linha > .dmo-field { flex:0 0 auto;min-width:0; }
+.bq-sem-jobon-janela:has(.bq-sem-jobon-linha) { width:min(920px, calc(100vw - 32px)); }
+.bq-sem-jobon-janela .bq-sem-jobon-linha > .bq-movement-types { flex:0 0 auto;flex-wrap:nowrap; }
+.bq-sem-jobon-janela .bq-sem-jobon-linha > .bq-movement-types label { flex:0 0 auto; }
+.bq-sem-jobon-janela .bq-sem-jobon-linha > .bq-sem-jobon-registar { flex:0 0 auto; }
+.bq-sem-jobon-janela .bq-sem-jobon-curto :is(select,input) { width:68px !important;min-width:0; }
+/* Job On anterior (Diogo, 28/10/2026): a referência e a produção, do tamanho do que levam. */
+.bq-sem-jobon-janela .bq-sem-jobon-jobon { display:flex;flex-wrap:wrap;gap:8px 12px; }
+.bq-sem-jobon-janela .bq-sem-jobon-jobon > .dmo-field { flex:0 0 auto;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-ref select { width:200px !important;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-producao select { width:300px !important;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-qtd input { width:80px !important;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-dia input { width:150px !important;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-hora input { width:104px !important;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-linha label { white-space:nowrap; }
 
 /* Ficha da boquilha: dados em mini-cartões compactos e estados vazios discretos numa só linha. */
 .beta-bq-layout #bq-tool-sheet .bq-sheet-dados{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
