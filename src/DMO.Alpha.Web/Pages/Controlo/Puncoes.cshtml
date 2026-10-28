@@ -436,7 +436,8 @@
               }
               else
               {
-                @foreach (var row in registo.Rows)
+                @* O último registo em cima: vê-se logo se a PU inserida está certa, sem scroll (Diogo, 28/10/2026). *@
+                @foreach (var row in registo.Rows.Reverse())
                 {
                   var estaPu = row.Id == escolhidaPu;
                   <tr data-dmo-row data-id="@row.Id" data-pu-puncao="@(row.PunchSeen ? "true" : "false")" data-pu-arrefecedor="@(row.CoolerSeen ? "true" : "false")"
