@@ -672,3 +672,22 @@ html[data-theme="dark"] body .jof2 a.dmo-uso-link:is(:hover,:focus-visible),html
 /* No painel, os Calibres do Editar não têm altura própria com barra interna. */
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .cal-card>.table-wrap{flex:0 0 auto;overflow:visible;max-height:none}
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .g-cal>.board,html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .g-cal>.board>.cal-card{flex:0 0 auto}
+
+/* =========================================================================
+   Boquilhas › Registo (Diogo, 28/10/2026): os valores das quantidades à esquerda
+   e a produção (com «Opções») à direita; rótulos dos valores à mesma altura;
+   a linha escolhida na barra enche-se com a cor da própria linha, misturada
+   como no Planeamento (antes a cor crua da máquina dava um azul fora da paleta).
+   ========================================================================= */
+@media (min-width:1100px){
+  html:root body .beta-bq-layout section#registo:has(.register-open){grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
+  html:root body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoAberto>.register-open{grid-column:2;grid-row:3}
+  html:root body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoNumeros>.bq-metrics-card{grid-column:1;grid-row:3}
+}
+html:root body .beta-bq-layout .bq-metrics-card .lot-data>div{justify-content:flex-start}
+html:root body .beta-bq-layout .bq-metrics-card .lot-data>div>span{min-height:calc(2 * 1.35em)}
+
+html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 62%,var(--dmo-deep-900))}
+html[data-theme="dark"] body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 48%,var(--dmo-deep-900))}
+html:root body .beta-bq-layout .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){background:var(--dmo-linha-cheia,var(--dmo-machine-color));border-color:var(--dmo-linha-cheia,var(--dmo-machine-color));color:var(--dmo-text-on-color);outline:0}
+html:root body .beta-bq-layout .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active) :is(strong,span){color:var(--dmo-text-on-color)}
