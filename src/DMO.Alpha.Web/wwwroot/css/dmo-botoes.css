@@ -246,3 +246,12 @@ html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body
   /* Calendário: «Anterior»/«Seguinte» em vez de ‹ ›. */
   html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_){width:auto;min-width:0;padding:0 12px;font-size:13px;white-space:nowrap}
 }
+
+/* O mês anterior e o seguinte do calendário como a paginação: só a palavra, pequena e sem caixa nem seta (Diogo, 28/10/2026: «quero as setas fora de todos os botões»). */
+@media screen{
+  html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_){width:auto;min-width:0;height:auto;min-height:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:var(--dmo-text);font-size:12px;font-weight:500;line-height:1.2}
+  html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_)::before,html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_)::after{content:none;display:none}
+  html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_):is(:hover,:focus-visible){background:none;border:0;color:var(--dmo-brand-600);box-shadow:none}
+  html:root[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_):is(:hover,:focus-visible){color:#fff}
+  html:root body .dmo-calendar .dmo-calendar-nav:not(#_){grid-template-columns:auto minmax(0,1fr) auto}
+}
